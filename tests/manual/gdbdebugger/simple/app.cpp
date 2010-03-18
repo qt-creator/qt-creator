@@ -1163,6 +1163,7 @@ void testQVariant1()
     v = 1;
     v = 1.0;
     v = "string";
+    v = QRect(100, 200, 300, 400);
     v = 1;
 }
 
@@ -1174,7 +1175,7 @@ void testQVariant2()
     *(QString*)value.data() = QString("XXX");
 
     int i = 1;
-#if 0
+#if 1
     QVariant var;
     var.setValue(1);
     var.setValue(2);
@@ -1187,10 +1188,10 @@ void testQVariant2()
     var.setValue(QStringList() << "Hello" << "Hello");
     var.setValue(QStringList() << "World" << "Hello" << "Hello");
 #endif
-#if 0
+#if 1
     QVariant var3;
     QHostAddress ha("127.0.0.1");
-    qVariantSetValue(var, ha);
+    var.setValue(ha);
     var3 = var;
     var3 = var;
     var3 = var;
@@ -1590,41 +1591,15 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-//Q_DECLARE_METATYPE(QHostAddress)
+Q_DECLARE_METATYPE(QHostAddress)
 Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(QStringList)
 
-//#define COMMA ,
-//Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
+typedef QMap<uint, QStringList> MyType;
+#define COMMA ,
+Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
 
 QT_BEGIN_NAMESPACE
-
-template <>
-struct QMetaTypeId<QHostAddress>
-{
-    enum { Defined = 1 };
-    static int qt_metatype_id()
-    {
-        static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0);
-        if (!metatype_id)
-             metatype_id = qRegisterMetaType<QHostAddress>
-                ("myns::QHostAddress");
-        return metatype_id;                                    \
-    }                                                           \
-};
-
-template <>
-struct QMetaTypeId< QMap<uint, QStringList> >
-{
-    enum { Defined = 1 };
-    static int qt_metatype_id()
-    {
-        static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0);
-        if (!metatype_id)
-             metatype_id = qRegisterMetaType< QMap<uint, QStringList> >
-                ("myns::QMap<uint, myns::QStringList>");
-        return metatype_id;                                    \
-    }                                                           \
-};
 QT_END_NAMESPACE
 
 #include "app.moc"

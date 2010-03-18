@@ -649,18 +649,13 @@ def qdump__QObject(d, item):
                 #exp = '"((\'%sQObject\'*)%s)"' % (d.ns, item.value.address,)
                 #warn("EXPRESSION:  %s" % exp)
                 value = call(item.value, 'property("%s")' % propertyName)
-                #warn("VALUE:  %s" % value)
-
-                inner, innert = qdumpHelper__QVariant(d, value["d"])
+                val, inner, innert = qdumpHelper__QVariant(d, value)
                 if len(inner):
                     # Build-in types.
-                    if len(innert) == 0:
-                        innert = inner
                     d.putType(inner)
-                    innerType = gdb.lookup_type(inner)
-                    val = value["d"]["data"]["ptr"].cast(innerType)
                     d.putItemHelper(Item(val, item.iname + ".properties",
-                        propertyName, propertyName))
+                                        propertyName, propertyName))
+
                 else:
                     # User types.
                #    func = "typeToName(('%sQVariant::Type')%d)" % (d.ns, variantType)
@@ -1496,10 +1491,11 @@ def qdump__QTextCodec(d, item):
         d.putCallItem("mibEnum", item, "mibEnum()")
         d.endChildren()
 
-def qdumpHelper__QVariant(d, d_member):
+def qdumpHelper__QVariant(d, value):
     #warn("VARIANT TYPE: %s : " % variantType)
-    data = d_member["data"]
-    variantType = int(d_member["type"])
+    data = value["d"]["data"]
+    variantType = int(value["d"]["type"])
+    val = None
     inner = ""
     innert = ""
     if variantType == 0: # QVariant::Invalid
@@ -1621,30 +1617,38 @@ def qdumpHelper__QVariant(d, d_member):
         inner = d.ns + "QVector4D"
     elif variantType == 86: # QVariant::Quadernion
         inner = d.ns + "QQuadernion"
-    return inner, innert
+
+    if len(inner):
+        innerType = gdb.lookup_type(inner)
+        sizePD = gdb.lookup_type(d.ns + 'QVariant::Private::Data').sizeof
+        if innerType.sizeof > sizePD:
+            sizePS = gdb.lookup_type(d.ns + 'QVariant::PrivateShared').sizeof
+            val = (sizePS + data.cast(gdb.lookup_type('char').pointer())) \
+                .cast(innerType.pointer()).dereference()
+        else:
+            val = data.cast(innerType)
+
+    if len(innert) == 0:
+        innert = inner
+
+    return val, inner, innert
+
 
 def qdump__QVariant(d, item):
-    inner, innert = qdumpHelper__QVariant(d, item.value["d"])
+    val, inner, innert = qdumpHelper__QVariant(d, item.value)
 
     if len(inner):
         # Build-in types.
-        if len(innert) == 0:
-            innert = inner
         d.putValue("(%s)" % innert)
         d.putNumChild(1)
         if d.isExpanded(item):
-            innerType = gdb.lookup_type(inner)
             d.beginChildren()
-            d.beginHash()
-            #d.putName("data")
-            #d.putField("type", innert)
-            val = gdb.Value(data["ptr"]).cast(innerType)
-            d.putItemHelper(Item(val, item.iname, "data", "data"))
-            d.endHash()
+            d.putItem(Item(val, item.iname, "data", "data"))
             d.endChildren()
     else:
         # User types.
-        func = "typeToName(('%sQVariant::Type')%d)" % (d.ns, variantType)
+        d_member = item.value["d"]
+        func = "typeToName(('%sQVariant::Type')%d)" % (d.ns, d_member["type"])
         type = str(call(item.value, func))
         type = type[type.find('"') + 1 : type.rfind('"')]
         type = type.replace("Q", d.ns + "Q") # HACK!
