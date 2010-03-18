@@ -197,6 +197,7 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
         if (panelWidget(widget))
             retval = 16;
         break;
+    case PM_DockWidgetHandleExtent:
     case PM_DockWidgetSeparatorExtent:
         return 1;
     case PM_MenuPanelWidth:
@@ -257,10 +258,12 @@ void ManhattanStyle::polish(QWidget *widget)
 {
     QProxyStyle::polish(widget);
 
-    // OxygenStyle forces a rounded widget mask on toolbars
+    // OxygenStyle forces a rounded widget mask on toolbars and dock widgets
     if (baseStyle()->inherits("OxygenStyle")) {
-        if (qobject_cast<QToolBar*>(widget))
+        if (qobject_cast<QToolBar*>(widget) || qobject_cast<QDockWidget*>(widget)) {
             widget->removeEventFilter(baseStyle());
+            widget->setContentsMargins(0, 0, 0, 0);
+        }
     }
 
     if (panelWidget(widget)) {
@@ -424,6 +427,12 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     }
 
     switch (element) {
+    case PE_IndicatorDockWidgetResizeHandle:
+        painter->fillRect(option->rect, Utils::StyleHelper::borderColor());
+        break;
+    case PE_FrameDockWidget:
+        QCommonStyle::drawPrimitive(element, option, painter, widget);
+        break;
     case PE_PanelLineEdit:
         {
             painter->save();
