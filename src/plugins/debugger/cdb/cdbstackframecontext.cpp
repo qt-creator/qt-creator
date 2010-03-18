@@ -35,6 +35,8 @@
 #include "watchhandler.h"
 #include "coreengine.h"
 
+#include <utils/savedaction.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 

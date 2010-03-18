@@ -29,6 +29,8 @@
 
 #include "procinterrupt.h"
 
+#include <QtCore/QProcess> // makes kill visible on Windows.
+
 using namespace Debugger::Internal;
 
 #if defined(Q_OS_WIN)

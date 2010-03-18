@@ -34,9 +34,11 @@
 #include "debuggeractions.h"
 #include "watchutils.h"
 
+#include <utils/savedaction.h>
+
 #include <QtCore/QDebug>
 
-enum { debug = 1 };
+enum { debug = 0 };
 
 namespace Debugger {
 namespace Internal {
