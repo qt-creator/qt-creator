@@ -579,16 +579,26 @@ def extractCString(table, offset):
     return result
 
 
+def qdump__QWidget(d, item):
+    qdump__QObject(d, item)
+
 def qdump__QObject(d, item):
     #warn("OBJECT: %s " % item.value)
     staticMetaObject = item.value["staticMetaObject"]
     #warn("SMO: %s " % staticMetaObject)
+    #warn("SMO DATA: %s " % staticMetaObject["d"]["stringdata"])
+    superData = staticMetaObject["d"]["superdata"]
+    #warn("SUPERDATA: %s" % superData)
+    #while not isNull(superData):
+    #    superData = superData.dereference()["d"]["superdata"]
+    #    warn("SUPERDATA: %s" % superData)
+
     privateType = gdb.lookup_type(d.ns + "QObjectPrivate").pointer()
     d_ptr = item.value["d_ptr"]["d"].cast(privateType).dereference()
     #warn("D_PTR: %s " % d_ptr)
     objectName = d_ptr["objectName"]
     #warn("OBJECTNAME: %s " % objectName)
-    #warn("D_PTR: %s " % d_ptr.dereference())
+    #warn("D_PTR: %s " % d_ptr)
     mo = d_ptr["metaObject"]
     type = d.stripNamespaceFromType(item.value.type)
     if isNull(mo):
@@ -608,13 +618,16 @@ def qdump__QObject(d, item):
     if d.isExpanded(item):
         d.beginChildren()
 
-        # parent and children
+        # Parent and children.
         d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
         d.putItem(Item(d_ptr["children"], item.iname, "children", "children"))
 
-        # properties
+        # Properties.
         d.beginHash()
-        propertyCount = metaData[6]
+        #propertyCount = metaData[6]
+        # FIXME: Replace with plain memory accesses.
+        propertyCount = int(call(mo, "propertyCount()"))
+        warn("PROPERTY COUNT: %s" % propertyCount)
         propertyData = metaData[7]
         d.putName("properties")
         d.putItemCount(propertyCount)
@@ -630,28 +643,48 @@ def qdump__QObject(d, item):
                 d.putName(propertyName)
                 #flags = metaData[offset + 2]
                 #warn("FLAGS: %s " % flags)
-                warn("PROPERTY TYPE: %s " % propertyType)
+                #warn("PROPERTY: %s %s " % (propertyType, propertyName))
                 # #exp = '((\'%sQObject\'*)%s)->property("%s")' \
                 #     % (d.ns, item.value.address, propertyName)
                 #exp = '"((\'%sQObject\'*)%s)"' % (d.ns, item.value.address,)
                 #warn("EXPRESSION:  %s" % exp)
                 value = call(item.value, 'property("%s")' % propertyName)
-                warn("VALUE:  %s" % value)
-                warn("TYPE:  %s" % value.type)
-                if True and propertyType == "QString":
-                    # FIXME: re-use parts of QVariant dumper
-                    #d.putType(d.ns + "QString")
-                    data = value["d"]["data"]["ptr"]
-                    innerType = gdb.lookup_type(d.ns + "QString")
-                    d.putItemHelper(
-                        Item(data.cast(innerType), item.iname, property))
-                    #d.putNumChild(0)
+                #warn("VALUE:  %s" % value)
+
+                inner, innert = qdumpHelper__QVariant(d, value["d"])
+                if len(inner):
+                    # Build-in types.
+                    if len(innert) == 0:
+                        innert = inner
+                    d.putType(inner)
+                    innerType = gdb.lookup_type(inner)
+                    val = value["d"]["data"]["ptr"].cast(innerType)
+                    d.putItemHelper(Item(val, item.iname + ".properties",
+                        propertyName, propertyName))
                 else:
-                    iname = "%s.properties.%s" % (item.iname, propertyName)
-                    d.putItemHelper(Item(value, iname, propertyName))
+                    # User types.
+               #    func = "typeToName(('%sQVariant::Type')%d)" % (d.ns, variantType)
+               #    type = str(call(item.value, func))
+               #    type = type[type.find('"') + 1 : type.rfind('"')]
+               #    type = type.replace("Q", d.ns + "Q") # HACK!
+               #    data = call(item.value, "constData()")
+               #    tdata = data.cast(gdb.lookup_type(type).pointer()).dereference()
+               #    d.putValue("(%s)" % tdata.type)
+               #    d.putType(tdata.type)
+               #    d.putNumChild(1)
+               #    if d.isExpanded(item):
+               #        d.beginChildren()
+               #        d.putItem(Item(tdata, item.iname, "data", "data"))
+               #        d.endChildren()
+                    warn("FIXME: CUSTOM QOBJECT PROPERTIES NOT IMPLEMENTED: %s %s"
+                        % (propertyType, innert))
+                    d.putType(propertyType)
+                    d.putValue("...")
+                    d.putNumChild(0)
+
                 d.endHash()
             d.endChildren()
-        d.endHash()
+
 
         # connections
         d.beginHash()
@@ -679,7 +712,7 @@ def qdump__QObject(d, item):
             d.endChildren()
         d.endHash()
 
-        # signals
+        # Signals
         signalCount = metaData[13]
         d.beginHash()
         d.putName("signals")
@@ -703,7 +736,7 @@ def qdump__QObject(d, item):
             d.endChildren()
         d.endHash()
 
-        # slots
+        # Slots
         d.beginHash()
         slotCount = metaData[4] - signalCount
         d.putName("slots")
@@ -987,55 +1020,6 @@ def qdump__QObject(d, item):
 #         dumpMetaFlagValue(d, mop, value.toInt())
 #     } else {
 #         dumpQVariant(d, &value)
-#     }
-#     d.disarm()
-# }
-#
-# static void dumpQObjectPropertyList(QDumper &d)
-# {
-#     const QObject *ob = (const QObject *)d.data
-#     const QMetaObject *mo = ob->metaObject()
-#     const int propertyCount = mo->propertyCount()
-#     d.putField("addr", "<synthetic>")
-#     d.putField("type", ns + "QObjectPropertyList")
-#     d.putField("numchild", propertyCount)
-#     d.putItemCount(propertyCount)
-#     if d.isExpanded(item):
-#         d.beginChildren()
-#         for (int i = propertyCount; --i >= 0; ) {
-#             const QMetaProperty & prop = mo->property(i)
-#             d.beginHash()
-#             d.putName(prop.name())
-#             switch (prop.type()) {
-#             case QVariant::String:
-#                 d.putField("type", prop.typeName())
-#                 d.putValue(prop.read(ob).toString(), 2)
-#                 d.putField("numchild", "0")
-#                 break
-#             case QVariant::Bool:
-#                 d.putField("type", prop.typeName())
-#                 d.putValue((prop.read(ob).toBool() ? "true" : "false"))
-#                 d.putField("numchild", "0")
-#                 break
-#             case QVariant::Int:
-#                 if prop.isEnumType()) {
-#                     dumpMetaEnumValue(d, prop, prop.read(ob).toInt())
-#                 } elif prop.isFlagType()) {
-#                     dumpMetaFlagValue(d, prop, prop.read(ob).toInt())
-#                 } else {
-#                     d.putValue(prop.read(ob).toInt())
-#                     d.putField("numchild", "0")
-#                 }
-#                 break
-#             default:
-#                 d.putField("addr", d.data)
-#                 d.putField("type", ns + "QObjectProperty")
-#                 d.putField("numchild", "1")
-#                 break
-#             }
-#             d.endHash()
-#         }
-#         d.endChildren()
 #     }
 #     d.disarm()
 # }
@@ -1512,12 +1496,10 @@ def qdump__QTextCodec(d, item):
         d.putCallItem("mibEnum", item, "mibEnum()")
         d.endChildren()
 
-
-def qdump__QVariant(d, item):
-    union = item.value["d"]
-    data = union["data"]
-    variantType = int(union["type"])
+def qdumpHelper__QVariant(d, d_member):
     #warn("VARIANT TYPE: %s : " % variantType)
+    data = d_member["data"]
+    variantType = int(d_member["type"])
     inner = ""
     innert = ""
     if variantType == 0: # QVariant::Invalid
@@ -1526,22 +1508,28 @@ def qdump__QVariant(d, item):
     elif variantType == 1: # QVariant::Bool
         d.putValue(select(data["b"], "true", "false"))
         d.putNumChild(0)
+        inner = "bool"
     elif variantType == 2: # QVariant::Int
         d.putValue(data["i"])
         d.putNumChild(0)
+        inner = "int"
     elif variantType == 3: # uint
         d.putValue(data["u"])
         d.putNumChild(0)
+        inner = "uint"
     elif variantType == 4: # qlonglong
         d.putValue(data["ll"])
         d.putNumChild(0)
+        inner = "qlonglong"
     elif variantType == 5: # qulonglong
         d.putValue(data["ull"])
         d.putNumChild(0)
+        inner = "qulonglong"
     elif variantType == 6: # QVariant::Double
         value = data["d"]
         d.putValue(data["d"])
         d.putNumChild(0)
+        inner = "double"
     elif variantType == 7: # QVariant::QChar
         inner = d.ns + "QChar"
     elif variantType == 8: # QVariant::VariantMap
@@ -1633,6 +1621,10 @@ def qdump__QVariant(d, item):
         inner = d.ns + "QVector4D"
     elif variantType == 86: # QVariant::Quadernion
         inner = d.ns + "QQuadernion"
+    return inner, innert
+
+def qdump__QVariant(d, item):
+    inner, innert = qdumpHelper__QVariant(d, item.value["d"])
 
     if len(inner):
         # Build-in types.
