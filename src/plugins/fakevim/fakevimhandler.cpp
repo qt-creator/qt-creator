@@ -1246,9 +1246,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         // Recognize ZZ and ZQ as aliases for ":x" and ":q!".
         m_submode = NoSubMode;
         if (key == 'Z')
-            handleCommand(QString(QLatin1Char('x')));
+            handleExCommand(QString(QLatin1Char('x')));
         else if (key == 'Q')
-            handleCommand("q!");
+            handleExCommand("q!");
     } else if (m_submode == ReplaceSubMode) {
         if (count() <= (rightDist() + atEndOfLine()) && text.size() == 1
                 && (text.at(0).isPrint() || text.at(0).isSpace())) {
@@ -1760,20 +1760,20 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (m_gflag && key == 't') {
         m_gflag = false;
-        handleCommand("tabnext");
+        handleExCommand("tabnext");
     } else if (key == 't') {
         m_movetype = MoveInclusive;
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
     } else if (m_gflag && key == 'T') {
         m_gflag = false;
-        handleCommand("tabprev");
+        handleExCommand("tabprev");
     } else if (key == 'T') {
         m_movetype = MoveExclusive;
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
     } else if (key == control('t')) {
-        handleCommand("pop");
+        handleExCommand("pop");
     } else if (!m_gflag && key == 'u') {
         undo();
     } else if (key == control('u')) {
@@ -1931,7 +1931,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == Key_BracketLeft || key == Key_BracketRight) {
 
     } else if (key == control(Key_BracketRight)) {
-        handleCommand("tag");
+        handleExCommand("tag");
     } else if (key == Key_Escape || key == control(Key_BracketLeft)) {
         if (isVisualMode()) {
             leaveVisualMode();
@@ -2277,6 +2277,7 @@ void FakeVimHandler::Private::selectRange(int beginLine, int endLine)
        setPosition(firstPositionInLine(endLine + 1));
 }
 
+// use handleExCommand for invoking commands that might move the cursor
 void FakeVimHandler::Private::handleCommand(const QString &cmd)
 {
     m_tc = EDITOR(textCursor());
