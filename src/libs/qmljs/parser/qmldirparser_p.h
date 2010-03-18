@@ -56,11 +56,13 @@
 #include <QtCore/QUrl>
 #include <QtCore/QHash>
 
+#include "qmljsglobal_p.h"
+
 QT_BEGIN_NAMESPACE
 
 class QmlError;
 
-class QmlDirParser
+class QML_PARSER_EXPORT QmlDirParser
 {
     Q_DISABLE_COPY(QmlDirParser)
 

@@ -202,6 +202,22 @@ Bind *Document::bind() const
     return _bind;
 }
 
+LibraryInfo::LibraryInfo()
+    : _valid(false)
+{
+}
+
+LibraryInfo::LibraryInfo(const QmlDirParser &parser)
+    : _valid(true)
+    , _components(parser.components())
+    , _plugins(parser.plugins())
+{
+}
+
+LibraryInfo::~LibraryInfo()
+{
+}
+
 Snapshot::Snapshot()
 {
 }
@@ -214,6 +230,11 @@ void Snapshot::insert(const Document::Ptr &document)
 {
     if (document && (document->qmlProgram() || document->jsProgram()))
         _documents.insert(document->fileName(), document);
+}
+
+void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
+{
+    _libraries.insert(path, info);
 }
 
 Document::Ptr Snapshot::documentFromSource(const QString &code,

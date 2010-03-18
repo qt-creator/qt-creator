@@ -1,7 +1,6 @@
 #include "qmljslink.h"
 
 #include "parser/qmljsast_p.h"
-#include "parser/qmldirparser_p.h"
 #include "qmljsdocument.h"
 #include "qmljsbind.h"
 #include "qmljsscopebuilder.h"
@@ -289,18 +288,13 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
             QDir dir(importPath);
             if (!dir.cd(package))
                 continue;
-            if (!dir.exists("qmldir"))
+
+            const LibraryInfo libraryInfo = _snapshot.libraryInfo(dir.path());
+            if (!libraryInfo.isValid())
                 continue;
 
-            QFile qmldirFile(dir.filePath("qmldir"));
-            qmldirFile.open(QFile::ReadOnly);
-            QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
-            QmlDirParser qmldirParser;
-            qmldirParser.setSource(qmldirData);
-            qmldirParser.parse();
-
             QSet<QString> importedTypes;
-            foreach (const QmlDirParser::Component &component, qmldirParser.components()) {
+            foreach (const QmlDirParser::Component &component, libraryInfo.components()) {
                 if (importedTypes.contains(component.typeName))
                     continue;
 

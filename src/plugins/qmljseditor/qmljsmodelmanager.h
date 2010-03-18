@@ -58,6 +58,7 @@ public:
     virtual void updateSourceDirectories(const QStringList &directories);
 
     void emitDocumentUpdated(QmlJS::Document::Ptr doc);
+    void emitLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
 
     virtual void setProjectImportPaths(const QStringList &importPaths);
     virtual QStringList importPaths() const;
@@ -65,10 +66,12 @@ public:
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
     void aboutToRemoveFiles(const QStringList &files);
+    void libraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
 
 private Q_SLOTS:
     // this should be executed in the GUI thread.
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
+    void onLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
 
 protected:
     struct WorkingCopy

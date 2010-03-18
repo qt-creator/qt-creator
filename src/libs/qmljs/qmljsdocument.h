@@ -35,6 +35,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
+#include "parser/qmldirparser_p.h"
 #include "parser/qmljsengine_p.h"
 #include "qmljs_global.h"
 
@@ -102,10 +103,32 @@ private:
     friend class Snapshot;
 };
 
+class QMLJS_EXPORT LibraryInfo
+{
+    bool _valid;
+    QList<QmlDirParser::Component> _components;
+    QList<QmlDirParser::Plugin> _plugins;
+
+public:
+    LibraryInfo();
+    LibraryInfo(const QmlDirParser &parser);
+    ~LibraryInfo();
+
+    QList<QmlDirParser::Component> components() const
+    { return _components; }
+
+    QList<QmlDirParser::Plugin> plugins() const
+    { return _plugins; }
+
+    bool isValid() const
+    { return _valid; }
+};
+
 class QMLJS_EXPORT Snapshot
 {
     typedef QMap<QString, Document::Ptr> _Base;
     QMap<QString, Document::Ptr> _documents;
+    QMap<QString, LibraryInfo> _libraries;
 
 public:
     Snapshot();
@@ -118,9 +141,13 @@ public:
     const_iterator end() const { return _documents.end(); }
 
     void insert(const Document::Ptr &document);
+    void insertLibraryInfo(const QString &path, const LibraryInfo &info);
 
     Document::Ptr document(const QString &fileName) const
     { return _documents.value(fileName); }
+
+    LibraryInfo libraryInfo(const QString &path) const
+    { return _libraries.value(path); }
 
     Document::Ptr documentFromSource(const QString &code,
                                      const QString &fileName) const;
