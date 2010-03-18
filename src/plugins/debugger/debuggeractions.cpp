@@ -369,7 +369,6 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(UseAddressInBreakpointsView, item);
-    item = new SavedAction(instance);
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInStackView"));
