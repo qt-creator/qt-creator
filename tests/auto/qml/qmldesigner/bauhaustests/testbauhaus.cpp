@@ -52,9 +52,9 @@ void loadFile(const QString &fileName)
     qDebug() << "starting: " << fileName;
     QVERIFY(QFileInfo(fileName).exists());
 #ifdef Q_OS_WIN
-    const QString bauhausExecutable = "bauhaus.exe";
+    const QString bauhausExecutable = "../../../../../bin/qtcreator.exe";
 #else
-    const QString bauhausExecutable = QDir::current().absoluteFilePath("bauhaus");
+    const QString bauhausExecutable = QDir::current().absoluteFilePath("../../../../../bin/qtcreator.bin");
 #endif
     QVERIFY(QFileInfo(bauhausExecutable).isExecutable());
     process.start(bauhausExecutable, QStringList() << fileName);
