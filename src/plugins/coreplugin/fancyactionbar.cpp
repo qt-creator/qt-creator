@@ -45,8 +45,9 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
-#include <QtCore/QEvent>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QApplication>
+#include <QtCore/QEvent>
 #include <QtCore/QAnimationGroup>
 #include <QtCore/QPropertyAnimation>
 #include <QtCore/QDebug>
@@ -267,10 +268,28 @@ FancyActionBar::FancyActionBar(QWidget *parent)
     setContentsMargins(0,2,0,0);
 
     m_runButton = m_debugButton = 0;
+    m_inDebugMode = false;
 
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(modeChanged(Core::IMode*)));
+
+#ifdef Q_WS_MAC
+    qApp->installEventFilter(this);
+#endif
+
 }
+
+#ifdef Q_WS_MAC
+bool FancyActionBar::eventFilter(QObject *, QEvent *e)
+{
+    if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
+        if (static_cast<QKeyEvent *>(e)->key() == Qt::Key_Alt)
+            updateRunDebug();
+    } else if (e->type() == QEvent::WindowDeactivate)
+        updateRunDebug();
+    return false;
+}
+#endif
 
 void FancyActionBar::addProjectSelector(QAction *action)
 {
@@ -295,15 +314,27 @@ void FancyActionBar::insertAction(int index, QAction *action)
 
 void FancyActionBar::modeChanged(Core::IMode *mode)
 {
-    if (m_runButton && m_debugButton) {
-        bool inDebugMode = (mode->id() == QLatin1String("Debugger.Mode.Debug"));
-        layout()->setEnabled(false);
-        m_runButton->forceVisible(!inDebugMode);
-        m_debugButton->forceVisible(inDebugMode);
-        layout()->setEnabled(true);
-    }
+    m_inDebugMode = (mode->id() == QLatin1String("Debugger.Mode.Debug"));
+    updateRunDebug();
 }
 
+void FancyActionBar::updateRunDebug()
+{
+    if (!m_runButton || !m_debugButton)
+        return;
+
+    bool doDebug = m_inDebugMode;
+#ifdef Q_WS_MAC
+    if (QApplication::keyboardModifiers() && Qt::AltModifier)
+        doDebug = !doDebug;
+#endif
+
+    layout()->setEnabled(false);
+    m_runButton->forceVisible(!doDebug);
+    m_debugButton->forceVisible(doDebug);
+    layout()->setEnabled(true);
+
+}
 
 QLayout *FancyActionBar::actionsLayout() const
 {
