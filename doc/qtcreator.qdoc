@@ -543,7 +543,7 @@
     \section1 Configuring the Editor
 
     Qt Creator allows you to configure the text editor to suit your specific
-    needs. To configure the editor, select  \gui Tools > \gui Options >
+    needs. To configure the editor, select  \gui Tools > \gui{Options...} >
     \gui{Text Editor}
 
     You can perform the following configuration actions:
@@ -737,7 +737,7 @@
     In Qt Creator you can move directly to the definition or the declaration of
     a symbol by holding the \key Ctrl and clicking the symbol.
 
-    To enable this moving function, in \gui Tools > \gui Options >
+    To enable this moving function, in \gui Tools > \gui{Options...} >
     \gui{Text Editor} > \gui Behavior select \gui{Enable mouse navigation}.
 
 
@@ -2553,7 +2553,7 @@
     To obtain operating system libraries for debugging Windows applications,
     you have to add the Symbol Server:
     \list 1
-        \o  Select \gui Tools > \gui Options > \gui Debugger > \gui Cdb
+        \o  Select \gui Tools > \gui{Options...} > \gui Debugger > \gui Cdb
         \o  Click \inlineimage qtcreator-serverbutton.png
             located next to the \gui{Insert...} button of the Symbol paths
             field and select \gui{Symbol Server...}
@@ -2567,10 +2567,10 @@
     While debugging, Qt Creator dynamically loads a helper library into your
     program. This helper library enables Qt Creator to pretty print Qt and STL
     types. The Qt SDK package already contains a prebuilt debugging helper
-    library. To create an own debugging helper library, select \gui{Options}
-    from the \gui{Tools} menu, and go to the \gui{Qt4 > Qt Versions} pane. As
-    the internal data structures of Qt can change between versions, the debugging
-    helper library is built for each Qt version.
+    library. To create an own debugging helper library, select \gui{Tools} >
+    \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}. As the internal data
+    structures of Qt can change between versions, the debugging helper
+    library is built for each Qt version.
 
 
     \section1 Debugging Helper Library with Python
@@ -2991,7 +2991,7 @@
     files it recognizes to your project.
 
     To add or remove files, edit the \c .files file in Qt Creator.
-    Qt Creator recreates your project tree when you save the \c{.files file}.
+    Qt Creator recreates your project tree when you save the \c{.files} file.
     Alternatively, you can add and remove files using the context menu in the
     project tree.
 
@@ -3014,7 +3014,7 @@
 
     \section1 Specifying Defines
 
-    The defines are specified in the \c .config file. The \c.{config} file is a
+    The defines are specified in the \c .config file. The \c{.config} file is a
     regular C++ file, prepended to all your source files when they are parsed.
     Only use the \c{.config} file to add lines as in the example below:
 
