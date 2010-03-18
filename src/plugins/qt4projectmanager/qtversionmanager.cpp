@@ -982,8 +982,11 @@ void QtVersion::updateVersionInfo() const
             while (!stream.atEnd()) {
                 const QString line = stream.readLine();
                 const int index = line.indexOf(QLatin1Char(':'));
-                if (index != -1)
-                    m_versionInfo.insert(line.left(index), QDir::fromNativeSeparators(line.mid(index+1)));
+                if (index != -1) {
+                    QString value = QDir::fromNativeSeparators(line.mid(index+1));
+                    if (value != "**Unknown**")
+                        m_versionInfo.insert(line.left(index), value);
+                }
             }
         }
 
