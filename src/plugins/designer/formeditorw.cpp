@@ -360,7 +360,7 @@ void FormEditorW::initDesignerSubWindows()
     m_designerSubWindows[PropertyEditorSubWindow] = pe;
 
     QWidget *se = QDesignerComponents::createSignalSlotEditor(m_formeditor, 0);
-    se->setWindowTitle(tr("Signals & Slots Editor"));
+    se->setWindowTitle(tr("Signals && Slots Editor"));
     m_designerSubWindows[SignalSlotEditorSubWindow] = se;
 
     QDesignerActionEditorInterface *ae = QDesignerComponents::createActionEditor(m_formeditor, 0);
