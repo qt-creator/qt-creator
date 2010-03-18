@@ -666,10 +666,10 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     if ((mods & Qt::ControlModifier) != 0) {
         if (key >= Key_A && key <= Key_Z)
-            key += 32; // make it lower case
-        key += 256;
+            key = shift(key); // make it lower case
+        key = control(key);
     } else if (key >= Key_A && key <= Key_Z && (mods & Qt::ShiftModifier) == 0) {
-        key += 32;
+        key = shift(key);
     }
 
     QTC_ASSERT(!(m_mode != InsertMode && m_tc.atBlockEnd() && m_tc.block().length() > 1),
@@ -1956,7 +1956,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     const QString &text)
 {
     if (key == Key_Escape || key == 27 || key == control('c') ||
-			key == 379 /* ^[ */) {
+         key == control(Key_BracketLeft)) {
         if (isVisualBlockMode() && !m_lastInsertion.contains('\n')) {
             leaveVisualMode();
             joinPreviousEditBlock();
