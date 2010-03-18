@@ -589,7 +589,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     const int mods = ev->modifiers();
     KEY_DEBUG("SHORTCUT OVERRIDE" << key << "  PASSING: " << m_passing);
 
-    if (key == Key_Escape || (mods == Qt::ControlModifier && key == Key_BracketLeft)) {
+    if (key == Key_Escape) {
         // Not sure this feels good. People often hit Esc several times
         if (isNoVisualMode() && m_mode == CommandMode)
             return false;
@@ -597,7 +597,9 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     }
 
     // We are interested in overriding  most Ctrl key combinations
-    if (mods == Qt::ControlModifier && key >= Key_A && key <= Key_Z && key != Key_K) {
+    if (mods == Qt::ControlModifier
+            && ((key >= Key_A && key <= Key_Z && key != Key_K)
+                || key == Key_BracketLeft || key == Key_BracketRight)) {
         // Ctrl-K is special as it is the Core's default notion of Locator
         if (m_passing) {
             KEY_DEBUG(" PASSING CTRL KEY");
