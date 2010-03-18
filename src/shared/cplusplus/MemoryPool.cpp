@@ -53,8 +53,7 @@
 using namespace CPlusPlus;
 
 MemoryPool::MemoryPool()
-    : _initializeAllocatedMemory(true),
-      _blocks(0),
+    : _blocks(0),
       _allocatedBlocks(0),
       _blockCount(-1),
       _ptr(0),
@@ -79,12 +78,6 @@ void MemoryPool::reset()
     _ptr = _end = 0;
 }
 
-bool MemoryPool::initializeAllocatedMemory() const
-{ return _initializeAllocatedMemory; }
-
-void MemoryPool::setInitializeAllocatedMemory(bool initializeAllocatedMemory)
-{ _initializeAllocatedMemory = initializeAllocatedMemory; }
-
 void *MemoryPool::allocate_helper(size_t size)
 {
     assert(size < BLOCK_SIZE);
@@ -105,9 +98,6 @@ void *MemoryPool::allocate_helper(size_t size)
 
     if (! block)
         block = (char *) std::malloc(BLOCK_SIZE);
-
-    if (_initializeAllocatedMemory)
-        std::memset(block, '\0', BLOCK_SIZE);
 
     _ptr = block;
     _end = _ptr + BLOCK_SIZE;
@@ -130,8 +120,6 @@ RecursiveMemoryPool::~RecursiveMemoryPool()
     _pool->_blockCount = _blockCount;
     _pool->_ptr = _ptr;
     _pool->_end = _end;
-
-    std::memset(_pool->_ptr, 0, _pool->_end - _pool->_ptr);
 }
 
 Managed::Managed()

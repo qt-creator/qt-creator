@@ -66,9 +66,6 @@ public:
     MemoryPool();
     ~MemoryPool();
 
-    bool initializeAllocatedMemory() const;
-    void setInitializeAllocatedMemory(bool initializeAllocatedMemory);
-
     void reset();
 
     inline void *allocate(size_t size)
@@ -86,7 +83,6 @@ private:
     void *allocate_helper(size_t size);
 
 private:
-    bool _initializeAllocatedMemory;
     char **_blocks;
     int _allocatedBlocks;
     int _blockCount;
