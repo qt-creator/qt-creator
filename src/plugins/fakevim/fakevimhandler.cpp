@@ -167,6 +167,7 @@ enum SubSubMode
     InvertCaseSubSubMode, // used for ~
     DownCaseSubSubMode, // used for gu
     UpCaseSubSubMode,   // used for gU
+    ReplaceSubSubMode, // used for r after visual mode
 };
 
 enum VisualMode
@@ -473,6 +474,10 @@ public:
 
     void downCaseSelectedText();
     void downCaseTransform(int, QTextCursor *);
+
+    QChar m_replacingCharacter;
+    void replaceSelectedText(); // replace each character with m_replacingCharacter
+    void replaceTransform(int, QTextCursor *);
 
     QString selectedText() const { return text(Range(position(), anchor())); }
     QString text(const Range &range) const;
@@ -959,6 +964,10 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             downCaseSelectedText();
             if (!dotCommand.isEmpty())
                 setDotCommand("gu" + dotCommand);
+        } else if (m_subsubmode == ReplaceSubSubMode) {
+            replaceSelectedText();
+            if (!dotCommand.isEmpty())
+                setDotCommand("r" + dotCommand);
         }
         m_submode = NoSubMode;
         m_subsubmode = NoSubSubMode;
@@ -1169,6 +1178,16 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
                            .arg(count())
                            .arg(QChar(m_semicolonType))
                            .arg(QChar(m_semicolonKey)));
+        }
+    } else if (m_submode == TransformSubMode && m_subsubmode == ReplaceSubSubMode) {
+        if (isVisualLineMode())
+            m_rangemode = RangeLineMode;
+        else if (isVisualBlockMode())
+            m_rangemode = RangeBlockMode;
+        if (!text.isEmpty() && text[0].isPrint()) {
+            leaveVisualMode();
+            m_replacingCharacter = text[0];
+            finishMovement();
         }
     } else if (m_submode == WindowSubMode) {
         emit q->windowCommandRequested(key);
@@ -1730,6 +1749,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setTargetColumn();
         setDotCommand("%1p", count());
         finishMovement();
+    } else if (isVisualMode() && key =='r') {
+        m_submode = TransformSubMode;
+        m_subsubmode = ReplaceSubSubMode;
     } else if (key == 'r') {
         m_submode = ReplaceSubMode;
         setDotCommand(QString(QLatin1Char('r')));
@@ -3257,6 +3279,25 @@ void FakeVimHandler::Private::invertCaseTransform(int updateMarksAfter, QTextCur
     for (int i = str.size(); --i >= 0; ) {
         QChar c = str.at(i);
         str[i] = c.isUpper() ? c.toLower() : c.toUpper();
+    }
+    tc->insertText(str);
+}
+
+void FakeVimHandler::Private::replaceSelectedText()
+{
+    Range range(anchor(), position());
+    range.rangemode = m_rangemode;
+    transformText(range, &FakeVimHandler::Private::replaceTransform);
+}
+
+void FakeVimHandler::Private::replaceTransform(int updateMarksAfter, QTextCursor *tc)
+{
+    Q_UNUSED(updateMarksAfter);
+    QString str = tc->selectedText();
+    tc->removeSelectedText();
+    for (int i = str.size(); --i >= 0; ) {
+        QChar c = str.at(i);
+        str[i] = (c.toAscii() == '\n' || c.toAscii() == '\0') ? QChar('\n') : m_replacingCharacter;
     }
     tc->insertText(str);
 }
