@@ -1165,7 +1165,17 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
 {
     EventResult handled = EventHandled;
 
-    if (m_subsubmode == FtSubSubMode) {
+    if (key == Key_Escape || key == control(Key_BracketLeft)) {
+        if (isVisualMode()) {
+            leaveVisualMode();
+        } else if (m_submode != NoSubMode) {
+            m_submode = NoSubMode;
+            m_subsubmode = NoSubSubMode;
+            finishMovement();
+        } else {
+            resetCommandMode();
+        }
+    } else if (m_subsubmode == FtSubSubMode) {
         m_semicolonType = m_subsubdata;
         m_semicolonKey = key;
         bool valid = handleFfTt(key);
@@ -1963,16 +1973,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
 
     } else if (key == control(Key_BracketRight)) {
         handleExCommand("tag");
-    } else if (key == Key_Escape || key == control(Key_BracketLeft)) {
-        if (isVisualMode()) {
-            leaveVisualMode();
-        } else if (m_submode != NoSubMode) {
-            m_submode = NoSubMode;
-            m_subsubmode = NoSubSubMode;
-            finishMovement();
-        } else {
-            resetCommandMode();
-        }
     } else {
         //qDebug() << "IGNORED IN COMMAND MODE: " << key << text
         //    << " VISUAL: " << m_visualMode;
