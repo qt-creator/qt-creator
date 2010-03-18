@@ -234,6 +234,9 @@ void QmlInspector::connectionStateChanged()
             m_engineQuery = 0;
             delete m_contextQuery;
             m_contextQuery = 0;
+
+            resetViews();
+
             break;
         }
         case QAbstractSocket::HostLookupState:
@@ -254,10 +257,7 @@ void QmlInspector::connectionStateChanged()
                 m_expressionWidget->setEngineDebug(m_client);
             }
 
-            m_objectTreeWidget->clear();
-            m_propertiesWidget->clear();
-            m_expressionWidget->clear();
-            m_watchTableModel->removeAllWatches();
+            resetViews();
             m_frameRateWidget->reset(m_conn);
 
             reloadEngines();
@@ -270,6 +270,14 @@ void QmlInspector::connectionStateChanged()
         case QAbstractSocket::ListeningState:
             break;
     }
+}
+
+void QmlInspector::resetViews()
+{
+    m_objectTreeWidget->clear();
+    m_propertiesWidget->clear();
+    m_expressionWidget->clear();
+    m_watchTableModel->removeAllWatches();
 }
 
 Core::IContext *QmlInspector::context() const

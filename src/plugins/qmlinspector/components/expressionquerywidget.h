@@ -39,9 +39,13 @@ QT_BEGIN_NAMESPACE
 class QGroupBox;
 class QPlainTextEdit;
 class QLineEdit;
-class QPushButton;
+class QToolButton;
 
 QT_END_NAMESPACE
+
+namespace Utils {
+    class FancyLineEdit;
+}
 
 namespace Core {
     class IContext;
@@ -73,6 +77,7 @@ public slots:
     void setCurrentObject(const QDeclarativeDebugObjectReference &obj);
 
 private slots:
+    void clearTextEditor();
     void executeExpression();
     void showResult();
     void invokeCompletion();
@@ -89,8 +94,9 @@ private:
     QDeclarativeEngineDebug *m_client;
     QDeclarativeDebugExpressionQuery *m_query;
     QPlainTextEdit *m_textEdit;
-    QLineEdit *m_lineEdit;
-    QPushButton *m_button;
+    Utils::FancyLineEdit *m_lineEdit;
+
+    QToolButton *m_clearButton;
     QString m_prompt;
     QString m_expr;
     QString m_lastExpr;

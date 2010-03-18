@@ -95,7 +95,7 @@ private slots:
     void treeObjectActivated(const QDeclarativeDebugObjectReference &obj);
 
 private:
-
+    void resetViews();
     void initWidgets();
 
     QDeclarativeDebugConnection *m_conn;
