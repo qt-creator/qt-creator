@@ -426,8 +426,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 syncExpressionProperty(modelProperty, astValue, differenceHandler);
             modelPropertyNames.remove(astName);
         } else {
-            qWarning() << "Found an unknown QML value of type"
-                       << typeid(*member).name();
+            qWarning() << "Found an unknown QML value.";
         }
     }
 
