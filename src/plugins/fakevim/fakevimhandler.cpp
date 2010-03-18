@@ -665,8 +665,9 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         moveRight();
 
     if ((mods & Qt::ControlModifier) != 0) {
+        if (key >= Key_A && key <= Key_Z)
+            key += 32; // make it lower case
         key += 256;
-        key += 32; // make it lower case
     } else if (key >= Key_A && key <= Key_Z && (mods & Qt::ShiftModifier) == 0) {
         key += 32;
     }
