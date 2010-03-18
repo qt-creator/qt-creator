@@ -27,7 +27,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="filterEdit"/>
+         <widget class="Utils::FilterLineEdit" name="filterEdit"/>
         </item>
        </layout>
       </item>
@@ -119,21 +119,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="targetEdit"/>
-        </item>
-        <item>
-         <widget class="QToolButton" name="resetButton">
-          <property name="toolTip">
-           <string>Reset</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset resource="../core.qrc">
-            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
-          </property>
-         </widget>
+         <widget class="Utils::FancyLineEdit" name="targetEdit"/>
         </item>
         <item>
          <widget class="QToolButton" name="removeButton">
@@ -146,6 +132,12 @@
           <property name="icon">
            <iconset resource="../core.qrc">
             <normaloff>:/core/images/clear.png</normaloff>:/core/images/clear.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>16</width>
+            <height>16</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -163,6 +155,18 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::FilterLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/filterlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::FancyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/fancylineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../core.qrc"/>
  </resources>

@@ -69,11 +69,11 @@ QWidget *CommandMappings::createPage(QWidget *parent)
     m_page = new Ui_CommandMappings();
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
-
-    m_page->resetButton->setIcon(QIcon(Constants::ICON_RESET));
+    m_page->targetEdit->setPixmap(QPixmap(Constants::ICON_RESET));
+    m_page->targetEdit->setSide(Utils::FancyLineEdit::Right);
     m_page->targetEdit->installEventFilter(this);
 
-    connect(m_page->resetButton, SIGNAL(clicked()),
+    connect(m_page->targetEdit, SIGNAL(buttonClicked()),
         this, SLOT(resetTargetIdentifier()));
     connect(m_page->removeButton, SIGNAL(clicked()),
         this, SLOT(removeTargetIdentifier()));
