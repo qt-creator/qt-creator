@@ -1313,7 +1313,7 @@
 
     \list 1
 
-        \o Select \gui{File > New File or Project > QML Project > QML Application > OK}.
+        \o Select \gui{File > New File or Project > Qt Quick Project > QML Application > OK}.
 
         \image qmldesigner-new-project.png "New File or Project dialog"
 
@@ -3034,7 +3034,7 @@
 
     \section1 Creating QML Projects
 
-    Select \gui {File > New File or Project > QML Project > QML Application}.
+    Select \gui {File > New File or Project > Qt Quick Project > QML Application}.
 
     \QMLD creates the following files:
 
@@ -3053,7 +3053,7 @@
     project folder.
 
     To import a QML project to Qt Creator, select
-    \gui {File > New File or Project > QML Project > Import Existing QML Directory}.
+    \gui {File > New File or Project > Qt Quick Project > Import Existing Qt QML Directory}.
 
     \section1 Designing Application UI
 

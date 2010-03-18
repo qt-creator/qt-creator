@@ -203,7 +203,7 @@ QString ModelNode::type() const
     return m_internalNode->type();
 }
 
-/*! \brief minor number of the Qml Type
+/*! \brief minor number of the QML type
 \return minor number
 */
 int ModelNode::minorVersion() const
@@ -215,7 +215,7 @@ int ModelNode::minorVersion() const
     return m_internalNode->minorVersion();
 }
 
-/*! \brief major number of the Qml Type
+/*! \brief major number of the QML type
 \return major number
 */
 int ModelNode::majorVersion() const

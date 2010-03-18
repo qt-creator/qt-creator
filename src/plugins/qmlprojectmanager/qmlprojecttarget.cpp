@@ -44,7 +44,7 @@ QmlProjectTarget::QmlProjectTarget(QmlProject *parent) :
 {
     setDisplayName(QApplication::translate("QmlProjectManager::QmlTarget",
                                            Constants::QML_VIEWER_TARGET_DISPLAY_NAME,
-                                           "Qml Runtime target display name"));
+                                           "QML Runtime target display name"));
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
 }
 
@@ -69,7 +69,7 @@ bool QmlProjectTarget::fromMap(const QVariantMap &map)
 
     setDisplayName(QApplication::translate("QmlProjectManager::QmlTarget",
                                            Constants::QML_VIEWER_TARGET_DISPLAY_NAME,
-                                           "Qml Runtime target display name"));
+                                           "QML Runtime target display name"));
 
     return true;
 }
@@ -95,7 +95,7 @@ QString QmlProjectTargetFactory::displayNameForId(const QString &id) const
     if (id == QLatin1String(Constants::QML_VIEWER_TARGET_ID))
         return QCoreApplication::translate("QmlProjectManager::QmlTarget",
                                            Constants::QML_VIEWER_TARGET_DISPLAY_NAME,
-                                           "Qml Runtime target display name");
+                                           "QML Runtime target display name");
     return QString();
 }
 
@@ -113,7 +113,7 @@ QmlProjectTarget *QmlProjectTargetFactory::create(ProjectExplorer::Project *pare
     QmlProject *qmlproject(static_cast<QmlProject *>(parent));
     QmlProjectTarget *t(new QmlProjectTarget(qmlproject));
 
-    // Add RunConfiguration (Qml does not have BuildConfigurations)
+    // Add RunConfiguration (QML does not have BuildConfigurations)
     QmlProjectRunConfiguration *runConf(new QmlProjectRunConfiguration(t));
     t->addRunConfiguration(runConf);
 

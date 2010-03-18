@@ -430,7 +430,7 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &originalVariant) const
     } else if (type() == "var" || type() == "variant") {
         return variant;
     } else if (type() == "alias") {
-        // TODO: The Qml compiler resolves the alias type. We probably should do the same.
+        // TODO: The QML compiler resolves the alias type. We probably should do the same.
         return variant;
     } else if (variant.convert(typeId)) {
         return variant;

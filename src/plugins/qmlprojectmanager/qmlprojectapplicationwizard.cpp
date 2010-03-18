@@ -58,9 +58,9 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
-    parameters.setDisplayName(tr("QML Application"));
+    parameters.setDisplayName(tr("Qt QML Application"));
     parameters.setId(QLatin1String("QA.QML Application"));
-    parameters.setDescription(tr("Creates a QML application."));
+    parameters.setDescription(tr("Creates a Qt QML application."));
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
                                                               Constants::QML_WIZARD_TR_CATEGORY));

@@ -180,7 +180,7 @@ void SubComponentManagerPrivate::parseDirectory(const QString &dirPath)
             continue;
         }
         if (!qmlFile.fileName().at(0).isUpper()) {
-            // Qml sub components must be upper case
+            // QML sub components must be upper case
             continue;
         }
         newList << qmlFile;
@@ -304,7 +304,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
     nodeInfo.setQmlFile(fileInfo.filePath());
 
     // Add file components to the library
-    nodeInfo.setCategory(tr("Qml Components"));
+    nodeInfo.setCategory(tr("QML Components"));
     nodeInfo.setIsVisibleToItemLibrary(true);
 
     m_metaInfo.addItemLibraryInfo(nodeInfo, componentName);

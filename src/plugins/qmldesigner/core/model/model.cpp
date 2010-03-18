@@ -1064,7 +1064,7 @@ void Model::setFileUrl(const QUrl &url)
 }
 
 /*!
-  \brief Returns list of Qml types available within the model.
+  \brief Returns list of QML types available within the model.
   */
 const MetaInfo Model::metaInfo() const
 {
@@ -1081,7 +1081,7 @@ void Model::setMetaInfo(const MetaInfo &metaInfo)
 }
 
 /*!
-  \brief Returns list of Qml types available within the model.
+  \brief Returns list of QML types available within the model.
   */
 MetaInfo Model::metaInfo()
 {

@@ -56,7 +56,7 @@
                                 <string>qmlproject</string>
                         </array>
                         <key>CFBundleTypeName</key>
-                        <string>QML Project File</string>
+                        <string>Quick Project File</string>
                         <key>LSHandlerRank</key>
                         <string>Default</string>
                 </dict>

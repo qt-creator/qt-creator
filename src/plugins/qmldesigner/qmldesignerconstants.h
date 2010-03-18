@@ -49,7 +49,7 @@ const char * const DESIGN_MODE_NAME     = "Design";
 const char * const FORM_MIMETYPE        = "application/x-qmldesigner";
 
 // This setting is also accessed by the QMlJsEditor.
-const char * const QML_SETTINGS_GROUP = "Qml";
+const char * const QML_SETTINGS_GROUP = "QML";
 const char * const QML_DESIGNER_SETTINGS_GROUP = "Designer";
 const char * const QML_OPENDESIGNMODE_SETTINGS_KEY = "OpenDesignMode";
 enum { QML_OPENDESIGNMODE_DEFAULT = 1 };

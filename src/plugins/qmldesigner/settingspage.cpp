@@ -94,12 +94,12 @@ QString SettingsPage::displayName() const
 
 QString SettingsPage::category() const
 {
-    return QLatin1String("Qml");
+    return QLatin1String("QML");
 }
 
 QString SettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("Qml", "QML");
+    return QCoreApplication::translate("QML", "QML");
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

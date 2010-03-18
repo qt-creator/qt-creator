@@ -45,7 +45,7 @@ void QmlTaskManager::setTaskWindow(ProjectExplorer::TaskWindow *taskWindow)
     Q_ASSERT(taskWindow);
     m_taskWindow = taskWindow;
 
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_QML, "Qml");
+    m_taskWindow->addCategory(Constants::TASK_CATEGORY_QML, "QML");
 }
 
 void QmlTaskManager::documentUpdated(QmlJS::Document::Ptr /*doc*/)

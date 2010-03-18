@@ -779,7 +779,7 @@ QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
         targets << TargetDescription(QString::fromLatin1("QmlProjectManager.QmlTarget"),
                                      QCoreApplication::translate("QmlProjectManager::QmlTarget",
                                                                  "QML Runtime",
-                                                                 "Qml Runtime target display name"));
+                                                                 "QML Runtime target display name"));
     else
         return QVariantMap(); // We do not know how to handle this.
 
