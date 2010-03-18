@@ -6,7 +6,7 @@
 
 #include <utils/savedaction.h>
 #include <utils/styledbar.h>
-
+#include <coreplugin/actionmanager/command.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggeractions.h>
 
@@ -73,6 +73,8 @@ struct DebuggerUISwitcherPrivate {
     Core::ActionContainer *m_viewsMenu;
     Core::ActionContainer *m_debugMenu;
 
+    QMultiHash< int, Core::Command *> m_menuCommands;
+
     static DebuggerUISwitcher *m_instance;
 };
 
@@ -119,9 +121,11 @@ DebuggerUISwitcher::~DebuggerUISwitcher()
     delete d;
 }
 
+void DebuggerUISwitcher::addMenuAction(Core::Command *command, const QString &langName,
+                                       const QString &group)
 {
     d->m_debugMenu->addAction(command, group);
-    m_menuCommands.insert(d->m_languages.indexOf(langName), command);
+    d->m_menuCommands.insert(d->m_languages.indexOf(langName), command);
 }
 
 void DebuggerUISwitcher::setActiveLanguage(const QString &langName)
@@ -270,8 +274,9 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
                 menuitem.second->setVisible(false);
             }
         }
+
         d->m_languageMenu->menu()->setTitle(tr("Language") + " (" + langName + ")");
-        QHashIterator<int, Core::Command *> iter(m_menuCommands);
+        QHashIterator<int, Core::Command *> iter(d->m_menuCommands);
         while (iter.hasNext()) {
             iter.next();
             bool active = (iter.key() == langId);

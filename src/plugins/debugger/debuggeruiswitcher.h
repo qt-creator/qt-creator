@@ -89,7 +89,6 @@ private:
     QWidget *createMainWindow(Core::BaseMode *mode);
 
     DebuggerUISwitcherPrivate *d;
-    QMultiHash< int, Core::Command *> m_menuCommands;
     Utils::SavedAction *m_changeLanguageAction;
 };
 

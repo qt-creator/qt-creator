@@ -1251,6 +1251,7 @@ void DebuggerPlugin::languageChanged(const QString &language)
     m_attachCoreAction->setVisible(debuggerIsCPP);
     m_startRemoteAction->setVisible(debuggerIsCPP);
     m_detachAction->setVisible(debuggerIsCPP);
+
 }
 
 void DebuggerPlugin::writeSettings() const
