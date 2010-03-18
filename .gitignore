@@ -29,7 +29,7 @@ qrc_*.cpp
 Thumbs.db
 
 # qtcreator generated files
-*.pro.user
+*.pro.user*
 
 # xemacs temporary files
 *.flc
