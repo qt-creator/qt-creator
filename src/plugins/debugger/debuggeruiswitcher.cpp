@@ -1,7 +1,9 @@
 #include "debuggeruiswitcher.h"
 #include "debuggermainwindow.h"
+#include "debuggeractions.h"
+#include "debuggerconstants.h"
+#include "savedaction.h"
 
-#include <debugger/debuggerconstants.h>
 #include <utils/savedaction.h>
 #include <utils/styledbar.h>
 
@@ -117,10 +119,9 @@ DebuggerUISwitcher::~DebuggerUISwitcher()
     delete d;
 }
 
-void DebuggerUISwitcher::addMenuAction(Core::Command *command, const QString &group)
 {
     d->m_debugMenu->addAction(command, group);
-    m_menuCommands.insert(m_languages.indexOf(langName), command);
+    m_menuCommands.insert(d->m_languages.indexOf(langName), command);
 }
 
 void DebuggerUISwitcher::setActiveLanguage(const QString &langName)
