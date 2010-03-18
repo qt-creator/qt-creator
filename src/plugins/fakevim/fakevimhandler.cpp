@@ -160,14 +160,15 @@ enum SubSubMode
     // typically used for things that require one more data item
     // and are 'nested' behind a mode
     NoSubSubMode,
-    FtSubSubMode,       // used for f, F, t, T
-    MarkSubSubMode,     // used for m
-    BackTickSubSubMode, // used for `
-    TickSubSubMode,     // used for '
+    FtSubSubMode,         // used for f, F, t, T
+    MarkSubSubMode,       // used for m
+    BackTickSubSubMode,   // used for `
+    TickSubSubMode,       // used for '
     InvertCaseSubSubMode, // used for ~
-    DownCaseSubSubMode, // used for gu
-    UpCaseSubSubMode,   // used for gU
-    ReplaceSubSubMode, // used for r after visual mode
+    DownCaseSubSubMode,   // used for gu
+    UpCaseSubSubMode,     // used for gU
+    ReplaceSubSubMode,    // used for r after visual mode
+    TextObjectSubSubMode, // used for f, F, t, T
 };
 
 enum VisualMode
@@ -289,9 +290,11 @@ public:
 
     EventResult handleEvent(QKeyEvent *ev);
     bool wantsOverride(QKeyEvent *ev);
-    void handleCommand(const QString &cmd); // sets m_tc + handleExCommand
+    void handleCommand(const QString &cmd); // Sets m_tc + handleExCommand
     void handleExCommand(const QString &cmd);
-    void fixMarks(int positionAction, int positionChange); //Updates marks positions by the difference in positionChange
+
+    // updates marks positions by the difference in positionChange
+    void fixMarks(int positionAction, int positionChange);
 
     void installEventFilter();
     void passShortcuts(bool enable);
@@ -416,6 +419,13 @@ public:
     bool isVisualLineMode() const { return m_visualMode == VisualLineMode; }
     bool isVisualBlockMode() const { return m_visualMode == VisualBlockMode; }
     void updateEditor();
+
+    void selectWordTextObject(bool inner);
+    void selectWORDTextObject(bool inner);
+    void selectSentenceTextObject(bool inner);
+    void selectParagraphTextObject(bool inner);
+    void selectBlockTextObject(bool inner, char left, char right);
+    void selectQuotedStringTextObject(bool inner, int type);
 
 public:
     QTextEdit *m_textedit;
@@ -1160,6 +1170,11 @@ void FakeVimHandler::Private::passShortcuts(bool enable)
         QCoreApplication::instance()->removeEventFilter(q);
 }
 
+static bool subModeCanUseTextObjects(int submode)
+{
+    return submode == DeleteSubMode;
+}
+
 EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     const QString &text)
 {
@@ -1189,6 +1204,25 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
                            .arg(QChar(m_semicolonType))
                            .arg(QChar(m_semicolonKey)));
         }
+    } else if (m_subsubmode == TextObjectSubSubMode) {
+        if (key == 'w')
+            selectWordTextObject(m_subsubdata == 'i');
+        else if (key == 'W')
+            selectWORDTextObject(m_subsubdata == 'i');
+        else if (key == 's')
+            selectSentenceTextObject(m_subsubdata == 'i');
+        else if (key == 'p')
+            selectParagraphTextObject(m_subsubdata == 'i');
+        else if (key == '[' || key == ']')
+            selectBlockTextObject(m_subsubdata == 'i', '[', ']');
+        else if (key == '(' || key == ')' || key == 'b')
+            selectBlockTextObject(m_subsubdata == 'i', '(', ')');
+        else if (key == '<' || key == '>')
+            selectBlockTextObject(m_subsubdata == 'i', '<', '>');
+        else if (key == '"' || key == '\'' || key == '`')
+            selectQuotedStringTextObject(m_subsubdata == 'i', key);
+        m_subsubmode = NoSubSubMode;
+        finishMovement();
     } else if (m_submode == TransformSubMode && m_subsubmode == ReplaceSubSubMode) {
         if (isVisualLineMode())
             m_rangemode = RangeLineMode;
@@ -1226,6 +1260,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         handleStartOfLine();
         setTargetColumn();
         finishMovement();
+    } else if (subModeCanUseTextObjects(m_submode) && (key == 'a' || key == 'i')) {
+        m_subsubmode = TextObjectSubSubMode;
+        m_subsubdata = key;
     } else if (m_submode == ShiftLeftSubMode && key == '<') {
         setAnchor();
         moveDown(count() - 1);
@@ -3604,6 +3641,50 @@ void FakeVimHandler::Private::replay(const QString &command, int n)
         }
     }
     m_inReplay = false;
+}
+
+
+void FakeVimHandler::Private::selectWordTextObject(bool inner)
+{
+    Q_UNUSED(inner); // FIXME
+    m_movetype = MoveExclusive;
+    moveToWordBoundary(false, false);
+    enterVisualMode(VisualCharMode);
+    moveToWordBoundary(false, true);
+    leaveVisualMode();
+}
+
+void FakeVimHandler::Private::selectWORDTextObject(bool inner)
+{
+    Q_UNUSED(inner); // FIXME
+    m_movetype = MoveExclusive;
+    moveToWordBoundary(true, false);
+    enterVisualMode(VisualCharMode);
+    moveToWordBoundary(true, true);
+    leaveVisualMode();
+}
+
+void FakeVimHandler::Private::selectSentenceTextObject(bool inner)
+{
+    Q_UNUSED(inner);
+}
+
+void FakeVimHandler::Private::selectParagraphTextObject(bool inner)
+{
+    Q_UNUSED(inner);
+}
+
+void FakeVimHandler::Private::selectBlockTextObject(bool inner, char left, char right)
+{
+    Q_UNUSED(inner);
+    Q_UNUSED(left);
+    Q_UNUSED(right);
+}
+
+void FakeVimHandler::Private::selectQuotedStringTextObject(bool inner, int type)
+{
+    Q_UNUSED(inner);
+    Q_UNUSED(type);
 }
 
 
