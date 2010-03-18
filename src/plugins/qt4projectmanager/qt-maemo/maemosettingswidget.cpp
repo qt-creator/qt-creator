@@ -36,12 +36,14 @@
 
 #include "ui_maemosettingswidget.h"
 
+#include "maemoconfigtestdialog.h"
 #include "maemodeviceconfigurations.h"
 #include "maemosshthread.h"
 
 #include <QtCore/QRegExp>
-#include <QtGui/QFileDialog>
 #include <QtCore/QFileInfo>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 #include <QtGui/QIntValidator>
 
 #include <algorithm>
@@ -109,13 +111,12 @@ private:
 
 MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
     : QWidget(parent),
-      m_ui(new Ui_maemoSettingsWidget),
+      m_ui(new Ui_MaemoSettingsWidget),
       m_devConfs(MaemoDeviceConfigurations::instance().devConfigs()),
       m_nameValidator(new NameValidator(m_devConfs)),
       m_sshPortValidator(new PortAndTimeoutValidator),
       m_gdbServerPortValidator(new PortAndTimeoutValidator),
       m_timeoutValidator(new PortAndTimeoutValidator),
-      m_deviceTester(0),
       m_keyDeployer(0)
 
 {
@@ -134,9 +135,8 @@ void MaemoSettingsWidget::initGui()
     m_ui->gdbServerPortLineEdit->setValidator(m_gdbServerPortValidator);
     m_ui->timeoutLineEdit->setValidator(m_timeoutValidator);
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
-    foreach(const MaemoDeviceConfig &devConf, m_devConfs)
+    foreach (const MaemoDeviceConfig &devConf, m_devConfs)
         m_ui->configListWidget->addItem(devConf.name);
-    m_defaultTestOutput = m_ui->testResultEdit->toPlainText();
     if (m_devConfs.count() == 1)
         m_ui->configListWidget->setCurrentRow(0, QItemSelectionModel::Select);
 }
@@ -314,93 +314,8 @@ void MaemoSettingsWidget::keyFileEditingFinished()
 
 void MaemoSettingsWidget::testConfig()
 {
-    if (m_deviceTester)
-        return;
-
-    m_ui->testConfigButton->disconnect();
-    m_ui->testResultEdit->setPlainText(m_defaultTestOutput);
-    QLatin1String sysInfoCmd("uname -rsm");
-    QLatin1String qtInfoCmd("dpkg -l |grep libqt "
-        "|sed 's/[[:space:]][[:space:]]*/ /g' "
-        "|cut -d ' ' -f 2,3 |sed 's/~.*//g'");
-    QString command(sysInfoCmd + " && " + qtInfoCmd);
-    m_deviceTester = new MaemoSshRunner(currentConfig(), command);
-    connect(m_deviceTester, SIGNAL(remoteOutput(QString)),
-            this, SLOT(processSshOutput(QString)));
-    connect(m_deviceTester, SIGNAL(finished()),
-            this, SLOT(handleTestThreadFinished()));
-    m_ui->testConfigButton->setText(tr("Stop test"));
-    connect(m_ui->testConfigButton, SIGNAL(clicked()),
-            this, SLOT(stopConfigTest()));
-    m_deviceTester->start();
-}
-
-void MaemoSettingsWidget::processSshOutput(const QString &data)
-{
-    qDebug("%s", qPrintable(data));
-    m_deviceTestOutput.append(data);
-}
-
-void MaemoSettingsWidget::handleTestThreadFinished()
-{
-    if (!m_deviceTester)
-        return;
-
-    QString output;
-    if (m_deviceTester->hasError()) {
-        output = tr("Device configuration test failed:\n%1").arg(m_deviceTester->error());
-        if (currentConfig().type == MaemoDeviceConfig::Simulator)
-            output.append(tr("\nDid you start Qemu?"));
-    } else {
-        output = parseTestOutput();
-    }
-    m_ui->testResultEdit->setPlainText(output);
-    stopConfigTest();
-}
-
-void MaemoSettingsWidget::stopConfigTest()
-{
-    if (m_deviceTester) {
-        m_ui->testConfigButton->disconnect();
-        const bool buttonWasEnabled = m_ui->testConfigButton->isEnabled();
-        m_deviceTester->disconnect();
-        m_deviceTester->stop();
-        delete m_deviceTester;
-        m_deviceTester = 0;
-        m_deviceTestOutput.clear();
-        m_ui->testConfigButton->setText(tr("Test"));
-        connect(m_ui->testConfigButton, SIGNAL(clicked()),
-                this, SLOT(testConfig()));
-        m_ui->testConfigButton->setEnabled(buttonWasEnabled);
-    }
-}
-
-QString MaemoSettingsWidget::parseTestOutput()
-{
-    QString output;
-    const QRegExp unamePattern(QLatin1String("Linux (\\S+)\\s(\\S+)"));
-    int index = unamePattern.indexIn(m_deviceTestOutput);
-    if (index == -1) {
-        output = tr("Device configuration test failed: Unexpected output:\n%1").arg(m_deviceTestOutput);
-        return output;
-    }
-
-    output = tr("Hardware architecture: %1\n").arg(unamePattern.cap(2));
-    output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
-    output.prepend(tr("Device configuration successful.\n"));
-    const QRegExp dkpgPattern(QLatin1String("libqt\\S+ \\d\\.\\d\\.\\d"));
-    index = dkpgPattern.indexIn(m_deviceTestOutput);
-    if (index == -1) {
-        output.append("No Qt packages installed.");
-        return output;
-    }
-    output.append("List of installed Qt packages:\n");
-    do {
-        output.append(QLatin1String("\t") + dkpgPattern.cap(0)
-                      + QLatin1String("\n"));
-        index = dkpgPattern.indexIn(m_deviceTestOutput, index + 1);
-    } while (index != -1);
-    return output;
+    QDialog *dialog = new MaemoConfigTestDialog(currentConfig(), this);
+    dialog->open();
 }
 
 void MaemoSettingsWidget::deployKey()
@@ -434,13 +349,11 @@ void MaemoSettingsWidget::handleDeployThreadFinished()
     if (!m_keyDeployer)
         return;
 
-    QString output;
-    if (m_keyDeployer->hasError()) {
-        output = tr("Key deployment failed: %1").arg(m_keyDeployer->error());
-    } else {
-        output = tr("Key was successfully deployed.");
-    }
-    m_ui->testResultEdit->setPlainText(output);
+    if (m_keyDeployer->hasError())
+        QMessageBox::critical(this, tr("Deployment Failed"), tr("Key deployment failed: %1").arg(m_keyDeployer->error()));
+    else
+        QMessageBox::information(this, tr("Deployment Succeeded"), tr("Key was successfully deployed."));
+
     stopDeploying();
 }
 
@@ -465,9 +378,7 @@ void MaemoSettingsWidget::selectionChanged()
     const QList<QListWidgetItem *> &selectedItems =
         m_ui->configListWidget->selectedItems();
     Q_ASSERT(selectedItems.count() <= 1);
-    stopConfigTest();
     stopDeploying();
-    m_ui->testResultEdit->setPlainText(m_defaultTestOutput);
     if (selectedItems.isEmpty()) {
         m_ui->removeConfigButton->setEnabled(false);
         m_ui->testConfigButton->setEnabled(false);

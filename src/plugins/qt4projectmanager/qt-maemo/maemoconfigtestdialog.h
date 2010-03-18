@@ -32,77 +32,50 @@
 **
 ****************************************************************************/
 
-#ifndef MAEMOSETTINGSWIDGET_H
-#define MAEMOSETTINGSWIDGET_H
+#ifndef MAEMOCONFIGTESTDIALOG_H
+#define MAEMOCONFIGTESTDIALOG_H
 
-#include "maemodeviceconfigurations.h"
-
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtGui/QWidget>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QLineEdit;
-
-class Ui_MaemoSettingsWidget;
+class QPushButton;
+class Ui_MaemoConfigTestDialog;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoSshDeployer;
-class NameValidator;
-class PortAndTimeoutValidator;
+class MaemoDeviceConfig;
+class MaemoSshRunner;
 
-class MaemoSettingsWidget : public QWidget
+/**
+ * A dialog that runs a test of a device configuration.
+ */
+class MaemoConfigTestDialog : public QDialog
 {
     Q_OBJECT
 public:
-    MaemoSettingsWidget(QWidget *parent);
-    ~MaemoSettingsWidget();
-    void saveSettings();
+    explicit MaemoConfigTestDialog(const MaemoDeviceConfig &config, QWidget *parent = 0);
+    ~MaemoConfigTestDialog();
+
 private slots:
-    void selectionChanged();
-    void addConfig();
-    void deleteConfig();
-    void configNameEditingFinished();
-    void deviceTypeChanged();
-    void authenticationTypeChanged();
-    void hostNameEditingFinished();
-    void sshPortEditingFinished();
-    void gdbServerPortEditingFinished();
-    void timeoutEditingFinished();
-    void userNameEditingFinished();
-    void passwordEditingFinished();
-    void keyFileEditingFinished();
-
-    // For configuration testing.
-    void testConfig();
-
-    // For key deploying.
-    void deployKey();
-    void handleDeployThreadFinished();
-    void stopDeploying();
+    void stopConfigTest();
+    void processSshOutput(const QString &data);
+    void handleTestThreadFinished();
 
 private:
-    void initGui();
-    void display(const MaemoDeviceConfig &devConfig);
-    MaemoDeviceConfig &currentConfig();
-    void setPortOrTimeout(const QLineEdit *lineEdit, int &confVal,
-                          PortAndTimeoutValidator *validator);
-    void clearDetails();
+    void startConfigTest();
     QString parseTestOutput();
 
-    Ui_MaemoSettingsWidget *m_ui;
-    QList<MaemoDeviceConfig> m_devConfs;
-    NameValidator * const m_nameValidator;
-    PortAndTimeoutValidator * const m_sshPortValidator;
-    PortAndTimeoutValidator * const m_gdbServerPortValidator;
-    PortAndTimeoutValidator * const m_timeoutValidator;
-    MaemoSshDeployer *m_keyDeployer;
+    Ui_MaemoConfigTestDialog *m_ui;
+    QPushButton *m_closeButton;
+
+    const MaemoDeviceConfig &m_config;
+    MaemoSshRunner *m_deviceTester;
+    QString m_deviceTestOutput;
 };
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // MAEMOSETTINGSWIDGET_H
+#endif // MAEMOCONFIGTESTDIALOG_H
