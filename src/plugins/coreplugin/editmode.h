@@ -32,8 +32,6 @@
 
 #include <coreplugin/imode.h>
 
-#include <QtCore/QObject>
-
 QT_BEGIN_NAMESPACE
 class QSplitter;
 class QWidget;

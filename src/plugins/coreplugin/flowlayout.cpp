@@ -29,6 +29,9 @@
 
 #include "flowlayout.h"
 
+#include <QRect>
+#include <QWidgetItem>
+
 using namespace Core::Internal;
 
 FlowLayout::FlowLayout(QWidget *parent, int margin, int spacing)

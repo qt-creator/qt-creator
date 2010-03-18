@@ -46,6 +46,7 @@
 #endif
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QTimer>
 #include <QtCore/QDir>

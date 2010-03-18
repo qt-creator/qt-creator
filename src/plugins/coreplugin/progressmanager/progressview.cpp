@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QVBoxLayout>
 
 using namespace Core;
 using namespace Core::Internal;

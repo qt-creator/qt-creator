@@ -47,6 +47,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QStyledItemDelegate>
 #include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QMenu>
 
 namespace {
     const int TASK_ICON_SIZE = 16;

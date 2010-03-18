@@ -36,6 +36,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -56,6 +57,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QToolButton>
 #include <QtGui/QStackedWidget>
+#include <QtGui/QMenu>
 
 using namespace Core;
 using namespace Core::Internal;

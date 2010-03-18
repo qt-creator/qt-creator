@@ -31,12 +31,12 @@
 #define PROGRESSMANAGER_H
 
 #include <coreplugin/core_global.h>
-#include <coreplugin/progressmanager/futureprogress.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QFuture>
 
 namespace Core {
+class FutureProgress;
 
 class CORE_EXPORT ProgressManager : public QObject
 {

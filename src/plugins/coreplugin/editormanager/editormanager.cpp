@@ -45,8 +45,11 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
+#include <coreplugin/icorelistener.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/variablemanager.h>
@@ -76,16 +79,52 @@
 
 Q_DECLARE_METATYPE(Core::IEditor*)
 
-using namespace Core;
-using namespace Core::Internal;
-using namespace Utils;
-
 enum { debugEditorManager=0 };
 
 static inline ExtensionSystem::PluginManager *pluginManager()
 {
     return ExtensionSystem::PluginManager::instance();
 }
+
+//===================EditorClosingCoreListener======================
+
+namespace Core {
+namespace Internal {
+
+class EditorClosingCoreListener : public ICoreListener
+{
+public:
+    EditorClosingCoreListener(EditorManager *em);
+    bool editorAboutToClose(IEditor *editor);
+    bool coreAboutToClose();
+
+private:
+    EditorManager *m_em;
+};
+
+EditorClosingCoreListener::EditorClosingCoreListener(EditorManager *em)
+        : m_em(em)
+{
+}
+
+bool EditorClosingCoreListener::editorAboutToClose(IEditor *)
+{
+    return true;
+}
+
+bool EditorClosingCoreListener::coreAboutToClose()
+{
+    // Do not ask for files to save.
+    // MainWindow::closeEvent has already done that.
+    return m_em->closeAllEditors(false);
+}
+
+} // namespace Internal
+} // namespace Core
+
+using namespace Core;
+using namespace Core::Internal;
+using namespace Utils;
 
 //===================EditorManager=====================
 
@@ -1953,19 +1992,3 @@ void EditorManager::gotoOtherSplit()
 }
 //===================EditorClosingCoreListener======================
 
-EditorClosingCoreListener::EditorClosingCoreListener(EditorManager *em)
-        : m_em(em)
-{
-}
-
-bool EditorClosingCoreListener::editorAboutToClose(IEditor *)
-{
-    return true;
-}
-
-bool EditorClosingCoreListener::coreAboutToClose()
-{
-    // Do not ask for files to save.
-    // MainWindow::closeEvent has already done that.
-    return m_em->closeAllEditors(false);
-}

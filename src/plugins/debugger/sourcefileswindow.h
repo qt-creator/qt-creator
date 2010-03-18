@@ -30,14 +30,7 @@
 #ifndef DEBUGGER_SOURCEFILEWINDOW_H
 #define DEBUGGER_SOURCEFILEWINDOW_H
 
-#include <QtGui/QTreeWidget>
-#include <QtGui/QWidget>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QModelIndex;
-class QStandardItemModel;
-QT_END_NAMESPACE
+#include <QtGui/QTreeView>
 
 namespace Debugger {
 namespace Internal {

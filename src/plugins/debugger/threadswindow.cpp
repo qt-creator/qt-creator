@@ -31,6 +31,8 @@
 
 #include "debuggeractions.h"
 
+#include <utils/savedaction.h>
+
 #include <QtGui/QAction>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QHeaderView>

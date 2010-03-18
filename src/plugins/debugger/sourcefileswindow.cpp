@@ -34,6 +34,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 
+#include <utils/savedaction.h>
+
 #include <QtGui/QAction>
 #include <QtGui/QComboBox>
 #include <QtGui/QHeaderView>

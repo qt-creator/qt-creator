@@ -34,12 +34,11 @@
 
 #include <coreplugin/dialogs/iwizard.h>
 
-#include <QtGui/QIcon>
 #include <QtCore/QSharedDataPointer>
-#include <QtCore/QMap>
 #include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
+class QIcon;
 class QWizard;
 class QWizardPage;
 class QDebug;

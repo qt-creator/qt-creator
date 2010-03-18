@@ -36,6 +36,7 @@
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QList>
+#include <QtCore/QMap>
 
 QT_BEGIN_NAMESPACE
 class QDir;

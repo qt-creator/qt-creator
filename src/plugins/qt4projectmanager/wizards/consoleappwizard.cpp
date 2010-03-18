@@ -34,6 +34,8 @@
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
+#include <QtGui/QIcon>
+
 #include <QtCore/QTextStream>
 
 static const char *mainCppC =

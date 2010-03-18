@@ -58,6 +58,7 @@
 #include <utils/consoleprocess.h>
 #include <utils/fancymainwindow.h>
 #include <texteditor/itexteditor.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>

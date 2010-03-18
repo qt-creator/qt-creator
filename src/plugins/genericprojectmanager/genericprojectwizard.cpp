@@ -36,6 +36,8 @@
 
 #include <utils/filewizardpage.h>
 
+#include <QtGui/QIcon>
+
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QtDebug>

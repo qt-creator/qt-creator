@@ -32,9 +32,6 @@
 
 #include "coreplugin/core_global.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-
 #include <QtCore/QObject>
 #include <QtCore/QList>
 
@@ -45,6 +42,9 @@ class QString;
 QT_END_NAMESPACE
 
 namespace Core {
+
+class ActionContainer;
+class Command;
 
 class CORE_EXPORT ActionManager : public QObject
 {

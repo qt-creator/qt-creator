@@ -34,8 +34,10 @@
 
 #include <QtCore/QFuture>
 #include <QtGui/QWidget>
-#include <QtGui/QIcon>
-#include <QtGui/QVBoxLayout>
+
+QT_BEGIN_NAMESPACE
+class QVBoxLayout;
+QT_END_NAMESPACE
 
 namespace Core {
 

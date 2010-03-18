@@ -32,6 +32,7 @@
 #include "debuggeractions.h"
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QDebug>

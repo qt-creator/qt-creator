@@ -31,8 +31,10 @@
 
 #include "debuggeractions.h"
 #include "debuggeragents.h"
+#include "debuggermanager.h"
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
 
@@ -45,7 +47,6 @@
 #include <QtGui/QResizeEvent>
 #include <QtGui/QTreeView>
 #include <QtGui/QVBoxLayout>
-
 
 static QModelIndexList normalizeIndexes(const QModelIndexList &list)
 {

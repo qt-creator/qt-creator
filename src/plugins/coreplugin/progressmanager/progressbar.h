@@ -32,8 +32,6 @@
 
 #include <QtCore/QString>
 #include <QtGui/QWidget>
-#include <QtGui/QProgressBar>
-#include <QtGui/QMouseEvent>
 
 class ProgressBar : public QWidget
 {
@@ -42,7 +40,7 @@ class ProgressBar : public QWidget
     Q_PROPERTY(float fader READ fader WRITE setFader)
 
 public:
-    ProgressBar(QWidget *parent = 0);
+    explicit ProgressBar(QWidget *parent = 0);
     ~ProgressBar();
 
     QString title() const;

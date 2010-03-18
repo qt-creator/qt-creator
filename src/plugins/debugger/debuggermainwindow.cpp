@@ -1,16 +1,13 @@
 #include "debuggermainwindow.h"
+#include "debuggeruiswitcher.h"
 
-#include <QtCore/QCoreApplication>
-#include <QtGui/QApplication>
 #include <QtGui/QMenu>
-#include <QtGui/QLayout>
-#include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
-#include <QtGui/QStyle>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace Debugger {
+namespace Internal {
 
 DebuggerMainWindow::DebuggerMainWindow(DebuggerUISwitcher *uiSwitcher, QWidget *parent) :
         FancyMainWindow(parent), m_uiSwitcher(uiSwitcher)
@@ -38,7 +35,7 @@ QMenu* DebuggerMainWindow::createPopupMenu()
 {
     QMenu *menu = 0;
 
-    QList<Internal::DebugToolWindow* > dockwidgets = m_uiSwitcher->m_dockWidgets;
+    const QList<Internal::DebugToolWindow* > dockwidgets = m_uiSwitcher->i_mw_debugToolWindows();
 
     if (!dockwidgets.isEmpty()) {
         menu = new QMenu(this);
@@ -46,7 +43,7 @@ QMenu* DebuggerMainWindow::createPopupMenu()
         for (int i = 0; i < dockwidgets.size(); ++i) {
             QDockWidget *dockWidget = dockwidgets.at(i)->m_dockWidget;
             if (dockWidget->parentWidget() == this &&
-                dockwidgets.at(i)->m_languageId == m_uiSwitcher->m_activeLanguage) {
+                dockwidgets.at(i)->m_languageId == m_uiSwitcher->activeLanguageId()) {
 
                 menu->addAction(dockWidget->toggleViewAction());
             }
@@ -57,4 +54,5 @@ QMenu* DebuggerMainWindow::createPopupMenu()
     return menu;
 }
 
-}
+} // namespace Internal
+} // namespace Debugger

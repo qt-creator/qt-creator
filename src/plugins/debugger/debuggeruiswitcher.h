@@ -3,42 +3,35 @@
 
 #include "debugger_global.h"
 
-#include <coreplugin/basemode.h>
 #include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QMap>
+
+QT_FORWARD_DECLARE_CLASS(QDockWidget);
 
 namespace Core {
     class ActionContainer;
     class Command;
+    class BaseMode;
+    class IMode;
 }
 
-QT_FORWARD_DECLARE_CLASS(Action);
-QT_FORWARD_DECLARE_CLASS(QDockWidget);
-QT_FORWARD_DECLARE_CLASS(QStackedWidget);
-QT_FORWARD_DECLARE_CLASS(QComboBox);
-QT_FORWARD_DECLARE_CLASS(QActionGroup);
+namespace Utils {
+class FancyMainWindow;
+}
 
 namespace Debugger {
-    class DebuggerMainWindow;
+struct DebuggerUISwitcherPrivate;
+
 namespace Internal {
-class DebugToolWindow {
-public:
-    DebugToolWindow() : m_visible(false) {}
-    QDockWidget* m_dockWidget;
-    int m_languageId;
-    bool m_visible;
+    class DebugToolWindow;
+    class DebuggerMainWindow;
 };
-}
-}
 
-namespace Debugger {
 class DEBUGGER_EXPORT DebuggerUISwitcher : public QObject
 {
     Q_OBJECT
 public:
-    DebuggerUISwitcher(Core::BaseMode *mode, QObject *parent = 0);
-    ~DebuggerUISwitcher();
+    explicit DebuggerUISwitcher(Core::BaseMode *mode, QObject *parent = 0);
+    virtual ~DebuggerUISwitcher();
 
     static DebuggerUISwitcher *instance();
 
@@ -53,6 +46,7 @@ public:
                             const QString &group = QString());
 
     void setActiveLanguage(const QString &langName);
+    int activeLanguageId() const;
 
     // called when all dependent plugins have loaded
     void initialize();
@@ -64,7 +58,7 @@ public:
                                   Qt::DockWidgetArea area = Qt::TopDockWidgetArea,
                                   bool visibleByDefault = true);
 
-    DebuggerMainWindow *mainWindow() const;
+    Utils::FancyMainWindow *mainWindow() const;
 
 signals:
     void languageChanged(const QString &langName);
@@ -78,6 +72,10 @@ private slots:
     void langChangeTriggered();
 
 private:
+    // Used by MainWindow
+    friend class Internal::DebuggerMainWindow;
+    QList<Internal::DebugToolWindow* > i_mw_debugToolWindows() const;
+
     void hideInactiveWidgets();
     void createViewsMenuItems();
     void readSettings();
@@ -85,35 +83,7 @@ private:
     QWidget *createContents(Core::BaseMode *mode);
     QWidget *createMainWindow(Core::BaseMode *mode);
 
-    // first: language id, second: menu item
-    typedef QPair<int, QAction* > ViewsMenuItems;
-    QList< ViewsMenuItems > m_viewsMenuItems;
-    QList< Internal::DebugToolWindow* > m_dockWidgets;
-
-    QMap<QString, QWidget *> m_toolBars;
-    QStringList m_languages;
-
-    QStackedWidget *m_toolbarStack;
-    DebuggerMainWindow *m_mainWindow;
-
-    QList<int> m_debuggercontext;
-    QActionGroup *m_languageActionGroup;
-
-    int m_activeLanguage;
-    bool m_isActiveMode;
-    bool m_changingUI;
-
-    QAction *m_toggleLockedAction;
-
-    const static int StackIndexRole = Qt::UserRole + 11;
-
-    Core::ActionContainer *m_languageMenu;
-    Core::ActionContainer *m_viewsMenu;
-    Core::ActionContainer *m_debugMenu;
-
-    static DebuggerUISwitcher *m_instance;
-
-    friend class DebuggerMainWindow;
+    DebuggerUISwitcherPrivate *d;
 };
 
 }

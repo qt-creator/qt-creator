@@ -30,10 +30,12 @@
 #ifndef DEBUGGER_OUTPUTWINDOW_H
 #define DEBUGGER_OUTPUTWINDOW_H
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QPlainTextEdit>
-#include <QtGui/QSplitter>
 #include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+class QLineEdit;
+QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {

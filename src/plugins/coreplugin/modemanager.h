@@ -31,39 +31,33 @@
 #define MODEMANAGER_H
 
 #include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QVector>
-
 #include <coreplugin/core_global.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QSignalMapper;
-class QMenu;
 QT_END_NAMESPACE
 
 namespace Core {
 
 class Command;
 class IMode;
-
 namespace Internal {
-class FancyTabWidget;
-class FancyActionBar;
-class FancyConfigButton;
-class MainWindow;
-} // namespace Internal
+    class MainWindow;
+    class FancyTabWidget;
+}
+
+struct ModeManagerPrivate;
 
 class CORE_EXPORT ModeManager : public QObject
 {
     Q_OBJECT
 
 public:
-    ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
+    explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
+    virtual ~ModeManager();
 
     void init();
-    static ModeManager *instance() { return m_instance; }
+    static ModeManager *instance();
 
     IMode* currentMode() const;
     IMode* mode(const QString &id) const;
@@ -93,16 +87,7 @@ private slots:
 private:
     int indexOf(const QString &id) const;
 
-    static ModeManager *m_instance;
-    Internal::MainWindow *m_mainWindow;
-    Internal::FancyTabWidget *m_modeStack;
-    Internal::FancyActionBar *m_actionBar;
-    QMap<Command*, int> m_actions;
-    QVector<IMode*> m_modes;
-    QVector<Command*> m_modeShortcuts;
-    QSignalMapper *m_signalMapper;
-    QList<int> m_addedContexts;
-    int m_oldCurrent;
+    ModeManagerPrivate *d;
 };
 
 } // namespace Core

@@ -29,6 +29,7 @@
 
 #include "s60devicespreferencepane.h"
 #include "ui_s60devicespreferencepane.h"
+#include "s60devices.h"
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 

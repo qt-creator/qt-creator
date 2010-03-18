@@ -37,12 +37,13 @@
 #include "filemanager.h"
 #include "icore.h"
 #include "uniqueidmanager.h"
-#include <utils/treewidgetcolumnstretcher.h>
 
+#include <utils/treewidgetcolumnstretcher.h>
 
 #include <QtGui/QKeyEvent>
 #include <QtGui/QShortcut>
 #include <QtGui/QHeaderView>
+#include <QtGui/QTreeWidgetItem>
 #include <QtGui/QFileDialog>
 #include <QtCore/QCoreApplication>
 #include <QtDebug>

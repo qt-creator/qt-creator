@@ -33,7 +33,7 @@
 ****************************************************************************/
 
 #include "maemoruncontrol.h"
-
+#include "maemosshthread.h"
 #include "maemorunconfiguration.h"
 
 #include <coreplugin/icore.h>
@@ -59,6 +59,10 @@ AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
     : RunControl(rc)
     , runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
     , devConfig(runConfig ? runConfig->deviceConfig() : MaemoDeviceConfig())
+{
+}
+
+AbstractMaemoRunControl::~AbstractMaemoRunControl()
 {
 }
 

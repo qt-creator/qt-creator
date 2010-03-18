@@ -67,6 +67,7 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 #include <projectexplorer/toolchain.h>
 #include <cplusplus/CppDocument.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -373,7 +374,8 @@ void DebuggerManager::init()
     d->m_watchersWindow = new WatchWindow(WatchWindow::WatchersType, this);
     d->m_statusTimer = new QTimer(this);
 
-    d->m_mainWindow = DebuggerUISwitcher::instance()->mainWindow();
+    d->m_mainWindow = qobject_cast<Debugger::Internal::DebuggerMainWindow*>(DebuggerUISwitcher::instance()->mainWindow());
+    QTC_ASSERT(d->m_mainWindow, return)
 
     // Snapshots
     d->m_snapshotHandler = new SnapshotHandler;

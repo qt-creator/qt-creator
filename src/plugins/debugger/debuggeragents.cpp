@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "debuggeragents.h"
+#include "debuggermanager.h"
+#include "stackframe.h"
 #include "debuggerstringutils.h"
 #include "idebuggerengine.h"
 

@@ -36,11 +36,11 @@
 #include <QtGui/QProgressBar>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPainter>
+#include <QtGui/QMouseEvent>
 #include <QtCore/QTimer>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QPropertyAnimation>
 #include <utils/stylehelper.h>
-
 
 using namespace Core;
 

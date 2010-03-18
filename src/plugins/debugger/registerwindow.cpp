@@ -32,9 +32,11 @@
 
 #include "debuggeractions.h"
 #include "debuggeragents.h"
+#include "debuggermanager.h"
 #include "debuggerconstants.h"
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -49,7 +51,6 @@
 #include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QToolButton>
-
 
 namespace Debugger {
 namespace Internal {

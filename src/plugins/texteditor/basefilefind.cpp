@@ -31,6 +31,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/filemanager.h>
 #include <find/textfindconstants.h>

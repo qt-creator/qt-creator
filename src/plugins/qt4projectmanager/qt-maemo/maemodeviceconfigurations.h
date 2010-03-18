@@ -38,7 +38,6 @@
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtCore/QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

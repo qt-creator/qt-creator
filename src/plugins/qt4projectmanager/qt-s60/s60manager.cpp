@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "s60manager.h"
+#include "qtversionmanager.h"
 
 #include "s60devicespreferencepane.h"
 #include "symbiandevicemanager.h"
@@ -46,6 +47,9 @@
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMainWindow>
+
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 
 namespace {
     const char S60_AUTODETECTION_SOURCE[] = "QTS60";

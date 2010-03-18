@@ -37,6 +37,7 @@
 #include "idebuggerengine.h"
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>

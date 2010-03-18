@@ -58,6 +58,9 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QMenu>
 #include <QtGui/QClipboard>
+#include <QtGui/QAction>
+#include <QtGui/QSplitter>
+#include <QtGui/QStackedLayout>
 
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>

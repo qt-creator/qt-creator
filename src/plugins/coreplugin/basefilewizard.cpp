@@ -51,6 +51,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QWizard>
 #include <QtGui/QMainWindow>
+#include <QtGui/QIcon>
 
 enum { debugWizard = 0 };
 

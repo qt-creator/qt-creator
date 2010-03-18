@@ -36,7 +36,6 @@
 #define MAEMORUNCONTROL_H
 
 #include "maemodeviceconfigurations.h"
-#include "maemosshthread.h"
 
 #include <projectexplorer/runconfiguration.h>
 
@@ -55,7 +54,8 @@ namespace Debugger {
 
 namespace Qt4ProjectManager {
 namespace Internal {
-
+class MaemoSshDeployer;
+class MaemoSshRunner;
 class MaemoRunConfiguration;
 
 class AbstractMaemoRunControl : public ProjectExplorer::RunControl
@@ -63,8 +63,8 @@ class AbstractMaemoRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 
 public:
-    AbstractMaemoRunControl(ProjectExplorer::RunConfiguration *runConfig);
-    virtual ~AbstractMaemoRunControl() {}
+    explicit AbstractMaemoRunControl(ProjectExplorer::RunConfiguration *runConfig);
+    virtual ~AbstractMaemoRunControl();
 
 protected:
     void startDeployment(bool forDebugging);
@@ -111,7 +111,7 @@ class MaemoRunControl : public AbstractMaemoRunControl
 {
     Q_OBJECT
 public:
-    MaemoRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
+    explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~MaemoRunControl();
     void start();
     void stop();
@@ -134,7 +134,7 @@ class MaemoDebugRunControl : public AbstractMaemoRunControl
 {
     Q_OBJECT
 public:
-    MaemoDebugRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
+    explicit MaemoDebugRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~MaemoDebugRunControl();
     void start();
     void stop();

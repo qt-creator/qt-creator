@@ -30,12 +30,12 @@
 #ifndef FANCYTABWIDGET_H
 #define FANCYTABWIDGET_H
 
-#include <QtGui/QPushButton>
-#include <QtGui/QTabBar>
-#include <QtGui/QStyleOptionTabV2>
-#include <QtCore/QTimeLine>
+#include <QtGui/QIcon>
+#include <QtGui/QWidget>
+
 #include <QtCore/QTimer>
 #include <QtCore/QPropertyAnimation>
+
 QT_BEGIN_NAMESPACE
 class QPainter;
 class QStackedLayout;

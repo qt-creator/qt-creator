@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "coreimpl.h"
+#include "mainwindow.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>

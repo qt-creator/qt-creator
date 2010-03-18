@@ -30,10 +30,6 @@
 #ifndef MAEMOMANAGER_H
 #define MAEMOMANAGER_H
 
-#include "qtversionmanager.h"
-
-#include <coreplugin/actionmanager/command.h>
-
 #include <QtCore/QObject>
 #include <QtCore/QSet>
 
@@ -43,6 +39,9 @@ QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
 
+namespace Core {
+    class Command;
+}
 namespace ProjectExplorer {
     class Project;
     class ToolChain;
@@ -52,7 +51,7 @@ using ProjectExplorer::ToolChain;
 
 namespace Qt4ProjectManager {
     class QtVersion;
-    namespace Internal {
+namespace Internal {
 
 class MaemoRunControlFactory;
 class MaemoRunConfigurationFactory;

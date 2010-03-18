@@ -33,7 +33,6 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QMap>
-#include <QtCore/QList>
 #include <QtGui/QKeySequence>
 
 namespace Core {

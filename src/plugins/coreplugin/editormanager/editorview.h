@@ -33,27 +33,24 @@
 #include <QtCore/QMap>
 #include <QtCore/QList>
 #include <QtCore/QString>
-#include <QtCore/QSettings>
 #include <QtGui/QWidget>
-#include <QtGui/QAction>
-#include <QtGui/QSplitter>
-#include <QtGui/QStackedLayout>
 #include <QtCore/QPointer>
-
-#include <coreplugin/icontext.h>
-#include <coreplugin/ifile.h>
-
-#include <QtGui/QSortFilterProxyModel>
+#include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QToolButton;
 class QLabel;
 class QStackedWidget;
+class QSplitter;
+class QStackedLayout;
+class QAction;
+class QFrame;
 QT_END_NAMESPACE
 
 namespace Core {
-
+class IContext;
+class IFile;
 class IEditor;
 class OpenEditorsModel;
 class EditorToolBar;
@@ -72,7 +69,7 @@ class EditorView : public QWidget
     Q_OBJECT
 
 public:
-    EditorView(QWidget *parent = 0);
+    explicit EditorView(QWidget *parent = 0);
     virtual ~EditorView();
 
     int editorCount() const;
@@ -146,8 +143,8 @@ class SplitterOrView  : public QWidget
 {
     Q_OBJECT
 public:
-    SplitterOrView(OpenEditorsModel *model); // creates a root splitter
-    SplitterOrView(Core::IEditor *editor = 0);
+    explicit SplitterOrView(OpenEditorsModel *model); // creates a root splitter
+    explicit SplitterOrView(Core::IEditor *editor = 0);
     ~SplitterOrView();
 
     void split(Qt::Orientation orientation);
@@ -186,7 +183,6 @@ public:
 protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *e);
-
 
 private:
     void unsplitAll_helper();

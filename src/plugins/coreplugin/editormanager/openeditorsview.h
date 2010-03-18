@@ -32,17 +32,13 @@
 
 #include "ui_openeditorsview.h"
 
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <QtCore/QList>
-#include <QtGui/QWidget>
-#include <QtGui/QKeySequence>
-#include <QtGui/QAbstractButton>
-#include <QtGui/QTreeWidgetItem>
 #include <QtGui/QStyledItemDelegate>
 
 namespace Core {
+class IEditor;
+
 namespace Internal {
 
 class OpenEditorsDelegate : public QStyledItemDelegate
@@ -50,14 +46,13 @@ class OpenEditorsDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    OpenEditorsDelegate(QObject *parent = 0);
+    explicit OpenEditorsDelegate(QObject *parent = 0);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
 
     mutable QModelIndex pressedIndex;
 };
-
 
 class OpenEditorsWidget : public QWidget
 {

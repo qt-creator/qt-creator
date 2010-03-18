@@ -30,7 +30,6 @@
 #ifndef FANCYACTIONBAR_H
 #define FANCYACTIONBAR_H
 
-#include <QtCore/QMap>
 #include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE

@@ -63,6 +63,8 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #ifdef WITH_TESTS

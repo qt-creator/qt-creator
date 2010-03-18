@@ -30,7 +30,6 @@
 #ifndef OUTPUT_COLLECTOR_H
 #define OUTPUT_COLLECTOR_H
 
-#include <QtCore/QByteArray>
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE

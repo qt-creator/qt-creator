@@ -32,6 +32,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QWidget>
+#include <QtGui/QIcon>
 
 using namespace Core;
 

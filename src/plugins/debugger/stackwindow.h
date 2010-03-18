@@ -31,12 +31,6 @@
 #define DEBUGGER_STACKWINDOW_H
 
 #include <QtGui/QTreeView>
-#include <QtGui/QWidget>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QModelIndex;
-QT_END_NAMESPACE
 
 namespace Debugger {
 class DebuggerManager;

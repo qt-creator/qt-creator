@@ -43,6 +43,8 @@
 #include "ui_dumperoptionpage.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -78,6 +80,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QObject>
@@ -95,6 +98,8 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QToolButton>
 #include <QtGui/QMessageBox>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
 
 #include <climits>
 

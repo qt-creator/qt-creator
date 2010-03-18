@@ -31,10 +31,10 @@
 #define COREIMPL_H
 
 #include "icore.h"
-#include "mainwindow.h"
 
 namespace Core {
 namespace Internal {
+class MainWindow;
 
 class CoreImpl : public ICore
 {

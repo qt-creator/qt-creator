@@ -46,7 +46,6 @@ class QDockWidget;
 class QLabel;
 class QMessageBox;
 class QPoint;
-class QVariant;
 class QIcon;
 QT_END_NAMESPACE
 

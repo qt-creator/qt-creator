@@ -35,8 +35,12 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
 #include <qt4projectmanager/qt4project.h>
+
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>

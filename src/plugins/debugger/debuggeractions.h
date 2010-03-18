@@ -32,11 +32,15 @@
 
 #include <QtCore/QHash>
 
-#include <utils/savedaction.h>
-
 QT_BEGIN_NAMESPACE
+class QAction;
 class QActionGroup;
+class QSettings;
 QT_END_NAMESPACE
+
+namespace Utils {
+    class SavedAction;
+}
 
 namespace Debugger {
 namespace Internal {

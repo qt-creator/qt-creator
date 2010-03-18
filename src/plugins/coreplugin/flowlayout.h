@@ -30,9 +30,7 @@
 #ifndef FLOWLAYOUT_H
 #define FLOWLAYOUT_H
 
-#include <QLayout>
-#include <QRect>
-#include <QWidgetItem>
+#include <QtGui/QLayout>
 
 namespace Core {
 namespace Internal {

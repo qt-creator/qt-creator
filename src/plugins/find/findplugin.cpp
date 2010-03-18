@@ -45,6 +45,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QtGui/QMenu>
+
 #include <QtCore/QtPlugin>
 #include <QtCore/QSettings>
 

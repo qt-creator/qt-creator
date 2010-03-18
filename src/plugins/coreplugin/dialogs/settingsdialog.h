@@ -30,11 +30,11 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
+#include "coreplugin/dialogs/ioptionspage.h"
+
 #include <QtCore/QList>
 #include <QtCore/QSet>
 #include <QtGui/QDialog>
-
-#include "coreplugin/dialogs/ioptionspage.h"
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;

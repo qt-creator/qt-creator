@@ -30,8 +30,6 @@
 #ifndef S60DEVICESPREFERENCEPANE_H
 #define S60DEVICESPREFERENCEPANE_H
 
-#include "s60devices.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QPointer>
@@ -39,8 +37,9 @@
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class S60Devices;
 
-namespace Ui {
+namespace Ui {    
     class S60DevicesPreferencePane;
 }
 

@@ -37,6 +37,7 @@
 #include "watchhandler.h"
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>

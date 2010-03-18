@@ -377,7 +377,7 @@ void QmlInspector::initWidgets()
 
 void QmlInspector::setSimpleDockWidgetArrangement()
 {
-    Debugger::DebuggerMainWindow *mainWindow = Debugger::DebuggerUISwitcher::instance()->mainWindow();
+    Utils::FancyMainWindow *mainWindow = Debugger::DebuggerUISwitcher::instance()->mainWindow();
 
     mainWindow->setTrackingEnabled(false);
     QList<QDockWidget *> dockWidgets = mainWindow->dockWidgets();

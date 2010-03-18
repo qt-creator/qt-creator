@@ -32,7 +32,6 @@
 
 #include "s60devices.h"
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
 
 namespace Qt4ProjectManager {

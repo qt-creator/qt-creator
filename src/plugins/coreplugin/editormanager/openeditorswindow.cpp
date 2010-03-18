@@ -31,6 +31,7 @@
 #include "openeditorsmodel.h"
 #include "editormanager.h"
 #include "editorview.h"
+#include "ifile.h"
 
 #include <utils/qtcassert.h>
 

@@ -39,10 +39,11 @@
 #include <utils/filenamevalidatinglineedit.h>
 #include <utils/filewizardpage.h>
 
+#include <QtGui/QIcon>
+
 #include <QtCore/QDir>
 #include <QtCore/QtDebug>
 #include <QtCore/QCoreApplication>
-
 
 using namespace Utils;
 

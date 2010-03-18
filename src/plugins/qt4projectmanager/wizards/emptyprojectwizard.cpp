@@ -33,6 +33,8 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <QtGui/QIcon>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 

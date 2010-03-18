@@ -32,6 +32,7 @@
 #include "modemanager.h"
 
 #include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>

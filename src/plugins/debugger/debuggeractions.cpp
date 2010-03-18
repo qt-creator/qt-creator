@@ -29,6 +29,7 @@
 
 #include "debuggeractions.h"
 
+#include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 

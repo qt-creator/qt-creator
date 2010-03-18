@@ -44,6 +44,9 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QFileDialog>
 #include <QtGui/QLineEdit>
+#include <QtGui/QAction>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QTreeWidgetItem>
 #include <QtCore/QCoreApplication>
 #include <QtDebug>
 

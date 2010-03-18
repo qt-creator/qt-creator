@@ -32,15 +32,12 @@
 
 #include "../core_global.h"
 
-#include <coreplugin/icorelistener.h>
-#include <coreplugin/ifile.h>
+#include <coreplugin/ifile.h> // enumerations
 
 #include <QtGui/QWidget>
 #include <QtCore/QList>
-#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QModelIndex;
 QT_END_NAMESPACE
 
@@ -273,27 +270,4 @@ private:
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::EditorManager::OpenEditorFlags);
-
-
-//===================EditorClosingCoreListener======================
-
-namespace Core {
-namespace Internal {
-
-class EditorClosingCoreListener : public ICoreListener
-{
-    Q_OBJECT
-
-public:
-    EditorClosingCoreListener(EditorManager *em);
-    bool editorAboutToClose(IEditor *editor);
-    bool coreAboutToClose();
-
-private:
-    EditorManager *m_em;
-};
-
-} // namespace Internal
-} // namespace Core
-
 #endif // EDITORMANAGER_H

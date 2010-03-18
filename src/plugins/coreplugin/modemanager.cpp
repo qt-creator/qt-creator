@@ -46,35 +46,58 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QObject>
 #include <QtCore/QDebug>
+#include <QtCore/QList>
+#include <QtCore/QMap>
+#include <QtCore/QVector>
+
 #include <QtCore/QSignalMapper>
 #include <QtGui/QShortcut>
-
 #include <QtGui/QAction>
-#include <QtGui/QTabWidget>
-#include <QtGui/QVBoxLayout>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
 
-ModeManager *ModeManager::m_instance = 0;
+struct ModeManagerPrivate {
+    explicit ModeManagerPrivate(Internal::MainWindow *mainWindow,
+                                Internal::FancyTabWidget *modeStack,
+                                ModeManager *q);
 
-ModeManager::ModeManager(Internal::MainWindow *mainWindow, FancyTabWidget *modeStack) :
+    static ModeManager *m_instance;
+    Internal::MainWindow *m_mainWindow;
+    Internal::FancyTabWidget *m_modeStack;
+    Internal::FancyActionBar *m_actionBar;
+    QMap<Command*, int> m_actions;
+    QVector<IMode*> m_modes;
+    QVector<Command*> m_modeShortcuts;
+    QSignalMapper *m_signalMapper;
+    QList<int> m_addedContexts;
+    int m_oldCurrent;
+};
+
+ModeManager *ModeManagerPrivate::m_instance = 0;
+
+ModeManagerPrivate::ModeManagerPrivate(Internal::MainWindow *mainWindow,
+                                       Internal::FancyTabWidget *modeStack,
+                                       ModeManager *q) :
     m_mainWindow(mainWindow),
     m_modeStack(modeStack),
-    m_signalMapper(new QSignalMapper(this)),
+    m_signalMapper(new QSignalMapper(q)),
     m_oldCurrent(-1)
-
 {
-    m_instance = this;
+}
 
-    m_actionBar = new FancyActionBar(modeStack);
-    m_modeStack->addCornerWidget(m_actionBar);
+ModeManager::ModeManager(Internal::MainWindow *mainWindow,
+                         Internal::FancyTabWidget *modeStack) :
+        d(new ModeManagerPrivate(mainWindow, modeStack, this))
+{
+    ModeManagerPrivate::m_instance = this;
 
-    connect(m_modeStack, SIGNAL(currentAboutToShow(int)), SLOT(currentTabAboutToChange(int)));
-    connect(m_modeStack, SIGNAL(currentChanged(int)), SLOT(currentTabChanged(int)));
-    connect(m_signalMapper, SIGNAL(mapped(QString)), this, SLOT(activateMode(QString)));
+    d->m_actionBar = new Internal::FancyActionBar(modeStack);
+    d->m_modeStack->addCornerWidget(d->m_actionBar);
+
+    connect(d->m_modeStack, SIGNAL(currentAboutToShow(int)), SLOT(currentTabAboutToChange(int)));
+    connect(d->m_modeStack, SIGNAL(currentChanged(int)), SLOT(currentTabChanged(int)));
+    connect(d->m_signalMapper, SIGNAL(mapped(QString)), this, SLOT(activateMode(QString)));
 }
 
 void ModeManager::init()
@@ -85,26 +108,32 @@ void ModeManager::init()
                      this, SLOT(aboutToRemoveObject(QObject*)));
 }
 
+ModeManager::~ModeManager()
+{
+    delete d;
+    ModeManagerPrivate::m_instance = 0;
+}
+
 void ModeManager::addWidget(QWidget *widget)
 {
     // We want the actionbar to stay on the bottom
-    // so m_modeStack->cornerWidgetCount() -1 inserts it at the position immediately above
+    // so d->m_modeStack->cornerWidgetCount() -1 inserts it at the position immediately above
     // the actionbar
-    m_modeStack->insertCornerWidget(m_modeStack->cornerWidgetCount() -1, widget);
+    d->m_modeStack->insertCornerWidget(d->m_modeStack->cornerWidgetCount() -1, widget);
 }
 
 IMode *ModeManager::currentMode() const
 {
-    int currentIndex = m_modeStack->currentIndex();
+    int currentIndex = d->m_modeStack->currentIndex();
     if (currentIndex < 0)
         return 0;
-    return m_modes.at(currentIndex);
+    return d->m_modes.at(currentIndex);
 }
 
 int ModeManager::indexOf(const QString &id) const
 {
-    for (int i = 0; i < m_modes.count(); ++i) {
-        if (m_modes.at(i)->id() == id)
+    for (int i = 0; i < d->m_modes.count(); ++i) {
+        if (d->m_modes.at(i)->id() == id)
             return i;
     }
     qDebug() << "Warning, no such mode:" << id;
@@ -115,7 +144,7 @@ IMode *ModeManager::mode(const QString &id) const
 {
     const int index = indexOf(id);
     if (index >= 0)
-        return m_modes.at(index);
+        return d->m_modes.at(index);
     return 0;
 }
 
@@ -123,7 +152,7 @@ void ModeManager::activateMode(const QString &id)
 {
     const int index = indexOf(id);
     if (index >= 0)
-        m_modeStack->setCurrentIndex(index);
+        d->m_modeStack->setCurrentIndex(index);
 }
 
 void ModeManager::objectAdded(QObject *obj)
@@ -132,29 +161,29 @@ void ModeManager::objectAdded(QObject *obj)
     if (!mode)
         return;
 
-    m_mainWindow->addContextObject(mode);
+    d->m_mainWindow->addContextObject(mode);
 
     // Count the number of modes with a higher priority
     int index = 0;
-    foreach (const IMode *m, m_modes)
+    foreach (const IMode *m, d->m_modes)
         if (m->priority() > mode->priority())
             ++index;
 
-    m_modes.insert(index, mode);
-    m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName());
-    m_modeStack->setTabEnabled(index, mode->isEnabled());
+    d->m_modes.insert(index, mode);
+    d->m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName());
+    d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     // Register mode shortcut
-    ActionManager *am = m_mainWindow->actionManager();
+    ActionManager *am = d->m_mainWindow->actionManager();
     const QString shortcutId = QLatin1String("QtCreator.Mode.") + mode->id();
-    QShortcut *shortcut = new QShortcut(m_mainWindow);
+    QShortcut *shortcut = new QShortcut(d->m_mainWindow);
     shortcut->setWhatsThis(tr("Switch to %1 mode").arg(mode->displayName()));
     Command *cmd = am->registerShortcut(shortcut, shortcutId, QList<int>() << Constants::C_GLOBAL_ID);
 
-    m_modeShortcuts.insert(index, cmd);
+    d->m_modeShortcuts.insert(index, cmd);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateModeToolTip()));
-    for (int i = 0; i < m_modeShortcuts.size(); ++i) {
-        Command *currentCmd = m_modeShortcuts.at(i);
+    for (int i = 0; i < d->m_modeShortcuts.size(); ++i) {
+        Command *currentCmd = d->m_modeShortcuts.at(i);
         bool currentlyHasDefaultSequence = (currentCmd->keySequence()
                                             == currentCmd->defaultKeySequence());
 #ifdef Q_WS_MAC
@@ -166,8 +195,8 @@ void ModeManager::objectAdded(QObject *obj)
             currentCmd->setKeySequence(currentCmd->defaultKeySequence());
     }
 
-    m_signalMapper->setMapping(shortcut, mode->id());
-    connect(shortcut, SIGNAL(activated()), m_signalMapper, SLOT(map()));
+    d->m_signalMapper->setMapping(shortcut, mode->id());
+    connect(shortcut, SIGNAL(activated()), d->m_signalMapper, SLOT(map()));
     connect(mode, SIGNAL(enabledStateChanged(bool)),
             this, SLOT(enabledStateChanged()));
 }
@@ -176,9 +205,9 @@ void ModeManager::updateModeToolTip()
 {
     Command *cmd = qobject_cast<Command *>(sender());
     if (cmd) {
-        int index = m_modeShortcuts.indexOf(cmd);
+        int index = d->m_modeShortcuts.indexOf(cmd);
         if (index != -1)
-            m_modeStack->setTabToolTip(index, cmd->stringWithAppendedShortcut(cmd->shortcut()->whatsThis()));
+            d->m_modeStack->setTabToolTip(index, cmd->stringWithAppendedShortcut(cmd->shortcut()->whatsThis()));
     }
 }
 
@@ -186,9 +215,9 @@ void ModeManager::enabledStateChanged()
 {
     IMode *mode = qobject_cast<IMode *>(sender());
     QTC_ASSERT(mode, return);
-    int index = m_modes.indexOf(mode);
+    int index = d->m_modes.indexOf(mode);
     QTC_ASSERT(index >= 0, return);
-    m_modeStack->setTabEnabled(index, mode->isEnabled());
+    d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 }
 
 void ModeManager::aboutToRemoveObject(QObject *obj)
@@ -197,37 +226,37 @@ void ModeManager::aboutToRemoveObject(QObject *obj)
     if (!mode)
         return;
 
-    const int index = m_modes.indexOf(mode);
-    m_modes.remove(index);
-    m_modeShortcuts.remove(index);
-    m_modeStack->removeTab(index);
+    const int index = d->m_modes.indexOf(mode);
+    d->m_modes.remove(index);
+    d->m_modeShortcuts.remove(index);
+    d->m_modeStack->removeTab(index);
 
-    m_mainWindow->removeContextObject(mode);
+    d->m_mainWindow->removeContextObject(mode);
 }
 
 void ModeManager::addAction(Command *command, int priority)
 {
-    m_actions.insert(command, priority);
+    d->m_actions.insert(command, priority);
 
     // Count the number of commands with a higher priority
     int index = 0;
-    foreach (int p, m_actions) {
+    foreach (int p, d->m_actions) {
         if (p > priority)
             ++index;
     }
 
-    m_actionBar->insertAction(index, command->action());
+    d->m_actionBar->insertAction(index, command->action());
 }
 
 void ModeManager::addProjectSelector(QAction *action)
 {
-    m_actionBar->addProjectSelector(action);
+    d->m_actionBar->addProjectSelector(action);
 }
 
 void ModeManager::currentTabAboutToChange(int index)
 {
     if (index >= 0) {
-        IMode *mode = m_modes.at(index);
+        IMode *mode = d->m_modes.at(index);
         if (mode)
             emit currentModeAboutToChange(mode);
     }
@@ -237,22 +266,22 @@ void ModeManager::currentTabChanged(int index)
 {
     // Tab index changes to -1 when there is no tab left.
     if (index >= 0) {
-        IMode *mode = m_modes.at(index);
+        IMode *mode = d->m_modes.at(index);
 
         // FIXME: This hardcoded context update is required for the Debug and Edit modes, since
         // they use the editor widget, which is already a context widget so the main window won't
         // go further up the parent tree to find the mode context.
         ICore *core = ICore::instance();
-        foreach (const int context, m_addedContexts)
+        foreach (const int context, d->m_addedContexts)
             core->removeAdditionalContext(context);
 
-        m_addedContexts = mode->context();
-        foreach (const int context, m_addedContexts)
+        d->m_addedContexts = mode->context();
+        foreach (const int context, d->m_addedContexts)
             core->addAdditionalContext(context);
         IMode *oldMode = 0;
-        if (m_oldCurrent >= 0)
-            oldMode = m_modes.at(m_oldCurrent);
-        m_oldCurrent = index;
+        if (d->m_oldCurrent >= 0)
+            oldMode = d->m_modes.at(d->m_oldCurrent);
+        d->m_oldCurrent = index;
         emit currentModeChanged(mode, oldMode);
         core->updateContext();
     }
@@ -271,3 +300,10 @@ void ModeManager::setFocusToCurrentMode()
             widget->setFocus();
     }
 }
+
+ModeManager *ModeManager::instance()
+{
+    return ModeManagerPrivate::m_instance;
+}
+
+} // namespace Core

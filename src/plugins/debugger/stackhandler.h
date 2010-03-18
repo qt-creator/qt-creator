@@ -37,7 +37,6 @@
 
 #include <QtGui/QIcon>
 
-
 namespace Debugger {
 namespace Internal {
 

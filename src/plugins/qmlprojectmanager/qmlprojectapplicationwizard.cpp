@@ -34,6 +34,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <QtGui/QIcon>
+
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
 

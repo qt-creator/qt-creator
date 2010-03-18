@@ -32,8 +32,10 @@
 #include "fakevimhandler.h"
 #include "ui_fakevimoptions.h"
 
-
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
@@ -82,7 +84,7 @@
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextEdit>
-
+#include <QtGui/QTreeWidgetItem>
 
 using namespace FakeVim::Internal;
 using namespace TextEditor;

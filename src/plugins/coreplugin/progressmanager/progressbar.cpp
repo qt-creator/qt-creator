@@ -36,6 +36,7 @@
 #include <QtGui/QFont>
 #include <QtGui/QBrush>
 #include <QtGui/QColor>
+#include <QtGui/QMouseEvent>
 #include <QtDebug>
 
 #define PROGRESSBAR_HEIGHT 13

@@ -30,8 +30,6 @@
 #ifndef DEBUGGER_PROCINTERRUPT_H
 #define DEBUGGER_PROCINTERRUPT_H
 
-#include <QtCore/QProcess>
-
 namespace Debugger {
 namespace Internal {
 

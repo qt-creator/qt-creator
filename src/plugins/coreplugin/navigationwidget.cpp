@@ -35,6 +35,7 @@
 #include "modemanager.h"
 #include "uniqueidmanager.h"
 #include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
 
 #include <extensionsystem/pluginmanager.h>
 

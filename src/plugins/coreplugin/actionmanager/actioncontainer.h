@@ -31,9 +31,12 @@
 #define ACTIONCONTAINER_H
 
 #include <QtCore/QObject>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QAction>
+
+QT_BEGIN_NAMESPACE
+class QMenu;
+class QMenuBar;
+class QAction;
+QT_END_NAMESPACE
 
 namespace Core {
 

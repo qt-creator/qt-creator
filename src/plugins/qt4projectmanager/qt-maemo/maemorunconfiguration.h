@@ -32,7 +32,6 @@
 
 #include "maemodeviceconfigurations.h"
 
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QDateTime>

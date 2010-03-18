@@ -30,22 +30,18 @@
 #ifndef DEBUGGER_AGENTS_H
 #define DEBUGGER_AGENTS_H
 
-#include "debuggermanager.h"
-#include "stackframe.h"
-
-#include <coreplugin/editormanager/ieditor.h>
-
 #include <QtCore/QObject>
-#include <QtCore/QDebug>
-#include <QtCore/QList>
 #include <QtCore/QPointer>
-#include <QtGui/QAction>
 
-
+namespace Core {
+    class IEditor;
+}
 namespace Debugger {
 class DebuggerManager;
-namespace Internal {
 
+namespace Internal {
+struct StackFrame;
+class IDebuggerEngine;
 struct DisassemblerViewAgentPrivate;
 
 class MemoryViewAgent : public QObject

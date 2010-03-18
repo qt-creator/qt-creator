@@ -29,8 +29,6 @@
 
 #include "debuggerrunner.h"
 
-#include "debuggermanager.h"
-
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>

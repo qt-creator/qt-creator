@@ -36,10 +36,7 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 
 namespace Debugger {
-class DebuggerManager;
-
 namespace Internal {
-class StartData;
 
 class DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory

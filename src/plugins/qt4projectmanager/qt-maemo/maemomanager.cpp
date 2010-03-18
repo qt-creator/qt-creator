@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "maemomanager.h"
+#include "qtversionmanager.h"
 
 #include "maemodeviceconfigurations.h"
 #include "maemorunfactories.h"
@@ -40,6 +41,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <extensionsystem/pluginmanager.h>
+
+#include <coreplugin/actionmanager/command.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>

@@ -38,6 +38,7 @@
 #endif
 
 #include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>

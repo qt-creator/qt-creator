@@ -33,12 +33,10 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
-class QCursor;
 class QMenu;
 class QPoint;
 class QToolButton;

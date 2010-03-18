@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 
 #include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>

@@ -32,10 +32,11 @@
 
 #include <coreplugin/actionmanager/commandmappings.h>
 
-#include <QtCore/QObject>
 #include <QtGui/QKeySequence>
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QKeyEvent>
+
+QT_BEGIN_NAMESPACE
+class QKeyEvent;
+QT_END_NAMESPACE
 
 namespace Core {
 

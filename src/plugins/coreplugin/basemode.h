@@ -34,8 +34,12 @@
 #include "imode.h"
 
 #include <QtCore/QObject>
-#include <QtGui/QWidget>
+
 #include <QtGui/QIcon>
+
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
 namespace Core {
 

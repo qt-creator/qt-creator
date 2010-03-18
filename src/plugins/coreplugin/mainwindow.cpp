@@ -29,6 +29,7 @@
 
 #include "mainwindow.h"
 #include "actioncontainer.h"
+#include "command.h"
 #include "actionmanager_p.h"
 #include "coreimpl.h"
 #include "coreconstants.h"
@@ -64,6 +65,7 @@
 #include "editormanager/systemeditor.h"
 
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icorelistener.h>
 #include <coreplugin/settingsdatabase.h>
 #include <utils/pathchooser.h>
 #include <utils/stylehelper.h>
@@ -86,6 +88,7 @@
 #include <QtGui/QWizard>
 #include <QtGui/QToolButton>
 #include <QtGui/QMessageBox>
+#include <QtGui/QMenuBar>
 
 /*
 #ifdef Q_OS_UNIX

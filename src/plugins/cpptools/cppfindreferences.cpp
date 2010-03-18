@@ -37,6 +37,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filesearch.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 

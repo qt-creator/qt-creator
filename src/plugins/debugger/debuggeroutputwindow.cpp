@@ -44,11 +44,14 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextBlock>
+#include <QtGui/QPlainTextEdit>
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/minisplitter.h>
 #include <find/basetextfind.h>
+
+#include <utils/savedaction.h>
 
 using namespace Debugger;
 using namespace Debugger::Internal;

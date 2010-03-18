@@ -33,6 +33,8 @@
 #include "debuggeractions.h"
 #include "debuggermanager.h"
 
+#include <utils/savedaction.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
 #include <QtCore/QRegExp>

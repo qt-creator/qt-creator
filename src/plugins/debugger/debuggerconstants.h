@@ -30,7 +30,7 @@
 #ifndef DEBUGGERCONSTANTS_H
 #define DEBUGGERCONSTANTS_H
 
-#include "debugger_global.h"
+#include <QtCore/QtGlobal>
 
 namespace Debugger {
 namespace Constants {

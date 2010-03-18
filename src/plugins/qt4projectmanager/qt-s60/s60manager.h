@@ -30,17 +30,16 @@
 #ifndef S60MANAGER_H
 #define S60MANAGER_H
 
-#include "qtversionmanager.h"
 #include "s60devices.h"
+
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QObject>
 
-namespace ProjectExplorer {
-class ToolChain;
-}
-
 namespace Qt4ProjectManager {
+class QtVersion;
 namespace Internal {
+class S60Devices;
 
 class S60Manager : public QObject
 {

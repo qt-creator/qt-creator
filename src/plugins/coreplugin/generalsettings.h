@@ -32,7 +32,10 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QtCore/QPointer>
-#include <QtGui/QMessageBox>
+
+QT_BEGIN_NAMESPACE
+class QMessageBox;
+QT_END_NAMESPACE
 
 namespace Core {
 namespace Internal {

@@ -34,10 +34,6 @@
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QDateTime>
-#include <QtCore/QObject>
-
-#include <QtGui/QIcon>
-
 
 namespace Debugger {
 namespace Internal {
