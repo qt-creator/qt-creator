@@ -67,21 +67,20 @@
 
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QtPlugin>
-#include <QtCore/QTimer>
-
 #include <QtCore/QDebug>
+#include <QtCore/QStringList>
+#include <QtCore/QTimer>
+#include <QtCore/QtPlugin>
 
-#include <QtGui/qtoolbutton.h>
-#include <QtGui/qtoolbar.h>
-#include <QtGui/qboxlayout.h>
-#include <QtGui/qlabel.h>
-#include <QtGui/qdockwidget.h>
-#include <QtGui/qaction.h>
-#include <QtGui/qlineedit.h>
-#include <QtGui/qlabel.h>
-#include <QtGui/qspinbox.h>
+#include <QtGui/QToolButton>
+#include <QtGui/QToolBar>
+#include <QtGui/QBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QDockWidget>
+#include <QtGui/QAction>
+#include <QtGui/QLineEdit>
+#include <QtGui/QLabel>
+#include <QtGui/QSpinBox>
 
 #include <QtNetwork/QHostAddress>
 
