@@ -1772,6 +1772,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_movetype = MoveExclusive;
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
+    } else if (key == control('t')) {
+        handleCommand("pop");
     } else if (!m_gflag && key == 'u') {
         undo();
     } else if (key == control('u')) {
@@ -1928,6 +1930,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         removeSelectedText();
     } else if (key == Key_BracketLeft || key == Key_BracketRight) {
 
+    } else if (key == control(Key_BracketRight)) {
+        handleCommand("tag");
     } else if (key == Key_Escape) {
         if (isVisualMode()) {
             leaveVisualMode();
