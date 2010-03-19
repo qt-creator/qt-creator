@@ -86,6 +86,7 @@ bool DesignModeCoreListener::coreAboutToClose()
 struct DesignEditorInfo {
     int widgetIndex;
     QStringList mimeTypes;
+    QList<int> context;
     bool preferredMode;
     QWidget *widget;
 };
@@ -100,6 +101,7 @@ struct DesignModePrivate {
 
     EditorManager *m_editorManager;
     QStackedWidget *m_stackWidget;
+    QList<int> m_activeContext;
 };
 
 DesignModePrivate::DesignModePrivate(DesignMode *q, EditorManager *editorManager) :
@@ -118,6 +120,9 @@ DesignMode::DesignMode(EditorManager *editorManager) :
 
     connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(currentEditorChanged(Core::IEditor*)));
+
+    connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
+            this, SLOT(updateContext(Core::IMode*,Core::IMode*)));
 }
 
 DesignMode::~DesignMode()
@@ -169,13 +174,17 @@ QStringList DesignMode::registeredMimeTypes() const
     return rc;
 }
 
-void DesignMode::registerDesignWidget(QWidget *widget, const QStringList &mimeTypes, bool preferDesignMode)
+void DesignMode::registerDesignWidget(QWidget *widget,
+                                      const QStringList &mimeTypes,
+                                      const QList<int> &context,
+                                      bool preferDesignMode)
 {
     int index = d->m_stackWidget->addWidget(widget);
 
     DesignEditorInfo *info = new DesignEditorInfo;
     info->preferredMode = preferDesignMode;
     info->mimeTypes = mimeTypes;
+    info->context = context;
     info->widgetIndex = index;
     info->widget = widget;
     d->m_editors.append(info);
@@ -206,12 +215,11 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
         if (type && !type.type().isEmpty())
             mimeType = type.type();
 
-
-
-        foreach(DesignEditorInfo *editorInfo, d->m_editors) {
-            foreach(QString mime, editorInfo->mimeTypes) {
+        foreach (DesignEditorInfo *editorInfo, d->m_editors) {
+            foreach (const QString &mime, editorInfo->mimeTypes) {
                 if (mime == mimeType) {
                     d->m_stackWidget->setCurrentIndex(editorInfo->widgetIndex);
+                    setActiveContext(editorInfo->context);
                     mimeEditorAvailable = true;
                     setEnabled(true);
                     if (editorInfo->preferredMode && core->modeManager()->currentMode() != this) {
@@ -225,8 +233,10 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
                 break;
         }
     }
-    if (!mimeEditorAvailable)
+    if (!mimeEditorAvailable) {
+        setActiveContext(QList<int>());
         setEnabled(false);
+    }
 
     if (!mimeEditorAvailable && core->modeManager()->currentMode() == this)
     {
@@ -251,6 +261,40 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
 void DesignMode::updateActions()
 {
     emit actionsUpdated(d->m_currentEditor.data());
+}
+
+void DesignMode::updateContext(Core::IMode *newMode, Core::IMode *oldMode)
+{
+    if (newMode == this) {
+        // Apply active context
+        Core::ICore *core = Core::ICore::instance();
+        foreach (int contextId, d->m_activeContext)
+            core->addAdditionalContext(contextId);
+        core->updateContext();
+    } else if (oldMode == this) {
+        // Remove active context
+        Core::ICore *core = Core::ICore::instance();
+        foreach (int contextId, d->m_activeContext)
+            core->removeAdditionalContext(contextId);
+        core->updateContext();
+    }
+}
+
+void DesignMode::setActiveContext(const QList<int> &context)
+{
+    if (d->m_activeContext == context)
+        return;
+
+    if (ModeManager::instance()->currentMode() == this) {
+        // Update active context
+        Core::ICore *core = Core::ICore::instance();
+        foreach (int contextId, d->m_activeContext)
+            core->removeAdditionalContext(contextId);
+        foreach (int contextId, context)
+            core->addAdditionalContext(contextId);
+        core->updateContext();
+    }
+    d->m_activeContext = context;
 }
 
 } // namespace Core
