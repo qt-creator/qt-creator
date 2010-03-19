@@ -491,12 +491,13 @@ void QmlInspector::treeObjectActivated(const QDeclarativeDebugObjectReference &o
         return;
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor*>(editorManager->openEditor(fileName));
-    if (editor) {
-        editorManager->ensureEditorManagerVisible();
+    Core::IEditor *editor = editorManager->openEditor(fileName, QString(), Core::EditorManager::NoModeSwitch);
+    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
+
+    if (textEditor) {
         editorManager->addCurrentPositionToNavigationHistory();
-        editor->gotoLine(source.lineNumber());
-        editor->widget()->setFocus();
+        textEditor->gotoLine(source.lineNumber());
+        textEditor->widget()->setFocus();
     }
 }
 
