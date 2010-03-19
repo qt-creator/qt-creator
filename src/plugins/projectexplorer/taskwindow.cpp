@@ -469,9 +469,13 @@ TaskWindow::TaskWindow()
     m_listview->addAction(command->action());
     connect(m_copyAction, SIGNAL(triggered()), SLOT(copy()));
 
+    // Annotate using VCS: Make visible in all contexts
     m_vcsAnnotateAction = new QAction(tr("&Annotate"), this);
+    m_vcsAnnotateAction->setToolTip("Annotate using version control system");
+    QList<int> annotateContext = m_taskWindowContext->context();
+    annotateContext << Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(QLatin1String(Core::Constants::C_GLOBAL));
     command = core->actionManager()->
-            registerAction(m_vcsAnnotateAction, QLatin1String("ProjectExplorer.Task.VCS_Annotate"), m_taskWindowContext->context());
+            registerAction(m_vcsAnnotateAction, QLatin1String("ProjectExplorer.Task.VCS_Annotate"), annotateContext);
     m_listview->addAction(command->action());
     connect(m_vcsAnnotateAction, SIGNAL(triggered()), SLOT(vcsAnnotate()));
 
