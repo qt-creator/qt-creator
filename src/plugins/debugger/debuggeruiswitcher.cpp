@@ -58,7 +58,14 @@ struct DebuggerUISwitcherPrivate {
     QStackedWidget *m_toolbarStack;
     Internal::DebuggerMainWindow *m_mainWindow;
 
+    // main debugger context
     QList<int> m_debuggercontext;
+
+    // global context
+    QList<int> m_globalContext;
+
+    QHash<int, QList<int> > m_contextsForLanguage;
+
     QActionGroup *m_languageActionGroup;
 
     int m_activeLanguage;
@@ -103,12 +110,16 @@ DebuggerUISwitcher::DebuggerUISwitcher(Core::BaseMode *mode, QObject* parent) :
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             SLOT(modeChanged(Core::IMode*)));
 
-    d->m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
-    d->m_languageMenu = am->createMenu(Debugger::Constants::M_DEBUG_LANGUAGES);
-    d->m_languageActionGroup->setExclusive(true);
-    d->m_viewsMenu = am->createMenu(Debugger::Constants::M_DEBUG_VIEWS);
 
-    d->m_debuggercontext << Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER);
+    d->m_debugMenu = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
+
+    d->m_viewsMenu = am->createMenu(Debugger::Constants::M_DEBUG_VIEWS);
+    d->m_languageMenu = am->createMenu(Debugger::Constants::M_DEBUG_LANGUAGES);
+
+    d->m_languageActionGroup->setExclusive(true);
+
+    d->m_debuggercontext << core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_BASEDEBUGGER);
+    d->m_globalContext << Core::Constants::C_GLOBAL_ID;
 
     DebuggerUISwitcherPrivate::m_instance = this;
 }
@@ -190,12 +201,10 @@ void DebuggerUISwitcher::createViewsMenuItems()
     d->m_debugMenu->addAction(cmd);
 
     QMenu *mLang = d->m_languageMenu->menu();
-    mLang->setEnabled(true);
     mLang->setTitle(tr("&Languages"));
     d->m_debugMenu->addMenu(d->m_languageMenu, Core::Constants::G_DEFAULT_THREE);
 
     QMenu *m = d->m_viewsMenu->menu();
-    m->setEnabled(true);
     m->setTitle(tr("&Views"));
     d->m_debugMenu->addMenu(d->m_viewsMenu, Core::Constants::G_DEFAULT_THREE);
 
@@ -214,9 +223,10 @@ DebuggerUISwitcher *DebuggerUISwitcher::instance()
     return DebuggerUISwitcherPrivate::m_instance;
 }
 
-void DebuggerUISwitcher::addLanguage(const QString &langName)
+void DebuggerUISwitcher::addLanguage(const QString &langName, const QList<int> &context)
 {
     d->m_toolBars.insert(langName, 0);
+    d->m_contextsForLanguage.insert(d->m_languages.count(), context);
     d->m_languages.append(langName);
 
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
@@ -228,9 +238,8 @@ void DebuggerUISwitcher::addLanguage(const QString &langName)
 
     connect(langChange, SIGNAL(triggered()), SLOT(langChangeTriggered()));
     Core::Command *cmd = am->registerAction(langChange,
-                         "Debugger.Language" + langName, d->m_debuggercontext);
+                         "Debugger.Language." + langName, d->m_globalContext);
     d->m_languageMenu->addAction(cmd);
-
 }
 
 void DebuggerUISwitcher::langChangeTriggered()
@@ -249,8 +258,6 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
     int langId = d->m_languages.indexOf(langName);
     if (langId != d->m_activeLanguage) {
         d->m_languageActionGroup->actions()[langId]->setChecked(true);
-        d->m_activeLanguage = langId;
-
         d->m_toolbarStack->setCurrentWidget(d->m_toolBars.value(langName));
 
         foreach (DebugToolWindow *window, d->m_dockWidgets) {
@@ -277,12 +284,19 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
 
         d->m_languageMenu->menu()->setTitle(tr("Language") + " (" + langName + ")");
         QHashIterator<int, Core::Command *> iter(d->m_menuCommands);
-        while (iter.hasNext()) {
-            iter.next();
-            bool active = (iter.key() == langId);
-            iter.value()->action()->setVisible(active);
-        }
 
+        Core::ICore *core = Core::ICore::instance();
+        const QList<int> &oldContexts = d->m_contextsForLanguage.value(d->m_activeLanguage);
+        const QList<int> &newContexts = d->m_contextsForLanguage.value(langId);
+        foreach(int ctx, oldContexts)
+            core->removeAdditionalContext(ctx);
+
+        foreach(int ctx, newContexts)
+            core->addAdditionalContext(ctx);
+
+        core->updateContext();
+
+        d->m_activeLanguage = langId;
 
         emit languageChanged(langName);
     }
@@ -366,9 +380,12 @@ QDockWidget *DebuggerUISwitcher::createDockWidget(const QString &langName, QWidg
     if (d->m_languages.indexOf(langName) != d->m_activeLanguage)
         dockWidget->hide();
 
+    QList<int> langContext = d->m_contextsForLanguage.value(d->m_languages.indexOf(langName));
+
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::Command *cmd = am->registerAction(dockWidget->toggleViewAction(),
-                         "Debugger." + dockWidget->objectName(), d->m_debuggercontext);
+                         "Debugger." + dockWidget->objectName(), langContext);
+    cmd->setAttribute(Core::Command::CA_Hide);
     d->m_viewsMenu->addAction(cmd);
 
     d->m_viewsMenuItems.append(qMakePair(d->m_languages.indexOf(langName), dockWidget->toggleViewAction()));

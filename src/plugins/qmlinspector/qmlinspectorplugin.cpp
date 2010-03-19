@@ -103,11 +103,13 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
 
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
-    uiSwitcher->addLanguage(Qml::Constants::LANG_QML);
 
     m_inspector = new QmlInspector;
     addObject(m_inspector);
     Core::ICore::instance()->addContextObject(m_inspector->context());
+    uiSwitcher->addLanguage(Qml::Constants::LANG_QML, m_inspector->context()->context());
+    m_inspector->createDockWidgets();
+
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 

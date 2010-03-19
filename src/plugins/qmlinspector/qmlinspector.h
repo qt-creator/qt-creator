@@ -75,6 +75,7 @@ class QMLINSPECTOR_EXPORT QmlInspector : public QObject
 public:
     QmlInspector(QObject *parent = 0);
 
+    void createDockWidgets();
     bool connectToViewer(); // using host, port from widgets
     Core::IContext *context() const;
 
@@ -96,7 +97,6 @@ private slots:
 
 private:
     void resetViews();
-    void initWidgets();
 
     QDeclarativeDebugConnection *m_conn;
     QDeclarativeEngineDebug *m_client;

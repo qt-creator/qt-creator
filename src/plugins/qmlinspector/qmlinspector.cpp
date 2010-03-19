@@ -171,7 +171,13 @@ QmlInspector::QmlInspector(QObject *parent)
 {
     m_watchTableModel = new WatchTableModel(0, this);
 
-    initWidgets();
+    m_objectTreeWidget = new ObjectTree;
+    m_propertiesWidget = new ObjectPropertiesView;
+    m_watchTableView = new WatchTableView(m_watchTableModel);
+    m_frameRateWidget = new CanvasFrameRate;
+    m_expressionWidget = new ExpressionQueryWidget(ExpressionQueryWidget::SeparateEntryMode);
+    m_context = new Internal::InspectorContext(m_expressionWidget);
+    m_expressionWidget->createCommands(m_context);
 }
 
 bool QmlInspector::connectToViewer()
@@ -291,16 +297,8 @@ void QmlInspector::connectionError()
             .arg(m_conn->error()).arg(m_conn->errorString()));
 }
 
-void QmlInspector::initWidgets()
+void QmlInspector::createDockWidgets()
 {
-    m_objectTreeWidget = new ObjectTree;
-    m_propertiesWidget = new ObjectPropertiesView;
-    m_watchTableView = new WatchTableView(m_watchTableModel);
-    m_frameRateWidget = new CanvasFrameRate;
-    m_expressionWidget = new ExpressionQueryWidget(ExpressionQueryWidget::SeparateEntryMode);
-    m_context = new Internal::InspectorContext(m_expressionWidget);
-    m_expressionWidget->createCommands(m_context);
-
 
     m_engineSpinBox = new EngineSpinBox;
     m_engineSpinBox->setEnabled(false);
@@ -368,6 +366,7 @@ void QmlInspector::initWidgets()
     propSplitter->setWindowTitle(tr("Properties and Watchers"));
 
 
+
     InspectorOutputWidget *inspectorOutput = new InspectorOutputWidget();
     connect(this, SIGNAL(statusMessage(QString)),
             inspectorOutput, SLOT(addInspectorStatus(QString)));
@@ -387,6 +386,7 @@ void QmlInspector::initWidgets()
     m_inspectorOutputDock->setToolTip(tr("Output of the QML inspector, such as information on connecting to the server."));
 
     m_dockWidgets << m_objectTreeDock << m_frameRateDock << m_propertyWatcherDock << m_inspectorOutputDock;
+
 }
 
 void QmlInspector::setSimpleDockWidgetArrangement()
