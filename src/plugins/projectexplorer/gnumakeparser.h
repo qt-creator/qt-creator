@@ -45,6 +45,7 @@ public:
     explicit GnuMakeParser(const QString &dir = QString());
 
     virtual void stdOutput(const QString &line);
+    virtual void stdError(const QString &line);
 
     QStringList searchDirectories() const;
 
@@ -64,7 +65,7 @@ private:
 #if defined WITH_TESTS
     friend class ProjectExplorerPlugin;
 #endif
-    bool m_alreadyFatal;
+    bool m_suppressIssues;
 };
 
 } // namespace ProjectExplorer
