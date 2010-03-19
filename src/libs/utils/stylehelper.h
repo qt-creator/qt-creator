@@ -78,8 +78,6 @@ public:
     static void horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored = false);
     static void verticalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored = false);
     static void menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect);
-
-    // Pixmap cache should only be enabled for X11 due to slow gradients
     static bool usePixmapCache() { return true; }
 
     static void drawIconWithShadow(const QPixmap &px, const QPoint &pos, QPainter *p,

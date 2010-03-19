@@ -763,42 +763,22 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
     case CE_ToolBar:
         {
-            QString key;
-            QColor keyColor = Utils::StyleHelper::baseColor(lightColored(widget));
-            key.sprintf("mh_toolbar %d %d %d", option->rect.width(), option->rect.height(), keyColor.rgb());;
-
-            QPixmap pixmap;
-            QPainter *p = painter;
             QRect rect = option->rect;
             bool horizontal = option->state & State_Horizontal;
-            if (Utils::StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-                pixmap = QPixmap(option->rect.size());
-                p = new QPainter(&pixmap);
-                rect = QRect(0, 0, option->rect.width(), option->rect.height());
-            }
+            rect = option->rect;
 
-            if (!Utils::StyleHelper::usePixmapCache() || !QPixmapCache::find(key, pixmap)) {
-                // Map offset for global window gradient
-                QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
-                                                              widget->mapToGlobal(option->rect.topLeft());
-                QRect gradientSpan;
-                if (widget) {
-                    gradientSpan = QRect(offset, widget->window()->size());
-                }
-                bool drawLightColored = lightColored(widget);
-                if (horizontal)
-                    Utils::StyleHelper::horizontalGradient(p, gradientSpan, rect, drawLightColored);
-                else
-                    Utils::StyleHelper::verticalGradient(p, gradientSpan, rect, drawLightColored);
-            }
+            // Map offset for global window gradient
+            QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
+                            widget->mapToGlobal(option->rect.topLeft());
+            QRect gradientSpan;
+            if (widget)
+                gradientSpan = QRect(offset, widget->window()->size());
 
-            if (Utils::StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-                delete p;
-                QPixmapCache::insert(key, pixmap);
-            }
-            if (Utils::StyleHelper::usePixmapCache()) {
-                painter->drawPixmap(rect.topLeft(), pixmap);
-            }
+            bool drawLightColored = lightColored(widget);
+            if (horizontal)
+                Utils::StyleHelper::horizontalGradient(painter, gradientSpan, rect, drawLightColored);
+            else
+                Utils::StyleHelper::verticalGradient(painter, gradientSpan, rect, drawLightColored);
 
             painter->setPen(Utils::StyleHelper::borderColor());
 
