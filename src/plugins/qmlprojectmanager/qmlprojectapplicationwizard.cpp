@@ -143,6 +143,10 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
             << "    ImageFiles {" << endl
             << "        directory: \".\"" << endl
             << "    }" << endl
+            //: Comment added to generated .qmlproject file
+            << "    // List of plugin directories passed to QML runtime" << endl
+            //: Comment added to generated .qmlproject file
+            << "    // importPaths: [ \" ../exampleplugin \" ]" << endl
             << "}" << endl;
     }
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
