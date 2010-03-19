@@ -35,9 +35,9 @@ DATA_DIRS = \
 !isEmpty(copydata) {
 
     for(data_dir, DATA_DIRS) {
-        files = $$files($$PWD/$$data_dir/*.*, true)
+        files = $$files($$PWD/$$data_dir/*, true)
         win32:files ~= s|\\\\|/|g
-        FILES += $$files
+        for(file, files):!exists($$file/*):FILES += $$file
     }
 
     copy2build.input = FILES
