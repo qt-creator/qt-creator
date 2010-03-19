@@ -408,7 +408,8 @@ void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &
         binding->setTarget(metaProperty);
         binding->setNotifyOnValueChanged(true);
         QDeclarativeAbstractBinding *oldBinding = QDeclarativePropertyPrivate::setBinding(metaProperty, binding);
-        oldBinding->destroy();
+        if (oldBinding)
+            oldBinding->destroy();
         binding->update();
     } else {
         qWarning() << "Cannot set binding for property" << name << ": property is unknown for type"
