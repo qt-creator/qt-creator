@@ -44,7 +44,7 @@ class CORESHARED_EXPORT RewriterView;
 
 namespace Internal {
 
-class ReadingContext;
+struct ReadingContext;
 class DifferenceHandler;
 
 class TextToModelMerger
