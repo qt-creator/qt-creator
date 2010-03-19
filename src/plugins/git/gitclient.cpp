@@ -302,7 +302,7 @@ void GitClient::status(const QString &workingDirectory)
     VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
     outwin->setRepository(workingDirectory);
     GitCommand *command = executeGit(workingDirectory, statusArgs, 0, true);
-    connect(command, SIGNAL(finished(bool,QVariant)), outwin, SLOT(clearRepository()),
+    connect(command, SIGNAL(finished(bool,int,QVariant)), outwin, SLOT(clearRepository()),
             Qt::QueuedConnection);
 }
 
@@ -985,7 +985,7 @@ GitCommand *GitClient::createCommand(const QString &workingDirectory,
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     GitCommand* command = new GitCommand(binary(), workingDirectory, processEnvironment(), QVariant(editorLineNumber));
     if (editor)
-        connect(command, SIGNAL(finished(bool,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,QVariant)));
+        connect(command, SIGNAL(finished(bool,int,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
     if (outputToWindow) {
         if (editor) { // assume that the commands output is the important thing
             connect(command, SIGNAL(outputData(QByteArray)), outputWindow, SLOT(appendDataSilently(QByteArray)));
@@ -1445,8 +1445,40 @@ void GitClient::revert(const QStringList &files)
 
 void GitClient::pull(const QString &workingDirectory)
 {
-    GitCommand *cmd = executeGit(workingDirectory, QStringList(QLatin1String("pull")), 0, true, GitCommand::ReportStderr);
+    pull(workingDirectory, m_settings.pullRebase);
+}
+
+void GitClient::pull(const QString &workingDirectory, bool rebase)
+{
+    QStringList arguments(QLatin1String("pull"));
+    if (rebase)
+        arguments << QLatin1String("--rebase");
+    GitCommand *cmd = executeGit(workingDirectory, arguments, 0, true, GitCommand::ReportStderr);
     connectRepositoryChanged(workingDirectory, cmd);
+    // Need to clean up if something goes wrong
+    if (rebase) {
+        cmd->setCookie(QVariant(workingDirectory));
+        connect(cmd, SIGNAL(finished(bool,int,QVariant)), this, SLOT(slotPullRebaseFinished(bool,int,QVariant)),
+                Qt::QueuedConnection);
+    }
+}
+
+void GitClient::slotPullRebaseFinished(bool ok, int exitCode, const QVariant &cookie)
+{
+    if (ok && exitCode == 0)
+        return;
+    // Abort rebase to clean if something goes wrong
+    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    outwin->appendError(tr("git pull --rebase failed, aborting rebase."));
+    const QString workingDir = cookie.toString();
+    QStringList arguments;
+    arguments << QLatin1String("rebase") << QLatin1String("--abort");
+    QByteArray stdOut;
+    QByteArray stdErr;
+    const bool rc = synchronousGit(workingDir, arguments, &stdOut, &stdErr, true);
+    outwin->append(commandOutputFromLocal8Bit(stdOut));
+    if (!rc)
+        outwin->appendError(commandOutputFromLocal8Bit(stdErr));
 }
 
 // Subversion: git svn

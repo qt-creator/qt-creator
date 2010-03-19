@@ -72,13 +72,16 @@ public:
 
     static QString msgTimeout(int seconds);
 
+    void setCookie(const QVariant &cookie);
+    QVariant cookie() const;
+
 private:
     void run();
 
 Q_SIGNALS:
     void outputData(const QByteArray&);
     void errorText(const QString&);
-    void finished(bool ok, const QVariant &cookie);
+    void finished(bool ok, int exitCode, const QVariant &cookie);
     void success();
 
 private:
@@ -93,7 +96,7 @@ private:
     QStringList m_basicArguments;
     const QString m_workingDirectory;
     const QStringList m_environment;
-    const QVariant m_cookie;
+    QVariant m_cookie;
 
     QList<Job> m_jobs;
     TerminationReportMode m_reportTerminationMode;

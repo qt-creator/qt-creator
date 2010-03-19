@@ -133,6 +133,7 @@ void GitCommand::run()
     QString error;
 
     const int count = m_jobs.size();
+    int exitCode = -1;
     bool ok = true;
     for (int j = 0; j < count; j++) {
         if (Git::Constants::debug)
@@ -156,14 +157,15 @@ void GitCommand::run()
         }
 
         error += QString::fromLocal8Bit(stdErr);
+        exitCode = process.exitCode();
         switch (m_reportTerminationMode) {
         case NoReport:
             break;
         case ReportStdout:
-            stdOut += msgTermination(process.exitCode(), m_binaryPath, m_jobs.at(j).arguments).toUtf8();
+            stdOut += msgTermination(exitCode, m_binaryPath, m_jobs.at(j).arguments).toUtf8();
             break;
         case ReportStderr:
-            error += msgTermination(process.exitCode(), m_binaryPath, m_jobs.at(j).arguments);
+            error += msgTermination(exitCode, m_binaryPath, m_jobs.at(j).arguments);
             break;
         }
     }
@@ -183,7 +185,7 @@ void GitCommand::run()
     if (!error.isEmpty())
         emit errorText(error);
 
-    emit finished(ok, m_cookie);
+    emit finished(ok, exitCode, m_cookie);
     if (ok)
         emit success();
     // As it is used asynchronously, we need to delete ourselves
@@ -212,6 +214,17 @@ void GitCommand::removeColorCodes(QByteArray *data)
         }
     }
 }
+
+void GitCommand::setCookie(const QVariant &cookie)
+{
+    m_cookie = cookie;
+}
+
+QVariant GitCommand::cookie() const
+{
+    return m_cookie;
+}
+
 
 } // namespace Internal
 } // namespace Git
