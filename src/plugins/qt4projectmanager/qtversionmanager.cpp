@@ -953,6 +953,7 @@ void QtVersion::updateVersionInfo() const
     m_notInstalled = false;
     m_hasExamples = false;
     m_hasDocumentation = false;
+    m_hasDebuggingHelper = false;
 
     QFileInfo qmake(qmakeCommand());
     if (qmake.exists() && qmake.isExecutable()) {
@@ -994,10 +995,8 @@ void QtVersion::updateVersionInfo() const
             QString qtInstallData = m_versionInfo.value("QT_INSTALL_DATA");
             m_versionInfo.insert("QMAKE_MKSPECS", QDir::cleanPath(qtInstallData+"/mkspecs"));
 
-            if (qtInstallData.isEmpty())
-                m_hasDebuggingHelper = false;
-            else
-                m_hasDebuggingHelper = DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
+            if (!qtInstallData.isEmpty())
+                m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
         }
 
         // Now check for a qt that is configured with a prefix but not installed
