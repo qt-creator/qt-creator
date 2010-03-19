@@ -227,13 +227,13 @@ QSize FancyToolButton::sizeHint() const
         QFontMetrics fm(boldFont);
         qreal lineHeight = fm.height();
         const QString projectName = defaultAction()->property("heading").toString();
-        buttonSize += QSizeF(0, 4);
+        buttonSize += QSizeF(0, 10);
         if (!projectName.isEmpty())
-            buttonSize += QSizeF(0, lineHeight + 6);
+            buttonSize += QSizeF(0, lineHeight + 2);
 
         const QString buildConfiguration = defaultAction()->property("subtitle").toString();
         if (!buildConfiguration.isEmpty())
-            buttonSize += QSizeF(0, lineHeight + 6);
+            buttonSize += QSizeF(0, lineHeight + 2);
     }
     return buttonSize.toSize();
 }
