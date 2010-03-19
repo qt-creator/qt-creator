@@ -105,6 +105,25 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
 
         depth = calculateIndentDepth(endOfPreviousMember);
     }
+    const bool isOneLiner = endOfPreviousMember.startLine == startOfNextMember.startLine;
+    bool needsPreceedingSemicolon = false;
+    bool needsTrailingSemicolon = false;
+
+    if (isOneLiner) {
+        if (insertAfter == 0) { // we're inserting after an lbrace
+            if (insertAfter->next) { // we're inserting before a member (and not the rbrace)
+                needsTrailingSemicolon = true;
+            }
+        } else { // we're inserting after a member, not after the lbrace
+            if (endOfPreviousMember.isValid()) { // there already is a semicolon after the previous member
+                if (insertAfter->next && insertAfter->next->member) { // and the after us there is a member, not an rbrace, so:
+                    needsTrailingSemicolon = true;
+                }
+            } else { // there is no semicolon after the previous member (probably because there is an rbrace after us/it, so:
+                needsPreceedingSemicolon = true;
+            }
+        }
+    }
 
     QString newPropertyTemplate;
     switch (m_propertyType) {
@@ -125,12 +144,18 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         Q_ASSERT(!"unknown property type");
     }
 
-    const bool isOneLiner = endOfPreviousMember.startLine == startOfNextMember.startLine;
-    if (isOneLiner)
-        newPropertyTemplate += QLatin1Char('\n');
+    if (isOneLiner) {
+        if (needsPreceedingSemicolon)
+            newPropertyTemplate.prepend(QLatin1Char(';'));
+        newPropertyTemplate.prepend(QLatin1Char(' '));
+        if (needsTrailingSemicolon)
+            newPropertyTemplate.append(QLatin1Char(';'));
+    } else {
+        newPropertyTemplate.prepend(QLatin1Char('\n'));
+    }
 
     const QString newPropertyText = addIndentation(newPropertyTemplate.arg(m_name, m_value), depth);
-    replace(endOfPreviousMember.end(), 0, QLatin1Char('\n') + newPropertyText);
+    replace(endOfPreviousMember.end(), 0, newPropertyText);
 
     setDidRewriting(true);
 }
