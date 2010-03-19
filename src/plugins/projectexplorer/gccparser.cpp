@@ -324,6 +324,31 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         QLatin1String("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp"), 264,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
+    QTest::newRow("distcc error(QTCREATORBUG-904)")
+            << QString::fromLatin1("distcc[73168] (dcc_get_hostlist) Warning: no hostlist is set; can't distribute work\n"
+                                   "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead")
+            << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("distcc[73168] (dcc_get_hostlist) Warning: no hostlist is set; can't distribute work\n"
+                                                "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead")
+            << QList<ProjectExplorer::Task>()
+            << QString();
+    QTest::newRow("ld warning (QTCREATORBUG-905)")
+            << QString::fromLatin1("ld: warning: Core::IEditor* QVariant::value<Core::IEditor*>() const has different visibility (hidden) in .obj/debug-shared/openeditorsview.o and (default) in .obj/debug-shared/editormanager.o")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Warning,
+                         QLatin1String("Core::IEditor* QVariant::value<Core::IEditor*>() const has different visibility (hidden) in .obj/debug-shared/openeditorsview.o and (default) in .obj/debug-shared/editormanager.o"),
+                         QString(), -1,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("Teambuilder issues")
+            << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
+            << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
+            << QList<ProjectExplorer::Task>()
+            << QString();
+
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()
