@@ -311,6 +311,7 @@ public:
     EventResult handleCommandMode(int key, int unmodified, const QString &text);
     EventResult handleRegisterMode(int key, int unmodified, const QString &text);
     EventResult handleMiniBufferModes(int key, int unmodified, const QString &text);
+    EventResult handleCommandSubSubMode(int key, int unmodified, const QString &text);
     void finishMovement(const QString &dotCommand = QString());
     void finishMovement(const QString &dotCommand, int count);
     void resetCommandMode();
@@ -1175,22 +1176,12 @@ static bool subModeCanUseTextObjects(int submode)
     return submode == DeleteSubMode;
 }
 
-EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
+EventResult FakeVimHandler::Private::handleCommandSubSubMode(int key, int unmodified,
     const QString &text)
 {
+    Q_UNUSED(unmodified);
     EventResult handled = EventHandled;
-
-    if (key == Key_Escape || key == control(Key_BracketLeft)) {
-        if (isVisualMode()) {
-            leaveVisualMode();
-        } else if (m_submode != NoSubMode) {
-            m_submode = NoSubMode;
-            m_subsubmode = NoSubSubMode;
-            finishMovement();
-        } else {
-            resetCommandMode();
-        }
-    } else if (m_subsubmode == FtSubSubMode) {
+    if (m_subsubmode == FtSubSubMode) {
         m_semicolonType = m_subsubdata;
         m_semicolonKey = key;
         bool valid = handleFfTt(key);
@@ -1233,6 +1224,43 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_replacingCharacter = text[0];
             finishMovement();
         }
+    } else if (m_subsubmode == MarkSubSubMode) {
+        m_marks[key] = m_tc.position();
+        m_subsubmode = NoSubSubMode;
+    } else if (m_subsubmode == BackTickSubSubMode
+            || m_subsubmode == TickSubSubMode) {
+        if (m_marks.contains(key)) {
+            setPosition(m_marks[key]);
+            if (m_subsubmode == TickSubSubMode)
+                moveToFirstNonBlankOnLine();
+            finishMovement();
+        } else {
+            showRedMessage(msgE20MarkNotSet(text));
+        }
+        m_subsubmode = NoSubSubMode;
+    } else {
+        handled = EventUnhandled;
+    }
+    return handled;
+}
+
+EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
+    const QString &text)
+{
+    EventResult handled = EventHandled;
+
+    if (key == Key_Escape || key == control(Key_BracketLeft)) {
+        if (isVisualMode()) {
+            leaveVisualMode();
+        } else if (m_submode != NoSubMode) {
+            m_submode = NoSubMode;
+            m_subsubmode = NoSubSubMode;
+            finishMovement();
+        } else {
+            resetCommandMode();
+        }
+    } else if (m_subsubmode != NoSubSubMode) {
+        handleCommandSubSubMode(key, unmodified, text);
     } else if (m_submode == WindowSubMode) {
         emit q->windowCommandRequested(key);
         m_submode = NoSubMode;
@@ -1331,20 +1359,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setTargetColumn();
         m_submode = NoSubMode;
         finishMovement();
-    } else if (m_subsubmode == MarkSubSubMode) {
-        m_marks[key] = m_tc.position();
-        m_subsubmode = NoSubSubMode;
-    } else if (m_subsubmode == BackTickSubSubMode
-            || m_subsubmode == TickSubSubMode) {
-        if (m_marks.contains(key)) {
-            setPosition(m_marks[key]);
-            if (m_subsubmode == TickSubSubMode)
-                moveToFirstNonBlankOnLine();
-            finishMovement();
-        } else {
-            showRedMessage(msgE20MarkNotSet(text));
-        }
-        m_subsubmode = NoSubSubMode;
     } else if (key >= '0' && key <= '9') {
         if (key == '0' && m_mvcount.isEmpty()) {
             m_movetype = MoveExclusive;
