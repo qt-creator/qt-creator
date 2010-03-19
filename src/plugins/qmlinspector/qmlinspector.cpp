@@ -380,6 +380,12 @@ void QmlInspector::initWidgets()
                                                             propSplitter, Qt::BottomDockWidgetArea);
     m_inspectorOutputDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
                                                             inspectorOutput, Qt::BottomDockWidgetArea);
+
+    m_objectTreeDock->setToolTip(tr("Contents of the scene."));
+    m_frameRateDock->setToolTip(tr("Frame rate graph for analyzing performance."));
+    m_propertyWatcherDock->setToolTip(tr("Properties of the selected item."));
+    m_inspectorOutputDock->setToolTip(tr("Output of the QML inspector, such as information on connecting to the server."));
+
     m_dockWidgets << m_objectTreeDock << m_frameRateDock << m_propertyWatcherDock << m_inspectorOutputDock;
 }
 
