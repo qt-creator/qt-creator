@@ -1035,6 +1035,8 @@ QStringList GitClient::processEnvironment() const
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
     if (m_settings.adoptPath)
         environment.set(QLatin1String("PATH"), m_settings.path);
+    // git svn runs perl which barfs at non-C locales.
+    environment.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
     return environment.toStringList();
 }
 
@@ -1445,6 +1447,33 @@ void GitClient::pull(const QString &workingDirectory)
 {
     GitCommand *cmd = executeGit(workingDirectory, QStringList(QLatin1String("pull")), 0, true, GitCommand::ReportStderr);
     connectRepositoryChanged(workingDirectory, cmd);
+}
+
+// Subversion: git svn
+void GitClient::subversionFetch(const QString &workingDirectory)
+{
+    QStringList args;
+    args << QLatin1String("svn") << QLatin1String("fetch");
+    GitCommand *cmd = executeGit(workingDirectory, args, 0, true, GitCommand::ReportStderr);
+    connectRepositoryChanged(workingDirectory, cmd);
+}
+
+void GitClient::subversionLog(const QString &workingDirectory)
+{
+    if (Git::Constants::debug)
+        qDebug() << "subversionLog" << workingDirectory;
+
+    QStringList arguments;
+    arguments << QLatin1String("svn") << QLatin1String("log");
+    if (m_settings.logCount > 0)
+         arguments << (QLatin1String("--limit=") + QString::number(m_settings.logCount));
+
+    // Create a command editor, no highlighting or interaction.
+    const QString title = tr("Git SVN Log");
+    const QString editorId = QLatin1String(Git::Constants::C_GIT_COMMAND_LOG_EDITOR);
+    const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, QStringList());
+    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, false, "svnLog", sourceFile);
+    executeGit(workingDirectory, arguments, editor);
 }
 
 void GitClient::push(const QString &workingDirectory)

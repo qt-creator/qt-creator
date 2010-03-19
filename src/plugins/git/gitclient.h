@@ -154,6 +154,10 @@ public:
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
 
+    // git svn support (asynchronous).
+    void subversionFetch(const QString &workingDirectory);
+    void subversionLog(const QString &workingDirectory);
+
     void stashPop(const QString &workingDirectory);
     void revert(const QStringList &files);
     void branchList(const QString &workingDirectory);
