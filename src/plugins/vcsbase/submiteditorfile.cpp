@@ -64,3 +64,16 @@ QString SubmitEditorFile::mimeType() const
 {
     return m_mimeType;
 }
+
+Core::IFile::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+{
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
+}
+
+void SubmitEditorFile::reload(ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
+}

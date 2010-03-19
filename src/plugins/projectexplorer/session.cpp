@@ -89,7 +89,8 @@ public:
     bool isReadOnly() const;
     bool isSaveAsAllowed() const;
 
-    void modified(Core::IFile::ReloadBehavior *behavior);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
 
 public slots:
     void sessionLoadingProgress();
@@ -320,8 +321,17 @@ bool SessionFile::isSaveAsAllowed() const
     return true;
 }
 
-void SessionFile::modified(Core::IFile::ReloadBehavior *)
+Core::IFile::ReloadBehavior SessionFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
+}
+
+void SessionFile::reload(ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
 }
 
 QString SessionFile::defaultPath() const

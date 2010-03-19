@@ -80,7 +80,8 @@ public:
     bool isReadOnly() const { return true; }
     bool isSaveAsAllowed() const { return false; }
 
-    void modified(ReloadBehavior *behavior);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
 
     void checkPermissions() {}
 

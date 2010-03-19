@@ -62,7 +62,8 @@ public:
     bool isModified() const;
     bool isReadOnly() const;
     bool isSaveAsAllowed() const;
-    void modified(Core::IFile::ReloadBehavior *behavior);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
     QString defaultPath() const;
     QString suggestedFileName() const;
     virtual QString mimeType() const;

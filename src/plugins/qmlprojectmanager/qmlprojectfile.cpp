@@ -83,8 +83,17 @@ bool QmlProjectFile::isSaveAsAllowed() const
     return false;
 }
 
-void QmlProjectFile::modified(ReloadBehavior *)
+Core::IFile::ReloadBehavior QmlProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
+}
+
+void QmlProjectFile::reload(ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
 }
 
 } // namespace Internal

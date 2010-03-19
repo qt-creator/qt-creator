@@ -47,6 +47,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/ifile.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -251,41 +252,24 @@ public:
 
     bool isSaveAsAllowed() const { return true; }
 
-    void modified(ReloadBehavior *behavior) {
-        const QString fileName = m_fileName;
-
-        switch (*behavior) {
-        case  Core::IFile::ReloadNone:
-            return;
-        case Core::IFile::ReloadUnmodified:
-            if (!isModified()) {
-                open(fileName);
-                return;
-            }
-            break;
-        case Core::IFile::ReloadAll:
-            open(fileName);
-            return;
-        case Core::IFile::ReloadPermissions:
-            emit changed();
-            return;
-        case Core::IFile::AskForReload:
-            break;
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const {
+        if (type == TypePermissions)
+            return BehaviorSilent;
+        if (type == TypeContents) {
+            if (state == TriggerInternal && !isModified())
+                return BehaviorSilent;
+            return BehaviorAsk;
         }
+        return BehaviorAsk;
+    }
 
-        switch (Utils::reloadPrompt(fileName, isModified(), Core::ICore::instance()->mainWindow())) {
-        case Utils::ReloadCurrent:
-            open(fileName);
-            break;
-        case Utils::ReloadAll:
-            open(fileName);
-            *behavior = Core::IFile::ReloadAll;
-            break;
-        case Utils::ReloadSkipCurrent:
-            break;
-        case Utils::ReloadNone:
-            *behavior = Core::IFile::ReloadNone;
-            break;
+    void reload(ReloadFlag flag, ChangeType type) {
+        if (flag == FlagIgnore)
+            return;
+        if (type == TypePermissions) {
+            emit changed();
+        } else {
+            open(m_fileName);
         }
     }
 

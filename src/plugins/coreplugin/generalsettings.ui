@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>487</width>
-    <height>319</height>
+    <width>492</width>
+    <height>339</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -234,7 +234,7 @@
           </item>
           <item>
            <property name="text">
-            <string>Reload all modified files</string>
+            <string>Reload all unmodified files</string>
            </property>
           </item>
           <item>

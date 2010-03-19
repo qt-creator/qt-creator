@@ -185,8 +185,8 @@ public:
     QString defaultExternalEditor() const;
     QString externalEditorHelpText() const;
 
-    void setReloadBehavior(IFile::ReloadBehavior behavior);
-    IFile::ReloadBehavior reloadBehavior() const;
+    void setReloadSetting(IFile::ReloadSetting behavior);
+    IFile::ReloadSetting reloadSetting() const;
 
     // Helper to display a message dialog when encountering a read-only
     // file, prompting the user about how to make it writeable.

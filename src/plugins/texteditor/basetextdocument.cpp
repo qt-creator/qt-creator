@@ -248,40 +248,26 @@ void BaseTextDocument::reload()
         emit reloaded();
 }
 
-void BaseTextDocument::modified(Core::IFile::ReloadBehavior *behavior)
+Core::IFile::ReloadBehavior BaseTextDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
-    switch (*behavior) {
-    case Core::IFile::ReloadNone:
-        return;
-    case Core::IFile::ReloadUnmodified:
-        if (!isModified()) {
-            reload();
-            return;
-        }
-        break;
-    case Core::IFile::ReloadAll:
-        reload();
-        return;
-    case Core::IFile::ReloadPermissions:
-        emit changed();
-        return;
-    case Core::IFile::AskForReload:
-        break;
+    if (type == TypePermissions)
+        return BehaviorSilent;
+    if (type == TypeContents) {
+        if (state == TriggerInternal && !isModified())
+            return BehaviorSilent;
+        return BehaviorAsk;
     }
+    return BehaviorAsk;
+}
 
-    switch (Utils::reloadPrompt(m_fileName, isModified(), QApplication::activeWindow())) {
-    case Utils::ReloadCurrent:
+void BaseTextDocument::reload(ReloadFlag flag, ChangeType type)
+{
+    if (flag == FlagIgnore)
+        return;
+    if (type == TypePermissions) {
+        emit changed();
+    } else {
         reload();
-        break;
-    case Utils::ReloadAll:
-        reload();
-        *behavior = Core::IFile::ReloadAll;
-        break;
-    case Utils::ReloadSkipCurrent:
-        break;
-    case Utils::ReloadNone:
-        *behavior = Core::IFile::ReloadNone;
-        break;
     }
 }
 

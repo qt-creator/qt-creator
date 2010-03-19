@@ -193,7 +193,9 @@ public:
     bool isReadOnly() const;
     bool isSaveAsAllowed() const;
 
-    void modified(ReloadBehavior *behavior);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
+
 private:
     CMakeProject *m_project;
     QString m_fileName;

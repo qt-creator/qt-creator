@@ -52,7 +52,9 @@ public:
     bool isReadOnly() const { return false; }
     bool isSaveAsAllowed() const { return false; }
     bool save(const QString &fileName);
-    void modified(ReloadBehavior * /*behavior*/) { return; }
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
+
 
     void setFileName(const QString name);
     void setModified(bool modified = true);

@@ -579,6 +579,15 @@ bool GenericProjectFile::isSaveAsAllowed() const
     return false;
 }
 
-void GenericProjectFile::modified(ReloadBehavior *)
+Core::IFile::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
+}
+
+void GenericProjectFile::reload(ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
 }
