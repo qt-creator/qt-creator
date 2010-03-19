@@ -53,7 +53,7 @@ QT_MODULE(Declarative)
 
 class QDebug;
 class QmlErrorPrivate;
-class Q_DECLARATIVE_EXPORT QmlError
+class QmlError
 {
 public:
     QmlError();
@@ -77,7 +77,7 @@ private:
     QmlErrorPrivate *d;
 };
 
-QDebug Q_DECLARATIVE_EXPORT operator<<(QDebug debug, const QmlError &error);
+QDebug operator<<(QDebug debug, const QmlError &error);
 
 QT_END_NAMESPACE
 
