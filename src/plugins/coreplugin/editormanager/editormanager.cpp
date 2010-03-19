@@ -278,7 +278,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     ActionManager *am = m_d->m_core->actionManager();
     ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
 
-    //Revert to saved
+    // Revert to saved
     Command *cmd = am->registerAction(m_d->m_revertToSavedAction,
                                        Constants::REVERTTOSAVED, editManagerContext);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -286,18 +286,18 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
     connect(m_d->m_revertToSavedAction, SIGNAL(triggered()), this, SLOT(revertToSaved()));
 
-    //Save Action
+    // Save Action
     am->registerAction(m_d->m_saveAction, Constants::SAVE, editManagerContext);
     connect(m_d->m_saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
 
-    //Save As Action
+    // Save As Action
     am->registerAction(m_d->m_saveAsAction, Constants::SAVEAS, editManagerContext);
     connect(m_d->m_saveAsAction, SIGNAL(triggered()), this, SLOT(saveFileAs()));
 
-    //Window Menu
+    // Window Menu
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
 
-    //Window menu separators
+    // Window menu separators
     QAction *tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
     cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Split"), editManagerContext);
@@ -308,7 +308,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Navigate"), editManagerContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
 
-    //Close Action
+    // Close Action
     cmd = am->registerAction(m_d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext);
 #ifdef Q_WS_WIN
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
@@ -320,13 +320,13 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(m_d->m_closeCurrentEditorAction, SIGNAL(triggered()), this, SLOT(closeEditor()));
 
-    //Close All Action
+    // Close All Action
     cmd = am->registerAction(m_d->m_closeAllEditorsAction, Constants::CLOSEALL, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+W")));
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(m_d->m_closeAllEditorsAction, SIGNAL(triggered()), this, SLOT(closeAllEditors()));
 
-    //Close All Others Action
+    // Close All Others Action
     cmd = am->registerAction(m_d->m_closeOtherEditorsAction, Constants::CLOSEOTHERS, editManagerContext);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     cmd->setAttribute(Core::Command::CA_UpdateText);

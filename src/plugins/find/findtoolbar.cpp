@@ -133,7 +133,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     Core::ActionContainer *mfind = am->actionContainer(Constants::M_FIND);
     Core::Command *cmd;
 
-    m_findInDocumentAction = new QAction(tr("Find/Replace"), this);
+    QIcon icon = QIcon::fromTheme(QLatin1String("edit-find-replace"));
+    m_findInDocumentAction = new QAction(icon, tr("Find/Replace"), this);
     cmd = am->registerAction(m_findInDocumentAction, Constants::FIND_IN_DOCUMENT, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence::Find);
     mfind->addAction(cmd, Constants::G_FIND_CURRENTDOCUMENT);
