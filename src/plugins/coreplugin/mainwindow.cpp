@@ -314,6 +314,7 @@ bool MainWindow::init(QString *errorMessage)
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
     m_outputView->setPosition(Core::StatusBarWidget::Second);
     pm->addObject(m_outputView);
+    m_messageManager->init();
     return true;
 }
 
@@ -323,7 +324,6 @@ void MainWindow::extensionsInitialized()
 
     m_statusBarManager->extensionsInitalized();
 
-    m_messageManager->init();
     OutputPaneManager::instance()->init();
 
     m_actionManager->initialize();

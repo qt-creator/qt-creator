@@ -145,7 +145,7 @@ bool CustomWizardFieldPage::validatePage()
             return false;
         }
     }
-    return true;
+    return QWizardPage::validatePage();
 }
 
 // --------------- CustomWizardPage

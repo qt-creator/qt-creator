@@ -34,8 +34,10 @@
 #include "baseprojectwizarddialog.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -300,15 +302,47 @@ CustomWizard *CustomWizard::createWizard(const CustomWizardParametersPtr &p, con
     return rc;
 }
 
+// Format all wizards for display
+static QString listWizards()
+{
+    typedef QMultiMap<QString, const Core::IWizard *> CategoryWizardMap;
+
+    // Sort by category via multimap
+    QString rc;
+    QTextStream str(&rc);
+    CategoryWizardMap categoryWizardMap;
+    foreach(const  Core::IWizard *w, Core::IWizard::allWizards())
+        categoryWizardMap.insert(w->category(), w);
+    str << "### Registered wizards (" << categoryWizardMap.size() << ")\n";
+    // Format
+    QString lastCategory;
+    const CategoryWizardMap::const_iterator cend = categoryWizardMap.constEnd();
+    for (CategoryWizardMap::const_iterator it = categoryWizardMap.constBegin(); it != cend; ++it) {
+        const Core::IWizard *wizard = it.value();
+        if (it.key() != lastCategory) {
+            lastCategory = it.key();
+            str << "\nCategory: '" << lastCategory << "' / '" << wizard->displayCategory() << "'\n";
+        }
+        str << "  Id: '" << wizard->id() << "' / '" << wizard->displayName() << "' Kind: "
+                << wizard->kind() << "\n  Class: " << wizard->metaObject()->className()
+                << " Description: '" << wizard->description() << "'\n";
+    }
+    return rc;
+}
+
 // Scan the subdirectories of the template directory for directories
 // containing valid configuration files and parse them into wizards.
 QList<CustomWizard*> CustomWizard::createWizards()
 {
     QList<CustomWizard*> rc;
     QString errorMessage;
+    QString verboseLog;
     const QString templateDirName = Core::ICore::instance()->resourcePath() +
                                     QLatin1Char('/') + QLatin1String(templatePathC);
+
     const QDir templateDir(templateDirName);
+    if (CustomWizardPrivate::verbose)
+        verboseLog = QString::fromLatin1("### CustomWizard: Checking '%1'\n").arg(templateDirName);
     if (!templateDir.exists()) {
         if (CustomWizardPrivate::verbose)
            qWarning("Custom project template path %s does not exist.", qPrintable(templateDir.absolutePath()));
@@ -323,14 +357,14 @@ QList<CustomWizard*> CustomWizard::createWizards()
     foreach(const QFileInfo &dirFi, dirs) {
         const QDir dir(dirFi.absoluteFilePath());
         if (CustomWizardPrivate::verbose)
-            qDebug("CustomWizard: Scanning %s", qPrintable(dirFi.absoluteFilePath()));
+            verboseLog += QString::fromLatin1("CustomWizard: Scanning %1\n").arg(dirFi.absoluteFilePath());
         if (dir.exists(configFile)) {
             CustomWizardParametersPtr parameters(new Internal::CustomWizardParameters);
             Core::BaseFileWizardParameters baseFileParameters;
             if (parameters->parse(dir.absoluteFilePath(configFile), &baseFileParameters, &errorMessage)) {
                 parameters->directory = dir.absolutePath();
                 if (CustomWizardPrivate::verbose)
-                    qDebug("%s\n", qPrintable(parameters->toString()));
+                    verboseLog += parameters->toString();
                 if (CustomWizard *w = createWizard(parameters, baseFileParameters))
                     rc.push_back(w);
             } else {
@@ -339,8 +373,14 @@ QList<CustomWizard*> CustomWizard::createWizards()
             }
         } else {
             if (CustomWizardPrivate::verbose)
-                qDebug("CustomWizard: '%s' not found\n", qPrintable(configFile));
+                if (CustomWizardPrivate::verbose)
+                    verboseLog += QString::fromLatin1("CustomWizard: '%1' not found\n").arg(qPrintable(configFile));
         }
+    }
+    if (CustomWizardPrivate::verbose) { // Print to output pane for Windows.
+        verboseLog += listWizards();
+        qWarning("%s", qPrintable(verboseLog));
+        Core::ICore::instance()->messageManager()->printToOutputPanePopup(verboseLog);
     }
     return rc;
 }
