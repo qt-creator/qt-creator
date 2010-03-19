@@ -155,6 +155,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
 {
     typedef VCSBase::VCSEditorFactory<MercurialEditor> MercurialEditorFactory;
 
+    m_client = new MercurialClient();
     VCSBase::VCSBasePlugin::initialize(new MercurialControl(m_client));
 
     core = Core::ICore::instance();
@@ -164,7 +165,6 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     addAutoReleasedObject(optionsPage);
     mercurialSettings.readSettings(core->settings());
 
-    m_client = new MercurialClient();
     connect(optionsPage, SIGNAL(settingsChanged()), m_client, SLOT(settingsChanged()));
 
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
