@@ -1400,7 +1400,7 @@
 
         \list
 
-            \o In the \gui {Advanced} tab, click the color picker to select a red
+            \o In the \gui {Colors} section, click the color picker to select a red
             color.
 
             \o In the \gui {Radius} field, use the slider to set the radius value
@@ -1467,7 +1467,7 @@
 
         \o Drag and drop a \gui {Mouse Area} from the \gui {Library} to the scene.
 
-        \o In the \gui {Properties} pane, \gui {Anchor} tab, click the
+        \o In the \gui {Properties} pane, \gui {Geometry} tab, click the
         \inlineimage qmldesigner-anchor-fill-screen.png
         button to make the mouse region cover the whole screen.
 
@@ -3140,24 +3140,35 @@
 
         \o Drag and drop a \gui Rectangle from the \gui Library pane to the scene.
 
-        \o In the \gui Properties pane, click \gui Advanced, to modify the appearance of the button.
+        \o In the \gui Properties pane, modify the appearance of the button.
 
-        \o In the \gui Color field, select the button color, and in the \gui Radius field, use
+        \list a
+
+        \o In the \gui Color field, select the button color.
+
+        \o In the \gui Radius field, use
         the slider to set the radius of the rectangle and produce rounded corners for the button.
+
+        \endlist
 
         \o Drag and drop a \gui {Text} item on top of the \gui Rectangle.
 
-        \o In the \gui Properties pane, click \gui Advanced, and type \bold Button in the
-        \gui Text field.
+        \o In the \gui Properties pane, edit the properties of the text.
 
-        You can select the text color, font, size, and style in the \gui Font field.
+        \list a
+
+        \o In the \gui Text field, type \bold Button.
+
+        You can select the text color, font, size, and style in the \gui Font section.
 
         \o In the \gui Alignment field, select the center button to align the text to the
         center of the button.
 
-        \o Click \gui {Anchor}, and then click the
+        \o Click \gui {Geometry}, and then click the
         \inlineimage qmldesigner-anchor-fill-screen.png
         button to anchor the text to the whole button area.
+
+        \endlist
 
         \o Click \gui Edit to edit the \c width and \c height properties of the button
         to fit the button size.
@@ -3174,7 +3185,9 @@
     to navigate between screens.
 
     QML states typically describe user interface configurations, such as the UI elements,
-    their properties and behavior and the available actions.
+    their properties and behavior and the available actions. For example, you can specify
+    different states of a screen to allow users to view and edit the properties of an
+    object.
 
     To make movement between states smooth, you can specify transitions. The
     \c from and \c to properties define the states between which the transitions run. To
