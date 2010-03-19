@@ -144,16 +144,20 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     if (_templateParameters && ty) {
         if (Class *klass = ty->asClassType()) {
             klass->setTemplateParameters(_templateParameters);
+            _templateParameters = 0; // consume the template parameters
         }
     }
 
-    if (! ast->declarator_list && ast->decl_specifier_list && ! ast->decl_specifier_list->next) {
-        if (ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_list->value->asElaboratedTypeSpecifier()) {
+    if (ast->decl_specifier_list && ! ast->declarator_list) {
+        ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_list->value->asElaboratedTypeSpecifier();
 
-            unsigned sourceLocation = elab_type_spec->firstToken();
+        if (! elab_type_spec && ty.isFriend() && ast->decl_specifier_list->next && ! ast->decl_specifier_list->next->next) {
+            // friend template class
+            elab_type_spec = ast->decl_specifier_list->next->value->asElaboratedTypeSpecifier();
+        }
 
-            if (elab_type_spec->name)
-                sourceLocation = elab_type_spec->name->firstToken();
+        if (elab_type_spec) {
+            unsigned sourceLocation = ast->decl_specifier_list->firstToken();
 
             const Name *name = semantic()->check(elab_type_spec->name, _scope);
             ForwardClassDeclaration *symbol =
@@ -210,11 +214,12 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
         symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
 
-        symbol->setType(control()->integerType(IntegerType::Int));
         symbol->setType(declTy);
 
-        if (_templateParameters && it == ast->declarator_list && ty && ! ty->isClassType())
+        if (_templateParameters && it == ast->declarator_list) {
             symbol->setTemplateParameters(_templateParameters);
+            _templateParameters = 0; // consume the template parameters
+        }
 
         symbol->setVisibility(semantic()->currentVisibility());
 
