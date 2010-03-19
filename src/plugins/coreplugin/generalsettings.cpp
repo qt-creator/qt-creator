@@ -139,6 +139,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_page->externalFileBrowserLabel->hide();
     m_page->externalFileBrowserEdit->hide();
     m_page->resetFileBrowserButton->hide();
+    m_page->helpExternalFileBrowserButton->hide();
 #endif
 
     connect(m_page->resetButton, SIGNAL(clicked()),
