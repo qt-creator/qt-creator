@@ -169,7 +169,7 @@ QStringList QmlProject::libraryPaths() const
 {
     QStringList libraryPaths;
     if (m_projectItem)
-        libraryPaths = m_projectItem.data()->libraryPaths();
+        libraryPaths = m_projectItem.data()->importPaths();
     return libraryPaths;
 }
 

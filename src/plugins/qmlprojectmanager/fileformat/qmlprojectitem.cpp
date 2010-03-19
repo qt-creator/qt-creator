@@ -9,7 +9,7 @@ class QmlProjectItemPrivate : public QObject {
 
 public:
     QString sourceDirectory;
-    QStringList libraryPaths;
+    QStringList importPaths;
 
     QList<QmlFileFilterItem*> qmlFileFilters() const;
 
@@ -79,21 +79,21 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
     emit sourceDirectoryChanged();
 }
 
-QStringList QmlProjectItem::libraryPaths() const
+QStringList QmlProjectItem::importPaths() const
 {
     Q_D(const QmlProjectItem);
-    return d->libraryPaths;
+    return d->importPaths;
 }
 
-void QmlProjectItem::setLibraryPaths(const QStringList &libraryPaths)
+void QmlProjectItem::setImportPaths(const QStringList &libraryPaths)
 {
     Q_D(QmlProjectItem);
 
-    if (d->libraryPaths == libraryPaths)
+    if (d->importPaths == libraryPaths)
         return;
 
-    d->libraryPaths = libraryPaths;
-    emit libraryPathsChanged();
+    d->importPaths = libraryPaths;
+    emit importPathsChanged();
 }
 
 /* Returns list of absolute paths */

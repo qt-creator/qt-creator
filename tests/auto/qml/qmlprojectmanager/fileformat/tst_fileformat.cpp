@@ -250,7 +250,7 @@ void TestProject::testLibraryPaths()
     QString projectFile = QLatin1String(
             "import QmlProject 1.0\n"
             "Project {\n"
-            "  libraryPaths: [ \"../otherLibrary\", \"library\" ]\n"
+            "  importPaths: [ \"../otherLibrary\", \"library\" ]\n"
             "}\n");
 
     {
@@ -268,7 +268,7 @@ void TestProject::testLibraryPaths()
 
         QStringList expectedPaths(QStringList() << "../otherLibrary"
                                                 << "library");
-        QCOMPARE(project->libraryPaths().toSet(), expectedPaths.toSet());
+        QCOMPARE(project->importPaths().toSet(), expectedPaths.toSet());
     }
 }
 
