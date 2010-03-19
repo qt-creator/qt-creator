@@ -38,16 +38,17 @@
 using namespace ProjectExplorer;
 
 namespace {
-    const char * const MAKE_PATTERN("^(mingw(32|64)-|g)?make(\\[\\d+\\])?:\\s");
+    // optional full path, make executable name, optional exe extention, optional number in square brackets, colon space
+    const char * const MAKE_PATTERN("^(([A-Za-z]:)?[/\\\\][^:]*[/\\\\])?(mingw(32|64)-|g)?make(.exe)?(\\[\\d+\\])?:\\s");
 }
 
 GnuMakeParser::GnuMakeParser(const QString &dir) :
-    m_alreadyFatal(false)
+    m_suppressIssues(false)
 {
     m_makeDir.setPattern(QLatin1String(MAKE_PATTERN) +
                          QLatin1String("(\\w+) directory .(.+).$"));
     m_makeDir.setMinimal(true);
-    m_makeLine.setPattern(QLatin1String(MAKE_PATTERN) + QLatin1String("(.*)$"));
+    m_makeLine.setPattern(QLatin1String(MAKE_PATTERN) + QLatin1String("\\*\\*\\*\\s(.*)$"));
     m_makeLine.setMinimal(true);
     m_makefileError.setPattern(QLatin1String("^(.*):(\\d+):\\s\\*\\*\\*\\s(.*)$"));
     m_makefileError.setMinimal(true);
@@ -59,36 +60,23 @@ void GnuMakeParser::stdOutput(const QString &line)
     QString lne = line.trimmed();
 
     if (m_makeDir.indexIn(lne) > -1) {
-        if (m_makeDir.cap(4) == "Leaving")
-            removeDirectory(m_makeDir.cap(5));
+        if (m_makeDir.cap(7) == "Leaving")
+            removeDirectory(m_makeDir.cap(8));
         else
-            addDirectory(m_makeDir.cap(5));
+            addDirectory(m_makeDir.cap(8));
         return;
     }
-    // Only ever report the first fatal message:
-    // Everything else will be follow-up issues.
-    if (m_makeLine.indexIn(lne) > -1) {
-        if (!m_alreadyFatal) {
-            QString message = m_makeLine.cap(4);
-            if (message.startsWith("Nothing to be done for "))
-                return;
-            Task task(Task::Warning,
-                      message,
-                      QString() /* filename */,
-                      -1, /* line */
-                      Constants::TASK_CATEGORY_BUILDSYSTEM);
-            if (message.startsWith(QLatin1String("*** "))) {
-                task.description = task.description.mid(4);
-                task.type = Task::Error;
-                m_alreadyFatal = true;
-            }
-            addTask(task);
-        }
-        return;
-    }
+
+    IOutputParser::stdOutput(line);
+}
+
+void GnuMakeParser::stdError(const QString &line)
+{
+    QString lne = line.trimmed();
+
     if (m_makefileError.indexIn(lne) > -1) {
-        if (!m_alreadyFatal) {
-            m_alreadyFatal = true;
+        if (!m_suppressIssues) {
+            m_suppressIssues = true;
             addTask(Task(Task::Error,
                          m_makefileError.cap(3),
                          m_makefileError.cap(1),
@@ -97,8 +85,19 @@ void GnuMakeParser::stdOutput(const QString &line)
         }
         return;
     }
+    if (m_makeLine.indexIn(lne) > -1) {
+        if (!m_suppressIssues) {
+            m_suppressIssues = true;
+            addTask(Task(Task::Error,
+                         m_makeLine.cap(7),
+                         QString() /* filename */,
+                         -1, /* line */
+                         Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+        return;
+    }
 
-    IOutputParser::stdOutput(line);
+    IOutputParser::stdError(line);
 }
 
 void GnuMakeParser::addDirectory(const QString &dir)
@@ -116,6 +115,12 @@ void GnuMakeParser::removeDirectory(const QString &dir)
 void GnuMakeParser::taskAdded(const Task &task)
 {
     Task editable(task);
+
+    if (task.type == Task::Error) {
+        // assume that all make errors will be follow up errors:
+        m_suppressIssues = true;
+    }
+
     QString filePath(QDir::cleanPath(task.file.trimmed()));
 
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
@@ -149,7 +154,6 @@ QStringList GnuMakeParser::searchDirectories() const
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include <QtCore/QDebug>
 #   include <QtCore/QUuid>
 
 #   include "outputparser_test.h"
@@ -204,23 +208,11 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
     QTest::newRow("make error")
             << QStringList()
             << QString::fromLatin1("make: *** No rule to make target `hello.c', needed by `hello.o'.  Stop.")
-            << OutputParserTester::STDOUT
+            << OutputParserTester::STDERR
             << QString() << QString()
             << (QList<Task>()
                 << Task(Task::Error,
                         QString::fromLatin1("No rule to make target `hello.c', needed by `hello.o'.  Stop."),
-                        QString(), -1,
-                        Constants::TASK_CATEGORY_BUILDSYSTEM))
-            << QString()
-            << QStringList();
-    QTest::newRow("make warning")
-            << QStringList()
-            << QString::fromLatin1("make: warning: ignoring old commands for target `xxx'")
-            << OutputParserTester::STDOUT
-            << QString() << QString()
-            << (QList<Task>()
-                << Task(Task::Warning,
-                        QString::fromLatin1("warning: ignoring old commands for target `xxx'"),
                         QString(), -1,
                         Constants::TASK_CATEGORY_BUILDSYSTEM))
             << QString()
@@ -230,7 +222,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("make[3]: *** [.obj/debug-shared/gnumakeparser.o] Error 1\n"
                                    "make[3]: *** Waiting for unfinished jobs....\n"
                                    "make[2]: *** [sub-projectexplorer-make_default] Error 2")
-            << OutputParserTester::STDOUT
+            << OutputParserTester::STDERR
             << QString() << QString()
             << (QList<Task>()
                 << Task(Task::Error,
@@ -242,7 +234,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
     QTest::newRow("Makefile error")
             << QStringList()
             << QString::fromLatin1("Makefile:360: *** missing separator (did you mean TAB instead of 8 spaces?). Stop.")
-            << OutputParserTester::STDOUT
+            << OutputParserTester::STDERR
             << QString() << QString()
             << (QList<Task>()
                 << Task(Task::Error,
@@ -251,12 +243,49 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                         Constants::TASK_CATEGORY_BUILDSYSTEM))
             << QString()
             << QStringList();
-    QTest::newRow("Nothing to be done")
+    QTest::newRow("mingw32-make error")
             << QStringList()
-            << QString::fromLatin1("make[2]: Nothing to be done for `first´.")
-            << OutputParserTester::STDOUT
+            << QString::fromLatin1("mingw32-make[1]: *** [debug/qplotaxis.o] Error 1\n"
+                                   "mingw32-make: *** [debug] Error 2")
+            << OutputParserTester::STDERR
             << QString() << QString()
-            << QList<Task>()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QString::fromLatin1("[debug/qplotaxis.o] Error 1"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_BUILDSYSTEM))
+            << QString()
+            << QStringList();
+    QTest::newRow("mingw64-make error")
+            << QStringList()
+            << QString::fromLatin1("mingw64-make.exe[1]: *** [dynlib.inst] Error -1073741819")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QString::fromLatin1("[dynlib.inst] Error -1073741819"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_BUILDSYSTEM))
+            << QString()
+            << QStringList();
+    QTest::newRow("pass-trough note")
+            << QStringList()
+            << QString::fromLatin1("/home/dev/creator/share/qtcreator/gdbmacros/gdbmacros.cpp:1079: note: initialized from here")
+            << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("/home/dev/creator/share/qtcreator/gdbmacros/gdbmacros.cpp:1079: note: initialized from here")
+            << QList<ProjectExplorer::Task>()
+            << QString()
+            << QStringList();
+    QTest::newRow("Full path make exe")
+            << QStringList()
+            << QString::fromLatin1("C:\\Qt\\4.6.2-Symbian\\s60sdk\\epoc32\\tools\\make.exe: *** [sis] Error 2")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QString::fromLatin1("[sis] Error 2"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_BUILDSYSTEM))
             << QString()
             << QStringList();
 }
