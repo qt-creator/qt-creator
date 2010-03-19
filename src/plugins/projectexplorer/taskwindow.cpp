@@ -31,6 +31,8 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/vcsmanager.h>
+#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -40,6 +42,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
 #include <QtGui/QKeyEvent>
@@ -464,16 +467,21 @@ TaskWindow::TaskWindow()
     Core::Command *command = core->actionManager()->
             registerAction(m_copyAction, Core::Constants::COPY, m_taskWindowContext->context());
     m_listview->addAction(command->action());
-
-    connect(m_listview->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-            tld, SLOT(currentChanged(const QModelIndex &, const QModelIndex &)));
-
-    connect(m_listview, SIGNAL(activated(const QModelIndex &)),
-            this, SLOT(showTaskInFile(const QModelIndex &)));
-    connect(m_listview, SIGNAL(clicked(const QModelIndex &)),
-            this, SLOT(showTaskInFile(const QModelIndex &)));
-
     connect(m_copyAction, SIGNAL(triggered()), SLOT(copy()));
+
+    m_vcsAnnotateAction = new QAction(tr("&Annotate"), this);
+    command = core->actionManager()->
+            registerAction(m_vcsAnnotateAction, QLatin1String("ProjectExplorer.Task.VCS_Annotate"), m_taskWindowContext->context());
+    m_listview->addAction(command->action());
+    connect(m_vcsAnnotateAction, SIGNAL(triggered()), SLOT(vcsAnnotate()));
+
+    connect(m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            tld, SLOT(currentChanged(QModelIndex,QModelIndex)));
+
+    connect(m_listview, SIGNAL(activated(QModelIndex)),
+            this, SLOT(showTaskInFile(QModelIndex)));
+    connect(m_listview, SIGNAL(clicked(QModelIndex)),
+            this, SLOT(showTaskInFile(QModelIndex)));
 
     m_filterWarningsButton = createFilterButton(Task::Warning,
                                                 tr("Show Warnings"), m_model,
@@ -563,12 +571,29 @@ void TaskWindow::showTaskInFile(const QModelIndex &index)
     m_listview->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
 
+// Right-click VCS annotate: Find version control and point it to line
+void TaskWindow::vcsAnnotate()
+{
+    const QModelIndex index = m_listview->selectionModel()->currentIndex();
+    if (!index.isValid())
+        return;
+    const QString file = index.data(TaskModel::File).toString();
+    const int line = index.data(TaskModel::Line).toInt();
+    const QFileInfo fi(file);
+    if (fi.exists())
+        if (Core::IVersionControl *vc = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(fi.absolutePath()))
+            if (vc->supportsOperation(Core::IVersionControl::AnnotateOperation))
+                vc->vcsAnnotate(fi.absoluteFilePath(), line);
+}
+
 void TaskWindow::copy()
 {
-    QModelIndex index = m_listview->selectionModel()->currentIndex();
-    QString file = index.data(TaskModel::File).toString();
-    QString line = index.data(TaskModel::Line).toString();
-    QString description = index.data(TaskModel::Description).toString();
+    const QModelIndex index = m_listview->selectionModel()->currentIndex();
+    if (!index.isValid())
+        return;
+    const QString file = index.data(TaskModel::File).toString();
+    const QString line = index.data(TaskModel::Line).toString();
+    const QString description = index.data(TaskModel::Description).toString();
     QString type;
     switch (index.data(TaskModel::Type).toInt()) {
     case Task::Error:

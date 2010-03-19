@@ -52,6 +52,7 @@ bool SubversionControl::supportsOperation(Operation operation) const
     switch (operation) {
     case AddOperation:
     case DeleteOperation:
+    case AnnotateOperation:
         break;
     case OpenOperation:
     case CreateRepositoryOperation:
@@ -113,6 +114,13 @@ bool SubversionControl::managesDirectory(const QString &directory) const
 QString SubversionControl::findTopLevelForDirectory(const QString &directory) const
 {
     return m_plugin->findTopLevelForDirectory(directory);
+}
+
+bool SubversionControl::vcsAnnotate(const QString &file, int line)
+{
+    const QFileInfo fi(file);
+    m_plugin->vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    return true;
 }
 
 void SubversionControl::emitRepositoryChanged(const QString &s)

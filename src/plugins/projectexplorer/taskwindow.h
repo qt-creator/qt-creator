@@ -119,6 +119,7 @@ signals:
 private slots:
     void showTaskInFile(const QModelIndex &index);
     void copy();
+    void vcsAnnotate();
     void setShowWarnings(bool);
     void updateCategoriesMenu();
     void filterCategoryTriggered(QAction *action);
@@ -132,6 +133,7 @@ private:
     Internal::TaskView *m_listview;
     Internal::TaskWindowContext *m_taskWindowContext;
     QAction *m_copyAction;
+    QAction *m_vcsAnnotateAction;
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;
     QMenu *m_categoriesMenu;

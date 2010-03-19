@@ -54,6 +54,7 @@ bool PerforceVersionControl::supportsOperation(Operation operation) const
     case AddOperation:
     case DeleteOperation:
     case OpenOperation:
+    case AnnotateOperation:
         return true;
     case CreateRepositoryOperation:
     case SnapshotOperations:
@@ -103,6 +104,12 @@ bool PerforceVersionControl::vcsRestoreSnapshot(const QString &, const QString &
 bool PerforceVersionControl::vcsRemoveSnapshot(const QString &, const QString &)
 {
     return false;
+}
+
+bool PerforceVersionControl::vcsAnnotate(const QString &file, int line)
+{
+    m_plugin->vcsAnnotate(file, QString(), line);
+    return true;
 }
 
 bool PerforceVersionControl::managesDirectory(const QString &directory) const

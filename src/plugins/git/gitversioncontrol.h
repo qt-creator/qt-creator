@@ -59,6 +59,8 @@ public:
     virtual bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
     virtual bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
 
+    virtual bool vcsAnnotate(const QString &file, int line);
+
     void emitFilesChanged(const QStringList &);
     void emitRepositoryChanged(const QString &);
 

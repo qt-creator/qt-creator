@@ -81,6 +81,9 @@ bool GitVersionControl::supportsOperation(Operation operation) const
     case SnapshotOperations:
         rc = true;
         break;
+    case AnnotateOperation:
+        rc = true;
+        break;
     }
     return rc;
 }
@@ -201,6 +204,13 @@ bool GitVersionControl::managesDirectory(const QString &directory) const
 QString GitVersionControl::findTopLevelForDirectory(const QString &directory) const
 {
     return GitClient::findRepositoryForDirectory(directory);
+}
+
+bool GitVersionControl::vcsAnnotate(const QString &file, int line)
+{
+    const QFileInfo fi(file);
+    gitClient()->blame(fi.absolutePath(), fi.fileName(), QString(), line);
+    return true;
 }
 
 void GitVersionControl::emitFilesChanged(const QStringList &l)

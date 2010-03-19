@@ -100,6 +100,10 @@ public:
 
     static SubversionPlugin *subversionPluginInstance();
 
+public slots:
+    void vcsAnnotate(const QString &workingDir, const QString &file,
+                     const QString &revision = QString(), int lineNumber = -1);
+
 private slots:
     void addCurrentFile();
     void revertCurrentFile();
@@ -132,8 +136,6 @@ private:
     SubversionResponse runSvn(const QString &workingDir,
                               const QStringList &arguments, int timeOut,
                               bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0);
-    void annotate(const QString &workingDir, const QString &file,
-                  const QString &revision = QString(), int lineNumber = -1);
     void filelog(const QString &workingDir,
                  const QStringList &file = QStringList(),
                  bool enableAnnotationContextMenu = false);

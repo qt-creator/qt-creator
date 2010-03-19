@@ -723,7 +723,7 @@ void PerforcePlugin::annotate()
     }
 }
 
-void PerforcePlugin::annotateVersion(const QString &file, const QString &revision, int lineNumber)
+void PerforcePlugin::vcsAnnotate(const QString &file, const QString &revision, int lineNumber)
 {
     const QFileInfo fi(file);
     annotate(fi.absolutePath(), fi.fileName(), revision, lineNumber);
@@ -1175,7 +1175,7 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output);
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(annotateVersion(QString,QString,int)));
+            this, SLOT(vcsAnnotate(QString,QString,int)));
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
     if (!e)
         return 0;
