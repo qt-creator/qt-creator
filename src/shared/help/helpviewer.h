@@ -116,6 +116,8 @@ private Q_SLOTS:
     void setLoadFinished(bool ok);
 
 private:
+    bool handleForwardBackwardMouseButtons(QMouseEvent *e);
+
     QHelpEngine *helpEngine;
     Help::Internal::CentralWidget* parentWidget;
     QUrl homeUrl;
@@ -163,6 +165,8 @@ private slots:
     void openLinkInNewTab();
 
 private:
+    bool handleForwardBackwardMouseButtons(QMouseEvent *e);
+
     int zoomCount;
     bool controlPressed;
     QString lastAnchor;
