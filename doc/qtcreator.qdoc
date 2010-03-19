@@ -572,7 +572,7 @@
 
     Use the toolbar to navigate between open files and symbols in use:
     \list
-        \o To browse the history of edits for the currently open session, click
+        \o To browse forwards or backwards through your location history, click
            \inlineimage qtcreator-back.png
            and \inlineimage qtcreator-forward.png
            .
@@ -613,7 +613,7 @@
     \endlist
 
     To move between split views, select \gui Window >
-    \gui{Go to Next Split} or press \key{Ctrl+E, 0}.
+    \gui{Go to Next Split} or press \key{Ctrl+E, O}.
 
     To remove a split view, place the cursor within the view you want to
     remove and select \gui Window > \gui{Remove Current Split} or press
@@ -629,7 +629,7 @@
 
     \image qtcreator-blockhighlighting.png
 
-    To enable block highlighting, select \gui Tools > \gui Options >
+    To enable block highlighting, select \gui Tools > \gui{Options...} >
     \gui{Text Editor} > \gui Display > \gui{Highlight blocks}.
 
     Use the folding markers to collapse and expand blocks of code within
@@ -637,8 +637,9 @@
     figure above, the folding markers are located between the line number and
     the text pane.
 
-    To show the folding markers, select \gui Tools > \gui Options >
-    \gui{Text Editor} > \gui Display > \gui{Display folding markers}.
+    To show the folding markers, select \gui Tools > \gui{Options...} >
+    \gui{Text Editor} > \gui Display > \gui{Display folding markers}. This
+    option is enabled by default.
 
 
     \section1 Syntax Checking
@@ -649,7 +650,8 @@
     \list
         \o Syntax errors are underlined in red.
 
-           In the following figure, semicolon is missing at the end of line.
+           In the following figure, a semicolon is missing at the end of the
+           line.
 
            \image qtcreator-syntaxerror.png
         \o Semantic errors and warnings are underlined in olive.
@@ -667,8 +669,9 @@
 
     \image qtcreator-codecompletion.png
 
-    Set code completion preferences in \gui Tools > \gui Options >
-    \gui{Text Editor} > \gui Completion.
+    Set code completion preferences in \gui Tools > \gui{Options...} >
+    \gui{Text Editor} > \gui Completion. To trigger code completion
+    manually press \key{Ctrl+Space}.
 
     When completion is invoked manually, Qt Creator completes the common prefix
     of the list of suggestions. This is especially useful for classes with
@@ -749,9 +752,8 @@
 
     To use the external editor of your choice:
     \list 1
-        \o On Windows add the editor path to the \bold Path system variable.
-           On Linux and Mac OS X add the editor path to the \c{PATH}
-           environment variable.
+        \o Add the editor path to the \c{PATH} environment variable of your
+           operating system.
         \o In Qt Creator select \gui Tools > \gui Options... >
            \gui Environment > \gui General.
         \o In \gui{External editor} enter the name of the application followed
@@ -788,7 +790,7 @@
     To search through the currently open file:
     \list 1
         \o Press \key Ctrl+F or select \gui Edit > \gui Find/Replace >
-           \gui{Current Document}.
+           \gui{Find/Replace}.
         \o Enter the text you are looking for.
 
            If the text is found, all occurrences are highlighted as you type.
@@ -896,7 +898,7 @@
     To find the use of a specific symbol in your project:
     \list 1
         \o In the editor place the cursor on the symbol and select \gui Tools
-           > \gui C++ > \gui{Rename Symbol under Cursor} or press
+           > \gui C++ > \gui{Find Usages} or press
            \key Ctrl+Shift+U.
 
            Qt Creator looks for the symbol in the following locations:
@@ -934,7 +936,7 @@
     \list 1
         \o In the editor, place the cursor on the symbol you would like to
            change and select \gui Tools > \gui C++ >
-           \gui{Rename Symbol under Cursor} or press \key Ctrl+Shift+R.
+           \gui{Rename Symbol Under Cursor} or press \key Ctrl+Shift+R.
 
            The \gui{Search Results} pane opens and shows the location and
            number of instances of the symbol in the current project.
@@ -1979,7 +1981,7 @@
     To edit the currently open project's main.cpp file using the locator:
     \list 1
         \o Activate the locator by pressing \key Ctrl+K.
-        \o Enter \c{main.cpp}.
+        \o Enter \tt{main.cpp}.
 
            \image qtcreator-locator-open.png
         \o Press \key Return.
@@ -1994,8 +1996,8 @@
     To narrow down the search results, you can use the following wildcard
     characters:
     \list
-        \o To match any number of any or no characters, enter \tt \bold{*}.
-        \o To match a single instance of any character, enter \tt \bold{?}.
+        \o To match any number of any or no characters, enter \bold{*}.
+        \o To match a single instance of any character, enter \bold{?}.
     \endlist
 
     \section1 Using the Locator Filters
@@ -2005,7 +2007,7 @@
     filters which locate:
     \list
         \o  Any open document
-        \o  Files anywhere on your file systems
+        \o  Files anywhere on your file system
         \o  Files belonging to your project, such as source, header resource,
             and .ui files
         \o  Class and method definitions in your project or anywhere referenced
@@ -2018,7 +2020,7 @@
     \key Space. The prefix is usually a single character.
 
     For example, to locate symbols matching
-    \l http://doc.trolltech.com/qdatastream.html}{QDataStream:
+    \l{http://doc.trolltech.com/qdatastream.html}{QDataStream:}
     \list 1
         \o Activate the locator.
         \o Enter \tt{\bold{: QDataStream}} (: (colon) followed by a
@@ -2104,7 +2106,7 @@
             \o Select at least one directory. The locator searches directories
                recursively.
             \o Define the file pattern as a comma separated list. For example,
-               to search all .h and .cpp files, enter \tt \bold{*.h,*.cpp}
+               to search all .h and .cpp files, enter \bold{*.h,*.cpp}
             \o Specify the prefix string.
 
                To show only results matching this filter, select
@@ -2275,10 +2277,9 @@
     In \gui Debug mode, several dock widgets are used to interact with the
     program you are debugging. Frequently-used dock widgets are visible by
     default and rarely-used ones are hidden. To change the default settings,
-    select \gui Debug and then select \gui Views.
-
-    Here, you can lock or unlock the location of your dock widgets as well as
-    display or hide them. The position of your dock widgets is saved for future
+    select \gui Debug > \gui View, and then select an option to
+    lock or unlock the location of the dock widgets or display
+    or hide them. The position of your dock widgets is saved for future
     sessions.
 
 
@@ -2549,10 +2550,11 @@
     \image qtcreator-debugging-buttons.png
 
 
-    \section1 Setting the Symbol Server
+    \section1 Setting the Symbol Server in Windows
 
-    To obtain operating system libraries for debugging Windows applications,
-    you have to add the Symbol Server:
+    To obtain debugging information for the operating system libraries for
+    debugging Windows applications, the Symbol Server provided
+    by Microsoft has to be added to the symbol search path of the debugger:
     \list 1
         \o  Select \gui Tools > \gui{Options...} > \gui Debugger > \gui Cdb
         \o  Click \inlineimage qtcreator-serverbutton.png
