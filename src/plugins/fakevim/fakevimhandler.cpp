@@ -439,7 +439,6 @@ public:
     SubMode m_submode;
     SubSubMode m_subsubmode;
     int m_subsubdata;
-    QString m_input;
     QTextCursor m_tc;
     int m_oldPosition; // copy from last event to check for external changes
     int m_anchor;
@@ -561,6 +560,13 @@ public:
     QVector<CursorPosition> m_jumpListRedo;
 
     QList<QTextEdit::ExtraSelection> m_searchSelections;
+
+    bool handleMapping(const QString &line);
+    // Mappings for a specific mode.
+    typedef QHash<QByteArray, QByteArray> ModeMappings;
+    // All mappings.
+    typedef QHash<char, ModeMappings> Mappings;
+    Mappings m_mappings;
 };
 
 QStringList FakeVimHandler::Private::m_searchHistory;
@@ -751,7 +757,6 @@ void FakeVimHandler::Private::setupWidget()
         updateSelection();
     }
 
-    //showBlackMessage("vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.");
     updateMiniBuffer();
 }
 
@@ -2408,6 +2413,78 @@ static bool isSubstitution(const QString &cmd0, QStringList *result)
     return true;
 }
 
+bool FakeVimHandler::Private::handleMapping(const QString &cmd0)
+{
+    QByteArray line = cmd0.toLatin1();
+    int pos1 = line.indexOf(' ');
+    if (pos1 == -1)
+        return false;
+    int pos2 = line.indexOf(' ', pos1 + 1);
+    if (pos2 == -1)
+        return false;
+
+    QByteArray modes;
+    enum Type { Map, Noremap, Unmap } type;
+
+    QByteArray cmd = line.left(pos1);
+
+    // Strange formatting. But everything else is even uglier.
+    if (cmd == "map") { modes = "nvo"; type = Map; } else
+    if (cmd == "nm" || cmd == "nmap") { modes = "n"; type = Map; } else
+    if (cmd == "vm" || cmd == "vmap") { modes = "v"; type = Map; } else
+    if (cmd == "xm" || cmd == "xmap") { modes = "x"; type = Map; } else
+    if (cmd == "smap") { modes = "s"; type = Map; } else
+    if (cmd == "map!") { modes = "ic"; type = Map; } else
+    if (cmd == "im" || cmd == "imap") { modes = "i"; type = Map; } else
+    if (cmd == "lm" || cmd == "lmap") { modes = "l"; type = Map; } else
+    if (cmd == "cm" || cmd == "cmap") { modes = "c"; type = Map; } else
+
+    if (cmd == "no" || cmd == "noremap") { modes = "nvo"; type = Noremap; } else
+    if (cmd == "nn" || cmd == "nnoremap") { modes = "n"; type = Noremap; } else
+    if (cmd == "vn" || cmd == "vnoremap") { modes = "v"; type = Noremap; } else
+    if (cmd == "xn" || cmd == "xnoremap") { modes = "x"; type = Noremap; } else
+    if (cmd == "snor" || cmd == "snoremap") { modes = "s"; type = Noremap; } else
+    if (cmd == "ono" || cmd == "onoremap") { modes = "o"; type = Noremap; } else
+    if (cmd == "no!" || cmd == "noremap!") { modes = "ic"; type = Noremap; } else
+    if (cmd == "ino" || cmd == "inoremap") { modes = "i"; type = Noremap; } else
+    if (cmd == "ln" || cmd == "lnoremap") { modes = "l"; type = Noremap; } else
+    if (cmd == "cno" || cmd == "cnoremap") { modes = "c"; type = Noremap; } else
+
+    if (cmd == "unm" || cmd == "unmap") { modes = "nvo"; type = Unmap; } else
+    if (cmd == "nun" || cmd == "nunmap") { modes = "n"; type = Unmap; } else
+    if (cmd == "vu" || cmd == "vunmap") { modes = "v"; type = Unmap; } else
+    if (cmd == "xu" || cmd == "xunmap") { modes = "x"; type = Unmap; } else
+    if (cmd == "sunm" || cmd == "sunmap") { modes = "s"; type = Unmap; } else
+    if (cmd == "ou" || cmd == "ounmap") { modes = "o"; type = Unmap; } else
+    if (cmd == "unm!" || cmd == "unmap!") { modes = "ic"; type = Unmap; } else
+    if (cmd == "iu" || cmd == "iunmap") { modes = "i"; type = Unmap; } else
+    if (cmd == "lu" || cmd == "lunmap") { modes = "l"; type = Unmap; } else
+    if (cmd == "cu" || cmd == "cunmap") { modes = "c"; type = Unmap; }
+
+    else
+        return false;
+
+    QByteArray lhs = line.mid(pos1 + 1, pos2 - pos1 - 1);
+    QByteArray rhs = line.mid(pos2 + 1);
+    qDebug() << "MAPPING: " << modes << lhs << rhs;
+    switch (type) {
+        case Unmap:
+            foreach (char c, modes)
+                if (m_mappings.contains(c))
+                    m_mappings[c].remove(lhs);
+            break;
+        case Map:
+            rhs = rhs; // FIXME: expand rhs.
+            // Fall through.
+        case Noremap:
+            foreach (char c, modes)
+                m_mappings[c][lhs] = rhs;
+            break;
+    }
+    qDebug() << "CURRENT: " << m_mappings;
+    return true;
+}
+
 void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 {
     QString cmd = cmd0;
@@ -2653,6 +2730,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             notImplementedYet();
         }
         updateMiniBuffer();
+    } else if (handleMapping(cmd)) {
+        /* done */
     } else {
         passUnknownExCommand(cmd);
     }
@@ -3796,7 +3875,6 @@ void FakeVimHandler::showRedMessage(const QString &msg)
 {
    d->showRedMessage(msg);
 }
-
 
 QWidget *FakeVimHandler::widget()
 {
