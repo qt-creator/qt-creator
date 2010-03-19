@@ -689,7 +689,9 @@ void ObjectNodeInstance::createDynamicProperty(const QString &name, const QStrin
 void ObjectNodeInstance::refreshBindings(QDeclarativeContext *context)
 {
     // TODO: Maybe do this via a timer to prevent update flooding
-    QDeclarativeContextPrivate::get(context)->data->refreshExpressions();
+
+    static int i = 0;
+    context->setContextProperty(QString("__dummy_%1").arg(i++), true);
 }
 
 }
