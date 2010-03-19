@@ -95,7 +95,7 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     pm->addObject(m_taskWindow);
 
     m_taskWindow->addCategory(Constants::TASK_CATEGORY_COMPILE, tr("Compile", "Category for compiler isses listened under 'Build Issues'"));
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM, tr("Buildsystem", "Category for build system isses listened under 'Build Issues'"));
+    m_taskWindow->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM, tr("Build System", "Category for build system isses listened under 'Build Issues'"));
 
     connect(m_taskWindow, SIGNAL(tasksChanged()),
             this, SLOT(updateTaskCount()));
