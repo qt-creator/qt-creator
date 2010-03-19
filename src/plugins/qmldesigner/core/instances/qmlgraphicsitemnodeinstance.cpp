@@ -42,6 +42,7 @@
 
 #include <private/qdeclarativeanchors_p.h>
 #include <private/qdeclarativeanchors_p_p.h>
+#include <private/qdeclarativeproperty_p.h>
 #include <private/qdeclarativerectangle_p.h>
 
 #include <cmath>

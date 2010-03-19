@@ -57,6 +57,8 @@
 #include <QSharedPointer>
 
 #include <private/qdeclarativebinding_p.h>
+#include <private/qdeclarativemetatype_p.h>
+#include <private/qdeclarativevaluetype_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -406,7 +408,7 @@ void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &
         binding->setTarget(metaProperty);
         binding->setNotifyOnValueChanged(true);
         QDeclarativeAbstractBinding *oldBinding = QDeclarativePropertyPrivate::setBinding(metaProperty, binding);
-        delete oldBinding;
+        oldBinding->destroy();
         binding->update();
     } else {
         qWarning() << "Cannot set binding for property" << name << ": property is unknown for type"
@@ -458,7 +460,7 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
     QDeclarativeAbstractBinding *binding = QDeclarativePropertyPrivate::binding(qmlProperty);
     if (binding) {
         binding->setEnabled(false, 0);
-        delete binding;
+        binding->destroy();
     }
 
     if (metaProperty.isResettable()) {
@@ -687,7 +689,7 @@ void ObjectNodeInstance::createDynamicProperty(const QString &name, const QStrin
 void ObjectNodeInstance::refreshBindings(QDeclarativeContext *context)
 {
     // TODO: Maybe do this via a timer to prevent update flooding
-    QDeclarativeContextPrivate::get(context)->refreshExpressions();
+    QDeclarativeContextPrivate::get(context)->data->refreshExpressions();
 }
 
 }

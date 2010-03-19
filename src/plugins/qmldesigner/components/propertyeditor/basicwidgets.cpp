@@ -976,7 +976,7 @@ void WidgetLoader::setSource(const QUrl &source)
             }
 
             QDeclarativeContext *ctxt = new QDeclarativeContext(qmlContext(this));
-	    ctxt->addDefaultObject(this);
+            ctxt->setContextObject(this);
             QObject *obj = m_component->create(ctxt);
             if (obj) {
                 QWidget *widget = qobject_cast<QWidget *>(obj);

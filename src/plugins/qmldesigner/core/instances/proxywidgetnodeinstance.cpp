@@ -30,6 +30,7 @@
 #include "proxywidgetnodeinstance.h"
 
 #include <QGraphicsProxyWidget>
+#include <private/qdeclarativemetatype_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
