@@ -38,9 +38,9 @@
 
 QT_BEGIN_NAMESPACE
 
-const int C_NAME = 0;
-const int C_VALUE = 1;
-const int C_COLUMNS = 2;
+static const int C_NAME = 0;
+static const int C_VALUE = 1;
+static const int C_COLUMNS = 2;
 
 WatchTableModel::WatchTableModel(QDeclarativeEngineDebug *client, QObject *parent)
     : QAbstractTableModel(parent),
