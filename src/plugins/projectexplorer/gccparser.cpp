@@ -59,9 +59,26 @@ GccParser::GccParser()
 void GccParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
-    if (lne.startsWith(QLatin1String("collect2:")) ||
+
+    // Blacklist some lines to not handle them:
+    if (lne.startsWith(QLatin1String("TeamBuilder ")) ||
+        lne.startsWith(QLatin1String("distcc["))) {
+        IOutputParser::stdError(line);
+        return;
+    }
+    // Handle linker issues:
+    if (lne.startsWith(QLatin1String("ld: fatal: "))) {
+        QString description = lne.mid(11);
+        emit addTask(Task(Task::Error, description, QString(), -1, Constants::TASK_CATEGORY_COMPILE));
+        return;
+    } else if (lne.startsWith(QLatin1String("ld: warning: "))) {
+        QString description = lne.mid(13);
+        emit addTask(Task(Task::Warning, description, QString(), -1, Constants::TASK_CATEGORY_COMPILE));
+        return;
+    } else if (lne.startsWith(QLatin1String("collect2:")) ||
         lne.startsWith(QLatin1String("ERROR:")) ||
         lne == QLatin1String("* cpp failed")) {
+        // Handle misc. strange lines:
         emit addTask(Task(Task::Error,
                           lne /* description */,
                           QString() /* filename */,
@@ -339,6 +356,16 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << ( QList<ProjectExplorer::Task>()
                  << Task(Task::Warning,
                          QLatin1String("Core::IEditor* QVariant::value<Core::IEditor*>() const has different visibility (hidden) in .obj/debug-shared/openeditorsview.o and (default) in .obj/debug-shared/editormanager.o"),
+                         QString(), -1,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("ld fatal")
+            << QString::fromLatin1("ld: fatal: Symbol referencing errors. No output written to testproject")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Error,
+                         QLatin1String("Symbol referencing errors. No output written to testproject"),
                          QString(), -1,
                          Constants::TASK_CATEGORY_COMPILE))
             << QString();
