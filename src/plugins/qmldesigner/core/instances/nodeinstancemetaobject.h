@@ -1,8 +1,8 @@
 #ifndef NODEINSTANCEMETAOBJECT_H
 #define NODEINSTANCEMETAOBJECT_H
 
+#include <QDeclarativeContext>
 #include <private/qdeclarativeopenmetaobject_p.h>
-#include <private/qdeclarativecontext_p.h>
 
 namespace QmlDesigner {
 namespace Internal {

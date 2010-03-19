@@ -2,6 +2,7 @@
 
 #include "objectnodeinstance.h"
 #include <QSharedPointer>
+#include <QMetaProperty>
 #include <qnumeric.h>
 
 namespace QmlDesigner {
