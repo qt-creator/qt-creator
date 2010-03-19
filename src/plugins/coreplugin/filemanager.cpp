@@ -340,7 +340,7 @@ void FileManager::checkForNewFileName()
     const QString &fileName = fixFileName(file->fileName());
 
     // check if the IFile is in the map
-    if (d->m_states[fileName].lastUpdatedState.contains(file)) {
+    if (d->m_states.value(fileName).lastUpdatedState.contains(file)) {
         // Should checkForNewFileName also call updateFileInfo if the name didn't change?
         updateFileInfo(file);
         return;
