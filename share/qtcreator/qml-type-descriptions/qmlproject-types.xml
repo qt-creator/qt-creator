@@ -2,7 +2,7 @@
 <module>
     <type name="QmlProject.Project">
         <property name="sourceDirectory" type="string"/>
-        <property name="libraryPaths" type="string" isList="true"/>
+        <property name="importPaths" type="string" isList="true"/>
         <property name="content" type="QmlProjectItem" isList="true"/>
     </type>
     <type name="QmlProjectItem">

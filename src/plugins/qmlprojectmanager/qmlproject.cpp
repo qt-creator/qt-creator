@@ -95,7 +95,7 @@ void QmlProject::parseProject(RefreshOptions options)
                     && qobject_cast<QmlProjectItem*>(component->create())) {
                     m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
                     connect(m_projectItem.data(), SIGNAL(qmlFilesChanged()), this, SLOT(refreshFiles()));
-                    connect(m_projectItem.data(), SIGNAL(libraryPathsChanged()), this, SLOT(refreshImportPaths()));
+                    connect(m_projectItem.data(), SIGNAL(importPathsChanged()), this, SLOT(refreshImportPaths()));
                     refreshImportPaths();
                 } else {
                     Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
@@ -165,12 +165,12 @@ bool QmlProject::validProjectFile() const
     return !m_projectItem.isNull();
 }
 
-QStringList QmlProject::libraryPaths() const
+QStringList QmlProject::importPaths() const
 {
-    QStringList libraryPaths;
+    QStringList importPaths;
     if (m_projectItem)
-        libraryPaths = m_projectItem.data()->importPaths();
-    return libraryPaths;
+        importPaths = m_projectItem.data()->importPaths();
+    return importPaths;
 }
 
 bool QmlProject::addFiles(const QStringList &filePaths)
@@ -195,7 +195,7 @@ void QmlProject::refreshFiles()
 
 void QmlProject::refreshImportPaths()
 {
-    m_modelManager->setProjectImportPaths(libraryPaths());
+    m_modelManager->setProjectImportPaths(importPaths());
 }
 
 QString QmlProject::displayName() const

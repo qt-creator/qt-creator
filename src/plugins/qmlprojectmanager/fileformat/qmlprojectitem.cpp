@@ -85,14 +85,14 @@ QStringList QmlProjectItem::importPaths() const
     return d->importPaths;
 }
 
-void QmlProjectItem::setImportPaths(const QStringList &libraryPaths)
+void QmlProjectItem::setImportPaths(const QStringList &importPaths)
 {
     Q_D(QmlProjectItem);
 
-    if (d->importPaths == libraryPaths)
+    if (d->importPaths == importPaths)
         return;
 
-    d->importPaths = libraryPaths;
+    d->importPaths = importPaths;
     emit importPathsChanged();
 }
 
