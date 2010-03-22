@@ -102,7 +102,7 @@ public:
 
     virtual QObject *parent() const;
 
-    void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
+    virtual void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
 
     void setId(const QString &id);
 
@@ -155,7 +155,6 @@ public:
 
     virtual void activateState();
     virtual void deactivateState();
-    virtual void refreshState();
 
     void populateResetValueHash();
     QVariant resetValue(const QString &propertyName) const;
@@ -165,6 +164,10 @@ public:
     virtual bool hasContent() const;
 
     QDeclarativeContext *context() const;
+
+    virtual bool updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value);
+    virtual bool updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression);
+    virtual bool resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue);
 
 protected:
     static QObject* createObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);

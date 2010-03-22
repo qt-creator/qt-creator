@@ -13,6 +13,7 @@ namespace Internal {
 NodeInstanceSignalSpy::NodeInstanceSignalSpy() :
     QObject()
 {
+    blockSignals(true);
 }
 
 void NodeInstanceSignalSpy::setObjectNodeInstance(const ObjectNodeInstance::Pointer &nodeInstance)

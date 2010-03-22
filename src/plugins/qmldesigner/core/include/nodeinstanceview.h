@@ -51,6 +51,7 @@ namespace QmlDesigner {
 
 namespace Internal {
     class ChildrenChangeEventFilter;
+    class QmlStateNodeInstance;
 }
 
 class CORESHARED_EXPORT NodeInstanceView : public AbstractView
@@ -59,6 +60,7 @@ class CORESHARED_EXPORT NodeInstanceView : public AbstractView
 
     friend class NodeInstance;
     friend class Internal::ObjectNodeInstance;
+    friend class Internal::QmlStateNodeInstance;
 public:
     typedef QWeakPointer<NodeInstanceView> Pointer;
 
@@ -116,6 +118,11 @@ public:
 
     void setBlockStatePropertyChanges(bool block);
 
+    NodeInstance activeStateInstance() const;
+
+    void activateState(const NodeInstance &instance);
+    void activateBaseState();
+
 signals:
     void instanceRemoved(const NodeInstance &nodeInstance);
 
@@ -138,8 +145,16 @@ private: // functions
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
     void removeInstanceAndSubInstances(const ModelNode &node);
 
+    void setInstancePropertyVariant(const VariantProperty &property);
+    void setInstancePropertyBinding(const BindingProperty &property);
+    void resetInstanceProperty(const AbstractProperty &property);
+
+    void setStateInstance(const NodeInstance &stateInstance);
+    void clearStateInstance();
+
 private: //variables
     NodeInstance m_rootNodeInstance;
+    NodeInstance m_activeStateInstance;
     QScopedPointer<QGraphicsView> m_graphicsView;
 
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;

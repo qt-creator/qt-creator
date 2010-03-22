@@ -369,6 +369,7 @@ QRectF NodeInstance::boundingRect() const
 void NodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
     m_nodeInstance->setPropertyVariant(name, value);
+
 }
 
 void NodeInstance::setPropertyDynamicVariant(const QString &name, const QString &typeName, const QVariant &value)
@@ -485,9 +486,9 @@ bool operator==(const NodeInstance &first, const NodeInstance &second)
     return first.m_nodeInstance.data() == second.m_nodeInstance.data();
 }
 
-const QObject *NodeInstance::testHandle() const
+bool NodeInstance::isWrappingThisObject(QObject *object) const
 {
-    return internalObject();
+    return internalObject() && internalObject() == object;
 }
 
 /*!
@@ -606,9 +607,24 @@ void NodeInstance::deactivateState()
     m_nodeInstance->deactivateState();
 }
 
-void NodeInstance::refreshState()
+bool NodeInstance::updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value)
 {
-    m_nodeInstance->refreshState();
+    return m_nodeInstance->updateStateVariant(target, propertyName, value);
+}
+
+bool NodeInstance::updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression)
+{
+    return m_nodeInstance->updateStateBinding(target, propertyName, expression);
+}
+
+QVariant NodeInstance::resetVariant(const QString &propertyName) const
+{
+    return m_nodeInstance->resetValue(propertyName);
+}
+
+bool NodeInstance::resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue)
+{
+    return m_nodeInstance->resetStateProperty(target, propertyName, resetValue);
 }
 
 /*!

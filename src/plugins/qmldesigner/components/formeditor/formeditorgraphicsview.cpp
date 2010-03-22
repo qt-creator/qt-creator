@@ -43,9 +43,9 @@ FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setResizeAnchor(QGraphicsView::AnchorViewCenter);
 //    setCacheMode(QGraphicsView::CacheNone);
-     setCacheMode(QGraphicsView::CacheBackground);
-    setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-//    setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+//     setCacheMode(QGraphicsView::CacheBackground);
+//    setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+    setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     setRenderHint(QPainter::Antialiasing, false);
 
     setFrameShape(QFrame::NoFrame);

@@ -64,6 +64,8 @@ void QmlObjectNode::setBindingProperty(const QString &name, const QString &expre
     if (isInBaseState()) {
         modelNode().bindingProperty(name) = expression; //basestate
     } else {
+        modelNode().validId();
+
         QmlPropertyChanges changeSet(currentState().propertyChanges(modelNode()));
         Q_ASSERT(changeSet.isValid());
         changeSet.modelNode().bindingProperty(name) = expression;

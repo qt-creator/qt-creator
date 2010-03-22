@@ -83,8 +83,8 @@ namespace QmlDesigner {
 
   The class will be rendered offscreen if not set otherwise.
 
-\param Parent of this object. If this parent is deleted this instance is
-deleted too.
+\param Parent of this object. If this parent is d this instance is
+d too.
 
 \see ~NodeInstanceView setRenderOffScreen
 */
@@ -173,10 +173,7 @@ void NodeInstanceView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeA
 void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
     foreach (const AbstractProperty &property, propertyList) {
-        if (hasInstanceForNode(property.parentModelNode())) { // TODO ugly workaround
-            NodeInstance instance = instanceForNode(property.parentModelNode());
-            instance.resetProperty(property.name());
-        }
+        resetInstanceProperty(property);
 
         if (property.isNodeAbstractProperty()) {
             foreach (const ModelNode &subNode, property.toNodeAbstractProperty().allSubNodes())
@@ -187,6 +184,93 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
 
 void NodeInstanceView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/)
 {
+}
+
+void NodeInstanceView::resetInstanceProperty(const AbstractProperty &property)
+{
+    if (hasInstanceForNode(property.parentModelNode())) { // TODO ugly workaround
+        NodeInstance instance = instanceForNode(property.parentModelNode());
+        Q_ASSERT(instance.isValid());
+        const QString name = property.name();
+        if (activeStateInstance().isValid()) {
+            bool statePropertyWasReseted = activeStateInstance().resetStateProperty(instance, name, instance.resetVariant(name));
+            if (!statePropertyWasReseted)
+                instance.resetProperty(name);
+        } else {
+            instance.resetProperty(name);
+        }
+    }
+}
+
+void NodeInstanceView::setInstancePropertyBinding(const BindingProperty &property)
+{
+    NodeInstance instance = instanceForNode(property.parentModelNode());
+
+    const QString name = property.name();
+    const QString expression = property.expression();
+
+
+    if (activeStateInstance().isValid()) {
+        bool stateBindingWasUpdated = activeStateInstance().updateStateBinding(instance, name, expression);
+        if (!stateBindingWasUpdated) {
+            if (property.isDynamic())
+                instance.setPropertyDynamicBinding(name, property.dynamicTypeName(), expression);
+            else
+                instance.setPropertyBinding(name, expression);
+        }
+    } else {
+        if (property.isDynamic())
+            instance.setPropertyDynamicBinding(name, property.dynamicTypeName(), expression);
+        else
+            instance.setPropertyBinding(name, expression);
+    }
+
+
+    if (property.parentModelNode().isRootNode()
+        && (name == "width" || name == "height")) {
+        QGraphicsObject *rootGraphicsObject = qobject_cast<QGraphicsObject*>(instance.internalObject());
+        if (rootGraphicsObject) {
+            m_graphicsView->setSceneRect(rootGraphicsObject->boundingRect());
+        }
+    }
+
+    instance.paintUpdate();
+
+}
+
+void NodeInstanceView::setInstancePropertyVariant(const VariantProperty &property)
+{
+    NodeInstance instance = instanceForNode(property.parentModelNode());
+
+    const QString name = property.name();
+    const QVariant value = property.value();
+
+
+    if (activeStateInstance().isValid()) {
+        bool stateValueWasUpdated = activeStateInstance().updateStateVariant(instance, name, value);
+        if (!stateValueWasUpdated) {
+            if (property.isDynamic())
+                instance.setPropertyDynamicVariant(name, property.dynamicTypeName(), value);
+            else
+                instance.setPropertyVariant(name, value);
+        }
+    } else { //base state
+        if (property.isDynamic())
+            instance.setPropertyDynamicVariant(name, property.dynamicTypeName(), value);
+        else
+            instance.setPropertyVariant(name, value);
+    }
+
+
+    if (property.parentModelNode().isRootNode()
+        && (name == "width" || name == "height")) {
+        QGraphicsObject *rootGraphicsObject = qobject_cast<QGraphicsObject*>(instance.internalObject());
+        if (rootGraphicsObject) {
+            m_graphicsView->setSceneRect(rootGraphicsObject->boundingRect());
+        }
+    }
+
+    instance.paintUpdate();
 }
 
 void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
@@ -213,22 +297,8 @@ void NodeInstanceView::rootNodeTypeChanged(const QString &/*type*/, int /*majorV
 
 void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
-    foreach (const BindingProperty &property, propertyList) {
-        NodeInstance instance = instanceForNode(property.parentModelNode());
-
-        if (property.isDynamic())
-            instance.setPropertyDynamicBinding(property.name(), property.dynamicTypeName(), property.expression());
-        else
-            instance.setPropertyBinding(property.name(), property.expression());
-
-        if (property.parentModelNode().isRootNode()
-            && (property.name() == "width" || property.name() == "height")) {
-            QGraphicsObject *rootGraphicsObject = qobject_cast<QGraphicsObject*>(instance.internalObject());
-            m_graphicsView->setSceneRect(rootGraphicsObject->boundingRect());
-        }
-
-        instance.paintUpdate();
-    }
+    foreach (const BindingProperty &property, propertyList)
+        setInstancePropertyBinding(property);
 }
 
 /*! \brief Notifing the view that a AbstractProperty value was changed to a ModelNode.
@@ -244,24 +314,8 @@ void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& pr
 
 void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
-    foreach (const VariantProperty &property, propertyList) {
-        NodeInstance instance = instanceForNode(property.parentModelNode());
-
-        if (property.isDynamic())
-            instance.setPropertyDynamicVariant(property.name(), property.dynamicTypeName(), property.value());
-        else
-            instance.setPropertyVariant(property.name(), property.value());
-
-        if (property.parentModelNode().isRootNode()
-            && (property.name() == "width" || property.name() == "height")) {
-            QGraphicsObject *rootGraphicsObject = qobject_cast<QGraphicsObject*>(instance.internalObject());
-            if (rootGraphicsObject) {
-                m_graphicsView->setSceneRect(rootGraphicsObject->boundingRect());
-            }
-        }
-
-        instance.paintUpdate();
-    }
+    foreach (const VariantProperty &property, propertyList)
+        setInstancePropertyVariant(property);
 }
 /*! \brief Notifing the view that a ModelNode has a new Parent.
 
@@ -361,7 +415,7 @@ void NodeInstanceView::removeAllInstanceNodeRelationships()
 {
     // prevent destroyed() signals calling back
 
-    //first delete the root object
+    //first  the root object
     if (rootNodeInstance().internalObject())
         rootNodeInstance().internalObject()->disconnect();
 
@@ -502,7 +556,7 @@ void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
 
 void NodeInstanceView::notifyPropertyChange(const ModelNode &node, const QString &propertyName)
 {
-    if (m_blockStatePropertyChanges && propertyName == "state")
+    if (m_blockStatePropertyChanges)
         return;
 
     if (qmlModelView()) {
@@ -524,6 +578,21 @@ QmlModelView *NodeInstanceView::qmlModelView() const
 void NodeInstanceView::setBlockStatePropertyChanges(bool block)
 {
     m_blockStatePropertyChanges = block;
+}
+
+void NodeInstanceView::setStateInstance(const NodeInstance &stateInstance)
+{
+    m_activeStateInstance = stateInstance;
+}
+
+void NodeInstanceView::clearStateInstance()
+{
+    m_activeStateInstance = NodeInstance();
+}
+
+NodeInstance NodeInstanceView::activeStateInstance() const
+{
+    return m_activeStateInstance;
 }
 
 void NodeInstanceView::emitParentChanged(QObject *child)
@@ -550,6 +619,18 @@ NodeInstance NodeInstanceView::loadNode(const ModelNode &node, QObject *objectTo
     }
 
     return instance;
+}
+
+void NodeInstanceView::activateState(const NodeInstance &instance)
+{
+    NodeInstance stateInstance(instance);
+    stateInstance.activateState();
+}
+
+void NodeInstanceView::activateBaseState()
+{
+    if (activeStateInstance().isValid())
+        activeStateInstance().deactivateState();
 }
 
 void NodeInstanceView::removeRecursiveChildRelationship(const ModelNode &removedNode)

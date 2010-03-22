@@ -54,9 +54,14 @@ public:
 
     void activateState();
     void deactivateState();
-    void refreshState();
+
+    bool updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value);
+    bool updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression);
+    bool resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue);
+
 
 protected:
+
     QmlStateNodeInstance(QDeclarativeState *object);
 
     bool isStateActive() const;

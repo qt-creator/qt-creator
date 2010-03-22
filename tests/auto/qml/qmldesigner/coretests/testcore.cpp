@@ -3651,36 +3651,36 @@ void TestCore::testInstancesStates()
 
     // base state
     QVERIFY(textInstance.isValid());
-    QCOMPARE(state1Instance.property("__activateState").toBool(), false);
-    QCOMPARE(state2Instance.property("__activateState").toBool(), false);
+    QCOMPARE(state1Instance == instanceView->stateInstance(), false);
+    QCOMPARE(state2Instance == instanceView->stateInstance(), false);
     QCOMPARE(textInstance.property("x").toInt(), 0);
     QCOMPARE(textInstance.property("text").toString(), QString("base state"));
 
     // base state -> state
-    state1Instance.setPropertyVariant("__activateState", true);
-    QCOMPARE(state1Instance.property("__activateState").toBool(), true);
-    QCOMPARE(state2Instance.property("__activateState").toBool(), false);
+    instanceView->activateState(state1Instance);
+    QCOMPARE(state1Instance == instanceView->stateInstance(), true);
+    QCOMPARE(state2Instance == instanceView->stateInstance(), false);
     QCOMPARE(textInstance.property("x").toInt(), 10);
     QCOMPARE(textInstance.property("text").toString(), QString("state1"));
 
     // state 1 -> state 2
-    state2Instance.setPropertyVariant("__activateState", true);
-    QCOMPARE(state1Instance.property("__activateState").toBool(), false);
-    QCOMPARE(state2Instance.property("__activateState").toBool(), true);
+    instanceView->activateState(state2Instance);
+    QCOMPARE(state1Instance == instanceView->stateInstance(), false);
+    QCOMPARE(state2Instance == instanceView->stateInstance(), true);
     QCOMPARE(textInstance.property("x").toInt(), 0);
     QCOMPARE(textInstance.property("text").toString(), QString("state2"));
 
     // state 1 -> base state
-    state2Instance.setPropertyVariant("__activateState", false);
-    QCOMPARE(state1Instance.property("__activateState").toBool(), false);
-    QCOMPARE(state2Instance.property("__activateState").toBool(), false);
+    instanceView->activateBaseState();
+    QCOMPARE(state1Instance == instanceView->stateInstance(), false);
+    QCOMPARE(state2Instance == instanceView->stateInstance(), false);
     QCOMPARE(textInstance.property("x").toInt(), 0);
     QCOMPARE(textInstance.property("text").toString(), QString("base state"));
 
     //
     // Add/Change/Remove properties in current state
     //
-    state1Instance.setPropertyVariant("__activateState", true);
+    instanceView->activateState(state1Instance);
 
     propertyChanges1Node.variantProperty("x").setValue(20);
     QCOMPARE(textInstance.property("x").toInt(), 20);
@@ -3707,37 +3707,85 @@ void TestCore::testInstancesStates()
     // Reparenting state actions (while state is active)
     //
 
-//    state1Instance.setPropertyVariant("__activateState", true);
-//    // move property changes of current state out of state
-//    ModelNode state3Node = view->createModelNode("Qt/State", 4, 6);
-//    state3Node.nodeListProperty("changes").reparentHere(propertyChanges1Node);
-//
-//    QCOMPARE(state1->changes()->count(), 0);
-//    QCOMPARE(textInstance.property("text").toString(), QString("base state"));
-//
-//    // undo
-//    state1Node.nodeListProperty("changes").reparentHere(propertyChanges1Node);
-//    QCOMPARE(state1->changes()->count(), 1);
-//    QCOMPARE(textInstance.property("text").toString(), QString("state 1"));
+    // move property changes of current state out of state
+    ModelNode state3Node = view->createModelNode("Qt/State", 4, 6);
+    QDeclarativeListReference changes(state1, "changes");
+    QCOMPARE(changes.count(), 1);
+    state3Node.nodeListProperty("changes").reparentHere(propertyChanges1Node);
 
+    QCOMPARE(changes.count(), 0);
+    QCOMPARE(textInstance.property("text").toString(), QString("base state"));
+
+    // undo
+    state1Node.nodeListProperty("changes").reparentHere(propertyChanges1Node);
+    QCOMPARE(changes.count(), 1);
+    QCOMPARE(textInstance.property("text").toString(), QString("state1"));
+
+
+    // change base state if in state1
+
+    textNode.variantProperty("text").setValue("state1 and base state");
+    QCOMPARE(textInstance.property("text").toString(), QString("state1"));
+    instanceView->activateBaseState();
+    QCOMPARE(textInstance.property("text").toString(), QString("state1 and base state"));
+    textNode.variantProperty("text").setValue("base state");
+
+    // expressions
+    ModelNode textNode2 = view->createModelNode("Qt/Text", 4, 6);
+    textNode2.setId("targetObject2");
+    textNode2.variantProperty("text").setValue("textNode2");
+
+
+    rootNode.nodeListProperty("data").reparentHere(textNode2);
+
+    propertyChanges1Node.bindingProperty("text").setExpression("targetObject2.text");
+
+    instanceView->activateState(state1Instance);
+
+    QCOMPARE(textInstance.property("text").toString(), QString("textNode2"));
+    propertyChanges1Node.removeProperty("text");
+    QCOMPARE(textInstance.property("text").toString(), QString("base state"));
+    propertyChanges1Node.variantProperty("text").setValue("state1");
+    QCOMPARE(textInstance.property("text").toString(), QString("state1"));
+
+    propertyChanges1Node.bindingProperty("text").setExpression("targetObject2.text");
+    QCOMPARE(textInstance.property("text").toString(), QString("textNode2"));
+
+    instanceView->activateBaseState();
+    QCOMPARE(textInstance.property("text").toString(), QString("base state"));
+
+    propertyChanges1Node.variantProperty("text").setValue("state1");
+    QCOMPARE(textInstance.property("text").toString(), QString("base state"));
+    textNode.bindingProperty("text").setExpression("targetObject2.text");
+    QCOMPARE(textInstance.property("text").toString(), QString("textNode2"));
+
+    instanceView->activateState(state1Instance);
+    QCOMPARE(textInstance.property("text").toString(), QString("state1"));
+
+    instanceView->activateBaseState();
+    QCOMPARE(textInstance.property("text").toString(), QString("textNode2"));
+    textNode.variantProperty("text").setValue("base state");
+
+    instanceView->activateState(state1Instance);
     //
     // Removing state actions (while state is active)
     //
 
-//    state1Instance.setPropertyVariant("__activateState", true);
-//    QCOMPARE(textInstance.property("text").toString(), QString("state1"));
-//    propertyChanges1Node.destroy();
-//    QCOMPARE(state1->changes()->count(), 0);
-//    QCOMPARE(textInstance.property("text").toString(), QString("base state"));
+    QCOMPARE(textInstance.property("text").toString(), QString("state1"));
+    propertyChanges1Node.destroy();
+    QCOMPARE(changes.count(), 0);
+    QCOMPARE(textInstance.property("text").toString(), QString("base state"));
 
     //
     // Removing state (while active)
     //
 
-//    state2Instance.setPropertyVariant("__activateState", true);
-//    QCOMPARE(textInstance.property("text").toString(), QString("state2"));
-//    state2Node.destroy();
-//    QCOMPARE(textInstance.property("text").toString(), QString("base state"));
+    instanceView->activateState(state2Instance);
+    QCOMPARE(textInstance.property("text").toString(), QString("state2"));
+    state2Node.destroy();
+
+    QCOMPARE(textInstance.property("text").toString(), QString("base state"));
+
 }
 
 void TestCore::testStates()
@@ -3796,14 +3844,14 @@ void TestCore::testStates()
 
     NodeInstance state1Instance = view->nodeInstanceView()->instanceForNode(state1);
     QVERIFY(state1Instance.isValid());
-    QCOMPARE(state1Instance.property("__activateState").toBool(), false);
+    QCOMPARE(state1Instance == view->nodeInstanceView()->stateInstance(), false);
     QCOMPARE(state1Instance.property("name").toString(), QString("state 1"));
 
     view->setCurrentState(state1); //set currentState "state 1"
 
     QCOMPARE(view->currentState(), state1);
 
-    QCOMPARE(state1Instance.property("__activateState").toBool(), true);
+    QCOMPARE(state1Instance == view->nodeInstanceView()->stateInstance(), true);
 
     QVERIFY(!textItem.propertyAffectedByCurrentState("text"));
 
@@ -3825,7 +3873,7 @@ void TestCore::testStates()
     QCOMPARE(changes.modelNode().parentProperty().name(), QString("changes"));
     QCOMPARE(changes.modelNode().parentProperty().parentModelNode(), state1.modelNode());
 
-    QCOMPARE(state1Instance.property("__activateState").toBool(), true);
+    QCOMPARE(state1Instance == view->nodeInstanceView()->stateInstance(), true);
 
     QVERIFY(textItem.propertyAffectedByCurrentState("text"));
 

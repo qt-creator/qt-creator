@@ -58,6 +58,8 @@ class WidgetQueryView;
 namespace Internal {
     class ObjectNodeInstance;
     class QmlGraphicsItemNodeInstance;
+    class QmlPropertyChangesNodeInstance;
+    class QmlStateNodeInstance;
 }
 
 class CORESHARED_EXPORT NodeInstance
@@ -71,6 +73,9 @@ class CORESHARED_EXPORT NodeInstance
     friend CORESHARED_EXPORT class NodeMetaInfo;
     friend class QmlDesigner::Internal::QmlGraphicsItemNodeInstance;
     friend class QmlDesigner::Internal::ObjectNodeInstance;
+    friend class QmlDesigner::Internal::QmlPropertyChangesNodeInstance;
+    friend class QmlDesigner::Internal::QmlStateNodeInstance;
+
 public:
     NodeInstance();
     ~NodeInstance();
@@ -82,7 +87,7 @@ public:
     NodeInstance parent() const;
     bool hasParent() const;
     ModelNode modelNode() const;
-    void setModelNode(const ModelNode &node);
+
 
     bool isTopLevel() const;
 
@@ -119,13 +124,9 @@ public:
     void makeInvalid();
     bool hasContent() const;
 
-    const QObject *testHandle() const;
+    bool isWrappingThisObject(QObject *object) const;
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
-    void setPropertyDynamicVariant(const QString &name, const QString &typeName, const QVariant &value);
-
-    void setPropertyBinding(const QString &name, const QString &expression);
-    void setPropertyDynamicBinding(const QString &name, const QString &typeName, const QString &expression);
+    QVariant resetVariant(const QString &name) const;
 
     bool hasAnchor(const QString &name) const;
     bool isAnchoredBy() const;
@@ -133,14 +134,28 @@ public:
 
     int penWidth() const;
 
-    void activateState();
-    void deactivateState();
-    void refreshState();
-
     static void registerDeclarativeTypes();
 
 private: // functions
     NodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
+
+    void setModelNode(const ModelNode &node);
+
+    void setPropertyVariant(const QString &name, const QVariant &value);
+    void setPropertyDynamicVariant(const QString &name, const QString &typeName, const QVariant &value);
+
+    void setPropertyBinding(const QString &name, const QString &expression);
+    void setPropertyDynamicBinding(const QString &name, const QString &typeName, const QString &expression);
+
+    void resetProperty(const QString &name);
+
+    void activateState();
+    void deactivateState();
+    void refreshState();
+
+    bool updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value);
+    bool updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression);
+    bool resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue);
 
     static NodeInstance create(NodeInstanceView *nodeInstanceView, const ModelNode &node, QObject *objectToBeWrapped);
     static NodeInstance create(NodeInstanceView *nodeInstanceView, const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
@@ -148,7 +163,6 @@ private: // functions
     void setDeleteHeldInstance(bool deleteInstance);
     void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
 
-    void resetProperty(const QString &name);
 
     void setId(const QString &id);
 

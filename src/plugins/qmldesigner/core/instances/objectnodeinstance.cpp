@@ -121,11 +121,7 @@ void ObjectNodeInstance::destroy()
             ModelNode parentNode = parentProperty.parentModelNode();
             if (parentNode.isValid() && nodeInstanceView()->hasInstanceForNode(parentNode)) {
                 NodeInstance parentInstance = nodeInstanceView()->instanceForNode(parentNode);
-                if (parentInstance.isQmlGraphicsItem() && isChildrenProperty(parentProperty.name())) {
-                    specialRemoveParentForQmlGraphicsItemChildren(object());
-                } else {
-                    removeFromOldProperty(object(), parentInstance.internalObject(), parentProperty.name());
-                }
+                reparent(parentInstance, parentProperty.name(), NodeInstance() , QString());
             }
         }
 
@@ -330,9 +326,23 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
-static void removeObjectFromList(const QDeclarativeProperty & /*metaProperty*/, QObject * /*object*/, QDeclarativeEngine * /*engine*/)
+static void removeObjectFromList(const QDeclarativeProperty &metaProperty, QObject *objectToBeRemoved, QDeclarativeEngine * engine)
 {
-    // ### Very few QML lists ever responded to removes
+    QDeclarativeListReference listReference(metaProperty.object(), metaProperty.name().toLatin1(), engine);
+    int count = listReference.count();
+
+    QObjectList objectList;
+
+    for(int i = 0; i < count; i ++) {
+        QObject *listItem = listReference.at(i);
+        if (listItem != objectToBeRemoved)
+            objectList.append(listItem);
+    }
+
+    listReference.clear();
+
+    foreach(QObject *object, objectList)
+        listReference.append(object);
 }
 
 void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty)
@@ -394,7 +404,6 @@ void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const Q
 void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
     QDeclarativeProperty QDeclarativeProperty(object(), name, context());
-
     QDeclarativeProperty.write(value);
 }
 
@@ -579,10 +588,6 @@ void ObjectNodeInstance::deactivateState()
 {
 }
 
-void ObjectNodeInstance::refreshState()
-{
-}
-
 QStringList propertyNameForWritableProperties(QObject *object, const QString &baseName = QString())
 {
     QStringList propertyNameList;
@@ -693,6 +698,21 @@ void ObjectNodeInstance::refreshBindings(QDeclarativeContext *context)
 
     static int i = 0;
     context->setContextProperty(QString("__dummy_%1").arg(i++), true);
+}
+
+bool ObjectNodeInstance::updateStateVariant(const NodeInstance &/*target*/, const QString &/*propertyName*/, const QVariant &/*value*/)
+{
+    return false;
+}
+
+bool ObjectNodeInstance::updateStateBinding(const NodeInstance &/*target*/, const QString &/*propertyName*/, const QString &/*expression*/)
+{
+    return false;
+}
+
+bool ObjectNodeInstance::resetStateProperty(const NodeInstance &/*target*/, const QString &/*propertyName*/, const QVariant &/*resetValue*/)
+{
+    return false;
 }
 
 }

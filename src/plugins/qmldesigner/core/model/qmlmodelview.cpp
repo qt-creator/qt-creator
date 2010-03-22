@@ -272,6 +272,7 @@ static bool isTransformProperty(const QString &name)
 
 void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
+
     QmlObjectNode qmlObjectNode(node);
 
     if (!qmlObjectNode.isValid())
@@ -298,18 +299,16 @@ void QmlModelView::activateState(const QmlModelState &state)
     QmlModelState oldState = m_state;
 
     NodeInstance newStateInstance = instanceForModelNode(state.modelNode());
-    NodeInstance oldStateInstance = oldState.isValid() ? instanceForModelNode(oldState.modelNode()) : NodeInstance();
+
     if (state.isBaseState()) {
-        if (oldStateInstance.isValid())
-            oldStateInstance.deactivateState();
+        nodeInstanceView()->activateBaseState();
     } else {
-        newStateInstance.activateState();
+        nodeInstanceView()->activateState(newStateInstance);
     }
 
     m_state = state;
 
-    stateChanged(state, oldState);
-}
+    stateChanged(state, oldState);}
 
 void QmlModelView::changeToState(const ModelNode &node, const QString &stateName)
 {

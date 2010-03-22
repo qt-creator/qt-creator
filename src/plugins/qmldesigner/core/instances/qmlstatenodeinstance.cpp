@@ -32,14 +32,16 @@
 
 #include <private/qdeclarativestategroup_p.h>
 
+#include "qmlpropertychangesnodeinstance.h"
+#include <private/qdeclarativestateoperations_p.h>
+
 namespace QmlDesigner {
 namespace Internal {
 
 /**
   \class QmlStateNodeInstance
 
-  QmlStateNodeInstance manages a QDeclarativeState object. One can activate / deactivate a state
-  by setting/unsetting the special "__activateState" boolean property.
+  QmlStateNodeInstance manages a QDeclarativeState object.
   */
 
 QmlStateNodeInstance::QmlStateNodeInstance(QDeclarativeState *object) :
@@ -68,6 +70,7 @@ void QmlStateNodeInstance::activateState()
 {
     if (stateGroup()) {
         if (!isStateActive())
+            nodeInstanceView()->setStateInstance(nodeInstanceView()->instanceForNode(modelNode()));
             stateGroup()->setState(property("name").toString());
     }
 }
@@ -75,17 +78,11 @@ void QmlStateNodeInstance::activateState()
 void QmlStateNodeInstance::deactivateState()
 {
     if (stateGroup()) {
-        if (isStateActive())
+        if (isStateActive()) {
+            nodeInstanceView()->clearStateInstance();
             stateGroup()->setState(QString());
+        }
     }
-}
-
-void QmlStateNodeInstance::refreshState()
-{
-    nodeInstanceView()->setBlockStatePropertyChanges(true);
-    deactivateState();
-    activateState();
-    nodeInstanceView()->setBlockStatePropertyChanges(false);
 }
 
 QDeclarativeState *QmlStateNodeInstance::stateObject() const
@@ -125,6 +122,46 @@ void QmlStateNodeInstance::setPropertyBinding(const QString &name, const QString
         return;
 
     ObjectNodeInstance::setPropertyBinding(name, expression);
+}
+
+bool QmlStateNodeInstance::updateStateVariant(const NodeInstance &target, const QString &propertyName, const QVariant &value)
+{
+    // iterate over propertychange object and update values
+    QDeclarativeListReference listReference(stateObject(), "changes");
+    for (int i = 0; i < listReference.count(); i++) {
+        //We also have parent and anchor changes
+        QmlPropertyChangesObject *changeObject  = qobject_cast<QmlPropertyChangesObject*>(listReference.at(i));
+        if (changeObject && target.isWrappingThisObject(changeObject->targetObject()))
+                return changeObject->updateStateVariant(propertyName, value);
+    }
+
+    return false;
+}
+
+bool QmlStateNodeInstance::updateStateBinding(const NodeInstance &target, const QString &propertyName, const QString &expression)
+{
+    // iterate over propertychange object and update binding
+    QDeclarativeListReference listReference(stateObject(), "changes");
+    for (int i = 0; i < listReference.count(); i++) {
+        QmlPropertyChangesObject *changeObject  = qobject_cast<QmlPropertyChangesObject*>(listReference.at(i));
+        if (changeObject && target.isWrappingThisObject(changeObject->targetObject()))
+                return changeObject->updateStateBinding(propertyName, expression);
+    }
+
+    return false;
+}
+
+bool QmlStateNodeInstance::resetStateProperty(const NodeInstance &target, const QString &propertyName, const QVariant &resetValue)
+{
+    // iterate over propertychange object and reset propertry
+    QDeclarativeListReference listReference(stateObject(), "changes");
+    for (int i = 0; i < listReference.count(); i++) {
+        QmlPropertyChangesObject *changeObject  = qobject_cast<QmlPropertyChangesObject*>(listReference.at(i));
+        if (changeObject && target.isWrappingThisObject(changeObject->targetObject()))
+                return changeObject->resetStateProperty(propertyName, resetValue);
+    }
+
+    return false;
 }
 
 } // namespace Internal
