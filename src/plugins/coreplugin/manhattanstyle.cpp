@@ -36,6 +36,8 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
+#include <utils/fancymainwindow.h>
+
 #include <QtGui/QApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QDialog>
@@ -84,6 +86,9 @@ bool panelWidget(const QWidget *widget)
     // Do not style dialogs or explicitly ignored widgets
     if (qobject_cast<const QDialog *>(widget->window()))
         return false;
+
+    if (qobject_cast<const Utils::FancyMainWindow *>(widget))
+        return true;
 
     const QWidget *p = widget;
     while (p) {

@@ -55,7 +55,6 @@ FancyMainWindowPrivate::FancyMainWindowPrivate() :
 FancyMainWindow::FancyMainWindow(QWidget *parent) :
     QMainWindow(parent), d(new FancyMainWindowPrivate)
 {
-    setProperty("panelwidget", true);
 }
 
 FancyMainWindow::~FancyMainWindow()
