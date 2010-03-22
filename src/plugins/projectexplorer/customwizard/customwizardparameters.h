@@ -79,6 +79,28 @@ public:
     int firstPageId;
 };
 
+// Context used for one wizard run, shared between CustomWizard
+// and the CustomWizardPage as it is used for the QLineEdit-type fields'
+// default texts as well. Contains basic replacement fields
+// like  '%CppSourceSuffix%', '%CppHeaderSuffix%' (settings-dependent)
+// reset() should be called before each wizard run to refresh them.
+// CustomProjectWizard additionally inserts '%ProjectName%' from
+// the intro page to have it available for default texts.
+
+struct CustomWizardContext {
+    typedef QMap<QString, QString> FieldReplacementMap;
+
+    void reset();
+
+    // Replace field values delimited by '%' with special modifiers:
+    // %Field% -> simple replacement
+    // %Field:l% -> lower case replacement, 'u' upper case,
+    // 'c' capitalize first letter.
+    static void replaceFields(const FieldReplacementMap &fm, QString *s);
+
+    FieldReplacementMap baseReplacements;
+};
+
 } // namespace Internal
 } // namespace ProjectExplorer
 

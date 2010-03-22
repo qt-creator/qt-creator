@@ -35,8 +35,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/mimedatabase.h>
-#include <cpptools/cpptoolsconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -52,7 +50,10 @@ static const char configFileC[] = "wizard.xml";
 namespace ProjectExplorer {
 
 struct CustomWizardPrivate {
+    CustomWizardPrivate() : m_context(new Internal::CustomWizardContext) {}
+
     QSharedPointer<Internal::CustomWizardParameters> m_parameters;
+    QSharedPointer<Internal::CustomWizardContext> m_context;
     static int verbose;
 };
 
@@ -105,7 +106,9 @@ void CustomWizard::initWizardDialog(QWizard *wizard, const QString &defaultPath,
                                     const WizardPageList &extensionPages) const
 {
     QTC_ASSERT(!parameters().isNull(), return);
-    Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(parameters()->fields);
+
+    d->m_context->reset();
+    Internal::CustomWizardPage *customPage = new Internal::CustomWizardPage(d->m_context, parameters()->fields);
     customPage->setPath(defaultPath);
     addWizardPage(wizard, customPage, parameters()->firstPageId);
     if (!parameters()->fieldPageTitle.isEmpty())
@@ -127,57 +130,6 @@ QWizard *CustomWizard::createWizardDialog(QWidget *parent,
     return wizard;
 }
 
-// Replace field values delimited by '%' with special modifiers:
-// %Field% -> simple replacement
-// %Field:l% -> lower case replacement, 'u' for upper case and so on.
-static void replaceFields(const CustomProjectWizard::FieldReplacementMap &fm, QString *s)
-{
-    const QChar delimiter = QLatin1Char('%');
-    const QChar modifierDelimiter = QLatin1Char(':');
-    int pos = 0;
-    while (pos < s->size()) {
-        pos = s->indexOf(delimiter, pos);
-        if (pos < 0)
-            break;
-        int nextPos = s->indexOf(delimiter, pos + 1);
-        if (nextPos == -1)
-            break;
-        nextPos++; // Point past 2nd delimiter
-        if (nextPos == pos + 2) {
-            pos = nextPos; // Skip '%%'
-            continue;
-        }
-        // Evaluate field specification for modifiers
-        // "%field:l%"
-        QString fieldSpec = s->mid(pos + 1, nextPos - pos - 2);
-        const int fieldSpecSize = fieldSpec.size();
-        char modifier = '\0';
-        if (fieldSpecSize >= 3 && fieldSpec.at(fieldSpecSize - 2) == modifierDelimiter) {
-            modifier = fieldSpec.at(fieldSpecSize - 1).toLatin1();
-            fieldSpec.truncate(fieldSpecSize - 2);
-        }
-        const CustomProjectWizard::FieldReplacementMap::const_iterator it = fm.constFind(fieldSpec);
-        if (it == fm.constEnd()) {
-            pos = nextPos; // Not found, skip
-            continue;
-        }
-        // Assign
-        QString replacement = it.value();
-        switch (modifier) {
-        case 'l':
-            replacement = it.value().toLower();
-            break;
-        case 'u':
-            replacement = it.value().toUpper();
-            break;
-        default:
-            break;
-        }
-        s->replace(pos, nextPos - pos, replacement);
-        pos += replacement.size();
-    }
-}
-
 // Read out files and store contents with field contents replaced.
 static inline bool createFile(Internal::CustomWizardFile cwFile,
                               const QString &sourceDirectory,
@@ -188,7 +140,8 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
 {
     const QChar slash =  QLatin1Char('/');
     const QString sourcePath = sourceDirectory + slash + cwFile.source;
-    replaceFields(fm, &cwFile.target);
+    // Field replacement on target path
+    Internal::CustomWizardContext::replaceFields(fm, &cwFile.target);
     const QString targetPath = QDir::toNativeSeparators(targetDirectory + slash + cwFile.target);
     if (CustomWizardPrivate::verbose)
         qDebug() << "generating " << targetPath << sourcePath << fm;
@@ -197,9 +150,10 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
         *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(sourcePath, file.errorString());
         return false;
     }
+    // Field replacement on contents
     QString contents = QString::fromLocal8Bit(file.readAll());
     if (!contents.isEmpty() && !fm.isEmpty())
-        replaceFields(fm, &contents);
+        Internal::CustomWizardContext::replaceFields(fm, &contents);
     Core::GeneratedFile generatedFile;
     generatedFile.setContents(contents);
     generatedFile.setPath(targetPath);
@@ -223,9 +177,16 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
     const Internal::CustomWizardPage *cwp = findWizardPage<Internal::CustomWizardPage>(dialog);
     QTC_ASSERT(cwp, return Core::GeneratedFiles())
     QString path = cwp->path();
-    const FieldReplacementMap fieldMap = defaultReplacementMap(dialog);
-    if (CustomWizardPrivate::verbose)
-        qDebug() << "CustomWizard::generateFiles" << dialog << path << fieldMap;
+    const FieldReplacementMap fieldMap = replacementMap(dialog);
+    if (CustomWizardPrivate::verbose) {
+        QString logText;
+        QTextStream str(&logText);
+        str << "CustomWizard::generateFiles: " << path << '\n';
+        const FieldReplacementMap::const_iterator cend = fieldMap.constEnd();
+        for (FieldReplacementMap::const_iterator it = fieldMap.constBegin(); it != cend; ++it)
+            str << "  '" << it.key() << "' -> '" << it.value() << "'\n";
+        qWarning("%s", qPrintable(logText));
+    }
     return generateWizardFiles(path, fieldMap, errorMessage);
 }
 
@@ -243,26 +204,25 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(const QString &targetPath
     return rc;
 }
 
-// Create a default replacement map from the wizard dialog via fields
-// and add some useful fields.
-CustomWizard::FieldReplacementMap CustomWizard::defaultReplacementMap(const QWizard *w) const
+// Create a replacement map of static base fields + wizard dialog fields
+CustomWizard::FieldReplacementMap CustomWizard::replacementMap(const QWizard *w) const
 {
-    FieldReplacementMap fieldReplacementMap;
+    FieldReplacementMap fieldReplacementMap = d->m_context->baseReplacements;
     foreach(const Internal::CustomWizardField &field, d->m_parameters->fields) {
         const QString value = w->field(field.name).toString();
         fieldReplacementMap.insert(field.name, value);
     }
-    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
-    fieldReplacementMap.insert(QLatin1String("CppSourceSuffix"),
-                               mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
-    fieldReplacementMap.insert(QLatin1String("CppHeaderSuffix"),
-                               mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
     return fieldReplacementMap;
 }
 
 CustomWizard::CustomWizardParametersPtr CustomWizard::parameters() const
 {
     return d->m_parameters;
+}
+
+CustomWizard::CustomWizardContextPtr CustomWizard::context() const
+{
+    return d->m_context;
 }
 
 // Static factory map
@@ -407,17 +367,25 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
                                                   const QString &defaultPath,
                                                   const WizardPageList &extensionPages) const
 {
-    QTC_ASSERT(!parameters().isNull(), return);
-    if (!parameters()->fields.isEmpty()) {
-        Internal::CustomWizardFieldPage *cp = new Internal::CustomWizardFieldPage(parameters()->fields);
+    const CustomWizardParametersPtr pa = parameters();
+    QTC_ASSERT(!pa.isNull(), return);
+
+    const CustomWizardContextPtr ctx = context();
+    ctx->reset();
+
+    if (!pa->fields.isEmpty()) {
+        Internal::CustomWizardFieldPage *cp = new Internal::CustomWizardFieldPage(ctx, pa->fields);
         addWizardPage(w, cp, parameters()->firstPageId);
-        if (!parameters()->fieldPageTitle.isEmpty())
-            cp->setTitle(parameters()->fieldPageTitle);
+        if (!pa->fieldPageTitle.isEmpty())
+            cp->setTitle(pa->fieldPageTitle);
     }
     foreach(QWizardPage *ep, extensionPages)
         w->addPage(ep);
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
+
+    connect(w, SIGNAL(introPageLeft(QString,QString)), this, SLOT(introPageLeft(QString,QString)));
+
     if (CustomWizardPrivate::verbose)
         qDebug() << "initProjectWizardDialog" << w << w->pageIds();
 }
@@ -428,7 +396,7 @@ Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QStrin
     QTC_ASSERT(dialog, return Core::GeneratedFiles())
     const QString targetPath = dialog->path() + QLatin1Char('/') + dialog->projectName();
     // Add project name as macro.
-    FieldReplacementMap fieldReplacementMap = defaultReplacementMap(dialog);
+    FieldReplacementMap fieldReplacementMap = replacementMap(dialog);
     fieldReplacementMap.insert(QLatin1String("ProjectName"), dialog->projectName());
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::generateFiles" << dialog << targetPath << fieldReplacementMap;
@@ -447,6 +415,12 @@ bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::Generat
         return false;
     }
     return true;
+}
+
+void CustomProjectWizard::introPageLeft(const QString &project, const QString & /* path */)
+{
+    // Make '%ProjectName%' available in base replacements.
+    context()->baseReplacements.insert(QLatin1String("ProjectName"), project);
 }
 
 } // namespace ProjectExplorer

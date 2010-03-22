@@ -41,13 +41,17 @@ namespace ProjectExplorer {
 struct BaseProjectWizardDialogPrivate {
     explicit BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id = -1);
 
-    const int introId;
+    const int desiredIntroPageId;
     Utils::ProjectIntroPage *introPage;
+    int introPageId;
+    int lastId;
 };
 
 BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id) :
-    introId(id),
-    introPage(page)
+    desiredIntroPageId(id),
+    introPage(page),
+    introPageId(-1),
+    lastId(-1)
 {
 }
 
@@ -70,8 +74,14 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(Utils::ProjectIntroPage *introP
 void BaseProjectWizardDialog::init()
 {
     Core::BaseFileWizard::setupWizard(this);
-    addPage(d->introPage);
+    if (d->introPageId == -1) {
+        d->introPageId = addPage(d->introPage);
+    } else {
+        d->introPageId = d->desiredIntroPageId;
+        setPage(d->desiredIntroPageId, d->introPage);
+    }
     connect(this, SIGNAL(accepted()), this, SLOT(slotAccepted()));
+    connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotBaseCurrentIdChanged(int)));
 }
 
 BaseProjectWizardDialog::~BaseProjectWizardDialog()
@@ -107,10 +117,19 @@ void BaseProjectWizardDialog::setProjectName(const QString &name)
 void BaseProjectWizardDialog::slotAccepted()
 {
     if (d->introPage->useAsDefaultPath()) {
+        // Store the path as default path for new projects if desired.
         Core::FileManager *fm = Core::ICore::instance()->fileManager();
         fm->setProjectsDirectory(path());
         fm->setUseProjectsDirectory(true);
     }
+}
+
+void BaseProjectWizardDialog::slotBaseCurrentIdChanged(int id)
+{
+    if (d->lastId == d->introPageId) {
+        emit introPageLeft(d->introPage->projectName(), d->introPage->path());
+    }
+    d->lastId = id;
 }
 
 Utils::ProjectIntroPage *BaseProjectWizardDialog::introPage() const

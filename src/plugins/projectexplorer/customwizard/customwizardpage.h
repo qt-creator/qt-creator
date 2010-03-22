@@ -48,6 +48,7 @@ namespace Internal {
 
 struct CustomWizardField;
 struct CustomWizardParameters;
+struct CustomWizardContext;
 
 // A non-editable combo for text editing purposes that plays
 // with QWizard::registerField (providing a settable text property).
@@ -74,19 +75,33 @@ class CustomWizardFieldPage : public QWizardPage {
 public:
     typedef QList<CustomWizardField> FieldList;
 
-    explicit CustomWizardFieldPage(const FieldList &f,
+    explicit CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
+                                   const FieldList &f,
                                    QWidget *parent = 0);
+    virtual ~CustomWizardFieldPage();
+
     virtual bool validatePage();
+    virtual void initializePage();
 
 protected:
     inline void addRow(const QString &name, QWidget *w);
 
 private:
-    QWidget *registerControl(const CustomWizardField &f);
+    struct LineEditData {
+        explicit LineEditData(QLineEdit* le = 0, const QString &defText = QString());
+        QLineEdit* lineEdit;
+        QString defaultText;
+    };
+    typedef QList<LineEditData> LineEditDataList;
+
+    QWidget *registerLineEdit(const QString &fieldName, const CustomWizardField &field);
+    QWidget *registerComboBox(const QString &fieldName, const CustomWizardField &field);
 
     void addField(const CustomWizardField &f);
+
+    const QSharedPointer<CustomWizardContext> m_context;
     QFormLayout *m_formLayout;
-    QList<QLineEdit*> m_validatorLineEdits;
+    LineEditDataList m_lineEdits;
 };
 
 // A custom wizard page presenting the fields to be used and a path chooser
@@ -96,7 +111,8 @@ private:
 class CustomWizardPage : public CustomWizardFieldPage {
     Q_OBJECT
 public:
-    explicit CustomWizardPage(const FieldList &f,
+    explicit CustomWizardPage(const QSharedPointer<CustomWizardContext> &ctx,
+                              const FieldList &f,
                               QWidget *parent = 0);
 
     QString path() const;
