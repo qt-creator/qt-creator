@@ -521,7 +521,7 @@ void DebuggerManager::init()
     d->m_actions.reverseDirectionAction->setCheckable(true);
     d->m_actions.reverseDirectionAction->setChecked(false);
     d->m_actions.reverseDirectionAction->setIcon(
-        QIcon(":/debugger/images/reverse_16.png"));
+        QIcon(":/debugger/images/debugger_reversemode_16.png"));
 
     connect(d->m_actions.continueAction, SIGNAL(triggered()),
         this, SLOT(executeContinue()));

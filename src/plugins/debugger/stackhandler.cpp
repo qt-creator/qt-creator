@@ -115,7 +115,7 @@ QDebug operator<<(QDebug d, const  StackFrame &f)
 StackHandler::StackHandler(QObject *parent)
   : QAbstractTableModel(parent),
     m_positionIcon(QIcon(":/debugger/images/location_16.png")),
-    m_emptyIcon(QIcon(":/debugger/images/empty14.png"))
+    m_emptyIcon(QIcon(":/debugger/images/debugger_empty_14.png"))
 {
     m_currentIndex = 0;
     m_canExpand = false;
@@ -289,7 +289,7 @@ ThreadsHandler::ThreadsHandler(QObject *parent)  :
     QAbstractTableModel(parent),
     m_currentIndex(0),
     m_positionIcon(QLatin1String(":/debugger/images/location_16.png")),
-    m_emptyIcon(QLatin1String(":/debugger/images/empty14.png"))
+    m_emptyIcon(QLatin1String(":/debugger/images/debugger_empty_14.png"))
 {
 }
 
