@@ -43,8 +43,32 @@
 #include <utils/stylehelper.h>
 
 using namespace Core;
+using namespace Core::Internal;
 
 const int notificationTimeout = 8000;
+
+namespace Core {
+namespace Internal {
+
+class FadeWidgetHack : public QWidget
+{
+    Q_OBJECT
+    Q_PROPERTY(float opacity READ opacity WRITE setOpacity)
+public:
+    FadeWidgetHack(QWidget *parent):QWidget(parent), m_opacity(0){
+        setAttribute(Qt::WA_TransparentForMouseEvents);
+    }
+    void paintEvent(QPaintEvent *);
+
+    void setOpacity(float o) { m_opacity = o; update(); }
+    float opacity() const { return m_opacity; }
+
+private:
+    float m_opacity;
+};
+
+} // namespace Internal
+} // namespace Core
 
 void FadeWidgetHack::paintEvent(QPaintEvent *)
 {
@@ -285,3 +309,5 @@ void FutureProgress::fadeAway()
     animation->start(QAbstractAnimation::DeleteWhenStopped);
     connect(animation, SIGNAL(finished()), this, SIGNAL(removeMe()));
 }
+
+#include "futureprogress.moc"
