@@ -5,7 +5,6 @@ SOURCES += \
     multipledocumentscontroller.cpp \
     designdocumentcontroller.cpp \
     designdocumentcontrollerview.cpp \
-    navigatorcontroller.cpp \
     utilitypanelcontroller.cpp \
     widgetboxcontroller.cpp \
     stackedutilitypanelcontroller.cpp \
@@ -20,7 +19,6 @@ HEADERS += \
     multipledocumentscontroller.h \
     designdocumentcontrollerview.h \
     designdocumentcontroller.h \
-    navigatorcontroller.h \
     utilitypanelcontroller.h \
     widgetboxcontroller.h \
     stackedutilitypanelcontroller.h \
