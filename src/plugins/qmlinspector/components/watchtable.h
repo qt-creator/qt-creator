@@ -45,6 +45,11 @@ class QDeclarativeDebugConnection;
 class QDeclarativeDebugPropertyReference;
 class QDeclarativeDebugObjectReference;
 
+QT_END_NAMESPACE
+
+namespace Qml {
+namespace Internal {
+
 class WatchTableModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -117,6 +122,7 @@ public:
 
 signals:
     void objectActivated(int objectDebugId);
+    void contextHelpIdChanged(const QString &contextHelpId);
 
 protected:
     void mousePressEvent(QMouseEvent *me);
@@ -130,6 +136,7 @@ private:
 };
 
 
-QT_END_NAMESPACE
+} // Internal
+} // Qml
 
 #endif // WATCHTABLEMODEL_H

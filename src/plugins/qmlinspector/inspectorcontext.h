@@ -40,6 +40,8 @@ QT_END_NAMESPACE
 namespace Qml {
 namespace Internal {
 
+class ObjectPropertiesView;
+class ObjectTree;
 class DesignModeWidget;
 
 /**
@@ -47,6 +49,8 @@ class DesignModeWidget;
   */
 class InspectorContext : public Core::IContext
 {
+    Q_OBJECT
+
 public:
     InspectorContext(QWidget *widget);
     ~InspectorContext();
@@ -56,12 +60,20 @@ public:
 
     QString contextHelpId() const;
 
+    static QString contextHelpIdForProperty(const QString &itemName, const QString &propName);
+    static QString contextHelpIdForItem(const QString &itemName);
+
+public slots:
+    void setContextHelpId(const QString &helpId);
+
 private:
     QList<int> m_context;
     QWidget *m_widget;
+    QString m_contextHelpId;
+
 };
 
-}
-}
+} // Internal
+} // Qml
 
 #endif // DESIGNMODECONTEXT_H

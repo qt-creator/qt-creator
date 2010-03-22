@@ -97,19 +97,18 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
-
+    Core::ICore *core = Core::ICore::instance();
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             SLOT(prepareDebugger(Core::IMode*)));
 
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
 
+    uiSwitcher->addLanguage(Qml::Constants::LANG_QML,
+                            QList<int>() << core->uniqueIDManager()->uniqueIdentifier(Constants::C_INSPECTOR));
     m_inspector = new QmlInspector;
-    addObject(m_inspector);
-    Core::ICore::instance()->addContextObject(m_inspector->context());
-    uiSwitcher->addLanguage(Qml::Constants::LANG_QML, m_inspector->context()->context());
     m_inspector->createDockWidgets();
-
+    addObject(m_inspector);
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 

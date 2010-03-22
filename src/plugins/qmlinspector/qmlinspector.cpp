@@ -88,6 +88,7 @@ using namespace Qml;
 
 namespace Qml {
 
+namespace Internal {
 class EngineSpinBox : public QSpinBox
 {
     Q_OBJECT
@@ -110,8 +111,6 @@ protected:
 private:
     QList<EngineInfo> m_engines;
 };
-
-}
 
 EngineSpinBox::EngineSpinBox(QWidget *parent)
     : QSpinBox(parent)
@@ -157,6 +156,8 @@ int EngineSpinBox::valueFromText(const QString &text) const
     return -1;
 }
 
+} // Internal
+
 
 QmlInspector::QmlInspector(QObject *parent)
   : QObject(parent),
@@ -169,15 +170,13 @@ QmlInspector::QmlInspector(QObject *parent)
     m_propertyWatcherDock(0),
     m_inspectorOutputDock(0)
 {
-    m_watchTableModel = new WatchTableModel(0, this);
+    m_watchTableModel = new Internal::WatchTableModel(0, this);
 
-    m_objectTreeWidget = new ObjectTree;
-    m_propertiesWidget = new ObjectPropertiesView;
-    m_watchTableView = new WatchTableView(m_watchTableModel);
-    m_frameRateWidget = new CanvasFrameRate;
-    m_expressionWidget = new ExpressionQueryWidget(ExpressionQueryWidget::SeparateEntryMode);
-    m_context = new Internal::InspectorContext(m_expressionWidget);
-    m_expressionWidget->createCommands(m_context);
+    m_objectTreeWidget = new Internal::ObjectTree;
+    m_propertiesWidget = new Internal::ObjectPropertiesView;
+    m_watchTableView = new Internal::WatchTableView(m_watchTableModel);
+    m_frameRateWidget = new Internal::CanvasFrameRate;
+    m_expressionWidget = new Internal::ExpressionQueryWidget(Internal::ExpressionQueryWidget::SeparateEntryMode);
 }
 
 bool QmlInspector::connectToViewer()
@@ -300,7 +299,7 @@ void QmlInspector::connectionError()
 void QmlInspector::createDockWidgets()
 {
 
-    m_engineSpinBox = new EngineSpinBox;
+    m_engineSpinBox = new Internal::EngineSpinBox;
     m_engineSpinBox->setEnabled(false);
     connect(m_engineSpinBox, SIGNAL(valueChanged(int)),
             SLOT(queryEngineContext(int)));
@@ -324,7 +323,7 @@ void QmlInspector::createDockWidgets()
     treeWindowLayout->addWidget(m_objectTreeWidget);
 
     m_watchTableView->setModel(m_watchTableModel);
-    WatchTableHeaderView *header = new WatchTableHeaderView(m_watchTableModel);
+    Internal::WatchTableHeaderView *header = new Internal::WatchTableHeaderView(m_watchTableModel);
     m_watchTableView->setHorizontalHeader(header);
 
     connect(m_objectTreeWidget, SIGNAL(activated(QDeclarativeDebugObjectReference)),
@@ -387,6 +386,23 @@ void QmlInspector::createDockWidgets()
 
     m_dockWidgets << m_objectTreeDock << m_frameRateDock << m_propertyWatcherDock << m_inspectorOutputDock;
 
+    m_context = new Internal::InspectorContext(m_objectTreeDock);
+    m_propWatcherContext = new Internal::InspectorContext(m_propertyWatcherDock);
+
+    Core::ICore *core = Core::ICore::instance();
+    core->addContextObject(m_propWatcherContext);
+    core->addContextObject(m_context);
+
+    m_expressionWidget->createCommands(m_context);
+
+    connect(m_objectTreeWidget, SIGNAL(contextHelpIdChanged(QString)), m_context,
+            SLOT(setContextHelpId(QString)));
+    connect(m_watchTableView, SIGNAL(contextHelpIdChanged(QString)), m_propWatcherContext,
+            SLOT(setContextHelpId(QString)));
+    connect(m_propertiesWidget, SIGNAL(contextHelpIdChanged(QString)), m_propWatcherContext,
+            SLOT(setContextHelpId(QString)));
+    connect(m_expressionWidget, SIGNAL(contextHelpIdChanged(QString)), m_propWatcherContext,
+            SLOT(setContextHelpId(QString)));
 }
 
 void QmlInspector::setSimpleDockWidgetArrangement()
@@ -506,5 +522,7 @@ void QmlInspector::treeObjectActivated(const QDeclarativeDebugObjectReference &o
         textEditor->widget()->setFocus();
     }
 }
+
+} // Qml
 
 #include "qmlinspector.moc"

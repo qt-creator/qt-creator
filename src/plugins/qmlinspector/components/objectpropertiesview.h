@@ -41,6 +41,9 @@ class QDeclarativeDebugConnection;
 
 QT_END_NAMESPACE
 
+namespace Qml {
+namespace Internal {
+
 class PropertiesViewItem;
 
 class ObjectPropertiesView : public QWidget
@@ -54,12 +57,14 @@ public:
 
 signals:
     void activated(const QDeclarativeDebugObjectReference &, const QDeclarativeDebugPropertyReference &);
+    void contextHelpIdChanged(const QString &contextHelpId);
 
 public slots:
     void reload(const QDeclarativeDebugObjectReference &);
     void watchCreated(QDeclarativeDebugWatch *);
 
 private slots:
+    void changeItemSelection();
     void queryFinished();
     void watchStateChanged();
     void valueChanged(const QByteArray &name, const QVariant &value);
@@ -78,7 +83,8 @@ private:
     QDeclarativeDebugObjectReference m_object;
 };
 
-
+} // Internal
+} // Qml
 
 
 #endif

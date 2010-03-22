@@ -33,7 +33,6 @@
 
 #include <QtGui/qwidget.h>
 
-
 QT_BEGIN_NAMESPACE
 
 class QGroupBox;
@@ -55,6 +54,9 @@ namespace QmlJSEditor {
     class Highlighter;
 }
 
+namespace Qml {
+namespace Internal {
+
 class ExpressionQueryWidget : public QWidget
 {
     Q_OBJECT
@@ -70,6 +72,9 @@ public:
     void setEngineDebug(QDeclarativeEngineDebug *client);
     void clear();
 
+signals:
+    void contextHelpIdChanged(const QString &contextHelpId);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
@@ -81,6 +86,7 @@ private slots:
     void executeExpression();
     void showResult();
     void invokeCompletion();
+    void changeContextHelpId(const QString &text);
 
 private:
     void setFontSettings();
@@ -107,6 +113,9 @@ private:
     QDeclarativeDebugObjectReference m_currObject;
     QDeclarativeDebugObjectReference m_objectAtLastFocus;
 };
+
+} // Internal
+} // Qml
 
 #endif
 

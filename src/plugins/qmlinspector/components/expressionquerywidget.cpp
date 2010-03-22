@@ -28,6 +28,7 @@
 **************************************************************************/
 #include "expressionquerywidget.h"
 #include "qmlinspectorconstants.h"
+#include "inspectorcontext.h"
 
 #include <utils/styledbar.h>
 #include <utils/filterlineedit.h>
@@ -53,6 +54,10 @@
 #include <QtGui/QShortcut>
 
 #include <QtCore/QDebug>
+
+namespace Qml {
+namespace Internal {
+
 
 ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug *client, QWidget *parent)
     : QWidget(parent),
@@ -87,6 +92,7 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
         m_clearButton->setToolTip(tr("Clear Output"));
         m_clearButton->setIcon(QIcon(Core::Constants::ICON_CLEAN_PANE));
         connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clearTextEditor()));
+        connect(m_lineEdit, SIGNAL(textChanged(QString)), SLOT(changeContextHelpId(QString)));
 
         connect(m_lineEdit, SIGNAL(returnPressed()), SLOT(executeExpression()));
         QHBoxLayout *hbox = new QHBoxLayout(bar);
@@ -104,6 +110,11 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
     }
     setFontSettings();
     clear();
+}
+
+void ExpressionQueryWidget::changeContextHelpId(const QString &)
+{
+    emit contextHelpIdChanged(InspectorContext::contextHelpIdForItem(m_lineEdit->text()));
 }
 
 void ExpressionQueryWidget::clearTextEditor()
@@ -339,3 +350,6 @@ bool ExpressionQueryWidget::eventFilter(QObject *obj, QEvent *event)
     }
     return QWidget::eventFilter(obj, event);
 }
+
+} // Internal
+} // Qml

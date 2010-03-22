@@ -34,15 +34,19 @@
 #include <QtCore/qpointer.h>
 #include <QtGui/qwidget.h>
 
-
 QT_BEGIN_NAMESPACE
-
 class QTabWidget;
 class QSlider;
 class QGroupBox;
 class QLabel;
 class QSpinBox;
 class QPushButton;
+QT_END_NAMESPACE
+
+
+namespace Qml {
+namespace Internal {
+
 
 class CanvasFrameRatePlugin;
 
@@ -56,6 +60,9 @@ public:
 
     void setSizeHint(const QSize &);
     virtual QSize sizeHint() const;
+
+signals:
+    void contextHelpIdChanged(const QString &helpId);
 
 private slots:
     void clearGraph();
@@ -74,7 +81,8 @@ private:
     QSize m_sizeHint;
 };
 
-QT_END_NAMESPACE
+} // Internal
+} // Qml
 
 #endif // CANVASFRAMERATE_H
 

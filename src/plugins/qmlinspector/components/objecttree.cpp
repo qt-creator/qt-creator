@@ -37,8 +37,10 @@
 #include <private/qdeclarativedebug_p.h>
 
 #include "objecttree.h"
+#include "inspectorcontext.h"
 
-//Q_DECLARE_METATYPE(QDeclarativeDebugObjectReference)
+namespace Qml {
+namespace Internal {
 
 ObjectTree::ObjectTree(QDeclarativeEngineDebug *client, QWidget *parent)
     : QTreeWidget(parent),
@@ -54,11 +56,22 @@ ObjectTree::ObjectTree(QDeclarativeEngineDebug *client, QWidget *parent)
             SLOT(currentItemChanged(QTreeWidgetItem *)));
     connect(this, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
             SLOT(activated(QTreeWidgetItem *)));
+    connect(this, SIGNAL(itemSelectionChanged()), SLOT(selectionChanged()));
 }
 
 void ObjectTree::setEngineDebug(QDeclarativeEngineDebug *client)
 {
     m_client = client;
+}
+
+void ObjectTree::selectionChanged()
+{
+    if (selectedItems().isEmpty())
+        return;
+
+    QTreeWidgetItem *item = selectedItems().first();
+    if (item)
+        emit contextHelpIdChanged(InspectorContext::contextHelpIdForItem(item->text(0)));
 }
 
 void ObjectTree::reload(int objectDebugId)
@@ -87,6 +100,8 @@ void ObjectTree::setCurrentObject(int debugId)
         scrollToItem(item);
         item->setExpanded(true);
     }
+
+
 }
 
 void ObjectTree::objectFetched()
@@ -217,4 +232,7 @@ void ObjectTree::mousePressEvent(QMouseEvent *me)
                 emit expressionWatchRequested(obj, watch);
         }
     }
+}
+
+}
 }

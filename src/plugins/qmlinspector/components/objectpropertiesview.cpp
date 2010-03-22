@@ -27,12 +27,15 @@
 **
 **************************************************************************/
 #include "objectpropertiesview.h"
+#include "inspectorcontext.h"
 
 #include <QtCore/QDebug>
 
 #include <QtGui/QTreeWidget>
 #include <QtGui/QLayout>
 #include <QtGui/QHeaderView>
+namespace Qml {
+namespace Internal {
 
 
 class PropertiesViewItem : public QObject, public QTreeWidgetItem
@@ -81,11 +84,22 @@ ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWid
             << tr("Name") << tr("Value") << tr("Type"));
     QObject::connect(m_tree, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
                      this, SLOT(itemActivated(QTreeWidgetItem *)));
+    connect(m_tree, SIGNAL(itemSelectionChanged()), SLOT(changeItemSelection()));
 
     m_tree->setColumnCount(3);
     m_tree->header()->setDefaultSectionSize(150);
 
     layout->addWidget(m_tree);
+}
+
+void ObjectPropertiesView::changeItemSelection()
+{
+    if (m_tree->selectedItems().isEmpty())
+        return;
+
+    QString item = m_object.className();
+    QString prop = m_tree->selectedItems().first()->text(0);
+    emit contextHelpIdChanged(InspectorContext::contextHelpIdForProperty(item, prop));
 }
 
 void ObjectPropertiesView::setEngineDebug(QDeclarativeEngineDebug *client)
@@ -252,6 +266,9 @@ void ObjectPropertiesView::itemActivated(QTreeWidgetItem *i)
     PropertiesViewItem *item = static_cast<PropertiesViewItem *>(i);
     if (!item->property.name().isEmpty())
         emit activated(m_object, item->property);
+}
+
+}
 }
 
 #include "objectpropertiesview.moc"

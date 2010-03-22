@@ -36,7 +36,8 @@
 #include <private/qdeclarativedebug_p.h>
 #include <private/qdeclarativemetatype_p.h>
 
-QT_BEGIN_NAMESPACE
+namespace Qml {
+namespace Internal {
 
 const int C_NAME = 0;
 const int C_VALUE = 1;
@@ -166,6 +167,8 @@ QVariant WatchTableModel::data(const QModelIndex &idx, int role) const
 
 bool WatchTableModel::setData ( const QModelIndex & index, const QVariant & value, int role)
 {
+    Q_UNUSED(index);
+    Q_UNUSED(value);
     if (role == Qt::EditRole) {
         return true;
     }
@@ -335,4 +338,6 @@ void WatchTableView::mousePressEvent(QMouseEvent *me)
     }
 }
 
-QT_END_NAMESPACE
+
+} // Internal
+} // Qml

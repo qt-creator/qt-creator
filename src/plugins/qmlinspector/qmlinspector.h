@@ -48,24 +48,26 @@ class QDeclarativeDebugConnection;
 class QDeclarativeDebugEnginesQuery;
 class QDeclarativeDebugRootContextQuery;
 class QDeclarativeDebugObjectReference;
-class ObjectTree;
-class WatchTableModel;
-class WatchTableView;
-class CanvasFrameRate;
 QT_END_NAMESPACE
 
-class ObjectPropertiesView;
-class ExpressionQueryWidget;
+
 
 namespace Core {
     class IContext;
 }
 
 namespace Qml {
-    class EngineSpinBox;
 
     namespace Internal {
+        class EngineSpinBox;
         class InspectorContext;
+        class ObjectTree;
+        class ObjectPropertiesView;
+        class WatchTableModel;
+        class WatchTableView;
+        class CanvasFrameRate;
+        class ExpressionQueryWidget;
+        class EngineSpinBox;
     }
 
 class QMLINSPECTOR_EXPORT QmlInspector : public QObject
@@ -104,14 +106,14 @@ private:
     QDeclarativeDebugEnginesQuery *m_engineQuery;
     QDeclarativeDebugRootContextQuery *m_contextQuery;
 
-    ObjectTree *m_objectTreeWidget;
-    ObjectPropertiesView *m_propertiesWidget;
-    WatchTableModel *m_watchTableModel;
-    WatchTableView *m_watchTableView;
-    CanvasFrameRate *m_frameRateWidget;
-    ExpressionQueryWidget *m_expressionWidget;
+    Internal::ObjectTree *m_objectTreeWidget;
+    Internal::ObjectPropertiesView *m_propertiesWidget;
+    Internal::WatchTableModel *m_watchTableModel;
+    Internal::WatchTableView *m_watchTableView;
+    Internal::CanvasFrameRate *m_frameRateWidget;
+    Internal::ExpressionQueryWidget *m_expressionWidget;
 
-    EngineSpinBox *m_engineSpinBox;
+    Internal::EngineSpinBox *m_engineSpinBox;
 
     QDockWidget *m_objectTreeDock;
     QDockWidget *m_frameRateDock;
@@ -120,6 +122,7 @@ private:
     QList<QDockWidget*> m_dockWidgets;
 
     Internal::InspectorContext *m_context;
+    Internal::InspectorContext *m_propWatcherContext;
 
 };
 
