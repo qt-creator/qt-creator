@@ -3918,6 +3918,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 #ifdef Q_OS_WIN
     // Set python path. By convention, python is located below gdb executable.
     const QFileInfo fi(location);
+    bool foundPython = false;
     if (fi.isAbsolute()) {
         const QString winPythonVersion = QLatin1String(winPythonVersionC);
         const QDir dir = fi.absoluteDir();
@@ -3937,7 +3938,12 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
                     _("Python path: %1").arg(pythonPath));
                 m_gdbProc.setProcessEnvironment(environment);
             }
+            foundPython = true;
         }
+    }
+    if (!foundPython) {
+        debugMessage(_("UNSUPPORTED GDB %1 DOES NOT HAVE PYTHON.").arg(location));
+        showStatusMessage(_("Gdb at %1 does not have python.").arg(location));
     }
 #endif
 
