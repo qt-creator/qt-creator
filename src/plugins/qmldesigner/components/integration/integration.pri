@@ -6,7 +6,6 @@ SOURCES += \
     designdocumentcontroller.cpp \
     designdocumentcontrollerview.cpp \
     navigatorcontroller.cpp \
-    allpropertiesviewcontroller.cpp \
     utilitypanelcontroller.cpp \
     widgetboxcontroller.cpp \
     stackedutilitypanelcontroller.cpp \
@@ -22,7 +21,6 @@ HEADERS += \
     designdocumentcontrollerview.h \
     designdocumentcontroller.h \
     navigatorcontroller.h \
-    allpropertiesviewcontroller.h \
     utilitypanelcontroller.h \
     widgetboxcontroller.h \
     stackedutilitypanelcontroller.h \
