@@ -2954,11 +2954,35 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
     Registers registers = manager()->registerHandler()->registers();
 
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
-    foreach (const GdbMi &item, response.data.findChild("register-values").children()) {
-        int index = item.findChild("number").data().toInt();
+    const GdbMi values = response.data.findChild("register-values");
+    foreach (const GdbMi &item, values.children()) {
+        const int index = item.findChild("number").data().toInt();
         if (index < registers.size()) {
             Register &reg = registers[index];
-            QString value = _(item.findChild("value").data());
+            GdbMi val = item.findChild("value");
+            QByteArray ba;
+            bool handled = false;
+            if (val.data().startsWith("{")) {
+                int pos1 = val.data().indexOf("v2_int32");
+                if (pos1 == -1)
+                    pos1 = val.data().indexOf("v4_int32");
+                if (pos1 != -1) {
+                    // FIXME: This block wastes cycles.
+                    pos1 = val.data().indexOf("{", pos1 + 1) + 1;
+                    int pos2 = val.data().indexOf("}", pos1);
+                    QByteArray ba2 = val.data().mid(pos1, pos2 - pos1);
+                    foreach (QByteArray ba3, ba2.split(',')) {
+                        ba3 = ba3.trimmed();
+                        QTC_ASSERT(ba3.size() >= 3, continue);
+                        QTC_ASSERT(ba3.size() <= 10, continue);
+                        ba.prepend(QByteArray(10 - ba3.size(), '0'));
+                        ba.prepend(ba3.mid(2));
+                    }
+                    ba.prepend("0x");
+                    handled = true;
+                }
+            }
+            const QString value = _(handled ? ba : val.data());
             reg.changed = (value != reg.value);
             if (reg.changed)
                 reg.value = value;
