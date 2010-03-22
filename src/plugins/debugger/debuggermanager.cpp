@@ -459,6 +459,8 @@ void DebuggerManager::init()
     watchersView->setModel(d->m_watchHandler->model(WatchersWatch));
     connect(theDebuggerAction(AssignValue), SIGNAL(triggered()),
         this, SLOT(assignValueInDebugger()), Qt::QueuedConnection);
+    connect(theDebuggerAction(RemoveWatchExpression), SIGNAL(triggered()),
+        this, SLOT(updateWatchersWindow()), Qt::QueuedConnection);
 
     // Log
     connect(this, SIGNAL(emitShowInput(int, QString)),
@@ -1802,6 +1804,8 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
     theDebuggerAction(ExecuteCommand)->setEnabled(d->m_state != DebuggerNotReady);
 
+    updateWatchersWindow();
+
     d->m_plugin->handleStateChanged(d->m_state);
     const bool notbusy = state == InferiorStopped
         || state == DebuggerNotReady
@@ -1923,6 +1927,12 @@ void DebuggerManager::fontSettingsChanged(const TextEditor::FontSettings &settin
     changeFontSize(d->m_stackWindow, size);
     changeFontSize(d->m_sourceFilesWindow, size);
     changeFontSize(d->m_threadsWindow, size);
+}
+
+void DebuggerManager::updateWatchersWindow()
+{
+    d->m_watchersWindow->setVisible(
+        d->m_watchHandler->model(WatchersWatch)->rowCount(QModelIndex()) > 0);
 }
 
 //////////////////////////////////////////////////////////////////////

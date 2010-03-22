@@ -174,12 +174,15 @@ private:
     explicit WatchModel(WatchHandler *handler, WatchType type);
     virtual ~WatchModel();
 
+public:
+    int rowCount(const QModelIndex &idx) const;
+    int columnCount(const QModelIndex &idx) const;
+
+private:
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     QModelIndex index(int, int, const QModelIndex &idx) const;
     QModelIndex parent(const QModelIndex &idx) const;
-    int rowCount(const QModelIndex &idx) const;
-    int columnCount(const QModelIndex &idx) const;
     bool hasChildren(const QModelIndex &idx) const;
     Qt::ItemFlags flags(const QModelIndex &idx) const;
     QVariant headerData(int section, Qt::Orientation orientation,

@@ -259,6 +259,7 @@ public slots: // FIXME
     void showDebuggerOutput(const QString &msg)
         { showDebuggerOutput(LogDebug, msg); }
     void ensureLogVisible();
+    void updateWatchersWindow();
 
 //private slots:  // FIXME
     void showDebuggerOutput(int channel, const QString &msg);
