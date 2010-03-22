@@ -19,6 +19,7 @@ General
      setting
    * New "Design" mode for visual editors (.ui & .qml files)
    * Fixed crash when working with empty pro-file
+   * Ask for close, save, or save as when file is removed while open in Qt Creator
 
 Editing
    * Text based search and replace in multiple files
