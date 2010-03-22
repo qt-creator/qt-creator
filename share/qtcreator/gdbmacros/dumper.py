@@ -340,6 +340,14 @@ def listOfLocals(varList):
             except RuntimeError:
                 pass
                 #continue
+            except:
+                # Something breaking the list, like intermediate gdb warnings
+                # like 'Warning: can't find linker symbol for virtual table for
+                # `std::less<char const*>' value\n\nwarning:  found
+                # `myns::QHashData::shared_null' instead [...]
+                # that break subsequent parsing. Chicken out and take the 
+                # next "usable" line.
+                continue
             items.append(item)
 
     return items
