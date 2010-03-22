@@ -1804,9 +1804,9 @@ def qdump__std__map(d, item):
                 d.putValue(" ")
                 if d.isExpandedIName("%s.%d" % (item.iname, i)):
                     d.beginChildren(2, None)
-                    iname = "%s.%d." % (item.iname, i)
-                    keyItem = Item(pair["first"], iname + "key", "key", "first")
-                    valueItem = Item(pair["second"], iname + "value", "value", "second")
+                    iname = "%s.%d" % (item.iname, i)
+                    keyItem = Item(pair["first"], iname, "first", "first")
+                    valueItem = Item(pair["second"], iname, "second", "second")
                     d.putItem(keyItem)
                     d.putItem(valueItem)
                     d.endChildren()
