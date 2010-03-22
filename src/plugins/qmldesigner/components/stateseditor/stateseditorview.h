@@ -53,6 +53,7 @@ public:
 
     QPixmap renderState(int i);
     QmlItemNode stateRootNode() { return m_stateRootNode; }
+    bool isAttachedToModel() const { return m_attachedToModel; }
 
 protected:
     // AbstractView
@@ -95,6 +96,7 @@ private:
 
     QList<int> m_updateTimerIdList;
     QmlModelState m_oldRewriterAmendState;
+    bool m_attachedToModel;
 };
 
 } // namespace Internal
