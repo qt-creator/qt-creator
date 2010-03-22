@@ -123,8 +123,11 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 #endif
         emit inferiorPrepared();
     } else {
-        QString msg = tr("Starting executable failed:\n") +
-            QString::fromLocal8Bit(response.data.findChild("msg").data());
+        QByteArray ba = response.data.findChild("msg").data();
+        QString msg = QString::fromLocal8Bit(ba);
+        // Extend the message a bit in unknown cases.
+        if (!ba.endsWith("File format not recognized"))
+            msg = tr("Starting executable failed:\n") + msg;
         emit inferiorStartFailed(msg);
     }
 }

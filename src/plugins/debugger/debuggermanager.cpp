@@ -760,10 +760,12 @@ void DebuggerManager::clearStatusMessage()
     d->m_statusLabel->setText(d->m_lastPermanentStatusMessage);
 }
 
-void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
+void DebuggerManager::showStatusMessage(const QString &msg0, int timeout)
 {
     Q_UNUSED(timeout)
-    showDebuggerOutput(LogStatus, msg);
+    showDebuggerOutput(LogStatus, msg0);
+    QString msg = msg0;
+    msg.replace(QLatin1Char('\n'), QString());
     d->m_statusLabel->setText(QLatin1String("   ") + msg);
     if (timeout > 0) {
         d->m_statusTimer->setSingleShot(true);
