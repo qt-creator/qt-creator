@@ -572,6 +572,14 @@ bool HelpViewer::handleForwardBackwardMouseButtons(QMouseEvent *e)
     return false;
 }
 
+void HelpViewer::mousePressEvent(QMouseEvent *e)
+{
+#ifdef Q_OS_LINUX
+    if (handleForwardBackwardMouseButtons(e))
+        return;
+#endif
+}
+
 void HelpViewer::mouseReleaseEvent(QMouseEvent *e)
 {
 #ifndef Q_OS_LINUX
@@ -591,11 +599,6 @@ void HelpViewer::mouseReleaseEvent(QMouseEvent *e)
 
 void HelpViewer::keyPressEvent(QKeyEvent *e)
 {
-#ifdef Q_OS_LINUX
-    if (handleForwardBackwardMouseButtons(e))
-        return;
-#endif
-
     if ((e->key() == Qt::Key_Home && e->modifiers() != Qt::NoModifier)
         || (e->key() == Qt::Key_End && e->modifiers() != Qt::NoModifier)) {
         QKeyEvent* event = new QKeyEvent(e->type(), e->key(), Qt::NoModifier,

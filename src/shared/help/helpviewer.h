@@ -158,6 +158,7 @@ private:
     void openLinkInNewTab(const QString &link);
     bool hasAnchorAt(const QPoint& pos);
     void contextMenuEvent(QContextMenuEvent *e);
+    void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *e);
 
