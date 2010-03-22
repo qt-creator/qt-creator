@@ -102,9 +102,9 @@ public:
     static QString defaultFixedFontFamily();
     static int defaultFontSize();
 
-private:
     static QString defaultSchemeFileName(const QString &fileName = QString());
 
+private:
     QString m_family;
     QString m_schemeFileName;
     int m_fontSize;

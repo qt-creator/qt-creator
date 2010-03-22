@@ -562,7 +562,11 @@ void FontSettingsPage::refreshColorSchemeList()
 
     int selected = 0;
 
-    foreach (const QString &file, styleDir.entryList()) {
+    QStringList schemeList = styleDir.entryList();
+    QString defaultScheme = QFileInfo(FontSettings::defaultSchemeFileName()).fileName();
+    if (schemeList.removeAll(defaultScheme))
+        schemeList.prepend(defaultScheme);
+    foreach (const QString &file, schemeList) {
         const QString fileName = styleDir.absoluteFilePath(file);
         if (d_ptr->m_value.colorSchemeFileName() == fileName)
             selected = colorSchemes.size();
