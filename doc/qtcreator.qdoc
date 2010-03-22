@@ -1789,6 +1789,10 @@
             \i  \bold{CVS}
             \i  \l{http://www.cvshome.org}
             \i
+        \row
+            \i  \bold{Mercurial}
+            \i  \l{http://mercurial.selenic.com/}
+            \i  Qt Creator 2.0 and later
     \endtable
 
 
@@ -3069,10 +3073,33 @@
 
     \omit Use \QD or \QMLD to design and implement application UI. \endomit
 
-    Set up the development environment for your chosen mobile device
-    platform, Maemo or Symbian. Then specify build and run settings
-    for the environment in Qt Creator to build and run applications
-    from Qt Creator.
+    Qt Creator provides support for development of various applications on your
+    mobile device. Qt Creator allows you to build and run various types of
+    mobile applications once you have specified the build and run settings in
+    Qt Creator.
+
+    The applications developed on Qt Creator are then deployed on your mobile
+    device.
+
+    The following are the development environment's that can be set up on Qt
+    Creator to develop applications for your mobile device:
+    \list
+       \o \bold{Maemo}: You require the MADDE development tool for development
+          of Maemo applications. For more information, see
+          \l{Developing Maemo Applications}.
+       \o \bold{Symbian}: You require to have the S60 platform SDK and the Qt
+          for Symbian in place for development of Symbian applications. For
+          more information, see \l{Developing Symbian Applications}.
+    \endlist
+
+    You need to have certain guidelines in place before you begin developing
+    applications for mobile devices. For more information, see
+    \l{Developing Usable Applications}.
+
+    \note If you do not have a mobile device connected to your system.
+    You can run the applications developed on Qt Creator on a
+    \gui{Local Simulator} for Maemo based applications and a
+    \gui{Symbian Emulator} for Symbian based applications.
 
 */
 
