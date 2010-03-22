@@ -874,6 +874,11 @@ bool ASTMatcher::match(ElaboratedTypeSpecifierAST *node, ElaboratedTypeSpecifier
 
     pattern->classkey_token = node->classkey_token;
 
+    if (! pattern->attribute_list)
+        pattern->attribute_list = node->attribute_list;
+    else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
+        return false;
+
     if (! pattern->name)
         pattern->name = node->name;
     else if (! AST::match(node->name, pattern->name, this))

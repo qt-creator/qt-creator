@@ -1559,11 +1559,13 @@ class CPLUSPLUS_EXPORT ElaboratedTypeSpecifierAST: public SpecifierAST
 {
 public:
     unsigned classkey_token;
+    SpecifierListAST *attribute_list;
     NameAST *name;
 
 public:
     ElaboratedTypeSpecifierAST()
         : classkey_token(0)
+        , attribute_list(0)
         , name(0)
     {}
 

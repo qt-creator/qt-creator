@@ -834,6 +834,8 @@ unsigned ElaboratedTypeSpecifierAST::lastToken() const
 {
     if (name)
         return name->lastToken();
+    if (attribute_list)
+        return attribute_list->lastToken();
     return classkey_token + 1;
 }
 

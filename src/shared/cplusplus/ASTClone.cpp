@@ -528,6 +528,9 @@ ElaboratedTypeSpecifierAST *ElaboratedTypeSpecifierAST::clone(MemoryPool *pool) 
 {
     ElaboratedTypeSpecifierAST *ast = new (pool) ElaboratedTypeSpecifierAST;
     ast->classkey_token = classkey_token;
+    for (SpecifierListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     if (name)
         ast->name = name->clone(pool);
     return ast;
