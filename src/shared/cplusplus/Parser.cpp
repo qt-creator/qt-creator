@@ -2125,10 +2125,18 @@ bool Parser::parseElaboratedTypeSpecifier(SpecifierListAST *&node)
     DEBUG_THIS_RULE();
     if (lookAtClassKey() || LA() == T_ENUM || LA() == T_TYPENAME) {
         unsigned classkey_token = consumeToken();
+
+        SpecifierListAST *attributes = 0, **attr_ptr = &attributes;
+        while (LA() == T___ATTRIBUTE__) {
+            parseAttributeSpecifier(*attr_ptr);
+            attr_ptr = &(*attr_ptr)->next;
+        }
+
         NameAST *name = 0;
         if (parseName(name)) {
             ElaboratedTypeSpecifierAST *ast = new (_pool) ElaboratedTypeSpecifierAST;
             ast->classkey_token = classkey_token;
+            ast->attribute_list = attributes;
             ast->name = name;
             node = new (_pool) SpecifierListAST(ast);
             return true;
