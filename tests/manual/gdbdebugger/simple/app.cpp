@@ -901,17 +901,17 @@ void testStdList()
 
 void testStdMap()
 {
+#if 0
     std::map<QString, Foo> gg3;
     gg3["22.0"] = Foo(22);
     gg3["33.0"] = Foo(33);
     gg3["44.0"] = Foo(44);
 
-
     std::map<const char *, Foo> m1;
     m1["22.0"] = Foo(22);
     m1["33.0"] = Foo(33);
     m1["44.0"] = Foo(44);
-#if 1
+
     std::map<uint, uint> gg;
     gg[11] = 1;
     gg[22] = 2;
@@ -919,9 +919,11 @@ void testStdMap()
     gg[44] = 4;
     gg[55] = 5;
 
-#endif
+    std::pair<uint, QStringList> p = std::make_pair(3, QStringList() << "11");
+    std::vector< std::pair<uint, QStringList> > v;
+    v.push_back(p);
+    v.push_back(p);
 
-#if 0
     std::map<uint, QStringList> ggl;
     ggl[11] = QStringList() << "11";
     ggl[22] = QStringList() << "22";
@@ -944,7 +946,9 @@ void testStdMap()
 
     std::map<int, QString> gg2;
     gg2[22] = "22.0";
+#endif
 
+#if 1
     QObject ob;
     std::map<QString, QPointer<QObject> > map;
     map["Hallo"] = QPointer<QObject>(&ob);
@@ -1522,7 +1526,7 @@ int testReference()
 {
     QString a = "hello";
     const QString &b = fooxx();
-    QString c = "world";
+    const QString c = "world";
     return a.size() + b.size() + c.size();
 }
 
