@@ -36,6 +36,7 @@
 #include "watchutils.h"
 
 #include <QtCore/QByteArray>
+#include <QtCore/QFutureInterface>
 #include <QtCore/QHash>
 #include <QtCore/QMap>
 #include <QtCore/QObject>
@@ -321,6 +322,7 @@ private: ////////// Inferior Management //////////
 
     QByteArray m_entryPoint;
 #endif
+    QFutureInterface<void> *m_progress;
 
 private: ////////// View & Data Stuff //////////
 

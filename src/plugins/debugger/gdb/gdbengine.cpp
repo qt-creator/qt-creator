@@ -33,8 +33,8 @@
 #include "gdboptionspage.h"
 #include "trkoptions.h"
 #include "trkoptionspage.h"
-#include "debugger/debuggeruiswitcher.h"
-#include "debugger/debuggermainwindow.h"
+#include "debuggeruiswitcher.h"
+#include "debuggermainwindow.h"
 
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
@@ -68,6 +68,8 @@
 #include <texteditor/itexteditor.h>
 #include <projectexplorer/toolchain.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/futureprogress.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -175,6 +177,7 @@ GdbEngine::GdbEngine(DebuggerManager *manager) : IDebuggerEngine(manager)
     m_trkOptions = QSharedPointer<TrkOptions>(new TrkOptions);
     m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
+    m_progress = 0;
 
     m_commandTimer = new QTimer(this);
     m_commandTimer->setSingleShot(true);
@@ -277,6 +280,8 @@ void GdbEngine::initializeVariables()
 #ifdef Q_OS_LINUX
     m_entryPoint.clear();
 #endif
+    delete m_progress;
+    m_progress = 0;
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
@@ -419,6 +424,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray id = result.findChild("id").data();
                 if (!id.isEmpty())
                     showStatusMessage(tr("Library %1 loaded.").arg(_(id)), 1000);
+                int progress = m_progress->progressValue();
+                m_progress->setProgressValue(qMin(70, progress + 1));
                 invalidateSourcesList();
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
@@ -429,6 +436,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 invalidateSourcesList();
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}"
+                int progress = m_progress->progressValue();
+                m_progress->setProgressValue(qMin(70, progress + 1));
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread group %1 created.").arg(_(id)), 1000);
                 int pid = id.toInt();
@@ -534,6 +543,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             if (resultClass == "done") {
                 response.resultClass = GdbResultDone;
             } else if (resultClass == "running") {
+                if (m_progress) {
+                    m_progress->setProgressValue(100);
+                    m_progress->reportFinished();
+                }
                 if (state() == InferiorStopped) { // Result of manual command.
                     m_manager->resetLocation();
                     setTokenBarrier();
@@ -1565,6 +1578,8 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 void GdbEngine::shutdown()
 {
     debugMessage(_("INITIATE GDBENGINE SHUTDOWN"));
+    if (m_progress)
+        m_progress->reportCanceled();
     switch (state()) {
     case DebuggerNotReady: // Nothing to do! :)
     case EngineStarting: // We can't get here, really
@@ -1724,6 +1739,13 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 
     initializeVariables();
 
+    m_progress = new QFutureInterface<void>();
+    m_progress->setProgressRange(0, 100);
+    Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
+        ->addTask(m_progress->future(), tr("Launching"), _("Debugger.Launcher"));
+    fp->setKeepOnFinish(false); 
+    m_progress->reportStarted();
+
     m_startParameters = sp;
 
     delete m_gdbAdapter;
@@ -1733,6 +1755,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable)
         connectDebuggingHelperActions();
 
+    m_progress->setProgressValue(20);
     m_gdbAdapter->startAdapter();
 }
 
@@ -4112,6 +4135,8 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 
 void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint)
 {
+    if (m_progress)
+        m_progress->setProgressValue(30);
     setState(AdapterStartFailed);
     debugMessage(_("ADAPTER START FAILED"));
     if (!msg.isEmpty()) {
@@ -4129,6 +4154,8 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 void GdbEngine::handleAdapterStarted()
 {
     setState(AdapterStarted);
+    if (m_progress)
+        m_progress->setProgressValue(25);
     debugMessage(_("ADAPTER SUCCESSFULLY STARTED"));
 
     showStatusMessage(tr("Starting inferior..."));
