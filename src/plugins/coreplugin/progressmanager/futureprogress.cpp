@@ -197,6 +197,13 @@ bool FutureProgress::eventFilter(QObject *, QEvent *e)
 void FutureProgress::setFinished()
 {
     updateToolTip(m_watcher.future().progressText());
+
+    // Special case for concurrent jobs that don't use QFutureInterface to report progress
+    if (m_watcher.progressMinimum() == 0 && m_watcher.progressMaximum() == 0) {
+        m_progress->setRange(0, 1);
+        m_progress->setValue(1);
+    }
+
     if (m_watcher.future().isCanceled()) {
         m_progress->setError(true);
     } else {
