@@ -173,6 +173,7 @@ public:
     /// Creates a new Objective-C @property declaration symbol.
     ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, const Name *name);
 
+    const Identifier *deprecatedId() const;
     // Objective-C specific context keywords.
     const Identifier *objcGetterId() const;
     const Identifier *objcSetterId() const;

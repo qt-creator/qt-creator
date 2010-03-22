@@ -507,6 +507,7 @@ public:
     // symbols
     std::vector<Symbol *> symbols;
 
+    const Identifier *deprecatedId;
     // ObjC context keywords:
     const Identifier *objcGetterId;
     const Identifier *objcSetterId;
@@ -521,6 +522,8 @@ public:
 Control::Control()
 {
     d = new Data(this);
+
+    d->deprecatedId = findOrInsertIdentifier("deprecated");
 
     d->objcGetterId = findOrInsertIdentifier("getter");
     d->objcSetterId = findOrInsertIdentifier("setter");
@@ -718,6 +721,9 @@ ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, const Name *name)
 
 ObjCPropertyDeclaration *Control::newObjCPropertyDeclaration(unsigned sourceLocation, const Name *name)
 { return d->newObjCPropertyDeclaration(sourceLocation, name); }
+
+const Identifier *Control::deprecatedId() const
+{ return d->deprecatedId; }
 
 const Identifier *Control::objcGetterId() const
 { return d->objcGetterId; }
