@@ -78,4 +78,9 @@ void ToolBox::addAction(QAction *action)
     m_toolBar->addAction(action);
 }
 
+QList<QAction*> ToolBox::actions() const
+{
+    return m_toolBar->actions();
+}
+
 } // namespace QmlDesigner
