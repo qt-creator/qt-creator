@@ -188,7 +188,8 @@ ParameterActionCommandPair
                                          bool addToLocator)
 {
     Utils::ParameterAction *action = new Utils::ParameterAction(defaultText, parameterText,
-                                                                Utils::ParameterAction::EnabledWithParameter);
+                                                                Utils::ParameterAction::EnabledWithParameter,
+                                                                this);
     Core::Command *command = am->registerAction(action, id, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     ac->addAction(command);
