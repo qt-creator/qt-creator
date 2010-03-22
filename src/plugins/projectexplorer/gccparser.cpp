@@ -42,7 +42,7 @@ namespace {
 
 GccParser::GccParser()
 {
-    m_regExp.setPattern(QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s(#?(warning|error):?\\s)(.+)$"));
+    m_regExp.setPattern(QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s(#?(warning|error|note):?\\s)(.+)$"));
     m_regExp.setMinimal(true);
 
     m_regExpIncluded.setPattern("^.*from\\s([^:]+):(\\d+)(,|:)$");
@@ -375,7 +375,16 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << QString() << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
             << QList<ProjectExplorer::Task>()
             << QString();
-
+    QTest::newRow("note")
+            << QString::fromLatin1("/home/dev/creator/share/qtcreator/gdbmacros/gdbmacros.cpp:1079: note: initialized from here")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Unknown,
+                         QLatin1String("initialized from here"),
+                         QString::fromLatin1("/home/dev/creator/share/qtcreator/gdbmacros/gdbmacros.cpp"), 1079,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()
