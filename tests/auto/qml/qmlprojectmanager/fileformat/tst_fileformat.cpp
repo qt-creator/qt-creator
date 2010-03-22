@@ -30,7 +30,7 @@ QString testDataDir = QLatin1String(SRCDIR "/data");
 void TestProject::testFileFilter()
 {
     //
-    // search for qml files in local directory
+    // Search for qml files in directory + subdirectories
     //
     QString projectFile = QLatin1String(
             "import QmlProject 1.0\n"
@@ -53,18 +53,19 @@ void TestProject::testFileFilter()
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
-                                                << testDataDir + "/file2.qml");
+                                                << testDataDir + "/file2.qml"
+                                                << testDataDir + "/subdir/file3.qml");
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
     }
 
     //
-    // search for all qml files in all subdirectories
+    // search for all qml files in directory
     //
     projectFile = QLatin1String(
             "import QmlProject 1.0\n"
             "Project {\n"
             "  QmlFiles {\n"
-            "    recursive: true\n"
+            "    recursive: false\n"
             "  }\n"
             "}\n");
 
@@ -82,8 +83,7 @@ void TestProject::testFileFilter()
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
-                                                << testDataDir + "/file2.qml"
-                                                << testDataDir + "/subdir/file3.qml");
+                                                << testDataDir + "/file2.qml");
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
     }
 
@@ -121,6 +121,7 @@ void TestProject::testFileFilter()
             "Project {\n"
             "  QmlFiles {\n"
             "    directory: \".\"\n"
+            "    recursive: false\n"
             "  }"
             "  QmlFiles {\n"
             "    directory: \"subdir\"\n"

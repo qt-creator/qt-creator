@@ -6,7 +6,7 @@ namespace QmlProjectManager {
 
 FileFilterBaseItem::FileFilterBaseItem(QObject *parent) :
         QmlProjectContentItem(parent),
-        m_recursive(false)
+        m_recurse(RecurseDefault)
 {
     connect(&m_fsWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateFileList()));
     connect(&m_fsWatcher, SIGNAL(fileChanged(QString)), this, SLOT(updateFileList()));
@@ -58,15 +58,33 @@ void FileFilterBaseItem::setFilter(const QString &filter)
 
 bool FileFilterBaseItem::recursive() const
 {
-    return m_recursive;
+    bool recursive;
+    if (m_recurse == Recurse) {
+        recursive = true;
+    } else if (m_recurse == DoNotRecurse) {
+        recursive = false;
+    } else {  // RecurseDefault
+        if (m_explicitFiles.isEmpty()) {
+            recursive = true;
+        } else {
+            recursive = false;
+        }
+    }
+    return recursive;
 }
 
-void FileFilterBaseItem::setRecursive(bool recursive)
+void FileFilterBaseItem::setRecursive(bool recurse)
 {
-    if (recursive == m_recursive)
-        return;
-    m_recursive = recursive;
-    updateFileList();
+    bool oldRecursive = recursive();
+
+    if (recurse) {
+        m_recurse = Recurse;
+    } else {
+            m_recurse = DoNotRecurse;
+    }
+
+    if (recurse != oldRecursive)
+        updateFileList();
 }
 
 QStringList FileFilterBaseItem::pathsProperty() const
@@ -194,7 +212,7 @@ QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir
         }
     }
 
-    if (m_recursive) {
+    if (recursive()) {
         foreach (const QFileInfo &subDir, dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             fileSet += filesInSubTree(rootDir, QDir(subDir.absoluteFilePath()), parsedDirs);
         }
