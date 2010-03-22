@@ -300,9 +300,10 @@ void QmlModelView::activateState(const QmlModelState &state)
     QmlModelState oldState = m_state;
 
     NodeInstance newStateInstance = instanceForModelNode(state.modelNode());
-    NodeInstance oldStateInstance = instanceForModelNode(oldState.modelNode());
+    NodeInstance oldStateInstance = oldState.isValid() ? instanceForModelNode(oldState.modelNode()) : NodeInstance();
     if (state.isBaseState()) {
-        oldStateInstance.deactivateState();
+        if (oldStateInstance.isValid())
+            oldStateInstance.deactivateState();
     } else {
         newStateInstance.activateState();
     }
