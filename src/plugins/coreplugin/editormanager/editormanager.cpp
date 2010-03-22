@@ -279,6 +279,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
 
     // Revert to saved
+    m_d->m_revertToSavedAction->setIcon(QIcon::fromTheme(QLatin1String("document-revert")));
     Command *cmd = am->registerAction(m_d->m_revertToSavedAction,
                                        Constants::REVERTTOSAVED, editManagerContext);
     cmd->setAttribute(Command::CA_UpdateText);
