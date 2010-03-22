@@ -227,7 +227,6 @@ void QtVersionManager::updateExamples()
     versions.append(m_versions);
 
     QString examplesPath;
-    QString docPath;
     QString demosPath;
     QtVersion *version = 0;
     // try to find a version which has both, demos and examples

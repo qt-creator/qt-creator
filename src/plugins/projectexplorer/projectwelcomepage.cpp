@@ -34,19 +34,31 @@ namespace ProjectExplorer {
 namespace Internal {
 
 ProjectWelcomePage::ProjectWelcomePage()
- : m_page(new ProjectWelcomePageWidget)
+    : m_page(0)
 {
-
 }
 
-ProjectWelcomePage::~ProjectWelcomePage()
+QWidget *ProjectWelcomePage::page()
 {
+    if (!m_page) {
+        m_page = new ProjectWelcomePageWidget;
 
-}
+        // Forward signals
+        connect(m_page, SIGNAL(requestProject(QString)), this, SIGNAL(requestProject(QString)));
+        connect(m_page, SIGNAL(requestSession(QString)), this, SIGNAL(requestSession(QString)));
+        connect(m_page, SIGNAL(manageSessions()), this, SIGNAL(manageSessions()));
 
-QWidget* ProjectWelcomePage::page()
-{
+        m_page->updateWelcomePage(m_welcomePageData);
+    }
     return m_page;
+}
+
+void ProjectWelcomePage::setWelcomePageData(const ProjectWelcomePageWidget::WelcomePageData &welcomePageData)
+{
+    m_welcomePageData = welcomePageData;
+
+    if (m_page)
+        m_page->updateWelcomePage(welcomePageData);
 }
 
 } // namespace Internal

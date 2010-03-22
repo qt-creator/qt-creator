@@ -51,7 +51,6 @@ public:
 
 private:
     CommunityWelcomePageWidget *m_page;
-
 };
 
 } // namespace Internal

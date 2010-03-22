@@ -39,18 +39,21 @@ namespace Ui {
     class GettingStartedWelcomePageWidget;
 }
 
-class GettingStartedWelcomePageWidget : public QWidget {
+class GettingStartedWelcomePageWidget : public QWidget
+{
     Q_OBJECT
 public:
     GettingStartedWelcomePageWidget(QWidget *parent = 0);
     ~GettingStartedWelcomePageWidget();
 
- public slots:
-    void updateExamples(const QString& examplePath, const QString& demosPath, const QString &sourcePath);
+public slots:
+    void updateExamples(const QString &examplePath,
+                        const QString &demosPath,
+                        const QString &sourcePath);
 
 private slots:
-    void slotOpenHelpPage(const QString& url);
-    void slotOpenContextHelpPage(const QString& url);
+    void slotOpenHelpPage(const QString &url);
+    void slotOpenContextHelpPage(const QString &url);
     void slotEnableExampleButton(int);
     void slotOpenExample();
     void slotNextTip();
@@ -63,7 +66,7 @@ private:
     int m_currentTip;
 };
 
-
 } // namespace Internal
 } // namespace Qt4ProjectManager
+
 #endif // GETTINGSTARTEDWELCOMEPAGEWIDGET_H

@@ -184,8 +184,7 @@ struct ProjectExplorerPluginPrivate {
     QString m_projectFilterString;
     Internal::MiniProjectTargetSelector * m_targetSelector;
     Internal::ProjectExplorerSettings m_projectExplorerSettings;
-    Internal::ProjectWelcomePage *m_welcomePlugin;
-    Internal::ProjectWelcomePageWidget *m_welcomePage;
+    Internal::ProjectWelcomePage *m_welcomePage;
 
     Core::BaseMode * m_projectsMode;
 };
@@ -217,8 +216,8 @@ ProjectExplorerPlugin::ProjectExplorerPlugin()
 
 ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
-    removeObject(d->m_welcomePlugin);
-    delete d->m_welcomePlugin;
+    removeObject(d->m_welcomePage);
+    delete d->m_welcomePage;
     removeObject(this);
     delete d;
 }
@@ -242,11 +241,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 
-    d->m_welcomePlugin = new ProjectWelcomePage;
-    d->m_welcomePage = qobject_cast<Internal::ProjectWelcomePageWidget*>(d->m_welcomePlugin->page());
-    Q_ASSERT(d->m_welcomePage);
+    d->m_welcomePage = new ProjectWelcomePage;
     connect(d->m_welcomePage, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
-    addObject(d->m_welcomePlugin);
+    addObject(d->m_welcomePage);
     addObject(this);
 
     connect(core->fileManager(), SIGNAL(currentFileChanged(QString)),
@@ -1127,7 +1124,6 @@ Project *ProjectExplorerPlugin::startupProject() const
     return pro;
 }
 
-// update welcome page
 void ProjectExplorerPlugin::updateWelcomePage()
 {
     ProjectWelcomePageWidget::WelcomePageData welcomePageData;
@@ -1135,16 +1131,15 @@ void ProjectExplorerPlugin::updateWelcomePage()
     welcomePageData.activeSession = d->m_session->activeSession();
     welcomePageData.previousSession = d->m_session->lastSession();
     welcomePageData.projectList = d->m_recentProjects;
-    d->m_welcomePage->updateWelcomePage(welcomePageData);
+    d->m_welcomePage->setWelcomePageData(welcomePageData);
 }
 
 void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *oldMode)
 {
     if (mode && mode->id() == QLatin1String(Core::Constants::MODE_WELCOME))
         updateWelcomePage();
-    if (oldMode == d->m_projectsMode) {
+    if (oldMode == d->m_projectsMode)
         savePersistentSettings();
-    }
 }
 
 void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()

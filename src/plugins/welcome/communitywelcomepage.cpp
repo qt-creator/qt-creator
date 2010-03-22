@@ -35,12 +35,14 @@ namespace Welcome {
 namespace Internal {
 
 CommunityWelcomePage::CommunityWelcomePage()
-        : m_page(new CommunityWelcomePageWidget)
+    : m_page(0)
 {
 }
 
-QWidget* CommunityWelcomePage::page()
+QWidget *CommunityWelcomePage::page()
 {
+    if (!m_page)
+        m_page = new CommunityWelcomePageWidget;
     return m_page;
 }
 

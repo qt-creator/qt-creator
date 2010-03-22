@@ -84,7 +84,6 @@ ProjectWelcomePageWidget::ProjectWelcomePageWidget(QWidget *parent) :
     connect(ui->projTreeWidget, SIGNAL(activated(QString)), SLOT(slotProjectClicked(QString)));
     connect(ui->createNewProjectButton, SIGNAL(clicked()), SLOT(slotCreateNewProject()));
     connect(ui->manageSessionsButton, SIGNAL(clicked()), SIGNAL(manageSessions()));
-
 }
 
 ProjectWelcomePageWidget::~ProjectWelcomePageWidget()
