@@ -21,6 +21,7 @@
         <file>images/debugger_interrupt.png</file>
         <file>images/debugger_stop.png</file>
         <file>images/SingleInstructionMode.png</file>
+        <file>images/reverse_16.png</file>
         <file>images/breakpoint_16.png</file>
         <file>images/breakpoint_24.png</file>
         <file>images/breakpoint_disabled_16.png</file>

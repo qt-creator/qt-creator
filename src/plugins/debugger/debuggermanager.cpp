@@ -513,12 +513,15 @@ void DebuggerManager::init()
     d->m_actions.watchAction2 = new QAction(tr("Add to Watch Window"), this);
 
     d->m_actions.snapshotAction = new QAction(tr("Snapshot"), this);
-    d->m_actions.snapshotAction->setIcon(QIcon(":/debugger/images/debugger_snapshot_small.png"));
+    d->m_actions.snapshotAction->setIcon(
+        QIcon(":/debugger/images/debugger_snapshot_small.png"));
 
-    d->m_actions.reverseDirectionAction = new QAction(tr("Reverse Direction"), this);
+    d->m_actions.reverseDirectionAction =
+        new QAction(tr("Reverse Direction"), this);
     d->m_actions.reverseDirectionAction->setCheckable(true);
     d->m_actions.reverseDirectionAction->setChecked(false);
-    d->m_actions.reverseDirectionAction->setIcon(QIcon(":/debugger/images/location_16.png"));
+    d->m_actions.reverseDirectionAction->setIcon(
+        QIcon(":/debugger/images/reverse_16.png"));
 
     connect(d->m_actions.continueAction, SIGNAL(triggered()),
         this, SLOT(executeContinue()));
