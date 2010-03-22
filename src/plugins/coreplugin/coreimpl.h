@@ -81,15 +81,12 @@ public:
     QMainWindow *mainWindow() const;
     QStatusBar *statusBar() const;
 
-    // adds and removes additional active contexts, this context is appended to the
-    // currently active contexts. call updateContext after changing
-    void addAdditionalContext(int context);
-    void removeAdditionalContext(int context);
+    // Adds and removes additional active contexts, these contexts are appended
+    // to the currently active contexts.
+    void updateAdditionalContexts(const QList<int> &remove, const QList<int> &add);
     bool hasContext(int context) const;
-    void addContextObject(IContext *contex);
-    void removeContextObject(IContext *contex);
-
-    void updateContext();
+    void addContextObject(IContext *context);
+    void removeContextObject(IContext *context);
 
     void openFiles(const QStringList &fileNames);
 

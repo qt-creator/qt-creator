@@ -267,16 +267,10 @@ void DesignMode::updateContext(Core::IMode *newMode, Core::IMode *oldMode)
 {
     if (newMode == this) {
         // Apply active context
-        Core::ICore *core = Core::ICore::instance();
-        foreach (int contextId, d->m_activeContext)
-            core->addAdditionalContext(contextId);
-        core->updateContext();
+        Core::ICore::instance()->updateAdditionalContexts(QList<int>(), d->m_activeContext);
     } else if (oldMode == this) {
         // Remove active context
-        Core::ICore *core = Core::ICore::instance();
-        foreach (int contextId, d->m_activeContext)
-            core->removeAdditionalContext(contextId);
-        core->updateContext();
+        Core::ICore::instance()->updateAdditionalContexts(d->m_activeContext, QList<int>());
     }
 }
 
@@ -285,15 +279,9 @@ void DesignMode::setActiveContext(const QList<int> &context)
     if (d->m_activeContext == context)
         return;
 
-    if (ModeManager::instance()->currentMode() == this) {
-        // Update active context
-        Core::ICore *core = Core::ICore::instance();
-        foreach (int contextId, d->m_activeContext)
-            core->removeAdditionalContext(contextId);
-        foreach (int contextId, context)
-            core->addAdditionalContext(contextId);
-        core->updateContext();
-    }
+    if (ModeManager::instance()->currentMode() == this)
+        Core::ICore::instance()->updateAdditionalContexts(d->m_activeContext, context);
+
     d->m_activeContext = context;
 }
 

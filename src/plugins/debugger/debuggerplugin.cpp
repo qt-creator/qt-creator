@@ -1229,13 +1229,10 @@ void DebuggerPlugin::handleStateChanged(int state)
 
     const bool startIsContinue = (state == InferiorStopped);
     ICore *core = ICore::instance();
-    if (startIsContinue) {
-        core->addAdditionalContext(m_gdbRunningContext);
-        core->updateContext();
-    } else {
-        core->removeAdditionalContext(m_gdbRunningContext);
-        core->updateContext();
-    }
+    if (startIsContinue)
+        core->updateAdditionalContexts(QList<int>(), QList<int>() << m_gdbRunningContext);
+    else
+        core->updateAdditionalContexts(QList<int>() << m_gdbRunningContext, QList<int>());
 
     const bool started = state == InferiorRunning
         || state == InferiorRunningRequested

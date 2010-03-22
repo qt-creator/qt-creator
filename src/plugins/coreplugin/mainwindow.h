@@ -114,11 +114,9 @@ public:
     virtual QPrinter *printer() const;
     IContext * currentContextObject() const;
     QStatusBar *statusBar() const;
-    void addAdditionalContext(int context);
-    void removeAdditionalContext(int context);
-    bool hasContext(int context) const;
 
-    void updateContext();
+    void updateAdditionalContexts(const QList<int> &remove, const QList<int> &add);
+    bool hasContext(int context) const;
 
     void setSuppressNavigationWidget(bool suppress);
 
@@ -168,6 +166,8 @@ private slots:
 
 private:
     void updateContextObject(IContext *context);
+    void updateContext();
+
     void registerDefaultContainers();
     void registerDefaultActions();
 
@@ -199,7 +199,7 @@ private:
     Core::StatusBarWidget *m_outputView;
     VersionDialog *m_versionDialog;
 
-    IContext * m_activeContext;
+    IContext *m_activeContext;
 
     QMap<QWidget *, IContext *> m_contextWidgets;
 

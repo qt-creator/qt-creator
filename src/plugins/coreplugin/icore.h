@@ -107,16 +107,13 @@ public:
     virtual QMainWindow *mainWindow() const = 0;
     virtual QStatusBar *statusBar() const = 0;
 
-    // adds and removes additional active contexts, this context is appended to the
-    // currently active contexts. call updateContext after changing
     virtual IContext *currentContextObject() const = 0;
-    virtual void addAdditionalContext(int context) = 0;
-    virtual void removeAdditionalContext(int context) = 0;
+    // Adds and removes additional active contexts, these contexts are appended
+    // to the currently active contexts.
+    virtual void updateAdditionalContexts(const QList<int> &remove, const QList<int> &add) = 0;
     virtual bool hasContext(int context) const = 0;
     virtual void addContextObject(IContext *context) = 0;
     virtual void removeContextObject(IContext *context) = 0;
-
-    virtual void updateContext() = 0;
 
     virtual void openFiles(const QStringList &fileNames) = 0;
 

@@ -1171,23 +1171,26 @@ void MainWindow::writeSettings()
     m_navigationWidget->saveSettings(m_settings);
 }
 
-void MainWindow::addAdditionalContext(int context)
+void MainWindow::updateAdditionalContexts(const QList<int> &remove, const QList<int> &add)
 {
-    if (context == 0)
-        return;
+    foreach (const int context, remove) {
+        if (context == 0)
+            continue;
 
-    if (!m_additionalContexts.contains(context))
-        m_additionalContexts.prepend(context);
-}
+        int index = m_additionalContexts.indexOf(context);
+        if (index != -1)
+            m_additionalContexts.removeAt(index);
+    }
 
-void MainWindow::removeAdditionalContext(int context)
-{
-    if (context == 0)
-        return;
+    foreach (const int context, add) {
+        if (context == 0)
+            continue;
 
-    int index = m_additionalContexts.indexOf(context);
-    if (index != -1)
-        m_additionalContexts.removeAt(index);
+        if (!m_additionalContexts.contains(context))
+            m_additionalContexts.prepend(context);
+    }
+
+    updateContext();
 }
 
 bool MainWindow::hasContext(int context) const

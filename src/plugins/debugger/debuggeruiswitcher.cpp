@@ -317,13 +317,7 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
         Core::ICore *core = Core::ICore::instance();
         const QList<int> &oldContexts = d->m_contextsForLanguage.value(d->m_activeLanguage);
         const QList<int> &newContexts = d->m_contextsForLanguage.value(langId);
-        foreach(int ctx, oldContexts)
-            core->removeAdditionalContext(ctx);
-
-        foreach(int ctx, newContexts)
-            core->addAdditionalContext(ctx);
-
-        core->updateContext();
+        core->updateAdditionalContexts(oldContexts, newContexts);
 
         d->m_activeLanguage = langId;
 

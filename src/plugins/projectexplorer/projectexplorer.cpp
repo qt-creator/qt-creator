@@ -1325,24 +1325,19 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
 
     bool projectChanged = false;
     if (d->m_currentProject != project) {
-        int oldContext = -1;
-        int newContext = -1;
-        int oldLanguageID = -1;
-        int newLanguageID = -1;
+        QList<int> oldContext;
+        QList<int> newContext;
+
         if (d->m_currentProject) {
-            oldContext = d->m_currentProject->projectManager()->projectContext();
-            oldLanguageID = d->m_currentProject->projectManager()->projectLanguage();
+            oldContext.append(d->m_currentProject->projectManager()->projectContext());
+            oldContext.append(d->m_currentProject->projectManager()->projectLanguage());
         }
         if (project) {
-            newContext = project->projectManager()->projectContext();
-            newLanguageID = project->projectManager()->projectLanguage();
+            newContext.append(project->projectManager()->projectContext());
+            newContext.append(project->projectManager()->projectLanguage());
         }
 
-        core->removeAdditionalContext(oldContext);
-        core->removeAdditionalContext(oldLanguageID);
-        core->addAdditionalContext(newContext);
-        core->addAdditionalContext(newLanguageID);
-        core->updateContext();
+        core->updateAdditionalContexts(oldContext, newContext);
 
         d->m_currentProject = project;
 

@@ -187,16 +187,9 @@ QStatusBar *CoreImpl::statusBar() const
     return m_mainwindow->statusBar();
 }
 
-// adds and removes additional active contexts, this context is appended to the
-// currently active contexts. call updateContext after changing
-void CoreImpl::addAdditionalContext(int context)
+void CoreImpl::updateAdditionalContexts(const QList<int> &remove, const QList<int> &add)
 {
-    m_mainwindow->addAdditionalContext(context);
-}
-
-void CoreImpl::removeAdditionalContext(int context)
-{
-    m_mainwindow->removeAdditionalContext(context);
+    m_mainwindow->updateAdditionalContexts(remove, add);
 }
 
 bool CoreImpl::hasContext(int context) const
@@ -212,11 +205,6 @@ void CoreImpl::addContextObject(IContext *context)
 void CoreImpl::removeContextObject(IContext *context)
 {
     m_mainwindow->removeContextObject(context);
-}
-
-void CoreImpl::updateContext()
-{
-    return m_mainwindow->updateContext();
 }
 
 void CoreImpl::openFiles(const QStringList &arguments)

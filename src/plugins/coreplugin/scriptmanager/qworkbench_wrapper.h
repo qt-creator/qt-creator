@@ -66,8 +66,7 @@ public:
     QSettings *settings() const;
 
 public slots:
-    void addAdditionalContext(int context);
-    void removeAdditionalContext(int context);
+    void updateAdditionalContexts(const QList<int> &remove, const QList<int> &add);
     QString toString() const;
 
 private:
