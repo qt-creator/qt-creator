@@ -328,7 +328,10 @@ void FormEditorW::fullInit()
     layout->addWidget(m_editorWidget);
     m_modeWidget->setLayout(layout);
 
-    m_context = new DesignerContext(m_contexts, m_modeWidget, this);
+    Core::UniqueIDManager *idMan = Core::UniqueIDManager::instance();
+    int editorManagerContext = idMan->uniqueIdentifier(QLatin1String(Core::Constants::C_EDITORMANAGER));
+
+    m_context = new DesignerContext(QList<int>() << m_contexts << editorManagerContext, m_modeWidget, this);
     m_core->addContextObject(m_context);
 
     m_designMode->registerDesignWidget(m_modeWidget, QStringList(QLatin1String(FORM_MIMETYPE)), m_contexts);
