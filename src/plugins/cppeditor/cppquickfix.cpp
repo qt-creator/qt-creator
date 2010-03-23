@@ -46,6 +46,7 @@
 #include <Name.h>
 #include <Literals.h>
 
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <QtDebug>
 
@@ -1395,7 +1396,8 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         candidates.append(useInverseOp);
         candidates.append(flipBinaryOp);
         candidates.append(wrapStringLiteral);
-        candidates.append(wrapCString);
+        if (_editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+            candidates.append(wrapCString);
         candidates.append(useFastStringConcat);
 
         QMap<int, QList<QuickFixOperationPtr> > matchedOps;
