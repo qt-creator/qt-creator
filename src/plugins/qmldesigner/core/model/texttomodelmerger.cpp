@@ -41,9 +41,9 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
 
-#include <QDeclarativeEngine>
-#include <QSet>
-#include <private/qdeclarativedom_p.h>
+#include <QtDeclarative/QDeclarativeComponent>
+#include <QtDeclarative/QDeclarativeEngine>
+#include <QtCore/QSet>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -249,43 +249,55 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 
 bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differenceHandler)
 {
+    const QUrl url = m_rewriterView->model()->fileUrl();
+    const QStringList importPaths = m_rewriterView->textModifier()->importPaths();
     setActive(true);
 
-    try {
+    { // Have the QML engine check if the document is valid:
         QDeclarativeEngine engine;
-        QDeclarativeDomDocument domDoc;
-        const QUrl url = m_rewriterView->model()->fileUrl();
-        const bool success = domDoc.load(&engine, data, url);
-
-        if (success) {
-            Snapshot snapshot = m_rewriterView->textModifier()->getSnapshot();
-            const QStringList importPaths = m_rewriterView->textModifier()->importPaths();
-            const QString fileName = url.toLocalFile();
-            Document::Ptr doc = Document::create(fileName);
-            doc->setSource(QString::fromUtf8(data.constData()));
-            doc->parseQml();
-            snapshot.insert(doc);
-            ReadingContext ctxt(snapshot, doc, importPaths);
-
-            setupImports(doc, differenceHandler);
-
-            UiObjectMember *astRootNode = 0;
-            if (UiProgram *program = doc->qmlProgram())
-                if (program->members)
-                    astRootNode = program->members->member;
-            ModelNode modelRootNode = m_rewriterView->rootModelNode();
-            syncNode(modelRootNode, astRootNode, &ctxt, differenceHandler);
-            m_rewriterView->positionStorage()->cleanupInvalidOffsets();
-            m_rewriterView->clearErrors();
-        } else {
+        foreach (const QString &importPath, importPaths)
+            engine.addImportPath(importPath);
+        QDeclarativeComponent comp(&engine);
+        comp.setData(data, url);
+        if (comp.status() == QDeclarativeComponent::Error) {
             QList<RewriterView::Error> errors;
-            foreach (const QDeclarativeError &qmlError, domDoc.errors())
-                errors.append(RewriterView::Error(qmlError));
+            foreach (const QDeclarativeError &error, comp.errors())
+                errors.append(RewriterView::Error(error));
             m_rewriterView->setErrors(errors);
+            setActive(false);
+            return false;
+        } else if (comp.status() == QDeclarativeComponent::Loading) {
+            // Probably loading remote components. Previous DOM behaviour was:
+            QList<RewriterView::Error> errors;
+            errors.append(RewriterView::Error());
+            m_rewriterView->setErrors(errors);
+            setActive(false);
+            return false;
         }
+    }
+
+    try {
+        Snapshot snapshot = m_rewriterView->textModifier()->getSnapshot();
+        const QString fileName = url.toLocalFile();
+        Document::Ptr doc = Document::create(fileName);
+        doc->setSource(QString::fromUtf8(data.constData()));
+        doc->parseQml();
+        snapshot.insert(doc);
+        ReadingContext ctxt(snapshot, doc, importPaths);
+
+        setupImports(doc, differenceHandler);
+
+        UiObjectMember *astRootNode = 0;
+        if (UiProgram *program = doc->qmlProgram())
+            if (program->members)
+                astRootNode = program->members->member;
+        ModelNode modelRootNode = m_rewriterView->rootModelNode();
+        syncNode(modelRootNode, astRootNode, &ctxt, differenceHandler);
+        m_rewriterView->positionStorage()->cleanupInvalidOffsets();
+        m_rewriterView->clearErrors();
 
         setActive(false);
-        return success;
+        return true;
     } catch (Exception &e) {
         RewriterView::Error error(&e);
         // Somehow, the error below gets eaten in upper levels, so printing the

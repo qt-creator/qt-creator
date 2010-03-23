@@ -72,13 +72,19 @@ public:
         enum Type {
             NoError = 0,
             InternalError = 1,
-            ParseError = 2
+            ParseError = 2,
+            EngineError = 3
         };
 
     public:
         Error();
         Error(const QDeclarativeError &qmlError);
         Error(Exception *exception);
+        Error(const QUrl &url,
+              const QString &description,
+              int line = -1,
+              int column = -1,
+              Type type = EngineError);
 
         Type type() const
         { return m_type; }

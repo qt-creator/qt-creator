@@ -36,8 +36,6 @@
 #include "modelnode.h"
 #include <qmljs/qmljsdocument.h>
 
-#include <private/qdeclarativedom_p.h>
-
 namespace QmlDesigner {
 
 class CORESHARED_EXPORT RewriterView;
