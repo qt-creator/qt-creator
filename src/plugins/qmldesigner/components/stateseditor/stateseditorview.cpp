@@ -37,7 +37,7 @@
 #include <math.h>
 
 enum {
-    debug = true
+    debug = false
 };
 
 namespace QmlDesigner {
