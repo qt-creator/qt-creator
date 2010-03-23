@@ -28,7 +28,9 @@
 **************************************************************************/
 
 #include "bookmarkmanager.h"
+
 #include "centralwidget.h"
+#include "helpmanager.h"
 
 #include <QtGui/QMenu>
 #include <QtGui/QIcon>
@@ -607,8 +609,7 @@ BookmarkManager::BookmarkManager(QHelpEngineCore* _helpEngine)  :
     m_folderIcon(QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon)),
     m_bookmarkIcon(QLatin1String(":/help/images/bookmark.png")),
     treeModel(new BookmarkModel(0, 1, this)),
-    listModel(new BookmarkModel(0, 1, this)),
-    helpEngine(_helpEngine)
+    listModel(new BookmarkModel(0, 1, this))
 {
     connect(treeModel, SIGNAL(itemChanged(QStandardItem*)), this,
         SLOT(itemChanged(QStandardItem*)));
@@ -636,7 +637,8 @@ void BookmarkManager::saveBookmarks()
     QDataStream stream(&bookmarks, QIODevice::WriteOnly);
 
     readBookmarksRecursive(treeModel->invisibleRootItem(), stream, 0);
-    helpEngine->setCustomValue(QLatin1String("Bookmarks"), bookmarks);
+    (&Help::HelpManager::helpEngineCore())->setCustomValue(QLatin1String("Bookmarks"),
+        bookmarks);
 }
 
 QStringList BookmarkManager::bookmarkFolders() const
@@ -754,8 +756,8 @@ void BookmarkManager::setupBookmarkModels()
     QList<int> lastDepths;
     QList<QStandardItem*> parents;
 
-    QByteArray ba =
-        helpEngine->customValue(QLatin1String("Bookmarks")).toByteArray();
+    QByteArray ba = Help::HelpManager::helpEngineCore()
+        .customValue(QLatin1String("Bookmarks")).toByteArray();
     QDataStream stream(ba);
     while (!stream.atEnd()) {
         stream >> depth >> name >> type >> expanded;

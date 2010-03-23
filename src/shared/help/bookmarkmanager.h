@@ -190,7 +190,6 @@ private:
     BookmarkModel *treeModel;
     BookmarkModel *listModel;
     QStandardItem *renameItem;
-    QHelpEngineCore *helpEngine;
 };
 
 #endif
