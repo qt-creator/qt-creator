@@ -1725,7 +1725,7 @@ bool ASTMatcher::match(ReferenceAST *node, ReferenceAST *pattern)
     (void) node;
     (void) pattern;
 
-    pattern->amp_token = node->amp_token;
+    pattern->reference_token = node->reference_token;
 
     return true;
 }

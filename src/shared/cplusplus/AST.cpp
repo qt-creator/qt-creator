@@ -1513,12 +1513,12 @@ unsigned QualifiedNameAST::lastToken() const
 
 unsigned ReferenceAST::firstToken() const
 {
-    return amp_token;
+    return reference_token;
 }
 
 unsigned ReferenceAST::lastToken() const
 {
-    return amp_token + 1;
+    return reference_token + 1;
 }
 
 

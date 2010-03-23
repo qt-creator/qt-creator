@@ -212,10 +212,11 @@ private:
 class CPLUSPLUS_EXPORT ReferenceType: public Type
 {
 public:
-    ReferenceType(const FullySpecifiedType &elementType);
+    ReferenceType(const FullySpecifiedType &elementType, bool rvalueRef);
     virtual ~ReferenceType();
 
     FullySpecifiedType elementType() const;
+    bool isRvalueReference() const;
 
     virtual bool isEqualTo(const Type *other) const;
 
@@ -231,6 +232,7 @@ protected:
 
 private:
     FullySpecifiedType _elementType;
+    bool _rvalueReference;
 };
 
 class CPLUSPLUS_EXPORT ArrayType: public Type

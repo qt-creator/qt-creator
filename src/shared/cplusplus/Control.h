@@ -108,7 +108,7 @@ public:
     PointerType *pointerType(const FullySpecifiedType &elementType);
 
     /// Returns a Type object of type ReferenceType.
-    ReferenceType *referenceType(const FullySpecifiedType &elementType);
+    ReferenceType *referenceType(const FullySpecifiedType &elementType, bool rvalueRef = false);
 
     /// Retruns a Type object of type ArrayType.
     ArrayType *arrayType(const FullySpecifiedType &elementType, unsigned size = 0);

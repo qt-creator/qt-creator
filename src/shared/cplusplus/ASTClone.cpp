@@ -1032,7 +1032,7 @@ PointerAST *PointerAST::clone(MemoryPool *pool) const
 ReferenceAST *ReferenceAST::clone(MemoryPool *pool) const
 {
     ReferenceAST *ast = new (pool) ReferenceAST;
-    ast->amp_token = amp_token;
+    ast->reference_token = reference_token;
     return ast;
 }
 

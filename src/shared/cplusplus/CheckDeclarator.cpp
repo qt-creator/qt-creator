@@ -237,9 +237,11 @@ bool CheckDeclarator::visit(PointerAST *ast)
     return false;
 }
 
-bool CheckDeclarator::visit(ReferenceAST *)
+bool CheckDeclarator::visit(ReferenceAST *ast)
 {
-    ReferenceType *refTy = control()->referenceType(_fullySpecifiedType);
+    const bool rvalueRef = (tokenKind(ast->reference_token) == T_AMPER_AMPER);
+
+    ReferenceType *refTy = control()->referenceType(_fullySpecifiedType, rvalueRef);
     FullySpecifiedType ty(refTy);
     _fullySpecifiedType = ty;
     return false;

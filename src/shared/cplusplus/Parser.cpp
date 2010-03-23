@@ -197,6 +197,7 @@ Parser::Parser(TranslationUnit *unit)
       _tokenIndex(1),
       _templateArguments(0),
       _qtMocRunEnabled(false),
+      _cxx0xEnabled(true), // C++0x is enabled by default
       _objCEnabled(false),
       _inFunctionBody(false),
       _inObjCImplementationContext(false),
@@ -212,6 +213,12 @@ bool Parser::qtMocRunEnabled() const
 
 void Parser::setQtMocRunEnabled(bool onoff)
 { _qtMocRunEnabled = onoff; }
+
+bool Parser::cxx0xEnabled() const
+{ return _cxx0xEnabled; }
+
+void Parser::isCxxOxEnabled(bool onoff)
+{ _cxx0xEnabled = onoff; }
 
 bool Parser::objCEnabled() const
 { return _objCEnabled; }
@@ -1070,9 +1077,9 @@ bool Parser::parseCvQualifiers(SpecifierListAST *&node)
 bool Parser::parsePtrOperator(PtrOperatorListAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (LA() == T_AMPER) {
+    if (LA() == T_AMPER || (_cxx0xEnabled && LA() == T_AMPER_AMPER)) {
         ReferenceAST *ast = new (_pool) ReferenceAST;
-        ast->amp_token = consumeToken();
+        ast->reference_token = consumeToken();
         node = new (_pool) PtrOperatorListAST(ast);
         return true;
     } else if (LA() == T_STAR) {

@@ -307,9 +307,9 @@ public:
         return pointerTypes.intern(PointerType(elementType));
     }
 
-    ReferenceType *findOrInsertReferenceType(const FullySpecifiedType &elementType)
+    ReferenceType *findOrInsertReferenceType(const FullySpecifiedType &elementType, bool rvalueRef)
     {
-        return referenceTypes.intern(ReferenceType(elementType));
+        return referenceTypes.intern(ReferenceType(elementType, rvalueRef));
     }
 
     ArrayType *findOrInsertArrayType(const FullySpecifiedType &elementType, unsigned size)
@@ -648,8 +648,8 @@ PointerToMemberType *Control::pointerToMemberType(const Name *memberName, const 
 PointerType *Control::pointerType(const FullySpecifiedType &elementType)
 { return d->findOrInsertPointerType(elementType); }
 
-ReferenceType *Control::referenceType(const FullySpecifiedType &elementType)
-{ return d->findOrInsertReferenceType(elementType); }
+ReferenceType *Control::referenceType(const FullySpecifiedType &elementType, bool rvalueRef)
+{ return d->findOrInsertReferenceType(elementType, rvalueRef); }
 
 ArrayType *Control::arrayType(const FullySpecifiedType &elementType, unsigned size)
 { return d->findOrInsertArrayType(elementType, size); }

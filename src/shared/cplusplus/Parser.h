@@ -67,6 +67,9 @@ public:
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool onoff);
 
+    bool cxx0xEnabled() const;
+    void isCxxOxEnabled(bool onoff);
+
     bool objCEnabled() const;
     void setObjCEnabled(bool onoff);
 
@@ -312,6 +315,7 @@ private:
     unsigned _tokenIndex;
     bool _templateArguments: 1;
     bool _qtMocRunEnabled: 1;
+    bool _cxx0xEnabled: 1;
     bool _objCEnabled: 1;
     bool _inFunctionBody: 1;
     bool _inObjCImplementationContext: 1;

@@ -2748,11 +2748,11 @@ protected:
 class CPLUSPLUS_EXPORT ReferenceAST: public PtrOperatorAST
 {
 public:
-    unsigned amp_token;
+    unsigned reference_token;
 
 public:
     ReferenceAST()
-        : amp_token(0)
+        : reference_token(0)
     {}
 
     virtual ReferenceAST *asReference() { return this; }

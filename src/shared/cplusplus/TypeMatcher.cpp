@@ -116,6 +116,9 @@ bool TypeMatcher::match(const ReferenceType *type, const ReferenceType *otherTyp
     if (type == otherType)
         return true;
 
+    else if (type->isRvalueReference() != otherType->isRvalueReference())
+        return false;
+
     else if (! type->elementType().match(otherType->elementType(), this))
         return false;
 
