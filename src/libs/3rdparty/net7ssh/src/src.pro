@@ -20,6 +20,7 @@ win32 {
 
 unix {
     QMAKE_CXXFLAGS_HIDESYMS -= -fvisibility-inlines-hidden # for ubuntu 7.04
+    QMAKE_CXXFLAGS += -Wno-unused-parameter
 }
 
 # Input
