@@ -714,6 +714,7 @@ static inline bool renameFile(const QString &sourceName, const QString &targetNa
 void S60DeviceRunControlBase::makesisProcessFinished()
 {
     if (m_makesisProcess->exitCode() != 0) {
+        m_deployProgress->reportCanceled();
         error(this, tr("An error occurred while creating the package."));
         stop();
         emit finished();
@@ -736,6 +737,7 @@ void S60DeviceRunControlBase::makesisProcessFinished()
     if (ok) {
         startDeployment();
     } else {
+        m_deployProgress->reportCanceled();
         errorMessage = tr("Failed to create '%1': %2").arg(m_signedPackage, errorMessage);
         error(this, errorMessage);
         stop();
@@ -846,6 +848,9 @@ void S60DeviceRunControlBase::printInstallingFinished()
 
 void S60DeviceRunControlBase::printInstallFailed(const QString &filename, const QString &errorMessage)
 {
+    QTC_ASSERT(m_deployProgress, ;)
+    if (m_deployProgress)
+        m_deployProgress->reportCanceled();
     emit addToOutputWindow(this, tr("Could not install from package %1 on device: %2").arg(filename, errorMessage));
 }
 
