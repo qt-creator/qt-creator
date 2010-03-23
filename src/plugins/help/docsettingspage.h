@@ -39,7 +39,7 @@ namespace Internal {
 class DocSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
-    typedef QHash<QString, QString> FilesToNameSpaceHash;
+    typedef QHash<QString, QString> NameSpaceToPathHash;
 
 public:
     DocSettingsPage();
@@ -76,8 +76,8 @@ private:
     QString m_searchKeywords;
     QString m_recentDialogPath;
 
-    FilesToNameSpaceHash m_filesToRegister;
-    FilesToNameSpaceHash m_filesToUnregister;
+    NameSpaceToPathHash m_filesToRegister;
+    NameSpaceToPathHash m_filesToUnregister;
 };
 
 } // namespace Help
