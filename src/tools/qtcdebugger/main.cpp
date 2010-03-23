@@ -45,26 +45,26 @@
 #include <QtCore/QProcess>
 #include <QtGui/QPushButton>
 
+#include "registryaccess.h"
+
 #include <windows.h>
 #include <psapi.h>
+
+using namespace RegistryAccess;
 
 enum { debug = 0 };
 
 static const char *titleC = "Qt Creator Debugger";
 static const char *organizationC = "Nokia";
-static const char *applicationFileC = "qtcdebugger";
 
-static const WCHAR *debuggerRegistryKeyC = L"Software\\Microsoft\\Windows NT\\CurrentVersion\\AeDebug";
 // Optional
 static const WCHAR *debuggerWow32RegistryKeyC = L"Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\AeDebug";
 
-static const WCHAR *debuggerRegistryValueNameC = L"Debugger";
 static const WCHAR *debuggerRegistryDefaultValueNameC = L"Debugger.Default";
 
 static const char *linkC = "http://msdn.microsoft.com/en-us/library/cc266343.aspx";
 static const char *creatorBinaryC = "qtcreator.exe";
 
-static inline QString wCharToQString(const WCHAR *w) { return QString::fromUtf16(reinterpret_cast<const ushort *>(w)); }
 #ifdef __GNUC__
 #define RRF_RT_ANY             0x0000ffff  // no type restriction
 #endif
@@ -77,28 +77,6 @@ bool optIsWow = false;
 bool noguiMode = false;
 unsigned long argProcessId = 0;
 quint64 argWinCrashEvent = 0;
-
-static QString winErrorMessage(unsigned long error)
-{
-    QString rc = QString::fromLatin1("#%1: ").arg(error);
-    ushort *lpMsgBuf;
-
-    const int len = FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, error, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
-    if (len) {
-       rc = QString::fromUtf16(lpMsgBuf, len);
-        LocalFree(lpMsgBuf);
-    } else {
-        rc += QString::fromLatin1("<unknown error>");
-    }
-    return rc;
-}
-
-static inline QString msgFunctionFailed(const char *f, unsigned long error)
-{
-    return QString::fromLatin1("'%1' failed: %2").arg(QLatin1String(f), winErrorMessage(error));
-}
 
 static bool parseArguments(const QStringList &args, QString *errorMessage)
 {
@@ -198,75 +176,6 @@ static void usage(const QString &binary, const QString &message = QString())
 }
 
 // ------- Registry helpers
-
-static bool openRegistryKey(HKEY category, // HKEY_LOCAL_MACHINE, etc.
-                            const WCHAR *key,
-                            bool readWrite,
-                            HKEY *keyHandle,
-                            QString *errorMessage)
-{
-
-    REGSAM accessRights = KEY_READ;
-    if (readWrite)
-         accessRights |= KEY_SET_VALUE;
-    const LONG rc = RegOpenKeyEx(category, key, 0, accessRights, keyHandle);
-    if (rc != ERROR_SUCCESS) {
-        *errorMessage = msgFunctionFailed("RegOpenKeyEx", rc);
-        return false;
-    }
-    return true;
-}
-
-static inline QString msgRegistryOperationFailed(const char *op, const WCHAR *valueName, const QString &why)
-{
-    QString rc = QLatin1String("Registry ");
-    rc += QLatin1String(op);
-    rc += QLatin1String(" of ");
-    rc += wCharToQString(valueName);
-    rc += QLatin1String(" failed: ");
-    rc += why;
-    return rc;
-}
-
-static bool registryReadBinaryKey(HKEY handle, // HKEY_LOCAL_MACHINE, etc.
-                                  const WCHAR *valueName,
-                                  QByteArray *data,
-                                  QString *errorMessage)
-{
-    data->clear();
-    DWORD type;
-    DWORD size;
-    // get size and retrieve
-    LONG rc = RegQueryValueEx(handle, valueName, 0, &type, 0, &size);
-    if (rc != ERROR_SUCCESS) {
-        *errorMessage = msgRegistryOperationFailed("read", valueName, msgFunctionFailed("RegQueryValueEx1", rc));
-        return false;
-    }
-    BYTE *dataC = new BYTE[size + 1];
-    // Will be Utf16 in case of a string
-    rc = RegQueryValueEx(handle, valueName, 0, &type, dataC, &size);
-    if (rc != ERROR_SUCCESS) {
-        *errorMessage = msgRegistryOperationFailed("read", valueName, msgFunctionFailed("RegQueryValueEx2", rc));
-        return false;
-    }
-    *data = QByteArray(reinterpret_cast<const char*>(dataC), size);
-    delete [] dataC;
-    return true;
-}
-
-static bool registryReadStringKey(HKEY handle, // HKEY_LOCAL_MACHINE, etc.
-                                  const WCHAR *valueName,
-                                  QString *s,
-                                  QString *errorMessage)
-{
-    QByteArray data;
-    if (!registryReadBinaryKey(handle, valueName, &data, errorMessage))
-        return false;
-    data += '\0';
-    data += '\0';
-    *s = QString::fromUtf16(reinterpret_cast<const unsigned short*>(data.data()));
-    return true;
-}
 
 static inline bool registryWriteBinaryKey(HKEY handle,
                                           const WCHAR *valueName,
@@ -457,29 +366,6 @@ bool chooseDebugger(QString *errorMessage)
     return true;
 }
 
-// Installation helpers: Format the debugger call with placeholders for PID and event
-// '"[path]\qtcdebugger" [-wow] %ld %ld'.
-
-static QString debuggerCall(const QString &additionalOption = QString())
-{
-    QString rc;
-    QTextStream str(&rc);
-    str << '"' << QDir::toNativeSeparators(QApplication::applicationFilePath()) << '"';
-    if (!additionalOption.isEmpty())
-        str << ' ' << additionalOption;
-    str << " %ld %ld";
-    return rc;
-}
-
-static bool isRegistered(HKEY handle, const QString &call, QString *errorMessage, QString *oldDebugger = 0)
-{
-    QString registeredDebugger;
-    registryReadStringKey(handle, debuggerRegistryValueNameC, &registeredDebugger, errorMessage);
-    if (oldDebugger)
-        *oldDebugger = registeredDebugger;
-    return !registeredDebugger.compare(call, Qt::CaseInsensitive);
-}
-
 // registration helper: Register ourselves in a debugger registry key.
 // Make a copy of the old value as "Debugger.Default" and have the
 // "Debug" key point to us.
@@ -499,7 +385,7 @@ static bool registerDebuggerKey(const WCHAR *key,
             *errorMessage = QLatin1String("The program is already registered as post mortem debugger.");
             break;
         }
-        if (!(oldDebugger.contains(QLatin1String(applicationFileC), Qt::CaseInsensitive)
+        if (!(oldDebugger.contains(QLatin1String(debuggerApplicationFileC), Qt::CaseInsensitive)
               || registryWriteStringKey(handle, debuggerRegistryDefaultValueNameC, oldDebugger, errorMessage)))
             break;
         if (debug)
