@@ -924,7 +924,7 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     QByteArray errorText;
     const bool rc = synchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run branch command: %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Unable to run a 'git branch' command in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputText);
@@ -942,7 +942,7 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     QByteArray errorText;
     const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run show: %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Unable to run 'git show' in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputText);
@@ -962,7 +962,7 @@ bool GitClient::synchronousCleanList(const QString &workingDirectory,
     QByteArray errorText;
     const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run clean --dry-run: %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Unable to run 'git clean' in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     // Filter files that git would remove
@@ -1469,7 +1469,7 @@ void GitClient::slotPullRebaseFinished(bool ok, int exitCode, const QVariant &co
         return;
     // Abort rebase to clean if something goes wrong
     VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
-    outwin->appendError(tr("git pull --rebase failed, aborting rebase."));
+    outwin->appendError(tr("The command 'git pull --rebase' failed, aborting rebase."));
     const QString workingDir = cookie.toString();
     QStringList arguments;
     arguments << QLatin1String("rebase") << QLatin1String("--abort");

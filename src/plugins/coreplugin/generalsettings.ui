@@ -234,7 +234,7 @@
           </item>
           <item>
            <property name="text">
-            <string>Reload all unmodified files</string>
+            <string>Reload all unchanged editors</string>
            </property>
           </item>
           <item>
