@@ -3,7 +3,7 @@ NOTE: Apply to --target=arm-none-symbianelf builds only.
 
 This works around the problem of TRK overshooting line-wise stepping by a few
 instructions. This is not a gdb problem, but a TRK problem, but currently
-easier to workaround on the gdb side. It's sufficient to apply for the 
+easier to workaround on the gdb side. It's sufficient to apply for the
 arm-none-symbianelf targeted gdbs only as TRK is the only probe known to have
 this problem.
 
@@ -12,7 +12,7 @@ this problem.
 @@ -4754,9 +4754,9 @@ infrun: not switching back to stepped thread, it has vanished\n");
        return;
      }
- 
+
 -  if ((stop_pc == stop_pc_sal.pc)
 +  if (1 /* (stop_pc == stop_pc_sal.pc)
        && (ecs->event_thread->current_line != stop_pc_sal.line
