@@ -38,6 +38,7 @@
 #include "qt-maemo/maemorunconfiguration.h"
 #include "qt-s60/s60devicerunconfiguration.h"
 #include "qt-s60/s60emulatorrunconfiguration.h"
+#include "qt-s60/s60createpackagestep.h"
 
 #include <projectexplorer/toolchain.h>
 #include <coreplugin/coreconstants.h>
@@ -248,6 +249,11 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
 
     MakeStep *makeStep = new MakeStep(bc);
     bc->insertStep(ProjectExplorer::Build, 1, makeStep);
+
+    if (id() == Constants::S60_DEVICE_TARGET_ID) {
+        S60CreatePackageStep *packageStep = new S60CreatePackageStep(bc);
+        bc->insertStep(ProjectExplorer::Build, 2, packageStep);
+    }
 
     MakeStep* cleanStep = new MakeStep(bc);
     cleanStep->setClean(true);
