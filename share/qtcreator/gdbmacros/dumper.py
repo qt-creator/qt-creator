@@ -253,7 +253,7 @@ def listOfLocals(varList):
 
     items = []
     if hasBlock and isGoodGdb():
-        warn("IS GOOD: %s " % varList)
+        #warn("IS GOOD: %s " % varList)
         try:
             block = frame.block()
             #warn("BLOCK: %s " % block)
