@@ -90,6 +90,9 @@ bool panelWidget(const QWidget *widget)
     if (qobject_cast<const Utils::FancyMainWindow *>(widget))
         return true;
 
+    if (qobject_cast<const QTabBar *>(widget))
+        return styleEnabled(widget);
+
     const QWidget *p = widget;
     while (p) {
         if (qobject_cast<const QToolBar *>(p) ||
@@ -270,8 +273,12 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setContentsMargins(0, 0, 0, 0);
         }
     }
-
     if (panelWidget(widget)) {
+
+        // Oxygen and possibly other styles override this
+        if (qobject_cast<QDockWidget*>(widget))
+            widget->setContentsMargins(0, 0, 0, 0);
+
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
         if (qobject_cast<QToolButton*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
@@ -621,7 +628,8 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
         if (const QStyleOptionTabV3 *tab = qstyleoption_cast<const QStyleOptionTabV3 *>(option)) {
             QStyleOptionTabV3 adjustedTab = *tab;
-            if (tab->position == QStyleOptionTab::Beginning) {
+            if (tab->position == QStyleOptionTab::Beginning
+                || tab->position == QStyleOptionTab::OnlyOneTab) {
                 if (option->direction == Qt::LeftToRight)
                     adjustedTab.rect = adjustedTab.rect.adjusted(-1, 0, 0, 0);
                 else
