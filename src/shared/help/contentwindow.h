@@ -66,7 +66,6 @@ private:
     bool eventFilter(QObject *o, QEvent *e);
     bool isPdfFile(QHelpContentItem *item) const;
 
-    QHelpEngine *m_helpEngine;
     QHelpContentWidget *m_contentWidget;
     int m_expandDepth;
 };

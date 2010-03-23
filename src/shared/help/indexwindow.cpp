@@ -27,8 +27,9 @@
 **
 **************************************************************************/
 
-#include "indexwindow.h"
 #include "centralwidget.h"
+#include "helpmanager.h"
+#include "indexwindow.h"
 #include "topicchooser.h"
 
 #include <QtGui/QLayout>
@@ -46,7 +47,6 @@ IndexWindow::IndexWindow(QHelpEngine *helpEngine, QWidget *parent)
     : QWidget(parent)
     , m_searchLineEdit(0)
     , m_indexWidget(0)
-    , m_helpEngine(helpEngine)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     QLabel *l = new QLabel(tr("&Look for:"));
@@ -61,11 +61,12 @@ IndexWindow::IndexWindow(QHelpEngine *helpEngine, QWidget *parent)
     layout->setMargin(4);
     layout->addWidget(m_searchLineEdit);
 
-    m_indexWidget = m_helpEngine->indexWidget();
+    QHelpEngine *engine = &Help::HelpManager::helpEngine();
+    m_indexWidget = engine->indexWidget();
     m_indexWidget->installEventFilter(this);
-    connect(m_helpEngine->indexModel(), SIGNAL(indexCreationStarted()), this,
+    connect(engine->indexModel(), SIGNAL(indexCreationStarted()), this,
         SLOT(disableSearchLineEdit()));
-    connect(m_helpEngine->indexModel(), SIGNAL(indexCreated()), this,
+    connect(engine->indexModel(), SIGNAL(indexCreated()), this,
         SLOT(enableSearchLineEdit()));
     connect(m_indexWidget, SIGNAL(linkActivated(QUrl, QString)), this,
         SIGNAL(linkActivated(QUrl)));

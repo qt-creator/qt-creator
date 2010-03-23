@@ -73,7 +73,6 @@ private:
 
     QLineEdit *m_searchLineEdit;
     QHelpIndexWidget *m_indexWidget;
-    QHelpEngine *m_helpEngine;
 };
 
 #endif // INDEXWINDOW_H

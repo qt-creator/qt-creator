@@ -28,7 +28,9 @@
 **************************************************************************/
 
 #include "contentwindow.h"
+
 #include "centralwidget.h"
+#include "helpmanager.h"
 
 #include <QtGui/QLayout>
 #include <QtGui/QFocusEvent>
@@ -38,11 +40,10 @@
 #include <QtHelp/QHelpContentWidget>
 
 ContentWindow::ContentWindow(QHelpEngine *helpEngine)
-    : m_helpEngine(helpEngine)
-    , m_contentWidget(0)
+    : m_contentWidget(0)
     , m_expandDepth(-2)
 {
-    m_contentWidget = m_helpEngine->contentWidget();
+    m_contentWidget = (&Help::HelpManager::helpEngine())->contentWidget();
     m_contentWidget->installEventFilter(this);
     m_contentWidget->viewport()->installEventFilter(this);
     m_contentWidget->setContextMenuPolicy(Qt::CustomContextMenu);
