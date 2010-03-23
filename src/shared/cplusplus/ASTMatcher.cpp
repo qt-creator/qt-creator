@@ -434,9 +434,9 @@ bool ASTMatcher::match(CompoundExpressionAST *node, CompoundExpressionAST *patte
 
     pattern->lparen_token = node->lparen_token;
 
-    if (! pattern->compoundStatement)
-        pattern->compoundStatement = node->compoundStatement;
-    else if (! AST::match(node->compoundStatement, pattern->compoundStatement, this))
+    if (! pattern->statement)
+        pattern->statement = node->statement;
+    else if (! AST::match(node->statement, pattern->statement, this))
         return false;
 
     pattern->rparen_token = node->rparen_token;

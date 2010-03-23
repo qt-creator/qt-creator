@@ -963,13 +963,13 @@ class CPLUSPLUS_EXPORT CompoundExpressionAST: public ExpressionAST
 {
 public:
     unsigned lparen_token;
-    CompoundStatementAST *compoundStatement;
+    CompoundStatementAST *statement;
     unsigned rparen_token;
 
 public:
     CompoundExpressionAST()
         : lparen_token(0)
-        , compoundStatement(0)
+        , statement(0)
         , rparen_token(0)
     {}
 

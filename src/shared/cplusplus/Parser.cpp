@@ -3573,12 +3573,12 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
             ast->lparen_token = consumeToken();
             StatementAST *statement = 0;
             parseCompoundStatement(statement);
-            ast->compoundStatement = statement->asCompoundStatement();
+            ast->statement = statement->asCompoundStatement();
             match(T_RPAREN, &ast->rparen_token);
             node = ast;
-            if (ast->compoundStatement && ast->compoundStatement->statement_list) {
+            if (ast->statement && ast->statement->statement_list) {
                 // check that the last statement is an expression-statement
-                StatementAST *lastStmt = ast->compoundStatement->statement_list->lastValue();
+                StatementAST *lastStmt = ast->statement->statement_list->lastValue();
                 if (!lastStmt || ! ast->asExpressionStatement())
                     _translationUnit->error(cursor(),
                                             "expected an expression statement before token `%s'",

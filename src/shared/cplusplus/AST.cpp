@@ -436,8 +436,8 @@ unsigned CompoundExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
-    else if (compoundStatement)
-        return compoundStatement->lastToken();
+    else if (statement)
+        return statement->lastToken();
     else
         return lparen_token + 1;
 }

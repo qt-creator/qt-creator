@@ -277,8 +277,8 @@ CompoundExpressionAST *CompoundExpressionAST::clone(MemoryPool *pool) const
 {
     CompoundExpressionAST *ast = new (pool) CompoundExpressionAST;
     ast->lparen_token = lparen_token;
-    if (compoundStatement)
-        ast->compoundStatement = compoundStatement->clone(pool);
+    if (statement)
+        ast->statement = statement->clone(pool);
     ast->rparen_token = rparen_token;
     return ast;
 }
