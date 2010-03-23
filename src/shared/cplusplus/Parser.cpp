@@ -200,6 +200,7 @@ Parser::Parser(TranslationUnit *unit)
       _objCEnabled(false),
       _inFunctionBody(false),
       _inObjCImplementationContext(false),
+      _inExpressionStatement(false),
       _expressionDepth(0)
 { }
 
@@ -2450,21 +2451,34 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
         return true;
     }
 
+    const bool wasInExpressionStatement = _inExpressionStatement;
+    _inExpressionStatement = true;
+
+    // switch to the temp pool
+    MemoryPool *previousPool = _pool;
+    _pool = &_expressionStatementTempPool;
+
+    bool parsed = false;
+
     ExpressionAST *expression = 0;
-    MemoryPool *oldPool = _pool;
-    _pool = &_tempPool;
-    RecursiveMemoryPool rec(&_tempPool);
     if (parseExpression(expression)) {
-        ExpressionStatementAST *ast = new (oldPool) ExpressionStatementAST;
-        ast->expression = expression->clone(oldPool);
+        ExpressionStatementAST *ast = new (previousPool) ExpressionStatementAST;
+        ast->expression = expression->clone(previousPool);
         match(T_SEMICOLON, &ast->semicolon_token);
         node = ast;
-        _pool = oldPool;
-        return true;
+        parsed = true;
     }
-    _pool = oldPool;
 
-    return false;
+    _inExpressionStatement = wasInExpressionStatement;
+
+    if (! _inExpressionStatement) {
+        // rewind the memory pool after parsing a toplevel expression statement.
+        _expressionStatementTempPool.reset();
+    }
+
+    // restore the pool
+    _pool = previousPool;
+    return parsed;
 }
 
 bool Parser::parseStatement(StatementAST *&node)

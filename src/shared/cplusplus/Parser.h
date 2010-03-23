@@ -315,9 +315,10 @@ private:
     bool _objCEnabled: 1;
     bool _inFunctionBody: 1;
     bool _inObjCImplementationContext: 1;
+    bool _inExpressionStatement: 1;
     int _expressionDepth;
 
-    MemoryPool _tempPool;
+    MemoryPool _expressionStatementTempPool;
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
 
     class Rewind;
