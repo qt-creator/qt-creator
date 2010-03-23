@@ -1290,7 +1290,7 @@
     library.
 
     To add an external library:
-    \list
+    \list 1
         \o Open your project file (.pro) using the \gui Projects pane.
         \o Follow the instructions at \l{http://doc.trolltech.com/latest/qmake-project-files.html#declaring-other-libraries}
            {Declaring other Libraries}.
@@ -3860,9 +3860,10 @@
     \list
         \o \gui Welcome mode \key Ctrl+1
         \o \gui Edit mode \key Ctrl+2
-        \o \gui Debug mode \key Ctrl+3
-        \o \gui Projects mode \key Ctrl+4
-        \o \gui Help mode \key Ctrl+5
+        \o \gui Design mode \key Ctrl+3
+        \o \gui Debug mode \key Ctrl+4
+        \o \gui Projects mode \key Ctrl+5
+        \o \gui Help mode \key Ctrl+6
     \endlist
 
 
