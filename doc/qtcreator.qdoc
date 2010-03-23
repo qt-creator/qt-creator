@@ -63,7 +63,7 @@
                 \o \l{Setting Up a Generic Project}
                 \o \l{Managing Sessions}
             \endlist
-       \o \l{Developing QML Applications}
+       \o \l{Developing Qt Quick Applications}
        \o \l{Developing Mobile Applications}
             \list
                 \o \l{Developing Maemo Applications}
@@ -160,7 +160,7 @@
       interface (GUI) application, Qt Creator generates an empty .ui file
       that you can modify with the integrated \QD.
 
-      If you choose to create a QML application, Qt Creator generates a .qml file
+      If you choose to create a Qt Quick application, Qt Creator generates a .qml file
       that you can modify with the \QMLD visual editor and the code editor.
 */
 
@@ -3137,12 +3137,12 @@
     \page creator-visual-editor.html
     \nextpage creator-developing-applications.html
 
-    \title Developing QML Applications
+    \title Developing Qt Quick Applications
 
-    You can either create QML projects from scratch or import them to
+    You can either create Qt Quick projects from scratch or import them to
     Qt Creator.
 
-    \section1 Creating QML Projects
+    \section1 Creating Qt Quick Projects
 
     Select \gui {File > New File or Project > Qt Quick Project > QML Application}.
 
@@ -3158,6 +3158,11 @@
     application UI.
 
     \endlist
+
+    The \c import statement in the beginning of the .qml file specifies the
+    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativemodules.html} {Qt modules}
+    to import to \QMLD. Each Qt module contains a set of default elements.
+    Specify a version to get the features you want.
 
     To use JavaScript and image files in the application, copy them to the
     project folder.
@@ -3205,9 +3210,11 @@
 
         \endlist
 
-        \o Drag and drop a \gui {Text} item on top of the \gui Rectangle.
+        \o Drag and drop a \gui {Text} item on top of the \gui Rectangle. This creates a
+        nested element where \gui Rectangle is the parent element of \gui Text. Elements
+        are positioned relative to their parents.
 
-        \o In the \gui Properties pane, edit the properties of the text.
+        \o In the \gui Properties pane, edit the properties of the \gui Text item.
 
         \list a
 
@@ -3241,12 +3248,29 @@
     QML states typically describe user interface configurations, such as the UI elements,
     their properties and behavior and the available actions. For example, you can specify
     different states of a screen to allow users to view and edit the properties of an
-    object.
+    object:
+
+    \list 1
+
+        \o Create a screen.
+
+        \o In the \gui State pane, click the plus sign to add another view, or \e state
+        to the application.
+
+        \o Modify the second state of the screen to create a new screen.
+
+    \endlist
+
+    \section2 Navigating Between Screens
 
     To make movement between states smooth, you can specify transitions. The
     \c from and \c to properties define the states between which the transitions run. To
     run the transitions in reverse when changing back from the down state to the default state,
     set \c reversible to \c true. This is equivalent to writing the two transitions separately.
+
+    You can use different types of animated transitions. For example, you can animate changes
+    to property values and colors. You can use rotation animation to control the direction of
+    rotation.
 
     You can use the \c ParallelAnimation element to start several animations at the same time.
     Or use the \c SequentialAnimation element to run them one after another.
