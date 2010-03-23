@@ -523,14 +523,14 @@ void FormEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
     }
 }
 
-void FormEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &/*propertyName*/)
+void FormEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
 {
     Q_ASSERT(qmlObjectNode.isValid());
 
     QmlItemNode itemNode = findRecursiveQmlItemNode(qmlObjectNode);
 
     if (itemNode.isValid() && scene()->hasItemForQmlItemNode(itemNode)) {
-        m_scene->synchronizeOtherProperty(itemNode);
+        m_scene->synchronizeOtherProperty(itemNode, propertyName);
         m_currentTool->formEditorItemsChanged(QList<FormEditorItem*>() << m_scene->itemForQmlItemNode(itemNode));
     }
 }

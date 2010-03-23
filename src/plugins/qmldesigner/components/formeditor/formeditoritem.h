@@ -121,7 +121,6 @@ private: // variables
     QTransform m_inverseAttentionTransform;
     QRectF m_boundingRect;
     double m_borderWidth;
-    double m_opacity;
     bool m_highlightBoundingRect;
 };
 

@@ -61,7 +61,6 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_snappingLineCreator(this),
     m_qmlItemNode(qmlItemNode),
     m_borderWidth(1.0),
-    m_opacity(0.6),
     m_highlightBoundingRect(false)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
@@ -70,8 +69,10 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
 
 void FormEditorItem::setup()
 {
-    if (qmlItemNode().hasInstanceParent())
+    if (qmlItemNode().hasInstanceParent()) {
         setParentItem(scene()->itemForQmlItemNode(qmlItemNode().instanceParent().toQmlItemNode()));
+        setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
+    }
 
     if (QGraphicsItem::parentItem() == scene()->formLayerItem())
         m_borderWidth = 0.0;
@@ -152,7 +153,6 @@ void FormEditorItem::setAttentionScale(double sinusScale)
 
 void FormEditorItem::setAttentionHighlight(double value)
 {
-    m_opacity = 0.6 + value;
     if (QGraphicsItem::parentItem() == scene()->formLayerItem())
         m_borderWidth = value * 4;
     else
@@ -245,14 +245,6 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, true);
-    switch(scene()->paintMode()) {
-        case FormEditorScene::AnchorMode:
-            painter->setOpacity(m_opacity);
-            break;
-        case FormEditorScene::NormalMode:
-            painter->setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
-            break;
-    }
 
     qmlItemNode().paintInstance(painter);
 

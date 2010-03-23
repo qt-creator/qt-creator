@@ -158,10 +158,14 @@ void FormEditorScene::synchronizeParent(const QmlItemNode &qmlItemNode)
         reparentItem(qmlItemNode, parentNode);
 }
 
-void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode)
+void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode, const QString &propertyName)
 {
     if (hasItemForQmlItemNode(qmlItemNode)) {
         FormEditorItem *item = itemForQmlItemNode(qmlItemNode);
+
+        if (propertyName == "opacity")
+            item->setOpacity(qmlItemNode.instanceValue("opacity").toDouble());
+
         if (item)
             item->update();
     }
