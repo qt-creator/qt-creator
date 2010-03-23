@@ -30,13 +30,9 @@
 #ifndef HELPMODE_H
 #define HELPMODE_H
 
-#include <QtCore/QObject>
-
 #include <coreplugin/basemode.h>
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace Help {
 namespace Internal {
@@ -47,9 +43,6 @@ class HelpMode : public Core::BaseMode
 
 public:
     HelpMode(QWidget *widget, QWidget *centralWidget, QObject *parent = 0);
-
-private:
-    QWidget *m_centralWidget;
 };
 
 } // namespace Internal

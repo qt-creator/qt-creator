@@ -32,8 +32,6 @@
 
 #include <coreplugin/findplaceholder.h>
 
-#include <QtCore/QLatin1String>
-
 #include <QtGui/QWidget>
 #include <QtGui/QLayout>
 
@@ -41,15 +39,15 @@ using namespace Help;
 using namespace Help::Internal;
 
 HelpMode::HelpMode(QWidget *widget, QWidget *centralWidget, QObject *parent)
-    : BaseMode(parent), m_centralWidget(centralWidget)
+    : BaseMode(parent)
 {
     setDisplayName(tr("Help"));
     setId(QLatin1String(Constants::ID_MODE_HELP));
     setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Reference.png")));
     setPriority(Constants::P_MODE_HELP);
     setWidget(widget);
-    m_centralWidget->layout()->setSpacing(0);
-    m_centralWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(m_centralWidget));
+    centralWidget->layout()->setSpacing(0);
+    centralWidget->layout()->addWidget(new Core::FindToolBarPlaceHolder(centralWidget));
 }
 
 
