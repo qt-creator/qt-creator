@@ -199,10 +199,11 @@ plugin_qmldesigner.depends += plugin_qmljseditor
 
 plugin_qmlinspector.subdir = qmlinspector
 plugin_qmlinspector.depends += plugin_projectexplorer
-plugin_qmlinspector.depends += plugin_coreplugin
-plugin_qmlinspector.depends += plugin_texteditor
+plugin_qmlinspector.depends += plugin_cppeditor
 plugin_qmlinspector.depends += plugin_qmlprojectmanager
 plugin_qmlinspector.depends += plugin_debugger
+plugin_qmlinspector.depends += plugin_cpptools
+plugin_qmlinspector.depends += plugin_help
 
 plugin_mercurial.subdir = mercurial
 plugin_mercurial.depends = plugin_texteditor
