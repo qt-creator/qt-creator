@@ -367,6 +367,10 @@
     encountered during a build. The pane filters out irrelevant output from
     the build tools and presents the issues in an organized way.
 
+    Right-clicking on a line brings up a context menu with options to copy
+    the contents and to show a version control annotation view of the
+    line that causes the error message.
+
     \image qtcreator-build-issues.png
 
 
@@ -1795,11 +1799,10 @@
 
     Qt Creator uses the version control system's command line clients to access
     your repositories. To set up the version control system's command line
-    clients to access your repositories, ensure that the command line clients
-    can be located using the \c{PATH} environment variable.
-
-    To specify the path to the command line client's executable, go to the
-    settings pages in \gui{Tools} > \gui{Options...}.
+    clients to access your repositories, make sure that the command line clients
+    can be located using the \c{PATH} environment variable or specify the path to
+    the command line client executables, in the settings pages shown by
+    \gui{Tools} > \gui{Options...}.
 
 
     \section1 Setting Up Common Options
@@ -1843,21 +1846,30 @@
     \e{User/alias configuration file} as well as a button that opens the
     aforementioned user name dialog.
 
+    \section1 Creating VCS Repositories for New Projects
+
+    Qt Creator allows for creating VCS repositories for version
+    control systems that support local repository creation, such as
+    \bold{git} or \bold{hg}.
+    When creating a new project by selecting \gui File >
+    \gui{New File or Project...}, you can choose a version
+    control system in the final wizard page.
 
     \section1 Using Version Control Systems
 
-    The version control sub-menus are in \gui{Tools} > \gui{Options...} >
-    \gui{Version Control}. The \gui{Version Control} page also displays the
+    The version control sub-menus are in \gui{Tools} > \gui{Options...}.
+    The \gui{Version Control} page also displays the
     version control system managing the current project
 
-    Each version control system adds a pane to the \gui{Application Output}
-    panes within which it logs the commands it executes, prepended by a
+    Under \gui{Application Output} > \gui{Version Control}, there is an output
+    pane showing the commands that are executed, prepended by a
     timestamp and the relevant output.
+
 
     \image qtcreator-vcs-pane.png
 
 
-    \section2 Addings Files
+    \section2 Adding Files
 
     When you create a new file or a new project, the wizard displays a page
     asking whether the files should be added to a version control system.
@@ -1882,27 +1894,36 @@
     \image qtcreator-vcs-diff.png
 
 
+    \section2 Viewing Versioning History and Change Details
+
+    Display the versioning history of a file by selecting \gui{Log}
+    (for \bold{git}) or \gui{Filelog}(for \bold{Perforce} and
+    \bold{Subversion}). Typically, the log output contains the date, the commit
+    message, and a change or revision identifier. Click on the identifier to
+    display a description of the change including the diff.
+    Right-clicking on an identifier brings up a context menu that lets you
+    show annotation views of previous versions (see \l{Annotating Files}).
+
+    \image qtcreator-vcs-log.png
+    \image qtcreator-vcs-describe.png
+
+
     \section2 Annotating Files
 
     Annotation views are obtained by selecting \gui{Annotate} or \gui{Blame}.
     Selecting \gui{Annotate} or \gui{Blame} displays the lines of the file
     prepended by the change identifier they originate from. Clicking on the
-    change identifier shows a detailed description of the file.
+    change identifier shows a detailed description of the change.
 
-    To show the annotation of a previous version in the \gui Annotate or
-    \gui Blame view, right-click on the version in the code. This option
-    allows you to navigate through the history of the file and obtain the
-    previous version of the code. This option also works for \gui git/hg
-    using SHA.
+    To show the annotation of a previous version, right-click on the
+    version identifier at the beginning
+    of a line and choose one of the revisions shown at the bottom of the context
+    menu. This allows you to navigate through the history of the
+    file and obtain previous versions of it. It also works for \gui git/hg
+    using SHA's.
 
-    The file log view for a single file has \gui Annotate in
-    the context menu of the version mentioned in the log, the user can
-    right-click a line to open a context menu which contains
-    \gui{Annotate Previous}.
-
-    To set up a VCS repository for new projects, select \gui File >
-    \gui{New File or Project...}. Setting up a VCS repository for new projects
-    enables you to initialize a repository for VCS that supports \bold{git/hg}.
+    The same context menu is available when right-clicking on a version
+    identifier in the file log view of a single file.
 
 
     \section2 Committing Changes
@@ -1923,17 +1944,6 @@
     \image qtcreator-vcs-commit.png
 
 
-    \section2 Viewing Versioning History and Change Details
-
-    Display the versioning history of a file by selecting \gui{Log}
-    (for \bold{git}) or \gui{Filelog}(for \bold{Perforce} and
-    \bold{Subversion}). Typically, the log output contains the date, the commit
-    message, and a change or revision identifier. Click on the identifier to
-    display a description of the change including the diff.
-
-    \image qtcreator-vcs-log.png
-    \image qtcreator-vcs-describe.png
-
 
     \section2 Using git-specific Menu Entries
 
@@ -1941,12 +1951,28 @@
 
     \table
         \row
+            \i  \gui{Stash snapshot...}
+            \i  Allows you to save a snapshot of your current
+                work under a name for later reference. For example, if you
+                want to try out something and find out later that it does not work,
+                you can discard it and return to the state of the snapshot.
+        \row
             \i  \gui{Stash}
             \i  Stash local changes prior to executing a \bold{pull}.
         \row
             \i  \gui{Pull}
             \i  Pull changes from the remote repository. If there are locally
                 modified files, you are prompted to stash those changes.
+                The \bold{git} settings page contains an option to do
+                a rebase operation while pulling.
+
+        \row
+            \i  \gui{Clean repository.../Clean project...}
+            \i  Collect all files that are not under version control
+                with the exception of patches and project files
+                and show them as a checkable list in a dialog
+                prompting for deletion. This lets you completely clean a build.
+
         \row
             \i  \gui{Branches...}
             \i  Displays the branch dialog showing the local branches at the
@@ -1956,6 +1982,13 @@
                 tracks the remote branch, and then switches to it.
 
                 \image qtcreator-vcs-gitbranch.png
+
+
+        \row
+            \i  \gui{Stashes...}
+            \i  Displays a dialog showing the stashes created by
+                \gui{Stash snapshots...} with options to restore,
+                display or delete them.
     \endtable
 */
 
@@ -3690,7 +3723,7 @@
 
      \QD fetches plugins from the standard locations and loads the plugins
      that match its build key. \QD is delivered both as a standalone application
-     and as part of an SDK, where it is integrated into Qt Creator.
+     and as part of the SDK, where it is integrated into Qt Creator.
      The correct folder to place the plugins depends on
      which one you use.
 
