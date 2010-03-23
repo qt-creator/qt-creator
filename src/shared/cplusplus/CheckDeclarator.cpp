@@ -230,6 +230,9 @@ bool CheckDeclarator::visit(PointerToMemberAST *ast)
 
 bool CheckDeclarator::visit(PointerAST *ast)
 {
+    if (_fullySpecifiedType->isReferenceType())
+        translationUnit()->error(ast->firstToken(), "cannot declare pointer to a reference");
+
     PointerType *ptrTy = control()->pointerType(_fullySpecifiedType);
     FullySpecifiedType ty(ptrTy);
     _fullySpecifiedType = ty;
