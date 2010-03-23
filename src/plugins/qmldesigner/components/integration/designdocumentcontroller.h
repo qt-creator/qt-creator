@@ -51,6 +51,11 @@ class ModelNode;
 class TextModifier;
 class QmlObjectNode;
 class RewriterView;
+class ItemLibrary;
+class NavigatorView;
+class AllPropertiesBox;
+class StatesEditorWidget;
+class FormEditorView;
 
 class DesignDocumentController: public QObject
 {
@@ -72,20 +77,12 @@ public:
     bool isDirty() const;
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
+    QWidget *widget() const;
 
     Model *model() const;
-    Model *masterModel() const;
+    Model *masterModel() const;    
 
-    QWidget *documentWidget() const;
-    QWidget *itemLibrary() const;
-    QWidget *navigator() const;
-    QWidget *allPropertiesBox() const;
-    QWidget *statesEditorWidget() const;
-
-    RewriterView *rewriterView() const;
-
-    bool previewVisible() const;
-    bool previewWithDebugVisible() const;
+    RewriterView *rewriterView() const;    
 
     bool isModelSyncBlocked() const;
     void blockModelSync(bool block);
@@ -93,14 +90,18 @@ public:
     QString contextHelpId() const;
     QList<RewriterView::Error> qmlErrors() const;
 
+    void setItemLibrary(ItemLibrary* itemLibrary);
+    void setNavigator(NavigatorView* navigatorView);
+    void setAllPropertiesBox(AllPropertiesBox* allPropertiesBox);
+    void setStatesEditorWidget(StatesEditorWidget* statesEditorWidget);
+    void setFormEditorView(FormEditorView *formEditorView);
+
 signals:
     void displayNameChanged(const QString &newFileName);
     void dirtyStateChanged(bool newState);
 
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
-    void previewVisibilityChanged(bool visible);
-    void previewWithDebugVisibilityChanged(bool visible);
     void designDocumentClosed();
     void qmlErrorsChanged(const QList<RewriterView::Error> &errors);
 
@@ -108,18 +109,12 @@ signals:
 
 public slots:
     bool save(QWidget *parent = 0);
-    void saveAs(QWidget *parent = 0);
+    void saveAs(QWidget *parent = 0);    
     void deleteSelected();
     void copySelected();
     void cutSelected();
     void paste();
     void selectAll();
-
-    void togglePreview(bool visible);
-    void toggleWithDebugPreview(bool visible);
-
-    void emitPreviewVisibilityChanged();
-    void emitPreviewWithDebugVisibilityChanged();
     void undo();
     void redo();
 
@@ -134,11 +129,8 @@ private slots:
     void changeCurrentModelTo(const ModelNode &node);
 
 private:
-    QProcess *createPreviewProcess(const QString &dirPath);
-    QProcess *createPreviewWithDebugProcess(const QString &dirPath);
-    bool save(QIODevice *device, QString *errorMessage);
-
     class DesignDocumentControllerPrivate *m_d;
+    bool save(QIODevice *device, QString *errorMessage);
 };
 
 } // namespace QmlDesigner

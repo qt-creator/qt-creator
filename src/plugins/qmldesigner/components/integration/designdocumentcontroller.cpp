@@ -97,13 +97,11 @@ public:
     QWeakPointer<SubComponentManager> subComponentManager;
     QWeakPointer<Internal::ViewLogger> viewLogger;
 
-    QWeakPointer<QProcess> previewProcess;
-    QWeakPointer<QProcess> previewWithDebugProcess;
-
     QString fileName;
     QUrl searchPath;
     bool documentLoaded;
     bool syncBlocked;
+    QWeakPointer<ComponentAction> componentAction;
 
 };
 
@@ -117,38 +115,19 @@ DesignDocumentController::DesignDocumentController(QObject *parent) :
         QObject(parent),
         m_d(new DesignDocumentControllerPrivate)
 {
-    m_d->itemLibrary = new ItemLibrary;
-    m_d->navigator = new NavigatorView(this);
-    m_d->allPropertiesBox = new AllPropertiesBox;
-    m_d->statesEditorWidget = new StatesEditorWidget;
-    m_d->stackedWidget = new QStackedWidget;
-
     m_d->documentLoaded = false;
     m_d->syncBlocked = false;
 }
 
 DesignDocumentController::~DesignDocumentController()
-{
-    delete m_d->formEditorView.data();
-
-    // deleting the widgets should be safe because these are QWeakPointer's
-    delete m_d->itemLibrary.data();
-    delete m_d->allPropertiesBox.data();
-    delete m_d->statesEditorWidget.data();
-    delete m_d->stackedWidget.data();
-
+{   
     delete m_d->model.data();
     delete m_d->subComponentModel.data();
 
     delete m_d->rewriterView.data();
-    // m_d->textEdit is child of stackedWidget or owned by external widget
-    delete m_d->textModifier;
 
     if (m_d->componentTextModifier) //componentTextModifier might not be created
         delete m_d->componentTextModifier;
-
-    delete m_d->previewProcess.data();
-    delete m_d->previewWithDebugProcess.data();
 
     delete m_d;
 }
@@ -163,75 +142,10 @@ Model *DesignDocumentController::masterModel() const
     return m_d->masterModel.data();
 }
 
-QWidget *DesignDocumentController::documentWidget() const
+QWidget *DesignDocumentController::widget() const
 {
-    return m_d->stackedWidget.data();
+    return qobject_cast<QWidget*>(parent());
 }
-
-void DesignDocumentController::togglePreview(bool visible)
-{
-    if (!m_d->documentLoaded)
-        return;
-
-    if (visible) {
-        Q_ASSERT(!m_d->previewProcess);
-
-        QString directory;
-        if (!m_d->fileName.isEmpty()) {
-            directory = QFileInfo(m_d->fileName).absoluteDir().path();
-        } else {
-            directory = QDir::tempPath();
-        }
-        m_d->previewProcess = createPreviewProcess(directory);
-        connect(m_d->previewProcess.data(), SIGNAL(finished(int, QProcess::ExitStatus)),
-                this, SLOT(emitPreviewVisibilityChanged()));
-    } else {
-        Q_ASSERT(m_d->previewProcess);
-
-        delete m_d->previewProcess.data();
-    }
-}
-
-void DesignDocumentController::toggleWithDebugPreview(bool visible)
-{
-    if (!m_d->documentLoaded)
-        return;
-
-    if (visible) {
-        Q_ASSERT(!m_d->previewWithDebugProcess);
-
-        QString directory;
-        if (!m_d->fileName.isEmpty()) {
-            directory = QFileInfo(m_d->fileName).absoluteDir().path();
-        } else {
-            directory = QDir::tempPath();
-        }
-        m_d->previewWithDebugProcess = createPreviewWithDebugProcess(directory);
-        connect(m_d->previewWithDebugProcess.data(), SIGNAL(finished(int, QProcess::ExitStatus)),
-                this, SLOT(emitPreviewWithDebugVisibilityChanged()));
-    } else {
-        Q_ASSERT(m_d->previewWithDebugProcess);
-
-        delete m_d->previewWithDebugProcess.data();
-    }
-}
-
-bool DesignDocumentController::previewVisible() const
-{
-    if (!m_d->documentLoaded)
-        return false;
-
-    return m_d->previewProcess;
-}
-
-bool DesignDocumentController::previewWithDebugVisible() const
-{
-    if (!m_d->documentLoaded)
-        return false;
-
-    return m_d->previewWithDebugProcess;
-}
-
 
 /*!
   Returns whether the model is automatically updated if the text editor changes.
@@ -272,14 +186,29 @@ QList<RewriterView::Error> DesignDocumentController::qmlErrors() const
     return m_d->rewriterView->errors();
 }
 
-void DesignDocumentController::emitPreviewVisibilityChanged()
+void DesignDocumentController::setItemLibrary(ItemLibrary* itemLibrary)
 {
-    emit previewVisibilityChanged(false);
+    m_d->itemLibrary = itemLibrary;
 }
 
-void DesignDocumentController::emitPreviewWithDebugVisibilityChanged()
+void DesignDocumentController::setNavigator(NavigatorView* navigatorView)
 {
-    emit previewWithDebugVisibilityChanged(false);
+    m_d->navigator = navigatorView;
+}
+
+void DesignDocumentController::setAllPropertiesBox(AllPropertiesBox* allPropertiesBox)
+{
+    m_d->allPropertiesBox = allPropertiesBox;
+}
+
+void DesignDocumentController::setStatesEditorWidget(StatesEditorWidget* statesEditorWidget)
+{
+    m_d->statesEditorWidget = statesEditorWidget;
+}
+
+void DesignDocumentController::setFormEditorView(FormEditorView *formEditorView)
+{
+    m_d->formEditorView = formEditorView;
 }
 
 QString DesignDocumentController::displayName() const
@@ -411,21 +340,21 @@ void DesignDocumentController::loadCurrentModel()
     Q_ASSERT(m_d->model);
     m_d->model->setMasterModel(m_d->masterModel.data());
 
-    m_d->allPropertiesBox->setModel(m_d->model.data());
-
     m_d->model->attachView(m_d->navigator.data());
     m_d->itemLibrary->setMetaInfo(m_d->model->metaInfo());
 
-    if (m_d->formEditorView.isNull()) {
-        m_d->formEditorView = new FormEditorView(this);
-        m_d->stackedWidget->addWidget(m_d->formEditorView->widget());
-        ComponentAction *componentAction = new ComponentAction(m_d->formEditorView->widget());
-        componentAction->setModel(m_d->model.data());
-        // TODO: Enable again
-        //m_d->formEditorView->widget()->lowerToolBox()->addAction(componentAction);
-        connect(componentAction, SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode))); //TODO component action
-        connect(m_d->itemLibrary.data(), SIGNAL(itemActivated(const QString&)), m_d->formEditorView.data(), SLOT(activateItemCreator(const QString&)));
+    if (!m_d->componentAction) {
+        m_d->componentAction = new ComponentAction(m_d->formEditorView->widget());
+        m_d->componentAction->setModel(m_d->model.data());
+        connect(m_d->componentAction.data(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));       
+        m_d->formEditorView->widget()->lowerToolBox()->addAction(m_d->componentAction.data());
     }
+    foreach (QAction *action , m_d->formEditorView->widget()->lowerToolBox()->actions())
+        if (qobject_cast<ComponentAction*>(action))
+            action->setVisible(false);
+    m_d->componentAction->setVisible(true);
+
+    connect(m_d->itemLibrary.data(), SIGNAL(itemActivated(const QString&)), m_d->formEditorView.data(), SLOT(activateItemCreator(const QString&)));
 
     m_d->model->attachView(m_d->formEditorView.data());
 
@@ -435,6 +364,8 @@ void DesignDocumentController::loadCurrentModel()
 
     // Will call setCurrentState (formEditorView etc has to be constructed first)
     m_d->statesEditorWidget->setup(m_d->model.data());
+
+    m_d->allPropertiesBox->setModel(m_d->model.data());
 
     m_d->documentLoaded = true;
     Q_ASSERT(m_d->masterModel);
@@ -461,13 +392,13 @@ void DesignDocumentController::doRealSaveAs(const QString &fileName)
 
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists() && !fileInfo.isWritable()) {
-        QMessageBox msgBox(documentWidget());
+        QMessageBox msgBox(widget());
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setText(tr("Cannot save to file \"%1\": permission denied.").arg(fileInfo.baseName()));
         msgBox.exec();
         return;
     } else if (!fileInfo.exists() && !fileInfo.dir().exists()) {
-        QMessageBox msgBox(documentWidget());
+        QMessageBox msgBox(widget());
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setText(tr("Parent folder \"%1\" for file \"%2\" does not exist.")
                        .arg(fileInfo.dir().dirName())
@@ -477,28 +408,7 @@ void DesignDocumentController::doRealSaveAs(const QString &fileName)
     }
 
     setFileName(fileName);
-    save(documentWidget());
-}
-
-bool DesignDocumentController::save(QWidget *parent)
-{
-//    qDebug() << "Saving document to file \"" << m_d->fileName << "\"...";
-//
-    if (m_d->fileName.isEmpty()) {
-        saveAs(parent);
-        return true;
-    }
-    QFile file(m_d->fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        showError(tr("Cannot write file: \"%1\".").arg(m_d->fileName), parent);
-        return false;
-    }
-
-    QString errorMessage;
-    bool result = save(&file, &errorMessage);
-    if (!result)
-        showError(errorMessage, parent);
-    return result;
+    save(widget());
 }
 
 bool DesignDocumentController::isDirty() const
@@ -511,17 +421,21 @@ bool DesignDocumentController::isDirty() const
 
 bool DesignDocumentController::isUndoAvailable() const
 {
-    return m_d->textEdit->document()->isUndoAvailable();
+
+    if (m_d->textEdit)
+        return m_d->textEdit->document()->isUndoAvailable();
+    return false;
 }
 
 bool DesignDocumentController::isRedoAvailable() const
 {
-    return m_d->textEdit->document()->isRedoAvailable();
+    if (m_d->textEdit)
+        return m_d->textEdit->document()->isRedoAvailable();
+    return false;
 }
 
 void DesignDocumentController::close()
 {
-    documentWidget()->close();
     m_d->documentLoaded = false;
     emit designDocumentClosed();
 }
@@ -752,26 +666,6 @@ void DesignDocumentController::showError(const QString &message, QWidget *parent
     msgBox.exec();
 }
 
-QWidget *DesignDocumentController::itemLibrary() const
-{
-    return m_d->itemLibrary.data();
-}
-
-QWidget *DesignDocumentController::navigator() const
-{
-    return m_d->navigator->widget();
-}
-
-QWidget *DesignDocumentController::allPropertiesBox() const
-{
-    return m_d->allPropertiesBox.data();
-}
-
-QWidget *DesignDocumentController::statesEditorWidget() const
-{
-    return m_d->statesEditorWidget.data();
-}
-
 RewriterView *DesignDocumentController::rewriterView() const
 {
     return m_d->rewriterView.data();
@@ -803,79 +697,26 @@ void DesignDocumentController::showForm()
 }
 #endif // ENABLE_TEXT_VIEW
 
-QProcess *DesignDocumentController::createPreviewProcess(const QString &dirPath)
+bool DesignDocumentController::save(QWidget *parent)
 {
-    Q_ASSERT(QDir(dirPath).exists());
+    //    qDebug() << "Saving document to file \"" << m_d->fileName << "\"...";
+    //
+    if (m_d->fileName.isEmpty()) {
+        saveAs(parent);
+        return true;
+    }
+    QFile file(m_d->fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        showError(tr("Cannot write file: \"%1\".").arg(m_d->fileName), parent);
+        return false;
+    }
 
-    QProcess *previewProcess = new QProcess(this);
-    previewProcess->setWorkingDirectory(dirPath);
-
-    QTemporaryFile *temporaryFile = new QTemporaryFile(QDir(dirPath).absoluteFilePath("bauhaus_tmp"));
-    temporaryFile->setParent(previewProcess);
-
-    temporaryFile->open();
-
-    m_d->textModifier->save(temporaryFile);
-
-    QStringList qmlViewerArgumentList;
-//        qmlViewerArgumentList.append("-L");
-//        qmlViewerArgumentList.append(dirPath);
-    previewProcess->setWorkingDirectory(dirPath);
-    qmlViewerArgumentList.append(temporaryFile->fileName());
-
-    temporaryFile->close();
-
-    previewProcess->start(QString("%1/qml").arg(QCoreApplication::applicationDirPath()), qmlViewerArgumentList);
-    if (!previewProcess->waitForStarted())
-        previewProcess->start("qml", qmlViewerArgumentList);
-    if (!previewProcess->waitForStarted())
-        QMessageBox::warning(documentWidget(), "qml runtime not found", "qml runtime should be in the PATH or in the same directory like the bauhaus binary.");
-
-    return previewProcess;
-}
-
-QProcess *DesignDocumentController::createPreviewWithDebugProcess(const QString &dirPath)
-{
-    Q_ASSERT(QDir(dirPath).exists());
-
-    QProcess *previewProcess = new QProcess(this);
-    previewProcess->setWorkingDirectory(dirPath);
-
-    QProcess *debugger = new QProcess(previewProcess);
-
-    QTemporaryFile *temporaryFile = new QTemporaryFile(QDir(dirPath).absoluteFilePath("bauhaus_tmp"));
-    temporaryFile->setParent(previewProcess);
-
-    temporaryFile->open();
-
-    m_d->textModifier->save(temporaryFile);
-
-    QStringList environmentList = QProcess::systemEnvironment();
-    environmentList.append("QML_DEBUG_SERVER_PORT=3768");
-    previewProcess->setEnvironment(environmentList);
-
-    QStringList qmlViewerArgumentList;
-//        qmlViewerArgumentList.append("-L");
-//        qmlViewerArgumentList.append(libraryPath);
-    qmlViewerArgumentList.append(temporaryFile->fileName());
-
-    temporaryFile->close();
-
-    debugger->setWorkingDirectory(dirPath);
-    debugger->start(QString("%1/qmldebugger").arg(QCoreApplication::applicationDirPath()));
-    if (!debugger->waitForStarted())
-        debugger->start("qmldebugger", qmlViewerArgumentList);
-    if (!debugger->waitForStarted())
-        QMessageBox::warning(documentWidget(), "qmldebugger not found", "qmldebugger should in the PATH or in the same directory like the bauhaus binary.");
-
-    previewProcess->setWorkingDirectory(dirPath);
-    previewProcess->start(QString("%1/qml").arg(QCoreApplication::applicationDirPath()), qmlViewerArgumentList);
-    if (!previewProcess->waitForStarted())
-        previewProcess->start("qml", qmlViewerArgumentList);
-    if (!previewProcess->waitForStarted())
-        QMessageBox::warning(documentWidget(), "qml runtime not found", "qml runtime should in the PATH or in the same directory like the bauhaus binary.");
-
-    return previewProcess;
+    QString errorMessage;
+    bool result = save(&file, &errorMessage);
+    if (!result)
+        showError(errorMessage, parent);
+    return result;
+    save(widget());
 }
 
 bool DesignDocumentController::save(QIODevice *device, QString * /*errorMessage*/)
@@ -884,11 +725,10 @@ bool DesignDocumentController::save(QIODevice *device, QString * /*errorMessage*
         QByteArray data = m_d->textEdit->toPlainText().toLatin1();
         device->write(data);
         m_d->textEdit->setPlainText(data); // clear undo/redo history
-        return true;
-    } else {
-        return false;
     }
+    return false;
 }
+
 
 QString DesignDocumentController::contextHelpId() const
 {

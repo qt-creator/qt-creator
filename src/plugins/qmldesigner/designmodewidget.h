@@ -40,8 +40,10 @@
 #include <designdocumentcontroller.h>
 #include <itemlibrary.h>
 #include <navigatorwidget.h>
+#include <navigatorview.h>
 #include <stateseditorwidget.h>
 #include <modelnode.h>
+#include <formeditorview.h>
 
 
 #include <QWeakPointer>
@@ -78,7 +80,7 @@ class DocumentWarningWidget : public QFrame
     Q_OBJECT
     Q_DISABLE_COPY(DocumentWarningWidget)
 public:
-    explicit DocumentWarningWidget(DocumentWidget *documentWidget, QWidget *parent = 0);
+    explicit DocumentWarningWidget(DesignModeWidget *parent = 0);
 
     void setError(const RewriterView::Error &error);
 
@@ -88,52 +90,8 @@ private slots:
 private:
     QLabel *m_errorMessage;
     QLabel *m_goToError;
-    DocumentWidget *m_documentWidget;
     RewriterView::Error m_error;
-};
-
-class DocumentWidget : public QWidget
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(DocumentWidget)
-public:
-    explicit DocumentWidget(TextEditor::ITextEditor *textEditor, QPlainTextEdit *textEdit, QmlDesigner::DesignDocumentController *document, DesignModeWidget *mainWidget);
-    ~DocumentWidget();
-
-    QmlDesigner::DesignDocumentController *document() const;
-    TextEditor::ITextEditor *textEditor() const;
-
-    void setAutoSynchronization(bool sync);
-
-    void readSettings();
-    void saveSettings();
-
-protected:
-    void resizeEvent(QResizeEvent *event);
-
-private slots:
-    void enable();
-    void disable(const QList<RewriterView::Error> &errors);
-    void updateErrorStatus(const QList<RewriterView::Error> &errors);
-
-private:
-    void setup();
-    bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
-    QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;
-
-    TextEditor::ITextEditor *m_textEditor;
-    QWeakPointer<QPlainTextEdit> m_textBuffer;
-    QmlDesigner::DesignDocumentController *m_document;
-    DesignModeWidget *m_mainWidget;
-    QSplitter *m_mainSplitter;
-    Core::SideBar *m_leftSideBar;
-    Core::SideBar *m_rightSideBar;
-
-    QToolBar *m_designToolBar;
-    Core::EditorToolBar *m_fakeToolBar;
-
-    bool m_isDisabled;
-    DocumentWarningWidget *m_warningWidget;
+    DesignModeWidget *m_designModeWidget;
 };
 
 class DesignModeWidget : public QWidget
@@ -143,8 +101,6 @@ class DesignModeWidget : public QWidget
 public:
     explicit DesignModeWidget(QWidget *parent = 0);
     ~DesignModeWidget();
-
-//    void syncWithTextEdit(bool sync);
 
     void showEditor(Core::IEditor *editor);
     void closeEditors(const QList<Core::IEditor*> editors);
@@ -158,6 +114,12 @@ public:
     QAction *pasteAction() const;
     QAction *selectAllAction() const;
 
+    void readSettings();
+    void saveSettings();
+    void setAutoSynchronization(bool sync);
+
+    TextEditor::ITextEditor *textEditor() const {return m_textEditor; }
+
 private slots:
     void undo();
     void redo();
@@ -166,17 +128,26 @@ private slots:
     void copySelected();
     void paste();
     void selectAll();
+    void closeCurrentEditor();
 
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
 
-private:
-    void setCurrentDocumentWidget(DocumentWidget *newDocumentWidget);
+    void enable();
+    void disable(const QList<RewriterView::Error> &errors);
+    void updateErrorStatus(const QList<RewriterView::Error> &errors);
 
-    QStackedWidget *m_documentWidgetStack;
-    QHash<QPlainTextEdit*,DocumentWidget*> m_documentHash;
-    DocumentWidget *m_currentDocumentWidget;
-    QPlainTextEdit *m_currentTextEdit;
+protected:
+    void resizeEvent(QResizeEvent *event);
+
+private:
+    DesignDocumentController *currentDesignDocumentController() const {return m_currentDesignDocumentController.data(); }
+    void setCurrentDocument(DesignDocumentController *newDesignDocumentController);
+
+    //QStackedWidget *m_documentWidgetStack;
+    QHash<QPlainTextEdit*,QWeakPointer<DesignDocumentController> > m_documentHash;
+    QWeakPointer<DesignDocumentController> m_currentDesignDocumentController;
+    QWeakPointer<QPlainTextEdit> m_currentTextEdit;
 
     QAction *m_undoAction;
     QAction *m_redoAction;
@@ -186,7 +157,30 @@ private:
     QAction *m_pasteAction;
     QAction *m_selectAllAction;
 
+    QWeakPointer<ItemLibrary> m_itemLibrary;
+    QWeakPointer<NavigatorView> m_navigator;
+    QWeakPointer<AllPropertiesBox> m_allPropertiesBox;
+    QWeakPointer<StatesEditorWidget> m_statesEditorWidget;
+    QWeakPointer<FormEditorView> m_formEditorView;
+
     bool m_syncWithTextEdit;
+
+    void setup();
+    bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
+    QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;
+
+    TextEditor::ITextEditor *m_textEditor;
+
+    QSplitter *m_mainSplitter;
+    Core::SideBar *m_leftSideBar;
+    Core::SideBar *m_rightSideBar;
+
+    QToolBar *m_designToolBar;
+    Core::EditorToolBar *m_fakeToolBar;
+
+    bool m_isDisabled;
+    bool m_setup;
+    DocumentWarningWidget *m_warningWidget;
 };
 
 } // namespace Internal
