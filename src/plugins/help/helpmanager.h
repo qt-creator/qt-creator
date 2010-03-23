@@ -31,37 +31,57 @@
 
 #include "help_global.h"
 
+#include <QtCore/QMutex>
 #include <QtCore/QObject>
 
+QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 QT_FORWARD_DECLARE_CLASS(QHelpEngineCore)
 QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QStringList)
 
+class BookmarkManager;
+
 namespace Help {
-namespace Internal {
-class HelpPlugin;
-}   // Internal
 
 class HELP_EXPORT HelpManager : public QObject
 {
     Q_OBJECT
 public:
-    HelpManager(Internal::HelpPlugin *plugin);
+    HelpManager(QObject *parent = 0);
     ~HelpManager();
 
-    void handleHelpRequest(const QString &url);
-    void registerDocumentation(const QStringList &fileNames);
+    static HelpManager& instance();
 
+    void setupGuiHelpEngine();
+    bool guiEngineNeedsUpdate() const;
+
+    void handleHelpRequest(const QString &url);
+
+    void verifyDocumenation();
+    void registerDocumentation(const QStringList &fileNames);
+    void unregisterDocumentation(const QStringList &nameSpaces);
+
+    static QHelpEngine& helpEngine();
     static QString collectionFilePath();
     static QHelpEngineCore& helpEngineCore();
 
+    static BookmarkManager& bookmarkManager();
+
 signals:
-    void registerDocumentation();
+    void helpRequested(const QString &Url);
 
 private:
-    Internal::HelpPlugin *m_plugin;
+    static bool m_guiNeedsSetup;
+    static bool m_needsCollectionFile;
 
-    static QHelpEngineCore* m_coreEngine;
+    static QMutex m_guiMutex;
+    static QHelpEngine *m_guiEngine;
+
+    static QMutex m_coreMutex;
+    static QHelpEngineCore *m_coreEngine;
+
+    static HelpManager *m_helpManager;
+    static BookmarkManager *m_bookmarkManager;
 };
 
 }   // Help
