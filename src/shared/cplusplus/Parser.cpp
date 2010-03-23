@@ -217,7 +217,7 @@ void Parser::setQtMocRunEnabled(bool onoff)
 bool Parser::cxx0xEnabled() const
 { return _cxx0xEnabled; }
 
-void Parser::isCxxOxEnabled(bool onoff)
+void Parser::setCxxOxEnabled(bool onoff)
 { _cxx0xEnabled = onoff; }
 
 bool Parser::objCEnabled() const

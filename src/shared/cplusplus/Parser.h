@@ -68,7 +68,7 @@ public:
     void setQtMocRunEnabled(bool onoff);
 
     bool cxx0xEnabled() const;
-    void isCxxOxEnabled(bool onoff);
+    void setCxxOxEnabled(bool onoff);
 
     bool objCEnabled() const;
     void setObjCEnabled(bool onoff);
