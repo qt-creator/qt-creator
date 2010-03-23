@@ -1916,11 +1916,10 @@
     change identifier shows a detailed description of the change.
 
     To show the annotation of a previous version, right-click on the
-    version identifier at the beginning
-    of a line and choose one of the revisions shown at the bottom of the context
-    menu. This allows you to navigate through the history of the
-    file and obtain previous versions of it. It also works for \gui git/hg
-    using SHA's.
+    version identifier at the beginning of a line and choose one of the
+    revisions shown at the bottom of the context menu. This allows you to
+    navigate through the history of the file and obtain previous versions of
+    it. It also works for \gui git/hg using SHA's.
 
     The same context menu is available when right-clicking on a version
     identifier in the file log view of a single file.
