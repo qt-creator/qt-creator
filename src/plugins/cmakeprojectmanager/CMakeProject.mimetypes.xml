@@ -4,5 +4,6 @@
     <sub-class-of type="text/plain"/>
     <comment>CMake Project file</comment>
     <glob pattern="CMakeLists.txt"/>
+    <glob pattern="*.cmake"/>
   </mime-type>
 </mime-info>
