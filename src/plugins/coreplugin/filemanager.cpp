@@ -361,12 +361,15 @@ void FileManager::checkForNewFileName()
 QString FileManager::fixFileName(const QString &fileName)
 {
     QString s = fileName;
+    QFileInfo fi(s);
+    if (!fi.exists())
+        s = QDir::toNativeSeparators(s);
+    else
+        s = QDir::toNativeSeparators(fi.canonicalFilePath());
 #ifdef Q_OS_WIN
     s = s.toLower();
 #endif
-    if (!QFile::exists(s))
-        return QDir::toNativeSeparators(s);
-    return QFileInfo(QDir::toNativeSeparators(s)).canonicalFilePath();
+    return s;
 }
 
 /*!
