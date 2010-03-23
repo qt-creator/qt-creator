@@ -1478,7 +1478,6 @@ static void gbdMiToWatchData(const GdbMi &root,
     if (gdbMiGetByteArrayValue(&b, root, "exp"))
         w.exp = b;
     gdbMiGetByteArrayValue(&w.addr, root, "addr");
-    gdbMiGetByteArrayValue(&w.saddr, root, "saddr");
     gdbMiGetBoolValue(&w.valueEnabled, root, "valueenabled");
     gdbMiGetBoolValue(&w.valueEditable, root, "valueeditable");
     if (gdbMiGetStringValue(&v, root, "valuetooltip", "valuetooltipencoded"))

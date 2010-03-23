@@ -1051,7 +1051,6 @@ static void qDumpInnerValueOrPointer(QDumper &d,
     if (strippedtype) {
         if (deref(addr)) {
             d.putItem("addr", deref(addr));
-            d.putItem("saddr", deref(addr));
             d.putItem("type", strippedtype, d.currentChildType);
             qDumpInnerValueHelper(d, strippedtype, deref(addr));
         } else {
@@ -1668,7 +1667,6 @@ static void qDumpQList(QDumper &d)
             d.beginHash();
             if (innerTypeIsPointer) {
                 void *p = pdata.d->array + i + pdata.d->begin;
-                d.putItem("saddr", p);
                 if (*(void**)p) {
                     //d.putItem("value","@").put(p);
                     qDumpInnerValue(d, strippedInnerType.data(), deref(p));

@@ -1099,6 +1099,10 @@ class Dumper:
                 #for line in tb:
                 #    warn("%s" % line)
                 self.putName(item.name)
+                try:
+                    d.putAddress(item.value.address)
+                except:
+                    pass
                 self.putValue("<invalid>")
                 self.putType(str(item.value.type))
                 self.putNumChild(0)
@@ -1252,14 +1256,13 @@ class Dumper:
                 self.putItemHelper(
                     Item(item.value.dereference(), item.iname, None, None))
                 self.childTypes.pop()
+                self.putValue("@%s" % cleanAddress(value.address))
                 isHandled = True
 
             # Fall back to plain pointer printing.
             if not isHandled:
                 #warn("GENERIC PLAIN POINTER: %s" % value.type)
                 self.putType(item.value.type)
-                #self.putValue(str(value))
-                self.putValue("")
                 self.putAddress(value.address)
                 self.putNumChild(1)
                 if self.isExpanded(item):
@@ -1267,6 +1270,7 @@ class Dumper:
                     self.putItem(
                           Item(item.value.dereference(), item.iname, "*", "*"))
                     self.endChildren()
+                self.putValue(cleanAddress(value.address))
 
         elif str(type).startswith("<anon"):
             # Anonymous union. We need a dummy name to distinguish
@@ -1289,6 +1293,10 @@ class Dumper:
             fields = value.type.strip_typedefs().fields()
 
             self.putType(item.value.type)
+            try:
+                self.putAddress(item.value.address)
+            except:
+                pass
             self.putValue("{...}")
 
             if False:

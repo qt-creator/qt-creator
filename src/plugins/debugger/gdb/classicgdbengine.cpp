@@ -756,7 +756,6 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         setWatchDataType(data, item.findChild("type"));
         setWatchDataValue(data, item.findChild("value"));
         setWatchDataAddress(data, item.findChild("addr"));
-        setWatchDataSAddress(data, item.findChild("saddr"));
         data.setHasChildren(false);
         insertData(data);
     } else if (parent.iname.endsWith('.')) {
@@ -780,7 +779,6 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         setWatchDataType(data, item.findChild("type"));
         setWatchDataValue(data, item.findChild("value"));
         setWatchDataAddress(data, item.findChild("addr"));
-        setWatchDataSAddress(data, item.findChild("saddr"));
         setWatchDataChildCount(data, item.findChild("numchild"));
         if (!manager()->watchHandler()->isExpandedIName(data.iname))
             data.setChildrenUnneeded();

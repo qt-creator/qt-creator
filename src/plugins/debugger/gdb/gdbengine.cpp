@@ -3184,12 +3184,6 @@ void GdbEngine::setWatchDataAddressHelper(WatchData &data, const QByteArray &add
         data.exp = "*(" + gdbQuoteTypes(data.type).toLatin1() + "*)" + data.addr;
 }
 
-void GdbEngine::setWatchDataSAddress(WatchData &data, const GdbMi &mi)
-{
-    if (mi.isValid())
-        data.saddr = mi.data();
-}
-
 void GdbEngine::setAutoDerefPointers(const QVariant &on)
 {
     Q_UNUSED(on)
@@ -3424,7 +3418,6 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
         item.findChild("valueencoded").data().toInt());
     setWatchDataAddress(data, item.findChild("addr"));
     setWatchDataExpression(data, item.findChild("exp"));
-    setWatchDataSAddress(data, item.findChild("saddr"));
     setWatchDataValueEnabled(data, item.findChild("valueenabled"));
     setWatchDataValueEditable(data, item.findChild("valueeditable"));
     setWatchDataChildCount(data, item.findChild("numchild"));

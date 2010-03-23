@@ -134,7 +134,6 @@ bool WatchData::isEqual(const WatchData &other) const
       && displayedType == other.displayedType
       && variable == other.variable
       && addr == other.addr
-      && saddr == other.saddr
       && framekey == other.framekey
       && hasChildren == other.hasChildren
       && valueEnabled == other.valueEnabled
@@ -321,7 +320,6 @@ QString WatchData::toToolTip() const
     }
     formatToolTipRow(str, WatchHandler::tr("Value"), val);
     formatToolTipRow(str, WatchHandler::tr("Object Address"), addr);
-    formatToolTipRow(str, WatchHandler::tr("Stored Address"), saddr);
     formatToolTipRow(str, WatchHandler::tr("Internal ID"), iname);
     formatToolTipRow(str, WatchHandler::tr("Generation"),
         QString::number(generation));

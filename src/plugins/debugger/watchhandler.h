@@ -132,7 +132,6 @@ public:
     QString displayedType;// Displayed type (optional)
     QByteArray variable;  // Name of internal Gdb variable if created
     QByteArray addr;      // Displayed address
-    QByteArray saddr;     // Stored address (pointer in container)
     QString framekey;     // Key for type cache
     QScriptValue scriptValue; // If needed...
     bool hasChildren;
