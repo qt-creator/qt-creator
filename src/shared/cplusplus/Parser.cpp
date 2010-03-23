@@ -2328,6 +2328,10 @@ bool Parser::parseTypeIdList(ExpressionListAST *&node)
         *expression_list_ptr = new (_pool) ExpressionListAST;
         (*expression_list_ptr)->value = typeId;
         expression_list_ptr = &(*expression_list_ptr)->next;
+
+        if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+            consumeToken(); // ### store this token
+
         while (LA() == T_COMMA) {
             consumeToken();
 
@@ -2335,6 +2339,9 @@ bool Parser::parseTypeIdList(ExpressionListAST *&node)
                 *expression_list_ptr = new (_pool) ExpressionListAST;
                 (*expression_list_ptr)->value = typeId;
                 expression_list_ptr = &(*expression_list_ptr)->next;
+
+                if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+                    consumeToken(); // ### store this token
             }
         }
         return true;
