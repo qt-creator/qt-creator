@@ -40,6 +40,8 @@
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
 #include <QtCore/QPointer>
+#include <QtCore/QPair>
+#include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -50,6 +52,9 @@ QT_END_NAMESPACE
 namespace Core {
 class IEditorFactory;
 class ICore;
+class Command;
+class ActionManager;
+class ActionContainer;
 }
 namespace Utils {
 class ParameterAction;
@@ -69,6 +74,11 @@ struct CommitData;
 struct GitSettings;
 class StashDialog;
 class BranchDialog;
+
+typedef void (GitClient::*GitClientMemberFunc)(const QString &);
+
+typedef QPair<QAction *, Core::Command* > ActionCommandPair;
+typedef QPair<Utils::ParameterAction *, Core::Command* > ParameterActionCommandPair;
 
 class GitPlugin : public VCSBase::VCSBasePlugin
 {
@@ -96,23 +106,21 @@ private slots:
     void diffRepository();
     void submitEditorDiff(const QStringList &unstaged, const QStringList &staged);
     void submitCurrentLog();
-    void statusRepository();
     void logFile();
     void blameFile();
     void logProject();
     void undoFileChanges();
-    void logRepository();
     void undoRepositoryChanges();
     void stageFile();
     void unstageFile();
     void cleanProject();
     void cleanRepository();
+    void gitClientMemberFuncRepositoryAction();
 
     void showCommit();
     void startCommit();
     void stash();
     void stashSnapshot();
-    void stashPop();
     void branchList();
     void stashList();
     void pull();
@@ -123,6 +131,41 @@ protected:
     virtual bool submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor);
 
 private:
+    inline ParameterActionCommandPair
+            createParameterAction(Core::ActionManager *am, Core::ActionContainer *ac,
+                                  const QString &defaultText, const QString &parameterText,
+                                  const QString &id, const QList<int> &context, bool addToLocator);
+
+    inline ParameterActionCommandPair
+            createFileAction(Core::ActionManager *am, Core::ActionContainer *ac,
+                             const QString &defaultText, const QString &parameterText,
+                             const QString &id, const QList<int> &context, bool addToLocator,
+                             const char *pluginSlot);
+
+    inline ParameterActionCommandPair
+            createProjectAction(Core::ActionManager *am, Core::ActionContainer *ac,
+                                const QString &defaultText, const QString &parameterText,
+                                const QString &id, const QList<int> &context, bool addToLocator);
+
+    inline ParameterActionCommandPair
+                createProjectAction(Core::ActionManager *am, Core::ActionContainer *ac,
+                                    const QString &defaultText, const QString &parameterText,
+                                    const QString &id, const QList<int> &context, bool addToLocator,
+                                    const char *pluginSlot);
+
+
+    inline ActionCommandPair createRepositoryAction(Core::ActionManager *am, Core::ActionContainer *ac,
+                                           const QString &text, const QString &id,
+                                           const QList<int> &context, bool addToLocator);
+    inline ActionCommandPair createRepositoryAction(Core::ActionManager *am, Core::ActionContainer *ac,
+                                           const QString &text, const QString &id,
+                                           const QList<int> &context,
+                                           bool addToLocator, const char *pluginSlot);
+    inline ActionCommandPair createRepositoryAction(Core::ActionManager *am, Core::ActionContainer *ac,
+                                           const QString &text, const QString &id,
+                                           const QList<int> &context,
+                                           bool addToLocator, GitClientMemberFunc);
+
     bool isCommitEditorOpen() const;
     Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
     void cleanCommitMessageFile();
@@ -131,37 +174,19 @@ private:
     static GitPlugin *m_instance;
     Core::ICore *m_core;
     Locator::CommandLocator *m_commandLocator;
-    Utils::ParameterAction *m_diffAction;
-    Utils::ParameterAction *m_diffProjectAction;
-    QAction *m_diffRepositoryAction;
-    QAction *m_statusRepositoryAction;
-    Utils::ParameterAction *m_logAction;
-    Utils::ParameterAction *m_blameAction;
-    Utils::ParameterAction *m_logProjectAction;
-    Utils::ParameterAction *m_undoFileAction;
-    QAction *m_logRepositoryAction;
-    QAction *m_undoRepositoryAction;
     QAction *m_createRepositoryAction;
 
     QAction *m_showAction;
-    Utils::ParameterAction *m_stageAction;
-    Utils::ParameterAction *m_unstageAction;
-    QAction *m_commitAction;
-    QAction *m_pullAction;
-    QAction *m_pushAction;
-    Utils::ParameterAction *m_cleanProjectAction;
-    QAction *m_cleanRepositoryAction;
 
     QAction *m_submitCurrentAction;
     QAction *m_diffSelectedFilesAction;
     QAction *m_undoAction;
     QAction *m_redoAction;
-    QAction *m_stashAction;
-    QAction *m_stashSnapshotAction;
-    QAction *m_stashPopAction;
-    QAction *m_stashListAction;
-    QAction *m_branchListAction;
     QAction *m_menuAction;
+
+    QVector<Utils::ParameterAction *> m_fileActions;
+    QVector<Utils::ParameterAction *> m_projectActions;
+    QVector<QAction *> m_repositoryActions;
 
     GitClient                   *m_gitClient;
     ChangeSelectionDialog       *m_changeSelectionDialog;

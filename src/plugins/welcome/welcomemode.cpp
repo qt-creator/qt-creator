@@ -156,8 +156,8 @@ void WelcomeMode::initPlugins()
     delete m_d->ui.stackedWidget->currentWidget();
     QList<IWelcomePage*> plugins = PluginManager::instance()->getObjects<IWelcomePage>();
     qSort(plugins.begin(), plugins.end(), &sortFunction);
-    foreach (IWelcomePage* plugin, plugins) {
-        QToolButton * btn = new QToolButton;
+    foreach (IWelcomePage *plugin, plugins) {
+        QToolButton *btn = new QToolButton;
         btn->setCheckable(true);
         btn->setText(plugin->title());
         btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);

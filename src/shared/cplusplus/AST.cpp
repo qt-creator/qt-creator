@@ -436,8 +436,8 @@ unsigned CompoundExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
-    else if (compoundStatement)
-        return compoundStatement->lastToken();
+    else if (statement)
+        return statement->lastToken();
     else
         return lparen_token + 1;
 }
@@ -558,6 +558,9 @@ unsigned ClassSpecifierAST::lastToken() const
 
     else if (lbrace_token)
         return lbrace_token + 1;
+
+    else if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
 
     else if (base_clause_list)
         return base_clause_list->lastToken();
@@ -694,7 +697,9 @@ unsigned CtorInitializerAST::firstToken() const
 
 unsigned CtorInitializerAST::lastToken() const
 {
-    if (member_initializer_list)
+    if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
+    else if (member_initializer_list)
         return member_initializer_list->lastToken();
     return colon_token + 1;
 }
@@ -829,6 +834,8 @@ unsigned ElaboratedTypeSpecifierAST::lastToken() const
 {
     if (name)
         return name->lastToken();
+    if (attribute_list)
+        return attribute_list->lastToken();
     return classkey_token + 1;
 }
 
@@ -1513,12 +1520,12 @@ unsigned QualifiedNameAST::lastToken() const
 
 unsigned ReferenceAST::firstToken() const
 {
-    return amp_token;
+    return reference_token;
 }
 
 unsigned ReferenceAST::lastToken() const
 {
-    return amp_token + 1;
+    return reference_token + 1;
 }
 
 
@@ -1722,6 +1729,9 @@ unsigned TemplateTypeParameterAST::lastToken() const
     else if (name)
         return name->lastToken();
 
+    else if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
+
     else if (class_token)
         return class_token + 1;
 
@@ -1890,6 +1900,8 @@ unsigned TypenameTypeParameterAST::lastToken() const
         return equal_token + 1;
     else if (name)
         return name->lastToken();
+    else if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
     return classkey_token + 1;
 }
 

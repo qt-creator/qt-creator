@@ -61,7 +61,15 @@ private:
 
     QString m_filter;
     QList<QRegExp> m_regExpList;
-    bool m_recursive;
+
+    enum RecursiveOption {
+        Recurse,
+        DoNotRecurse,
+        RecurseDefault // not set explicitly
+    };
+
+    RecursiveOption m_recurse;
+
     QStringList m_explicitFiles;
 
     QFileSystemWatcher m_fsWatcher;

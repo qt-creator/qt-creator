@@ -550,12 +550,12 @@ void MiniProjectTargetSelector::updateAction()
 {
     Project *project = ProjectExplorerPlugin::instance()->startupProject();
 
-    QString projectName = tr("No Project");
+    QString projectName;;
     QString targetName;
     QString targetToolTipText;
-    QIcon targetIcon;
     QString buildConfig;
     QString runConfig;
+    QIcon targetIcon = style()->standardIcon(QStyle::SP_ComputerIcon);
 
     if (project) {
         projectName = project->displayName();

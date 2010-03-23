@@ -401,7 +401,7 @@ private:
     QString _className;
 };
 
-class QmlObjectValue: public ObjectValue
+class QMLJS_EXPORT QmlObjectValue: public ObjectValue
 {
 public:
     static const int NoVersion;

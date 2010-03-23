@@ -127,7 +127,6 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
 
     /* create Items view and its model */
     m_d->m_itemsView = new QDeclarativeView(this);
-    m_d->m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
     m_d->m_itemsView->setAttribute(Qt::WA_OpaquePaintEvent);
     m_d->m_itemsView->setAttribute(Qt::WA_NoSystemBackground);
     m_d->m_itemsView->setAcceptDrops(false);
@@ -145,6 +144,9 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
         highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
     m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
+
+    // loading the qml has to come after all needed context properties are set
+    m_d->m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
 
     QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_d->m_itemsView->rootObject());
     connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
@@ -217,6 +219,9 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
 
 ItemLibrary::~ItemLibrary()
 {
+    /* workaround: delete the items view before the model is deleted.
+       This prevents qml warnings when the item library is destructed. */
+    delete m_d->m_itemsView;
     delete m_d;
 }
 

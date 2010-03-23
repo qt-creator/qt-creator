@@ -63,9 +63,17 @@ void TextFieldComboBox::setText(const QString &s)
 }
 
 // --------------- CustomWizardFieldPage
-CustomWizardFieldPage::CustomWizardFieldPage(const FieldList &fields,
+
+CustomWizardFieldPage::LineEditData::LineEditData(QLineEdit* le, const QString &defText) :
+    lineEdit(le), defaultText(defText)
+{
+}
+
+CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
+                                             const FieldList &fields,
                                              QWidget *parent) :
     QWizardPage(parent),
+    m_context(ctx),
     m_formLayout(new QFormLayout)
 {
     if (debug)
@@ -75,6 +83,10 @@ CustomWizardFieldPage::CustomWizardFieldPage(const FieldList &fields,
     setLayout(m_formLayout);
 }
 
+CustomWizardFieldPage::~CustomWizardFieldPage()
+{
+}
+
 void CustomWizardFieldPage::addRow(const QString &name, QWidget *w)
 {
     m_formLayout->addRow(name, w);
@@ -82,36 +94,50 @@ void CustomWizardFieldPage::addRow(const QString &name, QWidget *w)
 
 // Create widget a control based  on the control attributes map
 // and register it with the QWizard.
-QWidget *CustomWizardFieldPage::registerControl(const CustomWizardField &field)
+void CustomWizardFieldPage::addField(const CustomWizardField &field)\
 {
-    //  Register field,  Indicate mandatory by '*' (only when registering)
+    //  Register field, indicate mandatory by '*' (only when registering)
     QString fieldName = field.name;
     if (field.mandatory)
         fieldName += QLatin1Char('*');
     // Check known classes: QComboBox
     const QString className = field.controlAttributes.value(QLatin1String("class"));
+    QWidget *fieldWidget = 0;
     if (className == QLatin1String("QComboBox")) {
-        TextFieldComboBox *combo = new TextFieldComboBox;
-        // Set up items
-        do {
-            const QString choices = field.controlAttributes.value(QLatin1String("combochoices"));
-            if (choices.isEmpty())
-                break;
-            combo->addItems(choices.split(QLatin1Char(',')));
-            bool ok;
-            const QString currentIndexS = field.controlAttributes.value(QLatin1String("defaultindex"));
-            if (currentIndexS.isEmpty())
-                break;
-            const int currentIndex = currentIndexS.toInt(&ok);
-            if (!ok || currentIndex < 0 || currentIndex >= combo->count())
-                break;
-            combo->setCurrentIndex(currentIndex);
-        } while (false);
-        registerField(fieldName, combo, "text", SIGNAL(text4Changed(QString)));
-        return combo;
-    } // QComboBox
-    // Default to QLineEdit
+        fieldWidget = registerComboBox(fieldName, field);
+    } else {
+        fieldWidget = registerLineEdit(fieldName, field);
+    }
+    addRow(field.description, fieldWidget);
+}
+
+QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
+                                                 const CustomWizardField &field)
+{
+    TextFieldComboBox *combo = new TextFieldComboBox;
+    do { // Set up items and current index
+        const QString choices = field.controlAttributes.value(QLatin1String("combochoices"));
+        if (choices.isEmpty())
+            break;
+        combo->addItems(choices.split(QLatin1Char(',')));
+        bool ok;
+        const QString currentIndexS = field.controlAttributes.value(QLatin1String("defaultindex"));
+        if (currentIndexS.isEmpty())
+            break;
+        const int currentIndex = currentIndexS.toInt(&ok);
+        if (!ok || currentIndex < 0 || currentIndex >= combo->count())
+            break;
+        combo->setCurrentIndex(currentIndex);
+    } while (false);
+    registerField(fieldName, combo, "text", SIGNAL(text4Changed(QString)));
+    return combo;
+} // QComboBox
+
+QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
+                                                 const CustomWizardField &field)
+{
     QLineEdit *lineEdit = new QLineEdit;
+
     const QString validationRegExp = field.controlAttributes.value(QLatin1String("validator"));
     if (!validationRegExp.isEmpty()) {
         QRegExp re(validationRegExp);
@@ -120,39 +146,51 @@ QWidget *CustomWizardFieldPage::registerControl(const CustomWizardField &field)
         } else {
             qWarning("Invalid custom wizard field validator regular expression %s.", qPrintable(validationRegExp));
         }
-        m_validatorLineEdits.push_back(lineEdit);
     }
-    lineEdit->setText(field.controlAttributes.value(QLatin1String("defaulttext")));
     registerField(fieldName, lineEdit, "text", SIGNAL(textEdited(QString)));
+
+    const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
+    m_lineEdits.push_back(LineEditData(lineEdit, defaultText));
     return lineEdit;
 }
 
-void CustomWizardFieldPage::addField(const CustomWizardField &field)
+void CustomWizardFieldPage::initializePage()
 {
-    addRow(field.description, registerControl(field));
+    QWizardPage::initializePage();
+    // Note that the field mechanism will always restore the value
+    // set on it when entering the page, so, there is no point in
+    // trying to preserve user modifications of the text.
+    foreach(const LineEditData &led, m_lineEdits) {
+        if (!led.defaultText.isEmpty()) {
+            QString defaultText = led.defaultText;
+            CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
+            led.lineEdit->setText(defaultText);
+        }
+    }
 }
 
 bool CustomWizardFieldPage::validatePage()
 {
     // Check line edits with validators
-    foreach(QLineEdit *le, m_validatorLineEdits) {
-        int pos = 0;
-        const QValidator *val = le->validator();
-        QTC_ASSERT(val, return false);
-        QString text = le->text();
-        if (val->validate(text, pos) != QValidator::Acceptable) {
-            le->setFocus();
-            return false;
+    foreach(const LineEditData &led, m_lineEdits) {
+        if (const QValidator *val = led.lineEdit->validator()) {
+            int pos = 0;
+            QString text = led.lineEdit->text();
+            if (val->validate(text, pos) != QValidator::Acceptable) {
+                led.lineEdit->setFocus();
+                return false;
+            }
         }
     }
-    return true;
+    return QWizardPage::validatePage();
 }
 
 // --------------- CustomWizardPage
 
-CustomWizardPage::CustomWizardPage(const FieldList &f,
+CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ctx,
+                                   const FieldList &f,
                                    QWidget *parent) :
-    CustomWizardFieldPage(f, parent),
+    CustomWizardFieldPage(ctx, f, parent),
     m_pathChooser(new Utils::PathChooser)
 {
     addRow(tr("Path:"), m_pathChooser);

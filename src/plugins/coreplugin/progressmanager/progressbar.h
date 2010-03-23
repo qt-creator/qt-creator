@@ -33,6 +33,9 @@
 #include <QtCore/QString>
 #include <QtGui/QWidget>
 
+namespace Core {
+namespace Internal {
+
 class ProgressBar : public QWidget
 {
     Q_OBJECT
@@ -77,7 +80,9 @@ private:
     int m_maximum;
     int m_value;
     float m_fader;
-
 };
+
+} // namespace Internal
+} // namespace Core
 
 #endif // PROGRESSPIE_H

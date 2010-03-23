@@ -95,7 +95,7 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     pm->addObject(m_taskWindow);
 
     m_taskWindow->addCategory(Constants::TASK_CATEGORY_COMPILE, tr("Compile", "Category for compiler isses listened under 'Build Issues'"));
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM, tr("Buildsystem", "Category for build system isses listened under 'Build Issues'"));
+    m_taskWindow->addCategory(Constants::TASK_CATEGORY_BUILDSYSTEM, tr("Build System", "Category for build system isses listened under 'Build Issues'"));
 
     connect(m_taskWindow, SIGNAL(tasksChanged()),
             this, SLOT(updateTaskCount()));
@@ -303,11 +303,12 @@ void BuildManager::nextBuildQueue()
     bool result = m_watcher.result();
     if (!result) {
         // Build Failure
-        const QString projectName = m_currentBuildStep->buildConfiguration()->target()->displayName();
-        addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(projectName));
+        const QString projectName = m_currentBuildStep->buildConfiguration()->target()->project()->displayName();
+        const QString targetName = m_currentBuildStep->buildConfiguration()->target()->displayName();
+        addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1 (target: %2)</font>").arg(projectName, targetName));
         addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
         // NBS TODO fix in qtconcurrent
-        m_progressFutureInterface->setProgressValueAndText(m_progress*100, tr("Error while building project %1").arg(projectName));
+        m_progressFutureInterface->setProgressValueAndText(m_progress*100, tr("Error while building project %1 (target: %2)").arg(projectName, targetName));
     }
 
     if (result)
@@ -374,7 +375,7 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
         // print something for the user
         const QString projectName = bs->buildConfiguration()->target()->project()->displayName();
         const QString targetName = bs->buildConfiguration()->target()->displayName();
-        addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1 (%2)</font>").arg(projectName, targetName));
+        addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1 (target: %2)</font>").arg(projectName, targetName));
         addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(bs->displayName()));
 
         // disconnect the buildsteps again

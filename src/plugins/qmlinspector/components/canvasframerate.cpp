@@ -48,7 +48,8 @@
 #include <QtGui/qevent.h>
 
 
-QT_BEGIN_NAMESPACE
+namespace Qml {
+namespace Internal {
 
 class QLineGraph : public QWidget
 {
@@ -562,6 +563,7 @@ void CanvasFrameRate::enabledToggled(bool checked)
         static_cast<QDeclarativeDebugClient *>(m_plugin)->setEnabled(checked);
 }
 
-QT_END_NAMESPACE
+}
+}
 
 #include "canvasframerate.moc"

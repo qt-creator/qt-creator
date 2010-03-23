@@ -2,11 +2,38 @@
 <ui version="4.0">
  <class>CommonOptionsPage</class>
  <widget class="QWidget" name="CommonOptionsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>338</width>
+    <height>357</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Language</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkBoxChangeLanguageAutomatically">
+        <property name="toolTip">
+         <string>Changes the debugger language according to the currently opened file.</string>
+        </property>
+        <property name="text">
+         <string>Change debugger language automatically</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>User interface</string>
+      <string>C++</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0" colspan="2">

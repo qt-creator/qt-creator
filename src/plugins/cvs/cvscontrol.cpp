@@ -52,6 +52,7 @@ bool CVSControl::supportsOperation(Operation operation) const
     switch (operation) {
     case AddOperation:
     case DeleteOperation:
+    case AnnotateOperation:
         break;
     case OpenOperation:
     case CreateRepositoryOperation:
@@ -103,6 +104,12 @@ bool CVSControl::vcsRestoreSnapshot(const QString &, const QString &)
 bool CVSControl::vcsRemoveSnapshot(const QString &, const QString &)
 {
     return false;
+}
+
+bool CVSControl::vcsAnnotate(const QString &file, int line)
+{
+    m_plugin->vcsAnnotate(file, QString(), line);
+    return true;
 }
 
 bool CVSControl::managesDirectory(const QString &directory) const

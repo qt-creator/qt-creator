@@ -114,34 +114,25 @@ ImageViewerFile::ImageViewerFile(ImageViewer *parent)
 
 }
 
-void ImageViewerFile::modified(ReloadBehavior * behavior)
+Core::IFile::ReloadBehavior ImageViewerFile::reloadBehavior(Core::IFile::ChangeTrigger state,
+                                                            Core::IFile::ChangeType type) const
 {
-    switch (*behavior) {
-    case  Core::IFile::ReloadNone:
-        return;
-    case Core::IFile::ReloadUnmodified:
-    case Core::IFile::ReloadAll:
-        m_editor->open(m_fileName);
-        return;
-    case Core::IFile::ReloadPermissions:
-        return;
-    case Core::IFile::AskForReload:
-        break;
-    }
+    if (type == TypePermissions)
+        return BehaviorSilent;
+    if (type == TypeContents && state == TriggerInternal)
+        return BehaviorSilent;
+    return BehaviorAsk;
+}
 
-    switch (Utils::reloadPrompt(m_fileName, isModified(), Core::ICore::instance()->mainWindow())) {
-    case Utils::ReloadCurrent:
+void ImageViewerFile::reload(Core::IFile::ReloadFlag flag,
+                             Core::IFile::ChangeType type)
+{
+    if (flag == FlagIgnore)
+        return;
+    if (type == TypePermissions) {
+        emit changed();
+    } else {
         m_editor->open(m_fileName);
-        break;
-    case Utils::ReloadAll:
-        m_editor->open(m_fileName);
-        *behavior = Core::IFile::ReloadAll;
-        break;
-    case Utils::ReloadSkipCurrent:
-        break;
-    case Utils::ReloadNone:
-        *behavior = Core::IFile::ReloadNone;
-        break;
     }
 }
 

@@ -1201,6 +1201,7 @@ void WatchHandler::endCycle()
     m_locals->endCycle();
     m_watchers->endCycle();
     m_tooltips->endCycle();
+    m_manager->updateWatchersWindow();
 }
 
 void WatchHandler::cleanup()

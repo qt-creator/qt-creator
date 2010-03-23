@@ -55,6 +55,7 @@ struct GitSettings
     QString path;
     int logCount;
     int timeoutSeconds;
+    bool pullRebase;
     bool promptToSubmit;
     bool omitAnnotationDate;
     bool spaceIgnorantBlame;

@@ -154,8 +154,8 @@ bool PointerType::matchType0(const Type *otherType, TypeMatcher *matcher) const
 FullySpecifiedType PointerType::elementType() const
 { return _elementType; }
 
-ReferenceType::ReferenceType(const FullySpecifiedType &elementType)
-    : _elementType(elementType)
+ReferenceType::ReferenceType(const FullySpecifiedType &elementType, bool rvalueRef)
+    : _elementType(elementType), _rvalueReference(rvalueRef)
 { }
 
 ReferenceType::~ReferenceType()
@@ -165,6 +165,8 @@ bool ReferenceType::isEqualTo(const Type *other) const
 {
     const ReferenceType *o = other->asReferenceType();
     if (! o)
+        return false;
+    else if (isRvalueReference() != o->isRvalueReference())
         return false;
     return _elementType.isEqualTo(o->_elementType);
 }
@@ -182,6 +184,9 @@ bool ReferenceType::matchType0(const Type *otherType, TypeMatcher *matcher) cons
 
 FullySpecifiedType ReferenceType::elementType() const
 { return _elementType; }
+
+bool ReferenceType::isRvalueReference() const
+{ return _rvalueReference; }
 
 IntegerType::IntegerType(int kind)
     : _kind(kind)

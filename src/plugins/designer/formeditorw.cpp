@@ -176,9 +176,7 @@ FormEditorW::FormEditorW() :
     QTC_ASSERT(m_fwm, return);
 
     Core::UniqueIDManager *idMan = Core::UniqueIDManager::instance();
-    m_contexts << idMan->uniqueIdentifier(QLatin1String(Designer::Constants::C_FORMEDITOR))
-               << idMan->uniqueIdentifier(QLatin1String(Core::Constants::C_EDITORMANAGER))
-               << idMan->uniqueIdentifier(QLatin1String(Core::Constants::C_DESIGN_MODE));
+    m_contexts << idMan->uniqueIdentifier(QLatin1String(Designer::Constants::C_FORMEDITOR));
 
     setupActions();
 
@@ -333,7 +331,7 @@ void FormEditorW::fullInit()
     m_context = new DesignerContext(m_contexts, m_modeWidget, this);
     m_core->addContextObject(m_context);
 
-    m_designMode->registerDesignWidget(m_modeWidget, QStringList(QLatin1String(FORM_MIMETYPE)));
+    m_designMode->registerDesignWidget(m_modeWidget, QStringList(QLatin1String(FORM_MIMETYPE)), m_contexts);
 
     setupViewActions();
 
@@ -360,7 +358,7 @@ void FormEditorW::initDesignerSubWindows()
     m_designerSubWindows[PropertyEditorSubWindow] = pe;
 
     QWidget *se = QDesignerComponents::createSignalSlotEditor(m_formeditor, 0);
-    se->setWindowTitle(tr("Signals & Slots Editor"));
+    se->setWindowTitle(tr("Signals && Slots Editor"));
     m_designerSubWindows[SignalSlotEditorSubWindow] = se;
 
     QDesignerActionEditorInterface *ae = QDesignerComponents::createActionEditor(m_formeditor, 0);
@@ -428,93 +426,90 @@ void FormEditorW::setupActions()
     command->setAttribute(Core::Command::CA_Hide);
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
-    QList<int> globalcontext;
-    globalcontext << m_core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_GLOBAL);
-
     m_actionGroupEditMode = new QActionGroup(this);
     m_actionGroupEditMode->setExclusive(true);
     connect(m_actionGroupEditMode, SIGNAL(triggered(QAction*)), this, SLOT(activateEditMode(QAction*)));
 
     m_modeActionSeparator = new QAction(this);
     m_modeActionSeparator->setSeparator(true);
-    command = am->registerAction(m_modeActionSeparator, QLatin1String("FormEditor.Sep.ModeActions"), globalcontext);
+    command = am->registerAction(m_modeActionSeparator, QLatin1String("FormEditor.Sep.ModeActions"), m_contexts);
     medit->addAction(command, Core::Constants::G_EDIT_OTHER);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.WidgetEditor"));
-    createEditModeAction(m_actionGroupEditMode, globalcontext, am, medit,
+    createEditModeAction(m_actionGroupEditMode, m_contexts, am, medit,
                          tr("Edit widgets"), m_toolActionIds.back(),
                          EditModeWidgetEditor, QLatin1String("widgettool.png"), tr("F3"));
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.SignalsSlotsEditor"));
-    createEditModeAction(m_actionGroupEditMode, globalcontext, am, medit,
+    createEditModeAction(m_actionGroupEditMode, m_contexts, am, medit,
                          tr("Edit signals/slots"), m_toolActionIds.back(),
                          EditModeSignalsSlotEditor, QLatin1String("signalslottool.png"), tr("F4"));
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.BuddyEditor"));
-    createEditModeAction(m_actionGroupEditMode, globalcontext, am, medit,
+    createEditModeAction(m_actionGroupEditMode, m_contexts, am, medit,
                          tr("Edit buddies"), m_toolActionIds.back(),
                          EditModeBuddyEditor, QLatin1String("buddytool.png"));
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.TabOrderEditor"));
-    createEditModeAction(m_actionGroupEditMode, globalcontext, am, medit,
+    createEditModeAction(m_actionGroupEditMode, m_contexts, am, medit,
                          tr("Edit tab order"),  m_toolActionIds.back(),
                          EditModeTabOrderEditor, QLatin1String("tabordertool.png"));
 
     //tool actions
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutHorizontally"));
     const QString horizLayoutShortcut = osMac ? tr("Meta+H") : tr("Ctrl+H");
-    addToolAction(m_fwm->actionHorizontalLayout(), am, globalcontext,
+    addToolAction(m_fwm->actionHorizontalLayout(), am, m_contexts,
                   m_toolActionIds.back(), mformtools, horizLayoutShortcut);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutVertically"));
     const QString vertLayoutShortcut = osMac ? tr("Meta+L") : tr("Ctrl+L");
-    addToolAction(m_fwm->actionVerticalLayout(), am, globalcontext,
+    addToolAction(m_fwm->actionVerticalLayout(), am, m_contexts,
                   m_toolActionIds.back(),  mformtools, vertLayoutShortcut);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.SplitHorizontal"));
-    addToolAction(m_fwm->actionSplitHorizontal(), am, globalcontext,
+    addToolAction(m_fwm->actionSplitHorizontal(), am, m_contexts,
                   m_toolActionIds.back(), mformtools);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.SplitVertical"));
-    addToolAction(m_fwm->actionSplitVertical(), am, globalcontext,
+    addToolAction(m_fwm->actionSplitVertical(), am, m_contexts,
                   m_toolActionIds.back(), mformtools);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutForm"));
-    addToolAction(m_fwm->actionFormLayout(), am, globalcontext,
+    addToolAction(m_fwm->actionFormLayout(), am, m_contexts,
                   m_toolActionIds.back(),  mformtools);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutGrid"));
     const QString gridShortcut = osMac ? tr("Meta+G") : tr("Ctrl+G");
-    addToolAction(m_fwm->actionGridLayout(), am, globalcontext,
+    addToolAction(m_fwm->actionGridLayout(), am, m_contexts,
                   m_toolActionIds.back(),  mformtools, gridShortcut);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutBreak"));
-    addToolAction(m_fwm->actionBreakLayout(), am, globalcontext,
+    addToolAction(m_fwm->actionBreakLayout(), am, m_contexts,
                   m_toolActionIds.back(), mformtools);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.LayoutAdjustSize"));
     const QString adjustShortcut = osMac ? tr("Meta+J") : tr("Ctrl+J");
-    addToolAction(m_fwm->actionAdjustSize(), am, globalcontext,
+    addToolAction(m_fwm->actionAdjustSize(), am, m_contexts,
                   m_toolActionIds.back(),  mformtools, adjustShortcut);
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.SimplifyLayout"));
-    addToolAction(m_fwm->actionSimplifyLayout(), am, globalcontext,
+    addToolAction(m_fwm->actionSimplifyLayout(), am, m_contexts,
                   m_toolActionIds.back(),  mformtools);
 
     createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator1"));
 
-    addToolAction(m_fwm->actionLower(), am, globalcontext,
+    addToolAction(m_fwm->actionLower(), am, m_contexts,
                   QLatin1String("FormEditor.Lower"), mformtools);
 
-    addToolAction(m_fwm->actionRaise(), am, globalcontext,
+    addToolAction(m_fwm->actionRaise(), am, m_contexts,
                   QLatin1String("FormEditor.Raise"), mformtools);
 
     // Commands that do not go into the editor toolbar
-    createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator2"));
+    createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator2"));
 
     m_actionPreview = m_fwm->actionDefaultPreview();
     QTC_ASSERT(m_actionPreview, return);
-    addToolAction(m_actionPreview,  am,  globalcontext,
+    addToolAction(m_actionPreview,  am,  m_contexts,
                    QLatin1String("FormEditor.Preview"), mformtools, tr("Ctrl+Alt+R"));
 
     // Preview in style...
@@ -524,19 +519,19 @@ void FormEditorW::setupActions()
     // Form settings
     createSeparator(this, am, m_contexts,  medit, QLatin1String("FormEditor.Edit.Separator2"), Core::Constants::G_EDIT_OTHER);
 
-    createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator3"));
+    createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator3"));
     QAction *actionFormSettings = m_fwm->actionShowFormWindowSettingsDialog();
-    addToolAction(actionFormSettings, am, globalcontext, QLatin1String("FormEditor.FormSettings"), mformtools);
+    addToolAction(actionFormSettings, am, m_contexts, QLatin1String("FormEditor.FormSettings"), mformtools);
 
-    createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator4"));
+    createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator4"));
     m_actionAboutPlugins = new QAction(tr("About Qt Designer plugins...."), this);
-    addToolAction(m_actionAboutPlugins,  am,  globalcontext,
+    addToolAction(m_actionAboutPlugins,  am,  m_contexts,
                    QLatin1String("FormEditor.AboutPlugins"), mformtools);
     connect(m_actionAboutPlugins,  SIGNAL(triggered()), m_fwm, SLOT(aboutPlugins()));
     m_actionAboutPlugins->setEnabled(false);
 
     // Views. Populated later on.
-    createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.SeparatorViews"));
+    createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.SeparatorViews"));
 
     m_viewMenu = am->createMenu(QLatin1String(M_FORMEDITOR_VIEWS));
     m_viewMenu->menu()->setTitle(tr("Views"));
@@ -639,6 +634,7 @@ QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
     if (!iconName.isEmpty())
          rc->setIcon(designerIcon(iconName));
     Core::Command *command = am->registerAction(rc, name, context);
+    command->setAttribute(Core::Command::CA_Hide);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
     bindShortcut(command, rc);
@@ -715,12 +711,6 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
         QTC_ASSERT(fw, return)
         m_editorWidget->setVisibleEditor(xmlEditor);
         m_fwm->setActiveFormWindow(fw->formWindow());
-        m_actionGroupEditMode->setVisible(true);
-        m_modeActionSeparator->setVisible(true);
-    } else {
-        // Deactivate Designer if a non-form is being edited
-        m_actionGroupEditMode->setVisible(false);
-        m_modeActionSeparator->setVisible(false);
     }
 }
 

@@ -144,16 +144,20 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     if (_templateParameters && ty) {
         if (Class *klass = ty->asClassType()) {
             klass->setTemplateParameters(_templateParameters);
+            _templateParameters = 0; // consume the template parameters
         }
     }
 
-    if (! ast->declarator_list && ast->decl_specifier_list && ! ast->decl_specifier_list->next) {
-        if (ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_list->value->asElaboratedTypeSpecifier()) {
+    if (ast->decl_specifier_list && ! ast->declarator_list) {
+        ElaboratedTypeSpecifierAST *elab_type_spec = ast->decl_specifier_list->value->asElaboratedTypeSpecifier();
 
-            unsigned sourceLocation = elab_type_spec->firstToken();
+        if (! elab_type_spec && ty.isFriend() && ast->decl_specifier_list->next && ! ast->decl_specifier_list->next->next) {
+            // friend template class
+            elab_type_spec = ast->decl_specifier_list->next->value->asElaboratedTypeSpecifier();
+        }
 
-            if (elab_type_spec->name)
-                sourceLocation = elab_type_spec->name->firstToken();
+        if (elab_type_spec) {
+            unsigned sourceLocation = ast->decl_specifier_list->firstToken();
 
             const Name *name = semantic()->check(elab_type_spec->name, _scope);
             ForwardClassDeclaration *symbol =
@@ -163,6 +167,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
                 symbol->setTemplateParameters(_templateParameters);
                 _templateParameters = 0;
             }
+            if (ty.isDeprecated())
+                symbol->setDeprecated(true);
 
             _scope->enterSymbol(symbol);
             return false;
@@ -194,6 +200,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             fun->setName(name);
             fun->setMethodKey(semantic()->currentMethodKey());
             fun->setVirtual(ty.isVirtual());
+            if (ty.isDeprecated())
+                fun->setDeprecated(true);
             if (isQ_SIGNAL)
                 fun->setMethodKey(Function::SignalMethod);
             else if (isQ_SLOT)
@@ -210,11 +218,14 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
         symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
 
-        symbol->setType(control()->integerType(IntegerType::Int));
         symbol->setType(declTy);
+        if (declTy.isDeprecated())
+            symbol->setDeprecated(true);
 
-        if (_templateParameters && it == ast->declarator_list && ty && ! ty->isClassType())
+        if (_templateParameters && it == ast->declarator_list) {
             symbol->setTemplateParameters(_templateParameters);
+            _templateParameters = 0; // consume the template parameters
+        }
 
         symbol->setVisibility(semantic()->currentVisibility());
 
@@ -230,6 +241,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             symbol->setStorage(Symbol::Mutable);
         else if (ty.isTypedef())
             symbol->setStorage(Symbol::Typedef);
+        else if (ty.isDeprecated())
+            symbol->setDeprecated(true);
 
         if (it->value && it->value->initializer) {
             FullySpecifiedType initTy = semantic()->check(it->value->initializer, _scope);
@@ -309,6 +322,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 
     Function *fun = funTy->asFunctionType();
     fun->setVirtual(ty.isVirtual());
+    if (ty.isDeprecated())
+        fun->setDeprecated(true);
     fun->setStartOffset(tokenAt(ast->firstToken()).offset);
     fun->setEndOffset(tokenAt(ast->lastToken()).offset);
     if (ast->declarator)
@@ -698,6 +713,8 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
     symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
     symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
     symbol->setVisibility(semantic()->currentObjCVisibility());
+    if (ty.isDeprecated())
+        symbol->setDeprecated(true);
 
     _scope->enterSymbol(symbol);
 

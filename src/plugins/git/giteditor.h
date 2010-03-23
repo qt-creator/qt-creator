@@ -52,7 +52,7 @@ public:
 public slots:
     void setPlainTextDataFiltered(const QByteArray &a);
     // Matches  the signature of the finished signal of GitCommand
-    void commandFinishedGotoLine(bool ok, const QVariant &v);
+    void commandFinishedGotoLine(bool ok, int exitCode, const QVariant &v);
 
 private:
     virtual QSet<QString> annotationChanges() const;

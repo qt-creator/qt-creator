@@ -101,13 +101,13 @@ Item {
 
     Text {
         id: text
-        elide: ElideMiddle
+        elide: Text.ElideMiddle
         anchors.top: itemIcon.bottom
         anchors.topMargin: style.cellVerticalSpacing
         anchors.left: parent.left
-	anchors.leftMargin: style.cellHorizontalMargin
-	anchors.right: parent.right
-	anchors.rightMargin: style.cellHorizontalMargin
+        anchors.leftMargin: style.cellHorizontalMargin
+        anchors.right: parent.right
+        anchors.rightMargin: style.cellHorizontalMargin
         width: style.textWidth
         height: style.textHeight
 

@@ -333,17 +333,26 @@ void HelpViewer::wheelEvent(QWheelEvent *e)
     QWebView::wheelEvent(e);
 }
 
-void HelpViewer::mouseReleaseEvent(QMouseEvent *e)
+bool HelpViewer::handleForwardBackwardMouseButtons(QMouseEvent *e)
 {
     if (e->button() == Qt::XButton1) {
         triggerPageAction(QWebPage::Back);
-        return;
+        return true;
     }
-
     if (e->button() == Qt::XButton2) {
         triggerPageAction(QWebPage::Forward);
-        return;
+        return true;
     }
+
+    return false;
+}
+
+void HelpViewer::mouseReleaseEvent(QMouseEvent *e)
+{
+#ifndef Q_OS_LINUX
+    if (handleForwardBackwardMouseButtons(e))
+        return;
+#endif
 
     QWebView::mouseReleaseEvent(e);
 }
@@ -366,6 +375,12 @@ void HelpViewer::mousePressEvent(QMouseEvent *event)
         currentPage->m_pressedButtons = event->buttons();
         currentPage->m_keyboardModifiers = event->modifiers();
     }
+
+#ifdef Q_OS_LINUX
+    if (handleForwardBackwardMouseButtons(event))
+        return;
+#endif
+
     QWebView::mousePressEvent(event);
 }
 
@@ -543,17 +558,34 @@ void HelpViewer::contextMenuEvent(QContextMenuEvent *e)
         QApplication::clipboard()->setText(link.toString());
 }
 
-void HelpViewer::mouseReleaseEvent(QMouseEvent *e)
+bool HelpViewer::handleForwardBackwardMouseButtons(QMouseEvent *e)
 {
     if (e->button() == Qt::XButton1) {
         QTextBrowser::backward();
-        return;
+        return true;
     }
-
     if (e->button() == Qt::XButton2) {
         QTextBrowser::forward();
-        return;
+        return true;
     }
+
+    return false;
+}
+
+void HelpViewer::mousePressEvent(QMouseEvent *e)
+{
+#ifdef Q_OS_LINUX
+    if (handleForwardBackwardMouseButtons(e))
+        return;
+#endif
+}
+
+void HelpViewer::mouseReleaseEvent(QMouseEvent *e)
+{
+#ifndef Q_OS_LINUX
+    if (handleForwardBackwardMouseButtons(e))
+        return;
+#endif
 
     controlPressed = e->modifiers() & Qt::ControlModifier;
     if ((controlPressed && hasAnchorAt(e->pos())) ||

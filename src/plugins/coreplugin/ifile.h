@@ -44,12 +44,31 @@ class CORE_EXPORT IFile : public QObject
 public:
     // This enum must match the indexes of the reloadBehavior widget
     // in generalsettings.ui
-    enum ReloadBehavior {
-        AskForReload = 0,
+    enum ReloadSetting {
+        AlwaysAsk = 0,
         ReloadUnmodified = 1,
-        ReloadNone = 2,
-        ReloadAll,
-        ReloadPermissions
+        IgnoreAll = 2
+    };
+
+    enum ChangeTrigger {
+        TriggerInternal,
+        TriggerExternal
+    };
+
+    enum ChangeType {
+        TypeContents,
+        TypePermissions,
+        TypeRemoved
+    };
+
+    enum ReloadBehavior {
+        BehaviorAsk,
+        BehaviorSilent
+    };
+
+    enum ReloadFlag {
+        FlagReload,
+        FlagIgnore
     };
 
     IFile(QObject *parent = 0) : QObject(parent) {}
@@ -66,7 +85,8 @@ public:
     virtual bool isReadOnly() const = 0;
     virtual bool isSaveAsAllowed() const = 0;
 
-    virtual void modified(ReloadBehavior *behavior) = 0;
+    virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const = 0;
+    virtual void reload(ReloadFlag flag, ChangeType type) = 0;
 
     virtual void checkPermissions() {}
 

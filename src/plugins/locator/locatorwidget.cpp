@@ -102,6 +102,13 @@ public:
     void updatePreferredSize();
     QSize preferredSize() const { return m_preferredSize; }
 
+#if defined(Q_OS_WIN)
+    void focusOutEvent (QFocusEvent * event)  {
+        if (event->reason() == Qt::ActiveWindowFocusReason)
+            hide();
+    }
+#endif
+
 private:
     QSize m_preferredSize;
 };
@@ -249,7 +256,6 @@ void CompletionList::updatePreferredSize()
     //header()->setStretchLastSection(true);
 }
 
-
 // =========== LocatorWidget ===========
 
 LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
@@ -344,7 +350,12 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             break;
         }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
-        m_completionList->hide();
+#if defined(Q_OS_WIN)
+        QFocusEvent *fev = static_cast<QFocusEvent*>(event);
+        if (fev->reason() != Qt::ActiveWindowFocusReason ||
+            (fev->reason() == Qt::ActiveWindowFocusReason && !m_completionList->isActiveWindow()))
+#endif
+            m_completionList->hide();
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
         showPopup();
     } else if (obj == this && event->type() == QEvent::ShortcutOverride) {

@@ -66,6 +66,7 @@ bool MercurialControl::supportsOperation(Operation operation) const
     case Core::IVersionControl::AddOperation:
     case Core::IVersionControl::DeleteOperation:
     case Core::IVersionControl::CreateRepositoryOperation:
+    case Core::IVersionControl::AnnotateOperation:
         break;
     case Core::IVersionControl::OpenOperation:
     case Core::IVersionControl::SnapshotOperations:
@@ -116,6 +117,13 @@ bool MercurialControl::vcsRestoreSnapshot(const QString &, const QString &)
 bool MercurialControl::vcsRemoveSnapshot(const QString &, const QString &)
 {
     return false;
+}
+
+bool MercurialControl::vcsAnnotate(const QString &file, int line)
+{
+    const QFileInfo fi(file);
+    mercurialClient->annotate(fi.absolutePath(), fi.fileName(), QString(), line);
+    return true;
 }
 
 bool MercurialControl::sccManaged(const QString &filename)

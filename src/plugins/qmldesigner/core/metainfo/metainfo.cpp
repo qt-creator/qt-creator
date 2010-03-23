@@ -570,7 +570,9 @@ MetaInfo MetaInfo::global()
   */
 void MetaInfo::clearGlobal()
 {
-    MetaInfo::global().m_p->clear();
+    if (s_global.m_p->m_isInitialized) {
+        s_global.m_p->clear();
+    }
 }
 
 void MetaInfo::setPluginPaths(const QStringList &paths)

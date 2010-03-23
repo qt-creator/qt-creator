@@ -314,6 +314,7 @@ bool MainWindow::init(QString *errorMessage)
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
     m_outputView->setPosition(Core::StatusBarWidget::Second);
     pm->addObject(m_outputView);
+    m_messageManager->init();
     return true;
 }
 
@@ -323,7 +324,6 @@ void MainWindow::extensionsInitialized()
 
     m_statusBarManager->extensionsInitalized();
 
-    m_messageManager->init();
     OutputPaneManager::instance()->init();
 
     m_actionManager->initialize();
@@ -579,7 +579,8 @@ void MainWindow::registerDefaultActions()
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     // Save As Action
-    tmpaction = new QAction(tr("Save &As..."), this);
+    icon = QIcon::fromTheme(QLatin1String("document-save-as"));
+    tmpaction = new QAction(icon, tr("Save &As..."), this);
     cmd = am->registerAction(tmpaction, Constants::SAVEAS, m_globalContext);
 #ifdef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
@@ -604,7 +605,8 @@ void MainWindow::registerDefaultActions()
     mfile->addAction(cmd, Constants::G_FILE_PRINT);
 
     // Exit Action
-    m_exitAction = new QAction(tr("E&xit"), this);
+    icon = QIcon::fromTheme(QLatin1String("application-exit"));
+    m_exitAction = new QAction(icon, tr("E&xit"), this);
     cmd = am->registerAction(m_exitAction, Constants::EXIT, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Q")));
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
@@ -655,14 +657,16 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Select All
-    tmpaction = new QAction(tr("&Select All"), this);
+    icon = QIcon::fromTheme(QLatin1String("edit-select-all"));
+    tmpaction = new QAction(icon, tr("&Select All"), this);
     cmd = am->registerAction(tmpaction, Constants::SELECTALL, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::SelectAll);
     medit->addAction(cmd, Constants::G_EDIT_SELECTALL);
     tmpaction->setEnabled(false);
 
     // Goto Action
-    tmpaction = new QAction(tr("&Go To Line..."), this);
+    icon = QIcon::fromTheme(QLatin1String("go-jump"));
+    tmpaction = new QAction(icon, tr("&Go To Line..."), this);
     cmd = am->registerAction(tmpaction, Constants::GOTO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+L")));
     medit->addAction(cmd, Constants::G_EDIT_OTHER);
@@ -724,10 +728,11 @@ void MainWindow::registerDefaultActions()
 #endif
 
     // About IDE Action
+    icon = QIcon::fromTheme(QLatin1String("help-about"));
 #ifdef Q_WS_MAC
-    tmpaction = new QAction(tr("About &Qt Creator"), this); // it's convention not to add dots to the about menu
+    tmpaction = new QAction(icon, tr("About &Qt Creator"), this); // it's convention not to add dots to the about menu
 #else
-    tmpaction = new QAction(tr("About &Qt Creator..."), this);
+    tmpaction = new QAction(icon, tr("About &Qt Creator..."), this);
 #endif
     cmd = am->registerAction(tmpaction, Constants::ABOUT_QTCREATOR, m_globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);

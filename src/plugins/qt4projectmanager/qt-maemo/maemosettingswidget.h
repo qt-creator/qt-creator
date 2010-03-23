@@ -44,13 +44,12 @@
 QT_BEGIN_NAMESPACE
 class QLineEdit;
 
-class Ui_maemoSettingsWidget;
+class Ui_MaemoSettingsWidget;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoSshRunner;
 class MaemoSshDeployer;
 class NameValidator;
 class PortAndTimeoutValidator;
@@ -79,9 +78,6 @@ private slots:
 
     // For configuration testing.
     void testConfig();
-    void processSshOutput(const QString &data);
-    void handleTestThreadFinished();
-    void stopConfigTest();
 
     // For key deploying.
     void deployKey();
@@ -97,16 +93,13 @@ private:
     void clearDetails();
     QString parseTestOutput();
 
-    Ui_maemoSettingsWidget *m_ui;
+    Ui_MaemoSettingsWidget *m_ui;
     QList<MaemoDeviceConfig> m_devConfs;
     NameValidator * const m_nameValidator;
     PortAndTimeoutValidator * const m_sshPortValidator;
     PortAndTimeoutValidator * const m_gdbServerPortValidator;
     PortAndTimeoutValidator * const m_timeoutValidator;
-    MaemoSshRunner *m_deviceTester;
     MaemoSshDeployer *m_keyDeployer;
-    QString m_deviceTestOutput;
-    QString m_defaultTestOutput;
 };
 
 } // namespace Internal

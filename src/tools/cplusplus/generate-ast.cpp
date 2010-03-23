@@ -769,6 +769,72 @@ private:
     Overview oo;
 };
 
+static QList<QTextCursor> removeConstructors(ClassSpecifierAST *classAST,
+                                             TranslationUnit *translationUnit,
+                                             QTextDocument *document)
+{
+    Overview oo;
+    QList<QTextCursor> cursors;
+    const QString className = oo(classAST->symbol->name());
+
+    for (DeclarationListAST *iter = classAST->member_specifier_list; iter; iter = iter->next) {
+        if (FunctionDefinitionAST *funDef = iter->value->asFunctionDefinition()) {
+            if (oo(funDef->symbol->name()) == className) {
+                // found it:
+                QTextCursor tc = createCursor(translationUnit, funDef, document);
+                tc.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                tc.setPosition(tc.position() + 1, QTextCursor::KeepAnchor);
+                cursors.append(tc);
+            }
+        }
+    }
+
+    return cursors;
+}
+
+static QStringList collectFields(ClassSpecifierAST *classAST)
+{
+    QStringList fields;
+    Overview oo;
+    Class *clazz = classAST->symbol;
+    for (unsigned i = 0; i < clazz->memberCount(); ++i) {
+        Symbol *s = clazz->memberAt(i);
+        if (Declaration *decl = s->asDeclaration()) {
+            FullySpecifiedType ty = decl->type();
+            if (ty->isPointerType())
+                fields.append(oo(decl->name()));
+            else if (ty.isUnsigned())
+                fields.append(oo(decl->name()));
+        }
+    }
+    return fields;
+}
+
+static QString createConstructor(ClassSpecifierAST *classAST)
+{
+    Overview oo;
+    Class *clazz = classAST->symbol;
+
+    QString result(QLatin1String("    "));
+    result.append(oo(clazz->name()));
+    result.append(QLatin1String("()\n"));
+
+    QStringList classFields = collectFields(classAST);
+    for (int i = 0; i < classFields.size(); ++i) {
+        if (i == 0) {
+            result.append(QLatin1String("        : "));
+            result.append(classFields.at(i));
+            result.append(QLatin1String("(0)\n"));
+        } else {
+            result.append(QLatin1String("        , "));
+            result.append(classFields.at(i));
+            result.append(QLatin1String("(0)\n"));
+        }
+    }
+
+    result.append(QLatin1String("    {}\n"));
+    return result;
+}
 
 QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
 {
@@ -802,6 +868,8 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
     QList<QTextCursor> baseCastMethodCursors = removeCastMethods(astNodes.base);
     QMap<ClassSpecifierAST *, QList<QTextCursor> > cursors;
     QMap<ClassSpecifierAST *, QString> replacementCastMethods;
+    QMap<ClassSpecifierAST *, QList<QTextCursor> > constructors;
+    QMap<ClassSpecifierAST *, QString> replacementConstructors;
 
     Overview oo;
 
@@ -812,8 +880,10 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
         const QString methodName = QLatin1String("as") + className.mid(0, className.length() - 3);
         replacementCastMethods[classAST] = QString("    virtual %1 *%2() { return this; }\n").arg(className, methodName);
         castMethods.append(QString("    virtual %1 *%2() { return 0; }\n").arg(className, methodName));
-
         astDerivedClasses.append(className);
+
+        constructors[classAST] = removeConstructors(classAST, AST_h_document->translationUnit(), &document);
+        replacementConstructors[classAST] = createConstructor(classAST);
     }
 
     if (! baseCastMethodCursors.isEmpty()) {
@@ -828,13 +898,23 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
     for (int classIndex = 0; classIndex < astNodes.deriveds.size(); ++classIndex) {
         ClassSpecifierAST *classAST = astNodes.deriveds.at(classIndex);
 
-        // remove the cast methods.
-        QList<QTextCursor> c = cursors.value(classAST);
-        for (int i = 0; i < c.length(); ++i) {
-            c[i].removeSelectedText();
+        { // remove the cast methods.
+            QList<QTextCursor> c = cursors.value(classAST);
+            for (int i = 0; i < c.length(); ++i) {
+                c[i].removeSelectedText();
+            }
+        }
+        { // remove the constructors.
+            QList<QTextCursor> c = constructors.value(classAST);
+            for (int i = 0; i < c.length(); ++i) {
+                c[i].removeSelectedText();
+            }
         }
 
-        astNodes.endOfPublicClassSpecifiers[classIndex].insertText(replacementCastMethods.value(classAST));
+        astNodes.endOfPublicClassSpecifiers[classIndex].insertText(
+                replacementConstructors.value(classAST) +
+                QLatin1String("\n") +
+                replacementCastMethods.value(classAST));
     }
 
     if (file.open(QFile::WriteOnly)) {
@@ -962,12 +1042,11 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
             << "class CPLUSPLUS_EXPORT ASTPatternBuilder" << endl
             << "{" << endl
             << "    MemoryPool pool;" << endl
-            << "    MemoryPool::State state;" << endl
             << endl
             << "public:" << endl
-            << "    ASTPatternBuilder(): state(pool.state()) {}" << endl
+            << "    ASTPatternBuilder() {}" << endl
             << endl
-            << "    void reset() { pool.rewind(state); };" << endl
+            << "    void reset() { pool.reset(); };" << endl
             << endl;
 
     Control *control = AST_h_document->control();
@@ -1061,8 +1140,13 @@ int main(int argc, char *argv[])
     }
 
     QDir cplusplusDir(files.first());
-    Snapshot snapshot;
+    if (!QFileInfo(cplusplusDir, QLatin1String("AST.h")).exists()) {
+        std::cerr << "Cannot find AST.h in " << qPrintable(cplusplusDir.absolutePath())
+                << std::endl;
+        return EXIT_FAILURE;
+    }
 
+    Snapshot snapshot;
     QStringList astDerivedClasses = generateAST_H(snapshot, cplusplusDir);
     astDerivedClasses.sort();
     generateASTFwd_h(snapshot, cplusplusDir, astDerivedClasses);

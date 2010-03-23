@@ -28,13 +28,16 @@
 **************************************************************************/
 #include "expressionquerywidget.h"
 #include "qmlinspectorconstants.h"
+#include "inspectorcontext.h"
 
-#include <utils/fancylineedit.h>
+#include <utils/styledbar.h>
+#include <utils/filterlineedit.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <qmljseditor/qmljshighlighter.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
@@ -44,13 +47,17 @@
 #include <QtGui/QLabel>
 #include <QtGui/QTextEdit>
 #include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 #include <QtGui/QGroupBox>
 #include <QtGui/QTextObject>
 #include <QtGui/QLayout>
 #include <QtGui/QShortcut>
 
 #include <QtCore/QDebug>
+
+namespace Qml {
+namespace Internal {
+
 
 ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug *client, QWidget *parent)
     : QWidget(parent),
@@ -74,16 +81,26 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
     m_highlighter->setParent(m_textEdit->document());
 
     if (m_mode == SeparateEntryMode) {
-        m_lineEdit = new QLineEdit;
+        Utils::StyledBar *bar = new Utils::StyledBar;
+        m_lineEdit = new Utils::FilterLineEdit;
 
         m_lineEdit->setPlaceholderText(tr("<Expression>"));
+        m_lineEdit->setToolTip(tr("Write and evaluate QtScript expressions."));
+
+        m_clearButton = new QToolButton();
+        m_clearButton->setIcon(QIcon(QLatin1String(":/utils/images/reset.png")));
+        m_clearButton->setToolTip(tr("Clear Output"));
+        m_clearButton->setIcon(QIcon(Core::Constants::ICON_CLEAN_PANE));
+        connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clearTextEditor()));
+        connect(m_lineEdit, SIGNAL(textChanged(QString)), SLOT(changeContextHelpId(QString)));
+
         connect(m_lineEdit, SIGNAL(returnPressed()), SLOT(executeExpression()));
-        QHBoxLayout *hbox = new QHBoxLayout;
+        QHBoxLayout *hbox = new QHBoxLayout(bar);
         hbox->setMargin(1);
         hbox->setSpacing(1);
-        //hbox->addWidget(new QLabel(tr("Expression:")));
         hbox->addWidget(m_lineEdit);
-        layout->addLayout(hbox);
+        hbox->addWidget(m_clearButton);
+        layout->addWidget(bar);
 
         m_textEdit->setReadOnly(true);
         m_lineEdit->installEventFilter(this);
@@ -92,6 +109,18 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
         appendPrompt();
     }
     setFontSettings();
+    clear();
+}
+
+void ExpressionQueryWidget::changeContextHelpId(const QString &)
+{
+    emit contextHelpIdChanged(InspectorContext::contextHelpIdForItem(m_lineEdit->text()));
+}
+
+void ExpressionQueryWidget::clearTextEditor()
+{
+    m_textEdit->clear();
+    m_textEdit->appendPlainText(tr("Debug Console\n"));
 }
 
 void ExpressionQueryWidget::setFontSettings()
@@ -147,7 +176,8 @@ void ExpressionQueryWidget::setEngineDebug(QDeclarativeEngineDebug *client)
 
 void ExpressionQueryWidget::clear()
 {
-    m_textEdit->clear();
+    clearTextEditor();
+
     if (m_lineEdit)
         m_lineEdit->clear();
     if (m_mode == ShellMode)
@@ -320,3 +350,6 @@ bool ExpressionQueryWidget::eventFilter(QObject *obj, QEvent *event)
     }
     return QWidget::eventFilter(obj, event);
 }
+
+} // Internal
+} // Qml

@@ -53,6 +53,7 @@
 #include "ASTfwd.h"
 #include "Token.h"
 #include "TranslationUnit.h"
+#include "MemoryPool.h"
 #include <map>
 
 namespace CPlusPlus {
@@ -65,6 +66,9 @@ public:
 
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool onoff);
+
+    bool cxx0xEnabled() const;
+    void setCxxOxEnabled(bool onoff);
 
     bool objCEnabled() const;
     void setObjCEnabled(bool onoff);
@@ -274,7 +278,6 @@ public:
 
     int peekAtQtContextKeyword() const;
 
-private:
     bool switchTemplateArguments(bool templateArguments);
     bool blockErrors(bool block);
 
@@ -303,6 +306,7 @@ private:
     };
 
     TemplateArgumentListEntry *templateArgumentListEntry(unsigned tokenIndex);
+    void clearTemplateArgumentList() { _templateArgumentList.clear(); }
 
 private:
     TranslationUnit *_translationUnit;
@@ -311,11 +315,14 @@ private:
     unsigned _tokenIndex;
     bool _templateArguments: 1;
     bool _qtMocRunEnabled: 1;
+    bool _cxx0xEnabled: 1;
     bool _objCEnabled: 1;
     bool _inFunctionBody: 1;
     bool _inObjCImplementationContext: 1;
+    bool _inExpressionStatement: 1;
     int _expressionDepth;
 
+    MemoryPool _expressionStatementTempPool;
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
 
     class Rewind;

@@ -43,8 +43,32 @@
 #include <utils/stylehelper.h>
 
 using namespace Core;
+using namespace Core::Internal;
 
 const int notificationTimeout = 8000;
+
+namespace Core {
+namespace Internal {
+
+class FadeWidgetHack : public QWidget
+{
+    Q_OBJECT
+    Q_PROPERTY(float opacity READ opacity WRITE setOpacity)
+public:
+    FadeWidgetHack(QWidget *parent):QWidget(parent), m_opacity(0){
+        setAttribute(Qt::WA_TransparentForMouseEvents);
+    }
+    void paintEvent(QPaintEvent *);
+
+    void setOpacity(float o) { m_opacity = o; update(); }
+    float opacity() const { return m_opacity; }
+
+private:
+    float m_opacity;
+};
+
+} // namespace Internal
+} // namespace Core
 
 void FadeWidgetHack::paintEvent(QPaintEvent *)
 {
@@ -197,6 +221,13 @@ bool FutureProgress::eventFilter(QObject *, QEvent *e)
 void FutureProgress::setFinished()
 {
     updateToolTip(m_watcher.future().progressText());
+
+    // Special case for concurrent jobs that don't use QFutureInterface to report progress
+    if (m_watcher.progressMinimum() == 0 && m_watcher.progressMaximum() == 0) {
+        m_progress->setRange(0, 1);
+        m_progress->setValue(1);
+    }
+
     if (m_watcher.future().isCanceled()) {
         m_progress->setError(true);
     } else {
@@ -278,3 +309,5 @@ void FutureProgress::fadeAway()
     animation->start(QAbstractAnimation::DeleteWhenStopped);
     connect(animation, SIGNAL(finished()), this, SIGNAL(removeMe()));
 }
+
+#include "futureprogress.moc"

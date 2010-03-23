@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Git::Internal::SettingsPage</class>
  <widget class="QWidget" name="Git::Internal::SettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>409</width>
+    <height>385</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="environmentGroupBox">
@@ -113,24 +121,31 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="omitAnnotationDataCheckBox">
         <property name="text">
          <string>Omit date from annotation output</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
+      <item row="6" column="0" colspan="2">
        <widget class="QCheckBox" name="spaceIgnorantBlameCheckBox">
         <property name="text">
          <string>Ignore whitespace changes in annotation</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QCheckBox" name="diffPatienceCheckBox">
         <property name="text">
          <string>Use &quot;patience diff&quot; algorithm</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="pullRebaseCheckBox">
+        <property name="text">
+         <string>Pull with rebase</string>
         </property>
        </widget>
       </item>

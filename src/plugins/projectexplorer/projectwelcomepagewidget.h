@@ -34,20 +34,21 @@
 
 
 namespace ProjectExplorer {
-    namespace Internal {
+namespace Internal {
 
 
 namespace Ui {
     class ProjectWelcomePageWidget;
 }
 
-class ProjectWelcomePageWidget : public QWidget {
+class ProjectWelcomePageWidget : public QWidget
+{
     Q_OBJECT
 public:
     ProjectWelcomePageWidget(QWidget *parent = 0);
     ~ProjectWelcomePageWidget();
 
-    struct WelcomePageData{
+    struct WelcomePageData {
         bool operator==(const WelcomePageData &rhs) const;
         bool operator!=(const WelcomePageData &rhs) const;
 
@@ -75,7 +76,7 @@ private:
     WelcomePageData lastData;
 };
 
-}
-}
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #endif // PROJECTWELCOMEPAGEWIDGET_H

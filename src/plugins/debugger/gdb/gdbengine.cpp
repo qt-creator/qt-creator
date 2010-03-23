@@ -33,8 +33,8 @@
 #include "gdboptionspage.h"
 #include "trkoptions.h"
 #include "trkoptionspage.h"
-#include "debugger/debuggeruiswitcher.h"
-#include "debugger/debuggermainwindow.h"
+#include "debuggeruiswitcher.h"
+#include "debuggermainwindow.h"
 
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
@@ -68,6 +68,8 @@
 #include <texteditor/itexteditor.h>
 #include <projectexplorer/toolchain.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/futureprogress.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -175,6 +177,7 @@ GdbEngine::GdbEngine(DebuggerManager *manager) : IDebuggerEngine(manager)
     m_trkOptions = QSharedPointer<TrkOptions>(new TrkOptions);
     m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
+    m_progress = 0;
 
     m_commandTimer = new QTimer(this);
     m_commandTimer->setSingleShot(true);
@@ -277,6 +280,8 @@ void GdbEngine::initializeVariables()
 #ifdef Q_OS_LINUX
     m_entryPoint.clear();
 #endif
+    delete m_progress;
+    m_progress = 0;
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
@@ -419,6 +424,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray id = result.findChild("id").data();
                 if (!id.isEmpty())
                     showStatusMessage(tr("Library %1 loaded.").arg(_(id)), 1000);
+                int progress = m_progress->progressValue();
+                m_progress->setProgressValue(qMin(70, progress + 1));
                 invalidateSourcesList();
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
@@ -429,6 +436,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 invalidateSourcesList();
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}"
+                int progress = m_progress->progressValue();
+                m_progress->setProgressValue(qMin(70, progress + 1));
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread group %1 created.").arg(_(id)), 1000);
                 int pid = id.toInt();
@@ -534,6 +543,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             if (resultClass == "done") {
                 response.resultClass = GdbResultDone;
             } else if (resultClass == "running") {
+                if (m_progress) {
+                    m_progress->setProgressValue(100);
+                    m_progress->reportFinished();
+                }
                 if (state() == InferiorStopped) { // Result of manual command.
                     m_manager->resetLocation();
                     setTokenBarrier();
@@ -1565,6 +1578,8 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 void GdbEngine::shutdown()
 {
     debugMessage(_("INITIATE GDBENGINE SHUTDOWN"));
+    if (m_progress)
+        m_progress->reportCanceled();
     switch (state()) {
     case DebuggerNotReady: // Nothing to do! :)
     case EngineStarting: // We can't get here, really
@@ -1724,6 +1739,13 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 
     initializeVariables();
 
+    m_progress = new QFutureInterface<void>();
+    m_progress->setProgressRange(0, 100);
+    Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
+        ->addTask(m_progress->future(), tr("Launching"), _("Debugger.Launcher"));
+    fp->setKeepOnFinish(false); 
+    m_progress->reportStarted();
+
     m_startParameters = sp;
 
     delete m_gdbAdapter;
@@ -1733,6 +1755,7 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable)
         connectDebuggingHelperActions();
 
+    m_progress->setProgressValue(20);
     m_gdbAdapter->startAdapter();
 }
 
@@ -2931,11 +2954,35 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
     Registers registers = manager()->registerHandler()->registers();
 
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
-    foreach (const GdbMi &item, response.data.findChild("register-values").children()) {
-        int index = item.findChild("number").data().toInt();
+    const GdbMi values = response.data.findChild("register-values");
+    foreach (const GdbMi &item, values.children()) {
+        const int index = item.findChild("number").data().toInt();
         if (index < registers.size()) {
             Register &reg = registers[index];
-            QString value = _(item.findChild("value").data());
+            GdbMi val = item.findChild("value");
+            QByteArray ba;
+            bool handled = false;
+            if (val.data().startsWith("{")) {
+                int pos1 = val.data().indexOf("v2_int32");
+                if (pos1 == -1)
+                    pos1 = val.data().indexOf("v4_int32");
+                if (pos1 != -1) {
+                    // FIXME: This block wastes cycles.
+                    pos1 = val.data().indexOf("{", pos1 + 1) + 1;
+                    int pos2 = val.data().indexOf("}", pos1);
+                    QByteArray ba2 = val.data().mid(pos1, pos2 - pos1);
+                    foreach (QByteArray ba3, ba2.split(',')) {
+                        ba3 = ba3.trimmed();
+                        QTC_ASSERT(ba3.size() >= 3, continue);
+                        QTC_ASSERT(ba3.size() <= 10, continue);
+                        ba.prepend(QByteArray(10 - ba3.size(), '0'));
+                        ba.prepend(ba3.mid(2));
+                    }
+                    ba.prepend("0x");
+                    handled = true;
+                }
+            }
+            const QString value = _(handled ? ba : val.data());
             reg.changed = (value != reg.value);
             if (reg.changed)
                 reg.value = value;
@@ -3918,6 +3965,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 #ifdef Q_OS_WIN
     // Set python path. By convention, python is located below gdb executable.
     const QFileInfo fi(location);
+    bool foundPython = false;
     if (fi.isAbsolute()) {
         const QString winPythonVersion = QLatin1String(winPythonVersionC);
         const QDir dir = fi.absoluteDir();
@@ -3937,7 +3985,12 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
                     _("Python path: %1").arg(pythonPath));
                 m_gdbProc.setProcessEnvironment(environment);
             }
+            foundPython = true;
         }
+    }
+    if (!foundPython) {
+        debugMessage(_("UNSUPPORTED GDB %1 DOES NOT HAVE PYTHON.").arg(location));
+        showStatusMessage(_("Gdb at %1 does not have python.").arg(location));
     }
 #endif
 
@@ -4106,6 +4159,8 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 
 void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint)
 {
+    if (m_progress)
+        m_progress->setProgressValue(30);
     setState(AdapterStartFailed);
     debugMessage(_("ADAPTER START FAILED"));
     if (!msg.isEmpty()) {
@@ -4123,6 +4178,8 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 void GdbEngine::handleAdapterStarted()
 {
     setState(AdapterStarted);
+    if (m_progress)
+        m_progress->setProgressValue(25);
     debugMessage(_("ADAPTER SUCCESSFULLY STARTED"));
 
     showStatusMessage(tr("Starting inferior..."));

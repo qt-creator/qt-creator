@@ -295,7 +295,7 @@ bool ResolveExpression::visit(ThisExpressionAST *)
 
 bool ResolveExpression::visit(CompoundExpressionAST *ast)
 {
-    CompoundStatementAST *cStmt = ast->compoundStatement;
+    CompoundStatementAST *cStmt = ast->statement;
     if (cStmt && cStmt->statement_list) {
         accept(cStmt->statement_list->lastValue());
     }

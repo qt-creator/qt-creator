@@ -3389,6 +3389,20 @@ void BaseTextEditor::mouseMoveEvent(QMouseEvent *e)
         viewport()->setCursor(Qt::IBeamCursor);
 }
 
+static bool handleForwardBackwardMouseButtons(QMouseEvent *e)
+{
+    if (e->button() == Qt::XButton1) {
+        Core::EditorManager::instance()->goBackInNavigationHistory();
+        return true;
+    }
+    if (e->button() == Qt::XButton2) {
+        Core::EditorManager::instance()->goForwardInNavigationHistory();
+        return true;
+    }
+
+    return false;
+}
+
 void BaseTextEditor::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() == Qt::LeftButton) {
@@ -3405,6 +3419,12 @@ void BaseTextEditor::mousePressEvent(QMouseEvent *e)
         if (d->m_currentLink.isValid())
             d->m_linkPressed = true;
     }
+
+#ifdef Q_OS_LINUX
+    if (handleForwardBackwardMouseButtons(e))
+        return;
+#endif
+
     QPlainTextEdit::mousePressEvent(e);
 }
 
@@ -3422,6 +3442,11 @@ void BaseTextEditor::mouseReleaseEvent(QMouseEvent *e)
             return;
         }
     }
+
+#ifndef Q_OS_LINUX
+    if (handleForwardBackwardMouseButtons(e))
+        return;
+#endif
 
     QPlainTextEdit::mouseReleaseEvent(e);
 }

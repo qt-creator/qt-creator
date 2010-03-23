@@ -214,7 +214,7 @@ struct EditorManagerPrivate {
     OpenEditorsModel *m_editorModel;
     QString m_externalEditor;
 
-    IFile::ReloadBehavior m_reloadBehavior;
+    IFile::ReloadSetting m_reloadSetting;
 };
 }
 
@@ -235,7 +235,7 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_openInExternalEditorAction(new QAction(EditorManager::tr("Open in External Editor"), parent)),
     m_windowPopup(0),
     m_coreListener(0),
-    m_reloadBehavior(IFile::AskForReload)
+    m_reloadSetting(IFile::AlwaysAsk)
 {
     m_editorModel = new OpenEditorsModel(parent);
 }
@@ -278,7 +278,8 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     ActionManager *am = m_d->m_core->actionManager();
     ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
 
-    //Revert to saved
+    // Revert to saved
+    m_d->m_revertToSavedAction->setIcon(QIcon::fromTheme(QLatin1String("document-revert")));
     Command *cmd = am->registerAction(m_d->m_revertToSavedAction,
                                        Constants::REVERTTOSAVED, editManagerContext);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -286,18 +287,18 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
     connect(m_d->m_revertToSavedAction, SIGNAL(triggered()), this, SLOT(revertToSaved()));
 
-    //Save Action
+    // Save Action
     am->registerAction(m_d->m_saveAction, Constants::SAVE, editManagerContext);
     connect(m_d->m_saveAction, SIGNAL(triggered()), this, SLOT(saveFile()));
 
-    //Save As Action
+    // Save As Action
     am->registerAction(m_d->m_saveAsAction, Constants::SAVEAS, editManagerContext);
     connect(m_d->m_saveAsAction, SIGNAL(triggered()), this, SLOT(saveFileAs()));
 
-    //Window Menu
+    // Window Menu
     ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
 
-    //Window menu separators
+    // Window menu separators
     QAction *tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
     cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Split"), editManagerContext);
@@ -308,7 +309,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Window.Sep.Navigate"), editManagerContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
 
-    //Close Action
+    // Close Action
     cmd = am->registerAction(m_d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext);
 #ifdef Q_WS_WIN
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
@@ -320,13 +321,13 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(m_d->m_closeCurrentEditorAction, SIGNAL(triggered()), this, SLOT(closeEditor()));
 
-    //Close All Action
+    // Close All Action
     cmd = am->registerAction(m_d->m_closeAllEditorsAction, Constants::CLOSEALL, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+W")));
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(m_d->m_closeAllEditorsAction, SIGNAL(triggered()), this, SLOT(closeAllEditors()));
 
-    //Close All Others Action
+    // Close All Others Action
     cmd = am->registerAction(m_d->m_closeOtherEditorsAction, Constants::CLOSEOTHERS, editManagerContext);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     cmd->setAttribute(Core::Command::CA_UpdateText);
@@ -1715,7 +1716,7 @@ void EditorManager::saveSettings()
     SettingsDatabase *settings = m_d->m_core->settingsDatabase();
     settings->setValue(QLatin1String(documentStatesKey), m_d->m_editorStates);
     settings->setValue(QLatin1String(externalEditorKey), m_d->m_externalEditor);
-    settings->setValue(QLatin1String(reloadBehaviorKey), m_d->m_reloadBehavior);
+    settings->setValue(QLatin1String(reloadBehaviorKey), m_d->m_reloadSetting);
 }
 
 void EditorManager::readSettings()
@@ -1740,7 +1741,7 @@ void EditorManager::readSettings()
         m_d->m_externalEditor = settings->value(QLatin1String(externalEditorKey)).toString();
 
     if (settings->contains(QLatin1String(reloadBehaviorKey)))
-        m_d->m_reloadBehavior = (IFile::ReloadBehavior)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
+        m_d->m_reloadSetting = (IFile::ReloadSetting)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
 }
 
 
@@ -1764,8 +1765,7 @@ void EditorManager::revertToSaved()
             return;
 
     }
-    IFile::ReloadBehavior temp = IFile::ReloadAll;
-    currEditor->file()->modified(&temp);
+    currEditor->file()->reload(IFile::FlagReload, IFile::TypeContents);
 }
 
 void EditorManager::showEditorInfoBar(const QString &id,
@@ -1898,14 +1898,14 @@ QString EditorManager::externalEditor() const
     return m_d->m_externalEditor;
 }
 
-void EditorManager::setReloadBehavior(IFile::ReloadBehavior behavior)
+void EditorManager::setReloadSetting(IFile::ReloadSetting behavior)
 {
-    m_d->m_reloadBehavior = behavior;
+    m_d->m_reloadSetting = behavior;
 }
 
-IFile::ReloadBehavior EditorManager::reloadBehavior() const
+IFile::ReloadSetting EditorManager::reloadSetting() const
 {
-    return m_d->m_reloadBehavior;
+    return m_d->m_reloadSetting;
 }
 
 Core::IEditor *EditorManager::duplicateEditor(Core::IEditor *editor)

@@ -185,42 +185,26 @@ bool ResourceEditorFile::isSaveAsAllowed() const
     return true;
 }
 
-void ResourceEditorFile::modified(Core::IFile::ReloadBehavior *behavior)
+Core::IFile::ReloadBehavior ResourceEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
-    const QString fileName = m_parent->m_resourceEditor->fileName();
-
-    switch (*behavior) {
-    case Core::IFile::ReloadNone:
-        return;
-    case Core::IFile::ReloadUnmodified:
-        if (!isModified()) {
-            m_parent->open(fileName);
-            return;
-        }
-        break;
-    case Core::IFile::ReloadAll:
-        m_parent->open(fileName);
-        return;
-    case Core::IFile::ReloadPermissions:
-        emit changed();
-        return;
-    case Core::IFile::AskForReload:
-        break;
+    if (type == TypePermissions)
+        return BehaviorSilent;
+    if (type == TypeContents) {
+        if (state == TriggerInternal && !isModified())
+            return BehaviorSilent;
+        return BehaviorAsk;
     }
+    return BehaviorAsk;
+}
 
-    switch (Utils::reloadPrompt(fileName, isModified(), Core::ICore::instance()->mainWindow())) {
-    case Utils::ReloadCurrent:
-        m_parent->open(fileName);
-        break;
-    case Utils::ReloadAll:
-        m_parent->open(fileName);
-        *behavior = Core::IFile::ReloadAll;
-        break;
-    case Utils::ReloadSkipCurrent:
-        break;
-    case Utils::ReloadNone:
-        *behavior = Core::IFile::ReloadNone;
-        break;
+void ResourceEditorFile::reload(ReloadFlag flag, ChangeType type)
+{
+    if (flag == FlagIgnore)
+        return;
+    if (type == TypePermissions) {
+        emit changed();
+    } else {
+        m_parent->open(m_parent->m_resourceEditor->fileName());
     }
 }
 

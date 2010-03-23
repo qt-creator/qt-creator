@@ -53,7 +53,8 @@ leave room for the Qt 4 target page.
     <fieldpagetitle xml:lang="de">Hallo Welt Parameter</fieldpagetitle>
     <fields>
         <field mandatory="true" name="MESSAGE">
-            <fieldcontrol class="QLineEdit" validator='^[^"]+$'  defaulttext="Hello world!" />
+            <fieldcontrol class="QLineEdit" validator='^[^"]+$'
+                          defaulttext="Hello world from project  '%ProjectName:c%'!" />
             <fielddescription>Hello world message:</fielddescription>
             <fielddescription xml:lang="de">Hallo-Welt-Nachricht:</fielddescription>
         </field>

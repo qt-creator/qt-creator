@@ -1,12 +1,11 @@
 #include "nodeinstancesignalspy.h"
-
+#include "objectnodeinstance.h"
 
 #include <QMetaProperty>
 #include <QMetaObject>
 #include <QtDebug>
-
-#include "objectnodeinstance.h"
 #include <QSharedPointer>
+#include <private/qdeclarativemetatype_p.h>
 
 namespace QmlDesigner {
 namespace Internal {

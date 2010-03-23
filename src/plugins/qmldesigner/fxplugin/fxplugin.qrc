@@ -1,22 +1,23 @@
 <RCC>
     <qresource prefix="/fxplugin" >
-        <file>images/blended-image-icon.png</file>
-        <file>images/image-icon.png</file>
-        <file>images/item-icon.png</file>
-        <file>images/mouse-area-icon.png</file>
-        <file>images/rect-icon.png</file>
-        <file>images/text-edit-icon.png</file>
-        <file>images/text-icon.png</file>
-        <file>images/list-icon.png</file>
-        <file>images/template_image.png</file>
         <file>fx.metainfo</file>
-        <file>images/webview-icon.png</file>
+        <file>images/item-icon.png</file>
+        <file>images/rect-icon.png</file>
+        <file>images/text-icon.png</file>
+        <file>images/text-edit-icon.png</file>
+        <file>images/text-input-icon.png</file>
+        <file>images/mouse-area-icon.png</file>
+        <file>images/image-icon.png</file>
+        <file>images/border-image-icon.png</file>
+        <file>images/flickable-icon.png</file>
+        <file>images/flipable-icon.png</file>
+        <file>images/gridview-icon.png</file>
+        <file>images/listview-icon.png</file>
+        <file>images/pathview-icon.png</file>
+        <file>images/focusscope-icon.png</file>
         <file>images/row-icon.png</file>
         <file>images/column-icon.png</file>
         <file>images/grid-icon.png</file>
-        <file>images/gridview-icon.png</file>
-        <file>images/flickable-icon.png</file>
-        <file>images/flipable-icon.png</file>
-        <file>images/focusscope-icon.png</file>
+        <file>images/webview-icon.png</file>
     </qresource>
 </RCC>

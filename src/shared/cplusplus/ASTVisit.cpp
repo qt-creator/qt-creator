@@ -208,7 +208,7 @@ void BaseSpecifierAST::accept0(ASTVisitor *visitor)
 void CompoundExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(compoundStatement, visitor);
+        accept(statement, visitor);
     }
     visitor->endVisit(this);
 }
@@ -391,6 +391,7 @@ void NamedTypeSpecifierAST::accept0(ASTVisitor *visitor)
 void ElaboratedTypeSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(attribute_list, visitor);
         accept(name, visitor);
     }
     visitor->endVisit(this);

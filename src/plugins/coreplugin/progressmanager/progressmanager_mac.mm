@@ -41,6 +41,9 @@ void Core::Internal::ProgressManagerPrivate::cleanup()
 #import <AppKit/NSDockTile.h>
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSImageView.h>
+#import <AppKit/NSCIImageRep.h>
+#import <AppKit/NSBezierPath.h>
+#import <AppKit/NSColor.h>
 #import <Foundation/NSString.h>
 
 @interface ApplicationProgressView : NSView {
@@ -89,6 +92,7 @@ static ApplicationProgressView *sharedProgressView = nil;
 
 - (void)drawRect:(NSRect)rect
 {
+    Q_UNUSED(rect)
     NSRect boundary = [self bounds];
     [[NSApp applicationIconImage] drawInRect:boundary
                                      fromRect:NSZeroRect

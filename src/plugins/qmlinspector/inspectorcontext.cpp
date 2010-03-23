@@ -30,8 +30,15 @@
 #include "inspectorcontext.h"
 #include "qmlinspectorconstants.h"
 
+#include "components/objectpropertiesview.h"
+#include "components/objecttree.h"
+#include <coreplugin/icore.h>
+
 #include <coreplugin/uniqueidmanager.h>
+
 #include <QWidget>
+#include <QDebug>
+
 
 namespace Qml {
 namespace Internal {
@@ -57,9 +64,26 @@ QWidget *InspectorContext::widget()
     return m_widget;
 }
 
+void InspectorContext::setContextHelpId(const QString &helpId)
+{
+    m_contextHelpId = helpId;
+}
+
 QString InspectorContext::contextHelpId() const
 {
-    return QString();
+    return m_contextHelpId;
+}
+
+QString InspectorContext::contextHelpIdForProperty(const QString &itemName, const QString &propName)
+{
+    // TODO this functionality is not supported yet as we don't have help id's for
+    // properties.
+    return QString("QML.").append(itemName).append(".").append(propName);
+}
+
+QString InspectorContext::contextHelpIdForItem(const QString &itemName)
+{
+    return QString("QML.").append(itemName);
 }
 
 }

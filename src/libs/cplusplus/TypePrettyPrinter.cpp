@@ -150,8 +150,14 @@ void TypePrettyPrinter::applyPtrOperators(bool wantSpace)
         if (op->isPointerType()) {
             _text += QLatin1Char('*');
             outCV(op);
-        } else if (op->isReferenceType()) {
-            _text += QLatin1Char('&');
+        } else if (const ReferenceType *ref = op->asReferenceType()) {
+            if (_text.endsWith(QLatin1Char('&')))
+                _text += QLatin1Char(' ');
+
+            if (ref->isRvalueReference())
+                _text += QLatin1String("&&");
+            else
+                _text += QLatin1Char('&');
         } else if (const PointerToMemberType *memPtrTy = op->asPointerToMemberType()) {
             space();
             _text += _overview->prettyName(memPtrTy->memberName());

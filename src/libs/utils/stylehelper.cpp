@@ -231,9 +231,9 @@ void StyleHelper::horizontalGradient(QPainter *painter, const QRect &spanRect, c
     if (StyleHelper::usePixmapCache()) {
         QString key;
         QColor keyColor = baseColor(lightColored);
-        key.sprintf("mh_horizontal %d %d %d %d %d",
+        key.sprintf("mh_horizontal %d %d %d %d %d %d",
             spanRect.width(), spanRect.height(), clipRect.width(),
-            clipRect.height(), keyColor.rgb());
+            clipRect.height(), keyColor.rgb(), spanRect.x());
 
         QPixmap pixmap;
         if (!QPixmapCache::find(key, pixmap)) {

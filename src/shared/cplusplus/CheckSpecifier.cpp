@@ -69,9 +69,11 @@ CheckSpecifier::CheckSpecifier(Semantic *semantic)
 CheckSpecifier::~CheckSpecifier()
 { }
 
-FullySpecifiedType CheckSpecifier::check(SpecifierListAST *specifier, Scope *scope)
+FullySpecifiedType CheckSpecifier::check(SpecifierListAST *specifier,
+                                         Scope *scope,
+                                         const FullySpecifiedType &ty)
 {
-    FullySpecifiedType previousType = switchFullySpecifiedType(FullySpecifiedType());
+    FullySpecifiedType previousType = switchFullySpecifiedType(ty);
     Scope *previousScope = switchScope(scope);
     SpecifierListAST *previousSpecifier = switchSpecifier(specifier);
     accept(specifier);
@@ -80,9 +82,11 @@ FullySpecifiedType CheckSpecifier::check(SpecifierListAST *specifier, Scope *sco
     return switchFullySpecifiedType(previousType);
 }
 
-FullySpecifiedType CheckSpecifier::check(ObjCTypeNameAST *typeName, Scope *scope)
+FullySpecifiedType CheckSpecifier::check(ObjCTypeNameAST *typeName,
+                                         Scope *scope,
+                                         const FullySpecifiedType &ty)
 {
-    FullySpecifiedType previousType = switchFullySpecifiedType(FullySpecifiedType());
+    FullySpecifiedType previousType = switchFullySpecifiedType(ty);
     Scope *previousScope = switchScope(scope);
 
     accept(typeName);
@@ -327,6 +331,9 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
     klass->setVisibility(semantic()->currentVisibility());
     _scope->enterSymbol(klass);
     _fullySpecifiedType.setType(klass);
+    accept(ast->attribute_list);
+    if (_fullySpecifiedType.isDeprecated())
+        klass->setDeprecated(true);
 
     for (BaseSpecifierListAST *it = ast->base_clause_list; it; it = it->next) {
         BaseSpecifierAST *base = it->value;
@@ -377,6 +384,7 @@ bool CheckSpecifier::visit(ElaboratedTypeSpecifierAST *ast)
 {
     const Name *name = semantic()->check(ast->name, _scope);
     _fullySpecifiedType.setType(control()->namedType(name));
+    accept(ast->attribute_list);
     return false;
 }
 
@@ -414,7 +422,11 @@ bool CheckSpecifier::visit(TypeofSpecifierAST *ast)
     return false;
 }
 
-bool CheckSpecifier::visit(AttributeSpecifierAST * /*ast*/)
+bool CheckSpecifier::visit(AttributeAST *ast)
 {
+    if (ast->identifier_token) {
+        if (identifier(ast->identifier_token) == control()->deprecatedId())
+            _fullySpecifiedType.setDeprecated(true);
+    }
     return false;
 }

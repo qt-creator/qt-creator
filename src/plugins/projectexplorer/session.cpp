@@ -89,7 +89,8 @@ public:
     bool isReadOnly() const;
     bool isSaveAsAllowed() const;
 
-    void modified(Core::IFile::ReloadBehavior *behavior);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
 
 public slots:
     void sessionLoadingProgress();
@@ -320,8 +321,17 @@ bool SessionFile::isSaveAsAllowed() const
     return true;
 }
 
-void SessionFile::modified(Core::IFile::ReloadBehavior *)
+Core::IFile::ReloadBehavior SessionFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
+}
+
+void SessionFile::reload(ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
 }
 
 QString SessionFile::defaultPath() const
@@ -370,7 +380,8 @@ SessionManager::SessionManager(QObject *parent)
     m_core(Core::ICore::instance()),
     m_file(new SessionFile),
     m_sessionNode(new Internal::SessionNodeImpl(this)),
-    m_currentEditor(0)
+    m_currentEditor(0),
+    m_defaultVirginSession(true)
 {
     // Create qtcreator dir if it doesn't yet exist
     QString configDir = QFileInfo(m_core->settings()->fileName()).path();
@@ -424,9 +435,7 @@ SessionManager::~SessionManager()
 
 bool SessionManager::isDefaultVirgin() const
 {
-    return isDefaultSession(m_sessionName)
-            && projects().isEmpty()
-            && m_core->editorManager()->openedEditors().isEmpty();
+    return m_defaultVirginSession;
 }
 
 bool SessionManager::isDefaultSession(const QString &session) const
@@ -564,6 +573,7 @@ void SessionManager::addProject(Project *project)
 
 void SessionManager::addProjects(const QList<Project*> &projects)
 {
+    m_defaultVirginSession = false;
     QList<Project*> clearedList;
     foreach (Project *pro, projects) {
         if (!m_file->m_projects.contains(pro)) {
@@ -594,6 +604,7 @@ void SessionManager::addProjects(const QList<Project*> &projects)
 
 void SessionManager::removeProject(Project *project)
 {
+    m_defaultVirginSession = false;
     if (project == 0) {
         qDebug() << "SessionManager::removeProject(0) ... THIS SHOULD NOT HAPPEN";
         return;
@@ -623,6 +634,8 @@ bool SessionManager::createImpl(const QString &fileName)
         setStartupProject(defaultStartupProject());
     }
 
+    m_defaultVirginSession = false;
+
     if (debug)
         qDebug() << "SessionManager - creating new session returns " << success;
 
@@ -642,13 +655,14 @@ bool SessionManager::loadImpl(const QString &fileName)
     bool success = true;
 
     if (!m_file->fileName().isEmpty()) {
-
         if (isDefaultVirgin()) {
             // do not save initial and virgin default session
         } else if (!save() || !clear()) {
             success = false;
         }
     }
+
+    m_defaultVirginSession = false;
 
     if (success) {
         emit aboutToUnloadSession();
@@ -1008,7 +1022,7 @@ void SessionManager::setValue(const QString &name, const QVariant &value)
     if (m_file->m_values.value(name) == value)
         return;
     m_file->m_values.insert(name, value);
-    markSessionFileDirty();
+    markSessionFileDirty(false);
 }
 
 QVariant SessionManager::value(const QString &name)
@@ -1135,10 +1149,12 @@ void SessionManager::reportProjectLoadingProgress()
     m_file->sessionLoadingProgress();
 }
 
-void SessionManager::markSessionFileDirty()
+void SessionManager::markSessionFileDirty(bool makeDefaultVirginDirty)
 {
     if (m_file && !m_file->fileName().isEmpty())
         m_autoSaveSessionTimer->start();
+    if (makeDefaultVirginDirty)
+        m_defaultVirginSession = false;
 }
 
 #include "session.moc"

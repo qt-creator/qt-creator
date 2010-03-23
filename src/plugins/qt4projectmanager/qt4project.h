@@ -97,7 +97,8 @@ public:
     bool isReadOnly() const;
     bool isSaveAsAllowed() const;
 
-    void modified(Core::IFile::ReloadBehavior *behavior);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
 
 private:
     const QString m_mimeType;

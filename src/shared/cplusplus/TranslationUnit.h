@@ -52,9 +52,8 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "ASTfwd.h"
 #include "Token.h"
-#include "Array.h"
-#include <stdio.h> // for FILE*
-#include <vector> // ### remove me
+#include <cstdio>
+#include <vector>
 
 
 namespace CPlusPlus {
@@ -184,7 +183,7 @@ private:
     const StringLiteral *_fileId;
     const char *_firstSourceChar;
     const char *_lastSourceChar;
-    Array<Token, 8> *_tokens;
+    std::vector<Token> *_tokens;
     std::vector<unsigned> _lineOffsets;
     std::vector<PPLine> _ppLines;
     MemoryPool *_pool;

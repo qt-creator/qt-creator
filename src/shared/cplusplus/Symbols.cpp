@@ -624,7 +624,7 @@ bool Class::matchType0(const Type *otherType, TypeMatcher *matcher) const
 }
 
 unsigned Class::baseClassCount() const
-{ return _baseClasses.count(); }
+{ return _baseClasses.size(); }
 
 BaseClass *Class::baseClassAt(unsigned index) const
 { return _baseClasses.at(index); }

@@ -37,7 +37,9 @@
 #include <QtGui/QBrush>
 #include <QtGui/QColor>
 #include <QtGui/QMouseEvent>
-#include <QtDebug>
+
+using namespace Core;
+using namespace Core::Internal;
 
 #define PROGRESSBAR_HEIGHT 13
 #define CANCELBUTTON_SIZE 15

@@ -53,31 +53,30 @@
 using namespace CPlusPlus;
 
 MemoryPool::MemoryPool()
-    : _initializeAllocatedMemory(true),
-      _blocks(0),
+    : _blocks(0),
       _allocatedBlocks(0),
       _blockCount(-1),
-      ptr(0),
-      end(0)
+      _ptr(0),
+      _end(0)
 { }
 
 MemoryPool::~MemoryPool()
 {
-    if (_blockCount != -1) {
-        for (int i = 0; i < _blockCount + 1; ++i) {
-            std::free(_blocks[i]);
+    if (_blocks) {
+        for (int i = 0; i < _allocatedBlocks; ++i) {
+            if (char *b = _blocks[i])
+                std::free(b);
         }
-    }
 
-    if (_blocks)
         std::free(_blocks);
+    }
 }
 
-bool MemoryPool::initializeAllocatedMemory() const
-{ return _initializeAllocatedMemory; }
-
-void MemoryPool::setInitializeAllocatedMemory(bool initializeAllocatedMemory)
-{ _initializeAllocatedMemory = initializeAllocatedMemory; }
+void MemoryPool::reset()
+{
+    _blockCount = -1;
+    _ptr = _end = 0;
+}
 
 void *MemoryPool::allocate_helper(size_t size)
 {
@@ -85,39 +84,42 @@ void *MemoryPool::allocate_helper(size_t size)
 
     if (++_blockCount == _allocatedBlocks) {
         if (! _allocatedBlocks)
-            _allocatedBlocks = 8;
+            _allocatedBlocks = DEFAULT_BLOCK_COUNT;
         else
             _allocatedBlocks *= 2;
 
         _blocks = (char **) realloc(_blocks, sizeof(char *) * _allocatedBlocks);
+
+        for (int index = _blockCount; index < _allocatedBlocks; ++index)
+            _blocks[index] = 0;
     }
 
     char *&block = _blocks[_blockCount];
 
-    if (_initializeAllocatedMemory)
-        block = (char *) std::calloc(1, BLOCK_SIZE);
-    else
+    if (! block)
         block = (char *) std::malloc(BLOCK_SIZE);
 
-    ptr = block;
-    end = ptr + BLOCK_SIZE;
+    _ptr = block;
+    _end = _ptr + BLOCK_SIZE;
 
-    void *addr = ptr;
-    ptr += size;
+    void *addr = _ptr;
+    _ptr += size;
     return addr;
 }
 
-MemoryPool::State MemoryPool::state() const
-{ return State(ptr, _blockCount); }
-
-void MemoryPool::rewind(const State &state)
+RecursiveMemoryPool::RecursiveMemoryPool(MemoryPool *pool)
+    : _pool(pool),
+      _blockCount(pool->_blockCount),
+      _ptr(pool->_ptr),
+      _end(pool->_end)
 {
-    if (_blockCount == state.blockCount && state.ptr < ptr) {
-        if (_initializeAllocatedMemory)
-            std::memset(state.ptr, '\0', ptr - state.ptr);
+}
 
-        ptr = state.ptr;
-    }
+RecursiveMemoryPool::~RecursiveMemoryPool()
+{
+    _pool->_blockCount = _blockCount;
+    _pool->_ptr = _ptr;
+    _pool->_end = _end;
 }
 
 Managed::Managed()
@@ -134,5 +136,4 @@ void Managed::operator delete(void *)
 
 void Managed::operator delete(void *, MemoryPool *)
 { }
-
 

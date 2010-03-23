@@ -277,8 +277,8 @@ CompoundExpressionAST *CompoundExpressionAST::clone(MemoryPool *pool) const
 {
     CompoundExpressionAST *ast = new (pool) CompoundExpressionAST;
     ast->lparen_token = lparen_token;
-    if (compoundStatement)
-        ast->compoundStatement = compoundStatement->clone(pool);
+    if (statement)
+        ast->statement = statement->clone(pool);
     ast->rparen_token = rparen_token;
     return ast;
 }
@@ -353,6 +353,7 @@ ClassSpecifierAST *ClassSpecifierAST::clone(MemoryPool *pool) const
     for (BaseSpecifierListAST *iter = base_clause_list, **ast_iter = &ast->base_clause_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) BaseSpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     ast->lbrace_token = lbrace_token;
     for (DeclarationListAST *iter = member_specifier_list, **ast_iter = &ast->member_specifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
@@ -431,6 +432,7 @@ CtorInitializerAST *CtorInitializerAST::clone(MemoryPool *pool) const
     for (MemInitializerListAST *iter = member_initializer_list, **ast_iter = &ast->member_initializer_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) MemInitializerListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     return ast;
 }
 
@@ -526,6 +528,9 @@ ElaboratedTypeSpecifierAST *ElaboratedTypeSpecifierAST::clone(MemoryPool *pool) 
 {
     ElaboratedTypeSpecifierAST *ast = new (pool) ElaboratedTypeSpecifierAST;
     ast->classkey_token = classkey_token;
+    for (SpecifierListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     if (name)
         ast->name = name->clone(pool);
     return ast;
@@ -1032,7 +1037,7 @@ PointerAST *PointerAST::clone(MemoryPool *pool) const
 ReferenceAST *ReferenceAST::clone(MemoryPool *pool) const
 {
     ReferenceAST *ast = new (pool) ReferenceAST;
-    ast->amp_token = amp_token;
+    ast->reference_token = reference_token;
     return ast;
 }
 
@@ -1208,6 +1213,7 @@ TypenameTypeParameterAST *TypenameTypeParameterAST::clone(MemoryPool *pool) cons
 {
     TypenameTypeParameterAST *ast = new (pool) TypenameTypeParameterAST;
     ast->classkey_token = classkey_token;
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     if (name)
         ast->name = name->clone(pool);
     ast->equal_token = equal_token;
@@ -1226,6 +1232,7 @@ TemplateTypeParameterAST *TemplateTypeParameterAST::clone(MemoryPool *pool) cons
         *ast_iter = new (pool) DeclarationListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->greater_token = greater_token;
     ast->class_token = class_token;
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     if (name)
         ast->name = name->clone(pool);
     ast->equal_token = equal_token;

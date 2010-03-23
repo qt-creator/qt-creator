@@ -459,6 +459,8 @@ void DebuggerManager::init()
     watchersView->setModel(d->m_watchHandler->model(WatchersWatch));
     connect(theDebuggerAction(AssignValue), SIGNAL(triggered()),
         this, SLOT(assignValueInDebugger()), Qt::QueuedConnection);
+    connect(theDebuggerAction(RemoveWatchExpression), SIGNAL(triggered()),
+        this, SLOT(updateWatchersWindow()), Qt::QueuedConnection);
 
     // Log
     connect(this, SIGNAL(emitShowInput(int, QString)),
@@ -511,12 +513,15 @@ void DebuggerManager::init()
     d->m_actions.watchAction2 = new QAction(tr("Add to Watch Window"), this);
 
     d->m_actions.snapshotAction = new QAction(tr("Snapshot"), this);
-    d->m_actions.snapshotAction->setIcon(QIcon(":/debugger/images/debugger_snapshot_small.png"));
+    d->m_actions.snapshotAction->setIcon(
+        QIcon(":/debugger/images/debugger_snapshot_small.png"));
 
-    d->m_actions.reverseDirectionAction = new QAction(tr("Reverse Direction"), this);
+    d->m_actions.reverseDirectionAction =
+        new QAction(tr("Reverse Direction"), this);
     d->m_actions.reverseDirectionAction->setCheckable(true);
     d->m_actions.reverseDirectionAction->setChecked(false);
-    d->m_actions.reverseDirectionAction->setIcon(QIcon(":/debugger/images/location_16.png"));
+    d->m_actions.reverseDirectionAction->setIcon(
+        QIcon(":/debugger/images/debugger_reversemode_16.png"));
 
     connect(d->m_actions.continueAction, SIGNAL(triggered()),
         this, SLOT(executeContinue()));
@@ -758,10 +763,12 @@ void DebuggerManager::clearStatusMessage()
     d->m_statusLabel->setText(d->m_lastPermanentStatusMessage);
 }
 
-void DebuggerManager::showStatusMessage(const QString &msg, int timeout)
+void DebuggerManager::showStatusMessage(const QString &msg0, int timeout)
 {
     Q_UNUSED(timeout)
-    showDebuggerOutput(LogStatus, msg);
+    showDebuggerOutput(LogStatus, msg0);
+    QString msg = msg0;
+    msg.replace(QLatin1Char('\n'), QString());
     d->m_statusLabel->setText(QLatin1String("   ") + msg);
     if (timeout > 0) {
         d->m_statusTimer->setSingleShot(true);
@@ -1802,6 +1809,8 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
     theDebuggerAction(ExecuteCommand)->setEnabled(d->m_state != DebuggerNotReady);
 
+    updateWatchersWindow();
+
     d->m_plugin->handleStateChanged(d->m_state);
     const bool notbusy = state == InferiorStopped
         || state == DebuggerNotReady
@@ -1923,6 +1932,12 @@ void DebuggerManager::fontSettingsChanged(const TextEditor::FontSettings &settin
     changeFontSize(d->m_stackWindow, size);
     changeFontSize(d->m_sourceFilesWindow, size);
     changeFontSize(d->m_threadsWindow, size);
+}
+
+void DebuggerManager::updateWatchersWindow()
+{
+    d->m_watchersWindow->setVisible(
+        d->m_watchHandler->model(WatchersWatch)->rowCount(QModelIndex()) > 0);
 }
 
 //////////////////////////////////////////////////////////////////////

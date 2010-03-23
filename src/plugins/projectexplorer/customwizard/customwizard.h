@@ -49,6 +49,7 @@ class BaseProjectWizardDialog;
 
 namespace Internal {
     struct CustomWizardParameters;
+    struct CustomWizardContext;
 }
 
 // Factory for creating wizard. Can be registered under a name
@@ -105,6 +106,7 @@ public:
 
 protected:
     typedef QSharedPointer<Internal::CustomWizardParameters> CustomWizardParametersPtr;
+    typedef QSharedPointer<Internal::CustomWizardContext> CustomWizardContextPtr;
 
     void initWizardDialog(QWizard *w, const QString &defaultPath,
                           const WizardPageList &extensionPages) const;
@@ -113,10 +115,11 @@ protected:
     Core::GeneratedFiles generateWizardFiles(const QString &path,
                                              const FieldReplacementMap &defaultFields,
                                              QString *errorMessage) const;
-    // Create replacement map from QWizard fields with additional useful fields.
-    FieldReplacementMap defaultReplacementMap(const QWizard *w) const;
+    // Create replacement map as static base fields + QWizard fields
+    FieldReplacementMap replacementMap(const QWizard *w) const;
 
     CustomWizardParametersPtr parameters() const;
+    CustomWizardContextPtr context() const;
 
 private:
     void setParameters(const CustomWizardParametersPtr &p);
@@ -128,7 +131,9 @@ private:
 // A custom project wizard presenting CustomProjectWizardDialog
 // (Project intro page and fields page) for wizards of type "project".
 // Overwrites postGenerateFiles() to open the project file which is the
-// last one by convention.
+// last one by convention. Also inserts '%ProjectName%' into the base
+// replacement map once the intro page is left to have it available
+// for QLineEdit-type fields' default text.
 
 class PROJECTEXPLORER_EXPORT CustomProjectWizard : public CustomWizard
 {
@@ -150,6 +155,9 @@ protected:
 
     void initProjectWizardDialog(BaseProjectWizardDialog *w, const QString &defaultPath,
                                  const WizardPageList &extensionPages) const;
+
+private slots:
+    void introPageLeft(const QString &project, const QString &path);
 };
 
 } // namespace ProjectExplorer

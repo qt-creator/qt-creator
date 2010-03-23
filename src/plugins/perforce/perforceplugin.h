@@ -106,6 +106,7 @@ public:
 
 public slots:
     void describe(const QString &source, const QString &n);
+    void vcsAnnotate(const QString &file, const QString &revision /* = QString() */, int lineNumber);
 
 private slots:
     void openCurrentFile();
@@ -123,7 +124,6 @@ private slots:
     void describeChange();
     void annotateCurrentFile();
     void annotate();
-    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
     void filelogCurrentFile();
     void filelog();
     void logProject();

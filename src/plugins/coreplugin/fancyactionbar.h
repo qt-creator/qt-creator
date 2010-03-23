@@ -75,6 +75,9 @@ class FancyActionBar : public QWidget
 public:
     FancyActionBar(QWidget *parent = 0);
 
+#ifdef Q_WS_MAC
+    bool eventFilter(QObject *, QEvent *);
+#endif
     void paintEvent(QPaintEvent *event);
     void insertAction(int index, QAction *action);
     void addProjectSelector(QAction *action);
@@ -84,6 +87,8 @@ private slots:
     void modeChanged(Core::IMode *mode);
 
 private:
+    void updateRunDebug();
+    bool m_inDebugMode;
     QVBoxLayout *m_actionsLayout;
     FancyToolButton *m_runButton;
     FancyToolButton *m_debugButton;

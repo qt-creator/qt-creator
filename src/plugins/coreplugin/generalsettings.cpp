@@ -124,7 +124,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     fillLanguageBox();
     m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
     m_page->externalEditorEdit->setText(EditorManager::instance()->externalEditor());
-    m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadBehavior());
+    m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadSetting());
 #ifdef Q_OS_UNIX
     m_page->terminalEdit->setText(ConsoleProcess::terminalEmulator(settings));
 #else
@@ -139,6 +139,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_page->externalFileBrowserLabel->hide();
     m_page->externalFileBrowserEdit->hide();
     m_page->resetFileBrowserButton->hide();
+    m_page->helpExternalFileBrowserButton->hide();
 #endif
 
     connect(m_page->resetButton, SIGNAL(clicked()),
@@ -181,7 +182,7 @@ void GeneralSettings::apply()
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
     EditorManager::instance()->setExternalEditor(m_page->externalEditorEdit->text());
-    EditorManager::instance()->setReloadBehavior(IFile::ReloadBehavior(m_page->reloadBehavior->currentIndex()));
+    EditorManager::instance()->setReloadSetting(IFile::ReloadSetting(m_page->reloadBehavior->currentIndex()));
 #ifdef Q_OS_UNIX
 	ConsoleProcess::setTerminalEmulator(Core::ICore::instance()->settings(),
                                         m_page->terminalEdit->text());

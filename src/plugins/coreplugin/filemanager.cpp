@@ -40,6 +40,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
+#include <utils/reloadpromptutils.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QFileInfo>
@@ -227,8 +228,9 @@ void FileManager::addFileInfo(IFile *file)
 
     if (!d->m_states.contains(fixedname)) {
         d->m_states.insert(fixedname, Internal::FileState());
-        if (!fixedname.isEmpty())
+        if (!fixedname.isEmpty()) {
             d->m_fileWatcher->addPath(fixedname);
+        }
     }
 
     d->m_states[fixedname].lastUpdatedState.insert(file, item);
@@ -278,8 +280,9 @@ void FileManager::removeFileInfo(const QString &fileName, IFile *file)
 
     if (d->m_states.value(fixedName).lastUpdatedState.isEmpty()) {
         d->m_states.remove(fixedName);
-        if (!fixedName.isEmpty())
+        if (!fixedName.isEmpty()) {
             d->m_fileWatcher->removePath(fixedName);
+        }
     }
 }
 
@@ -340,8 +343,10 @@ void FileManager::checkForNewFileName()
     const QString &fileName = fixFileName(file->fileName());
 
     // check if the IFile is in the map
-    if (d->m_states[fileName].lastUpdatedState.contains(file)) {
-        // Should checkForNewFileName also call updateFileInfo if the name didn't change?
+    if (d->m_states.value(fileName).lastUpdatedState.contains(file)) {
+        // the file might have been deleted and written again, so guard against that
+        d->m_fileWatcher->removePath(fileName);
+        d->m_fileWatcher->addPath(fileName);
         updateFileInfo(file);
         return;
     }
@@ -718,17 +723,25 @@ void FileManager::checkForReload()
 
     d->m_blockActivated = true;
 
-    IFile::ReloadBehavior behavior = EditorManager::instance()->reloadBehavior();
+    IFile::ReloadSetting defaultBehavior = EditorManager::instance()->reloadSetting();
+    Utils::ReloadPromptAnswer previousAnswer = Utils::ReloadCurrent;
 
-    QStringList allFileNames;
-    foreach(const QString &fileName, d->m_changedFiles) {
-        allFileNames << fileName;
+    QList<IEditor*> editorsToClose;
+    QMap<IFile*, QString> filesToSave;
+    QStringList modifiedFileNames;
+    foreach (const QString &fileName, d->m_changedFiles) {
         // Get the information from the filesystem
+        IFile::ChangeTrigger behavior = IFile::TriggerExternal;
+        IFile::ChangeType type = IFile::TypeContents;
         QFileInfo fi(fileName);
-        bool expected = false;
-        if (fi.lastModified() == d->m_states.value(fileName).expected.modified
-            && fi.permissions() == d->m_states.value(fileName).expected.permissions) {
-            expected = true;
+        if (!fi.exists()) {
+            type = IFile::TypeRemoved;
+        } else {
+            modifiedFileNames << fileName;
+            if (fi.lastModified() == d->m_states.value(fileName).expected.modified
+                && fi.permissions() == d->m_states.value(fileName).expected.permissions) {
+                behavior = IFile::TriggerInternal;
+            }
         }
 
         const QMap<IFile *, Internal::FileStateItem> &lastUpdated =
@@ -736,35 +749,109 @@ void FileManager::checkForReload()
         QMap<IFile *, Internal::FileStateItem>::const_iterator it, end;
         it = lastUpdated.constBegin();
         end = lastUpdated.constEnd();
-
         for ( ; it != end; ++it) {
+            IFile *file = it.key();
             // Compare
             if (it.value().modified == fi.lastModified()
                 && it.value().permissions == fi.permissions()) {
                 // Already up to date
+                continue;
+            }
+            // we've got some modification
+            // check if it's contents or permissions:
+            if (it.value().modified == fi.lastModified()) {
+                // Only permission change
+                file->reload(IFile::FlagReload, IFile::TypePermissions);
+            // now we know it's a content change or file was removed
+            } else if (defaultBehavior == IFile::ReloadUnmodified
+                       && type == IFile::TypeContents && !file->isModified()) {
+                // content change, but unmodified (and settings say to reload in this case)
+                file->reload(IFile::FlagReload, type);
+            // file was removed or it's a content change and the default behavior for
+            // unmodified files didn't kick in
+            } else if (defaultBehavior == IFile::IgnoreAll) {
+                // content change or removed, but settings say ignore
+                file->reload(IFile::FlagIgnore, type);
+            // either the default behavior is to always ask,
+            // or the ReloadUnmodified default behavior didn't kick in,
+            // so do whatever the IFile wants us to do
             } else {
-                // Update IFile
-                if (expected) {
-                    IFile::ReloadBehavior tempBeh = IFile::ReloadUnmodified;
-                    it.key()->modified(&tempBeh);
-                } else {
-                    if (it.value().modified == fi.lastModified()) {
-                        // Only permission change
-                        IFile::ReloadBehavior tempBeh = IFile::ReloadPermissions;
-                        it.key()->modified(&tempBeh);
+                // check if IFile wants us to ask
+                if (file->reloadBehavior(behavior, type) == IFile::BehaviorSilent) {
+                    // content change or removed, IFile wants silent handling
+                    file->reload(IFile::FlagReload, type);
+                // IFile wants us to ask
+                } else if (type == IFile::TypeContents) {
+                    // content change, IFile wants to ask user
+                    if (previousAnswer == Utils::ReloadNone) {
+                        // answer already given, ignore
+                        file->reload(IFile::FlagIgnore, IFile::TypeContents);
+                    } else if (previousAnswer == Utils::ReloadAll) {
+                        // answer already given, reload
+                        file->reload(IFile::FlagReload, IFile::TypeContents);
                     } else {
-                        it.key()->modified(&behavior);
+                        // Ask about content change
+                        previousAnswer = Utils::reloadPrompt(fileName, file->isModified(), QApplication::activeWindow());
+                        switch (previousAnswer) {
+                        case Utils::ReloadAll:
+                        case Utils::ReloadCurrent:
+                            file->reload(IFile::FlagReload, IFile::TypeContents);
+                            break;
+                        case Utils::ReloadSkipCurrent:
+                        case Utils::ReloadNone:
+                            file->reload(IFile::FlagIgnore, IFile::TypeContents);
+                            break;
+                        }
+                    }
+                // IFile wants us to ask, and it's the TypeRemoved case
+                } else {
+                    // Ask about removed file
+                    bool unhandled = true;
+                    while (unhandled) {
+                        switch (Utils::fileDeletedPrompt(fileName, QApplication::activeWindow())) {
+                        case Utils::FileDeletedSave:
+                            filesToSave.insert(file, fileName);
+                            unhandled = false;
+                            break;
+                        case Utils::FileDeletedSaveAs:
+                            {
+                                const QString &saveFileName = getSaveAsFileName(file);
+                                if (!saveFileName.isEmpty()) {
+                                    filesToSave.insert(file, saveFileName);
+                                    unhandled = false;
+                                }
+                                break;
+                            }
+                        case Utils::FileDeletedClose:
+                            editorsToClose << EditorManager::instance()->editorsForFile(file);
+                            unhandled = false;
+                            break;
+                        }
                     }
                 }
-                updateFileInfo(it.key());
             }
+
+            updateFileInfo(file);
         }
     }
-    if (!allFileNames.isEmpty()) {
-        d->m_fileWatcher->removePaths(allFileNames);
-        d->m_fileWatcher->addPaths(allFileNames);
+
+    // cleanup
+    if (!modifiedFileNames.isEmpty()) {
+        d->m_fileWatcher->removePaths(modifiedFileNames);
+        d->m_fileWatcher->addPaths(modifiedFileNames);
     }
     d->m_changedFiles.clear();
+
+    // handle deleted files
+    EditorManager::instance()->closeEditors(editorsToClose, false);
+    QMapIterator<IFile *, QString> it(filesToSave);
+    while (it.hasNext()) {
+        it.next();
+        blockFileChange(it.key());
+        it.key()->save(it.value());
+        unblockFileChange(it.key());
+    }
+
     d->m_blockActivated = false;
 }
 

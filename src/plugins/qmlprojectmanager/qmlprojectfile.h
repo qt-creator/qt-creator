@@ -57,7 +57,8 @@ public:
     virtual bool isReadOnly() const;
     virtual bool isSaveAsAllowed() const;
 
-    virtual void modified(ReloadBehavior *behavior);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
 
 private:
     QmlProject *m_project;

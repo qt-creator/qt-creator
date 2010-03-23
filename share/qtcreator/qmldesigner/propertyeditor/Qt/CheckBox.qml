@@ -31,22 +31,20 @@ QWidget { //This is a special checkBox that does color coding for states
         evaluate();
     }
 
-    Script {
-        function evaluate() {
-            if (!enabled) {
-                localLabel.setStyleSheet("color: "+scheme.disabledColor);
+    function evaluate() {
+        if (!enabled) {
+            localLabel.setStyleSheet("color: "+scheme.disabledColor);
+        } else {
+            if (baseStateFlag) {
+                if (backendValue.isInModel)
+                    localLabel.setStyleSheet("color: "+scheme.changedBaseColor);
+                else
+                    localLabel.setStyleSheet("color: "+scheme.boldTextColor);
             } else {
-                if (baseStateFlag) {
-                    if (backendValue.isInModel)
-                        localLabel.setStyleSheet("color: "+scheme.changedBaseColor);
-                    else
-                        localLabel.setStyleSheet("color: "+scheme.boldTextColor);
-                } else {
-                    if (backendValue.isInSubState)
-                        localLabel.setStyleSheet("color: "+scheme.changedStateColor);
-                    else
-                        localLabel.setStyleSheet("color: "+scheme.boldTextColor);
-                }
+                if (backendValue.isInSubState)
+                    localLabel.setStyleSheet("color: "+scheme.changedStateColor);
+                else
+                    localLabel.setStyleSheet("color: "+scheme.boldTextColor);
             }
         }
     }

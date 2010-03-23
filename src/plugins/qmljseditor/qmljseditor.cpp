@@ -650,6 +650,8 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
 
     connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::Internal::SemanticInfo)),
             this, SLOT(updateSemanticInfo(QmlJSEditor::Internal::SemanticInfo)));
+
+    setRequestMarkEnabled(false);
 }
 
 QmlJSTextEditor::~QmlJSTextEditor()
@@ -1369,7 +1371,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     return semanticInfo;
 }
 
-void SemanticHighlighter::setModelManager(ModelManagerInterface *modelManager)
+void SemanticHighlighter::setModelManager(QmlJSEditor::ModelManagerInterface *modelManager)
 {
     m_modelManager = modelManager;
 }

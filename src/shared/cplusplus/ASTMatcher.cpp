@@ -434,9 +434,9 @@ bool ASTMatcher::match(CompoundExpressionAST *node, CompoundExpressionAST *patte
 
     pattern->lparen_token = node->lparen_token;
 
-    if (! pattern->compoundStatement)
-        pattern->compoundStatement = node->compoundStatement;
-    else if (! AST::match(node->compoundStatement, pattern->compoundStatement, this))
+    if (! pattern->statement)
+        pattern->statement = node->statement;
+    else if (! AST::match(node->statement, pattern->statement, this))
         return false;
 
     pattern->rparen_token = node->rparen_token;
@@ -569,6 +569,8 @@ bool ASTMatcher::match(ClassSpecifierAST *node, ClassSpecifierAST *pattern)
         pattern->base_clause_list = node->base_clause_list;
     else if (! AST::match(node->base_clause_list, pattern->base_clause_list, this))
         return false;
+
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
 
     pattern->lbrace_token = node->lbrace_token;
 
@@ -705,6 +707,8 @@ bool ASTMatcher::match(CtorInitializerAST *node, CtorInitializerAST *pattern)
         pattern->member_initializer_list = node->member_initializer_list;
     else if (! AST::match(node->member_initializer_list, pattern->member_initializer_list, this))
         return false;
+
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
 
     return true;
 }
@@ -869,6 +873,11 @@ bool ASTMatcher::match(ElaboratedTypeSpecifierAST *node, ElaboratedTypeSpecifier
     (void) pattern;
 
     pattern->classkey_token = node->classkey_token;
+
+    if (! pattern->attribute_list)
+        pattern->attribute_list = node->attribute_list;
+    else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
+        return false;
 
     if (! pattern->name)
         pattern->name = node->name;
@@ -1725,7 +1734,7 @@ bool ASTMatcher::match(ReferenceAST *node, ReferenceAST *pattern)
     (void) node;
     (void) pattern;
 
-    pattern->amp_token = node->amp_token;
+    pattern->reference_token = node->reference_token;
 
     return true;
 }
@@ -2013,6 +2022,8 @@ bool ASTMatcher::match(TypenameTypeParameterAST *node, TypenameTypeParameterAST 
 
     pattern->classkey_token = node->classkey_token;
 
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
+
     if (! pattern->name)
         pattern->name = node->name;
     else if (! AST::match(node->name, pattern->name, this))
@@ -2045,6 +2056,8 @@ bool ASTMatcher::match(TemplateTypeParameterAST *node, TemplateTypeParameterAST 
     pattern->greater_token = node->greater_token;
 
     pattern->class_token = node->class_token;
+
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
 
     if (! pattern->name)
         pattern->name = node->name;

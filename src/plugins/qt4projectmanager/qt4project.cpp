@@ -216,8 +216,17 @@ bool Qt4ProjectFile::isSaveAsAllowed() const
     return false;
 }
 
-void Qt4ProjectFile::modified(Core::IFile::ReloadBehavior *)
+Core::IFile::ReloadBehavior Qt4ProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
+}
+
+void Qt4ProjectFile::reload(ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
 }
 
 /*!

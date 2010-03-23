@@ -359,6 +359,9 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_ui.setupUi(w);
     m_group.clear();
 
+    m_group.insert(theDebuggerAction(SwitchLanguageAutomatically),
+        m_ui.checkBoxChangeLanguageAutomatically);
+
     m_group.insert(theDebuggerAction(ListSourceFiles),
         m_ui.checkBoxListSourceFiles);
     m_group.insert(theDebuggerAction(UseAlternatingRowColors),
@@ -388,7 +391,9 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(BreakOnCatch), 0);
 
     if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords) << ' ' << m_ui.checkBoxListSourceFiles->text()
+        QTextStream(&m_searchKeywords) << ' '
+                << m_ui.checkBoxChangeLanguageAutomatically->text()
+                << m_ui.checkBoxListSourceFiles->text()
                 << ' ' << m_ui.checkBoxUseMessageBoxForSignals->text()
                 << ' ' << m_ui.checkBoxUseAlternatingRowColors->text()
                 << ' ' << m_ui.checkBoxUseToolTipsInMainEditor->text()
@@ -678,7 +683,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_debugMode = new DebugMode(this);
     m_uiSwitcher = new DebuggerUISwitcher(m_debugMode, this);
     ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
-    m_uiSwitcher->addLanguage(LANG_CPP);
 
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
@@ -695,8 +699,11 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     QList<int> cppcontext;
     cppcontext << uidm->uniqueIdentifier(PE::LANG_CXX);
 
-    QList<int> debuggercontext;
-    debuggercontext << uidm->uniqueIdentifier(C_GDBDEBUGGER);
+    QList<int> baseDebuggerContext;
+    baseDebuggerContext << uidm->uniqueIdentifier(C_BASEDEBUGGER);
+
+    QList<int> gdbDebuggercontext;
+    gdbDebuggercontext << uidm->uniqueIdentifier(C_GDBDEBUGGER);
 
     QList<int> cppeditorcontext;
     cppeditorcontext << uidm->uniqueIdentifier(CppEditor::Constants::C_CPPEDITOR);
@@ -705,6 +712,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     texteditorcontext << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 
     m_gdbRunningContext = uidm->uniqueIdentifier(Constants::GDBRUNNING);
+
+    m_uiSwitcher->addLanguage(LANG_CPP, gdbDebuggercontext);
 
     DebuggerManager *manager = new DebuggerManager(this);
     ExtensionSystem::PluginManager::instance()->addObject(manager);
@@ -717,7 +726,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     QList<int> context;
     context.append(uidm->uniqueIdentifier(CC::C_EDITORMANAGER));
-    context.append(uidm->uniqueIdentifier(C_GDBDEBUGGER));
+    context.append(uidm->uniqueIdentifier(C_BASEDEBUGGER));
     context.append(uidm->uniqueIdentifier(CC::C_NAVIGATION_PANE));
     m_debugMode->setContext(context);
 
@@ -760,22 +769,27 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     cmd = am->registerAction(m_startExternalAction,
         Constants::STARTEXTERNAL, globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_attachExternalAction,
         Constants::ATTACHEXTERNAL, globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_attachCoreAction,
         Constants::ATTACHCORE, globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_startRemoteAction,
         Constants::ATTACHREMOTE, globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_detachAction,
         Constants::DETACH, globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
     m_uiSwitcher->addMenuAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(actions.stopAction,
@@ -796,99 +810,122 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, _("Debugger.Sep.Step"), globalcontext);
-    m_uiSwitcher->addMenuAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
 
     cmd = am->registerAction(actions.nextAction,
-        Constants::NEXT, debuggercontext);
+        Constants::NEXT, gdbDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::NEXT_KEY));
-    m_uiSwitcher->addMenuAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
 
     cmd = am->registerAction(actions.stepAction,
-        Constants::STEP, debuggercontext);
+        Constants::STEP, gdbDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEP_KEY));
-    m_uiSwitcher->addMenuAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(actions.stepOutAction,
-        Constants::STEPOUT, debuggercontext);
+        Constants::STEPOUT, gdbDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
-    m_uiSwitcher->addMenuAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(actions.runToLineAction1,
-        Constants::RUN_TO_LINE1, debuggercontext);
+        Constants::RUN_TO_LINE1, gdbDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
-    m_uiSwitcher->addMenuAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(actions.runToFunctionAction,
-        Constants::RUN_TO_FUNCTION, debuggercontext);
+        Constants::RUN_TO_FUNCTION, gdbDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_FUNCTION_KEY));
-    m_uiSwitcher->addMenuAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(actions.jumpToLineAction1,
-        Constants::JUMP_TO_LINE1, debuggercontext);
-    m_uiSwitcher->addMenuAction(cmd);
+        Constants::JUMP_TO_LINE1, gdbDebuggercontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(actions.returnFromFunctionAction,
-        Constants::RETURN_FROM_FUNCTION, debuggercontext);
-    m_uiSwitcher->addMenuAction(cmd);
+        Constants::RETURN_FROM_FUNCTION, gdbDebuggercontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(actions.reverseDirectionAction,
-        Constants::REVERSE, debuggercontext);
+        Constants::REVERSE, gdbDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::REVERSE_KEY));
-    m_uiSwitcher->addMenuAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, _("Debugger.Sep.Break"), globalcontext);
-    m_uiSwitcher->addMenuAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(actions.snapshotAction,
-        Constants::SNAPSHOT, debuggercontext);
+        Constants::SNAPSHOT, gdbDebuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
-    m_uiSwitcher->addMenuAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(theDebuggerAction(OperateByInstruction),
-        Constants::OPERATE_BY_INSTRUCTION, debuggercontext);
-    m_uiSwitcher->addMenuAction(cmd);
+        Constants::OPERATE_BY_INSTRUCTION, gdbDebuggercontext);
+    cmd->setAttribute(Command::CA_Hide);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(actions.breakAction,
         Constants::TOGGLE_BREAK, cppeditorcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
-    m_uiSwitcher->addMenuAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
     //mcppcontext->addAction(cmd);
 
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, _("Debugger.Sep.Watch"), globalcontext);
-    m_uiSwitcher->addMenuAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     cmd = am->registerAction(actions.watchAction1,
         Constants::ADD_TO_WATCH1, cppeditorcontext);
     cmd->action()->setEnabled(true);
     //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
-    m_uiSwitcher->addMenuAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
 
     // Editor context menu
     ActionContainer *editorContextMenu =
         am->actionContainer(CppEditor::Constants::M_CONTEXT);
     cmd = am->registerAction(sep, _("Debugger.Sep.Views"),
-        debuggercontext);
+        gdbDebuggercontext);
     editorContextMenu->addAction(cmd);
     cmd->setAttribute(Command::CA_Hide);
 
     cmd = am->registerAction(actions.watchAction2,
-        Constants::ADD_TO_WATCH2, debuggercontext);
+        Constants::ADD_TO_WATCH2, gdbDebuggercontext);
     cmd->action()->setEnabled(true);
     editorContextMenu->addAction(cmd);
     cmd->setAttribute(Command::CA_Hide);
 
     cmd = am->registerAction(actions.runToLineAction2,
-        Constants::RUN_TO_LINE2, debuggercontext);
+        Constants::RUN_TO_LINE2, gdbDebuggercontext);
     cmd->action()->setEnabled(true);
     editorContextMenu->addAction(cmd);
     cmd->setAttribute(Command::CA_Hide);
 
     cmd = am->registerAction(actions.jumpToLineAction2,
-        Constants::JUMP_TO_LINE2, debuggercontext);
+        Constants::JUMP_TO_LINE2, gdbDebuggercontext);
     cmd->action()->setEnabled(true);
     editorContextMenu->addAction(cmd);
     cmd->setAttribute(Command::CA_Hide);
@@ -978,6 +1015,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     connect(theDebuggerAction(EnableReverseDebugging), SIGNAL(valueChanged(QVariant)),
         this, SLOT(enableReverseDebuggingTriggered(QVariant)));
+
+    // UI Switcher
+    connect(DebuggerUISwitcher::instance(), SIGNAL(languageChanged(QString)),
+           this, SLOT(languageChanged(QString)));
 
     return true;
 }
@@ -1217,6 +1258,21 @@ void DebuggerPlugin::handleStateChanged(int state)
     m_detachAction->setEnabled(detachable);
 }
 
+void DebuggerPlugin::languageChanged(const QString &language)
+{
+    if (!m_manager)
+        return;
+
+    const bool debuggerIsCPP = (language == Constants::LANG_CPP);
+
+    m_startExternalAction->setVisible(debuggerIsCPP);
+    m_attachExternalAction->setVisible(debuggerIsCPP);
+    m_attachCoreAction->setVisible(debuggerIsCPP);
+    m_startRemoteAction->setVisible(debuggerIsCPP);
+    m_detachAction->setVisible(debuggerIsCPP);
+
+}
+
 void DebuggerPlugin::writeSettings() const
 {
     QSettings *s = settings();
@@ -1242,9 +1298,8 @@ void DebuggerPlugin::onModeChanged(IMode *mode)
     if (editorManager->currentEditor()) {
         editorManager->currentEditor()->widget()->setFocus();
 
-        if (editorManager->currentEditor()->id() == CppEditor::Constants::C_CPPEDITOR) {
+        if (editorManager->currentEditor()->id() == CppEditor::Constants::C_CPPEDITOR)
             m_uiSwitcher->setActiveLanguage(LANG_CPP);
-        }
 
     }
 }

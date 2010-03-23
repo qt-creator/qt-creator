@@ -65,6 +65,6 @@ Item {
     // the following depend on the actual shape of the item delegate
     property int cellWidth: textWidth + 2 * cellHorizontalMargin
     property int cellHeight: itemLibraryIconHeight + textHeight +
-	                     2 * cellVerticalMargin + cellVerticalSpacing
+    2 * cellVerticalMargin + cellVerticalSpacing
 }
 

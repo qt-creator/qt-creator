@@ -771,7 +771,7 @@ void CVSPlugin::annotateCurrentFile()
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void CVSPlugin::annotateVersion(const QString &file, const QString &revision, int lineNumber)
+void CVSPlugin::vcsAnnotate(const QString &file, const QString &revision, int lineNumber)
 {
     const QFileInfo fi(file);
     annotate(fi.absolutePath(), fi.fileName(), revision, lineNumber);
@@ -1072,7 +1072,7 @@ Core::IEditor * CVSPlugin::showOutputInEditor(const QString& title, const QStrin
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::instance()->openEditorWithContents(id, &s, output.toLocal8Bit());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(annotateVersion(QString,QString,int)));
+            this, SLOT(vcsAnnotate(QString,QString,int)));
     CVSEditor *e = qobject_cast<CVSEditor*>(editor->widget());
     if (!e)
         return 0;

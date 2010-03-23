@@ -349,11 +349,11 @@ static inline QString fixValue(const QString &value, const QString &type)
     if (value.endsWith(QLatin1Char('"')) || value.endsWith(QLatin1Char('\'')))
         return value;
     const int size = value.size();
-    // Unsigned hex numbers
-    if (isIntType(type) && (size > 2 && value.at(1) == QLatin1Char('x'))) {
-        quint64 intValue;
-        if (CdbCore::SymbolGroupContext::getUnsignedHexValue(value, &intValue))
-            return QString::number(intValue);
+    // Integer numbers Unsigned hex numbers (0x)/decimal numbers (0n)
+    if (isIntType(type)) {
+        const QVariant intValue = CdbCore::SymbolGroupContext::getIntValue(value);
+        if (intValue.isValid())
+            return intValue.toString();
     }
     return size < 20 ? value : CdbCore::SymbolGroupContext::removeInnerTemplateType(value);
 }

@@ -288,13 +288,25 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
             QDir dir(importPath);
             if (!dir.cd(package))
                 continue;
-            if (!dir.exists("qmldir"))
+
+            const LibraryInfo libraryInfo = _snapshot.libraryInfo(dir.path());
+            if (!libraryInfo.isValid())
                 continue;
 
+            QSet<QString> importedTypes;
+            foreach (const QmlDirParser::Component &component, libraryInfo.components()) {
+                if (importedTypes.contains(component.typeName))
+                    continue;
 
-            // ### Should read qmldir file and import accordingly.
-            foreach (Document::Ptr otherDoc, _documentByPath.values(dir.path())) {
-                namespaceObject->setProperty(componentName(otherDoc->fileName()), otherDoc->bind()->rootObjectValue());
+                if (component.majorVersion > majorVersion
+                    || (component.majorVersion == majorVersion
+                        && component.minorVersion > minorVersion))
+                    continue;
+
+                importedTypes.insert(component.typeName);
+                if (Document::Ptr importedDoc = _snapshot.document(dir.filePath(component.fileName))) {
+                    namespaceObject->setProperty(component.typeName, importedDoc->bind()->rootObjectValue());
+                }
             }
 
             break;

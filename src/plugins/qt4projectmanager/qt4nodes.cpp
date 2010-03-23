@@ -207,12 +207,21 @@ bool Qt4PriFile::isSaveAsAllowed() const
     return false;
 }
 
-void Qt4PriFile::modified(Core::IFile::ReloadBehavior *behavior)
+Core::IFile::ReloadBehavior Qt4PriFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
-    Q_UNUSED(behavior);
-    m_priFile->scheduleUpdate();
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
 }
 
+void Qt4PriFile::reload(ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
+    if (type == TypePermissions)
+        return;
+    m_priFile->scheduleUpdate();
+}
 
 /*!
   \class Qt4PriFileNode
@@ -725,8 +734,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     // (The .pro files are notified by the file system watcher)
     foreach (Core::IEditor *editor, Core::ICore::instance()->editorManager()->editorsForFileName(m_projectFilePath)) {
         if (Core::IFile *editorFile = editor->file()) {
-            Core::IFile::ReloadBehavior b = Core::IFile::ReloadUnmodified;
-            editorFile->modified(&b);
+            editorFile->reload(Core::IFile::FlagReload, Core::IFile::TypeContents);
         }
     }
 

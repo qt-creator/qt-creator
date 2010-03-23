@@ -84,6 +84,8 @@ FullySpecifiedType FullySpecifiedType::qualifiedType() const
     ty.setInline(false);
     ty.setVirtual(false);
     ty.setExplicit(false);
+
+    ty.setDeprecated(false);
     return ty;
 }
 
@@ -164,6 +166,12 @@ bool FullySpecifiedType::isExplicit() const
 
 void FullySpecifiedType::setExplicit(bool isExplicit)
 { f._isExplicit = isExplicit; }
+
+bool FullySpecifiedType::isDeprecated() const
+{ return f._isDeprecated; }
+
+void FullySpecifiedType::setDeprecated(bool isDeprecated)
+{ f._isDeprecated = isDeprecated; }
 
 bool FullySpecifiedType::isEqualTo(const FullySpecifiedType &other) const
 {

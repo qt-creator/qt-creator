@@ -129,9 +129,9 @@ QStringList QmlProjectRunConfiguration::viewerArguments() const
         args.append(m_qmlViewerArgs);
 
     // arguments from .qmlproject file
-    foreach (const QString &libraryPath, qmlTarget()->qmlProject()->libraryPaths()) {
+    foreach (const QString &importPath, qmlTarget()->qmlProject()->importPaths()) {
         args.append(QLatin1String("-L"));
-        args.append(libraryPath);
+        args.append(importPath);
     }
 
     const QString s = mainScript();

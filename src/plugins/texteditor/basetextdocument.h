@@ -85,7 +85,8 @@ public:
     virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const { return true; }
     virtual void checkPermissions();
-    virtual void modified(Core::IFile::ReloadBehavior *behavior);
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
+    void reload(ReloadFlag flag, ChangeType type);
     virtual QString mimeType() const;
     void setMimeType(const QString &mt);
 

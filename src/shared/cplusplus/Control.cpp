@@ -53,7 +53,6 @@
 #include "CoreTypes.h"
 #include "Symbols.h"
 #include "Names.h"
-#include "Array.h"
 #include "TypeMatcher.h"
 #include <map>
 #include <set>
@@ -308,9 +307,9 @@ public:
         return pointerTypes.intern(PointerType(elementType));
     }
 
-    ReferenceType *findOrInsertReferenceType(const FullySpecifiedType &elementType)
+    ReferenceType *findOrInsertReferenceType(const FullySpecifiedType &elementType, bool rvalueRef)
     {
-        return referenceTypes.intern(ReferenceType(elementType));
+        return referenceTypes.intern(ReferenceType(elementType, rvalueRef));
     }
 
     ArrayType *findOrInsertArrayType(const FullySpecifiedType &elementType, unsigned size)
@@ -508,6 +507,7 @@ public:
     // symbols
     std::vector<Symbol *> symbols;
 
+    const Identifier *deprecatedId;
     // ObjC context keywords:
     const Identifier *objcGetterId;
     const Identifier *objcSetterId;
@@ -522,6 +522,8 @@ public:
 Control::Control()
 {
     d = new Data(this);
+
+    d->deprecatedId = findOrInsertIdentifier("deprecated");
 
     d->objcGetterId = findOrInsertIdentifier("getter");
     d->objcSetterId = findOrInsertIdentifier("setter");
@@ -649,8 +651,8 @@ PointerToMemberType *Control::pointerToMemberType(const Name *memberName, const 
 PointerType *Control::pointerType(const FullySpecifiedType &elementType)
 { return d->findOrInsertPointerType(elementType); }
 
-ReferenceType *Control::referenceType(const FullySpecifiedType &elementType)
-{ return d->findOrInsertReferenceType(elementType); }
+ReferenceType *Control::referenceType(const FullySpecifiedType &elementType, bool rvalueRef)
+{ return d->findOrInsertReferenceType(elementType, rvalueRef); }
 
 ArrayType *Control::arrayType(const FullySpecifiedType &elementType, unsigned size)
 { return d->findOrInsertArrayType(elementType, size); }
@@ -719,6 +721,9 @@ ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, const Name *name)
 
 ObjCPropertyDeclaration *Control::newObjCPropertyDeclaration(unsigned sourceLocation, const Name *name)
 { return d->newObjCPropertyDeclaration(sourceLocation, name); }
+
+const Identifier *Control::deprecatedId() const
+{ return d->deprecatedId; }
 
 const Identifier *Control::objcGetterId() const
 { return d->objcGetterId; }

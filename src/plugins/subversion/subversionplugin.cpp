@@ -799,7 +799,7 @@ void SubversionPlugin::annotateCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
+    vcsAnnotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void SubversionPlugin::annotateVersion(const QString &file,
@@ -807,10 +807,10 @@ void SubversionPlugin::annotateVersion(const QString &file,
                                        int lineNr)
 {
     const QFileInfo fi(file);
-    annotate(fi.absolutePath(), fi.fileName(), revision, lineNr);
+    vcsAnnotate(fi.absolutePath(), fi.fileName(), revision, lineNr);
 }
 
-void SubversionPlugin::annotate(const QString &workingDir, const QString &file,
+void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &file,
                                 const QString &revision /* = QString() */,
                                 int lineNumber /* = -1 */)
 {

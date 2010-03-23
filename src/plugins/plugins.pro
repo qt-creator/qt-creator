@@ -195,6 +195,7 @@ plugin_qmlprojectmanager.depends += plugin_debugger
 plugin_qmldesigner.subdir = qmldesigner
 plugin_qmldesigner.depends = plugin_coreplugin
 plugin_qmldesigner.depends += plugin_texteditor
+plugin_qmldesigner.depends += plugin_qmljseditor
 
 plugin_qmlinspector.subdir = qmlinspector
 plugin_qmlinspector.depends += plugin_projectexplorer

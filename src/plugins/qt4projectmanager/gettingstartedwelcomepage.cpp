@@ -34,13 +34,23 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 GettingStartedWelcomePage::GettingStartedWelcomePage()
-        : m_page(new GettingStartedWelcomePageWidget)
+    : m_page(0)
 {
 }
 
-QWidget* GettingStartedWelcomePage::page()
+QWidget *GettingStartedWelcomePage::page()
 {
+    if (!m_page)
+        m_page = new GettingStartedWelcomePageWidget;
     return m_page;
+}
+
+void GettingStartedWelcomePage::updateExamples(const QString &examplePath,
+                                               const QString &demosPath,
+                                               const QString &sourcePath)
+{
+    if (m_page)
+        m_page->updateExamples(examplePath, demosPath, sourcePath);
 }
 
 } // namespace Internal

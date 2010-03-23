@@ -6,19 +6,16 @@ QWidget {
     id: anchorButtons
     fixedHeight: 32
 
+    function isBorderAnchored() {
+        return anchorBackend.leftAnchored || anchorBackend.topAnchored || anchorBackend.rightAnchored || anchorBackend.bottomAnchored;
+    }
 
-    Script {
-        function isBorderAnchored() {
-            return anchorBackend.leftAnchored || anchorBackend.topAnchored || anchorBackend.rightAnchored || anchorBackend.bottomAnchored;
-        }
+    function fill() {
+        anchorBackend.fill();
+    }
 
-        function fill() {
-            anchorBackend.fill();
-        }
-
-        function breakLayout() {
-            anchorBackend.resetLayout()
-        }
+    function breakLayout() {
+        anchorBackend.resetLayout()
     }
 
     QPushButton {

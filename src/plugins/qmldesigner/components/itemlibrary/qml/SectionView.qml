@@ -53,34 +53,34 @@ Column {
 
     function setSelection(itemSectionIndex)
     {
-	gridView.currentIndex = itemSectionIndex
+        gridView.currentIndex = itemSectionIndex
     }
 
     function unsetSelection()
     {
-	gridView.currentIndex = -1
+        gridView.currentIndex = -1
     }
 
     function focusSelection(flickable) {
-	var pos = -1;
+        var pos = -1;
 
-	if (!gridView.currentItem)
-	    return;
+        if (!gridView.currentItem)
+            return;
 
-	var currentItemX = sectionView.x + gridFrame.x + gridView.x + gridView.currentItem.x;
-	var currentItemY = sectionView.y + gridFrame.y + gridView.y + gridView.currentItem.y
-	    - gridView.contentY;  // workaround: GridView reports wrong contentY
+        var currentItemX = sectionView.x + gridFrame.x + gridView.x + gridView.currentItem.x;
+        var currentItemY = sectionView.y + gridFrame.y + gridView.y + gridView.currentItem.y
+        - gridView.contentY;  // workaround: GridView reports wrong contentY
 
-	if (currentItemY < flickable.contentY)
-	    pos = Math.max(0, currentItemY)
+        if (currentItemY < flickable.contentY)
+            pos = Math.max(0, currentItemY)
 
-	else if ((currentItemY + gridView.currentItem.height) >
-		 (flickable.contentY + flickable.height - 1))
-	    pos = Math.min(Math.max(0, flickable.contentHeight - flickable.height),
-			   currentItemY + gridView.currentItem.height - flickable.height + 1)
+            else if ((currentItemY + gridView.currentItem.height) >
+                     (flickable.contentY + flickable.height - 1))
+                pos = Math.min(Math.max(0, flickable.contentHeight - flickable.height),
+        currentItemY + gridView.currentItem.height - flickable.height + 1)
 
-	if (pos >= 0)
-	    flickable.contentY = pos
+                if (pos >= 0)
+                    flickable.contentY = pos
     }
 
     // internal
@@ -93,8 +93,8 @@ Column {
         ItemView {
             id: item
 
-	    width: cellWidth
-	    height: cellHeight
+            width: cellWidth
+            height: cellHeight
 
             onItemPressed: sectionView.itemSelected(itemLibId)
             onItemDragged: sectionView.itemDragged(itemLibId)
@@ -134,7 +134,7 @@ Column {
 
             text: sectionName  // to be set by model
             color: style.sectionTitleTextColor
-	    elide: Text.ElideMiddle
+            elide: Text.ElideMiddle
         }
         MouseArea {
             anchors.fill: parent
@@ -162,11 +162,11 @@ Column {
             Connections {
                 target: itemLibraryModel  // to be set in Qml context
                 onSectionVisibilityChanged: {
-		    /* workaround: reset model in order to get the grid view
-                       updated properly under all conditions */
-		    if (changedSectionLibId == sectionLibId)
-			gridView.model = sectionEntries
-		}
+                    /* workaround: reset model in order to get the grid view
+updated properly under all conditions */
+                    if (changedSectionLibId == sectionLibId)
+                        gridView.model = sectionEntries
+                }
             }
 
             anchors.fill: parent
@@ -177,24 +177,24 @@ Column {
             cellHeight: sectionView.cellHeight
             model: sectionEntries  // to be set by model
             delegate: itemDelegate
-	    highlight: itemHighlight
+            highlight: itemHighlight
             interactive: false
             highlightFollowsCurrentItem: false
         }
 
         states: [
-            State {
-                name: "shrunk"
-                PropertyChanges {
-                    target: gridFrame
-                    height: 0
-                    opacity: 0
-                }
-                PropertyChanges {
-                    target: arrow
-                    rotation: -90
-                }
+        State {
+            name: "shrunk"
+            PropertyChanges {
+                target: gridFrame
+                height: 0
+                opacity: 0
             }
+            PropertyChanges {
+                target: arrow
+                rotation: -90
+            }
+        }
         ]
     }
 

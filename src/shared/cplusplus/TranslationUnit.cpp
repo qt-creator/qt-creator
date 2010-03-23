@@ -69,7 +69,7 @@ TranslationUnit::TranslationUnit(Control *control, const StringLiteral *fileId)
       _ast(0),
       _flags(0)
 {
-    _tokens = new Array<Token, 8>();
+    _tokens = new std::vector<Token>();
     _previousTranslationUnit = control->switchTranslationUnit(this);
     _pool = new MemoryPool();
 }

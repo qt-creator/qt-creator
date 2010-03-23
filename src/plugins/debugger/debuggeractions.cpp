@@ -163,7 +163,7 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setText(tr("Operate by Instruction"));
     item->setCheckable(true);
     item->setDefaultValue(false);
-    item->setIcon(QIcon(":/debugger/images/SingleInstructionMode.png"));
+    item->setIcon(QIcon(":/debugger/images/debugger_singleinstructionmode.png"));
     item->setToolTip(tr("This switches the debugger to instruction-wise "
         "operation mode. In this mode, stepping operates on single "
         "instructions and the source location view also shows the "
@@ -369,7 +369,6 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(UseAddressInBreakpointsView, item);
-    item = new SavedAction(instance);
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInStackView"));
@@ -442,6 +441,14 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setDefaultValue(20);
     instance->insertItem(GdbWatchdogTimeout, item);
 
+    // Language switching
+    item = new Utils::SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ChangeLanguageAutomatically"));
+    item->setText(tr("Change debugger language automatically"));
+    item->setToolTip(tr("Changes the debugger language according to the currently opened file."));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    instance->insertItem(SwitchLanguageAutomatically, item);
 
     return instance;
 }

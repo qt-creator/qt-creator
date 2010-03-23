@@ -47,7 +47,6 @@
 #include "qtoptionspage.h"
 #include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
-#include "gettingstartedwelcomepagewidget.h"
 
 #include "qt-maemo/maemomanager.h"
 #include "qt-s60/s60manager.h"
@@ -103,16 +102,14 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     Core::ActionManager *am = core->actionManager();
 
-    QtVersionManager *mgr = new QtVersionManager();
+    QtVersionManager *mgr = new QtVersionManager;
     addAutoReleasedObject(mgr);
-    addAutoReleasedObject(new QtOptionsPage());
+    addAutoReleasedObject(new QtOptionsPage);
 
     m_welcomePage = new GettingStartedWelcomePage;
     addObject(m_welcomePage);
-    GettingStartedWelcomePageWidget *gswp =
-            static_cast<GettingStartedWelcomePageWidget*>(m_welcomePage->page());
     connect(mgr, SIGNAL(updateExamples(QString,QString,QString)),
-            gswp, SLOT(updateExamples(QString,QString,QString)));
+            m_welcomePage, SLOT(updateExamples(QString,QString,QString)));
 
     //create and register objects
     m_qt4ProjectManager = new Qt4Manager(this);

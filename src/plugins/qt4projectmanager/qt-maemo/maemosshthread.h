@@ -69,7 +69,7 @@ protected:
     bool stopRequested() const { return m_stopRequested; }
 
 private:
-    virtual void runInternal()=0;
+    virtual void runInternal() = 0;
 
     bool m_stopRequested;
     QString m_error;

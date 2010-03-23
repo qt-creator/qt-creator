@@ -36,6 +36,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/parser/qmldirparser_p.h>
 #include <texteditor/itexteditor.h>
 
 #include <QDir>
@@ -62,9 +63,12 @@ ModelManager::ModelManager(QObject *parent):
     m_synchronizer.setCancelOnWait(true);
 
     qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
+    qRegisterMetaType<QmlJS::LibraryInfo>("QmlJS::LibraryInfo");
 
     connect(this, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
             this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
+    connect(this, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
+            this, SLOT(onLibraryInfoUpdated(QString,QmlJS::LibraryInfo)));
 
     loadQmlTypeDescriptions();
 
@@ -197,6 +201,16 @@ void ModelManager::onDocumentUpdated(Document::Ptr doc)
     _snapshot.insert(doc);
 }
 
+void ModelManager::emitLibraryInfoUpdated(const QString &path, const LibraryInfo &info)
+{ emit libraryInfoUpdated(path, info); }
+
+void ModelManager::onLibraryInfoUpdated(const QString &path, const LibraryInfo &info)
+{
+    QMutexLocker locker(&m_mutex);
+
+    _snapshot.insertLibraryInfo(path, info);
+}
+
 void ModelManager::parse(QFutureInterface<void> &future,
                             QMap<QString, WorkingCopy> workingCopy,
                             QStringList files,
@@ -270,13 +284,33 @@ void ModelManager::parseDirectories(QFutureInterface<void> &future,
         pattern << glob.pattern();
     foreach (const QRegExp &glob, qmlSourceTy.globPatterns())
         pattern << glob.pattern();
+    pattern << QLatin1String("qmldir");
 
     QStringList importedFiles;
+    QStringList qmldirFiles;
     foreach (const QString &path, directories) {
         QDirIterator fileIterator(path, pattern, QDir::Files,
                                   QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
-        while (fileIterator.hasNext())
-            importedFiles << fileIterator.next();
+        while (fileIterator.hasNext()) {
+            fileIterator.next();
+            if (fileIterator.fileName() == QLatin1String("qmldir"))
+                qmldirFiles << fileIterator.filePath();
+            else
+                importedFiles << fileIterator.filePath();
+        }
+    }
+
+    foreach (const QString &qmldirFilePath, qmldirFiles) {
+        QFile qmldirFile(qmldirFilePath);
+        qmldirFile.open(QFile::ReadOnly);
+        QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
+
+        QmlDirParser qmldirParser;
+        qmldirParser.setSource(qmldirData);
+        qmldirParser.parse();
+
+        modelManager->emitLibraryInfoUpdated(QFileInfo(qmldirFilePath).path(),
+                                             LibraryInfo(qmldirParser));
     }
 
     parse(future, workingCopy, importedFiles, modelManager);

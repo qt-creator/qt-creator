@@ -36,6 +36,8 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
+#include <utils/fancymainwindow.h>
+
 #include <QtGui/QApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QDialog>
@@ -84,6 +86,12 @@ bool panelWidget(const QWidget *widget)
     // Do not style dialogs or explicitly ignored widgets
     if (qobject_cast<const QDialog *>(widget->window()))
         return false;
+
+    if (qobject_cast<const Utils::FancyMainWindow *>(widget))
+        return true;
+
+    if (qobject_cast<const QTabBar *>(widget))
+        return styleEnabled(widget);
 
     const QWidget *p = widget;
     while (p) {
@@ -197,6 +205,7 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
         if (panelWidget(widget))
             retval = 16;
         break;
+    case PM_DockWidgetHandleExtent:
     case PM_DockWidgetSeparatorExtent:
         return 1;
     case PM_MenuPanelWidth:
@@ -257,13 +266,19 @@ void ManhattanStyle::polish(QWidget *widget)
 {
     QProxyStyle::polish(widget);
 
-    // OxygenStyle forces a rounded widget mask on toolbars
+    // OxygenStyle forces a rounded widget mask on toolbars and dock widgets
     if (baseStyle()->inherits("OxygenStyle")) {
-        if (qobject_cast<QToolBar*>(widget))
+        if (qobject_cast<QToolBar*>(widget) || qobject_cast<QDockWidget*>(widget)) {
             widget->removeEventFilter(baseStyle());
+            widget->setContentsMargins(0, 0, 0, 0);
+        }
     }
-
     if (panelWidget(widget)) {
+
+        // Oxygen and possibly other styles override this
+        if (qobject_cast<QDockWidget*>(widget))
+            widget->setContentsMargins(0, 0, 0, 0);
+
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
         if (qobject_cast<QToolButton*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
@@ -424,6 +439,12 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     }
 
     switch (element) {
+    case PE_IndicatorDockWidgetResizeHandle:
+        painter->fillRect(option->rect, Utils::StyleHelper::borderColor());
+        break;
+    case PE_FrameDockWidget:
+        QCommonStyle::drawPrimitive(element, option, painter, widget);
+        break;
     case PE_PanelLineEdit:
         {
             painter->save();
@@ -607,7 +628,8 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
         if (const QStyleOptionTabV3 *tab = qstyleoption_cast<const QStyleOptionTabV3 *>(option)) {
             QStyleOptionTabV3 adjustedTab = *tab;
-            if (tab->position == QStyleOptionTab::Beginning) {
+            if (tab->position == QStyleOptionTab::Beginning
+                || tab->position == QStyleOptionTab::OnlyOneTab) {
                 if (option->direction == Qt::LeftToRight)
                     adjustedTab.rect = adjustedTab.rect.adjusted(-1, 0, 0, 0);
                 else
@@ -754,42 +776,22 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
     case CE_ToolBar:
         {
-            QString key;
-            QColor keyColor = Utils::StyleHelper::baseColor(lightColored(widget));
-            key.sprintf("mh_toolbar %d %d %d", option->rect.width(), option->rect.height(), keyColor.rgb());;
-
-            QPixmap pixmap;
-            QPainter *p = painter;
             QRect rect = option->rect;
             bool horizontal = option->state & State_Horizontal;
-            if (Utils::StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-                pixmap = QPixmap(option->rect.size());
-                p = new QPainter(&pixmap);
-                rect = QRect(0, 0, option->rect.width(), option->rect.height());
-            }
+            rect = option->rect;
 
-            if (!Utils::StyleHelper::usePixmapCache() || !QPixmapCache::find(key, pixmap)) {
-                // Map offset for global window gradient
-                QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
-                                                              widget->mapToGlobal(option->rect.topLeft());
-                QRect gradientSpan;
-                if (widget) {
-                    gradientSpan = QRect(offset, widget->window()->size());
-                }
-                bool drawLightColored = lightColored(widget);
-                if (horizontal)
-                    Utils::StyleHelper::horizontalGradient(p, gradientSpan, rect, drawLightColored);
-                else
-                    Utils::StyleHelper::verticalGradient(p, gradientSpan, rect, drawLightColored);
-            }
+            // Map offset for global window gradient
+            QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
+                            widget->mapToGlobal(option->rect.topLeft());
+            QRect gradientSpan;
+            if (widget)
+                gradientSpan = QRect(offset, widget->window()->size());
 
-            if (Utils::StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-                delete p;
-                QPixmapCache::insert(key, pixmap);
-            }
-            if (Utils::StyleHelper::usePixmapCache()) {
-                painter->drawPixmap(rect.topLeft(), pixmap);
-            }
+            bool drawLightColored = lightColored(widget);
+            if (horizontal)
+                Utils::StyleHelper::horizontalGradient(painter, gradientSpan, rect, drawLightColored);
+            else
+                Utils::StyleHelper::verticalGradient(painter, gradientSpan, rect, drawLightColored);
 
             painter->setPen(Utils::StyleHelper::borderColor());
 

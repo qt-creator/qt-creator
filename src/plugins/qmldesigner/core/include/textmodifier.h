@@ -30,13 +30,14 @@
 #ifndef TEXTMODIFIER_H
 #define TEXTMODIFIER_H
 
+#include "corelib_global.h"
+
+#include <qmljs/qmljsdocument.h>
+
 #include <QtCore/QByteArray>
 #include <QtCore/QObject>
-
-#include <QTextCursor>
-#include <QTextDocument>
-
-#include "corelib_global.h"
+#include <QtGui/QTextCursor>
+#include <QtGui/QTextDocument>
 
 namespace QmlDesigner {
 
@@ -82,6 +83,9 @@ public:
 
     virtual void deactivateChangeSignals() = 0;
     virtual void reactivateChangeSignals() = 0;
+
+    virtual QmlJS::Snapshot getSnapshot() const = 0;
+    virtual QStringList importPaths() const = 0;
 
 signals:
     void textChanged();

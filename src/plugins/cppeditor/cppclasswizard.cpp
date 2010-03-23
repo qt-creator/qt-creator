@@ -282,7 +282,7 @@ bool CppClassWizard::generateHeaderAndSource(const CppClassWizardParameters &par
         headerStr << "\n";
     headerStr << namespaceIndent << "{\n";
     if (defineQObjectMacro)
-        headerStr << namespaceIndent << "Q_OBJECT\n";
+        headerStr << namespaceIndent << indent << "Q_OBJECT\n";
     headerStr << namespaceIndent << "public:\n"
               << namespaceIndent << indent;
     // Constructor

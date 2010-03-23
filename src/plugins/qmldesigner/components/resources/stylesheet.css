@@ -46,6 +46,18 @@ QLineEdit
      selection-background-color: darkgray;
 }
 
+QLineEdit#itemLibrarySearchInput {
+    color: black;
+    border: 2px solid #0F0F0F;
+    border-radius: 6px;
+    border-width: 1;
+    max-height: 20px;
+    min-height: 20px;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #e0e0e0, stop: 1 #f0f0f0);
+}
+
+
  QTreeView {
     color: white;
     selection-color: white
@@ -100,4 +112,31 @@ QTreeView::branch:has-siblings:!adjoins-item {
 	 selection-background-color: #d2d2d2;
 	 selection-color: #404040;
  }
+
+QTabBar::tab {
+    border-image: none;
+    width: 11ex;
+    height: 22px;
+    margin: 0px 0 0px 0;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #3c3c3c, stop: 1 #444444);
+
+    color: #EEEEEE;
+}
+
+QTabBar::tab:hover {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #3c3c3c, stop: 1 #666666);
+}
+
+QTabBar::tab:selected {
+    border: none; /* no border for a flat push button */
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #EFEFEF, stop: 1 #EEEEEE);
+    color: #3c3c3c;
+}
+
+QWidget#itemLibrarySearchInputFrame {
+    background-color: #eeeeee;
+}
 

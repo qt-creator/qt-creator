@@ -304,6 +304,11 @@ Namespace *Document::globalNamespace() const
     return _globalNamespace;
 }
 
+void Document::setGlobalNamespace(Namespace *globalNamespace)
+{
+    _globalNamespace = globalNamespace;
+}
+
 Symbol *Document::findSymbolAt(unsigned line, unsigned column) const
 {
     return findSymbolAt(line, column, globalSymbols());

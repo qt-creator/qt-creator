@@ -195,17 +195,9 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     }
 
     FullySpecifiedType funTy(fun);
+    funTy = semantic()->check(ast->cv_qualifier_list, _scope, funTy);
+
     _fullySpecifiedType = funTy;
-
-    for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
-        SimpleSpecifierAST *cv = static_cast<SimpleSpecifierAST *>(it->value);
-        const int k = tokenKind(cv->specifier_token);
-        if (k == T_CONST)
-            fun->setConst(true);
-        else if (k == T_VOLATILE)
-            fun->setVolatile(true);
-    }
-
     return false;
 }
 
@@ -230,6 +222,9 @@ bool CheckDeclarator::visit(PointerToMemberAST *ast)
 
 bool CheckDeclarator::visit(PointerAST *ast)
 {
+    if (_fullySpecifiedType->isReferenceType())
+        translationUnit()->error(ast->firstToken(), "cannot declare pointer to a reference");
+
     PointerType *ptrTy = control()->pointerType(_fullySpecifiedType);
     FullySpecifiedType ty(ptrTy);
     _fullySpecifiedType = ty;
@@ -237,9 +232,14 @@ bool CheckDeclarator::visit(PointerAST *ast)
     return false;
 }
 
-bool CheckDeclarator::visit(ReferenceAST *)
+bool CheckDeclarator::visit(ReferenceAST *ast)
 {
-    ReferenceType *refTy = control()->referenceType(_fullySpecifiedType);
+    const bool rvalueRef = (tokenKind(ast->reference_token) == T_AMPER_AMPER);
+
+    if (_fullySpecifiedType->isReferenceType())
+        translationUnit()->error(ast->firstToken(), "cannot declare reference to a reference");
+
+    ReferenceType *refTy = control()->referenceType(_fullySpecifiedType, rvalueRef);
     FullySpecifiedType ty(refTy);
     _fullySpecifiedType = ty;
     return false;
@@ -281,6 +281,8 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
         method->setVariadic(true);
 
     _fullySpecifiedType = FullySpecifiedType(method);
+    _fullySpecifiedType = semantic()->check(ast->attribute_list, _scope,
+                                            _fullySpecifiedType);
 
     return false;
 }

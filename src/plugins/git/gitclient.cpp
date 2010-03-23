@@ -302,7 +302,7 @@ void GitClient::status(const QString &workingDirectory)
     VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
     outwin->setRepository(workingDirectory);
     GitCommand *command = executeGit(workingDirectory, statusArgs, 0, true);
-    connect(command, SIGNAL(finished(bool,QVariant)), outwin, SLOT(clearRepository()),
+    connect(command, SIGNAL(finished(bool,int,QVariant)), outwin, SLOT(clearRepository()),
             Qt::QueuedConnection);
 }
 
@@ -985,7 +985,7 @@ GitCommand *GitClient::createCommand(const QString &workingDirectory,
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     GitCommand* command = new GitCommand(binary(), workingDirectory, processEnvironment(), QVariant(editorLineNumber));
     if (editor)
-        connect(command, SIGNAL(finished(bool,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,QVariant)));
+        connect(command, SIGNAL(finished(bool,int,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
     if (outputToWindow) {
         if (editor) { // assume that the commands output is the important thing
             connect(command, SIGNAL(outputData(QByteArray)), outputWindow, SLOT(appendDataSilently(QByteArray)));
@@ -1035,6 +1035,8 @@ QStringList GitClient::processEnvironment() const
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
     if (m_settings.adoptPath)
         environment.set(QLatin1String("PATH"), m_settings.path);
+    // git svn runs perl which barfs at non-C locales.
+    environment.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
     return environment.toStringList();
 }
 
@@ -1443,8 +1445,67 @@ void GitClient::revert(const QStringList &files)
 
 void GitClient::pull(const QString &workingDirectory)
 {
-    GitCommand *cmd = executeGit(workingDirectory, QStringList(QLatin1String("pull")), 0, true, GitCommand::ReportStderr);
+    pull(workingDirectory, m_settings.pullRebase);
+}
+
+void GitClient::pull(const QString &workingDirectory, bool rebase)
+{
+    QStringList arguments(QLatin1String("pull"));
+    if (rebase)
+        arguments << QLatin1String("--rebase");
+    GitCommand *cmd = executeGit(workingDirectory, arguments, 0, true, GitCommand::ReportStderr);
     connectRepositoryChanged(workingDirectory, cmd);
+    // Need to clean up if something goes wrong
+    if (rebase) {
+        cmd->setCookie(QVariant(workingDirectory));
+        connect(cmd, SIGNAL(finished(bool,int,QVariant)), this, SLOT(slotPullRebaseFinished(bool,int,QVariant)),
+                Qt::QueuedConnection);
+    }
+}
+
+void GitClient::slotPullRebaseFinished(bool ok, int exitCode, const QVariant &cookie)
+{
+    if (ok && exitCode == 0)
+        return;
+    // Abort rebase to clean if something goes wrong
+    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    outwin->appendError(tr("git pull --rebase failed, aborting rebase."));
+    const QString workingDir = cookie.toString();
+    QStringList arguments;
+    arguments << QLatin1String("rebase") << QLatin1String("--abort");
+    QByteArray stdOut;
+    QByteArray stdErr;
+    const bool rc = synchronousGit(workingDir, arguments, &stdOut, &stdErr, true);
+    outwin->append(commandOutputFromLocal8Bit(stdOut));
+    if (!rc)
+        outwin->appendError(commandOutputFromLocal8Bit(stdErr));
+}
+
+// Subversion: git svn
+void GitClient::subversionFetch(const QString &workingDirectory)
+{
+    QStringList args;
+    args << QLatin1String("svn") << QLatin1String("fetch");
+    GitCommand *cmd = executeGit(workingDirectory, args, 0, true, GitCommand::ReportStderr);
+    connectRepositoryChanged(workingDirectory, cmd);
+}
+
+void GitClient::subversionLog(const QString &workingDirectory)
+{
+    if (Git::Constants::debug)
+        qDebug() << "subversionLog" << workingDirectory;
+
+    QStringList arguments;
+    arguments << QLatin1String("svn") << QLatin1String("log");
+    if (m_settings.logCount > 0)
+         arguments << (QLatin1String("--limit=") + QString::number(m_settings.logCount));
+
+    // Create a command editor, no highlighting or interaction.
+    const QString title = tr("Git SVN Log");
+    const QString editorId = QLatin1String(Git::Constants::C_GIT_COMMAND_LOG_EDITOR);
+    const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, QStringList());
+    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, false, "svnLog", sourceFile);
+    executeGit(workingDirectory, arguments, editor);
 }
 
 void GitClient::push(const QString &workingDirectory)

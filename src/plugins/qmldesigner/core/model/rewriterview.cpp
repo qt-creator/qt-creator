@@ -71,6 +71,15 @@ RewriterView::Error::Error(const QDeclarativeError &qmlError):
 {
 }
 
+RewriterView::Error::Error(const QUrl &url, const QString &description, int line,
+                           int column, Type type):
+    m_type(type),
+    m_line(line),
+    m_column(column),
+    m_description(description),
+    m_url(url)
+{}
+
 QString RewriterView::Error::toString() const
 {
     QString str;

@@ -27,15 +27,16 @@
 **
 **************************************************************************/
 #include "objectpropertiesview.h"
+#include "inspectorcontext.h"
 
-#include <QtCore/qdebug.h>
+#include <QtCore/QDebug>
 
-#include <QtGui/qtreewidget.h>
-#include <QtGui/qlayout.h>
-#include <QtGui/qheaderview.h>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QLayout>
+#include <QtGui/QHeaderView>
+namespace Qml {
+namespace Internal {
 
-
-QT_BEGIN_NAMESPACE
 
 class PropertiesViewItem : public QObject, public QTreeWidgetItem
 {
@@ -78,15 +79,27 @@ ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWid
     m_tree->setFrameStyle(QFrame::NoFrame);
     m_tree->setAlternatingRowColors(true);
     m_tree->setExpandsOnDoubleClick(false);
+    m_tree->setRootIsDecorated(false);
     m_tree->setHeaderLabels(QStringList()
             << tr("Name") << tr("Value") << tr("Type"));
     QObject::connect(m_tree, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
                      this, SLOT(itemActivated(QTreeWidgetItem *)));
+    connect(m_tree, SIGNAL(itemSelectionChanged()), SLOT(changeItemSelection()));
 
     m_tree->setColumnCount(3);
     m_tree->header()->setDefaultSectionSize(150);
 
     layout->addWidget(m_tree);
+}
+
+void ObjectPropertiesView::changeItemSelection()
+{
+    if (m_tree->selectedItems().isEmpty())
+        return;
+
+    QString item = m_object.className();
+    QString prop = m_tree->selectedItems().first()->text(0);
+    emit contextHelpIdChanged(InspectorContext::contextHelpIdForProperty(item, prop));
 }
 
 void ObjectPropertiesView::setEngineDebug(QDeclarativeEngineDebug *client)
@@ -255,6 +268,7 @@ void ObjectPropertiesView::itemActivated(QTreeWidgetItem *i)
         emit activated(m_object, item->property);
 }
 
-QT_END_NAMESPACE
+}
+}
 
 #include "objectpropertiesview.moc"

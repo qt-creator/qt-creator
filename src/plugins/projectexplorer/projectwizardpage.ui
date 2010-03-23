@@ -31,11 +31,6 @@
      </item>
      <item row="0" column="1">
       <widget class="QComboBox" name="projectComboBox">
-       <item>
-        <property name="text">
-         <string notr="true">A very long project name indeed</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item row="1" column="0">
@@ -50,11 +45,6 @@
      </item>
      <item row="1" column="1">
       <widget class="QComboBox" name="addToVersionControlComboBox">
-       <item>
-        <property name="text">
-         <string notr="true">A very long version control system name</string>
-        </property>
-       </item>
       </widget>
      </item>
     </layout>

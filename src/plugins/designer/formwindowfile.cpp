@@ -111,43 +111,26 @@ bool FormWindowFile::isSaveAsAllowed() const
     return true;
 }
 
-void FormWindowFile::modified(Core::IFile::ReloadBehavior *behavior)
+Core::IFile::ReloadBehavior FormWindowFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
-    if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << m_fileName << *behavior;
-
-    switch (*behavior) {
-    case  Core::IFile::ReloadNone:
-        return;
-    case Core::IFile::ReloadUnmodified:
-        if (!isModified()) {
-            reload(m_fileName);
-            return;
-        }
-        break;
-    case Core::IFile::ReloadAll:
-        emit reload(m_fileName);
-        return;
-    case Core::IFile::ReloadPermissions:
-        emit changed();
-        return;
-    case Core::IFile::AskForReload:
-        break;
+    if (type == TypePermissions)
+        return BehaviorSilent;
+    if (type == TypeContents) {
+        if (state == TriggerInternal && !isModified())
+            return BehaviorSilent;
+        return BehaviorAsk;
     }
+    return BehaviorAsk;
+}
 
-    switch (Utils::reloadPrompt(m_fileName, isModified(), Core::ICore::instance()->mainWindow())) {
-    case Utils::ReloadCurrent:
+void FormWindowFile::reload(ReloadFlag flag, ChangeType type)
+{
+    if (flag == FlagIgnore)
+        return;
+    if (type == TypePermissions) {
+        emit changed();
+    } else {
         emit reload(m_fileName);
-        break;
-    case Utils::ReloadAll:
-        emit reload(m_fileName);
-        *behavior = Core::IFile::ReloadAll;
-        break;
-    case Utils::ReloadSkipCurrent:
-        break;
-    case Utils::ReloadNone:
-        *behavior = Core::IFile::ReloadNone;
-        break;
     }
 }
 

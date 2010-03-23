@@ -67,6 +67,8 @@
 #include <utils/savedaction.h>
 #include <utils/treewidgetcolumnstretcher.h>
 
+#include <cppeditor/cppeditorconstants.h>
+
 #include <cpptools/cpptoolsconstants.h>
 
 #include <indenter.h>
@@ -553,6 +555,8 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
     s_defaultExCommandMap[ProjectExplorer::Constants::BUILD] = QRegExp("^make$");
     s_defaultExCommandMap["Coreplugin.OutputPane.previtem"] = QRegExp("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
     s_defaultExCommandMap["Coreplugin.OutputPane.nextitem"] = QRegExp("^cn(ext)?!?( (.*))?$");
+    s_defaultExCommandMap[CppEditor::Constants::JUMP_TO_DEFINITION] = QRegExp("^tag?$");
+    s_defaultExCommandMap[Core::Constants::GO_BACK] = QRegExp("^pop?$");
 }
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
@@ -938,7 +942,7 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
             const QString &id = it.key();
             const QRegExp &re = it.value();
 
-            if (re.indexIn(cmd) != -1) {
+            if (!re.pattern().isEmpty() && re.indexIn(cmd) != -1) {
                 triggerAction(id);
                 return;
             }

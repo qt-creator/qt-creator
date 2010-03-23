@@ -87,19 +87,20 @@ void SiblingComboBox::setup()
     }
 
     QmlItemNode parent(m_itemNode.instanceParent().toQmlItemNode());
-    m_itemList.prepend(parent);
-    QString parentString("Parent (");
 
-    if (parent.id().isEmpty())
-        parentString += parent.simplfiedTypeName();
-    else
-        parentString += parent.id();
-    parentString += ")";
-    insertItem(0, parentString);
+    if (parent.isValid()) {
+        m_itemList.prepend(parent);
+        QString parentString("Parent (");
 
+        if (parent.id().isEmpty())
+            parentString += parent.simplfiedTypeName();
+        else
+            parentString += parent.id();
+        parentString += ")";
+        insertItem(0, parentString);
+    }
     setCurrentIndex(m_itemList.indexOf(m_selectedItemNode));
     connect(this, SIGNAL(currentIndexChanged (int)), this, SLOT(changeSelection(int)));
-
 }
 
 

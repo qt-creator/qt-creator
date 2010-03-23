@@ -31,6 +31,7 @@
 
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>
+#include <private/qdeclarativeengine_p.h>
 
 #include <QtDebug>
 #include <QUrl>

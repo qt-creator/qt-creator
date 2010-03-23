@@ -45,6 +45,11 @@ class QDeclarativeDebugConnection;
 class QDeclarativeDebugPropertyReference;
 class QDeclarativeDebugObjectReference;
 
+QT_END_NAMESPACE
+
+namespace Qml {
+namespace Internal {
+
 class WatchTableModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -60,10 +65,12 @@ public:
     void removeWatchAt(int row);
     void removeAllWatches();
 
+    Qt::ItemFlags flags (const QModelIndex & index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData (const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
 
 signals:
     void watchCreated(QDeclarativeDebugWatch *watch);
@@ -115,6 +122,7 @@ public:
 
 signals:
     void objectActivated(int objectDebugId);
+    void contextHelpIdChanged(const QString &contextHelpId);
 
 protected:
     void mousePressEvent(QMouseEvent *me);
@@ -128,6 +136,7 @@ private:
 };
 
 
-QT_END_NAMESPACE
+} // Internal
+} // Qml
 
 #endif // WATCHTABLEMODEL_H

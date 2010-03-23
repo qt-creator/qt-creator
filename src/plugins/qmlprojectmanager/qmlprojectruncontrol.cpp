@@ -83,6 +83,8 @@ void QmlRunControl::start()
     m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui, m_executable,
                                 m_commandLineArguments);
 
+    // FIXME this line should be refactored out in order to remove the dependency between
+    // debugger and qmlprojectmanager, because debugger also relies on cpptools.
     Debugger::DebuggerUISwitcher::instance()->setActiveLanguage(Qml::Constants::LANG_QML);
 
     emit started();

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+Custom project wizard configuration example file. Note that by convention, 
+the project file goes last.
+The "class" and "firstpage" attributes specify that it is a Qt 4 wizard and 
+leave room for the Qt 4 target page.
+-->
+<wizard version="1" kind="project"
+        class="qt4project" firstpage="10"
+        id="QmlRuntimePlugin" category="F.Projects">
+    <description>Creates a plug-in for the QML runtime.</description>
+    <displayName>QML Runtime Plug-in</displayName>
+    <displayCategory>QML Runtime Plug-in</displayCategory>
+    <files>
+        <file source="qmldir" target="%ProjectName%/qmldir"/>
+        <file source="plugin.h" target="%ProjectName%.h"/>
+        <file source="plugin.cpp" target="%ProjectName%.cpp"/>
+        <file source="object.h" target="%ObjectName%.h"/>
+        <file source="object.cpp" target="%ObjectName%.cpp"/>
+        <file source="project.pro" target="%ProjectName%.pro"/>
+    </files>
+    <!-- Create a 2nd wizard page with parameters -->
+    <fieldpagetitle>QML Runtime Plug-in Parameters</fieldpagetitle>
+    <fields>
+        <field mandatory="false" name="ObjectName">
+            <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9_]+$'  defaulttext="ExampleObject"/>
+            <fielddescription>Example Object Class-name:</fielddescription>
+        </field>
+    </fields>
+</wizard>

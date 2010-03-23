@@ -60,6 +60,7 @@
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QToolButton>
+#include <QtGui/QMessageBox>
 
 #include <QtCore/QDebug>
 
@@ -96,17 +97,18 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
-
+    Core::ICore *core = Core::ICore::instance();
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             SLOT(prepareDebugger(Core::IMode*)));
 
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
-    uiSwitcher->addLanguage(Qml::Constants::LANG_QML);
 
+    uiSwitcher->addLanguage(Qml::Constants::LANG_QML,
+                            QList<int>() << core->uniqueIDManager()->uniqueIdentifier(Constants::C_INSPECTOR));
     m_inspector = new QmlInspector;
+    m_inspector->createDockWidgets();
     addObject(m_inspector);
-    Core::ICore::instance()->addContextObject(m_inspector->context());
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 
@@ -162,9 +164,16 @@ void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *pr
 void QmlInspectorPlugin::pollInspector()
 {
     ++m_connectionAttempts;
-    if (m_inspector->connectToViewer() || m_connectionAttempts == MaxConnectionAttempts) {
+    if (m_inspector->connectToViewer()) {
         m_connectionTimer->stop();
         m_connectionAttempts = 0;
+    } else if (m_connectionAttempts == MaxConnectionAttempts) {
+        m_connectionTimer->stop();
+        m_connectionAttempts = 0;
+
+        QMessageBox::critical(0,
+                              tr("Failed to connect to debugger"),
+                              tr("Could not connect to debugger server. Please check your settings from Projects pane.") );
     }
 }
 

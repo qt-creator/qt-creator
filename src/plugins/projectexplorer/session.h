@@ -173,7 +173,7 @@ private slots:
     void handleCurrentEditorChange(Core::IEditor *editor);
     void updateWindowTitle();
 
-    void markSessionFileDirty();
+    void markSessionFileDirty(bool makeDefaultVirginDirty = true);
 
 private:
     bool loadImpl(const QString &fileName);
@@ -195,6 +195,7 @@ private:
     QPointer<Core::IEditor> m_currentEditor;
     QString m_displayName;
     QString m_sessionName;
+    bool m_defaultVirginSession;
 
     mutable QStringList m_sessions;
 

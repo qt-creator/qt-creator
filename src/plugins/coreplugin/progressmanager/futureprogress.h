@@ -42,26 +42,12 @@ class QProgressBar;
 class QHBoxLayout;
 QT_END_NAMESPACE
 
-class ProgressBar;
-
 namespace Core {
 
-    class FadeWidgetHack : public QWidget
-    {
-        Q_OBJECT
-        Q_PROPERTY(float opacity READ opacity WRITE setOpacity)
-    public:
-        FadeWidgetHack(QWidget *parent):QWidget(parent), m_opacity(0){
-            setAttribute(Qt::WA_TransparentForMouseEvents);
-        }
-        void paintEvent(QPaintEvent *);
-
-        void setOpacity(float o) { m_opacity = o; update(); }
-        float opacity() const { return m_opacity; }
-
-    private:
-        float m_opacity;
-    };
+namespace Internal {
+class ProgressBar;
+class FadeWidgetHack;
+} // namespace Internal
 
 class CORE_EXPORT FutureProgress : public QWidget
 {
@@ -111,14 +97,13 @@ private slots:
 
 private:
     QFutureWatcher<void> m_watcher;
-    ProgressBar *m_progress;
+    Internal::ProgressBar *m_progress;
     QWidget *m_widget;
     QHBoxLayout *m_widgetLayout;
     QString m_type;
     bool m_keep;
     bool m_waitingForUserInteraction;
-    FadeWidgetHack *m_faderWidget;
-
+    Internal::FadeWidgetHack *m_faderWidget;
 };
 
 } // namespace Core

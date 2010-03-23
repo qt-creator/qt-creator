@@ -29,9 +29,11 @@
 
 #include "reloadpromptutils.h"
 
-#include <QtGui/QMessageBox>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
+#include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
+#include <QtGui/QAbstractButton>
 
 using namespace Utils;
 
@@ -67,4 +69,28 @@ QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
         break;
     }
     return ReloadNone;
+}
+
+QTCREATOR_UTILS_EXPORT Utils::FileDeletedPromptAnswer
+        Utils::fileDeletedPrompt(const QString &fileName, QWidget *parent)
+{
+    const QString title = QCoreApplication::translate("Utils::fileDeletedPrompt", "File has been removed");
+    QString msg;
+     msg = QCoreApplication::translate("Utils::fileDeletedPrompt",
+                                      "The file %1 has been removed outside Qt Creator. Do you want to save it under a different name, or close the editor?").arg(QDir::toNativeSeparators(fileName));
+    QMessageBox box(QMessageBox::Question, title, msg, QMessageBox::NoButton, parent);
+    QPushButton *close = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "Close"), QMessageBox::RejectRole);
+    QPushButton *saveas = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "Save as..."), QMessageBox::ActionRole);
+    QPushButton *save = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "Save"), QMessageBox::AcceptRole);
+    box.setDefaultButton(saveas);
+    box.exec();
+    QAbstractButton *clickedbutton = box.clickedButton();
+    if (clickedbutton == close) {
+        return FileDeletedClose;
+    } else if (clickedbutton == saveas) {
+        return FileDeletedSaveAs;
+    } else if (clickedbutton == save) {
+        return FileDeletedSave;
+    }
+    return FileDeletedClose;
 }

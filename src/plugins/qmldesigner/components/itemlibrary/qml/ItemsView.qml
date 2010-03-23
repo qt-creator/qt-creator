@@ -31,28 +31,28 @@ import Qt 4.6
 
 /* The view displaying the item grid.
 
-   The following Qml context properties have to be set:
-     - listmodel itemLibraryModel
-     - int itemLibraryIconWidth
-     - int itemLibraryIconHeight
+The following Qml context properties have to be set:
+- listmodel itemLibraryModel
+- int itemLibraryIconWidth
+- int itemLibraryIconHeight
 
-   itemLibraryModel has to have the following structure:
+itemLibraryModel has to have the following structure:
 
-   ListModel {
-       ListElement {
-           int sectionLibId
-           string sectionName
-           list sectionEntries: [
-               ListElement {
-                   int itemLibId
-                   string itemName
-                   pixmap itemPixmap
-               },
-               ...
-           ]
-       }
-       ...
-   }
+ListModel {
+ListElement {
+int sectionLibId
+string sectionName
+list sectionEntries: [
+ListElement {
+int itemLibId
+string itemName
+pixmap itemPixmap
+},
+...
+]
+}
+...
+}
 */
 
 Rectangle {
@@ -79,149 +79,149 @@ Rectangle {
     color: style.backgroundColor
 
     /* workaround: without this, a completed drag and drop operation would
-                   result in the drag being continued when QmlView re-gains
-                   focus */
+result in the drag being continued when QmlView re-gains
+focus */
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
         onEntered: {
-	    if (!pressed)
-		stopDragAndDrop()
-	}
-    }
-
-    signal selectionUpdated(int itemSectionIndex)
-
-    property int selectedItemLibId: -1
-    property int selectionSectionLibId: -1
-
-    function setSelection(itemLibId) {
-	selectedItemLibId = itemLibId
-	selectionSectionLibId = itemLibraryModel.getSectionLibId(itemLibId)
-	selectionUpdated(itemLibraryModel.getItemSectionIndex(itemLibId))
-    }
-
-    function unsetSelection() {
-	selectedItemLibId = -1
-	selectionSectionLibId = -1
-	selectionUpdated(-1)
-    }
-
-    Connections {
-	target: itemLibraryModel
-        onVisibilityChanged: {
-	    if (itemLibraryModel.isItemVisible(selectedItemLibId))
-		setSelection(selectedItemLibId)
-	    else
-		unsetSelection()
-	}
-    }
-
-    /* the following 3 properties are calculated here for performance
-       reasons and then passed to the section views */
-    property int entriesPerRow: Math.max(1, Math.floor((itemsFlickable.width - 2) / style.cellWidth))
-    property int cellWidth: Math.floor((itemsFlickable.width - 2) / entriesPerRow)
-    property int cellHeight: style.cellHeight
-
-    Component {
-        id: sectionDelegate
-
-        SectionView {
-            id: section
-
-            entriesPerRow: itemsView.entriesPerRow
-            cellWidth: itemsView.cellWidth
-            cellHeight: itemsView.cellHeight
-
-            width: itemsFlickable.width
-            itemHighlight: selector
-
-	    property bool containsSelection: (selectionSectionLibId == sectionLibId)
-
-            onItemSelected: {
-		itemsView.setSelection(itemLibId)
-		itemsView.itemSelected(itemLibId)
-	    }
-            onItemDragged: {
-		section.itemSelected(itemLibId)
-		itemsView.itemDragged(itemLibId)
-	    }
-
-            Connections {
-                target: itemsView
-                onExpandAllEntries: section.expand()
-		onSelectionUpdated: {
-		    if (containsSelection) {
-			section.setSelection(itemSectionIndex)
-			section.focusSelection(itemsFlickable)
-		    } else
-			section.unsetSelection()
-		}
-	    }
-
-	    Component {
-		id: selector
-
-		Selector {
-		    x: containsSelection? section.currentItem.x:0
-		    y: containsSelection? section.currentItem.y:0
-		    width: itemsView.cellWidth
-		    height: itemsView.cellHeight
-
-		    visible: containsSelection
-		}
-	    }
-        }
-    }
-
-    Flickable {
-        id: itemsFlickable
-
-        anchors.top: parent.top
-	anchors.topMargin: 3
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: scrollbar.left
-	overShoot: false
-
-        interactive: false
-        contentHeight: col.height
-
-	/* Limit the content position. Without this, resizing would get the
-           content position out of scope regarding the scrollbar. */
-	function limitContentPos() {
-	    if (contentY < 0)
-		contentY = 0;
-	    else {
-		var maxContentY = Math.max(0, contentHeight - height)
-		if (contentY > maxContentY)
-		    contentY = maxContentY;
-	    }
-	}
-	onHeightChanged: limitContentPos()
-	onContentHeightChanged: limitContentPos()
-
-        Column {
-            id: col
-
-            Repeater {
-                model: itemLibraryModel  // to be set in Qml context
-                delegate: sectionDelegate
+            if (!pressed)
+                stopDragAndDrop()
             }
-        }
-    }
+            }
 
-    Scrollbar {
-        id: scrollbar
+                signal selectionUpdated(int itemSectionIndex)
 
-        anchors.top: parent.top
-        anchors.topMargin: 2
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 2
-        anchors.left: parent.right
-        anchors.leftMargin: -10
-        anchors.right: parent.right
+                property int selectedItemLibId: -1
+                property int selectionSectionLibId: -1
 
-        flickable: itemsFlickable
-    }
-}
+                function setSelection(itemLibId) {
+                    selectedItemLibId = itemLibId
+                    selectionSectionLibId = itemLibraryModel.getSectionLibId(itemLibId)
+                    selectionUpdated(itemLibraryModel.getItemSectionIndex(itemLibId))
+                }
+
+                function unsetSelection() {
+                    selectedItemLibId = -1
+                    selectionSectionLibId = -1
+                    selectionUpdated(-1)
+                }
+
+                Connections {
+                    target: itemLibraryModel
+                    onVisibilityChanged: {
+                        if (itemLibraryModel.isItemVisible(selectedItemLibId))
+                            setSelection(selectedItemLibId)
+                            else
+                                unsetSelection()
+                        }
+                        }
+
+                            /* the following 3 properties are calculated here for performance
+reasons and then passed to the section views */
+                            property int entriesPerRow: Math.max(1, Math.floor((itemsFlickable.width - 2) / style.cellWidth))
+                            property int cellWidth: Math.floor((itemsFlickable.width - 2) / entriesPerRow)
+                            property int cellHeight: style.cellHeight
+
+                            Component {
+                                id: sectionDelegate
+
+                                SectionView {
+                                    id: section
+
+                                    entriesPerRow: itemsView.entriesPerRow
+                                    cellWidth: itemsView.cellWidth
+                                    cellHeight: itemsView.cellHeight
+
+                                    width: itemsFlickable.width
+                                    itemHighlight: selector
+
+                                    property bool containsSelection: (selectionSectionLibId == sectionLibId)
+
+                                    onItemSelected: {
+                                        itemsView.setSelection(itemLibId)
+                                        itemsView.itemSelected(itemLibId)
+                                    }
+                                    onItemDragged: {
+                                        section.itemSelected(itemLibId)
+                                        itemsView.itemDragged(itemLibId)
+                                    }
+
+                                    Connections {
+                                        target: itemsView
+                                        onExpandAllEntries: section.expand()
+                                        onSelectionUpdated: {
+                                            if (containsSelection) {
+                                                section.setSelection(itemSectionIndex)
+                                                section.focusSelection(itemsFlickable)
+                                            } else
+                                                section.unsetSelection()
+                                            }
+                                            }
+
+                                                Component {
+                                                    id: selector
+
+                                                    Selector {
+                                                        x: containsSelection? section.currentItem.x:0
+                                                        y: containsSelection? section.currentItem.y:0
+                                                        width: itemsView.cellWidth
+                                                        height: itemsView.cellHeight
+
+                                                        visible: containsSelection
+                                                    }
+                                                }
+                                            }
+                            }
+
+                            Flickable {
+                                id: itemsFlickable
+
+                                anchors.top: parent.top
+                                anchors.topMargin: 3
+                                anchors.bottom: parent.bottom
+                                anchors.left: parent.left
+                                anchors.right: scrollbar.left
+                                overShoot: false
+
+                                interactive: false
+                                contentHeight: col.height
+
+                                /* Limit the content position. Without this, resizing would get the
+content position out of scope regarding the scrollbar. */
+                                function limitContentPos() {
+                                    if (contentY < 0)
+                                        contentY = 0;
+                                    else {
+                                        var maxContentY = Math.max(0, contentHeight - height)
+                                        if (contentY > maxContentY)
+                                            contentY = maxContentY;
+                                    }
+                                }
+                                onHeightChanged: limitContentPos()
+                                onContentHeightChanged: limitContentPos()
+
+                                Column {
+                                    id: col
+
+                                    Repeater {
+                                        model: itemLibraryModel  // to be set in Qml context
+                                        delegate: sectionDelegate
+                                    }
+                                }
+                            }
+
+                            Scrollbar {
+                                id: scrollbar
+
+                                anchors.top: parent.top
+                                anchors.topMargin: 2
+                                anchors.bottom: parent.bottom
+                                anchors.bottomMargin: 2
+                                anchors.left: parent.right
+                                anchors.leftMargin: -10
+                                anchors.right: parent.right
+
+                                flickable: itemsFlickable
+                            }
+                        }

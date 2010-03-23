@@ -32,25 +32,31 @@
 
 #include <utils/iwelcomepage.h>
 
+#include "projectwelcomepagewidget.h"
+
 namespace ProjectExplorer {
 namespace Internal {
-
-class ProjectWelcomePageWidget;
 
 class ProjectWelcomePage : public Utils::IWelcomePage
 {
     Q_OBJECT
 public:
     ProjectWelcomePage();
-    ~ProjectWelcomePage();
 
     QWidget *page();
     QString title() const { return tr("Develop"); }
     int priority() const { return 20; }
+
+    void setWelcomePageData(const ProjectWelcomePageWidget::WelcomePageData &welcomePageData);
+
+signals:
+    void requestProject(const QString &project);
+    void requestSession(const QString &session);
+    void manageSessions();
+
 private:
     ProjectWelcomePageWidget *m_page;
-
-
+    ProjectWelcomePageWidget::WelcomePageData m_welcomePageData;
 };
 
 } // namespace Internal

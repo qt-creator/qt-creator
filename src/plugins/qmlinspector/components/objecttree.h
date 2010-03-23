@@ -41,6 +41,11 @@ class QDeclarativeDebugObjectQuery;
 class QDeclarativeDebugContextReference;
 class QDeclarativeDebugConnection;
 
+QT_END_NAMESPACE
+
+namespace Qml {
+namespace Internal {
+
 
 class ObjectTree : public QTreeWidget
 {
@@ -54,6 +59,7 @@ signals:
     void currentObjectChanged(const QDeclarativeDebugObjectReference &);
     void activated(const QDeclarativeDebugObjectReference &);
     void expressionWatchRequested(const QDeclarativeDebugObjectReference &, const QString &);
+    void contextHelpIdChanged(const QString &contextHelpId);
 
 public slots:
     void reload(int objectDebugId);     // set the root object
@@ -66,6 +72,7 @@ private slots:
     void objectFetched();
     void currentItemChanged(QTreeWidgetItem *);
     void activated(QTreeWidgetItem *);
+    void selectionChanged();
 
 private:
     QTreeWidgetItem *findItemByObjectId(int debugId) const;
@@ -78,7 +85,7 @@ private:
     QDeclarativeDebugObjectQuery *m_query;
 };
 
-QT_END_NAMESPACE
-
+} // Internal
+} // Qml
 
 #endif

@@ -253,7 +253,7 @@ def listOfLocals(varList):
 
     items = []
     if hasBlock and isGoodGdb():
-        warn("IS GOOD: %s " % varList)
+        #warn("IS GOOD: %s " % varList)
         try:
             block = frame.block()
             #warn("BLOCK: %s " % block)
@@ -340,6 +340,14 @@ def listOfLocals(varList):
             except RuntimeError:
                 pass
                 #continue
+            except:
+                # Something breaking the list, like intermediate gdb warnings
+                # like 'Warning: can't find linker symbol for virtual table for
+                # `std::less<char const*>' value\n\nwarning:  found
+                # `myns::QHashData::shared_null' instead [...]
+                # that break subsequent parsing. Chicken out and take the 
+                # next "usable" line.
+                continue
             items.append(item)
 
     return items
@@ -1197,7 +1205,9 @@ class Dumper:
                 # UCS-4:
                 self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
 
-            if (not isHandled) and str(type.strip_typedefs()).find("(") != -1:
+            strippedType = str(type.strip_typedefs()) \
+                .replace("(anonymous namespace)", "")
+            if (not isHandled) and strippedType.find("(") != -1:
                 # A function pointer.
                 self.putValue(str(item.value))
                 self.putAddress(value.address)
@@ -1274,7 +1284,7 @@ class Dumper:
             #warn("INAMES: %s " % self.expandedINames)
             #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
 
-            # insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
+            # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
             #fields = value.type.fields()
             fields = value.type.strip_typedefs().fields()
 

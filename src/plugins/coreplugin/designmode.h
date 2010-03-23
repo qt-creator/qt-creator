@@ -57,7 +57,9 @@ public:
     explicit DesignMode(EditorManager *editorManager);
     virtual ~DesignMode();
 
-    void registerDesignWidget(QWidget *widget, const QStringList &mimeTypes,
+    void registerDesignWidget(QWidget *widget,
+                              const QStringList &mimeTypes,
+                              const QList<int> &context,
                               bool preferDesignMode = false);
     void unregisterDesignWidget(QWidget *widget);
 
@@ -79,8 +81,11 @@ signals:
 private slots:
     void currentEditorChanged(Core::IEditor *editor);
     void updateActions();
+    void updateContext(Core::IMode *newMode, Core::IMode *oldMode);
 
 private:
+    void setActiveContext(const QList<int> &context);
+
     DesignModePrivate *d;
     friend class Internal::DesignModeCoreListener;
 };

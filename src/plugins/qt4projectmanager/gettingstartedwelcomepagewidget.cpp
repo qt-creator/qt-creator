@@ -99,7 +99,9 @@ GettingStartedWelcomePageWidget::~GettingStartedWelcomePageWidget()
     delete ui;
 }
 
-void GettingStartedWelcomePageWidget::updateExamples(const QString& examplePath, const QString& demosPath, const QString &sourcePath)
+void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
+                                                     const QString &demosPath,
+                                                     const QString &sourcePath)
 {
     QString demoxml = demosPath + "/qtdemo/xml/examples.xml";
     if (!QFile::exists(demoxml)) {

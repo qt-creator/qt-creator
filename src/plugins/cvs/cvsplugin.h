@@ -101,6 +101,9 @@ public:
 
     static CVSPlugin *cvsPluginInstance();
 
+public slots:
+    void vcsAnnotate(const QString &file, const QString &revision /* = QString() */, int lineNumber);
+
 private slots:
     void addCurrentFile();
     void revertCurrentFile();
@@ -111,7 +114,6 @@ private slots:
     void startCommitCurrentFile();
     void filelogCurrentFile();
     void annotateCurrentFile();
-    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
     void projectStatus();
     void slotDescribe(const QString &source, const QString &changeNr);
     void updateProject();

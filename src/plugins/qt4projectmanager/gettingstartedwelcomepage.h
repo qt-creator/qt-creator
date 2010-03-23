@@ -47,6 +47,11 @@ public:
     QString title() const { return tr("Getting Started");}
     int priority() const { return 10; }
 
+public slots:
+    void updateExamples(const QString &examplePath,
+                        const QString &demosPath,
+                        const QString &sourcePath);
+
 private:
     GettingStartedWelcomePageWidget *m_page;
 };

@@ -101,7 +101,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
               << m_stubServer.fullServerName()
               << msgPromptToClose()
               << workingDirectory()
-              << (m_tempFile ? m_tempFile->fileName() : 0)
+              << (m_tempFile ? m_tempFile->fileName() : QString())
               << program << args;
 
     QString xterm = xtermArgs.takeFirst();

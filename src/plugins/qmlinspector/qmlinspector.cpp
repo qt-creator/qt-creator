@@ -26,19 +26,20 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #include "qmlinspectorconstants.h"
 #include "qmlinspector.h"
-#include "debugger/debuggermainwindow.h"
 #include "inspectoroutputwidget.h"
 #include "inspectorcontext.h"
 
-#include <debugger/debuggeruiswitcher.h>
-
-#include "components/objectpropertiesview.h"
 #include "components/objecttree.h"
 #include "components/watchtable.h"
 #include "components/canvasframerate.h"
 #include "components/expressionquerywidget.h"
+#include "components/objectpropertiesview.h"
+
+#include <debugger/debuggermainwindow.h>
+#include <debugger/debuggeruiswitcher.h>
 
 #include <utils/styledbar.h>
 #include <utils/fancymainwindow.h>
@@ -66,21 +67,20 @@
 
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QtPlugin>
-#include <QtCore/QTimer>
-
 #include <QtCore/QDebug>
+#include <QtCore/QStringList>
+#include <QtCore/QTimer>
+#include <QtCore/QtPlugin>
 
-#include <QtGui/qtoolbutton.h>
-#include <QtGui/qtoolbar.h>
-#include <QtGui/qboxlayout.h>
-#include <QtGui/qlabel.h>
-#include <QtGui/qdockwidget.h>
-#include <QtGui/qaction.h>
-#include <QtGui/qlineedit.h>
-#include <QtGui/qlabel.h>
-#include <QtGui/qspinbox.h>
+#include <QtGui/QToolButton>
+#include <QtGui/QToolBar>
+#include <QtGui/QBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QDockWidget>
+#include <QtGui/QAction>
+#include <QtGui/QLineEdit>
+#include <QtGui/QLabel>
+#include <QtGui/QSpinBox>
 
 #include <QtNetwork/QHostAddress>
 
@@ -88,6 +88,7 @@ using namespace Qml;
 
 namespace Qml {
 
+namespace Internal {
 class EngineSpinBox : public QSpinBox
 {
     Q_OBJECT
@@ -110,8 +111,6 @@ protected:
 private:
     QList<EngineInfo> m_engines;
 };
-
-}
 
 EngineSpinBox::EngineSpinBox(QWidget *parent)
     : QSpinBox(parent)
@@ -157,6 +156,8 @@ int EngineSpinBox::valueFromText(const QString &text) const
     return -1;
 }
 
+} // Internal
+
 
 QmlInspector::QmlInspector(QObject *parent)
   : QObject(parent),
@@ -169,9 +170,13 @@ QmlInspector::QmlInspector(QObject *parent)
     m_propertyWatcherDock(0),
     m_inspectorOutputDock(0)
 {
-    m_watchTableModel = new WatchTableModel(0, this);
+    m_watchTableModel = new Internal::WatchTableModel(0, this);
 
-    initWidgets();
+    m_objectTreeWidget = new Internal::ObjectTree;
+    m_propertiesWidget = new Internal::ObjectPropertiesView;
+    m_watchTableView = new Internal::WatchTableView(m_watchTableModel);
+    m_frameRateWidget = new Internal::CanvasFrameRate;
+    m_expressionWidget = new Internal::ExpressionQueryWidget(Internal::ExpressionQueryWidget::SeparateEntryMode);
 }
 
 bool QmlInspector::connectToViewer()
@@ -234,6 +239,9 @@ void QmlInspector::connectionStateChanged()
             m_engineQuery = 0;
             delete m_contextQuery;
             m_contextQuery = 0;
+
+            resetViews();
+
             break;
         }
         case QAbstractSocket::HostLookupState:
@@ -254,10 +262,7 @@ void QmlInspector::connectionStateChanged()
                 m_expressionWidget->setEngineDebug(m_client);
             }
 
-            m_objectTreeWidget->clear();
-            m_propertiesWidget->clear();
-            m_expressionWidget->clear();
-            m_watchTableModel->removeAllWatches();
+            resetViews();
             m_frameRateWidget->reset(m_conn);
 
             reloadEngines();
@@ -272,6 +277,14 @@ void QmlInspector::connectionStateChanged()
     }
 }
 
+void QmlInspector::resetViews()
+{
+    m_objectTreeWidget->clear();
+    m_propertiesWidget->clear();
+    m_expressionWidget->clear();
+    m_watchTableModel->removeAllWatches();
+}
+
 Core::IContext *QmlInspector::context() const
 {
     return m_context;
@@ -283,18 +296,10 @@ void QmlInspector::connectionError()
             .arg(m_conn->error()).arg(m_conn->errorString()));
 }
 
-void QmlInspector::initWidgets()
+void QmlInspector::createDockWidgets()
 {
-    m_objectTreeWidget = new ObjectTree;
-    m_propertiesWidget = new ObjectPropertiesView;
-    m_watchTableView = new WatchTableView(m_watchTableModel);
-    m_frameRateWidget = new CanvasFrameRate;
-    m_expressionWidget = new ExpressionQueryWidget(ExpressionQueryWidget::SeparateEntryMode);
-    m_context = new Internal::InspectorContext(m_expressionWidget);
-    m_expressionWidget->createCommands(m_context);
 
-
-    m_engineSpinBox = new EngineSpinBox;
+    m_engineSpinBox = new Internal::EngineSpinBox;
     m_engineSpinBox->setEnabled(false);
     connect(m_engineSpinBox, SIGNAL(valueChanged(int)),
             SLOT(queryEngineContext(int)));
@@ -318,7 +323,7 @@ void QmlInspector::initWidgets()
     treeWindowLayout->addWidget(m_objectTreeWidget);
 
     m_watchTableView->setModel(m_watchTableModel);
-    WatchTableHeaderView *header = new WatchTableHeaderView(m_watchTableModel);
+    Internal::WatchTableHeaderView *header = new Internal::WatchTableHeaderView(m_watchTableModel);
     m_watchTableView->setHorizontalHeader(header);
 
     connect(m_objectTreeWidget, SIGNAL(activated(QDeclarativeDebugObjectReference)),
@@ -360,6 +365,7 @@ void QmlInspector::initWidgets()
     propSplitter->setWindowTitle(tr("Properties and Watchers"));
 
 
+
     InspectorOutputWidget *inspectorOutput = new InspectorOutputWidget();
     connect(this, SIGNAL(statusMessage(QString)),
             inspectorOutput, SLOT(addInspectorStatus(QString)));
@@ -372,7 +378,31 @@ void QmlInspector::initWidgets()
                                                             propSplitter, Qt::BottomDockWidgetArea);
     m_inspectorOutputDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
                                                             inspectorOutput, Qt::BottomDockWidgetArea);
+
+    m_objectTreeDock->setToolTip(tr("Contents of the scene."));
+    m_frameRateDock->setToolTip(tr("Frame rate graph for analyzing performance."));
+    m_propertyWatcherDock->setToolTip(tr("Properties of the selected item."));
+    m_inspectorOutputDock->setToolTip(tr("Output of the QML inspector, such as information on connecting to the server."));
+
     m_dockWidgets << m_objectTreeDock << m_frameRateDock << m_propertyWatcherDock << m_inspectorOutputDock;
+
+    m_context = new Internal::InspectorContext(m_objectTreeDock);
+    m_propWatcherContext = new Internal::InspectorContext(m_propertyWatcherDock);
+
+    Core::ICore *core = Core::ICore::instance();
+    core->addContextObject(m_propWatcherContext);
+    core->addContextObject(m_context);
+
+    m_expressionWidget->createCommands(m_context);
+
+    connect(m_objectTreeWidget, SIGNAL(contextHelpIdChanged(QString)), m_context,
+            SLOT(setContextHelpId(QString)));
+    connect(m_watchTableView, SIGNAL(contextHelpIdChanged(QString)), m_propWatcherContext,
+            SLOT(setContextHelpId(QString)));
+    connect(m_propertiesWidget, SIGNAL(contextHelpIdChanged(QString)), m_propWatcherContext,
+            SLOT(setContextHelpId(QString)));
+    connect(m_expressionWidget, SIGNAL(contextHelpIdChanged(QString)), m_propWatcherContext,
+            SLOT(setContextHelpId(QString)));
 }
 
 void QmlInspector::setSimpleDockWidgetArrangement()
@@ -401,7 +431,9 @@ void QmlInspector::setSimpleDockWidgetArrangement()
     }
 
     mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
-    mainWindow->tabifyDockWidget(m_frameRateDock, m_inspectorOutputDock);
+    mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_inspectorOutputDock);
+
+    m_inspectorOutputDock->setVisible(false);
 
     mainWindow->setTrackingEnabled(true);
 }
@@ -481,13 +513,16 @@ void QmlInspector::treeObjectActivated(const QDeclarativeDebugObjectReference &o
         return;
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
-    TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor*>(editorManager->openEditor(fileName));
-    if (editor) {
-        editorManager->ensureEditorManagerVisible();
+    Core::IEditor *editor = editorManager->openEditor(fileName, QString(), Core::EditorManager::NoModeSwitch);
+    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
+
+    if (textEditor) {
         editorManager->addCurrentPositionToNavigationHistory();
-        editor->gotoLine(source.lineNumber());
-        editor->widget()->setFocus();
+        textEditor->gotoLine(source.lineNumber());
+        textEditor->widget()->setFocus();
     }
 }
+
+} // Qml
 
 #include "qmlinspector.moc"

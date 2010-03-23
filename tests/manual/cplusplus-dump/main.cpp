@@ -205,13 +205,15 @@ public:
 
 protected:
     QByteArray name(Symbol *s) {
-        QByteArray name = abi::__cxa_demangle(typeid(*s).name(), 0, 0, 0) + 11;
+        QByteArray result = abi::__cxa_demangle(typeid(*s).name(), 0, 0, 0) + 11;
         if (s->identifier()) {
-            name.append("\\nid: ");
-            name.append(s->identifier()->chars());
+            result.append("\\nid: ");
+            result.append(s->identifier()->chars());
         }
+        if (s->isDeprecated())
+            result.append("\\n(deprecated)");
 
-        return name;
+        return result;
     }
 
     virtual bool preVisit(Symbol *s) {
@@ -272,6 +274,8 @@ protected:
         } else {
             out << "NO ID";
         }
+        if (symbol->isDeprecated())
+            out << "\\n(deprecated)";
         out << "\"];" << std::endl;
 
         return true;
@@ -286,6 +290,8 @@ protected:
         out << qPrintable(o(symbol->name()));
         out << ": ";
         out << qPrintable(o(symbol->type()));
+        if (symbol->isDeprecated())
+            out << "\\n(deprecated)";
         out << "\"];" << std::endl;
 
         return true;
@@ -297,6 +303,8 @@ protected:
     virtual bool visit(BaseClass *symbol) {
         out << _id[symbol].constData() << " [label=\"BaseClass\\n";
         out << qPrintable(o(symbol->name()));
+        if (symbol->isDeprecated())
+            out << "\\n(deprecated)";
         out << "\"];" << std::endl;
 
         return true;

@@ -29,6 +29,10 @@
 
 #include "customwizardparameters.h"
 
+#include <coreplugin/mimedatabase.h>
+#include <coreplugin/icore.h>
+#include <cpptools/cpptoolsconstants.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QLocale>
 #include <QtCore/QFile>
@@ -465,6 +469,76 @@ QString CustomWizardParameters::toString() const
         str << '\n';
     }
     return rc;
+}
+
+// ------------ CustomWizardContext
+
+void CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *s)
+{
+    if (debug) {
+        qDebug().nospace() << "CustomWizardContext::replaceFields with " <<
+                fm << *s;
+    }
+    const QChar delimiter = QLatin1Char('%');
+    const QChar modifierDelimiter = QLatin1Char(':');
+    int pos = 0;
+    while (pos < s->size()) {
+        pos = s->indexOf(delimiter, pos);
+        if (pos < 0)
+            break;
+        int nextPos = s->indexOf(delimiter, pos + 1);
+        if (nextPos == -1)
+            break;
+        nextPos++; // Point past 2nd delimiter
+        if (nextPos == pos + 2) {
+            pos = nextPos; // Skip '%%'
+            continue;
+        }
+        // Evaluate field specification for modifiers
+        // "%field:l%"
+        QString fieldSpec = s->mid(pos + 1, nextPos - pos - 2);
+        const int fieldSpecSize = fieldSpec.size();
+        char modifier = '\0';
+        if (fieldSpecSize >= 3 && fieldSpec.at(fieldSpecSize - 2) == modifierDelimiter) {
+            modifier = fieldSpec.at(fieldSpecSize - 1).toLatin1();
+            fieldSpec.truncate(fieldSpecSize - 2);
+        }
+        const FieldReplacementMap::const_iterator it = fm.constFind(fieldSpec);
+        if (it == fm.constEnd()) {
+            pos = nextPos; // Not found, skip
+            continue;
+        }
+        // Assign
+        QString replacement = it.value();
+        switch (modifier) {
+        case 'l':
+            replacement = it.value().toLower();
+            break;
+        case 'u':
+            replacement = it.value().toUpper();
+            break;
+        case 'c': // Capitalize first letter
+            replacement = it.value();
+            if (!replacement.isEmpty())
+                replacement[0] = replacement.at(0).toUpper();
+            break;
+        default:
+            break;
+        }
+        s->replace(pos, nextPos - pos, replacement);
+        pos += replacement.size();
+    }
+}
+
+void CustomWizardContext::reset()
+{
+    // Basic replacement fields: Suffixes.
+    baseReplacements.clear();
+    const Core::MimeDatabase *mdb = Core::ICore::instance()->mimeDatabase();
+    baseReplacements.insert(QLatin1String("CppSourceSuffix"),
+                            mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
+    baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
+                            mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
 }
 
 } // namespace Internal

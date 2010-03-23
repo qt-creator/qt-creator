@@ -44,7 +44,8 @@ public:
     enum Operation {
         AddOperation, DeleteOperation, OpenOperation,
         CreateRepositoryOperation,
-        SnapshotOperations
+        SnapshotOperations,
+        AnnotateOperation
         };
 
     explicit IVersionControl(QObject *parent = 0) : QObject(parent) {}
@@ -125,6 +126,11 @@ public:
      * Remove a snapshot.
      */
     virtual bool vcsRemoveSnapshot(const QString &topLevel, const QString &name) = 0;
+
+    /*!
+     * Display annotation for a file and scroll to line
+     */
+    virtual bool vcsAnnotate(const QString &file, int line) = 0;
 
 signals:
     void repositoryChanged(const QString &repository);

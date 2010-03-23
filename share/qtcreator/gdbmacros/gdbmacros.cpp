@@ -1077,8 +1077,7 @@ static void qDumpQAbstractItem(QDumper &d)
     QModelIndex mi;
     {
        ModelIndex *mm = reinterpret_cast<ModelIndex *>(&mi);
-       mm->r = mm->c = 0;
-       mm->p = mm->m = 0;
+       memset(&mi, 0, sizeof(mi));
        static const char *printFormat = sizeof(void *) == sizeof(long) ?
                                         "%d,%d,0x%lx,0x%lx" : "%d,%d,0x%llx,0x%llx";
        sscanf(d.templateParameters[0], printFormat, &mm->r, &mm->c, &mm->p, &mm->m);

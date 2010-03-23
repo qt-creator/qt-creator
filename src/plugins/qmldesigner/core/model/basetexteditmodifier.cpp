@@ -29,9 +29,13 @@
 
 #include "basetexteditmodifier.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljseditor/qmljsmodelmanagerinterface.h>
 #include <texteditor/tabsettings.h>
 
 using namespace QmlDesigner;
+using namespace QmlJSEditor;
 
 BaseTextEditModifier::BaseTextEditModifier(TextEditor::BaseTextEditor *textEdit):
         PlainTextEditModifier(textEdit)
@@ -62,4 +66,30 @@ int BaseTextEditModifier::indentDepth() const
     } else {
         return 0;
     }
+}
+
+namespace {
+static inline QmlJSEditor::ModelManagerInterface *getModelManager()
+{
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    return pluginManager->getObject<QmlJSEditor::ModelManagerInterface>();
+}
+}
+
+QmlJS::Snapshot BaseTextEditModifier::getSnapshot() const
+{
+    QmlJSEditor::ModelManagerInterface *modelManager = getModelManager();
+    if (modelManager)
+        return modelManager->snapshot();
+    else
+        return QmlJS::Snapshot();
+}
+
+QStringList BaseTextEditModifier::importPaths() const
+{
+    QmlJSEditor::ModelManagerInterface *modelManager = getModelManager();
+    if (modelManager)
+        return modelManager->importPaths();
+    else
+        return QStringList();
 }

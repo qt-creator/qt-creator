@@ -2570,7 +2570,7 @@ void TestCore::testRewriterExceptionHandling()
         rootNode.variantProperty("bla") = QVariant("blah\"");
         rootNode.variantProperty("text") = QVariant("text");
         transaction.commit();
-        QFAIL("RewritingExecption should be thrown");
+        QFAIL("RewritingException should be thrown");
     } catch (RewritingException &e) {
         QVERIFY(rootNode.isValid());
         QCOMPARE(rootNode.type(), QLatin1String("Qt/Text"));

@@ -227,7 +227,6 @@ void QtVersionManager::updateExamples()
     versions.append(m_versions);
 
     QString examplesPath;
-    QString docPath;
     QString demosPath;
     QtVersion *version = 0;
     // try to find a version which has both, demos and examples
@@ -953,6 +952,7 @@ void QtVersion::updateVersionInfo() const
     m_notInstalled = false;
     m_hasExamples = false;
     m_hasDocumentation = false;
+    m_hasDebuggingHelper = false;
 
     QFileInfo qmake(qmakeCommand());
     if (qmake.exists() && qmake.isExecutable()) {
@@ -968,7 +968,8 @@ void QtVersion::updateVersionInfo() const
              "QT_INSTALL_PLUGINS",
              "QT_INSTALL_BINS",
              "QT_INSTALL_DOCS",
-             "QT_INSTALL_PREFIX"
+             "QT_INSTALL_PREFIX",
+             "QMAKEFEATURES"
         };
         QStringList args;
         for (uint i = 0; i < sizeof variables / sizeof variables[0]; ++i)
@@ -981,8 +982,11 @@ void QtVersion::updateVersionInfo() const
             while (!stream.atEnd()) {
                 const QString line = stream.readLine();
                 const int index = line.indexOf(QLatin1Char(':'));
-                if (index != -1)
-                    m_versionInfo.insert(line.left(index), QDir::fromNativeSeparators(line.mid(index+1)));
+                if (index != -1) {
+                    QString value = QDir::fromNativeSeparators(line.mid(index+1));
+                    if (value != "**Unknown**")
+                        m_versionInfo.insert(line.left(index), value);
+                }
             }
         }
 
@@ -990,10 +994,8 @@ void QtVersion::updateVersionInfo() const
             QString qtInstallData = m_versionInfo.value("QT_INSTALL_DATA");
             m_versionInfo.insert("QMAKE_MKSPECS", QDir::cleanPath(qtInstallData+"/mkspecs"));
 
-            if (qtInstallData.isEmpty())
-                m_hasDebuggingHelper = false;
-            else
-                m_hasDebuggingHelper = DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
+            if (!qtInstallData.isEmpty())
+                m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
         }
 
         // Now check for a qt that is configured with a prefix but not installed

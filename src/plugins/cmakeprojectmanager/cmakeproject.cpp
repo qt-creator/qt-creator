@@ -598,9 +598,17 @@ bool CMakeFile::isSaveAsAllowed() const
     return false;
 }
 
-void CMakeFile::modified(ReloadBehavior *behavior)
+Core::IFile::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
-    Q_UNUSED(behavior)
+    Q_UNUSED(state)
+    Q_UNUSED(type)
+    return BehaviorSilent;
+}
+
+void CMakeFile::reload(ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
 }
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeProject *project)

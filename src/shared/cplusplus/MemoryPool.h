@@ -54,6 +54,9 @@
 
 namespace CPlusPlus {
 
+class MemoryPool;
+class RecursiveMemoryPool;
+
 class CPLUSPLUS_EXPORT MemoryPool
 {
     MemoryPool(const MemoryPool &other);
@@ -63,51 +66,49 @@ public:
     MemoryPool();
     ~MemoryPool();
 
-    bool initializeAllocatedMemory() const;
-    void setInitializeAllocatedMemory(bool initializeAllocatedMemory);
+    void reset();
 
     inline void *allocate(size_t size)
     {
         size = (size + 7) & ~7;
-        if (ptr && (ptr + size < end)) {
-            void *addr = ptr;
-            ptr += size;
+        if (_ptr && (_ptr + size < _end)) {
+            void *addr = _ptr;
+            _ptr += size;
             return addr;
         }
         return allocate_helper(size);
     }
 
-    struct State
-    {
-        char *ptr;
-        char *end;
-        int blockCount;
-
-        inline bool isValid() const
-        { return ptr != 0; }
-
-        inline State(char *ptr = 0, int blockCount = 0)
-            : ptr(ptr), blockCount(blockCount) {}
-    };
-
-    State state() const;
-    void rewind(const State &state);
-
 private:
     void *allocate_helper(size_t size);
 
 private:
-    bool _initializeAllocatedMemory;
     char **_blocks;
     int _allocatedBlocks;
     int _blockCount;
-    char *ptr, *end;
+    char *_ptr;
+    char *_end;
+    int _ccc;
 
     enum
     {
         BLOCK_SIZE = 8 * 1024,
         DEFAULT_BLOCK_COUNT = 8
     };
+
+    friend class RecursiveMemoryPool;
+};
+
+class CPLUSPLUS_EXPORT RecursiveMemoryPool
+{
+    MemoryPool *_pool;
+    int _blockCount;
+    char *_ptr;
+    char *_end;
+
+public:
+    RecursiveMemoryPool(MemoryPool *pool);
+    ~RecursiveMemoryPool();
 };
 
 class CPLUSPLUS_EXPORT Managed

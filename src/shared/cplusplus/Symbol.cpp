@@ -212,6 +212,12 @@ unsigned Symbol::sourceOffset() const
 bool Symbol::isGenerated() const
 { return _isGenerated; }
 
+bool Symbol::isDeprecated() const
+{ return _isDeprecated; }
+
+void Symbol::setDeprecated(bool isDeprecated)
+{ _isDeprecated = isDeprecated; }
+
 void Symbol::setSourceLocation(unsigned sourceLocation)
 {
     _sourceLocation = sourceLocation;

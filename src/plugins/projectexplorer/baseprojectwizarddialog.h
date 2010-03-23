@@ -71,11 +71,15 @@ public slots:
     void setPath(const QString &path);
     void setProjectName(const QString &name);
 
+signals:
+    void introPageLeft(const QString &projectName, const QString &path);
+
 protected:
     Utils::ProjectIntroPage *introPage() const;
 
 private slots:
     void slotAccepted();
+    void slotBaseCurrentIdChanged(int);
 
 private:
     void init();

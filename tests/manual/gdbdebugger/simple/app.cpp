@@ -265,12 +265,32 @@ void testPeekAndPoke3()
 
 }
 
+namespace { // anon
+
+struct Something
+{
+    Something() { a = b = 1; }
+
+    void foo()
+    {
+        a = 42;
+        b = 43;
+    }
+
+    int a, b;
+};
+
+} // anon
+
 void testAnonymous()
 {
     TestAnonymous a;
     a.i = 1;
     a.i = 2;
     a.i = 3;
+
+    Something s;
+    s.foo();
 }
 
 void testFunctionPointer()
@@ -881,17 +901,17 @@ void testStdList()
 
 void testStdMap()
 {
+#if 0
     std::map<QString, Foo> gg3;
     gg3["22.0"] = Foo(22);
     gg3["33.0"] = Foo(33);
     gg3["44.0"] = Foo(44);
 
-
     std::map<const char *, Foo> m1;
     m1["22.0"] = Foo(22);
     m1["33.0"] = Foo(33);
     m1["44.0"] = Foo(44);
-#if 1
+
     std::map<uint, uint> gg;
     gg[11] = 1;
     gg[22] = 2;
@@ -899,9 +919,11 @@ void testStdMap()
     gg[44] = 4;
     gg[55] = 5;
 
-#endif
+    std::pair<uint, QStringList> p = std::make_pair(3, QStringList() << "11");
+    std::vector< std::pair<uint, QStringList> > v;
+    v.push_back(p);
+    v.push_back(p);
 
-#if 0
     std::map<uint, QStringList> ggl;
     ggl[11] = QStringList() << "11";
     ggl[22] = QStringList() << "22";
@@ -924,7 +946,9 @@ void testStdMap()
 
     std::map<int, QString> gg2;
     gg2[22] = "22.0";
+#endif
 
+#if 1
     QObject ob;
     std::map<QString, QPointer<QObject> > map;
     map["Hallo"] = QPointer<QObject>(&ob);
@@ -1163,6 +1187,7 @@ void testQVariant1()
     v = 1;
     v = 1.0;
     v = "string";
+    v = QRect(100, 200, 300, 400);
     v = 1;
 }
 
@@ -1174,7 +1199,7 @@ void testQVariant2()
     *(QString*)value.data() = QString("XXX");
 
     int i = 1;
-#if 0
+#if 1
     QVariant var;
     var.setValue(1);
     var.setValue(2);
@@ -1187,10 +1212,10 @@ void testQVariant2()
     var.setValue(QStringList() << "Hello" << "Hello");
     var.setValue(QStringList() << "World" << "Hello" << "Hello");
 #endif
-#if 0
+#if 1
     QVariant var3;
     QHostAddress ha("127.0.0.1");
-    qVariantSetValue(var, ha);
+    var.setValue(ha);
     var3 = var;
     var3 = var;
     var3 = var;
@@ -1501,7 +1526,7 @@ int testReference()
 {
     QString a = "hello";
     const QString &b = fooxx();
-    QString c = "world";
+    const QString c = "world";
     return a.size() + b.size() + c.size();
 }
 
@@ -1590,41 +1615,15 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-//Q_DECLARE_METATYPE(QHostAddress)
+Q_DECLARE_METATYPE(QHostAddress)
 Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(QStringList)
 
-//#define COMMA ,
-//Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
+typedef QMap<uint, QStringList> MyType;
+#define COMMA ,
+Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
 
 QT_BEGIN_NAMESPACE
-
-template <>
-struct QMetaTypeId<QHostAddress>
-{
-    enum { Defined = 1 };
-    static int qt_metatype_id()
-    {
-        static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0);
-        if (!metatype_id)
-             metatype_id = qRegisterMetaType<QHostAddress>
-                ("myns::QHostAddress");
-        return metatype_id;                                    \
-    }                                                           \
-};
-
-template <>
-struct QMetaTypeId< QMap<uint, QStringList> >
-{
-    enum { Defined = 1 };
-    static int qt_metatype_id()
-    {
-        static QBasicAtomicInt metatype_id = Q_BASIC_ATOMIC_INITIALIZER(0);
-        if (!metatype_id)
-             metatype_id = qRegisterMetaType< QMap<uint, QStringList> >
-                ("myns::QMap<uint, myns::QStringList>");
-        return metatype_id;                                    \
-    }                                                           \
-};
 QT_END_NAMESPACE
 
 #include "app.moc"

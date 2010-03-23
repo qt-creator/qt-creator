@@ -179,7 +179,7 @@ void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
     }
 }
 
-void GitEditor::commandFinishedGotoLine(bool ok, const QVariant &v)
+void GitEditor::commandFinishedGotoLine(bool ok, int /* exitCode */, const QVariant &v)
 {
     if (ok && v.type() == QVariant::Int) {
         const int line = v.toInt();
