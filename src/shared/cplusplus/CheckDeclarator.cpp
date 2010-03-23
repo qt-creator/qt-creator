@@ -241,6 +241,9 @@ bool CheckDeclarator::visit(ReferenceAST *ast)
 {
     const bool rvalueRef = (tokenKind(ast->reference_token) == T_AMPER_AMPER);
 
+    if (_fullySpecifiedType->isReferenceType())
+        translationUnit()->error(ast->firstToken(), "cannot declare reference to a reference");
+
     ReferenceType *refTy = control()->referenceType(_fullySpecifiedType, rvalueRef);
     FullySpecifiedType ty(refTy);
     _fullySpecifiedType = ty;
