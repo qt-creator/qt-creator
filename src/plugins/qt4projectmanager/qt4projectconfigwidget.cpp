@@ -261,7 +261,7 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
     bool b = m_ui->shadowBuildCheckBox->isChecked();
 
     m_ignoreChange = true;
-    m_buildConfiguration->setShadowBuildAndDirectory(b, m_ui->shadowBuildDirEdit->path());
+    m_buildConfiguration->setShadowBuildAndDirectory(b, QDir::cleanPath(m_ui->shadowBuildDirEdit->path()));
     m_ignoreChange = false;
 
     updateDetails();
@@ -274,7 +274,7 @@ void Qt4ProjectConfigWidget::shadowBuildEdited()
         return;
     m_ignoreChange = true;
     m_buildConfiguration->setShadowBuildAndDirectory(m_buildConfiguration->shadowBuild(),
-                                                     m_ui->shadowBuildDirEdit->path());
+                                                     QDir::cleanPath(m_ui->shadowBuildDirEdit->path()));
     m_ignoreChange = false;
 
     // if the directory already exists
