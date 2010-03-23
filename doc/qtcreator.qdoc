@@ -585,11 +585,6 @@
     When you create or edit forms in a \c{.ui} file, the toolbar contains
     Qt Designer specific tools.
 
-    If you are using a version control system, the toolbar enables you to
-    compare the current file with the version in the repository. For more
-    information on using Qt Creator with version control systems, see
-    \l{Using version control systems}.
-
 
     \section1 Splitting the Editor View
 
@@ -4332,40 +4327,46 @@
     \table
         \header
             \o {1,2} Action
-            \o {4,1} Version control system
+            \o {5,1} Version control system
         \header
             \o CVS
             \o Git
             \o Perforce
             \o Subversion
+            \o Mercurial
         \row
             \o Add
             \o Alt+C, Alt+A
             \o Alt+G, Alt+A
             \o
             \o Alt+S, Alt+A
+            \o
         \row
             \o Commit
             \o Alt+C, Alt+C
             \o Alt+G, Alt+C
             \o
             \o
+            \o Alt+H, Alt+C
         \row
             \o Diff
             \o Alt+C, Alt+D
             \o Alt+G, Alt+D
             \o
             \o Alt+S, Alt+D
+            \o Alt+H, Alt+D
         \row
             \o Diff project
             \o
             \o Alt+G, Alt+Shift+D
             \o Alt+P, Alt+D
             \o
+            \o
         \row
             \o Blame
             \o
             \o Alt+G, Alt+B
+            \o
             \o
             \o
         \row
@@ -4374,10 +4375,12 @@
             \o Alt+G, Alt+L
             \o Alt+P, Alt+F
             \o
+            \o Alt+H, Alt+L
         \row
             \o Log project
             \o
             \o Alt+G, Alt+K
+            \o
             \o
             \o
         \row
@@ -4386,10 +4389,12 @@
             \o Alt+G, Alt+S
             \o
             \o
+            \o Alt+H, Alt+S
         \row
             \o Undo changes
             \o
             \o Alt+G, Alt+U
+            \o
             \o
             \o
         \row
@@ -4398,11 +4403,13 @@
             \o Alt+G, Alt+Shift+D
             \o Alt+P, Alt+D
             \o
+            \o
         \row
             \o Edit
             \o
             \o
             \o Alt+P, Alt+E
+            \o
             \o
         \row
             \o Opened
@@ -4410,17 +4417,20 @@
             \o
             \o Alt+P, Alt+O
             \o
+            \o
         \row
             \o Revert
             \o
             \o
             \o Alt+P, Alt+R
             \o
+            \o
         \row
             \o Submit
             \o
             \o
             \o Alt+P, Alt+S
+            \o
             \o
     \endtable
 */
