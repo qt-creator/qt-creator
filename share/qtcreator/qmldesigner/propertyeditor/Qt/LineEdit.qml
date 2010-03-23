@@ -21,23 +21,21 @@ QWidget {
         evaluate();
     }
 
-    Script {
-        function evaluate() {
-            if (!enabled) {
-                lineEditWidget.setStyleSheet("color: "+scheme.disabledColor);
-                } else {
-                if (baseStateFlag) {
-                    if (backendValue != null && backendValue.isInModel)
-                        lineEditWidget.setStyleSheet("color: "+scheme.changedBaseColor);
-                    else
-                        lineEditWidget.setStyleSheet("color: "+scheme.defaultColor);
-                    } else {
-                    if (backendValue != null && backendValue.isInSubState)
-                        lineEditWidget.setStyleSheet("color: "+scheme.changedStateColor);
-                    else
-                        lineEditWidget.setStyleSheet("color: "+scheme.defaultColor);
-                    }
-                }
+    function evaluate() {
+        if (!enabled) {
+            lineEditWidget.setStyleSheet("color: "+scheme.disabledColor);
+        } else {
+            if (baseStateFlag) {
+                if (backendValue != null && backendValue.isInModel)
+                    lineEditWidget.setStyleSheet("color: "+scheme.changedBaseColor);
+                else
+                    lineEditWidget.setStyleSheet("color: "+scheme.defaultColor);
+            } else {
+                if (backendValue != null && backendValue.isInSubState)
+                    lineEditWidget.setStyleSheet("color: "+scheme.changedStateColor);
+                else
+                    lineEditWidget.setStyleSheet("color: "+scheme.defaultColor);
+            }
         }
     }
 

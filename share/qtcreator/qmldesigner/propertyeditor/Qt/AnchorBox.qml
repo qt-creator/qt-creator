@@ -6,18 +6,16 @@ QWidget {
     height:220;fixedHeight: height
     styleSheetFile: "anchorbox.css"
 
-    Script {
-        function isBorderAnchored() {
-            return anchorBackend.leftAnchored || anchorBackend.topAnchored || anchorBackend.rightAnchored || anchorBackend.bottomAnchored;
-        }
+    function isBorderAnchored() {
+        return anchorBackend.leftAnchored || anchorBackend.topAnchored || anchorBackend.rightAnchored || anchorBackend.bottomAnchored;
+    }
 
-        function fill() {
-	    anchorBackend.fill();
-        }
+    function fill() {
+        anchorBackend.fill();
+    }
 
-        function breakLayout() {
-	    anchorBackend.resetLayout()
-        }
+    function breakLayout() {
+        anchorBackend.resetLayout()
     }
 
     QPushButton {

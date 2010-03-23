@@ -52,35 +52,33 @@ QExtGroupBox {
         evaluate();
     }
 
-    Script {
-        function evaluate() {
-		    if (backendColor === undefined)
-			    return;
-            if (!enabled) {
-                valueSpinBox.setStyleSheet("color: "+scheme.disabledColor);
-                hueSpinBox.setStyleSheet("color: "+scheme.disabledColor);
-                saturationSpinBox.setStyleSheet("color: "+scheme.disabledColor);
-            } else {
-                if (baseStateFlag) {
-                    if (backendColor.isInModel) {
-                        valueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
-                        hueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
-                        saturationSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
-                    } else {
-                        valueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
-                        hueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
-                        saturationSpinBox.setStyleSheet("color: "+scheme.defaultColor);
-                    }
+    function evaluate() {
+        if (backendColor === undefined)
+            return;
+        if (!enabled) {
+            valueSpinBox.setStyleSheet("color: "+scheme.disabledColor);
+            hueSpinBox.setStyleSheet("color: "+scheme.disabledColor);
+            saturationSpinBox.setStyleSheet("color: "+scheme.disabledColor);
+        } else {
+            if (baseStateFlag) {
+                if (backendColor.isInModel) {
+                    valueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
+                    hueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
+                    saturationSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
                 } else {
-                    if (backendColor.isInSubState) {
-                        valueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
-                        hueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
-                        saturationSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
-                    } else {
-                        valueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
-                        hueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
-                        saturationSpinBox.setStyleSheet("color: "+scheme.defaultColor);
-                    }
+                    valueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                    hueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                    saturationSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                }
+            } else {
+                if (backendColor.isInSubState) {
+                    valueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
+                    hueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
+                    saturationSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
+                } else {
+                    valueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                    hueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                    saturationSpinBox.setStyleSheet("color: "+scheme.defaultColor);
                 }
             }
         }

@@ -22,26 +22,23 @@ QWidget {
         evaluate();
     }
 
-    Script {
-        function evaluate() {
-		    if (backendValue === undefined)
-		        return;
-            if (!enabled) {
-                box.setStyleSheet("color: "+scheme.disabledColor);
+    function evaluate() {
+        if (backendValue === undefined)
+            return;
+        if (!enabled) {
+            box.setStyleSheet("color: "+scheme.disabledColor);
+        } else {
+            if (baseStateFlag) {
+                if (backendValue.isInModel)
+                    box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedBaseColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
+                else
+                    box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
             } else {
-                if (baseStateFlag) {
-                    if (backendValue.isInModel)
-                        box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedBaseColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
-                    else
-                        box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
-                    } else {
-                    if (backendValue.isInSubState)
-                        box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedStateColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
-                    else
-                        box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
-                    }
+                if (backendValue.isInSubState)
+                    box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedStateColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
+                else
+                    box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
             }
-
         }
     }
 

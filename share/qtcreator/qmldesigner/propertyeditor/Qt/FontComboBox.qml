@@ -22,23 +22,20 @@ QWidget {
         evaluate();
     }
 
-
-    Script {
-        function evaluate() {
-            if (!enabled) {
-                fontSelector.setStyleSheet("color: "+scheme.disabledColor);
-                } else {
-                if (baseStateFlag) {
-                    if (backendValue != null && backendValue.isInModel)
-                       fontSelector.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedBaseColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
-                    else
-                       fontSelector.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
-                } else {
-                    if (backendValue != null && backendValue.isInSubState)
-                        fontSelector.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedStateColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
-                    else
-                        fontSelector.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
-                }
+    function evaluate() {
+        if (!enabled) {
+            fontSelector.setStyleSheet("color: "+scheme.disabledColor);
+        } else {
+            if (baseStateFlag) {
+                if (backendValue != null && backendValue.isInModel)
+                    fontSelector.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedBaseColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
+                else
+                    fontSelector.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
+            } else {
+                if (backendValue != null && backendValue.isInSubState)
+                    fontSelector.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedStateColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
+                else
+                    fontSelector.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
             }
         }
     }

@@ -6,22 +6,19 @@ QToolButton {
 
     property var backendValue
 
-    Script {
-        function setIcon() {
-            if (backendValue == null)
-                extendedFunctionButton.iconFromFile = "images/placeholder.png"
-            else if (backendValue.isBound) {
-                extendedFunctionButton.iconFromFile = "images/expression.png"
+    function setIcon() {
+        if (backendValue == null)
+            extendedFunctionButton.iconFromFile = "images/placeholder.png"
+        else if (backendValue.isBound) {
+            extendedFunctionButton.iconFromFile = "images/expression.png"
+        } else {
+            if (backendValue.complexNode != null && backendValue.complexNode.exists) {
+                extendedFunctionButton.iconFromFile = "images/behaivour.png"
             } else {
-                if (backendValue.complexNode != null && backendValue.complexNode.exists) {
-                    extendedFunctionButton.iconFromFile = "images/behaivour.png"
-                } else {
-                    extendedFunctionButton.iconFromFile = "images/placeholder.png"
-                }
+                extendedFunctionButton.iconFromFile = "images/placeholder.png"
             }
         }
     }
-
 
     onBackendValueChanged: {
         setIcon();
