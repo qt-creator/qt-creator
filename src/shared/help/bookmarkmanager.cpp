@@ -620,12 +620,12 @@ BookmarkManager::~BookmarkManager()
     listModel->clear();
 }
 
-BookmarkModel* BookmarkManager::treeBookmarkModel()
+BookmarkModel* BookmarkManager::treeBookmarkModel() const
 {
     return treeModel;
 }
 
-BookmarkModel* BookmarkManager::listBookmarkModel()
+BookmarkModel* BookmarkManager::listBookmarkModel() const
 {
     return listModel;
 }

@@ -161,8 +161,8 @@ public:
     BookmarkManager(QHelpEngineCore *helpEngine);
     ~BookmarkManager();
 
-    BookmarkModel *treeBookmarkModel();
-    BookmarkModel *listBookmarkModel();
+    BookmarkModel *treeBookmarkModel() const;
+    BookmarkModel *listBookmarkModel() const;
 
     void saveBookmarks();
     QStringList bookmarkFolders() const;
