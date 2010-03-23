@@ -136,12 +136,12 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     QPixmap borderPixmap;
     QMargins margins;
 
-    QPixmap pix = icon().pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE, isEnabled() ? QIcon::Normal : QIcon::Disabled);
-    QSizeF halfPixSize = pix.size()/2.0;
+    QRect iconRect(0, 0, Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
     // draw popup texts
     if (isTitledAction) {
 
         QFont normalFont(painter.font());
+        QRect centerRect = rect();
         normalFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
         QFont boldFont(normalFont);
         boldFont.setBold(true);
@@ -150,22 +150,20 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         int lineHeight = boldFm.height();
         int textFlags = Qt::AlignVCenter|Qt::AlignHCenter;
 
-        QRect iconRect = rect();
         const QString projectName = defaultAction()->property("heading").toString();
         if (!projectName.isNull())
-            iconRect.adjust(0, lineHeight + 4, 0, 0);
+            centerRect.adjust(0, lineHeight + 4, 0, 0);
 
         const QString buildConfiguration = defaultAction()->property("subtitle").toString();
         if (!buildConfiguration.isNull())
-            iconRect.adjust(0, 0, 0, -lineHeight - 4);
+            centerRect.adjust(0, 0, 0, -lineHeight - 4);
 
-
-        QPoint center = iconRect.center();
-        Utils::StyleHelper::drawIconWithShadow(pix, center-QPoint(halfPixSize.width()-1, halfPixSize.height()-1), &painter);
+        iconRect.moveCenter(centerRect.center());
+        Utils::StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
         painter.setFont(normalFont);
 
-        QPoint textOffset = center - QPoint(pix.rect().width()/2, pix.rect().height()/2);
-        textOffset = textOffset - QPoint(0, lineHeight+5);
+        QPoint textOffset = centerRect.center() - QPoint(iconRect.width()/2, iconRect.height()/2);
+        textOffset = textOffset - QPoint(0, lineHeight + 4);
         QRectF r(0, textOffset.y(), rect().width(), lineHeight);
         QColor penColor;
         if (isEnabled())
@@ -182,7 +180,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             painter.setPen(penColor);
         }
         painter.drawText(r, textFlags, ellidedProjectName);
-        textOffset = center + QPoint(pix.rect().width()/2, pix.rect().height()/2);
+        textOffset = iconRect.center() + QPoint(iconRect.width()/2, iconRect.height()/2);
         r = QRectF(0, textOffset.y()+5, rect().width(), lineHeight);
         painter.setFont(boldFont);
         QString ellidedBuildConfiguration = boldFm.elidedText(buildConfiguration, Qt::ElideMiddle, r.width());
@@ -196,12 +194,12 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             painter.drawText(r, textFlags, ellidedBuildConfiguration);
             QStyleOption opt;
             opt.initFrom(this);
-            opt.rect = iconRect.adjusted(iconRect.width() - 16, 0, -8, 0);
+            opt.rect = rect().adjusted(rect().width() - 16, 0, -8, 0);
             Utils::StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, &painter, &opt);
         }
     } else {
-        QPoint center = rect().center();
-        Utils::StyleHelper::drawIconWithShadow(pix, center-QPoint(halfPixSize.width()-1, halfPixSize.height()-1), &painter);
+        iconRect.moveCenter(rect().center());
+        Utils::StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, isEnabled() ? QIcon::Normal : QIcon::Disabled);
     }
 }
 

@@ -161,7 +161,7 @@ static void verticalGradientHelper(QPainter *p, const QRect &spanRect, const QRe
     QColor highlight = StyleHelper::highlightColor(lightColored);
     QColor shadow = StyleHelper::shadowColor(lightColored);
     QLinearGradient grad(spanRect.topRight(), spanRect.topLeft());
-    grad.setColorAt(0, highlight.lighter(112));
+    grad.setColorAt(0, highlight.lighter(117));
     grad.setColorAt(1, shadow.darker(109));
     p->fillRect(rect, grad);
 
@@ -364,16 +364,33 @@ void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const Q
 }
 
 // Draws a cached pixmap with shadow
-void StyleHelper::drawIconWithShadow(const QPixmap &px, const QPoint &pos,
-                                     QPainter *p, int radius, const QColor &color, const QPoint &offset)
+void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
+                                     QPainter *p, QIcon::Mode iconMode, int radius, const QColor &color, const QPoint &offset)
 {
     QPixmap cache;
-    QString pixmapName = QString("sdw %0").arg(px.cacheKey());
+    QString pixmapName = QString("icon %0 %1 %2").arg(icon.cacheKey()).arg(iconMode).arg(rect.height());
+
     if (!QPixmapCache::find(pixmapName, cache)) {
+        QPixmap px = icon.pixmap(rect.size());
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));
         cache.fill(Qt::transparent);
-        QPainter cachePainter(&cache);
 
+        QPainter cachePainter(&cache);
+        if (iconMode == QIcon::Disabled) {
+            QImage im = px.toImage().convertToFormat(QImage::Format_ARGB32);
+            for (int y=0; y<im.height(); ++y) {
+                QRgb *scanLine = (QRgb*)im.scanLine(y);
+                for (int x=0; x<im.width(); ++x) {
+                    QRgb pixel = *scanLine;
+                    char intensity = qGray(pixel);
+                    *scanLine = qRgba(intensity, intensity, intensity, qAlpha(pixel));
+                    ++scanLine;
+                }
+            }
+            px = QPixmap::fromImage(im);
+        }
+
+        // Draw shadow
         QImage tmp(px.size() + QSize(radius * 2, radius * 2 + 1), QImage::Format_ARGB32_Premultiplied);
         tmp.fill(Qt::transparent);
 
@@ -396,15 +413,23 @@ void StyleHelper::drawIconWithShadow(const QPixmap &px, const QPoint &pos,
         tmpPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
         tmpPainter.fillRect(tmp.rect(), color);
         tmpPainter.end();
+
+        tmpPainter.begin(&tmp);
+        tmpPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+        tmpPainter.fillRect(tmp.rect(), color);
+        tmpPainter.end();
+
         // draw the blurred drop shadow...
-        cachePainter.drawImage(QPoint(0, 0), tmp);
+        cachePainter.drawImage(QRect(0, 0, cache.rect().width(), cache.rect().height()), tmp);
 
         // Draw the actual pixmap...
         cachePainter.drawPixmap(QPoint(radius, radius) + offset, px);
         QPixmapCache::insert(pixmapName, cache);
     }
 
-    p->drawPixmap(pos - QPoint(radius, radius), cache);
+    QRect targetRect = cache.rect();
+    targetRect.moveCenter(rect.center());
+    p->drawPixmap(targetRect.topLeft() - offset, cache);
 }
 
 // Draws a CSS-like border image where the defined borders are not stretched
@@ -447,6 +472,5 @@ void StyleHelper::drawCornerImage(const QImage &img, QPainter *painter, QRect re
                            QRect(size.width() - right, size.height() - bottom, right, bottom));
     }
 }
-
 
 } // namespace Utils

@@ -245,7 +245,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         //background
         painter->save();
         QLinearGradient grad(rect.topLeft(), rect.topRight());
-        grad.setColorAt(0, QColor(255, 255, 255, 160));
+        grad.setColorAt(0, QColor(255, 255, 255, 140));
         grad.setColorAt(1, QColor(255, 255, 255, 210));
         painter->fillRect(rect.adjusted(0, 0, 0, -1), grad);
         painter->restore();
@@ -304,15 +304,8 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
 
     int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
     tabIconRect.adjust(0, 4, 0, -textHeight);
-    QPixmap icon = tabIcon(tabIndex).pixmap(tabIconRect.size(), enabled ? QIcon::Normal : QIcon::Disabled);
-    Utils::StyleHelper::drawIconWithShadow(icon,
-                                           tabIconRect.center() - QPoint(icon.size().width()/2-1, icon.size().height()/2),
-                                           painter);
+    Utils::StyleHelper::drawIconWithShadow(tabIcon(tabIndex), tabIconRect, painter, enabled ? QIcon::Normal : QIcon::Disabled);
 
-/*    if (iconSize > 4)
-        style()->drawItemPixmap(painter, tabIconRect, Qt::AlignCenter | Qt::AlignVCenter,
-                                tabIcon(tabIndex).pixmap(tabIconRect.size(), enabled ? QIcon::Normal : QIcon::Disabled));
-*/
     painter->translate(0, -1);
     painter->drawText(tabTextRect, textFlags, tabText);
     painter->restore();

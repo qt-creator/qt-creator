@@ -80,9 +80,9 @@ public:
     static void menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect);
     static bool usePixmapCache() { return true; }
 
-    static void drawIconWithShadow(const QPixmap &px, const QPoint &pos, QPainter *p,
-                                   int radius = 3, const QColor &color = QColor(0, 0, 0, 70),
-                                   const QPoint &offset = QPoint(0, -1));
+    static void drawIconWithShadow(const QIcon &icon, const QRect &rect, QPainter *p, QIcon::Mode iconMode,
+                                   int radius = 3, const QColor &color = QColor(0, 0, 0, 130),
+                                   const QPoint &offset = QPoint(1, -2));
     static void drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
                          int left = 0, int top = 0, int right = 0, int bottom = 0);
 
