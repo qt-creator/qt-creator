@@ -151,6 +151,9 @@ void TypePrettyPrinter::applyPtrOperators(bool wantSpace)
             _text += QLatin1Char('*');
             outCV(op);
         } else if (const ReferenceType *ref = op->asReferenceType()) {
+            if (_text.endsWith(QLatin1Char('&')))
+                _text += QLatin1Char(' ');
+
             if (ref->isRvalueReference())
                 _text += QLatin1String("&&");
             else
