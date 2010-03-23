@@ -1314,11 +1314,13 @@ class CPLUSPLUS_EXPORT CtorInitializerAST: public AST
 public:
     unsigned colon_token;
     MemInitializerListAST *member_initializer_list;
+    unsigned dot_dot_dot_token;
 
 public:
     CtorInitializerAST()
         : colon_token(0)
         , member_initializer_list(0)
+        , dot_dot_dot_token(0)
     {}
 
     virtual CtorInitializerAST *asCtorInitializer() { return this; }

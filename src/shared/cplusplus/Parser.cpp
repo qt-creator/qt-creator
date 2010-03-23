@@ -2087,6 +2087,10 @@ bool Parser::parseCtorInitializer(CtorInitializerAST *&node)
         ast->colon_token = colon_token;
 
         parseMemInitializerList(ast->member_initializer_list);
+
+        if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+            ast->dot_dot_dot_token = consumeToken();
+
         node = ast;
         return true;
     }
@@ -2243,6 +2247,9 @@ bool Parser::parseMemInitializerList(MemInitializerListAST *&node)
             if (LA() == T_LBRACE)
                 break;
 
+            else if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT && LA(2) == T_LBRACE)
+                break;
+
             else if (LA() == T_COMMA || (LA() == T_IDENTIFIER && (LA(2) == T_LPAREN || LA(2) == T_COLON_COLON))) {
                 if (LA() != T_COMMA)
                     _translationUnit->error(cursor(), "expected `,'");
@@ -2257,8 +2264,13 @@ bool Parser::parseMemInitializerList(MemInitializerListAST *&node)
             } else break;
         }
 
-        if (LA() != T_LBRACE)
+        if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT) {
+            if (LA(2) != T_LBRACE)
+                _translationUnit->error(cursor(), "expected `{'");
+
+        } else if (LA() != T_LBRACE) {
             _translationUnit->error(cursor(), "expected `{'");
+        }
 
         return true;
     }

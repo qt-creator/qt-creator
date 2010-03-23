@@ -694,7 +694,9 @@ unsigned CtorInitializerAST::firstToken() const
 
 unsigned CtorInitializerAST::lastToken() const
 {
-    if (member_initializer_list)
+    if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
+    else if (member_initializer_list)
         return member_initializer_list->lastToken();
     return colon_token + 1;
 }
