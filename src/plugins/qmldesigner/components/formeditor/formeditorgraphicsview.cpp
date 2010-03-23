@@ -121,7 +121,8 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
 
     painter->save();
 
-    painter->translate(mapToScene(m_feedbackOriginPoint));
+    painter->resetTransform();
+    painter->translate(m_feedbackOriginPoint);
 
     QColor changeColor(QColor(Qt::green).lighter(170));
 
