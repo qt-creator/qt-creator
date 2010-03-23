@@ -559,6 +559,9 @@ unsigned ClassSpecifierAST::lastToken() const
     else if (lbrace_token)
         return lbrace_token + 1;
 
+    else if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
+
     else if (base_clause_list)
         return base_clause_list->lastToken();
 

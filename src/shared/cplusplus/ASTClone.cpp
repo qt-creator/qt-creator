@@ -353,6 +353,7 @@ ClassSpecifierAST *ClassSpecifierAST::clone(MemoryPool *pool) const
     for (BaseSpecifierListAST *iter = base_clause_list, **ast_iter = &ast->base_clause_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) BaseSpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     ast->lbrace_token = lbrace_token;
     for (DeclarationListAST *iter = member_specifier_list, **ast_iter = &ast->member_specifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
@@ -431,6 +432,7 @@ CtorInitializerAST *CtorInitializerAST::clone(MemoryPool *pool) const
     for (MemInitializerListAST *iter = member_initializer_list, **ast_iter = &ast->member_initializer_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) MemInitializerListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     return ast;
 }
 

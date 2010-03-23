@@ -1131,6 +1131,7 @@ public:
     NameAST *name;
     unsigned colon_token;
     BaseSpecifierListAST *base_clause_list;
+    unsigned dot_dot_dot_token;
     unsigned lbrace_token;
     DeclarationListAST *member_specifier_list;
     unsigned rbrace_token;
@@ -1145,6 +1146,7 @@ public:
         , name(0)
         , colon_token(0)
         , base_clause_list(0)
+        , dot_dot_dot_token(0)
         , lbrace_token(0)
         , member_specifier_list(0)
         , rbrace_token(0)

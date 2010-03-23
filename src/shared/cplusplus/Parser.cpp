@@ -1667,6 +1667,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
     _inFunctionBody = false;
 
     unsigned colon_token = 0;
+    unsigned dot_dot_dot_token = 0;
 
     if (LA() == T_COLON || LA() == T_LBRACE) {
         BaseSpecifierListAST *base_clause_list = 0;
@@ -1675,6 +1676,9 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
             colon_token = cursor();
 
             parseBaseClause(base_clause_list);
+
+            if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+                dot_dot_dot_token = consumeToken();
 
             if (LA() != T_LBRACE) {
                 _translationUnit->error(cursor(), "expected `{' before `%s'", tok().spell());
@@ -1697,6 +1701,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
         ast->name = name;
         ast->colon_token = colon_token;
         ast->base_clause_list = base_clause_list;
+        ast->dot_dot_dot_token = dot_dot_dot_token;
 
         if (LA() == T_LBRACE)
             ast->lbrace_token = consumeToken();

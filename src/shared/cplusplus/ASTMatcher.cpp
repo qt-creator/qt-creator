@@ -570,6 +570,8 @@ bool ASTMatcher::match(ClassSpecifierAST *node, ClassSpecifierAST *pattern)
     else if (! AST::match(node->base_clause_list, pattern->base_clause_list, this))
         return false;
 
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
+
     pattern->lbrace_token = node->lbrace_token;
 
     if (! pattern->member_specifier_list)
@@ -705,6 +707,8 @@ bool ASTMatcher::match(CtorInitializerAST *node, CtorInitializerAST *pattern)
         pattern->member_initializer_list = node->member_initializer_list;
     else if (! AST::match(node->member_initializer_list, pattern->member_initializer_list, this))
         return false;
+
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
 
     return true;
 }
