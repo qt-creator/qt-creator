@@ -76,22 +76,22 @@ QString AbstractGdbAdapter::msgGdbStopFailed(const QString &why)
 
 QString AbstractGdbAdapter::msgInferiorStopFailed(const QString &why)
 {
-    return tr("Inferior process could not be stopped:\n%1").arg(why);
+    return tr("Application process could not be stopped:\n%1").arg(why);
 }
 
 QString AbstractGdbAdapter::msgInferiorStarted()
 {
-    return tr("Inferior started.");
+    return tr("Application started");
 }
 
 QString AbstractGdbAdapter::msgInferiorRunning()
 {
-    return tr("Inferior running.");
+    return tr("Application running");
 }
 
 QString AbstractGdbAdapter::msgAttachedToStoppedInferior()
 {
-    return tr("Attached to stopped inferior.");
+    return tr("Attached to stopped application");
 }
 
 QString AbstractGdbAdapter::msgConnectRemoteServerFailed(const QString &why)

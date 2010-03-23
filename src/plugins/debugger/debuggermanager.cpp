@@ -266,6 +266,7 @@ struct DebuggerManagerPrivate
 
     /// Views
     DebuggerMainWindow *m_mainWindow;
+
     QLabel *m_statusLabel;
 
     QDockWidget *m_breakDock;
@@ -769,7 +770,7 @@ void DebuggerManager::showStatusMessage(const QString &msg0, int timeout)
     showDebuggerOutput(LogStatus, msg0);
     QString msg = msg0;
     msg.replace(QLatin1Char('\n'), QString());
-    d->m_statusLabel->setText(QLatin1String("   ") + msg);
+    d->m_statusLabel->setText(msg);
     if (timeout > 0) {
         d->m_statusTimer->setSingleShot(true);
         d->m_statusTimer->start(timeout);
@@ -782,7 +783,7 @@ void DebuggerManager::showStatusMessage(const QString &msg0, int timeout)
 void DebuggerManager::notifyInferiorStopped()
 {
     setState(InferiorStopped);
-    showStatusMessage(tr("Stopped."), 5000);
+    showStatusMessage(tr("Stopped"), 5000);
 }
 
 void DebuggerManager::notifyInferiorRunning()
@@ -794,7 +795,7 @@ void DebuggerManager::notifyInferiorRunning()
 void DebuggerManager::notifyInferiorExited()
 {
     setState(DebuggerNotReady);
-    showStatusMessage(tr("Exited."), 5000);
+    showStatusMessage(tr("Exited"), 5000);
 }
 
 void DebuggerManager::notifyInferiorPidChanged(qint64 pid)

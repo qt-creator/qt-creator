@@ -1006,6 +1006,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         m_manager->threadsWindow(), SIGNAL(threadSelected(int)));
 
     hbox->addWidget(threadBox);
+    hbox->addSpacerItem(new QSpacerItem(4, 0));
     hbox->addWidget(m_manager->statusLabel(), 10);
 
 

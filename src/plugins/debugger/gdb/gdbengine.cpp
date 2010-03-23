@@ -423,7 +423,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // symbols-loaded="0"
                 QByteArray id = result.findChild("id").data();
                 if (!id.isEmpty())
-                    showStatusMessage(tr("Library %1 loaded.").arg(_(id)), 1000);
+                    showStatusMessage(tr("Library %1 loaded").arg(_(id)), 1000);
                 int progress = m_progress->progressValue();
                 m_progress->setProgressValue(qMin(70, progress + 1));
                 invalidateSourcesList();
@@ -432,7 +432,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2"
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Library %1 unloaded.").arg(_(id)), 1000);
+                showStatusMessage(tr("Library %1 unloaded").arg(_(id)), 1000);
                 invalidateSourcesList();
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}"
@@ -446,20 +446,20 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             } else if (asyncClass == "thread-created") {
                 //"{id="1",group-id="28902"}"
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Thread %1 created.").arg(_(id)), 1000);
+                showStatusMessage(tr("Thread %1 created").arg(_(id)), 1000);
             } else if (asyncClass == "thread-group-exited") {
                 // Archer has "{id="28902"}"
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Thread group %1 exited.").arg(_(id)), 1000);
+                showStatusMessage(tr("Thread group %1 exited").arg(_(id)), 1000);
             } else if (asyncClass == "thread-exited") {
                 //"{id="1",group-id="28902"}"
                 QByteArray id = result.findChild("id").data();
                 QByteArray groupid = result.findChild("group-id").data();
-                showStatusMessage(tr("Thread %1 in group %2 exited.")
+                showStatusMessage(tr("Thread %1 in group %2 exited")
                     .arg(_(id)).arg(_(groupid)), 1000);
             } else if (asyncClass == "thread-selected") {
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Thread %1 selected.").arg(_(id)), 1000);
+                showStatusMessage(tr("Thread %1 selected").arg(_(id)), 1000);
                 //"{id="2"}"
             #if defined(Q_OS_MAC)
             } else if (asyncClass == "shlibs-updated") {
@@ -1161,13 +1161,13 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         setState(InferiorStopped);
         QString msg;
         if (reason == "exited") {
-            msg = tr("Program exited with exit code %1.")
+            msg = tr("Application exited with exit code %1")
                 .arg(_(data.findChild("exit-code").toString()));
         } else if (reason == "exited-signalled" || reason == "signal-received") {
-            msg = tr("Program exited after receiving signal %1.")
+            msg = tr("Application exited after receiving signal %1")
                 .arg(_(data.findChild("signal-name").toString()));
         } else {
-            msg = tr("Program exited normally.");
+            msg = tr("Application exited normally");
         }
         showStatusMessage(msg);
         setState(InferiorShuttingDown);
@@ -1380,7 +1380,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
                 showMessageBox(QMessageBox::Information,
                     tr("Signal received"), msg);
                 if (!name.isEmpty() && !meaning.isEmpty())
-                    reasontr = tr("Stopped: %1 by signal %2.")
+                    reasontr = tr("Stopped: %1 by signal %2")
                         .arg(_(meaning)).arg(_(name));
             }
         }
@@ -3288,7 +3288,7 @@ void GdbEngine::rebuildWatchModel()
     if (theDebuggerBoolSetting(LogTimeStamps))
         showDebuggerInput(LogMisc, currentTime());
     showDebuggerInput(LogStatus, _("<Rebuild Watchmodel %1>").arg(count));
-    showStatusMessage(tr("Finished retrieving data."), 400);
+    showStatusMessage(tr("Finished retrieving data"), 400);
     manager()->watchHandler()->endCycle();
     showToolTip();
 }
