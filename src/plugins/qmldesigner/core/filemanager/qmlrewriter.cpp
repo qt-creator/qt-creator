@@ -98,6 +98,9 @@ unsigned QMLRewriter::calculateIndentDepth(const SourceLocation &position) const
 
 QString QMLRewriter::addIndentation(const QString &text, unsigned depth)
 {
+    if (depth == 0)
+        return text;
+
     const QString indentation(depth, QLatin1Char(' '));
 
     if (text.isEmpty())

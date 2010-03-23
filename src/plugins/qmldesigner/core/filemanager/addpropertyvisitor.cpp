@@ -150,6 +150,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         newPropertyTemplate.prepend(QLatin1Char(' '));
         if (needsTrailingSemicolon)
             newPropertyTemplate.append(QLatin1Char(';'));
+        depth = 0;
     } else {
         newPropertyTemplate.prepend(QLatin1Char('\n'));
     }
