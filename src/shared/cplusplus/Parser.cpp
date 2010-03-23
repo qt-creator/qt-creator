@@ -835,6 +835,10 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
         *template_argument_ptr = new (_pool) TemplateArgumentListAST;
         (*template_argument_ptr)->value = template_argument;
         template_argument_ptr = &(*template_argument_ptr)->next;
+
+        if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+            consumeToken(); // ### store this token in the AST
+
         while (LA() == T_COMMA) {
             consumeToken(); // consume T_COMMA
 
@@ -842,6 +846,9 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
                 *template_argument_ptr = new (_pool) TemplateArgumentListAST;
                 (*template_argument_ptr)->value = template_argument;
                 template_argument_ptr = &(*template_argument_ptr)->next;
+
+                if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+                    consumeToken(); // ### store this token in the AST
             }
         }
 
@@ -1115,8 +1122,15 @@ bool Parser::parseTemplateArgument(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
     unsigned start = cursor();
-    if (parseTypeId(node) && (LA() == T_COMMA || LA() == T_GREATER))
-        return true;
+    if (parseTypeId(node)) {
+        int index = 1;
+
+        if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+            index = 2;
+
+        if (LA(index) == T_COMMA || LA(index) == T_GREATER)
+            return true;
+    }
 
     rewind(start);
     bool previousTemplateArguments = switchTemplateArguments(true);
