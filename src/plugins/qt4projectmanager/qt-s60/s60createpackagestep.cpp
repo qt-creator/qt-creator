@@ -101,12 +101,14 @@ bool S60CreatePackageStep::init()
         return false;
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     ProjectExplorer::Environment environment = bc->environment();
-    if (signingMode() == SignCustom) {
-        environment.set(QLatin1String("QT_SIS_CERTIFICATE"), QDir::toNativeSeparators(customSignaturePath()));
-        environment.set(QLatin1String("QT_SIS_KEY"), QDir::toNativeSeparators(customKeyPath()));
-    }
     setEnvironment(environment);
-    setArguments(QStringList() << "sis"); // overwrite any stuff done in make step
+    QStringList args;
+    args << QLatin1String("sis");
+    if (signingMode() == SignCustom) {
+        args << QLatin1String("QT_SIS_CERTIFICATE=") + QDir::toNativeSeparators(customSignaturePath())
+             << QLatin1String("QT_SIS_KEY=") + QDir::toNativeSeparators(customKeyPath());
+    }
+    setArguments(args); // overwrite any stuff done in make step
     return true;
 }
 
