@@ -403,8 +403,9 @@ void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const Q
 
 void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    QDeclarativeProperty QDeclarativeProperty(object(), name, context());
-    QDeclarativeProperty.write(value);
+
+    QDeclarativeProperty property(object(), name, context());
+    property.write(value);
 }
 
 void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
