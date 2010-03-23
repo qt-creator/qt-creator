@@ -718,7 +718,7 @@ void DebuggerManager::createNewDock(QWidget *widget)
 
 void DebuggerManager::setSimpleDockWidgetArrangement(const QString &activeLanguage)
 {
-    if (activeLanguage == LANG_CPP || !activeLanguage.length()) {
+    if (activeLanguage == LANG_CPP || activeLanguage.isEmpty()) {
         d->m_mainWindow->setTrackingEnabled(false);
         QList<QDockWidget *> dockWidgets = d->m_mainWindow->dockWidgets();
         foreach (QDockWidget *dockWidget, dockWidgets) {
