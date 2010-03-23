@@ -77,7 +77,6 @@ public:
     bool isDirty() const;
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
-    QWidget *widget() const;
 
     Model *model() const;
     Model *masterModel() const;    
@@ -109,7 +108,7 @@ signals:
 
 public slots:
     bool save(QWidget *parent = 0);
-    void saveAs(QWidget *parent = 0);    
+    void saveAs(QWidget *parent = 0);
     void deleteSelected();
     void copySelected();
     void cutSelected();
@@ -129,6 +128,7 @@ private slots:
     void changeCurrentModelTo(const ModelNode &node);
 
 private:
+    QWidget *centralWidget() const;
     class DesignDocumentControllerPrivate *m_d;
     bool save(QIODevice *device, QString *errorMessage);
 };

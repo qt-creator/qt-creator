@@ -120,7 +120,7 @@ DesignDocumentController::DesignDocumentController(QObject *parent) :
 }
 
 DesignDocumentController::~DesignDocumentController()
-{   
+{
     delete m_d->model.data();
     delete m_d->subComponentModel.data();
 
@@ -142,7 +142,7 @@ Model *DesignDocumentController::masterModel() const
     return m_d->masterModel.data();
 }
 
-QWidget *DesignDocumentController::widget() const
+QWidget *DesignDocumentController::centralWidget() const
 {
     return qobject_cast<QWidget*>(parent());
 }
@@ -346,7 +346,7 @@ void DesignDocumentController::loadCurrentModel()
     if (!m_d->componentAction) {
         m_d->componentAction = new ComponentAction(m_d->formEditorView->widget());
         m_d->componentAction->setModel(m_d->model.data());
-        connect(m_d->componentAction.data(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));       
+        connect(m_d->componentAction.data(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));
         m_d->formEditorView->widget()->lowerToolBox()->addAction(m_d->componentAction.data());
     }
     foreach (QAction *action , m_d->formEditorView->widget()->lowerToolBox()->actions())
@@ -392,13 +392,13 @@ void DesignDocumentController::doRealSaveAs(const QString &fileName)
 
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists() && !fileInfo.isWritable()) {
-        QMessageBox msgBox(widget());
+        QMessageBox msgBox(centralWidget());
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setText(tr("Cannot save to file \"%1\": permission denied.").arg(fileInfo.baseName()));
         msgBox.exec();
         return;
     } else if (!fileInfo.exists() && !fileInfo.dir().exists()) {
-        QMessageBox msgBox(widget());
+        QMessageBox msgBox(centralWidget());
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.setText(tr("Parent folder \"%1\" for file \"%2\" does not exist.")
                        .arg(fileInfo.dir().dirName())
@@ -408,7 +408,7 @@ void DesignDocumentController::doRealSaveAs(const QString &fileName)
     }
 
     setFileName(fileName);
-    save(widget());
+    save(centralWidget());
 }
 
 bool DesignDocumentController::isDirty() const
@@ -716,7 +716,7 @@ bool DesignDocumentController::save(QWidget *parent)
     if (!result)
         showError(errorMessage, parent);
     return result;
-    save(widget());
+    save(centralWidget());
 }
 
 bool DesignDocumentController::save(QIODevice *device, QString * /*errorMessage*/)
