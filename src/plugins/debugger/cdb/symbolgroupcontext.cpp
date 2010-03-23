@@ -34,6 +34,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QRegExp>
 #include <QtCore/QString>
+#include <QtCore/QVariant>
 #include <QtCore/QDebug>
 
 enum { debug = 0 };
@@ -450,6 +451,42 @@ bool SymbolGroupContext::getUnsignedHexValue(QString stringValue, quint64 *value
     return ok;
 }
 
+// Return the format specification of a '0x..', '0n..'
+// integer specification or '0' if there is none.
+inline char intFormatSpecification(const QString &stringValue)
+{
+    if (stringValue.size() > 2) {
+        const QChar format = stringValue.at(1);
+        if (!format.isDigit())
+            return format.toLatin1();
+    }
+    return char(0);
+}
+
+QVariant SymbolGroupContext::getIntValue(const QString &stringValue)
+{
+    // Is this a "0x<hex'hex>", "0n<decimal>" or something
+    switch (intFormatSpecification(stringValue)) {
+    case 'x': { // Hex unsigned
+            quint64 uvalue;
+            if (SymbolGroupContext::getUnsignedHexValue(stringValue, &uvalue))
+                return QVariant(uvalue);
+        }
+        break;
+    case '0': // Decimal or none
+    case 'n': {
+            qint64 nvalue;
+            if (SymbolGroupContext::getDecimalIntValue(stringValue, &nvalue))
+                return QVariant(nvalue);
+        }
+        break;
+    default:
+        break;
+    }
+    qWarning("CDB: Integer conversion failed for '%s'.", qPrintable(stringValue));
+    return QVariant();
+}
+
 // check for "0x000", "0x000 class X" or its 64-bit equivalents.
 bool SymbolGroupContext::isNullPointer(const QString &type , QString valueS)
 {
@@ -621,13 +658,22 @@ unsigned SymbolGroupContext::dumpValue(unsigned long index,
     return rc;
 }
 
+bool SymbolGroupContext::getDecimalIntValue(QString stringValue, qint64 *value)
+{
+    // Strip '0n<digits>' format specifier that occurs
+    // with Debugging tools v6.12 or later
+    if (stringValue.startsWith(QLatin1String("0n")))
+        stringValue.remove(0, 2);
+    bool ok;
+    *value = stringValue.toInt(&ok);
+    return ok;
+}
+
 // Get integer value of symbol group
-bool SymbolGroupContext::getDecimalIntValue(CIDebugSymbolGroup *sg, int index, int *value)
+static inline bool getSG_DecimalIntValue(CIDebugSymbolGroup *sg, int index, qint64 *value)
 {
     const QString valueS = getSymbolString(sg, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
-    bool ok;
-    *value = valueS.toInt(&ok);
-    return ok;
+    return SymbolGroupContext::getDecimalIntValue(valueS, value);
 }
 
 // Get pointer value of symbol group ("0xAAB")
@@ -655,8 +701,8 @@ int SymbolGroupContext::dumpQString(unsigned long index,
     const unsigned long sizeIndex = dIndex + 3;
     const unsigned long arrayIndex = dIndex + 4;
     // Get size and pointer
-    int size;
-    if (!getDecimalIntValue(m_symbolGroup, sizeIndex, &size))
+    qint64 size;
+    if (!getSG_DecimalIntValue(m_symbolGroup, sizeIndex, &size))
         return 4;
     quint64 array;
     if (!getSG_UnsignedHexValue(m_symbolGroup, arrayIndex, &array))
@@ -671,7 +717,7 @@ int SymbolGroupContext::dumpQString(unsigned long index,
         // Should this ever be a remote debugger, need to check byte order.
         unsigned short *buf =  new unsigned short[size + 1];
         unsigned long bytesRead;
-        const HRESULT hr = m_dataSpaces->ReadVirtual(array, buf, size * sizeof(unsigned short), &bytesRead);
+        const HRESULT hr = m_dataSpaces->ReadVirtual(array, buf, size * ULONG(sizeof(unsigned short)), &bytesRead);
         if (FAILED(hr)) {
             delete [] buf;
             return 1;
@@ -705,8 +751,8 @@ int SymbolGroupContext::dumpStdString(unsigned long index,
         return 2;
     // Check if size is something sane
     const int sizeIndex =  index + 6;
-    int size;
-    if (!getDecimalIntValue(m_symbolGroup, sizeIndex, &size))
+    qint64 size;
+    if (!getSG_DecimalIntValue(m_symbolGroup, sizeIndex, &size))
         return 3;
     if (size < 0)
         return 1;

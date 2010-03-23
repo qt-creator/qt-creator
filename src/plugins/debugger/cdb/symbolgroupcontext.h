@@ -112,10 +112,13 @@ public:
     unsigned dumpValue(unsigned long index, QString *inameIn, QString *nameIn,                  ULONG64 *addrIn,
                        ULONG *typeIdIn, QString *typeNameIn, QString *valueIn);
 
-    // For 32bit values (returned as dec)
-    static bool getDecimalIntValue(CIDebugSymbolGroup *sg, int index, int *value);
+    // For 64bit values (returned as dec), potentially '0n..'.
+    static bool getDecimalIntValue(QString stringValue, qint64 *value);
     // For pointers and 64bit values (returned as hex)
     static bool getUnsignedHexValue(QString stringValue, quint64 *value);
+    // Convenience to return an integer (hex/decimal) as matching variant (signed/unsigned).
+    static QVariant getIntValue(const QString &stringValue);
+
     // Null-check for pointers
     static bool isNullPointer(const QString &type , QString valueS);
     // Symbol group values may contain template types which is not desired.
