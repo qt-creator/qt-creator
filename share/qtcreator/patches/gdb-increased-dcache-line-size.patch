@@ -1,0 +1,13 @@
+diff --git a/gdb/dcache.c b/gdb/dcache.c
+index e1386e0..65b1a02 100644
+--- a/gdb/dcache.c
++++ b/gdb/dcache.c
+@@ -76,7 +76,7 @@
+ /* The size of a cache line.  Smaller values reduce the time taken to
+    read a single byte and make the cache more granular, but increase
+    overhead and reduce the effectiveness of the cache as a prefetcher.  */
+-#define LINE_SIZE_POWER 6
++#define LINE_SIZE_POWER 8
+ #define LINE_SIZE (1 << LINE_SIZE_POWER)
+ 
+ /* Each cache block holds LINE_SIZE bytes of data
