@@ -28,14 +28,21 @@
 **************************************************************************/
 
 #include "helpindexfilter.h"
-#include "helpplugin.h"
+#include "helpmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 
+#include <QtGui/QIcon>
+
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpIndexModel>
+
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlDriver>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
 
 using namespace Locator;
 using namespace Help;
@@ -43,28 +50,112 @@ using namespace Help::Internal;
 
 Q_DECLARE_METATYPE(ILocatorFilter*);
 
-HelpIndexFilter::HelpIndexFilter(HelpPlugin *plugin, QHelpEngine *helpEngine):
-    m_plugin(plugin),
-    m_helpEngine(helpEngine),
-    m_icon(QIcon())  // TODO: Put an icon next to the results
+// -- HelpIndexFilter::HelpFileReader
+
+class HelpIndexFilter::HelpFileReader
+{
+public:
+    HelpFileReader();
+    ~HelpFileReader();
+
+public:
+    void updateHelpFiles();
+    QList<FilterEntry> matchesFor(const QString &entry, ILocatorFilter *locator);
+
+private:
+    bool m_initialized;
+    QStringList m_helpFiles;
+};
+
+HelpIndexFilter::HelpFileReader::HelpFileReader()
+    : m_initialized(false)
+{
+}
+
+HelpIndexFilter::HelpFileReader::~HelpFileReader()
+{
+}
+
+void HelpIndexFilter::HelpFileReader::updateHelpFiles()
+{
+    m_helpFiles.clear();
+    const QLatin1String id("HelpIndexFilter::HelpFileReader::helpFiles");
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase(QLatin1String("QSQLITE"), id);
+        if (db.driver()
+            && db.driver()->lastError().type() == QSqlError::NoError) {
+            db.setDatabaseName(HelpManager::collectionFilePath());
+            if (db.open()) {
+                QSqlQuery query = QSqlQuery(db);
+                query.exec(QLatin1String("SELECT a.FilePath FROM NamespaceTable a"));
+                while (query.next())
+                    m_helpFiles.append(query.value(0).toString());
+            }
+        }
+    }
+    QSqlDatabase::removeDatabase(id);
+}
+
+QList<FilterEntry> HelpIndexFilter::HelpFileReader::matchesFor(const QString &id,
+    ILocatorFilter *locator)
+{
+    if (!m_initialized) {
+        updateHelpFiles();
+        m_initialized = true;
+    }
+
+    QList<FilterEntry> entries;
+    const QLatin1String sqlite("QSQLITE");
+    const QLatin1String name("HelpIndexFilter::HelpFileReader::matchesFor");
+    foreach(const QString &file, m_helpFiles) {
+        if (!QFile::exists(file))
+            continue;
+        {
+            QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
+            if (db.driver()
+                && db.driver()->lastError().type() == QSqlError::NoError) {
+                db.setDatabaseName(file);
+                if (db.open()) {
+                    QSqlQuery query = QSqlQuery(db);
+                    query.setForwardOnly(true);
+                    query.exec(QString::fromLatin1("SELECT DISTINCT Name FROM "
+                        "IndexTable WHERE Name LIKE '%%1%'").arg(id));
+                    while (query.next()) {
+                        const QString &key = query.value(0).toString();
+                        if (!key.isEmpty()) {
+                            // NOTE: do not use an icon since it is really slow
+                            entries.append(FilterEntry(locator, key, QVariant(),
+                                QIcon()));
+                        }
+                    }
+                }
+            }
+        }
+        QSqlDatabase::removeDatabase(name);
+    }
+    return entries;
+}
+
+// -- HelpIndexFilter
+
+HelpIndexFilter::HelpIndexFilter()
+    : m_fileReader(new HelpFileReader)
 {
     setIncludedByDefault(false);
     setShortcutString(QString(QLatin1Char('?')));
 
-    connect(m_helpEngine->indexModel(), SIGNAL(indexCreated()),
-            this, SLOT(updateIndices()));
+    connect(&HelpManager::helpEngineCore(), SIGNAL(setupFinished()), this,
+        SLOT(updateHelpFiles()));
 }
 
-void HelpIndexFilter::updateIndices()
+HelpIndexFilter::~HelpIndexFilter()
 {
-    const QString currentFilter = m_plugin->indexFilter();
-    if (!currentFilter.isEmpty())
-        m_plugin->setIndexFilter(QString());
+    delete m_fileReader;
+}
 
-    m_helpIndex = m_helpEngine->indexModel()->stringList();
-
-    if (!currentFilter.isEmpty())
-        m_plugin->setIndexFilter(currentFilter);
+void HelpIndexFilter::updateHelpFiles()
+{
+    m_fileReader->updateHelpFiles();
 }
 
 QString HelpIndexFilter::displayName() const
@@ -84,19 +175,15 @@ ILocatorFilter::Priority HelpIndexFilter::priority() const
 
 QList<FilterEntry> HelpIndexFilter::matchesFor(const QString &entry)
 {
-    QList<FilterEntry> entries;
-    foreach (const QString &string, m_helpIndex) {
-        if (string.contains(entry, Qt::CaseInsensitive)) {
-            FilterEntry entry(this, string, QVariant(), m_icon);
-            entries.append(entry);
-        }
-    }
-    return entries;
+    if (entry.length() < 2)
+        return QList<FilterEntry>();
+    return m_fileReader->matchesFor(entry, this);
 }
 
 void HelpIndexFilter::accept(FilterEntry selection) const
 {
-    QMap<QString, QUrl> links = m_helpEngine->indexModel()->linksForKeyword(selection.displayName);
+    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    QMap<QString, QUrl> links = engine.linksForIdentifier(selection.displayName);
     if (links.size() == 1) {
         emit linkActivated(links.begin().value());
     } else if (!links.isEmpty()) {

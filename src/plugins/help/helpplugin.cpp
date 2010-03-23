@@ -354,13 +354,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(m_indexWidget, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)),
         m_centralWidget, SLOT(showTopicChooser(QMap<QString, QUrl>, QString)));
 
-    HelpIndexFilter *helpIndexFilter = new HelpIndexFilter(this, m_helpEngine);
-    addAutoReleasedObject(helpIndexFilter);
-    connect(helpIndexFilter, SIGNAL(linkActivated(QUrl)), this,
-        SLOT(switchToHelpMode(QUrl)));
-    connect(helpIndexFilter, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)),
-        this, SLOT(switchToHelpMode(QMap<QString, QUrl>, QString)));
-
     previousAction->setEnabled(m_centralWidget->isBackwardAvailable());
     nextAction->setEnabled(m_centralWidget->isForwardAvailable());
 
@@ -396,6 +389,13 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(generalSettingsPage, SIGNAL(fontChanged()), this, SLOT(fontChanged()));
     connect(generalSettingsPage, SIGNAL(dialogAccepted()), this,
         SLOT(checkForGeneralChanges()));
+    HelpIndexFilter *helpIndexFilter = new HelpIndexFilter();
+    addAutoReleasedObject(helpIndexFilter);
+    connect(helpIndexFilter, SIGNAL(linkActivated(QUrl)), this,
+        SLOT(switchToHelpMode(QUrl)));
+    connect(helpIndexFilter, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)),
+        this, SLOT(switchToHelpMode(QMap<QString, QUrl>, QString)));
+
     return true;
 }
 
