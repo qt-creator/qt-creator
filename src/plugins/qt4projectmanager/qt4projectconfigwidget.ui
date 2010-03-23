@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>487</width>
+    <width>712</width>
     <height>194</height>
    </rect>
   </property>
@@ -138,16 +138,16 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="importWarningLabel">
+      <widget class="QLabel" name="warningLabel">
        <property name="pixmap">
         <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="importProblemLabel">
+      <widget class="QLabel" name="problemLabel">
        <property name="text">
-        <string>The Qt Version about to be imported does not support this target.</string>
+        <string>problemLabel</string>
        </property>
       </widget>
      </item>

@@ -319,16 +319,28 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         }
     }
 
-    if (targetMatches) {
-        m_ui->importProblemLabel->setVisible(false);
-        m_ui->importWarningLabel->setVisible(false);
+    QString sourceDirectory =
+            QFileInfo(m_buildConfiguration->qt4Target()->qt4Project()->file()->fileName()).absolutePath();
+    if (!sourceDirectory.endsWith('/'))
+        sourceDirectory.append('/');
+    bool invalidBuildDirectory = m_buildConfiguration->shadowBuild()
+                                 && m_buildConfiguration->buildDirectory().startsWith(sourceDirectory);
+
+    if (invalidBuildDirectory) {
+        m_ui->problemLabel->setVisible(true);
+        m_ui->warningLabel->setVisible(true);
+        m_ui->importLabel->setVisible(visible);
+        m_ui->problemLabel->setText(tr("Building in subdirectories of the source directory is not supported by qmake."));
+    } else if (targetMatches) {
+        m_ui->problemLabel->setVisible(false);
+        m_ui->warningLabel->setVisible(false);
         m_ui->importLabel->setVisible(visible);
     } else {
-        m_ui->importWarningLabel->setVisible(visible);
-        m_ui->importProblemLabel->setVisible(visible);
-        m_ui->importProblemLabel->setText(tr("An incompatible build exists in %1, which will be overwritten.",
-                                             "%1 build directory").
-                                          arg(m_ui->shadowBuildDirEdit->path()));
+        m_ui->warningLabel->setVisible(visible);
+        m_ui->problemLabel->setVisible(visible);
+        m_ui->problemLabel->setText(tr("An incompatible build exists in %1, which will be overwritten.",
+                                       "%1 build directory").
+                                    arg(m_ui->shadowBuildDirEdit->path()));
         m_ui->importLabel->setVisible(false);
     }
 }
