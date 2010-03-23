@@ -34,6 +34,7 @@
 #include "docsettingspage.h"
 #include "filtersettingspage.h"
 #include "generalsettingspage.h"
+#include "helpconstants.h"
 #include "helpfindsupport.h"
 #include "helpindexfilter.h"
 #include "helpmanager.h"

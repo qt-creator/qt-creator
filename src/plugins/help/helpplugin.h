@@ -60,13 +60,6 @@ class SideBarItem;
 namespace Help {
 class HelpManager;
 
-namespace Constants {
-const char * const C_MODE_HELP    = "Help Mode";
-const char * const C_HELP_SIDEBAR = "Help Sidebar";
-const int          P_MODE_HELP    = 70;
-const char * const ID_MODE_HELP   = "Help";
-}   // Constants
-
 namespace Internal {
 class CentralWidget;
 class DocSettingsPage;

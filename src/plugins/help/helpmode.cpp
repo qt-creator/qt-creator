@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "helpmode.h"
-#include "helpplugin.h"
+#include "helpconstants.h"
 
 #include <coreplugin/findplaceholder.h>
 

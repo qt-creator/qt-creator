@@ -33,10 +33,17 @@
 #include <QtCore/QtGlobal>
 
 namespace Help {
-namespace Constants {
+    namespace Constants {
+
+const int          P_MODE_HELP    = 70;
+const char * const ID_MODE_HELP   = "Help";
 const char * const HELP_CATEGORY = "H.Help";
 const char * const HELP_TR_CATEGORY = QT_TRANSLATE_NOOP("Help", "Help");
-}
-}
+
+const char * const C_MODE_HELP    = "Help Mode";
+const char * const C_HELP_SIDEBAR = "Help Sidebar";
+
+    }   // Constants
+}   // Help
 
 #endif // HELPCONSTANTS_H
