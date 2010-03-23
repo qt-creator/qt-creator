@@ -213,7 +213,7 @@ bool AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
 
 void AbstractProcessStep::processStartupFailed()
 {
-   emit addOutput(tr("<font color=\"#ff0000\">Could not start process %1 </b></font>").arg(m_command));
+   emit addOutput(tr("<font color=\"#ff0000\"><b>Could not start process %1 </b></font>").arg(m_command));
 }
 
 void AbstractProcessStep::processReadyReadStdOutput()
