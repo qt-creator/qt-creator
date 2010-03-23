@@ -2017,6 +2017,8 @@ bool ASTMatcher::match(TypenameTypeParameterAST *node, TypenameTypeParameterAST 
 
     pattern->classkey_token = node->classkey_token;
 
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
+
     if (! pattern->name)
         pattern->name = node->name;
     else if (! AST::match(node->name, pattern->name, this))
@@ -2049,6 +2051,8 @@ bool ASTMatcher::match(TemplateTypeParameterAST *node, TemplateTypeParameterAST 
     pattern->greater_token = node->greater_token;
 
     pattern->class_token = node->class_token;
+
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
 
     if (! pattern->name)
         pattern->name = node->name;

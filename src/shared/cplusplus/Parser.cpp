@@ -1494,6 +1494,8 @@ bool Parser::parseTypenameTypeParameter(DeclarationAST *&node)
     if (LA() == T_CLASS || LA() == T_TYPENAME) {
         TypenameTypeParameterAST *ast = new (_pool) TypenameTypeParameterAST;
         ast->classkey_token = consumeToken();
+        if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+            ast->dot_dot_dot_token = consumeToken();
         parseName(ast->name);
         if (LA() == T_EQUAL) {
             ast->equal_token = consumeToken();
@@ -1518,6 +1520,8 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
             ast->greater_token = consumeToken();
         if (LA() == T_CLASS)
             ast->class_token = consumeToken();
+        if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+            ast->dot_dot_dot_token = consumeToken();
 
         // parse optional name
         parseName(ast->name);

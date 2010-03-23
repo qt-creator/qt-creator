@@ -1727,6 +1727,9 @@ unsigned TemplateTypeParameterAST::lastToken() const
     else if (name)
         return name->lastToken();
 
+    else if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
+
     else if (class_token)
         return class_token + 1;
 
@@ -1895,6 +1898,8 @@ unsigned TypenameTypeParameterAST::lastToken() const
         return equal_token + 1;
     else if (name)
         return name->lastToken();
+    else if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
     return classkey_token + 1;
 }
 

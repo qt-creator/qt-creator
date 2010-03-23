@@ -3215,6 +3215,7 @@ class CPLUSPLUS_EXPORT TypenameTypeParameterAST: public DeclarationAST
 {
 public:
     unsigned classkey_token;
+    unsigned dot_dot_dot_token;
     NameAST *name;
     unsigned equal_token;
     ExpressionAST *type_id;
@@ -3225,6 +3226,7 @@ public: // annotations
 public:
     TypenameTypeParameterAST()
         : classkey_token(0)
+        , dot_dot_dot_token(0)
         , name(0)
         , equal_token(0)
         , type_id(0)
@@ -3251,6 +3253,7 @@ public:
     DeclarationListAST *template_parameter_list;
     unsigned greater_token;
     unsigned class_token;
+    unsigned dot_dot_dot_token;
     NameAST *name;
     unsigned equal_token;
     ExpressionAST *type_id;
@@ -3265,6 +3268,7 @@ public:
         , template_parameter_list(0)
         , greater_token(0)
         , class_token(0)
+        , dot_dot_dot_token(0)
         , name(0)
         , equal_token(0)
         , type_id(0)

@@ -1210,6 +1210,7 @@ TypenameTypeParameterAST *TypenameTypeParameterAST::clone(MemoryPool *pool) cons
 {
     TypenameTypeParameterAST *ast = new (pool) TypenameTypeParameterAST;
     ast->classkey_token = classkey_token;
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     if (name)
         ast->name = name->clone(pool);
     ast->equal_token = equal_token;
@@ -1228,6 +1229,7 @@ TemplateTypeParameterAST *TemplateTypeParameterAST::clone(MemoryPool *pool) cons
         *ast_iter = new (pool) DeclarationListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->greater_token = greater_token;
     ast->class_token = class_token;
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     if (name)
         ast->name = name->clone(pool);
     ast->equal_token = equal_token;
