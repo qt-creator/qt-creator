@@ -2428,6 +2428,10 @@ bool Parser::parseInitializerList(ExpressionListAST *&node)
             initializer_ptr = &(*initializer_ptr)->next;
         }
     }
+
+    if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
+        consumeToken(); // ### store this token
+
     return true;
 }
 
