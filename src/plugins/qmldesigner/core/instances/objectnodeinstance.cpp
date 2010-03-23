@@ -403,7 +403,6 @@ void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const Q
 
 void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-
     QDeclarativeProperty property(object(), name, context());
     property.write(value);
 }
