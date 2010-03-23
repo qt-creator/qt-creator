@@ -236,7 +236,7 @@ HelpViewer::HelpViewer(Help::Internal::CentralWidget *central, QWidget *parent)
     settings()->setAttribute(QWebSettings::PluginsEnabled, false);
     settings()->setAttribute(QWebSettings::JavaEnabled, false);
 
-    page()->setNetworkAccessManager(new HelpNetworkAccessManager(engine, this));
+    page()->setNetworkAccessManager(new HelpNetworkAccessManager(this));
 
     QAction* action = pageAction(QWebPage::OpenLinkInNewWindow);
     action->setText(tr("Open Link in New Tab"));

@@ -117,7 +117,6 @@ private Q_SLOTS:
 private:
     bool handleForwardBackwardMouseButtons(QMouseEvent *e);
 
-    QHelpEngine *helpEngine;
     Help::Internal::CentralWidget* parentWidget;
     QUrl homeUrl;
     bool multiTabsAllowed;
