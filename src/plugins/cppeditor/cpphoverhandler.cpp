@@ -116,7 +116,7 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
         return;
 
     ICore *core = ICore::instance();
-    const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER);
+    const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
 
     if (core->hasContext(dbgcontext))
         return;

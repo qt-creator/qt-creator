@@ -102,7 +102,7 @@ void HoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint &po
         return;
 
     ICore *core = ICore::instance();
-    const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER);
+    const int dbgcontext = core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_DEBUGMODE);
 
     if (core->hasContext(dbgcontext))
         return;

@@ -50,8 +50,8 @@ const char * const REVERSE              = "Debugger.ReverseDirection";
 const char * const M_DEBUG_LANGUAGES    = "Debugger.Menu.View.Languages";
 const char * const M_DEBUG_VIEWS        = "Debugger.Menu.View.Debug";
 
-const char * const C_BASEDEBUGGER       = "BaseDebugger";
-const char * const C_GDBDEBUGGER        = "Gdb Debugger";
+const char * const C_DEBUGMODE       = "Debugger.DebugMode";
+const char * const C_CPPDEBUGGER        = "Gdb Debugger";
 const char * const GDBRUNNING           = "Gdb.Running";
 
 const char * const DEBUGGER_COMMON_SETTINGS_ID = "A.Common";

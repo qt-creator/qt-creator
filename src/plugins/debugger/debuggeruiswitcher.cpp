@@ -87,9 +87,6 @@ struct DebuggerUISwitcherPrivate {
     QStackedWidget *m_toolbarStack;
     Internal::DebuggerMainWindow *m_mainWindow;
 
-    // main debugger context
-    QList<int> m_debuggercontext;
-
     // global context
     QList<int> m_globalContext;
 
@@ -147,7 +144,6 @@ DebuggerUISwitcher::DebuggerUISwitcher(Core::BaseMode *mode, QObject* parent) :
 
     d->m_languageActionGroup->setExclusive(true);
 
-    d->m_debuggercontext << core->uniqueIDManager()->uniqueIdentifier(Debugger::Constants::C_BASEDEBUGGER);
     d->m_globalContext << Core::Constants::C_GLOBAL_ID;
 
     DebuggerUISwitcherPrivate::m_instance = this;
