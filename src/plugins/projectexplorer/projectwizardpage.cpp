@@ -53,6 +53,8 @@ void ProjectWizardPage::setProjects(const QStringList &p)
 {
     m_ui->projectComboBox->clear();
     m_ui->projectComboBox->addItems(p);
+    m_ui->projectComboBox->setEnabled(p.size() > 1);
+    m_ui->projectLabel->setEnabled(p.size() > 1);
 }
 
 void ProjectWizardPage::setProjectToolTips(const QStringList &t)
