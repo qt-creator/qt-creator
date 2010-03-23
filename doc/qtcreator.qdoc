@@ -2955,17 +2955,17 @@
     When you import a project, Qt Creator creates the following files that
     allow you to specify which files belong to your project and which include
     directories or defines you want to pass to your compile:
-    \c{.files}, \c{.includes}, and \c{.config}.
+    \tt{.files}, \tt{.includes}, and \tt{.config}.
 
 
     \section1 Importing a Generic Project
 
     To import an existing generic project:
     \list 1
-        \o Select \gui File > \gui{New File or Project...} > \gui Projects >
-           \gui{Import Existing Project}.
-        \o In \gui{Generic Project}, enter the project name
-           and select the project file you want to import.
+        \o Select \gui File > \gui{New File or Project...} >
+           \gui{Other Project} > \gui{Import Existing Project}.
+        \o In \gui{Import Existing Project}, enter the project name
+           and select the location for the project file you want to import.
 
            Qt Creator automatically generates the following files in the
            project directory:
@@ -2981,7 +2981,7 @@
     tree in the sidebar.
 
     After importing a generic project into Qt Creator, open it by selecting the
-    \c{.creator} file.
+    \tt{.creator} file.
 
 
     \section1 Working with Generic Project Files
@@ -2993,21 +2993,21 @@
 
     \section1 Specifying Files
 
-    The list of files for a generic project is specified in the \c .files
+    The list of files for a generic project is specified in the \tt{.files}
     file. When you first create a generic project, Qt Creator adds any
     files it recognizes to your project.
 
-    To add or remove files, edit the \c .files file in Qt Creator.
-    Qt Creator recreates your project tree when you save the \c{.files} file.
+    To add or remove files, edit the \tt{.files} file in Qt Creator.
+    Qt Creator recreates your project tree when you save the \tt{.files} file.
     Alternatively, you can add and remove files using the context menu in the
     project tree.
 
-    If you frequently need to update the \c .files file, you can do so
+    If you frequently need to update the \tt{.files} file, you can do so
     efficiently by using a script that updates the file for you. If the file
     is modified externally, you have to restart Qt Creator for the changes to
     take effect.
 
-    To update the \c .files on the \gui git repository use the following
+    To update the \tt{.files} on the \gui git repository use the following
     script:
     \code
     git ls-files *.cpp > MyProject.files
@@ -3015,15 +3015,15 @@
 
     \section1 Specifying Include Paths
 
-    The include paths are specified in the \c{.includes} file, one include
+    The include paths are specified in the \tt{.includes} file, one include
     path per line. The paths can be either absolute or relative to the
-    \c{.includes} file.
+    \tt{.includes} file.
 
     \section1 Specifying Defines
 
-    The defines are specified in the \c .config file. The \c{.config} file is a
-    regular C++ file, prepended to all your source files when they are parsed.
-    Only use the \c{.config} file to add lines as in the example below:
+    The defines are specified in the \tt{.config} file. The \tt{.config} file is
+    a regular C++ file, prepended to all your source files when they are parsed.
+    Only use the \tt{.config} file to add lines as in the example below:
 
     \code
     #define NAME value
@@ -3050,8 +3050,8 @@
     library.
 
     If you import a project using the \gui{Import Existing Project}
-    function, Qt Creator creates a file called \c{<projectname>.includes} in
-    your project directory. The \c{.includes} file contains all project
+    function, Qt Creator creates a file called \tt{<projectname>.includes} in
+    your project directory. The \tt{.includes} file contains all project
     subdirectories for which Qt Creator found relevant headers. Add your
     include paths here.
 
