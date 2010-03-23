@@ -220,7 +220,7 @@ void AbstractProcessStep::processReadyReadStdOutput()
 {
     m_process->setReadChannel(QProcess::StandardOutput);
     while (m_process->canReadLine()) {
-        QString line = QString::fromLocal8Bit(m_process->readLine()).trimmed();
+        QString line = QString::fromLocal8Bit(m_process->readLine());
         stdOutput(line);
     }
 }
@@ -236,7 +236,7 @@ void AbstractProcessStep::processReadyReadStdError()
 {
     m_process->setReadChannel(QProcess::StandardError);
     while (m_process->canReadLine()) {
-        QString line = QString::fromLocal8Bit(m_process->readLine()).trimmed();
+        QString line = QString::fromLocal8Bit(m_process->readLine());
         stdError(line);
     }
 }
@@ -308,11 +308,11 @@ void AbstractProcessStep::outputAdded(const QString &string)
 
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
 {
-    QString line = QString::fromLocal8Bit(m_process->readAllStandardError()).trimmed();
+    QString line = QString::fromLocal8Bit(m_process->readAllStandardError());
     if (!line.isEmpty())
         stdError(line);
 
-    line = QString::fromLocal8Bit(m_process->readAllStandardOutput()).trimmed();
+    line = QString::fromLocal8Bit(m_process->readAllStandardOutput());
     if (!line.isEmpty())
         stdOutput(line);
 
