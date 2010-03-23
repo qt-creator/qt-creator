@@ -1638,7 +1638,7 @@ void GdbEngine::handleInferiorShutdown(const GdbResponse &response)
         setState(InferiorShutdownFailed);
         QString msg = m_gdbAdapter->msgInferiorStopFailed(
             QString::fromLocal8Bit(response.data.findChild("msg").data()));
-        showMessageBox(QMessageBox::Critical, tr("Inferior shutdown failed"), msg);
+        showMessageBox(QMessageBox::Critical, tr("Failed to shut down application"), msg);
     }
     shutdown(); // re-iterate...
 }
@@ -4217,13 +4217,13 @@ void GdbEngine::startInferiorPhase2()
 
 void GdbEngine::handleInferiorStartFailed(const QString &msg)
 {
-    showStatusMessage(tr("Inferior start failed: ") + msg);
+    showStatusMessage(tr("Failed to start application: ") + msg);
     if (state() == AdapterStartFailed) {
         debugMessage(_("INFERIOR START FAILED, BUT ADAPTER DIED ALREADY"));
         return; // Adapter crashed meanwhile, so this notification is meaningless.
     }
     debugMessage(_("INFERIOR START FAILED"));
-    showMessageBox(QMessageBox::Critical, tr("Inferior start failed"), msg);
+    showMessageBox(QMessageBox::Critical, tr("Failed to start application"), msg);
     setState(InferiorStartFailed);
     shutdown();
 }
