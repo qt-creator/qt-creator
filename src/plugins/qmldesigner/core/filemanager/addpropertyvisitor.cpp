@@ -111,7 +111,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
 
     if (isOneLiner) {
         if (insertAfter == 0) { // we're inserting after an lbrace
-            if (insertAfter->next) { // we're inserting before a member (and not the rbrace)
+            if (initializer->members) { // we're inserting before a member (and not the rbrace)
                 needsTrailingSemicolon = true;
             }
         } else { // we're inserting after a member, not after the lbrace
