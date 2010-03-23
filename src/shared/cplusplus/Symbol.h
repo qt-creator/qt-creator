@@ -291,6 +291,9 @@ public:
 
     bool isGenerated() const;
 
+    bool isDeprecated() const;
+    void setDeprecated(bool isDeprecated);
+
     Symbol *enclosingSymbol() const;
 
     /// Returns the eclosing namespace scope.
@@ -334,6 +337,7 @@ private:
     Symbol *_next;
 
     bool _isGenerated: 1;
+    bool _isDeprecated: 1;
 
     class IdentityForName;
     class HashCode;

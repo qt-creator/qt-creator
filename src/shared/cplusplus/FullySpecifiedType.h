@@ -107,6 +107,9 @@ public:
     bool isExplicit() const;
     void setExplicit(bool isExplicit);
 
+    bool isDeprecated() const;
+    void setDeprecated(bool isDeprecated);
+
     bool isEqualTo(const FullySpecifiedType &other) const;
 
     Type &operator*();
@@ -148,6 +151,9 @@ private:
         unsigned _isInline: 1;
         unsigned _isVirtual: 1;
         unsigned _isExplicit: 1;
+
+        // speficiers from attributes
+        unsigned _isDeprecated: 1;
     };
     union {
         unsigned _flags;

@@ -195,17 +195,9 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     }
 
     FullySpecifiedType funTy(fun);
+    funTy = semantic()->check(ast->cv_qualifier_list, _scope, funTy);
+
     _fullySpecifiedType = funTy;
-
-    for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
-        SimpleSpecifierAST *cv = static_cast<SimpleSpecifierAST *>(it->value);
-        const int k = tokenKind(cv->specifier_token);
-        if (k == T_CONST)
-            fun->setConst(true);
-        else if (k == T_VOLATILE)
-            fun->setVolatile(true);
-    }
-
     return false;
 }
 
@@ -289,6 +281,8 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
         method->setVariadic(true);
 
     _fullySpecifiedType = FullySpecifiedType(method);
+    _fullySpecifiedType = semantic()->check(ast->attribute_list, _scope,
+                                            _fullySpecifiedType);
 
     return false;
 }

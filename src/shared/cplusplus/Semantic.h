@@ -51,7 +51,7 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 #include "ASTfwd.h"
-
+#include "FullySpecifiedType.h"
 
 namespace CPlusPlus {
 
@@ -67,7 +67,8 @@ public:
     TranslationUnit *translationUnit() const;
     Control *control() const;
 
-    FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope);
+    FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope,
+                             const FullySpecifiedType &type = FullySpecifiedType());
 
     FullySpecifiedType check(DeclaratorAST *declarator, const FullySpecifiedType &type,
                              Scope *scope, const Name **name = 0); // ### ugly
@@ -87,7 +88,8 @@ public:
 
     const Name *check(NestedNameSpecifierListAST *name, Scope *scope);
 
-    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);
+    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope,
+                             const FullySpecifiedType &type = FullySpecifiedType());
 
     void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
 

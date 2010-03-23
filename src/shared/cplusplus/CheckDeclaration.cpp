@@ -167,6 +167,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
                 symbol->setTemplateParameters(_templateParameters);
                 _templateParameters = 0;
             }
+            if (ty.isDeprecated())
+                symbol->setDeprecated(true);
 
             _scope->enterSymbol(symbol);
             return false;
@@ -198,6 +200,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             fun->setName(name);
             fun->setMethodKey(semantic()->currentMethodKey());
             fun->setVirtual(ty.isVirtual());
+            if (ty.isDeprecated())
+                fun->setDeprecated(true);
             if (isQ_SIGNAL)
                 fun->setMethodKey(Function::SignalMethod);
             else if (isQ_SLOT)
@@ -215,6 +219,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
 
         symbol->setType(declTy);
+        if (declTy.isDeprecated())
+            symbol->setDeprecated(true);
 
         if (_templateParameters && it == ast->declarator_list) {
             symbol->setTemplateParameters(_templateParameters);
@@ -235,6 +241,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             symbol->setStorage(Symbol::Mutable);
         else if (ty.isTypedef())
             symbol->setStorage(Symbol::Typedef);
+        else if (ty.isDeprecated())
+            symbol->setDeprecated(true);
 
         if (it->value && it->value->initializer) {
             FullySpecifiedType initTy = semantic()->check(it->value->initializer, _scope);
@@ -314,6 +322,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 
     Function *fun = funTy->asFunctionType();
     fun->setVirtual(ty.isVirtual());
+    if (ty.isDeprecated())
+        fun->setDeprecated(true);
     fun->setStartOffset(tokenAt(ast->firstToken()).offset);
     fun->setEndOffset(tokenAt(ast->lastToken()).offset);
     if (ast->declarator)
@@ -703,6 +713,8 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
     symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
     symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
     symbol->setVisibility(semantic()->currentObjCVisibility());
+    if (ty.isDeprecated())
+        symbol->setDeprecated(true);
 
     _scope->enterSymbol(symbol);
 

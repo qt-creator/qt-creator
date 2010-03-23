@@ -125,8 +125,9 @@ TranslationUnit *Semantic::translationUnit() const
 Control *Semantic::control() const
 { return d->control; }
 
-FullySpecifiedType Semantic::check(SpecifierListAST *specifier, Scope *scope)
-{ return d->checkSpecifier->check(specifier, scope); }
+FullySpecifiedType Semantic::check(SpecifierListAST *specifier, Scope *scope,
+                                   const FullySpecifiedType &type)
+{ return d->checkSpecifier->check(specifier, scope, type); }
 
 void Semantic::check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters)
 { d->checkDeclaration->check(declaration, scope, templateParameters); }
@@ -142,8 +143,9 @@ FullySpecifiedType Semantic::check(PtrOperatorListAST *ptrOperators, const Fully
 FullySpecifiedType Semantic::check(ObjCMethodPrototypeAST *methodPrototype, Scope *scope)
 { return d->checkDeclarator->check(methodPrototype, scope); }
 
-FullySpecifiedType Semantic::check(ObjCTypeNameAST *typeName, Scope *scope)
-{ return d->checkSpecifier->check(typeName, scope); }
+FullySpecifiedType Semantic::check(ObjCTypeNameAST *typeName, Scope *scope,
+                                   const FullySpecifiedType &type)
+{ return d->checkSpecifier->check(typeName, scope, type); }
 
 void Semantic::check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope)
 { return d->checkName->check(arg, scope); }

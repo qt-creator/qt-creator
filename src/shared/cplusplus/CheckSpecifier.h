@@ -62,8 +62,10 @@ public:
     CheckSpecifier(Semantic *semantic);
     virtual ~CheckSpecifier();
 
-    FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope);
-    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);
+    FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope,
+                             const FullySpecifiedType &ty = FullySpecifiedType());
+    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope,
+                             const FullySpecifiedType &ty = FullySpecifiedType());
 
 protected:
     SpecifierListAST *switchSpecifier(SpecifierListAST *specifier);
@@ -78,7 +80,7 @@ protected:
     virtual bool visit(ElaboratedTypeSpecifierAST *ast);
     virtual bool visit(EnumSpecifierAST *ast);
     virtual bool visit(TypeofSpecifierAST *ast);
-    virtual bool visit(AttributeSpecifierAST *ast);
+    virtual bool visit(AttributeAST *ast);
 
 private:
     SpecifierListAST *_specifier;
