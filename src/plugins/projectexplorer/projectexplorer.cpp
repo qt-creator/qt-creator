@@ -1672,6 +1672,9 @@ void ProjectExplorerPlugin::startupProjectChanged()
         d->m_projectsMode->setEnabled(project);
 
     if (previousStartupProject) {
+        disconnect(previousStartupProject->activeTarget(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+                this, SLOT(updateRunActions()));
+
         disconnect(previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                    this, SLOT(updateRunActions()));
         disconnect(previousStartupProject->activeTarget()->activeRunConfiguration(),
@@ -1687,11 +1690,17 @@ void ProjectExplorerPlugin::startupProjectChanged()
     if (project) {
         connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                 this, SLOT(updateRunActions()));
-        connect(previousStartupProject->activeTarget()->activeRunConfiguration(), SIGNAL(isEnabledChanged(bool)),
+
+        connect(project->activeTarget(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
                 this, SLOT(updateRunActions()));
-        foreach (Target *t, project->targets())
-            connect(t, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+
+        if (project->activeTarget()->activeRunConfiguration()) {
+            connect(project->activeTarget()->activeRunConfiguration(), SIGNAL(isEnabledChanged(bool)),
+                    this, SLOT(updateRunActions()));
+            foreach (Target *t, project->targets())
+                connect(t, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
                     this, SLOT(updateActions()));
+        }
     }
 
     updateRunActions();
