@@ -134,12 +134,10 @@ private:
 
 private:
     int lastTabPage;
-    QString collectionFile;
     QList<QAction*> globalActionList;
 
     QWidget *findBar;
     QTabWidget* tabWidget;
-    QHelpEngine *helpEngine;
     QPrinter *printer;
 };
 

@@ -41,7 +41,6 @@
 
 QT_BEGIN_NAMESPACE
 
-class QHelpEngine;
 
 class QPoint;
 class QString;
@@ -64,7 +63,7 @@ class HelpViewer : public QWebView
     Q_OBJECT
 
 public:
-    HelpViewer(QHelpEngine *helpEngine, Help::Internal::CentralWidget *central, QWidget *parent);
+    HelpViewer(Help::Internal::CentralWidget *central, QWidget *parent);
     void setSource(const QUrl &url);
 
     inline QUrl source() const
@@ -132,7 +131,7 @@ class HelpViewer : public QTextBrowser
     Q_OBJECT
 
 public:
-    HelpViewer(QHelpEngine *helpEngine, Help::Internal::CentralWidget *central, QWidget *parent);
+    HelpViewer(Help::Internal::CentralWidget *central, QWidget *parent);
     void setSource(const QUrl &url);
 
     void zoomIn(int range = 1);
@@ -171,7 +170,6 @@ private:
     int zoomCount;
     bool controlPressed;
     QString lastAnchor;
-    QHelpEngine *helpEngine;
     Help::Internal::CentralWidget* parentWidget;
     QUrl homeUrl;
 };

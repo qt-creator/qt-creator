@@ -536,7 +536,7 @@ void HelpPlugin::createRightPaneContextViewer()
     rightPaneStyledBar->setLayout(hboxLayout);
     rightPaneLayout->addWidget(rightPaneStyledBar);
 
-    m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0, rightPaneSideBar);
+    m_helpViewerForSideBar = new HelpViewer(0, rightPaneSideBar);
     rightPaneLayout->addWidget(m_helpViewerForSideBar);
     rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(rightPaneSideBar));
     rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);

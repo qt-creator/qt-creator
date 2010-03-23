@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "centralwidget.h"
+#include "helpmanager.h"
 #include "helpviewer.h"
 #include "topicchooser.h"
 
@@ -78,12 +79,10 @@ CentralWidget::CentralWidget(QHelpEngine *engine, QWidget *parent)
     : QWidget(parent)
     , findBar(0)
     , tabWidget(0)
-    , helpEngine(engine)
     , printer(0)
 {
     lastTabPage = 0;
     globalActionList.clear();
-    collectionFile = helpEngine->collectionFile();
 
     tabWidget = new QTabWidget;
     tabWidget->setDocumentMode(true);
@@ -126,11 +125,6 @@ CentralWidget::~CentralWidget()
     delete printer;
 #endif
 
-
-    QHelpEngineCore engine(collectionFile, 0);
-    if (!engine.setupData())
-        return;
-
     QString zoomCount;
     QString currentPages;
     for (int i = 0; i < tabWidget->count(); ++i) {
@@ -140,9 +134,11 @@ CentralWidget::~CentralWidget()
             zoomCount += QString::number(viewer->zoom()) + QLatin1Char('|');
         }
     }
-    engine.setCustomValue(QLatin1String("LastTabPage"), lastTabPage);
-    engine.setCustomValue(QLatin1String("LastShownPages"), currentPages);
-    engine.setCustomValue(QLatin1String("LastShownPagesZoom"), zoomCount);
+
+    QHelpEngineCore *engine = &HelpManager::helpEngineCore();
+    engine->setCustomValue(QLatin1String("LastTabPage"), lastTabPage);
+    engine->setCustomValue(QLatin1String("LastShownPages"), currentPages);
+    engine->setCustomValue(QLatin1String("LastShownPagesZoom"), zoomCount);
 }
 
 CentralWidget *CentralWidget::instance()
@@ -222,7 +218,7 @@ void CentralWidget::setSource(const QUrl &url)
         qobject_cast<HelpViewer*>(tabWidget->widget(lastTabPage));
 
     if (!viewer && !lastViewer) {
-        viewer = new HelpViewer(helpEngine, this, this);
+        viewer = new HelpViewer(this, this);
         viewer->installEventFilter(this);
         lastTabPage = tabWidget->addTab(viewer, QString());
         tabWidget->setCurrentIndex(lastTabPage);
@@ -241,19 +237,20 @@ void CentralWidget::setSource(const QUrl &url)
 
 void CentralWidget::setLastShownPages()
 {
-    QString value = helpEngine->customValue(QLatin1String("LastShownPages"),
+    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    QString value = engine.customValue(QLatin1String("LastShownPages"),
         QString()).toString();
     const QStringList lastShownPageList = value.split(QLatin1Char('|'),
         QString::SkipEmptyParts);
     const int pageCount = lastShownPageList.count();
 
-    QString homePage = helpEngine->customValue(QLatin1String("DefaultHomePage"),
+    QString homePage = engine.customValue(QLatin1String("DefaultHomePage"),
         QLatin1String("about:blank")).toString();
 
-    int option = helpEngine->customValue(QLatin1String("StartOption"), 2).toInt();
+    int option = engine.customValue(QLatin1String("StartOption"), 2).toInt();
     if (option == 0 || option == 1 || pageCount <= 0) {
         if (option == 0) {
-            homePage = helpEngine->customValue(QLatin1String("HomePage"),
+            homePage = engine.customValue(QLatin1String("HomePage"),
                 homePage).toString();
         } else if (option == 1) {
             homePage = QLatin1String("about:blank");
@@ -262,7 +259,7 @@ void CentralWidget::setLastShownPages()
         return;
     }
 
-    value = helpEngine->customValue(QLatin1String("LastShownPagesZoom"),
+    value = engine.customValue(QLatin1String("LastShownPagesZoom"),
         QString()).toString();
     QVector<QString> zoomVector = value.split(QLatin1Char('|'),
         QString::SkipEmptyParts).toVector();
@@ -275,7 +272,7 @@ void CentralWidget::setLastShownPages()
     for (; it != lastShownPageList.constEnd(); ++it, ++zIt)
         setSourceInNewTab((*it), (*zIt).toInt());
 
-    int tab = helpEngine->customValue(QLatin1String("LastTabPage"), 0).toInt();
+    int tab = engine.customValue(QLatin1String("LastTabPage"), 0).toInt();
     tabWidget->setCurrentIndex(tab);
 }
 
@@ -430,7 +427,7 @@ void CentralWidget::setGlobalActions(const QList<QAction*> &actions)
 
 void CentralWidget::setSourceInNewTab(const QUrl &url, int zoom)
 {
-    HelpViewer* viewer = new HelpViewer(helpEngine, this, this);
+    HelpViewer* viewer = new HelpViewer(this, this);
     viewer->installEventFilter(this);
     viewer->setZoom(zoom);
     viewer->setSource(url);
@@ -450,7 +447,7 @@ void CentralWidget::setSourceInNewTab(const QUrl &url, int zoom)
 
 HelpViewer *CentralWidget::newEmptyTab()
 {
-    HelpViewer* viewer = new HelpViewer(helpEngine, this, this);
+    HelpViewer* viewer = new HelpViewer(this, this);
     viewer->installEventFilter(this);
     viewer->setFocus(Qt::OtherFocusReason);
 #if defined(QT_NO_WEBKIT)

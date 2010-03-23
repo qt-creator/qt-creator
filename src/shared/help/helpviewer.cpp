@@ -28,7 +28,9 @@
 **************************************************************************/
 
 #include "helpviewer.h"
+
 #include "centralwidget.h"
+#include "helpmanager.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QEvent>
@@ -43,7 +45,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QDesktopServices>
 
-#include <QtHelp/QHelpEngine>
+#include <QtHelp/QHelpEngineCore>
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -104,19 +106,15 @@ qint64 HelpNetworkReply::readData(char *buffer, qint64 maxlen)
 class HelpNetworkAccessManager : public QNetworkAccessManager
 {
 public:
-    HelpNetworkAccessManager(QHelpEngine *engine, QObject *parent);
+    HelpNetworkAccessManager(QObject *parent);
 
 protected:
     virtual QNetworkReply *createRequest(Operation op,
         const QNetworkRequest &request, QIODevice *outgoingData = 0);
-
-private:
-    QHelpEngine *helpEngine;
 };
 
-HelpNetworkAccessManager::HelpNetworkAccessManager(QHelpEngine *engine,
-        QObject *parent)
-    : QNetworkAccessManager(parent), helpEngine(engine)
+HelpNetworkAccessManager::HelpNetworkAccessManager(QObject *parent)
+    : QNetworkAccessManager(parent)
 {
 }
 
@@ -138,8 +136,9 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation /*op*/,
         mimeType = QLatin1String("text/html");
     }
 
-    const QByteArray &data = helpEngine->findFile(url).isValid()
-        ? helpEngine->fileData(url) : QByteArray("The page could not be found");
+    const QHelpEngineCore &engine = Help::HelpManager::helpEngineCore();
+    const QByteArray &data = engine.findFile(url).isValid()
+        ? engine.fileData(url) : QByteArray("The page could not be found");
     return new HelpNetworkReply(request, data, mimeType);
 }
 
@@ -147,7 +146,7 @@ class HelpPage : public QWebPage
 {
     friend class HelpViewer;
 public:
-    HelpPage(Help::Internal::CentralWidget *central, QHelpEngine *engine, QObject *parent);
+    HelpPage(Help::Internal::CentralWidget *central, QObject *parent);
 
 protected:
     virtual QWebPage *createWindow(QWebPage::WebWindowType);
@@ -157,15 +156,13 @@ protected:
 
 private:
     Help::Internal::CentralWidget *centralWidget;
-    QHelpEngine *helpEngine;
     Qt::MouseButtons m_pressedButtons;
     Qt::KeyboardModifiers m_keyboardModifiers;
 };
 
-HelpPage::HelpPage(Help::Internal::CentralWidget *central, QHelpEngine *engine, QObject *parent)
+HelpPage::HelpPage(Help::Internal::CentralWidget *central, QObject *parent)
     : QWebPage(parent)
     , centralWidget(central)
-    , helpEngine(engine)
     , m_pressedButtons(Qt::NoButton)
     , m_keyboardModifiers(Qt::NoModifier)
 {
@@ -205,7 +202,7 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *,
 
             QFile tmpFile(QDir::cleanPath(fileName));
             if (tmpFile.open(QIODevice::ReadWrite)) {
-                tmpFile.write(helpEngine->fileData(url));
+                tmpFile.write(Help::HelpManager::helpEngineCore().fileData(url));
                 tmpFile.close();
             }
             QDesktopServices::openUrl(QUrl(tmpFile.fileName()));
@@ -229,14 +226,13 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *,
     return false;
 }
 
-HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *central, QWidget *parent)
+HelpViewer::HelpViewer(Help::Internal::CentralWidget *central, QWidget *parent)
     : QWebView(parent)
-    , helpEngine(engine)
     , parentWidget(central)
     , multiTabsAllowed(true)
     , loadFinished(false)
 {
-    setPage(new HelpPage(central, helpEngine, this));
+    setPage(new HelpPage(central, this));
     settings()->setAttribute(QWebSettings::PluginsEnabled, false);
     settings()->setAttribute(QWebSettings::JavaEnabled, false);
 
@@ -297,11 +293,12 @@ int HelpViewer::zoom() const
 
 void HelpViewer::home()
 {
-    QString homepage = helpEngine->customValue(QLatin1String("HomePage"),
+    const QHelpEngineCore &engine = Help::HelpManager::helpEngineCore();
+    QString homepage = engine.customValue(QLatin1String("HomePage"),
         QLatin1String("")).toString();
 
     if (homepage.isEmpty()) {
-        homepage = helpEngine->customValue(QLatin1String("DefaultHomePage"),
+        homepage = engine.customValue(QLatin1String("DefaultHomePage"),
             QLatin1String("about:blank")).toString();
     }
 
@@ -392,12 +389,11 @@ void HelpViewer::setLoadFinished(bool ok)
 
 #else  // !defined(QT_NO_WEBKIT)
 
-HelpViewer::HelpViewer(QHelpEngine *engine, Help::Internal::CentralWidget *central, QWidget *parent)
+HelpViewer::HelpViewer(Help::Internal::CentralWidget *central, QWidget *parent)
     : QTextBrowser(parent)
     , zoomCount(0)
     , controlPressed(false)
     , lastAnchor(QString())
-    , helpEngine(engine)
     , parentWidget(central)
 {
    document()->setDocumentMargin(8);
@@ -410,7 +406,7 @@ void HelpViewer::setSource(const QUrl &url)
         if (launchedWithExternalApp(url))
             return;
 
-        QUrl u = helpEngine->findFile(url);
+        QUrl u = Help::HelpManager::helpEngineCore().findFile(url);
         if (u.isValid()) {
             if (!homeUrl.isValid())
                 homeUrl = url;
@@ -472,7 +468,7 @@ bool HelpViewer::launchedWithExternalApp(const QUrl &url)
 
             QFile tmpFile(QDir::cleanPath(fileName));
             if (tmpFile.open(QIODevice::ReadWrite)) {
-                tmpFile.write(helpEngine->fileData(url));
+                tmpFile.write(Help::HelpManager::helpEngineCore().fileData(url));
                 tmpFile.close();
             }
             launched = QDesktopServices::openUrl(QUrl(tmpFile.fileName()));
@@ -493,7 +489,7 @@ QVariant HelpViewer::loadResource(int type, const QUrl &name)
 {
     QByteArray ba;
     if (type < 4) {
-        ba = helpEngine->fileData(name);
+        ba = Help::HelpManager::helpEngineCore().fileData(name);
         if (name.toString().endsWith(QLatin1String(".svg"), Qt::CaseInsensitive)) {
             QImage image;
             image.loadFromData(ba, "svg");
@@ -578,6 +574,7 @@ void HelpViewer::mousePressEvent(QMouseEvent *e)
     if (handleForwardBackwardMouseButtons(e))
         return;
 #endif
+    QTextBrowser::mousePressEvent(e);
 }
 
 void HelpViewer::mouseReleaseEvent(QMouseEvent *e)
@@ -610,11 +607,12 @@ void HelpViewer::keyPressEvent(QKeyEvent *e)
 
 void HelpViewer::home()
 {
-    QString homepage = helpEngine->customValue(QLatin1String("HomePage"),
+    const QHelpEngineCore &engine = Help::HelpManager::helpEngineCore();
+    QString homepage = engine.customValue(QLatin1String("HomePage"),
         QLatin1String("")).toString();
 
     if (homepage.isEmpty()) {
-        homepage = helpEngine->customValue(QLatin1String("DefaultHomePage"),
+        homepage = engine.customValue(QLatin1String("DefaultHomePage"),
             QLatin1String("about:blank")).toString();
     }
 
