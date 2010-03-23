@@ -58,6 +58,9 @@ public:
     virtual void deactivateChangeSignals();
     virtual void reactivateChangeSignals();
 
+    virtual QmlJS::Snapshot getSnapshot() const;
+    virtual QStringList importPaths() const;
+
 public slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);
 

@@ -76,7 +76,7 @@ static inline QmlJSEditor::ModelManagerInterface *getModelManager()
 }
 }
 
-QmlJS::Snapshot BaseTextEditModifier::getSnapshot()
+QmlJS::Snapshot BaseTextEditModifier::getSnapshot() const
 {
     QmlJSEditor::ModelManagerInterface *modelManager = getModelManager();
     if (modelManager)
@@ -85,7 +85,7 @@ QmlJS::Snapshot BaseTextEditModifier::getSnapshot()
         return QmlJS::Snapshot();
 }
 
-QStringList BaseTextEditModifier::importPaths()
+QStringList BaseTextEditModifier::importPaths() const
 {
     QmlJSEditor::ModelManagerInterface *modelManager = getModelManager();
     if (modelManager)

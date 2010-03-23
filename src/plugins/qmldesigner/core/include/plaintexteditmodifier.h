@@ -75,6 +75,9 @@ public:
     virtual void deactivateChangeSignals();
     virtual void reactivateChangeSignals();
 
+    virtual QmlJS::Snapshot getSnapshot() const = 0;
+    virtual QStringList importPaths() const = 0;
+
 protected:
     QPlainTextEdit *plainTextEdit() const
     { return m_textEdit; }
@@ -105,6 +108,12 @@ public:
 
     virtual int indentDepth() const
     { return 0; }
+
+    virtual QmlJS::Snapshot getSnapshot() const
+    { return QmlJS::Snapshot(); }
+
+    virtual QStringList importPaths() const
+    { return QStringList(); }
 };
 
 }

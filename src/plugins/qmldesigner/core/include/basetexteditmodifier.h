@@ -53,8 +53,8 @@ public:
 
     virtual int indentDepth() const;
 
-    static QmlJS::Snapshot getSnapshot();
-    static QStringList importPaths();
+    virtual QmlJS::Snapshot getSnapshot() const;
+    virtual QStringList importPaths() const;
 };
 
 } // namespace QmlDesigner

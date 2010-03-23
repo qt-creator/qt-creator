@@ -29,8 +29,7 @@
 
 #include "componenttextmodifier.h"
 
-namespace QmlDesigner {
-
+using namespace QmlDesigner;
 ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int componentStartOffset, int componentEndOffset, int rootStartOffset) :
         m_originalModifier(originalModifier),
         m_componentStartOffset(componentStartOffset),
@@ -134,4 +133,8 @@ void ComponentTextModifier::contentsChange(int position, int charsRemoved, int c
     }
 }
 
-} // namespace QmlDesigner
+QmlJS::Snapshot ComponentTextModifier::getSnapshot() const
+{ return m_originalModifier->getSnapshot(); }
+
+QStringList ComponentTextModifier::importPaths() const
+{ return m_originalModifier->importPaths(); }

@@ -34,11 +34,10 @@
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "propertymetainfo.h"
-#include "basetexteditmodifier.h"
+#include "textmodifier.h"
 #include "texttomodelmerger.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
-#include <qmljseditor/qmljseditor.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
 
@@ -259,8 +258,8 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
         const bool success = domDoc.load(&engine, data, url);
 
         if (success) {
-            Snapshot snapshot = BaseTextEditModifier::getSnapshot();
-            const QStringList importPaths = BaseTextEditModifier::importPaths();
+            Snapshot snapshot = m_rewriterView->textModifier()->getSnapshot();
+            const QStringList importPaths = m_rewriterView->textModifier()->importPaths();
             const QString fileName = url.toLocalFile();
             Document::Ptr doc = Document::create(fileName);
             doc->setSource(QString::fromUtf8(data.constData()));
