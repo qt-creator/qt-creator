@@ -46,7 +46,6 @@ class QCheckBox;
 class QLineEdit;
 class QToolButton;
 class QTabWidget;
-class QHelpEngine;
 class QFocusEvent;
 QT_END_NAMESPACE
 
@@ -61,7 +60,7 @@ class CentralWidget : public QWidget
     Q_OBJECT
 
 public:
-    CentralWidget(QHelpEngine *engine, QWidget *parent = 0);
+    CentralWidget(QWidget *parent = 0);
     ~CentralWidget();
 
     bool hasSelection() const;

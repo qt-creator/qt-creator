@@ -28,6 +28,10 @@
 **************************************************************************/
 
 #include "searchwidget.h"
+#include "helpmanager.h"
+
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <QtCore/QMap>
 #include <QtCore/QString>
@@ -40,39 +44,18 @@
 #include <QtGui/QApplication>
 #include <QtGui/QTextBrowser>
 
+#include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpSearchEngine>
 #include <QtHelp/QHelpSearchQueryWidget>
 #include <QtHelp/QHelpSearchResultWidget>
 
 using namespace Help::Internal;
 
-SearchWidget::SearchWidget(QHelpSearchEngine *engine, QWidget *parent)
-    : QWidget(parent)
-    , zoomCount(0)
-    , searchEngine(engine)
+SearchWidget::SearchWidget()
+    : zoomCount(0)
+    , m_progress(0)
+    , searchEngine(0)
 {
-    QVBoxLayout *vLayout = new QVBoxLayout(this);
-    vLayout->setMargin(4);
-
-    resultWidget = searchEngine->resultWidget();
-    QHelpSearchQueryWidget *queryWidget = searchEngine->queryWidget();
-
-    vLayout->addWidget(queryWidget);
-    vLayout->addWidget(resultWidget);
-
-    setFocusProxy(queryWidget);
-
-    connect(queryWidget, SIGNAL(search()), this, SLOT(search()));
-    connect(resultWidget, SIGNAL(requestShowLink(QUrl)), this,
-        SIGNAL(requestShowLink(QUrl)));
-
-    connect(searchEngine, SIGNAL(searchingStarted()), this,
-        SLOT(searchingStarted()));
-    connect(searchEngine, SIGNAL(searchingFinished(int)), this,
-        SLOT(searchingFinished(int)));
-
-    QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
-    browser->viewport()->installEventFilter(this);
 }
 
 SearchWidget::~SearchWidget()
@@ -109,6 +92,43 @@ void SearchWidget::resetZoom()
     }
 }
 
+void SearchWidget::showEvent(QShowEvent *event)
+{
+    if (!event->spontaneous() && !searchEngine) {
+        QVBoxLayout *vLayout = new QVBoxLayout(this);
+        vLayout->setMargin(4);
+
+        searchEngine = (&HelpManager::helpEngine())->searchEngine();
+        resultWidget = searchEngine->resultWidget();
+        QHelpSearchQueryWidget *queryWidget = searchEngine->queryWidget();
+
+        vLayout->addWidget(queryWidget);
+        vLayout->addWidget(resultWidget);
+
+        setFocusProxy(queryWidget);
+
+        connect(queryWidget, SIGNAL(search()), this, SLOT(search()));
+        connect(resultWidget, SIGNAL(requestShowLink(QUrl)), this,
+            SIGNAL(requestShowLink(QUrl)));
+
+        connect(searchEngine, SIGNAL(searchingStarted()), this,
+            SLOT(searchingStarted()));
+        connect(searchEngine, SIGNAL(searchingFinished(int)), this,
+            SLOT(searchingFinished(int)));
+
+        QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
+        browser->viewport()->installEventFilter(this);
+
+        connect(searchEngine, SIGNAL(indexingStarted()), this,
+            SLOT(indexingStarted()));
+        connect(searchEngine, SIGNAL(indexingFinished()), this,
+            SLOT(indexingFinished()));
+
+        QMetaObject::invokeMethod(&HelpManager::helpEngine(), "setupFinished",
+            Qt::QueuedConnection);
+    }
+}
+
 void SearchWidget::search() const
 {
     QList<QHelpSearchQuery> query = searchEngine->queryWidget()->query();
@@ -124,6 +144,28 @@ void SearchWidget::searchingFinished(int hits)
 {
     Q_UNUSED(hits)
     qApp->restoreOverrideCursor();
+}
+
+void SearchWidget::indexingStarted()
+{
+    Q_ASSERT(!m_progress);
+    m_progress = new QFutureInterface<void>();
+    Core::ICore::instance()->progressManager() ->addTask(m_progress->future(),
+        tr("Indexing"), QLatin1String("Help.Indexer"));
+    m_progress->setProgressRange(0, 2);
+    m_progress->setProgressValueAndText(1, tr("Indexing Documentation..."));
+    m_progress->reportStarted();
+
+    m_watcher.setFuture(m_progress->future());
+    connect(&m_watcher, SIGNAL(canceled()), searchEngine, SLOT(cancelIndexing()));
+}
+
+void SearchWidget::indexingFinished()
+{
+    m_progress->reportFinished();
+
+    delete m_progress;
+    m_progress = NULL;
 }
 
 bool SearchWidget::eventFilter(QObject* o, QEvent *e)

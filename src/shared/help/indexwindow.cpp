@@ -43,9 +43,8 @@
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpIndexWidget>
 
-IndexWindow::IndexWindow(QHelpEngine *helpEngine, QWidget *parent)
-    : QWidget(parent)
-    , m_searchLineEdit(0)
+IndexWindow::IndexWindow()
+    : m_searchLineEdit(0)
     , m_indexWidget(0)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);

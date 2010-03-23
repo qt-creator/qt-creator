@@ -52,8 +52,7 @@
 
 using namespace Help::Internal;
 
-GeneralSettingsPage::GeneralSettingsPage(BookmarkManager *bookmarkManager)
-    : m_bookmarkManager(bookmarkManager)
+GeneralSettingsPage::GeneralSettingsPage()
 {
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
@@ -135,11 +134,6 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
 
 void GeneralSettingsPage::apply()
 {
-    emit dialogAccepted();
-}
-
-bool GeneralSettingsPage::applyChanges()
-{
     QFont newFont;
     const QString &family = m_ui.familyComboBox->currentFont().family();
     newFont.setFamily(family);
@@ -168,7 +162,6 @@ bool GeneralSettingsPage::applyChanges()
 
     QHelpEngineCore *engine = &HelpManager::helpEngineCore();
     engine->setCustomValue(QLatin1String("font"), newFont);
-    bool needsUpdate = newFont != m_font;
 
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
@@ -182,17 +175,14 @@ bool GeneralSettingsPage::applyChanges()
     if (homePage.isEmpty())
         homePage = QLatin1String("about:blank");
     engine->setCustomValue(QLatin1String("HomePage"), homePage);
-    needsUpdate |= homePage != m_homePage;
 
     const int startOption = m_ui.helpStartComboBox->currentIndex();
     engine->setCustomValue(QLatin1String("StartOption"), startOption);
-    needsUpdate |= startOption != m_startOption;
 
     const int helpOption = m_ui.contextHelpComboBox->currentIndex();
     engine->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
-    needsUpdate |= helpOption != m_helpOption;
 
-    return needsUpdate;
+    // no need to call setup on the gui engine since we use only core engine
 }
 
 void GeneralSettingsPage::setCurrentPage()
@@ -226,8 +216,8 @@ void GeneralSettingsPage::importBookmarks()
 
     QFile file(fileName);
     if (file.open(QIODevice::ReadOnly)) {
-        XbelReader reader(m_bookmarkManager->treeBookmarkModel(),
-            m_bookmarkManager->listBookmarkModel());
+        const BookmarkManager &manager = HelpManager::bookmarkManager();
+        XbelReader reader(manager.treeBookmarkModel(), manager.listBookmarkModel());
         if (reader.readFromFile(&file))
             return;
     }
@@ -249,7 +239,7 @@ void GeneralSettingsPage::exportBookmarks()
 
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly)) {
-        XbelWriter writer(m_bookmarkManager->treeBookmarkModel());
+        XbelWriter writer(HelpManager::bookmarkManager().treeBookmarkModel());
         writer.writeToFile(&file);
     }
 }

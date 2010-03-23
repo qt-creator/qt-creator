@@ -30,29 +30,22 @@
 #define HELPPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
-
-#include <QtCore/QFutureInterface>
-#include <QtCore/QFutureWatcher>
 #include <QtCore/QMap>
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
-class QHelpEngine;
 class QToolBar;
 class QUrl;
 QT_END_NAMESPACE
 
-class IndexWindow;
-class ContentWindow;
-class BookmarkManager;
-class BookmarkWidget;
 class HelpViewer;
 
 namespace Core {
 class ICore;
 class IMode;
+class MiniSplitter;
 class SideBar;
 class SideBarItem;
 }   // Core
@@ -80,16 +73,7 @@ public:
     void extensionsInitialized();
     void shutdown();
 
-    // Necessary to get the unfiltered list in the help index filter
-    void setIndexFilter(const QString &filter);
-    QString indexFilter() const;
-
-    QHelpEngine* helpEngine() const;
-
-    void setFilesToRegister(const QStringList &files);
-
 public slots:
-    void slotRegisterDocumentation();
     void handleHelpRequest(const QString &url);
 
 private slots:
@@ -98,55 +82,41 @@ private slots:
     void activateIndex();
     void activateContents();
     void activateSearch();
-    void checkForHelpChanges();
-    void checkForGeneralChanges();
     void updateFilterComboBox();
     void filterDocumentation(const QString &customFilter);
     void addBookmark();
     void addNewBookmark(const QString &title, const QString &url);
 
-    void rightPaneBackward();
-    void rightPaneForward();
     void switchToHelpMode();
     void switchToHelpMode(const QUrl &source);
     void switchToHelpMode(const QMap<QString, QUrl> &urls, const QString &keyword);
     void slotHideRightPane();
-    void copyFromSideBar();
 
     void updateSideBarSource();
     void updateSideBarSource(const QUrl &newUrl);
 
     void fontChanged();
+    void setupHelpEngineIfNeeded();
 
     void rebuildViewerComboBox();
     void removeViewerFromComboBox(int index);
     void updateViewerComboBoxIndex(int index);
 
-    void indexingStarted();
-    void indexingFinished();
-
 private:
+    void setupUi();
     void resetFilter();
-    bool verifiyDocumentation();
-    bool registerDocumentation();
-    bool unregisterDocumentation(const QStringList &nameSpaces);
+    void activateHelpMode();
+    QToolBar *createToolBar();
+    void connectCentralWidget();
+    HelpViewer* viewerForContextMode();
+    void createRightPaneContextViewer();
 
 private:
-    QToolBar *createToolBar();
-    void createRightPaneContextViewer();
-    void activateHelpMode();
-    HelpViewer* viewerForContextMode();
-
+    HelpMode *m_mode;
     Core::ICore *m_core;
-    QHelpEngine *m_helpEngine;
-    ContentWindow *m_contentWidget;
-    IndexWindow *m_indexWidget;
-    BookmarkWidget *m_bookmarkWidget;
-    BookmarkManager *m_bookmarkManager;
-    SearchWidget *m_searchWidget;
+    QWidget *m_mainWidget;
     CentralWidget *m_centralWidget;
     HelpViewer *m_helpViewerForSideBar;
-    HelpMode *m_mode;
 
     Core::SideBarItem *m_contentItem;
     Core::SideBarItem *m_indexItem;
@@ -155,20 +125,15 @@ private:
 
     DocSettingsPage *m_docSettingsPage;
     FilterSettingsPage *m_filterSettingsPage;
-    GeneralSettingsPage *generalSettingsPage;
+    GeneralSettingsPage *m_generalSettingsPage;
 
     QComboBox *m_documentsCombo;
     QComboBox *m_filterComboBox;
     Core::SideBar *m_sideBar;
 
-    HelpManager *helpManager;
-    QStringList filesToRegister;
-
-    QFutureWatcher<void> m_watcher;
-    QFutureInterface<void> *m_progress;
-
-    bool isInitialised;
-    bool firstModeChange;
+    bool m_firstModeChange;
+    HelpManager *m_helpManager;
+    Core::MiniSplitter *m_splitter;
 };
 
 } // namespace Internal

@@ -188,3 +188,12 @@ QHelpEngineCore& HelpManager::helpEngineCore()
     }
     return *m_coreEngine;
 }
+
+BookmarkManager& HelpManager::bookmarkManager()
+{
+    if (!m_bookmarkManager) {
+        m_bookmarkManager = new BookmarkManager;
+        m_bookmarkManager->setupBookmarkModels();
+    }
+    return *m_bookmarkManager;
+}

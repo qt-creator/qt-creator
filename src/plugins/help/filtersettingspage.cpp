@@ -179,12 +179,6 @@ void FilterSettingsPage::removeFilter()
 
 void FilterSettingsPage::apply()
 {
-    // This is handled via HelpPlugin::checkForHelpChanges, which is connected
-    // to DocSettingsPage::apply.
-}
-
-bool FilterSettingsPage::applyChanges()
-{
     bool changed = m_filterMap.count() != m_filterMapBackup.count();
     if (!changed) {
         FilterMap::const_iterator it = m_filterMapBackup.constBegin();
@@ -216,10 +210,11 @@ bool FilterSettingsPage::applyChanges()
         FilterMap::const_iterator it;
         for (it = m_filterMap.constBegin(); it != m_filterMap.constEnd(); ++it)
             engine->addCustomFilter(it.key(), it.value());
-        return true;
-    }
 
-    return false;
+        // emit this signal to the help plugin, since we don't want
+        // to force gui help engine setup if we are not in help mode
+        emit filtersChanged();
+    }
 }
 
 bool FilterSettingsPage::matches(const QString &s) const

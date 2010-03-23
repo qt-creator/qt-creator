@@ -39,7 +39,7 @@
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpContentWidget>
 
-ContentWindow::ContentWindow(QHelpEngine *helpEngine)
+ContentWindow::ContentWindow()
     : m_contentWidget(0)
     , m_expandDepth(-2)
 {

@@ -125,8 +125,14 @@ void DocSettingsPage::removeDocumentation()
 
 void DocSettingsPage::apply()
 {
-    emit dialogAccepted();
-    emit documentationChanged();
+    HelpManager* manager = &HelpManager::instance();
+    manager->unregisterDocumentation(m_filesToUnregister.keys());
+    manager->registerDocumentation(m_filesToRegister.values());
+    if (manager->guiEngineNeedsUpdate()) {
+        // emit this signal to the help plugin, since we don't want
+        // to force gui help engine setup if we are not in help mode
+        emit documentationChanged();
+    }
 
     m_filesToRegister.clear();
     m_filesToUnregister.clear();
@@ -135,16 +141,6 @@ void DocSettingsPage::apply()
 bool DocSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
-}
-
-QStringList DocSettingsPage::docsToRegister() const
-{
-    return m_filesToRegister.values();
-}
-
-QStringList DocSettingsPage::docsToUnregister() const
-{
-    return m_filesToUnregister.keys();
 }
 
 bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)

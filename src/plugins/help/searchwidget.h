@@ -30,18 +30,15 @@
 #ifndef SEARCHWIDGET_H
 #define SEARCHWIDGET_H
 
-#include <QtCore/QUrl>
-#include <QtCore/QPoint>
+#include <QtCore/QFutureInterface>
+#include <QtCore/QFutureWatcher>
 
 #include <QtGui/QWidget>
 
-QT_BEGIN_NAMESPACE
-
-class QMouseEvent;
-class QHelpSearchEngine;
-class QHelpSearchResultWidget;
-
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QHelpSearchEngine)
+QT_FORWARD_DECLARE_CLASS(QHelpSearchResultWidget)
+QT_FORWARD_DECLARE_CLASS(QMouseEvent)
+QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace Help {
 namespace Internal {
@@ -51,7 +48,7 @@ class SearchWidget : public QWidget
     Q_OBJECT
 
 public:
-    SearchWidget(QHelpSearchEngine *engine, QWidget *parent = 0);
+    SearchWidget();
     ~SearchWidget();
 
     void zoomIn();
@@ -63,10 +60,17 @@ signals:
     void requestShowLinkInNewTab(const QUrl &url);
     void escapePressed();
 
+protected:
+    void showEvent(QShowEvent *event);
+
 private slots:
     void search() const;
+
     void searchingStarted();
     void searchingFinished(int hits);
+
+    void indexingStarted();
+    void indexingFinished();
 
 private:
     bool eventFilter(QObject* o, QEvent *e);
@@ -75,6 +79,10 @@ private:
 
 private:
     int zoomCount;
+
+    QFutureWatcher<void> m_watcher;
+    QFutureInterface<void> *m_progress;
+
     QHelpSearchEngine *searchEngine;
     QHelpSearchResultWidget *resultWidget;
 };

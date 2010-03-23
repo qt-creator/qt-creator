@@ -33,8 +33,6 @@
 #include "ui_generalsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
-class BookmarkManager;
-
 namespace Help {
 namespace Internal {
 
@@ -45,7 +43,7 @@ class GeneralSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    GeneralSettingsPage(BookmarkManager *bookmarkManager);
+    GeneralSettingsPage();
 
     QString id() const;
     virtual QString displayName() const;
@@ -57,11 +55,8 @@ public:
     void finish() {}
     virtual bool matches(const QString &s) const;
 
-    bool applyChanges();
-
 signals:
     void fontChanged();
-    void dialogAccepted();
 
 private slots:
     void setCurrentPage();
@@ -86,8 +81,6 @@ private:
 
     QString m_searchKeywords;
     Ui::GeneralSettingsPage m_ui;
-
-    BookmarkManager *m_bookmarkManager;
 };
 
     }   // Internal

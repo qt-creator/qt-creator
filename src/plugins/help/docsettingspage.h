@@ -54,11 +54,7 @@ public:
     void finish() {}
     virtual bool matches(const QString &s) const;
 
-    QStringList docsToRegister() const;
-    QStringList docsToUnregister() const;
-
 signals:
-    void dialogAccepted();
     void documentationChanged();
 
 private slots:

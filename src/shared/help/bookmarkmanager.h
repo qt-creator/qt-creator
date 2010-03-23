@@ -51,7 +51,6 @@ class QLineEdit;
 class QTreeView;
 class QToolButton;
 class QStandardItem;
-class QHelpEngineCore;
 class QAbstractItemModel;
 class QSortFilterProxyModel;
 
@@ -158,7 +157,7 @@ class BookmarkManager : public QObject
     Q_OBJECT
 
 public:
-    BookmarkManager(QHelpEngineCore *helpEngine);
+    BookmarkManager();
     ~BookmarkManager();
 
     BookmarkModel *treeBookmarkModel() const;

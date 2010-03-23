@@ -55,7 +55,7 @@
 #include <QtGui/QPrintPreviewDialog>
 #include <QtGui/QPageSetupDialog>
 
-#include <QtHelp/QHelpEngine>
+#include <QtHelp/QHelpEngineCore>
 
 #include <coreplugin/coreconstants.h>
 
@@ -75,7 +75,7 @@ namespace {
     Help::Internal::CentralWidget *staticCentralWidget = 0;
 }
 
-CentralWidget::CentralWidget(QHelpEngine *engine, QWidget *parent)
+CentralWidget::CentralWidget(QWidget *parent)
     : QWidget(parent)
     , findBar(0)
     , tabWidget(0)

@@ -54,7 +54,8 @@ public:
     void finish() {}
     virtual bool matches(const QString &s) const;
 
-    bool applyChanges();
+signals:
+    void filtersChanged();
 
 private slots:
     void updateAttributes(QListWidgetItem *item);

@@ -605,11 +605,11 @@ Qt::ItemFlags BookmarkModel::flags(const QModelIndex &index) const
 // #pragma mark -- BookmarkManager
 
 
-BookmarkManager::BookmarkManager(QHelpEngineCore* _helpEngine)  :
-    m_folderIcon(QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon)),
-    m_bookmarkIcon(QLatin1String(":/help/images/bookmark.png")),
-    treeModel(new BookmarkModel(0, 1, this)),
-    listModel(new BookmarkModel(0, 1, this))
+BookmarkManager::BookmarkManager()
+    : m_folderIcon(QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon))
+    , m_bookmarkIcon(QLatin1String(":/help/images/bookmark.png"))
+    , treeModel(new BookmarkModel(0, 1, this))
+    , listModel(new BookmarkModel(0, 1, this))
 {
     connect(treeModel, SIGNAL(itemChanged(QStandardItem*)), this,
         SLOT(itemChanged(QStandardItem*)));

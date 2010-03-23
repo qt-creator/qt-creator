@@ -36,7 +36,6 @@
 
 QT_BEGIN_NAMESPACE
 
-class QHelpEngine;
 class QHelpContentItem;
 class QHelpContentWidget;
 
@@ -47,7 +46,7 @@ class ContentWindow : public QWidget
     Q_OBJECT
 
 public:
-    ContentWindow(QHelpEngine *helpEngine);
+    ContentWindow();
     ~ContentWindow();
 
     bool syncToContent(const QUrl &url);
