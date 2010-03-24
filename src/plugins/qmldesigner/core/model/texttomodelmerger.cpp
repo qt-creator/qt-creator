@@ -31,9 +31,11 @@
 #include "bindingproperty.h"
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
+#include "metainfo.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "propertymetainfo.h"
+#include "propertyparser.h"
 #include "textmodifier.h"
 #include "texttomodelmerger.h"
 #include "rewriterview.h"
@@ -628,27 +630,23 @@ QVariant TextToModelMerger::convertToVariant(const ModelNode &node,
                                              const QString &astType)
 {
     const QString cleanedValue = stripQuotes(astValue.trimmed());
+    const NodeMetaInfo nodeMetaInfo = node.metaInfo();
 
     if (!astType.isEmpty()) {
         const int type = propertyType(astType);
         QVariant value(cleanedValue);
         value.convert(static_cast<QVariant::Type>(type));
         return value;
-    }
 
-    const NodeMetaInfo nodeMetaInfo = node.metaInfo();
+        const QString typeName = QMetaType::typeName(type);
+        return Internal::PropertyParser::read(typeName, astValue, nodeMetaInfo.metaInfo());
+    }
 
     if (nodeMetaInfo.isValid()) {
         const PropertyMetaInfo propertyMetaInfo = nodeMetaInfo.property(astName, true);
 
         if (propertyMetaInfo.isValid()) {
-            QVariant castedValue = propertyMetaInfo.castedValue(cleanedValue);
-            if (!castedValue.isValid())
-                qWarning() << "Casting the value" << cleanedValue
-                           << "of property" << astName
-                           << "to the property type" << propertyMetaInfo.type()
-                           << "failed";
-            return castedValue;
+            return Internal::PropertyParser::read(propertyMetaInfo.type(), cleanedValue, nodeMetaInfo.metaInfo());
         } else if (node.type() == QLatin1String("Qt/PropertyChanges")) {
             // In the future, we should do the type resolving in a second pass, or delay setting properties until the full file has been parsed.
             return QVariant(cleanedValue);
