@@ -2786,7 +2786,7 @@ bool Parser::parseCondition(ExpressionAST *&node)
     if (parseTypeSpecifier(type_specifier)) {
         DeclaratorAST *declarator = 0;
         if (parseInitDeclarator(declarator, /*acceptStructDeclarator=*/false)) {
-            if (declarator->initializer) {
+            if (declarator->initializer && declarator->equals_token) {
                 ConditionAST *ast = new (_pool) ConditionAST;
                 ast->type_specifier_list = type_specifier;
                 ast->declarator = declarator;
@@ -5658,6 +5658,7 @@ bool Parser::parseTrailingReturnType(TrailingReturnTypeAST *&node)
 
     parseTrailingTypeSpecifierSeq(ast->type_specifiers);
     parseAbstractDeclarator(ast->declarator);
+    node = ast;
     return true;
 }
 
