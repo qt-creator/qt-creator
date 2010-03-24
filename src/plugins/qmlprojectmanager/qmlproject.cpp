@@ -223,11 +223,6 @@ QList<ProjectExplorer::Project *> QmlProject::dependsOn()
     return QList<Project *>();
 }
 
-bool QmlProject::isApplication() const
-{
-    return true;
-}
-
 ProjectExplorer::BuildConfigWidget *QmlProject::createConfigWidget()
 {
     return 0;

@@ -598,8 +598,8 @@ void SessionManager::addProjects(const QList<Project*> &projects)
 
     // maybe we have a new startup project?
     if (!startupProject())
-        if (Project *newStartupProject = defaultStartupProject())
-            setStartupProject(newStartupProject);
+        if (!m_file->m_projects.isEmpty())
+            setStartupProject(m_file->m_projects.first());
 }
 
 void SessionManager::removeProject(Project *project)
@@ -631,7 +631,7 @@ bool SessionManager::createImpl(const QString &fileName)
         delete m_file;
         m_file = new SessionFile;
         m_file->setFileName(fileName);
-        setStartupProject(defaultStartupProject());
+        setStartupProject(0);
     }
 
     m_defaultVirginSession = false;
@@ -790,16 +790,6 @@ QStringList SessionManager::dependenciesOrder() const
     }
 
     return ordered;
-}
-
-Project *SessionManager::defaultStartupProject() const
-{
-    // Just take first one
-    foreach (Project *p, m_file->m_projects) {
-        if (p->isApplication())
-            return p;
-    }
-    return 0;
 }
 
 QList<Project *> SessionManager::projectOrder(Project *project) const
@@ -1010,8 +1000,8 @@ void SessionManager::removeProjects(QList<Project *> remove)
     m_file->m_depMap = resMap;
 
     if (startupProject() == 0)
-        if (Project *newStartupProject = defaultStartupProject())
-            setStartupProject(newStartupProject);
+        if (!m_file->m_projects.isEmpty())
+            setStartupProject(m_file->m_projects.first());
 }
 
 void SessionManager::setValue(const QString &name, const QVariant &value)

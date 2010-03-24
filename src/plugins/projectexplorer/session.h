@@ -184,7 +184,6 @@ private:
     bool recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const;
     QStringList dependencies(const QString &proName) const;
     QStringList dependenciesOrder() const;
-    Project *defaultStartupProject() const;
 
     void updateName(const QString &session);
 

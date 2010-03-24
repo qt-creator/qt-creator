@@ -388,11 +388,6 @@ QList<ProjectExplorer::Project *> GenericProject::dependsOn()
     return QList<Project *>();
 }
 
-bool GenericProject::isApplication() const
-{
-    return true;
-}
-
 ProjectExplorer::BuildConfigWidget *GenericProject::createConfigWidget()
 {
     return new GenericBuildSettingsWidget(this);

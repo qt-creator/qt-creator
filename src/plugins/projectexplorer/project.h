@@ -72,7 +72,6 @@ public:
 
     virtual QList<Project *> dependsOn() = 0; //NBS TODO implement dependsOn
 
-    virtual bool isApplication() const = 0;
     bool hasActiveBuildSettings() const;
 
     // EditorConfiguration:

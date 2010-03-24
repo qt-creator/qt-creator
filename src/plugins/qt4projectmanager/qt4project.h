@@ -127,8 +127,6 @@ public:
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
 
-    bool isApplication() const;
-
     Internal::Qt4ProFileNode *rootProjectNode() const;
 
     virtual QStringList files(FilesMode fileMode) const;
@@ -208,7 +206,6 @@ private:
     Internal::Qt4TargetFactory *m_targetFactory;
 
     Qt4ProjectFile *m_fileInfo;
-    bool m_isApplication;
 
     // Current configuration
     QString m_oldQtIncludePath;

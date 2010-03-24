@@ -241,7 +241,6 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_nodesWatcher(new Internal::Qt4NodesWatcher(this)),
     m_targetFactory(new Qt4TargetFactory(this)),
     m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
-    m_isApplication(true),
     m_projectFiles(new Qt4ProjectFiles),
     m_proFileOption(0),
     m_asyncUpdateFutureInterface(0),
@@ -820,14 +819,6 @@ void Qt4Project::asyncUpdate()
     m_asyncUpdateState = AsyncUpdateInProgress;
 }
 
-/*!
-  Returns whether the project is an application, or has an application as a subproject.
- */
-bool Qt4Project::isApplication() const
-{
-    return m_isApplication;
-}
-
 ProjectExplorer::IProjectManager *Qt4Project::projectManager() const
 {
     return m_manager;
@@ -1007,7 +998,6 @@ void Qt4Project::checkForNewApplicationProjects()
             }
             if (!found) {
                 qt4Target->addRunConfigurationForPath(qt4proFile->path());
-                m_isApplication = true;
             }
         }
     }
@@ -1035,7 +1025,6 @@ void Qt4Project::checkForDeletedApplicationProjects()
 
         if (target->runConfigurations().isEmpty()) {
             target->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(target));
-            m_isApplication = false;
         }
     }
 }

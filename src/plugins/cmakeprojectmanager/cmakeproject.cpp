@@ -436,11 +436,6 @@ QList<ProjectExplorer::Project *> CMakeProject::dependsOn()
     return QList<Project *>();
 }
 
-bool CMakeProject::isApplication() const
-{
-    return true;
-}
-
 ProjectExplorer::BuildConfigWidget *CMakeProject::createConfigWidget()
 {
     return new CMakeBuildSettingsWidget(this);

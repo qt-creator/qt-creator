@@ -77,8 +77,6 @@ public:
 
     QList<ProjectExplorer::Project *> dependsOn();
 
-    bool isApplication() const;
-
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 

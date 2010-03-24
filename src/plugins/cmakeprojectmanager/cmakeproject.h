@@ -83,8 +83,6 @@ public:
 
     QList<ProjectExplorer::Project *> dependsOn(); //NBS TODO implement dependsOn
 
-    bool isApplication() const;
-
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
