@@ -82,9 +82,6 @@ public:
     int zoom() const;
     void setZoom(int zoom) { zoomIn(zoom); }
 
-    inline void copy()
-    { return triggerPageAction(QWebPage::Copy); }
-
     inline bool isForwardAvailable() const
     { return pageAction(QWebPage::Forward)->isEnabled(); }
     inline bool isBackwardAvailable() const
@@ -95,6 +92,7 @@ public:
 public Q_SLOTS:
     void home();
     void backward() { back(); }
+    void copy() { triggerPageAction(QWebPage::Copy); }
 
 Q_SIGNALS:
     void copyAvailable(bool enabled);
