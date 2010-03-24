@@ -1007,6 +1007,10 @@
           \l{Setting Up a Generic Project}.
     \endlist
 
+    To change the location of the project directory, and to make changes in
+    the build and run settings, select \gui{Tools} > \gui{Options...} >
+    \gui{Projects} > \gui{General}.
+
     \section1 External Libraries
 
     Through external libraries Qt Creator can support code completion and
@@ -2161,8 +2165,8 @@
 
            \image qtcreator-locator-customize.png
 
-        \o In the \gui Options window click \gui Add.
-        \o In the \gui{Filter Configuration} dialog:
+        \o In the \gui{Options...} window click \gui Add.
+        \o In the \gui{Filters} dialog:
         \list
             \o Name your filter.
             \o Select at least one directory. The locator searches directories
@@ -3945,7 +3949,7 @@
 
     \section1 Using the Filter in Options Dialog
 
-    To find specific settings you require in \gui{Tools} > \gui{Options}
+    To find specific settings you require in \gui{Tools} > \gui{Options...}
     use the filter located at the top left of the Options dialog box.
 
 
@@ -3998,7 +4002,7 @@
     If an instance of a class is derived from QObject, and you would like to
     find all other objects connected to one of your object's slots using
     Qt's signals and slots mechanism, select \gui Tools > \gui Options...
-    > \gui{Debugging Helper} > \gui{Use Debugging Helper}.
+    > \gui{Debugger} > \gui{Debugging Helper} > \gui{Use Debugging Helper}.
 
     In the \gui{Locals and Watchers} view, expand the object's entry and open
     the slot in the \e slots subitem. The objects connected to this slot are
