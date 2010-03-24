@@ -68,7 +68,7 @@ bool ProgressBar::event(QEvent *e)
         break;
     case QEvent::Leave:
         {
-            QPropertyAnimation *animation = new QPropertyAnimation(this, "m_cancelButtonFader");
+            QPropertyAnimation *animation = new QPropertyAnimation(this, "cancelButtonFader");
             animation->setDuration(225);
             animation->setEndValue(0.0);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
@@ -287,7 +287,5 @@ void ProgressBar::paintEvent(QPaintEvent *)
         p.translate(0.5, 0.5);
         p.drawLine(cancelRect.center()+QPoint(-1,-2), cancelRect.center()+QPoint(+3,+2));
         p.drawLine(cancelRect.center()+QPoint(+3,-2), cancelRect.center()+QPoint(-1,+2));
-        p.setPen(QPen(QColor(0, 0, 0, 80)));
-        p.drawLine(cancelRect.bottomLeft() + QPoint(2,-1), cancelRect.bottomRight() + QPoint(0,-1));
     }
 }
