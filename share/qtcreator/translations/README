@@ -8,8 +8,7 @@ How To add translations to Qt Creator
   country-specific variants.
   Skip this step if updating an existing translation, obviously.
 
-- Run "make ts". This will complain if you are not building against
-  Qt 4.6 (or the master branch which will become it).
+- Run "make ts".
 
   If your Qt version is too old, you may create a template by running
     lconvert --drop-translations qtcreator_de.ts -o qtcreator_<yours>.ts
@@ -21,8 +20,6 @@ How To add translations to Qt Creator
 
   You may also request an up-to-date template from us.
 
-  The remaining steps do *not* require Qt 4.6 in any case.
-
 - Fire up linguist and do the translation.
 
 - Check in the modified .pro file and _only_ your .ts file.
@@ -30,3 +27,16 @@ How To add translations to Qt Creator
 - Make a merge request on gitorious.
 
 - .qm files are generated as part of the regular build.
+
+Note: QmlDesigner contains code from the Gradient Editor of Qt Designer.
+If an official translation of Qt for your language exists, you can
+re-use the translation of those messages by merging Qt Creator's and
+Qt Designer's translation using lconvert:
+
+lconvert qtcreator_<LANG>.ts $QTDIR/translations/designer_<LANG>.ts > temp.ts
+
+Move the temporary file back to qtcreator_<LANG>.ts, complete the
+Gradient Editor's translations and update the file, passing the
+additional option -noobsolete to lupdate (by temporarily modifying
+translations.pro). This will remove the now redundant messages originating
+from Qt Designer.
