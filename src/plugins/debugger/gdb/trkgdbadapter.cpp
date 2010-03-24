@@ -1878,6 +1878,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     m_engine->postCommand("set trust-readonly-sections on"); // No difference?
     m_engine->postCommand("set displaced-stepping on"); // No difference?
     //m_engine->postCommand("set remotelogfile /tmp/gdb-remotelog");
+    //m_engine->postCommand("set debug remote 1"); // FIXME: Make an option.
     m_engine->postCommand("set mem inaccessible-by-default");
     m_engine->postCommand("mem 0x00400000 0x70000000 cache");
     m_engine->postCommand("mem 0x70000000 0x80000000 cache ro");
