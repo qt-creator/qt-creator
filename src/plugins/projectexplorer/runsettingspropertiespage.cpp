@@ -56,35 +56,6 @@ struct FactoryAndId
 
 Q_DECLARE_METATYPE(ProjectExplorer::Internal::FactoryAndId);
 
-namespace ProjectExplorer {
-namespace Internal {
-
-/*! A model to represent the run configurations of a project. */
-class RunConfigurationsModel : public QAbstractListModel
-{
-public:
-    RunConfigurationsModel(QObject *parent = 0)
-        : QAbstractListModel(parent),
-        m_activeRunConfiguration(0)
-    {}
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
-    void setRunConfigurations(const QList<RunConfiguration *> &runConfigurations);
-    QList<RunConfiguration *> runConfigurations() const { return m_runConfigurations; }
-    void displayNameChanged(RunConfiguration *rc);
-    void activeRunConfigurationChanged(RunConfiguration *rc);
-
-private:
-    QList<RunConfiguration *> m_runConfigurations;
-    RunConfiguration *m_activeRunConfiguration;
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
-
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using ExtensionSystem::PluginManager;
@@ -159,6 +130,21 @@ QIcon RunSettingsPanel::icon() const
 /// RunConfigurationsModel
 ///
 
+RunConfigurationsModel::RunConfigurationsModel(Target *target, QObject *parent)
+    : QAbstractListModel(parent),
+      m_target(target)
+{
+    m_runConfigurations = m_target->runConfigurations();
+    connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    connect(target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+
+    foreach (RunConfiguration *rc, m_runConfigurations)
+        connect(rc, SIGNAL(displayNameChanged()),
+                this, SLOT(displayNameChanged()));
+}
+
 int RunConfigurationsModel::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : m_runConfigurations.size();
@@ -169,9 +155,11 @@ int RunConfigurationsModel::columnCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : 1;
 }
 
-void RunConfigurationsModel::displayNameChanged(RunConfiguration *rc)
+void RunConfigurationsModel::displayNameChanged()
 {
-    for (int i = 0; i<m_runConfigurations.size(); ++i) {
+    RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
+    QTC_ASSERT(rc, return);
+    for (int i = 0; i < m_runConfigurations.size(); ++i) {
         if (m_runConfigurations.at(i) == rc) {
             emit dataChanged(index(i, 0), index(i,0));
             break;
@@ -179,31 +167,60 @@ void RunConfigurationsModel::displayNameChanged(RunConfiguration *rc)
     }
 }
 
-void RunConfigurationsModel::activeRunConfigurationChanged(RunConfiguration *rc)
-{
-    m_activeRunConfiguration = rc;
-    emit dataChanged(index(0, 0), index(m_runConfigurations.size()-1, 0));
-}
-
 QVariant RunConfigurationsModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DisplayRole) {
         const int row = index.row();
         if (row < m_runConfigurations.size()) {
-            RunConfiguration *rc = m_runConfigurations.at(row);
-            if (rc == m_activeRunConfiguration)
-                return QCoreApplication::translate("RunConfigurationsModel", "%1 (Active)").arg(rc->displayName());
-            return rc->displayName();
+            return m_runConfigurations.at(row)->displayName();
         }
     }
 
     return QVariant();
 }
 
-void RunConfigurationsModel::setRunConfigurations(const QList<RunConfiguration *> &runConfigurations)
+RunConfiguration *RunConfigurationsModel::runConfigurationAt(int i)
 {
-    m_runConfigurations = runConfigurations;
-    reset();
+    if (i > m_runConfigurations.size() || i < 0)
+        return 0;
+    return m_runConfigurations.at(i);
+}
+
+RunConfiguration *RunConfigurationsModel::runConfigurationFor(const QModelIndex &idx)
+{
+    if (idx.row() > m_runConfigurations.size() || idx.row() < 0)
+        return 0;
+    return m_runConfigurations.at(idx.row());
+}
+
+QModelIndex RunConfigurationsModel::indexFor(RunConfiguration *rc)
+{
+    int idx = m_runConfigurations.indexOf(rc);
+    if (idx == -1)
+        return QModelIndex();
+    return index(idx, 0);
+}
+
+void RunConfigurationsModel::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+{
+    int i = m_target->runConfigurations().indexOf(rc);
+    QTC_ASSERT(i > 0, return);
+    beginInsertRows(QModelIndex(), i, i);
+    m_runConfigurations.insert(i, rc);
+    endInsertRows();
+    QTC_ASSERT(m_runConfigurations == m_target->runConfigurations(), return);
+    connect(rc, SIGNAL(displayNameChanged()),
+            this, SLOT(displayNameChanged()));
+}
+
+void RunConfigurationsModel::removedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+{
+    int i = m_runConfigurations.indexOf(rc);
+    QTC_ASSERT(i > 0, return);
+    beginRemoveRows(QModelIndex(), i, i);
+    m_runConfigurations.removeAt(i);
+    endRemoveRows();
+    QTC_ASSERT(m_runConfigurations == m_target->runConfigurations(), return);
 }
 
 
@@ -213,8 +230,9 @@ void RunConfigurationsModel::setRunConfigurations(const QList<RunConfiguration *
 
 RunSettingsWidget::RunSettingsWidget(Target *target)
     : m_target(target),
-      m_runConfigurationsModel(new RunConfigurationsModel(this)),
-      m_runConfigurationWidget(0)
+      m_runConfigurationsModel(new RunConfigurationsModel(target, this)),
+      m_runConfigurationWidget(0),
+      m_ignoreChange(false)
 {
     Q_ASSERT(m_target);
 
@@ -225,6 +243,11 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_ui->addToolButton->setText(tr("Add"));
     m_ui->removeToolButton->setText(tr("Remove"));
     m_ui->runConfigurationCombo->setModel(m_runConfigurationsModel);
+    m_ui->runConfigurationCombo->setCurrentIndex(
+            m_target->runConfigurations().indexOf(m_target->activeRunConfiguration()));
+
+    m_runConfigurationWidget = m_target->activeRunConfiguration()->configurationWidget();
+    layout()->addWidget(m_runConfigurationWidget);
 
     connect(m_addMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowAddMenu()));
@@ -232,24 +255,9 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
             this, SLOT(currentRunConfigurationChanged(int)));
     connect(m_ui->removeToolButton, SIGNAL(clicked(bool)),
             this, SLOT(removeRunConfiguration()));
-    connect(m_ui->makeActiveButton, SIGNAL(clicked()),
-            this, SLOT(makeActive()));
-
-    connect(m_target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration *)),
-            this, SLOT(initRunConfigurationComboBox()));
-    connect(m_target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration *)),
-            this, SLOT(initRunConfigurationComboBox()));
 
     connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(activeRunConfigurationChanged()));
-
-    initRunConfigurationComboBox();
-
-    const QList<RunConfiguration *> runConfigurations = m_target->runConfigurations();
-    for (int i=0; i<runConfigurations.size(); ++i) {
-        connect(runConfigurations.at(i), SIGNAL(displayNameChanged()),
-                this, SLOT(displayNameChanged()));
-    }
 
     // TODO: Add support for custom runner configuration widgets once we have some
     /*
@@ -287,15 +295,6 @@ void RunSettingsWidget::aboutToShowAddMenu()
     }
 }
 
-RunConfiguration *RunSettingsWidget::currentRunConfiguration() const
-{
-    RunConfiguration *currentSelection = 0;
-    const int index = m_ui->runConfigurationCombo->currentIndex();
-    if (index >= 0)
-        currentSelection = m_runConfigurationsModel->runConfigurations().at(index);
-    return currentSelection;
-}
-
 void RunSettingsWidget::addRunConfiguration()
 {
     QAction *act = qobject_cast<QAction *>(sender());
@@ -306,68 +305,47 @@ void RunSettingsWidget::addRunConfiguration()
     if (!newRC)
         return;
     m_target->addRunConfiguration(newRC);
-    initRunConfigurationComboBox();
-    m_ui->runConfigurationCombo->setCurrentIndex(
-            m_runConfigurationsModel->runConfigurations().indexOf(newRC));
-    connect(newRC, SIGNAL(displayNameChanged()), this, SLOT(displayNameChanged()));
+    m_target->setActiveRunConfiguration(newRC);
 }
 
 void RunSettingsWidget::removeRunConfiguration()
 {
-    RunConfiguration *rc = currentRunConfiguration();
-    disconnect(rc, SIGNAL(displayNameChanged()), this, SLOT(displayNameChanged()));
+    RunConfiguration *rc = m_target->activeRunConfiguration();
     m_target->removeRunConfiguration(rc);
-    initRunConfigurationComboBox();
-}
-
-void RunSettingsWidget::makeActive()
-{
-    m_target->setActiveRunConfiguration(currentRunConfiguration());
-}
-
-void RunSettingsWidget::initRunConfigurationComboBox()
-{
-    const QList<RunConfiguration *> &runConfigurations = m_target->runConfigurations();
-    RunConfiguration *activeRunConfiguration = m_target->activeRunConfiguration();
-    RunConfiguration *currentSelection = currentRunConfiguration();
-
-    m_runConfigurationsModel->setRunConfigurations(runConfigurations);
-    if (runConfigurations.contains(currentSelection))
-        m_ui->runConfigurationCombo->setCurrentIndex(runConfigurations.indexOf(currentSelection));
-    else
-        m_ui->runConfigurationCombo->setCurrentIndex(runConfigurations.indexOf(activeRunConfiguration));
-    m_ui->removeToolButton->setEnabled(runConfigurations.size() > 1);
-    activeRunConfigurationChanged();
 }
 
 void RunSettingsWidget::activeRunConfigurationChanged()
 {
-    m_runConfigurationsModel->activeRunConfigurationChanged(m_target->activeRunConfiguration());
-    m_ui->makeActiveButton->setEnabled(currentRunConfiguration()
-                                       && currentRunConfiguration() != m_target->activeRunConfiguration());
+    if (m_ignoreChange)
+        return;
+    QModelIndex actRc = m_runConfigurationsModel->indexFor(m_target->activeRunConfiguration());
+    m_ignoreChange = true;
+    m_ui->runConfigurationCombo->setCurrentIndex(actRc.row());
+    m_ignoreChange = false;
+
+    delete m_runConfigurationWidget;
+    m_runConfigurationWidget = m_target->activeRunConfiguration()->configurationWidget();
+    layout()->addWidget(m_runConfigurationWidget);
 }
 
 void RunSettingsWidget::currentRunConfigurationChanged(int index)
 {
-    m_ui->makeActiveButton->setEnabled(currentRunConfiguration()
-                                       && currentRunConfiguration() != m_target->activeRunConfiguration());
-
+    if (m_ignoreChange)
+        return;
     if (index == -1) {
         delete m_runConfigurationWidget;
         m_runConfigurationWidget = 0;
         return;
     }
     RunConfiguration *selectedRunConfiguration =
-            m_runConfigurationsModel->runConfigurations().at(index);
+            m_runConfigurationsModel->runConfigurationAt(index);
+
+    m_ignoreChange = true;
+    m_target->setActiveRunConfiguration(selectedRunConfiguration);
+    m_ignoreChange = false;
 
     // Update the run configuration configuration widget
     delete m_runConfigurationWidget;
     m_runConfigurationWidget = selectedRunConfiguration->configurationWidget();
     layout()->addWidget(m_runConfigurationWidget);
-}
-
-void RunSettingsWidget::displayNameChanged()
-{
-    RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
-    m_runConfigurationsModel->displayNameChanged(rc);
 }

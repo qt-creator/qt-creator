@@ -33,6 +33,7 @@
 #include "iprojectproperties.h"
 
 #include <QtGui/QWidget>
+#include <QtCore/QAbstractListModel>
 
 QT_BEGIN_NAMESPACE
 class QMenu;
@@ -92,19 +93,40 @@ private slots:
     void aboutToShowAddMenu();
     void addRunConfiguration();
     void removeRunConfiguration();
-    void makeActive();
-    void displayNameChanged();
-    void initRunConfigurationComboBox();
     void activeRunConfigurationChanged();
 private:
-    RunConfiguration *currentRunConfiguration() const;
-
     Target *m_target;
     RunConfigurationsModel *m_runConfigurationsModel;
     Ui::RunSettingsPropertiesPage *m_ui;
     QWidget *m_runConfigurationWidget;
     QMenu *m_addMenu;
+    bool m_ignoreChange;
 };
+
+/*! A model to represent the run configurations of a target. */
+class RunConfigurationsModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    RunConfigurationsModel(Target *target, QObject *parent = 0);
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+    RunConfiguration *runConfigurationAt(int i);
+    RunConfiguration *runConfigurationFor(const QModelIndex &idx);
+    QModelIndex indexFor(RunConfiguration *rc);
+private slots:
+    void addedRunConfiguration(ProjectExplorer::RunConfiguration*);
+    void removedRunConfiguration(ProjectExplorer::RunConfiguration*);
+    void displayNameChanged();
+private:
+    Target *m_target;
+    QList<RunConfiguration *> m_runConfigurations;
+};
+
+
 
 } // namespace Internal
 } // namespace ProjectExplorer
