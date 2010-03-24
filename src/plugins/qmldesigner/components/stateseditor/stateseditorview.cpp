@@ -401,7 +401,6 @@ QPixmap StatesEditorView::renderState(int i)
         return QPixmap();
 
     Q_ASSERT(i >= 0 && i < m_modelStates.size());
-    nodeInstanceView()->setBlockChangeSignal(true);
     QmlModelState oldState = currentState();
     setCurrentStateSilent(i);
 
@@ -430,7 +429,6 @@ QPixmap StatesEditorView::renderState(int i)
     nodeInstanceView()->render(&painter, pixmap.rect(), nodeInstanceView()->sceneRect());
 
     setCurrentState(m_modelStates.indexOf(oldState));
-    nodeInstanceView()->setBlockChangeSignal(false);
 
     Q_ASSERT(oldState == currentState());
 

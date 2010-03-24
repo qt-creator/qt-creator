@@ -92,7 +92,6 @@ NodeInstanceView::NodeInstanceView(QObject *parent)
         : AbstractView(parent),
     m_graphicsView(new QGraphicsView),
     m_engine(new QDeclarativeEngine(this)),
-    m_blockChangeSignal(false),
     m_blockStatePropertyChanges(false)
 {
     m_graphicsView->setAttribute(Qt::WA_DontShowOnScreen, true);
@@ -550,7 +549,6 @@ void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
     NodeInstance instance = instanceForNode(node);
     m_objectInstanceHash.remove(instanceForNode(node).internalObject());
     m_nodeInstanceHash.remove(node);
-    emit instanceRemoved(instance);
     instance.makeInvalid();
 }
 
@@ -655,24 +653,12 @@ void NodeInstanceView::render(QPainter * painter, const QRectF &target, const QR
     }
 }
 
-QRectF NodeInstanceView::boundingRect() const
-{
-    if (m_graphicsView)
-       return m_graphicsView->scene()->itemsBoundingRect();
-
-    return QRectF();
-}
 QRectF NodeInstanceView::sceneRect() const
 {
     if (m_graphicsView)
        return rootNodeInstance().boundingRect();
 
     return QRectF();
-}
-
-void NodeInstanceView::setBlockChangeSignal(bool block)
-{
-    m_blockChangeSignal = block;
 }
 
 }
