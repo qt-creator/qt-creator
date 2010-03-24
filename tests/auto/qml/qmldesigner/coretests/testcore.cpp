@@ -2126,7 +2126,7 @@ void TestCore::testRewriterPropertyDeclarations()
     VariantProperty urlProperty = rootModelNode.property(QLatin1String("urlProperty")).toVariantProperty();
     QVERIFY(urlProperty.isValid());
     QVERIFY(urlProperty.isVariantProperty());
-    QCOMPARE(urlProperty.value(), QVariant());
+    QCOMPARE(urlProperty.value(), QVariant(QUrl()));
 }
 
 void TestCore::testRewriterPropertyAliases()
@@ -2225,53 +2225,47 @@ void TestCore::testRewriterPositionAndOffset()
     QVERIFY(rootNode.isValid());
     QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
 
-    QString string;
-        string = "";
-    for (int i=testRewriterView->nodeOffset(rootNode); i < testRewriterView->nodeOffset(rootNode) + testRewriterView->nodeLength(rootNode);i++)
-        string +=QString(qmlString)[i];
-
-       const QString qmlExpected0("Rectangle {\n"
-                                  "    id: root\n"
-                                  "    x: 10;\n"
-                                  "    y: 10;\n"
-                                  "    Rectangle {\n"
-                                  "        id: rectangle1\n"
-                                  "        x: 10;\n"
-                                  "        y: 10;\n"
-                                  "    }\n"
-                                  "    Rectangle {\n"
-                                  "        id: rectangle2\n"
-                                  "        x: 100;\n"
-                                  "        y: 100;\n"
-                                  "        anchors.fill: root\n"
-                                  "    }\n"
-                                  "    Rectangle {\n"
-                                  "        id: rectangle3\n"
-                                  "        x: 140;\n"
-                                  "        y: 180;\n"
-                                  "        gradient: Gradient {\n"
-                                  "             GradientStop {\n"
-                                  "                 position: 0\n"
-                                  "                 color: \"white\"\n"
-                                  "             }\n"
-                                  "             GradientStop {\n"
-                                  "                  position: 1\n"
-                                  "                  color: \"black\"\n"
-                                  "             }\n"
-                                  "        }\n"
-                                  "    }\n"
-                                  "}");
-
+    QString string = QString(qmlString).mid(testRewriterView->nodeOffset(rootNode), testRewriterView->nodeLength(rootNode));
+    const QString qmlExpected0("Rectangle {\n"
+                               "    id: root\n"
+                               "    x: 10;\n"
+                               "    y: 10;\n"
+                               "    Rectangle {\n"
+                               "        id: rectangle1\n"
+                               "        x: 10;\n"
+                               "        y: 10;\n"
+                               "    }\n"
+                               "    Rectangle {\n"
+                               "        id: rectangle2\n"
+                               "        x: 100;\n"
+                               "        y: 100;\n"
+                               "        anchors.fill: root\n"
+                               "    }\n"
+                               "    Rectangle {\n"
+                               "        id: rectangle3\n"
+                               "        x: 140;\n"
+                               "        y: 180;\n"
+                               "        gradient: Gradient {\n"
+                               "             GradientStop {\n"
+                               "                 position: 0\n"
+                               "                 color: \"white\"\n"
+                               "             }\n"
+                               "             GradientStop {\n"
+                               "                  position: 1\n"
+                               "                  color: \"black\"\n"
+                               "             }\n"
+                               "        }\n"
+                               "    }\n"
+                               "}");
     QCOMPARE(string, qmlExpected0);
 
     ModelNode lastRectNode = rootNode.allDirectSubModelNodes().last();
     ModelNode gradientNode = lastRectNode.allDirectSubModelNodes().first();
     ModelNode gradientStop = gradientNode.allDirectSubModelNodes().first();
 
-    string = "";
-    for (int i=testRewriterView->nodeOffset(gradientNode); i < testRewriterView->nodeOffset(gradientNode) + testRewriterView->nodeLength(gradientNode);i++)
-        string +=QString(qmlString)[i];
-
+    int offset = testRewriterView->nodeOffset(gradientNode);
+    int length = testRewriterView->nodeLength(gradientNode);
+    string = QString(qmlString).mid(offset, length);
     const QString qmlExpected1(     "Gradient {\n"
                                "             GradientStop {\n"
                                "                 position: 0\n"
@@ -2282,13 +2276,9 @@ void TestCore::testRewriterPositionAndOffset()
                                "                  color: \"black\"\n"
                                "             }\n"
                                "        }");
-
     QCOMPARE(string, qmlExpected1);
 
-    string = "";
-    for (int i=testRewriterView->nodeOffset(gradientStop); i < testRewriterView->nodeOffset(gradientStop) + testRewriterView->nodeLength(gradientStop);i++)
-        string +=QString(qmlString)[i];
-
+    string = QString(qmlString).mid(testRewriterView->nodeOffset(gradientStop), testRewriterView->nodeLength(gradientStop));
     const QString qmlExpected2(             "GradientStop {\n"
                                "                 position: 0\n"
                                "                 color: \"white\"\n"
@@ -2425,51 +2415,56 @@ void TestCore::testRewriterPreserveType()
 
 void TestCore::testRewriterForArrayMagic()
 {
-    const QLatin1String qmlString("import Qt 4.6\n"
-                                  "\n"
-                                  "Rectangle {\n"
-                                  "    states: State {\n"
-                                  "        name: \"s1\"\n"
-                                  "    }\n"
-                                  "}\n");
-    QPlainTextEdit textEdit;
-    textEdit.setPlainText(qmlString);
-    NotIndentingTextEditModifier textModifier(&textEdit);
+    try {
+        const QLatin1String qmlString("import Qt 4.6\n"
+                                      "\n"
+                                      "Rectangle {\n"
+                                      "    states: State {\n"
+                                      "        name: \"s1\"\n"
+                                      "    }\n"
+                                      "}\n");
+        QPlainTextEdit textEdit;
+        textEdit.setPlainText(qmlString);
+        NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
-    QVERIFY(model.data());
+        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
+        QVERIFY(model.data());
 
-    QScopedPointer<TestView> view(new TestView);
-    model->attachView(view.data());
+        QScopedPointer<TestView> view(new TestView);
+        model->attachView(view.data());
 
-    // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
-    testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+        // read in
+        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        testRewriterView->setTextModifier(&textModifier);
+        model->attachView(testRewriterView.data());
 
-    ModelNode rootNode = view->rootModelNode();
-    QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+        ModelNode rootNode = view->rootModelNode();
+        QVERIFY(rootNode.isValid());
+        QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
 
-    QmlItemNode rootItem(rootNode);
-    QVERIFY(rootItem.isValid());
+        QmlItemNode rootItem(rootNode);
+        QVERIFY(rootItem.isValid());
 
-    QmlModelState state1(rootItem.states().addState("s2"));
-    QCOMPARE(state1.modelNode().type(), QString("Qt/State"));
+        QmlModelState state1(rootItem.states().addState("s2"));
+        QCOMPARE(state1.modelNode().type(), QString("Qt/State"));
 
-    const QLatin1String expected("import Qt 4.6\n"
-                                 "\n"
-                                 "Rectangle {\n"
-                                 "    states: [\n"
-                                 "    State {\n"
-                                 "        name: \"s1\"\n"
-                                 "    },\n"
-                                 "    State {\n"
-                                 "        name: \"s2\"\n"
-                                 "    }\n"
-                                 "    ]\n"
-                                 "}\n");
-    QCOMPARE(textEdit.toPlainText(), expected);
+        const QLatin1String expected("import Qt 4.6\n"
+                                     "\n"
+                                     "Rectangle {\n"
+                                     "    states: [\n"
+                                     "    State {\n"
+                                     "        name: \"s1\"\n"
+                                     "    },\n"
+                                     "    State {\n"
+                                     "        name: \"s2\"\n"
+                                     "    }\n"
+                                     "    ]\n"
+                                     "}\n");
+        QCOMPARE(textEdit.toPlainText(), expected);
+    } catch (Exception &e) {
+        qDebug() << "Exception:" << e.description() << "at line" << e.line() << "in function" << e.function() << "in file" << e.file();
+        QFAIL(qPrintable(e.description()));
+    }
 }
 
 void TestCore::testRewriterWithSignals()
@@ -4930,9 +4925,7 @@ void TestCore::testRewriterChangeId()
     QCOMPARE(rootModelNode.id(), QString("rectId"));
 
     QString expected = "import Qt 4.6\n"
-                       "Rectangle {\n"
-                       "id: rectId\n"
-                       " }";
+                       "Rectangle { id: rectId }";
 
     QCOMPARE(textEdit.toPlainText(), expected);
 

@@ -281,7 +281,7 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->getSnapshot();
         const QString fileName = url.toLocalFile();
-        Document::Ptr doc = Document::create(fileName);
+        Document::Ptr doc = Document::create(fileName.isEmpty() ? QLatin1String("<internal>") : fileName);
         doc->setSource(QString::fromUtf8(data.constData()));
         doc->parseQml();
         snapshot.insert(doc);
@@ -332,7 +332,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     if (!astObjectType || !astInitializer)
         return;
 
-    m_rewriterView->positionStorage()->setNodeOffset(modelNode, astNode->firstSourceLocation().offset);
+    m_rewriterView->positionStorage()->setNodeOffset(modelNode, astObjectType->identifierToken.offset);
 
     QString typeName;
     int majorVersion;
@@ -446,7 +446,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     if (!defaultPropertyItems.isEmpty()) {
         QString defaultPropertyName = modelNode.metaInfo().defaultProperty();
         if (defaultPropertyName.isEmpty()) {
-            qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
+            if (modelNode.type() != QLatin1String("Qt/Component"))
+                qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
         } else {
             AbstractProperty modelProperty = modelNode.property(defaultPropertyName);
             if (modelProperty.isNodeListProperty()) {
@@ -598,7 +599,6 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
         QString name;
         if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(arrayMember))
             name = flatten(definition->qualifiedTypeNameId);
-        // TODO: resolve name here!
         if (name == QLatin1String("Qt/Component"))
             setupComponent(newNode);
     }
@@ -646,7 +646,7 @@ QVariant TextToModelMerger::convertToVariant(const ModelNode &node,
         const PropertyMetaInfo propertyMetaInfo = nodeMetaInfo.property(astName, true);
 
         if (propertyMetaInfo.isValid()) {
-            return Internal::PropertyParser::read(propertyMetaInfo.type(), cleanedValue, nodeMetaInfo.metaInfo());
+            return Internal::PropertyParser::read(propertyMetaInfo.variantTypeId(), cleanedValue);
         } else if (node.type() == QLatin1String("Qt/PropertyChanges")) {
             // In the future, we should do the type resolving in a second pass, or delay setting properties until the full file has been parsed.
             return QVariant(cleanedValue);
