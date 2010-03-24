@@ -66,7 +66,7 @@ QWidget { //This is a special spinBox that does color coding for states
         QSpinBox {
             property alias backendValue: spinBox.backendValue
 			
-			enabled: !backendValue.isBound && doubleSpinBox.enabled;
+			enabled: !backendValue.isBound && spinBox.enabled;
 
             keyboardTracking: false;
             id: box;
