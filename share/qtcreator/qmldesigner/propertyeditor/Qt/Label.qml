@@ -6,5 +6,5 @@ QLabel {
 
         font.bold: true;
         alignment: "Qt::AlignRight | Qt::AlignVCenter"
-        fixedWidth: 98
+        fixedWidth: 68
 }
