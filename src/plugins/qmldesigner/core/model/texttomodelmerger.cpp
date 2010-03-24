@@ -382,7 +382,12 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             } else {
                 if (isValidPropertyForNode(modelNode, astPropertyName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
-                    syncNodeProperty(modelProperty, binding, context, differenceHandler);
+                    if (modelProperty.metaInfo().isListProperty()) {
+                        NodeListProperty listProperty = modelProperty.toNodeListProperty();
+                        syncNodeListProperty(listProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
+                    } else {
+                        syncNodeProperty(modelProperty, binding, context, differenceHandler);
+                    }
                     modelPropertyNames.remove(astPropertyName);
                 } else {
                     qWarning() << "Skipping invalid node property" << astPropertyName
