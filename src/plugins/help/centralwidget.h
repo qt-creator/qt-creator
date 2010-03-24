@@ -66,7 +66,6 @@ public:
     bool hasSelection() const;
     QUrl currentSource() const;
     QString currentTitle() const;
-    bool isHomeAvailable() const;
     bool isForwardAvailable() const;
     bool isBackwardAvailable() const;
     QList<QAction*> globalActions() const;
@@ -86,7 +85,6 @@ public slots:
     void nextPage();
     void resetZoom();
     void previousPage();
-    void copySelection();
     void print();
     void pageSetup();
     void printPreview();

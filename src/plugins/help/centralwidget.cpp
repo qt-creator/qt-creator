@@ -300,13 +300,6 @@ QString CentralWidget::currentTitle() const
     return QString();
 }
 
-void CentralWidget::copySelection()
-{
-    HelpViewer* viewer = currentHelpViewer();
-    if (viewer)
-        viewer->copy();
-}
-
 void CentralWidget::initPrinter()
 {
 #ifndef QT_NO_PRINTER
@@ -368,11 +361,6 @@ void CentralWidget::pageSetup()
     QPageSetupDialog dlg(printer);
     dlg.exec();
 #endif
-}
-
-bool CentralWidget::isHomeAvailable() const
-{
-    return currentHelpViewer() ? true : false;
 }
 
 void CentralWidget::home()
