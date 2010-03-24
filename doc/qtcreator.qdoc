@@ -3175,7 +3175,9 @@
     \title Developing Qt Quick Applications
 
     You can either create Qt Quick projects from scratch or import them to
-    Qt Creator.
+    Qt Creator. For example, you can import and run the
+    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativeexamples.html} {QML examples and demos}
+    to learn how to use various aspects of QML.
 
     \section1 Creating Qt Quick Projects
 
@@ -3277,7 +3279,7 @@
 
     \section2 Creating Screens
 
-    You can use the \gui Library items to create screens. Use states and transitions
+    You can use the \gui Library items and your own components to create screens. Use states and transitions
     to navigate between screens.
 
     QML states typically describe user interface configurations, such as the UI elements,
@@ -3287,7 +3289,8 @@
 
     \list 1
 
-        \o Create a screen.
+        \o Use the \gui Library items, resources and your own components to create a screen.
+        For example, add the button component to the screen.
 
         \o In the \gui State pane, click the plus sign to add another view, or \e state
         to the application.
@@ -3323,7 +3326,12 @@
     \section1 Implementing Application Logic
 
     A user interface is only a part of an application, and not really useful by itself.
-    You can use Qt to implement the application logic.
+    You can use Qt or JavaScript to implement the application logic. For more information on
+    using JavaScript, see
+    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativejavascript.html} {JavaScript Blocks}.
+
+    For an example of how to use JavaScript to develop a game, see the
+    \l {http://qt.nokia.com/doc/4.7-snapshot/qml-advtutorial.html} {QML Advanced Tutorial}.
 
  */
 
