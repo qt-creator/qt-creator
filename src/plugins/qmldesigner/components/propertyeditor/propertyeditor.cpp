@@ -257,7 +257,7 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
     m_stackedWidget->setStyleSheet(styleSheet);
-    m_stackedWidget->setMinimumWidth(360);
+    m_stackedWidget->setMinimumWidth(300);
     m_collapseButton->raise();
     m_collapseButton->show();
     connect(m_collapseButton, SIGNAL(expand()), this, SLOT(expand()));
@@ -465,7 +465,7 @@ void PropertyEditor::changeExpression(const QString &name)
 
 void PropertyEditor::expand()
 {
-    m_stackedWidget->setMinimumWidth(360);
+    m_stackedWidget->setMinimumWidth(300);
     m_stackedWidget->setMaximumWidth(1000);
     m_stackedWidget->parentWidget()->layout()->update();
 
