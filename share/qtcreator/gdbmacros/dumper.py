@@ -22,28 +22,22 @@ except:
 
 # Fails on SimulatorQt.
 try:
-    import os
-    def removeFile(name):
-        try:  # files may still be locked by gdb on Windows
-            os.remove(filename)
-        except:
-            pass
-except:
-    def removeFile(name):
-        pass
-
-# Fails on SimulatorQt.
-try:
     import tempfile
     def createTempFile():
-        file = tempfile.mkstemp(prefix="gdbpy_")
-        return file[1]
+        file = tempfile.NamedTemporaryFile(prefix="gdbpy_")
+        return file.name, file
+
+    def removeTempFile(name, file):
+        file.close()
+
 except:
     fileCounter = 0
     def createTempFile():
         fileCounter += 1
-        return "gdbpy_tmp%d" % fileCounter
+        return "gdbpy_tmp%d" % fileCounter, None
 
+    def removeTempFile(name, file):
+        pass
 
 verbosity = 0
 verbosity = 1
@@ -119,7 +113,7 @@ def parseAndEvaluate(exp):
 
 
 def catchCliOutput(command):
-    filename = createTempFile()
+    file, filename = createTempFile()
     gdb.execute("set logging off")
     gdb.execute("set logging redirect off")
     gdb.execute("set logging file %s" % filename)
@@ -128,12 +122,12 @@ def catchCliOutput(command):
     gdb.execute(command)
     gdb.execute("set logging off")
     gdb.execute("set logging redirect off")
-    file = open(filename, "r")
+    temp = open(filename, "r")
     lines = []
-    for line in file:
+    for line in temp:
         lines.append(line)
-    file.close()
-    removeFile(filename)
+    temp.close()
+    removeTempFile(filename, file)
     return lines
 
 
@@ -292,7 +286,7 @@ def listOfLocals(varList):
             block = block.superblock
     else:
         # Assuming gdb 7.0 release or 6.8-symbianelf.
-        filename = createTempFile()
+        filename, file = createTempFile()
         #warn("VARLIST: %s " % varList)
         #warn("VARLIST: %s " % len(varList))
         gdb.execute("set logging off")
@@ -320,8 +314,8 @@ def listOfLocals(varList):
         gdb.execute("set logging off")
         gdb.execute("set logging redirect off")
 
-        file = open(filename, "r")
-        for line in file:
+        temp = open(filename, "r")
+        for line in temp:
             if len(line) == 0 or line.startswith(" "):
                 continue
             # The function parameters
@@ -329,8 +323,8 @@ def listOfLocals(varList):
             if pos < 0:
                 continue
             varList.append(line[0:pos])
-        file.close()
-        removeFile(filename)
+        temp.close()
+        removeTempFile(filename, file)
         #warn("VARLIST: %s " % varList)
         for name in varList:
             #warn("NAME %s " % name)
