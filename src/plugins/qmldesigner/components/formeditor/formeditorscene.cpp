@@ -165,6 +165,9 @@ void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode, c
         if (propertyName == "opacity")
             item->setOpacity(qmlItemNode.instanceValue("opacity").toDouble());
 
+        if (propertyName == "clip")
+            item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode.instanceValue("clip").toBool());
+
         if (item)
             item->update();
     }

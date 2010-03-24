@@ -74,6 +74,8 @@ void FormEditorItem::setup()
         setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
     }
 
+    setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode().instanceValue("clip").toBool());
+
     if (QGraphicsItem::parentItem() == scene()->formLayerItem())
         m_borderWidth = 0.0;
 
