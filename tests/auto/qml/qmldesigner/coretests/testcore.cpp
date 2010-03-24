@@ -2441,6 +2441,7 @@ void TestCore::testRewriterForArrayMagic()
         ModelNode rootNode = view->rootModelNode();
         QVERIFY(rootNode.isValid());
         QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+        QVERIFY(rootNode.property(QLatin1String("states")).isNodeListProperty());
 
         QmlItemNode rootItem(rootNode);
         QVERIFY(rootItem.isValid());

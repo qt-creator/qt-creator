@@ -30,6 +30,7 @@
 #include <QtCore/QDebug>
 
 #include "nodeabstractproperty.h"
+#include "nodelistproperty.h"
 #include "rewriteaction.h"
 
 using namespace QmlDesigner;
@@ -93,6 +94,16 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
                     << m_valueText << ") **"
                     << info();
         }
+    } else if (m_property.isNodeListProperty() && m_property.toNodeListProperty().toModelNodeList().size() > 1) {
+        result = refactoring.addToArrayMemberList(nodeLocation, m_property.name(), m_valueText);
+
+        if (!result) {
+            qDebug() << "*** AddPropertyRewriteAction::execute failed in addToArrayMemberList("
+                    << nodeLocation << ','
+                    << m_property.name() << ','
+                    << m_valueText << ") **"
+                    << info();
+        }
     } else {
         result = refactoring.addProperty(nodeLocation, m_property.name(), m_valueText, m_propertyType);
 
@@ -100,7 +111,8 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
             qDebug() << "*** AddPropertyRewriteAction::execute failed in addProperty("
                     << nodeLocation << ','
                     << m_property.name() << ','
-                    << m_valueText << ", ScriptBinding) **"
+                    << m_valueText << ","
+                    << qPrintable(toString(m_propertyType)) << ") **"
                     << info();
         }
     }

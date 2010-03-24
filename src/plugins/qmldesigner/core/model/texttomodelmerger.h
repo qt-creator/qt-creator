@@ -78,7 +78,7 @@ public:
                                 const QString &javascript,
                                 DifferenceHandler &differenceHandler);
     void syncArrayProperty(AbstractProperty &modelProperty,
-                           QmlJS::AST::UiArrayBinding *array,
+                           const QList<QmlJS::AST::UiObjectMember *> &arrayMembers,
                            ReadingContext *context,
                            DifferenceHandler &differenceHandler);
     void syncVariantProperty(AbstractProperty &modelProperty,

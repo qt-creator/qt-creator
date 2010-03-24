@@ -367,7 +367,12 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             const QString astPropertyName = flatten(array->qualifiedId);
             if (isValidPropertyForNode(modelNode, astPropertyName)) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName);
-                syncArrayProperty(modelProperty, array, context, differenceHandler);
+                QList<UiObjectMember *> arrayMembers;
+                for (UiArrayMemberList *iter = array->members; iter; iter = iter->next)
+                    if (UiObjectMember *member = iter->member)
+                        arrayMembers.append(member);
+
+                syncArrayProperty(modelProperty, arrayMembers, context, differenceHandler);
                 modelPropertyNames.remove(astPropertyName);
             } else {
                 qWarning() << "Skipping invalid array property" << astPropertyName
@@ -383,8 +388,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 if (isValidPropertyForNode(modelNode, astPropertyName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
                     if (modelProperty.metaInfo().isListProperty()) {
-                        NodeListProperty listProperty = modelProperty.toNodeListProperty();
-                        syncNodeListProperty(listProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
+                        syncArrayProperty(modelProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
                     } else {
                         syncNodeProperty(modelProperty, binding, context, differenceHandler);
                     }
@@ -538,15 +542,10 @@ void TextToModelMerger::syncExpressionProperty(AbstractProperty &modelProperty,
 }
 
 void TextToModelMerger::syncArrayProperty(AbstractProperty &modelProperty,
-                                          UiArrayBinding *array,
+                                          const QList<UiObjectMember *> &arrayMembers,
                                           ReadingContext *context,
                                           DifferenceHandler &differenceHandler)
 {
-    QList<UiObjectMember *> arrayMembers;
-    for (UiArrayMemberList *iter = array->members; iter; iter = iter->next)
-        if (UiObjectMember *member = iter->member)
-            arrayMembers.append(member);
-
     if (modelProperty.isNodeListProperty()) {
         NodeListProperty nodeListProperty = modelProperty.toNodeListProperty();
         syncNodeListProperty(nodeListProperty, arrayMembers, context, differenceHandler);
