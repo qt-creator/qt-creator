@@ -88,6 +88,7 @@ private:
     int _updateDocumentInterval;
     QFuture<void> _documentParser;
     QString _cachedContents;
+    unsigned _revision;
 };
 
 } // namespace Internal

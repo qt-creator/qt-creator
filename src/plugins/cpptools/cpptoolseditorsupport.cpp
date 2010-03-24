@@ -49,6 +49,8 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager)
       _modelManager(modelManager),
       _updateDocumentInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL)
 {
+    _revision = 0;
+
     _updateDocumentTimer = new QTimer(this);
     _updateDocumentTimer->setSingleShot(true);
     _updateDocumentTimer->setInterval(_updateDocumentInterval);
@@ -102,6 +104,8 @@ void CppEditorSupport::setUpdateDocumentInterval(int updateDocumentInterval)
 
 void CppEditorSupport::updateDocument()
 {
+    _revision = editorRevision();
+
     if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor*>(_textEditor->widget())) {
         const QList<QTextEdit::ExtraSelection> selections =
                 edit->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection);
@@ -114,7 +118,7 @@ void CppEditorSupport::updateDocument()
 
 void CppEditorSupport::updateDocumentNow()
 {
-    if (_documentParser.isRunning()) {
+    if (_documentParser.isRunning() || _revision != editorRevision()) {
         _updateDocumentTimer->start(_updateDocumentInterval);
     } else {
         _updateDocumentTimer->stop();
