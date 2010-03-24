@@ -40,7 +40,8 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 GuiAppParameters::GuiAppParameters()
-    : designerForm(true)
+    : designerForm(true),
+      isMobileApplication(false)
 {
 }
 
@@ -108,6 +109,7 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     rc.headerFileName = m_filesPage->headerFileName();
     rc.formFileName = m_filesPage->formFileName();
     rc.designerForm =  m_filesPage->formInputChecked();
+    rc.isMobileApplication = true;
     QSet<QString> targets = selectedTargets();
     if (targets.contains(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))) {
         rc.widgetWidth = 800;
@@ -117,6 +119,7 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
         rc.widgetWidth = 360;
         rc.widgetHeight = 640;
     } else {
+        rc.isMobileApplication = false;
         rc.widgetWidth = 400;
         rc.widgetHeight = 300;
     }

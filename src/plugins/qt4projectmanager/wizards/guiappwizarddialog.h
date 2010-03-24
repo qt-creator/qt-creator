@@ -50,6 +50,7 @@ struct GuiAppParameters
     int widgetWidth;
     int widgetHeight;
     bool designerForm;
+    bool isMobileApplication;
 };
 
 class GuiAppWizardDialog : public BaseQt4ProjectWizardDialog

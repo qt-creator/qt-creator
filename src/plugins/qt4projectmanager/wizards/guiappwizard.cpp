@@ -50,6 +50,8 @@ static const char *mainWindowUiContentsC =
 "\n  <widget class=\"QToolBar\" name=\"mainToolBar\" />"
 "\n  <widget class=\"QWidget\" name=\"centralWidget\" />"
 "\n  <widget class=\"QStatusBar\" name=\"statusBar\" />";
+static const char *mainWindowMobileUiContentsC =
+"\n  <widget class=\"QWidget\" name=\"centralWidget\" />";
 
 static const char *baseClassesC[] = { "QMainWindow", "QWidget", "QDialog" };
 
@@ -224,7 +226,10 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
 
     contents.replace(QLatin1String("%UI_HDR%"), uiHdr);
     if (params.baseClassName == QLatin1String("QMainWindow")) {
-        contents.replace(QLatin1String("%CENTRAL_WIDGET%"), QLatin1String(mainWindowUiContentsC));
+        if (params.isMobileApplication)
+            contents.replace(QLatin1String("%CENTRAL_WIDGET%"), QLatin1String(mainWindowMobileUiContentsC));
+        else
+            contents.replace(QLatin1String("%CENTRAL_WIDGET%"), QLatin1String(mainWindowUiContentsC));
     } else {
         contents.remove(QLatin1String("%CENTRAL_WIDGET%"));
     }
