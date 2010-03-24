@@ -41,6 +41,8 @@
 
 class QDeclarativeEngine;
 class QGraphicsView;
+class QFileSystemWatcher;
+
 
 namespace QmlDesigner {
 
@@ -59,6 +61,7 @@ class CORESHARED_EXPORT NodeInstanceView : public AbstractView
 
 public:
     typedef QWeakPointer<NodeInstanceView> Pointer;
+    typedef QPair<QWeakPointer<QObject>, QString> ObjectPropertyPair;
 
     NodeInstanceView(QObject *parent = 0);
     ~NodeInstanceView();
@@ -105,6 +108,7 @@ public:
 
 private slots:
     void emitParentChanged(QObject *child);
+    void refreshLocalFileProperty(const QString &path);
 
 private: // functions
     NodeInstance rootNodeInstance() const;
@@ -131,6 +135,11 @@ private: // functions
     void setStateInstance(const NodeInstance &stateInstance);
     void clearStateInstance();
 
+    QFileSystemWatcher *fileSystemWatcher();
+
+    void addFilePropertyToFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path);
+    void removeFilePropertyFromFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path);
+
 private: //variables
     NodeInstance m_rootNodeInstance;
     NodeInstance m_activeStateInstance;
@@ -138,12 +147,17 @@ private: //variables
 
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
     QHash<QObject*, NodeInstance> m_objectInstanceHash; // This is purely internal. Might contain dangling pointers!
+    QMultiHash<QString, ObjectPropertyPair> m_fileSystemWatcherHash;
     QWeakPointer<QDeclarativeEngine> m_engine;
     QWeakPointer<Internal::ChildrenChangeEventFilter> m_childrenChangeEventFilter;
 
     QWeakPointer<QmlModelView> m_qmlModelView;
 
+    QWeakPointer<QFileSystemWatcher> m_fileSystemWatcher;
+
     bool m_blockStatePropertyChanges;
+
+
 };
 
 } // namespace NodeInstanceView

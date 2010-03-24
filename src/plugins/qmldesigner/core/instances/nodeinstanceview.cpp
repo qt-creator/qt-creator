@@ -38,6 +38,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsObject>
+#include <QFileSystemWatcher>
 
 #include <model.h>
 #include <modelnode.h>
@@ -653,6 +654,7 @@ void NodeInstanceView::render(QPainter * painter, const QRectF &target, const QR
     }
 }
 
+
 QRectF NodeInstanceView::sceneRect() const
 {
     if (m_graphicsView)
@@ -661,4 +663,42 @@ QRectF NodeInstanceView::sceneRect() const
     return QRectF();
 }
 
+}
+
+QFileSystemWatcher *NodeInstanceView::fileSystemWatcher()
+{
+    if (m_fileSystemWatcher.isNull()) {
+        m_fileSystemWatcher = new QFileSystemWatcher(this);
+        connect(m_fileSystemWatcher.data(), SIGNAL(fileChanged(QString)), this, SLOT(refreshLocalFileProperty(QString)));
+    }
+
+    return m_fileSystemWatcher.data();
+}
+
+void NodeInstanceView::addFilePropertyToFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path)
+{
+    m_fileSystemWatcherHash.insert(path, ObjectPropertyPair(object, propertyName));
+    fileSystemWatcher()->addPath(path);
+
+}
+
+void NodeInstanceView::removeFilePropertyFromFileSystemWatcher(QObject *object, const QString &propertyName, const QString &path)
+{
+    fileSystemWatcher()->removePath(path);
+    m_fileSystemWatcherHash.remove(path, ObjectPropertyPair(object, propertyName));
+}
+
+void NodeInstanceView::refreshLocalFileProperty(const QString &path)
+{
+    if (m_fileSystemWatcherHash.contains(path)) {
+        QList<ObjectPropertyPair> objectPropertyPairList = m_fileSystemWatcherHash.values();
+        foreach(const ObjectPropertyPair &objectPropertyPair, objectPropertyPairList) {
+            QObject *object = objectPropertyPair.first.data();
+            QString propertyName = objectPropertyPair.second;
+
+            if (hasInstanceForObject(object)) {
+                instanceForObject(object).refreshProperty(propertyName);
+            }
+        }
+    }
 }

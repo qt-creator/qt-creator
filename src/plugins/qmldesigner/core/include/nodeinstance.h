@@ -148,6 +148,7 @@ private: // functions
     void setPropertyDynamicBinding(const QString &name, const QString &typeName, const QString &expression);
 
     void resetProperty(const QString &name);
+    void refreshProperty(const QString &name);
 
     void activateState();
     void deactivateState();

@@ -55,6 +55,9 @@
 #include <QDeclarativeEngine>
 #include <QDeclarativeProperty>
 #include <QSharedPointer>
+#include <QFileInfo>
+#include <QFileSystemWatcher>
+#include <QPixmapCache>
 
 #include <private/qdeclarativebinding_p.h>
 #include <private/qdeclarativemetatype_p.h>
@@ -404,7 +407,27 @@ void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const Q
 void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
     QDeclarativeProperty property(object(), name, context());
+
+    QVariant oldValue = property.read();
+    if (oldValue.type() == QVariant::Url) {
+        QUrl url = oldValue.toUrl();
+        QString path = url.toLocalFile();
+        if (QFileInfo(path).exists() && nodeInstanceView() && !path.isEmpty())
+            nodeInstanceView()->removeFilePropertyFromFileSystemWatcher(object(), name, path);
+    }
+
+
     property.write(value);
+
+    QVariant newValue = property.read();
+    if (newValue.type() == QVariant::Url) {
+        QUrl url = newValue.toUrl();
+        QString path = url.toLocalFile();
+        if (QFileInfo(path).exists() && nodeInstanceView() && !path.isEmpty())
+            nodeInstanceView()->addFilePropertyToFileSystemWatcher(object(), name, path);
+    }
+
+
 }
 
 void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
@@ -460,27 +483,55 @@ NodeInstance ObjectNodeInstance::instanceForNode(const ModelNode &node, const QS
     }
 }
 
+void ObjectNodeInstance::refreshProperty(const QString &name)
+{
+    QDeclarativeProperty property(object(), name, context());
+
+    QVariant oldValue(property.read());
+
+    if (property.isResettable())
+        property.reset();
+    else
+        property.write(resetValue(name));
+
+    if (oldValue.type() == QVariant::Url) {
+        QByteArray key = oldValue.toUrl().toEncoded(QUrl::FormattingOption(0x100));
+        QString pixmapKey = QString::fromLatin1(key.constData(), key.count());
+        QPixmapCache::remove(pixmapKey);
+    }
+
+    property.write(oldValue);
+}
+
 void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyName)
 {
     m_modelAbstractPropertyHash.remove(propertyName);
 
-    QDeclarativeProperty qmlProperty(object, propertyName, context());
-    QMetaProperty metaProperty = qmlProperty.property();
+    QDeclarativeProperty property(object, propertyName, context());
 
-    QDeclarativeAbstractBinding *binding = QDeclarativePropertyPrivate::binding(qmlProperty);
+    QVariant oldValue = property.read();
+    if (oldValue.type() == QVariant::Url) {
+        QUrl url = oldValue.toUrl();
+        QString path = url.toLocalFile();
+        if (QFileInfo(path).exists() && nodeInstanceView())
+            nodeInstanceView()->removeFilePropertyFromFileSystemWatcher(object, propertyName, path);
+    }
+
+
+    QDeclarativeAbstractBinding *binding = QDeclarativePropertyPrivate::binding(property);
     if (binding) {
         binding->setEnabled(false, 0);
         binding->destroy();
     }
 
-    if (metaProperty.isResettable()) {
-        metaProperty.reset(object);
-    } else if (qmlProperty.isWritable()) {
-        if (qmlProperty.read() == resetValue(propertyName))
+    if (property.isResettable()) {
+        property.reset();
+    } else if (property.isWritable()) {
+        if (property.read() == resetValue(propertyName))
             return;
-        qmlProperty.write(resetValue(propertyName));
-    } else if (qmlProperty.propertyTypeCategory() == QDeclarativeProperty::List) {
-        qvariant_cast<QDeclarativeListReference>(qmlProperty.read()).clear();
+        property.write(resetValue(propertyName));
+    } else if (property.propertyTypeCategory() == QDeclarativeProperty::List) {
+        qvariant_cast<QDeclarativeListReference>(property.read()).clear();
     }
 }
 

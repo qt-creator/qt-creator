@@ -143,6 +143,7 @@ public:
     virtual void setPropertyBinding(const QString &name, const QString &expression);
     virtual QVariant property(const QString &name) const;
     virtual void resetProperty(const QString &name);
+    virtual void refreshProperty(const QString &name);
     virtual bool isVisible() const;
     virtual void setVisible(bool isVisible);
 

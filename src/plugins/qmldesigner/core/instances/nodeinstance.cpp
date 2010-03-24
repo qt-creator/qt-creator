@@ -394,6 +394,11 @@ void NodeInstance::resetProperty(const QString &name)
     m_nodeInstance->resetProperty(name);
 }
 
+void NodeInstance::refreshProperty(const QString &name)
+{
+    m_nodeInstance->refreshProperty(name);
+}
+
 void NodeInstance::setId(const QString &id)
 {
     m_nodeInstance->setId(id);
