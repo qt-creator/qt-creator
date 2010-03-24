@@ -222,6 +222,7 @@ ItemLibrary::~ItemLibrary()
     /* workaround: delete the items view before the model is deleted.
        This prevents qml warnings when the item library is destructed. */
     delete m_d->m_itemsView;
+    delete m_d->m_resourcesView;
     delete m_d;
 }
 
