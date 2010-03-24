@@ -96,7 +96,7 @@
         <translation>Neuer Ordner</translation>
     </message>
     <message>
-        <location filename="../../../src/shared/help/bookmarkmanager.cpp" line="+171"/>
+        <location filename="../../../src/shared/help/bookmarkmanager.cpp" line="+173"/>
         <location line="+18"/>
         <location line="+39"/>
         <location line="+18"/>
@@ -1049,7 +1049,7 @@
 <context>
     <name>CodePaster::CodePasterProtocol</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/codepasterprotocol.cpp" line="+70"/>
+        <location filename="../../../src/plugins/cpaster/codepasterprotocol.cpp" line="+73"/>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>Es wurde kein Server in den CodePaster-Einstellungen angegeben.</translation>
     </message>
@@ -1067,7 +1067,7 @@
 <context>
     <name>CodePaster::CodePasterSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/codepastersettings.cpp" line="+64"/>
+        <location filename="../../../src/plugins/cpaster/codepastersettings.cpp" line="+65"/>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
     </message>
@@ -1085,7 +1085,7 @@
 <context>
     <name>CodePaster::CodepasterPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/cpasterplugin.cpp" line="+112"/>
+        <location filename="../../../src/plugins/cpaster/cpasterplugin.cpp" line="+109"/>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Code Pasting</translation>
     </message>
@@ -1301,7 +1301,7 @@
 <context>
     <name>ContentWindow</name>
     <message>
-        <location filename="../../../src/shared/help/contentwindow.cpp" line="+136"/>
+        <location filename="../../../src/shared/help/contentwindow.cpp" line="+137"/>
         <source>Open Link</source>
         <translation>Adresse öffnen</translation>
     </message>
@@ -3544,7 +3544,7 @@ Would you like to terminate it?</source>
         <translation>Fehler beim Auswerten der Kommandozeilenargumente: %1</translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+58"/>
         <source>Start and Debug External Application...</source>
         <translation>Debugge externe Anwendung...</translation>
     </message>
@@ -3872,7 +3872,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
 <context>
     <name>Debugger::Internal::DebuggingHelperOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-610"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-607"/>
         <source>Debugging Helper</source>
         <translation>Ausgabe-Hilfsbibliothek</translation>
     </message>
@@ -6309,32 +6309,9 @@ Wenn man dem Filter das Attribut &apos;&lt;b&gt;qmake&lt;/b&gt;&apos; hinzufügt
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindPlugin</name>
-    <message>
-        <location filename="../../../src/plugins/find/findplugin.cpp" line="+165"/>
-        <source>&amp;Find/Replace</source>
-        <translation>&amp;Suchen/Ersetzen</translation>
-    </message>
-    <message>
-        <location line="+18"/>
-        <source>Advanced Find</source>
-        <translation>Erweiterte Suche</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Open Advanced Find...</source>
-        <translation>Erweiterte Suche öffnen...</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Ctrl+Shift+F</source>
-        <translation>Ctrl+Shift+F</translation>
-    </message>
-</context>
-<context>
     <name>Find::Internal::FindToolBar</name>
     <message>
-        <location filename="../../../src/plugins/find/findtoolbar.cpp" line="+137"/>
+        <location filename="../../../src/plugins/find/findtoolbar.cpp" line="+141"/>
         <source>Find/Replace</source>
         <translation>Suchen/Ersetzen</translation>
     </message>
@@ -6430,7 +6407,7 @@ Wenn man dem Filter das Attribut &apos;&lt;b&gt;qmake&lt;/b&gt;&apos; hinzufügt
         <translation>Suchergebnisse</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/find/searchresultwindow.cpp" line="+68"/>
+        <location filename="../../../src/plugins/find/searchresultwindow.cpp" line="+88"/>
         <source>No matches found!</source>
         <translation>Es wurden keine Treffer gefunden!</translation>
     </message>
@@ -7864,12 +7841,12 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Help::Internal::CentralWidget</name>
     <message>
-        <location filename="../../../src/plugins/help/centralwidget.cpp" line="+97"/>
+        <location filename="../../../src/plugins/help/centralwidget.cpp" line="+96"/>
         <source>Add new page</source>
         <translation>Neue Seite hinzufügen</translation>
     </message>
     <message>
-        <location line="+240"/>
+        <location line="+238"/>
         <source>Print Document</source>
         <translation>Dokument drucken</translation>
     </message>
@@ -7929,12 +7906,12 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Help::Internal::GeneralSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/help/generalsettingspage.cpp" line="+74"/>
+        <location filename="../../../src/plugins/help/generalsettingspage.cpp" line="+73"/>
         <source>General settings</source>
         <translation>Allgemeine Einstellungen</translation>
     </message>
     <message>
-        <location line="+147"/>
+        <location line="+138"/>
         <source>Open Image</source>
         <translation>Datei öffnen</translation>
     </message>
@@ -7958,7 +7935,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Help::Internal::HelpIndexFilter</name>
     <message>
-        <location filename="../../../src/plugins/help/helpindexfilter.cpp" line="+72"/>
+        <location filename="../../../src/plugins/help/helpindexfilter.cpp" line="+163"/>
         <source>Help index</source>
         <translation>Hilfe - Index</translation>
     </message>
@@ -7966,7 +7943,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Help::Internal::HelpMode</name>
     <message>
-        <location filename="../../../src/plugins/help/helpmode.cpp" line="+46"/>
+        <location filename="../../../src/plugins/help/helpmode.cpp" line="+44"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
@@ -7974,45 +7951,44 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Help::Internal::HelpPlugin</name>
     <message>
-        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+167"/>
-        <location line="+46"/>
+        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+193"/>
+        <location line="+181"/>
         <source>Contents</source>
         <translation>Inhalt</translation>
     </message>
     <message>
-        <location line="-44"/>
-        <location line="+38"/>
+        <location line="-186"/>
+        <location line="+170"/>
         <source>Index</source>
         <translation>Index</translation>
     </message>
     <message>
-        <location line="-36"/>
-        <location line="+48"/>
+        <location line="+28"/>
         <source>Search</source>
         <translation>Suche</translation>
     </message>
     <message>
-        <location line="-45"/>
+        <location line="+16"/>
         <source>Bookmarks</source>
         <translation>Lesezeichen</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="-246"/>
         <source>Home</source>
         <translation>Startseite</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Previous Page</source>
         <translation>Vorangehender Seite</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+8"/>
         <source>Next Page</source>
         <translation>Nächste Seite</translation>
     </message>
     <message>
-        <location line="+177"/>
+        <location line="+55"/>
         <source>Increase Font Size</source>
         <translation>Schrift vergrößern</translation>
     </message>
@@ -8042,67 +8018,52 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Ctrl+0</translation>
     </message>
     <message>
-        <location line="+107"/>
+        <location line="+227"/>
         <source>Go to Help Mode</source>
         <translation>Schalte in Hilfsmodus</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+6"/>
         <source>Previous</source>
         <translation>Vorige</translation>
     </message>
     <message>
-        <location line="-4"/>
+        <location line="-2"/>
         <source>Next</source>
         <translation>Nächste</translation>
     </message>
     <message>
-        <location line="-298"/>
+        <location line="-293"/>
         <source>Add Bookmark</source>
         <translation>Lesezeichen hinzufügen</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+17"/>
         <source>Context Help</source>
         <translation>Kontexthilfe</translation>
     </message>
     <message>
-        <location line="+58"/>
+        <location line="+168"/>
         <source>Activate Index in Help mode</source>
         <translation>Index im Modus &quot;Hilfe&quot; zeigen</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+13"/>
         <source>Activate Contents in Help mode</source>
         <translation>Inhalt im Modus &quot;Hilfe&quot; zeigen</translation>
     </message>
     <message>
-        <location line="+8"/>
-        <source>Activate Search in Help mode</source>
-        <translation>Suchen im Modus &quot;Hilfe&quot; zeigen</translation>
-    </message>
-    <message>
-        <location line="+133"/>
+        <location line="+63"/>
         <source>Unfiltered</source>
         <translation>Kein</translation>
     </message>
     <message>
-        <location line="+378"/>
-        <source>Indexing</source>
-        <translation>Indizierung</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Indexing Documentation...</source>
-        <translation>Indiziere Dokumentation...</translation>
-    </message>
-    <message>
-        <location line="+83"/>
+        <location line="+279"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;Dokumentation fehlt&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;Es ist keine Dokumentation verfügbar.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+59"/>
         <source>Filtered by:</source>
         <translation>Filter:</translation>
     </message>
@@ -8110,7 +8071,17 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Help::Internal::SearchWidget</name>
     <message>
-        <location filename="../../../src/plugins/help/searchwidget.cpp" line="+169"/>
+        <location filename="../../../src/plugins/help/searchwidget.cpp" line="+154"/>
+        <source>Indexing</source>
+        <translation type="unfinished">Indizierung</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Indexing Documentation...</source>
+        <translation type="unfinished">Indiziere Dokumentation...</translation>
+    </message>
+    <message>
+        <location line="+55"/>
         <source>&amp;Copy</source>
         <translation>&amp;Kopieren</translation>
     </message>
@@ -8146,7 +8117,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>HelpViewer</name>
     <message>
-        <location filename="../../../src/shared/help/helpviewer.cpp" line="+246"/>
+        <location filename="../../../src/shared/help/helpviewer.cpp" line="+242"/>
         <source>Open Link in New Tab</source>
         <translation>Adresse in neuem Reiter öffnen</translation>
     </message>
@@ -8185,12 +8156,12 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>IndexWindow</name>
     <message>
-        <location filename="../../../src/shared/help/indexwindow.cpp" line="+52"/>
+        <location filename="../../../src/shared/help/indexwindow.cpp" line="+51"/>
         <source>&amp;Look for:</source>
         <translation>&amp;Suche nach:</translation>
     </message>
     <message>
-        <location line="+74"/>
+        <location line="+75"/>
         <source>Open Link</source>
         <translation>Adresse öffnen</translation>
     </message>
@@ -8247,7 +8218,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+3"/>
         <source>&amp;New...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Neu...</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -8257,7 +8228,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+4"/>
         <source>&amp;Open...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Öffnen...</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -8302,7 +8273,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+11"/>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Beenden</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -8342,7 +8313,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+6"/>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Löschen</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -8357,7 +8328,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+5"/>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Ansicht</translation>
     </message>
     <message>
         <location line="+59"/>
@@ -8561,7 +8532,7 @@ on slow machines. In this case, the value should be increased.</source>
         <location line="+3"/>
         <source>QML Project file</source>
         <oldsource>Qml Project file</oldsource>
-        <translation type="unfinished">QML-Projektdatei</translation>
+        <translation>QML-Projektdatei</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -8902,7 +8873,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>PasteBinDotComProtocol</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/pastebindotcomprotocol.cpp" line="+106"/>
+        <location filename="../../../src/plugins/cpaster/pastebindotcomprotocol.cpp" line="+100"/>
         <source>Error during paste</source>
         <translation>Fehler beim Holen</translation>
     </message>
@@ -8918,7 +8889,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>PasteView</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/pasteview.cpp" line="+89"/>
+        <location filename="../../../src/plugins/cpaster/pasteview.cpp" line="+90"/>
         <source>Paste</source>
         <translation>Einfügen</translation>
     </message>
@@ -9568,7 +9539,7 @@ on slow machines. In this case, the value should be increased.</source>
         <location filename="../../../src/plugins/qmldesigner/components/pluginmanager/pluginpath.cpp" line="+181"/>
         <location filename="../../../src/plugins/qmldesigner/core/pluginmanager/widgetpluginpath.cpp" line="+204"/>
         <source>Failed Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht geladene Plugins (Fehlschlag beim Ladevorgang)</translation>
     </message>
 </context>
 <context>
@@ -9671,7 +9642,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+6"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Could not start process %1 &lt;/b&gt;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Der Prozess %1 konnte nicht gestartet werden&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -10475,7 +10446,7 @@ No project selected</extracomment>
 <context>
     <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectwizardpage.cpp" line="+107"/>
+        <location filename="../../../src/plugins/projectexplorer/projectwizardpage.cpp" line="+109"/>
         <source>Files to be added:</source>
         <translation>Zu erzeugende Dateien:</translation>
     </message>
@@ -10869,7 +10840,7 @@ No project selected</extracomment>
         <translation>Bereinigen unter Ausschluss der Abhängigkeiten</translation>
     </message>
     <message>
-        <location line="+1092"/>
+        <location line="+1101"/>
         <source>Cannot run without a project.</source>
         <translation>Ausführung ohne Projekt nicht möglich.</translation>
     </message>
@@ -11992,7 +11963,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location line="+178"/>
         <source>Building in subdirectories of the source directory is not supported by qmake.</source>
-        <translation type="unfinished"></translation>
+        <translation>qmake unterstützt keine Build-Vorgänge in dem Quellverzeichnis untergeordneten Verzeichnissen.</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -12013,7 +11984,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <message>
         <location/>
         <source>problemLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>problemLabel</translation>
     </message>
 </context>
 <context>
@@ -12317,7 +12288,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Toolchain:</source>
-        <translation type="unfinished"></translation>
+        <translation>Toolchain:</translation>
     </message>
 </context>
 <context>
@@ -12542,17 +12513,17 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
     <message>
         <location line="+94"/>
         <source>Failed to start %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kann nicht gestartet werden: %2</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>%1 has unexpectedly finished: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Programm %1 ist abgestürzt: %2</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>An error has occurred while running %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bei der Ausführung von %1 trat ein Fehler auf: %2</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -12567,7 +12538,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
     <message>
         <location line="-97"/>
         <source>Failed to create &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; konnte nicht erstellt werden: %2</translation>
     </message>
     <message>
         <location line="+144"/>
@@ -13027,7 +12998,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>Locator::Internal::FileSystemFilter</name>
     <message>
-        <location filename="../../../src/plugins/locator/filesystemfilter.h" line="+54"/>
+        <location filename="../../../src/plugins/locator/filesystemfilter.h" line="+56"/>
         <source>Files in file system</source>
         <translation>Dateien aus dem Dateisystem</translation>
     </message>
@@ -13063,7 +13034,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
-        <location filename="../../../src/plugins/locator/opendocumentsfilter.h" line="+54"/>
+        <location filename="../../../src/plugins/locator/opendocumentsfilter.h" line="+55"/>
         <source>Open documents</source>
         <translation>Offene Dokumente</translation>
     </message>
@@ -13087,7 +13058,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>Locator::Internal::LocatorWidget</name>
     <message>
-        <location filename="../../../src/plugins/locator/locatorwidget.cpp" line="+266"/>
+        <location filename="../../../src/plugins/locator/locatorwidget.cpp" line="+267"/>
         <source>Refresh</source>
         <translation>Aktualisieren</translation>
     </message>
@@ -13173,7 +13144,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <location line="+1"/>
         <source>&amp;Text:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Text:</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -15020,7 +14991,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+136"/>
         <source>Details</source>
-        <translation type="unfinished">Beschreibung</translation>
+        <translation>Beschreibung</translation>
     </message>
 </context>
 <context>
@@ -15028,27 +14999,27 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/libs/utils/filenamevalidatinglineedit.cpp" line="+95"/>
         <source>Name is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Dateiname ist leer.</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Name contains white space.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name enthält Leerzeichen.</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Invalid character &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Zeichen &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Invalid characters &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Zeichen &apos;%1&apos;.</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Name matches MS Windows device. (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name enspricht dem eines von MS Windows verwalteten Gerätes (%1).</translation>
     </message>
 </context>
 <context>
@@ -15280,7 +15251,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/libs/utils/projectnamevalidatinglineedit.cpp" line="+50"/>
         <source>Invalid character &apos;.&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Zeichen &apos;.&apos;.</translation>
     </message>
 </context>
 <context>
@@ -15570,7 +15541,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location line="+7"/>
         <source>The check script &apos;%1&apos; timed out.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitüberschreitung bei Ausführung des Skripts &apos;%1&apos; zur Überprüfung der Beschreibung.</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -15720,7 +15691,7 @@ p, li { white-space: pre-wrap; }
         <translation>Formular</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/welcome/communitywelcomepagewidget.cpp" line="+47"/>
+        <location filename="../../../src/plugins/welcome/communitywelcomepagewidget.cpp" line="+48"/>
         <source>News From the Qt Labs</source>
         <translation>Neuigkeiten aus den Qt Labs</translation>
     </message>
@@ -15863,22 +15834,23 @@ Qt Centre</translation>
         <location line="+5"/>
         <source>Application process could not be stopped:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anwendung konnte nicht angehalten werden:
+%1</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Application started</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendung gestartet</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Application running</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendung läuft</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Attached to stopped application</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger an angehaltene Anwendung angehängt</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -15952,13 +15924,13 @@ Qt Centre</translation>
     <message>
         <location line="-65"/>
         <source>Unexpected token `%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartetes Token &apos;%1&apos;</translation>
     </message>
     <message>
         <location line="+28"/>
         <location line="+24"/>
         <source>Expected token `%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wird das Token &apos;%1&apos; erwartet</translation>
     </message>
 </context>
 <context>
@@ -16366,7 +16338,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/mercurial/optionspage.ui"/>
         <source>Log count:</source>
-        <translation type="unfinished">Log-Anzeige beschränken auf:</translation>
+        <translation>Log-Anzeige beschränken auf:</translation>
     </message>
 </context>
 <context>
@@ -16450,25 +16422,25 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <location filename="../../../src/plugins/qmldesigner/components/itemlibrary/itemlibrary.cpp" line="+126"/>
         <source>Library</source>
         <comment>Title of library view</comment>
-        <translation type="unfinished"></translation>
+        <translation>Bibliothek</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>Items</source>
         <comment>Title of library items view</comment>
-        <translation type="unfinished"></translation>
+        <translation>Elemente</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Resources</source>
         <comment>Title of library resources view</comment>
-        <translation type="unfinished">Ressourcendateien</translation>
+        <translation>Ressourcendateien</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>&lt;Filter&gt;</source>
         <comment>Library search input hint text</comment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Filter&gt;</translation>
     </message>
 </context>
 <context>
@@ -16476,232 +16448,72 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/behaviordialog.ui"/>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <location/>
         <source>Type:</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ:</translation>
     </message>
     <message>
         <location/>
         <source>Id:</source>
-        <translation type="unfinished">Id:</translation>
+        <translation>Id:</translation>
     </message>
     <message>
         <location/>
         <source>Property Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der Eigenschaft:</translation>
     </message>
     <message>
         <location/>
         <source>Animation</source>
-        <translation type="unfinished"></translation>
+        <translation>Animation</translation>
     </message>
     <message>
         <location/>
         <source>SpringFollow</source>
-        <translation type="unfinished"></translation>
+        <translation>SpringFollow</translation>
     </message>
     <message>
         <location/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <location/>
         <source>Duration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dauer:</translation>
     </message>
     <message>
         <location/>
         <source>Curve:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurve:</translation>
     </message>
     <message>
         <location/>
         <source>easeNone</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInQuad</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutQuad</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInOutQuad</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutInQuad</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInCubic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutCubic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInOutCubic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutInCubic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutInBounce</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInOutBounce</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutBounce</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInBounce</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutInBack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInOutBack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutBack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInBack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutInElastic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInOutElastic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutElastic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInElastic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutInCirc</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInOutCirc</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutCirc</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInCirc</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutInExpo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInOutExpo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutExpo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInExpo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutInSine</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInOutSine</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeOutSine</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>easeInSine</source>
-        <translation type="unfinished"></translation>
+        <translation>easeNone</translation>
     </message>
     <message>
         <location/>
         <source>Source:</source>
-        <translation type="unfinished">Ordner:</translation>
+        <translation>Quelle:</translation>
     </message>
     <message>
         <location/>
         <source>Velocity:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geschwindigkeit:</translation>
     </message>
     <message>
         <location/>
         <source>Spring:</source>
-        <translation type="unfinished"></translation>
+        <translation>Feder:</translation>
     </message>
     <message>
         <location/>
         <source>Damping:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dämpfung:</translation>
     </message>
 </context>
 <context>
@@ -16709,7 +16521,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/gradientdialog.ui"/>
         <source>Edit Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradient bearbeiten</translation>
     </message>
 </context>
 <context>
@@ -16717,304 +16529,304 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/gradienteditor.ui"/>
         <source>Form</source>
-        <translation type="unfinished">Formular</translation>
+        <translation>Formular</translation>
     </message>
     <message>
         <location/>
         <source>Gradient Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradient Editor</translation>
     </message>
     <message>
         <location/>
         <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Bereich zeigt eine Vorschau des in Bearbeitung befindlichen Gradienten. Hier können Gradienttyp-spezifische Parameter, wie Start- und Endpunkt, Radius etc. per Drag &amp; Drop bearbeitet werden.</translation>
     </message>
     <message>
         <location/>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <location/>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <location/>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <location/>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
     <message>
         <location/>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <location/>
         <source>Gradient Stops Editor</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>Zoom</source>
-        <translation type="unfinished">Vergrößern</translation>
+        <translation>Vergrößern</translation>
     </message>
     <message>
         <location/>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößerung zurücksetzen</translation>
     </message>
     <message>
         <location/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbton</translation>
     </message>
     <message>
         <location/>
         <source>H</source>
-        <translation type="unfinished"></translation>
+        <translation>H</translation>
     </message>
     <message>
         <location/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Sättigung</translation>
     </message>
     <message>
         <location/>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <location/>
         <source>Sat</source>
-        <translation type="unfinished"></translation>
+        <translation>Sättigung</translation>
     </message>
     <message>
         <location/>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <location/>
         <source>V</source>
-        <translation type="unfinished"></translation>
+        <translation>V</translation>
     </message>
     <message>
         <location/>
         <source>Val</source>
-        <translation type="unfinished"></translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <location/>
         <source>Alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Alpha</translation>
     </message>
     <message>
         <location/>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <location/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location/>
         <source>Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausbreitung</translation>
     </message>
     <message>
         <location/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbe</translation>
     </message>
     <message>
         <location/>
         <source>Current stop&apos;s color</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbe des Bezugspunkts</translation>
     </message>
     <message>
         <location/>
         <source>Show HSV specification</source>
-        <translation type="unfinished"></translation>
+        <translation>HSV-Spezifikation anzeigen</translation>
     </message>
     <message>
         <location/>
         <source>HSV</source>
-        <translation type="unfinished"></translation>
+        <translation>HSV</translation>
     </message>
     <message>
         <location/>
         <source>Show RGB specification</source>
-        <translation type="unfinished"></translation>
+        <translation>RGB-Spezifikation anzeigen</translation>
     </message>
     <message>
         <location/>
         <source>RGB</source>
-        <translation type="unfinished"></translation>
+        <translation>RGB</translation>
     </message>
     <message>
         <location/>
         <source>Current stop&apos;s position</source>
-        <translation type="unfinished"></translation>
+        <translation>Position des Bezugspunkts</translation>
     </message>
     <message>
         <location/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößern</translation>
     </message>
     <message>
         <location/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkleinern</translation>
     </message>
     <message>
         <location/>
         <source>Toggle details extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Weitere Optionen einblenden</translation>
     </message>
     <message>
         <location/>
         <source>&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&gt;</translation>
     </message>
     <message>
         <location/>
         <source>Linear Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ linear</translation>
     </message>
     <message>
         <location/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location/>
         <source>Radial Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ radial</translation>
     </message>
     <message>
         <location/>
         <source>Conical Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ konisch</translation>
     </message>
     <message>
         <location/>
         <source>Pad Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Auffüllen</translation>
     </message>
     <message>
         <location/>
         <source>Repeat Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholen</translation>
     </message>
     <message>
         <location/>
         <source>Reflect Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Spiegeln</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/gradienteditor.cpp" line="+412"/>
         <source>Start X</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfangswert X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Start Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfangswert Y</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Final X</source>
-        <translation type="unfinished"></translation>
+        <translation>Endwert X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Final Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Endwert Y</translation>
     </message>
     <message>
         <location line="+7"/>
         <location line="+24"/>
         <source>Central X</source>
-        <translation type="unfinished"></translation>
+        <translation>Mittelpunkt X</translation>
     </message>
     <message>
         <location line="-20"/>
         <location line="+24"/>
         <source>Central Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Mittelpunkt Y</translation>
     </message>
     <message>
         <location line="-20"/>
         <source>Focal X</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokus X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Focal Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokus Y</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Radius</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Winkel</translation>
     </message>
     <message>
         <location line="+288"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Linear</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Radial</source>
-        <translation type="unfinished"></translation>
+        <translation>Radial</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Conical</source>
-        <translation type="unfinished"></translation>
+        <translation>Konisch</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Pad</source>
-        <translation type="unfinished"></translation>
+        <translation>Auffüllen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Repeat</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Reflect</source>
-        <translation type="unfinished"></translation>
+        <translation>Spiegeln</translation>
     </message>
 </context>
 <context>
@@ -17022,7 +16834,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientdialog.ui"/>
         <source>Edit Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradienten bearbeiten</translation>
     </message>
 </context>
 <context>
@@ -17030,304 +16842,304 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradienteditor.ui"/>
         <source>Form</source>
-        <translation type="unfinished">Formular</translation>
+        <translation>Form</translation>
     </message>
     <message>
         <location/>
         <source>Gradient Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradienten bearbeiten</translation>
     </message>
     <message>
         <location/>
         <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Bereich zeigt eine Vorschau des in Bearbeitung befindlichen Gradienten. Hier können Gradienttyp-spezifische Parameter, wie Start- und Endpunkt, Radius etc. per Drag &amp; Drop bearbeitet werden.</translation>
     </message>
     <message>
         <location/>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <location/>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <location/>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <location/>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
     <message>
         <location/>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <location/>
         <source>Gradient Stops Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezugspunkte</translation>
     </message>
     <message>
         <location/>
         <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Fläche dient zum Bearbeiten der Bezugspunkte. Doppelklicken Sie auf einen Bezugspunkt, um ihn zu duplizieren. Doppelklicken Sie auf die Fläche, um einen neuen Bezugspunkt zu erzeugen. Benutzen Sie Drag &amp; Drop um einen Punkt zu verschieben. Die rechte Maustaste aktiviert ein Menü mit weiteren Optionen.</translation>
     </message>
     <message>
         <location/>
         <source>Zoom</source>
-        <translation type="unfinished">Vergrößern</translation>
+        <translation>Vergrößern</translation>
     </message>
     <message>
         <location/>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößerung zurücksetzen</translation>
     </message>
     <message>
         <location/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Position</translation>
     </message>
     <message>
         <location/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbton</translation>
     </message>
     <message>
         <location/>
         <source>H</source>
-        <translation type="unfinished"></translation>
+        <translation>H</translation>
     </message>
     <message>
         <location/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Sättigung</translation>
     </message>
     <message>
         <location/>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <location/>
         <source>Sat</source>
-        <translation type="unfinished"></translation>
+        <translation>Sättigung</translation>
     </message>
     <message>
         <location/>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <location/>
         <source>V</source>
-        <translation type="unfinished"></translation>
+        <translation>V</translation>
     </message>
     <message>
         <location/>
         <source>Val</source>
-        <translation type="unfinished"></translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <location/>
         <source>Alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Alpha</translation>
     </message>
     <message>
         <location/>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <location/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location/>
         <source>Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausbreitung</translation>
     </message>
     <message>
         <location/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbe</translation>
     </message>
     <message>
         <location/>
         <source>Current stop&apos;s color</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbe des Bezugspunkts</translation>
     </message>
     <message>
         <location/>
         <source>Show HSV specification</source>
-        <translation type="unfinished"></translation>
+        <translation>HSV-Spezifikation anzeigen</translation>
     </message>
     <message>
         <location/>
         <source>HSV</source>
-        <translation type="unfinished"></translation>
+        <translation>HSV</translation>
     </message>
     <message>
         <location/>
         <source>Show RGB specification</source>
-        <translation type="unfinished"></translation>
+        <translation>RGB-Spezifikation anzeigen</translation>
     </message>
     <message>
         <location/>
         <source>RGB</source>
-        <translation type="unfinished"></translation>
+        <translation>RGB</translation>
     </message>
     <message>
         <location/>
         <source>Current stop&apos;s position</source>
-        <translation type="unfinished"></translation>
+        <translation>Position des Bezugspunkts</translation>
     </message>
     <message>
         <location/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößern</translation>
     </message>
     <message>
         <location/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkleinern</translation>
     </message>
     <message>
         <location/>
         <source>Toggle details extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Weiter Optionen einblenden</translation>
     </message>
     <message>
         <location/>
         <source>&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&gt;</translation>
     </message>
     <message>
         <location/>
         <source>Linear Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ linear</translation>
     </message>
     <message>
         <location/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location/>
         <source>Radial Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ radial</translation>
     </message>
     <message>
         <location/>
         <source>Conical Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ konisch</translation>
     </message>
     <message>
         <location/>
         <source>Pad Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Auffüllen</translation>
     </message>
     <message>
         <location/>
         <source>Repeat Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholen</translation>
     </message>
     <message>
         <location/>
         <source>Reflect Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Spiegeln</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradienteditor.cpp" line="+431"/>
         <source>Start X</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfangswert X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Start Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfangswert Y</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Final X</source>
-        <translation type="unfinished"></translation>
+        <translation>Endwert X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Final Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Endwert Y</translation>
     </message>
     <message>
         <location line="+7"/>
         <location line="+24"/>
         <source>Central X</source>
-        <translation type="unfinished"></translation>
+        <translation>Mittelpunkt X</translation>
     </message>
     <message>
         <location line="-20"/>
         <location line="+24"/>
         <source>Central Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Mittelpunkt Y</translation>
     </message>
     <message>
         <location line="-20"/>
         <source>Focal X</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokus X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Focal Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokus Y</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Radius</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Winkel</translation>
     </message>
     <message>
         <location line="+288"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Linear</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Radial</source>
-        <translation type="unfinished"></translation>
+        <translation>Radial</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Conical</source>
-        <translation type="unfinished"></translation>
+        <translation>Konisch</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Pad</source>
-        <translation type="unfinished"></translation>
+        <translation>Auffüllen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Repeat</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Reflect</source>
-        <translation type="unfinished"></translation>
+        <translation>Spiegeln</translation>
     </message>
 </context>
 <context>
@@ -17335,46 +17147,46 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.ui"/>
         <source>Gradient View</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradientenanzeige</translation>
     </message>
     <message>
         <location/>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="+208"/>
         <source>New...</source>
-        <translation type="unfinished">Neu...</translation>
+        <translation>Neu...</translation>
     </message>
     <message>
         <location/>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="+1"/>
         <source>Edit...</source>
-        <translation type="unfinished">Ändern...</translation>
+        <translation>Ändern...</translation>
     </message>
     <message>
         <location/>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="+1"/>
         <source>Rename</source>
-        <translation type="unfinished">Umbenennen</translation>
+        <translation>Umbenennen</translation>
     </message>
     <message>
         <location/>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="+1"/>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="-104"/>
         <source>Grad</source>
-        <translation type="unfinished"></translation>
+        <translation>Grad</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Remove Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradient löschen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Are you sure you want to remove the selected gradient?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie den ausgewählten Gradienten löschen?</translation>
     </message>
 </context>
 <context>
@@ -17383,7 +17195,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientviewdialog.ui"/>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientviewdialog.h" line="+62"/>
         <source>Select Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Gradienten auswählen</translation>
     </message>
 </context>
 <context>
@@ -17391,47 +17203,47 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/settingspage.ui"/>
         <source>Form</source>
-        <translation type="unfinished">Formular</translation>
+        <translation>Formular</translation>
     </message>
     <message>
         <location/>
         <source>GroupBox</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>&amp;Snap to Grid</source>
-        <translation type="unfinished"></translation>
+        <translation>An &amp;Raster ausrichten</translation>
     </message>
     <message>
         <location/>
         <source>Show Bounding Rectangles</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebendes Rechteck anzeigen</translation>
     </message>
     <message>
         <location/>
         <source>Only Show Items with Contents</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Elemente mit Inhalt anzeigen</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/settingspage.cpp" line="+92"/>
         <source>Designer</source>
-        <translation type="unfinished">Designer</translation>
+        <translation>Designer</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/settingspage.ui"/>
         <source>Open editor in:</source>
-        <translation type="unfinished"></translation>
+        <translation>Modus des Editors beim Öffnen:</translation>
     </message>
     <message>
         <location/>
         <source>Design mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Entwurfsmodus</translation>
     </message>
     <message>
         <location/>
         <source>Edit mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Editiermodus</translation>
     </message>
 </context>
 <context>
@@ -17847,17 +17659,17 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location line="+21"/>
         <source>Ex Trigger Expression</source>
-        <translation type="unfinished">Kommando</translation>
+        <translation>Kommando</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Regular Expression:</source>
-        <translation type="unfinished">Regulärer Ausdruck:</translation>
+        <translation>Regulärer Ausdruck:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Ex Command</source>
-        <translation type="unfinished">Kommando</translation>
+        <translation>Kommando</translation>
     </message>
 </context>
 <context>
@@ -17887,7 +17699,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>Help</name>
     <message>
-        <location filename="../../../src/plugins/help/helpconstants.h" line="+38"/>
+        <location filename="../../../src/plugins/help/helpconstants.h" line="+41"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
@@ -18439,12 +18251,12 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/projectexplorer/miniprojecttargetselector.cpp" line="+188"/>
         <source>Select active build configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Konfiguration wählen</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Select active run configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration wählen</translation>
     </message>
     <message>
         <location line="+59"/>
@@ -18467,7 +18279,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location line="+11"/>
         <source>Select active project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt auswählen</translation>
     </message>
     <message>
         <location line="+186"/>
@@ -18541,7 +18353,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location line="+7"/>
         <source>&amp;Annotate</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Annotation</translation>
     </message>
     <message>
         <location line="+18"/>
@@ -18602,7 +18414,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="+2"/>
         <source>Maemo</source>
         <comment>Qt4 Maemo target display name</comment>
-        <translation type="unfinished">Maemo</translation>
+        <translation>Maemo</translation>
     </message>
     <message>
         <location line="+317"/>
@@ -18634,22 +18446,22 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/integration/designdocumentcontroller.cpp" line="+288"/>
         <source>-New Form-</source>
-        <translation type="unfinished"></translation>
+        <translation>-Neues Formular-</translation>
     </message>
     <message>
         <location line="+178"/>
         <source>Cannot save to file &quot;%1&quot;: permission denied.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte wegen nicht ausreichender Zugriffsrechte nicht geschrieben werden.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Parent folder &quot;%1&quot; for file &quot;%2&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das übergeordnete Verzeichnis &quot;%1&quot; der Datei %2&quot; existiert nicht.</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>Cannot write file: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; kann nicht geschrieben werden.</translation>
     </message>
 </context>
 <context>
@@ -18657,12 +18469,12 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/integration/documentcloser.cpp" line="+64"/>
         <source>Do you want to save the changes you made in the document &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie die Änderungen im Dokument &quot;%1&quot; speichern?</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Änderungen gehen verloren, wenn Sie sie nicht speichern.</translation>
     </message>
 </context>
 <context>
@@ -18670,27 +18482,27 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/integration/multipledocumentscontroller.cpp" line="+53"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Rückgängig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Wiederholen</translation>
+        <translation>&amp;Wiederholen</translation>
     </message>
     <message>
         <location line="+109"/>
         <source>* %1</source>
-        <translation type="unfinished"></translation>
+        <translation>* %1</translation>
     </message>
     <message>
         <location line="+166"/>
         <source>&amp;Form</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Formular</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>&amp;Text</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Text</translation>
     </message>
 </context>
 <context>
@@ -18700,12 +18512,13 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <source>Invalid id.
 Only alphanumeric characters and underscore allowed.
 Ids must begin with a lowercase letter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültig Id.
+Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Zeichen und Unterstriche enthalten.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Item id must be unique.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Id des Elements muss eindeutig sein.</translation>
     </message>
 </context>
 <context>
@@ -18714,7 +18527,7 @@ Ids must begin with a lowercase letter.</source>
         <location filename="../../../src/plugins/qmldesigner/components/navigator/navigatorwidget.cpp" line="+60"/>
         <source>Navigator</source>
         <comment>Title of navigator view</comment>
-        <translation type="unfinished"></translation>
+        <translation>Navigator</translation>
     </message>
 </context>
 <context>
@@ -18722,27 +18535,27 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/pluginmanager/pluginpath.cpp" line="-114"/>
         <source>Failed to create instance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte keine Instanz erzeugt werden.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Not a QmlDesigner plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein QmlDesigner-Plugin.</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/core/pluginmanager/widgetpluginpath.cpp" line="-133"/>
         <source>Failed to create instance of file &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte keine Instanz der Datei &apos;%1&apos; erzeugt werden: %2</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Failed to create instance of file &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte keine Instanz der Datei &apos;%1&apos; erzeugt werden.</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>File &apos;%1&apos; is not a QmlDesigner plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &apos;%1&apos; ist kein QmlDesigner-Plugin.</translation>
     </message>
 </context>
 <context>
@@ -18751,7 +18564,7 @@ Ids must begin with a lowercase letter.</source>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/allpropertiesbox.cpp" line="+59"/>
         <source>Properties</source>
         <comment>Title of properties view.</comment>
-        <translation type="unfinished">Eigenschaften</translation>
+        <translation>Eigenschaften</translation>
     </message>
 </context>
 <context>
@@ -18759,73 +18572,73 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientstopscontroller.cpp" line="+173"/>
         <source>H</source>
-        <translation type="unfinished"></translation>
+        <translation>H</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>V</source>
-        <translation type="unfinished"></translation>
+        <translation>V</translation>
     </message>
     <message>
         <location line="+6"/>
         <location line="+4"/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbton</translation>
     </message>
     <message>
         <location line="-3"/>
         <source>Sat</source>
-        <translation type="unfinished"></translation>
+        <translation>Sättigung</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Val</source>
-        <translation type="unfinished"></translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Sättigung</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <location line="+22"/>
         <source>R</source>
-        <translation type="unfinished">R</translation>
+        <translation>R</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>B</source>
-        <translation type="unfinished"></translation>
+        <translation>B</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>Rot</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>Grün</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Blau</translation>
     </message>
 </context>
 <context>
@@ -18833,37 +18646,37 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientstopswidget.cpp" line="+947"/>
         <source>New Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Bezugspunkt</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Delete</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Flip All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles umkehren</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Select All</source>
-        <translation type="unfinished">Alles auswählen</translation>
+        <translation>Alles auswählen</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößern</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkleinern</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößerung zurücksetzen</translation>
     </message>
 </context>
 <context>
@@ -18871,12 +18684,12 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/stateseditor/stateseditorwidget.cpp" line="+106"/>
         <source>base state</source>
-        <translation type="unfinished"></translation>
+        <translation>base state</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>State%1</source>
-        <translation type="unfinished"></translation>
+        <translation>State%1</translation>
     </message>
 </context>
 <context>
@@ -18885,7 +18698,7 @@ Ids must begin with a lowercase letter.</source>
         <location line="+60"/>
         <source>States</source>
         <comment>Title of Editor widget</comment>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
 </context>
 <context>
@@ -18893,27 +18706,27 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/core/model/rewriterview.cpp" line="+88"/>
         <source>Error parsing</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Parsen</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Internal error</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>&quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>line %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeile %1</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>column %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Spalte %1</translation>
     </message>
 </context>
 <context>
@@ -18921,12 +18734,12 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/designmodewidget.cpp" line="+89"/>
         <source>&lt;a href=&quot;goToError&quot;&gt;Go to error&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;goToError&quot;&gt;Gehe zu Fehler&lt;/a&gt;</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>%3 (%1:%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%3 (%1:%2)</translation>
     </message>
 </context>
 <context>
@@ -18934,67 +18747,67 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location line="+266"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Rückgängig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Wiederholen</translation>
+        <translation>&amp;Wiederholen</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Delete</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Delete &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; löschen</translation>
+        <translation>&quot;%1&quot; löschen</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">&amp;Ausschneiden</translation>
+        <translation>&amp;Ausschneiden</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Cut &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Kopieren</translation>
+        <translation>&amp;Kopieren</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Copy &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; Kopieren</translation>
+        <translation>&quot;%1&quot; Kopieren</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Einfügen</translation>
+        <translation>&amp;Einfügen</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Paste &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; einfügen</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Select &amp;All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles Aus&amp;wählen</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Select All &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles auswählen &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Loading ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade ...</translation>
     </message>
 </context>
 <context>
@@ -19048,7 +18861,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectruncontrol.cpp" line="+91"/>
         <source>Starting %1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte %1 %2</translation>
     </message>
     <message>
         <location line="+37"/>
@@ -19069,7 +18882,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectconstants.h" line="+8"/>
         <source>Qt Quick Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Quick-Projekt</translation>
     </message>
 </context>
 <context>
@@ -19489,78 +19302,78 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/libs/qmljs/qmljscheck.cpp" line="+43"/>
         <source>&apos;%1&apos; is not a valid property name</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos; %1&apos; ist kein eindeutiger Name für Eigenschaften</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>unknown type</source>
-        <translation type="unfinished"></translation>
+        <translation>unbekannter Typ</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&apos;%1&apos; does not have members</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; hat keine MItglieder</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&apos;%1&apos; is not a member of &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>&apos;%1&apos; gehört nicht zu &apos;%2&apos;</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>easing-curve name is not a string</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name der Easing-Kurve ist keine Zeichenkette</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>unknown easing-curve name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Name der Easing-Kurve</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>value might be &apos;undefined&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wert kann &apos;undefined&apos; sein</translation>
     </message>
     <message>
         <location line="+40"/>
         <source>numerical value expected</source>
-        <translation type="unfinished"></translation>
+        <translation>numerischer Wert erwartet</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>boolean value expected</source>
-        <translation type="unfinished"></translation>
+        <translation>boolescher Wert erwartet</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>string value expected</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichenkette erwartet</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>not a valid color</source>
-        <translation type="unfinished"></translation>
+        <translation>keine gültige Farbe</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>expected anchor line</source>
-        <translation type="unfinished"></translation>
+        <translation>Ankerzeile erwartet</translation>
     </message>
     <message>
         <location line="+92"/>
         <location line="+11"/>
         <source>expected id</source>
-        <translation type="unfinished"></translation>
+        <translation>Id erwartet</translation>
     </message>
     <message>
         <location line="-2"/>
         <source>using string literals for ids is discouraged</source>
-        <translation type="unfinished"></translation>
+        <translation>Von der Verwendung von Zeichenketten-Literalen als Ids wird abgeraten</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>ids must be lower case</source>
-        <translation type="unfinished"></translation>
+        <translation>Ids müssen mit einem Kleinbuchstaben beginnen</translation>
     </message>
 </context>
 <context>
@@ -19568,42 +19381,42 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/bineditor/bineditor.cpp" line="+1131"/>
         <source>Copying Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kopieren schlug fehl</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können nicht mehr als 4 MB binäre Daten kopieren.</translation>
     </message>
     <message>
         <location line="+110"/>
         <source>Copy Selection as ASCII Characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl als ASCII-Zeichen kopieren</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Copy Selection as Hex Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl als hexadezimale Werte kopieren</translation>
     </message>
     <message>
         <location line="+27"/>
         <source>Jump to Address in This Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zu Adresse in diesem Fenster</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Jump to Address in New Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zu Adresse in neuem Fenster</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Jump to Address 0x%1 in This Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zu Adresse 0x%1 in diesem Fenster</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Jump to Address 0x%1 in New Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zu Adresse 0x%1 in neuem Fenster</translation>
     </message>
 </context>
 <context>
@@ -19611,7 +19424,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/bineditor/imageviewer.cpp" line="+100"/>
         <source>Image Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildbetrachter</translation>
     </message>
 </context>
 <context>
@@ -19625,7 +19438,7 @@ Ids must begin with a lowercase letter.</source>
 <context>
     <name>Debugger::DebuggerUISwitcher</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeruiswitcher.cpp" line="+221"/>
+        <location filename="../../../src/plugins/debugger/debuggeruiswitcher.cpp" line="+217"/>
         <source>Locked</source>
         <translation>Verankert</translation>
     </message>
@@ -19729,12 +19542,12 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location line="+14"/>
         <source>Declarative UI files (*.qml)</source>
-        <translation type="unfinished"></translation>
+        <translation>Declarative-UI-Dateien (*.qml)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>All files (*)</source>
-        <translation type="unfinished">Alle Dateien (*)</translation>
+        <translation>Alle Dateien (*)</translation>
     </message>
 </context>
 <context>
@@ -19742,12 +19555,12 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlinspector/inspectoroutputwidget.cpp" line="+43"/>
         <source>Output</source>
-        <translation type="unfinished">Ausgaben</translation>
+        <translation>Ausgaben</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Clear</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
 </context>
 <context>
@@ -19755,91 +19568,96 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlinspector/qmlinspector.cpp" line="+197"/>
         <source>No active project, debugging canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein aktives Projekt vorhanden, Debuggen abgebrochen</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Cannot find project run configuration, debugging canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es kann keine Ausführungskonfiguration gefunden werden, Debuggen wird abgebrochen.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>[Inspector] set to connect to debug server %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>[Inspector] Verbinde zu Debug-Server %1:%2</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>[Inspector] disconnected.
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>[Inspector] Getrennt.
+
+</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>[Inspector] resolving host...</source>
-        <translation type="unfinished"></translation>
+        <translation>[Inspector] Löse Hostnamen auf...
+
+</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>[Inspector] connecting to debug server...</source>
-        <translation type="unfinished"></translation>
+        <translation>[Inspector] Verbinde zu Debug-Server...</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>[Inspector] connected.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>[Inspector] Verbunden.
+</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>[Inspector] closing...</source>
-        <translation type="unfinished"></translation>
+        <translation>[Inspector] Schließen...</translation>
     </message>
     <message>
         <location line="+23"/>
         <source>[Inspector] error: (%1) %2</source>
         <comment>%1=error code, %2=error message</comment>
-        <translation type="unfinished"></translation>
+        <translation>[Inspector] Fehler: (%1) %2</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame-Rate</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>QML engine:</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Engine:</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Object Tree</source>
-        <translation type="unfinished"></translation>
+        <translation>Objekthierarchie</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>Properties and Watchers</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschaften und überwachte Ausdrücke</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Contents of the scene.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt der Szene.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Frame rate graph for analyzing performance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame-Rate-Graph zur Analyse der Geschwindigkeit.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Properties of the selected item.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschaften des ausgewählten Elements.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Output of the QML inspector, such as information on connecting to the server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgaben des QML-Inspektors, wie zum Beispiel Information über die Verbindung zum Server.</translation>
     </message>
 </context>
 <context>
@@ -19847,7 +19665,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmljseditor/qmljshoverhandler.cpp" line="+78"/>
         <source>Unfiltered</source>
-        <translation type="unfinished">Kein</translation>
+        <translation>Ungefiltert</translation>
     </message>
 </context>
 <context>
@@ -19856,7 +19674,7 @@ Ids must begin with a lowercase letter.</source>
         <location filename="../../../src/plugins/qmljseditor/qmljsmodelmanager.cpp" line="+132"/>
         <location line="+37"/>
         <source>Indexing</source>
-        <translation type="unfinished">Indizierung</translation>
+        <translation>Indizierung</translation>
     </message>
 </context>
 <context>
@@ -19864,7 +19682,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+102"/>
         <source>Error while loading project file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Laden der Projektdatei!</translation>
     </message>
 </context>
 <context>
@@ -19872,12 +19690,12 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectapplicationwizard.cpp" line="+48"/>
         <source>New QML Project</source>
-        <translation type="unfinished">Neues QML-Projekt</translation>
+        <translation>Neues QML-Projekt</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>This wizard generates a QML application project.</source>
-        <translation type="unfinished">Dieser Wizard erstellt ein QML-Anwendungsprojekt.</translation>
+        <translation>Dieser Wizard erstellt ein QML-Anwendungsprojekt.</translation>
     </message>
 </context>
 <context>
@@ -19885,38 +19703,38 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location line="+14"/>
         <source>Qt QML Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-QML-Anwendung</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Creates a Qt QML application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt-QML-Anwendung.</translation>
     </message>
     <message>
         <location line="+65"/>
         <source>File generated by QtCreator</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>File generated by QtCreator</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Include .qml, .js, and image files from current directory and subdirectories</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Include .qml, .js, and image files from current directory and subdirectories</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>List of plugin directories passed to QML runtime</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>List of plugin directories passed to QML runtime</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>The project %1 could not be opened.</source>
-        <translation type="unfinished">Das Projekt %1 konnte nicht geöffnet werden.</translation>
+        <translation>Das Projekt %1 konnte nicht geöffnet werden.</translation>
     </message>
 </context>
 <context>
@@ -19924,22 +19742,22 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectimportwizard.cpp" line="+60"/>
         <source>Import Existing Qt QML Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Importiere existierenden Qt-QML-Ordner</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>QML Project</source>
-        <translation type="unfinished">QML-Projekt</translation>
+        <translation>QML-Projekt</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Project name:</source>
-        <translation type="unfinished">Projektname:</translation>
+        <translation>Projektname:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Location:</source>
-        <translation type="unfinished">Pfad:</translation>
+        <translation>Pfad:</translation>
     </message>
 </context>
 <context>
@@ -19947,38 +19765,38 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location line="+38"/>
         <source>Import Existing Qt QML Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Importiere existierenden Qt-QML-Ordner</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Creates a QML project from an existing directory of QML files.</source>
-        <translation type="unfinished">Erstellt ein QML-Projekt von einem Verzeichnis von QML-Dateien.</translation>
+        <translation>Erstellt ein QML-Projekt von einem Ordner, der QML-Dateien enthält.</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>File generated by QtCreator</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>File generated by QtCreator</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Include .qml, .js, and image files from current directory and subdirectories</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Include .qml, .js, and image files from current directory and subdirectories</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>List of plugin directories passed to QML runtime</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>List of plugin directories passed to QML runtime</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>The project %1 could not be opened.</source>
-        <translation type="unfinished">Das Projekt %1 konnte nicht geöffnet werden.</translation>
+        <translation>Das Projekt %1 konnte nicht geöffnet werden.</translation>
     </message>
 </context>
 <context>
@@ -19987,32 +19805,32 @@ Ids must begin with a lowercase letter.</source>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectrunconfiguration.cpp" line="+93"/>
         <source>QML Runtime</source>
         <comment>QMLRunConfiguration display name.</comment>
-        <translation type="unfinished">QML-Laufzeitumgebung</translation>
+        <translation>QML-Laufzeitumgebung</translation>
     </message>
     <message>
         <location line="+112"/>
         <source>QML Runtime</source>
-        <translation type="unfinished">QML-Laufzeitumgebung</translation>
+        <translation>QML-Laufzeitumgebung</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>QML Runtime arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeilenargumente für QML-Laufzeitumgebung</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Main QML File:</source>
-        <translation type="unfinished">QML-Hauptdatei:</translation>
+        <translation>QML-Hauptdatei:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Debugging Address:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse für Debuggen:</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Debugging Port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port für Debuggen:</translation>
     </message>
 </context>
 <context>
@@ -20020,7 +19838,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectrunconfigurationfactory.cpp" line="+60"/>
         <source>Run QML Script</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Skriptdatei ausführen</translation>
     </message>
 </context>
 <context>
@@ -20140,7 +19958,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/pluginmanager/pluginmanager.cpp" line="+161"/>
         <source>About plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Über Plugins</translation>
     </message>
 </context>
 <context>
@@ -20170,37 +19988,37 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/qmldesignerplugin.cpp" line="+120"/>
         <source>Switch Text/Design</source>
-        <translation type="unfinished"></translation>
+        <translation>Text/Entwurf umschalten</translation>
     </message>
     <message>
         <location line="+168"/>
         <source>Save %1 As...</source>
-        <translation type="unfinished">Speichere &apos;%1&apos; unter...</translation>
+        <translation>Speichere &apos;%1&apos; unter...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Save %1</source>
-        <translation type="unfinished">&amp;Speichere %1</translation>
+        <translation>&amp;Speichere %1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Revert %1 to Saved</source>
-        <translation type="unfinished">Stelle %1 wieder her</translation>
+        <translation>Stelle %1 wieder her</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Close %1</source>
-        <translation type="unfinished">Schließe %1</translation>
+        <translation>Schließe %1</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Close All Except %1</source>
-        <translation type="unfinished">Alle außer %1 schließen</translation>
+        <translation>Alle außer %1 schließen</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Close Others</source>
-        <translation type="unfinished">Andere schließen</translation>
+        <translation>Andere schließen</translation>
     </message>
 </context>
 <context>
@@ -20573,7 +20391,7 @@ Ids must begin with a lowercase letter.</source>
 <context>
     <name>Help::HelpManager</name>
     <message>
-        <location filename="../../../src/plugins/help/helpmanager.cpp" line="+85"/>
+        <location filename="../../../src/plugins/help/helpmanager.cpp" line="+185"/>
         <source>Unfiltered</source>
         <translation>Kein</translation>
     </message>
@@ -20625,17 +20443,17 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/stateseditor/stateseditormodel.cpp" line="+123"/>
         <source>Invalid state name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Name des Zustands</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>The empty string as a name is reserved for the base state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine leere Zeichenkette ist als Name des Basiszustands reserviert.</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Name already used in another state</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name wird bereits von einem anderen Zustand verwendet</translation>
     </message>
 </context>
 <context>
@@ -20643,7 +20461,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/core/metainfo/subcomponentmanager.cpp" line="+307"/>
         <source>QML Components</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Komponenten</translation>
     </message>
 </context>
 <context>
@@ -20651,7 +20469,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmldesigner/settingspage.cpp" line="+10"/>
         <source>QML</source>
-        <translation type="unfinished"></translation>
+        <translation>QML</translation>
     </message>
 </context>
 <context>
@@ -20659,7 +20477,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlinspector/components/canvasframerate.cpp" line="+251"/>
         <source>Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Frame-Rate</translation>
     </message>
 </context>
 <context>
@@ -20667,7 +20485,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location line="+119"/>
         <source>Total time elapsed (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamtzeit (ms)</translation>
     </message>
 </context>
 <context>
@@ -20675,22 +20493,22 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location line="+77"/>
         <source>Resolution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Auflösung:</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Clear</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>New Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuer Graph</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert</translation>
     </message>
 </context>
 <context>
@@ -20698,55 +20516,58 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlinspector/components/expressionquerywidget.cpp" line="+87"/>
         <source>&lt;Expression&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Ausdruck&gt;</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Write and evaluate QtScript expressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>QtScript-Ausdrücke schreiben und auswerten.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Clear Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgaben löschen</translation>
     </message>
     <message>
         <location line="+31"/>
         <source>Debug Console
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Debug-Konsole
+</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>Triggers a completion in this scope</source>
-        <translation type="unfinished">Beginnt eine Ergänzung in diesem Bereich</translation>
+        <translation>Beginnt eine Ergänzung in diesem Bereich</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Ctrl+Space</source>
-        <translation type="unfinished">Ctrl+Space</translation>
+        <translation>Ctrl+Space</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Meta+Space</source>
-        <translation type="unfinished">Meta+Space</translation>
+        <translation>Meta+Space</translation>
     </message>
     <message>
         <location line="+28"/>
         <source>Expression queries</source>
-        <translation type="unfinished"></translation>
+        <translation>Abfrageausdrücke</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Expression queries (using context for %1)</source>
         <comment>Selected object</comment>
-        <translation type="unfinished"></translation>
+        <translation>Abfrageausdrücke (Unter Verwendung des Kontexts für %1)</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location line="+79"/>
-        <source>&lt;%1 items&gt;</source>
-        <comment>%1 = number of items</comment>
-        <translation type="unfinished"></translation>
+        <source>&lt;%n items&gt;</source>
+        <translation>
+            <numerusform>&lt;Ein Element&gt;</numerusform>
+            <numerusform>&lt;%n Elemente&gt;</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -20754,23 +20575,25 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlinspector/components/objectpropertiesview.cpp" line="+84"/>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location line="+85"/>
-        <source>&lt;%1 items&gt;</source>
-        <comment>%1 = number of items</comment>
-        <translation type="unfinished"></translation>
+        <source>&lt;%n items&gt;</source>
+        <translation>
+            <numerusform>&lt;Ein Element&gt;</numerusform>
+            <numerusform>&lt;%n Elemente&gt;</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -20778,17 +20601,17 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlinspector/components/objecttree.cpp" line="+222"/>
         <source>Add watch...</source>
-        <translation type="unfinished"></translation>
+        <translation>Überwachten Ausdruck hinzufügen...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Watch expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Überwachter Ausdruck</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Expression:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausdruck:</translation>
     </message>
 </context>
 <context>
@@ -20796,12 +20619,12 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlinspector/components/watchtable.cpp" line="+143"/>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
 </context>
 <context>
@@ -20809,7 +20632,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location line="+187"/>
         <source>Stop watching</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus überwachten Ausdrücken entfernen</translation>
     </message>
 </context>
 <context>
@@ -20818,7 +20641,7 @@ Ids must begin with a lowercase letter.</source>
         <location filename="../../../src/plugins/qmlinspector/qmlinspector.cpp" line="-257"/>
         <source>Engine %1</source>
         <comment>engine number</comment>
-        <translation type="unfinished"></translation>
+        <translation>Engine %1</translation>
     </message>
 </context>
 <context>
@@ -20826,12 +20649,12 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlinspector/qmlinspectorplugin.cpp" line="+175"/>
         <source>Failed to connect to debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Verbindung zum Debugger</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Could not connect to debugger server. Please check your settings from Projects pane.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte keine Verbindung zum Debugger hergestellt werden Bitte überprüfen Sie die Einstellungen des Projekts.</translation>
     </message>
 </context>
 <context>
@@ -20839,7 +20662,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectrunconfiguration.h" line="+48"/>
         <source>&lt;Current File&gt;</source>
-        <translation type="unfinished">&lt;Aktuelle Datei&gt;</translation>
+        <translation>&lt;Aktuelle Datei&gt;</translation>
     </message>
 </context>
 <context>
@@ -20950,27 +20773,50 @@ Haben Sie Qemu gestartet?</translation>
     <message>
         <location filename="../../../src/libs/qmljs/qmljsinterpreter.cpp" line="+319"/>
         <source>The file is not module file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei ist keine Moduldatei.</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Unexpected element &lt;%1&gt; in &lt;%2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwartetes Element &lt;%1&gt; in &lt;%2&gt;</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>invalid value &apos;%1&apos; for attribute %2 in &lt;%3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Wert &apos;%1&apos; des Attributs %2 in &lt;%3&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>&lt;%1&gt; has no valid %2 attribute</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;%1&gt; hat kein gültiges Attribut %2</translation>
     </message>
     <message>
         <location line="+1517"/>
         <source>%1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>Find::FindPlugin</name>
+    <message>
+        <location filename="../../../src/plugins/find/findplugin.cpp" line="+189"/>
+        <source>&amp;Find/Replace</source>
+        <translation>&amp;Suchen/Ersetzen</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Advanced Find</source>
+        <translation>Erweiterte Suche</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Open Advanced Find...</source>
+        <translation>Erweiterte Suche öffnen...</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ctrl+Shift+F</source>
+        <translation>Ctrl+Shift+F</translation>
     </message>
 </context>
 </TS>
