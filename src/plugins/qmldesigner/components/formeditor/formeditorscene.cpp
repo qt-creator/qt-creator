@@ -154,8 +154,7 @@ void FormEditorScene::synchronizeTransformation(const QmlItemNode &qmlItemNode)
 void FormEditorScene::synchronizeParent(const QmlItemNode &qmlItemNode)
 {
     QmlItemNode parentNode = qmlItemNode.instanceParent().toQmlItemNode();
-    if (parentNode.isValid())
-        reparentItem(qmlItemNode, parentNode);
+    reparentItem(qmlItemNode, parentNode);
 }
 
 void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode, const QString &propertyName)
@@ -330,9 +329,11 @@ void FormEditorScene::hoverLeaveEvent(QGraphicsSceneHoverEvent * /*event*/)
 void FormEditorScene::reparentItem(const QmlItemNode &node, const QmlItemNode &newParent)
 {
     Q_ASSERT(hasItemForQmlItemNode(node));
-    Q_ASSERT(hasItemForQmlItemNode(newParent));
     FormEditorItem *item = itemForQmlItemNode(node);
-    FormEditorItem *parentItem = itemForQmlItemNode(newParent);
+    FormEditorItem *parentItem = 0;
+    if (newParent.isValid() && hasItemForQmlItemNode(newParent))
+        FormEditorItem *parentItem = itemForQmlItemNode(newParent);
+
     if (item->parentItem() != parentItem) {
         item->setParentItem(parentItem);
         item->update();

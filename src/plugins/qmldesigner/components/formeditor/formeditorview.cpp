@@ -512,12 +512,7 @@ void FormEditorView::transformChanged(const QmlObjectNode &qmlObjectNode, const 
 void FormEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
 {
     QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
-    QmlItemNode parentNode = qmlObjectNode.instanceParent().toQmlItemNode();
-    if (itemNode.isValid()
-        && scene()->hasItemForQmlItemNode(itemNode)
-        && parentNode.isValid()
-        && scene()->hasItemForQmlItemNode(parentNode)
-        && scene()->itemForQmlItemNode(itemNode)->parentItem() != scene()->itemForQmlItemNode(parentNode)) {
+    if (itemNode.isValid() && scene()->hasItemForQmlItemNode(itemNode)) {
         scene()->synchronizeParent(itemNode);
         m_currentTool->formEditorItemsChanged(QList<FormEditorItem*>() << m_scene->itemForQmlItemNode(itemNode));
     }
