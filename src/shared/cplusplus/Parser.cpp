@@ -3149,7 +3149,6 @@ bool Parser::lookAtStorageClassSpecifier() const
 {
     switch (LA()) {
     case T_FRIEND:
-    case T_AUTO:
     case T_REGISTER:
     case T_STATIC:
     case T_EXTERN:
@@ -3175,6 +3174,7 @@ bool Parser::lookAtBuiltinTypeSpecifier() const
     case T_FLOAT:
     case T_DOUBLE:
     case T_VOID:
+    case T_AUTO:
         return true;
     // [gcc] extensions
     case T___TYPEOF__:
