@@ -119,7 +119,7 @@ void DoubleTabWidget::insertTab(int index, const QString &name, const QStringLis
     tab.currentSubTab = tab.subTabs.isEmpty() ? -1 : 0;
     m_tabs.insert(index, tab);
     if (m_currentIndex == -1) {
-        m_currentIndex = m_tabs.size()-1;
+        m_currentIndex = index;
         emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
     } else if (m_currentIndex >= index) {
         ++m_currentIndex;
