@@ -65,11 +65,18 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/qplugin.h>
 #include <QtCore/QDebug>
+#include <QtCore/QProcessEnvironment>
 
 namespace QmlDesigner {
 namespace Internal {
 
 BauhausPlugin *BauhausPlugin::m_pluginInstance = 0;
+
+bool shouldAssertInException()
+{
+    QProcessEnvironment processEnvironment = QProcessEnvironment::systemEnvironment();
+    return !processEnvironment.value("QMLDESIGNER_ASSERT_ON_EXCEPTION").isEmpty();
+}
 
 BauhausPlugin::BauhausPlugin() :
     m_designerCore(0),
@@ -92,7 +99,9 @@ BauhausPlugin::BauhausPlugin() :
     //  2. in gdb: "catch throw" or "catch throw Exception"
     //  3. set a breakpoint on __raise_exception()
     // And with gdb, you can even do this from your ~/.gdbinit file.
-    Exception::setShouldAssert(false);
+    // DnD is not working with gdb so this is still needed to get a good stacktrace
+
+    Exception::setShouldAssert(shouldAssertInException());
 }
 
 BauhausPlugin::~BauhausPlugin()
