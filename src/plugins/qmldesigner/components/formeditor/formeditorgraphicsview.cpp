@@ -112,11 +112,16 @@ void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
         QGraphicsView::mouseReleaseEvent(mouseEvent);
         delete mouseEvent;
     }
+
+    m_feedbackOriginPoint = QPoint();
 }
 
 void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*rect*/ )
 {
     if (!m_feedbackNode.isValid())
+        return;
+
+    if (m_feedbackOriginPoint.isNull())
         return;
 
     painter->save();
