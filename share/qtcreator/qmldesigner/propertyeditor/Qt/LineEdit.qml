@@ -43,7 +43,7 @@ QWidget {
 
     QLineEdit {
         id: lineEditWidget
-        styleSheet: "padding-left: 16;"
+        styleSheet: "padding-left: 32;"
         width: lineEdit.width
         height: lineEdit.height
 
@@ -66,7 +66,7 @@ QWidget {
     ExtendedFunctionButton {
         backendValue: lineEdit.backendValue
         y: 4
-        x: 3
+        x: 0
         visible: lineEdit.enabled
     }
 }
