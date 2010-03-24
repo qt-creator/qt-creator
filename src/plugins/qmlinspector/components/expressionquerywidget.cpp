@@ -272,7 +272,7 @@ void ExpressionQueryWidget::showResult()
         QString result;
 
         if (value.type() == QVariant::List || value.type() == QVariant::StringList) {
-            result = tr("<%1 items>", "%1 = number of items").arg(value.toList().count());
+            result = tr("<%n items>", 0, value.toList().count());
         } else if (value.isNull()) {
             result = QLatin1String("<no value>");
         } else {

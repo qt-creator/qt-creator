@@ -166,7 +166,7 @@ void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVar
         qDeleteAll(item->takeChildren());
 
         QVariantList variants = value.toList();
-        item->setText(1, tr("<%1 items>", "%1 = number of items").arg(variants.count()));
+        item->setText(1, tr("<%n items>", 0, variants.count()));
         item->setText(2, QString::fromUtf8(value.typeName()));
 
         PropertiesViewItem *child;

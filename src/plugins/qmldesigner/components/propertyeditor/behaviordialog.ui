@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>247</width>
-    <height>311</height>
+    <width>267</width>
+    <height>333</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -122,7 +122,7 @@ qlineargradient(spread:pad, x1:0.585, y1:0.0284091, x2:0.517, y2:1, stop:0 rgba(
       <item row="0" column="0">
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page">
          <layout class="QGridLayout" name="gridLayout_2">
@@ -171,162 +171,162 @@ qlineargradient(spread:pad, x1:0.585, y1:0.0284091, x2:0.517, y2:1, stop:0 rgba(
             </item>
             <item>
              <property name="text">
-              <string>easeInQuad</string>
+              <string notr="true">easeInQuad</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutQuad</string>
+              <string notr="true">easeOutQuad</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInOutQuad</string>
+              <string notr="true">easeInOutQuad</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutInQuad</string>
+              <string notr="true">easeOutInQuad</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInCubic</string>
+              <string notr="true">easeInCubic</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutCubic</string>
+              <string notr="true">easeOutCubic</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInOutCubic</string>
+              <string notr="true">easeInOutCubic</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutInCubic</string>
+              <string notr="true">easeOutInCubic</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutInBounce</string>
+              <string notr="true">easeOutInBounce</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInOutBounce</string>
+              <string notr="true">easeInOutBounce</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutBounce</string>
+              <string notr="true">easeOutBounce</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInBounce</string>
+              <string notr="true">easeInBounce</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutInBack</string>
+              <string notr="true">easeOutInBack</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInOutBack</string>
+              <string notr="true">easeInOutBack</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutBack</string>
+              <string notr="true">easeOutBack</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInBack</string>
+              <string notr="true">easeInBack</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutInElastic</string>
+              <string notr="true">easeOutInElastic</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInOutElastic</string>
+              <string notr="true">easeInOutElastic</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutElastic</string>
+              <string notr="true">easeOutElastic</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInElastic</string>
+              <string notr="true">easeInElastic</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutInCirc</string>
+              <string notr="true">easeOutInCirc</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInOutCirc</string>
+              <string notr="true">easeInOutCirc</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutCirc</string>
+              <string notr="true">easeOutCirc</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInCirc</string>
+              <string notr="true">easeInCirc</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutInExpo</string>
+              <string notr="true">easeOutInExpo</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInOutExpo</string>
+              <string notr="true">easeInOutExpo</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutExpo</string>
+              <string notr="true">easeOutExpo</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInExpo</string>
+              <string notr="true">easeInExpo</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutInSine</string>
+              <string notr="true">easeOutInSine</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInOutSine</string>
+              <string notr="true">easeInOutSine</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeOutSine</string>
+              <string notr="true">easeOutSine</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>easeInSine</string>
+              <string notr="true">easeInSine</string>
              </property>
             </item>
            </widget>
