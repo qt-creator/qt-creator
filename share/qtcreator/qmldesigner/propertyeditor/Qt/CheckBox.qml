@@ -76,7 +76,7 @@ QWidget { //This is a special checkBox that does color coding for states
 
     ExtendedFunctionButton {
         backendValue: checkBox.backendValue
-        y: 4
+        y: 3
         x: localCheckBox.x + 18;
     }
 }
