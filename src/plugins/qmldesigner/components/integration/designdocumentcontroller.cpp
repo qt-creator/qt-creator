@@ -716,7 +716,6 @@ bool DesignDocumentController::save(QWidget *parent)
     if (!result)
         showError(errorMessage, parent);
     return result;
-    save(centralWidget());
 }
 
 bool DesignDocumentController::save(QIODevice *device, QString * /*errorMessage*/)

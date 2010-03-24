@@ -79,9 +79,9 @@ public:
     bool isRedoAvailable() const;
 
     Model *model() const;
-    Model *masterModel() const;    
+    Model *masterModel() const;
 
-    RewriterView *rewriterView() const;    
+    RewriterView *rewriterView() const;
 
     bool isModelSyncBlocked() const;
     void blockModelSync(bool block);
