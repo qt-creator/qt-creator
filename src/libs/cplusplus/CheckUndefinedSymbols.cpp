@@ -186,7 +186,7 @@ void CheckUndefinedSymbols::buildTypeMap(NamespaceBinding *binding, QSet<Namespa
             _namespaceNames.insert(QByteArray(id->chars(), id->size()));
         }
 
-        foreach (Namespace *ns, binding->symbols()) {
+        foreach (Namespace *ns, binding->symbols) {
             for (unsigned i = 0; i < ns->memberCount(); ++i) {
                 Symbol *member = ns->memberAt(i);
 
@@ -217,7 +217,7 @@ void CheckUndefinedSymbols::buildTypeMap(NamespaceBinding *binding, QSet<Namespa
             }
         }
 
-        foreach (NamespaceBinding *childBinding, binding->children()) {
+        foreach (NamespaceBinding *childBinding, binding->children) {
             buildTypeMap(childBinding, processed);
         }
     }

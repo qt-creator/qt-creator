@@ -81,11 +81,11 @@ public:
     virtual ~Binding() {}
 
     virtual QByteArray qualifiedId() const = 0;
-    virtual NamespaceBinding *asNamespaceBinding() const { return 0; }
-    virtual ClassBinding *asClassBinding() const { return 0; }
+    virtual NamespaceBinding *asNamespaceBinding() { return 0; }
+    virtual ClassBinding *asClassBinding() { return 0; }
 
-    virtual ClassBinding *findClassBinding(const Name *name, QSet<const Binding *> *processed) const = 0;
-    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<const Binding *> *processed) const = 0;
+    virtual ClassBinding *findClassBinding(const Name *name, QSet<Binding *> *processed) = 0;
+    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed) = 0;
 };
 
 class CPLUSPLUS_EXPORT NamespaceBinding: public Binding
@@ -104,20 +104,20 @@ public:
     const Identifier *identifier() const;
 
     /// Returns the binding for the global namespace (aka ::).
-    NamespaceBinding *globalNamespaceBinding() const;
+    NamespaceBinding *globalNamespaceBinding();
 
     /// Returns the binding for the given namespace symbol.
-    NamespaceBinding *findNamespaceBinding(const Name *name) const;
+    NamespaceBinding *findNamespaceBinding(const Name *name);
 
     /// Returns the binding associated with the given symbol.
     NamespaceBinding *findOrCreateNamespaceBinding(Namespace *symbol);
 
     NamespaceBinding *resolveNamespace(const Location &loc,
                                        const Name *name,
-                                       bool lookAtParent = true) const;
+                                       bool lookAtParent = true);
 
-    virtual ClassBinding *findClassBinding(const Name *name, QSet<const Binding *> *processed) const;
-    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<const Binding *> *processed) const;
+    virtual ClassBinding *findClassBinding(const Name *name, QSet<Binding *> *processed);
+    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed);
 
     /// Helpers.
     virtual QByteArray qualifiedId() const;
@@ -128,46 +128,31 @@ public:
     static NamespaceBinding *find(Namespace *symbol, NamespaceBinding *binding);
     static ClassBinding *find(Class *symbol, NamespaceBinding *binding);
 
-    NamespaceBinding *parent() const {return parent_;}
-    NamespaceBinding *anonymousNamespaceBinding() const {return anonymousNamespaceBinding_;}
-    void setAnonymousNamespaceBinding(NamespaceBinding *binding) { anonymousNamespaceBinding_ = binding; }
-    const QList<NamespaceBinding *> &children() const {return children_;}
-    void addChild(NamespaceBinding *);
-    void removeChild(NamespaceBinding *);
-    const QList<NamespaceBinding *> &usings() const {return usings_;}
-    void addUsing(NamespaceBinding *);
-    void removeUsing(NamespaceBinding *);
-    const QList<Namespace *> &symbols() const {return symbols_;}
-    void addSymbol(Namespace *);
-    void removeSymbol(Namespace *);
-    const QList<ClassBinding *> &classBindings() const {return classBindings_;}
-    void addClassBinding(ClassBinding *);
-    void removeClassBinding(ClassBinding *);
 private:
     NamespaceBinding *findNamespaceBindingForNameId(const NameId *name,
-                                                    bool lookAtParentNamespace) const;
+                                                    bool lookAtParentNamespace);
 
     NamespaceBinding *findNamespaceBindingForNameId_helper(const NameId *name,
                                                            bool lookAtParentNamespace,
-                                                           QSet<const NamespaceBinding *> *processed) const;
+                                                           QSet<NamespaceBinding *> *processed);
 
-private: // attributes
+public: // attributes
     /// This binding's parent.
-    NamespaceBinding *parent_;
+    NamespaceBinding *parent;
 
     /// Binding for anonymous namespace symbols.
-    NamespaceBinding *anonymousNamespaceBinding_;
+    NamespaceBinding *anonymousNamespaceBinding;
 
     /// This binding's connections.
-    QList<NamespaceBinding *> children_;
+    QList<NamespaceBinding *> children;
 
     /// This binding's list of using namespaces.
-    QList<NamespaceBinding *> usings_;
+    QList<NamespaceBinding *> usings;
 
     /// This binding's namespace symbols.
-    QList<Namespace *> symbols_;
+    QList<Namespace *> symbols;
 
-    QList<ClassBinding *> classBindings_;
+    QList<ClassBinding *> classBindings;
 };
 
 class CPLUSPLUS_EXPORT ClassBinding: public Binding
@@ -186,32 +171,21 @@ public:
     const Identifier *identifier() const;
     virtual QByteArray qualifiedId() const;
 
-    virtual ClassBinding *findClassBinding(const Name *name, QSet<const Binding *> *processed) const;
-    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<const Binding *> *processed) const;
+    virtual ClassBinding *findClassBinding(const Name *name, QSet<Binding *> *processed);
+    virtual Binding *findClassOrNamespaceBinding(const Identifier *id, QSet<Binding *> *processed);
 
     void dump();
 
-    Binding *parent() const { return parent_; }
-    const QList<ClassBinding *> &children() const { return children_; }
-    void addChild(ClassBinding *);
-    void removeChild(ClassBinding *);
-    const QList<Class *> &symbols() const { return symbols_; }
-    void addSymbol(Class *symbol);
-    void removeSymbol(Class *symbol);
-    const QList<ClassBinding *> &baseClassBindings() const { return baseClassBindings_; }
-    void addBaseClassBinding(ClassBinding *);
-    void removeBaseClassBinding(ClassBinding *);
+public: // attributes
+    Binding *parent;
 
-private: // attributes
-    Binding *parent_;
-
-    QList<ClassBinding *> children_;
+    QList<ClassBinding *> children;
 
     /// This binding's class symbols.
-    QList<Class *> symbols_;
+    QList<Class *> symbols;
 
     /// Bindings for the base classes.
-    QList<ClassBinding *> baseClassBindings_;
+    QList<ClassBinding *> baseClassBindings;
 };
 
 CPLUSPLUS_EXPORT NamespaceBindingPtr bind(Document::Ptr doc, Snapshot snapshot);

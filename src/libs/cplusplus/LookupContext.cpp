@@ -643,7 +643,7 @@ static void visibleClassBindings_helper(ClassBinding *classBinding,
 
     processed->insert(classBinding);
 
-    foreach (ClassBinding *baseClassBinding, classBinding->baseClassBindings())
+    foreach (ClassBinding *baseClassBinding, classBinding->baseClassBindings)
         visibleClassBindings_helper(baseClassBinding, allClassBindings, processed);
 
     allClassBindings->append(classBinding);
@@ -682,7 +682,7 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol,
                 if (! baseClassBinding)
                     continue;
 
-                foreach (Class *baseClass, baseClassBinding->symbols()) {
+                foreach (Class *baseClass, baseClassBinding->symbols) {
                     if (! baseClass)
                         continue;
 
