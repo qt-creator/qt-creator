@@ -249,6 +249,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     agg->add(m_centralWidget);
     agg->add(new HelpFindSupport(m_centralWidget));
     m_mainWidget = new QWidget;
+    m_splitter->addWidget(m_mainWidget);
     QVBoxLayout *mainWidgetLayout = new QVBoxLayout(m_mainWidget);
     mainWidgetLayout->setMargin(0);
     mainWidgetLayout->setSpacing(0);
@@ -417,8 +418,7 @@ void HelpPlugin::setupUi()
     m_sideBar->setShortcutMap(shortcutMap);
 
     m_splitter->setOpaqueResize(false);
-    m_splitter->addWidget(m_sideBar);
-    m_splitter->addWidget(m_mainWidget);
+    m_splitter->insertWidget(0, m_sideBar);
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
     m_splitter->setSizes(QList<int>() << 300 << 300);
