@@ -57,6 +57,8 @@
 #include <bytearraymodifier.h>
 #include "testrewriterview.h"
 
+#include <qmljs/qmljsinterpreter.h>
+
 #include <QPlainTextEdit>
 #include <private/qdeclarativestate_p.h>
 #include <private/qdeclarativemetatype_p.h>
@@ -65,6 +67,19 @@
 using namespace QmlDesigner;
 #include <cstdio>
 #include "../common/statichelpers.cpp"
+
+static void initializeMetaTypeSystem(const QString &resourcePath)
+{
+    const QDir typeFileDir(resourcePath + QLatin1String("/qml-type-descriptions"));
+    const QStringList xmlExtensions = QStringList() << QLatin1String("*.xml");
+    const QFileInfoList xmlFiles = typeFileDir.entryInfoList(xmlExtensions,
+                                                             QDir::Files,
+                                                             QDir::Name);
+
+    const QStringList errors = QmlJS::Interpreter::MetaTypeSystem::load(xmlFiles);
+    foreach (const QString &error, errors)
+        qWarning() << qPrintable(error);
+}
 
 TestCore::TestCore()
     : QObject()
@@ -77,6 +92,8 @@ void TestCore::initTestCase()
     qInstallMsgHandler(testMessageOutput);
 #endif
     Exception::setShouldAssert(false);
+
+    initializeMetaTypeSystem(QLatin1String("../../../../../share/qtcreator"));
 }
 
 void TestCore::cleanupTestCase()
