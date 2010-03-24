@@ -92,6 +92,7 @@ private slots:
     void saveStatus();
     void registerProject(ProjectExplorer::Project*);
     void deregisterProject(ProjectExplorer::Project*);
+    void startupProjectChanged(ProjectExplorer::Project *);
 
     void refreshProject();
 

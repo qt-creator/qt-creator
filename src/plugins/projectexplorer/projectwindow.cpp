@@ -280,6 +280,9 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(deregisterProject(ProjectExplorer::Project*)));
 
+    connect(session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(startupProjectChanged(ProjectExplorer::Project *)));
+
     // Update properties to empty project for now:
     showProperties(-1, -1);
 }
@@ -353,8 +356,17 @@ void ProjectWindow::refreshProject()
     if (!m_tabIndexToProject.contains(project))
         return;
 
+    // TODO this changes the subindex
+    int index = m_tabWidget->currentIndex();
     deregisterProject(project);
     registerProject(project);
+    m_tabWidget->setCurrentIndex(index);
+}
+
+void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)
+{
+    int index = m_tabIndexToProject.indexOf(p);
+    m_tabWidget->setCurrentIndex(index);
 }
 
 void ProjectWindow::showProperties(int index, int subIndex)
@@ -386,6 +398,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
         }
         ++pos;
     }
+    ProjectExplorerPlugin::instance()->session()->setStartupProject(project);
 }
 
 void ProjectWindow::removeCurrentWidget()
