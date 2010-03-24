@@ -44,6 +44,7 @@ public:
     ToolBox(QWidget *parentWidget);
     void setActions(const QList<QAction*> &actions);
     void addAction(QAction *action);
+    QList<QAction*> actions() const;
 
 private:
     QToolBar *m_toolBar;

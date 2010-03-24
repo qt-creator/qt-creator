@@ -138,6 +138,8 @@ QExtGroupBox {
 
         QWidget {
             layout: HorizontalLayout {
+			    leftMargin: 12
+			    spacing: 0
 
                 ColorBox {
                     id: colorControl;
@@ -159,7 +161,8 @@ QExtGroupBox {
                     layout: VerticalLayout {
                         topMargin: 4
                         bottomMargin: 4
-                        rightMargin: 4
+                        rightMargin: 0
+						leftMargin: 0
                         spacing: 2
                         QWidget {
                             layout: HorizontalLayout {

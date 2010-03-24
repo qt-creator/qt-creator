@@ -1,12 +1,11 @@
 QPushButton {
-    border-image: url(:/qmldesigner/images/button_alignment_top_normal.png) 3;
-    border-width: 3;
+    border-image: url(:/qmldesigner/images/button_alignment_top_normal.png);   
  }
  
   QPushButton:pressed {
-    border-image: url(:/qmldesigner/images/button_alignment_top_pressed.png) 3;
+    border-image: url(:/qmldesigner/images/button_alignment_top_pressed.png);
  }
  
  QPushButton:checked {
-    border-image: url(:/qmldesigner/images/button_alignment_top_pressed.png) 3;
+    border-image: url(:/qmldesigner/images/button_alignment_top_pressed.png);
  }

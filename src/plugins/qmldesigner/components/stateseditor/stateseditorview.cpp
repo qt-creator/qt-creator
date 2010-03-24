@@ -49,7 +49,8 @@ namespace Internal {
   */
 StatesEditorView::StatesEditorView(StatesEditorModel *editorModel, QObject *parent) :
         QmlModelView(parent),
-        m_editorModel(editorModel)
+        m_editorModel(editorModel),
+        m_attachedToModel(false)
 {
     Q_ASSERT(m_editorModel);
 }
@@ -79,7 +80,9 @@ void StatesEditorView::setCurrentState(int index)
     if (m_modelStates.isEmpty())
         return;
 
-    Q_ASSERT(index >= 0 && index < m_modelStates.count());
+    Q_ASSERT(index < m_modelStates.count());
+    if (index == -1)
+        return;
 
     if (m_modelStates.indexOf(currentState()) == index)
         return;
@@ -174,23 +177,27 @@ void StatesEditorView::modelAttached(Model *model)
         return;
 
     m_modelStates.insert(0, baseState());
+    m_attachedToModel = true;
     m_editorModel->insertState(0, baseState().name());
 
     // Add custom states
     m_stateRootNode = QmlItemNode(rootModelNode());
     if (!m_stateRootNode.isValid())
-        return;
+        return;    
 
     for (int i = 0; i < m_stateRootNode.states().allStates().size(); ++i) {
         QmlModelState state = QmlItemNode(rootModelNode()).states().allStates().at(i);
         insertModelState(i, state);
     }
+
 }
 
 void StatesEditorView::modelAboutToBeDetached(Model *model)
 {
     if (debug)
         qDebug() << __FUNCTION__;
+
+    m_attachedToModel = false;
 
     clearModelStates();
 
@@ -389,6 +396,9 @@ QPixmap StatesEditorView::renderState(int i)
 {
     if (debug)
         qDebug() << __FUNCTION__ << i;
+
+    if (!m_attachedToModel)
+        return QPixmap();
 
     Q_ASSERT(i >= 0 && i < m_modelStates.size());
     nodeInstanceView()->setBlockChangeSignal(true);

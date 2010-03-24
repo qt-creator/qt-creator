@@ -10,6 +10,7 @@ GroupBox {
 
         QWidget {
             layout: HorizontalLayout {
+			    rightMargin: 12
                 Label {
                     text: "Font"
                 }
@@ -58,6 +59,7 @@ GroupBox {
         QWidget {
             visible: showStyle
             layout: HorizontalLayout {
+			    rightMargin: 12
                 Label {
                     text: "Style"
                 }

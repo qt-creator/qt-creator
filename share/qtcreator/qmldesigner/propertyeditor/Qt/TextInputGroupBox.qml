@@ -10,14 +10,24 @@ GroupBox {
 
         QWidget {
             layout: HorizontalLayout {
+                Label {text: "Flags"}
 
                 CheckBox {
-
                     text: "Read Only";
                     baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue: backendValues.readOnly;
                 }
+
+
+
+                
+            }
+        }
+
+        QWidget {
+            layout: HorizontalLayout {
+                Label {text: ""}
 
                 CheckBox {
 
@@ -28,6 +38,12 @@ GroupBox {
 
                 }
 
+            }
+        }
+
+        QWidget {
+            layout: HorizontalLayout {
+                Label {text: ""}
                 CheckBox {
                     text: "Focus On Press";
                     baseStateFlag: isBaseState;

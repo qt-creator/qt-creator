@@ -9,7 +9,7 @@ GroupBox {
     layout: VerticalLayout {        
 
         ColorGroupBox {
-		    caption: "Color"
+		    caption: "Rectangle"
 
             finished: finishedNotify
 
@@ -17,7 +17,7 @@ GroupBox {
         }        
 
         ColorGroupBox {
-            caption: "Border Color"
+            caption: "Border"
             finished: finishedNotify
 
             backendColor: backendValues.border_color

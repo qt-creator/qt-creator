@@ -10,7 +10,7 @@ GroupBox {
     enabled: anchorBackend.hasParent;
 
     property var targetLabelWidth: 90 - 20 - 26
-	property int leftMarginMargin: 0
+	property int leftMarginMargin: 16
 
     layout: VerticalLayout {
         Label {
@@ -19,6 +19,7 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {
                 leftMargin: 10
+				topMargin: 8
 
 
                 AnchorButtons {
@@ -39,8 +40,8 @@ GroupBox {
                         leftMargin: 10
                         QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
-                            fixedWidth: 32
-                            fixedHeight: 32
+                            fixedWidth: 16
+                            fixedHeight: 16
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-top.png)";
                         }
 
@@ -88,8 +89,8 @@ GroupBox {
                         leftMargin: 10
                         QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
-                            fixedWidth: 32
-                            fixedHeight: 32
+                            fixedWidth: 16
+                            fixedHeight: 16
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-bottom.png)";
                         }
 
@@ -136,8 +137,8 @@ GroupBox {
                         leftMargin: 10
                         QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
-                            fixedWidth: 32
-                            fixedHeight: 32
+                            fixedWidth: 16
+                            fixedHeight: 16
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-left.png)";
                         }
 
@@ -183,8 +184,8 @@ GroupBox {
                         leftMargin: 10
                         QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
-                            fixedWidth: 32
-                            fixedHeight: 32
+                            fixedWidth: 16
+                            fixedHeight: 16
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-right.png)";
                         }
 
@@ -230,8 +231,8 @@ GroupBox {
                         leftMargin: 10
                         QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
-                            fixedWidth: 32
-                            fixedHeight: 32
+                            fixedWidth: 16
+                            fixedHeight: 16
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-horizontal.png)";
                         }
 
@@ -277,8 +278,8 @@ GroupBox {
                         leftMargin: 10
                         QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
-                            fixedWidth: 32
-                            fixedHeight: 32
+                            fixedWidth: 16
+                            fixedHeight: 16
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-vertical.png)";
                         }
 

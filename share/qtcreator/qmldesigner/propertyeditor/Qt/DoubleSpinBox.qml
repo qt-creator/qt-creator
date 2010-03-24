@@ -65,6 +65,7 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
 
     layout: HorizontalLayout {
         id: layoutH;
+		spacing: 4
 
         QLabel {
             id: label;

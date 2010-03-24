@@ -36,7 +36,7 @@ GroupBox {
         
         ColorGroupBox {
 		    visible: showSelectedTextColor
-		    caption: "Selected Text"
+		    caption: "Selected"
 
             finished: finishedNotify
 

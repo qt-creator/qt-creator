@@ -257,7 +257,7 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
     m_stackedWidget->setStyleSheet(styleSheet);
-    m_stackedWidget->setMinimumWidth(360);
+    m_stackedWidget->setMinimumWidth(300);
     m_collapseButton->raise();
     m_collapseButton->show();
     connect(m_collapseButton, SIGNAL(expand()), this, SLOT(expand()));
@@ -465,7 +465,7 @@ void PropertyEditor::changeExpression(const QString &name)
 
 void PropertyEditor::expand()
 {
-    m_stackedWidget->setMinimumWidth(360);
+    m_stackedWidget->setMinimumWidth(300);
     m_stackedWidget->setMaximumWidth(1000);
     m_stackedWidget->parentWidget()->layout()->update();
 
@@ -475,6 +475,11 @@ void PropertyEditor::expand()
     while (parentWidget) {
         if (Core::SideBar *sideBar  = qobject_cast<Core::SideBar*>(parentWidget)) {
             childWidget->setMaximumWidth(2000);
+            foreach (QObject* child, sideBar->children()) {
+                if (QWidget* otherWidget = qobject_cast<QWidget*>(child))
+                    if (otherWidget != childWidget && !qobject_cast<QComboBox*>(otherWidget))
+                    otherWidget->show();
+            }
             QList<QComboBox*> list = sideBar->findChildren<QComboBox*>();
             foreach (QComboBox* box, list) {
                 if (qobject_cast<QToolBar*>(box->parentWidget()))
@@ -502,10 +507,18 @@ void PropertyEditor::collapse()
     while (parentWidget) {
         if (Core::SideBar *sideBar  = qobject_cast<Core::SideBar*>(parentWidget)) {
             childWidget->setMaximumWidth(22);
+            foreach (QObject* child, sideBar->children()) {
+                if (QWidget* otherWidget = qobject_cast<QWidget*>(child))
+                    if (otherWidget != childWidget && !qobject_cast<QComboBox*>(otherWidget))
+                    otherWidget->hide();
+            }
+
             QSplitter* parentSplitter = qobject_cast<QSplitter*>(sideBar->parentWidget());
-            QList<int> s = sideBar->sizes();
+            QList<int> s = parentSplitter->sizes();
+            qDebug() << s;
             s.removeLast();
             s.append(25);
+            qDebug() << s;
             parentSplitter->setSizes(s);
             parentSplitter->refresh();
             parentSplitter->update();
@@ -574,7 +587,7 @@ void PropertyEditor::setQmlDir(const QString &qmlDir)
 void PropertyEditor::delayedResetView()
 {
     if (m_timerId == 0)
-        m_timerId = startTimer(500);
+        m_timerId = startTimer(200);
 }
 
 void PropertyEditor::timerEvent(QTimerEvent *timerEvent)

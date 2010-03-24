@@ -115,7 +115,8 @@ bool StatesEditorWidgetPrivate::validStateName(const QString &name) const
 
 void StatesEditorWidgetPrivate::currentStateChanged()
 {
-    statesEditorView->setCurrentState(currentIndex());
+    if (statesEditorView->isAttachedToModel())
+        statesEditorView->setCurrentState(currentIndex());
 }
 
 void StatesEditorWidgetPrivate::addState()

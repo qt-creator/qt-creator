@@ -87,5 +87,9 @@
 		<file>images/collapse-button-normal.png</file>
 		<file>images/collapse-button-hover-mirrored.png</file>
 		<file>images/collapse-button-normal-mirrored.png</file>
+		<file>images/combobox-normal.png</file>
+		<file>images/combobox-pressed.png</file>
+		<file>images/slider_indikator.png</file>
+		<file>images/slider_line.png</file>
     </qresource>
 </RCC>

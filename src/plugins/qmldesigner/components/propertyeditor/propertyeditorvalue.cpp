@@ -124,7 +124,8 @@ void PropertyEditorValue::setExpression(const QString &expression)
 
 bool PropertyEditorValue::isInSubState() const
 {
-    return modelNode().isValid() && QmlDesigner::QmlObjectNode(modelNode()).propertyAffectedByCurrentState(name());
+    const QmlDesigner::QmlObjectNode objectNode(modelNode());
+    return objectNode.isValid() && objectNode.propertyAffectedByCurrentState(name());
 }
 
 bool PropertyEditorValue::isBound() const
