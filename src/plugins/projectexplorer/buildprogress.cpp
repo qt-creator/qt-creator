@@ -48,16 +48,16 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow)
         m_taskWindow(taskWindow)
 {
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->setContentsMargins(8, 4, 0, 4);
+    layout->setContentsMargins(8, 2, 0, 2);
     layout->setSpacing(2);
     setLayout(layout);
     QHBoxLayout *errorLayout = new QHBoxLayout;
-    errorLayout->setSpacing(4);
+    errorLayout->setSpacing(2);
     layout->addLayout(errorLayout);
     errorLayout->addWidget(m_errorIcon);
     errorLayout->addWidget(m_errorLabel);
     QHBoxLayout *warningLayout = new QHBoxLayout;
-    warningLayout->setSpacing(4);
+    warningLayout->setSpacing(2);
     layout->addLayout(warningLayout);
     warningLayout->addWidget(m_warningIcon);
     warningLayout->addWidget(m_warningLabel);

@@ -41,11 +41,11 @@
 using namespace Core;
 using namespace Core::Internal;
 
-#define PROGRESSBAR_HEIGHT 13
+#define PROGRESSBAR_HEIGHT 12
 #define CANCELBUTTON_SIZE 15
 
 ProgressBar::ProgressBar(QWidget *parent)
-    : QWidget(parent), m_error(false), m_minimum(1), m_maximum(100), m_value(1), m_fader(0)
+    : QWidget(parent), m_error(false), m_minimum(1), m_maximum(100), m_value(1), m_cancelButtonFader(0)
 {
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setMouseTracking(true);
@@ -60,7 +60,7 @@ bool ProgressBar::event(QEvent *e)
     switch(e->type()) {
     case QEvent::Enter:
         {
-            QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
+            QPropertyAnimation *animation = new QPropertyAnimation(this, "cancelButtonFader");
             animation->setDuration(125);
             animation->setEndValue(1.0);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
@@ -68,7 +68,7 @@ bool ProgressBar::event(QEvent *e)
         break;
     case QEvent::Leave:
         {
-            QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
+            QPropertyAnimation *animation = new QPropertyAnimation(this, "m_cancelButtonFader");
             animation->setDuration(225);
             animation->setEndValue(0.0);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
@@ -133,7 +133,7 @@ QSize ProgressBar::sizeHint() const
 {
     QSize s;
     s.setWidth(50);
-    s.setHeight(fontMetrics().height() + PROGRESSBAR_HEIGHT + 9);
+    s.setHeight(fontMetrics().height() + PROGRESSBAR_HEIGHT + 6);
     return s;
 }
 
@@ -204,7 +204,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     // elide the text
     QString elidedtitle  = fm.elidedText(m_title, Qt::ElideRight, textSpace);
 
-    QRect textRect = rect().adjusted(INDENT + 1, 1, -INDENT - 1, 0);
+    QRect textRect = rect().adjusted(3, 1, -3, 0);
     textRect.setHeight(h+5);
 
     p.setPen(QColor(0, 0, 0, 120));
@@ -217,7 +217,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     m_progressHeight = PROGRESSBAR_HEIGHT;
     m_progressHeight += ((m_progressHeight % 2) + 1) % 2; // make odd
     // draw outer rect
-    QRect rect(INDENT - 1, h+8, size().width()-2*INDENT + 1, m_progressHeight-1);
+    QRect rect(INDENT - 1, h+6, size().width()-2*INDENT + 1, m_progressHeight-1);
     p.setPen(Utils::StyleHelper::panelTextColor());
     Utils::StyleHelper::drawCornerImage(bar, &p, rect, 2, 2, 2, 2);
 
@@ -262,7 +262,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     p.drawPoint(inner.bottomRight());
 
     // Draw cancel button
-    p.setOpacity(m_fader);
+    p.setOpacity(m_cancelButtonFader);
 
     if (value() < maximum() && !m_error) {
         QRect cancelRect(rect.adjusted(rect.width() - CANCELBUTTON_SIZE, 1, -1, 0));

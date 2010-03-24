@@ -40,6 +40,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QPropertyAnimation>
+#include <QtCore/QSequentialAnimationGroup>
 #include <utils/stylehelper.h>
 
 using namespace Core;
@@ -77,7 +78,8 @@ void FadeWidgetHack::paintEvent(QPaintEvent *)
 
     QPainter p(this);
     p.setOpacity(m_opacity);
-    Utils::StyleHelper::verticalGradient(&p, rect(), rect());
+    if (m_opacity > 0)
+        Utils::StyleHelper::verticalGradient(&p, rect(), rect());
 }
 
 /*!
@@ -237,7 +239,7 @@ void FutureProgress::setFinished()
     if (m_keep) {
         m_waitingForUserInteraction = true;
         qApp->installEventFilter(this);
-    } else {
+    } else if (!m_progress->hasError()) {
         QTimer::singleShot(notificationTimeout, this, SLOT(fadeAway()));
     }
 }
@@ -303,11 +305,20 @@ bool FutureProgress::hasError() const
 void FutureProgress::fadeAway()
 {
     m_faderWidget->raise();
+    QSequentialAnimationGroup *group = new QSequentialAnimationGroup;
     QPropertyAnimation *animation = new QPropertyAnimation(m_faderWidget, "opacity");
     animation->setDuration(600);
     animation->setEndValue(1.0);
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
-    connect(animation, SIGNAL(finished()), this, SIGNAL(removeMe()));
+    group->addAnimation(animation);
+    animation = new QPropertyAnimation(this, "maximumHeight");
+    animation->setDuration(120);
+    animation->setEasingCurve(QEasingCurve::InCurve);
+    animation->setStartValue(sizeHint().height());
+    animation->setEndValue(0.0);
+    group->addAnimation(animation);
+    group->start(QAbstractAnimation::DeleteWhenStopped);
+
+    connect(group, SIGNAL(finished()), this, SIGNAL(removeMe()));
 }
 
 #include "futureprogress.moc"

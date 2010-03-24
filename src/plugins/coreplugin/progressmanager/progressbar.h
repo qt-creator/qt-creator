@@ -40,7 +40,7 @@ class ProgressBar : public QWidget
 {
     Q_OBJECT
 
-    Q_PROPERTY(float fader READ fader WRITE setFader)
+    Q_PROPERTY(float cancelButtonFader READ cancelButtonFader WRITE setCancelButtonFader)
 
 public:
     explicit ProgressBar(QWidget *parent = 0);
@@ -60,8 +60,8 @@ public:
     void reset();
     void setRange(int minimum, int maximum);
     void setValue(int value);
-    float fader() { return m_fader; }
-    void setFader(float value) { m_fader = value; update(); }
+    float cancelButtonFader() { return m_cancelButtonFader; }
+    void setCancelButtonFader(float value) { m_cancelButtonFader= value;}
     bool event(QEvent *);
 
 signals:
@@ -79,7 +79,7 @@ private:
     int m_minimum;
     int m_maximum;
     int m_value;
-    float m_fader;
+    float m_cancelButtonFader;
 };
 
 } // namespace Internal
