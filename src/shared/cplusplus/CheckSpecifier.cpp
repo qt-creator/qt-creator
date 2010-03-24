@@ -140,6 +140,13 @@ bool CheckSpecifier::visit(SimpleSpecifierAST *ast)
             _fullySpecifiedType.setFriend(true);
             break;
 
+        case T_AUTO:
+            if (_fullySpecifiedType.isAuto())
+                translationUnit()->error(ast->specifier_token,
+                                         "duplicate `%s'", spell(ast->specifier_token));
+            _fullySpecifiedType.setAuto(true);
+            break;
+
         case T_REGISTER:
             if (_fullySpecifiedType.isRegister())
                 translationUnit()->error(ast->specifier_token,

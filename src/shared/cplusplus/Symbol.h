@@ -64,6 +64,7 @@ public:
     enum Storage {
         NoStorage = 0,
         Friend,
+        Auto,
         Register,
         Static,
         Extern,

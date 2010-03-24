@@ -75,6 +75,7 @@ FullySpecifiedType FullySpecifiedType::qualifiedType() const
 {
     FullySpecifiedType ty = *this;
     ty.setFriend(false);
+    ty.setAuto(false);
     ty.setRegister(false);
     ty.setStatic(false);
     ty.setExtern(false);
@@ -118,6 +119,12 @@ bool FullySpecifiedType::isFriend() const
 
 void FullySpecifiedType::setFriend(bool isFriend)
 { f._isFriend = isFriend; }
+
+bool FullySpecifiedType::isAuto() const
+{ return f._isAuto; }
+
+void FullySpecifiedType::setAuto(bool isAuto)
+{ f._isAuto = isAuto; }
 
 bool FullySpecifiedType::isRegister() const
 { return f._isRegister; }
@@ -225,6 +232,7 @@ void FullySpecifiedType::copySpecifiers(const FullySpecifiedType &type)
 {
     // class storage specifiers
     f._isFriend = type.f._isFriend;
+    f._isAuto = type.f._isAuto;
     f._isRegister = type.f._isRegister;
     f._isStatic = type.f._isStatic;
     f._isExtern = type.f._isExtern;

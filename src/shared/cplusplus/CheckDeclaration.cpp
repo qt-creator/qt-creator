@@ -231,6 +231,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
         if (ty.isFriend())
             symbol->setStorage(Symbol::Friend);
+        else if (ty.isAuto())
+            symbol->setStorage(Symbol::Auto);
         else if (ty.isRegister())
             symbol->setStorage(Symbol::Register);
         else if (ty.isStatic())
@@ -241,7 +243,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             symbol->setStorage(Symbol::Mutable);
         else if (ty.isTypedef())
             symbol->setStorage(Symbol::Typedef);
-        else if (ty.isDeprecated())
+
+        if (ty.isDeprecated())
             symbol->setDeprecated(true);
 
         if (it->value && it->value->initializer) {

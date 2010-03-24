@@ -83,6 +83,9 @@ public:
     bool isFriend() const;
     void setFriend(bool isFriend);
 
+    bool isAuto() const;
+    void setAuto(bool isAuto);
+
     bool isRegister() const;
     void setRegister(bool isRegister);
 
@@ -141,6 +144,7 @@ private:
 
         // storage class specifiers
         unsigned _isFriend: 1;
+        unsigned _isAuto: 1;
         unsigned _isRegister: 1;
         unsigned _isStatic: 1;
         unsigned _isExtern: 1;
