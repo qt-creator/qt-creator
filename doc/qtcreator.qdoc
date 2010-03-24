@@ -735,6 +735,27 @@
     \endtable
 
 
+    \section1 Using Bookmarks
+
+    To insert or delete a bookmark in the editor file, place your cursor on
+    the specific line and select \gui{Tools} > \gui{Bookmarks} >
+    \gui{Toggle Bookmark} or press \key{Ctrl+M}.
+
+    You can also right-click on the number line and select
+    \gui{Toggle Bookmark} to insert or delete a bookmark. This is shown in the
+    figure below:
+
+    \image qtcreator-togglebookmark.png
+
+    To navigate to the previous bookmark within a session, select
+    \gui{Tools} > \gui{Bookmarks} > \gui{Previous Bookmark} or press
+    \key{Ctrl+,}.
+
+    To navigate to the next bookmark within a session, select
+    \gui{Tools} > \gui{Bookmarks} > \gui{Next Bookmark} or press
+    \key{Ctrl+.}.
+
+
     \section1 Moving to Symbol Definition or Declaration
 
     In Qt Creator you can move directly to the definition or the declaration of
@@ -742,6 +763,16 @@
 
     To enable this moving function, in \gui Tools > \gui{Options...} >
     \gui{Text Editor} > \gui Behavior select \gui{Enable mouse navigation}.
+
+
+    \section1 Using Update Code Model
+
+    To refresh the internal information in Qt Creator pertaining to your code,
+    select \gui{Tools} > \gui{C++} > \gui{Update code model}.
+
+    \note In Qt Creator the code is updated automatically, as indexing takes
+    care of this, but incase this is not updated, use \gui{Update code model}
+    as an emergency command.
 
 
     \section1 Using an External Editor
