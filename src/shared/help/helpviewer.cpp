@@ -51,6 +51,10 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
+static QString PageNotFoundMessage =
+    QCoreApplication::translate("HelpViewer", "<title>Error 404...</title><div "
+    "align=\"center\"><br><br><h1>The page could not be found</h1><br><h3>'%1'"
+    "</h3></div>");
 
 #if !defined(QT_NO_WEBKIT)
 
@@ -138,7 +142,7 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation /*op*/,
 
     const QHelpEngineCore &engine = Help::HelpManager::helpEngineCore();
     const QByteArray &data = engine.findFile(url).isValid()
-        ? engine.fileData(url) : QByteArray("The page could not be found");
+        ? engine.fileData(url) : PageNotFoundMessage.arg(url.toString()).toUtf8();
     return new HelpNetworkReply(request, data, mimeType);
 }
 
@@ -420,9 +424,7 @@ void HelpViewer::setSource(const QUrl &url)
             "assistantinternal_1.0.0/assistant/assistant.html")));
     } else {
         QTextBrowser::setSource(url);
-        setHtml(tr("<title>Error 404...</title><div align=\"center\"><br><br>"
-            "<h1>The page could not be found</h1><br><h3>'%1'</h3></div>")
-            .arg(url.toString()));
+        setHtml(PageNotFoundMessage.arg(url.toString()));
         emit sourceChanged(url);
     }
 }
