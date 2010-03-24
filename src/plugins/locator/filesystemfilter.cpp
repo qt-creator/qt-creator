@@ -30,6 +30,7 @@
 #include "filesystemfilter.h"
 #include "locatorwidget.h"
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QDir>
 

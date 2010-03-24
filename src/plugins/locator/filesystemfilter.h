@@ -33,12 +33,14 @@
 #include "ilocatorfilter.h"
 #include "ui_filesystemfilter.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <QtCore/QString>
 #include <QtCore/QList>
 #include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
+
+namespace Core {
+    class EditorManager;
+}
 
 namespace Locator {
 namespace Internal {

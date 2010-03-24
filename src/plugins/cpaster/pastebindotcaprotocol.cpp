@@ -30,6 +30,8 @@
 #include "pastebindotcaprotocol.h"
 #include "cgi.h"
 
+#include <QtNetwork/QNetworkReply>
+
 using namespace Core;
 
 PasteBinDotCaProtocol::PasteBinDotCaProtocol()

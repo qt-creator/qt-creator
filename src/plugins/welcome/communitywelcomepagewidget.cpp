@@ -33,6 +33,7 @@
 #include "rssfetcher.h"
 
 #include <QtCore/QMap>
+#include <QtCore/QUrl>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QTreeWidgetItem>
 

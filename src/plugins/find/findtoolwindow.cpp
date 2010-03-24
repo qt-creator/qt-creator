@@ -34,6 +34,8 @@
 
 #include <QtCore/QSettings>
 #include <QtGui/QMainWindow>
+#include <QtGui/QStringListModel>
+#include <QtGui/QCompleter>
 
 using namespace Find;
 using namespace Find::Internal;

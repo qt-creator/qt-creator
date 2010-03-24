@@ -34,6 +34,7 @@
 #include "findtoolbar.h"
 #include "findtoolwindow.h"
 #include "searchresultwindow.h"
+#include "ifindfilter.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -46,6 +47,8 @@
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMenu>
+#include <QtGui/QStringListModel>
+#include <QtGui/QAction>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QSettings>
@@ -70,43 +73,64 @@ namespace {
     const int MAX_COMPLETIONS = 50;
 }
 
-using namespace Find;
-using namespace Find::Internal;
+namespace Find {
 
-FindPlugin *FindPlugin::m_instance = 0;
+struct FindPluginPrivate {
+    explicit FindPluginPrivate(FindPlugin *q);
 
-FindPlugin::FindPlugin()
-  : m_currentDocumentFind(0),
-    m_findToolBar(0),
-    m_findDialog(0),
-    m_findCompletionModel(new QStringListModel(this)),
-    m_replaceCompletionModel(new QStringListModel(this))
+    //variables
+    static FindPlugin *m_instance;
+
+    QHash<IFindFilter *, QAction *> m_filterActions;
+
+    Internal::CurrentDocumentFind *m_currentDocumentFind;
+    Internal::FindToolBar *m_findToolBar;
+    Internal::FindToolWindow *m_findDialog;
+    QTextDocument::FindFlags m_findFlags;
+    QStringListModel *m_findCompletionModel;
+    QStringListModel *m_replaceCompletionModel;
+    QStringList m_findCompletions;
+    QStringList m_replaceCompletions;
+    QAction *m_openFindDialog;
+};
+
+FindPluginPrivate::FindPluginPrivate(FindPlugin *q) :
+    m_currentDocumentFind(0), m_findToolBar(0), m_findDialog(0),
+    m_findCompletionModel(new QStringListModel(q)),
+    m_replaceCompletionModel(new QStringListModel(q))
 {
-    QTC_ASSERT(!m_instance, return);
-    m_instance = this;
+}
+
+FindPlugin *FindPluginPrivate::m_instance = 0;
+
+FindPlugin::FindPlugin() : d(new FindPluginPrivate(this))
+{
+    QTC_ASSERT(!FindPluginPrivate::m_instance, return);
+    FindPluginPrivate::m_instance = this;
 }
 
 FindPlugin::~FindPlugin()
 {
-    m_instance = 0;
-    delete m_currentDocumentFind;
-    delete m_findToolBar;
-    delete m_findDialog;
+    FindPluginPrivate::m_instance = 0;
+    delete d->m_currentDocumentFind;
+    delete d->m_findToolBar;
+    delete d->m_findDialog;
+    delete d;
 }
 
 FindPlugin *FindPlugin::instance()
 {
-    return m_instance;
+    return FindPluginPrivate::m_instance;
 }
 
 bool FindPlugin::initialize(const QStringList &, QString *)
 {
     setupMenu();
 
-    m_currentDocumentFind = new CurrentDocumentFind;
+    d->m_currentDocumentFind = new Internal::CurrentDocumentFind;
 
-    m_findToolBar = new FindToolBar(this, m_currentDocumentFind);
-    m_findDialog = new FindToolWindow(this);
+    d->m_findToolBar = new Internal::FindToolBar(this, d->m_currentDocumentFind);
+    d->m_findDialog = new Internal::FindToolWindow(this);
     SearchResultWindow *searchResultWindow = new SearchResultWindow;
     addAutoReleasedObject(searchResultWindow);
     return true;
@@ -120,27 +144,27 @@ void FindPlugin::extensionsInitialized()
 
 void FindPlugin::shutdown()
 {
-    m_findToolBar->setVisible(false);
-    m_findToolBar->setParent(0);
-    m_currentDocumentFind->removeConnections();
+    d->m_findToolBar->setVisible(false);
+    d->m_findToolBar->setParent(0);
+    d->m_currentDocumentFind->removeConnections();
     writeSettings();
 }
 
 void FindPlugin::filterChanged()
 {
     IFindFilter *changedFilter = qobject_cast<IFindFilter *>(sender());
-    QAction *action = m_filterActions.value(changedFilter);
+    QAction *action = d->m_filterActions.value(changedFilter);
     QTC_ASSERT(changedFilter, return);
     QTC_ASSERT(action, return);
     action->setEnabled(changedFilter->isEnabled());
     bool haveEnabledFilters = false;
-    foreach (IFindFilter *filter, m_filterActions.keys()) {
+    foreach (IFindFilter *filter, d->m_filterActions.keys()) {
         if (filter->isEnabled()) {
             haveEnabledFilters = true;
             break;
         }
     }
-    m_openFindDialog->setEnabled(haveEnabledFilters);
+    d->m_openFindDialog->setEnabled(haveEnabledFilters);
 }
 
 void FindPlugin::openFindFilter()
@@ -148,12 +172,12 @@ void FindPlugin::openFindFilter()
     QAction *action = qobject_cast<QAction*>(sender());
     QTC_ASSERT(action, return);
     IFindFilter *filter = action->data().value<IFindFilter *>();
-    if (m_currentDocumentFind->candidateIsEnabled())
-        m_currentDocumentFind->acceptCandidate();
-    QString currentFindString = (m_currentDocumentFind->isEnabled() ? m_currentDocumentFind->currentFindString() : "");
+    if (d->m_currentDocumentFind->candidateIsEnabled())
+        d->m_currentDocumentFind->acceptCandidate();
+    QString currentFindString = (d->m_currentDocumentFind->isEnabled() ? d->m_currentDocumentFind->currentFindString() : "");
     if (!currentFindString.isEmpty())
-        m_findDialog->setFindText(currentFindString);
-    m_findDialog->open(filter);
+        d->m_findDialog->setFindText(currentFindString);
+    d->m_findDialog->open(filter);
 }
 
 void FindPlugin::setupMenu()
@@ -182,11 +206,11 @@ void FindPlugin::setupMenu()
     Core::ActionContainer *mfindadvanced = am->createMenu(Constants::M_FIND_ADVANCED);
     mfindadvanced->menu()->setTitle(tr("Advanced Find"));
     mfind->addMenu(mfindadvanced, Constants::G_FIND_FILTERS);
-    m_openFindDialog = new QAction(tr("Open Advanced Find..."), this);
-    cmd = am->registerAction(m_openFindDialog, QLatin1String("Find.Dialog"), globalcontext);
+    d->m_openFindDialog = new QAction(tr("Open Advanced Find..."), this);
+    cmd = am->registerAction(d->m_openFindDialog, QLatin1String("Find.Dialog"), globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
     mfindadvanced->addAction(cmd);
-    connect(m_openFindDialog, SIGNAL(triggered()), this, SLOT(openFindFilter()));
+    connect(d->m_openFindDialog, SIGNAL(triggered()), this, SLOT(openFindFilter()));
 }
 
 void FindPlugin::setupFilterMenuItems()
@@ -198,10 +222,10 @@ void FindPlugin::setupFilterMenuItems()
     QList<int> globalcontext = QList<int>() << Core::Constants::C_GLOBAL_ID;
 
     Core::ActionContainer *mfindadvanced = am->actionContainer(Constants::M_FIND_ADVANCED);
-    m_filterActions.clear();
+    d->m_filterActions.clear();
     bool haveEnabledFilters = false;
     foreach (IFindFilter *filter, findInterfaces) {
-        QAction *action = new QAction(QString("    %1").arg(filter->name()), this);
+        QAction *action = new QAction(QLatin1String("    ") + filter->name(), this);
         bool isEnabled = filter->isEnabled();
         if (isEnabled)
             haveEnabledFilters = true;
@@ -210,17 +234,17 @@ void FindPlugin::setupFilterMenuItems()
         cmd = am->registerAction(action, QLatin1String("FindFilter.")+filter->id(), globalcontext);
         cmd->setDefaultKeySequence(filter->defaultShortcut());
         mfindadvanced->addAction(cmd);
-        m_filterActions.insert(filter, action);
+        d->m_filterActions.insert(filter, action);
         connect(action, SIGNAL(triggered(bool)), this, SLOT(openFindFilter()));
         connect(filter, SIGNAL(changed()), this, SLOT(filterChanged()));
     }
-    m_findDialog->setFindFilters(findInterfaces);
-    m_openFindDialog->setEnabled(haveEnabledFilters);
+    d->m_findDialog->setFindFilters(findInterfaces);
+    d->m_openFindDialog->setEnabled(haveEnabledFilters);
 }
 
 QTextDocument::FindFlags FindPlugin::findFlags() const
 {
-    return m_findFlags;
+    return d->m_findFlags;
 }
 
 void FindPlugin::setCaseSensitive(bool sensitive)
@@ -244,30 +268,30 @@ void FindPlugin::setFindFlag(QTextDocument::FindFlag flag, bool enabled)
     if ((hasFlag && enabled) || (!hasFlag && !enabled))
         return;
     if (enabled)
-        m_findFlags |= flag;
+        d->m_findFlags |= flag;
     else
-        m_findFlags &= ~flag;
+        d->m_findFlags &= ~flag;
     if (flag != QTextDocument::FindBackward)
         emit findFlagsChanged();
 }
 
 bool FindPlugin::hasFindFlag(QTextDocument::FindFlag flag)
 {
-    return m_findFlags & flag;
+    return d->m_findFlags & flag;
 }
 
 void FindPlugin::writeSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup("Find");
-    settings->setValue("Backward", QVariant((m_findFlags & QTextDocument::FindBackward) != 0));
-    settings->setValue("CaseSensitively", QVariant((m_findFlags & QTextDocument::FindCaseSensitively) != 0));
-    settings->setValue("WholeWords", QVariant((m_findFlags & QTextDocument::FindWholeWords) != 0));
-    settings->setValue("FindStrings", m_findCompletions);
-    settings->setValue("ReplaceStrings", m_replaceCompletions);
+    settings->setValue("Backward", QVariant((d->m_findFlags & QTextDocument::FindBackward) != 0));
+    settings->setValue("CaseSensitively", QVariant((d->m_findFlags & QTextDocument::FindCaseSensitively) != 0));
+    settings->setValue("WholeWords", QVariant((d->m_findFlags & QTextDocument::FindWholeWords) != 0));
+    settings->setValue("FindStrings", d->m_findCompletions);
+    settings->setValue("ReplaceStrings", d->m_replaceCompletions);
     settings->endGroup();
-    m_findToolBar->writeSettings();
-    m_findDialog->writeSettings();
+    d->m_findToolBar->writeSettings();
+    d->m_findDialog->writeSettings();
 }
 
 void FindPlugin::readSettings()
@@ -279,24 +303,24 @@ void FindPlugin::readSettings()
     setCaseSensitive(settings->value("CaseSensitively", false).toBool());
     setWholeWord(settings->value("WholeWords", false).toBool());
     blockSignals(block);
-    m_findCompletions = settings->value("FindStrings").toStringList();
-    m_replaceCompletions = settings->value("ReplaceStrings").toStringList();
-    m_findCompletionModel->setStringList(m_findCompletions);
-    m_replaceCompletionModel->setStringList(m_replaceCompletions);
+    d->m_findCompletions = settings->value("FindStrings").toStringList();
+    d->m_replaceCompletions = settings->value("ReplaceStrings").toStringList();
+    d->m_findCompletionModel->setStringList(d->m_findCompletions);
+    d->m_replaceCompletionModel->setStringList(d->m_replaceCompletions);
     settings->endGroup();
-    m_findToolBar->readSettings();
-    m_findDialog->readSettings();
+    d->m_findToolBar->readSettings();
+    d->m_findDialog->readSettings();
     emit findFlagsChanged(); // would have been done in the setXXX methods above
 }
 
 void FindPlugin::updateFindCompletion(const QString &text)
 {
-    updateCompletion(text, m_findCompletions, m_findCompletionModel);
+    updateCompletion(text, d->m_findCompletions, d->m_findCompletionModel);
 }
 
 void FindPlugin::updateReplaceCompletion(const QString &text)
 {
-    updateCompletion(text, m_replaceCompletions, m_replaceCompletionModel);
+    updateCompletion(text, d->m_replaceCompletions, d->m_replaceCompletionModel);
 }
 
 void FindPlugin::updateCompletion(const QString &text, QStringList &completions, QStringListModel *model)
@@ -312,16 +336,29 @@ void FindPlugin::updateCompletion(const QString &text, QStringList &completions,
 
 void FindPlugin::setUseFakeVim(bool on)
 {
-    if (m_findToolBar)
-        m_findToolBar->setUseFakeVim(on);
+    if (d->m_findToolBar)
+        d->m_findToolBar->setUseFakeVim(on);
 }
 
 void FindPlugin::openFindToolBar(FindDirection direction)
 {
-    if (m_findToolBar) {
-        m_findToolBar->setBackward(direction == FindBackward);
-        m_findToolBar->openFindToolBar();
+    if (d->m_findToolBar) {
+        d->m_findToolBar->setBackward(direction == FindBackward);
+        d->m_findToolBar->openFindToolBar();
     }
 }
 
-Q_EXPORT_PLUGIN(FindPlugin)
+QStringListModel *FindPlugin::findCompletionModel() const
+{
+    return d->m_findCompletionModel;
+}
+
+QStringListModel *FindPlugin::replaceCompletionModel() const
+{
+    return d->m_replaceCompletionModel;
+}
+
+
+} // namespace Find
+
+Q_EXPORT_PLUGIN(Find::FindPlugin)

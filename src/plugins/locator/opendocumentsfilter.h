@@ -32,15 +32,16 @@
 
 #include "ilocatorfilter.h"
 
+#include <coreplugin/editormanager/openeditorsmodel.h>
+
 #include <QtCore/QString>
 #include <QtCore/QList>
 #include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
-#include <QtGui/QWidget>
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/openeditorsmodel.h>
-#include <coreplugin/editormanager/ieditor.h>
+namespace Core {
+    class EditorManager;
+}
 
 namespace Locator {
 namespace Internal {
@@ -50,7 +51,7 @@ class OpenDocumentsFilter : public Locator::ILocatorFilter
     Q_OBJECT
 
 public:
-    OpenDocumentsFilter(Core::EditorManager *editorManager);
+    explicit OpenDocumentsFilter(Core::EditorManager *editorManager);
     QString displayName() const { return tr("Open documents"); }
     QString id() const { return "Open documents"; }
     Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }

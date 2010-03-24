@@ -30,7 +30,7 @@
 #ifndef COMMUNITYWELCOMEPAGEWIDGET_H
 #define COMMUNITYWELCOMEPAGEWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Welcome {
 namespace Internal {
@@ -46,7 +46,7 @@ class CommunityWelcomePageWidget : public QWidget
     Q_OBJECT
 
 public:
-    CommunityWelcomePageWidget(QWidget *parent = 0);
+    explicit CommunityWelcomePageWidget(QWidget *parent = 0);
     ~CommunityWelcomePageWidget();
 
 private slots:

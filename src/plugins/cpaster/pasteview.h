@@ -30,17 +30,16 @@
 #ifndef PASTEVIEW_H
 #define PASTEVIEW_H
 
-#include "splitter.h"
 #include "ui_pasteview.h"
+#include "splitter.h"
 
-#include <QDialog>
-#include <QByteArray>
+#include <QtGui/QDialog>
 
 class PasteView : public QDialog
 {
     Q_OBJECT
 public:
-    PasteView(QWidget *parent);
+    explicit PasteView(QWidget *parent);
     ~PasteView();
 
     int show(const QString &user, const QString &description, const QString &comment,

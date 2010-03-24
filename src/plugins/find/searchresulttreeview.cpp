@@ -33,6 +33,7 @@
 #include "searchresulttreeitemdelegate.h"
 
 #include <QtGui/QHeaderView>
+#include <QtGui/QKeyEvent>
 
 using namespace Find::Internal;
 

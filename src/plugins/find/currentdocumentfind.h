@@ -33,7 +33,6 @@
 #include "ifindsupport.h"
 
 #include <QtCore/QPointer>
-#include <QtGui/QWidget>
 
 namespace Find {
 namespace Internal {

@@ -33,7 +33,6 @@
 #include "protocol.h"
 
 #include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QHttp>
 
 class PasteBinDotComSettings;

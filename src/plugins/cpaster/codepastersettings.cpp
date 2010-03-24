@@ -39,6 +39,7 @@
 #include <QtGui/QGroupBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QLabel>
 #include <QtCore/QDebug>
 #include <QtCore/QVariant>
 

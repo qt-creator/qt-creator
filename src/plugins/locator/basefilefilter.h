@@ -33,8 +33,7 @@
 #include "locator_global.h"
 #include "ilocatorfilter.h"
 
-#include <QtCore/QString>
-#include <QtCore/QList>
+#include <QtCore/QStringList>
 
 namespace Locator {
 
@@ -51,6 +50,10 @@ protected:
     virtual void updateFiles();
     void generateFileNames();
 
+    inline QStringList &files() { return m_files; }
+    inline const QStringList &files() const { return m_files; }
+
+private:
     QStringList m_files;
     QStringList m_fileNames;
     QStringList m_previousResultPaths;

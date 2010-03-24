@@ -36,7 +36,10 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/findplaceholder.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <utils/stylehelper.h>
 
 #include <QtCore/QDebug>
@@ -51,6 +54,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QPainter>
 #include <QtGui/QPixmapCache>
+#include <QtGui/QStringListModel>
 
 Q_DECLARE_METATYPE(QStringList)
 Q_DECLARE_METATYPE(Find::IFindFilter*)

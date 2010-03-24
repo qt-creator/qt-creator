@@ -58,13 +58,13 @@ void AllProjectsFilter::updateFiles()
     if (m_filesUpToDate)
         return;
     m_filesUpToDate = true;
-    m_files.clear();
+    files().clear();
     SessionManager *session = m_projectExplorer->session();
     if (!session)
         return;
     foreach (Project *project, session->projects())
-        m_files += project->files(Project::AllFiles);
-    qSort(m_files);
+        files().append(project->files(Project::AllFiles));
+    qSort(files());
     generateFileNames();
 }
 

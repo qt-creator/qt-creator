@@ -63,11 +63,11 @@ void CurrentProjectFilter::updateFiles()
     if (m_filesUpToDate)
         return;
     m_filesUpToDate = true;
-    m_files.clear();
+    files().clear();
     if (!m_project)
         return;
-    m_files = m_project->files(Project::AllFiles);
-    qSort(m_files);
+    files() = m_project->files(Project::AllFiles);
+    qSort(files());
     generateFileNames();
 }
 

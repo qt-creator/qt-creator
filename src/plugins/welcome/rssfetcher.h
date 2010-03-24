@@ -30,12 +30,12 @@
 #ifndef RSSFETCHER_H
 #define RSSFETCHER_H
 
-#include <QtCore/QUrl>
 #include <QtCore/QXmlStreamReader>
 #include <QtNetwork/QNetworkAccessManager>
 
 QT_BEGIN_NAMESPACE
 class QNetworkReply;
+class QUrl;
 QT_END_NAMESPACE
 
 namespace Welcome {
@@ -45,7 +45,7 @@ class RSSFetcher : public QObject
 {
     Q_OBJECT
 public:
-    RSSFetcher(int maxItems, QObject *parent = 0);
+    explicit RSSFetcher(int maxItems, QObject *parent = 0);
 
 signals:
     void newsItemReady(const QString& title, const QString& desciption, const QString& url);

@@ -31,20 +31,19 @@
 #define SEARCHRESULTWINDOW_H
 
 #include "find_global.h"
-#include "searchresulttreeview.h"
+
+#include <QtCore/QVariant>
 
 #include <coreplugin/ioutputpane.h>
 
-
 QT_BEGIN_NAMESPACE
-class QStackedWidget;
-class QListWidget;
-class QToolButton;
-class QLabel;
+class QFont;
 QT_END_NAMESPACE
 
 namespace Find {
-
+namespace Internal {
+    class SearchResultTreeView;
+}
 class SearchResultWindow;
 
 struct FIND_EXPORT SearchResultItem
@@ -70,6 +69,7 @@ signals:
     friend class SearchResultWindow;
 };
 
+struct SearchResultWindowPrivate;
 class FIND_EXPORT SearchResultWindow : public Core::IOutputPane
 {
     Q_OBJECT
@@ -81,7 +81,7 @@ public:
     };
 
     SearchResultWindow();
-    ~SearchResultWindow();
+    virtual ~SearchResultWindow();
 
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets() const;
@@ -127,18 +127,7 @@ private:
     void writeSettings();
     QList<SearchResultItem> checkedItems() const;
 
-    Internal::SearchResultTreeView *m_searchResultTreeView;
-    QListWidget *m_noMatchesFoundDisplay;
-    QToolButton *m_expandCollapseToolButton;
-    QLabel *m_replaceLabel;
-    QLineEdit *m_replaceTextEdit;
-    QToolButton *m_replaceButton;
-    static const bool m_initiallyExpand = false;
-    QStackedWidget *m_widget;
-    SearchResult *m_currentSearch;
-    QList<SearchResultItem> m_items;
-    bool m_isShowingReplaceUI;
-    bool m_focusReplaceEdit;
+    SearchResultWindowPrivate *d;
 };
 
 } // namespace Find

@@ -38,8 +38,6 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
 #include <QtCore/QMutex>
-#include <QtGui/QWidget>
-#include <QtGui/QDialog>
 
 namespace Locator {
 namespace Internal {

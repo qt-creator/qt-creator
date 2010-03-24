@@ -29,6 +29,9 @@
 
 #include "opendocumentsfilter.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+
 Q_DECLARE_METATYPE(Core::IEditor*);
 
 using namespace Core;

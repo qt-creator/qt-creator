@@ -30,13 +30,7 @@
 #ifndef CODEPASTERSETTINGSPAGE_H
 #define CODEPASTERSETTINGSPAGE_H
 
-#include "ui_settingspage.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QtCore/QStringList>
-#include <QtCore/QUrl>
-#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

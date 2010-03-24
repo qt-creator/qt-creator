@@ -32,7 +32,6 @@
 
 #include "locatorplugin.h"
 
-#include <QtCore/QEvent>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -59,7 +58,7 @@ class LocatorWidget
     Q_OBJECT
 
 public:
-    LocatorWidget(LocatorPlugin *qop);
+    explicit LocatorWidget(LocatorPlugin *qop);
 
     void updateFilterList();
 

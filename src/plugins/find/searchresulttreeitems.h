@@ -30,9 +30,9 @@
 #ifndef SEARCHRESULTTREEITEMS_H
 #define SEARCHRESULTTREEITEMS_H
 
-#include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QList>
+#include <QtCore/qnamespace.h>
 
 namespace Find {
 namespace Internal {

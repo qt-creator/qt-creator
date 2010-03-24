@@ -58,7 +58,7 @@ QByteArray DirectoryFilter::saveState() const
     out << m_filters;
     out << shortcutString();
     out << isIncludedByDefault();
-    out << m_files;
+    out << files();
     return value;
 }
 
@@ -76,7 +76,7 @@ bool DirectoryFilter::restoreState(const QByteArray &state)
     in >> m_filters;
     in >> shortcut;
     in >> defaultFilter;
-    in >> m_files;
+    in >> files();
 
     setShortcutString(shortcut);
     setIncludedByDefault(defaultFilter);
@@ -184,14 +184,14 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     future.setProgressRange(0, MAX);
     if (m_directories.count() < 1) {
         QMutexLocker locker(&m_lock);
-        m_files.clear();
+        files().clear();
         generateFileNames();
         future.setProgressValueAndText(MAX, tr("%1 filter update: 0 files").arg(m_name));
         return;
     }
     int progress = 0;
     int MAX_PER = MAX;
-    QStringList files;
+    QStringList filesFound;
     QStack<QDir> dirs;
     QStack<int> progressValues;
     QStack<bool> processedValues;
@@ -209,7 +209,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     while (!dirs.isEmpty() && !future.isCanceled()) {
         if (future.isProgressUpdateNeeded()) {
             future.setProgressValueAndText(progress,
-                                           tr("%1 filter update: %n files", 0, files.size()).arg(m_name));
+                                           tr("%1 filter update: %n files", 0, filesFound.size()).arg(m_name));
         }
         QDir dir = dirs.pop();
         int dirProgressMax = progressValues.pop();
@@ -225,7 +225,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
                     QDir::Files|QDir::Hidden,
                     QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
                 foreach (const QString &file, fileEntries)
-                    files.append(dir.path()+ QLatin1Char('/') +file);
+                    filesFound.append(dir.path()+ QLatin1Char('/') +file);
                 progress += dirProgressMax;
             } else {
                 int subProgress = dirProgressMax/(subDirs.size()+1);
@@ -246,7 +246,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
 
     if (!future.isCanceled()) {
         QMutexLocker locker(&m_lock);
-        m_files = files;
+        files() = filesFound;
         generateFileNames();
         future.setProgressValue(MAX);
     } else {

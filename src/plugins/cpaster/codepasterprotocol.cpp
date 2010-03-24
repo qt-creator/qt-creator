@@ -38,6 +38,9 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/messageoutputwindow.h>
 
+#include <QtGui/QListWidget>
+#include <QtNetwork/QNetworkReply>
+
 using namespace CodePaster;
 using namespace Core;
 

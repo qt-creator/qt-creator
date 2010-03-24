@@ -29,11 +29,12 @@
 
 #include "pasteview.h"
 
-#include <QFontMetrics>
-#include <QPainter>
-#include <QScrollBar>
-#include <QPushButton>
-#include <QSettings>
+#include <QtGui/QFontMetrics>
+#include <QtGui/QPainter>
+#include <QtGui/QScrollBar>
+#include <QtGui/QPushButton>
+#include <QtCore/QSettings>
+#include <QtCore/QByteArray>
 
 class ColumnIndicatorTextEdit : public QTextEdit
 {

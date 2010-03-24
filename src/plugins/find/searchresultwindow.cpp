@@ -30,6 +30,7 @@
 #include "searchresultwindow.h"
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
+#include "searchresulttreeview.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -43,53 +44,72 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QLabel>
+#include <QtGui/QFont>
 
-using namespace Find;
-using namespace Find::Internal;
-
-static const QString SETTINGSKEYSECTIONNAME("SearchResults");
-static const QString SETTINGSKEYEXPANDRESULTS("ExpandResults");
+static const char SETTINGSKEYSECTIONNAME[] = "SearchResults";
+static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
 
 
-SearchResultWindow::SearchResultWindow()
-    : m_currentSearch(0),
-    m_isShowingReplaceUI(false),
-    m_focusReplaceEdit(false)
+namespace Find {
+
+struct SearchResultWindowPrivate {
+    SearchResultWindowPrivate();
+
+    Internal::SearchResultTreeView *m_searchResultTreeView;
+    QListWidget *m_noMatchesFoundDisplay;
+    QToolButton *m_expandCollapseToolButton;
+    QLabel *m_replaceLabel;
+    QLineEdit *m_replaceTextEdit;
+    QToolButton *m_replaceButton;
+    static const bool m_initiallyExpand = false;
+    QStackedWidget *m_widget;
+    SearchResult *m_currentSearch;
+    QList<SearchResultItem> m_items;
+    bool m_isShowingReplaceUI;
+    bool m_focusReplaceEdit;
+};
+
+SearchResultWindowPrivate::SearchResultWindowPrivate()
+    : m_currentSearch(0), m_isShowingReplaceUI(false),  m_focusReplaceEdit(false)
 {
-    m_widget = new QStackedWidget;
-    m_widget->setWindowTitle(name());
+}
 
-    m_searchResultTreeView = new SearchResultTreeView(m_widget);
-    m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
-    m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_widget->addWidget(m_searchResultTreeView);
+SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
+{
+    d->m_widget = new QStackedWidget;
+    d->m_widget->setWindowTitle(name());
 
-    m_noMatchesFoundDisplay = new QListWidget(m_widget);
-    m_noMatchesFoundDisplay->addItem(tr("No matches found!"));
-    m_noMatchesFoundDisplay->setFrameStyle(QFrame::NoFrame);
-    m_widget->addWidget(m_noMatchesFoundDisplay);
+    d->m_searchResultTreeView = new Internal::SearchResultTreeView(d->m_widget);
+    d->m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
+    d->m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    d->m_widget->addWidget(d->m_searchResultTreeView);
 
-    m_expandCollapseToolButton = new QToolButton(m_widget);
-    m_expandCollapseToolButton->setAutoRaise(true);
-    m_expandCollapseToolButton->setCheckable(true);
-    m_expandCollapseToolButton->setIcon(QIcon(":/find/images/expand.png"));
-    m_expandCollapseToolButton->setToolTip(tr("Expand All"));
+    d->m_noMatchesFoundDisplay = new QListWidget(d->m_widget);
+    d->m_noMatchesFoundDisplay->addItem(tr("No matches found!"));
+    d->m_noMatchesFoundDisplay->setFrameStyle(QFrame::NoFrame);
+    d->m_widget->addWidget(d->m_noMatchesFoundDisplay);
 
-    m_replaceLabel = new QLabel(tr("Replace with:"), m_widget);
-    m_replaceLabel->setContentsMargins(12, 0, 5, 0);
-    m_replaceTextEdit = new QLineEdit(m_widget);
-    m_replaceButton = new QToolButton(m_widget);
-    m_replaceButton->setToolTip(tr("Replace all occurrences"));
-    m_replaceButton->setText(tr("Replace"));
-    m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    m_replaceButton->setAutoRaise(true);
-    m_replaceTextEdit->setTabOrder(m_replaceTextEdit, m_searchResultTreeView);
+    d->m_expandCollapseToolButton = new QToolButton(d->m_widget);
+    d->m_expandCollapseToolButton->setAutoRaise(true);
+    d->m_expandCollapseToolButton->setCheckable(true);
+    d->m_expandCollapseToolButton->setIcon(QIcon(":/find/images/expand.png"));
+    d->m_expandCollapseToolButton->setToolTip(tr("Expand All"));
 
-    connect(m_searchResultTreeView, SIGNAL(jumpToSearchResult(int,bool)),
+    d->m_replaceLabel = new QLabel(tr("Replace with:"), d->m_widget);
+    d->m_replaceLabel->setContentsMargins(12, 0, 5, 0);
+    d->m_replaceTextEdit = new QLineEdit(d->m_widget);
+    d->m_replaceButton = new QToolButton(d->m_widget);
+    d->m_replaceButton->setToolTip(tr("Replace all occurrences"));
+    d->m_replaceButton->setText(tr("Replace"));
+    d->m_replaceButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    d->m_replaceButton->setAutoRaise(true);
+    d->m_replaceTextEdit->setTabOrder(d->m_replaceTextEdit, d->m_searchResultTreeView);
+
+    connect(d->m_searchResultTreeView, SIGNAL(jumpToSearchResult(int,bool)),
             this, SLOT(handleJumpToSearchResult(int,bool)));
-    connect(m_expandCollapseToolButton, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
-    connect(m_replaceTextEdit, SIGNAL(returnPressed()), this, SLOT(handleReplaceButton()));
-    connect(m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
+    connect(d->m_expandCollapseToolButton, SIGNAL(toggled(bool)), this, SLOT(handleExpandCollapseToolButton(bool)));
+    connect(d->m_replaceTextEdit, SIGNAL(returnPressed()), this, SLOT(handleReplaceButton()));
+    connect(d->m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
 
     readSettings();
     setShowReplaceUI(false);
@@ -98,55 +118,56 @@ SearchResultWindow::SearchResultWindow()
 SearchResultWindow::~SearchResultWindow()
 {
     writeSettings();
-    delete m_currentSearch;
-    m_currentSearch = 0;
-    delete m_widget;
-    m_widget = 0;
-    m_items.clear();
+    delete d->m_currentSearch;
+    d->m_currentSearch = 0;
+    delete d->m_widget;
+    d->m_widget = 0;
+    d->m_items.clear();
+    delete d;
 }
 
 void SearchResultWindow::setTextToReplace(const QString &textToReplace)
 {
-    m_replaceTextEdit->setText(textToReplace);
+    d->m_replaceTextEdit->setText(textToReplace);
 }
 
 QString SearchResultWindow::textToReplace() const
 {
-    return m_replaceTextEdit->text();
+    return d->m_replaceTextEdit->text();
 }
 
 void SearchResultWindow::setShowReplaceUI(bool show)
 {
-    m_searchResultTreeView->model()->setShowReplaceUI(show);
-    m_replaceLabel->setVisible(show);
-    m_replaceTextEdit->setVisible(show);
-    m_replaceButton->setVisible(show);
-    m_isShowingReplaceUI = show;
+    d->m_searchResultTreeView->model()->setShowReplaceUI(show);
+    d->m_replaceLabel->setVisible(show);
+    d->m_replaceTextEdit->setVisible(show);
+    d->m_replaceButton->setVisible(show);
+    d->m_isShowingReplaceUI = show;
 }
 
 void SearchResultWindow::handleReplaceButton()
 {
-    QTC_ASSERT(m_currentSearch, return);
+    QTC_ASSERT(d->m_currentSearch, return);
     // check if button is actually enabled, because this is also triggered
     // by pressing return in replace line edit
-    if (m_replaceButton->isEnabled())
-        m_currentSearch->replaceButtonClicked(m_replaceTextEdit->text(), checkedItems());
+    if (d->m_replaceButton->isEnabled())
+        d->m_currentSearch->replaceButtonClicked(d->m_replaceTextEdit->text(), checkedItems());
 }
 
 QList<SearchResultItem> SearchResultWindow::checkedItems() const
 {
     QList<SearchResultItem> result;
-    SearchResultTreeModel *model = m_searchResultTreeView->model();
+    Internal::SearchResultTreeModel *model = d->m_searchResultTreeView->model();
     const int fileCount = model->rowCount(QModelIndex());
     for (int i = 0; i < fileCount; ++i) {
         QModelIndex fileIndex = model->index(i, 0, QModelIndex());
-        SearchResultFile *fileItem = static_cast<SearchResultFile *>(fileIndex.internalPointer());
+        Internal::SearchResultFile *fileItem = static_cast<Internal::SearchResultFile *>(fileIndex.internalPointer());
         Q_ASSERT(fileItem != 0);
         for (int rowIndex = 0; rowIndex < fileItem->childrenCount(); ++rowIndex) {
             QModelIndex textIndex = model->index(rowIndex, 0, fileIndex);
-            SearchResultTextRow *rowItem = static_cast<SearchResultTextRow *>(textIndex.internalPointer());
+            Internal::SearchResultTextRow *rowItem = static_cast<Internal::SearchResultTextRow *>(textIndex.internalPointer());
             if (rowItem->checkState())
-                result << m_items.at(rowItem->index());
+                result << d->m_items.at(rowItem->index());
         }
     }
     return result;
@@ -158,27 +179,27 @@ void SearchResultWindow::visibilityChanged(bool /*visible*/)
 
 QWidget *SearchResultWindow::outputWidget(QWidget *)
 {
-    return m_widget;
+    return d->m_widget;
 }
 
 QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>() << m_expandCollapseToolButton << m_replaceLabel << m_replaceTextEdit << m_replaceButton;
+    return QList<QWidget*>() << d->m_expandCollapseToolButton << d->m_replaceLabel << d->m_replaceTextEdit << d->m_replaceButton;
 }
 
 SearchResult *SearchResultWindow::startNewSearch(SearchMode searchOrSearchAndReplace)
 {
     clearContents();
     setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
-    delete m_currentSearch;
-    m_currentSearch = new SearchResult;
-    return m_currentSearch;
+    delete d->m_currentSearch;
+    d->m_currentSearch = new SearchResult;
+    return d->m_currentSearch;
 }
 
 void SearchResultWindow::finishSearch()
 {
-    if (m_items.count()) {
-        m_replaceButton->setEnabled(true);
+    if (d->m_items.count()) {
+        d->m_replaceButton->setEnabled(true);
     } else {
         showNoMatchesFound();
     }
@@ -186,55 +207,55 @@ void SearchResultWindow::finishSearch()
 
 void SearchResultWindow::clearContents()
 {
-    m_replaceTextEdit->setEnabled(false);
-    m_replaceButton->setEnabled(false);
-    m_replaceTextEdit->clear();
-    m_searchResultTreeView->clear();
-    m_items.clear();
-    m_widget->setCurrentWidget(m_searchResultTreeView);
+    d->m_replaceTextEdit->setEnabled(false);
+    d->m_replaceButton->setEnabled(false);
+    d->m_replaceTextEdit->clear();
+    d->m_searchResultTreeView->clear();
+    d->m_items.clear();
+    d->m_widget->setCurrentWidget(d->m_searchResultTreeView);
     navigateStateChanged();
 }
 
 void SearchResultWindow::showNoMatchesFound()
 {
-    m_replaceTextEdit->setEnabled(false);
-    m_replaceButton->setEnabled(false);
-    m_widget->setCurrentWidget(m_noMatchesFoundDisplay);
+    d->m_replaceTextEdit->setEnabled(false);
+    d->m_replaceButton->setEnabled(false);
+    d->m_widget->setCurrentWidget(d->m_noMatchesFoundDisplay);
 }
 
 bool SearchResultWindow::isEmpty() const
 {
-    return (m_searchResultTreeView->model()->rowCount() < 1);
+    return (d->m_searchResultTreeView->model()->rowCount() < 1);
 }
 
 int SearchResultWindow::numberOfResults() const
 {
-    return m_items.count();
+    return d->m_items.count();
 }
 
 bool SearchResultWindow::hasFocus()
 {
-    return m_searchResultTreeView->hasFocus() || (m_isShowingReplaceUI && m_replaceTextEdit->hasFocus());
+    return d->m_searchResultTreeView->hasFocus() || (d->m_isShowingReplaceUI && d->m_replaceTextEdit->hasFocus());
 }
 
 bool SearchResultWindow::canFocus()
 {
-    return !m_items.isEmpty();
+    return !d->m_items.isEmpty();
 }
 
 void SearchResultWindow::setFocus()
 {
-    if (!m_items.isEmpty()) {
-        if (!m_isShowingReplaceUI) {
-            m_searchResultTreeView->setFocus();
+    if (!d->m_items.isEmpty()) {
+        if (!d->m_isShowingReplaceUI) {
+            d->m_searchResultTreeView->setFocus();
         } else {
-            if (!m_widget->focusWidget()
-                    || m_widget->focusWidget() == m_replaceTextEdit
-                    || m_focusReplaceEdit) {
-                m_replaceTextEdit->setFocus();
-                m_replaceTextEdit->selectAll();
+            if (!d->m_widget->focusWidget()
+                    || d->m_widget->focusWidget() == d->m_replaceTextEdit
+                    || d->m_focusReplaceEdit) {
+                d->m_replaceTextEdit->setFocus();
+                d->m_replaceTextEdit->selectAll();
             } else {
-                m_searchResultTreeView->setFocus();
+                d->m_searchResultTreeView->setFocus();
             }
         }
     }
@@ -242,21 +263,21 @@ void SearchResultWindow::setFocus()
 
 void SearchResultWindow::setTextEditorFont(const QFont &font)
 {
-    m_searchResultTreeView->setTextEditorFont(font);
+    d->m_searchResultTreeView->setTextEditorFont(font);
 }
 
 void SearchResultWindow::handleJumpToSearchResult(int index, bool /* checked */)
 {
-    QTC_ASSERT(m_currentSearch, return);
-    m_currentSearch->activated(m_items.at(index));
+    QTC_ASSERT(d->m_currentSearch, return);
+    d->m_currentSearch->activated(d->m_items.at(index));
 }
 
 void SearchResultWindow::addResult(const QString &fileName, int lineNumber, const QString &rowText,
     int searchTermStart, int searchTermLength, const QVariant &userData)
 {
     //qDebug()<<"###"<<fileName;
-    m_widget->setCurrentWidget(m_searchResultTreeView);
-    int index = m_items.size();
+    d->m_widget->setCurrentWidget(d->m_searchResultTreeView);
+    int index = d->m_items.size();
     SearchResultItem item;
     item.fileName = fileName;
     item.lineNumber = lineNumber;
@@ -265,34 +286,34 @@ void SearchResultWindow::addResult(const QString &fileName, int lineNumber, cons
     item.searchTermLength = searchTermLength;
     item.userData = userData;
     item.index = index;
-    m_items.append(item);
-    m_searchResultTreeView->appendResultLine(index, fileName, lineNumber, rowText, searchTermStart, searchTermLength);
+    d->m_items.append(item);
+    d->m_searchResultTreeView->appendResultLine(index, fileName, lineNumber, rowText, searchTermStart, searchTermLength);
     if (index == 0) {
-        m_replaceTextEdit->setEnabled(true);
+        d->m_replaceTextEdit->setEnabled(true);
         // We didn't have an item before, set the focus to the search widget
-        m_focusReplaceEdit = true;
+        d->m_focusReplaceEdit = true;
         setFocus();
-        m_focusReplaceEdit = false;
-        m_searchResultTreeView->selectionModel()->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()), QItemSelectionModel::Select);
+        d->m_focusReplaceEdit = false;
+        d->m_searchResultTreeView->selectionModel()->select(d->m_searchResultTreeView->model()->index(0, 0, QModelIndex()), QItemSelectionModel::Select);
         emit navigateStateChanged();
     }
 }
 
 void SearchResultWindow::handleExpandCollapseToolButton(bool checked)
 {
-    m_searchResultTreeView->setAutoExpandResults(checked);
+    d->m_searchResultTreeView->setAutoExpandResults(checked);
     if (checked)
-        m_searchResultTreeView->expandAll();
+        d->m_searchResultTreeView->expandAll();
     else
-        m_searchResultTreeView->collapseAll();
+        d->m_searchResultTreeView->collapseAll();
 }
 
 void SearchResultWindow::readSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {
-        s->beginGroup(SETTINGSKEYSECTIONNAME);
-        m_expandCollapseToolButton->setChecked(s->value(SETTINGSKEYEXPANDRESULTS, m_initiallyExpand).toBool());
+        s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
+        d->m_expandCollapseToolButton->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_initiallyExpand).toBool());
         s->endGroup();
     }
 }
@@ -301,8 +322,8 @@ void SearchResultWindow::writeSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {
-        s->beginGroup(SETTINGSKEYSECTIONNAME);
-        s->setValue(SETTINGSKEYEXPANDRESULTS, m_expandCollapseToolButton->isChecked());
+        s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
+        s->setValue(QLatin1String(SETTINGSKEYEXPANDRESULTS), d->m_expandCollapseToolButton->isChecked());
         s->endGroup();
     }
 }
@@ -314,32 +335,32 @@ int SearchResultWindow::priorityInStatusBar() const
 
 bool SearchResultWindow::canNext()
 {
-    return m_items.count() > 0;
+    return d->m_items.count() > 0;
 }
 
 bool SearchResultWindow::canPrevious()
 {
-    return m_items.count() > 0;
+    return d->m_items.count() > 0;
 }
 
 void SearchResultWindow::goToNext()
 {
-    if (m_items.count() == 0)
+    if (d->m_items.count() == 0)
         return;
-    QModelIndex idx = m_searchResultTreeView->model()->next(m_searchResultTreeView->currentIndex());
+    QModelIndex idx = d->m_searchResultTreeView->model()->next(d->m_searchResultTreeView->currentIndex());
     if (idx.isValid()) {
-        m_searchResultTreeView->setCurrentIndex(idx);
-        m_searchResultTreeView->emitJumpToSearchResult(idx);
+        d->m_searchResultTreeView->setCurrentIndex(idx);
+        d->m_searchResultTreeView->emitJumpToSearchResult(idx);
     }
 }
 void SearchResultWindow::goToPrev()
 {
-    if (!m_searchResultTreeView->model()->rowCount())
+    if (!d->m_searchResultTreeView->model()->rowCount())
         return;
-    QModelIndex idx = m_searchResultTreeView->model()->prev(m_searchResultTreeView->currentIndex());
+    QModelIndex idx = d->m_searchResultTreeView->model()->prev(d->m_searchResultTreeView->currentIndex());
     if (idx.isValid()) {
-        m_searchResultTreeView->setCurrentIndex(idx);
-        m_searchResultTreeView->emitJumpToSearchResult(idx);
+        d->m_searchResultTreeView->setCurrentIndex(idx);
+        d->m_searchResultTreeView->emitJumpToSearchResult(idx);
     }
 }
 
@@ -347,3 +368,6 @@ bool SearchResultWindow::canNavigate()
 {
     return true;
 }
+
+} // namespace Find
+

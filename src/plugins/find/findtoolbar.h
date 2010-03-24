@@ -31,29 +31,27 @@
 #define FINDTOOLBAR_H
 
 #include "ui_findwidget.h"
-#include "ifindfilter.h"
 #include "currentdocumentfind.h"
 
-#include <coreplugin/findplaceholder.h>
 #include <utils/styledbar.h>
 
 #include <QtCore/QTimer>
 
-#include <QtGui/QStringListModel>
-#include <QtGui/QWidget>
-#include <QtGui/QLabel>
+namespace Core {
+class FindToolBarPlaceHolder;
+}
 
 namespace Find {
-namespace Internal {
-
 class FindPlugin;
+
+namespace Internal {
 
 class FindToolBar : public Utils::StyledBar
 {
     Q_OBJECT
 
 public:
-    FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumentFind);
+    explicit FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumentFind);
     ~FindToolBar();
 
     void readSettings();

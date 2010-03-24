@@ -31,7 +31,6 @@
 #define SEARCHRESULTTREEVIEW_H
 
 #include <QtGui/QTreeView>
-#include <QtGui/QKeyEvent>
 
 namespace Find {
 namespace Internal {
@@ -43,7 +42,7 @@ class SearchResultTreeView : public QTreeView
     Q_OBJECT
 
 public:
-    SearchResultTreeView(QWidget *parent = 0);
+    explicit SearchResultTreeView(QWidget *parent = 0);
 
     void setAutoExpandResults(bool expand);
     void setTextEditorFont(const QFont &font);

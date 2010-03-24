@@ -739,11 +739,11 @@ void FakeVimPluginPrivate::windowCommand(int key)
 
 void FakeVimPluginPrivate::find(bool reverse)
 {
-    if (Find::Internal::FindPlugin *plugin = Find::Internal::FindPlugin::instance()) {
+    if (Find::FindPlugin *plugin = Find::FindPlugin::instance()) {
         plugin->setUseFakeVim(true);
         plugin->openFindToolBar(reverse
-                ? Find::Internal::FindPlugin::FindBackward
-                : Find::Internal::FindPlugin::FindForward);
+                ? Find::FindPlugin::FindBackward
+                : Find::FindPlugin::FindForward);
     }
 }
 
@@ -847,8 +847,8 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
 {
     //qDebug() << "SET USE FAKEVIM" << value;
     bool on = value.toBool();
-    if (Find::Internal::FindPlugin::instance())
-        Find::Internal::FindPlugin::instance()->setUseFakeVim(on);
+    if (Find::FindPlugin::instance())
+        Find::FindPlugin::instance()->setUseFakeVim(on);
     if (on) {
         Core::EditorManager::instance()->showEditorStatusBar(
             QLatin1String(Constants::MINI_BUFFER),

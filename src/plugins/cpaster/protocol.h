@@ -30,12 +30,7 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#include "settingspage.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
 class QListWidget;

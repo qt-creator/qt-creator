@@ -29,16 +29,10 @@
 
 #include "pastebindotcomprotocol.h"
 #include "pastebindotcomsettings.h"
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/messageoutputwindow.h>
 
-#include <QDebug>
-#include <QtNetwork/QHttp>
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
+#include <QtCore/QDebug>
+#include <QtNetwork/QNetworkReply>
 
 using namespace Core;
 

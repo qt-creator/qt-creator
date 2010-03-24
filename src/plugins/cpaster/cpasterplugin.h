@@ -30,22 +30,18 @@
 #ifndef CODEPASTERPLUGIN_H
 #define CODEPASTERPLUGIN_H
 
-#include "settingspage.h"
-#include "protocol.h"
-
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icorelistener.h>
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
 #include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
-class QListWidget;
+class QAction;
 QT_END_NAMESPACE
 
-namespace CodePaster {
+class Protocol;
 
+namespace CodePaster {
+class SettingsPage;
 class CustomFetcher;
 class CustomPoster;
 

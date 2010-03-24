@@ -33,7 +33,6 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QtGui/QWidget>
 #include <QtCore/QPointer>
 
 namespace SharedTools {

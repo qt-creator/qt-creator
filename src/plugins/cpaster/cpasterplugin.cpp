@@ -36,16 +36,15 @@
 #include "codepasterprotocol.h"
 #include "pastebindotcomprotocol.h"
 #include "pastebindotcaprotocol.h"
+#include "settingspage.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/messageoutputwindow.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <texteditor/itexteditor.h>
 
@@ -55,9 +54,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
 #include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
-#include <QtGui/QListWidget>
 
 using namespace CodePaster;
 using namespace Core;

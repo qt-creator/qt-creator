@@ -32,10 +32,13 @@
 
 #include "protocol.h"
 
-#include <QtGui/QListWidget>
 #include <QtNetwork/QHttp>
 #include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
+
+QT_BEGIN_NAMESPACE
+class QListWidget;
+class QNetworkReply;
+QT_END_NAMESPACE
 
 namespace CodePaster {
 

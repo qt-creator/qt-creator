@@ -34,20 +34,20 @@
 #include "ifindfilter.h"
 
 #include <QtCore/QList>
-#include <QtGui/QCompleter>
-#include <QtGui/QWidget>
+
+QT_FORWARD_DECLARE_CLASS(QCompleter)
 
 namespace Find {
-namespace Internal {
-
 class FindPlugin;
+
+namespace Internal {
 
 class FindToolWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    FindToolWindow(FindPlugin *plugin);
+    explicit FindToolWindow(FindPlugin *plugin);
     ~FindToolWindow();
 
     void setFindFilters(const QList<IFindFilter *> &filters);
@@ -70,7 +70,7 @@ private:
     FindPlugin *m_plugin;
     QList<IFindFilter *> m_filters;
     QCompleter *m_findCompleter;
-    QList<QWidget *> m_configWidgets;
+    QWidgetList m_configWidgets;
     IFindFilter *m_currentFilter;
 };
 

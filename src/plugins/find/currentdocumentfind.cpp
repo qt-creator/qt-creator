@@ -36,6 +36,7 @@
 
 #include <QtCore/QDebug>
 #include <QtGui/QApplication>
+#include <QtGui/QWidget>
 
 using namespace Core;
 using namespace Find;

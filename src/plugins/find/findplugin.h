@@ -30,22 +30,25 @@
 #ifndef FINDPLUGIN_H
 #define FINDPLUGIN_H
 
-#include "ifindfilter.h"
+#include "find_global.h"
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QStringList>
-#include <QtGui/QAction>
 #include <QtGui/QTextDocument>
-#include <QtGui/QStringListModel>
+
+QT_BEGIN_NAMESPACE
+class QStringListModel;
+QT_END_NAMESPACE
 
 namespace Find {
-namespace Internal {
+class IFindFilter;
+struct FindPluginPrivate;
 
+namespace Internal {
 class FindToolBar;
 class FindToolWindow;
 class CurrentDocumentFind;
+} // namespace Internal
 
 class FIND_EXPORT FindPlugin : public ExtensionSystem::IPlugin
 {
@@ -69,8 +72,8 @@ public:
     QTextDocument::FindFlags findFlags() const;
     void updateFindCompletion(const QString &text);
     void updateReplaceCompletion(const QString &text);
-    QStringListModel *findCompletionModel() { return m_findCompletionModel; }
-    QStringListModel *replaceCompletionModel() { return m_replaceCompletionModel; }
+    QStringListModel *findCompletionModel() const;
+    QStringListModel *replaceCompletionModel() const;
     void setUseFakeVim(bool on);
     void openFindToolBar(FindDirection direction);
 
@@ -96,22 +99,9 @@ private:
     void readSettings();
 
     //variables
-    static FindPlugin *m_instance;
-
-    QHash<IFindFilter *, QAction *> m_filterActions;
-
-    CurrentDocumentFind *m_currentDocumentFind;
-    FindToolBar *m_findToolBar;
-    FindToolWindow *m_findDialog;
-    QTextDocument::FindFlags m_findFlags;
-    QStringListModel *m_findCompletionModel;
-    QStringListModel *m_replaceCompletionModel;
-    QStringList m_findCompletions;
-    QStringList m_replaceCompletions;
-    QAction *m_openFindDialog;
+    FindPluginPrivate *d;
 };
 
-} // namespace Internal
 } // namespace Find
 
 #endif // FINDPLUGIN_H
