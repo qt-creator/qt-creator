@@ -126,6 +126,23 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 };
 
+// Version 3 reflect the move of symbian signing from run to build step.
+class Version3Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+        return 3;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("2.0-alpha2+git");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
+
 //
 // Helper functions:
 //
@@ -195,6 +212,7 @@ UserFileAccessor::UserFileAccessor() :
     addVersionHandler(new Version0Handler);
     addVersionHandler(new Version1Handler);
     addVersionHandler(new Version2Handler);
+    addVersionHandler(new Version3Handler);
 }
 
 UserFileAccessor::~UserFileAccessor()
@@ -854,4 +872,112 @@ QVariantMap Version2Handler::update(Project *, const QVariantMap &map)
                              QLatin1String("ProjectExplorer.BuildConfiguration.ClearSystemEnvironment")));
 
     return renameKeys(changes, QVariantMap(map));
+}
+
+// -------------------------------------------------------------------------
+// Version3Handler
+// -------------------------------------------------------------------------
+
+// insert the additional build step:
+//<valuemap key="ProjectExplorer.BuildConfiguration.BuildStep.2" type="QVariantMap">
+// <value key="ProjectExplorer.ProjectConfiguration.DisplayName" type="QString">Create sis Package</value>
+// <value key="ProjectExplorer.ProjectConfiguration.Id" type="QString">Qt4ProjectManager.S60SignBuildStep</value>
+// <value key="Qt4ProjectManager.MakeStep.Clean" type="bool">false</value>
+// <valuelist key="Qt4ProjectManager.MakeStep.MakeArguments" type="QVariantList"/>
+// <value key="Qt4ProjectManager.MakeStep.MakeCommand" type="QString"></value>
+// <value key="Qt4ProjectManager.S60CreatePackageStep.Certificate" type="QString"></value>
+// <value key="Qt4ProjectManager.S60CreatePackageStep.Keyfile" type="QString"></value>
+// <value key="Qt4ProjectManager.S60CreatePackageStep.SignMode" type="int">0</value>
+//</valuemap>
+
+// remove the deprecated sign run settings from
+//<valuemap key="ProjectExplorer.Target.RunConfiguration.0" type="QVariantMap">
+// <value key="ProjectExplorer.ProjectConfiguration.DisplayName" type="QString">untitled1 on Symbian Device</value>
+// <value key="ProjectExplorer.ProjectConfiguration.Id" type="QString">Qt4ProjectManager.S60DeviceRunConfiguration</value>
+// <valuelist key="Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments" type="QVariantList"/>
+// <value key="Qt4ProjectManager.S60DeviceRunConfiguration.CustomKeyPath" type="QString"></value>
+// <value key="Qt4ProjectManager.S60DeviceRunConfiguration.CustomSignaturePath" type="QString"></value>
+// <value key="Qt4ProjectManager.S60DeviceRunConfiguration.ProFile" type="QString">untitled1.pro</value>
+// <value key="Qt4ProjectManager.S60DeviceRunConfiguration.SerialPortName" type="QString">COM3</value>
+// <value key="Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode" type="int">0</value>
+//</valuemap>
+
+QVariantMap Version3Handler::update(Project *, const QVariantMap &map)
+{
+    QVariantMap result;
+    QMapIterator<QString, QVariant> it(map);
+    while (it.hasNext()) {
+        it.next();
+        const QString &targetKey = it.key();
+        // check for target info
+        if (!targetKey.startsWith(QLatin1String("ProjectExplorer.Project.Target."))) {
+            result.insert(targetKey, it.value());
+            continue;
+        }
+        const QVariantMap &originalTarget = it.value().toMap();
+        // check for symbian device target
+        if (originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
+                != QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
+            result.insert(targetKey, originalTarget);
+            continue;
+        }
+        QVariantMap newTarget;
+        // first iteration: search run configurations, get signing info, remove old signing keys
+        QString customKeyPath;
+        QString customSignaturePath;
+        int signingMode;
+        QMapIterator<QString, QVariant> targetIt(originalTarget);
+        while (targetIt.hasNext()) {
+            targetIt.next();
+            const QString &key = targetIt.key();
+            if (key.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
+                // build configurations are handled in second iteration
+                continue;
+            }
+            if (!key.startsWith(QLatin1String("ProjectExplorer.Target.RunConfiguration."))) {
+                newTarget.insert(key, targetIt.value());
+                continue;
+            }
+            QVariantMap runConfig = targetIt.value().toMap();
+            if (runConfig.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
+                    != QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration")) {
+                newTarget.insert(key, runConfig);
+                continue;
+            }
+            // get signing info
+            customKeyPath = runConfig.value(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomKeyPath")).toString();
+            customSignaturePath = runConfig.value(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomSignaturePath")).toString();
+            signingMode = runConfig.value(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode")).toInt();
+            // remove old signing keys
+            runConfig.remove(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomKeyPath"));
+            runConfig.remove(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomSignaturePath"));
+            runConfig.remove(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode"));
+            newTarget.insert(key, runConfig);
+        }
+
+        // second iteration: add new signing build step
+        targetIt.toFront();
+        while (targetIt.hasNext()) {
+            targetIt.next();
+            const QString &key = targetIt.key();
+            if (!key.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
+                // everything except build configs already handled
+                continue;
+            }
+            QVariantMap buildConfig = targetIt.value().toMap();
+            int stepCount = buildConfig.value(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount")).toInt();
+            QVariantMap signBuildStep;
+            signBuildStep.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"), QLatin1String("Create sis package"));
+            signBuildStep.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), QLatin1String("Qt4ProjectManager.S60SignBuildStep"));
+            signBuildStep.insert(QLatin1String("Qt4ProjectManager.MakeStep.Clean"), false);
+            signBuildStep.insert(QLatin1String("Qt4ProjectManager.S60CreatePackageStep.Certificate"), customSignaturePath);
+            signBuildStep.insert(QLatin1String("Qt4ProjectManager.S60CreatePackageStep.Keyfile"), customKeyPath);
+            signBuildStep.insert(QLatin1String("Qt4ProjectManager.S60CreatePackageStep.SignMode"), signingMode);
+            buildConfig.insert(QString::fromLatin1("ProjectExplorer.BuildConfiguration.BuildStep.%1").arg(stepCount), signBuildStep);
+            buildConfig.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount"), stepCount + 1);
+            newTarget.insert(key, buildConfig);
+        }
+        result.insert(targetKey, newTarget);
+    }
+    return result;
 }
