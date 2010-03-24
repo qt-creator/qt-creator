@@ -51,7 +51,7 @@
 
 using namespace CPlusPlus;
 
-static inline int classify2(const char *s, bool) {
+static inline int classify2(const char *s, bool, bool) {
   if (s[0] == 'd') {
     if (s[1] == 'o') {
       return T_DO;
@@ -65,7 +65,7 @@ static inline int classify2(const char *s, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify3(const char *s, bool q) {
+static inline int classify3(const char *s, bool q, bool) {
   if (s[0] == 'a') {
     if (s[1] == 's') {
       if (s[2] == 'm') {
@@ -114,7 +114,7 @@ static inline int classify3(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify4(const char *s, bool q) {
+static inline int classify4(const char *s, bool q, bool) {
   if (s[0] == 'a') {
     if (s[1] == 'u') {
       if (s[2] == 't') {
@@ -220,7 +220,7 @@ static inline int classify4(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify5(const char *s, bool q) {
+static inline int classify5(const char *s, bool q, bool) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
@@ -359,7 +359,7 @@ static inline int classify5(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify6(const char *s, bool q) {
+static inline int classify6(const char *s, bool q, bool) {
   if (s[0] == 'd') {
     if (s[1] == 'e') {
       if (s[2] == 'l') {
@@ -558,7 +558,7 @@ static inline int classify6(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify7(const char *s, bool q) {
+static inline int classify7(const char *s, bool q, bool) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
@@ -745,7 +745,7 @@ static inline int classify7(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify8(const char *s, bool q) {
+static inline int classify8(const char *s, bool q, bool) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'i') {
@@ -956,7 +956,7 @@ static inline int classify8(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify9(const char *s, bool q) {
+static inline int classify9(const char *s, bool q, bool) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'c') {
@@ -1050,7 +1050,7 @@ static inline int classify9(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify10(const char *s, bool q) {
+static inline int classify10(const char *s, bool q, bool) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'i') {
@@ -1168,7 +1168,7 @@ static inline int classify10(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify11(const char *s, bool q) {
+static inline int classify11(const char *s, bool q, bool) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
@@ -1241,7 +1241,7 @@ static inline int classify11(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify12(const char *s, bool q) {
+static inline int classify12(const char *s, bool q, bool) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'v') {
@@ -1320,7 +1320,7 @@ static inline int classify12(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify13(const char *s, bool) {
+static inline int classify13(const char *s, bool, bool) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
@@ -1351,7 +1351,7 @@ static inline int classify13(const char *s, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify16(const char *s, bool) {
+static inline int classify16(const char *s, bool, bool) {
   if (s[0] == 'r') {
     if (s[1] == 'e') {
       if (s[2] == 'i') {
@@ -1388,7 +1388,7 @@ static inline int classify16(const char *s, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify14(const char *s, bool q) {
+static inline int classify14(const char *s, bool q, bool) {
   if (q && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'P') {
@@ -1421,7 +1421,7 @@ static inline int classify14(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify19(const char *s, bool q) {
+static inline int classify19(const char *s, bool q, bool) {
   if (q && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'D') {
@@ -1465,23 +1465,23 @@ static inline int classify19(const char *s, bool q) {
 }
 
 
-int Lexer::classify(const char *s, int n, bool q) {
+int Lexer::classify(const char *s, int n, bool q, bool x) {
   switch (n) {
-    case 2: return classify2(s, q);
-    case 3: return classify3(s, q);
-    case 4: return classify4(s, q);
-    case 5: return classify5(s, q);
-    case 6: return classify6(s, q);
-    case 7: return classify7(s, q);
-    case 8: return classify8(s, q);
-    case 9: return classify9(s, q);
-    case 10: return classify10(s, q);
-    case 11: return classify11(s, q);
-    case 12: return classify12(s, q);
-    case 13: return classify13(s, q);
-    case 14: return classify14(s, q);
-    case 16: return classify16(s, q);
-    case 19: return classify19(s, q);
+    case 2: return classify2(s, q, x);
+    case 3: return classify3(s, q, x);
+    case 4: return classify4(s, q, x);
+    case 5: return classify5(s, q, x);
+    case 6: return classify6(s, q, x);
+    case 7: return classify7(s, q, x);
+    case 8: return classify8(s, q, x);
+    case 9: return classify9(s, q, x);
+    case 10: return classify10(s, q, x);
+    case 11: return classify11(s, q, x);
+    case 12: return classify12(s, q, x);
+    case 13: return classify13(s, q, x);
+    case 14: return classify14(s, q, x);
+    case 16: return classify16(s, q, x);
+    case 19: return classify19(s, q, x);
     default: return T_IDENTIFIER;
   } // switch
 }

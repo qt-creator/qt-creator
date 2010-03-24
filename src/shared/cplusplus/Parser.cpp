@@ -197,7 +197,7 @@ Parser::Parser(TranslationUnit *unit)
       _tokenIndex(1),
       _templateArguments(0),
       _qtMocRunEnabled(false),
-      _cxx0xEnabled(true), // C++0x is enabled by default
+      _cxx0xEnabled(false),
       _objCEnabled(false),
       _inFunctionBody(false),
       _inObjCImplementationContext(false),
@@ -2524,7 +2524,8 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
     ExpressionAST *expression = 0;
     if (parseExpression(expression)) {
         ExpressionStatementAST *ast = new (previousPool) ExpressionStatementAST;
-        ast->expression = expression->clone(previousPool);
+        if (expression)
+            ast->expression = expression->clone(previousPool);
         match(T_SEMICOLON, &ast->semicolon_token);
         node = ast;
         parsed = true;
@@ -3646,7 +3647,20 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_SLOT:
         return parseQtMethod(node);
 
-    case T_LBRACKET:
+    case T_LBRACKET: {
+        const unsigned lbracket_token = cursor();
+
+        if (_cxx0xEnabled) {
+            if (parseLambdaExpression(node))
+                return true;
+        }
+
+        if (_objCEnabled) {
+            rewind(lbracket_token);
+            return parseObjCExpression(node);
+        }
+    } break;
+
     case T_AT_STRING_LITERAL:
     case T_AT_ENCODE:
     case T_AT_PROTOCOL:
@@ -5490,4 +5504,165 @@ int Parser::peekAtQtContextKeyword() const
 
     const Identifier *id = tok().identifier;
     return classifyQtContextKeyword(id->chars(), id->size());
+}
+
+bool Parser::parseLambdaExpression(ExpressionAST *&node)
+{
+    DEBUG_THIS_RULE();
+
+    LambdaIntroducerAST *lambda_introducer = 0;
+    if (parseLambdaIntroducer(lambda_introducer)) {
+        LambdaExpressionAST *ast = new (_pool) LambdaExpressionAST;
+        ast->lambda_introducer = lambda_introducer;
+        parseLambdaDeclarator(ast->lambda_declarator);
+        parseCompoundStatement(ast->statement);
+        node = ast;
+        return true;
+    }
+
+    return false;
+}
+
+bool Parser::parseLambdaIntroducer(LambdaIntroducerAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_LBRACKET)
+        return false;
+
+    LambdaIntroducerAST *ast = new (_pool) LambdaIntroducerAST;
+    ast->lbracket_token = consumeToken();
+
+    if (LA() != T_RBRACKET)
+        parseLambdaCapture(ast->lambda_capture);
+
+    if (LA() == T_RBRACKET) {
+        ast->rbracket_token = consumeToken();
+
+        if (LA() == T_LPAREN || LA() == T_LBRACE) {
+            node = ast;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Parser::parseLambdaCapture(LambdaCaptureAST *&node)
+{
+    DEBUG_THIS_RULE();
+    bool startsWithDefaultCapture = false;
+
+    unsigned default_capture = 0;
+    CaptureListAST *capture_list = 0;
+
+    if (LA() == T_AMPER || LA() == T_EQUAL) {
+        if (LA(2) == T_COMMA || LA(2) == T_RBRACKET) {
+            startsWithDefaultCapture = true;
+            default_capture = consumeToken(); // consume capture-default
+        }
+    }
+
+    if (startsWithDefaultCapture && LA() == T_COMMA) {
+        consumeToken(); // consume ','
+        parseCaptureList(capture_list); // required
+
+    } else if (LA() != T_RBRACKET) {
+        parseCaptureList(capture_list); // optional
+
+    }
+
+    LambdaCaptureAST *ast = new (_pool) LambdaCaptureAST;
+    ast->default_capture = default_capture;
+    ast->capture_list = capture_list;
+    node = ast;
+
+    return true;
+}
+
+bool Parser::parseCapture(CaptureAST *&)
+{
+    DEBUG_THIS_RULE();
+    if (LA() == T_IDENTIFIER) {
+        consumeToken();
+        return true;
+
+    } else if (LA() == T_AMPER && LA(2) == T_IDENTIFIER) {
+        consumeToken();
+        consumeToken();
+        return true;
+
+    } else if (LA() == T_THIS) {
+        consumeToken();
+        return true;
+    }
+
+    return false;
+}
+
+bool Parser::parseCaptureList(CaptureListAST *&)
+{
+    DEBUG_THIS_RULE();
+
+    CaptureAST *capture = 0;
+
+    if (parseCapture(capture)) {
+        while (LA() == T_COMMA) {
+            consumeToken(); // consume `,'
+
+            parseCapture(capture);
+        }
+    }
+
+    return true;
+}
+
+bool Parser::parseLambdaDeclarator(LambdaDeclaratorAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_LPAREN)
+        return false;
+
+    LambdaDeclaratorAST *ast = new (_pool) LambdaDeclaratorAST;
+
+    ast->lparen_token = consumeToken(); // consume `('
+    parseParameterDeclarationClause(ast->parameter_declaration_clause);
+    match(T_RPAREN, &ast->rparen_token);
+
+    SpecifierListAST **attr = &ast->attributes;
+    while (parseAttributeSpecifier(*attr))
+        attr = &(*attr)->next;
+
+    if (LA() == T_MUTABLE)
+        ast->mutable_token = consumeToken();
+
+    parseExceptionSpecification(ast->exception_specification);
+    parseTrailingReturnType(ast->trailing_return_type);
+    node = ast;
+
+    return true;
+}
+
+bool Parser::parseTrailingReturnType(TrailingReturnTypeAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_ARROW)
+        return false;
+
+    TrailingReturnTypeAST *ast = new (_pool) TrailingReturnTypeAST;
+
+    ast->arrow_token = consumeToken();
+
+    SpecifierListAST **attr = &ast->attributes;
+    while (parseAttributeSpecifier(*attr))
+        attr = &(*attr)->next;
+
+    parseTrailingTypeSpecifierSeq(ast->type_specifiers);
+    parseAbstractDeclarator(ast->declarator);
+    return true;
+}
+
+bool Parser::parseTrailingTypeSpecifierSeq(SpecifierListAST *&node)
+{
+    DEBUG_THIS_RULE();
+    return parseSimpleTypeSpecifier(node);
 }

@@ -1586,3 +1586,73 @@ ObjCSynchronizedStatementAST *ObjCSynchronizedStatementAST::clone(MemoryPool *po
     return ast;
 }
 
+LambdaExpressionAST *LambdaExpressionAST::clone(MemoryPool *pool) const
+{
+    LambdaExpressionAST *ast = new (pool) LambdaExpressionAST;
+    if (lambda_introducer)
+        ast->lambda_introducer = lambda_introducer->clone(pool);
+    if (lambda_declarator)
+        ast->lambda_declarator = lambda_declarator->clone(pool);
+    if (statement)
+        ast->statement = statement->clone(pool);
+    return ast;
+}
+
+LambdaIntroducerAST *LambdaIntroducerAST::clone(MemoryPool *pool) const
+{
+    LambdaIntroducerAST *ast = new (pool) LambdaIntroducerAST;
+    ast->lbracket_token = lbracket_token;
+    if (lambda_capture)
+        ast->lambda_capture = lambda_capture->clone(pool);
+    ast->rbracket_token = rbracket_token;
+    return ast;
+}
+
+LambdaCaptureAST *LambdaCaptureAST::clone(MemoryPool *pool) const
+{
+    LambdaCaptureAST *ast = new (pool) LambdaCaptureAST;
+    for (CaptureListAST *iter = capture_list, **ast_iter = &ast->capture_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) CaptureListAST((iter->value) ? iter->value->clone(pool) : 0);
+    return ast;
+}
+
+CaptureAST *CaptureAST::clone(MemoryPool *pool) const
+{
+    CaptureAST *ast = new (pool) CaptureAST;
+    return ast;
+}
+
+LambdaDeclaratorAST *LambdaDeclaratorAST::clone(MemoryPool *pool) const
+{
+    LambdaDeclaratorAST *ast = new (pool) LambdaDeclaratorAST;
+    ast->lparen_token = lparen_token;
+    if (parameter_declaration_clause)
+        ast->parameter_declaration_clause = parameter_declaration_clause->clone(pool);
+    ast->rparen_token = rparen_token;
+    for (SpecifierListAST *iter = attributes, **ast_iter = &ast->attributes;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->mutable_token = mutable_token;
+    if (exception_specification)
+        ast->exception_specification = exception_specification->clone(pool);
+    if (trailing_return_type)
+        ast->trailing_return_type = trailing_return_type->clone(pool);
+    return ast;
+}
+
+TrailingReturnTypeAST *TrailingReturnTypeAST::clone(MemoryPool *pool) const
+{
+    TrailingReturnTypeAST *ast = new (pool) TrailingReturnTypeAST;
+    ast->arrow_token = arrow_token;
+    for (SpecifierListAST *iter = attributes, **ast_iter = &ast->attributes;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+    for (SpecifierListAST *iter = type_specifiers, **ast_iter = &ast->type_specifiers;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    return ast;
+}
+

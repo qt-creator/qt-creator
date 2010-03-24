@@ -1159,3 +1159,57 @@ void ObjCSynchronizedStatementAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void LambdaExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(lambda_introducer, visitor);
+        accept(lambda_declarator, visitor);
+        accept(statement, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void LambdaIntroducerAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(lambda_capture, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void LambdaCaptureAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(capture_list, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void CaptureAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
+void LambdaDeclaratorAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(parameter_declaration_clause, visitor);
+        accept(attributes, visitor);
+        accept(exception_specification, visitor);
+        accept(trailing_return_type, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void TrailingReturnTypeAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(attributes, visitor);
+        accept(type_specifiers, visitor);
+        accept(declarator, visitor);
+    }
+    visitor->endVisit(this);
+}
+

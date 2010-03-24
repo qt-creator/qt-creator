@@ -123,6 +123,7 @@ Document::Document(const QString &fileName)
                                                                       localFileName.size());
     _translationUnit = new TranslationUnit(_control, fileId);
     _translationUnit->setQtMocRunEnabled(true);
+    _translationUnit->setCxxOxEnabled(true);
     _translationUnit->setObjCEnabled(true);
     (void) _control->switchTranslationUnit(_translationUnit);
 }

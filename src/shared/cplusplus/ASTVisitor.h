@@ -209,6 +209,14 @@ public:
     virtual bool visit(QtInterfacesDeclarationAST *) { return true; }
     virtual bool visit(QtInterfaceNameAST *) { return true; }
 
+    // C++0x
+    virtual bool visit(LambdaExpressionAST *) { return true; }
+    virtual bool visit(LambdaIntroducerAST *) { return true; }
+    virtual bool visit(LambdaCaptureAST *) { return true; }
+    virtual bool visit(LambdaDeclaratorAST *) { return true; }
+    virtual bool visit(CaptureAST *) { return true; }
+    virtual bool visit(TrailingReturnTypeAST *) { return true; }
+
     // ObjC++
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
     virtual bool visit(ObjCClassForwardDeclarationAST *) { return true; }
@@ -342,6 +350,13 @@ public:
     virtual void endVisit(QtPropertyDeclarationItemAST *) { }
     virtual void endVisit(QtInterfacesDeclarationAST *) { }
     virtual void endVisit(QtInterfaceNameAST *) { }
+
+    virtual void endVisit(LambdaExpressionAST *) { }
+    virtual void endVisit(LambdaIntroducerAST *) { }
+    virtual void endVisit(LambdaCaptureAST *) { }
+    virtual void endVisit(LambdaDeclaratorAST *) { }
+    virtual void endVisit(CaptureAST *) { }
+    virtual void endVisit(TrailingReturnTypeAST *) { }
 
     // ObjC++
     virtual void endVisit(ObjCClassDeclarationAST *) { }

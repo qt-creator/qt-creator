@@ -164,6 +164,7 @@ public:
     virtual BoolLiteralAST *asBoolLiteral() { return 0; }
     virtual BreakStatementAST *asBreakStatement() { return 0; }
     virtual CallAST *asCall() { return 0; }
+    virtual CaptureAST *asCapture() { return 0; }
     virtual CaseStatementAST *asCaseStatement() { return 0; }
     virtual CastExpressionAST *asCastExpression() { return 0; }
     virtual CatchClauseAST *asCatchClause() { return 0; }
@@ -201,6 +202,10 @@ public:
     virtual GotoStatementAST *asGotoStatement() { return 0; }
     virtual IfStatementAST *asIfStatement() { return 0; }
     virtual LabeledStatementAST *asLabeledStatement() { return 0; }
+    virtual LambdaCaptureAST *asLambdaCapture() { return 0; }
+    virtual LambdaDeclaratorAST *asLambdaDeclarator() { return 0; }
+    virtual LambdaExpressionAST *asLambdaExpression() { return 0; }
+    virtual LambdaIntroducerAST *asLambdaIntroducer() { return 0; }
     virtual LinkageBodyAST *asLinkageBody() { return 0; }
     virtual LinkageSpecificationAST *asLinkageSpecification() { return 0; }
     virtual MemInitializerAST *asMemInitializer() { return 0; }
@@ -280,6 +285,7 @@ public:
     virtual TemplateTypeParameterAST *asTemplateTypeParameter() { return 0; }
     virtual ThisExpressionAST *asThisExpression() { return 0; }
     virtual ThrowExpressionAST *asThrowExpression() { return 0; }
+    virtual TrailingReturnTypeAST *asTrailingReturnType() { return 0; }
     virtual TranslationUnitAST *asTranslationUnit() { return 0; }
     virtual TryBlockStatementAST *asTryBlockStatement() { return 0; }
     virtual TypeConstructorCallAST *asTypeConstructorCall() { return 0; }
@@ -4103,7 +4109,157 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-} // end of namespace CPlusPlus
 
+class LambdaExpressionAST: public ExpressionAST
+{
+public:
+    LambdaIntroducerAST *lambda_introducer;
+    LambdaDeclaratorAST *lambda_declarator;
+    StatementAST *statement;
+
+public:
+    LambdaExpressionAST()
+        : lambda_introducer(0)
+        , lambda_declarator(0)
+        , statement(0)
+    {}
+
+    virtual LambdaExpressionAST *asLambdaExpression() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+    virtual LambdaExpressionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class LambdaIntroducerAST: public AST
+{
+public:
+    unsigned lbracket_token;
+    LambdaCaptureAST *lambda_capture;
+    unsigned rbracket_token;
+
+public:
+    LambdaIntroducerAST()
+        : lbracket_token(0)
+        , lambda_capture(0)
+        , rbracket_token(0)
+    {}
+
+    virtual LambdaIntroducerAST *asLambdaIntroducer() { return this; }
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual LambdaIntroducerAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class LambdaCaptureAST: public AST
+{
+public:
+    unsigned default_capture;
+    CaptureListAST *capture_list;
+
+public:
+    LambdaCaptureAST()
+        : default_capture(0)
+        , capture_list(0)
+    {}
+
+    virtual LambdaCaptureAST *asLambdaCapture() { return this; }
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual LambdaCaptureAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CaptureAST: public AST
+{
+public:
+    CaptureAST()
+    {}
+
+    virtual CaptureAST *asCapture() { return this; }
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual CaptureAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class LambdaDeclaratorAST: public AST
+{
+public:
+    unsigned lparen_token;
+    ParameterDeclarationClauseAST *parameter_declaration_clause;
+    unsigned rparen_token;
+    SpecifierListAST *attributes;
+    unsigned mutable_token;
+    ExceptionSpecificationAST *exception_specification;
+    TrailingReturnTypeAST *trailing_return_type;
+
+public:
+    LambdaDeclaratorAST()
+        : lparen_token(0)
+        , parameter_declaration_clause(0)
+        , rparen_token(0)
+        , attributes(0)
+        , mutable_token(0)
+        , exception_specification(0)
+        , trailing_return_type(0)
+    {}
+
+    virtual LambdaDeclaratorAST *asLambdaDeclarator() { return this; }
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual LambdaDeclaratorAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class TrailingReturnTypeAST: public AST
+{
+public:
+    unsigned arrow_token;
+    SpecifierListAST *attributes;
+    SpecifierListAST *type_specifiers;
+    DeclaratorAST *declarator;
+
+public:
+    TrailingReturnTypeAST()
+        : arrow_token(0)
+        , attributes(0)
+        , type_specifiers(0)
+        , declarator(0)
+    {}
+
+    virtual TrailingReturnTypeAST *asTrailingReturnType() { return this; }
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual TrailingReturnTypeAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+} // end of namespace CPlusPlus
 
 #endif // CPLUSPLUS_AST_H

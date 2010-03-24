@@ -119,6 +119,12 @@ bool Lexer::qtMocRunEnabled() const
 void Lexer::setQtMocRunEnabled(bool onoff)
 { f._qtMocRunEnabled = onoff; }
 
+bool Lexer::cxx0xEnabled() const
+{ return f._cxx0xEnabled; }
+
+void Lexer::setCxxOxEnabled(bool onoff)
+{ f._cxx0xEnabled = onoff; }
+
 bool Lexer::objCEnabled() const
 { return f._objCEnabled; }
 
@@ -680,7 +686,7 @@ void Lexer::scan_helper(Token *tok)
                 yyinp();
             int yylen = _currentChar - yytext;
             if (f._scanKeywords)
-                tok->f.kind = classify(yytext, yylen, f._qtMocRunEnabled);
+                tok->f.kind = classify(yytext, yylen, f._qtMocRunEnabled, f._cxx0xEnabled);
             else
                 tok->f.kind = T_IDENTIFIER;
 

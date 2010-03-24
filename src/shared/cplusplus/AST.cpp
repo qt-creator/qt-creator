@@ -2416,3 +2416,119 @@ unsigned ObjCSynchronizedStatementAST::lastToken() const
     if (lparen_token) return lparen_token + 1;
     return synchronized_token + 1;
 }
+
+unsigned LambdaExpressionAST::firstToken() const
+{
+    if (lambda_introducer)
+        return lambda_introducer->firstToken();
+
+    // assert?
+    return 0;
+}
+
+unsigned LambdaExpressionAST::lastToken() const
+{
+    if (statement)
+        return statement->lastToken();
+    else if (lambda_declarator)
+        return lambda_declarator->lastToken();
+
+    return lambda_introducer->lastToken();
+}
+
+unsigned LambdaIntroducerAST::firstToken() const
+{
+    return lbracket_token;
+}
+
+unsigned LambdaIntroducerAST::lastToken() const
+{
+    if (rbracket_token)
+        return rbracket_token + 1;
+    else if (lambda_capture)
+        return lambda_capture->lastToken();
+    return lbracket_token + 1;
+}
+
+unsigned LambdaCaptureAST::firstToken() const
+{
+    if (default_capture)
+        return default_capture;
+
+    else if (capture_list)
+        return capture_list->firstToken();
+
+    // assert?
+    return 0;
+}
+
+unsigned LambdaCaptureAST::lastToken() const
+{
+    if (capture_list)
+        return capture_list->lastToken();
+
+    else if (default_capture)
+        return default_capture + 1;
+
+    // assert?
+    return 0;
+}
+
+unsigned CaptureAST::firstToken() const
+{
+    // ### implement me
+    return 0;
+}
+
+unsigned CaptureAST::lastToken() const
+{
+    // ### implement me
+    return 0;
+}
+
+unsigned LambdaDeclaratorAST::firstToken() const
+{
+    return lparen_token;
+}
+
+unsigned LambdaDeclaratorAST::lastToken() const
+{
+    if (trailing_return_type)
+        return trailing_return_type->lastToken();
+
+    else if (exception_specification)
+        return exception_specification->lastToken();
+
+    else if (mutable_token)
+        return mutable_token + 1;
+
+    else if (attributes)
+        return attributes->lastToken();
+
+    else if (rparen_token)
+        return rparen_token + 1;
+
+    else if (parameter_declaration_clause)
+        return parameter_declaration_clause->lastToken();
+
+    return lparen_token + 1;
+}
+
+unsigned TrailingReturnTypeAST::firstToken() const
+{
+    return arrow_token;
+}
+
+unsigned TrailingReturnTypeAST::lastToken() const
+{
+    if (declarator)
+        return declarator->lastToken();
+
+    else if (type_specifiers)
+        return type_specifiers->lastToken();
+
+    else if (attributes)
+        return attributes->lastToken();
+
+    return arrow_token + 1;
+}

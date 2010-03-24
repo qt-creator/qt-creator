@@ -221,6 +221,16 @@ public:
     // Qt MOC run
     bool parseQtMethod(ExpressionAST *&node);
 
+    // C++0x
+    bool parseLambdaExpression(ExpressionAST *&node);
+    bool parseLambdaIntroducer(LambdaIntroducerAST *&node);
+    bool parseLambdaCapture(LambdaCaptureAST *&node);
+    bool parseLambdaDeclarator(LambdaDeclaratorAST *&node);
+    bool parseCapture(CaptureAST *&node);
+    bool parseCaptureList(CaptureListAST *&node);
+    bool parseTrailingReturnType(TrailingReturnTypeAST *&node);
+    bool parseTrailingTypeSpecifierSeq(SpecifierListAST *&node);
+
     // ObjC++
     bool parseObjCExpression(ExpressionAST *&node);
     bool parseObjCClassForwardDeclaration(DeclarationAST *&node);

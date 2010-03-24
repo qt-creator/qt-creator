@@ -87,6 +87,12 @@ bool TranslationUnit::qtMocRunEnabled() const
 void TranslationUnit::setQtMocRunEnabled(bool onoff)
 { f._qtMocRunEnabled = onoff; }
 
+bool TranslationUnit::cxx0xEnabled() const
+{ return f._cxx0xEnabled; }
+
+void TranslationUnit::setCxxOxEnabled(bool onoff)
+{ f._cxx0xEnabled = onoff; }
+
 bool TranslationUnit::objCEnabled() const
 { return f._objCEnabled; }
 
@@ -173,6 +179,7 @@ void TranslationUnit::tokenize()
 
     Lexer lex(this);
     lex.setQtMocRunEnabled(f._qtMocRunEnabled);
+    lex.setCxxOxEnabled(f._cxx0xEnabled);
     lex.setObjCEnabled(f._objCEnabled);
 
     std::stack<unsigned> braces;
@@ -256,6 +263,7 @@ bool TranslationUnit::parse(ParseMode mode)
 
     Parser parser(this);
     parser.setQtMocRunEnabled(f._qtMocRunEnabled);
+    parser.setCxxOxEnabled(f._cxx0xEnabled);
     parser.setObjCEnabled(f._objCEnabled);
 
     bool parsed = false;

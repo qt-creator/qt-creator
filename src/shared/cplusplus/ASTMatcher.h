@@ -170,6 +170,12 @@ public:
     virtual bool match(ObjCDynamicPropertiesDeclarationAST *node, ObjCDynamicPropertiesDeclarationAST *pattern);
     virtual bool match(ObjCFastEnumerationAST *node, ObjCFastEnumerationAST *pattern);
     virtual bool match(ObjCSynchronizedStatementAST *node, ObjCSynchronizedStatementAST *pattern);
+    virtual bool match(LambdaExpressionAST *node, LambdaExpressionAST *pattern);
+    virtual bool match(LambdaIntroducerAST *node, LambdaIntroducerAST *pattern);
+    virtual bool match(LambdaCaptureAST *node, LambdaCaptureAST *pattern);
+    virtual bool match(LambdaDeclaratorAST *node, LambdaDeclaratorAST *pattern);
+    virtual bool match(CaptureAST *node, CaptureAST *pattern);
+    virtual bool match(TrailingReturnTypeAST *node, TrailingReturnTypeAST *pattern);
 };
 
 } // end of namespace CPlusPlus

@@ -77,6 +77,9 @@ public:
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool onoff);
 
+    bool cxx0xEnabled() const;
+    void setCxxOxEnabled(bool onoff);
+
     bool objCEnabled() const;
     void setObjCEnabled(bool onoff);
 
@@ -111,7 +114,7 @@ public:
 private:
     void scan_helper(Token *tok);
     void setSource(const char *firstChar, const char *lastChar);
-    static int classify(const char *string, int length, bool q);
+    static int classify(const char *string, int length, bool q, bool cxx0x);
     static int classifyObjCAtKeyword(const char *s, int n);
     static int classifyOperator(const char *string, int length);
 
@@ -135,6 +138,7 @@ private:
         unsigned _scanKeywords: 1;
         unsigned _scanAngleStringLiteralTokens: 1;
         unsigned _qtMocRunEnabled: 1;
+        unsigned _cxx0xEnabled: 1;
         unsigned _objCEnabled: 1;
     };
 

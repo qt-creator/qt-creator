@@ -1089,3 +1089,51 @@ bool ObjCSynchronizedStatementAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool LambdaExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (LambdaExpressionAST *_other = pattern->asLambdaExpression())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool LambdaIntroducerAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (LambdaIntroducerAST *_other = pattern->asLambdaIntroducer())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool LambdaCaptureAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (LambdaCaptureAST *_other = pattern->asLambdaCapture())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool CaptureAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (CaptureAST *_other = pattern->asCapture())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool LambdaDeclaratorAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (LambdaDeclaratorAST *_other = pattern->asLambdaDeclarator())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool TrailingReturnTypeAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (TrailingReturnTypeAST *_other = pattern->asTrailingReturnType())
+        return matcher->match(this, _other);
+
+    return false;
+}
+

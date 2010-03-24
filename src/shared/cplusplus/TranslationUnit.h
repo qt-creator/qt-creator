@@ -98,6 +98,9 @@ public:
     bool qtMocRunEnabled() const;
     void setQtMocRunEnabled(bool onoff);
 
+    bool cxx0xEnabled() const;
+    void setCxxOxEnabled(bool onoff);
+
     bool objCEnabled() const;
     void setObjCEnabled(bool onoff);
 
@@ -195,6 +198,7 @@ private:
         unsigned _blockErrors: 1;
         unsigned _skipFunctionBody: 1;
         unsigned _qtMocRunEnabled: 1;
+        unsigned _cxx0xEnabled: 1;
         unsigned _objCEnabled: 1;
     };
     union {

@@ -388,8 +388,19 @@ bool CheckExpression::visit(ObjCEncodeExpressionAST * /*ast*/)
 
 bool CheckExpression::visit(ObjCSelectorExpressionAST *ast)
 {
+    if (_scope->isPrototypeScope())
+        return false;
+
     (void) semantic()->check(ast->selector, _scope);
     return false;
 }
 
+bool CheckExpression::visit(LambdaExpressionAST *ast)
+{
+    if (_scope->isPrototypeScope())
+        return false;
+
+    (void) semantic()->check(ast->statement, _scope);
+    return false;
+}
 

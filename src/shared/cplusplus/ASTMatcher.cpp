@@ -2669,3 +2669,123 @@ bool ASTMatcher::match(ObjCSynchronizedStatementAST *node, ObjCSynchronizedState
     return true;
 }
 
+bool ASTMatcher::match(LambdaExpressionAST *node, LambdaExpressionAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    if (! pattern->lambda_introducer)
+        pattern->lambda_introducer = node->lambda_introducer;
+    else if (! AST::match(node->lambda_introducer, pattern->lambda_introducer, this))
+        return false;
+
+    if (! pattern->lambda_declarator)
+        pattern->lambda_declarator = node->lambda_declarator;
+    else if (! AST::match(node->lambda_declarator, pattern->lambda_declarator, this))
+        return false;
+
+    if (! pattern->statement)
+        pattern->statement = node->statement;
+    else if (! AST::match(node->statement, pattern->statement, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(LambdaIntroducerAST *node, LambdaIntroducerAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->lbracket_token = node->lbracket_token;
+
+    if (! pattern->lambda_capture)
+        pattern->lambda_capture = node->lambda_capture;
+    else if (! AST::match(node->lambda_capture, pattern->lambda_capture, this))
+        return false;
+
+    pattern->rbracket_token = node->rbracket_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(LambdaCaptureAST *node, LambdaCaptureAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    if (! pattern->capture_list)
+        pattern->capture_list = node->capture_list;
+    else if (! AST::match(node->capture_list, pattern->capture_list, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(CaptureAST *node, CaptureAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    return true;
+}
+
+bool ASTMatcher::match(LambdaDeclaratorAST *node, LambdaDeclaratorAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->parameter_declaration_clause)
+        pattern->parameter_declaration_clause = node->parameter_declaration_clause;
+    else if (! AST::match(node->parameter_declaration_clause, pattern->parameter_declaration_clause, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    if (! pattern->attributes)
+        pattern->attributes = node->attributes;
+    else if (! AST::match(node->attributes, pattern->attributes, this))
+        return false;
+
+    pattern->mutable_token = node->mutable_token;
+
+    if (! pattern->exception_specification)
+        pattern->exception_specification = node->exception_specification;
+    else if (! AST::match(node->exception_specification, pattern->exception_specification, this))
+        return false;
+
+    if (! pattern->trailing_return_type)
+        pattern->trailing_return_type = node->trailing_return_type;
+    else if (! AST::match(node->trailing_return_type, pattern->trailing_return_type, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(TrailingReturnTypeAST *node, TrailingReturnTypeAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->arrow_token = node->arrow_token;
+
+    if (! pattern->attributes)
+        pattern->attributes = node->attributes;
+    else if (! AST::match(node->attributes, pattern->attributes, this))
+        return false;
+
+    if (! pattern->type_specifiers)
+        pattern->type_specifiers = node->type_specifiers;
+    else if (! AST::match(node->type_specifiers, pattern->type_specifiers, this))
+        return false;
+
+    if (! pattern->declarator)
+        pattern->declarator = node->declarator;
+    else if (! AST::match(node->declarator, pattern->declarator, this))
+        return false;
+
+    return true;
+}
+
