@@ -153,7 +153,11 @@ static inline bool isLiteralValue(UiScriptBinding *script)
     if (!script || !script->statement)
         return false;
 
-    return isLiteralValue((cast<ExpressionStatement *>(script->statement))->expression);
+    ExpressionStatement *exprStmt = cast<ExpressionStatement *>(script->statement);
+    if (exprStmt)
+        return isLiteralValue(exprStmt->expression);
+    else
+        return false;
 }
 
 static inline bool isValidPropertyForNode(const ModelNode &modelNode,
@@ -434,6 +438,12 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 }
             }
         } else if (UiPublicMember *property = cast<UiPublicMember *>(member)) {
+            if (property->type == UiPublicMember::Signal)
+                continue; // QML designer doesn't support this yet.
+
+            if (!property->name || !property->memberType)
+                continue; // better safe than sorry.
+
             const QString astName = property->name->asString();
             QString astValue;
             if (property->expression)
