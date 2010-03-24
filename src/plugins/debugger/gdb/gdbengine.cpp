@@ -434,6 +434,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Library %1 unloaded").arg(_(id)), 1000);
                 invalidateSourcesList();
+            } else if (asyncClass == "thread-group-added") {
+                // 7.1-symbianelf has "{id="i1"}"
+            } else if (asyncClass == "thread-group-started") {
+                // 7.1-symbianelf has "{id="i1",pid="42000"}"
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}"
                 int progress = m_progress->progressValue();
