@@ -35,8 +35,8 @@ QFrame {
             id: layoutMode;
             checkable: true;
             checked: false;
-            toolTip: "layout and geometry";
-            text: "Geometry";
+            toolTip: qsTr("layout and geometry");
+            text: qsTr("Geometry");
             onClicked: {
                 extendedMode.checked = false;
                 standardMode.checked = false;
@@ -52,7 +52,7 @@ QFrame {
             toolTip: "advanced properties";
             checkable: true;
             checked: false;
-            text: "Advanced"
+            text: qsTr("Advanced")
             onClicked: {
                 standardMode.checked = false;
                 layoutMode.checked = false;
