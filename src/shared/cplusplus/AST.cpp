@@ -1014,7 +1014,10 @@ unsigned FunctionDeclaratorAST::firstToken() const
 
 unsigned FunctionDeclaratorAST::lastToken() const
 {
-    if (exception_specification)
+    if (trailing_return_type)
+        return trailing_return_type->lastToken();
+
+    else if (exception_specification)
         return exception_specification->lastToken();
 
     else if (cv_qualifier_list)

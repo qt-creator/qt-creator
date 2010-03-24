@@ -474,6 +474,8 @@ FunctionDeclaratorAST *FunctionDeclaratorAST::clone(MemoryPool *pool) const
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     if (exception_specification)
         ast->exception_specification = exception_specification->clone(pool);
+    if (trailing_return_type)
+        ast->trailing_return_type = trailing_return_type->clone(pool);
     if (as_cpp_initializer)
         ast->as_cpp_initializer = as_cpp_initializer->clone(pool);
     return ast;

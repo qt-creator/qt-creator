@@ -350,6 +350,7 @@ void FunctionDeclaratorAST::accept0(ASTVisitor *visitor)
         accept(parameters, visitor);
         accept(cv_qualifier_list, visitor);
         accept(exception_specification, visitor);
+        accept(trailing_return_type, visitor);
         accept(as_cpp_initializer, visitor);
     }
     visitor->endVisit(this);

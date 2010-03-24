@@ -1421,6 +1421,7 @@ public:
     unsigned rparen_token;
     SpecifierListAST *cv_qualifier_list;
     ExceptionSpecificationAST *exception_specification;
+    TrailingReturnTypeAST *trailing_return_type;
     ExpressionAST *as_cpp_initializer;
 
 public: // annotations
@@ -1433,6 +1434,7 @@ public:
         , rparen_token(0)
         , cv_qualifier_list(0)
         , exception_specification(0)
+        , trailing_return_type(0)
         , as_cpp_initializer(0)
         , symbol(0)
     {}

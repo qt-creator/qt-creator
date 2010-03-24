@@ -1315,8 +1315,14 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
             }
 
             ast->rparen_token = consumeToken();
+            // ### parse attributes
             parseCvQualifiers(ast->cv_qualifier_list);
+            // ### parse ref-qualifiers
             parseExceptionSpecification(ast->exception_specification);
+
+            if (_cxx0xEnabled && ! node->ptr_operator_list && LA() == T_ARROW)
+                parseTrailingReturnType(ast->trailing_return_type);
+
             *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;
         } else if (LA() == T_LBRACKET) {

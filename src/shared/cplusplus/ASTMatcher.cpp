@@ -780,6 +780,11 @@ bool ASTMatcher::match(FunctionDeclaratorAST *node, FunctionDeclaratorAST *patte
     else if (! AST::match(node->exception_specification, pattern->exception_specification, this))
         return false;
 
+    if (! pattern->trailing_return_type)
+        pattern->trailing_return_type = node->trailing_return_type;
+    else if (! AST::match(node->trailing_return_type, pattern->trailing_return_type, this))
+        return false;
+
     if (! pattern->as_cpp_initializer)
         pattern->as_cpp_initializer = node->as_cpp_initializer;
     else if (! AST::match(node->as_cpp_initializer, pattern->as_cpp_initializer, this))
