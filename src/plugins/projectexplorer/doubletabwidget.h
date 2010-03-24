@@ -12,7 +12,8 @@ namespace Ui {
     class DoubleTabWidget;
 }
 
-class DoubleTabWidget : public QWidget {
+class DoubleTabWidget : public QWidget
+{
     Q_OBJECT
 public:
     DoubleTabWidget(QWidget *parent = 0);
@@ -25,6 +26,9 @@ public:
     void insertTab(int index, const QString &name, const QStringList &subTabs);
     void removeTab(int index);
     int tabCount() const;
+
+    int currentIndex() const;
+    void setCurrentIndex(int index);
 
 signals:
     void currentIndexChanged(int index, int subIndex);

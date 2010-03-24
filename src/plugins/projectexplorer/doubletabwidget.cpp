@@ -71,6 +71,21 @@ DoubleTabWidget::~DoubleTabWidget()
     delete ui;
 }
 
+int DoubleTabWidget::currentIndex() const
+{
+    return m_currentIndex;
+}
+
+void DoubleTabWidget::setCurrentIndex(int index)
+{
+    Q_ASSERT(index < m_tabs.size());
+    if (index == m_currentIndex)
+        return;
+    m_currentIndex = index;
+    emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
+    update();
+}
+
 void DoubleTabWidget::setTitle(const QString &title)
 {
     m_title = title;
