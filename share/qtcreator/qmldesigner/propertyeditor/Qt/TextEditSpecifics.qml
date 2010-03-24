@@ -28,8 +28,9 @@ QWidget {
 
                 QWidget {
                     layout: HorizontalLayout {
+					rightMargin: 12
                         Label {
-                            text: "Text Format"
+                            text: "Format"
                         }
                         ComboBox {
                             baseStateFlag: isBaseState

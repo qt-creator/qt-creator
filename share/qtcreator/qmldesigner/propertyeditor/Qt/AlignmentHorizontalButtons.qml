@@ -5,7 +5,6 @@ QGroupBox {
     id: aligmentHorizontalButtons
     layout: HorizontalLayout {
         topMargin: 6
-        rightMargin: 10;
 
         QWidget {
             fixedHeight: 32

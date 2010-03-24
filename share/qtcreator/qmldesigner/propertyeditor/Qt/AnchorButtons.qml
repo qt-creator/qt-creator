@@ -21,8 +21,8 @@ QWidget {
     QPushButton {
 
         checkable: true
-        fixedWidth: 32
-        fixedHeight: 32
+        fixedWidth: 31
+        fixedHeight: 28
         styleSheetFile: "anchortop.css";
 
         checked: anchorBackend.topAnchored;
@@ -39,10 +39,10 @@ QWidget {
 
     QPushButton {
 
-        x: 32
+        x: 31
         checkable: true
-        fixedWidth: 32
-        fixedHeight: 32
+        fixedWidth: 30
+        fixedHeight: 28
 
         styleSheetFile: "anchorbottom.css";
 
@@ -59,10 +59,10 @@ QWidget {
     }
     QPushButton {
 
-        x: 64
+        x: 61
         checkable: true
-        fixedWidth: 32
-        fixedHeight: 32
+        fixedWidth: 30
+        fixedHeight: 28
 
         styleSheetFile: "anchorleft.css";
 
@@ -79,10 +79,10 @@ QWidget {
 
     QPushButton {
 
-        x: 96
+        x: 91
         checkable: true
-        fixedWidth: 32
-        fixedHeight: 32
+        fixedWidth: 30
+        fixedHeight: 28
 
         styleSheetFile: "anchorright.css";
 
@@ -98,10 +98,10 @@ QWidget {
     }
 
     QPushButton {
-        x: 128
+        x: 121
         checkable: true
-        fixedWidth: 32
-        fixedHeight: 32
+        fixedWidth: 19
+        fixedHeight: 28
 
         styleSheetFile: "anchorspacer.css";
 
@@ -109,9 +109,9 @@ QWidget {
     }
 
     QPushButton {
-        x: 128 + 21
-        fixedWidth: 32
-        fixedHeight: 32
+        x: 140
+        fixedWidth: 30
+        fixedHeight: 28
 
         styleSheetFile: "anchorfill.css";
 
@@ -119,51 +119,51 @@ QWidget {
     }
 
     QPushButton {
-        x: 128 + 21 + 32
+        x: 170
         checkable: true
-        fixedWidth: 32
-        fixedHeight: 32
+        fixedWidth: 19
+        fixedHeight: 28
 
         styleSheetFile: "anchorspacer.css";
 
     }
 
     QPushButton {
-        x: 128 + 42 + 64
+        x: 189
         checkable: true
-        fixedWidth: 32
-        fixedHeight: 32
+        fixedWidth: 30
+        fixedHeight: 28
 
-        styleSheetFile: "anchorhorizontal.css";
+		styleSheetFile: "anchorvertical.css";
 
-        checked: anchorBackend.horizontalCentered;
+        checked: anchorBackend.verticalCentered;
         onToggled: {
             if (checked) {
                     anchorBackend.leftAnchored = false;
                     anchorBackend.rightAnchored = false;
-                    anchorBackend.horizontalCentered = true;
+                    anchorBackend.verticalCentered = true;
             } else {
-                    anchorBackend.horizontalCentered = false;
+                    anchorBackend.verticalCentered = false;
             }
         }
     }
 
     QPushButton {
-        x: 128 + 42 + 32
+        x: 219
         checkable: true
-        fixedWidth: 32
-        fixedHeight: 32
+        fixedWidth: 31
+        fixedHeight: 28
+        
+		styleSheetFile: "anchorhorizontal.css";
 
-        styleSheetFile: "anchorvertical.css";
-
-        checked: anchorBackend.verticalCentered;
+        checked: anchorBackend.horizontalCentered;
         onToggled: {
             if (checked) {
                     anchorBackend.topAnchored = false;
                     anchorBackend.bottomAnchored = false;
-                    anchorBackend.verticalCentered = true;
+                    anchorBackend.horizontalCentered = true;
             } else {
-                    anchorBackend.verticalCentered = false;
+                    anchorBackend.horizontalCentered = false;
             }
         }
     }

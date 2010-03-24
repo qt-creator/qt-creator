@@ -51,7 +51,7 @@ QWidget {
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
-                            text: "Antialiasing:"
+                            text: "Aliasing"
                         }
 
                         CheckBox {

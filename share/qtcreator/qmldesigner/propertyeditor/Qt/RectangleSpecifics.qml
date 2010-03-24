@@ -20,6 +20,7 @@ QWidget {
             caption: "Rectangle"
 
             layout: VerticalLayout {
+			    rightMargin: 24
 
                 IntEditor {
                     backendValue: backendValues.radius
@@ -35,7 +36,7 @@ QWidget {
                     id: borderWidth;
                     backendValue: backendValues.border_width === undefined ? 0 : backendValues.border_width
 
-                    caption: "Border Width"
+                    caption: "Border"
                     baseStateFlag: isBaseState;
 
                     step: 1;
