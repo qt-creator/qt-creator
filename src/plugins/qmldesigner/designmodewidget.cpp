@@ -446,12 +446,14 @@ void DesignModeWidget::setCurrentDocument(DesignDocumentController *newDesignDoc
         saveSettings();
     }
 
-    disconnect(currentDesignDocumentController(), SIGNAL(undoAvailable(bool)),
-               this, SLOT(undoAvailable(bool)));
-    disconnect(currentDesignDocumentController(), SIGNAL(redoAvailable(bool)),
-               this, SLOT(redoAvailable(bool)));
-    disconnect(currentDesignDocumentController(), SIGNAL(deleteAvailable(bool)),
-               this, SLOT(deleteAvailable(bool)));
+    if (currentDesignDocumentController()) {
+        disconnect(currentDesignDocumentController(), SIGNAL(undoAvailable(bool)),
+            this, SLOT(undoAvailable(bool)));
+        disconnect(currentDesignDocumentController(), SIGNAL(redoAvailable(bool)),
+            this, SLOT(redoAvailable(bool)));
+        disconnect(currentDesignDocumentController(), SIGNAL(deleteAvailable(bool)),
+            this, SLOT(deleteAvailable(bool)));
+    }
 
     m_currentDesignDocumentController = newDesignDocumentController;
 
@@ -459,8 +461,6 @@ void DesignModeWidget::setCurrentDocument(DesignDocumentController *newDesignDoc
             this, SLOT(undoAvailable(bool)));
     connect(currentDesignDocumentController(), SIGNAL(redoAvailable(bool)),
             this, SLOT(redoAvailable(bool)));
-    connect(currentDesignDocumentController(), SIGNAL(deleteAvailable(bool)),
-            this, SLOT(deleteAvailable(bool)));
 
     if (m_currentDesignDocumentController) {
 
