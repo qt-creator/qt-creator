@@ -69,10 +69,10 @@ QPlainTextEdit
  {
      font-size: 11px;
      color: white;
-     padding-right: 4px;
+     padding-right: 2px;
      padding-top: 2px;
      padding-bottom: 2px;
-    padding-left: 20px;
+     padding-left: 20px;
      border: 2px solid #0F0F0F;
      border-radius: 6px;
      border-width: 1;
@@ -88,10 +88,10 @@ QPlainTextEdit
  {
      font-size: 11px;
      color: white;
-     padding-right: 4px;
+     padding-right: 2px;
      padding-top: 2px;
      padding-bottom: 2px;
-    padding-left: 20px;
+     padding-left: 20px;
      border: 2px solid #0F0F0F;
      border-radius: 6px;
      border-width: 1;
@@ -199,19 +199,19 @@ QPushButton {
 
 QPushButton, QComboBox[editable="false"],
 QComboBox[editable="true"] {
-    border-image: url(:/qmldesigner/images/pushbutton.png) 4;
+    border-image: url(:/qmldesigner/images/combobox-normal.png) 4;
     border-width: 3;
 }
 
 QPushButton:hover, QComboBox[editable="false"]:hover,
 QComboBox[editable="true"]:hover, QMenuBar::item:hover {
-    border-image: url(:/qmldesigner/images/pushbutton_hover.png) 4;
+    border-image: url(:/qmldesigner/images/combobox-normal.png) 4;
     border-width: 3;
 }
 
 QPushButton:pressed, QComboBox[editable="false"]:on,
 QComboBox[editable="true"]:on, QMenuBar::item:on {
-    border-image: url(:/qmldesigner/images/pushbutton_pressed.png) 4;
+    border-image: url(:/qmldesigner/images/combobox-pressed.png) 4;
     border-width: 3;
 }
 
@@ -404,18 +404,15 @@ QMenu::separator {
  }
  
  QSlider::groove:horizontal {
-     height: 8px;
-     border: 2px solid #0F0F0F;
-     border-radius: 6px;
-     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                       stop: 0 #2c2c2c, stop: 1 #333333);
+    height: 2px;
+	border-image: url(:/qmldesigner/images/slider_line.png) 0;
     margin: 5px 0;
  }
 
  QSlider::handle:horizontal {
-     border: 2px solid #1B1B1B;
-     border-image: url(:/qmldesigner/images/pushbutton.png) 3;
-     width: 6px;
+     image: url(:/qmldesigner/images/slider_indikator.png);
+     width: 8px;
+	 height: 8px;
      margin: 0px 0;	 
  }
 
