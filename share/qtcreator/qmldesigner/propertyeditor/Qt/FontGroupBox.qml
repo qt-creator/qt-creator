@@ -14,13 +14,9 @@ GroupBox {
                 Label {
                     text: qsTr("Font")
                 }
+				
                 FontComboBox {
-                    id: fontSelector
-                    currentFont.family:backendValues.font_family.value
-                    onCurrentFontChanged: if (backendValues.font_family.value != currentFont.family)
-                        backendValues.font_family.value = currentFont.family;
-
-                    backendValue:backendValues.font_family
+                    backendValue: backendValues.font_family
                     baseStateFlag: isBaseState
                 }
             }
@@ -66,11 +62,11 @@ GroupBox {
 
                 ComboBox {
                     baseStateFlag:isBaseState
-                    backendValue: backendValues.style
+                    backendValue: (backendValues.style === undefined) ? dummyBackendValue : backendValues.style
                     items : { ["Normal", "Outline", "Raised", "Sunken"] }
-                    currentText: backendValues.style.value;
+                    currentText: backendValue.value;
                     onItemsChanged: {
-                        currentText =  backendValues.style.value;
+                        currentText =  backendValue.value;
                     }
                 }
             }

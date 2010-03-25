@@ -56,10 +56,16 @@ QWidget {
 
     layout: HorizontalLayout {
         QFontComboBox {
-            id: fontSelector
-            //        currentFont.family:backendValues.font_family.value
-            //        onCurrentFontChanged: if (backendValues.font_family.value != currentFont.family)
-            //        backendValues.font_family.value = currentFont.family;
+            id: fontSelector            
+			
+			currentFont.family: backendValue.value
+			property var fontFamily: currentFont.family
+            onFontFamilyChanged: {
+			    if (backendValue === undefined)
+			        return;
+                if (backendValue.value != currentFont.family)
+					backendValue.value = currentFont.family;
+                }
         }
     }
 }
