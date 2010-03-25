@@ -32,7 +32,7 @@ import Qt 4.6
 // the style used the items view
 
 Item {
-    property string backgroundColor: "#707070"
+    property string backgroundColor: "#4f4f4f"
     property string raisedBackgroundColor: "#e0e0e0"
 
     property string scrollbarBorderColor: "#8F8F8F"

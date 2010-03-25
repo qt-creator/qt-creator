@@ -9,7 +9,7 @@ Rectangle {
     signal deleteState(int index)
     signal duplicateCurrentState
 
-    color: "#707070";
+    color: "#4f4f4f";
 
     function adjustCurrentStateIndex() {
         if (currentStateIndex >= statesEditorModel.count)

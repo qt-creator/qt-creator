@@ -1,6 +1,6 @@
 QFrame {
    border: 2px;
-   background-color: #707070;
+   background-color: #4f4f4f;
 }
 
 QLabel {
@@ -13,28 +13,28 @@ QLabel {
 
 QScrollArea {
      border: 0px;
-     background-color: #707070;
+     background-color: #4f4f4f;
 }
 
 QStackedWidget {
      border: 0px;
-     background-color: #707070;
+     background-color: #4f4f4f;
 }
 
 
 QGraphicsView {
      border: 0px;
-     background-color: #707070;
+     background-color: #4f4f4f;
 }
 
 QTabWidget {
      border: 0px;
-     background-color: #707070;
+     background-color: #4f4f4f;
 }
 
 QTabWidget::pane { /* The tab widget frame */
      border: 0px;
-     background-color: #707070;
+     background-color: #4f4f4f;
 }
 
 QLineEdit
