@@ -28,6 +28,9 @@
 **************************************************************************/
 
 #include "debuggeractions.h"
+#ifdef Q_OS_WIN
+#include "registerpostmortemaction.h"
+#endif
 
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
@@ -402,6 +405,15 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(EnableReverseDebugging, item);
+
+#ifdef Q_OS_WIN
+    item = new RegisterPostMortemAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("RegisterForPostMortem"));
+    item->setText(tr("Register For Post-Mortem Debugging"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    instance->insertItem(RegisterForPostMortem, item);
+#endif
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("AllPluginBreakpoints"));

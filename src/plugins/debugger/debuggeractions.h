@@ -100,6 +100,8 @@ enum DebuggerActionCode
     UseAddressInBreakpointsView,
     UseAddressInStackView,
 
+    RegisterForPostMortem,
+
     // Gdb
     GdbLocation,
     GdbEnvironment,

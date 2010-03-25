@@ -389,6 +389,13 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(UsePreciseBreakpoints), 0);
     m_group.insert(theDebuggerAction(BreakOnThrow), 0);
     m_group.insert(theDebuggerAction(BreakOnCatch), 0);
+#ifdef Q_OS_WIN
+    Utils::SavedAction *registerAction = theDebuggerAction(RegisterForPostMortem);
+    m_group.insert(registerAction,
+        m_ui.checkBoxRegisterForPostMortem);
+    connect(registerAction, SIGNAL(toggled(bool)),
+            m_ui.checkBoxRegisterForPostMortem, SLOT(setChecked(bool)));
+#endif
 
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords) << ' '
@@ -399,10 +406,15 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
                 << ' ' << m_ui.checkBoxUseToolTipsInMainEditor->text()
                 << ' ' << m_ui.checkBoxSkipKnownFrames->text()
                 << ' ' << m_ui.checkBoxEnableReverseDebugging->text()
+#ifdef Q_OS_WIN
+                << ' ' << m_ui.checkBoxRegisterForPostMortem->text()
+#endif
                 << ' ' << m_ui.labelMaximalStackDepth->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
-
+#ifndef Q_OS_WIN
+    m_ui.checkBoxRegisterForPostMortem->setVisible(false);
+#endif
     return w;
 }
 

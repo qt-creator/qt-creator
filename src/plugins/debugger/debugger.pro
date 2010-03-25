@@ -90,6 +90,13 @@ false {
     HEADERS += $$PWD/modeltest.h
     DEFINES += USE_MODEL_TEST=1
 }
+win32 {
+include(../../shared/registryaccess/registryaccess.pri)
+HEADERS += registerpostmortemaction.h
+SOURCES += registerpostmortemaction.cpp
+LIBS  *= -lole32 \
+    -lshell32
+}
 include(cdb/cdb.pri)
 include(gdb/gdb.pri)
 include(script/script.pri)

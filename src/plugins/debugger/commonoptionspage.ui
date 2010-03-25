@@ -85,14 +85,24 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="6" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxRegisterForPostMortem">
+        <property name="toolTip">
+         <string>Register Qt Creator for debugging crashed applications.</string>
+        </property>
+        <property name="text">
+         <string>Use Creator for post-mortem debugging</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
        <widget class="QLabel" name="labelMaximalStackDepth">
         <property name="text">
          <string>Maximal stack depth:</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
+      <item row="7" column="1">
        <widget class="QSpinBox" name="spinBoxMaximalStackDepth">
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
