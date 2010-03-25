@@ -6,7 +6,7 @@ QExtGroupBox {
 
     property var finished;
     property var backendColor
-	property var color: backendColor === undefined ? "#000000" : backendColor.value
+    property var color: (backendColor === undefined || backendColor.value  === undefined) ? "#000000" : backendColor.value
     property var oldMaximumHeight;
 
     property var startupCollapse: selectionChanged === undefined ? false : selectionChanged;

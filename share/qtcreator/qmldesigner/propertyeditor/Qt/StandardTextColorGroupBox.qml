@@ -23,7 +23,7 @@ GroupBox {
             visible: showStyleColor
             finished: finishedNotify
 
-            backendColor: backendValues.styleColor
+            backendColor: (backendValues.styleColor === undefined) ? dummyBackendValue : backendValues.styleColor
         }
 
         ColorGroupBox {
@@ -31,7 +31,7 @@ GroupBox {
             visible: showSelectionColor
             finished: finishedNotify
 
-            backendColor: backendValues.selectionColor
+            backendColor: (backendValues.selectionColor === undefined) ? dummyBackendValue : backendValues.selectionColor
         }
         
         ColorGroupBox {
@@ -40,7 +40,7 @@ GroupBox {
 
             finished: finishedNotify
 
-            backendColor: backendValues.selectedTextColor
+            backendColor: (backendValues.selectedTextColor === undefined) ? dummyBackendValue : backendValues.selectedTextColor
         }
 
     }
