@@ -1795,16 +1795,18 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
         break;
     }
     case Qt::Key_Backspace: {
-        if (cursor.position() == m_currentRenameSelectionBegin.position()) {
-            // Eat backspace at start of name
+        if (cursor.position() == m_currentRenameSelectionBegin.position()
+            && !cursor.hasSelection()) {
+            // Eat backspace at start of name when there is no selection
             e->accept();
             return;
         }
         break;
     }
     case Qt::Key_Delete: {
-        if (cursor.position() == m_currentRenameSelectionEnd.position()) {
-            // Eat delete at end of name
+        if (cursor.position() == m_currentRenameSelectionEnd.position()
+            && !cursor.hasSelection()) {
+            // Eat delete at end of name when there is no selection
             e->accept();
             return;
         }
