@@ -284,7 +284,9 @@ case 20: {
 
     sym(1).Node = node;
 
-    if (! node) {
+    if (node) {
+        node->importToken = loc(1);
+    } else {
        diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, loc(1),
          QLatin1String("Expected a qualified name id or a string literal")));
 

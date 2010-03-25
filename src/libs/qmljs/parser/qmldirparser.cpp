@@ -151,13 +151,26 @@ bool QmlDirParser::parse()
 
             _plugins.append(entry);
 
+        } else if (sections[0] == QLatin1String("internal")) {
+            if (sectionCount != 3) {
+                reportError(lineNumber, -1,
+                            QString::fromUtf8("internal types require 2 arguments, but %1 were provided").arg(sectionCount + 1));
+                continue;
+            }
+            Component entry(sections[1], sections[2], -1, -1);
+            entry.internal = true;
+            _components.append(entry);
+
+        } else if (sectionCount == 2) {
+            // No version specified (should only be used for relative qmldir files)
+            const Component entry(sections[0], sections[1], -1, -1);
+            _components.append(entry);
         } else if (sectionCount == 3) {
             const QString &version = sections[1];
             const int dotIndex = version.indexOf(QLatin1Char('.'));
 
             if (dotIndex == -1) {
                 qWarning() << "expected '.'"; // ### use reportError
-
             } else if (version.indexOf(QLatin1Char('.'), dotIndex + 1) != -1) {
                 qWarning() << "unexpected '.'"; // ### use reportError
 

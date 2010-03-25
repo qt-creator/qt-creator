@@ -61,7 +61,6 @@
 QT_BEGIN_NAMESPACE
 
 class QmlError;
-
 class QML_PARSER_EXPORT QmlDirParser
 {
     Q_DISABLE_COPY(QmlDirParser)
@@ -96,15 +95,17 @@ public:
     struct Component
     {
         Component()
-            : majorVersion(0), minorVersion(0) {}
+            : majorVersion(0), minorVersion(0), internal(false) {}
 
         Component(const QString &typeName, const QString &fileName, int majorVersion, int minorVersion)
-            : typeName(typeName), fileName(fileName), majorVersion(majorVersion), minorVersion(minorVersion) {}
+            : typeName(typeName), fileName(fileName), majorVersion(majorVersion), minorVersion(minorVersion),
+            internal(false) {}
 
         QString typeName;
         QString fileName;
         int majorVersion;
         int minorVersion;
+        bool internal;
     };
 
     QList<Component> components() const;
@@ -121,6 +122,9 @@ private:
     QList<Plugin> _plugins;
     unsigned _isParsed: 1;
 };
+
+typedef QList<QmlDirParser::Component> QmlDirComponents;
+
 
 QT_END_NAMESPACE
 

@@ -11,4 +11,4 @@ for i in $QTDIR/src/declarative/qml/qdeclarative{error.{h,cpp},dirparser{_p.h,.c
 done
 
 # export QmlDirParser
-perl -p -0777 -i -e 's/QT_BEGIN_NAMESPACE\n\nclass QmlError;\n\nclass QmlDirParser/#include "qmljsglobal_p.h"\n\nQT_BEGIN_NAMESPACE\n\nclass QmlError;\n\nclass QML_PARSER_EXPORT QmlDirParser/' qmldirparser_p.h
+perl -p -0777 -i -e 's/QT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QmlDirParser/#include "qmljsglobal_p.h"\n\nQT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QML_PARSER_EXPORT QmlDirParser/' qmldirparser_p.h
