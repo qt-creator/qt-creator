@@ -147,8 +147,6 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryInfo &itemLibraryRe
         foreach (const PropertyContainer &property, itemLibraryRepresentation.properties())
             propertyPairList.append(qMakePair(property.name(), property.value()));
 
-        qDebug() << itemLibraryRepresentation.typeName();
-
         newNode = createQmlItemNode(itemLibraryRepresentation.typeName(), itemLibraryRepresentation.majorVersion(), itemLibraryRepresentation.minorVersion(), propertyPairList);
         parentNode.nodeAbstractProperty("data").reparentHere(newNode);
 
