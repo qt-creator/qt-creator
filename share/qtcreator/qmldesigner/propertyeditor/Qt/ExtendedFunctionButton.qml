@@ -61,14 +61,14 @@ QToolButton {
 
     actions:  [
     QAction {
-        text: "Reset";
+        text: qsTr("Reset")
         onTriggered: {
             backendValue.resetValue();
         }
 
     },
     QAction {
-        text: "Set Expression";
+        text: qsTr("Set Expression");
         onTriggered: {
             expressionEdit.globalY = extendedFunctionButton.globalY;
             expressionEdit.backendValue = extendedFunctionButton.backendValue

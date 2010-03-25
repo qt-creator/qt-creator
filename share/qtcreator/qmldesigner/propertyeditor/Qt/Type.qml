@@ -4,14 +4,14 @@ import Bauhaus 1.0
 GroupBox {
     id: type;
     finished: finishedNotify;
-    caption: "Type";
+    caption: qsTr("Type")
 
     layout: VerticalLayout {
         spacing: 6
         QWidget {
             layout: HorizontalLayout {
                 Label {
-                    text: "type";
+                    text: qsTr("Type")
                     windowTextColor: isBaseState ? "#000000" : "#FF0000";
                 }
 
@@ -28,7 +28,7 @@ GroupBox {
 
             layout: HorizontalLayout {
                 Label {
-                    text: "Id";
+                    text: qsTr("Id");
                 }
 
                 QLineEdit {

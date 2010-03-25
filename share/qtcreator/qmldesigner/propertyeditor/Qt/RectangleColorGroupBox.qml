@@ -4,20 +4,18 @@ import Bauhaus 1.0
 GroupBox {
     id: rectangleColorGroupBox
 
-    caption: "Colors"
+    caption: qsTr("Colors")
 
     layout: VerticalLayout {        
 
         ColorGroupBox {
-		    caption: "Rectangle"
-
-            finished: finishedNotify
-
+            caption: qsTr("Rectangle")
+            finished: finishedNotify            
             backendColor: backendValues.color
         }        
 
         ColorGroupBox {
-            caption: "Border"
+            caption: qsTr("Border")
             finished: finishedNotify
 
             backendColor: backendValues.border_color

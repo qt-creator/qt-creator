@@ -12,7 +12,7 @@ GroupBox {
             layout: HorizontalLayout {
 			    rightMargin: 12
                 Label {
-                    text: "Font"
+                    text: qsTr("Font")
                 }
                 FontComboBox {
                     id: fontSelector
@@ -28,7 +28,7 @@ GroupBox {
 
         IntEditor {
             maximumWidth: 200
-            caption: "Size"
+            caption: qsTr("Size")
             slider: false
             backendValue: backendValues.font_pointSize
             baseStateFlag: isBaseState;
@@ -37,17 +37,17 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {
                 Label {
-                    text: "Font Style"
+                    text: qsTr("Font Style")
                 }
 
                 CheckBox {
-                    text: "Bold";
+                    text: qsTr("Bold")
                     backendValue: backendValues.font_bold
                     baseStateFlag: isBaseState;
                     checkable: true;
                 }
                 CheckBox {
-                    text: "Italic";
+                    text: qsTr("Italic")
                     backendValue: backendValues.font_italic
                     baseStateFlag: isBaseState;
                     checkable: true;
@@ -61,7 +61,7 @@ GroupBox {
             layout: HorizontalLayout {
 			    rightMargin: 12
                 Label {
-                    text: "Style"
+                    text: qsTr("Style")
                 }
 
                 ComboBox {

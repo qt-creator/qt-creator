@@ -11,19 +11,19 @@ GroupBox {
 
         QWidget {
             layout: HorizontalLayout {
-                Label {
-                    text: "Visibility"
+                Label {                    
+                    text: qsTr("Visibility")
                 }
                 CheckBox {
                     id: visibleCheckBox;
-                    text: "Is visible";
+                    text: qsTr("Is visible")
                     backendValue: backendValues.visible;
                     baseStateFlag: isBaseState;
                     checkable: true;
                 }
                 CheckBox {
                     id: clipCheckBox;
-                    text: "Clip Content";
+                    text: qsTr("Clip Content")
                     backendValue: backendValues.clip;
                     baseStateFlag: isBaseState;
                     checkable: true;
@@ -34,7 +34,7 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: "Opacity"
+                    text: qsTr("Opacity")
                 }
 
                 DoubleSpinBox {

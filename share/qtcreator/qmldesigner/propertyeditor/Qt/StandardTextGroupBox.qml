@@ -14,7 +14,7 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: "Text"
+                    text: qsTr("Text")
                 }
 
                 LineEdit {
@@ -31,7 +31,7 @@ GroupBox {
                 }
                 CheckBox {
                     baseStateFlag: isBaseState;
-                    text: "Is Wrapping";
+                    text: qsTr("Is Wrapping")
                     checkable: true;
                     backendValue: backendValues.wrap;
                 }
@@ -42,7 +42,7 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: "Alignment"
+                    text: qsTr("Alignment")
                 }
                 AlignmentHorizontalButtons {}
                 AlignmentVerticalButtons { visible: showVerticalAlignment }

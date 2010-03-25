@@ -48,7 +48,7 @@ QWidget {
     ExpressionEdit {
         id: textEdit;
         styleSheet: "QTextEdit {border-radius: 0px;}"
-        documentTitle: "Expression"
+        documentTitle: qsTr("Expression")
 
         width: expressionEdit.width
         height: expressionEdit.height

@@ -5,7 +5,7 @@ GroupBox {
     finished: finishedNotify
     id: geometry
 
-    caption: "Geometry"
+    caption: qsTr("Geometry")
 
     layout: VerticalLayout {
 
@@ -13,7 +13,7 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: "Position"
+                    text: qsTr("Position")
                 }
 
                 DoubleSpinBox {
@@ -52,7 +52,7 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: "Size"
+                    text: qsTr("Size")
                 }
 
                 DoubleSpinBox {

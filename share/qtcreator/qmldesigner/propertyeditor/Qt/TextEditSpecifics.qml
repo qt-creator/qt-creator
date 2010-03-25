@@ -22,7 +22,7 @@ QWidget {
         }
 
         GroupBox {
-            caption: "Text Edit"
+            caption: qsTr("Text Edit")
             finished: finishedNotify;
             layout: VerticalLayout {
 
@@ -30,7 +30,7 @@ QWidget {
                     layout: HorizontalLayout {
 					rightMargin: 12
                         Label {
-                            text: "Format"
+                            text: qsTr("Format")
                         }
                         ComboBox {
                             baseStateFlag: isBaseState

@@ -14,7 +14,7 @@ GroupBox {
 
     layout: VerticalLayout {
         Label {
-            text: "Anchors"
+            text: qsTr("Anchors")
         }
         QWidget {
             layout: HorizontalLayout {
@@ -46,7 +46,7 @@ GroupBox {
                         }
 
                         Label {
-                            text: "Target"
+                            text: qsTr("Target")
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
@@ -64,7 +64,7 @@ GroupBox {
                         IntEditor {
                             id:topbox
                             slider: false
-                            caption: "Margin"
+                            caption: qsTr("Margin")
                             backendValue: backendValues.anchors_topMargin
                             baseStateFlag: isBaseState;
                             maximumValue: 1000
@@ -95,7 +95,7 @@ GroupBox {
                         }
 
                         Label {
-                            text: "Target"
+                            text: qsTr("Target")
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
@@ -112,7 +112,7 @@ GroupBox {
 					    leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
-                            caption: "Margin"
+                            caption: qsTr("Margin")
                             backendValue: backendValues.anchors_bottomMargin
                             baseStateFlag: isBaseState;
                             maximumValue: 1000
@@ -143,7 +143,7 @@ GroupBox {
                         }
 
                         Label {
-                            text: "Target"
+                            text: qsTr("Target")
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
@@ -159,7 +159,7 @@ GroupBox {
 					    leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
-                            caption: "Margin"
+                            caption: qsTr("Margin")
                             backendValue: backendValues.anchors_leftMargin
                             baseStateFlag: isBaseState;
                             maximumValue: 1000
@@ -190,7 +190,7 @@ GroupBox {
                         }
 
                         Label {
-                            text: "Target"
+                            text: qsTr("Target")
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
@@ -206,7 +206,7 @@ GroupBox {
 					    leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
-                            caption: "Margin"
+                            caption: qsTr("Margin")
                             backendValue: backendValues.anchors_rightMargin
                             baseStateFlag: isBaseState;
                             maximumValue: 1000
@@ -237,7 +237,7 @@ GroupBox {
                         }
 
                         Label {
-                            text: "Target"
+                            text: qsTr("Target")
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
@@ -253,7 +253,7 @@ GroupBox {
 					    leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
-                            caption: "Margin"
+                            caption: qsTr("Margin")
                             baseStateFlag: isBaseState;
                             backendValue: backendValues.anchors_horizontalCenterOffset
                             maximumValue: 1000
@@ -284,7 +284,7 @@ GroupBox {
                         }
 
                         Label {
-                            text: "Target"
+                            text: qsTr("Target")
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
@@ -300,7 +300,7 @@ GroupBox {
 					    leftMargin: leftMarginMargin
                         IntEditor {						    
                             slider: false
-                            caption: "Margin"
+                            caption: qsTr("Margin")
                             backendValue: backendValues.anchors_verticalCenterOffset
                             baseStateFlag: isBaseState;
                             maximumValue: 1000

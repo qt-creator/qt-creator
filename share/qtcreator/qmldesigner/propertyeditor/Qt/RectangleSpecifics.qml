@@ -24,7 +24,7 @@ QWidget {
 
                 IntEditor {
                     backendValue: backendValues.radius
-                    caption: "Radius"
+                    caption: qsTr("Radius")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -36,7 +36,7 @@ QWidget {
                     id: borderWidth;
                     backendValue: backendValues.border_width === undefined ? 0 : backendValues.border_width
 
-                    caption: "Border"
+                    caption: qsTr("Border")
                     baseStateFlag: isBaseState;
 
                     step: 1;

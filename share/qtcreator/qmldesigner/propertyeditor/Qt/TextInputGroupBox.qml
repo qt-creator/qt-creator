@@ -4,16 +4,16 @@ import Bauhaus 1.0
 GroupBox {
 
     id: textInputGroupBox
-    caption: "Text Input";
+    caption: qsTr("Text Input")
 
     layout: VerticalLayout {       
 
         QWidget {
             layout: HorizontalLayout {
-                Label {text: "Flags"}
+                Label {text: qsTr("Flags") }
 
                 CheckBox {
-                    text: "Read Only";
+                    text: qsTr("Read Only")
                     baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue: backendValues.readOnly;
@@ -31,7 +31,7 @@ GroupBox {
 
                 CheckBox {
 
-                    text: "Cursor Visible";
+                    text: qsTr("Cursor Visible")
                     baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue: backendValues.cursorVisible;
@@ -45,7 +45,7 @@ GroupBox {
             layout: HorizontalLayout {
                 Label {text: ""}
                 CheckBox {
-                    text: "Focus On Press";
+                    text: qsTr("Focus On Press")
                     baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue:  backendValues. focusOnPress;

@@ -23,7 +23,7 @@ QWidget {
 
                 FileWidget {
                     enabled: isBaseState || backendValues.id.value != "";
-                    text: "Source: ";
+                    text: qsTr("Source ")
                     fileName: backendValues.source.value;
                     onFileNameChanged: {
                         backendValues.source.value = fileName;
@@ -33,7 +33,7 @@ QWidget {
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
-                            text: "Fill Mode"
+                            text: qsTr("Fill Mode")
                         }
 
                         ComboBox {
@@ -51,11 +51,11 @@ QWidget {
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
-                            text: "Aliasing"
+                            text: qsTr("Aliasing")
                         }
 
                         CheckBox {
-                            text: "Smooth";
+                            text: qsTr("Smooth")
                             backendValue: backendValues.smooth
                             baseStateFlag: isBaseState;
                             checkable: true;
