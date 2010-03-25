@@ -388,13 +388,34 @@ void TestCore::testModelCreateRect()
 
 }
 
-void TestCore::loadComponentPropertiesInCoreModel()
+void TestCore::testRewriterDynamicProperties()
 {
-    QFile file(":/fx/properties.qml");
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+    const QLatin1String qmlString("\n"
+                                  "import Qt 4.6\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "  property int i\n"
+                                  "  property int ii: 1\n"
+                                  "  property bool b\n"
+                                  "  property bool bb: true\n"
+                                  "  property double d\n"
+                                  "  property double dd: 1.1\n"
+                                  "  property real r\n"
+                                  "  property real rr: 1.1\n"
+                                  "  property string s\n"
+                                  "  property string ss: \"hello\"\n"
+                                  "  property url u\n"
+                                  "  property url uu: \"www\"\n"
+                                  "  property color c\n"
+                                  "  property color cc: \"#ffffff\"\n"
+                                  "  property date t\n"
+                                  "  property date tt: \"2000-03-20\"\n"
+                                  "  property var v\n"
+                                  "  property var vv: \"Hello\"\n"
+                                  "}");
 
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText(file.readAll());
+    textEdit1.setPlainText(qmlString);
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
@@ -403,22 +424,99 @@ void TestCore::loadComponentPropertiesInCoreModel()
     testRewriterView1->setTextModifier(&modifier1);
     model1->attachView(testRewriterView1.data());
 
-    QVERIFY(testRewriterView1->rootModelNode().variantProperty("pushed").isDynamic());
-    QCOMPARE(false, testRewriterView1->rootModelNode().variantProperty("pushed").value().toBool());
+    QVERIFY(testRewriterView1->errors().isEmpty());
 
-    QPlainTextEdit textEdit2;
-    textEdit2.setPlainText("import Qt 4.6; Item{}");
-    NotIndentingTextEditModifier modifier2(&textEdit2);
+    //
+    // text2model
+    //
+    ModelNode rootModelNode = testRewriterView1->rootModelNode();
+    QVERIFY(rootModelNode.hasVariantProperty("i"));
+    QCOMPARE(rootModelNode.variantProperty("i").dynamicTypeName(), QString("int"));
+    QCOMPARE(rootModelNode.variantProperty("i").value().type(), QVariant::Int);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("i").value().toInt(), 0);
 
-    QScopedPointer<Model> model2(Model::create("Qt/Item"));
+    QVERIFY(rootModelNode.hasVariantProperty("ii"));
+    QCOMPARE(rootModelNode.variantProperty("ii").dynamicTypeName(), QString("int"));
+    QCOMPARE(rootModelNode.variantProperty("ii").value().type(), QVariant::Int);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("ii").value().toInt(), 1);
 
-    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
-    testRewriterView2->setTextModifier(&modifier2);
-    model2->attachView(testRewriterView2.data());
+    QVERIFY(rootModelNode.hasVariantProperty("b"));
+    QCOMPARE(rootModelNode.variantProperty("b").dynamicTypeName(), QString("bool"));
+    QCOMPARE(rootModelNode.variantProperty("b").value().type(), QVariant::Bool);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("b").value().toBool(), false);
 
-    testRewriterView2->rootModelNode().variantProperty("pushed").setDynamicTypeNameAndValue("bool", QVariant(false));
+    QVERIFY(rootModelNode.hasVariantProperty("bb"));
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("bb").value().toBool(), true);
 
-    QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
+    QVERIFY(rootModelNode.hasVariantProperty("d"));
+    QCOMPARE(rootModelNode.variantProperty("d").dynamicTypeName(), QString("double"));
+    QCOMPARE(rootModelNode.variantProperty("d").value().type(), QVariant::Double);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("b").value().toDouble(), 0.0);
+
+    QVERIFY(rootModelNode.hasVariantProperty("dd"));
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("dd").value().toDouble(), 1.1);
+
+    QVERIFY(rootModelNode.hasVariantProperty("r"));
+    QCOMPARE(rootModelNode.variantProperty("r").dynamicTypeName(), QString("double"));
+    QCOMPARE(rootModelNode.variantProperty("r").value().type(), QVariant::Double);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("r").value().toDouble(), 0.0);
+
+    QVERIFY(rootModelNode.hasVariantProperty("rr"));
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("rr").value().toDouble(), 1.1);
+
+    QVERIFY(rootModelNode.hasVariantProperty("s"));
+    QCOMPARE(rootModelNode.variantProperty("s").dynamicTypeName(), QString("string"));
+    QCOMPARE(rootModelNode.variantProperty("s").value().type(), QVariant::String);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("s").value().toString(), QString());
+
+    QVERIFY(rootModelNode.hasVariantProperty("ss"));
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("ss").value().toString(), QString("hello"));
+
+    QVERIFY(rootModelNode.hasVariantProperty("u"));
+    QCOMPARE(rootModelNode.variantProperty("u").dynamicTypeName(), QString("url"));
+    QCOMPARE(rootModelNode.variantProperty("u").value().type(), QVariant::Url);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("u").value().toUrl(), QUrl());
+
+    QVERIFY(rootModelNode.hasVariantProperty("uu"));
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("uu").value().toUrl(), QUrl("www"));
+
+    QVERIFY(rootModelNode.hasVariantProperty("c"));
+    QCOMPARE(rootModelNode.variantProperty("c").dynamicTypeName(), QString("color"));
+    QCOMPARE(rootModelNode.variantProperty("c").value().type(), QVariant::Color);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("c").value().value<QColor>(), QColor());
+
+    QVERIFY(rootModelNode.hasVariantProperty("cc"));
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("cc").value().value<QColor>(), QColor(255, 255, 255));
+
+    QVERIFY(rootModelNode.hasVariantProperty("t"));
+    QCOMPARE(rootModelNode.variantProperty("t").dynamicTypeName(), QString("date"));
+    QCOMPARE(rootModelNode.variantProperty("t").value().type(), QVariant::Color);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("t").value().value<QDate>(), QDate());
+
+    QVERIFY(rootModelNode.hasVariantProperty("tt"));
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("tt").value().value<QDate>(), QDate(2000, 3, 20));
+
+    QVERIFY(rootModelNode.hasVariantProperty("v"));
+    QCOMPARE(rootModelNode.variantProperty("v").dynamicTypeName(), QString("var"));
+    QCOMPARE(rootModelNode.variantProperty("v").value().type(), QVariant::Invalid);
+
+    QVERIFY(rootModelNode.hasVariantProperty("vv"));
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("vv").value().value<QString>(), QString("hello"));
+
+    // test model2text
+//    QPlainTextEdit textEdit2;
+//    textEdit2.setPlainText("import Qt 4.6; Item{}");
+//    NotIndentingTextEditModifier modifier2(&textEdit2);
+//
+//    QScopedPointer<Model> model2(Model::create("Qt/Item"));
+//
+//    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
+//    testRewriterView2->setTextModifier(&modifier2);
+//    model2->attachView(testRewriterView2.data());
+//
+//    testRewriterView2->rootModelNode().variantProperty("pushed").setDynamicTypeNameAndValue("bool", QVariant(false));
+//
+//    QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
 
 void TestCore::loadSubItems()

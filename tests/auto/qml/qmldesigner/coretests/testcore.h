@@ -118,6 +118,8 @@ private slots:
     void testRewriterWithSignals();
     void testRewriterNodeSliding();
     void testRewriterExceptionHandling();
+    void testRewriterDynamicProperties();
+
 
     //
     // unit tests QmlModelNodeFacade/QmlModelState
@@ -168,7 +170,6 @@ private slots:
     void saveEmptyCoreModel();
     void loadAttributesInCoreModel();
     void saveAttributesInCoreModel();
-    void loadComponentPropertiesInCoreModel();
     void loadSubItems();
 
     void attributeChangeSynchronizer();
