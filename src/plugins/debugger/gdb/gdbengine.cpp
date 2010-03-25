@@ -2213,6 +2213,14 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     m_breakListOutdated = false;
 }
 
+void GdbEngine::handleBreakDisable(const GdbResponse &response)
+{
+    BreakHandler *handler = manager()->breakHandler();
+    if (response.resultClass == GdbResultDone) {
+        handler->updateMarkers();
+    }
+}
+
 void GdbEngine::handleBreakIgnore(const GdbResponse &response)
 {
     int index = response.cookie.toInt();
@@ -2421,24 +2429,30 @@ void GdbEngine::attemptBreakpointSynchronization()
         } else if (data->bpNumber.toInt()) {
             if (data->bpMultiple && data->bpFileName.isEmpty()) {
                 postCommand("info break " + data->bpNumber,
-                    RebuildBreakpointModel,
+                    NeedsStop | RebuildBreakpointModel,
                     CB(handleBreakInfo), data->bpNumber.toInt());
                 continue;
             }
-            // update conditions if needed
-            if (data->condition != data->bpCondition && !data->conditionsMatch())
+            if (data->condition != data->bpCondition && !data->conditionsMatch()) {
+                // Update conditions if needed.
                 postCommand("condition " + data->bpNumber + ' '  + data->condition,
-                    RebuildBreakpointModel,
+                    NeedsStop | RebuildBreakpointModel,
                     CB(handleBreakCondition), index);
-            // update ignorecount if needed
-            if (data->ignoreCount != data->bpIgnoreCount)
+            }
+            else // Because gdb won't do both changes at a time anyway.
+            if (data->ignoreCount != data->bpIgnoreCount) {
+                // Update ignorecount if needed.
                 postCommand("ignore " + data->bpNumber + ' ' + data->ignoreCount,
-                    RebuildBreakpointModel,
+                    NeedsStop | RebuildBreakpointModel,
                     CB(handleBreakIgnore), index);
+                continue;
+            }
             if (!data->enabled && data->bpEnabled) {
                 postCommand("-break-disable " + data->bpNumber,
-                    NeedsStop | RebuildBreakpointModel);
+                    NeedsStop | RebuildBreakpointModel,
+                    CB(handleBreakInfo));
                 data->bpEnabled = false;
+                continue;
             }
         }
     }
