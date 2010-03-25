@@ -725,15 +725,6 @@ int ObjectNodeInstance::penWidth() const
     return 0;
 }
 
-bool ObjectNodeInstance::isVisible() const
-{
-    return false;
-}
-
-void ObjectNodeInstance::setVisible(bool /*isVisible*/)
-{
-}
-
 static bool metaObjectHasNotPropertyName(NodeInstanceMetaObject *metaObject, const QString &propertyName)
 {
     for (int i = 0; i < metaObject->count(); i++) {

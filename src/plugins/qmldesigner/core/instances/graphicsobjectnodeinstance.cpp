@@ -38,7 +38,6 @@ namespace Internal {
 
 GraphicsObjectNodeInstance::GraphicsObjectNodeInstance(QGraphicsObject *graphicsObject, bool hasContent)
    : ObjectNodeInstance(graphicsObject),
-   m_isVisible(true),
    m_hasContent(hasContent)
 {
 }
@@ -52,16 +51,6 @@ QGraphicsObject *GraphicsObjectNodeInstance::graphicsObject() const
 bool GraphicsObjectNodeInstance::hasContent() const
 {
     return m_hasContent;
-}
-
-bool GraphicsObjectNodeInstance::isVisible() const
-{
-    return m_isVisible;
-}
-
-void GraphicsObjectNodeInstance::setVisible(bool isVisible)
-{
-    m_isVisible = isVisible;
 }
 
 QPointF GraphicsObjectNodeInstance::position() const
@@ -148,19 +137,11 @@ bool GraphicsObjectNodeInstance::isGraphicsObject() const
 
 void GraphicsObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    if (name == "visible") {
-        setVisible(value.toBool());
-        return;
-    }
-
     ObjectNodeInstance::setPropertyVariant(name, value);
 }
 
 QVariant GraphicsObjectNodeInstance::property(const QString &name) const
 {
-    if (name == "visible")
-        return isVisible();
-
     return ObjectNodeInstance::property(name);
 }
 
@@ -187,16 +168,15 @@ void GraphicsObjectNodeInstance::paint(QPainter *painter) const
 {
     painter->save();
     Q_ASSERT(graphicsObject());
-    if (isVisible()) {
-        if (hasContent())
-                graphicsObject()->paint(painter, 0);
+    if (hasContent())
+        graphicsObject()->paint(painter, 0);
 
-        foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems()) {
-            QGraphicsObject *graphicsObject = qgraphicsitem_cast<QGraphicsObject*>(graphicsItem);
-            if (graphicsObject && !nodeInstanceView()->hasInstanceForObject(graphicsObject))
-                paintRecursively(graphicsItem, painter);
-        }
+    foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems()) {
+        QGraphicsObject *graphicsObject = qgraphicsitem_cast<QGraphicsObject*>(graphicsItem);
+        if (graphicsObject && !nodeInstanceView()->hasInstanceForObject(graphicsObject))
+            paintRecursively(graphicsItem, painter);
     }
+
 
     painter->restore();
 }

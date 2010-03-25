@@ -67,9 +67,6 @@ public:
 
     bool equalGraphicsItem(QGraphicsItem *item) const;
 
-    bool isVisible() const;
-    void setVisible(bool isVisible);
-
     void setPropertyVariant(const QString &name, const QVariant &value);
     QVariant property(const QString &name) const;
 
@@ -82,7 +79,6 @@ protected:
     void paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const;
     static QPair<QGraphicsObject*, bool> createGraphicsObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
 private: // variables
-    bool m_isVisible;
     bool m_hasContent;
 };
 

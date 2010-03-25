@@ -119,7 +119,6 @@ public:
     QVariant property(const QString &name) const;
     QVariant defaultValue(const QString &name) const;
 
-    bool isVisible() const;
     bool isValid() const;
     void makeInvalid();
     bool hasContent() const;
@@ -171,9 +170,6 @@ private: // functions
     QSharedPointer<Internal::QmlGraphicsItemNodeInstance> qmlGraphicsItemNodeInstance() const;
 
     void paintUpdate();
-
-    void show();
-    void hide();
 
 
     QObject *internalObject() const; // should be not used outside of the nodeinstances!!!!

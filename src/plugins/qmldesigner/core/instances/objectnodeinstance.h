@@ -144,8 +144,6 @@ public:
     virtual QVariant property(const QString &name) const;
     virtual void resetProperty(const QString &name);
     virtual void refreshProperty(const QString &name);
-    virtual bool isVisible() const;
-    virtual void setVisible(bool isVisible);
 
     void createDynamicProperty(const QString &name, const QString &typeName);
     void setDeleteHeldInstance(bool deleteInstance);

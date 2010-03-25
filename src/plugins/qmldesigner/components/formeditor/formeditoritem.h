@@ -100,6 +100,9 @@ public:
 
     void setHighlightBoundingRect(bool highlight);
 
+    void setContentVisible(bool visible);
+    bool isContentVisible() const;
+
 protected:
     AbstractFormEditorTool* tool() const;
     void paintBoundingRect(QPainter *painter) const;
@@ -122,6 +125,7 @@ private: // variables
     QRectF m_boundingRect;
     double m_borderWidth;
     bool m_highlightBoundingRect;
+    bool m_isContentVisible;
 };
 
 

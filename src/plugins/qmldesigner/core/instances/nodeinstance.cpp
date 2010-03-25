@@ -423,24 +423,6 @@ QVariant NodeInstance::defaultValue(const QString &name) const
 }
 
 /*!
-\brief Returns if the NodeInstance is visible.
-\returns true if the NodeInstance is visible
-*/
-bool NodeInstance::isVisible() const
-{
-    return m_nodeInstance->isVisible();
-}
-
-void NodeInstance::show()
-{
-    m_nodeInstance->setVisible(true);
-}
-void NodeInstance::hide()
-{
-    m_nodeInstance->setVisible(false);
-}
-
-/*!
 \brief Returns if the NodeInstance is valid.
 \returns true if the NodeInstance is valid
 */

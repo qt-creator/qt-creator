@@ -144,8 +144,7 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 */
 void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
 {
-    NodeInstance instance(loadNode(createdNode));
-    instance.show();
+    loadNode(createdNode);
 }
 
 /*! \brief Notifing the view that a node was created.
@@ -663,7 +662,6 @@ QRectF NodeInstanceView::sceneRect() const
     return QRectF();
 }
 
-}
 
 QFileSystemWatcher *NodeInstanceView::fileSystemWatcher()
 {
@@ -701,4 +699,6 @@ void NodeInstanceView::refreshLocalFileProperty(const QString &path)
             }
         }
     }
+}
+
 }

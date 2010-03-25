@@ -168,6 +168,9 @@ void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode, c
         if (propertyName == "clip")
             item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode.instanceValue("clip").toBool());
 
+        if (propertyName == "visible")
+            item->setContentVisible(qmlItemNode.instanceValue("visible").toBool());
+
         if (item)
             item->update();
     }

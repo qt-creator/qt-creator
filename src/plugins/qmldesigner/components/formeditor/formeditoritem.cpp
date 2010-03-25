@@ -61,7 +61,8 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_snappingLineCreator(this),
     m_qmlItemNode(qmlItemNode),
     m_borderWidth(1.0),
-    m_highlightBoundingRect(false)
+    m_highlightBoundingRect(false),
+    m_isContentVisible(true)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setup();
@@ -78,6 +79,8 @@ void FormEditorItem::setup()
 
     if (QGraphicsItem::parentItem() == scene()->formLayerItem())
         m_borderWidth = 0.0;
+
+    setContentVisible(qmlItemNode().instanceValue("visible").toBool());
 
     setFlag(QGraphicsItem::ItemIsMovable, true);
     updateGeometry();
@@ -171,6 +174,23 @@ void FormEditorItem::setHighlightBoundingRect(bool highlight)
     }
 }
 
+void FormEditorItem::setContentVisible(bool visible)
+{
+    if (visible == m_isContentVisible)
+        return;
+
+    m_isContentVisible = visible;
+    update();
+}
+
+bool FormEditorItem::isContentVisible() const
+{
+    if (parentItem())
+        return parentItem()->isContentVisible() && m_isContentVisible;
+
+    return m_isContentVisible;
+}
+
 FormEditorItem::~FormEditorItem()
 {
    scene()->removeItemFromHash(this);
@@ -248,7 +268,8 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, true);
 
-    qmlItemNode().paintInstance(painter);
+    if (isContentVisible())
+        qmlItemNode().paintInstance(painter);
 
     painter->setRenderHint(QPainter::Antialiasing, false);
 
