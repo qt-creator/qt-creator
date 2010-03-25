@@ -197,6 +197,8 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         QApplication::processEvents();
         ctxt->setContextProperty("stateName", QVariant(stateName));
         QApplication::processEvents();
+        if (!fxObjectNode.isValid())
+            return;
         ctxt->setContextProperty("propertyCount", QVariant(fxObjectNode.modelNode().properties().count()));
         ctxt->setContextProperty("isBaseState", QVariant(fxObjectNode.isInBaseState()));
         ctxt->setContextProperty("selectionChanged", QVariant(false));
