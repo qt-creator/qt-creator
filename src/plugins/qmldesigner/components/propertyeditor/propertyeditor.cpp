@@ -361,7 +361,6 @@ void PropertyEditor::changeValue(const QString &propertyName)
     PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
 
     if (value ==0) {
-        qWarning() << "PropertyEditor:" <<propertyName << " - value is null";
         return;
     }
 
