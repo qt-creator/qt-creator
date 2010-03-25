@@ -430,7 +430,7 @@ private:
     }
 
     bool split(const QString &name, QString *packageName, QString *className) {
-        int dotIdx = name.indexOf(QLatin1Char('.'));
+        int dotIdx = name.lastIndexOf(QLatin1Char('.'));
         if (dotIdx != -1) {
             if (packageName)
                 *packageName = name.left(dotIdx);

@@ -275,7 +275,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         namespaceObject = typeEnv;
     }
 
-    const QString package = Bind::toString(import->importUri, '/');
+    const QString packageName = Bind::toString(import->importUri, '.');
     int majorVersion = QmlObjectValue::NoVersion;
     int minorVersion = QmlObjectValue::NoVersion;
 
@@ -300,18 +300,19 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
     }
 
     // if the package is in the meta type system, use it
-    if (engine()->metaTypeSystem().hasPackage(package)) {
-        foreach (QmlObjectValue *object, engine()->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
+    if (engine()->metaTypeSystem().hasPackage(packageName)) {
+        foreach (QmlObjectValue *object, engine()->metaTypeSystem().staticTypesForImport(packageName, majorVersion, minorVersion)) {
             namespaceObject->setProperty(object->className(), object);
         }
         return;
     } else {
         // check the filesystem
+        const QString packagePath = Bind::toString(import->importUri, QDir::separator());
         QStringList localImportPaths = _importPaths;
         localImportPaths.prepend(doc->path());
         foreach (const QString &importPath, localImportPaths) {
             QDir dir(importPath);
-            if (!dir.cd(package))
+            if (!dir.cd(packagePath))
                 continue;
 
             const LibraryInfo libraryInfo = _snapshot.libraryInfo(dir.path());
