@@ -43,6 +43,8 @@ class QShortcut;
 class QStackedWidget;
 QT_END_NAMESPACE
 
+class PropertyEditorValue;
+
 namespace QmlDesigner {
 
 class PropertyEditorTransaction;
@@ -66,6 +68,7 @@ class PropertyEditor: public QmlModelView
         Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
         QDeclarativePropertyMap m_backendValuesPropertyMap;
         QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;
+        QScopedPointer<PropertyEditorValue> m_dummyPropertyEditorValue;
     };
 
 public:
