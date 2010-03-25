@@ -72,7 +72,7 @@ bool TestBauhaus::loadFile(const QString &fileName)
     if (!QProcess::Running == process.state()) {
         return false;
     }
-    QTest::qWait(5000);
+    QTest::qWait(10000);
     if (!QProcess::Running == process.state()) {
         return false;
     }
