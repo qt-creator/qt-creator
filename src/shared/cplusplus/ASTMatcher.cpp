@@ -731,6 +731,8 @@ bool ASTMatcher::match(DeclaratorIdAST *node, DeclaratorIdAST *pattern)
     (void) node;
     (void) pattern;
 
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
+
     if (! pattern->name)
         pattern->name = node->name;
     else if (! AST::match(node->name, pattern->name, this))

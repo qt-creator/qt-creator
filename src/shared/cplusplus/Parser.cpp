@@ -1218,11 +1218,18 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node)
     while (parsePtrOperator(*ptr_operators_tail))
         ptr_operators_tail = &(*ptr_operators_tail)->next;
 
-    if (LA() == T_COLON_COLON || LA() == T_IDENTIFIER || LA() == T_TILDE
-            || LA() == T_OPERATOR) {
+    if (LA() == T_COLON_COLON || LA() == T_IDENTIFIER || LA() == T_TILDE || LA() == T_OPERATOR
+        || (_cxx0xEnabled && LA() == T_DOT_DOT_DOT && (LA(2) == T_COLON_COLON || LA(2) == T_IDENTIFIER))) {
+
+        unsigned dot_dot_dot_token = 0;
+
+        if (LA() == T_DOT_DOT_DOT)
+            dot_dot_dot_token = consumeToken();
+
         NameAST *name = 0;
         if (parseName(name)) {
             DeclaratorIdAST *declarator_id = new (_pool) DeclaratorIdAST;
+            declarator_id->dot_dot_dot_token = dot_dot_dot_token;
             declarator_id->name = name;
             DeclaratorAST *ast = new (_pool) DeclaratorAST;
             ast->attribute_list = attributes;

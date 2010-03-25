@@ -760,12 +760,22 @@ unsigned DeclarationStatementAST::lastToken() const
 
 unsigned DeclaratorIdAST::firstToken() const
 {
+    if (dot_dot_dot_token)
+        return dot_dot_dot_token;
+
     return name->firstToken();
 }
 
 unsigned DeclaratorIdAST::lastToken() const
 {
-    return name->lastToken();
+    if (name)
+        return name->lastToken();
+
+    else if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
+
+    // assert?
+    return 0;
 }
 
 unsigned DeleteExpressionAST::firstToken() const

@@ -1368,11 +1368,13 @@ protected:
 class CPLUSPLUS_EXPORT DeclaratorIdAST: public CoreDeclaratorAST
 {
 public:
+    unsigned dot_dot_dot_token;
     NameAST *name;
 
 public:
     DeclaratorIdAST()
-        : name(0)
+        : dot_dot_dot_token(0)
+        , name(0)
     {}
 
     virtual DeclaratorIdAST *asDeclaratorId() { return this; }

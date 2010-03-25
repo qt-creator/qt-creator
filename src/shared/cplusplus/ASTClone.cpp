@@ -447,6 +447,7 @@ DeclarationStatementAST *DeclarationStatementAST::clone(MemoryPool *pool) const
 DeclaratorIdAST *DeclaratorIdAST::clone(MemoryPool *pool) const
 {
     DeclaratorIdAST *ast = new (pool) DeclaratorIdAST;
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     if (name)
         ast->name = name->clone(pool);
     return ast;
