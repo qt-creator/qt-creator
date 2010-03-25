@@ -75,8 +75,12 @@ NamespaceBinding::NamespaceBinding(NamespaceBinding *parent)
 
 NamespaceBinding::~NamespaceBinding()
 {
-    qDeleteAll(children);
-    qDeleteAll(classBindings);
+    qDeleteAll(QList<NamespaceBinding *>(children));
+    qDeleteAll(QList<ClassBinding *>(classBindings));
+
+    if (parent)
+        parent->asNamespaceBinding()->children.removeAll(this);
+    parent = 0;
 }
 
 const NameId *NamespaceBinding::name() const
@@ -547,7 +551,14 @@ ClassBinding::ClassBinding(ClassBinding *parentClass)
 }
 
 ClassBinding::~ClassBinding()
-{ qDeleteAll(children); }
+{
+    qDeleteAll(QList<ClassBinding *>(children));
+    if (NamespaceBinding *nsBinding = parent->asNamespaceBinding())
+        nsBinding->classBindings.removeAll(this);
+    if (ClassBinding *classBinding = parent->asClassBinding())
+        classBinding->children.removeAll(this);
+    parent = 0;
+}
 
 const Name *ClassBinding::name() const
 {
