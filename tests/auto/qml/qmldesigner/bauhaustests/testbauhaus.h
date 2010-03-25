@@ -44,8 +44,16 @@ public:
 private slots:
     void initTestCase();
     void cleanupTestCase();
+    void loadExamples_data();
     void loadExamples();
+    void loadDemos_data();
     void loadDemos();
+private:
+    bool loadFile(const QString &file);
+
+    QString m_executable;
+    QString m_creatorDir;
+    QString m_qtDir;
 };
 
 #endif // TESTBAUHAUS_H

@@ -34,88 +34,95 @@
 #include <QDir>
 #include <QDebug>
 
-QStringList failures;
-
 
 TestBauhaus::TestBauhaus()
     : QObject()
 {
+    foreach (const QString &string, QProcess::systemEnvironment()) {
+        if (string.contains("qtdir", Qt::CaseInsensitive)) {
+            m_qtDir = string.split("=").last();
+            break;
+        }
+    }
+    Q_ASSERT(!m_qtDir.isEmpty());
+
+    m_creatorDir = QString(WORKDIR) + "../../../../..";
+#ifdef Q_OS_WIN
+    m_executable = m_creatorDir + "/bin/qtcreator.exe";
+#else
+    m_executable = m_creatorDir + "/bin/qtcreator.bin";
+#endif
+
+    Q_ASSERT(QFileInfo(m_executable).exists());
 }
 
 void TestBauhaus::initTestCase()
 {
 }
 
-void loadFile(const QString &fileName)
+bool TestBauhaus::loadFile(const QString &fileName)
 {
     QProcess process;
     qDebug() << "starting: " << fileName;
-    QVERIFY(QFileInfo(fileName).exists());
-#ifdef Q_OS_WIN
-    const QString bauhausExecutable = "../../../../../bin/qtcreator.exe";
-#else
-    const QString bauhausExecutable = QDir::current().absoluteFilePath("../../../../../bin/qtcreator.bin");
-#endif
-    QVERIFY(QFileInfo(bauhausExecutable).isExecutable());
-    process.start(bauhausExecutable, QStringList() << fileName);
+    Q_ASSERT(QFileInfo(fileName).exists());
+
+    process.start(m_executable, QStringList() << fileName);
     if (!process.waitForStarted())
-        QFAIL(fileName.toLatin1());
+        return false;
     if (!QProcess::Running == process.state()) {
-        QFAIL(fileName.toLatin1());
-        failures << fileName;
+        return false;
     }
     QTest::qWait(5000);
     if (!QProcess::Running == process.state()) {
-        QFAIL(fileName.toLatin1());
-        failures << fileName;
+        return false;
     }
+    return true;
 }
 
-void loadAllFiles(const QString &path)
+QStringList findAllQmlFiles(const QDir &dir)
 {
-    QDir::setCurrent(WORKDIR);
-    QVERIFY(QFileInfo(path).exists());
-    QDir dir(path);
-    foreach (const QString &file, dir.entryList(QStringList() << "*.qml", QDir::Files))
-        loadFile(path + "/" + file);
+    QStringList files;
+    foreach (const QString &file, dir.entryList(QStringList() << "*.qml", QDir::Files)) {
+        files += dir.absoluteFilePath(file);
+    }
+
     foreach (const QString &directory, dir.entryList(QStringList(), QDir::AllDirs | QDir::NoDotAndDotDot))
-        loadAllFiles(path + "/" + directory);
+        files += findAllQmlFiles(QDir(dir.absoluteFilePath(directory)));
+    return files;
 }
 
 void TestBauhaus::cleanupTestCase()
 {
 }
 
+void TestBauhaus::loadExamples_data()
+{
+    QTest::addColumn<QString>("filePath");
+    foreach (const QString &file, findAllQmlFiles(QDir(m_qtDir + "/examples/declarative"))) {
+        QTest::newRow("file") << file;
+    }
+}
+
 void TestBauhaus::loadExamples()
 {
-    failures.clear();
-    QString qtdir;
-    foreach (const QString &string, QProcess::systemEnvironment())
-        if (string.contains("qtdir", Qt::CaseInsensitive))
-            qtdir = string.split("=").last();
-    if (qtdir.isEmpty())
-        qWarning() << "QTDIR has to be set";
-    QVERIFY(!qtdir.isEmpty());
-    QVERIFY(QFileInfo(qtdir + "/examples/declarative").exists());
-    loadAllFiles(qtdir + "/examples/declarative");
-    qDebug() << failures;
-    QVERIFY(failures.isEmpty());
+    QFETCH(QString, filePath);
+    if (!loadFile(filePath))
+        QFAIL(filePath.toAscii());
+}
+
+void TestBauhaus::loadDemos_data()
+{
+    QTest::addColumn<QString>("filePath");
+    foreach (const QString &file, findAllQmlFiles(QDir(m_qtDir + "/demos/declarative"))) {
+        QTest::newRow("file") << file;
+    }
 }
 
 void TestBauhaus::loadDemos()
 {
-    failures.clear();
-    QString qtdir;
-    foreach (const QString &string, QProcess::systemEnvironment())
-        if (string.contains("qtdir", Qt::CaseInsensitive))
-            qtdir = string.split("=").last();
-    if (qtdir.isEmpty())
-        qWarning() << "QTDIR has to be set";
-    QVERIFY(!qtdir.isEmpty());
-    QVERIFY(QFileInfo(qtdir + "/demos/declarative").exists());
-    loadAllFiles(qtdir + "/demos/declarative");
-    qDebug() << failures;
-    QVERIFY(failures.isEmpty());
+    QFETCH(QString, filePath);
+    if (!loadFile(filePath))
+        QFAIL(filePath.toAscii());
 }
 
 

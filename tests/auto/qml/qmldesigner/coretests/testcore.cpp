@@ -404,7 +404,7 @@ void TestCore::loadComponentPropertiesInCoreModel()
     model1->attachView(testRewriterView1.data());
 
     QVERIFY(testRewriterView1->rootModelNode().variantProperty("pushed").isDynamic());
-    QVERIFY(!testRewriterView1->rootModelNode().variantProperty("pushed").value().isValid());
+    QCOMPARE(false, testRewriterView1->rootModelNode().variantProperty("pushed").value().toBool());
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText("import Qt 4.6; Item{}");
@@ -416,7 +416,7 @@ void TestCore::loadComponentPropertiesInCoreModel()
     testRewriterView2->setTextModifier(&modifier2);
     model2->attachView(testRewriterView2.data());
 
-    testRewriterView2->rootModelNode().variantProperty("pushed").setDynamicTypeNameAndValue("bool", QVariant());
+    testRewriterView2->rootModelNode().variantProperty("pushed").setDynamicTypeNameAndValue("bool", QVariant(false));
 
     QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
