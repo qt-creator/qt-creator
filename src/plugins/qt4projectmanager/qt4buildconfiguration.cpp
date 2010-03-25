@@ -61,7 +61,7 @@ enum { debug = 0 };
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target) :
     BuildConfiguration(target, QLatin1String(QT4_BC_ID)),
-    m_shadowBuild(false),
+    m_shadowBuild(true),
     m_qtVersionId(-1),
     m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
     m_qmakeBuildConfiguration(0),
@@ -72,7 +72,7 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target) :
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target, const QString &id) :
     BuildConfiguration(target, id),
-    m_shadowBuild(false),
+    m_shadowBuild(true),
     m_qtVersionId(-1),
     m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
     m_qmakeBuildConfiguration(0),
@@ -115,8 +115,8 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), false).toBool();
-    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
+    m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), true).toBool();
+    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), qt4Target()->defaultBuildDirectory()).toString();
     m_qtVersionId = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
     m_toolChainType = map.value(QLatin1String(TOOLCHAIN_KEY)).toInt();
     m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
@@ -154,6 +154,10 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 
 void Qt4BuildConfiguration::ctor()
 {
+    m_buildDirectory = qt4Target()->defaultBuildDirectory();
+    if (m_buildDirectory == target()->project()->projectDirectory())
+        m_shadowBuild = false;
+
     QtVersionManager *vm = QtVersionManager::instance();
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
             this, SLOT(qtVersionsChanged(QList<int>)));

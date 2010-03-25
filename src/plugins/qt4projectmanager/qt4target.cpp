@@ -314,6 +314,29 @@ ToolChain::ToolChainType Qt4Target::preferredToolChainType(const QList<ToolChain
     return preferredType;
 }
 
+QString Qt4Target::defaultBuildDirectory() const
+{
+    if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)
+        || id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)
+#if defined(Q_OS_WIN)
+        || id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)
+#endif
+        )
+        return project()->projectDirectory();
+
+    QString shortName = QLatin1String("unknown");
+    if (id() == QLatin1String(Constants::DESKTOP_TARGET_ID))
+        shortName = QLatin1String("desktop");
+    else if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
+        shortName = QLatin1String("symbian_emulator");
+    else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+        shortName = QLatin1String("symbian");
+    else if (id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
+        shortName = QLatin1String("maemo");
+
+    return qt4Project()->defaultTopLevelBuildDirectory() + QChar('/') + shortName;
+}
+
 bool Qt4Target::fromMap(const QVariantMap &map)
 {
     if (!Target::fromMap(map))

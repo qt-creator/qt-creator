@@ -68,6 +68,8 @@ public:
     QList<ProjectExplorer::ToolChain::ToolChainType> filterToolChainTypes(const QList<ProjectExplorer::ToolChain::ToolChainType> &candidates) const;
     ProjectExplorer::ToolChain::ToolChainType preferredToolChainType(const QList<ProjectExplorer::ToolChain::ToolChainType> &candidates) const;
 
+    QString defaultBuildDirectory() const;
+
 signals:
     void buildDirectoryInitialized();
     /// emitted if the build configuration changed in a way that

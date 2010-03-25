@@ -161,6 +161,8 @@ public:
     /// \internal
     bool wasEvaluateCanceled();
 
+    QString defaultTopLevelBuildDirectory() const;
+
 signals:
     /// emitted after parse
     void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
