@@ -332,6 +332,7 @@ void BreakWindow::editConditions(const QModelIndexList &list)
         model()->setData(idx.sibling(idx.row(), 4), ui.lineEditCondition->text());
         model()->setData(idx.sibling(idx.row(), 5), ui.spinBoxIgnoreCount->value());
     }
+    emit breakpointSynchronizationRequested();
 }
 
 void BreakWindow::resizeColumnsToContents()
