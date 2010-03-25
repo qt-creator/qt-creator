@@ -50,10 +50,6 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-#define PAGE_ID "ZZ.Maemo Device Configurations"
-#define PAGE_ID_TR "Maemo Device Configurations"
-
-
 MaemoSettingsPage::MaemoSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
@@ -65,12 +61,12 @@ MaemoSettingsPage::~MaemoSettingsPage()
 
 QString MaemoSettingsPage::id() const
 {
-    return QLatin1String(PAGE_ID);
+    return QLatin1String("ZZ.Maemo Device Configurations");
 }
 
 QString MaemoSettingsPage::displayName() const
 {
-    return tr(PAGE_ID_TR);
+    return tr("Maemo Devices");
 }
 
 QString MaemoSettingsPage::category() const
