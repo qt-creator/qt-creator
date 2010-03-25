@@ -2562,7 +2562,7 @@ void TestCore::testRewriterExceptionHandling()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
+    QScopedPointer<Model> model(Model::create("Qt/Text", 4, 6));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView);
@@ -2580,8 +2580,8 @@ void TestCore::testRewriterExceptionHandling()
     try
     {
         RewriterTransaction transaction = view->beginRewriterTransaction();
-        rootNode.variantProperty("bla") = QVariant("blah\"");
         rootNode.variantProperty("text") = QVariant("text");
+        rootNode.variantProperty("bla") = QVariant("blah");
         transaction.commit();
         QFAIL("RewritingException should be thrown");
     } catch (RewritingException &e) {

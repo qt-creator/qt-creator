@@ -396,6 +396,8 @@ void RewriterView::applyModificationGroupChanges()
 
 void RewriterView::applyChanges()
 {
+    clearErrors();
+
     if (inErrorState()) {
         qDebug() << "RewriterView::applyChanges() got called while in error state. Will do a quick-exit now.";
         throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "RewriterView::applyChanges() already in error state");
@@ -403,6 +405,9 @@ void RewriterView::applyChanges()
 
     try {
         modelToTextMerger()->applyChanges();
+        if (!errors().isEmpty()) {
+            enterErrorState(errors().first().description());
+        }
     } catch (Exception &e) {
         enterErrorState(e.description());
     }
@@ -445,7 +450,6 @@ void RewriterView::resetToLastCorrectQml()
     m_textModifier->textDocument()->undo();
     m_textModifier->textDocument()->clearUndoRedoStacks(QTextDocument::RedoStack);
     ModelAmender differenceHandler(m_textToModelMerger.data());
-//    m_textToModelMerger->load(lastCorrectQmlSource.toUtf8(), differenceHandler);
     m_textToModelMerger->load(m_textModifier->text().toUtf8(), differenceHandler);
 
     leaveErrorState();
