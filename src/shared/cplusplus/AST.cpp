@@ -1632,8 +1632,18 @@ unsigned SizeofExpressionAST::firstToken() const
 
 unsigned SizeofExpressionAST::lastToken() const
 {
-    if (expression)
+    if (rparen_token)
+        return rparen_token + 1;
+
+    else if (expression)
         return expression->lastToken();
+
+    else if (lparen_token)
+        return lparen_token + 1;
+
+    else if (dot_dot_dot_token)
+        return dot_dot_dot_token + 1;
+
     return sizeof_token + 1;
 }
 

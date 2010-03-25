@@ -4268,6 +4268,11 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
         SizeofExpressionAST *ast = new (_pool) SizeofExpressionAST;
         ast->sizeof_token = consumeToken();
 
+        // sizeof...(Args)
+        if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT && (LA(2) == T_IDENTIFIER || (LA(2) == T_LPAREN && LA(3) == T_IDENTIFIER
+                                                                                 && LA(4) == T_RPAREN)))
+            ast->dot_dot_dot_token = consumeToken();
+
         if (LA() == T_LPAREN) {
             unsigned lparen_token = consumeToken();
             if (parseTypeId(ast->expression) && LA() == T_RPAREN) {

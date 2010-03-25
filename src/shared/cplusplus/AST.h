@@ -2887,6 +2887,7 @@ class CPLUSPLUS_EXPORT SizeofExpressionAST: public ExpressionAST
 {
 public:
     unsigned sizeof_token;
+    unsigned dot_dot_dot_token;
     unsigned lparen_token;
     ExpressionAST *expression;
     unsigned rparen_token;
