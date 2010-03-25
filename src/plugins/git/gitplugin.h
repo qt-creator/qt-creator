@@ -115,6 +115,8 @@ private slots:
     void unstageFile();
     void cleanProject();
     void cleanRepository();
+    void applyCurrentFilePatch();
+    void promptApplyPatch();
     void gitClientMemberFuncRepositoryAction();
 
     void showCommit();
@@ -170,6 +172,7 @@ private:
     Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
     void cleanCommitMessageFile();
     void cleanRepository(const QString &directory);
+    void applyPatch(const QString &workingDirectory, QString file = QString());
 
     static GitPlugin *m_instance;
     Core::ICore *m_core;
@@ -187,6 +190,7 @@ private:
     QVector<Utils::ParameterAction *> m_fileActions;
     QVector<Utils::ParameterAction *> m_projectActions;
     QVector<QAction *> m_repositoryActions;
+    Utils::ParameterAction *m_applyCurrentFilePatchAction;
 
     GitClient                   *m_gitClient;
     ChangeSelectionDialog       *m_changeSelectionDialog;

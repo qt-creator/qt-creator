@@ -68,6 +68,9 @@ class VCSBasePlugin;
  * according to the new state. This is done centrally to avoid
  * single plugins repeatedly invoking searches/QFileInfo on files,
  * etc.
+ * Independently, there are accessors for current patch files, which return
+ * a file name if the current file could be a patch file which could be applied
+ * and a repository exists.
  *
  * If current file/project are managed
  * by different version controls, the project is discarded and only
@@ -92,6 +95,7 @@ public:
 
     bool isEmpty() const;
     bool hasFile() const;
+    bool hasPatchFile() const;
     bool hasProject() const;
     bool hasTopLevel() const;
 
@@ -102,6 +106,11 @@ public:
     QString currentFileTopLevel() const;
     // Convenience: Returns file relative to top level.
     QString relativeCurrentFile() const;
+
+    // If the current file looks like a patch and there is a top level,
+    // it will end up here (for VCS that offer patch functionality).
+    QString currentPatchFile() const;
+    QString currentPatchFileDisplayName() const;
 
     // Current project.
     QString currentProjectPath() const;

@@ -4,5 +4,14 @@
         <sub-class-of type="text/plain"/>
         <comment>Differences between files</comment>
         <glob pattern="*.patch"/>
+        <glob pattern="*.diff"/>
+        <!-- Find unified diffs from code pasting utilities by checking for "+++ foo.cpp"
+	     Note that this must have a higher priority than any content
+	     rule for C++ as we want diffs to take preference when looking
+	     at a C++ patch.
+	  -->
+        <magic priority="10">
+           <match value="+++ " type="string" offset="0:10000"/>
+        </magic>
     </mime-type>
 </mime-info>

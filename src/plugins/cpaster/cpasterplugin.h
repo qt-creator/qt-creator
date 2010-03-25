@@ -32,7 +32,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QList>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -53,8 +53,9 @@ public:
     CodepasterPlugin();
     ~CodepasterPlugin();
 
-    bool initialize(const QStringList &arguments, QString *error_message);
-    void extensionsInitialized();
+    virtual bool initialize(const QStringList &arguments, QString *error_message);
+    virtual void extensionsInitialized();
+    virtual void shutdown();
 
 public slots:
     void post();
@@ -69,6 +70,7 @@ private:
     QAction *m_fetchAction;
     SettingsPage *m_settingsPage;
     QList<Protocol*> m_protocols;
+    QStringList m_fetchedSnippets;
 };
 
 } // namespace CodePaster

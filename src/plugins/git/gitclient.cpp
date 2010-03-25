@@ -973,6 +973,26 @@ bool GitClient::synchronousCleanList(const QString &workingDirectory,
     return true;
 }
 
+bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
+                                      const QString &file, QString *errorMessage)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory;
+    QStringList args;
+    args << QLatin1String("apply") << QLatin1String("--whitespace=fix") << file;
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
+    if (rc) {
+        if (!errorText.isEmpty())
+            *errorMessage = tr("There were warnings while applying %1 to %2:\n%3").arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
+    } else {
+        *errorMessage = tr("Unable apply patch %1 to %2: %3").arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
+        return false;
+    }
+    return true;
+}
+
 // Factory function to create an asynchronous command
 GitCommand *GitClient::createCommand(const QString &workingDirectory,
                              VCSBase::VCSBaseEditor* editor,

@@ -43,13 +43,18 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <utils/qtcassert.h>
 #include <texteditor/itexteditor.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTemporaryFile>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
@@ -128,6 +133,16 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
 void CodepasterPlugin::extensionsInitialized()
 {
+}
+
+void CodepasterPlugin::shutdown()
+{
+    // Delete temporary, fetched files
+    foreach(const QString &fetchedSnippet, m_fetchedSnippets) {
+        QFile file(fetchedSnippet);
+        if (file.exists())
+            file.remove();
+    }
 }
 
 void CodepasterPlugin::post()
@@ -250,18 +265,100 @@ void CodepasterPlugin::finishPost(const QString &link)
                                                            m_settingsPage->displayOutput());
 }
 
+// Extract the characters that can be used for a file name from a title
+// "CodePaster.com-34" -> "CodePastercom34".
+static inline QString filePrefixFromTitle(const QString &title)
+{
+    QString rc;
+    const int titleSize = title.size();
+    rc.reserve(titleSize);
+    for (int i = 0; i < titleSize; i++)
+        if (title.at(i).isLetterOrNumber())
+            rc.append(title.at(i));
+    if (rc.isEmpty())
+        rc = QLatin1String("qtcreator");
+    return rc;
+}
+
+// Return a temp file pattern with extension or not
+static inline QString tempFilePattern(const QString &prefix,
+                                      const QString &extension = QString())
+{
+    // Get directory
+    QString pattern = QDir::tempPath();
+    if (!pattern.endsWith(QDir::separator()))
+        pattern.append(QDir::separator());
+    // Prefix, placeholder, extension
+    pattern += prefix;
+    pattern += QLatin1String("_XXXXXX");
+    if (!extension.isEmpty()) {
+       pattern += QLatin1Char('.');
+       pattern += extension;
+    }
+    return pattern;
+}
+
+typedef QSharedPointer<QTemporaryFile> TemporaryFilePtr;
+
+// Write an a temporary file.
+TemporaryFilePtr writeTemporaryFile(const QString &namePattern,
+                                    const QString &contents,
+                                    QString *errorMessage)
+{
+    TemporaryFilePtr tempFile(new QTemporaryFile(namePattern));
+    if (!tempFile->open()) {
+        *errorMessage = QString::fromLatin1("Unable to open temporary file %1").arg(tempFile->errorString());
+        return TemporaryFilePtr();
+    }
+    tempFile->write(contents.toUtf8());
+    tempFile->close();
+    return tempFile;
+}
+
 void CodepasterPlugin::finishFetch(const QString &titleDescription,
                                    const QString &content,
                                    bool error)
 {
-    QString title = titleDescription;
+    Core::MessageManager *messageManager = ICore::instance()->messageManager();
+    // Failure?
     if (error) {
-        ICore::instance()->messageManager()->printToOutputPane(content, true);
-    } else {
-        EditorManager* manager = EditorManager::instance();
-        IEditor* editor = manager->openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, content);
-        manager->activateEditor(editor);
+        messageManager->printToOutputPane(content, true);
+        return;
     }
+    // Write the file out and do a mime type detection on the content. Note
+    // that for the initial detection, there must not be a suffix
+    // as we want mime type detection to trigger on the content and not on
+    // higher-prioritized suffixes.
+    const QString filePrefix = filePrefixFromTitle(titleDescription);
+    QString errorMessage;
+    TemporaryFilePtr tempFile = writeTemporaryFile(tempFilePattern(filePrefix), content, &errorMessage);
+    if (tempFile.isNull()) {
+        messageManager->printToOutputPane(errorMessage);
+        return;
+    }
+    // If the mime type has a preferred suffix (cpp/h/patch...), use that for
+    // the temporary file. This is to make it more convenient to "Save as"
+    // for the user and also to be able to tell a patch or diff in the VCS plugins
+    // by looking at the file name of FileManager::currentFile() without expensive checking.
+    if (const Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(tempFile->fileName()))) {
+        const QString preferredSuffix = mimeType.preferredSuffix();
+        if (!preferredSuffix.isEmpty()) {
+            tempFile = writeTemporaryFile(tempFilePattern(filePrefix, preferredSuffix), content, &errorMessage);
+            if (tempFile.isNull()) {
+                messageManager->printToOutputPane(errorMessage);
+                return;
+            }
+        }
+    }
+    // Keep the file and store in list of files to be removed.
+    tempFile->setAutoRemove(false);
+    const QString fileName = tempFile->fileName();
+    m_fetchedSnippets.push_back(fileName);
+    // Open editor with title.
+    Core::IEditor* editor = EditorManager::instance()->openEditor(fileName);
+    QTC_ASSERT(editor, return)
+    editor->setDisplayName(titleDescription);
+    EditorManager::instance()->activateEditor(editor);
 }
 
 Q_EXPORT_PLUGIN(CodepasterPlugin)

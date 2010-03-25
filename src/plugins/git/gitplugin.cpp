@@ -50,6 +50,8 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/filemanager.h>
 
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
@@ -126,6 +128,7 @@ GitPlugin::GitPlugin() :
     m_undoAction(0),
     m_redoAction(0),
     m_menuAction(0),
+    m_applyCurrentFilePatchAction(0),
     m_gitClient(0),
     m_changeSelectionDialog(0),
     m_submitActionTriggered(false)
@@ -385,6 +388,20 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     createRepositoryAction(actionManager, gitContainer,
                            tr("Log Repository"), QLatin1String("Git.LogRepository"),
                            globalcontext, true, &GitClient::graphLog);
+
+    // Apply current file as patch is handled specially.
+    parameterActionCommand =
+            createParameterAction(actionManager, gitContainer,
+                                  tr("Apply Patch"), tr("Apply \"%1\""),
+                                  QLatin1String("Git.ApplyCurrentFilePatch"),
+                                  globalcontext, true);
+    m_applyCurrentFilePatchAction = parameterActionCommand.first;
+    connect(m_applyCurrentFilePatchAction, SIGNAL(triggered()), this,
+            SLOT(applyCurrentFilePatch()));
+
+    createRepositoryAction(actionManager, gitContainer,
+                           tr("Apply Patch..."), QLatin1String("Git.ApplyPatch"),
+                           globalcontext, true, SLOT(promptApplyPatch()));
 
     createRepositoryAction(actionManager, gitContainer,
                            tr("Undo Repository Changes"), QLatin1String("Git.UndoRepository"),
@@ -805,6 +822,74 @@ void GitPlugin::cleanRepository(const QString &directory)
     dialog.exec();
 }
 
+// If the file is modified in an editor, make sure it is saved.
+static bool ensureFileSaved(const QString &fileName)
+{
+    const QList<Core::IEditor*> editors = Core::EditorManager::instance()->editorsForFileName(fileName);
+    if (editors.isEmpty())
+        return true;
+    Core::IFile *file = editors.front()->file();
+    if (!file || !file->isModified())
+        return true;
+    Core::FileManager *fm = Core::ICore::instance()->fileManager();
+    bool canceled;
+    QList<Core::IFile *> files;
+    files << file;
+    fm->saveModifiedFiles(files, &canceled);
+    return !canceled;
+}
+
+void GitPlugin::applyCurrentFilePatch()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasPatchFile() && state.hasTopLevel(), return);
+    const QString patchFile = state.currentPatchFile();
+    if (!ensureFileSaved(patchFile))
+        return;
+    applyPatch(state.topLevel(), patchFile);
+}
+
+void GitPlugin::promptApplyPatch()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+    applyPatch(state.topLevel(), QString());
+}
+
+void GitPlugin::applyPatch(const QString &workingDirectory, QString file)
+{
+    // Ensure user has been notified about pending changes
+    switch (m_gitClient->ensureStash(workingDirectory)) {
+    case GitClient::StashUnchanged:
+    case GitClient::Stashed:
+    case GitClient::NotStashed:
+        break;
+    default:
+        return;
+    }
+    // Prompt for file
+    if (file.isEmpty()) {
+        const QString filter = tr("Patches (*.patch *.diff)");
+        file =  QFileDialog::getOpenFileName(Core::ICore::instance()->mainWindow(),
+                                             tr("Choose patch"),
+                                             QString(), filter);
+        if (file.isEmpty())
+            return;
+    }
+    // Run!
+    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    QString errorMessage;
+    if (m_gitClient->synchronousApplyPatch(workingDirectory, file, &errorMessage)) {
+        if (errorMessage.isEmpty()) {
+            outwin->append(tr("Patch %1 successfully applied to %2").arg(file, workingDirectory));
+        } else {
+            outwin->append(errorMessage);
+        }
+    } else {
+        outwin->appendError(errorMessage);
+    }
+}
+
 void GitPlugin::stash()
 {
     // Simple stash without prompt, reset repo.
@@ -866,6 +951,8 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     const QString fileName = currentState().currentFileName();
     foreach (Utils::ParameterAction *fileAction, m_fileActions)
         fileAction->setParameter(fileName);
+    // If the current file looks like a patch, offer to apply
+    m_applyCurrentFilePatchAction->setParameter(currentState().currentPatchFileDisplayName());
 
     const QString projectName = currentState().currentProjectName();
     foreach (Utils::ParameterAction *projectAction, m_projectActions)

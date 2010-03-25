@@ -37,6 +37,8 @@
 #include <coreplugin/ifile.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/filemanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/vcsmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
@@ -45,6 +47,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QSharedData>
+#include <QtCore/QScopedPointer>
 
 #include <QtGui/QAction>
 #include <QtGui/QMessageBox>
@@ -62,6 +65,7 @@ namespace Internal {
 
 struct State {
     void clearFile();
+    void clearPatchFile();
     void clearProject();
     inline void clear();
 
@@ -73,6 +77,9 @@ struct State {
 
     QString currentFile;
     QString currentFileName;
+    QString currentPatchFile;
+    QString currentPatchFileDisplayName;
+
     QString currentFileDirectory;
     QString currentFileTopLevel;
 
@@ -89,6 +96,12 @@ void State::clearFile()
     currentFileTopLevel.clear();
 }
 
+void State::clearPatchFile()
+{
+    currentPatchFile.clear();
+    currentPatchFileDisplayName.clear();
+}
+
 void State::clearProject()
 {
     currentProjectPath.clear();
@@ -99,6 +112,7 @@ void State::clearProject()
 void State::clear()
 {
     clearFile();
+    clearPatchFile();
     clearProject();
 }
 
@@ -106,6 +120,7 @@ bool State::equals(const State &rhs) const
 {
     return currentFile == rhs.currentFile
             && currentFileName == rhs.currentFileName
+            && currentPatchFile == rhs.currentPatchFile
             && currentFileTopLevel == rhs.currentFileTopLevel
             && currentProjectPath == rhs.currentProjectPath
             && currentProjectName == rhs.currentProjectName
@@ -168,6 +183,14 @@ StateListener::StateListener(QObject *parent) :
                 this, SLOT(slotStateChanged()));
 }
 
+static inline QString displayNameOfEditor(const QString &fileName)
+{
+    const QList<Core::IEditor*> editors = Core::EditorManager::instance()->editorsForFileName(fileName);
+    if (!editors.isEmpty())
+        return editors.front()->displayName();
+    return QString();
+}
+
 void StateListener::slotStateChanged()
 {
     const ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
@@ -179,16 +202,35 @@ void StateListener::slotStateChanged()
     // folder?
     State state;
     state.currentFile = core->fileManager()->currentFile();
+    QScopedPointer<QFileInfo> currentFileInfo; // Instantiate QFileInfo only once if required.
     if (!state.currentFile.isEmpty()) {
-        if (state.currentFile.contains(QLatin1Char('#')) || state.currentFile.startsWith(QDir::tempPath()))
+        const bool isTempFile = state.currentFile.startsWith(QDir::tempPath());
+        // Quick check: Does it look like a patch?
+        const bool isPatch = state.currentFile.endsWith(QLatin1String(".patch"))
+                             || state.currentFile.endsWith(QLatin1String(".diff"));
+        if (isPatch) {
+            // Patch: Figure out a name to display. If it is a temp file, it could be
+            // Codepaster. Use the display name of the editor.
+            state.currentPatchFile = state.currentFile;
+            if (isTempFile)
+                state.currentPatchFileDisplayName = displayNameOfEditor(state.currentPatchFile);
+            if (state.currentPatchFileDisplayName.isEmpty()) {
+                currentFileInfo.reset(new QFileInfo(state.currentFile));
+                state.currentPatchFileDisplayName = currentFileInfo->fileName();
+            }
+        }
+        // For actual version control operations on it:
+        // Do not show temporary files and project folders ('#')
+        if (isTempFile || state.currentFile.contains(QLatin1Char('#')))
             state.currentFile.clear();
     }
     // Get the file and its control. Do not use the file unless we find one
     Core::IVersionControl *fileControl = 0;
     if (!state.currentFile.isEmpty()) {
-        const QFileInfo fi(state.currentFile);
-        state.currentFileDirectory = fi.absolutePath();
-        state.currentFileName = fi.fileName();
+        if (currentFileInfo.isNull())
+            currentFileInfo.reset(new QFileInfo(state.currentFile));
+        state.currentFileDirectory = currentFileInfo->absolutePath();
+        state.currentFileName = currentFileInfo->fileName();
         fileControl = vcsManager->findVersionControlForDirectory(state.currentFileDirectory,
                                                                  &state.currentFileTopLevel);
         if (!fileControl)
@@ -212,6 +254,8 @@ void StateListener::slotStateChanged()
     }
     // Assemble state and emit signal.
     Core::IVersionControl *vc = state.currentFile.isEmpty() ? projectControl : fileControl;
+    if (!vc) // Need a repository to patch
+        state.clearPatchFile();
     if (debug)
         qDebug() << state << (vc ? vc->displayName() : QString(QLatin1String("No version control")));
     emit stateChanged(state, vc);
@@ -267,6 +311,16 @@ QString VCSBasePluginState::relativeCurrentFile() const
 {
     QTC_ASSERT(hasFile(), return QString())
     return QDir(data->m_state.currentFileTopLevel).relativeFilePath(data->m_state.currentFile);
+}
+
+QString VCSBasePluginState::currentPatchFile() const
+{
+    return data->m_state.currentPatchFile;
+}
+
+QString VCSBasePluginState::currentPatchFileDisplayName() const
+{
+    return data->m_state.currentPatchFileDisplayName;
 }
 
 QString VCSBasePluginState::currentProjectPath() const
@@ -331,6 +385,11 @@ bool VCSBasePluginState::isEmpty() const
 bool VCSBasePluginState::hasFile() const
 {
     return data->m_state.hasFile();
+}
+
+bool VCSBasePluginState::hasPatchFile() const
+{
+    return !data->m_state.currentPatchFile.isEmpty();
 }
 
 bool VCSBasePluginState::hasProject() const
