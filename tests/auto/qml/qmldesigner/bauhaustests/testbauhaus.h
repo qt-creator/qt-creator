@@ -42,8 +42,6 @@ public:
     TestBauhaus();
 
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
     void loadExamples_data();
     void loadExamples();
     void loadDemos_data();

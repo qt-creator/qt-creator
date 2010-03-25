@@ -56,10 +56,6 @@ TestBauhaus::TestBauhaus()
     Q_ASSERT(QFileInfo(m_executable).exists());
 }
 
-void TestBauhaus::initTestCase()
-{
-}
-
 bool TestBauhaus::loadFile(const QString &fileName)
 {
     QProcess process;
@@ -89,10 +85,6 @@ QStringList findAllQmlFiles(const QDir &dir)
     foreach (const QString &directory, dir.entryList(QStringList(), QDir::AllDirs | QDir::NoDotAndDotDot))
         files += findAllQmlFiles(QDir(dir.absoluteFilePath(directory)));
     return files;
-}
-
-void TestBauhaus::cleanupTestCase()
-{
 }
 
 void TestBauhaus::loadExamples_data()
