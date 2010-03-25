@@ -48,6 +48,8 @@ private slots:
     void loadExamples();
     void loadDemos_data();
     void loadDemos();
+    void loadCreator_data();
+    void loadCreator();
 private:
     bool loadFile(const QString &file);
 

@@ -125,5 +125,19 @@ void TestBauhaus::loadDemos()
         QFAIL(filePath.toAscii());
 }
 
+void TestBauhaus::loadCreator_data()
+{
+    QTest::addColumn<QString>("filePath");
+    foreach (const QString &file, findAllQmlFiles(QDir(m_creatorDir))) {
+        QTest::newRow("file") << file;
+    }
+}
+
+void TestBauhaus::loadCreator()
+{
+    QFETCH(QString, filePath);
+    if (!loadFile(filePath))
+        QFAIL(filePath.toAscii());
+}
 
 QTEST_MAIN(TestBauhaus);
