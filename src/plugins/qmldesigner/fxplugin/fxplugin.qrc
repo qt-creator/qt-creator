@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/fxplugin" >
         <file>fx.metainfo</file>
+	<file>images/template_image.png</file>
         <file>images/item-icon.png</file>
         <file>images/rect-icon.png</file>
         <file>images/text-icon.png</file>
