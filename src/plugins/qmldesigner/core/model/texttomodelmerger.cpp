@@ -412,6 +412,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 astValue = astValue.trimmed();
                 if (astValue.endsWith(QLatin1Char(';')))
                     astValue = astValue.left(astValue.length() - 1);
+                astValue = astValue.trimmed();
             }
 
             if (astPropertyName == QLatin1String("id")) {
