@@ -51,14 +51,13 @@ namespace Internal {
 
 const char * const BUILDSETTINGS_PANEL_ID("ProjectExplorer.BuildSettingsPanel");
 
-class BuildSettingsPanelFactory : public IPanelFactory
+class BuildSettingsPanelFactory : public ITargetPanelFactory
 {
 public:
     QString id() const;
     QString displayName() const;
-    bool supports(Project *project);
+
     bool supports(Target *target);
-    IPropertiesPanel *createPanel(Project *project);
     IPropertiesPanel *createPanel(Target *target);
 };
 

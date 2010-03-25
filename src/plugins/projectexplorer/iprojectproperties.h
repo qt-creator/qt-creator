@@ -47,8 +47,7 @@ class PROJECTEXPLORER_EXPORT IPropertiesPanel
 public:
     enum PanelFlag {
         NoFlag = 0x00,
-        NoLeftMargin = 0x01,
-        NoAutomaticStyle = 0x02
+        NoLeftMargin = 0x01
     };
     Q_DECLARE_FLAGS(PanelFlags, PanelFlag)
 
@@ -69,9 +68,21 @@ class PROJECTEXPLORER_EXPORT IPanelFactory : public QObject
 public:
     virtual QString id() const = 0;
     virtual QString displayName() const = 0;
+};
+
+class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public IPanelFactory
+{
+    Q_OBJECT
+public:
     virtual bool supports(Project *project) = 0;
-    virtual bool supports(Target *target) = 0;
     virtual IPropertiesPanel *createPanel(Project *project) = 0;
+};
+
+class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public IPanelFactory
+{
+    Q_OBJECT
+public:
+    virtual bool supports(Target *target) = 0;
     virtual IPropertiesPanel *createPanel(Target *target) = 0;
 };
 

@@ -308,21 +308,9 @@ bool DependenciesPanelFactory::supports(Project *project)
     return true;
 }
 
-bool DependenciesPanelFactory::supports(Target *target)
-{
-    Q_UNUSED(target);
-    return false;
-}
-
 IPropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
 {
     return new DependenciesPanel(m_session, project);
-}
-
-IPropertiesPanel *DependenciesPanelFactory::createPanel(Target *target)
-{
-    Q_UNUSED(target);
-    return 0;
 }
 
 } // namespace Internal

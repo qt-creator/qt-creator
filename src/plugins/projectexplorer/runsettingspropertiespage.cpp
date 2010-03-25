@@ -74,21 +74,10 @@ QString RunSettingsPanelFactory::displayName() const
     return QCoreApplication::translate("RunSettingsPanelFactory", "Run Settings");
 }
 
-bool RunSettingsPanelFactory::supports(Project *project)
-{
-    return project->targets().count() == 1;
-}
-
 bool RunSettingsPanelFactory::supports(Target *target)
 {
     Q_UNUSED(target);
     return true;
-}
-
-IPropertiesPanel *RunSettingsPanelFactory::createPanel(Project *project)
-{
-    Q_ASSERT(supports(project));
-    return new RunSettingsPanel(project->activeTarget());
 }
 
 IPropertiesPanel *RunSettingsPanelFactory::createPanel(Target *target)

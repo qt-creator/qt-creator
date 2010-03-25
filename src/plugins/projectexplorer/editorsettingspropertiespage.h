@@ -39,15 +39,13 @@ namespace Internal {
 
 const char * const EDITORSETTINGS_PANEL_ID("ProjectExplorer.EditorSettingsPanel");
 
-class EditorSettingsPanelFactory : public IPanelFactory
+class EditorSettingsPanelFactory : public IProjectPanelFactory
 {
 public:
     QString id() const;
     QString displayName() const;
-    bool supports(Project *project);
-    bool supports(Target *target);
     IPropertiesPanel *createPanel(Project *project);
-    IPropertiesPanel *createPanel(Target *target);
+    bool supports(Project *project);
 };
 
 class EditorSettingsWidget;

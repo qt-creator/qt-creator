@@ -55,14 +55,12 @@ class RunSettingsPropertiesPage;
 class RunConfigurationsModel;
 class RunSettingsWidget;
 
-class RunSettingsPanelFactory : public IPanelFactory
+class RunSettingsPanelFactory : public ITargetPanelFactory
 {
 public:
     QString id() const;
     QString displayName() const;
-    bool supports(Project *project);
     bool supports(Target *target);
-    IPropertiesPanel *createPanel(Project *project);
     IPropertiesPanel *createPanel(Target *target);
 };
 

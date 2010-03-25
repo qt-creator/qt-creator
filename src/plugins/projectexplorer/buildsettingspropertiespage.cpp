@@ -65,21 +65,9 @@ QString BuildSettingsPanelFactory::displayName() const
     return QCoreApplication::translate("BuildSettingsPanelFactory", "Build Settings");
 }
 
-bool BuildSettingsPanelFactory::supports(Project *project)
-{
-    return project->targets().count() == 1;
-}
-
 bool BuildSettingsPanelFactory::supports(Target *target)
 {
     return target->buildConfigurationFactory();
-}
-
-
-IPropertiesPanel *BuildSettingsPanelFactory::createPanel(Project *project)
-{
-    Q_ASSERT(supports(project));
-    return new BuildSettingsPanel(project->activeTarget());
 }
 
 IPropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)

@@ -72,28 +72,7 @@ const int ABOVE_HEADING_MARGIN(10);
 const int ABOVE_CONTENTS_MARGIN(4);
 const int BELOW_CONTENTS_MARGIN(16);
 
-bool skipPanelFactory(Project *project, IPanelFactory *factory)
-{
-    bool simplifyTargets(project->supportedTargetIds().count() <= 1);
-    if (simplifyTargets) {
-        // Do not show the targets list:
-        if (factory->id() == QLatin1String(TARGETSETTINGS_PANEL_ID))
-            return true;
-        // Skip build settigns if none are available anyway:
-        if (project->activeTarget() &&
-            !project->activeTarget()->buildConfigurationFactory() &&
-            factory->id() == QLatin1String(BUILDSETTINGS_PANEL_ID))
-            return true;
-    } else {
-        // Skip panels embedded into the targets panel:
-        if (factory->id() == QLatin1String(BUILDSETTINGS_PANEL_ID) ||
-            factory->id() == QLatin1String(RUNSETTINGS_PANEL_ID))
-            return true;
-    }
-    return false;
-}
-
-} // namespace
+} // anonymous namespace
 
 ///
 // OnePixelBlackLine
@@ -251,8 +230,7 @@ void PanelsWidget::addPanelWidget(IPropertiesPanel *panel, int row)
 
 ProjectWindow::ProjectWindow(QWidget *parent)
     : QWidget(parent),
-    m_currentWidget(0),
-    m_currentPanel(0)
+    m_currentWidget(0)
 {
     ProjectExplorer::SessionManager *session = ProjectExplorerPlugin::instance()->session();
 
@@ -314,10 +292,26 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     }
 
     QStringList subtabs;
-    foreach (IPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<IPanelFactory>()) {
-        if (skipPanelFactory(project, panelFactory))
-            continue;
-        subtabs << panelFactory->displayName();
+    if (project->supportedTargetIds().count() <= 1) {
+        // Show the target specific pages directly
+        QList<ITargetPanelFactory *> factories =
+                ExtensionSystem::PluginManager::instance()->getObjects<ITargetPanelFactory>();
+
+        foreach (ITargetPanelFactory *factory, factories) {
+            if (factory->supports(project->activeTarget()))
+                subtabs << factory->displayName();
+        }
+    } else {
+        // Use the Targets page
+        subtabs << QCoreApplication::translate("TargetSettingsPanelFactory", "Targets");
+    }
+
+    // Add the project specific pages
+
+    QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IProjectPanelFactory>();
+    foreach (IProjectPanelFactory *panelFactory, factories) {
+        if (panelFactory->supports(project))
+            subtabs << panelFactory->displayName();
     }
 
     m_tabIndexToProject.insert(index, project);
@@ -378,26 +372,59 @@ void ProjectWindow::showProperties(int index, int subIndex)
 
     // Set up custom panels again:
     int pos = 0;
-    foreach (IPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<IPanelFactory>()) {
-        if (skipPanelFactory(project, panelFactory))
-            continue;
-        if (pos == subIndex) {
+    IPanelFactory *fac = 0;
+    if (project->supportedTargetIds().count() > 1) {
+        if (subIndex == 0) {
+            // Targets page
             removeCurrentWidget();
-            IPropertiesPanel *panel(panelFactory->createPanel(project));
-            if (panel->flags() & IPropertiesPanel::NoAutomaticStyle) {
-                m_currentWidget = panel->widget();
-                m_currentPanel = panel;
-            } else {
-                PanelsWidget *panelsWidget = new PanelsWidget(m_centralWidget);
-                panelsWidget->addPropertiesPanel(panel);
-                m_currentWidget = panelsWidget;
-            }
+            m_currentWidget = new TargetSettingsPanelWidget(project);
             m_centralWidget->addWidget(m_currentWidget);
             m_centralWidget->setCurrentWidget(m_currentWidget);
-            break;
         }
         ++pos;
+    } else {
+        // No Targets page, target specific pages are first in the list
+        foreach (ITargetPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<ITargetPanelFactory>()) {
+            if (panelFactory->supports(project->activeTarget())) {
+                if (subIndex == pos) {
+                    fac = panelFactory;
+                    break;
+                }
+                ++pos;
+            }
+        }
     }
+
+    if (!fac) {
+        foreach (IProjectPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<IProjectPanelFactory>()) {
+            if (panelFactory->supports(project)) {
+                if (subIndex == pos) {
+                    fac = panelFactory;
+                    break;
+                }
+                ++pos;
+            }
+        }
+    }
+
+    if (fac) {
+        removeCurrentWidget();
+
+        IPropertiesPanel *panel;
+        if (ITargetPanelFactory *ipf = qobject_cast<ITargetPanelFactory *>(fac))
+            panel = ipf->createPanel(project->activeTarget());
+        else if (IProjectPanelFactory *ipf = qobject_cast<IProjectPanelFactory *>(fac))
+            panel = ipf->createPanel(project);
+        Q_ASSERT(panel);
+
+        PanelsWidget *panelsWidget = new PanelsWidget(m_centralWidget);
+        panelsWidget->addPropertiesPanel(panel);
+        m_currentWidget = panelsWidget;
+        m_centralWidget->addWidget(m_currentWidget);
+        m_centralWidget->setCurrentWidget(m_currentWidget);
+
+    }
+
     ProjectExplorerPlugin::instance()->session()->setStartupProject(project);
 }
 
@@ -405,11 +432,7 @@ void ProjectWindow::removeCurrentWidget()
 {
     if (m_currentWidget) {
         m_centralWidget->removeWidget(m_currentWidget);
-        if (m_currentPanel) {
-            delete m_currentPanel;
-            m_currentPanel = 0;
-            m_currentWidget = 0; // is deleted by the panel
-        } else if (m_currentWidget) {
+        if (m_currentWidget) {
             delete m_currentWidget;
             m_currentWidget = 0;
         }

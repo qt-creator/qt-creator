@@ -54,21 +54,9 @@ bool EditorSettingsPanelFactory::supports(Project *project)
     return true;
 }
 
-bool EditorSettingsPanelFactory::supports(Target *target)
-{
-    Q_UNUSED(target);
-    return false;
-}
-
 IPropertiesPanel *EditorSettingsPanelFactory::createPanel(Project *project)
 {
     return new EditorSettingsPanel(project);
-}
-
-IPropertiesPanel *EditorSettingsPanelFactory::createPanel(Target *target)
-{
-    Q_UNUSED(target);
-    return 0;
 }
 
 EditorSettingsPanel::EditorSettingsPanel(Project *project) :

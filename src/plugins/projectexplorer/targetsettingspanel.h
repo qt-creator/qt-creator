@@ -41,37 +41,8 @@ class Target;
 
 namespace Internal {
 
-const char * const TARGETSETTINGS_PANEL_ID("ProjectExplorer.TargetSettingsPanel");
-
 class TargetSettingsWidget;
 class PanelsWidget;
-
-class TargetSettingsPanelFactory : public IPanelFactory
-{
-public:
-    QString id() const;
-    QString displayName() const;
-    bool supports(Project *project);
-    bool supports(Target *target);
-    IPropertiesPanel *createPanel(Project *project);
-    IPropertiesPanel *createPanel(Target *target);
-};
-
-class TargetSettingsPanelWidget;
-
-class TargetSettingsPanel : public IPropertiesPanel
-{
-public:
-    TargetSettingsPanel(Project *project);
-    ~TargetSettingsPanel();
-    QString displayName() const;
-    QWidget *widget() const;
-    QIcon icon() const;
-    PanelFlags flags() const { return IPropertiesPanel::NoAutomaticStyle; }
-
-private:
-    TargetSettingsPanelWidget *m_widget;
-};
 
 class TargetSettingsPanelWidget : public QWidget
 {

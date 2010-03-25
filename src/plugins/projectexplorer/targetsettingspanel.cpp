@@ -47,71 +47,6 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-///
-// TargetSettingsPanelFactory
-///
-
-QString TargetSettingsPanelFactory::id() const
-{
-    return QLatin1String(TARGETSETTINGS_PANEL_ID);
-}
-
-QString TargetSettingsPanelFactory::displayName() const
-{
-    return QCoreApplication::translate("TargetSettingsPanelFactory", "Targets");
-}
-
-bool TargetSettingsPanelFactory::supports(Project *project)
-{
-    Q_UNUSED(project);
-    return true;
-}
-
-bool TargetSettingsPanelFactory::supports(Target *target)
-{
-    Q_UNUSED(target);
-    return false;
-}
-
-IPropertiesPanel *TargetSettingsPanelFactory::createPanel(Project *project)
-{
-    return new TargetSettingsPanel(project);
-}
-
-IPropertiesPanel *TargetSettingsPanelFactory::createPanel(Target *target)
-{
-    Q_UNUSED(target);
-    return 0;
-}
-
-///
-// TargetSettingsPanel
-///
-
-TargetSettingsPanel::TargetSettingsPanel(Project *project) :
-    m_widget(new TargetSettingsPanelWidget(project))
-{
-}
-
-TargetSettingsPanel::~TargetSettingsPanel()
-{
-    delete m_widget;
-}
-
-QString TargetSettingsPanel::displayName() const
-{
-    return QCoreApplication::translate("TargetSettingsPanel", "Targets");
-}
-
-QWidget *TargetSettingsPanel::widget() const
-{
-    return m_widget;
-}
-
-QIcon TargetSettingsPanel::icon() const
-{
-    return QIcon();
-}
 
 ///
 // TargetSettingsWidget
@@ -223,7 +158,7 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
     PanelsWidget *buildPanel(new PanelsWidget(m_centralWidget));
     PanelsWidget *runPanel(new PanelsWidget(m_centralWidget));
 
-    foreach (IPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<IPanelFactory>()) {
+    foreach (ITargetPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<ITargetPanelFactory>()) {
         if (panelFactory->id() == QLatin1String(BUILDSETTINGS_PANEL_ID)) {
             IPropertiesPanel *panel = panelFactory->createPanel(target);
             buildPanel->addPropertiesPanel(panel);

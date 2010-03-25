@@ -304,7 +304,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new BuildSettingsPanelFactory);
     addAutoReleasedObject(new RunSettingsPanelFactory);
-    addAutoReleasedObject(new TargetSettingsPanelFactory);
     addAutoReleasedObject(new EditorSettingsPanelFactory);
     addAutoReleasedObject(new DependenciesPanelFactory(d->m_session));
 

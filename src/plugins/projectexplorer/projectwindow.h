@@ -102,7 +102,6 @@ private:
     DoubleTabWidget *m_tabWidget;
     QStackedWidget *m_centralWidget;
     QWidget *m_currentWidget;
-    IPropertiesPanel *m_currentPanel;
     QList<ProjectExplorer::Project *> m_tabIndexToProject;
 };
 
