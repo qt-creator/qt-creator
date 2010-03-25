@@ -67,8 +67,9 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
 
     connect(m_project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             this, SLOT(targetAdded(ProjectExplorer::Target*)));
-    connect(m_project, SIGNAL(aboutToRemoveTarget(ProjectExplorer::Target*)),
-            this, SLOT(aboutToRemoveTarget(ProjectExplorer::Target*)));
+    connect(m_project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
+            this, SLOT(removedTarget(ProjectExplorer::Target*)));
+
     connect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
     connect(m_project, SIGNAL(supportedTargetIdsChanged()),
@@ -217,7 +218,7 @@ void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
     updateTargetAddAndRemoveButtons();
 }
 
-void TargetSettingsPanelWidget::aboutToRemoveTarget(ProjectExplorer::Target *target)
+void TargetSettingsPanelWidget::removedTarget(ProjectExplorer::Target *target)
 {
     Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
