@@ -65,19 +65,14 @@ const char * const S60_DEVICE_RC_ID("Qt4ProjectManager.S60DeviceRunConfiguration
 const char * const S60_DEVICE_RC_PREFIX("Qt4ProjectManager.S60DeviceRunConfiguration.");
 
 const char * const PRO_FILE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.ProFile");
-const char * const SIGNING_MODE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode");
-const char * const CUSTOM_SIGNATURE_PATH_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CustomSignaturePath");
-const char * const CUSTOM_KEY_PATH_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CustomKeyPath");
 const char * const SERIAL_PORT_NAME_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.SerialPortName");
 const char * const COMMUNICATION_TYPE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommunicationType");
 const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments");
 
-const int    PROGRESS_PACKAGECREATED = 100;
-const int    PROGRESS_PACKAGESIGNED = 200;
-const int    PROGRESS_DEPLOYBASE = 200;
-const int    PROGRESS_PACKAGEDEPLOYED = 300;
-const int    PROGRESS_PACKAGEINSTALLED = 400;
-const int    PROGRESS_MAX = 400;
+const int    PROGRESS_DEPLOYBASE = 0;
+const int    PROGRESS_PACKAGEDEPLOYED = 100;
+const int    PROGRESS_PACKAGEINSTALLED = 200;
+const int    PROGRESS_MAX = 200;
 
 enum { debug = 0 };
 
@@ -115,11 +110,10 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QStri
     RunConfiguration(parent,  QLatin1String(S60_DEVICE_RC_ID)),
     m_proFilePath(proFilePath),
 #ifdef Q_OS_WIN
-    m_serialPortName(QLatin1String("COM5")),
+    m_serialPortName(QLatin1String("COM5"))
 #else
-    m_serialPortName(QLatin1String(SymbianUtils::SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
+    m_serialPortName(QLatin1String(SymbianUtils::SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0'))
 #endif
-    m_signingMode(SignSelf)
 {
     ctor();
 }
@@ -127,10 +121,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QStri
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *target, S60DeviceRunConfiguration *source) :
     RunConfiguration(target, source),
     m_proFilePath(source->m_proFilePath),
-    m_serialPortName(source->m_serialPortName),
-    m_signingMode(source->m_signingMode),
-    m_customSignaturePath(source->m_customSignaturePath),
-    m_customKeyPath(source->m_customKeyPath)
+    m_serialPortName(source->m_serialPortName)
 {
     ctor();
 }
@@ -204,9 +195,6 @@ QVariantMap S60DeviceRunConfiguration::toMap() const
     const QDir projectDir = QDir(target()->project()->projectDirectory());
 
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
-    map.insert(QLatin1String(SIGNING_MODE_KEY), (int)m_signingMode);
-    map.insert(QLatin1String(CUSTOM_SIGNATURE_PATH_KEY), m_customSignaturePath);
-    map.insert(QLatin1String(CUSTOM_KEY_PATH_KEY), m_customKeyPath);
     map.insert(QLatin1String(SERIAL_PORT_NAME_KEY), m_serialPortName);
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
 
@@ -218,9 +206,6 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
     const QDir projectDir = QDir(target()->project()->projectDirectory());
 
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
-    m_signingMode = static_cast<SigningMode>(map.value(QLatin1String(SIGNING_MODE_KEY)).toInt());
-    m_customSignaturePath = map.value(QLatin1String(CUSTOM_SIGNATURE_PATH_KEY)).toString();
-    m_customKeyPath = map.value(QLatin1String(CUSTOM_KEY_PATH_KEY)).toString();
     m_serialPortName = map.value(QLatin1String(SERIAL_PORT_NAME_KEY)).toString().trimmed();
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
 
@@ -301,36 +286,6 @@ QString S60DeviceRunConfiguration::packageTemplateFileName() const
     if (!ti.valid)
         return QString();
     return ti.workingDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
-}
-
-S60DeviceRunConfiguration::SigningMode S60DeviceRunConfiguration::signingMode() const
-{
-    return m_signingMode;
-}
-
-void S60DeviceRunConfiguration::setSigningMode(SigningMode mode)
-{
-    m_signingMode = mode;
-}
-
-QString S60DeviceRunConfiguration::customSignaturePath() const
-{
-    return m_customSignaturePath;
-}
-
-void S60DeviceRunConfiguration::setCustomSignaturePath(const QString &path)
-{
-    m_customSignaturePath = path;
-}
-
-QString S60DeviceRunConfiguration::customKeyPath() const
-{
-    return m_customKeyPath;
-}
-
-void S60DeviceRunConfiguration::setCustomKeyPath(const QString &path)
-{
-    m_customKeyPath = path;
 }
 
 QString S60DeviceRunConfiguration::packageFileName() const
@@ -505,22 +460,12 @@ RunConfiguration *S60DeviceRunConfigurationFactory::clone(Target *parent, RunCon
 S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfiguration) :
     RunControl(runConfiguration),
     m_toolChain(ProjectExplorer::ToolChain::INVALID),
-    m_makesisProcess(new QProcess(this)),
     m_releaseDeviceAfterLauncherFinish(false),
     m_handleDeviceRemoval(true),
     m_launcher(0)
 {
     // connect for automatically reporting the "finished deploy" state to the progress manager
     connect(this, SIGNAL(finished()), this, SLOT(reportDeployFinished()));
-
-    connect(m_makesisProcess, SIGNAL(readyReadStandardError()),
-            this, SLOT(readStandardError()));
-    connect(m_makesisProcess, SIGNAL(readyReadStandardOutput()),
-            this, SLOT(readStandardOutput()));
-    connect(m_makesisProcess, SIGNAL(error(QProcess::ProcessError)),
-            this, SLOT(makesisProcessFailed()));
-    connect(m_makesisProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
-            this, SLOT(makesisProcessFinished()));
 
     S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     const Qt4BuildConfiguration *activeBuildConf = s60runConfig->qt4Target()->activeBuildConfiguration();
@@ -535,22 +480,9 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_commandLineArguments = s60runConfig->commandLineArguments();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
     m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
-    m_useCustomSignature = (s60runConfig->signingMode() == S60DeviceRunConfiguration::SignCustom);
-    m_customSignaturePath = s60runConfig->customSignaturePath();
-    m_customKeyPath = s60runConfig->customKeyPath();
     if (const QtVersion *qtv = s60runConfig->qtVersion())
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     QTC_ASSERT(!m_qtBinPath.isEmpty(), return);
-    const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(activeBuildConf->qtVersion());
-    // 'sis' is a make target. Set up with correct environment
-    // Also add $QTDIR/bin, since it needs to find 'createpackage'.
-    ProjectExplorer::ToolChain *toolchain = activeBuildConf->toolChain();
-    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-    toolchain->addToEnvironment(env);
-    env.prependOrSetPath(m_qtBinPath);
-    // Windows: Use the make.exe from epoc32\tools
-    m_makeTool = env.searchInPath(toolchain->makeCommand());
-    m_makesisProcess->setEnvironment(env.toStringList());
     m_executableFileName = s60runConfig->localExecutableFileName();
     m_packageFilePath = s60runConfig->packageFileName();
     m_packageFile = QFileInfo(m_packageFilePath).fileName();
@@ -572,27 +504,6 @@ void S60DeviceRunControlBase::setReleaseDeviceAfterLauncherFinish(bool v)
     m_releaseDeviceAfterLauncherFinish = v;
 }
 
-QString S60DeviceRunControlBase::signSisKey() const
-{
-    const QString key = m_useCustomSignature ? m_customKeyPath:
-                        m_qtDir + QLatin1String("/src/s60installs/selfsigned.key");
-    return QDir::toNativeSeparators(key);
-}
-
-QString S60DeviceRunControlBase::signSisCertificate() const
-{
-    const QString cert = m_useCustomSignature ? m_customSignaturePath :
-                         m_qtDir + QLatin1String("/src/s60installs/selfsigned.cer");
-    return QDir::toNativeSeparators(cert);
-}
-
-// Format a message with command line
-static inline QString msgRun(const QString &cmd, const QStringList &args)
-{
-    const QChar blank = QLatin1Char(' ');
-    return QDir::toNativeSeparators(cmd) + blank + args.join(QString(blank));
-}
-
 static inline bool ensureDeleteFile(const QString &fileName, QString *errorMessage)
 {
     QFile file(fileName);
@@ -601,98 +512,6 @@ static inline bool ensureDeleteFile(const QString &fileName, QString *errorMessa
         return false;
     }
     return true;
-}
-
-void S60DeviceRunControlBase::start()
-{
-    m_deployProgress = new QFutureInterface<void>;
-    Core::ICore::instance()->progressManager()->addTask(m_deployProgress->future(),
-                                                        tr("Deploying"),
-                                                        QLatin1String("Symbian.Deploy"));
-    m_deployProgress->setProgressRange(0, PROGRESS_MAX);
-    m_deployProgress->setProgressValue(0);
-    m_deployProgress->reportStarted();
-    emit started();
-    if (m_serialPortName.isEmpty()) {
-        error(this, tr("There is no device plugged in."));
-        emit finished();
-        return;
-    }
-
-    emit addToOutputWindow(this, tr("Creating %1 ...").arg(m_signedPackage));
-    emit addToOutputWindow(this, tr("Executable file: %1").arg(msgListFile(m_executableFileName)));
-
-    QString errorMessage;
-    QString settingsCategory;
-    QString settingsPage;
-    if (!checkConfiguration(&errorMessage, &settingsCategory, &settingsPage)) {
-        error(this, errorMessage);
-        emit finished();
-        Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
-                                                        errorMessage, QString(),
-                                                        settingsCategory, settingsPage);
-        return;
-    }
-    // Be sure to delete old files
-    if (!ensureDeleteFile(m_signedPackage, &errorMessage)) {
-        error(this, errorMessage);
-        emit finished();
-    }
-
-    QStringList makeSisArgs;
-    makeSisArgs << QLatin1String("sis")
-            << (QLatin1String("QT_SIS_CERTIFICATE=") + signSisCertificate())
-            << (QLatin1String("QT_SIS_KEY=") + signSisKey());
-    m_makesisProcess->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, msgRun(m_makeTool, makeSisArgs));
-    if (debug)
-        qDebug() << m_makeTool <<  makeSisArgs << m_workingDirectory;
-
-    m_makesisProcess->start(m_makeTool, makeSisArgs, QIODevice::ReadOnly);
-    m_makesisProcess->closeWriteChannel();
-}
-
-static inline void stopProcess(QProcess *p)
-{
-    const int timeOutMS = 200;
-    if (p->state() != QProcess::Running)
-        return;
-    p->terminate();
-    if (p->waitForFinished(timeOutMS))
-        return;
-    p->kill();
-}
-
-void S60DeviceRunControlBase::stop()
-{
-    if (m_makesisProcess)
-        stopProcess(m_makesisProcess);
-    if (m_launcher)
-        m_launcher->terminate();
-}
-
-bool S60DeviceRunControlBase::isRunning() const
-{
-    return m_makesisProcess->state() != QProcess::NotRunning;
-}
-
-void S60DeviceRunControlBase::readStandardError()
-{
-    QProcess *process = static_cast<QProcess *>(sender());
-    QByteArray data = process->readAllStandardError();
-    emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
-}
-
-void S60DeviceRunControlBase::readStandardOutput()
-{
-    QProcess *process = static_cast<QProcess *>(sender());
-    QByteArray data = process->readAllStandardOutput();
-    emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
-}
-
-void S60DeviceRunControlBase::makesisProcessFailed()
-{
-    processFailed(m_makeTool, m_makesisProcess->error(), m_makesisProcess->errorString());
 }
 
 static inline bool renameFile(const QString &sourceName, const QString &targetName,
@@ -711,18 +530,46 @@ static inline bool renameFile(const QString &sourceName, const QString &targetNa
     return true;
 }
 
-void S60DeviceRunControlBase::makesisProcessFinished()
+void S60DeviceRunControlBase::start()
 {
-    if (m_makesisProcess->exitCode() != 0) {
+    m_deployProgress = new QFutureInterface<void>;
+    Core::ICore::instance()->progressManager()->addTask(m_deployProgress->future(),
+                                                        tr("Deploying"),
+                                                        QLatin1String("Symbian.Deploy"));
+    m_deployProgress->setProgressRange(0, PROGRESS_MAX);
+    m_deployProgress->setProgressValue(0);
+    m_deployProgress->reportStarted();
+    emit started();
+    if (m_serialPortName.isEmpty()) {
         m_deployProgress->reportCanceled();
-        error(this, tr("An error occurred while creating the package."));
-        stop();
+        error(this, tr("There is no device plugged in."));
         emit finished();
         return;
     }
-    m_deployProgress->setProgressValue(PROGRESS_PACKAGECREATED);
+
+    emit addToOutputWindow(this, tr("Executable file: %1").arg(msgListFile(m_executableFileName)));
+
     QString errorMessage;
+    QString settingsCategory;
+    QString settingsPage;
+    if (!checkConfiguration(&errorMessage, &settingsCategory, &settingsPage)) {
+        m_deployProgress->reportCanceled();
+        error(this, errorMessage);
+        emit finished();
+        Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
+                                                        errorMessage, QString(),
+                                                        settingsCategory, settingsPage);
+        return;
+    }
+    // Be sure to delete old files
+    if (!ensureDeleteFile(m_signedPackage, &errorMessage)) {
+        m_deployProgress->reportCanceled();
+        error(this, errorMessage);
+        emit finished();
+    }
+
     bool ok = false;
+    // TODO reconsider
     do {
         // ABLD up to 4.6.1: Check on file 'targetname_armX_udeb.sis'.
         if (QFileInfo(m_signedPackage).isFile()) {
@@ -743,6 +590,29 @@ void S60DeviceRunControlBase::makesisProcessFinished()
         stop();
         emit finished();
     }
+}
+
+static inline void stopProcess(QProcess *p)
+{
+    const int timeOutMS = 200;
+    if (p->state() != QProcess::Running)
+        return;
+    p->terminate();
+    if (p->waitForFinished(timeOutMS))
+        return;
+    p->kill();
+}
+
+void S60DeviceRunControlBase::stop()
+{
+    if (m_launcher)
+        m_launcher->terminate();
+}
+
+bool S60DeviceRunControlBase::isRunning() const
+{
+    //TODO !!!
+    return false;
 }
 
 void S60DeviceRunControlBase::startDeployment()
@@ -909,26 +779,6 @@ void S60DeviceRunControlBase::slotWaitingForTrkClosed()
         error(this, tr("Canceled."));
         emit finished();
     }
-}
-
-void S60DeviceRunControlBase::processFailed(const QString &program,
-                                            QProcess::ProcessError errorCode,
-                                            const QString &msg)
-{
-    QString errorString;
-    switch (errorCode) {
-    case QProcess::FailedToStart:
-        errorString = tr("Failed to start %1: %2").arg(program, msg);
-        break;
-    case QProcess::Crashed:
-        errorString = tr("%1 has unexpectedly finished: %2").arg(program, msg);
-        break;
-    default:
-        errorString = tr("An error has occurred while running %1: %2").arg(program, msg);
-    }
-    error(this, errorString);
-    stop();
-    emit finished();
 }
 
 void S60DeviceRunControlBase::printApplicationOutput(const QString &output)

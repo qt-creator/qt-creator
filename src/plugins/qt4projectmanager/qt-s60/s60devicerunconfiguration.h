@@ -65,11 +65,6 @@ class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class S60DeviceRunConfigurationFactory;
 
 public:
-    enum SigningMode {
-        SignSelf,
-        SignCustom
-    };
-
     S60DeviceRunConfiguration(ProjectExplorer::Target *parent, const QString &proFilePath);
     virtual ~S60DeviceRunConfiguration();
 
@@ -87,12 +82,6 @@ public:
     QString symbianTarget() const;
     bool isDebug() const;
     QString packageTemplateFileName() const;
-    SigningMode signingMode() const;
-    void setSigningMode(SigningMode mode);
-    QString customSignaturePath() const;
-    void setCustomSignaturePath(const QString &path);
-    QString customKeyPath() const;
-    void setCustomKeyPath(const QString &path);
 
     QString packageFileName() const;
     QString localExecutableFileName() const;
@@ -123,9 +112,6 @@ private:
 
     QString m_proFilePath;
     QString m_serialPortName;
-    SigningMode m_signingMode;
-    QString m_customSignaturePath;
-    QString m_customKeyPath;
     QStringList m_commandLineArguments;
 };
 
@@ -170,9 +156,6 @@ public:
 protected:
     virtual void initLauncher(const QString &executable, trk::Launcher *) = 0;
     virtual void handleLauncherFinished() = 0;
-    void processFailed(const QString &program, QProcess::ProcessError errorCode,
-                       const QString &msg);
-
     virtual bool checkConfiguration(QString *errorMessage,
                                     QString *settingsCategory,
                                     QString *settingsPage) const;
@@ -184,10 +167,6 @@ protected slots:
 
 private slots:
     void processStopped(uint pc, uint pid, uint tid, const QString& reason);
-    void readStandardError();
-    void readStandardOutput();
-    void makesisProcessFailed();
-    void makesisProcessFinished();
     void printConnectFailed(const QString &errorMessage);
     void printCopyingNotice();
     void printCreateFileFailed(const QString &filename, const QString &errorMessage);
@@ -204,8 +183,6 @@ private slots:
 
 private:
     void startDeployment();
-    QString signSisKey() const;
-    QString signSisCertificate() const;
 
     ProjectExplorer::ToolChain::ToolChainType m_toolChain;
     QString m_serialPortName;
@@ -218,11 +195,6 @@ private:
     QString m_executableFileName;
     QString m_qtDir;
     QString m_signedPackage;
-    bool m_useCustomSignature;
-    QString m_customSignaturePath;
-    QString m_customKeyPath;
-    QProcess *m_makesisProcess;
-    QString m_makeTool;
     QString m_packageFile;
     QString m_qtBinPath;
     bool m_releaseDeviceAfterLauncherFinish;

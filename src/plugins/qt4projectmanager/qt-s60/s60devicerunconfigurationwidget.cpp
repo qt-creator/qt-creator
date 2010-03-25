@@ -121,58 +121,12 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     connect(m_deviceInfoButton, SIGNAL(clicked()), this, SLOT(updateDeviceInfo()));
     formLayout->addRow(m_deviceInfoDescriptionLabel, infoHBoxLayout);
 
-    // Signature/certificate stuff.
-    QWidget *signatureWidget = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout();
-    signatureWidget->setLayout(layout);
-    detailsBoxLayout->addWidget(signatureWidget);
-    QRadioButton *selfSign = new QRadioButton(tr("Self-signed certificate"));
-    QHBoxLayout *customHBox = new QHBoxLayout();
-    customHBox->setMargin(0);
-    QVBoxLayout *radioLayout = new QVBoxLayout();
-    QRadioButton *customSignature = new QRadioButton();
-    radioLayout->addWidget(customSignature);
-    radioLayout->addStretch(10);
-    customHBox->addLayout(radioLayout);
-    QFormLayout *customLayout = new QFormLayout();
-    customLayout->setMargin(0);
-    customLayout->setLabelAlignment(Qt::AlignRight);
-    Utils::PathChooser *signaturePath = new Utils::PathChooser();
-    signaturePath->setExpectedKind(Utils::PathChooser::File);
-    signaturePath->setPromptDialogTitle(tr("Choose certificate file (.cer)"));
-    customLayout->addRow(new QLabel(tr("Custom certificate:")), signaturePath);
-    Utils::PathChooser *keyPath = new Utils::PathChooser();
-    keyPath->setExpectedKind(Utils::PathChooser::File);
-    keyPath->setPromptDialogTitle(tr("Choose key file (.key / .pem)"));
-    customLayout->addRow(new QLabel(tr("Key file:")), keyPath);
-    customHBox->addLayout(customLayout);
-    customHBox->addStretch(10);
-    layout->addWidget(selfSign);
-    layout->addLayout(customHBox);
-    layout->addStretch(10);
-
-    switch (m_runConfiguration->signingMode()) {
-    case S60DeviceRunConfiguration::SignSelf:
-        selfSign->setChecked(true);
-        break;
-    case S60DeviceRunConfiguration::SignCustom:
-        customSignature->setChecked(true);
-        break;
-    }
-
-    signaturePath->setPath(m_runConfiguration->customSignaturePath());
-    keyPath->setPath(m_runConfiguration->customKeyPath());
-
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(displayNameEdited(QString)));
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(argumentsEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
-    connect(selfSign, SIGNAL(toggled(bool)), this, SLOT(selfSignToggled(bool)));
-    connect(customSignature, SIGNAL(toggled(bool)), this, SLOT(customSignatureToggled(bool)));
-    connect(signaturePath, SIGNAL(changed(QString)), this, SLOT(signaturePathChanged(QString)));
-    connect(keyPath, SIGNAL(changed(QString)), this, SLOT(keyPathChanged(QString)));
 }
 
 void S60DeviceRunConfigurationWidget::updateSerialDevices()
@@ -245,28 +199,6 @@ void S60DeviceRunConfigurationWidget::setSerialPort(int index)
     m_runConfiguration->setSerialPortName(d.portName());
     m_deviceInfoButton->setEnabled(index >= 0);
     clearDeviceInfo();
-}
-
-void S60DeviceRunConfigurationWidget::selfSignToggled(bool toggle)
-{
-    if (toggle)
-        m_runConfiguration->setSigningMode(S60DeviceRunConfiguration::SignSelf);
-}
-
-void S60DeviceRunConfigurationWidget::customSignatureToggled(bool toggle)
-{
-    if (toggle)
-        m_runConfiguration->setSigningMode(S60DeviceRunConfiguration::SignCustom);
-}
-
-void S60DeviceRunConfigurationWidget::signaturePathChanged(const QString &path)
-{
-    m_runConfiguration->setCustomSignaturePath(path);
-}
-
-void S60DeviceRunConfigurationWidget::keyPathChanged(const QString &path)
-{
-    m_runConfiguration->setCustomKeyPath(path);
 }
 
 void S60DeviceRunConfigurationWidget::clearDeviceInfo()

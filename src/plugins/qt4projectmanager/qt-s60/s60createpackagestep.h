@@ -64,8 +64,8 @@ class S60CreatePackageStep : public MakeStep {
     friend class S60CreatePackageStepFactory;
 public:
     enum SigningMode {
-        SignSelf,
-        SignCustom
+        SignSelf = 0,
+        SignCustom = 1
     };
 
     explicit S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc);

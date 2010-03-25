@@ -74,10 +74,6 @@ private slots:
     void updateTargetInformation();
     void updateSerialDevices();
     void setSerialPort(int index);
-    void selfSignToggled(bool toggle);
-    void customSignatureToggled(bool toggle);
-    void signaturePathChanged(const QString &path);
-    void keyPathChanged(const QString &path);
     void updateDeviceInfo();
     void clearDeviceInfo();
     void slotLauncherStateChanged(int);
