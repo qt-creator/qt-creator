@@ -47,7 +47,7 @@ QWidget {
         width: lineEdit.width
         height: lineEdit.height
 
-        text: backendValue.value
+        text: (backendValue === undefined || backendValue.value === undefined) ? "" : backendValue.value
 
         onEditingFinished: {
             backendValue.value = text
