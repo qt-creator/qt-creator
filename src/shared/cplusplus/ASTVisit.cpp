@@ -1214,3 +1214,11 @@ void TrailingReturnTypeAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void BracedInitializerAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(expression_list, visitor);
+    }
+    visitor->endVisit(this);
+}
+

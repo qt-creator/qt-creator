@@ -1278,7 +1278,10 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, bool stopAtCppInitializer)
 
                 bool blocked = blockErrors(true);
                 if (parseInitializer(initializer, &node->equals_token)) {
-                    if (NestedExpressionAST *expr = initializer->asNestedExpression()) {
+                    NestedExpressionAST *expr = 0;
+                    if (initializer)
+                        expr = initializer->asNestedExpression();
+                    if (expr) {
                         if (expr->expression && expr->rparen_token && (LA() == T_COMMA || LA() == T_SEMICOLON)) {
                             rewind(lparen_token);
 
@@ -2269,13 +2272,99 @@ bool Parser::parseBaseClause(BaseSpecifierListAST *&node)
 bool Parser::parseInitializer(ExpressionAST *&node, unsigned *equals_token)
 {
     DEBUG_THIS_RULE();
-    if (LA() == T_LPAREN) {
-        return parsePrimaryExpression(node);
-    } else if (LA() == T_EQUAL) {
-        (*equals_token) = consumeToken();
-        return parseInitializerClause(node);
+
+    return parseInitializer0x(node, equals_token);
+}
+
+bool Parser::parseInitializer0x(ExpressionAST *&node, unsigned *equals_token)
+{
+    DEBUG_THIS_RULE();
+
+    if ((_cxx0xEnabled && LA() == T_LBRACE) || LA() == T_EQUAL) {
+        if (LA() == T_EQUAL)
+            *equals_token = cursor();
+
+        return parseBraceOrEqualInitializer0x(node);
     }
+
+    else if (LA() == T_LPAREN) {
+        return parsePrimaryExpression(node);
+    }
+
     return false;
+}
+
+bool Parser::parseBraceOrEqualInitializer0x(ExpressionAST *&node)
+{
+    if (LA() == T_EQUAL) {
+        consumeToken();
+        parseInitializerClause0x(node);
+        return true;
+
+    } else if (LA() == T_LBRACE) {
+        return parseBracedInitList0x(node);
+
+    }
+
+    return false;
+}
+
+bool Parser::parseInitializerClause0x(ExpressionAST *&node)
+{
+    if (LA() == T_LBRACE)
+        return parseBracedInitList0x(node);
+
+    parseAssignmentExpression(node);
+    return true;
+}
+
+bool Parser::parseInitializerList0x(ExpressionListAST *&node)
+{
+    ExpressionListAST **expression_list_ptr = &node;
+    ExpressionAST *expression = 0;
+
+    if (parseInitializerClause0x(expression)) {
+        *expression_list_ptr = new (_pool) ExpressionListAST;
+        (*expression_list_ptr)->value = expression;
+        expression_list_ptr = &(*expression_list_ptr)->next;
+
+        if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT && (LA(2) == T_COMMA || LA(2) == T_RBRACE || LA(2) == T_RPAREN))
+            consumeToken(); // ### create an argument pack
+
+        while (LA() == T_COMMA && LA(2) != T_RBRACE) {
+            consumeToken(); // consume T_COMMA
+
+            if (parseInitializerClause0x(expression)) {
+                *expression_list_ptr = new (_pool) ExpressionListAST;
+                (*expression_list_ptr)->value = expression;
+
+                if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT && (LA(2) == T_COMMA || LA(2) == T_RBRACE || LA(2) == T_RPAREN))
+                    consumeToken(); // ### create an argument pack
+
+                expression_list_ptr = &(*expression_list_ptr)->next;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool Parser::parseBracedInitList0x(ExpressionAST *&node)
+{
+    if (LA() != T_LBRACE)
+        return false;
+
+    BracedInitializerAST *ast = new (_pool) BracedInitializerAST;
+    ast->lbrace_token = consumeToken();
+
+    parseInitializerList0x(ast->expression_list);
+
+    if (LA() == T_COMMA && LA(2) == T_RBRACE)
+        ast->comma_token = consumeToken();
+
+    match(T_RBRACE, &ast->rbrace_token);
+    node = ast;
+    return true;
 }
 
 bool Parser::parseMemInitializerList(MemInitializerListAST *&node)
@@ -2374,6 +2463,13 @@ bool Parser::parseTypeIdList(ExpressionListAST *&node)
 bool Parser::parseExpressionList(ExpressionListAST *&node)
 {
     DEBUG_THIS_RULE();
+
+    if (_cxx0xEnabled)
+        return parseInitializerList0x(node);
+
+
+
+    // ### remove me
     ExpressionListAST **expression_list_ptr = &node;
     ExpressionAST *expression = 0;
     if (parseAssignmentExpression(expression)) {
@@ -2391,6 +2487,7 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
         }
         return true;
     }
+
     return false;
 }
 

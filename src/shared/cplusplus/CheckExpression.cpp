@@ -404,3 +404,10 @@ bool CheckExpression::visit(LambdaExpressionAST *ast)
     return false;
 }
 
+bool CheckExpression::visit(BracedInitializerAST *ast)
+{
+    for (ExpressionListAST *it = ast->expression_list; it; it = it->next)
+        (void) semantic()->check(it->value, _scope);
+
+    return false;
+}

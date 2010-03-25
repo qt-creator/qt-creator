@@ -69,6 +69,7 @@ class AttributeSpecifierAST;
 class BaseSpecifierAST;
 class BinaryExpressionAST;
 class BoolLiteralAST;
+class BracedInitializerAST;
 class BreakStatementAST;
 class CallAST;
 class CaptureAST;

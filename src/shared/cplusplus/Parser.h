@@ -222,6 +222,12 @@ public:
     bool parseQtMethod(ExpressionAST *&node);
 
     // C++0x
+    bool parseInitializer0x(ExpressionAST *&node, unsigned *equals_token);
+    bool parseBraceOrEqualInitializer0x(ExpressionAST *&node);
+    bool parseInitializerClause0x(ExpressionAST *&node);
+    bool parseInitializerList0x(ExpressionListAST *&node);
+    bool parseBracedInitList0x(ExpressionAST *&node);
+
     bool parseLambdaExpression(ExpressionAST *&node);
     bool parseLambdaIntroducer(LambdaIntroducerAST *&node);
     bool parseLambdaCapture(LambdaCaptureAST *&node);

@@ -1083,6 +1083,7 @@ SizeofExpressionAST *SizeofExpressionAST::clone(MemoryPool *pool) const
 {
     SizeofExpressionAST *ast = new (pool) SizeofExpressionAST;
     ast->sizeof_token = sizeof_token;
+    ast->dot_dot_dot_token = dot_dot_dot_token;
     ast->lparen_token = lparen_token;
     if (expression)
         ast->expression = expression->clone(pool);
@@ -1656,6 +1657,18 @@ TrailingReturnTypeAST *TrailingReturnTypeAST::clone(MemoryPool *pool) const
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     if (declarator)
         ast->declarator = declarator->clone(pool);
+    return ast;
+}
+
+BracedInitializerAST *BracedInitializerAST::clone(MemoryPool *pool) const
+{
+    BracedInitializerAST *ast = new (pool) BracedInitializerAST;
+    ast->lbrace_token = lbrace_token;
+    for (ExpressionListAST *iter = expression_list, **ast_iter = &ast->expression_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->comma_token = comma_token;
+    ast->rbrace_token = rbrace_token;
     return ast;
 }
 

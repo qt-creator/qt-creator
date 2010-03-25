@@ -162,6 +162,7 @@ public:
     virtual BaseSpecifierAST *asBaseSpecifier() { return 0; }
     virtual BinaryExpressionAST *asBinaryExpression() { return 0; }
     virtual BoolLiteralAST *asBoolLiteral() { return 0; }
+    virtual BracedInitializerAST *asBracedInitializer() { return 0; }
     virtual BreakStatementAST *asBreakStatement() { return 0; }
     virtual CallAST *asCall() { return 0; }
     virtual CaptureAST *asCapture() { return 0; }
@@ -2895,6 +2896,7 @@ public:
 public:
     SizeofExpressionAST()
         : sizeof_token(0)
+        , dot_dot_dot_token(0)
         , lparen_token(0)
         , expression(0)
         , rparen_token(0)
@@ -4259,6 +4261,33 @@ public:
     virtual unsigned lastToken() const;
 
     virtual TrailingReturnTypeAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class BracedInitializerAST: public ExpressionAST
+{
+public:
+    unsigned lbrace_token;
+    ExpressionListAST *expression_list;
+    unsigned comma_token;
+    unsigned rbrace_token;
+
+public:
+    BracedInitializerAST()
+        : lbrace_token(0)
+        , expression_list(0)
+        , comma_token(0)
+        , rbrace_token(0)
+    {}
+
+    virtual BracedInitializerAST *asBracedInitializer() { return this; }
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual BracedInitializerAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

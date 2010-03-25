@@ -1137,3 +1137,11 @@ bool TrailingReturnTypeAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool BracedInitializerAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (BracedInitializerAST *_other = pattern->asBracedInitializer())
+        return matcher->match(this, _other);
+
+    return false;
+}
+

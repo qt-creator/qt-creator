@@ -176,6 +176,7 @@ public:
     virtual bool match(LambdaDeclaratorAST *node, LambdaDeclaratorAST *pattern);
     virtual bool match(CaptureAST *node, CaptureAST *pattern);
     virtual bool match(TrailingReturnTypeAST *node, TrailingReturnTypeAST *pattern);
+    virtual bool match(BracedInitializerAST *node, BracedInitializerAST *pattern);
 };
 
 } // end of namespace CPlusPlus

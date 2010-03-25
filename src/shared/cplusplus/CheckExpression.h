@@ -96,6 +96,7 @@ protected:
     virtual bool visit(CompoundLiteralAST *ast);
     virtual bool visit(CompoundExpressionAST *ast);
     virtual bool visit(LambdaExpressionAST *ast);
+    virtual bool visit(BracedInitializerAST *ast);
 
     //names
     virtual bool visit(QualifiedNameAST *ast);

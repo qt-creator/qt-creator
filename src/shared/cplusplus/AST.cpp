@@ -2555,3 +2555,22 @@ unsigned TrailingReturnTypeAST::lastToken() const
 
     return arrow_token + 1;
 }
+
+unsigned BracedInitializerAST::firstToken() const
+{
+    return lbrace_token;
+}
+
+unsigned BracedInitializerAST::lastToken() const
+{
+    if (rbrace_token)
+        return rbrace_token + 1;
+
+    else if (comma_token)
+        return comma_token + 1;
+
+    else if (expression_list)
+        return expression_list->lastToken();
+
+    return lbrace_token + 1;
+}

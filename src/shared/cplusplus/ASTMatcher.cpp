@@ -1808,6 +1808,8 @@ bool ASTMatcher::match(SizeofExpressionAST *node, SizeofExpressionAST *pattern)
 
     pattern->sizeof_token = node->sizeof_token;
 
+    pattern->dot_dot_dot_token = node->dot_dot_dot_token;
+
     pattern->lparen_token = node->lparen_token;
 
     if (! pattern->expression)
@@ -2792,6 +2794,25 @@ bool ASTMatcher::match(TrailingReturnTypeAST *node, TrailingReturnTypeAST *patte
         pattern->declarator = node->declarator;
     else if (! AST::match(node->declarator, pattern->declarator, this))
         return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(BracedInitializerAST *node, BracedInitializerAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->lbrace_token = node->lbrace_token;
+
+    if (! pattern->expression_list)
+        pattern->expression_list = node->expression_list;
+    else if (! AST::match(node->expression_list, pattern->expression_list, this))
+        return false;
+
+    pattern->comma_token = node->comma_token;
+
+    pattern->rbrace_token = node->rbrace_token;
 
     return true;
 }
