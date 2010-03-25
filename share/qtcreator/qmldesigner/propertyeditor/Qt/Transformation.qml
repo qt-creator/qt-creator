@@ -3,7 +3,7 @@ import Bauhaus 1.0
 
 GroupBox {
     finished: finishedNotify;
-    caption: "Transformation"
+    caption: qsTr("Transformation")
     maximumHeight: 200;
     id: transformation;
 
@@ -12,7 +12,7 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: "Origin";
+                    text: qsTr("Origin")
                 }
                 ComboBox {
                     minimumWidth: 20
@@ -35,7 +35,7 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: "Scale"
+                    text: qsTr("Scale")
                 }
 
                 DoubleSpinBox {
@@ -67,7 +67,7 @@ GroupBox {
         }
         IntEditor {
             backendValue: backendValues.rotation
-            caption: "Rotation"
+            caption: qsTr("Rotation")
             baseStateFlag: isBaseState;
             step: 10;
             minimumValue: 0;
