@@ -35,6 +35,7 @@
 #include <propertymetainfo.h>
 
 #include <invalididexception.h>
+#include <rewritingexception.h>
 #include <invalidnodestateexception.h>
 #include <variantproperty.h>
 #include <propertymetainfo.h>
@@ -394,8 +395,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
                 m_locked = false;
         }
     }
-
-    catch (Exception &e) {
+    catch (RewritingException &e) {
         QMessageBox::warning(0, "Error", e.description());
     }
 }
@@ -457,7 +457,7 @@ void PropertyEditor::changeExpression(const QString &name)
         }
     }
 
-    catch (Exception &e) {
+    catch (RewritingException &e) {
         QMessageBox::warning(0, "Error", e.description());
     }
 }
