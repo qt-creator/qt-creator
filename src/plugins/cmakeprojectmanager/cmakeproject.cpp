@@ -156,6 +156,11 @@ void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QStri
     parseCMakeLists();
 }
 
+QString CMakeProject::defaultBuildDirectory() const
+{
+    return projectDirectory() + QLatin1String("/qtcreator-build");
+}
+
 bool CMakeProject::parseCMakeLists()
 {
     if (!activeTarget() ||

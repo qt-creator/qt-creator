@@ -59,6 +59,8 @@ public:
 
     CMakeBuildConfigurationFactory *buildConfigurationFactory() const;
 
+    QString defaultBuildDirectory() const;
+
 protected:
     bool fromMap(const QVariantMap &map);
 

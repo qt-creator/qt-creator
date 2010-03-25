@@ -52,6 +52,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent) :
     BuildConfiguration(parent, QLatin1String(CMAKE_BC_ID)),
     m_toolChain(0)
 {
+    m_buildDirectory = cmakeTarget()->defaultBuildDirectory();
 }
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuildConfiguration *source) :
@@ -61,6 +62,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuild
     m_msvcVersion(source->m_msvcVersion)
 {
     cloneSteps(source);
+    m_buildDirectory = cmakeTarget()->defaultBuildDirectory();
 }
 
 QVariantMap CMakeBuildConfiguration::toMap() const
@@ -74,7 +76,7 @@ QVariantMap CMakeBuildConfiguration::toMap() const
 bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
 {
     m_msvcVersion = map.value(QLatin1String(MSVC_VERSION_KEY)).toString();
-    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
+    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), cmakeTarget()->defaultBuildDirectory()).toString();
 
     return BuildConfiguration::fromMap(map);
 }
@@ -91,10 +93,7 @@ CMakeTarget *CMakeBuildConfiguration::cmakeTarget() const
 
 QString CMakeBuildConfiguration::buildDirectory() const
 {
-    QString buildDirectory = m_buildDirectory;
-    if (buildDirectory.isEmpty())
-        buildDirectory = target()->project()->projectDirectory() + "/qtcreator-build";
-    return buildDirectory;
+    return m_buildDirectory;
 }
 
 ProjectExplorer::ToolChain::ToolChainType CMakeBuildConfiguration::toolChainType() const

@@ -82,6 +82,11 @@ CMakeBuildConfigurationFactory *CMakeTarget::buildConfigurationFactory() const
         return m_buildConfigurationFactory;
 }
 
+QString CMakeTarget::defaultBuildDirectory() const
+{
+    return cmakeProject()->defaultBuildDirectory();
+}
+
 bool CMakeTarget::fromMap(const QVariantMap &map)
 {
     if (!Target::fromMap(map))
