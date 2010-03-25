@@ -227,6 +227,12 @@ QVariantMap Project::toMap() const
     return map;
 }
 
+QString Project::projectDirectory() const
+{
+    QFileInfo info(file()->fileName());
+    return info.absoluteDir().path();
+}
+
 bool Project::fromMap(const QVariantMap &map)
 {
     if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {

@@ -164,8 +164,7 @@ QVariantMap MaemoRunConfiguration::toMap() const
 
     map.insert(SimulatorPathKey, m_simulatorPath);
 
-    const QDir &dir = QFileInfo(qt4Target()->qt4Project()->file()->fileName())
-        .absoluteDir();
+    const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
 
     return map;
@@ -196,8 +195,7 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
 
     m_simulatorPath = map.value(SimulatorPathKey).toString();
 
-    const QDir &dir = QFileInfo(qt4Target()->qt4Project()->file()->fileName())
-        .absoluteDir();
+    const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
 
     return true;
@@ -405,7 +403,7 @@ void MaemoRunConfiguration::updateSimulatorInformation() const
             "simulator image.").arg(m_simulatorPath);
     }
 
-    QDir dir(m_simulatorPath);
+    QDir dir = QDir(m_simulatorPath);
     if (!m_simulatorPath.isEmpty() && dir.exists(m_simulatorPath)) {
         const QStringList &files = dir.entryList(QDir::Files | QDir::NoSymLinks
             | QDir::NoDotAndDotDot);

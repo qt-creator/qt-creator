@@ -134,14 +134,14 @@ QWidget *S60EmulatorRunConfiguration::configurationWidget()
 QVariantMap S60EmulatorRunConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
-    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QDir(target()->project()->projectDirectory());
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
     return map;
 }
 
 bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
 {
-    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QDir(target()->project()->projectDirectory());
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
 
     return RunConfiguration::fromMap(map);

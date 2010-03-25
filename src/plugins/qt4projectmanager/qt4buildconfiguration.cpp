@@ -190,7 +190,7 @@ QString Qt4BuildConfiguration::buildDirectory() const
     if (m_shadowBuild)
         workingDirectory = m_buildDirectory;
     if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(target()->project()->file()->fileName()).absolutePath();
+        workingDirectory = target()->project()->projectDirectory();
     return workingDirectory;
 }
 

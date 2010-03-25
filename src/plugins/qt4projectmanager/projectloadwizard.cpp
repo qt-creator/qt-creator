@@ -53,7 +53,7 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
 {
     setWindowTitle(tr("Import existing build settings"));
     QtVersionManager * vm = QtVersionManager::instance();
-    QString directory = QFileInfo(project->file()->fileName()).absolutePath();
+    QString directory = project->projectDirectory();
     QString importVersion =  QtVersionManager::findQMakeBinaryFromMakefile(directory);
 
     if (!importVersion.isNull()) {

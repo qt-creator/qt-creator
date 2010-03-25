@@ -141,8 +141,7 @@ GenericTarget *GenericTargetFactory::create(ProjectExplorer::Project *parent, co
 
     makeStep->setBuildTarget("all", /* on = */ true);
 
-    const QFileInfo fileInfo(genericproject->file()->fileName());
-    bc->setBuildDirectory(fileInfo.absolutePath());
+    bc->setBuildDirectory(genericproject->projectDirectory());
 
     t->addBuildConfiguration(bc);
 

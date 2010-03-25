@@ -156,11 +156,6 @@ void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QStri
     parseCMakeLists();
 }
 
-QString CMakeProject::sourceDirectory() const
-{
-    return QFileInfo(m_fileName).absolutePath();
-}
-
 bool CMakeProject::parseCMakeLists()
 {
     if (!activeTarget() ||
@@ -198,7 +193,7 @@ bool CMakeProject::parseCMakeLists()
             projectFiles.insert(node->path());
     } else {
         // Manually add the CMakeLists.txt file
-        QString cmakeListTxt = sourceDirectory() + "/CMakeLists.txt";
+        QString cmakeListTxt = projectDirectory() + "/CMakeLists.txt";
         fileList.append(new ProjectExplorer::FileNode(cmakeListTxt, ProjectExplorer::ProjectFileType, false));
         projectFiles.insert(cmakeListTxt);
     }
@@ -240,7 +235,7 @@ bool CMakeProject::parseCMakeLists()
             allIncludePaths.append(headerPath.path());
     }
     // This explicitly adds -I. to the include paths
-    allIncludePaths.append(sourceDirectory());
+    allIncludePaths.append(projectDirectory());
 
     allIncludePaths.append(cbpparser.includeFiles());
     CppTools::CppModelManagerInterface *modelmanager =
@@ -479,7 +474,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
         // Ask the user for where he wants to build it
         // and the cmake command line
 
-        CMakeOpenProjectWizard copw(m_manager, sourceDirectory(), ProjectExplorer::Environment::systemEnvironment());
+        CMakeOpenProjectWizard copw(m_manager, projectDirectory(), ProjectExplorer::Environment::systemEnvironment());
         if (copw.exec() != QDialog::Accepted)
             return false;
 
@@ -641,7 +636,7 @@ void CMakeBuildSettingsWidget::init(BuildConfiguration *bc)
 {
     m_buildConfiguration = static_cast<CMakeBuildConfiguration *>(bc);
     m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
-    if (m_buildConfiguration->buildDirectory() == m_project->sourceDirectory())
+    if (m_buildConfiguration->buildDirectory() == m_project->projectDirectory())
         m_changeButton->setEnabled(false);
     else
         m_changeButton->setEnabled(true);
@@ -650,7 +645,7 @@ void CMakeBuildSettingsWidget::init(BuildConfiguration *bc)
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
     CMakeOpenProjectWizard copw(m_project->projectManager(),
-                                m_project->sourceDirectory(),
+                                m_project->projectDirectory(),
                                 m_buildConfiguration->buildDirectory(),
                                 m_buildConfiguration->environment());
     if (copw.exec() == QDialog::Accepted) {

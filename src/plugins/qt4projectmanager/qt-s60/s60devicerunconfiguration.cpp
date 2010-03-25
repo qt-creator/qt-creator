@@ -201,7 +201,7 @@ QWidget *S60DeviceRunConfiguration::configurationWidget()
 QVariantMap S60DeviceRunConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
-    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QDir(target()->project()->projectDirectory());
 
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
     map.insert(QLatin1String(SIGNING_MODE_KEY), (int)m_signingMode);
@@ -215,7 +215,7 @@ QVariantMap S60DeviceRunConfiguration::toMap() const
 
 bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
 {
-    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QDir(target()->project()->projectDirectory());
 
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
     m_signingMode = static_cast<SigningMode>(map.value(QLatin1String(SIGNING_MODE_KEY)).toInt());

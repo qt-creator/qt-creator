@@ -93,7 +93,7 @@ QString CMakeBuildConfiguration::buildDirectory() const
 {
     QString buildDirectory = m_buildDirectory;
     if (buildDirectory.isEmpty())
-        buildDirectory = cmakeTarget()->cmakeProject()->sourceDirectory() + "/qtcreator-build";
+        buildDirectory = target()->project()->projectDirectory() + "/qtcreator-build";
     return buildDirectory;
 }
 
@@ -221,7 +221,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     cleanMakeStep->setClean(true);
 
     CMakeOpenProjectWizard copw(cmtarget->cmakeProject()->projectManager(),
-                                cmtarget->cmakeProject()->sourceDirectory(),
+                                cmtarget->project()->projectDirectory(),
                                 bc->buildDirectory(),
                                 bc->environment());
     if (copw.exec() != QDialog::Accepted) {

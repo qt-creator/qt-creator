@@ -249,7 +249,7 @@ void Qt4ProjectConfigWidget::buildDirectoryChanged()
 
 void Qt4ProjectConfigWidget::onBeforeBeforeShadowBuildDirBrowsed()
 {
-    QString initialDirectory = QFileInfo(m_buildConfiguration->target()->project()->file()->fileName()).absolutePath();
+    QString initialDirectory = m_buildConfiguration->target()->project()->projectDirectory();
     if (!initialDirectory.isEmpty())
         m_ui->shadowBuildDirEdit->setInitialBrowsePathBackup(initialDirectory);
 }
@@ -320,7 +320,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     }
 
     QString sourceDirectory =
-            QFileInfo(m_buildConfiguration->qt4Target()->qt4Project()->file()->fileName()).absolutePath();
+            m_buildConfiguration->target()->project()->projectDirectory();
     if (!sourceDirectory.endsWith('/'))
         sourceDirectory.append('/');
     bool invalidBuildDirectory = m_buildConfiguration->shadowBuild()

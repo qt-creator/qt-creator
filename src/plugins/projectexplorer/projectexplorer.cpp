@@ -912,8 +912,7 @@ void ProjectExplorerPlugin::newProject()
 
     QString defaultLocation;
     if (currentProject()) {
-        const QFileInfo file(currentProject()->file()->fileName());
-        QDir dir = file.dir();
+        QDir dir(currentProject()->projectDirectory());
         dir.cdUp();
         defaultLocation = dir.absolutePath();
     }

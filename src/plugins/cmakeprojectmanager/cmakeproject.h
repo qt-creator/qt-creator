@@ -97,8 +97,6 @@ public:
 
     CMakeBuildTarget buildTargetForTitle(const QString &title);
 
-    QString sourceDirectory() const;
-
     bool parseCMakeLists();
 
 signals:

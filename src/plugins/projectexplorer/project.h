@@ -128,6 +128,9 @@ public:
     //       creating new BuilConfigurations.
     virtual QVariantMap toMap() const;
 
+    // The directory that holds the project file. This includes the absolute path.
+    QString projectDirectory() const;
+
 signals:
     void fileListChanged();
 

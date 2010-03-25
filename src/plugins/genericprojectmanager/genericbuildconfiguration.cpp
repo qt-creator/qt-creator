@@ -77,7 +77,7 @@ QVariantMap GenericBuildConfiguration::toMap() const
 
 bool GenericBuildConfiguration::fromMap(const QVariantMap &map)
 {
-    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
+    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), target()->project()->projectDirectory()).toString();
 
     return BuildConfiguration::fromMap(map);
 }
@@ -90,8 +90,7 @@ ProjectExplorer::Environment GenericBuildConfiguration::environment() const
 QString GenericBuildConfiguration::buildDirectory() const
 {
     // Convert to absolute path when necessary
-    const QFileInfo projectFile(target()->project()->file()->fileName());
-    const QDir projectDir(projectFile.path());
+    const QDir projectDir(target()->project()->projectDirectory());
     return projectDir.absoluteFilePath(m_buildDirectory);
 }
 

@@ -197,7 +197,7 @@ void StateListener::slotStateChanged()
     // Check for project, find the control
     Core::IVersionControl *projectControl = 0;
     if (const ProjectExplorer::Project *currentProject = pe->currentProject()) {
-        state.currentProjectPath = QFileInfo(currentProject->file()->fileName()).absolutePath();
+        state.currentProjectPath = currentProject->projectDirectory();
         state.currentProjectName = currentProject->displayName();
         projectControl = vcsManager->findVersionControlForDirectory(state.currentProjectPath,
                                                                     &state.currentProjectTopLevel);

@@ -446,7 +446,7 @@ QWidget *Qt4RunConfiguration::configurationWidget()
 
 QVariantMap Qt4RunConfiguration::toMap() const
 {
-    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QDir(target()->project()->projectDirectory());
     QVariantMap map(LocalApplicationRunConfiguration::toMap());
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
@@ -462,7 +462,7 @@ QVariantMap Qt4RunConfiguration::toMap() const
 
 bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
 {
-    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QDir(target()->project()->projectDirectory());
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
     m_userSetName = map.value(QLatin1String(USER_SET_NAME_KEY), false).toBool();

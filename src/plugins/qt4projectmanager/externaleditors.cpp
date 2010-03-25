@@ -146,7 +146,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
         Qt4BuildConfiguration *qt4bc = project->activeTarget()->activeBuildConfiguration();
         const QtVersion *qtVersion = qt4bc->qtVersion();
         data->binary = (qtVersion->*commandAccessor)();
-        data->workingDirectory = QFileInfo(project->file()->fileName()).absolutePath();
+        data->workingDirectory = project->projectDirectory();
     } else {
         data->workingDirectory.clear();
         data->binary = Utils::SynchronousProcess::locateBinary(fallbackBinary);

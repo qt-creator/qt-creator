@@ -1128,7 +1128,7 @@ void Qt4Project::notifyChanged(const QString &name)
 //    // adjust the build directory of the sub-project.
 //    if (project()->file()->fileName().startsWith(qtSourceDir) && qtSourceDir != currentQtDir) {
 //        project()->setValue(buildConfiguration, "useShadowBuild", true);
-//        QString buildDir = QFileInfo(project()->file()->fileName()).absolutePath();
+//        QString buildDir = project()->projectDirectory();
 //        buildDir.replace(qtSourceDir, currentQtDir);
 //        project()->setValue(buildConfiguration, "buildDirectory", buildDir);
 //        project()->setValue(buildConfiguration, "autoShadowBuild", true);
