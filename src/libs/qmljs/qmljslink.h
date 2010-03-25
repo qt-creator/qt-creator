@@ -26,6 +26,8 @@ public:
     // Get the scope chain for the currentObject inside doc.
     void scopeChainAt(Document::Ptr doc, const QList<AST::Node *> &astPath = QList<AST::Node *>());
 
+    QList<DiagnosticMessage> diagnosticMessages() const;
+
 private:
     Interpreter::Engine *engine();
 
@@ -52,6 +54,8 @@ private:
     Interpreter::Context *_context;
     QMultiHash<QString, Document::Ptr> _documentByPath;
     const QStringList _importPaths;
+
+    QList<DiagnosticMessage> _diagnosticMessages;
 };
 
 } // namespace QmlJS

@@ -8,6 +8,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
+#include <QtCore/QCoreApplication>
 
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
@@ -31,6 +32,11 @@ Link::~Link()
 Interpreter::Engine *Link::engine()
 {
     return _context->engine();
+}
+
+QList<DiagnosticMessage> Link::diagnosticMessages() const
+{
+    return _diagnosticMessages;
 }
 
 void Link::scopeChainAt(Document::Ptr doc, const QList<Node *> &astPath)
@@ -234,8 +240,19 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
 
         importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
     } else {
-        // error!
+        _diagnosticMessages.append(DiagnosticMessage(
+                DiagnosticMessage::Error, import->fileNameToken,
+                QCoreApplication::translate("QmlJS::Link", "could not find file or directory")));
     }
+}
+
+static SourceLocation locationFromRange(const SourceLocation &start,
+                                        const SourceLocation &end)
+{
+    return SourceLocation(start.offset,
+                          end.end() - start.begin(),
+                          start.startLine,
+                          start.startColumn);
 }
 
 /*
@@ -266,13 +283,20 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         const QString versionString = doc->source().mid(import->versionToken.offset, import->versionToken.length);
         const int dotIdx = versionString.indexOf(QLatin1Char('.'));
         if (dotIdx == -1) {
-            // only major (which is probably invalid, but let's handle it anyway)
-            majorVersion = versionString.toInt();
-            minorVersion = 0; // ### TODO: Check with magic version numbers above
+            _diagnosticMessages.append(DiagnosticMessage(
+                    DiagnosticMessage::Error, import->versionToken,
+                    QCoreApplication::translate("QmlJS::Link", "expected two numbers separated by a dot")));
+            return;
         } else {
             majorVersion = versionString.left(dotIdx).toInt();
             minorVersion = versionString.mid(dotIdx + 1).toInt();
         }
+    } else {
+        _diagnosticMessages.append(DiagnosticMessage(
+                DiagnosticMessage::Error,
+                locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
+                QCoreApplication::translate("QmlJS::Link", "package import requires a version number")));
+        return;
     }
 
     // if the package is in the meta type system, use it
@@ -280,6 +304,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         foreach (QmlObjectValue *object, engine()->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
             namespaceObject->setProperty(object->className(), object);
         }
+        return;
     } else {
         // check the filesystem
         QStringList localImportPaths = _importPaths;
@@ -309,9 +334,14 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
                 }
             }
 
-            break;
+            return;
         }
     }
+
+    _diagnosticMessages.append(DiagnosticMessage(
+            DiagnosticMessage::Error,
+            locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
+            QCoreApplication::translate("QmlJS::Link", "package not found")));
 }
 
 UiQualifiedId *Link::qualifiedTypeNameId(Node *node)

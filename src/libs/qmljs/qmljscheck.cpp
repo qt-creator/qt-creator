@@ -187,6 +187,7 @@ QList<DiagnosticMessage> Check::operator()()
 {
     _messages.clear();
     Node::accept(_doc->ast(), this);
+    _messages.append(_link.diagnosticMessages());
     return _messages;
 }
 
