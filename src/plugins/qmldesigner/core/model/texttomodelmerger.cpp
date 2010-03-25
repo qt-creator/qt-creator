@@ -391,7 +391,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             } else {
                 if (isValidPropertyForNode(modelNode, astPropertyName)) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
-                    if (modelProperty.metaInfo().isListProperty()) {
+                    if (modelProperty.metaInfo().isValid()
+                        && modelProperty.metaInfo().isListProperty()) {
                         syncArrayProperty(modelProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
                     } else {
                         syncNodeProperty(modelProperty, binding, context, differenceHandler);
