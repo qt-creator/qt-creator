@@ -83,7 +83,6 @@ public:
     bool isDebug() const;
     QString packageTemplateFileName() const;
 
-    QString packageFileName() const;
     QString localExecutableFileName() const;
     QString signedPackage() const;
     const QtVersion *qtVersion() const;
@@ -190,12 +189,10 @@ private:
     QString m_targetName;
     QString m_baseFileName;
     QStringList m_commandLineArguments;
-    QString m_packageFilePath;
     QString m_workingDirectory;
     QString m_executableFileName;
     QString m_qtDir;
     QString m_signedPackage;
-    QString m_packageFile;
     QString m_qtBinPath;
     bool m_releaseDeviceAfterLauncherFinish;
     bool m_handleDeviceRemoval;

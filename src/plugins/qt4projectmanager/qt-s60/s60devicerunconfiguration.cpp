@@ -143,7 +143,6 @@ void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4Pr
         emit targetInformationChanged();
 }
 
-
 S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
 {
 }
@@ -286,14 +285,6 @@ QString S60DeviceRunConfiguration::packageTemplateFileName() const
     if (!ti.valid)
         return QString();
     return ti.workingDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
-}
-
-QString S60DeviceRunConfiguration::packageFileName() const
-{
-    QString rc = basePackageFilePath();
-    if (!rc.isEmpty())
-        rc += QLatin1String(".pkg");
-    return rc;
 }
 
 /* Grep a package file for the '.exe' file. Curently for use on Linux only
@@ -484,8 +475,6 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     QTC_ASSERT(!m_qtBinPath.isEmpty(), return);
     m_executableFileName = s60runConfig->localExecutableFileName();
-    m_packageFilePath = s60runConfig->packageFileName();
-    m_packageFile = QFileInfo(m_packageFilePath).fileName();
     if (debug)
         qDebug() << "S60DeviceRunControlBase::CT" << m_targetName << ProjectExplorer::ToolChain::toolChainName(m_toolChain)
                  << m_serialPortName << m_workingDirectory;
