@@ -1473,6 +1473,8 @@ void DebuggerManager::fileOpen(const QString &fileName)
 
 void DebuggerManager::operateByInstructionTriggered()
 {
+    if (!d->m_engine)
+        return;
     QTC_ASSERT(d->m_stackHandler, return);
     StackFrame frame = d->m_stackHandler->currentFrame();
     gotoLocation(frame, true);
