@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <type name="QDeclarativeViewer.Screen">
+        <enum name="Orientation">
+            <enumerator name="UnknownOrientation" value="0"/>
+            <enumerator name="Portrait" value="1"/>
+            <enumerator name="Landscape" value="2"/>
+        </enum>
+        <property name="orientation" type="Orientation"/>
+    </type>
+</module>
