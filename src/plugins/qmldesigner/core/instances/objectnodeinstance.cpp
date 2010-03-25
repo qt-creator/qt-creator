@@ -336,14 +336,18 @@ static void removeObjectFromList(const QDeclarativeProperty &metaProperty, QObje
 
     QObjectList objectList;
 
+    Q_ASSERT(listReference.canCount());
+    Q_ASSERT(listReference.canAt());
     for(int i = 0; i < count; i ++) {
         QObject *listItem = listReference.at(i);
         if (listItem != objectToBeRemoved)
             objectList.append(listItem);
     }
 
+    Q_ASSERT(listReference.canClear());
     listReference.clear();
 
+    Q_ASSERT(listReference.canAppend());
     foreach(QObject *object, objectList)
         listReference.append(object);
 }
@@ -367,6 +371,7 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
 
     if (isList(metaProperty)) {
         QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
+        Q_ASSERT(list.canAppend());
         list.append(object);
     } else if (isObject(metaProperty)) {
         metaProperty.write(objectToVariant(object));
@@ -454,9 +459,14 @@ void ObjectNodeInstance::deleteObjectsInList(const QDeclarativeProperty &metaPro
     QObjectList objectList;
     QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
 
+    Q_ASSERT(list.canCount());
+    Q_ASSERT(list.canAt());
+
     for(int i = 0; i < list.count(); i++) {
         objectList += list.at(i);
     }
+
+    Q_ASSERT(list.canClear());
 
     list.clear();
 }
