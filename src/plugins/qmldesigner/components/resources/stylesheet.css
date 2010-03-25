@@ -115,9 +115,17 @@ QTreeView::branch:has-siblings:!adjoins-item {
 
 QTabBar::tab {
     border-image: none;
+
     width: 80px;
+
     height: 22px;
-    margin: 0px 0 0px 0;
+    margin-top: 0x;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-right: 12px;
+    padding-left: 12px;
+    font: bold;
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
     stop: 0 #3c3c3c, stop: 1 #444444);
 
