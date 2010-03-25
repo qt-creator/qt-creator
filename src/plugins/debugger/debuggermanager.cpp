@@ -488,13 +488,16 @@ void DebuggerManager::init()
         "resets the debugger to the initial state."));
 
     d->m_actions.nextAction = new QAction(tr("Step Over"), this);
-    d->m_actions.nextAction->setIcon(QIcon(":/debugger/images/debugger_stepover_small.png"));
+    d->m_actions.nextAction->setIcon(
+        QIcon(":/debugger/images/debugger_stepover_small.png"));
 
     d->m_actions.stepAction = new QAction(tr("Step Into"), this);
-    d->m_actions.stepAction->setIcon(QIcon(":/debugger/images/debugger_stepinto_small.png"));
+    d->m_actions.stepAction->setIcon(
+        QIcon(":/debugger/images/debugger_stepinto_small.png"));
 
     d->m_actions.stepOutAction = new QAction(tr("Step Out"), this);
-    d->m_actions.stepOutAction->setIcon(QIcon(":/debugger/images/debugger_stepout_small.png"));
+    d->m_actions.stepOutAction->setIcon(
+        QIcon(":/debugger/images/debugger_stepout_small.png"));
 
     d->m_actions.runToLineAction1 = new QAction(tr("Run to Line"), this);
     d->m_actions.runToLineAction2 = new QAction(tr("Run to Line"), this);
@@ -572,7 +575,7 @@ void DebuggerManager::init()
     DebuggerUISwitcher *uiSwitcher = DebuggerUISwitcher::instance();
     d->m_breakDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_breakWindow);
     d->m_modulesDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_modulesWindow,
-                                                                     Qt::TopDockWidgetArea, false);
+                                                    Qt::TopDockWidgetArea, false);
 
     connect(d->m_modulesDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadModules()), Qt::QueuedConnection);
