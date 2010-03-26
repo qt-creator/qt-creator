@@ -159,6 +159,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
 void EditorToolBar::removeToolbarForEditor(IEditor *editor)
 {
+    QTC_ASSERT(editor, return)
     disconnect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
 
     QWidget *toolBar = editor->toolBar();
@@ -190,6 +191,7 @@ void EditorToolBar::closeView()
 
 void EditorToolBar::addEditor(IEditor *editor)
 {
+    QTC_ASSERT(editor, return)
     connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
     QWidget *toolBar = editor->toolBar();
 
@@ -201,6 +203,7 @@ void EditorToolBar::addEditor(IEditor *editor)
 
 void EditorToolBar::addCenterToolBar(QWidget *toolBar)
 {
+    QTC_ASSERT(toolBar, return)
     toolBar->setVisible(false); // will be made visible in setCurrentEditor
     m_toolBarPlaceholder->layout()->addWidget(toolBar);
 
@@ -232,6 +235,7 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 
 void EditorToolBar::setCurrentEditor(IEditor *editor)
 {
+    QTC_ASSERT(editor, return)
     m_editorList->setCurrentIndex(m_editorsListModel->indexOf(editor).row());
 
     // If we never added the toolbar from the editor,  we will never change
