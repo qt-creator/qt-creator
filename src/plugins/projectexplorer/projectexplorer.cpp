@@ -949,11 +949,8 @@ void ProjectExplorerPlugin::setStartupProject(Project *project)
         qDebug() << "ProjectExplorerPlugin::setStartupProject";
 
     if (!project)
-        project = d->m_currentProject;
-    if (!project)
         return;
     d->m_session->setStartupProject(project);
-    // NPE: Visually mark startup project
     updateActions();
 }
 
@@ -1114,12 +1111,7 @@ Project *ProjectExplorerPlugin::startupProject() const
     if (debug)
         qDebug() << "ProjectExplorerPlugin::startupProject";
 
-    Project *pro = d->m_session->startupProject();
-
-    if (!pro)
-        pro = d->m_currentProject;
-
-    return pro;
+    return d->m_session->startupProject();
 }
 
 void ProjectExplorerPlugin::updateWelcomePage()
