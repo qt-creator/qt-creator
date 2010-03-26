@@ -820,6 +820,8 @@ Parser::TemplateArgumentListEntry *Parser::templateArgumentListEntry(unsigned to
 
 bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
 {
+    DEBUG_THIS_RULE();
+
     if (TemplateArgumentListEntry *entry = templateArgumentListEntry(cursor())) {
         rewind(entry->cursor);
         node = entry->ast;
@@ -852,11 +854,11 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
             }
         }
 
-        _templateArgumentList.insert(std::make_pair(cursor(), TemplateArgumentListEntry(start, cursor(), node)));
+        _templateArgumentList.insert(std::make_pair(start, TemplateArgumentListEntry(start, cursor(), node)));
         return true;
     }
 
-    _templateArgumentList.insert(std::make_pair(cursor(), TemplateArgumentListEntry(start, cursor(), 0)));
+    _templateArgumentList.insert(std::make_pair(start, TemplateArgumentListEntry(start, cursor(), 0)));
 
     return false;
 }
