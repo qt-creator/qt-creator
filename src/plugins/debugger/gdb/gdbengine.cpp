@@ -2038,8 +2038,8 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             fullName = child.data();
         } else if (child.hasName("line")) {
             data->bpLineNumber = child.data();
-            if (child.data().toInt())
-                data->markerLineNumber = child.data().toInt();
+            if (child.data().toInt() && data->bpCorrectedLineNumber.isEmpty())
+                data->setMarkerLineNumber(child.data().toInt());
         } else if (child.hasName("cond")) {
             data->bpCondition = child.data();
             // gdb 6.3 likes to "rewrite" conditions. Just accept that fact.
@@ -2067,8 +2067,10 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
     QString name;
     if (!fullName.isEmpty()) {
         name = cleanupFullName(QFile::decodeName(fullName));
-        if (data->markerFileName.isEmpty())
-            data->markerFileName = name;
+        if (data->markerFileName().isEmpty()) {
+            qDebug() << "222" << name;
+            data->setMarkerFileName(name);
+        }
     } else {
         name = QFile::decodeName(file);
         // Use fullName() once we have a mapping which is more complete than
@@ -2221,7 +2223,7 @@ void GdbEngine::handleBreakDisable(const GdbResponse &response)
 
 void GdbEngine::handleBreakIgnore(const GdbResponse &response)
 {
-    int index = response.cookie.toInt();
+    int bpNumber = response.cookie.toInt();
     // gdb 6.8:
     // ignore 2 0:
     // ~"Will stop next time breakpoint 2 is reached.\n"
@@ -2233,9 +2235,9 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     //
     // gdb 6.3 does not produce any console output
     BreakHandler *handler = manager()->breakHandler();
-    if (response.resultClass == GdbResultDone && index < handler->size()) {
+    BreakpointData *data = handler->findBreakpoint(bpNumber);
+    if (response.resultClass == GdbResultDone && data) {
         QString msg = _(response.data.findChild("consolestreamoutput").data());
-        BreakpointData *data = handler->at(index);
         //if (msg.contains(__("Will stop next time breakpoint"))) {
         //    data->bpIgnoreCount = _("0");
         //} else if (msg.contains(__("Will ignore next"))) {
@@ -2249,21 +2251,20 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
 
 void GdbEngine::handleBreakCondition(const GdbResponse &response)
 {
-    int index = response.cookie.toInt();
+    int bpNumber = response.cookie.toInt();
     BreakHandler *handler = manager()->breakHandler();
+    BreakpointData *data = handler->findBreakpoint(bpNumber);
     if (response.resultClass == GdbResultDone) {
         // We just assume it was successful. Otherwise we had to parse
         // the output stream data.
-        BreakpointData *data = handler->at(index);
-        //qDebug() << "HANDLE BREAK CONDITION" << index << data->condition;
+        //qDebug() << "HANDLE BREAK CONDITION" << bpNumber << data->condition;
         data->bpCondition = data->condition;
     } else {
         QByteArray msg = response.data.findChild("msg").data();
         // happens on Mac
         if (1 || msg.startsWith("Error parsing breakpoint condition. "
                 " Will try again when we hit the breakpoint.")) {
-            BreakpointData *data = handler->at(index);
-            //qDebug() << "ERROR BREAK CONDITION" << index << data->condition;
+            //qDebug() << "ERROR BREAK CONDITION" << bpNumber << data->condition;
             data->bpCondition = data->condition;
         }
     }
@@ -2316,8 +2317,11 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
         // the marker in more cases.
         if (data->fileName.endsWith(full))
             full = data->fileName;
-        data->markerLineNumber = data->bpLineNumber.toInt();
-        data->markerFileName = full;
+        data->setMarkerLineNumber(data->bpLineNumber.toInt());
+        if (data->markerFileName().isEmpty()) {
+            qDebug() << "111";
+            data->setMarkerFileName(full);
+        }
         data->bpFileName = full;
     } else {
         qDebug() << "COULD NOT MATCH " << re.pattern() << " AND " << output;
@@ -2327,16 +2331,35 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
 
 void GdbEngine::handleBreakInfo(const GdbResponse &response)
 {
-    int bpNumber = response.cookie.toInt();
-    BreakHandler *handler = manager()->breakHandler();
     if (response.resultClass == GdbResultDone) {
         // Old-style output for multiple breakpoints, presumably in a
         // constructor.
-        int found = handler->findBreakpoint(bpNumber);
-        if (found != -1) {
+        const int bpNumber = response.cookie.toInt();
+        const BreakHandler *handler = manager()->breakHandler();
+        BreakpointData *data = handler->findBreakpoint(bpNumber);
+        if (data) {
             QString str = QString::fromLocal8Bit(
                 response.data.findChild("consolestreamoutput").data());
-            extractDataFromInfoBreak(str, handler->at(found));
+            extractDataFromInfoBreak(str, data);
+        }
+    }
+}
+
+void GdbEngine::handleInfoLine(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        // Old-style output: "Line 1102 of \"simple/app.cpp\" starts
+        // at address 0x80526aa <_Z10...+131> and ends at 0x80526b5
+        // <_Z10testQStackv+142>.\n"
+        const int bpNumber = response.cookie.toInt();
+        const BreakHandler *handler = manager()->breakHandler();
+        BreakpointData *data = handler->findBreakpoint(bpNumber);
+        QByteArray ba = response.data.findChild("consolestreamoutput").data();
+        const int pos = ba.indexOf(' ', 5);
+        if (ba.startsWith("Line ") && pos != -1) {
+            const QByteArray line = ba.mid(5, pos - 5);
+            data->bpCorrectedLineNumber = line;
+            data->setMarkerLineNumber(line.toInt());
         }
     }
 }
@@ -2412,7 +2435,7 @@ void GdbEngine::attemptBreakpointSynchronization()
     foreach (BreakpointData *data, handler->takeRemovedBreakpoints()) {
         QByteArray bpNumber = data->bpNumber;
         debugMessage(_("DELETING BP " + bpNumber + " IN "
-            + data->markerFileName.toLocal8Bit()));
+            + data->markerFileName().toLocal8Bit()));
         if (!bpNumber.trimmed().isEmpty())
             postCommand("-break-delete " + bpNumber,
                 NeedsStop | RebuildBreakpointModel);
@@ -2435,14 +2458,14 @@ void GdbEngine::attemptBreakpointSynchronization()
                 // Update conditions if needed.
                 postCommand("condition " + data->bpNumber + ' '  + data->condition,
                     NeedsStop | RebuildBreakpointModel,
-                    CB(handleBreakCondition), index);
+                    CB(handleBreakCondition), data->bpNumber.toInt());
             }
             else // Because gdb won't do both changes at a time anyway.
             if (data->ignoreCount != data->bpIgnoreCount) {
                 // Update ignorecount if needed.
                 postCommand("ignore " + data->bpNumber + ' ' + data->ignoreCount,
                     NeedsStop | RebuildBreakpointModel,
-                    CB(handleBreakIgnore), index);
+                    CB(handleBreakIgnore), data->bpNumber.toInt());
                 continue;
             }
             if (!data->enabled && data->bpEnabled) {
@@ -2451,6 +2474,14 @@ void GdbEngine::attemptBreakpointSynchronization()
                     CB(handleBreakInfo));
                 data->bpEnabled = false;
                 continue;
+            }
+            if (!data->bpAddress.isEmpty()
+                    && data->bpCorrectedLineNumber.isEmpty()) {
+                // Prevent endless loop.
+                data->bpCorrectedLineNumber = " ";
+                postCommand("info line *" + data->bpAddress,
+                    NeedsStop | RebuildBreakpointModel,
+                    CB(handleInfoLine), data->bpNumber.toInt());
             }
         }
     }

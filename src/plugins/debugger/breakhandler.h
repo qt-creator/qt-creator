@@ -88,16 +88,24 @@ public:
     QByteArray bpCondition;  // Condition acknowledged by the debugger engine.
     QByteArray bpIgnoreCount;// Ignore count acknowledged by the debugger engine.
     QString bpFileName;      // File name acknowledged by the debugger engine.
+    QString bpFullName;      // Full file name acknowledged by the debugger engine.
     QByteArray bpLineNumber; // Line number acknowledged by the debugger engine.
     QByteArray bpCorrectedLineNumber; // Acknowledged by the debugger engine.
     QString bpFuncName;      // Function name acknowledged by the debugger engine.
     QByteArray bpAddress;    // Address acknowledged by the debugger engine.
-    bool    bpMultiple;      // Happens in constructors/gdb.
-    bool    bpEnabled;       // Enable/disable command sent.
+    bool bpMultiple;         // Happens in constructors/gdb.
+    bool bpEnabled;          // Enable/disable command sent.
 
+    void setMarkerFileName(const QString &fileName);
+    QString markerFileName() const { return m_markerFileName; }
+
+    void setMarkerLineNumber(int lineNumber);
+    int markerLineNumber() const { return m_markerLineNumber; }
+
+private:
     // Taken from either user input or gdb responses.
-    QString markerFileName; // Used to locate the marker.
-    int markerLineNumber;
+    QString m_markerFileName; // Used to locate the marker.
+    int m_markerLineNumber;
 
     // Our red blob in the editor.
     BreakpointMarker *marker;
@@ -132,9 +140,9 @@ public:
     void removeAt(int index); // This also deletes the marker.
     void clear(); // This also deletes all the marker.
     int indexOf(BreakpointData *data) { return m_bp.indexOf(data); }
-    int findBreakpoint(const QString &fileName, int lineNumber);
-    int findBreakpoint(const BreakpointData &data); // Returns index.
-    int findBreakpoint(int bpNumber); // Returns index.
+    int findBreakpoint(const QString &fileName, int lineNumber) const;
+    int findBreakpoint(const BreakpointData &data) const; // Returns index.
+    BreakpointData *findBreakpoint(int bpNumber) const;
     void updateMarkers();
 
     QList<BreakpointData *> insertedBreakpoints() const;

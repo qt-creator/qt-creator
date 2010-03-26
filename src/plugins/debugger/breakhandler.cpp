@@ -124,9 +124,9 @@ public:
             return;
         //if (m_data->markerLineNumber == lineNumber)
         //    return;
-        if (m_data->markerLineNumber != lineNumber) {
-            m_data->markerLineNumber = lineNumber;
-            // FIXME: should we tell gdb about the change?
+        if (m_data->markerLineNumber() != lineNumber) {
+            m_data->setMarkerLineNumber(lineNumber);
+            // FIXME: Should we tell gdb about the change?
             // Ignore it for now, as we would require re-compilation
             // and debugger re-start anyway.
             if (0 && !m_data->bpLineNumber.isEmpty()) {
@@ -135,8 +135,14 @@ public:
                 }
             }
         }
-        m_data->lineNumber = QByteArray::number(lineNumber);
-        m_data->handler()->updateMarkers();
+        // Ignore updates to the "real" line number while the debugger is
+        // running, as this can be triggered by moving the breakpoint to
+        // the next line that generated code. 
+        // FIXME: Do we need yet another data member?
+        if (m_data->bpNumber.trimmed().isEmpty()) {
+            m_data->lineNumber = QByteArray::number(lineNumber);
+            m_data->handler()->updateMarkers();
+        }
     }
 
 private:
@@ -163,7 +169,7 @@ BreakpointData::BreakpointData(BreakHandler *handler)
     enabled = true;
     pending = true;
     marker = 0;
-    markerLineNumber = 0;
+    m_markerLineNumber = 0;
     bpMultiple = false;
 //#if defined(Q_OS_MAC)
 //    // full names do not work on Mac/MI
@@ -189,15 +195,25 @@ void BreakpointData::removeMarker()
 
 void BreakpointData::updateMarker()
 {
-    if (marker && (markerFileName != marker->fileName()
-            || markerLineNumber != marker->lineNumber()))
+    if (marker && (m_markerFileName != marker->fileName()
+            || m_markerLineNumber != marker->lineNumber()))
         removeMarker();
 
-    if (!marker && !markerFileName.isEmpty() && markerLineNumber > 0)
-        marker = new BreakpointMarker(this, markerFileName, markerLineNumber);
+    if (!marker && !m_markerFileName.isEmpty() && m_markerLineNumber > 0)
+        marker = new BreakpointMarker(this, m_markerFileName, m_markerLineNumber);
 
     if (marker)
         marker->setPending(pending, enabled);
+}
+
+void BreakpointData::setMarkerFileName(const QString &fileName)
+{
+    m_markerFileName = fileName;
+}
+
+void BreakpointData::setMarkerLineNumber(int lineNumber)
+{
+    m_markerLineNumber = lineNumber;
 }
 
 QString BreakpointData::toToolTip() const
@@ -206,9 +222,9 @@ QString BreakpointData::toToolTip() const
     QTextStream str(&rc);
     str << "<html><body><table>"
         << "<tr><td>" << BreakHandler::tr("Marker File:")
-        << "</td><td>" << markerFileName << "</td></tr>"
+        << "</td><td>" << m_markerFileName << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Marker Line:")
-        << "</td><td>" << markerLineNumber << "</td></tr>"
+        << "</td><td>" << m_markerLineNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Breakpoint Number:")
         << "</td><td>" << bpNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Breakpoint Address:")
@@ -226,8 +242,7 @@ QString BreakpointData::toToolTip() const
         << "<tr><td>" << BreakHandler::tr("Line Number:")
         << "</td><td>" << lineNumber << "</td><td>" << bpLineNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Corrected Line Number:")
-        << "</td><td>" << lineNumber
-        << "</td><td>" << bpCorrectedLineNumber << "</td></tr>"
+        << "</td><td>-</td><td>" << bpCorrectedLineNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Condition:")
         << "</td><td>" << condition << "</td><td>" << bpCondition << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Ignore Count:")
@@ -240,8 +255,8 @@ QString BreakpointData::toString() const
 {
     QString rc;
     QTextStream str(&rc);
-    str << BreakHandler::tr("Marker File:") << markerFileName << ' '
-        << BreakHandler::tr("Marker Line:") << markerLineNumber << ' '
+    str << BreakHandler::tr("Marker File:") << m_markerFileName << ' '
+        << BreakHandler::tr("Marker Line:") << m_markerLineNumber << ' '
         << BreakHandler::tr("Breakpoint Number:") << bpNumber << ' '
         << BreakHandler::tr("Breakpoint Address:") << bpAddress << '\n'
         << BreakHandler::tr("File Name:")
@@ -268,7 +283,8 @@ bool BreakpointData::isLocatedAt(const QString &fileName_, int lineNumber_) cons
         return true;
     return false;
     */
-    return lineNumber_ == markerLineNumber && fileNameMatch(fileName_, markerFileName);
+    return lineNumber_ == m_markerLineNumber
+        && fileNameMatch(fileName_, m_markerFileName);
 }
 
 bool BreakpointData::conditionsMatch() const
@@ -343,7 +359,7 @@ void BreakHandler::clear()
     m_inserted.clear();
 }
 
-int BreakHandler::findBreakpoint(const BreakpointData &needle)
+int BreakHandler::findBreakpoint(const BreakpointData &needle) const
 {
     // Search a breakpoint we might refer to.
     for (int index = 0; index != size(); ++index) {
@@ -360,7 +376,7 @@ int BreakHandler::findBreakpoint(const BreakpointData &needle)
     return -1;
 }
 
-int BreakHandler::findBreakpoint(const QString &fileName, int lineNumber)
+int BreakHandler::findBreakpoint(const QString &fileName, int lineNumber) const
 {
     for (int index = 0; index != size(); ++index)
         if (at(index)->isLocatedAt(fileName, lineNumber))
@@ -368,15 +384,15 @@ int BreakHandler::findBreakpoint(const QString &fileName, int lineNumber)
     return -1;
 }
 
-int BreakHandler::findBreakpoint(int bpNumber)
+BreakpointData *BreakHandler::findBreakpoint(int bpNumber) const
 {
     if (!size())
-        return -1;
+        return 0;
     QString numStr = QString::number(bpNumber);
     for (int index = 0; index != size(); ++index)
         if (at(index)->bpNumber == numStr)
-            return index;
-    return -1;
+            return at(index);
+    return 0;
 }
 
 void BreakHandler::saveBreakpoints()
@@ -433,8 +449,8 @@ void BreakHandler::loadBreakpoints()
         v = map.value(QLatin1String("usefullpath"));
         if (v.isValid())
             data->useFullPath = bool(v.toInt());
-        data->markerFileName = data->fileName;
-        data->markerLineNumber = data->lineNumber.toInt();
+        data->setMarkerFileName(data->fileName);
+        data->setMarkerLineNumber(data->lineNumber.toInt());
         append(data);
     }
 }
@@ -450,14 +466,15 @@ void BreakHandler::resetBreakpoints()
         data->bpFuncName.clear();
         data->bpFileName.clear();
         data->bpLineNumber.clear();
+        data->bpCorrectedLineNumber.clear();
         data->bpCondition.clear();
         data->bpIgnoreCount.clear();
         data->bpAddress.clear();
         // Keep marker data if it was primary.
-        if (data->markerFileName != data->fileName)
-            data->markerFileName.clear();
-        if (data->markerLineNumber != data->lineNumber.toInt())
-            data->markerLineNumber = 0;
+        if (data->markerFileName() != data->fileName)
+            data->setMarkerFileName(QString());
+        if (data->markerLineNumber() != data->lineNumber.toInt())
+            data->setMarkerLineNumber(0);
     }
     m_enabled.clear();
     m_disabled.clear();
@@ -696,8 +713,8 @@ void BreakHandler::setBreakpoint(const QString &fileName, int lineNumber)
     data->fileName = fileName;
     data->lineNumber = QByteArray::number(lineNumber);
     data->pending = true;
-    data->markerFileName = fileName;
-    data->markerLineNumber = lineNumber;
+    data->setMarkerFileName(fileName);
+    data->setMarkerLineNumber(lineNumber);
     append(data);
     emit layoutChanged();
     saveBreakpoints();
@@ -738,10 +755,10 @@ void BreakHandler::loadSessionData()
 void BreakHandler::activateBreakpoint(int index)
 {
     const BreakpointData *data = at(index);
-    if (!data->markerFileName.isEmpty()) {
+    if (!data->markerFileName().isEmpty()) {
         StackFrame frame;
-        frame.file = data->markerFileName;
-        frame.line = data->markerLineNumber;
+        frame.file = data->markerFileName();
+        frame.line = data->markerLineNumber();
         m_manager->gotoLocation(frame, false);
     }
 }

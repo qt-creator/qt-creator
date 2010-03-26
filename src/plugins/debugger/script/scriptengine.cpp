@@ -425,9 +425,9 @@ void ScriptEngine::attemptBreakpointSynchronization()
             data->bpNumber = QByteArray::number(index + 1);
             updateNeeded = true;
         }
-        if (!data->fileName.isEmpty() && data->markerFileName.isEmpty()) {
-            data->markerFileName = data->fileName;
-            data->markerLineNumber = data->lineNumber.toInt();
+        if (!data->fileName.isEmpty() && data->markerFileName().isEmpty()) {
+            data->setMarkerFileName(data->fileName);
+            data->setMarkerLineNumber(data->lineNumber.toInt());
             updateNeeded = true;
         }
     }
@@ -597,8 +597,8 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         if (byFunction && functionName.isEmpty())
             return false;
         BreakpointData *data = byFunction ?
-                               findBreakPointByFunction(manager()->breakHandler(), functionName) :
-                               findBreakPointByFileName(manager()->breakHandler(), lineNumber, fileName);
+           findBreakPointByFunction(manager()->breakHandler(), functionName) :
+           findBreakPointByFileName(manager()->breakHandler(), lineNumber, fileName);
         if (!data)
             return false;
 
@@ -607,8 +607,8 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         data->bpLineNumber = QByteArray::number(lineNumber);
         data->bpFileName = fileName;
         data->bpFuncName = functionName;
-        data->markerLineNumber = lineNumber;
-        data->markerFileName = fileName;
+        data->setMarkerLineNumber(lineNumber);
+        data->setMarkerFileName(fileName);
         data->pending = false;
         data->updateMarker();
     }
