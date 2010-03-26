@@ -38,14 +38,10 @@
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
-class QStandardItemModel;
-class QStandardItem;
 class QSortFilterProxyModel;
 class QStackedLayout;
-class QAbstractButton;
-class QLineEdit;
 class QLabel;
-class QTreeView;
+class QListView;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -54,6 +50,9 @@ namespace Utils {
 
 namespace Core {
 namespace Internal {
+
+class Category;
+class CategoryModel;
 
 class SettingsDialog : public QDialog
 {
@@ -78,24 +77,26 @@ private slots:
     void accept();
     void reject();
     void apply();
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void currentChanged(const QModelIndex &current);
+    void currentTabChanged(int);
     void filter(const QString &text);
 
 private:
     void createGui();
-    void showPage(const QStandardItem *item);
+    void showCategory(int index);
+    void updateEnabledTabs(Category *category, const QString &searchText);
 
     const QList<Core::IOptionsPage*> m_pages;
 
     QSet<Core::IOptionsPage*> m_visitedPages;
     QSortFilterProxyModel *m_proxyModel;
-    QStandardItemModel *m_model;
+    CategoryModel *m_model;
     bool m_applied;
     QString m_currentCategory;
     QString m_currentPage;
     QStackedLayout *m_stackedLayout;
     Utils::FilterLineEdit *m_filterLineEdit;
-    QTreeView *m_pageTree;
+    QListView *m_categoryList;
     QLabel *m_headerLabel;
 };
 

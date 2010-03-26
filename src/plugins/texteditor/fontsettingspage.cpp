@@ -317,7 +317,7 @@ FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd,
                                    const QString &trCategory,
                                    QObject *parent) :
     Core::IOptionsPage(parent),
-    d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font & Colors"), category, trCategory))
+    d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font && Colors"), category, trCategory))
 {
 }
 

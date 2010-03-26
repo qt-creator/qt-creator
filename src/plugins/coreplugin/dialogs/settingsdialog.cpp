@@ -32,13 +32,9 @@
 #include <extensionsystem/pluginmanager.h>
 #include "icore.h"
 
-#include <utils/qtcassert.h>
 #include <utils/filterlineedit.h>
 
 #include <QtCore/QSettings>
-#include <QtGui/QHeaderView>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QStandardItem>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QItemSelectionModel>
 #include <QtGui/QHBoxLayout>
@@ -54,16 +50,8 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QFrame>
 #include <QtGui/QDialogButtonBox>
-#include <QtGui/QTreeView>
+#include <QtGui/QListView>
 #include <QtGui/QApplication>
-
-enum ItemType { CategoryItem, PageItem };
-
-enum { TypeRole = Qt::UserRole + 1,
-       IndexRole = Qt::UserRole + 2,
-       PageRole = Qt::UserRole + 3 };
-
-Q_DECLARE_METATYPE(Core::IOptionsPage*)
 
 static const char categoryKeyC[] = "General/LastPreferenceCategory";
 static const char pageKeyC[] = "General/LastPreferencePage";
@@ -71,134 +59,139 @@ static const char pageKeyC[] = "General/LastPreferencePage";
 namespace Core {
 namespace Internal {
 
-// Create item on either model or parent item
-template<class Parent>
-    inline QStandardItem *createStandardItem(Parent *parent,
-                                             const QString &text,
-                                             ItemType type = CategoryItem,
-                                             int index = -1,
-                                             IOptionsPage *page = 0)
-{
-    QStandardItem *rc = new QStandardItem(text);
-    rc->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
-    rc->setData(QVariant(int(type)), TypeRole);
-    rc->setData(QVariant(index), IndexRole);
-    rc->setData(qVariantFromValue(page), PageRole);
-    parent->appendRow(rc);
-    return rc;
-}
+// ----------- Category model
 
-static inline ItemType itemTypeOfItem(const QStandardItem *item)
-{
-    return static_cast<ItemType>(item->data(TypeRole).toInt());
-}
-
-static inline ItemType itemTypeOfItem(const QAbstractItemModel *model, const QModelIndex &index)
-{
-    return static_cast<ItemType>(model->data(index, TypeRole).toInt());
-}
-
-static inline int indexOfItem(const QStandardItem *item)
-{
-    return item->data(IndexRole).toInt();
-}
-
-static inline IOptionsPage *pageOfItem(const QStandardItem *item)
-{
-    return qvariant_cast<IOptionsPage *>(item->data(PageRole));
-}
-
-static inline IOptionsPage *pageOfItem(const QAbstractItemModel *model, const QModelIndex &index)
-{
-    return qvariant_cast<IOptionsPage *>(model->data(index, PageRole));
-}
-
-// A filter model that returns true for the parent (category) nodes
-// (which by default do not match the search string and are thus collapsed)
-// and additionally checks IOptionsPage::matches().
-class PageFilterModel : public QSortFilterProxyModel {
-public:
-    explicit PageFilterModel(QObject *parent = 0) : QSortFilterProxyModel(parent) {}
-protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+struct Category {
+    QString id;
+    QString displayName;
+    QList<IOptionsPage*> pages;
+    int index;
+    QTabWidget *tabWidget;
 };
 
-bool PageFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+class CategoryModel : public QAbstractListModel
 {
-    if (!source_parent.isValid())
-        return true; // Always true for parents/categories.
-    // Regular contents check, then check page-filter.
-    if (QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent))
-        return true;
-    if (const IOptionsPage *page = pageOfItem(sourceModel(), source_parent.child(source_row, 0))) {
-        const QString pattern = filterRegExp().pattern();
-        return page->displayCategory().contains(pattern, Qt::CaseInsensitive) ||
-        page->matches(pattern);
+public:
+    CategoryModel(QObject *parent = 0);
+    ~CategoryModel();
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+    void setPages(const QList<IOptionsPage*> &pages);
+    const QList<Category*> &categories() const { return m_categories; }
+
+private:
+    Category *findCategoryById(const QString &id);
+
+    QList<Category*> m_categories;
+};
+
+CategoryModel::CategoryModel(QObject *parent)
+    : QAbstractListModel(parent)
+{
+}
+
+CategoryModel::~CategoryModel()
+{
+    qDeleteAll(m_categories);
+}
+
+int CategoryModel::rowCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : m_categories.size();
+}
+
+QVariant CategoryModel::data(const QModelIndex &index, int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole:
+        return m_categories.at(index.row())->displayName;
     }
+
+    return QVariant();
+}
+
+void CategoryModel::setPages(const QList<IOptionsPage*> &pages)
+{
+    // Clear any previous categories
+    qDeleteAll(m_categories);
+    m_categories.clear();
+
+    // Put the pages in categories
+    foreach (IOptionsPage *page, pages) {
+        const QString &categoryId = page->category();
+        Category *category = findCategoryById(categoryId);
+        if (!category) {
+            category = new Category;
+            category->id = categoryId;
+            category->displayName = page->displayCategory();
+            category->pages.append(page);
+            m_categories.append(category);
+        } else {
+            category->pages.append(page);
+        }
+    }
+
+    reset();
+}
+
+Category *CategoryModel::findCategoryById(const QString &id)
+{
+    for (int i = 0; i < m_categories.size(); ++i) {
+        Category *category = m_categories.at(i);
+        if (category->id == id)
+            return category;
+    }
+
+    return 0;
+}
+
+// ----------- Category filter model
+
+/**
+ * A filter model that returns true for each category node that has pages that
+ * match the search string.
+ */
+class CategoryFilterModel : public QSortFilterProxyModel
+{
+public:
+    explicit CategoryFilterModel(QObject *parent = 0)
+        : QSortFilterProxyModel(parent)
+    {}
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+};
+
+bool CategoryFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+{
+    // Regular contents check, then check page-filter.
+    if (QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent))
+        return true;
+
+    const CategoryModel *cm = static_cast<CategoryModel*>(sourceModel());
+    foreach (const IOptionsPage *page, cm->categories().at(sourceRow)->pages) {
+        const QString pattern = filterRegExp().pattern();
+        if (page->displayCategory().contains(pattern, Qt::CaseInsensitive)
+            || page->displayName().contains(pattern, Qt::CaseInsensitive)
+            || page->matches(pattern))
+            return true;
+    }
+
     return false;
 }
 
-// Populate a model with pages.
-static QStandardItemModel *pageModel(const QList<IOptionsPage*> &pages,
-                                     QObject *parent,
-                                     const QString &initialCategory,
-                                     const QString &initialPageId,
-                                     QModelIndex *initialIndex)
-{
-    QStandardItemModel *model = new QStandardItemModel(0, 1, parent);
-    const QChar hierarchySeparator = QLatin1Char('|');
-    int index = 0;
-    QMap<QString, QStandardItem *> categories;
-    foreach (IOptionsPage *page, pages) {
-        const QStringList categoriesId = page->category().split(hierarchySeparator);
-        const QStringList displayCategories = page->displayCategory().split(hierarchySeparator);
-        const int categoryDepth = categoriesId.size();
-        if (categoryDepth != displayCategories.size()) {
-            qWarning("Internal error: Hierarchy mismatch in settings page %s.", qPrintable(page->id()));
-            continue;
-        }
-
-        // Retrieve/Create parent items for nested categories "Cat1|Cat2|Cat3"
-        QString currentCategory = categoriesId.at(0);
-        QStandardItem *treeItem = categories.value(currentCategory, 0);
-        if (!treeItem) {
-            treeItem = createStandardItem(model, displayCategories.at(0), CategoryItem);
-            categories.insert(currentCategory, treeItem);
-        }
-
-        for (int cat = 1; cat < categoryDepth; cat++) {
-            const QString fullCategory = currentCategory + hierarchySeparator + categoriesId.at(cat);
-            treeItem = categories.value(fullCategory, 0);
-            if (!treeItem) {
-                QStandardItem *parentItem = categories.value(currentCategory);
-                QTC_ASSERT(parentItem, return model)
-                treeItem = createStandardItem(parentItem, displayCategories.at(cat), CategoryItem);
-                categories.insert(fullCategory, treeItem);
-            }
-            currentCategory = fullCategory;
-        }
-
-        // Append page item
-        QTC_ASSERT(treeItem, return model)
-        QStandardItem *item = createStandardItem(treeItem, page->displayName(), PageItem, index, page);
-        if (currentCategory == initialCategory && page->id() == initialPageId) {
-            *initialIndex = model->indexFromItem(item);
-        }
-        index++;
-    }
-    return model;
-}
-
-// ----------- Pages tree view
+// ----------- Category list view
 
 /**
- * Special version of a QTreeView that has the width of the first column as
+ * Special version of a QListView that has the width of the first column as
  * minimum size.
  */
-class PageTree : public QTreeView
+class CategoryListView : public QListView
 {
 public:
-    PageTree(QWidget *parent = 0) : QTreeView(parent)
+    CategoryListView(QWidget *parent = 0) : QListView(parent)
     {
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
     }
@@ -230,12 +223,12 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
                                const QString &pageId) :
     QDialog(parent),
     m_pages(sortedOptionsPages()),
-    m_proxyModel(new PageFilterModel),
-    m_model(0),
+    m_proxyModel(new CategoryFilterModel(this)),
+    m_model(new CategoryModel(this)),
     m_applied(false),
     m_stackedLayout(new QStackedLayout),
     m_filterLineEdit(new Utils::FilterLineEdit),
-    m_pageTree(new PageTree),
+    m_categoryList(new CategoryListView),
     m_headerLabel(new QLabel)
 {
     createGui();
@@ -245,6 +238,9 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
 #else
     setWindowTitle(tr("Options"));
 #endif
+
+    m_model->setPages(m_pages);
+
     QString initialCategory = categoryId;
     QString initialPage = pageId;
     if (initialCategory.isEmpty() && initialPage.isEmpty()) {
@@ -253,23 +249,44 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
         initialPage = settings->value(QLatin1String(pageKeyC), QVariant(QString())).toString();
     }
 
-    // Create pages with title labels with a larger, bold font, left-aligned
-    // with the group boxes of the page.
-    foreach (IOptionsPage *page, m_pages)
-        m_stackedLayout->addWidget(page->createPage(0));
+    int initialCategoryIndex = -1;
+    int initialPageIndex = -1;
 
-    QModelIndex initialIndex;
-    m_model = pageModel(m_pages, 0, initialCategory, initialPage, &initialIndex);
-    m_proxyModel->setFilterKeyColumn(0);
-    m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    // Create the tab widgets with the pages in each category
+    const QList<Category*> &categories = m_model->categories();
+    for (int i = 0; i < categories.size(); ++i) {
+        Category *category = categories.at(i);
+        if (category->id == initialCategory)
+            initialCategoryIndex = i;
+
+        QTabWidget *tabWidget = new QTabWidget;
+        for (int j = 0; j < category->pages.size(); ++j) {
+            IOptionsPage *page = category->pages.at(j);
+            tabWidget->addTab(page->createPage(0), page->displayName());
+            if (initialCategoryIndex == i && page->id() == initialPage)
+                initialPageIndex = j;
+        }
+
+        connect(tabWidget, SIGNAL(currentChanged(int)),
+                this, SLOT(currentTabChanged(int)));
+
+        category->tabWidget = tabWidget;
+        category->index = m_stackedLayout->addWidget(tabWidget);
+    }
+
     m_proxyModel->setSourceModel(m_model);
-    m_pageTree->setModel(m_proxyModel);
-    m_pageTree->setSelectionMode(QAbstractItemView::SingleSelection);
-    connect(m_pageTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(currentChanged(QModelIndex,QModelIndex)));
-    if (initialIndex.isValid()) {
-        const QModelIndex proxyIndex = m_proxyModel->mapFromSource(initialIndex);
-        m_pageTree->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::ClearAndSelect);
+    m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_categoryList->setModel(m_proxyModel);
+    m_categoryList->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    connect(m_categoryList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+            this, SLOT(currentChanged(QModelIndex)));
+
+    if (initialCategoryIndex != -1) {
+        const QModelIndex modelIndex = m_proxyModel->mapFromSource(m_model->index(initialCategoryIndex));
+        m_categoryList->setCurrentIndex(modelIndex);
+        if (initialPageIndex != -1)
+            categories.at(initialCategoryIndex)->tabWidget->setCurrentIndex(initialPageIndex);
     }
 
     // The order of the slot connection matters here, the filter slot
@@ -291,22 +308,15 @@ void SettingsDialog::createGui()
     m_headerLabel->setFont(headerLabelFont);
 
     QHBoxLayout *headerHLayout = new QHBoxLayout;
-    const int leftMargin = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin) +
-                           qApp->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    const int leftMargin = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
     headerHLayout->addSpacerItem(new QSpacerItem(leftMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
     headerHLayout->addWidget(m_headerLabel);
 
-    // Tree
-    m_pageTree->header()->setVisible(false);
     m_stackedLayout->setMargin(0);
 
-    // Separator Line
-    QFrame *bottomLine = new QFrame;
-    bottomLine->setFrameShape(QFrame::HLine);
-    bottomLine->setFrameShadow(QFrame::Sunken);
-
-    // Button box
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Apply|QDialogButtonBox::Cancel);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
+                                                       QDialogButtonBox::Apply |
+                                                       QDialogButtonBox::Cancel);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     connect(buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
@@ -315,10 +325,9 @@ void SettingsDialog::createGui()
     QGridLayout *mainGridLayout = new QGridLayout;
     mainGridLayout->addWidget(m_filterLineEdit, 0, 0, 1, 1);
     mainGridLayout->addLayout(headerHLayout,    0, 1, 1, 1);
-    mainGridLayout->addWidget(m_pageTree,       1, 0, 2, 1);
+    mainGridLayout->addWidget(m_categoryList,   1, 0, 1, 1);
     mainGridLayout->addLayout(m_stackedLayout,  1, 1, 1, 1);
-    mainGridLayout->addWidget(bottomLine,       2, 1, 1, 1);
-    mainGridLayout->addWidget(buttonBox,        3, 0, 1, 2);
+    mainGridLayout->addWidget(buttonBox,        2, 0, 1, 2);
     mainGridLayout->setColumnStretch(0, 1);
     mainGridLayout->setColumnStretch(1, 4);
     setLayout(mainGridLayout);
@@ -328,80 +337,70 @@ SettingsDialog::~SettingsDialog()
 {
 }
 
-void SettingsDialog::showPage(const QStandardItem *item)
+void SettingsDialog::showCategory(int index)
 {
-    // Show a page item or recurse to the first page of a category
-    // if a category was hit.
-    switch (itemTypeOfItem(item)) {
-    case PageItem: {
-            IOptionsPage *page = pageOfItem(item);
-            m_currentCategory = page->category();
-            m_currentPage = page->id();
-            m_stackedLayout->setCurrentIndex(indexOfItem(item));
-            m_visitedPages.insert(page);
-            m_headerLabel->setText(page->displayName());
-        }
-        break;
-    case CategoryItem:
-        if (const QStandardItem *child = item->child(0, 0))
-            showPage(child);
-        break;
+    Category *category = m_model->categories().at(index);
+
+    // Update current category and page
+    m_currentCategory = category->id;
+    const int currentTabIndex = category->tabWidget->currentIndex();
+    if (currentTabIndex != -1) {
+        IOptionsPage *page = category->pages.at(currentTabIndex);
+        m_currentPage = page->id();
+        m_visitedPages.insert(page);
+    }
+
+    m_stackedLayout->setCurrentIndex(category->index);
+    m_headerLabel->setText(category->displayName);
+
+    updateEnabledTabs(category, m_filterLineEdit->text());
+}
+
+void SettingsDialog::updateEnabledTabs(Category *category, const QString &searchText)
+{
+    for (int i = 0; i < category->pages.size(); ++i) {
+        const IOptionsPage *page = category->pages.at(i);
+        const bool enabled = searchText.isEmpty()
+                             || page->displayName().contains(searchText, Qt::CaseInsensitive)
+                             || page->matches(searchText);
+        category->tabWidget->setTabEnabled(i, enabled);
     }
 }
 
-void SettingsDialog::currentChanged(const QModelIndex & current, const QModelIndex & /*previous */)
+void SettingsDialog::currentChanged(const QModelIndex &current)
 {
     if (current.isValid())
-        if (const QStandardItem *item = m_model->itemFromIndex(m_proxyModel->mapToSource(current)))
-            showPage(item);
+        showCategory(m_proxyModel->mapToSource(current).row());
 }
 
-// Helpers that recurse down the model to find a page.
-static QModelIndex findPage(const QModelIndex &root)
+void SettingsDialog::currentTabChanged(int index)
 {
-    QTC_ASSERT(root.isValid(), return root)
-    const QAbstractItemModel *model = root.model();
-    // Found a page!
-    if (itemTypeOfItem(model, root) == PageItem)
-        return root;
-    // Recurse down category.
-    const int childCount = model->rowCount(root);
-    for (int c = 0; c < childCount; c++) {
-        const QModelIndex page = findPage(root.child(c, 0));
-        if (page.isValid())
-            return page;
-    }
-    return QModelIndex();
-}
+    if (index == -1)
+        return;
 
-static QModelIndex findPage(const QAbstractItemModel *model)
-{
-    const QModelIndex invalid;
-    // Traverse top categories
-    const int rootItemCount = model->rowCount(invalid);
-    for (int c = 0; c < rootItemCount; c++) {
-        const QModelIndex page = findPage(model->index(c, 0, invalid));
-        if (page.isValid())
-            return page;
-    }
-    return invalid;
+    const QModelIndex modelIndex = m_proxyModel->mapToSource(m_categoryList->currentIndex());
+    if (!modelIndex.isValid())
+        return;
+
+    // Remember the current tab and mark it as visited
+    const Category *category = m_model->categories().at(modelIndex.row());
+    IOptionsPage *page = category->pages.at(index);
+    m_currentPage = page->id();
+    m_visitedPages.insert(page);
 }
 
 void SettingsDialog::filter(const QString &text)
 {
-    // Filter cleared, collapse all.
-    if (text.isEmpty()) {
-        m_pageTree->collapseAll();
+    // When there is no current index, select the first one when possible
+    if (!m_categoryList->currentIndex().isValid() && m_model->rowCount() > 0)
+        m_categoryList->setCurrentIndex(m_proxyModel->index(0, 0));
+
+    const QModelIndex currentIndex = m_proxyModel->mapToSource(m_categoryList->currentIndex());
+    if (!currentIndex.isValid())
         return;
-    }
-    // Expand match and select the first page. Note: This depends
-    // on the order of slot invocation, needs to be done after filtering
-    if (!m_proxyModel->rowCount(QModelIndex()))
-        return;
-    m_pageTree->expandAll();
-    const QModelIndex firstVisiblePage = findPage(m_proxyModel);
-    if (firstVisiblePage.isValid())
-        m_pageTree->selectionModel()->setCurrentIndex(firstVisiblePage, QItemSelectionModel::ClearAndSelect);
+
+    Category *category = m_model->categories().at(currentIndex.row());
+    updateEnabledTabs(category, text);
 }
 
 void SettingsDialog::accept()
@@ -430,7 +429,7 @@ void SettingsDialog::apply()
 
 bool SettingsDialog::execDialog()
 {
-    m_pageTree->setFocus();
+    m_categoryList->setFocus();
     m_applied = false;
     exec();
     return m_applied;
@@ -452,5 +451,5 @@ QSize SettingsDialog::sizeHint() const
     return minimumSize();
 }
 
-}
-}
+} // namespace Internal
+} // namespace Core
