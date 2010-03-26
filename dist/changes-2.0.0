@@ -85,6 +85,7 @@ Windows
    * Support Windows SDKs
    * Register Creator for post-mortem debugging using the
      settings dialog
+
 Symbian Target
    * Deploying shows real progress bar
    * Show the connection state of devices in the selector
@@ -96,6 +97,10 @@ Symbian Target
    * Handle unplugging of device
    * Handle application crash when running, print proper error message
    * Add support for command line arguments
+   * Move package creation and signing to be a build step
+     (Users that had multiple symbian run configurations with different
+      signing settings need to re-create their settings as different
+      build configurations)
 
 Maemo Target
    * New feature
