@@ -116,7 +116,7 @@ FakeVimSettings *theFakeVimSettings()
 
     const QString group = QLatin1String("FakeVim");
     item = new SavedAction(instance);
-    item->setText(QCoreApplication::translate("FakeVim::Internal", "Toggle vim-style editing"));
+    item->setText(QCoreApplication::translate("FakeVim::Internal", "Use vim-style editing"));
     item->setSettingsKey(group, QLatin1String("UseFakeVim"));
     item->setCheckable(true);
     item->setValue(false);
