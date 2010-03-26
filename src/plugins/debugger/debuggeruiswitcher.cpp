@@ -166,8 +166,11 @@ void DebuggerUISwitcher::addMenuAction(Core::Command *command, const QString &la
 
 void DebuggerUISwitcher::setActiveLanguage(const QString &langName)
 {
-    if (theDebuggerAction(SwitchLanguageAutomatically)->isChecked())
+    if (theDebuggerAction(SwitchLanguageAutomatically)->isChecked()
+        && d->m_languages.contains(langName))
+    {
         changeDebuggerUI(langName);
+    }
 }
 
 int DebuggerUISwitcher::activeLanguageId() const

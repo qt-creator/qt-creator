@@ -52,8 +52,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QtCore/QStringList>
 #include <QtCore/QtPlugin>
 #include <QtCore/QTimer>
