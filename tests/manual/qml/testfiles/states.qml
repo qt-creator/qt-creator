@@ -34,4 +34,11 @@ Rectangle {
             }
         }
     ]
+
+    Image {
+        id: image1
+        x: 41
+        y: 46
+        source: "images/qtcreator.ico"
+    }
 }
