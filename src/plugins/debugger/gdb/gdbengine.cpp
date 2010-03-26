@@ -465,19 +465,17 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread %1 selected").arg(_(id)), 1000);
                 //"{id="2"}"
-            #if defined(Q_OS_MAC)
-            } else if (asyncClass == "shlibs-updated") {
-                // MAC announces updated libs
+            } else if (m_isMacGdb && asyncClass == "shlibs-updated") {
+                // Apple's gdb announces updated libs.
                 invalidateSourcesList();
-            } else if (asyncClass == "shlibs-added") {
-                // MAC announces added libs
+            } else if (m_isMacGdb && asyncClass == "shlibs-added") {
+                // Apple's gdb announces added libs.
                 // {shlib-info={num="2", name="libmathCommon.A_debug.dylib",
                 // kind="-", dyld-addr="0x7f000", reason="dyld", requested-state="Y",
                 // state="Y", path="/usr/lib/system/libmathCommon.A_debug.dylib",
                 // description="/usr/lib/system/libmathCommon.A_debug.dylib",
                 // loaded_addr="0x7f000", slide="0x7f000", prefix=""}}
                 invalidateSourcesList();
-            #endif
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
