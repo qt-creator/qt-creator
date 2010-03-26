@@ -83,6 +83,8 @@ Windows
    * Show build error count in Taskbar (Windows 7 only)
    * Show build progress in Taskbar (Windows 7 only)
    * Support Windows SDKs
+   * Register Creator for post-mortem debugging using the
+     settings dialog
 Symbian Target
    * Deploying shows real progress bar
    * Show the connection state of devices in the selector
