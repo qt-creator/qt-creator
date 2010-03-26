@@ -2773,7 +2773,10 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         painter.save();
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.translate(.5, .5);
-        painter.setBrush(d->m_ifdefedOutFormat.background());
+        QBrush brush = baseColor;
+        if (d->m_ifdefedOutFormat.hasProperty(QTextFormat::BackgroundBrush))
+            brush = d->m_ifdefedOutFormat.background();
+        painter.setBrush(brush);
         painter.drawRoundedRect(QRectF(visibleCollapsedBlockOffset.x(),
                                        visibleCollapsedBlockOffset.y(),
                                        maxWidth, blockHeight).adjusted(0, 0, 0, 0), 3, 3);
