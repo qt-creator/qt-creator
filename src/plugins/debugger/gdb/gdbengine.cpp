@@ -476,6 +476,18 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // description="/usr/lib/system/libmathCommon.A_debug.dylib",
                 // loaded_addr="0x7f000", slide="0x7f000", prefix=""}}
                 invalidateSourcesList();
+            } else if (m_isMacGdb && asyncClass == "resolve-pending-breakpoint") {
+                // Apple's gdb announces resolved breakpoints.
+                // new_bp="1",pended_bp="1",new_expr="\"gdbengine.cpp\":1584",
+                // bkpt={number="1",type="breakpoint",disp="keep",enabled="y",
+                // addr="0x0000000115cc3ddf",func="foo()",file="../foo.cpp",
+                // line="1584",shlib="/../libFoo_debug.dylib",times="0"} 
+                const GdbMi bkpt = result.findChild("bkpt");
+                const int number = bkpt.findChild("number").data().toInt();
+                BreakHandler *handler = manager()->breakHandler();
+                BreakpointData *data = handler->findBreakpoint(number);
+                breakpointDataFromOutput(data, bkpt);
+                handler->updateMarkers();
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
