@@ -187,6 +187,7 @@ const char * const RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
 
 // settings page
 const char * const PROJECTEXPLORER_SETTINGS_CATEGORY  = "K.ProjectExplorer";
+const char * const PROJECTEXPLORER_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("ProjectExplorer", "Projects");
 const char * const PROJECTEXPLORER_SETTINGS_CATEGORY_ICON  = ":/core/images/category_project.png";
 const char * const PROJECTEXPLORER_SETTINGS_ID = "ProjectExplorer.ProjectExplorer";
 

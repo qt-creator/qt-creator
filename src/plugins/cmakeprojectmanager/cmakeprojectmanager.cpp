@@ -240,7 +240,7 @@ QString CMakeSettingsPage::findCmakeExecutable() const
 
 QString CMakeSettingsPage::id() const
 {
-    return QLatin1String("CMake");
+    return QLatin1String("Z.CMake");
 }
 
 QString CMakeSettingsPage::displayName() const
@@ -250,17 +250,17 @@ QString CMakeSettingsPage::displayName() const
 
 QString CMakeSettingsPage::category() const
 {
-    return QLatin1String("M.CMake");
+    return QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
 }
 
 QString CMakeSettingsPage::displayCategory() const
 {
-    return tr("CMake");
+    return tr(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
 }
 
 QIcon CMakeSettingsPage::categoryIcon() const
 {
-    return QIcon(); // TODO: Add CMake icon or move this into Projects category
+    return QIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *CMakeSettingsPage::createPage(QWidget *parent)

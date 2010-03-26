@@ -134,7 +134,7 @@ QString ProjectExplorerSettingsPage::category() const
 
 QString ProjectExplorerSettingsPage::displayCategory() const
 {
-    return tr("Projects");
+    return tr(Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
 }
 
 QIcon ProjectExplorerSettingsPage::categoryIcon() const
