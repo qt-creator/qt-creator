@@ -477,10 +477,18 @@ int RewriterView::nodeOffset(const ModelNode &node) const
     return m_positionStorage->nodeOffset(node);
 }
 
+/**
+ * \return the length of the node's text, or -1 if it wasn't found or if an error
+ *         occurred.
+ */
 int RewriterView::nodeLength(const ModelNode &node) const
 {
-    ObjectLengthCalculator objectLengthCalculator(m_textModifier->text());
-    return objectLengthCalculator(nodeOffset(node));
+    ObjectLengthCalculator objectLengthCalculator;
+    unsigned length;
+    if (objectLengthCalculator(m_textModifier->text(), nodeOffset(node), length))
+        return (int) length;
+    else
+        return -1;
 }
 
 int RewriterView::firstDefinitionInsideOffset(const ModelNode &node) const
@@ -492,9 +500,14 @@ int RewriterView::firstDefinitionInsideOffset(const ModelNode &node) const
 int RewriterView::firstDefinitionInsideLength(const ModelNode &node) const
 {
     FirstDefinitionFinder firstDefinitionFinder(m_textModifier->text());
-    int offset =  firstDefinitionFinder(nodeOffset(node));
-    ObjectLengthCalculator objectLengthCalculator(m_textModifier->text());
-    return objectLengthCalculator(offset);
+    const int offset =  firstDefinitionFinder(nodeOffset(node));
+
+    ObjectLengthCalculator objectLengthCalculator;
+    unsigned length;
+    if (objectLengthCalculator(m_textModifier->text(), offset, length))
+        return length;
+    else
+        return -1;
 }
 
 bool RewriterView::modificationGroupActive()

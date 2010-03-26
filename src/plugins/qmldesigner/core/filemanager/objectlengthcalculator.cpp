@@ -35,23 +35,28 @@ using namespace QmlJS;
 using namespace QmlDesigner;
 using namespace QmlJS::AST;
 
-ObjectLengthCalculator::ObjectLengthCalculator(const QString &text):
+ObjectLengthCalculator::ObjectLengthCalculator():
         m_doc(Document::create("<internal>"))
 {
-    m_doc->setSource(text);
-    bool ok = m_doc->parseQml();
-
-    Q_ASSERT(ok);
 }
 
-quint32 ObjectLengthCalculator::operator()(quint32 offset)
+bool ObjectLengthCalculator::operator()(const QString &text, quint32 offset,
+                                        quint32 &length)
 {
     m_offset = offset;
     m_length = 0;
+    m_doc->setSource(text);
+
+    if (!m_doc->parseQml())
+        return false;
 
     Node::accept(m_doc->qmlProgram(), this);
-
-    return m_length;
+    if (m_length) {
+        length = m_length;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectBinding *ast)

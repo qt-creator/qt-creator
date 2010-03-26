@@ -38,9 +38,9 @@ namespace QmlDesigner {
 class ObjectLengthCalculator: protected QmlJS::AST::Visitor
 {
 public:
-    ObjectLengthCalculator(const QString &text);
+    ObjectLengthCalculator();
 
-    quint32 operator()(quint32 offset);
+    bool operator()(const QString &text, quint32 offset, quint32 &length);
 
 protected:
     using QmlJS::AST::Visitor::visit;

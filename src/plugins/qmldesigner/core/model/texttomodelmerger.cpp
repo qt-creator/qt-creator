@@ -952,10 +952,13 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
     if (componentText.contains("Component")) { //explicit component
         FirstDefinitionFinder firstDefinitionFinder(componentText);
         int offset = firstDefinitionFinder(0);
-        ObjectLengthCalculator objectLengthCalculator(componentText);
-        int length = objectLengthCalculator(offset);
-        for (int i = offset;i<offset + length;i++)
-            result.append(componentText.at(i));
+        ObjectLengthCalculator objectLengthCalculator;
+        unsigned length;
+        if (objectLengthCalculator(componentText, offset, length)) {
+            result = componentText.mid(offset, length);
+        } else {
+            result = componentText;
+        }
     } else {
         result = componentText; //implicit component
     }
