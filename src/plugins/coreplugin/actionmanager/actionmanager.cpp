@@ -367,6 +367,8 @@ Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const 
         baseAction->setParent(m_mainWnd);
 #ifdef Q_WS_MAC
         baseAction->setIconVisibleInMenu(false);
+#else
+        baseAction->setIconVisibleInMenu(action->isIconVisibleInMenu());
 #endif
         a->setAction(baseAction);
         m_mainWnd->addAction(baseAction);

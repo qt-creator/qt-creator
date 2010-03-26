@@ -493,6 +493,9 @@ void Action::actionChanged()
     if (hasAttribute(CA_UpdateIcon)) {
         m_action->setIcon(m_currentAction->icon());
         m_action->setIconText(m_currentAction->iconText());
+#ifndef Q_WS_MAC
+        m_action->setIconVisibleInMenu(m_currentAction->isIconVisibleInMenu());
+#endif
     }
     if (hasAttribute(CA_UpdateText)) {
         m_action->setText(m_currentAction->text());
