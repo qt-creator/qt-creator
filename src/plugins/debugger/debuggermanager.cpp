@@ -1112,6 +1112,7 @@ void DebuggerManager::cleanupViews()
     registerHandler()->removeAll();
     d->m_sourceFilesWindow->removeAll();
     d->m_disassemblerViewAgent.cleanup();
+    d->m_actions.reverseDirectionAction->setChecked(false);
 
     // FIXME: Move to plugin?
     using namespace Core;
