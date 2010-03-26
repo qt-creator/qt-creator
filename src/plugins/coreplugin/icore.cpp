@@ -255,40 +255,25 @@
     \fn IContext *ICore::currentContextObject() const
     \brief Returns the context object of the current main context.
 
-    \sa ICore::addAdditionalContext()
+    \sa ICore::updateAdditionalContexts()
     \sa ICore::addContextObject()
 */
 
 /*!
-    \fn void ICore::addAdditionalContext(int context)
-    \brief Register additional context to be currently active.
+    \fn void ICore::updateAdditionalContexts(const QList<int> &remove, const QList<int> &add)
+    \brief Change the currently active additional contexts.
 
-    Appends the additional \a context to the list of currently active
-    contexts. You need to call ICore::updateContext to make that change
-    take effect.
+    Removes the list of additional contexts specified by \a remove and adds the
+    list of additional contexts specified by \a add.
 
-    \sa ICore::removeAdditionalContext()
     \sa ICore::hasContext()
-    \sa ICore::updateContext()
-*/
-
-/*!
-    \fn void ICore::removeAdditionalContext(int context)
-    \brief Removes the given \a context from the list of currently active contexts.
-
-    You need to call ICore::updateContext to make that change
-    take effect.
-
-    \sa ICore::addAdditionalContext()
-    \sa ICore::hasContext()
-    \sa ICore::updateContext()
 */
 
 /*!
     \fn bool ICore::hasContext(int context) const
     \brief Returns if the given \a context is currently one of the active contexts.
 
-    \sa ICore::addAdditionalContext()
+    \sa ICore::updateAdditionalContexts()
     \sa ICore::addContextObject()
 */
 
@@ -300,7 +285,7 @@
     current context object whenever its widget gets focus.
 
     \sa ICore::removeContextObject()
-    \sa ICore::addAdditionalContext()
+    \sa ICore::updateAdditionalContexts()
     \sa ICore::currentContextObject()
 */
 
@@ -309,17 +294,9 @@
     \brief Unregisters a \a context object from the list of know contexts.
 
     \sa ICore::addContextObject()
-    \sa ICore::addAdditionalContext()
+    \sa ICore::updateAdditionalContexts()
     \sa ICore::currentContextObject()
 }
-*/
-
-/*!
-    \fn void ICore::updateContext()
-    \brief Update the list of active contexts after adding or removing additional ones.
-
-    \sa ICore::addAdditionalContext()
-    \sa ICore::removeAdditionalContext()
 */
 
 /*!
