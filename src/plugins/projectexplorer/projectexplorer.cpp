@@ -158,11 +158,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_removeFileAction;
     QAction *m_renameFileAction;
     QAction *m_projectSelectorAction;
-
-    QMenu *m_buildConfigurationMenu;
-    QActionGroup *m_buildConfigurationActionGroup;
-    QMenu *m_runConfigurationMenu;
-    QActionGroup *m_runConfigurationActionGroup;
+    QAction *m_projectSelectorActionMenu;
 
     Internal::ProjectWindow *m_proWindow;
     SessionManager *m_session;
@@ -193,8 +189,6 @@ struct ProjectExplorerPluginPrivate {
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
-    m_buildConfigurationActionGroup(0),
-    m_runConfigurationActionGroup(0),
     m_currentProject(0),
     m_currentNode(0),
     m_delayedRunConfiguration(0),
@@ -551,14 +545,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(mfile->menu(), SIGNAL(aboutToShow()),
             this, SLOT(updateSessionMenu()));
 
-    // build menu
-    Core::ActionContainer *mbc =
-        am->createMenu(Constants::BUILDCONFIGURATIONMENU);
-    d->m_buildConfigurationMenu = mbc->menu();
-    d->m_buildConfigurationMenu->setTitle(tr("Set Build Configuration"));
-    connect(mbuild->menu(), SIGNAL(aboutToShow()), this, SLOT(populateBuildConfigurationMenu()));
-    connect(d->m_buildConfigurationMenu, SIGNAL(triggered(QAction *)), this, SLOT(buildConfigurationMenuTriggered(QAction *)));
-
     // build session action
     QIcon buildIcon(Constants::ICON_BUILD);
     buildIcon.addFile(Constants::ICON_BUILD_SMALL);
@@ -647,9 +633,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_cleanProjectOnlyAction = new QAction(tr("Clean Without Dependencies"), this);
     cmd = am->registerAction(d->m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
 
-    // Add Set Build Configuration to menu
-    mbuild->addMenu(mbc, Constants::G_BUILD_OTHER);
-
     // run action
     QIcon runIcon(Constants::ICON_RUN);
     runIcon.addFile(Constants::ICON_RUN_SMALL);
@@ -659,14 +642,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
-
-    Core::ActionContainer *mrc = am->createMenu(Constants::RUNCONFIGURATIONMENU);
-    d->m_runConfigurationMenu = mrc->menu();
-    d->m_runConfigurationMenu->setTitle(tr("Set Run Configuration"));
-    mbuild->addMenu(mrc, Constants::G_BUILD_RUN);
-
-    connect(mbuild->menu(), SIGNAL(aboutToShow()), this, SLOT(populateRunConfigurationMenu()));
-    connect(d->m_runConfigurationMenu, SIGNAL(triggered(QAction *)), this, SLOT(runConfigurationMenuTriggered(QAction *)));
 
     modeManager->addAction(cmd, Constants::P_ACTION_RUN);
 
@@ -728,11 +703,16 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QWidget *mainWindow = Core::ICore::instance()->mainWindow();
     d->m_targetSelector = new Internal::MiniProjectTargetSelector(d->m_projectSelectorAction, mainWindow);
     connect(d->m_projectSelectorAction, SIGNAL(triggered()), d->m_targetSelector, SLOT(show()));
-
     modeManager->addProjectSelector(d->m_projectSelectorAction);
-    cmd = am->registerAction(d->m_projectSelectorAction, ProjectExplorer::Constants::SELECTTARGET,
+
+    d->m_projectSelectorActionMenu = new QAction(this);
+    d->m_projectSelectorActionMenu->setEnabled(false);
+    d->m_projectSelectorActionMenu->setText(tr("Open Build/Run Target Selector..."));
+    connect(d->m_projectSelectorActionMenu, SIGNAL(triggered()), d->m_targetSelector, SLOT(show()));
+    cmd = am->registerAction(d->m_projectSelectorActionMenu, ProjectExplorer::Constants::SELECTTARGET,
                        globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+T")));
+    mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
     connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             d->m_targetSelector, SLOT(addProject(ProjectExplorer::Project*)));
@@ -1422,6 +1402,7 @@ void ProjectExplorerPlugin::updateActions()
     d->m_cancelBuildAction->setEnabled(building);
 
     d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
+    d->m_projectSelectorActionMenu->setEnabled(!session()->projects().isEmpty());
 
     updateRunActions();
 }
@@ -2088,82 +2069,6 @@ void ProjectExplorerPlugin::renameFile()
         }
         focusWidget = focusWidget->parentWidget();
     }
-}
-
-void ProjectExplorerPlugin::populateBuildConfigurationMenu()
-{
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::populateBuildConfigurationMenu";
-
-    // delete the old actiongroup and all actions that are children of it
-    delete d->m_buildConfigurationActionGroup;
-    d->m_buildConfigurationActionGroup = new QActionGroup(d->m_buildConfigurationMenu);
-    d->m_buildConfigurationMenu->clear();
-    if (Project *pro = session()->startupProject()) {
-        const BuildConfiguration *activeBC = pro->activeTarget()->activeBuildConfiguration();
-        foreach (BuildConfiguration *bc, pro->activeTarget()->buildConfigurations()) {
-            QString displayName = bc->displayName();
-            QAction *act = new QAction(displayName, d->m_buildConfigurationActionGroup);
-            if (debug)
-                qDebug() << "BuildConfiguration " << bc->displayName() << "active: " << activeBC->displayName();
-            act->setCheckable(true);
-            act->setChecked(bc == activeBC);
-            act->setData(QVariant::fromValue(bc));
-            d->m_buildConfigurationMenu->addAction(act);
-        }
-        d->m_buildConfigurationMenu->setEnabled(true);
-    } else {
-        d->m_buildConfigurationMenu->setEnabled(false);
-    }
-}
-
-void ProjectExplorerPlugin::buildConfigurationMenuTriggered(QAction *action)
-{
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::buildConfigurationMenuTriggered";
-
-    session()->startupProject()->activeTarget()->setActiveBuildConfiguration(action->data().value<BuildConfiguration *>());
-}
-
-void ProjectExplorerPlugin::populateRunConfigurationMenu()
-{
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::populateRunConfigurationMenu";
-
-    delete d->m_runConfigurationActionGroup;
-    d->m_runConfigurationActionGroup = new QActionGroup(d->m_runConfigurationMenu);
-    d->m_runConfigurationMenu->clear();
-
-    const Project *startupProject = d->m_session->startupProject();
-    RunConfiguration *activeRunConfiguration = 0;
-        if (startupProject)
-            activeRunConfiguration = startupProject->activeTarget()->activeRunConfiguration();
-
-    foreach (const Project *pro, d->m_session->projects()) {
-        foreach (RunConfiguration *runConfiguration, pro->activeTarget()->runConfigurations()) {
-            const QString title = QString("%1 (%2)").arg(pro->displayName(), runConfiguration->displayName());
-            QAction *act = new QAction(title, d->m_runConfigurationActionGroup);
-            act->setCheckable(true);
-            act->setData(qVariantFromValue(runConfiguration));
-            act->setChecked(runConfiguration == activeRunConfiguration);
-            d->m_runConfigurationMenu->addAction(act);
-            if (debug)
-                qDebug() << "RunConfiguration" << runConfiguration << "project:" << pro->displayName()
-                         << "active:" << (runConfiguration == activeRunConfiguration);
-        }
-    }
-
-    d->m_runConfigurationMenu->setDisabled(d->m_runConfigurationMenu->actions().isEmpty());
-}
-
-void ProjectExplorerPlugin::runConfigurationMenuTriggered(QAction *action)
-{
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::runConfigurationMenuTriggered" << action;
-
-        RunConfiguration *runConfiguration = action->data().value<RunConfiguration *>();
-        runConfiguration->target()->project()->activeTarget()->setActiveRunConfiguration(runConfiguration);
-        setStartupProject(runConfiguration->target()->project());
 }
 
 void ProjectExplorerPlugin::populateOpenWithMenu(QMenu *menu, const QString &fileName)
