@@ -1580,8 +1580,11 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 void GdbEngine::shutdown()
 {
     debugMessage(_("INITIATE GDBENGINE SHUTDOWN"));
-    if (m_progress)
+    if (m_progress) {
+        m_progress->setProgressValue(90);
         m_progress->reportCanceled();
+        m_progress->reportFinished();
+    }
     switch (state()) {
     case DebuggerNotReady: // Nothing to do! :)
     case EngineStarting: // We can't get here, really
@@ -2067,10 +2070,8 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
     QString name;
     if (!fullName.isEmpty()) {
         name = cleanupFullName(QFile::decodeName(fullName));
-        if (data->markerFileName().isEmpty()) {
-            qDebug() << "222" << name;
+        if (data->markerFileName().isEmpty())
             data->setMarkerFileName(name);
-        }
     } else {
         name = QFile::decodeName(file);
         // Use fullName() once we have a mapping which is more complete than
@@ -4199,8 +4200,6 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 
 void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint)
 {
-    if (m_progress)
-        m_progress->setProgressValue(30);
     setState(AdapterStartFailed);
     debugMessage(_("ADAPTER START FAILED"));
     if (!msg.isEmpty()) {
