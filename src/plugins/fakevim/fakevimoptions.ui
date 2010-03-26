@@ -12,12 +12,16 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
+     <widget class="QCheckBox" name="checkBoxUseFakeVim">
+      <property name="text">
+       <string>Use FakeVim</string>
+      </property>
+     </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Vim style settings</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>

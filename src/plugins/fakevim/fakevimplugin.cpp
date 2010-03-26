@@ -156,7 +156,7 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
     m_group.clear();
     m_group.insert(theFakeVimSetting(ConfigUseFakeVim),
-        m_ui.groupBox);
+        m_ui.checkBoxUseFakeVim);
 
     m_group.insert(theFakeVimSetting(ConfigExpandTab),
         m_ui.checkBoxExpandTab);
