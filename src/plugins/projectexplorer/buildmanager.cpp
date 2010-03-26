@@ -335,7 +335,7 @@ void BuildManager::nextStep()
         m_buildQueue.pop_front();
 
         if (m_currentBuildStep->buildConfiguration()->target()->project() != m_previousBuildStepProject) {
-            const QString projectName = m_currentBuildStep->buildConfiguration()->target()->displayName();
+            const QString projectName = m_currentBuildStep->buildConfiguration()->target()->project()->displayName();
             addToOutputWindow(tr("<b>Running build steps for project %2...</b>")
                               .arg(projectName));
             m_previousBuildStepProject = m_currentBuildStep->buildConfiguration()->target()->project();
