@@ -110,8 +110,8 @@ void Utils::unCommentSelection(QPlainTextEdit *edit)
         endBlock = endBlock.next();
         doCppStyleUncomment = true;
         for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
-            QString text = block.text();
-            if (!text.trimmed().startsWith(QLatin1String("//"))) {
+            QString text = block.text().trimmed();
+            if (!text.isEmpty() && !text.startsWith(QLatin1String("//"))) {
                 doCppStyleUncomment = false;
                 break;
             }
@@ -133,8 +133,14 @@ void Utils::unCommentSelection(QPlainTextEdit *edit)
                     ++i;
                 }
             } else {
-                cursor.setPosition(block.position());
-                cursor.insertText(QLatin1String("//"));
+                QString text = block.text();
+                foreach(QChar c, text) {
+                    if (!c.isSpace()) {
+                        cursor.setPosition(block.position());
+                        cursor.insertText(QLatin1String("//"));
+                        break;
+                    }
+                }
             }
         }
     }
