@@ -30,6 +30,7 @@
 #include "cdbbreakpoint.h"
 #include "cdbmodules.h"
 
+#include <QtCore/QDebug>
 
 namespace Debugger {
 namespace Internal {
