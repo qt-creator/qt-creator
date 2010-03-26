@@ -3717,9 +3717,42 @@
     for the device using RVCT, select the tool chain in the \gui{General}
     section for your build configurations.
 
-    If you need to sign your symbian application with a specific certificate
-    (in contrast to a self-signed build), you need to specify that in the
-    \gui{Create sis Package} step in your build configurations.
+    \section2 Creating Installation Packages
+
+    When you build the application for the \gui{Symbian Device} target, Qt
+    Creator automatically generates a Symbian installation system (SIS) file
+    in the project folder. You can deliver the installation file to users for
+    installation on Symbian devices.
+
+    Only installation files signed with a certificate and private key are
+    allowed to be installed onto Symbian devices. By default, Qt Creator
+    self-signs the installation file. This self-signing allows you to install
+    the application on a mobile  device but places limits on what you can do
+    with the installation file, including:
+    \list
+       \o  Self-signed applications cannot access the more sensitive
+           capabilities of the mobile device.
+       \o  Security warnings will be displayed when you install the self-signed
+           application on a mobile device.
+       \o  Self-signed applications cannot be distributed commercially on Ovi
+           Store.
+    \endlist
+
+    To get around these limitations, you need to go through the Symbian Signed
+    process. The Symbian Signed organisation manages a public key
+    infrastructure to provide public authentication of the information in the
+    application signing certificates. Their security partner can validate your
+    certificate and give you a Publisher ID. Then, when you sign an
+    application, other people can be confident that the information in your
+    certificate is correct and that the application does actually come from you.
+
+    There are also options that do not require you to get a Publisher ID. For
+    more detail about how the Symbian Signed process works, see
+    \l{http://developer.symbian.com/wiki/display/pub/The+Complete+Guide+to+Symbian+Signed}
+    {The complete guide to Symbian Signed}.
+
+    When you have your own certificate and private key you can specify them in
+    the \gui{Create sis Package} step in your build configuration.
 
     \image qtcreator-qt4-symbian-signing.png
 
