@@ -39,6 +39,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
+#include <QtCore/QUuid>
 #include <QtCore/QFileInfo>
 #include <QtCore/QSharedPointer>
 
@@ -180,6 +181,19 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
                << "\n\nHEADERS  += " << QFileInfo(formHeader.path()).fileName();
         if (params.designerForm)
             proStr << "\n\nFORMS    += " << QFileInfo(form->path()).fileName();
+        if (params.isMobileApplication) {
+            // Generate a development Symbian UID for the application:
+            QString uid3String = QLatin1String("0xe") + QUuid::createUuid().toString().mid(1, 7);
+
+            proStr << "\n\nCONFIG += mobility"
+                   << "\nMOBILITY = "
+                   << "\n\nsymbian {"
+                   << "\n    TARGET.UID3 = " << uid3String
+                   << "\n    TARGET.CAPABILITY = "
+                   << "\n    TARGET.EPOCSTACKSIZE = 0x14000"
+                   << "\n    TARGET.EPOCHEAPSIZE = 0x020000 0x800000"
+                   << "\n}";
+        }
         proStr << '\n';
     }
     profile.setContents(contents);
