@@ -167,6 +167,11 @@ QString CdbOptionsPage::displayCategory() const
     return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
 }
 
+QIcon CdbOptionsPage::categoryIcon() const
+{
+    return QIcon(); // TODO: Icon for CdbOptions
+}
+
 QWidget *CdbOptionsPage::createPage(QWidget *parent)
 {
     m_widget = new CdbOptionsPageWidget(parent);
