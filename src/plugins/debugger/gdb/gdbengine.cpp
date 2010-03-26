@@ -2475,7 +2475,7 @@ void GdbEngine::attemptBreakpointSynchronization()
                 data->bpEnabled = false;
                 continue;
             }
-            if (!data->bpAddress.isEmpty()
+            if (data->bpAddress.startsWith("0x")
                     && data->bpCorrectedLineNumber.isEmpty()) {
                 // Prevent endless loop.
                 data->bpCorrectedLineNumber = " ";
