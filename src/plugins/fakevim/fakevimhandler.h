@@ -57,14 +57,14 @@ public slots:
     void showRedMessage(const QString &msg);
 
     // This executes an "ex" style command taking context
-    // information from widget;
+    // information from the current widget.
     void handleCommand(const QString &cmd);
 
     void installEventFilter();
 
     // Convenience
     void setupWidget();
-    void restoreWidget();
+    void restoreWidget(int tabSize);
 
     // Test only
     int physicalIndentation(const QString &line) const;

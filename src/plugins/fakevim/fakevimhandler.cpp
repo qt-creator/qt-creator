@@ -386,7 +386,7 @@ public:
     void installEventFilter();
     void passShortcuts(bool enable);
     void setupWidget();
-    void restoreWidget();
+    void restoreWidget(int tabSize);
 
     friend class FakeVimHandler;
     static int shift(int key) { return key + 32; }
@@ -815,7 +815,6 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 void FakeVimHandler::Private::installEventFilter()
 {
     EDITOR(installEventFilter(q));
-    updateEditor();
 }
 
 void FakeVimHandler::Private::setupWidget()
@@ -855,7 +854,7 @@ void FakeVimHandler::Private::updateEditor()
     EDITOR(setTabStopWidth(charWidth * config(ConfigTabStop).toInt()));
 }
 
-void FakeVimHandler::Private::restoreWidget()
+void FakeVimHandler::Private::restoreWidget(int tabSize)
 {
     //showBlackMessage(QString());
     //updateMiniBuffer();
@@ -863,6 +862,8 @@ void FakeVimHandler::Private::restoreWidget()
     EDITOR(setReadOnly(m_wasReadOnly));
     EDITOR(setCursorWidth(m_cursorWidth));
     EDITOR(setOverwriteMode(false));
+    const int charWidth = QFontMetrics(EDITOR(font())).width(QChar(' '));
+    EDITOR(setTabStopWidth(charWidth * tabSize));
 
     if (isVisualLineMode()) {
         m_tc = EDITOR(textCursor());
@@ -3988,9 +3989,9 @@ void FakeVimHandler::setupWidget()
     d->setupWidget();
 }
 
-void FakeVimHandler::restoreWidget()
+void FakeVimHandler::restoreWidget(int tabSize)
 {
-    d->restoreWidget();
+    d->restoreWidget(tabSize);
 }
 
 void FakeVimHandler::handleCommand(const QString &cmd)

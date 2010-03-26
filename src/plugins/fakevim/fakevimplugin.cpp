@@ -757,8 +757,7 @@ void FakeVimPluginPrivate::findNext(bool reverse)
         triggerAction(Find::Constants::FIND_NEXT);
 }
 
-// this class defers deletion of a child FakeVimHandler using 'deleteLater'
-// - direct children QObject's would be 'delete'ed immediately before their parents
+// This class defers deletion of a child FakeVimHandler using deleteLater().
 class DeferredDeleter : public QObject
 {
     Q_OBJECT
@@ -767,8 +766,7 @@ class DeferredDeleter : public QObject
 
 public:
     DeferredDeleter(QObject *parent, FakeVimHandler *handler)
-        : QObject(parent)
-          , m_handler(handler)
+        : QObject(parent), m_handler(handler)
     {}
 
     virtual ~DeferredDeleter()
@@ -861,8 +859,10 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
     } else {
         Core::EditorManager::instance()->hideEditorStatusBar(
             QLatin1String(Constants::MINI_BUFFER));
+        TextEditor::TabSettings ts =
+            TextEditor::TextEditorSettings::instance()->tabSettings();
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
-            m_editorToHandler[editor]->restoreWidget();
+            m_editorToHandler[editor]->restoreWidget(ts.m_tabSize);
     }
 }
 
