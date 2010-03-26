@@ -60,9 +60,9 @@ QString CodePasterProtocol::name() const
     return QLatin1String("CodePaster");
 }
 
-bool CodePasterProtocol::canList() const
+unsigned CodePasterProtocol::capabilities() const
 {
-    return true;
+    return ListCapability|PostCommentCapability|PostDescriptionCapability;
 }
 
 bool CodePasterProtocol::isValidHostName(const QString& hostName)

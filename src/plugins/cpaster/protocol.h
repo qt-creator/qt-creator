@@ -41,6 +41,11 @@ class Protocol : public QObject
 {
     Q_OBJECT
 public:
+    enum Capabilities  {
+        ListCapability = 0x1,
+        PostCommentCapability = 0x2,
+        PostDescriptionCapability = 0x4
+    };
     Protocol();
     virtual ~Protocol();
 
@@ -48,7 +53,9 @@ public:
 
     bool canFetch() const;
     bool canPost() const;
-    virtual bool canList() const = 0;
+
+
+    virtual unsigned capabilities() const = 0;
     virtual bool hasSettings() const;
     virtual Core::IOptionsPage* settingsPage();
 

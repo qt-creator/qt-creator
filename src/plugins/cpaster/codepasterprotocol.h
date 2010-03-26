@@ -52,7 +52,7 @@ public:
 
     QString name() const;
 
-    bool canList() const;
+    virtual unsigned capabilities() const;
     bool hasSettings() const;
     Core::IOptionsPage *settingsPage();
 

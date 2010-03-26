@@ -44,7 +44,7 @@ public:
     QString name() const { return QLatin1String("Pastebin.Ca"); }
 
     bool hasSettings() const { return false; }
-    bool canList() const { return false; }
+    virtual unsigned capabilities() const { return 0; }
 
     void fetch(const QString &id);
     void paste(const QString &text,

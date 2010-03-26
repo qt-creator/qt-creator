@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "pasteview.h"
+#include "protocol.h"
 
 #include <QtGui/QFontMetrics>
 #include <QtGui/QPainter>
@@ -36,6 +37,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QByteArray>
 
+namespace CodePaster {
 class ColumnIndicatorTextEdit : public QTextEdit
 {
 public:
@@ -78,8 +80,9 @@ void ColumnIndicatorTextEdit::paintEvent(QPaintEvent *event)
 // -------------------------------------------------------------------------------------------------
 
 
-PasteView::PasteView(QWidget *parent)
-    : QDialog(parent)
+PasteView::PasteView(const QList<Protocol *> protocols,
+                     QWidget *parent)
+    : QDialog(parent), m_protocols(protocols)
 {
     m_ui.setupUi(this);
 
@@ -89,6 +92,11 @@ PasteView::PasteView(QWidget *parent)
     m_ui.vboxLayout1->addWidget(m_ui.uiPatchView);
     m_ui.buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Paste"));
     connect(m_ui.uiPatchList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(contentChanged()));
+
+    foreach(const Protocol *p, protocols)
+        m_ui.protocolBox->addItem(p->name());
+    connect(m_ui.protocolBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(protocolChanged(int)));
 }
 
 PasteView::~PasteView()
@@ -140,6 +148,13 @@ void PasteView::contentChanged()
     m_ui.uiPatchView->setPlainText(content());
 }
 
+void PasteView::protocolChanged(int p)
+{
+    const unsigned caps = m_protocols.at(p)->capabilities();
+    m_ui.uiDescription->setEnabled(caps & Protocol::PostDescriptionCapability);
+    m_ui.uiComment->setEnabled(caps & Protocol::PostCommentCapability);
+}
+
 int PasteView::show(const QString &user, const QString &description, const QString &comment,
                const FileDataList &parts)
 {
@@ -186,9 +201,15 @@ int PasteView::show(const QString &user, const QString &description, const QStri
     return ret;
 }
 
-void PasteView::addProtocol(const QString &protocol, bool defaultProtocol)
+void PasteView::setProtocol(const QString &protocol)
 {
-    m_ui.protocolBox->addItem(protocol);
-    if (defaultProtocol)
-        m_ui.protocolBox->setCurrentIndex(m_ui.protocolBox->findText(protocol));
+     const int index = m_ui.protocolBox->findText(protocol);
+     m_ui.protocolBox->setCurrentIndex(index);
+     if (index == m_ui.protocolBox->currentIndex()) {
+         protocolChanged(index); // Force enabling
+     } else {
+         m_ui.protocolBox->setCurrentIndex(index);
+     }
 }
+
+} //namespace CodePaster

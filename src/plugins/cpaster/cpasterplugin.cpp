@@ -181,10 +181,8 @@ void CodepasterPlugin::post()
     QString comment;
     QString protocolName;
 
-    PasteView view(0);
-    foreach (Protocol *p, m_protocols) {
-        view.addProtocol(p->name(), p->name() == m_settings->protocol);
-    }
+    PasteView view(m_protocols, 0);
+    view.setProtocol(m_settings->protocol);
 
     if (!view.show(username, description, comment, lst))
         return; // User canceled post

@@ -46,6 +46,7 @@ public:
 
     QString name() const { return QLatin1String("Pastebin.Com"); }
 
+    virtual unsigned capabilities() const { return 0; }
     bool hasSettings() const { return true; }
     Core::IOptionsPage* settingsPage();
 
@@ -63,6 +64,8 @@ public slots:
     void readPostResponseHeader(const QHttpResponseHeader &);
 
 private:
+    QString hostName() const;
+
     PasteBinDotComSettings *settings;
     QNetworkAccessManager manager;
     QNetworkReply *reply;

@@ -29,12 +29,19 @@
 
 #include "pastebindotcomprotocol.h"
 #include "pastebindotcomsettings.h"
+#include "cgi.h"
+
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QTextStream>
 #include <QtNetwork/QNetworkReply>
 
 using namespace Core;
+
+enum { debug = 0 };
+
+static const char phpScriptpC[] = "api_public.php";
 
 namespace CodePaster {
 PasteBinDotComProtocol::PasteBinDotComProtocol()
@@ -46,13 +53,22 @@ PasteBinDotComProtocol::PasteBinDotComProtocol()
             this, SLOT(readPostResponseHeader(const QHttpResponseHeader&)));
 }
 
+QString PasteBinDotComProtocol::hostName() const
+{
+
+    QString rc = settings->hostPrefix();
+    if (!rc.isEmpty())
+        rc.append(QLatin1Char('.'));
+    rc.append(QLatin1String("pastebin.com"));
+    return rc;
+}
+
 void PasteBinDotComProtocol::fetch(const QString &id)
 {
-    QString link = QLatin1String("http://");
-    if (!settings->hostPrefix().isEmpty())
-        link.append(QString("%1.").arg(settings->hostPrefix()));
-    link.append("pastebin.com/pastebin.php?dl=");
-    link.append(id);
+    QString link;
+    QTextStream(&link) << "http://" << hostName() << '/' << phpScriptpC << "?dl=" << id;
+    if (debug)
+        qDebug() << "fetch: sending " << link;
     QUrl url(link);
     QNetworkRequest r(url);
 
@@ -63,35 +79,36 @@ void PasteBinDotComProtocol::fetch(const QString &id)
 
 void PasteBinDotComProtocol::paste(const QString &text,
                                    const QString &username,
-                                   const QString &comment,
-                                   const QString &description)
+                                   const QString & /* comment */,
+                                   const QString & /* description */)
 {
-    Q_UNUSED(comment);
-    Q_UNUSED(description);
-    QString data = "code2=";
-    data += text;
-    data += "&parent_pid=&format=text&expiry=d&poster=";
-    data += username;
-    data += "&paste=Send";
-    QHttpRequestHeader header("POST", "/pastebin.php");
-    header.setValue("host", "qt.pastebin.com" );
-    header.setContentType("application/x-www-form-urlencoded");
-    http.setHost("qt.pastebin.com", QHttp::ConnectionModeHttp);
-    header.setValue("User-Agent", "CreatorPastebin");
+    QString data;
+    QTextStream str(&data);
+    str << "paste_code=" << CGI::encodeURL(text) << "&paste_name="
+            << CGI::encodeURL(username);
+    QHttpRequestHeader header(QLatin1String("POST"), QLatin1String(phpScriptpC));
+
+    const QString host = hostName();
+    header.setValue(QLatin1String("host"), host);
+    header.setContentType(QLatin1String("application/x-www-form-urlencoded"));
+    http.setHost(host, QHttp::ConnectionModeHttp);
+    header.setValue(QLatin1String("User-Agent"), QLatin1String("CreatorPastebin"));
     postId = http.request(header, data.toAscii());
+    if (debug)
+        qDebug() << "paste" << data << postId << host;
 }
 
 void PasteBinDotComProtocol::readPostResponseHeader(const QHttpResponseHeader &header)
 {
-    switch (header.statusCode())
-    {
+    const int code = header.statusCode();
+    if (debug)
+        qDebug() << "readPostResponseHeader" << code << header.toString() << header.values();
+    switch (code) {
         // If we receive any of those, everything is bon.
-    case 200:
     case 301:
     case 303:
     case 307:
-        break;
-
+    case 200:
     case 302: {
         QString link = header.value("Location");
         emit pasteDone(link);
@@ -104,20 +121,28 @@ void PasteBinDotComProtocol::readPostResponseHeader(const QHttpResponseHeader &h
 
 void PasteBinDotComProtocol::postRequestFinished(int id, bool error)
 {
-    if (id == postId && error)
-        emit pasteDone(http.errorString());
+    if (id == postId && error) {
+        const QString errorMessage = http.errorString();
+        if (debug)
+            qDebug() << "postRequestFinished" << id << errorMessage;
+        emit pasteDone(errorMessage);
+    }
 }
 
 void PasteBinDotComProtocol::fetchFinished()
 {
     QString title;
     QString content;
-    bool error = reply->error();
+    const bool error = reply->error();
     if (error) {
         content = reply->errorString();
+        if (debug)
+            qDebug() << "fetchFinished: error" << fetchId << content;
     } else {
         title = QString::fromLatin1("Pastebin.com: %1").arg(fetchId);
-        content = reply->readAll();
+        content = QString::fromAscii(reply->readAll());
+        if (debug)
+            qDebug() << "fetchFinished: " << content.size();
     }
     reply->deleteLater();
     reply = 0;

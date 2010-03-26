@@ -35,17 +35,20 @@
 
 #include <QtGui/QDialog>
 
+namespace CodePaster {
+class Protocol;
 class PasteView : public QDialog
 {
     Q_OBJECT
 public:
-    explicit PasteView(QWidget *parent);
+    explicit PasteView(const QList<Protocol *> protocols,
+                       QWidget *parent);
     ~PasteView();
 
     int show(const QString &user, const QString &description, const QString &comment,
              const FileDataList &parts);
 
-    void addProtocol(const QString &protocol, bool defaultProtocol = false);
+    void setProtocol(const QString &protocol);
 
     QString user() const;
     QString description() const;
@@ -55,10 +58,13 @@ public:
 
 private slots:
     void contentChanged();
+    void protocolChanged(int);
 
 private:
+    const QList<Protocol *> m_protocols;
+
     Ui::ViewDialog m_ui;
     FileDataList m_parts;
 };
-
+} // namespace CodePaster
 #endif // VIEW_H
