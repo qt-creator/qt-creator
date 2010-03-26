@@ -3642,140 +3642,156 @@
 
     \title Developing Symbian Applications
 
-    Qt Creator 1.3 comes with preliminary support for development of
-    applications using Qt for the Symbian Platform.
-
-    \e{Note that this is highly experimental, and not intended for production use.
-    The primary aim is to allow Symbian developers to familiarize themselves with Qt Creator
-    and provide feedback that helps us improve Symbian support in future versions of
-    Qt Creator.}
-
-    Please provide us with feedback, using the mailing list or IRC, as described on the
-    \l{http://qt.gitorious.org/qt-creator/pages/Home}{Qt Creator Development Wiki}.
-
     \section1 Getting Started with Symbian Based Applications
 
-    You need the following software installed on your PC.
-    Only Windows development is supported.
+    Windows is the only development plattform supported at the moment. You
+    need to install the following software on your system:
 
     \list
         \o \l{http://www.forum.nokia.com/main/resources/tools_and_sdks/S60SDK/}
-            {S60 Platform SDK 3rd Edition FP1 or higher}
-        \o \l{http://www.forum.nokia.com/main/resources/technologies/openc_cpp/}
-            {Open C/C++ v1.6.0 or higher} (Install this to all S60 SDKs you plan to use Qt with.
-            This is included in the Qt for Symbian binary installers.)
-        \o Either the GCCE ARM Toolchain that is included in the S60 Platform SDKs, or
-            RVCT 2.2 [build 686] or later (which is not available free of charge)
-            (Your environment needs to find the compiler in the PATH.)
-        \o Qt for Symbian 4.6.0, installed into the S60 SDKs you want to use
+           {S60 Platform SDK 3rd Edition FP1 or higher}.
+        \o Either the GCCE ARM Toolchain that is included in the S60 Platform
+           SDKs, or RVCT 2.2 [build 686] or later (which is not available free
+           of charge)(Your environment needs to find the compiler in the PATH).
+        \o Qt for Symbian 4.6.2 or later, installed into the S60 SDKs you want
+           to use.
 
     \endlist
 
-    For deploying and running applications on the device, you need the following:
+    For deploying and running applications on the device, you need the
+    following:
     \list
-        \o The Nokia USB drivers that come e.g. with PC Suite
-        \o The \l{http://tools.ext.nokia.com/trk/}{App TRK} application for your device
+        \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
+        \o The \l{http://tools.ext.nokia.com/trk/}{App TRK} application for
+           your device
     \endlist
 
-    Running Qt based applications on real devices requires the following packages to be installed on
-    your device. The packages can be found in the S60 SDK where you installed Open C/C++:
-    \list
-        \o nokia_plugin\\openc\\s60opencsis\\pips_s60_\<version\>.sis
-        \o nokia_plugin\\openc\\s60opencsis\\openc_ssl_s60_\<version\>.sis
-        \o nokia_plugin\\opencpp\\s60opencppsis\\stdcpp_s60_\<version\>.sis
-    \endlist
+    Running Qt based applications on real devices requires the
+    \e{qt_installer.sis} package installed on the device, that is bundled with
+    the binary Qt distribution.
 
-    If you want to run your applications in the Symbian emulator, you also need to install
-    Carbide.c++ v2.0.0 or higher.
+    If you want to run your applications in the Symbian emulator, you also need
+    to install Carbide.c++ v2.0.0 or higher.
 
     \section1 Setting Up Qt Creator
 
-    When you run Qt Creator after installing the S60 Platform SDK and Qt for Symbian,
-    the installed SDKs and their corresponding Qt versions are automatically detected.
-    For each detected S60 SDK with Qt, a special entry is made in the Qt version management
-    settings \gui{Tools > Options... > Qt4 > Qt Versions}.
+    When you run Qt Creator after installing the S60 Platform SDK and Qt for
+    Symbian, the installed SDKs and their corresponding Qt versions are
+    automatically detected. For each detected S60 SDK with Qt, a special entry
+    is made in the Qt version management settings \gui{Tools} >
+    \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}.
 
-    \e{Note that if you manually add a Qt version for Symbian, you must
-    also manually specify the S60 SDK to use for this version.}
+    \note If you manually add a Qt version for Symbian, you must
+    also manually specify the S60 SDK to use for this version.
 
     \image qtcreator-qt4-qtversions-win-symbian.png
 
-    If you want to run your applications in the Symbian emulator, you need to point Qt Creator
-    to the Metrowerks Compiler that you want to use, by setting the \gui{Carbide Directory}
-    of the Qt version to the corresponding Carbide.c++ installation directory.
+    If you want to run your applications in the Symbian emulator, you need to
+    point Qt Creator to the Metrowerks Compiler that you want to use, by
+    setting the \gui{Carbide Directory} of the Qt version to the corresponding
+    Carbide.c++ installation directory.
 
     You can check what S60 SDKs and corresponding Qt versions are found in the
-    \gui{Tools > Options... > Qt4 > S60 SDKs} preference page.
+    \gui{Tools} > \gui{Options...} > \gui{Qt4} > \gui{S60 SDKs} preference
+    page.
 
     \image qtcreator-qt4-s60sdks.png
 
-    \section1 Building Your Project
+    \section1 Setting Up Your Project
 
-    After installing all the prerequisites and checking the setup in Qt Creator as described
-    above, you need to set up your project.
-    \e{Note that the only supported build system for Qt for Symbian applications in Qt Creator
-    is qmake.}
+    After installing all the prerequisites and checking the setup in Qt Creator
+    as described above, you need to set up your project.
 
-    Before you can build your project for the Symbian platform, you need to create build
-    configurations for it.
-    Open \gui{Projects mode} and make sure that your project is selected for editing in
-    \gui{Edit Project Settings for Project ...}. Add debug and release build configurations
-    for the Symbian target by selecting the corresponding Qt version from the build configuration
-    \gui{Add} menu.
+    \note The only supported build system for Qt for Symbian applications in Qt
+    Creator is qmake.
 
-    \image qtcreator-symbian-add-buildconfiguration.png
+    Before you can build your project for the Symbian platform, you need to
+    create build and run configurations for it. To do this, follow the steps
+    listed below:
+    \list 1
+        \o Open \gui{Projects} mode and make sure that your project is selected
+           at the top of the page.
+        \o Select the \gui{Targets} configuration. The \gui{Targets}
+           configuration page allows you to add and configure the build and run
+           configurations for your project, categorized by the target platform
+           you want to build and run your application on.
 
-    The created build configurations default to using the GCCE tool chain. If you want to build
-    for the device using RVCT, or for the Symbian emulator using WINSCW, select \gui{Show Details}
-    and change the tool chain in the \gui{General} section of the build configuration settings.
+           \note Targets for instance can be \gui{Desktop},
+           \gui{Symbian Emulator}, and \gui{Symbian Device}.
+        \o Ensure that your project has a \gui{Symbian Device} entry. Incase
+           you want to target the symbian emulator then your project needs to
+           have \gui{Symbian Emulator} entry as well.
+        \o If one of the targets is missing in the list for your project, you
+           can add a complete configuration for a new target by pressing the
+           \inlineimage qtcreator-qt4-addbutton.png
+           button and selecting the desired target from the wizard page that
+           appears.
+    \endlist
 
-    Now you can switch to building your project for the device by selecting one of the
-    new build configurations as the active configuration at the top of \gui{Projects mode}.
+    \image qtcreator-qt4-symbian-target-tabs.png
+    \image qtcreator-qt4-symbian-add-target.png
+    \image qtcreator-qt4-symbian-target-added.png
 
-    \image qtcreator-symbian-change-buildconfiguration.png
+    The build configuration that is created for the \gui{Symbian Device} target,
+    uses the GCCE tool chain by default. If you want to build
+    for the device using RVCT, select the tool chain in the \gui{General}
+    section for your build configurations.
+
+    If you need to sign your symbian application with a specific certificate
+    (in contrast to a self-signed build), you need to specify that in the
+    \gui{Create sis Package} step in your build configurations.
+
+    \image qtcreator-qt4-symbian-signing.png
 
     \section1 Running Your Project
 
+    After setting up your project as described above you build and run your
+    project for a specific target platform by selecting the target as the
+    active one, using the target button from the left hand tool bar, and then
+    press the run button.
+
+    \image qtcreator-qt4-symbian-select-symbian-device.png
+
+    The icon in the target selector indicates if a device is currently
+    connected. When Qt Creator detects a device being connected, it shows a
+    green checkmark.
+
+    \image qtcreator-qt4-symbian-device-connected.png
+
     \section2 Running Your Project in the Emulator
 
-    Similar to the build configuration setup for your project, you need to create a run
-    configuration for running your project in the Symbian emulator:
-    \list 1
-        \o Switch to \gui{Projects mode}.
-        \o Select \gui{Run Settings} > \gui{Add > YourApplication in Symbian Emulator}
-    \endlist
-
-    \image qtcreator-symbian-add-run-in-emulator.png
-
-    To start your project in the emulator, select this run configuration as the active configuration
-    at the top of \gui{Projects mode} window and press the run button.
-
-    \image qtcreator-symbian-change-run-in-emulator.png
+    Running your project in the emulator doesn't require special setup. Select
+    the \gui{Symbian Emulator} target as the active one, and build and run your
+    project.
 
     \section2 Running Your Project on the Device
 
-    To run your project on a real Symbian device, just add another run configuration in
-    \gui{Projects mode} via \gui{Run Settings} > \gui{Add > YourApplication on Symbian Device}.
+    To run your project on a device, you first need to connect it to your
+    computer through a USB cable. Qt Creator shows the current connection state
+    of a device in its main toolbar, showing a red cross when no device is
+    connected, or a green checkmark when a device is connected.
 
-    \image qtcreator-symbian-add-runconfiguration.png
+    \image qtcreator-qt4-symbian-device-notconnected.png
+    \image qtcreator-qt4-symbian-device-connected.png
 
-    \image qtcreator-symbian-details-runconfiguration.png
+    The tool tip of the target button shows more details about the actual
+    device that will be used when you run your application.
 
-    In the details of the run configuration you can specify a certificate to use, and
-    select one of the devices that you have currently attached to your computer.
-    The only connection mode supported at the moment is USB in \e{PC Suite} mode.
-    For actually running your application on the device, you need to set the device run configuration
-    as the active configuration at the top of \gui{Projects mode}.
-    Start the \gui{App TRK} application on your device and press the run button to create
-    a package for your application, deploy, install and run it automatically on your device.
+    Start the \gui{App TRK} application on your device and press the run button
+    to create a package for your application, deploy, install and run it
+    automatically on your device.
 
-    \image qtcreator-symbian-change-runconfiguration.png
+    In the details of the run configuration for the \gui{Symbian Device} target
+    you can select a specific device to run your application on, if you have
+    multiple devices connected simultaneously to your computer. If you only
+    connect a single device, this will automatically be chosen for running your
+    application.
 
     \section2 Troubleshooting
 
     If you cannot build the application, check if:
      \list
-        \o You selected a Qt version for Symbian for building the application.
+        \o You selected the Symbian Device target for building the application.
         \o The settings for the Qt version you use to build your project are
            correct. The path to the S60 SDK must point to the S60 SDK
            installation directory.  Select \gui Tools > \gui Options...
@@ -3784,20 +3800,17 @@
      \endlist
     If you cannot run the application in the emulator, check if:
      \list
-        \o The emulator or device run configuration selected is in the active
-           run configuration.
-        \o You built the application for the emulator by using  WINSCW  or for
-           the device by using GCCE or RVCT.
-        \o The emulator process cannot be started, try closing Qt Creator and
+        \o You selected the \gui{Symbian Emulator} target for your application.
+        \o If the emulator process cannot be started, try closing Qt Creator and
            starting the application directly from your file manager. Having
            done this, Qt Creator should be able to run your projects in the
            emulator.
      \endlist
     If you cannot run the application on a device, check if:
      \list
-        \o The device is connected via USB in \e{PC Suite} mode.
-        \o App TRK is running on the device, using the USB connection, with the
-           status \e connected.
+        \o The device is connected through the USB cable in \e{PC Suite} mode.
+        \o \gui{App TRK} is running on the device, using the USB connection,
+           with the status \e connected.
         \o The device is detected and selected in the run configuration
            details.
      \endlist
