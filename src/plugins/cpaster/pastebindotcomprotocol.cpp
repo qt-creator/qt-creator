@@ -149,7 +149,7 @@ void PasteBinDotComProtocol::fetchFinished()
     emit fetchDone(title, content, error);
 }
 
-Core::IOptionsPage* PasteBinDotComProtocol::settingsPage()
+Core::IOptionsPage *PasteBinDotComProtocol::settingsPage()
 {
     return settings;
 }

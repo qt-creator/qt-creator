@@ -77,6 +77,11 @@ QString GeneralSettings::displayCategory() const
     return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
 }
 
+QIcon GeneralSettings::categoryIcon() const
+{
+    return QIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+}
+
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)
 {
     static const QString qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);

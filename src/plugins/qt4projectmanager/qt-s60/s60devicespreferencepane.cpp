@@ -129,6 +129,11 @@ QString S60DevicesPreferencePane::displayCategory() const
     return QCoreApplication::translate("Qt4ProjectManager", Constants::QT_SETTINGS_CATEGORY);
 }
 
+QIcon S60DevicesPreferencePane::categoryIcon() const
+{
+    return QIcon(Constants::QT_SETTINGS_CATEGORY_ICON);
+}
+
 QWidget *S60DevicesPreferencePane::createPage(QWidget *parent)
 {
     if (m_widget)
@@ -144,5 +149,3 @@ void S60DevicesPreferencePane::apply()
 void S60DevicesPreferencePane::finish()
 {
 }
-
-

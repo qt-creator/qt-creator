@@ -106,6 +106,11 @@ QString QtOptionsPage::displayCategory() const
     return QCoreApplication::translate("Qt4ProjectManager", Constants::QT_SETTINGS_TR_CATEGORY);
 }
 
+QIcon QtOptionsPage::categoryIcon() const
+{
+    return QIcon(QLatin1String(Constants::QT_SETTINGS_CATEGORY_ICON));
+}
+
 QWidget *QtOptionsPage::createPage(QWidget *parent)
 {
     QtVersionManager *vm = QtVersionManager::instance();

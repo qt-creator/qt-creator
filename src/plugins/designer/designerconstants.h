@@ -42,6 +42,7 @@ const char * const DESIGNER_XML_EDITOR_ID ="DesignerXmlEditor";
 const char * const C_DESIGNER_XML_DISPLAY_NAME  = QT_TRANSLATE_NOOP("Designer", "Xml Editor");
 
 const char * const SETTINGS_CATEGORY = "P.Designer";
+const char * const SETTINGS_CATEGORY_ICON = ":/core/images/category_design.png";
 const char * const SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("Designer", "Designer");
 const char * const SETTINGS_CPP_SETTINGS_ID = "Class Generation";
 const char * const SETTINGS_CPP_SETTINGS_NAME = QT_TRANSLATE_NOOP("Designer", "Class Generation");

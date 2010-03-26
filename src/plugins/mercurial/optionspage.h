@@ -67,6 +67,7 @@ public:
     QString displayName() const;
     QString category() const;
     QString displayCategory() const;
+    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

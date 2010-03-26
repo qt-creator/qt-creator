@@ -227,6 +227,7 @@ const char * const WIZARD_CATEGORY_QT = "R.Qt";
 const char * const WIZARD_TR_CATEGORY_QT = QT_TRANSLATE_NOOP("Core", "Qt");
 
 const char * const SETTINGS_CATEGORY_CORE = "A.Core";
+const char * const SETTINGS_CATEGORY_CORE_ICON = ":/core/images/category_core.png";
 const char * const SETTINGS_TR_CATEGORY_CORE = QT_TRANSLATE_NOOP("Core", "Environment");
 const char * const SETTINGS_ID_ENVIRONMENT = "A.General";
 

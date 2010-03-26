@@ -57,7 +57,7 @@ public:
 
     virtual unsigned capabilities() const = 0;
     virtual bool hasSettings() const;
-    virtual Core::IOptionsPage* settingsPage();
+    virtual Core::IOptionsPage *settingsPage();
 
     virtual void fetch(const QString &id) = 0;
     virtual void list();

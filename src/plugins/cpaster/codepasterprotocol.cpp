@@ -113,9 +113,9 @@ void CodePasterProtocol::list()
 }
 
 void CodePasterProtocol::paste(const QString &text,
-                       const QString &username,
-                       const QString &comment,
-                       const QString &description)
+                               const QString &username,
+                               const QString &comment,
+                               const QString &description)
 {
     QString hostName = m_page->hostName();
     if (!isValidHostName(hostName))
@@ -139,7 +139,7 @@ bool CodePasterProtocol::hasSettings() const
     return true;
 }
 
-Core::IOptionsPage* CodePasterProtocol::settingsPage()
+Core::IOptionsPage *CodePasterProtocol::settingsPage()
 {
     return m_page;
 }

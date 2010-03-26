@@ -60,6 +60,8 @@ const char * const DEBUGGER_COMMON_SETTINGS_NAME =
 const char * const DEBUGGER_SETTINGS_CATEGORY = "O.Debugger";
 const char * const DEBUGGER_SETTINGS_TR_CATEGORY =
     QT_TRANSLATE_NOOP("Debugger", "Debugger");
+const char * const DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON =
+    ":/core/images/category_debug.png";
 
 namespace Internal {
     enum { debug = 0 };

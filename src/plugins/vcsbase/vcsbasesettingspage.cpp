@@ -127,6 +127,11 @@ QString VCSBaseSettingsPage::displayCategory() const
     return QCoreApplication::translate("VCSBase", Constants::VCS_SETTINGS_TR_CATEGORY);
 }
 
+QIcon VCSBaseSettingsPage::categoryIcon() const
+{
+    return QIcon(); // TODO: Icon for Version Control
+}
+
 QWidget *VCSBaseSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new VCSBaseSettingsWidget(parent);

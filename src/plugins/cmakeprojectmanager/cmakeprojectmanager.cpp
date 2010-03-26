@@ -258,6 +258,11 @@ QString CMakeSettingsPage::displayCategory() const
     return tr("CMake");
 }
 
+QIcon CMakeSettingsPage::categoryIcon() const
+{
+    return QIcon(); // TODO: Add CMake icon or move this into Projects category
+}
+
 QWidget *CMakeSettingsPage::createPage(QWidget *parent)
 {
     QWidget *outerWidget = new QWidget(parent);

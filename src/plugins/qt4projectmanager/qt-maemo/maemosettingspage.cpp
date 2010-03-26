@@ -80,6 +80,11 @@ QString MaemoSettingsPage::displayCategory() const
         Constants::QT_SETTINGS_CATEGORY);
 }
 
+QIcon MaemoSettingsPage::categoryIcon() const
+{
+    return QIcon(QLatin1String(Constants::QT_SETTINGS_CATEGORY_ICON));
+}
+
 QWidget *MaemoSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new MaemoSettingsWidget(parent);

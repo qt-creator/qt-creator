@@ -89,6 +89,11 @@ QString DisplaySettingsPage::displayCategory() const
     return m_d->m_parameters.displayCategory;
 }
 
+QIcon DisplaySettingsPage::categoryIcon() const
+{
+    return m_d->m_parameters.categoryIcon;
+}
+
 QWidget *DisplaySettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);

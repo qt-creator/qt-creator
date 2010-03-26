@@ -69,6 +69,11 @@ QString TrkOptionsPage::displayCategory() const
     return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
 }
 
+QIcon TrkOptionsPage::categoryIcon() const
+{
+    return QIcon(QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+}
+
 QWidget *TrkOptionsPage::createPage(QWidget *parent)
 {
     if (!m_widget)

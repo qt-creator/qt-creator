@@ -76,6 +76,7 @@ const char * const DEPLOYHELPERRUNSTEP = "trolltech.qt4projectmanager.deployhelp
 
 //Qt4 settings pages
 const char * const QT_SETTINGS_CATEGORY       = "L.Qt4";
+const char * const QT_SETTINGS_CATEGORY_ICON  = ":/core/images/category_qt.png";
 const char * const QT_SETTINGS_TR_CATEGORY    = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt4");
 const char * const QTVERSION_SETTINGS_PAGE_ID = "Qt Versions";
 const char * const QTVERSION_SETTINGS_PAGE_NAME = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");

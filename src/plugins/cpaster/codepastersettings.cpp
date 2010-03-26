@@ -75,6 +75,11 @@ QString CodePasterSettingsPage::displayCategory() const
     return QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY);
 }
 
+QIcon CodePasterSettingsPage::categoryIcon() const
+{
+    return QIcon(); // TODO: Add icon for code paster category
+}
+
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
 {
     QGroupBox *groupBox = new QGroupBox();

@@ -104,6 +104,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
     const QString category = QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     const QString displayCategory = QCoreApplication::translate("TextEditor", Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY);
+    const QIcon categoryIcon = QIcon(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
 
     m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
                                               QLatin1String("A.FontSettings"),
@@ -116,6 +117,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     behaviorSettingsPageParameters.displayName = tr("Behavior");
     behaviorSettingsPageParameters.category = category;
     behaviorSettingsPageParameters.displayCategory = displayCategory;
+    behaviorSettingsPageParameters.categoryIcon = categoryIcon;
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
     pm->addObject(m_behaviorSettingsPage);
@@ -123,8 +125,9 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     TextEditor::DisplaySettingsPageParameters displaySettingsPageParameters;
     displaySettingsPageParameters.id = QLatin1String("D.DisplaySettings"),
     displaySettingsPageParameters.displayName = tr("Display");
-    displaySettingsPageParameters.category = category;;
+    displaySettingsPageParameters.category = category;
     displaySettingsPageParameters.displayCategory = displayCategory;
+    displaySettingsPageParameters.categoryIcon = categoryIcon;
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
     pm->addObject(m_displaySettingsPage);

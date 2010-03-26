@@ -83,6 +83,11 @@ QString GeneralSettingsPage::displayCategory() const
     return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
 }
 
+QIcon GeneralSettingsPage::categoryIcon() const
+{
+    return QIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
+}
+
 QWidget *GeneralSettingsPage::createPage(QWidget *parent)
 {
     QWidget *widget = new QWidget(parent);

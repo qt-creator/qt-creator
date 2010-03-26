@@ -60,12 +60,6 @@ public:
     CommandMappings(QObject *parent = 0);
     ~CommandMappings();
 
-    // IOptionsPage
-    virtual QString id() const = 0;
-    virtual QString displayName() const = 0;
-    virtual QString category() const = 0;
-    virtual QString displayCategory() const = 0;
-
 protected slots:
     void commandChanged(QTreeWidgetItem *current);
     void filterChanged(const QString &f);

@@ -66,6 +66,11 @@ QString FilterSettingsPage::displayCategory() const
     return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
 }
 
+QIcon FilterSettingsPage::categoryIcon() const
+{
+    return QIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
+}
+
 QWidget *FilterSettingsPage::createPage(QWidget *parent)
 {
     QWidget *widget = new QWidget(parent);

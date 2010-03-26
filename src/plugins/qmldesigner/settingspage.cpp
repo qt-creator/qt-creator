@@ -102,6 +102,11 @@ QString SettingsPage::displayCategory() const
     return QCoreApplication::translate("QML", "QML");
 }
 
+QIcon SettingsPage::categoryIcon() const
+{
+    return QIcon(); // TODO: Icon for QML or move into other category (Designer?)
+}
+
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);

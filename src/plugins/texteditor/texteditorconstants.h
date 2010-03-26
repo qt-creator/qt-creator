@@ -107,6 +107,7 @@ const char * const C_DIFF_FILE           = "DiffFile";
 const char * const C_DIFF_LOCATION       = "DiffLocation";
 
 const char * const TEXT_EDITOR_SETTINGS_CATEGORY = "C.TextEditor";
+const char * const TEXT_EDITOR_SETTINGS_CATEGORY_ICON = ":/core/images/category_texteditor.png";
 const char * const TEXT_EDITOR_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("TextEditor", "Text Editor");
 
 } // namespace Constants

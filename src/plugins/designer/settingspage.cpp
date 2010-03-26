@@ -65,6 +65,11 @@ QString SettingsPage::displayCategory() const
     return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
 }
 
+QIcon SettingsPage::categoryIcon() const
+{
+    return QIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
+}
+
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
     return m_designerPage->createPage(parent);

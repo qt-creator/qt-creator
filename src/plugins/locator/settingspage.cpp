@@ -69,6 +69,11 @@ QString SettingsPage::displayCategory() const
     return QCoreApplication::translate("Locator", Locator::Constants::LOCATOR_TR_CATEGORY);
 }
 
+QIcon SettingsPage::categoryIcon() const
+{
+    return QIcon(); // TODO: Icon for Locator
+}
+
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
 

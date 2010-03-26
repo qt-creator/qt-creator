@@ -62,7 +62,8 @@ private:
     S60Devices *m_devices;
 };
 
-class S60DevicesPreferencePane : public Core::IOptionsPage {
+class S60DevicesPreferencePane : public Core::IOptionsPage
+{
     Q_OBJECT
 public:
     S60DevicesPreferencePane(S60Devices *devices, QObject *parent = 0);
@@ -72,6 +73,7 @@ public:
     QString displayName() const;
     QString category() const;
     QString displayCategory() const;
+    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

@@ -123,6 +123,11 @@ QString CppSettingsPage::displayCategory() const
     return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
 }
 
+QIcon CppSettingsPage::categoryIcon() const
+{
+    return QIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
+}
+
 QWidget *CppSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new CppSettingsPageWidget(parent);

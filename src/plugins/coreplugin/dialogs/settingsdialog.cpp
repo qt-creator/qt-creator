@@ -43,6 +43,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QToolButton>
 #include <QtGui/QToolBar>
+#include <QtGui/QScrollBar>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QStyle>
 #include <QtGui/QStackedLayout>
@@ -52,9 +53,11 @@
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QListView>
 #include <QtGui/QApplication>
+#include <QtGui/QGroupBox>
 
 static const char categoryKeyC[] = "General/LastPreferenceCategory";
 static const char pageKeyC[] = "General/LastPreferencePage";
+const int categoryIconSize = 32;
 
 namespace Core {
 namespace Internal {
@@ -64,6 +67,7 @@ namespace Internal {
 struct Category {
     QString id;
     QString displayName;
+    QIcon icon;
     QList<IOptionsPage*> pages;
     int index;
     QTabWidget *tabWidget;
@@ -85,11 +89,15 @@ private:
     Category *findCategoryById(const QString &id);
 
     QList<Category*> m_categories;
+    QIcon m_emptyIcon;
 };
 
 CategoryModel::CategoryModel(QObject *parent)
     : QAbstractListModel(parent)
 {
+    QPixmap empty(categoryIconSize, categoryIconSize);
+    empty.fill(Qt::transparent);
+    m_emptyIcon = QIcon(empty);
 }
 
 CategoryModel::~CategoryModel()
@@ -107,6 +115,12 @@ QVariant CategoryModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         return m_categories.at(index.row())->displayName;
+    case Qt::DecorationRole: {
+            QIcon icon = m_categories.at(index.row())->icon;
+            if (icon.isNull())
+                icon = m_emptyIcon;
+            return icon;
+        }
     }
 
     return QVariant();
@@ -126,6 +140,7 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages)
             category = new Category;
             category->id = categoryId;
             category->displayName = page->displayCategory();
+            category->icon = page->categoryIcon();
             category->pages.append(page);
             m_categories.append(category);
         } else {
@@ -198,7 +213,10 @@ public:
 
     virtual QSize sizeHint() const
     {
-        return QSize(sizeHintForColumn(0) + frameWidth() * 2, 100);
+        int width = sizeHintForColumn(0) + frameWidth() * 2 + 5;
+        if (verticalScrollBar()->isVisible())
+            width += verticalScrollBar()->width();
+        return QSize(width, 100);
     }
 };
 
@@ -262,9 +280,14 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
         QTabWidget *tabWidget = new QTabWidget;
         for (int j = 0; j < category->pages.size(); ++j) {
             IOptionsPage *page = category->pages.at(j);
-            tabWidget->addTab(page->createPage(0), page->displayName());
+            QWidget *widget = page->createPage(0);
+            tabWidget->addTab(widget, page->displayName());
             if (initialCategoryIndex == i && page->id() == initialPage)
                 initialPageIndex = j;
+
+            // A hack to remove the borders from all group boxes
+            foreach (QGroupBox *groupBox, qFindChildren<QGroupBox*>(widget))
+                groupBox->setFlat(true);
         }
 
         connect(tabWidget, SIGNAL(currentChanged(int)),
@@ -276,8 +299,10 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
 
     m_proxyModel->setSourceModel(m_model);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_categoryList->setIconSize(QSize(categoryIconSize, categoryIconSize));
     m_categoryList->setModel(m_proxyModel);
     m_categoryList->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_categoryList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
     connect(m_categoryList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this, SLOT(currentChanged(QModelIndex)));

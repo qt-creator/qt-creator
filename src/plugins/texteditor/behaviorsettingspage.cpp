@@ -98,6 +98,11 @@ QString BehaviorSettingsPage::displayCategory() const
     return m_d->m_parameters.displayCategory;
 }
 
+QIcon BehaviorSettingsPage::categoryIcon() const
+{
+    return m_d->m_parameters.categoryIcon;
+}
+
 QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);

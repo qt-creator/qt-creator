@@ -32,6 +32,7 @@
 
 #include <coreplugin/core_global.h>
 
+#include <QtGui/QIcon>
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
@@ -51,6 +52,7 @@ public:
     virtual QString displayName() const = 0;
     virtual QString category() const = 0;
     virtual QString displayCategory() const = 0;
+    virtual QIcon categoryIcon() const = 0;
     virtual bool matches(const QString & /* searchKeyWord*/) const { return false; }
 
     virtual QWidget *createPage(QWidget *parent) = 0;

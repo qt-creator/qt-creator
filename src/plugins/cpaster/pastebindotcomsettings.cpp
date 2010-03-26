@@ -66,6 +66,11 @@ QString PasteBinDotComSettings::displayCategory() const
     return QCoreApplication::translate("CodePaster", CodePaster::Constants::CPASTER_SETTINGS_TR_CATEGORY);
 }
 
+QIcon PasteBinDotComSettings::categoryIcon() const
+{
+    return QIcon(); // TODO: Icon for CodePaster
+}
+
 QWidget *PasteBinDotComSettings::createPage(QWidget *parent)
 {
     Ui_PasteBinComSettingsWidget ui;

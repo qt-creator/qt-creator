@@ -319,6 +319,11 @@ QString CppFileSettingsPage::displayCategory() const
     return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY);
 }
 
+QIcon CppFileSettingsPage::categoryIcon() const
+{
+    return QIcon(); // TODO: Icon for C++ or move into category
+}
+
 QWidget *CppFileSettingsPage::createPage(QWidget *parent)
 {
 

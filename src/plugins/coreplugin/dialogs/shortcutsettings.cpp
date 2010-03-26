@@ -87,6 +87,11 @@ QString ShortcutSettings::displayCategory() const
     return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
 }
 
+QIcon ShortcutSettings::categoryIcon() const
+{
+    return QIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+}
+
 QWidget *ShortcutSettings::createPage(QWidget *parent)
 {
     m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;

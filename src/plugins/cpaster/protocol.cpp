@@ -54,7 +54,7 @@ bool Protocol::hasSettings() const
     return false;
 }
 
-Core::IOptionsPage* Protocol::settingsPage()
+Core::IOptionsPage *Protocol::settingsPage()
 {
     return 0;
 }

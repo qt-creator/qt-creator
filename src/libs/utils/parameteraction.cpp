@@ -84,4 +84,4 @@ void ParameterAction::setParameter(const QString &p)
         setEnabled(enabled);
 }
 
-}
+} // namespace Utils

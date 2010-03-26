@@ -48,7 +48,7 @@ public:
 
     virtual unsigned capabilities() const { return 0; }
     bool hasSettings() const { return true; }
-    Core::IOptionsPage* settingsPage();
+    Core::IOptionsPage *settingsPage();
 
     bool canList() const { return false; }
 

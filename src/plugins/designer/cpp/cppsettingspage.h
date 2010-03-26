@@ -67,6 +67,7 @@ public:
     virtual QString displayName() const;
     virtual QString category() const;
     virtual QString displayCategory() const;
+    virtual QIcon categoryIcon() const;
 
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();

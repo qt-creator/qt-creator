@@ -341,6 +341,8 @@ public:
         { return _(DEBUGGER_SETTINGS_CATEGORY);  }
     QString displayCategory() const
         { return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY); }
+    QIcon categoryIcon() const
+        { return QIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON)); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(settings()); }
@@ -455,6 +457,7 @@ public:
     QString displayName() const { return tr("Debugging Helper"); }
     QString category() const { return _(DEBUGGER_SETTINGS_CATEGORY); }
     QString displayCategory() const { return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY); }
+    QIcon categoryIcon() const { return QIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON)); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(settings()); }

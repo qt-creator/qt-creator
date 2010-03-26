@@ -346,6 +346,11 @@ QString FontSettingsPage::displayCategory() const
     return d_ptr->m_displayCategory;
 }
 
+QIcon FontSettingsPage::categoryIcon() const
+{
+    return QIcon(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
+}
+
 QWidget *FontSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);

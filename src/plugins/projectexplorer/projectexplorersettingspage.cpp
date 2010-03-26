@@ -137,6 +137,11 @@ QString ProjectExplorerSettingsPage::displayCategory() const
     return tr("Projects");
 }
 
+QIcon ProjectExplorerSettingsPage::categoryIcon() const
+{
+    return QIcon(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON);
+}
+
 QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new ProjectExplorerSettingsWidget(parent);
@@ -169,6 +174,6 @@ bool ProjectExplorerSettingsPage::matches(const QString &s) const
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
-}
-}
+} // namespace Internal
+} // namespace ProjectExplorer
 

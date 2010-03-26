@@ -104,6 +104,11 @@ QString SettingsPage::displayCategory() const
     return QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY);
 }
 
+QIcon SettingsPage::categoryIcon() const
+{
+    return QIcon(); // TODO: Icon for CodePaster
+}
+
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsWidget(m_protocols, parent);

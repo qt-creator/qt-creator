@@ -58,7 +58,7 @@ public:
     explicit ParameterAction(const QString &emptyText,
                              const QString &parameterText,
                              EnablingMode em = AlwaysEnabled,
-                             QObject* parent = 0);
+                             QObject *parent = 0);
 
     QString emptyText() const;
     void setEmptyText(const QString &);
@@ -78,6 +78,6 @@ private:
     EnablingMode m_enablingMode;
 };
 
-}
+} // namespace Utils
 
 #endif // PARAMETERACTION_H
