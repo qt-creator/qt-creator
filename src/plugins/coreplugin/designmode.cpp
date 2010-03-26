@@ -174,6 +174,11 @@ QStringList DesignMode::registeredMimeTypes() const
     return rc;
 }
 
+/**
+  * Registers a widget to be displayed when an editor with a file specified in
+  * mimeTypes is opened. This also appends the additionalContext in ICore to
+  * the context, specified here.
+  */
 void DesignMode::registerDesignWidget(QWidget *widget,
                                       const QStringList &mimeTypes,
                                       const QList<int> &context,

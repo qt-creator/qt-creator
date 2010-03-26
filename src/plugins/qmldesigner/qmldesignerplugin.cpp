@@ -43,6 +43,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/dialogs/iwizard.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -227,8 +228,9 @@ void BauhausPlugin::createDesignModeWidget()
     connect(m_editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(textEditorsClosed(QList<Core::IEditor*>)));
 
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(modeChanged(Core::IMode*)));
+    connect(creatorCore, SIGNAL(contextChanged(Core::IContext*,QList<int>)),
+            this, SLOT(contextChanged(Core::IContext*,QList<int>)));
+
 }
 
 void BauhausPlugin::updateEditor(Core::IEditor *editor)
@@ -241,16 +243,21 @@ void BauhausPlugin::updateEditor(Core::IEditor *editor)
     }
 }
 
-void BauhausPlugin::modeChanged(Core::IMode *mode)
+void BauhausPlugin::contextChanged(Core::IContext *context, const QList<int> &additionalContexts)
 {
-    if (mode == m_designMode) {
-        m_isActive = true;
-        m_mainWidget->showEditor(m_editorManager->currentEditor());
-    } else {
-        if (m_isActive) {
-            m_isActive = false;
-            m_mainWidget->showEditor(0);
+    Q_UNUSED(context)
+
+    foreach(int additionalContext, additionalContexts) {
+        if (m_context->context().contains(additionalContext)) {
+            m_isActive = true;
+            m_mainWidget->showEditor(m_editorManager->currentEditor());
+            return;
         }
+    }
+
+    if (m_isActive) {
+        m_isActive = false;
+        m_mainWidget->showEditor(0);
     }
 }
 

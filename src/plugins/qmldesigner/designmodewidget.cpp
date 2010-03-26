@@ -159,7 +159,8 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
         fileName = editor->file()->fileName();
         textEdit = qobject_cast<QPlainTextEdit*>(editor->widget());
         textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
-        m_fakeToolBar->addEditor(textEditor);
+        if (textEditor)
+            m_fakeToolBar->addEditor(textEditor);
     }
 
     if (debug)
