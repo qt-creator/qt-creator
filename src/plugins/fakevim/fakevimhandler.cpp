@@ -283,8 +283,95 @@ inline QString msgE20MarkNotSet(const QString &text)
     return FakeVimHandler::tr("E20: Mark '%1' not set").arg(text);
 }
 
-class FakeVimHandler::Private
+class Input
 {
+public:
+    Input() : key(0), unmodified(0) {}
+    Input(char x) : key(x), unmodified(0), text(1, QLatin1Char(x)) {}
+    Input(int k, int u, QString t) : key(k), unmodified(u), text(t) {}
+
+    int key;
+    int unmodified;
+    QString text;
+};
+
+bool operator==(const Input &a, const Input &b)
+{
+    return a.key == b.key && a.unmodified == b.unmodified && a.text == b.text;
+}
+
+typedef QVector<Input> Inputs;
+
+// Mappings for a specific mode.
+class ModeMapping : private QList<QPair<Inputs, Inputs> >
+{
+public:
+    ModeMapping() { test(); }
+
+    void test()
+    {
+        insert(Inputs() << Input('A') << Input('A'),
+               Inputs() << Input('x') << Input('x'));
+    }
+
+    void insert(const Inputs &from, const Inputs &to)
+    {
+        for (int i = 0; i != size(); ++i)
+            if (at(i).first == from) {
+                (*this)[i].second = to;
+                return;
+            }
+        append(QPair<Inputs, Inputs>(from, to));
+    }
+
+    void remove(const Inputs &from)
+    {
+        for (int i = 0; i != size(); ++i)
+            if (at(i).first == from) {
+                removeAt(i);
+                return;
+            }
+    }
+
+    // Returns 'false' if more input input is needed to decide whether a 
+    // mapping needs to be applied. If a decision can be made, return 'true',
+    // and replace *input with the mapped data.
+    bool mappingDone(Inputs *input) const
+    {
+        Q_UNUSED(input);
+        // FIXME: inefficient.
+        for (int i = 0; i != size(); ++i) {
+            // A mapping 
+            if (startsWith(at(i).first, *input)) {
+                if (at(i).first.size() != input->size())
+                    return false; // This can be extended.
+                // Actual mapping.
+                *input = at(i).second;
+                return true;
+            }
+        }
+        // No extensible mapping found. Use input as-is.
+        return true;
+    }
+
+private:
+    static bool startsWith(const Inputs &haystack, const Inputs &needle)
+    {
+        // Input is already too long.
+        if (needle.size() > haystack.size())
+            return false;
+        for (int i = 0; i != needle.size(); ++i) {
+            if (needle.at(i).key != haystack.at(i).key)
+                return false;
+        }
+        return true;
+    }
+};
+
+class FakeVimHandler::Private : public QObject
+{
+    Q_OBJECT
+
 public:
     Private(FakeVimHandler *parent, QWidget *widget);
 
@@ -306,12 +393,13 @@ public:
     static int control(int key) { return key + 256; }
 
     void init();
-    EventResult handleKey(int key, int unmodified, const QString &text);
-    EventResult handleInsertMode(int key, int unmodified, const QString &text);
-    EventResult handleCommandMode(int key, int unmodified, const QString &text);
-    EventResult handleRegisterMode(int key, int unmodified, const QString &text);
-    EventResult handleMiniBufferModes(int key, int unmodified, const QString &text);
-    EventResult handleCommandSubSubMode(int key, int unmodified, const QString &text);
+    EventResult handleKey(const Input &);
+    Q_SLOT EventResult handleKey2();
+    EventResult handleInsertMode(const Input &);
+    EventResult handleCommandMode(const Input &);
+    EventResult handleRegisterMode(const Input &);
+    EventResult handleMiniBufferModes(const Input &);
+    EventResult handleCommandSubSubMode(const Input &);
     void finishMovement(const QString &dotCommand = QString());
     void finishMovement(const QString &dotCommand, int count);
     void resetCommandMode();
@@ -562,11 +650,14 @@ public:
     QList<QTextEdit::ExtraSelection> m_searchSelections;
 
     bool handleMapping(const QString &line);
-    // Mappings for a specific mode.
-    typedef QHash<QByteArray, QByteArray> ModeMappings;
     // All mappings.
-    typedef QHash<char, ModeMappings> Mappings;
+    typedef QHash<char, ModeMapping> Mappings;
     Mappings m_mappings;
+
+    QVector<Input> m_pendingInput;
+
+    void timerEvent(QTimerEvent *ev);
+    int m_inputTimer;
 };
 
 QStringList FakeVimHandler::Private::m_searchHistory;
@@ -603,6 +694,7 @@ void FakeVimHandler::Private::init()
     m_justAutoIndented = 0;
     m_rangemode = RangeCharMode;
     m_beginEditBlock = true;
+    m_inputTimer = -1;
 }
 
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
@@ -696,23 +788,20 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         key = shift(key);
     }
 
-    QTC_ASSERT(!(m_mode != InsertMode && m_tc.atBlockEnd() && m_tc.block().length() > 1),
-               qDebug() << "Cursor at EOL before key handler");
+    QTC_ASSERT(
+        !(m_mode != InsertMode && m_tc.atBlockEnd() && m_tc.block().length() > 1),
+        qDebug() << "Cursor at EOL before key handler");
 
-    //if (m_mode == InsertMode)
-    //    joinPreviousEditBlock();
-    //else
-    //    beginEditBlock();
-    EventResult result = handleKey(key, um, ev->text());
-    //endEditBlock();
+    EventResult result = handleKey(Input(key, um, ev->text()));
 
     // the command might have destroyed the editor
     if (m_textedit || m_plaintextedit) {
         // We fake vi-style end-of-line behaviour
         m_fakeEnd = atEndOfLine() && m_mode == CommandMode && !isVisualBlockMode();
 
-        QTC_ASSERT(!(m_mode != InsertMode && m_tc.atBlockEnd() && m_tc.block().length() > 1),
-                   qDebug() << "Cursor at EOL after key handler");
+        QTC_ASSERT(
+            !(m_mode != InsertMode && m_tc.atBlockEnd() && m_tc.block().length() > 1),
+            qDebug() << "Cursor at EOL after key handler");
 
         if (m_fakeEnd)
             moveLeft();
@@ -793,18 +882,54 @@ void FakeVimHandler::Private::restoreWidget()
     updateSelection();
 }
 
-EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
-    const QString &text)
+EventResult FakeVimHandler::Private::handleKey(const Input &input)
 {
-    setUndoPosition(m_tc.position());
-    if (m_mode == InsertMode)
-        return handleInsertMode(key, unmodified, text);
-    if (m_mode == CommandMode)
-        return handleCommandMode(key, unmodified, text);
+    if (m_mode == InsertMode || m_mode == CommandMode) {
+        m_pendingInput.append(input);
+        const char code = m_mode == InsertMode ? 'i' : 'n';
+        if (m_mappings[code].mappingDone(&m_pendingInput))
+            return handleKey2();
+        if (m_inputTimer != -1)
+            killTimer(m_inputTimer);
+        m_inputTimer = startTimer(1000);
+        return EventHandled;
+    }
     if (m_mode == ExMode || m_mode == SearchForwardMode
             || m_mode == SearchBackwardMode)
-        return handleMiniBufferModes(key, unmodified, text);
+        return handleMiniBufferModes(input);
     return EventUnhandled;
+}
+
+EventResult FakeVimHandler::Private::handleKey2()
+{
+    setUndoPosition(m_tc.position());
+    if (m_mode == InsertMode) {
+        EventResult result = EventUnhandled;
+        foreach (const Input &in, m_pendingInput) {
+            EventResult r = handleInsertMode(in);
+            if (r == EventHandled)
+                result = EventHandled;
+        }
+        m_pendingInput.clear();
+        return result;
+    }
+    if (m_mode == CommandMode) {
+        EventResult result = EventUnhandled;
+        foreach (const Input &in, m_pendingInput) {
+            EventResult r = handleCommandMode(in);
+            if (r == EventHandled)
+                result = EventHandled;
+        }
+        m_pendingInput.clear();
+        return result;
+    }
+    return EventUnhandled;
+}
+
+void FakeVimHandler::Private::timerEvent(QTimerEvent *ev)
+{
+    Q_UNUSED(ev);
+    handleKey2();
 }
 
 void FakeVimHandler::Private::stopIncrementalFind()
@@ -1181,10 +1306,10 @@ static bool subModeCanUseTextObjects(int submode)
     return submode == DeleteSubMode;
 }
 
-EventResult FakeVimHandler::Private::handleCommandSubSubMode(int key, int unmodified,
-    const QString &text)
+EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
 {
-    Q_UNUSED(unmodified);
+    const int key = input.key;
+
     EventResult handled = EventHandled;
     if (m_subsubmode == FtSubSubMode) {
         m_semicolonType = m_subsubdata;
@@ -1224,9 +1349,9 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(int key, int unmodi
             m_rangemode = RangeLineMode;
         else if (isVisualBlockMode())
             m_rangemode = RangeBlockMode;
-        if (!text.isEmpty() && text[0].isPrint()) {
+        if (!input.text.isEmpty() && input.text.at(0).isPrint()) {
             leaveVisualMode();
-            m_replacingCharacter = text[0];
+            m_replacingCharacter = input.text.at(0);
             finishMovement();
         }
     } else if (m_subsubmode == MarkSubSubMode) {
@@ -1240,7 +1365,7 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(int key, int unmodi
                 moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
-            showRedMessage(msgE20MarkNotSet(text));
+            showRedMessage(msgE20MarkNotSet(input.text));
         }
         m_subsubmode = NoSubSubMode;
     } else {
@@ -1249,9 +1374,12 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(int key, int unmodi
     return handled;
 }
 
-EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
-    const QString &text)
+EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
 {
+    const int key = input.key;
+    const int unmodified = input.unmodified;
+    const QString &text = input.text;
+
     EventResult handled = EventHandled;
 
     if (key == Key_Escape || key == control(Key_BracketLeft)) {
@@ -1265,7 +1393,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             resetCommandMode();
         }
     } else if (m_subsubmode != NoSubSubMode) {
-        handleCommandSubSubMode(key, unmodified, text);
+        handleCommandSubSubMode(input);
     } else if (m_submode == WindowSubMode) {
         emit q->windowCommandRequested(key);
         m_submode = NoSubMode;
@@ -2045,9 +2173,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     return handled;
 }
 
-EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
-    const QString &text)
+EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
 {
+    const int key = input.key;
+    const QString &text = input.text;
+
     if (key == Key_Escape || key == 27 || key == control('c') ||
          key == control(Key_BracketLeft)) {
         if (isVisualBlockMode() && !m_lastInsertion.contains('\n')) {
@@ -2216,10 +2346,11 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     return EventHandled;
 }
 
-EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodified,
-    const QString &text)
+EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
 {
-    Q_UNUSED(text)
+    const int key = input.key;
+    const int unmodified = input.unmodified;
+    const QString &text = input.text;
 
     if (key == Key_Escape || key == control('c') || key == control(Key_BracketLeft)) {
         m_commandBuffer.clear();
@@ -2466,22 +2597,28 @@ bool FakeVimHandler::Private::handleMapping(const QString &cmd0)
 
     QByteArray lhs = line.mid(pos1 + 1, pos2 - pos1 - 1);
     QByteArray rhs = line.mid(pos2 + 1);
+    Inputs key;
+    foreach (char c, lhs)
+        key.append(Input(c));
     qDebug() << "MAPPING: " << modes << lhs << rhs;
     switch (type) {
         case Unmap:
             foreach (char c, modes)
                 if (m_mappings.contains(c))
-                    m_mappings[c].remove(lhs);
+                    m_mappings[c].remove(key);
             break;
         case Map:
             rhs = rhs; // FIXME: expand rhs.
             // Fall through.
-        case Noremap:
+        case Noremap: {
+            Inputs inputs;
+            foreach (char c, rhs)
+                inputs.append(Input(c));
             foreach (char c, modes)
-                m_mappings[c][lhs] = rhs;
+                m_mappings[c].insert(key, inputs);
             break;
+        }
     }
-    qDebug() << "CURRENT: " << m_mappings;
     return true;
 }
 
@@ -3730,7 +3867,7 @@ void FakeVimHandler::Private::replay(const QString &command, int n)
     for (int i = n; --i >= 0; ) {
         foreach (QChar c, command) {
             //qDebug() << "  REPLAY: " << QString(c);
-            handleKey(c.unicode(), c.unicode(), QString(c));
+            handleKey(Input(c.unicode(), c.unicode(), QString(c)));
         }
     }
     m_inReplay = false;
@@ -3902,3 +4039,5 @@ QString FakeVimHandler::tabExpand(int n) const
 
 } // namespace Internal
 } // namespace FakeVim
+
+#include "fakevimhandler.moc"
