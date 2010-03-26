@@ -692,6 +692,25 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             item.icon = symbolIcon;
             m_completions.append(item);
         }
+
+        // add js keywords
+        foreach (const QString &word, Scanner::keywords()) {
+            TextEditor::CompletionItem item(this);
+            item.text = word;
+            m_completions.append(item);
+        }
+
+        // add qml extra words
+        if (document->qmlProgram()) {
+            static QStringList qmlWords;
+            if (qmlWords.isEmpty())
+                qmlWords << "property" << "readonly" << "signal";
+            foreach (const QString &word, qmlWords) {
+                TextEditor::CompletionItem item(this);
+                item.text = word;
+                m_completions.append(item);
+            }
+        }
     }
 
     else if (completionOperator == QLatin1Char('.') || completionOperator == QLatin1Char('(')) {

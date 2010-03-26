@@ -87,6 +87,7 @@ public:
     int state() const;
 
     bool isKeyword(const QString &text) const;
+    static QStringList keywords();
 
 private:
     int _state;

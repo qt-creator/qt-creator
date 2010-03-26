@@ -309,3 +309,13 @@ bool Scanner::isKeyword(const QString &text) const
 
     return false;
 }
+
+QStringList Scanner::keywords()
+{
+    static QStringList words;
+    if (words.isEmpty()) {
+        for (const QString *word = begin(js_keywords); word != end(js_keywords); ++word)
+            words.append(*word);
+    }
+    return words;
+}
