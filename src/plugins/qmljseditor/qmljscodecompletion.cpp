@@ -665,6 +665,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         isQmlFile = true;
 
     const QIcon symbolIcon = iconForColor(Qt::darkCyan);
+    const QIcon keywordIcon = iconForColor(Qt::darkYellow);
 
     Interpreter::Engine interp;
     Interpreter::Context context(&interp);
@@ -697,6 +698,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         foreach (const QString &word, Scanner::keywords()) {
             TextEditor::CompletionItem item(this);
             item.text = word;
+            item.icon = keywordIcon;
             m_completions.append(item);
         }
 
@@ -708,6 +710,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             foreach (const QString &word, qmlWords) {
                 TextEditor::CompletionItem item(this);
                 item.text = word;
+                item.icon = keywordIcon;
                 m_completions.append(item);
             }
         }
