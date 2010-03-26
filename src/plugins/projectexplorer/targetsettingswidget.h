@@ -31,7 +31,6 @@ public:
 public slots:
     void addTarget(const QString &name);
     void insertTarget(int index, const QString &name);
-    void markActive(int index);
     void removeTarget(int index);
     void setCurrentIndex(int index);
     void setCurrentSubIndex(int index);

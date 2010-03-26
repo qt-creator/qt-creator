@@ -41,11 +41,6 @@ void TargetSettingsWidget::insertTarget(int index, const QString &name)
     updateTargetSelector();
 }
 
-void TargetSettingsWidget::markActive(int index)
-{
-    m_targetSelector->markActive(index);
-}
-
 void TargetSettingsWidget::removeTarget(int index)
 {
     m_targetSelector->removeTarget(index);

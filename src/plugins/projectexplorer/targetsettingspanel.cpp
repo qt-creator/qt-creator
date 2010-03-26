@@ -123,7 +123,6 @@ void TargetSettingsPanelWidget::setupUi()
             this, SLOT(removeTarget()));
 
     if (m_project->activeTarget()) {
-        m_selector->markActive(m_targets.indexOf(m_project->activeTarget()));
         m_selector->setCurrentIndex(m_targets.indexOf(m_project->activeTarget()));
     }
 
@@ -137,7 +136,7 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
     if (subIndex < -1 || subIndex >= 2)
         return;
 
-    Target *target(m_targets.at(targetIndex));
+    Target *target = m_targets.at(targetIndex);
 
     // Target was not actually changed:
     if (m_currentTarget == target) {
@@ -156,8 +155,8 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
         return;
     }
 
-    PanelsWidget *buildPanel(new PanelsWidget(m_centralWidget));
-    PanelsWidget *runPanel(new PanelsWidget(m_centralWidget));
+    PanelsWidget *buildPanel = new PanelsWidget(m_centralWidget);
+    PanelsWidget *runPanel = new PanelsWidget(m_centralWidget);
 
     foreach (ITargetPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<ITargetPanelFactory>()) {
         if (panelFactory->id() == QLatin1String(BUILDSETTINGS_PANEL_ID)) {
@@ -180,6 +179,9 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
     m_panelWidgets[0] = buildPanel;
     delete m_panelWidgets[1];
     m_panelWidgets[1] = runPanel;
+
+
+    m_project->setActiveTarget(target);
 }
 
 void TargetSettingsPanelWidget::addTarget()
@@ -238,8 +240,8 @@ void TargetSettingsPanelWidget::activeTargetChanged(ProjectExplorer::Target *tar
     Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
 
-    int index(m_targets.indexOf(target));
-    m_selector->markActive(index);
+    int index = m_targets.indexOf(target);
+    m_selector->setCurrentIndex(index);
 }
 
 void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()

@@ -43,7 +43,6 @@ void TargetSelector::insertTarget(int index, const QString &name)
     Target target;
     target.name = name;
     target.currentSubIndex = 0;
-    target.isActive = false;
 
     m_targets.insert(index, target);
 
@@ -51,15 +50,6 @@ void TargetSelector::insertTarget(int index, const QString &name)
         setCurrentIndex(index);
     else if (m_currentTargetIndex >= index)
         setCurrentIndex(m_currentTargetIndex + 1);
-    update();
-}
-
-void TargetSelector::markActive(int index)
-{
-    QTC_ASSERT(index >= 0 && index < m_targets.count(), return);
-
-    for (int i = 0; i < m_targets.count(); ++i)
-        m_targets[i].isActive = (i == index);
     update();
 }
 
@@ -218,13 +208,8 @@ void TargetSelector::paintEvent(QPaintEvent *event)
             p.setPen(QColor(0, 0, 0));
         }
         p.drawPixmap(x, 1, *pixmap);
-        QString targetName;
-        if (target.isActive)
-            targetName = QChar('*') + target.name + QChar('*');
-        else
-            targetName = target.name;
-        p.drawText(x + (TARGET_WIDTH - fm.width(targetName))/2 + 1, 7 + fm.ascent(),
-            targetName);
+        p.drawText(x + (TARGET_WIDTH - fm.width(target.name))/2 + 1, 7 + fm.ascent(),
+            target.name);
         x += TARGET_WIDTH;
         p.drawLine(x, 1, x, TARGET_HEIGHT);
         ++x;
