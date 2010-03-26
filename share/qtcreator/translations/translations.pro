@@ -24,7 +24,7 @@ contains(QT_VERSION, ^4\.[0-6]\..*) {
     QMAKE_SUBSTITUTES += extract-mimetypes.xq.in
     ts.commands += \
         $$XMLPATTERNS -output $$MIME_TR_H $$PWD/extract-mimetypes.xq && \
-        (cd $$IDE_SOURCE_TREE && $$LUPDATE src $$MIME_TR_H -ts $$TRANSLATIONS) && \
+        (cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H -ts $$TRANSLATIONS) && \
         $$QMAKE_DEL_FILE $$MIME_TR_H
 }
 QMAKE_EXTRA_TARGETS += ts
