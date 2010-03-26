@@ -112,20 +112,30 @@ Item {
             if (updateFlickable)
                 flickable.contentY = Math.max(0, flickable.contentHeight * y / bar.height)
             }
+			
+			    Rectangle {
+				    width: parent.height - 1
+                    height: parent.width - 1
+                    y: 1 - height
+					
+					rotation: 90
+                    transformOrigin: Item.BottomLeft
+
+				    color: "black"
+			    
 
                 Rectangle {
-                    width: parent.height - 1
-                    height: parent.width
-                    y: 1 - height
-
-                    rotation: 90
-                    transformOrigin: Item.BottomLeft
+                    width: parent.width - 2
+                    height: parent.height - 2
+                    y: 1
+					x: 1                    
 
                     gradient: Gradient {
                         GradientStop { position: 0.0; color: style.scrollbarGradientStartColor }
                         GradientStop { position: 1.0; color: style.scrollbarGradientEndColor }
                     }
                 }
+				}
 
                 MouseArea {
                     anchors.fill: parent

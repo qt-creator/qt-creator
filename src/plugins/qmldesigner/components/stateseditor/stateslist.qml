@@ -532,6 +532,8 @@ Rectangle {
         anchors.right : listView.right
         anchors.top : listView.bottom
         anchors.topMargin: 1
+		anchors.leftMargin: 1
+		anchors.rightMargin: 1
 
         height: 10;
 
@@ -547,9 +549,17 @@ Rectangle {
 
 
             Rectangle {
-                height:parent.height-1
+			   height:parent.height-1
                 width:parent.width
                 y:1
+				color: "black"
+			}
+
+            Rectangle {
+                height:parent.height-3
+                width:parent.width - 2
+                y:2
+				x:1
 
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: "#C6C6C6" }
