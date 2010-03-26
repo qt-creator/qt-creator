@@ -275,8 +275,12 @@ static inline QString filePrefixFromTitle(const QString &title)
     for (int i = 0; i < titleSize; i++)
         if (title.at(i).isLetterOrNumber())
             rc.append(title.at(i));
-    if (rc.isEmpty())
+    if (rc.isEmpty()) {
         rc = QLatin1String("qtcreator");
+    } else {
+        if (rc.size() > 15)
+            rc.truncate(15);
+    }
     return rc;
 }
 
@@ -325,6 +329,10 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
         messageManager->printToOutputPane(content, true);
         return;
     }
+    if (content.isEmpty()) {
+        messageManager->printToOutputPane(tr("Empty snippet received for \"%1\".").arg(titleDescription), true);
+        return;
+    }
     // Write the file out and do a mime type detection on the content. Note
     // that for the initial detection, there must not be a suffix
     // as we want mime type detection to trigger on the content and not on
@@ -340,15 +348,17 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // the temporary file. This is to make it more convenient to "Save as"
     // for the user and also to be able to tell a patch or diff in the VCS plugins
     // by looking at the file name of FileManager::currentFile() without expensive checking.
-    if (const Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(tempFile->fileName()))) {
-        const QString preferredSuffix = mimeType.preferredSuffix();
-        if (!preferredSuffix.isEmpty()) {
-            tempFile = writeTemporaryFile(tempFilePattern(filePrefix, preferredSuffix), content, &errorMessage);
-            if (tempFile.isNull()) {
-                messageManager->printToOutputPane(errorMessage);
-                return;
-            }
-        }
+    // Default to "txt".
+    QString suffix;
+    if (const Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(tempFile->fileName())))
+        suffix = mimeType.preferredSuffix();
+    if (suffix.isEmpty())
+         suffix = QLatin1String("txt");
+    // Write out with extension.
+    tempFile = writeTemporaryFile(tempFilePattern(filePrefix, suffix), content, &errorMessage);
+    if (tempFile.isNull()) {
+        messageManager->printToOutputPane(errorMessage);
+        return;
     }
     // Keep the file and store in list of files to be removed.
     tempFile->setAutoRemove(false);
