@@ -36,6 +36,7 @@
 
 using namespace Core;
 
+namespace CodePaster {
 PasteBinDotComProtocol::PasteBinDotComProtocol()
 {
     settings = new PasteBinDotComSettings();
@@ -127,3 +128,4 @@ Core::IOptionsPage* PasteBinDotComProtocol::settingsPage()
 {
     return settings;
 }
+} // namespace CodePaster

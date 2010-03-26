@@ -35,6 +35,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QHttp>
 
+namespace CodePaster {
 class PasteBinDotCaProtocol : public Protocol
 {
     Q_OBJECT
@@ -64,4 +65,5 @@ private:
     int postId;
 };
 
+} // namespace CodePaster
 #endif // PASTEBINDOTCAPROTOCOL_H

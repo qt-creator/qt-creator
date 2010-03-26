@@ -57,7 +57,7 @@ CodePasterProtocol::~CodePasterProtocol()
 
 QString CodePasterProtocol::name() const
 {
-    return "CodePaster";
+    return QLatin1String("CodePaster");
 }
 
 bool CodePasterProtocol::canList() const
@@ -98,12 +98,11 @@ void CodePasterProtocol::fetch(const QString &id)
     fetchId = id;
 }
 
-void CodePasterProtocol::list(QListWidget *listWidget)
+void CodePasterProtocol::list()
 {
     QString hostName = m_page->hostName();
     if (!isValidHostName(hostName))
         return;
-    this->listWidget = listWidget;
     QString link = QLatin1String("http://");
     link += hostName;
     link += QLatin1String("/?command=browse&format=raw");
@@ -170,11 +169,9 @@ void CodePasterProtocol::listFinished()
     if (listReply->error()) {
         ICore::instance()->messageManager()->printToOutputPane(listReply->errorString(), true);
     } else {
-        QByteArray data = listReply->readAll();
-        listWidget->clear();
-        QStringList lines = QString(data).split(QLatin1Char('\n'));
-        listWidget->addItems(lines);
-        listWidget = 0;
+        const QByteArray data = listReply->readAll();
+        const QStringList lines = QString::fromAscii(data).split(QLatin1Char('\n'));
+        emit listDone(name(), lines);
     }
     listReply->deleteLater();
     listReply = 0;

@@ -20,23 +20,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="defaultProtocol">
-        <item>
-         <property name="text">
-          <string>CodePaster</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Pastebin.ca</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Pastebin.com</string>
-         </property>
-        </item>
-       </widget>
+       <widget class="QComboBox" name="defaultProtocol"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="userNameLabel">

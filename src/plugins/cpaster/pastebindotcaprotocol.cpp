@@ -33,7 +33,7 @@
 #include <QtNetwork/QNetworkReply>
 
 using namespace Core;
-
+namespace CodePaster {
 PasteBinDotCaProtocol::PasteBinDotCaProtocol()
 {
     connect(&http, SIGNAL(requestFinished(int,bool)),
@@ -101,3 +101,4 @@ void PasteBinDotCaProtocol::fetchFinished()
     reply = 0;
     emit fetchDone(title, content, error);
 }
+} // namespace CodePaster

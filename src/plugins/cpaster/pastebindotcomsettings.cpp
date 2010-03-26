@@ -35,6 +35,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QCoreApplication>
 
+namespace CodePaster {
 PasteBinDotComSettings::PasteBinDotComSettings()
 {
     m_settings = Core::ICore::instance()->settings();
@@ -94,3 +95,4 @@ QString PasteBinDotComSettings::hostPrefix() const
 {
     return m_hostPrefix;
 }
+} //namespace CodePaster

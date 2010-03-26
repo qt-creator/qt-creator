@@ -28,7 +28,7 @@
 **************************************************************************/
 #include "protocol.h"
 
-#include <QtCore/qglobal.h>
+namespace CodePaster {
 
 Protocol::Protocol()
         : QObject()
@@ -59,7 +59,9 @@ Core::IOptionsPage* Protocol::settingsPage()
     return 0;
 }
 
-void Protocol::list(QListWidget*)
+void Protocol::list()
 {
     qFatal("Base Protocol list() called");
 }
+
+} //namespace CodePaster

@@ -33,17 +33,17 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QStringList>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
 
-class Protocol;
-
 namespace CodePaster {
-class SettingsPage;
 class CustomFetcher;
 class CustomPoster;
+struct Settings;
+class Protocol;
 
 class CodepasterPlugin : public ExtensionSystem::IPlugin
 {
@@ -66,9 +66,9 @@ public slots:
                      bool error);
 
 private:
+    const QSharedPointer<Settings> m_settings;
     QAction *m_postAction;
     QAction *m_fetchAction;
-    SettingsPage *m_settingsPage;
     QList<Protocol*> m_protocols;
     QStringList m_fetchedSnippets;
 };

@@ -27,63 +27,32 @@
 **
 **************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
-#include "ui_settingspage.h"
+#include <QtCore/QString>
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QPointer>
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace CodePaster {
 
-struct Settings;
+struct Settings {
+    Settings();
+    void toSettings(QSettings *s) const;
+    void fromSettings(const QSettings *s);
+    bool equals(const Settings &s) const;
 
-class SettingsWidget : public QWidget {
-    Q_OBJECT
-public:
-    explicit SettingsWidget(const QStringList &protocols, QWidget *parent = 0);
-
-    void setSettings(const Settings &);
-    Settings settings();
-
-    QString searchKeywords() const;
-
-private:
-    Ui_SettingsPage m_ui;
+    QString username;
+    QString protocol;
+    bool copyToClipboard;
+    bool displayOutput;
 };
 
-class SettingsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(SettingsPage)
-public:
-    explicit SettingsPage(const QSharedPointer<Settings> &settings);
-    virtual ~SettingsPage();
-
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-    virtual bool matches(const QString &) const;
-
-    void addProtocol(const QString& name);
-
-private:
-    const QSharedPointer<Settings> m_settings;
-
-    QPointer<SettingsWidget> m_widget;
-    QStringList m_protocols;
-    QString m_searchKeywords;
-};
+inline bool operator==(const Settings &s1, const Settings &s2) { return s1.equals(s2); }
+inline bool operator!=(const Settings &s1, const Settings &s2) { return !s1.equals(s2); }
 
 } // namespace CodePaster
 
-#endif // SETTINGSPAGE_H
+#endif // SETTINGS_H

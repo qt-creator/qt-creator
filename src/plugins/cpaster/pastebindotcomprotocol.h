@@ -35,6 +35,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QHttp>
 
+namespace CodePaster {
 class PasteBinDotComSettings;
 
 class PasteBinDotComProtocol : public Protocol
@@ -70,5 +71,5 @@ private:
     QHttp http;
     int postId;
 };
-
+} // namespace CodePaster
 #endif // PASTEBINDOTCOMPROTOCOL_H

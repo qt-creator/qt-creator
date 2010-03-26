@@ -36,7 +36,6 @@
 #include <QtNetwork/QNetworkAccessManager>
 
 QT_BEGIN_NAMESPACE
-class QListWidget;
 class QNetworkReply;
 QT_END_NAMESPACE
 
@@ -58,7 +57,7 @@ public:
     Core::IOptionsPage *settingsPage();
 
     void fetch(const QString &id);
-    void list(QListWidget *listWidget);
+    void list();
     void paste(const QString &text,
                const QString &username = QString(),
                const QString &comment = QString(),
@@ -75,7 +74,6 @@ private:
     QNetworkAccessManager manager;
     QNetworkReply *reply;
     QNetworkReply *listReply;
-    QListWidget *listWidget;
     QString fetchId;
 };
 

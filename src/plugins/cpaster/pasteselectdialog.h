@@ -27,63 +27,47 @@
 **
 **************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#ifndef PASTESELECTDIALOG_H
+#define PASTESELECTDIALOG_H
 
-#include "ui_settingspage.h"
+#include "ui_pasteselect.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <QtCore/QList>
 
-#include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QPointer>
+QT_FORWARD_DECLARE_CLASS(QPushButton)
 
 namespace CodePaster {
+class Protocol;
 
-struct Settings;
-
-class SettingsWidget : public QWidget {
-    Q_OBJECT
-public:
-    explicit SettingsWidget(const QStringList &protocols, QWidget *parent = 0);
-
-    void setSettings(const Settings &);
-    Settings settings();
-
-    QString searchKeywords() const;
-
-private:
-    Ui_SettingsPage m_ui;
-};
-
-class SettingsPage : public Core::IOptionsPage
+class PasteSelectDialog : public QDialog
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SettingsPage)
 public:
-    explicit SettingsPage(const QSharedPointer<Settings> &settings);
-    virtual ~SettingsPage();
+    explicit PasteSelectDialog(const QList<Protocol*> &protocols,
+                               QWidget *parent = 0);
+    ~PasteSelectDialog();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
+    QString pasteId() const;
 
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-    virtual bool matches(const QString &) const;
+    QString protocol() const;
+    void setProtocol(const QString &);
 
-    void addProtocol(const QString& name);
+    int protocolIndex() const;
+
+signals:
+
+private slots:
+    void protocolChanged(int);
+    void list();
+    void listDone(const QString &name, const QStringList &items);
 
 private:
-    const QSharedPointer<Settings> m_settings;
+    const QList<Protocol*> m_protocols;
 
-    QPointer<SettingsWidget> m_widget;
-    QStringList m_protocols;
-    QString m_searchKeywords;
+    Ui_PasteSelectDialog m_ui;
+    QPushButton *m_refreshButton;
 };
 
 } // namespace CodePaster
 
-#endif // SETTINGSPAGE_H
+#endif // PASTESELECTDIALOG_H

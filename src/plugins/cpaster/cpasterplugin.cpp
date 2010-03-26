@@ -29,14 +29,14 @@
 
 #include "cpasterplugin.h"
 
-#include "ui_pasteselect.h"
-
 #include "splitter.h"
 #include "pasteview.h"
 #include "codepasterprotocol.h"
 #include "pastebindotcomprotocol.h"
 #include "pastebindotcaprotocol.h"
+#include "pasteselectdialog.h"
 #include "settingspage.h"
+#include "settings.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -65,8 +65,7 @@ using namespace CodePaster;
 using namespace Core;
 using namespace TextEditor;
 
-CodepasterPlugin::CodepasterPlugin()
-    : m_settingsPage(0)
+CodepasterPlugin::CodepasterPlugin() : m_settings(new Settings)
 {
 }
 
@@ -85,8 +84,9 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     globalcontext << UniqueIDManager::instance()->uniqueIdentifier(Core::Constants::C_GLOBAL);
 
     // Create the settings Page
-    m_settingsPage = new SettingsPage();
-    addAutoReleasedObject(m_settingsPage);
+    m_settings->fromSettings(Core::ICore::instance()->settings());
+    SettingsPage *settingsPage = new SettingsPage(m_settings);
+    addAutoReleasedObject(settingsPage);
 
     // Create the protocols and append them to the Settings
     Protocol *protos[] =  { new CodePasterProtocol(),
@@ -97,7 +97,7 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
         connect(protos[i], SIGNAL(pasteDone(QString)), this, SLOT(finishPost(QString)));
         connect(protos[i], SIGNAL(fetchDone(QString,QString,bool)),
                 this, SLOT(finishFetch(QString,QString,bool)));
-        m_settingsPage->addProtocol(protos[i]->name());
+        settingsPage->addProtocol(protos[i]->name());
         if (protos[i]->hasSettings())
             addAutoReleasedObject(protos[i]->settingsPage());
         m_protocols.append(protos[i]);
@@ -176,14 +176,14 @@ void CodepasterPlugin::post()
         data = textEditor->contents();
 
     FileDataList lst = splitDiffToFiles(data.toLatin1());
-    QString username = m_settingsPage->username();
+    QString username = m_settings->username;
     QString description;
     QString comment;
     QString protocolName;
 
     PasteView view(0);
     foreach (Protocol *p, m_protocols) {
-        view.addProtocol(p->name(), p->name() == m_settingsPage->defaultProtocol());
+        view.addProtocol(p->name(), p->name() == m_settings->protocol);
     }
 
     if (!view.show(username, description, comment, lst))
@@ -214,55 +214,23 @@ void CodepasterPlugin::post()
 
 void CodepasterPlugin::fetch()
 {
-    QDialog dialog(ICore::instance()->mainWindow());
-    Ui_PasteSelectDialog ui;
-    ui.setupUi(&dialog);
-    foreach(const Protocol *protocol, m_protocols)
-        ui.protocolBox->addItem(protocol->name());
-    ui.protocolBox->setCurrentIndex(ui.protocolBox->findText(m_settingsPage->defaultProtocol()));
+    PasteSelectDialog dialog(m_protocols, ICore::instance()->mainWindow());
+    dialog.setProtocol(m_settings->protocol);
 
-    ui.listWidget->addItems(QStringList() << tr("This protocol supports no listing"));
-    ui.listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-#ifndef Q_WS_MACX
-    ui.listWidget->setFrameStyle(QFrame::NoFrame);
-#endif // Q_WS_MACX
-    QFont listFont = ui.listWidget->font();
-    listFont.setFamily("Courier");
-    listFont.setStyleHint(QFont::TypeWriter);
-    ui.listWidget->setFont(listFont);
-    // ### TODO2: when we change the protocol, we need to relist
-    foreach(Protocol *protocol, m_protocols) {
-        if (protocol->name() == ui.protocolBox->currentText() && protocol->canList()) {
-            ui.listWidget->clear();
-            ui.listWidget->addItems(QStringList() << tr("Waiting for items"));
-            protocol->list(ui.listWidget);
-            break;
-        }
-    }
-
-    int result = dialog.exec();
-    if (!result)
+    if (dialog.exec() != QDialog::Accepted)
         return;
-    QStringList list = ui.pasteEdit->text().split(QLatin1Char(' '));
-    if (list.isEmpty())
+    const QString pasteID = dialog.pasteId();
+    if (pasteID.isEmpty())
         return;
-    QString pasteID = list.first();
-
-    // Get Protocol
-    foreach(Protocol *protocol, m_protocols) {
-        if (protocol->name() == ui.protocolBox->currentText()) {
-            protocol->fetch(pasteID);
-            break;
-        }
-    }
+    m_protocols[dialog.protocolIndex()]->fetch(pasteID);
 }
 
 void CodepasterPlugin::finishPost(const QString &link)
 {
-    if (m_settingsPage->copyToClipBoard())
+    if (m_settings->copyToClipboard)
         QApplication::clipboard()->setText(link);
     ICore::instance()->messageManager()->printToOutputPane(link,
-                                                           m_settingsPage->displayOutput());
+                                                           m_settings->displayOutput);
 }
 
 // Extract the characters that can be used for a file name from a title

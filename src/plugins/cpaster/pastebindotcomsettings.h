@@ -40,6 +40,7 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
+namespace CodePaster {
 class PasteBinDotComSettings : public Core::IOptionsPage
 {
     Q_OBJECT
@@ -64,5 +65,5 @@ private:
     QSettings *m_settings;
     QString m_hostPrefix;
 };
-
+} // namespace CodePaster
 #endif

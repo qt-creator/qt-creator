@@ -30,12 +30,13 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <QtCore/QObject>
 
-QT_BEGIN_NAMESPACE
-class QListWidget;
-QT_END_NAMESPACE
+namespace Core {
+    class IOptionsPage;
+}
 
+namespace CodePaster {
 class Protocol : public QObject
 {
     Q_OBJECT
@@ -52,7 +53,7 @@ public:
     virtual Core::IOptionsPage* settingsPage();
 
     virtual void fetch(const QString &id) = 0;
-    virtual void list(QListWidget *listWidget);
+    virtual void list();
     virtual void paste(const QString &text,
                        const QString &username = QString(),
                        const QString &comment = QString(),
@@ -63,6 +64,9 @@ signals:
     void fetchDone(const QString &titleDescription,
                    const QString &content,
                    bool error);
+    void listDone(const QString &name, const QStringList &result);
 };
+
+} //namespace CodePaster
 
 #endif // PROTOCOL_H
