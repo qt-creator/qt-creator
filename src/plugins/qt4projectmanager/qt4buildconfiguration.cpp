@@ -616,11 +616,13 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
 
     qt4Target->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                         version,
-                                        (version->defaultBuildConfig() | QtVersion::DebugBuild));
+                                        (version->defaultBuildConfig() | QtVersion::DebugBuild),
+                                        QStringList(), QString());
     BuildConfiguration *bc =
     qt4Target->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
                                         version,
-                                        (version->defaultBuildConfig() & ~QtVersion::DebugBuild));
+                                        (version->defaultBuildConfig() & ~QtVersion::DebugBuild),
+                                        QStringList(), QString());
     return bc;
 }
 

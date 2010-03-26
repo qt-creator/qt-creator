@@ -118,60 +118,84 @@ bool Qt4TargetFactory::canCreate(ProjectExplorer::Project *parent, const QString
 
 Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
-    return create(parent, id, QList<QtVersion*>());
+    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id);
+    if (knownVersions.count() > 1)
+        knownVersions = knownVersions.mid(0, 1);
+    return create(parent, id, knownVersions);
 }
 
 Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QString &id, QList<QtVersion *> versions)
 {
+    QList<BuildConfigurationInfo> infos;
+    foreach (QtVersion *version, versions) {
+        bool buildAll = false;
+        if (version && version->isValid() && (version->defaultBuildConfig() & QtVersion::BuildAll))
+            buildAll = true;
+
+        if (buildAll) {
+            infos.append(BuildConfigurationInfo(version, QtVersion::BuildAll | QtVersion::DebugBuild));
+            infos.append(BuildConfigurationInfo(version, QtVersion::BuildAll));
+        } else {
+            infos.append(BuildConfigurationInfo(version, QtVersion::DebugBuild));
+            infos.append(BuildConfigurationInfo(version, QtVersion::QmakeBuildConfig(0)));
+        }
+    }
+
+    return create(parent, id, infos);
+}
+
+Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QString &id, QList<BuildConfigurationInfo> infos)
+{
     if (!canCreate(parent, id))
         return 0;
 
-    Qt4Project * qt4project(static_cast<Qt4Project *>(parent));
-    Qt4Target *t(new Qt4Target(qt4project, id));
+    Qt4Project *qt4project = static_cast<Qt4Project *>(parent);
+    Qt4Target *t = new Qt4Target(qt4project, id);
 
     QList<QtVersion *> knownVersions(QtVersionManager::instance()->versionsForTargetId(id));
     if (knownVersions.isEmpty())
         return t;
 
-    if (versions.isEmpty())
-        versions.append(knownVersions.at(0));
-
-    foreach (QtVersion *version, versions) {
-        if (!knownVersions.contains(version))
-            continue;
-
-        bool buildAll(false);
-        if (version && version->isValid() && (version->defaultBuildConfig() & QtVersion::BuildAll))
-            buildAll = true;
-
-        QString debugName;
-        QString releaseName;
-        if (versions.count() > 1) {
-            debugName = tr("%1 Debug", "debug buildconfiguration name, %1 is Qt version").arg(version->displayName());
-            releaseName = tr("%1 Release", "release buildconfiguration name, %1 is Qt version").arg(version->displayName());
-        } else {
-            debugName = tr("Debug", "debug buildconfiguration name (only one Qt version!)");
-            releaseName = tr("Release", "release buildconfiguration name (only one Qt version!)");
+    // count Qt versions:
+    int qtVersionCount = 0;
+    {
+        QSet<QtVersion *> differentVersions;
+        foreach (const BuildConfigurationInfo &info, infos) {
+            if (knownVersions.contains(info.version))
+                differentVersions.insert(info.version);
         }
-
-        if (buildAll) {
-            t->addQt4BuildConfiguration(debugName, version, QtVersion::BuildAll | QtVersion::DebugBuild);
-            if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-                t->addQt4BuildConfiguration(releaseName, version, QtVersion::BuildAll);
-        } else {
-            t->addQt4BuildConfiguration(debugName, version, QtVersion::DebugBuild);
-            if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
-                t->addQt4BuildConfiguration(releaseName, version, QtVersion::QmakeBuildConfig(0));
-        }
+        qtVersionCount = differentVersions.count();
     }
 
+    // Create Buildconfigurations:
+    foreach (const BuildConfigurationInfo &info, infos) {
+        if (!info.version || !knownVersions.contains(info.version))
+            continue;
+
+        QString displayName;
+
+        if (qtVersionCount > 1)
+            displayName = tr("%1 %2", "build configuration display name, %1 is Qt version, %2 is debug or release").
+                          arg(info.version->displayName(), (info.buildConfig | QtVersion::DebugBuild) ? tr("Debug") : tr("Release"));
+        else
+            displayName = tr("%1", "debug buildconfiguration name (only one Qt version! %1 is debug or release)").
+                          arg((info.buildConfig | QtVersion::DebugBuild) ? tr("Debug") : tr("Release"));
+
+        // Skip release builds for the symbian emulator.
+        if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID) &&
+            !(info.buildConfig | QtVersion::DebugBuild))
+            continue;
+
+        t->addQt4BuildConfiguration(displayName, info.version, info.buildConfig, info.additionalArguments, info.directory);
+    }
+
+    // create RunConfigurations:
     QStringList pathes = qt4project->applicationProFilePathes();
     foreach (const QString &path, pathes)
         t->addRunConfigurationForPath(path);
 
     return t;
 }
-
 
 bool Qt4TargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
 {
@@ -235,7 +259,8 @@ Qt4Project *Qt4Target::qt4Project() const
 
 Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, QtVersion *qtversion,
                                                            QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                                                           QStringList additionalArguments)
+                                                           QStringList additionalArguments,
+                                                           QString directory)
 {
     Q_ASSERT(qtversion);
     bool debug = qmakeBuildConfiguration & QtVersion::DebugBuild;
@@ -272,6 +297,8 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
     bc->setQtVersion(qtversion);
     ToolChain::ToolChainType defaultTc = preferredToolChainType(filterToolChainTypes(bc->qtVersion()->possibleToolChainTypes()));
     bc->setToolChainType(defaultTc);
+    if (!directory.isEmpty())
+        bc->setShadowBuildAndDirectory(directory != project()->projectDirectory(), directory);
     addBuildConfiguration(bc);
 
     return bc;

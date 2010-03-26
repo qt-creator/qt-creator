@@ -45,6 +45,17 @@ class Qt4ProFileNode;
 class Qt4TargetFactory;
 class Qt4BuildConfigurationFactory;
 
+struct BuildConfigurationInfo {
+    explicit BuildConfigurationInfo(QtVersion *v = 0, QtVersion::QmakeBuildConfigs bc = QtVersion::QmakeBuildConfig(0),
+                                    const QStringList &aa = QStringList(), const QString &d = QString()) :
+        version(v), buildConfig(bc), additionalArguments(aa), directory(d)
+    { }
+    QtVersion *version;
+    QtVersion::QmakeBuildConfigs buildConfig;
+    QStringList additionalArguments;
+    QString directory;
+};
+
 class Qt4Target : public ProjectExplorer::Target
 {
     Q_OBJECT
@@ -60,7 +71,8 @@ public:
     Internal::Qt4BuildConfiguration *addQt4BuildConfiguration(QString displayName,
                                                               QtVersion *qtversion,
                                                               QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                                                              QStringList additionalArguments = QStringList());
+                                                              QStringList additionalArguments,
+                                                              QString directory);
     void addRunConfigurationForPath(const QString &proFilePath);
 
     Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
@@ -109,6 +121,7 @@ public:
     bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
     Internal::Qt4Target *create(ProjectExplorer::Project *parent, const QString &id);
     Internal::Qt4Target *create(ProjectExplorer::Project *parent, const QString &id, QList<QtVersion *> versions);
+    Internal::Qt4Target *create(ProjectExplorer::Project *parent, const QString &id, QList<BuildConfigurationInfo> infos);
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     Internal::Qt4Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 };
