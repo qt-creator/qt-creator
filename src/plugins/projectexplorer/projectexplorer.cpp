@@ -136,12 +136,15 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_clearSession;
     QAction *m_buildProjectOnlyAction;
     Utils::ParameterAction *m_buildAction;
+    Utils::ParameterAction *m_buildActionContextMenu;
     QAction *m_buildSessionAction;
     QAction *m_rebuildProjectOnlyAction;
     Utils::ParameterAction *m_rebuildAction;
+    Utils::ParameterAction *m_rebuildActionContextMenu;
     QAction *m_rebuildSessionAction;
     QAction *m_cleanProjectOnlyAction;
     Utils::ParameterAction *m_cleanAction;
+    Utils::ParameterAction *m_cleanActionContextMenu;
     QAction *m_cleanSessionAction;
     QAction *m_runAction;
     QAction *m_runActionContextMenu;
@@ -553,10 +556,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         am->createMenu(Constants::BUILDCONFIGURATIONMENU);
     d->m_buildConfigurationMenu = mbc->menu();
     d->m_buildConfigurationMenu->setTitle(tr("Set Build Configuration"));
-    //TODO this means it is build twice, rrr
-    connect(mproject->menu(), SIGNAL(aboutToShow()), this, SLOT(populateBuildConfigurationMenu()));
     connect(mbuild->menu(), SIGNAL(aboutToShow()), this, SLOT(populateBuildConfigurationMenu()));
-    connect(d->m_buildConfigurationMenu, SIGNAL(aboutToShow()), this, SLOT(populateBuildConfigurationMenu()));
     connect(d->m_buildConfigurationMenu, SIGNAL(triggered(QAction *)), this, SLOT(buildConfigurationMenuTriggered(QAction *)));
 
     // build session action
@@ -588,30 +588,51 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // build action
     d->m_buildAction = new Utils::ParameterAction(tr("Build Project"), tr("Build Project \"%1\""),
-                                                     Utils::ParameterAction::EnabledWithParameter, this);
+                                                     Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_buildAction, Constants::BUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_buildAction->text());
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
-    mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // rebuild action
     d->m_rebuildAction = new Utils::ParameterAction(tr("Rebuild Project"), tr("Rebuild Project \"%1\""),
-                                                       Utils::ParameterAction::EnabledWithParameter, this);
+                                                       Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_rebuildAction, Constants::REBUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_rebuildAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
-    mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // clean action
     d->m_cleanAction = new Utils::ParameterAction(tr("Clean Project"), tr("Clean Project \"%1\""),
-                                                     Utils::ParameterAction::EnabledWithParameter, this);
+                                                     Utils::ParameterAction::AlwaysEnabled, this);
     cmd = am->registerAction(d->m_cleanAction, Constants::CLEAN, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_cleanAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
+
+    // build action (context menu)
+    d->m_buildActionContextMenu = new Utils::ParameterAction(tr("Build Project"), tr("Build Project \"%1\""),
+                                                             Utils::ParameterAction::AlwaysEnabled, this);
+    cmd = am->registerAction(d->m_buildActionContextMenu, Constants::BUILDCM, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDefaultText(d->m_buildActionContextMenu->text());
+    mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
+
+    // rebuild action (context menu)
+    d->m_rebuildActionContextMenu = new Utils::ParameterAction(tr("Rebuild Project"), tr("Rebuild Project \"%1\""),
+                                                               Utils::ParameterAction::AlwaysEnabled, this);
+    cmd = am->registerAction(d->m_rebuildActionContextMenu, Constants::REBUILDCM, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDefaultText(d->m_rebuildActionContextMenu->text());
+    mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
+
+    // clean action (context menu)
+    d->m_cleanActionContextMenu = new Utils::ParameterAction(tr("Clean Project"), tr("Clean Project \"%1\""),
+                                                             Utils::ParameterAction::AlwaysEnabled, this);
+    cmd = am->registerAction(d->m_cleanActionContextMenu, Constants::CLEANCM, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+    cmd->setDefaultText(d->m_cleanActionContextMenu->text());
     mproject->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // build without dependencies action
@@ -628,7 +649,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // Add Set Build Configuration to menu
     mbuild->addMenu(mbc, Constants::G_BUILD_OTHER);
-    mproject->addMenu(mbc, Constants::G_PROJECT_CONFIG);
 
     // run action
     QIcon runIcon(Constants::ICON_RUN);
@@ -644,10 +664,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_runConfigurationMenu = mrc->menu();
     d->m_runConfigurationMenu->setTitle(tr("Set Run Configuration"));
     mbuild->addMenu(mrc, Constants::G_BUILD_RUN);
-    mproject->addMenu(mrc, Constants::G_PROJECT_CONFIG);
-    // TODO this recreates the menu twice if shown in the Build or context menu
-    connect(d->m_runConfigurationMenu, SIGNAL(aboutToShow()), this, SLOT(populateRunConfigurationMenu()));
-    connect(mproject->menu(), SIGNAL(aboutToShow()), this, SLOT(populateRunConfigurationMenu()));
+
     connect(mbuild->menu(), SIGNAL(aboutToShow()), this, SLOT(populateRunConfigurationMenu()));
     connect(d->m_runConfigurationMenu, SIGNAL(triggered(QAction *)), this, SLOT(runConfigurationMenuTriggered(QAction *)));
 
@@ -757,12 +774,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #endif
     connect(d->m_buildProjectOnlyAction, SIGNAL(triggered()), this, SLOT(buildProjectOnly()));
     connect(d->m_buildAction, SIGNAL(triggered()), this, SLOT(buildProject()));
+    connect(d->m_buildActionContextMenu, SIGNAL(triggered()), this, SLOT(buildProjectContextMenu()));
     connect(d->m_buildSessionAction, SIGNAL(triggered()), this, SLOT(buildSession()));
     connect(d->m_rebuildProjectOnlyAction, SIGNAL(triggered()), this, SLOT(rebuildProjectOnly()));
     connect(d->m_rebuildAction, SIGNAL(triggered()), this, SLOT(rebuildProject()));
+    connect(d->m_rebuildActionContextMenu, SIGNAL(triggered()), this, SLOT(rebuildProjectContextMenu()));
     connect(d->m_rebuildSessionAction, SIGNAL(triggered()), this, SLOT(rebuildSession()));
     connect(d->m_cleanProjectOnlyAction, SIGNAL(triggered()), this, SLOT(cleanProjectOnly()));
     connect(d->m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanProject()));
+    connect(d->m_cleanActionContextMenu, SIGNAL(triggered()), this, SLOT(cleanProjectContextMenu()));
     connect(d->m_cleanSessionAction, SIGNAL(triggered()), this, SLOT(cleanSession()));
     connect(d->m_runAction, SIGNAL(triggered()), this, SLOT(runProject()));
     connect(d->m_runActionContextMenu, SIGNAL(triggered()), this, SLOT(runProjectContextMenu()));
@@ -1355,12 +1375,20 @@ void ProjectExplorerPlugin::updateActions()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::updateActions";
 
-    bool enableBuildActions = d->m_currentProject
+    Project *startupProject = session()->startupProject();
+    bool enableBuildActions = startupProject
+                              && ! (d->m_buildManager->isBuilding(startupProject))
+                              && startupProject->hasActiveBuildSettings();
+
+    bool enableBuildActionsContextMenu = d->m_currentProject
                               && ! (d->m_buildManager->isBuilding(d->m_currentProject))
                               && d->m_currentProject->hasActiveBuildSettings();
+
+
     bool hasProjects = !d->m_session->projects().isEmpty();
     bool building = d->m_buildManager->isBuilding();
-    QString projectName = d->m_currentProject ? d->m_currentProject->displayName() : QString();
+    QString projectName = startupProject ? startupProject->displayName() : QString();
+    QString projectNameContextMenu = d->m_currentProject ? d->m_currentProject->displayName() : QString();
 
     if (debug)
         qDebug() << "BuildManager::isBuilding()" << building;
@@ -1370,6 +1398,18 @@ void ProjectExplorerPlugin::updateActions()
     d->m_buildAction->setParameter(projectName);
     d->m_rebuildAction->setParameter(projectName);
     d->m_cleanAction->setParameter(projectName);
+
+    d->m_buildAction->setEnabled(enableBuildActions);
+    d->m_rebuildAction->setEnabled(enableBuildActions);
+    d->m_cleanAction->setEnabled(enableBuildActions);
+
+    d->m_buildAction->setParameter(projectNameContextMenu);
+    d->m_rebuildAction->setParameter(projectNameContextMenu);
+    d->m_cleanAction->setParameter(projectNameContextMenu);
+
+    d->m_buildActionContextMenu->setEnabled(enableBuildActionsContextMenu);
+    d->m_rebuildActionContextMenu->setEnabled(enableBuildActionsContextMenu);
+    d->m_cleanActionContextMenu->setEnabled(enableBuildActionsContextMenu);
 
     d->m_buildProjectOnlyAction->setEnabled(enableBuildActions);
     d->m_rebuildProjectOnlyAction->setEnabled(enableBuildActions);
@@ -1438,13 +1478,28 @@ void ProjectExplorerPlugin::buildProjectOnly()
         qDebug() << "ProjectExplorerPlugin::buildProjectOnly";
 
     if (saveModifiedFiles())
-        buildManager()->buildProject(d->m_currentProject->activeTarget()->activeBuildConfiguration());
+        buildManager()->buildProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
 }
 
 void ProjectExplorerPlugin::buildProject()
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::buildProject";
+
+    if (saveModifiedFiles()) {
+        QList<BuildConfiguration *> configurations;
+        foreach (Project *pro, d->m_session->projectOrder(session()->startupProject()))
+            if (pro->activeTarget()->activeBuildConfiguration())
+                configurations << pro->activeTarget()->activeBuildConfiguration();
+
+        d->m_buildManager->buildProjects(configurations);
+    }
+}
+
+void ProjectExplorerPlugin::buildProjectContextMenu()
+{
+    if (debug)
+        qDebug() << "ProjectExplorerPlugin::buildProjectContextMenu";
 
     if (saveModifiedFiles()) {
         QList<BuildConfiguration *> configurations;
@@ -1476,8 +1531,8 @@ void ProjectExplorerPlugin::rebuildProjectOnly()
         qDebug() << "ProjectExplorerPlugin::rebuildProjectOnly";
 
     if (saveModifiedFiles()) {
-        d->m_buildManager->cleanProject(d->m_currentProject->activeTarget()->activeBuildConfiguration());
-        d->m_buildManager->buildProject(d->m_currentProject->activeTarget()->activeBuildConfiguration());
+        d->m_buildManager->cleanProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
+        d->m_buildManager->buildProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
     }
 }
 
@@ -1485,6 +1540,23 @@ void ProjectExplorerPlugin::rebuildProject()
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::rebuildProject";
+
+    if (saveModifiedFiles()) {
+        const QList<Project *> &projects = d->m_session->projectOrder(session()->startupProject());
+        QList<BuildConfiguration *> configurations;
+        foreach (Project *pro, projects)
+            if (pro->activeTarget()->activeBuildConfiguration())
+                configurations << pro->activeTarget()->activeBuildConfiguration();
+
+        d->m_buildManager->cleanProjects(configurations);
+        d->m_buildManager->buildProjects(configurations);
+    }
+}
+
+void ProjectExplorerPlugin::rebuildProjectContextMenu()
+{
+    if (debug)
+        qDebug() << "ProjectExplorerPlugin::rebuildProjectContextMenu";
 
     if (saveModifiedFiles()) {
         const QList<Project *> &projects = d->m_session->projectOrder(d->m_currentProject);
@@ -1521,13 +1593,28 @@ void ProjectExplorerPlugin::cleanProjectOnly()
         qDebug() << "ProjectExplorerPlugin::cleanProjectOnly";
 
     if (saveModifiedFiles())
-        d->m_buildManager->cleanProject(d->m_currentProject->activeTarget()->activeBuildConfiguration());
+        d->m_buildManager->cleanProject(session()->startupProject()->activeTarget()->activeBuildConfiguration());
 }
 
 void ProjectExplorerPlugin::cleanProject()
 {
     if (debug)
         qDebug() << "ProjectExplorerPlugin::cleanProject";
+
+    if (saveModifiedFiles()) {
+        const QList<Project *> & projects = d->m_session->projectOrder(session()->startupProject());
+        QList<BuildConfiguration *> configurations;
+        foreach (Project *pro, projects)
+            if (pro->activeTarget()->activeBuildConfiguration())
+                configurations << pro->activeTarget()->activeBuildConfiguration();
+        d->m_buildManager->cleanProjects(configurations);
+    }
+}
+
+void ProjectExplorerPlugin::cleanProjectContextMenu()
+{
+    if (debug)
+        qDebug() << "ProjectExplorerPlugin::cleanProjectContextMenu";
 
     if (saveModifiedFiles()) {
         const QList<Project *> & projects = d->m_session->projectOrder(d->m_currentProject);
@@ -1725,15 +1812,17 @@ void ProjectExplorerPlugin::updateRunActions()
     d->m_runAction->setToolTip(QString());
     d->m_debugAction->setToolTip(QString());
 
-    bool canRun = findRunControlFactory(project->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE)
-                  && project->activeTarget()->activeRunConfiguration()->isEnabled();
-    const bool canDebug = !d->m_debuggingRunControl && findRunControlFactory(project->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE)
-                          && project->activeTarget()->activeRunConfiguration()->isEnabled();
+    RunConfiguration *activeRC = project->activeTarget()->activeRunConfiguration();
+
+    bool canRun = findRunControlFactory(activeRC, ProjectExplorer::Constants::RUNMODE)
+                  && activeRC->isEnabled();
+    const bool canDebug = !d->m_debuggingRunControl && findRunControlFactory(activeRC, ProjectExplorer::Constants::DEBUGMODE)
+                          && activeRC->isEnabled();
     const bool building = d->m_buildManager->isBuilding();
 
     d->m_runAction->setEnabled(canRun && !building);
 
-    canRun = d->m_currentProject && findRunControlFactory(d->m_currentProject->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
+    canRun = session()->startupProject() && findRunControlFactory(activeRC, ProjectExplorer::Constants::RUNMODE);
 
     d->m_runActionContextMenu->setEnabled(canRun && !building);
 
@@ -1836,6 +1925,7 @@ void ProjectExplorerPlugin::invalidateProject(Project *project)
     }
 
     disconnect(project, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
+    updateActions();
 }
 
 void ProjectExplorerPlugin::goToTaskWindow()
@@ -2009,7 +2099,7 @@ void ProjectExplorerPlugin::populateBuildConfigurationMenu()
     delete d->m_buildConfigurationActionGroup;
     d->m_buildConfigurationActionGroup = new QActionGroup(d->m_buildConfigurationMenu);
     d->m_buildConfigurationMenu->clear();
-    if (Project *pro = d->m_currentProject) {
+    if (Project *pro = session()->startupProject()) {
         const BuildConfiguration *activeBC = pro->activeTarget()->activeBuildConfiguration();
         foreach (BuildConfiguration *bc, pro->activeTarget()->buildConfigurations()) {
             QString displayName = bc->displayName();
@@ -2032,7 +2122,7 @@ void ProjectExplorerPlugin::buildConfigurationMenuTriggered(QAction *action)
     if (debug)
         qDebug() << "ProjectExplorerPlugin::buildConfigurationMenuTriggered";
 
-    d->m_currentProject->activeTarget()->setActiveBuildConfiguration(action->data().value<BuildConfiguration *>());
+    session()->startupProject()->activeTarget()->setActiveBuildConfiguration(action->data().value<BuildConfiguration *>());
 }
 
 void ProjectExplorerPlugin::populateRunConfigurationMenu()

@@ -129,12 +129,15 @@ private slots:
     void buildQueueFinished(bool success);
     void buildProjectOnly();
     void buildProject();
+    void buildProjectContextMenu();
     void buildSession();
     void rebuildProjectOnly();
     void rebuildProject();
+    void rebuildProjectContextMenu();
     void rebuildSession();
     void cleanProjectOnly();
     void cleanProject();
+    void cleanProjectContextMenu();
     void cleanSession();
     void cancelBuild();
     void debugProject();
