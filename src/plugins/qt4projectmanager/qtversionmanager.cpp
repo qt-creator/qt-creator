@@ -159,6 +159,9 @@ QtVersionManager *QtVersionManager::instance()
 void QtVersionManager::addVersion(QtVersion *version)
 {
     QTC_ASSERT(version != 0, return);
+    if (m_versions.contains(version))
+        return;
+
     m_versions.append(version);
     int uniqueId = version->uniqueId();
     m_uniqueIdToIndex.insert(uniqueId, m_versions.count() - 1);
@@ -278,9 +281,19 @@ void QtVersionManager::writeVersionsIntoSettings()
     s->endArray();
 }
 
-QList<QtVersion* > QtVersionManager::versions() const
+QList<QtVersion *> QtVersionManager::versions() const
 {
     return m_versions;
+}
+
+QList<QtVersion *> QtVersionManager::validVersions() const
+{
+    QList<QtVersion *> results;
+    foreach(QtVersion *v, m_versions) {
+        if (v->isValid())
+            results.append(v);
+    }
+    return results;
 }
 
 bool QtVersionManager::isValidId(int id) const

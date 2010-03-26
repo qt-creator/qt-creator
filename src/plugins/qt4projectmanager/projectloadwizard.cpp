@@ -89,12 +89,7 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
     // The default buildConfiguration depends on QmakeBuildConfig::DebugBuild
     // Also if the qt version is not yet in the Tools Options dialog we offer to add it there
 
-    QList<QtVersion *> validVersions;
-    foreach (QtVersion * v, vm->versions()) {
-        if (v->isValid())
-            validVersions.append(v);
-    }
-
+    QList<QtVersion *> validVersions = vm->validVersions();
     if (m_importVersion)
         setupImportPage(m_importVersion, m_importBuildConfig, m_additionalArguments);
     else if (validVersions.count() > 1)

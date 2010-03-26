@@ -199,6 +199,7 @@ public:
     // This will *always* return at least one (Qt in Path), even if that is
     // unconfigured.
     QList<QtVersion *> versions() const;
+    QList<QtVersion *> validVersions() const;
 
     // Note: DO NOT STORE THIS POINTER!
     //       The QtVersionManager will delete it at random times and you will
