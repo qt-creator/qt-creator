@@ -374,7 +374,7 @@
 */
 
 /*!
-    \fn void ICore::contextChanged(Core::IContext *context)
+    \fn void ICore::contextChanged(Core::IContext *context, const QList<int> &additionalContexts)
     \brief Sent just after a new \a context became the current context
-    (meaning that its widget got focus).
+    (meaning that its widget got focus), or if the additional context ids changed.
 */

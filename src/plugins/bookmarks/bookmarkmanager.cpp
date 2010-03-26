@@ -321,7 +321,7 @@ BookmarkManager::BookmarkManager() :
     m_bookmarkIcon(QLatin1String(":/bookmarks/images/bookmark.png")),
     m_selectionModel(new QItemSelectionModel(this, this))
 {
-    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*)),
+    connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*,QList<int>)),
             this, SLOT(updateActionStatus()));
 
     connect(ProjectExplorerPlugin::instance()->session(), SIGNAL(sessionLoaded()),

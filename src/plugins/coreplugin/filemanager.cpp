@@ -149,7 +149,7 @@ FileManager::FileManager(QMainWindow *mw)
         this, SLOT(changedFile(QString)));
     connect(d->m_mainWindow, SIGNAL(windowActivated()),
         this, SLOT(mainWindowActivated()));
-    connect(core, SIGNAL(contextChanged(Core::IContext*)),
+    connect(core, SIGNAL(contextChanged(Core::IContext*,QList<int>)),
         this, SLOT(syncWithEditor(Core::IContext*)));
 
     const QSettings *s = core->settings();

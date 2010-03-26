@@ -1096,7 +1096,6 @@ void MainWindow::updateContextObject(IContext *context)
         if (debugMainWindow)
             qDebug() << "new context object =" << context << (context ? context->widget() : 0)
                      << (context ? context->widget()->metaObject()->className() : 0);
-        emit m_coreImpl->contextChanged(context);
     }
 }
 
@@ -1215,6 +1214,7 @@ void MainWindow::updateContext()
     }
 
     m_actionManager->setContext(uniquecontexts);
+    emit m_coreImpl->contextChanged(m_activeContext, m_additionalContexts);
 }
 
 void MainWindow::aboutToShowRecentFiles()

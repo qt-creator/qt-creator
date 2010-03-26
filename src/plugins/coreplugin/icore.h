@@ -124,7 +124,7 @@ signals:
     void optionsDialogRequested();
     void coreAboutToClose();
     void contextAboutToChange(Core::IContext *context);
-    void contextChanged(Core::IContext *context);
+    void contextChanged(Core::IContext *context, const QList<int> &additionalContexts);
 };
 
 } // namespace Core
