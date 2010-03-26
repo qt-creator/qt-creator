@@ -1052,8 +1052,6 @@
           \l{Adding External Libraries to a qmake Project}.
        \o For information on adding external libraries to CMake projects, see
           \l{Adding External Libraries to a CMake Project}.
-       \o For information on adding external libraries to generic projects, see
-          \l{Adding External Libraries to a Generic Project}.
    \endlist
 
 */
@@ -3115,7 +3113,7 @@
     To update the \tt{.files} on the \gui git repository use the following
     script:
     \code
-    git ls-files *.cpp > MyProject.files
+    git ls-files *.cpp *.h > MyProject.files
     \endcode
 
     \section1 Specifying Include Paths
@@ -3147,24 +3145,6 @@
            additional arguments you want to and the working directory.
     \endlist
 
-
-    \section1 Adding External Libraries to a Generic Project
-
-    Through external libraries Qt Creator can support code completion and
-    syntax highlighting as if they were part of the current project or the Qt
-    library.
-
-    If you import a project using the \gui{Import Existing Project}
-    function, Qt Creator creates a file called \tt{<projectname>.includes} in
-    your project directory. The \tt{.includes} file contains all project
-    subdirectories for which Qt Creator found relevant headers. Add your
-    include paths here.
-
-    \note In \gui Projects mode of a generic project, Qt Creator does not
-    modify any project settings prior to the build.
-
-    Syntax completion and highlighting work once your project successfully
-    builds and links against the external library.
 */
 
 
