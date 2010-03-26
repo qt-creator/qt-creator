@@ -146,10 +146,6 @@ private slots:
     void clearSession();
     void newProject();
     void showSessionManager();
-    void populateBuildConfigurationMenu();
-    void buildConfigurationMenuTriggered(QAction *);
-    void populateRunConfigurationMenu();
-    void runConfigurationMenuTriggered(QAction *);
     void populateOpenWithMenu();
     void openWithMenuTriggered(QAction *action);
     void updateSessionMenu();
