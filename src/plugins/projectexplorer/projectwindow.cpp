@@ -360,7 +360,8 @@ void ProjectWindow::refreshProject()
 void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)
 {
     int index = m_tabIndexToProject.indexOf(p);
-    m_tabWidget->setCurrentIndex(index);
+    if (index != -1)
+        m_tabWidget->setCurrentIndex(index);
 }
 
 void ProjectWindow::showProperties(int index, int subIndex)
