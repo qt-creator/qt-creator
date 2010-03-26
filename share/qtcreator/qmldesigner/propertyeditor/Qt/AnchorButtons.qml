@@ -22,7 +22,9 @@ QWidget {
 
         checkable: true
         fixedWidth: 31
+		width: fixedWidth
         fixedHeight: 28
+		height: fixedHeight
         styleSheetFile: "anchortop.css";
 
         checked: anchorBackend.topAnchored;
@@ -42,7 +44,9 @@ QWidget {
         x: 31
         checkable: true
         fixedWidth: 30
+		width: fixedWidth
         fixedHeight: 28
+		height: fixedHeight
 
         styleSheetFile: "anchorbottom.css";
 
@@ -62,7 +66,9 @@ QWidget {
         x: 61
         checkable: true
         fixedWidth: 30
+		width: fixedWidth
         fixedHeight: 28
+		height: fixedHeight
 
         styleSheetFile: "anchorleft.css";
 
@@ -82,7 +88,9 @@ QWidget {
         x: 91
         checkable: true
         fixedWidth: 30
+		width: fixedWidth
         fixedHeight: 28
+		height: fixedHeight
 
         styleSheetFile: "anchorright.css";
 
@@ -101,7 +109,9 @@ QWidget {
         x: 121
         checkable: true
         fixedWidth: 19
+		width: fixedWidth
         fixedHeight: 28
+		height: fixedHeight
 
         styleSheetFile: "anchorspacer.css";
 
@@ -112,6 +122,7 @@ QWidget {
         x: 140
         fixedWidth: 30
         fixedHeight: 28
+		height: fixedHeight
 
         styleSheetFile: "anchorfill.css";
 
@@ -122,7 +133,9 @@ QWidget {
         x: 170
         checkable: true
         fixedWidth: 19
+		width: fixedWidth
         fixedHeight: 28
+		height: fixedHeight
 
         styleSheetFile: "anchorspacer.css";
 
@@ -132,7 +145,9 @@ QWidget {
         x: 189
         checkable: true
         fixedWidth: 30
+		width: fixedWidth
         fixedHeight: 28
+		height: fixedHeight
 
 		styleSheetFile: "anchorvertical.css";
 
@@ -152,7 +167,9 @@ QWidget {
         x: 219
         checkable: true
         fixedWidth: 31
+		width: fixedWidth
         fixedHeight: 28
+		height: fixedHeight
         
 		styleSheetFile: "anchorhorizontal.css";
 
