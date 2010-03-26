@@ -513,7 +513,6 @@ private:
         }
 
         FakeMetaEnum metaEnum(name);
-        metaObject->addEnum(metaEnum);
 
         while (_xml.readNextStartElement()) {
             if (_xml.name() == QLatin1String("enumerator"))
@@ -521,6 +520,8 @@ private:
             else
                 unexpectedElement(_xml.name(), tag);
         }
+
+        metaObject->addEnum(metaEnum);
     }
 
     void readEnumerator(FakeMetaEnum *metaEnum)
