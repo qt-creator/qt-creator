@@ -34,6 +34,7 @@
 #include "stackframe.h"
 
 #include <texteditor/basetextmark.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -203,32 +204,35 @@ QString BreakpointData::toToolTip() const
 {
     QString rc;
     QTextStream str(&rc);
-    str << "<html><body><table>";
-    str << "<tr><td>" << BreakHandler::tr("Marker File:")
-        << "</td><td>" << markerFileName << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Marker Line:")
-        << "</td><td>" << markerLineNumber << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Breakpoint Number:")
-        << "</td><td>" << bpNumber << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Breakpoint Address:")
-        << "</td><td>" << bpAddress << "</td></tr>";
-    str << "</table><br><hr><table>";
-    str << "<tr><th>" << BreakHandler::tr("Property")
+    str << "<html><body><table>"
+        << "<tr><td>" << BreakHandler::tr("Marker File:")
+        << "</td><td>" << markerFileName << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Marker Line:")
+        << "</td><td>" << markerLineNumber << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Breakpoint Number:")
+        << "</td><td>" << bpNumber << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Breakpoint Address:")
+        << "</td><td>" << bpAddress << "</td></tr>"
+        << "</table><br><hr><table>"
+        << "<tr><th>" << BreakHandler::tr("Property")
         << "</th><th>" << BreakHandler::tr("Requested")
-        << "</th><th>" << BreakHandler::tr("Obtained") << "</th></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Internal Number:")
-        << "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("File Name:")
-        << "</td><td>" << fileName << "</td><td>" << bpFileName << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Function Name:")
-        << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Line Number:")
-        << "</td><td>" << lineNumber << "</td><td>" << bpLineNumber << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Condition:")
-        << "</td><td>" << condition << "</td><td>" << bpCondition << "</td></tr>";
-    str << "<tr><td>" << BreakHandler::tr("Ignore Count:")
-        << "</td><td>" << ignoreCount << "</td><td>" << bpIgnoreCount << "</td></tr>";
-    str << "</table></body></html>";
+        << "</th><th>" << BreakHandler::tr("Obtained") << "</th></tr>"
+        << "<tr><td>" << BreakHandler::tr("Internal Number:")
+        << "</td><td>&mdash;</td><td>" << bpNumber << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("File Name:")
+        << "</td><td>" << fileName << "</td><td>" << bpFileName << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Function Name:")
+        << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Line Number:")
+        << "</td><td>" << lineNumber << "</td><td>" << bpLineNumber << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Corrected Line Number:")
+        << "</td><td>" << lineNumber
+        << "</td><td>" << bpCorrectedLineNumber << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Condition:")
+        << "</td><td>" << condition << "</td><td>" << bpCondition << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Ignore Count:")
+        << "</td><td>" << ignoreCount << "</td><td>" << bpIgnoreCount << "</td></tr>"
+        << "</table></body></html>";
     return rc;
 }
 
@@ -236,19 +240,19 @@ QString BreakpointData::toString() const
 {
     QString rc;
     QTextStream str(&rc);
-    str << BreakHandler::tr("Marker File:") << markerFileName << ' ';
-    str << BreakHandler::tr("Marker Line:") << markerLineNumber << ' ';
-    str << BreakHandler::tr("Breakpoint Number:") << bpNumber << ' ';
-    str << BreakHandler::tr("Breakpoint Address:") << bpAddress << '\n';
-    str << BreakHandler::tr("File Name:")
-        << fileName << " -- " << bpFileName << '\n';
-    str << BreakHandler::tr("Function Name:")
-        << funcName << " -- " << bpFuncName << '\n';
-    str << BreakHandler::tr("Line Number:")
-        << lineNumber << " -- " << bpLineNumber << '\n';
-    str << BreakHandler::tr("Condition:")
-        << condition << " -- " << bpCondition << '\n';
-    str << BreakHandler::tr("Ignore Count:")
+    str << BreakHandler::tr("Marker File:") << markerFileName << ' '
+        << BreakHandler::tr("Marker Line:") << markerLineNumber << ' '
+        << BreakHandler::tr("Breakpoint Number:") << bpNumber << ' '
+        << BreakHandler::tr("Breakpoint Address:") << bpAddress << '\n'
+        << BreakHandler::tr("File Name:")
+        << fileName << " -- " << bpFileName << '\n'
+        << BreakHandler::tr("Function Name:")
+        << funcName << " -- " << bpFuncName << '\n'
+        << BreakHandler::tr("Line Number:")
+        << lineNumber << " -- " << bpLineNumber << '\n'
+        << BreakHandler::tr("Condition:")
+        << condition << " -- " << bpCondition << '\n'
+        << BreakHandler::tr("Ignore Count:")
         << ignoreCount << " -- " << bpIgnoreCount << '\n';
     return rc;
 }
@@ -269,7 +273,7 @@ bool BreakpointData::isLocatedAt(const QString &fileName_, int lineNumber_) cons
 
 bool BreakpointData::conditionsMatch() const
 {
-    // same versions of gdb "beautify" the passed condition
+    // Some versions of gdb "beautify" the passed condition.
     QString s1 = condition;
     s1.remove(QChar(' '));
     QString s2 = bpCondition;
@@ -314,6 +318,12 @@ bool BreakHandler::hasPendingBreakpoints() const
         if (at(i)->pending)
             return true;
     return false;
+}
+
+BreakpointData *BreakHandler::at(int index) const
+{
+    QTC_ASSERT(index < size(), return 0);
+    return m_bp.at(index);
 }
 
 void BreakHandler::removeAt(int index)
@@ -443,7 +453,7 @@ void BreakHandler::resetBreakpoints()
         data->bpCondition.clear();
         data->bpIgnoreCount.clear();
         data->bpAddress.clear();
-        // keep marker data if it was primary
+        // Keep marker data if it was primary.
         if (data->markerFileName != data->fileName)
             data->markerFileName.clear();
         if (data->markerLineNumber != data->lineNumber.toInt())
@@ -728,7 +738,6 @@ void BreakHandler::loadSessionData()
 void BreakHandler::activateBreakpoint(int index)
 {
     const BreakpointData *data = at(index);
-    //qDebug() << "BREAKPOINT ACTIVATED: " << data->fileName;
     if (!data->markerFileName.isEmpty()) {
         StackFrame frame;
         frame.file = data->markerFileName;
@@ -739,7 +748,8 @@ void BreakHandler::activateBreakpoint(int index)
 
 void BreakHandler::breakByFunction(const QString &functionName)
 {
-    // One per function is enough for now
+    // One breakpoint per function is enough for now. This does not handle
+    // combinations of multiple conditions and ignore counts, though.
     for (int index = size(); --index >= 0;) {
         const BreakpointData *data = at(index);
         QTC_ASSERT(data, break);
