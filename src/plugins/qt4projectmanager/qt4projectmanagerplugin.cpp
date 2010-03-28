@@ -225,8 +225,9 @@ void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,
         m_runQMakeActionContextMenu->setVisible(true);
         m_buildSubProjectContextMenu->setVisible(true);
 
-        m_runQMakeActionContextMenu->setText(tr("Run qmake in %1").arg(proFileNode->buildDir()));
-        m_buildSubProjectContextMenu->setText(tr("Build in %1").arg(proFileNode->buildDir()));
+        const QString nativeBuildDir = QDir::toNativeSeparators(proFileNode->buildDir());
+        m_runQMakeActionContextMenu->setText(tr("Run qmake in %1").arg(nativeBuildDir));
+        m_buildSubProjectContextMenu->setText(tr("Build in %1").arg(nativeBuildDir));
 
         if (!m_projectExplorer->buildManager()->isBuilding(project)) {
             m_runQMakeActionContextMenu->setEnabled(true);
