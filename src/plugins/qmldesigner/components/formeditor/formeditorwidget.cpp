@@ -149,6 +149,12 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_graphicsView = new FormEditorGraphicsView(this);
     fillLayout->addWidget(m_graphicsView.data());
 
+    {
+        QFile file(":/qmldesigner/scrollbar.css");
+        file.open(QFile::ReadOnly);
+        m_graphicsView.data()->setStyleSheet(file.readAll());
+    }
+
     QList<QAction*> lowerActions;
 
     m_zoomAction = new ZoomAction(toolActionGroup());
