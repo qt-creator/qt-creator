@@ -36,6 +36,7 @@
 #include "filemanager.h"
 #include "icore.h"
 #include "uniqueidmanager.h"
+
 #include <utils/treewidgetcolumnstretcher.h>
 
 
@@ -121,7 +122,8 @@ void ShortcutSettings::finish()
 
 bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)
 {
-    Q_UNUSED(o);
+    Q_UNUSED(o)
+
     if ( e->type() == QEvent::KeyPress ) {
         QKeyEvent *k = static_cast<QKeyEvent*>(e);
         handleKeyEvent(k);
@@ -157,22 +159,12 @@ void ShortcutSettings::targetIdentifierChanged()
     if (current && current->data(0, Qt::UserRole).isValid()) {
         ShortcutItem *scitem = qVariantValue<ShortcutItem *>(current->data(0, Qt::UserRole));
         scitem->m_key = QKeySequence(m_key[0], m_key[1], m_key[2], m_key[3]);
-        if (scitem->m_cmd->defaultKeySequence() != scitem->m_key) {
-            QFont f = current->font(0);
-            f.setItalic(true);
-            current->setFont(0, f);
-            current->setFont(1, f);
-            f.setBold(true);
-            current->setFont(2, f);
-        } else {
-            QFont f = current->font(0);
-            f.setItalic(false);
-            f.setBold(false);
-            current->setFont(0, f);
-            current->setFont(1, f);
-            current->setFont(2, f);
-        }
+        if (scitem->m_cmd->defaultKeySequence() != scitem->m_key)
+            setModified(current, true);
+        else
+            setModified(current, false);
         current->setText(2, scitem->m_key);
+        markPossibleCollisions(scitem);
     }
 }
 
@@ -219,6 +211,13 @@ void ShortcutSettings::importAction()
                 item->m_item->setText(2, item->m_key);
                 if (item->m_item == commandList()->currentItem())
                     commandChanged(item->m_item);
+
+                if (item->m_cmd->defaultKeySequence() != item->m_key)
+                    setModified(item->m_item, true);
+                else
+                    setModified(item->m_item, false);
+
+                markPossibleCollisions(item);
             }
         }
     }
@@ -229,8 +228,10 @@ void ShortcutSettings::defaultAction()
     foreach (ShortcutItem *item, m_scitems) {
         item->m_key = item->m_cmd->defaultKeySequence();
         item->m_item->setText(2, item->m_key);
+        setModified(item->m_item, false);
         if (item->m_item == commandList()->currentItem())
             commandChanged(item->m_item);
+        resetCollisionMarkers();
     }
 }
 
@@ -294,15 +295,8 @@ void ShortcutSettings::initialize()
         }
 
         item->setText(2, s->m_key);
-        if (s->m_cmd->defaultKeySequence() != s->m_key) {
-            QFont f = item->font(0);
-            f.setItalic(true);
-            item->setFont(0, f);
-            item->setFont(1, f);
-            f.setBold(true);
-            item->setFont(2, f);
-
-        }
+        if (s->m_cmd->defaultKeySequence() != s->m_key)
+            setModified(item, true);
 
         item->setData(0, Qt::UserRole, qVariantFromValue(s));
     }
@@ -359,4 +353,40 @@ int ShortcutSettings::translateModifiers(Qt::KeyboardModifiers state,
     if (state & Qt::AltModifier)
         result |= Qt::ALT;
     return result;
+}
+
+
+
+void ShortcutSettings::markPossibleCollisions(ShortcutItem *item)
+{
+    if (item->m_key.isEmpty())
+        return;
+
+    foreach (ShortcutItem *currentItem, m_scitems) {
+
+        if (currentItem->m_key.isEmpty() || item == currentItem ||
+            item->m_key != currentItem->m_key) {
+            continue;
+        }
+
+        foreach(int context, currentItem->m_cmd->context()) {
+
+            // conflict if context is identical, OR if one
+            // of the contexts is the global context
+            if (item->m_cmd->context().contains(context) ||
+               (item->m_cmd->context().contains(Constants::C_GLOBAL_ID) &&
+                !currentItem->m_cmd->context().isEmpty()) ||
+                (currentItem->m_cmd->context().contains(Constants::C_GLOBAL_ID) &&
+                !item->m_cmd->context().isEmpty())) {
+                currentItem->m_item->setForeground(2, Qt::red);
+                item->m_item->setForeground(2, Qt::red);
+            }
+        }
+    }
+}
+
+void ShortcutSettings::resetCollisionMarkers()
+{
+    foreach (ShortcutItem *item, m_scitems)
+        item->m_item->setForeground(2, commandList()->palette().foreground());
 }

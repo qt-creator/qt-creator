@@ -191,3 +191,13 @@ bool CommandMappings::filter(const QString &f, const QTreeWidgetItem *item)
     }
     return !found;
 }
+
+void CommandMappings::setModified(QTreeWidgetItem *item , bool modified)
+{
+    QFont f = item->font(0);
+    f.setItalic(modified);
+    item->setFont(0, f);
+    item->setFont(1, f);
+    f.setBold(modified);
+    item->setFont(2, f);
+}

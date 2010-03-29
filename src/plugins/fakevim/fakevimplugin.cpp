@@ -371,15 +371,8 @@ void FakeVimExCommandsPage::initialize()
         item->setText(2, ci->m_regex);
         item->setData(0, Qt::UserRole, qVariantFromValue(ci));
 
-        if (ci->m_regex != s_defaultExCommandMap[name].pattern()) {
-            QFont f = item->font(0);
-            f.setItalic(true);
-            item->setFont(0, f);
-            item->setFont(1, f);
-            f.setBold(true);
-            item->setFont(2, f);
-        }
-
+        if (ci->m_regex != s_defaultExCommandMap[name].pattern())
+            setModified(item, true);
     }
 
     commandChanged(0);
@@ -412,21 +405,10 @@ void FakeVimExCommandsPage::targetIdentifierChanged()
         s_exCommandMap[name] = QRegExp(citem->m_regex);
     }
 
-    if (citem->m_regex != s_defaultExCommandMap[name].pattern()) {
-        QFont f = current->font(0);
-        f.setItalic(true);
-        current->setFont(0, f);
-        current->setFont(1, f);
-        f.setBold(true);
-        current->setFont(2, f);
-    } else {
-        QFont f = current->font(0);
-        f.setItalic(false);
-        f.setBold(false);
-        current->setFont(0, f);
-        current->setFont(1, f);
-        current->setFont(2, f);
-    }
+    if (citem->m_regex != s_defaultExCommandMap[name].pattern())
+        setModified(current, true);
+    else
+        setModified(current, false);
 
 }
 
@@ -464,6 +446,7 @@ void FakeVimExCommandsPage::defaultAction()
         } else {
             item->m_regex.clear();
         }
+        setModified(item->m_item, false);
         item->m_item->setText(2, item->m_regex);
         if (item->m_item == commandList()->currentItem())
             commandChanged(item->m_item);

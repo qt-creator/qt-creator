@@ -84,7 +84,9 @@ protected:
     void setTargetLabelText(const QString &s);
     void setTargetEditTitle(const QString &s);
     void setTargetHeader(const QString &s);
-
+    void setModified(QTreeWidgetItem *item, bool modified);
+    virtual void markPossibleCollisions(QTreeWidgetItem *) {}
+    virtual void resetCollisionMarkers() {}
 private:
     Ui_CommandMappings *m_page;
 };

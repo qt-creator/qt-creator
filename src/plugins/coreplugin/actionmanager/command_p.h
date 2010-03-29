@@ -60,6 +60,8 @@ public:
 
     QAction *action() const;
     QShortcut *shortcut() const;
+    QList<int> context() const;
+
 
     void setAttribute(CommandAttribute attr);
     void removeAttribute(CommandAttribute attr);
@@ -70,6 +72,7 @@ public:
     QString stringWithAppendedShortcut(const QString &str) const;
 
 protected:
+    QList<int> m_context;
     QString m_category;
     int m_attributes;
     int m_id;
@@ -101,7 +104,6 @@ public:
 
     bool isActive() const;
 private:
-    QList<int> m_context;
     QShortcut *m_shortcut;
     QString m_defaultText;
 };
@@ -140,7 +142,6 @@ private:
     QString m_toolTip;
 
     QPointer<QAction> m_currentAction;
-    QList<int> m_context;
     QMap<int, QPointer<QAction> > m_contextActionMap;
     bool m_active;
     bool m_contextInitialized;

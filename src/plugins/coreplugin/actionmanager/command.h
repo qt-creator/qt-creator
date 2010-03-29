@@ -65,6 +65,7 @@ public:
 
     virtual QAction *action() const = 0;
     virtual QShortcut *shortcut() const = 0;
+    virtual QList<int> context() const = 0;
 
     virtual void setAttribute(CommandAttribute attr) = 0;
     virtual void removeAttribute(CommandAttribute attr) = 0;

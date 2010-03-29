@@ -238,6 +238,11 @@ QShortcut *CommandPrivate::shortcut() const
     return 0;
 }
 
+QList<int> CommandPrivate::context() const
+{
+    return m_context;
+}
+
 void CommandPrivate::setAttribute(CommandAttribute attr)
 {
     m_attributes |= attr;
