@@ -111,8 +111,6 @@ private:
     IEditor *currentEditor() const;
     Core::OpenEditorsModel *m_editorsListModel;
     QComboBox *m_editorList;
-    QToolBar *m_centerToolBar;
-    QToolBar *m_rightToolBar;
     QToolButton *m_closeButton;
     QToolButton *m_lockButton;
     QAction *m_goBackAction;
