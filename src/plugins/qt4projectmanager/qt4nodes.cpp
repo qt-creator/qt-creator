@@ -1177,6 +1177,7 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
                                               m_projectDir,
                                               QStringList() << m_projectDir,
                                               0);
+    newVarValues[LibDirectoriesVar] = libDirectories(m_readerExact);
 
     if (m_varValues != newVarValues) {
         m_varValues = newVarValues;
@@ -1353,6 +1354,17 @@ QStringList Qt4ProFileNode::includePaths(ProFileReader *reader) const
     paths << uiDirPaths(reader) << mocDirPaths(reader);
     paths.removeDuplicates();
     return paths;
+}
+
+QStringList Qt4ProFileNode::libDirectories(ProFileReader *reader) const
+{
+    QStringList result;
+    foreach (const QString &str, reader->values(QLatin1String("LIBS"))) {
+        if (str.startsWith("-L")) {
+            result.append(str.mid(2));
+        }
+    }
+    return result;
 }
 
 QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const

@@ -91,7 +91,8 @@ enum Qt4Variable {
     UiDirVar,
     MocDirVar,
     PkgConfigVar,
-    PrecompiledHeaderVar
+    PrecompiledHeaderVar,
+    LibDirectoriesVar
 };
 
 class Qt4PriFileNode;
@@ -277,6 +278,7 @@ private:
     QStringList uiDirPaths(ProFileReader *reader) const;
     QStringList mocDirPaths(ProFileReader *reader) const;
     QStringList includePaths(ProFileReader *reader) const;
+    QStringList libDirectories(ProFileReader *reader) const;
     QStringList subDirsPaths(ProFileReader *reader) const;
     TargetInformation targetInformation(ProFileReader *reader) const;
 

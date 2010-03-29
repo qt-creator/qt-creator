@@ -550,6 +550,16 @@ ProjectExplorer::Environment Qt4RunConfiguration::baseEnvironment() const
     if (m_isUsingDyldImageSuffix) {
         env.set("DYLD_IMAGE_SUFFIX", "_debug");
     }
+
+#ifdef Q_OS_WIN
+    // On windows the user could be linking to a library found via a -L/some/dir switch
+    // to find those libraries while actually running we explicitly prepend those
+    // dirs to the path
+    Qt4ProFileNode *node = qt4Target()->qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
+    if (node)
+        foreach(const QString dir, node->variableValue(LibDirectoriesVar))
+            env.prependOrSetPath(dir);
+#endif
     return env;
 }
 
