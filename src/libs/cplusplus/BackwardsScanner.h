@@ -67,7 +67,7 @@ public:
     int startOfMatchingBrace(int index) const;
     int startOfBlock(int index) const;
 
-    int previousBlockState(const QTextBlock &block) const;
+    static int previousBlockState(const QTextBlock &block);
 
     int size() const;
 

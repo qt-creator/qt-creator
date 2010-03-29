@@ -120,6 +120,25 @@ QList<Scope *> ResolveExpression::visibleScopes(const LookupItem &result) const
 
 bool ResolveExpression::visit(BinaryExpressionAST *ast)
 {
+    if (tokenKind(ast->binary_op_token) == T_COMMA && ast->right_expression && ast->right_expression->asQtMethod() != 0) {
+
+        if (ast->left_expression && ast->left_expression->asQtMethod() != 0)
+            thisObject();
+        else
+            accept(ast->left_expression);
+
+        QtMethodAST *qtMethod = ast->right_expression->asQtMethod();
+        if (DeclaratorAST *d = qtMethod->declarator) {
+            if (d->core_declarator) {
+                if (DeclaratorIdAST *declaratorId = d->core_declarator->asDeclaratorId())
+                    if (NameAST *nameAST = declaratorId->name)
+                        _results = resolveMemberExpression(_results, T_ARROW, nameAST->name);
+            }
+        }
+
+        return false;
+    }
+
     accept(ast->left_expression);
     return false;
 }
@@ -264,8 +283,14 @@ bool ResolveExpression::visit(BoolLiteralAST *)
 
 bool ResolveExpression::visit(ThisExpressionAST *)
 {
+    thisObject();
+    return false;
+}
+
+void ResolveExpression::thisObject()
+{
     if (! _context.symbol())
-        return false;
+        return;
 
     Scope *scope = _context.symbol()->scope();
     for (; scope; scope = scope->enclosingScope()) {
@@ -290,7 +315,6 @@ bool ResolveExpression::visit(ThisExpressionAST *)
             }
         }
     }
-    return false;
 }
 
 bool ResolveExpression::visit(CompoundExpressionAST *ast)

@@ -1347,40 +1347,96 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             tc.movePosition(QTextCursor::Right);
     }
 
-    static TokenUnderCursor tokenUnderCursor;
 
-    QTextBlock block;
-    const SimpleToken tk = tokenUnderCursor(tc, &block);
+    int beginOfToken = 0;
+    int endOfToken = 0;
 
-    const int beginOfToken = block.position() + tk.begin();
-    const int endOfToken = block.position() + tk.end();
+    SimpleLexer tokenize;
+    tokenize.setQtMocRunEnabled(true);
+    const QString blockText = cursor.block().text();
+    const QList<SimpleToken> tokens = tokenize(blockText, BackwardsScanner::previousBlockState(cursor.block()));
 
-    // Handle include directives
-    if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {
-        const unsigned lineno = cursor.blockNumber() + 1;
-        foreach (const Document::Include &incl, doc->includes()) {
-            if (incl.line() == lineno && incl.resolved()) {
-                link.fileName = incl.fileName();
-                link.begin = beginOfToken + 1;
-                link.end = endOfToken - 1;
-                return link;
+    bool recognizedQtMethod = false;
+
+    for (int i = 0; i < tokens.size(); ++i) {
+        const SimpleToken &tk = tokens.at(i);
+
+        if (column >= tk.begin() && column <= tk.end()) {
+            if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
+                && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
+
+                // token[i] == T_IDENTIFIER
+                // token[i + 1] == T_LPAREN
+                // token[.....] == ....
+                // token[i + n] == T_RPAREN
+
+                if (i + 1 < tokens.size() && tokens.at(i + 1).is(T_LPAREN)) {
+                    // skip matched parenthesis
+                    int j = i - 1;
+                    int depth = 0;
+
+                    for (; j < tokens.size(); ++j) {
+                        if (tokens.at(j).is(T_LPAREN))
+                            ++depth;
+
+                        else if (tokens.at(j).is(T_RPAREN)) {
+                            if (! --depth)
+                                break;
+                        }
+                    }
+
+                    if (j < tokens.size()) {
+                        QTextBlock block = cursor.block();
+
+                        beginOfToken = block.position() + tokens.at(i).begin();
+                        endOfToken = block.position() + tokens.at(i).end();
+
+                        tc.setPosition(block.position() + tokens.at(j).end());
+                        recognizedQtMethod = true;
+                    }
+                }
             }
+            break;
         }
     }
 
-    if (tk.isNot(T_IDENTIFIER))
-        return link;
+    if (! recognizedQtMethod) {
+        static TokenUnderCursor tokenUnderCursor;
+
+        QTextBlock block;
+        const SimpleToken tk = tokenUnderCursor(tc, &block);
+
+        beginOfToken = block.position() + tk.begin();
+        endOfToken = block.position() + tk.end();
+
+        // Handle include directives
+        if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {
+            const unsigned lineno = cursor.blockNumber() + 1;
+            foreach (const Document::Include &incl, doc->includes()) {
+                if (incl.line() == lineno && incl.resolved()) {
+                    link.fileName = incl.fileName();
+                    link.begin = beginOfToken + 1;
+                    link.end = endOfToken - 1;
+                    return link;
+                }
+            }
+        }
+
+        if (tk.isNot(T_IDENTIFIER))
+            return link;
+
+        tc.setPosition(endOfToken);
+    }
 
     // Find the last symbol up to the cursor position
     Symbol *lastSymbol = doc->findSymbolAt(line, column);
     if (!lastSymbol)
         return link;
 
-    tc.setPosition(endOfToken);
-
     // Evaluate the type of the expression under the cursor
     ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
+
     TypeOfExpression typeOfExpression;
     typeOfExpression.setSnapshot(snapshot);
     QList<LookupItem> resolvedSymbols =

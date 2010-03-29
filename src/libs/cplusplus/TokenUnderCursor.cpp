@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "TokenUnderCursor.h"
+#include "BackwardsScanner.h"
 #include <Token.h>
 
 #include <QTextCursor>
@@ -52,7 +53,7 @@ SimpleToken TokenUnderCursor::operator()(const QTextCursor &cursor, QTextBlock *
     int column = cursor.position() - cursor.block().position();
 
     _text = block.text();
-    _tokens = tokenize(_text, previousBlockState(block));
+    _tokens = tokenize(_text, BackwardsScanner::previousBlockState(block));
     for (int index = _tokens.size() - 1; index != -1; --index) {
         const SimpleToken &tk = _tokens.at(index);
         if (tk.position() < column) {
@@ -63,16 +64,4 @@ SimpleToken TokenUnderCursor::operator()(const QTextCursor &cursor, QTextBlock *
     }
 
     return SimpleToken();
-}
-
-int TokenUnderCursor::previousBlockState(const QTextBlock &block) const
-{
-    const QTextBlock prevBlock = block.previous();
-    if (prevBlock.isValid()) {
-        int state = prevBlock.userState();
-
-        if (state != -1)
-            return state;
-    }
-    return 0;
 }

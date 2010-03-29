@@ -119,7 +119,7 @@ QStringRef BackwardsScanner::textRef(int index) const
     return _text.midRef(firstToken.begin(), firstToken.length());
 }
 
-int BackwardsScanner::previousBlockState(const QTextBlock &block) const
+int BackwardsScanner::previousBlockState(const QTextBlock &block)
 {
     const QTextBlock prevBlock = block.previous();
 

@@ -63,6 +63,7 @@ public:
 protected:
     QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
 
+    void thisObject();
     void addResult(const FullySpecifiedType &ty, Symbol *symbol = 0);
     void addResult(const LookupItem &result);
     void addResults(const QList<LookupItem> &results);
