@@ -1349,9 +1349,14 @@ QStringList Qt4ProFileNode::mocDirPaths(ProFileReader *reader) const
 QStringList Qt4ProFileNode::includePaths(ProFileReader *reader) const
 {
     QStringList paths;
-    paths = reader->absolutePathValues(QLatin1String("INCLUDEPATH"),
-                                       m_projectDir);
-    paths << uiDirPaths(reader) << mocDirPaths(reader);
+    foreach (const QString &cxxflags, m_readerExact->values("QMAKE_CXXFLAGS")) {
+        if (cxxflags.startsWith("-I"))
+            paths.append(cxxflags.mid(2));
+    }
+
+    paths.append(reader->absolutePathValues(QLatin1String("INCLUDEPATH"), m_projectDir));
+    paths << mocDirPaths(reader) << uiDirPaths(reader);
+
     paths.removeDuplicates();
     return paths;
 }
