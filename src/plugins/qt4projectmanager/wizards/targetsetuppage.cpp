@@ -175,7 +175,7 @@ bool TargetSetupPage::hasSelection() const
         QTreeWidgetItem * current = m_treeWidget->topLevelItem(i);
         for (int j = 0; j < current->childCount(); ++j) {
             QTreeWidgetItem * child = current->child(j);
-            if (child->checkState(0) != Qt::Checked)
+            if (child->checkState(0) == Qt::Checked)
                 return true;
         }
     }
