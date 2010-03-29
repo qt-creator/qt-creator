@@ -1568,10 +1568,26 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
     return false;
 }
 
+bool Parser::lookAtTypeParameter() const
+{
+    if ((LA() == T_CLASS || LA() == T_TYPENAME) && LA(2) == T_IDENTIFIER) {
+        switch (LA(3)) {
+        case T_EQUAL:
+        case T_COMMA:
+        case T_GREATER:
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 bool Parser::parseTypeParameter(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (LA() == T_CLASS || LA() == T_TYPENAME)
+
+    if (lookAtTypeParameter())
         return parseTypenameTypeParameter(node);
     else if (LA() == T_TEMPLATE)
         return parseTemplateTypeParameter(node);

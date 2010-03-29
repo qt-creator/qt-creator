@@ -280,6 +280,7 @@ public:
     bool skipUntilStatement();
     bool skip(int l, int r);
 
+    bool lookAtTypeParameter() const;
     bool lookAtCVQualifier() const;
     bool lookAtFunctionSpecifier() const;
     bool lookAtStorageClassSpecifier() const;
