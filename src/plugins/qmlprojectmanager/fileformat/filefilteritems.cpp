@@ -8,8 +8,7 @@ FileFilterBaseItem::FileFilterBaseItem(QObject *parent) :
         QmlProjectContentItem(parent),
         m_recurse(RecurseDefault)
 {
-    connect(&m_fsWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateFileList()));
-    connect(&m_fsWatcher, SIGNAL(fileChanged(QString)), this, SLOT(updateFileList()));
+    connect(&m_dirWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateFileList()));
 }
 
 QString FileFilterBaseItem::directory() const
@@ -127,9 +126,8 @@ bool FileFilterBaseItem::matchesFile(const QString &filePath) const
     if (!regexMatches)
         return false;
 
-    const QStringList watchedDirectories = m_fsWatcher.directories();
     const QDir fileDir = QFileInfo(filePath).absoluteDir();
-    foreach (const QString &watchedDirectory, watchedDirectories) {
+    foreach (const QString &watchedDirectory, m_dirWatcher.directories()) {
         if (QDir(watchedDirectory) == fileDir)
             return true;
     }
@@ -171,28 +169,19 @@ void FileFilterBaseItem::updateFileList()
         newFiles += filesInSubTree(QDir(m_defaultDir), QDir(projectDir), &dirsToBeWatched);
 
     if (newFiles != m_files) {
-        // update watched files
-        const QSet<QString> unwatchFiles = QSet<QString>(m_files - newFiles);
-        const QSet<QString> watchFiles = QSet<QString>(newFiles - m_files);
-        if (!unwatchFiles.isEmpty())
-            m_fsWatcher.removePaths(unwatchFiles.toList());
-        if (!watchFiles.isEmpty())
-            m_fsWatcher.addPaths(QSet<QString>(newFiles - m_files).toList());
-
         m_files = newFiles;
-
         emit filesChanged();
     }
 
     // update watched directories
-    const QSet<QString> watchedDirectories = m_fsWatcher.directories().toSet();
-    const QSet<QString> unwatchDirs = watchedDirectories - dirsToBeWatched;
-    const QSet<QString> watchDirs = dirsToBeWatched - watchedDirectories;
+    const QSet<QString> oldDirs = m_dirWatcher.directories().toSet();
+    const QSet<QString> unwatchDirs = oldDirs - dirsToBeWatched;
+    const QSet<QString> watchDirs = dirsToBeWatched - oldDirs;
 
     if (!unwatchDirs.isEmpty())
-        m_fsWatcher.removePaths(unwatchDirs.toList());
+        m_dirWatcher.removeDirectories(unwatchDirs.toList());
     if (!watchDirs.isEmpty())
-        m_fsWatcher.addPaths(watchDirs.toList());
+        m_dirWatcher.addDirectories(watchDirs.toList());
 }
 
 QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs)

@@ -8,6 +8,7 @@
 #include <QFileSystemWatcher>
 
 #include "qmlprojectitem.h"
+#include "filesystemwatcher.h"
 
 namespace QmlProjectManager {
 
@@ -72,9 +73,9 @@ private:
 
     QStringList m_explicitFiles;
 
-    QFileSystemWatcher m_fsWatcher;
-
     QSet<QString> m_files;
+    FileSystemWatcher m_dirWatcher;
+
 
     friend class ProjectItem;
 };
