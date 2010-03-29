@@ -796,6 +796,11 @@ void CodeCompletion::completions(QList<TextEditor::CompletionItem> *completions)
         const QString key = m_editor->textAt(m_startPosition, length);
 
         filter(m_completions, completions, key, FirstLetterCaseSensitive);
+
+        if (completions->size() == 1) {
+            if (key == completions->first().text)
+                completions->clear();
+        }
     }
 }
 
