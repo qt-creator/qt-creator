@@ -175,11 +175,8 @@ Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QStr
         QString displayName;
 
         if (qtVersionCount > 1)
-            displayName = tr("%1 %2", "build configuration display name, %1 is Qt version, %2 is debug or release").
-                          arg(info.version->displayName(), (info.buildConfig | QtVersion::DebugBuild) ? tr("Debug") : tr("Release"));
-        else
-            displayName = tr("%1", "debug buildconfiguration name (only one Qt version! %1 is debug or release)").
-                          arg((info.buildConfig | QtVersion::DebugBuild) ? tr("Debug") : tr("Release"));
+            displayName = info.version->displayName() + QChar(' ');
+        displayName.append((info.buildConfig & QtVersion::DebugBuild) ? tr("Debug") : tr("Release"));
 
         // Skip release builds for the symbian emulator.
         if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID) &&
