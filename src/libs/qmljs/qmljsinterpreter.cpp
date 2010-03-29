@@ -1305,7 +1305,7 @@ Context::~Context()
 void Context::build(const QList<Node *> &astPath, QmlJS::Document::Ptr doc,
                     const QmlJS::Snapshot &snapshot, const QStringList &importPaths)
 {
-    Link link(this, snapshot, importPaths);
+    Link link(this, doc, snapshot, importPaths);
     link.scopeChainAt(doc, astPath);
 }
 

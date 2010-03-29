@@ -174,7 +174,7 @@ Check::Check(Document::Ptr doc, const Snapshot &snapshot, const QStringList &imp
     : _doc(doc)
     , _snapshot(snapshot)
     , _context(&_engine)
-    , _link(&_context, snapshot, importPaths)
+    , _link(&_context, doc, snapshot, importPaths)
     , _scopeBuilder(doc, &_context)
 {
 }

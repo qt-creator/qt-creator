@@ -20,7 +20,8 @@ class Link
 {
 public:
     // Link all documents in snapshot
-    Link(Interpreter::Context *context, const Snapshot &snapshot, const QStringList &importPaths);
+    Link(Interpreter::Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
+         const QStringList &importPaths);
     ~Link();
 
     // Get the scope chain for the currentObject inside doc.
@@ -49,7 +50,10 @@ private:
                        AST::UiImport *import);
     void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
 
+    void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
+
 private:
+    Document::Ptr _doc;
     Snapshot _snapshot;
     Interpreter::Context *_context;
     QMultiHash<QString, Document::Ptr> _documentByPath;

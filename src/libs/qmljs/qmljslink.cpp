@@ -14,9 +14,10 @@ using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
-Link::Link(Context *context, const Snapshot &snapshot,
+Link::Link(Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
            const QStringList &importPaths)
-    : _snapshot(snapshot)
+    : _doc(doc)
+    , _snapshot(snapshot)
     , _context(context)
     , _importPaths(importPaths)
 {
@@ -240,9 +241,8 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
 
         importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
     } else {
-        _diagnosticMessages.append(DiagnosticMessage(
-                DiagnosticMessage::Error, import->fileNameToken,
-                QCoreApplication::translate("QmlJS::Link", "could not find file or directory")));
+        error(doc, import->fileNameToken,
+              QCoreApplication::translate("QmlJS::Link", "could not find file or directory"));
     }
 }
 
@@ -283,19 +283,16 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         const QString versionString = doc->source().mid(import->versionToken.offset, import->versionToken.length);
         const int dotIdx = versionString.indexOf(QLatin1Char('.'));
         if (dotIdx == -1) {
-            _diagnosticMessages.append(DiagnosticMessage(
-                    DiagnosticMessage::Error, import->versionToken,
-                    QCoreApplication::translate("QmlJS::Link", "expected two numbers separated by a dot")));
+            error(doc, import->versionToken,
+                  QCoreApplication::translate("QmlJS::Link", "expected two numbers separated by a dot"));
             return;
         } else {
             majorVersion = versionString.left(dotIdx).toInt();
             minorVersion = versionString.mid(dotIdx + 1).toInt();
         }
     } else {
-        _diagnosticMessages.append(DiagnosticMessage(
-                DiagnosticMessage::Error,
-                locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
-                QCoreApplication::translate("QmlJS::Link", "package import requires a version number")));
+        error(doc, locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
+              QCoreApplication::translate("QmlJS::Link", "package import requires a version number"));
         return;
     }
 
@@ -339,10 +336,8 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         }
     }
 
-    _diagnosticMessages.append(DiagnosticMessage(
-            DiagnosticMessage::Error,
-            locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
-            QCoreApplication::translate("QmlJS::Link", "package not found")));
+    error(doc, locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
+          QCoreApplication::translate("QmlJS::Link", "package not found"));
 }
 
 UiQualifiedId *Link::qualifiedTypeNameId(Node *node)
@@ -353,4 +348,10 @@ UiQualifiedId *Link::qualifiedTypeNameId(Node *node)
         return binding->qualifiedTypeNameId;
     else
         return 0;
+}
+
+void Link::error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message)
+{
+    if (doc->fileName() == _doc->fileName())
+        _diagnosticMessages.append(DiagnosticMessage(DiagnosticMessage::Error, loc, message));
 }
