@@ -783,7 +783,7 @@ bool Qt4Project::wasEvaluateCanceled()
 QString Qt4Project::defaultTopLevelBuildDirectory() const
 {
     QFileInfo info(file()->fileName());
-    return projectDirectory() + QChar('/') + info.baseName() + QLatin1String("-build");
+    return QDir(projectDirectory() + QLatin1String("/../") + info.baseName() + QLatin1String("-build")).absolutePath();
 }
 
 void Qt4Project::asyncUpdate()
