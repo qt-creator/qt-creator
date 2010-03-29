@@ -340,14 +340,18 @@ QString CustomExecutableRunConfiguration::executable() const
     if (m_executable.isEmpty() || !QFileInfo(exec).exists()) {
         // Oh the executable doesn't exists, ask the user.
         QWidget *confWidget = const_cast<CustomExecutableRunConfiguration *>(this)->configurationWidget();
+        confWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         QDialog dialog(Core::ICore::instance()->mainWindow());
         dialog.setLayout(new QVBoxLayout());
-        dialog.layout()->addWidget(new QLabel(tr("Could not find the executable, please specify one.")));
+        QLabel *label = new QLabel(tr("Could not find the executable, please specify one."));
+        label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        dialog.layout()->addWidget(label);
         dialog.layout()->addWidget(confWidget);
         QDialogButtonBox *dbb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         connect(dbb, SIGNAL(accepted()), &dialog, SLOT(accept()));
         connect(dbb, SIGNAL(rejected()), &dialog, SLOT(reject()));
         dialog.layout()->addWidget(dbb);
+        dialog.layout()->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
         QString oldExecutable = m_executable;
         QString oldWorkingDirectory = m_workingDirectory;
@@ -366,6 +370,7 @@ QString CustomExecutableRunConfiguration::executable() const
     }
     return exec;
 }
+
 
 LocalApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runMode() const
 {
