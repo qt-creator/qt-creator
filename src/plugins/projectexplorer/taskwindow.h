@@ -50,7 +50,7 @@ class TaskWindowContext;
 
 } // namespace Internal
 
-struct Task {
+struct PROJECTEXPLORER_EXPORT Task {
     enum TaskType {
         Unknown,
         Error,
