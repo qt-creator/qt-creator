@@ -47,6 +47,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 const int notificationTimeout = 8000;
+const int shortNotificationTimeout = 1000;
 
 namespace Core {
 namespace Internal {
@@ -240,7 +241,7 @@ void FutureProgress::setFinished()
         m_waitingForUserInteraction = true;
         qApp->installEventFilter(this);
     } else if (!m_progress->hasError()) {
-        QTimer::singleShot(notificationTimeout, this, SLOT(fadeAway()));
+        QTimer::singleShot(shortNotificationTimeout, this, SLOT(fadeAway()));
     }
 }
 
