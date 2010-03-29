@@ -34,10 +34,11 @@
 #include <QtCore/QAbstractTableModel>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
-class HelpViewer;
 
 namespace Help {
     namespace Internal {
+
+class HelpViewer;
 
 class OpenPagesModel : public QAbstractTableModel
 {

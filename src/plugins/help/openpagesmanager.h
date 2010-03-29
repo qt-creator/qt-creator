@@ -39,11 +39,10 @@ QT_FORWARD_DECLARE_CLASS(QTreeView)
 QT_FORWARD_DECLARE_CLASS(QUrl)
 QT_FORWARD_DECLARE_CLASS(QWidget)
 
-class HelpViewer;
-
 namespace Help {
     namespace Internal {
 
+class HelpViewer;
 class OpenPagesModel;
 
 class OpenPagesManager : public QObject
