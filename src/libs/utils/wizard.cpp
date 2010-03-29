@@ -724,7 +724,7 @@ void WizardProgress::setCurrentPage(int pageId)
         while (prevItemIndex + 1 < d->m_visitedItems.count())
             d->m_visitedItems.removeLast();
     } else {
-        if (!d->m_currentItem && d->m_startItem && !singleItemPath.isEmpty() || currentStartItem)
+        if ((!d->m_currentItem && d->m_startItem && !singleItemPath.isEmpty()) || currentStartItem)
             d->m_visitedItems += d->m_startItem;
         d->m_visitedItems += singleItemPath;
     }
