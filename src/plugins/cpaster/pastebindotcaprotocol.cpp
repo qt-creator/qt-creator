@@ -53,14 +53,15 @@ void PasteBinDotCaProtocol::fetch(const QString &id)
 }
 
 void PasteBinDotCaProtocol::paste(const QString &text,
-                                   const QString &username,
-                                   const QString &comment,
-                                   const QString &description)
+                                  ContentType /* ct */,
+                                  const QString &username,
+                                  const QString &comment,
+                                  const QString &description)
 {
     Q_UNUSED(comment);
     Q_UNUSED(description);
     QString data = "content=";
-    data += CGI::encodeURL(text);
+    data += CGI::encodeURL(fixNewLines(text));
     data += "&description=";
     data += CGI::encodeURL(description);
     data += "&type=1&expiry=1%20day&name=";

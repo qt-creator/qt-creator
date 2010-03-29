@@ -27,45 +27,28 @@
 **
 **************************************************************************/
 
-#ifndef PASTEVIEW_H
-#define PASTEVIEW_H
+#ifndef COLUMNINDICATORTEXTEDIT_H
+#define COLUMNINDICATORTEXTEDIT_H
 
-#include "ui_pasteview.h"
-#include "splitter.h"
-
-#include <QtGui/QDialog>
+#include <QtGui/QTextEdit>
 
 namespace CodePaster {
-class Protocol;
-class PasteView : public QDialog
+
+// Indicate text column 100 by a vertical line.
+class ColumnIndicatorTextEdit : public QTextEdit
 {
-    Q_OBJECT
 public:
-    explicit PasteView(const QList<Protocol *> protocols,
-                       QWidget *parent);
-    ~PasteView();
+    explicit ColumnIndicatorTextEdit(QWidget *parent);
 
-    int show(const QString &user, const QString &description, const QString &comment,
-             const FileDataList &parts);
+    int columnIndicator() const { return m_columnIndicator; }
 
-    void setProtocol(const QString &protocol);
-
-    QString user() const;
-    QString description() const;
-    QString comment() const;
-    QByteArray content() const;
-    QString protocol() const;
-
-private slots:
-    void contentChanged();
-    void protocolChanged(int);
+protected:
+    virtual void paintEvent(QPaintEvent *event);
 
 private:
-    const QList<Protocol *> m_protocols;
-    const QString m_commentPlaceHolder;
-
-    Ui::ViewDialog m_ui;
-    FileDataList m_parts;
+    int m_columnIndicator;
+    QFont m_columnIndicatorFont;
 };
 } // namespace CodePaster
-#endif // VIEW_H
+
+#endif // COLUMNINDICATORTEXTEDIT_H

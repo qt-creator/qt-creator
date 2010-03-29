@@ -48,7 +48,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <utils/qtcassert.h>
-#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
@@ -145,36 +145,41 @@ void CodepasterPlugin::shutdown()
     }
 }
 
+static inline void fixSpecialCharacters(QString &data)
+{
+    QChar *uc = data.data();
+    QChar *e = uc + data.size();
+
+    for (; uc != e; ++uc) {
+        switch (uc->unicode()) {
+        case 0xfdd0: // QTextBeginningOfFrame
+        case 0xfdd1: // QTextEndOfFrame
+        case QChar::ParagraphSeparator:
+        case QChar::LineSeparator:
+            *uc = QLatin1Char('\n');
+            break;
+        case QChar::Nbsp:
+            *uc = QLatin1Char(' ');
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 void CodepasterPlugin::post()
 {
-    IEditor* editor = EditorManager::instance()->currentEditor();
-    ITextEditor* textEditor = qobject_cast<ITextEditor*>(editor);
+    const IEditor* editor = EditorManager::instance()->currentEditor();
+    const BaseTextEditorEditable *textEditor = qobject_cast<const BaseTextEditorEditable *>(editor);
     if (!textEditor)
         return;
 
     QString data = textEditor->selectedText();
-    if (!data.isEmpty()) {
-        QChar *uc = data.data();
-        QChar *e = uc + data.size();
-
-        for (; uc != e; ++uc) {
-            switch (uc->unicode()) {
-            case 0xfdd0: // QTextBeginningOfFrame
-            case 0xfdd1: // QTextEndOfFrame
-            case QChar::ParagraphSeparator:
-            case QChar::LineSeparator:
-                *uc = QLatin1Char('\n');
-                break;
-            case QChar::Nbsp:
-                *uc = QLatin1Char(' ');
-                break;
-            default:
-                ;
-            }
-        }
-    } else
+    if (data.isEmpty())
         data = textEditor->contents();
-
+    if (data.isEmpty())
+        return;
+    fixSpecialCharacters(data);
     FileDataList lst = splitDiffToFiles(data.toLatin1());
     QString username = m_settings->username;
     QString description;
@@ -192,22 +197,13 @@ void CodepasterPlugin::post()
     comment = view.comment();
     data = view.content();
     protocolName = view.protocol();
-
-    // Copied from cpaster. Otherwise lineendings will screw up
-    if (!data.contains("\r\n")) {
-        if (data.contains('\n'))
-            data.replace('\n', "\r\n");
-        else if (data.contains('\r'))
-            data.replace('\r', "\r\n");
-    }
-
     foreach(Protocol *protocol, m_protocols) {
         if (protocol->name() == protocolName) {
-            protocol->paste(data, username, comment, description);
+            const Protocol::ContentType ct = Protocol::contentType(textEditor->editor()->mimeType());
+            protocol->paste(data, ct, username, comment, description);
             break;
         }
     }
-
 }
 
 void CodepasterPlugin::fetch()

@@ -35,14 +35,16 @@
 #include <QtCore/QSettings>
 #include <QtCore/QCoreApplication>
 
+static const char groupC[] = "PasteBinDotComSettings";
+static const char prefixKeyC[] = "Prefix";
+
 namespace CodePaster {
 PasteBinDotComSettings::PasteBinDotComSettings()
 {
     m_settings = Core::ICore::instance()->settings();
     if (m_settings) {
-        m_settings->beginGroup("PasteBinDotComSettings");
-        m_hostPrefix = m_settings->value("Prefix", "").toString();
-        m_settings->endGroup();
+        const QString rootKey = QLatin1String(groupC) + QLatin1Char('/');
+        m_hostPrefix = m_settings->value(rootKey + QLatin1String(prefixKeyC), QString()).toString();
     }
 }
 
@@ -86,8 +88,8 @@ void PasteBinDotComSettings::apply()
     if (!m_settings)
         return;
 
-    m_settings->beginGroup("PasteBinDotComSettings");
-    m_settings->setValue("Prefix", m_hostPrefix);
+    m_settings->beginGroup(QLatin1String(groupC));
+    m_settings->setValue(QLatin1String(prefixKeyC), m_hostPrefix);
     m_settings->endGroup();
 }
 

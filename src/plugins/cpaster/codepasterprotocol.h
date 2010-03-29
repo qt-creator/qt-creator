@@ -32,7 +32,6 @@
 
 #include "protocol.h"
 
-#include <QtNetwork/QHttp>
 #include <QtNetwork/QNetworkAccessManager>
 
 QT_BEGIN_NAMESPACE
@@ -59,22 +58,23 @@ public:
     void fetch(const QString &id);
     void list();
     void paste(const QString &text,
+               ContentType ct = Text,
                const QString &username = QString(),
                const QString &comment = QString(),
                const QString &description = QString());
 public slots:
     void fetchFinished();
     void listFinished();
-    void readPostResponseHeader(const QHttpResponseHeader &);
+    void pasteFinished();
 
 private:
     bool isValidHostName(const QString& hostName);
     CodePasterSettingsPage *m_page;
-    QHttp http;
-    QNetworkAccessManager manager;
-    QNetworkReply *reply;
-    QNetworkReply *listReply;
-    QString fetchId;
+    QNetworkAccessManager m_manager;
+    QNetworkReply *m_pasteReply;
+    QNetworkReply *m_fetchReply;
+    QNetworkReply *m_listReply;
+    QString m_fetchId;
 };
 
 } // namespace CodePaster

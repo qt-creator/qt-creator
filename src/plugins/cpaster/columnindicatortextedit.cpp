@@ -27,45 +27,40 @@
 **
 **************************************************************************/
 
-#ifndef PASTEVIEW_H
-#define PASTEVIEW_H
+#include "columnindicatortextedit.h"
 
-#include "ui_pasteview.h"
-#include "splitter.h"
-
-#include <QtGui/QDialog>
+#include <QtGui/QPainter>
+#include <QtGui/QScrollBar>
 
 namespace CodePaster {
-class Protocol;
-class PasteView : public QDialog
+
+ColumnIndicatorTextEdit::ColumnIndicatorTextEdit(QWidget *parent) :
+        QTextEdit(parent), m_columnIndicator(0)
 {
-    Q_OBJECT
-public:
-    explicit PasteView(const QList<Protocol *> protocols,
-                       QWidget *parent);
-    ~PasteView();
+    QFont font;
+    font.setFamily(QString::fromUtf8("Courier New"));
+    setFont(font);
+    setReadOnly(true);
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    sizePolicy.setVerticalStretch(3);
+    setSizePolicy(sizePolicy);
+    int cmx = 0, cmy = 0, cmw = 0, cmh = 0;
+    getContentsMargins(&cmx, &cmy, &cmw, &cmh);
+    m_columnIndicator = QFontMetrics(font).width('W') * 100 + cmx + 1;
+    m_columnIndicatorFont.setFamily(QString::fromUtf8("Times"));
+    m_columnIndicatorFont.setPointSizeF(7.0);
+}
 
-    int show(const QString &user, const QString &description, const QString &comment,
-             const FileDataList &parts);
+void ColumnIndicatorTextEdit::paintEvent(QPaintEvent *event)
+{
+    QTextEdit::paintEvent(event);
 
-    void setProtocol(const QString &protocol);
+    QPainter p(viewport());
+    p.setFont(m_columnIndicatorFont);
+    p.setPen(QPen(QColor(0xa0, 0xa0, 0xa0, 0xa0)));
+    p.drawLine(m_columnIndicator, 0, m_columnIndicator, viewport()->height());
+    int yOffset = verticalScrollBar()->value();
+    p.drawText(m_columnIndicator + 1, m_columnIndicatorFont.pointSize() - yOffset, "100");
+}
 
-    QString user() const;
-    QString description() const;
-    QString comment() const;
-    QByteArray content() const;
-    QString protocol() const;
-
-private slots:
-    void contentChanged();
-    void protocolChanged(int);
-
-private:
-    const QList<Protocol *> m_protocols;
-    const QString m_commentPlaceHolder;
-
-    Ui::ViewDialog m_ui;
-    FileDataList m_parts;
-};
 } // namespace CodePaster
-#endif // VIEW_H

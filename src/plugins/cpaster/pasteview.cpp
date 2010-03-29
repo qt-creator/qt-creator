@@ -30,6 +30,8 @@
 #include "pasteview.h"
 #include "protocol.h"
 
+#include <coreplugin/icore.h>
+
 #include <QtGui/QFontMetrics>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
@@ -37,59 +39,19 @@
 #include <QtCore/QSettings>
 #include <QtCore/QByteArray>
 
+static const char groupC[] = "CPaster";
+static const char heightKeyC[] = "PasteViewHeight";
+static const char widthKeyC[] = "PasteViewWidth";
+
 namespace CodePaster {
-class ColumnIndicatorTextEdit : public QTextEdit
-{
-public:
-    ColumnIndicatorTextEdit(QWidget *parent) : QTextEdit(parent), m_columnIndicator(0)
-    {
-        QFont font;
-        font.setFamily(QString::fromUtf8("Courier New"));
-        //font.setPointSizeF(8.0);
-        setFont(font);
-        setReadOnly(true);
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        sizePolicy.setVerticalStretch(3);
-        setSizePolicy(sizePolicy);
-        int cmx = 0, cmy = 0, cmw = 0, cmh = 0;
-        getContentsMargins(&cmx, &cmy, &cmw, &cmh);
-        m_columnIndicator = QFontMetrics(font).width('W') * 100 + cmx + 1;
-        m_columnIndicatorFont.setFamily(QString::fromUtf8("Times"));
-        m_columnIndicatorFont.setPointSizeF(7.0);
-    }
-
-    int m_columnIndicator;
-    QFont m_columnIndicatorFont;
-
-protected:
-    virtual void paintEvent(QPaintEvent *event);
-};
-
-void ColumnIndicatorTextEdit::paintEvent(QPaintEvent *event)
-{
-    QTextEdit::paintEvent(event);
-
-    QPainter p(viewport());
-    p.setFont(m_columnIndicatorFont);
-    p.setPen(QPen(QColor(0xa0, 0xa0, 0xa0, 0xa0)));
-    p.drawLine(m_columnIndicator, 0, m_columnIndicator, viewport()->height());
-    int yOffset = verticalScrollBar()->value();
-    p.drawText(m_columnIndicator + 1, m_columnIndicatorFont.pointSize() - yOffset, "100");
-}
-
 // -------------------------------------------------------------------------------------------------
-
-
 PasteView::PasteView(const QList<Protocol *> protocols,
                      QWidget *parent)
-    : QDialog(parent), m_protocols(protocols)
+    : QDialog(parent), m_protocols(protocols),
+    m_commentPlaceHolder(tr("<Comment>"))
 {
     m_ui.setupUi(this);
 
-    // Swap out the Patch PasteView widget with a ColumnIndicatorTextEdit, which will indicate column 100
-    delete m_ui.uiPatchView;
-    m_ui.uiPatchView = new ColumnIndicatorTextEdit(m_ui.groupBox);
-    m_ui.vboxLayout1->addWidget(m_ui.uiPatchView);
     m_ui.buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Paste"));
     connect(m_ui.uiPatchList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(contentChanged()));
 
@@ -106,23 +68,20 @@ PasteView::~PasteView()
 QString PasteView::user() const
 {
     const QString username = m_ui.uiUsername->text();
-    if (username.isEmpty() || username == tr("<Username>"))
-        return "Anonymous";
+    if (username.isEmpty())
+        return QLatin1String("Anonymous");
     return username;
 }
 
 QString PasteView::description() const
 {
-    const QString description = m_ui.uiDescription->text();
-    if (description == tr("<Description>"))
-        return QString();
-    return description;
+    return m_ui.uiDescription->text();
 }
 
 QString PasteView::comment() const
 {
     const QString comment = m_ui.uiComment->toPlainText();
-    if (comment == tr("<Comment>"))
+    if (comment == m_commentPlaceHolder)
         return QString();
     return comment;
 }
@@ -158,18 +117,11 @@ void PasteView::protocolChanged(int p)
 int PasteView::show(const QString &user, const QString &description, const QString &comment,
                const FileDataList &parts)
 {
-    if (user.isEmpty())
-        m_ui.uiUsername->setText(tr("<Username>"));
-    else
-        m_ui.uiUsername->setText(user);
-
-    if (description.isEmpty())
-        m_ui.uiDescription->setText(tr("<Description>"));
-    else
-        m_ui.uiDescription->setText(description);
+    m_ui.uiUsername->setText(user);
+    m_ui.uiDescription->setText(description);
 
     if (comment.isEmpty())
-        m_ui.uiComment->setPlainText(tr("<Comment>"));
+        m_ui.uiComment->setPlainText(m_commentPlaceHolder);
     else
         m_ui.uiComment->setPlainText(comment);
 
@@ -188,16 +140,22 @@ int PasteView::show(const QString &user, const QString &description, const QStri
     m_ui.uiDescription->selectAll();
 
     // (Re)store dialog size
-    QSettings settings("Trolltech", "cpaster");
-    int h = settings.value("/gui/height", height()).toInt();
-    int w = settings.value("/gui/width",
-                           ((ColumnIndicatorTextEdit*)m_ui.uiPatchView)->m_columnIndicator + 50)
-                                .toInt();
-    resize(w, h);
-    int ret = QDialog::exec();
-    settings.setValue("/gui/height", height());
-    settings.setValue("/gui/width", width());
+    QSettings *settings = Core::ICore::instance()->settings();
+    const QString rootKey = QLatin1String(groupC) + QLatin1Char('/');
+    const int h = settings->value(rootKey + QLatin1String(heightKeyC), height()).toInt();
+    const int defaultWidth = m_ui.uiPatchView->columnIndicator() + 50;
+    const int w = settings->value(rootKey + QLatin1String(widthKeyC), defaultWidth).toInt();
 
+    resize(w, h);
+
+    const int ret = QDialog::exec();
+
+    if (ret == QDialog::Accepted) {
+        settings->beginGroup(QLatin1String(groupC));
+        settings->setValue(QLatin1String(heightKeyC), height());
+        settings->setValue(QLatin1String(widthKeyC), width());
+        settings->endGroup();
+    }
     return ret;
 }
 

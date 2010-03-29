@@ -38,17 +38,23 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/messageoutputwindow.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtGui/QListWidget>
 #include <QtNetwork/QNetworkReply>
+#include <QtCore/QDebug>
 
-using namespace CodePaster;
-using namespace Core;
+enum { debug = 0 };
 
-CodePasterProtocol::CodePasterProtocol()
+namespace CodePaster {
+
+CodePasterProtocol::CodePasterProtocol() :
+    m_page(new CodePaster::CodePasterSettingsPage),
+    m_pasteReply(0),
+    m_fetchReply(0),
+    m_listReply(0),
+    m_fetchId(-1)
 {
-    m_page = new CodePaster::CodePasterSettingsPage();
-    connect(&http, SIGNAL(responseHeaderReceived(const QHttpResponseHeader &)),
-            this, SLOT(readPostResponseHeader(const QHttpResponseHeader&)));
 }
 
 CodePasterProtocol::~CodePasterProtocol()
@@ -68,14 +74,14 @@ unsigned CodePasterProtocol::capabilities() const
 bool CodePasterProtocol::isValidHostName(const QString& hostName)
 {
     if (hostName.isEmpty()) {
-        ICore::instance()->messageManager()->printToOutputPane(
+        Core::ICore::instance()->messageManager()->printToOutputPane(
 #ifdef Q_OS_MAC
                        tr("No Server defined in the CodePaster preferences."),
 #else
                        tr("No Server defined in the CodePaster options."),
 #endif
                        true /*error*/);
-        ICore::instance()->messageManager()->showOutputPane();
+        Core::ICore::instance()->messageManager()->showOutputPane();
         return false;
     }
     return true;
@@ -83,6 +89,8 @@ bool CodePasterProtocol::isValidHostName(const QString& hostName)
 
 void CodePasterProtocol::fetch(const QString &id)
 {
+    QTC_ASSERT(!m_fetchReply, return; )
+
     QString hostName = m_page->hostName();
     if (!isValidHostName(hostName))
         return;
@@ -93,13 +101,15 @@ void CodePasterProtocol::fetch(const QString &id)
     QUrl url(link);
     QNetworkRequest r(url);
 
-    reply = manager.get(r);
-    connect(reply, SIGNAL(finished()), this, SLOT(fetchFinished()));
-    fetchId = id;
+    m_fetchReply = m_manager.get(r);
+    connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
+    m_fetchId = id;
 }
 
 void CodePasterProtocol::list()
 {
+    QTC_ASSERT(!m_listReply, return; )
+
     QString hostName = m_page->hostName();
     if (!isValidHostName(hostName))
         return;
@@ -108,16 +118,18 @@ void CodePasterProtocol::list()
     link += QLatin1String("/?command=browse&format=raw");
     QUrl url(link);
     QNetworkRequest r(url);
-    listReply = manager.get(r);
-    connect(listReply, SIGNAL(finished()), this, SLOT(listFinished()));
+    m_listReply = m_manager.get(r);
+    connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
 }
 
 void CodePasterProtocol::paste(const QString &text,
+                               ContentType /* ct */,
                                const QString &username,
                                const QString &comment,
                                const QString &description)
 {
-    QString hostName = m_page->hostName();
+    QTC_ASSERT(!m_pasteReply, return; )
+    const QString hostName = m_page->hostName();
     if (!isValidHostName(hostName))
         return;
 
@@ -126,12 +138,33 @@ void CodePasterProtocol::paste(const QString &text,
     data += "&comment=";
     data += CGI::encodeURL(comment).toLatin1();
     data += "&code=";
-    data += CGI::encodeURL(text).toLatin1();
+    data += CGI::encodeURL(fixNewLines(text)).toLatin1();
     data += "&poster=";
     data += CGI::encodeURL(username).toLatin1();
 
-    http.setHost(hostName);
-    http.post(QString(QLatin1Char('/')), data);
+    QUrl url(QLatin1String("http://") + hostName);
+    QNetworkRequest r(url);
+    m_pasteReply = m_manager.post(r, data);
+    connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
+}
+
+void CodePasterProtocol::pasteFinished()
+{
+    if (m_pasteReply->error()) {
+        qWarning("Error pasting: %s", qPrintable(m_pasteReply->errorString()));
+    } else {
+        // Cut out the href-attribute
+        QString contents = QString::fromAscii(m_pasteReply->readAll());
+        int hrefPos = contents.indexOf(QLatin1String("href=\""));
+        if (hrefPos != -1) {
+            hrefPos += 6;
+            const int endPos = contents.indexOf(QLatin1Char('"'), hrefPos);
+            if (endPos != -1)
+                emit pasteDone(contents.mid(hrefPos, endPos - hrefPos));
+        }
+    }
+    m_pasteReply->deleteLater();
+    m_pasteReply = 0;
 }
 
 bool CodePasterProtocol::hasSettings() const
@@ -148,38 +181,35 @@ void CodePasterProtocol::fetchFinished()
 {
     QString title;
     QString content;
-    bool error = reply->error();
+    bool error = m_fetchReply->error();
     if (error) {
-        content = reply->errorString();
+        content = m_fetchReply->errorString();
     } else {
-        content = reply->readAll();
+        content = m_fetchReply->readAll();
+        if (debug)
+            qDebug() << content;
         if (content.contains("<B>No such paste!</B>")) {
             content = tr("No such paste");
             error = true;
         }
-        title = QString::fromLatin1("Codepaster: %1").arg(fetchId);
+        title = QString::fromLatin1("Codepaster: %1").arg(m_fetchId);
     }
-    reply->deleteLater();
-    reply = 0;
+    m_fetchReply->deleteLater();
+    m_fetchReply = 0;
     emit fetchDone(title, content, error);
 }
 
 void CodePasterProtocol::listFinished()
 {
-    if (listReply->error()) {
-        ICore::instance()->messageManager()->printToOutputPane(listReply->errorString(), true);
+    if (m_listReply->error()) {
+        Core::ICore::instance()->messageManager()->printToOutputPane(m_listReply->errorString(), true);
     } else {
-        const QByteArray data = listReply->readAll();
+        const QByteArray data = m_listReply->readAll();
         const QStringList lines = QString::fromAscii(data).split(QLatin1Char('\n'));
         emit listDone(name(), lines);
     }
-    listReply->deleteLater();
-    listReply = 0;
+    m_listReply->deleteLater();
+    m_listReply = 0;
 }
 
-void CodePasterProtocol::readPostResponseHeader(const QHttpResponseHeader &header)
-{
-    QString link = header.value("location");
-    if (!link.isEmpty())
-        emit pasteDone(link);
-}
+} // namespace CodePaster

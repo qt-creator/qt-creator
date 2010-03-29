@@ -35,6 +35,8 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QHttp>
 
+#include <QtCore/QByteArray>
+
 namespace CodePaster {
 class PasteBinDotComSettings;
 
@@ -46,33 +48,35 @@ public:
 
     QString name() const { return QLatin1String("Pastebin.Com"); }
 
-    virtual unsigned capabilities() const { return 0; }
+    virtual unsigned capabilities() const;
     bool hasSettings() const { return true; }
     Core::IOptionsPage *settingsPage();
 
-    bool canList() const { return false; }
+    virtual void fetch(const QString &id);
+    virtual void paste(const QString &text,
+                       ContentType ct = Text,
+                       const QString &username = QString(),
+                       const QString &comment = QString(),
+                       const QString &description = QString());
+    virtual void list();
 
-    void fetch(const QString &id);
-    void paste(const QString &text,
-               const QString &username = QString(),
-               const QString &comment = QString(),
-               const QString &description = QString());
 public slots:
     void fetchFinished();
-
-    void postRequestFinished(int id, bool error);
-    void readPostResponseHeader(const QHttpResponseHeader &);
+    void pasteFinished();
+    void listFinished();
 
 private:
-    QString hostName() const;
+    QString hostName(bool withSubDomain) const;
 
-    PasteBinDotComSettings *settings;
-    QNetworkAccessManager manager;
-    QNetworkReply *reply;
-    QString fetchId;
+    PasteBinDotComSettings *m_settings;
+    QNetworkAccessManager m_manager;
+    QNetworkReply *m_fetchReply;
+    QNetworkReply *m_pasteReply;
+    QNetworkReply *m_listReply;
+    QByteArray m_pasteData;
 
-    QHttp http;
-    int postId;
+    QString m_fetchId;
+    int m_postId;
 };
 } // namespace CodePaster
 #endif // PASTEBINDOTCOMPROTOCOL_H

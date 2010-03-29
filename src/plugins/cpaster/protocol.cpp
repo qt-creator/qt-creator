@@ -28,6 +28,9 @@
 **************************************************************************/
 #include "protocol.h"
 
+#include <cpptools/cpptoolsconstants.h>
+#include <qmljseditor/qmljseditorconstants.h>
+
 namespace CodePaster {
 
 Protocol::Protocol()
@@ -64,4 +67,45 @@ void Protocol::list()
     qFatal("Base Protocol list() called");
 }
 
+Protocol::ContentType Protocol::contentType(const QString &mt)
+{
+    if (mt  == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE)
+        || mt == QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE)
+        || mt == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
+        || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+        || mt == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
+        return C;
+    if (mt == QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
+        || mt == QLatin1String(QmlJSEditor::Constants::JS_MIMETYPE))
+        return JavaScript;
+    if (mt == QLatin1String("text/x-patch"))
+        return Diff;
+    if (mt == QLatin1String("text/xml") || mt == QLatin1String("application/xml"))
+        return Xml;
+    return Text;
+}
+
+QString Protocol::fixNewLines(QString data)
+{
+    // Copied from cpaster. Otherwise lineendings will screw up
+    // HTML requires "\r\n".
+    if (data.contains(QLatin1String("\r\n")))
+        return data;
+    if (data.contains(QLatin1Char('\n'))) {
+        data.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
+        return data;
+    }
+    if (data.contains(QLatin1Char('\r')))
+        data.replace(QLatin1Char('\r'), QLatin1String("\r\n"));
+    return data;
+}
+
+QString Protocol::textFromHtml(QString data)
+{
+    data.remove(QLatin1Char('\r'));
+    data.replace(QLatin1String("&lt;"), QString(QLatin1Char('<')));
+    data.replace(QLatin1String("&gt;"), QString(QLatin1Char('>')));
+    data.replace(QLatin1String("&amp;"), QString(QLatin1Char('&')));
+    return data;
+}
 } //namespace CodePaster

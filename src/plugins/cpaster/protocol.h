@@ -41,6 +41,10 @@ class Protocol : public QObject
 {
     Q_OBJECT
 public:
+    enum ContentType{
+        Text, C, JavaScript, Diff, Xml
+    };
+
     enum Capabilities  {
         ListCapability = 0x1,
         PostCommentCapability = 0x2,
@@ -62,9 +66,13 @@ public:
     virtual void fetch(const QString &id) = 0;
     virtual void list();
     virtual void paste(const QString &text,
+                       ContentType ct = Text,
                        const QString &username = QString(),
                        const QString &comment = QString(),
                        const QString &description = QString()) = 0;
+
+    // Convenience to determine content type from mime type
+    static ContentType contentType(const QString &mimeType);
 
 signals:
     void pasteDone(const QString &link);
@@ -72,6 +80,11 @@ signals:
                    const QString &content,
                    bool error);
     void listDone(const QString &name, const QStringList &result);
+
+protected:
+    static QString textFromHtml(QString data);
+    static QString fixNewLines(QString in);
+
 };
 
 } //namespace CodePaster

@@ -38,7 +38,7 @@
      </item>
      <item row="1" column="1">
       <widget class="QLineEdit" name="uiUsername">
-       <property name="text">
+       <property name="placeholderText">
         <string>&lt;Username&gt;</string>
        </property>
       </widget>
@@ -55,7 +55,7 @@
      </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="uiDescription">
-       <property name="text">
+       <property name="placeholderText">
         <string>&lt;Description&gt;</string>
        </property>
       </widget>
@@ -83,7 +83,7 @@
       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:9pt;&quot;&gt;&amp;lt;Comment&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
@@ -133,7 +133,7 @@ p, li { white-space: pre-wrap; }
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="uiPatchView">
+       <widget class="CodePaster::ColumnIndicatorTextEdit" name="uiPatchView">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -165,6 +165,13 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CodePaster::ColumnIndicatorTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>columnindicatortextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>uiUsername</tabstop>
   <tabstop>uiDescription</tabstop>

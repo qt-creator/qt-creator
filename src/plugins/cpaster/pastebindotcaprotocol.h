@@ -48,6 +48,7 @@ public:
 
     void fetch(const QString &id);
     void paste(const QString &text,
+               ContentType ct = Text,
                const QString &username = QString(),
                const QString &comment = QString(),
                const QString &description = QString());
