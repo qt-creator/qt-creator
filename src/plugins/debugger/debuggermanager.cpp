@@ -1947,6 +1947,12 @@ void DebuggerManager::updateWatchersWindow()
         d->m_watchHandler->model(WatchersWatch)->rowCount(QModelIndex()) > 0);
 }
 
+void DebuggerManager::openTextEditor(const QString &titlePattern,
+    const QString &contents)
+{
+    d->m_plugin->openTextEditor(titlePattern, contents);
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // AbstractDebuggerEngine

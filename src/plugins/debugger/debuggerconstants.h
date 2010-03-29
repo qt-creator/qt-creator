@@ -129,6 +129,7 @@ enum DebuggerCapabilities
     ReloadModuleSymbolsCapability = 0x100,
     BreakOnThrowAndCatchCapability = 0x200,
     ReturnFromFunctionCapability = 0x400,
+    CreateFullBacktraceCapability = 0x800,
 };
 
 enum LogChannel

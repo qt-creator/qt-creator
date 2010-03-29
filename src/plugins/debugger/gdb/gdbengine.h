@@ -479,6 +479,9 @@ private: ////////// View & Data Stuff //////////
     void handleDebuggingHelperEditValue(const GdbResponse &response);
     void handleDebuggingHelperSetup(const GdbResponse &response);
 
+    Q_SLOT void createFullBacktrace();
+    void handleCreateFullBacktrace(const GdbResponse &response);
+
     void updateLocals(const QVariant &cookie = QVariant());
         void updateLocalsClassic(const QVariant &cookie);
         void updateLocalsPython(const QByteArray &varList);

@@ -345,6 +345,8 @@ private:
     Internal::BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
     void setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
+    void openTextEditor(const QString &titlePattern,
+        const QString &contents);
 
     DebuggerManagerPrivate *d;
 };

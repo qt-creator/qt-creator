@@ -102,12 +102,14 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     const unsigned engineCapabilities = m_manager->debuggerCapabilities();
     menu.addAction(theDebuggerAction(ExpandStack));
 
-    QAction *actCopyContents = menu.addAction(tr("Copy contents to clipboard"));
+    QAction *actCopyContents = menu.addAction(tr("Copy Contents to Clipboard"));
     actCopyContents->setEnabled(model() != 0);
+
+    menu.addAction(theDebuggerAction(CreateFullBacktrace));
 
     QAction *actShowMemory = menu.addAction(QString());
     if (address.isEmpty()) {
-        actShowMemory->setText(tr("Open memory editor"));
+        actShowMemory->setText(tr("Open Memory Editor"));
         actShowMemory->setEnabled(false);
     } else {
         actShowMemory->setText(tr("Open Memory Editor at %1").arg(address));

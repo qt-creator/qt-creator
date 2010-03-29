@@ -107,6 +107,8 @@ private slots:
     void resetLocation();
     void gotoLocation(const QString &file, int line, bool setMarker);
 
+    void openTextEditor(const QString &titlePattern, const QString &contents);
+
     void breakpointSetRemoveMarginActionTriggered();
     void breakpointEnableDisableMarginActionTriggered();
     void onModeChanged(Core::IMode *mode);

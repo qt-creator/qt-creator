@@ -445,6 +445,10 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(ExpandStack, item);
 
     item = new SavedAction(instance);
+    item->setText(tr("Create Full Backtrace"));
+    instance->insertItem(CreateFullBacktrace, item);
+
+    item = new SavedAction(instance);
     item->setText(tr("Execute Line"));
     instance->insertItem(ExecuteCommand, item);
 

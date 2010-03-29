@@ -188,6 +188,8 @@ GdbEngine::GdbEngine(DebuggerManager *manager) : IDebuggerEngine(manager)
 
     connect(theDebuggerAction(AutoDerefPointers), SIGNAL(valueChanged(QVariant)),
             this, SLOT(setAutoDerefPointers(QVariant)));
+    connect(theDebuggerAction(CreateFullBacktrace), SIGNAL(triggered()),
+            this, SLOT(createFullBacktrace()));
 }
 
 void GdbEngine::connectDebuggingHelperActions()
@@ -1795,7 +1797,8 @@ unsigned GdbEngine::debuggerCapabilities() const
         | RegisterCapability | ShowMemoryCapability
         | JumpToLineCapability | ReloadModuleCapability
         | ReloadModuleSymbolsCapability | BreakOnThrowAndCatchCapability
-        | ReturnFromFunctionCapability;
+        | ReturnFromFunctionCapability 
+        | CreateFullBacktraceCapability;
 }
 
 void GdbEngine::continueInferiorInternal()
@@ -4349,6 +4352,20 @@ bool GdbEngine::hasPython() const
 {
     return m_hasPython;
 }
+
+void GdbEngine::createFullBacktrace()
+{
+    postCommand("thread apply all bt", NeedsStop, CB(handleCreateFullBacktrace));
+}
+
+void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        m_manager->openTextEditor(_("Backtrace $"),
+            _(response.data.findChild("consolestreamoutput").data()));
+    }
+}
+
 
 //
 // Factory

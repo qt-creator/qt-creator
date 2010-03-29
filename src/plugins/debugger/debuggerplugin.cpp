@@ -1233,6 +1233,18 @@ void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
     }
 }
 
+void DebuggerPlugin::openTextEditor(const QString &titlePattern0,
+    const QString &contents)
+{
+    QString titlePattern = titlePattern0;
+    EditorManager *editorManager = EditorManager::instance();
+    QTC_ASSERT(editorManager, return);
+    Core::IEditor *editor = editorManager->openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents);
+    QTC_ASSERT(editor, return);
+    editorManager->activateEditor(editor);
+}
+
 void DebuggerPlugin::handleStateChanged(int state)
 {
     // Prevent it from beeing triggered on setup.

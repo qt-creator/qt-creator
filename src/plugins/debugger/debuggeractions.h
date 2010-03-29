@@ -112,6 +112,7 @@ enum DebuggerActionCode
     // Stack
     MaximalStackDepth,
     ExpandStack,
+    CreateFullBacktrace,
 
     // Watchers & Locals
     WatchExpression,
