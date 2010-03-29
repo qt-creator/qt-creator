@@ -61,7 +61,7 @@ public:
     void setRange(int minimum, int maximum);
     void setValue(int value);
     float cancelButtonFader() { return m_cancelButtonFader; }
-    void setCancelButtonFader(float value) { m_cancelButtonFader= value;}
+    void setCancelButtonFader(float value) { update(); m_cancelButtonFader= value;}
     bool event(QEvent *);
 
 signals:
