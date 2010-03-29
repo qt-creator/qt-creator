@@ -33,6 +33,7 @@
 #if defined(WITH_TESTS)
 
 #include "projectexplorer_export.h"
+#include "metatypedeclarations.h"
 #include "ioutputparser.h"
 
 namespace ProjectExplorer {

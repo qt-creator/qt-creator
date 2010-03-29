@@ -27,7 +27,6 @@ HEADERS += qt4projectmanagerplugin.h \
     wizards/modulespage.h \
     wizards/filespage.h \
     wizards/qtwizard.h \
-    wizards/targetspage.h \
     wizards/targetsetuppage.h \
     qt4projectmanagerconstants.h \
     makestep.h \
@@ -69,7 +68,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
     wizards/modulespage.cpp \
     wizards/filespage.cpp \
     wizards/qtwizard.cpp \
-    wizards/targetspage.cpp \
     wizards/targetsetuppage.cpp \
     makestep.cpp \
     qmakestep.cpp \

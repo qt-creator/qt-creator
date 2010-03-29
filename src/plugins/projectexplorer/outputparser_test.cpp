@@ -134,7 +134,6 @@ void OutputParserTester::stdError(const QString &line)
 void OutputParserTester::appendOutputParser(IOutputParser *parser)
 {
     Q_ASSERT(!childParser());
-    Q_ASSERT(!parser->childParser());
 
     IOutputParser::appendOutputParser(parser);
     parser->appendOutputParser(this);

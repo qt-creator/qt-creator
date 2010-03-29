@@ -174,3 +174,53 @@ void AbldParser::stdError(const QString &line)
     }
     IOutputParser::stdError(line);
 }
+
+// Unit tests:
+
+#ifdef WITH_TESTS
+#   include <QTest>
+
+#   include "qt4projectmanagerplugin.h"
+
+#   include "projectexplorer/outputparser_test.h"
+
+using namespace Qt4ProjectManager::Internal;
+
+void Qt4ProjectManagerPlugin::testAbldOutputParsers_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<OutputParserTester::Channel>("inputChannel");
+    QTest::addColumn<QString>("childStdOutLines");
+    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<QString>("outputLines");
+
+
+    QTest::newRow("pass-through stdout")
+            << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
+            << QString::fromLatin1("Sometext") << QString()
+            << QList<ProjectExplorer::Task>()
+            << QString();
+    QTest::newRow("pass-through stderr")
+            << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
+            << QString() << QString::fromLatin1("Sometext")
+            << QList<ProjectExplorer::Task>()
+            << QString();
+}
+
+void Qt4ProjectManagerPlugin::testAbldOutputParsers()
+{
+    OutputParserTester testbench;
+    testbench.appendOutputParser(new AbldParser);
+    QFETCH(QString, input);
+    QFETCH(OutputParserTester::Channel, inputChannel);
+    QFETCH(QList<Task>, tasks);
+    QFETCH(QString, childStdOutLines);
+    QFETCH(QString, childStdErrLines);
+    QFETCH(QString, outputLines);
+
+    testbench.testParsing(input, inputChannel,
+                          tasks, childStdOutLines, childStdErrLines,
+                          outputLines);
+}
+#endif
