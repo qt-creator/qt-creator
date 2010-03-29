@@ -628,8 +628,10 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
         if (const QStyleOptionTabV3 *tab = qstyleoption_cast<const QStyleOptionTabV3 *>(option)) {
             QStyleOptionTabV3 adjustedTab = *tab;
-            if (tab->position == QStyleOptionTab::Beginning
-                || tab->position == QStyleOptionTab::OnlyOneTab) {
+            if (tab->cornerWidgets == QStyleOptionTab::NoCornerWidgets && (
+                    tab->position == QStyleOptionTab::Beginning ||
+                    tab->position == QStyleOptionTab::OnlyOneTab))
+            {
                 if (option->direction == Qt::LeftToRight)
                     adjustedTab.rect = adjustedTab.rect.adjusted(-1, 0, 0, 0);
                 else
