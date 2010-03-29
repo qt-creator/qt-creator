@@ -99,6 +99,7 @@ bool DotRemovalFilter::filterAcceptsRow(int source_row, const QModelIndex &paren
     return fileName != m_dot;
 }
 
+// FolderNavigationModel: Shows path as tooltip.
 class FolderNavigationModel : public QFileSystemModel
 {
 public:
@@ -141,7 +142,6 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     filters |= QDir::NoSymLinks;
 #endif
     m_fileSystemModel->setFilter(filters);
-    m_fileSystemModel->setRootPath(QDir::rootPath());
     m_filterModel->setSourceModel(m_fileSystemModel);
     m_listView->setModel(m_filterModel);
     m_listView->setFrameStyle(QFrame::NoFrame);
@@ -218,30 +218,20 @@ void FolderNavigationWidget::setCurrentFile(const QString &filePath)
 
 bool FolderNavigationWidget::setCurrentDirectory(const QString &directory)
 {
-    return !directory.isEmpty() && setCurrentDirectory(m_fileSystemModel->index(directory));
-}
-
-bool FolderNavigationWidget::setCurrentDirectory(const QModelIndex &dirIndex)
-{
-    const bool valid = dirIndex.isValid();
-    if (valid) {
-        // position view root on directory index.
-        m_listView->setRootIndex(m_filterModel->mapFromSource(dirIndex));
-        const QDir currentDir(m_fileSystemModel->filePath(dirIndex));
-        setCurrentTitle(currentDir.dirName(), currentDir.absolutePath());
-    } else {
-        m_listView->setRootIndex(QModelIndex());
-        setCurrentTitle(QString(), QString());
-    }
-    return valid;
+    const QString newDirectory = directory.isEmpty() ? QDir::rootPath() : directory;
+    if (debug)
+        qDebug() << "setcurdir" << directory << newDirectory;
+    // Set the root path on the model instead of changing the top index
+    // of the view to cause the model to clean out its file watchers.
+    const QModelIndex index = m_fileSystemModel->setRootPath(newDirectory);
+    QTC_ASSERT(index.isValid(), return false)
+    m_listView->setRootIndex(m_filterModel->mapFromSource(index));
+    return !directory.isEmpty();
 }
 
 QString FolderNavigationWidget::currentDirectory() const
 {
-    const QModelIndex rootIndex = m_listView->rootIndex();
-    if (rootIndex.isValid())
-        return m_fileSystemModel->filePath(m_filterModel->mapToSource(rootIndex));
-    return QString();
+    return m_fileSystemModel->rootPath();
 }
 
 void FolderNavigationWidget::slotOpenItem(const QModelIndex &viewIndex)
@@ -255,12 +245,17 @@ void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
     const QString fileName = m_fileSystemModel->fileName(srcIndex);
     if (fileName == QLatin1String("."))
         return;
-    if (fileName == QLatin1String("..")) { // cd up.
-        setCurrentDirectory(srcIndex.parent().parent());
+    if (fileName == QLatin1String("..")) {
+        // cd up: Special behaviour: The fileInfo of ".." is that of the parent directory.
+        const QString parentPath = m_fileSystemModel->fileInfo(srcIndex).absoluteFilePath();
+        if (parentPath != QDir::rootPath())
+            setCurrentDirectory(parentPath);
         return;
     }
     if (m_fileSystemModel->isDir(srcIndex)) { // Change to directory
-        setCurrentDirectory(srcIndex);
+        const QFileInfo fi = m_fileSystemModel->fileInfo(srcIndex);
+        if (fi.isReadable() && fi.isExecutable())
+            setCurrentDirectory(m_fileSystemModel->filePath(srcIndex));
         return;
     }
     // Open file.

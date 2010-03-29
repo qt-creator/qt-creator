@@ -83,7 +83,6 @@ protected:
 private:
     void setCurrentTitle(const QString &dirName, const QString &fullPath);
     bool setCurrentDirectory(const QString &directory);
-    bool setCurrentDirectory(const QModelIndex &dirIndex);
     void openItem(const QModelIndex &srcIndex);
     QModelIndex currentItem() const;
     QString currentDirectory() const;
