@@ -57,6 +57,9 @@ public:
 
     static Document::Ptr create(const QString &fileName);
 
+    bool isQmlDocument() const;
+    bool isJSDocument() const;
+
     AST::UiProgram *qmlProgram() const;
     AST::Program *jsProgram() const;
     AST::ExpressionNode *expression() const;
@@ -67,6 +70,7 @@ public:
     QString source() const;
     void setSource(const QString &source);
 
+    bool parse();
     bool parseQml();
     bool parseJavaScript();
     bool parseExpression();
@@ -91,6 +95,7 @@ private:
     NodePool *_pool;
     AST::Node *_ast;
     Bind *_bind;
+    bool _isQmlDocument;
     int _documentRevision;
     bool _parsedCorrectly;
     QList<QmlJS::DiagnosticMessage> _diagnosticMessages;

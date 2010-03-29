@@ -44,6 +44,7 @@ Document::Document(const QString &fileName)
     , _pool(0)
     , _ast(0)
     , _bind(0)
+    , _isQmlDocument(false)
     , _documentRevision(0)
     , _parsedCorrectly(false)
     , _fileName(fileName)
@@ -52,6 +53,7 @@ Document::Document(const QString &fileName)
     _path = fileInfo.absolutePath();
 
     if (fileInfo.suffix() == QLatin1String("qml")) {
+        _isQmlDocument = true;
         _componentName = fileInfo.baseName();
 
         if (! _componentName.isEmpty()) {
@@ -79,6 +81,16 @@ Document::Ptr Document::create(const QString &fileName)
 {
     Document::Ptr doc(new Document(fileName));
     return doc;
+}
+
+bool Document::isQmlDocument() const
+{
+    return _isQmlDocument;
+}
+
+bool Document::isJSDocument() const
+{
+    return ! _isQmlDocument;
 }
 
 AST::UiProgram *Document::qmlProgram() const
@@ -182,6 +194,14 @@ bool Document::parse_helper(int startToken)
     return _parsedCorrectly;
 }
 
+bool Document::parse()
+{
+    if (isQmlDocument())
+        return parseQml();
+
+    return parseJavaScript();
+}
+
 bool Document::parseQml()
 {
     return parse_helper(QmlJSGrammar::T_FEED_UI_PROGRAM);
@@ -264,7 +284,7 @@ QList<Document::Ptr> Snapshot::importedDocuments(const Document::Ptr &doc, const
     foreach (Document::Ptr candidate, _documents) {
         if (candidate == doc)
             continue; // ignore this document
-        else if (! candidate->qmlProgram())
+        else if (candidate->isJSDocument())
             continue; // skip JS documents
 
         if (candidate->path() == doc->path() || candidate->path() == docPath)

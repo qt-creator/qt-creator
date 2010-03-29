@@ -1354,12 +1354,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     if (! doc) {
         snapshot = source.snapshot;
         doc = snapshot.documentFromSource(source.code, source.fileName);
-
-        // ### This doesn't really work: what if snapshot doesn't have the doc?
-        if (snapshot.document(source.fileName)->qmlProgram())
-            doc->parseQml();
-        else if (snapshot.document(source.fileName)->jsProgram())
-            doc->parseJavaScript();
+        doc->parse();
     }
 
     SemanticInfo semanticInfo;
