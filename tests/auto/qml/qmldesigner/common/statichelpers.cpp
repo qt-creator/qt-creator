@@ -49,10 +49,17 @@
 //     }
 // }
 
-static ModelNode addChildNode(const ModelNode &parentNode, const QString &typeName, int major, int minor, const QString &parentProperty)
+static ModelNode addNodeListChild(const ModelNode &parentNode, const QString &typeName, int major, int minor, const QString &parentProperty)
 {
     ModelNode newNode = parentNode.view()->createModelNode(typeName, major, minor);
     parentNode.nodeListProperty(parentProperty).reparentHere(newNode);
+    return newNode;
+}
+
+static ModelNode addNodeChild(const ModelNode &parentNode, const QString &typeName, int major, int minor, const QString &parentProperty)
+{
+    ModelNode newNode = parentNode.view()->createModelNode(typeName, major, minor);
+    parentNode.nodeProperty(parentProperty).reparentHere(newNode);
     return newNode;
 }
 
