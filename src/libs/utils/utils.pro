@@ -9,6 +9,7 @@ SOURCES += reloadpromptutils.cpp \
     filesearch.cpp \
     pathchooser.cpp \
     pathlisteditor.cpp \
+    wizard.cpp \
     filewizardpage.cpp \
     filewizarddialog.cpp \
     projectintropage.cpp \
@@ -58,6 +59,7 @@ HEADERS += utils_global.h \
     listutils.h \
     pathchooser.h \
     pathlisteditor.h \
+    wizard.h \
     filewizardpage.h \
     filewizarddialog.h \
     projectintropage.h \
