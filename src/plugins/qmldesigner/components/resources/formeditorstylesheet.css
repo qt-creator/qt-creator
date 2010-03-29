@@ -1,0 +1,150 @@
+QFrame {
+   border: 2px;
+   background-color: #606060;
+}
+
+QLabel {
+    border: none;
+    border-image: none;
+    padding: 0;
+    background: none;
+    color: #E1E1E1;
+}
+
+QScrollArea {
+     border: 0px;
+     background-color: #606060;
+}
+
+QStackedWidget {
+     border: 0px;
+     background-color: #606060;
+}
+
+
+QGraphicsView {
+     border: 0px;
+     background-color: #606060;
+}
+
+QTabWidget {
+     border: 0px;
+     background-color: #606060;
+}
+
+QTabWidget::pane { /* The tab widget frame */
+     border: 0px;
+     background-color: #606060;
+}
+
+QLineEdit
+{
+     border: 2px solid #8F8F8F;
+     border-radius: 4px;
+     padding: 0 8px;
+     background-color: white;
+     selection-background-color: darkgray;
+}
+
+QLineEdit#itemLibrarySearchInput {
+    color: black;
+    border: 2px solid #0F0F0F;
+    border-radius: 6px;
+    border-width: 1;
+    max-height: 20px;
+    min-height: 20px;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                      stop: 0 #e0e0e0, stop: 1 #f0f0f0);
+}
+
+
+ QTreeView {
+    color: white;
+    selection-color: white
+ }
+
+ QTreeView::item:selected {
+     color: white;
+ }
+
+QTreeView::branch:has-siblings:!adjoins-item {
+     border-image: none;
+     image:none;
+ }
+
+ QTreeView::branch:has-siblings:adjoins-item {
+     border-image: none;
+     image:none;
+ }
+
+ QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+     border-image: none;
+     image:none;
+ }
+
+ QTreeView::branch:has-children:!has-siblings:closed,
+ QTreeView::branch:closed:has-children:has-siblings {
+         border-image: none;
+         image: url(:/qmldesigner/images/triangle_horz.png);
+ }
+
+ QTreeView::branch:open:has-children:!has-siblings,
+ QTreeView::branch:open:has-children:has-siblings  {
+         border-image: none;
+         image: url(:/qmldesigner/images/triangle_vert.png);
+ }
+
+ QListView {
+    color: white;
+    selection-color: white
+ }
+
+ QListView::item:selected {
+     color: white;
+ }
+
+  QComboBox QAbstractItemView {
+     show-decoration-selected: 1; /* make the selection span the entire width of the view */
+	 background-color: #494949; /* sets background of the menu */
+     border: 1px solid black;
+     margin: 0px; /* some spacing around the menu */
+     color: #cacaca;
+	 selection-background-color: #d2d2d2;
+	 selection-color: #404040;
+ }
+
+QTabBar::tab {
+    border-image: none;
+
+    width: 80px;
+
+    height: 22px;
+    margin-top: 0x;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-right: 12px;
+    padding-left: 12px;
+    font: bold;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #3c3c3c, stop: 1 #444444);
+
+    color: #EEEEEE;
+}
+
+QTabBar::tab:hover {
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #3c3c3c, stop: 1 #666666);
+}
+
+QTabBar::tab:selected {
+    border: none; /* no border for a flat push button */
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+    stop: 0 #EFEFEF, stop: 1 #EEEEEE);
+    color: #3c3c3c;
+}
+
+QWidget#itemLibrarySearchInputFrame {
+    background-color: #eeeeee;
+}
+

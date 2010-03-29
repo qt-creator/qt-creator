@@ -48,7 +48,7 @@ FormEditorMainWidget::FormEditorMainWidget(FormEditorMainView *mainView)
     m_formEditorMainView(mainView),
     m_stackedWidget(new QStackedWidget(this))
 {
-    QFile file(":/qmldesigner/stylesheet.css");
+    QFile file(":/qmldesigner/formeditorstylesheet.css");
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
     setStyleSheet(styleSheet);

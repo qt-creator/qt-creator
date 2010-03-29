@@ -50,7 +50,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     : QWidget(),
     m_formEditorView(view)
 {
-    QFile file(":/qmldesigner/stylesheet.css");
+    QFile file(":/qmldesigner/formeditorstylesheet.css");
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
     setStyleSheet(styleSheet);
