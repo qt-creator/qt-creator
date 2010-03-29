@@ -224,7 +224,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QList<QAction *> typeFormatActions;
     if (idx.isValid()) {
         typeFormatMenu.setTitle(
-            tr("Change Format for Type '%1'").arg(type));
+            tr("Change Format for Type \"%1\"").arg(type));
         if (alternativeFormats.isEmpty()) {
             typeFormatMenu.setEnabled(false);
         } else {
