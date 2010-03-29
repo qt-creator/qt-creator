@@ -286,12 +286,15 @@ inline QString msgE20MarkNotSet(const QString &text)
 class Input
 {
 public:
-    Input() : key(0), unmodified(0) {}
-    Input(char x) : key(x), unmodified(0), text(1, QLatin1Char(x)) {}
-    Input(int k, int u, QString t) : key(k), unmodified(u), text(t) {}
+    Input() : key(0), unmodified(0), modifiers(0) {}
+    Input(char x) : key(x), unmodified(0), modifiers(0), text(1, QLatin1Char(x)) {}
+    Input(int k, int u, int m, QString t)
+        : key(k), unmodified(u), modifiers(m), text(t)
+    {}
 
     int key;
     int unmodified;
+    int modifiers;
     QString text;
 };
 
@@ -792,7 +795,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         !(m_mode != InsertMode && m_tc.atBlockEnd() && m_tc.block().length() > 1),
         qDebug() << "Cursor at EOL before key handler");
 
-    EventResult result = handleKey(Input(key, um, ev->text()));
+    EventResult result = handleKey(Input(key, um, mods, ev->text()));
 
     // the command might have destroyed the editor
     if (m_textedit || m_plaintextedit) {
@@ -1657,7 +1660,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         updateMiniBuffer();
     } else if (key == control('a')) {
         // FIXME: eat it to prevent the global "select all" shortcut to trigger
-    } else if (key == 'b') {
+    } else if (key == 'b'
+            || (key == Key_Left && input.modifiers == Qt::ShiftModifier)) {
         m_movetype = MoveExclusive;
         moveToWordBoundary(false, false);
         finishMovement();
@@ -1753,7 +1757,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handleStartOfLine();
         scrollToLineInDocument(cursorLineInDocument() - sline);
         finishMovement();
-    } else if (key == 'e') { // tested
+    } else if (key == 'e' // tested
+            || (key == Key_Right && input.modifiers == Qt::ShiftModifier)) {
         m_movetype = MoveInclusive;
         moveToWordBoundary(false, true);
         finishMovement("%1e", count());
@@ -3868,7 +3873,7 @@ void FakeVimHandler::Private::replay(const QString &command, int n)
     for (int i = n; --i >= 0; ) {
         foreach (QChar c, command) {
             //qDebug() << "  REPLAY: " << QString(c);
-            handleKey(Input(c.unicode(), c.unicode(), QString(c)));
+            handleKey(Input(c.unicode(), c.unicode(), 0, QString(c)));
         }
     }
     m_inReplay = false;
