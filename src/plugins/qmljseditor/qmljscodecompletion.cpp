@@ -703,7 +703,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
 
         // add qml extra words
-        if (document->qmlProgram()) {
+        if (document && document->qmlProgram()) {
             static QStringList qmlWords;
             if (qmlWords.isEmpty())
                 qmlWords << "property" << "readonly" << "signal";
