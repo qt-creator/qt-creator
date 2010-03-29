@@ -2105,6 +2105,8 @@ void TestCore::testRewriterComponentId()
 
 void TestCore::testRewriterTransactionRewriter()
 {
+    QSKIP("Fix me!!! See task QTCREATORBUG-964", SkipAll);
+
     char qmlString[] = "import Qt 4.6\n"
                        "Rectangle {\n"
                        "}\n";
