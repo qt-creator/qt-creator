@@ -46,8 +46,8 @@ class OpenPagesModel : public QAbstractTableModel
 public:
     OpenPagesModel(QObject *parent);
 
-    int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
     void addPage(const QUrl &url, qreal zoom = 0);

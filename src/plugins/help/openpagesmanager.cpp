@@ -153,6 +153,8 @@ void OpenPagesManager::setupInitialPages()
 
     for (int i = 0; i < m_model->rowCount(); ++i)
         CentralWidget::instance()->addPage(m_model->pageAt(i));
+
+    emit pagesChanged();
     setCurrentPage(initialPage);
 }
 

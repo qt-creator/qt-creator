@@ -39,20 +39,23 @@ OpenPagesModel::OpenPagesModel(QObject *parent)
 {
 }
 
-int OpenPagesModel::columnCount(const QModelIndex &/*parent*/) const
-{
-    return 2;
-}
-
 int OpenPagesModel::rowCount(const QModelIndex &parent) const
 {
     return  parent.isValid() ? 0 : m_pages.count();
 }
 
+int OpenPagesModel::columnCount(const QModelIndex &/*parent*/) const
+{
+    return 2;
+}
+
 QVariant OpenPagesModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= rowCount() || role != Qt::DisplayRole)
+    if (!index.isValid() || role != Qt::DisplayRole
+        || index.row() >= rowCount() || index.column() >= columnCount() - 1)
+
         return QVariant();
+
     QString title = m_pages.at(index.row())->title();
     title.replace(QLatin1Char('&'), QLatin1String("&&"));
     return title.isEmpty() ? tr("(Untitled)") : title;
