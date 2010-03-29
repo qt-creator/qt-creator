@@ -62,7 +62,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
          "and includes an empty widget."));
 
     addModulesPage();
-    addTargetsPage();
+    addTargetSetupPage();
 
     m_filesPage->setFormInputCheckable(true);
     m_filesPage->setClassTypeComboVisible(false);
@@ -110,12 +110,11 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     rc.formFileName = m_filesPage->formFileName();
     rc.designerForm =  m_filesPage->formInputChecked();
     rc.isMobileApplication = true;
-    QSet<QString> targets = selectedTargets();
-    if (targets.contains(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))) {
+    if (isTargetSelected(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))) {
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;
-    } else if (targets.contains(QLatin1String(Constants::S60_DEVICE_TARGET_ID)) ||
-               targets.contains(QLatin1String(Constants::S60_EMULATOR_TARGET_ID))) {
+    } else if (isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID)) ||
+               isTargetSelected(QLatin1String(Constants::S60_EMULATOR_TARGET_ID))) {
         rc.widgetWidth = 360;
         rc.widgetHeight = 640;
     } else {

@@ -45,7 +45,7 @@ EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
     setIntroDescription(tr("This wizard generates an empty Qt4 project. "
                            "Add files to it later on by using the other wizards."));
 
-    addTargetsPage();
+    addTargetSetupPage();
 
     foreach (QWizardPage *p, extensionPages)
         addPage(p);
