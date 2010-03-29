@@ -104,6 +104,11 @@ static inline QStringList commandOutputLinesFromLocal8Bit(const QByteArray &a)
     return output.split(newLine);
 }
 
+static inline VCSBase::VCSBaseOutputWindow *outputWindow()
+{
+    return VCSBase::VCSBaseOutputWindow::instance();
+}
+
 namespace Git {
 namespace Internal {
 
@@ -238,20 +243,20 @@ void GitClient::diff(const QString &workingDirectory,
     if (unstagedFileNames.empty() && stagedFileNames.empty()) {
        QStringList arguments(commonDiffArgs);
        arguments << diffArgs;
-       VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(binary, arguments));
+       outputWindow()->appendCommand(formatCommand(binary, arguments));
        command->addJob(arguments, m_settings.timeoutSeconds);
     } else {
         // Files diff.
         if (!unstagedFileNames.empty()) {
            QStringList arguments(commonDiffArgs);
            arguments << QLatin1String("--") << unstagedFileNames;
-           VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(binary, arguments));
+           outputWindow()->appendCommand(formatCommand(binary, arguments));
            command->addJob(arguments, m_settings.timeoutSeconds);
         }
         if (!stagedFileNames.empty()) {
            QStringList arguments(commonDiffArgs);
            arguments << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
-           VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(binary, arguments));
+           outputWindow()->appendCommand(formatCommand(binary, arguments));
            command->addJob(arguments, m_settings.timeoutSeconds);
         }
     }
@@ -299,7 +304,7 @@ void GitClient::status(const QString &workingDirectory)
     // @TODO: Use "--no-color" once it is supported
     QStringList statusArgs(QLatin1String("status"));
     statusArgs << QLatin1String("-u");
-    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    VCSBase::VCSBaseOutputWindow *outwin = outputWindow();
     outwin->setRepository(workingDirectory);
     GitCommand *command = executeGit(workingDirectory, statusArgs, 0, true);
     connect(command, SIGNAL(finished(bool,int,QVariant)), outwin, SLOT(clearRepository()),
@@ -353,10 +358,30 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
     executeGit(workingDirectory, arguments, editor);
 }
 
+// Do not show "0000" or "^32ae4"
+static inline bool canShow(const QString &sha)
+{
+    if (sha.startsWith(QLatin1Char('^')))
+        return false;
+    if (sha.count(QLatin1Char('0')) == sha.size())
+        return false;
+    return true;
+}
+
+static inline QString msgCannotShow(const QString &sha)
+{
+    return GitClient::tr("Cannot describe '%1'.").arg(sha);
+}
+
 void GitClient::show(const QString &source, const QString &id)
 {
     if (Git::Constants::debug)
         qDebug() << "show" << source << id;
+    if (!canShow(id)) {
+        outputWindow()->append(msgCannotShow(id));
+        return;
+    }
+
     QStringList arguments;
     arguments << QLatin1String("show") << QLatin1String(noColorOption) << id;
 
@@ -421,7 +446,7 @@ bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
     arguments << QLatin1String("checkout") << branch;
     const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
     const QString output = commandOutputFromLocal8Bit(outputText);
-    VCSBase::VCSBaseOutputWindow::instance()->append(output);
+    outputWindow()->append(output);
     if (!rc) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         //: Meaning of the arguments: %1: Branch, %2: Repository, %3: Error message
@@ -429,7 +454,7 @@ bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
         if (errorMessage) {
             *errorMessage = msg;
         } else {
-            VCSBase::VCSBaseOutputWindow::instance()->appendError(msg);
+            outputWindow()->appendError(msg);
         }
         return false;
     }
@@ -487,7 +512,7 @@ bool GitClient::synchronousAdd(const QString &workingDirectory,
     if (!rc) {
         const QString errorMessage = tr("Unable to add %n file(s) to %1: %2", 0, files.size()).
                                      arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        outputWindow()->appendError(errorMessage);
     }
     return rc;
 }
@@ -509,7 +534,7 @@ bool GitClient::synchronousDelete(const QString &workingDirectory,
     if (!rc) {
         const QString errorMessage = tr("Unable to remove %n file(s) from %1: %2", 0, files.size()).
                                      arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        outputWindow()->appendError(errorMessage);
     }
     return rc;
 }
@@ -531,7 +556,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
     }
     const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
     const QString output = commandOutputFromLocal8Bit(outputText);
-    VCSBase::VCSBaseOutputWindow::instance()->append(output);
+    outputWindow()->append(output);
     // Note that git exits with 1 even if the operation is successful
     // Assume real failure if the output does not contain "foo.cpp modified"
     if (!rc && !output.contains(QLatin1String("modified"))) {
@@ -542,7 +567,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
         if (errorMessage) {
             *errorMessage = msg;
         } else {
-            VCSBase::VCSBaseOutputWindow::instance()->appendError(msg);
+            outputWindow()->appendError(msg);
         }
         return false;
     }
@@ -559,9 +584,9 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
     const QStringList arguments(QLatin1String("init"));
     const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
     // '[Re]Initialized...'
-    VCSBase::VCSBaseOutputWindow::instance()->append(commandOutputFromLocal8Bit(outputText));
+    outputWindow()->append(commandOutputFromLocal8Bit(outputText));
     if (!rc)
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(commandOutputFromLocal8Bit(errorText));
+        outputWindow()->appendError(commandOutputFromLocal8Bit(errorText));
     return rc;
 }
 
@@ -594,7 +619,7 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
         if (errorMessage) {
             *errorMessage = msg;
         } else {
-            VCSBase::VCSBaseOutputWindow::instance()->appendError(msg);
+            outputWindow()->appendError(msg);
         }
         return false;
     }
@@ -762,7 +787,7 @@ bool GitClient::synchronousTopRevision(const QString &workingDirectory,
         if (errorMessageIn) {
             *errorMessageIn = errorMessage;
         } else {
-            VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+            outputWindow()->appendError(errorMessage);
         }
     }
     return !failed;
@@ -846,10 +871,10 @@ QString GitClient::synchronousStash(const QString &workingDirectory,
         if (unchanged)
             *unchanged = true;
         if (!(flags & StashIgnoreUnchanged))
-            VCSBase::VCSBaseOutputWindow::instance()->append(msgNoChangedFiles());
+            outputWindow()->append(msgNoChangedFiles());
         break;
     case StatusFailed:
-        VCSBase::VCSBaseOutputWindow::instance()->append(errorMessage);
+        outputWindow()->append(errorMessage);
         break;
     }
     if (!success)
@@ -877,7 +902,7 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
         if (errorMessage) {
             *errorMessage = msg;
         } else {
-            VCSBase::VCSBaseOutputWindow::instance()->append(msg);
+            outputWindow()->append(msg);
         }
         return false;
     }
@@ -909,7 +934,7 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
     if (errorMessage) {
         *errorMessage = msg;
     } else {
-        VCSBase::VCSBaseOutputWindow::instance()->append(msg);
+        outputWindow()->append(msg);
     }
     return  false;
 }
@@ -936,6 +961,10 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
 {
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDirectory << id;
+    if (!canShow(id)) {
+        *errorMessage = msgCannotShow(id);
+        return false;
+    }
     QStringList args(QLatin1String("show"));
     args << QLatin1String(noColorOption) << id;
     QByteArray outputText;
@@ -1030,7 +1059,7 @@ GitCommand *GitClient::executeGit(const QString &workingDirectory,
                                   GitCommand::TerminationReportMode tm,
                                   int editorLineNumber)
 {
-    VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(QLatin1String(Constants::GIT_BINARY), arguments));
+    outputWindow()->appendCommand(formatCommand(QLatin1String(Constants::GIT_BINARY), arguments));
     GitCommand *command = createCommand(workingDirectory, editor, outputToWindow, editorLineNumber);
     command->addJob(arguments, m_settings.timeoutSeconds);
     command->setTerminationReportMode(tm);
@@ -1070,7 +1099,7 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
         qDebug() << "synchronousGit" << workingDirectory << gitArguments;
 
     if (logCommandToWindow)
-        VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(m_binaryPath, gitArguments));
+        outputWindow()->appendCommand(formatCommand(m_binaryPath, gitArguments));
 
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
@@ -1122,7 +1151,7 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory)
     QString errorMessage;
     const StashResult sr = ensureStash(workingDirectory, &errorMessage);
     if (sr == StashFailed)
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+        outputWindow()->appendError(errorMessage);
     return sr;
 }
 
@@ -1345,9 +1374,9 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     QByteArray errorText;
     const bool rc = synchronousGit(repositoryDirectory, args, &outputText, &errorText);
     if (rc) {
-        VCSBase::VCSBaseOutputWindow::instance()->append(tr("Committed %n file(s).\n", 0, checkedFiles.size()));
+        outputWindow()->append(tr("Committed %n file(s).\n", 0, checkedFiles.size()));
     } else {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Unable to commit %n file(s): %1\n", 0, checkedFiles.size()).arg(commandOutputFromLocal8Bit(errorText)));
+        outputWindow()->appendError(tr("Unable to commit %n file(s): %1\n", 0, checkedFiles.size()).arg(commandOutputFromLocal8Bit(errorText)));
     }
     return rc;
 }
@@ -1454,11 +1483,11 @@ void GitClient::revert(const QStringList &files)
         break;
     case RevertUnchanged: {
         const QString msg = (isDirectory || files.size() > 1) ? msgNoChangedFiles() : tr("The file is not modified.");
-        VCSBase::VCSBaseOutputWindow::instance()->append(msg);
+        outputWindow()->append(msg);
     }
         break;
     case RevertFailed:
-        VCSBase::VCSBaseOutputWindow::instance()->append(errorMessage);
+        outputWindow()->append(errorMessage);
         break;
     }
 }
@@ -1568,13 +1597,13 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
         if (errorMessage) {
             *errorMessage = msg;
         } else {
-            VCSBase::VCSBaseOutputWindow::instance()->append(msg);
+            outputWindow()->append(msg);
         }
         return false;
     }
     QString output = commandOutputFromLocal8Bit(outputText);
     if (!output.isEmpty())
-        VCSBase::VCSBaseOutputWindow::instance()->append(output);
+        outputWindow()->append(output);
     GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
     return true;
 }
@@ -1600,13 +1629,13 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
         if (errorMessage) {
             *errorMessage = msg;
         } else {
-            VCSBase::VCSBaseOutputWindow::instance()->append(msg);
+            outputWindow()->append(msg);
         }
         return false;
     }
     QString output = commandOutputFromLocal8Bit(outputText);
     if (!output.isEmpty())
-        VCSBase::VCSBaseOutputWindow::instance()->append(output);
+        outputWindow()->append(output);
     return true;
 }
 
@@ -1639,7 +1668,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
         if (errorMessage) {
             *errorMessage = msg;
         } else {
-            VCSBase::VCSBaseOutputWindow::instance()->append(msg);
+            outputWindow()->append(msg);
         }
         return false;
     }
@@ -1737,9 +1766,9 @@ unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage /* 
             *errorMessage = msg;
         } else {
             if (silent) {
-                VCSBase::VCSBaseOutputWindow::instance()->append(msg);
+                outputWindow()->append(msg);
             } else {
-                VCSBase::VCSBaseOutputWindow::instance()->appendError(msg);
+                outputWindow()->appendError(msg);
             }
         }
         return 0;
