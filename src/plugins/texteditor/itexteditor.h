@@ -124,6 +124,7 @@ public:
 
 signals:
     void contentsChanged();
+    void contentsChangedBecauseOfUndo();
     void markRequested(TextEditor::ITextEditor *editor, int line);
     void markContextMenuRequested(TextEditor::ITextEditor *editor, int line, QMenu *menu);
     void tooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPos, int position);

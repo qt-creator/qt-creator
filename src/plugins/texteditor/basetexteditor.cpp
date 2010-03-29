@@ -532,12 +532,20 @@ ITextMarkable *BaseTextEditor::markableInterface() const
     return baseTextDocument()->documentMarker();
 }
 
+void BaseTextEditor::maybeEmitTextChangedBecauseOfUndo()
+{
+    if (document()->isRedoAvailable())
+        emit d->m_editable->contentsChangedBecauseOfUndo();
+}
+
 ITextEditable *BaseTextEditor::editableInterface() const
 {
     if (!d->m_editable) {
         d->m_editable = const_cast<BaseTextEditor*>(this)->createEditableInterface();
         connect(this, SIGNAL(textChanged()),
                 d->m_editable, SIGNAL(contentsChanged()));
+        connect(this, SIGNAL(textChanged()),
+                this, SLOT(maybeEmitTextChangedBecauseOfUndo()));
         connect(this, SIGNAL(changed()),
                 d->m_editable, SIGNAL(changed()));
     }
@@ -696,15 +704,17 @@ void BaseTextEditor::editorContentsChange(int position, int charsRemoved, int ch
     if (d->m_animator)
         d->m_animator->finish();
 
+
     d->m_contentsChanged = true;
+    QTextDocument *doc = document();
 
     // Keep the line numbers and the block information for the text marks updated
     if (charsRemoved != 0) {
         d->updateMarksLineNumber();
         d->updateMarksBlock(document()->findBlock(position));
     } else {
-        const QTextBlock posBlock = document()->findBlock(position);
-        const QTextBlock nextBlock = document()->findBlock(position + charsAdded);
+        const QTextBlock posBlock = doc->findBlock(position);
+        const QTextBlock nextBlock = doc->findBlock(position + charsAdded);
         if (posBlock != nextBlock) {
             d->updateMarksLineNumber();
             d->updateMarksBlock(posBlock);
@@ -713,6 +723,9 @@ void BaseTextEditor::editorContentsChange(int position, int charsRemoved, int ch
             d->updateMarksBlock(posBlock);
         }
     }
+
+    if (doc->isRedoAvailable())
+        emit d->m_editable->contentsChangedBecauseOfUndo();
 }
 
 

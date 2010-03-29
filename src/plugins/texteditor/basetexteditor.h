@@ -459,6 +459,7 @@ private slots:
     void highlightSearchResults(const QString &txt, Find::IFindSupport::FindFlags findFlags);
     void setFindScope(const QTextCursor &);
     void currentEditorChanged(Core::IEditor *editor);
+    void maybeEmitTextChangedBecauseOfUndo();
 
 private:
     Internal::BaseTextEditorPrivate *d;

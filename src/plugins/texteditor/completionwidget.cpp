@@ -134,6 +134,8 @@ CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *ed
             this, SIGNAL(completionListClosed()));
     connect(m_completionListView, SIGNAL(activated(QModelIndex)),
             SLOT(closeList(QModelIndex)));
+    connect(editor, SIGNAL(contentsChangedBecauseOfUndo()),
+            this, SLOT(closeList()));
 }
 
 CompletionWidget::~CompletionWidget()
