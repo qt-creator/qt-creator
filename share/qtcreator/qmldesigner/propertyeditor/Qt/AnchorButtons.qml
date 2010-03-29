@@ -156,6 +156,8 @@ QWidget {
             if (checked) {
                     anchorBackend.leftAnchored = false;
                     anchorBackend.rightAnchored = false;
+					anchorBackend.topAnchored = false;
+                    anchorBackend.bottomAnchored = false;
                     anchorBackend.verticalCentered = true;
             } else {
                     anchorBackend.verticalCentered = false;
@@ -176,8 +178,8 @@ QWidget {
         checked: anchorBackend.horizontalCentered;
         onToggled: {
             if (checked) {
-                    anchorBackend.topAnchored = false;
-                    anchorBackend.bottomAnchored = false;
+                    anchorBackend.leftAnchored = false;
+                    anchorBackend.rightAnchored = false;
                     anchorBackend.horizontalCentered = true;
             } else {
                     anchorBackend.horizontalCentered = false;
