@@ -32,13 +32,11 @@
 
 #include "ui_topicchooser.h"
 
-#include <QUrl>
-#include <QMap>
-#include <QString>
+#include <QtCore/QUrl>
+#include <QtCore/QMap>
+#include <QtCore/QString>
 
 #include <QtGui/QDialog>
-
-QT_BEGIN_NAMESPACE
 
 class TopicChooser : public QDialog
 {
@@ -52,9 +50,7 @@ public:
 
 private:
     Ui::TopicChooser ui;
-    QMap<QString, QUrl> m_links;
+    QList<QUrl> m_links;
 };
-
-QT_END_NAMESPACE
 
 #endif // TOPICCHOOSER_H
