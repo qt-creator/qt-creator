@@ -316,6 +316,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
 
     m_ui->procView->setModel(m_model);
     m_ui->procView->setSortingEnabled(true);
+    m_ui->procView->sortByColumn(1, Qt::AscendingOrder);
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
