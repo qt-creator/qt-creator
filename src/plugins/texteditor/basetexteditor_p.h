@@ -196,6 +196,8 @@ public:
     TextEditorOverlay *m_searchResultOverlay;
     void snippetCheckCursor(const QTextCursor &cursor);
     void snippetTabOrBacktab(bool forward);
+    QTextCharFormat m_occurrencesFormat;
+    QTextCharFormat m_occurrenceRenameFormat;
 
     QBasicTimer collapsedBlockTimer;
     int visibleCollapsedBlockNumber;
@@ -258,6 +260,8 @@ public:
 
     QPointer<BaseTextEditorAnimator> m_animator;
     int m_cursorBlockNumber;
+
+    bool m_inKeyPressEvent;
 
 };
 

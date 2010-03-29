@@ -82,6 +82,16 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
+namespace {
+    class Locker {
+        bool *m_bool;
+    public:
+        inline Locker(bool *b):m_bool(b){ *m_bool = true; }
+        inline ~Locker() { *m_bool = false; }
+    };
+}
+
+
 
 namespace TextEditor {
 namespace Internal {
@@ -237,6 +247,9 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(currentEditorChanged(Core::IEditor*)));
+
+    d->m_inKeyPressEvent = false;
+    d->m_moveLineUndoHack = false;
 }
 
 BaseTextEditor::~BaseTextEditor()
@@ -534,8 +547,24 @@ ITextMarkable *BaseTextEditor::markableInterface() const
 
 void BaseTextEditor::maybeEmitTextChangedBecauseOfUndo()
 {
-    if (document()->isRedoAvailable())
+    if (!d->m_inKeyPressEvent) {
+
+        // i.e. the document was changed outside key press event
+        // Possible with undo, cut, paste, etc.
+        if (d->m_snippetOverlay->isVisible()) {
+
+            d->m_snippetOverlay->hide();
+            d->m_snippetOverlay->clear();
+            QTextCursor cursor = textCursor();
+            cursor.clearSelection();
+            setTextCursor(cursor);
+            return;
+        }
+
+    }
+    if (document()->isRedoAvailable()) {
         emit d->m_editable->contentsChangedBecauseOfUndo();
+    }
 }
 
 ITextEditable *BaseTextEditor::editableInterface() const
@@ -998,6 +1027,8 @@ void BaseTextEditor::cleanWhitespace()
 
 void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 {
+    Locker inKeyPressEvent(&d->m_inKeyPressEvent);
+
     viewport()->setCursor(Qt::BlankCursor);
     QToolTip::hideText();
 
@@ -1310,18 +1341,19 @@ skip_event:
         delete e;
 }
 
-void BaseTextEditor::insertCodeSnippet(const QString &snippet)
+void BaseTextEditor::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
 {
-    QList<QTextEdit::ExtraSelection> selections;
-
-    QTextCursor cursor = textCursor();
-    const int startCursorPosition = cursor.position();
-    cursor.beginEditBlock();
-
     if ((snippet.count('$') % 2) != 0) {
         qWarning() << "invalid snippet";
         return;
     }
+
+    QList<QTextEdit::ExtraSelection> selections;
+
+    QTextCursor cursor = cursor_arg;
+    cursor.beginEditBlock();
+    cursor.removeSelectedText();
+    const int startCursorPosition = cursor.position();
 
     int pos = 0;
     QMap<int, int> positions;
@@ -1369,7 +1401,7 @@ void BaseTextEditor::insertCodeSnippet(const QString &snippet)
         tc.setPosition(position + length, QTextCursor::KeepAnchor);
         QTextEdit::ExtraSelection selection;
         selection.cursor = tc;
-        selection.format.setBackground(length ? Qt::darkCyan : Qt::darkMagenta);
+        selection.format = (length ? d->m_occurrencesFormat : d->m_occurrenceRenameFormat);
         selections.append(selection);
     }
 
@@ -1391,6 +1423,7 @@ void BaseTextEditor::insertCodeSnippet(const QString &snippet)
         }
         setTextCursor(cursor);
     }
+
 }
 
 void BaseTextEditor::universalHelper()
@@ -5230,6 +5263,13 @@ void BaseTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
     // Matching braces
     d->m_matchFormat.setForeground(parenthesesFormat.foreground());
     d->m_rangeFormat.setBackground(parenthesesFormat.background());
+
+
+    // snippests
+    d->m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
+    d->m_occurrencesFormat.clearForeground();
+    d->m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
+    d->m_occurrenceRenameFormat.clearForeground();
 
     slotUpdateExtraAreaWidth();   // Adjust to new font width
     updateCurrentLineHighlight(); // Make sure it takes the new color

@@ -779,12 +779,10 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
     }
 
-#ifdef QML_WITH_SNIPPETS
     if (isQmlFile && (completionOperator.isNull() || completionOperator.isSpace() || isDelimiter(completionOperator))) {
         updateSnippets();
         m_completions.append(m_snippets);
     }
-#endif
 
     if (! m_completions.isEmpty())
         return m_startPosition;
@@ -817,14 +815,10 @@ void CodeCompletion::complete(const TextEditor::CompletionItem &item)
     if (QmlJSTextEditor *edit = qobject_cast<QmlJSTextEditor *>(m_editor->widget())) {
         if (item.data.isValid()) {
             QTextCursor tc = edit->textCursor();
-            tc.beginEditBlock();
             tc.setPosition(m_startPosition);
             tc.setPosition(m_editor->position(), QTextCursor::KeepAnchor);
-            tc.removeSelectedText();
-
             toInsert = item.data.toString();
-            edit->insertCodeSnippet(toInsert);
-            tc.endEditBlock();
+            edit->insertCodeSnippet(tc, toInsert);
             return;
         }
     }
@@ -893,6 +887,29 @@ void CodeCompletion::updateSnippets()
                                 item.text += description;
                             }
                             item.data = QVariant::fromValue(data);
+
+
+                            QString tooltip = data;
+                            tooltip.replace(QRegExp("\n\\s*"), QLatin1String(" "));
+                            {
+                                QString s = QLatin1String("<nobr>");
+                                int count = 0;
+                                for (int i = 0; i < tooltip.count(); ++i) {
+                                    if (tooltip.at(i) != QChar::ObjectReplacementCharacter) {
+                                        s += tooltip.at(i);
+                                        continue;
+                                    }
+                                    if (++count % 2) {
+                                        s += QLatin1String("<b>");
+                                    } else {
+                                        s += QLatin1String("</b>");
+                                    }
+                                }
+                                tooltip = s;
+                            }
+
+                            item.details = tooltip; // ###TODO this should not be the normal tooltip
+
                             item.icon = icon;
                             m_snippets.append(item);
                             break;
