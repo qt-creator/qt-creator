@@ -36,8 +36,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QMutexLocker>
-#include <QtCore/QString>
-#include <QtCore/QUrl>
 
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpEngineCore>

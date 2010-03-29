@@ -26,6 +26,7 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #ifndef HELPMANAGER_H
 #define HELPMANAGER_H
 
