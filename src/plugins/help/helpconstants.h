@@ -35,6 +35,16 @@
 namespace Help {
     namespace Constants {
 
+enum {
+    ShowHomePage = 0,
+    ShowBlankPage = 1,
+    ShowLastPages = 2
+};
+
+static const QLatin1String ListSeparator("|");
+static const QLatin1String DefaultZoomFactor("0.0");
+static const QLatin1String AboutBlank("about:blank");
+
 const int          P_MODE_HELP    = 70;
 const char * const ID_MODE_HELP   = "Help";
 const char * const HELP_CATEGORY = "H.Help";

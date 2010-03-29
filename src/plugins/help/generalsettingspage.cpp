@@ -106,7 +106,7 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     m_homePage = engine.customValue(QLatin1String("HomePage"), QString()).toString();
     if (m_homePage.isEmpty()) {
         m_homePage = engine.customValue(QLatin1String("DefaultHomePage"),
-            QLatin1String("about:blank")).toString();
+            Help::Constants::AboutBlank).toString();
     }
     m_ui.homePageLineEdit->setText(m_homePage);
 
@@ -178,7 +178,7 @@ void GeneralSettingsPage::apply()
 
     QString homePage = m_ui.homePageLineEdit->text();
     if (homePage.isEmpty())
-        homePage = QLatin1String("about:blank");
+        homePage = Help::Constants::AboutBlank;
     engine->setCustomValue(QLatin1String("HomePage"), homePage);
 
     const int startOption = m_ui.helpStartComboBox->currentIndex();
@@ -199,7 +199,7 @@ void GeneralSettingsPage::setCurrentPage()
 
 void GeneralSettingsPage::setBlankPage()
 {
-    m_ui.homePageLineEdit->setText(QLatin1String("about:blank"));
+    m_ui.homePageLineEdit->setText(Help::Constants::AboutBlank);
 }
 
 void GeneralSettingsPage::setDefaultPage()
