@@ -47,7 +47,8 @@ class QTCREATOR_UTILS_EXPORT Wizard : public QWizard
     Q_PROPERTY(bool automaticProgressCreationEnabled READ isAutomaticProgressCreationEnabled WRITE setAutomaticProgressCreationEnabled)
 
 public:
-    explicit Wizard(QWidget *parent = 0);
+    explicit Wizard(QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    virtual ~Wizard();
 
     bool isAutomaticProgressCreationEnabled() const;
     void setAutomaticProgressCreationEnabled(bool enabled);
@@ -66,7 +67,7 @@ private:
     Q_DISABLE_COPY(Wizard)
     Q_DECLARE_PRIVATE(Wizard)
 
-    QScopedPointer<WizardPrivate> d_ptr;
+    class WizardPrivate *d_ptr;
 };
 
 class WizardProgressItem;
@@ -118,7 +119,7 @@ private:
     Q_DISABLE_COPY(WizardProgress)
     Q_DECLARE_PRIVATE(WizardProgress)
 
-    QScopedPointer<WizardProgressPrivate> d_ptr;
+    class WizardProgressPrivate *d_ptr;
 };
 
 class WizardProgressItemPrivate;
@@ -150,7 +151,7 @@ private:
     Q_DISABLE_COPY(WizardProgressItem)
     Q_DECLARE_PRIVATE(WizardProgressItem)
 
-    QScopedPointer<WizardProgressItemPrivate> d_ptr;
+    class WizardProgressItemPrivate *d_ptr;
 };
 
 } // namespace Utils

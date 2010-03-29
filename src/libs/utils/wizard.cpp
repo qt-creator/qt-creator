@@ -290,8 +290,8 @@ public:
     WizardProgress *m_wizardProgress;
 };
 
-Wizard::Wizard(QWidget *parent) :
-    QWizard(parent), d_ptr(new WizardPrivate)
+Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
+    QWizard(parent, flags), d_ptr(new WizardPrivate)
 {
     d_ptr->q_ptr = this;
     d_ptr->m_wizardProgress = new WizardProgress(this);
@@ -299,6 +299,11 @@ Wizard::Wizard(QWidget *parent) :
     connect(this, SIGNAL(pageAdded(int)), this, SLOT(_q_pageAdded(int)));
     connect(this, SIGNAL(pageRemoved(int)), this, SLOT(_q_pageRemoved(int)));
     setSideWidget(new LinearProgressWidget(d_ptr->m_wizardProgress, this));
+}
+
+Wizard::~Wizard()
+{
+    delete d_ptr;
 }
 
 bool Wizard::isAutomaticProgressCreationEnabled() const
@@ -563,6 +568,7 @@ WizardProgress::~WizardProgress()
         delete it.key();
         ++it;
     }
+    delete d_ptr;
 }
 
 WizardProgressItem *WizardProgress::addItem(const QString &title)
@@ -764,7 +770,7 @@ WizardProgressItem::WizardProgressItem(WizardProgress *progress, const QString &
 
 WizardProgressItem::~WizardProgressItem()
 {
-
+    delete d_ptr;
 }
 
 void WizardProgressItem::addPage(int pageId)
