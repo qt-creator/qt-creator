@@ -411,8 +411,8 @@ QMenu::separator {
 
  QSlider::handle:horizontal {
      image: url(:/qmldesigner/images/slider_indikator.png);
-     width: 8px;
-	 height: 8px;
+     width: 16px;
+	 height: 24px;
      margin: 0px 0;	 
  }
 
