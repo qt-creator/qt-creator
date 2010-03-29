@@ -1373,7 +1373,7 @@ void ProjectExplorerPlugin::updateActions()
     if (debug)
         qDebug() << "BuildManager::isBuilding()" << building;
 
-    d->m_unloadAction->setParameter(projectName);
+    d->m_unloadAction->setParameter(projectNameContextMenu);
 
     d->m_buildAction->setParameter(projectName);
     d->m_rebuildAction->setParameter(projectName);
