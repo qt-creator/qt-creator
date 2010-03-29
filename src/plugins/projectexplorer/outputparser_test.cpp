@@ -29,6 +29,8 @@
 
 #include "outputparser_test.h"
 
+#if defined(WITH_TESTS)
+
 #include <QtTest>
 
 using namespace ProjectExplorer;
@@ -157,3 +159,5 @@ void OutputParserTester::reset()
     m_receivedTasks.clear();
     m_receivedOutput = QString();
 }
+
+#endif
