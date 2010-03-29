@@ -31,17 +31,9 @@
 #define PROJECTLOADWIZARD_H
 
 #include "qtversionmanager.h"
-
-#include <QtGui/QWizard>
-
-QT_BEGIN_NAMESPACE
-class QWizardPage;
-class QLabel;
-class QCheckBox;
-QT_END_NAMESPACE
+#include "wizards/targetsetuppage.h"
 
 namespace Qt4ProjectManager {
-
 class Qt4Project;
 
 namespace Internal {
@@ -59,28 +51,14 @@ public:
     void execDialog();
 
 private:
-    void setupImportPage(QtVersion *version, QtVersion::QmakeBuildConfigs buildConfig, QStringList addtionalArguments);
-    void setupTargetsPage();
+    void setupTargetPage();
+
+    void applySettings();
 
     Qt4Project *m_project;
+    QList<TargetSetupPage::ImportInfo> m_importVersions;
 
-    // Only used for imported stuff
-    QtVersion *m_importVersion;
-    QtVersion::QmakeBuildConfigs m_importBuildConfig;
-    QStringList m_additionalArguments;
-    // Those that we might add
-    bool m_temporaryVersion;
-
-    // This was a file autogenarated by Designer, before I found out you can't actually
-    // create non linear wizards in it
-    // So those variables should all be m_*, but that one has to wait for refactoring support :)
-    QWizardPage *importPage;
-    QLabel *importLabel;
-    QLabel *import2Label;
-    QCheckBox *importCheckbox;
-    TargetsPage *m_targetsPage;
-
-    void setupUi();
+    TargetSetupPage *m_targetSetupPage;
 };
 
 } // namespace Internal
