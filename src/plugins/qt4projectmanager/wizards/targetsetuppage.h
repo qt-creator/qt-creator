@@ -39,6 +39,7 @@
 #include <QtGui/QWizard>
 
 QT_BEGIN_NAMESPACE
+class QLabel;
 class QTreeWidget;
 QT_END_NAMESPACE
 
@@ -116,6 +117,7 @@ private:
     QList<ImportInfo> m_infos;
     QTreeWidget *m_treeWidget;
     Utils::PathChooser *m_directoryChooser;
+    QLabel *m_directoryLabel;
 };
 
 } // namespace Internal

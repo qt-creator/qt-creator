@@ -63,9 +63,9 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     vbox->addWidget(m_treeWidget);
 
     QHBoxLayout *hbox = new QHBoxLayout;
-    QLabel *directoryLabel = new QLabel(this);
-    directoryLabel->setText(tr("Scan for builds"));
-    hbox->addWidget(directoryLabel);
+    m_directoryLabel = new QLabel(this);
+    m_directoryLabel->setText(tr("Scan for builds"));
+    hbox->addWidget(m_directoryLabel);
 
     m_directoryChooser = new Utils::PathChooser(this);
     m_directoryChooser->setPromptDialogTitle(tr("Directory to import builds from"));
@@ -247,6 +247,7 @@ void TargetSetupPage::setImportDirectoryBrowsingEnabled(bool browsing)
 {
     m_directoryChooser->setEnabled(browsing);
     m_directoryChooser->setVisible(browsing);
+    m_directoryLabel->setVisible(browsing);
 }
 
 void TargetSetupPage::setImportDirectoryBrowsingLocation(const QString &directory)
