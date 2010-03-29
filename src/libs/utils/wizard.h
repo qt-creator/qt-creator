@@ -41,7 +41,7 @@ namespace Utils {
 class WizardProgress;
 class WizardPrivate;
 
-class Q_GUI_EXPORT Wizard : public QWizard
+class QTCREATOR_UTILS_EXPORT Wizard : public QWizard
 {
     Q_OBJECT
     Q_PROPERTY(bool automaticProgressCreationEnabled READ isAutomaticProgressCreationEnabled WRITE setAutomaticProgressCreationEnabled)
@@ -72,7 +72,7 @@ private:
 class WizardProgressItem;
 class WizardProgressPrivate;
 
-class Q_GUI_EXPORT WizardProgress : public QObject
+class QTCREATOR_UTILS_EXPORT WizardProgress : public QObject
 {
     Q_OBJECT
 
@@ -123,7 +123,7 @@ private:
 
 class WizardProgressItemPrivate;
 
-class Q_GUI_EXPORT WizardProgressItem // managed by WizardProgress
+class QTCREATOR_UTILS_EXPORT WizardProgressItem // managed by WizardProgress
 {
 
 public:
