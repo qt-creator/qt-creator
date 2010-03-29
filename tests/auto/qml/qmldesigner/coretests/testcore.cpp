@@ -2138,8 +2138,8 @@ void TestCore::testRewriterTransactionRewriter()
     {
         RewriterTransaction transaction = view->beginRewriterTransaction();
         childNode1 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
-        childNode1.variantProperty("x") = "10";
-        childNode1.variantProperty("y") = "10";
+        childNode1.variantProperty("x") = 10;
+        childNode1.variantProperty("y") = 10;
     }
 
     QVERIFY(childNode1.isValid());
