@@ -189,7 +189,7 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
                    << "\nMOBILITY = "
                    << "\n\nsymbian {"
                    << "\n    TARGET.UID3 = " << uid3String
-                   << "\n    TARGET.CAPABILITY = "
+                   << "\n    # TARGET.CAPABILITY += "
                    << "\n    TARGET.EPOCSTACKSIZE = 0x14000"
                    << "\n    TARGET.EPOCHEAPSIZE = 0x020000 0x800000"
                    << "\n}";
