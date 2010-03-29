@@ -158,6 +158,7 @@ void CompletionWidget::closeList(const QModelIndex &index)
 
 void CompletionWidget::showCompletions(int startPos)
 {
+    ensurePolished();
     updatePositionAndSize(startPos);
     show();
     setFocus();
