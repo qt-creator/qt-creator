@@ -775,6 +775,24 @@
     as an emergency command.
 
 
+    \section1 Using FakeVim Mode
+
+    In the \gui{FakeVim} mode, you can run the main editor in a manner similar
+    to the Vim editor. To run the editor in the \gui{FakeVim} mode, select
+    \gui{Edit} > \gui{Advanced} > \gui{Toggle vim-style editing} or press
+    \key{Alt+V,Alt+V}.
+
+    In the \gui{FakeVim} mode, most keystrokes in the main editor will be
+    intercepted and interpreted in a way that resembles Vim.
+
+    To map commands entered on the \gui{FakeVim} command line to actions of the
+    Qt Creator core, select \gui{Tools} > \gui{Options...} > \gui{FakeVim} >
+    \gui{Ex Command Mapping}.
+
+    To make changes to the \gui{Vim style settings}, select \gui{Tools} >
+    \gui{Options...} > \gui{General}.
+
+
     \section1 Using an External Editor
 
     To open the file you are currently viewing in an external editor, select
