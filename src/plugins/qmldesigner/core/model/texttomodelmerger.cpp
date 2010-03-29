@@ -179,6 +179,8 @@ static inline int propertyType(const QString &typeName)
         return QMetaType::type("int");
     else if (typeName == QLatin1String("real"))
         return QMetaType::type("double");
+    else if (typeName == QLatin1String("double"))
+        return QMetaType::type("double");
     else if (typeName == QLatin1String("string"))
         return QMetaType::type("QString");
     else if (typeName == QLatin1String("url"))
@@ -650,9 +652,16 @@ QVariant TextToModelMerger::convertToVariant(const ModelNode &node,
 
     if (!astType.isEmpty()) {
         const int type = propertyType(astType);
-        QVariant value(cleanedValue);
-        value.convert(static_cast<QVariant::Type>(type));
-        return value;
+        if (type == QMetaType::type("QVariant")) {
+           if (cleanedValue.isNull()) // Explicitly isNull, NOT isEmpty!
+               return QVariant(static_cast<QVariant::Type>(type));
+           else
+               return QVariant(cleanedValue);
+        } else {
+            QVariant value = QVariant(cleanedValue);
+            value.convert(static_cast<QVariant::Type>(type));
+            return value;
+        }
 
         const QString typeName = QMetaType::typeName(type);
         return Internal::PropertyParser::read(typeName, astValue, nodeMetaInfo.metaInfo());

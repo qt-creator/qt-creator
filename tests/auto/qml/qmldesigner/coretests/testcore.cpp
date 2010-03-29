@@ -451,13 +451,13 @@ void TestCore::testRewriterDynamicProperties()
     QVERIFY(rootModelNode.hasVariantProperty("d"));
     QCOMPARE(rootModelNode.variantProperty("d").dynamicTypeName(), QString("double"));
     QCOMPARE(rootModelNode.variantProperty("d").value().type(), QVariant::Double);
-    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("b").value().toDouble(), 0.0);
+    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("d").value().toDouble(), 0.0);
 
     QVERIFY(rootModelNode.hasVariantProperty("dd"));
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("dd").value().toDouble(), 1.1);
 
     QVERIFY(rootModelNode.hasVariantProperty("r"));
-    QCOMPARE(rootModelNode.variantProperty("r").dynamicTypeName(), QString("double"));
+    QCOMPARE(rootModelNode.variantProperty("r").dynamicTypeName(), QString("real"));
     QCOMPARE(rootModelNode.variantProperty("r").value().type(), QVariant::Double);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("r").value().toDouble(), 0.0);
 
@@ -490,7 +490,7 @@ void TestCore::testRewriterDynamicProperties()
 
     QVERIFY(rootModelNode.hasVariantProperty("t"));
     QCOMPARE(rootModelNode.variantProperty("t").dynamicTypeName(), QString("date"));
-    QCOMPARE(rootModelNode.variantProperty("t").value().type(), QVariant::Color);
+    QCOMPARE(rootModelNode.variantProperty("t").value().type(), QVariant::Date);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("t").value().value<QDate>(), QDate());
 
     QVERIFY(rootModelNode.hasVariantProperty("tt"));
@@ -498,10 +498,12 @@ void TestCore::testRewriterDynamicProperties()
 
     QVERIFY(rootModelNode.hasVariantProperty("v"));
     QCOMPARE(rootModelNode.variantProperty("v").dynamicTypeName(), QString("var"));
-    QCOMPARE(rootModelNode.variantProperty("v").value().type(), QVariant::Invalid);
+    const int type = rootModelNode.variantProperty("v").value().type();
+    QCOMPARE(type, QMetaType::type("QVariant"));
 
     QVERIFY(rootModelNode.hasVariantProperty("vv"));
-    QCOMPARE(testRewriterView1->rootModelNode().variantProperty("vv").value().value<QString>(), QString("hello"));
+    const QString inThere = testRewriterView1->rootModelNode().variantProperty("vv").value().value<QString>();
+    QCOMPARE(inThere, QString("Hello"));
 
     // test model2text
 //    QPlainTextEdit textEdit2;
