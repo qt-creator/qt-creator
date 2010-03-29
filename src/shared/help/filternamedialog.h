@@ -33,8 +33,6 @@
 #include <QtGui/QDialog>
 #include "ui_filternamedialog.h"
 
-QT_BEGIN_NAMESPACE
-
 class FilterNameDialog : public QDialog
 {
     Q_OBJECT
@@ -49,7 +47,5 @@ private slots:
 private:
     Ui::FilterNameDialogClass m_ui;
 };
-
-QT_END_NAMESPACE
 
 #endif // FILTERNAMEDIALOG_H

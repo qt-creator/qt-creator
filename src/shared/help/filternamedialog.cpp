@@ -31,8 +31,6 @@
 
 #include "filternamedialog.h"
 
-QT_BEGIN_NAMESPACE
-
 FilterNameDialog::FilterNameDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -57,5 +55,3 @@ void FilterNameDialog::updateOkButton()
     m_ui.buttonBox->button(QDialogButtonBox::Ok)
         ->setDisabled(m_ui.lineEdit->text().isEmpty());
 }
-
-QT_END_NAMESPACE
