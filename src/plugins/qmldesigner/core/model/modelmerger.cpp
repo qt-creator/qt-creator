@@ -108,7 +108,7 @@ static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QStri
             int number = 1;
             splitIdInBaseNameAndNumber(newId, &baseId, &number);
 
-            while (view->hasId(newId) || idRenamingHash.contains(newId)) {
+            while (view->hasId(newId) || idRenamingHash.values().contains(newId)) {
                 newId = baseId + QString::number(number);
                 number++;
             }
@@ -160,6 +160,7 @@ ModelNode ModelMerger::insertModel(const ModelNode &modelNode)
 
     QHash<QString, QString> idRenamingHash;
     setupIdRenamingHash(modelNode, idRenamingHash, view());
+    qDebug() << idRenamingHash;
     ModelNode newNode(createNodeFromNode(modelNode, idRenamingHash, view()));
 
     return newNode;

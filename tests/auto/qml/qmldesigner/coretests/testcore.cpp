@@ -2751,8 +2751,6 @@ void TestCore::testRewriterFirstDefinitionInside()
 
 void TestCore::testCopyModelRewriter1()
 {
-    QSKIP("Fix me!!! Task BaAUHAUS-393", SkipAll);
-
     const QLatin1String qmlString("\n"
                                   "import Qt 4.6\n"
                                   "\n"
@@ -2865,20 +2863,20 @@ void TestCore::testCopyModelRewriter1()
         "            x: 10\n"
         "            y: 10\n"
         "            Rectangle {\n"
-        "                id: rectangle11\n"
+        "                id: rectangle4\n"
         "                x: 10\n"
         "                y: 10\n"
         "            }\n"
         "\n"
         "            Rectangle {\n"
-        "                id: rectangle21\n"
+        "                id: rectangle5\n"
         "                x: 100\n"
         "                y: 100\n"
         "                anchors.fill: root1\n"
         "            }\n"
         "\n"
         "            Rectangle {\n"
-        "                id: rectangle31\n"
+        "                id: rectangle6\n"
         "                x: 140\n"
         "                y: 180\n"
         "                gradient: Gradient {\n"
