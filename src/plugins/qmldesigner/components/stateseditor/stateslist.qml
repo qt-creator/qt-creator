@@ -416,7 +416,7 @@ Rectangle {
             anchors.fill: parent
             color: "transparent"
             border.width: 1
-            border.color: "#4F4F4F"
+            border.color: "#282828"
 
             Loader {
                 sourceComponent: addState
@@ -431,7 +431,7 @@ Rectangle {
 
         color: root.color
         border.width: 1
-        border.color: "#4F4F4F"
+        border.color: "#282828"
         width: 40
         height: 40
         anchors.bottom:horizontalScrollbar.top
@@ -462,7 +462,7 @@ Rectangle {
                 width: 21
                 height: width
 
-                color:"#4F4F4F"
+                color:"#282828"
                 radius: width/2
 
                 // "clicked" overlay
