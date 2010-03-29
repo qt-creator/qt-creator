@@ -1930,9 +1930,18 @@ void GdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Run to line %1 requested...").arg(lineNumber), 5000);
+#if 1
+    QByteArray loc = '"' + breakLocation(fileName).toLocal8Bit() + '"' + ':'
+        + QByteArray::number(lineNumber);
+    postCommand("tbreak " + loc);
+    postCommand("continue", RunRequest);
+#else
+    // Seems to jump to unpredicatable places. Observed in the manual
+    // tests in the Foo::Foo() constructor with both gdb 6.8 and 7.1.
     QByteArray args = '"' + breakLocation(fileName).toLocal8Bit() + '"' + ':'
         + QByteArray::number(lineNumber);
     postCommand("-exec-until " + args, RunRequest, CB(handleExecuteContinue));
+#endif
 }
 
 void GdbEngine::executeRunToFunction(const QString &functionName)
