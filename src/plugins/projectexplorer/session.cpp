@@ -381,7 +381,7 @@ SessionManager::SessionManager(QObject *parent)
     m_file(new SessionFile),
     m_sessionNode(new Internal::SessionNodeImpl(this)),
     m_currentEditor(0),
-    m_defaultVirginSession(true)
+    m_virginSession(true)
 {
     // Create qtcreator dir if it doesn't yet exist
     QString configDir = QFileInfo(m_core->settings()->fileName()).path();
@@ -435,7 +435,8 @@ SessionManager::~SessionManager()
 
 bool SessionManager::isDefaultVirgin() const
 {
-    return m_defaultVirginSession;
+    return isDefaultSession(m_sessionName)
+            && m_virginSession;
 }
 
 bool SessionManager::isDefaultSession(const QString &session) const
@@ -573,7 +574,7 @@ void SessionManager::addProject(Project *project)
 
 void SessionManager::addProjects(const QList<Project*> &projects)
 {
-    m_defaultVirginSession = false;
+    m_virginSession = false;
     QList<Project*> clearedList;
     foreach (Project *pro, projects) {
         if (!m_file->m_projects.contains(pro)) {
@@ -604,7 +605,7 @@ void SessionManager::addProjects(const QList<Project*> &projects)
 
 void SessionManager::removeProject(Project *project)
 {
-    m_defaultVirginSession = false;
+    m_virginSession = false;
     if (project == 0) {
         qDebug() << "SessionManager::removeProject(0) ... THIS SHOULD NOT HAPPEN";
         return;
@@ -634,7 +635,7 @@ bool SessionManager::createImpl(const QString &fileName)
         setStartupProject(0);
     }
 
-    m_defaultVirginSession = false;
+    m_virginSession = true;
 
     if (debug)
         qDebug() << "SessionManager - creating new session returns " << success;
@@ -662,7 +663,7 @@ bool SessionManager::loadImpl(const QString &fileName)
         }
     }
 
-    m_defaultVirginSession = false;
+    m_virginSession = false;
 
     if (success) {
         emit aboutToUnloadSession();
@@ -1144,7 +1145,7 @@ void SessionManager::markSessionFileDirty(bool makeDefaultVirginDirty)
     if (m_file && !m_file->fileName().isEmpty())
         m_autoSaveSessionTimer->start();
     if (makeDefaultVirginDirty)
-        m_defaultVirginSession = false;
+        m_virginSession = false;
 }
 
 #include "session.moc"

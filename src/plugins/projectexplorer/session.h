@@ -194,7 +194,7 @@ private:
     QPointer<Core::IEditor> m_currentEditor;
     QString m_displayName;
     QString m_sessionName;
-    bool m_defaultVirginSession;
+    bool m_virginSession;
 
     mutable QStringList m_sessions;
 
