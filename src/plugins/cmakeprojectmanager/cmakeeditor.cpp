@@ -102,6 +102,7 @@ TextEditor::BaseTextEditorEditable *CMakeEditor::createEditableInterface()
 
 void CMakeEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
+    TextEditor::BaseTextEditor::setFontSettings(fs);
     CMakeHighlighter *highlighter = qobject_cast<CMakeHighlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;
