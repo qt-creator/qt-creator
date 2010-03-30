@@ -135,6 +135,9 @@ public:
 
     static void registerDeclarativeTypes();
 
+#ifdef QT_BUILD_INTERNAL
+    QObject* testHandle() const;
+#endif
 private: // functions
     NodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 

@@ -622,4 +622,11 @@ void NodeInstance::registerDeclarativeTypes()
     qmlRegisterType<QmlDesigner::Internal::QmlPropertyChangesObject>();
 }
 
+#ifdef QT_BUILD_INTERNAL
+QObject* NodeInstance::testHandle() const
+{
+    return internalObject();
+}
+#endif
+
 } // namespace QmlDesigner

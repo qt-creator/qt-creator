@@ -3651,29 +3651,29 @@ void TestCore::testInstancesStates()
 
     // base state
     QVERIFY(textInstance.isValid());
-    QCOMPARE(state1Instance == instanceView->stateInstance(), false);
-    QCOMPARE(state2Instance == instanceView->stateInstance(), false);
+    QCOMPARE(state1Instance == instanceView->activeStateInstance(), false);
+    QCOMPARE(state2Instance == instanceView->activeStateInstance(), false);
     QCOMPARE(textInstance.property("x").toInt(), 0);
     QCOMPARE(textInstance.property("text").toString(), QString("base state"));
 
     // base state -> state
     instanceView->activateState(state1Instance);
-    QCOMPARE(state1Instance == instanceView->stateInstance(), true);
-    QCOMPARE(state2Instance == instanceView->stateInstance(), false);
+    QCOMPARE(state1Instance == instanceView->activeStateInstance(), true);
+    QCOMPARE(state2Instance == instanceView->activeStateInstance(), false);
     QCOMPARE(textInstance.property("x").toInt(), 10);
     QCOMPARE(textInstance.property("text").toString(), QString("state1"));
 
     // state 1 -> state 2
     instanceView->activateState(state2Instance);
-    QCOMPARE(state1Instance == instanceView->stateInstance(), false);
-    QCOMPARE(state2Instance == instanceView->stateInstance(), true);
+    QCOMPARE(state1Instance == instanceView->activeStateInstance(), false);
+    QCOMPARE(state2Instance == instanceView->activeStateInstance(), true);
     QCOMPARE(textInstance.property("x").toInt(), 0);
     QCOMPARE(textInstance.property("text").toString(), QString("state2"));
 
     // state 1 -> base state
     instanceView->activateBaseState();
-    QCOMPARE(state1Instance == instanceView->stateInstance(), false);
-    QCOMPARE(state2Instance == instanceView->stateInstance(), false);
+    QCOMPARE(state1Instance == instanceView->activeStateInstance(), false);
+    QCOMPARE(state2Instance == instanceView->activeStateInstance(), false);
     QCOMPARE(textInstance.property("x").toInt(), 0);
     QCOMPARE(textInstance.property("text").toString(), QString("base state"));
 
@@ -3844,14 +3844,14 @@ void TestCore::testStates()
 
     NodeInstance state1Instance = view->nodeInstanceView()->instanceForNode(state1);
     QVERIFY(state1Instance.isValid());
-    QCOMPARE(state1Instance == view->nodeInstanceView()->stateInstance(), false);
+    QCOMPARE(state1Instance == view->nodeInstanceView()->activeStateInstance(), false);
     QCOMPARE(state1Instance.property("name").toString(), QString("state 1"));
 
     view->setCurrentState(state1); //set currentState "state 1"
 
     QCOMPARE(view->currentState(), state1);
 
-    QCOMPARE(state1Instance == view->nodeInstanceView()->stateInstance(), true);
+    QCOMPARE(state1Instance == view->nodeInstanceView()->activeStateInstance(), true);
 
     QVERIFY(!textItem.propertyAffectedByCurrentState("text"));
 
@@ -3873,7 +3873,7 @@ void TestCore::testStates()
     QCOMPARE(changes.modelNode().parentProperty().name(), QString("changes"));
     QCOMPARE(changes.modelNode().parentProperty().parentModelNode(), state1.modelNode());
 
-    QCOMPARE(state1Instance == view->nodeInstanceView()->stateInstance(), true);
+    QCOMPARE(state1Instance == view->nodeInstanceView()->activeStateInstance(), true);
 
     QVERIFY(textItem.propertyAffectedByCurrentState("text"));
 
