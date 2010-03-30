@@ -72,6 +72,7 @@ public:
 
     bool supportsTargetId(const QString &id) const;
     QSet<QString> supportedTargetIds() const;
+    bool supportsMobileTarget() const;
 
     QList<ProjectExplorer::ToolChain::ToolChainType> possibleToolChainTypes() const;
     ProjectExplorer::ToolChain *toolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
