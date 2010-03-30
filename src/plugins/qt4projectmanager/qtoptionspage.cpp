@@ -468,7 +468,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             if (!m_versions.at(index)->isValid())
                 m_ui->errorLabel->setText(m_versions.at(index)->invalidReason());
             else
-                m_ui->errorLabel->setText(tr("%1 does not specify a valid Qt installation").arg(QDir::toNativeSeparators(m_versions.at(index)->qmakeCommand())));
+                m_ui->errorLabel->setText(tr("This Qt Version has a unknown toolchain."));
         } else if (types.contains(ProjectExplorer::ToolChain::MinGW)) {
             makeMSVCVisible(false);
             makeMingwVisible(true);
