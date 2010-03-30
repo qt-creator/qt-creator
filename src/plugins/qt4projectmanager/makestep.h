@@ -127,6 +127,7 @@ private slots:
     void updateMakeOverrideLabel();
     void updateDetails();
     void userArgumentsChanged();
+    void qtVersionChanged();
 private:
     Ui::MakeStep *m_ui;
     MakeStep *m_makeStep;

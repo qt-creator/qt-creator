@@ -222,6 +222,9 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(makeStep->buildConfiguration(), SIGNAL(buildDirectoryChanged()),
             this, SLOT(updateDetails()));
 
+    connect(makeStep->qt4BuildConfiguration(), SIGNAL(qtVersionChanged()),
+            this, SLOT(qtVersionChanged()));
+
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateMakeOverrideLabel()));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
@@ -231,6 +234,12 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 MakeStepConfigWidget::~MakeStepConfigWidget()
 {
     delete m_ui;
+}
+
+void MakeStepConfigWidget::qtVersionChanged()
+{
+    updateMakeOverrideLabel();
+    updateDetails();
 }
 
 void MakeStepConfigWidget::updateMakeOverrideLabel()
@@ -252,7 +261,7 @@ void MakeStepConfigWidget::updateDetails()
         // Try to detect command in environment
         const QString tmp = environment.searchInPath(makeCmd);
         if (tmp.isEmpty()) {
-            m_summaryText = tr("<b>Make Step:</b> %1 not found in the environment.").arg(makeCmd);
+            m_summaryText = tr("<b>Make:</b> %1 not found in the environment.").arg(makeCmd);
             emit updateSummary();
             return;
         }
