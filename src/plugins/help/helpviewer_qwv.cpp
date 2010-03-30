@@ -162,7 +162,7 @@ protected:
 private:
     bool closeNewTabIfNeeded;
 
-    friend class HelpViewer;
+    friend class Help::Internal::HelpViewer;
     Qt::MouseButtons m_pressedButtons;
     Qt::KeyboardModifiers m_keyboardModifiers;
 };
