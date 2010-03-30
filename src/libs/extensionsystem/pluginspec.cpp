@@ -240,14 +240,14 @@ QString PluginSpec::category() const
     \fn bool PluginSpec::loadOnStartup() const
     True if the plugin is loaded at startup. True by default - the user can change it from the Plugin settings.
 */
-bool PluginSpec::loadOnStartup() const
+bool PluginSpec::isEnabled() const
 {
-    return d->loadOnStartup;
+    return d->enabled;
 }
 
-bool PluginSpec::ignoreOnStartup() const
+bool PluginSpec::isDisabledByDependency() const
 {
-    return d->ignoreOnStartup;
+    return d->disabledByDependency;
 }
 
 /*!
@@ -437,8 +437,8 @@ namespace {
 */
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
     :
-    loadOnStartup(true),
-    ignoreOnStartup(false),
+    enabled(true),
+    disabledByDependency(false),
     plugin(0),
     state(PluginSpec::Invalid),
     hasError(false),
@@ -496,14 +496,9 @@ bool PluginSpecPrivate::read(const QString &fileName)
     return true;
 }
 
-void PluginSpec::setLoadOnStartup(bool value)
+void PluginSpec::setEnabled(bool value)
 {
-    d->loadOnStartup = value;
-}
-
-void PluginSpec::setIgnoreOnStartup(bool value)
-{
-    d->ignoreOnStartup = value;
+    d->enabled = value;
 }
 
 /*!
@@ -797,8 +792,8 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
         foreach (PluginSpec *spec, specs) {
             if (spec->provides(dependency.name, dependency.version)) {
                 found = spec;
-                if (!spec->loadOnStartup() || spec->ignoreOnStartup())
-                    ignoreOnStartup = true;
+                if (!spec->isEnabled() || spec->isDisabledByDependency())
+                    disabledByDependency = true;
 
                 spec->addDependentPlugin(q);
 
@@ -820,7 +815,7 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
 
     dependencySpecs = resolvedDependencies;
 
-    if (loadOnStartup && !ignoreOnStartup)
+    if (enabled && !disabledByDependency)
         state = PluginSpec::Resolved;
 
     return true;

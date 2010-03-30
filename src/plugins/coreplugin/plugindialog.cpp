@@ -111,8 +111,8 @@ void PluginDialog::updateButtons()
     if (selectedSpec) {
         m_detailsButton->setEnabled(true);
         m_errorDetailsButton->setEnabled(selectedSpec->hasError()
-                                         || selectedSpec->ignoreOnStartup()
-                                         || !selectedSpec->loadOnStartup());
+                                         || selectedSpec->isDisabledByDependency()
+                                         || !selectedSpec->isEnabled());
     } else {
         m_detailsButton->setEnabled(false);
         m_errorDetailsButton->setEnabled(false);

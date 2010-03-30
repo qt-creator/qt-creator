@@ -69,8 +69,8 @@ public:
     QString url;
     QString category;
     QList<PluginDependency> dependencies;
-    bool loadOnStartup;
-    bool ignoreOnStartup;
+    bool enabled;
+    bool disabledByDependency;
 
     QString location;
     QString filePath;

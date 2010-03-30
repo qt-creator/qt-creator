@@ -178,7 +178,7 @@ void PluginView::updateList()
     defaultCollectionItem->setData(0, Qt::UserRole, qVariantFromValue(defaultCollection));
 
     foreach (PluginSpec *spec, m_specToItem.keys())
-        toggleRelatedPlugins(spec, spec->loadOnStartup() && !spec->ignoreOnStartup());
+        toggleRelatedPlugins(spec, spec->isEnabled() && !spec->isDisabledByDependency());
 
     m_ui->categoryWidget->clear();
     if (!m_items.isEmpty()) {
@@ -217,7 +217,7 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
         pluginItem->setData(0, Qt::UserRole, qVariantFromValue(spec));
 
         Qt::CheckState state = Qt::Unchecked;
-        if (spec->loadOnStartup()) {
+        if (spec->isEnabled()) {
             state = Qt::Checked;
             ++loadCount;
         }
@@ -300,7 +300,7 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
 
         if (column == C_LOAD) {
 
-            spec->setLoadOnStartup(loadOnStartup);
+            spec->setEnabled(loadOnStartup);
             toggleRelatedPlugins(spec, loadOnStartup);
 
             if (item->parent()) {
@@ -308,7 +308,7 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
                 Qt::CheckState state = Qt::PartiallyChecked;
                 int loadCount = 0;
                 for (int i = 0; i < collection->plugins().length(); ++i) {
-                    if (collection->plugins().at(i)->loadOnStartup())
+                    if (collection->plugins().at(i)->isEnabled())
                         ++loadCount;
                 }
                 if (loadCount == collection->plugins().length())
@@ -329,7 +329,7 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
             QTreeWidgetItem *child = m_specToItem.value(spec);
 
             if (!m_whitelist.contains(spec->name())) {
-                spec->setLoadOnStartup(loadOnStartup);
+                spec->setEnabled(loadOnStartup);
                 Qt::CheckState state = (loadOnStartup ? Qt::Checked : Qt::Unchecked);
                 child->setData(C_LOAD, Qt::CheckStateRole, state);
                 toggleRelatedPlugins(spec, loadOnStartup);

@@ -79,7 +79,7 @@ public:
     QStringList pluginPaths;
     QString extension;
     QList<QObject *> allObjects; // ### make this a QList<QPointer<QObject> > > ?
-    QStringList notLoadedPlugins;
+    QStringList disabledPlugins;
 
     QStringList arguments;
     QScopedPointer<QTime> m_profileTimer;

@@ -623,13 +623,13 @@ void PluginManagerPrivate::writeSettings()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope,
                                  QLatin1String("Nokia"), QLatin1String("QtCreator"));
 
-    QStringList notLoadedPlugins;
+    QStringList tempDisabledPlugins;
     foreach(PluginSpec *spec, pluginSpecs) {
-        if (!spec->loadOnStartup())
-            notLoadedPlugins.append(spec->name());
+        if (!spec->isEnabled())
+            tempDisabledPlugins.append(spec->name());
     }
 
-    settings.setValue(QLatin1String(C_IGNORED_PLUGINS), notLoadedPlugins);
+    settings.setValue(QLatin1String(C_IGNORED_PLUGINS), tempDisabledPlugins);
 }
 
 void PluginManagerPrivate::loadSettings()
@@ -637,8 +637,7 @@ void PluginManagerPrivate::loadSettings()
     const QSettings settings(QSettings::IniFormat, QSettings::UserScope,
                                  QLatin1String("Nokia"), QLatin1String("QtCreator"));
 
-
-    notLoadedPlugins = settings.value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
+    disabledPlugins = settings.value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
 }
 
 void PluginManagerPrivate::stopAll()
@@ -762,7 +761,7 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
     circularityCheckQueue.append(spec);
     // check if we have the dependencies
     if (spec->state() == PluginSpec::Invalid || spec->state() == PluginSpec::Read) {
-        if (!spec->d->ignoreOnStartup && spec->d->loadOnStartup) {
+        if (!spec->isDisabledByDependency() && spec->isEnabled()) {
             spec->d->hasError = true;
             spec->d->errorString += "\n";
             spec->d->errorString += PluginManager::tr("Cannot load plugin because dependencies are not resolved");
@@ -790,7 +789,7 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
 */
 void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destState)
 {
-    if (spec->hasError() || spec->ignoreOnStartup())
+    if (spec->hasError() || spec->isDisabledByDependency())
         return;
 
     switch (destState) {
@@ -884,8 +883,8 @@ void PluginManagerPrivate::readPluginPaths()
             collection = new PluginCollection(spec->category());
             pluginCategories.insert(spec->category(), collection);
         }
-        if (notLoadedPlugins.contains(spec->name()))
-            spec->setLoadOnStartup(false);
+        if (disabledPlugins.contains(spec->name()))
+            spec->setEnabled(false);
 
         collection->addPlugin(spec);
         pluginSpecs.append(spec);

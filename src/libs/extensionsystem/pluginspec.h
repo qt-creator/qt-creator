@@ -79,9 +79,9 @@ public:
     QString description() const;
     QString url() const;
     QString category() const;
-    bool loadOnStartup() const;
+    bool isEnabled() const;
     // true if loading was not done due to user unselecting this plugin or its dependencies
-    bool ignoreOnStartup() const;
+    bool isDisabledByDependency() const;
     QList<PluginDependency> dependencies() const;
 
     typedef QList<PluginArgumentDescription> PluginArgumentDescriptions;
@@ -91,8 +91,7 @@ public:
     QString location() const;
     QString filePath() const;
 
-    void setLoadOnStartup(bool value);
-    void setIgnoreOnStartup(bool value);
+    void setEnabled(bool value);
 
     QStringList arguments() const;
     void setArguments(const QStringList &arguments);
