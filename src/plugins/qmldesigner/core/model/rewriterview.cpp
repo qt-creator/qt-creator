@@ -538,7 +538,7 @@ void RewriterView::qmlTextChanged()
             default: {
                 emitCustomNotification(StartRewriterAmend);
                 ModelAmender differenceHandler(m_textToModelMerger.data());
-                if (m_textToModelMerger->load(newQmlText.toUtf8(), differenceHandler)) {
+                if (m_textToModelMerger->load(newQmlText, differenceHandler)) {
                     lastCorrectQmlSource = newQmlText;
                 }
                 emitCustomNotification(EndRewriterAmend);
