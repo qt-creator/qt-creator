@@ -221,11 +221,16 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
 
         // create the target:
         Qt4Target *target = 0;
-        if (targetInfos.isEmpty())
-            target = project->targetFactory()->create(project, targetId);
-        else
+        if (!targetInfos.isEmpty())
             target = project->targetFactory()->create(project, targetId, targetInfos);
 
+        if (target)
+            project->addTarget(target);
+    }
+
+    // Create the default target if nothing else was set up:
+    if (project->targets().isEmpty()) {
+        Qt4Target *target = project->targetFactory()->create(project, Constants::DESKTOP_TARGET_ID);
         if (target)
             project->addTarget(target);
     }
