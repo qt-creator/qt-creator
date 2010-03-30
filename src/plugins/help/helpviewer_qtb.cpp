@@ -53,6 +53,13 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
     : QTextBrowser(parent)
     , d(new HelpViewerPrivate(zoom))
 {
+    QPalette p = palette();
+    p.setColor(QPalette::Inactive, QPalette::Highlight,
+        p.color(QPalette::Active, QPalette::Highlight));
+    p.setColor(QPalette::Inactive, QPalette::HighlightedText,
+        p.color(QPalette::Active, QPalette::HighlightedText));
+    setPalette(p);
+
     installEventFilter(this);
     document()->setDocumentMargin(8);
 
@@ -173,16 +180,16 @@ bool HelpViewer::isBackwardAvailable() const
 }
 
 bool HelpViewer::findText(const QString &text, IFindSupport::FindFlags flags,
-    bool incremental)
+    bool incremental, bool fromSearch)
 {
     QTextDocument *doc = document();
     QTextCursor cursor = textCursor();
-
     if (!doc || cursor.isNull())
         return false;
 
+    const int position = cursor.selectionStart();
     if (incremental)
-        cursor.setPosition(cursor.selectionStart());
+        cursor.setPosition(position);
 
     QTextDocument::FindFlags f = IFindSupport::textDocumentFlagsForFindFlags(flags);
     QTextCursor found = doc->find(text, cursor, f);
@@ -192,14 +199,33 @@ bool HelpViewer::findText(const QString &text, IFindSupport::FindFlags flags,
         else
             cursor.movePosition(QTextCursor::End);
         found = doc->find(text, cursor, f);
-        if (found.isNull()) {
-            return false;
+    }
+
+    if (fromSearch) {
+        cursor.beginEditBlock();
+        viewport()->setUpdatesEnabled(false);
+
+        QTextCharFormat marker;
+        marker.setForeground(Qt::red);
+        cursor.movePosition(QTextCursor::Start);
+        setTextCursor(cursor);
+
+        while (find(text)) {
+            QTextCursor hit = textCursor();
+            hit.mergeCharFormat(marker);
         }
+
+        viewport()->setUpdatesEnabled(true);
+        cursor.endEditBlock();
     }
-    if (!found.isNull()) {
-        setTextCursor(found);
+
+    bool cursorIsNull = found.isNull();
+    if (cursorIsNull) {
+        found = textCursor();
+        found.setPosition(position);
     }
-    return true;
+    setTextCursor(found);
+    return cursorIsNull;
 }
 
 // -- public slots

@@ -83,7 +83,7 @@ public:
     bool isBackwardAvailable() const;
 
     bool findText(const QString &text, Find::IFindSupport::FindFlags flags,
-        bool incremental);
+        bool incremental, bool fromSearch);
 
     static QString AboutBlankPage;
     static QString PageNotFoundMessage;

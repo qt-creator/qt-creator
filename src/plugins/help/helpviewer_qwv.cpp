@@ -140,8 +140,8 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation /*op*/,
     }
 
     const QHelpEngineCore &engine = HelpManager::helpEngineCore();
-    const QByteArray &data = engine.findFile(url).isValid()
-        ? engine.fileData(url) : HelpViewer::PageNotFoundMessage.arg(url.toString()).toUtf8();
+    const QByteArray &data = engine.findFile(url).isValid() ? engine.fileData(url)
+        : HelpViewer::PageNotFoundMessage.arg(url.toString()).toUtf8();
     return new HelpNetworkReply(request, data, mimeType);
 }
 
@@ -329,9 +329,9 @@ bool HelpViewer::isBackwardAvailable() const
 }
 
 bool HelpViewer::findText(const QString &text, IFindSupport::FindFlags flags,
-    bool incremental)
+    bool incremental, bool fromSearch)
 {
-    Q_UNUSED(incremental)
+    Q_UNUSED((incremental && fromSearch))
     QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;
     if (flags & Find::IFindSupport::FindBackward)
         options |= QWebPage::FindBackward;
