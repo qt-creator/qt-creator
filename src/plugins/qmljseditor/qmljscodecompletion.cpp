@@ -815,8 +815,7 @@ void CodeCompletion::complete(const TextEditor::CompletionItem &item)
     if (QmlJSTextEditor *edit = qobject_cast<QmlJSTextEditor *>(m_editor->widget())) {
         if (item.data.isValid()) {
             QTextCursor tc = edit->textCursor();
-            tc.setPosition(m_startPosition);
-            tc.setPosition(m_editor->position(), QTextCursor::KeepAnchor);
+            tc.setPosition(m_startPosition, QTextCursor::KeepAnchor);
             toInsert = item.data.toString();
             edit->insertCodeSnippet(tc, toInsert);
             return;
