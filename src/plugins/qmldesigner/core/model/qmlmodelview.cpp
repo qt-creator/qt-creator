@@ -305,10 +305,7 @@ void QmlModelView::activateState(const QmlModelState &state)
     } else {
         nodeInstanceView()->activateState(newStateInstance);
     }
-
-    m_state = state;
-
-    stateChanged(state, oldState);}
+}
 
 void QmlModelView::changeToState(const ModelNode &node, const QString &stateName)
 {
@@ -323,7 +320,8 @@ void QmlModelView::changeToState(const ModelNode &node, const QString &stateName
     QmlModelState oldState = m_state;
 
     if (newState.isValid() && oldState != newState) {
-        activateState(newState);
+        m_state = newState;
+        stateChanged(newState, oldState);
     }
 }
 
@@ -340,7 +338,7 @@ void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, 
 {
 }
 
-void  QmlModelView::stateChanged(const QmlModelState &/*newQmlModelState*/, const QmlModelState &/*oldQmlModelState*/)
+void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &/*oldQmlModelState*/)
 {
 }
 
