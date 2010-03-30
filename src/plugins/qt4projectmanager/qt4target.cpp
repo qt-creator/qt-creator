@@ -40,6 +40,7 @@
 #include "qt-s60/s60emulatorrunconfiguration.h"
 #include "qt-s60/s60createpackagestep.h"
 
+#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchain.h>
 #include <coreplugin/coreconstants.h>
 #include <symbianutils/symbiandevicemanager.h>
@@ -190,6 +191,9 @@ Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QStr
     QStringList pathes = qt4project->applicationProFilePathes();
     foreach (const QString &path, pathes)
         t->addRunConfigurationForPath(path);
+
+    if (t->runConfigurations().isEmpty())
+        t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
 
     return t;
 }
