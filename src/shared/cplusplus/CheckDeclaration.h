@@ -62,6 +62,7 @@ public:
     virtual ~CheckDeclaration();
 
     void check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters);
+    void check(CtorInitializerAST *ast, Scope *scope);
 
 protected:
     DeclarationAST *switchDeclaration(DeclarationAST *declaration);

@@ -55,6 +55,22 @@
 
 namespace CPlusPlus {
 
+class CPLUSPLUS_EXPORT SemanticClient
+{
+    SemanticClient(const SemanticClient &other);
+    void operator = (const SemanticClient &other);
+
+public:
+    SemanticClient(Semantic *semantic);
+    virtual ~SemanticClient();
+
+    Semantic *semantic() const;
+
+private:
+    Semantic *_semantic;
+};
+
+
 class CPLUSPLUS_EXPORT Semantic
 {
     Semantic(const Semantic &other);
@@ -66,6 +82,9 @@ public:
 
     TranslationUnit *translationUnit() const;
     Control *control() const;
+
+    SemanticClient *semanticClient() const;
+    void setSemanticClient(SemanticClient *client);
 
     FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope,
                              const FullySpecifiedType &type = FullySpecifiedType());
@@ -93,6 +112,9 @@ public:
 
     void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
 
+    void checkFunctionDefinition(FunctionDefinitionAST *ast);
+    void finishFunctionDefinition(FunctionDefinitionAST *ast);
+
     bool skipFunctionBodies() const;
     void setSkipFunctionBodies(bool skipFunctionBodies);
 
@@ -104,6 +126,9 @@ public:
 
     int currentMethodKey() const;
     int switchMethodKey(int methodKey);
+
+    ClassSpecifierAST *declatingClass() const;
+    ClassSpecifierAST *switchDeclaringClass(ClassSpecifierAST *ast);
 
     int visibilityForClassKey(int tokenKind) const;
     int visibilityForAccessSpecifier(int tokenKind) const;

@@ -337,8 +337,13 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
         klass->setClassKey(Class::UnionKey);
     klass->setVisibility(semantic()->currentVisibility());
     _scope->enterSymbol(klass);
+
+    ClassSpecifierAST *previousClassSpecifier = semantic()->switchDeclaringClass(ast);
+
     _fullySpecifiedType.setType(klass);
+
     accept(ast->attribute_list);
+
     if (_fullySpecifiedType.isDeprecated())
         klass->setDeprecated(true);
 
@@ -376,6 +381,8 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 
     (void) semantic()->switchMethodKey(previousMethodKey);
     (void) semantic()->switchVisibility(previousVisibility);
+
+    (void) semantic()->switchDeclaringClass(previousClassSpecifier);
 
     return false;
 }

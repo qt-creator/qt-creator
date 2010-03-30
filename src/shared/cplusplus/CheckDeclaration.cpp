@@ -85,6 +85,13 @@ void CheckDeclaration::check(DeclarationAST *declaration,
     (void) switchScope(previousScope);
 }
 
+void CheckDeclaration::check(CtorInitializerAST *ast, Scope *scope)
+{
+    Scope *previousScope = switchScope(scope);
+    accept(ast);
+    (void) switchScope(previousScope);
+}
+
 DeclarationAST *CheckDeclaration::switchDeclaration(DeclarationAST *declaration)
 {
     DeclarationAST *previousDeclaration = _declaration;
@@ -352,29 +359,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     ast->symbol = fun;
     _scope->enterSymbol(fun);
 
-    if (! semantic()->skipFunctionBodies()) {
-        if (ast->ctor_initializer) {
-            bool looksLikeCtor = false;
-            if (ty.isValid() || ! fun->identity())
-                looksLikeCtor = false;
-            else if (fun->identity()->isNameId() || fun->identity()->isTemplateNameId())
-                looksLikeCtor = true;
-
-            if (! looksLikeCtor) {
-                translationUnit()->error(ast->ctor_initializer->firstToken(),
-                                         "only constructors take base initializers");
-            }
-            accept(ast->ctor_initializer);
-        }
-
-        const int previousVisibility = semantic()->switchVisibility(Symbol::Public);
-        const int previousMethodKey = semantic()->switchMethodKey(Function::NormalMethod);
-
-        semantic()->check(ast->function_body, fun->members());
-
-        semantic()->switchMethodKey(previousMethodKey);
-        semantic()->switchVisibility(previousVisibility);
-    }
+    if (! semantic()->skipFunctionBodies())
+        semantic()->checkFunctionDefinition(ast);
 
     return false;
 }

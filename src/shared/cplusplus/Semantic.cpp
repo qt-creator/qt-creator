@@ -52,6 +52,7 @@
 #include "Scope.h"
 #include "Symbols.h"
 #include "Token.h"
+#include "AST.h"
 #include "CheckSpecifier.h"
 #include "CheckDeclaration.h"
 #include "CheckDeclarator.h"
@@ -61,6 +62,20 @@
 
 using namespace CPlusPlus;
 
+SemanticClient::SemanticClient(Semantic *semantic)
+    : _semantic(semantic)
+{
+}
+
+SemanticClient::~SemanticClient()
+{
+}
+
+Semantic *SemanticClient::semantic() const
+{
+    return _semantic;
+}
+
 class Semantic::Data
 {
 public:
@@ -68,10 +83,12 @@ public:
         : semantic(semantic),
           translationUnit(translationUnit),
           control(translationUnit->control()),
+          semanticClient(0),
           skipFunctionBodies(false),
           visibility(Symbol::Public),
           ojbcVisibility(Symbol::Protected),
           methodKey(Function::NormalMethod),
+          declaringClass(0),
           checkSpecifier(0),
           checkDeclaration(0),
           checkDeclarator(0),
@@ -93,16 +110,19 @@ public:
     Semantic *semantic;
     TranslationUnit *translationUnit;
     Control *control;
+    SemanticClient *semanticClient;
     bool skipFunctionBodies;
     int visibility;
     int ojbcVisibility;
     int methodKey;
+    ClassSpecifierAST *declaringClass;
     CheckSpecifier *checkSpecifier;
     CheckDeclaration *checkDeclaration;
     CheckDeclarator *checkDeclarator;
     CheckExpression *checkExpression;
     CheckStatement *checkStatement;
     CheckName *checkName;
+    std::vector<FunctionDefinitionAST *> functionsToProcess;
 };
 
 Semantic::Semantic(TranslationUnit *translationUnit)
@@ -118,6 +138,12 @@ Semantic::Semantic(TranslationUnit *translationUnit)
 
 Semantic::~Semantic()
 { delete d; }
+
+SemanticClient *Semantic::semanticClient() const
+{ return d->semanticClient; }
+
+void Semantic::setSemanticClient(SemanticClient *client)
+{ d->semanticClient = client; }
 
 TranslationUnit *Semantic::translationUnit() const
 { return d->translationUnit; }
@@ -162,6 +188,27 @@ const Name *Semantic::check(NameAST *name, Scope *scope)
 const Name *Semantic::check(NestedNameSpecifierListAST *name, Scope *scope)
 { return d->checkName->check(name, scope); }
 
+void Semantic::checkFunctionDefinition(FunctionDefinitionAST *ast)
+{
+    if (d->declaringClass != 0)
+        d->functionsToProcess.push_back(ast);
+    else
+        finishFunctionDefinition(ast);
+}
+
+void Semantic::finishFunctionDefinition(FunctionDefinitionAST *ast)
+{
+    const int previousVisibility = switchVisibility(Symbol::Public);
+    const int previousMethodKey = switchMethodKey(Function::NormalMethod);
+
+    Function *fun = ast->symbol;
+    d->checkDeclaration->check(ast->ctor_initializer, fun->scope());
+    check(ast->function_body, fun->members());
+
+    switchMethodKey(previousMethodKey);
+    switchVisibility(previousVisibility);
+}
+
 bool Semantic::skipFunctionBodies() const
 { return d->skipFunctionBodies; }
 
@@ -196,6 +243,25 @@ int Semantic::switchMethodKey(int methodKey)
     int previousMethodKey = d->methodKey;
     d->methodKey = methodKey;
     return previousMethodKey;
+}
+
+ClassSpecifierAST *Semantic::declatingClass() const
+{ return d->declaringClass; }
+
+ClassSpecifierAST *Semantic::switchDeclaringClass(ClassSpecifierAST *ast)
+{
+    ClassSpecifierAST *previous = d->declaringClass;
+    d->declaringClass = ast;
+
+    if (! ast && ! d->functionsToProcess.empty()) {
+        const std::vector<FunctionDefinitionAST *> todo = d->functionsToProcess;
+        d->functionsToProcess.clear();
+
+        for (std::vector<FunctionDefinitionAST *>::const_iterator it = todo.begin(); it != todo.end(); ++it)
+            finishFunctionDefinition(*it);
+    }
+
+    return previous;
 }
 
 int Semantic::visibilityForAccessSpecifier(int tokenKind) const
