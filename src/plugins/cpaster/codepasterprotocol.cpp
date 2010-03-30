@@ -48,7 +48,8 @@ enum { debug = 0 };
 
 namespace CodePaster {
 
-CodePasterProtocol::CodePasterProtocol() :
+CodePasterProtocol::CodePasterProtocol(const NetworkAccessManagerProxyPtr &nw) :
+    NetworkProtocol(nw),
     m_page(new CodePaster::CodePasterSettingsPage),
     m_pasteReply(0),
     m_fetchReply(0),
@@ -98,10 +99,7 @@ void CodePasterProtocol::fetch(const QString &id)
     link.append(hostName);
     link.append("/?format=raw&id=");
     link.append(id);
-    QUrl url(link);
-    QNetworkRequest r(url);
-
-    m_fetchReply = m_manager.get(r);
+    m_fetchReply = httpGet(link);
     connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
     m_fetchId = id;
 }
@@ -116,9 +114,7 @@ void CodePasterProtocol::list()
     QString link = QLatin1String("http://");
     link += hostName;
     link += QLatin1String("/?command=browse&format=raw");
-    QUrl url(link);
-    QNetworkRequest r(url);
-    m_listReply = m_manager.get(r);
+    m_listReply = httpGet(link);
     connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
 }
 
@@ -142,9 +138,7 @@ void CodePasterProtocol::paste(const QString &text,
     data += "&poster=";
     data += CGI::encodeURL(username).toLatin1();
 
-    QUrl url(QLatin1String("http://") + hostName);
-    QNetworkRequest r(url);
-    m_pasteReply = m_manager.post(r, data);
+    m_pasteReply = httpPost(QLatin1String("http://") + hostName, data);
     connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
 }
 

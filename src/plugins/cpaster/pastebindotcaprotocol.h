@@ -32,15 +32,14 @@
 
 #include "protocol.h"
 
-#include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QHttp>
 
 namespace CodePaster {
-class PasteBinDotCaProtocol : public Protocol
+class PasteBinDotCaProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    PasteBinDotCaProtocol();
+    explicit PasteBinDotCaProtocol(const NetworkAccessManagerProxyPtr &nw);
     QString name() const { return QLatin1String("Pastebin.Ca"); }
 
     bool hasSettings() const { return false; }
@@ -58,12 +57,11 @@ public slots:
     void postRequestFinished(int id, bool error);
 
 private:
-    QNetworkAccessManager manager;
-    QNetworkReply *reply;
-    QString fetchId;
+    QNetworkReply *m_fetchReply;
+    QString m_fetchId;
 
-    QHttp http;
-    int postId;
+    QHttp m_http;
+    int m_postId;
 };
 
 } // namespace CodePaster

@@ -32,11 +32,13 @@
 
 #include <QtNetwork/QNetworkReply>
 
-using namespace Core;
 namespace CodePaster {
-PasteBinDotCaProtocol::PasteBinDotCaProtocol()
+PasteBinDotCaProtocol::PasteBinDotCaProtocol(const NetworkAccessManagerProxyPtr &nw) :
+    NetworkProtocol(nw),
+    m_fetchReply(0),
+    m_postId(-1)
 {
-    connect(&http, SIGNAL(requestFinished(int,bool)),
+    connect(&m_http, SIGNAL(requestFinished(int,bool)),
             this, SLOT(postRequestFinished(int,bool)));
 }
 
@@ -44,12 +46,9 @@ void PasteBinDotCaProtocol::fetch(const QString &id)
 {
     QString link = QLatin1String("http://pastebin.ca/raw/");
     link.append(id);
-    QUrl url(link);
-    QNetworkRequest r(url);
-
-    reply = manager.get(r);
-    connect(reply, SIGNAL(finished()), this, SLOT(fetchFinished()));
-    fetchId = id;
+    m_fetchReply = httpGet(link);
+    connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
+    m_fetchId = id;
 }
 
 void PasteBinDotCaProtocol::paste(const QString &text,
@@ -69,20 +68,20 @@ void PasteBinDotCaProtocol::paste(const QString &text,
     QHttpRequestHeader header("POST", "/quiet-paste.php");
     header.setValue("host", "pastebin.ca" );
     header.setContentType("application/x-www-form-urlencoded");
-    http.setHost("pastebin.ca", QHttp::ConnectionModeHttp);
+    m_http.setHost("pastebin.ca", QHttp::ConnectionModeHttp);
     header.setValue("User-Agent", "CreatorPastebin");
-    postId = http.request(header, data.toAscii());
+    m_postId = m_http.request(header, data.toAscii());
 }
 
 void PasteBinDotCaProtocol::postRequestFinished(int id, bool error)
 {
     QString link;
-    if (id == postId) {
+    if (id == m_postId) {
         if (!error) {
-            QByteArray data = http.readAll();
+            QByteArray data = m_http.readAll();
             link = QString::fromLatin1("http://pastebin.ca/") + QString(data).remove("SUCCESS:");
         } else
-            link = http.errorString();
+            link = m_http.errorString();
         emit pasteDone(link);
     }
 }
@@ -91,15 +90,15 @@ void PasteBinDotCaProtocol::fetchFinished()
 {
     QString title;
     QString content;
-    bool error = reply->error();
+    bool error = m_fetchReply->error();
     if (error) {
-        content = reply->errorString();
+        content = m_fetchReply->errorString();
     } else {
-        title = QString::fromLatin1("Pastebin.ca: %1").arg(fetchId);
-        content = reply->readAll();
+        title = QString::fromLatin1("Pastebin.ca: %1").arg(m_fetchId);
+        content = m_fetchReply->readAll();
     }
-    reply->deleteLater();
-    reply = 0;
+    m_fetchReply->deleteLater();
+    m_fetchReply = 0;
     emit fetchDone(title, content, error);
 }
 } // namespace CodePaster

@@ -32,19 +32,14 @@
 
 #include "protocol.h"
 
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QHttp>
-
-#include <QtCore/QByteArray>
-
 namespace CodePaster {
 class PasteBinDotComSettings;
 
-class PasteBinDotComProtocol : public Protocol
+class PasteBinDotComProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    PasteBinDotComProtocol();
+    explicit PasteBinDotComProtocol(const NetworkAccessManagerProxyPtr &nw);
 
     QString name() const { return QLatin1String("Pastebin.Com"); }
 
@@ -69,11 +64,9 @@ private:
     QString hostName(bool withSubDomain) const;
 
     PasteBinDotComSettings *m_settings;
-    QNetworkAccessManager m_manager;
     QNetworkReply *m_fetchReply;
     QNetworkReply *m_pasteReply;
     QNetworkReply *m_listReply;
-    QByteArray m_pasteData;
 
     QString m_fetchId;
     int m_postId;

@@ -38,6 +38,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamAttributes>
+#include <QtCore/QByteArray>
 
 #include <QtNetwork/QNetworkReply>
 
@@ -47,7 +48,8 @@ static const char pastePhpScriptpC[] = "api_public.php";
 static const char fetchPhpScriptpC[] = "raw.php";
 
 namespace CodePaster {
-PasteBinDotComProtocol::PasteBinDotComProtocol() :
+PasteBinDotComProtocol::PasteBinDotComProtocol(const NetworkAccessManagerProxyPtr &nw) :
+    NetworkProtocol(nw),
     m_settings(new PasteBinDotComSettings),
     m_fetchReply(0),
     m_pasteReply(0),
@@ -105,31 +107,29 @@ void PasteBinDotComProtocol::paste(const QString &text,
     QTC_ASSERT(!m_pasteReply, return;)
 
     // Format body
-    m_pasteData = format(ct);
-    if (!m_pasteData.isEmpty())
-        m_pasteData.append('&');
-    m_pasteData += "paste_name=";
-    m_pasteData += QUrl::toPercentEncoding(username);
+    QByteArray pasteData = format(ct);
+    if (!pasteData.isEmpty())
+        pasteData.append('&');
+    pasteData += "paste_name=";
+    pasteData += QUrl::toPercentEncoding(username);
 
     const QString subDomain = m_settings->hostPrefix();
     if (!subDomain.isEmpty()) {
-        m_pasteData += "&paste_subdomain=";
-        m_pasteData += QUrl::toPercentEncoding(subDomain);
+        pasteData += "&paste_subdomain=";
+        pasteData += QUrl::toPercentEncoding(subDomain);
     }
 
-    m_pasteData += "&paste_code=";
-    m_pasteData += QUrl::toPercentEncoding(fixNewLines(text));
+    pasteData += "&paste_code=";
+    pasteData += QUrl::toPercentEncoding(fixNewLines(text));
 
     // fire request
     QString link;
     QTextStream(&link) << "http://" << hostName(false) << '/' << pastePhpScriptpC;
 
-    QUrl url(link);
-    QNetworkRequest r(url);
-    m_pasteReply = m_manager.post(r, m_pasteData);
+    m_pasteReply = httpPost(link, pasteData);
     connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
     if (debug)
-        qDebug() << "paste: sending " << m_pasteReply << link << m_pasteData;
+        qDebug() << "paste: sending " << m_pasteReply << link << pasteData;
 }
 
 void PasteBinDotComProtocol::pasteFinished()
@@ -164,10 +164,8 @@ void PasteBinDotComProtocol::fetch(const QString &id)
 
     if (debug)
         qDebug() << "fetch: sending " << link;
-    QUrl url(link);
-    QNetworkRequest r(url);
 
-    m_fetchReply = m_manager.get(r);
+    m_fetchReply = httpGet(link);
     connect(m_fetchReply, SIGNAL(finished()), this, SLOT(fetchFinished()));
     m_fetchId = id;
 }
@@ -212,9 +210,7 @@ void PasteBinDotComProtocol::list()
     QTC_ASSERT(!m_listReply, return;)
 
     // fire request
-    QUrl url(QLatin1String("http://") + hostName(true));
-    QNetworkRequest r(url);
-    m_listReply = m_manager.get(r);
+    m_listReply = httpGet(QLatin1String("http://") + hostName(true));
     connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
     if (debug)
         qDebug() << "list: sending " << m_listReply;
