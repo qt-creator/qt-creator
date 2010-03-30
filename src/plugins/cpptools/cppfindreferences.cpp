@@ -157,8 +157,6 @@ CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelMa
     connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
     connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
 
-    connect(&m_watchDependencyTable, SIGNAL(finished()), this, SLOT(dependencyTableUpdated()));
-
     m_updateDependencyTableTimer = new QTimer(this);
     m_updateDependencyTableTimer->setSingleShot(true);
     m_updateDependencyTableTimer->setInterval(2000);
@@ -190,10 +188,11 @@ static void find_helper(QFutureInterface<Usage> &future,
                         const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
                         Snapshot snapshot,
                         Document::Ptr symbolDocument,
-                        QFuture<DependencyTable> dependencyTableFuture,
+                        DependencyTable dependencyTable,
                         Symbol *symbol)
 {
-    const DependencyTable dependencyTable = dependencyTableFuture;
+    QTime tm;
+    tm.start();
 
     const Identifier *symbolId = symbol->identifier();
     Q_ASSERT(symbolId != 0);
@@ -227,7 +226,7 @@ static void find_helper(QFutureInterface<Usage> &future,
     future.setProgressValue(files.size());
 }
 
-static CPlusPlus::DependencyTable dependencyTable_helper(DependencyTable previous, CPlusPlus::Snapshot snapshot)
+static CPlusPlus::DependencyTable dependencyTable(DependencyTable previous, CPlusPlus::Snapshot snapshot)
 {
     if (previous.isValidFor(snapshot))
         return previous;
@@ -239,14 +238,8 @@ static CPlusPlus::DependencyTable dependencyTable_helper(DependencyTable previou
 
 void CppFindReferences::updateDependencyTable()
 {
-    m_dependencyTableFuture.cancel();
-    m_dependencyTableFuture = QtConcurrent::run(&dependencyTable_helper, m_deps, _modelManager->snapshot());
-    m_watchDependencyTable.setFuture(m_dependencyTableFuture);
-}
-
-void CppFindReferences::dependencyTableUpdated()
-{
-    m_deps = m_dependencyTableFuture;
+    m_depsFuture.cancel();
+    m_depsFuture = QtConcurrent::run(&dependencyTable, m_deps, _modelManager->snapshot());
 }
 
 void CppFindReferences::findUsages(Document::Ptr symbolDocument, Symbol *symbol)
@@ -290,10 +283,11 @@ void CppFindReferences::findAll_helper(Document::Ptr symbolDocument, Symbol *sym
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
     updateDependencyTable(); // ensure the dependency table is updated
+    m_deps = m_depsFuture;
 
     QFuture<Usage> result;
 
-    result = QtConcurrent::run(&find_helper, workingCopy, snapshot, symbolDocument, m_dependencyTableFuture, symbol);
+    result = QtConcurrent::run(&find_helper, workingCopy, snapshot, symbolDocument, m_deps, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
@@ -411,10 +405,9 @@ public:
 static void findMacroUses_helper(QFutureInterface<Usage> &future,
                         const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
                         const Snapshot snapshot,
-                        QFuture<DependencyTable> dependencyTableFuture,
+                        DependencyTable dependencyTable,
                         const Macro macro)
 {
-    const DependencyTable dependencyTable = dependencyTableFuture;
     const QString& sourceFile = macro.fileName();
     QStringList files(sourceFile);
     files += dependencyTable.filesDependingOn(sourceFile);
@@ -450,9 +443,10 @@ void CppFindReferences::findMacroUses(const Macro &macro)
     }
 
     updateDependencyTable(); // ensure the dependency table is updated
+    m_deps = m_depsFuture;
 
     QFuture<Usage> result;
-    result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, m_dependencyTableFuture, macro);
+    result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, m_deps, macro);
     m_watcher.setFuture(result);
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
