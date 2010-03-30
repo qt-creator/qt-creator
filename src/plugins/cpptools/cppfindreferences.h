@@ -78,6 +78,7 @@ private Q_SLOTS:
     void openEditor(const Find::SearchResultItem &item);
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
     void updateDependencyTable();
+    void dependencyTableUpdated();
 
 private:
     void findAll_helper(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol);
@@ -86,8 +87,9 @@ private:
     QPointer<CppModelManagerInterface> _modelManager;
     Find::SearchResultWindow *_resultWindow;
     QFutureWatcher<CPlusPlus::Usage> m_watcher;
+    QFutureWatcher<CPlusPlus::DependencyTable> m_watchDependencyTable;
     CPlusPlus::DependencyTable m_deps;
-    QFuture<CPlusPlus::DependencyTable> m_depsFuture;
+    QFuture<CPlusPlus::DependencyTable> m_dependencyTableFuture;
     QTimer *m_updateDependencyTableTimer;
 };
 
