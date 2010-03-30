@@ -854,12 +854,19 @@ bool Parser::parseTemplateArgumentList(TemplateArgumentListAST *&node)
             }
         }
 
+        if (_pool != _translationUnit->memoryPool()) {
+            MemoryPool *pool = _translationUnit->memoryPool();
+            TemplateArgumentListAST *template_argument_list = node;
+            for (TemplateArgumentListAST *iter = template_argument_list, **ast_iter = &node;
+                 iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+                *ast_iter = new (pool) TemplateArgumentListAST((iter->value) ? iter->value->clone(pool) : 0);
+        }
+
         _templateArgumentList.insert(std::make_pair(start, TemplateArgumentListEntry(start, cursor(), node)));
         return true;
     }
 
     _templateArgumentList.insert(std::make_pair(start, TemplateArgumentListEntry(start, cursor(), 0)));
-
     return false;
 }
 
