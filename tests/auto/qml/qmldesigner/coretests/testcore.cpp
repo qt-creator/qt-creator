@@ -31,6 +31,7 @@
 
 #include <QScopedPointer>
 #include <QLatin1String>
+#include <QGraphicsObject>
 
 #include <metainfo.h>
 #include <model.h>
@@ -1013,8 +1014,8 @@ void TestCore::testBasicOperationsWithView()
 
         QVERIFY(childInstance.isValid());
         QVERIFY(childInstance.isQmlGraphicsItem());
-        QVERIFY(childInstance2.testHandle()->parent() == childInstance.testHandle());
-        QVERIFY(childInstance.testHandle()->parent() == rootInstance.testHandle());
+        QVERIFY(qobject_cast<QGraphicsObject*>(childInstance2.testHandle())->parentItem()->toGraphicsObject() == childInstance.testHandle());
+        QVERIFY(qobject_cast<QGraphicsObject*>(childInstance.testHandle())->parentItem()->toGraphicsObject() == rootInstance.testHandle());
         QCOMPARE(childInstance.size().width(), 0.0);
         QCOMPARE(childInstance.size().height(), 0.0);
 
@@ -1051,8 +1052,8 @@ void TestCore::testBasicOperationsWithView()
 
         QVERIFY(childInstance.isValid());
         QVERIFY(childInstance.isQmlGraphicsItem());
-        QVERIFY(childInstance2.testHandle()->parent() == rootInstance.testHandle());
-        QVERIFY(childInstance.testHandle()->parent() == rootInstance.testHandle());
+        QVERIFY(qobject_cast<QGraphicsObject*>(childInstance2.testHandle())->parentItem()->toGraphicsObject() == rootInstance.testHandle());
+        QVERIFY(qobject_cast<QGraphicsObject*>(childInstance.testHandle())->parentItem()->toGraphicsObject() == rootInstance.testHandle());
         QCOMPARE(childInstance.size().width(), 0.0);
         QCOMPARE(childInstance.size().height(), 0.0);
 
