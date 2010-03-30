@@ -79,6 +79,7 @@ public:
     QString description() const;
     QString url() const;
     QString category() const;
+    bool isExperimental() const;
     bool isEnabled() const;
     // true if loading was not done due to user unselecting this plugin or its dependencies
     bool isDisabledByDependency() const;

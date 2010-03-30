@@ -237,8 +237,17 @@ QString PluginSpec::category() const
 }
 
 /*!
-    \fn bool PluginSpec::loadOnStartup() const
-    True if the plugin is loaded at startup. True by default - the user can change it from the Plugin settings.
+    \fn bool PluginSpec::isExperimental() const
+    Returns if the plugin has its experimental flag set.
+*/
+bool PluginSpec::isExperimental() const
+{
+    return d->experimental;
+}
+
+/*!
+    \fn bool PluginSpec::isEnabled() const
+    Returns if the plugin is loaded at startup. True by default - the user can change it from the Plugin settings.
 */
 bool PluginSpec::isEnabled() const
 {
@@ -416,6 +425,7 @@ namespace {
     const char * const PLUGIN_NAME = "name";
     const char * const PLUGIN_VERSION = "version";
     const char * const PLUGIN_COMPATVERSION = "compatVersion";
+    const char * const PLUGIN_EXPERIMENTAL = "experimental";
     const char * const VENDOR = "vendor";
     const char * const COPYRIGHT = "copyright";
     const char * const LICENSE = "license";
@@ -569,6 +579,14 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
     } else if (compatVersion.isEmpty()) {
         compatVersion = version;
     }
+    QString experimentalString = reader.attributes().value(PLUGIN_EXPERIMENTAL).toString();
+    experimental = (experimentalString.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0);
+    if (!experimentalString.isEmpty() && !experimental
+            && experimentalString.compare(QLatin1String("false"), Qt::CaseInsensitive) != 0) {
+        reader.raiseError(msgInvalidFormat(PLUGIN_EXPERIMENTAL));
+        return;
+    }
+    enabled = !experimental;
     while (!reader.atEnd()) {
         reader.readNext();
         switch (reader.tokenType()) {

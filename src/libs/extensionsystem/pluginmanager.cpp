@@ -48,6 +48,7 @@
 #endif
 
 static const char * const C_IGNORED_PLUGINS = "Plugins/Ignored";
+static const char * const C_FORCEENABLED_PLUGINS = "Plugins/ForceEnabled";
 
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 
@@ -624,12 +625,16 @@ void PluginManagerPrivate::writeSettings()
                                  QLatin1String("Nokia"), QLatin1String("QtCreator"));
 
     QStringList tempDisabledPlugins;
+    QStringList tempForceEnabledPlugins;
     foreach(PluginSpec *spec, pluginSpecs) {
-        if (!spec->isEnabled())
+        if (!spec->isExperimental() && !spec->isEnabled())
             tempDisabledPlugins.append(spec->name());
+        if (spec->isExperimental() && spec->isEnabled())
+            tempForceEnabledPlugins.append(spec->name());
     }
 
     settings.setValue(QLatin1String(C_IGNORED_PLUGINS), tempDisabledPlugins);
+    settings.setValue(QLatin1String(C_FORCEENABLED_PLUGINS), tempForceEnabledPlugins);
 }
 
 void PluginManagerPrivate::loadSettings()
@@ -638,6 +643,7 @@ void PluginManagerPrivate::loadSettings()
                                  QLatin1String("Nokia"), QLatin1String("QtCreator"));
 
     disabledPlugins = settings.value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
+    forceEnabledPlugins = settings.value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
 }
 
 void PluginManagerPrivate::stopAll()
@@ -883,7 +889,9 @@ void PluginManagerPrivate::readPluginPaths()
             collection = new PluginCollection(spec->category());
             pluginCategories.insert(spec->category(), collection);
         }
-        if (disabledPlugins.contains(spec->name()))
+        if (spec->isExperimental() && forceEnabledPlugins.contains(spec->name()))
+            spec->setEnabled(true);
+        if (!spec->isExperimental() && disabledPlugins.contains(spec->name()))
             spec->setEnabled(false);
 
         collection->addPlugin(spec);

@@ -62,6 +62,7 @@ public:
     QString name;
     QString version;
     QString compatVersion;
+    bool experimental;
     QString vendor;
     QString copyright;
     QString license;

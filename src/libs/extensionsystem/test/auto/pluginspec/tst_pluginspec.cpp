@@ -49,6 +49,7 @@ private slots:
     void isValidVersion();
     void versionCompare();
     void provides();
+    void experimental();
     void locationAndPath();
     void resolveDependencies();
     void loadLibrary();
@@ -67,11 +68,13 @@ void tst_PluginSpec::read()
     QCOMPARE(spec.name, QString("test"));
     QCOMPARE(spec.version, QString("1.0.1"));
     QCOMPARE(spec.compatVersion, QString("1.0.0"));
-    QCOMPARE(spec.vendor, QString("Trolltech"));
-    QCOMPARE(spec.copyright, QString("(C) 2007 Trolltech ASA"));
+    QCOMPARE(spec.experimental, false);
+    QCOMPARE(spec.enabled, true);
+    QCOMPARE(spec.vendor, QString("Nokia Corporation"));
+    QCOMPARE(spec.copyright, QString("(C) 2007 Nokia Corporation"));
     QCOMPARE(spec.license, QString("This is a default license bla\nblubbblubb\nend of terms"));
     QCOMPARE(spec.description, QString("This plugin is just a test.\n    it demonstrates the great use of the plugin spec."));
-    QCOMPARE(spec.url, QString("http://www.trolltech.com"));
+    QCOMPARE(spec.url, QString("http://qt.noki.com"));
     PluginDependency dep1;
     dep1.name = QString("SomeOtherPlugin");
     dep1.version = QString("2.3.0_2");
@@ -178,6 +181,14 @@ void tst_PluginSpec::provides()
     QVERIFY(spec.provides("MyPlugin", "2"));
 }
 
+void tst_PluginSpec::experimental()
+{
+    Internal::PluginSpecPrivate spec(0);
+    QVERIFY(spec.read("testspecs/simplespec_experimental.xml"));
+    QCOMPARE(spec.experimental, true);
+    QCOMPARE(spec.enabled, false);
+}
+
 void tst_PluginSpec::locationAndPath()
 {
     Internal::PluginSpecPrivate spec(0);
@@ -194,23 +205,23 @@ void tst_PluginSpec::locationAndPath()
 
 void tst_PluginSpec::resolveDependencies()
 {
-    QSet<PluginSpec *> specs;
+    QList<PluginSpec *> specs;
     PluginSpec *spec1 = Internal::PluginManagerPrivate::createSpec();
-    specs.insert(spec1);
+    specs.append(spec1);
     Internal::PluginSpecPrivate *spec1Priv = Internal::PluginManagerPrivate::privateSpec(spec1);
     spec1Priv->read("testdependencies/spec1.xml");
     PluginSpec *spec2 = Internal::PluginManagerPrivate::createSpec();
-    specs.insert(spec2);
+    specs.append(spec2);
     Internal::PluginManagerPrivate::privateSpec(spec2)->read("testdependencies/spec2.xml");
     PluginSpec *spec3 = Internal::PluginManagerPrivate::createSpec();
-    specs.insert(spec3);
+    specs.append(spec3);
     Internal::PluginManagerPrivate::privateSpec(spec3)->read("testdependencies/spec3.xml");
     PluginSpec *spec4 = Internal::PluginManagerPrivate::createSpec();
-    specs.insert(spec4);
+    specs.append(spec4);
     Internal::PluginSpecPrivate *spec4Priv = Internal::PluginManagerPrivate::privateSpec(spec4);
     spec4Priv->read("testdependencies/spec4.xml");
     PluginSpec *spec5 = Internal::PluginManagerPrivate::createSpec();
-    specs.insert(spec5);
+    specs.append(spec5);
     Internal::PluginManagerPrivate::privateSpec(spec5)->read("testdependencies/spec5.xml");
     QVERIFY(spec1Priv->resolveDependencies(specs));
     QCOMPARE(spec1Priv->dependencySpecs.size(), 2);
@@ -228,7 +239,7 @@ void tst_PluginSpec::loadLibrary()
     Internal::PluginSpecPrivate *spec = Internal::PluginManagerPrivate::privateSpec(ps);
     PluginManager *manager = new PluginManager();
     QVERIFY(spec->read("testplugin/testplugin.xml"));
-    QVERIFY(spec->resolveDependencies(QSet<PluginSpec *>()));
+    QVERIFY(spec->resolveDependencies(QList<PluginSpec *>()));
     QVERIFY(spec->loadLibrary());
     QVERIFY(qobject_cast<MyPlugin::MyPluginImpl*>(spec->plugin) != 0);
     QCOMPARE(spec->state, PluginSpec::Loaded);
@@ -243,7 +254,7 @@ void tst_PluginSpec::initializePlugin()
     Internal::PluginSpecPrivate spec(0);
     MyPlugin::MyPluginImpl *impl;
     QVERIFY(spec.read("testplugin/testplugin.xml"));
-    QVERIFY(spec.resolveDependencies(QSet<PluginSpec *>()));
+    QVERIFY(spec.resolveDependencies(QList<PluginSpec *>()));
     QVERIFY(spec.loadLibrary());
     impl = qobject_cast<MyPlugin::MyPluginImpl*>(spec.plugin);
     QVERIFY(impl != 0);
@@ -259,7 +270,7 @@ void tst_PluginSpec::initializeExtensions()
     Internal::PluginSpecPrivate spec(0);
     MyPlugin::MyPluginImpl *impl;
     QVERIFY(spec.read("testplugin/testplugin.xml"));
-    QVERIFY(spec.resolveDependencies(QSet<PluginSpec *>()));
+    QVERIFY(spec.resolveDependencies(QList<PluginSpec *>()));
     QVERIFY(spec.loadLibrary());
     impl = qobject_cast<MyPlugin::MyPluginImpl*>(spec.plugin);
     QVERIFY(impl != 0);
