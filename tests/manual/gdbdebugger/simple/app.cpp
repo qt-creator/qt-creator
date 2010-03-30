@@ -42,6 +42,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QPointer>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QStack>
 #include <QtCore/QThread>
 #include <QtCore/QVariant>
@@ -73,6 +74,14 @@
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
+
+Q_DECLARE_METATYPE(QHostAddress)
+Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(QStringList)
+
+typedef QMap<uint, QStringList> MyType;
+#define COMMA ,
+Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
 
 template <typename T> class Vector
 {
@@ -186,7 +195,6 @@ public:
 void testArray()
 {
     X xxx;
-    (void *) 0;
     double d[3][3];
     for (int i = 0; i != 3; ++i)
         for (int j = 0; j != 3; ++j)
@@ -212,6 +220,7 @@ void testArray()
     }
 }
 
+#ifndef Q_CC_RVCT
 struct TestAnonymous
 {
     union {
@@ -220,12 +229,13 @@ struct TestAnonymous
         double d;
     };
 };
-
+#endif
 
 void testPeekAndPoke3()
 {
     // Anonymous structs
     {
+#ifndef Q_CC_RVCT
         union {
             struct { int i; int b; };
             struct { float f; };
@@ -234,6 +244,7 @@ void testPeekAndPoke3()
         a.i = 1; // Break here. Expand a. Step.
         a.i = 2; // Change a.i in Locals view to 0. This changes f, d but expectedly not b. Step.
         a.i = 3; // Continue.
+#endif
     }
 
     // Complex watchers
@@ -265,6 +276,8 @@ void testPeekAndPoke3()
 
 }
 
+
+#ifndef Q_CC_RVCT
 namespace { // anon
 
 struct Something
@@ -281,9 +294,12 @@ struct Something
 };
 
 } // anon
+#endif
+
 
 void testAnonymous()
 {
+#ifndef Q_CC_RVCT
     TestAnonymous a;
     a.i = 1;
     a.i = 2;
@@ -291,6 +307,7 @@ void testAnonymous()
 
     Something s;
     s.foo();
+#endif
 }
 
 void testFunctionPointer()
@@ -299,6 +316,9 @@ void testFunctionPointer()
     func_t f1 = testAnonymous;
     func_t f2 = testFunctionPointer;
     func_t f3 = testFunctionPointer;
+    Q_UNUSED(f1);
+    Q_UNUSED(f2);
+    Q_UNUSED(f3);
 }
 
 void testQByteArray()
@@ -763,7 +783,7 @@ void testQSet()
     QObject ob;
     QSet<QPointer<QObject> > hash;
     QPointer<QObject> ptr(&ob);
-    ptr;
+    Q_UNUSED(ptr);
     //hash.insert(ptr);
     //hash.insert(ptr);
     //hash.insert(ptr);
@@ -1082,7 +1102,7 @@ void testQStandardItemModel()
          << (i11 = new QStandardItem("11")) << (new QStandardItem("aa")));
     int i = 1;
     ++i;
-    +i;
+    ++i;
 }
 
 void testQStack()
@@ -1199,6 +1219,7 @@ void testQVariant2()
     *(QString*)value.data() = QString("XXX");
 
     int i = 1;
+    Q_UNUSED(i);
 #if 1
     QVariant var;
     var.setValue(1);
@@ -1303,7 +1324,6 @@ void testNoArgumentName(int i, int, int k)
     k = 2000;
     ++k;
     ++k;
-
 }
 
 void foo() {}
@@ -1316,12 +1336,6 @@ void foo(QList<QVector<int *> *>) {}
 template <class T>
 void foo(QList<QVector<T> *>) {}
 
-namespace {
-
-namespace A { int barz() { return 42;} }
-namespace B { int barz() { return 43;} }
-
-}
 
 namespace somespace {
 
@@ -1609,19 +1623,12 @@ int main(int argc, char *argv[])
     //QColor color(255,128,10);
     //QFont font;
 
+    Q_UNUSED(s);
+    Q_UNUSED(w);
+
     while(true)
         ;
-
-    return 0;
 }
-
-Q_DECLARE_METATYPE(QHostAddress)
-Q_DECLARE_METATYPE(QList<int>)
-Q_DECLARE_METATYPE(QStringList)
-
-typedef QMap<uint, QStringList> MyType;
-#define COMMA ,
-Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
 
 QT_BEGIN_NAMESPACE
 QT_END_NAMESPACE
