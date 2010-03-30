@@ -72,6 +72,7 @@ private slots:
     // unit tests MetaInfo, NodeMetaInfo, PropertyMetaInfo
     //
     void testMetaInfo();
+    void testMetaInfoEnums();
     void testMetaInfoDotProperties();
     void testMetaInfoListProperties();
 
