@@ -42,10 +42,9 @@ class FontSettings;
 
 namespace CMakeProjectManager {
 
-class CMakeManager;
-
 namespace Internal {
 
+class CMakeManager;
 class CMakeHighlighter;
 
 class CMakeEditor;
