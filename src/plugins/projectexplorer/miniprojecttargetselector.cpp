@@ -578,7 +578,7 @@ void MiniProjectTargetSelector::updateAction()
     m_projectAction->setProperty("heading", projectName);
     m_projectAction->setProperty("subtitle", buildConfig);
     m_projectAction->setIcon(targetIcon);
-    QString toolTip = tr("<html><b>Project:</b> %1<br/>%2%3<b>Run:</b> %4%5</html>");
+    QString toolTip = tr("<html><nobr><b>Project:</b> %1<br/>%2%3<b>Run:</b> %4%5</html>");
     QString targetTip = targetName.isEmpty() ? QLatin1String("")
         : tr("<b>Target:</b> %1<br/>").arg(targetName);
     QString buildTip = buildConfig.isEmpty() ? QLatin1String("")
