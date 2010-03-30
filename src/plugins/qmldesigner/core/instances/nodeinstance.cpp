@@ -261,7 +261,7 @@ NodeInstance NodeInstance::parent() const
 
 bool NodeInstance::hasParent() const
 {
-    return m_nodeInstance->object()->parent();
+    return m_nodeInstance->parent();
 }
 
 /*!
