@@ -27,18 +27,42 @@
 **
 **************************************************************************/
 
-#ifndef CMAKEPROJECTCONSTANTS_H
-#define CMAKEPROJECTCONSTANTS_H
+#ifndef CMAKEHIGHLIGHTER_H
+#define CMAKEHIGHLIGHTER_H
+
+#include <QtCore/QtAlgorithms>
+#include <QtGui/QSyntaxHighlighter>
+#include <QtGui/QTextCharFormat>
 
 namespace CMakeProjectManager {
-namespace Constants {
+namespace Internal {
 
-const char * const PROJECTCONTEXT = "CMakeProject.ProjectContext";
-const char * const CMAKEMIMETYPE  = "text/x-cmake"; // TOOD check that this is correct
-const char * const CMAKE_EDITOR_ID = "CMakeProject.CMakeEditor";
-const char * const CMAKE_EDITOR_DISPLAY_NAME = "CMake Editor";
-const char * const C_CMAKEEDITOR = "CMakeProject.Context.CMakeEditor";
-} // namespace Constants
+class CMakeHighlighter : public QSyntaxHighlighter
+{
+    Q_OBJECT
+public:
+    enum CMakeFormats {
+        CMakeVariableFormat,
+        CMakeFunctionFormat,
+        CMakeCommentFormat,
+        CMakeStringFormat,
+        NumCMakeFormats
+    };
+
+    CMakeHighlighter(QTextDocument *document = 0);
+    virtual void highlightBlock(const QString &text);
+
+    // Set formats from a sequence of type QTextCharFormat
+    template <class InputIterator>
+        void setFormats(InputIterator begin, InputIterator end) {
+            qCopy(begin, end, m_formats);
+        }
+
+private:
+    QTextCharFormat m_formats[NumCMakeFormats];
+};
+
+} // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTCONSTANTS_H
+#endif // PROFILEHIGHLIGHTER_H

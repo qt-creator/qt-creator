@@ -11,7 +11,10 @@ HEADERS = cmakeproject.h \
     makestep.h \
     cmakerunconfiguration.h \
     cmakeopenprojectwizard.h \
-    cmakebuildconfiguration.h
+    cmakebuildconfiguration.h \
+    cmakeeditorfactory.h \
+    cmakeeditor.h \
+    cmakehighlighter.h
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
@@ -20,7 +23,10 @@ SOURCES = cmakeproject.cpp \
     makestep.cpp \
     cmakerunconfiguration.cpp \
     cmakeopenprojectwizard.cpp \
-    cmakebuildconfiguration.cpp
+    cmakebuildconfiguration.cpp \
+    cmakeeditorfactory.cpp \
+    cmakeeditor.cpp \
+    cmakehighlighter.cpp
 RESOURCES += cmakeproject.qrc
 FORMS +=
 

@@ -27,18 +27,47 @@
 **
 **************************************************************************/
 
-#ifndef CMAKEPROJECTCONSTANTS_H
-#define CMAKEPROJECTCONSTANTS_H
+#ifndef CMAKEEDITORFACTORY_H
+#define CMAKEEDITORFACTORY_H
+
+#include <coreplugin/editormanager/ieditorfactory.h>
+#include "cmakeprojectmanager.h"
+
+#include <QtCore/QStringList>
+
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
+namespace TextEditor {
+class TextEditorActionHandler;
+}
 
 namespace CMakeProjectManager {
-namespace Constants {
 
-const char * const PROJECTCONTEXT = "CMakeProject.ProjectContext";
-const char * const CMAKEMIMETYPE  = "text/x-cmake"; // TOOD check that this is correct
-const char * const CMAKE_EDITOR_ID = "CMakeProject.CMakeEditor";
-const char * const CMAKE_EDITOR_DISPLAY_NAME = "CMake Editor";
-const char * const C_CMAKEEDITOR = "CMakeProject.Context.CMakeEditor";
-} // namespace Constants
+namespace Internal {
+
+class CMakeEditorFactory : public Core::IEditorFactory
+{
+    Q_OBJECT
+
+public:
+    CMakeEditorFactory(CMakeManager *parent, TextEditor::TextEditorActionHandler *handler);
+    ~CMakeEditorFactory();
+
+    virtual QStringList mimeTypes() const;
+    virtual QString id() const;
+    virtual QString displayName() const;
+    Core::IFile *open(const QString &fileName);
+    Core::IEditor *createEditor(QWidget *parent);
+
+private:
+    const QStringList m_mimeTypes;
+    CMakeManager *m_manager;
+    TextEditor::TextEditorActionHandler *m_actionHandler;
+};
+
+} // namespace Internal
 } // namespace CMakeProjectManager
 
-#endif // CMAKEPROJECTCONSTANTS_H
+#endif // CMAKEEDITORFACTORY_H

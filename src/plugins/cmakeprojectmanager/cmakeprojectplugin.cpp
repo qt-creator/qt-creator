@@ -30,10 +30,13 @@
 #include "cmakeprojectplugin.h"
 #include "cmakeprojectmanager.h"
 #include "cmakerunconfiguration.h"
+#include "cmakeeditorfactory.h"
 #include "makestep.h"
+#include "cmakeprojectconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+#include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
@@ -56,9 +59,15 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
         return false;
     CMakeSettingsPage *cmp = new CMakeSettingsPage();
     addAutoReleasedObject(cmp);
-    addAutoReleasedObject(new CMakeManager(cmp));
+    CMakeManager *manager = new CMakeManager(cmp);
+    addAutoReleasedObject(manager);
     addAutoReleasedObject(new MakeStepFactory);
     addAutoReleasedObject(new CMakeRunConfigurationFactory);
+    TextEditor::TextEditorActionHandler *editorHandler
+           = new TextEditor::TextEditorActionHandler(CMakeProjectManager::Constants::C_CMAKEEDITOR);
+
+    addAutoReleasedObject(new CMakeEditorFactory(manager, editorHandler));
+
     return true;
 }
 
