@@ -63,10 +63,13 @@ QVariant read(const QString &typeStr, const QString &str, const MetaInfo &metaIn
 QVariant read(const QString &typeStr, const QString &str)
 {
     int type = QMetaType::type(typeStr.toAscii().constData());
-    if (type == 0)
+    if (type == 0) {
         qWarning() << "Type " << typeStr
                 << " is unknown to QMetaType system. Cannot create properly typed QVariant for value "
                 << str;
+        // Fall back to a QVariant of type String
+        return QVariant(str);
+    }
     return read(type, str);
 }
 
@@ -108,9 +111,9 @@ QVariant read(int variantType, const QString &str)
     }
 
     if (!conversionOk) {
-        value = QVariant();
         qWarning() << "Could not convert" << str
                    << "to" << QMetaType::typeName(variantType);
+        value = QVariant(str);
     }
 
     return value;
