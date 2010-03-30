@@ -52,7 +52,7 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
                           "provide a GUI."));
 
     addModulesPage();
-    addTargetsPage();
+    addTargetSetupPage();
 
     foreach (QWizardPage *p, extensionPages)
         addPage(p);

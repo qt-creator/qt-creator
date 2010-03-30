@@ -31,6 +31,11 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkRequest>
+
+#include <QtCore/QUrl>
+
 namespace CodePaster {
 
 Protocol::Protocol()
@@ -108,4 +113,46 @@ QString Protocol::textFromHtml(QString data)
     data.replace(QLatin1String("&amp;"), QString(QLatin1Char('&')));
     return data;
 }
+
+// ------------ NetworkAccessManagerProxy
+NetworkAccessManagerProxy::NetworkAccessManagerProxy()
+{
+}
+
+NetworkAccessManagerProxy::~NetworkAccessManagerProxy()
+{
+}
+
+QNetworkReply *NetworkAccessManagerProxy::httpGet(const QString &link)
+{
+    QUrl url(link);
+    QNetworkRequest r(url);
+    return networkAccessManager()->get(r);
+}
+
+QNetworkReply *NetworkAccessManagerProxy::httpPost(const QString &link, const QByteArray &data)
+{
+    QUrl url(link);
+    QNetworkRequest r(url);
+    return networkAccessManager()->post(r, data);
+}
+
+QNetworkAccessManager *NetworkAccessManagerProxy::networkAccessManager()
+{
+    if (m_networkAccessManager.isNull())
+        m_networkAccessManager.reset(new QNetworkAccessManager);
+    return m_networkAccessManager.data();
+}
+
+// --------- NetworkProtocol
+
+NetworkProtocol::NetworkProtocol(const NetworkAccessManagerProxyPtr &nw) :
+    m_networkAccessManager(nw)
+{
+}
+
+NetworkProtocol::~NetworkProtocol()
+{
+}
+
 } //namespace CodePaster

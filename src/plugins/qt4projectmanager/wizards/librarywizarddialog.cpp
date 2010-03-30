@@ -146,7 +146,7 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     // Use the intro page instead, set up initially
     setIntroDescription(tr("This wizard generates a C++ library project."));
 
-    m_targetPageId = addTargetsPage();
+    m_targetPageId = addTargetSetupPage();
     m_modulesPageId = addModulesPage();
 
     m_filesPage->setNamespacesEnabled(true);

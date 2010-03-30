@@ -255,8 +255,10 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         differenceHandler.importAbsentInQMl(import);
 }
 
-bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differenceHandler)
+bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
+//    qDebug() << "TextToModelMerger::load with data:" << data;
+
     const QUrl url = m_rewriterView->model()->fileUrl();
     const QStringList importPaths = m_rewriterView->textModifier()->importPaths();
     setActive(true);
@@ -266,7 +268,7 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
         foreach (const QString &importPath, importPaths)
             engine.addImportPath(importPath);
         QDeclarativeComponent comp(&engine);
-        comp.setData(data, url);
+        comp.setData(data.toUtf8(), url);
         if (comp.status() == QDeclarativeComponent::Error) {
             QList<RewriterView::Error> errors;
             foreach (const QDeclarativeError &error, comp.errors())
@@ -288,7 +290,7 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
         Snapshot snapshot = m_rewriterView->textModifier()->getSnapshot();
         const QString fileName = url.toLocalFile();
         Document::Ptr doc = Document::create(fileName.isEmpty() ? QLatin1String("<internal>") : fileName);
-        doc->setSource(QString::fromUtf8(data.constData()));
+        doc->setSource(data);
         doc->parseQml();
         snapshot.insert(doc);
         ReadingContext ctxt(snapshot, doc, importPaths);
@@ -671,7 +673,14 @@ QVariant TextToModelMerger::convertToVariant(const ModelNode &node,
         const PropertyMetaInfo propertyMetaInfo = nodeMetaInfo.property(astName, true);
 
         if (propertyMetaInfo.isValid()) {
-            return Internal::PropertyParser::read(propertyMetaInfo.variantTypeId(), cleanedValue);
+            QVariant::Type type = propertyMetaInfo.variantTypeId();
+            if (type == QVariant::Invalid) {
+                const QString propType = propertyMetaInfo.type();
+//                qDebug() << "converting" << cleanedValue << "to" << propType;
+                return Internal::PropertyParser::read(propType, cleanedValue, node.metaInfo().metaInfo());
+            } else {
+                return Internal::PropertyParser::read(type, cleanedValue);
+            }
         } else if (node.type() == QLatin1String("Qt/PropertyChanges")) {
             // In the future, we should do the type resolving in a second pass, or delay setting properties until the full file has been parsed.
             return QVariant(cleanedValue);
@@ -827,6 +836,10 @@ void ModelAmender::shouldBeNodeListProperty(AbstractProperty &modelProperty,
 
 void ModelAmender::variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicType)
 {
+//    qDebug()<< "ModelAmender::variantValuesDiffer for property"<<modelProperty.name()
+//            << "in node" << modelProperty.parentModelNode().id()
+//            << ", old value:" << modelProperty.value()
+//            << "new value:" << qmlVariantValue;
     if (dynamicType.isEmpty())
         modelProperty.setValue(qmlVariantValue);
     else

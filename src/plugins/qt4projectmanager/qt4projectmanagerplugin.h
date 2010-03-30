@@ -76,7 +76,9 @@ private slots:
 
 #ifdef WITH_TESTS
     void testBasicProjectLoading();
-    void testNotYetImplemented();
+
+    void testAbldOutputParsers_data();
+    void testAbldOutputParsers();
 #endif
 
 private:

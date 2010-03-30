@@ -39,10 +39,13 @@
 #include <QtCore/QSet>
 
 namespace Qt4ProjectManager {
+
+class Qt4Project;
+
 namespace Internal {
 
 class ModulesPage;
-class TargetsPage;
+class TargetSetupPage;
 
 /* Base class for wizard creating Qt projects using QtProjectParameters.
  * To implement a project wizard, overwrite:
@@ -125,7 +128,7 @@ public:
     virtual ~BaseQt4ProjectWizardDialog();
 
     int addModulesPage(int id = -1);
-    int addTargetsPage(QSet<QString> targets = QSet<QString>(), int id = -1);
+    int addTargetSetupPage(QSet<QString> targets = QSet<QString>(), int id = -1);
 
     static QSet<QString> desktopTarget();
 
@@ -135,14 +138,15 @@ public:
     QString deselectedModules() const;
     void setDeselectedModules(const QString &);
 
-    void writeUserFile(const QString &proFileName) const;
-    QSet<QString> selectedTargets() const;
+    bool writeUserFile(const QString &proFileName) const;
+    bool setupProject(Qt4Project *project) const;
+    bool isTargetSelected(const QString &targetid) const;
 
 private:
     inline void init(bool showModulesPage);
 
     ModulesPage *m_modulesPage;
-    TargetsPage *m_targetsPage;
+    TargetSetupPage *m_targetSetupPage;
     QString m_selectedModules;
     QString m_deselectedModules;
 };

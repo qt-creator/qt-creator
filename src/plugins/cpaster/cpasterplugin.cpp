@@ -65,7 +65,9 @@ using namespace CodePaster;
 using namespace Core;
 using namespace TextEditor;
 
-CodepasterPlugin::CodepasterPlugin() : m_settings(new Settings)
+CodepasterPlugin::CodepasterPlugin() :
+    m_settings(new Settings),
+    m_postEditorAction(0), m_postClipboardAction(0), m_fetchAction(0)
 {
 }
 
@@ -89,9 +91,10 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     addAutoReleasedObject(settingsPage);
 
     // Create the protocols and append them to the Settings
-    Protocol *protos[] =  { new CodePasterProtocol(),
-                            new PasteBinDotComProtocol(),
-                            new PasteBinDotCaProtocol(),
+    const QSharedPointer<NetworkAccessManagerProxy> networkAccessMgrProxy(new NetworkAccessManagerProxy);
+    Protocol *protos[] =  { new CodePasterProtocol(networkAccessMgrProxy),
+                            new PasteBinDotComProtocol(networkAccessMgrProxy),
+                            new PasteBinDotCaProtocol(networkAccessMgrProxy),
                             0};
     for(int i=0; protos[i] != 0; ++i) {
         connect(protos[i], SIGNAL(pasteDone(QString)), this, SLOT(finishPost(QString)));
@@ -116,10 +119,15 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
     Core::Command *command;
 
-    m_postAction = new QAction(tr("Paste Snippet..."), this);
-    command = actionManager->registerAction(m_postAction, "CodePaster.Post", globalcontext);
+    m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
+    command = actionManager->registerAction(m_postEditorAction, "CodePaster.Post", globalcontext);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+P")));
-    connect(m_postAction, SIGNAL(triggered()), this, SLOT(post()));
+    connect(m_postEditorAction, SIGNAL(triggered()), this, SLOT(postEditor()));
+    cpContainer->addAction(command);
+
+    m_postClipboardAction = new QAction(tr("Paste Clipboard..."), this);
+    command = actionManager->registerAction(m_postClipboardAction, "CodePaster.PostClipboard", globalcontext);
+    connect(m_postClipboardAction, SIGNAL(triggered()), this, SLOT(postClipboard()));
     cpContainer->addAction(command);
 
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
@@ -145,6 +153,28 @@ void CodepasterPlugin::shutdown()
     }
 }
 
+void CodepasterPlugin::postEditor()
+{
+    const IEditor* editor = EditorManager::instance()->currentEditor();
+    const BaseTextEditorEditable *textEditor = qobject_cast<const BaseTextEditorEditable *>(editor);
+    if (!textEditor)
+        return;
+
+    QString data = textEditor->selectedText();
+    if (data.isEmpty())
+        data = textEditor->contents();
+    if (!data.isEmpty())
+        post(data, textEditor->editor()->mimeType());
+}
+
+void CodepasterPlugin::postClipboard()
+{
+    QString subtype = QLatin1String("plain");
+    const QString text = qApp->clipboard()->text(subtype, QClipboard::Clipboard);
+    if (!text.isEmpty())
+        post(text, QString());
+}
+
 static inline void fixSpecialCharacters(QString &data)
 {
     QChar *uc = data.data();
@@ -167,18 +197,8 @@ static inline void fixSpecialCharacters(QString &data)
     }
 }
 
-void CodepasterPlugin::post()
+void CodepasterPlugin::post(QString data, const QString &mimeType)
 {
-    const IEditor* editor = EditorManager::instance()->currentEditor();
-    const BaseTextEditorEditable *textEditor = qobject_cast<const BaseTextEditorEditable *>(editor);
-    if (!textEditor)
-        return;
-
-    QString data = textEditor->selectedText();
-    if (data.isEmpty())
-        data = textEditor->contents();
-    if (data.isEmpty())
-        return;
     fixSpecialCharacters(data);
     FileDataList lst = splitDiffToFiles(data.toLatin1());
     QString username = m_settings->username;
@@ -199,7 +219,7 @@ void CodepasterPlugin::post()
     protocolName = view.protocol();
     foreach(Protocol *protocol, m_protocols) {
         if (protocol->name() == protocolName) {
-            const Protocol::ContentType ct = Protocol::contentType(textEditor->editor()->mimeType());
+            const Protocol::ContentType ct = Protocol::contentType(mimeType);
             protocol->paste(data, ct, username, comment, description);
             break;
         }

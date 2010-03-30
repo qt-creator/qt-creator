@@ -266,11 +266,6 @@ void Qt4ProjectManagerPlugin::testBasicProjectLoading()
     QVERIFY(qt4project->rootProjectNode()->projectType() == ApplicationTemplate);
     QVERIFY(m_projectExplorer->currentProject() != 0);
 }
-
-void Qt4ProjectManagerPlugin::testNotYetImplemented()
-{
-    QCOMPARE(1+1, 2);
-}
 #endif
 
 Q_EXPORT_PLUGIN(Qt4ProjectManagerPlugin)

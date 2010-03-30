@@ -32,8 +32,6 @@
 
 #include "protocol.h"
 
-#include <QtNetwork/QNetworkAccessManager>
-
 QT_BEGIN_NAMESPACE
 class QNetworkReply;
 QT_END_NAMESPACE
@@ -42,11 +40,11 @@ namespace CodePaster {
 
 class CodePasterSettingsPage;
 
-class CodePasterProtocol : public Protocol
+class CodePasterProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    CodePasterProtocol();
+    explicit CodePasterProtocol(const NetworkAccessManagerProxyPtr &nw);
     ~CodePasterProtocol();
 
     QString name() const;
@@ -70,7 +68,6 @@ public slots:
 private:
     bool isValidHostName(const QString& hostName);
     CodePasterSettingsPage *m_page;
-    QNetworkAccessManager m_manager;
     QNetworkReply *m_pasteReply;
     QNetworkReply *m_fetchReply;
     QNetworkReply *m_listReply;

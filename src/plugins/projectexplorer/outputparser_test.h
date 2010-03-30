@@ -30,7 +30,10 @@
 #ifndef OUTPUTPARSER_TESTER_H
 #define OUTPUTPARSER_TESTER_H
 
+#if defined(WITH_TESTS)
+
 #include "projectexplorer_export.h"
+#include "metatypedeclarations.h"
 #include "ioutputparser.h"
 
 namespace ProjectExplorer {
@@ -85,5 +88,7 @@ private:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::OutputParserTester::Channel)
+
+#endif
 
 #endif // OUTPUTPARSER_TESTER_H

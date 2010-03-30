@@ -52,7 +52,7 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
     setIntroDescription(tr("This wizard generates a Qt4 Designer Custom Widget "
                            "or a Qt4 Designer Custom Widget Collection project."));
 
-    addTargetsPage(BaseQt4ProjectWizardDialog::desktopTarget());
+    addTargetSetupPage(BaseQt4ProjectWizardDialog::desktopTarget());
     m_widgetPageId = addPage(m_widgetsPage);
     m_pluginPageId = addPage(m_pluginPage);
 

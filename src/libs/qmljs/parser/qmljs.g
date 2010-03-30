@@ -65,6 +65,7 @@
 %token T_PUBLIC "public"
 %token T_IMPORT "import"
 %token T_AS "as"
+%token T_ON "on"
 
 --- feed tokens
 %token T_FEED_UI_PROGRAM
@@ -653,18 +654,15 @@ case $rule_number: {
         node = makeAstNode<AST::UiImport>(driver->nodePool(), importIdLiteral->value);
         node->fileNameToken = loc(2);
     } else if (AST::UiQualifiedId *qualifiedId = reparseAsQualifiedId(sym(2).Expression)) {
-        QString text;
-        for (AST::UiQualifiedId *q = qualifiedId; q; q = q->next) {
-	   text += q->name->asString();
-           if (q->next) text += QLatin1String(".");
-        }
         node = makeAstNode<AST::UiImport>(driver->nodePool(), qualifiedId);
         node->fileNameToken = loc(2);
     }
 
     sym(1).Node = node;
 
-    if (! node) {
+    if (node) {
+        node->importToken = loc(1);
+    } else {
        diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, loc(1),
          QLatin1String("Expected a qualified name id or a string literal")));
 
@@ -773,6 +771,17 @@ case $rule_number: {
 } break;
 ./
 
+UiObjectMember: UiQualifiedId             T_ON UiQualifiedId  UiObjectInitializer ;
+/.
+case $rule_number: {
+    AST::UiObjectBinding *node = makeAstNode<AST::UiObjectBinding> (driver->nodePool(),
+      sym(3).UiQualifiedId, sym(1).UiQualifiedId, sym(4).UiObjectInitializer);
+    node->colonToken = loc(2);
+    node->hasOnToken = true;
+    sym(1).Node = node;
+} break;
+./
+
 UiObjectMember: UiQualifiedId T_COLON Block ;
 /.case $rule_number:./
 
@@ -870,8 +879,8 @@ case $rule_number: {
 }   break;
 ./
 
-UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT T_IDENTIFIER T_AUTOMATIC_SEMICOLON ;
-UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT T_IDENTIFIER T_SEMICOLON ;
+UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT JsIdentifier T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT JsIdentifier T_SEMICOLON ;
 /.
 case $rule_number: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(4).sval, sym(6).sval);
@@ -885,8 +894,8 @@ case $rule_number: {
 }   break;
 ./
 
-UiObjectMember: T_PROPERTY UiPropertyType T_IDENTIFIER T_AUTOMATIC_SEMICOLON ;
-UiObjectMember: T_PROPERTY UiPropertyType T_IDENTIFIER T_SEMICOLON ;
+UiObjectMember: T_PROPERTY UiPropertyType JsIdentifier T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_PROPERTY UiPropertyType JsIdentifier T_SEMICOLON ;
 /.
 case $rule_number: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(2).sval, sym(3).sval);
@@ -898,8 +907,8 @@ case $rule_number: {
 }   break;
 ./
 
-UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType T_IDENTIFIER T_AUTOMATIC_SEMICOLON ;
-UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType T_IDENTIFIER T_SEMICOLON ;
+UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType JsIdentifier T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType JsIdentifier T_SEMICOLON ;
 /.
 case $rule_number: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(3).sval, sym(4).sval);
@@ -913,8 +922,8 @@ case $rule_number: {
 }   break;
 ./
 
-UiObjectMember: T_PROPERTY UiPropertyType T_IDENTIFIER T_COLON Expression T_AUTOMATIC_SEMICOLON ;
-UiObjectMember: T_PROPERTY UiPropertyType T_IDENTIFIER T_COLON Expression T_SEMICOLON ;
+UiObjectMember: T_PROPERTY UiPropertyType JsIdentifier T_COLON Expression T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_PROPERTY UiPropertyType JsIdentifier T_COLON Expression T_SEMICOLON ;
 /.
 case $rule_number: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(2).sval, sym(3).sval,
@@ -928,8 +937,8 @@ case $rule_number: {
 }   break;
 ./
 
-UiObjectMember: T_READONLY T_PROPERTY UiPropertyType T_IDENTIFIER T_COLON Expression T_AUTOMATIC_SEMICOLON ;
-UiObjectMember: T_READONLY T_PROPERTY UiPropertyType T_IDENTIFIER T_COLON Expression T_SEMICOLON ;
+UiObjectMember: T_READONLY T_PROPERTY UiPropertyType JsIdentifier T_COLON Expression T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_READONLY T_PROPERTY UiPropertyType JsIdentifier T_COLON Expression T_SEMICOLON ;
 /.
 case $rule_number: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(3).sval, sym(4).sval,
@@ -945,8 +954,8 @@ case $rule_number: {
 }   break;
 ./
 
-UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType T_IDENTIFIER T_COLON Expression T_AUTOMATIC_SEMICOLON ;
-UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType T_IDENTIFIER T_COLON Expression T_SEMICOLON ;
+UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType JsIdentifier T_COLON Expression T_AUTOMATIC_SEMICOLON ;
+UiObjectMember: T_DEFAULT T_PROPERTY UiPropertyType JsIdentifier T_COLON Expression T_SEMICOLON ;
 /.
 case $rule_number: {
     AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(3).sval, sym(4).sval,
@@ -1000,6 +1009,15 @@ JsIdentifier: T_READONLY ;
 /.
 case $rule_number: {
     QString s = QLatin1String(QmlJSGrammar::spell[T_READONLY]);
+    sym(1).sval = driver->intern(s.constData(), s.length());
+    break;
+}
+./
+
+JsIdentifier: T_ON ;
+/.
+case $rule_number: {
+    QString s = QLatin1String(QmlJSGrammar::spell[T_ON]);
     sym(1).sval = driver->intern(s.constData(), s.length());
     break;
 }
@@ -1086,6 +1104,9 @@ case $rule_number: {
     diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, location(lexer), lexer->errorMessage()));
     return false; // ### remove me
   }
+
+  loc(1).length = lexer->tokenLength();
+
   AST::RegExpLiteral *node = makeAstNode<AST::RegExpLiteral> (driver->nodePool(), lexer->pattern, lexer->flags);
   node->literalToken = loc(1);
   sym(1).Node = node;
@@ -1103,6 +1124,9 @@ case $rule_number: {
     diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, location(lexer), lexer->errorMessage()));
     return false;
   }
+
+  loc(1).length = lexer->tokenLength();
+
   AST::RegExpLiteral *node = makeAstNode<AST::RegExpLiteral> (driver->nodePool(), lexer->pattern, lexer->flags);
   node->literalToken = loc(1);
   sym(1).Node = node;

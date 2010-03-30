@@ -60,7 +60,7 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
     setWindowIcon(icon);
     setWindowTitle(templateName);
     setSelectedModules(QLatin1String("core testlib"), true);
-    addTargetsPage();
+    addTargetSetupPage();
     m_testPageId = addPage(m_testPage);
     m_modulesPageId = addModulesPage();
     foreach (QWizardPage *p, extensionPages)

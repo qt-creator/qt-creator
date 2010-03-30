@@ -615,7 +615,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 void GdbEngine::readGdbStandardError()
 {
     QByteArray err = m_gdbProc.readAllStandardError();
+    debugMessage(_("UNEXPECTED GDB STDERR: " + err));
     if (err == "Undefined command: \"bb\".  Try \"help\".\n")
+        return;
+    if (err.startsWith("BFD: reopening"))
         return;
     qWarning() << "Unexpected gdb stderr:" << err;
 }
@@ -1651,11 +1654,20 @@ void GdbEngine::handleInferiorShutdown(const GdbResponse &response)
         debugMessage(_("INFERIOR SUCCESSFULLY SHUT DOWN"));
         setState(InferiorShutDown);
     } else {
-        debugMessage(_("INFERIOR SHUTDOWN FAILED"));
-        setState(InferiorShutdownFailed);
-        QString msg = m_gdbAdapter->msgInferiorStopFailed(
-            QString::fromLocal8Bit(response.data.findChild("msg").data()));
-        showMessageBox(QMessageBox::Critical, tr("Failed to shut down application"), msg);
+        QByteArray ba = response.data.findChild("msg").data();
+        if (ba.contains(": No such file or directory.")) {
+            // This happens when someone removed the binary behind our back.
+            // It is not really an error from a user's point of view.
+            debugMessage(_("INFERIOR SUCCESSFULLY SHUT DOWN"));
+            debugMessage(_("NOTE: " + ba));
+            setState(InferiorShutDown);
+        } else {
+            debugMessage(_("INFERIOR SHUTDOWN FAILED"));
+            setState(InferiorShutdownFailed);
+            showMessageBox(QMessageBox::Critical,
+                tr("Failed to shut down application"),
+                m_gdbAdapter->msgInferiorStopFailed(QString::fromLocal8Bit(ba)));
+        }
     }
     shutdown(); // re-iterate...
 }

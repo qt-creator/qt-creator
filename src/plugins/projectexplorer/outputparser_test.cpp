@@ -29,6 +29,8 @@
 
 #include "outputparser_test.h"
 
+#if defined(WITH_TESTS)
+
 #include <QtTest>
 
 using namespace ProjectExplorer;
@@ -132,7 +134,6 @@ void OutputParserTester::stdError(const QString &line)
 void OutputParserTester::appendOutputParser(IOutputParser *parser)
 {
     Q_ASSERT(!childParser());
-    Q_ASSERT(!parser->childParser());
 
     IOutputParser::appendOutputParser(parser);
     parser->appendOutputParser(this);
@@ -157,3 +158,5 @@ void OutputParserTester::reset()
     m_receivedTasks.clear();
     m_receivedOutput = QString();
 }
+
+#endif

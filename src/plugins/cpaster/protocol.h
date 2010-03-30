@@ -31,6 +31,13 @@
 #define PROTOCOL_H
 
 #include <QtCore/QObject>
+#include <QtCore/QScopedPointer>
+#include <QtCore/QSharedPointer>
+
+QT_BEGIN_NAMESPACE
+class QNetworkAccessManager;
+class QNetworkReply;
+QT_END_NAMESPACE
 
 namespace Core {
     class IOptionsPage;
@@ -50,7 +57,7 @@ public:
         PostCommentCapability = 0x2,
         PostDescriptionCapability = 0x4
     };
-    Protocol();
+
     virtual ~Protocol();
 
     virtual QString name() const = 0;
@@ -82,9 +89,54 @@ signals:
     void listDone(const QString &name, const QStringList &result);
 
 protected:
+    Protocol();
     static QString textFromHtml(QString data);
     static QString fixNewLines(QString in);
+};
 
+/* Proxy for NetworkAccessManager that can be shared with
+ * delayed initialization and conveniences
+ * for HTTP-requests. */
+
+class NetworkAccessManagerProxy {
+    Q_DISABLE_COPY(NetworkAccessManagerProxy)
+public:
+    NetworkAccessManagerProxy();
+    ~NetworkAccessManagerProxy();
+
+    QNetworkReply *httpGet(const QString &url);
+    QNetworkReply *httpPost(const QString &link, const QByteArray &data);
+    QNetworkAccessManager *networkAccessManager();
+
+private:
+    QScopedPointer<QNetworkAccessManager> m_networkAccessManager;
+};
+
+/* Network-based protocol: Provides access with delayed
+ * initialization to a QNetworkAccessManager and conveniences
+ * for HTTP-requests. */
+
+class NetworkProtocol : public Protocol {
+    Q_OBJECT
+public:
+    virtual ~NetworkProtocol();
+
+protected:
+    typedef QSharedPointer<NetworkAccessManagerProxy> NetworkAccessManagerProxyPtr;
+
+    explicit NetworkProtocol(const NetworkAccessManagerProxyPtr &nw);
+
+    inline QNetworkReply *httpGet(const QString &url)
+    { return m_networkAccessManager->httpGet(url); }
+
+    inline QNetworkReply *httpPost(const QString &link, const QByteArray &data)
+    { return m_networkAccessManager->httpPost(link, data); }
+
+    inline QNetworkAccessManager *networkAccessManager()
+    { return m_networkAccessManager->networkAccessManager(); }
+
+private:
+    const NetworkAccessManagerProxyPtr m_networkAccessManager;
 };
 
 } //namespace CodePaster

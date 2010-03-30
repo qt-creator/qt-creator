@@ -30,10 +30,11 @@
 #include "qtwizard.h"
 
 #include "qt4project.h"
+#include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 #include "modulespage.h"
-#include "targetspage.h"
+#include "targetsetuppage.h"
 
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -164,7 +165,7 @@ QWizard *CustomQt4ProjectWizard::createWizardDialog(QWidget *parent,
     initProjectWizardDialog(wizard, defaultPath, extensionPages);
     if (wizard->pageIds().contains(targetPageId))
         qWarning("CustomQt4ProjectWizard: Unable to insert target page at %d", int(targetPageId));
-    wizard->addTargetsPage(QSet<QString>(), targetPageId);
+    wizard->addTargetSetupPage(QSet<QString>(), targetPageId);
     return wizard;
 }
 
@@ -182,7 +183,7 @@ void CustomQt4ProjectWizard::registerSelf()
 BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent) :
     ProjectExplorer::BaseProjectWizardDialog(parent),
     m_modulesPage(0),
-    m_targetsPage(0)
+    m_targetSetupPage(0)
 {
     init(showModulesPage);
 }
@@ -192,15 +193,15 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
                                                        int introId, QWidget *parent) :
     ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent),
     m_modulesPage(0),
-    m_targetsPage(0)
+    m_targetSetupPage(0)
 {
     init(showModulesPage);
 }
 
 BaseQt4ProjectWizardDialog::~BaseQt4ProjectWizardDialog()
 {
-    if (m_targetsPage && !m_targetsPage->parent())
-        delete m_targetsPage;
+    if (m_targetSetupPage && !m_targetSetupPage->parent())
+        delete m_targetSetupPage;
     if (m_modulesPage && !m_modulesPage->parent())
         delete m_modulesPage;
 }
@@ -209,7 +210,6 @@ void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
 {
     if (showModulesPage)
         m_modulesPage = new ModulesPage;
-    m_targetsPage = new TargetsPage;
 }
 
 int BaseQt4ProjectWizardDialog::addModulesPage(int id)
@@ -223,18 +223,26 @@ int BaseQt4ProjectWizardDialog::addModulesPage(int id)
     return addPage(m_modulesPage);
 }
 
-int BaseQt4ProjectWizardDialog::addTargetsPage(QSet<QString> targets, int id)
+int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, int id)
 {
-    m_targetsPage->setValidTargets(targets);
+    m_targetSetupPage = new TargetSetupPage;
+    QList<TargetSetupPage::ImportInfo> infos = TargetSetupPage::importInfosForKnownQtVersions(0);
+    if (!targets.isEmpty())
+        infos = TargetSetupPage::filterImportInfos(targets, infos);
+    m_targetSetupPage->setImportDirectoryBrowsingEnabled(false);
+    m_targetSetupPage->setShowLocationInformation(false);
 
-    if (!m_targetsPage->needToDisplayPage())
+    if (infos.count() <= 1)
         return -1;
 
-    if (id >= 0) {
-        setPage(id, m_targetsPage);
-        return id;
-    }
-    return addPage(m_targetsPage);
+    m_targetSetupPage->setImportInfos(infos);
+
+    if (id >= 0)
+        setPage(id, m_targetSetupPage);
+    else
+        id = addPage(m_targetSetupPage);
+
+    return id;
 }
 
 QString BaseQt4ProjectWizardDialog::selectedModules() const
@@ -269,18 +277,30 @@ void BaseQt4ProjectWizardDialog::setDeselectedModules(const QString &modules)
     }
 }
 
-void BaseQt4ProjectWizardDialog::writeUserFile(const QString &proFileName) const
+bool BaseQt4ProjectWizardDialog::writeUserFile(const QString &proFileName) const
 {
-    if (m_targetsPage)
-        m_targetsPage->writeUserFile(proFileName);
+    if (!m_targetSetupPage)
+        return false;
+
+    Qt4Manager *manager = ExtensionSystem::PluginManager::instance()->getObject<Qt4Manager>();
+    Q_ASSERT(manager);
+
+    Qt4Project *pro = new Qt4Project(manager, proFileName);
+    bool success = m_targetSetupPage->setupProject(pro);
+    if (success)
+        pro->saveSettings();
+    delete pro;
+    return success;
 }
 
-QSet<QString> BaseQt4ProjectWizardDialog::selectedTargets() const
+bool BaseQt4ProjectWizardDialog::setupProject(Qt4Project *project) const
 {
-    QSet<QString> targets;
-    if (m_targetsPage)
-        targets = m_targetsPage->selectedTargets();
-    return targets;
+    return m_targetSetupPage->setupProject(project);
+}
+
+bool BaseQt4ProjectWizardDialog::isTargetSelected(const QString &targetid) const
+{
+    return m_targetSetupPage->isTargetSelected(targetid);
 }
 
 QSet<QString> BaseQt4ProjectWizardDialog::desktopTarget()

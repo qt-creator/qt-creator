@@ -3192,6 +3192,30 @@ void TestCore::testMetaInfo()
 //    QVERIFY(graphicsWidgetInfo.hasProperty("enabled")); // from QGraphicsItem
 }
 
+void TestCore::testMetaInfoEnums()
+{
+    QScopedPointer<Model> model(Model::create("Qt/Text"));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestView> view(new TestView);
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("Qt/Text"));
+
+    QVERIFY(view->rootModelNode().metaInfo().hasProperty("transformOrigin"));
+
+    QVERIFY(view->rootModelNode().metaInfo().property("transformOrigin").isEnumType());
+    QCOMPARE(view->rootModelNode().metaInfo().property("transformOrigin").type(), QLatin1String("TransformOrigin"));
+    QVERIFY(view->rootModelNode().metaInfo().property("transformOrigin").enumerator().elementNames().contains(QLatin1String("Bottom")));
+    QVERIFY(view->rootModelNode().metaInfo().property("transformOrigin").enumerator().elementNames().contains(QLatin1String("Top")));
+
+    QVERIFY(view->rootModelNode().metaInfo().property("horizontalAlignment").isEnumType());
+    QCOMPARE(view->rootModelNode().metaInfo().property("horizontalAlignment").type(), QLatin1String("HAlignment"));
+    QVERIFY(view->rootModelNode().metaInfo().property("horizontalAlignment").enumerator().elementNames().contains(QLatin1String("AlignLeft")));
+    QVERIFY(view->rootModelNode().metaInfo().property("horizontalAlignment").enumerator().elementNames().contains(QLatin1String("AlignRight")));
+}
+
 void TestCore::testMetaInfoDotProperties()
 {
     QScopedPointer<Model> model(Model::create("Qt/Text"));

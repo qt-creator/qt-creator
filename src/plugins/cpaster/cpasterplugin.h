@@ -58,7 +58,8 @@ public:
     virtual void shutdown();
 
 public slots:
-    void post();
+    void postEditor();
+    void postClipboard();
     void fetch();
     void finishPost(const QString &link);
     void finishFetch(const QString &titleDescription,
@@ -66,8 +67,11 @@ public slots:
                      bool error);
 
 private:
+    void post(QString data, const QString &mimeType);
+
     const QSharedPointer<Settings> m_settings;
-    QAction *m_postAction;
+    QAction *m_postEditorAction;
+    QAction *m_postClipboardAction;
     QAction *m_fetchAction;
     QList<Protocol*> m_protocols;
     QStringList m_fetchedSnippets;

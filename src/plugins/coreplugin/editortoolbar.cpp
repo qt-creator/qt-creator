@@ -75,7 +75,6 @@ namespace Core {
 EditorToolBar::EditorToolBar(QWidget *parent) :
         Utils::StyledBar(parent),
         m_editorList(new QComboBox(this)),
-        m_rightToolBar(new QToolBar(this)),
         m_closeButton(new QToolButton),
         m_lockButton(new QToolButton),
 
@@ -124,10 +123,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     m_forwardButton= new QToolButton(this);
     m_forwardButton->setDefaultAction(m_goForwardAction);
 
-    m_rightToolBar->setLayoutDirection(Qt::RightToLeft);
-    m_rightToolBar->addWidget(m_closeButton);
-    m_rightToolBar->addWidget(m_lockButton);
-
     QHBoxLayout *toplayout = new QHBoxLayout(this);
     toplayout->setSpacing(0);
     toplayout->setMargin(0);
@@ -135,7 +130,8 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     toplayout->addWidget(m_forwardButton);
     toplayout->addWidget(m_editorList);
     toplayout->addWidget(m_toolBarPlaceholder, 1); // Custom toolbar stretches
-    toplayout->addWidget(m_rightToolBar);
+    toplayout->addWidget(m_lockButton);
+    toplayout->addWidget(m_closeButton);
 
     setLayout(toplayout);
 
