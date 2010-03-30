@@ -581,8 +581,6 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
     virtual void accept0(TypeVisitor *visitor);
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
-
-private:
 };
 
 class CPLUSPLUS_EXPORT ObjCProtocol: public ScopedSymbol, public Type
@@ -591,14 +589,9 @@ public:
     ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ObjCProtocol();
 
-    unsigned protocolCount() const
-    { return _protocols.size(); }
-
-    ObjCBaseProtocol *protocolAt(unsigned index) const
-    { return _protocols.at(index); }
-
-    void addProtocol(ObjCBaseProtocol *protocol)
-    { _protocols.push_back(protocol); }
+    unsigned protocolCount() const;
+    ObjCBaseProtocol *protocolAt(unsigned index) const;
+    void addProtocol(ObjCBaseProtocol *protocol);
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
@@ -663,26 +656,19 @@ public:
     ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
     virtual ~ObjCClass();
 
-    bool isInterface() const { return _isInterface; }
-    void setInterface(bool isInterface) { _isInterface = isInterface; }
+    bool isInterface() const;
+    void setInterface(bool isInterface);
 
-    bool isCategory() const { return _categoryName != 0; }
-    const Name *categoryName() const { return _categoryName; }
-    void setCategoryName(const Name *categoryName) { _categoryName = categoryName; }
+    bool isCategory() const;
+    const Name *categoryName() const;
+    void setCategoryName(const Name *categoryName);
 
-    ObjCBaseClass *baseClass() const
-    { return _baseClass; }
-    void setBaseClass(ObjCBaseClass *baseClass)
-    { _baseClass = baseClass; }
+    ObjCBaseClass *baseClass() const;
+    void setBaseClass(ObjCBaseClass *baseClass);
 
-    unsigned protocolCount() const
-    { return _protocols.size(); }
-
-    ObjCBaseProtocol *protocolAt(unsigned index) const
-    { return _protocols.at(index); }
-
-    void addProtocol(ObjCBaseProtocol *protocol)
-    { _protocols.push_back(protocol); }
+    unsigned protocolCount() const;
+    ObjCBaseProtocol *protocolAt(unsigned index) const;
+    void addProtocol(ObjCBaseProtocol *protocol);
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;
@@ -795,32 +781,20 @@ public:
                             const Name *name);
     virtual ~ObjCPropertyDeclaration();
 
-    bool hasAttribute(int attribute) const
-    { return _propertyAttributes & attribute; }
+    bool hasAttribute(int attribute) const;
+    void setAttributes(int attributes);
 
-    void setAttributes(int attributes)
-    { _propertyAttributes = attributes; }
+    bool hasGetter() const;
+    bool hasSetter() const;
 
-    bool hasGetter() const
-    { return hasAttribute(Getter); }
+    const Name *getterName() const;
 
-    bool hasSetter() const
-    { return hasAttribute(Setter); }
+    void setGetterName(const Name *getterName);
 
-    const Name *getterName() const
-    { return _getterName; }
+    const Name *setterName() const;
+    void setSetterName(const Name *setterName);
 
-    void setGetterName(const Name *getterName)
-    { _getterName = getterName; }
-
-    const Name *setterName() const
-    { return _setterName; }
-
-    void setSetterName(const Name *setterName)
-    { _setterName = setterName; }
-
-    void setType(const FullySpecifiedType &type)
-    { _type = type; }
+    void setType(const FullySpecifiedType &type);
 
     // Symbol's interface
     virtual FullySpecifiedType type() const;

@@ -697,6 +697,36 @@ ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, 
 ObjCClass::~ObjCClass()
 {}
 
+bool ObjCClass::isInterface() const
+{ return _isInterface; }
+
+void ObjCClass::setInterface(bool isInterface)
+{ _isInterface = isInterface; }
+
+bool ObjCClass::isCategory() const
+{ return _categoryName != 0; }
+
+const Name *ObjCClass::categoryName() const
+{ return _categoryName; }
+
+void ObjCClass::setCategoryName(const Name *categoryName)
+{ _categoryName = categoryName; }
+
+ObjCBaseClass *ObjCClass::baseClass() const
+{ return _baseClass; }
+
+void ObjCClass::setBaseClass(ObjCBaseClass *baseClass)
+{ _baseClass = baseClass; }
+
+unsigned ObjCClass::protocolCount() const
+{ return _protocols.size(); }
+
+ObjCBaseProtocol *ObjCClass::protocolAt(unsigned index) const
+{ return _protocols.at(index); }
+
+void ObjCClass::addProtocol(ObjCBaseProtocol *protocol)
+{ _protocols.push_back(protocol); }
+
 FullySpecifiedType ObjCClass::type() const
 { return FullySpecifiedType(const_cast<ObjCClass *>(this)); }
 
@@ -746,6 +776,15 @@ ObjCProtocol::ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLoca
 
 ObjCProtocol::~ObjCProtocol()
 {}
+
+unsigned ObjCProtocol::protocolCount() const
+{ return _protocols.size(); }
+
+ObjCBaseProtocol *ObjCProtocol::protocolAt(unsigned index) const
+{ return _protocols.at(index); }
+
+void ObjCProtocol::addProtocol(ObjCBaseProtocol *protocol)
+{ _protocols.push_back(protocol); }
 
 FullySpecifiedType ObjCProtocol::type() const
 { return FullySpecifiedType(const_cast<ObjCProtocol *>(this)); }
@@ -972,6 +1011,33 @@ ObjCPropertyDeclaration::ObjCPropertyDeclaration(TranslationUnit *translationUni
 
 ObjCPropertyDeclaration::~ObjCPropertyDeclaration()
 {}
+
+bool ObjCPropertyDeclaration::hasAttribute(int attribute) const
+{ return _propertyAttributes & attribute; }
+
+void ObjCPropertyDeclaration::setAttributes(int attributes)
+{ _propertyAttributes = attributes; }
+
+bool ObjCPropertyDeclaration::hasGetter() const
+{ return hasAttribute(Getter); }
+
+bool ObjCPropertyDeclaration::hasSetter() const
+{ return hasAttribute(Setter); }
+
+const Name *ObjCPropertyDeclaration::getterName() const
+{ return _getterName; }
+
+void ObjCPropertyDeclaration::setGetterName(const Name *getterName)
+{ _getterName = getterName; }
+
+const Name *ObjCPropertyDeclaration::setterName() const
+{ return _setterName; }
+
+void ObjCPropertyDeclaration::setSetterName(const Name *setterName)
+{ _setterName = setterName; }
+
+void ObjCPropertyDeclaration::setType(const FullySpecifiedType &type)
+{ _type = type; }
 
 FullySpecifiedType ObjCPropertyDeclaration::type() const
 { return _type; }
