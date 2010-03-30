@@ -114,6 +114,9 @@ void TargetSettingsPanelWidget::setupUi()
     connect(m_selector, SIGNAL(currentChanged(int,int)),
             this, SLOT(currentTargetChanged(int,int)));
 
+    // Save active target now as it will change when targets are added:
+    Target *activeTarget = m_project->activeTarget();
+
     foreach (Target *t, m_project->targets())
         targetAdded(t);
 
@@ -122,11 +125,10 @@ void TargetSettingsPanelWidget::setupUi()
     connect(m_selector, SIGNAL(removeButtonClicked()),
             this, SLOT(removeTarget()));
 
-    if (m_project->activeTarget()) {
-        m_selector->setCurrentIndex(m_targets.indexOf(m_project->activeTarget()));
-    }
-
     updateTargetAddAndRemoveButtons();
+
+    // Restore target originally set:
+    m_project->setActiveTarget(activeTarget);
 }
 
 void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subIndex)
