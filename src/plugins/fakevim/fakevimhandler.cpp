@@ -313,8 +313,8 @@ public:
 
     void test()
     {
-        insert(Inputs() << Input('A') << Input('A'),
-               Inputs() << Input('x') << Input('x'));
+        //insert(Inputs() << Input('A') << Input('A'),
+        //       Inputs() << Input('x') << Input('x'));
     }
 
     void insert(const Inputs &from, const Inputs &to)
