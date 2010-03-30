@@ -13,6 +13,7 @@ HEADERS += qt4projectmanagerplugin.h \
     profilereader.h \
     wizards/qtprojectparameters.h \
     wizards/guiappwizard.h \
+    wizards/mobileguiappwizard.h \
     wizards/consoleappwizard.h \
     wizards/consoleappwizarddialog.h \
     wizards/libraryparameters.h \
@@ -54,6 +55,7 @@ SOURCES += qt4projectmanagerplugin.cpp \
     profilereader.cpp \
     wizards/qtprojectparameters.cpp \
     wizards/guiappwizard.cpp \
+    wizards/mobileguiappwizard.cpp \
     wizards/consoleappwizard.cpp \
     wizards/consoleappwizarddialog.cpp \
     wizards/libraryparameters.cpp \

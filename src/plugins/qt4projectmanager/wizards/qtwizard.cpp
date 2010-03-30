@@ -165,7 +165,7 @@ QWizard *CustomQt4ProjectWizard::createWizardDialog(QWidget *parent,
     initProjectWizardDialog(wizard, defaultPath, extensionPages);
     if (wizard->pageIds().contains(targetPageId))
         qWarning("CustomQt4ProjectWizard: Unable to insert target page at %d", int(targetPageId));
-    wizard->addTargetSetupPage(QSet<QString>(), targetPageId);
+    wizard->addTargetSetupPage(QSet<QString>(), false, targetPageId);
     return wizard;
 }
 
@@ -223,7 +223,7 @@ int BaseQt4ProjectWizardDialog::addModulesPage(int id)
     return addPage(m_modulesPage);
 }
 
-int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, int id)
+int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool mobile, int id)
 {
     m_targetSetupPage = new TargetSetupPage;
     QList<TargetSetupPage::ImportInfo> infos = TargetSetupPage::importInfosForKnownQtVersions(0);
@@ -231,6 +231,7 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, int id
         infos = TargetSetupPage::filterImportInfos(targets, infos);
     m_targetSetupPage->setImportDirectoryBrowsingEnabled(false);
     m_targetSetupPage->setShowLocationInformation(false);
+    m_targetSetupPage->setPreferMobile(mobile);
 
     if (infos.count() <= 1)
         return -1;

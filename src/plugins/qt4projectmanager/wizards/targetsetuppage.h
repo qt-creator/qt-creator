@@ -94,6 +94,7 @@ public:
     void setImportDirectoryBrowsingEnabled(bool browsing);
     void setImportDirectoryBrowsingLocation(const QString &directory);
     void setShowLocationInformation(bool location);
+    void setPreferMobile(bool mobile);
 
     static QList<ImportInfo> importInfosForKnownQtVersions(Qt4ProjectManager::Qt4Project *project);
     static QList<ImportInfo> filterImportInfos(const QSet<QString> &validTargets,
@@ -118,6 +119,7 @@ private:
     QTreeWidget *m_treeWidget;
     Utils::PathChooser *m_directoryChooser;
     QLabel *m_directoryLabel;
+    bool m_preferMobile;
 };
 
 } // namespace Internal

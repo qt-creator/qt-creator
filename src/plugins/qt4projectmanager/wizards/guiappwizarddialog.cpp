@@ -49,6 +49,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
                                        const QIcon &icon,
                                        const QList<QWizardPage*> &extensionPages,
                                        bool showModulesPage,
+                                       bool isMobile,
                                        QWidget *parent) :
     BaseQt4ProjectWizardDialog(showModulesPage, parent),
     m_filesPage(new FilesPage)
@@ -62,7 +63,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
          "and includes an empty widget."));
 
     addModulesPage();
-    addTargetSetupPage();
+    addTargetSetupPage(QSet<QString>(), isMobile);
 
     m_filesPage->setFormInputCheckable(true);
     m_filesPage->setClassTypeComboVisible(false);

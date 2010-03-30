@@ -27,46 +27,20 @@
 **
 **************************************************************************/
 
-#ifndef GUIAPPWIZARD_H
-#define GUIAPPWIZARD_H
+#ifndef MOBILEGUIAPPWIZARD_H
+#define MOBILEGUIAPPWIZARD_H
 
-#include "qtwizard.h"
+#include "guiappwizard.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-struct GuiAppParameters;
-
-class GuiAppWizard : public QtWizard
+class MobileGuiAppWizard : public GuiAppWizard
 {
-    Q_DISABLE_COPY(GuiAppWizard)
     Q_OBJECT
 
 public:
-    GuiAppWizard();
-
-protected:
-    GuiAppWizard(const QString &id,
-                 const QString &category,
-                 const QString &categoryTranslationScope,
-                 const QString &displayCategory,
-                 const QString &name,
-                 const QString &description,
-                 const QIcon &icon,
-                 bool createMobile);
-    virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const;
-
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
-
-private:
-    static bool parametrizeTemplate(const QString &templatePath, const QString &templateName,
-                                    const GuiAppParameters &params,
-                                    QString *target, QString *errorMessage);
-
-    bool m_createMobileProject;
+    MobileGuiAppWizard();
 };
 
 } // namespace Internal

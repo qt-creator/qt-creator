@@ -27,49 +27,26 @@
 **
 **************************************************************************/
 
-#ifndef GUIAPPWIZARD_H
-#define GUIAPPWIZARD_H
+#include "mobileguiappwizard.h"
 
-#include "qtwizard.h"
+#include "qt4projectmanagerconstants.h"
+
+#include <QtGui/QIcon>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-struct GuiAppParameters;
-
-class GuiAppWizard : public QtWizard
+MobileGuiAppWizard::MobileGuiAppWizard() :
+    GuiAppWizard(QLatin1String("C.Qt4GuiMobile"),
+                 QLatin1String(Constants::QT_APP_WIZARD_CATEGORY),
+                 QLatin1String(Constants::QT_APP_WIZARD_TR_SCOPE),
+                 QLatin1String(Constants::QT_APP_WIZARD_TR_CATEGORY),
+                 tr("Mobile Qt Application"),
+                 tr("Creates a mobile Qt Gui Application with one form."),
+                 QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png")),
+                 true)
 {
-    Q_DISABLE_COPY(GuiAppWizard)
-    Q_OBJECT
-
-public:
-    GuiAppWizard();
-
-protected:
-    GuiAppWizard(const QString &id,
-                 const QString &category,
-                 const QString &categoryTranslationScope,
-                 const QString &displayCategory,
-                 const QString &name,
-                 const QString &description,
-                 const QIcon &icon,
-                 bool createMobile);
-    virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const QString &defaultPath,
-                                        const WizardPageList &extensionPages) const;
-
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
-
-private:
-    static bool parametrizeTemplate(const QString &templatePath, const QString &templateName,
-                                    const GuiAppParameters &params,
-                                    QString *target, QString *errorMessage);
-
-    bool m_createMobileProject;
-};
+}
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
-#endif // GUIAPPWIZARD_H

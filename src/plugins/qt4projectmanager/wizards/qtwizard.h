@@ -128,7 +128,7 @@ public:
     virtual ~BaseQt4ProjectWizardDialog();
 
     int addModulesPage(int id = -1);
-    int addTargetSetupPage(QSet<QString> targets = QSet<QString>(), int id = -1);
+    int addTargetSetupPage(QSet<QString> targets = QSet<QString>(), bool mobile = false, int id = -1);
 
     static QSet<QString> desktopTarget();
 

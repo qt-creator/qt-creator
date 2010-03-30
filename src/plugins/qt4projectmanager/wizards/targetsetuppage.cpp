@@ -30,6 +30,7 @@
 #include "targetsetuppage.h"
 
 #include "qt4project.h"
+#include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 
 #include <utils/pathchooser.h>
@@ -42,7 +43,8 @@
 using namespace Qt4ProjectManager::Internal;
 
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
-    QWizardPage(parent)
+    QWizardPage(parent),
+    m_preferMobile(false)
 {
     resize(500, 400);
     setTitle(tr("Set up targets for your project"));
@@ -136,18 +138,18 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
             versionItem->setData(0, Qt::UserRole, pos);
             // Prefer imports to creating new builds, but precheck any
             // Qt that exists (if there is no import with that version)
+            bool shouldCheck = true;
             if (!i.isExistingBuild) {
-                bool haveExistingBuildForQtVersion = false;
                 foreach (const ImportInfo &j, m_infos) {
                     if (j.isExistingBuild && j.version == i.version) {
-                        haveExistingBuildForQtVersion = true;
+                        shouldCheck = false;
                         break;
                     }
                 }
-                versionItem->setCheckState(0, haveExistingBuildForQtVersion ? Qt::Unchecked : Qt::Checked);
-            } else {
-                versionItem->setCheckState(0, Qt::Checked);
             }
+            shouldCheck = shouldCheck && (m_preferMobile == i.version->supportsMobileTarget());
+            shouldCheck = shouldCheck || i.isExistingBuild; // always check imports
+            versionItem->setCheckState(0, shouldCheck ? Qt::Checked : Qt::Unchecked);
 
             // Column 1 (status):
             versionItem->setText(1, i.isExistingBuild ? tr("Import", "Is this an import of an existing build or a new one?") :
@@ -263,6 +265,11 @@ void TargetSetupPage::setImportDirectoryBrowsingLocation(const QString &director
 void TargetSetupPage::setShowLocationInformation(bool location)
 {
     m_treeWidget->setColumnCount(location ? 3 : 1);
+}
+
+void TargetSetupPage::setPreferMobile(bool mobile)
+{
+    m_preferMobile = mobile;
 }
 
 QList<TargetSetupPage::ImportInfo>

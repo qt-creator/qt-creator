@@ -62,6 +62,7 @@ public:
                                 const QIcon &icon,
                                 const QList<QWizardPage*> &extensionPages,
                                 bool showModulesPage = false,
+                                bool mobile = false,
                                 QWidget *parent = 0);
 
     void setBaseClasses(const QStringList &baseClasses);

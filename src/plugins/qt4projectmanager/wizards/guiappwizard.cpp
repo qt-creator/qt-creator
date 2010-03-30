@@ -75,7 +75,22 @@ GuiAppWizard::GuiAppWizard()
                QLatin1String(Constants::QT_APP_WIZARD_TR_CATEGORY),
                tr("Qt Gui Application"),
                tr("Creates a Qt Gui Application with one form."),
-               QIcon(QLatin1String(":/wizards/images/gui.png")))
+               QIcon(QLatin1String(":/wizards/images/gui.png"))),
+      m_createMobileProject(false)
+{
+}
+
+GuiAppWizard::GuiAppWizard(const QString &id,
+                           const QString &category,
+                           const QString &categoryTranslationScope,
+                           const QString &displayCategory,
+                           const QString &name,
+                           const QString &description,
+                           const QIcon &icon,
+                           bool createMobile)
+    : QtWizard(id, category, categoryTranslationScope,
+               displayCategory, name, description, icon),
+      m_createMobileProject(createMobile)
 {
 }
 
@@ -85,6 +100,7 @@ QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,
 {
     GuiAppWizardDialog *dialog = new GuiAppWizardDialog(displayName(), icon(), extensionPages,
                                                         showModulesPageForApplications(),
+                                                        m_createMobileProject,
                                                         parent);
     dialog->setPath(defaultPath);
     dialog->setProjectName(GuiAppWizardDialog::uniqueProjectName(defaultPath));
