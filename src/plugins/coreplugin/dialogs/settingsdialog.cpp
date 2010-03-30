@@ -64,7 +64,8 @@ namespace Internal {
 
 // ----------- Category model
 
-struct Category {
+class Category {
+public:
     QString id;
     QString displayName;
     QIcon icon;
