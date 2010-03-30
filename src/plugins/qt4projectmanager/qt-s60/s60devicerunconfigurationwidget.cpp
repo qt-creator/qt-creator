@@ -58,6 +58,12 @@
 
 Q_DECLARE_METATYPE(SymbianUtils::SymbianDevice)
 
+#ifdef Q_OS_WIN
+enum { wantUpdateSerialDevicesButton = 0 };
+#else
+enum { wantUpdateSerialDevicesButton = 1 };
+#endif
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -107,6 +113,14 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     QHBoxLayout *serialPortHBoxLayout = new QHBoxLayout;
     serialPortHBoxLayout->addWidget(m_serialPortsCombo);
     serialPortHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
+    // Update device list: on Linux only.
+    if (wantUpdateSerialDevicesButton) {
+        QToolButton *updateSerialDevicesButton(new QToolButton);
+        updateSerialDevicesButton->setIcon(qApp->style()->standardIcon(QStyle::SP_BrowserReload));
+        connect(updateSerialDevicesButton, SIGNAL(clicked()),
+                SymbianUtils::SymbianDeviceManager::instance(), SLOT(update()));
+        serialPortHBoxLayout->addWidget(updateSerialDevicesButton);
+    }
 
     formLayout->addRow(tr("Device on Serial Port:"), serialPortHBoxLayout);
 
