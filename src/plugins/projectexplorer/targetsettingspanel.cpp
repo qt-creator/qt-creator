@@ -136,6 +136,16 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
     if (subIndex < -1 || subIndex >= 2)
         return;
 
+    if (targetIndex == -1 || subIndex == -1) { // no more targets!
+        delete m_panelWidgets[0];
+        m_panelWidgets[0] = 0;
+        delete m_panelWidgets[1];
+        m_panelWidgets[1] = 0;
+
+        m_centralWidget->setCurrentWidget(m_noTargetLabel);
+        return;
+    }
+
     Target *target = m_targets.at(targetIndex);
 
     // Target was not actually changed:
@@ -147,13 +157,8 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
         return;
     }
 
-    m_currentTarget = target;
-
     // Target has changed:
-    if (targetIndex == -1) { // no more targets!
-        m_centralWidget->setCurrentWidget(m_noTargetLabel);
-        return;
-    }
+    m_currentTarget = target;
 
     PanelsWidget *buildPanel = new PanelsWidget(m_centralWidget);
     PanelsWidget *runPanel = new PanelsWidget(m_centralWidget);
