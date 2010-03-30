@@ -979,7 +979,6 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
         if (isVisible())
             editor->widget()->setFocus();
     }
-    emit currentEditorChanged(editor);
     return editor;
 }
 

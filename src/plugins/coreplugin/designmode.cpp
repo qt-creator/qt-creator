@@ -41,6 +41,7 @@
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QPair>
 #include <QtCore/QFileInfo>
@@ -87,7 +88,6 @@ struct DesignEditorInfo {
     int widgetIndex;
     QStringList mimeTypes;
     QList<int> context;
-    bool preferredMode;
     QWidget *widget;
 };
 
@@ -181,13 +181,11 @@ QStringList DesignMode::registeredMimeTypes() const
   */
 void DesignMode::registerDesignWidget(QWidget *widget,
                                       const QStringList &mimeTypes,
-                                      const QList<int> &context,
-                                      bool preferDesignMode)
+                                      const QList<int> &context)
 {
     int index = d->m_stackWidget->addWidget(widget);
 
     DesignEditorInfo *info = new DesignEditorInfo;
-    info->preferredMode = preferDesignMode;
     info->mimeTypes = mimeTypes;
     info->context = context;
     info->widgetIndex = index;
@@ -209,8 +207,10 @@ void DesignMode::unregisterDesignWidget(QWidget *widget)
 // if editor changes, check if we have valid mimetype registered.
 void DesignMode::currentEditorChanged(Core::IEditor *editor)
 {
+    if (d->m_currentEditor.data() == editor)
+        return;
+
     bool mimeEditorAvailable = false;
-    bool modeActivated = false;
     Core::ICore *core = Core::ICore::instance();
 
     if (editor && editor->file()) {
@@ -227,10 +227,6 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
                     setActiveContext(editorInfo->context);
                     mimeEditorAvailable = true;
                     setEnabled(true);
-                    if (editorInfo->preferredMode && core->modeManager()->currentMode() != this) {
-                        core->modeManager()->activateMode(Constants::MODE_DESIGN);
-                        modeActivated = true;
-                    }
                     break;
                 }
             }
@@ -238,29 +234,24 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
                 break;
         }
     }
-    if (!mimeEditorAvailable) {
-        setActiveContext(QList<int>());
-        setEnabled(false);
-    }
-
-    if (!mimeEditorAvailable && core->modeManager()->currentMode() == this)
-    {
-        // switch back to edit mode - we don't want to be here
-        core->modeManager()->activateMode(Constants::MODE_EDIT);
-    }
-
-    if (d->m_currentEditor.data() == editor)
-        return;
-
     if (d->m_currentEditor)
         disconnect(d->m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
 
-    d->m_currentEditor = QWeakPointer<Core::IEditor>(editor);
+    if (!mimeEditorAvailable) {
+        setActiveContext(QList<int>());
+        setEnabled(false);
+        d->m_currentEditor = QWeakPointer<Core::IEditor>();
+        emit actionsUpdated(d->m_currentEditor.data());
 
-    if (d->m_currentEditor)
-        connect(d->m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
+        QTC_ASSERT(core->modeManager()->currentMode() != this, core->modeManager()->activateMode(Constants::MODE_EDIT));
+    } else {
+        d->m_currentEditor = QWeakPointer<Core::IEditor>(editor);
 
-    emit actionsUpdated(d->m_currentEditor.data());
+        if (d->m_currentEditor)
+            connect(d->m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
+
+        emit actionsUpdated(d->m_currentEditor.data());
+    }
 }
 
 void DesignMode::updateActions()
