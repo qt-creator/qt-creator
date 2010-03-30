@@ -264,30 +264,7 @@ FancyActionBar::FancyActionBar(QWidget *parent)
     spacerLayout->setSpacing(0);
     setLayout(spacerLayout);
     setContentsMargins(0,2,0,0);
-
-    m_runButton = m_debugButton = 0;
-    m_inDebugMode = false;
-
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(modeChanged(Core::IMode*)));
-
-#ifdef Q_WS_MAC
-    qApp->installEventFilter(this);
-#endif
-
 }
-
-#ifdef Q_WS_MAC
-bool FancyActionBar::eventFilter(QObject *, QEvent *e)
-{
-    if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
-        if (static_cast<QKeyEvent *>(e)->key() == Qt::Key_Alt)
-            updateRunDebug();
-    } else if (e->type() == QEvent::WindowDeactivate)
-        updateRunDebug();
-    return false;
-}
-#endif
 
 void FancyActionBar::addProjectSelector(QAction *action)
 {
@@ -300,38 +277,9 @@ void FancyActionBar::addProjectSelector(QAction *action)
 void FancyActionBar::insertAction(int index, QAction *action)
 {
     FancyToolButton *toolButton = new FancyToolButton(this);
-    if (action->objectName() == QLatin1String("ProjectExplorer.Run"))
-        m_runButton = toolButton;
-    if (action->objectName() == QLatin1String("ProjectExplorer.Debug"))
-        m_debugButton = toolButton;
-
     toolButton->setDefaultAction(action);
     connect(action, SIGNAL(changed()), toolButton, SLOT(actionChanged()));
     m_actionsLayout->insertWidget(index, toolButton);
-}
-
-void FancyActionBar::modeChanged(Core::IMode *mode)
-{
-    m_inDebugMode = (mode->id() == QLatin1String("Debugger.Mode.Debug"));
-    updateRunDebug();
-}
-
-void FancyActionBar::updateRunDebug()
-{
-    if (!m_runButton || !m_debugButton)
-        return;
-
-    bool doDebug = m_inDebugMode;
-#ifdef Q_WS_MAC
-    if (QApplication::keyboardModifiers() && Qt::AltModifier)
-        doDebug = !doDebug;
-#endif
-
-    layout()->setEnabled(false);
-    m_runButton->forceVisible(!doDebug);
-    m_debugButton->forceVisible(doDebug);
-    layout()->setEnabled(true);
-
 }
 
 QLayout *FancyActionBar::actionsLayout() const
