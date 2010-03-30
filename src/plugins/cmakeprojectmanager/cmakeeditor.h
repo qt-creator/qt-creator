@@ -74,7 +74,6 @@ public:
 
     bool save(const QString &fileName = QString());
 
-
     CMakeEditorFactory *factory() { return m_factory; }
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
 protected:

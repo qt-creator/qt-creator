@@ -54,7 +54,6 @@ CMakeEditorEditable::CMakeEditorEditable(CMakeEditor *editor)
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(CMakeProjectManager::Constants::C_CMAKEEDITOR);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
-//    m_contexts << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
 }
 
 QList<int> CMakeEditorEditable::context() const
@@ -103,23 +102,21 @@ TextEditor::BaseTextEditorEditable *CMakeEditor::createEditableInterface()
 
 void CMakeEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
-//     TextEditor::BaseTextEditor::setFontSettings(fs);
-//     return;
-   CMakeHighlighter *highlighter = qobject_cast<CMakeHighlighter*>(baseTextDocument()->syntaxHighlighter());
-   if (!highlighter)
-       return;
+    CMakeHighlighter *highlighter = qobject_cast<CMakeHighlighter*>(baseTextDocument()->syntaxHighlighter());
+    if (!highlighter)
+        return;
 
-   static QVector<QString> categories;
-   if (categories.isEmpty()) {
-       categories << QLatin1String(TextEditor::Constants::C_LABEL)  // variables
-                  << QLatin1String(TextEditor::Constants::C_LINK)   // functions
-                  << QLatin1String(TextEditor::Constants::C_COMMENT)
-                  << QLatin1String(TextEditor::Constants::C_STRING);
-   }
+    static QVector<QString> categories;
+    if (categories.isEmpty()) {
+        categories << QLatin1String(TextEditor::Constants::C_LABEL)  // variables
+                << QLatin1String(TextEditor::Constants::C_LINK)   // functions
+                << QLatin1String(TextEditor::Constants::C_COMMENT)
+                << QLatin1String(TextEditor::Constants::C_STRING);
+    }
 
-   const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
-   highlighter->setFormats(formats.constBegin(), formats.constEnd());
-   highlighter->rehighlight();
+    const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
+    highlighter->setFormats(formats.constBegin(), formats.constEnd());
+    highlighter->rehighlight();
 }
 
 //

@@ -39,11 +39,9 @@ using namespace CMakeProjectManager::Internal;
 
 static bool isVariable(const QString &word)
 {
-  if (word.length() < 4) { // must be at least "${.}"
-    return false;
-  }
-
-  return word.startsWith("${") && word.endsWith('}');
+    if (word.length() < 4) // must be at least "${.}"
+        return false;
+    return word.startsWith("${") && word.endsWith('}');
 }
 
 
@@ -65,44 +63,34 @@ void CMakeHighlighter::highlightBlock(const QString &text)
         const QChar c = text.at(i);
         if (inCommentMode) {
             setFormat(i, 1, m_formats[CMakeCommentFormat]);
-        }
-        else {
+        } else {
             if (c == '#') {
                 if (!inStringMode) {
                     inCommentMode = true;
                     setFormat(i, 1, m_formats[CMakeCommentFormat]);
                     buf.clear();
-                }
-                else {
+                } else {
                     buf += c;
                 }
-            }
-            else if (c == '(') {
+            } else if (c == '(') {
                 if (!inStringMode) {
-                    if (!buf.isEmpty()) {
+                    if (!buf.isEmpty())
                         setFormat(i - buf.length(), buf.length(), m_formats[CMakeFunctionFormat]);
-                    }
                     buf.clear();
-                }
-                else {
-                  buf += c;
-                }
-            }
-            else if (c.isSpace()) {
-                if (!inStringMode) {
-                    buf.clear();
-                }
-                else {
+                } else {
                     buf += c;
                 }
-            }
-            else if (c == '\"') {
+            } else if (c.isSpace()) {
+                if (!inStringMode)
+                    buf.clear();
+                else
+                    buf += c;
+            } else if (c == '\"') {
                 buf += c;
                 if (inStringMode) {
                     setFormat(i + 1 - buf.length(), buf.length(), m_formats[CMakeStringFormat]);
                     buf.clear();
-                }
-                else {
+                } else {
                     setFormat(i, 1, m_formats[CMakeStringFormat]);
                 }
                 inStringMode = !inStringMode;
@@ -116,24 +104,19 @@ void CMakeHighlighter::highlightBlock(const QString &text)
                     setFormat(i, 1, emptyFormat);
                     buf += c;
                 }
-            }
-            else if (c == '$') {
-              if (inStringMode) {
-                  setFormat(i - buf.length(), buf.length(), m_formats[CMakeStringFormat]);
-              }
-              buf.clear();
-              buf += c;
-              setFormat(i, 1, emptyFormat);
-            }
-            else if (c == '}') {
+            } else if (c == '$') {
+                if (inStringMode)
+                    setFormat(i - buf.length(), buf.length(), m_formats[CMakeStringFormat]);
+                buf.clear();
                 buf += c;
-                if (isVariable(buf))
-                {
+                setFormat(i, 1, emptyFormat);
+            } else if (c == '}') {
+                buf += c;
+                if (isVariable(buf)) {
                     setFormat(i + 1 - buf.length(), buf.length(), m_formats[CMakeVariableFormat]);
                     buf.clear();
                 }
-            }
-            else {
+            } else {
                 buf += c;
                 setFormat(i, 1, emptyFormat);
             }
@@ -143,8 +126,7 @@ void CMakeHighlighter::highlightBlock(const QString &text)
     if (inStringMode) {
         setFormat(i - buf.length(), buf.length(), m_formats[CMakeStringFormat]);
         setCurrentBlockState(1);
-    }
-    else {
+    } else {
         setCurrentBlockState(0);
     }
 }
