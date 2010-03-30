@@ -20,6 +20,7 @@ General
    * New "Design" mode for visual editors (.ui & .qml files)
    * Fixed crash when working with empty pro-file
    * Ask for close, save, or save as when file is removed while open in Qt Creator
+   * Use shadowbuilding by default in new projects whenever possible
 
 Editing
    * Text based search and replace in multiple files
@@ -101,11 +102,16 @@ Symbian Target
      (Users that had multiple symbian run configurations with different
       signing settings need to re-create their settings as different
       build configurations)
+   * Add support for the mobility API into any mobile project set up
+     using the Qt wizards
+   * Add capabilities and UID into the pro-file
 
 Maemo Target
    * New feature
    * Built on top of MADDE package
    * Supports building for, deploying to and running on N900 devices
+   * Add support for the mobility API into any mobile project set up
+     using the Qt wizards
 
 Version control plugins
    * Made menu actions more consistent, added some missing actions
@@ -129,6 +135,7 @@ Wizards
    * Improved summary page, added ordering, simplified application wizards
    * Added wizards for unit tests and classes based on QSharedData
    * Introduced project directory setting
+   * Add a wizard for mobile Qt applications
 
 Additional credits go to:
    * Roopesh Chander (choosing spaces or tabs based on surrounding code)
