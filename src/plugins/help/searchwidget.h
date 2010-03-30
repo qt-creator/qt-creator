@@ -56,9 +56,7 @@ public:
     void resetZoom();
 
 signals:
-    void requestShowLink(const QUrl &url);
-    void requestShowLinkInNewTab(const QUrl &url);
-    void escapePressed();
+    void linkActivated(const QUrl &link);
 
 protected:
     void showEvent(QShowEvent *event);
@@ -74,7 +72,6 @@ private slots:
 
 private:
     bool eventFilter(QObject* o, QEvent *e);
-    void keyPressEvent(QKeyEvent *keyEvent);
     void contextMenuEvent(QContextMenuEvent *contextMenuEvent);
 
 private:

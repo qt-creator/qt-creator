@@ -59,7 +59,6 @@ signals:
     void linkActivated(const QUrl &link);
     void linksActivated(const QMap<QString, QUrl> &links,
         const QString &keyword);
-    void escapePressed();
 
 private slots:
     void filterIndices(const QString &filter);

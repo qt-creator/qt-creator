@@ -115,8 +115,7 @@ public:
 
 signals:
     void addBookmark();
-    void requestShowLink(const QUrl &url);
-    void escapePressed();
+    void linkActivated(const QUrl &url);
 
 private slots:
     void removeClicked();

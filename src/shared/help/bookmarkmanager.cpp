@@ -31,6 +31,7 @@
 
 #include "centralwidget.h"
 #include "helpmanager.h"
+#include "openpagesmanager.h"
 
 #include <QtGui/QMenu>
 #include <QtGui/QIcon>
@@ -50,6 +51,7 @@
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QSortFilterProxyModel>
 
+using namespace Help::Internal;
 
 BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
         const QString &url, QWidget *parent)
@@ -360,7 +362,7 @@ void BookmarkWidget::activated(const QModelIndex &index)
 
     QString data = index.data(Qt::UserRole + 10).toString();
     if (data != QLatin1String("Folder"))
-        emit requestShowLink(data);
+        emit linkActivated(data);
 }
 
 void BookmarkWidget::customContextMenuRequested(const QPoint &point)
@@ -394,10 +396,10 @@ void BookmarkWidget::customContextMenuRequested(const QPoint &point)
         return;
 
     if (pickedAction == showItem) {
-        emit requestShowLink(data);
+        emit linkActivated(data);
     }
     else if (pickedAction == showItemNewTab) {
-        Help::Internal::CentralWidget::instance()->setSourceInNewTab(data);
+        OpenPagesManager::instance().createPage(data);
     }
     else if (pickedAction == removeItem) {
         bookmarkManager->removeBookmarkItem(treeView,
@@ -540,12 +542,8 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
                     if (index.isValid()) {
                         QString data = index.data(Qt::UserRole + 10).toString();
                         if (!data.isEmpty() && data != QLatin1String("Folder"))
-                            emit requestShowLink(data);
+                            emit linkActivated(data);
                     }
-                }   break;
-
-                case Qt::Key_Escape: {
-                    emit escapePressed();
                 }   break;
             }
         } else if (e->type() == QEvent::MouseButtonRelease) {
@@ -556,7 +554,7 @@ bool BookmarkWidget::eventFilter(QObject *object, QEvent *e)
                     || (me->button() == Qt::MidButton)) {
                         QString data = index.data(Qt::UserRole + 10).toString();
                         if (!data.isEmpty() && data != QLatin1String("Folder"))
-                            Help::Internal::CentralWidget::instance()->setSourceInNewTab(data);
+                            OpenPagesManager::instance().createPage(data);
                 }
             }
         }

@@ -29,8 +29,8 @@
 
 #include "contentwindow.h"
 
-#include "centralwidget.h"
 #include "helpmanager.h"
+#include "openpagesmanager.h"
 
 #include <QtGui/QLayout>
 #include <QtGui/QFocusEvent>
@@ -38,6 +38,8 @@
 
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpContentWidget>
+
+using namespace Help::Internal;
 
 ContentWindow::ContentWindow()
     : m_contentWidget(0)
@@ -110,15 +112,12 @@ bool ContentWindow::eventFilter(QObject *o, QEvent *e)
                 if (contentModel) {
                     QHelpContentItem *itm = contentModel->contentItemAt(index);
                     if (itm && !isPdfFile(itm))
-                        Help::Internal::CentralWidget::instance()->setSourceInNewTab(itm->url());
+                        OpenPagesManager::instance().createPage(itm->url());
                 }
             } else if (button == Qt::LeftButton) {
                 itemClicked(index);
             }
         }
-    } else if (o == m_contentWidget && e->type() == QEvent::KeyPress) {
-        if (static_cast<QKeyEvent *>(e)->key() == Qt::Key_Escape)
-            emit escapePressed();
     }
     return QWidget::eventFilter(o, e);
 }
@@ -135,7 +134,7 @@ void ContentWindow::showContextMenu(const QPoint &pos)
 
     QMenu menu;
     QAction *curTab = menu.addAction(tr("Open Link"));
-    QAction *newTab = menu.addAction(tr("Open Link in New Tab"));
+    QAction *newTab = menu.addAction(tr("Open Link as New Page"));
     if (isPdfFile(itm))
         newTab->setEnabled(false);
 
@@ -145,7 +144,7 @@ void ContentWindow::showContextMenu(const QPoint &pos)
     if (curTab == action)
         emit linkActivated(itm->url());
     else if (newTab == action)
-        Help::Internal::CentralWidget::instance()->setSourceInNewTab(itm->url());
+        OpenPagesManager::instance().createPage(itm->url());
 }
 
 void ContentWindow::itemClicked(const QModelIndex &index)

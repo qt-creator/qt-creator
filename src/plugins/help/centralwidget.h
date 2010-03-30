@@ -30,29 +30,19 @@
 #ifndef CENTRALWIDGET_H
 #define CENTRALWIDGET_H
 
-#include <QtCore/QUrl>
-#include <QtCore/QPoint>
-#include <QtCore/QObject>
+#include <find/ifindsupport.h>
 
 #include <QtGui/QWidget>
-#include <QtGui/QTextDocument>
 
-QT_BEGIN_NAMESPACE
-
-class QEvent;
-class QLabel;
-class QAction;
-class QCheckBox;
-class QLineEdit;
-class QToolButton;
-class QTabWidget;
-class QFocusEvent;
-QT_END_NAMESPACE
-
-class HelpViewer;
+QT_FORWARD_DECLARE_CLASS(QEvent)
+QT_FORWARD_DECLARE_CLASS(QAction)
+QT_FORWARD_DECLARE_CLASS(QStackedWidget)
+QT_FORWARD_DECLARE_CLASS(QFocusEvent)
 
 namespace Help {
-namespace Internal {
+    namespace Internal {
+
+class HelpViewer;
 class PrintHelper;
 
 class CentralWidget : public QWidget
@@ -63,82 +53,71 @@ public:
     CentralWidget(QWidget *parent = 0);
     ~CentralWidget();
 
-    bool hasSelection() const;
-    QUrl currentSource() const;
-    QString currentTitle() const;
-    bool isForwardAvailable() const;
-    bool isBackwardAvailable() const;
-    QList<QAction*> globalActions() const;
-    void setGlobalActions(const QList<QAction*> &actions);
-    HelpViewer *currentHelpViewer() const;
-    void activateTab(bool onlyHelpViewer = false);
-    bool find(const QString &txt, QTextDocument::FindFlags findFlags, bool incremental);
-    void setLastShownPages();
-    HelpViewer *helpViewerAtIndex(int index) const;
-    int indexOf(HelpViewer *viewer) const;
-
     static CentralWidget *instance();
 
+    bool hasSelection() const;
+    bool isForwardAvailable() const;
+    bool isBackwardAvailable() const;
+
+    HelpViewer *viewerAt(int index) const;
+    HelpViewer *currentHelpViewer() const;
+
+    void addPage(HelpViewer *page, bool fromSearch = false);
+    void removePage(int index);
+
+    int currentIndex() const;
+    void setCurrentPage(HelpViewer *page);
+
+    bool find(const QString &txt, Find::IFindSupport::FindFlags findFlags,
+        bool incremental);
+
 public slots:
+    void copy();
+    void home();
+
     void zoomIn();
     void zoomOut();
-    void nextPage();
     void resetZoom();
+
+    void forward();
+    void nextPage();
+
+    void backward();
     void previousPage();
+
     void print();
     void pageSetup();
     void printPreview();
+
     void setSource(const QUrl &url);
-    void setSourceInNewTab(const QUrl &url, int zoom = 0);
-    HelpViewer *newEmptyTab();
-    void home();
-    void forward();
-    void backward();
-    void showTopicChooser(const QMap<QString, QUrl> &links,
-        const QString &keyword);
-    void copy();
-    void activateTab(int index);
+    void setSourceFromSearch(const QUrl &url);
+    void showTopicChooser(const QMap<QString, QUrl> &links, const QString &key);
 
 protected:
     void focusInEvent(QFocusEvent *event);
 
 signals:
-    void currentViewerChanged(int index);
-    void copyAvailable(bool yes);
+    void currentViewerChanged();
     void sourceChanged(const QUrl &url);
-    void highlighted(const QString &link);
     void forwardAvailable(bool available);
     void backwardAvailable(bool available);
-    void addNewBookmark(const QString &title, const QString &url);
-
-    void viewerAboutToBeRemoved(int index);
-    void viewerRemoved(int index);
 
 private slots:
-    void newTab();
-    void closeTab();
-    void closeTab(int index);
-    void setTabTitle(const QUrl& url);
-    void currentPageChanged(int index);
-    void showTabBarContextMenu(const QPoint &point);
+    void highlightSearchTerms();
     void printPreview(QPrinter *printer);
+    void handleSourceChanged(const QUrl &url);
 
 private:
-    void connectSignals();
-    bool eventFilter(QObject *object, QEvent *e);
     void initPrinter();
-    QString quoteTabTitle(const QString &title) const;
+    void connectSignals(HelpViewer *page);
+    bool eventFilter(QObject *object, QEvent *e);
 
 private:
-    int lastTabPage;
-    QList<QAction*> globalActionList;
-
-    QWidget *findBar;
-    QTabWidget* tabWidget;
     QPrinter *printer;
+    QStackedWidget *m_stackedWidget;
 };
 
-} // namespace Internal
+    } // namespace Internal
 } // namespace Help
 
 #endif  // CENTRALWIDGET_H

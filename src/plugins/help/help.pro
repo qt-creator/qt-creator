@@ -6,33 +6,46 @@ include(../../qtcreatorplugin.pri)
 include(help_dependencies.pri)
 
 CONFIG += help
-DEFINES += QT_CLUCENE_SUPPORT \
-    HELP_LIBRARY
-HEADERS += helpplugin.h \
+DEFINES += QT_CLUCENE_SUPPORT HELP_LIBRARY
+
+HEADERS += \
+    centralwidget.h \
     docsettingspage.h \
     filtersettingspage.h \
-    helpconstants.h \
-    helpmode.h \
-    centralwidget.h \
-    searchwidget.h \
-    helpfindsupport.h \
-    help_global.h \
-    helpindexfilter.h \
     generalsettingspage.h \
-    xbelsupport.h \
-    helpmanager.h
+    help_global.h \
+    helpconstants.h \
+    helpfindsupport.h \
+    helpindexfilter.h \
+    helpmanager.h \
+    helpmode.h \
+    helpplugin.h \
+    helpviewer.h \
+    helpviewer_p.h \
+    openpagesmanager.h \
+    openpagesmodel.h \
+    openpageswidget.h \
+    searchwidget.h \
+    xbelsupport.h
 
-SOURCES += helpplugin.cpp \
+SOURCES += \
+    centralwidget.cpp \
     docsettingspage.cpp \
     filtersettingspage.cpp \
-    helpmode.cpp \
-    centralwidget.cpp \
-    searchwidget.cpp \
+    generalsettingspage.cpp \
     helpfindsupport.cpp \
     helpindexfilter.cpp \
-    generalsettingspage.cpp \
-    xbelsupport.cpp \
-    helpmanager.cpp
+    helpmanager.cpp \
+    helpmode.cpp \
+    helpplugin.cpp \
+    helpviewer.cpp \
+    helpviewer_qtb.cpp \
+    helpviewer_qwv.cpp \
+    openpagesmanager.cpp \
+    openpagesmodel.cpp \
+    openpageswidget.cpp \
+    searchwidget.cpp \
+    xbelsupport.cpp
 
 FORMS += docsettingspage.ui \
     filtersettingspage.ui \

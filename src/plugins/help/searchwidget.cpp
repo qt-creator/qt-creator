@@ -29,6 +29,7 @@
 
 #include "searchwidget.h"
 #include "helpmanager.h"
+#include "openpagesmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -109,7 +110,7 @@ void SearchWidget::showEvent(QShowEvent *event)
 
         connect(queryWidget, SIGNAL(search()), this, SLOT(search()));
         connect(resultWidget, SIGNAL(requestShowLink(QUrl)), this,
-            SIGNAL(requestShowLink(QUrl)));
+            SIGNAL(linkActivated(QUrl)));
 
         connect(searchEngine, SIGNAL(searchingStarted()), this,
             SLOT(searchingStarted()));
@@ -179,71 +180,47 @@ bool SearchWidget::eventFilter(QObject* o, QEvent *e)
             bool controlPressed = me->modifiers() & Qt::ControlModifier;
             if((me->button() == Qt::LeftButton && controlPressed)
                 || (me->button() == Qt::MidButton)) {
-                    emit requestShowLinkInNewTab(link);
+                    OpenPagesManager::instance().createPageFromSearch(link);
             }
         }
     }
     return QWidget::eventFilter(o,e);
 }
 
-void SearchWidget::keyPressEvent(QKeyEvent *keyEvent)
-{
-    if (keyEvent->key() == Qt::Key_Escape)
-        emit escapePressed();
-}
-
 void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 {
-    QMenu menu;
-    QPoint point = contextMenuEvent->globalPos();
-
     QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
     if (!browser)
         return;
 
-    point = browser->mapFromGlobal(point);
+    QPoint point = browser->mapFromGlobal(contextMenuEvent->globalPos());
     if (!browser->rect().contains(point, true))
         return;
 
+    QAction *openLink = 0;
+    QAction *openLinkInNewTab = 0;
+    QAction *copyAnchorAction = 0;
+
+    QMenu menu;
     QUrl link = browser->anchorAt(point);
-
-    QKeySequence keySeq(QKeySequence::Copy);
-    QAction *copyAction = menu.addAction(tr("&Copy") + QLatin1String("\t") +
-        keySeq.toString(QKeySequence::NativeText));
-    copyAction->setEnabled(QTextCursor(browser->textCursor()).hasSelection());
-
-    QAction *copyAnchorAction = menu.addAction(tr("Copy &Link Location"));
-    copyAnchorAction->setEnabled(!link.isEmpty() && link.isValid());
-
-    keySeq = QKeySequence(Qt::CTRL);
-    QAction *newTabAction = menu.addAction(tr("Open Link in New Tab") +
-        QLatin1String("\t") + keySeq.toString(QKeySequence::NativeText) +
-        QLatin1String("LMB"));
-    newTabAction->setEnabled(!link.isEmpty() && link.isValid());
-
-    menu.addSeparator();
-
-    keySeq = QKeySequence::SelectAll;
-    QAction *selectAllAction = menu.addAction(tr("Select All") +
-        QLatin1String("\t") + keySeq.toString(QKeySequence::NativeText));
+    if (!link.isEmpty() && link.isValid()) {
+        if (link.isRelative())
+            link = browser->source().resolved(link);
+        openLink = menu.addAction(tr("Open Link"));
+        openLinkInNewTab = menu.addAction(tr("Open Link as New Page"));
+        copyAnchorAction = menu.addAction(tr("Copy Link"));
+    } else if (browser->textCursor().hasSelection()) {
+        menu.addAction(tr("Copy"), browser, SLOT(copy()));
+    } else {
+        menu.addAction(tr("Reload"), browser, SLOT(reload()));
+    }
 
     QAction *usedAction = menu.exec(mapToGlobal(contextMenuEvent->pos()));
-    if (usedAction == copyAction) {
-        QTextCursor cursor = browser->textCursor();
-        if (!cursor.isNull() && cursor.hasSelection()) {
-            QString selectedText = cursor.selectedText();
-            QMimeData *data = new QMimeData();
-            data->setText(selectedText);
-            QApplication::clipboard()->setMimeData(data);
-        }
-    }
-    else if (usedAction == copyAnchorAction) {
-        QApplication::clipboard()->setText(link.toString());
-    }
-    else if (usedAction == newTabAction) {
-        emit requestShowLinkInNewTab(link);
-    }
-    else if (usedAction == selectAllAction) {
+    if (usedAction == openLink) {
         browser->selectAll();
+    } else if (usedAction == openLinkInNewTab) {
+        OpenPagesManager::instance().createPageFromSearch(link);
+    } else if (usedAction == copyAnchorAction) {
+        QApplication::clipboard()->setText(link.toString());
     }
 }

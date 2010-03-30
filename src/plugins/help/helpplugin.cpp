@@ -26,6 +26,7 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #include "helpplugin.h"
 
 #include "bookmarkmanager.h"
@@ -41,6 +42,8 @@
 #include "helpmode.h"
 #include "helpviewer.h"
 #include "indexwindow.h"
+#include "openpagesmanager.h"
+#include "openpagesmodel.h"
 #include "searchwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -83,6 +86,7 @@
 #   include <QtWebKit/QWebSettings>
 #endif
 
+using namespace Core::Constants;
 using namespace Help;
 using namespace Help::Internal;
 
@@ -137,88 +141,94 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     }
 
     addAutoReleasedObject(m_helpManager = new HelpManager(this));
+    addAutoReleasedObject(m_openPagesManager = new OpenPagesManager(this));
+
     addAutoReleasedObject(m_docSettingsPage = new DocSettingsPage());
     addAutoReleasedObject(m_filterSettingsPage = new FilterSettingsPage());
     addAutoReleasedObject(m_generalSettingsPage = new GeneralSettingsPage());
 
     connect(m_docSettingsPage, SIGNAL(documentationChanged()), m_filterSettingsPage,
         SLOT(updateFilterPage()));
-    connect(m_generalSettingsPage, SIGNAL(fontChanged()), this, SLOT(fontChanged()));
-    connect(m_helpManager, SIGNAL(helpRequested(QString)), this, SLOT(handleHelpRequest(QString)));
-    connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this, SLOT(setupHelpEngineIfNeeded()));
-    connect(m_docSettingsPage, SIGNAL(documentationChanged()), this, SLOT(setupHelpEngineIfNeeded()));
+    connect(m_generalSettingsPage, SIGNAL(fontChanged()), this,
+        SLOT(fontChanged()));
+    connect(m_helpManager, SIGNAL(helpRequested(QString)), this,
+        SLOT(handleHelpRequest(QString)));
+    connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this,
+        SLOT(setupHelpEngineIfNeeded()));
+    connect(m_docSettingsPage, SIGNAL(documentationChanged()), this,
+        SLOT(setupHelpEngineIfNeeded()));
 
     m_splitter = new Core::MiniSplitter;
     m_centralWidget = new Help::Internal::CentralWidget();
+    connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
+        SLOT(updateSideBarSource(QUrl)));
 
-    QList<QAction*> actionList;
     // Add Home, Previous and Next actions (used in the toolbar)
-    QAction *homeAction = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")), tr("Home"), this);
+    QAction *action = new QAction(QIcon(QLatin1String(IMAGEPATH "home.png")),
+        tr("Home"), this);
     Core::ActionManager *am = m_core->actionManager();
-    Core::Command *cmd = am->registerAction(homeAction, QLatin1String("Help.Home"), globalcontext);
-    connect(homeAction, SIGNAL(triggered()), m_centralWidget, SLOT(home()));
-    actionList << homeAction;
+    Core::Command *cmd = am->registerAction(action, QLatin1String("Help.Home"),
+        globalcontext);
+    connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(home()));
 
-    QAction *previousAction = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
+    action = new QAction(QIcon(QLatin1String(IMAGEPATH "previous.png")),
         tr("Previous Page"), this);
-    cmd = am->registerAction(previousAction, QLatin1String("Help.Previous"), modecontext);
+    cmd = am->registerAction(action, QLatin1String("Help.Previous"), modecontext);
     cmd->setDefaultKeySequence(QKeySequence::Back);
-    previousAction->setEnabled(m_centralWidget->isBackwardAvailable());
-    connect(previousAction, SIGNAL(triggered()), m_centralWidget, SLOT(backward()));
-    connect(m_centralWidget, SIGNAL(backwardAvailable(bool)), previousAction, SLOT(setEnabled(bool)));
-    actionList << previousAction;
+    action->setEnabled(m_centralWidget->isBackwardAvailable());
+    connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(backward()));
+    connect(m_centralWidget, SIGNAL(backwardAvailable(bool)), action,
+        SLOT(setEnabled(bool)));
 
-    QAction *nextAction = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")), tr("Next Page"),
+    action = new QAction(QIcon(QLatin1String(IMAGEPATH "next.png")), tr("Next Page"),
         this);
-    cmd = am->registerAction(nextAction, QLatin1String("Help.Next"), modecontext);
+    cmd = am->registerAction(action, QLatin1String("Help.Next"), modecontext);
     cmd->setDefaultKeySequence(QKeySequence::Forward);
-    nextAction->setEnabled(m_centralWidget->isForwardAvailable());
-    connect(nextAction, SIGNAL(triggered()), m_centralWidget, SLOT(forward()));
-    connect(m_centralWidget, SIGNAL(forwardAvailable(bool)), nextAction, SLOT(setEnabled(bool)));
-    actionList << nextAction;
+    action->setEnabled(m_centralWidget->isForwardAvailable());
+    connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(forward()));
+    connect(m_centralWidget, SIGNAL(forwardAvailable(bool)), action,
+        SLOT(setEnabled(bool)));
 
-    QAction *addBookmarkAction = new QAction(QIcon(QLatin1String(IMAGEPATH "bookmark.png")),
+    action = new QAction(QIcon(QLatin1String(IMAGEPATH "bookmark.png")),
         tr("Add Bookmark"), this);
-    cmd = am->registerAction(addBookmarkAction, QLatin1String("Help.AddBookmark"),
+    cmd = am->registerAction(action, QLatin1String("Help.AddBookmark"),
         modecontext);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_M));
-    connect(addBookmarkAction, SIGNAL(triggered()), this, SLOT(addBookmark()));
+    connect(action, SIGNAL(triggered()), this, SLOT(addBookmark()));
 
     // Add Index, Contents, and Context menu items and a separator to the Help menu
-    QAction *indexAction = new QAction(tr("Index"), this);
-    cmd = am->registerAction(indexAction, QLatin1String("Help.Index"), globalcontext);
-    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    connect(indexAction, SIGNAL(triggered()), this, SLOT(activateIndex()));
+    action = new QAction(tr("Index"), this);
+    cmd = am->registerAction(action, QLatin1String("Help.Index"), globalcontext);
+    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
 
-    QAction *contentsAction = new QAction(tr("Contents"), this);
-    cmd = am->registerAction(contentsAction, QLatin1String("Help.Contents"), globalcontext);
-    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    connect(contentsAction, SIGNAL(triggered()), this, SLOT(activateContents()));
+    action = new QAction(tr("Contents"), this);
+    cmd = am->registerAction(action, QLatin1String("Help.Contents"), globalcontext);
+    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
 
-    QAction *contextAction = new QAction(tr("Context Help"), this);
-    cmd = am->registerAction(contextAction, QLatin1String("Help.Context"), globalcontext);
-    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    action = new QAction(tr("Context Help"), this);
+    cmd = am->registerAction(action, QLatin1String("Help.Context"), globalcontext);
+    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
-    connect(contextAction, SIGNAL(triggered()), this, SLOT(activateContext()));
+    connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
 
 #ifndef Q_WS_MAC
-    QAction *sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = am->registerAction(sep, QLatin1String("Help.Separator"), globalcontext);
-    am->actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    actionList << sep;
+    action = new QAction(this);
+    action->setSeparator(true);
+    cmd = am->registerAction(action, QLatin1String("Help.Separator"), globalcontext);
+    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
 #endif
 
-    QAction *printAction = new QAction(this);
-    am->registerAction(printAction, Core::Constants::PRINT, modecontext);
-    connect(printAction, SIGNAL(triggered()), m_centralWidget, SLOT(print()));
+    action = new QAction(this);
+    am->registerAction(action, Core::Constants::PRINT, modecontext);
+    connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(print()));
 
-    QAction *copyAction = new QAction(this);
-    cmd = am->registerAction(copyAction, Core::Constants::COPY, modecontext);
-    connect(copyAction, SIGNAL(triggered()), m_centralWidget, SLOT(copy()));
-    copyAction->setText(cmd->action()->text());
-    copyAction->setIcon(cmd->action()->icon());
-    actionList << copyAction;
+    action = new QAction(this);
+    cmd = am->registerAction(action, Core::Constants::COPY, modecontext);
+    connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(copy()));
+    action->setText(cmd->action()->text());
+    action->setIcon(cmd->action()->icon());
 
     if (Core::ActionContainer *advancedMenu =
         am->actionContainer(Core::Constants::M_EDIT_ADVANCED)) {
@@ -255,7 +265,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     mainWidgetLayout->setSpacing(0);
     mainWidgetLayout->addWidget(createToolBar());
     mainWidgetLayout->addWidget(m_centralWidget);
-    m_centralWidget->setGlobalActions(actionList);
 
     HelpIndexFilter *helpIndexFilter = new HelpIndexFilter();
     addAutoReleasedObject(helpIndexFilter);
@@ -320,24 +329,10 @@ void HelpPlugin::extensionsInitialized()
     m_helpManager->verifyDocumenation();
     m_helpManager->registerDocumentation(filesToRegister);
 
-#if !defined(QT_NO_WEBKIT)
-    QWebSettings* webSettings = QWebSettings::globalSettings();
-    QFont font(QApplication::font().family(),
-        webSettings->fontSize(QWebSettings::DefaultFontSize));
-
-    font = qVariantValue<QFont>(engine->customValue(QLatin1String("font"),
-        font));
-
-    webSettings->setFontFamily(QWebSettings::StandardFont, font.family());
-    webSettings->setFontSize(QWebSettings::DefaultFontSize, font.pointSize());
-#endif
-
     const QString &url = QString::fromLatin1("qthelp://com.nokia.qtcreator."
         "%1%2%3/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
         .arg(IDE_VERSION_RELEASE);
     engine->setCustomValue(QLatin1String("DefaultHomePage"), url);
-    
-    connectCentralWidget();
     connect(engine, SIGNAL(setupFinished()), this, SLOT(updateFilterComboBox()));
 }
 
@@ -357,42 +352,46 @@ void HelpPlugin::setupUi()
     IndexWindow *indexWindow = new IndexWindow();
     indexWindow->setWindowTitle(tr("Index"));
     m_indexItem = new Core::SideBarItem(indexWindow);
-    connect(indexWindow, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)), m_centralWidget,
-        SLOT(showTopicChooser(QMap<QString, QUrl>, QString)));
-    connect(indexWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget, SLOT(setSource(QUrl)));
+
+    connect(indexWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
+        SLOT(setSource(QUrl)));
+    connect(indexWindow, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)),
+        m_centralWidget, SLOT(showTopicChooser(QMap<QString, QUrl>, QString)));
 
     QMap<QString, Core::Command*> shortcutMap;
     QShortcut *shortcut = new QShortcut(m_splitter);
     shortcut->setWhatsThis(tr("Activate Index in Help mode"));
-    Core::Command* cmd = am->registerShortcut(shortcut, QLatin1String("Help.IndexShortcut"),
-        modecontext);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_I));
+    Core::Command* cmd = am->registerShortcut(shortcut,
+        QLatin1String("Help.IndexShortcut"), modecontext);
+    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateIndex()));
     shortcutMap.insert(indexWindow->windowTitle(), cmd);
 
     ContentWindow *contentWindow = new ContentWindow();
     contentWindow->setWindowTitle(tr("Contents"));
     m_contentItem = new Core::SideBarItem(contentWindow);
-    connect(contentWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget, SLOT(setSource(QUrl)));
+    connect(contentWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
+        SLOT(setSource(QUrl)));
 
     shortcut = new QShortcut(m_splitter);
     shortcut->setWhatsThis(tr("Activate Contents in Help mode"));
-    cmd = am->registerShortcut(shortcut, QLatin1String("Help.ContentsShortcut"), modecontext);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_T));
+    cmd = am->registerShortcut(shortcut, QLatin1String("Help.ContentsShortcut"),
+        modecontext);
+    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateContents()));
     shortcutMap.insert(contentWindow->windowTitle(), cmd);
 
     SearchWidget *searchWidget = new SearchWidget();
     searchWidget->setWindowTitle(tr("Search"));
     m_searchItem = new Core::SideBarItem(searchWidget);
-    connect(searchWidget, SIGNAL(requestShowLinkInNewTab(QUrl)), m_centralWidget,
-        SLOT(setSourceInNewTab(QUrl)));
-    connect(searchWidget, SIGNAL(requestShowLink(QUrl)), m_centralWidget, SLOT(setSource(QUrl)));
+    connect(searchWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
+        SLOT(setSourceFromSearch(QUrl)));
 
     // TODO: enable and find a proper keysequence as this is ambiguous
     // shortcut = new QShortcut(m_splitter);
     // shortcut->setWhatsThis(tr("Activate Search in Help mode"));
-    // cmd = am->registerShortcut(shortcut, QLatin1String("Help.SearchShortcut"), modecontext);
+    // cmd = am->registerShortcut(shortcut, QLatin1String("Help.SearchShortcut"),
+    //     modecontext);
     // cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_S));
     // connect(shortcut, SIGNAL(activated()), this, SLOT(activateSearch()));
     // shortcutMap.insert(searchWidget->windowTitle(), cmd);
@@ -401,20 +400,35 @@ void HelpPlugin::setupUi()
     BookmarkWidget *bookmarkWidget = new BookmarkWidget(manager, 0, false);
     bookmarkWidget->setWindowTitle(tr("Bookmarks"));
     m_bookmarkItem = new Core::SideBarItem(bookmarkWidget);
-    connect(bookmarkWidget, SIGNAL(addBookmark()), this, SLOT(addBookmark()));
-    connect(bookmarkWidget, SIGNAL(requestShowLink(QUrl)), m_centralWidget, SLOT(setSource(QUrl)));
+    connect(bookmarkWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
+        SLOT(setSource(QUrl)));
 
     // TODO: enable and find a proper keysequence as this is ambiguous
     // shortcut = new QShortcut(m_splitter);
     // shortcut->setWhatsThis(tr("Activate Bookmarks in Help mode"));
-    // cmd = am->registerShortcut(shortcut, QLatin1String("Help.BookmarkShortcut"), modecontext);
+    // cmd = am->registerShortcut(shortcut, QLatin1String("Help.BookmarkShortcut"),
+    //     modecontext);
     // cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_B));
     // connect(shortcut, SIGNAL(activated()), this, SLOT(activateBookmarks()));
     // shortcutMap.insert(bookmarkWidget->windowTitle(), cmd);
 
+    QWidget *openPagesWidget = OpenPagesManager::instance().openPagesWidget();
+    openPagesWidget->setWindowTitle(tr("Open Pages"));
+    m_openPagesItem = new Core::SideBarItem(openPagesWidget);
+
+    shortcut = new QShortcut(m_splitter);
+    shortcut->setWhatsThis(tr("Activate Open Pages in Help mode"));
+    cmd = am->registerShortcut(shortcut, QLatin1String("Help.PagesShortcut"),
+        modecontext);
+    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
+    connect(shortcut, SIGNAL(activated()), this, SLOT(activateOpenPages()));
+    shortcutMap.insert(openPagesWidget->windowTitle(), cmd);
+
     QList<Core::SideBarItem*> itemList;
-    itemList << m_contentItem << m_indexItem << m_searchItem << m_bookmarkItem;
-    m_sideBar = new Core::SideBar(itemList, QList<Core::SideBarItem*>() << m_indexItem);
+    itemList << m_contentItem << m_indexItem << m_searchItem << m_bookmarkItem
+        << m_openPagesItem;
+    m_sideBar = new Core::SideBar(itemList, QList<Core::SideBarItem*>()
+        << m_indexItem << m_openPagesItem);
     m_sideBar->setShortcutMap(shortcutMap);
 
     m_splitter->setOpaqueResize(false);
@@ -433,9 +447,9 @@ void HelpPlugin::resetFilter()
     QHelpEngineCore *core = &m_helpManager->helpEngineCore();
     if (core->customValue(weAddedFilterKey).toInt() == 1) {
         // we added a filter at some point, remove previously added filter
-        const QString &previousFilter = core->customValue(previousFilterNameKey).toString();
-        if (!previousFilter.isEmpty())
-            core->removeCustomFilter(previousFilter);
+        const QString &filter = core->customValue(previousFilterNameKey).toString();
+        if (!filter.isEmpty())
+            core->removeCustomFilter(filter);
     }
 
     // potentially remove a filter with new name
@@ -445,21 +459,6 @@ void HelpPlugin::resetFilter()
     core->setCustomValue(weAddedFilterKey, 1);
     core->setCustomValue(previousFilterNameKey, filterName);
     (&m_helpManager->helpEngine())->setCurrentFilter(filterName);
-}
-
-void HelpPlugin::connectCentralWidget()
-{
-    connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
-        SLOT(updateSideBarSource(QUrl)));
-    connect(m_centralWidget, SIGNAL(currentViewerChanged(int)), this,
-        SLOT(updateSideBarSource()));
-    connect(m_centralWidget, SIGNAL(currentViewerChanged(int)), this,
-        SLOT(updateViewerComboBoxIndex(int)));
-    connect(m_centralWidget, SIGNAL(viewerAboutToBeRemoved(int)), this,
-        SLOT(removeViewerFromComboBox(int)));
-    connect(m_centralWidget, SIGNAL(addNewBookmark(QString, QString)), this,
-        SLOT(addNewBookmark(QString, QString)));
-    connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this, SLOT(rebuildViewerComboBox()));
 }
 
 void HelpPlugin::createRightPaneContextViewer()
@@ -508,7 +507,7 @@ void HelpPlugin::createRightPaneContextViewer()
     rightPaneStyledBar->setLayout(hboxLayout);
     rightPaneLayout->addWidget(rightPaneStyledBar);
 
-    m_helpViewerForSideBar = new HelpViewer(0, rightPaneSideBar);
+    m_helpViewerForSideBar = new HelpViewer(qreal(0.0), rightPaneSideBar);
     rightPaneLayout->addWidget(m_helpViewerForSideBar);
     rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(rightPaneSideBar));
     rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);
@@ -575,7 +574,7 @@ void HelpPlugin::modeChanged(Core::IMode *mode)
         setupUi();
         resetFilter();
         m_helpManager->setupGuiHelpEngine();
-        m_centralWidget->setLastShownPages();
+        OpenPagesManager::instance().setupInitialPages();
 
         qApp->restoreOverrideCursor();
     } else if (mode == m_mode && !m_firstModeChange) {
@@ -587,9 +586,11 @@ void HelpPlugin::modeChanged(Core::IMode *mode)
 
 void HelpPlugin::updateSideBarSource()
 {
-    const QUrl &url = m_centralWidget->currentSource();
-    if (url.isValid())
-        updateSideBarSource(url);
+    if (HelpViewer *viewer = m_centralWidget->currentHelpViewer()) {
+        const QUrl &url = viewer->source();
+        if (url.isValid())
+            updateSideBarSource(url);
+    }
 }
 
 void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
@@ -598,56 +599,32 @@ void HelpPlugin::updateSideBarSource(const QUrl &newUrl)
         m_helpViewerForSideBar->setSource(newUrl);
 }
 
+void HelpPlugin::updateCloseButton()
+{
+    m_closeButton->setEnabled(OpenPagesManager::instance().pageCount() > 1);
+}
+
 void HelpPlugin::fontChanged()
 {
-#if defined(QT_NO_WEBKIT)
-    QFont font = qApp->font();
+    if (!m_helpViewerForSideBar)
+        createRightPaneContextViewer();
+
     const QHelpEngineCore &engine = m_helpManager->helpEngineCore();
-    font = qVariantValue<QFont>(engine.customValue(QLatin1String("font"),
-        font));
+    QFont font = qVariantValue<QFont>(engine.customValue(QLatin1String("font"),
+        m_helpViewerForSideBar->viewerFont()));
 
-    if (m_helpViewerForSideBar)
-        m_helpViewerForSideBar->setFont(font);
-
-    if (m_centralWidget) {
-        int i = 0;
-        while (HelpViewer* viewer = m_centralWidget->helpViewerAtIndex(i++)) {
-            if (viewer->font() != font)
-                viewer->setFont(font);
-        }
+    m_helpViewerForSideBar->setFont(font);
+    const int count = OpenPagesManager::instance().pageCount();
+    for (int i = 0; i < count; ++i) {
+        if (HelpViewer *viewer = CentralWidget::instance()->viewerAt(i))
+            viewer->setViewerFont(font);
     }
-#endif
 }
 
 void HelpPlugin::setupHelpEngineIfNeeded()
 {
     if (Core::ICore::instance()->modeManager()->currentMode() == m_mode)
         m_helpManager->setupGuiHelpEngine();
-}
-
-void HelpPlugin::rebuildViewerComboBox()
-{
-    m_documentsCombo->clear();
-
-    int i = 0;
-    while (HelpViewer *viewer = m_centralWidget->helpViewerAtIndex(i++))
-        m_documentsCombo->addItem(viewer->documentTitle());
-
-    int index = m_centralWidget->indexOf(m_centralWidget->currentHelpViewer());
-    if (index >= 0)
-        m_documentsCombo->setCurrentIndex(index);
-}
-
-void HelpPlugin::removeViewerFromComboBox(int index)
-{
-    if (index >= 0)
-        m_documentsCombo->removeItem(index);
-}
-
-void HelpPlugin::updateViewerComboBoxIndex(int index)
-{
-    if (index >= 0)
-        m_documentsCombo->setCurrentIndex(index);
 }
 
 HelpViewer* HelpPlugin::viewerForContextMode()
@@ -689,7 +666,7 @@ HelpViewer* HelpPlugin::viewerForContextMode()
     } else {
         activateHelpMode();
         if (!viewer)
-            viewer = m_centralWidget->newEmptyTab();
+            viewer = OpenPagesManager::instance().createPage();
     }
     return viewer;
 }
@@ -751,6 +728,12 @@ void HelpPlugin::activateSearch()
     m_sideBar->activateItem(m_searchItem);
 }
 
+void HelpPlugin::activateOpenPages()
+{
+    activateHelpMode();
+    m_sideBar->activateItem(m_openPagesItem);
+}
+
 QToolBar *HelpPlugin::createToolBar()
 {
     QToolBar *toolWidget = new QToolBar;
@@ -770,20 +753,26 @@ QToolBar *HelpPlugin::createToolBar()
     QHBoxLayout *layout = new QHBoxLayout(w);
     layout->setMargin(0);
     layout->addSpacing(10);
-    m_documentsCombo = new QComboBox;
-    m_documentsCombo->setMinimumContentsLength(40);
-    layout->addWidget(m_documentsCombo);
-
-    connect(m_documentsCombo, SIGNAL(activated(int)), m_centralWidget,
-        SLOT(activateTab(int)));
+    layout->addWidget(OpenPagesManager::instance().openPagesComboBox());
 
     layout->addWidget(new QLabel(tr("Filtered by:")));
     m_filterComboBox = new QComboBox;
     m_filterComboBox->setMinimumContentsLength(20);
     layout->addWidget(m_filterComboBox);
-
     connect(m_filterComboBox, SIGNAL(activated(QString)), this,
         SLOT(filterDocumentation(QString)));
+    connect(m_filterComboBox, SIGNAL(currentIndexChanged(int)), this,
+        SLOT(updateSideBarSource()));
+
+    m_closeButton = new QToolButton();
+    m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
+    m_closeButton->setToolTip(tr("Close current Page"));
+    connect(m_closeButton, SIGNAL(clicked()), &OpenPagesManager::instance(),
+        SLOT(closeCurrentPage()));
+    connect(&OpenPagesManager::instance(), SIGNAL(pagesChanged()), this,
+        SLOT(updateCloseButton()));
+    layout->addStretch();
+    layout->addWidget(m_closeButton);
 
     return toolWidget;
 }
@@ -809,21 +798,21 @@ void HelpPlugin::filterDocumentation(const QString &customFilter)
 
 void HelpPlugin::addBookmark()
 {
-    addNewBookmark(m_centralWidget->currentTitle(),
-        m_centralWidget->currentSource().toString());
-}
+    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
 
-void HelpPlugin::addNewBookmark(const QString &title, const QString &url)
-{
-    if (url.isEmpty() || url == QLatin1String("about:blank"))
+    const QString &url = viewer->source().toString();
+    if (url.isEmpty() || url == Help::Constants::AboutBlank)
         return;
 
     BookmarkManager *manager = &HelpManager::bookmarkManager();
-    manager->showBookmarkDialog(m_centralWidget, title, url);
+    manager->showBookmarkDialog(m_centralWidget, viewer->title(), url);
 }
 
 void HelpPlugin::handleHelpRequest(const QString &address)
 {
+    if (HelpViewer::launchWithExternalApp(address))
+        return;
+
     if (m_helpManager->helpEngineCore().findFile(address).isValid()) {
         const QUrl url(address);
         if (url.queryItemValue(QLatin1String("view")) == QLatin1String("split")) {

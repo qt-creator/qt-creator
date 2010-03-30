@@ -26,6 +26,7 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #ifndef HELPPLUGIN_H
 #define HELPPLUGIN_H
 
@@ -33,14 +34,11 @@
 #include <QtCore/QMap>
 #include <QtCore/QStringList>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-class QComboBox;
-class QToolBar;
-class QUrl;
-QT_END_NAMESPACE
-
-class HelpViewer;
+QT_FORWARD_DECLARE_CLASS(QAction)
+QT_FORWARD_DECLARE_CLASS(QComboBox)
+QT_FORWARD_DECLARE_CLASS(QToolBar)
+QT_FORWARD_DECLARE_CLASS(QToolButton)
+QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace Core {
 class ICore;
@@ -57,8 +55,10 @@ namespace Internal {
 class CentralWidget;
 class DocSettingsPage;
 class FilterSettingsPage;
-class HelpMode;
 class GeneralSettingsPage;
+class HelpMode;
+class HelpViewer;
+class OpenPagesManager;
 class SearchWidget;
 
 class HelpPlugin : public ExtensionSystem::IPlugin
@@ -78,14 +78,16 @@ public slots:
 
 private slots:
     void modeChanged(Core::IMode *mode);
+
     void activateContext();
     void activateIndex();
     void activateContents();
     void activateSearch();
+    void activateOpenPages();
+
+    void addBookmark();
     void updateFilterComboBox();
     void filterDocumentation(const QString &customFilter);
-    void addBookmark();
-    void addNewBookmark(const QString &title, const QString &url);
 
     void switchToHelpMode();
     void switchToHelpMode(const QUrl &source);
@@ -96,18 +98,14 @@ private slots:
     void updateSideBarSource(const QUrl &newUrl);
 
     void fontChanged();
+    void updateCloseButton();
     void setupHelpEngineIfNeeded();
-
-    void rebuildViewerComboBox();
-    void removeViewerFromComboBox(int index);
-    void updateViewerComboBoxIndex(int index);
 
 private:
     void setupUi();
     void resetFilter();
     void activateHelpMode();
     QToolBar *createToolBar();
-    void connectCentralWidget();
     HelpViewer* viewerForContextMode();
     void createRightPaneContextViewer();
 
@@ -122,18 +120,21 @@ private:
     Core::SideBarItem *m_indexItem;
     Core::SideBarItem *m_searchItem;
     Core::SideBarItem *m_bookmarkItem;
+    Core::SideBarItem *m_openPagesItem;
 
     DocSettingsPage *m_docSettingsPage;
     FilterSettingsPage *m_filterSettingsPage;
     GeneralSettingsPage *m_generalSettingsPage;
 
-    QComboBox *m_documentsCombo;
     QComboBox *m_filterComboBox;
     Core::SideBar *m_sideBar;
 
     bool m_firstModeChange;
     HelpManager *m_helpManager;
+    OpenPagesManager *m_openPagesManager;
     Core::MiniSplitter *m_splitter;
+
+    QToolButton *m_closeButton;
 };
 
 } // namespace Internal

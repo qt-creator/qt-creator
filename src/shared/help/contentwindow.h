@@ -54,7 +54,6 @@ public:
 
 signals:
     void linkActivated(const QUrl &link);
-    void escapePressed();
 
 private slots:
     void showContextMenu(const QPoint &pos);

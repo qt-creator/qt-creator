@@ -51,7 +51,7 @@ bool HelpFindSupport::isEnabled() const
 Find::IFindSupport::FindFlags HelpFindSupport::supportedFindFlags() const
 {
     return Find::IFindSupport::FindBackward | Find::IFindSupport::FindCaseSensitively
-            | Find::IFindSupport::FindWholeWords;
+        | Find::IFindSupport::FindWholeWords;
 }
 
 QString HelpFindSupport::currentFindString() const
@@ -60,11 +60,7 @@ QString HelpFindSupport::currentFindString() const
     HelpViewer *viewer = m_centralWidget->currentHelpViewer();
     if (!viewer)
         return QString();
-#if !defined(QT_NO_WEBKIT)
     return viewer->selectedText();
-#else
-    return viewer->textCursor().selectedText();
-#endif
 }
 
 QString HelpFindSupport::completedFindString() const
@@ -72,95 +68,58 @@ QString HelpFindSupport::completedFindString() const
     return QString();
 }
 
-Find::IFindSupport::Result HelpFindSupport::findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags)
+Find::IFindSupport::Result HelpFindSupport::findIncremental(const QString &txt,
+    Find::IFindSupport::FindFlags findFlags)
 {
     QTC_ASSERT(m_centralWidget, return NotFound);
     findFlags &= ~Find::IFindSupport::FindBackward;
-    return m_centralWidget->find(txt, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags), true)
-            ? Found : NotFound;
+    return m_centralWidget->find(txt, findFlags, true) ? Found : NotFound;
 }
 
-Find::IFindSupport::Result HelpFindSupport::findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags)
+Find::IFindSupport::Result HelpFindSupport::findStep(const QString &txt,
+    Find::IFindSupport::FindFlags findFlags)
 {
     QTC_ASSERT(m_centralWidget, return NotFound);
-    return m_centralWidget->find(txt, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags), false)
-            ? Found : NotFound;
+    return m_centralWidget->find(txt, findFlags, false) ? Found : NotFound;
 }
 
+// -- HelpViewerFindSupport
+
 HelpViewerFindSupport::HelpViewerFindSupport(HelpViewer *viewer)
-        : m_viewer(viewer)
+    : m_viewer(viewer)
 {
 }
 
 Find::IFindSupport::FindFlags HelpViewerFindSupport::supportedFindFlags() const
 {
     return Find::IFindSupport::FindBackward | Find::IFindSupport::FindCaseSensitively
-            | Find::IFindSupport::FindWholeWords;
+        | Find::IFindSupport::FindWholeWords;
 }
 
 QString HelpViewerFindSupport::currentFindString() const
 {
     QTC_ASSERT(m_viewer, return QString());
-#if !defined(QT_NO_WEBKIT)
     return m_viewer->selectedText();
-#else
-    return QString();
-#endif
 }
 
-Find::IFindSupport::Result HelpViewerFindSupport::findIncremental(const QString &txt, Find::IFindSupport::FindFlags findFlags)
+Find::IFindSupport::Result HelpViewerFindSupport::findIncremental(const QString &txt,
+    Find::IFindSupport::FindFlags findFlags)
 {
     QTC_ASSERT(m_viewer, return NotFound);
     findFlags &= ~Find::IFindSupport::FindBackward;
     return find(txt, findFlags, true) ? Found : NotFound;
 }
 
-Find::IFindSupport::Result HelpViewerFindSupport::findStep(const QString &txt, Find::IFindSupport::FindFlags findFlags)
+Find::IFindSupport::Result HelpViewerFindSupport::findStep(const QString &txt,
+    Find::IFindSupport::FindFlags findFlags)
 {
     QTC_ASSERT(m_viewer, return NotFound);
     return find(txt, findFlags, false) ? Found : NotFound;
 }
 
-bool HelpViewerFindSupport::find(const QString &txt, Find::IFindSupport::FindFlags findFlags, bool incremental)
+bool HelpViewerFindSupport::find(const QString &txt,
+    Find::IFindSupport::FindFlags findFlags, bool incremental)
 {
     QTC_ASSERT(m_viewer, return false);
-#if !defined(QT_NO_WEBKIT)
-    Q_UNUSED(incremental)
-    QWebPage::FindFlags options = QWebPage::FindWrapsAroundDocument;
-    if (findFlags & Find::IFindSupport::FindBackward)
-        options |= QWebPage::FindBackward;
-    if (findFlags & Find::IFindSupport::FindCaseSensitively)
-        options |= QWebPage::FindCaseSensitively;
-
-    bool found = m_viewer->findText(txt, options);
-    options = QWebPage::HighlightAllOccurrences;
-    m_viewer->findText(QLatin1String(""), options); // clear first
-    m_viewer->findText(txt, options); // force highlighting of all other matches
-    return found;
-#else
-    QTextCursor cursor = m_viewer->textCursor();
-    QTextDocument *doc = m_viewer->document();
-    QTextBrowser *browser = qobject_cast<QTextBrowser*>(m_viewer);
-
-    if (!browser || !doc || cursor.isNull())
-        return false;
-    if (incremental)
-        cursor.setPosition(cursor.selectionStart());
-
-    QTextCursor found = doc->find(txt, cursor, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
-    if (found.isNull()) {
-        if ((findFlags&Find::IFindSupport::FindBackward) == 0)
-            cursor.movePosition(QTextCursor::Start);
-        else
-            cursor.movePosition(QTextCursor::End);
-        found = doc->find(txt, cursor, Find::IFindSupport::textDocumentFlagsForFindFlags(findFlags));
-        if (found.isNull()) {
-            return false;
-        }
-    }
-    if (!found.isNull()) {
-        m_viewer->setTextCursor(found);
-    }
-    return true;
-#endif
+    return m_viewer->findText(txt, findFlags, incremental, false);
 }

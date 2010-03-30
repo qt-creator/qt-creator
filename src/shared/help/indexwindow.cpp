@@ -28,8 +28,10 @@
 **************************************************************************/
 
 #include "centralwidget.h"
+
 #include "helpmanager.h"
 #include "indexwindow.h"
+#include "openpagesmanager.h"
 #include "topicchooser.h"
 
 #include <QtGui/QLayout>
@@ -42,6 +44,8 @@
 
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpIndexWidget>
+
+using namespace Help::Internal;
 
 IndexWindow::IndexWindow()
     : m_searchLineEdit(0)
@@ -108,9 +112,6 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
             if (idx.isValid())
                 m_indexWidget->setCurrentIndex(idx);
             break;
-        case Qt::Key_Escape:
-            emit escapePressed();
-            break;
         default: ; // stop complaining
         }
     } else if (obj == m_searchLineEdit
@@ -124,7 +125,7 @@ bool IndexWindow::eventFilter(QObject *obj, QEvent *e)
         if (idx.isValid()) {
             QMenu menu;
             QAction *curTab = menu.addAction(tr("Open Link"));
-            QAction *newTab = menu.addAction(tr("Open Link in New Tab"));
+            QAction *newTab = menu.addAction(tr("Open Link as New Page"));
             menu.move(m_indexWidget->mapToGlobal(ctxtEvent->pos()));
 
             QAction *action = menu.exec();
@@ -194,6 +195,6 @@ void IndexWindow::open(QHelpIndexWidget* indexWidget, const QModelIndex &index)
         if (url.path().endsWith(QLatin1String(".pdf"), Qt::CaseInsensitive))
             Help::Internal::CentralWidget::instance()->setSource(url);
         else
-            Help::Internal::CentralWidget::instance()->setSourceInNewTab(url);
+            OpenPagesManager::instance().createPage(url);
     }
 }

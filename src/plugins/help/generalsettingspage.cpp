@@ -41,25 +41,23 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextStream>
 
-#if defined(QT_NO_WEBKIT)
 #include <QtGui/QApplication>
-#else
-#include <QtWebKit/QWebSettings>
-#endif
 #include <QtGui/QFileDialog>
 
 #include <QtHelp/QHelpEngineCore>
+
+#if !defined(QT_NO_WEBKIT)
+#include <QtWebKit/QWebSettings>
+#endif
 
 using namespace Help::Internal;
 
 GeneralSettingsPage::GeneralSettingsPage()
 {
+    m_font = qApp->font();
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
-    m_font.setFamily(webSettings->fontFamily(QWebSettings::StandardFont));
     m_font.setPointSize(webSettings->fontSize(QWebSettings::DefaultFontSize));
-#else
-    m_font = qApp->font();
 #endif
 }
 
@@ -168,13 +166,8 @@ void GeneralSettingsPage::apply()
     QHelpEngineCore *engine = &HelpManager::helpEngineCore();
     engine->setCustomValue(QLatin1String("font"), newFont);
 
-#if !defined(QT_NO_WEBKIT)
-    QWebSettings* webSettings = QWebSettings::globalSettings();
-    webSettings->setFontFamily(QWebSettings::StandardFont, m_font.family());
-    webSettings->setFontSize(QWebSettings::DefaultFontSize, m_font.pointSize());
-#else
-    emit fontChanged();
-#endif
+    if (newFont != m_font)
+        emit fontChanged();
 
     QString homePage = m_ui.homePageLineEdit->text();
     if (homePage.isEmpty())

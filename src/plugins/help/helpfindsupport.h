@@ -34,11 +34,10 @@
 
 #include <find/ifindsupport.h>
 
-
-class HelpViewer;
-
 namespace Help {
 namespace Internal {
+
+class HelpViewer;
 
 class HelpFindSupport : public Find::IFindSupport
 {
