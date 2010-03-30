@@ -576,7 +576,7 @@
 
     Use the toolbar to navigate between open files and symbols in use:
     \list
-        \o To browse forwards or backwards through your location history, click
+        \o To browse forward or backward through your location history, click
            \inlineimage qtcreator-back.png
            and \inlineimage qtcreator-forward.png
            .
@@ -737,23 +737,14 @@
 
     \section1 Using Bookmarks
 
-    To insert or delete a bookmark in the editor file, place your cursor on
-    the specific line and select \gui{Tools} > \gui{Bookmarks} >
+    To insert or delete a bookmark right-click the line number and select
     \gui{Toggle Bookmark} or press \key{Ctrl+M}.
-
-    You can also right-click on the number line and select
-    \gui{Toggle Bookmark} to insert or delete a bookmark. This is shown in the
-    figure below:
 
     \image qtcreator-togglebookmark.png
 
-    To navigate to the previous bookmark within a session, select
-    \gui{Tools} > \gui{Bookmarks} > \gui{Previous Bookmark} or press
-    \key{Ctrl+,}.
+    To go to previous bookmark in the current session, press \key{Ctrl+,}.
 
-    To navigate to the next bookmark within a session, select
-    \gui{Tools} > \gui{Bookmarks} > \gui{Next Bookmark} or press
-    \key{Ctrl+.}.
+    To go to next bookmark in the current session, press \key{Ctrl+.}.
 
 
     \section1 Moving to Symbol Definition or Declaration
@@ -770,9 +761,8 @@
     To refresh the internal information in Qt Creator pertaining to your code,
     select \gui{Tools} > \gui{C++} > \gui{Update code model}.
 
-    \note In Qt Creator the code is updated automatically, as indexing takes
-    care of this, but incase this is not updated, use \gui{Update code model}
-    as an emergency command.
+    \note In Qt Creator indexing updates the code automatically. Use
+    \gui{Update code model} only as an emergency command.
 
 
     \section1 Using FakeVim Mode
@@ -2393,8 +2383,8 @@
     \section1 Interaction with the Debugger
 
     In \gui Debug mode, several dock widgets are used to interact with the
-    program you are debugging. Frequently-used dock widgets are visible by
-    default and rarely-used ones are hidden. To change the default settings,
+    program you are debugging. Frequently used dock widgets are visible by
+    default and rarely used ones are hidden. To change the default settings,
     select \gui Debug > \gui View, and then select an option to
     lock or unlock the location of the dock widgets or display
     or hide them. The position of your dock widgets is saved for future
@@ -2413,9 +2403,9 @@
     features (like QtWebKit) are used.
 
     Once the program starts running, it behaves and performs as usual.
-    The user can interrupt a running program by selecting
-    \gui {Interrupt} from the \gui{Debug} menu. The program is automatically
-    interrupted as soon as a breakpoint is hit.
+    You can interrupt a running program by selecting \gui{Debug} >
+    \gui {Interrupt}. The program is automatically interrupted as soon as a
+    breakpoint is hit.
 
     Once the program stops, Qt Creator:
 
@@ -2443,8 +2433,8 @@
 
     A breakpoint represents a position or sets of positions in the code that,
     when executed, interrupts the program being debugged and passes the control
-    to the user. The user is then free to examine the state of the interrupted
-    program, or continue execution either line-by-line or continuously
+    to you. You can then examine the state of the interrupted program, or
+    continue execution either line-by-line or continuously.
 
     Qt Creator shows breakpoints in the \gui{Breakpoints} view which is enabled
     by default. The \gui{Breakpoints} view is also accessible when the debugger
@@ -2456,28 +2446,28 @@
     The interruption of a program by a breakpoint can be restricted with
     certain conditions.
 
-    You can set a breakpoint:
+    To set a breakpoint:
 
     \list
-       \o At a particular line you want the program to stop -- click on the
+       \o At a particular line you want the program to stop, click the
           left margin or press \key F9 (\key F8 for Mac OS X).
-       \o At a function that you want the program to interrupt -- enter the
+       \o At a function that you want the program to interrupt, enter the
           function's name in \gui{Set Breakpoint at Function...} located in the
           context menu of the breakpoints view.
     \endlist
 
     \note You can remove a breakpoint:
     \list
-        \o By clicking on the breakpoint marker in the text editor.
+        \o By clicking the breakpoint marker in the text editor.
         \o By selecting the breakpoint in the breakpoint view and pressing
            \key{Delete}.
         \o By selecting \gui{Delete Breakpoint} from the breakpoint's context
            menu in the \gui Breakpoints view.
     \endlist
 
-    Breakpoints can be set and deleted before the program has actually started
-    running or while it is running under the debugger's control. Also,
-    breakpoints are saved together with a session.
+    You can set and delete breakpoints before the program starts running or
+    while it is running under the debugger's control. Breakpoints are saved
+    together with a session.
 
 
     \section2 Stack
@@ -2496,7 +2486,7 @@
     frames have corresponding source locations. Stack frames without
     corresponding source locations are grayed out in the \gui{Stack} view.
 
-    If you click on a frame with a known source location, the text editor
+    If you click a frame with a known source location, the text editor
     jumps to the corresponding location and updates the \gui{Locals and Watchers}
     view, making it seem like the program was interrupted before entering the
     function.
@@ -2504,7 +2494,7 @@
 
     \section2 Threads
 
-    If a multi-threaded program is interrupted, the \gui Thread view  or the
+    If a multi-threaded program is interrupted, the \gui Thread view or the
     combobox named \gui Thread in the debugger's status bar can be used to
     switch from one thread to another. The \gui Stack view adjusts itself
     accordingly.
@@ -2536,8 +2526,8 @@
     frame as well as the local variables.
 
     Compound variables of struct or class type are displayed as
-    "expandable" in the view. Click on the "+" to expand the entry and show
-    all members. Together with the display of value and type, the user can
+    "expandable" in the view. Click the "+" to expand the entry and show
+    all members. Together with the display of value and type, you can
     examine and traverse the low-level layout of an object's data.
 
 
@@ -2568,12 +2558,14 @@
 
     To enable Qt's basic objects data display feature:
     \list
-       \o  Check \gui{Use debugging helper} checkbox from \gui Tools >
-           \gui {Options...} > \gui Debugger > \gui{Debugging Helper}.
-       \o  The \gui{Locals and Watchers} view is re-organized to provide a
+       \o  Select \gui Tools > \gui {Options...} > \gui Debugger >
+           \gui{Debugging Helper} and check the \gui{Use debugging helper}
+           checkbox.
+       \o  The \gui{Locals and Watchers} view is reorganized to provide a
            high-level view of the objects.
     \endlist
-    See example, in case of QObject, instead of displaying a pointer to some
+
+    For example, in case of QObject, instead of displaying a pointer to some
     private data structure, you see a list of children, signals and slots.
 
     Similarly, instead of displaying many pointers and integers, Qt Creator's
@@ -2581,10 +2573,10 @@
     Also, the debugger displays access data for QFileInfo and provides
     access to the "real" contents of QVariant.
 
-    The \gui{Locals and Watchers} view can be used to change the contents of
+    You can use the \gui{Locals and Watchers} view to change the contents of
     variables of simple data types, for example, \c int or \c float when the
-    program is interrupted. To do so, click on the \gui Value column, modify
-    the value with the inplace editor, and hit \key Enter (or \key Return).
+    program is interrupted. To do so, click the \gui Value column, modify
+    the value with the inplace editor, and press \key Enter (or \key Return).
 
     \note The set of watched items is saved in your session.
 
@@ -2613,9 +2605,8 @@
             \i \inlineimage qtcreator-setting-breakpoint2.png
             \i \bold{Viewing and removing breakpoints}
 
-    Breakpoints are visible in the \gui{Breakpoints} view in
-    \gui{Debug} mode. To remove a breakpoint, right-click on
-    it and select \gui{Delete breakpoint} from the context menu.
+    Breakpoints are visible in the \gui{Breakpoints} view in \gui{Debug} mode.
+    To remove a breakpoint, right-click it and select \gui{Delete breakpoint}.
 
         \row
             \i \inlineimage qtcreator-watcher.png
@@ -2671,13 +2662,13 @@
     \section1 Setting the Symbol Server in Windows
 
     To obtain debugging information for the operating system libraries for
-    debugging Windows applications, the Symbol Server provided
-    by Microsoft has to be added to the symbol search path of the debugger:
+    debugging Windows applications, add the Symbol Server provided
+    by Microsoft to the symbol search path of the debugger:
     \list 1
-        \o  Select \gui Tools > \gui{Options...} > \gui Debugger > \gui Cdb
+        \o  Select \gui Tools > \gui{Options...} > \gui Debugger > \gui Cdb.
         \o  Click \inlineimage qtcreator-serverbutton.png
             located next to the \gui{Insert...} button of the Symbol paths
-            field and select \gui{Symbol Server...}
+            field and select \gui{Symbol Server...}.
         \o  Select a directory where you want to store the cached information
             and click \gui OK.
     \endlist
@@ -2688,7 +2679,7 @@
     While debugging, Qt Creator dynamically loads a helper library into your
     program. This helper library enables Qt Creator to pretty print Qt and STL
     types. The Qt SDK package already contains a prebuilt debugging helper
-    library. To create an own debugging helper library, select \gui{Tools} >
+    library. To create your own debugging helper library, select \gui{Tools} >
     \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}. As the internal data
     structures of Qt can change between versions, the debugging helper
     library is built for each Qt version.
@@ -2697,8 +2688,8 @@
     \section1 Debugging Helper Library with Python
 
     Using a gdb version that has Python scripting available it is possible to
-    use Debugging Helpers also for user defined types. All that is needed is
-    to define one Python function per user defined type in \c{.gdbinit}.
+    use Debugging Helpers also for user defined types. To do so you need to
+    define one Python function per user defined type in \c{.gdbinit}.
 
     The function's name has to be qdump__NS__Foo where NS::Foo is the class
     or class template to be examined. Nested namespaces are possible.
@@ -2740,7 +2731,7 @@
             d.endChildren()
     \endcode
 
-    \section2
+    \section2 'Item' Python Class
 
     The 'Item' Python class is a thin wrapper around values corresponding to one
     line in the \gui{Locals and Watchers} view. The 'Item' members are as follows :
@@ -2766,7 +2757,7 @@
     \endlist
 
 
-    \section2
+    \section2 'Dumper' Python Class
 
     For each line in the \gui{Locals and Watchers} view, a string like the
     following needs to be created and channeled to Creator's debugger plugin.
@@ -3086,7 +3077,7 @@
         \o Select \gui File > \gui{New File or Project...} >
            \gui{Other Project} > \gui{Import Existing Project}.
         \o In \gui{Import Existing Project}, enter the project name
-           and select the location for the project file you want to import.
+           and select the location of the project file you want to import.
 
            Qt Creator automatically generates the following files in the
            project directory:
@@ -3098,7 +3089,7 @@
            \endlist
     \endlist
 
-    When the project is successfully imported, Qt Creator creates its project
+    When the project is successfully imported, Qt Creator creates the project
     tree in the sidebar.
 
     After importing a generic project into Qt Creator, open it by selecting the
@@ -3160,7 +3151,7 @@
     \list 1
         \o Click \gui Add and select \gui{Custom Executable}.
         \o Define the configuration name, the location of the executable, any
-           additional arguments you want to and the working directory.
+           additional arguments and the working directory.
     \endlist
 
 */
@@ -3176,33 +3167,29 @@
 
     \omit Use \QD or \QMLD to design and implement application UI. \endomit
 
-    Qt Creator provides support for development of various applications on your
-    mobile device. Qt Creator allows you to build and run various types of
-    mobile applications once you have specified the build and run settings in
-    Qt Creator.
+    Qt Creator provides support for development of various mobile device
+    applications. Once you specify the build and run settings in Qt Creator,
+    you can build and run various types of mobile applications.
 
-    The applications developed on Qt Creator are then deployed on your mobile
-    device.
-
-    The following are the development environment's that can be set up on Qt
-    Creator to develop applications for your mobile device:
+    To develop applications for mobile devices using Qt Creator, you can use
+    the following development environments:
     \list
-       \o \bold{Maemo}: You require the MADDE development tool for development
-          of Maemo applications. For more information, see
+       \o To develop \bold{Maemo} applications, you need to set up the
+          MADDE development tool. For more information, see
           \l{Developing Maemo Applications}.
-       \o \bold{Symbian}: You require to have the S60 platform SDK and the Qt
-          for Symbian in place for development of Symbian applications. For
-          more information, see \l{Developing Symbian Applications}.
+       \o To develop \bold{Symbian} applications, you need to set up the S60
+          platform SDK and the Qt for Symbian. For more information, see
+          \l{Developing Symbian Applications}.
     \endlist
 
-    You need to have certain guidelines in place before you begin developing
-    applications for mobile devices. For more information, see
-    \l{Developing Usable Applications}.
+    Once your application is ready you can deploy it on a mobile device.
+    If you do not have a mobile device connected to your computer, you can
+    run Maemo applications in the \gui{Local Simulator}, and Symbian
+    applications in the \gui{Symbian Emulator}.
 
-    \note If you do not have a mobile device connected to your system.
-    You can run the applications developed on Qt Creator on a
-    \gui{Local Simulator} for Maemo based applications and a
-    \gui{Symbian Emulator} for Symbian based applications.
+    Developing applications for mobile devices is different from developing
+    desktop applications. For more information, see
+    \l{Developing Usable Applications}.
 
 */
 
@@ -3360,7 +3347,7 @@
 
     To add interaction methods, drag and drop a \gui {Focus Scope} or \gui {Mouse Area}
     to the screen. In the code editor, add signal handlers to execute when users select
-    the scope or area. Signal handlers allow actions to be taken in reponse to an event.
+    the scope or area. Signal handlers allow actions to be taken in response to an event.
     For instance, the \gui {MouseArea} element has signal handlers to handle mouse press,
     release, and click.
 
@@ -3642,7 +3629,7 @@
 
     \section1 Getting Started with Symbian Based Applications
 
-    Windows is the only development plattform supported at the moment. You
+    Windows is the only development platform supported at the moment. You
     need to install the following software on your system:
 
     \list
@@ -3716,7 +3703,7 @@
 
            \note Targets for instance can be \gui{Desktop},
            \gui{Symbian Emulator}, and \gui{Symbian Device}.
-        \o Ensure that your project has a \gui{Symbian Device} entry. Incase
+        \o Ensure that your project has a \gui{Symbian Device} entry. In case
            you want to target the symbian emulator then your project needs to
            have \gui{Symbian Emulator} entry as well.
         \o If one of the targets is missing in the list for your project, you
@@ -3785,7 +3772,7 @@
 
     The icon in the target selector indicates if a device is currently
     connected. When Qt Creator detects a device being connected, it shows a
-    green checkmark.
+    green check mark.
 
     \image qtcreator-qt4-symbian-device-connected.png
 
@@ -3800,7 +3787,7 @@
     To run your project on a device, you first need to connect it to your
     computer through a USB cable. Qt Creator shows the current connection state
     of a device in its main toolbar, showing a red cross when no device is
-    connected, or a green checkmark when a device is connected.
+    connected, or a green check mark when a device is connected.
 
     \image qtcreator-qt4-symbian-device-notconnected.png
     \image qtcreator-qt4-symbian-device-connected.png
