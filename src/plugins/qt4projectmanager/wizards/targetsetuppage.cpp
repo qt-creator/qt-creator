@@ -245,8 +245,11 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
         if (!targetInfos.isEmpty())
             target = project->targetFactory()->create(project, targetId, targetInfos);
 
-        if (target)
+        if (target) {
             project->addTarget(target);
+            if (target->id() == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+                project->setActiveTarget(target);
+        }
     }
 
     // Create the default target if nothing else was set up:
