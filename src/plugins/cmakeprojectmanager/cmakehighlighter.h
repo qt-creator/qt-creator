@@ -37,6 +37,9 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
+/* This is a simple syntax highlighter for CMake files.
+ * It highlights variables, commands, strings and comments.
+ * Multi-line strings and variables inside strings are also recognized. */
 class CMakeHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
