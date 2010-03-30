@@ -301,6 +301,14 @@ void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
         return;
 
     m_qtVersionId = version->uniqueId();
+    if (!version->possibleToolChainTypes().contains(ProjectExplorer::ToolChain::ToolChainType(m_toolChainType))) {
+        QList<ToolChain::ToolChainType> candidates =
+                qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes());
+        if (candidates.isEmpty())
+            m_toolChainType = -1;
+        else
+            m_toolChainType = candidates.first();
+    }
 
     emit proFileEvaluateNeeded(this);
     emit qtVersionChanged();
