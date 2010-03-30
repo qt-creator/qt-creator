@@ -76,6 +76,10 @@ public:
      */
     QString executable() const;
 
+    /** Returns whether this runconfiguration ever was configured with a executable
+     */
+    bool isConfigured() const;
+
     /**
      * Returns only what is stored in the internal variable, not what we might
      * get after extending it with a path or asking the user. This value is

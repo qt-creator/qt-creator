@@ -999,6 +999,18 @@ void Qt4Project::checkForNewApplicationProjects()
             if (!found) {
                 qt4Target->addRunConfigurationForPath(qt4proFile->path());
             }
+
+            // Remove unused CustomExecutableRCs:
+            if (target->runConfigurations().count() > 1) {
+                QList<RunConfiguration*> toRemove;
+                foreach (RunConfiguration * rc, target->runConfigurations()) {
+                    CustomExecutableRunConfiguration *cerc = qobject_cast<CustomExecutableRunConfiguration *>(rc);
+                    if (cerc && !cerc->isConfigured())
+                        toRemove.append(rc);
+                }
+                foreach (RunConfiguration *rc, toRemove)
+                    target->removeRunConfiguration(rc);
+            }
         }
     }
 }

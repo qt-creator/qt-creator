@@ -371,6 +371,10 @@ QString CustomExecutableRunConfiguration::executable() const
     return exec;
 }
 
+bool CustomExecutableRunConfiguration::isConfigured() const
+{
+    return !m_executable.isEmpty();
+}
 
 LocalApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runMode() const
 {
