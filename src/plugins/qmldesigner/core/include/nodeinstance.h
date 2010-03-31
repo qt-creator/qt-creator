@@ -135,7 +135,7 @@ public:
 
     static void registerDeclarativeTypes();
 
-#ifdef QT_BUILD_INTERNAL
+#ifdef QTCREATOR_TEST
     QObject* testHandle() const;
 #endif
 private: // functions

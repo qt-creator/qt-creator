@@ -622,7 +622,7 @@ void NodeInstance::registerDeclarativeTypes()
     qmlRegisterType<QmlDesigner::Internal::QmlPropertyChangesObject>();
 }
 
-#ifdef QT_BUILD_INTERNAL
+#ifdef QTCREATOR_TEST
 QObject* NodeInstance::testHandle() const
 {
     return internalObject();

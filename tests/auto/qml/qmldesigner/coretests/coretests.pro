@@ -8,7 +8,7 @@ include(../../../../../src/libs/qmljs/qmljs-lib.pri)
 HEADERS+=../../../../../src/libs/utils/changeset.h
 SOURCES+=../../../../../src/libs/utils/changeset.cpp
 INCLUDEPATH+=../../../../../src/libs
-DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
+DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB QTCREATOR_TEST
 
 DEPENDPATH += ..
 DEPENDPATH += ../../../../../src/plugins/qmldesigner/core/include
