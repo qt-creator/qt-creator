@@ -510,7 +510,7 @@ void StatesEditorView::clearModelStates()
 
     // Remove all states
     const int modelStateCount = m_modelStates.size();
-    for (int i = 0; i < modelStateCount; ++i) {
+    for (int i=modelStateCount-1; i>=0; --i) {
         m_modelStates.removeAt(i);
         m_editorModel->removeState(i);
     }
