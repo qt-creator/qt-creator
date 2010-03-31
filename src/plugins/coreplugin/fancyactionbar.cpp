@@ -258,7 +258,7 @@ FancyActionBar::FancyActionBar(QWidget *parent)
     m_actionsLayout = new QVBoxLayout;
     QVBoxLayout *spacerLayout = new QVBoxLayout;
     spacerLayout->addLayout(m_actionsLayout);
-    int sbh = ICore::instance()->statusBar()->height();
+    int sbh = 8;
     spacerLayout->addSpacing(sbh);
     spacerLayout->setMargin(0);
     spacerLayout->setSpacing(0);
@@ -286,3 +286,9 @@ QLayout *FancyActionBar::actionsLayout() const
 {
     return m_actionsLayout;
 }
+
+QSize FancyActionBar::minimumSizeHint() const
+{
+    return sizeHint();
+}
+

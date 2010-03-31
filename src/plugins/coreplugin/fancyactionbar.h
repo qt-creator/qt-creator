@@ -79,6 +79,7 @@ public:
     void insertAction(int index, QAction *action);
     void addProjectSelector(QAction *action);
     QLayout *actionsLayout() const;
+    QSize minimumSizeHint() const;
 
 private:
     QVBoxLayout *m_actionsLayout;
