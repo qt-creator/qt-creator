@@ -15,16 +15,23 @@ LRELEASE = $$targetPath($$[QT_INSTALL_BINS]/lrelease)
 TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
 MIME_TR_H = $$IDE_DATA_PATH/translations/mime_tr.h
+CUSTOMWIZARD_TR_H = $$IDE_DATA_PATH/translations/customwizard_tr.h
 
 contains(QT_VERSION, ^4\.[0-6]\..*) {
     ts.commands = @echo This Qt version is too old for the ts target. Need Qt 4.7+.
 } else {
     for(dir, $$list($$files($$IDE_SOURCE_TREE/src/plugins/*))):MIMETYPES_FILES += $$files($$dir/*.mimetypes.xml)
     MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, \", \")\"
+
+    for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/wizards/*))):CUSTOMWIZARD_FILES += $$files($$dir/wizard.xml)
+    CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, \", \")\"
+
     QMAKE_SUBSTITUTES += extract-mimetypes.xq.in
+    QMAKE_SUBSTITUTES += extract-customwizards.xq.in
     ts.commands += \
         $$XMLPATTERNS -output $$MIME_TR_H $$PWD/extract-mimetypes.xq && \
-        (cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H -ts $$TRANSLATIONS) && \
+        $$XMLPATTERNS -output $$CUSTOMWIZARD_TR_H $$PWD/extract-customwizards.xq && \
+        (cd $$IDE_SOURCE_TREE && $$LUPDATE src share/qtcreator/qmldesigner $$MIME_TR_H $$CUSTOMWIZARD_TR_H -ts $$TRANSLATIONS) && \
         $$QMAKE_DEL_FILE $$MIME_TR_H
 }
 QMAKE_EXTRA_TARGETS += ts
