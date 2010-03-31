@@ -8,7 +8,7 @@
     </itemlibraryrepresentation>
   </node>
   <node name="Qt/Rectangle" showInItemLibrary="true" category="Qt - Basic" isContainer="true" icon=":/fxplugin/images/rect-icon.png">
-    <itemlibraryrepresentation name="Rectangle" icon=":/fxplugin/images/rectangle-icon.png">
+    <itemlibraryrepresentation name="Rectangle" icon=":/fxplugin/images/rect-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
       <property name="color" type="QColor" value="#ffffff"/>
@@ -32,10 +32,10 @@
       <property name="text" type="QString" value="textEdit"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/TextInput" showInItemLibrary="true" category="Qt - Basic" isContainer="false" icon=":/fxplugin/images/text-edit-icon.png">
+  <node name="Qt/TextInput" showInItemLibrary="true" category="Qt - Basic" isContainer="false" icon=":/fxplugin/images/text-input-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="80"/>
     <propertyDefaultValue name="height" type="int" defaultValue="20"/>
-    <itemlibraryrepresentation name="Text Input" icon=":/fxplugin/images/text-edit-icon.png">
+    <itemlibraryrepresentation name="Text Input" icon=":/fxplugin/images/text-input-icon.png">
       <property name="width" type="int" value="80"/>
       <property name="height" type="int" value="20"/>
       <property name="text" type="QString" value="textInput"/>
@@ -57,10 +57,10 @@
       <property name="source" type="QUrl" value="qrc:/fxplugin/images/template_image.png"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/BorderImage" showInItemLibrary="true" category="Qt - Basic" icon=":/fxplugin/images/image-icon.png">
+  <node name="Qt/BorderImage" showInItemLibrary="true" category="Qt - Basic" icon=":/fxplugin/images/border-image-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="200"/>
     <propertyDefaultValue name="height" type="int" defaultValue="200"/>
-    <itemlibraryrepresentation name="Border Image" icon=":/fxplugin/images/image-icon.png">
+    <itemlibraryrepresentation name="Border Image" icon=":/fxplugin/images/border-image-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
       <property name="source" type="QUrl" value="qrc:/fxplugin/images/template_image.png"/>
@@ -89,15 +89,15 @@
     </itemlibraryrepresentation>
   </node>
 
-  <node name="Qt/ListView" showInItemLibrary="true" category="Qt - Views" icon=":/fxplugin/images/list-icon.png">
-    <itemlibraryrepresentation name="List View" icon=":/fxplugin/images/list-icon.png">
+  <node name="Qt/ListView" showInItemLibrary="true" category="Qt - Views" icon=":/fxplugin/images/listview-icon.png">
+    <itemlibraryrepresentation name="List View" icon=":/fxplugin/images/listview-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryrepresentation>
   </node>
 
-  <node name="Qt/PathView" showInItemLibrary="true" category="Qt - Views" icon=":/fxplugin/images/list-icon.png">
-    <itemlibraryrepresentation name="Path View" icon=":/fxplugin/images/list-icon.png">
+  <node name="Qt/PathView" showInItemLibrary="true" category="Qt - Views" icon=":/fxplugin/images/pathview-icon.png">
+    <itemlibraryrepresentation name="Path View" icon=":/fxplugin/images/pathview-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryrepresentation>

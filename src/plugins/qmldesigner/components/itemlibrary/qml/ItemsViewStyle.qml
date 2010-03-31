@@ -42,8 +42,8 @@ Item {
 
     property string itemNameTextColor: "#FFFFFF"
 
-    property string gridLineLighter: "#808080"
-    property string gridLineDarker: "#606060"
+    property string gridLineLighter: "#5f5f5f"
+    property string gridLineDarker: "#3f3f3f"
 
     property string sectionArrowColor: "#aeaeae"
     property string sectionTitleTextColor: "#f0f0f0"

@@ -112,8 +112,8 @@ ItemLibraryPrivate::ItemLibraryPrivate(QObject *object) :
     m_lineEdit(0),
     m_itemsView(0),
     m_resourcesView(0),
-    m_itemIconSize(22, 22),
-    m_resIconSize(22, 22),
+    m_itemIconSize(24, 24),
+    m_resIconSize(24, 24),
     m_iconProvider(m_resIconSize)
 {
     Q_UNUSED(object);

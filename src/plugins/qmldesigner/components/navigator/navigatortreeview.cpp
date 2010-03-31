@@ -126,7 +126,7 @@ QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 {
     Q_UNUSED(option);
     Q_UNUSED(index);
-    return QSize(15,26);
+    return QSize(15,28);
 }
 
 void IconCheckboxItemDelegate::paint(QPainter *painter,
@@ -181,19 +181,21 @@ void IdItemDelegate::paint(QPainter *painter,
         if (icon.isNull()) icon = QIcon(":/ItemLibrary/images/default-icon.png");
     }
 
-    QPixmap pixmap = icon.pixmap(22,22);
-    painter->drawPixmap(option.rect.x(),option.rect.y()+2,pixmap);
+    // If no icon is present, leave an empty space of 24 pixels anyway
+    int pixmapSide = 24;
+    QPixmap pixmap = icon.pixmap(pixmapSide, pixmapSide);
+    painter->drawPixmap(option.rect.x()+1,option.rect.y()+2,pixmap);
 
     QString myString = node.id();
     if (myString.isEmpty())
         myString = node.simplifiedTypeName();
 
     // Check text length does not exceed available space
-    int extraSpace=12+pixmap.width();
+    int extraSpace=12+pixmapSide;
     QFontMetrics fm(option.font);
     myString = fm.elidedText(myString,Qt::ElideMiddle,option.rect.width()-extraSpace);
 
-    painter->drawText(option.rect.bottomLeft()+QPoint(3+pixmap.width(),-8),myString);
+    painter->drawText(option.rect.bottomLeft()+QPoint(5+pixmapSide,-9),myString);
 
     painter->restore();
 }
