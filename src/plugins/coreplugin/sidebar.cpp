@@ -29,7 +29,6 @@
 
 #include "sidebar.h"
 #include "imode.h"
-#include "modemanager.h"
 
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"

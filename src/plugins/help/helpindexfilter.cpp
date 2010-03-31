@@ -32,7 +32,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
 
 #include <QtGui/QIcon>
 

@@ -31,14 +31,7 @@
 #include "formwindoweditor.h"
 #include "designerconstants.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/imode.h>
-#include <coreplugin/coreconstants.h>
-
 #include <QtDesigner/QDesignerFormWindowInterface>
-
 #include <QtCore/QDebug>
 
 namespace Designer {

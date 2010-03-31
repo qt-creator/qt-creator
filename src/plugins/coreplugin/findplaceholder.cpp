@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "findplaceholder.h"
-#include "modemanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 

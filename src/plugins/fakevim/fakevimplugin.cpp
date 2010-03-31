@@ -45,7 +45,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/actionmanager/commandmappings.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>

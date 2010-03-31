@@ -41,7 +41,6 @@
 #include <projectexplorer/cesdkhandler.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <help/helpmanager.h>
 #include <utils/qtcassert.h>

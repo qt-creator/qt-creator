@@ -34,7 +34,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/modemanager.h>
 #include <coreplugin/mainwindow.h>
 
 #include <QtGui/QHBoxLayout>

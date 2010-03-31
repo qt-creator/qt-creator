@@ -41,7 +41,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/modemanager.h>
 
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>

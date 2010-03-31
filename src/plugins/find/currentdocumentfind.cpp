@@ -31,7 +31,6 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>

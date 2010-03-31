@@ -37,8 +37,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <texteditor/basetextdocument.h>

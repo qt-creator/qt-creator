@@ -42,7 +42,6 @@
 #include <widgethost.h>
 
 #include <coreplugin/editortoolbar.h>
-#include <coreplugin/modemanager.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

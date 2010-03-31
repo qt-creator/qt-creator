@@ -40,7 +40,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/modemanager.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <extensionsystem/pluginmanager.h>
