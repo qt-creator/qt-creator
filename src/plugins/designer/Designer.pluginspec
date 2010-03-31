@@ -1,4 +1,4 @@
-<plugin name="Designer" version="1.3.82" compatVersion="1.3.82">
+<plugin name="Designer" version="1.3.84" compatVersion="1.3.84">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,8 +14,8 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Qt Designer integration.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.3.82"/>
+        <dependency name="Core" version="1.3.84"/>
 <!-- For compiling with CPP support enabled -->
-        <dependency name="CppEditor" version="1.3.82"/>
+        <dependency name="CppEditor" version="1.3.84"/>
     </dependencyList>
 </plugin>
