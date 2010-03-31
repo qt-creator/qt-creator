@@ -138,8 +138,8 @@ void QmlJSEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
 {
     if (qobject_cast<QmlJSEditorEditable *>(editor)) {
         Core::EditorManager::instance()->showEditorInfoBar(QMLDESIGNER_INFO_BAR,
-            tr("Do you want to enable the experimental Quick Designer?"),
-            tr("Enable Quick Designer"), this, SLOT(activateQmlDesigner()));
+            tr("Do you want to enable the experimental Qt Quick Designer?"),
+            tr("Enable Qt Quick Designer"), this, SLOT(activateQmlDesigner()));
     } else {
         Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
     }
@@ -154,13 +154,13 @@ void QmlJSEditorFactory::activateQmlDesigner()
     menu = tr("Help -> About Plugins...");
 #endif
     QMessageBox message(Core::ICore::instance()->mainWindow());
-    message.setWindowTitle(tr("Enable experimental Quick Designer?"));
-    message.setText(tr("Do you want to enable the experimental Quick Designer? "
+    message.setWindowTitle(tr("Enable experimental Qt Quick Designer?"));
+    message.setText(tr("Do you want to enable the experimental Qt Quick Designer? "
                        "After enabling it, you can access the visual design capabilities by switching to Design Mode. "
                        "This can affect the overall stability of Qt Creator. "
-                       "To disable Quick Designer again, visit the menu '%1' and disable 'QmlDesigner'.").arg(menu));
+                       "To disable Qt Quick Designer again, visit the menu '%1' and disable 'QmlDesigner'.").arg(menu));
     message.setIcon(QMessageBox::Question);
-    QPushButton *enable = message.addButton(tr("Enable Quick Designer"), QMessageBox::AcceptRole);
+    QPushButton *enable = message.addButton(tr("Enable Qt Quick Designer"), QMessageBox::AcceptRole);
     QPushButton *dontNag = message.addButton(tr("Never ask me again"), QMessageBox::ActionRole);
     message.addButton(tr("Cancel"), QMessageBox::RejectRole);
     message.exec();
