@@ -62,10 +62,10 @@ void processObject(QObject *object, QSet<const QMetaObject *> *metas)
         QMetaProperty prop = meta->property(index);
         if (QDeclarativeMetaType::isQObject(prop.userType())) {
             QObject *oo = QDeclarativeMetaType::toQObject(prop.read(object));
-            processObject(oo, metas);
+            if (oo && !metas->contains(oo->metaObject()))
+                processObject(oo, metas);
         }
     }
-
 }
 
 void processDeclarativeType(const QDeclarativeType *ty, QSet<const QMetaObject *> *metas)
@@ -185,6 +185,14 @@ void dump(const QMetaObject *meta, QXmlStreamWriter *xml)
 
     if (const QDeclarativeType *qmlTy = qmlTypeByCppName.value(meta->className())) {
         attributes.append(QXmlStreamAttribute("version", QString("%1.%2").arg(qmlTy->majorVersion()).arg(qmlTy->minorVersion())));
+    }
+
+    for (int index = meta->classInfoCount() - 1 ; index >= 0 ; --index) {
+        QMetaClassInfo classInfo = meta->classInfo(index);
+        if (QLatin1String(classInfo.name()) == QLatin1String("DefaultProperty")) {
+            attributes.append(QXmlStreamAttribute("defaultProperty", QLatin1String(classInfo.value())));
+            break;
+        }
     }
 
     QString version;
