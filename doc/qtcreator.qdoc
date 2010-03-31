@@ -767,7 +767,7 @@
 
     \section1 Pasting and Fetching Code Snippets
 
-    In Qt Creator, you can paste snippets of code onto the server or fetch
+    In Qt Creator, you can paste snippets of code to a server or fetch
     snippets of code from the server. To paste and fetch snippets of code,
     Qt Creator uses the following:
     \list
@@ -776,7 +776,7 @@
         \o \gui{Pastebin.Ca}
     \endlist
 
-    You can configure the server from \gui{Tools} > \gui{Options...} >
+    To configure the server, select \gui{Tools} > \gui{Options...} >
     \gui{Code Pasting}.
 
     To paste a snippet of code onto the server, select \gui{Tools} >
@@ -785,10 +785,18 @@
     To fetch a snippet of code from the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Fetch Snippet...} or press \key{Alt+C,Alt+F}.
 
-    \note For using \gui{Pastebin.Com}, you need to configure the domain
+    \note To use \gui{Pastebin.Com}, configure the domain
     prefix in \gui{Tools} > \gui{Options...} > \gui{Code Pasting} >
     \gui{Pastebin.com}.
 
+    For example, you might ask colleagues to review a change that you plan to
+    submit to a version control system. If you use the git version control system,
+    you can create a \e{diff} view by selecting \gui{Tools} > \gui{Git} >
+    \gui{Diff Repository}. You can then upload its contents to the server by choosing
+    \gui{Tools} > \gui{Code Pasting} > \gui{Paste Snippet...}. The reviewers can retrieve
+    the code snippet by selecting \gui{Tools} > \gui{Code Pasting} > \gui{Fetch Snippet...}.
+    If they have the project currently opened in Qt Creator, they can apply and test
+    the change by choosing \gui{Tools} > \gui{Git} > \gui{Apply Patch}.
 
     \section1 Using FakeVim Mode
 
