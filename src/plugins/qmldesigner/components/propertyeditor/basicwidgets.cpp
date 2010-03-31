@@ -887,6 +887,8 @@ class WidgetLoader : public QWidget
     Q_OBJECT
     Q_PROPERTY(QString sourceString READ sourceString WRITE setSourceString NOTIFY sourceChanged)
     Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(QUrl baseUrl READ baseUrl WRITE setBaseUrl)
+    Q_PROPERTY(QString qmlData READ qmlData WRITE setQmlData NOTIFY sourceQmlDataChanged)
     Q_PROPERTY(QWidget *widget READ widget NOTIFY widgetChanged)
     Q_PROPERTY(QDeclarativeComponent *component READ component NOTIFY sourceChanged)
 
@@ -900,6 +902,8 @@ public:
 
     QUrl source() const;
     void setSource(const QUrl &);
+    QString qmlData() const;
+    void setQmlData(const QString &data);
 
     QString sourceString() const
     { return m_source.toString(); }
@@ -910,12 +914,19 @@ public:
     QDeclarativeComponent *component() const
     { return m_component; }
 
+    void setBaseUrl(const QUrl &baseUrl);
+
+    QUrl baseUrl() const;
+
 signals:
     void widgetChanged();
     void sourceChanged();
+    void qmlDataChanged();
 
 private:
     QUrl m_source;
+    QUrl m_baseUrl;
+    QString m_qmlData;
     QWidget *m_widget;
     QDeclarativeComponent *m_component;
     QVBoxLayout *m_layout;
@@ -927,15 +938,91 @@ QUrl WidgetLoader::source() const
     return m_source;
 }
 
-void WidgetLoader::setSource(const QUrl &source)
+QUrl WidgetLoader::baseUrl() const
 {
-    if (m_source == source)
+    return m_baseUrl;
+}
+
+void WidgetLoader::setBaseUrl(const QUrl &baseUrl)
+{
+    if (m_baseUrl == baseUrl)
         return;
+    m_baseUrl = baseUrl;
+}
+
+QString WidgetLoader::qmlData() const
+{
+    return m_qmlData;
+}
+
+void WidgetLoader::setQmlData(const QString &data)
+{
+    if (m_qmlData == data)
+        return;
+
+    m_qmlData = data;
+
+    setSource(QUrl());
+
+    foreach (QWidget *cachedWidget, m_cachedWidgets)
+        cachedWidget->hide();
+
+    if (m_qmlData.isEmpty()) {
+        emit sourceChanged();
+        emit widgetChanged();
+        return;
+    }
 
     if (m_component) {
         delete m_component;
         m_component = 0;
     }
+
+    QString stringHash = QString::number(qHash(data));
+
+    if (m_cachedWidgets.contains(stringHash)) {
+        m_widget = m_cachedWidgets.value(stringHash);
+        m_widget->show();
+    } else {
+        m_component = new QDeclarativeComponent(qmlEngine(this), this);
+        m_component->setData (m_qmlData.toLatin1(), m_baseUrl);
+        if (m_component) {
+            emit sourceChanged();
+            emit widgetChanged();
+
+            while (m_component->isLoading())
+                QApplication::processEvents();
+
+            if (!m_component->isReady()) {
+                if (!m_component->errors().isEmpty())
+                    qWarning() << m_component->errors();
+                emit sourceChanged();
+                return;
+            }
+
+            QDeclarativeContext *ctxt = new QDeclarativeContext(qmlContext(this));
+            ctxt->setContextObject(this);
+            QObject *obj = m_component->create(ctxt);
+            if (obj) {
+                QWidget *widget = qobject_cast<QWidget *>(obj);
+                if (widget) {
+                    m_cachedWidgets.insert(stringHash, widget);
+                    m_widget = widget;
+                    m_layout->addWidget(m_widget);
+                    m_widget->show();
+                }
+            }
+        }
+    }
+
+}
+
+void WidgetLoader::setSource(const QUrl &source)
+{
+    if (m_source == source)
+        return;
+
+    setQmlData("");
 
 //    QWidget *oldWidget = m_widget;
 
@@ -953,6 +1040,11 @@ void WidgetLoader::setSource(const QUrl &source)
         emit sourceChanged();
         emit widgetChanged();
         return;
+    }
+
+    if (m_component) {
+        delete m_component;
+        m_component = 0;
     }
 
     if (m_cachedWidgets.contains(source.toString())) {
