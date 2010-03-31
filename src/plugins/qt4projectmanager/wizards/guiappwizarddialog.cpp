@@ -67,10 +67,11 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
 
     m_filesPage->setFormInputCheckable(true);
     m_filesPage->setClassTypeComboVisible(false);
-    addPage(m_filesPage);
+    const int filesPageId = addPage(m_filesPage);
+    wizardProgress()->item(filesPageId)->setTitle(tr("Details"));
 
     foreach (QWizardPage *p, extensionPages)
-        addPage(p);
+        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 
 void GuiAppWizardDialog::setBaseClasses(const QStringList &baseClasses)

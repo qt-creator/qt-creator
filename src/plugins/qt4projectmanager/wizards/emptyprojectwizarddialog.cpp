@@ -48,7 +48,7 @@ EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
     addTargetSetupPage();
 
     foreach (QWizardPage *p, extensionPages)
-        addPage(p);
+        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 
 QtProjectParameters EmptyProjectWizardDialog::parameters() const

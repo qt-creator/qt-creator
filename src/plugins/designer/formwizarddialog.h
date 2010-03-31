@@ -30,7 +30,7 @@
 #ifndef FORMWIZARDDIALOG_H
 #define FORMWIZARDDIALOG_H
 
-#include <QtGui/QWizard>
+#include <utils/wizard.h>
 
 namespace Utils {
     class FileWizardPage;
@@ -44,7 +44,7 @@ class FormTemplateWizardPage;
 // Single-Page Wizard for new forms offering all types known to Qt Designer.
 // To be used for Mode "CreateNewEditor" [not currently used]
 
-class FormWizardDialog : public QWizard
+class FormWizardDialog : public Utils::Wizard
 {
     Q_DISABLE_COPY(FormWizardDialog)
     Q_OBJECT

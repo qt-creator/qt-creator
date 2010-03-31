@@ -55,17 +55,18 @@ namespace Internal {
 //////////////////////////////////////////////////////////////////////////////
 
 QmlProjectImportWizardDialog::QmlProjectImportWizardDialog(QWidget *parent)
-    : QWizard(parent)
+    : Utils::Wizard(parent)
 {
     setWindowTitle(tr("Import Existing Qt QML Directory"));
 
     // first page
     m_firstPage = new FileWizardPage;
-    m_firstPage->setTitle(tr("QML Project"));
+    m_firstPage->setTitle(tr("Project Name and Location"));
     m_firstPage->setFileNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
 
-    addPage(m_firstPage);
+    const int firstPageId = addPage(m_firstPage);
+    wizardProgress()->item(firstPageId)->setTitle(tr("Location"));
 }
 
 QmlProjectImportWizardDialog::~QmlProjectImportWizardDialog()
@@ -120,7 +121,7 @@ QWizard *QmlProjectImportWizard::createWizardDialog(QWidget *parent,
     wizard->setPath(defaultPath);
 
     foreach (QWizardPage *p, extensionPages)
-        wizard->addPage(p);
+        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
     return wizard;
 }

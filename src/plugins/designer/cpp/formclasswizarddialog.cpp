@@ -32,6 +32,8 @@
 #include "formclasswizardpage.h"
 #include "formclasswizardparameters.h"
 
+#include <coreplugin/basefilewizard.h>
+
 #include <QtCore/QDebug>
 #include <QtGui/QAbstractButton>
 
@@ -43,20 +45,22 @@ namespace Internal {
 // ----------------- FormClassWizardDialog
 FormClassWizardDialog::FormClassWizardDialog(const WizardPageList &extensionPages,
                                              QWidget *parent) :
-    QWizard(parent),
+    Utils::Wizard(parent),
     m_formPage(new FormTemplateWizardPage),
     m_classPage(new FormClassWizardPage)
 {
     setWindowTitle(tr("Qt Designer Form Class"));
 
     setPage(FormPageId, m_formPage);
+    wizardProgress()->item(FormPageId)->setTitle(tr("Form Template"));
     connect(m_formPage, SIGNAL(templateActivated()),
             button(QWizard::NextButton), SLOT(animateClick()));
 
     setPage(ClassPageId, m_classPage);
+    wizardProgress()->item(ClassPageId)->setTitle(tr("Class Details"));
 
     foreach (QWizardPage *p, extensionPages)
-        addPage(p);
+        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 
 QString FormClassWizardDialog::path() const

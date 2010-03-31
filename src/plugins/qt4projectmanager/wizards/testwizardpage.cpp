@@ -43,6 +43,7 @@ TestWizardPage::TestWizardPage(QWidget *parent) :
     m_fileNameEdited(false),
     m_valid(false)
 {
+    setTitle(tr("Test Class Information"));
     ui->setupUi(this);
     ui->testSlotLineEdit->setText(QLatin1String("testCase1"));
     ui->testClassLineEdit->setLowerCaseFileName(m_lowerCaseFileNames);

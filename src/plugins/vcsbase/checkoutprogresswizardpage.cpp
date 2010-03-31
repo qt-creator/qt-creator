@@ -45,6 +45,7 @@ CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
     m_state(Idle)
 {
     ui->setupUi(this);
+    setTitle(tr("Checkout"));
 }
 
 CheckoutProgressWizardPage::~CheckoutProgressWizardPage()
@@ -63,7 +64,8 @@ void CheckoutProgressWizardPage::start(const QSharedPointer<AbstractCheckoutJob>
     connect(job.data(), SIGNAL(succeeded()), this, SLOT(slotSucceeded()));
     QApplication::setOverrideCursor(Qt::WaitCursor);
     ui->logPlainTextEdit->clear();
-    setSubTitle(tr("Checkout started..."));
+    ui->statusLabel->setText(tr("Checkout started..."));
+    ui->statusLabel->setPalette(QPalette());
     m_state = Running;
     // Note: Process jobs can emit failed() right from
     // the start() method on Windows.
@@ -76,7 +78,10 @@ void CheckoutProgressWizardPage::slotFailed(const QString &why)
     if (m_state == Running) {
         m_state = Failed;
         QApplication::restoreOverrideCursor();
-        setSubTitle(tr("Failed."));
+        ui->statusLabel->setText(tr("Failed."));
+        QPalette palette = ui->statusLabel->palette();
+        palette.setColor(QPalette::Active, QPalette::Text, Qt::red);
+        ui->statusLabel->setPalette(palette);
         emit terminated(false);
     }
 }
@@ -86,7 +91,10 @@ void CheckoutProgressWizardPage::slotSucceeded()
     if (m_state == Running) {
         m_state = Succeeded;
         QApplication::restoreOverrideCursor();
-        setSubTitle(tr("Succeeded."));
+        ui->statusLabel->setText(tr("Succeeded."));
+        QPalette palette = ui->statusLabel->palette();
+        palette.setColor(QPalette::Active, QPalette::Text, Qt::green);
+        ui->statusLabel->setPalette(palette);
         emit completeChanged();
         emit terminated(true);
     }

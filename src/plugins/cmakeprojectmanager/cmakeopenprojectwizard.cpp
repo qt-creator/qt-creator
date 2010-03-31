@@ -84,6 +84,13 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     setPage(ShadowBuildPageId, new ShadowBuildPage(this));
     setPage(CMakeRunPageId, new CMakeRunPage(this));
 
+    Utils::WizardProgress *wp = wizardProgress();
+    Utils::WizardProgressItem *inSourceItem = wp->item(InSourcePageId);
+    Utils::WizardProgressItem *shadowBuildItem = wp->item(ShadowBuildPageId);
+    Utils::WizardProgressItem *cmakeRunItem = wp->item(CMakeRunPageId);
+    inSourceItem->setNextItems(QList<Utils::WizardProgressItem *>() << cmakeRunItem);
+    shadowBuildItem->setNextItems(QList<Utils::WizardProgressItem *>() << cmakeRunItem);
+
     setStartId(startid);
     init();
 }
@@ -216,6 +223,7 @@ InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
                    "If you want a shadow build, clean your source directory and re-open the project.")
                    .arg(m_cmakeWizard->buildDirectory()));
     layout()->addWidget(label);
+    setTitle(tr("Build Location"));
 }
 
 
@@ -239,6 +247,7 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool chang
     m_pc->setPath(m_cmakeWizard->buildDirectory());
     connect(m_pc, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
     fl->addRow(tr("Build directory:"), m_pc);
+    setTitle(tr("Build Location"));
 }
 
 void ShadowBuildPage::buildDirectoryChanged()
@@ -312,6 +321,7 @@ void CMakeRunPage::initWidgets()
     pl.setVerticalStretch(1);
     m_output->setSizePolicy(pl);
     fl->addRow(m_output);
+    setTitle(tr("Run CMake"));
 }
 
 void CMakeRunPage::initializePage()

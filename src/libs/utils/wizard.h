@@ -38,6 +38,7 @@
 
 namespace Utils {
 
+class Wizard;
 class WizardProgress;
 class WizardPrivate;
 

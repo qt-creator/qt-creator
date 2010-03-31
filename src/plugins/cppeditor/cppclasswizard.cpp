@@ -60,7 +60,7 @@ ClassNamePage::ClassNamePage(QWidget *parent) :
     QWizardPage(parent),
     m_isValid(false)
 {
-    setTitle(tr("Enter class name"));
+    setTitle(tr("Enter Class Name"));
     setSubTitle(tr("The header and source file names will be derived from the class name"));
 
     m_newClassWidget = new Utils::NewClassWidget;
@@ -133,12 +133,13 @@ void ClassNamePage::slotValidChanged()
 }
 
 CppClassWizardDialog::CppClassWizardDialog(QWidget *parent) :
-    QWizard(parent),
+    Utils::Wizard(parent),
     m_classNamePage(new ClassNamePage(this))
 {
     Core::BaseFileWizard::setupWizard(this);
     setWindowTitle(tr("C++ Class Wizard"));
-    addPage(m_classNamePage);
+    const int classNameId = addPage(m_classNamePage);
+    wizardProgress()->item(classNameId)->setTitle(tr("Details"));
 }
 
 void CppClassWizardDialog::setPath(const QString &path)
@@ -183,7 +184,7 @@ QWizard *CppClassWizard::createWizardDialog(QWidget *parent,
 {
     CppClassWizardDialog *wizard = new CppClassWizardDialog(parent);
     foreach (QWizardPage *p, extensionPages)
-        wizard->addPage(p);
+        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
     wizard->setPath(defaultPath);
     return wizard;
 }

@@ -33,6 +33,7 @@
 #include <QHBoxLayout>
 #include <QMap>
 #include <QHash>
+#include <QVariant>
 
 namespace Utils {
 

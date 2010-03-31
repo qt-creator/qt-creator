@@ -32,7 +32,7 @@
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QList>
-#include <QtGui/QWizard>
+#include <utils/wizard.h>
 
 namespace VCSBase {
 class AbstractCheckoutJob;
@@ -44,7 +44,7 @@ class CheckoutProgressWizardPage;
  * Overwrites reject() to first kill the checkout
  * and then close. */
 
-class CheckoutWizardDialog : public QWizard {
+class CheckoutWizardDialog : public Utils::Wizard {
     Q_OBJECT
 public:
     CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,

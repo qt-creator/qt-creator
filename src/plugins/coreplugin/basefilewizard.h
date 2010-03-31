@@ -44,6 +44,10 @@ class QWizardPage;
 class QDebug;
 QT_END_NAMESPACE
 
+namespace Utils {
+    class Wizard;
+}
+
 namespace Core {
 
 class IEditor;
@@ -171,6 +175,9 @@ public:
 
     // Sets some standard options on a QWizard
     static void setupWizard(QWizard *);
+
+    // Read "shortTitle" dynamic property of the pageId and apply it as the title of corresponding progress item
+    static void applyExtensionPageShortTitle(Utils::Wizard *wizard, int pageId);
 
 protected:
     typedef QList<QWizardPage *> WizardPageList;

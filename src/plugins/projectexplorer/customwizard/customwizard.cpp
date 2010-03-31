@@ -43,6 +43,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QCoreApplication>
 
 static const char templatePathC[] = "templates/wizards";
 static const char configFileC[] = "wizard.xml";
@@ -87,22 +88,25 @@ void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
 }
 
 // Add a wizard page with an id, visibly warn if something goes wrong.
-static inline void addWizardPage(QWizard *w, QWizardPage *p, int id)
+static inline void addWizardPage(Utils::Wizard *w, QWizardPage *p, int id)
 {
+    int addedPageId = 0;
     if (id == -1) {
-        w->addPage(p);
+        addedPageId = w->addPage(p);
     } else {
         if (w->pageIds().contains(id)) {
             qWarning("Page %d already present in custom wizard dialog, defaulting to add.", id);
-            w->addPage(p);
+            addedPageId = w->addPage(p);
         } else {
             w->setPage(id, p);
+            addedPageId = id;
         }
     }
+    w->wizardProgress()->item(addedPageId)->setTitle(QCoreApplication::translate("ProjectExplorer::CustomWizard", "Details", "Default short title for custom wizard page to be shown in the progress pane of the wizard."));
 }
 
 // Initialize a wizard with a custom file page.
-void CustomWizard::initWizardDialog(QWizard *wizard, const QString &defaultPath,
+void CustomWizard::initWizardDialog(Utils::Wizard *wizard, const QString &defaultPath,
                                     const WizardPageList &extensionPages) const
 {
     QTC_ASSERT(!parameters().isNull(), return);
@@ -114,7 +118,7 @@ void CustomWizard::initWizardDialog(QWizard *wizard, const QString &defaultPath,
     if (!parameters()->fieldPageTitle.isEmpty())
         customPage->setTitle(parameters()->fieldPageTitle);
     foreach(QWizardPage *ep, extensionPages)
-        wizard->addPage(ep);
+        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(ep));
     Core::BaseFileWizard::setupWizard(wizard);
     if (CustomWizardPrivate::verbose)
         qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
@@ -125,7 +129,7 @@ QWizard *CustomWizard::createWizardDialog(QWidget *parent,
                                                  const WizardPageList &extensionPages) const
 {
     QTC_ASSERT(!d->m_parameters.isNull(), return 0);
-    QWizard *wizard = new QWizard(parent);
+    Utils::Wizard *wizard = new Utils::Wizard(parent);
     initWizardDialog(wizard, defaultPath, extensionPages);
     return wizard;
 }
@@ -373,6 +377,9 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
     const CustomWizardContextPtr ctx = context();
     ctx->reset();
 
+    if (!displayName().isEmpty())
+        w->setWindowTitle(displayName());
+
     if (!pa->fields.isEmpty()) {
         Internal::CustomWizardFieldPage *cp = new Internal::CustomWizardFieldPage(ctx, pa->fields);
         addWizardPage(w, cp, parameters()->firstPageId);
@@ -380,7 +387,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
             cp->setTitle(pa->fieldPageTitle);
     }
     foreach(QWizardPage *ep, extensionPages)
-        w->addPage(ep);
+        BaseFileWizard::applyExtensionPageShortTitle(w, w->addPage(ep));
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
 

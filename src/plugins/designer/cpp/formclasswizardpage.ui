@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="title">
-   <string>Choose a class name</string>
+   <string>Choose a Class Name</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -21,7 +21,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="Utils::NewClassWidget" name="newClassWidget"/>
+       <widget class="Utils::NewClassWidget" name="newClassWidget" native="true"/>
       </item>
      </layout>
     </widget>
@@ -62,7 +62,4 @@
  </customwidgets>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
- </buttongroups>
 </ui>

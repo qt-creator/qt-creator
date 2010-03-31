@@ -569,6 +569,21 @@ void BaseFileWizard::setupWizard(QWizard *w)
     w->setOption(QWizard::NoBackButtonOnStartPage, true);
 }
 
+void BaseFileWizard::applyExtensionPageShortTitle(Utils::Wizard *wizard, int pageId)
+{
+    if (pageId < 0)
+        return;
+    QWizardPage *p = wizard->page(pageId);
+    if (!p)
+        return;
+    Utils::WizardProgressItem *item = wizard->wizardProgress()->item(pageId);
+    if (!item)
+        return;
+    const QString shortTitle = p->property("shortTitle").toString();
+    if (!shortTitle.isEmpty())
+      item->setTitle(shortTitle);
+}
+
 bool BaseFileWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l, QString *errorMessage)
 {
     Q_UNUSED(w);
@@ -691,7 +706,7 @@ QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
     setupWizard(standardWizardDialog);
     standardWizardDialog->setPath(defaultPath);
     foreach (QWizardPage *p, extensionPages)
-        standardWizardDialog->addPage(p);
+        BaseFileWizard::applyExtensionPageShortTitle(standardWizardDialog, standardWizardDialog->addPage(p));
     return standardWizardDialog;
 }
 

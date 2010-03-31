@@ -35,6 +35,7 @@ namespace Internal {
 CheckoutWizardPage::CheckoutWizardPage(QWidget *parent) :
     VCSBase::BaseCheckoutWizardPage(parent)
 {
+    setTitle(tr("Location"));
     setSubTitle(tr("Specify repository and path."));
     setRepositoryLabel(tr("Repository:"));
     setDirectoryVisible(false);

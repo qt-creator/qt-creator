@@ -73,6 +73,7 @@ GitoriousHostWizardPage::GitoriousHostWizardPage(QWidget *parent) :
     QVBoxLayout *lt = new QVBoxLayout;
     lt->addWidget(m_widget);
     setLayout(lt);
+    setTitle(tr("Host"));
     setSubTitle(tr("Select a host."));
 }
 

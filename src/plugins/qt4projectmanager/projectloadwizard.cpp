@@ -48,7 +48,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::WindowFlags flags)
-    : QWizard(parent, flags), m_project(project), m_targetSetupPage(0)
+    : Utils::Wizard(parent, flags), m_project(project), m_targetSetupPage(0)
 {
     Q_ASSERT(project);
 
@@ -105,7 +105,8 @@ void ProjectLoadWizard::setupTargetPage()
     m_targetSetupPage->setImportDirectoryBrowsingEnabled(true);
     m_targetSetupPage->setImportDirectoryBrowsingLocation(m_project->projectDirectory());
 
-    addPage(m_targetSetupPage);
+    const int targetPageId = addPage(m_targetSetupPage);
+    wizardProgress()->item(targetPageId)->setTitle(tr("Targets"));
 }
 
 void ProjectLoadWizard::applySettings()

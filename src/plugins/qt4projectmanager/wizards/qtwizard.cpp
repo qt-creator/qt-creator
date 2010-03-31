@@ -218,9 +218,12 @@ int BaseQt4ProjectWizardDialog::addModulesPage(int id)
         return -1;
     if (id >= 0) {
         setPage(id, m_modulesPage);
+        wizardProgress()->item(id)->setTitle(tr("Modules"));
         return id;
     }
-    return addPage(m_modulesPage);
+    const int newId = addPage(m_modulesPage);
+    wizardProgress()->item(newId)->setTitle(tr("Modules"));
+    return newId;
 }
 
 int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool mobile, int id)
@@ -242,6 +245,7 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool m
         setPage(id, m_targetSetupPage);
     else
         id = addPage(m_targetSetupPage);
+    wizardProgress()->item(id)->setTitle(tr("Qt Versions"));
 
     return id;
 }

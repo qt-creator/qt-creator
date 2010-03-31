@@ -154,11 +154,12 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     m_filesPage->setClassTypeComboVisible(false);
 
     m_filesPageId = addPage(m_filesPage);
+    wizardProgress()->item(m_filesPageId)->setTitle(tr("Details"));
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 
     foreach (QWizardPage *p, extensionPages)
-        addPage(p);
+        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 
 void LibraryWizardDialog::setSuffixes(const QString &header, const QString &source,  const QString &form)

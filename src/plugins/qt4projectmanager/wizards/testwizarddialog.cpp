@@ -61,10 +61,11 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
     setWindowTitle(templateName);
     setSelectedModules(QLatin1String("core testlib"), true);
     addTargetSetupPage();
-    m_testPageId = addPage(m_testPage);
     m_modulesPageId = addModulesPage();
+    m_testPageId = addPage(m_testPage);
+    wizardProgress()->item(m_testPageId)->setTitle(tr("Details"));
     foreach (QWizardPage *p, extensionPages)
-        addPage(p);
+        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 }
 

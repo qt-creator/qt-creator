@@ -48,7 +48,7 @@ namespace Internal {
 // ----------------- FormWizardDialog
 FormWizardDialog::FormWizardDialog(const WizardPageList &extensionPages,
                                    QWidget *parent)
-  : QWizard(parent),
+    : Utils::Wizard(parent),
     m_formPage(new FormTemplateWizardPage)
 {
     init(extensionPages);
@@ -59,11 +59,15 @@ void FormWizardDialog::init(const WizardPageList &extensionPages)
     Core::BaseFileWizard::setupWizard(this);
     setWindowTitle(tr("Qt Designer Form"));
     setPage(FormPageId, m_formPage);
+    wizardProgress()->item(FormPageId)->setTitle(tr("Form Template"));
 
     if (!extensionPages.empty()) {
         int id = FirstExtensionPageId;
-        foreach (QWizardPage *p, extensionPages)
-            setPage(id++, p);
+        foreach (QWizardPage *p, extensionPages) {
+            setPage(id, p);
+            Core::BaseFileWizard::applyExtensionPageShortTitle(this, id);
+            id++;
+        }
     }
 }
 
@@ -82,6 +86,7 @@ FormFileWizardDialog::FormFileWizardDialog(const WizardPageList &extensionPages,
     m_filePage(new Utils::FileWizardPage)
 {
     setPage(FilePageId, m_filePage);
+    wizardProgress()->item(FilePageId)->setTitle(tr("Location"));
     connect(m_filePage, SIGNAL(activated()),
             button(QWizard::FinishButton), SLOT(animateClick()));
 

@@ -31,8 +31,7 @@
 #define QMLPROJECTIMPORTWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
-
-#include <QtGui/QWizard>
+#include <utils/wizard.h>
 
 QT_BEGIN_NAMESPACE
 class QDir;
@@ -48,7 +47,7 @@ class FileWizardPage;
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlProjectImportWizardDialog : public QWizard
+class QmlProjectImportWizardDialog : public Utils::Wizard
 {
     Q_OBJECT
 

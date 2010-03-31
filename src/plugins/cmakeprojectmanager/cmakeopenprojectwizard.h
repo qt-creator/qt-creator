@@ -31,13 +31,13 @@
 #define CMAKEOPENPROJECTWIZARD_H
 
 #include <projectexplorer/environment.h>
+#include <utils/wizard.h>
 
 #include <QtCore/QProcess>
 #include <QtGui/QPushButton>
 #include <QtGui/QComboBox>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
-#include <QtGui/QWizard>
 #include <QtGui/QPlainTextEdit>
 
 namespace Utils {
@@ -49,7 +49,7 @@ namespace Internal {
 
 class CMakeManager;
 
-class CMakeOpenProjectWizard : public QWizard
+class CMakeOpenProjectWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:

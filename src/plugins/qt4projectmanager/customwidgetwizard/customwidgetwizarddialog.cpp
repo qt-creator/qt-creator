@@ -55,9 +55,11 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
     addTargetSetupPage(BaseQt4ProjectWizardDialog::desktopTarget());
     m_widgetPageId = addPage(m_widgetsPage);
     m_pluginPageId = addPage(m_pluginPage);
+    wizardProgress()->item(m_widgetPageId)->setTitle(tr("Custom Widgets"));
+    wizardProgress()->item(m_pluginPageId)->setTitle(tr("Plugin Details"));
 
     foreach (QWizardPage *p, extensionPages)
-        addPage(p);
+        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 }
 

@@ -41,7 +41,7 @@ namespace Internal {
 
 CheckoutWizardDialog::CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
                                            QWidget *parent) :
-    QWizard(parent),
+    Utils::Wizard(parent),
     m_progressPage(new CheckoutProgressWizardPage),
     m_progressPageId(-1)
 {

@@ -97,6 +97,8 @@ GitoriousRepositoryWizardPage::GitoriousRepositoryWizardPage(const GitoriousProj
     ui->repositoryTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
     connect(ui->repositoryTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(slotCurrentChanged(QModelIndex,QModelIndex)));
+
+    setTitle(tr("Repository"));
 }
 
 GitoriousRepositoryWizardPage::~GitoriousRepositoryWizardPage()

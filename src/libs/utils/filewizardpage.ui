@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="title">
-   <string>Choose the location</string>
+   <string>Choose the Location</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
@@ -38,15 +38,15 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>Utils::FileNameValidatingLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/filenamevalidatinglineedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header>pathchooser.h</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Utils::FileNameValidatingLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>filenamevalidatinglineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

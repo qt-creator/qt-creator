@@ -31,6 +31,7 @@
 #define BASEPROJECTWIZARDDIALOG_H
 
 #include "projectexplorer_export.h"
+#include <utils/wizard.h>
 
 #include <QtGui/QWizard>
 
@@ -46,7 +47,7 @@ struct BaseProjectWizardDialogPrivate;
  * page and takes care of setting the directory as default
  * should the user wish to do that. */
 
-class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public QWizard
+class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public Utils::Wizard
 {
     Q_OBJECT
 

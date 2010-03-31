@@ -30,7 +30,7 @@
 #ifndef FORMCLASSWIZARDDIALOG_H
 #define FORMCLASSWIZARDDIALOG_H
 
-#include <QtGui/QWizard>
+#include <utils/wizard.h>
 
 namespace Designer {
 
@@ -42,7 +42,7 @@ namespace Internal {
 class FormClassWizardPage;
 class FormTemplateWizardPage;
 
-class FormClassWizardDialog : public QWizard
+class FormClassWizardDialog : public Utils::Wizard
 {
     Q_DISABLE_COPY(FormClassWizardDialog)
     Q_OBJECT

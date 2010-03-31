@@ -29,6 +29,7 @@
 
 #include "consoleappwizarddialog.h"
 #include "consoleappwizard.h"
+#include <coreplugin/basefilewizard.h>
 
 #include <QtCore/QDebug>
 
@@ -55,7 +56,7 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
     addTargetSetupPage();
 
     foreach (QWizardPage *p, extensionPages)
-        addPage(p);
+        Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 
 QtProjectParameters ConsoleAppWizardDialog::parameters() const

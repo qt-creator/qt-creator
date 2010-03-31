@@ -31,8 +31,7 @@
 #define FILEWIZARDDIALOG_H
 
 #include "utils_global.h"
-
-#include <QtGui/QWizard>
+#include "wizard.h"
 
 namespace Utils {
 
@@ -43,7 +42,7 @@ class FileWizardPage;
    and path. Custom pages can be added via Core::IWizardExtension.
 */
 
-class QTCREATOR_UTILS_EXPORT FileWizardDialog : public QWizard {
+class QTCREATOR_UTILS_EXPORT FileWizardDialog : public Wizard {
     Q_OBJECT
     Q_DISABLE_COPY(FileWizardDialog)
 public:

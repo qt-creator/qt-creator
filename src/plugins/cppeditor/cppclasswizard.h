@@ -31,10 +31,10 @@
 #define CPPCLASSWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
+#include <utils/wizard.h>
 
 #include <QtCore/QStringList>
 #include <QtGui/QWizardPage>
-#include <QtGui/QWizard>
 
 namespace Utils {
 
@@ -77,7 +77,7 @@ struct CppClassWizardParameters
     int classType;
 };
 
-class CppClassWizardDialog : public QWizard
+class CppClassWizardDialog : public Utils::Wizard
 {
     Q_OBJECT
     Q_DISABLE_COPY(CppClassWizardDialog)

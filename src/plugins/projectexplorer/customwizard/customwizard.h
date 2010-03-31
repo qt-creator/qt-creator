@@ -42,6 +42,10 @@ QT_BEGIN_NAMESPACE
 class QDir;
 QT_END_NAMESPACE
 
+namespace Utils {
+    class Wizard;
+}
+
 namespace ProjectExplorer {
 class CustomWizard;
 struct CustomWizardPrivate;
@@ -108,7 +112,7 @@ protected:
     typedef QSharedPointer<Internal::CustomWizardParameters> CustomWizardParametersPtr;
     typedef QSharedPointer<Internal::CustomWizardContext> CustomWizardContextPtr;
 
-    void initWizardDialog(QWizard *w, const QString &defaultPath,
+    void initWizardDialog(Utils::Wizard *w, const QString &defaultPath,
                           const WizardPageList &extensionPages) const;
 
     // generate files in path

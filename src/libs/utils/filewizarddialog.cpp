@@ -35,13 +35,14 @@
 namespace Utils {
 
 FileWizardDialog::FileWizardDialog(QWidget *parent) :
-    QWizard(parent),
+    Wizard(parent),
     m_filePage(new FileWizardPage)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setOption(QWizard::NoCancelButton, false);
     setOption(QWizard::NoDefaultButton, false);
-    addPage(m_filePage);
+    const int filePageId = addPage(m_filePage);
+    wizardProgress()->item(filePageId)->setTitle(tr("Location"));
     connect(m_filePage, SIGNAL(activated()), button(QWizard::FinishButton), SLOT(animateClick()));
 }
 

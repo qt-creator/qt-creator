@@ -55,6 +55,7 @@ CloneWizardPage::CloneWizardPage(QWidget *parent) :
     VCSBase::BaseCheckoutWizardPage(parent),
     d(new CloneWizardPagePrivate)
 {
+    setTitle(tr("Location"));
     setSubTitle(tr("Specify repository URL, checkout directory and path."));
     setRepositoryLabel(tr("Clone URL:"));
 }

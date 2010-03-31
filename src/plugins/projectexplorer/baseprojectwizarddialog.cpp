@@ -56,7 +56,7 @@ BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectInt
 }
 
 BaseProjectWizardDialog::BaseProjectWizardDialog(QWidget *parent) :
-    QWizard(parent),
+    Utils::Wizard(parent),
     d(new BaseProjectWizardDialogPrivate(new Utils::ProjectIntroPage))
 {
     init();
@@ -65,7 +65,7 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(QWidget *parent) :
 BaseProjectWizardDialog::BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage,
                                                  int introId,
                                                  QWidget *parent) :
-    QWizard(parent),
+    Utils::Wizard(parent),
     d(new BaseProjectWizardDialogPrivate(introPage, introId))
 {
     init();
@@ -80,6 +80,7 @@ void BaseProjectWizardDialog::init()
         d->introPageId = d->desiredIntroPageId;
         setPage(d->desiredIntroPageId, d->introPage);
     }
+    wizardProgress()->item(d->introPageId)->setTitle(tr("Location"));
     connect(this, SIGNAL(accepted()), this, SLOT(slotAccepted()));
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotBaseCurrentIdChanged(int)));
 }

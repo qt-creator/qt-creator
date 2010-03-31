@@ -50,6 +50,7 @@ GitoriousProjectWizardPage::GitoriousProjectWizardPage(const GitoriousHostWizard
     QVBoxLayout *lt = new QVBoxLayout;
     lt->addWidget(m_stackedWidget);
     setLayout(lt);
+    setTitle(tr("Project"));
 }
 
 static inline QString msgChooseProject(const QString &h)

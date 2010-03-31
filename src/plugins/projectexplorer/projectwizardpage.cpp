@@ -42,6 +42,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     m_ui->setupUi(this);
     connect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotProjectChanged(int)));
+    setProperty("shortTitle", tr("Summary"));
 }
 
 ProjectWizardPage::~ProjectWizardPage()

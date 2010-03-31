@@ -79,7 +79,7 @@ QWizard *QmlProjectApplicationWizard::createWizardDialog(QWidget *parent,
     wizard->setProjectName(QmlProjectApplicationWizardDialog::uniqueProjectName(defaultPath));
 
     foreach (QWizardPage *p, extensionPages)
-        wizard->addPage(p);
+        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
     return wizard;
 }

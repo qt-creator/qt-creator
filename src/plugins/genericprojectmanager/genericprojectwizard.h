@@ -31,8 +31,7 @@
 #define GENERICPROJECTWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
-
-#include <QtGui/QWizard>
+#include <utils/wizard.h>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -48,7 +47,7 @@ class FileWizardPage;
 namespace GenericProjectManager {
 namespace Internal {
 
-class GenericProjectWizardDialog : public QWizard
+    class GenericProjectWizardDialog : public Utils::Wizard
 {
     Q_OBJECT
 

@@ -51,7 +51,7 @@ using namespace Utils;
 //////////////////////////////////////////////////////////////////////////////
 
 GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
-    : QWizard(parent)
+    : Utils::Wizard(parent)
 {
     setWindowTitle(tr("Import Existing Project"));
 
@@ -61,7 +61,8 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     m_firstPage->setFileNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
 
-    addPage(m_firstPage);
+    const int firstPageId = addPage(m_firstPage);
+    wizardProgress()->item(firstPageId)->setTitle(tr("Location"));
 }
 
 GenericProjectWizardDialog::~GenericProjectWizardDialog()
@@ -111,7 +112,7 @@ QWizard *GenericProjectWizard::createWizardDialog(QWidget *parent,
     wizard->setPath(defaultPath);
 
     foreach (QWizardPage *p, extensionPages)
-        wizard->addPage(p);
+        BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));
 
     return wizard;
 }
