@@ -420,14 +420,12 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &originalVariant) const
         return variant;
     } else if (typeId == QVariant::UserType && m_data->type == QLatin1String("QVariant")) {
         return variant;
-    } else if (typeId == QVariant::UserType && m_data->type == QLatin1String("variant")) {
-        return variant;
     } else if (typeId == QVariant::UserType && m_data->type == QLatin1String("var")) {
         return variant;
     } else if (variant.type() == QVariant::List && variant.type() == QVariant::List) {
         // TODO: check the contents of the list
         return variant;
-    } else if (type() == "var" || type() == "variant") {
+    } else if (type() == "var") {
         return variant;
     } else if (type() == "alias") {
         // TODO: The QML compiler resolves the alias type. We probably should do the same.

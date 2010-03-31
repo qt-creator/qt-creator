@@ -185,7 +185,7 @@ static inline int propertyType(const QString &typeName)
         return QMetaType::type("QString");
     else if (typeName == QLatin1String("url"))
         return QMetaType::type("QUrl");
-    else if (typeName == QLatin1String("var") || typeName == QLatin1String("variant"))
+    else if (typeName == QLatin1String("var"))
         return QMetaType::type("QVariant");
     else
         return -1;
