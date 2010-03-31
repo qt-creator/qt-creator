@@ -431,6 +431,7 @@ void TestCore::testRewriterDynamicProperties()
     // text2model
     //
     ModelNode rootModelNode = testRewriterView1->rootModelNode();
+    QCOMPARE(rootModelNode.properties().count(), 18);
     QVERIFY(rootModelNode.hasVariantProperty("i"));
     QCOMPARE(rootModelNode.variantProperty("i").dynamicTypeName(), QString("int"));
     QCOMPARE(rootModelNode.variantProperty("i").value().type(), QVariant::Int);
@@ -2183,7 +2184,6 @@ void TestCore::testRewriterPropertyDeclarations()
         "   property int intProperty\n"
         "   property bool boolProperty: true\n"
         "   property var varProperty1\n"
-        "   property variant varProperty2: boolProperty\n"
         "   default property url urlProperty\n"
         "   intProperty: 2\n"
         "}\n";
@@ -2203,6 +2203,8 @@ void TestCore::testRewriterPropertyDeclarations()
     testRewriterView->setTextModifier(&textModifier);
     model->attachView(testRewriterView.data());
 
+    QVERIFY(testRewriterView->errors().isEmpty());
+
     //
     // parsing
     //
@@ -2210,7 +2212,7 @@ void TestCore::testRewriterPropertyDeclarations()
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
 
-    QCOMPARE(rootModelNode.properties().size(), 5);
+    QCOMPARE(rootModelNode.properties().size(), 4);
 
     VariantProperty intProperty = rootModelNode.property(QLatin1String("intProperty")).toVariantProperty();
     QVERIFY(intProperty.isValid());
@@ -2224,7 +2226,6 @@ void TestCore::testRewriterPropertyDeclarations()
     VariantProperty varProperty1 = rootModelNode.property(QLatin1String("varProperty1")).toVariantProperty();
     QVERIFY(varProperty1.isValid());
     QVERIFY(varProperty1.isVariantProperty());
-    QCOMPARE(varProperty1.value(), QVariant());
 
     VariantProperty urlProperty = rootModelNode.property(QLatin1String("urlProperty")).toVariantProperty();
     QVERIFY(urlProperty.isValid());
