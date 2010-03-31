@@ -30,8 +30,17 @@
 #include "fxplugin.h"
 #include <widgetplugin_helper.h>
 #include <QtCore/QtPlugin>
+#include <private/qdeclarativerectangle_p.h>
+#include <private/qdeclarativescalegrid_p_p.h>
 
 namespace QmlDesigner {
+
+
+FxPlugin::FxPlugin()
+{
+    qmlRegisterType<QDeclarativePen>("Qt",4,6,"Pen");
+    qmlRegisterType<QDeclarativeScaleGrid>("Qt",4,6,"ScaleGrid");
+}
 
 QString FxPlugin::pluginName()
 {

@@ -44,7 +44,7 @@ class FxPlugin : public QObject, QmlDesigner::IWidgetPlugin
     Q_DISABLE_COPY(FxPlugin)
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
 public:
-    FxPlugin() {}
+    FxPlugin();
     ~FxPlugin() {}
 
     QString metaInfo();
