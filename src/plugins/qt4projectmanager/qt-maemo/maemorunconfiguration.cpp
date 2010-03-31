@@ -45,6 +45,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
+#include <QtCore/QString>
 #include <QtCore/QStringBuilder>
 
 namespace Qt4ProjectManager {
@@ -289,9 +290,19 @@ const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 
 const QString MaemoRunConfiguration::gdbCmd() const
 {
+    QSettings *settings = Core::ICore::instance()->settings();
+    bool useMadde = settings->value(QLatin1String("MaemoDebugger/useMaddeGdb"),
+        true).toBool();
+
+    QString gdbPath;
     if (const MaemoToolChain *tc = toolchain())
-        return tc->targetRoot() + "/bin/gdb";
-    return QString();
+        gdbPath = tc->targetRoot() + QLatin1String("/bin/gdb");
+
+    if (!useMadde) {
+        gdbPath = settings->value(QLatin1String("MaemoDebugger/gdb"),
+            gdbPath).toString();
+    }
+    return QDir::toNativeSeparators(gdbPath);
 }
 
 QString MaemoRunConfiguration::maddeRoot() const
@@ -328,11 +339,13 @@ const QString MaemoRunConfiguration::dumperLib() const
 
 QString MaemoRunConfiguration::executable() const
 {
-    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()
+        ->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();
 
-    return QDir::cleanPath(ti.workingDir + QLatin1Char('/') + ti.target);
+    return QDir::toNativeSeparators(QDir::cleanPath(ti.workingDir
+        + QLatin1Char('/') + ti.target));
 }
 
 QString MaemoRunConfiguration::simulatorSshPort() const

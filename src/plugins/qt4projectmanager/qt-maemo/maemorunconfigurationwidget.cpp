@@ -35,6 +35,7 @@
 #include "maemorunconfigurationwidget.h"
 
 #include "maemodeviceconfigurations.h"
+#include "maemogdbsettingspage.h"
 #include "maemomanager.h"
 #include "maemorunconfiguration.h"
 #include "maemosettingspage.h"
@@ -65,22 +66,33 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     mainLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     m_configNameLineEdit = new QLineEdit(m_runConfiguration->displayName());
     mainLayout->addRow(tr("Run configuration name:"), m_configNameLineEdit);
+
     QWidget *devConfWidget = new QWidget;
     QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
     m_devConfBox = new QComboBox;
     m_devConfBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     devConfLayout->setMargin(0);
     devConfLayout->addWidget(m_devConfBox);
-    QLabel *addDevConfLabel
-        = new QLabel(tr("<a href=\"#\">Manage device configurations</a>"));
+    QLabel *addDevConfLabel= new QLabel(tr("<a href=\"%1\">Manage device configurations</a>")
+        .arg(QLatin1String("deviceconfig")));
     devConfLayout->addWidget(addDevConfLabel);
+
     mainLayout->addRow(new QLabel(tr("Device Configuration:")), devConfWidget);
     m_executableLabel = new QLabel(m_runConfiguration->executable());
     mainLayout->addRow(tr("Executable:"), m_executableLabel);
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     mainLayout->addRow(tr("Arguments:"), m_argsLineEdit);
+
+    QWidget *debuggerWidget = new QWidget;
+    QHBoxLayout *debuggerLayout = new QHBoxLayout(debuggerWidget);
+    debuggerLayout->setMargin(0);
     m_debuggerLabel = new QLabel(m_runConfiguration->gdbCmd());
-    mainLayout->addRow(tr("Debugger:"), m_debuggerLabel);
+    debuggerLayout->addWidget(m_debuggerLabel);
+    QLabel *debuggerConfLabel = new QLabel(tr("<a href=\"%1\">Set Maemo Debugger</a>")
+        .arg(QLatin1String("debugger")));
+    debuggerLayout->addWidget(debuggerConfLabel);
+    mainLayout->addRow(tr("Debugger:"), debuggerWidget);
+
     mainLayout->addItem(new QSpacerItem(10, 10));
     m_simNameLabel = new QLabel(tr("Simulator:"));
     m_simValueLabel = new QLabel(m_runConfiguration->visibleSimulatorParameter());
@@ -101,7 +113,11 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
     connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showSettingsDialog()));
+        SLOT(showSettingsDialog(QString)));
+    connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
+        SLOT(showSettingsDialog(QString)));
+    connect(MaemoManager::instance().gdbSettingsPage(), SIGNAL(updateGdbLocation()),
+        this, SLOT(updateGdbLocation()));
 }
 
 void MaemoRunConfigurationWidget::configNameEdited(const QString &text)
@@ -117,6 +133,11 @@ void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
 void MaemoRunConfigurationWidget::updateTargetInformation()
 {
     m_executableLabel->setText(m_runConfiguration->executable());
+}
+
+void MaemoRunConfigurationWidget::updateGdbLocation()
+{
+    m_debuggerLabel->setText(m_runConfiguration->gdbCmd());
 }
 
 void MaemoRunConfigurationWidget::updateSimulatorPath()
@@ -152,11 +173,15 @@ void MaemoRunConfigurationWidget::resetDeviceConfigurations()
     setSimInfoVisible(devConf);
 }
 
-void MaemoRunConfigurationWidget::showSettingsDialog()
+void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)
 {
-    MaemoSettingsPage *settingsPage = MaemoManager::instance().settingsPage();
-    Core::ICore::instance()->showOptionsDialog(settingsPage->category(),
-        settingsPage->id());
+    if (link == QLatin1String("debugger")) {
+        MaemoGdbSettingsPage *page = MaemoManager::instance().gdbSettingsPage();
+        Core::ICore::instance()->showOptionsDialog(page->category(), page->id());
+    } else if (link == QLatin1String("deviceconfig")) {
+        MaemoSettingsPage *page = MaemoManager::instance().settingsPage();
+        Core::ICore::instance()->showOptionsDialog(page->category(), page->id());
+    }
 }
 
 } // namespace Internal

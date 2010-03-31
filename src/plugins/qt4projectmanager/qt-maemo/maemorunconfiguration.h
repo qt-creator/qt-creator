@@ -142,7 +142,7 @@ private:
     mutable QString m_simulatorGdbServerPort;
     mutable bool m_cachedSimulatorInformationValid;
 
-    QString m_gdbPath;
+    mutable QString m_gdbPath;
 
     MaemoDeviceConfig m_devConfig;
     QStringList m_arguments;

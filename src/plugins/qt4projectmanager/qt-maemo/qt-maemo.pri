@@ -1,33 +1,41 @@
 INCLUDEPATH += $$PWD/../../../libs/3rdparty/botan/build
 INCLUDEPATH += $$PWD/../../../libs/3rdparty/net7ssh/src
 LIBS += -l$$qtLibraryTarget(Net7ssh) -l$$qtLibraryTarget(Botan)
-HEADERS += $$PWD/maemorunconfiguration.h \
-    $$PWD/maemomanager.h \
-    $$PWD/maemotoolchain.h \
+
+HEADERS += \
+    $$PWD/maemoconfigtestdialog.h \
+    $$PWD/maemoconstants.h \
     $$PWD/maemodeviceconfigurations.h \
+    $$PWD/maemogdbsettingspage.h \
+    $$PWD/maemomanager.h \
+    $$PWD/maemorunconfiguration.h \
+    $$PWD/maemorunconfigurationwidget.h \
+    $$PWD/maemoruncontrol.h \
+    $$PWD/maemorunfactories.h \
     $$PWD/maemosettingspage.h \
     $$PWD/maemosettingswidget.h \
     $$PWD/maemosshconnection.h \
     $$PWD/maemosshthread.h \
-    $$PWD/maemoruncontrol.h \
-    $$PWD/maemorunconfigurationwidget.h \
-    $$PWD/maemorunfactories.h \
-    $$PWD/maemoconstants.h \
-    $$PWD/maemoconfigtestdialog.h
+    $$PWD/maemotoolchain.h
 
-SOURCES += $$PWD/maemorunconfiguration.cpp \
-    $$PWD/maemomanager.cpp \
-    $$PWD/maemotoolchain.cpp \
+SOURCES += \
+    $$PWD/maemoconfigtestdialog.cpp \
     $$PWD/maemodeviceconfigurations.cpp \
+    $$PWD/maemogdbsettingspage.cpp \
+    $$PWD/maemomanager.cpp \
+    $$PWD/maemorunconfiguration.cpp \
+    $$PWD/maemorunconfigurationwidget.cpp \
+    $$PWD/maemoruncontrol.cpp \
+    $$PWD/maemorunfactories.cpp \
     $$PWD/maemosettingspage.cpp \
     $$PWD/maemosettingswidget.cpp \
     $$PWD/maemosshconnection.cpp \
     $$PWD/maemosshthread.cpp \
-    $$PWD/maemoruncontrol.cpp \
-    $$PWD/maemorunconfigurationwidget.cpp \
-    $$PWD/maemorunfactories.cpp \
-    $$PWD/maemoconfigtestdialog.cpp
+    $$PWD/maemotoolchain.cpp
 
-FORMS += $$PWD/maemosettingswidget.ui \
-    $$PWD/maemoconfigtestdialog.ui
+FORMS += \
+    $$PWD/maemoconfigtestdialog.ui \
+    $$PWD/maemogdbwidget.ui \
+    $$PWD/maemosettingswidget.ui
+
 RESOURCES += $$PWD/qt-maemo.qrc

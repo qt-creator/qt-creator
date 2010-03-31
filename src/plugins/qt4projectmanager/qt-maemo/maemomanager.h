@@ -53,6 +53,7 @@ namespace Qt4ProjectManager {
     class QtVersion;
 namespace Internal {
 
+class MaemoGdbSettingsPage;
 class MaemoRunControlFactory;
 class MaemoRunConfigurationFactory;
 class MaemoSettingsPage;
@@ -75,6 +76,7 @@ public:
     void setQemuSimulatorStarterEnabled(bool state);
 
     MaemoSettingsPage *settingsPage() const { return m_settingsPage; }
+    MaemoGdbSettingsPage *gdbSettingsPage() const { return m_gdbSettingsPage; }
 
 public slots:
     void triggered();
@@ -89,6 +91,7 @@ private:
     MaemoRunControlFactory *m_runControlFactory;
     MaemoRunConfigurationFactory *m_runConfigurationFactory;
     MaemoSettingsPage *m_settingsPage;
+    MaemoGdbSettingsPage *m_gdbSettingsPage;
 
     QIcon icon;
     int m_runCount;

@@ -31,6 +31,7 @@
 #include "qtversionmanager.h"
 
 #include "maemodeviceconfigurations.h"
+#include "maemogdbsettingspage.h"
 #include "maemorunfactories.h"
 #include "maemosettingspage.h"
 #include "maemotoolchain.h"
@@ -63,6 +64,7 @@ MaemoManager::MaemoManager()
     , m_runControlFactory(new MaemoRunControlFactory(this))
     , m_runConfigurationFactory(new MaemoRunConfigurationFactory(this))
     , m_settingsPage(new MaemoSettingsPage(this))
+    , m_gdbSettingsPage(new MaemoGdbSettingsPage(this))
     , m_qemuCommand(0)
 {
     Q_ASSERT(!m_instance);
@@ -77,6 +79,7 @@ MaemoManager::MaemoManager()
     ExtensionSystem::PluginManager::instance()->addObject(m_runControlFactory);
     ExtensionSystem::PluginManager::instance()->addObject(m_runConfigurationFactory);
     ExtensionSystem::PluginManager::instance()->addObject(m_settingsPage);
+    ExtensionSystem::PluginManager::instance()->addObject(m_gdbSettingsPage);
 }
 
 MaemoManager::~MaemoManager()
@@ -84,6 +87,7 @@ MaemoManager::~MaemoManager()
     ExtensionSystem::PluginManager::instance()->removeObject(m_runControlFactory);
     ExtensionSystem::PluginManager::instance()->removeObject(m_runConfigurationFactory);
     ExtensionSystem::PluginManager::instance()->removeObject(m_settingsPage);
+    ExtensionSystem::PluginManager::instance()->removeObject(m_gdbSettingsPage);
 
     m_instance = 0;
 }

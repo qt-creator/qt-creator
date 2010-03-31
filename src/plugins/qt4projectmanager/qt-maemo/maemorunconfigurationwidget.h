@@ -61,8 +61,9 @@ private slots:
     void argumentsEdited(const QString &args);
     void deviceConfigurationChanged(const QString &name);
     void resetDeviceConfigurations();
-    void showSettingsDialog();
+    void showSettingsDialog(const QString &link);
 
+    void updateGdbLocation();
     void updateSimulatorPath();
     void updateTargetInformation();
 
