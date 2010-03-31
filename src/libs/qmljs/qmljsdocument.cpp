@@ -52,7 +52,9 @@ Document::Document(const QString &fileName)
     QFileInfo fileInfo(fileName);
     _path = fileInfo.absolutePath();
 
-    if (fileInfo.suffix() == QLatin1String("qml")) {
+    // ### Should use mime type
+    if (fileInfo.suffix() == QLatin1String("qml")
+            || fileInfo.suffix() == QLatin1String("qmlproject")) {
         _isQmlDocument = true;
         _componentName = fileInfo.baseName();
 
