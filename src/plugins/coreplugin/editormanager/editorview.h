@@ -84,7 +84,8 @@ public:
     void showEditorInfoBar(const QString &id,
                            const QString &infoText,
                            const QString &buttonText,
-                           QObject *object, const char *member);
+                           QObject *object, const char *buttonPressMember,
+                           const char *cancelButtonPressMember = 0);
     void hideEditorInfoBar(const QString &id);
 
     void showEditorStatusBar(const QString &id,
@@ -109,6 +110,7 @@ private:
     QFrame *m_infoWidget;
     QLabel *m_infoWidgetLabel;
     QToolButton *m_infoWidgetButton;
+    QToolButton *m_infoWidgetCloseButton;
     IEditor *m_editorForInfoWidget;
     QString m_statusWidgetId;
     QFrame *m_statusHLine;

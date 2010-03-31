@@ -112,13 +112,12 @@ EditorView::EditorView(QWidget *parent) :
         m_infoWidgetButton->setText(tr("Placeholder"));
         hbox->addWidget(m_infoWidgetButton);
 
-        QToolButton *closeButton = new QToolButton;
-        closeButton->setAutoRaise(true);
-        closeButton->setIcon(QIcon(":/core/images/clear.png"));
-        closeButton->setToolTip(tr("Close"));
-        connect(closeButton, SIGNAL(clicked()), m_infoWidget, SLOT(hide()));
+        m_infoWidgetCloseButton = new QToolButton;
+        m_infoWidgetCloseButton->setAutoRaise(true);
+        m_infoWidgetCloseButton->setIcon(QIcon(":/core/images/clear.png"));
+        m_infoWidgetCloseButton->setToolTip(tr("Close"));
 
-        hbox->addWidget(closeButton);
+        hbox->addWidget(m_infoWidgetCloseButton);
 
         m_infoWidget->setVisible(false);
         tl->addWidget(m_infoWidget);
@@ -173,14 +172,22 @@ void EditorView::closeView()
 void EditorView::showEditorInfoBar(const QString &id,
                                    const QString &infoText,
                                    const QString &buttonText,
-                                   QObject *object, const char *member)
+                                   QObject *object, const char *buttonPressMember,
+                                   const char *cancelButtonPressMember)
 {
     m_infoWidgetId = id;
     m_infoWidgetLabel->setText(infoText);
     m_infoWidgetButton->setText(buttonText);
+
     m_infoWidgetButton->disconnect();
-    if (object && member)
-        connect(m_infoWidgetButton, SIGNAL(clicked()), object, member);
+    if (object && buttonPressMember)
+        connect(m_infoWidgetButton, SIGNAL(clicked()), object, buttonPressMember);
+
+    m_infoWidgetCloseButton->disconnect();
+    if (object && cancelButtonPressMember)
+        connect(m_infoWidgetCloseButton, SIGNAL(clicked()), object, cancelButtonPressMember);
+    connect(m_infoWidgetCloseButton, SIGNAL(clicked()), m_infoWidget, SLOT(hide()));
+
     m_infoWidget->setVisible(true);
     m_editorForInfoWidget = currentEditor();
 }

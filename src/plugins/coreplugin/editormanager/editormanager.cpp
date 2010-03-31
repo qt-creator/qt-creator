@@ -1770,9 +1770,10 @@ void EditorManager::revertToSaved()
 void EditorManager::showEditorInfoBar(const QString &id,
                                       const QString &infoText,
                                       const QString &buttonText,
-                                      QObject *object, const char *member)
+                                      QObject *object, const char *buttonPressMember,
+                                      const char *cancelButtonPressMember)
 {
-    currentEditorView()->showEditorInfoBar(id, infoText, buttonText, object, member);
+    currentEditorView()->showEditorInfoBar(id, infoText, buttonText, object, buttonPressMember, cancelButtonPressMember);
 }
 
 

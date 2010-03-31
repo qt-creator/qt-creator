@@ -139,7 +139,9 @@ void QmlJSEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
     if (qobject_cast<QmlJSEditorEditable *>(editor)) {
         Core::EditorManager::instance()->showEditorInfoBar(QMLDESIGNER_INFO_BAR,
             tr("Do you want to enable the experimental Qt Quick Designer?"),
-            tr("Enable Qt Quick Designer"), this, SLOT(activateQmlDesigner()));
+            tr("Enable Qt Quick Designer"), this,
+            SLOT(activateQmlDesigner()),
+            SLOT(neverAskAgainAboutQmlDesigner()));
     } else {
         Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
     }
@@ -161,7 +163,6 @@ void QmlJSEditorFactory::activateQmlDesigner()
                        "To disable Qt Quick Designer again, visit the menu '%1' and disable 'QmlDesigner'.").arg(menu));
     message.setIcon(QMessageBox::Question);
     QPushButton *enable = message.addButton(tr("Enable Qt Quick Designer"), QMessageBox::AcceptRole);
-    QPushButton *dontNag = message.addButton(tr("Never ask me again"), QMessageBox::ActionRole);
     message.addButton(tr("Cancel"), QMessageBox::RejectRole);
     message.exec();
     if (message.clickedButton() == enable) {
@@ -178,13 +179,15 @@ void QmlJSEditorFactory::activateQmlDesigner()
                 return;
             }
         }
-    } else if (message.clickedButton() == dontNag) {
-        QSettings *settings = Core::ICore::instance()->settings();
-        settings->beginGroup(QLatin1String(KEY_QMLGROUP));
-        settings->setValue(QLatin1String(KEY_NAGABOUTDESIGNER), false);
-        settings->endGroup();
-        disconnect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-                 this, SLOT(updateEditorInfoBar(Core::IEditor*)));
-        Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
     }
+}
+
+void QmlJSEditorFactory::neverAskAgainAboutQmlDesigner()
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup(QLatin1String(KEY_QMLGROUP));
+    settings->setValue(QLatin1String(KEY_NAGABOUTDESIGNER), false);
+    settings->endGroup();
+    disconnect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+             this, SLOT(updateEditorInfoBar(Core::IEditor*)));
 }

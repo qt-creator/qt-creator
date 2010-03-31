@@ -60,6 +60,7 @@ public:
 
 private slots:
     void activateQmlDesigner();
+    void neverAskAgainAboutQmlDesigner();
     void updateEditorInfoBar(Core::IEditor *editor);
 
 private:
