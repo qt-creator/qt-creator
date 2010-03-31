@@ -1,6 +1,5 @@
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
-include(../../plugins/help/help.pri)
 include(../../shared/indenter/indenter.pri)
 include(../../libs/qmljs/qmljs.pri)
 include(../../libs/utils/utils.pri)

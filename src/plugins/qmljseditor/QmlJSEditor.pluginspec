@@ -16,6 +16,5 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <dependencyList>
         <dependency name="Core" version="1.3.82"/>
         <dependency name="TextEditor" version="1.3.82"/>
-        <dependency name="Help" version="1.3.82"/>
     </dependencyList>
 </plugin>

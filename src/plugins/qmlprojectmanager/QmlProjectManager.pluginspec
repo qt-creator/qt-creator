@@ -17,7 +17,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
         <dependency name="ProjectExplorer" version="1.3.82"/>
         <dependency name="TextEditor" version="1.3.82"/>
         <dependency name="QmlJSEditor" version="1.3.82"/>
-        <dependency name="Help" version="1.3.82"/>
         <dependency name="Debugger" version="1.3.82" />
     </dependencyList>
 </plugin>
