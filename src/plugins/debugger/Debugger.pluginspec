@@ -1,4 +1,4 @@
-<plugin name="Debugger" version="1.3.82" compatVersion="1.3.82">
+<plugin name="Debugger" version="1.3.83" compatVersion="1.3.83">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,10 +14,10 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Debugger integration.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="CppEditor" version="1.3.82"/><!-- Debugger plugin adds items to the editor's context menu -->
-        <dependency name="ProjectExplorer" version="1.3.82"/>
-        <dependency name="Core" version="1.3.82"/>
-        <dependency name="Find" version="1.3.82"/>
+        <dependency name="CppEditor" version="1.3.83"/><!-- Debugger plugin adds items to the editor's context menu -->
+        <dependency name="ProjectExplorer" version="1.3.83"/>
+        <dependency name="Core" version="1.3.83"/>
+        <dependency name="Find" version="1.3.83"/>
     </dependencyList>
     <argumentList>
         <argument name="-disable-cdb">Disable Cdb debugger engine</argument>

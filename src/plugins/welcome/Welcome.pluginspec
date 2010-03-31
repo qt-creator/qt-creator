@@ -1,4 +1,4 @@
-<plugin name="Welcome" version="1.3.82" compatVersion="1.3.82">
+<plugin name="Welcome" version="1.3.83" compatVersion="1.3.83">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,6 +14,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Default Welcome Screen Plugin</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.3.82"/>
+        <dependency name="Core" version="1.3.83"/>
     </dependencyList>
 </plugin>

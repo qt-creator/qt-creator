@@ -1,4 +1,4 @@
-<plugin name="CodePaster" version="1.3.82" compatVersion="1.3.82">
+<plugin name="CodePaster" version="1.3.83" compatVersion="1.3.83">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -13,8 +13,8 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Codepaster plugin for pushing/fetching diff from server</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.3.82"/>
-        <dependency name="ProjectExplorer" version="1.3.82"/>
-        <dependency name="Core" version="1.3.82"/>
+        <dependency name="TextEditor" version="1.3.83"/>
+        <dependency name="ProjectExplorer" version="1.3.83"/>
+        <dependency name="Core" version="1.3.83"/>
     </dependencyList>
 </plugin>
