@@ -123,7 +123,7 @@ public slots:
     void resetValue();
 
 signals:
-    void valueChanged(const QString &name);
+    void valueChanged(const QString &name, const QVariant&);
 
     void expressionChanged(const QString &name);
 
