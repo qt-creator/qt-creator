@@ -3220,6 +3220,15 @@ void TestCore::testMetaInfoEnums()
 
 void TestCore::testMetaInfoDotProperties()
 {
+
+#ifdef Q_OS_MAC
+    const QString pluginPath = QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner";
+#else
+    const QString pluginPath = QCoreApplication::applicationDirPath() + "/../"
+                               + QLatin1String("lib") + "/qmldesigner";
+#endif
+    MetaInfo::setPluginPaths(QStringList() << pluginPath);
+
     QScopedPointer<Model> model(Model::create("Qt/Text"));
     QVERIFY(model.data());
 
@@ -3228,6 +3237,9 @@ void TestCore::testMetaInfoDotProperties()
     model->attachView(view.data());
 
     QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Text"));
+
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Pen"));
+
     QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("Qt/Text"));
     QVERIFY(!view->rootModelNode().metaInfo().property("text").isValueType());
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font"));
