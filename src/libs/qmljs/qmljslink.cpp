@@ -149,19 +149,6 @@ void Link::linkImports()
     }
 }
 
-static QString componentName(const QString &fileName)
-{
-    QString componentName = fileName;
-    int sepIndex = componentName.lastIndexOf(QDir::separator());
-    if (sepIndex != -1)
-        componentName.remove(0, sepIndex + 1);
-    int dotIndex = componentName.indexOf(QLatin1Char('.'));
-    if (dotIndex != -1)
-        componentName.truncate(dotIndex);
-    componentName[0] = componentName[0].toUpper();
-    return componentName;
-}
-
 void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Ptr doc)
 {
     if (! (doc->qmlProgram() && doc->qmlProgram()->imports))
@@ -178,7 +165,7 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
         if (otherDoc == doc)
             continue;
 
-        typeEnv->setProperty(componentName(otherDoc->fileName()),
+        typeEnv->setProperty(otherDoc->componentName(),
                              otherDoc->bind()->rootObjectValue());
     }
 
@@ -226,7 +213,7 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
         }
 
         foreach (Document::Ptr importedDoc, _documentByPath.values(path)) {
-            const QString targetName = componentName(importedDoc->fileName());
+            const QString targetName = importedDoc->componentName();
             importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
         }
     }
@@ -236,7 +223,7 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
         if (import->importId) {
             targetName = import->importId->asString();
         } else {
-            targetName = componentName(importedDoc->fileName());
+            targetName = importedDoc->componentName();
         }
 
         importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
