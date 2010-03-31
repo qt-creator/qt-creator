@@ -86,8 +86,6 @@ QWidget* OpenPagesManager::openPagesWidget() const
 
 QComboBox* OpenPagesManager::openPagesComboBox() const
 {
-    if (!m_comboBox) {
-    }
     return m_comboBox;
 }
 
@@ -192,7 +190,7 @@ void OpenPagesManager::setCurrentPage(int index)
     m_comboBox->setCurrentIndex(index);
     CentralWidget::instance()->setCurrentPage(m_model->pageAt(index));
 
-    selectCurrentPage();    // update the selction inside the tree view
+    selectCurrentPage();    // update the selection inside the tree view
 }
 
 void OpenPagesManager::setCurrentPage(const QModelIndex &index)
@@ -252,5 +250,5 @@ void OpenPagesManager::removePage(int index)
     CentralWidget::instance()->removePage(index);
 
     emit pagesChanged();
-    selectCurrentPage();    // update the selction inside the tree view
+    selectCurrentPage();    // update the selection inside the tree view
 }
