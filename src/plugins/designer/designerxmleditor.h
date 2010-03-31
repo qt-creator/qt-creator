@@ -58,10 +58,6 @@ public:
 
     FormWindowEditor *designerEditor() const;
 
-private slots:
-    void designerModeClicked();
-    void updateEditorInfoBar(Core::IEditor *editor);
-
 protected:
     virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
 

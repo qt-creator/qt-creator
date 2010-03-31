@@ -50,8 +50,6 @@ DesignerXmlEditor::DesignerXmlEditor(QDesignerFormWindowInterface *form,
     m_designerEditor(new FormWindowEditor(this, form))
 {
     setReadOnly(true);
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-             SLOT(updateEditorInfoBar(Core::IEditor*)));
 }
 
 TextEditor::BaseTextEditorEditable *DesignerXmlEditor::createEditableInterface()
@@ -59,22 +57,6 @@ TextEditor::BaseTextEditorEditable *DesignerXmlEditor::createEditableInterface()
     if (Designer::Constants::Internal::debug)
         qDebug() << "DesignerXmlEditor::createEditableInterface()";
     return m_designerEditor->textEditable();
-}
-
-void DesignerXmlEditor::updateEditorInfoBar(Core::IEditor *editor)
-{
-    if (editor == m_designerEditor) {
-        Core::EditorManager::instance()->showEditorInfoBar(Constants::INFO_READ_ONLY,
-            tr("This file can only be edited in Design Mode."),
-            tr("Open Designer"), this, SLOT(designerModeClicked()));
-    }
-    if (!editor)
-        Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_READ_ONLY);
-}
-
-void DesignerXmlEditor::designerModeClicked()
-{
-    Core::ICore::instance()->modeManager()->activateMode(QLatin1String(Core::Constants::MODE_DESIGN));
 }
 
 FormWindowEditor *DesignerXmlEditor::designerEditor() const

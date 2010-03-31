@@ -56,6 +56,10 @@ public:
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
+private slots:
+    void designerModeClicked();
+    void updateEditorInfoBar(Core::IEditor *editor);
+
 private:
     const QStringList m_mimeTypes;
 };

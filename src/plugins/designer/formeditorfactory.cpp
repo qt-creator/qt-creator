@@ -34,9 +34,11 @@
 #include "designerconstants.h"
 #include "designerxmleditor.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/modemanager.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
@@ -53,6 +55,8 @@ FormEditorFactory::FormEditorFactory()
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/formeditor/images/qt_ui.png")),
                                                QLatin1String("ui"));
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+             SLOT(updateEditorInfoBar(Core::IEditor*)));
 }
 
 QString FormEditorFactory::id() const
@@ -80,6 +84,22 @@ Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)
 QStringList FormEditorFactory::mimeTypes() const
 {
     return m_mimeTypes;
+}
+
+void FormEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
+{
+    if (qobject_cast<FormWindowEditor *>(editor)) {
+        Core::EditorManager::instance()->showEditorInfoBar(Constants::INFO_READ_ONLY,
+            tr("This file can only be edited in Design Mode."),
+            tr("Open Designer"), this, SLOT(designerModeClicked()));
+    } else {
+        Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_READ_ONLY);
+    }
+}
+
+void FormEditorFactory::designerModeClicked()
+{
+    Core::ICore::instance()->modeManager()->activateMode(QLatin1String(Core::Constants::MODE_DESIGN));
 }
 
 } // namespace Internal
