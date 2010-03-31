@@ -1305,16 +1305,19 @@ void QtVersion::updateToolChainAndMkspec() const
         m_toolChains << ToolChainPtr(
                 ProjectExplorer::ToolChain::createMinGWToolChain(qmakeCXX, mingwDirectory()));
         m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
-    } else if (qmakeCXX == "g++" || qmakeCXX == "icc") {
+    } else if (qmakeCXX == "g++") {
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
-        qmakeCXX = env.searchInPath(qmakeCXX);
         if (qmakeCXX.isEmpty()) {
             // macx-xcode mkspec resets the value of QMAKE_CXX.
             // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
             qmakeCXX = QLatin1String("cc");
         }
+        qmakeCXX = env.searchInPath(qmakeCXX);
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX));
+        m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
+    } else if (qmakeCXX == "icpc") {
+        m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createLinuxIccToolChain());
         m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
     }
 

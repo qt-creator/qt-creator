@@ -965,7 +965,7 @@ static QString msgEngineNotAvailable(const char *engine)
 static IDebuggerEngine *debuggerEngineForToolChain(int toolChainType)
 {
     switch (toolChainType) {
-    //case ProjectExplorer::ToolChain::LinuxICC:
+    case ProjectExplorer::ToolChain::LINUX_ICC:
     case ProjectExplorer::ToolChain::MinGW:
     case ProjectExplorer::ToolChain::GCC:
         return gdbEngine;
@@ -1885,7 +1885,7 @@ bool DebuggerManager::checkDebugConfiguration(int toolChain,
     bool success = true;
     switch(toolChain) {
     case ProjectExplorer::ToolChain::GCC:
-    //case ProjectExplorer::ToolChain::LinuxICC:
+    case ProjectExplorer::ToolChain::LINUX_ICC:
     case ProjectExplorer::ToolChain::MinGW:
     case ProjectExplorer::ToolChain::WINCE: // S60
     case ProjectExplorer::ToolChain::WINSCW:
