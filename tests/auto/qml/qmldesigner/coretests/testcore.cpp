@@ -4136,7 +4136,7 @@ void TestCore::testInstancesAttachToExistingModel()
     QCOMPARE(QVariant(100), rectangleInstance.property("width"));
     QVERIFY(rootInstance.testHandle());
     QVERIFY(rectangleInstance.testHandle());
-    QCOMPARE(rootInstance.testHandle(), rectangleInstance.testHandle()->parent());
+    QCOMPARE(rootInstance.testHandle(), qobject_cast<QGraphicsObject*>(rectangleInstance.testHandle())->parentItem()->toGraphicsObject());
 }
 
 void TestCore::testQmlModelAddMultipleStates()
