@@ -242,8 +242,6 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
         setEnabled(false);
         d->m_currentEditor = QWeakPointer<Core::IEditor>();
         emit actionsUpdated(d->m_currentEditor.data());
-
-        QTC_ASSERT(core->modeManager()->currentMode() != this, core->modeManager()->activateMode(Constants::MODE_EDIT));
     } else {
         d->m_currentEditor = QWeakPointer<Core::IEditor>(editor);
 
