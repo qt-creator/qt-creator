@@ -1690,7 +1690,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location line="+42"/>
+        <location line="+43"/>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expandiert zu&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;Zeilennummer&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;Spaltennummer&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;X-Koordinate der Position des Editors&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;Y-Koordinate der Position des Editors&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;Breite des Editors (Pixel)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;Höhe des Editors (Pixel)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;Breite des Editors (Zeichen)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;Höhe des Editors (Zeichen)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
@@ -1821,12 +1821,12 @@ Sollen sie überschrieben werden?</translation>
     <name>Core::Internal::EditorView</name>
     <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="+112"/>
-        <location line="+37"/>
+        <location line="+36"/>
         <source>Placeholder</source>
         <translation>Platzhalter</translation>
     </message>
     <message>
-        <location line="-31"/>
+        <location line="-30"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
@@ -15939,7 +15939,7 @@ Qt Centre</translation>
         <translation>Ungültiger Modifikator für regulären Ausdruck &apos;%0&apos;</translation>
     </message>
     <message>
-        <location filename="../../../src/libs/qmljs/parser/qmljsparser.cpp" line="+1784"/>
+        <location filename="../../../src/libs/qmljs/parser/qmljsparser.cpp" line="+1828"/>
         <location line="+67"/>
         <source>Syntax error</source>
         <translation>Syntaxfehler</translation>
@@ -20780,7 +20780,7 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>QmlJS::Link</name>
     <message>
-        <location filename="../../../src/libs/qmljs/qmljslink.cpp" line="+245"/>
+        <location filename="../../../src/libs/qmljs/qmljslink.cpp" line="+232"/>
         <source>could not find file or directory</source>
         <translation>Datei oder Ordner konnte nicht gefunden werden</translation>
     </message>
@@ -21285,7 +21285,7 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>QmlJSEditor::Internal::QmlJSEditorFactory</name>
     <message>
-        <location filename="../../../src/plugins/qmljseditor/qmljseditorfactory.cpp" line="+152"/>
+        <location filename="../../../src/plugins/qmljseditor/qmljseditorfactory.cpp" line="+154"/>
         <source>Qt Creator -&gt; About Plugins...</source>
         <translation>Qt Creator -&gt;Plugins...</translation>
     </message>
@@ -21295,13 +21295,13 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Hilfe -&gt; Plugins...</translation>
     </message>
     <message>
-        <location line="-13"/>
+        <location line="-15"/>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
         <translation>Möchten Sie den experimentellen Quick-Designer aktivieren?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+21"/>
+        <location line="+23"/>
         <source>Enable Qt Quick Designer</source>
         <translation>Quick Designer aktivieren</translation>
     </message>
@@ -21317,11 +21317,6 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Never ask me again</source>
-        <translation>Nicht mehr nachfragen</translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
@@ -21359,6 +21354,27 @@ Haben Sie Qemu gestartet?</translation>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
         <translation>Details</translation>
+    </message>
+    <message>
+        <location filename="customwizard_tr.h" line="+1"/>
+        <source>Creates a plug-in for the QML runtime.</source>
+        <translation>Erzeugt ein Plugin für die QML-Laufzeitumgebung.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+1"/>
+        <source>QML Runtime Plug-in</source>
+        <translation>Plugin für QML-Laufzeitumgebung</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>QML Runtime Plug-in Parameters</source>
+        <translation>Parameter des Plugins für die QML-Laufzeitumgebung</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Example Object Class-name:</source>
+        <translation type="unfinished">Klassenname des Beispiel-Objektes:</translation>
     </message>
 </context>
 <context>
