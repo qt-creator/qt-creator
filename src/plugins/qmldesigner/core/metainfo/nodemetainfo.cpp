@@ -272,7 +272,8 @@ QHash<QString,PropertyMetaInfo> NodeMetaInfo::dotProperties() const
                 QString propertyType = property(propertyName).type();
                 if (propertyType.right(1) == "*")
                     propertyType = propertyType.left(propertyType.size() - 1).trimmed();
-                NodeMetaInfo nodeInfo(m_data->metaInfo.nodeMetaInfo(propertyType, majorVersion(), minorVersion()));
+
+                NodeMetaInfo nodeInfo(m_data->metaInfo.nodeMetaInfo(m_data->metaInfo.fromQtTypes(propertyType), majorVersion(), minorVersion()));
                 if (nodeInfo.isValid()) {
                     QHashIterator<QString,PropertyMetaInfo> iter(nodeInfo.properties());
                     while (iter.hasNext()) {
@@ -315,7 +316,7 @@ PropertyMetaInfo NodeMetaInfo::property(const QString &propertyName, bool resolv
             QString propertyType = propInfo.type();
             if (propertyType.right(1) == "*")
                 propertyType = propertyType.left(propertyType.size() - 1).trimmed();
-            nodeInfo = m_data->metaInfo.nodeMetaInfo(propertyType, majorVersion(), minorVersion());
+            nodeInfo = m_data->metaInfo.nodeMetaInfo(m_data->metaInfo.fromQtTypes(propertyType), majorVersion(), minorVersion());
             if (!nodeInfo.isValid()) {
                 qDebug() << "no type info available for" << propertyType;
                 break;
@@ -370,7 +371,7 @@ bool NodeMetaInfo::hasLocalProperty(const QString &propertyName, bool resolveDot
             QString propertyType = propInfo.type();
             if (propertyType.right(1) == "*")
                 propertyType = propertyType.left(propertyType.size() - 1).trimmed();
-            nodeInfo = m_data->metaInfo.nodeMetaInfo(propertyType, majorVersion(), minorVersion());
+            nodeInfo = m_data->metaInfo.nodeMetaInfo(m_data->metaInfo.fromQtTypes(propertyType), majorVersion(), minorVersion());
             if (!nodeInfo.isValid()) {
                 qDebug() << "no type info available for" << propertyType;
                 break;

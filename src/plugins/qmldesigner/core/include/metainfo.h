@@ -85,6 +85,7 @@ public:
     QStringList itemLibraryItems() const;
     QList<ItemLibraryInfo> itemLibraryRepresentations(const NodeMetaInfo &nodeMetaInfo) const;
     ItemLibraryInfo itemLibraryRepresentation(const QString &name) const;
+    QString fromQtTypes(const QString &type) const;
 
 public:
     static MetaInfo global();
