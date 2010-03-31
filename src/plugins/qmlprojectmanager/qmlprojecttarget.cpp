@@ -33,6 +33,7 @@
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectrunconfiguration.h"
 
+#include <QtCore/QDebug>
 #include <QtGui/QApplication>
 #include <QtGui/QStyle>
 
@@ -66,6 +67,11 @@ bool QmlProjectTarget::fromMap(const QVariantMap &map)
 {
     if (!Target::fromMap(map))
         return false;
+
+    if (runConfigurations().isEmpty()) {
+        qWarning() << "Failed to restore run configuration of QML project!";
+        return false;
+    }
 
     setDisplayName(QApplication::translate("QmlProjectManager::QmlTarget",
                                            Constants::QML_VIEWER_TARGET_DISPLAY_NAME,
