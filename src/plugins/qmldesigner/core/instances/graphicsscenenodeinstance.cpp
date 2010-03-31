@@ -122,35 +122,5 @@ void GraphicsSceneNodeInstance::setVisible(bool /*isVisible*/)
 }
 
 
-QList<NodeInstance> GraphicsSceneNodeInstance::instancesInRegions(const QList<QRectF> &regions)
-{
-    QRectF combinedRect;
-    foreach (const QRectF &rect, regions) {
-        combinedRect = combinedRect.united(rect);
-    }
-
-    QList<QGraphicsItem*> itemList;
-    // collect list of possibly changed items
-    // (actually QGraphicsScene could export this)
-
-    foreach (QGraphicsItem *item, graphicsScene()->items(combinedRect.adjusted(0, 0, 1, 1), Qt::ContainsItemBoundingRect)) {
-        if (!itemList.contains(item))
-            itemList.append(item);
-    }
-
-    QList<NodeInstance> instances;
-    if (!itemList.isEmpty()) {
-        foreach (const NodeInstance &nodeInstance, nodeInstanceView()->instances()) {
-            foreach (QGraphicsItem *gvItem, itemList) {
-                if (nodeInstance.equalGraphicsItem(gvItem)) {
-                    instances += nodeInstance;
-                }
-            }
-        }
-    }
-
-    return instances;
-}
-
 }
 }

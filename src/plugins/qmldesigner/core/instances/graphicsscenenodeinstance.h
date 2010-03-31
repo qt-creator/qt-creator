@@ -63,8 +63,6 @@ public:
     bool isVisible() const;
     void setVisible(bool isVisible);
 
-    QList<NodeInstance> instancesInRegions(const QList<QRectF> &region);
-
 protected:
     GraphicsSceneNodeInstance(QGraphicsScene *scene);
     QGraphicsScene *graphicsScene() const;
