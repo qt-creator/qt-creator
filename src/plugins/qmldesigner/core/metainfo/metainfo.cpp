@@ -490,6 +490,14 @@ ItemLibraryInfo MetaInfo::itemLibraryRepresentation(const QString &name) const
     return ItemLibraryInfo();
 }
 
+QString MetaInfo::fromQtTypes(const QString &type) const
+{
+    if (m_p->m_QtTypesToQmlTypes.contains(type))
+        return m_p->m_QtTypesToQmlTypes.value(type);
+
+    return type;
+}
+
 QStringList MetaInfo::itemLibraryItems() const
 {
     QStringList completeList = m_p->m_nodeMetaInfoHash.keys();
