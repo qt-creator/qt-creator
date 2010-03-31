@@ -100,7 +100,19 @@ Snapshot ModelManager::snapshot() const
 
 void ModelManager::updateSourceFiles(const QStringList &files)
 {
-    refreshSourceFiles(files);
+    // for files that are not yet in the snapshot, scan the whole directory
+    QStringList filesToParse;
+    QSet<QString> sourceDirectories;
+
+    foreach (const QString &file, files) {
+        if (! _snapshot.document(file))
+            sourceDirectories.insert(QFileInfo(file).path());
+        else
+            filesToParse.append(file);
+    }
+
+    refreshSourceFiles(filesToParse);
+    refreshSourceDirectories(sourceDirectories.toList());
 }
 
 QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles)

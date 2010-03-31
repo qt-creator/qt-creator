@@ -749,12 +749,11 @@ static void appendExtraSelectionsForMessages(
 
 void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
-    if (file()->fileName() != doc->fileName()) {
-        return;
-    }
-
-    if (doc->documentRevision() != document()->revision()) {
-        // got an outdated document.
+    if (file()->fileName() != doc->fileName()
+            || doc->documentRevision() != document()->revision()) {
+        // didn't get the currently open, or an up to date document.
+        // trigger a semantic rehighlight anyway, after a time
+        updateDocument();
         return;
     }
 
@@ -764,6 +763,7 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
         const SemanticHighlighter::Source source = currentSource(/*force = */ true);
         m_semanticHighlighter->rehighlight(source);
     } else {
+        // show parsing errors
         QList<QTextEdit::ExtraSelection> selections;
         appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
         setExtraSelections(CodeWarningsSelection, selections);

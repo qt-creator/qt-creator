@@ -106,13 +106,7 @@ void QmlProject::parseProject(RefreshOptions options)
         }
         if (m_projectItem) {
             m_projectItem.data()->setSourceDirectory(projectDir().path());
-
-            QSet<QString> sourceDirectories;
-            foreach (const QString &file, m_projectItem.data()->files()) {
-                sourceDirectories.insert(QFileInfo(file).path());
-            }
-
-            m_modelManager->updateSourceDirectories(sourceDirectories.toList());
+            m_modelManager->updateSourceDirectories(m_projectItem.data()->files());
         }
         m_rootNode->refresh();
     }
