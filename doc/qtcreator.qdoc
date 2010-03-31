@@ -765,6 +765,31 @@
     \gui{Update code model} only as an emergency command.
 
 
+    \section1 Pasting and Fetching Code Snippets
+
+    In Qt Creator, you can paste snippets of code onto the server or fetch
+    snippets of code from the server. To paste and fetch snippets of code,
+    Qt Creator uses the following:
+    \list
+        \o \gui{CodePaster}
+        \o \gui{Pastebin.Com}
+        \o \gui{Pastebin.Ca}
+    \endlist
+
+    You can configure the server from \gui{Tools} > \gui{Options...} >
+    \gui{Code Pasting}.
+
+    To paste a snippet of code onto the server, select \gui{Tools} >
+    \gui{Code Pasting} > \gui{Paste Snippet...} or press \key{Alt+C,Alt+P}.
+
+    To fetch a snippet of code from the server, select \gui{Tools} >
+    \gui{Code Pasting} > \gui{Fetch Snippet...} or press \key{Alt+C,Alt+F}.
+
+    \note For using \gui{Pastebin.Com}, you need to configure the domain
+    prefix in \gui{Tools} > \gui{Options...} > \gui{Code Pasting} >
+    \gui{Pastebin.com}.
+
+
     \section1 Using FakeVim Mode
 
     In the \gui{FakeVim} mode, you can run the main editor in a manner similar
