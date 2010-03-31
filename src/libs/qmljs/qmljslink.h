@@ -16,7 +16,7 @@ class NameId;
 /*
     Helper for building a context.
 */
-class Link
+class QMLJS_EXPORT Link
 {
 public:
     // Link all documents in snapshot

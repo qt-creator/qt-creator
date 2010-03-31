@@ -15,7 +15,7 @@ namespace Interpreter {
     class Context;
 }
 
-class ScopeBuilder
+class QMLJS_EXPORT ScopeBuilder
 {
 public:
     ScopeBuilder(Document::Ptr doc, Interpreter::Context *context);
