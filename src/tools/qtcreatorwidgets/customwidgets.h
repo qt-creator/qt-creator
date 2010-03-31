@@ -45,6 +45,8 @@
 #include <utils/pathlisteditor.h>
 #include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
+#include <utils/styledbar.h>
+#include <utils/wizard.h>
 
 #include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
 #include <QtDesigner/QDesignerContainerExtension>
@@ -190,6 +192,37 @@ class DetailsButton_CW :
 public:
     explicit DetailsButton_CW(QObject *parent = 0);
 };
+
+class StyledBar_CW :
+    public QObject,
+    public CustomWidget<Utils::StyledBar>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit StyledBar_CW(QObject *parent = 0);
+};
+
+class StyledSeparator_CW :
+    public QObject,
+    public CustomWidget<Utils::StyledSeparator>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit StyledSeparator_CW(QObject *parent = 0);
+};
+
+class Wizard_CW :
+    public QObject,
+    public CustomWidget<Utils::Wizard>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit Wizard_CW(QObject *parent = 0);
+};
+
 
 // Details Widget: plugin + simple, hacky container extension that
 // accepts only one page.

@@ -190,6 +190,39 @@ DetailsButton_CW::DetailsButton_CW(QObject *parent) :
 {
 }
 
+StyledBar_CW::StyledBar_CW(QObject *parent) :
+    QObject(parent),
+    CustomWidget<Utils::StyledBar>
+    (QLatin1String("<utils/styledbar.h>"),
+    false,
+    QLatin1String(groupC),
+    QIcon(),
+    QLatin1String("Styled bar"))
+{
+}
+
+StyledSeparator_CW::StyledSeparator_CW(QObject *parent) :
+    QObject(parent),
+    CustomWidget<Utils::StyledSeparator>
+    (QLatin1String("<utils/styledbar.h>"),
+    false,
+    QLatin1String(groupC),
+    QIcon(),
+    QLatin1String("Styled separator"))
+{
+}
+
+Wizard_CW::Wizard_CW(QObject *parent) :
+    QObject(parent),
+    CustomWidget<Utils::Wizard>
+    (QLatin1String("<utils/wizard.h>"),
+    true,
+    QLatin1String(groupC),
+    QIcon(),
+    QLatin1String("Wizard with progress indicator"))
+{
+}
+
 DetailsWidget_CW::DetailsWidget_CW(QObject *parent) :
     QObject(parent),
     CustomWidget<Utils::DetailsWidget>
@@ -312,6 +345,9 @@ WidgetCollection::WidgetCollection(QObject *parent) :
     m_plugins.push_back(new PathListEditor_CW(this));
     m_plugins.push_back(new DetailsButton_CW(this));
     m_plugins.push_back(new DetailsWidget_CW(this));
+    m_plugins.push_back(new StyledBar_CW(this));
+    m_plugins.push_back(new StyledSeparator_CW(this));
+    m_plugins.push_back(new Wizard_CW(this));
 }
 
 QList<QDesignerCustomWidgetInterface*> WidgetCollection::customWidgets() const

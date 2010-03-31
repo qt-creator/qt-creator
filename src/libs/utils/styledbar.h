@@ -38,6 +38,7 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT StyledBar : public QWidget
 {
+    Q_OBJECT
 public:
     StyledBar(QWidget *parent = 0);
     void setSingleRow(bool singleRow);
@@ -52,6 +53,7 @@ protected:
 
 class QTCREATOR_UTILS_EXPORT StyledSeparator : public QWidget
 {
+    Q_OBJECT
 public:
     StyledSeparator(QWidget *parent = 0);
 protected:
