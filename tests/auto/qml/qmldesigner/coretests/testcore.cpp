@@ -6233,6 +6233,136 @@ void TestCore::loadWelcomeScreen()
 //    QVERIFY(model1.data());
 }
 
+void TestCore::loadTestFiles()
+{
+    { //empty.qml
+        QFile file(QString(MANUALTEST_PATH) + "/empty.qml");
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+
+        QPlainTextEdit textEdit;
+        textEdit.setPlainText(QString(file.readAll()));
+        NotIndentingTextEditModifier textModifier(&textEdit);
+
+        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
+        QVERIFY(model.data());
+
+        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        testRewriterView->setTextModifier(&textModifier);
+        model->attachView(testRewriterView.data());
+
+
+        QVERIFY(model.data());
+        ModelNode rootModelNode(testRewriterView->rootModelNode());
+        QVERIFY(rootModelNode.isValid());
+        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
+        QVERIFY(rootModelNode.allDirectSubModelNodes().isEmpty());
+    }
+
+    { //helloworld.qml
+        QFile file(QString(MANUALTEST_PATH) + "/helloworld.qml");
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+
+        QPlainTextEdit textEdit;
+        textEdit.setPlainText(QString(file.readAll()));
+        NotIndentingTextEditModifier textModifier(&textEdit);
+
+        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
+        QVERIFY(model.data());
+
+        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        testRewriterView->setTextModifier(&textModifier);
+        model->attachView(testRewriterView.data());
+
+
+        QVERIFY(model.data());
+        ModelNode rootModelNode(testRewriterView->rootModelNode());
+        QVERIFY(rootModelNode.isValid());
+        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
+        QCOMPARE(rootModelNode.allDirectSubModelNodes().count(), 1);
+        QCOMPARE(rootModelNode.variantProperty("width").value().toInt(), 200);
+        QCOMPARE(rootModelNode.variantProperty("height").value().toInt(), 200);
+
+        ModelNode textNode(rootModelNode.allDirectSubModelNodes().first());
+        QVERIFY(textNode.isValid());
+        QCOMPARE(textNode.type(), QLatin1String("Qt/Text"));
+        QCOMPARE(textNode.variantProperty("x").value().toInt(), 66);
+        QCOMPARE(textNode.variantProperty("y").value().toInt(), 93);
+    }
+    { //states.qml
+        QFile file(QString(MANUALTEST_PATH) + "/states.qml");
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+
+        QPlainTextEdit textEdit;
+        textEdit.setPlainText(QString(file.readAll()));
+        NotIndentingTextEditModifier textModifier(&textEdit);
+
+        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
+        QVERIFY(model.data());
+
+        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        testRewriterView->setTextModifier(&textModifier);
+        model->attachView(testRewriterView.data());
+
+
+        QVERIFY(model.data());
+        ModelNode rootModelNode(testRewriterView->rootModelNode());
+        QVERIFY(rootModelNode.isValid());
+        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
+        QCOMPARE(rootModelNode.allDirectSubModelNodes().count(), 4);
+        QCOMPARE(rootModelNode.variantProperty("width").value().toInt(), 200);
+        QCOMPARE(rootModelNode.variantProperty("height").value().toInt(), 200);
+        QCOMPARE(rootModelNode.id(), QLatin1String("rect"));
+        QVERIFY(rootModelNode.hasProperty("data"));
+        QVERIFY(rootModelNode.property("data").isDefaultProperty());
+
+        ModelNode textNode(rootModelNode.nodeListProperty("data").toModelNodeList().first());
+        QVERIFY(textNode.isValid());
+        QCOMPARE(textNode.id(), QLatin1String("text"));
+        QCOMPARE(textNode.type(), QLatin1String("Qt/Text"));
+        QCOMPARE(textNode.variantProperty("x").value().toInt(), 66);
+        QCOMPARE(textNode.variantProperty("y").value().toInt(), 93);
+
+        ModelNode imageNode(rootModelNode.nodeListProperty("data").toModelNodeList().last());
+        QVERIFY(imageNode.isValid());
+        QCOMPARE(imageNode.id(), QLatin1String("image1"));
+        QCOMPARE(imageNode.type(), QLatin1String("Qt/Image"));
+        QCOMPARE(imageNode.variantProperty("x").value().toInt(), 41);
+        QCOMPARE(imageNode.variantProperty("y").value().toInt(), 46);
+        QCOMPARE(imageNode.variantProperty("source").value().toUrl(), QUrl("images/qtcreator.png"));
+
+        QVERIFY(rootModelNode.hasProperty("states"));
+        QVERIFY(!rootModelNode.property("states").isDefaultProperty());
+
+        QCOMPARE(rootModelNode.nodeListProperty("states").toModelNodeList().count(), 2);
+    }
+
+    QSKIP("See BAUHAUS-539 (component loading is broken)", SkipAll);
+    { //usingbutton.qml
+        QFile file(QString(MANUALTEST_PATH) + "/usingbutton.qml");
+        QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+
+        QPlainTextEdit textEdit;
+        textEdit.setPlainText(QString(file.readAll()));
+        NotIndentingTextEditModifier textModifier(&textEdit);
+
+        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
+        QVERIFY(model.data());
+
+        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        testRewriterView->setTextModifier(&textModifier);
+        model->attachView(testRewriterView.data());
+
+        qDebug() << testRewriterView->errors().first().toString();
+        QVERIFY(testRewriterView->errors().isEmpty());
+
+        QVERIFY(model.data());
+        ModelNode rootModelNode(testRewriterView->rootModelNode());
+        QVERIFY(rootModelNode.isValid());
+        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
+        QVERIFY(!rootModelNode.allDirectSubModelNodes().isEmpty());
+    }
+}
+
 static QString rectWithGradient = "import Qt 4.6\n"
                                   "Rectangle {\n"
                                   "    gradient: Gradient {\n"

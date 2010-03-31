@@ -10,6 +10,8 @@ SOURCES+=../../../../../src/libs/utils/changeset.cpp
 INCLUDEPATH+=../../../../../src/libs
 DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB QTCREATOR_TEST
 
+DEFINES+=MANUALTEST_PATH=\\\"$$PWD"/../../../../manual/qml/testfiles/"\\\"
+
 DEPENDPATH += ..
 DEPENDPATH += ../../../../../src/plugins/qmldesigner/core/include
 

@@ -211,6 +211,7 @@ private slots:
 
     // Bigger tests:
     void loadWelcomeScreen();
+    void loadTestFiles();
 
     // Object bindings as properties:
     void loadGradient();
