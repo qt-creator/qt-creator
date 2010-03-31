@@ -27,6 +27,9 @@
 **
 **************************************************************************/
 
+#include "rssfetcher.h"
+#include <coreplugin/coreconstants.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QSysInfo>
 #include <QtCore/QLocale>
@@ -35,10 +38,9 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkProxyFactory>
+#include <QtNetwork/QNetworkAccessManager>
 
-#include <coreplugin/coreconstants.h>
-
-#include "rssfetcher.h"
+#include <QtCore/QXmlStreamReader>
 
 #ifdef Q_OS_UNIX
 #include <sys/utsname.h>
@@ -98,11 +100,13 @@ static const QString getOsString()
     }
 #elif defined (Q_OS_UNIX)
     struct utsname uts;
-    if (uname(&uts) == 0)
-        osString += QString("%1 %2").arg(QLatin1String(uts.sysname))
-                        .arg(QLatin1String(uts.release));
-    else
+    if (uname(&uts) == 0) {
+        osString += QLatin1String(uts.sysname);
+        osString += QLatin1Char(' ');
+        osString += QLatin1String(uts.release);
+    } else {
         osString += QLatin1String("Unix (Unknown)");
+    }
 #else
     ossttring = QLatin1String("Unknown OS");
 #endif
@@ -110,64 +114,103 @@ static const QString getOsString()
 }
 
 RSSFetcher::RSSFetcher(int maxItems, QObject *parent)
-    : QObject(parent), m_items(0), m_maxItems(maxItems)
+    : QObject(parent), m_maxItems(maxItems), m_items(0)
 {
-    connect(&m_networkAccessManager, SIGNAL(finished(QNetworkReply*)),
-            SLOT(fetchingFinished(QNetworkReply*)));
+}
+
+RSSFetcher::~RSSFetcher()
+{
 }
 
 void RSSFetcher::fetch(const QUrl &url)
 {
-    QString agentStr = QString("Qt-Creator/%1 (QHttp %2; %3; %4; %5 bit)")
+    QString agentStr = QString::fromLatin1("Qt-Creator/%1 (QHttp %2; %3; %4; %5 bit)")
                     .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
                     .arg(getOsString()).arg(QLocale::system().name())
                     .arg(QSysInfo::WordSize);
     QNetworkRequest req(url);
     req.setRawHeader("User-Agent", agentStr.toLatin1());
-    m_networkAccessManager.get(req);
+    if (m_networkAccessManager.isNull()) {
+        m_networkAccessManager.reset(new QNetworkAccessManager);
+        connect(m_networkAccessManager.data(), SIGNAL(finished(QNetworkReply*)),
+                SLOT(fetchingFinished(QNetworkReply*)));
+    }
+    m_networkAccessManager->get(req);
 }
 
 void RSSFetcher::fetchingFinished(QNetworkReply *reply)
 {
-    bool error = (reply->error() != QNetworkReply::NoError);
+    const bool error = (reply->error() != QNetworkReply::NoError);
     if (!error) {
-        m_xml.addData(reply->readAll());
-        parseXml();
+        parseXml(reply);
         m_items = 0;
     }
     emit finished(error);
     reply->deleteLater();
 }
 
-void RSSFetcher::parseXml()
+RSSFetcher::TagElement RSSFetcher::tagElement(const QStringRef &r)
 {
-    while (!m_xml.atEnd()) {
-        m_xml.readNext();
-        if (m_xml.isStartElement()) {
-            if (m_xml.name() == "item") {
-                m_titleString.clear();
-                m_descriptionString.clear();
-                m_linkString.clear();
+    if (r == QLatin1String("item"))
+        return itemElement;
+    if (r == QLatin1String("title"))
+        return titleElement;
+    if (r == QLatin1String("description"))
+        return descriptionElement;
+    if (r == QLatin1String("link"))
+        return linkElement;
+    return otherElement;
+}
+
+void RSSFetcher::parseXml(QIODevice *device)
+{
+    QXmlStreamReader xmlReader(device);
+
+    TagElement currentTag = otherElement;
+    QString linkString;
+    QString descriptionString;
+    QString titleString;
+
+    while (!xmlReader.atEnd()) {
+        switch (xmlReader.readNext()) {
+        case QXmlStreamReader::StartElement:
+            currentTag = tagElement(xmlReader.name());
+            if (currentTag == itemElement) {
+                titleString.clear();
+                descriptionString.clear();
+                linkString.clear();
             }
-            m_currentTag = m_xml.name().toString();
-        } else if (m_xml.isEndElement()) {
-            if (m_xml.name() == "item") {
+            break;
+            case QXmlStreamReader::EndElement:
+            if (xmlReader.name() == QLatin1String("item")) {
                 m_items++;
                 if (m_items > m_maxItems)
                     return;
-                emit newsItemReady(m_titleString, m_descriptionString, m_linkString);
+                emit newsItemReady(titleString, descriptionString, linkString);
             }
-
-        } else if (m_xml.isCharacters() && !m_xml.isWhitespace()) {
-            if (m_currentTag == "title")
-                m_titleString += m_xml.text().toString();
-            else if (m_currentTag == "description")
-                m_descriptionString += m_xml.text().toString();
-            else if (m_currentTag == "link")
-                m_linkString += m_xml.text().toString();
+            break;
+            case QXmlStreamReader::Characters:
+            if (!xmlReader.isWhitespace()) {
+                switch (currentTag) {
+                case titleElement:
+                    titleString += xmlReader.text().toString();
+                    break;
+                case descriptionElement:
+                    descriptionString += xmlReader.text().toString();
+                    break;
+                case linkElement:
+                    linkString += xmlReader.text().toString();
+                    break;
+                default:
+                    break;
+                }
+            } // !xmlReader.isWhitespace()
+            break;
+            default:
+            break;
         }
     }
-    if (m_xml.error() && m_xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
-        qWarning() << "XML ERROR:" << m_xml.lineNumber() << ": " << m_xml.errorString();
+    if (xmlReader.error() && xmlReader.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
+        qWarning() << "XML ERROR:" << xmlReader.lineNumber() << ": " << xmlReader.errorString();
     }
 }

@@ -28,53 +28,47 @@
 **************************************************************************/
 
 #include "welcomemode.h"
+#include "ui_welcomemode.h"
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/dialogs/newdialog.h>
 
 #include <utils/styledbar.h>
 #include <utils/welcomemodetreewidget.h>
 #include <utils/iwelcomepage.h>
 
-#include <QtGui/QMouseEvent>
 #include <QtGui/QScrollArea>
-#include <QtGui/QButtonGroup>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QToolButton>
 
 #include <QtCore/QSettings>
-#include <QtCore/QUrl>
 #include <QtCore/QDebug>
+#include <QtCore/QUrl>
 
-#include <cstdlib>
-
-#include "ui_welcomemode.h"
+enum { debug = 0 };
 
 using namespace ExtensionSystem;
-using namespace Utils;
+
+static const char currentPageSettingsKeyC[] = "General/WelcomeTab";
 
 namespace Welcome {
 
 struct WelcomeModePrivate
 {
-    WelcomeModePrivate();
+    typedef QMap<QToolButton*, QWidget*> ToolButtonWidgetMap;
+
+    WelcomeModePrivate() {}
 
     QScrollArea *m_scrollArea;
     QWidget *m_widget;
     QWidget *m_welcomePage;
-    QMap<QAbstractButton*, QWidget*> buttonMap;
+    ToolButtonWidgetMap buttonMap;
     QHBoxLayout * buttonLayout;
     Ui::WelcomeMode ui;
-    int currentTip;
 };
-
-WelcomeModePrivate::WelcomeModePrivate()
-{
-}
 
 // ---  WelcomeMode
 WelcomeMode::WelcomeMode() :
@@ -100,13 +94,12 @@ WelcomeMode::WelcomeMode() :
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
 
     connect(m_d->ui.feedbackButton, SIGNAL(clicked()), SLOT(slotFeedback()));
-
 }
 
 WelcomeMode::~WelcomeMode()
 {
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->setValue("General/WelcomeTab", m_d->ui.stackedWidget->currentIndex());
+    settings->setValue(QLatin1String(currentPageSettingsKeyC), m_d->ui.stackedWidget->currentIndex());
     delete m_d->m_widget;
     delete m_d;
 }
@@ -143,9 +136,27 @@ QList<int> WelcomeMode::context() const
     return contexts;
 }
 
-bool sortFunction(IWelcomePage * a, IWelcomePage *b)
+bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
 {
     return a->priority() < b->priority();
+}
+
+// Create a QToolButton for a page
+QToolButton *WelcomeMode::addPageToolButton(Utils::IWelcomePage *plugin, int position)
+{
+    QToolButton *btn = new QToolButton;
+    btn->setCheckable(true);
+    btn->setText(plugin->title());
+    btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    btn->setAutoExclusive(true);
+    connect (btn, SIGNAL(clicked()), SLOT(showClickedPage()));
+    m_d->buttonMap.insert(btn, plugin->page());
+    if (position >= 0) {
+        m_d->buttonLayout->insertWidget(position, btn);
+    } else {
+        m_d->buttonLayout->addWidget(btn);
+    }
+    return btn;
 }
 
 void WelcomeMode::initPlugins()
@@ -153,67 +164,50 @@ void WelcomeMode::initPlugins()
     m_d->buttonLayout = new QHBoxLayout(m_d->ui.navFrame);
     m_d->buttonLayout->setMargin(0);
     m_d->buttonLayout->setSpacing(0);
-    delete m_d->ui.stackedWidget->currentWidget();
-    QList<IWelcomePage*> plugins = PluginManager::instance()->getObjects<IWelcomePage>();
+    QList<Utils::IWelcomePage*> plugins = PluginManager::instance()->getObjects<Utils::IWelcomePage>();
     qSort(plugins.begin(), plugins.end(), &sortFunction);
-    foreach (IWelcomePage *plugin, plugins) {
-        QToolButton *btn = new QToolButton;
-        btn->setCheckable(true);
-        btn->setText(plugin->title());
-        btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        btn->setAutoExclusive(true);
-        connect (btn, SIGNAL(clicked()), SLOT(showClickedPage()));
+    foreach (Utils::IWelcomePage *plugin, plugins) {
         m_d->ui.stackedWidget->addWidget(plugin->page());
-        m_d->buttonLayout->addWidget(btn);
-        m_d->buttonMap.insert(btn, plugin->page());
+        addPageToolButton(plugin);
+        if (debug)
+            qDebug() << "WelcomeMode::initPlugins" << plugin->title();
     }
     m_d->buttonLayout->addSpacing(5);
 
     QSettings *settings = Core::ICore::instance()->settings();
-    int tabId = settings->value("General/WelcomeTab", 0).toInt();
+    const int tabId = settings->value(QLatin1String(currentPageSettingsKeyC), 0).toInt();
 
-    int pluginCount = m_d->ui.stackedWidget->count();
-    if (tabId < pluginCount) {
+    const int pluginCount = m_d->ui.stackedWidget->count();
+    if (tabId >= 0 && tabId < pluginCount) {
         m_d->ui.stackedWidget->setCurrentIndex(tabId);
-        QMapIterator<QAbstractButton*, QWidget*> it(m_d->buttonMap);
-        while (it.hasNext())
-            if (it.next().value() == m_d->ui.stackedWidget->currentWidget()) {
-                it.key()->setChecked(true);
-                break;
-            }
+        if (QToolButton *btn = m_d->buttonMap.key(m_d->ui.stackedWidget->currentWidget()))
+            btn->setChecked(true);
     }
-
 }
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)
 {
-    if (IWelcomePage *plugin = qobject_cast<IWelcomePage*>(obj))
-    {
-        QToolButton * btn = new QToolButton;
-        btn->setCheckable(true);
-        btn->setAutoExclusive(true);
-        btn->setText(plugin->title());
-        btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        connect (btn, SIGNAL(clicked()), SLOT(showClickedPage()));
+    if (Utils::IWelcomePage *plugin = qobject_cast<Utils::IWelcomePage*>(obj)) {
         int insertPos = 0;
-        QList<IWelcomePage*> plugins = PluginManager::instance()->getObjects<IWelcomePage>();
-        foreach (IWelcomePage* p, plugins) {
+        foreach (Utils::IWelcomePage* p, PluginManager::instance()->getObjects<Utils::IWelcomePage>()) {
             if (plugin->priority() < p->priority())
                 insertPos++;
             else
                 break;
         }
         m_d->ui.stackedWidget->insertWidget(insertPos, plugin->page());
-        m_d->buttonMap.insert(btn, plugin->page());
-        m_d->buttonLayout->insertWidget(insertPos, btn);
+        addPageToolButton(plugin, insertPos);
+        if (debug)
+            qDebug() << "welcomePluginAdded" << plugin->title() << "at" << insertPos
+                     << " of " << m_d->buttonMap.size();
     }
 }
 
 void WelcomeMode::showClickedPage()
 {
-    QAbstractButton *btn = qobject_cast<QAbstractButton*>(sender());
-    QMap<QAbstractButton*, QWidget*>::iterator it = m_d->buttonMap.find(btn);
-    if (it.value())
+    QToolButton *btn = qobject_cast<QToolButton*>(sender());
+    const WelcomeModePrivate::ToolButtonWidgetMap::const_iterator it = m_d->buttonMap.constFind(btn);
+    if (it != m_d->buttonMap.constEnd())
         m_d->ui.stackedWidget->setCurrentWidget(it.value());
 }
 
@@ -222,6 +216,5 @@ void WelcomeMode::slotFeedback()
     QDesktopServices::openUrl(QUrl(QLatin1String(
         "http://qt.nokia.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
-
 
 } // namespace Welcome

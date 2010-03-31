@@ -34,12 +34,14 @@
 
 #include <coreplugin/imode.h>
 
-
 QT_BEGIN_NAMESPACE
 class QWidget;
-class QUrl;
+class QToolButton;
 QT_END_NAMESPACE
 
+namespace Utils {
+    class IWelcomePage;
+}
 namespace Welcome {
 
 struct WelcomeModePrivate;
@@ -69,6 +71,8 @@ private slots:
     void showClickedPage();
 
 private:
+    QToolButton *addPageToolButton(Utils::IWelcomePage *plugin, int position = -1);
+
     WelcomeModePrivate *m_d;
 };
 

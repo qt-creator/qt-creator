@@ -28,42 +28,22 @@
 **************************************************************************/
 
 #include "welcomeplugin.h"
-
 #include "welcomemode.h"
-
 #include "communitywelcomepage.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/basemode.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/uniqueidmanager.h>
 
-#include <QtCore/QDebug>
 #include <QtCore/QtPlugin>
-#include <QtGui/QAction>
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
 
 using namespace Welcome::Internal;
 
 WelcomePlugin::WelcomePlugin()
-  : m_welcomeMode(0), m_communityWelcomePage(0)
+  : m_welcomeMode(0)
 {
 }
 
 WelcomePlugin::~WelcomePlugin()
 {
-    if (m_welcomeMode) {
-        removeObject(m_welcomeMode);
-        delete m_welcomeMode;
-    }
-    if (m_communityWelcomePage) {
-        removeObject(m_communityWelcomePage);
-        delete m_communityWelcomePage;
-    }
 }
 
 /*! Initializes the plugin. Returns true on success.
@@ -77,11 +57,10 @@ bool WelcomePlugin::initialize(const QStringList &arguments, QString *error_mess
     Q_UNUSED(arguments)
     Q_UNUSED(error_message)
 
-    m_communityWelcomePage = new Internal::CommunityWelcomePage;
-    addObject(m_communityWelcomePage);
+    addAutoReleasedObject(new Internal::CommunityWelcomePage);
 
     m_welcomeMode = new WelcomeMode;
-    addObject(m_welcomeMode);
+    addAutoReleasedObject(m_welcomeMode);
 
     return true;
 }

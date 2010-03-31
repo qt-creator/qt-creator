@@ -249,18 +249,8 @@ QToolButton:pressed {
          <item>
           <widget class="QStackedWidget" name="stackedWidget">
            <property name="currentIndex">
-            <number>0</number>
+            <number>-1</number>
            </property>
-           <widget class="QWidget" name="widget">
-            <layout class="QGridLayout" name="gridLayout_7">
-             <property name="margin">
-              <number>18</number>
-             </property>
-             <property name="spacing">
-              <number>24</number>
-             </property>
-            </layout>
-           </widget>
           </widget>
          </item>
          <item>

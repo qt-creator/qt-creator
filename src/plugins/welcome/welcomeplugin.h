@@ -33,28 +33,23 @@
 #include <extensionsystem/iplugin.h>
 
 namespace Welcome {
-
 class WelcomeMode;
 
 namespace Internal {
-class CommunityWelcomePage;
 
-class WelcomePlugin
-  : public ExtensionSystem::IPlugin
+class WelcomePlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
-
 public:
     WelcomePlugin();
-    ~WelcomePlugin();
+    virtual ~WelcomePlugin();
 
-    bool initialize(const QStringList &arguments, QString *error_message);
+    virtual bool initialize(const QStringList &arguments, QString *error_message);
 
-    void extensionsInitialized();
+    virtual void extensionsInitialized();
 
 private:
     WelcomeMode *m_welcomeMode;
-    Internal::CommunityWelcomePage *m_communityWelcomePage;
 };
 
 } // namespace Welcome

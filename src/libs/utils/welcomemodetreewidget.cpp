@@ -50,17 +50,23 @@ void WelcomeModeLabel::setStyledText(const QString &text)
 
 struct WelcomeModeTreeWidgetPrivate
 {
-    WelcomeModeTreeWidgetPrivate() {}
-    QIcon bullet;
+    WelcomeModeTreeWidgetPrivate();
+
+    const QIcon bullet;
 };
+
+WelcomeModeTreeWidgetPrivate::WelcomeModeTreeWidgetPrivate() :
+    bullet(QLatin1String(":/welcome/images/list_bullet_arrow.png"))
+{
+}
 
 WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
         QTreeWidget(parent), m_d(new WelcomeModeTreeWidgetPrivate)
 {
-    m_d->bullet = QIcon(QLatin1String(":/welcome/images/list_bullet_arrow.png"));
     connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
             SLOT(slotItemClicked(QTreeWidgetItem *)));
 
+    setUniformRowHeights(true);
     viewport()->setAutoFillBackground(false);
 }
 

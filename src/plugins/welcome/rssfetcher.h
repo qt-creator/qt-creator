@@ -30,12 +30,14 @@
 #ifndef RSSFETCHER_H
 #define RSSFETCHER_H
 
-#include <QtCore/QXmlStreamReader>
-#include <QtNetwork/QNetworkAccessManager>
+#include <QtCore/QScopedPointer>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 class QNetworkReply;
+class QNetworkAccessManager;
 class QUrl;
+class QIODevice;
 QT_END_NAMESPACE
 
 namespace Welcome {
@@ -46,6 +48,7 @@ class RSSFetcher : public QObject
     Q_OBJECT
 public:
     explicit RSSFetcher(int maxItems, QObject *parent = 0);
+    virtual ~RSSFetcher();
 
 signals:
     void newsItemReady(const QString& title, const QString& desciption, const QString& url);
@@ -56,17 +59,14 @@ public slots:
     void fetch(const QUrl &url);
 
 private:
-    void parseXml();
+    enum  TagElement { itemElement, titleElement, descriptionElement, linkElement, otherElement };
+    static TagElement tagElement(const QStringRef &);
+    void parseXml(QIODevice *);
 
-    QXmlStreamReader m_xml;
-    QString m_currentTag;
-    QString m_linkString;
-    QString m_descriptionString;
-    QString m_titleString;
+    const int m_maxItems;
 
-    QNetworkAccessManager m_networkAccessManager;
+    QScopedPointer<QNetworkAccessManager> m_networkAccessManager;
     int m_items;
-    int m_maxItems;
 };
 
 } // namespace Welcome
