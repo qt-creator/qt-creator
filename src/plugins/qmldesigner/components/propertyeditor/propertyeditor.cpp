@@ -519,10 +519,8 @@ void PropertyEditor::collapse()
 
             QSplitter* parentSplitter = qobject_cast<QSplitter*>(sideBar->parentWidget());
             QList<int> s = parentSplitter->sizes();
-            qDebug() << s;
             s.removeLast();
             s.append(25);
-            qDebug() << s;
             parentSplitter->setSizes(s);
             parentSplitter->refresh();
             parentSplitter->update();
