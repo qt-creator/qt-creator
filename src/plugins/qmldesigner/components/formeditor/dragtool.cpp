@@ -213,6 +213,7 @@ void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
         event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
         if (!m_rewriterTransaction.isValid()) {
+            view()->clearSelectedModelNodes();
             m_rewriterTransaction = view()->beginRewriterTransaction();
         }
     }
