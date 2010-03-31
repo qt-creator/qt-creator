@@ -175,9 +175,9 @@ void FormEditorWidget::wheelEvent(QWheelEvent *event)
 {
     if (event->modifiers().testFlag(Qt::ControlModifier)) {
         if (event->delta() > 0) {
-            zoomAction()->zoomIn();
-        } else {
             zoomAction()->zoomOut();
+        } else {
+            zoomAction()->zoomIn();
         }
 
         event->accept();
