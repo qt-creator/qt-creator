@@ -35,7 +35,7 @@ using namespace ProjectExplorer;
 
 namespace {
     // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN("^(([a-zA-Z]:)?[^:]*):");
+    const char * const FILE_PATTERN("^(([A-Za-z]:)?[^:]+\\.[^:]+):");
     // line no. or elf segment + offset: (1 bracket)
     const char * const POSITION_PATTERN("(\\d+|\\(\\.[a-zA-Z0-9]*.0x[a-fA-F0-9]+\\)):");
 }
@@ -51,9 +51,11 @@ GccParser::GccParser()
     m_regExpLinker.setPattern(QString::fromLatin1(FILE_PATTERN) + '(' + QLatin1String(POSITION_PATTERN) + ")?\\s(.+)$");
     m_regExpLinker.setMinimal(true);
 
-    // m_regExpGccNames.setPattern("^([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)(gcc|g\\+\\+)(-[0-9\\.]+)?:");
-    m_regExpGccNames.setPattern("^(gcc|g\\+\\+):\\s");
+    m_regExpGccNames.setPattern("^([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?: ");
     m_regExpGccNames.setMinimal(true);
+
+    m_regExpInFunction.setPattern("^In (static |member )*function ");
+    m_regExpInFunction.setMinimal(true);
 }
 
 void GccParser::stdError(const QString &line)
@@ -123,8 +125,7 @@ void GccParser::stdError(const QString &line)
                   m_regExpLinker.cap(1) /* filename */,
                   lineno,
                   Constants::TASK_CATEGORY_COMPILE);
-        if (description.startsWith(QLatin1String("In function ")) ||
-            description.startsWith(QLatin1String("In member function ")))
+        if (m_regExpInFunction.indexIn(description) > -1)
             task.type = Task::Unknown;
 
         emit addTask(task);
@@ -384,6 +385,33 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                          QLatin1String("initialized from here"),
                          QString::fromLatin1("/home/dev/creator/share/qtcreator/gdbmacros/gdbmacros.cpp"), 1079,
                          Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("static member function")
+            << QString::fromLatin1("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c: In static member function 'static std::_Rb_tree_node_base* std::_Rb_global<_Dummy>::_Rebalance_for_erase(std::_Rb_tree_node_base*, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&)':\n"
+                                   "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c:194: warning: suggest explicit braces to avoid ambiguous 'else'")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Unknown,
+                         QLatin1String("In static member function 'static std::_Rb_tree_node_base* std::_Rb_global<_Dummy>::_Rebalance_for_erase(std::_Rb_tree_node_base*, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&)':"),
+                         QString::fromLatin1("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c"), -1,
+                         Constants::TASK_CATEGORY_COMPILE)
+                 << Task(Task::Warning,
+                         QLatin1String("suggest explicit braces to avoid ambiguous 'else'"),
+                         QString::fromLatin1("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c"), 194,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("rm false positive")
+            << QString::fromLatin1("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
+            << OutputParserTester::STDERR
+            << QString() << QString("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
+            << QList<ProjectExplorer::Task>()
+            << QString();
+    QTest::newRow("ranlib false positive")
+            << QString::fromLatin1("ranlib: file: libSupport.a(HashTable.o) has no symbols")
+            << OutputParserTester::STDERR
+            << QString() << QString("ranlib: file: libSupport.a(HashTable.o) has no symbols")
+            << QList<ProjectExplorer::Task>()
             << QString();
 }
 
