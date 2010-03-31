@@ -417,6 +417,7 @@ public:
     QString packageName() const;
     int majorVersion() const;
     int minorVersion() const;
+    QString defaultPropertyName() const;
 
 protected:
     const Value *findOrCreateSignature(int index, const FakeMetaMethod &method, QString *methodName) const;

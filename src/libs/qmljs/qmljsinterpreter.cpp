@@ -199,6 +199,7 @@ class FakeMetaObject {
     QList<FakeMetaEnum> m_enums;
     QList<FakeMetaProperty> m_props;
     QList<FakeMetaMethod> m_methods;
+    QString m_defaultPropertyName;
 
 public:
     FakeMetaObject(const QString &name, const QString &package, int majorVersion, int minorVersion)
@@ -250,6 +251,12 @@ public:
     { return m_major; }
     int minorVersion() const
     { return m_minor; }
+
+    QString defaultPropertyName() const
+    { return m_defaultPropertyName; }
+
+    void setDefaultPropertyName(const QString defaultPropertyName)
+    { m_defaultPropertyName = defaultPropertyName; }
 };
 
 } // end of Interpreter namespace
@@ -364,7 +371,7 @@ private:
         const QLatin1String tag("type");
         Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
 
-        QString name;
+        QString name, defaultPropertyName;
         int major = -1, minor = -1;
         QString extends;
         foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
@@ -398,6 +405,8 @@ private:
                         return;
                     }
                 }
+            } else if (attr.name() == QLatin1String("defaultProperty")) {
+                defaultPropertyName = attr.value().toString();
             } else if (attr.name() == QLatin1String("extends")) {
                 if (! attr.value().isEmpty())
                     extends = attr.value().toString();
@@ -412,6 +421,8 @@ private:
                                                         major, minor);
         if (! extends.isEmpty())
             metaObject->setSuperclassName(extends);
+        if (! defaultPropertyName.isEmpty())
+            metaObject->setDefaultPropertyName(defaultPropertyName);
 
         while (_xml.readNextStartElement()) {
             if (_xml.name() == QLatin1String("property"))
@@ -829,6 +840,9 @@ int QmlObjectValue::majorVersion() const
 
 int QmlObjectValue::minorVersion() const
 { return _metaObject->minorVersion(); }
+
+QString QmlObjectValue::defaultPropertyName() const
+{ return _metaObject->defaultPropertyName(); }
 
 bool QmlObjectValue::isDerivedFrom(const FakeMetaObject *base) const
 {
