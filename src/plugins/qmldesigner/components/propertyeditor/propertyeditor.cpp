@@ -599,6 +599,43 @@ void PropertyEditor::timerEvent(QTimerEvent *timerEvent)
     }
 }
 
+QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType)
+{
+    QString qmlTemplate = QLatin1String("import Qt 4.6\nimport Bauhaus 1.0\n");
+    qmlTemplate += QLatin1String("GroupBox {\n");
+    qmlTemplate += QString(QLatin1String("caption: \"%1\"\n")).arg(type.typeName());
+    qmlTemplate += QLatin1String("layout: VerticalLayout {\n");
+
+    foreach (const PropertyMetaInfo &propertyMetaInfo, type.properties()){
+        if (!superType.hasProperty(propertyMetaInfo.name())) {
+            if (propertyMetaInfo.type() == "int") {
+                qmlTemplate +=  QString(QLatin1String(
+                "IntEditor { backendValue: backendValues.%1\n caption: \"%1\"\nbaseStateFlag: isBaseState\nslider: false\n}"
+                )).arg(propertyMetaInfo.name());
+            }
+            if (propertyMetaInfo.type() == "real" || propertyMetaInfo.type() == "double") {
+                qmlTemplate +=  QString(QLatin1String(
+                "DoubleSpinBoxAlternate {\ntext: \"%1\"\nbackendValue: backendValues.%1\nbaseStateFlag: isBaseState\n}\n"
+                )).arg(propertyMetaInfo.name());
+            }
+            if (propertyMetaInfo.type() == "string") {
+                 qmlTemplate +=  QString(QLatin1String(
+                "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\n}\nLineEdit {\nbackendValue: backendValues.%1\nbaseStateFlag: isBaseState\n}\n}\n}\n"
+                )).arg(propertyMetaInfo.name());
+            }
+            if (propertyMetaInfo.type() == "bool") {
+                 qmlTemplate +=  QString(QLatin1String(
+                 "CheckBox {\ntext: \"%1\"\nbackendValue: backendValues.visible\nbaseStateFlag: isBaseState\ncheckable: true\n}\n"
+                 )).arg(propertyMetaInfo.name());
+             }
+        }
+    }
+    qmlTemplate += QLatin1String("}\n"); //VerticalLayout
+    qmlTemplate += QLatin1String("}\n"); //GroupBox
+
+    return qmlTemplate;
+}
+
 void PropertyEditor::resetView()
 {
     if (model() == 0)
@@ -616,14 +653,22 @@ void PropertyEditor::resetView()
     if (m_selectedNode.isValid() && model() != m_selectedNode.model())
         m_selectedNode = ModelNode();
 
-    QUrl qmlFile(qmlForNode(m_selectedNode));
+    QString specificsClassName;
+    QUrl qmlFile(qmlForNode(m_selectedNode, specificsClassName));
     QUrl qmlSpecificsFile;
     if (m_selectedNode.isValid())
         qmlSpecificsFile = fileToUrl(locateQmlFile(m_selectedNode.type() + "Specifics.qml"));
 
     m_locked = true;
 
-    NodeType *type = m_typeHash.value(qmlFile.toString());
+    QString specificQmlData;
+
+    if (m_selectedNode.isValid() && !QFileInfo(qmlSpecificsFile.toLocalFile()).exists()) {
+        //do magic !!
+        specificQmlData = templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo().nodeMetaInfo(specificsClassName));
+    }
+
+    NodeType *type = m_typeHash.value(qmlFile.toString());    
 
     if (!type) {
         type = new NodeType(this);
@@ -636,10 +681,13 @@ void PropertyEditor::resetView()
             fxObjectNode = QmlObjectNode(m_selectedNode);
             Q_ASSERT(fxObjectNode.isValid());
         }
-        type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
-
         QDeclarativeContext *ctxt = type->m_view->rootContext();
         ctxt->setContextProperty("finishedNotify", QVariant(false));
+        if (specificQmlData.isEmpty())
+            ctxt->setContextProperty("specificQmlData", specificQmlData);
+        type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
+        ctxt->setContextProperty("globalBaseUrl", QVariant(qmlFile));
+        ctxt->setContextProperty("specificQmlData", specificQmlData);
         type->m_view->setSource(qmlFile);
         ctxt->setContextProperty("finishedNotify", QVariant(true));
     } else {
@@ -652,7 +700,11 @@ void PropertyEditor::resetView()
         ctxt->setContextProperty("selectionChanged", QVariant(true));
         ctxt->setContextProperty("selectionChanged", QVariant(false));
         ctxt->setContextProperty("finishedNotify", QVariant(false));
+        if (specificQmlData.isEmpty())
+            ctxt->setContextProperty("specificQmlData", specificQmlData);
         type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
+        ctxt->setContextProperty("globalBaseUrl", QVariant(qmlFile));
+        ctxt->setContextProperty("specificQmlData", specificQmlData);
     }
 
     m_stackedWidget->setCurrentWidget(type->m_view);
@@ -855,7 +907,7 @@ QUrl PropertyEditor::fileToUrl(const QString &filePath) const {
     return fileUrl;
 }
 
-QUrl PropertyEditor::qmlForNode(const ModelNode &modelNode) const
+QUrl PropertyEditor::qmlForNode(const ModelNode &modelNode, QString &className) const
 {
     if (modelNode.isValid()) {
         QList<NodeMetaInfo> hierarchy;
@@ -864,8 +916,10 @@ QUrl PropertyEditor::qmlForNode(const ModelNode &modelNode) const
 
         foreach (const NodeMetaInfo &info, hierarchy) {
             QUrl fileUrl = fileToUrl(locateQmlFile(qmlFileName(info)));
-            if (fileUrl.isValid())
+            if (fileUrl.isValid()) {
+                className = info.typeName();
                 return fileUrl;
+            }
         }
     }
     return fileToUrl(QDir(m_qmlDir).filePath("Qt/emptyPane.qml"));
