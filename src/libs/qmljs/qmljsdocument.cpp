@@ -35,7 +35,6 @@
 #include <qmljs/parser/qmljsnodepool_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <QtCore/QDir>
-#include <QtCore/QDebug>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -58,7 +57,6 @@ Document::Document(const QString &fileName)
             || fileInfo.suffix() == QLatin1String("qmlproject")) {
         _isQmlDocument = true;
         _componentName = fileInfo.baseName();
-        qDebug() << _componentName;
 
         if (! _componentName.isEmpty()) {
             // ### TODO: check the component name.
