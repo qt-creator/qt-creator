@@ -86,7 +86,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
             return;
         setValue(newValue);
         m_isBound = false;
-        emit valueChanged(name());
+        emit valueChanged(name(), value);
         emit isBoundChanged();
     }
 }
@@ -95,7 +95,7 @@ void PropertyEditorValue::setValue(const QVariant &value)
 {
     if ( m_value != value) {
         m_value = value;
-        emit valueChanged(QString());
+        emit valueChanged(QString(), value);
     }
     emit isBoundChanged();
 }
@@ -183,7 +183,7 @@ void PropertyEditorValue::resetValue()
     if (m_value.isValid()) {
         setValue(QVariant());
         m_isBound = false;
-        emit valueChanged(name());
+        emit valueChanged(name(), QVariant());
     }
 }
 
@@ -308,11 +308,11 @@ void PropertyEditorNodeWrapper::setup()
             valueObject->setName(propertyName);
             valueObject->setValue(fxObjectNode.instanceValue(propertyName));
 
-            connect(valueObject, SIGNAL(valueChanged(QString)), &m_valuesPropertyMap, SIGNAL(valueChanged(QString)));
+            connect(valueObject, SIGNAL(valueChanged(QString, const QVariant&)), &m_valuesPropertyMap, SIGNAL(valueChanged(QString, const QVariant&)));
             m_valuesPropertyMap.insert(propertyName, QVariant::fromValue(valueObject));
         }
     }
-    connect(&m_valuesPropertyMap, SIGNAL(valueChanged(const QString &)), this, SLOT(changeValue(const QString&)));
+    connect(&m_valuesPropertyMap, SIGNAL(valueChanged(const QString &, const QVariant&)), this, SLOT(changeValue(const QString&)));
 
     emit propertiesChanged();
     emit existsChanged();
