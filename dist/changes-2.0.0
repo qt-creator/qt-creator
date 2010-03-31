@@ -35,6 +35,9 @@ Editing
    * Copying text from the editor now supports HTML mime type, preserving
      the syntax highlighting.
 
+CodePaster
+   * Implemented new protocol of pastebin.com including list functionality\
+
 C++ Support
    * Recognize *.cu as C files
    * Fixed false errors in code model on windows when used with MSVC
@@ -128,8 +131,13 @@ Version control plugins
      check on version of git
    * git: Expand commit template relative to repository
    * git: Added setting for whitespace in diff/blame
+   * git: Added options to apply patches from file and current editor,
+     allowing for CodePaster-based review workflows
    * Subversion: Add parent directories correctly when adding new files
    * Added "Open file" context menu action to log pane
+
+Qt Designer integration
+   * Use 'Design' mode
 
 Wizards
    * Improved summary page, added ordering, simplified application wizards
