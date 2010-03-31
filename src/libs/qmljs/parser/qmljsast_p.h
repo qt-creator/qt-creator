@@ -2485,13 +2485,13 @@ public:
 
     UiPublicMember(NameId *memberType,
                    NameId *name)
-        : type(Property), typeModifier(0), memberType(memberType), name(name), expression(0), isDefaultMember(false), isReadonlyMember(false), parameters(0)
+        : type(Property), typeModifier(0), memberType(memberType), name(name), expression(0), binding(0), isDefaultMember(false), isReadonlyMember(false), parameters(0)
     { kind = K; }
 
     UiPublicMember(NameId *memberType,
                    NameId *name,
                    ExpressionNode *expression)
-        : type(Property), typeModifier(0), memberType(memberType), name(name), expression(expression), isDefaultMember(false), isReadonlyMember(false), parameters(0)
+        : type(Property), typeModifier(0), memberType(memberType), name(name), expression(expression), binding(0), isDefaultMember(false), isReadonlyMember(false), parameters(0)
     { kind = K; }
 
     virtual SourceLocation firstSourceLocation() const
@@ -2506,6 +2506,9 @@ public:
 
     virtual SourceLocation lastSourceLocation() const
     {
+      if (binding)
+          return binding->lastSourceLocation();
+
       return semicolonToken;
     }
 
@@ -2516,7 +2519,8 @@ public:
     NameId *typeModifier;
     NameId *memberType;
     NameId *name;
-    ExpressionNode *expression;
+    ExpressionNode *expression; // initialized with a JS expression
+    UiObjectMember *binding; // initialized with a QML object or array.
     bool isDefaultMember;
     bool isReadonlyMember;
     UiParameterList *parameters;

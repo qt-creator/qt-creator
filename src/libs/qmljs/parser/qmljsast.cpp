@@ -837,6 +837,7 @@ void UiPublicMember::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(expression, visitor);
+        accept(binding, visitor);
     }
 
     visitor->endVisit(this);

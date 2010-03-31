@@ -971,6 +971,56 @@ case $rule_number: {
 }   break;
 ./
 
+UiObjectMember: T_PROPERTY T_IDENTIFIER T_LT UiPropertyType T_GT JsIdentifier T_COLON T_LBRACKET UiArrayMemberList T_RBRACKET ;
+/.
+case $rule_number: {
+    AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(4).sval, sym(6).sval);
+    node->typeModifier = sym(2).sval;
+    node->propertyToken = loc(1);
+    node->typeModifierToken = loc(2);
+    node->typeToken = loc(4);
+    node->identifierToken = loc(6);
+    node->semicolonToken = loc(7); // insert a fake ';' before ':'
+
+    AST::UiQualifiedId *propertyName = makeAstNode<AST::UiQualifiedId>(driver->nodePool(), sym(6).sval);
+    propertyName->identifierToken = loc(6);
+    propertyName->next = 0;
+
+    AST::UiArrayBinding *binding = makeAstNode<AST::UiArrayBinding> (driver->nodePool(),
+        propertyName, sym(9).UiArrayMemberList->finish());
+    binding->colonToken = loc(7);
+    binding->lbracketToken = loc(8);
+    binding->rbracketToken = loc(10);
+
+    node->binding = binding;
+
+    sym(1).Node = node;
+}   break;
+./
+
+UiObjectMember: T_PROPERTY UiPropertyType JsIdentifier T_COLON UiQualifiedId UiObjectInitializer ;
+/.
+case $rule_number: {
+    AST::UiPublicMember *node = makeAstNode<AST::UiPublicMember> (driver->nodePool(), sym(2).sval, sym(3).sval);
+    node->propertyToken = loc(1);
+    node->typeToken = loc(2);
+    node->identifierToken = loc(3);
+    node->semicolonToken = loc(4); // insert a fake ';' before ':'
+
+    AST::UiQualifiedId *propertyName = makeAstNode<AST::UiQualifiedId>(driver->nodePool(), sym(3).sval);
+    propertyName->identifierToken = loc(3);
+    propertyName->next = 0;
+
+    AST::UiObjectBinding *binding = makeAstNode<AST::UiObjectBinding> (driver->nodePool(),
+      propertyName, sym(5).UiQualifiedId, sym(6).UiObjectInitializer);
+    binding->colonToken = loc(4);
+
+    node->binding = binding;
+
+    sym(1).Node = node;
+}   break;
+./
+
 UiObjectMember: FunctionDeclaration ;
 /.
 case $rule_number: {
