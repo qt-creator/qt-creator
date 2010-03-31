@@ -52,11 +52,8 @@ WelcomePlugin::~WelcomePlugin()
     \a error_message can be used to pass an error message to the plugin system,
        if there was any.
 */
-bool WelcomePlugin::initialize(const QStringList &arguments, QString *error_message)
+bool WelcomePlugin::initialize(const QStringList & /* arguments */, QString * /* error_message */)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(error_message)
-
     addAutoReleasedObject(new Internal::CommunityWelcomePage);
 
     m_welcomeMode = new WelcomeMode;
