@@ -34,6 +34,7 @@
 #include <cpptools/cpptoolsconstants.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QLocale>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -46,14 +47,14 @@ enum { debug = 0 };
 static const char customWizardElementC[] = "wizard";
 static const char iconElementC[] = "icon";
 static const char descriptionElementC[] = "description";
-static const char displayNameElementC[] = "displayName";
+static const char displayNameElementC[] = "displayname";
 static const char idAttributeC[] = "id";
 static const char kindAttributeC[] = "kind";
 static const char klassAttributeC[] = "class";
 static const char firstPageAttributeC[] = "firstpage";
 static const char langAttributeC[] = "xml:lang";
 static const char categoryAttributeC[] = "category";
-static const char displayCategoryElementC[] = "displayCategory";
+static const char displayCategoryElementC[] = "displaycategory";
 static const char fieldPageTitleElementC[] = "fieldpagetitle";
 static const char fieldsElementC[] = "fields";
 static const char fieldElementC[] = "field";
@@ -144,7 +145,10 @@ static inline void assignLanguageElementText(QXmlStreamReader &reader,
                                              QString *target)
 {
     const QStringRef elementLanguage = reader.attributes().value(langAttributeC);
-    if (elementLanguage.isEmpty() || elementLanguage == desiredLanguage) {
+    if (elementLanguage.isEmpty()) {
+        // Try to find a translation for our built-in Wizards
+        *target = QCoreApplication::translate("ProjectExplorer::CustomWizard", reader.readElementText().toLatin1().constData());
+    } else if (elementLanguage == desiredLanguage) {
         *target = reader.readElementText();
     } else {
         // Language mismatch: forward to end element.
@@ -161,7 +165,11 @@ static inline void assignLanguageElementText(QXmlStreamReader &reader,
                                              void (Core::BaseFileWizardParameters::*setter)(const QString &))
 {
     const QStringRef elementLanguage = reader.attributes().value(langAttributeC);
-    if (elementLanguage.isEmpty() || elementLanguage == desiredLanguage) {
+    if (elementLanguage.isEmpty()) {
+        // Try to find a translation for our built-in Wizards
+        const QString translated = QCoreApplication::translate("ProjectExplorer::CustomWizard", reader.readElementText().toLatin1().constData());
+        (bp->*setter)(translated);
+    } else if (elementLanguage == desiredLanguage) {
         (bp->*setter)(reader.readElementText());
     } else {
         // Language mismatch: forward to end element.

@@ -33,10 +33,10 @@ Custom class wizard example configuration file. -->
 <wizard version="1" kind="class" id="A.ListModel" category="B.CustomClasses">
     <description>Creates a QAbstractListModel implementation.</description>
     <description xml:lang="de">Erzeugt eine Implementierung von QAbstractListModel.</description>
-    <displayName>QAbstractListModel implementation</displayName>;
-    <displayName xml:lang="de">Implementierung von QAbstractListModel</displayName>;
-    <displayCategory>Custom Classes</displayCategory>
-    <displayCategory xml:lang="de">Benutzerdefinierte Klassen</displayCategory>
+    <displayname>QAbstractListModel implementation</displayname>;
+    <displayname xml:lang="de">Implementierung von QAbstractListModel</displayname>;
+    <displaycategory>Custom Classes</displaycategory>
+    <displaycategory xml:lang="de">Benutzerdefinierte Klassen</displaycategory>
     <files>
         <file source="listmodel.cpp" target="%ClassName:l%.%CppSourceSuffix%"/>
         <file source="listmodel.h" target="%ClassName:l%.%CppHeaderSuffix%"/>

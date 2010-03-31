@@ -39,11 +39,8 @@ leave room for the Qt 4 target page.
         id="A.HelloWorld" category="B.CustomProjects">
     <icon>console.png</icon>
     <description>Creates a hello-world-project with custom message.</description>
-    <description xml:lang="de">Erzeugt ein Hello-Welt-Projekt mit einer Nachricht.</description>
-    <displayName>Hello World</displayName>;
-    <displayName xml:lang="de">Hallo Welt</displayName>;
-    <displayCategory>Custom Projects</displayCategory>
-    <displayCategory xml:lang="de">Benutzerdefinierte Projekte</displayCategory>
+    <displayname>Hello World</displayname>;
+    <displaycategory>Custom Projects</displaycategory>
     <files>
         <file source="main.cpp"/>
         <file source="project.pro" target="%ProjectName%.pro"/>

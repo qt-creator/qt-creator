@@ -38,8 +38,8 @@ leave room for the Qt 4 target page.
         class="qt4project" firstpage="10"
         id="QmlRuntimePlugin" category="F.Projects">
     <description>Creates a plug-in for the QML runtime.</description>
-    <displayName>QML Runtime Plug-in</displayName>
-    <displayCategory>QML Runtime Plug-in</displayCategory>
+    <displayname>QML Runtime Plug-in</displayname>
+    <displaycategory>QML Runtime Plug-in</displaycategory>
     <files>
         <file source="qmldir" target="%ProjectName%/qmldir"/>
         <file source="plugin.h" target="%ProjectName%.h"/>
