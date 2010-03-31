@@ -33,10 +33,49 @@
 #include "qmljseditorconstants.h"
 #include "qmljseditorplugin.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
+#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
+#include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
+#include <QtGui/QMainWindow>
+
+namespace {
+    const char * const QMLDESIGNER_INFO_BAR = "QmlJSEditor.QmlDesignerInfoBar";
+    const char * const KEY_QMLGROUP = "QML";
+    const char * const KEY_NAGABOUTDESIGNER = "AskAboutVisualDesigner";
+
+    bool isQmlDesignerExperimentallyDisabled()
+    {
+        ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+        foreach (const ExtensionSystem::PluginSpec *spec, pm->plugins()) {
+            if (spec->name() == QLatin1String("QmlDesigner")) {
+                if (spec->isExperimental() && !spec->isEnabled())
+                    return true;
+                return false;
+            }
+        }
+        return false;
+    }
+
+    bool isNaggingAboutExperimentalDesignerEnabled()
+    {
+        if (!isQmlDesignerExperimentallyDisabled()) {
+            return false;
+        }
+        QSettings *settings = Core::ICore::instance()->settings();
+        settings->beginGroup(QLatin1String(KEY_QMLGROUP));
+        bool nag = settings->value(QLatin1String(KEY_NAGABOUTDESIGNER), true).toBool();
+        settings->endGroup();
+        return nag;
+    }
+}
 
 using namespace QmlJSEditor::Internal;
 using namespace QmlJSEditor::Constants;
@@ -77,6 +116,14 @@ Core::IFile *QmlJSEditorFactory::open(const QString &fileName)
 
 Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
 {
+    static bool listenerInitialized = false;
+    if (!listenerInitialized) {
+        listenerInitialized = true;
+        if (isNaggingAboutExperimentalDesignerEnabled()) {
+            connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+                     SLOT(updateEditorInfoBar(Core::IEditor*)));
+        }
+    }
     QmlJSTextEditor *rc = new QmlJSTextEditor(parent);
     QmlJSEditorPlugin::instance()->initializeEditor(rc);
     return rc->editableInterface();
@@ -85,4 +132,59 @@ Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
 QStringList QmlJSEditorFactory::mimeTypes() const
 {
     return m_mimeTypes;
+}
+
+void QmlJSEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
+{
+    if (qobject_cast<QmlJSEditorEditable *>(editor)) {
+        Core::EditorManager::instance()->showEditorInfoBar(QMLDESIGNER_INFO_BAR,
+            tr("Do you want to enable the experimental Quick Designer?"),
+            tr("Enable Quick Designer"), this, SLOT(activateQmlDesigner()));
+    } else {
+        Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
+    }
+}
+
+void QmlJSEditorFactory::activateQmlDesigner()
+{
+    QString menu;
+#ifdef Q_WS_MAC
+    menu = tr("Qt Creator -> About Plugins...");
+#else
+    menu = tr("Help -> About Plugins...");
+#endif
+    QMessageBox message(Core::ICore::instance()->mainWindow());
+    message.setWindowTitle(tr("Enable experimental Quick Designer?"));
+    message.setText(tr("Do you want to enable the experimental Quick Designer? "
+                       "After enabling it, you can access the visual design capabilities by switching to Design Mode. "
+                       "This can affect the overall stability of Qt Creator. "
+                       "To disable Quick Designer again, visit the menu '%1' and disable 'QmlDesigner'.").arg(menu));
+    message.setIcon(QMessageBox::Question);
+    QPushButton *enable = message.addButton(tr("Enable Quick Designer"), QMessageBox::AcceptRole);
+    QPushButton *dontNag = message.addButton(tr("Never ask me again"), QMessageBox::ActionRole);
+    message.addButton(tr("Cancel"), QMessageBox::RejectRole);
+    message.exec();
+    if (message.clickedButton() == enable) {
+        ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+        foreach (ExtensionSystem::PluginSpec *spec, pm->plugins()) {
+            if (spec->name() == QLatin1String("QmlDesigner")) {
+                spec->setEnabled(true);
+                pm->writeSettings();
+                QMessageBox::information(Core::ICore::instance()->mainWindow(), tr("Please restart Qt Creator"),
+                                         tr("Please restart Qt Creator to make the change effective."));
+                disconnect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+                         this, SLOT(updateEditorInfoBar(Core::IEditor*)));
+                Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
+                return;
+            }
+        }
+    } else if (message.clickedButton() == dontNag) {
+        QSettings *settings = Core::ICore::instance()->settings();
+        settings->beginGroup(QLatin1String(KEY_QMLGROUP));
+        settings->setValue(QLatin1String(KEY_NAGABOUTDESIGNER), false);
+        settings->endGroup();
+        disconnect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+                 this, SLOT(updateEditorInfoBar(Core::IEditor*)));
+        Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
+    }
 }

@@ -1,4 +1,4 @@
-<plugin name="QmlDesigner" version="1.3.82" compatVersion="1.3.82">
+<plugin name="QmlDesigner" version="1.3.82" compatVersion="1.3.82" experimental="true">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
