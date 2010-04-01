@@ -635,6 +635,11 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_updateUsesTimer->setSingleShot(true);
     connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
 
+    m_semanticRehighlightTimer = new QTimer(this);
+    m_semanticRehighlightTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
+    m_semanticRehighlightTimer->setSingleShot(true);
+    connect(m_semanticRehighlightTimer, SIGNAL(timeout()), this, SLOT(semanticRehighlight()));
+
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
@@ -753,7 +758,7 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
             || doc->documentRevision() != document()->revision()) {
         // didn't get the currently open, or an up to date document.
         // trigger a semantic rehighlight anyway, after a time
-        updateDocument();
+        m_semanticRehighlightTimer->start();
         return;
     }
 
