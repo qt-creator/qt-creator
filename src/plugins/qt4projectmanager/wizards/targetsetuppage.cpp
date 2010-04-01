@@ -215,8 +215,9 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
 
             const ImportInfo &info = m_infos.at(child->data(0, Qt::UserRole).toInt());
 
-            targetInfos.append(BuildConfigurationInfo(info.version, QtVersion::QmakeBuildConfigs(info.buildConfig | QtVersion::DebugBuild),
-                                                      info.additionalArguments, info.directory));
+            if ((info.buildConfig | QtVersion::DebugBuild) != info.buildConfig)
+                targetInfos.append(BuildConfigurationInfo(info.version, QtVersion::QmakeBuildConfigs(info.buildConfig | QtVersion::DebugBuild),
+                                                          info.additionalArguments, info.directory));
             targetInfos.append(BuildConfigurationInfo(info.version, info.buildConfig,
                                                       info.additionalArguments, info.directory));
         }
