@@ -640,6 +640,28 @@ private:
     QUrl _url;
 };
 
+class ElidingLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    ElidingLabel(QWidget * parent = 0) : QLabel(parent) {}
+
+protected:
+    void paintEvent(QPaintEvent *event)
+    {
+        QPainter p(this);
+        QFontMetrics fm(font());
+        if (fm.width(text()) > (contentsRect().width() - 6) && text().length() > 4) {
+            QString elided_txt;
+            elided_txt = this->fontMetrics().elidedText(text(), Qt::ElideRight, rect().width() - 6, Qt::TextShowMnemonic);
+            p.drawText(rect().adjusted(12, 0, 0, 0), elided_txt);
+        }
+        else
+            QLabel::paintEvent(event);
+       }
+
+};
+
 
 class QLabelDeclarativeUI : public QObject
 {
@@ -649,7 +671,7 @@ class QLabelDeclarativeUI : public QObject
 public:
     QLabelDeclarativeUI(QObject *parent = 0) : QObject(parent)
      {
-         lb = qobject_cast<QLabel*>(parent);
+         lb = qobject_cast<ElidingLabel*>(parent);
      }
 private:
     QUrl iconFromFile() const
@@ -680,7 +702,7 @@ private:
 
     }
 
-    QLabel *lb;
+    ElidingLabel *lb;
     QUrl _url;
 };
 
@@ -1411,7 +1433,7 @@ void BasicWidgets::registerDeclarativeTypes()
     qmlRegisterExtendedType<QTabWidget,QTabWidgetDeclarativeUI>("Bauhaus",1,0,"QTabWidget");
     qmlRegisterExtendedType<QScrollArea,QScrollAreaDeclarativeUI>("Bauhaus",1,0,"QScrollArea");
     qmlRegisterExtendedType<QPushButton,QPushButtonDeclarativeUI>("Bauhaus",1,0,"QPushButton");
-    qmlRegisterExtendedType<QLabel,QLabelDeclarativeUI>("Bauhaus",1,0,"QLabel");
+    qmlRegisterExtendedType<ElidingLabel,QLabelDeclarativeUI>("Bauhaus",1,0,"QLabel");
     qmlRegisterExtendedType<QToolButton, QToolButtonDeclarativeUI>("Bauhaus",1,0,"QToolButton");
     qmlRegisterExtendedType<QComboBox, QComboBoxDeclarativeUI>("Bauhaus",1,0,"QComboBox");
     qmlRegisterExtendedType<QMenu, QMenuDeclarativeUI>("Bauhaus",1,0,"QMenu");
