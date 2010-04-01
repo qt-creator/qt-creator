@@ -1,22 +1,25 @@
-include(../../../../../src/plugins/qmldesigner/config.pri)
+CREATORDIR=$$PWD/../../../../..
+
+include($$CREATORDIR/src/plugins/qmldesigner/config.pri)
 QT += testlib \
     script \
     declarative
 
-include(../../../../../src/plugins/qmldesigner/core/core.pri)
-include(../../../../../src/libs/qmljs/qmljs-lib.pri)
-HEADERS+=../../../../../src/libs/utils/changeset.h
-SOURCES+=../../../../../src/libs/utils/changeset.cpp
-INCLUDEPATH+=../../../../../src/libs
-DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB QTCREATOR_TEST
-DESTDIR = ../../../../../bin
+include($$CREATORDIR/src/plugins/qmldesigner/core/core.pri)
+include($$CREATORDIR/src/libs/qmljs/qmljs-lib.pri)
+HEADERS+=$$CREATORDIR/src/libs/utils/changeset.h
+SOURCES+=$$CREATORDIR/src/libs/utils/changeset.cpp
 
-DEFINES+=MANUALTEST_PATH=\\\"$$PWD"/../../../../manual/qml/testfiles/"\\\"
+INCLUDEPATH+=$$CREATORDIR/src/libs
+
+DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB QTCREATOR_TEST
+DEFINES+=QTCREATORDIR=\\\"$$CREATORDIR\\\"
 
 DEPENDPATH += ..
-DEPENDPATH += ../../../../../src/plugins/qmldesigner/core/include
+DEPENDPATH += $$CREATORDIR/src/plugins/qmldesigner/core/include
 
 TARGET = tst_qmldesigner_core
+
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app

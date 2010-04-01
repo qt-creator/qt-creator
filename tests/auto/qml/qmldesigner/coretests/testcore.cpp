@@ -94,7 +94,20 @@ void TestCore::initTestCase()
 #endif
     Exception::setShouldAssert(false);
 
-    initializeMetaTypeSystem(QLatin1String("../../../../../share/qtcreator"));
+    initializeMetaTypeSystem(QLatin1String(QTCREATORDIR "/share/qtcreator"));
+
+
+   // Load plugins
+
+#ifdef Q_OS_MAC
+    const QString pluginPath = QTCREATORDIR "/PlugIns/QmlDesigner";
+#else
+    const QString pluginPath = QTCREATORDIR "/lib/qmldesigner";
+#endif
+
+    qDebug() << pluginPath;
+    Q_ASSERT(QFileInfo(pluginPath).exists());
+    MetaInfo::setPluginPaths(QStringList() << pluginPath);
 }
 
 void TestCore::cleanupTestCase()
@@ -525,7 +538,7 @@ void TestCore::testRewriterDynamicProperties()
 
 void TestCore::loadSubItems()
 {
-    QFile file(QCoreApplication::applicationDirPath() + "/../data/fx/topitem.qml");
+    QFile file(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/topitem.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
     QPlainTextEdit textEdit1;
@@ -3220,15 +3233,6 @@ void TestCore::testMetaInfoEnums()
 
 void TestCore::testMetaInfoDotProperties()
 {
-
-#ifdef Q_OS_MAC
-    const QString pluginPath = QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner";
-#else
-    const QString pluginPath = QCoreApplication::applicationDirPath() + "/../"
-                               + QLatin1String("lib") + "/qmldesigner";
-#endif
-    MetaInfo::setPluginPaths(QStringList() << pluginPath);
-
     QScopedPointer<Model> model(Model::create("Qt/Text"));
     QVERIFY(model.data());
 
@@ -6249,8 +6253,10 @@ void TestCore::loadWelcomeScreen()
 
 void TestCore::loadTestFiles()
 {
+    const QString manualTestPath = QLatin1String(QTCREATORDIR) + "/tests/manual/qml/testfiles";
+    qDebug() << manualTestPath;
     { //empty.qml
-        QFile file(QString(MANUALTEST_PATH) + "/empty.qml");
+        QFile file(manualTestPath + "/empty.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QPlainTextEdit textEdit;
@@ -6273,7 +6279,7 @@ void TestCore::loadTestFiles()
     }
 
     { //helloworld.qml
-        QFile file(QString(MANUALTEST_PATH) + "/helloworld.qml");
+        QFile file(manualTestPath + "/helloworld.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QPlainTextEdit textEdit;
@@ -6303,7 +6309,7 @@ void TestCore::loadTestFiles()
         QCOMPARE(textNode.variantProperty("y").value().toInt(), 93);
     }
     { //states.qml
-        QFile file(QString(MANUALTEST_PATH) + "/states.qml");
+        QFile file(manualTestPath + "/states.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QPlainTextEdit textEdit;
@@ -6352,7 +6358,7 @@ void TestCore::loadTestFiles()
 
     QSKIP("See BAUHAUS-539 (component loading is broken)", SkipAll);
     { //usingbutton.qml
-        QFile file(QString(MANUALTEST_PATH) + "/usingbutton.qml");
+        QFile file(manualTestPath + "/usingbutton.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QPlainTextEdit textEdit;
