@@ -4041,13 +4041,14 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     gdbArgs += args;
 #ifdef Q_OS_WIN
     // Set python path. By convention, python is located below gdb executable.
+    // Extend the environment set on the process in startAdapter().
     const QFileInfo fi(location);
     bool foundPython = false;
     if (fi.isAbsolute()) {
         const QString winPythonVersion = QLatin1String(winPythonVersionC);
         const QDir dir = fi.absoluteDir();
         if (dir.exists(winPythonVersion)) {
-            QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+            QProcessEnvironment environment = m_gdbProc.processEnvironment();
             const QString pythonPathVariable = QLatin1String("PYTHONPATH");
             // Check for existing values.
             if (environment.contains(pythonPathVariable)) {
