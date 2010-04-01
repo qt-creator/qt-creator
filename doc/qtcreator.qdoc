@@ -407,7 +407,7 @@
 
     \section1 Getting Help
 
-    Qt Creator comes fully integrated with all of Qt's documentation and
+    Qt Creator comes fully integrated with Qt documentation and
     examples using the Qt Help plugin.
     \list
         \o To view documentation, switch to \gui Help mode.
@@ -424,19 +424,58 @@
 
     \section2 Adding External Documentation
 
-    You can display external documentation in Qt Creator's \gui Help mode.
-    Augment or replace the documentation that ships with Qt Creator and Qt by
-    performing the following steps:
+    You can display external documentation in the \gui Help mode.
+    To augment or replace the documentation that ships with Qt Creator and Qt:
     \list 1
         \o Create a .qch file from your documentation.
 
            For information on how to prepare your documentation and create a
            .qch file, see
            \l{http://doc.qt.nokia.com/4.6/qthelp-framework.html}{The Qt Help Framework}.
-        \o Add the .qch file to Qt Creator by selecting \gui Tools >
+        \o To add the .qch file to Qt Creator, select \gui Tools >
            \gui Options... > \gui Help > \gui Documentation > \gui Add.
     \endlist
 
+    \section2 Using Documentation Filters
+
+    You can filter the documents displayed in the \gui Help mode to find
+    relevant information faster. Select from a list of filters in the
+    \gui {Filtered by} field. The contents of the \gui Index and \gui Contents
+    pane in the sidebar change accordingly.
+
+    \image qtcreator-help-filters.png "Help filters"
+
+    You can modify the filters to include external documentation, for example,
+    or you can define your own filters. To construct filters, you can use the
+    filter attributes that are specified in the documentation. Each document
+    contains at least one filter attribute. If several documents contain the
+    same filter attribute, such as \c tools, you can use that attribute to
+    include all those documents.
+
+    To add filters:
+
+    \list 1
+
+        \o Select \gui {Tools > Options... > Help > Filters > Add}.
+
+        \o Enter a name for the filter and press \gui {OK}.
+
+        \o In \gui Attributes, select the documents that you want to include
+        in the filter.
+
+        \image qtcreator-help-filter-attributes.png "Help filter attributes"
+
+        \o Click \gui OK.
+
+        \o In the \gui Help mode, select the filter in the \gui {Filtered by}
+        field to see the filtered documentation in the sidebar.
+
+    \endlist
+
+    To modify filters, select a filter in \gui Filters, select the attributes,
+    and then click \gui Apply.
+
+    To remove filters, select them in \gui Filters, and click \gui Remove.
 
     \section1 Navigating with Keyboard
 
