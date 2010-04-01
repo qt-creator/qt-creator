@@ -96,10 +96,12 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     m_page->caseSensitivity->setCurrentIndex(caseSensitivityIndex);
     m_page->autoInsertBrackets->setChecked(m_completion->autoInsertBrackets());
     m_page->partiallyComplete->setChecked(m_completion->isPartialCompletionEnabled());
+    m_page->spaceAfterFunctionName->setChecked(m_completion->isSpaceAfterFunctionName());
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords) << m_page->caseSensitivityLabel->text()
                 << ' ' << m_page->autoInsertBrackets->text()
-                << ' ' << m_page->partiallyComplete->text();
+		<< ' ' << m_page->partiallyComplete->text()
+		<< ' ' << m_page->spaceAfterFunctionName->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
@@ -110,6 +112,7 @@ void CompletionSettingsPage::apply()
     m_completion->setCaseSensitivity(caseSensitivity());
     m_completion->setAutoInsertBrackets(m_page->autoInsertBrackets->isChecked());
     m_completion->setPartialCompletionEnabled(m_page->partiallyComplete->isChecked());
+    m_completion->setSpaceAfterFunctionName(m_page->spaceAfterFunctionName->isChecked());
 }
 
 bool CompletionSettingsPage::matches(const QString &s) const

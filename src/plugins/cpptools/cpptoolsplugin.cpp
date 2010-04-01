@@ -147,6 +147,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     m_completion->setCaseSensitivity((CppCodeCompletion::CaseSensitivity) caseSensitivity);
     m_completion->setAutoInsertBrackets(settings->value(QLatin1String("AutoInsertBraces"), true).toBool());
     m_completion->setPartialCompletionEnabled(settings->value(QLatin1String("PartiallyComplete"), true).toBool());
+    m_completion->setSpaceAfterFunctionName(settings->value(QLatin1String("SpaceAfterFunctionName"), false).toBool());
     settings->endGroup();
     settings->endGroup();
 
@@ -176,6 +177,7 @@ void CppToolsPlugin::shutdown()
     settings->setValue(QLatin1String("CaseSensitivity"), (int) m_completion->caseSensitivity());
     settings->setValue(QLatin1String("AutoInsertBraces"), m_completion->autoInsertBrackets());
     settings->setValue(QLatin1String("PartiallyComplete"), m_completion->isPartialCompletionEnabled());
+    settings->setValue(QLatin1String("SpaceAfterFunctionName"), m_completion->isSpaceAfterFunctionName());
     settings->endGroup();
     settings->endGroup();
 }

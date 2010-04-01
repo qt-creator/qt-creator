@@ -479,6 +479,7 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_caseSensitivity(FirstLetterCaseSensitive),
       m_autoInsertBrackets(true),
       m_partialCompletionEnabled(true),
+      m_spaceAfterFunctionName(false),
       m_forcedCompletion(false),
       m_completionOperator(T_EOF_SYMBOL),
       m_objcEnabled(true)
@@ -518,6 +519,16 @@ bool CppCodeCompletion::isPartialCompletionEnabled() const
 void CppCodeCompletion::setPartialCompletionEnabled(bool partialCompletionEnabled)
 {
     m_partialCompletionEnabled = partialCompletionEnabled;
+}
+
+bool CppCodeCompletion::isSpaceAfterFunctionName() const
+{
+    return m_spaceAfterFunctionName;
+}
+
+void CppCodeCompletion::setSpaceAfterFunctionName(bool spaceAfterFunctionName)
+{
+    m_spaceAfterFunctionName = spaceAfterFunctionName;
 }
 
 /*
@@ -1580,6 +1591,8 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                         extraChars += QLatin1Char('<');
                     }
                 } else if (! function->isAmbiguous()) {
+		    if (m_spaceAfterFunctionName)
+			extraChars += QLatin1Char(' ');
                     extraChars += QLatin1Char('(');
 
                     // If the function doesn't return anything, automatically place the semicolon,

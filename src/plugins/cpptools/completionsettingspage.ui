@@ -111,6 +111,16 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="spaceAfterFunctionName">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Insert &amp;space after function name</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

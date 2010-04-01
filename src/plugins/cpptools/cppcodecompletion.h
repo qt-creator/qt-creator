@@ -88,6 +88,9 @@ public:
     bool isPartialCompletionEnabled() const;
     void setPartialCompletionEnabled(bool partialCompletionEnabled);
 
+    bool isSpaceAfterFunctionName() const;
+    void setSpaceAfterFunctionName(bool spaceAfterFunctionName);
+
 private:
     void addKeywords();
     void addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot);
@@ -152,6 +155,7 @@ private:
     CaseSensitivity m_caseSensitivity;
     bool m_autoInsertBrackets;
     bool m_partialCompletionEnabled;
+    bool m_spaceAfterFunctionName;
     bool m_forcedCompletion;
     unsigned m_completionOperator;
     bool m_objcEnabled;
