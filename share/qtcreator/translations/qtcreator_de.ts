@@ -15009,7 +15009,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+136"/>
         <source>Details</source>
-        <translation>Beschreibung</translation>
+        <translation>Details</translation>
     </message>
 </context>
 <context>
