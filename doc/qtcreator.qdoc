@@ -2652,8 +2652,9 @@
             \o Notes
         \row
             \o Gdb
-            \o Requires gdb version 6.8 on Linux. On Mac OS X, please install the latest available Xcode
-               available for your OS version.
+            \o On Linux, install version 6.8, 7.0.1 (version 7.0 is not supported),
+            7.1, or later. On Mac OS X, install Apple gdb version 6.3.x.
+
         \row
             \o Debugging tools for Windows
             \o Using this engine requires you to install the
