@@ -383,24 +383,6 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
         m_target->buildConfigurations().size() <= 1)
         return;
 
-    if (m_target->activeBuildConfiguration() == deleteConfiguration) {
-        foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
-            if (bc != deleteConfiguration) {
-                m_target->setActiveBuildConfiguration(bc);
-                break;
-            }
-        }
-    }
-
-    if (m_buildConfiguration == deleteConfiguration) {
-        foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
-            if (bc != deleteConfiguration) {
-                m_buildConfiguration = bc;
-                break;
-            }
-        }
-    }
-
     m_target->removeBuildConfiguration(deleteConfiguration);
 
     updateBuildSettings();
