@@ -94,6 +94,7 @@ void MaemoRunConfiguration::init()
         setDisplayName(tr("MaemoRunConfiguration"));
     }
 
+    updateDeviceConfigurations();
     connect(&MaemoDeviceConfigurations::instance(), SIGNAL(updated()), this,
         SLOT(updateDeviceConfigurations()));
 
@@ -516,8 +517,15 @@ void MaemoRunConfiguration::qemuProcessFinished()
 void MaemoRunConfiguration::updateDeviceConfigurations()
 {
     qDebug("%s: Current devid = %llu", Q_FUNC_INFO, m_devConfig.internalId);
-    m_devConfig =
-        MaemoDeviceConfigurations::instance().find(m_devConfig.internalId);
+    const MaemoDeviceConfigurations &configManager
+        = MaemoDeviceConfigurations::instance();
+    if (!m_devConfig.isValid()) {
+        const QList<MaemoDeviceConfig> &configList = configManager.devConfigs();
+        if (!configList.isEmpty())
+            m_devConfig = configList.first();
+    } else {
+        m_devConfig = configManager.find(m_devConfig.internalId);
+    }
     qDebug("%s: new devid = %llu", Q_FUNC_INFO, m_devConfig.internalId);
     emit deviceConfigurationsUpdated();
 }
