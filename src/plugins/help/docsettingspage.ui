@@ -11,9 +11,7 @@
    </rect>
   </property>
   <property name="toolTip">
-   <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;The Documentation page lets you install and remove compressed help files.&lt;/p&gt;
-&lt;p&gt;Click the &lt;b&gt;Install&lt;/b&gt; button and choose the path of the compressed help file (*.qch) you would like to install. To delete a help file, select a documentation set in the list and click &lt;b&gt;Remove&lt;/b&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-</string>
+   <string>Add and remove compressed help files, .qch.</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
