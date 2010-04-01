@@ -23,7 +23,7 @@ GroupBox {
                 }
                 CheckBox {
                     id: clipCheckBox;
-                    text: qsTr("Clip Content")
+                    text: qsTr("Clip")
                     backendValue: backendValues.clip;
                     baseStateFlag: isBaseState;
                     checkable: true;
