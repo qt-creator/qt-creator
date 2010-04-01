@@ -47,10 +47,10 @@ Document::Document(const QString &fileName)
     , _isQmlDocument(false)
     , _documentRevision(0)
     , _parsedCorrectly(false)
+    , _fileName(fileName)
 {
     QFileInfo fileInfo(fileName);
-    _path = fileInfo.canonicalPath();
-    _fileName = fileInfo.canonicalFilePath();
+    _path = fileInfo.absolutePath();
 
     // ### Should use mime type
     if (fileInfo.suffix() == QLatin1String("qml")
