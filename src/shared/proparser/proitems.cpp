@@ -45,10 +45,13 @@ ProBlock::~ProBlock()
 {
     for (ProItem *itm, *nitm = m_proitems; (itm = nitm); ) {
         nitm = itm->m_next;
-        if (itm->kind() == BlockKind)
-            static_cast<ProBlock *>(itm)->deref();
-        else
-            delete itm;
+        switch (itm->kind()) {
+        case BlockKind: static_cast<ProBlock *>(itm)->deref(); break;
+        case FunctionKind: delete static_cast<ProFunction *>(itm); break;
+        case ConditionKind: delete static_cast<ProCondition *>(itm); break;
+        case OperatorKind: delete static_cast<ProOperator *>(itm); break;
+        case VariableKind: delete static_cast<ProVariable *>(itm); break;
+        }
     }
 }
 
