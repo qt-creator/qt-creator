@@ -56,7 +56,6 @@ private:
     Document::Ptr _doc;
     Snapshot _snapshot;
     Interpreter::Context *_context;
-    QMultiHash<QString, Document::Ptr> _documentByPath;
     const QStringList _importPaths;
 
     QList<DiagnosticMessage> _diagnosticMessages;

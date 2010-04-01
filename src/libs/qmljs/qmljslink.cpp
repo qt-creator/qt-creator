@@ -21,8 +21,6 @@ Link::Link(Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
     , _context(context)
     , _importPaths(importPaths)
 {
-    foreach (Document::Ptr doc, snapshot)
-        _documentByPath.insert(doc->path(), doc);
     linkImports();
 }
 
@@ -161,7 +159,7 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
 
     // implicit imports:
     // qml files in the same directory are available without explicit imports
-    foreach (Document::Ptr otherDoc, _documentByPath.values(doc->path())) {
+    foreach (Document::Ptr otherDoc, _snapshot.documentsInDirectory(doc->path())) {
         if (otherDoc == doc)
             continue;
 
@@ -206,13 +204,14 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
     ObjectValue *importNamespace = typeEnv;
 
     // directory import
-    if (_documentByPath.contains(path)) {
+    QList<Document::Ptr> documentsInDirectory = _snapshot.documentsInDirectory(path);
+    if (! documentsInDirectory.isEmpty()) {
         if (import->importId) {
             importNamespace = engine()->newObject(/*prototype =*/0);
             typeEnv->setProperty(import->importId->asString(), importNamespace);
         }
 
-        foreach (Document::Ptr importedDoc, _documentByPath.values(path)) {
+        foreach (Document::Ptr importedDoc, documentsInDirectory) {
             const QString targetName = importedDoc->componentName();
             importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
         }
