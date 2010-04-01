@@ -242,7 +242,7 @@ static inline QString fixBaseNameTarget(const QString &in)
     return in;
 }
 
-QString S60DeviceRunConfiguration::basePackageFilePath() const
+QString S60DeviceRunConfiguration::packageFileNameWithTargetInfo() const
 {
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
@@ -250,7 +250,7 @@ QString S60DeviceRunConfiguration::basePackageFilePath() const
     QString baseFileName = ti.workingDir + QLatin1Char('/') + ti.target;
     baseFileName += QLatin1Char('_')
                     + (isDebug() ? QLatin1String("debug") : QLatin1String("release"))
-                    + QLatin1Char('-') + symbianPlatform();
+                    + QLatin1Char('-') + symbianPlatform() + QLatin1String(".sis");
     return baseFileName;
 }
 
@@ -348,7 +348,10 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
 
 QString S60DeviceRunConfiguration::signedPackage() const
 {
-    return QDir::toNativeSeparators(basePackageFilePath() + QLatin1String(".sis"));
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
+    if (!ti.valid)
+        return QString();
+    return ti.workingDir + QLatin1Char('/') + ti.target + QLatin1String(".sis");
 }
 
 QStringList S60DeviceRunConfiguration::commandLineArguments() const
@@ -466,10 +469,10 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_serialPortName = s60runConfig->serialPortName();
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
     m_targetName = s60runConfig->targetName();
-    m_baseFileName = s60runConfig->basePackageFilePath();
+    m_packageFileNameWithTarget = s60runConfig->packageFileNameWithTargetInfo();
     m_signedPackage = s60runConfig->signedPackage();
     m_commandLineArguments = s60runConfig->commandLineArguments();
-    m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
+    m_workingDirectory = QFileInfo(m_signedPackage).absolutePath();
     m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
     if (const QtVersion *qtv = s60runConfig->qtVersion())
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
@@ -550,31 +553,42 @@ void S60DeviceRunControlBase::start()
                                                         settingsCategory, settingsPage);
         return;
     }
-    // Be sure to delete old files
-    if (!ensureDeleteFile(m_signedPackage, &errorMessage)) {
-        m_deployProgress->reportCanceled();
-        error(this, errorMessage);
-        emit finished();
-    }
 
-    bool ok = false;
-    // TODO reconsider
-    do {
-        // ABLD up to 4.6.1: Check on file 'targetname_armX_udeb.sis'.
-        if (QFileInfo(m_signedPackage).isFile()) {
-            ok = true;
-            break;
+    // make sure we have the right name of the sis package
+    bool ok = true;
+    QFileInfo packageInfo(m_signedPackage);
+    {
+        // support for 4.6.1 and pre, where make sis creates 'targetname_armX_udeb.sis' instead of 'targetname.sis'
+        QFileInfo packageWithTargetInfo(m_packageFileNameWithTarget);
+        // does the 4.6.1 version exist?
+        if (packageWithTargetInfo.exists() && packageWithTargetInfo.isFile()) {
+            // is the 4.6.1 version newer? (to guard against behavior change Qt Creator 1.3 --> 2.0)
+            if (!packageInfo.exists()
+                    || packageInfo.lastModified() < packageWithTargetInfo.lastModified()) {
+                // the 'targetname_armX_udeb.sis' crap exists and is new, rename it
+                emit addToOutputWindow(this, tr("Renaming new package '%1' to '%2'")
+                                       .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget),
+                                            QDir::toNativeSeparators(m_signedPackage)));
+                ok = renameFile(m_packageFileNameWithTarget, m_signedPackage, &errorMessage);
+            } else {
+                // the 'targetname_armX_udeb.sis' crap exists but is old, remove it
+                emit addToOutputWindow(this, tr("Removing old package '%1'")
+                                       .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget)));
+                QFile::remove(m_packageFileNameWithTarget);
+            }
         }
-        // ABLD/makefile-based systems: 'make sis' creates
-        // 'targetname.sis'. Rename to full name 'targetname_armX_udeb.sis'.
-        const QString oldName = m_workingDirectory + QLatin1Char('/') + m_targetName + QLatin1String(".sis");
-        ok = renameFile(oldName, m_signedPackage, &errorMessage);
-    } while (false);
+    }
+    if (ok) {
+        if (!packageInfo.exists() || !packageInfo.isFile()) {
+            errorMessage = tr("Package file not found");
+            ok = false;
+        }
+    }
     if (ok) {
         startDeployment();
     } else {
         m_deployProgress->reportCanceled();
-        errorMessage = tr("Failed to create '%1': %2").arg(m_signedPackage, errorMessage);
+        errorMessage = tr("Failed to find package '%1': %2").arg(m_signedPackage, errorMessage);
         error(this, errorMessage);
         stop();
         emit finished();
@@ -632,7 +646,7 @@ void S60DeviceRunControlBase::startDeployment()
         //TODO sisx destination and file path user definable
         if (!m_commandLineArguments.isEmpty())
             m_launcher->setCommandLineArgs(m_commandLineArguments);
-        const QString copyDst = QString::fromLatin1("C:\\Data\\%1.sis").arg(QFileInfo(m_baseFileName).fileName());
+        const QString copyDst = QString::fromLatin1("C:\\Data\\%1").arg(QFileInfo(m_signedPackage).fileName());
         const QString runFileName = QString::fromLatin1("C:\\sys\\bin\\%1.exe").arg(m_targetName);
         m_launcher->setCopyFileName(m_signedPackage, copyDst);
         m_launcher->setInstallFileName(copyDst);

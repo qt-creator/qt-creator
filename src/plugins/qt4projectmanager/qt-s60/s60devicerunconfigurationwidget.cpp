@@ -204,7 +204,7 @@ void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
 
 void S60DeviceRunConfigurationWidget::updateTargetInformation()
 {
-    m_sisFileLabel->setText(m_runConfiguration->signedPackage());
+    m_sisFileLabel->setText(QDir::toNativeSeparators(m_runConfiguration->signedPackage()));
 }
 
 void S60DeviceRunConfigurationWidget::setSerialPort(int index)

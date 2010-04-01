@@ -77,7 +77,7 @@ public:
     void setSerialPortName(const QString &name);
 
     QString targetName() const;
-    QString basePackageFilePath() const;
+    QString packageFileNameWithTargetInfo() const;
     QString symbianPlatform() const;
     QString symbianTarget() const;
     bool isDebug() const;
@@ -187,11 +187,11 @@ private:
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
     QString m_targetName;
-    QString m_baseFileName;
     QStringList m_commandLineArguments;
     QString m_workingDirectory;
     QString m_executableFileName;
     QString m_qtDir;
+    QString m_packageFileNameWithTarget; // Support for 4.6.1
     QString m_signedPackage;
     QString m_qtBinPath;
     bool m_releaseDeviceAfterLauncherFinish;
