@@ -47,10 +47,10 @@ Document::Document(const QString &fileName)
     , _isQmlDocument(false)
     , _documentRevision(0)
     , _parsedCorrectly(false)
-    , _fileName(fileName)
+    , _fileName(QDir::cleanPath(fileName))
 {
     QFileInfo fileInfo(fileName);
-    _path = fileInfo.absolutePath();
+    _path = QDir::cleanPath(fileInfo.absolutePath());
 
     // ### Should use mime type
     if (fileInfo.suffix() == QLatin1String("qml")
@@ -258,7 +258,7 @@ void Snapshot::insert(const Document::Ptr &document)
 
 void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
 {
-    _libraries.insert(path, info);
+    _libraries.insert(QDir::cleanPath(path), info);
 }
 
 Document::Ptr Snapshot::documentFromSource(const QString &code,
@@ -313,4 +313,19 @@ QMap<QString, Document::Ptr> Snapshot::componentsDefinedByImportedDocuments(cons
     }
 
     return result;
+}
+
+Document::Ptr Snapshot::document(const QString &fileName) const
+{
+    return _documents.value(QDir::cleanPath(fileName));
+}
+
+QList<Document::Ptr> Snapshot::documentsInDirectory(const QString &path) const
+{
+    return _documentsByPath.values(QDir::cleanPath(path));
+}
+
+LibraryInfo Snapshot::libraryInfo(const QString &path) const
+{
+    return _libraries.value(QDir::cleanPath(path));
 }
