@@ -32,6 +32,7 @@
 #include "storagesettings.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
 #include <QtCore/QTextCodec>
@@ -115,7 +116,7 @@ bool BaseTextDocument::save(const QString &fileName)
     file.close();
 
     const QFileInfo fi(fName);
-    m_fileName = fi.absoluteFilePath();
+    m_fileName = QDir::cleanPath(fi.absoluteFilePath());
 
     m_document->setModified(false);
     emit titleChanged(fi.fileName());
@@ -158,7 +159,7 @@ bool BaseTextDocument::open(const QString &fileName)
     if (!fileName.isEmpty()) {
         const QFileInfo fi(fileName);
         m_fileIsReadOnly = !fi.isWritable();
-        m_fileName = fi.absoluteFilePath();
+        m_fileName = QDir::cleanPath(fi.absoluteFilePath());
 
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly))
