@@ -149,14 +149,9 @@ public:
     void insert(const Document::Ptr &document);
     void insertLibraryInfo(const QString &path, const LibraryInfo &info);
 
-    Document::Ptr document(const QString &fileName) const
-    { return _documents.value(fileName); }
-
-    QList<Document::Ptr> documentsInDirectory(const QString &path) const
-    { return _documentsByPath.values(path); }
-
-    LibraryInfo libraryInfo(const QString &path) const
-    { return _libraries.value(path); }
+    Document::Ptr document(const QString &fileName) const;
+    QList<Document::Ptr> documentsInDirectory(const QString &path) const;
+    LibraryInfo libraryInfo(const QString &path) const;
 
     Document::Ptr documentFromSource(const QString &code,
                                      const QString &fileName) const;
