@@ -57,8 +57,6 @@ private:
     void applySettings();
 
     Qt4Project *m_project;
-    QList<TargetSetupPage::ImportInfo> m_importVersions;
-
     TargetSetupPage *m_targetSetupPage;
 };
 
