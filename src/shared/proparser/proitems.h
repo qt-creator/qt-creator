@@ -115,6 +115,7 @@ public:
 private:
     ProItem *m_proitems;
     int m_blockKind;
+    friend class ProFile; // for the pseudo-virtual d'tor
     ProItemRefCount m_refCount;
 };
 
@@ -189,6 +190,9 @@ public:
     QString displayFileName() const { return m_displayFileName; }
     QString fileName() const { return m_fileName; }
     QString directoryName() const { return m_directoryName; }
+
+    // d'tor is not virtual
+    void deref() { if (!m_refCount.deref()) delete this; }
 
 private:
     QString m_fileName;
