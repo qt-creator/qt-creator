@@ -260,6 +260,7 @@ private:
 
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
+    QTimer *m_semanticRehighlightTimer;
     QComboBox *m_methodCombo;
     ModelManagerInterface *m_modelManager;
     QTextCharFormat m_occurrencesFormat;
