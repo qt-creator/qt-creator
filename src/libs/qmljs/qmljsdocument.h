@@ -131,9 +131,10 @@ public:
 
 class QMLJS_EXPORT Snapshot
 {
-    typedef QMap<QString, Document::Ptr> _Base;
-    QMap<QString, Document::Ptr> _documents;
-    QMap<QString, LibraryInfo> _libraries;
+    typedef QHash<QString, Document::Ptr> _Base;
+    QHash<QString, Document::Ptr> _documents;
+    QMultiHash<QString, Document::Ptr> _documentsByPath;
+    QHash<QString, LibraryInfo> _libraries;
 
 public:
     Snapshot();
@@ -150,6 +151,9 @@ public:
 
     Document::Ptr document(const QString &fileName) const
     { return _documents.value(fileName); }
+
+    QList<Document::Ptr> documentsInDirectory(const QString &path) const
+    { return _documentsByPath.values(path); }
 
     LibraryInfo libraryInfo(const QString &path) const
     { return _libraries.value(path); }

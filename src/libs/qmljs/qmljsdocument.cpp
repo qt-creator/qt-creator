@@ -250,8 +250,10 @@ Snapshot::~Snapshot()
 
 void Snapshot::insert(const Document::Ptr &document)
 {
-    if (document && (document->qmlProgram() || document->jsProgram()))
+    if (document && (document->qmlProgram() || document->jsProgram())) {
         _documents.insert(document->fileName(), document);
+        _documentsByPath.insert(document->path(), document);
+    }
 }
 
 void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
