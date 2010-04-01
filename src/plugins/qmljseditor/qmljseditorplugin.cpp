@@ -41,6 +41,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -146,6 +147,9 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     settings->endGroup();
 
     error_message->clear();
+
+    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
+    iconProvider->registerIconOverlayForSuffix(QIcon(":/qmljseditor/images/qmlfile.png"), "qml");
 
     return true;
 }
