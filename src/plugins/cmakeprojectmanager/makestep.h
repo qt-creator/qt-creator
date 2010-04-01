@@ -79,7 +79,7 @@ protected:
     bool fromMap(const QVariantMap &map);
 
     // For parsing [ 76%]
-    virtual void stdOut(const QString &line);
+    virtual void stdOutput(const QString &line);
 
 private:
     void ctor();

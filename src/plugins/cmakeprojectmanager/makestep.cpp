@@ -162,7 +162,7 @@ bool MakeStep::immutable() const
     return true;
 }
 
-void MakeStep::stdOut(const QString &line)
+void MakeStep::stdOutput(const QString &line)
 {
     if (m_percentProgress.indexIn(line) != -1) {
         bool ok = false;
