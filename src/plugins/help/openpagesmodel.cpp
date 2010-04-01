@@ -53,7 +53,6 @@ QVariant OpenPagesModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || role != Qt::DisplayRole
         || index.row() >= rowCount() || index.column() >= columnCount() - 1)
-
         return QVariant();
 
     QString title = m_pages.at(index.row())->title();
