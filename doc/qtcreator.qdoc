@@ -251,7 +251,7 @@
             \o Mac OS X
             \o Yes
             \o No
-            \o No
+            \o Yes
     \endtable
 */
 
@@ -3743,7 +3743,7 @@
 
            For more information about MADDE pertaining to its
            installation, configuration, and deployment on the device, see
-          \l{http://wiki.maemo.org/MADDE}{Introdution to MADDE}.
+          \l{http://wiki.maemo.org/MADDE}{Introduction to MADDE}.
 
        \o  An IP address for the device.
 
@@ -3758,18 +3758,14 @@
     following:
     \list
        \o The Nokia USB drivers that come, for example with, PC Suite.
-       \o Qt installed on the device. A simple technique to
-          install Qt is to run the Maemo device \gui{Application Manager} and
-          download any application using Qt Creator. Running the Maemo device
-          \gui{Application Manager} and downloading an application with Qt
-          Creator installs all dependencies required for Qt Creator at the same
-          time.
+       \o Qt installed on the device. Recent images should have Qt pre-installed.
     \endlist
 
      The Qt Creator/MADDE integration is supported on the following platforms:
     \list
        \o  Linux (32 bit and 64 bit)
        \o  Windows (32 bit and 64 bit)
+       \o  MacOS 10.5 ("Leopard") or higher
     \endlist
 
     \section1 Setting Up the N900
@@ -3782,8 +3778,7 @@
     diagnostics functions but is essential for creating connections between the
     device and your workstation.
 
-    For the workstation, you need to set up a network port that detects the
-    Maemo device as a network device
+    For the workstation, you need to set up the N900 as a network device.
 
     \note If you use the device's USB network functionality and plan to
     connect your development PC to the N900 via a common WLAN network, you can
@@ -3794,7 +3789,7 @@
     To install Mad Developer on your device, you need to add an application
     catalogue (repository) to the list of catalogues your device checks for
     installable software, and install the actual Mad Developer software
-    package using root privileges. This is done according to the following
+    package. This is done according to the following
     steps:
      \list 1
          \o Start the application manager
@@ -3894,11 +3889,11 @@
     \l{http://wiki.maemo.org/MADDE}{here}, execute it and follow the
     instructions. The package will be installed. Then run:
     \c{mad-admin list targets} to see which targets are available.
-    Install the targets that starts with "fremantle" by using the command:
+    Install the target that starts with "fremantle" by using the command:
     \c{mad-admin create fremantle-qt-xxx}
 
     When you have installed the target, you have a toolchain and a sysroot
-    environment for cross-compiling
+    environment for cross-compiling.
 
     \section1 Setting Up Qt Creator
 
