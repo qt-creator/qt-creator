@@ -149,6 +149,7 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
             }
             shouldCheck = shouldCheck && (m_preferMobile == i.version->supportsMobileTarget());
             shouldCheck = shouldCheck || i.isExistingBuild; // always check imports
+            shouldCheck = shouldCheck || m_infos.count() == 1; // always check only option
             versionItem->setCheckState(0, shouldCheck ? Qt::Checked : Qt::Unchecked);
 
             // Column 1 (status):
