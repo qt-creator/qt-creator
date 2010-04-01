@@ -3948,6 +3948,9 @@
     \list
         \o \l{http://www.forum.nokia.com/main/resources/tools_and_sdks/S60SDK/}
            {S60 Platform SDK 3rd Edition FP1 or higher}.
+        \o \l{http://www.forum.nokia.com/main/resources/technologies/openc_cpp/}
+           {Open C/C++ v1.6.0 or higher}
+           (install this into all S60 SDKs you plan to use Qt with).
         \o Either the GCCE ARM Toolchain that is included in the S60 Platform
            SDKs, or RVCT 2.2 [build 686] or later (which is not available free
            of charge)(Your environment needs to find the compiler in the PATH).
