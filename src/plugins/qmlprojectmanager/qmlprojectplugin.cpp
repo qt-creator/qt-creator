@@ -40,6 +40,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
@@ -84,6 +85,9 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(new QmlProjectImportWizard);
 
     QmlProjectFileFormat::registerDeclarativeTypes();
+
+    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
+    iconProvider->registerIconOverlayForSuffix(QIcon(":/qmlproject/images/qmlproject.png"), "qmlproject");
 
     return true;
 }
