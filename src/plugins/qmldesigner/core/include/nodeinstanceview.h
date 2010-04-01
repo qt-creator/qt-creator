@@ -39,9 +39,11 @@
 #include <QHash>
 #include <QWeakPointer>
 
+QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;
 class QGraphicsView;
 class QFileSystemWatcher;
+QT_END_NAMESPACE
 
 
 namespace QmlDesigner {
