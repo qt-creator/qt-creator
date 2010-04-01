@@ -55,8 +55,6 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 namespace {
-    ne7ssh ssh;
-
     char *alloc(size_t n)
     {
         return new char[n];
@@ -67,7 +65,7 @@ namespace {
 
 MaemoSshConnection::MaemoSshConnection(const MaemoDeviceConfig &devConf,
                                        bool shell)
-    : m_channel(-1), m_stopRequested(false)
+    : m_channel(-1), m_stopRequested(false), ssh(new ne7ssh)
 {
     const QString *authString;
     int (ne7ssh::*connFunc)(const char *, int, const char *, const char *, bool, int);
@@ -78,7 +76,8 @@ MaemoSshConnection::MaemoSshConnection(const MaemoDeviceConfig &devConf,
         authString = &devConf.keyFile;
         connFunc = &ne7ssh::connectWithKey;
     }
-    m_channel = (ssh.*connFunc)(devConf.host.toLatin1(), devConf.sshPort,
+
+    m_channel = (ssh.data()->*connFunc)(devConf.host.toLatin1(), devConf.sshPort,
         devConf.uname.toAscii(), authString->toLatin1(), shell, devConf.timeout);
     if (m_channel == -1)
         throw MaemoSshException(tr("Could not connect to host"));
@@ -87,12 +86,12 @@ MaemoSshConnection::MaemoSshConnection(const MaemoDeviceConfig &devConf,
 MaemoSshConnection::~MaemoSshConnection()
 {
     qDebug("%s", Q_FUNC_INFO);
-    ssh.close(m_channel);
+    ssh->close(m_channel);
 }
 
 const char *MaemoSshConnection::lastError()
 {
-    return ssh.errors()->pop(channel());
+    return ssh->errors()->pop(channel());
 }
 
 void MaemoSshConnection::stop()
@@ -104,35 +103,31 @@ MaemoInteractiveSshConnection::MaemoInteractiveSshConnection(const MaemoDeviceCo
     : MaemoSshConnection(devConf, true), m_prompt(0)
 {
     m_prompt = devConf.uname == QLatin1String("root") ? "# " : "$ ";
-    if (!ssh.waitFor(channel(), m_prompt, devConf.timeout)) {
-        const QString error
-            = tr("Could not start remote shell: %1").arg(lastError());
-        throw MaemoSshException(error);
-    }
+    if (!ssh->waitFor(channel(), m_prompt, devConf.timeout))
+        throw MaemoSshException(tr("Could not start remote shell: %1").arg(lastError()));
 }
 
 MaemoInteractiveSshConnection::~MaemoInteractiveSshConnection()
 {
-    ssh.send("exit\n", channel());
-    ssh.waitFor(channel(), m_prompt, 1);
+    ssh->send("exit\n", channel());
+    ssh->waitFor(channel(), m_prompt, 1);
 }
 
 void MaemoInteractiveSshConnection::runCommand(const QString &command)
 {
-    if (!ssh.send((command + QLatin1String("\n")).toLatin1().data(),
-                  channel())) {
-        throw MaemoSshException(tr("Error running command: %1")
-                                .arg(lastError()));
+    if (!ssh->send((command + QLatin1String("\n")).toLatin1().data(),
+        channel())) {
+        throw MaemoSshException(tr("Error running command: %1").arg(lastError()));
     }
 
     bool done;
     do {
-        done = ssh.waitFor(channel(), m_prompt, 1);
+        done = ssh->waitFor(channel(), m_prompt, 1);
         const char * const error = lastError();
         if (error)
             throw MaemoSshException(tr("SSH error: %1").arg(error));
         QScopedPointer<char, QScopedPointerArrayDeleter<char> >
-            output(ssh.readAndReset(channel(), alloc));
+            output(ssh->readAndReset(channel(), alloc));
         if (output.data()) {
             emit remoteOutput(QString::fromUtf8(output.data()));
             if (!done)
@@ -150,14 +145,14 @@ MaemoSftpConnection::MaemoSftpConnection(const MaemoDeviceConfig &devConf)
     : MaemoSshConnection(devConf, false),
       sftp(new Ne7SftpSubsystem)
 {
-    if (!ssh.initSftp(*sftp, channel()) || !sftp->setTimeout(devConf.timeout))
+    if (!ssh->initSftp(*sftp, channel()) || !sftp->setTimeout(devConf.timeout)) {
         throw MaemoSshException(tr("Error setting up SFTP subsystem: %1")
-                                .arg(lastError()));
+            .arg(lastError()));
+    }
 }
 
 MaemoSftpConnection::~MaemoSftpConnection()
 {
-
 }
 
 class FileManager
