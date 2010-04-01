@@ -83,6 +83,7 @@ struct TEXTEDITOR_EXPORT TabSettings
     int m_tabSize;
     int m_indentSize;
     bool m_indentBraces;
+    bool m_doubleIndentBlocks;
     TabKeyBehavior m_tabKeyBehavior;
 
     bool equals(const TabSettings &ts) const;

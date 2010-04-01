@@ -97,6 +97,8 @@ namespace {
       when it cannot be picked up.
     * ppIndentBraces will indent braces flush with an indented code
       block.
+    * ppDoubleIndentBlocks do double indent of blocks so as together
+      with ppIndentBraces enabled it form some sort of GNU indenting style
 */
 
 
@@ -109,6 +111,7 @@ Indenter<Iterator>::Indenter() :
     ppIndentSize(4),
     ppIndentBraces(false),
     ppContinuationIndentSize(8),
+    ppDoubleIndentBlocks(false),
     yyLinizerState(new LinizerState),
     yyLine(0),
     yyBraceDepth(0),
@@ -147,6 +150,13 @@ void Indenter<Iterator>::setIndentBraces(bool indent)
 {
     ppIndentBraces = indent;
 }
+
+template <class Iterator>
+void Indenter<Iterator>::setDoubleIndentBlocks(bool indent)
+{
+    ppDoubleIndentBlocks = indent;
+}
+
 /*
   Returns the first non-space character in the string t, or
   QChar::null if the string is made only of white space.
@@ -846,8 +856,8 @@ int Indenter<Iterator>::indentForContinuationLine()
 		  The "{" should be flush left.
 		*/
 		if ( !isContinuationLine() )
-		    return indentOfLine( *yyLine );
-	    } else if ( isContinuationLine() || yyLine->endsWith(comma)) {
+                    return indentOfLine( *yyLine );
+            } else if ( isContinuationLine() || yyLine->endsWith(comma)) {
 		/*
 		  We have
 
@@ -1012,8 +1022,15 @@ int  Indenter<Iterator>::indentForStandaloneLine()
 	      Never trust lines containing only '{' or '}', as some
 	      people (Richard M. Stallman) format them weirdly.
 	    */
-	    if ( yyLine->trimmed().length() > 1 )
-		return indentOfLine( *yyLine ) - *yyBraceDepth * ppIndentSize;
+            if ( yyLine->trimmed().length() > 1 ) {
+		if (!ppDoubleIndentBlocks)
+		    return indentOfLine( *yyLine ) - *yyBraceDepth * ppIndentSize;
+		else {
+		    if (*yyBraceDepth == -1 && indentOfLine( *yyLine ) == 0)
+			return ppIndentSize;  // don't do double indent for upper level blocks
+		    return indentOfLine( *yyLine ) - *yyBraceDepth * ppIndentSize * 2;
+		}
+            }
 	}
 
 	if ( !readLine() )
@@ -1082,12 +1099,23 @@ int Indenter<Iterator>::indentForBottomLine(const Iterator &current,
 
         if ( ppIndentBraces && firstCh == openingBrace ) {
             indent += ppIndentSize;
-        } else if ( !ppIndentBraces && firstCh == closingBrace ) {
+	} else if ( firstCh == closingBrace ) {
 	    /*
 	      A closing brace is one level more to the left than the
 	      code it follows.
-	    */
+	    */	    
 	    indent -= ppIndentSize;
+	    /*
+	      But if braces indenting is enabled the shift exists
+	    */
+	    if (ppIndentBraces)
+		indent += ppIndentSize;
+	    /*
+	      Double indenting of code blocks makes block righter, so move our brace back
+	    */
+	    if (ppDoubleIndentBlocks)
+		indent -= ppIndentSize;
+
 	} else if ( okay(typedIn, colon) ) {
 	    if ( m_constants.m_caseLabel.indexIn(bottomLine) != -1 ) {
 		/*

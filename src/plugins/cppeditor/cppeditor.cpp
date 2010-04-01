@@ -1669,6 +1669,7 @@ static void indentCPPBlock(const CPPEditor::TabSettings &ts,
     indenter.setIndentSize(ts.m_indentSize);
     indenter.setTabSize(ts.m_tabSize);
     indenter.setIndentBraces(ts.m_indentBraces);
+    indenter.setDoubleIndentBlocks(ts.m_doubleIndentBlocks);
 
     const TextEditor::TextBlockIterator current(block);
     const int indent = indenter.indentForBottomLine(current, programBegin, programEnd, typedChar);

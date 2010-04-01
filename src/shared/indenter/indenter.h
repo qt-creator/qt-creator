@@ -94,7 +94,7 @@ public:
     void setIndentSize(int size);
     void setTabSize(int size );
     void setIndentBraces(bool indent);
-
+    void setDoubleIndentBlocks(bool indent);
     /* Return indentation for the last line of the sequence
      * based on the previous lines. */
     int indentForBottomLine(const Iterator &current,
@@ -126,6 +126,7 @@ private:
     int ppIndentSize;
     bool ppIndentBraces;
     int ppContinuationIndentSize;
+    bool ppDoubleIndentBlocks;
 
     Iterator yyProgramBegin;
     Iterator yyProgramEnd;

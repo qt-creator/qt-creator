@@ -176,6 +176,16 @@
           </property>
          </widget>
         </item>
+        <item row="5" column="0">
+         <widget class="QCheckBox" name="doubleIndentBlocks">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>Indent blocks t&amp;wice</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
