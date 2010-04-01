@@ -606,28 +606,42 @@ QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType)
     qmlTemplate += QString(QLatin1String("caption: \"%1\"\n")).arg(type.typeName());
     qmlTemplate += QLatin1String("layout: VerticalLayout {\n");
 
+    QList<QString> orderedList;
     foreach (const PropertyMetaInfo &propertyMetaInfo, type.properties()){
+        orderedList.append(propertyMetaInfo.name());
+    }
+
+    qSort(orderedList);
+
+    foreach (const QString &name, orderedList) {
+        const PropertyMetaInfo propertyMetaInfo(type.property(name));
+
         if (!superType.hasProperty(propertyMetaInfo.name())) {
             if (propertyMetaInfo.type() == "int") {
                 qmlTemplate +=  QString(QLatin1String(
                 "IntEditor { backendValue: backendValues.%1\n caption: \"%1\"\nbaseStateFlag: isBaseState\nslider: false\n}"
                 )).arg(propertyMetaInfo.name());
             }
-            if (propertyMetaInfo.type() == "real" || propertyMetaInfo.type() == "double") {
+            if (propertyMetaInfo.type() == "real" || propertyMetaInfo.type() == "double" || propertyMetaInfo.type() == "qreal") {
                 qmlTemplate +=  QString(QLatin1String(
                 "DoubleSpinBoxAlternate {\ntext: \"%1\"\nbackendValue: backendValues.%1\nbaseStateFlag: isBaseState\n}\n"
                 )).arg(propertyMetaInfo.name());
             }
             if (propertyMetaInfo.type() == "string") {
                  qmlTemplate +=  QString(QLatin1String(
-                "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\n}\nLineEdit {\nbackendValue: backendValues.%1\nbaseStateFlag: isBaseState\n}\n}\n}\n"
+                "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nLineEdit {\nbackendValue: backendValues.%1\nbaseStateFlag: isBaseState\n}\n}\n}\n"
                 )).arg(propertyMetaInfo.name());
             }
             if (propertyMetaInfo.type() == "bool") {
                  qmlTemplate +=  QString(QLatin1String(
-                 "CheckBox {\ntext: \"%1\"\nbackendValue: backendValues.visible\nbaseStateFlag: isBaseState\ncheckable: true\n}\n"
+                 "QWidget {\nlayout: HorizontalLayout {\nLabel {\ntext: \"%1\"\ntoolTip: \"%1\"\n}\nCheckBox {text: backendValues.%1.value\nbackendValue: backendValues.%1\nbaseStateFlag: isBaseState\ncheckable: true\n}\n}\n}\n"
                  )).arg(propertyMetaInfo.name());
-             }
+            }
+            if (propertyMetaInfo.type() == "color" || propertyMetaInfo.type() == "qcolor") {
+                qmlTemplate +=  QString(QLatin1String(
+                "ColorGroupBox {\ncaption: \"%1\"\nfinished: finishedNotify\nbackendColor: backendValues.%1\n}\n\n"
+                )).arg(propertyMetaInfo.name());
+            }
         }
     }
     qmlTemplate += QLatin1String("}\n"); //VerticalLayout
