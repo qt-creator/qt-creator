@@ -233,6 +233,7 @@ void ProjectFileWizardExtension::initializeVersionControlChoices()
     // 1) Directory is managed and VCS supports "Add" -> List it
     // 2) Directory is managed and VCS does not support "Add" -> None available
     // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
+    m_context->versionControls.clear();
     if (!m_context->commonDirectory.isEmpty()) {
         Core::IVersionControl *managingControl = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(m_context->commonDirectory);
         if (managingControl) {
