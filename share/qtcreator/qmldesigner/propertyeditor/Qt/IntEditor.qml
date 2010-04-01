@@ -19,6 +19,7 @@ QWidget {
         Label {
             id: label
             text: caption
+            toolTip: caption
         }
 
         SpinBox {

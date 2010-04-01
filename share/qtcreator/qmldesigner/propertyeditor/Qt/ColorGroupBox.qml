@@ -96,6 +96,7 @@ QExtGroupBox {
 
             Label {
                 text: colorGroupBox.caption
+                toolTip: colorGroupBox.caption
             }
 
             LineEdit {
