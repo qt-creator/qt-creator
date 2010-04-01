@@ -428,7 +428,7 @@ void HelpPlugin::setupUi()
     itemList << m_contentItem << m_indexItem << m_searchItem << m_bookmarkItem
         << m_openPagesItem;
     m_sideBar = new Core::SideBar(itemList, QList<Core::SideBarItem*>()
-        << m_indexItem << m_openPagesItem);
+        << m_contentItem << m_openPagesItem);
     m_sideBar->setShortcutMap(shortcutMap);
 
     m_splitter->setOpaqueResize(false);
