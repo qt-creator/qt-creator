@@ -180,8 +180,8 @@ Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QStr
         displayName.append((info.buildConfig & QtVersion::DebugBuild) ? tr("Debug") : tr("Release"));
 
         // Skip release builds for the symbian emulator.
-        if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID) &&
-            !(info.buildConfig | QtVersion::DebugBuild))
+        if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID) &&
+            !(info.buildConfig & QtVersion::DebugBuild))
             continue;
 
         t->addQt4BuildConfiguration(displayName, info.version, info.buildConfig, info.additionalArguments, info.directory);
