@@ -54,13 +54,7 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
 
     setWindowTitle(tr("Project setup"));
 
-    m_importVersions = TargetSetupPage::recursivelyCheckDirectoryForBuild(project->projectDirectory());
-    m_importVersions.append(TargetSetupPage::recursivelyCheckDirectoryForBuild(project->defaultTopLevelBuildDirectory()));
-
-    m_importVersions.append(TargetSetupPage::importInfosForKnownQtVersions(project));
-
-    if (m_importVersions.count() > 1)
-        setupTargetPage();
+    setupTargetPage();
 
     setOptions(options() | QWizard::NoCancelButton | QWizard::NoBackButtonOnLastPage);
 }
@@ -100,10 +94,17 @@ void ProjectLoadWizard::setupTargetPage()
     if (m_targetSetupPage)
         return;
 
+    QList<TargetSetupPage::ImportInfo> importVersions = TargetSetupPage::recursivelyCheckDirectoryForBuild(m_project->projectDirectory());
+    importVersions.append(TargetSetupPage::recursivelyCheckDirectoryForBuild(m_project->defaultTopLevelBuildDirectory()));
+    importVersions.append(TargetSetupPage::importInfosForKnownQtVersions(m_project));
+
     m_targetSetupPage = new TargetSetupPage(this);
-    m_targetSetupPage->setImportInfos(m_importVersions);
+    m_targetSetupPage->setImportInfos(importVersions);
     m_targetSetupPage->setImportDirectoryBrowsingEnabled(true);
     m_targetSetupPage->setImportDirectoryBrowsingLocation(m_project->projectDirectory());
+
+    if (importVersions.count() <= 1)
+        return;
 
     const int targetPageId = addPage(m_targetSetupPage);
     wizardProgress()->item(targetPageId)->setTitle(tr("Targets"));
@@ -114,4 +115,3 @@ void ProjectLoadWizard::applySettings()
     Q_ASSERT(m_targetSetupPage);
     m_targetSetupPage->setupProject(m_project);
 }
-
