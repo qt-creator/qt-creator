@@ -239,7 +239,6 @@ public:
     static QStringList split_value_list(const QString &vals);
     bool isActiveConfig(const QString &config, bool regex = false);
     QStringList expandVariableReferences(const QString &value, int *pos = 0);
-    void doVariableReplace(QString *str);
     QStringList evaluateExpandFunction(const QString &function, const QString &arguments);
     QString format(const char *format) const;
     void logMessage(const QString &msg) const;
@@ -1153,12 +1152,12 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
 {
     m_lineNo = var->lineNumber();
     const QString &varName = var->variable();
+    QStringList varVal = expandVariableReferences(var->value());
 
     if (var->variableOperator() == ProVariable::ReplaceOperator) {      // ~=
         // DEFINES ~= s/a/b/?[gqi]
 
-        QString val = var->value();
-        doVariableReplace(&val);
+        QString val = varVal.join(statics.field_sep);
         if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
             logMessage(format("the ~= operator can handle only the s/// function."));
             return;
@@ -1190,8 +1189,6 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
             replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
         }
     } else {
-        QStringList varVal = expandVariableReferences(var->value());
-
         switch (var->variableOperator()) {
         default: // ReplaceOperator - cannot happen
         case ProVariable::SetOperator:          // =
@@ -1585,11 +1582,6 @@ QString ProFileEvaluator::Private::currentDirectory() const
 {
     ProFile *cur = m_profileStack.top();
     return cur->directoryName();
-}
-
-void ProFileEvaluator::Private::doVariableReplace(QString *str)
-{
-    *str = expandVariableReferences(*str).join(statics.field_sep);
 }
 
 // Be fast even for debug builds
