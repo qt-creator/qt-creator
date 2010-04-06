@@ -56,7 +56,6 @@ static const PluginBaseClasses pluginBaseClasses[] =
 {
     { "QAccessiblePlugin", "QtGui", "QtCore", "accessible" },
     { "QDecorationPlugin", "QtGui", "QtCore", 0},
-    { "QFontEnginePlugin", "QtGui", "QtCore", 0},
     { "QIconEnginePluginV2", "QtGui", "QtCore", "imageformats" },
     { "QImageIOPlugin", "QtGui", "QtCore", "imageformats" },
     { "QScriptExtensionPlugin", "QtScript", "QtCore", 0 },
