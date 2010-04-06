@@ -731,9 +731,9 @@ void FakeVimPluginPrivate::windowCommand(int key)
             break;
     }
     #undef control
-    qDebug() << "RUNNING WINDOW COMMAND: " << key << code;
+    //qDebug() << "RUNNING WINDOW COMMAND: " << key << code;
     if (code.isEmpty()) {
-        qDebug() << "UNKNOWN WINDOWS COMMAND: " << key;
+        //qDebug() << "UNKNOWN WINDOWS COMMAND: " << key;
         return;
     }
     triggerAction(code);
