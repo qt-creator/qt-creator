@@ -638,7 +638,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_semanticRehighlightTimer = new QTimer(this);
     m_semanticRehighlightTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_semanticRehighlightTimer->setSingleShot(true);
-    connect(m_semanticRehighlightTimer, SIGNAL(timeout()), this, SLOT(semanticRehighlight()));
+    connect(m_semanticRehighlightTimer, SIGNAL(timeout()), this, SLOT(forceSemanticRehighlight()));
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
@@ -1210,6 +1210,11 @@ QString QmlJSTextEditor::insertMatchingBrace(const QTextCursor &tc, const QStrin
 QString QmlJSTextEditor::insertParagraphSeparator(const QTextCursor &) const
 {
     return QLatin1String("}\n");
+}
+
+void QmlJSTextEditor::forceSemanticRehighlight()
+{
+    m_semanticHighlighter->rehighlight(currentSource(/* force = */ true));
 }
 
 void QmlJSTextEditor::semanticRehighlight()
