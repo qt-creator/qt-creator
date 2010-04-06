@@ -92,18 +92,11 @@ d too.
 NodeInstanceView::NodeInstanceView(QObject *parent)
         : AbstractView(parent),
     m_graphicsView(new QGraphicsView),
-    m_engine(new QDeclarativeEngine(this)),
     m_blockStatePropertyChanges(false)
 {
     m_graphicsView->setAttribute(Qt::WA_DontShowOnScreen, true);
     m_graphicsView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     m_graphicsView->setScene(new QGraphicsScene(m_graphicsView.data()));
-
-    Q_ASSERT(!m_engine.isNull());
-
-    QDeclarativeEnginePrivate *privateQDeclarativeEngine = QDeclarativeEnginePrivate::get(m_engine.data());
-    Q_ASSERT(privateQDeclarativeEngine);
-    privateQDeclarativeEngine->scriptEngine.setProcessEventsInterval(100);
 }
 
 
@@ -135,6 +128,7 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 {
     removeAllInstanceNodeRelationships();
     AbstractView::modelAboutToBeDetached(model);
+    delete m_engine.data();
 }
 
 
@@ -526,8 +520,10 @@ void NodeInstanceView::insertInstanceNodeRelationship(const ModelNode &node, con
     m_objectInstanceHash.insert(instance.internalObject(), instance);
 }
 
-QDeclarativeEngine *NodeInstanceView::engine() const
+QDeclarativeEngine *NodeInstanceView::engine()
 {
+    if (m_engine.isNull())
+        m_engine = new QDeclarativeEngine(this);
     return m_engine.data();
 }
 
@@ -545,6 +541,7 @@ void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
 {
     Q_ASSERT(m_nodeInstanceHash.contains(node));
     NodeInstance instance = instanceForNode(node);
+    removeIdFromContext(instance.internalObject());
     m_objectInstanceHash.remove(instanceForNode(node).internalObject());
     m_nodeInstanceHash.remove(node);
     instance.makeInvalid();
@@ -695,6 +692,16 @@ void NodeInstanceView::refreshLocalFileProperty(const QString &path)
                 instanceForObject(object).refreshProperty(propertyName);
             }
         }
+    }
+}
+
+void NodeInstanceView::removeIdFromContext(QObject *object)
+{
+    if (hasInstanceForObject(object)) {
+        NodeInstance instance = instanceForObject(object);
+        QString id = instance.modelNode().id();
+        if (!id.isEmpty())
+            engine()->rootContext()->setContextProperty(id, 0);
     }
 }
 
