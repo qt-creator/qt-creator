@@ -307,6 +307,13 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         }
     }
 
+    if (m_helpEngineNeedsSetup
+        && m_helpEngine->registeredDocumentations().count() > 0) {
+        m_helpEngine->setupData();
+        m_helpEngineNeedsSetup = false;
+    }
+
+    QMap<QString, QUrl> helpLinks;
     if (m_helpId.isEmpty()) {
         // Move to the end of a qualified name
         bool stop = false;
@@ -374,6 +381,24 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
                 }
             }
+
+            // Some docs don't contain the namespace in the documentation pages, for instance
+            // there is QtMobility::QContactManager but the help page is for QContactManager.
+            // To show their help anyway, try stripping scopes until we find something.
+            const QString startHelpId = m_helpId;
+            while (!m_helpId.isEmpty()) {
+                helpLinks = m_helpEngine->linksForIdentifier(m_helpId);
+                if (!helpLinks.isEmpty())
+                    break;
+
+                int coloncolonIndex = m_helpId.indexOf(QLatin1String("::"));
+                if (coloncolonIndex == -1) {
+                    m_helpId = startHelpId;
+                    break;
+                }
+
+                m_helpId.remove(0, coloncolonIndex + 2);
+            }
         }
     }
 
@@ -388,13 +413,6 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         }
     }
 
-    if (m_helpEngineNeedsSetup
-        && m_helpEngine->registeredDocumentations().count() > 0) {
-        m_helpEngine->setupData();
-        m_helpEngineNeedsSetup = false;
-    }
-
-
     if (!formatTooltip.isEmpty()) {
         m_toolTip = formatTooltip;
     }
@@ -402,7 +420,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!m_toolTip.isEmpty())
         m_toolTip = Qt::escape(m_toolTip);
 
-    if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
+    if (!m_helpId.isEmpty() && !helpLinks.isEmpty()) {
         if (showF1) {
             m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
                                               "<td><img src=\":/cppeditor/images/f1.png\"></td></tr></table>"))
