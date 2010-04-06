@@ -338,7 +338,7 @@ void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, 
 {
 }
 
-void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &/*oldQmlModelState*/)
+void  QmlModelView::stateChanged(const QmlModelState &/*newQmlModelState*/, const QmlModelState &/*oldQmlModelState*/)
 {
 }
 

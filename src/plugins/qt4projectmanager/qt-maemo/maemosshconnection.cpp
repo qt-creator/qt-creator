@@ -65,7 +65,7 @@ namespace {
 
 MaemoSshConnection::MaemoSshConnection(const MaemoDeviceConfig &devConf,
                                        bool shell)
-    : m_channel(-1), m_stopRequested(false), ssh(new ne7ssh)
+    : ssh(new ne7ssh), m_channel(-1), m_stopRequested(false)
 {
     const QString *authString;
     int (ne7ssh::*connFunc)(const char *, int, const char *, const char *, bool, int);
