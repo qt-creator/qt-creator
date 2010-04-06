@@ -43,15 +43,17 @@
 #include <QtCore/QDebug>
 #include <QtCore/QVariant>
 
-using namespace CodePaster;
+static const char settingsGroupC[] = "CodePasterSettings";
+static const char serverKeyC[] = "Server";
+
+namespace CodePaster {
 
 CodePasterSettingsPage::CodePasterSettingsPage()
 {
     m_settings = Core::ICore::instance()->settings();
     if (m_settings) {
-        m_settings->beginGroup("CodePasterSettings");
-        m_host = m_settings->value("Server", "").toString();
-        m_settings->endGroup();
+        const QString keyRoot = QLatin1String(settingsGroupC) + QLatin1Char('/');
+        m_host = m_settings->value(keyRoot + QLatin1String(serverKeyC), QString()).toString();
     }
 }
 
@@ -109,8 +111,8 @@ void CodePasterSettingsPage::apply()
     if (!m_settings)
         return;
 
-    m_settings->beginGroup("CodePasterSettings");
-    m_settings->setValue("Server", m_host);
+    m_settings->beginGroup(QLatin1String(settingsGroupC));
+    m_settings->setValue(QLatin1String(serverKeyC), m_host);
     m_settings->endGroup();
 }
 
@@ -123,3 +125,4 @@ QString CodePasterSettingsPage::hostName() const
 {
     return m_host;
 }
+} // namespace CodePaster

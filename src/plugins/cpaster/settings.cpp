@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "settings.h"
+#include "pastebindotcomprotocol.h"
 
 #include <QtCore/QVariant>
 #include <QtCore/QSettings>
@@ -37,7 +38,6 @@ static const char userNameKeyC[] = "UserName";
 static const char defaultProtocolKeyC[] = "DefaultProtocol";
 static const char copyToClipboardKeyC[] = "CopyToClipboard";
 static const char displayOutputKeyC[] = "DisplayOutput";
-static const char defaultProtocolC[] = "CodePaster";
 
 namespace CodePaster {
 
@@ -70,7 +70,7 @@ void Settings::fromSettings(const QSettings *settings)
     const QString defaultUser = qgetenv("USER");
 #endif
     username = settings->value(rootKey + QLatin1String(userNameKeyC), defaultUser).toString();
-    protocol = settings->value(rootKey + QLatin1String(defaultProtocolKeyC), QLatin1String(defaultProtocolC)).toString();
+    protocol = settings->value(rootKey + QLatin1String(defaultProtocolKeyC), PasteBinDotComProtocol::protocolName()).toString();
     copyToClipboard = settings->value(rootKey + QLatin1String(copyToClipboardKeyC), true).toBool();
     displayOutput = settings->value(rootKey + QLatin1String(displayOutputKeyC), true).toBool();
 }
