@@ -49,7 +49,7 @@ static QString value(ProFileEvaluator &reader, const QString &variable)
 }
 
 static int evaluate(const QString &fileName, const QString &in_pwd, const QString &out_pwd,
-                    bool cumulative, ProFileOption *option)
+                    bool cumulative, ProFileOption *option, int level)
 {
     static QSet<QString> visited;
     if (visited.contains(fileName))
@@ -90,11 +90,19 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
                 continue;
             }
 
-            evaluate(QDir::cleanPath(info.absoluteFilePath()),
-                     QDir::cleanPath(info.path()),
-                     QDir::cleanPath(QDir(out_pwd).absoluteFilePath(
-                             QDir(in_pwd).relativeFilePath(info.path()))),
-                     cumulative, option);
+            QString inFile = QDir::cleanPath(info.absoluteFilePath()),
+                    inPwd = QDir::cleanPath(info.path()),
+                    outPwd = QDir::cleanPath(QDir(out_pwd).absoluteFilePath(
+                            QDir(in_pwd).relativeFilePath(info.path())));
+            int nlevel = level;
+            if (nlevel >= 0) {
+                printf("%sReading %s%s\n", QByteArray().fill(' ', nlevel).constData(),
+                       qPrintable(inFile), (inPwd == outPwd) ? "" :
+                       qPrintable(QString(QLatin1String(" [") + outPwd + QLatin1Char(']'))));
+                fflush(stdout);
+                nlevel++;
+            }
+            evaluate(inFile, inPwd, outPwd, cumulative, option, nlevel);
         }
     }
 
@@ -107,8 +115,11 @@ int main(int argc, char **argv)
 
     QStringList args = app.arguments();
     args.removeFirst();
+    int level = -1; // verbose
+    if (args.count() && args.first() == QLatin1String("-v"))
+        level = 0, args.removeFirst();
     if (args.count() < 2)
-        qFatal("need at least two arguments: <cumulative?> <filenme> [<out_pwd>]");
+        qFatal("need at least two arguments: [-v] <cumulative?> <filenme> [<out_pwd>]");
 
     ProFileOption option;
 
@@ -140,5 +151,5 @@ int main(int argc, char **argv)
     QString in_pwd = infi.absolutePath();
     QString out_pwd = (args.count() > 2) ? QFileInfo(args[2]).absoluteFilePath() : in_pwd;
 
-    return evaluate(file, in_pwd, out_pwd, cumulative, &option);
+    return evaluate(file, in_pwd, out_pwd, cumulative, &option, level);
 }
