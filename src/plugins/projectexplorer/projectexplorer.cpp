@@ -1439,7 +1439,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
 
             Core::FileManager *fm = Core::ICore::instance()->fileManager();
             fm->saveModifiedFiles(filesToSave, &cancelled, QString(),
-                                  "Always save files before build", &alwaysSave);
+                                  tr("Always save files before build"), &alwaysSave);
 
             if (cancelled)
                 return false;
