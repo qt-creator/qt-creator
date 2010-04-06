@@ -14,7 +14,7 @@
    <item>
     <widget class="QGroupBox" name="groupBoxLocations">
      <property name="title">
-      <string>Gdb interaction</string>
+      <string>Gdb</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="horizontalSpacing">
@@ -65,7 +65,32 @@
       <item row="2" column="1">
        <widget class="Utils::PathChooser" name="scriptFileChooser"/>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
+        <property name="text">
+         <string>Enable reverse debugging</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
+        <property name="toolTip">
+         <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
+ reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
+        </property>
+        <property name="text">
+         <string>Skip known frames when stepping</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
+        <property name="text">
+         <string>Show a message box when receiving a signal</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUsePreciseBreakpoints">
         <property name="toolTip">
          <string>When this option is checked, the debugger plugin attempts
@@ -78,14 +103,14 @@ name in different directories.</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="labelGdbWatchdogTimeout">
         <property name="text">
          <string>Gdb timeout:</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="3" column="1">
        <widget class="QSpinBox" name="spinBoxGdbWatchdogTimeout">
         <property name="toolTip">
          <string>This is the number of seconds Qt Creator will wait before

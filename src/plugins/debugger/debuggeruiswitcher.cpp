@@ -67,19 +67,17 @@
 #include <QtCore/QSettings>
 
 namespace Debugger {
-namespace Internal {
-
-} // namespace Internal
 using namespace Debugger::Internal;
 
 // first: language id, second: menu item
-typedef QPair<int, QAction* > ViewsMenuItems;
+typedef QPair<int, QAction *> ViewsMenuItems;
 
-struct DebuggerUISwitcherPrivate {
+struct DebuggerUISwitcherPrivate
+{
     explicit DebuggerUISwitcherPrivate(DebuggerUISwitcher *q);
 
-    QList< ViewsMenuItems > m_viewsMenuItems;
-    QList< Internal::DebugToolWindow* > m_dockWidgets;
+    QList<ViewsMenuItems> m_viewsMenuItems;
+    QList<Internal::DebugToolWindow *> m_dockWidgets;
 
     QMap<QString, QWidget *> m_toolBars;
     QStringList m_languages;
@@ -106,7 +104,7 @@ struct DebuggerUISwitcherPrivate {
     Core::ActionContainer *m_viewsMenu;
     Core::ActionContainer *m_debugMenu;
 
-    QMultiHash< int, Core::Command *> m_menuCommands;
+    QMultiHash<int, Core::Command *> m_menuCommands;
 
     static DebuggerUISwitcher *m_instance;
 };
@@ -493,4 +491,4 @@ QList<Internal::DebugToolWindow* > DebuggerUISwitcher::i_mw_debugToolWindows() c
     return d->m_dockWidgets;
 }
 
-}
+} // namespace Debugger

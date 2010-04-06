@@ -114,7 +114,7 @@ MaemoGdbSettingsPage::~MaemoGdbSettingsPage()
 
 QString MaemoGdbSettingsPage::id() const
 {
-    return QLatin1String("ZZ.Maemo");
+    return QLatin1String("Y.Maemo");
 }
 
 QString MaemoGdbSettingsPage::displayName() const
