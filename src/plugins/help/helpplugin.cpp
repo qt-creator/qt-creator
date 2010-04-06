@@ -80,12 +80,6 @@
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpEngineCore>
 
-#if defined(QT_NO_WEBKIT)
-#   include <QtGui/QApplication>
-#else
-#   include <QtWebKit/QWebSettings>
-#endif
-
 using namespace Core::Constants;
 using namespace Help;
 using namespace Help::Internal;
@@ -517,11 +511,6 @@ void HelpPlugin::createRightPaneContextViewer()
     agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));
     m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar, QList<int>()
         << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR), this));
-
-#if defined(QT_NO_WEBKIT)
-    m_helpViewerForSideBar->setFont(qVariantValue<QFont>(m_helpManager->helpEngineCore()
-        .customValue(QLatin1String("font"), QApplication::font())));
-#endif
 
     QAction *copy = new QAction(this);
     Core::Command *cmd = m_core->actionManager()->registerAction(copy, Core::Constants::COPY,
