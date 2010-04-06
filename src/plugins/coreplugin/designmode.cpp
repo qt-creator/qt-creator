@@ -207,7 +207,7 @@ void DesignMode::unregisterDesignWidget(QWidget *widget)
 // if editor changes, check if we have valid mimetype registered.
 void DesignMode::currentEditorChanged(Core::IEditor *editor)
 {
-    if (d->m_currentEditor.data() == editor)
+    if (editor && (d->m_currentEditor.data() == editor))
         return;
 
     bool mimeEditorAvailable = false;
@@ -239,6 +239,8 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
 
     if (!mimeEditorAvailable) {
         setActiveContext(QList<int>());
+        if (core->modeManager()->currentMode() == this)
+            core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
         setEnabled(false);
         d->m_currentEditor = QWeakPointer<Core::IEditor>();
         emit actionsUpdated(d->m_currentEditor.data());
