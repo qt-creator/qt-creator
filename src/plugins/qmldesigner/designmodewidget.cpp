@@ -522,7 +522,7 @@ void DesignModeWidget::setup()
             QFile file2(":/qmldesigner/scrollbar.css");
             file2.open(QFile::ReadOnly);
 
-            QString labelStyle = QLatin1String("QLabel { background-color: ##4f4f4f; }");
+            QString labelStyle = QLatin1String("QLabel { background-color: #4f4f4f; }");
 
             QString styleSheet = file.readAll() + file2.readAll() + labelStyle;
             navigationView.widget->setStyleSheet(styleSheet);
