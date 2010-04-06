@@ -70,23 +70,23 @@
     }
 </snippet>
 
-<snippet description="matchTargets">NumberAnimation { matchTargets: "<tab>name</tab>"; matchProperties: "<tab>name</tab>"; duration: <tab>200</tab> }
+<snippet description="with targets">NumberAnimation { targets: [<tab>name</tab>]; properties: "<tab>name</tab>"; duration: <tab>200</tab> }
 </snippet>
-<snippet description="target">NumberAnimation { target: "<tab>name</tab>"; property: "<tab>name</tab>"; value: <tab>name</tab>; duration: <tab>200</tab> }
+<snippet description="with target">NumberAnimation { target: <tab>name</tab>; property: "<tab>name</tab>"; to: <tab>value</tab>; duration: <tab>200</tab> }
 </snippet>
-<snippet>PropertyAction {  matchTargets: "<tab>name</tab>"; matchProperties: "<tab>name</tab>"; duration: <tab>200</tab> }
+<snippet description="with targets">PropertyAction { targets: [<tab>name</tab>]; properties: "<tab>name</tab>" }
 </snippet>
-<snippet>PropertyAction { target: "<tab>name</tab>"; property: "<tab>name</tab>"; value: <tab>name</tab>; duration: <tab>200</tab> }
+<snippet description="with target">PropertyAction { target: "<tab>name</tab>"; property: "<tab>name</tab>"; value: <tab>value</tab> }
 </snippet>
-<snippet>PauseAnimation { duration: <tab>name</tab>}
+<snippet>PauseAnimation { duration: <tab>200</tab> }
 </snippet>
-<snippet>ColorAnimation { from: <tab>name</tab>; to: <tab>color</tab>; duration: <tab>200</tab> }
+<snippet>ColorAnimation { from: <tab>color</tab>; to: <tab>color</tab>; duration: <tab>200</tab> }
 </snippet>
-<snippet>effect: Colorize { color: "<tab>color</tab>" }
+<snippet description="Colorize">effect: Colorize { color: "<tab>color</tab>" }
 </snippet>
-<snippet>effect: Blur { blurRadius: "<tab>200</tab>" }
+<snippet description="Blur">effect: Blur { blurRadius: "<tab>200</tab>" }
 </snippet>
-<snippet>effect: DropShadow {
+<snippet description="DropShadow">effect: DropShadow {
             blurRadius: <tab>3</tab>
             offset.x: <tab>2</tab>
             offset.y: <tab>2</tab>
