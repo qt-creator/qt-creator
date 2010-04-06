@@ -179,7 +179,10 @@ private:
     Core::EditorToolBar *m_fakeToolBar;
 
     bool m_isDisabled;
-    bool m_setup;
+
+    enum InitializeStatus { NotInitialized, Initializing, Initialized };
+    InitializeStatus m_initStatus;
+
     DocumentWarningWidget *m_warningWidget;
 };
 

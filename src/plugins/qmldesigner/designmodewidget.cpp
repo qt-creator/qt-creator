@@ -123,7 +123,7 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_mainSplitter(0),
     m_leftSideBar(0),
     m_rightSideBar(0),
-    m_setup(false),
+    m_initStatus(NotInitialized),
     m_warningWidget(0)
 {
     m_undoAction = new QAction(tr("&Undo"), this);
@@ -148,8 +148,17 @@ DesignModeWidget::~DesignModeWidget()
 
 void DesignModeWidget::showEditor(Core::IEditor *editor)
 {
-    show();
-    setup();
+    //
+    // Prevent recursive calls to function by explicitly managing initialization status
+    // (QApplication::processEvents is called explicitly at a number of places)
+    //
+    if (m_initStatus == Initializing)
+        return;
+
+    if (m_initStatus == NotInitialized) {
+        m_initStatus = Initializing;
+        setup();
+    }
 
     QString fileName;
     QPlainTextEdit *textEdit = 0;
@@ -193,6 +202,8 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
         }
     }
     setCurrentDocument(document);
+
+    m_initStatus = Initialized;
 }
 
 void DesignModeWidget::closeEditors(QList<Core::IEditor*> editors)
@@ -477,10 +488,6 @@ void DesignModeWidget::setCurrentDocument(DesignDocumentController *newDesignDoc
 
 void DesignModeWidget::setup()
 {
-    if (m_setup)
-        return;
-    m_setup = true;
-
     QList<Core::INavigationWidgetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Core::INavigationWidgetFactory>();
 
     QWidget *openDocumentsWidget = 0;
