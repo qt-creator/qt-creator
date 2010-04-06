@@ -41,7 +41,8 @@ class PasteBinDotComProtocol : public NetworkProtocol
 public:
     explicit PasteBinDotComProtocol(const NetworkAccessManagerProxyPtr &nw);
 
-    QString name() const { return QLatin1String("Pastebin.Com"); }
+    static QString protocolName();
+    QString name() const { return protocolName(); }
 
     virtual unsigned capabilities() const;
     bool hasSettings() const { return true; }

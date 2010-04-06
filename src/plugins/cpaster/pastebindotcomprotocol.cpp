@@ -59,6 +59,11 @@ PasteBinDotComProtocol::PasteBinDotComProtocol(const NetworkAccessManagerProxyPt
 {
 }
 
+QString PasteBinDotComProtocol::protocolName()
+{
+    return QLatin1String("Pastebin.Com");
+}
+
 unsigned PasteBinDotComProtocol::capabilities() const
 {
     return ListCapability;

@@ -92,11 +92,12 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
 
     // Create the protocols and append them to the Settings
     const QSharedPointer<NetworkAccessManagerProxy> networkAccessMgrProxy(new NetworkAccessManagerProxy);
-    Protocol *protos[] =  { new CodePasterProtocol(networkAccessMgrProxy),
-                            new PasteBinDotComProtocol(networkAccessMgrProxy),
+    Protocol *protos[] =  { new PasteBinDotComProtocol(networkAccessMgrProxy),
                             new PasteBinDotCaProtocol(networkAccessMgrProxy),
-                            0};
-    for(int i=0; protos[i] != 0; ++i) {
+                            new CodePasterProtocol(networkAccessMgrProxy)
+                           };
+    const int count = sizeof(protos) / sizeof(Protocol *);
+    for(int i = 0; i < count; ++i) {
         connect(protos[i], SIGNAL(pasteDone(QString)), this, SLOT(finishPost(QString)));
         connect(protos[i], SIGNAL(fetchDone(QString,QString,bool)),
                 this, SLOT(finishFetch(QString,QString,bool)));
