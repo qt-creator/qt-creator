@@ -3,7 +3,7 @@ import Bauhaus 1.0
 
 GroupBox {
     finished: finishedNotify;
-    caption: "Visiblity"
+    caption: "Visibility"
     maximumHeight: 200;
     id: visibility;
 
