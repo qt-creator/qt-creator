@@ -364,15 +364,26 @@ void DebuggerManager::init()
     d->m_statusLabel->setMinimumSize(QSize(30, 10));
 
     d->m_breakWindow = new BreakWindow(this);
+    d->m_breakWindow->setObjectName(QLatin1String("CppDebugBreakpoints"));
     d->m_modulesWindow = new ModulesWindow(this);
+    d->m_modulesWindow->setObjectName(QLatin1String("CppDebugModules"));
     d->m_outputWindow = new DebuggerOutputWindow;
+    d->m_outputWindow->setObjectName(QLatin1String("CppDebugOutput"));
+
     d->m_registerWindow = new RegisterWindow(this);
+    d->m_registerWindow->setObjectName(QLatin1String("CppDebugRegisters"));
     d->m_snapshotWindow = new SnapshotWindow(this);
+    d->m_snapshotWindow->setObjectName(QLatin1String("CppDebugSnapshots"));
     d->m_stackWindow = new StackWindow(this);
+    d->m_stackWindow->setObjectName(QLatin1String("CppDebugStack"));
     d->m_sourceFilesWindow = new SourceFilesWindow;
+    d->m_sourceFilesWindow->setObjectName(QLatin1String("CppDebugSources"));
     d->m_threadsWindow = new ThreadsWindow;
+    d->m_threadsWindow->setObjectName(QLatin1String("CppDebugThreads"));
     d->m_localsWindow = new WatchWindow(WatchWindow::LocalsType, this);
+    d->m_localsWindow->setObjectName(QLatin1String("CppDebugLocals"));
     d->m_watchersWindow = new WatchWindow(WatchWindow::WatchersType, this);
+    d->m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
     d->m_statusTimer = new QTimer(this);
 
     d->m_mainWindow = qobject_cast<Debugger::Internal::DebuggerMainWindow*>(DebuggerUISwitcher::instance()->mainWindow());
@@ -598,6 +609,7 @@ void DebuggerManager::init()
     d->m_threadsDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_threadsWindow);
 
     QSplitter *localsAndWatchers = new Core::MiniSplitter(Qt::Vertical);
+    localsAndWatchers->setObjectName(QLatin1String("CppDebugLocalsAndWatchers"));
     localsAndWatchers->setWindowTitle(d->m_localsWindow->windowTitle());
     localsAndWatchers->addWidget(d->m_localsWindow);
     localsAndWatchers->addWidget(d->m_watchersWindow);

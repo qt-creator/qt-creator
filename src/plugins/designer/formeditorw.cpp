@@ -347,25 +347,30 @@ void FormEditorW::initDesignerSubWindows()
 
     QDesignerWidgetBoxInterface *wb = QDesignerComponents::createWidgetBox(m_formeditor, 0);
     wb->setWindowTitle(tr("Widget Box"));
+    wb->setObjectName(QLatin1String("WidgetBox"));
     m_formeditor->setWidgetBox(wb);
     m_designerSubWindows[WidgetBoxSubWindow] = wb;
 
     QDesignerObjectInspectorInterface *oi = QDesignerComponents::createObjectInspector(m_formeditor, 0);
     oi->setWindowTitle(tr("Object Inspector"));
+    oi->setObjectName(QLatin1String("ObjectInspector"));
     m_formeditor->setObjectInspector(oi);
     m_designerSubWindows[ObjectInspectorSubWindow] = oi;
 
     QDesignerPropertyEditorInterface *pe = QDesignerComponents::createPropertyEditor(m_formeditor, 0);
     pe->setWindowTitle(tr("Property Editor"));
+    pe->setObjectName(QLatin1String("PropertyEditor"));
     m_formeditor->setPropertyEditor(pe);
     m_designerSubWindows[PropertyEditorSubWindow] = pe;
 
     QWidget *se = QDesignerComponents::createSignalSlotEditor(m_formeditor, 0);
     se->setWindowTitle(tr("Signals && Slots Editor"));
+    se->setObjectName(QLatin1String("SignalsAndSlotsEditor"));
     m_designerSubWindows[SignalSlotEditorSubWindow] = se;
 
     QDesignerActionEditorInterface *ae = QDesignerComponents::createActionEditor(m_formeditor, 0);
     ae->setWindowTitle(tr("Action Editor"));
+    ae->setObjectName(QLatin1String("ActionEditor"));
     m_formeditor->setActionEditor(ae);
     m_designerSubWindows[ActionEditorSubWindow] = ae;
 }

@@ -65,8 +65,14 @@ FancyMainWindow::~FancyMainWindow()
 QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget)
 {
     QDockWidget *dockWidget = new QDockWidget(widget->windowTitle(), this);
-    dockWidget->setObjectName(widget->windowTitle());
     dockWidget->setWidget(widget);
+    // Set an object name to be used in settings, derive from widget name
+    const QString objectName = widget->objectName();
+    if (objectName.isEmpty()) {
+        dockWidget->setObjectName(QLatin1String("dockWidget") + QString::number(d->m_dockWidgets.size() + 1));
+    } else {
+        dockWidget->setObjectName(objectName + QLatin1String("DockWidget"));
+    }
     connect(dockWidget->toggleViewAction(), SIGNAL(triggered()),
         this, SLOT(onDockActionTriggered()), Qt::QueuedConnection);
     connect(dockWidget, SIGNAL(visibilityChanged(bool)),
@@ -172,7 +178,7 @@ void FancyMainWindow::saveSettings(QSettings *settings) const
     }
 }
 
-void FancyMainWindow::restoreSettings(QSettings *settings)
+void FancyMainWindow::restoreSettings(const QSettings *settings)
 {
     QHash<QString, QVariant> hash;
     foreach (const QString &key, settings->childKeys()) {

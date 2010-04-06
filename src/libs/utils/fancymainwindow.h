@@ -50,6 +50,8 @@ public:
     explicit FancyMainWindow(QWidget *parent = 0);
     virtual ~FancyMainWindow();
 
+    /* The widget passed in should have an objectname set
+     * which will then be used as key for QSettings. */
     QDockWidget *addDockForWidget(QWidget *widget);
     QList<QDockWidget *> dockWidgets() const;
 
@@ -57,7 +59,7 @@ public:
     bool isLocked() const;
 
     void saveSettings(QSettings *settings) const;
-    void restoreSettings(QSettings *settings);
+    void restoreSettings(const QSettings *settings);
     QHash<QString, QVariant> saveSettings() const;
     void restoreSettings(const QHash<QString, QVariant> &settings);
 

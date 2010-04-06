@@ -176,6 +176,7 @@ QmlInspector::QmlInspector(QObject *parent)
     m_propertiesWidget = new Internal::ObjectPropertiesView;
     m_watchTableView = new Internal::WatchTableView(m_watchTableModel);
     m_frameRateWidget = new Internal::CanvasFrameRate;
+    m_frameRateWidget->setObjectName(QLatin1String("QmlDebugFrameRate"));
     m_expressionWidget = new Internal::ExpressionQueryWidget(Internal::ExpressionQueryWidget::SeparateEntryMode);
 }
 
@@ -315,6 +316,7 @@ void QmlInspector::createDockWidgets()
     treeOptionBarLayout->addWidget(m_engineSpinBox);
 
     QWidget *treeWindow = new QWidget;
+    treeWindow->setObjectName(QLatin1String("QmlDebugTree"));
     treeWindow->setWindowTitle(tr("Object Tree"));
     QVBoxLayout *treeWindowLayout = new QVBoxLayout(treeWindow);
     treeWindowLayout->setMargin(0);
@@ -358,6 +360,7 @@ void QmlInspector::createDockWidgets()
     leftSplitter->setStretchFactor(1, 1);
 
     Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Horizontal);
+    propSplitter->setObjectName(QLatin1String("QmlDebugProperties"));
     propSplitter->addWidget(leftSplitter);
     propSplitter->addWidget(m_expressionWidget);
     propSplitter->setStretchFactor(0, 2);
@@ -367,6 +370,7 @@ void QmlInspector::createDockWidgets()
 
 
     InspectorOutputWidget *inspectorOutput = new InspectorOutputWidget();
+    inspectorOutput->setObjectName(QLatin1String("QmlDebugInspectorOutput"));
     connect(this, SIGNAL(statusMessage(QString)),
             inspectorOutput, SLOT(addInspectorStatus(QString)));
 
