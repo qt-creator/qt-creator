@@ -45,7 +45,7 @@ static int logChannel(ULONG mask)
     if (mask & (DEBUG_OUTPUT_PROMPT_REGISTERS))
         return LogMisc;
     if (mask & (DEBUG_OUTPUT_EXTENSION_WARNING|DEBUG_OUTPUT_WARNING))
-        return LogError;
+        return LogWarning;
     if (mask & (DEBUG_OUTPUT_ERROR))
         return LogError;
     return LogMisc;
