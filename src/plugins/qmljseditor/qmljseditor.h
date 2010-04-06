@@ -233,6 +233,7 @@ private slots:
     void renameIdUnderCursor();
 
     void semanticRehighlight();
+    void forceSemanticRehighlight();
     void updateSemanticInfo(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
 
 protected:
