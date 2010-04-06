@@ -648,10 +648,10 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event)
-    {
-        QPainter p(this);
+    {        
         QFontMetrics fm(font());
         if (fm.width(text()) > (contentsRect().width() - 6) && text().length() > 4) {
+            QPainter p(this);
             QString elided_txt;
             elided_txt = this->fontMetrics().elidedText(text(), Qt::ElideRight, rect().width() - 6, Qt::TextShowMnemonic);
             p.drawText(rect().adjusted(12, 0, 0, 0), elided_txt);
