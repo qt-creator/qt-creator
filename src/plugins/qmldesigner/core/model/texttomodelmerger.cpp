@@ -614,7 +614,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             } else if (isLiteralValue(script)) {
                 if (typeName == QLatin1String("Qt/PropertyChanges")) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
-                    const QVariant variantValue(astValue);
+                    const QVariant variantValue(stripQuotes(astValue));
                     syncVariantProperty(modelProperty, variantValue, QString(), differenceHandler);
                     modelPropertyNames.remove(astPropertyName);
                 } else {
