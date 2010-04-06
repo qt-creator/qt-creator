@@ -128,16 +128,14 @@ void ObjectNodeInstance::destroy()
             }
         }
 
-        if (!m_id.isEmpty()) {
-            context()->engine()->rootContext()->setContextProperty(m_id, 0);
-        }
-
         if (object()) {
             QObject *obj = object();
             m_object.clear();
             delete obj;
         }
     }
+
+    m_metaObject = 0;
 }
 
 ModelNode ObjectNodeInstance::modelNode() const

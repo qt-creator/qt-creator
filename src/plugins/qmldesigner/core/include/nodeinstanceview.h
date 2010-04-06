@@ -111,6 +111,7 @@ public:
 private slots:
     void emitParentChanged(QObject *child);
     void refreshLocalFileProperty(const QString &path);
+    void removeIdFromContext(QObject *object);
 
 private: // functions
     NodeInstance rootNodeInstance() const;
@@ -126,7 +127,7 @@ private: // functions
     void insertInstanceNodeRelationship(const ModelNode &node, const NodeInstance &instance);
     void removeInstanceNodeRelationship(const ModelNode &node);
 
-    QDeclarativeEngine *engine() const;
+    QDeclarativeEngine *engine();
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
     void removeInstanceAndSubInstances(const ModelNode &node);
 

@@ -190,6 +190,8 @@ NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const Mode
 
     instance.setId(node.id());
 
+    QObject::connect(instance.internalObject(), SIGNAL(destroyed(QObject*)), nodeInstanceView, SLOT(removeIdFromContext(QObject*)));
+
     foreach (const VariantProperty &property, node.variantProperties()) {
         if (property.isDynamic())
             instance.setPropertyDynamicVariant(property.name(), property.dynamicTypeName(), property.value());
