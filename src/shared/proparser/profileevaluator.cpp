@@ -1800,15 +1800,16 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                         appendString(replacement.join(statics.field_sep),
                                      &current, &ptr, &pending);
                     } else {
-                        appendString(replacement.first(), &current, &ptr, &pending);
+                        appendString(replacement.at(0), &current, &ptr, &pending);
                         if (replacement.size() > 1) {
                             flushCurrent(&ret, &current, &ptr, &pending);
-                            pending = replacement.last();
+                            int j = 1;
                             if (replacement.size() > 2) {
                                 // FIXME: ret.reserve(ret.size() + replacement.size() - 2);
-                                for (int i = 1; i < replacement.size() - 1; ++i)
-                                    ret << replacement.at(i);
+                                for (; j < replacement.size() - 1; ++j)
+                                    ret << replacement.at(j);
                             }
+                            pending = replacement.at(j);
                         }
                     }
                     replaced = true;
