@@ -420,6 +420,7 @@ public:
     QString propertyType(const QString &propertyName) const;
     bool isListProperty(const QString &name) const;
     bool isEnum(const QString &typeName) const;
+    bool enumContainsKey(const QString &enumName, const QString &enumKeyName) const;
 
 protected:
     const Value *findOrCreateSignature(int index, const FakeMetaMethod &method, QString *methodName) const;

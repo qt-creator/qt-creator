@@ -38,6 +38,7 @@
 #include "rewriterview.h"
 #include "variantproperty.h"
 
+#include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsscopebuilder.h>
@@ -371,6 +372,65 @@ public:
         return v;
     }
 
+    QVariant convertToEnum(Statement *rhs, UiQualifiedId *propertyId)
+    {
+        ExpressionStatement *eStmt = cast<ExpressionStatement *>(rhs);
+        if (!eStmt || !eStmt->expression)
+            return QVariant();
+
+        const Interpreter::ObjectValue *containingObject = 0;
+        QString name;
+        if (!lookupProperty(propertyId, 0, &containingObject, &name)) {
+            return QVariant();
+        }
+
+        for (const Interpreter::ObjectValue *iter = containingObject; iter; iter = iter->prototype(m_context)) {
+            if (iter->lookupMember(name, m_context, false)) {
+                containingObject = iter;
+                break;
+            }
+        }
+        const Interpreter::QmlObjectValue * lhsQmlObject = dynamic_cast<const Interpreter::QmlObjectValue *>(containingObject);
+        if (!lhsQmlObject)
+            return QVariant();
+        const QString lhsPropertyTypeName = lhsQmlObject->propertyType(name);
+
+        const Interpreter::ObjectValue *rhsValueObject = 0;
+        QString rhsValueName;
+        if (IdentifierExpression *idExp = cast<IdentifierExpression *>(eStmt->expression)) {
+            if (!m_context->scopeChain().qmlScopeObjects.isEmpty())
+                rhsValueObject = m_context->scopeChain().qmlScopeObjects.last();
+            if (idExp->name)
+                rhsValueName = idExp->name->asString();
+        } else if (FieldMemberExpression *memberExp = cast<FieldMemberExpression *>(eStmt->expression)) {
+            Evaluate evaluate(m_context);
+            const Interpreter::Value *result = evaluate(memberExp->base);
+            rhsValueObject = result->asObjectValue();
+
+            if (memberExp->name)
+                rhsValueName = memberExp->name->asString();
+        }
+
+        if (!rhsValueObject)
+            return QVariant();
+
+        for (const Interpreter::ObjectValue *iter = rhsValueObject; iter; iter = iter->prototype(m_context)) {
+            if (iter->lookupMember(rhsValueName, m_context, false)) {
+                rhsValueObject = iter;
+                break;
+            }
+        }
+
+        const Interpreter::QmlObjectValue *rhsQmlObjectValue = dynamic_cast<const Interpreter::QmlObjectValue *>(rhsValueObject);
+        if (!rhsQmlObjectValue)
+            return QVariant();
+
+        if (rhsQmlObjectValue->enumContainsKey(lhsPropertyTypeName, rhsValueName))
+            return QVariant(rhsValueName);
+        else
+            return QVariant();
+    }
+
 private:
     Snapshot m_snapshot;
     Document::Ptr m_doc;
@@ -639,13 +699,23 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                     }
                 }
             } else {
-                if (typeName == QLatin1String("Qt/PropertyChanges") || context->lookupProperty(script->qualifiedId)) {
+                // First see if it is a qualified enum:
+                const QVariant enumValue = context->convertToEnum(script->statement, script->qualifiedId);
+                if (enumValue.isValid()) {
+                    const QString astPropertyName = flatten(script->qualifiedId);
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
-                    syncExpressionProperty(modelProperty, astValue, differenceHandler);
+                    syncVariantProperty(modelProperty, enumValue, QString(), differenceHandler);
                     modelPropertyNames.remove(astPropertyName);
                 } else {
-                    qWarning() << "Skipping invalid expression property" << astPropertyName
-                               << "for node type" << modelNode.type();
+                    // apparently not, so:
+                    if (typeName == QLatin1String("Qt/PropertyChanges") || context->lookupProperty(script->qualifiedId)) {
+                        AbstractProperty modelProperty = modelNode.property(astPropertyName);
+                        syncExpressionProperty(modelProperty, astValue, differenceHandler);
+                        modelPropertyNames.remove(astPropertyName);
+                    } else {
+                        qWarning() << "Skipping invalid expression property" << astPropertyName
+                                << "for node type" << modelNode.type();
+                    }
                 }
             }
         } else if (UiPublicMember *property = cast<UiPublicMember *>(member)) {

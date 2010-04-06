@@ -876,6 +876,19 @@ bool QmlObjectValue::isEnum(const QString &typeName) const
     return _metaObject->enumeratorIndex(typeName) != -1;
 }
 
+bool QmlObjectValue::enumContainsKey(const QString &enumName, const QString &enumKeyName) const
+{
+    int idx = _metaObject->enumeratorIndex(enumName);
+    if (idx == -1)
+        return false;
+    const FakeMetaEnum &fme = _metaObject->enumerator(idx);
+    for (int i = 0; i < fme.keyCount(); ++i) {
+        if (fme.key(i) == enumKeyName)
+            return true;
+    }
+    return false;
+}
+
 bool QmlObjectValue::isDerivedFrom(const FakeMetaObject *base) const
 {
     for (const FakeMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
