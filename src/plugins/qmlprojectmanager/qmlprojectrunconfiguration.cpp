@@ -126,7 +126,7 @@ QStringList QmlProjectRunConfiguration::viewerArguments() const
 
     // arguments in .user file
     if (!m_qmlViewerArgs.isEmpty())
-        args.append(m_qmlViewerArgs);
+        args.append(m_qmlViewerArgs.split(QLatin1Char(' ')));
 
     // arguments from .qmlproject file
     foreach (const QString &importPath, qmlTarget()->qmlProject()->importPaths()) {
