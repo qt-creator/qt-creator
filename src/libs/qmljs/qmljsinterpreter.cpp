@@ -111,6 +111,9 @@ public:
         : m_name(name)
     {}
 
+    QString name() const
+    { return m_name; }
+
     void addKey(const QString &key, int value)
     { m_keys.append(key); m_values.append(value); }
 
@@ -197,7 +200,9 @@ class FakeMetaObject {
     const FakeMetaObject *m_super;
     QString m_superName;
     QList<FakeMetaEnum> m_enums;
+    QHash<QString, int> m_enumNameToIndex;
     QList<FakeMetaProperty> m_props;
+    QHash<QString, int> m_propNameToIdx;
     QList<FakeMetaMethod> m_methods;
     QString m_defaultPropertyName;
 
@@ -221,22 +226,26 @@ public:
     { return m_package; }
 
     void addEnum(const FakeMetaEnum &fakeEnum)
-    { m_enums.append(fakeEnum); }
+    { m_enumNameToIndex.insert(fakeEnum.name(), m_enums.size()); m_enums.append(fakeEnum); }
     int enumeratorCount() const
     { return m_enums.size(); }
     int enumeratorOffset() const
     { return 0; }
     FakeMetaEnum enumerator(int index) const
     { return m_enums.at(index); }
+    int enumeratorIndex(const QString &name) const
+    { return m_enumNameToIndex.value(name, -1); }
 
     void addProperty(const FakeMetaProperty &property)
-    { m_props.append(property); }
+    { m_propNameToIdx.insert(property.name(), m_props.size()); m_props.append(property); }
     int propertyCount() const
     { return m_props.size(); }
     int propertyOffset() const
     { return 0; }
     FakeMetaProperty property(int index) const
     { return m_props.at(index); }
+    int propertyIndex(const QString &name) const
+    { return m_propNameToIdx.value(name, -1); }
 
     void addMethod(const FakeMetaMethod &method)
     { m_methods.append(method); }
@@ -686,11 +695,6 @@ QmlObjectValue::QmlObjectValue(const FakeMetaObject *metaObject, Engine *engine)
 QmlObjectValue::~QmlObjectValue()
 {}
 
-const Value *QmlObjectValue::lookupMember(const QString &name, Context *context) const
-{
-    return ObjectValue::lookupMember(name, context);
-}
-
 const Value *QmlObjectValue::findOrCreateSignature(int index, const FakeMetaMethod &method, QString *methodName) const
 {
     *methodName = method.methodName();
@@ -843,6 +847,22 @@ int QmlObjectValue::minorVersion() const
 
 QString QmlObjectValue::defaultPropertyName() const
 { return _metaObject->defaultPropertyName(); }
+
+QString QmlObjectValue::propertyType(const QString &propertyName) const
+{
+    for (const FakeMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
+        int propIdx = _metaObject->propertyIndex(propertyName);
+        if (propIdx != -1) {
+            return _metaObject->property(propIdx).typeName();
+        }
+    }
+    return QString();
+}
+
+bool QmlObjectValue::isEnum(const QString &typeName) const
+{
+    return _metaObject->enumeratorIndex(typeName) != -1;
+}
 
 bool QmlObjectValue::isDerivedFrom(const FakeMetaObject *base) const
 {
@@ -1646,7 +1666,7 @@ void ObjectValue::processMembers(MemberProcessor *processor) const
     }
 }
 
-const Value *ObjectValue::lookupMember(const QString &name, Context *context) const
+const Value *ObjectValue::lookupMember(const QString &name, Context *context, bool examinePrototypes) const
 {
     if (const Value *m = _members.value(name))
         return m;
@@ -1657,10 +1677,12 @@ const Value *ObjectValue::lookupMember(const QString &name, Context *context) co
             return slowLookup.value();
     }
 
-    const ObjectValue *prototypeObject = prototype(context);
-    if (prototypeObject) {
-        if (const Value *m = prototypeObject->lookupMember(name, context))
-            return m;
+    if (examinePrototypes) {
+        const ObjectValue *prototypeObject = prototype(context);
+        if (prototypeObject) {
+            if (const Value *m = prototypeObject->lookupMember(name, context))
+                return m;
+        }
     }
 
     return 0;

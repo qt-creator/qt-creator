@@ -42,8 +42,8 @@ class CORESHARED_EXPORT RewriterView;
 
 namespace Internal {
 
-struct ReadingContext;
 class DifferenceHandler;
+class ReadingContext;
 
 class TextToModelMerger
 {
@@ -82,8 +82,7 @@ public:
                            ReadingContext *context,
                            DifferenceHandler &differenceHandler);
     void syncVariantProperty(AbstractProperty &modelProperty,
-                             const QString &astName,
-                             const QString &astValue,
+                             const QVariant &astValue,
                              const QString &astType,
                              DifferenceHandler &differenceHandler);
     void syncNodeListProperty(NodeListProperty &modelListProperty,
@@ -96,10 +95,6 @@ public:
                               QmlJS::AST::UiObjectMember *astNode,
                               ReadingContext *context,
                               DifferenceHandler &differenceHandler);
-    static QVariant convertToVariant(const ModelNode &node,
-                                     const QString &astName,
-                                     const QString &astValue,
-                                     const QString &astType);
 
 private:
     void setupComponent(const ModelNode &node);

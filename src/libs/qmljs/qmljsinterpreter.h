@@ -385,7 +385,7 @@ public:
     virtual void setProperty(const QString &name, const Value *value);
     virtual void removeProperty(const QString &name);
 
-    virtual const Value *lookupMember(const QString &name, Context *context) const;
+    virtual const Value *lookupMember(const QString &name, Context *context, bool examinePrototypes = true) const;
 
     // Value interface
     virtual const ObjectValue *asObjectValue() const;
@@ -410,7 +410,6 @@ public:
     QmlObjectValue(const FakeMetaObject *metaObject, Engine *engine);
     virtual ~QmlObjectValue();
 
-    virtual const Value *lookupMember(const QString &name, Context *context) const;
     virtual void processMembers(MemberProcessor *processor) const;
     const Value *propertyValue(const FakeMetaProperty &prop) const;
 
@@ -418,6 +417,8 @@ public:
     int majorVersion() const;
     int minorVersion() const;
     QString defaultPropertyName() const;
+    QString propertyType(const QString &propertyName) const;
+    bool isEnum(const QString &typeName) const;
 
 protected:
     const Value *findOrCreateSignature(int index, const FakeMetaMethod &method, QString *methodName) const;

@@ -302,6 +302,9 @@ bool Check::visit(UiArrayBinding *ast)
     return true;
 }
 
+/// When something is changed here, also change ReadingContext::lookupProperty in
+/// texttomodelmerger.cpp
+/// ### Maybe put this into the context as a helper method.
 const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
     QList<const ObjectValue *> scopeObjects = _context.scopeChain().qmlScopeObjects;
@@ -310,6 +313,9 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 
     if (! id)
         return 0; // ### error?
+
+    if (! id->name) // possible after error recovery
+        return 0;
 
     QString propertyName = id->name->asString();
 
