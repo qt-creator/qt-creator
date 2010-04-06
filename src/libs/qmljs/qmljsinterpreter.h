@@ -418,6 +418,7 @@ public:
     int minorVersion() const;
     QString defaultPropertyName() const;
     QString propertyType(const QString &propertyName) const;
+    bool isListProperty(const QString &name) const;
     bool isEnum(const QString &typeName) const;
 
 protected:

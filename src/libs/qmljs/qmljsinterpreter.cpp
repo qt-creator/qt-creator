@@ -187,6 +187,9 @@ public:
 
     QString typeName() const
     { return m_type; }
+
+    bool isList() const
+    { return m_isList; }
 };
 
 class FakeMetaObject {
@@ -857,6 +860,15 @@ QString QmlObjectValue::propertyType(const QString &propertyName) const
         }
     }
     return QString();
+}
+
+bool QmlObjectValue::isListProperty(const QString &name) const
+{
+    int idx = _metaObject->propertyIndex(name);
+    if (idx == -1)
+        return false;
+    FakeMetaProperty prop = _metaObject->property(idx);
+    return prop.isList();
 }
 
 bool QmlObjectValue::isEnum(const QString &typeName) const

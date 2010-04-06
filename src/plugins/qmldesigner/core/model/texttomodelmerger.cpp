@@ -303,15 +303,23 @@ public:
         return true;
     }
 
-    bool isArrayProperty(const Interpreter::Value *value)
+    bool isArrayProperty(const Interpreter::Value *value, const Interpreter::ObjectValue *containingObject, const QString &name)
     {
         if (!value)
             return false;
         const Interpreter::ObjectValue *objectValue = value->asObjectValue();
-        if (!objectValue)
-            return false;
+        if (objectValue && objectValue->prototype(m_context) == m_engine->arrayPrototype())
+            return true;
 
-        return objectValue->prototype(m_context) == m_engine->arrayPrototype();
+        for (const Interpreter::ObjectValue *iter = containingObject; iter; iter = iter->prototype(m_context)) {
+            if (iter->property(name, m_context) == m_engine->arrayPrototype())
+                return true;
+            if (const Interpreter::QmlObjectValue *qmlIter = dynamic_cast<const Interpreter::QmlObjectValue *>(iter)) {
+                if (qmlIter->isListProperty(name))
+                    return true;
+            }
+        }
+        return false;
     }
 
     QVariant convertToVariant(const QString &astValue, UiQualifiedId *propertyId)
@@ -580,10 +588,12 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             if (binding->hasOnToken) {
                 // skip value sources
             } else {
-                const Interpreter::Value *propertyType;
-                if (context->lookupProperty(binding->qualifiedId, &propertyType) || typeName == QLatin1String("Qt/PropertyChanges")) {
+                const Interpreter::Value *propertyType = 0;
+                const Interpreter::ObjectValue *containingObject = 0;
+                QString name;
+                if (context->lookupProperty(binding->qualifiedId, &propertyType, &containingObject, &name) || typeName == QLatin1String("Qt/PropertyChanges")) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
-                    if (context->isArrayProperty(propertyType)) {
+                    if (context->isArrayProperty(propertyType, containingObject, name)) {
                         syncArrayProperty(modelProperty, QList<QmlJS::AST::UiObjectMember*>() << member, context, differenceHandler);
                     } else {
                         syncNodeProperty(modelProperty, binding, context, differenceHandler);

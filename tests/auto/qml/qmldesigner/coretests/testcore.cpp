@@ -133,7 +133,6 @@ void TestCore::testModelCreateCoreModel()
 // TODO: this need to e updated for states
 void TestCore::loadEmptyCoreModel()
 {
-    QList<QDeclarativeError> errors;
     QFile file(":/fx/empty.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
