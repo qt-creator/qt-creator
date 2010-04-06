@@ -1076,6 +1076,14 @@ void DebuggerPlugin::activateDebugMode()
     modeManager->activateMode(_(MODE_DEBUG));
 }
 
+static bool isDebuggable(Core::IEditor *editor)
+{
+    // Only blacklist XML. Whitelisting would fail on C++ code in files
+    // with strange names, more harm would be done this way.
+    Core::IFile *file = editor->file();
+    return !(file && file->mimeType() == "application/x-qml");
+}
+
 TextEditor::ITextEditor *DebuggerPlugin::currentTextEditor()
 {
     EditorManager *editorManager = EditorManager::instance();
@@ -1087,31 +1095,39 @@ TextEditor::ITextEditor *DebuggerPlugin::currentTextEditor()
 
 void DebuggerPlugin::editorOpened(Core::IEditor *editor)
 {
-    if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
-        connect(textEditor, SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
-            this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
-        connect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
-            this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
-        connect(textEditor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-            this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
-    }
+    if (!isDebuggable(editor))
+        return;
+    ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
+    if (!textEditor)
+        return;
+    connect(textEditor, SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
+        this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
+    connect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
+        this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
+    connect(textEditor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+        this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
 }
 
 void DebuggerPlugin::editorAboutToClose(Core::IEditor *editor)
 {
-    if (ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor)) {
-        disconnect(textEditor, SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
-            this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
-        disconnect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
-            this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
-        disconnect(textEditor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
-            this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
-    }
+    if (!isDebuggable(editor))
+        return;
+    ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
+    if (!textEditor)
+        return;
+    disconnect(textEditor, SIGNAL(markRequested(TextEditor::ITextEditor*,int)),
+        this, SLOT(requestMark(TextEditor::ITextEditor*,int)));
+    disconnect(editor, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
+        this, SLOT(showToolTip(TextEditor::ITextEditor*,QPoint,int)));
+    disconnect(textEditor, SIGNAL(markContextMenuRequested(TextEditor::ITextEditor*,int,QMenu*)),
+        this, SLOT(requestContextMenu(TextEditor::ITextEditor*,int,QMenu*)));
 }
 
 void DebuggerPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
     int lineNumber, QMenu *menu)
 {
+    if (!isDebuggable(editor))
+        return;
     QString fileName = editor->file()->fileName();
     QString position = fileName + QString(":%1").arg(lineNumber);
     BreakpointData *data = m_manager->findBreakpoint(fileName, lineNumber);
@@ -1163,13 +1179,18 @@ void DebuggerPlugin::breakpointEnableDisableMarginActionTriggered()
 
 void DebuggerPlugin::requestMark(ITextEditor *editor, int lineNumber)
 {
+    if (!isDebuggable(editor))
+        return;
     m_manager->toggleBreakpoint(editor->file()->fileName(), lineNumber);
 }
 
 void DebuggerPlugin::showToolTip(ITextEditor *editor, const QPoint &point, int pos)
 {
-    if (!theDebuggerBoolSetting(UseToolTipsInMainEditor)
-            || m_manager->state() == DebuggerNotReady)
+    if (!isDebuggable(editor))
+        return;
+    if (!theDebuggerBoolSetting(UseToolTipsInMainEditor))
+        return;
+    if (m_manager->state() == DebuggerNotReady)
         return;
 
     m_manager->setToolTipExpression(point, editor, pos);
