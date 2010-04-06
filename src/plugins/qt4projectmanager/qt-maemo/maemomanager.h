@@ -54,6 +54,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 class MaemoGdbSettingsPage;
+class MaemoPackageCreationFactory;
 class MaemoRunControlFactory;
 class MaemoRunConfigurationFactory;
 class MaemoSettingsPage;
@@ -90,6 +91,7 @@ private:
 
     MaemoRunControlFactory *m_runControlFactory;
     MaemoRunConfigurationFactory *m_runConfigurationFactory;
+    MaemoPackageCreationFactory *m_packageCreationFactory;
     MaemoSettingsPage *m_settingsPage;
     MaemoGdbSettingsPage *m_gdbSettingsPage;
 

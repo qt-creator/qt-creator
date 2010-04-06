@@ -16,7 +16,9 @@ HEADERS += \
     $$PWD/maemosettingswidget.h \
     $$PWD/maemosshconnection.h \
     $$PWD/maemosshthread.h \
-    $$PWD/maemotoolchain.h
+    $$PWD/maemotoolchain.h \
+    $$PWD/maemopackagecreationstep.h \
+    $$PWD/maemopackagecreationfactory.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -31,7 +33,9 @@ SOURCES += \
     $$PWD/maemosettingswidget.cpp \
     $$PWD/maemosshconnection.cpp \
     $$PWD/maemosshthread.cpp \
-    $$PWD/maemotoolchain.cpp
+    $$PWD/maemotoolchain.cpp \
+    $$PWD/maemopackagecreationstep.cpp \
+    $$PWD/maemopackagecreationfactory.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \

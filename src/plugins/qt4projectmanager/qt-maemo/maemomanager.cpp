@@ -32,6 +32,7 @@
 
 #include "maemodeviceconfigurations.h"
 #include "maemogdbsettingspage.h"
+#include "maemopackagecreationfactory.h"
 #include "maemorunfactories.h"
 #include "maemosettingspage.h"
 #include "maemotoolchain.h"
@@ -63,6 +64,7 @@ MaemoManager::MaemoManager()
     : QObject(0)
     , m_runControlFactory(new MaemoRunControlFactory(this))
     , m_runConfigurationFactory(new MaemoRunConfigurationFactory(this))
+    , m_packageCreationFactory(new MaemoPackageCreationFactory(this))
     , m_settingsPage(new MaemoSettingsPage(this))
     , m_gdbSettingsPage(new MaemoGdbSettingsPage(this))
     , m_qemuCommand(0)
@@ -76,18 +78,24 @@ MaemoManager::MaemoManager()
     icon.addFile(":/qt-maemo/images/qemu-stop.png", iconSize, QIcon::Normal,
         QIcon::On);
 
-    ExtensionSystem::PluginManager::instance()->addObject(m_runControlFactory);
-    ExtensionSystem::PluginManager::instance()->addObject(m_runConfigurationFactory);
-    ExtensionSystem::PluginManager::instance()->addObject(m_settingsPage);
-    ExtensionSystem::PluginManager::instance()->addObject(m_gdbSettingsPage);
+    ExtensionSystem::PluginManager *pluginManager
+        = ExtensionSystem::PluginManager::instance();
+    pluginManager->addObject(m_runControlFactory);
+    pluginManager->addObject(m_runConfigurationFactory);
+    pluginManager->addObject(m_packageCreationFactory);
+    pluginManager->addObject(m_settingsPage);
+    pluginManager->addObject(m_gdbSettingsPage);
 }
 
 MaemoManager::~MaemoManager()
 {
-    ExtensionSystem::PluginManager::instance()->removeObject(m_runControlFactory);
-    ExtensionSystem::PluginManager::instance()->removeObject(m_runConfigurationFactory);
-    ExtensionSystem::PluginManager::instance()->removeObject(m_settingsPage);
-    ExtensionSystem::PluginManager::instance()->removeObject(m_gdbSettingsPage);
+    ExtensionSystem::PluginManager *pluginManager
+        = ExtensionSystem::PluginManager::instance();
+    pluginManager->removeObject(m_runControlFactory);
+    pluginManager->removeObject(m_runConfigurationFactory);
+    pluginManager->removeObject(m_packageCreationFactory);
+    pluginManager->removeObject(m_settingsPage);
+    pluginManager->removeObject(m_gdbSettingsPage);
 
     m_instance = 0;
 }
