@@ -106,7 +106,7 @@ void QmlProject::parseProject(RefreshOptions options)
         }
         if (m_projectItem) {
             m_projectItem.data()->setSourceDirectory(projectDir().path());
-            m_modelManager->updateSourceDirectories(m_projectItem.data()->files());
+            m_modelManager->updateSourceFiles(m_projectItem.data()->files());
         }
         m_rootNode->refresh();
     }

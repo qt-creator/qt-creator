@@ -36,11 +36,11 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsbind.h>
 #include <qmljs/parser/qmldirparser_p.h>
 #include <texteditor/itexteditor.h>
 
 #include <QDir>
-#include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
 #include <QLibraryInfo>
@@ -74,7 +74,6 @@ ModelManager::ModelManager(QObject *parent):
 
     m_defaultImportPaths << environmentImportPaths();
     m_defaultImportPaths << QLibraryInfo::location(QLibraryInfo::ImportsPath);
-    refreshSourceDirectories(m_defaultImportPaths);
 }
 
 void ModelManager::loadQmlTypeDescriptions()
@@ -100,19 +99,7 @@ Snapshot ModelManager::snapshot() const
 
 void ModelManager::updateSourceFiles(const QStringList &files)
 {
-    // for files that are not yet in the snapshot, scan the whole directory
-    QStringList filesToParse;
-    QSet<QString> sourceDirectories;
-
-    foreach (const QString &file, files) {
-        if (! _snapshot.document(file))
-            sourceDirectories.insert(QFileInfo(file).path());
-        else
-            filesToParse.append(file);
-    }
-
-    refreshSourceFiles(filesToParse);
-    refreshSourceDirectories(sourceDirectories.toList());
+    refreshSourceFiles(files);
 }
 
 QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles)
@@ -144,42 +131,6 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles)
         m_core->progressManager()->addTask(result, tr("Indexing"),
                         QmlJSEditor::Constants::TASK_INDEX);
     }
-
-    return result;
-}
-
-void ModelManager::updateSourceDirectories(const QStringList &directories)
-{
-    refreshSourceDirectories(directories);
-}
-
-QFuture<void> ModelManager::refreshSourceDirectories(const QStringList &sourceDirectories)
-{
-    if (sourceDirectories.isEmpty()) {
-        return QFuture<void>();
-    }
-
-    const QMap<QString, WorkingCopy> workingCopy = buildWorkingCopyList();
-
-    QFuture<void> result = QtConcurrent::run(&ModelManager::parseDirectories,
-                                              workingCopy, sourceDirectories,
-                                              this);
-
-    if (m_synchronizer.futures().size() > 10) {
-        QList<QFuture<void> > futures = m_synchronizer.futures();
-
-        m_synchronizer.clearFutures();
-
-        foreach (QFuture<void> future, futures) {
-            if (! (future.isFinished() || future.isCanceled()))
-                m_synchronizer.addFuture(future);
-        }
-    }
-
-    m_synchronizer.addFuture(result);
-
-    m_core->progressManager()->addTask(result, tr("Indexing"),
-                                       QmlJSEditor::Constants::TASK_INDEX);
 
     return result;
 }
@@ -223,6 +174,106 @@ void ModelManager::onLibraryInfoUpdated(const QString &path, const LibraryInfo &
     _snapshot.insertLibraryInfo(path, info);
 }
 
+static QStringList qmlFilesInDirectory(const QString &path)
+{
+    // ### It would suffice to build pattern once. This function needs to be thread-safe.
+    Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+    Core::MimeType jsSourceTy = db->findByType(QmlJSEditor::Constants::JS_MIMETYPE);
+    Core::MimeType qmlSourceTy = db->findByType(QmlJSEditor::Constants::QML_MIMETYPE);
+
+    QStringList pattern;
+    foreach (const QRegExp &glob, jsSourceTy.globPatterns())
+        pattern << glob.pattern();
+    foreach (const QRegExp &glob, qmlSourceTy.globPatterns())
+        pattern << glob.pattern();
+
+    QStringList files;
+
+    const QDir dir(path);
+    foreach (const QFileInfo &fi, dir.entryInfoList(pattern, QDir::Files))
+        files += fi.absoluteFilePath();
+
+    return files;
+}
+
+static void findNewImplicitImports(const Document::Ptr &doc, const Snapshot &snapshot,
+                            QStringList *importedFiles, QSet<QString> *scannedPaths)
+{
+    // scan files that could be implicitly imported
+    // it's important we also do this for JS files, otherwise the isEmpty check will fail
+    if (snapshot.documentsInDirectory(doc->path()).isEmpty()) {
+        if (! scannedPaths->contains(doc->path())) {
+            *importedFiles += qmlFilesInDirectory(doc->path());
+            scannedPaths->insert(doc->path());
+        }
+    }
+}
+
+static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapshot,
+                        QStringList *importedFiles, QSet<QString> *scannedPaths)
+{
+    // scan files and directories that are explicitly imported
+    foreach (const QString &fileImport, doc->bind()->fileImports()) {
+        const QFileInfo importFileInfo(doc->path() + QLatin1Char('/') + fileImport);
+        const QString &importFilePath = importFileInfo.absoluteFilePath();
+        if (importFileInfo.isFile()) {
+            if (! snapshot.document(importFilePath))
+                *importedFiles += importFilePath;
+        } else if (importFileInfo.isDir()) {
+            if (snapshot.documentsInDirectory(importFilePath).isEmpty()) {
+                if (! scannedPaths->contains(importFilePath)) {
+                    *importedFiles += qmlFilesInDirectory(importFilePath);
+                    scannedPaths->insert(importFilePath);
+                }
+            }
+        }
+    }
+}
+
+static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snapshot,
+                           ModelManager *modelManager,
+                           QStringList *importedFiles, QSet<QString> *scannedPaths)
+{
+    // scan library imports
+    foreach (const QString &libraryImport, doc->bind()->libraryImports()) {
+        foreach (const QString &importPath, modelManager->importPaths()) {
+            QDir dir(importPath);
+            dir.cd(libraryImport);
+            const QString targetPath = dir.absolutePath();
+
+            // if we know there is a library, done
+            if (snapshot.libraryInfo(targetPath).isValid())
+                break;
+
+            // if there is a qmldir file, we found a new library!
+            if (dir.exists("qmldir")) {
+                QFile qmldirFile(dir.filePath("qmldir"));
+                qmldirFile.open(QFile::ReadOnly);
+                QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
+
+                QmlDirParser qmldirParser;
+                qmldirParser.setSource(qmldirData);
+                qmldirParser.parse();
+
+                modelManager->emitLibraryInfoUpdated(QFileInfo(qmldirFile).absolutePath(),
+                                                     LibraryInfo(qmldirParser));
+
+                // scan the qml files in the library
+                foreach (const QmlDirParser::Component &component, qmldirParser.components()) {
+                    if (! component.fileName.isEmpty()) {
+                        QFileInfo componentFileInfo(dir.filePath(component.fileName));
+                        const QString path = componentFileInfo.absolutePath();
+                        if (! scannedPaths->contains(path)) {
+                            *importedFiles += qmlFilesInDirectory(path);
+                            scannedPaths->insert(path);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void ModelManager::parse(QFutureInterface<void> &future,
                             QMap<QString, WorkingCopy> workingCopy,
                             QStringList files,
@@ -232,10 +283,16 @@ void ModelManager::parse(QFutureInterface<void> &future,
     Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
     Core::MimeType qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
 
-    future.setProgressRange(0, files.size());
+    int progressRange = files.size();
+    future.setProgressRange(0, progressRange);
+
+    Snapshot snapshot = modelManager->_snapshot;
+
+    // paths we have scanned for files and added to the files list
+    QSet<QString> scannedPaths;
 
     for (int i = 0; i < files.size(); ++i) {
-        future.setProgressValue(i);
+        future.setProgressValue(qreal(i) / files.size() * progressRange);
 
         const QString fileName = files.at(i);
 
@@ -270,62 +327,24 @@ void ModelManager::parse(QFutureInterface<void> &future,
         Document::Ptr doc = Document::create(fileName);
         doc->setDocumentRevision(documentRevision);
         doc->setSource(contents);
+        doc->parse();
 
-        if (isQmlFile)
-            doc->parseQml();
-        else
-            doc->parseJavaScript();
+        // get list of referenced files not yet in snapshot or in directories already scanned
+        QStringList importedFiles;
+        findNewImplicitImports(doc, snapshot, &importedFiles, &scannedPaths);
+        findNewFileImports(doc, snapshot, &importedFiles, &scannedPaths);
+        findNewLibraryImports(doc, snapshot, modelManager, &importedFiles, &scannedPaths);
+
+        // add new files to parse list
+        foreach (const QString &file, importedFiles) {
+            if (! files.contains(file))
+                files.append(file);
+        }
 
         modelManager->emitDocumentUpdated(doc);
     }
 
-    future.setProgressValue(files.size());
-}
-
-void ModelManager::parseDirectories(QFutureInterface<void> &future,
-                                    QMap<QString, WorkingCopy> workingCopy,
-                                    QStringList directories,
-                                    ModelManager *modelManager)
-{
-    Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
-    Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
-    Core::MimeType qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
-
-    QStringList pattern;
-    foreach (const QRegExp &glob, jsSourceTy.globPatterns())
-        pattern << glob.pattern();
-    foreach (const QRegExp &glob, qmlSourceTy.globPatterns())
-        pattern << glob.pattern();
-    pattern << QLatin1String("qmldir");
-
-    QStringList importedFiles;
-    QStringList qmldirFiles;
-    foreach (const QString &path, directories) {
-        QDirIterator fileIterator(path, pattern, QDir::Files,
-                                  QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
-        while (fileIterator.hasNext()) {
-            fileIterator.next();
-            if (fileIterator.fileName() == QLatin1String("qmldir"))
-                qmldirFiles << fileIterator.filePath();
-            else
-                importedFiles << fileIterator.filePath();
-        }
-    }
-
-    foreach (const QString &qmldirFilePath, qmldirFiles) {
-        QFile qmldirFile(qmldirFilePath);
-        qmldirFile.open(QFile::ReadOnly);
-        QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
-
-        QmlDirParser qmldirParser;
-        qmldirParser.setSource(qmldirData);
-        qmldirParser.parse();
-
-        modelManager->emitLibraryInfoUpdated(QFileInfo(qmldirFilePath).path(),
-                                             LibraryInfo(qmldirParser));
-    }
-
-    parse(future, workingCopy, importedFiles, modelManager);
+    future.setProgressValue(progressRange);
 }
 
 // Check whether fileMimeType is the same or extends knownMimeType
@@ -352,7 +371,14 @@ void ModelManager::setProjectImportPaths(const QStringList &importPaths)
 {
     m_projectImportPaths = importPaths;
 
-    refreshSourceDirectories(importPaths);
+    // check if any file in the snapshot imports something new in the new paths
+    Snapshot snapshot = _snapshot;
+    QStringList importedFiles;
+    QSet<QString> scannedPaths;
+    foreach (const Document::Ptr &doc, snapshot)
+        findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths);
+
+    updateSourceFiles(importedFiles);
 }
 
 QStringList ModelManager::importPaths() const
