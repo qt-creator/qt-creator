@@ -185,6 +185,7 @@ void DebuggerUISwitcher::modeChanged(Core::IMode *mode)
 
 void DebuggerUISwitcher::hideInactiveWidgets()
 {
+    // Hide/Show dock widgets manually in case they are floating.
     if (!d->m_isActiveMode) {
         // hide all the debugger windows if mode is different
         foreach(Internal::DebugToolWindow *window, d->m_dockWidgets) {
