@@ -2464,7 +2464,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             loop.index = 0;
             QString it_list;
             if (args.count() == 1) {
-                doVariableReplace(&args[0]);
                 it_list = args[0];
                 if (args[0] != statics.strever) {
                     logMessage(format("for({var, list|var, forever|ever})"
@@ -2475,7 +2474,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             } else {
                 loop.variable = map(args.at(0));
                 loop.oldVarVal = valuesDirect(loop.variable);
-                doVariableReplace(&args[1]);
                 it_list = map(args.at(1));
             }
             loop.list = valuesDirect(it_list);
