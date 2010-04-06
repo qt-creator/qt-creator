@@ -155,6 +155,9 @@ void DragTool::createQmlItemNode(const ItemLibraryInfo &itemLibraryRepresentatio
 
 void DragTool::createQmlItemNodeFromImage(const QString &imageName, QmlItemNode parentNode, QPointF scenePos)
 {
+    if (!parentNode.isValid())
+        return;
+
     QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 
     MetaInfo metaInfo = MetaInfo::global();
