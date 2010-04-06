@@ -105,7 +105,8 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actCopyContents = menu.addAction(tr("Copy Contents to Clipboard"));
     actCopyContents->setEnabled(model() != 0);
 
-    menu.addAction(theDebuggerAction(CreateFullBacktrace));
+    if (engineCapabilities & CreateFullBacktraceCapability)
+        menu.addAction(theDebuggerAction(CreateFullBacktrace));
 
     QAction *actShowMemory = menu.addAction(QString());
     if (address.isEmpty()) {
