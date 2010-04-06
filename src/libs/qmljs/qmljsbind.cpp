@@ -59,6 +59,16 @@ QStringList Bind::includedScripts() const
     return _includedScripts;
 }
 
+QStringList Bind::fileImports() const
+{
+    return _fileImports;
+}
+
+QStringList Bind::libraryImports() const
+{
+    return _libraryImports;
+}
+
 Interpreter::ObjectValue *Bind::currentObjectValue() const
 {
     return _currentObjectValue;
@@ -205,8 +215,14 @@ bool Bind::visit(AST::Program *)
     return true;
 }
 
-bool Bind::visit(UiImport *)
+bool Bind::visit(UiImport *ast)
 {
+    if (ast->importUri) {
+        _libraryImports += toString(ast->importUri, QLatin1Char('/'));
+    } else if (ast->fileName) {
+        _fileImports += ast->fileName->asString();
+    }
+
     return false;
 }
 
