@@ -1880,7 +1880,7 @@ def qdump__std__string(d, item):
         for i in xrange(size):
             s += format % int(p.dereference())
             p += 1
-        d.putValue(s, Hex2EncodedLittleEndian)
+        d.putValue(s, Hex4EncodedLittleEndian)
         d.putNumChild(0)
     elif charType.sizeof == 2:
         format = "%02x%02x"
