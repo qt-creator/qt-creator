@@ -2278,6 +2278,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
                 const int newcol = col.logical - 1 - (col.logical - 1) % ts;
                 data.remove(0, col.physical);
                 setLineContents(line, tabExpand(newcol).append(data));
+                moveToStartOfLine();
+                moveRight(newcol);
                 m_lastInsertion.clear(); // FIXME
             } else {
                 m_tc.deletePreviousChar();
