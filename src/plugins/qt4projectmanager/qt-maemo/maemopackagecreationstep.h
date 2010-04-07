@@ -44,8 +44,15 @@
 
 #include <projectexplorer/buildstep.h>
 
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
+
 namespace Qt4ProjectManager {
 namespace Internal {
+
+class MaemoToolChain;
+class Qt4BuildConfiguration;
 
 class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
 {
@@ -60,6 +67,16 @@ private:
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const { return true; }
+
+    bool createPackage();
+    bool runCommand(QProcess &proc, const QString &command);
+    const Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    const MaemoToolChain *maemoToolChain() const;
+    QString executable() const;
+    QString executableFileName() const;
+    QString maddeRoot() const;
+    QString targetRoot() const;
+    bool packagingNeeded() const;
 
     static const QLatin1String CreatePackageId;
 };

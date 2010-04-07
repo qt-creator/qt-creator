@@ -89,9 +89,6 @@ protected:
 private:
     virtual void handleDeploymentFinished(bool success)=0;
 
-    bool buildPackage();
-    bool runCommand(QProcess &proc, const QString &command);
-
     QFutureInterface<void> m_progress;
     QScopedPointer<MaemoSshDeployer> sshDeployer;
 

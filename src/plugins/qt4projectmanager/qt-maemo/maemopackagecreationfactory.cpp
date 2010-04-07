@@ -60,43 +60,34 @@ MaemoPackageCreationFactory::MaemoPackageCreationFactory(QObject *parent)
 
 }
 
-QStringList MaemoPackageCreationFactory::availableCreationIds(BuildConfiguration *parent,
-                StepType type) const
+QStringList MaemoPackageCreationFactory::availableCreationIds(BuildConfiguration *,
+                StepType) const
 {
-    QStringList ids;
-    if (type == ProjectExplorer::Build
-        && parent->target()->id() == Constants::MAEMO_DEVICE_TARGET_ID)
-        ids << MaemoPackageCreationStep::CreatePackageId;
-    return ids;
+    return QStringList();
 }
 
-QString MaemoPackageCreationFactory::displayNameForId(const QString &id) const
+QString MaemoPackageCreationFactory::displayNameForId(const QString &) const
 {
-    return id == MaemoPackageCreationStep::CreatePackageId
-        ? tr("Maemo Package Creation")
-        : QString();
+    return QString();
 }
 
-bool MaemoPackageCreationFactory::canCreate(BuildConfiguration *parent,
-         StepType type, const QString &id) const
+bool MaemoPackageCreationFactory::canCreate(BuildConfiguration *,
+         StepType, const QString &) const
 {
-    return type == ProjectExplorer::Build
-        && id == MaemoPackageCreationStep::CreatePackageId
-        && parent->target()->id() == Constants::MAEMO_DEVICE_TARGET_ID;
+    return false;
 }
 
-BuildStep *MaemoPackageCreationFactory::create(BuildConfiguration *parent,
-               ProjectExplorer::StepType type, const QString &id)
+BuildStep *MaemoPackageCreationFactory::create(BuildConfiguration *,
+               StepType, const QString &)
 {
-    Q_ASSERT(canCreate(parent, type, id));
-    return new MaemoPackageCreationStep(parent);
+    Q_ASSERT(false);
+    return 0;
 }
 
 bool MaemoPackageCreationFactory::canRestore(BuildConfiguration *parent,
          StepType type, const QVariantMap &map) const
 {
-    qDebug("%s: %d", Q_FUNC_INFO, canCreate(parent, type, ProjectExplorer::idFromMap(map)));
-    return canCreate(parent, type, ProjectExplorer::idFromMap(map));
+    return canCreateInternally(parent, type, ProjectExplorer::idFromMap(map));
 }
 
 BuildStep *MaemoPackageCreationFactory::restore(BuildConfiguration *parent,
@@ -109,7 +100,7 @@ BuildStep *MaemoPackageCreationFactory::restore(BuildConfiguration *parent,
 bool MaemoPackageCreationFactory::canClone(BuildConfiguration *parent,
          StepType type, BuildStep *product) const
 {
-    return canCreate(parent, type, product->id());
+    return canCreateInternally(parent, type, product->id());
 }
 
 BuildStep *MaemoPackageCreationFactory::clone(BuildConfiguration *parent,
@@ -117,6 +108,14 @@ BuildStep *MaemoPackageCreationFactory::clone(BuildConfiguration *parent,
 {
     Q_ASSERT(canClone(parent, type, product));
     return new MaemoPackageCreationStep(parent, static_cast<MaemoPackageCreationStep *>(product));
+}
+
+bool MaemoPackageCreationFactory::canCreateInternally(BuildConfiguration *parent,
+         StepType type, const QString &id) const
+{
+    return type == ProjectExplorer::Build
+        && id == MaemoPackageCreationStep::CreatePackageId
+        && parent->target()->id() == Constants::MAEMO_DEVICE_TARGET_ID;
 }
 
 } // namespace Internal

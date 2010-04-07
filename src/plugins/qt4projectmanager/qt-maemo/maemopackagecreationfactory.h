@@ -78,6 +78,10 @@ public:
                   ProjectExplorer::StepType type,
                   ProjectExplorer::BuildStep *product);
 
+private:
+    bool canCreateInternally(ProjectExplorer::BuildConfiguration *parent,
+                             ProjectExplorer::StepType type,
+                             const QString &id) const;
 };
 
 } // namespace Internal
