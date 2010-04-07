@@ -509,6 +509,9 @@ QPair<QString, NodeInstance> QmlGraphicsItemNodeInstance::anchor(const QString &
         targetObject = qmlGraphicsItem()->anchors()->centerIn();
     } else {
         QDeclarativeProperty metaProperty(object(), name, context());
+        if (!metaProperty.isValid())
+            return GraphicsObjectNodeInstance::anchor(name);
+
         QDeclarativeAnchorLine anchorLine = metaProperty.read().value<QDeclarativeAnchorLine>();
         if (anchorLine.anchorLine != QDeclarativeAnchorLine::Invalid) {
             targetObject = anchorLine.item;
