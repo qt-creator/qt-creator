@@ -235,8 +235,10 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
                            QStringList *importedFiles, QSet<QString> *scannedPaths)
 {
     // scan library imports
+    QStringList importPaths = modelManager->importPaths();
+    importPaths.prepend(doc->path());
     foreach (const QString &libraryImport, doc->bind()->libraryImports()) {
-        foreach (const QString &importPath, modelManager->importPaths()) {
+        foreach (const QString &importPath, importPaths) {
             QDir dir(importPath);
             dir.cd(libraryImport);
             const QString targetPath = dir.absolutePath();
