@@ -28,7 +28,7 @@ QWidget {
         styleSheetFile: "anchortop.css";
 
         checked: anchorBackend.topAnchored;
-        onToggled: {
+        onReleased: {
             if (checked) {
                 anchorBackend.verticalCentered = false;
                 anchorBackend.topAnchored = true;
@@ -51,7 +51,7 @@ QWidget {
         styleSheetFile: "anchorbottom.css";
 
         checked: anchorBackend.bottomAnchored;
-        onToggled: {
+        onReleased: {
             if (checked) {
                 anchorBackend.verticalCentered = false;
                 anchorBackend.bottomAnchored = true;
@@ -73,7 +73,7 @@ QWidget {
         styleSheetFile: "anchorleft.css";
 
         checked: anchorBackend.leftAnchored;
-        onToggled: {
+        onReleased: {
             if (checked) {
                     anchorBackend.horizontalCentered = false;
                     anchorBackend.leftAnchored = true;
@@ -95,7 +95,7 @@ QWidget {
         styleSheetFile: "anchorright.css";
 
         checked: anchorBackend.rightAnchored;
-        onToggled: {
+        onReleased: {
             if (checked) {
                     anchorBackend.horizontalCentered = false;
                     anchorBackend.rightAnchored = true;
@@ -152,7 +152,7 @@ QWidget {
 		styleSheetFile: "anchorvertical.css";
 
         checked: anchorBackend.verticalCentered;
-        onToggled: {
+        onReleased: {
             if (checked) {
                     anchorBackend.leftAnchored = false;
                     anchorBackend.rightAnchored = false;
@@ -176,7 +176,7 @@ QWidget {
 		styleSheetFile: "anchorhorizontal.css";
 
         checked: anchorBackend.horizontalCentered;
-        onToggled: {
+        onReleased: {
             if (checked) {
                     anchorBackend.leftAnchored = false;
                     anchorBackend.rightAnchored = false;
