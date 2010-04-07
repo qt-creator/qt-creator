@@ -308,6 +308,9 @@ public:
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);
 
+    bool documentImportsPlugins(const Document *doc) const;
+    void setDocumentImportsPlugins(const Document *doc);
+
 private:
     typedef QHash<QString, const Value *> Properties;
 
@@ -315,6 +318,7 @@ private:
     LookupMode _lookupMode;
     QHash<const ObjectValue *, Properties> _properties;
     QHash<QString, const ObjectValue *> _typeEnvironments;
+    QSet<QString> _documentsImportingPlugins;
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;
     bool _qmlScopeObjectSet;

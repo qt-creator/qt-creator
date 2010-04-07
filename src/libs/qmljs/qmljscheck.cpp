@@ -176,6 +176,7 @@ Check::Check(Document::Ptr doc, const Snapshot &snapshot, const QStringList &imp
     , _context(&_engine)
     , _link(&_context, doc, snapshot, importPaths)
     , _scopeBuilder(doc, &_context)
+    , _ignoreTypeErrors(_context.documentImportsPlugins(_doc.data()))
 {
 }
 
@@ -227,7 +228,8 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     _scopeBuilder.push(ast);
 
     if (! _context.lookupType(_doc.data(), typeId)) {
-        warning(typeId->identifierToken, tr(Messages::unknown_type));
+        if (! _ignoreTypeErrors)
+            error(typeId->identifierToken, tr(Messages::unknown_type));
         // suppress subsequent errors about scope object lookup by clearing
         // the scope object list
         // ### todo: better way?
