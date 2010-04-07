@@ -42,6 +42,8 @@
 #include <QtCore/QFile>
 #include <QtCore/QScopedPointer>
 
+#include <cstdio>
+
 namespace trk {
 
 struct LauncherPrivate {
@@ -50,7 +52,8 @@ struct LauncherPrivate {
         QString destinationFileName;
         uint copyFileHandle;
         QScopedPointer<QByteArray> data;
-        int position;
+        qint64 position;
+        QScopedPointer<QFile> localFile;
     };
 
     explicit LauncherPrivate(const TrkDevicePtr &d);
@@ -64,6 +67,7 @@ struct LauncherPrivate {
     Session m_session; // global-ish data (process id, target information)
 
     CopyState m_copyState;
+    CopyState m_downloadState;
     QString m_fileName;
     QStringList m_commandLineArgs;
     QString m_installFileName;
@@ -146,6 +150,12 @@ void Launcher::setCopyFileName(const QString &srcName, const QString &dstName)
     d->m_copyState.destinationFileName = dstName;
 }
 
+void Launcher::setDownloadFileName(const QString &srcName, const QString &dstName)
+{
+    d->m_downloadState.sourceFileName = srcName;
+    d->m_downloadState.destinationFileName = dstName;
+}
+
 void Launcher::setInstallFileName(const QString &name)
 {
     d->m_installFileName = name;
@@ -181,10 +191,26 @@ bool Launcher::startServer(QString *errorMessage)
 {
     errorMessage->clear();
     if (d->m_verbose) {
-        const QString msg = QString::fromLatin1("Port=%1 Executable=%2 Arguments=%3 Package=%4 Remote Package=%5 Install file=%6")
-                            .arg(trkServerName(), d->m_fileName,
-                                 d->m_commandLineArgs.join(QString(QLatin1Char(' '))),
-                                 d->m_copyState.sourceFileName, d->m_copyState.destinationFileName, d->m_installFileName);
+        QString msg;
+        QTextStream str(&msg);
+        str.setIntegerBase(16);
+        str << "Actions=0x" << d->m_startupActions;
+        str.setIntegerBase(10);
+        str << " Port=" << trkServerName();
+        if (!d->m_fileName.isEmpty())
+            str << " Executable=" << d->m_fileName;
+        if (!d->m_commandLineArgs.isEmpty())
+            str << " Arguments= " << d->m_commandLineArgs.join(QString(QLatin1Char(' ')));
+        if (!d->m_copyState.sourceFileName.isEmpty())
+            str << " Package/Source=" << d->m_copyState.sourceFileName;
+        if (!d->m_copyState.destinationFileName.isEmpty())
+            str << " Remote Package/Destination=" << d->m_copyState.destinationFileName;
+        if (!d->m_downloadState.sourceFileName.isEmpty())
+            str << " Source=" << d->m_downloadState.sourceFileName;
+        if (!d->m_downloadState.destinationFileName.isEmpty())
+            str << " Destination=" << d->m_downloadState.destinationFileName;
+        if (!d->m_installFileName.isEmpty())
+            str << " Install file=" << d->m_installFileName;
         logMessage(msg);
     }
     if (d->m_startupActions & ActionCopy) {
@@ -239,6 +265,8 @@ void Launcher::handleConnect(const TrkResult &result)
         installRemotePackageSilently();
     else if (d->m_startupActions & ActionRun)
         startInferiorIfNeeded();
+    else if (d->m_startupActions & ActionDownload)
+        copyFileFromRemote();
 }
 
 void Launcher::setVerbose(int v)
@@ -404,7 +432,7 @@ void Launcher::handleResult(const TrkResult &result)
             if (itemType == 0 // process
                 && result.data.size() >= 10
                 && d->m_session.pid == extractInt(result.data.data() + 6)) {
-                disconnectTrk();
+                    copyFileFromRemote();
             }
             break;
         }
@@ -459,21 +487,97 @@ void Launcher::handleTrkVersion(const TrkResult &result)
     }
 }
 
+static inline QString msgCannotOpenRemoteFile(const QString &fileName, const QString &message)
+{
+    return Launcher::tr("Cannot open remote file '%1': %2").arg(fileName, message);
+}
+
+static inline QString msgCannotOpenLocalFile(const QString &fileName, const QString &message)
+{
+    return Launcher::tr("Cannot open '%1': %2").arg(fileName, message);
+}
+
 void Launcher::handleFileCreation(const TrkResult &result)
 {
     if (result.errorCode() || result.data.size() < 6) {
-        emit canNotCreateFile(d->m_copyState.destinationFileName, result.errorString());
+        const QString msg = msgCannotOpenRemoteFile(d->m_copyState.destinationFileName, result.errorString());
+        logMessage(msg);
+        emit canNotCreateFile(d->m_copyState.destinationFileName, msg);
         disconnectTrk();
         return;
     }
     const char *data = result.data.data();
     d->m_copyState.copyFileHandle = extractInt(data + 2);
-    QFile file(d->m_copyState.sourceFileName);
-    file.open(QIODevice::ReadOnly);
-    d->m_copyState.data.reset(new QByteArray(file.readAll()));
+    const QString localFileName = d->m_copyState.sourceFileName;
+    QFile file(localFileName);
     d->m_copyState.position = 0;
+    if (!file.open(QIODevice::ReadOnly)) {
+        const QString msg = msgCannotOpenLocalFile(localFileName, file.errorString());
+        logMessage(msg);
+        emit canNotOpenLocalFile(localFileName, msg);
+        closeRemoteFile(true);
+        disconnectTrk();
+        return;
+    }
+    d->m_copyState.data.reset(new QByteArray(file.readAll()));
     file.close();
     continueCopying();
+}
+
+void Launcher::handleFileOpened(const TrkResult &result)
+{
+    if (result.errorCode() || result.data.size() < 6) {
+        const QString msg = msgCannotOpenRemoteFile(d->m_downloadState.sourceFileName, result.errorString());
+        logMessage(msg);
+        emit canNotOpenFile(d->m_downloadState.sourceFileName, msg);
+        disconnectTrk();
+        return;
+    }
+    d->m_downloadState.position = 0;
+    const QString localFileName = d->m_downloadState.destinationFileName;
+    bool opened = false;
+    if (localFileName == QLatin1String("-")) {
+        d->m_downloadState.localFile.reset(new QFile);
+        opened = d->m_downloadState.localFile->open(stdout, QFile::WriteOnly);
+    } else {
+        d->m_downloadState.localFile.reset(new QFile(localFileName));
+        opened = d->m_downloadState.localFile->open(QFile::WriteOnly | QFile::Truncate);
+    }
+    if (!opened) {
+        const QString msg = msgCannotOpenLocalFile(localFileName, d->m_downloadState.localFile->errorString());
+        logMessage(msg);
+        emit canNotOpenLocalFile(localFileName, msg);
+        closeRemoteFile(true);
+        disconnectTrk();
+    }
+    continueReading();
+}
+
+void Launcher::continueReading()
+{
+    QByteArray ba;
+    appendInt(&ba, d->m_downloadState.copyFileHandle, TargetByteOrder);
+    appendShort(&ba, 2048, TargetByteOrder);
+    d->m_device->sendTrkMessage(TrkReadFile, TrkCallback(this, &Launcher::handleRead), ba);
+}
+
+void Launcher::handleRead(const TrkResult &result)
+{
+    if (result.errorCode() || result.data.size() < 4) {
+        d->m_downloadState.localFile->close();
+        closeRemoteFile(true);
+        disconnectTrk();
+    } else {
+        int length = extractShort(result.data.data() + 2);
+        //TRK doesn't tell us the file length, so we need to keep reading until it returns 0 length
+        if (length > 0) {
+            d->m_downloadState.localFile->write(result.data.data() + 4, length);
+            continueReading();
+        } else {
+            closeRemoteFile(true);
+            disconnectTrk();
+        }
+    }
 }
 
 void Launcher::handleCopy(const TrkResult &result)
@@ -489,13 +593,14 @@ void Launcher::handleCopy(const TrkResult &result)
 
 void Launcher::continueCopying(uint lastCopiedBlockSize)
 {
-    int size = d->m_copyState.data->length();
+    qint64 size = d->m_copyState.data->length();
     d->m_copyState.position += lastCopiedBlockSize;
     if (size == 0)
         emit copyProgress(100);
     else {
-        int percent = qMin((d->m_copyState.position*100)/size, 100);
-        emit copyProgress(percent);
+        const qint64 hundred = 100;
+        const qint64 percent = qMin( (d->m_copyState.position * hundred) / size, hundred);
+        emit copyProgress(static_cast<int>(percent));
     }
     if (d->m_copyState.position < size) {
         QByteArray ba;
@@ -528,6 +633,8 @@ void Launcher::handleFileCopied(const TrkResult &result)
         installRemotePackageSilently();
     else if (d->m_startupActions & ActionRun)
         startInferiorIfNeeded();
+    else if (d->m_startupActions & ActionDownload)
+        copyFileFromRemote();
     else
         disconnectTrk();
 }
@@ -591,17 +698,18 @@ void Launcher::handleSupportMask(const TrkResult &result)
         return;
     const char *data = result.data.data() + 1;
 
-    QString str = QLatin1String("SUPPORTED: ");
-    for (int i = 0; i < 32; ++i) {
-        //str.append("  [" + formatByte(data[i]) + "]: ");
-        for (int j = 0; j < 8; ++j) {
-            if (data[i] & (1 << j)) {
-                str.append(QString::number(i * 8 + j, 16));
-                str.append(QLatin1Char(' '));
+    if (d->m_verbose > 1) {
+        QString str = QLatin1String("SUPPORTED: ");
+        for (int i = 0; i < 32; ++i) {
+            for (int j = 0; j < 8; ++j) {
+                if (data[i] & (1 << j)) {
+                    str.append(QString::number(i * 8 + j, 16));
+                    str.append(QLatin1Char(' '));
+                }
             }
         }
+        logMessage(str);
     }
-    logMessage(str);
 }
 
 void Launcher::cleanUp()
@@ -665,9 +773,18 @@ void Launcher::copyFileToRemote()
 {
     emit copyingStarted();
     QByteArray ba;
-    ba.append(char(10));
+    ba.append(char(10)); //kDSFileOpenWrite | kDSFileOpenBinary
     appendString(&ba, d->m_copyState.destinationFileName.toLocal8Bit(), TargetByteOrder, false);
     d->m_device->sendTrkMessage(TrkOpenFile, TrkCallback(this, &Launcher::handleFileCreation), ba);
+}
+
+void Launcher::copyFileFromRemote()
+{
+    emit copyingStarted();
+    QByteArray ba;
+    ba.append(char(9)); //kDSFileOpenRead | kDSFileOpenBinary
+    appendString(&ba, d->m_downloadState.sourceFileName.toLocal8Bit(), TargetByteOrder, false);
+    d->m_device->sendTrkMessage(TrkOpenFile, TrkCallback(this, &Launcher::handleFileOpened), ba);
 }
 
 void Launcher::installRemotePackageSilently()
@@ -690,6 +807,8 @@ void Launcher::handleInstallPackageFinished(const TrkResult &result)
     }
     if (d->m_startupActions & ActionRun) {
         startInferiorIfNeeded();
+    } else if (d->m_startupActions & ActionDownload) {
+        copyFileFromRemote();
     } else {
         disconnectTrk();
     }

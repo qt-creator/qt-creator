@@ -46,33 +46,81 @@ namespace trk {
 typedef unsigned char byte;
 
 enum Command {
+    //meta commands
     TrkPing = 0x00,
     TrkConnect = 0x01,
     TrkDisconnect = 0x02,
+    TrkReset = 0x03,
     TrkVersions = 0x04,
     TrkSupported = 0x05,
     TrkCpuType = 0x06,
+    TrkConfigTransport = 0x07,
+    TrkVersions2 = 0x08,
     TrkHostVersions = 0x09,
+
+    //state commands
+    TrkReadMemory = 0x10,
+    TrkWriteMemory = 0x11,
+    TrkReadRegisters = 0x12,
+    TrkWriteRegisters = 0x13,
+    TrkFillMemory = 0x14,
+    TrkCopyMemory = 0x15,
+    TrkFlushCache = 0x16,
+
+    //execution commands
     TrkContinue = 0x18,
+    TrkStep = 0x19,
+    TrkStop = 0x1a,
+    TrkSetBreak = 0x1b,
+    TrkClearBreak = 0x1c,
+    TrkDownload = 0x1d,
+    TrkModifyBreakThread = 0x1e,
+
+    //host -> target IO management
+    TrkNotifyFileInput = 0x20,
+    TrkBlockFileIo = 0x21,
+
+    //host -> target os commands
     TrkCreateItem = 0x40,
     TrkDeleteItem = 0x41,
+    TrkReadInfo = 0x42,
+    TrkWriteInfo = 0x43,
 
     TrkWriteFile = 0x48,
+    TrkReadFile = 0x49,
     TrkOpenFile = 0x4a,
     TrkCloseFile = 0x4b,
+    TrkPositionFile = 0x4c,
     TrkInstallFile = 0x4d,
     TrkInstallFile2 = 0x4e,
 
+    TrkPhoneSwVersion = 0x4f,
+    TrkPhoneName = 0x50,
+    TrkVersions3 = 0x51,
+
+    //replies
     TrkNotifyAck = 0x80,
     TrkNotifyNak = 0xff,
+
+    //target -> host notification
     TrkNotifyStopped = 0x90,
     TrkNotifyException = 0x91,
     TrkNotifyInternalError = 0x92,
+    TrkNotifyStopped2 = 0x94,
+
+    //target -> host OS notification
     TrkNotifyCreated = 0xa0,
     TrkNotifyDeleted = 0xa1,
     TrkNotifyProcessorStarted = 0xa2,
     TrkNotifyProcessorStandBy = 0xa6,
-    TrkNotifyProcessorReset = 0xa7
+    TrkNotifyProcessorReset = 0xa7,
+
+    //target -> host support commands (these are defined but not implemented in TRK)
+    TrkDSWriteFile = 0xd0,
+    TrkDSReadFile = 0xd1,
+    TrkDSOpenFile = 0xd2,
+    TrkDSCloseFile = 0xd3,
+    TrkDSPositionFile = 0xd4
 };
 
 inline byte extractByte(const char *data) { return *data; }
