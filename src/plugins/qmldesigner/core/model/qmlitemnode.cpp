@@ -45,7 +45,7 @@ namespace QmlDesigner {
 
 bool QmlItemNode::isValid() const
 {
-    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isSubclassOf("Qt/Item", 4, 6);
+    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().isSubclassOf("Qt/Item", 4, 6);
 }
 
 bool QmlItemNode::isRootNode() const

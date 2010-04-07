@@ -250,7 +250,7 @@ A node might become invalid if e.g. it or one of its ancestors is deleted.
 */
 bool ModelNode::isValid() const
 {
-    return !m_model.isNull() && !m_view.isNull() && m_internalNode &&m_internalNode->isValid();
+    return !m_model.isNull() && !m_view.isNull() && m_internalNode &&m_internalNode->isValid() /*&& model()->metaInfo().hasNodeMetaInfo(m_internalNode->type(), m_internalNode->majorVersion(), m_internalNode->minorVersion())*/;
 }
 
 /*!

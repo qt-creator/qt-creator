@@ -190,7 +190,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
 
     QStandardItem *idItem = new QStandardItem;
     idItem->setDragEnabled(true);
-    idItem->setDropEnabled(node.metaInfo().isContainer());
+    idItem->setDropEnabled(node.metaInfo().isValid() && node.metaInfo().isContainer());
     idItem->setEditable(true);
     idItem->setData(hash, Qt::UserRole);
 
@@ -204,7 +204,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     #endif
 
     QStandardItem *visibilityItem = new QStandardItem;
-    visibilityItem->setDropEnabled(node.metaInfo().isContainer());
+    visibilityItem->setDropEnabled(node.metaInfo().isValid() && node.metaInfo().isContainer());
     visibilityItem->setCheckable(true);
     visibilityItem->setEditable(false);
     visibilityItem->setData(hash, Qt::UserRole);

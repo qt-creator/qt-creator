@@ -38,16 +38,12 @@ namespace QmlDesigner {
 namespace Internal {
 
 DummyNodeInstance::DummyNodeInstance()
-   : ObjectNodeInstance(0)
+   : ObjectNodeInstance(new QObject)
 {
 }
 
-DummyNodeInstance::Pointer DummyNodeInstance::create(const NodeMetaInfo & metaInfo, QDeclarativeContext *context)
+DummyNodeInstance::Pointer DummyNodeInstance::create()
 {
-    Q_UNUSED(context);
-    qWarning() << "DummyNodeInstance created" << metaInfo.typeName();
-    foreach(const NodeMetaInfo &metaInfo, metaInfo.superClasses())
-        qWarning() << "\t" << metaInfo.typeName();
     return Pointer(new DummyNodeInstance);
 }
 
@@ -104,17 +100,10 @@ QStringList DummyNodeInstance::localProperties()
     return QStringList();
 }
 
-bool DummyNodeInstance::isVisible() const
+void DummyNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &/*objectNodeInstance*/)
 {
-    return false;
-}
 
-void DummyNodeInstance::setVisible(bool /*isVisible*/)
-{
-    Q_ASSERT_X(0, Q_FUNC_INFO, "Cannot set a dummy node instance to visible/non-visible");
-    throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 }
-
 
 } // namespace Internal
 } // namespace QmlDesigner

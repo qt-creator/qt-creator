@@ -132,7 +132,13 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
 {
     Internal::ObjectNodeInstance::Pointer instance;
 
-    if (metaInfo.isSubclassOf("Qt/QGraphicsView", 4, 6))
+    if (!metaInfo.isValid())
+        instance = Internal::DummyNodeInstance::create();
+    else if (metaInfo.isSubclassOf("org.webkit/WebView", 1, 0))
+        instance = Internal::DummyNodeInstance::create();
+    else if (metaInfo.isSubclassOf("Qt/QWidget", 4, 6))
+        instance = Internal::DummyNodeInstance::create();
+    else if (metaInfo.isSubclassOf("Qt/QGraphicsView", 4, 6))
         instance = Internal::GraphicsViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/QDeclarativeView", 4, 6))
         instance = Internal::QDeclarativeViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
@@ -140,8 +146,6 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
         instance = Internal::GraphicsWidgetNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/Item", 4, 6))
         instance = Internal::QmlGraphicsItemNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QWidget", 4, 6))
-        instance = Internal::WidgetNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/QGraphicsScene", 4, 6))
         instance = Internal::GraphicsSceneNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/Component", 4, 6))
@@ -156,10 +160,9 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
         instance = Internal::BehaviorNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/QtObject", 4, 6))
         instance = Internal::ObjectNodeInstance::create(metaInfo, context, objectToBeWrapped);
+    else
+        instance = Internal::DummyNodeInstance::create();
 
-    if (instance.isNull()) {
-        instance = Internal::DummyNodeInstance::create(metaInfo, context);
-    }
 
     return instance;
 }

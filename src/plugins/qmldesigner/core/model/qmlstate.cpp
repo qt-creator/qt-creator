@@ -228,6 +228,7 @@ void QmlModelState::setName(const QString &name)
 bool QmlModelState::isValid() const
 {
     return QmlModelNodeFacade::isValid() &&
+            modelNode().metaInfo().isValid() &&
             (modelNode().metaInfo().isSubclassOf("Qt/State", 4, 6) || isBaseState());
 }
 

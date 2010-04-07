@@ -401,8 +401,6 @@ void NodeInstanceView::loadNodes(const QList<ModelNode> &nodeList)
 // TODO: Set base state as current model state
 void NodeInstanceView::loadModel(Model *model)
 {
-    Q_ASSERT(rootModelNode().isValid());
-
     removeAllInstanceNodeRelationships();
 
     engine()->rootContext()->setBaseUrl(model->fileUrl());
@@ -602,7 +600,6 @@ void NodeInstanceView::emitParentChanged(QObject *child)
 
 NodeInstance NodeInstanceView::loadNode(const ModelNode &node, QObject *objectToBeWrapped)
 {
-    Q_ASSERT(node.isValid());
     NodeInstance instance(NodeInstance::create(this, node, objectToBeWrapped));
 
     insertInstanceNodeRelationship(node, instance);
