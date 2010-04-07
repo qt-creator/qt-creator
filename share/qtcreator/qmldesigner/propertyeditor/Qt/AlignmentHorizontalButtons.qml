@@ -13,7 +13,9 @@ QGroupBox {
                 id: leftButton
                 checkable: true
                 fixedWidth: 32
+				width: fixedWidth
                 fixedHeight: 32
+				height: fixedHeight
                 styleSheetFile: "alignmentleftbutton.css";
                 checked: backendValues.horizontalAlignment.value == "AlignLeft"
 
@@ -30,7 +32,9 @@ QGroupBox {
                 x: 32
                 checkable: true
                 fixedWidth: 32
+				width: fixedWidth
                 fixedHeight: 32
+				height: fixedHeight
 
                 styleSheetFile: "alignmentcenterhbutton.css";
                 checked: backendValues.horizontalAlignment.value == "AlignHCenter"
@@ -48,7 +52,9 @@ QGroupBox {
                 x: 64
                 checkable: true
                 fixedWidth: 32
+				width: fixedWidth
                 fixedHeight: 32
+				height: fixedHeight
 
                 styleSheetFile: "alignmentrightbutton.css";
                 checked: backendValues.horizontalAlignment.value == "AlignRight"
