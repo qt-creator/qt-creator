@@ -18,7 +18,8 @@ HEADERS += \
     $$PWD/maemosshthread.h \
     $$PWD/maemotoolchain.h \
     $$PWD/maemopackagecreationstep.h \
-    $$PWD/maemopackagecreationfactory.h
+    $$PWD/maemopackagecreationfactory.h \
+    $$PWD/ne7sshobject.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -35,7 +36,8 @@ SOURCES += \
     $$PWD/maemosshthread.cpp \
     $$PWD/maemotoolchain.cpp \
     $$PWD/maemopackagecreationstep.cpp \
-    $$PWD/maemopackagecreationfactory.cpp
+    $$PWD/maemopackagecreationfactory.cpp \
+    $$PWD/ne7sshobject.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \

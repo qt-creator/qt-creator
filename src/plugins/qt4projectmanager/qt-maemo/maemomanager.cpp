@@ -37,6 +37,7 @@
 #include "maemosettingspage.h"
 #include "maemotoolchain.h"
 #include "maemorunconfiguration.h"
+#include "ne7sshobject.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -85,6 +86,8 @@ MaemoManager::MaemoManager()
     pluginManager->addObject(m_packageCreationFactory);
     pluginManager->addObject(m_settingsPage);
     pluginManager->addObject(m_gdbSettingsPage);
+
+    Ne7SshObject::instance();
 }
 
 MaemoManager::~MaemoManager()
@@ -97,6 +100,7 @@ MaemoManager::~MaemoManager()
     pluginManager->removeObject(m_settingsPage);
     pluginManager->removeObject(m_gdbSettingsPage);
 
+    Ne7SshObject::removeInstance();
     m_instance = 0;
 }
 

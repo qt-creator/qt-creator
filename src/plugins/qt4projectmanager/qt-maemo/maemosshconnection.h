@@ -47,6 +47,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 
+class ne7ssh;
 class Ne7SftpSubsystem;
 
 namespace Qt4ProjectManager {
@@ -79,6 +80,7 @@ protected:
     bool stopRequested() const {return m_stopRequested; }
     const char *lastError();
 
+    QSharedPointer<ne7ssh> ssh;
 private:
     int m_channel;
     volatile bool m_stopRequested;
