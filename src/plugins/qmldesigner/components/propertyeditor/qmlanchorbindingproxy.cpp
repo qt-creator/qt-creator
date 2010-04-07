@@ -42,7 +42,7 @@ class NodeState;
 namespace Internal {
 
 QmlAnchorBindingProxy::QmlAnchorBindingProxy(QObject *parent) :
-        QObject(parent)
+        QObject(parent), m_locked(false)
 {
 }
 
@@ -97,6 +97,9 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
 
 void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
 {
+    if (m_locked)
+        return;
+
     m_fxItemNode = fxItemNode;
 
     m_verticalTarget = m_horizontalTarget = m_topTarget = m_bottomTarget = m_leftTarget = m_rightTarget = m_fxItemNode.modelNode().parentProperty().parentModelNode();
@@ -356,6 +359,8 @@ QRectF QmlAnchorBindingProxy::transformedBoundingBox()
 
 void QmlAnchorBindingProxy::calcTopMargin()
 {
+    m_locked = true;
+
     if (m_topTarget == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal topMargin = transformedBoundingBox().top() - parentBoundingBox().top();
         m_fxItemNode.anchors().setMargin( AnchorLine::Top, topMargin);
@@ -367,10 +372,14 @@ void QmlAnchorBindingProxy::calcTopMargin()
         m_fxItemNode.anchors().setMargin( AnchorLine::Top, topMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Top, m_topTarget, AnchorLine::Bottom);
     }
+
+    m_locked = false;
 }
 
 void QmlAnchorBindingProxy::calcBottomMargin()
 {
+    m_locked = true;
+
     if (m_bottomTarget == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal bottomMargin =  parentBoundingBox().bottom() - transformedBoundingBox().bottom();
         m_fxItemNode.anchors().setMargin( AnchorLine::Bottom, bottomMargin);
@@ -380,10 +389,14 @@ void QmlAnchorBindingProxy::calcBottomMargin()
         m_fxItemNode.anchors().setMargin( AnchorLine::Bottom, bottomMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Bottom, m_bottomTarget, AnchorLine::Top);
     }
+
+    m_locked = false;
 }
 
 void QmlAnchorBindingProxy::calcLeftMargin()
 {
+    m_locked = true;
+
     if (m_leftTarget == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal leftMargin = transformedBoundingBox().left() - parentBoundingBox().left();
         m_fxItemNode.anchors().setMargin(AnchorLine::Left, leftMargin);
@@ -393,10 +406,14 @@ void QmlAnchorBindingProxy::calcLeftMargin()
         m_fxItemNode.anchors().setMargin( AnchorLine::Left, leftMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Left, m_leftTarget, AnchorLine::Right);
     }
+
+    m_locked = false;
 }
 
 void QmlAnchorBindingProxy::calcRightMargin()
 {
+    m_locked = true;
+
     if (m_rightTarget == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal rightMargin = parentBoundingBox().right() - transformedBoundingBox().right();
         m_fxItemNode.anchors().setMargin( AnchorLine::Right, rightMargin);
@@ -406,6 +423,8 @@ void QmlAnchorBindingProxy::calcRightMargin()
         m_fxItemNode.anchors().setMargin( AnchorLine::Right, rightMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Right, m_rightTarget, AnchorLine::Left);
     }
+
+    m_locked = false;
 }
 
 void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
