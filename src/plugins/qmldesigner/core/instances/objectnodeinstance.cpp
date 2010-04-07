@@ -174,13 +174,16 @@ static bool hasPropertiesWitoutNotifications(const QMetaObject *metaObject)
 
 void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
-    m_metaObject = new NodeInstanceMetaObject(objectNodeInstance);
-    const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
-    for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
-        if (QDeclarativeMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
-            QObject *propertyObject = QDeclarativeMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
-            if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
-                new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name());
+    if (!objectNodeInstance->modelNode().metaInfo().isComponent()) { // TODO: this is a nasty workaround which needs to be removed
+        const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
+        m_metaObject = new NodeInstanceMetaObject(objectNodeInstance);
+        for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
+            if (QDeclarativeMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
+                QObject *propertyObject = QDeclarativeMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
+                qDebug() << metaObject->property(propertyIndex).name();
+                if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
+                    new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name());
+                }
             }
         }
     }
