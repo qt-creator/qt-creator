@@ -358,6 +358,9 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
 {
     QDeclarativeProperty metaProperty(oldParent, oldParentProperty, context());
 
+    if (!metaProperty.isValid())
+        return;
+
     if (isList(metaProperty)) {
         removeObjectFromList(metaProperty, object, nodeInstanceView()->engine());
     } else if (isObject(metaProperty)) {
@@ -415,6 +418,9 @@ void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant 
 {
     QDeclarativeProperty property(object(), name, context());
 
+    if (!property.isValid())
+        return;
+
     QVariant oldValue = property.read();
     if (oldValue.type() == QVariant::Url) {
         QUrl url = oldValue.toUrl();
@@ -439,11 +445,13 @@ void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant 
 
 void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
 {
-    QDeclarativeContext *QDeclarativeContext = QDeclarativeEngine::contextForObject(object());
-
     QDeclarativeProperty metaProperty(object(), name, context());
-    if (metaProperty.isValid() && metaProperty.isProperty()) {
-        QDeclarativeBinding *binding = new QDeclarativeBinding(expression, object(), QDeclarativeContext);
+
+    if (!metaProperty.isValid())
+        return;
+
+    if (metaProperty.isProperty()) {
+        QDeclarativeBinding *binding = new QDeclarativeBinding(expression, object(), context());
         binding->setTarget(metaProperty);
         binding->setNotifyOnValueChanged(true);
         QDeclarativeAbstractBinding *oldBinding = QDeclarativePropertyPrivate::setBinding(metaProperty, binding);
@@ -499,6 +507,9 @@ void ObjectNodeInstance::refreshProperty(const QString &name)
 {
     QDeclarativeProperty property(object(), name, context());
 
+    if (!property.isValid())
+        return;
+
     QVariant oldValue(property.read());
 
     if (property.isResettable())
@@ -520,6 +531,9 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
     m_modelAbstractPropertyHash.remove(propertyName);
 
     QDeclarativeProperty property(object, propertyName, context());
+
+    if (!property.isValid())
+        return;
 
     QVariant oldValue = property.read();
     if (oldValue.type() == QVariant::Url) {
