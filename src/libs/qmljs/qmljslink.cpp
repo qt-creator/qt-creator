@@ -302,6 +302,9 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
             if (!libraryInfo.isValid())
                 continue;
 
+            if (!libraryInfo.plugins().isEmpty())
+                _context->setDocumentImportsPlugins(doc.data());
+
             QSet<QString> importedTypes;
             foreach (const QmlDirParser::Component &component, libraryInfo.components()) {
                 if (importedTypes.contains(component.typeName))

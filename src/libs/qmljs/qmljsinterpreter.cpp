@@ -1389,6 +1389,16 @@ void Context::setProperty(const ObjectValue *object, const QString &name, const 
     _properties[object].insert(name, value);
 }
 
+bool Context::documentImportsPlugins(const Document *doc) const
+{
+    return _documentsImportingPlugins.contains(doc->fileName());
+}
+
+void Context::setDocumentImportsPlugins(const Document *doc)
+{
+    _documentsImportingPlugins.insert(doc->fileName());
+}
+
 Reference::Reference(Engine *engine)
     : _engine(engine)
 {

@@ -72,6 +72,8 @@ private:
     ScopeBuilder _scopeBuilder;
 
     QList<DiagnosticMessage> _messages;
+
+    bool _ignoreTypeErrors;
 };
 
 } // namespace QmlJS
