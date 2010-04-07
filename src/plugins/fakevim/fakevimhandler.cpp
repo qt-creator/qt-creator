@@ -2248,6 +2248,16 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         moveRight(count());
         setTargetColumn();
         m_lastInsertion.clear();
+    } else if (key == Key_Home) {
+        moveToStartOfLine();
+        setTargetColumn();
+        m_lastInsertion.clear();
+    } else if (key == Key_End) {
+        if (count() > 1)
+            moveDown(count() - 1);
+        moveBehindEndOfLine();
+        setTargetColumn();
+        m_lastInsertion.clear();
     } else if (key == Key_Return) {
         m_submode = NoSubMode;
         m_tc.insertBlock();
