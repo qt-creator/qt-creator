@@ -331,9 +331,20 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
+static bool hasFullImplementedListInterface(const QDeclarativeListReference &list)
+{
+    return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
+}
+
 static void removeObjectFromList(const QDeclarativeProperty &metaProperty, QObject *objectToBeRemoved, QDeclarativeEngine * engine)
 {
     QDeclarativeListReference listReference(metaProperty.object(), metaProperty.name().toLatin1(), engine);
+
+#ifndef QT_DEBUG
+    if (!hasFullImplementedListInterface(listReference))
+        return;
+#endif
+
     int count = listReference.count();
 
     QObjectList objectList;
@@ -376,6 +387,12 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
 
     if (isList(metaProperty)) {
         QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
+
+#ifndef QT_DEBUG
+        if (!hasFullImplementedListInterface(listReference))
+            return;
+#endif
+
         Q_ASSERT(list.canAppend());
         list.append(object);
     } else if (isObject(metaProperty)) {
@@ -469,6 +486,11 @@ void ObjectNodeInstance::deleteObjectsInList(const QDeclarativeProperty &metaPro
     QObjectList objectList;
     QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
 
+#ifndef QT_DEBUG
+    if (!hasFullImplementedListInterface(list))
+        return;
+#endif
+
     Q_ASSERT(list.canCount());
     Q_ASSERT(list.canAt());
 
@@ -557,7 +579,12 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
             return;
         property.write(resetValue(propertyName));
     } else if (property.propertyTypeCategory() == QDeclarativeProperty::List) {
-        qvariant_cast<QDeclarativeListReference>(property.read()).clear();
+        QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(property.read());
+#ifndef QT_DEBUG
+        if (!hasFullImplementedListInterface(list))
+            return;
+#endif
+        list.clear();
     }
 }
 
