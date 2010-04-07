@@ -73,6 +73,8 @@
 
 #ifdef Q_OS_WIN
 #include <windows.h>
+#undef min
+#undef max
 #endif
 
 Q_DECLARE_METATYPE(QHostAddress)
