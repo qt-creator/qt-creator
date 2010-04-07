@@ -73,12 +73,13 @@ public:
             if (option->state & QStyle::State_Selected) {
                 drawSelectionBackground(painter, *option);
             } else {
-                painter->save();
-                painter->setPen(QColor(255, 255, 255, 15));
-                painter->drawLine(option->rect.topLeft(), option->rect.topRight());
-                painter->setPen(QColor(0, 0, 0, 25));
-                painter->drawLine(option->rect.bottomLeft(),option->rect.bottomRight());
-                painter->restore();
+//                // 3D shadows
+//                painter->save();
+//                painter->setPen(QColor(255, 255, 255, 15));
+//                painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+//                painter->setPen(QColor(0, 0, 0, 25));
+//                painter->drawLine(option->rect.bottomLeft(),option->rect.bottomRight());
+//                painter->restore();
             }
         } else if (element == PE_IndicatorItemViewItemDrop) {
             painter->save();
@@ -126,7 +127,7 @@ QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 {
     Q_UNUSED(option);
     Q_UNUSED(index);
-    return QSize(15,28);
+    return QSize(15,20);
 }
 
 void IconCheckboxItemDelegate::paint(QPainter *painter,
@@ -144,9 +145,9 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
             painter->setOpacity(0.5);
 
         if (isChecked)
-            painter->drawPixmap(option.rect.x()+2,option.rect.y()+5,onPix);
+            painter->drawPixmap(option.rect.x()+2,option.rect.y()+2,onPix);
         else
-            painter->drawPixmap(option.rect.x()+2,option.rect.y()+5,offPix);
+            painter->drawPixmap(option.rect.x()+2,option.rect.y()+2,offPix);
     }
     painter->restore();
 }
@@ -182,7 +183,7 @@ void IdItemDelegate::paint(QPainter *painter,
     }
 
     // If no icon is present, leave an empty space of 24 pixels anyway
-    int pixmapSide = 24;
+    int pixmapSide = 16;
     QPixmap pixmap = icon.pixmap(pixmapSide, pixmapSide);
     painter->drawPixmap(option.rect.x()+1,option.rect.y()+2,pixmap);
 
@@ -195,7 +196,7 @@ void IdItemDelegate::paint(QPainter *painter,
     QFontMetrics fm(option.font);
     myString = fm.elidedText(myString,Qt::ElideMiddle,option.rect.width()-extraSpace);
 
-    painter->drawText(option.rect.bottomLeft()+QPoint(5+pixmapSide,-9),myString);
+    painter->drawText(option.rect.bottomLeft()+QPoint(5+pixmapSide,-5),myString);
 
     painter->restore();
 }

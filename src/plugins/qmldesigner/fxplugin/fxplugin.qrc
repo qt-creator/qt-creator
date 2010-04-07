@@ -17,5 +17,20 @@
         <file>images/pathview-icon.png</file>
         <file>images/focusscope-icon.png</file>
         <file>images/webview-icon.png</file>
+        <file>images/text-icon16.png</file>
+        <file>images/border-image-icon16.png</file>
+        <file>images/flickable-icon16.png</file>
+        <file>images/focusscope-icon16.png</file>
+        <file>images/item-icon16.png</file>
+        <file>images/image-icon16.png</file>
+        <file>images/gridview-icon16.png</file>
+        <file>images/listview-icon16.png</file>
+        <file>images/flipable-icon16.png</file>
+        <file>images/mouse-area-icon16.png</file>
+        <file>images/pathview-icon16.png</file>
+        <file>images/rect-icon16.png</file>
+        <file>images/text-edit-icon16.png</file>
+        <file>images/text-input-icon16.png</file>
+        <file>images/webview-icon16.png</file>
     </qresource>
 </RCC>
