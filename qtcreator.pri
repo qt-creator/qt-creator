@@ -115,5 +115,5 @@ win32-msvc* {
 }
 
 # Handle S60 support: default on Windows, conditionally built on other platforms.
-win32:SUPPORT_QT_S60=1
-else:SUPPORT_QT_S60 = $$(QTCREATOR_WITH_S60)
+macx:SUPPORT_QT_S60 = $$(QTCREATOR_WITH_S60)
+else:SUPPORT_QT_S60=1
