@@ -94,9 +94,9 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 void PropertyEditorValue::setValue(const QVariant &value)
 {
     if ( m_value != value) {
-        m_value = value;
-        emit valueChanged(QString(), value);
+        m_value = value;       
     }
+    emit valueChanged(QString(), value);
     emit isBoundChanged();
 }
 
@@ -135,6 +135,8 @@ bool PropertyEditorValue::isBound() const
 
 bool PropertyEditorValue::isInModel() const
 {
+    qDebug() << name();
+    qDebug() << (modelNode().isValid() && modelNode().hasProperty(name()));
     return modelNode().isValid() && modelNode().hasProperty(name());
 }
 
