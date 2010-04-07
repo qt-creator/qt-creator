@@ -106,7 +106,7 @@ QStringList QMakeStep::allArguments()
     if (!additonalArguments.contains("-spec"))
         arguments << "-spec" << bc->qtVersion()->mkspec();
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     ToolChain::ToolChainType type = bc->toolChainType();
     if (type == ToolChain::GCC_MAEMO)
         arguments << QLatin1String("-unix");
