@@ -147,11 +147,26 @@ void Highlighter::highlightBlock(const QString &text)
 
                 if (index + 1 < tokens.size()) {
                     const Token &nextToken = tokens.at(index + 1);
+
+                    bool maybeBinding = (index == 0 || checkStartOfBinding(tokens.at(index - 1)));
+                    bool maybeOnBinding = false;
+                    if (index > 0) {
+                        const Token &previousToken = tokens.at(index - 1);
+                        if (text.midRef(previousToken.offset, previousToken.length) == QLatin1String("on")) {
+                            maybeOnBinding = true;
+                            maybeBinding = false;
+                        }
+                    }
+
                     if (text.at(token.offset).isUpper()
                         && (nextToken.is(Token::LeftBrace)
                             || text.midRef(nextToken.offset, nextToken.length) == QLatin1String("on"))) {
                         setFormat(token.offset, token.length, m_formats[TypeFormat]);
-                    } else if (index == 0 || checkStartOfBinding(tokens.at(index - 1))) {
+                    } else if (maybeBinding || maybeOnBinding) {
+                        Token::Kind expectedTerminator = Token::Colon;
+                        if (maybeOnBinding)
+                            expectedTerminator = Token::LeftBrace;
+
                         const int start = index;
 
                         ++index; // skip the identifier.
@@ -161,7 +176,7 @@ void Highlighter::highlightBlock(const QString &text)
                             index += 2;
                         }
 
-                        if (index < tokens.size() && tokens.at(index).is(Token::Colon)) {
+                        if (index < tokens.size() && tokens.at(index).is(expectedTerminator)) {
                             // it's a binding.
                             for (int i = start; i < index; ++i) {
                                 const Token &tok = tokens.at(i);
