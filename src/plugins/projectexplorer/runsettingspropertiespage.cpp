@@ -235,6 +235,8 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_ui->runConfigurationCombo->setCurrentIndex(
             m_target->runConfigurations().indexOf(m_target->activeRunConfiguration()));
 
+    m_ui->removeToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+
     m_runConfigurationWidget = m_target->activeRunConfiguration()->configurationWidget();
     layout()->addWidget(m_runConfigurationWidget);
 
@@ -295,12 +297,14 @@ void RunSettingsWidget::addRunConfiguration()
         return;
     m_target->addRunConfiguration(newRC);
     m_target->setActiveRunConfiguration(newRC);
+    m_ui->removeToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::removeRunConfiguration()
 {
     RunConfiguration *rc = m_target->activeRunConfiguration();
     m_target->removeRunConfiguration(rc);
+    m_ui->removeToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::activeRunConfigurationChanged()
