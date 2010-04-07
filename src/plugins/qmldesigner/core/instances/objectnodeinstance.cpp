@@ -180,7 +180,6 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
         for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
             if (QDeclarativeMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
                 QObject *propertyObject = QDeclarativeMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
-                qDebug() << metaObject->property(propertyIndex).name();
                 if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
                     new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name());
                 }
