@@ -8,6 +8,7 @@ Rectangle {
     signal createNewState
     signal deleteState(int index)
     signal duplicateCurrentState
+    signal startRenaming
 
     color: "#4f4f4f";
 
@@ -18,7 +19,7 @@ Rectangle {
 
     Connections {
         target: statesEditorModel
-        onCountChanged: adjustCurrentStateIndex()        
+        onCountChanged: adjustCurrentStateIndex()
     }
 
     Connections {
@@ -44,9 +45,6 @@ Rectangle {
         anchors.right:root.right
         anchors.top:root.top
         height:statesRow.height+2
-        anchors.topMargin:-1;
-        anchors.leftMargin:-1;
-
         contentHeight: height
         contentWidth: statesRow.width+2
 
@@ -61,22 +59,6 @@ Rectangle {
                     delegate: delegate
                 }
             }
-            Item {
-                id: newStateBoxLoader;
-                width:132
-                height:listViewRow.height
-                Loader {
-                    sourceComponent: newStateBox;
-                    // make it square
-                    width: 100
-                    height: 100
-                    anchors.horizontalCenter:parent.horizontalCenter
-                    anchors.bottom:parent.bottom
-                    anchors.bottomMargin:12
-                }
-            }
-
-
         }
 
         focus: true;
@@ -90,9 +72,8 @@ Rectangle {
         id: delegate
         Item {
             id: container
-            //width: Math.max(img.width, txt.width+2) + 32
             width:img.width+32
-            height: img.height + txt.height + 32
+            height: img.height + txt.height + 29
 
             property bool isCurrentState:root.currentStateIndex==index;
             onXChanged: scrollBarAdjuster.adjustScrollBar();
@@ -110,73 +91,25 @@ Rectangle {
                 }
             }
 
+            Connections {
+                target: root
+                onStartRenaming: if (root.currentStateIndex == index) startRenaming();
+            }
 
-            Rectangle {
-                id: highlight
+            function startRenaming() {
+                stateNameInput.text=stateName;
+                stateNameInput.focus=true;
+                stateNameEditor.visible=true;
+                stateNameInput.cursorVisible=true;
+                stateNameInput.selectAll();
+            }
+
+
+            Loader {
+                sourceComponent: underlay
                 anchors.fill: parent
-                color:parent.isCurrentState?highlightColor:"#4F4F4F";
-                clip:true
-                Rectangle {
-                    width:parent.width
-                    height:parent.height
-                    y:-parent.height/2
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: Qt.lighter(highlight.color) }
-                        GradientStop { position: 1.0; color: highlight.color }
-                    }
-                }
-                Rectangle {
-                    width:parent.width
-                    height:parent.height
-                    y:parent.height/2
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: highlight.color }
-                        GradientStop { position: 1.0; color: Qt.darker(highlight.color) }
-                    }
-                }
+                property var color: parent.isCurrentState?highlightColor:"#4F4F4F";
             }
-            Item {
-                id: highlightBorders
-                anchors.fill:parent
-                anchors.topMargin:1
-                Rectangle {
-                    anchors.top:parent.top
-                    anchors.left:parent.left
-                    width:parent.width-1
-                    height:1
-                    color: Qt.lighter(highlight.color)
-                }
-                Rectangle {
-                    anchors.bottom:parent.bottom
-                    anchors.left:parent.left
-                    anchors.leftMargin:1
-                    width:parent.width-1
-                    height:1
-                    color: Qt.darker(highlight.color)
-                }
-                Rectangle {
-                    anchors.top:parent.top
-                    anchors.left:parent.left
-                    width:1
-                    height:parent.height-1
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: Qt.lighter(highlight.color) }
-                        GradientStop { position: 1.0; color: highlight.color }
-                    }
-                }
-                Rectangle {
-                    anchors.top:parent.top
-                    anchors.right:parent.right
-                    anchors.topMargin:1
-                    width:1
-                    height:parent.height-1
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: highlight.color }
-                        GradientStop { position: 1.0; color: Qt.darker(highlight.color) }
-                    }
-                }
-            }
-
 
             Item {
                 id: img
@@ -207,96 +140,6 @@ Rectangle {
                 }
             }
 
-
-            // The erase button
-            Item {
-                id: removeState
-
-                visible: (index != 0 && root.currentStateIndex==index)
-
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.topMargin: 7;
-                anchors.rightMargin:4;
-
-                width: 12
-                height: width
-
-                states: State{
-                    name: "Pressed";
-                    PropertyChanges {
-                        target: removeState
-                        buttonColor: buttonColorDown
-                    }
-                }
-
-                property var buttonColorUp: "#E1E1E1"
-                property var buttonColorDown: Qt.darker(buttonColorUp)
-                property var buttonColor: buttonColorUp
-
-                Item {
-                    width:parent.width
-                    height:parent.height/2 - 1
-                    clip: true
-                    Rectangle {
-                        color: removeState.buttonColor
-                        width: removeState.width
-                        height: removeState.height
-                        radius: width/2
-                    }
-                }
-                Item {
-                    width:parent.width
-                    height:parent.height/2 - 1
-                    y:parent.height/2+1
-                    clip: true
-                    Rectangle {
-                        color: removeState.buttonColor
-                        width: removeState.width
-                        height: removeState.height
-                        radius: width/2
-                        y:-parent.y
-                    }
-                }
-                Item {
-                    width:2
-                    height:parent.height
-                    clip: true
-                    Rectangle {
-                        color: removeState.buttonColor
-                        width: removeState.width
-                        height: removeState.height
-                        radius: width/2
-                    }
-                }
-                Item {
-                    width:2
-                    height:parent.height
-                    x:parent.width-2
-                    clip: true
-                    Rectangle {
-                        color: removeState.buttonColor
-                        width: removeState.width
-                        height: removeState.height
-                        radius: width/2
-                        x: -parent.x
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill:parent
-                    onClicked: {
-                        root.unFocus();
-
-                        root.deleteState(index);
-                        horizontalScrollbar.totalLengthDecreased();
-                    }
-                    onPressed: {parent.state="Pressed"}
-                    onReleased: {parent.state=""}
-
-                }
-            }
-
             Connections {
                 target: root
                 onUnFocus: stateNameEditor.unFocus();
@@ -307,8 +150,9 @@ Rectangle {
                 anchors.top: parent.top
                 anchors.topMargin:4
                 anchors.left:parent.left
-                anchors.right:removeState.left
+                anchors.right:parent.right
                 anchors.leftMargin:4
+                anchors.rightMargin:4
                 height: txt.height
                 clip: false
                 Text {
@@ -331,14 +175,9 @@ Rectangle {
                         root.currentStateIndex = index;
                     }
                     onDoubleClicked: if (index!=0) {
-                        stateNameInput.text=stateName;
-                        stateNameInput.focus=true;
-                        stateNameEditor.visible=true;
-                        stateNameInput.cursorVisible=true;
-                        stateNameInput.selectAll();
+                        startRenaming();
                     }
                 }
-
 
                 Rectangle {
                     id:stateNameEditor
@@ -363,7 +202,6 @@ Rectangle {
                         }
                     }
 
-                    // There is no QFontMetrics equivalent in QML
                     Text {
                         text:stateNameInput.text
                         visible:false
@@ -409,100 +247,267 @@ Rectangle {
         }
     }
 
-
     Component {
-        id: newStateBox
-        Rectangle {
-            anchors.fill: parent
-            color: "transparent"
-            border.width: 1
-            border.color: "#282828"
+        id: underlay
+        Item {
+            anchors.fill:parent
+            property var color: parent.color
+            clip:true
+            Rectangle {
+                width:parent.width
+                height:parent.height
+                y:-parent.height/2
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: Qt.lighter(parent.color) }
+                    GradientStop { position: 1.0; color: parent.color }
+                }
+            }
+            Rectangle {
+                width:parent.width
+                height:parent.height
+                y:parent.height/2
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: parent.color }
+                    GradientStop { position: 1.0; color: Qt.darker(parent.color) }
+                }
+            }
 
-            Loader {
-                sourceComponent: addState
-                anchors.fill: parent
-
+            Rectangle {
+                anchors.top:parent.top
+                anchors.left:parent.left
+                width:parent.width-1
+                height:1
+                color: Qt.lighter(parent.color)
+            }
+            Rectangle {
+                anchors.bottom:parent.bottom
+                anchors.left:parent.left
+                anchors.leftMargin:1
+                width:parent.width-1
+                height:1
+                color: Qt.darker(parent.color)
+            }
+            Rectangle {
+                anchors.top:parent.top
+                anchors.left:parent.left
+                width:1
+                height:parent.height-1
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: Qt.lighter(parent.color) }
+                    GradientStop { position: 1.0; color: parent.color }
+                }
+            }
+            Rectangle {
+                anchors.top:parent.top
+                anchors.right:parent.right
+                anchors.topMargin:1
+                width:1
+                height:parent.height-1
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: parent.color }
+                    GradientStop { position: 1.0; color: Qt.darker(parent.color) }
+                }
             }
         }
     }
 
     Rectangle {
-        id: floatingNewStateBox
-
-        color: root.color
-        border.width: 1
-        border.color: "#282828"
-        width: 40
-        height: 40
-        anchors.bottom:horizontalScrollbar.top
-        anchors.right:root.right
-        anchors.bottomMargin:1
-        anchors.rightMargin:1
-
-        visible:(newStateBoxLoader.x+newStateBoxLoader.width/2-11>listView.width+listView.contentX);
-
+        id: addStateButton
+        color: "#4f4f4f"
+        width: addStateText.width
+        height: addStateText.height+1
+        anchors.left: listView.left
+        anchors.bottom: root.bottom
 
         Loader {
-            sourceComponent: addState
+            sourceComponent: underlay
             anchors.fill: parent
+            property var color: "#4f4f4f"
+        }
+
+        Rectangle {
+            id: addStatePressedBorder
+            anchors.fill:parent
+            anchors.bottomMargin:1
+            anchors.rightMargin:1
+            border.width:1
+            border.color:"black"
+            color:"transparent"
+            visible:false
+        }
+
+        states: [
+            State {
+               name: "Pressed"
+               PropertyChanges {
+                   target: addStatePressedBorder
+                   visible:true
+               }
+               PropertyChanges {
+                   target: addStateText
+                   color: "#1c1c1c"
+               }
+            },
+            State {
+                name: "Disabled"
+                PropertyChanges {
+                    target: addStateText
+                    color: "#5f5f5f"
+                }
+            }
+        ]
+
+        Text {
+            id: addStateText
+            text: " Duplicate State "
+            color: "#cfcfcf"
+            font.pixelSize:12
+        }
+        MouseArea {
+            anchors.fill: parent
+            onPressed: if (parent.state != "Disabled") parent.state = "Pressed";
+            onReleased: if (parent.state == "Pressed") {
+                parent.state = "";
+                // force close textinput
+                root.unFocus();
+                if (root.currentStateIndex == 0)
+                    root.createNewState(); //create new state
+                else
+                    root.duplicateCurrentState(); //duplicate current state
+                // select the new state
+                root.currentStateIndex = statesEditorModel.count - 1;
+            }
         }
     }
 
+    Rectangle {
+        id: renameStateButton
+        color: "#4f4f4f"
+        border.color: "black"
+        border.width: 1
+        width: renameStateText.width
+        height: renameStateText.height+1
+        anchors.left: addStateButton.right
+        anchors.bottom: root.bottom
 
+        Loader {
+            sourceComponent: underlay
+            anchors.fill: parent
+            property var color: "#4f4f4f"
+        }
 
-    // The add button
-    Component {
-        id: addState
-        Item {
+        Rectangle {
+            id: renameStatePressedBorder
             anchors.fill:parent
-            Rectangle {
+            anchors.bottomMargin:1
+            anchors.rightMargin:1
+            border.width:1
+            border.color:"black"
+            color:"transparent"
+            visible:false
+        }
 
-                anchors.centerIn: parent
-
-                width: 21
-                height: width
-
-                color:"#282828"
-                radius: width/2
-
-                // "clicked" overlay
-                Rectangle {
-                    anchors.fill:parent
-                    opacity:parent.state=="Pressed"
-                    color : "#282828"
-                    radius: parent.radius
-                }
-
-                states: State{ name: "Pressed"; }
-
-                // "plus" sign
-                Rectangle {
-                    width:parent.width-10
-                    height:3
-                    color:root.color
-                    anchors.centerIn:parent
-                }
-                Rectangle {
-                    width:3
-                    height:parent.height-10
-                    color:root.color
-                    anchors.centerIn:parent
+        states: [
+            State {
+               name: "Pressed"
+               PropertyChanges {
+                   target: renameStatePressedBorder
+                   visible:true
+               }
+            PropertyChanges {
+                   target: renameStateText
+                   color: "#1c1c1c"
+               }
+            },
+            State {
+                name: "Disabled"
+                when: root.currentStateIndex==0;
+                PropertyChanges {
+                    target: renameStateText
+                    color: "#5f5f5f"
                 }
             }
-            MouseArea {
-                anchors.fill:parent
-                onClicked: {
-                    // force close textinput
-                    root.unFocus();
-                    if (root.currentStateIndex == 0)
-                        root.createNewState(); //create new state
-                    else
-                        root.duplicateCurrentState(); //duplicate current state
-                    // select the new state
-                    root.currentStateIndex = statesEditorModel.count - 1;
+        ]
+
+        Text {
+            id: renameStateText
+            text: " Rename State "
+            color: "#cfcfcf"
+            font.pixelSize:12
+        }
+        MouseArea {
+            anchors.fill: parent
+            onPressed: if (parent.state != "Disabled") parent.state = "Pressed";
+            onReleased: if (parent.state == "Pressed") {
+                parent.state = "";
+                root.startRenaming();
+            }
+        }
+    }
+
+    Rectangle {
+        id: removeStateButton
+        color: "#4f4f4f"
+        border.color: "black"
+        border.width: 1
+        width: removeStateText.width
+        height: removeStateText.height+1
+        anchors.left: renameStateButton.right
+        anchors.bottom: root.bottom
+
+        Loader {
+            sourceComponent: underlay
+            anchors.fill: parent
+            property var color: "#4f4f4f"
+        }
+
+        Rectangle {
+            id: removeStatePressedBorder
+            anchors.fill:parent
+            anchors.bottomMargin:1
+            anchors.rightMargin:1
+            border.width:1
+            border.color:"black"
+            color:"transparent"
+            visible:false
+        }
+
+        states: [
+            State {
+               name: "Pressed"
+               PropertyChanges {
+                   target: removeStatePressedBorder
+                   visible:true
+               }
+            PropertyChanges {
+                   target: removeStateText
+                   color: "#1c1c1c"
+               }
+            },
+            State {
+                name: "Disabled"
+                when: root.currentStateIndex==0;
+                PropertyChanges {
+                    target: removeStateText
+                    color: "#5f5f5f"
                 }
-                onPressed: {parent.state="Pressed"}
-                onReleased: {parent.state=""}
+            }
+        ]
+
+        Text {
+            id: removeStateText
+            text: " Erase State "
+            color: "#cfcfcf"
+            font.pixelSize:12
+        }
+        MouseArea {
+            anchors.fill: parent
+            onPressed: if (parent.state != "Disabled") parent.state = "Pressed";
+            onReleased: if (parent.state == "Pressed") {
+                parent.state = "";
+                root.unFocus();
+                root.deleteState(root.currentStateIndex);
+                horizontalScrollbar.totalLengthDecreased();
             }
         }
     }
@@ -528,14 +533,14 @@ Rectangle {
 
         //opacity: viewLength < totalLength;
 
-        anchors.left : listView.left
+        //anchors.left : listView.left
+        anchors.left: removeStateButton.right
         anchors.right : listView.right
         anchors.top : listView.bottom
-        anchors.topMargin: 1
-		anchors.leftMargin: 1
-		anchors.rightMargin: 1
-
-        height: 10;
+        anchors.topMargin: -2
+        anchors.rightMargin: 1
+        anchors.bottom: root.bottom
+        anchors.bottomMargin: 1
 
         // the bar itself
         Item {
@@ -549,17 +554,17 @@ Rectangle {
 
 
             Rectangle {
-			   height:parent.height-1
+                height:parent.height-1
                 width:parent.width
                 y:1
-				color: "black"
-			}
+                color: "black"
+            }
 
             Rectangle {
                 height:parent.height-3
-                width:parent.width - 2
+                width:parent.width - 3
                 y:2
-				x:1
+                x:2
 
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: "#C6C6C6" }
