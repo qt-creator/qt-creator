@@ -1092,6 +1092,8 @@ void testStdVector()
 
 void testQStandardItemModel()
 {
+    // This is known not to work with the Python dumpers.
+    // Tracked as http://bugreports.qt.nokia.com/browse/QTCREATORBUG-1009
     QStandardItemModel m;
     QStandardItem *i1, *i2, *i11;
     m.appendRow(QList<QStandardItem *>()
