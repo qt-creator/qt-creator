@@ -1305,7 +1305,8 @@ void QtVersion::updateToolChainAndMkspec() const
         m_toolChains << ToolChainPtr(
                 ProjectExplorer::ToolChain::createMinGWToolChain(qmakeCXX, mingwDirectory()));
         m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
-    } else if (qmakeCXX == "g++") {
+    } else if (qmakeCXX.endsWith("g++")) { // All g++ variants are treated as desktop g++
+                                           // we should try to do a better job, but for now that's good enough
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
         if (qmakeCXX.isEmpty()) {
