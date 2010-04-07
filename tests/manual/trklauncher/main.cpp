@@ -6,13 +6,16 @@
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
 
-static const char *usageC =
+static const char usageC[] =
 "\n"
 "Usage: %1 [options] <trk_port_name>\n"
 "       %1 [options] <trk_port_name> <remote_executable_name> [-- args]\n"
 "       %1 [options] -i <trk_port_name> remote_sis_file\n"
 "       %1 [options] -I local_sis_file remote_sis_file] [<remote_executable_name>] [-- args]\n"
+"       %1 [options] -c local_file remote_file\n"
+"       %1 [options] -C remote_file [local_file|-]\n"
 "\nOptions:\n    -v verbose\n"
+            "    -q quiet\n"
             "    -b Prompt for Bluetooth connect (Linux only)\n"
             "    -f turn serial message frame off (Bluetooth)\n"
 "\nPing:\n"
@@ -26,7 +29,11 @@ static const char *usageC =
 "\nCopy from local file, installation:\n"
 "%1 -I COM5 C:\\Projects\\test\\test_gcce_udeb.sisx C:\\Data\\test_gcce_udeb.sisx\n"
 "\nCopy from local file, installation and remote launch:\n"
-"%1 -I COM5 C:\\Projects\\test\\test_gcce_udeb.sisx C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe\n";
+"%1 -I COM5 C:\\Projects\\test\\test_gcce_udeb.sisx C:\\Data\\test_gcce_udeb.sisx C:\\sys\\bin\\test.exe\n"
+"\nCopy from local file\n"
+"%1 -c COM5 c:\\foo.dat C:\\Data\\foo.dat\n"
+"\nCopy to local file\n"
+"%1 -C COM5 C:\\Data\\foo.dat c:\\foo.dat\n";
 
 static void usage()
 {
@@ -52,12 +59,12 @@ static inline TrkLauncherPtr createLauncher(trk::Launcher::Actions actions,
 
 static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetooth)
 {
+    enum Mode { Ping, RemoteLaunch, Install, CustomInstall, Copy, Download };
     // Parse away options
-    bool install = false;
-    bool customInstall = false;
+    Mode mode = Ping;
     bool serialFrame = true;
     const int argCount = arguments.size();
-    int verbosity = 0;
+    int verbosity = 1;
     *bluetooth = false;
     QStringList remoteArguments;
     trk::Launcher::Actions actions = trk::Launcher::ActionPingOnly;
@@ -72,6 +79,9 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
         case 'v':
             verbosity++;
             break;
+        case 'q':
+            verbosity = 0;
+            break;
         case 'f':
             serialFrame = false;
             break;
@@ -79,12 +89,20 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
             *bluetooth = true;
             break;
         case 'i':
-            install = true;
+            mode = Install;
             actions = trk::Launcher::ActionInstall;
             break;
         case 'I':
-            customInstall = true;
+            mode = CustomInstall;
             actions = trk::Launcher::ActionCopyInstall;
+            break;
+        case 'c':
+            mode = Copy;
+            actions = trk::Launcher::ActionCopy;
+            break;
+        case 'C':
+            mode = Download;
+            actions = trk::Launcher::ActionDownload;
             break;
         default:
             return TrkLauncherPtr();
@@ -98,38 +116,64 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
             remoteArguments.push_back(arguments.at(ra));
     // Evaluate arguments
     const int remainingArgsCount = pastArguments -a ;
-    if (remainingArgsCount == 1 && !install && !customInstall) { // Ping
-        return createLauncher(actions, arguments.at(a), serialFrame, verbosity);
-    }
-    if (remainingArgsCount == 2 && !install && !customInstall) {
-        // remote exec
-        TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
-        launcher->addStartupActions(trk::Launcher::ActionRun);
-        launcher->setFileName(arguments.at(a + 1));
-        launcher->setCommandLineArgs(remoteArguments);
-        return launcher;
-    }
-    if ((remainingArgsCount == 3 || remainingArgsCount == 2) && install && !customInstall) {
-        TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
-        launcher->setInstallFileName(arguments.at(a + 1));
+    // Ping and launch are only distinguishable by argument counts
+    if (mode == Ping && remainingArgsCount > 1)
+        mode = RemoteLaunch;
+    switch (mode) {
+    case Ping:
+        if (remainingArgsCount == 1)
+            return createLauncher(actions, arguments.at(a), serialFrame, verbosity);
+        break;
+    case RemoteLaunch:
+        if (remainingArgsCount == 2) {
+            // remote exec
+            TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
+            launcher->addStartupActions(trk::Launcher::ActionRun);
+            launcher->setFileName(arguments.at(a + 1));
+            launcher->setCommandLineArgs(remoteArguments);
+            return launcher;
+
+        }
+        break;
+    case Install:
+        if (remainingArgsCount == 3 || remainingArgsCount == 2) {
+            TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
+            launcher->setInstallFileName(arguments.at(a + 1));
+            if (remainingArgsCount == 3) {
+                launcher->addStartupActions(trk::Launcher::ActionRun);
+                launcher->setFileName(arguments.at(a + 2));
+                launcher->setCommandLineArgs(remoteArguments);
+            }
+            return launcher;
+        }
+        break;
+    case CustomInstall:
+        if (remainingArgsCount == 4 || remainingArgsCount == 3) {
+            TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
+            launcher->setCopyFileName(arguments.at(a + 1), arguments.at(a + 2));
+            launcher->setInstallFileName(arguments.at(a + 2));
+            if (remainingArgsCount == 4) {
+                launcher->addStartupActions(trk::Launcher::ActionRun);
+                launcher->setFileName(arguments.at(a + 3));
+                launcher->setCommandLineArgs(remoteArguments);
+            }
+            return launcher;
+        }
+        break;
+    case Copy:
         if (remainingArgsCount == 3) {
-            launcher->addStartupActions(trk::Launcher::ActionRun);
-            launcher->setFileName(arguments.at(a + 2));
-            launcher->setCommandLineArgs(remoteArguments);
+            TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
+            launcher->setCopyFileName(arguments.at(a + 1), arguments.at(a + 2));
+            return launcher;
         }
-        return launcher;
-    }
-    if ((remainingArgsCount == 4 || remainingArgsCount == 3) && !install && customInstall) {
-        TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
-        launcher->setTrkServerName(arguments.at(a)); // ping
-        launcher->setCopyFileName(arguments.at(a + 1), arguments.at(a + 2));
-        launcher->setInstallFileName(arguments.at(a + 2));
-        if (remainingArgsCount == 4) {
-            launcher->addStartupActions(trk::Launcher::ActionRun);
-            launcher->setFileName(arguments.at(a + 3));
-            launcher->setCommandLineArgs(remoteArguments);
+        break;
+    case Download:
+        if (remainingArgsCount == 3) {
+            TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
+            launcher->setDownloadFileName(arguments.at(a + 1), arguments.at(a + 2));
+            return launcher;
         }
-        return launcher;
+        break;
     }
     return TrkLauncherPtr();
 }
@@ -137,7 +181,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-    QCoreApplication::setApplicationName(QLatin1String("TRKlauncher"));
+    QCoreApplication::setApplicationName(QLatin1String("trklauncher"));
     QCoreApplication::setOrganizationName(QLatin1String("Nokia"));
 
     bool bluetooth;
@@ -162,4 +206,3 @@ int main(int argc, char *argv[])
     qWarning("%s\n", qPrintable(errorMessage));
     return 4;
 }
-
