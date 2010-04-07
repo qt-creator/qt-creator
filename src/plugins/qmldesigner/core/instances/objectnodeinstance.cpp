@@ -185,6 +185,8 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
                 }
             }
         }
+    } else {
+        qWarning() << "dynamic properties are not supported for components";
     }
 
     m_signalSpy.setObjectNodeInstance(objectNodeInstance);
@@ -780,6 +782,12 @@ static bool metaObjectHasNotPropertyName(NodeInstanceMetaObject *metaObject, con
 
 void ObjectNodeInstance::createDynamicProperty(const QString &name, const QString &/*typeName*/)
 {
+    if (m_metaObject == 0) {
+        qWarning() << "dynamic properties are not supported for components";
+        return;
+    }
+
+
     if (metaObjectHasNotPropertyName(m_metaObject, name))
         m_metaObject->createNewProperty(name);
 }
