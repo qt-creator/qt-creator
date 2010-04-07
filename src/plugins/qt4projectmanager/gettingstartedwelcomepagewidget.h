@@ -54,7 +54,6 @@ public slots:
 private slots:
     void slotOpenHelpPage(const QString &url);
     void slotOpenContextHelpPage(const QString &url);
-    void slotEnableExampleButton(int);
     void slotOpenExample();
     void slotNextTip();
     void slotPrevTip();

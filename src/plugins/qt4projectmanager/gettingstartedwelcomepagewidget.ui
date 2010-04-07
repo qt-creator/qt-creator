@@ -86,6 +86,15 @@
         <attribute name="headerMinimumSectionSize">
          <number>0</number>
         </attribute>
+        <attribute name="headerDefaultSectionSize">
+         <number>24</number>
+        </attribute>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerMinimumSectionSize">
+         <number>0</number>
+        </attribute>
         <column>
          <property name="text">
           <string notr="true">1</string>
@@ -125,7 +134,7 @@
       <property name="horizontalSpacing">
        <number>0</number>
       </property>
-      <item row="0" column="0" colspan="4">
+      <item row="0" column="0" colspan="3">
        <widget class="Utils::WelcomeModeLabel" name="demoTitleLabel">
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -133,54 +142,20 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QComboBox" name="examplesComboBox">
+       <widget class="QPushButton" name="examplesButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <item>
-         <property name="text">
-          <string>Examples not installed</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QToolButton" name="openExampleButton">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Open</string>
+         <string>Examples not installed...</string>
         </property>
        </widget>
-      </item>
-      <item row="1" column="1">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>6</width>
-          <height>6</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>

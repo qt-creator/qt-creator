@@ -51,9 +51,13 @@
 #include <QtGui/QFont>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QMenu>
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+const char ExamplePathPropertyName[] = "__qt_ExamplePath";
+const char HelpPathPropertyName[] = "__qt_HelpPath";
 
 GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent) :
     QWidget(parent),
@@ -66,8 +70,6 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     ui->didYouKnowTitleLabel->setStyledText(tr("Did You Know?"));
 
     connect(ui->tutorialTreeWidget, SIGNAL(activated(QString)), SLOT(slotOpenHelpPage(const QString&)));
-    connect(ui->openExampleButton, SIGNAL(clicked()), SLOT(slotOpenExample()));
-    connect(ui->examplesComboBox, SIGNAL(currentIndexChanged(int)), SLOT(slotEnableExampleButton(int)));
 
     ui->tutorialTreeWidget->addItem(tr("<b>Qt Creator - A quick tour</b>"),
                                         QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
@@ -114,17 +116,16 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
     if (!description.open(QFile::ReadOnly))
         return;
 
-    ui->examplesComboBox->clear();
-    ui->examplesComboBox->setEnabled(true);
+    ui->examplesButton->setEnabled(true);
+    ui->examplesButton->setText(tr("Choose an example..."));
+    QMenu *menu = new QMenu;
+    ui->examplesButton->setMenu(menu);
 
-    ui->examplesComboBox->addItem(tr("Choose an example..."));
-    QFont f = font();
-    f.setItalic(true);
-    ui->examplesComboBox->setItemData(0, f, Qt::FontRole);
-    f.setItalic(false);
+    QMenu *subMenu = 0;
     bool inExamples = false;
     QString dirName;
     QXmlStreamReader reader(&description);
+
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
             case QXmlStreamReader::StartElement:
@@ -133,10 +134,7 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
                 if (name.contains("tutorial"))
                     break;
                 dirName = reader.attributes().value(QLatin1String("dirname")).toString();
-                ui->examplesComboBox->addItem(name);
-                f.setBold(true);
-                ui->examplesComboBox->setItemData(ui->examplesComboBox->count()-1, f, Qt::FontRole);
-                f.setBold(false);
+                subMenu = menu->addMenu(name);
                 inExamples = true;
             }
             if (inExamples && reader.name() == "example") {
@@ -151,8 +149,11 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
                                    dirName.replace(slash, QLatin1Char('-')) +
                                    QLatin1Char('-') + fn + QLatin1String(".html");
 
-                ui->examplesComboBox->addItem(QLatin1String("  ") + name, fileName);
-                ui->examplesComboBox->setItemData(ui->examplesComboBox->count()-1, helpPath, Qt::UserRole+1);
+                QAction *exampleAction = subMenu->addAction(name);
+                connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
+
+                exampleAction->setProperty(ExamplePathPropertyName, fileName);
+                exampleAction->setProperty(HelpPathPropertyName, helpPath);
             }
             break;
             case QXmlStreamReader::EndElement:
@@ -165,11 +166,6 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
     }
 }
 
-void GettingStartedWelcomePageWidget::slotEnableExampleButton(int index)
-{
-    QString fileName = ui->examplesComboBox->itemData(index, Qt::UserRole).toString();
-    ui->openExampleButton->setEnabled(!fileName.isEmpty());
-}
 
 namespace {
 void copyRecursive(const QDir& from, const QDir& to, const QString& dir)
@@ -190,10 +186,14 @@ void copyRecursive(const QDir& from, const QDir& to, const QString& dir)
 
 void GettingStartedWelcomePageWidget::slotOpenExample()
 {
-    QComboBox *box = ui->examplesComboBox;
-    QString proFile = box->itemData(box->currentIndex(), Qt::UserRole).toString();
-    QString helpFile = box->itemData(box->currentIndex(), Qt::UserRole + 1).toString();
+    QAction *action = qobject_cast<QAction*>(sender());
+    if (!action)
+        return;
+
+    QString helpFile = action->property(HelpPathPropertyName).toString();
+    QString proFile = action->property(ExamplePathPropertyName).toString();
     QStringList files;
+
     QFileInfo proFileInfo(proFile);
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
     if (!proFileInfo.isWritable())
@@ -266,7 +266,7 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
 void GettingStartedWelcomePageWidget::slotOpenHelpPage(const QString& url)
 {
     Help::HelpManager *helpManager
-        = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
+            = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
     Q_ASSERT(helpManager);
     helpManager->handleHelpRequest(url);
 }
