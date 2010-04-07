@@ -75,17 +75,13 @@ GroupBox {
                 ComboBox {
                     minimumWidth: 20
                     baseStateFlag: isBaseState
-                    backendValue: backendValues.transformOrigin
 
                     items : { [
                             "TopLeft", "Top", "TopRight", "Left", "Center", "Right", "BottomLeft", "Bottom",
                             "BottomRight"
                             ] }
-
-                            currentText: backendValues.transformOrigin.value;
-                            onItemsChanged: {
-                                currentText =  backendValues.transformOrigin.value;
-                            }
+										
+					backendValue: backendValues.transformOrigin
                 }
             }
         }
