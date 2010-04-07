@@ -51,7 +51,13 @@ GccParser::GccParser()
     m_regExpLinker.setPattern(QString::fromLatin1(FILE_PATTERN) + '(' + QLatin1String(POSITION_PATTERN) + ")?\\s(.+)$");
     m_regExpLinker.setMinimal(true);
 
-    m_regExpGccNames.setPattern("^([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?: ");
+    // treat ld (and gold) as part of gcc for simplicity
+    // optional path with trailing slash
+    // optional arm-linux-none-thingy
+    // name of executable
+    // optional trailing version number
+    // optional .exe postfix
+    m_regExpGccNames.setPattern("^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+|ld|gold)(-[0-9\\.]+)?(\\.exe)?: ");
     m_regExpGccNames.setMinimal(true);
 
     m_regExpInFunction.setPattern("^In (static |member )*function ");
@@ -68,19 +74,11 @@ void GccParser::stdError(const QString &line)
         IOutputParser::stdError(line);
         return;
     }
-    // Handle linker issues:
-    if (lne.startsWith(QLatin1String("ld: fatal: "))) {
-        QString description = lne.mid(11);
-        emit addTask(Task(Task::Error, description, QString(), -1, Constants::TASK_CATEGORY_COMPILE));
-        return;
-    } else if (lne.startsWith(QLatin1String("ld: warning: "))) {
-        QString description = lne.mid(13);
-        emit addTask(Task(Task::Warning, description, QString(), -1, Constants::TASK_CATEGORY_COMPILE));
-        return;
-    } else if (lne.startsWith(QLatin1String("collect2:")) ||
+
+    // Handle misc issues:
+    if (lne.startsWith(QLatin1String("collect2:")) ||
         lne.startsWith(QLatin1String("ERROR:")) ||
         lne == QLatin1String("* cpp failed")) {
-        // Handle misc. strange lines:
         emit addTask(Task(Task::Error,
                           lne /* description */,
                           QString() /* filename */,
@@ -88,11 +86,19 @@ void GccParser::stdError(const QString &line)
                           Constants::TASK_CATEGORY_COMPILE));
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
-        emit addTask(Task(Task::Error,
-                          lne.mid(m_regExpGccNames.matchedLength()), /* description */
-                          QString(), /* filename */
-                          -1, /* line */
-                          Constants::TASK_CATEGORY_COMPILE));
+        QString description = lne.mid(m_regExpGccNames.matchedLength());
+        Task task(Task::Error,
+                  description,
+                  QString(), /* filename */
+                  -1, /* line */
+                  Constants::TASK_CATEGORY_COMPILE);
+        if (description.startsWith(QLatin1String("warning: "))) {
+            task.type = Task::Warning;
+            task.description = description.mid(9);
+        } else if (description.startsWith(QLatin1String("fatal: ")))  {
+            task.description = description.mid(7);
+        }
+        emit addTask(task);
         return;
     } else if (m_regExp.indexIn(lne) > -1) {
         QString filename = m_regExp.cap(1);
@@ -412,6 +418,16 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << OutputParserTester::STDERR
             << QString() << QString("ranlib: file: libSupport.a(HashTable.o) has no symbols")
             << QList<ProjectExplorer::Task>()
+            << QString();
+    QTest::newRow("ld: missing library")
+            << QString::fromLatin1("/usr/bin/ld: cannot find -ldoesnotexist")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Error,
+                         QLatin1String("cannot find -ldoesnotexist"),
+                         QString(), -1,
+                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
 
