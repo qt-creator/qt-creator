@@ -29,6 +29,7 @@
 
 #include "qmakestep.h"
 
+#include "projectexplorer/projectexplorerconstants.h"
 #include "qmakeparser.h"
 #include "qt4buildconfiguration.h"
 #include "qt4project.h"
@@ -36,6 +37,8 @@
 #include "qt4projectmanager.h"
 #include "qt4target.h"
 #include "qtversionmanager.h"
+
+#include "qt-s60/s60manager.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -186,11 +189,54 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
         return;
     }
 
+    // Warn on common error conditions:
+    if (qt4BuildConfiguration()->qt4Target()->id() == Constants::S60_DEVICE_TARGET_ID ||
+        qt4BuildConfiguration()->qt4Target()->id() == Constants::S60_EMULATOR_TARGET_ID)
+    {
+        QtVersion *qtVersion = qt4BuildConfiguration()->qtVersion();
+
+        const QString projectDir = QDir(qt4BuildConfiguration()->qt4Target()->qt4Project()->projectDirectory()).absolutePath();
+        const QString epocRootDir = QDir(Internal::S60Manager::instance()->deviceForQtVersion(qtVersion).epocRoot).absolutePath();
+        QFileInfo cppheader(epocRootDir + QLatin1String("/include/stdapis/string.h"));
+#if defined (Q_OS_WIN)
+        // Report an error if project- and epoc directory are on different drives:
+        if (!epocRootDir.startsWith(projectDir.left(3))) {
+            addTask(Task(Task::Error,
+                         tr("The Symbian SDK and the project sources must reside on the same drive."),
+                         QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            fi.reportResult(false);
+            return;
+        }
+#endif
+        // Report en error if EPOC root is not set:
+        if (epocRootDir.isEmpty() || !QDir(epocRootDir).exists()) {
+            addTask(Task(Task::Error,
+                         tr("The Symbian SDK was not found for Qt version %1.").arg(qtVersion->displayName()),
+                         QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            fi.reportResult(false);
+            return;
+        }
+        if (!cppheader.exists()) {
+            addTask(Task(Task::Error,
+                         tr("The \"Open C/C++ plugin\" is not installed in the Symbian SDK or the Symbian SDK path is misconfigured for Qt version %1.").arg(qtVersion->displayName()),
+                         QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+            fi.reportResult(false);
+            return;
+        }
+        // Warn of strange characters in project name:
+        if (projectDir.contains(QRegExp("[^a-zA-Z0-9./]"))) {
+            addTask(Task(Task::Warning,
+                         tr("The Symbian toolchain does not handle special characters in a project path well."),
+                         QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+    }
+
     if (!m_needToRunQMake) {
         emit addOutput(tr("<font color=\"#0000ff\">Configuration unchanged, skipping qmake step.</font>"));
         fi.reportResult(true);
         return;
     }
+
     AbstractProcessStep::run(fi);
 }
 
