@@ -440,8 +440,11 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // 7.1-symbianelf has "{id="i1"}"
             } else if (asyncClass == "thread-group-started") {
                 // 7.1-symbianelf has "{id="i1",pid="42000"}"
-            } else if (asyncClass == "thread-group-created") {
-                // Archer has "{id="28902"}"
+            } else if (asyncClass == "thread-group-created"
+                    || asyncClass == "thread-group-started") {
+                // Archer had only "{id="28902"}" at some point of 6.8.x.
+                // *-created seems to be standard nowadays, but in early
+                // 7.0.x, there was a *-started instead.
                 int progress = m_progress->progressValue();
                 m_progress->setProgressValue(qMin(70, progress + 1));
                 QByteArray id = result.findChild("id").data();

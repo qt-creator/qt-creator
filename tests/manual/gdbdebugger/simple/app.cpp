@@ -1531,6 +1531,14 @@ void testEndlessRecursion()
     testEndlessRecursion();
 }
 
+int testEndlessLoop()
+{
+    qlonglong a = 1;
+    while (a > 0)
+        ++a;
+    return a;
+}
+
 QString fooxx()
 {
     return "bababa";
@@ -1550,6 +1558,7 @@ int main(int argc, char *argv[])
     testFunctionPointer();
     testAnonymous();
     testReference();
+    //testEndlessLoop();
     //testEndlessRecursion();
     testQStack();
     testUninitialized();
@@ -1625,9 +1634,6 @@ int main(int argc, char *argv[])
 
     Q_UNUSED(s);
     Q_UNUSED(w);
-
-    while(true)
-        ;
 }
 
 QT_BEGIN_NAMESPACE
