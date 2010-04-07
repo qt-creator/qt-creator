@@ -189,7 +189,7 @@ RunConfiguration* Target::activeRunConfiguration() const
 
 void Target::setActiveRunConfiguration(RunConfiguration* configuration)
 {
-    if ((!configuration && !m_runConfigurations.isEmpty()) ||
+    if ((!configuration && m_runConfigurations.isEmpty()) ||
         (configuration && m_runConfigurations.contains(configuration) &&
          configuration != m_activeRunConfiguration)) {
         m_activeRunConfiguration = configuration;
