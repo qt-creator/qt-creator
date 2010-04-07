@@ -945,6 +945,8 @@ static bool qmlCompletionItemLessThan(const TextEditor::CompletionItem &l, const
         return true;
     else if (r.text.isEmpty())
         return false;
+    else if (l.data.isValid() != r.data.isValid())
+        return l.data.isValid();
     else if (l.text.at(0).isUpper() && r.text.at(0).isLower())
         return false;
     else if (l.text.at(0).isLower() && r.text.at(0).isUpper())
@@ -963,15 +965,14 @@ QList<TextEditor::CompletionItem> CodeCompletion::getCompletions()
 
     // Remove duplicates
     QString lastKey;
+    QVariant lastData;
     QList<TextEditor::CompletionItem> uniquelist;
 
     foreach (const TextEditor::CompletionItem &item, completionItems) {
-        if (item.text != lastKey) {
+        if (item.text != lastKey || item.data.type() != lastData.type()) {
             uniquelist.append(item);
             lastKey = item.text;
-        } else {
-            if (item.data.canConvert<QString>())
-                uniquelist.append(item);
+            lastData = item.data;
         }
     }
 
