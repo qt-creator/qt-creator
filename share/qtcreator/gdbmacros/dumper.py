@@ -976,6 +976,10 @@ class Dumper:
             self.putField("valueencoded", encoding)
         self.putField("value", value)
 
+    def putPointerValue(self, value):
+        self.putValue("0x%x" % value.dereference().cast(
+            gdb.lookup_type("unsigned long")))
+
     def putStringValue(self, value):
         if value is None:
             self.put('value="<not available>",')
@@ -1190,6 +1194,7 @@ class Dumper:
             format = self.itemFormat(item)
 
             if not format is None:
+                #warn("FORMAT %s" % format)
                 self.putAddress(value.address)
                 self.putType(item.value.type)
                 self.putNumChild(0)
@@ -1197,7 +1202,7 @@ class Dumper:
 
             if format == 0:
                 # Bald pointer.
-                self.putValue(str(cleanAddress(value.address)))
+                self.putPointerValue(value.address)
             elif format == 1 or format == 2:
                 # Latin1 or UTF-8
                 f = select(format == 1, Hex2EncodedLatin1, Hex2EncodedUtf8)
@@ -1256,7 +1261,7 @@ class Dumper:
                 self.putItemHelper(
                     Item(item.value.dereference(), item.iname, None, None))
                 self.childTypes.pop()
-                self.putValue("@%s" % cleanAddress(value.address))
+                self.putPointerValue(value.address)
                 isHandled = True
 
             # Fall back to plain pointer printing.
@@ -1270,7 +1275,7 @@ class Dumper:
                     self.putItem(
                           Item(item.value.dereference(), item.iname, "*", "*"))
                     self.endChildren()
-                self.putValue(cleanAddress(value.address))
+                self.putPointerValue(value.address)
 
         elif str(type).startswith("<anon"):
             # Anonymous union. We need a dummy name to distinguish
