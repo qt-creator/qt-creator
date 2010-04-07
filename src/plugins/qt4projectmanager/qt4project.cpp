@@ -312,9 +312,7 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     updateFileList();
     // This might be incorrect, need a full update
     updateCodeModel();
-
-    checkForNewApplicationProjects();
-    checkForDeletedApplicationProjects();
+    createApplicationProjects();
 
     foreach (Target *t, targets())
         onAddedTarget(t);
@@ -766,8 +764,6 @@ void Qt4Project::decrementPendingEvaluateFutures()
             // After beeing done, we need to call:
             updateFileList();
             updateCodeModel();
-            checkForNewApplicationProjects();
-            checkForDeletedApplicationProjects();
             if (debug)
                 qDebug()<<"  Setting state to Base";
             m_asyncUpdateState = Base;
@@ -980,61 +976,29 @@ void Qt4Project::collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4Pr
     }
 }
 
-void Qt4Project::checkForNewApplicationProjects()
+void Qt4Project::createApplicationProjects()
 {
-    // Check all new project nodes
-    // against all runConfigurations in all targets.
-
-    foreach (Qt4ProFileNode *qt4proFile, applicationProFiles()) {
-        foreach (Target *target, targets()) {
-            Qt4Target *qt4Target = static_cast<Qt4Target *>(target);
-            bool found = false;
-            foreach (RunConfiguration *rc, target->runConfigurations()) {
-                Qt4RunConfiguration *qtrc = qobject_cast<Qt4RunConfiguration *>(rc);
-                if (qtrc && qtrc->proFilePath() == qt4proFile->path()) {
-                    found = true;
-                    break;
-                }
+    foreach (Target *target, targets()) {
+        if (target->runConfigurations().count()) {
+            // Remove all run configurations which the new project wizard created
+            QList<RunConfiguration*> toRemove;
+            foreach (RunConfiguration * rc, target->runConfigurations()) {
+                CustomExecutableRunConfiguration *cerc = qobject_cast<CustomExecutableRunConfiguration *>(rc);
+                if (cerc && !cerc->isConfigured())
+                    toRemove.append(rc);
             }
-            if (!found) {
+            foreach (RunConfiguration *rc, toRemove)
+                target->removeRunConfiguration(rc);
+        }
+
+        // Only add new runconfigurations if there are none.
+        if (target->runConfigurations().isEmpty()) {
+            Qt4Target *qt4Target = static_cast<Qt4Target *>(target);
+            foreach (Qt4ProFileNode *qt4proFile, applicationProFiles()) {
                 qt4Target->addRunConfigurationForPath(qt4proFile->path());
             }
-
-            // Remove unused CustomExecutableRCs:
-            if (target->runConfigurations().count() > 1) {
-                QList<RunConfiguration*> toRemove;
-                foreach (RunConfiguration * rc, target->runConfigurations()) {
-                    CustomExecutableRunConfiguration *cerc = qobject_cast<CustomExecutableRunConfiguration *>(rc);
-                    if (cerc && !cerc->isConfigured())
-                        toRemove.append(rc);
-                }
-                foreach (RunConfiguration *rc, toRemove)
-                    target->removeRunConfiguration(rc);
-            }
         }
-    }
-}
-
-void Qt4Project::checkForDeletedApplicationProjects()
-{
-    QStringList paths;
-    foreach (Qt4ProFileNode * node, applicationProFiles())
-        paths.append(node->path());
-
-//    qDebug()<<"Still existing paths :"<<paths;
-
-    QList<Qt4RunConfiguration *> removeList;
-    foreach (Target *target, targets()) {
-        foreach (RunConfiguration *rc, target->runConfigurations()) {
-            if (Qt4RunConfiguration *qt4rc = qobject_cast<Qt4RunConfiguration *>(rc)) {
-                if (!paths.contains(qt4rc->proFilePath())) {
-                    removeList.append(qt4rc);
-                }
-            }
-        }
-        foreach (Qt4RunConfiguration *qt4rc, removeList)
-            target->removeRunConfiguration(qt4rc);
-
+        // Oh still none? Add a custom executable runconfiguration
         if (target->runConfigurations().isEmpty()) {
             target->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(target));
         }

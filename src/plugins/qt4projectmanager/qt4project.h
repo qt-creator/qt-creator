@@ -185,8 +185,7 @@ private slots:
 private:
     void scheduleAsyncUpdate();
 
-    void checkForNewApplicationProjects();
-    void checkForDeletedApplicationProjects();
+    void createApplicationProjects();
     void updateCodeModel();
     void updateFileList();
 
