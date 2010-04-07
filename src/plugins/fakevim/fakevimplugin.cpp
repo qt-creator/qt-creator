@@ -815,8 +815,10 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
     handler->installEventFilter();
 
     // pop up the bar
-    if (theFakeVimSetting(ConfigUseFakeVim)->value().toBool())
+    if (theFakeVimSetting(ConfigUseFakeVim)->value().toBool()) {
        showCommandBuffer(QString());
+       handler->setupWidget();
+    }
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
