@@ -514,10 +514,10 @@ void QmlAnchorBindingProxy::fill()
     setHorizontalCentered(false);
     setVerticalCentered(false);
 
-    m_fxItemNode.anchors().setMargin(AnchorLine::Right, 0);
-    m_fxItemNode.anchors().setMargin(AnchorLine::Left, 0);
-    m_fxItemNode.anchors().setMargin(AnchorLine::Top, 0);
-    m_fxItemNode.anchors().setMargin(AnchorLine::Bottom, 0);
+    m_fxItemNode.anchors().removeMargin(AnchorLine::Right);
+    m_fxItemNode.anchors().removeMargin(AnchorLine::Left);
+    m_fxItemNode.anchors().removeMargin(AnchorLine::Top);
+    m_fxItemNode.anchors().removeMargin(AnchorLine::Bottom);
 
     emit topAnchorChanged();
     emit bottomAnchorChanged();
