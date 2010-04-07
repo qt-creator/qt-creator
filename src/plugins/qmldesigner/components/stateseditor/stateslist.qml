@@ -315,7 +315,7 @@ Rectangle {
         id: addStateButton
         color: "#4f4f4f"
         width: addStateText.width
-        height: addStateText.height+1
+        height: addStateText.height+3
         anchors.left: listView.left
         anchors.bottom: root.bottom
 
@@ -359,9 +359,10 @@ Rectangle {
 
         Text {
             id: addStateText
-            text: " Duplicate State "
+            text: " Clone "
             color: "#cfcfcf"
-            font.pixelSize:12
+            font.pixelSize:10
+            y:1
         }
         MouseArea {
             anchors.fill: parent
@@ -386,7 +387,7 @@ Rectangle {
         border.color: "black"
         border.width: 1
         width: renameStateText.width
-        height: renameStateText.height+1
+        height: renameStateText.height+3
         anchors.left: addStateButton.right
         anchors.bottom: root.bottom
 
@@ -431,9 +432,10 @@ Rectangle {
 
         Text {
             id: renameStateText
-            text: " Rename State "
+            text: " Rename "
             color: "#cfcfcf"
-            font.pixelSize:12
+            font.pixelSize:10
+            y:1
         }
         MouseArea {
             anchors.fill: parent
@@ -451,7 +453,7 @@ Rectangle {
         border.color: "black"
         border.width: 1
         width: removeStateText.width
-        height: removeStateText.height+1
+        height: removeStateText.height+3
         anchors.left: renameStateButton.right
         anchors.bottom: root.bottom
 
@@ -496,9 +498,10 @@ Rectangle {
 
         Text {
             id: removeStateText
-            text: " Erase State "
+            text: " Erase "
             color: "#cfcfcf"
-            font.pixelSize:12
+            font.pixelSize:10
+            y:1
         }
         MouseArea {
             anchors.fill: parent
@@ -514,7 +517,6 @@ Rectangle {
 
     Item {
         id: horizontalScrollbar
-        // Current listView implementation sometimes has negative width or contentWidth
         property int viewPosition: 0;
         property int viewLength: ( listView.width>=0 ? listView.width : 0 );
         property int totalLength: ( listView.contentWidth>=0 ? listView.contentWidth : 0 );
