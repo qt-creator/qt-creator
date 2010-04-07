@@ -146,7 +146,10 @@ void Highlighter::highlightBlock(const QString &text)
                 }
 
                 if (index + 1 < tokens.size()) {
-                    if (tokens.at(index + 1).is(Token::LeftBrace) && text.at(token.offset).isUpper()) {
+                    const Token &nextToken = tokens.at(index + 1);
+                    if (text.at(token.offset).isUpper()
+                        && (nextToken.is(Token::LeftBrace)
+                            || text.midRef(nextToken.offset, nextToken.length) == QLatin1String("on"))) {
                         setFormat(token.offset, token.length, m_formats[TypeFormat]);
                     } else if (index == 0 || checkStartOfBinding(tokens.at(index - 1))) {
                         const int start = index;
@@ -239,6 +242,8 @@ bool Highlighter::maybeQmlKeyword(const QStringRef &text) const
     } else if (ch == QLatin1Char('r') && text == QLatin1String("readonly")) {
         return true;
     } else if (ch == QLatin1Char('i') && text == QLatin1String("import")) {
+        return true;
+    } else if (ch == QLatin1Char('o') && text == QLatin1String("on")) {
         return true;
     } else {
         return false;
