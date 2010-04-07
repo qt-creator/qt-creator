@@ -94,14 +94,6 @@ void TermGdbAdapter::startAdapter()
     m_stubProc.setWorkingDirectory(startParameters().workingDir);
     // Set environment + dumper preload.
     QStringList environment = startParameters().environment;
-    if (dumperHandling() == DumperLoadedByAdapter
-        && m_engine->checkDebuggingHelpers()) {
-        QString var = QLatin1String(Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR);
-        var += QLatin1Char('=');
-        var += m_engine->qtDumperLibraryName();
-        environment.push_back(var);
-        m_engine->setDebuggingHelperStateClassic(DebuggingHelperLoadTried);
-    }
     m_stubProc.setEnvironment(environment);
     // FIXME: Starting the stub implies starting the inferior. This is
     // fairly unclean as far as the state machine and error reporting go.
