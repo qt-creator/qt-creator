@@ -1,0 +1,71 @@
+
+Architectural overview
+----------------------
+
+DebuggerPlugin is the main interface between the Qt Creator "Core" and the
+DebuggerManager who is responsible for "doing the work".
+
+The DebuggerManager creates all DebuggerEngines, and has zero or one 
+"current" Engine. Engines represent an interface to a "native" debugger.
+Right now there are engines for gdb (used for C++ on Linux, Mac, Windows/MinGW,
+Maemo and Symbian), for cdb (used for C++ on Windows/MSVC) and "script" (used
+for JavaScript on all platforms).
+
+  The GdbEngine has different "Adapters" to cope with the variety of environments
+  it has to cope with. All gdb Adapters inherit from AbstractGdbAdapters.
+
+    PlainGdbAdapter handles debugging of locally started GUI processes.
+    It is physically split into parts
+    relevant only when Python is available, parts relevant only when Python is
+    not available and "mixed" code.
+
+    TermGdbAdapter is used to debug locally started processes that need a 
+    console.
+
+    AttachGdbAdapter is used to debug local processes started outside Creator.
+
+    CoreGdbAdapter is used to debug core files generated from crashes.
+
+    RemoteGdbAdapter is used to talk to gdbserver running on Linux.
+
+    TrkGdbAdapter is used to talk to Symbian devices using the gdb protocol and
+    the gdb serial protocol between gdb and the Adapter and the TRK protocol
+    between the adapter and AppTRK running on the device.
+
+  Gdb comes in main two flavours: with or without Python. The Python version
+  is prefered, but it is not available on Mac and on older versions of Linux.
+  On Windows, Symbian and Maemo we only support the Python version.
+
+  The non-Python versions use the compiled version of the debugging helpers,
+  that needs to be enabled in the Qt4 Versions dialog, the Python version use
+  the script version that does not need any special setup.
+
+  The CdbEngine is functionality-wise similar to the Non-Python GdbEngine on
+  Linux, most notably it uses the same setup for the debugging helper library
+  (compiled C++ code).
+
+
+
+
+Per platform the situation for C++ debugging looks like:
+
+
+          Symbian    Maemo       Linux          Mac            Windows    
+                                                          MinGW       MSVC
+                                               
+Engine:     gdb      gdb          gdb           gdb        gdb        cdb 
+                                                           
+Python:     yes      yes       yes     no       no         no        (not/appl)
+                                                           
+Adapters:   trk     remote    term   term/i     term/i     term       term/i
+                              plain  plain/p    plain/i    plain      plain/i
+                              attach attach/i   attach/i   attach     attach/i
+                              remote attach/-   remote/-   remote
+
+[Helper loading strategy: /i - injected, /p - preload, /- not available]
+
+
+
+
+
+             
