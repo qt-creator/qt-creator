@@ -1448,12 +1448,12 @@ void Context::setProperty(const ObjectValue *object, const QString &name, const 
     _properties[object].insert(name, value);
 }
 
-bool Context::documentImportsPlugins(const Document *doc) const
+bool Context::documentImportsPlugins(const QmlJS::Document *doc) const
 {
     return _documentsImportingPlugins.contains(doc->fileName());
 }
 
-void Context::setDocumentImportsPlugins(const Document *doc)
+void Context::setDocumentImportsPlugins(const QmlJS::Document *doc)
 {
     _documentsImportingPlugins.insert(doc->fileName());
 }
