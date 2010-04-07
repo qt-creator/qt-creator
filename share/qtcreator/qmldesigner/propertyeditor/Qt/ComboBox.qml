@@ -49,6 +49,18 @@ QWidget {
             id: box
             property var backendValue: comboBox.backendValue
             onCurrentTextChanged: { backendValue.value = currentText; evaluate(); }
+			onItemsChanged: {				
+				if (comboBox.backendValue.value == curentText)
+				    return;
+				box.setCurrentTextSilent(comboBox.backendValue.value);
+            }			
+			
+			property var backendValueValue: comboBox.backendValue.value
+			onBackendValueValueChanged: {			 
+			    if (comboBox.backendValue.value == curentText)
+				    return;					
+				box.setCurrentTextSilent(comboBox.backendValue.value);
+			}
             ExtendedFunctionButton {
                 backendValue: comboBox.backendValue;
                 y: 3

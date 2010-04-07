@@ -808,6 +808,18 @@ public slots:
              emit currentTextChanged();
          }
      }
+public slots:
+     void setCurrentTextSilent(const QString &text)
+     {
+         if (!m_itemsSet)
+             return;
+         int i = cb->findText(text);
+         if (i  != -1) {
+             blockSignals(true);
+             cb->setCurrentIndex(i);
+             blockSignals(false);
+         }
+     }
 signals:
     void currentTextChanged();
     void itemsChanged();
@@ -817,8 +829,10 @@ private:
     {
         _items = list;
         cb->clear();
+        blockSignals(true);
         cb->addItems(list);
         m_itemsSet = true;
+        blockSignals(false);
         emit itemsChanged();
     }
 
