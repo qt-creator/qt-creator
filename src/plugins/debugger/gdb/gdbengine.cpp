@@ -1560,10 +1560,12 @@ void GdbEngine::handleExecuteContinue(const GdbResponse &response)
         QTC_ASSERT(state() == InferiorRunningRequested, /**/);
         setState(InferiorStopped);
         QByteArray msg = response.data.findChild("msg").data();
-        if (msg.startsWith("Cannot find bounds of current function")) {
+        if (msg.startsWith("Cannot find bounds of current function")
+            || msg.startsWith("\"finish\" not meaningful in the outermost frame")) {
             if (!m_commandsToRunOnTemporaryBreak.isEmpty())
                 flushQueuedCommands();
             showStatusMessage(tr("Stopped."), 5000);
+            reloadStack(true);
             //showStatusMessage(tr("No debug information available. "
             //  "Leaving function..."));
             //executeStepOut();
