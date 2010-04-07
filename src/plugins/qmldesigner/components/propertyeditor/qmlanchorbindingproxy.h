@@ -162,6 +162,8 @@ private:
 
     QmlItemNode m_verticalTarget;
     QmlItemNode m_horizontalTarget;
+
+    bool m_locked;
 };
 
 } // namespace Internal
