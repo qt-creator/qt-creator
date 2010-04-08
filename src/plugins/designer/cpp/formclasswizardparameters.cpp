@@ -51,6 +51,8 @@ static const char *embeddingModeKeyC = "Embedding";
 static const char *includeQtModuleKeyC = "IncludeQtModule";
 static const char *indentNamespaceKeyC = "IndentNamespace";
 
+static const bool retranslationSupportDefault = false;
+
 namespace Designer {
 
 class FormClassWizardGenerationParametersPrivate : public QSharedData
@@ -69,7 +71,7 @@ public:
 
 FormClassWizardGenerationParametersPrivate::FormClassWizardGenerationParametersPrivate() :
     embedding(FormClassWizardGenerationParameters::PointerAggregatedUiClass),
-    retranslationSupport(true),
+    retranslationSupport(retranslationSupportDefault),
     includeQtModule(false),
     indentNamespace(false)
 {
@@ -82,7 +84,7 @@ void FormClassWizardGenerationParametersPrivate::fromSettings(const QSettings *s
     const int groupLength = key.size();
 
     key += QLatin1String(translationKeyC);
-    retranslationSupport = settings->value(key, true).toBool();
+    retranslationSupport = settings->value(key, retranslationSupportDefault).toBool();
 
     key.truncate(groupLength);
     key += QLatin1String(embeddingModeKeyC);
