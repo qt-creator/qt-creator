@@ -35,6 +35,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
 #include <QtGui/QMessageBox>
@@ -53,6 +54,8 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     m_mimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE)),
     m_formWindow(form)
 {
+    connect(m_formWindow->core()->formWindowManager(), SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
+            this, SLOT(slotFormWindowRemoved(QDesignerFormWindowInterface*)));
 }
 
 bool FormWindowFile::save(const QString &name /*= QString()*/)
@@ -190,6 +193,15 @@ void FormWindowFile::setFileName(const QString &fname)
 QDesignerFormWindowInterface *FormWindowFile::formWindow() const
 {
     return m_formWindow;
+}
+
+void FormWindowFile::slotFormWindowRemoved(QDesignerFormWindowInterface *w)
+{
+    // Release formwindow as soon as the FormWindowManager removes
+    // as calls to isDirty() are triggered at arbitrary times
+    // while building.
+    if (w == m_formWindow)
+        m_formWindow = 0;
 }
 
 } // namespace Internal
