@@ -46,6 +46,13 @@
 #include <QtGui/QIcon>
 
 static const char *mainSourceFileC = "main";
+static const char *mainSourceShowC = "w.show();\n";
+static const char *mainSourceMobilityShowC = "#if defined(Q_WS_S60)\n"
+"    w.showMaximized();\n"
+"#else\n"
+"    w.show();\n"
+"#endif\n";
+
 static const char *mainWindowUiContentsC =
 "\n  <widget class=\"QMenuBar\" name=\"menuBar\" />"
 "\n  <widget class=\"QToolBar\" name=\"mainToolBar\" />"
@@ -242,6 +249,11 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
     contents.replace(QLatin1String("%BASECLASS%"), params.baseClassName);
     contents.replace(QLatin1String("%WIDGET_HEIGHT%"), QString::number(params.widgetHeight));
     contents.replace(QLatin1String("%WIDGET_WIDTH%"), QString::number(params.widgetWidth));
+    if (params.isMobileApplication)
+        contents.replace(QLatin1String("%SHOWMETHOD%"), QString::fromLatin1(mainSourceMobilityShowC));
+    else
+        contents.replace(QLatin1String("%SHOWMETHOD%"), QString::fromLatin1(mainSourceShowC));
+
 
     const QChar dot = QLatin1Char('.');
 
