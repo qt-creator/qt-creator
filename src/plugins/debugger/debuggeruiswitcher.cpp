@@ -450,6 +450,7 @@ void DebuggerUISwitcher::writeSettings() const
         if (toolWindow->m_languageId == d->m_activeLanguage) {
             visible = toolWindow->m_dockWidget->isVisibleTo(d->m_mainWindow);
         }
+        toolWindow->m_dockWidget->setMinimumSize(1, 1);
         toolWindow->m_dockWidget->setVisible(visible);
     }
 
