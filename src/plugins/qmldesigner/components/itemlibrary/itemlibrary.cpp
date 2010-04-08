@@ -72,7 +72,8 @@ public:
 
         if ((pixmap.width() > m_iconSize.width())
             || (pixmap.height() > m_iconSize.height()))
-            return pixmap.scaled(m_iconSize, Qt::KeepAspectRatio);
+            return pixmap.scaled(m_iconSize, Qt::KeepAspectRatio,
+                                 Qt::SmoothTransformation);
 
         QPoint offset((m_iconSize.width() - pixmap.width()) / 2,
                       (m_iconSize.height() - pixmap.height()) / 2);
