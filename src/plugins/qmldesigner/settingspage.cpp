@@ -49,29 +49,25 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 DesignerSettings SettingsPageWidget::settings() const
 {
     DesignerSettings ds;
-    ds.snapToGrid = m_ui.snapToGridCheckbox->isChecked();
-    ds.showBoundingRectangles = m_ui.showBoundingRectanglesCheckbox->isChecked();
-    ds.onlyShowItemsWithContents =
-            m_ui.onlyShowItemsWithContentsCheckBox->isChecked();
     ds.openDesignMode = m_ui.editorModeComboBox->currentIndex() == EditModeDesign;
+    ds.itemSpacing = m_ui.spinItemSpacing->value();
+    ds.snapMargin = m_ui.spinSnapMargin->value();
     return ds;
 }
 
 void SettingsPageWidget::setSettings(const DesignerSettings &s)
 {
-    m_ui.snapToGridCheckbox->setChecked(s.snapToGrid);
-    m_ui.showBoundingRectanglesCheckbox->setChecked(s.showBoundingRectangles);
-    m_ui.onlyShowItemsWithContentsCheckBox->setChecked(s.onlyShowItemsWithContents);
     m_ui.editorModeComboBox->setCurrentIndex(s.openDesignMode ? EditModeDesign : EditModeEdit);
+    m_ui.spinItemSpacing->setValue(s.itemSpacing);
+    m_ui.spinSnapMargin->setValue(s.snapMargin);
 }
 
 QString SettingsPageWidget::searchKeywords() const
 {
     QString rc;
     QTextStream(&rc)
-            << m_ui.snapToGridCheckbox->text()
-            << ' ' << m_ui.showBoundingRectanglesCheckbox->text()
-            << ' ' << m_ui.onlyShowItemsWithContentsCheckBox->text();
+            << ' ' << m_ui.snapMarginLabel
+            << ' ' << m_ui.itemSpacingLabel;
     rc.remove(QLatin1Char('&'));
     return rc;
 }

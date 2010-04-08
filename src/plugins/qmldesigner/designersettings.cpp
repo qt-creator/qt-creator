@@ -35,27 +35,22 @@
 using namespace QmlDesigner;
 
 static const char *snapToGridKey = "SnapToGrid";
-static const char *showBoundingRectanglesKey = "ShowBoundingRectangles";
-static const char *onlyShowItemsWithContentsKey = "OnlyShowItemsWithContents";
 
 DesignerSettings::DesignerSettings()
-    : snapToGrid(false)
-    , showBoundingRectangles(false)
-    , onlyShowItemsWithContents(false)
-    , openDesignMode(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT)
+    : openDesignMode(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT)
 {}
 void DesignerSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP));
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP));
-    snapToGrid = settings->value(QLatin1String(snapToGridKey), false).toBool();
-    showBoundingRectangles = settings->value(
-            QLatin1String(showBoundingRectanglesKey), false).toBool();
-    onlyShowItemsWithContents = settings->value(
-            QLatin1String(onlyShowItemsWithContentsKey), false).toBool();
     openDesignMode = settings->value(
             QLatin1String(QmlDesigner::Constants::QML_OPENDESIGNMODE_SETTINGS_KEY),
             bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT)).toBool();
+    itemSpacing = settings->value(
+            QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), QVariant(0)).toInt();
+    snapMargin = settings->value(
+            QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), QVariant(0)).toInt();
+
     settings->endGroup();
     settings->endGroup();
 }
@@ -64,20 +59,18 @@ void DesignerSettings::toSettings(QSettings *settings) const
 {
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP));
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP));
-    settings->setValue(QLatin1String(snapToGridKey), snapToGrid);
-    settings->setValue(QLatin1String(showBoundingRectanglesKey),
-                       showBoundingRectangles);
-    settings->setValue(QLatin1String(onlyShowItemsWithContentsKey),
-                       onlyShowItemsWithContents);
     settings->setValue(QLatin1String(QmlDesigner::Constants::QML_OPENDESIGNMODE_SETTINGS_KEY), openDesignMode);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_ITEMSPACING_KEY), itemSpacing);
+    settings->setValue(QLatin1String(QmlDesigner::Constants::QML_SNAPMARGIN_KEY), snapMargin);
+
     settings->endGroup();
     settings->endGroup();
 }
 
 bool DesignerSettings::equals(const DesignerSettings &other) const
 {
-    return snapToGrid == other.snapToGrid
-            && showBoundingRectangles == other.showBoundingRectangles
-            && onlyShowItemsWithContents == other.onlyShowItemsWithContents
-            && openDesignMode == other.openDesignMode;
+    return openDesignMode == other.openDesignMode
+            && snapMargin == other.snapMargin
+            && itemSpacing == other.itemSpacing;
+
 }

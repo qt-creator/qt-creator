@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "toolbox.h"
+#include "utils/styledbar.h"
 
 #include <QToolBar>
 #include <QHBoxLayout>
@@ -38,49 +39,59 @@
 namespace QmlDesigner {
 
 ToolBox::ToolBox(QWidget *parentWidget)
-  :  QWidget(parentWidget),
-  m_toolBar(new QToolBar("Sidebar", this))
+    : Utils::StyledBar(parentWidget),
+  m_leftToolBar(new QToolBar("LeftSidebar", this)),
+  m_rightToolBar(new QToolBar("RightSidebar", this))
 {
     QHBoxLayout *fillLayout = new QHBoxLayout(this);
     fillLayout->setMargin(0);
+    fillLayout->setSpacing(0);
+
+    m_leftToolBar->setFloatable(true);
+    m_leftToolBar->setMovable(true);
+    m_leftToolBar->setOrientation(Qt::Horizontal);
+    m_leftToolBar->setIconSize(QSize(24, 24));
+
+    QToolBar *stretchToolbar = new QToolBar(this);
+    stretchToolbar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+
+    m_rightToolBar->setOrientation(Qt::Horizontal);
+    m_rightToolBar->setIconSize(QSize(24, 24));
+    fillLayout->addWidget(m_leftToolBar);
+    fillLayout->addWidget(stretchToolbar);
+    fillLayout->addWidget(m_rightToolBar);
+
     setLayout(fillLayout);
-    //setContentsMargins(4, 12, 4, 4);
-
-    m_toolBar->setFloatable(true);
-    m_toolBar->setMovable(true);
-    m_toolBar->setOrientation(Qt::Horizontal);
-    m_toolBar->setIconSize(QSize(24, 24));
-    fillLayout->addWidget(m_toolBar);
-
-
-//    QPalette toolPalette(palette());
-//    QColor newColor(palette().color(QPalette::Window));
-//    newColor.setAlphaF(0.7);
-//    toolPalette.setColor(QPalette::Window, newColor);
-//    setPalette(toolPalette);
-//    setBackgroundRole(QPalette::Window);
-//    setAutoFillBackground(true);
-//    setAttribute(Qt::WA_NoSystemBackground, true);
-
 }
 
-
-
-void ToolBox::setActions(const QList<QAction*> &actions)
+void ToolBox::setLeftSideActions(const QList<QAction*> &actions)
 {
-    m_toolBar->clear();
-    m_toolBar->addActions(actions);
+    m_leftToolBar->clear();
+    m_leftToolBar->addActions(actions);
     resize(sizeHint());
 }
 
-void ToolBox::addAction(QAction *action)
+void ToolBox::setRightSideActions(const QList<QAction*> &actions)
 {
-    m_toolBar->addAction(action);
+    m_rightToolBar->clear();
+    m_rightToolBar->addActions(actions);
+    resize(sizeHint());
 }
+
+void ToolBox::addLeftSideAction(QAction *action)
+{
+    m_leftToolBar->addAction(action);
+}
+
+void ToolBox::addRightSideAction(QAction *action)
+{
+    m_rightToolBar->addAction(action);
+}
+
 
 QList<QAction*> ToolBox::actions() const
 {
-    return m_toolBar->actions();
+    return QList<QAction*>() << m_leftToolBar->actions() << m_rightToolBar->actions();
 }
 
 } // namespace QmlDesigner

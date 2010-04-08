@@ -30,7 +30,7 @@
 #ifndef TOOLBOX_H
 #define TOOLBOX_H
 
-#include <QWidget>
+#include "utils/styledbar.h"
 
 QT_BEGIN_NAMESPACE
 class QToolBar;
@@ -38,16 +38,19 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class ToolBox : public QWidget
+class ToolBox : public Utils::StyledBar
 {
 public:
     ToolBox(QWidget *parentWidget);
-    void setActions(const QList<QAction*> &actions);
-    void addAction(QAction *action);
+    void setLeftSideActions(const QList<QAction*> &actions);
+    void setRightSideActions(const QList<QAction*> &actions);
+    void addLeftSideAction(QAction *action);
+    void addRightSideAction(QAction *action);
     QList<QAction*> actions() const;
 
 private:
-    QToolBar *m_toolBar;
+    QToolBar *m_leftToolBar;
+    QToolBar *m_rightToolBar;
 };
 
 } // namespace QmlDesigner

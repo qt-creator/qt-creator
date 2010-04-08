@@ -47,11 +47,9 @@ public:
     void toSettings(QSettings *) const;
 
     bool equals(const DesignerSettings &other) const;
-
-    bool snapToGrid;
-    bool showBoundingRectangles;
-    bool onlyShowItemsWithContents;
     bool openDesignMode;
+    int itemSpacing;
+    int snapMargin;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)

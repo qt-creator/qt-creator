@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "formeditorwidget.h"
+#include "qmldesignerplugin.h"
+#include "designersettings.h"
 
 #include <QWheelEvent>
 #include <cmath>
@@ -42,7 +44,6 @@
 #include <formeditorgraphicsview.h>
 #include <formeditorscene.h>
 #include <formeditorview.h>
-#include "numberseriesaction.h"
 
 namespace QmlDesigner {
 
@@ -82,14 +83,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 //    addActions(m_toolActionGroup->actions());
 //    upperActions.append(m_toolActionGroup->actions());
 
-    QAction *separatorAction = new QAction(this);
-    separatorAction->setSeparator(true);
-//    addAction(separatorAction);
-//    upperActions.append(separatorAction);
-
     QActionGroup *layoutActionGroup = new QActionGroup(this);
-    layoutActionGroup->setExclusive(true);
-
+    layoutActionGroup->setExclusive(false);
     m_snappingAction = layoutActionGroup->addAction("Toogle Snapping (Press Key E)");
     m_snappingAction->setShortcut(Qt::Key_E);
     m_snappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -106,17 +101,10 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_snappingAndAnchoringAction->setVisible(false);
     m_snappingAndAnchoringAction->setIcon(QPixmap(":/icon/layout/snapping_and_anchoring.png"));
 
-    m_noSnappingAction = layoutActionGroup->addAction("Toogle Snapping And Anchoring (Press Key T)");
-    m_noSnappingAction->setShortcut(Qt::Key_T);
-    m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_noSnappingAction->setCheckable(true);
-    m_noSnappingAction->setChecked(false);
-    m_noSnappingAction->setIcon(QPixmap(":/icon/layout/no_snapping.png"));
-
     addActions(layoutActionGroup->actions());
     upperActions.append(layoutActionGroup->actions());
 
-    separatorAction = new QAction(this);
+    QAction *separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     addAction(separatorAction);
     upperActions.append(separatorAction);
@@ -142,9 +130,9 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     upperActions.append(m_selectOnlyContentItemsAction.data());
 
 
-    ToolBox *upperToolBox = new ToolBox(this);
-    upperToolBox->setActions(upperActions);
-    fillLayout->addWidget(upperToolBox);
+    m_toolBox = new ToolBox(this);
+    fillLayout->addWidget(m_toolBox.data());
+    m_toolBox->setLeftSideActions(upperActions);
 
     m_graphicsView = new FormEditorGraphicsView(this);
     fillLayout->addWidget(m_graphicsView.data());
@@ -157,36 +145,11 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     QList<QAction*> lowerActions;
 
-    m_zoomAction = new ZoomAction(toolActionGroup());
+    m_zoomAction = new ZoomAction(m_toolActionGroup.data());
     connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
     addAction(m_zoomAction.data());
-    lowerActions.append(m_zoomAction.data());
-
-    QActionGroup *layoutMarginActionGroup = new QActionGroup(this);
-
-    m_snappingMarginAction = new NumberSeriesAction(layoutMarginActionGroup);
-    m_snappingMarginAction->addEntry(tr("no margins (0)"), 0);
-    m_snappingMarginAction->addEntry(tr("small margin (2)"), 2);
-    m_snappingMarginAction->addEntry(tr("medium margin (6)"), 6);
-    m_snappingMarginAction->addEntry(tr("large margin (10)"), 10);
-    m_snappingMarginAction->setCurrentEntryIndex(2);
-    layoutMarginActionGroup->addAction(m_snappingMarginAction.data());
-
-
-    m_snappingSpacingAction = new NumberSeriesAction(layoutMarginActionGroup);
-    m_snappingSpacingAction->addEntry(tr("no spacing (0)"), 0);
-    m_snappingSpacingAction->addEntry(tr("small spacing (2)"), 2);
-    m_snappingSpacingAction->addEntry(tr("medium spacing (4)"), 4);
-    m_snappingSpacingAction->addEntry(tr("large spacing (6)"), 6);
-    m_snappingSpacingAction->setCurrentEntryIndex(1);
-    layoutMarginActionGroup->addAction(m_snappingSpacingAction.data());
-
-    addActions(layoutMarginActionGroup->actions());
-    lowerActions.append(layoutMarginActionGroup->actions());
-
-    m_lowerToolBox = new ToolBox(this);
-    lowerToolBox()->setActions(lowerActions);
-    fillLayout->addWidget(lowerToolBox());
+    upperActions.append(m_zoomAction.data());
+    m_toolBox->addRightSideAction(m_zoomAction.data());
 }
 
 void FormEditorWidget::enterEvent(QEvent *event)
@@ -198,6 +161,7 @@ void FormEditorWidget::enterEvent(QEvent *event)
 void FormEditorWidget::changeTransformTool(bool checked)
 {
     if (checked)
+
         m_formEditorView->changeToTransformTools();
 }
 
@@ -275,19 +239,21 @@ QActionGroup *FormEditorWidget::toolActionGroup() const
     return m_toolActionGroup.data();
 }
 
-ToolBox *FormEditorWidget::lowerToolBox() const
+ToolBox *FormEditorWidget::toolBox() const
 {
-     return m_lowerToolBox.data();
+     return m_toolBox.data();
 }
 
 double FormEditorWidget::spacing() const
 {
-    return m_snappingSpacingAction->currentValue().toDouble();
+    DesignerSettings settings = Internal::BauhausPlugin::pluginInstance()->settings();
+    return settings.itemSpacing;
 }
 
 double FormEditorWidget::margins() const
 {
-    return m_snappingMarginAction->currentValue().toDouble();
+    DesignerSettings settings = Internal::BauhausPlugin::pluginInstance()->settings();
+    return settings.snapMargin;
 }
 
 void FormEditorWidget::setFeedbackNode(const QmlItemNode &node)

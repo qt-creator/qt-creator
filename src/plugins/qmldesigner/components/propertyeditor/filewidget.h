@@ -62,7 +62,7 @@ public:
     QString fileName() const
     { return m_fileName.toString(); }
 
-    void setText(const QString &text)
+    void setText(const QString &/*text*/)
     {
 
     }

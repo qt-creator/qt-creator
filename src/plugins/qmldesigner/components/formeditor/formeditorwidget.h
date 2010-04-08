@@ -43,7 +43,6 @@ class FormEditorView;
 class FormEditorScene;
 class FormEditorGraphicsView;
 class ToolBox;
-class NumberSeriesAction;
 class QmlItemNode;
 
 
@@ -62,7 +61,7 @@ public:
     QAction *snappingAndAnchoringAction() const;
 
     void setScene(FormEditorScene *scene);
-    ToolBox *lowerToolBox() const;
+    ToolBox *toolBox() const;
 
     double spacing() const;
     double margins() const;
@@ -84,15 +83,13 @@ private:
     QWeakPointer<FormEditorView> m_formEditorView;
     QWeakPointer<FormEditorGraphicsView> m_graphicsView;
     QWeakPointer<ZoomAction> m_zoomAction;
+    QWeakPointer<ToolBox> m_toolBox;
     QWeakPointer<QAction> m_anchorToolAction;
     QWeakPointer<QAction> m_transformToolAction;
     QWeakPointer<QActionGroup> m_toolActionGroup;
-    QWeakPointer<ToolBox> m_lowerToolBox;
     QWeakPointer<QAction> m_snappingAction;
     QWeakPointer<QAction> m_snappingAndAnchoringAction;
     QWeakPointer<QAction> m_noSnappingAction;
-    QWeakPointer<NumberSeriesAction> m_snappingMarginAction;
-    QWeakPointer<NumberSeriesAction> m_snappingSpacingAction;
     QWeakPointer<QAction> m_showBoundingRectAction;
     QWeakPointer<QAction> m_selectOnlyContentItemsAction;
 };

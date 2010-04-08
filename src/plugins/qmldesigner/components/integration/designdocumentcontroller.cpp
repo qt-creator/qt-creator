@@ -347,7 +347,7 @@ void DesignDocumentController::loadCurrentModel()
         m_d->componentAction = new ComponentAction(m_d->formEditorView->widget());
         m_d->componentAction->setModel(m_d->model.data());
         connect(m_d->componentAction.data(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));
-        m_d->formEditorView->widget()->lowerToolBox()->addAction(m_d->componentAction.data());
+        m_d->formEditorView->widget()->toolBox()->addAction(m_d->componentAction.data());
     }
     // Disable switching between in file components for the time being
     m_d->componentAction->setVisible(false);
