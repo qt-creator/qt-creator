@@ -78,6 +78,9 @@ signals:
 public slots:
     void setFileName(const QString &);
 
+private slots:
+    void slotFormWindowRemoved(QDesignerFormWindowInterface *w);
+
 private:
     const QString m_mimeType;
 
