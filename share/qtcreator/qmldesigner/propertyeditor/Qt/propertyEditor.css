@@ -24,7 +24,7 @@ QLabel {
     padding: 0;
     background: none;
     color: #dedede;
-    font: bold 
+    font: bold
 }
 
 QScrollArea {
@@ -194,7 +194,8 @@ QToolButton::checked
 
 QPushButton {
     padding: 0px;
-    font-size: 11px
+    font-size: 11px;
+    color: #dedede;
 }
 
 QPushButton, QComboBox[editable="false"],
