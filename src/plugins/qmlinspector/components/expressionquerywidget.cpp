@@ -145,30 +145,6 @@ void ExpressionQueryWidget::setFontSettings()
         m_lineEdit->setFont(fs.font());
 }
 
-void ExpressionQueryWidget::createCommands(Core::IContext *context)
-{
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
-
-    // Add shortcut for invoking automatic completion
-    QShortcut *completionShortcut = new QShortcut(m_lineEdit);
-    completionShortcut->setWhatsThis(tr("Triggers a completion in this scope"));
-    // Make sure the shortcut still works when the completion widget is active
-    completionShortcut->setContext(Qt::ApplicationShortcut);
-    Core::Command *command = am->registerShortcut(completionShortcut, Qml::Constants::COMPLETE_THIS, context->context());
-#ifndef Q_WS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Space")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+Space")));
-#endif
-    connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
-}
-
-void ExpressionQueryWidget::invokeCompletion()
-{
-    qDebug() << "TODO autocomplete";
-}
-
 void ExpressionQueryWidget::setEngineDebug(QDeclarativeEngineDebug *client)
 {
     m_client = client;
