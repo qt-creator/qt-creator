@@ -68,7 +68,6 @@ public:
 
     ExpressionQueryWidget(Mode mode = SeparateEntryMode, QDeclarativeEngineDebug *client = 0, QWidget *parent = 0);
 
-    void createCommands(Core::IContext *context);
     void setEngineDebug(QDeclarativeEngineDebug *client);
     void clear();
 
@@ -85,7 +84,6 @@ private slots:
     void clearTextEditor();
     void executeExpression();
     void showResult();
-    void invokeCompletion();
     void changeContextHelpId(const QString &text);
 
 private:

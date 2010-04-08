@@ -393,8 +393,6 @@ void QmlInspector::createDockWidgets()
     core->addContextObject(m_propWatcherContext);
     core->addContextObject(m_context);
 
-    m_expressionWidget->createCommands(m_context);
-
     connect(m_objectTreeWidget, SIGNAL(contextHelpIdChanged(QString)), m_context,
             SLOT(setContextHelpId(QString)));
     connect(m_watchTableView, SIGNAL(contextHelpIdChanged(QString)), m_propWatcherContext,
