@@ -146,8 +146,8 @@ bool NodeMetaInfo::isValid() const
 MetaInfo NodeMetaInfo::metaInfo() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return MetaInfo();
     }
 
     return m_data->metaInfo;
@@ -167,8 +167,8 @@ QObject *NodeMetaInfo::createInstance(QDeclarativeContext *context) const
     }
 
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return 0; // maybe we should return a new QObject?
     }
 
     QObject *object = 0;
@@ -194,8 +194,8 @@ QObject *NodeMetaInfo::createInstance(QDeclarativeContext *context) const
 QList<NodeMetaInfo> NodeMetaInfo::superClasses() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return QList<NodeMetaInfo>();
     }
 
     return m_data->metaInfo.superClasses(*this);
@@ -209,8 +209,8 @@ QList<NodeMetaInfo> NodeMetaInfo::superClasses() const
 QList<NodeMetaInfo> NodeMetaInfo::directSuperClasses() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return QList<NodeMetaInfo>();
     }
 
     return m_data->metaInfo.directSuperClasses(*this);
@@ -228,8 +228,8 @@ QList<NodeMetaInfo> NodeMetaInfo::directSuperClasses() const
 QHash<QString,PropertyMetaInfo> NodeMetaInfo::properties(bool resolveDotSyntax ) const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return QHash<QString,PropertyMetaInfo>();
     }
 
     QHash<QString,PropertyMetaInfo> propertiesInfo;
@@ -261,8 +261,8 @@ QHash<QString,PropertyMetaInfo> NodeMetaInfo::properties(bool resolveDotSyntax )
 QHash<QString,PropertyMetaInfo> NodeMetaInfo::dotProperties() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return QHash<QString,PropertyMetaInfo>();
     }
 
     QHash<QString,PropertyMetaInfo> propertiesInfo;
@@ -295,8 +295,8 @@ QHash<QString,PropertyMetaInfo> NodeMetaInfo::dotProperties() const
 PropertyMetaInfo NodeMetaInfo::property(const QString &propertyName, bool resolveDotSyntax) const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return PropertyMetaInfo();
     }
 
     if (resolveDotSyntax && propertyName.contains('.')) {
@@ -350,8 +350,8 @@ PropertyMetaInfo NodeMetaInfo::property(const QString &propertyName, bool resolv
 bool NodeMetaInfo::hasLocalProperty(const QString &propertyName, bool resolveDotSyntax) const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
     }
 
     if (resolveDotSyntax && propertyName.contains('.')) {
@@ -392,8 +392,8 @@ bool NodeMetaInfo::hasLocalProperty(const QString &propertyName, bool resolveDot
 bool NodeMetaInfo::hasProperty(const QString &propertyName, bool resolveDotSyntax) const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
     }
 
     if (hasLocalProperty(propertyName, resolveDotSyntax))
@@ -410,9 +410,10 @@ bool NodeMetaInfo::hasProperty(const QString &propertyName, bool resolveDotSynta
 void NodeMetaInfo::addProperty(const PropertyMetaInfo &property)
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return;
     }
+
     m_data->propertyMetaInfoHash.insert(property.name(), property);
 }
 
@@ -426,8 +427,7 @@ void NodeMetaInfo::addProperty(const PropertyMetaInfo &property)
 QString NodeMetaInfo::typeName() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        return QString();
     }
     return m_data->typeName;
 }
@@ -440,8 +440,7 @@ QString NodeMetaInfo::typeName() const
 int NodeMetaInfo::majorVersion() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        return -1;
     }
 
     return 4;
@@ -456,8 +455,7 @@ int NodeMetaInfo::majorVersion() const
 int NodeMetaInfo::minorVersion() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        return -1;
     }
 
     return m_data->minorVersion;
@@ -466,8 +464,7 @@ int NodeMetaInfo::minorVersion() const
 bool NodeMetaInfo::hasDefaultProperty() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        return false;
     }
 
     return m_data->defaultProperty.isNull();
@@ -476,8 +473,7 @@ bool NodeMetaInfo::hasDefaultProperty() const
 QString NodeMetaInfo::defaultProperty() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        return QString();
     }
 
     return m_data->defaultProperty;
@@ -486,8 +482,7 @@ QString NodeMetaInfo::defaultProperty() const
 void NodeMetaInfo::setDefaultProperty(const QString &defaultProperty)
 {
      if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        return;
     }
 
     m_data->defaultProperty = defaultProperty;
@@ -514,8 +509,8 @@ void NodeMetaInfo::setInvalid()
 void NodeMetaInfo::setTypeName(const QString &typeName)
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return;
     }
     m_data->typeName = typeName;
 }
@@ -544,8 +539,8 @@ bool NodeMetaInfo::isContainer() const
 {
     // TODO KAI: Is this too generic?
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
     }
     return m_data->isContainer;
 }
@@ -553,8 +548,8 @@ bool NodeMetaInfo::isContainer() const
 bool NodeMetaInfo::isVisibleToItemLibrary() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
     }
     return m_data->isVisibleToItemLibrary;
 }
@@ -562,8 +557,8 @@ bool NodeMetaInfo::isVisibleToItemLibrary() const
 void NodeMetaInfo::setIsContainer(bool isContainer)
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return;
     }
     m_data->isContainer = isContainer;
 }
@@ -571,8 +566,8 @@ void NodeMetaInfo::setIsContainer(bool isContainer)
 void NodeMetaInfo::setIsVisibleToItemLibrary(bool isVisibleToItemLibrary)
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return;
     }
     m_data->isVisibleToItemLibrary = isVisibleToItemLibrary;
 }
@@ -580,8 +575,8 @@ void NodeMetaInfo::setIsVisibleToItemLibrary(bool isVisibleToItemLibrary)
 QIcon NodeMetaInfo::icon() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return QIcon();
     }
     return m_data->icon;
 }
@@ -589,8 +584,8 @@ QIcon NodeMetaInfo::icon() const
 QString NodeMetaInfo::category() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return QString();
     }
     return m_data->category;
 }
@@ -598,8 +593,8 @@ QString NodeMetaInfo::category() const
 void NodeMetaInfo::setIcon(const QIcon &icon)
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return;
     }
     m_data->icon = icon;
 }
@@ -607,8 +602,8 @@ void NodeMetaInfo::setIcon(const QIcon &icon)
 void NodeMetaInfo::setCategory(const QString &category)
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return;
     }
     m_data->category = category;
 }
@@ -621,8 +616,8 @@ void NodeMetaInfo::setCategory(const QString &category)
 bool NodeMetaInfo::isWidget() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
     }
     return m_data->metaInfo.isSubclassOf(m_data->typeName, "Qt/QWidget");
 }
@@ -635,8 +630,8 @@ bool NodeMetaInfo::isWidget() const
 bool NodeMetaInfo::isGraphicsWidget() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
     }
     return m_data->metaInfo.isSubclassOf(m_data->typeName, "Qt/QGraphicsWidget");
 }
@@ -649,8 +644,8 @@ bool NodeMetaInfo::isGraphicsWidget() const
 bool NodeMetaInfo::isGraphicsObject() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
     }
     return m_data->metaInfo.isSubclassOf(m_data->typeName, "QGraphicsObject");
 }
@@ -663,8 +658,8 @@ bool NodeMetaInfo::isGraphicsObject() const
 bool NodeMetaInfo::isQmlGraphicsItem() const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
     }
 
     if (m_data->isFXItem == Internal::NodeMetaInfoData::Unknown) {
@@ -676,6 +671,11 @@ bool NodeMetaInfo::isQmlGraphicsItem() const
 
 bool NodeMetaInfo::isComponent() const
 {
+    if (!isValid()) {
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
+    }
+
     return !m_data->qmlFile.isEmpty();
 }
 
@@ -687,8 +687,8 @@ bool NodeMetaInfo::isComponent() const
 bool NodeMetaInfo::isSubclassOf(const QString &type, int /*majorVersion*/, int /*minorVersion*/) const
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return false;
     }
     return m_data->metaInfo.isSubclassOf(m_data->typeName, type);
 }
@@ -696,8 +696,8 @@ bool NodeMetaInfo::isSubclassOf(const QString &type, int /*majorVersion*/, int /
 void NodeMetaInfo::setQmlFile(const QString &filePath)
 {
     if (!isValid()) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Invalid NodeMetaInfo object");
-        throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
+        qWarning() << "NodeMetaInfo is invalid";
+        return;
     }
     m_data->qmlFile = filePath;
 }
