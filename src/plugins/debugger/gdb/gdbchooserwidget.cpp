@@ -65,7 +65,10 @@ Q_DECLARE_METATYPE(QList<int>)
 static QList<int> allGdbToolChains()
 {
     QList<int> rc;
-    rc << ProjectExplorer::ToolChain::GCC
+    rc
+#ifdef Q_OS_UNIX
+       << ProjectExplorer::ToolChain::GCC
+#endif
 #ifdef Q_OS_WIN
        << ProjectExplorer::ToolChain::MinGW
        << ProjectExplorer::ToolChain::WINSCW
@@ -335,7 +338,6 @@ void GdbChooserWidget::slotAdd()
     }
     // Add binary + toolchain to model
     m_model->append(path, binaryDialog.toolChains());
-    m_treeView->expandAll();
 }
 
 void GdbChooserWidget::slotRemove()
@@ -389,7 +391,8 @@ GdbChooserWidget::BinaryToolChainMap GdbChooserWidget::gdbBinaries() const
 void GdbChooserWidget::setGdbBinaries(const BinaryToolChainMap &m)
 {
     m_model->setGdbBinaries(m);
-    m_treeView->expandAll();
+    for (int c = 0; c < ColumnCount; c++)
+        m_treeView->resizeColumnToContents(c);
 }
 
 // -------------- ToolChainSelectorWidget
