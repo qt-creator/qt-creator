@@ -169,7 +169,7 @@ QString CdbOptionsPage::displayCategory() const
 
 QIcon CdbOptionsPage::categoryIcon() const
 {
-    return QIcon(); // TODO: Icon for CdbOptions
+    return QIcon(QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *CdbOptionsPage::createPage(QWidget *parent)
