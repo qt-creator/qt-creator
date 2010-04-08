@@ -200,7 +200,7 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
         QFileInfo cppheader(epocRootDir + QLatin1String("/epoc32/include/stdapis/string.h"));
 #if defined (Q_OS_WIN)
         // Report an error if project- and epoc directory are on different drives:
-        if (!epocRootDir.startsWith(projectDir.left(3))) {
+        if (!epocRootDir.startsWith(projectDir.left(3), Qt::CaseInsensitive)) {
             addTask(Task(Task::Error,
                          tr("The Symbian SDK and the project sources must reside on the same drive."),
                          QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
