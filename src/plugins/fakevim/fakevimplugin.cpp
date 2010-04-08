@@ -101,8 +101,8 @@ const char * const INSTALL_HANDLER        = "TextEditor.FakeVimHandler";
 const char * const MINI_BUFFER            = "TextEditor.FakeVimMiniBuffer";
 const char * const INSTALL_KEY            = "Alt+V,Alt+V";
 const char * const SETTINGS_CATEGORY      = "D.FakeVim";
-const char * const SETTINGS_ID            = "General";
-const char * const SETTINGS_EX_CMDS_ID    = "ExCommands";
+const char * const SETTINGS_ID            = "A.General";
+const char * const SETTINGS_EX_CMDS_ID    = "B.ExCommands";
 const char * const CMD_FILE_NEXT          = "FakeVim.SwitchFileNext";
 const char * const CMD_FILE_PREV          = "FakeVim.SwitchFilePrev";
 
