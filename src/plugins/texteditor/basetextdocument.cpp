@@ -145,12 +145,15 @@ bool BaseTextDocument::isModified() const
 
 void BaseTextDocument::checkPermissions()
 {
+    bool previousReadOnly = m_fileIsReadOnly;
     if (!m_fileName.isEmpty()) {
         const QFileInfo fi(m_fileName);
         m_fileIsReadOnly = !fi.isWritable();
     } else {
         m_fileIsReadOnly = false;
     }
+    if (previousReadOnly != m_fileIsReadOnly)
+        emit changed();
 }
 
 bool BaseTextDocument::open(const QString &fileName)
@@ -266,7 +269,7 @@ void BaseTextDocument::reload(ReloadFlag flag, ChangeType type)
     if (flag == FlagIgnore)
         return;
     if (type == TypePermissions) {
-        emit changed();
+        checkPermissions();
     } else {
         reload();
     }

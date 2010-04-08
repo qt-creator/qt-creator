@@ -853,6 +853,7 @@ void FileManager::checkForReload()
         blockFileChange(it.key());
         it.key()->save(it.value());
         unblockFileChange(it.key());
+        it.key()->checkPermissions();
     }
 
     d->m_blockActivated = false;

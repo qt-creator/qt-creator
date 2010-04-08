@@ -83,8 +83,6 @@ public:
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     void reload(ReloadFlag flag, ChangeType type);
 
-    void checkPermissions() {}
-
     void setMimetype(const QString &mimetype) { m_mimeType = mimetype; emit changed(); }
     void setFileName(const QString &filename) { m_fileName = filename; emit changed(); }
 private:
