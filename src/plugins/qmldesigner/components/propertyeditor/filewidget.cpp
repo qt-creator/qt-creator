@@ -31,42 +31,75 @@
 #include <QHBoxLayout>
 #include <QFont>
 #include <QFileDialog>
+#include <QDirIterator>
 #include <QDebug>
+#include <model.h>
 
 
 QT_BEGIN_NAMESPACE
 
-FileWidget::FileWidget(QWidget *parent) : QWidget(parent)
+FileWidget::FileWidget(QWidget *parent) : QWidget(parent), m_filter("(*.*)"), m_showComboBox(false), m_lock(false)
 {
     m_pushButton = new QPushButton(this);
-    m_label = new QLabel(this);
+    m_pushButton->setFixedWidth(32);
     m_lineEdit = new QLineEdit(this);
+    m_comboBox = new QComboBox(this);
+    m_comboBox->hide();
     QHBoxLayout *layout = new QHBoxLayout(this);
     setLayout(layout);
-    layout->addWidget(m_label);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_lineEdit);
+    layout->addWidget(m_comboBox);
+    m_comboBox->setEditable(true);
     layout->addWidget(m_pushButton);
     m_pushButton->setText("...");
-    QFont f = m_label->font();
-    f.setBold(true);
-    m_label->setFont(f);
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(lineEditChanged()));
     connect(m_pushButton, SIGNAL(pressed()), this, SLOT(buttonPressed()));
+    connect(m_comboBox, SIGNAL(editTextChanged(const QString &)), this, SLOT(comboBoxChanged()));
 }
 
 FileWidget::~FileWidget()
 {
 }
 
+void FileWidget::setItemNode(const QVariant &itemNode)
+{
+
+    if (!itemNode.value<QmlDesigner::ModelNode>().isValid() || !QmlDesigner::QmlItemNode(itemNode.value<QmlDesigner::ModelNode>()).hasNodeParent())
+        return;
+    m_itemNode = itemNode.value<QmlDesigner::ModelNode>();
+    setupComboBox();
+    emit itemNodeChanged();
+}
+
+void FileWidget::setShowComboBox(bool show)
+{
+    m_showComboBox = show;
+    m_comboBox->setVisible(show);
+    m_lineEdit->setVisible(!show);
+}
 
 void FileWidget::lineEditChanged()
 {
+    if (m_lock)
+        return;
     setFileNameStr(m_lineEdit->text());
+}
+
+void FileWidget::comboBoxChanged()
+{
+    if (m_lock)
+        return;
+    setFileNameStr(m_comboBox->currentText());
 }
 
 void FileWidget::buttonPressed()
 {
-    QString newFile = QFileDialog::getOpenFileName();
+    QString path = QDir::currentPath();
+    if (m_itemNode.isValid()) {
+        path = QFileInfo(m_itemNode.modelNode().model()->fileUrl().toLocalFile()).absoluteDir().absolutePath();
+    }
+    QString newFile = QFileDialog::getOpenFileName(0, tr("Open File"), path, m_filter);
     if (!newFile.isEmpty())
         setFileNameStr(newFile);
 }
@@ -82,7 +115,28 @@ void FileWidget::setFileName(const QUrl &fileName)
 
     m_fileName = fileName;
     m_lineEdit->setText(fileName.toString());
+    m_comboBox->setEditText(m_fileName.toString());
     emit fileNameChanged(fileName);
+}
+
+void FileWidget::setupComboBox()
+{
+    m_lock = true;
+    m_comboBox->clear();
+
+    if (m_itemNode.isValid()) {
+        QDir dir = QFileInfo(m_itemNode.modelNode().model()->fileUrl().toLocalFile()).absoluteDir();
+        QStringList filterList = m_filter.split(' ');
+        QDirIterator it(dir.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            QString absolutePath = it.next();
+            m_comboBox->addItem(dir.relativeFilePath(absolutePath));
+        }
+    }
+
+    m_comboBox->setEditText(m_fileName.toString());
+
+    m_lock = false;
 }
 
 QT_END_NAMESPACE

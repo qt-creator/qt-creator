@@ -35,7 +35,9 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QComboBox>
 #include <QUrl>
+#include <qmlitemnode.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -45,41 +47,71 @@ class FileWidget : public QWidget
 
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QString fileName READ fileName WRITE setFileNameStr NOTIFY fileNameChanged)
+    Q_PROPERTY(QString filter READ filter WRITE setFilter)
+    Q_PROPERTY(bool showComboBox READ showComboBox WRITE setShowComboBox)
+    Q_PROPERTY(QVariant itemNode READ itemNode WRITE setItemNode NOTIFY itemNodeChanged)        
+
 public:
 
     FileWidget(QWidget *parent = 0);
     ~FileWidget();
+
+    QVariant itemNode() const { return QVariant::fromValue(m_itemNode.modelNode()); }
+    void setItemNode(const QVariant &itemNode);
 
     QString fileName() const
     { return m_fileName.toString(); }
 
     void setText(const QString &text)
     {
-        m_label->setText(text);
+
     }
 
     QString text() const
     {
-        return m_label->text();
+        return QString();
     }
 
+    void setFilter(const QString &filter)
+    {
+        m_filter = filter;
+    }
+
+    QString filter() const
+    {
+        return m_filter;
+    }
+
+    void setShowComboBox(bool show);
+
+    bool showComboBox() const
+    { return m_showComboBox; }
 
 public slots:
     void setFileName(const QUrl &fileName);
     void setFileNameStr(const QString &fileName);
     void buttonPressed();
     void lineEditChanged();
+    void comboBoxChanged();
 
 signals:
     void fileNameChanged(const QUrl &fileName);
+    void itemNodeChanged();
 
 protected:
 
 private:
-    QLabel* m_label;
+
+    void setupComboBox();
+
     QPushButton *m_pushButton;
     QLineEdit *m_lineEdit;
+    QComboBox *m_comboBox;
     QUrl m_fileName;
+    QmlDesigner::QmlItemNode m_itemNode;
+    QString m_filter;
+    bool m_showComboBox;
+    bool m_lock;
 
 };
 
