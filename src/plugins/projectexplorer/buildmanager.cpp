@@ -259,6 +259,7 @@ void BuildManager::startBuildQueue()
         m_progressFutureInterface->reportStarted();
         m_outputWindow->clearContents();
         m_taskWindow->clearTasks(Constants::TASK_CATEGORY_COMPILE);
+        m_taskWindow->clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
         nextStep();
     } else {
         // Already running
