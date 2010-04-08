@@ -2054,6 +2054,10 @@
 
     \o Double-click the \gui{Push Button} widget and enter the text \bold{Find}.
 
+    \o In the \gui Properties pane, change the \gui objectName to \bold findButton.
+
+    \image qtcreator-textfinder-objectname.png "Changing object names"
+
     \o Press \key {Ctrl+A} to select the widgets and click \gui{Lay out Horizontally}
     (or press \gui{Ctrl+H}) to apply a horizontal layout
     (\l{http://doc.trolltech.com/qhboxlayout.html}{QHBoxLayout}).
@@ -2068,12 +2072,28 @@
 
     \image qtcreator-textfinder-ui.png "Text Finder UI"
 
+    Applying the horizontal and vertical layouts ensures that the application UI scales to different
+    screen sizes.
+
+    \o To call a find function when users press the \gui Find button, you use the Qt signals
+    and slots mechanism. A signal is emitted when a particular event occurs and a slot is
+    a function that is called in response to a particular signal. Qt widgets have predefined
+    signals and slots that you can use directly from \QD. To add a slot for the find function:
+
+        \list
+
+            \o Right-click the \gui Find button to open a context-menu.
+            \o Select \gui {Go to Slot > clicked()}, and then select \gui OK.
+
+            A private slot, \c{on_findButton_clicked()}, is added to the header file,
+            textfinder.h and a private function, \c{TextFinder::on_findButton_clicked()},
+            is added to the source file, textfinder.cpp.
+
+        \endlist
+
     \o Press \gui{Ctrl+S} to save your changes.
 
     \endlist
-
-    Applying the horizontal and vertical layouts ensures that the application UI scales to different
-    screen sizes.
 
     For more information about designing forms with \QD, see the
     \l{http://doc.trolltech.com/designer-manual.html}{Qt Designer Manual}.
@@ -2082,8 +2102,7 @@
 
     The textfinder.h file already has the necessary #includes, a
     constructor, a destructor, and the \c{Ui} object. You need to add a private
-    slot, \c{on_findButton_clicked()}, to carry out the find operation. You
-    also need a private function, \c{loadTextFile()}, to read and display the
+    function, \c{loadTextFile()}, to read and display the
     contents of the input text file in the
     \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit}.
 
@@ -2092,8 +2111,8 @@
     \o In the \gui{Projects} view, double-click the \c{textfinder.h} file
     to open it for editing.
 
-    \o Add a private slot in a \c{private slots} section and a private function
-    in the \c{private} section, after the \c{Ui::TextFinder} function, as
+    \o Add a private function
+    to the \c{private} section, after the \c{Ui::TextFinder} function, as
     illustrated by the following code snippet:
 
     \snippet examples/textfinder/textfinder.h 0
@@ -2114,7 +2133,7 @@
     \l{http://doc.trolltech.com/qfile.html}{QFile}, read it with
     \l{http://doc.trolltech.com/qtextstream.html}{QTextStream}, and
     then display it on \c{textEdit} with
-    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
+    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}.
     This is illustrated by the following code snippet:
 
     \snippet examples/textfinder/textfinder.cpp 0
