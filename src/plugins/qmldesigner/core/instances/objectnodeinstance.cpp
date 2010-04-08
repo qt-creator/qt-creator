@@ -176,12 +176,12 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
 {
     if (!objectNodeInstance->modelNode().metaInfo().isComponent()) { // TODO: this is a nasty workaround which needs to be removed
         const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
-        m_metaObject = new NodeInstanceMetaObject(objectNodeInstance);
+        m_metaObject = new NodeInstanceMetaObject(objectNodeInstance, nodeInstanceView()->engine());
         for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
             if (QDeclarativeMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
                 QObject *propertyObject = QDeclarativeMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
                 if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
-                    new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name());
+                    new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name(), nodeInstanceView()->engine());
                 }
             }
         }

@@ -8,18 +8,20 @@
 namespace QmlDesigner {
 namespace Internal {
 
-NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer &nodeInstance)
-    : QDeclarativeOpenMetaObject(nodeInstance->object()),
+NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer &nodeInstance, QDeclarativeEngine *engine)
+    : QDeclarativeOpenMetaObject(nodeInstance->object(), new QDeclarativeOpenMetaObjectType(nodeInstance->object()->metaObject(), engine)),
     m_nodeInstance(nodeInstance),
     m_context(nodeInstance->modelNode().isRootNode() ? nodeInstance->context() : 0)
 {
+    setCached(true);
 }
 
-NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix)
-    : QDeclarativeOpenMetaObject(object),
+NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QDeclarativeEngine *engine)
+    : QDeclarativeOpenMetaObject(object, new QDeclarativeOpenMetaObjectType(object->metaObject(), engine)),
     m_nodeInstance(nodeInstance),
     m_prefix(prefix)
 {
+    setCached(true);
 }
 
 void NodeInstanceMetaObject::createNewProperty(const QString &name)
