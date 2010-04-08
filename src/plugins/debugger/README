@@ -33,7 +33,7 @@ for JavaScript on all platforms).
     between the adapter and AppTRK running on the device.
 
   Gdb comes in main two flavours: with or without Python. The Python version
-  is prefered, but it is not available on Mac and on older versions of Linux.
+  is preferred, but it is not available on Mac and on older versions of Linux.
   On Windows, Symbian and Maemo we only support the Python version.
 
   The non-Python versions use the compiled version of the debugging helpers,
