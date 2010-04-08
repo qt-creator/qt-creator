@@ -438,8 +438,8 @@ QStringList MetaInfo::directSuperClasses(const QString &className) const
 QList<NodeMetaInfo> MetaInfo::superClasses(const NodeMetaInfo &nodeInfo) const
 {
     if (!nodeInfo.isValid()) {
-        Q_ASSERT_X(nodeInfo.isValid(), Q_FUNC_INFO, "Invalid nodeInfo argument");
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "nodeInfo");
+        qWarning() << "NodeMetaInfo is invalid";
+        return QList<NodeMetaInfo>();
     }
 
     QList<NodeMetaInfo> superClassList;
@@ -457,8 +457,8 @@ QList<NodeMetaInfo> MetaInfo::superClasses(const NodeMetaInfo &nodeInfo) const
 QList<NodeMetaInfo> MetaInfo::directSuperClasses(const NodeMetaInfo &nodeInfo) const
 {
     if (!nodeInfo.isValid()) {
-        Q_ASSERT_X(nodeInfo.isValid(), Q_FUNC_INFO, "Invalid nodeInfo argument");
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "nodeInfo");
+        qWarning() << "NodeMetaInfo is invalid";
+        return QList<NodeMetaInfo>();
     }
 
     QList<NodeMetaInfo> superClassList;
@@ -614,7 +614,10 @@ void MetaInfo::addNodeInfo(NodeMetaInfo &nodeInfo, const QString &baseType)
 
 void MetaInfo::removeNodeInfo(NodeMetaInfo &info)
 {
-    Q_ASSERT(info.isValid());
+    if (!info.isValid()) {
+        qWarning() << "NodeMetaInfo is invalid";
+        return;
+    }
 
     if (m_p->m_nodeMetaInfoHash.contains(info.typeName())) {
         m_p->m_nodeMetaInfoHash.remove(info.typeName());
