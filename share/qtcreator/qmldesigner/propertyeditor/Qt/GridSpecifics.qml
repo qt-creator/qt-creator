@@ -15,7 +15,7 @@ GroupBox {
     maximumHeight: 200;
 
     finished: finishedNotify;
-    caption: "Grid";
+    caption: qsTr("Grid")
     id: gridSpecifics;
 
     layout: QVBoxLayout {
@@ -29,7 +29,7 @@ GroupBox {
             IntEditor {
                 id: spacing;
                 backendValue: backendValues.spacing;
-                caption: "Spacing"
+                caption: qsTr("Spacing")
                 baseStateFlag: isBaseState;
                 step: 1;
                 minimumValue: 0;
@@ -39,7 +39,7 @@ GroupBox {
             IntEditor {
                 id: rows;
                 backendValue: backendValues.rows;
-                caption: "Rows"
+                caption: qsTr("Rows")
                 baseStateFlag: isBaseState;
                 step: 1;
                 minimumValue: 1;
@@ -49,7 +49,7 @@ GroupBox {
             IntEditor {
                 id: columns;
                 backendValue: backendValues.columns;
-                caption: "Columns"
+                caption: qsTr("Columns")
                 baseStateFlag: isBaseState;
                 step: 1;
                 minimumValue: 1;

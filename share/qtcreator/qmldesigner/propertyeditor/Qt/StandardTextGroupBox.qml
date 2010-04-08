@@ -4,7 +4,7 @@ import Bauhaus 1.0
 GroupBox {
     id: standardTextGroupBox
 
-    caption: "Text";
+    caption: qsTr("Text")
 
     property bool showIsWrapping: false
     property bool showVerticalAlignment: false

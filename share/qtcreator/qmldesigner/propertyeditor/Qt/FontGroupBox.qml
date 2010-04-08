@@ -3,7 +3,7 @@ import Bauhaus 1.0
 
 GroupBox {
     id: fontGroupBox
-    caption: "Font";
+    caption: qsTr("Font")
     property var showStyle: false
 
     layout: VerticalLayout {

@@ -13,7 +13,7 @@ QWidget {
 
             GroupBox {
                 finished: finishedNotify;
-                caption: "Flickable";
+                caption: qsTr("Flickable")
 
                 layout: QVBoxLayout {
                     topMargin: 15;

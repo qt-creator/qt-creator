@@ -15,7 +15,7 @@ QWidget {
                 maximumHeight: 200;
 
                 finished: finishedNotify;
-                caption: "Grid";
+                caption: qsTr("Grid");
                 id: gridSpecifics;
 
                 layout: QVBoxLayout {
@@ -29,7 +29,7 @@ QWidget {
                     IntEditor {
                         id: spacing;
                         backendValue: backendValues.spacing;
-                        caption: "Spacing"
+                        caption: qsTr("Spacing")
                         baseStateFlag: isBaseState;
                         step: 1;
                         minimumValue: 0;

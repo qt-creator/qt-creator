@@ -14,7 +14,7 @@ QWidget {
             maximumHeight: 240;
 
             finished: finishedNotify;
-            caption: "Image";
+            caption: qsTr("Image");
 
             layout: VerticalLayout {
 
@@ -31,7 +31,7 @@ QWidget {
                 IntEditor {
                     id: pixelSize;
                     backendValue: backendValues.border_left;
-                    caption: "Left"
+                    caption: qsTr("Left")
                     baseStateFlag: isBaseState;
 
                     step: 1;
@@ -41,7 +41,7 @@ QWidget {
 
                 IntEditor {
                     backendValue: backendValues.border_right;
-                    caption: "Right"
+                    caption: qsTr("Right")
                     baseStateFlag: isBaseState;
 
                     step: 1;
@@ -51,7 +51,7 @@ QWidget {
 
                 IntEditor {
                     backendValue: backendValues.border_top;
-                    caption: "Top"
+                    caption: qsTr("Top")
                     baseStateFlag: isBaseState;
 
                     step: 1;
@@ -61,7 +61,7 @@ QWidget {
 
                 IntEditor {
                     backendValue: backendValues.border_bottom;
-                    caption: "Bottom"
+                    caption: qsTr("Bottom")
                     baseStateFlag: isBaseState;
 
                     step: 1;

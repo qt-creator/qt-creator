@@ -13,7 +13,7 @@ QWidget {
 
             GroupBox {
                 finished: finishedNotify;
-                caption: "List View";
+                caption: qsTr("List View")
 
                 layout: QVBoxLayout {
                     topMargin: 15;

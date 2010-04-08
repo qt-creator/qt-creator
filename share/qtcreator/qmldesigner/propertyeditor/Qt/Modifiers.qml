@@ -3,7 +3,7 @@ import Bauhaus 1.0
 
 GroupBox {
     finished: finishedNotify;
-    caption: "Manipulation"
+    caption: qsTr("Manipulation")
     maximumHeight: 200;
     minimumHeight: 180;
     id: mofifiers;
@@ -121,7 +121,7 @@ GroupBox {
         }
         IntEditor {
             backendValue: backendValues.rotation
-            caption: "Rotation"
+            caption: qsTr("Rotation")
             baseStateFlag: isBaseState;
             step: 10;
             minimumValue: 0;
@@ -130,7 +130,7 @@ GroupBox {
 
         IntEditor {
             backendValue: backendValues.z == undefined ? 0 : backendValues.z
-            caption: "z"
+            caption: qsTr("z")
             baseStateFlag: isBaseState;
             step: 1;
             minimumValue: -100;

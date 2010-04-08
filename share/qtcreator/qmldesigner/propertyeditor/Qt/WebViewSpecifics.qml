@@ -15,7 +15,7 @@ QWidget {
                 maximumHeight: 200;
 
                 finished: finishedNotify;
-                caption: "WebView";
+                caption: qsTr("WebView")
                 id: webViewSpecifics;
 
                 layout: VerticalLayout {
@@ -36,7 +36,7 @@ QWidget {
                     IntEditor {
                         id: preferredWidth;
                         backendValue: backendValues.preferredWidth;
-                        caption: "Prefered Width"
+                        caption: qsTr("Preferred Width")
                         baseStateFlag: isBaseState;
                         step: 1;
                         minimumValue: 0;
@@ -46,7 +46,7 @@ QWidget {
                     IntEditor {
                         id: webPageWidth;
                         backendValue: backendValues.preferredHeight;
-                        caption: "Page Height"
+                        caption: qsTr("Page Height")
                         baseStateFlag: isBaseState;
                         step: 1;
                         minimumValue: 0;

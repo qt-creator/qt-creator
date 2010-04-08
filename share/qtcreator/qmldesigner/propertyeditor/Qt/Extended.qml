@@ -2,7 +2,7 @@ import Qt 4.6
 import Bauhaus 1.0
 
 GroupBox {
-    caption: "Effect"
+    caption: qsTr("Effect")
     id: extended;
     maximumHeight: 260;
 
@@ -73,7 +73,7 @@ GroupBox {
                             IntEditor {
                                 id: blurRadius;
                                 backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : null;
-                                caption: "Blur Radius:"
+                                caption: qsTr("Blur Radius:")
                                 baseStateFlag: isBaseState;
 
                                 step: 1;
@@ -125,7 +125,7 @@ GroupBox {
                             IntEditor {
                                 id: pixelSize;
                                 backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.pixelSize : null;
-                                caption: "Pixel Size:"
+                                caption: qsTr("Pixel Size:")
                                 baseStateFlag: isBaseState;
 
                                 step: 1;
@@ -143,7 +143,7 @@ GroupBox {
                             IntEditor {
                                 id: blurRadiusShadow;
                                 backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : null;
-                                caption: "Blur Radius:"
+                                caption: qsTr("Blur Radius:")
                                 baseStateFlag: isBaseState;
 
                                 step: 1;
@@ -166,7 +166,7 @@ GroupBox {
                             IntEditor {
                                 id: xOffset;
                                 backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.xOffset : null;
-                                caption: "x Offset:     "
+                                caption: qsTr("x Offset:     ")
                                 baseStateFlag: isBaseState;
 
                                 step: 1;
@@ -177,7 +177,7 @@ GroupBox {
                             IntEditor {
                                 id: yOffset;
                                 backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.yOffset : null;
-                                caption: "y Offset:     "
+                                caption: qsTr("y Offset:     ")
                                 baseStateFlag: isBaseState;
 
                                 step: 1;

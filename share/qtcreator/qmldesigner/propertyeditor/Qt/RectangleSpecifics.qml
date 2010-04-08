@@ -17,7 +17,7 @@ QWidget {
         GroupBox {
 
             finished: finishedNotify;
-            caption: "Rectangle"
+            caption: qsTr("Rectangle")
 
             layout: VerticalLayout {
 			    rightMargin: 24
