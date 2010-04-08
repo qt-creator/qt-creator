@@ -53,21 +53,26 @@ verbosity = 1
 # Encodings
 
 Unencoded8Bit, \
-    Base64Encoded8BitWithQuotes, \
-    Base64Encoded16BitWithQuotes, \
-    Base64Encoded32BitWithQuotes, \
-    Base64Encoded16Bit, \
-    Base64Encoded8Bit, \
-    Hex2EncodedLatin1, \
-    Hex4EncodedLittleEndian, \
-    Hex8EncodedLittleEndian, \
-    Hex2EncodedUtf8, \
-    Hex8EncodedBigEndian, \
-    Hex4EncodedBigEndian \
-        = range(12)
+Base64Encoded8BitWithQuotes, \
+Base64Encoded16BitWithQuotes, \
+Base64Encoded32BitWithQuotes, \
+Base64Encoded16Bit, \
+Base64Encoded8Bit, \
+Hex2EncodedLatin1, \
+Hex4EncodedLittleEndian, \
+Hex8EncodedLittleEndian, \
+Hex2EncodedUtf8, \
+Hex8EncodedBigEndian, \
+Hex4EncodedBigEndian \
+    = range(12)
 
 # Display modes
-StopDisplay, DisplayImage1, DisplayString, DisplayImage, DisplayProcess = range(5)
+StopDisplay, \
+DisplayImage1, \
+DisplayString, \
+DisplayImage, \
+DisplayProcess \
+    = range(5)
 
 
 def select(condition, if_expr, else_expr):
@@ -180,25 +185,28 @@ class SubItem:
         self.savedType = self.d.currentType
         self.savedTypePriority = self.d.currentTypePriority
         self.d.currentValue = ""
-        self.d.currentValuePriority = 0
+        self.d.currentValuePriority = -100
         self.d.currentValueEncoding = None
         self.d.currentType = ""
-        self.d.currentTypePriority = 0
+        self.d.currentTypePriority = -100
 
     def __exit__(self, exType, exValue, exTraceBack):
         #warn(" CURRENT VALUE: %s %s %s" % (self.d.currentValue,
         #    self.d.currentValueEncoding, self.d.currentValuePriority))
         if self.d.passExceptions and not exType is None:
             showException("SUBITEM", exType, exValue, exTraceBack)
-        if not self.d.currentValueEncoding is None:
-            self.d.putField("valueencoded", self.d.currentValueEncoding)
-        if not self.d.currentValue is None:
-            self.d.putField("value", self.d.currentValue)
-        #warn("TYPE CURRENT: %s" % self.d.currentType)
-        type = stripClassTag(str(self.d.currentType))
-        #warn("TYPE: '%s'  DEFAULT: '%s'" % (type, self.d.currentChildType))
-        if len(type) > 0 and type != self.d.currentChildType:
-            self.d.put('type="%s",' % type) # str(type.unqualified()) ?
+        try:
+            #warn("TYPE CURRENT: %s" % self.d.currentType)
+            type = stripClassTag(str(self.d.currentType))
+            #warn("TYPE: '%s'  DEFAULT: '%s'" % (type, self.d.currentChildType))
+            if len(type) > 0 and type != self.d.currentChildType:
+                self.d.put('type="%s",' % type) # str(type.unqualified()) ?
+            if not self.d.currentValueEncoding is None:
+                self.d.putField("valueencoded", self.d.currentValueEncoding)
+            if not self.d.currentValue is None:
+                self.d.putField("value", self.d.currentValue)
+        except:
+            pass
         self.d.put('},')
         self.d.currentValue = self.savedValue
         self.d.currentValuePriority = self.savedValuePriority
@@ -1047,8 +1055,8 @@ class Dumper:
 
     def putPointerValue(self, value):
         # Use a lower priority
-        self.putField("value2", "0x%x" % value.dereference().cast(
-            gdb.lookup_type("unsigned long")))
+        self.putValue("0x%x" % value.dereference().cast(
+            gdb.lookup_type("unsigned long")), None, -1)
 
     def putStringValue(self, value):
         if value is None:

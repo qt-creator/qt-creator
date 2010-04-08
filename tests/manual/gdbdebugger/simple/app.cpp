@@ -376,7 +376,9 @@ void testQFileInfo()
 {
     QFileInfo fi("/tmp/t");
     QString s = fi.absoluteFilePath();
-    QString t = fi.bundleName();
+    s = fi.bundleName();
+    s = fi.bundleName();
+    s = fi.bundleName();
 }
 
 void testQHash()
@@ -701,6 +703,7 @@ public:
 void testQObject(int &argc, char *argv[])
 {
     QApplication app(argc, argv);
+#if 1
     Names::Bar::TestObject test;
 
     QAction act("xxx", &app);
@@ -710,6 +713,7 @@ void testQObject(int &argc, char *argv[])
     t += "y";
     t += "y";
     t += "y";
+#endif
 
 #if 1
     QObject ob(&app);
@@ -719,7 +723,9 @@ void testQObject(int &argc, char *argv[])
 
     QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
     QObject::connect(&app, SIGNAL(lastWindowClosed()), &ob, SLOT(deleteLater()));
+#endif
 
+#if 1
     QList<QObject *> obs;
     obs.append(&ob);
     obs.append(&ob1);
@@ -727,10 +733,13 @@ void testQObject(int &argc, char *argv[])
     obs.append(&app);
     ob1.setObjectName("A Subobject");
 #endif
+
+#if 1
     QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
     QLabel l(str);
     l.setObjectName("Some Label");
     l.show();
+#endif
     app.exec();
 }
 
@@ -889,7 +898,7 @@ void testStdList()
     for (int i = 0; i < 100; ++i)
         flist.push_back(i + 15);
 
-#if 0
+#if 1
     std::list<int *> plist1;
     plist1.push_back(new int(1));
     plist1.push_back(0);
@@ -1251,6 +1260,7 @@ void testQVariant2()
     my[1] = (QStringList() << "Hello");
     my[3] = (QStringList() << "World");
     var.setValue(my);
+    // FIXME: Known to break
     QString type = var.typeName();
     var.setValue(my);
     var.setValue(my);

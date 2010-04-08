@@ -529,8 +529,7 @@ private: ////////// Convenience Functions //////////
     static QPoint m_toolTipPos;
     static QByteArray tooltipINameForExpression(const QByteArray &exp);
 
-    static void setWatchDataValue(WatchData &data, const GdbMi &mi,
-        int encoding = 0);
+    static void setWatchDataValue(WatchData &data, const GdbMi &item);
     static void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
             int encoding = 0);
     static void setWatchDataChildCount(WatchData &data, const GdbMi &mi);

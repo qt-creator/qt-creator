@@ -3214,13 +3214,15 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::setWatchDataValue(WatchData &data, const GdbMi &mi,
-    int encoding)
+void GdbEngine::setWatchDataValue(WatchData &data, const GdbMi &item)
 {
-    if (mi.isValid())
-        data.setValue(decodeData(mi.data(), encoding));
-    else
+    GdbMi value = item.findChild("value");
+    if (value.isValid()) {
+        int encoding = item.findChild("valueencoded").data().toInt();
+        data.setValue(decodeData(value.data(), encoding));
+    } else {
         data.setValueNeeded();
+    }
 }
 
 void GdbEngine::setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
@@ -3501,8 +3503,7 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
     if (mi.isValid())
         data.typeFormats = QString::fromUtf8(mi.data());
 
-    setWatchDataValue(data, item.findChild("value"),
-        item.findChild("valueencoded").data().toInt());
+    setWatchDataValue(data, item);
     setWatchDataAddress(data, item.findChild("addr"));
     setWatchDataExpression(data, item.findChild("exp"));
     setWatchDataValueEnabled(data, item.findChild("valueenabled"));
@@ -3604,7 +3605,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         }
         //: Type of local variable or parameter shadowed by another
         //: variable of the same name in a nested block.
-        setWatchDataValue(data, item.findChild("value"));
+        setWatchDataValue(data, item);
         data.setType(GdbEngine::tr("<shadowed>"));
         data.setHasChildren(false);
         return data;
@@ -3622,8 +3623,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         return data;
     }
     if (isSynchroneous()) {
-        setWatchDataValue(data, item.findChild("value"),
-                          item.findChild("valueencoded").data().toInt());
+        setWatchDataValue(data, item);
         // We know that the complete list of children is
         // somewhere in the response.
         data.setChildrenUnneeded();
@@ -3631,9 +3631,9 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         // Set value only directly if it is simple enough, otherwise
         // pass through the insertData() machinery.
         if (isIntOrFloatType(data.type) || isPointerType(data.type))
-            setWatchDataValue(data, item.findChild("value"));
+            setWatchDataValue(data, item);
         if (isSymbianIntType(data.type)) {
-            setWatchDataValue(data, item.findChild("value"));
+            setWatchDataValue(data, item);
             data.setHasChildren(false);
         }
     }
