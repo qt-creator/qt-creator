@@ -279,13 +279,13 @@
   </connection>
   <connection>
    <sender>deviceButton</sender>
-   <signal>toggled(bool)</signal>
+   <signal>clicked(bool)</signal>
    <receiver>MaemoSettingsWidget</receiver>
    <slot>deviceTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>267</x>
-     <y>169</y>
+     <x>287</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>
@@ -300,8 +300,8 @@
    <slot>hostNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>396</x>
-     <y>216</y>
+     <x>431</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
@@ -316,8 +316,8 @@
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>396</x>
-     <y>240</y>
+     <x>431</x>
+     <y>275</y>
     </hint>
     <hint type="destinationlabel">
      <x>514</x>
@@ -332,8 +332,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>396</x>
-     <y>309</y>
+     <x>431</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
@@ -348,8 +348,8 @@
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>396</x>
-     <y>336</y>
+     <x>431</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
      <x>422</x>
@@ -364,8 +364,8 @@
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>396</x>
-     <y>363</y>
+     <x>431</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>423</x>
@@ -375,13 +375,13 @@
   </connection>
   <connection>
    <sender>simulatorButton</sender>
-   <signal>toggled(bool)</signal>
+   <signal>clicked(bool)</signal>
    <receiver>MaemoSettingsWidget</receiver>
    <slot>deviceTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>387</x>
-     <y>169</y>
+     <x>414</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>426</x>
@@ -428,8 +428,8 @@
    <slot>deleteConfig()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
-     <y>56</y>
+     <x>555</x>
+     <y>68</y>
     </hint>
     <hint type="destinationlabel">
      <x>513</x>
@@ -444,8 +444,8 @@
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>196</x>
-     <y>187</y>
+     <x>254</x>
+     <y>219</y>
     </hint>
     <hint type="destinationlabel">
      <x>513</x>
@@ -460,8 +460,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>150</x>
-     <y>384</y>
+     <x>162</x>
+     <y>409</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -476,8 +476,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>150</x>
-     <y>384</y>
+     <x>162</x>
+     <y>409</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -492,8 +492,8 @@
    <slot>testConfig()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>450</x>
-     <y>96</y>
+     <x>555</x>
+     <y>102</y>
     </hint>
     <hint type="destinationlabel">
      <x>428</x>
@@ -508,8 +508,8 @@
    <slot>deployKey()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>438</x>
-     <y>119</y>
+     <x>555</x>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>510</x>
@@ -524,8 +524,8 @@
    <slot>gdbServerPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>369</x>
-     <y>282</y>
+     <x>431</x>
+     <y>303</y>
     </hint>
     <hint type="destinationlabel">
      <x>427</x>
@@ -540,8 +540,8 @@
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>189</y>
+     <x>307</x>
+     <y>219</y>
     </hint>
     <hint type="destinationlabel">
      <x>525</x>

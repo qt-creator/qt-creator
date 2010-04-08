@@ -92,9 +92,12 @@ private:
                           PortAndTimeoutValidator *validator);
     void clearDetails();
     QString parseTestOutput();
+    void fillInValues();
 
     Ui_MaemoSettingsWidget *m_ui;
     QList<MaemoDeviceConfig> m_devConfs;
+    MaemoDeviceConfig m_lastConfigHW;
+    MaemoDeviceConfig m_lastConfigSim;
     NameValidator * const m_nameValidator;
     PortAndTimeoutValidator * const m_sshPortValidator;
     PortAndTimeoutValidator * const m_gdbServerPortValidator;

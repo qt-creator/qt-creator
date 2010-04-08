@@ -152,7 +152,7 @@ void MaemoSettingsWidget::addConfig()
         isUnique = !configNameExists(m_devConfs, newName);
     } while (!isUnique);
 
-    m_devConfs.append(MaemoDeviceConfig(newName));
+    m_devConfs.append(MaemoDeviceConfig(newName, MaemoDeviceConfig::Physical));
     m_ui->configListWidget->addItem(newName);
     m_ui->configListWidget->setCurrentRow(m_ui->configListWidget->count() - 1);
     m_ui->nameLineEdit->selectAll();
@@ -180,10 +180,24 @@ void MaemoSettingsWidget::deleteConfig()
 void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
 {
     m_ui->nameLineEdit->setText(devConfig.name);
-    if (devConfig.type == MaemoDeviceConfig::Physical)
+    MaemoDeviceConfig *otherConfig;
+    if (devConfig.type == MaemoDeviceConfig::Physical) {
+        m_lastConfigHW = devConfig;
+        m_lastConfigSim
+            = MaemoDeviceConfig(devConfig.name, MaemoDeviceConfig::Simulator);
+        otherConfig = &m_lastConfigSim;
         m_ui->deviceButton->setChecked(true);
-    else
+    } else {
+        m_lastConfigSim = devConfig;
+        m_lastConfigHW
+            = MaemoDeviceConfig(devConfig.name, MaemoDeviceConfig::Physical);
+        otherConfig = &m_lastConfigHW;
         m_ui->simulatorButton->setChecked(true);
+    }
+    otherConfig->authentication = devConfig.authentication;
+    otherConfig->timeout = devConfig.timeout;
+    otherConfig->pwd = devConfig.pwd;
+    otherConfig->keyFile = devConfig.keyFile;
 
     if (devConfig.authentication == MaemoDeviceConfig::Password)
         m_ui->passwordButton->setChecked(true);
@@ -194,6 +208,25 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
     m_sshPortValidator->setValue(devConfig.sshPort);
     m_gdbServerPortValidator->setValue(devConfig.gdbServerPort);
     m_timeoutValidator->setValue(devConfig.timeout);
+    fillInValues();
+}
+
+void MaemoSettingsWidget::fillInValues()
+{
+    m_ui->hostLineEdit->setText(currentConfig().host);
+    m_ui->sshPortLineEdit->setText(QString::number(currentConfig().sshPort));
+    m_ui->gdbServerPortLineEdit
+        ->setText(QString::number(currentConfig().gdbServerPort));
+    m_ui->timeoutLineEdit->setText(QString::number(currentConfig().timeout));
+    m_ui->userLineEdit->setText(currentConfig().uname);
+    m_ui->pwdLineEdit->setText(currentConfig().pwd);
+    m_ui->keyFileLineEdit->setPath(currentConfig().keyFile);
+
+    const bool isSimulator
+        = currentConfig().type == MaemoDeviceConfig::Simulator;
+    m_ui->hostLineEdit->setReadOnly(isSimulator);
+    m_ui->sshPortLineEdit->setReadOnly(isSimulator);
+    m_ui->gdbServerPortLineEdit->setReadOnly(isSimulator);
 }
 
 void MaemoSettingsWidget::saveSettings()
@@ -222,34 +255,19 @@ void MaemoSettingsWidget::configNameEditingFinished()
 
 void MaemoSettingsWidget::deviceTypeChanged()
 {
-    currentConfig().type =
+    const MaemoDeviceConfig::DeviceType devType =
         m_ui->deviceButton->isChecked()
             ? MaemoDeviceConfig::Physical
             : MaemoDeviceConfig::Simulator;
 
-    // Port values for the simulator are specified by Qemu's
-    // "information" file, to which we have no access here,
-    // so we hard-code the last known values.
-    if (currentConfig().type == MaemoDeviceConfig::Simulator) {
-        currentConfig().host = QLatin1String("localhost");
-        currentConfig().sshPort = 6666;
-        currentConfig().gdbServerPort = 13219;
-        m_ui->hostLineEdit->setReadOnly(true);
-        m_ui->sshPortLineEdit->setReadOnly(true);
-        m_ui->gdbServerPortLineEdit->setReadOnly(true);
+    if (devType == MaemoDeviceConfig::Simulator) {
+        m_lastConfigHW = currentConfig();
+        currentConfig() = m_lastConfigSim;
     } else {
-        m_ui->hostLineEdit->setReadOnly(false);
-        m_ui->sshPortLineEdit->setReadOnly(false);
-        m_ui->gdbServerPortLineEdit->setReadOnly(false);
+        m_lastConfigSim = currentConfig();
+        currentConfig() = m_lastConfigHW;
     }
-    m_ui->hostLineEdit->setText(currentConfig().host);
-    m_ui->sshPortLineEdit->setText(QString::number(currentConfig().sshPort));
-    m_ui->gdbServerPortLineEdit
-        ->setText(QString::number(currentConfig().gdbServerPort));
-    m_ui->timeoutLineEdit->setText(QString::number(currentConfig().timeout));
-    m_ui->userLineEdit->setText(currentConfig().uname);
-    m_ui->pwdLineEdit->setText(currentConfig().pwd);
-    m_ui->keyFileLineEdit->setPath(currentConfig().keyFile);
+    fillInValues();
 }
 
 void MaemoSettingsWidget::authenticationTypeChanged()

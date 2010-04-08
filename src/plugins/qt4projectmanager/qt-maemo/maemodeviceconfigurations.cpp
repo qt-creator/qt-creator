@@ -71,8 +71,12 @@ namespace {
     const QString DefaultKeyFile =
         QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
         + QLatin1String("/.ssh/id_rsa");
-    const int DefaultSshPort(22);
-    const int DefaultGdbServerPort(10000);
+    const int DefaultSshPortHW(22);
+    const int DefaultSshPortSim(6666);
+    const int DefaultGdbServerPortHW(10000);
+    const int DefaultGdbServerPortSim(13219);
+    const QString DefaultHostNameHW(QLatin1String("192.168.2.15"));
+    const QString DefaultHostNameSim(QLatin1String("localhost"));
     const QString DefaultUserName(QLatin1String("developer"));
     const MaemoDeviceConfig::AuthType DefaultAuthType(MaemoDeviceConfig::Key);
     const int DefaultTimeout(30);
@@ -91,11 +95,12 @@ private:
     const quint64 m_id;
 };
 
-MaemoDeviceConfig::MaemoDeviceConfig(const QString &name)
+MaemoDeviceConfig::MaemoDeviceConfig(const QString &name, MaemoDeviceConfig::DeviceType devType)
     : name(name),
-      type(DefaultDeviceType),
-      sshPort(DefaultSshPort),
-      gdbServerPort(DefaultGdbServerPort),
+      type(devType),
+      host(defaultHost(type)),
+      sshPort(defaultSshPort(type)),
+      gdbServerPort(defaultGdbServerPort(type)),
       uname(DefaultUserName),
       authentication(DefaultAuthType),
       keyFile(DefaultKeyFile),
@@ -108,9 +113,9 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
                                      quint64 &nextId)
     : name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
-      host(settings.value(HostKey).toString()),
-      sshPort(settings.value(SshPortKey, DefaultSshPort).toInt()),
-      gdbServerPort(settings.value(GdbServerPortKey, DefaultGdbServerPort).toInt()),
+      host(settings.value(HostKey, defaultHost(type)).toString()),
+      sshPort(settings.value(SshPortKey, defaultSshPort(type)).toInt()),
+      gdbServerPort(settings.value(GdbServerPortKey, defaultGdbServerPort(type)).toInt()),
       uname(settings.value(UserNameKey, DefaultUserName).toString()),
       authentication(static_cast<AuthType>(settings.value(AuthKey, DefaultAuthType).toInt())),
       pwd(settings.value(PasswordKey).toString()),
@@ -125,6 +130,21 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
 MaemoDeviceConfig::MaemoDeviceConfig()
     : internalId(InvalidId)
 {
+}
+
+int MaemoDeviceConfig::defaultSshPort(DeviceType type) const
+{
+    return type == Physical ? DefaultSshPortHW : DefaultSshPortSim;
+}
+
+int MaemoDeviceConfig::defaultGdbServerPort(DeviceType type) const
+{
+    return type == Physical ? DefaultGdbServerPortHW : DefaultGdbServerPortSim;
+}
+
+QString MaemoDeviceConfig::defaultHost(DeviceType type) const
+{
+    return type == Physical ? DefaultHostNameHW : DefaultHostNameSim;
 }
 
 bool MaemoDeviceConfig::isValid() const

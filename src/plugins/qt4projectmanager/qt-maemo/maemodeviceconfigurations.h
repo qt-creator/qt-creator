@@ -54,7 +54,7 @@ public:
     enum DeviceType { Physical, Simulator };
     enum AuthType { Password, Key };
     MaemoDeviceConfig();
-    MaemoDeviceConfig(const QString &name);
+    MaemoDeviceConfig(const QString &name, DeviceType type);
     MaemoDeviceConfig(const QSettings &settings, quint64 &nextId);
     void save(QSettings &settings) const;
     bool isValid() const;
@@ -71,6 +71,10 @@ public:
     quint64 internalId;
 
 private:
+    int defaultSshPort(DeviceType type) const;
+    int defaultGdbServerPort(DeviceType type) const;
+    QString defaultHost(DeviceType type) const;
+
     static const quint64 InvalidId = 0;
 };
 
