@@ -137,6 +137,131 @@ def catchCliOutput(command):
     return lines
 
 
+def showException(msg, exType, exValue, exTraceback):
+    warn("**** CAUGHT EXCEPTION: %s ****" % msg)
+    try:
+        import traceback
+        for line in traceback.format_exception(exType, exValue, exTraceback):
+            warn("%s" % line)
+    except:
+        pass
+
+
+class OutputSafer:
+    def __init__(self, d, pre = "", post = ""):
+        self.d = d
+        self.pre = pre
+        self.post = post
+
+    def __enter__(self):
+        self.d.put(self.pre)
+        self.savedOutput = self.d.output
+        self.d.output = ""
+
+    def __exit__(self, exType, exValue, exTraceBack):
+        self.d.put(self.post)
+        if self.d.passExceptions and not exType is None:
+            showException("OUTPUTSAFER", exType, exValue, exTraceBack)
+            self.d.output = self.savedOutput
+        else:
+            self.d.output = self.savedOutput + self.d.output
+        return False
+
+
+class SubItem:
+    def __init__(self, d):
+        self.d = d
+
+    def __enter__(self):
+        self.d.put('{')
+        self.savedValue = self.d.currentValue
+        self.savedValuePriority = self.d.currentValuePriority
+        self.savedValueEncoding = self.d.currentValueEncoding
+        self.savedType = self.d.currentType
+        self.savedTypePriority = self.d.currentTypePriority
+        self.d.currentValue = ""
+        self.d.currentValuePriority = 0
+        self.d.currentValueEncoding = None
+        self.d.currentType = ""
+        self.d.currentTypePriority = 0
+
+    def __exit__(self, exType, exValue, exTraceBack):
+        #warn(" CURRENT VALUE: %s %s %s" % (self.d.currentValue,
+        #    self.d.currentValueEncoding, self.d.currentValuePriority))
+        if self.d.passExceptions and not exType is None:
+            showException("SUBITEM", exType, exValue, exTraceBack)
+        if not self.d.currentValueEncoding is None:
+            self.d.putField("valueencoded", self.d.currentValueEncoding)
+        if not self.d.currentValue is None:
+            self.d.putField("value", self.d.currentValue)
+        #warn("TYPE CURRENT: %s" % self.d.currentType)
+        type = stripClassTag(str(self.d.currentType))
+        #warn("TYPE: '%s'  DEFAULT: '%s'" % (type, self.d.currentChildType))
+        if len(type) > 0 and type != self.d.currentChildType:
+            self.d.put('type="%s",' % type) # str(type.unqualified()) ?
+        self.d.put('},')
+        self.d.currentValue = self.savedValue
+        self.d.currentValuePriority = self.savedValuePriority
+        self.d.currentValueEncoding = self.savedValueEncoding
+        self.d.currentType = self.savedType
+        self.d.currentTypePriority = self.savedTypePriority
+        return True
+
+
+class Children:
+    def __init__(self, d, numChild = 1, childType = None, childNumChild = None):
+        self.d = d
+        self.numChild = numChild
+        self.childType = childType
+        self.childNumChild = childNumChild
+        #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
+
+    def __enter__(self):
+        childType = ""
+        childNumChild = -1
+        if type(self.numChild) is list:
+            numChild = self.numChild[0]
+            maxNumChild = self.numChild[1]
+        else:
+            numChild = self.numChild
+            maxNumChild = self.numChild
+        if numChild == 0:
+            self.childType = None
+        if not self.childType is None:
+            childType = stripClassTag(str(self.childType))
+            self.d.put('childtype="%s",' % childType)
+            if isSimpleType(self.childType) or isStringType(self.d, self.childType):
+                self.d.put('childnumchild="0",')
+                childNumChild = 0
+            elif self.childType.code == gdb.TYPE_CODE_PTR:
+                self.d.put('childnumchild="1",')
+                childNumChild = 1
+        if not self.childNumChild is None:
+            self.d.put('childnumchild="%s",' % self.childNumChild)
+            childNumChild = self.childNumChild
+        self.savedChildType = self.d.currentChildType
+        self.savedChildNumChild = self.d.currentChildNumChild
+        self.savedNumChilds = self.d.currentNumChilds
+        self.savedMaxNumChilds = self.d.currentNumChilds
+        self.d.currentChildType = childType
+        self.d.currentChildNumChild = childNumChild
+        self.d.currentNumChilds = numChild
+        self.d.currentMaxNumChilds = maxNumChild
+        self.d.put("children=[")
+
+    def __exit__(self, exType, exValue, exTraceBack):
+        if self.d.passExceptions and not exType is None:
+            showException("CHILDREN", exType, exValue, exTraceBack)
+        if self.d.currentMaxNumChilds < self.d.currentNumChilds:
+            self.d.putEllipsis();
+        self.d.currentChildType = self.savedChildType
+        self.d.currentChildNumChild = self.savedChildNumChild
+        self.d.currentNumChilds = self.savedNumChilds
+        self.d.currentMaxNumChilds = self.savedMaxNumChilds
+        self.d.put('],')
+        return True
+
+
 class Breakpoint:
     def __init__(self):
         self.number = None
@@ -345,7 +470,7 @@ def listOfLocals(varList):
                 # like 'Warning: can't find linker symbol for virtual table for
                 # `std::less<char const*>' value\n\nwarning:  found
                 # `myns::QHashData::shared_null' instead [...]
-                # that break subsequent parsing. Chicken out and take the 
+                # that break subsequent parsing. Chicken out and take the
                 # next "usable" line.
                 continue
             items.append(item)
@@ -447,6 +572,8 @@ movableTypes = set([
 def stripClassTag(type):
     if type.startswith("class "):
         return type[6:]
+    elif type.startswith("struct "):
+        return type[7:]
     return type
 
 def checkPointerRange(p, n):
@@ -461,7 +588,11 @@ def call(value, func):
         type = "'" + type + "'"
     exp = "((%s*)%s)->%s" % (type, value.address, func)
     #warn("CALL: %s" % exp)
-    result = parseAndEvaluate(exp)
+    result = None
+    try:
+        result = parseAndEvaluate(exp)
+    except:
+        pass
     #warn("  -> %s" % result)
     return result
 
@@ -684,6 +815,7 @@ class FrameCommand(gdb.Command):
         # Locals
         #
         for item in listOfLocals(varList):
+          with OutputSafer(d, "", ""):
             d.anonNumber = -1
             #warn("ITEM NAME %s: " % item.name)
             try:
@@ -695,14 +827,13 @@ class FrameCommand(gdb.Command):
                 pass
             except:
                 # Locals with failing memory access.
-                d.beginHash()
-                d.put('iname="%s",' % item.iname)
-                d.put('name="%s",' % item.name)
-                d.put('addr="<not accessible>",')
-                d.put('value="<not accessible>",')
-                d.put('type="%s",' % item.value.type)
-                d.put('numchild="0"');
-                d.endHash()
+                with SubItem(d):
+                    d.put('iname="%s",' % item.iname)
+                    d.put('name="%s",' % item.name)
+                    d.put('addr="<not accessible>",')
+                    d.put('value="<not accessible>",')
+                    d.put('type="%s",' % item.value.type)
+                    d.put('numchild="0"');
                 continue
 
             type = item.value.type
@@ -717,74 +848,56 @@ class FrameCommand(gdb.Command):
                         p += 1
                         n += 1
 
-                d.beginHash()
-                d.put('iname="%s",' % item.iname)
-                d.putName(item.name)
-                d.putItemCount(select(n <= 100, n, "> 100"))
-                d.putType(type)
-                d.putNumChild(n)
-                if d.isExpanded(item):
-                    p = item.value
-                    d.beginChildren(n)
-                    for i in xrange(n):
-                        value = p.dereference()
-                        d.putItem(Item(value, item.iname, i, None))
-                        p += 1
-                    if n > 100:
-                        d.putEllipsis()
-                    d.endChildren()
-                d.endHash()
+                with SubItem(d):
+                    d.put('iname="%s",' % item.iname)
+                    d.putName(item.name)
+                    d.putItemCount(select(n <= 100, n, "> 100"))
+                    d.putType(type)
+                    d.putNumChild(n)
+                    if d.isExpanded(item):
+                        p = item.value
+                        with Children(d, n):
+                            for i in xrange(n):
+                                value = p.dereference()
+                                d.putItem(Item(value, item.iname, i, None))
+                                p += 1
+                            if n > 100:
+                                d.putEllipsis()
 
             else:
                 # A "normal" local variable or parameter.
                 try:
                    addr = cleanAddress(item.value.address)
-                   d.beginHash()
-                   d.put('iname="%s",' % item.iname)
-                   d.put('addr="%s",' % addr)
-                   d.safePutItemHelper(item)
-                   d.endHash()
+                   with SubItem(d):
+                       d.put('iname="%s",' % item.iname)
+                       d.put('addr="%s",' % addr)
+                       d.putItemHelper(item)
                 except AttributeError:
                     # Thrown by cleanAddress with message "'NoneType' object
                     # has no attribute 'cast'" for optimized-out values.
-                    d.beginHash()
-                    d.put('iname="%s",' % item.iname)
-                    d.put('name="%s",' % item.name)
-                    d.put('addr="<optimized out>",')
-                    d.put('value="<optimized out>",')
-                    d.put('type="%s"' % item.value.type)
-                    d.endHash()
-
-        d.pushOutput()
-        locals = d.safeoutput
-
+                    with SubItem(d):
+                        d.put('iname="%s",' % item.iname)
+                        d.put('name="%s",' % item.name)
+                        d.put('addr="<optimized out>",')
+                        d.put('value="<optimized out>",')
+                        d.put('type="%s"' % item.value.type)
 
         #
         # Watchers
         #
-        d.safeoutput = ""
-        if len(watchers) > 0:
-            for watcher in watchers.split("##"):
-                (exp, iname) = watcher.split("#")
-                self.handleWatch(d, exp, iname)
-        d.pushOutput()
-        watchers = d.safeoutput
-
-        sep = ""
-        if len(locals) and len(watchers):
-            sep = ","
+        with OutputSafer(d, ",", ""):
+            if len(watchers) > 0:
+                for watcher in watchers.split("##"):
+                    (exp, iname) = watcher.split("#")
+                    self.handleWatch(d, exp, iname)
 
         #
         # Breakpoints
         #
-        #breakpoints = ""
-        #d.safeoutput = ""
         #listOfBreakpoints(d)
-        #d.pushOutput()
-        #breakpoints = d.safeoutput
 
         #print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
-        print('data=[' + locals + sep + watchers + ']\n')
+        print('data=[' + d.output + ']')
 
 
     def handleWatch(self, d, exp, iname):
@@ -793,49 +906,46 @@ class FrameCommand(gdb.Command):
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
-            d.beginHash()
+            with SubItem(d):
+                d.putField("iname", iname)
+                d.putField("name", escapedExp)
+                d.putField("exp", escapedExp)
+                try:
+                    list = eval(exp)
+                    d.putValue("")
+                    d.putType(" ")
+                    d.putNumChild(len(list))
+                    # This is a list of expressions to evaluate
+                    with Children(d, len(list)):
+                        itemNumber = 0
+                        for item in list:
+                            self.handleWatch(d, item, "%s.%d" % (iname, itemNumber))
+                            itemNumber += 1
+                except RuntimeError, error:
+                    warn("EVAL: ERROR CAUGHT %s" % error)
+                    d.putValue("<syntax error>")
+                    d.putType(" ")
+                    d.putNumChild(0)
+                    with Children(d, 0):
+                        pass
+            return
+
+        with SubItem(d):
             d.putField("iname", iname)
             d.putField("name", escapedExp)
             d.putField("exp", escapedExp)
-            try:
-                list = eval(exp)
-                d.putValue("")
-                d.putType(" ")
-                d.putNumChild(len(list))
-                # This is a list of expressions to evaluate
-                d.beginChildren(len(list))
-                itemNumber = 0
-                for item in list:
-                    self.handleWatch(d, item, "%s.%d" % (iname, itemNumber))
-                    itemNumber += 1
-                d.endChildren()
-            except RuntimeError, error:
-                warn("EVAL: ERROR CAUGHT %s" % error)
-                d.putValue("<syntax error>")
-                d.putType(" ")
-                d.putNumChild(0)
-                d.beginChildren(0)
-                d.endChildren()
-            d.endHash()
-            return
-
-        d.beginHash()
-        d.putField("iname", iname)
-        d.putField("name", escapedExp)
-        d.putField("exp", escapedExp)
-        handled = False
-        if exp == "<Edit>" or len(exp) == 0:
-            d.put('value=" ",type=" ",numchild="0",')
-        else:
-            try:
-                value = parseAndEvaluate(exp)
-                item = Item(value, iname, None, None)
-                if not value is None:
-                    d.putAddress(value.address)
-                d.putItemHelper(item)
-            except RuntimeError:
-                d.put('value="<invalid>",type="<unknown>",numchild="0",')
-        d.endHash()
+            handled = False
+            if exp == "<Edit>" or len(exp) == 0:
+                d.put('value=" ",type=" ",numchild="0",')
+            else:
+                try:
+                    value = parseAndEvaluate(exp)
+                    item = Item(value, iname, None, None)
+                    if not value is None:
+                        d.putAddress(value.address)
+                    d.putItemHelper(item)
+                except RuntimeError:
+                    d.put('value="<invalid>",type="<unknown>",numchild="0",')
 
 
 FrameCommand()
@@ -882,11 +992,15 @@ SalCommand()
 class Dumper:
     def __init__(self):
         self.output = ""
-        self.safeoutput = ""
-        self.childTypes = [""]
-        self.childNumChilds = [-1]
-        self.maxNumChilds = [-1]
-        self.numChilds = [-1]
+        self.currentChildType = ""
+        self.currentChildNumChild = -1
+        self.currentMaxNumChilds = -1
+        self.currentNumChilds = -1
+        self.currentValue = None
+        self.currentValuePriority = -100
+        self.currentValueEncoding = None
+        self.currentType = None
+        self.currentTypePriority = -100
 
     def put(self, value):
         self.output += value
@@ -894,60 +1008,14 @@ class Dumper:
     def putField(self, name, value):
         self.put('%s="%s",' % (name, value))
 
-    def beginHash(self):
-        self.put('{')
-
-    def endHash(self):
-        self.put('},')
-
     def beginItem(self, name):
         self.put('%s="' % name)
 
     def endItem(self):
         self.put('",')
 
-    def beginChildren(self, numChild_ = 1, childType_ = None, childNumChild_ = None):
-        childType = ""
-        childNumChild = -1
-        if type(numChild_) is list:
-            numChild = numChild_[0]
-            maxNumChild = numChild_[1]
-        else:
-            numChild = numChild_
-            maxNumChild = numChild_
-        if numChild == 0:
-            childType_ = None
-        if not childType_ is None:
-            childType = stripClassTag(str(childType_))
-            self.put('childtype="%s",' % childType)
-            if isSimpleType(childType_) or isStringType(self, childType_):
-                self.put('childnumchild="0",')
-                childNumChild = 0
-            elif childType_.code == gdb.TYPE_CODE_PTR:
-                self.put('childnumchild="1",')
-                childNumChild = 1
-        if not childNumChild_ is None:
-            self.put('childnumchild="%s",' % childNumChild_)
-            childNumChild = childNumChild_
-        self.childTypes.append(childType)
-        self.childNumChilds.append(childNumChild)
-        self.numChilds.append(numChild)
-        self.maxNumChilds.append(maxNumChild)
-        #warn("BEGIN: %s" % self.childTypes)
-        self.put("children=[")
-
-    def endChildren(self):
-        #warn("END: %s" % self.childTypes)
-        numChild = self.numChilds.pop()
-        maxNumChild = self.maxNumChilds.pop()
-        if maxNumChild < numChild:
-            self.putEllipsis();
-        self.childTypes.pop()
-        self.childNumChilds.pop()
-        self.put('],')
-
     def childRange(self):
-        return xrange(qmin(self.maxNumChilds[-1], self.numChilds[-1]))
+        return xrange(qmin(self.currentMaxNumChilds, self.currentNumChilds))
 
     # convenience
     def putItemCount(self, count):
@@ -956,28 +1024,30 @@ class Dumper:
     def putEllipsis(self):
         self.put('{name="<incomplete>",value="",type="",numchild="0"},')
 
-    def putType(self, type):
-        #warn("TYPES: '%s' '%s'" % (type, self.childTypes))
-        #warn("  EQUAL 2: %s " % (str(type) == self.childTypes[-1]))
-        type = stripClassTag(str(type))
-        if len(type) > 0 and type != self.childTypes[-1]:
-            self.put('type="%s",' % type) # str(type.unqualified()) ?
+    def putType(self, type, priority = 0):
+        # higher priority values override lower ones 
+        if priority >= self.currentTypePriority:
+            self.currentType = type
+            self.currentTypePriority = priority
 
     def putAddress(self, addr):
         self.put('addr="%s",' % cleanAddress(addr))
 
     def putNumChild(self, numchild):
-        #warn("NUM CHILD: '%s' '%s'" % (numchild, self.childNumChilds[-1]))
-        if numchild != self.childNumChilds[-1]:
+        #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
+        if numchild != self.currentChildNumChild:
             self.put('numchild="%s",' % numchild)
 
-    def putValue(self, value, encoding = None):
-        if not encoding is None:
-            self.putField("valueencoded", encoding)
-        self.putField("value", value)
+    def putValue(self, value, encoding = None, priority = 0):
+        # higher priority values override lower ones 
+        if priority >= self.currentValuePriority:
+            self.currentValue = value
+            self.currentValuePriority = priority
+            self.currentValueEncoding = encoding
 
     def putPointerValue(self, value):
-        self.putValue("0x%x" % value.dereference().cast(
+        # Use a lower priority
+        self.putField("value2", "0x%x" % value.dereference().cast(
             gdb.lookup_type("unsigned long")))
 
     def putStringValue(self, value):
@@ -1014,11 +1084,6 @@ class Dumper:
     def isExpandedIName(self, iname):
         return iname in self.expandedINames
 
-    def unputField(self, name):
-        pos = self.output.rfind(",")
-        if self.output[pos + 1:].startswith(name):
-            self.output = self.output[0:pos]
-
     def stripNamespaceFromType(self, typeobj):
         # This breaks for dumpers type names containing '__star'.
         # But this should not happen as identifiers containing two
@@ -1044,29 +1109,18 @@ class Dumper:
         return self.stripNamespaceFromType(type) in movableTypes
 
     def putIntItem(self, name, value):
-        self.beginHash()
-        self.putName(name)
-        self.putValue(value)
-        self.putType("int")
-        self.putNumChild(0)
-        self.endHash()
+        with SubItem(self):
+            self.putName(name)
+            self.putValue(value)
+            self.putType("int")
+            self.putNumChild(0)
 
     def putBoolItem(self, name, value):
-        self.beginHash()
-        self.putName(name)
-        self.putValue(value)
-        self.putType("bool")
-        self.putNumChild(0)
-        self.endHash()
-
-    def pushOutput(self):
-        #warn("PUSH OUTPUT: %s " % self.output)
-        self.safeoutput += self.output
-        self.output = ""
-
-    def dumpInnerValueHelper(self, item):
-        if isSimpleType(item.value.type):
-            self.safePutItemHelper(item)
+        with SubItem(self):
+            self.putName(name)
+            self.putValue(value)
+            self.putType("bool")
+            self.putNumChild(0)
 
     def itemFormat(self, item):
         format = self.formats.get(str(cleanAddress(item.value.address)))
@@ -1074,58 +1128,13 @@ class Dumper:
             format = self.typeformats.get(stripClassTag(str(item.value.type)))
         return format
 
-    def safePutItem(self, item):
-        self.beginHash()
-        self.safePutItemHelper(item)
-        self.endHash()
-
-    def safePutItemHelper(self, item):
-        self.pushOutput()
-        # This is only used at the top level to ensure continuation
-        # after failures due to uninitialized or corrupted data.
-        if self.passExceptions:
-            # for debugging reasons propagate errors.
+    def putItem(self, item):
+        with SubItem(self):
             self.putItemHelper(item)
 
-        else:
-            try:
-                self.putItemHelper(item)
-
-            except RuntimeError:
-                self.output = ""
-                # FIXME: Only catch debugger related exceptions
-                #exType, exValue, exTraceback = sys.exc_info()
-                #tb = traceback.format_exception(exType, exValue, exTraceback)
-                #warn("Exception: %s" % ex.message)
-                # DeprecationWarning: BaseException.message
-                # has been deprecated
-                #warn("Exception.")
-                #for line in tb:
-                #    warn("%s" % line)
-                self.putName(item.name)
-                try:
-                    d.putAddress(item.value.address)
-                except:
-                    pass
-                self.putValue("<invalid>")
-                self.putType(str(item.value.type))
-                self.putNumChild(0)
-                #if self.isExpanded(item):
-                self.beginChildren()
-                self.endChildren()
-        self.pushOutput()
-
-    def putItem(self, item):
-        self.beginHash()
-        self.safePutItemHelper(item)
-        self.endHash()
-
     def putCallItem(self, name, item, func):
-        try:
-            result = call(item.value, func)
-            self.safePutItem(Item(result, item.iname, name, name))
-        except:
-            self.safePutItem(Item(None, item.iname))
+        result = call(item.value, func)
+        self.putItem(Item(result, item.iname, name, name))
 
     def putItemHelper(self, item):
         name = getattr(item, "name", None)
@@ -1194,7 +1203,6 @@ class Dumper:
             format = self.itemFormat(item)
 
             if not format is None:
-                #warn("FORMAT %s" % format)
                 self.putAddress(value.address)
                 self.putType(item.value.type)
                 self.putNumChild(0)
@@ -1256,11 +1264,11 @@ class Dumper:
                 #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
                 innerType = item.value.type.target()
                 self.putType(innerType)
-                self.childTypes.append(
-                    stripClassTag(str(innerType)))
+                savedCurrentChildType = self.currentChildType
+                self.currentChildType = stripClassTag(str(innerType))
                 self.putItemHelper(
                     Item(item.value.dereference(), item.iname, None, None))
-                self.childTypes.pop()
+                self.currentChildType = savedCurrentChildType
                 self.putPointerValue(value.address)
                 isHandled = True
 
@@ -1271,10 +1279,9 @@ class Dumper:
                 self.putAddress(value.address)
                 self.putNumChild(1)
                 if self.isExpanded(item):
-                    self.beginChildren()
-                    self.putItem(
-                          Item(item.value.dereference(), item.iname, "*", "*"))
-                    self.endChildren()
+                    with Children(self):
+                        self.putItem(
+                              Item(item.value.dereference(), item.iname, "*", "*"))
                 self.putPointerValue(value.address)
 
         elif str(type).startswith("<anon"):
@@ -1283,9 +1290,8 @@ class Dumper:
             self.putType(item.value.type)
             self.putValue("{...}")
             self.anonNumber += 1
-            self.beginChildren(1)
-            self.listAnonymous(item, "#%d" % self.anonNumber, type)
-            self.endChildren()
+            with Children(self, 1):
+                self.listAnonymous(item, "#%d" % self.anonNumber, type)
 
         else:
             #warn("GENERIC STRUCT: %s" % item.value.type)
@@ -1326,56 +1332,53 @@ class Dumper:
                 innerType = None
                 if len(fields) == 1 and fields[0].name is None:
                     innerType = value.type.target()
-                self.beginChildren(1, innerType)
+                with Children(self, 1, innerType):
 
-                baseNumber = 0
-                for field in fields:
-                    #warn("FIELD: %s" % field)
-                    #warn("  BITSIZE: %s" % field.bitsize)
-                    #warn("  ARTIFICIAL: %s" % field.artificial)
-                    bitpos = getattr(field, "bitpos", None)
-                    if bitpos is None: # FIXME: Is check correct?
-                        continue  # A static class member(?).
+                    baseNumber = 0
+                    for field in fields:
+                        #warn("FIELD: %s" % field)
+                        #warn("  BITSIZE: %s" % field.bitsize)
+                        #warn("  ARTIFICIAL: %s" % field.artificial)
+                        bitpos = getattr(field, "bitpos", None)
+                        if bitpos is None: # FIXME: Is check correct?
+                            continue  # A static class member(?).
 
-                    if field.name is None:
-                        innerType = value.type.target()
-                        p = value.cast(innerType.pointer())
-                        for i in xrange(value.type.sizeof / innerType.sizeof):
-                            self.putItem(Item(p.dereference(), item.iname, i, None))
-                            p = p + 1
-                        continue
+                        if field.name is None:
+                            innerType = value.type.target()
+                            p = value.cast(innerType.pointer())
+                            for i in xrange(value.type.sizeof / innerType.sizeof):
+                                self.putItem(Item(p.dereference(), item.iname, i, None))
+                                p = p + 1
+                            continue
 
-                    # Ignore vtable pointers for virtual inheritance.
-                    if field.name.startswith("_vptr."):
-                        continue
+                        # Ignore vtable pointers for virtual inheritance.
+                        if field.name.startswith("_vptr."):
+                            continue
 
-                    #warn("FIELD NAME: %s" % field.name)
-                    #warn("FIELD TYPE: %s" % field.type)
-                    if field.name == stripClassTag(str(field.type)):
-                        # Field is base type. We cannot use field.name as part
-                        # of the iname as it might contain spaces and other
-                        # strange characters.
-                        child = Item(value.cast(field.type),
-                            item.iname, "@%d" % baseNumber, field.name)
-                        baseNumber += 1
-                        self.beginHash()
-                        self.putField("iname", child.iname)
-                        self.safePutItemHelper(child)
-                        self.endHash()
-                    elif len(field.name) == 0:
-                        # Anonymous union. We need a dummy name to distinguish
-                        # multiple anonymous unions in the struct.
-                        self.anonNumber += 1
-                        self.listAnonymous(item, "#%d" % self.anonNumber, field.type)
-                    else:
-                        # Named field.
-                        self.beginHash()
-                        child = Item(value[field.name],
-                            item.iname, field.name, field.name)
-                        self.safePutItemHelper(child)
-                        self.endHash()
-
-                self.endChildren()
+                        #warn("FIELD NAME: %s" % field.name)
+                        #warn("FIELD TYPE: %s" % field.type)
+                        if field.name == stripClassTag(str(field.type)):
+                            # Field is base type. We cannot use field.name as part
+                            # of the iname as it might contain spaces and other
+                            # strange characters.
+                            child = Item(value.cast(field.type),
+                                item.iname, "@%d" % baseNumber, field.name)
+                            baseNumber += 1
+                            with SubItem(self):
+                                self.putField("iname", child.iname)
+                                self.putItemHelper(child)
+                        elif len(field.name) == 0:
+                            # Anonymous union. We need a dummy name to distinguish
+                            # multiple anonymous unions in the struct.
+                            self.anonNumber += 1
+                            self.listAnonymous(item, "#%d" % self.anonNumber,
+                                field.type)
+                        else:
+                            # Named field.
+                            with SubItem(self):
+                                child = Item(value[field.name],
+                                    item.iname, field.name, field.name)
+                                self.putItemHelper(child)
 
     def listAnonymous(self, item, name, type):
         for field in type.fields():
@@ -1383,28 +1386,25 @@ class Dumper:
             if len(field.name) > 0:
                 value = item.value[field.name]
                 child = Item(value, item.iname, field.name, field.name)
-                self.beginHash()
-                self.putAddress(value.address)
-                self.putItemHelper(child)
-                self.endHash();
+                with SubItem(self):
+                    self.putAddress(value.address)
+                    self.putItemHelper(child)
             else:
                 # Further nested.
                 self.anonNumber += 1
                 name = "#%d" % self.anonNumber
                 iname = "%s.%s" % (item.iname, name)
                 child = Item(item.value, iname, None, name)
-                self.beginHash()
-                self.putField("name", name)
-                self.putField("value", " ")
-                if str(field.type).endswith("<anonymous union>"):
-                    self.putField("type", "<anonymous union>")
-                elif str(field.type).endswith("<anonymous struct>"):
-                    self.putField("type", "<anonymous struct>")
-                else:
-                    self.putField("type", field.type)
-                self.beginChildren(1)
-                self.listAnonymous(child, name, field.type)
-                self.endChildren()
-                self.endHash()
+                with SubItem(self):
+                    self.putField("name", name)
+                    self.putField("value", " ")
+                    if str(field.type).endswith("<anonymous union>"):
+                        self.putField("type", "<anonymous union>")
+                    elif str(field.type).endswith("<anonymous struct>"):
+                        self.putField("type", "<anonymous struct>")
+                    else:
+                        self.putField("type", field.type)
+                    with Children(self, 1):
+                        self.listAnonymous(child, name, field.type)
 
 
