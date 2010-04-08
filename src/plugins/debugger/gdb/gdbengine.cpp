@@ -172,7 +172,9 @@ static QByteArray parsePlainConsoleStream(const GdbResponse &response)
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(DebuggerManager *manager) : IDebuggerEngine(manager)
+GdbEngine::GdbEngine(DebuggerManager *manager) :
+        IDebuggerEngine(manager),
+        m_gdbBinaryToolChainMap(DebuggerSettings::instance()->gdbBinaryToolChainMap())
 {
     m_trkOptions = QSharedPointer<TrkOptions>(new TrkOptions);
     m_trkOptions->fromSettings(Core::ICore::instance()->settings());
@@ -293,7 +295,7 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
             return tr("The Gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(theDebuggerStringSetting(GdbLocation));
+                .arg(m_gdb);
         case QProcess::Crashed:
             return tr("The Gdb process crashed some time after starting "
                 "successfully.");
@@ -4034,16 +4036,21 @@ void GdbEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 
 bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QString &settingsIdHint)
 {
-    debugMessage(_("STARTING GDB ") + gdb);
-
     m_gdbProc.disconnect(); // From any previous runs
 
-    QString location = gdb;
-    const QByteArray env = qgetenv("QTC_DEBUGGER_PATH");
-    if (!env.isEmpty())
-        location = QString::fromLatin1(env);
-    if (location.isEmpty())
-        location = theDebuggerStringSetting(GdbLocation);
+    m_gdb = QString::fromLatin1(qgetenv("QTC_DEBUGGER_PATH"));
+    if (m_gdb.isEmpty())
+        m_gdb = m_gdbBinaryToolChainMap->key(m_startParameters->toolChainType);
+    if (m_gdb.isEmpty())
+        m_gdb = gdb;
+    if (m_gdb.isEmpty()) {
+        const ProjectExplorer::ToolChain::ToolChainType toolChain = static_cast<ProjectExplorer::ToolChain::ToolChainType>(m_startParameters->toolChainType);
+        const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(toolChain);
+        const QString msg = tr("There is no gdb binary available for '%1'").arg(toolChainName);
+        handleAdapterStartFailed(msg, GdbOptionsPage::settingsId());
+        return false;
+    }
+    debugMessage(_("STARTING GDB ") + m_gdb);
     QStringList gdbArgs;
     gdbArgs << _("-i");
     gdbArgs << _("mi");
@@ -4051,7 +4058,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 #ifdef Q_OS_WIN
     // Set python path. By convention, python is located below gdb executable.
     // Extend the environment set on the process in startAdapter().
-    const QFileInfo fi(location);
+    const QFileInfo fi(m_gdb);
     bool foundPython = false;
     if (fi.isAbsolute()) {
         const QString winPythonVersion = QLatin1String(winPythonVersionC);
@@ -4076,8 +4083,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         }
     }
     if (!foundPython) {
-        debugMessage(_("UNSUPPORTED GDB %1 DOES NOT HAVE PYTHON.").arg(location));
-        showStatusMessage(_("Gdb at %1 does not have python.").arg(location));
+        debugMessage(_("UNSUPPORTED GDB %1 DOES NOT HAVE PYTHON.").arg(m_gdb));
+        showStatusMessage(_("Gdb at %1 does not have python.").arg(m_gdb));
     }
 #endif
 
@@ -4090,11 +4097,11 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
         SLOT(readGdbStandardError()));
 
-    m_gdbProc.start(location, gdbArgs);
+    m_gdbProc.start(m_gdb, gdbArgs);
 
     if (!m_gdbProc.waitForStarted()) {
         const QString msg = tr("Unable to start gdb '%1': %2")
-            .arg(location, m_gdbProc.errorString());
+            .arg(m_gdb, m_gdbProc.errorString());
         handleAdapterStartFailed(msg, settingsIdHint);
         return false;
     }
@@ -4340,7 +4347,7 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
 
 void GdbEngine::addOptionPages(QList<Core::IOptionsPage *> *opts) const
 {
-    opts->push_back(new GdbOptionsPage);
+    opts->push_back(new GdbOptionsPage(m_gdbBinaryToolChainMap));
     opts->push_back(new TrkOptionsPage(m_trkOptions));
 }
 

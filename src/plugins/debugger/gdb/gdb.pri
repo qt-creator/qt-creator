@@ -2,6 +2,7 @@ HEADERS += \
     $$PWD/gdbmi.h \
     $$PWD/gdbengine.h \
     $$PWD/gdboptionspage.h \
+    $$PWD/gdbchooserwidget.h \
     $$PWD/trkoptions.h \
     $$PWD/trkoptionswidget.h \
     $$PWD/trkoptionspage.h \
@@ -20,6 +21,7 @@ SOURCES += \
     $$PWD/classicgdbengine.cpp \
     $$PWD/pythongdbengine.cpp \
     $$PWD/gdboptionspage.cpp \
+    $$PWD/gdbchooserwidget.cpp \
     $$PWD/trkoptions.cpp \
     $$PWD/trkoptionswidget.cpp \
     $$PWD/trkoptionspage.cpp \

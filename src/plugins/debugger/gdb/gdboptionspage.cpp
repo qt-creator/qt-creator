@@ -38,7 +38,8 @@
 namespace Debugger {
 namespace Internal {
 
-GdbOptionsPage::GdbOptionsPage()
+GdbOptionsPage::GdbOptionsPage(const GdbBinaryToolChainMapPtr &binaryToolChainMap) :
+    m_binaryToolChainMap(binaryToolChainMap)
 {
 }
 
@@ -71,14 +72,11 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
-    m_ui.gdbLocationChooser->setExpectedKind(Utils::PathChooser::Command);
-    m_ui.gdbLocationChooser->setPromptDialogTitle(tr("Choose Gdb Location"));
+    m_ui.gdbChooserWidget->setGdbBinaries(*m_binaryToolChainMap);
     m_ui.scriptFileChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
 
     m_group.clear();
-    m_group.insert(theDebuggerAction(GdbLocation),
-        m_ui.gdbLocationChooser);
     m_group.insert(theDebuggerAction(GdbScriptFile),
         m_ui.scriptFileChooser);
     m_group.insert(theDebuggerAction(GdbEnvironment),
@@ -120,7 +118,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
 
     if (m_searchKeywords.isEmpty()) {
         // TODO: Add breakpoints, environment?
-        QTextStream(&m_searchKeywords) << ' ' << m_ui.labelGdbLocation->text()
+        QTextStream(&m_searchKeywords) << ' ' << QLatin1String("gdb")
                 << ' ' << m_ui.checkBoxSkipKnownFrames->text()
                 << ' ' << m_ui.checkBoxEnableReverseDebugging->text()
                 << ' ' << m_ui.checkBoxUseMessageBoxForSignals->text()
@@ -133,6 +131,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
 void GdbOptionsPage::apply()
 {
     m_group.apply(Core::ICore::instance()->settings());
+    *m_binaryToolChainMap = m_ui.gdbChooserWidget->gdbBinaries();
 }
 
 void GdbOptionsPage::finish()

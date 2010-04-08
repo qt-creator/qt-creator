@@ -31,6 +31,8 @@
 #define DEBUGGER_ACTIONS_H
 
 #include <QtCore/QHash>
+#include <QtCore/QMap>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -49,8 +51,13 @@ class DebuggerSettings : public QObject
 {
     Q_OBJECT
 public:
-    DebuggerSettings(QObject *parent = 0);
+    typedef QMultiMap<QString, int> GdbBinaryToolChainMap;
+    typedef QSharedPointer<GdbBinaryToolChainMap> GdbBinaryToolChainMapPtr;
+
+    explicit DebuggerSettings(QObject *parent = 0);
     ~DebuggerSettings();
+
+    GdbBinaryToolChainMapPtr gdbBinaryToolChainMap() const { return m_gdbBinaryToolChainMap; }
 
     void insertItem(int code, Utils::SavedAction *item);
     Utils::SavedAction *item(int code) const;
@@ -65,6 +72,8 @@ public slots:
 
 private:
     QHash<int, Utils::SavedAction *> m_items;
+
+    const GdbBinaryToolChainMapPtr m_gdbBinaryToolChainMap;
 };
 
 
@@ -103,7 +112,6 @@ enum DebuggerActionCode
     RegisterForPostMortem,
 
     // Gdb
-    GdbLocation,
     GdbEnvironment,
     GdbScriptFile,
     ExecuteCommand,

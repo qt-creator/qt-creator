@@ -39,6 +39,7 @@
 #include <QtCore/QFutureInterface>
 #include <QtCore/QHash>
 #include <QtCore/QMap>
+#include <QtCore/QMultiMap>
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QPoint>
@@ -46,6 +47,7 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QTime>
 #include <QtCore/QVariant>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QMainWindow;
@@ -84,6 +86,9 @@ class GdbEngine : public IDebuggerEngine
     Q_OBJECT
 
 public:
+    typedef QMultiMap<QString, int> GdbBinaryToolChainMap;
+    typedef QSharedPointer<GdbBinaryToolChainMap> GdbBinaryToolChainMapPtr;
+
     explicit GdbEngine(DebuggerManager *manager);
     ~GdbEngine();
 
@@ -514,8 +519,10 @@ private: ////////// Dumper Management //////////
     Q_SLOT void setDebugDebuggingHelpersClassic(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 
+    const GdbBinaryToolChainMapPtr m_gdbBinaryToolChainMap;
     DebuggingHelperState m_debuggingHelperState;
     QtDumperHelper m_dumperHelper;
+    QString m_gdb;
 
 private: ////////// Convenience Functions //////////
 

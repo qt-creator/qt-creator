@@ -32,11 +32,14 @@
 #include "registerpostmortemaction.h"
 #endif
 
+#include <projectexplorer/toolchain.h>
+
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QVariant>
 #include <QtCore/QSettings>
 
 #include <QtGui/QAction>
@@ -46,6 +49,10 @@
 #include <QtGui/QLineEdit>
 
 using namespace Utils;
+
+static const char debugModeSettingsGroupC[] = "DebugMode";
+static const char gdbBinariesSettingsGroupC[] = "GdbBinaries";
+static const char debugModeGdbBinaryKeyC[] = "GdbBinary";
 
 namespace Debugger {
 namespace Internal {
@@ -57,7 +64,7 @@ namespace Internal {
 //////////////////////////////////////////////////////////////////////////
 
 DebuggerSettings::DebuggerSettings(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), m_gdbBinaryToolChainMap(new GdbBinaryToolChainMap)
 {}
 
 DebuggerSettings::~DebuggerSettings()
@@ -78,12 +85,61 @@ void DebuggerSettings::readSettings(QSettings *settings)
 {
     foreach (SavedAction *item, m_items)
         item->readSettings(settings);
+    // Convert gdb binaries from flat settings list (see writeSettings)
+    // into map ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4").
+    m_gdbBinaryToolChainMap->clear();
+    const QChar separator = QLatin1Char(',');
+    const QString keyRoot = QLatin1String(gdbBinariesSettingsGroupC) + QLatin1Char('/') +
+                            QLatin1String(debugModeGdbBinaryKeyC);
+    for (int i = 1; ; i++) {
+        const QString value = settings->value(keyRoot + QString::number(i)).toString();
+        if (value.isEmpty())
+            break;
+        // Split apart comma-separated binary and its numerical toolchains.
+        QStringList tokens = value.split(separator);
+        if (tokens.size() < 2)
+            break;
+        const QString binary = tokens.front();
+        tokens.pop_front();
+        foreach(const QString &t, tokens)
+            m_gdbBinaryToolChainMap->insert(binary, t.toInt());
+    }
+    // Linux defaults
+#ifdef Q_OS_UNIX
+    if (m_gdbBinaryToolChainMap->isEmpty()) {
+        const QString gdb = QLatin1String("gdb");
+        m_gdbBinaryToolChainMap->insert(gdb, ProjectExplorer::ToolChain::GCC);
+        m_gdbBinaryToolChainMap->insert(gdb, ProjectExplorer::ToolChain::OTHER);
+        m_gdbBinaryToolChainMap->insert(gdb, ProjectExplorer::ToolChain::UNKNOWN);
+    }
+#endif
 }
 
 void DebuggerSettings::writeSettings(QSettings *settings) const
 {
     foreach (SavedAction *item, m_items)
         item->writeSettings(settings);
+    // Convert gdb binaries map into a flat settings list of
+    // ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4"). It needs to be ASCII for installers
+    QString lastBinary;
+    QStringList settingsList;
+    const QChar separator = QLatin1Char(',');
+    const GdbBinaryToolChainMap::const_iterator cend = m_gdbBinaryToolChainMap->constEnd();
+    for (GdbBinaryToolChainMap::const_iterator it = m_gdbBinaryToolChainMap->constBegin(); it != cend; ++it) {
+        if (it.key() != lastBinary) {
+            lastBinary = it.key(); // Start new entry with first toolchain
+            settingsList.push_back(lastBinary);
+        }
+        settingsList.back().append(separator); // Append toolchain to last binary
+        settingsList.back().append(QString::number(it.value()));
+    }
+    settings->beginGroup(QLatin1String(gdbBinariesSettingsGroupC));
+    settings->remove(QString()); // remove all keys in group.
+    const int count = settingsList.size();
+    const QString keyRoot = QLatin1String(debugModeGdbBinaryKeyC);
+    for (int i = 0; i < count; i++)
+        settings->setValue(keyRoot + QString::number(i + 1), settingsList.at(i));
+    settings->endGroup();
 }
 
 SavedAction *DebuggerSettings::item(int code) const
@@ -112,7 +168,7 @@ DebuggerSettings *DebuggerSettings::instance()
     if (instance)
         return instance;
 
-    const QString debugModeGroup = QLatin1String("DebugMode");
+    const QString debugModeGroup = QLatin1String(debugModeSettingsGroupC);
     instance = new DebuggerSettings;
 
     SavedAction *item = 0;
@@ -309,14 +365,6 @@ DebuggerSettings *DebuggerSettings::instance()
     //
     // Settings
     //
-    item = new SavedAction(instance);
-    item->setSettingsKey(debugModeGroup, QLatin1String("Location"));
-#ifdef Q_OS_WIN
-    item->setDefaultValue(QLatin1String("gdb-i686-pc-mingw32.exe"));
-#else
-    item->setDefaultValue(QLatin1String("gdb"));
-#endif
-    instance->insertItem(GdbLocation, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("Environment"));

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>480</width>
-    <height>371</height>
+    <height>475</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -17,6 +17,9 @@
       <string>Gdb</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
       <property name="horizontalSpacing">
        <number>6</number>
       </property>
@@ -26,18 +29,8 @@
       <property name="margin">
        <number>9</number>
       </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelGdbLocation">
-        <property name="toolTip">
-         <string>This is either a full absolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</string>
-        </property>
-        <property name="text">
-         <string>Gdb location:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="gdbLocationChooser"/>
+      <item row="0" column="0" colspan="2">
+       <widget class="Debugger::Internal::GdbChooserWidget" name="gdbChooserWidget" native="true"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="labelEnvironment">
@@ -64,44 +57,6 @@
       </item>
       <item row="2" column="1">
        <widget class="Utils::PathChooser" name="scriptFileChooser"/>
-      </item>
-      <item row="5" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
-        <property name="text">
-         <string>Enable reverse debugging</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
-        <property name="toolTip">
-         <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
- reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
-        </property>
-        <property name="text">
-         <string>Skip known frames when stepping</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
-        <property name="text">
-         <string>Show a message box when receiving a signal</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxUsePreciseBreakpoints">
-        <property name="toolTip">
-         <string>When this option is checked, the debugger plugin attempts
-to extract full path information for all source files from gdb. This is a
-slow process but enables setting breakpoints in files with the same file
-name in different directories.</string>
-        </property>
-        <property name="text">
-         <string>Use full path information to set breakpoints</string>
-        </property>
-       </widget>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="labelGdbWatchdogTimeout">
@@ -133,6 +88,44 @@ on slow machines. In this case, the value should be increased.</string>
         </property>
         <property name="value">
          <number>20</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxUsePreciseBreakpoints">
+        <property name="toolTip">
+         <string>When this option is checked, the debugger plugin attempts
+to extract full path information for all source files from gdb. This is a
+slow process but enables setting breakpoints in files with the same file
+name in different directories.</string>
+        </property>
+        <property name="text">
+         <string>Use full path information to set breakpoints</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
+        <property name="text">
+         <string>Enable reverse debugging</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
+        <property name="toolTip">
+         <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
+ reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
+        </property>
+        <property name="text">
+         <string>Skip known frames when stepping</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
+        <property name="text">
+         <string>Show a message box when receiving a signal</string>
         </property>
        </widget>
       </item>
@@ -225,6 +218,12 @@ on slow machines. In this case, the value should be increased.</string>
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Debugger::Internal::GdbChooserWidget</class>
+   <extends>QWidget</extends>
+   <header>gdb/gdbchooserwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
