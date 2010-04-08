@@ -545,7 +545,7 @@ ITextMarkable *BaseTextEditor::markableInterface() const
     return baseTextDocument()->documentMarker();
 }
 
-void BaseTextEditor::maybeEmitTextChangedBecauseOfUndo()
+void BaseTextEditor::maybeEmitContentsChangedBecauseOfUndo()
 {
     if (!d->m_inKeyPressEvent) {
 
@@ -574,7 +574,7 @@ ITextEditable *BaseTextEditor::editableInterface() const
         connect(this, SIGNAL(textChanged()),
                 d->m_editable, SIGNAL(contentsChanged()));
         connect(this, SIGNAL(textChanged()),
-                this, SLOT(maybeEmitTextChangedBecauseOfUndo()));
+                this, SLOT(maybeEmitContentsChangedBecauseOfUndo()));
         connect(this, SIGNAL(changed()),
                 d->m_editable, SIGNAL(changed()));
     }
