@@ -165,19 +165,19 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     QActionGroup *layoutMarginActionGroup = new QActionGroup(this);
 
     m_snappingMarginAction = new NumberSeriesAction(layoutMarginActionGroup);
-    m_snappingMarginAction->addEntry("no margins (0)", 0);
-    m_snappingMarginAction->addEntry("small margin (2)", 2);
-    m_snappingMarginAction->addEntry("medium margin (6)", 6);
-    m_snappingMarginAction->addEntry("large margin (10)", 10);
+    m_snappingMarginAction->addEntry(tr("no margins (0)"), 0);
+    m_snappingMarginAction->addEntry(tr("small margin (2)"), 2);
+    m_snappingMarginAction->addEntry(tr("medium margin (6)"), 6);
+    m_snappingMarginAction->addEntry(tr("large margin (10)"), 10);
     m_snappingMarginAction->setCurrentEntryIndex(2);
     layoutMarginActionGroup->addAction(m_snappingMarginAction.data());
 
 
     m_snappingSpacingAction = new NumberSeriesAction(layoutMarginActionGroup);
-    m_snappingSpacingAction->addEntry("no spacing (0)", 0);
-    m_snappingSpacingAction->addEntry("small spacing (2)", 2);
-    m_snappingSpacingAction->addEntry("medium spacing (4)", 4);
-    m_snappingSpacingAction->addEntry("large spacing (6)", 6);
+    m_snappingSpacingAction->addEntry(tr("no spacing (0)"), 0);
+    m_snappingSpacingAction->addEntry(tr("small spacing (2)"), 2);
+    m_snappingSpacingAction->addEntry(tr("medium spacing (4)"), 4);
+    m_snappingSpacingAction->addEntry(tr("large spacing (6)"), 6);
     m_snappingSpacingAction->setCurrentEntryIndex(1);
     layoutMarginActionGroup->addAction(m_snappingSpacingAction.data());
 

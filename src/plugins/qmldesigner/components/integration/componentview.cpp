@@ -72,7 +72,7 @@ ModelNode ComponentView::modelNode(int index) const
 
 void ComponentView::appendWholeDocumentAsComponent()
 {
-    QStandardItem *item = new QStandardItem("Whole Document");
+    QStandardItem *item = new QStandardItem(tr("whole document"));
     item->setData(QVariant::fromValue(rootModelNode()), ModelNodeRole);
     item->setEditable(false);
     m_standardItemModel->appendRow(item);

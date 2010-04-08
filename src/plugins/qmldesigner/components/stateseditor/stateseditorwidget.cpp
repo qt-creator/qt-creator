@@ -130,7 +130,7 @@ void StatesEditorWidgetPrivate::addState()
     QString newStateName;
     int index = 1;
     while (1) {
-        newStateName = tr("State%1").arg(index++);
+        newStateName = tr("State%1", "Default name for newly created states").arg(index++);
         if (!modelStateNames.contains(newStateName))
             break;
     }

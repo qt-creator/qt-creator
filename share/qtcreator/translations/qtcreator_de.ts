@@ -16457,7 +16457,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <location line="+1"/>
         <source>Resources</source>
         <comment>Title of library resources view</comment>
-        <translation>Ressourcendateien</translation>
+        <translation>Ressourcen</translation>
     </message>
     <message>
         <location line="+5"/>
