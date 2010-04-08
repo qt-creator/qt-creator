@@ -6,198 +6,187 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>615</width>
-    <height>461</height>
+    <width>550</width>
+    <height>464</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBoxTabAndIndentSettings">
      <property name="title">
       <string>Tabs and Indentation</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="insertSpaces">
-          <property name="text">
-           <string>Insert &amp;spaces instead of tabs</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>30</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="autoInsertSpaces">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string>Automatically determine based on the nearest indented line (previous line preferred over next line)</string>
-            </property>
-            <property name="text">
-             <string>Based on the surrounding lines</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="2" column="0">
-         <widget class="QCheckBox" name="autoIndent">
-          <property name="text">
-           <string>Enable automatic &amp;indentation</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QCheckBox" name="smartBackspace">
-          <property name="toolTip">
-           <string>Backspace will go back one indentation level instead of one space.</string>
-          </property>
-          <property name="text">
-           <string>&amp;Backspace follows indentation</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="labelTabSize">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Ta&amp;b size:</string>
-          </property>
-          <property name="buddy">
-           <cstring>tabSize</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QSpinBox" name="tabSize">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>20</number>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" rowspan="5">
-         <spacer name="horizontalSpacer">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="insertSpaces">
+        <property name="text">
+         <string>Insert &amp;spaces instead of tabs</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="labelTabSize">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Ta&amp;b size:</string>
+        </property>
+        <property name="buddy">
+         <cstring>tabSize</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QSpinBox" name="tabSize">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>20</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <spacer name="horizontalSpacer_5">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>40</width>
+            <width>30</width>
             <height>20</height>
            </size>
           </property>
          </spacer>
         </item>
-        <item row="0" column="4" rowspan="4">
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="4" column="0">
-         <widget class="QCheckBox" name="indentBraces">
-          <property name="toolTip">
-           <string>Braces will be flush with indented block, except first indent level.</string>
-          </property>
-          <property name="text">
-           <string>Indent brace&amp;s</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="labelIndentSize">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>&amp;Indent size:</string>
-          </property>
-          <property name="buddy">
-           <cstring>indentSize</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QSpinBox" name="indentSize">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>20</number>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QCheckBox" name="doubleIndentBlocks">
+        <item>
+         <widget class="QCheckBox" name="autoInsertSpaces">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Automatically determine based on the nearest indented line (previous line preferred over next line)</string>
           </property>
           <property name="text">
-           <string>Indent blocks t&amp;wice</string>
+           <string>Based on the surrounding lines</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="labelIndentSize">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>&amp;Indent size:</string>
+        </property>
+        <property name="buddy">
+         <cstring>indentSize</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QSpinBox" name="indentSize">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>20</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="autoIndent">
+        <property name="text">
+         <string>Enable automatic &amp;indentation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="smartBackspace">
+        <property name="toolTip">
+         <string>Backspace will go back one indentation level instead of one space.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Backspace follows indentation</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="indentBlocksLabel">
+          <property name="text">
+           <string>Block indentation style:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="indentBlocksBehavior">
+          <item>
+           <property name="text">
+            <string>Exclude Braces</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Include Braces</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>GNU Style</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="0">
          <widget class="QLabel" name="tabKeyIndentLabel">
           <property name="text">
            <string>Tab key performs auto-indent:</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item row="1" column="1">
          <widget class="QComboBox" name="tabKeyBehavior">
           <item>
            <property name="text">
@@ -215,22 +204,6 @@
            </property>
           </item>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_6">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>31</width>
-            <height>24</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>
@@ -366,6 +339,11 @@
     </spacer>
    </item>
   </layout>
+  <zorder>groupBoxTabAndIndentSettings</zorder>
+  <zorder>groupBoxStorageSettings</zorder>
+  <zorder>groupBoxMouse</zorder>
+  <zorder>doubleIndentBlocks</zorder>
+  <zorder>indentBlocksLabel</zorder>
  </widget>
  <tabstops>
   <tabstop>insertSpaces</tabstop>

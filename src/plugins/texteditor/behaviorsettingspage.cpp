@@ -169,8 +169,8 @@ void BehaviorSettingsPage::settingsFromUI(TabSettings &tabSettings,
     tabSettings.m_smartBackspace = m_d->m_page.smartBackspace->isChecked();
     tabSettings.m_tabSize = m_d->m_page.tabSize->value();
     tabSettings.m_indentSize = m_d->m_page.indentSize->value();
-    tabSettings.m_indentBraces = m_d->m_page.indentBraces->isChecked();
-    tabSettings.m_doubleIndentBlocks = m_d->m_page.doubleIndentBlocks->isChecked();
+    tabSettings.m_indentBraces = m_d->m_page.indentBlocksBehavior->currentIndex() >= 1;
+    tabSettings.m_doubleIndentBlocks = m_d->m_page.indentBlocksBehavior->currentIndex() >= 2;
 
     tabSettings.m_tabKeyBehavior = (TabSettings::TabKeyBehavior)m_d->m_page.tabKeyBehavior->currentIndex();
 
@@ -192,8 +192,9 @@ void BehaviorSettingsPage::settingsToUI()
     m_d->m_page.smartBackspace->setChecked(tabSettings.m_smartBackspace);
     m_d->m_page.tabSize->setValue(tabSettings.m_tabSize);
     m_d->m_page.indentSize->setValue(tabSettings.m_indentSize);
-    m_d->m_page.indentBraces->setChecked(tabSettings.m_indentBraces);
-    m_d->m_page.doubleIndentBlocks->setChecked(tabSettings.m_doubleIndentBlocks);
+    m_d->m_page.indentBlocksBehavior->setCurrentIndex(tabSettings.m_indentBraces ?
+                                                      (tabSettings.m_doubleIndentBlocks ? 2 : 1)
+                                                        : 0);
     m_d->m_page.tabKeyBehavior->setCurrentIndex(tabSettings.m_tabKeyBehavior);
 
     const StorageSettings &storageSettings = m_d->m_storageSettings;
