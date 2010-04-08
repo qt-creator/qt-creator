@@ -33,7 +33,6 @@
 #include "projectexplorersettings.h"
 #include "gccparser.h"
 #include "msvcparser.h"
-#include "linuxiccparser.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -84,11 +83,6 @@ ToolChain *ToolChain::createMinGWToolChain(const QString &gcc, const QString &mi
     return new MinGWToolChain(gcc, mingwPath);
 }
 
-ToolChain *ToolChain::createLinuxIccToolChain()
-{
-    return new LinuxIccToolChain();
-}
-
 ToolChain *ToolChain::createMSVCToolChain(const QString &name, bool amd64)
 {
     return MSVCToolChain::create(name, amd64);
@@ -130,8 +124,8 @@ QString ToolChain::toolChainName(ToolChainType tc)
     switch (tc) {
     case GCC:
         return QCoreApplication::translate("ToolChain", "GCC");
-    case LINUX_ICC:
-        return QCoreApplication::translate("ToolChain", "Intel C++ Compiler (Linux)");
+//    case LinuxICC:
+//        return QCoreApplication::translate("ToolChain", "Intel C++ Compiler (Linux)");
     case MinGW:
         return QString::fromLatin1("MinGW");
     case MSVC:
@@ -323,21 +317,6 @@ QString MinGWToolChain::makeCommand() const
 IOutputParser *MinGWToolChain::outputParser() const
 {
     return new GccParser;
-}
-
-LinuxIccToolChain::LinuxIccToolChain()
-    : GccToolChain(QLatin1String("icpc"))
-{
-}
-
-ToolChain::ToolChainType LinuxIccToolChain::type() const
-{
-    return ToolChain::LINUX_ICC;
-}
-
-IOutputParser *LinuxIccToolChain::outputParser() const
-{
-    return new LinuxIccParser;
 }
 
 // ---------------- MSVC installation location code
