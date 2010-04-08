@@ -197,7 +197,7 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
 
         const QString projectDir = QDir(qt4BuildConfiguration()->qt4Target()->qt4Project()->projectDirectory()).absolutePath();
         const QString epocRootDir = QDir(Internal::S60Manager::instance()->deviceForQtVersion(qtVersion).epocRoot).absolutePath();
-        QFileInfo cppheader(epocRootDir + QLatin1String("/include/stdapis/string.h"));
+        QFileInfo cppheader(epocRootDir + QLatin1String("/epoc32/include/stdapis/string.h"));
 #if defined (Q_OS_WIN)
         // Report an error if project- and epoc directory are on different drives:
         if (!epocRootDir.startsWith(projectDir.left(3), Qt::CaseInsensitive)) {
