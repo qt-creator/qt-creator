@@ -180,6 +180,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxSmartIndent);
     m_group.insert(theFakeVimSetting(ConfigIncSearch),
         m_ui.checkBoxIncSearch);
+    m_group.insert(theFakeVimSetting(ConfigUseCoreSearch),
+        m_ui.checkBoxUseCoreSearch);
 
     connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
         this, SLOT(copyTextEditorSettings()));

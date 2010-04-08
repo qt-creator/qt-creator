@@ -1534,7 +1534,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
     } else if (key == '/' || key == '?') {
-        if (hasConfig(ConfigIncSearch)) {
+        if (hasConfig(ConfigUseCoreSearch)) {
             // re-use the core dialog.
             m_findPending = true;
             m_lastSearchForward = (key == '/');
@@ -1910,8 +1910,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             }
             m_tc = EDITOR(textCursor());
             m_tc.setPosition(m_tc.selectionStart());
-        } else
+        } else {
             search(lastSearchString(), m_lastSearchForward);
+        }
         recordJump();
     } else if (isVisualMode() && (key == 'o' || key == 'O')) {
         int pos = position();
