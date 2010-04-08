@@ -71,8 +71,7 @@ QString SettingsPageWidget::searchKeywords() const
     QTextStream(&rc)
             << m_ui.snapToGridCheckbox->text()
             << ' ' << m_ui.showBoundingRectanglesCheckbox->text()
-            << ' ' << m_ui.onlyShowItemsWithContentsCheckBox->text()
-            << ' ' << m_ui.groupBox->title();
+            << ' ' << m_ui.onlyShowItemsWithContentsCheckBox->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }
@@ -89,17 +88,17 @@ QString SettingsPage::id() const
 
 QString SettingsPage::displayName() const
 {
-    return tr("Designer");
+    return tr("Qt Quick Designer");
 }
 
 QString SettingsPage::category() const
 {
-    return QLatin1String("QML");
+    return QLatin1String("Qt Quick");
 }
 
 QString SettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("QML", "QML");
+    return QCoreApplication::translate("Qt Quick", "Qt Quick");
 }
 
 QIcon SettingsPage::categoryIcon() const

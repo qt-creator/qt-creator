@@ -6,66 +6,36 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>494</width>
+    <height>467</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
-   <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>GroupBox</string>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" rowspan="2" colspan="3">
+    <widget class="QCheckBox" name="snapToGridCheckbox">
+     <property name="text">
+      <string>&amp;Snap to guides</string>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0" colspan="2">
-       <widget class="QCheckBox" name="snapToGridCheckbox">
-        <property name="text">
-         <string>&amp;Snap to Grid</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="showBoundingRectanglesCheckbox">
-        <property name="text">
-         <string>Show Bounding Rectangles</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QCheckBox" name="onlyShowItemsWithContentsCheckBox">
-        <property name="text">
-         <string>Only Show Items with Contents</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="editorModeLabel">
-        <property name="text">
-         <string>Open editor in:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QComboBox" name="editorModeComboBox">
-        <item>
-         <property name="text">
-          <string>Design mode</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Edit mode</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
-   <item>
+   <item row="2" column="0" colspan="3">
+    <widget class="QCheckBox" name="showBoundingRectanglesCheckbox">
+     <property name="text">
+      <string>Show &amp;bounding rectangles</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="onlyShowItemsWithContentsCheckBox">
+     <property name="text">
+      <string>Only select items with content</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -78,8 +48,45 @@
      </property>
     </spacer>
    </item>
+   <item row="4" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="editorModeLabel">
+       <property name="text">
+        <string>Open file in:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="editorModeComboBox">
+       <item>
+        <property name="text">
+         <string>Design mode</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Edit mode</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>snapToGridCheckbox</tabstop>
+  <tabstop>showBoundingRectanglesCheckbox</tabstop>
+  <tabstop>onlyShowItemsWithContentsCheckBox</tabstop>
+  <tabstop>editorModeComboBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
