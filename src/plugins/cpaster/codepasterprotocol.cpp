@@ -30,7 +30,6 @@
 #include "codepasterprotocol.h"
 #include "codepastersettings.h"
 #include "cpasterplugin.h"
-#include "cgi.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -130,13 +129,13 @@ void CodePasterProtocol::paste(const QString &text,
         return;
 
     QByteArray data = "command=processcreate&submit=submit&highlight_type=0&description=";
-    data += CGI::encodeURL(description).toLatin1();
+    data += QUrl::toPercentEncoding(description);
     data += "&comment=";
-    data += CGI::encodeURL(comment).toLatin1();
+    data += QUrl::toPercentEncoding(comment);
     data += "&code=";
-    data += CGI::encodeURL(fixNewLines(text)).toLatin1();
+    data += QUrl::toPercentEncoding(fixNewLines(text));
     data += "&poster=";
-    data += CGI::encodeURL(username).toLatin1();
+    data += QUrl::toPercentEncoding(username);
 
     m_pasteReply = httpPost(QLatin1String("http://") + hostName, data);
     connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
