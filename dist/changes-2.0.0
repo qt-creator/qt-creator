@@ -36,7 +36,7 @@ Editing
      the syntax highlighting.
 
 CodePaster
-   * Implemented new protocol of pastebin.com including list functionality\
+   * Implemented new protocol of pastebin.com including list functionality
 
 C++ Support
    * Recognize *.cu as C files

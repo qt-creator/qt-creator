@@ -1078,7 +1078,7 @@ void DebuggerPlugin::activateDebugMode()
 
 static bool isDebuggable(Core::IEditor *editor)
 {
-    // Only blacklist XML. Whitelisting would fail on C++ code in files
+    // Only blacklist QML. Whitelisting would fail on C++ code in files
     // with strange names, more harm would be done this way.
     Core::IFile *file = editor->file();
     return !(file && file->mimeType() == "application/x-qml");
