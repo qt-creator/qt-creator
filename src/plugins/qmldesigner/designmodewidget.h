@@ -174,8 +174,6 @@ private:
     QSplitter *m_mainSplitter;
     Core::SideBar *m_leftSideBar;
     Core::SideBar *m_rightSideBar;
-
-    QToolBar *m_designToolBar;
     Core::EditorToolBar *m_fakeToolBar;
 
     bool m_isDisabled;

@@ -537,7 +537,7 @@ void DesignModeWidget::setup()
 
     m_itemLibrary = new ItemLibrary(this);
 
-    m_designToolBar = new QToolBar;
+    //m_designToolBar = new QToolBar;
     m_fakeToolBar = Core::EditorManager::createToolBar(this);
 
 
@@ -577,11 +577,8 @@ void DesignModeWidget::setup()
     m_leftSideBar = new Core::SideBar(leftSideBarItems, QList<Core::SideBarItem*>() << navigatorItem << libraryItem);
     m_rightSideBar = new Core::SideBar(rightSideBarItems, QList<Core::SideBarItem*>() << propertiesItem);
 
-    m_designToolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-
     m_fakeToolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
     //m_fakeToolBar->addEditor(textEditor()); ### what does this mean?
-    m_fakeToolBar->addCenterToolBar(m_designToolBar);
     m_fakeToolBar->setNavigationVisible(false);
 
     connect(m_fakeToolBar, SIGNAL(closeClicked()), this, SLOT(closeCurrentEditor()));
