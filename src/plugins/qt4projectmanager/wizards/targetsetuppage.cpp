@@ -285,10 +285,12 @@ TargetSetupPage::importInfosForKnownQtVersions(Qt4ProjectManager::Qt4Project *pr
         validVersions.append(vm->versions().at(0)); // there is always one!
     foreach (QtVersion *v, validVersions) {
         ImportInfo info;
-        // ToDo: Check whether shadowbuilding is possible and use sourcedir if not:
-        //       This needs a shadowbuilding patch to land
-        if (project)
-            info.directory = project->defaultTopLevelBuildDirectory();
+        if (project) {
+            if (v->supportsShadowBuilds())
+                info.directory = project->defaultTopLevelBuildDirectory();
+            else
+                info.directory = project->projectDirectory();
+        }
         info.isExistingBuild = false;
         info.isTemporary = false;
         info.version = v;
