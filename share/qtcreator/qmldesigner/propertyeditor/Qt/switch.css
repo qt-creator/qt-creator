@@ -9,6 +9,7 @@ QPushButton {
 
     color: #EEEEEE;
     font: bold;
+	font-size: 11px;
 }
 
 QPushButton:hover {
