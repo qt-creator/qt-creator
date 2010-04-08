@@ -754,7 +754,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         data.iname = parent.iname + '.' + data.name.toLatin1();
         data.variable = name;
         setWatchDataType(data, item.findChild("type"));
-        setWatchDataValue(data, item.findChild("value"));
+        setWatchDataValue(data, item);
         setWatchDataAddress(data, item.findChild("addr"));
         data.setHasChildren(false);
         insertData(data);
@@ -777,7 +777,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         data.iname = parent.iname + '.' + exp;
         data.variable = name;
         setWatchDataType(data, item.findChild("type"));
-        setWatchDataValue(data, item.findChild("value"));
+        setWatchDataValue(data, item);
         setWatchDataAddress(data, item.findChild("addr"));
         setWatchDataChildCount(data, item.findChild("numchild"));
         if (!manager()->watchHandler()->isExpandedIName(data.iname))
@@ -873,7 +873,7 @@ void GdbEngine::handleEvaluateExpressionClassic(const GdbResponse &response)
         //if (col == 0)
         //    data.name = response.data.findChild("value").data();
         //else
-            setWatchDataValue(data, response.data.findChild("value"));
+            setWatchDataValue(data, response.data);
     } else {
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
     }
