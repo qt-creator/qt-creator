@@ -163,7 +163,6 @@ void CommandMappings::filterChanged(const QString &f)
 
 bool CommandMappings::filter(const QString &f, const QTreeWidgetItem *item)
 {
-
     if (QTreeWidgetItem *parent = item->parent()) {
         if (parent->text(0).contains(f, Qt::CaseInsensitive))
             return false;
