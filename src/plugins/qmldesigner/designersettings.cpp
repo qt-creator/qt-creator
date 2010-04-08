@@ -34,8 +34,6 @@
 
 using namespace QmlDesigner;
 
-static const char *snapToGridKey = "SnapToGrid";
-
 DesignerSettings::DesignerSettings()
     : openDesignMode(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT)
 {}
