@@ -41,7 +41,7 @@ leave room for the Qt 4 target page.
     <displayname>QML Runtime Plug-in</displayname>
     <displaycategory>QML Runtime Plug-in</displaycategory>
     <files>
-        <file source="qmldir" target="%ProjectName%/qmldir"/>
+        <file source="qmldir" target="qmldir"/>
         <file source="plugin.h" target="%ProjectName%.h"/>
         <file source="plugin.cpp" target="%ProjectName%.cpp"/>
         <file source="object.h" target="%ObjectName%.h"/>

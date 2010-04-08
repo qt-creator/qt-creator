@@ -44,9 +44,7 @@
 
 void %ProjectName%::registerTypes(const char *uri)
 {
-    Q_UNUSED(uri);
-
-    QML_REGISTER_TYPE(%ProjectName%,1,0,%ObjectName%,%ObjectName%);
+    qmlRegisterType<%ObjectName%>(uri, 1, 0, "%ObjectName%");
 }
 
 Q_EXPORT_PLUGIN(%ProjectName%);
