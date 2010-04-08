@@ -1155,8 +1155,10 @@ void QtVersion::updateToolChainAndMkspec() const
     m_toolChains.clear();
     m_targetIds.clear();
 
-    if (!isValid())
+    if (!isValid()) {
+        m_targetIds.insert(Constants::DESKTOP_TARGET_ID);
         return;
+    }
 
 //    qDebug()<<"Finding mkspec for"<<qmakeCommand();
 

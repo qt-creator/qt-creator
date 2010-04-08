@@ -280,6 +280,9 @@ TargetSetupPage::importInfosForKnownQtVersions(Qt4ProjectManager::Qt4Project *pr
     QList<ImportInfo> results;
     QtVersionManager * vm = QtVersionManager::instance();
     QList<QtVersion *> validVersions = vm->validVersions();
+    // Fallback in case no valid versions are found:
+    if (validVersions.isEmpty())
+        validVersions.append(vm->versions().at(0)); // there is always one!
     foreach (QtVersion *v, validVersions) {
         ImportInfo info;
         // ToDo: Check whether shadowbuilding is possible and use sourcedir if not:
