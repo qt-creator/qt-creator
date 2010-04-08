@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef GCCPARSER_H
-#define GCCPARSER_H
+#ifndef LDPARSER_H
+#define LDPARSER_H
 
 #include "ioutputparser.h"
 
@@ -36,18 +36,18 @@
 
 namespace ProjectExplorer {
 
-class GccParser : public ProjectExplorer::IOutputParser
+class LdParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 
 public:
-    GccParser();
+    LdParser();
     virtual void stdError(const QString &line);
 
 private:
-    QRegExp m_regExp;
-    QRegExp m_regExpIncluded;
+    QRegExp m_regExpLinker;
     QRegExp m_regExpGccNames;
+    QRegExp m_regExpInFunction;
 };
 
 } // namespace ProjectExplorer

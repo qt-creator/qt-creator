@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "gccparser.h"
+#include "ldparser.h"
 #include "projectexplorerconstants.h"
 #include "taskwindow.h"
 
@@ -35,9 +36,8 @@ using namespace ProjectExplorer;
 
 namespace {
     // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN("^(([A-Za-z]:)?[^:]+\\.[^:]+):");
-    // line no. or elf segment + offset: (1 bracket)
-    const char * const POSITION_PATTERN("(\\d+|\\(\\.[a-zA-Z0-9]*.0x[a-fA-F0-9]+\\)):");
+    const char * const FILE_PATTERN = "^(([A-Za-z]:)?[^:]+\\.[^:]+):";
+    const char * const COMMAND_PATTERN = "^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9\\.]+)?(\\.exe)?: ";
 }
 
 GccParser::GccParser()
@@ -48,20 +48,16 @@ GccParser::GccParser()
     m_regExpIncluded.setPattern("^.*from\\s([^:]+):(\\d+)(,|:)$");
     m_regExpIncluded.setMinimal(true);
 
-    m_regExpLinker.setPattern(QString::fromLatin1(FILE_PATTERN) + '(' + QLatin1String(POSITION_PATTERN) + ")?\\s(.+)$");
-    m_regExpLinker.setMinimal(true);
-
     // treat ld (and gold) as part of gcc for simplicity
     // optional path with trailing slash
     // optional arm-linux-none-thingy
     // name of executable
     // optional trailing version number
     // optional .exe postfix
-    m_regExpGccNames.setPattern("^(.*[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+|ld|gold)(-[0-9\\.]+)?(\\.exe)?: ");
+    m_regExpGccNames.setPattern(COMMAND_PATTERN);
     m_regExpGccNames.setMinimal(true);
 
-    m_regExpInFunction.setPattern("^In (static |member )*function ");
-    m_regExpInFunction.setMinimal(true);
+    appendOutputParser(new LdParser);
 }
 
 void GccParser::stdError(const QString &line)
@@ -76,8 +72,7 @@ void GccParser::stdError(const QString &line)
     }
 
     // Handle misc issues:
-    if (lne.startsWith(QLatin1String("collect2:")) ||
-        lne.startsWith(QLatin1String("ERROR:")) ||
+    if (lne.startsWith(QLatin1String("ERROR:")) ||
         lne == QLatin1String("* cpp failed")) {
         emit addTask(Task(Task::Error,
                           lne /* description */,
@@ -117,25 +112,6 @@ void GccParser::stdError(const QString &line)
         // We want those to show how the warning was triggered
         if (m_regExp.cap(5).startsWith(QChar('#')))
             task.description = m_regExp.cap(5) + task.description;
-
-        emit addTask(task);
-        return;
-    } else if (m_regExpLinker.indexIn(lne) > -1) {
-        bool ok;
-        int lineno = m_regExpLinker.cap(4).toInt(&ok);
-        if (!ok)
-            lineno = -1;
-        QString description = m_regExpLinker.cap(5);
-        Task task(Task::Error,
-                  description,
-                  m_regExpLinker.cap(1) /* filename */,
-                  lineno,
-                  Constants::TASK_CATEGORY_COMPILE);
-        if (m_regExpInFunction.indexIn(description) > -1 ||
-            description.startsWith(QLatin1String("At global scope")) ||
-            description.startsWith(QLatin1String("instantiated from ")) ||
-            description.startsWith(QLatin1String("In instantiation of ")))
-            task.type = Task::Unknown;
 
         emit addTask(task);
         return;
