@@ -76,7 +76,7 @@ public:
     enum ToolChainType
     {
         GCC = 0,
-        LINUX_ICC = 1,
+        // LINUX_ICC = 1,
         MinGW = 2,
         MSVC = 3,
         WINCE = 4,
@@ -107,7 +107,6 @@ public:
     // Factory methods
     static ToolChain *createGccToolChain(const QString &gcc);
     static ToolChain *createMinGWToolChain(const QString &gcc, const QString &mingwPath);
-    static ToolChain *createLinuxIccToolChain();
     static ToolChain *createMSVCToolChain(const QString &name, bool amd64);
     static ToolChain *createWinCEToolChain(const QString &name, const QString &platform);
     static QStringList availableMSVCVersions();
@@ -156,15 +155,6 @@ protected:
 
 private:
     QString m_mingwPath;
-};
-
-class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
-{
-public:
-    LinuxIccToolChain();
-    virtual ToolChainType type() const;
-
-    virtual IOutputParser *outputParser() const;
 };
 
 // TODO some stuff needs to be moved into this

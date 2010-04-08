@@ -77,8 +77,7 @@ HEADERS += projectexplorer.h \
     doubletabwidget.h \
     addtargetdialog.h \
     buildenvironmentwidget.h \
-    buildconfigdialog.h \
-    linuxiccparser.h
+    buildconfigdialog.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -142,8 +141,7 @@ SOURCES += projectexplorer.cpp \
     doubletabwidget.cpp \
     addtargetdialog.cpp \
     buildenvironmentwidget.cpp \
-    buildconfigdialog.cpp \
-    linuxiccparser.cpp
+    buildconfigdialog.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \
