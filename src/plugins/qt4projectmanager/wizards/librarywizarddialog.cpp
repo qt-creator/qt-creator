@@ -64,7 +64,7 @@ static const PluginBaseClasses pluginBaseClasses[] =
     { "QTextCodecPlugin", "QtCore", 0, "codecs" }
 };
 
-enum { defaultPluginBaseClass = 7 };
+enum { defaultPluginBaseClass = 6 };
 
 static const PluginBaseClasses *findPluginBaseClass(const QString &name)
 {
