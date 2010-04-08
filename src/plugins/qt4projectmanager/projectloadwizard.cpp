@@ -103,9 +103,6 @@ void ProjectLoadWizard::setupTargetPage()
     m_targetSetupPage->setImportDirectoryBrowsingEnabled(true);
     m_targetSetupPage->setImportDirectoryBrowsingLocation(m_project->projectDirectory());
 
-    if (importVersions.count() <= 1)
-        return;
-
     const int targetPageId = addPage(m_targetSetupPage);
     wizardProgress()->item(targetPageId)->setTitle(tr("Targets"));
 }
