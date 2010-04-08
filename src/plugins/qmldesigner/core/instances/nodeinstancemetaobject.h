@@ -14,8 +14,8 @@ typedef QWeakPointer<ObjectNodeInstance> ObjectNodeInstanceWeakPointer;
 class NodeInstanceMetaObject : public QDeclarativeOpenMetaObject
 {
 public:
-    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
-    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix);
+    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QDeclarativeEngine *engine);
+    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QDeclarativeEngine *engine);
     void createNewProperty(const QString &name);
 
 protected:
