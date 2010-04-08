@@ -2503,6 +2503,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             logMessage(format("unexpected next()."));
             return ProItem::ReturnFalse;
         case T_IF: {
+            if (m_skipLevel && !m_cumulative)
+                return ProItem::ReturnFalse;
             if (args.count() != 1) {
                 logMessage(format("if(condition) requires one argument."));
                 return ProItem::ReturnFalse;
@@ -2560,19 +2562,13 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                         args += c;
                     }
                     if (!parens && (isOp || d == ed)) {
-                        // Yes, qmake doesn't shortcut evaluations here. We can't, either,
-                        // as some test functions have side effects.
-                        bool success;
-                        if (isFunc) {
-                            success = evaluateConditionalFunction(test, args);
-                        } else {
-                            success = isActiveConfig(test, true);
+                        if (m_cumulative || (orOp != ret)) {
+                            if (isFunc)
+                                ret = evaluateConditionalFunction(test, args);
+                            else
+                                ret = isActiveConfig(test, true);
+                            ret ^= invert;
                         }
-                        success ^= invert;
-                        if (orOp)
-                            ret |= success;
-                        else
-                            ret &= success;
                         orOp = (c == '|');
                         invert = false;
                         isFunc = false;
