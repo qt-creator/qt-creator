@@ -135,8 +135,6 @@ bool PropertyEditorValue::isBound() const
 
 bool PropertyEditorValue::isInModel() const
 {
-    qDebug() << name();
-    qDebug() << (modelNode().isValid() && modelNode().hasProperty(name()));
     return modelNode().isValid() && modelNode().hasProperty(name());
 }
 
