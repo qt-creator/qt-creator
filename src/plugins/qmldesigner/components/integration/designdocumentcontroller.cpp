@@ -349,10 +349,8 @@ void DesignDocumentController::loadCurrentModel()
         connect(m_d->componentAction.data(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));
         m_d->formEditorView->widget()->lowerToolBox()->addAction(m_d->componentAction.data());
     }
-    foreach (QAction *action , m_d->formEditorView->widget()->lowerToolBox()->actions())
-        if (qobject_cast<ComponentAction*>(action))
-            action->setVisible(false);
-    m_d->componentAction->setVisible(true);
+    // Disable switching between in file components for the time being
+    m_d->componentAction->setVisible(false);
 
     connect(m_d->itemLibrary.data(), SIGNAL(itemActivated(const QString&)), m_d->formEditorView.data(), SLOT(activateItemCreator(const QString&)));
 
