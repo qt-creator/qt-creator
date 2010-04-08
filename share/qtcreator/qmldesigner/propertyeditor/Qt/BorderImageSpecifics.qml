@@ -18,12 +18,22 @@ QWidget {
 
             layout: VerticalLayout {
 
-                FileWidget {
-                    enabled: isBaseState || backendValues.id.value != "";
-                    text: "Source";
-                    fileName: backendValues.source.value;
-                    onFileNameChanged: {
-                        backendValues.source.value = fileName;
+                QWidget {
+                    layout: HorizontalLayout {
+                        Label {
+                            text: qsTr("Source")
+                        }
+
+                        FileWidget {
+                            enabled: isBaseState || backendValues.id.value != "";
+                            fileName: backendValues.source.value;
+                            onFileNameChanged: {
+                                backendValues.source.value = fileName;
+                            }
+                            itemNode: anchorBackend.itemNode
+                            filter: "*.png *.gif *.jpg"
+                            showComboBox: true
+                        }
                     }
                 }
 
