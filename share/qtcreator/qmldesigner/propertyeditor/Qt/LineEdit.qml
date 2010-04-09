@@ -43,7 +43,7 @@ QWidget {
 
     QLineEdit {
         id: lineEditWidget
-        styleSheet: "padding-left: 32;"
+        styleSheet: "QLineEdit { padding-left: 32; }"
         width: lineEdit.width
         height: lineEdit.height
 
