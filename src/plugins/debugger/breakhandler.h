@@ -160,7 +160,6 @@ public slots:
     void appendBreakpoint(BreakpointData *data);
     void toggleBreakpointEnabled(BreakpointData *data);
     void breakByFunction(const QString &functionName);
-    void activateBreakpoint(int index);
     void removeBreakpoint(int index);
 
 private:

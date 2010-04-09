@@ -1174,11 +1174,11 @@ void DebuggerPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
 
 void DebuggerPlugin::breakpointSetRemoveMarginActionTriggered()
 {
-    if (QAction *act = qobject_cast<QAction *>(sender())) {
-        QString str = act->data().toString();
-        int pos = str.lastIndexOf(':');
-        m_manager->toggleBreakpoint(str.left(pos), str.mid(pos + 1).toInt());
-    }
+    QAction *act = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(act, return);
+    QString str = act->data().toString();
+    int pos = str.lastIndexOf(':');
+    m_manager->toggleBreakpoint(str.left(pos), str.mid(pos + 1).toInt());
 }
 
 void DebuggerPlugin::breakpointEnableDisableMarginActionTriggered()

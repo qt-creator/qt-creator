@@ -746,17 +746,6 @@ void BreakHandler::loadSessionData()
     updateMarkers();
 }
 
-void BreakHandler::activateBreakpoint(int index)
-{
-    const BreakpointData *data = at(index);
-    if (!data->markerFileName().isEmpty()) {
-        StackFrame frame;
-        frame.file = data->markerFileName();
-        frame.line = data->markerLineNumber();
-        m_manager->gotoLocation(frame, false);
-    }
-}
-
 void BreakHandler::breakByFunction(const QString &functionName)
 {
     // One breakpoint per function is enough for now. This does not handle

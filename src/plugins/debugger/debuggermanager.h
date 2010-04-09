@@ -259,6 +259,7 @@ public slots: // FIXME
         { showDebuggerOutput(LogDebug, msg); }
     void ensureLogVisible();
     void updateWatchersWindow();
+    void activateBreakpoint(int index);
 
 //private slots:  // FIXME
     void showDebuggerOutput(int channel, const QString &msg);

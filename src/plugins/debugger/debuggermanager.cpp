@@ -419,7 +419,7 @@ void DebuggerManager::init()
         qobject_cast<QAbstractItemView *>(d->m_breakWindow);
     breakView->setModel(d->m_breakHandler->model());
     connect(breakView, SIGNAL(breakpointActivated(int)),
-        d->m_breakHandler, SLOT(activateBreakpoint(int)));
+        this, SLOT(activateBreakpoint(int)));
     connect(breakView, SIGNAL(breakpointDeleted(int)),
         d->m_breakHandler, SLOT(removeBreakpoint(int)));
     connect(breakView, SIGNAL(breakpointSynchronizationRequested()),
@@ -1334,6 +1334,17 @@ void DebuggerManager::addToWatchWindow()
     }
     if (!exp.isEmpty())
         d->m_watchHandler->watchExpression(exp);
+}
+
+void DebuggerManager::activateBreakpoint(int index)
+{
+    const BreakpointData *data = breakHandler()->at(index);
+    if (!data->markerFileName().isEmpty()) {
+        StackFrame frame;
+        frame.file = data->markerFileName();
+        frame.line = data->markerLineNumber();
+        gotoLocation(frame, false);
+    }
 }
 
 void DebuggerManager::breakByFunctionMain()
