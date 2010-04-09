@@ -44,6 +44,8 @@
 
 #include <QtCore/QDebug>
 
+#define MAX_RECENT_ITEMS 6
+
 using namespace ProjectExplorer::Internal;
 
 bool ProjectWelcomePageWidget::WelcomePageData::operator==(const WelcomePageData &rhs) const
@@ -103,7 +105,10 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
     ui->projTreeWidget->clear();
 
     if (welcomePageData.sessionList.count() > 0) {
+        int items = 0;
         foreach (const QString &s, welcomePageData.sessionList) {
+            if (++items > MAX_RECENT_ITEMS)
+                break;
             QString str = s;
             if (welcomePageData.activeSession.isEmpty()) {
                 if (s == welcomePageData.previousSession)
@@ -122,7 +127,10 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
 
     typedef QPair<QString, QString> QStringPair;
     if (welcomePageData.projectList.count() > 0) {
+        int items = 0;
         foreach (const QStringPair &it, welcomePageData.projectList) {
+            if (++items > MAX_RECENT_ITEMS)
+                break;
             const QFileInfo fi(it.first);
             ui->projTreeWidget->addItem(it.second, it.first,
                                         QDir::toNativeSeparators(fi.absolutePath()));
