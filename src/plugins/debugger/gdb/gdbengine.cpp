@@ -3827,7 +3827,7 @@ void GdbEngine::fetchDisassemblerByAddressCli(DisassemblerViewAgent *agent)
     quint64 address = agent->address().toULongLong(&ok, 0);
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
-    QByteArray cmd = "disassemble 0x" + start + " 0x" + end;
+    QByteArray cmd = "disassemble 0x" + start + ",0x" + end;
     postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCli),
         QVariant::fromValue(DisassemblerAgentCookie(agent)));
 }
