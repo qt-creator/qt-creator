@@ -59,6 +59,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
+#include <QtCore/QCoreApplication>
 
 #include <QtGui/QMenu>
 
@@ -209,7 +210,8 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 
     wizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY));
-    wizardParameters.setDisplayCategory(Constants::WIZARD_TR_CATEGORY);
+    wizardParameters.setDisplayCategory(QCoreApplication::translate(Constants::WIZARD_CATEGORY,
+                                                                    Constants::WIZARD_TR_CATEGORY));
     wizardParameters.setDisplayName(tr("C++ Class"));
     wizardParameters.setId(QLatin1String("A.Class"));
     wizardParameters.setKind(Core::IWizard::ClassWizard);
