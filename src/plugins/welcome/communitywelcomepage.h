@@ -46,7 +46,7 @@ public:
     CommunityWelcomePage();
 
     QWidget *page();
-    QString title() const { return tr("Community"); }
+    QString title() const { return tr("News && Support"); }
     int priority() const { return 30; }
 
 private:

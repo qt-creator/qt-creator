@@ -83,6 +83,15 @@
         <attribute name="headerMinimumSectionSize">
          <number>0</number>
         </attribute>
+        <attribute name="headerDefaultSectionSize">
+         <number>24</number>
+        </attribute>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerMinimumSectionSize">
+         <number>0</number>
+        </attribute>
         <column>
          <property name="text">
           <string notr="true">1</string>
@@ -106,9 +115,9 @@
      <property name="frameShadow">
       <enum>QFrame::Plain</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="Utils::WelcomeModeLabel" name="sitesTitleLabel">
+       <widget class="Utils::WelcomeModeLabel" name="supportSitesTitleLabel">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
           <horstretch>0</horstretch>
@@ -121,7 +130,82 @@
        </widget>
       </item>
       <item>
-       <widget class="Utils::WelcomeModeTreeWidget" name="sitesTreeWidget">
+       <widget class="Utils::WelcomeModeTreeWidget" name="supportSitesTreeWidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::NoSelection</enum>
+        </property>
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+        <property name="rootIsDecorated">
+         <bool>false</bool>
+        </property>
+        <property name="uniformRowHeights">
+         <bool>true</bool>
+        </property>
+        <property name="allColumnsShowFocus">
+         <bool>true</bool>
+        </property>
+        <property name="columnCount">
+         <number>2</number>
+        </property>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerDefaultSectionSize">
+         <number>24</number>
+        </attribute>
+        <attribute name="headerMinimumSectionSize">
+         <number>0</number>
+        </attribute>
+        <attribute name="headerDefaultSectionSize">
+         <number>24</number>
+        </attribute>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="headerMinimumSectionSize">
+         <number>0</number>
+        </attribute>
+        <column>
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string notr="true">2</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item>
+       <widget class="Utils::WelcomeModeLabel" name="miscSitesTitleLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Utils::WelcomeModeTreeWidget" name="miscSitesTreeWidget">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -157,6 +241,15 @@
         </attribute>
         <attribute name="headerDefaultSectionSize">
          <number>24</number>
+        </attribute>
+        <attribute name="headerMinimumSectionSize">
+         <number>0</number>
+        </attribute>
+        <attribute name="headerDefaultSectionSize">
+         <number>24</number>
+        </attribute>
+        <attribute name="headerVisible">
+         <bool>false</bool>
         </attribute>
         <attribute name="headerMinimumSectionSize">
          <number>0</number>

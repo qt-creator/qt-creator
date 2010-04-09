@@ -46,32 +46,42 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->labsTitleLabel->setStyledText(tr("News From the Qt Labs"));
-    ui->sitesTitleLabel->setStyledText(tr("Qt Websites"));
+    ui->supportSitesTitleLabel->setStyledText(tr("Qt Support Sites"));
+    ui->miscSitesTitleLabel->setStyledText(tr("Qt Links"));
 
     connect(ui->newsTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
-    connect(ui->sitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
+    connect(ui->miscSitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
+    connect(ui->supportSitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
 
     connect(m_rssFetcher, SIGNAL(newsItemReady(QString, QString, QString)),
         ui->newsTreeWidget, SLOT(slotAddNewsItem(QString, QString, QString)));
     //: Add localized feed here only if one exists
     m_rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 
+    QList<QPair<QString, QString> > supportSites;
     QList<QPair<QString, QString> > sites;
-    sites << qMakePair(tr("Qt Home"), QString(QLatin1String("http://qt.nokia.com")));
-    sites << qMakePair(tr("Qt Labs"), QString(QLatin1String("http://labs.qt.nokia.com")));
-    sites << qMakePair(tr("Qt Git Hosting"), QString(QLatin1String("http://qt.gitorious.org")));
-    sites << qMakePair(tr("Qt Centre"), QString(QLatin1String("http://www.qtcentre.org")));
-    sites << qMakePair(tr("Qt Apps"), QString(QLatin1String("http://www.qt-apps.org")));
-    sites << qMakePair(tr("Qt for Symbian at Forum Nokia"),  QString(QLatin1String("http://discussion.forum.nokia.com/forum/forumdisplay.php?f=196")));
 
-    QListIterator<QPair<QString, QString> > it(sites);
-    while (it.hasNext()) {
-        QPair<QString, QString> pair = it.next();
-        ui->sitesTreeWidget->addItem(pair.first, pair.second, pair.second);
+    supportSites << qMakePair(tr("<b>Forum Nokia</b><br /><font color='gray'>Mobile Application Support</font>"),  QString(QLatin1String("http://www.forum.nokia.com/I_Want_To/Develop_Mobile_Applications/Technical_Support/")));
+    supportSites << qMakePair(tr("<b>Qt GPL Support</b><br /><font color='gray'>Buy professional Qt support</font>"), QString(QLatin1String("http://shop.qt.nokia.com/en/support.html")));
+    supportSites << qMakePair(tr("<b>Qt Centre</b><br /><font color='gray'>Community based Qt support</font>"), QString(QLatin1String("http://www.qtcentre.org")));
+
+    sites << qMakePair(tr("<b>Qt Home</b><br /><font color='gray'>Qt by Nokia on the web</font>"), QString(QLatin1String("http://qt.nokia.com")));
+    sites << qMakePair(tr("<b>Qt Labs</b><br /><font color='gray'>Home of the Qt developers</font>"), QString(QLatin1String("http://labs.qt.nokia.com")));
+    sites << qMakePair(tr("<b>Qt Git Hosting</b><br /><font color='gray'>Participate in Qt development</font>"), QString(QLatin1String("http://qt.gitorious.org")));
+    sites << qMakePair(tr("<b>Qt Apps</b><br /><font color='gray'>Find free Qt-based apps</font>"), QString(QLatin1String("http://www.qt-apps.org")));
+
+    QListIterator<QPair<QString, QString> > supportSitesIt(supportSites);
+    while (supportSitesIt.hasNext()) {
+        QPair<QString, QString> pair = supportSitesIt.next();
+        ui->supportSitesTreeWidget->addItem(pair.first, pair.second, pair.second);
     }
 
+    QListIterator<QPair<QString, QString> > sitesIt(sites);
+    while (sitesIt.hasNext()) {
+        QPair<QString, QString> pair = sitesIt.next();
+        ui->miscSitesTreeWidget->addItem(pair.first, pair.second, pair.second);
+    }
 }
-
 
 CommunityWelcomePageWidget::~CommunityWelcomePageWidget()
 {

@@ -68,6 +68,8 @@ WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
 
     setUniformRowHeights(true);
     viewport()->setAutoFillBackground(false);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 WelcomeModeTreeWidget::~WelcomeModeTreeWidget()
@@ -114,7 +116,7 @@ void WelcomeModeTreeWidget::slotAddNewsItem(const QString &title, const QString 
     QString elidedText = QFontMetrics(f).elidedText(description, Qt::ElideRight, itemWidth);
     f.setBold(true);
     QString elidedTitle = QFontMetrics(f).elidedText(title, Qt::ElideRight, itemWidth);
-    QString data = QString::fromLatin1("<b>%1</b><br />%2").arg(elidedTitle).arg(elidedText);
+    QString data = QString::fromLatin1("<b>%1</b><br /><font color='gray'>%2</font>").arg(elidedTitle).arg(elidedText);
     addTopLevelItem(addItem(data, link, link));
 }
 
