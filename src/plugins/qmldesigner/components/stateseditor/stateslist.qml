@@ -498,7 +498,7 @@ Rectangle {
 
         Text {
             id: removeStateText
-            text: " Erase "
+            text: " Delete "
             color: "#cfcfcf"
             font.pixelSize:10
             y:1
