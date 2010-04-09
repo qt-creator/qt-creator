@@ -391,7 +391,7 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
         QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
 
 #ifndef QT_DEBUG
-        if (!hasFullImplementedListInterface(listReference))
+        if (!hasFullImplementedListInterface(list))
             return;
 #endif
 
