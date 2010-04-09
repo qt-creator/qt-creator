@@ -159,7 +159,6 @@ public:
 public slots:
     void appendBreakpoint(BreakpointData *data);
     void toggleBreakpointEnabled(BreakpointData *data);
-    void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
     void breakByFunction(const QString &functionName);
     void activateBreakpoint(int index);
     void removeBreakpoint(int index);

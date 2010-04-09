@@ -707,11 +707,6 @@ void BreakHandler::toggleBreakpointEnabled(BreakpointData *data)
     updateMarkers();
 }
 
-void BreakHandler::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
-{
-    toggleBreakpointEnabled(at(findBreakpoint(fileName, lineNumber)));
-}
-
 void BreakHandler::appendBreakpoint(BreakpointData *data)
 {
     append(data);

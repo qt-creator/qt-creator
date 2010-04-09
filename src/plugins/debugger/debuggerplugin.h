@@ -109,6 +109,7 @@ private slots:
 
     void openTextEditor(const QString &titlePattern, const QString &contents);
 
+    void toggleBreakpoint();
     void breakpointSetRemoveMarginActionTriggered();
     void breakpointEnableDisableMarginActionTriggered();
     void onModeChanged(Core::IMode *mode);

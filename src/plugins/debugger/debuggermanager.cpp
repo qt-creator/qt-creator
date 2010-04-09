@@ -566,8 +566,6 @@ void DebuggerManager::init()
         this, SLOT(addToWatchWindow()));
     connect(d->m_actions.watchAction2, SIGNAL(triggered()),
         this, SLOT(addToWatchWindow()));
-    connect(d->m_actions.breakAction, SIGNAL(triggered()),
-        this, SLOT(toggleBreakpoint()));
     connect(d->m_actions.snapshotAction, SIGNAL(triggered()),
         this, SLOT(makeSnapshot()));
 
@@ -889,16 +887,6 @@ BreakpointData *DebuggerManager::findBreakpoint(const QString &fileName, int lin
     return index == -1 ? 0 : d->m_breakHandler->at(index);
 }
 
-void DebuggerManager::toggleBreakpoint()
-{
-    ITextEditor *textEditor = d->m_plugin->currentTextEditor();
-    QTC_ASSERT(textEditor, return);
-    QString fileName = textEditor->file()->fileName();
-    int lineNumber = textEditor->currentLine();
-    if (lineNumber >= 0)
-        toggleBreakpoint(fileName, lineNumber);
-}
-
 // FIXME: move further up the plugin where there's more specific context
 // information available.
 static BreakpointData *createBreakpointByFileAndLine
@@ -942,23 +930,6 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
             createBreakpointByFileAndLine(fileName, lineNumber, d->m_breakHandler));
     else
         d->m_breakHandler->removeBreakpoint(index);
-
-    attemptBreakpointSynchronization();
-}
-
-void DebuggerManager::toggleBreakpointEnabled(const QString &fileName, int lineNumber)
-{
-    STATE_DEBUG(fileName << lineNumber);
-    QTC_ASSERT(d->m_breakHandler, return);
-    if (state() != InferiorRunning
-         && state() != InferiorStopped
-         && state() != DebuggerNotReady) {
-        showStatusMessage(tr("Changing breakpoint state requires either a "
-            "fully running or fully stopped application."));
-        return;
-    }
-
-    d->m_breakHandler->toggleBreakpointEnabled(fileName, lineNumber);
 
     attemptBreakpointSynchronization();
 }

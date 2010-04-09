@@ -890,6 +890,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         Constants::TOGGLE_BREAK, cppeditorcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
     m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+    connect(actions.breakAction, SIGNAL(triggered()),
+        this, SLOT(toggleBreakpoint()));
 
     //mcppcontext->addAction(cmd);
 
@@ -1181,11 +1183,20 @@ void DebuggerPlugin::breakpointSetRemoveMarginActionTriggered()
 
 void DebuggerPlugin::breakpointEnableDisableMarginActionTriggered()
 {
-    if (QAction *act = qobject_cast<QAction *>(sender())) {
-        QString str = act->data().toString();
-        int pos = str.lastIndexOf(':');
-        m_manager->toggleBreakpointEnabled(str.left(pos), str.mid(pos + 1).toInt());
-    }
+    QAction *act = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(act, return);
+    BreakHandler *handler = m_manager->breakHandler();
+    QTC_ASSERT(handler, return);
+
+    QString str = act->data().toString();
+    int pos = str.lastIndexOf(':');
+    QString fileName = str.left(pos);
+    int lineNumber = str.mid(pos + 1).toInt();
+
+    BreakpointData *data = handler->at(handler->findBreakpoint(fileName, lineNumber));
+    handler->toggleBreakpointEnabled(data);
+
+    m_manager->attemptBreakpointSynchronization();
 }
 
 void DebuggerPlugin::requestMark(ITextEditor *editor, int lineNumber)
@@ -1485,6 +1496,16 @@ void DebuggerPlugin::enableReverseDebuggingTriggered(const QVariant &value)
     m_reverseToolButton->setVisible(value.toBool());
     if (!value.toBool())
         m_manager->debuggerManagerActions().reverseDirectionAction->setChecked(false);
+}
+
+void DebuggerPlugin::toggleBreakpoint()
+{
+    ITextEditor *textEditor = currentTextEditor();
+    QTC_ASSERT(textEditor, return);
+    QString fileName = textEditor->file()->fileName();
+    int lineNumber = textEditor->currentLine();
+    if (lineNumber >= 0)
+        m_manager->toggleBreakpoint(fileName, lineNumber);
 }
 
 #include "debuggerplugin.moc"

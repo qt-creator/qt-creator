@@ -216,7 +216,6 @@ public slots:
     void executeJumpToLine();
     void executeRunToLine();
     void executeRunToFunction();
-    void toggleBreakpoint();
     void breakByFunction(const QString &functionName);
     void breakByFunctionMain();
     void activateFrame(int index);
@@ -341,7 +340,6 @@ private:
     void shutdown();
 
     void toggleBreakpoint(const QString &fileName, int lineNumber);
-    void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
     Internal::BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
     void setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
