@@ -786,6 +786,7 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
         // Layout the description
         int leading = fontLeading;
         int height = 0;
+        description.replace('\n', QChar::LineSeparator);
         QTextLayout tl(description);
         tl.beginLayout();
         while (true) {
@@ -858,7 +859,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     int width = opt.rect.width() - model->sizeOfFile() - model->sizeOfLineNumber() - 12 - 22;
     if (!selected) {
         // in small mode we lay out differently
-        QString bottom = index.data(TaskModel::Description).toString();
+        QString bottom = index.data(TaskModel::Description).toString().split('\n').first();
         painter->drawText(22, 2 + opt.rect.top() + fm.ascent(), bottom);
         if (fm.width(bottom) > width) {
             // draw a gradient to mask the text
@@ -876,6 +877,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         // Layout the description
         int leading = fm.leading();
         int height = 0;
+        description.replace('\n', QChar::LineSeparator);
         QTextLayout tl(description);
         tl.beginLayout();
         while (true) {
