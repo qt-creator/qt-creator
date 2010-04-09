@@ -88,7 +88,6 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
         m_lineEdit->setToolTip(tr("Write and evaluate QtScript expressions."));
 
         m_clearButton = new QToolButton();
-        m_clearButton->setIcon(QIcon(QLatin1String(":/utils/images/reset.png")));
         m_clearButton->setToolTip(tr("Clear Output"));
         m_clearButton->setIcon(QIcon(Core::Constants::ICON_CLEAN_PANE));
         connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clearTextEditor()));

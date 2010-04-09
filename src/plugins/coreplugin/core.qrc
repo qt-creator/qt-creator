@@ -50,8 +50,8 @@
         <file>images/category_project.png</file>
         <file>images/category_design.png</file>
         <file>images/category_qt.png</file>
-
         <file>editormanager/BinFiles.mimetypes.xml</file>
         <file>images/progressbar.png</file>
+        <file>images/help.png</file>
     </qresource>
 </RCC>

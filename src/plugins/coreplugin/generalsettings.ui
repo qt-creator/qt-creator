@@ -180,6 +180,10 @@
         <property name="text">
          <string>?</string>
         </property>
+        <property name="icon">
+         <iconset resource="core.qrc">
+          <normaloff>:/core/images/help.png</normaloff>:/core/images/help.png</iconset>
+        </property>
        </widget>
       </item>
       <item row="2" column="0">
@@ -210,6 +214,10 @@
        <widget class="QToolButton" name="helpExternalFileBrowserButton">
         <property name="text">
          <string>?</string>
+        </property>
+        <property name="icon">
+         <iconset resource="core.qrc">
+          <normaloff>:/core/images/help.png</normaloff>:/core/images/help.png</iconset>
         </property>
        </widget>
       </item>
