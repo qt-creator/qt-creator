@@ -105,30 +105,39 @@ bool MaemoPackageCreationStep::createPackage()
     if (!packagingNeeded())
         return true;
 
-    const QString projectDir = QFileInfo(executable()).absolutePath();
-
     QFile configFile(targetRoot() % QLatin1String("/config.sh"));
     if (!configFile.open(QIODevice::ReadOnly)) {
         qDebug("Cannot open config file '%s'", qPrintable(configFile.fileName()));
         return false;
     }
+
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    const QLatin1String pathKey("PATH");
-    env.insert(pathKey, maddeRoot() % QLatin1String("/madbin:")
-                        % env.value(pathKey));
-    env.insert(QLatin1String("PERL5LIB"),
-               maddeRoot() % QLatin1String("/madlib/perl5"));
-    const QRegExp envPattern(QLatin1String("([^=]+)=[\"']?([^;\"']+)[\"']? ;.*"));
+    const QString &path = QDir::toNativeSeparators(maddeRoot() + QLatin1Char('/'));
+
+    const QLatin1String key("PATH");
+#ifdef Q_OS_WIN
+    const QLatin1String colon(";");
+    env.insert(key, path % QLatin1String("bin")  % colon % env.value(key));
+#elif defined(Q_OS_UNIX)
+    const QLatin1String colon(":");
+#endif
+    env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
+    env.insert(QLatin1String("PERL5LIB"), path % QLatin1String("madlib/perl5"));
+
+    const QString projectDir = QFileInfo(executable()).absolutePath();
     env.insert(QLatin1String("PWD"), projectDir);
+
+    const QRegExp envPattern(QLatin1String("([^=]+)=[\"']?([^;\"']+)[\"']? ;.*"));
     QByteArray line;
     do {
         line = configFile.readLine(200);
         if (envPattern.exactMatch(line))
             env.insert(envPattern.cap(1), envPattern.cap(2));
     } while (!line.isEmpty());
-    qDebug("Process environment: %s",
-           qPrintable(env.toStringList().join(QLatin1String(":"))));
+    
+    qDebug("Process environment: %s", qPrintable(env.toStringList().join(colon)));
     qDebug("sysroot: '%s'", qPrintable(env.value(QLatin1String("SYSROOT_DIR"))));
+    
     QProcess buildProc;
     buildProc.setProcessEnvironment(env);
     buildProc.setWorkingDirectory(projectDir);
