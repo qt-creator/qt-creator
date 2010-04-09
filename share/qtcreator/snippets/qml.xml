@@ -65,9 +65,9 @@
 </snippet>
 
 <snippet>PropertyChanges {
-        target: <tab>name</tab>
-        <tab/>
-    }
+    target: <tab>name</tab>
+    <tab/>
+}
 </snippet>
 
 <snippet description="with targets">NumberAnimation { targets: [<tab>name</tab>]; properties: "<tab>name</tab>"; duration: <tab>200</tab> }

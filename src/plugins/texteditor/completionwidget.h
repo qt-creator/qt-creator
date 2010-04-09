@@ -43,6 +43,7 @@ namespace Internal {
 class AutoCompletionModel;
 class CompletionSupport;
 class CompletionListView;
+class CompletionInfoFrame;
 
 /* The completion widget is responsible for showing a list of possible completions.
    It is only used by the CompletionSupport.
@@ -89,6 +90,8 @@ signals:
 protected:
     bool event(QEvent *e);
 
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
 private:
     friend class CompletionWidget;
 
@@ -98,6 +101,7 @@ private:
     void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
     void keyboardSearch(const QString &search);
     void closeList(const QModelIndex &index);
+    void maybeShowInfoTip();
 
     bool m_blockFocusOut;
     bool m_quickFix;
@@ -106,6 +110,7 @@ private:
     CompletionWidget *m_completionWidget;
     AutoCompletionModel *m_model;
     CompletionSupport *m_support;
+    QPointer<CompletionInfoFrame> m_infoFrame;
 };
 
 } // namespace Internal

@@ -40,6 +40,8 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QScrollBar>
+#include <QtGui/QLabel>
+#include <QtGui/QStylePainter>
 
 #include <limits.h>
 
@@ -67,6 +69,41 @@ public:
 private:
     QList<CompletionItem> m_items;
 };
+
+
+class CompletionInfoFrame : public QLabel {
+public:
+
+    CompletionInfoFrame(QWidget *parent = 0) :
+            QLabel(parent, Qt::ToolTip | Qt::WindowStaysOnTopHint)
+    {
+        setFocusPolicy(Qt::NoFocus);
+        setAttribute(Qt::WA_DeleteOnClose);
+        setAutoFillBackground(true);
+        setBackgroundRole(QPalette::ToolTipBase);
+        setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
+        setIndent(1);
+    }
+
+    void paintEvent(QPaintEvent *e) {
+        QStylePainter p(this);
+        QStyleOptionFrame opt;
+        opt.init(this);
+        p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
+        p.end();
+        QLabel::paintEvent(e);
+    }
+    void resizeEvent(QResizeEvent *e)
+    {
+        QStyleHintReturnMask frameMask;
+        QStyleOption option;
+        option.init(this);
+        if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
+            setMask(frameMask.region);
+        QLabel::resizeEvent(e);
+    }
+};
+
 
 } // namespace Internal
 } // namespace TextEditor
@@ -97,7 +134,7 @@ QVariant AutoCompletionModel::data(const QModelIndex &index, int role) const
         return itemAt(index).text;
     } else if (role == Qt::DecorationRole) {
         return itemAt(index).icon;
-    } else if (role == Qt::ToolTipRole) {
+    } else if (role == Qt::WhatsThisRole) {
         return itemAt(index).details;
     }
 
@@ -211,7 +248,6 @@ void CompletionWidget::updatePositionAndSize(int startPos)
     setGeometry(pos.x(), pos.y(), width, height);
 }
 
-
 CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable *editor, CompletionWidget *completionWidget)
     : QListView(completionWidget),
       m_blockFocusOut(false),
@@ -237,14 +273,56 @@ CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable
     if (verticalScrollBar())
         verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
 #endif
+
 }
 
 CompletionListView::~CompletionListView()
 {
 }
 
+void CompletionListView::maybeShowInfoTip()
+{
+    QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return;
+    QString infoTip = current.data(Qt::WhatsThisRole).toString();
+
+    if (infoTip.isEmpty()) {
+        delete m_infoFrame.data();
+        return;
+    }
+
+    if (m_infoFrame.isNull())
+        m_infoFrame = new CompletionInfoFrame(this);
+
+
+    QRect r = rectForIndex(current);
+    m_infoFrame->move(
+            (parentWidget()->mapToGlobal(
+                    parentWidget()->rect().topRight() + QPoint(2, 0))).x(),
+            mapToGlobal(r.topRight()).y() - verticalOffset()
+            );
+    m_infoFrame->setText(infoTip);
+    m_infoFrame->adjustSize();
+    m_infoFrame->show();
+}
+
+void CompletionListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    QListView::currentChanged(current, previous);
+    if (isVisible())
+        maybeShowInfoTip();
+}
+
+
 bool CompletionListView::event(QEvent *e)
 {
+    if (e->type() == QEvent::Show) {
+        bool b = QListView::event(e);
+        maybeShowInfoTip();
+        return b;
+    }
+
     if (m_blockFocusOut)
         return QListView::event(e);
 

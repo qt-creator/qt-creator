@@ -888,26 +888,31 @@ void CodeCompletion::updateSnippets()
                             item.data = QVariant::fromValue(data);
 
 
-                            QString tooltip = data;
-                            tooltip.replace(QRegExp("\n\\s*"), QLatin1String(" "));
+                            QString infotip = data;
+                            while (infotip.size() && infotip.at(infotip.size()-1).isSpace())
+                                infotip.chop(1);
+                            infotip.replace(QLatin1Char('\n'), QLatin1String("<br>"));
+                            infotip.replace(QLatin1Char(' '), QLatin1String("&nbsp;"));
                             {
                                 QString s = QLatin1String("<nobr>");
                                 int count = 0;
-                                for (int i = 0; i < tooltip.count(); ++i) {
-                                    if (tooltip.at(i) != QChar::ObjectReplacementCharacter) {
-                                        s += tooltip.at(i);
+                                for (int i = 0; i < infotip.count(); ++i) {
+                                    if (infotip.at(i) != QChar::ObjectReplacementCharacter) {
+                                        s += infotip.at(i);
                                         continue;
                                     }
                                     if (++count % 2) {
                                         s += QLatin1String("<b>");
                                     } else {
+                                        if (infotip.at(i-1) == QChar::ObjectReplacementCharacter)
+                                            s += QLatin1String("...");
                                         s += QLatin1String("</b>");
                                     }
                                 }
-                                tooltip = s;
+                                infotip = s;
                             }
 
-                            item.details = tooltip; // ###TODO this should not be the normal tooltip
+                            item.details = infotip;
 
                             item.icon = icon;
                             m_snippets.append(item);
