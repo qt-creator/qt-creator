@@ -140,7 +140,10 @@ void ObjectTree::buildTree(const QDeclarativeDebugObjectReference &obj, QTreeWid
         clear();
 
     QTreeWidgetItem *item = parent ? new QTreeWidgetItem(parent) : new QTreeWidgetItem(this);
-    item->setText(0, obj.className());
+    if (obj.idString().isEmpty())
+        item->setText(0, obj.className());
+    else
+        item->setText(0, obj.idString());
     item->setData(0, Qt::UserRole, qVariantFromValue(obj));
 
     if (parent && obj.contextDebugId() >= 0
@@ -157,7 +160,9 @@ void ObjectTree::buildTree(const QDeclarativeDebugObjectReference &obj, QTreeWid
     }
 
     if (obj.contextDebugId() < 0)
+    {
         item->setForeground(0, Qt::lightGray);
+    }
 
     for (int ii = 0; ii < obj.children().count(); ++ii)
         buildTree(obj.children().at(ii), item);
@@ -180,7 +185,7 @@ void ObjectTree::dump(const QDeclarativeDebugObjectReference &obj, int ind)
 {
     QByteArray indent(ind * 4, ' ');
     qWarning().nospace() << indent.constData() << qPrintable(obj.className())
-                         << " " << qPrintable(obj.name()) << " "
+                         << " " << qPrintable(obj.idString()) << " "
                          << obj.debugId();
 
     for (int ii = 0; ii < obj.children().count(); ++ii)
