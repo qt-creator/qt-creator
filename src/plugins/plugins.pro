@@ -204,7 +204,6 @@ plugin_qmlinspector.depends += plugin_debugger
 plugin_qmlinspector.depends += plugin_cpptools
 
 plugin_mercurial.subdir = mercurial
-plugin_mercurial.depends = plugin_texteditor
 plugin_mercurial.depends = plugin_vcsbase
 plugin_mercurial.depends += plugin_projectexplorer
 plugin_mercurial.depends += plugin_coreplugin
