@@ -219,7 +219,7 @@ void WatchTableModel::togglePropertyWatch(const QDeclarativeDebugObjectReference
         delete watch;
         watch = 0;
     } else {
-        QString desc = (object.name().isEmpty() ? QLatin1String("<") + object.className() + QLatin1String(">") : object.name())
+        QString desc = (object.idString().isEmpty() ? QLatin1String("<") + object.className() + QLatin1String(">") : object.idString())
                        + QLatin1String(".") + property.name();
 
         addWatch(watch, desc);
