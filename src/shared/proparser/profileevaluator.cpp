@@ -224,9 +224,8 @@ public:
     ProItem::ProItemReturn visitProLoopIteration();
     void visitProLoopCleanup();
     void visitProVariable(ProVariable *variable);
-    ProItem::ProItemReturn visitProFunction(ProFunction *function);
     void visitProOperator(ProOperator *oper);
-    void visitProCondition(ProCondition *condition);
+    ProItem::ProItemReturn visitProCondition(ProCondition *condition);
 
     static inline QString map(const QString &var);
     QHash<QString, QStringList> *findValues(const QString &variableName,
@@ -899,14 +898,7 @@ void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
     if (ptr == uc)
         return;
 
-    QString proItem = QString((QChar*)uc, ptr - uc);
-
-    ProItem *item;
-    if (proItem.endsWith(QLatin1Char(')'))) {
-        item = new ProFunction(proItem);
-    } else {
-        item = new ProCondition(proItem);
-    }
+    ProItem *item = new ProCondition(QString((QChar*)uc, ptr - uc));;
     item->setLineNumber(m_lineNo);
     currentBlock().append(item);
 }
@@ -1033,10 +1025,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProItem(ProItem *item)
         visitProVariable(static_cast<ProVariable*>(item));
         break;
     case ProItem::ConditionKind:
-        visitProCondition(static_cast<ProCondition*>(item));
-        break;
-    case ProItem::FunctionKind:
-        return visitProFunction(static_cast<ProFunction*>(item));
+        return visitProCondition(static_cast<ProCondition*>(item));
     case ProItem::OperatorKind:
         visitProOperator(static_cast<ProOperator*>(item));
         break;
@@ -1234,19 +1223,40 @@ void ProFileEvaluator::Private::visitProOperator(ProOperator *oper)
     m_invertNext = (oper->operatorKind() == ProOperator::NotOperator);
 }
 
-void ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
+ProItem::ProItemReturn ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 {
-    if (!m_skipLevel) {
-        m_hadCondition = true;
-        if (!cond->text().compare(statics.strelse, Qt::CaseInsensitive)) {
-            m_sts.condition = !m_sts.prevCondition;
-        } else {
+    // Make sure that called subblocks don't inherit & destroy the state
+    bool invertThis = m_invertNext;
+    m_invertNext = false;
+    if (cond->text().endsWith(QLatin1Char(')'))) {
+        if (!m_skipLevel) {
+            m_hadCondition = true;
             m_sts.prevCondition = false;
-            if (!m_sts.condition && isActiveConfig(cond->text(), true) ^ m_invertNext)
+        }
+        if (m_cumulative || !m_sts.condition) {
+            int lparen = cond->text().indexOf(QLatin1Char('('));
+            QString arguments = cond->text().mid(lparen + 1, cond->text().length() - lparen - 2);
+            QString funcName = cond->text().left(lparen).trimmed();
+            m_lineNo = cond->lineNumber();
+            ProItem::ProItemReturn result = evaluateConditionalFunction(funcName, arguments);
+            if (result != ProItem::ReturnFalse && result != ProItem::ReturnTrue)
+                return result;
+            if (!m_skipLevel && ((result == ProItem::ReturnTrue) ^ invertThis))
                 m_sts.condition = true;
         }
+    } else {
+        if (!m_skipLevel) {
+            m_hadCondition = true;
+            if (!cond->text().compare(statics.strelse, Qt::CaseInsensitive)) {
+                m_sts.condition = !m_sts.prevCondition;
+            } else {
+                m_sts.prevCondition = false;
+                if (!m_sts.condition && isActiveConfig(cond->text(), true) ^ invertThis)
+                    m_sts.condition = true;
+            }
+        }
     }
-    m_invertNext = false;
+    return ProItem::ReturnTrue;
 }
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
@@ -1417,32 +1427,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
     }
     m_profileStack.pop();
 
-    return ProItem::ReturnTrue;
-}
-
-ProItem::ProItemReturn ProFileEvaluator::Private::visitProFunction(ProFunction *func)
-{
-    // Make sure that called subblocks don't inherit & destroy the state
-    bool invertThis = m_invertNext;
-    m_invertNext = false;
-    if (!m_skipLevel) {
-        m_hadCondition = true;
-        m_sts.prevCondition = false;
-    }
-    if (m_cumulative || !m_sts.condition) {
-        QString text = func->text();
-        int lparen = text.indexOf(QLatin1Char('('));
-        int rparen = text.lastIndexOf(QLatin1Char(')'));
-        Q_ASSERT(lparen < rparen);
-        QString arguments = text.mid(lparen + 1, rparen - lparen - 1);
-        QString funcName = text.left(lparen);
-        m_lineNo = func->lineNumber();
-        ProItem::ProItemReturn result = evaluateConditionalFunction(funcName.trimmed(), arguments);
-        if (result != ProItem::ReturnFalse && result != ProItem::ReturnTrue)
-            return result;
-        if (!m_skipLevel && ((result == ProItem::ReturnTrue) ^ invertThis))
-            m_sts.condition = true;
-    }
     return ProItem::ReturnTrue;
 }
 

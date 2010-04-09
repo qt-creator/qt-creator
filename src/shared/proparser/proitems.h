@@ -53,7 +53,6 @@ class ProItem
 {
 public:
     enum ProItemKind {
-        FunctionKind,
         ConditionKind,
         OperatorKind,
         VariableKind,
@@ -142,17 +141,6 @@ private:
     VariableOperator m_variableKind;
     QString m_variable;
     QString m_value;
-};
-
-class ProFunction : public ProItem
-{
-public:
-    explicit ProFunction(const QString &text) : ProItem(FunctionKind), m_text(text) {}
-    void setText(const QString &text) { m_text = text; }
-    QString text() const { return m_text; }
-
-private:
-    QString m_text;
 };
 
 class ProCondition : public ProItem
