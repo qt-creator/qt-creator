@@ -224,7 +224,7 @@ const char * const ICON_MAGNIFIER        = ":/core/images/magnifier.png";
 const char * const ICON_TOGGLE_SIDEBAR   = ":/core/images/sidebaricon.png";
 
 const char * const WIZARD_CATEGORY_QT = "R.Qt";
-const char * const WIZARD_TR_CATEGORY_QT = QT_TRANSLATE_NOOP("Core", "Qt");
+const char * const WIZARD_TR_CATEGORY_QT = QT_TRANSLATE_NOOP("Core", "Qt files and classes");
 
 const char * const SETTINGS_CATEGORY_CORE = "A.Core";
 const char * const SETTINGS_CATEGORY_CORE_ICON = ":/core/images/category_core.png";
