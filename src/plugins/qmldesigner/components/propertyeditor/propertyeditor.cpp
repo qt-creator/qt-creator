@@ -389,6 +389,13 @@ void PropertyEditor::changeValue(const QString &propertyName)
         }
     }
 
+        if (castedValue.type() == QVariant::Color) {
+            QColor color = castedValue.value<QColor>();
+            QColor newColor = QColor(color.name());
+            newColor.setAlpha(color.alpha());
+            castedValue = QVariant(newColor);
+        }
+
     try {
         if (!value->value().isValid()) { //reset
             fxObjectNode.removeVariantProperty(propertyName);
