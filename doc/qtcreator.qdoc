@@ -5096,6 +5096,10 @@
     \section1 Known Issues of Version 1.3.84
 
     \list
+        \o On Windows, debugging a MinGW-built console application (with \gui{Run in terminal}
+           checked) using gdb does not work due to a bug in gdb related to attaching to
+           stopped processes (see \l{http://bugreports.qt.nokia.com/browse/QTCREATORBUG-1020}).
+
         \o Debugging Helper does not work while performing On-Device Debugging.
 
         \o QML Preview (Run Project) only works if built against Qt with
