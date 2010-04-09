@@ -342,7 +342,6 @@
   <zorder>groupBoxTabAndIndentSettings</zorder>
   <zorder>groupBoxStorageSettings</zorder>
   <zorder>groupBoxMouse</zorder>
-  <zorder>doubleIndentBlocks</zorder>
   <zorder>indentBlocksLabel</zorder>
  </widget>
  <tabstops>
