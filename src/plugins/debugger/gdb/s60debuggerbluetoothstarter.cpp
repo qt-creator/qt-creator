@@ -30,7 +30,6 @@
 #include "s60debuggerbluetoothstarter.h"
 #include "bluetoothlistener.h"
 #include "debuggermanager.h"
-#include "trkoptions.h"
 #include "trkdevice.h"
 
 namespace Debugger {

@@ -3,9 +3,6 @@ HEADERS += \
     $$PWD/gdbengine.h \
     $$PWD/gdboptionspage.h \
     $$PWD/gdbchooserwidget.h \
-    $$PWD/trkoptions.h \
-    $$PWD/trkoptionswidget.h \
-    $$PWD/trkoptionspage.h \
     $$PWD/abstractgdbadapter.h \
     $$PWD/attachgdbadapter.h \
     $$PWD/coregdbadapter.h \
@@ -22,9 +19,6 @@ SOURCES += \
     $$PWD/pythongdbengine.cpp \
     $$PWD/gdboptionspage.cpp \
     $$PWD/gdbchooserwidget.cpp \
-    $$PWD/trkoptions.cpp \
-    $$PWD/trkoptionswidget.cpp \
-    $$PWD/trkoptionspage.cpp \
     $$PWD/abstractgdbadapter.cpp \
     $$PWD/attachgdbadapter.cpp \
     $$PWD/coregdbadapter.cpp \
@@ -34,7 +28,6 @@ SOURCES += \
     $$PWD/trkgdbadapter.cpp \
     $$PWD/s60debuggerbluetoothstarter.cpp
 
-FORMS +=  $$PWD/gdboptionspage.ui \
-$$PWD/trkoptionswidget.ui
+FORMS +=  $$PWD/gdboptionspage.ui
 
 RESOURCES += $$PWD/gdb.qrc

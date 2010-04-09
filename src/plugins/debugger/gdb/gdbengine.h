@@ -71,7 +71,6 @@ class CoreGdbAdapter;
 class PlainGdbAdapter;
 class RemoteGdbAdapter;
 class TrkGdbAdapter;
-struct TrkOptions;
 
 enum DebuggingHelperState
 {
@@ -125,7 +124,6 @@ private: ////////// General State //////////
     Q_SLOT void setAutoDerefPointers(const QVariant &on);
 
     DebuggerStartParametersPtr m_startParameters;
-    QSharedPointer<TrkOptions> m_trkOptions;
     bool m_registerNamesListed;
 
 private: ////////// Gdb Process Management //////////

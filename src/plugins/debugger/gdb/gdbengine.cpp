@@ -31,8 +31,6 @@
 
 #include "gdbengine.h"
 #include "gdboptionspage.h"
-#include "trkoptions.h"
-#include "trkoptionspage.h"
 #include "debuggeruiswitcher.h"
 #include "debuggermainwindow.h"
 
@@ -176,8 +174,6 @@ GdbEngine::GdbEngine(DebuggerManager *manager) :
         IDebuggerEngine(manager),
         m_gdbBinaryToolChainMap(DebuggerSettings::instance()->gdbBinaryToolChainMap())
 {
-    m_trkOptions = QSharedPointer<TrkOptions>(new TrkOptions);
-    m_trkOptions->fromSettings(Core::ICore::instance()->settings());
     m_gdbAdapter = 0;
     m_progress = 0;
 
@@ -1714,22 +1710,19 @@ int GdbEngine::currentFrame() const
     return manager()->stackHandler()->currentIndex();
 }
 
+static inline QString msgNoBinaryForToolChain(int tc)
+{
+    const ProjectExplorer::ToolChain::ToolChainType toolChain = static_cast<ProjectExplorer::ToolChain::ToolChainType>(tc);
+    const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(toolChain);
+    return GdbEngine::tr("There is no gdb binary available for '%1'").arg(toolChainName);
+}
+
 bool GdbEngine::checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage) const
 {
-    switch (toolChain) {
-    case ProjectExplorer::ToolChain::WINSCW: // S60
-    case ProjectExplorer::ToolChain::GCCE:
-    case ProjectExplorer::ToolChain::RVCT_ARMV5:
-    case ProjectExplorer::ToolChain::RVCT_ARMV6:
-    case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
-    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
-        if (!m_trkOptions->check(errorMessage)) {
-            if (settingsPage)
-                *settingsPage = TrkOptionsPage::settingsId();
-            return false;
-        }
-    default:
-        break;
+    if (m_gdbBinaryToolChainMap->key(toolChain).isEmpty()) {
+        *errorMessage = msgNoBinaryForToolChain(toolChain);
+        *settingsPage = GdbOptionsPage::settingsId();
+        return false;
     }
     return true;
 }
@@ -1743,13 +1736,13 @@ AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &s
     case ProjectExplorer::ToolChain::RVCT_ARMV6:
     case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
     case ProjectExplorer::ToolChain::GCCE_GNUPOC:
-        return new TrkGdbAdapter(this, m_trkOptions);
+        return new TrkGdbAdapter(this);
     default:
         break;
     }
     // @todo: remove testing hack
     if (sp->processArgs.size() == 3 && sp->processArgs.at(0) == _("@sym@"))
-        return new TrkGdbAdapter(this, m_trkOptions);
+        return new TrkGdbAdapter(this);
     switch (sp->startMode) {
     case AttachCore:
         return new CoreGdbAdapter(this);
@@ -4044,10 +4037,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     if (m_gdb.isEmpty())
         m_gdb = gdb;
     if (m_gdb.isEmpty()) {
-        const ProjectExplorer::ToolChain::ToolChainType toolChain = static_cast<ProjectExplorer::ToolChain::ToolChainType>(m_startParameters->toolChainType);
-        const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(toolChain);
-        const QString msg = tr("There is no gdb binary available for '%1'").arg(toolChainName);
-        handleAdapterStartFailed(msg, GdbOptionsPage::settingsId());
+        handleAdapterStartFailed(msgNoBinaryForToolChain(m_startParameters->toolChainType),
+                                 GdbOptionsPage::settingsId());
         return false;
     }
     debugMessage(_("STARTING GDB ") + m_gdb);
@@ -4348,7 +4339,6 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
 void GdbEngine::addOptionPages(QList<Core::IOptionsPage *> *opts) const
 {
     opts->push_back(new GdbOptionsPage(m_gdbBinaryToolChainMap));
-    opts->push_back(new TrkOptionsPage(m_trkOptions));
 }
 
 QMessageBox *GdbEngine::showMessageBox(int icon, const QString &title,

@@ -34,7 +34,6 @@
 
 #include "trkutils.h"
 #include "trkdevice.h"
-#include "trkoptions.h"
 #include "launcher.h"
 
 #include <QtCore/QHash>
@@ -143,9 +142,8 @@ public:
     typedef trk::TrkResult TrkResult;
     typedef trk::Callback<const TrkResult &> TrkCallback;
     typedef trk::Callback<const GdbResult &> GdbCallback;
-    typedef QSharedPointer<TrkOptions> TrkOptionsPtr;
 
-    TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options);
+    TrkGdbAdapter(GdbEngine *engine);
     ~TrkGdbAdapter();
     void setGdbServerName(const QString &name);
     QString gdbServerName() const { return m_gdbServerName; }
@@ -162,8 +160,6 @@ signals:
     void output(const QString &msg);
 
 private:
-    const TrkOptionsPtr m_options;
-
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
 
     bool m_running;
@@ -264,7 +260,6 @@ private:
     Q_SLOT void trkDeviceRemoved(const SymbianUtils::SymbianDevice &);
 
     QSharedPointer<trk::TrkDevice> m_trkDevice;
-    bool m_deviceFromSymbianDeviceManager;
     QString m_adapterFailMessage;
 
     //

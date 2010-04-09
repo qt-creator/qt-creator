@@ -30,8 +30,6 @@
 #include "trkgdbadapter.h"
 
 #include "launcher.h"
-#include "trkoptions.h"
-#include "trkoptionspage.h"
 #include "symbiandevicemanager.h"
 #include "s60debuggerbluetoothstarter.h"
 #include "bluetoothlistener_gui.h"
@@ -238,11 +236,9 @@ void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
 //
 ///////////////////////////////////////////////////////////////////////////
 
-TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
+TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine) :
     AbstractGdbAdapter(engine),
-    m_options(options),
     m_running(false),
-    m_deviceFromSymbianDeviceManager(false),
     m_gdbAckMode(true),
     m_verbose(0)
 {
@@ -1682,7 +1678,7 @@ void TrkGdbAdapter::slotStartGdb()
 {
     QStringList gdbArgs;
     gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
-    if (!m_engine->startGdb(gdbArgs, m_options->gdb, TrkOptionsPage::settingsId())) {
+    if (!m_engine->startGdb(gdbArgs, QString(), QString())) {
         cleanup();
         return;
     }
@@ -1714,8 +1710,7 @@ void TrkGdbAdapter::interruptInferior()
 
 void TrkGdbAdapter::trkDeviceRemoved(const SymbianUtils::SymbianDevice &dev)
 {
-    if (state() != DebuggerNotReady && m_deviceFromSymbianDeviceManager
-        && !m_trkDevice.isNull() && m_trkDevice->port() == dev.portName()) {
+    if (state() != DebuggerNotReady && !m_trkDevice.isNull() && m_trkDevice->port() == dev.portName()) {
         const QString message = QString::fromLatin1("Device '%1' has been disconnected.").arg(dev.friendlyName());
         logMessage(message);
         emit adapterCrashed(message);
@@ -1724,24 +1719,18 @@ void TrkGdbAdapter::trkDeviceRemoved(const SymbianUtils::SymbianDevice &dev)
 
 bool TrkGdbAdapter::initializeDevice(const QString &remoteChannel, QString *errorMessage)
 {
-    m_deviceFromSymbianDeviceManager = false;
     if (remoteChannel.isEmpty()) {
-        // Obtain device from settings page
-        m_trkDevice = TrkDevicePtr(new TrkDevice);
-        m_trkDevice->setPort(m_options->mode == TrkOptions::BlueTooth ?
-                             m_options->blueToothDevice : m_options->serialPort);
-        m_trkDevice->setSerialFrame(m_options->mode != TrkOptions::BlueTooth);
-    } else {
-        // Run config: Acquire from device manager.
-        m_trkDevice = SymbianUtils::SymbianDeviceManager::instance()->acquireDevice(remoteChannel);
-        if (m_trkDevice.isNull()) {
-            *errorMessage = tr("Unable to acquire a device on '%1'. It appears to be in use.").arg(remoteChannel);
-            return false;
-        }
-        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
-                this, SLOT(trkDeviceRemoved(SymbianUtils::SymbianDevice)));
-        m_deviceFromSymbianDeviceManager = true;
+        *errorMessage = tr("Port specification missing.");
+        return false;
     }
+    // Run config: Acquire from device manager.
+    m_trkDevice = SymbianUtils::SymbianDeviceManager::instance()->acquireDevice(remoteChannel);
+    if (m_trkDevice.isNull()) {
+        *errorMessage = tr("Unable to acquire a device on '%1'. It appears to be in use.").arg(remoteChannel);
+        return false;
+    }
+    connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
+            this, SLOT(trkDeviceRemoved(SymbianUtils::SymbianDevice)));
     connect(m_trkDevice.data(), SIGNAL(messageReceived(trk::TrkResult)),
             this, SLOT(handleTrkResult(trk::TrkResult)));
     connect(m_trkDevice.data(), SIGNAL(error(QString)),
@@ -1796,7 +1785,7 @@ void TrkGdbAdapter::startAdapter()
             emit adapterStartFailed(QString(), QString());
         } else {
             logMessage(message);
-            emit adapterStartFailed(message, TrkOptionsPage::settingsId());
+            emit adapterStartFailed(message, QString());
         }
         return;
     }
@@ -1809,7 +1798,7 @@ void TrkGdbAdapter::startAdapter()
         QString msg = QString("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer->errorString());
         logMessage(msg);
-        emit adapterStartFailed(msg, TrkOptionsPage::settingsId());
+        emit adapterStartFailed(msg, QString());
         return;
     }
 
@@ -2133,11 +2122,8 @@ void TrkGdbAdapter::cleanup()
 {
     if (!m_trkDevice.isNull()) {
         m_trkDevice->close();
-        if (m_deviceFromSymbianDeviceManager) {
-            m_trkDevice->disconnect(this);
-            SymbianUtils::SymbianDeviceManager::instance()->releaseDevice(m_trkDevice->port());
-            m_deviceFromSymbianDeviceManager = false;
-        }
+        m_trkDevice->disconnect(this);
+        SymbianUtils::SymbianDeviceManager::instance()->releaseDevice(m_trkDevice->port());
         m_trkDevice = TrkDevicePtr();
     }
 
