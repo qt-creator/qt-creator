@@ -82,14 +82,46 @@ private:
     QString m_colorString;
 };
 
+inline QString properName(const QColor &color)
+{
+    QString s;
+    if (color.alpha() == 255)
+        s.sprintf("#%02x%02x%02x", color.red(), color.green(), color.blue());
+    else
+        s.sprintf("#%02x%02x%02x%02x", color.alpha(), color.red(), color.green(), color.blue());
+    return s;
+}
+
+inline QColor properColor(const QString &str)
+{
+    int lalpha = 255;
+    QString lcolorStr = str;
+    if (lcolorStr.at(0) == '#' && lcolorStr.length() == 9) {
+        QString alphaStr = lcolorStr;
+        alphaStr.truncate(3);
+        lcolorStr.remove(0, 3);
+        lcolorStr = "#" + lcolorStr;
+        alphaStr.remove(0,1);
+        bool v;
+        lalpha = alphaStr.toInt(&v, 16);
+        if (!v)
+            lalpha = 255;
+    }
+    QColor lcolor(lcolorStr);
+    lcolor.setAlpha(lalpha);
+    return lcolor;
+}
+
 class ColorBox : public QWidget
 {
 Q_OBJECT
 
-Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
+Q_PROPERTY(QString strColor READ strColor WRITE setStrColor NOTIFY colorChanged)
+Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 Q_PROPERTY(int hue READ hue WRITE setHue NOTIFY hueChanged)
 Q_PROPERTY(int saturation READ saturation WRITE setSaturation NOTIFY saturationChanged)
 Q_PROPERTY(int value READ value WRITE setValue NOTIFY valueChanged)
+Q_PROPERTY(int alpha READ alpha WRITE setAlpha NOTIFY alphaChanged)
 
 public:
 
@@ -104,7 +136,9 @@ void setHue(int newHue)
     if (m_color.hsvHue() == newHue)
         return;
 
+    int oldAlpha = m_color.alpha();
     m_color.setHsv(newHue,m_color.hsvSaturation(),m_color.value());
+    m_color.setAlpha(oldAlpha);
     update();
     emit hueChanged();
     emit colorChanged();
@@ -118,12 +152,28 @@ int hue() const
     return retval;
 }
 
-void setColor(const QString &colorStr)
+void setAlpha(int newAlpha)
 {
-    if (m_color.name() == colorStr)
+    if (m_color.alpha() == newAlpha)
         return;
 
-    setColor(QColor(colorStr));
+    m_color.setAlpha(newAlpha);
+    update();
+    emit alphaChanged();
+    emit colorChanged();
+}
+
+int alpha() const
+{
+    return m_color.alpha();
+}
+
+void setStrColor(const QString &colorStr)
+{
+    if (properName(m_color) == colorStr)
+        return;
+
+    setColor(properColor(colorStr));
 }
 
 void setColor(const QColor &color)
@@ -134,19 +184,25 @@ void setColor(const QColor &color)
     int oldsaturation = m_color.hsvSaturation();
     int oldvalue = m_color.value();
     int oldhue = m_color.hsvHue();
+    int oldAlpha = m_color.alpha();
     m_color=color;
     update();
     if (oldhue != m_color.hsvHue()) emit hueChanged();
     if (oldsaturation != saturation()) emit saturationChanged();
     if (oldvalue != value()) emit valueChanged();
+    if (oldAlpha != alpha()) emit alphaChanged();
     emit colorChanged();
 }
 
-QString color() const
+QString strColor() const
 {
-    return m_color.name();
+    return properName(m_color);
 }
 
+QColor color() const
+{
+    return m_color;
+}
 
 int saturation() const
 {
@@ -156,7 +212,9 @@ int saturation() const
 void setSaturation(int newsaturation)
 {
     if (m_color.hsvSaturation()==newsaturation) return;
+    int oldAlpha = m_color.alpha();
     m_color.setHsv(m_color.hsvHue(),newsaturation,m_color.value());
+    m_color.setAlpha(oldAlpha);
     update();
     emit saturationChanged();
     emit colorChanged();
@@ -170,7 +228,9 @@ int value() const
 void setValue(int newvalue)
 {
     if (m_color.value()==newvalue) return;
+    int oldAlpha = m_color.alpha();
     m_color.setHsv(m_color.hsvHue(),m_color.hsvSaturation(),newvalue);
+    m_color.setAlpha(oldAlpha);
     update();
     emit valueChanged();
     emit colorChanged();
@@ -181,6 +241,7 @@ signals:
     void hueChanged();
     void saturationChanged();
     void valueChanged();
+    void alphaChanged();
 
 protected:
     void paintEvent(QPaintEvent *event);

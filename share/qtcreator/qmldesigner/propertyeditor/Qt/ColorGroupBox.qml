@@ -65,20 +65,24 @@ QExtGroupBox {
                     valueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
                     hueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
                     saturationSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
+                    alphaSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
                 } else {
                     valueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
                     hueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
                     saturationSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                    alphaSpinBox.setStyleSheet("color: "+scheme.defaultColor);
                 }
             } else {
                 if (backendColor.isInSubState) {
                     valueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
                     hueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
                     saturationSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
+                    alphaSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
                 } else {
                     valueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
                     hueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
                     saturationSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                    alphaSpinBox.setStyleSheet("color: "+scheme.defaultColor);
                 }
             }
         }
@@ -131,7 +135,6 @@ QExtGroupBox {
 
         }
     }
-
 
 
     layout: VerticalLayout {
@@ -199,6 +202,7 @@ QExtGroupBox {
                             }
 
                         }
+                        
                         QWidget {
                             layout: HorizontalLayout {
                                 Label {
@@ -211,6 +215,23 @@ QExtGroupBox {
                                     value: colorControl.value;
                                     onValueChanged: if (Math.floor(colorControl.value)!=value)
                                     colorControl.value=value;
+                                }
+                            }
+                        }
+                        
+                        QWidget {
+                            layout: HorizontalLayout {
+                                topMargin: 12
+                                Label {
+                                    text: "A"
+                                    fixedWidth: 15
+                                }
+                                QSpinBox {
+                                    id: alphaSpinBox
+                                    maximum: 255
+                                    value: colorControl.alpha;
+                                    onValueChanged: if (Math.floor(colorControl.alpha)!=value)
+                                    colorControl.alpha=value;
                                 }
                             }
                         }

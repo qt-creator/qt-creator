@@ -87,7 +87,9 @@ namespace QmlDesigner {
     {
         if (y<0) y=0;
         if (y>120) y=120;
+        int oldAlpha = m_color.alpha();
         m_color.setHsv((y * 359)/120, m_color.hsvSaturation(), m_color.value());
+        m_color.setAlpha(oldAlpha);
         update(); // redraw pointer
         emit hueChanged();
     }
@@ -139,7 +141,9 @@ namespace QmlDesigner {
         if (x>120) x=120;
         if (y<0) y=0;
         if (y>120) y=120;
+        int oldAlpha = m_color.alpha();
         newColor.setHsv(hue(), (x*255) / 120, 255 - (y*255) / 120);
+        newColor.setAlpha(oldAlpha);
         setColor(newColor);
     }
 
