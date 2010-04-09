@@ -853,9 +853,6 @@ class QScrollAreaDeclarativeUI : public QObject
      Q_PROPERTY(QWidget *content READ content WRITE setContent)
      Q_CLASSINFO("DefaultProperty", "content")
 
-public slots:
-    void setupProperWheelBehaviour();
-
 public:
      QScrollAreaDeclarativeUI(QObject *parent = 0) : QObject(parent), _content(0)
      {
@@ -869,53 +866,12 @@ private:
         _content = content;
         sa->setWidget(content);
         sa->verticalScrollBar()->show();
-        setupProperWheelBehaviour();
     }
 
     QWidget *_content;
     QScrollArea *sa;
 };
 
-class MouseWheelFilter : public QObject
-{
-    Q_OBJECT
-public:
-    MouseWheelFilter(QObject *parent) : QObject(parent), m_target(0) { }
-
-    void setTarget(QObject *target) { m_target = target; }
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-private:
-    QObject *m_target;
-};
-
-bool MouseWheelFilter::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::Wheel) {
-        if (obj
-            && obj->isWidgetType()
-            && obj != m_target) {
-                QApplication::sendEvent(m_target, event);
-                return true;
-        }
-    }
-    return QObject::eventFilter(obj, event);
-}
-
-void QScrollAreaDeclarativeUI::setupProperWheelBehaviour()
-{
-// We install here an eventfilter to avoid that scrolling in
-// in the ScrollArea changes values in editor widgets
-    if (_content) {
-        MouseWheelFilter *forwarder(new MouseWheelFilter(this));
-        forwarder->setTarget(_content);
-
-        foreach (QWidget *childWidget, _content->findChildren<QWidget*>()) {
-            childWidget->installEventFilter(forwarder);
-        }
-    }
-}
 
 class WidgetLoader : public QWidget
 {
