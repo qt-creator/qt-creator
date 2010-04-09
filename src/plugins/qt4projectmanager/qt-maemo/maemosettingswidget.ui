@@ -6,192 +6,39 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>566</width>
-    <height>439</height>
+    <width>534</width>
+    <height>340</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Maemo Device Configurations</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
-   <item>
-    <widget class="QFrame" name="frame">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QListWidget" name="configListWidget"/>
-      </item>
-      <item>
-       <widget class="QWidget" name="detailsWidget" native="true">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <layout class="QFormLayout" name="formLayout">
-         <property name="fieldGrowthPolicy">
-          <enum>QFormLayout::ExpandingFieldsGrow</enum>
-         </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Configuration Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="nameLineEdit"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="deviceTypeLabel">
-           <property name="text">
-            <string>Device type:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QWidget" name="deviceTypeButtonsWidget" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QRadioButton" name="deviceButton">
-              <property name="text">
-               <string>Remote Device</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="simulatorButton">
-              <property name="text">
-               <string>Local Simulator</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="authTypeLabel">
-           <property name="text">
-            <string>Authentication type:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QWidget" name="authTypeButtonsWidget" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QRadioButton" name="passwordButton">
-              <property name="text">
-               <string>Password</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="keyButton">
-              <property name="text">
-               <string>Key</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Host Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="hostLineEdit"/>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>SSH Port:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="sshPortLineEdit"/>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Connection Timeout:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QLineEdit" name="timeoutLineEdit"/>
-         </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>User Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QLineEdit" name="userLineEdit"/>
-         </item>
-         <item row="8" column="0">
-          <widget class="QLabel" name="passwordLabel">
-           <property name="text">
-            <string>Password:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="1">
-          <widget class="QLineEdit" name="pwdLineEdit">
-           <property name="echoMode">
-            <enum>QLineEdit::Password</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="keyLabel">
-           <property name="text">
-            <string>Private key file:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="gdbServerPortLabel">
-           <property name="text">
-            <string>Gdb-server port:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QLineEdit" name="gdbServerPortLineEdit"/>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Configuration:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="configurationComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item>
+   <item row="0" column="2" rowspan="2">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QPushButton" name="addConfigButton">
@@ -245,6 +92,226 @@
      </item>
     </layout>
    </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QWidget" name="detailsWidget" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QFormLayout" name="formLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="deviceTypeLabel_2">
+           <property name="text">
+            <string>Name</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="nameLineEdit"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="deviceTypeLabel">
+           <property name="text">
+            <string>Device type:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QWidget" name="deviceTypeButtonsWidget" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="deviceButton">
+              <property name="text">
+               <string>Remote Device</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="simulatorButton">
+              <property name="text">
+               <string>Local Simulator</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="authTypeLabel">
+           <property name="text">
+            <string>Authentication type:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QWidget" name="authTypeButtonsWidget" native="true">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QRadioButton" name="passwordButton">
+              <property name="text">
+               <string>Password</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="keyButton">
+              <property name="text">
+               <string>Key</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Host Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="hostLineEdit">
+           <property name="placeholderText">
+            <string>IP or host name of the device</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Ports:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>SSH:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sshPortSpinBox">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+             <property name="value">
+              <number>22</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Gdb server:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="gdbServerPortSpinBox">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+             <property name="value">
+              <number>10000</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Connection Timeout:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="timeoutLineEdit">
+           <property name="placeholderText">
+            <string>Timeout value in milliseconds</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>User Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="userLineEdit"/>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="passwordLabel">
+           <property name="text">
+            <string>Password:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="pwdLineEdit">
+           <property name="echoMode">
+            <enum>QLineEdit::Password</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="keyLabel">
+           <property name="text">
+            <string>Private key file:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="Utils::PathChooser" name="keyFileLineEdit" native="true"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -262,30 +329,14 @@
  <resources/>
  <connections>
   <connection>
-   <sender>nameLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
-   <slot>configNameEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>396</x>
-     <y>145</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>514</x>
-     <y>321</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>deviceButton</sender>
    <signal>clicked(bool)</signal>
    <receiver>MaemoSettingsWidget</receiver>
    <slot>deviceTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>287</x>
-     <y>192</y>
+     <x>273</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>
@@ -300,28 +351,12 @@
    <slot>hostNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>431</x>
-     <y>247</y>
+     <x>402</x>
+     <y>163</y>
     </hint>
     <hint type="destinationlabel">
      <x>424</x>
      <y>231</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sshPortLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
-   <slot>sshPortEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>431</x>
-     <y>275</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>514</x>
-     <y>352</y>
     </hint>
    </hints>
   </connection>
@@ -332,8 +367,8 @@
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>431</x>
-     <y>331</y>
+     <x>402</x>
+     <y>225</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
@@ -348,8 +383,8 @@
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>431</x>
-     <y>359</y>
+     <x>402</x>
+     <y>255</y>
     </hint>
     <hint type="destinationlabel">
      <x>422</x>
@@ -364,8 +399,8 @@
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>431</x>
-     <y>387</y>
+     <x>402</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>423</x>
@@ -380,8 +415,8 @@
    <slot>deviceTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>414</x>
-     <y>192</y>
+     <x>402</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
      <x>426</x>
@@ -406,30 +441,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>configListWidget</sender>
-   <signal>itemSelectionChanged()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
-   <slot>selectionChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>365</x>
-     <y>56</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>151</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>removeConfigButton</sender>
    <signal>clicked()</signal>
    <receiver>MaemoSettingsWidget</receiver>
    <slot>deleteConfig()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>555</x>
-     <y>68</y>
+     <x>523</x>
+     <y>69</y>
     </hint>
     <hint type="destinationlabel">
      <x>513</x>
@@ -444,8 +463,8 @@
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>219</y>
+     <x>273</x>
+     <y>133</y>
     </hint>
     <hint type="destinationlabel">
      <x>513</x>
@@ -460,8 +479,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>409</y>
+     <x>402</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -476,8 +495,8 @@
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>409</y>
+     <x>402</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -492,7 +511,7 @@
    <slot>testConfig()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>555</x>
+     <x>523</x>
      <y>102</y>
     </hint>
     <hint type="destinationlabel">
@@ -508,28 +527,12 @@
    <slot>deployKey()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>555</x>
-     <y>136</y>
+     <x>523</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>510</x>
      <y>458</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>gdbServerPortLineEdit</sender>
-   <signal>editingFinished()</signal>
-   <receiver>MaemoSettingsWidget</receiver>
-   <slot>gdbServerPortEditingFinished()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>431</x>
-     <y>303</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>427</x>
-     <y>467</y>
     </hint>
    </hints>
   </connection>
@@ -540,12 +543,28 @@
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>307</x>
-     <y>219</y>
+     <x>402</x>
+     <y>133</y>
     </hint>
     <hint type="destinationlabel">
      <x>525</x>
      <y>408</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>nameLineEdit</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MaemoSettingsWidget</receiver>
+   <slot>configNameEditingFinished()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>237</x>
+     <y>75</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>330</x>
+     <y>332</y>
     </hint>
    </hints>
   </connection>
@@ -566,5 +585,6 @@
   <slot>testConfig()</slot>
   <slot>deployKey()</slot>
   <slot>gdbServerPortEditingFinished()</slot>
+  <slot>currentConfigChanged(int)</slot>
  </slots>
 </ui>

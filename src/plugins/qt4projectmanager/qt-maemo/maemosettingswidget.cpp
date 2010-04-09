@@ -58,10 +58,10 @@ bool configNameExists(const QList<MaemoDeviceConfig> &devConfs,
         DevConfNameMatcher(name)) != devConfs.constEnd();
 }
 
-class PortAndTimeoutValidator : public QIntValidator
+class TimeoutValidator : public QIntValidator
 {
 public:
-    PortAndTimeoutValidator() : QIntValidator(0, SHRT_MAX, 0)
+    TimeoutValidator() : QIntValidator(0, SHRT_MAX, 0)
     {
     }
 
@@ -114,9 +114,7 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
       m_ui(new Ui_MaemoSettingsWidget),
       m_devConfs(MaemoDeviceConfigurations::instance().devConfigs()),
       m_nameValidator(new NameValidator(m_devConfs)),
-      m_sshPortValidator(new PortAndTimeoutValidator),
-      m_gdbServerPortValidator(new PortAndTimeoutValidator),
-      m_timeoutValidator(new PortAndTimeoutValidator),
+      m_timeoutValidator(new TimeoutValidator),
       m_keyDeployer(0)
 
 {
@@ -131,55 +129,42 @@ void MaemoSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
-    m_ui->sshPortLineEdit->setValidator(m_sshPortValidator);
-    m_ui->gdbServerPortLineEdit->setValidator(m_gdbServerPortValidator);
     m_ui->timeoutLineEdit->setValidator(m_timeoutValidator);
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     foreach (const MaemoDeviceConfig &devConf, m_devConfs)
-        m_ui->configListWidget->addItem(devConf.name);
-    if (m_devConfs.count() == 1)
-        m_ui->configListWidget->setCurrentRow(0, QItemSelectionModel::Select);
+        m_ui->configurationComboBox->addItem(devConf.name);
+    connect(m_ui->configurationComboBox, SIGNAL(currentIndexChanged(int)), SLOT(currentConfigChanged(int)));
+    currentConfigChanged(m_ui->configurationComboBox->currentIndex());
 }
 
 void MaemoSettingsWidget::addConfig()
 {
-    QLatin1String prefix("New Device Configuration ");
+    const QString prefix = tr("New Device Configuration %1", "Standard Configuration name with number");
     int suffix = 1;
     QString newName;
     bool isUnique = false;
     do {
-        newName = prefix + QString::number(suffix++);
+        newName = prefix.arg(QString::number(suffix++));
         isUnique = !configNameExists(m_devConfs, newName);
     } while (!isUnique);
 
     m_devConfs.append(MaemoDeviceConfig(newName, MaemoDeviceConfig::Physical));
-    m_ui->configListWidget->addItem(newName);
-    m_ui->configListWidget->setCurrentRow(m_ui->configListWidget->count() - 1);
-    m_ui->nameLineEdit->selectAll();
+    m_ui->configurationComboBox->addItem(newName);
     m_ui->removeConfigButton->setEnabled(true);
-    m_ui->nameLineEdit->setFocus();
+    m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
+    m_ui->configurationComboBox->setFocus();
 }
 
 void MaemoSettingsWidget::deleteConfig()
 {
-    const QList<QListWidgetItem *> &selectedItems =
-        m_ui->configListWidget->selectedItems();
-    if (selectedItems.isEmpty())
-        return;
-    QListWidgetItem *item = selectedItems.first();
-    const int selectedRow = m_ui->configListWidget->row(item);
-    m_devConfs.removeAt(selectedRow);
-    disconnect(m_ui->configListWidget, SIGNAL(itemSelectionChanged()), 0, 0);
-    delete m_ui->configListWidget->takeItem(selectedRow);
-    connect(m_ui->configListWidget, SIGNAL(itemSelectionChanged()),
-            this, SLOT(selectionChanged()));
-    Q_ASSERT(m_ui->configListWidget->count() == m_devConfs.count());
-    selectionChanged();
+    const int selectedItem = m_ui->configurationComboBox->currentIndex();
+    m_devConfs.removeAt(selectedItem);
+    m_ui->configurationComboBox->removeItem(selectedItem);
+    Q_ASSERT(m_ui->configurationComboBox->count() == m_devConfs.count());
 }
 
 void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
 {
-    m_ui->nameLineEdit->setText(devConfig.name);
     MaemoDeviceConfig *otherConfig;
     if (devConfig.type == MaemoDeviceConfig::Physical) {
         m_lastConfigHW = devConfig;
@@ -205,18 +190,16 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
         m_ui->keyButton->setChecked(true);
     m_ui->detailsWidget->setEnabled(true);
     m_nameValidator->setDisplayName(devConfig.name);
-    m_sshPortValidator->setValue(devConfig.sshPort);
-    m_gdbServerPortValidator->setValue(devConfig.gdbServerPort);
     m_timeoutValidator->setValue(devConfig.timeout);
     fillInValues();
 }
 
 void MaemoSettingsWidget::fillInValues()
 {
+    m_ui->nameLineEdit->setText(currentConfig().name);
     m_ui->hostLineEdit->setText(currentConfig().host);
-    m_ui->sshPortLineEdit->setText(QString::number(currentConfig().sshPort));
-    m_ui->gdbServerPortLineEdit
-        ->setText(QString::number(currentConfig().gdbServerPort));
+    m_ui->sshPortSpinBox->setValue(currentConfig().sshPort);
+    m_ui->gdbServerPortSpinBox->setValue(currentConfig().gdbServerPort);
     m_ui->timeoutLineEdit->setText(QString::number(currentConfig().timeout));
     m_ui->userLineEdit->setText(currentConfig().uname);
     m_ui->pwdLineEdit->setText(currentConfig().pwd);
@@ -225,8 +208,8 @@ void MaemoSettingsWidget::fillInValues()
     const bool isSimulator
         = currentConfig().type == MaemoDeviceConfig::Simulator;
     m_ui->hostLineEdit->setReadOnly(isSimulator);
-    m_ui->sshPortLineEdit->setReadOnly(isSimulator);
-    m_ui->gdbServerPortLineEdit->setReadOnly(isSimulator);
+    m_ui->sshPortSpinBox->setReadOnly(isSimulator);
+    m_ui->gdbServerPortSpinBox->setReadOnly(isSimulator);
 }
 
 void MaemoSettingsWidget::saveSettings()
@@ -236,21 +219,23 @@ void MaemoSettingsWidget::saveSettings()
 
 MaemoDeviceConfig &MaemoSettingsWidget::currentConfig()
 {
-    Q_ASSERT(m_ui->configListWidget->count() == m_devConfs.count());
-    const QList<QListWidgetItem *> &selectedItems =
-        m_ui->configListWidget->selectedItems();
-    Q_ASSERT(selectedItems.count() == 1);
-    const int selectedRow = m_ui->configListWidget->row(selectedItems.first());
-    Q_ASSERT(selectedRow < m_devConfs.count());
-    return m_devConfs[selectedRow];
+    Q_ASSERT(m_ui->configurationComboBox->count() == m_devConfs.count());
+    const int currenIndex = m_ui->configurationComboBox->currentIndex();
+    Q_ASSERT(currenIndex != -1);
+    Q_ASSERT(currenIndex < m_devConfs.count());
+    return m_devConfs[currenIndex];
 }
 
 void MaemoSettingsWidget::configNameEditingFinished()
 {
+    if (m_ui->configurationComboBox->count() == 0)
+        return;
+
     const QString &newName = m_ui->nameLineEdit->text();
+    const int currentIndex = m_ui->configurationComboBox->currentIndex();
+    m_ui->configurationComboBox->setItemData(currentIndex, newName, Qt::DisplayRole);
     currentConfig().name = newName;
     m_nameValidator->setDisplayName(newName);
-    m_ui->configListWidget->currentItem()->setText(newName);
 }
 
 void MaemoSettingsWidget::deviceTypeChanged()
@@ -290,24 +275,22 @@ void MaemoSettingsWidget::hostNameEditingFinished()
 
 void MaemoSettingsWidget::sshPortEditingFinished()
 {
-    setPortOrTimeout(m_ui->sshPortLineEdit, currentConfig().sshPort,
-                     m_sshPortValidator);
+    currentConfig().sshPort = m_ui->sshPortSpinBox->value();
 }
 
 void MaemoSettingsWidget::gdbServerPortEditingFinished()
 {
-    setPortOrTimeout(m_ui->gdbServerPortLineEdit, currentConfig().gdbServerPort,
-                     m_gdbServerPortValidator);
+    currentConfig().gdbServerPort = m_ui->gdbServerPortSpinBox->value();
 }
 
 void MaemoSettingsWidget::timeoutEditingFinished()
 {
-    setPortOrTimeout(m_ui->timeoutLineEdit, currentConfig().timeout,
+    setTimeout(m_ui->timeoutLineEdit, currentConfig().timeout,
                      m_timeoutValidator);
 }
 
-void MaemoSettingsWidget::setPortOrTimeout(const QLineEdit *lineEdit,
-    int &confVal, PortAndTimeoutValidator *validator)
+void MaemoSettingsWidget::setTimeout(const QLineEdit *lineEdit,
+    int &confVal, TimeoutValidator *validator)
 {
     bool ok;
     confVal = lineEdit->text().toInt(&ok);
@@ -391,13 +374,10 @@ void MaemoSettingsWidget::stopDeploying()
     }
 }
 
-void MaemoSettingsWidget::selectionChanged()
+void MaemoSettingsWidget::currentConfigChanged(int index)
 {
-    const QList<QListWidgetItem *> &selectedItems =
-        m_ui->configListWidget->selectedItems();
-    Q_ASSERT(selectedItems.count() <= 1);
     stopDeploying();
-    if (selectedItems.isEmpty()) {
+    if (index == -1) {
         m_ui->removeConfigButton->setEnabled(false);
         m_ui->testConfigButton->setEnabled(false);
         clearDetails();
@@ -405,16 +385,16 @@ void MaemoSettingsWidget::selectionChanged()
     } else {
         m_ui->removeConfigButton->setEnabled(true);
         m_ui->testConfigButton->setEnabled(true);
+        m_ui->configurationComboBox->setCurrentIndex(index);
         display(currentConfig());
     }
 }
 
 void MaemoSettingsWidget::clearDetails()
 {
-    m_ui->nameLineEdit->clear();
     m_ui->hostLineEdit->clear();
-    m_ui->sshPortLineEdit->clear();
-    m_ui->gdbServerPortLineEdit->clear();
+    m_ui->sshPortSpinBox->clear();
+    m_ui->gdbServerPortSpinBox->clear();
     m_ui->timeoutLineEdit->clear();
     m_ui->userLineEdit->clear();
     m_ui->pwdLineEdit->clear();
