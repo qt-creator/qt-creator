@@ -348,10 +348,11 @@ void GenericProject::setToolChainType(ProjectExplorer::ToolChain::ToolChainType 
     } else if (type == ToolChain::WINCE) {
         const QString msvcVersion, wincePlatform; // ### FIXME
         m_toolChain = ToolChain::createWinCEToolChain(msvcVersion, wincePlatform);
-
-    } else if (type == ToolChain::GCC || type == ToolChain::GCC) {
+    } else if (type == ToolChain::GCC) {
         const QLatin1String qmake_cxx("g++"); // ### FIXME
         m_toolChain = ToolChain::createGccToolChain(qmake_cxx);
+    } else if (type == ToolChain::LINUX_ICC) {
+        m_toolChain = ToolChain::createLinuxIccToolChain();
     }
 }
 

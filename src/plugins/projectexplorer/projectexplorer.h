@@ -194,6 +194,9 @@ private slots:
     void testGccOutputParsers_data();
     void testGccOutputParsers();
 
+    void testLinuxIccOutputParsers_data();
+    void testLinuxIccOutputParsers();
+
     void testGnuMakeParserParsing_data();
     void testGnuMakeParserParsing();
     void testGnuMakeParserTaskMangling_data();
