@@ -40,11 +40,11 @@ void WelcomeModeLabel::setStyledText(const QString &text)
 {
     QString  rc = QLatin1String(
     "<html><head><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head>"
-    "<body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">"
+    "<body style=\" font-weight:500; font-style:normal;\">"
     "<p style=\" margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
-    "<span style=\" font-size:x-large; color:#555555;\">");
+    "<span style=\" font-size:large; color:#555555;\">");
     rc += text;
-    rc += QLatin1String("</span></p><hr/></body></html>");
+    rc += QLatin1String("</span></p></body></html>");
     setText(rc);
 }
 

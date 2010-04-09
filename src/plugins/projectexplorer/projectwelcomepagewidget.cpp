@@ -76,7 +76,7 @@ ProjectWelcomePageWidget::ProjectWelcomePageWidget(QWidget *parent) :
     ui(new Ui::ProjectWelcomePageWidget)
 {
     ui->setupUi(this);
-    ui->projTitleLabel->setStyledText(tr("Open Recent Project"));
+    ui->projTitleLabel->setStyledText(tr("Recent Projects"));
     ui->recentSessionsTitleLabel->setStyledText(tr("Resume Session"));
     updateWelcomePage(WelcomePageData());
 

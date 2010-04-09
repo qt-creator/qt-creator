@@ -71,16 +71,12 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
 
     connect(ui->tutorialTreeWidget, SIGNAL(activated(QString)), SLOT(slotOpenHelpPage(const QString&)));
 
-    ui->tutorialTreeWidget->addItem(tr("<b>Qt Creator - A quick tour</b>"),
+    ui->tutorialTreeWidget->addItem(tr("The Qt Creator User Interface"),
                                         QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
-    ui->tutorialTreeWidget->addItem(tr("Creating an address book"),
+    ui->tutorialTreeWidget->addItem(tr("Creating a Qt C++ Application"),
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-writing-program.html?view=split"));
+    ui->tutorialTreeWidget->addItem(tr("Creating a Qt Quick Application"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/tutorials-addressbook-sdk.html?view=split"));
-    ui->tutorialTreeWidget->addItem(tr("Understanding widgets"),
-                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/widgets-tutorial.html?view=split"));
-    ui->tutorialTreeWidget->addItem(tr("Building with qmake"),
-                                        QLatin1String("qthelp://com.trolltech.qmake/qdoc/qmake-tutorial.html?view=split"));
-    ui->tutorialTreeWidget->addItem(tr("Writing test cases"),
-                                        QLatin1String("qthelp://com.trolltech.qt/qdoc/qtestlib-tutorial.html?view=split"));
 
     srand(QDateTime::currentDateTime().toTime_t());
     QStringList tips = tipsOfTheDay();
@@ -93,7 +89,7 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
 
     connect(ui->nextTipBtn, SIGNAL(clicked()), this, SLOT(slotNextTip()));
     connect(ui->prevTipBtn, SIGNAL(clicked()), this, SLOT(slotPrevTip()));
-
+    connect(ui->createNewProjectButton, SIGNAL(clicked()), this, SLOT(slotCreateNewProject()));
 }
 
 GettingStartedWelcomePageWidget::~GettingStartedWelcomePageWidget()
@@ -276,6 +272,12 @@ void GettingStartedWelcomePageWidget::slotOpenContextHelpPage(const QString& url
         = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
     Q_ASSERT(helpManager);
     helpManager->handleHelpRequest(url % QLatin1String("?view=split"));
+}
+
+void GettingStartedWelcomePageWidget::slotCreateNewProject()
+{
+    Core::ICore::instance()->showNewItemDialog(tr("New Project..."),
+                                               Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
 }
 
 void GettingStartedWelcomePageWidget::slotNextTip()

@@ -57,6 +57,7 @@ private slots:
     void slotOpenExample();
     void slotNextTip();
     void slotPrevTip();
+    void slotCreateNewProject();
 
 private:
     QStringList tipsOfTheDay();

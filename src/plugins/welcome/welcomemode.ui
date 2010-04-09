@@ -33,7 +33,6 @@ QToolButton, QPushButton, QComboBox {
  QComboBox::down-arrow {
      image: url(:/welcome/images/combobox_arrow.png);
  }
-
 QComboBox:drop-down
 {
      subcontrol-origin: padding;
@@ -54,6 +53,17 @@ QToolButton:disabled, QPushButton:disabled, QComboBox::disabled {
 QToolButton:pressed, QPushButton:pressed{
     border-image: url(:/welcome/images/btn_26_pressed.png) 4;
 }
+
+ QPushButton::menu-indicator{
+    subcontrol-origin: margin;
+	subcontrol-position: center right;
+	right: 4px;
+ }
+
+ QPushButton{
+	outline: none;
+	margin: 2
+ }
 </string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -66,13 +76,19 @@ QToolButton:pressed, QPushButton:pressed{
    <item>
     <widget class="QWidget" name="gradientWidget" native="true">
      <property name="styleSheet">
-      <string>#gradientWidget {
+      <string notr="true">/*
+#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
-}</string>
+}
+*/
+#gradientWidget {
+    border-image: url(:/core/images/welcomebg.png) 4;
+}
+</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <property name="leftMargin">
-       <number>4</number>
+       <number>0</number>
       </property>
       <property name="topMargin">
        <number>4</number>
@@ -91,19 +107,21 @@ QToolButton:pressed, QPushButton:pressed{
         <property name="minimumSize">
          <size>
           <width>662</width>
-          <height>515</height>
+          <height>490</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>662</width>
-          <height>16777215</height>
+          <height>490</height>
          </size>
         </property>
         <property name="styleSheet">
          <string notr="true">#mainFrame {
-    border-image: url(:/welcome/images/background_center_frame.png) 4;
+    border-image: url(:/welcome/images/background_center_frame.png);
     border-width: 4;
+	padding:-3;
+    padding-bottom:20	;
 }
 </string>
         </property>
@@ -255,29 +273,32 @@ QToolButton:pressed {
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="leftMargin">
+            <number>8</number>
+           </property>
+           <property name="topMargin">
+            <number>1</number>
+           </property>
            <property name="rightMargin">
-            <number>20</number>
+            <number>13</number>
            </property>
            <property name="bottomMargin">
-            <number>17</number>
+            <number>10</number>
            </property>
            <item>
-            <spacer name="horizontalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+            <widget class="QPushButton" name="feedbackButton">
+             <property name="focusPolicy">
+              <enum>Qt::TabFocus</enum>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
+             <property name="styleSheet">
+              <string notr="true">height:19px;</string>
              </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="helpUsLabel">
              <property name="text">
-              <string>Help us make Qt Creator even better</string>
+              <string>Feedback</string>
+             </property>
+             <property name="icon">
+              <iconset resource="welcome.qrc">
+               <normaloff>:/welcome/images/feedback_arrow.png</normaloff>:/welcome/images/feedback_arrow.png</iconset>
              </property>
             </widget>
            </item>
@@ -298,21 +319,115 @@ QToolButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="feedbackButton">
-             <property name="focusPolicy">
-              <enum>Qt::TabFocus</enum>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">height:19px;</string>
+            <widget class="QLabel" name="helpUsLabel">
+             <property name="palette">
+              <palette>
+               <active>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </active>
+               <inactive>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </inactive>
+               <disabled>
+                <colorrole role="WindowText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="Text">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+                <colorrole role="ButtonText">
+                 <brush brushstyle="SolidPattern">
+                  <color alpha="255">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </brush>
+                </colorrole>
+               </disabled>
+              </palette>
              </property>
              <property name="text">
-              <string>Feedback</string>
-             </property>
-             <property name="icon">
-              <iconset resource="welcome.qrc">
-               <normaloff>:/welcome/images/feedback_arrow.png</normaloff>:/welcome/images/feedback_arrow.png</iconset>
+              <string>Help us make Qt Creator even better</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </item>

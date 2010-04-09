@@ -172,8 +172,6 @@ void WelcomeMode::initPlugins()
         if (debug)
             qDebug() << "WelcomeMode::initPlugins" << plugin->title();
     }
-    m_d->buttonLayout->addSpacing(5);
-
     QSettings *settings = Core::ICore::instance()->settings();
     const int tabId = settings->value(QLatin1String(currentPageSettingsKeyC), 0).toInt();
 
