@@ -92,5 +92,7 @@
         <file>images/slider_indikator.png</file>
         <file>images/slider_line.png</file>
         <file>formeditorstylesheet.css</file>
+        <file>images/scrollbar-borderimage-horizontal.png</file>
+        <file>images/scrollbar-borderimage-vertical.png</file>
     </qresource>
 </RCC>

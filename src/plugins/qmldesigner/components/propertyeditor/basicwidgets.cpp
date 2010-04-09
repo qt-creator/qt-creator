@@ -868,7 +868,6 @@ private:
     {
         _content = content;
         sa->setWidget(content);
-        sa->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
         sa->verticalScrollBar()->show();
         setupProperWheelBehaviour();
     }

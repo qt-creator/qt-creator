@@ -451,7 +451,7 @@ Rectangle {
         id: removeStateButton
         color: "#4f4f4f"
         border.color: "black"
-        border.width: 1
+        border.width: 0
         width: removeStateText.width
         height: removeStateText.height+3
         anchors.left: renameStateButton.right
@@ -510,94 +510,22 @@ Rectangle {
                 parent.state = "";
                 root.unFocus();
                 root.deleteState(root.currentStateIndex);
-                horizontalScrollbar.totalLengthDecreased();
+                horizontalScrollbar.contentSizeDecreased();
             }
         }
     }
 
-    Item {
+    HorizontalScrollBar {
         id: horizontalScrollbar
-        property int viewPosition: 0;
-        property int viewLength: ( listView.width>=0 ? listView.width : 0 );
-        property int totalLength: ( listView.contentWidth>=0 ? listView.contentWidth : 0 );
 
-
-        onViewPositionChanged: listView.contentX=viewPosition;
-        onViewLengthChanged: {
-            if ((totalLength>viewLength) && (viewPosition > totalLength-viewLength))
-                viewPosition = totalLength-viewLength;
-        }
-
-        function totalLengthDecreased()  {
-            if ((totalLength>viewLength) && (viewPosition > totalLength-viewLength))
-                viewPosition = totalLength-viewLength;
-        }
-
-        //opacity: viewLength < totalLength;
-
-        //anchors.left : listView.left
+        flickable: listView
         anchors.left: removeStateButton.right
         anchors.right : listView.right
         anchors.top : listView.bottom
-        anchors.topMargin: -2
+        anchors.topMargin: 0
         anchors.rightMargin: 1
-        anchors.bottom: root.bottom
-        anchors.bottomMargin: 1
-
-        // the bar itself
-        Item {
-            id: draggableBar
-            width: if (horizontalScrollbar.totalLength>0) {
-                if (horizontalScrollbar.viewLength>horizontalScrollbar.totalLength) parent.width;
-                else horizontalScrollbar.viewLength/horizontalScrollbar.totalLength  * parent.width;
-            } else 0;
-            height: parent.height;
-            x: (horizontalScrollbar.totalLength>0?horizontalScrollbar.viewPosition*horizontalScrollbar.width/horizontalScrollbar.totalLength:0);
-
-
-            Rectangle {
-                height:parent.height-1
-                width:parent.width
-                y:1
-                color: "black"
-            }
-
-            Rectangle {
-                height:parent.height-3
-                width:parent.width - 3
-                y:2
-                x:2
-
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: "#C6C6C6" }
-                    GradientStop { position: 1.0; color: "#7E7E7E" }
-                }
-            }
-
-            MouseArea {
-                anchors.fill:parent
-                property int dragging:0;
-                property int originalX:0;
-                onPressed: { dragging = 1; originalX = mouse.x;root.unFocus(); }
-                onReleased: { dragging = 0; }
-                onPositionChanged: if (dragging)
-                {
-                    var newX = mouse.x - originalX + parent.x;
-                    if (newX<0) newX=0;
-                    if (newX>horizontalScrollbar.width-draggableBar.width)
-                        newX=horizontalScrollbar.width-draggableBar.width;
-                    horizontalScrollbar.viewPosition = newX*horizontalScrollbar.totalLength/horizontalScrollbar.width;
-                }
-            }
-        }
-
-        // border
-        Rectangle {
-            anchors.fill:parent;
-            color:"transparent"
-            border.width:1;
-            border.color:"#8F8F8F";
-        }
-
+        height: 10
+        onUnFocus: root.unFocus();
     }
+
 }
