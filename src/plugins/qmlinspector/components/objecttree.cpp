@@ -106,7 +106,7 @@ void ObjectTree::setCurrentObject(int debugId)
 
 void ObjectTree::objectFetched()
 {
-    dump(m_query->object(), 0);
+    //dump(m_query->object(), 0);
     buildTree(m_query->object(), 0);
     setCurrentItem(topLevelItem(0));
 
