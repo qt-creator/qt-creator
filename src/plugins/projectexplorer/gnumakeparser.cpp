@@ -43,7 +43,8 @@ namespace {
 }
 
 GnuMakeParser::GnuMakeParser(const QString &dir) :
-    m_suppressIssues(false)
+    m_suppressIssues(false),
+    m_fatalErrorCount(0)
 {
     m_makeDir.setPattern(QLatin1String(MAKE_PATTERN) +
                          QLatin1String("(\\w+) directory .(.+).$"));
@@ -53,6 +54,11 @@ GnuMakeParser::GnuMakeParser(const QString &dir) :
     m_makefileError.setPattern(QLatin1String("^(.*):(\\d+):\\s\\*\\*\\*\\s(.*)$"));
     m_makefileError.setMinimal(true);
     addDirectory(dir);
+}
+
+int GnuMakeParser::fatalErrors() const
+{
+    return m_fatalErrorCount;
 }
 
 void GnuMakeParser::stdOutput(const QString &line)
@@ -75,6 +81,7 @@ void GnuMakeParser::stdError(const QString &line)
     QString lne = line.trimmed();
 
     if (m_makefileError.indexIn(lne) > -1) {
+        ++m_fatalErrorCount;
         if (!m_suppressIssues) {
             m_suppressIssues = true;
             addTask(Task(Task::Error,
@@ -86,6 +93,7 @@ void GnuMakeParser::stdError(const QString &line)
         return;
     }
     if (m_makeLine.indexIn(lne) > -1) {
+        ++m_fatalErrorCount;
         if (!m_suppressIssues) {
             m_suppressIssues = true;
             addTask(Task(Task::Error,

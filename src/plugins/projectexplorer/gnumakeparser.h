@@ -49,6 +49,8 @@ public:
 
     QStringList searchDirectories() const;
 
+    int fatalErrors() const;
+
 public slots:
     virtual void taskAdded(const ProjectExplorer::Task &task);
 
@@ -66,6 +68,8 @@ private:
     friend class ProjectExplorerPlugin;
 #endif
     bool m_suppressIssues;
+
+    int m_fatalErrorCount;
 };
 
 } // namespace ProjectExplorer
