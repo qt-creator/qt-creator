@@ -962,10 +962,19 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         response->resultClass != ((cmd.flags & RunRequest) ? GdbResultRunning :
                                   (cmd.flags & ExitRequest) ? GdbResultExit :
                                   GdbResultDone)) {
-        QByteArray rsp = GdbResponse::stringFromResultClass(response->resultClass);
-        rsp = "UNEXPECTED RESPONSE " + rsp + " TO COMMAND" + cmd.command;
-        qWarning() << rsp << " AT " __FILE__ ":" STRINGIFY(__LINE__);
-        debugMessage(_(rsp));
+#ifdef Q_OS_WIN
+        // Ignore spurious 'running' responses to 'attach'
+        const bool warning = !(m_startParameters->startMode == AttachExternal
+                               && cmd.command.startsWith("attach"));
+#else
+        const bool warning = true;
+#endif
+        if (warning) {
+            QByteArray rsp = GdbResponse::stringFromResultClass(response->resultClass);
+            rsp = "UNEXPECTED RESPONSE '" + rsp + "' TO COMMAND '" + cmd.command + "'";
+            qWarning() << rsp << " AT " __FILE__ ":" STRINGIFY(__LINE__);
+            debugMessage(_(rsp));
+        }
     } else {
         if (cmd.callback)
             (this->*cmd.callback)(*response);
