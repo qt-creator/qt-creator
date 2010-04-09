@@ -38,6 +38,7 @@
 #include <QtCore/QModelIndex>
 #include <QtGui/QAction>
 #include <QtGui/QToolButton>
+#include <QtGui/QTextLayout>
 
 namespace ProjectExplorer {
 
@@ -65,7 +66,7 @@ struct PROJECTEXPLORER_EXPORT Task {
     { }
     Task(const Task &source) :
         type(source.type), description(source.description), file(source.file),
-        line(source.line), category(source.category)
+        line(source.line), category(source.category), formats(source.formats)
     { }
     ~Task()
     { }
@@ -75,6 +76,16 @@ struct PROJECTEXPLORER_EXPORT Task {
     QString file;
     int line;
     QString category;
+    // Having a QList<QTextLayout> in Task
+    // isn't that great
+    // It would be cleaner to split up the text into
+    // the logical hunks and then assemble them again
+    // (That is diffrent consumers of tasks could show them in
+    // different ways!)
+    // But then again, the wording of the text most likely
+    // doesn't work if you split it up, nor are our parsers
+    // anywhere near being that good
+    QList<QTextLayout::FormatRange> formats;
 };
 
 class PROJECTEXPLORER_EXPORT TaskWindow : public Core::IOutputPane

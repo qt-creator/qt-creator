@@ -122,7 +122,7 @@ public:
     int sizeOfLineNumber();
     void setFileNotFound(const QModelIndex &index, bool b);
 
-    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category };
+    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category, Task_t };
 
     QIcon iconFor(Task::TaskType type);
 
@@ -337,6 +337,8 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
         return (int)m_tasks.at(index.row()).type;
     } else if (role == TaskModel::Category) {
         return m_tasks.at(index.row()).category;
+    } else if (role == TaskModel::Task_t) {
+        return QVariant::fromValue(m_tasks.at(index.row()));
     }
     return QVariant();
 }
@@ -879,6 +881,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         int height = 0;
         description.replace('\n', QChar::LineSeparator);
         QTextLayout tl(description);
+        tl.setAdditionalFormats(index.data(TaskModel::Task_t).value<ProjectExplorer::Task>().formats);
         tl.beginLayout();
         while (true) {
             QTextLine line = tl.createLine();

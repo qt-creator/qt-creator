@@ -50,6 +50,7 @@ private:
     QRegExp m_caretLine;
 
     bool m_expectFirstLine;
+    int m_indent;
     ProjectExplorer::Task m_temporary;
 };
 
