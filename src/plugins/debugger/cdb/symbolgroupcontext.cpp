@@ -440,6 +440,10 @@ bool SymbolGroupContext::getUnsignedHexValue(QString stringValue, quint64 *value
     if (!stringValue.startsWith(QLatin1String("0x")))
         return false;
     stringValue.remove(0, 2);
+    // Chop off character values (0x76 'a')
+    const int blankPos = stringValue.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        stringValue.truncate(blankPos);
     // Remove 64bit separator
     if (stringValue.size() > 9) {
         const int sepPos = stringValue.size() - 9;
@@ -473,7 +477,7 @@ QVariant SymbolGroupContext::getIntValue(const QString &stringValue)
                 return QVariant(uvalue);
         }
         break;
-    case '0': // Decimal or none
+    case '\0': // Decimal or none
     case 'n': {
             qint64 nvalue;
             if (SymbolGroupContext::getDecimalIntValue(stringValue, &nvalue))
@@ -664,6 +668,10 @@ bool SymbolGroupContext::getDecimalIntValue(QString stringValue, qint64 *value)
     // with Debugging tools v6.12 or later
     if (stringValue.startsWith(QLatin1String("0n")))
         stringValue.remove(0, 2);
+    // Chop off character values (0n97 'a')
+    const int blankPos = stringValue.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        stringValue.truncate(blankPos);
     bool ok;
     *value = stringValue.toInt(&ok);
     return ok;

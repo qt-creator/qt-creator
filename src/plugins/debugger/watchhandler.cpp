@@ -158,6 +158,12 @@ void WatchData::setValue(const QString &value0)
         value.clear();
         hasChildren = true; // at least one...
     }
+    // strip off quoted characters for chars.
+    if (value.endsWith(QLatin1Char('\'')) && type.endsWith(QLatin1String("char"))) {
+        const int blankPos = value.indexOf(QLatin1Char(' '));
+        if (blankPos != -1)
+            value.truncate(blankPos);
+    }
 
     // avoid duplicated information
     if (value.startsWith(QLatin1Char('(')) && value.contains(") 0x"))
@@ -632,9 +638,43 @@ template <class IntType> QString reformatInteger(IntType value, int format)
     return QString::number(value); // not reached
 }
 
-static QString formattedValue(const WatchData &data, int format)
+// Format printable (char-type) characters
+static inline QString reformatCharacter(int code, int format)
+{
+    const QString codeS = reformatInteger(code, format);
+    if (code < 0) // Append unsigned value.
+        return codeS + QLatin1String(" / ") + reformatInteger(256 + code, format);
+    if (code >= 32 && code < 128)
+        return codeS + QLatin1String(" '") + QChar(code) + QLatin1Char('\'');
+    switch (code) {
+    case 0:
+        return codeS + QLatin1String(" '\\0'");
+    case '\r':
+        return codeS + QLatin1String(" '\\r'");
+    case '\t':
+        return codeS + QLatin1String(" '\\t'");
+    case '\n':
+        return codeS + QLatin1String(" '\\n'");
+    }
+    return codeS;
+}
+
+static inline QString formattedValue(const WatchData &data, int format)
 {
     if (isIntType(data.type)) {
+        if (data.value.isEmpty())
+            return data.value;
+        // Do not reformat booleans (reported as 'true, false').
+        const QChar firstChar = data.value.at(0);
+        if (!firstChar.isDigit() && firstChar != QLatin1Char('-'))
+            return data.value;
+        // Append quoted, printable character also for decimal.
+        if (data.type.endsWith(QLatin1String("char"))) {
+            bool ok;
+            const int code = data.value.toInt(&ok);
+            return ok ? reformatCharacter(code, format) : data.value;
+        }
+        // Rest: Leave decimal as is
         if (format <= 0)
             return data.value;
         // Evil hack, covers 'unsigned' as well as quint64.
