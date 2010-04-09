@@ -266,9 +266,9 @@ void QMakeStep::processStartupFailed()
     AbstractProcessStep::processStartupFailed();
 }
 
-bool QMakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
+bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
 {
-    bool result = AbstractProcessStep::processFinished(exitCode, status);
+    bool result = AbstractProcessStep::processSucceeded(exitCode, status);
     if (!result)
         m_forced = true;
     qt4BuildConfiguration()->emitBuildDirectoryInitialized();

@@ -100,7 +100,7 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
     virtual void processStartupFailed();
-    virtual bool processFinished(int exitCode, QProcess::ExitStatus status);
+    virtual bool processSucceeded(int exitCode, QProcess::ExitStatus status);
 
 private:
     void ctor();

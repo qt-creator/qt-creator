@@ -185,7 +185,8 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
     m_timer = 0;
 
     // The process has finished, leftover data is read in processFinished
-    bool returnValue = processFinished(m_process->exitCode(), m_process->exitStatus());
+    processFinished(m_process->exitCode(), m_process->exitStatus());
+    bool returnValue = processSucceeded(m_process->exitCode(), m_process->exitStatus()) || m_ignoreReturnValue;
 
     delete m_process;
     m_process = 0;
@@ -198,22 +199,27 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 
 void AbstractProcessStep::processStarted()
 {
-    emit addOutput(tr("<font color=\"#0000ff\">Starting: %1 %2</font>\n").arg(m_command, Qt::escape(m_arguments.join(" "))));
+    emit addOutput(tr("<font color=\"#0000ff\">Starting: \"%1\" %2</font>\n").arg(m_command, Qt::escape(m_arguments.join(" "))));
 }
 
-bool AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
+void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    const bool ok = status == QProcess::NormalExit && (exitCode == 0 || m_ignoreReturnValue);
-    if (ok)
-        emit addOutput(tr("<font color=\"#0000ff\">Exited with code %1.</font>").arg(m_process->exitCode()));
+    if (status == QProcess::NormalExit && exitCode == 0)
+        emit addOutput(tr("<font color=\"#0000ff\">The process \"%1\" exited normally.</font>").arg(m_command));
+    else if (status == QProcess::NormalExit)
+        emit addOutput(tr("<font color=\"#ff0000\"><b>The process \"%1\" exited with code %2.</b></font>").arg(m_command, m_process->exitCode()));
     else
-        emit addOutput(tr("<font color=\"#ff0000\"><b>Exited with code %1.</b></font>").arg(m_process->exitCode()));
-    return ok;
+        emit addOutput(tr("<font color=\"#ff0000\"><b>The process \"%1\" crashed.</b></font>").arg(m_command));
 }
 
 void AbstractProcessStep::processStartupFailed()
 {
-   emit addOutput(tr("<font color=\"#ff0000\"><b>Could not start process %1 </b></font>").arg(m_command));
+   emit addOutput(tr("<font color=\"#ff0000\"><b>Could not start process \"%1\"</b></font>").arg(m_command));
+}
+
+bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
+{
+    return exitCode == 0 && status == QProcess::NormalExit;
 }
 
 void AbstractProcessStep::processReadyReadStdOutput()
@@ -260,6 +266,11 @@ void AbstractProcessStep::checkForCancel()
 
 void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
 {
+    // Do not bother to report issues if we do not care about the results of
+    // the buildstep anyway:
+    if (m_ignoreReturnValue)
+        return;
+
     Task editable(task);
     QString filePath = QDir::cleanPath(task.file.trimmed());
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {

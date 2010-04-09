@@ -125,10 +125,12 @@ protected:
     virtual void processStarted();
     /// Called after the process Finished
     /// the default implementation adds a line to the output window
-    virtual bool processFinished(int exitCode, QProcess::ExitStatus status);
+    virtual void processFinished(int exitCode, QProcess::ExitStatus status);
     /// Called if the process could not be started,
     /// by default adds a message to the output window
     virtual void processStartupFailed();
+    /// Called to test whether a prcess succeeded or not.
+    virtual bool processSucceeded(int exitCode, QProcess::ExitStatus status);
     /// Called for each line of output on stdOut()
     /// the default implementation adds the line to the
     /// application output window
