@@ -141,7 +141,7 @@ void ObjectTree::buildTree(const QDeclarativeDebugObjectReference &obj, QTreeWid
 
     QTreeWidgetItem *item = parent ? new QTreeWidgetItem(parent) : new QTreeWidgetItem(this);
     if (obj.idString().isEmpty())
-        item->setText(0, obj.className());
+        item->setText(0, QLatin1String("<")+obj.className()+QLatin1String(">"));
     else
         item->setText(0, obj.idString());
     item->setData(0, Qt::UserRole, qVariantFromValue(obj));
