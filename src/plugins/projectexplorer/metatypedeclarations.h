@@ -31,33 +31,15 @@
 #define PROJECTEXPLORERMETATYPEDECLARATIONS_H
 
 #include <QtCore/QMetaType>
-#include <QtCore/QList>
 
 namespace ProjectExplorer {
-class ProjectInterface;
 class IProjectManager;
 class SessionManager;
-class IApplicationOutput;
-class IOutputParser;
-class GlobalConfigManagerInterface;
 class Project;
-struct Task;
-
-namespace Internal {
-class CommandQObject;
-}
 }
 
 Q_DECLARE_METATYPE(QList<ProjectExplorer::Project*>)
 Q_DECLARE_METATYPE(ProjectExplorer::SessionManager*)
 Q_DECLARE_METATYPE(ProjectExplorer::IProjectManager*)
-Q_DECLARE_METATYPE(ProjectExplorer::IApplicationOutput*)
-Q_DECLARE_METATYPE(ProjectExplorer::Internal::CommandQObject*)
-Q_DECLARE_METATYPE(QList<ProjectExplorer::Internal::CommandQObject*>)
-Q_DECLARE_METATYPE(ProjectExplorer::IOutputParser*)
-
-Q_DECLARE_METATYPE(ProjectExplorer::GlobalConfigManagerInterface*)
-Q_DECLARE_METATYPE(ProjectExplorer::Task)
-Q_DECLARE_METATYPE(QList<ProjectExplorer::Task>)
 
 #endif // PROJECTEXPLORERMETATYPEDECLARATIONS_H

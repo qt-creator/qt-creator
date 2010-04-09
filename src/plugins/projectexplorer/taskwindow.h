@@ -144,4 +144,7 @@ uint qHash(const Task &task);
 
 } //namespace ProjectExplorer
 
+Q_DECLARE_METATYPE(ProjectExplorer::Task)
+Q_DECLARE_METATYPE(QList<ProjectExplorer::Task>)
+
 #endif // TASKWINDOW_H

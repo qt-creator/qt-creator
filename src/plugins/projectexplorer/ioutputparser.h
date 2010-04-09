@@ -85,4 +85,6 @@ private:
 
 } // namespace ProjectExplorer
 
+Q_DECLARE_METATYPE(ProjectExplorer::IOutputParser*)
+
 #endif // IOUTPUTPARSER_H
