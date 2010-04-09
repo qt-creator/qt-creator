@@ -759,7 +759,12 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
-    if ((cmd.flags & NeedsStop) || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
+    // FIXME: clean up logic below
+    if (cmd.flags & Immediate) {
+        // This should always be sent.
+        flushCommand(cmd);
+    } else if ((cmd.flags & NeedsStop)
+            || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
         if (state() == InferiorStopped || state() == InferiorUnrunnable
             || state() == InferiorStarting || state() == AdapterStarted) {
             // Can be safely sent now.

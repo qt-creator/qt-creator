@@ -227,7 +227,7 @@ void RemoteGdbAdapter::startInferiorPhase2()
 
 void RemoteGdbAdapter::interruptInferior()
 {
-    m_engine->postCommand("-exec-interrupt");
+    m_engine->postCommand("-exec-interrupt", GdbEngine::Immediate);
 }
 
 void RemoteGdbAdapter::shutdown()

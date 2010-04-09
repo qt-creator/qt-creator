@@ -193,6 +193,8 @@ private: ////////// Gdb Command Management //////////
         LosesChild = 64,
         // Trigger breakpoint model rebuild when no such commands are pending anymore.
         RebuildBreakpointModel = 128,
+        // This command needs to be send immediately.
+        Immediate = 256,
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
     private:
