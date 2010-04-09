@@ -10,7 +10,6 @@ QScrollArea {
     content: properyEditorLayout;
     QFrame {
         id: properyEditorLayout;
-        enabled: isBaseState
         layout: QVBoxLayout {
             topMargin: 0;
             bottomMargin: 0;
@@ -22,6 +21,7 @@ QScrollArea {
              }
 			
             Layout {
+                enabled: isBaseState
                 id: layoutBox;
             }
             QScrollArea {
