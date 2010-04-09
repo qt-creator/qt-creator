@@ -35,7 +35,6 @@
 #include "maemorunconfigurationwidget.h"
 
 #include "maemodeviceconfigurations.h"
-#include "maemogdbsettingspage.h"
 #include "maemomanager.h"
 #include "maemorunconfiguration.h"
 #include "maemosettingspage.h"
@@ -75,23 +74,19 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     devConfLayout->addWidget(m_devConfBox);
     QLabel *addDevConfLabel= new QLabel(tr("<a href=\"%1\">Manage device configurations</a>")
         .arg(QLatin1String("deviceconfig")));
+    addDevConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     devConfLayout->addWidget(addDevConfLabel);
+    
+    QLabel *debuggerConfLabel = new QLabel(tr("<a href=\"%1\">Set Debugger</a>")
+        .arg(QLatin1String("debugger")));
+    debuggerConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+    devConfLayout->addWidget(debuggerConfLabel);
 
     mainLayout->addRow(new QLabel(tr("Device Configuration:")), devConfWidget);
     m_executableLabel = new QLabel(m_runConfiguration->executable());
     mainLayout->addRow(tr("Executable:"), m_executableLabel);
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     mainLayout->addRow(tr("Arguments:"), m_argsLineEdit);
-
-    QWidget *debuggerWidget = new QWidget;
-    QHBoxLayout *debuggerLayout = new QHBoxLayout(debuggerWidget);
-    debuggerLayout->setMargin(0);
-    m_debuggerLabel = new QLabel(m_runConfiguration->gdbCmd());
-    debuggerLayout->addWidget(m_debuggerLabel);
-    QLabel *debuggerConfLabel = new QLabel(tr("<a href=\"%1\">Set Maemo Debugger</a>")
-        .arg(QLatin1String("debugger")));
-    debuggerLayout->addWidget(debuggerConfLabel);
-    mainLayout->addRow(tr("Debugger:"), debuggerWidget);
 
     mainLayout->addItem(new QSpacerItem(10, 10));
     m_simNameLabel = new QLabel(tr("Simulator:"));
@@ -116,8 +111,6 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         SLOT(showSettingsDialog(QString)));
     connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
         SLOT(showSettingsDialog(QString)));
-    connect(MaemoManager::instance().gdbSettingsPage(), SIGNAL(updateGdbLocation()),
-        this, SLOT(updateGdbLocation()));
 }
 
 void MaemoRunConfigurationWidget::configNameEdited(const QString &text)
@@ -133,11 +126,6 @@ void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
 void MaemoRunConfigurationWidget::updateTargetInformation()
 {
     m_executableLabel->setText(m_runConfiguration->executable());
-}
-
-void MaemoRunConfigurationWidget::updateGdbLocation()
-{
-    m_debuggerLabel->setText(m_runConfiguration->gdbCmd());
 }
 
 void MaemoRunConfigurationWidget::updateSimulatorPath()
@@ -175,12 +163,12 @@ void MaemoRunConfigurationWidget::resetDeviceConfigurations()
 
 void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)
 {
-    if (link == QLatin1String("debugger")) {
-        MaemoGdbSettingsPage *page = MaemoManager::instance().gdbSettingsPage();
-        Core::ICore::instance()->showOptionsDialog(page->category(), page->id());
-    } else if (link == QLatin1String("deviceconfig")) {
+    if (link == QLatin1String("deviceconfig")) {
         MaemoSettingsPage *page = MaemoManager::instance().settingsPage();
         Core::ICore::instance()->showOptionsDialog(page->category(), page->id());
+    } else if (link == QLatin1String("debugger")) {
+        Core::ICore::instance()->showOptionsDialog(QLatin1String("O.Debugger"),
+            QLatin1String("M.Gdb"));
     }
 }
 

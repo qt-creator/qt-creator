@@ -6,7 +6,6 @@ HEADERS += \
     $$PWD/maemoconfigtestdialog.h \
     $$PWD/maemoconstants.h \
     $$PWD/maemodeviceconfigurations.h \
-    $$PWD/maemogdbsettingspage.h \
     $$PWD/maemomanager.h \
     $$PWD/maemorunconfiguration.h \
     $$PWD/maemorunconfigurationwidget.h \
@@ -24,7 +23,6 @@ HEADERS += \
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
     $$PWD/maemodeviceconfigurations.cpp \
-    $$PWD/maemogdbsettingspage.cpp \
     $$PWD/maemomanager.cpp \
     $$PWD/maemorunconfiguration.cpp \
     $$PWD/maemorunconfigurationwidget.cpp \
@@ -41,7 +39,6 @@ SOURCES += \
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
-    $$PWD/maemogdbwidget.ui \
     $$PWD/maemosettingswidget.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

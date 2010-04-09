@@ -63,7 +63,6 @@ private slots:
     void resetDeviceConfigurations();
     void showSettingsDialog(const QString &link);
 
-    void updateGdbLocation();
     void updateSimulatorPath();
     void updateTargetInformation();
 

@@ -31,7 +31,6 @@
 #include "qtversionmanager.h"
 
 #include "maemodeviceconfigurations.h"
-#include "maemogdbsettingspage.h"
 #include "maemopackagecreationfactory.h"
 #include "maemorunfactories.h"
 #include "maemosettingspage.h"
@@ -67,7 +66,6 @@ MaemoManager::MaemoManager()
     , m_runConfigurationFactory(new MaemoRunConfigurationFactory(this))
     , m_packageCreationFactory(new MaemoPackageCreationFactory(this))
     , m_settingsPage(new MaemoSettingsPage(this))
-    , m_gdbSettingsPage(new MaemoGdbSettingsPage(this))
     , m_qemuCommand(0)
 {
     Q_ASSERT(!m_instance);
@@ -85,7 +83,6 @@ MaemoManager::MaemoManager()
     pluginManager->addObject(m_runConfigurationFactory);
     pluginManager->addObject(m_packageCreationFactory);
     pluginManager->addObject(m_settingsPage);
-    pluginManager->addObject(m_gdbSettingsPage);
 
     Ne7SshObject::instance();
 }
@@ -98,7 +95,6 @@ MaemoManager::~MaemoManager()
     pluginManager->removeObject(m_runConfigurationFactory);
     pluginManager->removeObject(m_packageCreationFactory);
     pluginManager->removeObject(m_settingsPage);
-    pluginManager->removeObject(m_gdbSettingsPage);
 
     Ne7SshObject::removeInstance();
     m_instance = 0;

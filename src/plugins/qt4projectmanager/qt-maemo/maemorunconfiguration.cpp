@@ -288,19 +288,9 @@ const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 
 const QString MaemoRunConfiguration::gdbCmd() const
 {
-    QSettings *settings = Core::ICore::instance()->settings();
-    bool useMadde = settings->value(QLatin1String("MaemoDebugger/useMaddeGdb"),
-        true).toBool();
-
-    QString gdbPath;
     if (const MaemoToolChain *tc = toolchain())
-        gdbPath = tc->targetRoot() + QLatin1String("/bin/gdb");
-
-    if (!useMadde) {
-        gdbPath = settings->value(QLatin1String("MaemoDebugger/gdb"),
-            gdbPath).toString();
-    }
-    return QDir::toNativeSeparators(gdbPath);
+        return QDir::toNativeSeparators(tc->targetRoot() + QLatin1String("/bin/gdb"));
+    return QString();
 }
 
 QString MaemoRunConfiguration::maddeRoot() const
