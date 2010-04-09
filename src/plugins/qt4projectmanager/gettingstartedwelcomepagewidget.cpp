@@ -76,7 +76,7 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt C++ Application"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-writing-program.html?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt Quick Application"),
-                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/tutorials-addressbook-sdk.html?view=split"));
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-qml-application.html?view=split"));
 
     srand(QDateTime::currentDateTime().toTime_t());
     QStringList tips = tipsOfTheDay();
