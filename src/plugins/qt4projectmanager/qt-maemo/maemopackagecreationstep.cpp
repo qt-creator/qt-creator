@@ -211,8 +211,13 @@ const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() c
 
 QString MaemoPackageCreationStep::executable() const
 {
-    return qt4BuildConfiguration()->qt4Target()->qt4Project()->rootProjectNode()
-        ->targetInformation().executable;
+    const TargetInformation &ti = qt4BuildConfiguration()->qt4Target()
+        ->qt4Project()->rootProjectNode()->targetInformation();
+    if (!ti.valid)
+        return QString();
+
+    return QDir::toNativeSeparators(QDir::cleanPath(ti.workingDir
+        + QLatin1Char('/') + ti.target));
 }
 
 QString MaemoPackageCreationStep::executableFileName() const
