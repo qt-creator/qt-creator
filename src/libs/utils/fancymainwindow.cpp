@@ -184,7 +184,7 @@ void FancyMainWindow::restoreSettings(QSettings *settings)
 QHash<QString, QVariant> FancyMainWindow::saveSettings() const
 {
     QHash<QString, QVariant> settings;
-    settings.insert(QLatin1String("State"), saveState());
+    settings.insert(QLatin1String("State"), saveState(1));
     settings.insert(QLatin1String("Locked"), d->m_locked);
     for (int i = 0; i < d->m_dockWidgetActiveState.count(); ++i) {
         settings.insert(d->m_dockWidgets.at(i)->objectName(),
@@ -197,7 +197,7 @@ void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
 {
     QByteArray ba = settings.value("State", QByteArray()).toByteArray();
     if (!ba.isEmpty())
-        restoreState(ba);
+        restoreState(ba, 1);
     d->m_locked = settings.value("Locked", true).toBool();
     for (int i = 0; i < d->m_dockWidgetActiveState.count(); ++i) {
         d->m_dockWidgetActiveState[i] = settings.value(d->m_dockWidgets.at(i)->objectName(), false).toBool();
