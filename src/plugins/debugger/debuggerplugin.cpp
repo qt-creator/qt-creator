@@ -1128,8 +1128,19 @@ void DebuggerPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
 {
     if (!isDebuggable(editor))
         return;
-    QString fileName = editor->file()->fileName();
-    QString position = fileName + QString(":%1").arg(lineNumber);
+
+    QString fileName, position;
+    if (editor->property("DisassemblerView").toBool()) {
+        QString fileName = editor->file()->fileName();
+        QString line = editor->contents()
+            .section('\n', lineNumber - 1, lineNumber - 1);
+        fileName = line.left(line.indexOf(QLatin1Char(' ')));
+        lineNumber = -1;
+        position = _("*") + fileName;
+    } else {
+        fileName = editor->file()->fileName();
+        position = fileName + QString(":%1").arg(lineNumber);
+    }
     BreakpointData *data = m_manager->findBreakpoint(fileName, lineNumber);
 
     if (data) {

@@ -140,6 +140,7 @@ public:
     void removeAt(int index); // This also deletes the marker.
     void clear(); // This also deletes all the marker.
     int indexOf(BreakpointData *data) { return m_bp.indexOf(data); }
+    // If lineNumber < 0, interpret fileName as address.
     int findBreakpoint(const QString &fileName, int lineNumber) const;
     int findBreakpoint(const BreakpointData &data) const; // Returns index.
     BreakpointData *findBreakpoint(int bpNumber) const;

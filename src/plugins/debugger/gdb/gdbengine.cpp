@@ -2150,6 +2150,9 @@ QByteArray GdbEngine::breakpointLocation(int index)
     const BreakpointData *data = manager()->breakHandler()->at(index);
     if (!data->funcName.isEmpty())
         return data->funcName.toLatin1();
+    // In this case, data->funcName is something like '*0xdeadbeef'
+    if (data->lineNumber.toInt() == 0)
+        return data->funcName.toLatin1();
     QString loc = data->useFullPath ? data->fileName : breakLocation(data->fileName);
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.

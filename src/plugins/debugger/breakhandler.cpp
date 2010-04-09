@@ -378,9 +378,16 @@ int BreakHandler::findBreakpoint(const BreakpointData &needle) const
 
 int BreakHandler::findBreakpoint(const QString &fileName, int lineNumber) const
 {
-    for (int index = 0; index != size(); ++index)
-        if (at(index)->isLocatedAt(fileName, lineNumber))
-            return index;
+    if (lineNumber <= 0) {
+        QByteArray address = fileName.toLatin1();
+        for (int index = 0; index != size(); ++index)
+            if (at(index)->bpAddress == address)
+                return index;
+    } else {
+        for (int index = 0; index != size(); ++index)
+            if (at(index)->isLocatedAt(fileName, lineNumber))
+                return index;
+    }
     return -1;
 }
 
@@ -710,11 +717,22 @@ void BreakHandler::setBreakpoint(const QString &fileName, int lineNumber)
     QFileInfo fi(fileName);
 
     BreakpointData *data = new BreakpointData(this);
-    data->fileName = fileName;
-    data->lineNumber = QByteArray::number(lineNumber);
-    data->pending = true;
-    data->setMarkerFileName(fileName);
-    data->setMarkerLineNumber(lineNumber);
+    if (lineNumber > 0) {
+        data->fileName = fileName;
+        data->lineNumber = QByteArray::number(lineNumber);
+        data->pending = true;
+        data->setMarkerFileName(fileName);
+        data->setMarkerLineNumber(lineNumber);
+    } else {
+        data->funcName = fileName;
+        data->lineNumber = 0;
+        data->pending = true;
+        // FIXME: Figure out in which disassembler view the Marker sits.
+        // Might be better to let the user code create the BreakpointData
+        // structure and insert it here.
+        data->setMarkerFileName(QString());
+        data->setMarkerLineNumber(0);
+    }
     append(data);
     emit layoutChanged();
     saveBreakpoints();
