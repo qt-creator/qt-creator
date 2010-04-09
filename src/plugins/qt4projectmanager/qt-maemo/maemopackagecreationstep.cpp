@@ -41,7 +41,9 @@
 
 #include "maemopackagecreationstep.h"
 
+#include "maemoconstants.h"
 #include "maemotoolchain.h"
+
 #include <qt4buildconfiguration.h>
 #include <qt4project.h>
 #include <qt4target.h>
@@ -115,11 +117,11 @@ bool MaemoPackageCreationStep::createPackage()
     const QString &path = QDir::toNativeSeparators(maddeRoot() + QLatin1Char('/'));
 
     const QLatin1String key("PATH");
+    QString colon = QLatin1String(":");
 #ifdef Q_OS_WIN
-    const QLatin1String colon(";");
-    env.insert(key, path % QLatin1String("bin")  % colon % env.value(key));
-#elif defined(Q_OS_UNIX)
-    const QLatin1String colon(":");
+    colon = QLatin1String(";");
+    env.insert(key, targetRoot() % "/bin" % colon % env.value(key));
+    env.insert(key, path % QLatin1String("bin") % colon % env.value(key));
 #endif
     env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
     env.insert(QLatin1String("PERL5LIB"), path % QLatin1String("madlib/perl5"));
@@ -135,7 +137,7 @@ bool MaemoPackageCreationStep::createPackage()
             env.insert(envPattern.cap(1), envPattern.cap(2));
     } while (!line.isEmpty());
     
-    qDebug("Process environment: %s", qPrintable(env.toStringList().join(colon)));
+    qDebug("Process environment: %s", qPrintable(env.toStringList().join("\n")));
     qDebug("sysroot: '%s'", qPrintable(env.value(QLatin1String("SYSROOT_DIR"))));
     
     QProcess buildProc;
@@ -144,7 +146,7 @@ bool MaemoPackageCreationStep::createPackage()
 
     if (!QFileInfo(projectDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
-                                % executableFileName() % QLatin1String("_0.1");
+            % executableFileName() % QLatin1String("_0.1");
         if (!runCommand(buildProc, command))
             return false;
         QFile rulesFile(projectDir + QLatin1String("/debian/rules"));
@@ -165,9 +167,10 @@ bool MaemoPackageCreationStep::createPackage()
 
     if (!runCommand(buildProc, QLatin1String("dh_installdirs")))
         return false;
+    
     const QString targetFile(projectDir % QLatin1String("/debian/")
-                             % executableFileName().toLower() % QLatin1String("/usr/bin/")
-                             % executableFileName());
+        % executableFileName().toLower() % QLatin1String("/usr/bin/")
+        % executableFileName());
     if (QFile::exists(targetFile)) {
         if (!QFile::remove(targetFile)) {
             qDebug("Error: Could not remove '%s'", qPrintable(targetFile));
@@ -192,24 +195,27 @@ bool MaemoPackageCreationStep::createPackage()
     return true;
 }
 
-bool MaemoPackageCreationStep::runCommand(QProcess &proc,
-                                          const QString &command)
+bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command)
 {
     qDebug("Running command '%s'", qPrintable(command));
-    proc.start(maddeRoot() % QLatin1String("/madbin/") % command);
+    QString perl;
+#ifdef Q_OS_WIN
+    perl = maddeRoot() + QLatin1String("/bin/perl.exe ");
+#endif
+    proc.start(perl + maddeRoot() % QLatin1String("/madbin/") % command);
     proc.write("\n"); // For dh_make
-    if (!proc.waitForFinished(10000) && proc.error() == QProcess::Timedout) {
+    if (!proc.waitForFinished(100000) && proc.error() == QProcess::Timedout) {
         qDebug("command '%s' hangs", qPrintable(command));
         return false;
     }
     if (proc.exitCode() != 0) {
         qDebug("command '%s' failed with return value %d and output '%s'",
-               qPrintable(command),  proc.exitCode(),
-               (proc.readAllStandardOutput() + "\n" + proc.readAllStandardError()).data());
+            qPrintable(command),  proc.exitCode(), (proc.readAllStandardOutput()
+            + "\n" + proc.readAllStandardError()).data());
         return false;
     }
-    qDebug("Command finished, output was '%s'",
-           (proc.readAllStandardOutput() + "\n" + proc.readAllStandardError()).data());
+    qDebug("Command finished, output was '%s'", (proc.readAllStandardOutput()
+        + "\n" + proc.readAllStandardError()).data());
     return true;
 }
 
