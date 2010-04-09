@@ -84,7 +84,7 @@ const char * const QTVERSION_SETTINGS_PAGE_NAME = QT_TRANSLATE_NOOP("Qt4ProjectM
 // Wizard categories
 const char * const QT_APP_WIZARD_CATEGORY = "C.QtApplicationProjects";
 const char * const QT_APP_WIZARD_TR_SCOPE = "Qt4ProjectManager";
-const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Application Project");
+const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt C++ Project");
 
 // Tasks
 const char * const PROFILE_EVALUATE = "Qt4ProjectManager.ProFileEvaluate";
