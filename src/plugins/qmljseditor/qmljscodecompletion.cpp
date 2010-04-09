@@ -364,7 +364,8 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     m_popupFrame->setLayout(layout);
 
     setTextFormat(Qt::RichText);
-    setMargin(1);
+    setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
+    setIndent(1);
 
     qApp->installEventFilter(this);
 }

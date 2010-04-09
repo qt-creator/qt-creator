@@ -83,7 +83,6 @@ public:
         setForegroundRole(QPalette::ToolTipText);
         setBackgroundRole(QPalette::ToolTipBase);
         setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
-
         setIndent(1);
     }
 
