@@ -92,7 +92,7 @@ public:
     bool executeContinueCommand(const QString &command);
 
     bool attemptBreakpointSynchronization(QString *errorMessage);
-    void notifyException(long code, bool fatal);
+    void notifyException(long code, bool fatal, const QString &message);
 
     enum EndInferiorAction { DetachInferior, TerminateInferior };
     bool endInferior(EndInferiorAction a, QString *errorMessage);

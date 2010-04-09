@@ -1238,7 +1238,7 @@ void CdbDebugEngine::warning(const QString &w)
     qWarning("%s\n", qPrintable(w));
 }
 
-void CdbDebugEnginePrivate::notifyException(long code, bool fatal)
+void CdbDebugEnginePrivate::notifyException(long code, bool fatal, const QString &message)
 {
     if (debugCDBExecution)
         qDebug() << "notifyException code" << code << " fatal=" << fatal;
@@ -1257,8 +1257,10 @@ void CdbDebugEnginePrivate::notifyException(long code, bool fatal)
         break;
     }
     // Cannot go over crash point to execute calls.
-    if (fatal)
+    if (fatal) {
         m_dumper->disable();
+        manager()->showStatusMessage(message, 15000);
+    }
 }
 
 static int threadIndexById(const ThreadsHandler *threadsHandler, int id)

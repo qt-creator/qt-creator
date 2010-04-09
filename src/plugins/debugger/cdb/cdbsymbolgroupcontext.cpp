@@ -345,12 +345,12 @@ CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
 // "0x4343 class list<>".
 static inline QString fixValue(const QString &value, const QString &type)
 {
-    // Pass through strings, chars
-    if (value.endsWith(QLatin1Char('"')) || value.endsWith(QLatin1Char('\'')))
+    // Pass through strings
+    if (value.endsWith(QLatin1Char('"')))
         return value;
     const int size = value.size();
-    // Integer numbers Unsigned hex numbers (0x)/decimal numbers (0n)
-    if (isIntType(type)) {
+    // Real Integer numbers Unsigned hex numbers (0x)/decimal numbers (0n)
+    if (type != QLatin1String("bool") && isIntType(type)) {
         const QVariant intValue = CdbCore::SymbolGroupContext::getIntValue(value);
         if (intValue.isValid())
             return intValue.toString();
@@ -378,10 +378,11 @@ unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
     }
     wd->setAddress(("0x") + QByteArray::number(address, 16));
     wd->setType(type, false);
-    wd->setValue(fixValue(value, type));
     if (rc & OutOfScope) {
         wd->setError(WatchData::msgNotInScope());
     } else {
+        wd->setValue(fixValue(value, type));
+
         const bool hasChildren = rc & HasChildren;
         wd->setHasChildren(hasChildren);
         if (hasChildren)
