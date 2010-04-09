@@ -7,6 +7,8 @@
 #
 #######################################################################
 
+from __future__ import with_statement
+
 def qdump__QAtomicInt(d, item):
     d.putValue(item.value["_q_value"])
     d.putNumChild(0)
