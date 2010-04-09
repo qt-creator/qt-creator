@@ -165,9 +165,9 @@ EditorView::~EditorView()
 void EditorView::closeView()
 {
     EditorManager *em = CoreImpl::instance()->editorManager();
-    if (IEditor *editor = currentEditor()) {
-            em->closeDuplicate(editor);
-    }
+    IEditor *editor = currentEditor();
+    if (editor)
+       em->closeEditor(editor);
 }
 void EditorView::showEditorInfoBar(const QString &id,
                                    const QString &infoText,
@@ -705,7 +705,9 @@ void SplitterOrView::split(Qt::Orientation orientation)
     SplitterOrView *otherView = 0;
     if (e) {
 
-        m_view->removeEditor(e);
+        foreach(IEditor *editor, m_view->editors())
+            m_view->removeEditor(editor);
+
         m_splitter->addWidget((view = new SplitterOrView(e)));
         if (e->duplicateSupported()) {
             Core::IEditor *duplicate = em->duplicateEditor(e);

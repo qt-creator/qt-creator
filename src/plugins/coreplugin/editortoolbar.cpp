@@ -177,7 +177,6 @@ void EditorToolBar::closeView()
     if (m_isStandalone) {
         EditorManager *em = ICore::instance()->editorManager();
         if (IEditor *editor = currentEditor()) {
-                //em->closeDuplicate(editor);
             em->closeEditor(editor);
         }
     }
