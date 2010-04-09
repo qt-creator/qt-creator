@@ -69,8 +69,6 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     m_comboBox = new QComboBox;
     m_comboBox->setModel(m_model);
     m_comboBox->setMinimumContentsLength(40);
-    connect(m_comboBox->view(), SIGNAL(pressed(QModelIndex)), this,
-        SLOT(setCurrentPage(QModelIndex)));
     connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(setCurrentPage(int)));
 }
 
