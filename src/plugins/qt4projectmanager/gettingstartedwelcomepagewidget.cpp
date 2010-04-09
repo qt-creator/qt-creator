@@ -72,7 +72,7 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     connect(ui->tutorialTreeWidget, SIGNAL(activated(QString)), SLOT(slotOpenHelpPage(const QString&)));
 
     ui->tutorialTreeWidget->addItem(tr("The Qt Creator User Interface"),
-                                        QString("qthelp://com.nokia.qtcreator.%1%2/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html"));
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt C++ Application"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-writing-program.html?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt Quick Application"),

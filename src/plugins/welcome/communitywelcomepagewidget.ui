@@ -132,7 +132,7 @@
       <item>
        <widget class="Utils::WelcomeModeTreeWidget" name="supportSitesTreeWidget">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>

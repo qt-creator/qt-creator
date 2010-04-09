@@ -107,13 +107,13 @@ QToolButton:pressed, QPushButton:pressed{
         <property name="minimumSize">
          <size>
           <width>662</width>
-          <height>490</height>
+          <height>500</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>662</width>
-          <height>490</height>
+          <height>500</height>
          </size>
         </property>
         <property name="styleSheet">

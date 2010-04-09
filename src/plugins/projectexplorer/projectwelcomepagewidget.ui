@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
-    <height>365</height>
+    <width>639</width>
+    <height>322</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,14 +46,14 @@
            <string/>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
+           <property name="rightMargin">
+            <number>9</number>
+           </property>
            <property name="horizontalSpacing">
             <number>0</number>
            </property>
            <property name="verticalSpacing">
             <number>3</number>
-           </property>
-           <property name="rightMargin">
-            <number>9</number>
            </property>
            <item row="3" column="0" colspan="3">
             <widget class="Utils::WelcomeModeTreeWidget" name="projTreeWidget">

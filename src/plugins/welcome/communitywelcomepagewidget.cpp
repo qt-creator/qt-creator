@@ -66,7 +66,6 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     supportSites << qMakePair(tr("<b>Qt Centre</b><br /><font color='gray'>Community based Qt support</font>"), QString(QLatin1String("http://www.qtcentre.org")));
 
     sites << qMakePair(tr("<b>Qt Home</b><br /><font color='gray'>Qt by Nokia on the web</font>"), QString(QLatin1String("http://qt.nokia.com")));
-    sites << qMakePair(tr("<b>Qt Labs</b><br /><font color='gray'>Home of the Qt developers</font>"), QString(QLatin1String("http://labs.qt.nokia.com")));
     sites << qMakePair(tr("<b>Qt Git Hosting</b><br /><font color='gray'>Participate in Qt development</font>"), QString(QLatin1String("http://qt.gitorious.org")));
     sites << qMakePair(tr("<b>Qt Apps</b><br /><font color='gray'>Find free Qt-based apps</font>"), QString(QLatin1String("http://www.qt-apps.org")));
 
