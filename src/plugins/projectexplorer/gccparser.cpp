@@ -131,7 +131,10 @@ void GccParser::stdError(const QString &line)
                   m_regExpLinker.cap(1) /* filename */,
                   lineno,
                   Constants::TASK_CATEGORY_COMPILE);
-        if (m_regExpInFunction.indexIn(description) > -1)
+        if (m_regExpInFunction.indexIn(description) > -1 ||
+            description.startsWith(QLatin1String("At global scope")) ||
+            description.startsWith(QLatin1String("instantiated from ")) ||
+            description.startsWith(QLatin1String("In instantiation of ")))
             task.type = Task::Unknown;
 
         emit addTask(task);
@@ -427,6 +430,56 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                  << Task(Task::Error,
                          QLatin1String("cannot find -ldoesnotexist"),
                          QString(), -1,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("In function")
+            << QString::fromLatin1("../../scriptbug/main.cpp: In function void foo(i) [with i = double]:\n"
+                                   "../../scriptbug/main.cpp:22: instantiated from here\n"
+                                   "../../scriptbug/main.cpp:8: warning: unused variable c")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Unknown,
+                         QLatin1String("In function void foo(i) [with i = double]:"),
+                         QLatin1String("../../scriptbug/main.cpp"), -1,
+                         Constants::TASK_CATEGORY_COMPILE)
+                 << Task(Task::Unknown,
+                         QLatin1String("instantiated from here"),
+                         QLatin1String("../../scriptbug/main.cpp"), 22,
+                         Constants::TASK_CATEGORY_COMPILE)
+                 << Task(Task::Warning,
+                         QLatin1String("unused variable c"),
+                         QLatin1String("../../scriptbug/main.cpp"), 8,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("At global scope")
+            << QString::fromLatin1("../../scriptbug/main.cpp: At global scope:\n"
+                                   "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
+                                   "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
+                                   "../../scriptbug/main.cpp:22: instantiated from here\n"
+                                   "../../scriptbug/main.cpp:5: warning: unused parameter v")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Unknown,
+                         QLatin1String("At global scope:"),
+                         QLatin1String("../../scriptbug/main.cpp"), -1,
+                         Constants::TASK_CATEGORY_COMPILE)
+                 << Task(Task::Unknown,
+                         QLatin1String("In instantiation of void bar(i) [with i = double]:"),
+                         QLatin1String("../../scriptbug/main.cpp"), -1,
+                         Constants::TASK_CATEGORY_COMPILE)
+                 << Task(Task::Unknown,
+                         QLatin1String("instantiated from void foo(i) [with i = double]"),
+                         QLatin1String("../../scriptbug/main.cpp"), 8,
+                         Constants::TASK_CATEGORY_COMPILE)
+                 << Task(Task::Unknown,
+                         QLatin1String("instantiated from here"),
+                         QLatin1String("../../scriptbug/main.cpp"), 22,
+                         Constants::TASK_CATEGORY_COMPILE)
+                 << Task(Task::Warning,
+                         QLatin1String("unused parameter v"),
+                         QLatin1String("../../scriptbug/main.cpp"), 5,
                          Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
