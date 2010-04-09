@@ -42,6 +42,7 @@
 #include <QtGui/QScrollBar>
 #include <QtGui/QLabel>
 #include <QtGui/QStylePainter>
+#include <QtGui/QToolTip>
 
 #include <limits.h>
 
@@ -79,9 +80,10 @@ public:
     {
         setFocusPolicy(Qt::NoFocus);
         setAttribute(Qt::WA_DeleteOnClose);
-        setAutoFillBackground(true);
+        setForegroundRole(QPalette::ToolTipText);
         setBackgroundRole(QPalette::ToolTipBase);
         setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
+
         setIndent(1);
     }
 
