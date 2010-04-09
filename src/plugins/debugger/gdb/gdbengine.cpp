@@ -1714,6 +1714,13 @@ void GdbEngine::exitDebugger() // called from the manager
     shutdown();
 }
 
+void GdbEngine::abortDebugger() // called from the manager
+{
+    disconnectDebuggingHelperActions();
+    shutdown();
+    m_gdbProc.kill();
+}
+
 int GdbEngine::currentFrame() const
 {
     return manager()->stackHandler()->currentIndex();

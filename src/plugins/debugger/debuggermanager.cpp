@@ -543,7 +543,7 @@ void DebuggerManager::init()
     connect(d->m_actions.stopAction, SIGNAL(triggered()),
         this, SLOT(interruptDebuggingRequest()));
     connect(d->m_actions.resetAction, SIGNAL(triggered()),
-        this, SLOT(exitDebugger()));
+        this, SLOT(abortDebugger()));
     connect(d->m_actions.nextAction, SIGNAL(triggered()),
         this, SLOT(executeStepNext()));
     connect(d->m_actions.stepAction, SIGNAL(triggered()),
@@ -1143,6 +1143,13 @@ void DebuggerManager::exitDebugger()
     // in turn will handle the cleanup.
     if (d->m_engine && state() != DebuggerNotReady)
         d->m_engine->exitDebugger();
+    d->m_codeModelSnapshot = CPlusPlus::Snapshot();
+}
+
+void DebuggerManager::abortDebugger()
+{
+    if (d->m_engine && state() != DebuggerNotReady)
+        d->m_engine->abortDebugger();
     d->m_codeModelSnapshot = CPlusPlus::Snapshot();
 }
 

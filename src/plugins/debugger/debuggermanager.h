@@ -201,6 +201,7 @@ public:
 public slots:
     void startNewDebugger(const DebuggerStartParametersPtr &sp);
     void exitDebugger();
+    void abortDebugger();
 
     void setSimpleDockWidgetArrangement(const QString &activeLanguage);
 
