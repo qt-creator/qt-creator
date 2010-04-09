@@ -157,7 +157,7 @@ public:
     QIcon pendingBreakPointIcon() const  { return m_pendingBreakPointIcon; }
 
 public slots:
-    void setBreakpoint(const QString &fileName, int lineNumber);
+    void appendBreakpoint(BreakpointData *data);
     void toggleBreakpointEnabled(BreakpointData *data);
     void toggleBreakpointEnabled(const QString &fileName, int lineNumber);
     void breakByFunction(const QString &functionName);

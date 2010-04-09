@@ -899,6 +899,31 @@ void DebuggerManager::toggleBreakpoint()
         toggleBreakpoint(fileName, lineNumber);
 }
 
+// FIXME: move further up the plugin where there's more specific context
+// information available.
+static BreakpointData *createBreakpointByFileAndLine
+    (const QString &fileName, int lineNumber, BreakHandler *handler)
+{
+    BreakpointData *data = new BreakpointData(handler);
+    if (lineNumber > 0) {
+        data->fileName = fileName;
+        data->lineNumber = QByteArray::number(lineNumber);
+        data->pending = true;
+        data->setMarkerFileName(fileName);
+        data->setMarkerLineNumber(lineNumber);
+    } else {
+        data->funcName = fileName;
+        data->lineNumber = 0;
+        data->pending = true;
+        // FIXME: Figure out in which disassembler view the Marker sits.
+        // Might be better to let the user code create the BreakpointData
+        // structure and insert it here.
+        data->setMarkerFileName(QString());
+        data->setMarkerLineNumber(0);
+    }
+    return data;
+}
+
 void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 {
     STATE_DEBUG(fileName << lineNumber);
@@ -913,7 +938,8 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
 
     int index = d->m_breakHandler->findBreakpoint(fileName, lineNumber);
     if (index == -1)
-        d->m_breakHandler->setBreakpoint(fileName, lineNumber);
+        d->m_breakHandler->appendBreakpoint(
+            createBreakpointByFileAndLine(fileName, lineNumber, d->m_breakHandler));
     else
         d->m_breakHandler->removeBreakpoint(index);
 
@@ -1337,14 +1363,6 @@ void DebuggerManager::addToWatchWindow()
     }
     if (!exp.isEmpty())
         d->m_watchHandler->watchExpression(exp);
-}
-
-void DebuggerManager::setBreakpoint(const QString &fileName, int lineNumber)
-{
-    STATE_DEBUG(Q_FUNC_INFO << fileName << lineNumber);
-    QTC_ASSERT(d->m_breakHandler, return);
-    d->m_breakHandler->setBreakpoint(fileName, lineNumber);
-    attemptBreakpointSynchronization();
 }
 
 void DebuggerManager::breakByFunctionMain()
