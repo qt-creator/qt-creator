@@ -101,7 +101,9 @@ private:
     void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
     void keyboardSearch(const QString &search);
     void closeList(const QModelIndex &index);
+private slots:
     void maybeShowInfoTip();
+private:
 
     bool m_blockFocusOut;
     bool m_quickFix;

@@ -43,6 +43,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QStylePainter>
 #include <QtGui/QToolTip>
+#include <QtCore/QTimer>
 
 #include <limits.h>
 
@@ -300,30 +301,24 @@ void CompletionListView::maybeShowInfoTip()
     QRect r = rectForIndex(current);
     m_infoFrame->move(
             (parentWidget()->mapToGlobal(
-                    parentWidget()->rect().topRight() + QPoint(2, 0))).x(),
+                    parentWidget()->rect().topRight() + QPoint(0, 0))).x(),
             mapToGlobal(r.topRight()).y() - verticalOffset()
             );
     m_infoFrame->setText(infoTip);
     m_infoFrame->adjustSize();
     m_infoFrame->show();
+    m_infoFrame->raise();
 }
 
 void CompletionListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     QListView::currentChanged(current, previous);
-    if (isVisible())
-        maybeShowInfoTip();
+    QTimer::singleShot(0, this, SLOT(maybeShowInfoTip()));
 }
 
 
 bool CompletionListView::event(QEvent *e)
 {
-    if (e->type() == QEvent::Show) {
-        bool b = QListView::event(e);
-        maybeShowInfoTip();
-        return b;
-    }
-
     if (m_blockFocusOut)
         return QListView::event(e);
 
