@@ -223,6 +223,7 @@ void BauhausPlugin::createDesignModeWidget()
     command->setDefaultKeySequence(QKeySequence::SelectAll);
     editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
 
+#ifdef Q_OS_MACX
     // add second shortcut to trigger delete
     QAction *deleteAction = new QAction(m_mainWidget);
     deleteAction->setShortcut(QKeySequence(QLatin1String("Backspace")));
@@ -230,6 +231,7 @@ void BauhausPlugin::createDesignModeWidget()
             SIGNAL(triggered()));
 
     m_mainWidget->addAction(deleteAction);
+#endif // Q_OS_MACX
 
     connect(m_editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateEditor(Core::IEditor*)));
