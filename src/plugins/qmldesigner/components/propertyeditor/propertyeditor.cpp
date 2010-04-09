@@ -677,7 +677,7 @@ void PropertyEditor::resetView()
 
     QString specificQmlData;
 
-    if (m_selectedNode.isValid() && !QFileInfo(qmlSpecificsFile.toLocalFile()).exists()) {
+    if (m_selectedNode.isValid() && !QFileInfo(qmlSpecificsFile.toLocalFile()).exists() && m_selectedNode.metaInfo().isValid()) {
         //do magic !!
         specificQmlData = templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo().nodeMetaInfo(specificsClassName));
     }
