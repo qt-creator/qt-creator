@@ -181,7 +181,7 @@ reasons and then passed to the section views */
                                 anchors.topMargin: 3
                                 anchors.bottom: parent.bottom
                                 anchors.left: parent.left
-                                anchors.right: scrollbar.left
+                                anchors.right: scrollbarFrame.left
                                 overShoot: false
 
                                 interactive: false
@@ -211,17 +211,25 @@ content position out of scope regarding the scrollbar. */
                                 }
                             }
 
-                            Scrollbar {
-                                id: scrollbar
+                            Item {
+                                id: scrollbarFrame
 
                                 anchors.top: parent.top
                                 anchors.topMargin: 2
                                 anchors.bottom: parent.bottom
-                                anchors.bottomMargin: 2
-                                anchors.left: parent.right
-                                anchors.leftMargin: -10
+                                anchors.bottomMargin: 1
                                 anchors.right: parent.right
+// The next line unfortunately introduces a cyclic property binding (strangely,
+// in SectionView)
+//                                width: (itemsFlickable.contentHeight > itemsFlickable.height)? 11:0
+                                width: 11
 
-                                flickable: itemsFlickable
+                                Scrollbar {
+                                    id: scrollbar
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 1
+
+                                    flickable: itemsFlickable
+                                }
                             }
                         }

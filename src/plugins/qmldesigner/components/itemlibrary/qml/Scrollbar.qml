@@ -50,11 +50,17 @@ Item {
 
     property int scrollHeight: height - handle.height
 
+    clip: true
+
     Rectangle {
-        anchors.fill: parent;
-        anchors.rightMargin: 1
-        anchors.bottomMargin: 1
-        color: "transparent"
+        anchors.top: parent.top
+        anchors.topMargin: 2
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 3
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: 6
+        radius: 3
+        color: style.scrollbarColor
         border.width: 1
         border.color: style.scrollbarBorderColor
     }
@@ -101,9 +107,7 @@ Item {
         id: handle
 
         anchors.left: parent.left
-        anchors.leftMargin: 1
         anchors.right: parent.right
-        //        anchors.rightMargin: 1
         height: Math.max(width, bar.height * Math.min(1, flickable.height / flickable.contentHeight))
 
         property bool updateFlickable: true
@@ -113,29 +117,25 @@ Item {
                 flickable.contentY = Math.max(0, flickable.contentHeight * y / bar.height)
             }
 			
-			    Rectangle {
-				    width: parent.height - 1
-                    height: parent.width - 1
-                    y: 1 - height
-					
-					rotation: 90
+                Rectangle {
+                    width: parent.height
+                    height: parent.width
+                    y: -height - 2
+                    x: -2
+
+                    rotation: 90
                     transformOrigin: Item.BottomLeft
 
-				    color: "black"
-			    
-
-                Rectangle {
-                    width: parent.width - 2
-                    height: parent.height - 2
-                    y: 1
-					x: 1                    
+                    border.color: style.scrollbarBorderColor
+                    border.width: 1
+                    radius: 3
 
                     gradient: Gradient {
-                        GradientStop { position: 0.0; color: style.scrollbarGradientStartColor }
-                        GradientStop { position: 1.0; color: style.scrollbarGradientEndColor }
+                        GradientStop { position: 0.15; color: style.scrollbarGradientStartColor }
+                        GradientStop { position: 0.78; color: style.scrollbarGradientMiddleColor }
+                        GradientStop { position: 0.80; color: style.scrollbarGradientEndColor }
                     }
                 }
-				}
 
                 MouseArea {
                     anchors.fill: parent

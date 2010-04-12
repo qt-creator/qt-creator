@@ -104,7 +104,7 @@ ItemLibraryTreeView::ItemLibraryTreeView(QWidget *parent) :
     connect(this, SIGNAL(clicked(const QModelIndex &)), this, SLOT(activateItem(const QModelIndex &)));
     setHeaderHidden(true);
     setIndentation(20);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setAttribute(Qt::WA_MacShowFocusRect, false);
 

@@ -35,9 +35,11 @@ Item {
     property string backgroundColor: "#4f4f4f"
     property string raisedBackgroundColor: "#e0e0e0"
 
-    property string scrollbarBorderColor: "#8F8F8F"
-    property string scrollbarGradientStartColor: "#7E7E7E"
-    property string scrollbarGradientEndColor: "#C6C6C6"
+    property string scrollbarColor: "#444444"
+    property string scrollbarBorderColor: "#333333"
+    property string scrollbarGradientStartColor: "#393939"
+    property string scrollbarGradientMiddleColor: "#656565"
+    property string scrollbarGradientEndColor: "#888888"
     property int scrollbarClickScrollAmount: 40
 
     property string itemNameTextColor: "#FFFFFF"
