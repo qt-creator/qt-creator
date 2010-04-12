@@ -71,15 +71,6 @@ RewriterView::Error::Error(const QDeclarativeError &qmlError):
 {
 }
 
-RewriterView::Error::Error(const QUrl &url, const QString &description, int line,
-                           int column, Type type):
-    m_type(type),
-    m_line(line),
-    m_column(column),
-    m_description(description),
-    m_url(url)
-{}
-
 QString RewriterView::Error::toString() const
 {
     QString str;
@@ -342,6 +333,9 @@ void RewriterView::rootNodeTypeChanged(const QString &type, int majorVersion, in
 
 void RewriterView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> & /* nodeList */, const QList<QVariant> & /*data */)
 {
+    if (identifier == StartRewriterAmend || identifier == EndRewriterAmend)
+        return; // we emitted this ourselves, so just ignore these notifications.
+
     if (identifier == ("__start rewriter transaction__")) {
         transactionLevel++;
         setModificationGroupActive(true);
@@ -396,6 +390,9 @@ void RewriterView::applyModificationGroupChanges()
 
 void RewriterView::applyChanges()
 {
+    if (modelToTextMerger()->hasNoPendingChanges())
+        return; // quick exit: nothing to be done.
+
     clearErrors();
 
     if (inErrorState()) {
