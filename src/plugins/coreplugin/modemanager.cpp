@@ -218,6 +218,18 @@ void ModeManager::enabledStateChanged()
     int index = d->m_modes.indexOf(mode);
     QTC_ASSERT(index >= 0, return);
     d->m_modeStack->setTabEnabled(index, mode->isEnabled());
+
+    // Make sure we leave any disabled mode to prevent possible crashes:
+    if (mode == currentMode() && !mode->isEnabled()) {
+        // This assumes that there is always at least one enabled mode.
+        for (int i = 0; i < d->m_modes.count(); ++i) {
+            if (d->m_modes.at(i) != mode &&
+                d->m_modes.at(i)->isEnabled()) {
+                activateMode(d->m_modes.at(i)->id());
+                break;
+            }
+        }
+    }
 }
 
 void ModeManager::aboutToRemoveObject(QObject *obj)
