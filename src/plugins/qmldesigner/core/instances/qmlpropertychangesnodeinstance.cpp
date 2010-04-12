@@ -119,7 +119,7 @@ void QmlPropertyChangesObject::setIsExplicit(bool isExplicit)
 
 QDeclarativeProperty QmlPropertyChangesObject::createMetaProperty(const QString &property)
 {
-    QDeclarativeProperty prop(m_targetObject.data(), property);
+    QDeclarativeProperty prop(m_targetObject.data(), property, QDeclarativeEngine::contextForObject(m_targetObject.data()));
     if (!prop.isValid()) {
         qWarning() << "Cannot assign to non-existent property" << property;
         return QDeclarativeProperty();
