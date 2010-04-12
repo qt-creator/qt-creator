@@ -65,6 +65,7 @@ class GdbMi;
 
 class BreakpointData;
 class WatchData;
+class DisassemblerAgentCookie;
 
 class AttachGdbAdapter;
 class CoreGdbAdapter;
@@ -79,6 +80,7 @@ enum DebuggingHelperState
     DebuggingHelperAvailable,
     DebuggingHelperUnavailable,
 };
+
 
 class GdbEngine : public IDebuggerEngine
 {
@@ -389,11 +391,11 @@ private: ////////// View & Data Stuff //////////
     // Disassembler specific stuff
     //
     virtual void fetchDisassembler(DisassemblerViewAgent *agent);
-    void fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
+    void fetchDisassemblerByAddress(const DisassemblerAgentCookie &ac,
         bool useMixedMode);
-    void fetchDisassemblerByCli(DisassemblerViewAgent *agent,
+    void fetchDisassemblerByCli(const DisassemblerAgentCookie &ac,
         bool useMixedMode);
-    void fetchDisassemblerByAddressCli(DisassemblerViewAgent *agent);
+    void fetchDisassemblerByAddressCli(const DisassemblerAgentCookie &ac);
     void handleFetchDisassemblerByCli(const GdbResponse &response);
     void handleFetchDisassemblerByLine(const GdbResponse &response);
     void handleFetchDisassemblerByAddress1(const GdbResponse &response);

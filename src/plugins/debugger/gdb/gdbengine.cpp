@@ -3764,16 +3764,18 @@ void GdbEngine::handleFetchMemory(const GdbResponse &response)
     ac.agent->addLazyData(ac.token, ac.address, ba);
 }
 
-
-struct DisassemblerAgentCookie
+class DisassemblerAgentCookie
 {
-    DisassemblerAgentCookie() : agent(0) {}
+public:
+    DisassemblerAgentCookie() : agent(0), attempts(0) {}
     DisassemblerAgentCookie(DisassemblerViewAgent *agent_)
-        : agent(agent_)
+        : agent(agent_), attempts(0)
     {}
-    QPointer<DisassemblerViewAgent> agent;
-};
 
+public:
+    QPointer<DisassemblerViewAgent> agent;
+    int attempts;
+};
 
 // FIXME: add agent->frame() accessor and use that
 void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
@@ -3794,52 +3796,58 @@ void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
 */
 }
 
-void GdbEngine::fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
+void GdbEngine::fetchDisassemblerByAddress(const DisassemblerAgentCookie &ac0,
     bool useMixedMode)
 {
-    QTC_ASSERT(agent, return);
+    DisassemblerAgentCookie ac = ac0;
+    QTC_ASSERT(ac.agent, return);
     bool ok = true;
-    quint64 address = agent->address().toULongLong(&ok, 0);
-    QTC_ASSERT(ok, qDebug() << "ADDRESS: " << agent->address() << address; return);
+    quint64 address = ac.agent->address().toULongLong(&ok, 0);
+    QTC_ASSERT(ok, qDebug() << "ADDRESS: " << ac.agent->address() << address; return);
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
     // -data-disassemble [ -s start-addr -e end-addr ]
     //  | [ -f filename -l linenum [ -n lines ] ] -- mode
+    ++ac.attempts;
     if (useMixedMode)
         postCommand("-data-disassemble -s 0x" + start + " -e 0x" + end + " -- 1",
             Discardable, CB(handleFetchDisassemblerByAddress1),
-            QVariant::fromValue(DisassemblerAgentCookie(agent)));
+            QVariant::fromValue(ac));
     else
         postCommand("-data-disassemble -s 0x" + start + " -e 0x" + end + " -- 0",
             Discardable, CB(handleFetchDisassemblerByAddress0),
-            QVariant::fromValue(DisassemblerAgentCookie(agent)));
+            QVariant::fromValue(ac));
 }
 
-void GdbEngine::fetchDisassemblerByCli(DisassemblerViewAgent *agent,
+void GdbEngine::fetchDisassemblerByCli(const DisassemblerAgentCookie &ac0,
     bool useMixedMode)
 {
-    QTC_ASSERT(agent, return);
+    DisassemblerAgentCookie ac = ac0;
+    QTC_ASSERT(ac.agent, return);
     bool ok = false;
-    quint64 address = agent->address().toULongLong(&ok, 0);
+    quint64 address = ac.agent->address().toULongLong(&ok, 0);
     QByteArray cmd = "disassemble ";
     if (useMixedMode && m_gdbVersion >= 60850)
         cmd += "/m ";
     cmd += " 0x";
     cmd += QByteArray::number(address, 16);
+    ++ac.attempts;
     postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCli),
-        QVariant::fromValue(DisassemblerAgentCookie(agent)));
+        QVariant::fromValue(ac));
 }
 
-void GdbEngine::fetchDisassemblerByAddressCli(DisassemblerViewAgent *agent)
+void GdbEngine::fetchDisassemblerByAddressCli(const DisassemblerAgentCookie &ac0)
 {
-    QTC_ASSERT(agent, return);
+    DisassemblerAgentCookie ac = ac0;
+    QTC_ASSERT(ac.agent, return);
     bool ok = false;
-    quint64 address = agent->address().toULongLong(&ok, 0);
+    quint64 address = ac.agent->address().toULongLong(&ok, 0);
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
     QByteArray cmd = "disassemble 0x" + start + ",0x" + end;
+    ++ac.attempts;
     postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCli),
-        QVariant::fromValue(DisassemblerAgentCookie(agent)));
+        QVariant::fromValue(ac));
 }
 
 static QByteArray parseLine(const GdbMi &line)
@@ -3910,10 +3918,10 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         GdbMi lines = response.data.findChild("asm_insns");
         if (lines.children().isEmpty())
-            fetchDisassemblerByAddress(ac.agent, true);
+            fetchDisassemblerByAddress(ac, true);
         else if (lines.children().size() == 1
                     && lines.childAt(0).findChild("line").data() == "0")
-            fetchDisassemblerByAddress(ac.agent, true);
+            fetchDisassemblerByAddress(ac, true);
         else {
             QString contents = parseDisassembler(lines);
             if (ac.agent->contentsCoversAddress(contents)) {
@@ -3925,7 +3933,7 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
                 // disassembled function' does not cover the code in the
                 // initializer list. Fall back needed:
                 //fetchDisassemblerByAddress(ac.agent, true);
-                fetchDisassemblerByCli(ac.agent, true);
+                fetchDisassemblerByCli(ac, true);
             }
         }
     } else {
@@ -3933,7 +3941,7 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
         QByteArray msg = response.data.findChild("msg").data();
         if (msg == "mi_cmd_disassemble: Invalid line number"
                 || msg.startsWith("Cannot access memory at address"))
-            fetchDisassemblerByAddress(ac.agent, true);
+            fetchDisassemblerByAddress(ac, true);
         else
             showStatusMessage(tr("Disassembler failed: %1")
                 .arg(QString::fromLocal8Bit(msg)), 5000);
@@ -3948,14 +3956,14 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         GdbMi lines = response.data.findChild("asm_insns");
         if (lines.children().isEmpty())
-            fetchDisassemblerByAddress(ac.agent, false);
+            fetchDisassemblerByAddress(ac, false);
         else {
             QString contents = parseDisassembler(lines);
             if (ac.agent->contentsCoversAddress(contents)) {
                 ac.agent->setContents(parseDisassembler(lines));
             } else {
                 debugMessage(_("FALL BACK TO NON-MIXED"));
-                fetchDisassemblerByAddress(ac.agent, false);
+                fetchDisassemblerByAddress(ac, false);
             }
         }
     } else {
@@ -4026,15 +4034,16 @@ void GdbEngine::handleFetchDisassemblerByCli(const GdbResponse &response)
             if (res.size() > 1)
                 ac.agent->setContents(res.join(_("\n")));
             else
-                fetchDisassemblerByAddressCli(ac.agent);
+                fetchDisassemblerByAddressCli(ac);
         }
     } else {
         QByteArray msg = response.data.findChild("msg").data();
         //76^error,msg="No function contains program counter for selected..."
         //76^error,msg="No function contains specified address."
         //>568^error,msg="Line number 0 out of range;
-        if (msg.startsWith("No function ") || msg.startsWith("Line number "))
-            fetchDisassemblerByAddressCli(ac.agent);
+        if (ac.attempts < 4 // Try once more.
+              && (msg.startsWith("No function ") || msg.startsWith("Line number ")))
+            fetchDisassemblerByAddressCli(ac);
         else
             showStatusMessage(tr("Disassembler failed: %1")
                 .arg(QString::fromLocal8Bit(msg)), 5000);
