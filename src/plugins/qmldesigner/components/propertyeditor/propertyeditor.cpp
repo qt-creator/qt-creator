@@ -419,6 +419,8 @@ void PropertyEditor::changeExpression(const QString &name)
     if (m_locked)
         return;
 
+    RewriterTransaction transaction = beginRewriterTransaction();
+
     QString underscoreName(name);
     underscoreName.replace(QLatin1Char('.'), QLatin1Char('_'));
 
