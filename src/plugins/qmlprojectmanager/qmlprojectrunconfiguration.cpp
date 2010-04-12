@@ -151,6 +151,11 @@ uint QmlProjectRunConfiguration::debugServerPort() const
     return m_debugServerPort;
 }
 
+static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
+{
+    return s1.toLower() < s2.toLower();
+}
+
 QWidget *QmlProjectRunConfiguration::configurationWidget()
 {
     QWidget *config = new QWidget;
@@ -165,7 +170,10 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
 
     int currentIndex = -1;
 
-    foreach (const QString &fn, qmlTarget()->qmlProject()->files()) {
+    QStringList sortedFiles = qmlTarget()->qmlProject()->files();
+    qStableSort(sortedFiles.begin(), sortedFiles.end(), caseInsensitiveLessThan);
+
+    foreach (const QString &fn, sortedFiles) {
         QFileInfo fileInfo(fn);
         if (fileInfo.suffix() != QLatin1String("qml"))
             continue;
