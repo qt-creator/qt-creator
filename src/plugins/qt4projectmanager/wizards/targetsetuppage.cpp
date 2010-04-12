@@ -203,6 +203,7 @@ bool TargetSetupPage::isTargetSelected(const QString &targetid) const
 bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
 {
     Q_ASSERT(project->targets().isEmpty());
+    QtVersionManager *vm = QtVersionManager::instance();
 
     for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
         QTreeWidgetItem *current = m_treeWidget->topLevelItem(i);
@@ -214,7 +215,13 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
             if (child->checkState(0) != Qt::Checked)
                 continue;
 
-            const ImportInfo &info = m_infos.at(child->data(0, Qt::UserRole).toInt());
+            ImportInfo &info = m_infos[child->data(0, Qt::UserRole).toInt()];
+
+            // Register temporary Qt version
+            if (info.isTemporary) {
+                vm->addVersion(info.version);
+                info.isTemporary = false;
+            }
 
             if ((info.buildConfig | QtVersion::DebugBuild) != info.buildConfig)
                 targetInfos.append(BuildConfigurationInfo(info.version, QtVersion::QmakeBuildConfigs(info.buildConfig | QtVersion::DebugBuild),
@@ -322,7 +329,7 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, int
         return results;
 
     // Check for in-source builds first:
-    QString qmakeBinary =  QtVersionManager::findQMakeBinaryFromMakefile(directory);
+    QString qmakeBinary = QtVersionManager::findQMakeBinaryFromMakefile(directory);
 
     // Recurse into subdirectories:
     if (qmakeBinary.isNull()) {
