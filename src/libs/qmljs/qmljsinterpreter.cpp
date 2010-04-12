@@ -783,7 +783,7 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         object->setClassName(QLatin1String("Font"));
         object->setProperty("family", engine()->stringValue());
         object->setProperty("weight", engine()->undefinedValue()); // ### make me an object
-        object->setProperty("copitalization", engine()->undefinedValue()); // ### make me an object
+        object->setProperty("capitalization", engine()->undefinedValue()); // ### make me an object
         object->setProperty("bold", engine()->booleanValue());
         object->setProperty("italic", engine()->booleanValue());
         object->setProperty("underline", engine()->booleanValue());
