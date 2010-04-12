@@ -55,6 +55,8 @@ public:
     QmlItemNode stateRootNode() { return m_stateRootNode; }
     bool isAttachedToModel() const { return m_attachedToModel; }
 
+    void nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName);
+
 protected:
     // AbstractView
     void modelAttached(Model *model);

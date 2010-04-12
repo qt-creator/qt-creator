@@ -251,15 +251,6 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
                 m_editorModel->renameState(index, property.value().toString());
         }
     }
-    foreach (const AbstractProperty &property, propertyList) {
-        ModelNode node (property.parentModelNode().parentProperty().parentModelNode());
-        if (QmlModelState(node).isValid()) {
-            startUpdateTimer(modelStateIndex(node) + 1, 0);
-        } else { //a change to the base state update all
-            for (int i = 0; i < m_modelStates.count(); ++i)
-                startUpdateTimer(i, 0);
-        }
-    }
 }
 
 void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
@@ -337,6 +328,18 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
             Q_ASSERT(newIndex == modelStateIndex(state));
         }
     }
+}
+
+void StatesEditorView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
+{
+    if (QmlModelState(node).isValid()) {
+        startUpdateTimer(modelStateIndex(node) + 1, 0);
+    } else { //a change to the base state update all
+        for (int i = 0; i < m_modelStates.count(); ++i)
+            startUpdateTimer(i, 0);
+    }
+
+    QmlModelView::nodeInstancePropertyChanged(node, propertyName);
 }
 
 void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
@@ -454,10 +457,14 @@ void StatesEditorView::sceneChanged()
 }
 
 void StatesEditorView::startUpdateTimer(int i, int offset) {
+    if (i < 0 || i >  m_modelStates.count())
+        return;
+
     if (i < m_updateTimerIdList.size() && m_updateTimerIdList.at(i) != 0)
         return;
     // TODO: Add an offset so not all states are rendered at once
-    Q_ASSERT(i >= 0 && i < m_modelStates.count());
+
+
     if (i < m_updateTimerIdList.size() && i > 0)
         if (m_updateTimerIdList.at(i))
             killTimer(m_updateTimerIdList.at(i));
