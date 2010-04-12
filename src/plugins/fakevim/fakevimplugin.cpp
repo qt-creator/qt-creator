@@ -218,8 +218,7 @@ void FakeVimOptionPage::copyTextEditorSettings()
     m_ui.checkBoxSmartTab->setChecked(ts.m_smartBackspace);
     m_ui.checkBoxAutoIndent->setChecked(true);
     m_ui.checkBoxSmartIndent->setChecked(ts.m_autoIndent);
-    // FIXME: Not present in core
-    //m_ui.checkBoxIncSearch->setChecked(ts.m_incSearch);
+    m_ui.checkBoxIncSearch->setChecked(true);
 }
 
 void FakeVimOptionPage::setQtStyle()
