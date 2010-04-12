@@ -225,6 +225,7 @@ public:
     QSet<QString> supportedTargetIds() const;
 
     // Static Methods
+    static bool makefileIsFor(const QString &directory, const QString &proFile);
     static QPair<QtVersion::QmakeBuildConfigs, QStringList> scanMakeFile(const QString &directory,
                                                                          QtVersion::QmakeBuildConfigs defaultBuildConfig);
     static QString findQMakeBinaryFromMakefile(const QString &directory);
@@ -239,7 +240,7 @@ private slots:
 private:
     // This function is really simplistic...
     static bool equals(QtVersion *a, QtVersion *b);
-    static QString findQMakeLine(const QString &directory);
+    static QString findQMakeLine(const QString &directory, const QString &key);
     static QString trimLine(const QString line);
     static QStringList splitLine(const QString &line);
     static void parseParts(const QStringList &parts,
