@@ -2987,13 +2987,13 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
-    int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
-    int bottom = top;
+    qreal top = blockBoundingGeometry(block).translated(contentOffset()).top();
+    qreal bottom = top;
 
     while (block.isValid() && top <= e->rect().bottom()) {
 
         top = bottom;
-        bottom = top + (int)blockBoundingRect(block).height();
+        bottom = top + blockBoundingRect(block).height();
         QTextBlock nextBlock = block.next();
 
         QTextBlock nextVisibleBlock = nextBlock;
