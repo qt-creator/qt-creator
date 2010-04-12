@@ -44,7 +44,7 @@ namespace Help {
 
 class HelpViewer;
 class OpenPagesModel;
-class OpenPagesSwicher;
+class OpenPagesSwitcher;
 class OpenPagesWidget;
 
 class OpenPagesManager : public QObject
@@ -89,7 +89,7 @@ private:
     QComboBox *m_comboBox;
     OpenPagesModel *m_model;
     OpenPagesWidget *m_openPagesWidget;
-    OpenPagesSwicher *m_openPagesSwicher;
+    OpenPagesSwitcher *m_openPagesSwitcher;
 
     static OpenPagesManager *m_instance;
 };

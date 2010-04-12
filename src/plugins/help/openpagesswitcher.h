@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef OPENPAGESSWICHER_H
-#define OPENPAGESSWICHER_H
+#ifndef OPENPAGESSWITCHER_H
+#define OPENPAGESSWITCHER_H
 
 #include <QtGui/QWidget>
 
@@ -40,13 +40,13 @@ namespace Help {
 class OpenPagesModel;
 class OpenPagesWidget;
 
-class OpenPagesSwicher : public QWidget
+class OpenPagesSwitcher : public QWidget
 {
     Q_OBJECT
 
 public:
-    OpenPagesSwicher(OpenPagesModel *model);
-    ~OpenPagesSwicher();
+    OpenPagesSwitcher(OpenPagesModel *model);
+    ~OpenPagesSwitcher();
 
     void gotoNextPage();
     void gotoPreviousPage();
@@ -73,4 +73,4 @@ private:
     }   // namespace Internal
 }   // namespace Help
 
-#endif  // OPENPAGESSWICHER_H
+#endif  // OPENPAGESSWITCHER_H

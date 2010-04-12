@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "openpagesswicher.h"
+#include "openpagesswitcher.h"
 
 #include "centralwidget.h"
 #include "openpagesmodel.h"
@@ -43,7 +43,7 @@ const int gMargin = 4;
 const int gWidth = 300;
 const int gHeight = 200;
 
-OpenPagesSwicher::OpenPagesSwicher(OpenPagesModel *model)
+OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
     : QWidget(0, Qt::Popup)
     , m_openPagesModel(model)
 {
@@ -63,45 +63,45 @@ OpenPagesSwicher::OpenPagesSwicher(OpenPagesModel *model)
         SIGNAL(setCurrentPage(QModelIndex)));
 }
 
-OpenPagesSwicher::~OpenPagesSwicher()
+OpenPagesSwitcher::~OpenPagesSwitcher()
 {
 }
 
-void OpenPagesSwicher::gotoNextPage()
+void OpenPagesSwitcher::gotoNextPage()
 {
     selectPageUpDown(-1);
 }
 
-void OpenPagesSwicher::gotoPreviousPage()
+void OpenPagesSwitcher::gotoPreviousPage()
 {
     selectPageUpDown(1);
 }
 
-void OpenPagesSwicher::selectAndHide()
+void OpenPagesSwitcher::selectAndHide()
 {
     setVisible(false);
     emit setCurrentPage(m_openPagesWidget->currentIndex());
 }
 
-void OpenPagesSwicher::selectCurrentPage()
+void OpenPagesSwitcher::selectCurrentPage()
 {
     m_openPagesWidget->selectCurrentPage();
 }
 
-void OpenPagesSwicher::setVisible(bool visible)
+void OpenPagesSwitcher::setVisible(bool visible)
 {
     QWidget::setVisible(visible);
     if (visible)
         setFocus();
 }
 
-void OpenPagesSwicher::focusInEvent(QFocusEvent *event)
+void OpenPagesSwitcher::focusInEvent(QFocusEvent *event)
 {
     Q_UNUSED(event)
     m_openPagesWidget->setFocus();
 }
 
-bool OpenPagesSwicher::eventFilter(QObject *object, QEvent *event)
+bool OpenPagesSwitcher::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_openPagesWidget) {
         if (event->type() == QEvent::KeyPress) {
@@ -129,7 +129,7 @@ bool OpenPagesSwicher::eventFilter(QObject *object, QEvent *event)
     return QWidget::eventFilter(object, event);
 }
 
-void OpenPagesSwicher::selectPageUpDown(int summand)
+void OpenPagesSwitcher::selectPageUpDown(int summand)
 {
     const int pageCount = m_openPagesModel->rowCount();
     if (pageCount < 2)

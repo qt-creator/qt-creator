@@ -34,7 +34,7 @@
 #include "helpmanager.h"
 #include "helpviewer.h"
 #include "openpagesmodel.h"
-#include "openpagesswicher.h"
+#include "openpagesswitcher.h"
 #include "openpageswidget.h"
 
 #include <QtGui/QApplication>
@@ -54,7 +54,7 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     , m_comboBox(0)
     , m_model(0)
     , m_openPagesWidget(0)
-    , m_openPagesSwicher(0)
+    , m_openPagesSwitcher(0)
 {
     Q_ASSERT(!m_instance);
 
@@ -74,17 +74,17 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     m_comboBox->setMinimumContentsLength(40);
     connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(setCurrentPage(int)));
 
-    m_openPagesSwicher = new OpenPagesSwicher(m_model);
-    connect(m_openPagesSwicher, SIGNAL(closePage(QModelIndex)), this,
+    m_openPagesSwitcher = new OpenPagesSwitcher(m_model);
+    connect(m_openPagesSwitcher, SIGNAL(closePage(QModelIndex)), this,
         SLOT(closePage(QModelIndex)));
-    connect(m_openPagesSwicher, SIGNAL(setCurrentPage(QModelIndex)), this,
+    connect(m_openPagesSwitcher, SIGNAL(setCurrentPage(QModelIndex)), this,
         SLOT(setCurrentPage(QModelIndex)));
 }
 
 OpenPagesManager ::~OpenPagesManager()
 {
     m_instance = 0;
-    delete m_openPagesSwicher;
+    delete m_openPagesSwitcher;
 }
 
 OpenPagesManager &OpenPagesManager::instance()
@@ -168,7 +168,7 @@ void OpenPagesManager::setupInitialPages()
 
     emit pagesChanged();
     setCurrentPage(initialPage);
-    m_openPagesSwicher->selectCurrentPage();
+    m_openPagesSwitcher->selectCurrentPage();
 }
 
 // -- public slots
@@ -246,23 +246,23 @@ void OpenPagesManager::closePagesExcept(const QModelIndex &index)
 
 void OpenPagesManager::gotoNextPage()
 {
-    if (!m_openPagesSwicher->isVisible()) {
-        m_openPagesSwicher->selectCurrentPage();
-        m_openPagesSwicher->gotoNextPage();
+    if (!m_openPagesSwitcher->isVisible()) {
+        m_openPagesSwitcher->selectCurrentPage();
+        m_openPagesSwitcher->gotoNextPage();
         showTwicherOrSelectPage();
     } else {
-        m_openPagesSwicher->gotoNextPage();
+        m_openPagesSwitcher->gotoNextPage();
     }
 }
 
 void OpenPagesManager::gotoPreviousPage()
 {
-    if (!m_openPagesSwicher->isVisible()) {
-        m_openPagesSwicher->selectCurrentPage();
-        m_openPagesSwicher->gotoPreviousPage();
+    if (!m_openPagesSwitcher->isVisible()) {
+        m_openPagesSwitcher->selectCurrentPage();
+        m_openPagesSwitcher->gotoPreviousPage();
         showTwicherOrSelectPage();
     } else {
-        m_openPagesSwicher->gotoPreviousPage();
+        m_openPagesSwitcher->gotoPreviousPage();
     }
 }
 
@@ -285,10 +285,10 @@ void OpenPagesManager::showTwicherOrSelectPage() const
         const int width = CentralWidget::instance()->width();
         const int height = CentralWidget::instance()->height();
         const QPoint p(CentralWidget::instance()->mapToGlobal(QPoint(0, 0)));
-        m_openPagesSwicher->move((width - m_openPagesSwicher->width()) / 2 + p.x(),
-            (height - m_openPagesSwicher->height()) / 2 + p.y());
-        m_openPagesSwicher->setVisible(true);
+        m_openPagesSwitcher->move((width - m_openPagesSwitcher->width()) / 2 + p.x(),
+            (height - m_openPagesSwitcher->height()) / 2 + p.y());
+        m_openPagesSwitcher->setVisible(true);
     } else {
-        m_openPagesSwicher->selectAndHide();
+        m_openPagesSwitcher->selectAndHide();
     }
 }
