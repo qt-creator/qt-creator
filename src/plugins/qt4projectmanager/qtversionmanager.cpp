@@ -779,6 +779,24 @@ void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
     }
 }
 
+bool QtVersionManager::makefileIsFor(const QString &directory, const QString &proFile)
+{
+    if (proFile.isEmpty())
+        return true;
+
+    QString line = findQMakeLine(directory, QLatin1String("# Project:")).trimmed();
+    if (line.isEmpty())
+        return false;
+
+
+    line = line.mid(line.indexOf(QChar(':')) + 1);
+    line = line.trimmed();
+
+    QFileInfo srcFileInfo(QDir(directory), line);
+    QFileInfo proFileInfo(proFile);
+    return srcFileInfo == proFileInfo;
+}
+
 QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(const QString &directory, QtVersion::QmakeBuildConfigs defaultBuildConfig)
 {
     if (debug)
@@ -786,7 +804,7 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
     QtVersion::QmakeBuildConfigs result = defaultBuildConfig;
     QStringList result2;
 
-    QString line = findQMakeLine(directory);
+    QString line = findQMakeLine(directory, QLatin1String("# Command:"));
     if (!line.isEmpty()) {
         if (debug)
             qDebug()<<"Found line"<<line;
@@ -836,14 +854,14 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
     return qMakePair(result, result2);
 }
 
-QString QtVersionManager::findQMakeLine(const QString &directory)
+QString QtVersionManager::findQMakeLine(const QString &directory, const QString &key)
 {
     QFile makefile(directory + QLatin1String("/Makefile" ));
     if (makefile.exists() && makefile.open(QFile::ReadOnly)) {
         QTextStream ts(&makefile);
         while (!ts.atEnd()) {
             const QString line = ts.readLine();
-            if (line.startsWith(QLatin1String("# Command:")))
+            if (line.startsWith(key))
                 return line;
         }
     }
