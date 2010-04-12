@@ -142,8 +142,8 @@ void MercurialSettings::readSettings(const QSettings *settings)
 
 bool MercurialSettings::equals(const MercurialSettings &rhs) const
 {
- return m_binary == rhs.m_binary && m_standardArguments == rhs.m_standardArguments
-         && m_user == rhs.m_user && m_mail == rhs.m_mail
-         && m_logCount == rhs.m_logCount && m_timeoutSeconds == rhs.m_timeoutSeconds
-         && m_prompt == rhs.m_prompt;
+    return m_binary == rhs.m_binary && m_standardArguments == rhs.m_standardArguments
+            && m_user == rhs.m_user && m_mail == rhs.m_mail
+            && m_logCount == rhs.m_logCount && m_timeoutSeconds == rhs.m_timeoutSeconds
+            && m_prompt == rhs.m_prompt;
 }

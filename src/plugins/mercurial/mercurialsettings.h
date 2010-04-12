@@ -73,7 +73,6 @@ public:
     bool equals(const MercurialSettings &rhs) const;
 
 private:
-
     void readSettings();
 
     QString m_binary;
@@ -90,7 +89,7 @@ inline bool operator==(const MercurialSettings &s1, const MercurialSettings &s2)
 inline bool operator!=(const MercurialSettings &s1, const MercurialSettings &s2)
 { return !s1.equals(s2); }
 
-} //namespace Internal
-} //namespace Mercurial
+} // namespace Internal
+} // namespace Mercurial
 
 #endif // MERCURIALSETTINGS_H

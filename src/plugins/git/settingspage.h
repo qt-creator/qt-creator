@@ -33,7 +33,7 @@
 #include <QtGui/QWidget>
 #include <QtCore/QPointer>
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <vcsbase/vcsbaseoptionspage.h>
 
 #include "ui_settingspage.h"
 
@@ -63,7 +63,7 @@ private:
     Ui::SettingsPage m_ui;
 };
 
-class SettingsPage : public Core::IOptionsPage
+class SettingsPage : public VCSBase::VCSBaseOptionsPage
 {
     Q_OBJECT
 
@@ -72,9 +72,6 @@ public:
 
     QString id() const;
     QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

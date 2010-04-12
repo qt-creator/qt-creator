@@ -94,7 +94,7 @@ QString CommonSettingsWidget::searchKeyWordMatchString() const
 
 // --------------- VCSBaseSettingsPage
 CommonOptionsPage::CommonOptionsPage(QObject *parent) :
-    Core::IOptionsPage(parent)
+    VCSBaseOptionsPage(parent)
 {
     m_settings.fromSettings(Core::ICore::instance()->settings());
 }
@@ -115,21 +115,6 @@ QString CommonOptionsPage::id() const
 QString CommonOptionsPage::displayName() const
 {
     return QCoreApplication::translate("VCSBase", Constants::VCS_COMMON_SETTINGS_NAME);
-}
-
-QString CommonOptionsPage::category() const
-{
-    return QLatin1String(Constants::VCS_SETTINGS_CATEGORY);
-}
-
-QString CommonOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("VCSBase", Constants::VCS_SETTINGS_TR_CATEGORY);
-}
-
-QIcon CommonOptionsPage::categoryIcon() const
-{
-    return QIcon(); // TODO: Icon for Version Control
 }
 
 QWidget *CommonOptionsPage::createPage(QWidget *parent)

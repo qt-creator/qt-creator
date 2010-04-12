@@ -32,7 +32,7 @@
 
 #include "ui_optionspage.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <vcsbase/vcsbaseoptionspage.h>
 
 #include <QtGui/QWidget>
 #include <QtCore/QPointer>
@@ -45,6 +45,7 @@ class MercurialSettings;
 class OptionsPageWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit OptionsPageWidget(QWidget *parent = 0);
 
@@ -57,7 +58,7 @@ private:
 };
 
 
-class OptionsPage : public Core::IOptionsPage
+class OptionsPage : public VCSBase::VCSBaseOptionsPage
 {
     Q_OBJECT
 
@@ -65,9 +66,6 @@ public:
     OptionsPage();
     QString id() const;
     QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

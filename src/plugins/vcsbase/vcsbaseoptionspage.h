@@ -27,64 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#ifndef VCSBASEOPTIONSPAGE_H
+#define VCSBASEOPTIONSPAGE_H
 
-#include "ui_settingspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <vcsbase/vcsbaseoptionspage.h>
+#include "vcsbase_global.h"
 
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
-#include <QtCore/QString>
+namespace VCSBase {
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
-namespace CVS {
-namespace Internal {
-
-struct CVSSettings;
-
-class SettingsPageWidget : public QWidget
+/**
+ * An abstract options page in the Version Control category.
+ */
+class VCSBASE_EXPORT VCSBaseOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit SettingsPageWidget(QWidget *parent = 0);
+    explicit VCSBaseOptionsPage(QObject *parent = 0);
 
-    CVSSettings settings() const;
-    void setSettings(const CVSSettings &);
-
-    QString searchKeywords() const;
-
-private:
-    Ui::SettingsPage m_ui;
+    QString category() const;
+    QString displayCategory() const;
+    QIcon categoryIcon() const;
 };
 
+} // namespace VCSBase
 
-class SettingsPage : public VCSBase::VCSBaseOptionsPage
-{
-    Q_OBJECT
-
-public:
-    SettingsPage();
-
-    QString id() const;
-    QString displayName() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-    virtual bool matches(const QString &) const;
-
-private:
-    QString m_searchKeywords;
-    SettingsPageWidget* m_widget;
-};
-
-} // namespace CVS
-} // namespace Internal
-
-#endif // SETTINGSPAGE_H
+#endif // VCSBASEOPTIONSPAGE_H

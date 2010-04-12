@@ -32,7 +32,8 @@
 
 #include "commonvcssettings.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "vcsbaseoptionspage.h"
+
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
@@ -48,6 +49,7 @@ namespace Internal {
 class CommonSettingsWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit CommonSettingsWidget(QWidget *parent = 0);
     virtual ~CommonSettingsWidget();
@@ -61,18 +63,16 @@ private:
     Ui::CommonSettingsPage *m_ui;
 };
 
-class CommonOptionsPage : public Core::IOptionsPage
+class CommonOptionsPage : public VCSBaseOptionsPage
 {
     Q_OBJECT
+
 public:
     explicit CommonOptionsPage(QObject *parent = 0);
     virtual ~CommonOptionsPage();
 
     virtual QString id() const;
     virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
 
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();

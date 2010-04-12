@@ -33,7 +33,7 @@
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <vcsbase/vcsbaseoptionspage.h>
 
 #include "ui_settingspage.h"
 
@@ -44,8 +44,10 @@ class PerforceSettings;
 class PerforceChecker;
 struct Settings;
 
-class SettingsPageWidget : public QWidget {
+class SettingsPageWidget : public QWidget
+{
     Q_OBJECT
+
 public:
     explicit SettingsPageWidget(QWidget *parent);
 
@@ -66,7 +68,7 @@ private:
     QPointer<PerforceChecker> m_checker;
 };
 
-class SettingsPage : public Core::IOptionsPage
+class SettingsPage : public VCSBase::VCSBaseOptionsPage
 {
     Q_OBJECT
 
@@ -75,9 +77,6 @@ public:
 
     QString id() const;
     QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

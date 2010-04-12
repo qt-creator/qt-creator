@@ -106,21 +106,6 @@ QString SettingsPage::displayName() const
     return tr("Subversion");
 }
 
-QString SettingsPage::category() const
-{
-    return QLatin1String(VCSBase::Constants::VCS_SETTINGS_CATEGORY);
-}
-
-QString SettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_TR_CATEGORY);
-}
-
-QIcon SettingsPage::categoryIcon() const
-{
-    return QIcon(); // TODO: Icon for Version Control
-}
-
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);

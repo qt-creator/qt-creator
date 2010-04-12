@@ -27,64 +27,32 @@
 **
 **************************************************************************/
 
-#ifndef SETTINGSPAGE_H
-#define SETTINGSPAGE_H
+#include "vcsbaseoptionspage.h"
 
-#include "ui_settingspage.h"
+#include "vcsbaseconstants.h"
 
-#include <vcsbase/vcsbaseoptionspage.h>
+#include <QCoreApplication>
 
-#include <QtGui/QWidget>
-#include <QtCore/QPointer>
-#include <QtCore/QString>
+namespace VCSBase {
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
-namespace CVS {
-namespace Internal {
-
-struct CVSSettings;
-
-class SettingsPageWidget : public QWidget
+VCSBaseOptionsPage::VCSBaseOptionsPage(QObject *parent) :
+    Core::IOptionsPage(parent)
 {
-    Q_OBJECT
+}
 
-public:
-    explicit SettingsPageWidget(QWidget *parent = 0);
-
-    CVSSettings settings() const;
-    void setSettings(const CVSSettings &);
-
-    QString searchKeywords() const;
-
-private:
-    Ui::SettingsPage m_ui;
-};
-
-
-class SettingsPage : public VCSBase::VCSBaseOptionsPage
+QString VCSBaseOptionsPage::category() const
 {
-    Q_OBJECT
+    return QLatin1String(Constants::VCS_SETTINGS_CATEGORY);
+}
 
-public:
-    SettingsPage();
+QString VCSBaseOptionsPage::displayCategory() const
+{
+    return QCoreApplication::translate("VCSBase", Constants::VCS_SETTINGS_TR_CATEGORY);
+}
 
-    QString id() const;
-    QString displayName() const;
+QIcon VCSBaseOptionsPage::categoryIcon() const
+{
+    return QIcon(); // TODO: Icon for Version Control
+}
 
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-    virtual bool matches(const QString &) const;
-
-private:
-    QString m_searchKeywords;
-    SettingsPageWidget* m_widget;
-};
-
-} // namespace CVS
-} // namespace Internal
-
-#endif // SETTINGSPAGE_H
+} // namespace VCSBase

@@ -97,21 +97,6 @@ QString OptionsPage::displayName() const
     return tr("Mercurial");
 }
 
-QString OptionsPage::category() const
-{
-    return QLatin1String(VCSBase::Constants::VCS_SETTINGS_CATEGORY);
-}
-
-QString OptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_TR_CATEGORY);
-}
-
-QIcon OptionsPage::categoryIcon() const
-{
-    return QIcon(); // TODO: Icon for Version Control
-}
-
 QWidget *OptionsPage::createPage(QWidget *parent)
 {
     if (!optionsPageWidget)
