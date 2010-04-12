@@ -196,7 +196,14 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
     QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
     bool enabled = si.isEmpty() || itemModel->data(idx0, Qt::UserRole).toBool();
-    const QString str5 = enabled ? tr("Disable Breakpoint") : tr("Enable Breakpoint");
+
+    const QString str5 = si.size() > 1
+        ? enabled
+            ? tr("Disable Selected Breakpoints")
+            : tr("Enable Selected Breakpoints")
+        : enabled
+            ? tr("Disable Breakpoint")
+            : tr("Enable Breakpoint");
     QAction *toggleEnabledAction = new QAction(str5, &menu);
     toggleEnabledAction->setEnabled(si.size() > 0);
 
