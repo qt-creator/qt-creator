@@ -1314,8 +1314,8 @@ IEditor *EditorManager::openEditorWithContents(const QString &editorId,
         } else {
             title = *titlePattern;
         }
+        *titlePattern = title;
     }
-    *titlePattern = title;
     edt->setDisplayName(title);
     addEditor(edt);
     QApplication::restoreOverrideCursor();
