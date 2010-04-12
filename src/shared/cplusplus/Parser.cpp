@@ -1588,6 +1588,9 @@ bool Parser::lookAtTypeParameter() const
             default:
                 return false;
             }
+        } else if (LA(2) == T_COLON_COLON) {
+            // found something like template <typename ::foo::bar>...
+            return false;
         }
 
         // recognized an anonymous template type parameter. e.g
