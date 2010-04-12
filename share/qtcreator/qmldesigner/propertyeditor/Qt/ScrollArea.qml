@@ -7,7 +7,6 @@ QScrollArea {
  property var finished;
 
    onFinishedChanged: {
-      setupProperWheelBehaviour();
    }
 
 
