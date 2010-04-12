@@ -73,6 +73,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
+    bool matches(const QString &s) const;
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);
@@ -97,6 +98,8 @@ private:
 
     QList<ShortcutItem *> m_scitems;
     int m_key[4], m_keyNum;
+
+    QString m_searchKeywords;
 };
 
 } // namespace Internal

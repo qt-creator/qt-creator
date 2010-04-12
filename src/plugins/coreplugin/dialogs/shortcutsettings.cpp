@@ -39,7 +39,6 @@
 
 #include <utils/treewidgetcolumnstretcher.h>
 
-
 #include <QtGui/QKeyEvent>
 #include <QtGui/QShortcut>
 #include <QtGui/QHeaderView>
@@ -98,10 +97,21 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
     m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
 
     QWidget *w = CommandMappings::createPage(parent);
-    setPageTitle(tr("Keyboard Shortcuts"));
-    setTargetLabelText(tr("Shortcut:"));
-    setTargetEditTitle(tr("Keyboard Shortcuts"));
-    setTargetHeader(tr("Shortcut"));
+
+    const QString pageTitle = tr("Keyboard Shortcuts");
+    const QString targetLabelText = tr("Key sequence:");
+    const QString editTitle = tr("Shortcut");
+
+    setPageTitle(pageTitle);
+    setTargetLabelText(targetLabelText);
+    setTargetEditTitle(editTitle);
+    setTargetHeader(editTitle);
+
+    if (m_searchKeywords.isEmpty()) {
+        QTextStream(&m_searchKeywords) << ' ' << pageTitle
+                << ' ' << targetLabelText
+                << ' ' << editTitle;
+    }
 
     return w;
 }
@@ -118,6 +128,11 @@ void ShortcutSettings::finish()
     m_scitems.clear();
 
     CommandMappings::finish();
+}
+
+bool ShortcutSettings::matches(const QString &s) const
+{
+    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)
@@ -369,7 +384,7 @@ void ShortcutSettings::markPossibleCollisions(ShortcutItem *item)
             continue;
         }
 
-        foreach(int context, currentItem->m_cmd->context()) {
+        foreach (int context, currentItem->m_cmd->context()) {
 
             // conflict if context is identical, OR if one
             // of the contexts is the global context
