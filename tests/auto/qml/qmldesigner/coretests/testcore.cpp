@@ -921,8 +921,6 @@ void TestCore::testModelResolveIds()
 
 void TestCore::testModelNodeListProperty()
 {
-    QSKIP("Skip this for the time being", SkipAll);
-
     //
     // Test NodeListProperty API
     //
@@ -1211,26 +1209,6 @@ void TestCore::testQmlModelView()
     node2.setVariantProperty("width", 100);
     QCOMPARE(node3.instanceValue("width").toInt(), 50);
 
-}
-
-void TestCore::testModelCreateInvalidSubNode()
-{
-    QSKIP("type checking not in the model", SkipAll);
-    ModelNode node;
-    QVERIFY(!node.isValid());
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
-    QVERIFY(model.data());
-
-    QScopedPointer<TestView> view(new TestView);
-    QVERIFY(view.data());
-    model->attachView(view.data());
-
-    try {
-        ModelNode invalidChildNode = addNodeListChild(view->rootModelNode(), "InvalidNode", 0, 0, "data");
-        QFAIL("Adding an invalid typed node should result in an exception");
-    } catch (Exception& exception) {
-        QCOMPARE(exception.type(), QString("InvalidModelNodeException"));
-    }
 }
 
 void TestCore::testModelRemoveNode()
@@ -1633,18 +1611,8 @@ void TestCore::testModelAddAndRemoveProperty()
     QVERIFY(node.hasProperty("blah"));
     QCOMPARE(node.variantProperty("blah").value().toInt(), -1);
 
-    {
-        NodeInstance nodeInstance = nodeInstanceView->instanceForNode(node);
-//        QCOMPARE(nodeInstance.property("blah").toInt(), -1);
-    }
-
     node.variantProperty("customValue").setValue(42);
     QCOMPARE(node.variantProperty("customValue").value().toInt(), 42);
-
-    {
-        NodeInstance nodeInstance = nodeInstanceView->instanceForNode(node);
-//        QCOMPARE(!nodeInstance.property("customValue").toInt(), 42);
-    }
 
     node.variantProperty("x").setValue(42);
     QCOMPARE(node.variantProperty("x").value().toInt(), 42);
@@ -1832,8 +1800,6 @@ void TestCore::testRewriterNodeReparentingTransaction1()
      char qmlString[] = "import Qt 4.6\n"
                        "Rectangle {\n"
                        "}\n";
-
-//    QSKIP("another asserting test", SkipAll);
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
@@ -2121,8 +2087,6 @@ void TestCore::testRewriterComponentId()
 
 void TestCore::testRewriterTransactionRewriter()
 {
-    QSKIP("Fix me!!! See task QTCREATORBUG-964", SkipAll);
-
     char qmlString[] = "import Qt 4.6\n"
                        "Rectangle {\n"
                        "}\n";
@@ -2175,8 +2139,7 @@ void TestCore::testRewriterTransactionRewriter()
 
 void TestCore::testRewriterPropertyDeclarations()
 {
-//    QSKIP("Work in progress. See task https://qtrequirements.europe.nokia.com/browse/BAUHAUS-170",
-//          SkipAll);
+    // Work in progress. See task https://qtrequirements.europe.nokia.com/browse/BAUHAUS-170"
 
     //
     // test properties defined in qml
@@ -3300,34 +3263,6 @@ void TestCore::testMetaInfoListProperties()
     QVERIFY(!view->rootModelNode().metaInfo().property("parent").isListProperty());
 }
 
-void TestCore::subItemMetaInfo()
-{
-    QSKIP("no rewriter anymore", SkipAll);
-//    QFile file(QCoreApplication::applicationDirPath() + "/../tests/data/fx/topitem.qml");
-//    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-//
-//    QList<QDeclarativeError> errors;
-//    QScopedPointer<ByteArrayModifier> modifier1(ByteArrayModifier::create(QString(file.readAll())));
-//    QScopedPointer<Model> model(Model::create(modifier1.data(), QUrl::fromLocalFile(file.fileName()), &errors));
-//    QVERIFY(errors.isEmpty());
-//    QVERIFY(model.data());
-//
-//    ModelNode firstChild = view->rootModelNode().childNodes().at(0);
-//    QVERIFY(firstChild.isValid());
-//    QCOMPARE(firstChild.type(), QString("SubItem"));
-//    NodeMetaInfo firstMetaInfo = firstChild.metaInfo();
-//    QVERIFY(firstMetaInfo.isValid());
-//    QList<NodeMetaInfo> superClasses = firstMetaInfo.directSuperClasses();
-//    QVERIFY(superClasses.contains(model->metaInfo().nodeMetaInfo("Qt/Rectangle", 4, 6, "data")));
-//    QVERIFY(model->metaInfo().nodeMetaInfo("Qt/Rectangle", 4, 6, "data").property("x").isValid());
-//    QVERIFY(firstMetaInfo.property("x").isValid());
-//
-//#ifdef CUSTOM_PROPERTIES_SHOW_UP_IN_THE_DOM
-//    QVERIFY(firstMetaInfo.property("text").isValid());
-//    QCOMPARE(firstMetaInfo.property("text").variantTypeId(), QVariant::String);
-//#endif // CUSTOM_PROPERTIES_SHOW_UP_IN_THE_DOM
-}
-
 void TestCore::testStatesRewriter()
 {
     QPlainTextEdit textEdit;
@@ -4280,129 +4215,6 @@ void TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
     QVERIFY(testRewriterView1->errors().isEmpty());
 }
 
-void TestCore::attributeChangeSynchronizer()
-{
-    QSKIP("no rewriter anymore", SkipAll);
-//    ByteArrayModifier* modifier;
-//    Model* model = 0;
-//    const QString originalQDeclarative = contentsTemplate.arg("text", "");
-//    load(originalQDeclarative, model, modifier);
-//    QVERIFY(model);
-//    QCOMPARE(view->rootModelNode().childNodes().size(), 1);
-//    ModelNode textChild = view->rootModelNode().childNodes().first();
-//    QVERIFY(textChild.id() == "textChild");
-//    QVERIFY(textChild.property("text").value() == "text");
-//
-//    reload(contentsTemplate.arg("changed text", ""), modifier);
-//
-//    QVERIFY2(textChild.property("text").value() == "changed text", QString("text was: \"%1\", expected \"changed text\"").arg(textChild.property("text").value().toString()).toLatin1().data());
-//
-//    textChild = view->rootModelNode().childNodes().first();
-//    QVERIFY(textChild.property("text").value() == "changed text");
-//
-//    delete model;
-//    delete modifier;
-}
-
-void TestCore::attributeAdditionSynchronizer()
-{
-        QSKIP("no rewriter anymore", SkipAll);
-//    ByteArrayModifier* modifier;
-//    Model* model = 0;
-//    load(contentsTemplate.arg("text", ""), model, modifier);
-//    QVERIFY(model);
-//
-//    ModelNode textChild = view->rootModelNode().childNodes().first();
-//    QVERIFY(textChild.id() == "textChild");
-//    QVERIFY(textChild.property("text").value() == "text");
-//    QVERIFY(!textChild.propertyNames().contains("width"));
-//
-//    reload(contentsTemplate.arg("text", "width: 100;"),  modifier);
-//
-//    QVERIFY(textChild.property("text").value() == "text");
-//    QVERIFY(textChild.property("width").value() == "100");
-//
-//    delete model;
-//    delete modifier;
-}
-
-void TestCore::attributeRemovalSynchronizer()
-{
-    QSKIP("no rewriter anymore", SkipAll);
-//    ByteArrayModifier* modifier;
-//    Model* model = 0;
-//    load(contentsTemplate.arg("text", "width: 50;"), model, modifier);
-//    QVERIFY(model);
-//
-//    ModelNode textChild = view->rootModelNode().childNodes().first();
-//    QVERIFY(textChild.id() == "textChild");
-//    QVERIFY(textChild.property("text").value() == "text");
-//    QVERIFY(textChild.property("width").value() == "50");
-//
-//    reload(contentsTemplate.arg("text", ""), modifier);
-//
-//    QVERIFY(textChild.property("text").value() == "text");
-//    QVERIFY(!textChild.propertyNames().contains("width"));
-//
-//    delete model;
-//    delete modifier;
-}
-
-void TestCore::childAddedSynchronizer()
-{
-    QSKIP("no rewriter anymore", SkipAll);
-//    ByteArrayModifier* modifier;
-//    Model* model = 0;
-//    load(bareTemplate.arg(""), model, modifier);
-//    QVERIFY(model);
-//    QVERIFY(view->rootModelNode().childNodes().isEmpty());
-//
-//    reload(contentsTemplate.arg("text", ""), modifier);
-//
-//    QVERIFY(view->rootModelNode().childNodes().size() == 1);
-//    QVERIFY(view->rootModelNode().childNodes().first().id() == "textChild");
-//
-//    delete model;
-//    delete modifier;
-}
-
-void TestCore::childRemovedSynchronizer()
-{
-    QSKIP("no rewriter anymore", SkipAll);
-//    ByteArrayModifier* modifier;
-//    Model* model = 0;
-//    load(contentsTemplate.arg("text", ""), model, modifier);
-//    QVERIFY(model);
-//    QVERIFY(view->rootModelNode().childNodes().size() == 1);
-//    QVERIFY(view->rootModelNode().childNodes().first().id() == "textChild");
-//
-//    reload(bareTemplate.arg(""), modifier);
-//
-//    QVERIFY(view->rootModelNode().childNodes().isEmpty());
-//
-//    delete model;
-//    delete modifier;
-}
-
-void TestCore::childReplacedSynchronizer()
-{
-        QSKIP("no rewriter anymore", SkipAll);
-//    ByteArrayModifier* modifier;
-//    Model *model = 0;
-//    load(contentsTemplate.arg("text", ""), model, modifier);
-//    QVERIFY(model);
-//    QVERIFY(view->rootModelNode().childNodes().size() == 1);
-//    QVERIFY(view->rootModelNode().childNodes().first().id() == "textChild");
-//
-//    reload(bareTemplate.arg("Item { id:\"someOtherItem\"; }"), modifier);
-//
-//    QVERIFY(view->rootModelNode().childNodes().size() == 1);
-//    QVERIFY(view->rootModelNode().childNodes().first().id() == "someOtherItem");
-//
-//    delete model;
-//    delete modifier;
-}
-
 void TestCore::defaultPropertyValues()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
@@ -4667,22 +4479,6 @@ void TestCore::anchorToSibling()
     QVERIFY(secondChild.anchors().possibleAnchorLines(AnchorLine::Left, firstChild) == AnchorLine::HorizontalMask);
 }
 
-void TestCore::anchorsAndStates()
-{
-    QSKIP("no anchor support anymore", SkipAll);
-
-//    QScopedPointer<Model> model(create("import Qt 4.6; Item { id:rootModelNode }"));
-//    QVERIFY(model.data());
-//
-//    ModelNode childNode(view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data"));
-//    childNode.setId("childNode");
-//    ModelState modelState(model->createModelState("anchoreteststate"));
-//
-//    childNode.setId("childNode");
-//    NodeState nodeState(modelState.nodeState(childNode));
-//    NodeAnchors(nodeState).setAnchor(AnchorLine::Top, view->rootModelNode(), AnchorLine::Top);
-}
-
 void TestCore::removeFillAnchorByDetaching()
 {
     QPlainTextEdit textEdit1;
@@ -4757,7 +4553,6 @@ void TestCore::removeFillAnchorByDetaching()
     QCOMPARE(firstChild.instancePosition().x(), 0.0);
     QCOMPARE(firstChild.instancePosition().y(), 0.0);
     QCOMPARE(firstChild.instanceBoundingRect().width(), 100.0);
-    QSKIP("is this intended", SkipAll);
     QCOMPARE(firstChild.instanceBoundingRect().height(), 0.0);
 
 
@@ -4945,76 +4740,6 @@ void TestCore::testModelDynamicProperties()
 
     QCOMPARE(rootModelNode.bindingProperty("myBindingDouble").expression(), QString("myDouble"));
     QCOMPARE(rootModelNode.bindingProperty("myBindingColor").expression(), QString("myColor"));
-}
-
-void TestCore::sideIndex()
-{
-    QSKIP("not anymore needed", SkipAll);
-//    QList<QDeclarativeError> errors;
-//
-//    char qmlString[] = "import Qt 4.6\n"
-//                       "Rectangle {\n"
-//                       "    width: 200\n"
-//                       "    height: 200\n"
-//                       "    color: \"white\"\n"
-//                       "Text {\n"
-//                       "    text: \"Hello World\"\n"
-//                       "    anchors.centerIn: parent\n"
-//                       "}\n"
-//                       " Text {\n"
-//                       "   text: \"text\"\n"
-//                       "    x: 66\n"
-//                       "    y: 43\n"
-//                       "    width: 80\n"
-//                       "    height: 20\n"
-//                       "    id: Text1;\n"
-//                       "}\n"
-//                       "  Text {\n"
-//                       "    text: \"text\"\n"
-//                       "    width: 80\n"
-//                       "    height: 20\n"
-//                       "    x: 66\n"
-//                       "    y: 141\n"
-//                       "    id: Text2;\n"
-//                       "}\n"
-//                       "   Text {\n"
-//                       "    height: 20\n"
-//                       "    text: \"text\"\n"
-//                       "    x: 74\n"
-//                       "    width: 80\n"
-//                       "    y: 68\n"
-//                       "    id: Text3;\n"
-//                       "}\n"
-//                       "}\n";
-//
-//    QScopedPointer<ByteArrayModifier> modifier1(ByteArrayModifier::create(QLatin1String(qmlString)));
-//    QScopedPointer<Model> model(Model::create(modifier1.data(), QUrl(), &errors));
-//    foreach(QDeclarativeError error, errors) {
-//        QFAIL((QString("Line %1: %2").arg(error.line()).arg(error.description())).toLatin1());
-//    }
-//
-//    QVERIFY(model.data());
-//
-//    QCOMPARE(view->rootModelNode().childNodes().at(0).property("text").value().toString(), QString("Hello World"));
-//    QCOMPARE(view->rootModelNode().childNodes().at(1).id(), QString("Text1"));
-//    QCOMPARE(view->rootModelNode().childNodes().at(2).id(), QString("Text2"));
-//    QCOMPARE(view->rootModelNode().childNodes().at(3).id(), QString("Text3"));
-//
-//
-//    ModelNode childModelNode(view->rootModelNode().childNodes().at(2));
-//    ModelNode childModelNode2(view->rootModelNode().childNodes().at(1));
-//
-//    QCOMPARE(childModelNode.id(), QString("Text2"));
-//    QCOMPARE(childModelNode2.id(), QString("Text1"));
-//
-//    childModelNode.slideToIndex(0);
-//    QCOMPARE(childModelNode.id(), QString("Text2"));
-//    QCOMPARE(childModelNode2.id(), QString("Text1"));
-//    QCOMPARE(view->rootModelNode().childNodes().at(0).id(), QString("Text2"));
-//    QCOMPARE(view->rootModelNode().childNodes().at(1).property("text").value().toString(), QString("Hello World"));
-//    QCOMPARE(view->rootModelNode().childNodes().at(2).id(), QString("Text1"));
-//    QCOMPARE(view->rootModelNode().childNodes().at(3).id(), QString("Text3"));
-
 }
 
 void TestCore::testModelSliding()
@@ -6135,7 +5860,7 @@ void TestCore::removeCenteredInAnchorByDetaching()
     QVERIFY(anchors.instanceAnchor(AnchorLine::VerticalCenter).isValid());
     QCOMPARE(anchors.instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode(), rootQmlItemNode);
     QCOMPARE(anchors.instanceAnchor(AnchorLine::VerticalCenter).type(), AnchorLine::VerticalCenter);
-    QSKIP("transaction are crashing", SkipAll);
+
     // Remove horizontal anchor:
     anchors.removeAnchor(AnchorLine::HorizontalCenter);
 
@@ -6152,31 +5877,6 @@ void TestCore::removeCenteredInAnchorByDetaching()
     QCOMPARE(anchors.instanceAnchor(AnchorLine::VerticalCenter).type(), AnchorLine::VerticalCenter);
 }
 
-void TestCore::loadPropertyBinding()
-{
-    QSKIP("property bindings are disabled", SkipAll);
-//    QScopedPointer<Model> model(Model::create("Qt/Item"));
-//    QVERIFY(model.data());
-//    ModelNode rootModelNode(view->rootModelNode());
-//
-//
-//    ModelNode firstChild = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-//    firstChild.addProperty("width", QString("parent.width"));
-//    QVERIFY(firstChild.isValid());
-//    QVERIFY(firstChild.hasProperty("width"));
-//    QVERIFY(firstChild.property("width").isValueAPropertyBinding());
-//
-//    AbstractProperty width = firstChild.property("width");
-//    QVERIFY(width.isValueAPropertyBinding());
-//
-//    QVERIFY(width.value().isValid() && !width.value().isNull());
-//    QCOMPARE(width.value().type(), QVariant::UserType);
-//    QCOMPARE(width.value().userType(), qMetaTypeId<QmlDesigner::PropertyBinding>());
-//
-//    PropertyBinding widthBinding = width.valueToPropertyBinding();
-//    QVERIFY(widthBinding.isValid());
-//    QCOMPARE(widthBinding.value(), QString("parent.width"));
-}
 
 void TestCore::changePropertyBinding()
 {
@@ -6219,36 +5919,6 @@ void TestCore::changePropertyBinding()
     }
 }
 
-void TestCore::loadObjectPropertyBinding()
-{
-    QSKIP("will be changed", SkipAll);
-
-//    QList<QDeclarativeError> errors;
-//    QScopedPointer<ByteArrayModifier> modifier1(ByteArrayModifier::create(QString("import Qt 4.6; Item { ListView { delegate:componentId } Component { id:componentId;Rectangle {} } }")));
-//
-//    QVERIFY(model.data());
-//    ModelNode rootModelNode(view->rootModelNode());
-//
-//
-//    QVERIFY(rootModelNode.childNodes().at(1).id() == "componentId");
-//    QVERIFY(rootModelNode.childNodes().first().property("delegate").value().canConvert<ObjectPropertyBinding>());
-}
-
-void TestCore::loadWelcomeScreen()
-{
-    QSKIP("there is no rewriter anymore", SkipAll);
-//    QFile file(QCoreApplication::applicationDirPath() + "/../shared/welcomescreen.qml");
-//    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-//
-//    QList<QDeclarativeError> errors;
-//    QScopedPointer<ByteArrayModifier> modifier1(ByteArrayModifier::create(QString(file.readAll())));
-//    QScopedPointer<Model> model1(Model::create(modifier1.data(), QUrl::fromLocalFile(file.fileName()), &errors));
-//    if (!errors.isEmpty()) {
-//        printErrors(errors, file.fileName());
-//        QVERIFY(errors.isEmpty());
-//    }
-//    QVERIFY(model1.data());
-}
 
 void TestCore::loadTestFiles()
 {
@@ -6549,330 +6219,5 @@ void TestCore::changeGradientId()
     }
 }
 
-void TestCore::copyAndPasteInSingleModel()
-{
-    QSKIP("no anchor support anymore", SkipAll);
-
-//    try {
-//        QScopedPointer<Model> model(create("import Qt 4.6; Item { width: 100; height: 200; Rectangle { x: 10; y: 20; width: 30; height: 40; color: \"red\"}}"));
-//        QVERIFY(model.data());
-//        ModelNode rootModelNode(view->rootModelNode());
-//        QVERIFY(rootModelNode.isValid());
-//        ModelNode rectNode(rootModelNode.childNodes().at(0));
-//        QVERIFY(rectNode.isValid());
-//
-//        QMimeData *transfer = model->copy(QList<NodeState>() << rectNode);
-//        QVERIFY(rectNode.isValid());
-//        QCOMPARE(rectNode.childNodes().size(), 0);
-//
-//        QVERIFY(transfer != 0);
-//        model->paste(transfer, rectNode);
-//        QVERIFY(rectNode.isValid());
-//        QCOMPARE(rectNode.childNodes().size(), 1);
-//
-//        QCOMPARE(rectNode.property("x").value().toDouble(), 10.0);
-//        QCOMPARE(rectNode.property("y").value().toDouble(), 20.0);
-//        QCOMPARE(rectNode.property("width").value().toDouble(), 30.0);
-//        QCOMPARE(rectNode.property("height").value().toDouble(), 40.0);
-//        QCOMPARE(rectNode.property("color").value().value<QColor>(), QColor("red"));
-//
-//        ModelNode rectChild = rectNode.childNodes().at(0);
-//        QCOMPARE(rectChild.property("x").value().toDouble(), 10.0);
-//        QCOMPARE(rectChild.property("y").value().toDouble(), 20.0);
-//        QCOMPARE(rectChild.property("width").value().toDouble(), 30.0);
-//        QCOMPARE(rectChild.property("height").value().toDouble(), 40.0);
-//        QCOMPARE(rectChild.property("color").value().value<QColor>(), QColor("red"));
-//    } catch (Exception &e) {
-//        qDebug() << e;
-//        QFAIL(e.description().toLatin1().data());
-//    }
-}
-
-void TestCore::copyAndPasteBetweenModels()
-{
-    QSKIP("no anchor support anymore", SkipAll);
-
-//    try {
-//        QScopedPointer<Model> model1(create("import Qt 4.6; Item { width: 100; height: 200; Rectangle { x: 10; y: 20; width: 30; height: 40; color: \"red\"}}"));
-//        QVERIFY(model1.data());
-//        ModelNode rootModelNode1(model1->rootModelNode());
-//        QVERIFY(rootModelNode1.isValid());
-//        ModelNode rectNode1(rootModelNode1.childNodes().at(0));
-//        QVERIFY(rectNode1.isValid());
-//
-//        QScopedPointer<Model> model2(create("import Qt 4.6; Item { width: 100; height: 200}"));
-//        QVERIFY(model2.data());
-//        ModelNode rootModelNode2(model2->rootModelNode());
-//        QVERIFY(rootModelNode2.isValid());
-//        QCOMPARE(rootModelNode2.childNodes().size(), 0);
-//
-//        QMimeData *transfer = model1->copy(QList<NodeState>() << rectNode1);
-//        QVERIFY(rectNode1.isValid());
-//
-//        QVERIFY(transfer != 0);
-//        model2->paste(transfer, rootModelNode2);
-//        QCOMPARE(rootModelNode2.childNodes().size(), 1);
-//
-//        ModelNode rectNode2 = rootModelNode2.childNodes().at(0);
-//        QCOMPARE(rectNode2.property("x").value().toDouble(), 10.0);
-//        QCOMPARE(rectNode2.property("y").value().toDouble(), 20.0);
-//        QCOMPARE(rectNode2.property("width").value().toDouble(), 30.0);
-//        QCOMPARE(rectNode2.property("height").value().toDouble(), 40.0);
-//        QCOMPARE(rectNode2.property("color").value().value<QColor>(), QColor("red"));
-//    } catch (Exception &e) {
-//        qDebug() << e;
-//        QFAIL(e.description().toLatin1().data());
-//    }
-}
-
-void TestCore::changeSubModel()
-{
-    QSKIP("must be refactored", SkipAll);
-//     // create the orignal model:
-//    QScopedPointer<Model> model1(create("import Qt 4.6; Rectangle { id: rootRect; Rectangle { id: rect2 }}"));
-//    QVERIFY(model1.data());
-//
-//    // get the model node for the component from the "original" model
-//    ModelNode modelNode = model1->rootModelNode().childNodes().at(0);
-//    QVERIFY(modelNode.isValid());
-//    QCOMPARE(modelNode.id(), QString("rect2"));
-//
-//    QList<QDeclarativeError> errors;
-//    // Create a model on top of the component node:
-//    TextModifier *subModifier = model1->createTextModifier(modelNode);
-//    QScopedPointer<Model> subModel(Model::create(subModifier, model1->fileUrl(), &errors));
-//    // Handle errors:
-//    if (!errors.isEmpty()) {
-//        printErrors(errors, "<sub model>");
-//        qDebug() << "Data:";
-//        qDebug() << subModifier->text();
-//        QVERIFY(errors.isEmpty());
-//    }
-//
-//    // Check that changes in the model for the Component are reflected in both the model for the component, and the original model:
-//    ModelNode subModelNode = subview->rootModelNode();
-//    Q_ASSERT(subModelNode.isValid());
-//    subModelNode.setId("anotherId");
-//    QCOMPARE(subModelNode.id(), QString("anotherId"));
-//    QCOMPARE(modelNode.id(), QString("anotherId"));
-//
-//    // Check that changes in the original model are reflected in the model for the component:
-//    modelNode.setId("yetanotherId");
-//    QCOMPARE(subModelNode.id(), QString("yetanotherId"));
-//    QCOMPARE(modelNode.id(), QString("yetanotherId"));
-}
-
-
-void TestCore::changeInlineComponent()
-{
-    // create the orignal model:
-        QSKIP("must be refactored", SkipAll);
-//    QScopedPointer<Model> model1(create("import Qt 4.6; Rectangle { id: rootRect; Component { id: MyComponent; Rectangle { id: myComponentRect }}}"));
-//    QVERIFY(model1.data());
-//
-//    // get the model node for the component from the "original" model
-//    ModelNode componentNode = model1->rootModelNode().childNodes().at(0);
-//    QVERIFY(componentNode.isValid());
-//    QCOMPARE(componentNode.id(), QString("MyComponent"));
-//    QVERIFY(!componentNode.hasChildNodes()); // top model shouldn't go into subcomponents
-//
-//    QScopedPointer<Model> componentModel(model1->createComponentModel(componentNode));
-//
-//    ModelNode componentrootNode = componentview->rootModelNode();
-//    QVERIFY(componentrootNode.isValid());
-//    QCOMPARE(componentrootNode.type(), QString("Qt/Rectangle"));
-//
-//    ModificationGroupToken token = componentModel->beginModificationGroup();
-//    ModelNode childNode(componentrootNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
-//    QVERIFY(childNode.isValid());
-//    componentModel->endModificationGroup(token);
-//    QVERIFY(childNode.isValid());
-//    QVERIFY(!componentrootNode.childNodes().isEmpty());
-//    QVERIFY(componentrootNode.childNodes().first() == childNode);
-
-}
-
-void TestCore::changeImports()
-{
-    QSKIP("imports are disabled", SkipAll);
-//    QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
-//    QVERIFY(model.data());
-//    QVERIFY(view->rootModelNode().isValid());
-//
-//    QSet<Import> imports = model->imports();
-//    QCOMPARE(imports.size(), 1);
-//    const Import import = imports.toModelNodeList().at(0);
-//    QVERIFY(import.isLibraryImport());
-//    QCOMPARE(import.url(), QUrl("Qt"));
-//    QVERIFY(import.file().isEmpty());
-//    QCOMPARE(import.version(), QString("4.6"));
-//    QVERIFY(import.alias().isEmpty());
-//
-//    Import newImport = Import::createFileImport("Namespaces_the_final_frontier", QString(), "MySpace");
-//    model->addImport(newImport);
-//    imports = model->imports();
-//    QCOMPARE(imports.size(), 2);
-//    QVERIFY(imports.contains(import));
-//    QVERIFY(imports.contains(newImport));
-//
-//    model->removeImport(newImport);
-//    imports = model->imports();
-//    QCOMPARE(imports.size(), 1);
-//    QVERIFY(imports.contains(import));
-//    QVERIFY(!imports.contains(newImport));
-}
-
-void TestCore::testIfChangePropertyIsRemoved()
-{
-    QSKIP("Fix me!!! See task BAUHAUS-139", SkipAll);
-//    QScopedPointer<Model> model(create("import Qt 4.6; Item { Rectangle { x: 10; y: 10; } }"));
-//    QVERIFY(model.data());
-//    ModelNode rootModelNode(view->rootModelNode());
-//    QVERIFY(rootModelNode.isValid());
-//    ModelNode rectNode(rootModelNode.childNodes().at(0));
-//    QVERIFY(rectNode.isValid());
-//    ModelState newState = model->createModelState("new state");
-//    QVERIFY(newState.isValid());
-//    NodeState rectNodeState = newState.nodeState(rectNode);
-//    QVERIFY(newState.isValid());
-//    try {
-//        rectNodeState.setPropertyValue("x", 100);
-//        QVERIFY(rectNodeState.hasProperty("x"));
-//    } catch (Exception &e) {
-//        // ok.
-//    }
-//    rectNode.setPropertyValue("x", 15);
-//    QVERIFY(newState.isValid());
-//    NodeState rectNodeState2 = newState.nodeState(rectNode);
-//    QVERIFY(rectNodeState2.isValid());
-//    QVERIFY(rectNodeState.isValid());
-//
-//    rectNode.setId("rect");
-//    QVERIFY(rectNodeState2.isValid());
-//    QVERIFY(rectNodeState.isValid());
-//
-//    rectNodeState.setPropertyValue("x", 105);
-//
-//    QVERIFY(rectNodeState2.isValid());
-//    QVERIFY(rectNodeState.isValid());
-//
-//    QCOMPARE(rectNodeState.property("x").value().toInt(), 105);
-//
-//    rectNode.destroy();
-//
-//    QVERIFY(!rectNodeState2.isValid());
-//    QVERIFY(!rectNodeState.isValid());
-//    QVERIFY(!rectNode.isValid());
-//
-//    rectNode = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-//    rectNode.setId("rect");
-//    rectNodeState = newState.nodeState(rectNode);
-//    rectNode.setPropertyValue("x", 10);
-//
-//    QCOMPARE(rectNodeState.property("x").value().toInt(), 10);
-}
-
-void  TestCore::testAnchorsAndStates()
-{
-    QSKIP("no states anymore", SkipAll);
-//    QScopedPointer<Model> model(create("import Qt 4.6; Item { Rectangle { x: 10; y: 10; } }"));
-//    QVERIFY(model.data());
-//    ModelNode rootModelNode(view->rootModelNode());
-//    QVERIFY(rootModelNode.isValid());
-//    ModelNode rectNode(rootModelNode.childNodes().at(0));
-//    QVERIFY(rectNode.isValid());
-//
-//    NodeAnchors anchors(rectNode);
-//    QVERIFY(!anchors.instanceHasAnchor(AnchorLine::Left));
-//    QVERIFY(!anchors.instanceHasAnchor(AnchorLine::Top));
-//    QVERIFY(!anchors.instanceHasAnchor(AnchorLine::Right));
-//    QVERIFY(!anchors.instanceHasAnchor(AnchorLine::Bottom));
-//    QVERIFY(!anchors.instanceHasAnchor(AnchorLine::HorizontalCenter));
-//    QVERIFY(!anchors.instanceHasAnchor(AnchorLine::VerticalCenter));
-//
-//    anchors.setAnchor(AnchorLine::Right, rootModelNode, AnchorLine::Right);
-//    QVERIFY(anchors.instanceHasAnchor(AnchorLine::Right));
-//    QCOMPARE(anchors.instanceAnchor(AnchorLine::Right).type(), AnchorLine::Right);
-//    QCOMPARE(anchors.instanceAnchor(AnchorLine::Right).modelNode(), rootModelNode);
-//
-//    anchors.setMargin(AnchorLine::Right, 10.0);
-//    QCOMPARE(anchors.instanceMargin(AnchorLine::Right), 10.0);
-//
-//    anchors.setMargin(AnchorLine::Right, 0.0);
-//    QCOMPARE(anchors.instanceMargin(AnchorLine::Right), 0.0);
-//
-//    anchors.setMargin(AnchorLine::Right, 20.0);
-//
-//    QCOMPARE(1, rectNode.nodeStates().count());
-//
-//    ModelState newState = model->createModelState("new state");
-//
-//    QCOMPARE(2, rectNode.nodeStates().count());
-//
-//    QCOMPARE(2, model->baseModelState().nodeStates().count());
-//    QCOMPARE(2, newState.nodeStates().count());
-//
-//    QVERIFY(newState.isValid());
-//    QVERIFY(rectNode.isValid());
-//    NodeState rectNodeState = newState.nodeState(rectNode);
-//    QVERIFY(rectNodeState.isValid());
-}
-
-
-void TestCore::testStatesWithAnonymousTargets()
-{
-    QSKIP("no states anymore", SkipAll);
-    //QScopedPointer<Model> model(create("import Qt 4.6; Rectangle { states:[State{name:\"s1\";PropertyChanges{target:;x:20}}]Rectangle{x:10} } "));
-//    ByteArrayModifier* modifier = 0;
-//    Model *model_p = 0;
-//    load("import Qt 4.6; Rectangle { states:[State{name:\"s1\";PropertyChanges{target:;x:20}}]Rectangle{x:10} } ",model_p,modifier);
-//
-//    QScopedPointer<Model> model(model_p);
-//    QVERIFY(model.data());
-//    ModelNode rootModelNode(view->rootModelNode());
-//    QVERIFY(rootModelNode.isValid());
-//    ModelNode rectNode(rootModelNode.childNodes().at(0));
-//    QVERIFY(rectNode.isValid());
-//    // check item is anonymous
-//    QVERIFY(rectNode.id().isEmpty());
-//
-//    NodeState newState = model->modelStates().at(1).nodeStates().at(1);
-//    QVERIFY(newState.isValid());
-//    // check target is anonymous
-//    QVERIFY(newState.modelNode().id().isEmpty());
-//    // check base state has x=0
-//    QCOMPARE(model->modelStates().at(0).nodeStates().at(1).property("x").value().toInt(),10);
-//
-//    // now we "move" the rectangle, the model should force an id and generate a new propertychange
-//    NodeStateChangeSet change( newState );
-//    change.setPropertyValue("x",QVariant(30));
-//    QList <NodeStateChangeSet> changeList;
-//    changeList.append(change);
-//    model->changeNodeStates(changeList);
-//
-//    QCOMPARE(newState.modelNode().id(),QString("rectangle1"));
-//    QCOMPARE(rectNode.id(),QString("rectangle1"));
-//    QCOMPARE(newState.property("x").value().toInt(),30);
-//
-//    // now we manually erase the new id and target
-//    QString Text = modifier->text();
-//    Text.remove(Text.indexOf(QString("id: rectangle1;")),QString("id: rectangle1;").length());
-//    Text.remove(Text.indexOf(QString("rectangle1")),QString("rectangle1").length());
-//
-//    // text2model again
-//    reload(Text,modifier);
-//
-//    // repeat checks
-//    QVERIFY(model.data());
-//    QVERIFY(rootModelNode.isValid());
-//    QVERIFY(rectNode.isValid());
-//    QVERIFY(rectNode.id().isEmpty());
-//    QCOMPARE(model->modelStates().at(0).nodeStates().at(1).property("x").value().toInt(),10);
-//
-//    // see what happened with the new state
-//    QVERIFY(newState.isValid());
-//    QVERIFY(newState.modelNode().id().isEmpty());
-
-}
 
 QTEST_MAIN(TestCore);

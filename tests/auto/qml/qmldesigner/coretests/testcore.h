@@ -48,11 +48,10 @@ private slots:
     //
     // unit tests Model, ModelNode, NodeProperty, AbstractView
     //
+    void testModelCreateCoreModel();
+    void testModelCreateRect();
     void testModelViewNotification();
     void testModelCreateSubNode();
-    void testModelCreateCoreModel();
-    void testModelCreateInvalidSubNode();
-    void testModelCreateRect();
     void testModelRemoveNode();
     void testModelRootNode();
     void testModelReorderSiblings();
@@ -173,20 +172,10 @@ private slots:
     void saveAttributesInCoreModel();
     void loadSubItems();
 
-    void attributeChangeSynchronizer();
-    void attributeAdditionSynchronizer();
-    void attributeRemovalSynchronizer();
-    void childAddedSynchronizer();
-    void childRemovedSynchronizer();
-    void childReplacedSynchronizer();
 
     void createInvalidCoreModel();
 
     void loadQml();
-    void subItemMetaInfo();
-
-
-
 
     void defaultPropertyValues();
 
@@ -196,43 +185,19 @@ private slots:
     void loadAnchors();
     void changeAnchors();
     void anchorToSibling();
-    void anchorsAndStates();
     void removeFillAnchorByDetaching();
     void removeFillAnchorByChanging();
     void removeCenteredInAnchorByDetaching();
 
-    void sideIndex();
-
     // Property bindings:
-    void loadPropertyBinding();
     void changePropertyBinding();
 
-    void loadObjectPropertyBinding();
-
     // Bigger tests:
-    void loadWelcomeScreen();
     void loadTestFiles();
 
     // Object bindings as properties:
     void loadGradient();
     void changeGradientId();
-
-    // Copy & Paste:
-    void copyAndPasteInSingleModel();
-    void copyAndPasteBetweenModels();
-
-    // Editing inline Components
-    void changeSubModel();
-    void changeInlineComponent();
-
-    // Testing imports
-    void changeImports();
-
-    void testIfChangePropertyIsRemoved();
-    void testAnchorsAndStates();
-
-    // Testing states
-    void testStatesWithAnonymousTargets();
 };
 
 #endif // TESTCORE_H
