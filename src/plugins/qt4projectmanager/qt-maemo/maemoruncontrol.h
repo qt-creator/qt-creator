@@ -67,9 +67,13 @@ public:
     virtual ~AbstractMaemoRunControl();
 
 protected:
+    virtual bool isRunning() const;
+
     void startDeployment(bool forDebugging);
     void deploy();
     void stopDeployment();
+    void stopRunning(bool forDebugging);
+    void run(const QString &remoteCall);
     void handleError(const QString &errString);
     bool isDeploying() const;
     const QString executableOnHost() const;
@@ -89,9 +93,13 @@ protected:
 
 private:
     virtual void handleDeploymentFinished(bool success)=0;
+    virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner)=0;
+    void kill(const QStringList &apps);
 
     QFutureInterface<void> m_progress;
     QScopedPointer<MaemoSshDeployer> sshDeployer;
+    QScopedPointer<MaemoSshRunner> sshRunner;
+    QScopedPointer<MaemoSshRunner> sshStopper;
 
     struct Deployable
     {
@@ -113,7 +121,6 @@ public:
     ~MaemoRunControl();
     void start();
     void stop();
-    bool isRunning() const;
 
 private slots:
     void executionFinished();
@@ -121,10 +128,9 @@ private slots:
 
 private:
     virtual void handleDeploymentFinished(bool success);
+    virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner);
     void startExecution();
 
-    QScopedPointer<MaemoSshRunner> sshRunner;
-    QScopedPointer<MaemoSshRunner> sshStopper;
     bool stoppedByUser;
 };
 
@@ -148,14 +154,13 @@ private slots:
 
 private:
     virtual void handleDeploymentFinished(bool success);
+    virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner);
 
     QString gdbServerPort() const;
     void startGdbServer();
     void gdbServerStartFailed(const QString &reason);
     void startDebugging();
 
-    QScopedPointer<MaemoSshRunner> sshRunner;
-    QScopedPointer<MaemoSshRunner> sshStopper;
     Debugger::DebuggerManager *debuggerManager;
     QSharedPointer<Debugger::DebuggerStartParameters> startParams;
     int inferiorPid;
