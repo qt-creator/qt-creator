@@ -709,7 +709,7 @@ def encodeString(value):
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     if size > 0:
         checkAccess(data, 4)
-        checkAccess(data + size * 2) == 0
+        checkAccess(data + size) == 0
     checkRef(d_ptr["ref"])
     p = gdb.Value(d_ptr["data"])
     s = ""
