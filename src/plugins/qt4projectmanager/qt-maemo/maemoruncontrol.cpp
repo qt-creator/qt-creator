@@ -141,7 +141,44 @@ void AbstractMaemoRunControl::stopDeployment()
 
 bool AbstractMaemoRunControl::isDeploying() const
 {
-    return !sshDeployer.isNull() && sshDeployer->isRunning();
+    return sshDeployer && sshDeployer->isRunning();
+}
+
+void AbstractMaemoRunControl::run(const QString &remoteCall)
+{
+    sshRunner.reset(new MaemoSshRunner(devConfig, remoteCall));
+    handleExecutionAboutToStart(sshRunner.data());
+    sshRunner->start();
+}
+
+bool AbstractMaemoRunControl::isRunning() const
+{
+    return isDeploying() || (sshRunner && sshRunner->isRunning());
+}
+
+void AbstractMaemoRunControl::stopRunning(bool forDebugging)
+{
+    if (sshRunner && sshRunner->isRunning()) {
+        sshRunner->stop();
+        QStringList apps(executableFileName());
+        if (forDebugging)
+            apps << QLatin1String("gdbserver");
+        kill(apps);
+    }
+}
+
+void AbstractMaemoRunControl::kill(const QStringList &apps)
+{
+    QString niceKill;
+    QString brutalKill;
+    foreach (const QString &app, apps) {
+        niceKill += QString::fromLocal8Bit("pkill -x %1;").arg(app);
+        brutalKill += QString::fromLocal8Bit("pkill -x -9 %1;").arg(app);
+    }
+    const QString remoteCall
+        = niceKill + QLatin1String("sleep 1; ") + brutalKill;
+    sshStopper.reset(new MaemoSshRunner(devConfig, remoteCall));
+    sshStopper->start();
 }
 
 void AbstractMaemoRunControl::deployProcessFinished()
@@ -241,28 +278,32 @@ void MaemoRunControl::handleDeploymentFinished(bool success)
         emit finished();
 }
 
+void MaemoRunControl::handleExecutionAboutToStart(const MaemoSshRunner *runner)
+{
+    connect(runner, SIGNAL(remoteOutput(QString)),
+            this, SLOT(handleRemoteOutput(QString)));
+    connect(runner, SIGNAL(finished()),
+            this, SLOT(executionFinished()));
+    emit addToOutputWindow(this, tr("Starting remote application."));
+    emit started();
+}
+
 void MaemoRunControl::startExecution()
 {
     const QString remoteCall = QString::fromLocal8Bit("%1 %2 %3")
         .arg(targetCmdLinePrefix()).arg(executableOnTarget())
         .arg(runConfig->arguments().join(" "));
-    sshRunner.reset(new MaemoSshRunner(devConfig, remoteCall));
-    connect(sshRunner.data(), SIGNAL(remoteOutput(QString)),
-            this, SLOT(handleRemoteOutput(QString)));
-    connect(sshRunner.data(), SIGNAL(finished()),
-            this, SLOT(executionFinished()));
-    emit addToOutputWindow(this, tr("Starting remote application."));
-    emit started();
-    sshRunner->start();
+    run(remoteCall);
 }
 
 void MaemoRunControl::executionFinished()
 {
+    MaemoSshRunner *runner = static_cast<MaemoSshRunner *>(sender());
     if (stoppedByUser) {
         emit addToOutputWindow(this, tr("Remote process stopped by user."));
-    } else if (sshRunner->hasError()) {
+    } else if (runner->hasError()) {
         emit addToOutputWindow(this, tr("Remote process exited with error: %1")
-                                         .arg(sshRunner->error()));
+                                         .arg(runner->error()));
     } else {
         emit addToOutputWindow(this, tr("Remote process finished successfully."));
     }
@@ -278,18 +319,8 @@ void MaemoRunControl::stop()
     if (isDeploying()) {
         stopDeployment();
     } else {
-        sshRunner->stop();
-        const QString remoteCall = QString::fromLocal8Bit("pkill -x %1; "
-            "sleep 1; pkill -x -9 %1").arg(executableFileName());
-        sshStopper.reset(new MaemoSshRunner(devConfig, remoteCall));
-        sshStopper->start();
+        AbstractMaemoRunControl::stopRunning(false);
     }
-}
-
-bool MaemoRunControl::isRunning() const
-{
-    return isDeploying()
-        || (!sshRunner.isNull() && sshRunner->isRunning());
 }
 
 void MaemoRunControl::handleRemoteOutput(const QString &output)
@@ -348,16 +379,19 @@ void MaemoDebugRunControl::handleDeploymentFinished(bool success)
     }
 }
 
+void MaemoDebugRunControl::handleExecutionAboutToStart(const MaemoSshRunner *runner)
+{
+    inferiorPid = -1;
+    connect(runner, SIGNAL(remoteOutput(QString)),
+            this, SLOT(gdbServerStarted(QString)));
+}
+
 void MaemoDebugRunControl::startGdbServer()
 {
     const QString remoteCall(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4").
         arg(targetCmdLinePrefix()).arg(gdbServerPort())
         .arg(executableOnTarget()).arg(runConfig->arguments().join(" ")));
-    inferiorPid = -1;
-    sshRunner.reset(new MaemoSshRunner(devConfig, remoteCall));
-    connect(sshRunner.data(), SIGNAL(remoteOutput(QString)),
-            this, SLOT(gdbServerStarted(QString)));
-    sshRunner->start();
+    run(remoteCall);
 }
 
 void MaemoDebugRunControl::gdbServerStartFailed(const QString &reason)
@@ -393,7 +427,6 @@ void MaemoDebugRunControl::gdbServerStarted(const QString &output)
     inferiorPid = pid;
     qDebug("inferiorPid = %d", inferiorPid);
 
-    disconnect(sshRunner.data(), SIGNAL(remoteOutput(QString)), 0, 0);
     startDebugging();
 }
 
@@ -416,20 +449,13 @@ void MaemoDebugRunControl::stop()
 
 bool MaemoDebugRunControl::isRunning() const
 {
-    return isDeploying()
-        || (!sshRunner.isNull() && sshRunner->isRunning())
+    return AbstractMaemoRunControl::isRunning()
         || debuggerManager->state() != Debugger::DebuggerNotReady;
 }
 
 void MaemoDebugRunControl::debuggingFinished()
 {
-    if (!sshRunner.isNull() && sshRunner->isRunning()) {
-        sshRunner->stop();
-        const QString remoteCall = QString::fromLocal8Bit("kill %1; sleep 1; "
-            "kill -9 %1; pkill -x -9 gdbserver").arg(inferiorPid);
-        sshStopper.reset(new MaemoSshRunner(devConfig, remoteCall));
-        sshStopper->start();
-    }
+    AbstractMaemoRunControl::stopRunning(true);
     emit addToOutputWindow(this, tr("Debugging finished."));
     emit finished();
 }
