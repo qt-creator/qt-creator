@@ -1093,7 +1093,7 @@
     but we recommend that you do not use network resources, for example.
 
     Qt Creator allows you to specify separate \l{Build Settings} {build settings}
-    for each development platform. You can use \l{glossary-shadow-build}{shadow builds} to
+    for each development platform. By default, \l{glossary-shadow-build}{shadow builds} are used to
     keep the build specific files separate from the source.
 
     You can create separate versions of project files to keep platform-dependent
@@ -1640,9 +1640,14 @@
                build your project. For more information, see
                \l{Selecting the Qt version}.
             \o The toolchain required to build the project.
-            \o If you want to \l{glossary-shadow-build}{shadow build} your
-               project, check the \gui{Shadow Build} checkbox and select the
-               build directory.
+            \o By default, projects are built in a separate directory
+               from the source directory, as \l{glossary-shadow-build}{shadow builds}.
+               This keeps the files generated for each target platform separate.
+
+               \note Shadow building is not supported by the Symbian build system.
+               Also, shadow building on Windows is not supported for Maemo.
+               If you only build for one target platform, you can deselect
+               the \gui{Shadow Build} checkbox.
         \endlist
     \endlist
 
