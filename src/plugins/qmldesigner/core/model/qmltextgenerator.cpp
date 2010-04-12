@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include <QtCore/QVariant>
+#include <QtGui/QColor>
 
 #include "bindingproperty.h"
 #include "nodeproperty.h"
@@ -37,6 +38,16 @@
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
+
+inline static QString properColorName(const QColor &color)
+{
+    QString s;
+    if (color.alpha() == 255)
+        s.sprintf("#%02x%02x%02x", color.red(), color.green(), color.blue());
+    else
+        s.sprintf("#%02x%02x%02x%02x", color.alpha(), color.red(), color.green(), color.blue());
+    return s;
+}
 
 QmlTextGenerator::QmlTextGenerator(const QStringList &propertyOrder, int indentDepth):
         m_propertyOrder(propertyOrder),
@@ -88,6 +99,9 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                 return QLatin1String("true");
             else
                 return QLatin1String("false");
+
+        case QVariant::Color:
+            return QString(QLatin1String("\"%1\"")).arg(properColorName(value.value<QColor>()));
 
         case QVariant::Double:
         case QVariant::Int:
