@@ -57,8 +57,8 @@ public:
 
     static OpenPagesManager &instance();
 
-    QWidget* openPagesWidget() const;
-    QComboBox* openPagesComboBox() const;
+    QWidget *openPagesWidget() const;
+    QComboBox *openPagesComboBox() const;
 
     int pageCount() const;
     void setupInitialPages();

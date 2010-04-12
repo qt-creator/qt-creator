@@ -93,12 +93,12 @@ OpenPagesManager &OpenPagesManager::instance()
     return *m_instance;
 }
 
-QWidget* OpenPagesManager::openPagesWidget() const
+QWidget *OpenPagesManager::openPagesWidget() const
 {
     return m_openPagesWidget;
 }
 
-QComboBox* OpenPagesManager::openPagesComboBox() const
+QComboBox *OpenPagesManager::openPagesComboBox() const
 {
     return m_comboBox;
 }
