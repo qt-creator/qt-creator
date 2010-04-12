@@ -198,7 +198,7 @@ void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& p
             foreach(const ModelNode &modelNode, nodeAbstractProperty.allSubNodes()) {
                 QmlItemNode qmlItemNode(modelNode);
 
-                if (qmlItemNode.isValid()) {
+                if (qmlItemNode.isValid() && m_scene->hasItemForQmlItemNode(qmlItemNode)) {
                     FormEditorItem *item = m_scene->itemForQmlItemNode(qmlItemNode);
                     removedItemList.append(item);
 
