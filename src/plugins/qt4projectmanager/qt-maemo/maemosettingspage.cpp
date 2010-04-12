@@ -43,7 +43,7 @@
 
 #include "maemosettingswidget.h"
 
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QCoreApplication>
 
@@ -66,23 +66,25 @@ QString MaemoSettingsPage::id() const
 
 QString MaemoSettingsPage::displayName() const
 {
-    return tr("Maemo Devices");
+    return tr("Maemo Device Configurations");
 }
 
 QString MaemoSettingsPage::category() const
 {
-    return QLatin1String(Constants::QT_SETTINGS_CATEGORY);
+    using namespace ProjectExplorer;
+    return QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
 }
 
 QString MaemoSettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("Qt4ProjectManager",
-        Constants::QT_SETTINGS_CATEGORY);
+    return QCoreApplication::translate("ProjectExplorer",
+        ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
 }
 
 QIcon MaemoSettingsPage::categoryIcon() const
 {
-    return QIcon(QLatin1String(Constants::QT_SETTINGS_CATEGORY_ICON));
+    using namespace ProjectExplorer;
+    return QIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *MaemoSettingsPage::createPage(QWidget *parent)
