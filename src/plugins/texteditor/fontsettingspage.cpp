@@ -218,7 +218,7 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
             QString schemeFileName = createColorSchemeFileName(QLatin1String("customized%1.xml"));
             if (!schemeFileName.isEmpty()) {
                 if (m_value.saveColorScheme(schemeFileName) && settings)
-                    m_value.toSettings(m_category, settings);
+                    m_value.toSettings(m_settingsGroup, settings);
             }
         }
     }
