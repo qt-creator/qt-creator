@@ -23,7 +23,7 @@ GroupBox {
                     spacing: 4
                     singleStep: 1;
                     objectName: "xSpinBox";
-                    enabled: anchorBackend.hasParent;
+                    enabled: anchorBackend.hasParent && !anchorBackend.leftAnchored && !anchorBackend.horizontalCentered
                     backendValue: backendValues.x
                     minimum: -2000;
                     maximum: 2000;
@@ -36,9 +36,8 @@ GroupBox {
                     text: "Y"
                     alignRight: false
                     spacing: 4
-                    objectName: "ySpinBox";
+                    enabled: anchorBackend.hasParent && !anchorBackend.topAnchored && !anchorBackend.verticalCentered
                     backendValue: backendValues.y
-                    enabled: anchorBackend.hasParent;
                     minimum: -2000;
                     maximum: 2000;
                     baseStateFlag: isBaseState;
@@ -61,7 +60,7 @@ GroupBox {
                     alignRight: false
                     spacing: 4
                     singleStep: 1;
-                    objectName: "widthSpinBox";
+                    enabled: !anchorBackend.rightAnchored && !anchorBackend.horizontalCentered
                     backendValue: backendValues.width
                     minimum: -2000;
                     maximum: 2000;
@@ -74,7 +73,7 @@ GroupBox {
                     alignRight: false
                     spacing: 4
                     singleStep: 1;
-                    objectName: "heightSpinBox";
+                    enabled: !anchorBackend.bottomAnchored && !anchorBackend.verticalCentered
                     backendValue: backendValues.height
                     minimum: -2000;
                     maximum: 2000;
