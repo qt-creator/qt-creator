@@ -32,9 +32,7 @@
 
 #include "texteditor_global.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QtCore/QObject>
+#include "texteditoroptionspage.h"
 
 namespace TextEditor {
 
@@ -46,13 +44,10 @@ struct BehaviorSettingsPageParameters
 {
     QString id;
     QString displayName;
-    QString category;
-    QString displayCategory;
-    QIcon categoryIcon;
     QString settingsPrefix;
 };
 
-class BehaviorSettingsPage : public Core::IOptionsPage
+class BehaviorSettingsPage : public TextEditorOptionsPage
 {
     Q_OBJECT
 
@@ -63,19 +58,15 @@ public:
     // IOptionsPage
     QString id() const;
     QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
+    bool matches(const QString &s) const;
 
     const TabSettings &tabSettings() const;
     const StorageSettings &storageSettings() const;
     const BehaviorSettings &behaviorSettings() const;
-
-    virtual bool matches(const QString &s) const;
 
 signals:
     void tabSettingsChanged(const TextEditor::TabSettings &);

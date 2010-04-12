@@ -30,7 +30,7 @@
 #ifndef COMPLETIONSETTINGSPAGE_H
 #define COMPLETIONSETTINGSPAGE_H
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <texteditor/texteditoroptionspage.h>
 
 #include "cppcodecompletion.h"
 
@@ -41,7 +41,7 @@ QT_END_NAMESPACE
 namespace CppTools {
 namespace Internal {
 
-class CompletionSettingsPage : public Core::IOptionsPage
+class CompletionSettingsPage : public TextEditor::TextEditorOptionsPage
 {
     Q_OBJECT
 
@@ -51,9 +51,6 @@ public:
 
     QString id() const;
     QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

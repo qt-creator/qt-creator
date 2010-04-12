@@ -27,55 +27,31 @@
 **
 **************************************************************************/
 
-#ifndef DISPLAYSETTINGSPAGE_H
-#define DISPLAYSETTINGSPAGE_H
+#ifndef TEXTEDITOROPTIONSPAGE_H
+#define TEXTEDITOROPTIONSPAGE_H
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include "texteditor_global.h"
 
-#include "texteditoroptionspage.h"
-
 namespace TextEditor {
 
-struct DisplaySettings;
-
-struct DisplaySettingsPageParameters
-{
-    QString id;
-    QString displayName;
-    QString settingsPrefix;
-};
-
-class DisplaySettingsPage : public TextEditorOptionsPage
+/**
+ * An abstract options page in the Text Editor category.
+ */
+class TEXTEDITOR_EXPORT TextEditorOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    DisplaySettingsPage(const DisplaySettingsPageParameters &p, QObject *parent);
-    virtual ~DisplaySettingsPage();
+    explicit TextEditorOptionsPage(QObject *parent = 0);
 
     // IOptionsPage
-    QString id() const;
-    QString displayName() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-    virtual bool matches(const QString &s) const;
-
-    const DisplaySettings &displaySettings() const;
-
-signals:
-    void displaySettingsChanged(const TextEditor::DisplaySettings &);
-
-private:
-    void settingsFromUI(DisplaySettings &displaySettings) const;
-    void settingsToUI();
-    void setDisplaySettings(const DisplaySettings &);
-
-    struct DisplaySettingsPagePrivate;
-    DisplaySettingsPagePrivate *m_d;
+    QString category() const;
+    QString displayCategory() const;
+    QIcon categoryIcon() const;
 };
 
 } // namespace TextEditor
 
-#endif // DISPLAYSETTINGSPAGE_H
+#endif // TEXTEDITOROPTIONSPAGE_H

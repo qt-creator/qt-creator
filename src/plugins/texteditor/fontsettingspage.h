@@ -34,7 +34,7 @@
 
 #include "fontsettings.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "texteditoroptionspage.h"
 
 #include <QtCore/QString>
 
@@ -77,24 +77,19 @@ private:
 
 typedef QList<FormatDescription> FormatDescriptions;
 
-class TEXTEDITOR_EXPORT FontSettingsPage : public Core::IOptionsPage
+class TEXTEDITOR_EXPORT FontSettingsPage : public TextEditorOptionsPage
 {
     Q_OBJECT
 
 public:
     FontSettingsPage(const FormatDescriptions &fd,
                      const QString &id,
-                     const QString &category,
-                     const QString &trCategory,
                      QObject *parent = 0);
 
     ~FontSettingsPage();
 
     QString id() const;
     QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

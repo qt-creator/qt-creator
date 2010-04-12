@@ -68,7 +68,7 @@ BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
 
 BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters &p,
                                            QObject *parent)
-  : Core::IOptionsPage(parent),
+  : TextEditorOptionsPage(parent),
     m_d(new BehaviorSettingsPagePrivate(p))
 {
 }
@@ -86,21 +86,6 @@ QString BehaviorSettingsPage::id() const
 QString BehaviorSettingsPage::displayName() const
 {
     return m_d->m_parameters.displayName;
-}
-
-QString BehaviorSettingsPage::category() const
-{
-    return m_d->m_parameters.category;
-}
-
-QString BehaviorSettingsPage::displayCategory() const
-{
-    return m_d->m_parameters.displayCategory;
-}
-
-QIcon BehaviorSettingsPage::categoryIcon() const
-{
-    return m_d->m_parameters.categoryIcon;
 }
 
 QWidget *BehaviorSettingsPage::createPage(QWidget *parent)

@@ -59,7 +59,7 @@ DisplaySettingsPage::DisplaySettingsPagePrivate::DisplaySettingsPagePrivate
 
 DisplaySettingsPage::DisplaySettingsPage(const DisplaySettingsPageParameters &p,
                                          QObject *parent)
-  : Core::IOptionsPage(parent),
+  : TextEditorOptionsPage(parent),
     m_d(new DisplaySettingsPagePrivate(p))
 {
 }
@@ -77,21 +77,6 @@ QString DisplaySettingsPage::id() const
 QString DisplaySettingsPage::displayName() const
 {
     return m_d->m_parameters.displayName;
-}
-
-QString DisplaySettingsPage::category() const
-{
-    return m_d->m_parameters.category;
-}
-
-QString DisplaySettingsPage::displayCategory() const
-{
-    return m_d->m_parameters.displayCategory;
-}
-
-QIcon DisplaySettingsPage::categoryIcon() const
-{
-    return m_d->m_parameters.categoryIcon;
 }
 
 QWidget *DisplaySettingsPage::createPage(QWidget *parent)

@@ -32,7 +32,8 @@ SOURCES += texteditorplugin.cpp \
     colorscheme.cpp \
     colorschemeedit.cpp \
     itexteditor.cpp \
-    texteditoroverlay.cpp
+    texteditoroverlay.cpp \
+    texteditoroptionspage.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -67,7 +68,8 @@ HEADERS += texteditorplugin.h \
     findincurrentfile.h \
     colorscheme.h \
     colorschemeedit.h \
-    texteditoroverlay.h
+    texteditoroverlay.h \
+    texteditoroptionspage.h
 
 
 FORMS += behaviorsettingspage.ui \

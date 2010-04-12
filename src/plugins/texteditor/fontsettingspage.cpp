@@ -117,17 +117,14 @@ class FontSettingsPagePrivate
 public:
     FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
                             const QString &id,
-                            const QString &name,
-                            const QString &category,
-                            const QString &trCategory);
+                            const QString &displayName,
+                            const QString &category);
     ~FontSettingsPagePrivate();
 
 public:
     const QString m_id;
     const QString m_displayName;
     const QString m_settingsGroup;
-    const QString m_category;
-    const QString m_displayCategory;
 
     TextEditor::FormatDescriptions m_descriptions;
     FontSettings m_value;
@@ -178,13 +175,10 @@ static QString createColorSchemeFileName(const QString &pattern)
 FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescriptions &fd,
                                                  const QString &id,
                                                  const QString &displayName,
-                                                 const QString &category,
-                                                 const QString &trCategory) :
+                                                 const QString &category) :
     m_id(id),
     m_displayName(displayName),
     m_settingsGroup(Utils::settingsKey(category)),
-    m_category(category),
-    m_displayCategory(trCategory),
     m_descriptions(fd),
     m_schemeListModel(new SchemeListModel),
     m_refreshingSchemeList(false)
@@ -313,11 +307,9 @@ QColor FormatDescription::background() const
 //  ------------ FontSettingsPage
 FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd,
                                    const QString &id,
-                                   const QString &category,
-                                   const QString &trCategory,
                                    QObject *parent) :
-    Core::IOptionsPage(parent),
-    d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font && Colors"), category, trCategory))
+    TextEditorOptionsPage(parent),
+    d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font && Colors"), category()))
 {
 }
 
@@ -334,21 +326,6 @@ QString FontSettingsPage::id() const
 QString FontSettingsPage::displayName() const
 {
     return d_ptr->m_displayName;
-}
-
-QString FontSettingsPage::category() const
-{
-    return d_ptr->m_category;
-}
-
-QString FontSettingsPage::displayCategory() const
-{
-    return d_ptr->m_displayCategory;
-}
-
-QIcon FontSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *FontSettingsPage::createPage(QWidget *parent)

@@ -27,55 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef DISPLAYSETTINGSPAGE_H
-#define DISPLAYSETTINGSPAGE_H
-
-#include "texteditor_global.h"
-
 #include "texteditoroptionspage.h"
 
-namespace TextEditor {
+#include "texteditorconstants.h"
 
-struct DisplaySettings;
+#include <QCoreApplication>
 
-struct DisplaySettingsPageParameters
+using namespace TextEditor;
+
+TextEditorOptionsPage::TextEditorOptionsPage(QObject *parent) :
+    Core::IOptionsPage(parent)
 {
-    QString id;
-    QString displayName;
-    QString settingsPrefix;
-};
+}
 
-class DisplaySettingsPage : public TextEditorOptionsPage
+QString TextEditorOptionsPage::category() const
 {
-    Q_OBJECT
+    return QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
+}
 
-public:
-    DisplaySettingsPage(const DisplaySettingsPageParameters &p, QObject *parent);
-    virtual ~DisplaySettingsPage();
+QString TextEditorOptionsPage::displayCategory() const
+{
+    return QCoreApplication::translate("TextEditor", Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY);
+}
 
-    // IOptionsPage
-    QString id() const;
-    QString displayName() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-    virtual bool matches(const QString &s) const;
-
-    const DisplaySettings &displaySettings() const;
-
-signals:
-    void displaySettingsChanged(const TextEditor::DisplaySettings &);
-
-private:
-    void settingsFromUI(DisplaySettings &displaySettings) const;
-    void settingsToUI();
-    void setDisplaySettings(const DisplaySettings &);
-
-    struct DisplaySettingsPagePrivate;
-    DisplaySettingsPagePrivate *m_d;
-};
-
-} // namespace TextEditor
-
-#endif // DISPLAYSETTINGSPAGE_H
+QIcon TextEditorOptionsPage::categoryIcon() const
+{
+    return QIcon(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
+}
