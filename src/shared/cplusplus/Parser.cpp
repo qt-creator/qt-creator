@@ -1577,13 +1577,22 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
 
 bool Parser::lookAtTypeParameter() const
 {
-    if ((LA() == T_CLASS || LA() == T_TYPENAME) && LA(2) == T_IDENTIFIER) {
-        switch (LA(3)) {
-        case T_EQUAL:
-        case T_COMMA:
-        case T_GREATER:
-            return true;
+    if (LA() == T_CLASS || LA() == T_TYPENAME) {
+        if (LA(2) == T_IDENTIFIER) {
+            switch (LA(3)) {
+            case T_EQUAL:
+            case T_COMMA:
+            case T_GREATER:
+                return true;
+
+            default:
+                return false;
+            }
         }
+
+        // recognized an anonymous template type parameter. e.g
+        //    template <typename>
+        return true;
     }
 
     return false;
