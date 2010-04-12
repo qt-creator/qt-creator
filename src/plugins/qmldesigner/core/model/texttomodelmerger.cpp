@@ -62,6 +62,20 @@ static inline QString stripQuotes(const QString &str)
     return str;
 }
 
+static inline QString descape(const QString &value)
+{
+    QString result = value;
+
+    result.replace(QLatin1String("\\\\"), QLatin1String("\\"));
+    result.replace(QLatin1String("\\\""), QLatin1String("\""));
+    result.replace(QLatin1String("\\\t"), QLatin1String("\t"));
+    result.replace(QLatin1String("\\\r"), QLatin1String("\\\r"));
+    result.replace(QLatin1String("\\\n"), QLatin1String("\n"));
+
+    return result;
+}
+
+
 static inline bool isSignalPropertyName(const QString &signalName)
 {
     // see QmlCompiler::isSignalPropertyName
@@ -143,7 +157,7 @@ static inline int propertyType(const QString &typeName)
 static inline QVariant convertDynamicPropertyValueToVariant(const QString &astValue,
                                                             const QString &astType)
 {
-    const QString cleanedValue = stripQuotes(astValue.trimmed());
+    const QString cleanedValue = descape(stripQuotes(astValue.trimmed()));
 
     if (astType.isEmpty())
         return QString();
@@ -325,7 +339,7 @@ public:
 
     QVariant convertToVariant(const QString &astValue, UiQualifiedId *propertyId)
     {
-        const QString cleanedValue = stripQuotes(astValue.trimmed());
+        const QString cleanedValue = descape(stripQuotes(astValue.trimmed()));
         const Interpreter::Value *property = 0;
         const Interpreter::ObjectValue *containingObject = 0;
         QString name;
@@ -684,7 +698,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             } else if (isLiteralValue(script)) {
                 if (typeName == QLatin1String("Qt/PropertyChanges")) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName);
-                    const QVariant variantValue(stripQuotes(astValue));
+                    const QVariant variantValue(descape(stripQuotes(astValue)));
                     syncVariantProperty(modelProperty, variantValue, QString(), differenceHandler);
                     modelPropertyNames.remove(astPropertyName);
                 } else {
@@ -1052,12 +1066,15 @@ void ModelAmender::shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                    *this);
 }
 
+
+
 void ModelAmender::variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicType)
 {
 //    qDebug()<< "ModelAmender::variantValuesDiffer for property"<<modelProperty.name()
 //            << "in node" << modelProperty.parentModelNode().id()
 //            << ", old value:" << modelProperty.value()
 //            << "new value:" << qmlVariantValue;
+
     if (dynamicType.isEmpty())
         modelProperty.setValue(qmlVariantValue);
     else
