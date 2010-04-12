@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "invalidargumentexception.h"
+#include <QString>
 
 /*!
 \class QmlDesigner::InvalidArgumentException
@@ -50,6 +51,15 @@ InvalidArgumentException::InvalidArgumentException(int line,
                                                    const QString &argument)
  : Exception(line, function, file), m_argument(argument)
 {
+
+}
+
+QString InvalidArgumentException::description() const
+{
+    if (function() == "createNode")
+        return QString(QObject::tr("Failed to create item of type %1")).arg(m_argument);
+
+    return Exception::description();
 }
 
 /*!

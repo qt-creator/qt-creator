@@ -169,9 +169,9 @@ InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
                                                const QList<QPair<QString, QVariant> > &propertyList)
 {
     if (typeString.isEmpty())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "typeString");
+        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, tr("invalid type"));
     if (!m_metaInfo.nodeMetaInfo(typeString).isValid())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "typeString");
+        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, typeString);
 
     InternalNode::Pointer newInternalNodePointer = InternalNode::create(typeString, majorVersion, minorVersion);
 

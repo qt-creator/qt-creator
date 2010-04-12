@@ -45,6 +45,7 @@ public:
 
     QString type() const;
     QString argument() const;
+    QString description() const;
 
 private:
     const QString m_argument;
