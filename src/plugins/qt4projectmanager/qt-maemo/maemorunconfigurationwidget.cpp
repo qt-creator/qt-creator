@@ -143,7 +143,8 @@ void MaemoRunConfigurationWidget::deviceConfigurationChanged(const QString &name
 
 void MaemoRunConfigurationWidget::setSimInfoVisible(const MaemoDeviceConfig &devConf)
 {
-    const bool isSimulator = devConf.type == MaemoDeviceConfig::Simulator;
+    const bool isSimulator
+        = devConf.isValid() && devConf.type == MaemoDeviceConfig::Simulator;
     m_simNameLabel->setVisible(isSimulator);
     m_simValueLabel->setVisible(isSimulator);
 }
