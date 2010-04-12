@@ -69,6 +69,21 @@ void LdParser::stdError(const QString &line)
                           -1 /* linenumber */,
                           Constants::TASK_CATEGORY_COMPILE));
         return;
+    } else if (m_regExpGccNames.indexIn(lne) > -1) {
+        QString description = lne.mid(m_regExpGccNames.matchedLength());
+        Task task(Task::Error,
+                  description,
+                  QString(), /* filename */
+                  -1, /* line */
+                  Constants::TASK_CATEGORY_COMPILE);
+        if (description.startsWith(QLatin1String("warning: "))) {
+            task.type = Task::Warning;
+            task.description = description.mid(9);
+        } else if (description.startsWith(QLatin1String("fatal: ")))  {
+            task.description = description.mid(7);
+        }
+        emit addTask(task);
+        return;
     } else if (m_regExpLinker.indexIn(lne) > -1) {
         bool ok;
         int lineno = m_regExpLinker.cap(4).toInt(&ok);
