@@ -163,14 +163,14 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
     m_group.insert(theFakeVimSetting(ConfigHlSearch),
         m_ui.checkBoxHlSearch);
     m_group.insert(theFakeVimSetting(ConfigShiftWidth),
-        m_ui.lineEditShiftWidth);
+        m_ui.spinBoxShiftWidth);
 
     m_group.insert(theFakeVimSetting(ConfigSmartTab),
         m_ui.checkBoxSmartTab);
     m_group.insert(theFakeVimSetting(ConfigStartOfLine),
         m_ui.checkBoxStartOfLine);
     m_group.insert(theFakeVimSetting(ConfigTabStop),
-        m_ui.lineEditTabStop);
+        m_ui.spinBoxTabStop);
     m_group.insert(theFakeVimSetting(ConfigBackspace),
         m_ui.lineEditBackspace);
 
@@ -191,16 +191,16 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         this, SLOT(setPlainStyle()));
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords)
-            << ' ' << m_ui.labelAutoIndent->text()
-            << ' ' << m_ui.labelExpandTab->text()
-            << ' ' << m_ui.labelSmartIndent->text()
-            << ' ' << m_ui.labelExpandTab->text()
-            << ' ' << m_ui.labelHlSearch->text()
-            << ' ' << m_ui.labelIncSearch->text()
+            << ' ' << m_ui.checkBoxAutoIndent->text()
+            << ' ' << m_ui.checkBoxExpandTab->text()
+            << ' ' << m_ui.checkBoxSmartIndent->text()
+            << ' ' << m_ui.checkBoxExpandTab->text()
+            << ' ' << m_ui.checkBoxHlSearch->text()
+            << ' ' << m_ui.checkBoxIncSearch->text()
+            << ' ' << m_ui.checkBoxSmartTab->text()
+            << ' ' << m_ui.checkBoxStartOfLine->text()
             << ' ' << m_ui.labelShiftWidth->text()
-            << ' ' << m_ui.labelSmartTab->text()
-            << ' ' << m_ui.labelStartOfLine->text()
-            << ' ' << m_ui.tabulatorLabel->text()
+            << ' ' << m_ui.labelTabulator->text()
             << ' ' << m_ui.labelBackspace->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
@@ -213,8 +213,8 @@ void FakeVimOptionPage::copyTextEditorSettings()
         TextEditor::TextEditorSettings::instance()->tabSettings();
 
     m_ui.checkBoxExpandTab->setChecked(ts.m_spacesForTabs);
-    m_ui.lineEditTabStop->setText(QString::number(ts.m_tabSize));
-    m_ui.lineEditShiftWidth->setText(QString::number(ts.m_indentSize));
+    m_ui.spinBoxTabStop->setValue(ts.m_tabSize);
+    m_ui.spinBoxShiftWidth->setValue(ts.m_indentSize);
     m_ui.checkBoxSmartTab->setChecked(ts.m_smartBackspace);
     m_ui.checkBoxAutoIndent->setChecked(true);
     m_ui.checkBoxSmartIndent->setChecked(ts.m_autoIndent);
@@ -225,9 +225,8 @@ void FakeVimOptionPage::copyTextEditorSettings()
 void FakeVimOptionPage::setQtStyle()
 {
     m_ui.checkBoxExpandTab->setChecked(true);
-    const QString four = QString(QLatin1Char('4'));
-    m_ui.lineEditTabStop->setText(four);
-    m_ui.lineEditShiftWidth->setText(four);
+    m_ui.spinBoxTabStop->setValue(4);
+    m_ui.spinBoxShiftWidth->setValue(4);
     m_ui.checkBoxSmartTab->setChecked(true);
     m_ui.checkBoxAutoIndent->setChecked(true);
     m_ui.checkBoxSmartIndent->setChecked(true);
@@ -238,9 +237,8 @@ void FakeVimOptionPage::setQtStyle()
 void FakeVimOptionPage::setPlainStyle()
 {
     m_ui.checkBoxExpandTab->setChecked(false);
-    const QString eight = QString(QLatin1Char('4'));
-    m_ui.lineEditTabStop->setText(eight);
-    m_ui.lineEditShiftWidth->setText(eight);
+    m_ui.spinBoxTabStop->setValue(8);
+    m_ui.spinBoxShiftWidth->setValue(8);
     m_ui.checkBoxSmartTab->setChecked(false);
     m_ui.checkBoxAutoIndent->setChecked(false);
     m_ui.checkBoxSmartIndent->setChecked(false);
