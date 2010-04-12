@@ -461,6 +461,8 @@ void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
             SLOT(addTarget(ProjectExplorer::Target*)));
     connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
             SLOT(removeTarget(ProjectExplorer::Target*)));
+    connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+            SLOT(changeActiveTarget(ProjectExplorer::Target*)));
 
     if (project == ProjectExplorerPlugin::instance()->startupProject()) {
         m_projectsBox->setCurrentIndex(pos);
@@ -544,6 +546,23 @@ void MiniProjectTargetSelector::removeTarget(ProjectExplorer::Target *target)
     disconnect(target, SIGNAL(toolTipChanged()), this, SLOT(updateAction()));
     disconnect(target, SIGNAL(iconChanged()), this, SLOT(updateAction()));
     disconnect(target, SIGNAL(overlayIconChanged()), this, SLOT(updateAction()));
+}
+
+void MiniProjectTargetSelector::changeActiveTarget(ProjectExplorer::Target *target)
+{
+    int index = indexFor(target->project());
+    if (index < 0)
+        return;
+    ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
+
+    for (int i = 0; i < plw->count(); ++i) {
+        QListWidgetItem *itm = plw->item(i);
+        MiniTargetWidget *mtw = qobject_cast<MiniTargetWidget*>(plw->itemWidget(itm));
+        if (mtw->target() == target) {
+            plw->setCurrentItem(itm);
+            break;
+        }
+    }
 }
 
 void MiniProjectTargetSelector::updateAction()

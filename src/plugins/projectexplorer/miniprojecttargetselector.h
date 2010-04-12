@@ -125,6 +125,7 @@ private slots:
     void removeProject(ProjectExplorer::Project *project);
     void addTarget(ProjectExplorer::Target *target, bool isActiveTarget = false);
     void removeTarget(ProjectExplorer::Target *target);
+    void changeActiveTarget(ProjectExplorer::Target *target);
     void emitStartupProjectChanged(int index);
     void changeStartupProject(ProjectExplorer::Project *project);
     void updateAction();
