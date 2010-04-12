@@ -396,19 +396,22 @@ void PropertyEditor::changeValue(const QString &propertyName)
             castedValue = QVariant(newColor);
         }
 
-    try {
-        if (!value->value().isValid()) { //reset
-            fxObjectNode.removeVariantProperty(propertyName);
-        } else {
-            if (castedValue.isValid() && !castedValue.isNull())
-                m_locked = true;
+        if (!castedValue.isValid())
+            return;
+
+        try {
+            if (!value->value().isValid()) { //reset
+                fxObjectNode.removeVariantProperty(propertyName);
+            } else {
+                if (castedValue.isValid() && !castedValue.isNull())
+                    m_locked = true;
                 fxObjectNode.setVariantProperty(propertyName, castedValue);
                 m_locked = false;
+            }
         }
-    }
-    catch (RewritingException &e) {
-        QMessageBox::warning(0, "Error", e.description());
-    }
+        catch (RewritingException &e) {
+            QMessageBox::warning(0, "Error", e.description());
+        }
 }
 
 void PropertyEditor::changeExpression(const QString &name)
