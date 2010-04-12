@@ -95,7 +95,6 @@ void NavigatorView::modelAttached(Model *model)
 #ifdef _LOCK_ITEMS_
     treeView->header()->resizeSection(2,20);
 #endif
-    treeView->setHeaderHidden(true);
 }
 
 void NavigatorView::modelAboutToBeDetached(Model *model)

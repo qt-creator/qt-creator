@@ -49,6 +49,7 @@ NavigatorWidget::NavigatorWidget(QWidget* parent) :
     m_treeView->header()->setStretchLastSection(false);
     m_treeView->setDefaultDropAction(Qt::LinkAction);
     m_treeView->setFocusPolicy(Qt::NoFocus);
+    m_treeView->setHeaderHidden(true);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setSpacing(0);
