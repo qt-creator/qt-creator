@@ -14,22 +14,22 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
    <property name="topMargin">
-    <number>9</number>
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
    </property>
    <property name="bottomMargin">
     <number>2</number>
    </property>
    <item>
-    <widget class="QFrame" name="frame">
+    <widget class="QFrame" name="contentframe">
      <property name="styleSheet">
-      <string notr="true">#frame{
-   border: 1px solid #c9c9c9;
-   border-radius: 3px;
-   padding: 2px;
-   background: #f9f9f9;
-   margin: 1px;
-}</string>
+      <string notr="true"/>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -46,14 +46,14 @@
            <string/>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
-           <property name="rightMargin">
-            <number>9</number>
-           </property>
            <property name="horizontalSpacing">
             <number>0</number>
            </property>
            <property name="verticalSpacing">
             <number>3</number>
+           </property>
+           <property name="rightMargin">
+            <number>9</number>
            </property>
            <item row="3" column="0" colspan="3">
             <widget class="Utils::WelcomeModeTreeWidget" name="projTreeWidget">
