@@ -96,6 +96,9 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 
 void AbstractMaemoRunControl::deploy()
 {
+    Core::ICore::instance()->progressManager()
+        ->addTask(m_progress.future(), tr("Deploying"),
+                  QLatin1String("Maemo.Deploy"));
     if (!deployables.isEmpty()) {
         QList<SshDeploySpec> deploySpecs;
         QStringList files;
@@ -113,15 +116,13 @@ void AbstractMaemoRunControl::deploy()
                 this, SLOT(deployProcessFinished()));
         connect(sshDeployer.data(), SIGNAL(fileCopied(QString)),
                 this, SLOT(handleFileCopied()));
-        Core::ICore::instance()->progressManager()
-                ->addTask(m_progress.future(), tr("Deploying"),
-                          QLatin1String("Maemo.Deploy"));
         m_progress.setProgressRange(0, deployables.count());
         m_progress.setProgressValue(0);
         m_progress.reportStarted();
         emit started();
         sshDeployer->start();
     } else {
+        m_progress.reportFinished();
         handleDeploymentFinished(true);
     }
 }
