@@ -41,6 +41,8 @@
 #include "maemosshthread.h"
 
 #include <QtCore/QRegExp>
+#include <QtCore/QTextStream>
+
 #include <QtCore/QFileInfo>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
@@ -125,6 +127,33 @@ MaemoSettingsWidget::~MaemoSettingsWidget()
 {
 }
 
+QString MaemoSettingsWidget::searchKeywords() const
+{
+    QString rc;
+    QTextStream(&rc) << m_ui->configurationLabel->text()
+        << ' ' << m_ui->gdbServerLabel->text()
+        << ' ' << m_ui->sshPortLabel->text()
+        << ' ' << m_ui->keyButton->text()
+        << ' ' << m_ui->passwordButton->text()
+        << ' ' << m_ui->authTypeLabel->text()
+        << ' ' << m_ui->connectionTimeoutLabel->text()
+        << ' ' << m_ui->deviceButton->text()
+        << ' ' << m_ui->simulatorButton->text()
+        << ' ' << m_ui->deviceTypeLabel->text()
+        << ' ' << m_ui->deviceNameLabel->text()
+        << ' ' << m_ui->hostNameLabel->text()
+        << ' ' << m_ui->keyLabel->text()
+        << ' ' << m_ui->nameLineEdit->text()
+        << ' ' << m_ui->passwordLabel->text()
+        << ' ' << m_ui->portsLabel->text()
+        << ' ' << m_ui->pwdLineEdit->text()
+        << ' ' << m_ui->timeoutLineEdit->text()
+        << ' ' << m_ui->userLineEdit->text()
+        << ' ' << m_ui->userNameLabel->text();
+    rc.remove(QLatin1Char('&'));
+    return rc;
+}
+
 void MaemoSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
@@ -133,13 +162,15 @@ void MaemoSettingsWidget::initGui()
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     foreach (const MaemoDeviceConfig &devConf, m_devConfs)
         m_ui->configurationComboBox->addItem(devConf.name);
-    connect(m_ui->configurationComboBox, SIGNAL(currentIndexChanged(int)), SLOT(currentConfigChanged(int)));
+    connect(m_ui->configurationComboBox, SIGNAL(currentIndexChanged(int)),
+        SLOT(currentConfigChanged(int)));
     currentConfigChanged(m_ui->configurationComboBox->currentIndex());
 }
 
 void MaemoSettingsWidget::addConfig()
 {
-    const QString prefix = tr("New Device Configuration %1", "Standard Configuration name with number");
+    const QString prefix = tr("New Device Configuration %1", "Standard "
+        "Configuration name with number");
     int suffix = 1;
     QString newName;
     bool isUnique = false;
@@ -331,12 +362,9 @@ void MaemoSettingsWidget::deployKey()
         return;
 
     m_ui->deployKeyButton->disconnect();
-    SshDeploySpec deploySpec(keyFile,
-                             homeDirOnDevice(currentConfig().uname)
-                                 + QLatin1String("/.ssh/authorized_keys"),
-                             true);
-    m_keyDeployer = new MaemoSshDeployer(currentConfig(),
-                                         QList<SshDeploySpec>() << deploySpec);
+    SshDeploySpec deploySpec(keyFile, homeDirOnDevice(currentConfig().uname)
+        + QLatin1String("/.ssh/authorized_keys"), true);
+    m_keyDeployer = new MaemoSshDeployer(currentConfig(), QList<SshDeploySpec>() << deploySpec);
     connect(m_keyDeployer, SIGNAL(finished()),
             this, SLOT(handleDeployThreadFinished()));
     m_ui->deployKeyButton->setText(tr("Stop deploying"));
@@ -350,11 +378,13 @@ void MaemoSettingsWidget::handleDeployThreadFinished()
     if (!m_keyDeployer)
         return;
 
-    if (m_keyDeployer->hasError())
-        QMessageBox::critical(this, tr("Deployment Failed"), tr("Key deployment failed: %1").arg(m_keyDeployer->error()));
-    else
-        QMessageBox::information(this, tr("Deployment Succeeded"), tr("Key was successfully deployed."));
-
+    if (m_keyDeployer->hasError()) {
+        QMessageBox::critical(this, tr("Deployment Failed"),
+            tr("Key deployment failed: %1").arg(m_keyDeployer->error()));
+    } else {
+        QMessageBox::information(this, tr("Deployment Succeeded"),
+            tr("Key was successfully deployed."));
+    }
     stopDeploying();
 }
 
@@ -368,8 +398,7 @@ void MaemoSettingsWidget::stopDeploying()
         delete m_keyDeployer;
         m_keyDeployer = 0;
         m_ui->deployKeyButton->setText(tr("Deploy Key ..."));
-        connect(m_ui->deployKeyButton, SIGNAL(clicked()),
-                this, SLOT(deployKey()));
+        connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(deployKey()));
         m_ui->deployKeyButton->setEnabled(buttonWasEnabled);
     }
 }

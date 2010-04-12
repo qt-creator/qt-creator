@@ -60,7 +60,10 @@ class MaemoSettingsWidget : public QWidget
 public:
     MaemoSettingsWidget(QWidget *parent);
     ~MaemoSettingsWidget();
+
     void saveSettings();
+    QString searchKeywords() const;
+
 private slots:
     void currentConfigChanged(int index);
     void addConfig();

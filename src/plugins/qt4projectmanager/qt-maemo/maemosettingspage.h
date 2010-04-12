@@ -61,11 +61,13 @@ public:
     virtual QString category() const;
     virtual QString displayCategory() const;
     virtual QIcon categoryIcon() const;
+    virtual bool matches(const QString &searchKeyWord) const;
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish();
 
 private:
+    QString m_keywords;
     MaemoSettingsWidget *m_widget;
 };
 

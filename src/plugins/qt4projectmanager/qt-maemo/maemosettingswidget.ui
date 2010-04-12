@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
-    <height>340</height>
+    <width>448</width>
+    <height>307</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item row="0" column="0" colspan="2">
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="configurationLabel">
        <property name="text">
         <string>Configuration:</string>
        </property>
@@ -114,7 +114,7 @@
         </property>
         <layout class="QFormLayout" name="formLayout_2">
          <item row="0" column="0">
-          <widget class="QLabel" name="deviceTypeLabel_2">
+          <widget class="QLabel" name="deviceNameLabel">
            <property name="text">
             <string>Name</string>
            </property>
@@ -184,7 +184,7 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="hostNameLabel">
            <property name="text">
             <string>Host Name:</string>
            </property>
@@ -198,7 +198,7 @@
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="portsLabel">
            <property name="text">
             <string>Ports:</string>
            </property>
@@ -207,7 +207,7 @@
          <item row="4" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QLabel" name="label_7">
+            <widget class="QLabel" name="sshPortLabel">
              <property name="text">
               <string>SSH:</string>
              </property>
@@ -227,7 +227,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_2">
+            <widget class="QLabel" name="gdbServerLabel">
              <property name="text">
               <string>Gdb server:</string>
              </property>
@@ -246,7 +246,7 @@
           </layout>
          </item>
          <item row="5" column="0">
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="connectionTimeoutLabel">
            <property name="text">
             <string>Connection Timeout:</string>
            </property>
@@ -260,7 +260,7 @@
           </widget>
          </item>
          <item row="6" column="0">
-          <widget class="QLabel" name="label_6">
+          <widget class="QLabel" name="userNameLabel">
            <property name="text">
             <string>User Name:</string>
            </property>

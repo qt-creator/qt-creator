@@ -87,9 +87,16 @@ QIcon MaemoSettingsPage::categoryIcon() const
     return QIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
+bool MaemoSettingsPage::matches(const QString &searchKeyWord) const
+{
+    return m_keywords.contains(searchKeyWord, Qt::CaseInsensitive);
+}
+
 QWidget *MaemoSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new MaemoSettingsWidget(parent);
+    if (m_keywords.isEmpty())
+        m_keywords = m_widget->searchKeywords();
     return m_widget;
 }
 
