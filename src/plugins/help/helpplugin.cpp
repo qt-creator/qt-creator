@@ -224,29 +224,55 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     action->setText(cmd->action()->text());
     action->setIcon(cmd->action()->icon());
 
-    if (Core::ActionContainer *advancedMenu =
-        am->actionContainer(Core::Constants::M_EDIT_ADVANCED)) {
+    if (Core::ActionContainer *advancedMenu = am->actionContainer(M_EDIT_ADVANCED)) {
         // reuse TextEditor constants to avoid a second pair of menu actions
-        QAction *a = new QAction(tr("Increase Font Size"), this);
-        cmd = am->registerAction(a, TextEditor::Constants::INCREASE_FONT_SIZE,
+        action = new QAction(tr("Increase Font Size"), this);
+        cmd = am->registerAction(action, TextEditor::Constants::INCREASE_FONT_SIZE,
             modecontext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl++")));
-        connect(a, SIGNAL(triggered()), m_centralWidget, SLOT(zoomIn()));
+        connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(zoomIn()));
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
 
-        a = new QAction(tr("Decrease Font Size"), this);
-        cmd = am->registerAction(a, TextEditor::Constants::DECREASE_FONT_SIZE,
+        action = new QAction(tr("Decrease Font Size"), this);
+        cmd = am->registerAction(action, TextEditor::Constants::DECREASE_FONT_SIZE,
             modecontext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+-")));
-        connect(a, SIGNAL(triggered()), m_centralWidget, SLOT(zoomOut()));
+        connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(zoomOut()));
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
 
-        a = new QAction(tr("Reset Font Size"), this);
-        cmd = am->registerAction(a,  TextEditor::Constants::RESET_FONT_SIZE,
+        action = new QAction(tr("Reset Font Size"), this);
+        cmd = am->registerAction(action, TextEditor::Constants::RESET_FONT_SIZE,
             modecontext);
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+0")));
-        connect(a, SIGNAL(triggered()), m_centralWidget, SLOT(resetZoom()));
+        connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(resetZoom()));
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
+    }
+
+    if (Core::ActionContainer *windowMenu = am->actionContainer(M_WINDOW)) {
+        // reuse EditorManager constants to avoid a second pair of menu actions
+        action = new QAction(QApplication::tr("EditorManager",
+            "Next Open Document in History"), this);
+        Core::Command *ctrlTab = am->registerAction(action, GOTOPREVINHISTORY,
+            modecontext);   // Goto Previous In History Action
+        windowMenu->addAction(ctrlTab, Core::Constants::G_WINDOW_NAVIGATE);
+        connect(action, SIGNAL(triggered()), &OpenPagesManager::instance(),
+            SLOT(gotoPreviousPage()));
+
+        action = new QAction(QApplication::tr("EditorManager",
+            "Previous Open Document in History"), this);
+        Core::Command *ctrlShiftTab = am->registerAction(action, GOTONEXTINHISTORY,
+            modecontext);   // Goto Next In History Action
+        windowMenu->addAction(ctrlShiftTab, Core::Constants::G_WINDOW_NAVIGATE);
+        connect(action, SIGNAL(triggered()), &OpenPagesManager::instance(),
+            SLOT(gotoNextPage()));
+
+#ifdef Q_WS_MAC
+        ctrlTab->setDefaultKeySequence(QKeySequence(tr("Alt+Tab")));
+        ctrlShiftTab->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+Tab")));
+#else
+        ctrlTab->setDefaultKeySequence(QKeySequence(tr("Ctrl+Tab")));
+        ctrlShiftTab->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Tab")));
+#endif
     }
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;

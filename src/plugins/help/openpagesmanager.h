@@ -44,6 +44,8 @@ namespace Help {
 
 class HelpViewer;
 class OpenPagesModel;
+class OpenPagesSwicher;
+class OpenPagesWidget;
 
 class OpenPagesManager : public QObject
 {
@@ -51,6 +53,7 @@ class OpenPagesManager : public QObject
 
 public:
     OpenPagesManager(QObject *parent = 0);
+    ~OpenPagesManager();
 
     static OpenPagesManager &instance();
 
@@ -72,17 +75,21 @@ public slots:
     void closePage(const QModelIndex &index);
     void closePagesExcept(const QModelIndex &index);
 
+    void gotoNextPage();
+    void gotoPreviousPage();
+
 signals:
     void pagesChanged();
 
 private:
-    void selectCurrentPage();
     void removePage(int index);
+    void showTwicherOrSelectPage() const;
 
 private:
     QComboBox *m_comboBox;
     OpenPagesModel *m_model;
-    QTreeView *m_openPagesWidget;
+    OpenPagesWidget *m_openPagesWidget;
+    OpenPagesSwicher *m_openPagesSwicher;
 
     static OpenPagesManager *m_instance;
 };

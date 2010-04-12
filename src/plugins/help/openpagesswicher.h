@@ -27,61 +27,50 @@
 **
 **************************************************************************/
 
-#ifndef OPENPAGESWIDGET_H
-#define OPENPAGESWIDGET_H
+#ifndef OPENPAGESSWICHER_H
+#define OPENPAGESSWICHER_H
 
-#include <QtGui/QStyledItemDelegate>
-#include <QtGui/QTreeView>
+#include <QtGui/QWidget>
+
+QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
 namespace Help {
     namespace Internal {
 
 class OpenPagesModel;
+class OpenPagesWidget;
 
-class OpenPagesDelegate : public QStyledItemDelegate
+class OpenPagesSwicher : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit OpenPagesDelegate(QObject *parent = 0);
+    OpenPagesSwicher(OpenPagesModel *model);
+    ~OpenPagesSwicher();
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-        const QModelIndex &index) const;
+    void gotoNextPage();
+    void gotoPreviousPage();
 
-    mutable QModelIndex pressedIndex;
-};
-
-class OpenPagesWidget : public QTreeView
-{
-    Q_OBJECT
-
-public:
-    OpenPagesWidget(OpenPagesModel *model, QWidget *parent = 0);
-    ~OpenPagesWidget();
-
+    void selectAndHide();
     void selectCurrentPage();
-    void allowContextMenu(bool ok);
+
+    void setVisible(bool visible);
+    void focusInEvent(QFocusEvent *event);
+    bool eventFilter(QObject *object, QEvent *event);
 
 signals:
+    void closePage(const QModelIndex &index);
     void setCurrentPage(const QModelIndex &index);
 
-    void closePage(const QModelIndex &index);
-    void closePagesExcept(const QModelIndex &index);
-
-private slots:
-    void contextMenuRequested(QPoint pos);
-    void handlePressed(const QModelIndex &index);
-    void handleClicked(const QModelIndex &index);
+private:
+    void selectPageUpDown(int summand);
 
 private:
-    bool eventFilter(QObject *obj, QEvent *event);
-
-private:
-    bool m_allowContextMenu;
-    OpenPagesDelegate *m_delegate;
+    OpenPagesModel *m_openPagesModel;
+    OpenPagesWidget *m_openPagesWidget;
 };
 
-    } // namespace Internal
-} // namespace Help
+    }   // namespace Internal
+}   // namespace Help
 
-#endif // OPENPAGESWIDGET_H
+#endif  // OPENPAGESSWICHER_H

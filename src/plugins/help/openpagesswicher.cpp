@@ -1,0 +1,151 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#include "openpagesswicher.h"
+
+#include "centralwidget.h"
+#include "openpagesmodel.h"
+#include "openpageswidget.h"
+
+#include <QtCore/QEvent>
+
+#include <QtGui/QKeyEvent>
+
+using namespace Help::Internal;
+
+const int gMargin = 4;
+const int gWidth = 300;
+const int gHeight = 200;
+
+OpenPagesSwicher::OpenPagesSwicher(OpenPagesModel *model)
+    : QWidget(0, Qt::Popup)
+    , m_openPagesModel(model)
+{
+    resize(gWidth, gHeight);
+
+    m_openPagesWidget = new OpenPagesWidget(m_openPagesModel, this);
+
+    m_openPagesWidget->allowContextMenu(false);
+    m_openPagesWidget->installEventFilter(this);
+    m_openPagesWidget->setTextElideMode(Qt::ElideMiddle);
+    m_openPagesWidget->setGeometry(gMargin, gMargin, gWidth - 2 * gMargin,
+        gHeight - 2 * gMargin);
+
+    connect(m_openPagesWidget, SIGNAL(closePage(QModelIndex)), this,
+        SIGNAL(closePage(QModelIndex)));
+    connect(m_openPagesWidget, SIGNAL(setCurrentPage(QModelIndex)), this,
+        SIGNAL(setCurrentPage(QModelIndex)));
+}
+
+OpenPagesSwicher::~OpenPagesSwicher()
+{
+}
+
+void OpenPagesSwicher::gotoNextPage()
+{
+    selectPageUpDown(-1);
+}
+
+void OpenPagesSwicher::gotoPreviousPage()
+{
+    selectPageUpDown(1);
+}
+
+void OpenPagesSwicher::selectAndHide()
+{
+    setVisible(false);
+    emit setCurrentPage(m_openPagesWidget->currentIndex());
+}
+
+void OpenPagesSwicher::selectCurrentPage()
+{
+    m_openPagesWidget->selectCurrentPage();
+}
+
+void OpenPagesSwicher::setVisible(bool visible)
+{
+    QWidget::setVisible(visible);
+    if (visible)
+        setFocus();
+}
+
+void OpenPagesSwicher::focusInEvent(QFocusEvent *event)
+{
+    Q_UNUSED(event)
+    m_openPagesWidget->setFocus();
+}
+
+bool OpenPagesSwicher::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == m_openPagesWidget) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+            if (ke->key() == Qt::Key_Escape) {
+                setVisible(false);
+                return true;
+            }
+
+            const int key = ke->key();
+            if (key == Qt::Key_Return || key == Qt::Key_Enter || key == Qt::Key_Space) {
+                emit setCurrentPage(m_openPagesWidget->currentIndex());
+                return true;
+            }
+        } else if (event->type() == QEvent::KeyRelease) {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+            if (ke->modifiers() == 0
+               /*HACK this is to overcome some event inconsistencies between platforms*/
+               || (ke->modifiers() == Qt::AltModifier
+               && (ke->key() == Qt::Key_Alt || ke->key() == -1))) {
+                selectAndHide();
+            }
+        }
+    }
+    return QWidget::eventFilter(object, event);
+}
+
+void OpenPagesSwicher::selectPageUpDown(int summand)
+{
+    const int pageCount = m_openPagesModel->rowCount();
+    if (pageCount < 2)
+        return;
+
+    const QModelIndexList &list = m_openPagesWidget->selectionModel()->selectedIndexes();
+    if (list.isEmpty())
+        return;
+
+    QModelIndex index = list.first();
+    if (!index.isValid())
+        return;
+
+    index = m_openPagesModel->index((index.row() + summand + pageCount) % pageCount, 0);
+    if (index.isValid()) {
+        m_openPagesWidget->setCurrentIndex(index);
+        m_openPagesWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
+    }
+}

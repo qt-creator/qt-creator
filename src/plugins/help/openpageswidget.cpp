@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "openpageswidget.h"
+
+#include "centralwidget.h"
 #include "openpagesmodel.h"
 
 #include <QtGui/QApplication>
@@ -80,7 +82,9 @@ void OpenPagesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
 // -- OpenPagesWidget
 
-OpenPagesWidget::OpenPagesWidget(OpenPagesModel *model)
+OpenPagesWidget::OpenPagesWidget(OpenPagesModel *model, QWidget *parent)
+    : QTreeView(parent)
+    , m_allowContextMenu(true)
 {
     setModel(model);
     setIndentation(0);
@@ -116,12 +120,26 @@ OpenPagesWidget::~OpenPagesWidget()
 {
 }
 
+void OpenPagesWidget::selectCurrentPage()
+{
+    QItemSelectionModel * const selModel = selectionModel();
+    selModel->clearSelection();
+    selModel->select(model()->index(CentralWidget::instance()->currentIndex(), 0),
+        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    scrollTo(currentIndex());
+}
+
+void OpenPagesWidget::allowContextMenu(bool ok)
+{
+    m_allowContextMenu = ok;
+}
+
 // -- private slots
 
 void OpenPagesWidget::contextMenuRequested(QPoint pos)
 {
     const QModelIndex &index = indexAt(pos);
-    if (!index.isValid())
+    if (!index.isValid() || !m_allowContextMenu)
         return;
 
     QMenu contextMenu;

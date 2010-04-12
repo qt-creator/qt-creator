@@ -63,17 +63,17 @@ HelpManager::HelpManager(QObject *parent)
 
 HelpManager::~HelpManager()
 {
-    delete m_guiEngine;
-    m_guiEngine = 0;
-
-    delete m_coreEngine;
-    m_coreEngine = 0;
-
     if (m_bookmarkManager) {
         m_bookmarkManager->saveBookmarks();
         delete m_bookmarkManager;
         m_bookmarkManager = 0;
     }
+
+    delete m_guiEngine;
+    m_guiEngine = 0;
+
+    delete m_coreEngine;
+    m_coreEngine = 0;
 }
 
 HelpManager& HelpManager::instance()

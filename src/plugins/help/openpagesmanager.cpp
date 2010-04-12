@@ -34,8 +34,10 @@
 #include "helpmanager.h"
 #include "helpviewer.h"
 #include "openpagesmodel.h"
+#include "openpagesswicher.h"
 #include "openpageswidget.h"
 
+#include <QtGui/QApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QTreeView>
 
@@ -52,6 +54,7 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     , m_comboBox(0)
     , m_model(0)
     , m_openPagesWidget(0)
+    , m_openPagesSwicher(0)
 {
     Q_ASSERT(!m_instance);
 
@@ -70,6 +73,18 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     m_comboBox->setModel(m_model);
     m_comboBox->setMinimumContentsLength(40);
     connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(setCurrentPage(int)));
+
+    m_openPagesSwicher = new OpenPagesSwicher(m_model);
+    connect(m_openPagesSwicher, SIGNAL(closePage(QModelIndex)), this,
+        SLOT(closePage(QModelIndex)));
+    connect(m_openPagesSwicher, SIGNAL(setCurrentPage(QModelIndex)), this,
+        SLOT(setCurrentPage(QModelIndex)));
+}
+
+OpenPagesManager ::~OpenPagesManager()
+{
+    m_instance = 0;
+    delete m_openPagesSwicher;
 }
 
 OpenPagesManager &OpenPagesManager::instance()
@@ -153,6 +168,7 @@ void OpenPagesManager::setupInitialPages()
 
     emit pagesChanged();
     setCurrentPage(initialPage);
+    m_openPagesSwicher->selectCurrentPage();
 }
 
 // -- public slots
@@ -186,18 +202,16 @@ HelpViewer *OpenPagesManager::createPage(const QUrl &url, bool fromSearch)
 
 void OpenPagesManager::setCurrentPage(int index)
 {
-    m_comboBox->setCurrentIndex(index);
     CentralWidget::instance()->setCurrentPage(m_model->pageAt(index));
 
-    selectCurrentPage();    // update the selection inside the tree view
+    m_comboBox->setCurrentIndex(index);
+    m_openPagesWidget->selectCurrentPage();
 }
 
 void OpenPagesManager::setCurrentPage(const QModelIndex &index)
 {
-    if (index.isValid()) {
-        m_comboBox->setCurrentIndex(index.row());
-        CentralWidget::instance()->setCurrentPage(m_model->pageAt(index.row()));
-    }
+    if (index.isValid())
+        setCurrentPage(index.row());
 }
 
 void OpenPagesManager::closeCurrentPage()
@@ -230,16 +244,29 @@ void OpenPagesManager::closePagesExcept(const QModelIndex &index)
     }
 }
 
-// -- private
-
-void OpenPagesManager::selectCurrentPage()
+void OpenPagesManager::gotoNextPage()
 {
-    QItemSelectionModel * selModel = m_openPagesWidget->selectionModel();
-    selModel->clearSelection();
-    selModel->select(m_model->index(CentralWidget::instance()->currentIndex(), 0),
-        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    m_openPagesWidget->scrollTo(m_openPagesWidget->currentIndex());
+    if (!m_openPagesSwicher->isVisible()) {
+        m_openPagesSwicher->selectCurrentPage();
+        m_openPagesSwicher->gotoNextPage();
+        showTwicherOrSelectPage();
+    } else {
+        m_openPagesSwicher->gotoNextPage();
+    }
 }
+
+void OpenPagesManager::gotoPreviousPage()
+{
+    if (!m_openPagesSwicher->isVisible()) {
+        m_openPagesSwicher->selectCurrentPage();
+        m_openPagesSwicher->gotoPreviousPage();
+        showTwicherOrSelectPage();
+    } else {
+        m_openPagesSwicher->gotoPreviousPage();
+    }
+}
+
+// -- private
 
 void OpenPagesManager::removePage(int index)
 {
@@ -249,5 +276,19 @@ void OpenPagesManager::removePage(int index)
     CentralWidget::instance()->removePage(index);
 
     emit pagesChanged();
-    selectCurrentPage();    // update the selection inside the tree view
+    m_openPagesWidget->selectCurrentPage();
+}
+
+void OpenPagesManager::showTwicherOrSelectPage() const
+{
+    if (QApplication::keyboardModifiers() != Qt::NoModifier) {
+        const int width = CentralWidget::instance()->width();
+        const int height = CentralWidget::instance()->height();
+        const QPoint p(CentralWidget::instance()->mapToGlobal(QPoint(0, 0)));
+        m_openPagesSwicher->move((width - m_openPagesSwicher->width()) / 2 + p.x(),
+            (height - m_openPagesSwicher->height()) / 2 + p.y());
+        m_openPagesSwicher->setVisible(true);
+    } else {
+        m_openPagesSwicher->selectAndHide();
+    }
 }

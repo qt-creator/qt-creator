@@ -24,6 +24,7 @@ HEADERS += \
     helpviewer_p.h \
     openpagesmanager.h \
     openpagesmodel.h \
+    openpagesswicher.h \
     openpageswidget.h \
     searchwidget.h \
     xbelsupport.h
@@ -43,6 +44,7 @@ SOURCES += \
     helpviewer_qwv.cpp \
     openpagesmanager.cpp \
     openpagesmodel.cpp \
+    openpagesswicher.cpp \
     openpageswidget.cpp \
     searchwidget.cpp \
     xbelsupport.cpp
