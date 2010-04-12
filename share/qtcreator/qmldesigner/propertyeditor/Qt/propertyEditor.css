@@ -375,7 +375,7 @@ QMenu {
      background-color: #494949;
      border: 1px solid black;
      margin: 0px;
-     color: #cacaca;
+     color: #dadada;
  }
 
  QMenu::item {
@@ -389,6 +389,10 @@ QMenu {
      color: #404040;
      border-radius: 4px;
      padding: 2px 25px 2px 20px;
+ }
+ 
+  QMenu::item:disabled {    
+    color: #aaaaaa;
  }
 QMenu::separator {
      height: 1px;

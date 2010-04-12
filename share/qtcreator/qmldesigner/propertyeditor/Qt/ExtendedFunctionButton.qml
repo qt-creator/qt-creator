@@ -62,8 +62,9 @@ QToolButton {
     actions:  [
     QAction {
         text: qsTr("Reset")
+        visible: backendValue.isInSubState || backendValue.isInModel
         onTriggered: {
-            backendValue.resetValue();
+            backendValue.resetValue();            
         }
 
     },
