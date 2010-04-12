@@ -37,7 +37,8 @@ namespace TextEditor {
 namespace Internal {
 
 struct TEXTEDITOR_EXPORT OverlaySelection {
-    OverlaySelection():m_fixedLength(-1), m_dropShadow(false), m_expandBegin(false){}
+    OverlaySelection():m_fixedLength(-1), m_dropShadow(false),
+    m_expandBegin(false), m_verticalBlockSelection(0){}
     QTextCursor m_cursor_begin;
     QTextCursor m_cursor_end;
     QColor m_fg;
@@ -45,6 +46,7 @@ struct TEXTEDITOR_EXPORT OverlaySelection {
     int m_fixedLength;
     bool m_dropShadow;
     bool m_expandBegin;
+    int m_verticalBlockSelection;
 };
 
 class TEXTEDITOR_EXPORT TextEditorOverlay : public QObject
@@ -90,9 +92,9 @@ public:
     };
 
     void addOverlaySelection(const QTextCursor &cursor, const QColor &fg, const QColor &bg,
-                             uint overlaySelectionFlags = 0);
+                             uint overlaySelectionFlags = 0, int verticalBlockSelection = 0);
     void addOverlaySelection(int begin, int end, const QColor &fg, const QColor &bg,
-                             uint overlaySelectionFlags = 0);
+                             uint overlaySelectionFlags = 0, int verticalBlockSelection = 0);
 
     inline bool isEmpty() const { return m_selections.isEmpty(); }
 
@@ -101,7 +103,8 @@ public:
     bool hasCursorInSelection(const QTextCursor &cursor) const;
 
 private:
-    QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip);
+    QPainterPath createSelectionPath(const QTextCursor &begin, const QTextCursor &end, const QRect& clip,
+                                     int verticalBlockSelection);
     void paintSelection(QPainter *painter, const OverlaySelection &selection);
     void fillSelection(QPainter *painter, const OverlaySelection &selection, const QColor &color);
 

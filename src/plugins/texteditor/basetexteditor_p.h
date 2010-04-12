@@ -250,6 +250,7 @@ public:
     bool m_moveLineUndoHack;
 
     QTextCursor m_findScope;
+    int m_findScopeVerticalBlockSelection;
     QTextCursor m_selectBlockAnchor;
 
     void moveCursorVisible(bool ensureVisible = true);

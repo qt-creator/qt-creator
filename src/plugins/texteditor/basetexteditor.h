@@ -285,6 +285,7 @@ private:
 class TEXTEDITOR_EXPORT BaseTextEditor : public QPlainTextEdit
 {
     Q_OBJECT
+    Q_PROPERTY(int verticalBlockSelection READ verticalBlockSelection)
 
 public:
     BaseTextEditor(QWidget *parent);
@@ -382,6 +383,9 @@ public:
 
     void insertCodeSnippet(const QTextCursor &cursor, const QString &snippet);
 
+
+    int verticalBlockSelection() const;
+
 public slots:
     void setDisplayName(const QString &title);
 
@@ -457,7 +461,7 @@ private slots:
     void memorizeCursorPosition();
     void restoreCursorPosition();
     void highlightSearchResults(const QString &txt, Find::IFindSupport::FindFlags findFlags);
-    void setFindScope(const QTextCursor &);
+    void setFindScope(const QTextCursor &, int);
     void currentEditorChanged(Core::IEditor *editor);
     void maybeEmitContentsChangedBecauseOfUndo();
 

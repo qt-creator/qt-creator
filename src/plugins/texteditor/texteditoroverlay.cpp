@@ -71,7 +71,8 @@ void TextEditorOverlay::clear()
 
 void TextEditorOverlay::addOverlaySelection(int begin, int end,
                                             const QColor &fg, const QColor &bg,
-                                            uint overlaySelectionFlags)
+                                            uint overlaySelectionFlags,
+                                            int verticalBlockSelection)
 {
     if (end < begin)
         return;
@@ -97,6 +98,8 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
 
     selection.m_dropShadow = (overlaySelectionFlags & DropShadow);
 
+    selection.m_verticalBlockSelection = verticalBlockSelection;
+
     m_selections.append(selection);
     update();
 }
@@ -104,9 +107,11 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
 
 void TextEditorOverlay::addOverlaySelection(const QTextCursor &cursor,
                                             const QColor &fg, const QColor &bg,
-                                            uint overlaySelectionFlags)
+                                            uint overlaySelectionFlags,
+                                            int verticalBlockSelection)
 {
-    addOverlaySelection(cursor.selectionStart(), cursor.selectionEnd(), fg, bg, overlaySelectionFlags);
+    addOverlaySelection(cursor.selectionStart(), cursor.selectionEnd(), fg, bg, overlaySelectionFlags,
+                        verticalBlockSelection);
 }
 
 QRect TextEditorOverlay::rect() const
@@ -115,7 +120,7 @@ QRect TextEditorOverlay::rect() const
 }
 
 QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, const QTextCursor &end,
-                                                    const QRect &clip)
+                                                    const QRect &clip, int verticalBlockSelection)
 {
     if (begin.isNull() || end.isNull() || begin.position() > end.position())
         return QPainterPath();
@@ -128,6 +133,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         || m_editor->blockBoundingGeometry(end.block()).translated(offset).bottom() < clip.top() - 10
         )
         return QPainterPath(); // nothing of the selection is visible
+
 
     QTextBlock block = begin.block();
 
@@ -159,10 +165,12 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
 
             int beginChar = 0;
             if (!inSelection) {
-                beginChar = begin.position() - begin.block().position();
+                beginChar = begin.positionInBlock();
                 line = blockLayout->lineForTextPosition(beginChar);
                 inSelection = true;
                 firstOrLastBlock = true;
+            } else if (verticalBlockSelection) {
+                beginChar = qMin(block.length()-1, begin.positionInBlock());
             } else {
                 while (beginChar < block.length() && document->characterAt(block.position() + beginChar).isSpace())
                     ++beginChar;
@@ -173,10 +181,12 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
             int lastLine = blockLayout->lineCount()-1;
             int endChar = -1;
             if (block == end.block()) {
-                endChar = end.position()  - end.block().position();
+                endChar = end.positionInBlock();
                 lastLine = blockLayout->lineForTextPosition(endChar).lineNumber();
                 inSelection = false;
                 firstOrLastBlock = true;
+            } else if (verticalBlockSelection) {
+                endChar = qMin(block.length()-1, begin.positionInBlock() + verticalBlockSelection);
             } else {
                 endChar = block.length();
                 while (endChar > beginChar && document->characterAt(block.position() + endChar - 1).isSpace())
@@ -197,7 +207,7 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
                         lineRect.setRight(line.cursorToX(endChar));
                     selection += lineRect.translated(blockGeometry.topLeft());
                 }
-            } else { // empty lines
+            } else if (!verticalBlockSelection){ // empty lines
                 const int emptyLineSelectionSize = 16;
                 if (!firstOrLastBlock && !selection.isEmpty()) { // middle
                     lineRect.setLeft(selection.last().left());
@@ -314,7 +324,8 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
         || begin.position() > end.position())
         return;
 
-    QPainterPath path = createSelectionPath(begin, end, m_editor->viewport()->rect());
+    QPainterPath path = createSelectionPath(begin, end, m_editor->viewport()->rect(),
+                                            selection.m_verticalBlockSelection);
 
     painter->save();
     QColor penColor = fg;
@@ -374,7 +385,8 @@ void TextEditorOverlay::fillSelection(QPainter *painter,
     if (begin.isNull() || end.isNull() || begin.position() > end.position())
         return;
 
-    QPainterPath path = createSelectionPath(begin, end, m_editor->viewport()->rect());
+    QPainterPath path = createSelectionPath(begin, end, m_editor->viewport()->rect(),
+                                            selection.m_verticalBlockSelection);
 
     painter->save();
     painter->translate(-.5, -.5);

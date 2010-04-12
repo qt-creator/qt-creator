@@ -2195,6 +2195,15 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
     text.replace(QChar::Nbsp, QLatin1Char(' '));
     int idx = -1;
     int l = 1;
+
+    int m_findScopeFirstColumn = 0;
+    if (!m_findScope.isNull() && m_findScopeVerticalBlockSelection)  {
+        QTextCursor b = cursor;
+        cursor.setPosition(m_findScope.selectionStart());
+        m_findScopeFirstColumn = cursor.positionInBlock();
+    }
+
+
     while (idx < text.length()) {
         idx = m_searchExpr.indexIn(text, idx + l);
         if (idx < 0)
@@ -2205,19 +2214,26 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
             continue;
 
-        if (m_findScope.isNull()
-            || (blockPosition + idx >= m_findScope.selectionStart()
-                && blockPosition + idx + l <= m_findScope.selectionEnd())) {
-
-            overlay->addOverlaySelection(blockPosition + idx,
-                                         blockPosition + idx + l,
-                                         m_searchResultFormat.background().color().darker(120),
-                                         QColor(),
-                                         (idx == cursor.selectionStart() - blockPosition
-                                          && idx + l == cursor.selectionEnd() - blockPosition)?
-                                         TextEditorOverlay::DropShadow : 0);
-
+        if (!m_findScope.isNull()) {
+            if (blockPosition + idx < m_findScope.selectionStart()
+                || blockPosition + idx + l > m_findScope.selectionEnd())
+                continue;
+            if (m_findScopeVerticalBlockSelection) {
+                if (idx < m_findScopeFirstColumn
+                    || idx + l > m_findScopeFirstColumn + m_findScopeVerticalBlockSelection)
+                    continue;
+            }
         }
+
+
+        overlay->addOverlaySelection(blockPosition + idx,
+                                     blockPosition + idx + l,
+                                     m_searchResultFormat.background().color().darker(120),
+                                     QColor(),
+                                     (idx == cursor.selectionStart() - blockPosition
+                                      && idx + l == cursor.selectionEnd() - blockPosition)?
+                                     TextEditorOverlay::DropShadow : 0);
+
     }
 }
 
@@ -2475,7 +2491,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
         TextEditorOverlay *overlay = new TextEditorOverlay(this);
         overlay->addOverlaySelection(d->m_findScope, d->m_searchScopeFormat.background().color().darker(120),
-                                     d->m_searchScopeFormat.background().color());
+                                     d->m_searchScopeFormat.background().color(),
+                                     0,
+                                     d->m_findScopeVerticalBlockSelection);
         overlay->setAlpha(false);
         overlay->paint(&painter, e->rect());
         delete overlay;
@@ -4674,10 +4692,23 @@ void BaseTextEditor::highlightSearchResults(const QString &txt, Find::IFindSuppo
     d->m_delayedUpdateTimer->start(10);
 }
 
-void BaseTextEditor::setFindScope(const QTextCursor &scope)
+int BaseTextEditor::verticalBlockSelection() const
+{
+    if (!d->m_inBlockSelectionMode)
+        return 0;
+    QTextCursor b = textCursor();
+    QTextCursor e = b;
+    b.setPosition(b.selectionStart());
+    e.setPosition(e.selectionEnd());
+
+    return qAbs(b.positionInBlock() - e.positionInBlock()) + d->m_blockSelectionExtraX;
+}
+
+void BaseTextEditor::setFindScope(const QTextCursor &scope, int verticalBlockSelection)
 {
     if (scope.isNull() != d->m_findScope.isNull()) {
         d->m_findScope = scope;
+        d->m_findScopeVerticalBlockSelection = verticalBlockSelection;
         viewport()->update();
     }
 }
@@ -5628,7 +5659,7 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     BaseTextFind *baseTextFind = new BaseTextFind(editor);
     connect(baseTextFind, SIGNAL(highlightAll(QString, Find::IFindSupport::FindFlags)),
             editor, SLOT(highlightSearchResults(QString, Find::IFindSupport::FindFlags)));
-    connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor)), editor, SLOT(setFindScope(QTextCursor)));
+    connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor, int)), editor, SLOT(setFindScope(QTextCursor, int)));
     aggregate->add(baseTextFind);
     aggregate->add(editor);
 

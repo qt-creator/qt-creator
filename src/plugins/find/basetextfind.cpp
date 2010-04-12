@@ -215,7 +215,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
     QRegExp regexp(before);
     regexp.setPatternSyntax(usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
     regexp.setCaseSensitivity((findFlags & IFindSupport::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
-    QTextCursor found = document()->find(regexp, editCursor, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+    QTextCursor found = findOne(regexp, editCursor, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
     while (!found.isNull() && found.selectionStart() < found.selectionEnd()
             && inScope(found.selectionStart(), found.selectionEnd())) {
         ++count;
@@ -224,7 +224,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
         regexp.exactMatch(found.selectedText());
         QString realAfter = usesRegExp ? expandRegExpReplacement(after, regexp) : after;
         editCursor.insertText(realAfter);
-        found = document()->find(regexp, editCursor, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+        found = findOne(regexp, editCursor, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
     }
     editCursor.endEditBlock();
     return count;
@@ -241,7 +241,7 @@ bool BaseTextFind::find(const QString &txt,
     QRegExp regexp(txt);
     regexp.setPatternSyntax((findFlags&IFindSupport::FindRegularExpression) ? QRegExp::RegExp : QRegExp::FixedString);
     regexp.setCaseSensitivity((findFlags&IFindSupport::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
-    QTextCursor found = document()->find(regexp, start, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+    QTextCursor found = findOne(regexp, start, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
 
     if (!m_findScope.isNull()) {
 
@@ -251,7 +251,7 @@ bool BaseTextFind::find(const QString &txt,
                 start.setPosition(m_findScope.selectionStart());
             else
                 start.setPosition(m_findScope.selectionEnd());
-            found = document()->find(regexp, start, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+            found = findOne(regexp, start, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
             if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd()))
                 return false;
         }
@@ -263,7 +263,7 @@ bool BaseTextFind::find(const QString &txt,
                 start.movePosition(QTextCursor::Start);
             else
                 start.movePosition(QTextCursor::End);
-            found = document()->find(regexp, start, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
+            found = findOne(regexp, start, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
             if (found.isNull()) {
                 return false;
             }
@@ -273,6 +273,28 @@ bool BaseTextFind::find(const QString &txt,
         setTextCursor(found);
     }
     return true;
+}
+
+
+// helper function. Works just like QTextDocument::find() but supports vertical block selection
+QTextCursor BaseTextFind::findOne(const QRegExp &expr, const QTextCursor &from, QTextDocument::FindFlags options) const
+{
+    QTextCursor candidate = document()->find(expr, from, options);
+    if (!m_findScopeVerticalBlockSelection)
+        return candidate;
+    forever {
+        if (!inScope(candidate.selectionStart(), candidate.selectionEnd()))
+            return candidate;
+        QTextCursor b = candidate;
+        b.setPosition(candidate.selectionStart());
+        QTextCursor e = candidate;
+        e.setPosition(candidate.selectionEnd());
+        if (b.positionInBlock() >= m_findScopeFromColumn
+            && e.positionInBlock() <= m_findScopeToColumn)
+            return candidate;
+        candidate = document()->find(expr, candidate, options);
+    }
+    return candidate;
 }
 
 bool BaseTextFind::inScope(int startPosition, int endPosition) const
@@ -288,8 +310,25 @@ void BaseTextFind::defineFindScope()
     QTextCursor cursor = textCursor();
     if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor())) {
         m_findScope = cursor;
-        emit findScopeChanged(m_findScope);
-        cursor.setPosition(cursor.selectionStart());
+        m_findScopeVerticalBlockSelection = false;
+
+        int verticalBlockSelection = 0;
+        if (m_plaineditor && m_plaineditor->metaObject()->indexOfProperty("verticalBlockSelection") >= 0)
+            verticalBlockSelection = m_plaineditor->property("verticalBlockSelection").toInt();
+
+        if (verticalBlockSelection) {
+            QTextDocument *doc = document();
+            QTextCursor b(doc->docHandle(), cursor.selectionStart());
+            QTextCursor e(doc->docHandle(), cursor.selectionEnd());
+            m_findScopeFromColumn = qMin(b.positionInBlock(), e.positionInBlock());
+            m_findScopeToColumn = m_findScopeFromColumn + verticalBlockSelection;
+            m_findScope.setPosition(b.block().position() + m_findScopeFromColumn);
+            m_findScope.setPosition(e.block().position() + qMin(e.block().length()-1, m_findScopeToColumn),
+                                    QTextCursor::KeepAnchor);
+            m_findScopeVerticalBlockSelection = verticalBlockSelection;
+        }
+        emit findScopeChanged(m_findScope, m_findScopeVerticalBlockSelection);
+        cursor.setPosition(m_findScope.selectionStart());
         setTextCursor(cursor);
     } else {
         clearFindScope();
@@ -299,5 +338,6 @@ void BaseTextFind::defineFindScope()
 void BaseTextFind::clearFindScope()
 {
     m_findScope = QTextCursor();
-    emit findScopeChanged(m_findScope);
+    m_findScopeVerticalBlockSelection = 0;
+    emit findScopeChanged(m_findScope, m_findScopeVerticalBlockSelection);
 }
