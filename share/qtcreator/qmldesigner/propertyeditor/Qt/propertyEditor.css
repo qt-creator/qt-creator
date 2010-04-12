@@ -1,11 +1,11 @@
 QFrame, QSpinBox {
     background-color: #4f4f4f;
+    font-size: 11px;
 }
 
 QFrame 
 {
-    border-radius: 0px;
-    font-size: 11px
+    border-radius: 0px;    
 }
 
 WidgetFrame {
@@ -44,6 +44,7 @@ QGroupBox
 QLineEdit 
 {
      color: white;
+     font-size: 11px;
      border: 2px solid #0F0F0F;
      border-radius: 6px;
      border-width: 1;
@@ -56,6 +57,7 @@ QLineEdit
 QPlainTextEdit
 {
     border: 2px solid #0F0F0F;
+    font-size: 11px;
     border-radius: 6px;
     color: white;
     padding: 8 8px;
@@ -202,6 +204,7 @@ QPushButton, QComboBox[editable="false"],
 QComboBox[editable="true"] {
     border-image: url(:/qmldesigner/images/combobox-normal.png) 4;
     border-width: 3;
+    font-size: 11px;
 }
 
 QPushButton:hover, QComboBox[editable="false"]:hover,
