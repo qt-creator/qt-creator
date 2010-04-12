@@ -295,8 +295,9 @@ int main(int argc, char **argv)
     {
         QStringList errors;
         foreach (ExtensionSystem::PluginSpec *p, pluginManager.plugins())
-            if (p->hasError())
-                errors.append(p->errorString());
+            // only show errors on startup if plugin is enabled.
+            if (p->hasError() && p->isEnabled() && !p->isDisabledByDependency())
+                errors.append(p->name() + "\n" + p->errorString());
         if (!errors.isEmpty())
             QMessageBox::warning(0,
                 QCoreApplication::translate("Application", "Qt Creator - Plugin loader messages"),
