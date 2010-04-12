@@ -154,7 +154,6 @@ bool QMakeStep::init()
     else
         workingDirectory = qt4bc->buildDirectory();
 
-    qDebug()<<"using working directory"<<workingDirectory<<"and args"<<args;
     QString program = qtVersion->qmakeCommand();
 
     // Check whether we need to run qmake
