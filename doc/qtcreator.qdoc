@@ -71,6 +71,12 @@
                 \o \l{Developing Usable Applications}
             \endlist
        \o \l{Debugging}
+            \list
+                \o \l{Debugging the Example Application}
+                \o \l{Interacting with the Debugger}
+                \o \l{Setting Up Debugger}
+                \o \l{Using Debugging Helpers}
+            \endlist
        \o \l{Using Version Control Systems}
        \o \l{Adding Qt Designer Plugins}
        \o \l{Tips and Tricks}
@@ -2211,7 +2217,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging.html
+    \previouspage creator-debugging-helpers.html
     \page creator-version-control.html
     \nextpage adding-plugins.html
 
@@ -2656,60 +2662,175 @@
     \contentspage index.html
     \previouspage creator-usability.html
     \page creator-debugging.html
-    \nextpage creator-version-control.html
+    \nextpage creator-debugging-example.html
 
     \title Debugging
 
+    Qt Creator does not include a debugger. It provides a debugger plugin that acts
+    as an interface between the Qt Creator core and debugger engines. Each debugger
+    engine provides an interface to a native debugger, such as GNU Symbolic Debugger (gdb),
+    Microsoft Console Debugger (CDB), and \e script that is used to debug Java Script
+    on all platforms.
 
-    \section1 About Debugging with Qt Creator
+    In the \gui Debug mode you can interact with the debugger engines to:
+    \list
+        \o Go through a program line-by-line or instruction-by-instruction.
+        \o Interrupt running programs.
+        \o Set breakpoints.
+        \o Examine the contents of the call stack, local and global variables, and so on.
+    \endlist
 
-    Qt Creator does not have its own debugger. Qt Creator provides a graphical
-    frontend to the following:
+    Qt Creator displays the raw information provided by the debugger engine
+    in a clear and concise manner, which simplifies the debugging process.
+
+    Qt Creator comes with generic IDE functionality: stack view, views for
+    locals and watchers, registers, and so on. In addition, Qt Creator includes
+    features to make debugging Qt-based applications easy. The debugger
+    plugin understands the internal layout of several Qt classes, for
+    example, QString, the QTL containers, and most importantly QObject
+    (and classes derived from it), as well as most containers of the C++
+    Standard Library. The debugger plugin can present its contents in a useful way.
+
+    For an example of how to debug applications in the \gui Debug mode, see
+    \l{Debugging the Example Application}.
+
+    For more information about the functions available in the \gui Debug mode,
+    see \l{Interacting with the Debugger}.
+
+    If you install Qt Creator as part of a Qt SDK, the gdb debugger engine is installed
+    automatically and you should be ready to start debugging after you create a new
+    project. If you want a special setup, such as using debugging tools for Windows,
+    or if the debugging engine is not installed, see \l {Setting Up Debugger}.
+
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debug-mode.html
+    \page creator-debugger-engines.html
+    \nextpage creator-debugging-helpers.html
+
+    \title Setting Up Debugger
+
+    Typically, the interaction between Qt Creator and the gdb debugger engine is set
+    up automatically and you do not need to do anything. However, you might have an
+    unsupported gdb version installed, your Linux environment might not have gdb
+    installed at all, or you might want to use the debugging tools for Windows.
+
+    \note To use the debugging tools for Windows, you must install them and add the
+    Symbol Server provided by Microsoft to the symbol search path of the debugger.
+    For more information, see \l{Setting the Symbol Server in Windows}.
+
+    This section explains the
+    options you have for debugging C++ code and provides installation notes for the
+    supported debugger engines.
+
+    \section1 Supported Debugger Engines
+
+    The gdb debugger engine can be used with or without Python. The Python version
+    is preferred, but it is not available on Mac and on older versions of Linux.
+    On Windows, Symbian, and Maemo, only the Python version is supported.
+
+    The non-Python versions use the compiled version of the debugging helpers,
+    that you must enable separately. For more information, see
+    \l{Debugging Helper Library with C++}.
+
+    The Python version uses the script version that does not need any special setup.
+
+    The CDB debugger engine has similar funtionality to the non-Python gdb debugger
+    engine on Linux. Specifically, it also uses compiled C++ code for the debugging
+    helper library.
+
+    The following table summarizes the support for debugging C++ code:
 
     \table
         \header
             \o Platform
             \o Compiler
             \o Debugger Engine
+            \o Python
+            \o Debugger Adapters
         \row
-            \o Linux, Unixes, Mac OS
+            \o Linux
             \o gcc
-            \o GNU Symbolic Debugger (gdb)
+            \o gdb
+            \o Optional
+            \o Term, Plain, Attach (with Python, only), Remote
+        \row
+            \o Unix
+            \o gcc
+            \o gdb
+            \o Yes
+            \o Term, Plain, Attach, Remote
+        \row
+            \o Mac OS
+            \o gcc
+            \o gdb
+            \o No
+            \o Term, Plain, Attach
         \row
             \o Windows/MinGW
             \o gcc
-            \o GNU Symbolic Debugger (gdb)
+            \o gdb
+            \o No
+            \o Term, Plain, Attach, Remote
         \row
-            \o Windows
+            \o Windows/MSVC
             \o Microsoft Visual C++ Compiler
-            \o Debugging Tools for Windows/Microsoft Console Debugger (CDB)
+            \o Debugging Tools for Windows/CDB
+            \o Not applicable
+            \o Term, Plain, Attach
+        \row
+            \o Symbian
+            \o gcc
+            \o gdb
+            \o Yes
+            \o TRK
+        \row
+            \o Maemo
+            \o gcc
+            \o gdb
+            \o Yes
+            \o Remote
     \endtable
 
-    The frontend allows you to:
+    \section2 Debugger Adapter Modes
+
+    The gdb debugger engine runs in different adapter modes to cope with the variety
+    of supported platforms and environments. All gdb adapters inherit from
+    AbstractGdbAdapters:
+
     \list
-        \o Go through a program line-by-line or instruction-by-instruction.
-        \o Interrupt running programs.
-        \o Set breakpoints.
-        \o Examine the contents of the call stack, local and global variables, etc.
-    \endlist
 
-    Qt Creator displays the raw information provided by the engine
-    in a clear and concise manner. This simplifies the debugging process.
+       \o PlainGdbAdapter debugs locally started GUI processes.
+       It is physically split into parts that are relevant only when Python is
+       available, parts relevant only when Python is not available, and mixed code.
 
-    Qt Creator comes with generic IDE functionality: stack view, views for
-    locals and watchers, registers, etc. In addition, Qt Creator includes
-    features to make debugging Qt-based applications easy. The debugger
-    frontend understands the internal layout of several Qt classes, for
-    example, QString, the QTL containers, and most importantly QObject
-    (and classes derived from it), as well as most containers of the C++
-    Standard Library. The debugger can present its contents in a useful way.
+       \o TermGdbAdapter debugs locally started processes that need a
+       console.
 
+       \o AttachGdbAdapter debugs local processes started outside Qt Creator.
 
-    \section1 Debugger Engine Installation Notes
+       \o CoreGdbAdapter debugs core files generated from crashes.
+
+       \o RemoteGdbAdapter interacts with the gdbserver running on Linux.
+
+       \o TrkGdbAdapter interacts with Symbian devices. The gdb protocol and
+       the gdb serial protocol are used between gdb and the adapter. The TRK
+       protocol is used between the adapter and AppTRK running on the device.
+
+     \endlist
+
+    \section1 Installing Debugger Engines
+
+    If the debugger engine is missing, the installed version is not supported,
+    or you want to use the debugging tools for Windows,
+    check the table below for the supported versions and other important information about
+    installing debugger engines.
 
     \table
         \header
-            \o Debugger engine
+            \o Debugger Engine
             \o Notes
         \row
             \o Gdb
@@ -2733,6 +2854,11 @@
                Creator using the Microsoft Visual C++ Compiler, the
                \c{"%ProgramFiles%\Debugging Tools for Windows"} path is
                checked to ensure that all required header files are there.
+
+               You must also add the Symbol Server provided by Microsoft to the symbol
+               search path of the debugger. For more information, see
+               \l{Setting the Symbol Server in Windows}.
+
        \row
            \o Debugging tools for Mac OS X
            \o The Qt binary distribution contains both debug and release
@@ -2742,31 +2868,53 @@
               library.
 
               If you use a qmake based project in Qt Creator,  you can set a
-              flag in your run configuration, in Projects mode. In the run
+              flag in your run configuration, in \gui Projects mode. In the run
               configuration, select \gui{Use debug version of frameworks}.
 
-              For more detailed information about debugging on the Mac, refer:
+              For more detailed information about debugging on the Mac, see:
               \l http://developer.apple.com/mac/library/technotes/tn2004/tn2124.html
 
         \note The Mac OS X Snow Leopard (10.6) has a bug, that can be worked
               around as described in the link provided below:
               \l http://bugreports.qt.nokia.com/browse/QTBUG-4962.
 
-    \endtable
+    \endtable    
+
+    \section1 Setting the Symbol Server in Windows
+
+    To obtain debugging information for the operating system libraries for
+    debugging Windows applications, add the Symbol Server provided
+    by Microsoft to the symbol search path of the debugger:
+    \list 1
+        \o  Select \gui Tools > \gui{Options...} > \gui Debugger > \gui Cdb.
+        \o  In the \gui {Symbol paths} field, open the \gui{Insert...} menu
+            and select \gui{Symbol Server...}.
+        \o  Select a directory where you want to store the cached information
+            and click \gui OK.
+    \endlist
 
 
-    \section1 Interaction with the Debugger
+*/
 
-    In \gui Debug mode, several dock widgets are used to interact with the
-    program you are debugging. Frequently used dock widgets are visible by
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging-example.html
+    \page creator-debug-mode.html
+    \nextpage creator-debugger-engines.html
+
+    \title Interacting with the Debugger
+
+    In \gui Debug mode, you can use several views to interact with the
+    program you are debugging. Frequently used views are shown by
     default and rarely used ones are hidden. To change the default settings,
-    select \gui Debug > \gui View, and then select an option to
-    lock or unlock the location of the dock widgets or display
-    or hide them. The position of your dock widgets is saved for future
+    select \gui Debug > \gui Views, and then select views to display
+    or hide. You can also lock views. The position of views is saved for future
     sessions.
 
+    \image qtcreator-debugger-views.png "Debug mode views"
 
-    \section2 Usage of the Debugger
+
+    \section1 Starting the Debugger
 
     To start a program under the debugger's control, select \gui{Debug} >
     \gui{Start Debugging} > \gui{Start Debugging}, or press \key{F5}.
@@ -2794,17 +2942,24 @@
     \endlist
 
 
-    You can use the debugger views to examine the data in more detail.
+    You can use the \gui Debug mode views to examine the data in more detail.
 
-    To finish debugging, press \key{Shift+F5}. You can execute a line of code
-    as a whole with \key{F10}. To step into a function or a sub-function, use
-    \key{F11}. You can also continue running the program with \key{F5}.
+    You can use the following keyboard shortcuts:
+
+    \list
+
+       \o To finish debugging, press \key{Shift+F5}.
+       \o  To execute a line of code as a whole, press \key{F10}.
+       \o  To step into a function or a sub-function, press \key{F11}.
+       \o  To continue running the program, press \key{F5}.
+
+    \endlist
 
     It is also possible to continue executing the program until the current
     function completes or jump to an arbitrary position in the current function.
 
 
-    \section2 Breakpoints
+    \section1 Setting Breakpoints
 
     A breakpoint represents a position or sets of positions in the code that,
     when executed, interrupts the program being debugged and passes the control
@@ -2814,6 +2969,8 @@
     Qt Creator shows breakpoints in the \gui{Breakpoints} view which is enabled
     by default. The \gui{Breakpoints} view is also accessible when the debugger
     and the program being debugged is not running.
+
+    \image qtcreator-debug-breakpoints.png "Breakpoints view"
 
     Typically, breakpoints are associated with a source code file and line, or
     the start of a function -- both are allowed in Qt Creator.
@@ -2828,7 +2985,7 @@
           left margin or press \key F9 (\key F8 for Mac OS X).
        \o At a function that you want the program to interrupt, enter the
           function's name in \gui{Set Breakpoint at Function...} located in the
-          context menu of the breakpoints view.
+          context menu of the \gui{Breakpoints} view.
     \endlist
 
     \note You can remove a breakpoint:
@@ -2836,7 +2993,7 @@
         \o By clicking the breakpoint marker in the text editor.
         \o By selecting the breakpoint in the breakpoint view and pressing
            \key{Delete}.
-        \o By selecting \gui{Delete Breakpoint} from the breakpoint's context
+        \o By selecting \gui{Delete Breakpoint} from the context
            menu in the \gui Breakpoints view.
     \endlist
 
@@ -2845,7 +3002,7 @@
     together with a session.
 
 
-    \section2 Stack
+    \section1 Viewing Call Stack Trace
 
     When the program being debugged is interrupted, Qt Creator displays the
     nested function calls leading to the current position as a call stack
@@ -2867,7 +3024,7 @@
     function.
 
 
-    \section2 Threads
+    \section1 Viewing Threads
 
     If a multi-threaded program is interrupted, the \gui Thread view or the
     combobox named \gui Thread in the debugger's status bar can be used to
@@ -2875,24 +3032,34 @@
     accordingly.
 
 
-    \section2 Modules View and Source Files View
+    \section1 Viewing Modules and Source Files
 
-    The \gui{Modules} view and \gui{Source Files} view display the debugger's idea.
+    The \gui{Modules} view and \gui{Source Files} views display information
+    that the debugger plugin has about modules and source files included in
+    the project. The \gui{Modules} view lists the modules in the project and
+    symbols within the modules. In addition, it indicates where the module
+    was loaded.
+
+    The \gui{Source Files} view lists all the source files included in the project.
+    If you cannot step into an instruction, you can check whether the source file is
+    actually part of the project, or whether it was compiled
+    elsewhere. The view shows the path to each file in the file system.
+
     By default, the \gui{Modules} view and \gui{Source Files} view are hidden.
 
 
-    \section2 Disassembler View and Registers View
+    \section1 Viewing Disassembled Code and Register State
 
     The \gui{Disassembler} view displays disassembled code for the current
     function. The \gui{Registers} view displays the current state of the CPU's
     registers.
 
     The \gui{Disassembler} view and the \gui{Registers} view are both useful
-    for low-level commands such as \gui{Step Single Instruction} and
-    \gui{Step Over Single Instruction}. By default, both \gui{Disassembler} and
+    for low-level commands for checking single instructions, such as \gui{Step Into}
+    and \gui{Step Over}. By default, both \gui{Disassembler} and
     \gui{Registers} view are hidden.
 
-    \section2 Locals and Watchers
+    \section1 Locals and Watchers
 
     Whenever a program stops under the control of the debugger, it retrieves
     information about the topmost stack frame and displays it in the
@@ -2900,10 +3067,12 @@
     typically includes information about parameters of the function in that
     frame as well as the local variables.
 
+    \image qtcreator-watcher.png "Locals and Watchers view"
+
     Compound variables of struct or class type are displayed as
-    "expandable" in the view. Click the "+" to expand the entry and show
+    expandable in the view. Expand entries to show
     all members. Together with the display of value and type, you can
-    examine and traverse the low-level layout of an object's data.
+    examine and traverse the low-level layout of object data.
 
 
     \table
@@ -2922,7 +3091,7 @@
                 Therefore, Qt Creator can not tell whether the contents of a
                 local variable contains "real data", or "initial noise". If a
                 QObject appears uninitialized, its value is reported as
-                "out of scope". Not all uninitialized objects, however, can be
+                \gui {not in scope}. Not all uninitialized objects, however, can be
                 recognized as such.
     \endtable
 
@@ -2955,47 +3124,52 @@
 
     \note The set of watched items is saved in your session.
 
-    \section1 Walkthrough for the Debugger Frontend
+*/
 
-    The \l{Creating a Qt C++ Application}{TextFinder} example reads a text file into
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging.html
+    \page creator-debugging-example.html
+    \nextpage creator-debug-mode.html
+
+    \title Debugging the Example Application
+
+    This section uses the \l{Creating a Qt C++ Application}{TextFinder} example to
+    illustrate how to debug applications in the \gui Debug mode. TextFinder
+    reads a text file into
     QString and then displays it with QTextEdit.
-
-    If you want to look at the example's QString, \c{line}, and see the
-    stored data, you must place a breakpoint and view the QString object's
-    data. Perform the following steps:
-
-    \table
-        \row
-            \i \inlineimage qtcreator-setting-breakpoint1.png
-            \i \bold{Setting a Breakpoint}
+    To look at the example QString, \c{line}, and see the
+    stored data, place a breakpoint and view the QString object
+    data, as follows:
 
     \list 1
         \o Click in between the line number and the window border on the line
         where we invoke \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
         to set a breakpoint.
-        \o Select \gui{Start Debugging} from the \gui{Debug} menu or press \key{F5}.
-    \endlist
 
-        \row
-            \i \inlineimage qtcreator-setting-breakpoint2.png
-            \i \bold{Viewing and removing breakpoints}
+        \image qtcreator-setting-breakpoint1.png
 
-    Breakpoints are visible in the \gui{Breakpoints} view in \gui{Debug} mode.
-    To remove a breakpoint, right-click it and select \gui{Delete breakpoint}.
+        \o Select \gui{Debug > Start Debugging > Start Debugging} or press \key{F5}.
 
-        \row
-            \i \inlineimage qtcreator-watcher.png
-            \i \bold{Viewing Locals and Watchers}
 
-    To view the contents of \c{line}, go to the \gui{Locals and
+        \o To view the breakpoint, click the \gui{Breakpoints} tab.
+
+        \image qtcreator-setting-breakpoint2.png
+
+        \o To remove a breakpoint, right-click it and select \gui{Delete Breakpoint}.
+
+
+        \o To view the contents of \c{line}, go to the \gui{Locals and
     Watchers} view.
 
-    \endtable
+        \image qtcreator-watcher.png
 
-    If you modify your \c{on_findButton_clicked()} function to move back to
+    \endlist
+
+    Modify the \c{on_findButton_clicked()} function to move back to
     the start of the document and continue searching once the cursor hits the
-    end of the document. You can add the restart from beginning functionality
-    with the following code snippet:
+    end of the document. Add the following code snippet:
 
     \code
     void TextFinder::on_findButton_clicked()
@@ -3033,21 +3207,16 @@
 
     \image qtcreator-debugging-buttons.png
 
+ */
 
-    \section1 Setting the Symbol Server in Windows
 
-    To obtain debugging information for the operating system libraries for
-    debugging Windows applications, add the Symbol Server provided
-    by Microsoft to the symbol search path of the debugger:
-    \list 1
-        \o  Select \gui Tools > \gui{Options...} > \gui Debugger > \gui Cdb.
-        \o  Click \inlineimage qtcreator-serverbutton.png
-            located next to the \gui{Insert...} button of the Symbol paths
-            field and select \gui{Symbol Server...}.
-        \o  Select a directory where you want to store the cached information
-            and click \gui OK.
-    \endlist
+/*!
+    \contentspage index.html
+    \previouspage creator-debugger-engines.html
+    \page creator-debugging-helpers.html
+    \nextpage creator-version-control.html
 
+    \title Using Debugging Helpers
 
     \section1 Debugging Helper Library with C++
 
@@ -3062,19 +3231,19 @@
 
     \section1 Debugging Helper Library with Python
 
-    Using a gdb version that has Python scripting available it is possible to
-    use Debugging Helpers also for user defined types. To do so you need to
+    With the gdb Python version, you can
+    use debugging helpers also for user defined types. To do so,
     define one Python function per user defined type in \c{.gdbinit}.
 
-    The function's name has to be qdump__NS__Foo where NS::Foo is the class
+    The function name has to be qdump__NS__Foo, where NS::Foo is the class
     or class template to be examined. Nested namespaces are possible.
 
-    Qt Creator's debugger integration calls this function whenever you want to
+    The debugger plugin calls this function whenever you want to
     display an object of this type. The function is passed the following
     parameters:
     \list
-       \o  'd' of type 'Dumper'
-       \o  'item' of type 'Item'
+       \o  \c d of type \c Dumper
+       \o  \c item of type \c Item
     \endlist
 
     The function has to feed the Dumper object with certain information
@@ -3106,10 +3275,10 @@
             d.endChildren()
     \endcode
 
-    \section2 'Item' Python Class
+    \section2 Item Python Class
 
-    The 'Item' Python class is a thin wrapper around values corresponding to one
-    line in the \gui{Locals and Watchers} view. The 'Item' members are as follows :
+    The Item Python class is a thin wrapper around values corresponding to one
+    line in the \gui{Locals and Watchers} view. The Item members are as follows :
 
     \list
 
@@ -3132,10 +3301,10 @@
     \endlist
 
 
-    \section2 'Dumper' Python Class
+    \section2 Dumper Python Class
 
     For each line in the \gui{Locals and Watchers} view, a string like the
-    following needs to be created and channeled to Creator's debugger plugin.
+    following needs to be created and channeled to the debugger plugin.
     \code
     "{iname='some internal name',
       addr='object address in memory',
@@ -3155,13 +3324,13 @@
     \endcode
 
     While in theory, you can build up the entire string above manually, it is
-    easier to employ the 'Dumper' Python class for that purpose. The 'Dumper'
-    Python class contains a complete framework to take care of the 'iname' and
-    'addr' fields, to handle children of simple types, references, pointers,
+    easier to employ the Dumper Python class for that purpose. The Dumper
+    Python class contains a complete framework to take care of the \c iname and
+    \c addr fields, to handle children of simple types, references, pointers,
     enums, known and unknown structs as well as some convenience methods to
     handle common situations.
 
-    The 'Dumper' members are the following:
+    The Dumper members are the following:
 
     \list
 
@@ -3250,7 +3419,7 @@
         \c putValue with the correct \c encoding setting.
 
     \o \gui{putByteArrayValue(self, value)} - Encodes a QByteArray and calls
-        \c putValue with the corrent \c encoding setting.
+        \c putValue with the correct \c encoding setting.
 
     \o \gui{isExpanded(self, item)} - Checks whether the item with the
         internal name \c item.iname is expanded in the view.
@@ -3279,7 +3448,7 @@
         \endcode
 
     \o \gui{pushOutput(self)} - Moves the output string to a safe location
-        from with it is sent to the frontend even if further operations
+        from with it is sent to the debugger plugin even if further operations
         raise an exception.
 
     \o \gui{putCallItem(self, name, item, func)} -
@@ -3294,25 +3463,31 @@
         \c qdump__* functions whenever appropriate.
 
         \o \gui{putItem(self, item)} - Equivalent to:
+        \code
         self.beginHash()
         self.putItemHelper(item)
         self.endHash()
+        \endcode
 
     \o \gui{safePutItemHelper(self, item)} - Calls \c putItemHelper(self, item).
-        If an exception is raised, catch it, and replace all output produced by
-        \c putItemHelper with the output of \code
-            self.putName(item.name)
-            self.putValue("<invalid>")
-            self.putType(str(item.value.type))
-            self.putNumChild(0)
-            self.beginChildren()
-            self.endChildren() \endcode
+        If an exception is raised, catches it, and replaces all output produced by
+        \c putItemHelper with the output of:
+        \code
+        self.putName(item.name)
+        self.putValue("<invalid>")
+        self.putType(str(item.value.type))
+        self.putNumChild(0)
+        self.beginChildren()
+        self.endChildren()
+        \endcode
 
 
-    \o \gui{safePutItem(self, item)} - Equivalent to
+    \o \gui{safePutItem(self, item)} - Equivalent to:
+        \code
         self.beginHash()
         self.safePutItemHelper(item)
         self.endHash()
+        \endcode
 
     \endlist
 
