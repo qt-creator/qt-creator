@@ -65,6 +65,9 @@ public:
      */
     void applyChanges();
 
+    bool hasNoPendingChanges() const
+    { return m_rewriteActions.isEmpty(); }
+
     void nodeCreated(const ModelNode &createdNode);
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
     void propertiesRemoved(const QList<AbstractProperty>& propertyList);

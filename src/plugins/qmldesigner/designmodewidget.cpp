@@ -103,7 +103,12 @@ DocumentWarningWidget::DocumentWarningWidget(DesignModeWidget *parent) :
 void DocumentWarningWidget::setError(const RewriterView::Error &error)
 {
     m_error = error;
-    QString str = tr("%3 (%1:%2)").arg(QString::number(error.line()), QString::number(error.column()), error.description());
+    QString str;
+    if (error.type() == RewriterView::Error::ParseError) {
+        str = tr("%3 (%1:%2)").arg(QString::number(error.line()), QString::number(error.column()), error.description());
+    }  else if (error.type() == RewriterView::Error::InternalError) {
+        str = tr("Internal error (%1)") .arg(error.description());
+    }
 
     m_errorMessage->setText(str);
     resize(layout()->totalSizeHint());
