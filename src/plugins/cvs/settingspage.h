@@ -47,7 +47,8 @@ namespace Internal {
 
 struct CVSSettings;
 
-class SettingsPageWidget : public QWidget {
+class SettingsPageWidget : public QWidget
+{
     Q_OBJECT
 public:
     explicit SettingsPageWidget(QWidget *parent = 0);
@@ -88,4 +89,4 @@ private:
 } // namespace CVS
 } // namespace Internal
 
-#endif  // SETTINGSPAGE_H
+#endif // SETTINGSPAGE_H

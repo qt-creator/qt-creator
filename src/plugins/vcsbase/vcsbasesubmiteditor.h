@@ -49,7 +49,7 @@ namespace Utils {
 
 namespace VCSBase {
 namespace Internal {
-    struct VCSBaseSettings;
+    struct CommonVcsSettings;
 }
 struct VCSBaseSubmitEditorPrivate;
 
@@ -183,7 +183,7 @@ private slots:
     void slotCheckSubmitMessage();
     void slotInsertNickName();
     void slotSetFieldNickName(int);
-    void slotUpdateEditorSettings(const VCSBase::Internal::VCSBaseSettings &);
+    void slotUpdateEditorSettings(const VCSBase::Internal::CommonVcsSettings &);
 
 protected:
     /* These hooks allow for modifying the contents that goes to

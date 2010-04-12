@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASESETTINGS_H
-#define VCSBASESETTINGS_H
+#ifndef COMMONVCSSETTINGS_H
+#define COMMONVCSSETTINGS_H
 
 #include <QtCore/QString>
 #include <QtGui/QWidget>
@@ -42,8 +42,9 @@ namespace VCSBase {
 namespace Internal {
 
 // Common VCS settings, message check script and user nick names.
-struct VCSBaseSettings {
-    VCSBaseSettings();
+struct CommonVcsSettings
+{
+    CommonVcsSettings();
 
     QString nickNameMailMap;
     QString nickNameFieldListFile;
@@ -56,14 +57,15 @@ struct VCSBaseSettings {
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);
 
-    bool equals(const VCSBaseSettings &rhs) const;
+    bool equals(const CommonVcsSettings &rhs) const;
 };
 
-inline bool operator==(const VCSBaseSettings &s1, const VCSBaseSettings &s2) { return s1.equals(s2); }
-inline bool operator!=(const VCSBaseSettings &s1, const VCSBaseSettings &s2) { return !s1.equals(s2); }
+inline bool operator==(const CommonVcsSettings &s1, const CommonVcsSettings &s2) { return s1.equals(s2); }
+inline bool operator!=(const CommonVcsSettings &s1, const CommonVcsSettings &s2) { return !s1.equals(s2); }
 
-QDebug operator<<(QDebug,const VCSBaseSettings& );
+QDebug operator<<(QDebug, const CommonVcsSettings &);
+
 } // namespace Internal
 } // namespace VCSBase
 
-#endif // VCSBASESETTINGS_H
+#endif // COMMONVCSSETTINGS_H

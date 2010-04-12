@@ -27,11 +27,11 @@
 **
 **************************************************************************/
 
-#include "vcsbasesettingspage.h"
+#include "commonsettingspage.h"
 #include "vcsbaseconstants.h"
 #include "nicknamedialog.h"
 
-#include "ui_vcsbasesettingspage.h"
+#include "ui_commonsettingspage.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -45,9 +45,9 @@ namespace Internal {
 
 // ------------------ VCSBaseSettingsWidget
 
-VCSBaseSettingsWidget::VCSBaseSettingsWidget(QWidget *parent) :
+CommonSettingsWidget::CommonSettingsWidget(QWidget *parent) :
     QWidget(parent),
-    m_ui(new Ui::VCSBaseSettingsPage)
+    m_ui(new Ui::CommonSettingsPage)
 {
     m_ui->setupUi(this);
     m_ui->submitMessageCheckScriptChooser->setExpectedKind(Utils::PathChooser::Command);
@@ -55,14 +55,14 @@ VCSBaseSettingsWidget::VCSBaseSettingsWidget(QWidget *parent) :
     m_ui->nickNameMailMapChooser->setExpectedKind(Utils::PathChooser::File);
 }
 
-VCSBaseSettingsWidget::~VCSBaseSettingsWidget()
+CommonSettingsWidget::~CommonSettingsWidget()
 {
     delete m_ui;
 }
 
-VCSBaseSettings VCSBaseSettingsWidget::settings() const
+CommonVcsSettings CommonSettingsWidget::settings() const
 {
-    VCSBaseSettings rc;
+    CommonVcsSettings rc;
     rc.nickNameMailMap = m_ui->nickNameMailMapChooser->path();
     rc.nickNameFieldListFile = m_ui->nickNameFieldsFileChooser->path();
     rc.submitMessageCheckScript = m_ui->submitMessageCheckScriptChooser->path();
@@ -71,7 +71,7 @@ VCSBaseSettings VCSBaseSettingsWidget::settings() const
     return rc;
 }
 
-void VCSBaseSettingsWidget::setSettings(const VCSBaseSettings &s)
+void CommonSettingsWidget::setSettings(const CommonVcsSettings &s)
 {
     m_ui->nickNameMailMapChooser->setPath(s.nickNameMailMap);
     m_ui->nickNameFieldsFileChooser->setPath(s.nickNameFieldListFile);
@@ -80,7 +80,7 @@ void VCSBaseSettingsWidget::setSettings(const VCSBaseSettings &s)
     m_ui->lineWrapSpinBox->setValue(s.lineWrapWidth);
 }
 
-QString VCSBaseSettingsWidget::searchKeyWordMatchString() const
+QString CommonSettingsWidget::searchKeyWordMatchString() const
 {
     const QChar blank = QLatin1Char(' ');
     QString rc = m_ui->submitMessageCheckScriptLabel->text();
@@ -93,58 +93,58 @@ QString VCSBaseSettingsWidget::searchKeyWordMatchString() const
 }
 
 // --------------- VCSBaseSettingsPage
-VCSBaseSettingsPage::VCSBaseSettingsPage(QObject *parent) :
+CommonOptionsPage::CommonOptionsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
     m_settings.fromSettings(Core::ICore::instance()->settings());
 }
 
-void VCSBaseSettingsPage::updateNickNames()
+void CommonOptionsPage::updateNickNames()
 {
 }
 
-VCSBaseSettingsPage::~VCSBaseSettingsPage()
+CommonOptionsPage::~CommonOptionsPage()
 {
 }
 
-QString VCSBaseSettingsPage::id() const
+QString CommonOptionsPage::id() const
 {
     return QLatin1String(Constants::VCS_COMMON_SETTINGS_ID);
 }
 
-QString VCSBaseSettingsPage::displayName() const
+QString CommonOptionsPage::displayName() const
 {
     return QCoreApplication::translate("VCSBase", Constants::VCS_COMMON_SETTINGS_NAME);
 }
 
-QString VCSBaseSettingsPage::category() const
+QString CommonOptionsPage::category() const
 {
     return QLatin1String(Constants::VCS_SETTINGS_CATEGORY);
 }
 
-QString VCSBaseSettingsPage::displayCategory() const
+QString CommonOptionsPage::displayCategory() const
 {
     return QCoreApplication::translate("VCSBase", Constants::VCS_SETTINGS_TR_CATEGORY);
 }
 
-QIcon VCSBaseSettingsPage::categoryIcon() const
+QIcon CommonOptionsPage::categoryIcon() const
 {
     return QIcon(); // TODO: Icon for Version Control
 }
 
-QWidget *VCSBaseSettingsPage::createPage(QWidget *parent)
+QWidget *CommonOptionsPage::createPage(QWidget *parent)
 {
-    m_widget = new VCSBaseSettingsWidget(parent);
+    m_widget = new CommonSettingsWidget(parent);
     m_widget->setSettings(m_settings);
     if (m_searchKeyWords.isEmpty())
         m_searchKeyWords = m_widget->searchKeyWordMatchString();
     return m_widget;
 }
 
-void VCSBaseSettingsPage::apply()
+void CommonOptionsPage::apply()
 {
     if (m_widget) {
-        const VCSBaseSettings newSettings = m_widget->settings();
+        const CommonVcsSettings newSettings = m_widget->settings();
         if (newSettings != m_settings) {
             m_settings = newSettings;
             m_settings.toSettings(Core::ICore::instance()->settings());
@@ -153,10 +153,10 @@ void VCSBaseSettingsPage::apply()
     }
 }
 
-bool VCSBaseSettingsPage::matches(const QString &key) const
+bool CommonOptionsPage::matches(const QString &key) const
 {
     return m_searchKeyWords.contains(key, Qt::CaseInsensitive);
 }
 
-}
-}
+} // namespace Internal
+} // namespace VCSBase

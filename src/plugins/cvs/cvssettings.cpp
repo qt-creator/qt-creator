@@ -54,7 +54,7 @@ static QString defaultCommand()
 }
 
 namespace CVS {
-    namespace Internal {
+namespace Internal {
 
 CVSSettings::CVSSettings() :
     cvsCommand(defaultCommand()),
@@ -111,5 +111,5 @@ QStringList CVSSettings::addOptions(const QStringList &args) const
     return rc;
 }
 
-}
-}
+} // namespace Internal
+} // namespace CVS

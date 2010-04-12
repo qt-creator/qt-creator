@@ -28,8 +28,9 @@
 **************************************************************************/
 
 #include "vcsbasesubmiteditor.h"
+
+#include "commonvcssettings.h"
 #include "vcsbaseoutputwindow.h"
-#include "vcsbasesettings.h"
 #include "vcsplugin.h"
 #include "nicknamedialog.h"
 #include "submiteditorfile.h"
@@ -130,7 +131,7 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
     connect(m_d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVCSFiles(QStringList)));
     connect(m_d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
 
-    const Internal::VCSBaseSettings settings = Internal::VCSPlugin::instance()->settings();
+    const Internal::CommonVcsSettings settings = Internal::VCSPlugin::instance()->settings();
     // Add additional context menu settings
     if (!settings.submitMessageCheckScript.isEmpty() || !settings.nickNameMailMap.isEmpty()) {
         QAction *sep = new QAction(this);
@@ -156,8 +157,8 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
     // wrapping. etc
     slotUpdateEditorSettings(settings);
     connect(Internal::VCSPlugin::instance(),
-            SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)),
-            this, SLOT(slotUpdateEditorSettings(VCSBase::Internal::VCSBaseSettings)));
+            SIGNAL(settingsChanged(VCSBase::Internal::CommonVcsSettings)),
+            this, SLOT(slotUpdateEditorSettings(VCSBase::Internal::CommonVcsSettings)));
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     aggregate->add(new Find::BaseTextFind(m_d->m_widget->descriptionEdit()));
@@ -171,7 +172,7 @@ VCSBaseSubmitEditor::~VCSBaseSubmitEditor()
     delete m_d;
 }
 
-void VCSBaseSubmitEditor::slotUpdateEditorSettings(const Internal::VCSBaseSettings &s)
+void VCSBaseSubmitEditor::slotUpdateEditorSettings(const Internal::CommonVcsSettings &s)
 {
     setLineWrapWidth(s.lineWrapWidth);
     setLineWrap(s.lineWrap);

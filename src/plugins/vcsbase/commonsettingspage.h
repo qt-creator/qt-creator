@@ -27,44 +27,46 @@
 **
 **************************************************************************/
 
-#ifndef VCSBASESETTINGSPAGE_H
-#define VCSBASESETTINGSPAGE_H
+#ifndef COMMONOPTIONSPAGE_H
+#define COMMONOPTIONSPAGE_H
 
-#include "vcsbasesettings.h"
+#include "commonvcssettings.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-    class VCSBaseSettingsPage;
+class CommonSettingsPage;
 }
 QT_END_NAMESPACE
 
 namespace VCSBase {
 namespace Internal {
 
-class VCSBaseSettingsWidget : public QWidget {
+class CommonSettingsWidget : public QWidget
+{
     Q_OBJECT
 public:
-    explicit VCSBaseSettingsWidget(QWidget *parent = 0);
-    virtual ~VCSBaseSettingsWidget();
+    explicit CommonSettingsWidget(QWidget *parent = 0);
+    virtual ~CommonSettingsWidget();
 
-    VCSBaseSettings settings() const;
-    void setSettings(const VCSBaseSettings &s);
+    CommonVcsSettings settings() const;
+    void setSettings(const CommonVcsSettings &s);
 
     QString searchKeyWordMatchString() const;
 
 private:
-    Ui::VCSBaseSettingsPage *m_ui;
+    Ui::CommonSettingsPage *m_ui;
 };
 
-class VCSBaseSettingsPage : public Core::IOptionsPage
+class CommonOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 public:
-    explicit VCSBaseSettingsPage(QObject *parent = 0);
-    virtual ~VCSBaseSettingsPage();
+    explicit CommonOptionsPage(QObject *parent = 0);
+    virtual ~CommonOptionsPage();
 
     virtual QString id() const;
     virtual QString displayName() const;
@@ -77,20 +79,20 @@ public:
     virtual void finish() { }
     virtual bool matches(const QString &key) const;
 
-    VCSBaseSettings settings() const { return m_settings; }
+    CommonVcsSettings settings() const { return m_settings; }
 
 signals:
-    void settingsChanged(const VCSBase::Internal::VCSBaseSettings &s);
+    void settingsChanged(const VCSBase::Internal::CommonVcsSettings &s);
 
 private:
     void updateNickNames();
 
-    VCSBaseSettingsWidget* m_widget;
-    VCSBaseSettings m_settings;
+    CommonSettingsWidget* m_widget;
+    CommonVcsSettings m_settings;
     QString m_searchKeyWords;
 };
 
 } // namespace Internal
 } // namespace VCSBase
 
-#endif // VCSBASESETTINGSPAGE_H
+#endif // COMMONOPTIONSPAGE_H

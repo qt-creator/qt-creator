@@ -29,7 +29,7 @@
 
 #include "vcsplugin.h"
 #include "diffhighlighter.h"
-#include "vcsbasesettingspage.h"
+#include "commonsettingspage.h"
 #include "nicknamedialog.h"
 #include "vcsbaseoutputwindow.h"
 #include "corelistener.h"
@@ -72,12 +72,12 @@ bool VCSPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_coreListener = new CoreListener;
     addAutoReleasedObject(m_coreListener);
 
-    m_settingsPage = new VCSBaseSettingsPage;
+    m_settingsPage = new CommonOptionsPage;
     addAutoReleasedObject(m_settingsPage);
     addAutoReleasedObject(VCSBaseOutputWindow::instance());
-    connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)),
-            this, SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)));
-    connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::VCSBaseSettings)),
+    connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::CommonVcsSettings)),
+            this, SIGNAL(settingsChanged(VCSBase::Internal::CommonVcsSettings)));
+    connect(m_settingsPage, SIGNAL(settingsChanged(VCSBase::Internal::CommonVcsSettings)),
             this, SLOT(slotSettingsChanged()));
     slotSettingsChanged();
     return true;
@@ -97,7 +97,7 @@ CoreListener *VCSPlugin::coreListener() const
     return m_coreListener;
 }
 
-VCSBaseSettings VCSPlugin::settings() const
+CommonVcsSettings VCSPlugin::settings() const
 {
     return m_settingsPage->settings();
 }
@@ -118,8 +118,8 @@ void VCSPlugin::populateNickNameModel()
     if (!NickNameDialog::populateModelFromMailCapFile(settings().nickNameMailMap,
                                                       m_nickNameModel,
                                                       &errorMessage)) {
-            qWarning("%s", qPrintable(errorMessage));
-        }
+        qWarning("%s", qPrintable(errorMessage));
+    }
 }
 
 void VCSPlugin::slotSettingsChanged()

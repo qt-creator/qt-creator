@@ -41,8 +41,8 @@ QT_END_NAMESPACE
 namespace VCSBase {
 namespace Internal {
 
-struct VCSBaseSettings;
-class VCSBaseSettingsPage;
+struct CommonVcsSettings;
+class CommonOptionsPage;
 class CoreListener;
 
 class VCSPlugin : public ExtensionSystem::IPlugin
@@ -61,7 +61,7 @@ public:
 
     CoreListener *coreListener() const;
 
-    VCSBaseSettings settings() const;
+    CommonVcsSettings settings() const;
 
     // Model of user nick names used for the submit
     // editor. Stored centrally here to achieve delayed
@@ -69,7 +69,7 @@ public:
     QStandardItemModel *nickNameModel();
 
 signals:
-    void settingsChanged(const VCSBase::Internal::VCSBaseSettings& s);
+    void settingsChanged(const VCSBase::Internal::CommonVcsSettings &s);
 
 private slots:
     void slotSettingsChanged();
@@ -78,7 +78,7 @@ private:
     void populateNickNameModel();
 
     static VCSPlugin *m_instance;
-    VCSBaseSettingsPage *m_settingsPage;
+    CommonOptionsPage *m_settingsPage;
     QStandardItemModel *m_nickNameModel;
     CoreListener *m_coreListener;
 };

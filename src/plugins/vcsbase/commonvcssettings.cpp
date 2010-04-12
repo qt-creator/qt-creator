@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "vcsbasesettings.h"
+#include "commonvcssettings.h"
 
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
@@ -45,13 +45,13 @@ static const bool lineWrapDefault = true;
 namespace VCSBase {
 namespace Internal {
 
-VCSBaseSettings::VCSBaseSettings() :
+CommonVcsSettings::CommonVcsSettings() :
     lineWrap(lineWrapDefault),
     lineWrapWidth(lineWrapWidthDefault)
 {
 }
 
-void VCSBaseSettings::toSettings(QSettings *s) const
+void CommonVcsSettings::toSettings(QSettings *s) const
 {
     s->beginGroup(QLatin1String(settingsGroupC));
     s->setValue(QLatin1String(nickNameMailMapKeyC), nickNameMailMap);
@@ -62,7 +62,7 @@ void VCSBaseSettings::toSettings(QSettings *s) const
     s->endGroup();
 }
 
-void VCSBaseSettings::fromSettings(QSettings *s)
+void CommonVcsSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(settingsGroupC));
     nickNameMailMap = s->value(QLatin1String(nickNameMailMapKeyC), QString()).toString();
@@ -73,7 +73,7 @@ void VCSBaseSettings::fromSettings(QSettings *s)
     s->endGroup();
 }
 
-bool VCSBaseSettings::equals(const VCSBaseSettings &rhs) const
+bool CommonVcsSettings::equals(const CommonVcsSettings &rhs) const
 {
     return lineWrap == rhs.lineWrap
            && lineWrapWidth == rhs.lineWrapWidth
@@ -82,7 +82,7 @@ bool VCSBaseSettings::equals(const VCSBaseSettings &rhs) const
            && submitMessageCheckScript == rhs.submitMessageCheckScript;
 }
 
-QDebug operator<<(QDebug d,const VCSBaseSettings& s)
+QDebug operator<<(QDebug d,const CommonVcsSettings& s)
 {
     d.nospace() << " lineWrap=" << s.lineWrap
             << " lineWrapWidth=" <<  s.lineWrapWidth
@@ -91,5 +91,6 @@ QDebug operator<<(QDebug d,const VCSBaseSettings& s)
             << "'submitMessageCheckScript='" << s.submitMessageCheckScript << "'\n";
     return d;
 }
-}
-}
+
+} // namespace Internal
+} // namespace VCSBase

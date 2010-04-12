@@ -17,8 +17,8 @@ HEADERS += vcsbase_global.h \
     submiteditorfile.h \
     basevcssubmiteditorfactory.h \
     submitfilemodel.h \
-    vcsbasesettings.h \
-    vcsbasesettingspage.h \
+    commonvcssettings.h \
+    commonsettingspage.h \
     nicknamedialog.h \
     basecheckoutwizard.h \
     checkoutwizarddialog.h \
@@ -40,8 +40,8 @@ SOURCES += vcsplugin.cpp \
     submiteditorfile.cpp \
     basevcssubmiteditorfactory.cpp \
     submitfilemodel.cpp \
-    vcsbasesettings.cpp \
-    vcsbasesettingspage.cpp \
+    commonvcssettings.cpp \
+    commonsettingspage.cpp \
     nicknamedialog.cpp \
     basecheckoutwizard.cpp \
     checkoutwizarddialog.cpp \
@@ -53,7 +53,7 @@ SOURCES += vcsplugin.cpp \
 
 RESOURCES += vcsbase.qrc
 
-FORMS += vcsbasesettingspage.ui \
+FORMS += commonsettingspage.ui \
     nicknamedialog.ui \
     checkoutprogresswizardpage.ui \
     basecheckoutwizardpage.ui \
