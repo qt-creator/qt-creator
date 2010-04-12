@@ -95,8 +95,10 @@ NodeInstanceView::NodeInstanceView(QObject *parent)
     m_blockStatePropertyChanges(false)
 {
     m_graphicsView->setAttribute(Qt::WA_DontShowOnScreen, true);
-    m_graphicsView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+    m_graphicsView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+    m_graphicsView->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
     m_graphicsView->setScene(new QGraphicsScene(m_graphicsView.data()));
+    m_graphicsView->scene()->setItemIndexMethod(QGraphicsScene::NoIndex);
 }
 
 
