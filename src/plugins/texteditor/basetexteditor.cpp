@@ -1159,6 +1159,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 break;
             pos = cpos;
         }
+        setTextCursor(textCursor()); // make cursor visible
         return;
     } else switch (e->key()) {
 
@@ -1202,6 +1203,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                                | Qt::MetaModifier)) == Qt::NoModifier
             && !textCursor().hasSelection()) {
             handleBackspaceKey();
+            setTextCursor(textCursor()); // make cursor visible
             e->accept();
             return;
         }
