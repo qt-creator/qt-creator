@@ -331,10 +331,12 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
+#ifndef QT_DEBUG
 static bool hasFullImplementedListInterface(const QDeclarativeListReference &list)
 {
     return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
 }
+#endif
 
 static void removeObjectFromList(const QDeclarativeProperty &metaProperty, QObject *objectToBeRemoved, QDeclarativeEngine * engine)
 {
