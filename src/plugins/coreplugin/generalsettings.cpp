@@ -151,8 +151,6 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
             this, SLOT(resetInterfaceColor()));
     connect(m_page->resetEditorButton, SIGNAL(clicked()),
             this, SLOT(resetExternalEditor()));
-    connect(m_page->resetLanguageButton, SIGNAL(clicked()),
-            this, SLOT(resetLanguage()));
     connect(m_page->helpExternalEditorButton, SIGNAL(clicked()),
             this, SLOT(showHelpForExternalEditor()));
 #ifdef Q_OS_UNIX

@@ -288,9 +288,11 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
     setWindowIcon(QIcon(":/locator/images/locator.png"));
     QPixmap image(Core::Constants::ICON_MAGNIFIER);
     m_fileLineEdit->setPixmap(image);
-    m_fileLineEdit->setUseLayoutDirection(true);
     m_fileLineEdit->setPlaceholderText(tr("Type to locate"));
+    m_fileLineEdit->setButtonToolTip(tr("Options"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
+    // We set click focus since otherwise you will always get two popups
+    m_fileLineEdit->setButtonFocusPolicy(Qt::ClickFocus);
     m_fileLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     m_fileLineEdit->installEventFilter(this);

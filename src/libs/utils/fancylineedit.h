@@ -33,10 +33,28 @@
 #include "utils_global.h"
 
 #include <QtGui/QLineEdit>
+#include <QtGui/QPaintEvent>
+#include <QtGui/QAbstractButton>
 
 namespace Utils {
 
 class FancyLineEditPrivate;
+
+class IconButton: public QAbstractButton
+{
+    Q_OBJECT
+    Q_PROPERTY(float iconOpacity READ iconOpacity WRITE setIconOpacity)
+public:
+    IconButton(QWidget *parent = 0);
+    void paintEvent(QPaintEvent *event);
+    float iconOpacity() { return m_iconOpacity; }
+    void setIconOpacity(float value) { m_iconOpacity = value; update(); }
+    void animateShow(bool visible);
+
+private:
+    float m_iconOpacity;
+};
+
 
 /* A line edit with an embedded pixmap on one side that is connected to
  * a menu. Additionally, it can display a grayed hintText (like "Type Here to")
@@ -51,9 +69,9 @@ class QTCREATOR_UTILS_EXPORT FancyLineEdit : public QLineEdit
     Q_OBJECT
     Q_ENUMS(Side)
     Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap DESIGNABLE true)
-    Q_PROPERTY(Side side READ side WRITE setSide DESIGNABLE isSideStored STORED isSideStored)
-    Q_PROPERTY(bool useLayoutDirection READ useLayoutDirection WRITE setUseLayoutDirection DESIGNABLE true)
+    Q_PROPERTY(Side side READ side WRITE setSide DESIGNABLE true)
     Q_PROPERTY(bool menuTabFocusTrigger READ hasMenuTabFocusTrigger WRITE setMenuTabFocusTrigger  DESIGNABLE true)
+    Q_PROPERTY(bool autoHideIcon READ autoHideIcon WRITE setAutoHideIcon DESIGNABLE true)
 
 public:
     enum Side {Left, Right};
@@ -69,18 +87,24 @@ public:
     void setSide(Side side);
     Side side() const;
 
-    bool useLayoutDirection() const;
-    void setUseLayoutDirection(bool v);
+    void setButtonToolTip(const QString &);
+    void setButtonFocusPolicy(Qt::FocusPolicy policy);
 
     // Set whether tabbing in will trigger the menu.
     bool hasMenuTabFocusTrigger() const;
     void setMenuTabFocusTrigger(bool v);
+
+    // Set if icon should be hidden when text is empty
+    bool autoHideIcon() const;
+    void setAutoHideIcon(bool h);
 
 signals:
     void buttonClicked();
 
 public slots:
     void setPixmap(const QPixmap &pixmap);
+    void checkButton(const QString &);
+    void iconClicked();
 
 protected:
     virtual void resizeEvent(QResizeEvent *e);
@@ -88,9 +112,6 @@ protected:
 private:
     friend class Utils::FancyLineEditPrivate;
     bool isSideStored() const;
-    void updateMenuLabel();
-    void positionMenuLabel();
-    void updateStyleSheet(Side side);
 
     FancyLineEditPrivate *m_d;
 };

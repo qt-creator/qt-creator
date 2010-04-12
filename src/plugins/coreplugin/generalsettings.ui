@@ -90,20 +90,6 @@
          <widget class="QComboBox" name="languageBox"/>
         </item>
         <item>
-         <widget class="QToolButton" name="resetLanguageButton">
-          <property name="toolTip">
-           <string>Reset to default</string>
-          </property>
-          <property name="text">
-           <string>R</string>
-          </property>
-          <property name="icon">
-           <iconset resource="core.qrc">
-            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
-          </property>
-         </widget>
-        </item>
-        <item>
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -296,7 +282,6 @@
   <tabstop>colorButton</tabstop>
   <tabstop>resetButton</tabstop>
   <tabstop>languageBox</tabstop>
-  <tabstop>resetLanguageButton</tabstop>
   <tabstop>terminalEdit</tabstop>
   <tabstop>resetTerminalButton</tabstop>
   <tabstop>externalEditorEdit</tabstop>

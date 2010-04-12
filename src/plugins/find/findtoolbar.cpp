@@ -96,7 +96,7 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_ui.findEdit->setCompleter(m_findCompleter);
     m_ui.replaceEdit->setCompleter(m_replaceCompleter);
 
-    m_ui.findEdit->setSide(qApp->layoutDirection() == Qt::LeftToRight ? Utils::FancyLineEdit::Right : Utils::FancyLineEdit::Left);
+    m_ui.findEdit->setSide(Utils::FancyLineEdit::Right);
     QMenu *lineEditMenu = new QMenu(m_ui.findEdit);
     m_ui.findEdit->setMenu(lineEditMenu);
 

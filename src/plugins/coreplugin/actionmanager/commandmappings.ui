@@ -20,13 +20,6 @@
       <item>
        <layout class="QHBoxLayout">
         <item>
-         <widget class="QLabel" name="filterLabel">
-          <property name="text">
-           <string>Filter:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="Utils::FilterLineEdit" name="filterEdit"/>
         </item>
        </layout>
@@ -119,19 +112,31 @@
          </widget>
         </item>
         <item>
-         <widget class="Utils::FancyLineEdit" name="targetEdit"/>
+         <widget class="Utils::FilterLineEdit" name="targetEdit"/>
         </item>
         <item>
-         <widget class="QToolButton" name="removeButton">
+         <widget class="QToolButton" name="resetButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>27</width>
+            <height>27</height>
+           </size>
+          </property>
           <property name="toolTip">
-           <string>Remove</string>
+           <string>Reset</string>
           </property>
           <property name="text">
            <string/>
           </property>
           <property name="icon">
            <iconset resource="../core.qrc">
-            <normaloff>:/core/images/clear.png</normaloff>:/core/images/clear.png</iconset>
+            <normaloff>:/core/images/reset.png</normaloff>:/core/images/reset.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -160,11 +165,6 @@
    <class>Utils::FilterLineEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">utils/filterlineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>Utils::FancyLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header location="global">utils/fancylineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

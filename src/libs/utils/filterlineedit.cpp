@@ -36,9 +36,9 @@ FilterLineEdit::FilterLineEdit(QWidget *parent) :
    m_lastFilterText(text())
 {
     setSide(Utils::FancyLineEdit::Right);
-    setPixmap(QPixmap(QLatin1String(":/core/images/reset.png")));
-    setPlaceholderText(tr("Type to filter"));
-
+    setPlaceholderText(tr("Filter"));
+    setButtonToolTip(tr("Clear text"));
+    setAutoHideIcon(true);
     connect(this, SIGNAL(buttonClicked()), this, SLOT(clear()));
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
 }
@@ -51,5 +51,6 @@ void FilterLineEdit::slotTextChanged()
         emit filterChanged(m_lastFilterText);
     }
 }
+
 
 } // namespace Utils
