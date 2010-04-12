@@ -1479,7 +1479,9 @@ void DebuggerPlugin::startRemoteApplication()
     sp->remoteChannel = dlg.remoteChannel();
     sp->remoteArchitecture = dlg.remoteArchitecture();
     sp->executable = dlg.localExecutable();
-    sp->debuggerCommand = dlg.debugger();
+    sp->debuggerCommand = dlg.debugger(); // Override toolchain-detection.
+    if (!sp->debuggerCommand.isEmpty())
+        sp->toolChainType = ProjectExplorer::ToolChain::INVALID;
     sp->startMode = StartRemote;
     if (dlg.useServerStartScript())
         sp->serverStartScript = dlg.serverStartScript();
