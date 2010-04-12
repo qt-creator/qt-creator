@@ -59,7 +59,7 @@ private slots:
     void testModelAddAndRemoveProperty();
     void testModelSliding();
     void testModelBindings();
-    void testDynamicProperties();
+    void testModelDynamicProperties();
     void testModelDefaultProperties();
     void testModelBasicOperations();
     void testModelResolveIds();

@@ -4903,7 +4903,7 @@ void TestCore::testModelBindings()
     QCOMPARE(childInstance.size().width(), 200.0);
 }
 
-void TestCore::testDynamicProperties()
+void TestCore::testModelDynamicProperties()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
