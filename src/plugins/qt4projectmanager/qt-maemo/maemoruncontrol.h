@@ -70,6 +70,7 @@ protected:
     void startDeployment(bool forDebugging);
     void deploy();
     void stopDeployment();
+    void handleError(const QString &errString);
     bool isDeploying() const;
     const QString executableOnHost() const;
     const QString executableOnTarget() const;

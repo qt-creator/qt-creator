@@ -49,6 +49,8 @@
 #include <QtCore/QProcess>
 #include <QtCore/QStringBuilder>
 
+#include <QtGui/QMessageBox>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -86,6 +88,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 
         deploy();
     } else {
+        handleError(tr("No device configuration set for run configuration."));
         handleDeploymentFinished(false);
     }
 }
@@ -146,7 +149,7 @@ void AbstractMaemoRunControl::deployProcessFinished()
     if (success) {
         emit addToOutputWindow(this, tr("Deployment finished."));
     } else {
-        emit error(this, tr("Deployment failed: %1").arg(sshDeployer->error()));
+        handleError(tr("Deployment failed: %1").arg(sshDeployer->error()));
         m_progress.reportCanceled();
     }
     m_progress.reportFinished();
@@ -206,6 +209,12 @@ const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
         arg(executableOnTarget());
 }
 
+void AbstractMaemoRunControl::handleError(const QString &errString)
+{
+    QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
+    emit error(this, errString);
+}
+
 
 MaemoRunControl::MaemoRunControl(RunConfiguration *runConfiguration)
     : AbstractMaemoRunControl(runConfiguration)
@@ -251,7 +260,8 @@ void MaemoRunControl::executionFinished()
     if (stoppedByUser) {
         emit addToOutputWindow(this, tr("Remote process stopped by user."));
     } else if (sshRunner->hasError()) {
-        emit addToOutputWindow(this, tr("Remote process exited with error: %1").arg(sshRunner->error()));
+        emit addToOutputWindow(this, tr("Remote process exited with error: %1")
+                                         .arg(sshRunner->error()));
     } else {
         emit addToOutputWindow(this, tr("Remote process finished successfully."));
     }
@@ -351,7 +361,7 @@ void MaemoDebugRunControl::startGdbServer()
 
 void MaemoDebugRunControl::gdbServerStartFailed(const QString &reason)
 {
-    emit addToOutputWindow(this, tr("Debugging failed: %1").arg(reason));
+    handleError(tr("Debugging failed: %1").arg(reason));
     emit stopRequested();
     emit finished();
 }
