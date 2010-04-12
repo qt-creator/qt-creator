@@ -267,9 +267,6 @@ void FileManager::removeFileInfo(IFile *file)
         }
     }
 
-    // The filename might be empty but not null
-    Q_ASSERT(fileName != QString::null);
-
     removeFileInfo(fileName, file);
 }
 
