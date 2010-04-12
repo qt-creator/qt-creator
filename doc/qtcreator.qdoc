@@ -126,9 +126,14 @@
 
   You use a visual editor to create items, screens, and applications, as well as define changes
   in their state. \QMLD generates the necessary code for you.
+
+  \note The visual \QMLD editor is provided as an experimental plugin that you must
+  enable to be able to edit QML files in the \gui Design mode. Enabling the
+  visual editor can negatively affect the overall stability of Qt Creator.
+
   You can edit the code in the code editor to add transitions from one state to another,
   and interaction to specify user actions that change the states. You
-  can use Qt to implement the application logic.
+  can use Qt or JavaScript to implement the application logic.
 
   \section1 Coding Applications
 
@@ -542,12 +547,20 @@
 
     \section1 Using Qt Quick Designer
 
-    You can edit .qml files in either the visual \QMLD editor or in the
+    You can edit .qml files in the visual \QMLD editor or in the
     code editor.
 
     In \gui Projects, double-click a .qml file to open it in the code
     editor. Then select the \gui {Design} mode to edit the file in the
     visual editor.
+
+    \note The visual \QMLD editor is provided as an experimental plugin that you must
+    enable to be able to edit QML files in the \gui Design mode. Enabling the
+    visual editor can negatively affect the overall stability of Qt Creator.
+
+    To enable or disable the \QMLD visual editor, select
+    \gui {Help > About Plugins... > Qt Quick > QmlDesigner}. You must restart Qt Creator
+    to enable or disable the visual editor.
 
     \image qmldesigner-visual-editor.png "Visual editor"
 
@@ -1820,18 +1833,23 @@
 
     \section1 Designing the User Interface
 
-    \list
+    \list 1
 
         \o In the \gui{Edit} mode, double-click the HelloWorld.qml file in
-         the \gui{Projects} pane to open it in the visual \QMLD editor.
+         the \gui{Projects} pane to open it in the code editor.
 
-        \o Click \gui{Edit} to edit the screen size in the code editor.
-        To set the screen size to that of some Symbian devices in portrait
+        \o To set the screen size to that of some Symbian devices in portrait
         mode, for example, change the \c width to \bold 240 and \c height to \bold 320.
 
         \image qmldesigner-helloworld-screen-size.png "Setting the screen size"
 
         \o Click \gui{Design} to design the UI in the visual editor.
+
+        \note The visual \QMLD editor is provided as an experimental plugin that you must
+        enable to be able to edit QML files in the \gui Design mode. Enabling the
+        visual editor can negatively affect the overall stability of Qt Creator.
+
+        \o Restart Qt Creator to enable the visual editor.
 
         \o Drag and drop a \gui {Rectangle} from the \gui {Library} pane to the
         scene.
@@ -1840,7 +1858,7 @@
 
         \o Edit the \gui {Properties} of the component to turn it into a red ball:
 
-        \list
+        \list a
 
             \o In the \gui {Colors} section, click the color picker to select a red
             color.
@@ -3761,6 +3779,17 @@
     Qt Creator. For example, you can import and run the
     \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativeexamples.html} {QML examples and demos}
     to learn how to use various aspects of QML.
+
+    You can use the code editor (\gui Edit mode) or the visual editor
+    (\gui Design mode) to develop Qt Quick applications.
+
+    \note The visual \QMLD editor is provided as an experimental plugin that you must
+    enable to be able to edit QML files in the \gui Design mode. Enabling the
+    visual editor can negatively affect the overall stability of Qt Creator.
+
+    To enable or disable the \QMLD visual editor, select
+    \gui {Help > About Plugins... > Qt Quick > QmlDesigner}. You must restart Qt Creator
+    to enable or disable the visual editor.
 
     \section1 Creating Qt Quick Projects
 
