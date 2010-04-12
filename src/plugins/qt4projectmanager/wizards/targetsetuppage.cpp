@@ -128,7 +128,7 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
         targetItem->setExpanded(true);
 
         int pos = -1;
-        foreach (const ImportInfo &i, infos) {
+        foreach (const ImportInfo &i, m_infos) {
             ++pos;
 
             if (!i.version->supportsTargetId(t))
