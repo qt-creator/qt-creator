@@ -5,8 +5,8 @@ QWidget {
 
     id: comboBox
 
-    property var backendValue;
-    property var baseStateFlag;
+    property variant backendValue;
+    property variant baseStateFlag;
     property alias enabled: box.enabled;
 
     property alias items: box.items;
@@ -17,7 +17,7 @@ QWidget {
         evaluate();
     }
 
-    property var isEnabled: comboBox.enabled
+    property variant isEnabled: comboBox.enabled
     onIsEnabledChanged: {
         evaluate();
     }
@@ -47,7 +47,7 @@ QWidget {
     layout: HorizontalLayout {
         QComboBox {
             id: box
-            property var backendValue: comboBox.backendValue
+            property variant backendValue: comboBox.backendValue
             onCurrentTextChanged: { backendValue.value = currentText; evaluate(); }
 			onItemsChanged: {				
 				if (comboBox.backendValue.value == curentText)
@@ -55,7 +55,7 @@ QWidget {
 				box.setCurrentTextSilent(comboBox.backendValue.value);
             }			
 			
-			property var backendValueValue: comboBox.backendValue.value
+			property variant backendValueValue: comboBox.backendValue.value
 			onBackendValueValueChanged: {			 
 			    if (comboBox.backendValue.value == curentText)
 				    return;					

@@ -4,11 +4,11 @@ import Bauhaus 1.0
 QExtGroupBox {
     id: groupBoxOption;
 
-    property var finished;
+    property variant finished;
 
-    property var caption;
+    property variant caption;
 
-    property var oldMaximumHeight;
+    property variant oldMaximumHeight;
 
     onFinishedChanged: {
         CheckBox.raise();

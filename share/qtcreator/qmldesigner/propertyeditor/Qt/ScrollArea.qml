@@ -4,7 +4,7 @@ import Bauhaus 1.0
 
 QScrollArea {
 
- property var finished;
+ property variant finished;
 
    onFinishedChanged: {
    }

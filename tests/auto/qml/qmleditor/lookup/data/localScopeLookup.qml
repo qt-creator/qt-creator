@@ -5,13 +5,13 @@ import Qt 4.6
 
 Item {
     id: theRoot
-    property var prop
+    property variant prop
     Item {
         id: theParent
-        property var prop
+        property variant prop
         Item {
             id: theChild
-            property var prop
+            property variant prop
         }
     }
 }

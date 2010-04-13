@@ -36,13 +36,13 @@ Column {
 
     // public
 
-    property var itemHighlight
+    property variant itemHighlight
 
     property int entriesPerRow
     property int cellWidth
     property int cellHeight
 
-    property var currentItem: gridView.currentItem
+    property variant currentItem: gridView.currentItem
 
     function expand() {
         gridFrame.state = ""

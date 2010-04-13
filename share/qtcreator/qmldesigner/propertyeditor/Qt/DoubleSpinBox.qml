@@ -5,8 +5,8 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
 
     id: doubleSpinBox;
 
-    property var backendValue;
-    property var baseStateFlag;
+    property variant backendValue;
+    property variant baseStateFlag;
     property alias singleStep: box.singleStep
     property alias minimum: box.minimum
     property alias maximum: box.maximum

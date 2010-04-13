@@ -6025,7 +6025,7 @@ void TestCore::loadTestFiles()
         QCOMPARE(rootModelNode.nodeListProperty("states").toModelNodeList().count(), 2);
     }
 
-    QSKIP("See BAUHAUS-539 (component loading is broken)", SkipAll);
+    QSKIP("Fails because the text editor model doesn't know about components", SkipAll);
     { //usingbutton.qml
         QFile file(manualTestPath + "/usingbutton.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));

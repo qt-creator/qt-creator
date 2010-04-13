@@ -2,7 +2,7 @@ import Qt 4.6
 
 Image {
     id: screen
-    property var selectedFile
+    property variant selectedFile
     signal openFile
     source: "gradient.png"
 

@@ -1,7 +1,7 @@
 import Qt 4.6
 
 Item {
-    property var flickable: this;
+    property variant flickable: this;
     property int viewPosition: 0;
     property int viewSize: ( flickable.width>=0 ? flickable.width : 0 );
     property int contentSize: ( flickable.contentWidth >= 0 ? flickable.contentWidth : 0 );

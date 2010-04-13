@@ -5,10 +5,10 @@ import Qt 4.6
 
 Rectangle {
     id: theRoot
-    property var prop
+    property variant prop
     Item {
         id: theParent
-        property var prop
+        property variant prop
         Item {
             id: theChild
         }

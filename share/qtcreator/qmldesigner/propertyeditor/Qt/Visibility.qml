@@ -41,7 +41,7 @@ GroupBox {
                     text: ""
                     id: opacitySpinBox;
                     backendValue: backendValues.opacity
-                    property var backendValueValue: backendValues.opacity.value;
+                    property variant backendValueValue: backendValues.opacity.value;
                     minimumWidth: 60;
                     minimum: 0;
                     maximum: 1;

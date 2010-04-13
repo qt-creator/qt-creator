@@ -108,7 +108,7 @@ Rectangle {
             Loader {
                 sourceComponent: underlay
                 anchors.fill: parent
-                property var color: parent.isCurrentState?highlightColor:"#4F4F4F";
+                property variant color: parent.isCurrentState?highlightColor:"#4F4F4F";
             }
 
             Item {
@@ -251,7 +251,7 @@ Rectangle {
         id: underlay
         Item {
             anchors.fill:parent
-            property var color: parent.color
+            property variant color: parent.color
             clip:true
             Rectangle {
                 width:parent.width
@@ -322,7 +322,7 @@ Rectangle {
         Loader {
             sourceComponent: underlay
             anchors.fill: parent
-            property var color: "#4f4f4f"
+            property variant color: "#4f4f4f"
         }
 
         Rectangle {
@@ -394,7 +394,7 @@ Rectangle {
         Loader {
             sourceComponent: underlay
             anchors.fill: parent
-            property var color: "#4f4f4f"
+            property variant color: "#4f4f4f"
         }
 
         Rectangle {
@@ -460,7 +460,7 @@ Rectangle {
         Loader {
             sourceComponent: underlay
             anchors.fill: parent
-            property var color: "#4f4f4f"
+            property variant color: "#4f4f4f"
         }
 
         Rectangle {

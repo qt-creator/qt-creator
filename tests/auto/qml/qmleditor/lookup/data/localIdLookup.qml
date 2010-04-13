@@ -12,32 +12,32 @@ Item {
       function opacity() {}
       function visible() {}
     }
-    property var x: "wrong";
-    property var y: "wrong";
-    property var z: "wrong";
-    property var opacity: "wrong";
-    property var visible: "wrong";
+    property variant x: "wrong";
+    property variant y: "wrong";
+    property variant z: "wrong";
+    property variant opacity: "wrong";
+    property variant visible: "wrong";
     Item {
         id: y
-        property var x: "wrong";
-        property var y: "wrong";
-        property var z: "wrong";
-        property var opacity: "wrong";
-        property var visible: "wrong";
+        property variant x: "wrong";
+        property variant y: "wrong";
+        property variant z: "wrong";
+        property variant opacity: "wrong";
+        property variant visible: "wrong";
         Item {
             id: z
-            property var x: "wrong";
-            property var y: "wrong";
-            property var z: "wrong";
-            property var opacity: "wrong";
-            property var visible: "wrong";
+            property variant x: "wrong";
+            property variant y: "wrong";
+            property variant z: "wrong";
+            property variant opacity: "wrong";
+            property variant visible: "wrong";
             Item {
                 id: opacity
-                property var x: "wrong";
-                property var y: "wrong";
-                property var z: "wrong";
-                property var opacity: "wrong";
-                property var visible: "wrong";
+                property variant x: "wrong";
+                property variant y: "wrong";
+                property variant z: "wrong";
+                property variant opacity: "wrong";
+                property variant visible: "wrong";
                 Item {
                     id: visible
                 }

@@ -43,7 +43,7 @@ GroupBox {
                     text: ""
                     id: opacitySpinBox;
                     backendValue: backendValues.opacity === undefined ? null : backendValues.opacity
-                    property var backendValueValue: backendValues.opacity.value;
+                    property variant backendValueValue: backendValues.opacity.value;
                     minimumWidth: 60;
                     minimum: 0;
                     maximum: 1;
@@ -97,7 +97,7 @@ GroupBox {
                     id: scaleSpinBox;
 
                     backendValue: backendValues.scale;
-                    property var backendValueValue: backendValues.scale.value;
+                    property variant backendValueValue: backendValues.scale.value;
                     minimumWidth: 60;
                     minimum: 0.01
                     maximum: 10

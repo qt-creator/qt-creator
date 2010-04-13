@@ -4,9 +4,9 @@ import Bauhaus 1.0
 QWidget {
     id: lineEdit
 
-    property var backendValue
+    property variant backendValue
     property alias enabled: lineEdit.enabled
-    property var baseStateFlag
+    property variant baseStateFlag
     property alias text: lineEditWidget.text
     property alias readOnly: lineEditWidget.readOnly
 
@@ -16,7 +16,7 @@ QWidget {
         evaluate();
     }
 
-    property var isEnabled: lineEdit.enabled
+    property variant isEnabled: lineEdit.enabled
     onIsEnabledChanged: {
         evaluate();
     }

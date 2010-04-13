@@ -8,25 +8,25 @@ Item {
     Script { 
         function x() {}
     }
-    property var x: "wrong";
-    property var y: "wrong";
-    property var z: "wrong";
+    property variant x: "wrong";
+    property variant y: "wrong";
+    property variant z: "wrong";
     Item {
         id: theParent
         Script { 
             function y() {}
         }
-        property var x: "wrong";
-        property var y: "wrong";
-        property var z: "wrong";
+        property variant x: "wrong";
+        property variant y: "wrong";
+        property variant z: "wrong";
         Item {
             id: theChild
             Script { 
                 function z() {}
             }
-            property var x: "wrong";
-            property var y: "wrong";
-            property var z: "wrong";
+            property variant x: "wrong";
+            property variant y: "wrong";
+            property variant z: "wrong";
         }
     }
 }
