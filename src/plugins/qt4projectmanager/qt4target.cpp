@@ -368,7 +368,11 @@ QString Qt4Target::defaultBuildDirectory() const
     else if (id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
         shortName = QLatin1String("maemo");
 
-    return qt4Project()->defaultTopLevelBuildDirectory() + QChar('/') + shortName;
+    // currently we can't have the build directory to be deeper then the source directory
+    // since that is broken in qmake
+    // Once qmake is fixed we can change that to have a top directory and
+    // subdirectories per build. (Replacing "QChar('-')" with "QChar('/') )
+    return qt4Project()->defaultTopLevelBuildDirectory() + QChar('-') + shortName;
 }
 
 bool Qt4Target::fromMap(const QVariantMap &map)
