@@ -219,7 +219,41 @@ void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
 }
 
 void CppPreprocessor::setFrameworkPaths(const QStringList &frameworkPaths)
-{ m_frameworkPaths = frameworkPaths; }
+{
+    m_frameworkPaths.clear();
+
+    foreach (const QString &frameworkPath, frameworkPaths) {
+        addFrameworkPath(frameworkPath);
+    }
+}
+
+// Add the given framework path, and expand private frameworks.
+//
+// Example:
+//  <framework-path>/ApplicationServices.framework
+// has private frameworks in:
+//  <framework-path>/ApplicationServices.framework/Frameworks
+// if the "Frameworks" folder exists inside the top level framework.
+void CppPreprocessor::addFrameworkPath(const QString &frameworkPath)
+{
+    // The algorithm below is a bit too eager, but that's because we're not getting
+    // in the frameworks we're linking against. If we would have that, then we could
+    // add only those private frameworks.
+    if (!m_frameworkPaths.contains(frameworkPath)) {
+        m_frameworkPaths.append(frameworkPath);
+    }
+
+    const QDir frameworkDir(frameworkPath);
+    const QStringList filter = QStringList() << QLatin1String("*.framework");
+    foreach (const QFileInfo &framework, frameworkDir.entryInfoList(filter)) {
+        if (!framework.isDir())
+            continue;
+        const QFileInfo privateFrameworks(framework.absoluteFilePath(), QLatin1String("Frameworks"));
+        if (privateFrameworks.exists() && privateFrameworks.isDir()) {
+            addFrameworkPath(privateFrameworks.absoluteFilePath());
+        }
+    }
+}
 
 void CppPreprocessor::setProjectFiles(const QStringList &files)
 { m_projectFiles = files; }

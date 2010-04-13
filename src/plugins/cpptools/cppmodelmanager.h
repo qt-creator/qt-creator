@@ -252,6 +252,7 @@ public:
     void setWorkingCopy(const CppModelManagerInterface::WorkingCopy &workingCopy);
     void setIncludePaths(const QStringList &includePaths);
     void setFrameworkPaths(const QStringList &frameworkPaths);
+    void addFrameworkPath(const QString &frameworkPath);
     void setProjectFiles(const QStringList &files);
     void setTodo(const QStringList &files);
 
