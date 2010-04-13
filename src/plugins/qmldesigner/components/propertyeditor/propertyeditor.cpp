@@ -51,6 +51,7 @@
 #include "fontwidget.h"
 #include "siblingcombobox.h"
 #include "propertyeditortransaction.h"
+#include "originwidget.h"
 
 #include <coreplugin/sidebar.h>
 
@@ -286,6 +287,7 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
         PropertyEditorValue::registerDeclarativeTypes();
         FontWidget::registerDeclarativeTypes();
         SiblingComboBox::registerDeclarativeTypes();
+        OriginWidget::registerDeclarativeType();
     }
 }
 
@@ -396,17 +398,15 @@ void PropertyEditor::changeValue(const QString &propertyName)
             castedValue = QVariant(newColor);
         }
 
-        if (!castedValue.isValid())
-            return;
-
         try {
             if (!value->value().isValid()) { //reset
                 fxObjectNode.removeVariantProperty(propertyName);
             } else {
-                if (castedValue.isValid() && !castedValue.isNull())
+                if (castedValue.isValid() && !castedValue.isNull()) {
                     m_locked = true;
-                fxObjectNode.setVariantProperty(propertyName, castedValue);
-                m_locked = false;
+                    fxObjectNode.setVariantProperty(propertyName, castedValue);
+                    m_locked = false;
+                }
             }
         }
         catch (RewritingException &e) {
