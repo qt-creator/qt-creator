@@ -2197,10 +2197,8 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
     int l = 1;
 
     int m_findScopeFirstColumn = 0;
-    if (!m_findScope.isNull() && m_findScopeVerticalBlockSelection)  {
-        QTextCursor b = cursor;
-        cursor.setPosition(m_findScope.selectionStart());
-        m_findScopeFirstColumn = cursor.positionInBlock();
+    if (!m_findScopeStart.isNull() && m_findScopeVerticalBlockSelection)  {
+        m_findScopeFirstColumn = m_findScopeStart.positionInBlock() + 1;
     }
 
 
@@ -2214,9 +2212,9 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
             continue;
 
-        if (!m_findScope.isNull()) {
-            if (blockPosition + idx < m_findScope.selectionStart()
-                || blockPosition + idx + l > m_findScope.selectionEnd())
+        if (!m_findScopeStart.isNull()) {
+            if (blockPosition + idx < m_findScopeStart.position()
+                || blockPosition + idx + l > m_findScopeEnd.position())
                 continue;
             if (m_findScopeVerticalBlockSelection) {
                 if (idx < m_findScopeFirstColumn
@@ -2487,12 +2485,18 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
 
 
-    if (!d->m_findScope.isNull()) {
+    if (!d->m_findScopeStart.isNull()) {
 
         TextEditorOverlay *overlay = new TextEditorOverlay(this);
-        overlay->addOverlaySelection(d->m_findScope, d->m_searchScopeFormat.background().color().darker(120),
+        overlay->addOverlaySelection(d->m_findScopeStart.position(),
+                                     d->m_findScopeVerticalBlockSelection ?
+                                     d->m_findScopeEnd.block().position()
+                                     + d->m_findScopeVerticalBlockSelection
+                                     + d->m_findScopeStart.positionInBlock() + 1
+                                         : d->m_findScopeEnd.position(),
+                                     d->m_searchScopeFormat.background().color().darker(120),
                                      d->m_searchScopeFormat.background().color(),
-                                     0,
+                                     TextEditorOverlay::ExpandBegin,
                                      d->m_findScopeVerticalBlockSelection);
         overlay->setAlpha(false);
         overlay->paint(&painter, e->rect());
@@ -3367,14 +3371,14 @@ void BaseTextEditor::slotUpdateBlockNotify(const QTextBlock &block)
            box which now is invalid.*/
             emit requestBlockUpdate(block.previous());
         }
-        if (!d->m_findScope.isNull()) {
-            if (block.position() < d->m_findScope.selectionEnd()
-                && block.position()+block.length() >= d->m_findScope.selectionStart() ) {
-                QTextBlock b = block.document()->findBlock(d->m_findScope.selectionStart());
+        if (!d->m_findScopeStart.isNull()) {
+            if (block.position() < d->m_findScopeEnd.position()
+                && block.position()+block.length() >= d->m_findScopeStart.position()) {
+                QTextBlock b = block.document()->findBlock(d->m_findScopeStart.position());
                 do {
                     emit requestBlockUpdate(b);
                     b = b.next();
-                } while (b.isValid() && b.position() < d->m_findScope.selectionEnd());
+                } while (b.isValid() && b.position() < d->m_findScopeEnd.position());
             }
         }
     }
@@ -4704,10 +4708,11 @@ int BaseTextEditor::verticalBlockSelection() const
     return qAbs(b.positionInBlock() - e.positionInBlock()) + d->m_blockSelectionExtraX;
 }
 
-void BaseTextEditor::setFindScope(const QTextCursor &scope, int verticalBlockSelection)
+void BaseTextEditor::setFindScope(const QTextCursor &start, const QTextCursor &end, int verticalBlockSelection)
 {
-    if (scope.isNull() != d->m_findScope.isNull()) {
-        d->m_findScope = scope;
+    if (start != d->m_findScopeStart || end != d->m_findScopeEnd) {
+        d->m_findScopeStart = start;
+        d->m_findScopeEnd = end;
         d->m_findScopeVerticalBlockSelection = verticalBlockSelection;
         viewport()->update();
     }
@@ -5659,7 +5664,8 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     BaseTextFind *baseTextFind = new BaseTextFind(editor);
     connect(baseTextFind, SIGNAL(highlightAll(QString, Find::IFindSupport::FindFlags)),
             editor, SLOT(highlightSearchResults(QString, Find::IFindSupport::FindFlags)));
-    connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor, int)), editor, SLOT(setFindScope(QTextCursor, int)));
+    connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor, QTextCursor, int)),
+            editor, SLOT(setFindScope(QTextCursor, QTextCursor, int)));
     aggregate->add(baseTextFind);
     aggregate->add(editor);
 

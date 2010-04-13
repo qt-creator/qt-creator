@@ -461,7 +461,7 @@ private slots:
     void memorizeCursorPosition();
     void restoreCursorPosition();
     void highlightSearchResults(const QString &txt, Find::IFindSupport::FindFlags findFlags);
-    void setFindScope(const QTextCursor &, int);
+    void setFindScope(const QTextCursor &start, const QTextCursor &end, int);
     void currentEditorChanged(Core::IEditor *editor);
     void maybeEmitContentsChangedBecauseOfUndo();
 

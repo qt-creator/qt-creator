@@ -249,7 +249,8 @@ public:
     void removeBlockSelection(const QString &text = QString());
     bool m_moveLineUndoHack;
 
-    QTextCursor m_findScope;
+    QTextCursor m_findScopeStart;
+    QTextCursor m_findScopeEnd;
     int m_findScopeVerticalBlockSelection;
     QTextCursor m_selectBlockAnchor;
 
