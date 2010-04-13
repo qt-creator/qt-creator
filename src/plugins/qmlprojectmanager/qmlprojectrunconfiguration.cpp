@@ -31,6 +31,7 @@
 #include "qmlprojectmanagerconstants.h"
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojecttarget.h"
+#include "projectexplorer/projectexplorer.h"
 
 #include <coreplugin/mimedatabase.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -46,6 +47,7 @@
 #include <QCoreApplication>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QStringListModel>
 #include <QDebug>
 
 namespace QmlProjectManager {
@@ -54,6 +56,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
     ProjectExplorer::RunConfiguration(parent, QLatin1String(Constants::QML_RC_ID)),
     m_debugServerAddress("127.0.0.1"),
     m_debugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
+    m_fileListModel(new QStringListModel(this)),
     m_projectTarget(parent),
     m_usingCurrentFile(true),
     m_isEnabled(false)
@@ -161,35 +164,12 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
     QWidget *config = new QWidget;
     QFormLayout *form = new QFormLayout(config);
 
-    QComboBox *combo = new QComboBox;
+    m_fileListCombo = new QComboBox;
+    m_fileListCombo.data()->setModel(m_fileListModel);
+    updateFileComboBox();
 
-    QDir projectDir = qmlTarget()->qmlProject()->projectDir();
-    QStringList files;
-
-    files.append(CURRENT_FILE);
-
-    int currentIndex = -1;
-
-    QStringList sortedFiles = qmlTarget()->qmlProject()->files();
-    qStableSort(sortedFiles.begin(), sortedFiles.end(), caseInsensitiveLessThan);
-
-    foreach (const QString &fn, sortedFiles) {
-        QFileInfo fileInfo(fn);
-        if (fileInfo.suffix() != QLatin1String("qml"))
-            continue;
-
-        QString fileName = projectDir.relativeFilePath(fn);
-        if (fileName == m_scriptFile)
-            currentIndex = files.size();
-
-        files.append(fileName);
-    }
-
-    combo->addItems(files);
-    if (currentIndex != -1)
-        combo->setCurrentIndex(currentIndex);
-
-    connect(combo, SIGNAL(activated(QString)), this, SLOT(setMainScript(QString)));
+    connect(m_fileListCombo.data(), SIGNAL(activated(QString)), this, SLOT(setMainScript(QString)));
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()), SLOT(updateFileComboBox()));
 
     Utils::PathChooser *qmlViewer = new Utils::PathChooser;
     qmlViewer->setExpectedKind(Utils::PathChooser::Command);
@@ -212,12 +192,13 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
 
     form->addRow(tr("QML Runtime"), qmlViewer);
     form->addRow(tr("QML Runtime arguments:"), qmlViewerArgs);
-    form->addRow(tr("Main QML File:"), combo);
+    form->addRow(tr("Main QML File:"), m_fileListCombo.data());
     form->addRow(tr("Debugging Address:"), debugServer);
     form->addRow(tr("Debugging Port:"), debugPort);
 
     return config;
 }
+
 
 QString QmlProjectRunConfiguration::mainScript() const
 {
@@ -225,6 +206,38 @@ QString QmlProjectRunConfiguration::mainScript() const
         return m_currentFileFilename;
 
     return m_mainScriptFilename;
+}
+
+void QmlProjectRunConfiguration::updateFileComboBox()
+{
+    if (m_fileListCombo.isNull())
+        return;
+
+    QDir projectDir = qmlTarget()->qmlProject()->projectDir();
+    QStringList files;
+
+    files.append(CURRENT_FILE);
+    int currentIndex = -1;
+    QStringList sortedFiles = qmlTarget()->qmlProject()->files();
+    qStableSort(sortedFiles.begin(), sortedFiles.end(), caseInsensitiveLessThan);
+
+    foreach (const QString &fn, sortedFiles) {
+        QFileInfo fileInfo(fn);
+        if (fileInfo.suffix() != QLatin1String("qml"))
+            continue;
+
+        QString fileName = projectDir.relativeFilePath(fn);
+        if (fileName == m_scriptFile)
+            currentIndex = files.size();
+
+        files.append(fileName);
+    }
+    m_fileListModel->setStringList(files);
+
+    if (currentIndex != -1)
+        m_fileListCombo.data()->setCurrentIndex(currentIndex);
+    else
+        m_fileListCombo.data()->setCurrentIndex(0);
 }
 
 void QmlProjectRunConfiguration::onDebugServerAddressChanged()

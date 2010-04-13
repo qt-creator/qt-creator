@@ -32,6 +32,10 @@
 
 #include "qmlprojectmanager_global.h"
 #include <projectexplorer/runconfiguration.h>
+#include <QWeakPointer>
+#include <QComboBox>
+
+QT_FORWARD_DECLARE_CLASS(QStringListModel);
 
 namespace Core {
     class IEditor;
@@ -79,11 +83,13 @@ private slots:
 
     QString mainScript() const;
     void setMainScript(const QString &scriptFile);
+    void updateFileComboBox();
 
     void onViewerChanged();
     void onViewerArgsChanged();
     void onDebugServerAddressChanged();
     void onDebugServerPortChanged();
+
 
 protected:
     QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent, QmlProjectRunConfiguration *source);
@@ -104,6 +110,10 @@ private:
     QString m_qmlViewerArgs;
     QString m_debugServerAddress;
     uint m_debugServerPort;
+    QStringListModel *m_fileListModel;
+    // weakpointer is used to make sure we don't try to manipulate
+    // widget which was deleted already, as can be the case here.
+    QWeakPointer<QComboBox> m_fileListCombo;
 
     Internal::QmlProjectTarget *m_projectTarget;
 
