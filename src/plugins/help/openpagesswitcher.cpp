@@ -53,7 +53,6 @@ OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
 
     m_openPagesWidget->allowContextMenu(false);
     m_openPagesWidget->installEventFilter(this);
-    m_openPagesWidget->setTextElideMode(Qt::ElideMiddle);
     m_openPagesWidget->setGeometry(gMargin, gMargin, gWidth - 2 * gMargin,
         gHeight - 2 * gMargin);
 

@@ -90,7 +90,6 @@ OpenPagesWidget::OpenPagesWidget(OpenPagesModel *model, QWidget *parent)
     setIndentation(0);
     setItemDelegate((m_delegate = new OpenPagesDelegate(this)));
 
-    setFrameStyle(QFrame::NoFrame);
     setTextElideMode(Qt::ElideMiddle);
     setAttribute(Qt::WA_MacShowFocusRect, false);
 

@@ -62,6 +62,8 @@ OpenPagesManager::OpenPagesManager(QObject *parent)
     m_model = new OpenPagesModel(this);
 
     m_openPagesWidget = new OpenPagesWidget(m_model);
+    m_openPagesWidget->setFrameStyle(QFrame::NoFrame);
+
     connect(m_openPagesWidget, SIGNAL(setCurrentPage(QModelIndex)), this,
         SLOT(setCurrentPage(QModelIndex)));
     connect(m_openPagesWidget, SIGNAL(closePage(QModelIndex)), this,
