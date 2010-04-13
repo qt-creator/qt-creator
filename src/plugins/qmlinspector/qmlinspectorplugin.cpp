@@ -147,8 +147,8 @@ void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *pr
     if (runMode == ProjectExplorer::Constants::DEBUGMODE) {
         // FIXME we probably want to activate the debugger for other projects than QmlProjects,
         // if they contain Qml files. Some kind of options should exist for this behavior.
-        //QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
-        //if (qmlproj)
+        QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
+        if (qmlproj)
             m_connectionTimer->start();
     }
 
