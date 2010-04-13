@@ -398,6 +398,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
             castedValue = QVariant(newColor);
         }
 
+        qDebug() << value->value();
         try {
             if (!value->value().isValid()) { //reset
                 fxObjectNode.removeVariantProperty(propertyName);
@@ -787,6 +788,7 @@ void PropertyEditor::modelAttached(Model *model)
 void PropertyEditor::modelAboutToBeDetached(Model *model)
 {
     QmlModelView::modelAboutToBeDetached(model);
+    m_currentType->m_propertyEditorTransaction->end();
 
     resetView();
 }
