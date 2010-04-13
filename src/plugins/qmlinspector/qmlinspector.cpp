@@ -192,12 +192,14 @@ bool QmlInspector::connectToViewer()
         m_conn = 0;
     }
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
     if (!project) {
         emit statusMessage(tr("No active project, debugging canceled."));
         return false;
     }
 
+    // FIXME if we have c++ project with qml files in it, it would make sense to be able to start
+    // the qml inspector simultaneously for that project. however, now it's not possible.
     QmlProjectManager::QmlProjectRunConfiguration* config =
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration*>(project->activeTarget()->activeRunConfiguration());
     if (!config) {

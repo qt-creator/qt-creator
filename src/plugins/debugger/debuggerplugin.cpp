@@ -1318,6 +1318,16 @@ void DebuggerPlugin::readSettings()
     DebuggerSettings::instance()->readSettings(s);
 }
 
+static bool isCurrentProjectCppBased()
+{
+    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+    Project *startupProject = projectExplorer->startupProject();
+    const QStringList cppProjectIds = QStringList() << QLatin1String("GenericProjectManager.GenericProject")
+                                                    << QLatin1String("CMakeProjectManager.CMakeProject")
+                                                    << QLatin1String("Qt4ProjectManager.Qt4Project");
+    return (startupProject && cppProjectIds.contains(startupProject->id()));
+}
+
 void DebuggerPlugin::onModeChanged(IMode *mode)
 {
      // FIXME: This one gets always called, even if switching between modes
@@ -1331,11 +1341,13 @@ void DebuggerPlugin::onModeChanged(IMode *mode)
     if (editorManager->currentEditor()) {
         editorManager->currentEditor()->widget()->setFocus();
 
-        if (editorManager->currentEditor()->id() == CppEditor::Constants::C_CPPEDITOR)
+        if (isCurrentProjectCppBased())
             m_uiSwitcher->setActiveLanguage(LANG_CPP);
 
     }
 }
+
+
 
 void DebuggerPlugin::showSettingsDialog()
 {
