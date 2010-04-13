@@ -356,8 +356,9 @@ void MaemoSettingsWidget::deployKey()
         return;
 
     const QString &dir = QFileInfo(currentConfig().keyFile).path();
-    const QString &keyFile
-        = QFileDialog::getOpenFileName(this, tr("Choose public key file"), dir);
+    const QString &keyFile = QFileDialog::getOpenFileName(this,
+                                 tr("Choose public key file"), dir,
+                                 tr("Public Key Files(*.pub);;All Files (*)"));
     if (keyFile.isEmpty())
         return;
 
