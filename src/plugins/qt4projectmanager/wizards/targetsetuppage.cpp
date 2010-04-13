@@ -95,11 +95,10 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
     // Find possible targets:
     QStringList targets;
     foreach (const ImportInfo &i, infos) {
-        // Make sure we have no duplicate directories/version pairs:
+        // Make sure we have no duplicate directories:
         bool skip = false;
         foreach (const ImportInfo &j, m_infos) {
-            if ((j.directory == i.directory) &&
-                (j.version == i.version)) {
+            if (j.isExistingBuild && i.isExistingBuild && (j.directory == i.directory)) {
                 skip = true;
                 break;
             }
