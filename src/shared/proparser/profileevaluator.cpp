@@ -200,6 +200,7 @@ public:
     };
 
     bool read(ProFile *pro);
+    bool read(ProFile *pro, const QString &content);
     bool read(ProBlock *pro, const QString &content);
     bool readInternal(ProBlock *pro, const QString &content, ushort *buf);
 
@@ -554,14 +555,28 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
     QString content(QString::fromLatin1(file.readAll())); // yes, really latin1
     file.close();
     m_lineNo = 1;
-    return readInternal(pro, content, (ushort*)content.data());
+    m_profileStack.push(pro);
+    bool ret = readInternal(pro, content, (ushort*)content.data());
+    m_profileStack.pop();
+    return ret;
+}
+
+bool ProFileEvaluator::Private::read(ProFile *pro, const QString &content)
+{
+    QString buf;
+    buf.reserve(content.size());
+    m_lineNo = 1;
+    m_profileStack.push(pro);
+    bool ret = readInternal(pro, content, (ushort*)buf.data());
+    m_profileStack.pop();
+    return ret;
 }
 
 bool ProFileEvaluator::Private::read(ProBlock *pro, const QString &content)
 {
     QString buf;
     buf.reserve(content.size());
-    m_lineNo = 1;
+    m_lineNo = 0;
     return readInternal(pro, content, (ushort*)buf.data());
 }
 
