@@ -407,10 +407,8 @@ void MaemoDebugRunControl::gdbServerStarted(const QString &output)
     const int searchStringLength = searchString.length();
     int pidStartPos = output.indexOf(searchString);
     const int pidEndPos = output.indexOf("\n", pidStartPos + searchStringLength);
-    if (pidStartPos == -1 || pidEndPos == -1) {
-        gdbServerStartFailed(output);
-        return;
-    }
+    if (pidStartPos == -1 || pidEndPos == -1)
+        return; // gdbserver has not started yet.
     pidStartPos += searchStringLength;
     QString pidString = output.mid(pidStartPos, pidEndPos - pidStartPos);
     qDebug("pidString = %s", pidString.toLatin1().data());
