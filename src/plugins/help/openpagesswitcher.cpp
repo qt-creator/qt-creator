@@ -39,7 +39,6 @@
 
 using namespace Help::Internal;
 
-const int gMargin = 4;
 const int gWidth = 300;
 const int gHeight = 200;
 
@@ -53,8 +52,7 @@ OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
 
     m_openPagesWidget->allowContextMenu(false);
     m_openPagesWidget->installEventFilter(this);
-    m_openPagesWidget->setGeometry(gMargin, gMargin, gWidth - 2 * gMargin,
-        gHeight - 2 * gMargin);
+    m_openPagesWidget->setGeometry(0, 0, gWidth, gHeight);
 
     connect(m_openPagesWidget, SIGNAL(closePage(QModelIndex)), this,
         SIGNAL(closePage(QModelIndex)));

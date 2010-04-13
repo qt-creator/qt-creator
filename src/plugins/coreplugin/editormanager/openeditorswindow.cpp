@@ -45,9 +45,8 @@ Q_DECLARE_METATYPE(Core::IFile *)
 using namespace Core;
 using namespace Core::Internal;
 
-const int OpenEditorsWindow::WIDTH = 300;
-const int OpenEditorsWindow::HEIGHT = 200;
-const int OpenEditorsWindow::MARGIN = 4;
+const int WIDTH = 300;
+const int HEIGHT = 200;
 
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QWidget(parent, Qt::Popup),
@@ -64,7 +63,7 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     m_editorList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 #endif
     m_editorList->installEventFilter(this);
-    m_editorList->setGeometry(MARGIN, MARGIN, WIDTH-2*MARGIN, HEIGHT-2*MARGIN);
+    m_editorList->setGeometry(0, 0, WIDTH, HEIGHT);
 
     connect(m_editorList, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
             this, SLOT(editorClicked(QTreeWidgetItem*)));
@@ -90,7 +89,7 @@ bool OpenEditorsWindow::isCentering()
     QRect rect0 = m_editorList->visualItemRect(m_editorList->topLevelItem(0));
     QRect rect1 = m_editorList->visualItemRect(m_editorList->topLevelItem(m_editorList->topLevelItemCount()-1));
     int height = rect1.y() + rect1.height() - rect0.y();
-    height += 2*internalMargin + 2*MARGIN;
+    height += 2 * internalMargin;
     if (height > HEIGHT)
         return true;
     return false;

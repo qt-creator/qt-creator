@@ -73,10 +73,6 @@ private slots:
     void selectEditor(QTreeWidgetItem *item);
 
 private:
-    static const int WIDTH;
-    static const int HEIGHT;
-    static const int MARGIN;
-
     static void updateItem(QTreeWidgetItem *item, IEditor *editor);
     void ensureCurrentVisible();
     bool isCentering();
