@@ -37,8 +37,7 @@
 #include <qmljseditor/qmljseditorconstants.h>
 
 #include <coreplugin/modemanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editormanager/editormanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 
@@ -117,7 +116,7 @@ void QmlInspectorPlugin::extensionsInitialized()
 {
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
     Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
-    //connect(uiSwitcher, SIGNAL(languageChanged(QString)), SLOT(activateDebugger(QString)));
+
     connect(uiSwitcher, SIGNAL(dockArranged(QString)), SLOT(setDockWidgetArrangement(QString)));
 
     ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
@@ -143,18 +142,13 @@ void QmlInspectorPlugin::extensionsInitialized()
     uiSwitcher->setToolbar(Qml::Constants::LANG_QML, configBar);
 }
 
-void QmlInspectorPlugin::activateDebugger(const QString &langName)
-{
-    if (langName == Qml::Constants::LANG_QML) {
-        m_inspector->connectToViewer();
-    }
-}
-
 void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)
 {
     if (runMode == ProjectExplorer::Constants::DEBUGMODE) {
-        QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
-        if (qmlproj)
+        // FIXME we probably want to activate the debugger for other projects than QmlProjects,
+        // if they contain Qml files. Some kind of options should exist for this behavior.
+        //QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
+        //if (qmlproj)
             m_connectionTimer->start();
     }
 
@@ -180,10 +174,10 @@ void QmlInspectorPlugin::prepareDebugger(Core::IMode *mode)
     if (mode->id() != Debugger::Constants::MODE_DEBUG)
         return;
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
 
-    if (editorManager->currentEditor() &&
-        editorManager->currentEditor()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+    if (pex->startupProject() && pex->startupProject()->id() == "QmlProjectManager.QmlProject")
+    {
         ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
         Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
         uiSwitcher->setActiveLanguage(Qml::Constants::LANG_QML);
