@@ -17,8 +17,9 @@ QWidget {
         width: sliderWidget.width
         height: 24
         value: sliderWidget.value
-        onValueChanged: {
-            sliderWidget.value = value
+        onValueChanged: {        
+            if (sliderWidget.value != value)
+                sliderWidget.value = value
         }
 
         onSliderPressed: {
