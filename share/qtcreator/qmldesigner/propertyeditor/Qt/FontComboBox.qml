@@ -54,7 +54,7 @@ QWidget {
 
     ColorScheme { id:scheme; }
 
-    layout: HorizontalLayout {
+    layout: HorizontalLayout {        
         QFontComboBox {
             id: fontSelector            
 			
@@ -67,5 +67,11 @@ QWidget {
 					backendValue.value = currentFont.family;
                 }
         }
+    }
+     ExtendedFunctionButton {
+        backendValue: fontComboBox.backendValue
+        y: 4
+        x: 2
+        visible: fontComboBox.enabled
     }
 }
