@@ -75,6 +75,7 @@ public:
     void cleanProject(BuildConfiguration *configuration);
     void cleanProjects(const QList<BuildConfiguration *> &configurations);
     bool isBuilding(Project *p);
+    bool isBuilding(BuildStep *step);
 
     // Append any build step to the list of build steps (currently only used to add the QMakeStep)
     void appendStep(BuildStep *step);

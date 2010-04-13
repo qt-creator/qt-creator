@@ -32,6 +32,8 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/buildmanager.h>
 
 #include <QtCore/QProcess>
 
@@ -187,11 +189,18 @@ void BuildConfiguration::insertStep(StepType type, int position, BuildStep *step
     m_steps[type].insert(position, step);
 }
 
-void BuildConfiguration::removeStep(StepType type, int position)
+bool BuildConfiguration::removeStep(StepType type, int position)
 {
     Q_ASSERT(type >= 0 && type < LastStepType);
+
+    ProjectExplorer::BuildManager *bm =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
+    if (bm->isBuilding(m_steps[type].at(position)))
+        return false;
+
     delete m_steps[type].at(position);
     m_steps[type].removeAt(position);
+    return true;
 }
 
 void BuildConfiguration::moveStepUp(StepType type, int position)

@@ -465,6 +465,11 @@ bool BuildManager::isBuilding(Project *pro)
         return true;
 }
 
+bool BuildManager::isBuilding(BuildStep *step)
+{
+    return (m_currentBuildStep == step) || m_buildQueue.contains(step);
+}
+
 void BuildManager::incrementActiveBuildSteps(Project *pro)
 {
     QHash<Project *, int>::iterator it = m_activeBuildSteps.find(pro);

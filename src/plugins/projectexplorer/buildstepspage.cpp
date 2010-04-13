@@ -31,6 +31,7 @@
 #include "buildconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -42,6 +43,8 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QToolButton>
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -241,16 +244,22 @@ void BuildStepsPage::stepMoveDown(int pos)
 
 void BuildStepsPage::stepRemove(int pos)
 {
-    BuildStepsWidgetStruct s = m_buildSteps.at(pos);
-    delete s.widget;
-    delete s.detailsWidget;
-    m_buildSteps.removeAt(pos);
-    m_configuration->removeStep(m_type, pos);
+    if (m_configuration->removeStep(m_type, pos)) {
+        BuildStepsWidgetStruct s = m_buildSteps.at(pos);
+        delete s.widget;
+        delete s.detailsWidget;
+        m_buildSteps.removeAt(pos);
 
-    updateBuildStepButtonsState();
+        updateBuildStepButtonsState();
 
-    bool hasSteps = m_configuration->steps(m_type).isEmpty();
-    m_noStepsLabel->setVisible(hasSteps);
+        bool hasSteps = m_configuration->steps(m_type).isEmpty();
+        m_noStepsLabel->setVisible(hasSteps);
+    } else {
+        QMessageBox::warning(Core::ICore::instance()->mainWindow(),
+                             tr("Removing Step failed"),
+                             tr("Can't remove build step while building"),
+                             QMessageBox::Ok, QMessageBox::Ok);
+    }
 }
 
 void BuildStepsPage::setupUi()

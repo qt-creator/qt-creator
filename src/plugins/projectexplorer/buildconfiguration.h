@@ -55,7 +55,7 @@ public:
 
     QList<BuildStep *> steps(StepType type) const;
     void insertStep(StepType type, int position, BuildStep *step);
-    void removeStep(StepType type, int position);
+    bool removeStep(StepType type, int position);
     void moveStepUp(StepType type, int position);
 
     virtual QString buildDirectory() const = 0;
