@@ -243,6 +243,9 @@
  <shortcut id="Find.FindInCurrentDocument" >
   <key value="Ctrl+F" />
  </shortcut>
+ <shortcut id="Find.Dialog" >
+  <key value="" />
+ </shortcut>
  <shortcut id="Find.FindNext" >
   <key value="F3" />
  </shortcut>
