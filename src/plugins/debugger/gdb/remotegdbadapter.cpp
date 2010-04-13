@@ -227,6 +227,8 @@ void RemoteGdbAdapter::startInferiorPhase2()
 
 void RemoteGdbAdapter::interruptInferior()
 {
+    // FIXME: On some gdb versions like git 170ffa5d7dd this produces
+    // >810^error,msg="mi_cmd_exec_interrupt: Inferior not executing."
     m_engine->postCommand("-exec-interrupt", GdbEngine::Immediate);
 }
 
