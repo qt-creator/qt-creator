@@ -104,8 +104,11 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
                 break;
             }
         }
-        if (skip)
+        if (skip) {
+            if (i.isTemporary)
+                delete i.version;
             continue;
+        }
 
         m_infos.append(i);
 
@@ -380,6 +383,7 @@ void TargetSetupPage::importDirectoryAdded(const QString &directory)
         return;
     m_directoryChooser->setPath(QString());
     QList<ImportInfo> tmp = m_infos;
+    m_infos.clear(); // Clear m_infos without deleting temporary QtVersions!
     tmp.append(recursivelyCheckDirectoryForBuild(directory));
     setImportInfos(tmp);
 }
