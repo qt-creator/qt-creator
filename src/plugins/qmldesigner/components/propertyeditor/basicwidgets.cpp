@@ -107,7 +107,7 @@ class QWidgetDeclarativeUI : public QObject
     Q_PROPERTY(QDeclarativeListProperty<QObject> children READ children)
     Q_PROPERTY(QLayoutObject *layout READ layout WRITE setLayout)
     Q_PROPERTY(QDeclarativeListProperty<Action> actions READ actions)
-    Q_PROPERTY(QFont font READ font CONSTANT)
+    Q_PROPERTY(QFont font READ font WRITE setFont)
 
     Q_PROPERTY(QPoint pos READ pos)
     Q_PROPERTY(QSize size READ size)
