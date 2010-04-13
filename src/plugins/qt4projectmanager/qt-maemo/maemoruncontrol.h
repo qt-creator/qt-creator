@@ -75,9 +75,8 @@ protected:
     void deploy();
     void stopDeployment();
     void stopRunning(bool forDebugging);
-    void run(const QString &remoteCall);
+    void startExecution();
     void handleError(const QString &errString);
-    bool isDeploying() const;
     const QString executableOnHost() const;
     const QString executableOnTarget() const;
     const QString executableFileName() const;
@@ -86,25 +85,27 @@ protected:
     const QString remoteDir() const;
     const QStringList options() const;
 private slots:
-    void deployThreadFinished();
+    virtual void handleRemoteOutput(const QString &output)=0;
+    void handleDeployThreadFinished();
+    void handleRunThreadFinished();
     void handleFileCopied();
 
 protected:
     MaemoRunConfiguration *m_runConfig; // TODO this pointer can be invalid
     const MaemoDeviceConfig m_devConfig;
-    bool m_stoppedByUser;
 
 private:
     virtual void startInternal()=0;
     virtual void stopInternal()=0;
-    virtual void handleDeploymentFinished(bool success)=0;
-    virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner)=0;
+    virtual QString remoteCall() const=0;
     void kill(const QStringList &apps);
+    bool isDeploying() const;
 
     QFutureInterface<void> m_progress;
     QScopedPointer<MaemoSshDeployer> m_sshDeployer;
     QScopedPointer<MaemoSshRunner> m_sshRunner;
     QScopedPointer<MaemoSshRunner> m_sshStopper;
+    bool m_stoppedByUser;
 
     struct Deployable
     {
@@ -125,16 +126,11 @@ public:
     explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~MaemoRunControl();
 
-private slots:
-    void executionFinished();
-    void handleRemoteOutput(const QString &output);
-
 private:
     virtual void startInternal();
     virtual void stopInternal();
-    virtual void handleDeploymentFinished(bool success);
-    virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner);
-    void startExecution();
+    virtual void handleRemoteOutput(const QString &output);
+    virtual QString remoteCall() const;
 };
 
 class MaemoDebugRunControl : public AbstractMaemoRunControl
@@ -146,19 +142,16 @@ public:
     bool isRunning() const;
 
 private slots:
-    void gdbServerStarted(const QString &output);
     void debuggerOutput(const QString &output);
     void debuggingFinished();
 
 private:
     virtual void startInternal();
     virtual void stopInternal();
-    virtual void handleDeploymentFinished(bool success);
-    virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner);
+    virtual void handleRemoteOutput(const QString &output);
+    virtual QString remoteCall() const;
 
     QString gdbServerPort() const;
-    void startGdbServer();
-    void gdbServerStartFailed(const QString &reason);
     void startDebugging();
 
     Debugger::DebuggerManager *m_debuggerManager;
