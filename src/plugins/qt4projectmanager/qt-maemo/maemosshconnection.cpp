@@ -173,7 +173,7 @@ private:
 
 void MaemoSftpConnection::transferFiles(const QList<SshDeploySpec> &deploySpecs)
 {
-    for (int i = 0; i < deploySpecs.count(); ++i) {
+    for (int i = 0; i < deploySpecs.count() && !stopRequested(); ++i) {
         const SshDeploySpec &deploySpec = deploySpecs.at(i);
         const QString &curSrcFile = deploySpec.srcFilePath();
         FileManager fileMgr(curSrcFile);
