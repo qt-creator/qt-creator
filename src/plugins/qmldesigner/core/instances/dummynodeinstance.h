@@ -43,7 +43,7 @@ public:
     typedef QSharedPointer<DummyNodeInstance> Pointer;
     typedef QWeakPointer<DummyNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
+    static Pointer create();
 
     void paint(QPainter *painter) const;
 
@@ -56,12 +56,12 @@ public:
     double opacity() const;
 
     void setPropertyVariant(const QString &name, const QVariant &value);
+    void setBindingProperty(const QString &name, const QString &expression);
     QVariant property(const QString &name) const;
     QStringList properties();
     QStringList localProperties();
 
-    bool isVisible() const;
-    void setVisible(bool isVisible);
+    void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
 
 protected:
     DummyNodeInstance();

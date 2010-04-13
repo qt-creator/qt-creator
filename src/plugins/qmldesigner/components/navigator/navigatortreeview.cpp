@@ -164,22 +164,28 @@ void IdItemDelegate::paint(QPainter *painter,
 
     ModelNode node = m_TreeModel->nodeForIndex(index);
 
-    QIcon icon=node.metaInfo().icon();
-    if (icon.isNull())
-    {
-        // if node has no own icon, search for it in the itemlibrary
-        QList <ItemLibraryInfo> InfoList = node.metaInfo().metaInfo().itemLibraryRepresentations(node.metaInfo());
-        foreach (const ItemLibraryInfo &entry, InfoList)
+    QIcon icon;
+    if (node.metaInfo().isValid()) {
+        icon=node.metaInfo().icon();
+        if (icon.isNull())
         {
-            if (entry.typeName()==node.metaInfo().typeName()) {
-                icon = entry.icon();
-                break;
+            // if node has no own icon, search for it in the itemlibrary
+            QList <ItemLibraryInfo> InfoList = node.metaInfo().metaInfo().itemLibraryRepresentations(node.metaInfo());
+            foreach (const ItemLibraryInfo &entry, InfoList)
+            {
+                if (entry.typeName()==node.metaInfo().typeName()) {
+                    icon = entry.icon();
+                    break;
+                }
             }
-        }
 
-        // if the library was also empty, use the default icon
-        if (icon.isNull()) icon = QIcon(":/ItemLibrary/images/default-icon.png");
+            // if the library was also empty, use the default icon
+        }
     }
+
+    if (icon.isNull())
+        icon = QIcon(":/ItemLibrary/images/item-default-icon.png");
+
 
     // If no icon is present, leave an empty space of 24 pixels anyway
     int pixmapSide = 24;

@@ -95,7 +95,7 @@ public:
 
     NodeInstanceView *nodeInstanceView() const;
     void setNodeInstanceView(NodeInstanceView *view);
-    void initializePropertyWatcher(const Pointer &objectNodeInstance);
+    virtual void initializePropertyWatcher(const Pointer &objectNodeInstance);
     virtual void paint(QPainter *painter) const;
 
     virtual bool isTopLevel() const;

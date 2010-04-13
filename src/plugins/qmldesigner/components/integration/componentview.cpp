@@ -116,7 +116,7 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
                 item->setEditable(false);
                 m_standardItemModel->appendRow(item);
             }
-        } else if (node.metaInfo().isComponent() && !m_componentList.contains(node.type())) {
+        } else if (node.metaInfo().isValid() && node.metaInfo().isComponent() && !m_componentList.contains(node.type())) {
             m_componentList.append(node.type());
             m_componentList.sort();
             m_listChanged = true;
