@@ -285,10 +285,6 @@ SettingsDialog::SettingsDialog(QWidget *parent, const QString &categoryId,
             tabWidget->addTab(widget, page->displayName());
             if (initialCategoryIndex == i && page->id() == initialPage)
                 initialPageIndex = j;
-
-            // A hack to remove the borders from all group boxes
-            foreach (QGroupBox *groupBox, qFindChildren<QGroupBox*>(widget))
-                groupBox->setFlat(true);
         }
 
         connect(tabWidget, SIGNAL(currentChanged(int)),
