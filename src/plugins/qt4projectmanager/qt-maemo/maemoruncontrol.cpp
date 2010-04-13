@@ -59,8 +59,8 @@ using ProjectExplorer::ToolChain;
 
 AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
     : RunControl(rc)
-    , runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
-    , devConfig(runConfig ? runConfig->deviceConfig() : MaemoDeviceConfig())
+    , m_runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
+    , m_devConfig(m_runConfig ? m_runConfig->deviceConfig() : MaemoDeviceConfig())
 {
 }
 
@@ -82,20 +82,20 @@ void AbstractMaemoRunControl::stop()
 
 void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 {
-    QTC_ASSERT(runConfig, return);
+    QTC_ASSERT(m_runConfig, return);
 
     if (m_stoppedByUser) {
         handleDeploymentFinished(false);
-    } else if (devConfig.isValid()) {
+    } else if (m_devConfig.isValid()) {
         m_deployables.clear();
-        if (runConfig->currentlyNeedsDeployment(devConfig.host)) {
+        if (m_runConfig->currentlyNeedsDeployment(m_devConfig.host)) {
             m_deployables.append(Deployable(executableFileName(),
                 QFileInfo(executableOnHost()).canonicalPath(),
                 &MaemoRunConfiguration::wasDeployed));
         }
         if (forDebugging
-            && runConfig->debuggingHelpersNeedDeployment(devConfig.host)) {
-            const QFileInfo &info(runConfig->dumperLib());
+            && m_runConfig->debuggingHelpersNeedDeployment(m_devConfig.host)) {
+            const QFileInfo &info(m_runConfig->dumperLib());
             m_deployables.append(Deployable(info.fileName(), info.canonicalPath(),
                 &MaemoRunConfiguration::debuggingHelpersDeployed));
         }
@@ -125,9 +125,9 @@ void AbstractMaemoRunControl::deploy()
             deploySpecs << SshDeploySpec(srcFilePath, tgtFilePath);
         }
         emit addToOutputWindow(this, tr("Files to deploy: %1.").arg(files.join(" ")));
-        m_sshDeployer.reset(new MaemoSshDeployer(devConfig, deploySpecs));
+        m_sshDeployer.reset(new MaemoSshDeployer(m_devConfig, deploySpecs));
         connect(m_sshDeployer.data(), SIGNAL(finished()),
-                this, SLOT(deployProcessFinished()));
+                this, SLOT(deployThreadFinished()));
         connect(m_sshDeployer.data(), SIGNAL(fileCopied(QString)),
                 this, SLOT(handleFileCopied()));
         m_progress.setProgressRange(0, m_deployables.count());
@@ -144,7 +144,7 @@ void AbstractMaemoRunControl::deploy()
 void AbstractMaemoRunControl::handleFileCopied()
 {
     Deployable deployable = m_deployables.takeFirst();
-    (runConfig->*deployable.updateTimestamp)(devConfig.host);
+    (m_runConfig->*deployable.updateTimestamp)(m_devConfig.host);
     m_progress.setProgressValue(m_progress.progressValue() + 1);
 }
 
@@ -160,7 +160,7 @@ bool AbstractMaemoRunControl::isDeploying() const
 
 void AbstractMaemoRunControl::run(const QString &remoteCall)
 {
-    m_sshRunner.reset(new MaemoSshRunner(devConfig, remoteCall));
+    m_sshRunner.reset(new MaemoSshRunner(m_devConfig, remoteCall));
     handleExecutionAboutToStart(m_sshRunner.data());
     m_sshRunner->start();
 }
@@ -191,11 +191,11 @@ void AbstractMaemoRunControl::kill(const QStringList &apps)
     }
     const QString remoteCall
         = niceKill + QLatin1String("sleep 1; ") + brutalKill;
-    m_sshStopper.reset(new MaemoSshRunner(devConfig, remoteCall));
+    m_sshStopper.reset(new MaemoSshRunner(m_devConfig, remoteCall));
     m_sshStopper->start();
 }
 
-void AbstractMaemoRunControl::deployProcessFinished()
+void AbstractMaemoRunControl::deployThreadFinished()
 {
     const bool success = !m_sshDeployer->hasError();
     if (m_stoppedByUser) {
@@ -213,15 +213,15 @@ void AbstractMaemoRunControl::deployProcessFinished()
 
 const QString AbstractMaemoRunControl::executableOnHost() const
 {
-    qDebug("runconfig->executable: %s", qPrintable(runConfig->executable()));
-    return runConfig->executable();
+    qDebug("runconfig->executable: %s", qPrintable(m_runConfig->executable()));
+    return m_runConfig->executable();
 }
 
 const QString AbstractMaemoRunControl::sshPort() const
 {
-    return devConfig.type == MaemoDeviceConfig::Physical
-        ? QString::number(devConfig.sshPort)
-        : runConfig->simulatorSshPort();
+    return m_devConfig.type == MaemoDeviceConfig::Physical
+        ? QString::number(m_devConfig.sshPort)
+        : m_runConfig->simulatorSshPort();
 }
 
 const QString AbstractMaemoRunControl::executableFileName() const
@@ -231,23 +231,23 @@ const QString AbstractMaemoRunControl::executableFileName() const
 
 const QString AbstractMaemoRunControl::remoteDir() const
 {
-    return homeDirOnDevice(devConfig.uname);
+    return homeDirOnDevice(m_devConfig.uname);
 }
 
 const QStringList AbstractMaemoRunControl::options() const
 {
     const bool usePassword
-        = devConfig.authentication == MaemoDeviceConfig::Password;
+        = m_devConfig.authentication == MaemoDeviceConfig::Password;
     const QLatin1String opt("-o");
     QStringList optionList;
     if (!usePassword)
-        optionList << QLatin1String("-i") << devConfig.keyFile;
+        optionList << QLatin1String("-i") << m_devConfig.keyFile;
     return optionList << opt
         << QString::fromLatin1("PasswordAuthentication=%1").
             arg(usePassword ? "yes" : "no") << opt
         << QString::fromLatin1("PubkeyAuthentication=%1").
             arg(usePassword ? "no" : "yes") << opt
-        << QString::fromLatin1("ConnectTimeout=%1").arg(devConfig.timeout)
+        << QString::fromLatin1("ConnectTimeout=%1").arg(m_devConfig.timeout)
         << opt << QLatin1String("CheckHostIP=no")
         << opt << QLatin1String("StrictHostKeyChecking=no");
 }
@@ -308,7 +308,7 @@ void MaemoRunControl::startExecution()
 {
     const QString remoteCall = QString::fromLocal8Bit("%1 %2 %3")
         .arg(targetCmdLinePrefix()).arg(executableOnTarget())
-        .arg(runConfig->arguments().join(" "));
+        .arg(m_runConfig->arguments().join(" "));
     run(remoteCall);
 }
 
@@ -353,14 +353,14 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     m_startParams->startMode = Debugger::StartRemote;
     m_startParams->executable = executableOnHost();
     m_startParams->remoteChannel
-        = devConfig.host % QLatin1Char(':') % gdbServerPort();
+        = m_devConfig.host % QLatin1Char(':') % gdbServerPort();
     m_startParams->remoteArchitecture = QLatin1String("arm");
-    m_startParams->sysRoot = runConfig->sysRoot();
+    m_startParams->sysRoot = m_runConfig->sysRoot();
     m_startParams->toolChainType = ToolChain::GCC_MAEMO;
-    m_startParams->debuggerCommand = runConfig->gdbCmd();
-    m_startParams->dumperLibrary = runConfig->dumperLib();
+    m_startParams->debuggerCommand = m_runConfig->gdbCmd();
+    m_startParams->dumperLibrary = m_runConfig->dumperLib();
     m_startParams->remoteDumperLib = QString::fromLocal8Bit("%1/%2")
-        .arg(remoteDir()).arg(QFileInfo(runConfig->dumperLib()).fileName());
+        .arg(remoteDir()).arg(QFileInfo(m_runConfig->dumperLib()).fileName());
 
     connect(m_debuggerManager, SIGNAL(debuggingFinished()), this,
         SLOT(debuggingFinished()), Qt::QueuedConnection);
@@ -401,7 +401,7 @@ void MaemoDebugRunControl::startGdbServer()
 {
     const QString remoteCall(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4").
         arg(targetCmdLinePrefix()).arg(gdbServerPort())
-        .arg(executableOnTarget()).arg(runConfig->arguments().join(" ")));
+        .arg(executableOnTarget()).arg(m_runConfig->arguments().join(" ")));
     run(remoteCall);
 }
 
@@ -476,9 +476,9 @@ void MaemoDebugRunControl::debuggerOutput(const QString &output)
 
 QString MaemoDebugRunControl::gdbServerPort() const
 {
-    return devConfig.type == MaemoDeviceConfig::Physical
-        ? QString::number(devConfig.gdbServerPort)
-        : runConfig->simulatorGdbServerPort();
+    return m_devConfig.type == MaemoDeviceConfig::Physical
+        ? QString::number(m_devConfig.gdbServerPort)
+        : m_runConfig->simulatorGdbServerPort();
 }
 
 } // namespace Internal

@@ -86,12 +86,12 @@ protected:
     const QString remoteDir() const;
     const QStringList options() const;
 private slots:
-    void deployProcessFinished();
+    void deployThreadFinished();
     void handleFileCopied();
 
 protected:
-    MaemoRunConfiguration *runConfig; // TODO this pointer can be invalid
-    const MaemoDeviceConfig devConfig;
+    MaemoRunConfiguration *m_runConfig; // TODO this pointer can be invalid
+    const MaemoDeviceConfig m_devConfig;
     bool m_stoppedByUser;
 
 private:
