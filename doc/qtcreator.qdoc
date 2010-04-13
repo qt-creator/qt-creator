@@ -2725,6 +2725,105 @@
     project. If you want a special setup, such as using debugging tools for Windows,
     or if the debugging engine is not installed, see \l {Setting Up Debugger}.
 
+    \section1 Modes of Operation
+
+    The debugger engine runs in different operating modes depending on where and
+    how the process is started and run. Some of the modes are only available for
+    a particular operating system or platform.
+
+    You can launch the debugger in the following modes:
+
+    \list
+
+       \o \bold Plain to debug locally started GUI processes.
+
+       \o \bold Terminal to debug locally started processes that need a
+       console.
+
+       \o \bold Attach to debug local processes started outside Qt Creator.
+
+       \o \bold Remote to debug a process running on a different machine.
+
+       \o \bold Core to debug crashed processes on Unix.
+
+       \o \bold Post-mortem to debug crashed processes on Windows.
+
+       \o \bold TRK to debug processes running on a Symbian device.
+
+    \endlist
+
+    When you click the \gui {Start Debugging} button, the debugger is launched
+    in the appropriate operating mode (plain, terminal, or TRK), based on the
+    build and run settings for the active project. Select \gui Debug menu options
+    to launch the debugger in the other modes.
+
+    \section2 Plain Mode
+
+    To launch the debugger in the plain mode, click the \gui {Start Debugging}
+    button for the active project, or choose
+    \gui {Debug > Start Debugging > Start and Debug External Application...}
+    and specify an executable.
+
+    \section2 Terminal Mode
+
+    To launch the debugger in the terminal mode, select \gui {Projects > Run Settings}
+    and select the \gui {Run in Terminal} check box. Then click the
+    \gui {Start Debugging} button for the active project.
+
+    \section2 Attach Mode
+
+    To launch the debugger in the attach mode, select
+    \gui {Debug > Start Debugging >  Attach to Running External Application...},
+    and then select a process ID to attach to.
+
+    \section2 Remote Mode
+
+    The remote mode uses a \e{gdbserver} daemon that runs on the remote machine.
+
+    To launch the debugger in the remote mode, select
+    \gui {Debug > Start Debugging > Start and Attach to Remote Application...}.
+
+    \section2 Core Mode
+
+    The core mode is available only in Unix. It debugs crashed processes using
+    the \e {core} files (crash dumps) that are generated if the setting
+    is enabled in the shell.
+
+    To enable the dumping of core files, enter the following command in the
+    shell from which the application will be launched:
+
+    \code
+    ulimit -c unlimited
+    \endcode
+
+    To launch the debugger in the core mode, select
+    \gui{Debug > Start Debugging >  Attach to Core...}.
+
+    \section2 Post-Mortem Mode
+
+    The post-mortem mode is available only on Windows, if you have installed
+    the debugging tools for Windows.
+
+    The Qt Creator installation program asks you whether you want to
+    register Qt Creator as a post-mortem debugger. To change the setting, select
+    \gui{Tools > Options  > Debugger > Common > Use Creator for post-mortem debugging}.
+
+    You can launch the debugger in the post-mortem mode if an application crashes
+    on Windows. Click the \gui {Debug in Qt Creator} button in the error message
+    that is displayed by the Windows operating system.
+
+    \section2 TRK Mode
+
+    The TRK mode is available only for Symbian. It debugs processes running on a Symbian
+    device using the App TRK application that runs on the device.
+
+    To launch the debugger in the TRK mode, open the project, select Symbian as the
+    target, and click the \gui {Start Debugging} button.
+
+    For more information on setting up Symbian projects, see
+    \l{Developing Symbian Applications}.
+
+
 */
 
 /*!
@@ -2802,7 +2901,7 @@
             \o Microsoft Visual C++ Compiler
             \o Debugging Tools for Windows/CDB
             \o Not applicable
-            \o Term, Plain, Attach
+            \o Term, Plain, Attach, Post-Mortem
         \row
             \o Symbian
             \o gcc
@@ -2821,7 +2920,7 @@
 
     The gdb debugger engine runs in different adapter modes to cope with the variety
     of supported platforms and environments. All gdb adapters inherit from
-    AbstractGdbAdapters:
+    AbstractGdbAdapter:
 
     \list
 
