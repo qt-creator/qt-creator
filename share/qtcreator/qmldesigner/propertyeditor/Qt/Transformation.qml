@@ -14,20 +14,34 @@ GroupBox {
                 Label {
                     text: qsTr("Origin")
                 }
-                ComboBox {
-                    minimumWidth: 20
-                    baseStateFlag: isBaseState
-                    backendValue: backendValues.transformOrigin
-
-                    items : { [
-                            "TopLeft", "Top", "TopRight", "Left", "Center", "Right", "BottomLeft", "Bottom",
-                            "BottomRight"
-                            ] }
-
-                            currentText: backendValues.transformOrigin.value;
-                            onItemsChanged: {
-                                currentText =  backendValues.transformOrigin.value;
-                            }
+                OriginWidget {
+                    id: originWidget
+                    
+                    contextMenuPolicy: "Qt::ActionsContextMenu"
+                    origin: backendValues.transformOrigin.value
+                    onOriginChanged: {
+                        backendValues.transformOrigin.value = origin;
+                    }
+                    marked: backendValues.transformOrigin.isInSubState
+                    
+                    ExtendedFunctionButton {
+                        backendValue: backendValues.transformOrigin
+                        y: 2
+                        x: 56
+                        visible: originWidget.enabled
+                    }
+                    
+                    actions:  [
+                        QAction { text: qsTr("Top Left"); onTriggered: originWidget.origin = "TopLeft"; },
+                        QAction { text: qsTr("Top"); onTriggered: originWidget.origin = "Top"; },
+                        QAction { text: qsTr("Top Right"); onTriggered: originWidget.origin = "TopRight"; },
+                        QAction { text: qsTr("Left"); onTriggered: originWidget.origin = "Left"; },
+                        QAction {text: qsTr("Center"); onTriggered: originWidget.origin = "Center"; },
+                        QAction { text: qsTr("Right"); onTriggered: originWidget.origin = "Right"; },
+                        QAction { text: qsTr("Bottom Left"); onTriggered: originWidget.origin = "BottomLeft"; },                        
+                        QAction { text: qsTr("Bottom"); onTriggered: originWidget.origin = "Bottom"; },
+                        QAction { text: qsTr("Bottom Right"); onTriggered: originWidget.origin = "BottomRight"; }
+                    ]
                 }
             }
         }
