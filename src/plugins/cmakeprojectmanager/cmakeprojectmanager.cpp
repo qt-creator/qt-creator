@@ -266,14 +266,11 @@ QIcon CMakeSettingsPage::categoryIcon() const
 QWidget *CMakeSettingsPage::createPage(QWidget *parent)
 {
     QWidget *outerWidget = new QWidget(parent);
-    QVBoxLayout *outerLayout = new QVBoxLayout(outerWidget);
-    QGroupBox *groupBox = new QGroupBox;
-    outerLayout->addWidget(groupBox);
-    outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
-    QFormLayout *formLayout = new QFormLayout(groupBox);
+    QFormLayout *formLayout = new QFormLayout(outerWidget);
     m_pathchooser = new Utils::PathChooser;
     m_pathchooser->setExpectedKind(Utils::PathChooser::Command);
     formLayout->addRow(tr("Executable:"), m_pathchooser);
+    formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     m_pathchooser->setPath(cmakeExecutable());
     return outerWidget;
 }

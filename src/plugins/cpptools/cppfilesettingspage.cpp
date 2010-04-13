@@ -351,6 +351,5 @@ bool CppFileSettingsPage::matches(const QString &s) const
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
-}
-}
-
+} // namespace Internal
+} // namespace CppTools

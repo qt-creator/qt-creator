@@ -744,8 +744,7 @@ QString QtOptionsPageWidget::searchKeywords() const
             << ' ' << m_ui->msvcLabel->text()
             << ' ' << m_ui->gcceLabel->text()
             << ' ' << m_ui->mwcLabel->text()
-            << ' ' << m_ui->debuggingHelperLabel->text()
-            << ' ' << m_ui->versionListGroupBox->title();
+            << ' ' << m_ui->debuggingHelperLabel->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }

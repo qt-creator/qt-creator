@@ -50,7 +50,7 @@ class LocatorFiltersFilter : public ILocatorFilter
 
 public:
     LocatorFiltersFilter(LocatorPlugin *plugin,
-                           LocatorWidget *locatorWidget);
+                         LocatorWidget *locatorWidget);
 
     // ILocatorFilter
     QString displayName() const;

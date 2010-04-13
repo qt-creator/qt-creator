@@ -45,7 +45,8 @@ QT_END_NAMESPACE
 namespace CppTools {
 namespace Internal {
 
-struct CppFileSettings {
+struct CppFileSettings
+{
     CppFileSettings();
 
     QString headerSuffix;
@@ -61,15 +62,16 @@ struct CppFileSettings {
     // Currently made public in
     static QString licenseTemplate();
 
-
     bool equals(const CppFileSettings &rhs) const;
 };
 
 inline bool operator==(const CppFileSettings &s1, const CppFileSettings &s2) { return s1.equals(s2); }
 inline bool operator!=(const CppFileSettings &s1, const CppFileSettings &s2) { return !s1.equals(s2); }
 
-class CppFileSettingsWidget : public QWidget {
+class CppFileSettingsWidget : public QWidget
+{
     Q_OBJECT
+
 public:
     explicit CppFileSettingsWidget(QWidget *parent = 0);
     virtual ~CppFileSettingsWidget();
@@ -92,6 +94,7 @@ private:
 class CppFileSettingsPage : public Core::IOptionsPage
 {
     Q_DISABLE_COPY(CppFileSettingsPage)
+
 public:
     explicit CppFileSettingsPage(QSharedPointer<CppFileSettings> &settings,
                                  QObject *parent = 0);

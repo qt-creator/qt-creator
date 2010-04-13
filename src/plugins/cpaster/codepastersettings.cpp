@@ -84,24 +84,22 @@ QIcon CodePasterSettingsPage::categoryIcon() const
 
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
 {
-    QGroupBox *groupBox = new QGroupBox();
-    QVBoxLayout *groupBoxLayout = new QVBoxLayout(groupBox);
+    QWidget *outerWidget = new QWidget(parent);
+    QVBoxLayout *outerLayout = new QVBoxLayout(outerWidget);
+
     QFormLayout *formLayout = new QFormLayout;
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    QLineEdit *lineedit = new QLineEdit(m_host);
-    connect(lineedit, SIGNAL(textChanged(QString)), this, SLOT(serverChanged(QString)));
-    formLayout->addRow(tr("Server:"), lineedit);
-    groupBoxLayout->addLayout(formLayout);
-    groupBoxLayout->addSpacerItem(new QSpacerItem(0, 60, QSizePolicy::Ignored, QSizePolicy::Fixed));
+    QLineEdit *lineEdit = new QLineEdit(m_host);
+    connect(lineEdit, SIGNAL(textChanged(QString)), this, SLOT(serverChanged(QString)));
+    formLayout->addRow(tr("Server:"), lineEdit);
+    outerLayout->addLayout(formLayout);
+    outerLayout->addSpacerItem(new QSpacerItem(0, 30, QSizePolicy::Ignored, QSizePolicy::Fixed));
 
     QLabel *noteLabel = new QLabel(tr("Note: Specify the host name for the CodePaster service "
                                       "without any protocol prepended (e.g. codepaster.mycompany.com)."));
     noteLabel->setWordWrap(true);
-    groupBoxLayout->addWidget(noteLabel);
+    outerLayout->addWidget(noteLabel);
 
-    QWidget *outerWidget = new QWidget(parent);
-    QVBoxLayout *outerLayout = new QVBoxLayout(outerWidget);
-    outerLayout->addWidget(groupBox);
     outerLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     return outerWidget;
 }
