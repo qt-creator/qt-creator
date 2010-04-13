@@ -18,13 +18,12 @@ void PropertyEditorTransaction::start()
 
 void PropertyEditorTransaction::end()
 {
-    if (m_rewriterTransaction.isValid())
+    if (m_rewriterTransaction.isValid() &&  m_propertyEditor->model())
         m_rewriterTransaction.commit();
 }
 
 void PropertyEditorTransaction::timerEvent(QTimerEvent *timerEvent)
 {
-    qDebug() << "timer";
     killTimer(timerEvent->timerId());
     if (m_rewriterTransaction.isValid())
         m_rewriterTransaction.commit();
