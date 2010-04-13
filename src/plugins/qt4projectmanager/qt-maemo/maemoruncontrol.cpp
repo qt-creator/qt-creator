@@ -350,7 +350,6 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     startParams->remoteDumperLib = QString::fromLocal8Bit("%1/%2")
         .arg(remoteDir()).arg(QFileInfo(runConfig->dumperLib()).fileName());
 
-    connect(this, SIGNAL(stopRequested()), debuggerManager, SLOT(exitDebugger()));
     connect(debuggerManager, SIGNAL(debuggingFinished()), this,
         SLOT(debuggingFinished()), Qt::QueuedConnection);
     connect(debuggerManager, SIGNAL(applicationOutputAvailable(QString)),
@@ -397,7 +396,7 @@ void MaemoDebugRunControl::startGdbServer()
 void MaemoDebugRunControl::gdbServerStartFailed(const QString &reason)
 {
     handleError(tr("Debugging failed: %1").arg(reason));
-    emit stopRequested();
+    debuggerManager->exitDebugger();
     emit finished();
 }
 
@@ -443,7 +442,7 @@ void MaemoDebugRunControl::stop()
     if (isDeploying()) {
         stopDeployment();
     } else {
-        emit stopRequested();
+        debuggerManager->exitDebugger();
     }
 }
 

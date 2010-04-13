@@ -145,9 +145,6 @@ public:
     bool isRunning() const;
     Q_SLOT void debuggingFinished();
 
-signals:
-    void stopRequested();
-
 private slots:
     void gdbServerStarted(const QString &output);
     void debuggerOutput(const QString &output);
