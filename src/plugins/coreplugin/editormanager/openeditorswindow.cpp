@@ -59,7 +59,6 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     m_editorList->header()->hide();
     m_editorList->setIndentation(0);
     m_editorList->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_editorList->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_editorList->setTextElideMode(Qt::ElideMiddle);
 #ifdef Q_WS_MAC
     m_editorList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
