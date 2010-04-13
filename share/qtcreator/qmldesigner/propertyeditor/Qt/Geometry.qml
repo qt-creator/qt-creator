@@ -8,6 +8,7 @@ GroupBox {
     caption: qsTr("Geometry")
 
     layout: VerticalLayout {
+        bottomMargin: 12
 
         QWidget {  // 1
             layout: HorizontalLayout {
@@ -48,9 +49,11 @@ GroupBox {
         } //QWidget  //1
 
         QWidget {
+            id: bottomWidget
             layout: HorizontalLayout {
 
                 Label {
+                    id: sizeLabel
                     text: qsTr("Size")
                 }
 
@@ -82,4 +85,17 @@ GroupBox {
             } //QVBoxLayout
         } //QWidget
     } //QHBoxLayout
+    
+    QPushButton {
+        checkable: true
+        toolTip: qsTr("Lock aspect ratio")
+        fixedWidth: 45
+		width: fixedWidth
+        fixedHeight: 9
+		height: fixedHeight
+        styleSheetFile: "aspectlock.css";
+        x: bottomWidget.x + ((bottomWidget.width - sizeLabel.width) / 2) + sizeLabel.width - 8
+        y: bottomWidget.y + bottomWidget.height + 2
+        visible: false //hide until the visual editor implements this feature ###
+    }
 } //QGroupBox
