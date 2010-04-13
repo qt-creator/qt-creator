@@ -30,34 +30,46 @@
 #ifndef CLASSLIST_H
 #define CLASSLIST_H
 
-#include <QtGui/QListWidget>
+#include <QtGui/QListView>
+
+QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class ClassModel;
 
-class ClassList : public QListWidget
+// Class list for new Custom widget classes. Provides
+// editable '<new class>' field and Delete/Insert key handling.
+class ClassList : public QListView
 {
     Q_OBJECT
 
 public:
-    ClassList(QWidget *parent);
+    explicit ClassList(QWidget *parent = 0);
 
-public slots:
-    void classEdited();
+    QString className(int row) const;
 
 signals:
     void classAdded(const QString &name);
     void classRenamed(int index, const QString &newName);
     void classDeleted(int index);
+    void currentRowChanged(int);
+
+public slots:
+    void removeCurrentClass();
+    void startEditingNewClassItem();
+
+private slots:
+    void classEdited();
+    void slotCurrentRowChanged(const QModelIndex &,const QModelIndex &);
 
 protected:
     void keyPressEvent(QKeyEvent *event);
 
 private:
-    void insertNewItem();
+    ClassModel *m_model;
 };
 
-}
-}
-
+} // namespace Internal
+} // namespace Qt4ProjectManager
 #endif

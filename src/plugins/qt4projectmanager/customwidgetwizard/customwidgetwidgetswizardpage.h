@@ -68,19 +68,21 @@ public:
     int classCount() const { return m_uiClassDefs.size(); }
     QString classNameAt(int i) const;
 
+    virtual void initializePage();
+
 private Q_SLOTS:
     void on_classList_classAdded(const QString &name);
     void on_classList_classDeleted(int index);
     void on_classList_classRenamed(int index, const QString &newName);
     void slotCheckCompleteness();
+    void slotCurrentRowChanged(int);
 
 private:
     void updatePluginTab();
 
     Ui::CustomWidgetWidgetsWizardPage *m_ui;
     QList<ClassDefinition *> m_uiClassDefs;
-    QStackedLayout *m_tabStack;
-    QWidget *m_dummyTab;
+    QStackedLayout *m_tabStackLayout;
     FileNamingParameters m_fileNamingParameters;
     bool m_complete;
 };

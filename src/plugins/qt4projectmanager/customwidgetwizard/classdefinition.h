@@ -39,12 +39,12 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class ClassDefinition : public QTabWidget, private Ui::ClassDefinition
+class ClassDefinition : public QTabWidget
 {
     Q_OBJECT
 
 public:
-    ClassDefinition(QWidget *parent);
+    explicit ClassDefinition(QWidget *parent = 0);
     void setClassName(const QString &name);
 
     FileNamingParameters fileNamingParameters() const { return m_fileNamingParameters; }
@@ -52,7 +52,9 @@ public:
 
     PluginOptions::WidgetOptions widgetOptions(const QString &className) const;
 
-public Q_SLOTS:
+    void enableButtons();
+
+private Q_SLOTS:
     void on_libraryRadio_toggled();
     void on_skeletonCheck_toggled();
     void on_widgetLibraryEdit_textChanged();
@@ -62,6 +64,7 @@ public Q_SLOTS:
     void on_domXmlEdit_textChanged();
 
 private:
+    Ui::ClassDefinition m_ui;
     FileNamingParameters m_fileNamingParameters;
     bool m_domXmlChanged;
 };

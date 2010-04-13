@@ -48,8 +48,8 @@ namespace Ui {
 class CustomWidgetPluginWizardPage : public QWizardPage {
     Q_OBJECT
 public:
-    CustomWidgetPluginWizardPage(QWidget *parent = 0);
-    ~CustomWidgetPluginWizardPage();
+    explicit CustomWidgetPluginWizardPage(QWidget *parent = 0);
+    virtual ~CustomWidgetPluginWizardPage();
 
     void init(const CustomWidgetWidgetsWizardPage *widgetsPage);
 
