@@ -56,7 +56,7 @@ QString TrkOptionsPage::settingsId()
 
 QString TrkOptionsPage::displayName() const
 {
-    return tr("Symbian TRK");
+    return tr("Symbian");
 }
 
 QString TrkOptionsPage::category() const

@@ -33,10 +33,10 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>C++</string>
+      <string>Gui behavior</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0" colspan="2">
+      <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxListSourceFiles">
         <property name="toolTip">
          <string>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</string>
@@ -46,46 +46,21 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
-        <property name="text">
-         <string>Show a message box when receiving a signal</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
+      <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseAlternatingRowColors">
         <property name="text">
          <string>Use alternating row colors in debug views</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="1" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseToolTipsInMainEditor">
         <property name="text">
          <string>Use tooltips in main editor while debugging</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
-        <property name="toolTip">
-         <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
- reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
-        </property>
-        <property name="text">
-         <string>Skip known frames when stepping</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
-        <property name="text">
-         <string>Enable reverse debugging</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxRegisterForPostMortem">
         <property name="toolTip">
          <string>Register Qt Creator for debugging crashed applications.</string>
@@ -95,14 +70,14 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="labelMaximalStackDepth">
         <property name="text">
          <string>Maximal stack depth:</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
+      <item row="4" column="1">
        <widget class="QSpinBox" name="spinBoxMaximalStackDepth">
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>

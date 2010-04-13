@@ -56,7 +56,7 @@ const char * const GDBRUNNING           = "Gdb.Running";
 
 const char * const DEBUGGER_COMMON_SETTINGS_ID = "A.Common";
 const char * const DEBUGGER_COMMON_SETTINGS_NAME =
-    QT_TRANSLATE_NOOP("Debugger", "Common");
+    QT_TRANSLATE_NOOP("Debugger", "General");
 const char * const DEBUGGER_SETTINGS_CATEGORY = "O.Debugger";
 const char * const DEBUGGER_SETTINGS_TR_CATEGORY =
     QT_TRANSLATE_NOOP("Debugger", "Debugger");

@@ -88,6 +88,13 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(GdbWatchdogTimeout),
         m_ui.spinBoxGdbWatchdogTimeout);
 
+    m_group.insert(theDebuggerAction(UseMessageBoxForSignals),
+        m_ui.checkBoxUseMessageBoxForSignals);
+    m_group.insert(theDebuggerAction(SkipKnownFrames),
+        m_ui.checkBoxSkipKnownFrames);
+    m_group.insert(theDebuggerAction(EnableReverseDebugging),
+        m_ui.checkBoxEnableReverseDebugging);
+    m_group.insert(theDebuggerAction(GdbWatchdogTimeout), 0);
 
 #if 1
     m_ui.groupBoxPluginDebugging->hide();
@@ -114,6 +121,9 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
     if (m_searchKeywords.isEmpty()) {
         // TODO: Add breakpoints, environment?
         QTextStream(&m_searchKeywords) << ' ' << m_ui.labelGdbLocation->text()
+                << ' ' << m_ui.checkBoxSkipKnownFrames->text()
+                << ' ' << m_ui.checkBoxEnableReverseDebugging->text()
+                << ' ' << m_ui.checkBoxUseMessageBoxForSignals->text()
                 << ' ' << m_ui.labelEnvironment->text()
                 << ' ' << m_ui.labelGdbStartupScript->text();
         m_searchKeywords.remove(QLatin1Char('&'));

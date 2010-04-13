@@ -108,7 +108,7 @@ private slots:
 private:
     // Used by MainWindow
     friend class Internal::DebuggerMainWindow;
-    QList<Internal::DebugToolWindow* > i_mw_debugToolWindows() const;
+    QList<Internal::DebugToolWindow *> i_mw_debugToolWindows() const;
 
     void hideInactiveWidgets();
     void createViewsMenuItems();

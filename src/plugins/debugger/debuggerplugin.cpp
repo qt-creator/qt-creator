@@ -368,10 +368,6 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.checkBoxListSourceFiles);
     m_group.insert(theDebuggerAction(UseAlternatingRowColors),
         m_ui.checkBoxUseAlternatingRowColors);
-    m_group.insert(theDebuggerAction(UseMessageBoxForSignals),
-        m_ui.checkBoxUseMessageBoxForSignals);
-    m_group.insert(theDebuggerAction(SkipKnownFrames),
-        m_ui.checkBoxSkipKnownFrames);
     m_group.insert(theDebuggerAction(UseToolTipsInMainEditor),
         m_ui.checkBoxUseToolTipsInMainEditor);
     m_group.insert(theDebuggerAction(AutoDerefPointers), 0);
@@ -379,11 +375,8 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(UseToolTipsInBreakpointsView), 0);
     m_group.insert(theDebuggerAction(UseAddressInBreakpointsView), 0);
     m_group.insert(theDebuggerAction(UseAddressInStackView), 0);
-    m_group.insert(theDebuggerAction(EnableReverseDebugging),
-        m_ui.checkBoxEnableReverseDebugging);
     m_group.insert(theDebuggerAction(MaximalStackDepth),
         m_ui.spinBoxMaximalStackDepth);
-    m_group.insert(theDebuggerAction(GdbWatchdogTimeout), 0);
     m_group.insert(theDebuggerAction(ShowStdNamespace), 0);
     m_group.insert(theDebuggerAction(ShowQtNamespace), 0);
     m_group.insert(theDebuggerAction(LogTimeStamps), 0);
@@ -403,11 +396,8 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         QTextStream(&m_searchKeywords) << ' '
                 << m_ui.checkBoxChangeLanguageAutomatically->text()
                 << m_ui.checkBoxListSourceFiles->text()
-                << ' ' << m_ui.checkBoxUseMessageBoxForSignals->text()
                 << ' ' << m_ui.checkBoxUseAlternatingRowColors->text()
                 << ' ' << m_ui.checkBoxUseToolTipsInMainEditor->text()
-                << ' ' << m_ui.checkBoxSkipKnownFrames->text()
-                << ' ' << m_ui.checkBoxEnableReverseDebugging->text()
 #ifdef Q_OS_WIN
                 << ' ' << m_ui.checkBoxRegisterForPostMortem->text()
 #endif
@@ -453,7 +443,7 @@ public:
     DebuggingHelperOptionPage() {}
 
     // IOptionsPage
-    QString id() const { return _("B.DebuggingHelper"); }
+    QString id() const { return _("Z.DebuggingHelper"); }
     QString displayName() const { return tr("Debugging Helper"); }
     QString category() const { return _(DEBUGGER_SETTINGS_CATEGORY); }
     QString displayCategory() const { return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY); }
@@ -942,11 +932,11 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     editorContextMenu->addAction(cmd);
     cmd->setAttribute(Command::CA_Hide);
 
-    // FIXME:
     addAutoReleasedObject(new CommonOptionsPage);
-    addAutoReleasedObject(new DebuggingHelperOptionPage);
-    foreach (Core::IOptionsPage* op, engineOptionPages)
+    foreach (Core::IOptionsPage *op, engineOptionPages)
         addAutoReleasedObject(op);
+    addAutoReleasedObject(new DebuggingHelperOptionPage);
+
     addAutoReleasedObject(new DebuggerListener);
     m_locationMark = 0;
 
