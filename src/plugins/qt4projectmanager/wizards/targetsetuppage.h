@@ -40,12 +40,9 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
+class QPushButton;
 class QTreeWidget;
 QT_END_NAMESPACE
-
-namespace Utils {
-class PathChooser;
-}
 
 namespace Qt4ProjectManager {
 class Qt4Project;
@@ -112,17 +109,17 @@ public:
 
 private slots:
     void itemWasChanged();
-    void importDirectoryAdded(const QString &);
+    void addShadowBuildLocation();
 
 private:
     void resetInfos();
 
     QList<ImportInfo> m_infos;
     QTreeWidget *m_treeWidget;
-    Utils::PathChooser *m_directoryChooser;
-    QLabel *m_directoryLabel;
+    QPushButton *m_addDirectoryButton;
     bool m_preferMobile;
     QString m_proFilePath;
+    QString m_defaultShadowBuildLocation;
 };
 
 } // namespace Internal
