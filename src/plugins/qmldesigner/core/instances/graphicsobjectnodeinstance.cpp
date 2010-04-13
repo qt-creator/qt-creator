@@ -44,6 +44,9 @@ GraphicsObjectNodeInstance::GraphicsObjectNodeInstance(QGraphicsObject *graphics
 
 QGraphicsObject *GraphicsObjectNodeInstance::graphicsObject() const
 {
+    if (object() == 0)
+        return 0;
+
     Q_ASSERT(qobject_cast<QGraphicsObject*>(object()));
     return static_cast<QGraphicsObject*>(object());
 }
