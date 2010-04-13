@@ -2569,7 +2569,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
             if (TextEditDocumentLayout::ifdefedOut(block)) {
                 QRectF rr = r;
-                rr.setWidth(viewport()->width());
+                rr.setRight(viewportRect.width() - offset.x());
                 if (lineX > 0)
                     rr.setRight(qMin(lineX, rr.right()));
                 painter.fillRect(rr, d->m_ifdefedOutFormat.background());
