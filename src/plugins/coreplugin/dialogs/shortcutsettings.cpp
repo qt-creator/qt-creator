@@ -179,6 +179,7 @@ void ShortcutSettings::targetIdentifierChanged()
         else
             setModified(current, false);
         current->setText(2, scitem->m_key);
+        resetCollisionMarker(scitem);
         markPossibleCollisions(scitem);
     }
 }
@@ -216,6 +217,7 @@ void ShortcutSettings::importAction()
         ICore::instance()->resourcePath() + "/schemes/",
         tr("Keyboard Mapping Scheme (*.kms)"));
     if (!fileName.isEmpty()) {
+
         CommandsFile cf(fileName);
         QMap<QString, QKeySequence> mapping = cf.importCommands();
 
@@ -231,9 +233,12 @@ void ShortcutSettings::importAction()
                     setModified(item->m_item, true);
                 else
                     setModified(item->m_item, false);
-
-                markPossibleCollisions(item);
             }
+        }
+
+        foreach (ShortcutItem *item, m_scitems) {
+            resetCollisionMarker(item);
+            markPossibleCollisions(item);
         }
     }
 }
@@ -246,7 +251,11 @@ void ShortcutSettings::defaultAction()
         setModified(item->m_item, false);
         if (item->m_item == commandList()->currentItem())
             commandChanged(item->m_item);
-        resetCollisionMarkers();
+    }
+
+    foreach (ShortcutItem *item, m_scitems) {
+        resetCollisionMarker(item);
+        markPossibleCollisions(item);
     }
 }
 
@@ -314,6 +323,8 @@ void ShortcutSettings::initialize()
             setModified(item, true);
 
         item->setData(0, Qt::UserRole, qVariantFromValue(s));
+
+        markPossibleCollisions(s);
     }
 }
 
@@ -370,8 +381,6 @@ int ShortcutSettings::translateModifiers(Qt::KeyboardModifiers state,
     return result;
 }
 
-
-
 void ShortcutSettings::markPossibleCollisions(ShortcutItem *item)
 {
     if (item->m_key.isEmpty())
@@ -395,13 +404,20 @@ void ShortcutSettings::markPossibleCollisions(ShortcutItem *item)
                 !item->m_cmd->context().isEmpty())) {
                 currentItem->m_item->setForeground(2, Qt::red);
                 item->m_item->setForeground(2, Qt::red);
+
             }
         }
     }
 }
 
+void ShortcutSettings::resetCollisionMarker(ShortcutItem *item)
+{
+    item->m_item->setForeground(2, commandList()->palette().foreground());
+}
+
+
 void ShortcutSettings::resetCollisionMarkers()
 {
     foreach (ShortcutItem *item, m_scitems)
-        item->m_item->setForeground(2, commandList()->palette().foreground());
+        resetCollisionMarker(item);
 }

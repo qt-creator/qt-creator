@@ -94,6 +94,7 @@ private:
     void handleKeyEvent(QKeyEvent *e);
     int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
     void markPossibleCollisions(ShortcutItem *);
+    void resetCollisionMarker(ShortcutItem *);
     void resetCollisionMarkers();
 
     QList<ShortcutItem *> m_scitems;
