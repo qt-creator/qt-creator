@@ -331,12 +331,10 @@ void MaemoRunControl::handleRemoteOutput(const QString &output)
 
 MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     : AbstractMaemoRunControl(runConfiguration)
-    , debuggerManager(0)
+    , debuggerManager(ExtensionSystem::PluginManager::instance()
+                      ->getObject<Debugger::DebuggerManager>())
     , startParams(new Debugger::DebuggerStartParameters)
 {
-    debuggerManager = ExtensionSystem::PluginManager::instance()
-        ->getObject<Debugger::DebuggerManager>();
-
     QTC_ASSERT(debuggerManager != 0, return);
     startParams->startMode = Debugger::StartRemote;
     startParams->executable = executableOnHost();
