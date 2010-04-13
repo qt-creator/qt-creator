@@ -15,6 +15,7 @@ SOURCES += propertyeditor.cpp \
     filewidget.cpp \
     propertyeditorvalue.cpp \
     fontwidget.cpp \
+    originwidget.cpp \
     siblingcombobox.cpp \
     propertyeditortransaction.cpp
 HEADERS += propertyeditor.h \
@@ -31,6 +32,7 @@ HEADERS += propertyeditor.h \
     filewidget.h \
     propertyeditorvalue.h \
     fontwidget.h \
+    originwidget.h \
     siblingcombobox.h \
     propertyeditortransaction.h
 QT += declarative
