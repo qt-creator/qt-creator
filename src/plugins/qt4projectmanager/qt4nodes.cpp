@@ -1169,8 +1169,8 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
 
     newVarValues[DefinesVar] = m_readerExact->values(QLatin1String("DEFINES"));
     newVarValues[IncludePathVar] = includePaths(m_readerExact);
-    newVarValues[UiDirVar] = uiDirPaths(m_readerExact);
-    newVarValues[MocDirVar] = mocDirPaths(m_readerExact);
+    newVarValues[UiDirVar] = QStringList() << uiDirPath(m_readerExact);
+    newVarValues[MocDirVar] = QStringList() << mocDirPath(m_readerExact);
     newVarValues[PkgConfigVar] = m_readerExact->values(QLatin1String("PKGCONFIG"));
     newVarValues[PrecompiledHeaderVar] =
             m_readerExact->absoluteFileValues(QLatin1String("PRECOMPILED_HEADER"),
@@ -1330,20 +1330,20 @@ QStringList Qt4ProFileNode::updateUiFiles()
     return toUpdate;
 }
 
-QStringList Qt4ProFileNode::uiDirPaths(ProFileReader *reader) const
+QString Qt4ProFileNode::uiDirPath(ProFileReader *reader) const
 {
-    QStringList candidates = reader->absolutePathValues(QLatin1String("UI_DIR"),
-                                                        buildDir());
-    candidates.removeDuplicates();
-    return candidates;
+    QString path = reader->value("UI_DIR");
+    if (QFileInfo(path).isRelative())
+        path = QDir::cleanPath(buildDir() + "/" + path);
+    return path;
 }
 
-QStringList Qt4ProFileNode::mocDirPaths(ProFileReader *reader) const
+QString Qt4ProFileNode::mocDirPath(ProFileReader *reader) const
 {
-    QStringList candidates = reader->absolutePathValues(QLatin1String("MOC_DIR"),
-                                                        buildDir());
-    candidates.removeDuplicates();
-    return candidates;
+    QString path = reader->value("MOC_DIR");
+    if (QFileInfo(path).isRelative())
+        path = QDir::cleanPath(buildDir() + "/" + path);
+    return path;
 }
 
 QStringList Qt4ProFileNode::includePaths(ProFileReader *reader) const
@@ -1355,7 +1355,10 @@ QStringList Qt4ProFileNode::includePaths(ProFileReader *reader) const
     }
 
     paths.append(reader->absolutePathValues(QLatin1String("INCLUDEPATH"), m_projectDir));
-    paths << mocDirPaths(reader) << uiDirPaths(reader);
+    // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
+    // except if those directories don't exist at the time of parsing
+    // thus we add those directories manually (without checking for existance)
+    paths << mocDirPath(reader) << uiDirPath(reader);
 
     paths.removeDuplicates();
     return paths;
