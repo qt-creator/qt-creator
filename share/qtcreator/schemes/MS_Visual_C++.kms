@@ -405,6 +405,9 @@
  <shortcut id="CppEditor.SwitchDeclarationDefinition" >
   <key value="Ctrl+Shift+F12" />
  </shortcut>
+ <shortcut id="QmlJSEditor.FollowSymbolUnderCursor" >
+  <key value="Shift+F12" />
+ </shortcut>
  <shortcut id="Qt4Builder.RunQMake" >
   <key value="" />
  </shortcut>
