@@ -1,4 +1,4 @@
-import Qt 4.6
+import Qt 4.7
 
 // Shows list of states
 // the model has to expose the path through an iconUrl property

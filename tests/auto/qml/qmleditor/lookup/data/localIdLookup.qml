@@ -1,4 +1,4 @@
-import Qt 4.6
+import Qt 4.7
 
 // Try to look up x, y, z, opacity and visible
 // in all symbol contexts. It should always get the right item.

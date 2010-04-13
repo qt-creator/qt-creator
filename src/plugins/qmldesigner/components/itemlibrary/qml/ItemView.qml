@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-import Qt 4.6
+import Qt 4.7
 
 // view displaying an item library grid item
 

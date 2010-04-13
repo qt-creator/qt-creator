@@ -1,4 +1,4 @@
-import Qt 4.6
+import Qt 4.7
 
 // Try to look up x, y, z
 // in all symbol contexts. It should always get the function.

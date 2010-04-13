@@ -1,5 +1,5 @@
-import Qt 4.6
-import Qt 4.6 as Qt46
+import Qt 4.7
+import Qt 4.7 as Qt46
 import "subitems"
 import "subitems" as Subdir
 
