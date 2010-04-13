@@ -59,9 +59,13 @@
 #include <QFileSystemWatcher>
 #include <QPixmapCache>
 
+#include <QTextDocument>
+
 #include <private/qdeclarativebinding_p.h>
 #include <private/qdeclarativemetatype_p.h>
 #include <private/qdeclarativevaluetype_p.h>
+#include <private/qdeclarativetext_p.h>
+#include <private/qdeclarativetext_p_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -331,38 +335,32 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
-#ifndef QT_DEBUG
 static bool hasFullImplementedListInterface(const QDeclarativeListReference &list)
 {
     return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
 }
-#endif
 
 static void removeObjectFromList(const QDeclarativeProperty &metaProperty, QObject *objectToBeRemoved, QDeclarativeEngine * engine)
 {
     QDeclarativeListReference listReference(metaProperty.object(), metaProperty.name().toLatin1(), engine);
 
-#ifndef QT_DEBUG
-    if (!hasFullImplementedListInterface(listReference))
+    if (!hasFullImplementedListInterface(listReference)) {
+        qWarning() << "Property list interface not fully implemented for Class " << metaProperty.property().typeName() << " in property " << metaProperty.name() << "!";
         return;
-#endif
+    }
 
     int count = listReference.count();
 
     QObjectList objectList;
 
-    Q_ASSERT(listReference.canCount());
-    Q_ASSERT(listReference.canAt());
     for(int i = 0; i < count; i ++) {
         QObject *listItem = listReference.at(i);
         if (listItem != objectToBeRemoved)
             objectList.append(listItem);
     }
 
-    Q_ASSERT(listReference.canClear());
     listReference.clear();
 
-    Q_ASSERT(listReference.canAppend());
     foreach(QObject *object, objectList)
         listReference.append(object);
 }
@@ -390,16 +388,16 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     if (isList(metaProperty)) {
         QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
 
-#ifndef QT_DEBUG
-        if (!hasFullImplementedListInterface(list))
+        if (!hasFullImplementedListInterface(list)) {
+            qWarning() << "Property list interface not fully implemented for Class " << metaProperty.property().typeName() << " in property " << metaProperty.name() << "!";
             return;
-#endif
+        }
 
-        Q_ASSERT(list.canAppend());
         list.append(object);
     } else if (isObject(metaProperty)) {
         metaProperty.write(objectToVariant(object));
     }
+
     object->setParent(newParent);
 
     Q_ASSERT(objectToVariant(object).isValid());
@@ -488,19 +486,14 @@ void ObjectNodeInstance::deleteObjectsInList(const QDeclarativeProperty &metaPro
     QObjectList objectList;
     QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
 
-#ifndef QT_DEBUG
-    if (!hasFullImplementedListInterface(list))
+    if (!hasFullImplementedListInterface(list)) {
+        qWarning() << "Property list interface not fully implemented for Class " << metaProperty.property().typeName() << " in property " << metaProperty.name() << "!";
         return;
-#endif
-
-    Q_ASSERT(list.canCount());
-    Q_ASSERT(list.canAt());
+    }
 
     for(int i = 0; i < list.count(); i++) {
         objectList += list.at(i);
     }
-
-    Q_ASSERT(list.canClear());
 
     list.clear();
 }
@@ -554,12 +547,12 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
 {
     m_modelAbstractPropertyHash.remove(propertyName);
 
-    QDeclarativeProperty property(object, propertyName, context());
+    QDeclarativeProperty metaProperty(object, propertyName, context());
 
-    if (!property.isValid())
+    if (!metaProperty.isValid())
         return;
 
-    QVariant oldValue = property.read();
+    QVariant oldValue = metaProperty.read();
     if (oldValue.type() == QVariant::Url) {
         QUrl url = oldValue.toUrl();
         QString path = url.toLocalFile();
@@ -568,24 +561,26 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
     }
 
 
-    QDeclarativeAbstractBinding *binding = QDeclarativePropertyPrivate::binding(property);
+    QDeclarativeAbstractBinding *binding = QDeclarativePropertyPrivate::binding(metaProperty);
     if (binding) {
         binding->setEnabled(false, 0);
         binding->destroy();
     }
 
-    if (property.isResettable()) {
-        property.reset();
-    } else if (property.isWritable()) {
-        if (property.read() == resetValue(propertyName))
+    if (metaProperty.isResettable()) {
+        metaProperty.reset();
+    } else if (metaProperty.isWritable()) {
+        if (metaProperty.read() == resetValue(propertyName))
             return;
-        property.write(resetValue(propertyName));
-    } else if (property.propertyTypeCategory() == QDeclarativeProperty::List) {
-        QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(property.read());
-#ifndef QT_DEBUG
-        if (!hasFullImplementedListInterface(list))
+        metaProperty.write(resetValue(propertyName));
+    } else if (metaProperty.propertyTypeCategory() == QDeclarativeProperty::List) {
+        QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
+
+        if (!hasFullImplementedListInterface(list)) {
+            qWarning() << "Property list interface not fully implemented for Class " << metaProperty.property().typeName() << " in property " << metaProperty.name() << "!";
             return;
-#endif
+        }
+
         list.clear();
     }
 }
@@ -594,7 +589,6 @@ QVariant ObjectNodeInstance::property(const QString &name) const
 {
     if (m_modelAbstractPropertyHash.contains(name))
         return QVariant::fromValue(m_modelAbstractPropertyHash.value(name));
-
 
     // TODO: handle model nodes
 
