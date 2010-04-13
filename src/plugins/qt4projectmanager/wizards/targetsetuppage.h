@@ -95,12 +95,14 @@ public:
     void setImportDirectoryBrowsingLocation(const QString &directory);
     void setShowLocationInformation(bool location);
     void setPreferMobile(bool mobile);
+    void setProFilePath(const QString &dir);
 
     static QList<ImportInfo> importInfosForKnownQtVersions(Qt4ProjectManager::Qt4Project *project);
     static QList<ImportInfo> filterImportInfos(const QSet<QString> &validTargets,
                                                const QList<ImportInfo> &infos);
 
-    static QList<ImportInfo> recursivelyCheckDirectoryForBuild(const QString &directory, int maxdepth = 3);
+    static QList<ImportInfo> recursivelyCheckDirectoryForBuild(const QString &directory,
+                                                               const QString &proFile, int maxdepth = 3);
 
     bool hasSelection() const;
     bool isTargetSelected(const QString &targetid) const;
@@ -120,6 +122,7 @@ private:
     Utils::PathChooser *m_directoryChooser;
     QLabel *m_directoryLabel;
     bool m_preferMobile;
+    QString m_proFilePath;
 };
 
 } // namespace Internal
