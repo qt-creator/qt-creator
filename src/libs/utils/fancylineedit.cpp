@@ -111,7 +111,7 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
     QIcon icon = QIcon::fromTheme(layoutDirection() == Qt::LeftToRight ?
                      QLatin1String("edit-clear-locationbar-rtl") :
                      QLatin1String("edit-clear-locationbar-ltr"),
-                     QIcon::fromTheme("edit-clear", QIcon(QLatin1String("clear.png"))));
+                     QIcon::fromTheme("edit-clear", QIcon(QLatin1String(":/core/images/editclear.png"))));
 
     m_d->m_iconbutton->installEventFilter(m_d);
     m_d->m_iconbutton->setIcon(icon);
@@ -186,10 +186,10 @@ void FancyLineEdit::resizeEvent(QResizeEvent *)
         iconpos = (iconpos == Left ? Right : Left);
 
     if (iconpos == FancyLineEdit::Right) {
-        const int iconoffset = textMargins().right() + 8;
+        const int iconoffset = textMargins().right() + 4;
         m_d->m_iconbutton->setGeometry(contentRect.adjusted(width() - iconoffset, 0, 0, 0));
     } else {
-        const int iconoffset = textMargins().left() + 8;
+        const int iconoffset = textMargins().left() + 4;
         m_d->m_iconbutton->setGeometry(contentRect.adjusted(0, 0, -width() + iconoffset, 0));
     }
 }
@@ -274,7 +274,7 @@ void IconButton::paintEvent(QPaintEvent *)
     QPixmap iconpixmap = icon().pixmap(QSize(ICONBUTTON_SIZE, ICONBUTTON_SIZE),
                                        state, QIcon::Off);
     QRect pixmapRect = QRect(0, 0, iconpixmap.width(), iconpixmap.height());
-    pixmapRect.moveCenter(rect().center());
+    pixmapRect.moveCenter(rect().translated(0,-1).center());
 
     if (static_cast<FancyLineEdit*>(parentWidget())->autoHideIcon())
         painter.setOpacity(m_iconOpacity);
