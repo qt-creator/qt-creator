@@ -106,7 +106,7 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
         QTextStream out(&contents);
 
         out
-            << "import Qt 4.6" << endl
+            << "import Qt 4.7" << endl
             << endl
             << "Rectangle {" << endl
             << "    width: 200" << endl
