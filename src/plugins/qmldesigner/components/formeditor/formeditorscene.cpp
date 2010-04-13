@@ -367,7 +367,14 @@ void FormEditorScene::setPaintMode(PaintMode paintMode)
 
 void FormEditorScene::clearFormEditorItems()
 {
-    foreach (QGraphicsItem *item, items()) {
+    QList<QGraphicsItem*> itemList(items());
+
+    foreach (QGraphicsItem *item, itemList) {
+        if (qgraphicsitem_cast<FormEditorItem* >(item))
+            item->setParentItem(0);
+    }
+
+    foreach (QGraphicsItem *item, itemList) {
         if (qgraphicsitem_cast<FormEditorItem* >(item))
             delete item;
     }
