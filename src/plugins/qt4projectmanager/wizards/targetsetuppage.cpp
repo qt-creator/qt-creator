@@ -283,6 +283,11 @@ void TargetSetupPage::setPreferMobile(bool mobile)
     m_preferMobile = mobile;
 }
 
+void TargetSetupPage::setProFilePath(const QString &path)
+{
+    m_proFilePath = path;
+}
+
 QList<TargetSetupPage::ImportInfo>
 TargetSetupPage::importInfosForKnownQtVersions(Qt4ProjectManager::Qt4Project *project)
 {
@@ -323,7 +328,7 @@ QList<TargetSetupPage::ImportInfo> TargetSetupPage::filterImportInfos(const QSet
 }
 
 QList<TargetSetupPage::ImportInfo>
-TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, int maxdepth)
+TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, const QString &proFile, int maxdepth)
 {
     QList<ImportInfo> results;
 
@@ -334,10 +339,11 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, int
     QString qmakeBinary = QtVersionManager::findQMakeBinaryFromMakefile(directory);
 
     // Recurse into subdirectories:
-    if (qmakeBinary.isNull()) {
+    if (qmakeBinary.isNull() || !QtVersionManager::makefileIsFor(directory, proFile)) {
         QStringList subDirs = QDir(directory).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         foreach (QString subDir, subDirs)
-            results.append(recursivelyCheckDirectoryForBuild(directory + QChar('/') + subDir, maxdepth - 1));
+            results.append(recursivelyCheckDirectoryForBuild(QDir::cleanPath(directory + QChar('/') + subDir),
+                                                             proFile, maxdepth - 1));
         return results;
     }
 
@@ -385,7 +391,7 @@ void TargetSetupPage::importDirectoryAdded(const QString &directory)
     m_directoryChooser->setPath(QString());
     QList<ImportInfo> tmp = m_infos;
     m_infos.clear(); // Clear m_infos without deleting temporary QtVersions!
-    tmp.append(recursivelyCheckDirectoryForBuild(directory));
+    tmp.append(recursivelyCheckDirectoryForBuild(directory, m_proFilePath));
     setImportInfos(tmp);
 }
 
