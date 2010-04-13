@@ -115,6 +115,7 @@ private:
     void resetInfos();
 
     QList<ImportInfo> m_infos;
+    QLabel *m_importLabel;
     QTreeWidget *m_treeWidget;
     QPushButton *m_addDirectoryButton;
     bool m_preferMobile;
