@@ -36,15 +36,16 @@
 
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
+#include <QtGui/QStandardItem>
 #include <QtCore/QDebug>
 
 Q_DECLARE_METATYPE(Core::IWizard*)
 
-static inline Core::IWizard *wizardOfItem(const QTreeWidgetItem *item = 0)
+static inline Core::IWizard *wizardOfItem(const QStandardItem *item = 0)
 {
     if (!item)
         return 0;
-    return qVariantValue<Core::IWizard*>(item->data(0, Qt::UserRole));
+    return item->data(Qt::UserRole).value<Core::IWizard*>();
 }
 
 using namespace Core;
@@ -56,16 +57,20 @@ NewDialog::NewDialog(QWidget *parent) :
     m_okButton(0),
     m_preferredWizardKinds(0)
 {
-    typedef QMap<QString, QTreeWidgetItem *> CategoryItemMap;
+    typedef QMap<QString, QStandardItem *> CategoryItemMap;
     m_ui->setupUi(this);
     m_okButton = m_ui->buttonBox->button(QDialogButtonBox::Ok);
     m_okButton->setDefault(true);
     m_okButton->setText(tr("&Create"));
 
     m_ui->templatesTree->header()->hide();
-    connect(m_ui->templatesTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
-        this, SLOT(currentItemChanged(QTreeWidgetItem*)));
-    connect(m_ui->templatesTree, SIGNAL(itemActivated(QTreeWidgetItem*,int)), m_okButton, SLOT(animateClick()));
+    m_model = new QStandardItemModel(this);
+    m_ui->templatesTree->setModel(m_model);
+
+    connect(m_ui->templatesTree, SIGNAL(clicked(const QModelIndex&)),
+        this, SLOT(currentItemChanged(const QModelIndex&)));
+    connect(m_ui->templatesTree, SIGNAL(activated(const QModelIndex&)),
+            m_okButton, SLOT(animateClick()));
 
     connect(m_okButton, SIGNAL(clicked()), this, SLOT(okButtonClicked()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -86,65 +91,65 @@ void NewDialog::setPreferredWizardKinds(IWizard::WizardKinds kinds)
 
 void NewDialog::setWizards(QList<IWizard*> wizards)
 {
-    typedef QMap<QString, QTreeWidgetItem *> CategoryItemMap;
+    typedef QMap<QString, QStandardItem *> CategoryItemMap;
 
     qStableSort(wizards.begin(), wizards.end(), wizardLessThan);
 
     CategoryItemMap categories;
-    QVariant wizardPtr;
 
-    m_ui->templatesTree->clear();
+    m_model->clear();
     foreach (IWizard *wizard, wizards) {
         // ensure category root
         const QString categoryName = wizard->category();
         CategoryItemMap::iterator cit = categories.find(categoryName);
         if (cit == categories.end()) {
-            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(m_ui->templatesTree);
+            QStandardItem *parentItem = m_model->invisibleRootItem();
+            QStandardItem *categoryItem = new QStandardItem();
+            parentItem->appendRow(categoryItem);
             categoryItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-            categoryItem->setText(0, wizard->displayCategory());
-            qVariantSetValue<IWizard*>(wizardPtr, 0);
-            categoryItem->setData(0, Qt::UserRole, wizardPtr);
+            categoryItem->setText(wizard->displayCategory());
+            categoryItem->setData(QVariant::fromValue(0), Qt::UserRole);
             cit = categories.insert(categoryName, categoryItem);
         }
         // add item
-        QTreeWidgetItem *wizardItem = new QTreeWidgetItem(cit.value(), QStringList(wizard->displayName()));
-        wizardItem->setIcon(0, wizard->icon());
-        qVariantSetValue<IWizard*>(wizardPtr, wizard);
-        wizardItem->setData(0, Qt::UserRole, wizardPtr);
+        QStandardItem *wizardItem = new QStandardItem(wizard->displayName());
+        wizardItem->setIcon(wizard->icon());
+        wizardItem->setData(QVariant::fromValue(wizard), Qt::UserRole);
         wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
+        cit.value()->appendRow(wizardItem);
     }
 }
 
 Core::IWizard *NewDialog::showDialog()
 {
-    QTreeWidgetItem *itemToSelect = 0;
+    QStandardItem *itemToSelect = 0;
     if (m_preferredWizardKinds == 0) {
         m_ui->templatesTree->expandAll();
-        if (QTreeWidgetItem *rootItem = m_ui->templatesTree->topLevelItem(0)) {
-            if (rootItem->childCount())
+        if (QStandardItem *rootItem = m_model->invisibleRootItem()->child(0)) {
+            if (rootItem->rowCount())
                 itemToSelect = rootItem->child(0);
         }
     } else {
-        for (int i = 0; i < m_ui->templatesTree->topLevelItemCount(); ++i) {
-            QTreeWidgetItem *category = m_ui->templatesTree->topLevelItem(i);
+        for (int i = 0; i < m_model->invisibleRootItem()->rowCount(); ++i) {
+            QStandardItem *category = m_model->invisibleRootItem()->child(i);
             bool hasOnlyPreferred = true;
-            for (int j = 0; j < category->childCount(); ++j) {
-                QTreeWidgetItem *item = category->child(j);
-                if (!(item->data(0, Qt::UserRole).value<IWizard*>()
+            for (int j = 0; j < category->rowCount(); ++j) {
+                QStandardItem *item = category->child(j);
+                if (!(item->data(Qt::UserRole).value<IWizard*>()
                         ->kind() & m_preferredWizardKinds)) {
                     hasOnlyPreferred = false;
                     break;
                 }
             }
-            category->setExpanded(hasOnlyPreferred);
-            if (hasOnlyPreferred && itemToSelect == 0 && category->childCount() > 0) {
+            m_ui->templatesTree->setExpanded(category->index(), hasOnlyPreferred);
+            if (hasOnlyPreferred && itemToSelect == 0 && category->rowCount() > 0) {
                 itemToSelect = category->child(0);
             }
         }
     }
     if (itemToSelect) {
-        m_ui->templatesTree->scrollToItem(itemToSelect);
-        m_ui->templatesTree->setCurrentItem(itemToSelect);
+        m_ui->templatesTree->scrollTo(itemToSelect->index());
+        m_ui->templatesTree->setCurrentIndex(itemToSelect->index());
     }
     updateOkButton();
     if (exec() != Accepted)
@@ -159,12 +164,12 @@ NewDialog::~NewDialog()
 
 IWizard *NewDialog::currentWizard() const
 {
-    return wizardOfItem(m_ui->templatesTree->currentItem());
+    return wizardOfItem(m_model->itemFromIndex(m_ui->templatesTree->currentIndex()));
 }
 
-void NewDialog::currentItemChanged(QTreeWidgetItem *cat)
+void NewDialog::currentItemChanged(const QModelIndex &index)
 {
-
+    QStandardItem* cat = m_model->itemFromIndex(index);
     if (const IWizard *wizard = wizardOfItem(cat))
         m_ui->descLabel->setText(wizard->description());
     else
@@ -174,7 +179,7 @@ void NewDialog::currentItemChanged(QTreeWidgetItem *cat)
 
 void NewDialog::okButtonClicked()
 {
-    if (m_ui->templatesTree->currentItem())
+    if (m_ui->templatesTree->currentIndex().isValid())
         accept();
 }
 

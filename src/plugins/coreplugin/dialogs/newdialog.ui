@@ -15,18 +15,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="templatesTree">
+    <widget class="QTreeView" name="templatesTree">
      <property name="minimumSize">
       <size>
        <width>400</width>
        <height>301</height>
       </size>
      </property>
-     <column>
-      <property name="text">
-       <string>1</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>

@@ -37,8 +37,10 @@
 
 QT_BEGIN_NAMESPACE
 class QPushButton;
-class QTreeWidgetItem;
+class QStandardItem;
+class QStandardItemModel;
 class QStringList;
+class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -63,7 +65,7 @@ public:
     Core::IWizard *showDialog();
 
 private slots:
-    void currentItemChanged(QTreeWidgetItem *cat);
+    void currentItemChanged(const QModelIndex &);
     void okButtonClicked();
     void updateOkButton();
 
@@ -71,6 +73,7 @@ private:
     Core::IWizard *currentWizard() const;
 
     Ui::NewDialog *m_ui;
+    QStandardItemModel *m_model;
     QPushButton *m_okButton;
     IWizard::WizardKinds m_preferredWizardKinds;
 };
