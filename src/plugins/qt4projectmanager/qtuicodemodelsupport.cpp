@@ -50,13 +50,15 @@ Qt4UiCodeModelSupport::Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface 
       m_fileName(uiHeaderFile),
       m_updateIncludingFiles(false)
 {
-//    qDebug()<<"ctor Qt4UiCodeModelSupport for"<<m_sourceName;
+    if (debug)
+        qDebug()<<"ctor Qt4UiCodeModelSupport for"<<m_sourceName<<uiHeaderFile;
     init();
 }
 
 Qt4UiCodeModelSupport::~Qt4UiCodeModelSupport()
 {
-//    qDebug()<<"dtor ~Qt4UiCodeModelSupport for"<<m_sourceName;
+    if (debug)
+        qDebug()<<"dtor ~Qt4UiCodeModelSupport for"<<m_sourceName;
 }
 
 void Qt4UiCodeModelSupport::init()
@@ -67,7 +69,8 @@ void Qt4UiCodeModelSupport::init()
     if (uiHeaderTime.isValid() && (uiHeaderTime > sourceTime)) {
         QFile file(m_fileName);
         if (file.open(QFile::ReadOnly)) {
-//            qDebug()<<"ui*h file is more recent then source file, using information from ui*h file"<<m_fileName;
+            if (debug)
+                qDebug()<<"ui*h file is more recent then source file, using information from ui*h file"<<m_fileName;
             QTextStream stream(&file);
             m_contents = stream.readAll().toUtf8();
             m_cacheTime = uiHeaderTime;
@@ -75,17 +78,20 @@ void Qt4UiCodeModelSupport::init()
         }
     }
 
-//    qDebug()<<"ui*h file not found, or not recent enough, trying to create it on the fly";
+    if (debug)
+        qDebug()<<"ui*h file not found, or not recent enough, trying to create it on the fly";
     QFile file(m_sourceName);
     if (file.open(QFile::ReadOnly)) {
         QTextStream stream(&file);
         const QString contents = stream.readAll();
         if (runUic(contents)) {
-//            qDebug()<<"created on the fly";
+            if (debug)
+                qDebug()<<"created on the fly";
             return;
         } else {
             // uic run was unsuccesfull
-//            qDebug()<<"uic run wasn't succesfull";
+            if (debug)
+                qDebug()<<"uic run wasn't succesfull";
             m_cacheTime = QDateTime();
             m_contents = QByteArray();
             // and if the header file wasn't there, next time we need to update
@@ -95,7 +101,8 @@ void Qt4UiCodeModelSupport::init()
             return;
         }
     } else {
-//        qDebug()<<"Could open "<<m_sourceName<<"needed for the cpp model";
+        if (debug)
+            qDebug()<<"Could open "<<m_sourceName<<"needed for the cpp model";
         m_contents = QByteArray();
     }
 }
@@ -114,6 +121,10 @@ void Qt4UiCodeModelSupport::setFileName(const QString &name)
 {
     if (m_fileName == name && m_cacheTime.isValid())
         return;
+
+    if (debug)
+        qDebug() << "Qt4UiCodeModelSupport::setFileName"<<name;
+
     m_fileName = name;
     m_contents.clear();
     m_cacheTime = QDateTime();
@@ -156,12 +167,14 @@ void Qt4UiCodeModelSupport::updateFromEditor(const QString &formEditorContents)
 
 void Qt4UiCodeModelSupport::updateFromBuild()
 {
-//    qDebug()<<"Qt4UiCodeModelSupport::updateFromBuild() for file"<<m_sourceName;
+    if (debug)
+        qDebug()<<"Qt4UiCodeModelSupport::updateFromBuild() for file"<<m_sourceName;
     // This is mostly a fall back for the cases when uic couldn't be run
     // it pays special attention to the case where a ui_*h was newly created
     QDateTime sourceTime = QFileInfo(m_sourceName).lastModified();
     if (m_cacheTime.isValid() && m_cacheTime >= sourceTime) {
-//        qDebug()<<"Cache is still more recent then source";
+        if (debug)
+            qDebug()<<"Cache is still more recent then source";
         return;
     } else {
         QFileInfo fi(m_fileName);
@@ -169,7 +182,8 @@ void Qt4UiCodeModelSupport::updateFromBuild()
         if (uiHeaderTime.isValid() && (uiHeaderTime > sourceTime)) {
             if (m_cacheTime >= uiHeaderTime)
                 return;
-//            qDebug()<<"found ui*h updating from it";
+            if (debug)
+                qDebug()<<"found ui*h updating from it";
 
             QFile file(m_fileName);
             if (file.open(QFile::ReadOnly)) {
@@ -180,8 +194,8 @@ void Qt4UiCodeModelSupport::updateFromBuild()
                 return;
             }
         }
-
-//        qDebug()<<"ui*h not found or not more recent then source not changing anything";
+        if (debug)
+            qDebug()<<"ui*h not found or not more recent then source not changing anything";
     }
 }
 
