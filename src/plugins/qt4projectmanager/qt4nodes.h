@@ -275,8 +275,8 @@ private:
     void createUiCodeModelSupport();
     QStringList updateUiFiles();
 
-    QStringList uiDirPaths(ProFileReader *reader) const;
-    QStringList mocDirPaths(ProFileReader *reader) const;
+    QString uiDirPath(ProFileReader *reader) const;
+    QString mocDirPath(ProFileReader *reader) const;
     QStringList includePaths(ProFileReader *reader) const;
     QStringList libDirectories(ProFileReader *reader) const;
     QStringList subDirsPaths(ProFileReader *reader) const;
