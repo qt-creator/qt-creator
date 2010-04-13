@@ -232,6 +232,10 @@ QComboBox[editable="false"] {
 	spacing: 2px;
 }
 
+QFontComboBox {
+    padding-left: 16px;
+}
+
 QComboBox[editable="false"]::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
