@@ -51,11 +51,10 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
 
-    QLabel * importLabel = new QLabel(this);
-    importLabel->setText(tr("Qt Creator can set up the following targets:"));
-    importLabel->setWordWrap(true);
-
-    vbox->addWidget(importLabel);
+    m_importLabel = new QLabel(this);
+    m_importLabel->setText(tr("Qt Creator can set up the following targets:"));
+    m_importLabel->setWordWrap(true);
+    vbox->addWidget(m_importLabel);
 
     m_treeWidget = new QTreeWidget(this);
     m_treeWidget->setColumnCount(3);
@@ -277,6 +276,10 @@ void TargetSetupPage::setPreferMobile(bool mobile)
 void TargetSetupPage::setProFilePath(const QString &path)
 {
     m_proFilePath = path;
+    if (!m_proFilePath.isEmpty()) {
+        m_importLabel->setText(tr("Qt Creator can set up the following targets for project <b>%1</b>:",
+                                  "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
+    }
 }
 
 QList<TargetSetupPage::ImportInfo>
