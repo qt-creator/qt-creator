@@ -33,11 +33,11 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 
-#include <utils/pathchooser.h>
-
+#include <QtGui/QFileDialog>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLayout>
+#include <QtGui/QPushButton>
 #include <QtGui/QTreeWidget>
 
 using namespace Qt4ProjectManager::Internal;
@@ -64,19 +64,11 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_treeWidget->setHeaderLabels(QStringList() << tr("Qt Version") << tr("Status") << tr("Directory"));
     vbox->addWidget(m_treeWidget);
 
-    QHBoxLayout *hbox = new QHBoxLayout;
-    m_directoryLabel = new QLabel(this);
-    m_directoryLabel->setText(tr("Scan for builds"));
-    hbox->addWidget(m_directoryLabel);
+    m_addDirectoryButton = new QPushButton(tr("Add shadow build location"));
+    vbox->addWidget(m_addDirectoryButton);
 
-    m_directoryChooser = new Utils::PathChooser(this);
-    m_directoryChooser->setPromptDialogTitle(tr("Directory to import builds from"));
-    m_directoryChooser->setExpectedKind(Utils::PathChooser::Directory);
-    hbox->addWidget(m_directoryChooser);
-    vbox->addLayout(hbox);
-
-    connect(m_directoryChooser, SIGNAL(changed(QString)),
-            this, SLOT(importDirectoryAdded(QString)));
+    connect(m_addDirectoryButton, SIGNAL(clicked()),
+            this, SLOT(addShadowBuildLocation()));
 }
 
 TargetSetupPage::~TargetSetupPage()
@@ -263,14 +255,13 @@ bool TargetSetupPage::isComplete() const
 
 void TargetSetupPage::setImportDirectoryBrowsingEnabled(bool browsing)
 {
-    m_directoryChooser->setEnabled(browsing);
-    m_directoryChooser->setVisible(browsing);
-    m_directoryLabel->setVisible(browsing);
+    m_addDirectoryButton->setEnabled(browsing);
+    m_addDirectoryButton->setVisible(browsing);
 }
 
 void TargetSetupPage::setImportDirectoryBrowsingLocation(const QString &directory)
 {
-    m_directoryChooser->setInitialBrowsePathBackup(directory);
+    m_defaultShadowBuildLocation = directory;
 }
 
 void TargetSetupPage::setShowLocationInformation(bool location)
@@ -383,15 +374,23 @@ TargetSetupPage::recursivelyCheckDirectoryForBuild(const QString &directory, con
     return results;
 }
 
-void TargetSetupPage::importDirectoryAdded(const QString &directory)
+void TargetSetupPage::addShadowBuildLocation()
 {
-    QFileInfo dir(directory);
+    QString newPath =
+        QFileDialog::getExistingDirectory(this,
+                                          tr("Choose a directory to scan for additional shadow builds"),
+                                          m_defaultShadowBuildLocation);
+
+    if (newPath.isEmpty())
+        return;
+
+    QFileInfo dir(QDir::fromNativeSeparators(newPath));
     if (!dir.exists() || !dir.isDir())
         return;
-    m_directoryChooser->setPath(QString());
+
     QList<ImportInfo> tmp = m_infos;
     m_infos.clear(); // Clear m_infos without deleting temporary QtVersions!
-    tmp.append(recursivelyCheckDirectoryForBuild(directory, m_proFilePath));
+    tmp.append(recursivelyCheckDirectoryForBuild(dir.absoluteFilePath(), m_proFilePath));
     setImportInfos(tmp);
 }
 
