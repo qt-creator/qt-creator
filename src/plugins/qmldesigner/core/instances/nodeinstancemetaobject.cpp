@@ -62,10 +62,12 @@ int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
             }
         }
     } else {
-        if (parent())
-            metaCallReturnValue = parent()->metaCall(call, id, a);
-        else
-            metaCallReturnValue = object()->qt_metacall(call, id, a);
+        if (!QObjectPrivate::get(object())->wasDeleted) {
+            if (parent())
+                metaCallReturnValue = parent()->metaCall(call, id, a);
+            else
+                metaCallReturnValue = object()->qt_metacall(call, id, a);
+        }
 
         if (call == QMetaObject::WriteProperty
             && !property(id).hasNotifySignal()
