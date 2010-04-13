@@ -97,9 +97,9 @@ private:
     void kill(const QStringList &apps);
 
     QFutureInterface<void> m_progress;
-    QScopedPointer<MaemoSshDeployer> sshDeployer;
-    QScopedPointer<MaemoSshRunner> sshRunner;
-    QScopedPointer<MaemoSshRunner> sshStopper;
+    QScopedPointer<MaemoSshDeployer> m_sshDeployer;
+    QScopedPointer<MaemoSshRunner> m_sshRunner;
+    QScopedPointer<MaemoSshRunner> m_sshStopper;
 
     struct Deployable
     {
@@ -110,7 +110,7 @@ private:
         QString dir;
         updateFunc updateTimestamp;
     };
-    QList<Deployable> deployables;
+    QList<Deployable> m_deployables;
 };
 
 class MaemoRunControl : public AbstractMaemoRunControl
@@ -131,7 +131,7 @@ private:
     virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner);
     void startExecution();
 
-    bool stoppedByUser;
+    bool m_stoppedByUser;
 };
 
 class MaemoDebugRunControl : public AbstractMaemoRunControl
@@ -158,9 +158,9 @@ private:
     void gdbServerStartFailed(const QString &reason);
     void startDebugging();
 
-    Debugger::DebuggerManager *debuggerManager;
-    QSharedPointer<Debugger::DebuggerStartParameters> startParams;
-    int inferiorPid;
+    Debugger::DebuggerManager *m_debuggerManager;
+    QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
+    int m_inferiorPid;
 };
 
 } // namespace Internal
