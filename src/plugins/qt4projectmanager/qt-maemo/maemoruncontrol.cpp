@@ -72,16 +72,41 @@ void AbstractMaemoRunControl::start()
 {
     m_stoppedByUser = false;
     emit started();
-    startInternal();
+    startInitialCleanup();
+}
+
+void AbstractMaemoRunControl::startInitialCleanup()
+{
+    emit addToOutputWindow(this, tr("Cleaning up remote leftovers first ..."));
+    const QStringList appsToKill
+        = QStringList() << executableFileName() << QLatin1String("gdbserver");
+    killRemoteProcesses(appsToKill, true);
 }
 
 void AbstractMaemoRunControl::stop()
 {
     m_stoppedByUser = true;
-    if (isDeploying())
-        stopDeployment();
+    if (isCleaning())
+        m_initialCleaner->stop();
+    else if (isDeploying())
+        m_sshDeployer->stop();
     else
         stopInternal();
+}
+
+void AbstractMaemoRunControl::handleInitialCleanupFinished()
+{
+    if (m_stoppedByUser) {
+        emit addToOutputWindow(this, tr("Initial cleanup canceled by user."));
+        emit finished();
+    } else if (m_initialCleaner->hasError()) {
+        handleError(tr("Error running initial cleanup: %1.")
+                    .arg(m_initialCleaner->error()));
+        emit finished();
+    } else {
+        emit addToOutputWindow(this, tr("Initial cleanup done."));
+        startInternal();
+    }
 }
 
 void AbstractMaemoRunControl::startDeployment(bool forDebugging)
@@ -150,14 +175,14 @@ void AbstractMaemoRunControl::handleFileCopied()
     m_progress.setProgressValue(m_progress.progressValue() + 1);
 }
 
-void AbstractMaemoRunControl::stopDeployment()
-{
-    m_sshDeployer->stop();
-}
-
 bool AbstractMaemoRunControl::isDeploying() const
 {
     return m_sshDeployer && m_sshDeployer->isRunning();
+}
+
+bool AbstractMaemoRunControl::isCleaning() const
+{
+    return m_initialCleaner && m_initialCleaner->isRunning();
 }
 
 void AbstractMaemoRunControl::startExecution()
@@ -183,11 +208,12 @@ void AbstractMaemoRunControl::stopRunning(bool forDebugging)
         QStringList apps(executableFileName());
         if (forDebugging)
             apps << QLatin1String("gdbserver");
-        kill(apps);
+        killRemoteProcesses(apps, false);
     }
 }
 
-void AbstractMaemoRunControl::kill(const QStringList &apps)
+void AbstractMaemoRunControl::killRemoteProcesses(const QStringList &apps,
+                                                  bool initialCleanup)
 {
     QString niceKill;
     QString brutalKill;
@@ -197,8 +223,13 @@ void AbstractMaemoRunControl::kill(const QStringList &apps)
     }
     const QString remoteCall
         = niceKill + QLatin1String("sleep 1; ") + brutalKill;
-    m_sshStopper.reset(new MaemoSshRunner(m_devConfig, remoteCall));
-    m_sshStopper->start();
+    QScopedPointer<MaemoSshRunner> &runner
+        = initialCleanup ? m_initialCleaner : m_sshStopper;
+    runner.reset(new MaemoSshRunner(m_devConfig, remoteCall));
+    if (initialCleanup)
+        connect(runner.data(), SIGNAL(finished()),
+                this, SLOT(handleInitialCleanupFinished()));
+    runner->start();
 }
 
 void AbstractMaemoRunControl::handleDeployThreadFinished()

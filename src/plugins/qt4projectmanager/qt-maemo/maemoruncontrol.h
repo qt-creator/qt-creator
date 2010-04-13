@@ -73,7 +73,6 @@ protected:
 
     void startDeployment(bool forDebugging);
     void deploy();
-    void stopDeployment();
     void stopRunning(bool forDebugging);
     void startExecution();
     void handleError(const QString &errString);
@@ -86,6 +85,7 @@ protected:
     const QStringList options() const;
 private slots:
     virtual void handleRemoteOutput(const QString &output)=0;
+    void handleInitialCleanupFinished();
     void handleDeployThreadFinished();
     void handleRunThreadFinished();
     void handleFileCopied();
@@ -98,13 +98,16 @@ private:
     virtual void startInternal()=0;
     virtual void stopInternal()=0;
     virtual QString remoteCall() const=0;
-    void kill(const QStringList &apps);
+    void startInitialCleanup();
+    void killRemoteProcesses(const QStringList &apps, bool initialCleanup);
+    bool isCleaning() const;
     bool isDeploying() const;
 
     QFutureInterface<void> m_progress;
     QScopedPointer<MaemoSshDeployer> m_sshDeployer;
     QScopedPointer<MaemoSshRunner> m_sshRunner;
     QScopedPointer<MaemoSshRunner> m_sshStopper;
+    QScopedPointer<MaemoSshRunner> m_initialCleaner;
     bool m_stoppedByUser;
 
     struct Deployable
