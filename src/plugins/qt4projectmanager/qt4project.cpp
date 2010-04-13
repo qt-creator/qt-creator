@@ -791,11 +791,11 @@ void Qt4Project::asyncUpdate()
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    progressManager->addTask(m_asyncUpdateFutureInterface->future(), tr("Evaluate"), Constants::PROFILE_EVALUATE);
+    m_asyncUpdateFutureInterface->setProgressRange(0, 0);
+    progressManager->addTask(m_asyncUpdateFutureInterface->future(), tr("Evaluating"), Constants::PROFILE_EVALUATE);
     if (debug)
         qDebug()<<"  adding task";
 
-    m_asyncUpdateFutureInterface->setProgressRange(0, 0);
     m_asyncUpdateFutureInterface->reportStarted();
 
     if (m_asyncUpdateState == AsyncFullUpdatePending) {

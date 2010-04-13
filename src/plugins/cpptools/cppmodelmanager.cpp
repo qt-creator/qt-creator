@@ -948,7 +948,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
         m_synchronizer.addFuture(result);
 
         if (sourceFiles.count() > 1) {
-            m_core->progressManager()->addTask(result, tr("Indexing"),
+            m_core->progressManager()->addTask(result, tr("Parsing"),
                             CppTools::Constants::TASK_INDEX);
         }
 
