@@ -46,15 +46,13 @@ GroupBox {
                     minimum: 0;
                     maximum: 1;
                     singleStep: 0.1
-                    baseStateFlag: isBaseState;
-                    onBackendValueValueChanged: {
-                        opacitySlider.value = backendValue.value * 100;
-                    }
+                    baseStateFlag: isBaseState;                    
                 }
                 SliderWidget {
                     id: opacitySlider
                     minimum: 0
                     maximum: 100
+                    value: backendValues.opacity.value * 100;
                     singleStep: 5;
                     backendValue: backendValues.opacity
                     onValueChanged: {

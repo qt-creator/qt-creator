@@ -62,14 +62,12 @@ GroupBox {
                     minimum: 0.01
                     maximum: 10
                     singleStep: 0.1
-                    baseStateFlag: isBaseState;
-                    onBackendValueValueChanged: {
-                        scaleSlider.value = backendValue.value * 10;
-                    }
+                    baseStateFlag: isBaseState;                    
                 }
                 SliderWidget {
                     id: scaleSlider;
                     backendValue: backendValues.scale;
+                    value: backendValues.scale.value * 10;
                     minimum: 1;
                     maximum: 100;
                     singleStep: 1;
@@ -84,7 +82,7 @@ GroupBox {
             caption: qsTr("Rotation")
             baseStateFlag: isBaseState;
             step: 10;
-            minimumValue: 0;
+            minimumValue: -360;
             maximumValue: 360;
         }
 
