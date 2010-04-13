@@ -68,6 +68,8 @@ public:
 
 protected:
     virtual bool isRunning() const;
+    virtual void start();
+    virtual void stop();
 
     void startDeployment(bool forDebugging);
     void deploy();
@@ -90,8 +92,11 @@ private slots:
 protected:
     MaemoRunConfiguration *runConfig; // TODO this pointer can be invalid
     const MaemoDeviceConfig devConfig;
+    bool m_stoppedByUser;
 
 private:
+    virtual void startInternal()=0;
+    virtual void stopInternal()=0;
     virtual void handleDeploymentFinished(bool success)=0;
     virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner)=0;
     void kill(const QStringList &apps);
@@ -119,19 +124,17 @@ class MaemoRunControl : public AbstractMaemoRunControl
 public:
     explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~MaemoRunControl();
-    void start();
-    void stop();
 
 private slots:
     void executionFinished();
     void handleRemoteOutput(const QString &output);
 
 private:
+    virtual void startInternal();
+    virtual void stopInternal();
     virtual void handleDeploymentFinished(bool success);
     virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner);
     void startExecution();
-
-    bool m_stoppedByUser;
 };
 
 class MaemoDebugRunControl : public AbstractMaemoRunControl
@@ -140,16 +143,16 @@ class MaemoDebugRunControl : public AbstractMaemoRunControl
 public:
     explicit MaemoDebugRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~MaemoDebugRunControl();
-    void start();
-    void stop();
     bool isRunning() const;
-    Q_SLOT void debuggingFinished();
 
 private slots:
     void gdbServerStarted(const QString &output);
     void debuggerOutput(const QString &output);
+    void debuggingFinished();
 
 private:
+    virtual void startInternal();
+    virtual void stopInternal();
     virtual void handleDeploymentFinished(bool success);
     virtual void handleExecutionAboutToStart(const MaemoSshRunner *runner);
 

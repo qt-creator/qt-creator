@@ -68,11 +68,25 @@ AbstractMaemoRunControl::~AbstractMaemoRunControl()
 {
 }
 
+void AbstractMaemoRunControl::start()
+{
+    m_stoppedByUser = false;
+    startInternal();
+}
+
+void AbstractMaemoRunControl::stop()
+{
+    m_stoppedByUser = true;
+    stopInternal();
+}
+
 void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 {
     QTC_ASSERT(runConfig, return);
 
-    if (devConfig.isValid()) {
+    if (m_stoppedByUser) {
+        handleDeploymentFinished(false);
+    } else if (devConfig.isValid()) {
         m_deployables.clear();
         if (runConfig->currentlyNeedsDeployment(devConfig.host)) {
             m_deployables.append(Deployable(executableFileName(),
@@ -184,14 +198,17 @@ void AbstractMaemoRunControl::kill(const QStringList &apps)
 void AbstractMaemoRunControl::deployProcessFinished()
 {
     const bool success = !m_sshDeployer->hasError();
-    if (success) {
+    if (m_stoppedByUser) {
+        emit addToOutputWindow(this, tr("Deployment canceled by user."));
+        m_progress.reportCanceled();
+    } else if (success) {
         emit addToOutputWindow(this, tr("Deployment finished."));
     } else {
         handleError(tr("Deployment failed: %1").arg(m_sshDeployer->error()));
         m_progress.reportCanceled();
     }
     m_progress.reportFinished();
-    handleDeploymentFinished(success);
+    handleDeploymentFinished(success && !m_stoppedByUser);
 }
 
 const QString AbstractMaemoRunControl::executableOnHost() const
@@ -264,9 +281,8 @@ MaemoRunControl::~MaemoRunControl()
     stop();
 }
 
-void MaemoRunControl::start()
+void MaemoRunControl::startInternal()
 {
-    m_stoppedByUser = false;
     startDeployment(false);
 }
 
@@ -310,12 +326,10 @@ void MaemoRunControl::executionFinished()
     emit finished();
 }
 
-void MaemoRunControl::stop()
+void MaemoRunControl::stopInternal()
 {
     if (!isRunning())
         return;
-
-    m_stoppedByUser = true;
     if (isDeploying()) {
         stopDeployment();
     } else {
@@ -362,7 +376,7 @@ MaemoDebugRunControl::~MaemoDebugRunControl()
     debuggingFinished();
 }
 
-void MaemoDebugRunControl::start()
+void MaemoDebugRunControl::startInternal()
 {
     startDeployment(true);
 }
@@ -430,7 +444,7 @@ void MaemoDebugRunControl::startDebugging()
     m_debuggerManager->startNewDebugger(m_startParams);
 }
 
-void MaemoDebugRunControl::stop()
+void MaemoDebugRunControl::stopInternal()
 {
     if (!isRunning())
         return;
