@@ -72,7 +72,6 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     m_ui = new Ui::Qt4ProjectConfigWidget();
     m_ui->setupUi(details);
 
-
     m_browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
     // TODO refix the layout
 
@@ -186,6 +185,10 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
     m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
     m_browseButton->setEnabled(shadowBuild);
     m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->shadowBuildDirectory());
+
+    m_ui->shadowBuildCheckBox->setEnabled(m_buildConfiguration->qtVersion()->supportsShadowBuilds());
+    m_ui->shadowBuildDirEdit->setEnabled(m_buildConfiguration->qtVersion()->supportsShadowBuilds());
+
     updateImportLabel();
     updateToolChainCombo();
     updateDetails();
@@ -193,6 +196,9 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
 
 void Qt4ProjectConfigWidget::qtVersionChanged()
 {
+    m_ui->shadowBuildCheckBox->setEnabled(m_buildConfiguration->qtVersion()->supportsShadowBuilds());
+    m_ui->shadowBuildDirEdit->setEnabled(m_buildConfiguration->qtVersion()->supportsShadowBuilds());
+
     updateImportLabel();
     updateToolChainCombo();
     updateDetails();
