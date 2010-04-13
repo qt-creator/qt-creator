@@ -136,7 +136,7 @@
   <key value="Ctrl+Z" />
  </shortcut>
  <shortcut id="QtCreator.Redo" >
-  <key value="Ctrl+Shift+Z" />
+  <key value="Ctrl+Y" />
  </shortcut>
  <shortcut id="QtCreator.Cut" >
   <key value="Ctrl+X" />
