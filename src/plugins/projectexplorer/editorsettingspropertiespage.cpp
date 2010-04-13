@@ -121,7 +121,6 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
 
 void EditorSettingsWidget::currentEncodingChanged(int index)
 {
-    QList<int> codecs = QTextCodec::availableMibs();
     m_project->editorConfiguration()->setDefaultTextCodec(m_codecs.at(index));
 }
 

@@ -45,6 +45,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QSettings>
+#include <QtCore/QTextCodec>
 
 #include "ui_generalsettings.h"
 
@@ -125,8 +126,37 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_page->setupUi(w);
 
     QSettings* settings = Core::ICore::instance()->settings();
-    Q_UNUSED(settings)
     fillLanguageBox();
+
+    QTextCodec *defaultTextCodec = QTextCodec::codecForLocale();
+    if (QTextCodec *candidate = QTextCodec::codecForName(
+            settings->value(QLatin1String("General/DefaultFileEncoding")).toByteArray()))
+        defaultTextCodec = candidate;
+
+    QList<int> mibs = QTextCodec::availableMibs();
+    qSort(mibs);
+    QList<int> sortedMibs;
+    foreach (int mib, mibs)
+        if (mib >= 0)
+            sortedMibs += mib;
+    foreach (int mib, mibs)
+        if (mib < 0)
+            sortedMibs += mib;
+    int i = 0;
+    foreach (int mib, sortedMibs) {
+        QTextCodec *codec = QTextCodec::codecForMib(mib);
+        m_codecs += codec;
+        QString name = codec->name();
+        foreach (const QByteArray &alias, codec->aliases()) {
+            name += QLatin1String(" / ");
+            name += QString::fromLatin1(alias);
+        }
+        m_page->encodingBox->addItem(name);
+        if (defaultTextCodec == codec)
+            m_page->encodingBox->setCurrentIndex(i);
+        i++;
+    }
+
     m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
     m_page->externalEditorEdit->setText(EditorManager::instance()->externalEditor());
     m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadSetting());
@@ -187,12 +217,17 @@ void GeneralSettings::apply()
     EditorManager::instance()->setExternalEditor(m_page->externalEditorEdit->text());
     EditorManager::instance()->setReloadSetting(IFile::ReloadSetting(m_page->reloadBehavior->currentIndex()));
 #ifdef Q_OS_UNIX
-	ConsoleProcess::setTerminalEmulator(Core::ICore::instance()->settings(),
+    ConsoleProcess::setTerminalEmulator(Core::ICore::instance()->settings(),
                                         m_page->terminalEdit->text());
 #ifndef Q_OS_MAC
-        Utils::UnixUtils::setFileBrowser(Core::ICore::instance()->settings(), m_page->externalFileBrowserEdit->text());
+    Utils::UnixUtils::setFileBrowser(Core::ICore::instance()->settings(), m_page->externalFileBrowserEdit->text());
 #endif
 #endif
+
+    QSettings* settings = Core::ICore::instance()->settings();
+    return settings->setValue(QLatin1String("General/DefaultFileEncoding"),
+                              m_codecs.at(m_page->encodingBox->currentIndex())->name());
+
 }
 
 void GeneralSettings::finish()

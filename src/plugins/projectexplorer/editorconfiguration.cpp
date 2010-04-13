@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "editorconfiguration.h"
-
+#include <coreplugin/icore.h>
 #include <QtCore/QTextCodec>
 
 using namespace ProjectExplorer;
@@ -40,6 +40,10 @@ const char * const CODEC("EditorConfiguration.Codec");
 EditorConfiguration::EditorConfiguration()
     : m_defaultTextCodec(QTextCodec::codecForLocale())
 {
+    QSettings* settings = Core::ICore::instance()->settings();
+    if (QTextCodec *candidate = QTextCodec::codecForName(
+            settings->value(QLatin1String("General/DefaultFileEncoding")).toByteArray()))
+        m_defaultTextCodec = candidate;
 }
 
 QTextCodec *EditorConfiguration::defaultTextCodec() const

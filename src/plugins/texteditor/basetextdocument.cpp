@@ -61,6 +61,11 @@ BaseTextDocument::BaseTextDocument()
     m_fileIsReadOnly = false;
     m_isBinaryData = false;
     m_codec = QTextCodec::codecForLocale();
+    QSettings* settings = Core::ICore::instance()->settings();
+    if (QTextCodec *candidate = QTextCodec::codecForName(
+            settings->value(QLatin1String("General/DefaultFileEncoding")).toByteArray()))
+        m_codec = candidate;
+
     m_hasDecodingError = false;
 }
 
