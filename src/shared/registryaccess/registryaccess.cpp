@@ -111,6 +111,8 @@ bool openRegistryKey(HKEY category, // HKEY_LOCAL_MACHINE, etc.
     const LONG rc = RegOpenKeyEx(category, key, 0, accessRights, keyHandle);
     if (rc != ERROR_SUCCESS) {
         *errorMessage = msgFunctionFailed("RegOpenKeyEx", rc);
+        if (readWrite)
+            *errorMessage += "You need administrator privileges to edit the registry.";
         return false;
     }
     return true;
