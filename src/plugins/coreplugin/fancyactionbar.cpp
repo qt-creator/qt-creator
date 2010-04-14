@@ -171,7 +171,8 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             penColor = Qt::gray;
         painter.setPen(penColor);
 
-        QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, r.width() - 6);
+        const int margin = 6;
+        QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, r.width() - margin);
         if (isEnabled()) {
             const QRectF shadowR = r.translated(0, 1);
             painter.setPen(QColor(30, 30, 30, 80));
@@ -182,7 +183,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         textOffset = iconRect.center() + QPoint(iconRect.width()/2, iconRect.height()/2);
         r = QRectF(0, textOffset.y()+5, rect().width(), lineHeight);
         painter.setFont(boldFont);
-        QString ellidedBuildConfiguration = boldFm.elidedText(buildConfiguration, Qt::ElideMiddle, r.width());
+        QString ellidedBuildConfiguration = boldFm.elidedText(buildConfiguration, Qt::ElideMiddle, r.width() - margin);
         if (isEnabled()) {
             const QRectF shadowR = r.translated(0, 1);
             painter.setPen(QColor(30, 30, 30, 80));

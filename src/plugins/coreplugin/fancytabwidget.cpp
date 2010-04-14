@@ -105,9 +105,14 @@ QSize FancyTabBar::tabSizeHint(bool minimum) const
     QFontMetrics fm(boldFont);
     int spacing = 8;
     int width = 60 + spacing + 2;
-
+    int maxLabelwidth = 0;
+    for (int tab=0 ; tab<count() ;++tab) {
+        int width = fm.width(tabText(tab));
+        if (width > maxLabelwidth)
+            maxLabelwidth = width;
+    }
     int iconHeight = minimum ? 0 : 32;
-    return QSize(width, iconHeight + spacing + fm.height());
+    return QSize(qMax(width, maxLabelwidth + 4), iconHeight + spacing + fm.height());
 }
 
 void FancyTabBar::paintEvent(QPaintEvent *event)
