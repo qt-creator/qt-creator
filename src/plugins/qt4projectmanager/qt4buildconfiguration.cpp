@@ -307,11 +307,12 @@ void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
         return;
 
     m_qtVersionId = version->uniqueId();
+
     if (!version->possibleToolChainTypes().contains(ProjectExplorer::ToolChain::ToolChainType(m_toolChainType))) {
         QList<ToolChain::ToolChainType> candidates =
                 qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes());
         if (candidates.isEmpty())
-            m_toolChainType = -1;
+            m_toolChainType = ToolChain::INVALID;
         else
             m_toolChainType = candidates.first();
     }
@@ -323,9 +324,10 @@ void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
 
 void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolChainType type)
 {
-    if (!qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()).contains(type) ||
-        m_toolChainType == type)
+    if (!qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()).contains(type)
+        || m_toolChainType == type)
         return;
+
     m_toolChainType = type;
 
     emit proFileEvaluateNeeded(this);

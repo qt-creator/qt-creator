@@ -1359,7 +1359,6 @@ QStringList Qt4ProFileNode::includePaths(ProFileReader *reader) const
     // except if those directories don't exist at the time of parsing
     // thus we add those directories manually (without checking for existance)
     paths << mocDirPath(reader) << uiDirPath(reader);
-
     paths.removeDuplicates();
     return paths;
 }
