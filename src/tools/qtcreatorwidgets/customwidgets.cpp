@@ -223,6 +223,27 @@ Wizard_CW::Wizard_CW(QObject *parent) :
 {
 }
 
+WelcomePageWidget_CW::WelcomePageWidget_CW(QObject *parent) :
+    QObject(parent),
+    CustomWidget<Utils::WelcomeModeTreeWidget>
+        (QLatin1String("<utils/welcomemodetreewidget.h>"),
+        false,
+        QLatin1String(groupC),
+        QIcon(),
+        QLatin1String("Welcome page widget"))
+{
+}
+
+QWidget *WelcomePageWidget_CW::createWidget(QWidget *parent)
+{
+    Utils::WelcomeModeTreeWidget *rc = new Utils::WelcomeModeTreeWidget(parent);
+    rc->slotAddNewsItem(QLatin1String("Breaking news"),
+                        QLatin1String("Bla bla bla"), QLatin1String("qt.nokia.com"));
+    rc->slotAddNewsItem(QLatin1String("Yesterday's breaking news"),
+                        QLatin1String("Blub blub blub"), QLatin1String("qt.nokia.com"));
+    return rc;
+}
+
 DetailsWidget_CW::DetailsWidget_CW(QObject *parent) :
     QObject(parent),
     CustomWidget<Utils::DetailsWidget>
@@ -348,6 +369,7 @@ WidgetCollection::WidgetCollection(QObject *parent) :
     m_plugins.push_back(new StyledBar_CW(this));
     m_plugins.push_back(new StyledSeparator_CW(this));
     m_plugins.push_back(new Wizard_CW(this));
+    m_plugins.push_back(new WelcomePageWidget_CW(this));
 }
 
 QList<QDesignerCustomWidgetInterface*> WidgetCollection::customWidgets() const

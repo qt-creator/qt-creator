@@ -47,6 +47,7 @@
 #include <utils/detailswidget.h>
 #include <utils/styledbar.h>
 #include <utils/wizard.h>
+#include <utils/welcomemodetreewidget.h>
 
 #include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
 #include <QtDesigner/QDesignerContainerExtension>
@@ -223,6 +224,16 @@ public:
     explicit Wizard_CW(QObject *parent = 0);
 };
 
+class WelcomePageWidget_CW :
+    public QObject,
+    public CustomWidget<Utils::WelcomeModeTreeWidget>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit WelcomePageWidget_CW(QObject *parent = 0);
+    virtual QWidget *createWidget(QWidget *parent);
+};
 
 // Details Widget: plugin + simple, hacky container extension that
 // accepts only one page.
