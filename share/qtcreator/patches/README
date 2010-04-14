@@ -1,0 +1,27 @@
+
+For Linux, MinGW:
+
+    FSF 7.1 release
+    + gdb-increased-dcache-line-size.patch
+
+For Maemo targets:
+    (--target=arm-none-linux-gnueabi)
+
+    FSF 7.1 release
+    + gdb-increased-dcache-line-size.patch
+    + gdb-stepping-for-maemo.patch
+
+For Symbian targets:
+    (--target=arm-none-symbianelf)
+
+    CS 4.4-164 release
+    + gdb-increased-dcache-line-size.patch
+    + gdb-work-around-trk-single-step.patch
+
+
+
+Experimental for performance (don't apply):
+
+    gdb-without-dwarf-name-canonicalization.patch
+
+
