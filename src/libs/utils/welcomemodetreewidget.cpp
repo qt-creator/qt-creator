@@ -36,6 +36,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QResizeEvent>
+#include <QtGui/QImage>
 
 enum { leftContentsMargin = 2,
        topContentsMargin = 2,
@@ -193,7 +194,13 @@ void WelcomeModeItemWidget::init(const QPixmap &pix, QLabel *itemLabel,
                                    0, bottomContentsMargin);
 
     QLabel *pxLabel = new QLabel;
-    pxLabel->setPixmap(pix);
+    QPixmap pixmap = pix;
+    if (layoutDirection() == Qt::RightToLeft){
+        QImage image = pixmap.toImage();
+        pixmap = QPixmap::fromImage(image.mirrored(1, 0));
+    }
+    pxLabel->setPixmap(pixmap);
+
     pxLabel->setFixedWidth(pixmapWidth);
     hBoxLayout->addWidget(pxLabel);
 
