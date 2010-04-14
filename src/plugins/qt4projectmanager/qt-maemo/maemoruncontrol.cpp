@@ -262,10 +262,10 @@ void AbstractMaemoRunControl::handleRunThreadFinished()
         emit addToOutputWindow(this,
                  tr("Remote execution canceled due to user request."));
     } else if (m_sshRunner->hasError()) {
-        emit addToOutputWindow(this, tr("Remote process exited with error: %1")
+        emit addToOutputWindow(this, tr("Error running remote process: %1")
                                          .arg(m_sshRunner->error()));
     } else {
-        emit addToOutputWindow(this, tr("Remote process finished successfully."));
+        emit addToOutputWindow(this, tr("Finished running remote process."));
     }
     emit finished();
 }
