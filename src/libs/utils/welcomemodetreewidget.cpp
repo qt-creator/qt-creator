@@ -234,6 +234,7 @@ WelcomeModeTreeWidgetPrivate::WelcomeModeTreeWidgetPrivate() :
     layout(new QVBoxLayout),
     itemLayout(new QVBoxLayout)
 {
+    layout->setMargin(0);
 }
 
 WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
