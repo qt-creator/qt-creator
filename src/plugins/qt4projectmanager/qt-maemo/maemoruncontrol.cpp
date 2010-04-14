@@ -71,12 +71,16 @@ AbstractMaemoRunControl::~AbstractMaemoRunControl()
 void AbstractMaemoRunControl::start()
 {
     m_stoppedByUser = false;
-    emit started();
-    startInitialCleanup();
+    if (!m_devConfig.isValid()) {
+        handleError(tr("No device configuration set for run configuration."));
+    } else {
+        emit started();
+        startInitialCleanup();
+    }
 }
 
 void AbstractMaemoRunControl::startInitialCleanup()
-{
+{   
     emit addToOutputWindow(this, tr("Cleaning up remote leftovers first ..."));
     const QStringList appsToKill
         = QStringList() << executableFileName() << QLatin1String("gdbserver");
@@ -113,10 +117,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 {
     QTC_ASSERT(m_runConfig, return);
 
-    if (!m_devConfig.isValid()) {
-        handleError(tr("No device configuration set for run configuration."));
-        emit finished();
-    } else if (m_stoppedByUser) {
+    if (m_stoppedByUser) {
         emit finished();
     } else {
         m_deployables.clear();
