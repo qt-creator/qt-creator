@@ -4,14 +4,14 @@ import Bauhaus 1.0
 QExtGroupBox {
     id: colorGroupBox
 
-    property var finished;
-    property var backendColor
-    property var color: (backendColor === undefined || backendColor.value  === undefined) ? "#000000" : backendColor.value
-    property var oldMaximumHeight;
+    property variant finished;
+    property variant backendColor
+    property variant color: (backendColor === undefined || backendColor.value  === undefined) ? "#000000" : backendColor.value
+    property variant oldMaximumHeight;
 
-    property var startupCollapse: selectionChanged === undefined ? false : selectionChanged;
-    property var firstTime: true;
-	property var caption: ""
+    property variant startupCollapse: selectionChanged === undefined ? false : selectionChanged;
+    property variant firstTime: true;
+	property variant caption: ""
 	smooth: false
 
     onFinishedChanged: {
@@ -32,14 +32,14 @@ QExtGroupBox {
     }
 
 
-    property var baseStateFlag: isBaseState
+    property variant baseStateFlag: isBaseState
     onBaseStateFlagChanged: {
         evaluate();
     }
     onBackendColorChanged: {
         evaluate();
     }
-    property var isEnabled: colorGroupBox.enabled
+    property variant isEnabled: colorGroupBox.enabled
     onIsEnabledChanged: {
         evaluate();
     }
@@ -143,7 +143,7 @@ QExtGroupBox {
 
                 ColorBox {
                     id: colorControl;
-                    property var backendColor: colorGroupBox.color;
+                    property variant backendColor: colorGroupBox.color;
                     color: colorGroupBox.color;
                     onColorChanged: if (colorGroupBox.color != color) {
                         colorGroupBox.backendColor.value = color;

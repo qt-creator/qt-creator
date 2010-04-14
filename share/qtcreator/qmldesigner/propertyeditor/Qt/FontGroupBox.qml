@@ -4,7 +4,7 @@ import Bauhaus 1.0
 GroupBox {
     id: fontGroupBox
     caption: "Font";
-    property var showStyle: false
+    property variant showStyle: false
 
     layout: VerticalLayout {
 

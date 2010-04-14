@@ -43,7 +43,7 @@ GroupBox {
                     id: scaleSpinBox;
 
                     backendValue: backendValues.scale;
-                    property var backendValueValue: backendValues.scale.value;
+                    property variant backendValueValue: backendValues.scale.value;
                     minimumWidth: 60;
                     minimum: 0.01
                     maximum: 10

@@ -36,7 +36,7 @@ Item {
 
     // public
 
-    property var flickable
+    property variant flickable
 
     function reset() {
         handle.y = 0

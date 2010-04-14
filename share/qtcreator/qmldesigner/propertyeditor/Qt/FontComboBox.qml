@@ -5,8 +5,8 @@ QWidget {
     id: fontComboBox
 
     property alias currentFont: fontSelector.currentFont
-    property var backendValue
-    property var baseStateFlag;
+    property variant backendValue
+    property variant baseStateFlag;
     property alias enabled: fontSelector.enabled
 
     onBaseStateFlagChanged: {
@@ -17,7 +17,7 @@ QWidget {
         evaluate();
     }
 
-    property var isEnabled: fontComboBox.enabled
+    property variant isEnabled: fontComboBox.enabled
     onIsEnabledChanged: {
         evaluate();
     }
@@ -59,7 +59,7 @@ QWidget {
             id: fontSelector            
 			
 			currentFont.family: backendValue.value
-			property var fontFamily: currentFont.family
+			property variant fontFamily: currentFont.family
             onFontFamilyChanged: {
 			    if (backendValue === undefined)
 			        return;

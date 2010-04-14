@@ -3,7 +3,7 @@ import Bauhaus 1.0
 
 QFrame {
     styleSheetFile: "switch.css";
-    property var specialModeIcon;
+    property variant specialModeIcon;
     specialModeIcon: "images/standard.png";
     maximumWidth: 300;
     minimumWidth: 300;

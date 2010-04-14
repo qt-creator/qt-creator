@@ -4,14 +4,14 @@ import Bauhaus 1.0
 QWidget {
     id: intEditor;
 
-    property var backendValue;
-    property var baseStateFlag;
+    property variant backendValue;
+    property variant baseStateFlag;
 
-    property var caption;
+    property variant caption;
 
-    property var maximumValue: 99
-    property var minimumValue: 0
-    property var step: 1
+    property variant maximumValue: 99
+    property variant minimumValue: 0
+    property variant step: 1
     property bool slider: true
     property alias alignment: label.alignment
 
@@ -26,7 +26,7 @@ QWidget {
             intEditor.backendValue === null)
             ? null : intEditor.backendValue;
 
-            property var backendValueValue: (intEditor.backendValue === undefined ||
+            property variant backendValueValue: (intEditor.backendValue === undefined ||
             intEditor.backendValue === null)
             ? null : intEditor.backendValue.value;
 

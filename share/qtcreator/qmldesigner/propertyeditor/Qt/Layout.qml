@@ -9,7 +9,7 @@ GroupBox {
     id: layout;
     enabled: anchorBackend.hasParent;
 
-    property var targetLabelWidth: 90 - 20 - 26
+    property variant targetLabelWidth: 90 - 20 - 26
 	property int leftMarginMargin: 16
 
     layout: VerticalLayout {

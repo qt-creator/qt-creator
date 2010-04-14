@@ -230,9 +230,9 @@ Rectangle {
                     }
                 }
 
-                property var buttonColorUp: "#E1E1E1"
-                property var buttonColorDown: Qt.darker(buttonColorUp)
-                property var buttonColor: buttonColorUp
+                property variant buttonColorUp: "#E1E1E1"
+                property variant buttonColorDown: Qt.darker(buttonColorUp)
+                property variant buttonColor: buttonColorUp
 
                 Item {
                     width:parent.width

@@ -1,7 +1,7 @@
 import Qt 4.6
 
 Rectangle {
-    property var label: "Button"
+    property variant label: "Button"
     signal clicked
 
     width: 75

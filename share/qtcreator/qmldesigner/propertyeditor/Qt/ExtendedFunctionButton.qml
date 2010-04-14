@@ -4,7 +4,7 @@ import Bauhaus 1.0
 QToolButton {
     id: extendedFunctionButton
 
-    property var backendValue
+    property variant backendValue
 
     function setIcon() {
         if (backendValue == null)

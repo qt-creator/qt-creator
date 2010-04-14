@@ -22,7 +22,7 @@ GroupBox {
             }
         }
         QWidget {
-            property var isEnabled: isBaseState
+            property variant isEnabled: isBaseState
             onIsEnabledChanged: idLineEdit.setStyleSheet("color: "+(isEnabled?scheme.defaultColor:scheme.disabledColor));
             ColorScheme{ id:scheme }
 

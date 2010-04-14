@@ -8,7 +8,7 @@ QWidget {
     width: frame.width - 22
     height: 40
     property bool active: false
-    property var backendValue;
+    property variant backendValue;
 
 
     onActiveChanged: {

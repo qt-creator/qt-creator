@@ -6,9 +6,9 @@ QFrame {
     focusPolicy: "Qt::NoFocus"
     id: extendedSwitches;
     property bool active: false;
-    property var backendValue;
+    property variant backendValue;
     styleSheetFile: "switch.css";
-    property var specialModeIcon;
+    property variant specialModeIcon;
     specialModeIcon: "images/standard.png";
 
     opacity: 0;

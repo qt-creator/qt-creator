@@ -5,8 +5,8 @@ QWidget { //This is a special spinBox that does color coding for states
 
     id: spinBox;
 
-    property var backendValue;
-    property var baseStateFlag;
+    property variant backendValue;
+    property variant baseStateFlag;
     property alias singleStep: box.singleStep;
     property alias minimum: box.minimum
     property alias maximum: box.maximum
@@ -22,7 +22,7 @@ QWidget { //This is a special spinBox that does color coding for states
         evaluate();
     }
 
-    property var isEnabled: spinBox.enabled
+    property variant isEnabled: spinBox.enabled
     onIsEnabledChanged: {
         evaluate();
     }

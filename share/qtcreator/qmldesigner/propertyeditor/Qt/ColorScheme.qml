@@ -3,10 +3,10 @@ import Bauhaus 1.0
 
 Item {
     id: colorScheme
-    property var disabledColor: "gray";
-    property var defaultColor: "white";
-    property var boldTextColor: "#dedede";
-    property var changedBaseColor: "#9999ff";
-    property var changedStateColor: "#99ccff";
-    property var optionsColor: "white";
+    property variant disabledColor: "gray";
+    property variant defaultColor: "white";
+    property variant boldTextColor: "#dedede";
+    property variant changedBaseColor: "#9999ff";
+    property variant changedStateColor: "#99ccff";
+    property variant optionsColor: "white";
 }

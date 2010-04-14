@@ -5,9 +5,9 @@ QWidget { //This is a special checkBox that does color coding for states
 
     id: checkBox;
 
-    property var backendValue;
+    property variant backendValue;
 
-    property var baseStateFlag;
+    property variant baseStateFlag;
     property alias checkable: localCheckBox.checkable
     property alias text: localLabel.text
 

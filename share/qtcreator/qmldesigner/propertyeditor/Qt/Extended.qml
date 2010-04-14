@@ -8,8 +8,8 @@ GroupBox {
 
     layout: VerticalLayout{
 
-        property var effect: backendValues.effect
-        property var complexNode: effect.complexNode
+        property variant effect: backendValues.effect
+        property variant complexNode: effect.complexNode
 
         QWidget  {
             maximumHeight: 40;
@@ -19,8 +19,8 @@ GroupBox {
                 }
                 QComboBox {
                     enabled: isBaseState;
-                    property var type: backendValues.effect.complexNode.type
-                    property var dirty;
+                    property variant type: backendValues.effect.complexNode.type
+                    property variant dirty;
                     id: effectComboBox;
                     items : { [
                             "None",
@@ -60,7 +60,7 @@ GroupBox {
             }
             }// QWidget
 
-            property var properties: complexNode == null ? null : complexNode.properties
+            property variant properties: complexNode == null ? null : complexNode.properties
 
             QWidget {
                 minimumHeight: 20;
@@ -101,7 +101,7 @@ GroupBox {
                         visible: effectComboBox.currentText == "Colorize";
                         layout: QVBoxLayout {
 
-                            property var colorProp: properties == null ? null : properties.color
+                            property variant colorProp: properties == null ? null : properties.color
 
 
                             ColorLabel {

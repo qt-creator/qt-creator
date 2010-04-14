@@ -4,11 +4,11 @@ import Bauhaus 1.0
 QWidget {
     id: sliderWidget
 
-    property var value
+    property variant value
     property alias singleStep: localSlider.singleStep
     property alias minimum: localSlider.minimum
     property alias maximum: localSlider.maximum
-    property var backendValue
+    property variant backendValue
 
     QSlider {
         orientation: "Qt::Horizontal";
