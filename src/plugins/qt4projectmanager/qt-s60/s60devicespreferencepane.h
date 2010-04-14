@@ -30,38 +30,96 @@
 #ifndef S60DEVICESPREFERENCEPANE_H
 #define S60DEVICESPREFERENCEPANE_H
 
+#include "s60devices.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+class QStandardItem;
+class QAbstractButton;
+class QModelIndex;
+QT_END_NAMESPACE
+
 namespace Qt4ProjectManager {
 namespace Internal {
-class S60Devices;
+class AutoDetectS60Devices;
+class GnuPocS60Devices;
+class S60DevicesModel;
 
 namespace Ui {    
     class S60DevicesPreferencePane;
 }
 
-class S60DevicesWidget : public QWidget
+// Base pane listing Symbian SDKs with "Change Qt" version functionality.
+class S60DevicesBaseWidget : public QWidget
 {
     Q_OBJECT
 public:
-    S60DevicesWidget(QWidget *parent, S60Devices *devices);
-    ~S60DevicesWidget();
+    typedef QList<S60Devices::Device> DeviceList;
 
-private slots:
-    void updateDevices();
+    enum Flags { ShowAddButton = 0x1, ShowRemoveButton = 0x2,
+                 ShowChangeQtButton =0x4, ShowRefreshButton = 0x8,
+                 DeviceDefaultCheckable = 0x10 };
 
-private:
-    void updateDevicesList();
+    virtual ~S60DevicesBaseWidget();
+
+    DeviceList devices() const;
+    void setDevices(const DeviceList &dl, const QString &errorString = QString());
+
+protected:
+    explicit S60DevicesBaseWidget(unsigned flags, QWidget *parent = 0);
+
     void setErrorLabel(const QString&);
     void clearErrorLabel();
 
+    QString promptDirectory(const QString &title);
+    void appendDevice(const S60Devices::Device &d);
+    int deviceCount() const;
+
+    QStandardItem *currentItem() const;
+
+private slots:
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void changeQtVersion();
+    void removeDevice();
+    virtual void addDevice() {} // Default does nothing
+    virtual void refresh() {} // Default does nothing
+
+private:
     Ui::S60DevicesPreferencePane *m_ui;
-    S60Devices *m_devices;
+    S60DevicesModel *m_model;
 };
 
+// Widget for autodetected SDK's showing a refresh button.
+class AutoDetectS60DevicesWidget : public S60DevicesBaseWidget
+{
+    Q_OBJECT
+public:
+    explicit AutoDetectS60DevicesWidget(QWidget *parent,
+                                        AutoDetectS60Devices *devices,
+                                        bool changeQtVersionEnabled);
+
+private slots:
+    virtual void refresh();
+
+private:
+    AutoDetectS60Devices *m_devices;
+};
+
+// Widget for manually configured SDK's showing a add/remove buttons.
+class GnuPocS60DevicesWidget : public S60DevicesBaseWidget
+{
+    Q_OBJECT
+public:
+    explicit GnuPocS60DevicesWidget(QWidget *parent = 0);
+
+private slots:
+    virtual void addDevice();
+};
+
+// Options Pane.
 class S60DevicesPreferencePane : public Core::IOptionsPage
 {
     Q_OBJECT
@@ -80,7 +138,9 @@ public:
     void finish();
 
 private:
-    QPointer<S60DevicesWidget> m_widget;
+    S60DevicesBaseWidget *createWidget(QWidget *parent) const;
+
+    QPointer<S60DevicesBaseWidget> m_widget;
     S60Devices *m_devices;
 };
 

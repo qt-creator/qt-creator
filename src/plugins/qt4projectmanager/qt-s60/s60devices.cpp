@@ -31,6 +31,7 @@
 #include "gccetoolchain.h"
 
 #include <projectexplorer/environment.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QXmlStreamReader>
@@ -51,14 +52,34 @@ namespace {
     const char * const DEVICE_DEFAULT = "default";
     const char * const DEVICE_EPOCROOT = "epocroot";
     const char * const DEVICE_TOOLSROOT = "toolsroot";
+    const char * const GNUPOC_SETTINGS_GROUP = "GnuPocSDKs";
+    const char * const AUTODETECT_SETTINGS_GROUP = "SymbianSDKs";
+    const char * const SDK_QT_ASSOC_SETTINGS_KEY_ROOT = "SymbianSDK";
+    const char * const SETTINGS_DEFAULT_SDK_POSTFIX = ",default";
 }
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
+static int findDefaultDevice(const QList<S60Devices::Device> &d)
+{
+    const int count = d.size();
+    for (int i = 0; i < count; i++)
+        if (d.at(i).isDefault)
+            return i;
+    return -1;
+}
+
 S60Devices::Device::Device() :
     isDefault(false)
 {
+}
+
+bool S60Devices::Device::equals(const Device &rhs) const
+{
+    return id == rhs.id && name == rhs.name && isDefault == rhs.isDefault
+           && epocRoot == rhs.epocRoot && toolsRoot == rhs.toolsRoot
+           && qt == rhs.qt;
 }
 
 QString S60Devices::Device::toHtml() const
@@ -79,60 +100,180 @@ QString S60Devices::Device::toHtml() const
     return rc;
 }
 
-S60Devices::S60Devices(QObject *parent)
-        : QObject(parent)
+// ------------ S60Devices
+S60Devices::S60Devices(QObject *parent) : QObject(parent)
 {
 }
 
-// GNU-Poc stuff
-static const char *epocRootC = "EPOCROOT";
-
-static inline QString msgEnvVarNotSet(const char *var)
+QList<S60Devices::Device> S60Devices::devices() const
 {
-    return QString::fromLatin1("The environment variable %1 is not set.").arg(QLatin1String(var));
+    return m_devices;
 }
 
-static inline QString msgEnvVarDirNotExist(const QString &dir, const char *var)
+void S60Devices::setDevices(const QList<Device> &devices)
 {
-    return QString::fromLatin1("The directory %1 pointed to by the environment variable %2 is not set.").arg(dir, QLatin1String(var));
-}
-
-bool S60Devices::readLinux()
-{
-    // Detect GNUPOC_ROOT/EPOC ROOT
-    const QByteArray epocRootA = qgetenv(epocRootC);
-    if (epocRootA.isEmpty()) {
-        m_errorString = msgEnvVarNotSet(epocRootC);
-        return false;
+    if (m_devices != devices) {
+        m_devices = devices;
+        // Ensure a default device
+        if (!m_devices.isEmpty() && findDefaultDevice(m_devices) == -1)
+            m_devices.front().isDefault = true;
+        writeSettings();
+        emit qtVersionsChanged();
     }
-
-    const QDir epocRootDir(QString::fromLocal8Bit(epocRootA));
-    if (!epocRootDir.exists()) {
-        m_errorString = msgEnvVarDirNotExist(epocRootDir.absolutePath(), epocRootC);
-        return false;
-    }
-
-    // Check Qt
-    Device device;
-    device.id = device.name = QLatin1String("GnuPoc");
-    device.toolsRoot = device.epocRoot = epocRootDir.absolutePath();
-    device.isDefault = true;
-    m_devices.push_back(device);
-    return true;
 }
 
-bool S60Devices::read()
+const QList<S60Devices::Device> &S60Devices::devicesList() const
 {
-    m_devices.clear();
-    m_errorString.clear();
+    return m_devices;
+}
+
+QList<S60Devices::Device> &S60Devices::devicesList()
+{
+    return m_devices;
+}
+
+S60Devices *S60Devices::createS60Devices(QObject *parent)
+{
+    S60Devices *rc = 0;
 #ifdef Q_OS_WIN
-    return readWin();
+    AutoDetectS60QtDevices *ad = new AutoDetectS60QtDevices(parent);
+    ad->detectDevices();
+    rc = ad;
 #else
-    return readLinux();
+    rc = new GnuPocS60Devices(parent);
 #endif
+    rc->readSettings();
+    return rc;
 }
 
-// Windows: Get list of paths containing common program data
+int S60Devices::findById(const QString &id) const
+{
+    const int count = m_devices.size();
+    for (int i = 0; i < count; i++)
+        if (m_devices.at(i).id == id)
+            return i;
+    return -1;
+}
+
+int S60Devices::findByEpocRoot(const QString &er) const
+{
+    const int count = m_devices.size();
+    for (int i = 0; i < count; i++)
+        if (m_devices.at(i).epocRoot == er)
+            return i;
+    return -1;
+}
+
+S60Devices::Device S60Devices::deviceForId(const QString &id) const
+{
+    const int index = findById(id);
+    return index == -1 ? Device() : m_devices.at(index);
+}
+
+S60Devices::Device S60Devices::deviceForEpocRoot(const QString &root) const
+{
+    const int index = findByEpocRoot(root);
+    return index == -1 ? Device() : m_devices.at(index);
+}
+
+S60Devices::Device S60Devices::defaultDevice() const
+{
+    const int index = findDefaultDevice(m_devices);
+    return index == -1 ? Device() : m_devices.at(index);
+}
+
+QString S60Devices::cleanedRootPath(const QString &deviceRoot)
+{
+    QString path = deviceRoot;
+#ifdef Q_OS_WIN
+    // sbsv2 actually recommends having the DK on a separate drive...
+    // But qmake breaks when doing that!
+    if (path.size() > 1 && path.at(1) == QChar(':'))
+        path = path.mid(2);
+#endif
+
+    if (!path.size() || path.at(path.size()-1) != '/')
+        path.append('/');
+    return path;
+}
+
+S60Devices::StringStringPairList S60Devices::readSdkQtAssociationSettings(const QSettings *settings,
+                                                                          const QString &group,
+                                                                          int *defaultIndexPtr)
+{
+    StringStringPairList rc;
+    // Read out numbered pairs of EpocRoot/QtDir as many as exist
+    // "SymbianSDK1=/epoc,/qt[,default]".
+    const QChar separator = QLatin1Char(',');
+    const QString keyRoot = group + QLatin1Char('/') + QLatin1String(SDK_QT_ASSOC_SETTINGS_KEY_ROOT);
+    int defaultIndex = -1;
+    for (int i = 1; ; i++) {
+        // Split pairs of epocroot/qtdir.
+        const QVariant valueV = settings->value(keyRoot + QString::number(i));
+        if (!valueV.isValid())
+            break;
+        // Check for default postfix
+        QString value = valueV.toString();
+        if (value.endsWith(QLatin1String(SETTINGS_DEFAULT_SDK_POSTFIX))) {
+            value.truncate(value.size() - qstrlen(SETTINGS_DEFAULT_SDK_POSTFIX));
+            defaultIndex = rc.size();
+        }
+        // Split into SDK and Qt
+        const int separatorPos = value.indexOf(separator);
+        if (separatorPos == -1)
+            break;
+        const QString epocRoot = value.left(separatorPos);
+        const QString qtDir = value.mid(separatorPos + 1);
+        rc.push_back(StringStringPair(epocRoot, qtDir));
+    }
+    if (defaultIndexPtr)
+        *defaultIndexPtr = defaultIndex;
+    return rc;
+}
+
+void S60Devices::writeSdkQtAssociationSettings(QSettings *settings, const QString &group) const
+{
+    // Write out as numbered pairs of EpocRoot/QtDir and indicate default
+    // "SymbianSDK1=/epoc,/qt[,default]".
+    settings->beginGroup(group);
+    settings->remove(QString()); // remove all keys
+    if (const int count = devicesList().size()) {
+        const QString keyRoot = QLatin1String(SDK_QT_ASSOC_SETTINGS_KEY_ROOT);
+        const QChar separator = QLatin1Char(',');
+        for (int i = 0; i < count; i++) {
+            const QString key = keyRoot + QString::number(i + 1);
+            QString value = devicesList().at(i).epocRoot;
+            value += separator;
+            value += devicesList().at(i).qt;
+            // Indicate default by postfix ",default"
+            if (devicesList().at(i).isDefault)
+                value += QLatin1String(SETTINGS_DEFAULT_SDK_POSTFIX);
+            settings->setValue(key, value);
+        }
+    }
+    settings->endGroup();
+}
+
+void S60Devices::readSettings()
+{
+}
+
+void S60Devices::writeSettings()
+{
+}
+
+// ------------------ S60Devices
+
+AutoDetectS60Devices::AutoDetectS60Devices(QObject *parent) :
+        S60Devices(parent)
+{
+}
+
+QString AutoDetectS60Devices::errorString() const
+{
+    return m_errorString;
+}
+
 // as pointed to by environment.
 static QStringList commonProgramFilesPaths()
 {
@@ -146,8 +287,6 @@ static QStringList commonProgramFilesPaths()
         rc += QString::fromLocal8Bit(common).split(pathSep);
     return rc;
 }
-
-// Windows EPOC
 
 // Find the "devices.xml" file containing the SDKs
 static QString devicesXmlFile(QString *errorMessage)
@@ -174,8 +313,10 @@ static QString devicesXmlFile(QString *errorMessage)
     return QString();
 }
 
-bool S60Devices::readWin()
+bool AutoDetectS60Devices::detectDevices()
 {
+    devicesList().clear();
+    m_errorString.clear();
     const QString devicesXmlPath = devicesXmlFile(&m_errorString);
     if (devicesXmlPath.isEmpty())
         return false;
@@ -210,7 +351,7 @@ bool S60Devices::readWin()
                         }
                         if (device.toolsRoot.isEmpty())
                             device.toolsRoot = device.epocRoot;
-                        m_devices.append(device);
+                        devicesList().append(device);
                     }
                 }
             } else {
@@ -225,6 +366,35 @@ bool S60Devices::readWin()
         return false;
     }
     return true;
+}
+
+void AutoDetectS60Devices::readSettings()
+{
+    // Read the associated Qt version from the settings
+    // and set on the autodetected SDKs.
+    bool changed = false;
+    const QSettings *settings = Core::ICore::instance()->settings();
+    foreach (const StringStringPair &p, readSdkQtAssociationSettings(settings, QLatin1String(GNUPOC_SETTINGS_GROUP))) {
+        const int index = findByEpocRoot(p.first);
+        if (index != -1 && devicesList().at(index).qt != p.second) {
+            devicesList()[index].qt = p.second;
+            changed = true;
+        }
+    }
+    if (changed)
+        emit qtVersionsChanged();
+}
+
+void AutoDetectS60Devices::writeSettings()
+{
+    writeSdkQtAssociationSettings(Core::ICore::instance()->settings(), QLatin1String(AUTODETECT_SETTINGS_GROUP));
+}
+
+// ========== AutoDetectS60QtDevices
+
+AutoDetectS60QtDevices::AutoDetectS60QtDevices(QObject *parent) :
+        AutoDetectS60Devices(parent)
+{
 }
 
 // Detect a Qt version that is installed into a Symbian SDK
@@ -263,28 +433,14 @@ static QString detect_SDK_installedQt(const QString &epocRoot)
     return QDir(QString::fromLatin1(buffer.mid(index, lastIndex-index))).absolutePath();
 }
 
-// GnuPoc: Detect a Qt version that is symlinked/below an SDK
-// TODO: Find a proper way of doing that
-static QString detectGnuPocQt(const QString &epocRoot)
-{
-    const QFileInfo fi(epocRoot + QLatin1String("/qt"));
-    if (!fi.exists())
-        return QString();
-    if (fi.isSymLink())
-        return QFileInfo(fi.symLinkTarget()).absoluteFilePath();
-    return fi.absoluteFilePath();
-}
-
-bool S60Devices::detectQtForDevices()
+bool AutoDetectS60QtDevices::detectQtForDevices()
 {
     bool changed = false;
-    const int deviceCount = m_devices.size();
+    const int deviceCount = devicesList().size();
     for (int i = 0; i < deviceCount; ++i) {
-        Device &device = m_devices[i];
+        Device &device = devicesList()[i];
         if (device.qt.isEmpty()) {
             device.qt = detect_SDK_installedQt(device.epocRoot);
-            if (device.qt.isEmpty())
-                device.qt = detectGnuPocQt(device.epocRoot);
             if (device.qt.isEmpty()) {
                 qWarning("Unable to detect Qt version for '%s'.", qPrintable(device.epocRoot));
             } else {
@@ -297,59 +453,50 @@ bool S60Devices::detectQtForDevices()
     return true;
 }
 
-QString S60Devices::errorString() const
+bool AutoDetectS60QtDevices::detectDevices()
 {
-    return m_errorString;
+    return AutoDetectS60Devices::detectDevices() && detectQtForDevices();
 }
 
-QList<S60Devices::Device> S60Devices::devices() const
+// ------- GnuPocS60Devices
+GnuPocS60Devices::GnuPocS60Devices(QObject *parent) :
+        S60Devices(parent)
 {
-    return m_devices;
 }
 
-S60Devices::Device S60Devices::deviceForId(const QString &id) const
+S60Devices::Device GnuPocS60Devices::createDevice(const QString &epoc, const QString &qtDir)
 {
-    foreach (const S60Devices::Device &i, m_devices) {
-        if (i.id == id) {
-            return i;
+    Device device;
+    device.id = device.name = QLatin1String("GnuPoc");
+    device.toolsRoot = device.epocRoot = epoc;
+    device.qt = qtDir;
+    return device;
+}
+
+// GnuPoc settings are just the pairs of EpocRoot and Qt Dir.
+void GnuPocS60Devices::readSettings()
+{
+    // Read out numbered pairs of EpocRoot/QtDir as many as exist
+    // "SymbianSDK1=/epoc,/qt".
+    devicesList().clear();
+    int defaultIndex = 0;
+    const QSettings *settings = Core::ICore::instance()->settings();
+    const StringStringPairList devices =readSdkQtAssociationSettings(settings, QLatin1String(GNUPOC_SETTINGS_GROUP), &defaultIndex);
+    foreach (const StringStringPair &p, devices)
+        devicesList().append(createDevice(p.first, p.second));
+    // Ensure a default
+    if (!devicesList().isEmpty()) {
+        if (defaultIndex >= 0 && defaultIndex < devicesList().size()) {
+            devicesList()[defaultIndex].isDefault = true;
+        } else {
+            devicesList().front().isDefault = true;
         }
     }
-    return Device();
 }
 
-S60Devices::Device S60Devices::deviceForEpocRoot(const QString &root) const
+void GnuPocS60Devices::writeSettings()
 {
-    foreach (const S60Devices::Device &i, m_devices) {
-        if (i.epocRoot == root) {
-            return i;
-        }
-    }
-    return Device();
-}
-
-S60Devices::Device S60Devices::defaultDevice() const
-{
-    foreach (const S60Devices::Device &i, m_devices) {
-        if (i.isDefault) {
-            return i;
-        }
-    }
-    return Device();
-}
-
-QString S60Devices::cleanedRootPath(const QString &deviceRoot)
-{
-    QString path = deviceRoot;
-#ifdef Q_OS_WIN
-    // sbsv2 actually recommends having the DK on a separate drive...
-    // But qmake breaks when doing that!
-    if (path.size() > 1 && path.at(1) == QChar(':'))
-        path = path.mid(2);
-#endif
-
-    if (!path.size() || path.at(path.size()-1) != '/')
-        path.append('/');
-    return path;
+    writeSdkQtAssociationSettings(Core::ICore::instance()->settings(), QLatin1String(GNUPOC_SETTINGS_GROUP));
 }
 
 // S60ToolChainMixin

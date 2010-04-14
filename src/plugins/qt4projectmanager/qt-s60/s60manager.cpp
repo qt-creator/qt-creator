@@ -101,14 +101,13 @@ private:
 S60Manager *S60Manager::instance() { return m_instance; }
 
 S60Manager::S60Manager(QObject *parent)
-        : QObject(parent),
-        m_devices(new S60Devices(this))
+    : QObject(parent), m_devices(S60Devices::createS60Devices(this))
 {
     m_instance = this;
+
 #ifdef QTCREATOR_WITH_S60
     addAutoReleasedObject(new S60DevicesPreferencePane(m_devices, this));
 #endif
-    m_devices->detectQtForDevices(); // Order!
 
     addAutoReleasedObject(new S60EmulatorRunConfigurationFactory);
     addAutoReleasedObject(new RunControlFactory<S60EmulatorRunControl,

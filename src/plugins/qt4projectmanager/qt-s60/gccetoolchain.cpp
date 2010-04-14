@@ -51,7 +51,7 @@ static QString gcceCommand(const QString &dir)
     gcce += QLatin1String(".exe");
 #endif
     const QString rc = env.searchInPath(gcce);
-    if (rc.isEmpty()) {
+    if (debug && rc.isEmpty()) {
         const QString msg = QString::fromLatin1("GCCEToolChain: Unable to locate '%1' in '%2' (GCCE root: '%3')")
                             .arg(gcce, env.value(QLatin1String("PATH")), dir);
         qWarning("%s", qPrintable(msg));

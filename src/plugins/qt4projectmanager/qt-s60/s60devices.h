@@ -35,20 +35,25 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QList>
+#include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
+class QSettings;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
+// List of S60 devices.
 class S60Devices : public QObject
 {
     Q_OBJECT
 public:
     struct Device {
         Device();
+        bool equals(const Device &rhs) const;
+
         QString toHtml() const;
 
         QString id;
@@ -59,24 +64,104 @@ public:
         QString qt;
     };
 
-    S60Devices(QObject *parent = 0);
-    bool read();
-    QString errorString() const;
+    // Construct a devices object, does autodetection if applicable
+    // and restores settings.
+    static S60Devices *createS60Devices(QObject *parent);
+
     QList<Device> devices() const;
-    bool detectQtForDevices();
+    // Set devices, write settings and emit changed signals accordingly.
+    void setDevices(const QList<Device> &device);
+
     Device deviceForId(const QString &id) const;
     Device deviceForEpocRoot(const QString &root) const;
     Device defaultDevice() const;
 
+    int findByEpocRoot(const QString &er) const;
+
     static QString cleanedRootPath(const QString &deviceRoot);
+
 signals:
     void qtVersionsChanged();
 
+protected:
+    typedef QPair<QString, QString> StringStringPair;
+    typedef QList<StringStringPair> StringStringPairList;
+
+    explicit S60Devices(QObject *parent = 0);
+
+    const QList<Device> &devicesList() const;
+    QList<Device> &devicesList();
+
+    int findById(const QString &id) const;
+
+    // Helpers to serialize the association of Symbian SDK<->Qt
+    // to QSettings (pair of SDK/Qt).
+    static StringStringPairList readSdkQtAssociationSettings(const QSettings *settings,
+                                                             const QString &group,
+                                                             int *defaultIndex = 0);
+    void writeSdkQtAssociationSettings(QSettings *settings, const QString &group) const;
+
 private:
-    bool readLinux();
-    bool readWin();
-    QString m_errorString;
+    virtual void readSettings(); // empty stubs
+    virtual void writeSettings();
+
     QList<Device> m_devices;
+};
+
+inline bool operator==(const S60Devices::Device &d1, const S60Devices::Device &d2)
+{ return d1.equals(d2); }
+inline bool operator!=(const S60Devices::Device &d1, const S60Devices::Device &d2)
+{ return !d1.equals(d2); }
+
+// Autodetected Symbian Devices (as parsed from devices.xml file on Windows)
+// with a manually set version of Qt. Currently not used, but might be by
+// makefile-based builds on Windows.
+class AutoDetectS60Devices : public S60Devices
+{
+    Q_OBJECT
+public:
+    explicit AutoDetectS60Devices(QObject *parent = 0);
+    virtual bool detectDevices();
+    QString errorString() const;
+
+private:
+    // Write and restore Qt-SDK associations.
+    virtual void readSettings();
+    virtual void writeSettings();
+
+    QString m_errorString;
+};
+
+// Autodetected Symbian-Qt-Devices (with Qt installed
+// into the SDK) for ABLD, Raptor. Completely autodetected.
+class AutoDetectS60QtDevices : public AutoDetectS60Devices
+{
+    Q_OBJECT
+public:
+    explicit AutoDetectS60QtDevices(QObject *parent = 0);
+    // Overwritten to detect associated Qt versions in addition.
+    virtual bool detectDevices();
+
+private:
+    // No settings as it is completely autodetected.
+    virtual void readSettings()  {}
+    virtual void writeSettings() {}
+
+    bool detectQtForDevices();
+};
+
+// Manually configured Symbian Devices completely based on QSettings.
+class GnuPocS60Devices : public S60Devices
+{
+    Q_OBJECT
+public:
+    explicit GnuPocS60Devices(QObject *parent = 0);
+
+    static Device createDevice(const QString &epoc, const QString &qtDir);
+
+private:
+    virtual void readSettings();
+    virtual void writeSettings();
 };
 
 /* Mixin for the toolchains with convenience functions for EPOC
