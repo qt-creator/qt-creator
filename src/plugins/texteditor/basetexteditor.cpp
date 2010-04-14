@@ -5328,6 +5328,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
     setCodeFoldingVisible(ds.m_displayFoldingMarkers);
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
     setRevisionsVisible(ds.m_markTextChanges);
+    setCenterOnScroll(ds.m_centerCursorOnScroll);
 
     if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
         if (QSyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter())
