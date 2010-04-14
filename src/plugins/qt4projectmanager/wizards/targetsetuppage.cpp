@@ -63,7 +63,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_treeWidget->setHeaderLabels(QStringList() << tr("Qt Version") << tr("Status") << tr("Directory"));
     vbox->addWidget(m_treeWidget);
 
-    m_addDirectoryButton = new QPushButton(tr("Add shadow build location"));
+    m_addDirectoryButton = new QPushButton(tr("Add shadow build location..."));
     vbox->addWidget(m_addDirectoryButton);
 
     connect(m_addDirectoryButton, SIGNAL(clicked()),
