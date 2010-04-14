@@ -293,7 +293,7 @@ TextEditor::BaseTextEditorEditable *VCSBaseEditor::createEditableInterface()
         // Diff: set up diff file browsing
         VCSBaseDiffEditorEditable *de = new VCSBaseDiffEditorEditable(this, d->m_parameters);
         QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
-        connect(diffBrowseComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotDiffBrowse(int)));
+        connect(diffBrowseComboBox, SIGNAL(activated(int)), this, SLOT(slotDiffBrowse(int)));
         editable = de;
     } else {
         editable = new VCSBaseEditorEditable(this, d->m_parameters);
@@ -337,10 +337,15 @@ void VCSBaseEditor::slotDiffBrowse(int index)
     // goto diffed file as indicated by index/line number
     if (index < 0 || index >= d->m_diffSections.size())
         return;
-    const int lineNumber = d->m_diffSections.at(index);
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->addCurrentPositionToNavigationHistory();
-    gotoLine(lineNumber + 1, 0); // TextEdit uses 1..n convention
+    const int lineNumber = d->m_diffSections.at(index) + 1; // TextEdit uses 1..n convention
+    // check if we need to do something, especially to avoid messing up navigation history
+    int currentLine, currentColumn;
+    convertPosition(position(), &currentLine, &currentColumn);
+    if (lineNumber != currentLine) {
+        Core::EditorManager *editorManager = Core::EditorManager::instance();
+        editorManager->addCurrentPositionToNavigationHistory();
+        gotoLine(lineNumber, 0);
+    }
 }
 
 // Locate a line number in the list of diff sections.
