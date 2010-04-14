@@ -133,7 +133,7 @@ QStringList QmlProjectRunConfiguration::viewerArguments() const
 
     // arguments from .qmlproject file
     foreach (const QString &importPath, qmlTarget()->qmlProject()->importPaths()) {
-        args.append(QLatin1String("-L"));
+        args.append(QLatin1String("-I"));
         args.append(importPath);
     }
 
