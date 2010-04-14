@@ -750,6 +750,8 @@ QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
                 QString qmakePath = qmake.filePath();
 #ifdef Q_OS_WIN
                 qmakePath = qmakePath.toLower();
+                if (!qmakePath.endsWith(QLatin1String(".exe")))
+                    qmakePath.append(QLatin1String(".exe"));
 #endif
                 // Is qmake still installed?
                 if (QFile::exists(qmakePath))
