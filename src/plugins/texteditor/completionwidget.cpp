@@ -32,6 +32,8 @@
 #include "icompletioncollector.h"
 
 #include <texteditor/itexteditable.h>
+
+#include <utils/faketooltip.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QEvent>
@@ -73,37 +75,29 @@ private:
 };
 
 
-class CompletionInfoFrame : public QLabel {
+class CompletionInfoFrame : public Utils::FakeToolTip
+{
 public:
-
     CompletionInfoFrame(QWidget *parent = 0) :
-            QLabel(parent, Qt::ToolTip | Qt::WindowStaysOnTopHint)
+        Utils::FakeToolTip(parent),
+        m_label(new QLabel(this))
     {
-        setFocusPolicy(Qt::NoFocus);
-        setAttribute(Qt::WA_DeleteOnClose);
-        setForegroundRole(QPalette::ToolTipText);
-        setBackgroundRole(QPalette::ToolTipBase);
-        setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
-        setIndent(1);
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->setMargin(0);
+        layout->setSpacing(0);
+        layout->addWidget(m_label);
+
+        m_label->setForegroundRole(QPalette::ToolTipText);
+        m_label->setBackgroundRole(QPalette::ToolTipBase);
     }
 
-    void paintEvent(QPaintEvent *e) {
-        QStylePainter p(this);
-        QStyleOptionFrame opt;
-        opt.init(this);
-        p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
-        p.end();
-        QLabel::paintEvent(e);
-    }
-    void resizeEvent(QResizeEvent *e)
+    void setText(const QString &text)
     {
-        QStyleHintReturnMask frameMask;
-        QStyleOption option;
-        option.init(this);
-        if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
-            setMask(frameMask.region);
-        QLabel::resizeEvent(e);
+        m_label->setText(text);
     }
+
+private:
+    QLabel *m_label;
 };
 
 

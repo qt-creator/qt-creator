@@ -39,7 +39,8 @@ SOURCES += reloadpromptutils.cpp \
     detailsbutton.cpp \
     detailswidget.cpp \
     changeset.cpp \
-    filterlineedit.cpp
+    filterlineedit.cpp \
+    faketooltip.cpp
 win32 {
     SOURCES += abstractprocess_win.cpp \
         consoleprocess_win.cpp \
@@ -91,7 +92,8 @@ HEADERS += utils_global.h \
     detailsbutton.h \
     detailswidget.h \
     changeset.h \
-    filterlineedit.h
+    filterlineedit.h \
+    faketooltip.h
 FORMS += filewizardpage.ui \
     projectintropage.ui \
     newclasswidget.ui \

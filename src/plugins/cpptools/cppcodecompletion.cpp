@@ -60,6 +60,8 @@
 #include <texteditor/itexteditable.h>
 #include <texteditor/basetexteditor.h>
 #include <projectexplorer/projectexplorer.h>
+
+#include <utils/faketooltip.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -70,8 +72,7 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QLabel>
-#include <QtGui/QStyleOption>
-#include <QtGui/QStylePainter>
+#include <QtGui/QStyle>
 #include <QtGui/QTextDocument> // Qt::escape()
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
@@ -80,29 +81,6 @@ using namespace CPlusPlus;
 
 namespace CppTools {
 namespace Internal {
-
-class FakeToolTipFrame : public QWidget
-{
-public:
-    FakeToolTipFrame(QWidget *parent = 0) :
-        QWidget(parent, Qt::ToolTip | Qt::WindowStaysOnTopHint)
-    {
-        setFocusPolicy(Qt::NoFocus);
-        setAttribute(Qt::WA_DeleteOnClose);
-
-        // Set the window and button text to the tooltip text color, since this
-        // widget draws the background as a tooltip.
-        QPalette p = palette();
-        const QColor toolTipTextColor = p.color(QPalette::Inactive, QPalette::ToolTipText);
-        p.setColor(QPalette::Inactive, QPalette::WindowText, toolTipTextColor);
-        p.setColor(QPalette::Inactive, QPalette::ButtonText, toolTipTextColor);
-        setPalette(p);
-    }
-
-protected:
-    void paintEvent(QPaintEvent *e);
-    void resizeEvent(QResizeEvent *e);
-};
 
 class FunctionArgumentWidget : public QLabel
 {
@@ -137,7 +115,7 @@ private:
 
     QWidget *m_pager;
     QLabel *m_numberLabel;
-    FakeToolTipFrame *m_popupFrame;
+    Utils::FakeToolTip *m_popupFrame;
     QList<Function *> m_items;
     LookupContext m_context;
 };
@@ -238,24 +216,6 @@ using namespace CppTools::Internal;
 
 Q_DECLARE_METATYPE(CompleteFunctionDeclaration)
 
-void FakeToolTipFrame::paintEvent(QPaintEvent *)
-{
-    QStylePainter p(this);
-    QStyleOptionFrame opt;
-    opt.init(this);
-    p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
-    p.end();
-}
-
-void FakeToolTipFrame::resizeEvent(QResizeEvent *)
-{
-    QStyleHintReturnMask frameMask;
-    QStyleOption option;
-    option.init(this);
-    if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
-        setMask(frameMask.region);
-}
-
 
 FunctionArgumentWidget::FunctionArgumentWidget():
     m_startpos(-1),
@@ -265,7 +225,7 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     QObject *editorObject = Core::EditorManager::instance()->currentEditor();
     m_editor = qobject_cast<TextEditor::ITextEditor *>(editorObject);
 
-    m_popupFrame = new FakeToolTipFrame(m_editor->widget());
+    m_popupFrame = new Utils::FakeToolTip(m_editor->widget());
 
     QToolButton *downArrow = new QToolButton;
     downArrow->setArrowType(Qt::DownArrow);
@@ -300,8 +260,6 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     connect(downArrow, SIGNAL(clicked()), SLOT(nextPage()));
 
     setTextFormat(Qt::RichText);
-    setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
-    setIndent(1);
 
     qApp->installEventFilter(this);
 }
