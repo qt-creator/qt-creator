@@ -42,6 +42,7 @@
 #include "maemopackagecreationstep.h"
 
 #include "maemoconstants.h"
+#include "maemopackagecreationwidget.h"
 #include "maemotoolchain.h"
 
 #include <qt4buildconfiguration.h>
@@ -58,21 +59,8 @@
 using ProjectExplorer::BuildConfiguration;
 using ProjectExplorer::BuildStepConfigWidget;
 
-
 namespace Qt4ProjectManager {
 namespace Internal {
-
-class MaemoPackageCreationWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-public:
-    MaemoPackageCreationWidget(MaemoPackageCreationStep *step)
-        : ProjectExplorer::BuildStepConfigWidget(), m_step(step) {}
-    virtual void init() {}
-    virtual QString summaryText() const { return tr("Package Creation"); }
-    virtual QString displayName() const { return m_step->displayName(); }
-private:
-    MaemoPackageCreationStep *m_step;
-};
 
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig)
     : ProjectExplorer::BuildStep(buildConfig, CreatePackageId)
