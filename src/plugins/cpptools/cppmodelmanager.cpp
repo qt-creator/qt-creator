@@ -1259,6 +1259,10 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
 
         const QString path = paths.takeFirst();
 
+        // Skip non-existing paths
+        if (!QFile::exists(path))
+            continue;
+
         // Skip already scanned paths
         if (entriesInPaths.contains(path))
             continue;
@@ -1269,32 +1273,33 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
         while (i.hasNext()) {
             const QString fileName = i.next();
             const QFileInfo fileInfo = i.fileInfo();
-            const QString suffix = fileInfo.suffix();
-            if (suffix.isEmpty() || suffixes.contains(suffix)) {
-                QString text = fileInfo.fileName();
-                if (fileInfo.isDir()) {
-                    text += QLatin1Char('/');
+            QString text = fileInfo.fileName();
+            if (fileInfo.isDir()) {
+                text += QLatin1Char('/');
 
-                    // Also scan subdirectory, but avoid endless recursion with symbolic links
-                    if (fileInfo.isSymLink()) {
-                        QString target = fileInfo.symLinkTarget();
+                // Also scan subdirectory, but avoid endless recursion with symbolic links
+                if (fileInfo.isSymLink()) {
+                    QString target = fileInfo.symLinkTarget();
 
-                        // Don't add broken symlinks
-                        if (!QFileInfo(target).exists())
-                            continue;
+                    // Don't add broken symlinks
+                    if (!QFileInfo(target).exists())
+                        continue;
 
-                        QMap<QString, QStringList>::const_iterator result = entriesInPaths.find(target);
-                        if (result != entriesInPaths.constEnd()) {
-                            entriesInPaths.insert(fileName, result.value());
-                        } else {
-                            paths.append(target);
-                            symlinks.append(SymLink(fileName, target));
-                        }
+                    QMap<QString, QStringList>::const_iterator result = entriesInPaths.find(target);
+                    if (result != entriesInPaths.constEnd()) {
+                        entriesInPaths.insert(fileName, result.value());
                     } else {
-                        paths.append(fileName);
+                        paths.append(target);
+                        symlinks.append(SymLink(fileName, target));
                     }
+                } else {
+                    paths.append(fileName);
                 }
                 entries.append(text);
+            } else {
+                const QString suffix = fileInfo.suffix();
+                if (suffix.isEmpty() || suffixes.contains(suffix))
+                    entries.append(text);
             }
         }
 
