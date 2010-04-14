@@ -253,12 +253,14 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
         switch (last.kind) {
         case Token::LeftParenthesis:
         case Token::LeftBrace:
+        case Token::LeftBracket:
         case Token::Semicolon:
         case Token::Delimiter:
             break;
 
         case Token::RightParenthesis:
         case Token::RightBrace:
+        case Token::RightBracket:
             if (isBinding)
                 needSemicolon = true;
             break;
@@ -267,8 +269,6 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
         case Token::Number:
         case Token::Colon:
         case Token::Comma:
-        case Token::LeftBracket:
-        case Token::RightBracket:
             needSemicolon = true;
             break;
 
@@ -312,6 +312,31 @@ QChar QmlJSIndenter::lastParen() const
     }
 
     return QChar();
+}
+
+bool QmlJSIndenter::hasUnclosedParenOrBracket() const
+{
+    int closedParen = 0;
+    int closedBracket = 0;
+    for (int index = yyLinizerState.tokens.size() - 1; index != -1; --index) {
+        const Token &token = yyLinizerState.tokens.at(index);
+
+        if (token.is(Token::RightParenthesis)) {
+            closedParen++;
+        } else if (token.is(Token::RightBracket)) {
+            closedBracket++;
+        } else if (token.is(Token::LeftParenthesis)) {
+            closedParen--;
+            if (closedParen < 0)
+                return true;
+        } else if (token.is(Token::LeftBracket)) {
+            closedBracket--;
+            if (closedBracket < 0)
+                return true;
+        }
+    }
+
+    return false;
 }
 
 /*
@@ -383,8 +408,8 @@ bool QmlJSIndenter::readLine()
             the other way around, as we are parsing backwards.
         */
         yyLinizerState.braceDepth +=
-                yyLinizerState.line.count('}') -
-                yyLinizerState.line.count('{');
+                yyLinizerState.line.count('}') + yyLinizerState.line.count(']') -
+                yyLinizerState.line.count('{') - yyLinizerState.line.count('[');
 
         /*
             We use a dirty trick for
@@ -620,7 +645,7 @@ bool QmlJSIndenter::isUnfinishedLine()
 
     const QChar lastCh = yyLine->at(yyLine->length() - 1);
 
-    if (QString::fromLatin1("{};").indexOf(lastCh) == -1) {
+    if (QString::fromLatin1("{};[]").indexOf(lastCh) == -1) {
         /*
           It doesn't end with ';' or similar. If it's not an "if (x)", it must be an unfinished line.
         */
@@ -630,15 +655,16 @@ bool QmlJSIndenter::isUnfinishedLine()
             unf = false;
 
     } else if (lastCh == QLatin1Char(';')) {
-        if (lastParen() == QLatin1Char('(')) {
+        if (hasUnclosedParenOrBracket()) {
             /*
               Exception:
 
                   for (int i = 1; i < 10;
             */
             unf = true;
-        } else if (readLine() && yyLine->endsWith(QLatin1String(";")) &&
-                    lastParen() == QLatin1Char('(')) {
+
+        // ### This only checks one line back.
+        } else if (readLine() && yyLine->endsWith(QLatin1String(";")) && hasUnclosedParenOrBracket()) {
             /*
               Exception:
 
@@ -1037,7 +1063,8 @@ int QmlJSIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar t
             indent = indentForStandaloneLine();
         }
 
-        if (okay(typedIn, QLatin1Char('}')) && firstCh == QLatin1Char('}')) {
+        if ((okay(typedIn, QLatin1Char('}')) && firstCh == QLatin1Char('}'))
+            || (okay(typedIn, QLatin1Char(']')) && firstCh == QLatin1Char(']'))) {
             /*
                 A closing brace is one level more to the left than the
                 code it follows.

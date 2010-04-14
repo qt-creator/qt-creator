@@ -64,6 +64,7 @@ private:
 
     void eraseChar(QString &t, int k, QChar ch) const;
     QChar lastParen() const;
+    bool hasUnclosedParenOrBracket() const;
     bool okay(QChar typedIn, QChar okayCh) const;
 
     /*
