@@ -350,7 +350,6 @@ void SettingsDialog::createGui()
     mainGridLayout->addWidget(m_categoryList,   1, 0, 1, 1);
     mainGridLayout->addLayout(m_stackedLayout,  1, 1, 1, 1);
     mainGridLayout->addWidget(buttonBox,        2, 0, 1, 2);
-    mainGridLayout->setColumnStretch(0, 1);
     mainGridLayout->setColumnStretch(1, 4);
     setLayout(mainGridLayout);
 }
