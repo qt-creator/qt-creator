@@ -262,9 +262,7 @@ bool MaemoPackageCreationStep::packagingNeeded() const
 
 QString MaemoPackageCreationStep::packageFilePath(const QString &executableFilePath)
 {
-    return executableFilePath % QLatin1Char('/')
-        % QFileInfo(executableFilePath).fileName() % versionString()
-        % QLatin1String("_armel.deb");
+    return executableFilePath % versionString() % QLatin1String("_armel.deb");
 }
 
 QString MaemoPackageCreationStep::versionString()
