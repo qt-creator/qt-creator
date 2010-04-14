@@ -207,6 +207,7 @@ private:
     bool parseArguments(const QStringList &arguments, QString *error);
     void runProjectImpl(Project *pro, QString mode);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);
+    bool hasBuildSettings(Project *pro);
     bool showBuildConfigDialog();
 
     void setCurrent(Project *project, QString filePath, Node *node);

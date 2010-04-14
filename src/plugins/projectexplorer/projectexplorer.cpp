@@ -260,6 +260,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             this, SLOT(updatePreferredWizardKinds()));
     connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(updatePreferredWizardKinds()));
+    connect(d->m_session, SIGNAL(dependencyChanged(ProjectExplorer::Project*,ProjectExplorer::Project*)),
+            this, SLOT(updateActions()));
 
     d->m_proWindow = new ProjectWindow;
 
@@ -1358,11 +1360,11 @@ void ProjectExplorerPlugin::updateActions()
     Project *startupProject = session()->startupProject();
     bool enableBuildActions = startupProject
                               && ! (d->m_buildManager->isBuilding(startupProject))
-                              && startupProject->hasActiveBuildSettings();
+                              && hasBuildSettings(startupProject);
 
     bool enableBuildActionsContextMenu = d->m_currentProject
                               && ! (d->m_buildManager->isBuilding(d->m_currentProject))
-                              && d->m_currentProject->hasActiveBuildSettings();
+                              && hasBuildSettings(d->m_currentProject);
 
 
     bool hasProjects = !d->m_session->projects().isEmpty();
@@ -1632,12 +1634,21 @@ void ProjectExplorerPlugin::runProjectContextMenu()
     runProjectImpl(d->m_currentProject, ProjectExplorer::Constants::RUNMODE);
 }
 
+bool ProjectExplorerPlugin::hasBuildSettings(Project *pro)
+{
+    const QList<Project *> & projects = d->m_session->projectOrder(pro);
+    foreach(Project *pro, projects)
+        if (pro->activeTarget()->activeBuildConfiguration())
+            return true;
+    return false;
+}
+
 void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
 {
     if (!pro)
         return;
 
-    if (d->m_projectExplorerSettings.buildBeforeRun && pro->hasActiveBuildSettings()) {
+    if (d->m_projectExplorerSettings.buildBeforeRun && hasBuildSettings(pro)) {
         if (!pro->activeTarget()->activeRunConfiguration()->isEnabled()) {
             if (!showBuildConfigDialog())
                 return;
