@@ -37,8 +37,47 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QTreeWidgetItem>
 
+struct Site {
+    const char *description;
+    const char *url;
+};
+
+static const Site supportSites[] = {
+    { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
+                        "<b>Forum Nokia</b><br /><font color='gray'>Mobile Application Support</font>"),
+      "http://www.forum.nokia.com/I_Want_To/Develop_Mobile_Applications/Technical_Support/"},
+    { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
+                        "<b>Qt GPL Support</b><br /><font color='gray'>Buy professional Qt support</font>"),
+      "http://shop.qt.nokia.com/en/support.html"},
+    { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
+                        "<b>Qt Centre</b><br /><font color='gray'>Community based Qt support</font>"),
+      "http://www.qtcentre.org" }
+};
+
+static const Site sites[] = {
+    { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
+                        "<b>Qt Home</b><br /><font color='gray'>Qt by Nokia on the web</font>"),
+      "http://qt.nokia.com" },
+    { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
+                        "<b>Qt Git Hosting</b><br /><font color='gray'>Participate in Qt development</font>"),
+      "http://qt.gitorious.org"},
+    { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
+                        "<b>Qt Apps</b><br /><font color='gray'>Find free Qt-based apps</font>"),
+      "http://www.qt-apps.org"}
+};
+
 namespace Welcome {
 namespace Internal {
+
+static inline void populateWelcomeTreeWidget(const Site *sites, int count, Utils::WelcomeModeTreeWidget *wt)
+{
+    for (int s = 0; s < count; s++) {
+        const QString description = CommunityWelcomePageWidget::tr(sites[s].description);
+        const QString url = QLatin1String(sites[s].url);
+        wt->addItem(description, url, url);
+    }
+}
+
 CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     QWidget(parent),
     m_rssFetcher(new RSSFetcher(7)),
@@ -58,28 +97,8 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     //: Add localized feed here only if one exists
     m_rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 
-    QList<QPair<QString, QString> > supportSites;
-    QList<QPair<QString, QString> > sites;
-
-    supportSites << qMakePair(tr("<b>Forum Nokia</b><br /><font color='gray'>Mobile Application Support</font>"),  QString(QLatin1String("http://www.forum.nokia.com/I_Want_To/Develop_Mobile_Applications/Technical_Support/")));
-    supportSites << qMakePair(tr("<b>Qt GPL Support</b><br /><font color='gray'>Buy professional Qt support</font>"), QString(QLatin1String("http://shop.qt.nokia.com/en/support.html")));
-    supportSites << qMakePair(tr("<b>Qt Centre</b><br /><font color='gray'>Community based Qt support</font>"), QString(QLatin1String("http://www.qtcentre.org")));
-
-    sites << qMakePair(tr("<b>Qt Home</b><br /><font color='gray'>Qt by Nokia on the web</font>"), QString(QLatin1String("http://qt.nokia.com")));
-    sites << qMakePair(tr("<b>Qt Git Hosting</b><br /><font color='gray'>Participate in Qt development</font>"), QString(QLatin1String("http://qt.gitorious.org")));
-    sites << qMakePair(tr("<b>Qt Apps</b><br /><font color='gray'>Find free Qt-based apps</font>"), QString(QLatin1String("http://www.qt-apps.org")));
-
-    QListIterator<QPair<QString, QString> > supportSitesIt(supportSites);
-    while (supportSitesIt.hasNext()) {
-        QPair<QString, QString> pair = supportSitesIt.next();
-        ui->supportSitesTreeWidget->addItem(pair.first, pair.second, pair.second);
-    }
-
-    QListIterator<QPair<QString, QString> > sitesIt(sites);
-    while (sitesIt.hasNext()) {
-        QPair<QString, QString> pair = sitesIt.next();
-        ui->miscSitesTreeWidget->addItem(pair.first, pair.second, pair.second);
-    }
+    populateWelcomeTreeWidget(supportSites, sizeof(supportSites)/sizeof(Site), ui->supportSitesTreeWidget);
+    populateWelcomeTreeWidget(sites, sizeof(sites)/sizeof(Site), ui->miscSitesTreeWidget);
 }
 
 CommunityWelcomePageWidget::~CommunityWelcomePageWidget()

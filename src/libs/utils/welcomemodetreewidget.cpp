@@ -106,17 +106,20 @@ QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QStr
     if (!toolTip.isEmpty())
         wdg->setToolTip(toolTip);
     return item;
-
 }
 
 void WelcomeModeTreeWidget::slotAddNewsItem(const QString &title, const QString &description, const QString &link)
 {
-    int itemWidth = width()-header()->sectionSize(0);
+    const int itemWidth = width()-header()->sectionSize(0);
     QFont f = font();
     QString elidedText = QFontMetrics(f).elidedText(description, Qt::ElideRight, itemWidth);
     f.setBold(true);
     QString elidedTitle = QFontMetrics(f).elidedText(title, Qt::ElideRight, itemWidth);
-    QString data = QString::fromLatin1("<b>%1</b><br /><font color='gray'>%2</font>").arg(elidedTitle).arg(elidedText);
+    QString data = QLatin1String("<b>");
+    data += elidedTitle;
+    data += QLatin1String("</b><br /><font color='gray'>");
+    data += elidedText;
+    data += QLatin1String("</font>");
     addTopLevelItem(addItem(data, link, link));
 }
 
