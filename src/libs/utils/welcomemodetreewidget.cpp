@@ -30,9 +30,17 @@
 #include "welcomemodetreewidget.h"
 
 #include <QtGui/QLabel>
+#include <QtGui/QPixmap>
 #include <QtGui/QAction>
-#include <QtGui/QBoxLayout>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QHeaderView>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QResizeEvent>
+
+enum { leftContentsMargin = 2,
+       topContentsMargin = 2,
+       bottomContentsMargin = 1,
+       pixmapWidth = 24 };
 
 namespace Utils {
 
@@ -48,28 +56,185 @@ void WelcomeModeLabel::setStyledText(const QString &text)
     setText(rc);
 }
 
+// NewsLabel for the WelcomeModeTreeWidget:
+// Shows a news article as "Bold Title!\nElided Start of article...."
+// Adapts the eliding when resizing.
+class NewsLabel : public QLabel {
+public:
+    explicit NewsLabel(const QString &htmlTitle,
+                       const QString &htmlText,
+                       QWidget *parent = 0);
+
+    virtual void resizeEvent(QResizeEvent *);
+
+private:
+    const QString m_title;
+    const QString m_text;
+    const int m_minWidth;
+
+    int m_lastWidth;
+    int m_contentsMargin;
+};
+
+NewsLabel::NewsLabel(const QString &htmlTitle,
+                   const QString &htmlText,
+                   QWidget *parent) :
+    QLabel(parent),
+    m_title(htmlTitle),
+    m_text(htmlText),
+    m_minWidth(100),
+    m_lastWidth(-1)
+{
+    int dummy, left, right;
+    getContentsMargins(&left, &dummy, &right, &dummy);
+    m_contentsMargin = left + right;
+}
+
+void NewsLabel::resizeEvent(QResizeEvent *e)
+{
+    enum { epsilon = 10 };
+    QLabel::resizeEvent(e);
+    // Resized: Adapt to new size (if it is >  m_minWidth)
+    const int newWidth = qMax(e->size().width() - m_contentsMargin, m_minWidth) - epsilon;
+    if (newWidth == m_lastWidth)
+        return;
+    m_lastWidth = newWidth;
+    QFont f = font();
+    const QString elidedText = QFontMetrics(f).elidedText(m_text, Qt::ElideRight, newWidth);
+    f.setBold(true);
+    const QString elidedTitle = QFontMetrics(f).elidedText(m_title, Qt::ElideRight, newWidth);
+    QString labelText = QLatin1String("<b>");
+    labelText += elidedTitle;
+    labelText += QLatin1String("</b><br /><font color='gray'>");
+    labelText += elidedText;
+    labelText += QLatin1String("</font>");
+    setText(labelText);
+}
+
+// Item label of WelcomeModeTreeWidget: Horizontal widget consisting
+// of arrow and clickable label.
+class WelcomeModeItemWidget : public QWidget {
+    Q_OBJECT
+public:
+    // Normal items
+    explicit WelcomeModeItemWidget(const QPixmap &pix,
+                                   const QString &text,
+                                   const QString &tooltip,
+                                   const QString &data,
+                                   QWidget *parent = 0);
+    // News items with title and start of article (see NewsLabel)
+    explicit WelcomeModeItemWidget(const QPixmap &pix,
+                                   QString htmlTitle,
+                                   QString htmlText,
+                                   const QString &tooltip,
+                                   const QString &data,
+                                   QWidget *parent = 0);
+
+signals:
+    void clicked(const QString &);
+
+protected:
+    virtual void mousePressEvent(QMouseEvent *);
+
+private:
+    static inline void initLabel(QLabel *);
+
+    void init(const QPixmap &pix, QLabel *itemLabel, const QString &tooltip);
+
+    const QString m_data;
+};
+
+WelcomeModeItemWidget::WelcomeModeItemWidget(const QPixmap &pix,
+                                             const QString &text,
+                                             const QString &tooltipText,
+                                             const QString &data,
+                                             QWidget *parent) :
+    QWidget(parent),
+    m_data(data)
+{
+    QLabel *label = new QLabel(text);
+    WelcomeModeItemWidget::initLabel(label);
+    init(pix, label, tooltipText);
+}
+
+static inline void fixHtml(QString &s)
+{
+    s.replace(QLatin1String("&#8217;"), QString(QLatin1Char('\''))); // Quote
+    s.replace(QLatin1Char('\n'), QLatin1Char(' '));
+}
+
+WelcomeModeItemWidget::WelcomeModeItemWidget(const QPixmap &pix,
+                                             QString title,
+                                             QString text,
+                                             const QString &tooltipText,
+                                             const QString &data,
+                                             QWidget *parent) :
+    QWidget(parent),
+    m_data(data)
+{
+    fixHtml(text);
+    fixHtml(title);
+    QLabel *newsLabel = new NewsLabel(title, text);
+    WelcomeModeItemWidget::initLabel(newsLabel);
+    init(pix, newsLabel, tooltipText);
+}
+
+void WelcomeModeItemWidget::initLabel(QLabel *label)
+{
+    label->setTextInteractionFlags(Qt::NoTextInteraction);
+    label->setCursor(QCursor(Qt::PointingHandCursor));
+}
+
+void WelcomeModeItemWidget::init(const QPixmap &pix, QLabel *itemLabel,
+                                 const QString &tooltipText)
+{
+    QHBoxLayout *hBoxLayout = new QHBoxLayout;
+    hBoxLayout->setContentsMargins(topContentsMargin, leftContentsMargin,
+                                   0, bottomContentsMargin);
+
+    QLabel *pxLabel = new QLabel;
+    pxLabel->setPixmap(pix);
+    pxLabel->setFixedWidth(pixmapWidth);
+    hBoxLayout->addWidget(pxLabel);
+
+    hBoxLayout->addWidget(itemLabel);
+    if (!tooltipText.isEmpty()) {
+        setToolTip(tooltipText);
+        pxLabel->setToolTip(tooltipText);
+        itemLabel->setToolTip(tooltipText);
+    }
+    setLayout(hBoxLayout);
+}
+
+void WelcomeModeItemWidget::mousePressEvent(QMouseEvent *e)
+{
+    e->accept();
+    emit clicked(m_data);
+}
+
+// ----------------- WelcomeModeTreeWidget
 struct WelcomeModeTreeWidgetPrivate
 {
     WelcomeModeTreeWidgetPrivate();
 
-    const QIcon bullet;
+    const QPixmap bullet;
+    QVBoxLayout *layout;
+    QVBoxLayout *itemLayout;
 };
 
 WelcomeModeTreeWidgetPrivate::WelcomeModeTreeWidgetPrivate() :
-    bullet(QLatin1String(":/welcome/images/list_bullet_arrow.png"))
+    bullet(QLatin1String(":/welcome/images/list_bullet_arrow.png")),
+    layout(new QVBoxLayout),
+    itemLayout(new QVBoxLayout)
 {
 }
 
 WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
-        QTreeWidget(parent), m_d(new WelcomeModeTreeWidgetPrivate)
+        QWidget(parent), m_d(new WelcomeModeTreeWidgetPrivate)
 {
-    connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)),
-            SLOT(slotItemClicked(QTreeWidgetItem *)));
-
-    setUniformRowHeights(true);
-    viewport()->setAutoFillBackground(false);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setLayout(m_d->layout);
+    m_d->layout->addLayout(m_d->itemLayout);
+    m_d->layout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
 }
 
 WelcomeModeTreeWidget::~WelcomeModeTreeWidget()
@@ -77,55 +242,29 @@ WelcomeModeTreeWidget::~WelcomeModeTreeWidget()
     delete m_d;
 }
 
-QSize WelcomeModeTreeWidget::minimumSizeHint() const
+void WelcomeModeTreeWidget::addItem(const QString &label, const QString &data, const QString &toolTip)
 {
-    return QSize();
+    addItemWidget(new WelcomeModeItemWidget(m_d->bullet, label, toolTip, data));
 }
 
-QSize WelcomeModeTreeWidget::sizeHint() const
+void WelcomeModeTreeWidget::slotAddNewsItem(const QString &title,
+                                            const QString &description,
+                                            const QString &link)
 {
-    return QSize(QTreeWidget::sizeHint().width(), 30 * topLevelItemCount());
+    addItemWidget(new WelcomeModeItemWidget(m_d->bullet, title, description, link, link));
 }
 
-QTreeWidgetItem *WelcomeModeTreeWidget::addItem(const QString &label, const QString &data, const QString &toolTip)
+void WelcomeModeTreeWidget::addItemWidget(WelcomeModeItemWidget *w)
 {
-    QTreeWidgetItem *item = new QTreeWidgetItem(this);
-    item->setIcon(0, m_d->bullet);
-    item->setSizeHint(0, QSize(24, 30));
-    QLabel *lbl = new QLabel(label);
-    lbl->setTextInteractionFlags(Qt::NoTextInteraction);
-    lbl->setCursor(QCursor(Qt::PointingHandCursor));
-    lbl->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    QBoxLayout *lay = new QVBoxLayout;
-    lay->setContentsMargins(3, 2, 0, 0);
-    lay->addWidget(lbl);
-    QWidget *wdg = new QWidget;
-    wdg->setLayout(lay);
-    setItemWidget(item, 1, wdg);
-    item->setData(0, Qt::UserRole, data);
-    if (!toolTip.isEmpty())
-        wdg->setToolTip(toolTip);
-    return item;
+    connect(w, SIGNAL(clicked(QString)), this, SIGNAL(activated(QString)));
+    m_d->itemLayout->addWidget(w);
 }
 
-void WelcomeModeTreeWidget::slotAddNewsItem(const QString &title, const QString &description, const QString &link)
+void WelcomeModeTreeWidget::clear()
 {
-    const int itemWidth = width()-header()->sectionSize(0);
-    QFont f = font();
-    QString elidedText = QFontMetrics(f).elidedText(description, Qt::ElideRight, itemWidth);
-    f.setBold(true);
-    QString elidedTitle = QFontMetrics(f).elidedText(title, Qt::ElideRight, itemWidth);
-    QString data = QLatin1String("<b>");
-    data += elidedTitle;
-    data += QLatin1String("</b><br /><font color='gray'>");
-    data += elidedText;
-    data += QLatin1String("</font>");
-    addTopLevelItem(addItem(data, link, link));
+    for (int i = m_d->itemLayout->count() - 1; i >= 0; i--)
+        delete m_d->itemLayout->takeAt(i)->widget();
 }
+} // namespace Utils
 
-void WelcomeModeTreeWidget::slotItemClicked(QTreeWidgetItem *item)
-{
-    emit activated(item->data(0, Qt::UserRole).toString());
-}
-
-}
+#include "welcomemodetreewidget.moc"

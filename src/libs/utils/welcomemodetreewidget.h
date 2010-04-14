@@ -35,10 +35,13 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QLabel>
 
+QT_FORWARD_DECLARE_CLASS(QHBoxLayout)
+
 namespace Utils {
 
 struct WelcomeModeTreeWidgetPrivate;
 struct WelcomeModeLabelPrivate;
+class WelcomeModeItemWidget;
 
 class QTCREATOR_UTILS_EXPORT WelcomeModeLabel : public QLabel
 {
@@ -49,29 +52,25 @@ public:
     WelcomeModeLabelPrivate *m_d;
 };
 
-class QTCREATOR_UTILS_EXPORT WelcomeModeTreeWidget : public QTreeWidget
+class QTCREATOR_UTILS_EXPORT WelcomeModeTreeWidget : public QWidget
 {
     Q_OBJECT
-
 public:
-    WelcomeModeTreeWidget(QWidget *parent = 0);
-    ~WelcomeModeTreeWidget();
-    QTreeWidgetItem *addItem(const QString &label, const QString &data,const QString &toolTip = QString::null);
+    explicit WelcomeModeTreeWidget(QWidget *parent = 0);
+    virtual ~WelcomeModeTreeWidget();
+
+    void addItem(const QString &label, const QString &data,const QString &toolTip = QString::null);
 
 public slots:
     void slotAddNewsItem(const QString &title, const QString &description, const QString &link);
+    void clear();
 
 signals:
     void activated(const QString &data);
 
-protected:
-    virtual QSize minimumSizeHint() const;
-    virtual QSize sizeHint() const;
-
-private slots:
-    void slotItemClicked(QTreeWidgetItem *item);
-
 private:
+    void addItemWidget(WelcomeModeItemWidget *w);
+
     WelcomeModeTreeWidgetPrivate *m_d;
 };
 
