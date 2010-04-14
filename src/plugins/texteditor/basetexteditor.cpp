@@ -2399,6 +2399,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QTC_ASSERT(documentLayout, return);
 
     QPointF offset(contentOffset());
+    QTextBlock textCursorBlock = textCursor().block();
 
     bool hasMainSelection = textCursor().hasSelection();
     bool suppressSyntaxInIfdefedOutBlock = (d->m_ifdefedOutFormat.foreground()
@@ -2468,7 +2469,16 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 for (int i = 0; i <= depth; ++i) {
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
                     painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
+                    if (d->m_highlightCurrentLine && blockFP == textCursorBlock) {
+                        QRectF rrr = blockFP.layout()->lineForTextPosition(textCursor().positionInBlock()).rect();
+                        rrr.moveTop(rrr.top() + rr.top());
+                        rrr.setLeft(rr.left());
+                        rrr.setRight(rr.right());
+                        painter.fillRect(rrr.adjusted(vi, 0, -8*i, 0),
+                                         calcBlendColor(d->m_currentLineFormat.background().color(), i, count));
+                    }
                 }
+
             }
             offsetFP.ry() += r.height();
 
@@ -2614,7 +2624,11 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                         prioritySelections.append(o);
                     else
                         selections.append(o);
-                } else if (!range.cursor.hasSelection() && range.format.hasProperty(QTextFormat::FullWidthSelection)
+                }
+#if 0
+                // we disable fullwidth selection. It's only used for m_highlightCurrentLine which we
+                // do differently now
+                else if (!range.cursor.hasSelection() && range.format.hasProperty(QTextFormat::FullWidthSelection)
                     && block.contains(range.cursor.position())) {
                     // for full width selections we don't require an actual selection, just
                     // a position to specify the line. that's more convenience in usage.
@@ -2627,6 +2641,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     o.format = range.format;
                     selections.append(o);
                 }
+#endif
             }
             selections += prioritySelections;
 
@@ -2647,6 +2662,34 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                     o.format.setBackground(palette().text());
                     selections.append(o);
                 }
+            }
+
+            if (d->m_highlightCurrentLine && block == textCursorBlock) {
+
+                QRectF rr = layout->lineForTextPosition(textCursor().positionInBlock()).rect();
+                rr.moveTop(rr.top() + r.top());
+                rr.setLeft(0);
+                rr.setRight(viewportRect.width() - offset.x());
+                if (lineX > 0) {
+                    if (lineX < rr.right()) {
+                        QRectF rrr = rr;
+                        rrr.setLeft(lineX);
+                        painter.fillRect(rrr,
+                                         blendColors(
+                                                 d->m_currentLineFormat.background().color(),
+                                                 d->m_ifdefedOutFormat.background().color(),
+                                                 50)
+                                         );
+                        const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
+                        const QPen pen = painter.pen();
+                        painter.setPen(blendColors(d->m_currentLineFormat.background().color(), col, 32));
+                        painter.drawLine(QPointF(lineX, rr.top()), QPointF(lineX, rr.bottom()));
+                        painter.setPen(pen);
+                    }
+                    rr.setRight(qMin(lineX, rr.right()));
+                }
+                if (d->m_highlightBlocksInfo.isEmpty() || TextEditDocumentLayout::ifdefedOut(block))
+                    painter.fillRect(rr, d->m_currentLineFormat.background());
             }
 
             layout->draw(&painter, offset, selections, er);
