@@ -1,0 +1,17 @@
+--- a/gdb/infrun.c
++++ b/gdb/infrun.c
+@@ -4126,7 +4127,9 @@ infrun: not switching back to stepped thread, it has vanished\n");
+ 
+   if (execution_direction != EXEC_REVERSE
+       && ecs->event_thread->step_over_calls == STEP_OVER_UNDEBUGGABLE
+-      && in_solib_dynsym_resolve_code (stop_pc))
++      && in_solib_dynsym_resolve_code (stop_pc)
++      && !(ecs->event_thread->step_range_start > 1
++        && in_solib_dynsym_resolve_code (ecs->event_thread->step_range_start)))
+     {
+       CORE_ADDR pc_after_resolver =
+    gdbarch_skip_solib_resolver (gdbarch, stop_pc);
+
+------------------------------------------------------------------------
+
+NOTE: This relates to http://sourceware.org/bugzilla/show_bug.cgi?id=11497
