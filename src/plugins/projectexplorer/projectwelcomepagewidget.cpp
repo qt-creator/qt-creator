@@ -128,11 +128,15 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
     typedef QPair<QString, QString> QStringPair;
     if (welcomePageData.projectList.count() > 0) {
         int items = 0;
+        QFontMetrics fm = fontMetrics();
         foreach (const QStringPair &it, welcomePageData.projectList) {
             if (++items > MAX_RECENT_ITEMS)
                 break;
             const QFileInfo fi(it.first);
-            ui->projTreeWidget->addItem(it.second, it.first,
+            QString label = "<b>" + it.second +
+                            "</b><br><font color=gray>" +
+                            fm.elidedText(it.first, Qt::ElideMiddle, 250);
+            ui->projTreeWidget->addItem(label, it.first,
                                         QDir::toNativeSeparators(fi.absolutePath()));
         }
     } else {
