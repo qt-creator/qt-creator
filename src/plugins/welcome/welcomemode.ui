@@ -102,18 +102,18 @@ QToolButton:pressed, QPushButton:pressed{
       <property name="spacing">
        <number>0</number>
       </property>
-      <item row="1" column="1">
+      <item row="1" column="0">
        <widget class="QFrame" name="mainFrame">
         <property name="minimumSize">
          <size>
           <width>662</width>
-          <height>520</height>
+          <height>550</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>662</width>
-          <height>520</height>
+          <height>550</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -440,7 +440,7 @@ QToolButton:pressed {
         </layout>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="2" column="0">
        <spacer name="bottomVerticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -448,15 +448,9 @@ QToolButton:pressed {
         <property name="sizeType">
          <enum>QSizePolicy::Expanding</enum>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
        </spacer>
       </item>
-      <item row="0" column="1">
+      <item row="0" column="0">
        <spacer name="topVerticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -464,19 +458,7 @@ QToolButton:pressed {
         <property name="sizeType">
          <enum>QSizePolicy::Expanding</enum>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
        </spacer>
-      </item>
-      <item row="1" column="0">
-       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
-      </item>
-      <item row="1" column="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_4"/>
       </item>
      </layout>
     </widget>
