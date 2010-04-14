@@ -212,7 +212,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="homePageLabel">
           <property name="text">
-           <string>Home Page:</string>
+           <string>Home page:</string>
           </property>
          </widget>
         </item>

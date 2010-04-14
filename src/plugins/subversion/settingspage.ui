@@ -12,7 +12,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="commandLabel">
         <property name="text">
-         <string>Subversion Command:</string>
+         <string>Subversion command:</string>
         </property>
        </widget>
       </item>
@@ -139,6 +139,10 @@
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>

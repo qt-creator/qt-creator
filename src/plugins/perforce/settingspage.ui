@@ -20,7 +20,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="commandLabel">
         <property name="text">
-         <string>P4 Command:</string>
+         <string>P4 command:</string>
         </property>
        </widget>
       </item>
@@ -57,21 +57,21 @@
       <item row="1" column="0">
        <widget class="QLabel" name="clientLabel">
         <property name="text">
-         <string>P4 Client:</string>
+         <string>P4 client:</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="userLabel">
         <property name="text">
-         <string>P4 User:</string>
+         <string>P4 user:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="portLabel">
         <property name="text">
-         <string>P4 Port:</string>
+         <string>P4 port:</string>
         </property>
        </widget>
       </item>
@@ -205,6 +205,10 @@
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <tabstops>

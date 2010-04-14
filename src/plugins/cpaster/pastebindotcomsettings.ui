@@ -25,7 +25,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="serverPrefix">
        <property name="text">
-        <string>Server Prefix:</string>
+        <string>Server prefix:</string>
        </property>
       </widget>
      </item>

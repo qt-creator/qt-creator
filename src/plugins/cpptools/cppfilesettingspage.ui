@@ -44,7 +44,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="licenseTemplateLabel">
      <property name="text">
-      <string>License Template:</string>
+      <string>License template:</string>
      </property>
     </widget>
    </item>
@@ -65,27 +65,6 @@
     </spacer>
    </item>
   </layout>
-  <zorder>licenseTemplatePathChooser</zorder>
-  <zorder>sourceSuffixLabel</zorder>
-  <zorder>headerSuffixLabel</zorder>
-  <zorder>lowerCaseFileNamesCheckBox</zorder>
-  <zorder>headerSuffixComboBox</zorder>
-  <zorder>sourceSuffixComboBox</zorder>
-  <zorder>licenseTemplateLabel</zorder>
-  <zorder>licenseTemplatePathChooser</zorder>
-  <zorder>sourceSuffixLabel</zorder>
-  <zorder>headerSuffixLabel</zorder>
-  <zorder>lowerCaseFileNamesCheckBox</zorder>
-  <zorder>headerSuffixComboBox</zorder>
-  <zorder>sourceSuffixComboBox</zorder>
-  <zorder>licenseTemplateLabel</zorder>
-  <zorder>licenseTemplatePathChooser</zorder>
-  <zorder>sourceSuffixLabel</zorder>
-  <zorder>headerSuffixLabel</zorder>
-  <zorder>lowerCaseFileNamesCheckBox</zorder>
-  <zorder>headerSuffixComboBox</zorder>
-  <zorder>sourceSuffixComboBox</zorder>
-  <zorder>licenseTemplateLabel</zorder>
   <zorder>licenseTemplatePathChooser</zorder>
   <zorder>sourceSuffixLabel</zorder>
   <zorder>headerSuffixLabel</zorder>

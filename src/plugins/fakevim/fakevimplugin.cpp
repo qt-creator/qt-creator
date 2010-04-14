@@ -310,7 +310,7 @@ QWidget *FakeVimExCommandsPage::createPage(QWidget *parent)
     QWidget *w = CommandMappings::createPage(parent);
     setPageTitle(tr("Ex Command Mapping"));
     setTargetHeader(tr("Ex Trigger Expression"));
-    setTargetLabelText(tr("Regular Expression:"));
+    setTargetLabelText(tr("Regular expression:"));
     setTargetEditTitle(tr("Ex Command"));
 
     setImportExportEnabled(false);

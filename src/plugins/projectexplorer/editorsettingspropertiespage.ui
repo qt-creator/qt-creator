@@ -20,7 +20,7 @@
    <item>
     <widget class="QLabel" name="encodingLabel">
      <property name="text">
-      <string>Default File Encoding:</string>
+      <string>Default file encoding:</string>
      </property>
     </widget>
    </item>

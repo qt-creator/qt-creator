@@ -70,7 +70,7 @@
      <item>
       <widget class="QLabel" name="refreshIntervalLabel">
        <property name="text">
-        <string>Refresh Interval:</string>
+        <string>Refresh interval:</string>
        </property>
       </widget>
      </item>

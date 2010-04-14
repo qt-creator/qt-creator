@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>406</width>
     <height>424</height>
    </rect>
   </property>
@@ -94,7 +94,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="versionNameLabel">
        <property name="text">
-        <string>Version Name:</string>
+        <string>Version name:</string>
        </property>
       </widget>
      </item>
@@ -104,7 +104,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="pathLabel">
        <property name="text">
-        <string>qmake Location:</string>
+        <string>qmake location:</string>
        </property>
       </widget>
      </item>
@@ -114,7 +114,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="mingwLabel">
        <property name="text">
-        <string>MinGW Directory:</string>
+        <string>MinGW directory:</string>
        </property>
       </widget>
      </item>
@@ -172,7 +172,7 @@ p, li { white-space: pre-wrap; }
      <item row="5" column="0">
       <widget class="QLabel" name="gcceLabel">
        <property name="text">
-        <string>CSL/GCCE Directory:</string>
+        <string>CSL/GCCE directory:</string>
        </property>
       </widget>
      </item>
@@ -182,7 +182,7 @@ p, li { white-space: pre-wrap; }
      <item row="6" column="0">
       <widget class="QLabel" name="mwcLabel">
        <property name="text">
-        <string>Carbide Directory:</string>
+        <string>Carbide directory:</string>
        </property>
       </widget>
      </item>
@@ -192,7 +192,7 @@ p, li { white-space: pre-wrap; }
      <item row="7" column="0">
       <widget class="QLabel" name="debuggingHelperLabel">
        <property name="text">
-        <string>Debugging Helper:</string>
+        <string>Debugging helper:</string>
        </property>
       </widget>
      </item>
@@ -244,6 +244,10 @@ p, li { white-space: pre-wrap; }
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
    <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <tabstops>

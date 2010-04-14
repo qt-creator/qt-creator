@@ -77,14 +77,7 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="languageLabel">
-        <property name="text">
-         <string>Language:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" rowspan="2">
+      <item row="2" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QComboBox" name="languageBox">
@@ -111,10 +104,10 @@
         </item>
        </layout>
       </item>
-      <item row="2" column="0" rowspan="2">
+      <item row="3" column="0">
        <widget class="QLabel" name="encodingLabel">
         <property name="text">
-         <string>Default File Encoding: </string>
+         <string>Default file encoding: </string>
         </property>
        </widget>
       </item>
@@ -150,6 +143,13 @@
          </spacer>
         </item>
        </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="languageLabel">
+        <property name="text">
+         <string>Language:</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
