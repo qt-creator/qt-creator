@@ -76,11 +76,11 @@ QToolButton:pressed, QPushButton:pressed{
    <item>
     <widget class="QWidget" name="gradientWidget" native="true">
      <property name="styleSheet">
-      <string notr="true">/*
+      <string notr="true">
 #gradientWidget {
-  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
+  background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:1.0, y2:1, stop:0 rgba(240, 240, 240, 255), stop:1 rgba(200, 200, 200, 255));
 }
-*/
+
 #gradientWidget {
     border-image: url(:/core/images/welcomebg.png) 4;
 }
@@ -448,15 +448,24 @@ QToolButton:pressed {
         <property name="sizeType">
          <enum>QSizePolicy::Expanding</enum>
         </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
        </spacer>
       </item>
       <item row="0" column="0">
-       <spacer name="topVerticalSpacer">
+       <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Expanding</enum>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
         </property>
        </spacer>
       </item>
