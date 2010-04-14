@@ -182,7 +182,7 @@ FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorIte
              return formEditorItem;
     }
 
-    if (scene()->rootFormEditorItem()->boundingRect().adjusted(-100, -100, 100, 100).contains(point))
+    if (scene()->rootFormEditorItem() && scene()->rootFormEditorItem()->boundingRect().adjusted(-100, -100, 100, 100).contains(point))
         return scene()->rootFormEditorItem();
     return 0;
 }
