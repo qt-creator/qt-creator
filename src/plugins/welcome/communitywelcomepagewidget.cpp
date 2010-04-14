@@ -47,7 +47,7 @@ static const Site supportSites[] = {
                         "<b>Forum Nokia</b><br /><font color='gray'>Mobile Application Support</font>"),
       "http://www.forum.nokia.com/I_Want_To/Develop_Mobile_Applications/Technical_Support/"},
     { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
-                        "<b>Qt GPL Support</b><br /><font color='gray'>Buy professional Qt support</font>"),
+                        "<b>Qt LGPL Support</b><br /><font color='gray'>Buy professional Qt support</font>"),
       "http://shop.qt.nokia.com/en/support.html"},
     { QT_TRANSLATE_NOOP("Welcome::Internal::CommunityWelcomePageWidget",
                         "<b>Qt Centre</b><br /><font color='gray'>Community based Qt support</font>"),
