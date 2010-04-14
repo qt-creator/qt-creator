@@ -13,12 +13,15 @@ isEmpty(IDE_LIBRARY_BASENAME) {
     IDE_LIBRARY_BASENAME = lib
 }
 
-linux-* {
+linux-*||win32 {
   # form abs path to qtcreator lib dir
   QTC_LIBS=$$dirname(PWD)
   QTC_LIBS=$$dirname(QTC_LIBS)
   QTC_LIBS=$$dirname(QTC_LIBS)
   QTC_LIBS=$$QTC_LIBS/$$IDE_LIBRARY_BASENAME/qtcreator
+}
+
+linux-*{  
   QMAKE_RPATHDIR *= $$QTC_LIBS
 }
 
