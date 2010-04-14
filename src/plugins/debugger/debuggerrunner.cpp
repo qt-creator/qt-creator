@@ -193,6 +193,7 @@ void DebuggerRunControl::start()
     if (m_manager->checkDebugConfiguration(startParameters()->toolChainType, &errorMessage,
                                            &settingsCategory, &settingsPage)) {
         m_manager->startNewDebugger(m_startParameters);
+        emit started();
     } else {
         error(this, errorMessage);
         emit finished();
