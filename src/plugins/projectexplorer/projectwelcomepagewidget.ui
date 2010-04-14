@@ -189,7 +189,7 @@
  <customwidgets>
   <customwidget>
    <class>Utils::WelcomeModeTreeWidget</class>
-   <extends>QTreeWidget</extends>
+   <extends>QWidget</extends>
    <header>utils/welcomemodetreewidget.h</header>
   </customwidget>
   <customwidget>
