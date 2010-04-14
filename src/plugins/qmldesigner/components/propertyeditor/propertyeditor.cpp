@@ -644,6 +644,8 @@ void PropertyEditor::resetView()
     if (m_collapseButton->isCollapsed())
         return;
 
+    m_locked = true;
+
     if (debug)
         qDebug() << "________________ RELOADING PROPERTY EDITOR QML _______________________";
 
@@ -658,8 +660,6 @@ void PropertyEditor::resetView()
     QUrl qmlSpecificsFile;
     if (m_selectedNode.isValid())
         qmlSpecificsFile = fileToUrl(locateQmlFile(m_selectedNode.type() + "Specifics.qml"));
-
-    m_locked = true;
 
     QString specificQmlData;
 
@@ -751,11 +751,15 @@ void PropertyEditor::modelAttached(Model *model)
     if (debug)
         qDebug() << Q_FUNC_INFO;
 
+    m_locked = true;
+
     setupPane("Qt/Rectangle");
     setupPane("Qt/Text");
     setupPane("Qt/TextInput");
     setupPane("Qt/TextEdit");
     resetView();
+
+    m_locked = false;
 }
 
 void PropertyEditor::modelAboutToBeDetached(Model *model)
