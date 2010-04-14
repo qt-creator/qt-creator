@@ -134,7 +134,7 @@ bool MaemoPackageCreationStep::createPackage()
 
     if (!QFileInfo(projectDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
-            % executableFileName() % QLatin1String("_0.1");
+            % executableFileName() % versionString();
         if (!runCommand(buildProc, command))
             return false;
         QFile rulesFile(projectDir + QLatin1String("/debian/rules"));
@@ -245,16 +245,31 @@ QString MaemoPackageCreationStep::targetRoot() const
 
 bool MaemoPackageCreationStep::packagingNeeded() const
 {
-#if 0
-    QFileInfo execInfo(executable());
-    const QString packageFile = execInfo.absolutePath() % QLatin1Char('/')
-        % executableFileName() % QLatin1String("_0.1_armel.deb");
-    QFileInfo packageInfo(packageFile);
+#if 1
+    // TODO: When the package contents get user-modifiable, we need
+    // to check whether files have been added and/or removed and whether
+    // the newest one is newer than the package.
+    // For the first check, we should have a switch that the widget sets
+    // to true when the user has changed the package contents and which
+    // we set to false after a successful package creation.
+    QFileInfo packageInfo(packageFilePath(executable()));
     return !packageInfo.exists()
-        || packageInfo.lastModified() <= execInfo.lastModified();
+        || packageInfo.lastModified() <= QFileInfo(executable()).lastModified();
 #else
     return false;
 #endif
+}
+
+QString MaemoPackageCreationStep::packageFilePath(const QString &executableFilePath)
+{
+    return executableFilePath % QLatin1Char('/')
+        % QFileInfo(executableFilePath).fileName() % versionString()
+        % QLatin1String("_armel.deb");
+}
+
+QString MaemoPackageCreationStep::versionString()
+{
+    return QLatin1String("_0.1");
 }
 
 const QLatin1String MaemoPackageCreationStep::CreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");

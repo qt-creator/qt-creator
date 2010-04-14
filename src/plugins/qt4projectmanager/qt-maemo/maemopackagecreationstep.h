@@ -59,6 +59,8 @@ class MaemoPackageCreationStep : public ProjectExplorer::BuildStep
     friend class MaemoPackageCreationFactory;
 public:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig);
+
+    static QString packageFilePath(const QString &executableFilePath);
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
                              MaemoPackageCreationStep *other);
@@ -77,6 +79,8 @@ private:
     QString maddeRoot() const;
     QString targetRoot() const;
     bool packagingNeeded() const;
+
+    static QString versionString();
 
     static const QLatin1String CreatePackageId;
 };
