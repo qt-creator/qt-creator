@@ -109,10 +109,10 @@
         <signal name="horizontalCenterOffsetChanged"/>
         <signal name="baselineOffsetChanged"/>
     </type>
-    <type name="QDeclarativeAnimationGroup" defaultProperty="animations" extends="Qt.Animation">
+    <type name="QDeclarativeAnimationGroup" extends="Qt.Animation">
         <property name="animations" type="Qt.Animation" isList="true"/>
     </type>
-    <type name="QDeclarativeBasePositioner" defaultProperty="data" extends="Qt.Item">
+    <type name="QDeclarativeBasePositioner" extends="Qt.Item">
         <property name="spacing" type="int"/>
         <property name="move" type="Qt.Transition"/>
         <property name="add" type="Qt.Transition"/>
@@ -131,7 +131,7 @@
         <property name="heightRatio" type="qreal"/>
         <signal name="pageChanged"/>
     </type>
-    <type name="QDeclarativeImageBase" defaultProperty="data" extends="Qt.Item">
+    <type name="QDeclarativeImageBase" extends="Qt.Item">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
             <enumerator name="Ready" value="1"/>
@@ -155,7 +155,7 @@
         </signal>
         <signal name="asynchronousChanged"/>
     </type>
-    <type name="QDeclarativePaintedItem" defaultProperty="data" extends="Qt.Item">
+    <type name="QDeclarativePaintedItem" extends="Qt.Item">
         <property name="contentsSize" type="QSize"/>
         <property name="fillColor" type="QColor"/>
         <property name="pixelCacheSize" type="int"/>
@@ -251,7 +251,7 @@
         </method>
         <method name="update"/>
     </type>
-    <type name="QGraphicsObject" defaultProperty="children" extends="Qt.QtObject">
+    <type name="QGraphicsObject" extends="Qt.QtObject">
         <property name="parent" type="QGraphicsObject"/>
         <property name="opacity" type="qreal"/>
         <property name="enabled" type="bool"/>
@@ -1378,7 +1378,7 @@
         <property name="target" type="Qt.Item"/>
         <property name="anchors" type="QDeclarativeAnchorSet"/>
     </type>
-    <type name="Qt.AnimatedImage" version="4.6" defaultProperty="data" extends="Qt.Image">
+    <type name="Qt.AnimatedImage" version="4.6" extends="Qt.Image">
         <property name="playing" type="bool"/>
         <property name="paused" type="bool"/>
         <property name="currentFrame" type="int"/>
@@ -1418,7 +1418,7 @@
         <method name="stop"/>
         <method name="complete"/>
     </type>
-    <type name="Qt.Behavior" version="4.6" defaultProperty="animation" extends="Qt.QtObject">
+    <type name="Qt.Behavior" version="4.6" extends="Qt.QtObject">
         <property name="animation" type="Qt.Animation"/>
         <property name="enabled" type="bool"/>
         <signal name="enabledChanged"/>
@@ -1455,7 +1455,7 @@
             <param name="hints" type="BlurHints"/>
         </method>
     </type>
-    <type name="Qt.BorderImage" version="4.6" defaultProperty="data" extends="QDeclarativeImageBase">
+    <type name="Qt.BorderImage" version="4.6" extends="QDeclarativeImageBase">
         <enum name="TileMode">
             <enumerator name="Stretch" value="0"/>
             <enumerator name="Repeat" value="1"/>
@@ -1487,7 +1487,7 @@
             <param name="strength" type="qreal"/>
         </method>
     </type>
-    <type name="Qt.Column" version="4.6" defaultProperty="data" extends="QDeclarativeBasePositioner"/>
+    <type name="Qt.Column" version="4.6" extends="QDeclarativeBasePositioner"/>
     <type name="Qt.Component" version="4.6" extends="Qt.QtObject">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
@@ -1635,7 +1635,7 @@
         <property name="overshoot" type="qreal"/>
         <property name="period" type="qreal"/>
     </type>
-    <type name="Qt.Flickable" version="4.6" defaultProperty="flickableData" extends="Qt.Item">
+    <type name="Qt.Flickable" version="4.6" extends="Qt.Item">
         <enum name="FlickDirection">
             <enumerator name="AutoFlickDirection" value="0"/>
             <enumerator name="HorizontalFlick" value="1"/>
@@ -1684,7 +1684,7 @@
         <signal name="flickDecelerationChanged"/>
         <signal name="pressDelayChanged"/>
     </type>
-    <type name="Qt.Flipable" version="4.6" defaultProperty="data" extends="Qt.Item">
+    <type name="Qt.Flipable" version="4.6" extends="Qt.Item">
         <enum name="Side">
             <enumerator name="Front" value="0"/>
             <enumerator name="Back" value="1"/>
@@ -1694,7 +1694,7 @@
         <property name="side" type="Side"/>
         <signal name="sideChanged"/>
     </type>
-    <type name="Qt.Flow" version="4.6" defaultProperty="data" extends="QDeclarativeBasePositioner">
+    <type name="Qt.Flow" version="4.6" extends="QDeclarativeBasePositioner">
         <enum name="Flow">
             <enumerator name="LeftToRight" value="0"/>
             <enumerator name="TopToBottom" value="1"/>
@@ -1702,11 +1702,11 @@
         <property name="flow" type="Flow"/>
         <signal name="flowChanged"/>
     </type>
-    <type name="Qt.FocusPanel" version="4.6" defaultProperty="data" extends="Qt.Item">
+    <type name="Qt.FocusPanel" version="4.6" extends="Qt.Item">
         <property name="active" type="bool"/>
         <signal name="activeChanged"/>
     </type>
-    <type name="Qt.FocusScope" version="4.6" defaultProperty="data" extends="Qt.Item"/>
+    <type name="Qt.FocusScope" version="4.6" extends="Qt.Item"/>
     <type name="Qt.Font" version="4.6" extends="QDeclarativeValueType">
         <enum name="FontWeight">
             <enumerator name="Light" value="25"/>
@@ -1748,7 +1748,7 @@
         <signal name="nameChanged"/>
         <signal name="statusChanged"/>
     </type>
-    <type name="Qt.Gradient" version="4.6" defaultProperty="stops" extends="Qt.QtObject">
+    <type name="Qt.Gradient" version="4.6" extends="Qt.QtObject">
         <property name="stops" type="Qt.GradientStop" isList="true"/>
         <signal name="updated"/>
     </type>
@@ -1756,13 +1756,13 @@
         <property name="position" type="qreal"/>
         <property name="color" type="QColor"/>
     </type>
-    <type name="Qt.Grid" version="4.6" defaultProperty="data" extends="QDeclarativeBasePositioner">
+    <type name="Qt.Grid" version="4.6" extends="QDeclarativeBasePositioner">
         <property name="rows" type="int"/>
         <property name="columns" type="int"/>
         <signal name="rowsChanged"/>
         <signal name="columnsChanged"/>
     </type>
-    <type name="Qt.GridView" version="4.6" defaultProperty="data" extends="Qt.Flickable">
+    <type name="Qt.GridView" version="4.6" extends="Qt.Flickable">
         <enum name="HighlightRangeMode">
             <enumerator name="NoHighlightRange" value="0"/>
             <enumerator name="ApplyRange" value="1"/>
@@ -1831,7 +1831,7 @@
             <param name="y" type="int"/>
         </method>
     </type>
-    <type name="Qt.Image" version="4.6" defaultProperty="data" extends="QDeclarativeImageBase">
+    <type name="Qt.Image" version="4.6" extends="QDeclarativeImageBase">
         <enum name="FillMode">
             <enumerator name="Stretch" value="0"/>
             <enumerator name="PreserveAspectFit" value="1"/>
@@ -1852,7 +1852,7 @@
         <property name="bottom" type="int"/>
         <property name="top" type="int"/>
     </type>
-    <type name="Qt.Item" version="4.6" defaultProperty="data" extends="QGraphicsObject">
+    <type name="Qt.Item" version="4.6" extends="QGraphicsObject">
         <enum name="TransformOrigin">
             <enumerator name="TopLeft" value="0"/>
             <enumerator name="Top" value="1"/>
@@ -2060,7 +2060,7 @@
             <param name="event" type="QDeclarativeKeyEvent"/>
         </signal>
     </type>
-    <type name="Qt.LayoutItem" version="4.6" defaultProperty="data" extends="Qt.Item">
+    <type name="Qt.LayoutItem" version="4.6" extends="Qt.Item">
         <property name="maximumSize" type="QSizeF"/>
         <property name="minimumSize" type="QSizeF"/>
         <property name="preferredSize" type="QSizeF"/>
@@ -2102,7 +2102,7 @@
         </method>
         <method name="sync"/>
     </type>
-    <type name="Qt.ListView" version="4.6" defaultProperty="data" extends="Qt.Flickable">
+    <type name="Qt.ListView" version="4.6" extends="Qt.Flickable">
         <enum name="HighlightRangeMode">
             <enumerator name="NoHighlightRange" value="0"/>
             <enumerator name="ApplyRange" value="1"/>
@@ -2181,7 +2181,7 @@
             <param name="y" type="int"/>
         </method>
     </type>
-    <type name="Qt.Loader" version="4.6" defaultProperty="data" extends="Qt.Item">
+    <type name="Qt.Loader" version="4.6" extends="Qt.Item">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
             <enumerator name="Ready" value="1"/>
@@ -2205,7 +2205,7 @@
         <signal name="progressChanged"/>
         <signal name="resizeModeChanged"/>
     </type>
-    <type name="Qt.MouseArea" version="4.6" defaultProperty="data" extends="Qt.Item">
+    <type name="Qt.MouseArea" version="4.6" extends="Qt.Item">
         <property name="mouseX" type="qreal"/>
         <property name="mouseY" type="qreal"/>
         <property name="containsMouse" type="bool"/>
@@ -2260,11 +2260,11 @@
             <param name="mask" type="QBrush"/>
         </method>
     </type>
-    <type name="Qt.Package" version="4.6" defaultProperty="data" extends="Qt.QtObject">
+    <type name="Qt.Package" version="4.6" extends="Qt.QtObject">
         <property name="data" type="Qt.QtObject" isList="true"/>
     </type>
-    <type name="Qt.ParallelAnimation" version="4.6" defaultProperty="animations" extends="QDeclarativeAnimationGroup"/>
-    <type name="Qt.ParentAnimation" version="4.6" defaultProperty="animations" extends="QDeclarativeAnimationGroup">
+    <type name="Qt.ParallelAnimation" version="4.6" extends="QDeclarativeAnimationGroup"/>
+    <type name="Qt.ParentAnimation" version="4.6" extends="QDeclarativeAnimationGroup">
         <property name="target" type="Qt.Item"/>
         <property name="newParent" type="Qt.Item"/>
         <property name="via" type="Qt.Item"/>
@@ -2282,7 +2282,7 @@
         <property name="scale" type="qreal"/>
         <property name="rotation" type="qreal"/>
     </type>
-    <type name="Qt.Path" version="4.6" defaultProperty="pathElements" extends="Qt.QtObject">
+    <type name="Qt.Path" version="4.6" extends="Qt.QtObject">
         <property name="pathElements" type="QDeclarativePathElement" isList="true"/>
         <property name="startX" type="qreal"/>
         <property name="startY" type="qreal"/>
@@ -2310,7 +2310,7 @@
         <property name="controlX" type="qreal"/>
         <property name="controlY" type="qreal"/>
     </type>
-    <type name="Qt.PathView" version="4.6" defaultProperty="data" extends="Qt.Item">
+    <type name="Qt.PathView" version="4.6" extends="Qt.Item">
         <enum name="HighlightRangeMode">
             <enumerator name="NoHighlightRange" value="0"/>
             <enumerator name="ApplyRange" value="1"/>
@@ -2417,7 +2417,7 @@
         <signal name="destroyed"/>
         <method name="deleteLater"/>
     </type>
-    <type name="Qt.Rectangle" version="4.6" defaultProperty="data" extends="Qt.Item">
+    <type name="Qt.Rectangle" version="4.6" extends="Qt.Item">
         <property name="color" type="QColor"/>
         <property name="gradient" type="Qt.Gradient"/>
         <property name="border" type="QDeclarativePen"/>
@@ -2428,7 +2428,7 @@
     <type name="Qt.RegExpValidator" version="4.7" extends="QValidator">
         <property name="regExp" type="QRegExp"/>
     </type>
-    <type name="Qt.Repeater" version="4.6" defaultProperty="delegate" extends="Qt.Item">
+    <type name="Qt.Repeater" version="4.6" extends="Qt.Item">
         <property name="model" type="QVariant"/>
         <property name="delegate" type="Qt.Component"/>
         <property name="count" type="int"/>
@@ -2456,7 +2456,7 @@
         <property name="direction" type="RotationDirection"/>
         <signal name="directionChanged"/>
     </type>
-    <type name="Qt.Row" version="4.6" defaultProperty="data" extends="QDeclarativeBasePositioner"/>
+    <type name="Qt.Row" version="4.6" extends="QDeclarativeBasePositioner"/>
     <type name="Qt.Scale" version="4.6" extends="QGraphicsTransform">
         <property name="origin" type="QVector3D"/>
         <property name="xScale" type="qreal"/>
@@ -2469,7 +2469,7 @@
         <property name="script" type="QDeclarativeScriptString"/>
         <property name="scriptName" type="string"/>
     </type>
-    <type name="Qt.SequentialAnimation" version="4.6" defaultProperty="animations" extends="QDeclarativeAnimationGroup"/>
+    <type name="Qt.SequentialAnimation" version="4.6" extends="QDeclarativeAnimationGroup"/>
     <type name="Qt.SmoothedAnimation" version="4.6" extends="Qt.NumberAnimation">
         <enum name="ReversingMode">
             <enumerator name="Eased" value="0"/>
@@ -2519,7 +2519,7 @@
         <signal name="massChanged"/>
         <signal name="syncChanged"/>
     </type>
-    <type name="Qt.State" version="4.6" defaultProperty="changes" extends="Qt.QtObject">
+    <type name="Qt.State" version="4.6" extends="Qt.QtObject">
         <property name="name" type="string"/>
         <property name="when" type="QDeclarativeBinding"/>
         <property name="extend" type="string"/>
@@ -2561,7 +2561,7 @@
         <property name="highlightedText" type="QColor"/>
         <signal name="paletteChanged"/>
     </type>
-    <type name="Qt.Text" version="4.6" defaultProperty="data" extends="Qt.Item">
+    <type name="Qt.Text" version="4.6" extends="Qt.Item">
         <enum name="HAlignment">
             <enumerator name="AlignLeft" value="1"/>
             <enumerator name="AlignRight" value="2"/>
@@ -2639,7 +2639,7 @@
             <param name="mode" type="TextElideMode"/>
         </signal>
     </type>
-    <type name="Qt.TextEdit" version="4.6" defaultProperty="data" extends="QDeclarativePaintedItem">
+    <type name="Qt.TextEdit" version="4.6" extends="QDeclarativePaintedItem">
         <enum name="HAlignment">
             <enumerator name="AlignLeft" value="1"/>
             <enumerator name="AlignRight" value="2"/>
@@ -2729,7 +2729,7 @@
         </signal>
         <method name="selectAll"/>
     </type>
-    <type name="Qt.TextInput" version="4.6" defaultProperty="data" extends="QDeclarativePaintedItem">
+    <type name="Qt.TextInput" version="4.6" extends="QDeclarativePaintedItem">
         <enum name="EchoMode">
             <enumerator name="Normal" value="0"/>
             <enumerator name="NoEcho" value="1"/>
@@ -2836,7 +2836,7 @@
         <method name="stop"/>
         <method name="restart"/>
     </type>
-    <type name="Qt.Transition" version="4.6" defaultProperty="animations" extends="Qt.QtObject">
+    <type name="Qt.Transition" version="4.6" extends="Qt.QtObject">
         <property name="from" type="string"/>
         <property name="to" type="string"/>
         <property name="reversible" type="bool"/>
@@ -2865,7 +2865,7 @@
         <signal name="changed"/>
         <signal name="delegateChanged"/>
     </type>
-    <type name="Qt.VisualDataModel" version="4.6" defaultProperty="delegate" extends="QDeclarativeVisualModel">
+    <type name="Qt.VisualDataModel" version="4.6" extends="QDeclarativeVisualModel">
         <property name="model" type="QVariant"/>
         <property name="delegate" type="Qt.Component"/>
         <property name="part" type="string"/>
@@ -2880,7 +2880,7 @@
         </signal>
         <signal name="rootIndexChanged"/>
     </type>
-    <type name="Qt.VisualItemModel" version="4.6" defaultProperty="children" extends="QDeclarativeVisualModel">
+    <type name="Qt.VisualItemModel" version="4.6" extends="QDeclarativeVisualModel">
         <property name="children" type="Qt.Item" isList="true"/>
         <signal name="childrenChanged"/>
     </type>
@@ -2894,7 +2894,7 @@
             <param type="QScriptValue"/>
         </method>
     </type>
-    <type name="Qt.XmlListModel" version="4.6" defaultProperty="roles" extends="QListModelInterface">
+    <type name="Qt.XmlListModel" version="4.6" extends="QListModelInterface">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
             <enumerator name="Ready" value="1"/>
@@ -2948,7 +2948,7 @@
         <signal name="yvarianceChanged"/>
         <signal name="paceChanged"/>
     </type>
-    <type name="Qt.labs.particles.Particles" version="1.0" defaultProperty="motion" extends="Qt.Item">
+    <type name="Qt.labs.particles.Particles" version="1.0" extends="Qt.Item">
         <property name="source" type="QUrl"/>
         <property name="count" type="int"/>
         <property name="emissionRate" type="int"/>
@@ -3059,7 +3059,7 @@
         <signal name="mutedChanged"/>
         <method name="play"/>
     </type>
-    <type name="Qt.multimedia.Video" version="4.7" defaultProperty="data" extends="Qt.Item">
+    <type name="Qt.multimedia.Video" version="4.7" extends="Qt.Item">
         <enum name="FillMode">
             <enumerator name="Stretch" value="0"/>
             <enumerator name="PreserveAspectFit" value="1"/>
@@ -3133,19 +3133,19 @@
         <method name="pause"/>
         <method name="stop"/>
     </type>
-    <type name="Qt.widgets.QGraphicsGridLayout" version="4.6" defaultProperty="children" extends="Qt.QtObject">
+    <type name="Qt.widgets.QGraphicsGridLayout" version="4.6" extends="Qt.QtObject">
         <property name="children" type="QGraphicsLayoutItem" isList="true"/>
         <property name="spacing" type="qreal"/>
         <property name="verticalSpacing" type="qreal"/>
         <property name="horizontalSpacing" type="qreal"/>
     </type>
-    <type name="Qt.widgets.QGraphicsLinearLayout" version="4.6" defaultProperty="children" extends="Qt.QtObject">
+    <type name="Qt.widgets.QGraphicsLinearLayout" version="4.6" extends="Qt.QtObject">
         <property name="children" type="QGraphicsLayoutItem" isList="true"/>
         <property name="orientation" type="Qt.Orientation"/>
         <property name="spacing" type="qreal"/>
     </type>
     <type name="Qt.widgets.QGraphicsLinearLayoutStretchItem" version="4.6" extends="Qt.QtObject"/>
-    <type name="Qt.widgets.QGraphicsWidget" version="4.6" defaultProperty="children" extends="QGraphicsObject">
+    <type name="Qt.widgets.QGraphicsWidget" version="4.6" extends="QGraphicsObject">
         <property name="palette" type="QPalette"/>
         <property name="font" type="QFont"/>
         <property name="layoutDirection" type="Qt.LayoutDirection"/>
@@ -3164,7 +3164,7 @@
         <signal name="layoutChanged"/>
         <method name="close" type="bool"/>
     </type>
-    <type name="org.webkit.WebView" version="1.0" defaultProperty="data" extends="QDeclarativePaintedItem">
+    <type name="org.webkit.WebView" version="1.0" extends="QDeclarativePaintedItem">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
             <enumerator name="Ready" value="1"/>
