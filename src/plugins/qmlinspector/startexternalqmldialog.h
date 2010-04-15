@@ -3,9 +3,11 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
 namespace Ui {
     class StartExternalQmlDialog;
 }
+QT_END_NAMESPACE
 
 namespace Qml {
 namespace Internal {
