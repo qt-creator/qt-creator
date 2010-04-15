@@ -336,7 +336,7 @@ void BuildSettingsWidget::createConfiguration()
     const QString &id = action->data().toString();
     BuildConfiguration *bc = m_target->buildConfigurationFactory()->create(m_target, id);
     if (bc) {
-        m_buildConfiguration = bc;
+        m_target->setActiveBuildConfiguration(bc);
         updateBuildSettings();
     }
 }
