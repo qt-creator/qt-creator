@@ -133,7 +133,8 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
     m_currentStackTrace(0),
     m_firstActivatedFrame(true),
     m_inferiorStartupComplete(false),
-    m_mode(AttachCore)
+    m_mode(AttachCore),
+    m_stoppedReason(StoppedOther)
 {
     connect(this, SIGNAL(watchTimerDebugEvent()), this, SLOT(handleDebugEvent()));
     connect(this, SIGNAL(modulesLoaded()), this, SLOT(slotModulesLoaded()));
@@ -201,6 +202,8 @@ void CdbDebugEnginePrivate::clearForRun()
     m_eventThreadId = m_interruptArticifialThreadId = -1;
     m_interrupted = false;
     cleanStackTrace();
+    m_stoppedReason = StoppedOther;
+    m_stoppedMessage.clear();
 }
 
 void CdbDebugEnginePrivate::cleanStackTrace()
@@ -1005,12 +1008,15 @@ void CdbDebugEngine::activateFrame(int frameIndex)
             stackHandler->setCurrentIndex(frameIndex);
 
         const StackFrame &frame = stackHandler->currentFrame();
-        if (!frame.isUsable()) {
-            // Clean out model
+
+        const bool showAssembler = !frame.isUsable();
+        if (showAssembler) { // Assembly code: Clean out model and force instruction mode.
             watchHandler->beginCycle();
             watchHandler->endCycle();
-            errorMessage = QString::fromLatin1("%1: file %2 unusable.").
-                           arg(QLatin1String(Q_FUNC_INFO), frame.file);
+            QAction *assemblerAction = theDebuggerAction(OperateByInstruction);
+            if (!assemblerAction->isChecked())
+                assemblerAction->trigger();
+            success = true;
             break;
         }
 
@@ -1263,7 +1269,8 @@ void CdbDebugEnginePrivate::notifyException(long code, bool fatal, const QString
     // Cannot go over crash point to execute calls.
     if (fatal) {
         m_dumper->disable();
-        manager()->showStatusMessage(message, 15000);
+        m_stoppedReason = StoppedCrash;
+        m_stoppedMessage = message;
     }
 }
 
@@ -1412,6 +1419,38 @@ static inline unsigned long dumperThreadId(const QList<StackFrame> &frames,
     return currentThread;
 }
 
+// Format stop message with all available information.
+QString CdbDebugEnginePrivate::stoppedMessage(const StackFrame *topFrame /*  = 0 */) const
+{
+    QString msg;
+    if (topFrame) {
+        if (topFrame->isUsable()) {
+            // Stopped at basename:line
+            const int lastSlashPos = topFrame->file.lastIndexOf(QLatin1Char('/'));
+            const QString file = lastSlashPos == -1 ? topFrame->file : topFrame->file.mid(lastSlashPos + 1);
+            msg = CdbDebugEngine::tr("Stopped at %1:%2 in thread %3.").
+                  arg(file).arg(topFrame->line).arg(m_currentThreadId);
+        } else {
+            // Somewhere in assembly code.
+            if (topFrame->function.isEmpty()) {
+                msg = CdbDebugEngine::tr("Stopped at %1 in thread %2 (missing debug information).").
+                      arg(topFrame->address).arg(m_currentThreadId);
+            } else {
+                msg = CdbDebugEngine::tr("Stopped at %1 (%2) in thread %3 (missing debug information).").
+                      arg(topFrame->address).arg(topFrame->function).arg(m_currentThreadId);
+            }
+        } // isUsable
+    } else {
+        msg = CdbDebugEngine::tr("Stopped in thread %1 (missing debug information).").arg(m_currentThreadId);
+
+    }
+    if (!m_stoppedMessage.isEmpty()) {
+        msg += QLatin1Char(' ');
+        msg += m_stoppedMessage;
+    }
+    return msg;
+}
+
 void CdbDebugEnginePrivate::updateStackTrace()
 {
     if (debugCDB)
@@ -1443,15 +1482,8 @@ void CdbDebugEnginePrivate::updateStackTrace()
             current = i;
             break;
         }
-    // Visibly warn the users about missing top frames/all frames, as they otherwise
-    // might think stepping is broken.
-    if (!stackFrames.at(0).isUsable()) {
-        const QString topFunction = count ? stackFrames.at(0).function : QString();
-        const QString msg = current >= 0 ?
-                            CdbDebugEngine::tr("Thread %1: Missing debug information for top stack frame (%2).").arg(m_currentThreadId).arg(topFunction) :
-                            CdbDebugEngine::tr("Thread %1: No debug information available (%2).").arg(m_currentThreadId).arg(topFunction);
-        m_engine->warning(msg);
-    }
+    // Format stop message.
+    const QString stopMessage = stoppedMessage(stackFrames.isEmpty() ? static_cast<const StackFrame *>(0) : &stackFrames.front());
     // Set up dumper with a thread (or invalid)
     const unsigned long dumperThread = dumperThreadId(stackFrames, m_currentThreadId);
     if (debugCDBExecution)
@@ -1469,6 +1501,8 @@ void CdbDebugEnginePrivate::updateStackTrace()
         manager()->watchHandler()->endCycle();
     }
     manager()->watchHandler()->updateWatchers();
+    // Show message after a lengthy dumper initialization
+    manager()->showStatusMessage(stopMessage, 15000);
 }
 
 void CdbDebugEnginePrivate::updateModules()
@@ -1495,6 +1529,17 @@ void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP)
     Q_UNUSED(pBP)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO;
+    m_stoppedReason = StoppedBreakpoint;
+    CdbCore::BreakPoint breakpoint;
+    // Format message unless it is a temporary step-out breakpoint with empty expression.
+    QString expression;
+    if (breakpoint.retrieve(pBP, &expression)) {
+        expression = breakpoint.expression();
+    } else {
+        expression.clear();
+    }
+    if (!expression.isEmpty())
+        m_stoppedMessage = CdbDebugEngine::tr("Breakpoint: %1").arg(expression);
 }
 
 void CdbDebugEngine::reloadSourceFiles()

@@ -62,6 +62,12 @@ public:
         BreakEventSyncBreakPoints,
     };
 
+    enum StoppedReason {
+        StoppedCrash,
+        StoppedBreakpoint,
+        StoppedOther
+    };
+
     explicit CdbDebugEnginePrivate(DebuggerManager *parent,
                                    const QSharedPointer<CdbOptions> &options,
                                    CdbDebugEngine* engine);
@@ -102,6 +108,8 @@ public:
 
     void updateCodeLevel();
 
+    QString stoppedMessage(const StackFrame *topFrame = 0) const;
+
 private slots:
     void handleDebugEvent();
     void slotModulesLoaded();
@@ -129,6 +137,9 @@ public:
 
     DebuggerStartMode m_mode;
     Utils::ConsoleProcess m_consoleStubProc;
+
+    StoppedReason m_stoppedReason;
+    QString m_stoppedMessage;
 };
 
 enum { messageTimeOut = 5000 };
