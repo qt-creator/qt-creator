@@ -33,7 +33,7 @@
 
 #include "utils_global.h"
 
-#include <QObject>
+#include <QtCore/QObject>
 
 namespace Utils {
 

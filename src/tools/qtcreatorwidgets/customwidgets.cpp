@@ -237,9 +237,9 @@ WelcomePageWidget_CW::WelcomePageWidget_CW(QObject *parent) :
 QWidget *WelcomePageWidget_CW::createWidget(QWidget *parent)
 {
     Utils::WelcomeModeTreeWidget *rc = new Utils::WelcomeModeTreeWidget(parent);
-    rc->slotAddNewsItem(QLatin1String("Breaking news"),
+    rc->addNewsItem(QLatin1String("Breaking news"),
                         QLatin1String("Bla bla bla"), QLatin1String("qt.nokia.com"));
-    rc->slotAddNewsItem(QLatin1String("Yesterday's breaking news"),
+    rc->addNewsItem(QLatin1String("Yesterday's breaking news"),
                         QLatin1String("Blub blub blub"), QLatin1String("qt.nokia.com"));
     return rc;
 }

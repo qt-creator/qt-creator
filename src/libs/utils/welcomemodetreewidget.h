@@ -35,8 +35,6 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QLabel>
 
-QT_FORWARD_DECLARE_CLASS(QHBoxLayout)
-
 namespace Utils {
 
 struct WelcomeModeTreeWidgetPrivate;
@@ -47,11 +45,16 @@ class QTCREATOR_UTILS_EXPORT WelcomeModeLabel : public QLabel
 {
     Q_OBJECT
 public:
-    WelcomeModeLabel(QWidget *parent) : QLabel(parent) {};
+    explicit WelcomeModeLabel(QWidget *parent = 0);
+    virtual ~WelcomeModeLabel();
+
     void setStyledText(const QString &text);
+
+private:
     WelcomeModeLabelPrivate *m_d;
 };
 
+// WelcomeModeTreeWidget: Show an itemized list with arrows and emits a signal on click.
 class QTCREATOR_UTILS_EXPORT WelcomeModeTreeWidget : public QWidget
 {
     Q_OBJECT
@@ -59,10 +62,11 @@ public:
     explicit WelcomeModeTreeWidget(QWidget *parent = 0);
     virtual ~WelcomeModeTreeWidget();
 
-    void addItem(const QString &label, const QString &data,const QString &toolTip = QString::null);
-
 public slots:
-    void slotAddNewsItem(const QString &title, const QString &description, const QString &link);
+    void addItem(const QString &label, const QString &data,const QString &toolTip = QString());
+
+    // Add a 'News' item as two lines of "<bold>Breaking news!</bold>\nElided Start of article...."
+    void addNewsItem(const QString &title, const QString &description, const QString &link);
     void clear();
 
 signals:
@@ -74,6 +78,5 @@ private:
     WelcomeModeTreeWidgetPrivate *m_d;
 };
 
-}
-
+} // namespace Utils
 #endif // WELCOMEMODETREEWIDGET_H

@@ -93,7 +93,7 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     connect(ui->supportSitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
 
     connect(m_rssFetcher, SIGNAL(newsItemReady(QString, QString, QString)),
-        ui->newsTreeWidget, SLOT(slotAddNewsItem(QString, QString, QString)));
+        ui->newsTreeWidget, SLOT(addNewsItem(QString, QString, QString)));
     //: Add localized feed here only if one exists
     m_rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 

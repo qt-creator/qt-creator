@@ -33,7 +33,6 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QHeaderView>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QImage>
@@ -44,6 +43,15 @@ enum { leftContentsMargin = 2,
        pixmapWidth = 24 };
 
 namespace Utils {
+
+WelcomeModeLabel::WelcomeModeLabel(QWidget *parent) :
+    QLabel(parent)
+{
+}
+
+WelcomeModeLabel::~WelcomeModeLabel()
+{
+}
 
 void WelcomeModeLabel::setStyledText(const QString &text)
 {
@@ -255,9 +263,9 @@ void WelcomeModeTreeWidget::addItem(const QString &label, const QString &data, c
     addItemWidget(new WelcomeModeItemWidget(m_d->bullet, label, toolTip, data));
 }
 
-void WelcomeModeTreeWidget::slotAddNewsItem(const QString &title,
-                                            const QString &description,
-                                            const QString &link)
+void WelcomeModeTreeWidget::addNewsItem(const QString &title,
+                                        const QString &description,
+                                        const QString &link)
 {
     addItemWidget(new WelcomeModeItemWidget(m_d->bullet, title, description, link, link));
 }
@@ -270,9 +278,13 @@ void WelcomeModeTreeWidget::addItemWidget(WelcomeModeItemWidget *w)
 
 void WelcomeModeTreeWidget::clear()
 {
-    for (int i = m_d->itemLayout->count() - 1; i >= 0; i--)
-        delete m_d->itemLayout->takeAt(i)->widget();
+    for (int i = m_d->itemLayout->count() - 1; i >= 0; i--) {
+        QLayoutItem *item = m_d->itemLayout->takeAt(i);
+        delete item->widget();
+        delete item;
+    }
 }
+
 } // namespace Utils
 
 #include "welcomemodetreewidget.moc"
