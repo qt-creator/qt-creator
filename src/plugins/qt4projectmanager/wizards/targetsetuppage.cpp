@@ -37,6 +37,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLayout>
+#include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QTreeWidget>
 
@@ -391,9 +392,17 @@ void TargetSetupPage::addShadowBuildLocation()
     if (!dir.exists() || !dir.isDir())
         return;
 
-    QList<ImportInfo> tmp = m_infos;
-    m_infos.clear(); // Clear m_infos without deleting temporary QtVersions!
+    QList<ImportInfo> tmp;
     tmp.append(recursivelyCheckDirectoryForBuild(dir.absoluteFilePath(), m_proFilePath));
+    if (tmp.isEmpty()) {
+        QMessageBox::warning(this, tr("No builds found!"),
+                             tr("No builds for project file \"%1\" were found in directory \"%2\".",
+                                "%1: pro-file, %2: directory that was checked.").
+                             arg(m_proFilePath, dir.absoluteFilePath()));
+        return;
+    }
+    tmp.append(m_infos);
+    m_infos.clear(); // Clear m_infos without deleting temporary QtVersions!
     setImportInfos(tmp);
 }
 
