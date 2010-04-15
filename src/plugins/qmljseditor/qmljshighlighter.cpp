@@ -169,16 +169,16 @@ void Highlighter::highlightBlock(const QString &text)
 
                         const int start = index;
 
-                        ++index; // skip the identifier.
-                        while (index + 1 < tokens.size() &&
-                               tokens.at(index).is(Token::Dot) &&
-                               tokens.at(index + 1).is(Token::Identifier)) {
+                        // put index on last identifier not followed by .identifier
+                        while (index + 2 < tokens.size() &&
+                               tokens.at(index + 1).is(Token::Dot) &&
+                               tokens.at(index + 2).is(Token::Identifier)) {
                             index += 2;
                         }
 
-                        if (index < tokens.size() && tokens.at(index).is(expectedTerminator)) {
+                        if (index + 1 < tokens.size() && tokens.at(index + 1).is(expectedTerminator)) {
                             // it's a binding.
-                            for (int i = start; i < index; ++i) {
+                            for (int i = start; i <= index; ++i) {
                                 const Token &tok = tokens.at(i);
                                 setFormat(tok.offset, tok.length, m_formats[LabelFormat]);
                             }
