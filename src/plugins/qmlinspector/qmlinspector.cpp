@@ -185,8 +185,8 @@ QmlInspector::QmlInspector(QObject *parent)
     m_objectTreeWidget = new Internal::ObjectTree;
     m_propertiesWidget = new Internal::ObjectPropertiesView;
     m_watchTableView = new Internal::WatchTableView(m_watchTableModel);
-    m_frameRateWidget = new Internal::CanvasFrameRate;
-    m_frameRateWidget->setObjectName(QLatin1String("QmlDebugFrameRate"));
+//    m_frameRateWidget = new Internal::CanvasFrameRate;
+//    m_frameRateWidget->setObjectName(QLatin1String("QmlDebugFrameRate"));
     m_expressionWidget = new Internal::ExpressionQueryWidget(Internal::ExpressionQueryWidget::SeparateEntryMode);
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
@@ -310,7 +310,7 @@ void QmlInspector::connectionStateChanged()
             }
 
             resetViews();
-            m_frameRateWidget->reset(m_conn);
+//            m_frameRateWidget->reset(m_conn);
 
             reloadEngines();
             break;
@@ -352,7 +352,7 @@ void QmlInspector::createDockWidgets()
             SLOT(queryEngineContext(int)));
 
     // FancyMainWindow uses widgets' window titles for tab labels
-    m_frameRateWidget->setWindowTitle(tr("Frame rate"));
+//    m_frameRateWidget->setWindowTitle(tr("Frame rate"));
 
     Utils::StyledBar *treeOptionBar = new Utils::StyledBar;
     QHBoxLayout *treeOptionBarLayout = new QHBoxLayout(treeOptionBar);
@@ -422,19 +422,19 @@ void QmlInspector::createDockWidgets()
 
     m_objectTreeDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
                                                             treeWindow, Qt::BottomDockWidgetArea);
-    m_frameRateDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
-                                                            m_frameRateWidget, Qt::BottomDockWidgetArea);
+//    m_frameRateDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
+//                                                            m_frameRateWidget, Qt::BottomDockWidgetArea);
     m_propertyWatcherDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
                                                             propSplitter, Qt::BottomDockWidgetArea);
     m_inspectorOutputDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
                                                             inspectorOutput, Qt::BottomDockWidgetArea);
 
     m_objectTreeDock->setToolTip(tr("Contents of the scene."));
-    m_frameRateDock->setToolTip(tr("Frame rate graph for analyzing performance."));
+//    m_frameRateDock->setToolTip(tr("Frame rate graph for analyzing performance."));
     m_propertyWatcherDock->setToolTip(tr("Properties of the selected item."));
     m_inspectorOutputDock->setToolTip(tr("Output of the QML inspector, such as information on connecting to the server."));
 
-    m_dockWidgets << m_objectTreeDock << m_frameRateDock << m_propertyWatcherDock << m_inspectorOutputDock;
+    m_dockWidgets << m_objectTreeDock << /*m_frameRateDock << */ m_propertyWatcherDock << m_inspectorOutputDock;
 
     m_context = new Internal::InspectorContext(m_objectTreeDock);
     m_propWatcherContext = new Internal::InspectorContext(m_propertyWatcherDock);
@@ -577,7 +577,7 @@ void QmlInspector::setSimpleDockWidgetArrangement()
         }
     }
 
-    mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
+    //mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
     mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_inspectorOutputDock);
 
     m_inspectorOutputDock->setVisible(false);
