@@ -77,12 +77,14 @@ protected:
     void startExecution();
     void handleError(const QString &errString);
     const QString executableOnHost() const;
-    const QString executableOnTarget() const;
     const QString executableFileName() const;
-    const QString sshPort() const;
     const QString targetCmdLinePrefix() const;
+    QString targetCmdLineSuffix() const;
     const QString remoteDir() const;
-    const QStringList options() const;
+    QString packageFileName() const;
+    QString packageFilePath() const;
+    QString executableFilePathOnTarget() const;
+
 private slots:
     virtual void handleRemoteOutput(const QString &output)=0;
     void handleInitialCleanupFinished();
@@ -98,10 +100,13 @@ private:
     virtual void startInternal()=0;
     virtual void stopInternal()=0;
     virtual QString remoteCall() const=0;
+
     void startInitialCleanup();
     void killRemoteProcesses(const QStringList &apps, bool initialCleanup);
     bool isCleaning() const;
     bool isDeploying() const;
+    QString remoteSudo() const;
+    QString remoteInstallCommand() const;
 
     QFutureInterface<void> m_progress;
     QScopedPointer<MaemoSshDeployer> m_sshDeployer;

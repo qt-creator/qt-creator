@@ -52,6 +52,7 @@ class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 class Qt4Target;
 
+class MaemoPackageCreationStep;
 class MaemoRunConfigurationFactory;
 
 class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -74,6 +75,8 @@ public:
     bool hasDebuggingHelpers() const;
     bool debuggingHelpersNeedDeployment(const QString &host) const;
     void debuggingHelpersDeployed(const QString &host);
+
+    const MaemoPackageCreationStep *packageStep() const;
 
     QString maddeRoot() const;
     QString executable() const;

@@ -134,7 +134,7 @@ bool MaemoPackageCreationStep::createPackage()
 
     if (!QFileInfo(projectDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
-            % executableFileName() % versionString();
+            % executableFileName().toLower() % versionString();
         if (!runCommand(buildProc, command))
             return false;
         QFile rulesFile(projectDir + QLatin1String("/debian/rules"));
@@ -157,8 +157,7 @@ bool MaemoPackageCreationStep::createPackage()
         return false;
     
     const QString targetFile(projectDir % QLatin1String("/debian/")
-        % executableFileName().toLower() % QLatin1String("/usr/bin/")
-        % executableFileName());
+        % executableFileName().toLower() % executableFilePathOnTarget());
     if (QFile::exists(targetFile)) {
         if (!QFile::remove(targetFile)) {
             qDebug("Error: Could not remove '%s'", qPrintable(targetFile));
@@ -245,27 +244,30 @@ QString MaemoPackageCreationStep::targetRoot() const
 
 bool MaemoPackageCreationStep::packagingNeeded() const
 {
-#if 1
     // TODO: When the package contents get user-modifiable, we need
     // to check whether files have been added and/or removed and whether
     // the newest one is newer than the package.
     // For the first check, we should have a switch that the widget sets
     // to true when the user has changed the package contents and which
     // we set to false after a successful package creation.
-    QFileInfo packageInfo(packageFilePath(executable()));
+    QFileInfo packageInfo(packageFilePath());
     return !packageInfo.exists()
         || packageInfo.lastModified() <= QFileInfo(executable()).lastModified();
-#else
-    return false;
-#endif
 }
 
-QString MaemoPackageCreationStep::packageFilePath(const QString &executableFilePath)
+QString MaemoPackageCreationStep::packageFilePath() const
 {
-    return executableFilePath % versionString() % QLatin1String("_armel.deb");
+    QFileInfo execInfo(executable());
+    return execInfo.path() % QDir::separator() % execInfo.fileName().toLower()
+        % versionString() % QLatin1String("_armel.deb");
 }
 
-QString MaemoPackageCreationStep::versionString()
+QString MaemoPackageCreationStep::executableFilePathOnTarget() const
+{
+    return QLatin1String("/usr/bin/") % executableFileName();
+}
+
+QString MaemoPackageCreationStep::versionString() const
 {
     return QLatin1String("_0.1");
 }

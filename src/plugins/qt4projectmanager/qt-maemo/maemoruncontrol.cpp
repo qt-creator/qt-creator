@@ -33,6 +33,8 @@
 ****************************************************************************/
 
 #include "maemoruncontrol.h"
+
+#include "maemopackagecreationstep.h"
 #include "maemosshthread.h"
 #include "maemorunconfiguration.h"
 
@@ -122,7 +124,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
     } else {
         m_deployables.clear();
         if (m_runConfig->currentlyNeedsDeployment(m_devConfig.host)) {
-            m_deployables.append(Deployable(executableFileName(),
+            m_deployables.append(Deployable(packageFileName(),
                 QFileInfo(executableOnHost()).canonicalPath(),
                 &MaemoRunConfiguration::wasDeployed));
         }
@@ -179,6 +181,21 @@ void AbstractMaemoRunControl::handleFileCopied()
 bool AbstractMaemoRunControl::isDeploying() const
 {
     return m_sshDeployer && m_sshDeployer->isRunning();
+}
+
+QString AbstractMaemoRunControl::packageFileName() const
+{
+    return QFileInfo(packageFilePath()).fileName();
+}
+
+QString AbstractMaemoRunControl::packageFilePath() const
+{
+    return m_runConfig->packageStep()->packageFilePath();
+}
+
+QString AbstractMaemoRunControl::executableFilePathOnTarget() const
+{
+    return m_runConfig->packageStep()->executableFilePathOnTarget();
 }
 
 bool AbstractMaemoRunControl::isCleaning() const
@@ -277,13 +294,6 @@ const QString AbstractMaemoRunControl::executableOnHost() const
     return m_runConfig->executable();
 }
 
-const QString AbstractMaemoRunControl::sshPort() const
-{
-    return m_devConfig.type == MaemoDeviceConfig::Physical
-        ? QString::number(m_devConfig.sshPort)
-        : m_runConfig->simulatorSshPort();
-}
-
 const QString AbstractMaemoRunControl::executableFileName() const
 {
     return QFileInfo(executableOnHost()).fileName();
@@ -294,34 +304,27 @@ const QString AbstractMaemoRunControl::remoteDir() const
     return homeDirOnDevice(m_devConfig.uname);
 }
 
-const QStringList AbstractMaemoRunControl::options() const
+QString AbstractMaemoRunControl::remoteSudo() const
 {
-    const bool usePassword
-        = m_devConfig.authentication == MaemoDeviceConfig::Password;
-    const QLatin1String opt("-o");
-    QStringList optionList;
-    if (!usePassword)
-        optionList << QLatin1String("-i") << m_devConfig.keyFile;
-    return optionList << opt
-        << QString::fromLatin1("PasswordAuthentication=%1").
-            arg(usePassword ? "yes" : "no") << opt
-        << QString::fromLatin1("PubkeyAuthentication=%1").
-            arg(usePassword ? "no" : "yes") << opt
-        << QString::fromLatin1("ConnectTimeout=%1").arg(m_devConfig.timeout)
-        << opt << QLatin1String("CheckHostIP=no")
-        << opt << QLatin1String("StrictHostKeyChecking=no");
+    return QLatin1String("/usr/lib/mad-developer/devrootsh");
 }
 
-const QString AbstractMaemoRunControl::executableOnTarget() const
+QString AbstractMaemoRunControl::remoteInstallCommand() const
 {
-    return QString::fromLocal8Bit("%1/%2").arg(remoteDir()).
-        arg(executableFileName());
+    return QString::fromLocal8Bit("%1 dpkg -i %2").arg(remoteSudo())
+        .arg(packageFileName());
 }
 
 const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
 {
-    return QString::fromLocal8Bit("chmod u+x %1; source /etc/profile; ").
-        arg(executableOnTarget());
+    return QString::fromLocal8Bit("%1 && %2 chmod u+x %3 && source /etc/profile && ")
+        .arg(remoteInstallCommand()).arg(remoteSudo())
+        .arg(executableFilePathOnTarget());
+}
+
+QString AbstractMaemoRunControl::targetCmdLineSuffix() const
+{
+    return m_runConfig->arguments().join(" ");
 }
 
 void AbstractMaemoRunControl::handleError(const QString &errString)
@@ -348,9 +351,8 @@ void MaemoRunControl::startInternal()
 
 QString MaemoRunControl::remoteCall() const
 {
-    return QString::fromLocal8Bit("%1 %2 %3")
-        .arg(targetCmdLinePrefix()).arg(executableOnTarget())
-        .arg(m_runConfig->arguments().join(" "));
+    return QString::fromLocal8Bit("%1 %2 %3").arg(targetCmdLinePrefix())
+        .arg(executableFilePathOnTarget()).arg(targetCmdLineSuffix());
 }
 
 void MaemoRunControl::stopInternal()
@@ -407,7 +409,7 @@ QString MaemoDebugRunControl::remoteCall() const
 {
     return QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4")
         .arg(targetCmdLinePrefix()).arg(gdbServerPort())
-        .arg(executableOnTarget()).arg(m_runConfig->arguments().join(" "));
+        .arg(executableFilePathOnTarget()).arg(targetCmdLineSuffix());
 }
 
 void MaemoDebugRunControl::handleRemoteOutput(const QString &output)

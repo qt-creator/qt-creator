@@ -30,6 +30,7 @@
 
 #include "maemoconstants.h"
 #include "maemomanager.h"
+#include "maemopackagecreationstep.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
 
@@ -39,6 +40,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
+#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 
 #include <utils/qtcassert.h>
@@ -211,7 +213,8 @@ void MaemoRunConfiguration::getDeployTimesFromMap(const QString &key,
 
 bool MaemoRunConfiguration::currentlyNeedsDeployment(const QString &host) const
 {
-    return fileNeedsDeployment(executable(), m_lastDeployed.value(host));
+    return fileNeedsDeployment(packageStep()->packageFilePath(),
+                               m_lastDeployed.value(host));
 }
 
 void MaemoRunConfiguration::wasDeployed(const QString &host)
@@ -291,6 +294,20 @@ const QString MaemoRunConfiguration::gdbCmd() const
     if (const MaemoToolChain *tc = toolchain())
         return QDir::toNativeSeparators(tc->targetRoot() + QLatin1String("/bin/gdb"));
     return QString();
+}
+
+const MaemoPackageCreationStep *MaemoRunConfiguration::packageStep() const
+{
+    const QList<ProjectExplorer::BuildStep *> &buildSteps
+        = activeQt4BuildConfiguration()->steps(ProjectExplorer::Build);
+    for (int i = buildSteps.count() - 1; i >= 0; --i) {
+        const MaemoPackageCreationStep * const pStep
+            = qobject_cast<MaemoPackageCreationStep *>(buildSteps.at(i));
+        if (pStep)
+            return pStep;
+    }
+    Q_ASSERT(!"Impossible: Maemo run configuration without packaging step.");
+    return 0;
 }
 
 QString MaemoRunConfiguration::maddeRoot() const
