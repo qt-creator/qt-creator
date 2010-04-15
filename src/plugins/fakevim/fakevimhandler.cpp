@@ -2433,7 +2433,7 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
         m_commandBuffer += QChar(9);
         updateMiniBuffer();
     } else if (QChar(key).isPrint()) {
-        m_commandBuffer += QChar(key);
+        m_commandBuffer += input.text;
         updateMiniBuffer();
     } else {
         qDebug() << "IGNORED IN MINIBUFFER MODE: " << key << text;
@@ -3986,7 +3986,7 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 
     if (active && ev->type() == QEvent::KeyPress && ob == d->editor()) {
         QKeyEvent *kev = static_cast<QKeyEvent *>(ev);
-        KEY_DEBUG("KEYPRESS" << kev->key());
+        KEY_DEBUG("KEYPRESS" << kev->key() << kev->text() << QChar(kev->key()));
         EventResult res = d->handleEvent(kev);
         // returning false core the app see it
         //KEY_DEBUG("HANDLED CODE:" << res);
