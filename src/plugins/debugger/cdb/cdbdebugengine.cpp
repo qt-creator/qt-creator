@@ -617,7 +617,11 @@ void CdbDebugEngine::evaluateWatcher(WatchData *wd)
     QString errorMessage;
     QString value;
     QString type;
-    if (m_d->evaluateExpression(wd->exp, &value, &type, &errorMessage)) {
+    QString exp = wd->exp;
+    // Remove locals watch prefix.
+    if (exp.startsWith(QLatin1String("local.")))
+        exp.remove(0, 6);
+    if (m_d->evaluateExpression(exp, &value, &type, &errorMessage)) {
         wd->setValue(value);
         wd->setType(type);
     } else {

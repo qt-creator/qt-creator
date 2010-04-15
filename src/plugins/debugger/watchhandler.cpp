@@ -1372,6 +1372,7 @@ void WatchHandler::watchExpression(const QString &exp)
     else
         insertData(data);
     m_manager->updateWatchData(data);
+    m_manager->updateWatchersWindow();
     saveWatchers();
 }
 
