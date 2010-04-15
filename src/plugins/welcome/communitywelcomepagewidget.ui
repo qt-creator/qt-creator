@@ -54,20 +54,13 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="Utils::WelcomeModeLabel" name="labsTitleLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           <property name="text">
+            <string>News From the Qt Labs</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="Utils::WelcomeModeTreeWidget" name="newsTreeWidget">
-          </widget>
+          <widget class="Utils::WelcomeModeTreeWidget" name="newsTreeWidget"/>
          </item>
         </layout>
        </widget>
@@ -83,37 +76,23 @@
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <widget class="Utils::WelcomeModeLabel" name="supportSitesTitleLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           <property name="text">
+            <string>Qt Support Sites</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="Utils::WelcomeModeTreeWidget" name="supportSitesTreeWidget">
-          </widget>
+          <widget class="Utils::WelcomeModeTreeWidget" name="supportSitesTreeWidget"/>
          </item>
          <item>
           <widget class="Utils::WelcomeModeLabel" name="miscSitesTitleLabel">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           <property name="text">
+            <string>Qt Links</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="Utils::WelcomeModeTreeWidget" name="miscSitesTreeWidget">
-           </widget>
+          <widget class="Utils::WelcomeModeTreeWidget" name="miscSitesTreeWidget"/>
          </item>
         </layout>
        </widget>
@@ -127,12 +106,12 @@
   <customwidget>
    <class>Utils::WelcomeModeTreeWidget</class>
    <extends>QWidget</extends>
-   <header>utils/welcomemodetreewidget.h</header>
+   <header location="global">utils/welcomemodetreewidget.h</header>
   </customwidget>
   <customwidget>
    <class>Utils::WelcomeModeLabel</class>
    <extends>QLabel</extends>
-   <header>utils/welcomemodetreewidget.h</header>
+   <header location="global">utils/welcomemodetreewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

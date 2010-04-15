@@ -235,6 +235,17 @@ public:
     virtual QWidget *createWidget(QWidget *parent);
 };
 
+class WelcomeModeLabel_CW :
+    public QObject,
+    public CustomWidget<Utils::WelcomeModeLabel>
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
+public:
+    explicit WelcomeModeLabel_CW(QObject *parent = 0);
+};
+
+
 // Details Widget: plugin + simple, hacky container extension that
 // accepts only one page.
 

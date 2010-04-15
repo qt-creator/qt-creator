@@ -38,9 +38,9 @@
 namespace Utils {
 
 struct WelcomeModeTreeWidgetPrivate;
-struct WelcomeModeLabelPrivate;
 class WelcomeModeItemWidget;
 
+// Label usable for headers of a Welcome page.
 class QTCREATOR_UTILS_EXPORT WelcomeModeLabel : public QLabel
 {
     Q_OBJECT
@@ -48,10 +48,8 @@ public:
     explicit WelcomeModeLabel(QWidget *parent = 0);
     virtual ~WelcomeModeLabel();
 
-    void setStyledText(const QString &text);
-
 private:
-    WelcomeModeLabelPrivate *m_d;
+    void *m_unused;
 };
 
 // WelcomeModeTreeWidget: Show an itemized list with arrows and emits a signal on click.

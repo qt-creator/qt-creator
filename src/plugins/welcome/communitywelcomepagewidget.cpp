@@ -84,9 +84,6 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     ui(new Ui::CommunityWelcomePageWidget)
 {
     ui->setupUi(this);
-    ui->labsTitleLabel->setStyledText(tr("News From the Qt Labs"));
-    ui->supportSitesTitleLabel->setStyledText(tr("Qt Support Sites"));
-    ui->miscSitesTitleLabel->setStyledText(tr("Qt Links"));
 
     connect(ui->newsTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
     connect(ui->miscSitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));

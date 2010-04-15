@@ -45,24 +45,22 @@ enum { leftContentsMargin = 2,
 namespace Utils {
 
 WelcomeModeLabel::WelcomeModeLabel(QWidget *parent) :
-    QLabel(parent)
+    QLabel(parent), m_unused(0)
 {
+    // Bold/enlarged font slightly gray. Force color on by stylesheet as it is used
+    // as a child of widgets that have stylesheets.
+    QFont f = font();
+#ifndef Q_OS_WIN
+    f.setWeight(QFont::DemiBold);
+#endif
+    f.setPointSizeF(f.pointSizeF() * 1.2);
+    setFont(f);
+    setStyleSheet(QLatin1String("color : rgb(85, 85, 85);"));
+    setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
 }
 
 WelcomeModeLabel::~WelcomeModeLabel()
 {
-}
-
-void WelcomeModeLabel::setStyledText(const QString &text)
-{
-    QString  rc = QLatin1String(
-    "<html><head><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head>"
-    "<body style=\" font-weight:500; font-style:normal;\">"
-    "<p style=\" margin-top:16px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
-    "<span style=\" font-size:large; color:#555555;\">");
-    rc += text;
-    rc += QLatin1String("</span></p></body></html>");
-    setText(rc);
 }
 
 // NewsLabel for the WelcomeModeTreeWidget:

@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>ProjectExplorer::Internal::ProjectWelcomePageWidget</class>
  <widget class="QWidget" name="ProjectExplorer::Internal::ProjectWelcomePageWidget">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>639</width>
-    <height>322</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -28,9 +20,6 @@
    </property>
    <item>
     <widget class="QFrame" name="contentframe">
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -42,33 +31,23 @@
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QFrame" name="recentProjectsFrame">
-          <property name="styleSheet">
-           <string/>
-          </property>
           <layout class="QGridLayout" name="gridLayout_5">
+           <property name="rightMargin">
+            <number>9</number>
+           </property>
            <property name="horizontalSpacing">
             <number>0</number>
            </property>
            <property name="verticalSpacing">
             <number>3</number>
            </property>
-           <property name="rightMargin">
-            <number>9</number>
-           </property>
            <item row="3" column="0" colspan="3">
-            <widget class="Utils::WelcomeModeTreeWidget" name="projTreeWidget">
-            </widget>
+            <widget class="Utils::WelcomeModeTreeWidget" name="projTreeWidget"/>
            </item>
            <item row="1" column="0" colspan="3">
             <widget class="Utils::WelcomeModeLabel" name="projTitleLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="text">
+              <string>Recent Projects</string>
              </property>
             </widget>
            </item>
@@ -89,9 +68,6 @@
             <height>130</height>
            </size>
           </property>
-          <property name="styleSheet">
-           <string/>
-          </property>
           <layout class="QGridLayout" name="gridLayout_3">
            <property name="horizontalSpacing">
             <number>0</number>
@@ -107,14 +83,16 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="text">
+              <string>Resume Session</string>
+             </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
             </widget>
            </item>
            <item row="3" column="0" colspan="3">
-            <widget class="Utils::WelcomeModeTreeWidget" name="sessTreeWidget">
-            </widget>
+            <widget class="Utils::WelcomeModeTreeWidget" name="sessTreeWidget"/>
            </item>
           </layout>
          </widget>
@@ -189,12 +167,12 @@
   <customwidget>
    <class>Utils::WelcomeModeTreeWidget</class>
    <extends>QWidget</extends>
-   <header>utils/welcomemodetreewidget.h</header>
+   <header location="global">utils/welcomemodetreewidget.h</header>
   </customwidget>
   <customwidget>
    <class>Utils::WelcomeModeLabel</class>
    <extends>QLabel</extends>
-   <header>utils/welcomemodetreewidget.h</header>
+   <header location="global">utils/welcomemodetreewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

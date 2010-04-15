@@ -244,6 +244,17 @@ QWidget *WelcomePageWidget_CW::createWidget(QWidget *parent)
     return rc;
 }
 
+WelcomeModeLabel_CW::WelcomeModeLabel_CW(QObject *parent) :
+    QObject(parent),
+    CustomWidget<Utils::WelcomeModeLabel>
+    (QLatin1String("<utils/welcomemodetreewidget.h>"),
+    false,
+    QLatin1String(groupC),
+    QIcon(),
+    QLatin1String("Welcome page header label"))
+{
+}
+
 DetailsWidget_CW::DetailsWidget_CW(QObject *parent) :
     QObject(parent),
     CustomWidget<Utils::DetailsWidget>
@@ -370,6 +381,7 @@ WidgetCollection::WidgetCollection(QObject *parent) :
     m_plugins.push_back(new StyledSeparator_CW(this));
     m_plugins.push_back(new Wizard_CW(this));
     m_plugins.push_back(new WelcomePageWidget_CW(this));
+    m_plugins.push_back(new WelcomeModeLabel_CW(this));
 }
 
 QList<QDesignerCustomWidgetInterface*> WidgetCollection::customWidgets() const

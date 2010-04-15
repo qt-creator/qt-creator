@@ -64,10 +64,7 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     ui(new Ui::GettingStartedWelcomePageWidget)
 {
     ui->setupUi(this);
-    ui->tutorialsTitleLabel->setStyledText(tr("Tutorials"));
-    ui->demoTitleLabel->setStyledText(tr("Explore Qt Examples"));
     ui->didYouKnowTextBrowser->viewport()->setAutoFillBackground(false);
-    ui->didYouKnowTitleLabel->setStyledText(tr("Did You Know?"));
 
     connect(ui->tutorialTreeWidget, SIGNAL(activated(QString)), SLOT(slotOpenHelpPage(const QString&)));
 

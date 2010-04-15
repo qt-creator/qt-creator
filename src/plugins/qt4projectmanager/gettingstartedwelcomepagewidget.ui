@@ -57,20 +57,13 @@
            </property>
            <item row="0" column="0">
             <widget class="Utils::WelcomeModeLabel" name="tutorialsTitleLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="text">
+              <string>Tutorials</string>
              </property>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="Utils::WelcomeModeTreeWidget" name="tutorialTreeWidget">
-            </widget>
+            <widget class="Utils::WelcomeModeTreeWidget" name="tutorialTreeWidget"/>
            </item>
           </layout>
          </widget>
@@ -101,8 +94,8 @@
            </property>
            <item row="1" column="0">
             <widget class="Utils::WelcomeModeLabel" name="demoTitleLabel">
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="text">
+              <string>Explore Qt Examples</string>
              </property>
             </widget>
            </item>
@@ -155,19 +148,6 @@
            <property name="verticalSpacing">
             <number>12</number>
            </property>
-           <item row="0" column="0">
-            <widget class="Utils::WelcomeModeLabel" name="didYouKnowTitleLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="1">
             <layout class="QGridLayout" name="gridLayout_10">
              <property name="spacing">
@@ -273,6 +253,37 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="0">
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="Utils::WelcomeModeLabel" name="didYouKnowTitleLabel">
+               <property name="text">
+                <string>Did You Know?</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
           </layout>
          </widget>
         </item>
@@ -330,12 +341,12 @@
   <customwidget>
    <class>Utils::WelcomeModeTreeWidget</class>
    <extends>QWidget</extends>
-   <header>utils/welcomemodetreewidget.h</header>
+   <header location="global">utils/welcomemodetreewidget.h</header>
   </customwidget>
   <customwidget>
    <class>Utils::WelcomeModeLabel</class>
    <extends>QLabel</extends>
-   <header>utils/welcomemodetreewidget.h</header>
+   <header location="global">utils/welcomemodetreewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>
