@@ -20281,7 +20281,7 @@ Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Z
     <message>
         <location line="+2"/>
         <source>The file %1 has been removed outside Qt Creator. Do you want to save it under a different name, or close the editor?</source>
-        <translation>Die Datei %1 wurde außerhalb von Qt Creator gelöscht. Möchten Sie sie unter einen anderen Name abspeichern oder den Editor schließen?</translation>
+        <translation>Die Datei %1 wurde außerhalb von Qt Creator gelöscht. Möchten Sie sie unter einem anderen Namen speichern oder den Editor schließen?</translation>
     </message>
     <message>
         <location line="+3"/>
