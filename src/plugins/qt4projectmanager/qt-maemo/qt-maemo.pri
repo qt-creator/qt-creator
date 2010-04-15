@@ -13,6 +13,7 @@ HEADERS += \
     $$PWD/maemorunfactories.h \
     $$PWD/maemosettingspage.h \
     $$PWD/maemosettingswidget.h \
+    $$PWD/maemosshconfigdialog.h \
     $$PWD/maemosshconnection.h \
     $$PWD/maemosshthread.h \
     $$PWD/maemotoolchain.h \
@@ -31,6 +32,7 @@ SOURCES += \
     $$PWD/maemorunfactories.cpp \
     $$PWD/maemosettingspage.cpp \
     $$PWD/maemosettingswidget.cpp \
+    $$PWD/maemosshconfigdialog.cpp \
     $$PWD/maemosshconnection.cpp \
     $$PWD/maemosshthread.cpp \
     $$PWD/maemotoolchain.cpp \
@@ -41,6 +43,7 @@ SOURCES += \
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
-    $$PWD/maemosettingswidget.ui
+    $$PWD/maemosettingswidget.ui \
+    $$PWD/maemosshconfigdialog.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

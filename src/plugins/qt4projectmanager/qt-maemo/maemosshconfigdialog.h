@@ -42,8 +42,6 @@
 namespace Qt4ProjectManager {
     namespace Internal {
 
-class MaemoSshDeployer;
-
 class MaemoSshConfigDialog : public QDialog
 {
     Q_OBJECT
@@ -51,15 +49,25 @@ public:
         MaemoSshConfigDialog(QWidget *parent = 0);
         ~MaemoSshConfigDialog();
 
+signals:
+    void publicKeyGenerated(const QString &path);
+    void privateKeyGenerated(const QString &path);
+
 private slots:
+    void slotToggled();
     void generateSshKey();
-    void deployKey();
-    void handleDeployThreadFinished();
-    void stopDeploying();
+    void savePublicKey();
+    void savePrivateKey();
 
 private:
+    void checkSshDir();
+    void copyFile(const QString &file, bool pubKey);
+
+private:
+    QString home;
+    QByteArray tmpKey;
+    QByteArray algorithm;
     Ui::MaemoSshConfigDialog m_ui;
-    MaemoSshDeployer *m_keyDeployer;
 };
 
     }   // Qt4ProjectManager

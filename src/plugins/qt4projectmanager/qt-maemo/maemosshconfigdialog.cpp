@@ -33,96 +33,105 @@
 ****************************************************************************/
 
 #include "maemosshconfigdialog.h"
-#include "maemosshthread.h"
 
-#include <coreplugin/icore.h>
+#include "maemodeviceconfigurations.h"
+#include "ne7sshobject.h"
+
 #include <ne7ssh.h>
 
 #include <QtCore/QDir>
+
+#include <QtNetwork/QHostInfo>
+
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QFileDialog>
 
 using namespace Qt4ProjectManager::Internal;
 
 MaemoSshConfigDialog::MaemoSshConfigDialog(QWidget *parent)
     : QDialog(parent)
-    , m_keyDeployer(0)
+    , home(QDesktopServices::storageLocation(QDesktopServices::HomeLocation))
 {
     m_ui.setupUi(this);
 
-    const QLatin1String root("MaemoSsh/");
-    QSettings *settings = Core::ICore::instance()->settings();
-    m_ui.useKeyFromPath->setChecked(settings->value(root + QLatin1String("userKey"),
-        false).toBool());
-    m_ui.keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
-    m_ui.keyFileLineEdit->setPath(settings->value(root + QLatin1String("keyPath"),
-        QDir::toNativeSeparators(QDir::homePath() + QLatin1String("/.ssh/id_rsa.pub")))
-        .toString());
+    connect(m_ui.rsa, SIGNAL(toggled(bool)), this, SLOT(slotToggled()));
+    connect(m_ui.dsa, SIGNAL(toggled(bool)), this, SLOT(slotToggled()));
 
-    connect(m_ui.deployButton, SIGNAL(clicked()), this, SLOT(deployKey()));
     connect(m_ui.generateButton, SIGNAL(clicked()), this, SLOT(generateSshKey()));
+    connect(m_ui.savePublicKey, SIGNAL(clicked()), this, SLOT(savePublicKey()));
+    connect(m_ui.savePrivateKey, SIGNAL(clicked()), this, SLOT(savePrivateKey()));
 }
 
 MaemoSshConfigDialog::~MaemoSshConfigDialog()
 {
 }
 
+void MaemoSshConfigDialog::slotToggled()
+{
+    m_ui.comboBox->setCurrentIndex(0);
+    m_ui.comboBox->setEnabled(m_ui.rsa->isChecked());
+}
+
 void MaemoSshConfigDialog::generateSshKey()
 {
-    if (!m_ui.keyFileLineEdit->isValid()) {
-        ne7ssh ssh;
-        ssh.generateKeyPair("rsa", "test", "id_rsa", "id_rsa.pub");
+    algorithm = m_ui.rsa->isChecked() ? "rsa" : "dsa";
+    tmpKey = QDir::tempPath().append(QLatin1Char('/') + algorithm).toUtf8();
+    QByteArray userId = QString(home.mid(home.lastIndexOf(QLatin1Char('/')) + 1)
+        + QLatin1Char('@') + QHostInfo::localHostName()).toUtf8();
+
+    QFile::remove(tmpKey);
+    QFile::remove(tmpKey + ".pub");
+
+    QApplication::setOverrideCursor(Qt::BusyCursor);
+
+    QSharedPointer<ne7ssh> ssh = Ne7SshObject::instance()->get();
+    if (ssh->generateKeyPair(algorithm, userId, tmpKey, tmpKey + ".pub",
+        m_ui.comboBox->currentText().toUShort())) {
+        QFile file(tmpKey + ".pub");
+        if (file.open(QIODevice::ReadOnly))
+            m_ui.plainTextEdit->setPlainText(file.readAll());
+        m_ui.savePublicKey->setEnabled(true);
+        m_ui.savePrivateKey->setEnabled(true);
     } else {
-        m_ui.infoLabel->setText("An public key has been created already.");
+        m_ui.plainTextEdit->setPlainText(tr("Could not create SSH key pair."));
     }
+
+    QApplication::restoreOverrideCursor();
 }
 
-void MaemoSshConfigDialog::deployKey()
+void MaemoSshConfigDialog::savePublicKey()
 {
-    if (m_keyDeployer)
-        return;
+    checkSshDir();
+    copyFile(QFileDialog::getSaveFileName(this, tr("Choose folder to save "
+        "public key file"), home + QString::fromLatin1("/.ssh/id_%1.pub")
+        .arg(algorithm.constData())), true);
+}
 
-    if (m_ui.keyFileLineEdit->validatePath(m_ui.keyFileLineEdit->path())) {
-        m_ui.deployButton->disconnect();
-        //SshDeploySpec deploySpec(keyFile, homeDirOnDevice(currentConfig().uname)
-        //    + QLatin1String("/.ssh/authorized_keys"), true);
-        //m_keyDeployer = new MaemoSshDeployer(currentConfig(), QList<SshDeploySpec>()
-        //    << deploySpec);
-        //connect(m_keyDeployer, SIGNAL(finished()), this,
-        //    SLOT(handleDeployThreadFinished()));
-        if (m_keyDeployer) {
-            m_keyDeployer->start();
-            m_ui.deployButton->setText(tr("Stop deploying"));
-            connect(m_ui.deployButton, SIGNAL(clicked()), this, SLOT(stopDeploying()));
+void MaemoSshConfigDialog::savePrivateKey()
+{
+    checkSshDir();
+    copyFile(QFileDialog::getSaveFileName(this, tr("Choose folder to save "
+        "private key file"), home + QString::fromLatin1("/.ssh/id_%1")
+        .arg(algorithm.constData())), false);
+}
+
+void MaemoSshConfigDialog::checkSshDir()
+{
+    QDir dir(home + QString::fromLatin1("/.ssh"));
+    if (!dir.exists())
+        dir.mkpath(home + QString::fromLatin1("/.ssh"));
+}
+
+void MaemoSshConfigDialog::copyFile(const QString &file, bool pubKey)
+{
+    if (!file.isEmpty()) {
+        if (!QFile::exists(file) || QFile::remove(file)) {
+            QFile(tmpKey + (pubKey ? ".pub" : "")).copy(file);
+            if (pubKey)
+                emit publicKeyGenerated(file);
+            else
+                emit privateKeyGenerated(file);
         }
-    } else {
-        m_ui.infoLabel->setText("The public key path is invalid.");
-    }
-}
-
-void MaemoSshConfigDialog::handleDeployThreadFinished()
-{
-    if (!m_keyDeployer)
-        return;
-
-    if (m_keyDeployer->hasError()) {
-        m_ui.infoLabel->setText(tr("Key deployment failed: %1")
-            .arg(m_keyDeployer->error()));
-    } else {
-        m_ui.infoLabel->setText(tr("Key was successfully deployed."));
-    }
-    stopDeploying();
-}
-
-void MaemoSshConfigDialog::stopDeploying()
-{
-    if (m_keyDeployer) {
-        m_ui.deployButton->disconnect();
-        const bool buttonWasEnabled = m_ui.deployButton->isEnabled();
-        m_keyDeployer->disconnect();
-        m_keyDeployer->stop();
-        delete m_keyDeployer;
-        m_keyDeployer = 0;
-        m_ui.deployButton->setText(tr("Deploy Public Key"));
-        connect(m_ui.deployButton, SIGNAL(clicked()), this, SLOT(deployKey()));
-        m_ui.deployButton->setEnabled(buttonWasEnabled);
     }
 }
