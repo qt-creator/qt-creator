@@ -135,7 +135,7 @@ void RemoveEntryCommand::redo()
 
 void RemoveEntryCommand::undo()
 {
-    if (m_entry == 0) {
+    if (m_entry != 0) {
         m_entry->restore();
         Q_ASSERT(m_view != 0);
         const QModelIndex index = makeIndex();
