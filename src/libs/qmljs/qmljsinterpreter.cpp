@@ -803,6 +803,14 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         object->setProperty("x", engine()->numberValue());
         object->setProperty("y", engine()->numberValue());
         value = object;
+    } else if (typeName == QLatin1String("QSize")
+            || typeName == QLatin1String("QSizeF")) {
+        // ### cache
+        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setClassName(QLatin1String("Size"));
+        object->setProperty("width", engine()->numberValue());
+        object->setProperty("height", engine()->numberValue());
+        value = object;
     } else if (typeName == QLatin1String("QRect")
             || typeName == QLatin1String("QRectF")) {
         // ### cache
