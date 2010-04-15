@@ -190,16 +190,16 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_M));
     connect(action, SIGNAL(triggered()), this, SLOT(addBookmark()));
 
-    // Add Index, Contents, and Context menu items and a separator to the Help menu
+    // Add Contents, Index, and Context menu items and a separator to the Help menu
+    action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")), tr("Contents"), this);
+    cmd = am->registerAction(action, QLatin1String("Help.Contents"), globalcontext);
+    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
+
     action = new QAction(tr("Index"), this);
     cmd = am->registerAction(action, QLatin1String("Help.Index"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
-
-    action = new QAction(tr("Contents"), this);
-    cmd = am->registerAction(action, QLatin1String("Help.Contents"), globalcontext);
-    am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
 
     action = new QAction(tr("Context Help"), this);
     cmd = am->registerAction(action, QLatin1String("Help.Context"), globalcontext);
