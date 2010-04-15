@@ -30,7 +30,9 @@
 #define QMLINSPECTORMODE_H
 
 #include "qmlinspector_global.h"
+#include "inspectorsettings.h"
 #include <coreplugin/basemode.h>
+#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 
 #include <QtGui/QAction>
 #include <QtCore/QObject>
@@ -51,6 +53,9 @@ class QDeclarativeDebugObjectReference;
 QT_END_NAMESPACE
 
 
+namespace ProjectExplorer {
+    class Project;
+}
 
 namespace Core {
     class IContext;
@@ -70,16 +75,26 @@ namespace Qml {
         class EngineSpinBox;
     }
 
+const int MaxConnectionAttempts = 50;
+const int ConnectionAttemptDefaultInterval = 75;
+// used when debugging with c++ - connection can take a lot of time
+const int ConnectionAttemptSimultaneousInterval = 500;
+
 class QMLINSPECTOR_EXPORT QmlInspector : public QObject
 {
     Q_OBJECT
 
 public:
     QmlInspector(QObject *parent = 0);
+    ~QmlInspector();
 
     void createDockWidgets();
     bool connectToViewer(); // using host, port from widgets
     Core::IContext *context() const;
+
+    // returns false if project is not debuggable.
+    bool setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug);
+    void startConnectionTimer();
 
 signals:
     void statusMessage(const QString &text);
@@ -96,6 +111,10 @@ private slots:
     void queryEngineContext(int);
     void contextChanged();
     void treeObjectActivated(const QDeclarativeDebugObjectReference &obj);
+    void attachToExternalQmlApplication();
+
+    void debuggerStateChanged(int newState);
+    void pollInspector();
 
 private:
     void resetViews();
@@ -124,8 +143,14 @@ private:
     Internal::InspectorContext *m_context;
     Internal::InspectorContext *m_propWatcherContext;
 
+    QTimer *m_connectionTimer;
+    int m_connectionAttempts;
+
+    Internal::InspectorSettings m_settings;
+    QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
+
 };
 
-}
+} // Qml
 
 #endif

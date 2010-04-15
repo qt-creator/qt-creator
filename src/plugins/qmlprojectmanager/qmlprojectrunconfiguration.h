@@ -52,6 +52,14 @@ class QmlProjectRunConfigurationFactory;
 const char * const CURRENT_FILE  = QT_TRANSLATE_NOOP("QmlManager", "<Current File>");
 const char * const M_CURRENT_FILE  = "CurrentFile";
 
+
+class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfigurationDebugData {
+public:
+    QmlProjectRunConfigurationDebugData();
+    QString serverAddress;
+    quint16 serverPort;
+};
+
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
@@ -108,8 +116,8 @@ private:
     QString m_qmlViewerCustomPath;
     QString m_qmlViewerDefaultPath;
     QString m_qmlViewerArgs;
-    QString m_debugServerAddress;
-    uint m_debugServerPort;
+    QmlProjectRunConfigurationDebugData m_debugData;
+
     QStringListModel *m_fileListModel;
     // weakpointer is used to make sure we don't try to manipulate
     // widget which was deleted already, as can be the case here.

@@ -169,6 +169,11 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager, const DebuggerS
     m_startParameters->useTerminal = false;
 }
 
+void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
+{
+    m_startParameters->environment = env.toStringList();
+}
+
 void DebuggerRunControl::init()
 {
     connect(m_manager, SIGNAL(debuggingFinished()),

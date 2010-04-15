@@ -29,7 +29,7 @@
 
 #include "qmlprojectruncontrol.h"
 #include "qmlprojectrunconfiguration.h"
-
+#include "qmlprojectconstants.h"
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/environment.h>
@@ -56,7 +56,7 @@ QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, bool 
 {
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
     if (debugMode)
-        environment.set("QML_DEBUG_SERVER_PORT", QString::number(runConfiguration->debugServerPort()));
+        environment.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(runConfiguration->debugServerPort()));
 
     m_applicationLauncher.setEnvironment(environment.toStringList());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());

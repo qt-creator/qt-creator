@@ -52,10 +52,14 @@
 
 namespace QmlProjectManager {
 
+
+QmlProjectRunConfigurationDebugData::QmlProjectRunConfigurationDebugData() :
+        serverAddress("127.0.0.1"), serverPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT)
+{
+}
+
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent) :
     ProjectExplorer::RunConfiguration(parent, QLatin1String(Constants::QML_RC_ID)),
-    m_debugServerAddress("127.0.0.1"),
-    m_debugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
     m_fileListModel(new QStringListModel(this)),
     m_projectTarget(parent),
     m_usingCurrentFile(true),
@@ -68,10 +72,10 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
     ProjectExplorer::RunConfiguration(parent, source),
     m_scriptFile(source->m_scriptFile),
     m_qmlViewerCustomPath(source->m_qmlViewerCustomPath),
-    m_qmlViewerArgs(source->m_qmlViewerArgs),
-    m_debugServerAddress(source->m_debugServerAddress),
-    m_debugServerPort(source->m_debugServerPort)
+    m_qmlViewerArgs(source->m_qmlViewerArgs)
 {
+    m_debugData.serverAddress = source->m_debugData.serverAddress;
+    m_debugData.serverPort = source->m_debugData.serverPort;
     ctor();
 }
 
@@ -108,7 +112,7 @@ QmlProjectRunConfiguration::~QmlProjectRunConfiguration()
 
 QString QmlProjectRunConfiguration::debugServerAddress() const
 {
-    return m_debugServerAddress;
+    return m_debugData.serverAddress;
 }
 
 Internal::QmlProjectTarget *QmlProjectRunConfiguration::qmlTarget() const
@@ -151,7 +155,7 @@ QString QmlProjectRunConfiguration::workingDirectory() const
 
 uint QmlProjectRunConfiguration::debugServerPort() const
 {
-    return m_debugServerPort;
+    return m_debugData.serverPort;
 }
 
 static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
@@ -181,13 +185,13 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
     connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onViewerArgsChanged()));
 
     QLineEdit *debugServer = new QLineEdit;
-    debugServer->setText(m_debugServerAddress);
+    debugServer->setText(m_debugData.serverAddress);
     connect(debugServer, SIGNAL(textChanged(QString)), this, SLOT(onDebugServerAddressChanged()));
 
     QSpinBox *debugPort = new QSpinBox;
     debugPort->setMinimum(1024); // valid registered/dynamic/free ports according to http://www.iana.org/assignments/port-numbers
     debugPort->setMaximum(65535);
-    debugPort->setValue(m_debugServerPort);
+    debugPort->setValue(m_debugData.serverPort);
     connect(debugPort, SIGNAL(valueChanged(int)), this, SLOT(onDebugServerPortChanged()));
 
     form->addRow(tr("QML Runtime"), qmlViewer);
@@ -243,7 +247,7 @@ void QmlProjectRunConfiguration::updateFileComboBox()
 void QmlProjectRunConfiguration::onDebugServerAddressChanged()
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender()))
-        m_debugServerAddress = lineEdit->text();
+        m_debugData.serverAddress = lineEdit->text();
 }
 
 void QmlProjectRunConfiguration::setMainScript(const QString &scriptFile)
@@ -279,7 +283,7 @@ void QmlProjectRunConfiguration::onViewerArgsChanged()
 void QmlProjectRunConfiguration::onDebugServerPortChanged()
 {
     if (QSpinBox *spinBox = qobject_cast<QSpinBox*>(sender())) {
-        m_debugServerPort = spinBox->value();
+        m_debugData.serverPort = spinBox->value();
     }
 }
 
@@ -290,8 +294,8 @@ QVariantMap QmlProjectRunConfiguration::toMap() const
     map.insert(QLatin1String(Constants::QML_VIEWER_KEY), m_qmlViewerCustomPath);
     map.insert(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY), m_qmlViewerArgs);
     map.insert(QLatin1String(Constants::QML_MAINSCRIPT_KEY),  m_scriptFile);
-    map.insert(QLatin1String(Constants::QML_DEBUG_SERVER_PORT_KEY), m_debugServerPort);
-    map.insert(QLatin1String(Constants::QML_DEBUG_SERVER_ADDRESS_KEY), m_debugServerAddress);
+    map.insert(QLatin1String(Constants::QML_DEBUG_SERVER_PORT_KEY), m_debugData.serverPort);
+    map.insert(QLatin1String(Constants::QML_DEBUG_SERVER_ADDRESS_KEY), m_debugData.serverAddress);
     return map;
 }
 
@@ -300,8 +304,8 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
     m_qmlViewerCustomPath = map.value(QLatin1String(Constants::QML_VIEWER_KEY)).toString();
     m_qmlViewerArgs = map.value(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY)).toString();
     m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), M_CURRENT_FILE).toString();
-    m_debugServerPort = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_PORT_KEY), Constants::QML_DEFAULT_DEBUG_SERVER_PORT).toUInt();
-    m_debugServerAddress = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_ADDRESS_KEY), QLatin1String("127.0.0.1")).toString();
+    m_debugData.serverPort = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_PORT_KEY), Constants::QML_DEFAULT_DEBUG_SERVER_PORT).toUInt();
+    m_debugData.serverAddress = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_ADDRESS_KEY), QLatin1String("127.0.0.1")).toString();
     setMainScript(m_scriptFile);
 
     return RunConfiguration::fromMap(map);

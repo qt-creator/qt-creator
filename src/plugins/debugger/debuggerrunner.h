@@ -31,14 +31,14 @@
 #define DEBUGGERRUNNER_H
 
 #include "debuggermanager.h"
-
+#include "debugger_global.h"
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 
 namespace Debugger {
 namespace Internal {
 
-class DebuggerRunControlFactory
+class DEBUGGER_EXPORT DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
@@ -63,7 +63,7 @@ private:
 };
 
 // This is a job description
-class DebuggerRunControl
+class DEBUGGER_EXPORT DebuggerRunControl
     : public ProjectExplorer::RunControl
 {
     Q_OBJECT
@@ -73,6 +73,7 @@ public:
                        ProjectExplorer::LocalApplicationRunConfiguration *runConfiguration);
     DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters);
 
+    void setCustomEnvironment(ProjectExplorer::Environment env);
 
     // ProjectExplorer::RunControl
     virtual void start();

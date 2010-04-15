@@ -178,7 +178,7 @@ bool WatchTableModel::setData ( const QModelIndex & index, const QVariant & valu
 Qt::ItemFlags WatchTableModel::flags ( const QModelIndex & index ) const
 {
     if (index.column() == C_VALUE)
-        return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
+        return Qt::ItemIsSelectable | Qt::ItemIsEnabled; // Qt::ItemIsEditable |  <- disabled for now
 
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }

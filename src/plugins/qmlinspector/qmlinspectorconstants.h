@@ -39,18 +39,17 @@ namespace Qml {
         const char * const C_INSPECTOR = "QmlInspector";
         const char * const COMPLETE_THIS = "QmlInspector.CompleteThis";
 
+        const char * const M_ATTACH_TO_EXTERNAL = "QmlInspector.Menu.AttachToExternal";
+
         const char * const LANG_QML = "QML";
+
+        // settings
+        const char * const S_QML_INSPECTOR    = "QML.Inspector";
+        const char * const S_EXTERNALPORT_KEY = "ExternalPort";
+        const char * const S_EXTERNALURL_KEY  = "ExternalUrl";
+
     };
 
-    class StartParameters
-    {
-    public:
-        StartParameters() : port(0) {}
-        ~StartParameters() {}
-
-        QString address;
-        quint16 port;
-    };
 };
 
 #endif

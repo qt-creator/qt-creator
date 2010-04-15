@@ -48,8 +48,6 @@ namespace ProjectExplorer {
 namespace Qml {
     class QmlInspector;
 
-const int MaxConnectionAttempts = 20;
-
 class QmlInspectorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -67,15 +65,12 @@ public slots:
     void setDockWidgetArrangement(const QString &activeLanguage);
 
 private slots:
-    void pollInspector();
     void prepareDebugger(Core::IMode *mode);
 
 private:
     QmlInspector *m_inspector;
-    QTimer *m_connectionTimer;
-    int m_connectionAttempts;
 };
 
-}
+} // Qml
 
 #endif // QMLINSPECTORPLUGIN_H

@@ -1771,6 +1771,8 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
 
     d->m_state = state;
 
+    emit stateChanged(state);
+
     //if (d->m_state == InferiorStopped)
     //    resetLocation();
 

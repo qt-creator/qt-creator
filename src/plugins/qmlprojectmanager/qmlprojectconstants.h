@@ -54,6 +54,9 @@ const char * const QML_WIZARD_CATEGORY = "F.Projects"; // (after Qt)
 const char * const QML_WIZARD_TR_SCOPE = "QmlProjectManager";
 const char * const QML_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("QmlProjectManager", "Qt Quick Project");
 
+// Env variables for inspector
+const char * const E_QML_DEBUG_SERVER_PORT = "QML_DEBUG_SERVER_PORT";
+
 } // namespace Constants
 } // namespace QmlProjectManager
 

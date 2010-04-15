@@ -57,7 +57,6 @@
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QToolButton>
-#include <QtGui/QMessageBox>
 
 #include <QtCore/QDebug>
 
@@ -73,10 +72,9 @@ static QToolButton *createToolButton(QAction *action)
 }
 
 QmlInspectorPlugin::QmlInspectorPlugin()
-    : m_inspector(0), m_connectionTimer(new QTimer(this)),
-    m_connectionAttempts(0)
+    : m_inspector(0)
 {
-    m_connectionTimer->setInterval(75);
+
 }
 
 QmlInspectorPlugin::~QmlInspectorPlugin()
@@ -106,8 +104,6 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     m_inspector = new QmlInspector;
     m_inspector->createDockWidgets();
     addObject(m_inspector);
-
-    connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 
     return true;
 }
@@ -148,25 +144,10 @@ void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *pr
         // FIXME we probably want to activate the debugger for other projects than QmlProjects,
         // if they contain Qml files. Some kind of options should exist for this behavior.
         QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
-        if (qmlproj)
-            m_connectionTimer->start();
+        if (qmlproj && m_inspector->setDebugConfigurationDataFromProject(qmlproj))
+            m_inspector->startConnectionTimer();
     }
 
-}
-void QmlInspectorPlugin::pollInspector()
-{
-    ++m_connectionAttempts;
-    if (m_inspector->connectToViewer()) {
-        m_connectionTimer->stop();
-        m_connectionAttempts = 0;
-    } else if (m_connectionAttempts == MaxConnectionAttempts) {
-        m_connectionTimer->stop();
-        m_connectionAttempts = 0;
-
-        QMessageBox::critical(0,
-                              tr("Failed to connect to debugger"),
-                              tr("Could not connect to debugger server. Please check your settings from Projects pane.") );
-    }
 }
 
 void QmlInspectorPlugin::prepareDebugger(Core::IMode *mode)

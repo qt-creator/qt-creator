@@ -263,9 +263,12 @@ void DebuggerUISwitcher::addLanguage(const QString &langName, const QList<int> &
 
     d->m_languageActionGroup->addAction(langChange);
 
+    QString prefix = tr("Alt+L");
     connect(langChange, SIGNAL(triggered()), SLOT(langChangeTriggered()));
     Core::Command *cmd = am->registerAction(langChange,
                          "Debugger.Language." + langName, d->m_globalContext);
+    cmd->setDefaultKeySequence(QKeySequence(QString("%1,%2").arg(prefix, QString::number(d->m_languages.count()))));
+
     d->m_languageMenu->addAction(cmd);
 }
 
