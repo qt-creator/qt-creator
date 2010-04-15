@@ -1,6 +1,13 @@
 import Qt 4.7
 
-Rectangle {
+Flipable {
     width: 640
     height: 480
+    front: Text {
+        text: "front"
+    }
+    back: Text {
+        text: "back"
+    }
+
 }
