@@ -45,7 +45,6 @@
 #include <QtGui/QLabel>
 #include <QtGui/QStylePainter>
 #include <QtGui/QToolTip>
-#include <QtCore/QTimer>
 
 #include <limits.h>
 
@@ -256,6 +255,10 @@ CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable
 {
     QTC_ASSERT(m_editorWidget, return);
 
+    m_infoTimer.setInterval(1000);
+    m_infoTimer.setSingleShot(true);
+    connect(&m_infoTimer, SIGNAL(timeout()), SLOT(maybeShowInfoTip()));
+
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setUniformItemSizes(true);
     setSelectionBehavior(QAbstractItemView::SelectItems);
@@ -269,7 +272,6 @@ CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable
     if (verticalScrollBar())
         verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
 #endif
-
 }
 
 CompletionListView::~CompletionListView()
@@ -285,6 +287,7 @@ void CompletionListView::maybeShowInfoTip()
 
     if (infoTip.isEmpty()) {
         delete m_infoFrame.data();
+        m_infoTimer.setInterval(200);
         return;
     }
 
@@ -295,19 +298,21 @@ void CompletionListView::maybeShowInfoTip()
     QRect r = rectForIndex(current);
     m_infoFrame->move(
             (parentWidget()->mapToGlobal(
-                    parentWidget()->rect().topRight() + QPoint(0, 0))).x(),
+                    parentWidget()->rect().topRight())).x() + 3,
             mapToGlobal(r.topRight()).y() - verticalOffset()
             );
     m_infoFrame->setText(infoTip);
     m_infoFrame->adjustSize();
     m_infoFrame->show();
     m_infoFrame->raise();
+
+    m_infoTimer.setInterval(0);
 }
 
 void CompletionListView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     QListView::currentChanged(current, previous);
-    QTimer::singleShot(0, this, SLOT(maybeShowInfoTip()));
+    m_infoTimer.start();
 }
 
 

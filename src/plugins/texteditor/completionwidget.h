@@ -31,7 +31,8 @@
 #define COMPLETIONWIDGET_H
 
 #include <QtGui/QListView>
-#include <QPointer>
+#include <QtCore/QPointer>
+#include <QtCore/QTimer>
 
 namespace TextEditor {
 
@@ -113,6 +114,7 @@ private:
     AutoCompletionModel *m_model;
     CompletionSupport *m_support;
     QPointer<CompletionInfoFrame> m_infoFrame;
+    QTimer m_infoTimer;
 };
 
 } // namespace Internal
