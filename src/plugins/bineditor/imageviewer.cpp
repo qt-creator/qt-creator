@@ -146,13 +146,14 @@ ImageViewer::ImageViewer(QObject *parent)
 
     m_scrollArea = new QScrollArea;
     m_scrollArea->setWidgetResizable(true);
-    m_imageview = new QWidget;
-    QGridLayout *layout = new QGridLayout();
+    m_scrollArea->setFrameStyle(QFrame::NoFrame);
+    m_imageView = new QWidget;
+    QGridLayout *layout = new QGridLayout;
     m_label = new QLabel;
     m_label->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     m_label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     layout->setMargin(0);
-    m_imageview->setLayout(layout);
+    m_imageView->setLayout(layout);
     layout->addWidget(m_label, 0, 0, 1, 1);
 }
 
@@ -181,7 +182,7 @@ bool ImageViewer::createNew(const QString &contents)
 bool ImageViewer::open(const QString &fileName)
 {
     m_label->setPixmap(QPixmap(fileName));
-    m_scrollArea->setWidget(m_imageview);
+    m_scrollArea->setWidget(m_imageView);
     setDisplayName(QFileInfo(fileName).fileName());
     m_file->setFileName(fileName);
     // m_file->setMimeType

@@ -126,7 +126,7 @@ private:
     QString m_displayName;
     ImageViewerFile *m_file;
     QScrollArea *m_scrollArea;
-    QWidget *m_imageview;
+    QWidget *m_imageView;
     QLabel *m_label;
 };
 
