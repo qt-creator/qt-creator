@@ -45,10 +45,12 @@
 #include "maemopackagecreationwidget.h"
 #include "maemotoolchain.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qt4buildconfiguration.h>
 #include <qt4project.h>
 #include <qt4target.h>
 
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
@@ -56,8 +58,10 @@
 #include <QtCore/QStringBuilder>
 #include <QtGui/QWidget>
 
+using namespace ProjectExplorer::Constants;
 using ProjectExplorer::BuildConfiguration;
 using ProjectExplorer::BuildStepConfigWidget;
+using ProjectExplorer::Task;
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -91,13 +95,14 @@ BuildStepConfigWidget *MaemoPackageCreationStep::createConfigWidget()
 
 bool MaemoPackageCreationStep::createPackage()
 {
-    qDebug("%s", Q_FUNC_INFO);
     if (!packagingNeeded())
         return true;
 
+    emit addOutput(tr("Creating package file ..."));
     QFile configFile(targetRoot() % QLatin1String("/config.sh"));
     if (!configFile.open(QIODevice::ReadOnly)) {
-        qDebug("Cannot open config file '%s'", qPrintable(configFile.fileName()));
+        raiseError(tr("Cannot open MADDE config file '%1'.")
+                   .arg(nativePath(configFile)));
         return false;
     }
 
@@ -125,9 +130,6 @@ bool MaemoPackageCreationStep::createPackage()
             env.insert(envPattern.cap(1), envPattern.cap(2));
     } while (!line.isEmpty());
     
-    qDebug("Process environment: %s", qPrintable(env.toStringList().join("\n")));
-    qDebug("sysroot: '%s'", qPrintable(env.value(QLatin1String("SYSROOT_DIR"))));
-    
     QProcess buildProc;
     buildProc.setProcessEnvironment(env);
     buildProc.setWorkingDirectory(projectDir);
@@ -139,7 +141,8 @@ bool MaemoPackageCreationStep::createPackage()
             return false;
         QFile rulesFile(projectDir + QLatin1String("/debian/rules"));
         if (!rulesFile.open(QIODevice::ReadWrite)) {
-            qDebug("Error: Could not open debian/rules.");
+            raiseError(tr("Packaging Error: Cannot open file '%1'.")
+                       .arg(nativePath(rulesFile)));
             return false;
         }
 
@@ -148,7 +151,8 @@ bool MaemoPackageCreationStep::createPackage()
         rulesFile.resize(0);
         rulesFile.write(rulesContents);
         if (rulesFile.error() != QFile::NoError) {
-            qDebug("Error: could not access debian/rules");
+            raiseError(tr("Packaging Error: Cannot write file '%1'.")
+                       .arg(nativePath(rulesFile)));
             return false;
         }
     }
@@ -160,13 +164,15 @@ bool MaemoPackageCreationStep::createPackage()
         % executableFileName().toLower() % executableFilePathOnTarget());
     if (QFile::exists(targetFile)) {
         if (!QFile::remove(targetFile)) {
-            qDebug("Error: Could not remove '%s'", qPrintable(targetFile));
+            raiseError(tr("Packaging Error: Could not replace file '%1'.")
+                       .arg(QDir::toNativeSeparators(targetFile)));
             return false;
         }
     }
     if (!QFile::copy(executable(), targetFile)) {
-        qDebug("Error: Could not copy '%s' to '%s'",
-               qPrintable(executable()), qPrintable(targetFile));
+        raiseError(tr("Packaging Error: Could not copy '%1' to '%2'.")
+                   .arg(QDir::toNativeSeparators(executable()))
+                   .arg(QDir::toNativeSeparators(targetFile)));
         return false;
     }
 
@@ -179,12 +185,13 @@ bool MaemoPackageCreationStep::createPackage()
             return false;
     }
 
+    emit addOutput(tr("Package created."));
     return true;
 }
 
 bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command)
 {
-    qDebug("Running command '%s'", qPrintable(command));
+    emit addOutput(tr("Package Creation: Running command '%1'.").arg(command));
     QString perl;
 #ifdef Q_OS_WIN
     perl = maddeRoot() + QLatin1String("/bin/perl.exe ");
@@ -192,17 +199,17 @@ bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command
     proc.start(perl + maddeRoot() % QLatin1String("/madbin/") % command);
     proc.write("\n"); // For dh_make
     if (!proc.waitForFinished(100000) && proc.error() == QProcess::Timedout) {
-        qDebug("command '%s' hangs", qPrintable(command));
+        raiseError(tr("Packaging failed."),
+                   tr("Packaging Error: Command '%1' timed out.").arg(command));
         return false;
     }
     if (proc.exitCode() != 0) {
-        qDebug("command '%s' failed with return value %d and output '%s'",
-            qPrintable(command),  proc.exitCode(), (proc.readAllStandardOutput()
-            + "\n" + proc.readAllStandardError()).data());
+        const QString mainMessage = tr("Packaging Error: Command '%1' failed.")
+                                    .arg(command);
+        raiseError(mainMessage, mainMessage + QLatin1Char(' ')
+                   + tr("Output was: ") + proc.readAllStandardError());
         return false;
     }
-    qDebug("Command finished, output was '%s'", (proc.readAllStandardOutput()
-        + "\n" + proc.readAllStandardError()).data());
     return true;
 }
 
@@ -270,6 +277,19 @@ QString MaemoPackageCreationStep::executableFilePathOnTarget() const
 QString MaemoPackageCreationStep::versionString() const
 {
     return QLatin1String("_0.1");
+}
+
+QString MaemoPackageCreationStep::nativePath(const QFile &file) const
+{
+    return QDir::toNativeSeparators(QFileInfo(file).filePath());
+}
+
+void MaemoPackageCreationStep::raiseError(const QString &shortMsg,
+                                          const QString &detailedMsg)
+{
+    emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg);
+    emit addTask(Task(Task::Error, shortMsg, QString(), -1,
+                      TASK_CATEGORY_BUILDSYSTEM));
 }
 
 const QLatin1String MaemoPackageCreationStep::CreatePackageId("Qt4ProjectManager.MaemoPackageCreationStep");

@@ -45,6 +45,7 @@
 #include <projectexplorer/buildstep.h>
 
 QT_BEGIN_NAMESPACE
+class QFile;
 class QProcess;
 QT_END_NAMESPACE
 
@@ -80,9 +81,11 @@ private:
     QString executableFileName() const;
     QString maddeRoot() const;
     QString targetRoot() const;
+    QString nativePath(const QFile &file) const;
     bool packagingNeeded() const;
-
     QString versionString() const;
+    void raiseError(const QString &shortMsg,
+                    const QString &detailedMsg = QString());
 
     static const QLatin1String CreatePackageId;
 };
