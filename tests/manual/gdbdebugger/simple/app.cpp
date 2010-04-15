@@ -71,6 +71,11 @@
 #include <string>
 #include <vector>
 
+#define USE_GCC_EXT 1
+#if USE_GCC_EXT
+#include <hash_set>
+#endif
+
 #ifdef Q_OS_WIN
 #include <windows.h>
 #undef min
@@ -888,6 +893,20 @@ void testStdDeque()
     flist.push_front(2);
 }
 
+void testStdHashSet()
+{
+#if USE_GCC_EXT
+    using namespace __gnu_cxx;
+    hash_set<int> h;
+    h.insert(1);
+    h.insert(194);
+    h.insert(2);
+    h.insert(3);
+    h.insert(4);
+    h.insert(5);
+#endif
+}
+
 void testStdList()
 {
     std::list<int> big;
@@ -1606,6 +1625,7 @@ int main(int argc, char *argv[])
 
     testStdDeque();
     testStdList();
+    testStdHashSet();
     testStdMap();
     testStdSet();
     testStdStack();

@@ -1856,6 +1856,30 @@ def qdump__wstring(d, item):
     qdump__std__string(d, item)
 
 
+def qdump____gnu_cxx__hash_set(d, item):
+    ht = item.value["_M_ht"]
+    size = ht["_M_num_elements"]
+    d.putItemCount(size)
+    d.putNumChild(size)
+    type = item.value.type.template_argument(0)
+    d.putType("__gnu__cxx::hash_set<%s>" % type)
+    if d.isExpanded(item):
+        with Children(d, [size, 1000], type):
+            buckets = ht["_M_buckets"]["_M_impl"]
+            bucketStart = buckets["_M_start"]
+            bucketFinish = buckets["_M_finish"]
+            p = bucketStart
+            itemCount = 0
+            for i in xrange(bucketFinish - bucketStart):
+                if not isNull(p.dereference()):
+                    cur = p.dereference()
+                    while not isNull(cur):
+                        with SubItem(d):
+                            d.putValue(cur["_M_val"])
+                            cur = cur["_M_next"]
+                            itemCount += 1
+                p = p + 1
+
 #######################################################################
 #
 # Symbian
