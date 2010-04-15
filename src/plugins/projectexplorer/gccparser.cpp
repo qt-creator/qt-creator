@@ -428,6 +428,16 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                          QLatin1String("../../scriptbug/main.cpp"), 8,
                          Constants::TASK_CATEGORY_COMPILE))
             << QString();
+    QTest::newRow("instanciated from here")
+            << QString::fromLatin1("main.cpp:10: instantiated from here  ")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Unknown,
+                         QLatin1String("instantiated from here"),
+                         QLatin1String("main.cpp"), 10,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
     QTest::newRow("At global scope")
             << QString::fromLatin1("../../scriptbug/main.cpp: At global scope:\n"
                                    "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
