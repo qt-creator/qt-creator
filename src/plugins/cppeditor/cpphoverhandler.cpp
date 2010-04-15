@@ -427,7 +427,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
                         .arg(m_toolTip);
         }
         editor->setContextHelpId(m_helpId);
-    } else if (!m_toolTip.isEmpty()) {
+    } else if (!m_toolTip.isEmpty() && Qt::mightBeRichText(m_toolTip)) {
         m_toolTip = QString(QLatin1String("<nobr>%1")).arg(m_toolTip);
     }
 }
