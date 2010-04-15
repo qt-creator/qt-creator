@@ -569,10 +569,6 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
 
     if (metaProperty.isResettable()) {
         metaProperty.reset();
-    } else if (metaProperty.isWritable()) {
-        if (metaProperty.read() == resetValue(propertyName))
-            return;
-        metaProperty.write(resetValue(propertyName));
     } else if (metaProperty.propertyTypeCategory() == QDeclarativeProperty::List) {
         QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
 
@@ -582,6 +578,10 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
         }
 
         list.clear();
+    } else if (metaProperty.isWritable()) {
+        if (metaProperty.read() == resetValue(propertyName))
+            return;
+        metaProperty.write(resetValue(propertyName));
     }
 }
 
