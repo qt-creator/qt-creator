@@ -370,11 +370,11 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
     if (!bc)
         return;
 
-    m_buildConfiguration = bc;
-    m_buildConfiguration->setDisplayName(newDisplayName);
-    m_target->addBuildConfiguration(m_buildConfiguration);
-
+    bc->setDisplayName(newDisplayName);
+    m_target->addBuildConfiguration(bc);
     updateBuildSettings();
+
+    m_target->setActiveBuildConfiguration(bc);
 }
 
 void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfiguration)
