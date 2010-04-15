@@ -35,6 +35,7 @@
 #include <QPainter>
 #include <QtDebug>
 #include <QFile>
+#include <QVariant>
 
 namespace QmlDesigner {
 
@@ -53,6 +54,16 @@ ToolBox::ToolBox(QWidget *parentWidget)
     m_leftToolBar->setIconSize(QSize(24, 24));
 
     QToolBar *stretchToolbar = new QToolBar(this);
+
+    m_leftToolBar->setProperty("panelwidget", true);
+    m_leftToolBar->setProperty("panelwidget_singlerow", true);
+
+    m_rightToolBar->setProperty("panelwidget", true);
+    m_rightToolBar->setProperty("panelwidget_singlerow", true);
+
+    stretchToolbar->setProperty("panelwidget", true);
+    stretchToolbar->setProperty("panelwidget_singlerow", true);
+
     stretchToolbar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     m_rightToolBar->setOrientation(Qt::Horizontal);
