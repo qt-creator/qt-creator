@@ -30,7 +30,7 @@
 #ifndef OPENEDITORSWINDOW_H
 #define OPENEDITORSWINDOW_H
 
-#include <QtGui/QWidget>
+#include <QtGui/QFrame>
 #include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
@@ -48,7 +48,7 @@ namespace Internal {
 class EditorHistoryItem;
 class EditorView;
 
-class OpenEditorsWindow : public QWidget
+class OpenEditorsWindow : public QFrame
 {
     Q_OBJECT
 

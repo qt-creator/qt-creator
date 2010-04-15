@@ -36,6 +36,7 @@
 #include <QtCore/QEvent>
 
 #include <QtGui/QKeyEvent>
+#include <QtGui/QVBoxLayout>
 
 using namespace Help::Internal;
 
@@ -43,16 +44,26 @@ const int gWidth = 300;
 const int gHeight = 200;
 
 OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
-    : QWidget(0, Qt::Popup)
+    : QFrame(0, Qt::Popup)
     , m_openPagesModel(model)
 {
     resize(gWidth, gHeight);
 
     m_openPagesWidget = new OpenPagesWidget(m_openPagesModel, this);
 
+    // We disable the frame on this list view and use a QFrame around it instead.
+    // This improves the look with QGTKStyle.
+#ifndef Q_WS_MAC
+    setFrameStyle(m_openPagesWidget->frameStyle());
+#endif
+    m_openPagesWidget->setFrameStyle(QFrame::NoFrame);
+
     m_openPagesWidget->allowContextMenu(false);
     m_openPagesWidget->installEventFilter(this);
-    m_openPagesWidget->setGeometry(0, 0, gWidth, gHeight);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(0);
+    layout->addWidget(m_openPagesWidget);
 
     connect(m_openPagesWidget, SIGNAL(closePage(QModelIndex)), this,
         SIGNAL(closePage(QModelIndex)));

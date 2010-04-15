@@ -35,9 +35,10 @@
 
 #include <utils/qtcassert.h>
 
+#include <QtGui/QFocusEvent>
 #include <QtGui/QHeaderView>
 #include <QtGui/QTreeWidget>
-#include <QtGui/QFocusEvent>
+#include <QtGui/QVBoxLayout>
 
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
 Q_DECLARE_METATYPE(Core::IFile *)
@@ -49,7 +50,7 @@ const int WIDTH = 300;
 const int HEIGHT = 200;
 
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
-    QWidget(parent, Qt::Popup),
+    QFrame(parent, Qt::Popup),
     m_emptyIcon(QLatin1String(":/core/images/empty14.png")),
     m_editorList(new QTreeWidget(this))
 {
@@ -63,7 +64,17 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     m_editorList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 #endif
     m_editorList->installEventFilter(this);
-    m_editorList->setGeometry(0, 0, WIDTH, HEIGHT);
+
+    // We disable the frame on this list view and use a QFrame around it instead.
+    // This improves the look with QGTKStyle.
+#ifndef Q_WS_MAC
+    setFrameStyle(m_editorList->frameStyle());
+#endif
+    m_editorList->setFrameStyle(QFrame::NoFrame);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(0);
+    layout->addWidget(m_editorList);
 
     connect(m_editorList, SIGNAL(itemClicked(QTreeWidgetItem*, int)),
             this, SLOT(editorClicked(QTreeWidgetItem*)));

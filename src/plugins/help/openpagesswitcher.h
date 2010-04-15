@@ -30,7 +30,7 @@
 #ifndef OPENPAGESSWITCHER_H
 #define OPENPAGESSWITCHER_H
 
-#include <QtGui/QWidget>
+#include <QtGui/QFrame>
 
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
@@ -40,7 +40,7 @@ namespace Help {
 class OpenPagesModel;
 class OpenPagesWidget;
 
-class OpenPagesSwitcher : public QWidget
+class OpenPagesSwitcher : public QFrame
 {
     Q_OBJECT
 
