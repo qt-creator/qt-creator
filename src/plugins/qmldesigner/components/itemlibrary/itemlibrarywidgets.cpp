@@ -75,16 +75,8 @@ public:
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget * = 0) const
     {
         if (element == QStyle::PE_PanelItemViewRow) {
-            if (option->state & QStyle::State_Selected) {
+            if (option->state & QStyle::State_Selected)
                 drawSelectionBackground(painter, *option);
-            } else {
-                painter->save();
-                painter->setPen(QColor(255, 255, 255, 15));
-                painter->drawLine(option->rect.topLeft(), option->rect.topRight());
-                painter->setPen(QColor(0, 0, 0, 25));
-                painter->drawLine(option->rect.bottomLeft(),option->rect.bottomRight());
-                painter->restore();
-            }
         }
     }
     int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const {
