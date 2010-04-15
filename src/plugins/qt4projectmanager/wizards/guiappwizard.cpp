@@ -46,7 +46,7 @@
 #include <QtGui/QIcon>
 
 static const char *mainSourceFileC = "main";
-static const char *mainSourceShowC = "w.show();\n";
+static const char *mainSourceShowC = "    w.show();\n";
 static const char *mainSourceMobilityShowC = "#if defined(Q_WS_S60)\n"
 "    w.showMaximized();\n"
 "#else\n"

@@ -5,6 +5,6 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     %CLASS% w;
-    %SHOWMETHOD%
+%SHOWMETHOD%
     return a.exec();
 }
