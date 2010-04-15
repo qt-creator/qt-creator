@@ -251,11 +251,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_buttonsWidget = new QWidget;
     m_buttonsWidget->setLayout(new QHBoxLayout);
     m_buttonsWidget->layout()->setContentsMargins(5,0,0,0);
-#ifdef Q_WS_MAC
-    m_buttonsWidget->layout()->setSpacing(16);
-#else
     m_buttonsWidget->layout()->setSpacing(4);
-#endif
 
 }
 
