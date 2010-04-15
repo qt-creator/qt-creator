@@ -2432,7 +2432,7 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
     } else if (key == Key_Tab) {
         m_commandBuffer += QChar(9);
         updateMiniBuffer();
-    } else if (QChar(key).isPrint()) {
+    } else if (!input.text.isEmpty()) {
         m_commandBuffer += input.text;
         updateMiniBuffer();
     } else {
