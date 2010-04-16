@@ -368,6 +368,9 @@ bool CompletionListView::event(QEvent *e)
 
         case Qt::Key_Right:
         case Qt::Key_Left:
+        case Qt::Key_Home:
+        case Qt::Key_End:
+            // We want these navigation keys to work in the editor, so forward them
             break;
 
         case Qt::Key_Tab:
