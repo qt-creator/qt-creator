@@ -84,7 +84,7 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
         Utils::StyledBar *bar = new Utils::StyledBar;
         m_lineEdit = new Utils::FilterLineEdit;
 
-        m_lineEdit->setPlaceholderText(tr("<Expression>"));
+        m_lineEdit->setPlaceholderText(tr("<Type expression to evaluate>"));
         m_lineEdit->setToolTip(tr("Write and evaluate QtScript expressions."));
 
         m_clearButton = new QToolButton();
@@ -119,7 +119,7 @@ void ExpressionQueryWidget::changeContextHelpId(const QString &)
 void ExpressionQueryWidget::clearTextEditor()
 {
     m_textEdit->clear();
-    m_textEdit->appendPlainText(tr("Debug Console\n"));
+    m_textEdit->appendPlainText(tr("Script Console\n"));
 }
 
 void ExpressionQueryWidget::setFontSettings()

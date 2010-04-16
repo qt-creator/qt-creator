@@ -56,28 +56,40 @@ public:
     void clear();
 
 signals:
-    void activated(const QDeclarativeDebugObjectReference &, const QDeclarativeDebugPropertyReference &);
+    void watchToggleRequested(const QDeclarativeDebugObjectReference &, const QDeclarativeDebugPropertyReference &);
     void contextHelpIdChanged(const QString &contextHelpId);
 
 public slots:
     void reload(const QDeclarativeDebugObjectReference &);
     void watchCreated(QDeclarativeDebugWatch *);
 
+protected:
+    void contextMenuEvent(QContextMenuEvent *);
+
 private slots:
     void changeItemSelection();
     void queryFinished();
     void watchStateChanged();
     void valueChanged(const QByteArray &name, const QVariant &value);
-    void itemActivated(QTreeWidgetItem *i);
+    void itemDoubleClicked(QTreeWidgetItem *i, int column);
+
+    void addWatch();
+    void removeWatch();
 
 private:
+    void toggleWatch(QTreeWidgetItem *item);
     void setObject(const QDeclarativeDebugObjectReference &object);
+    bool isWatched(QTreeWidgetItem *item);
     void setWatched(const QString &property, bool watched);
     void setPropertyValue(PropertiesViewItem *item, const QVariant &value, bool makeGray);
 
     QDeclarativeEngineDebug *m_client;
     QDeclarativeDebugObjectQuery *m_query;
     QDeclarativeDebugWatch *m_watch;
+
+    QAction *m_addWatchAction;
+    QAction *m_removeWatchAction;
+    QTreeWidgetItem *m_clickedItem;
 
     QTreeWidget *m_tree;
     QDeclarativeDebugObjectReference m_object;

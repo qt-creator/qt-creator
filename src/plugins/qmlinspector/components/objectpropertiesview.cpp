@@ -34,6 +34,9 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QLayout>
 #include <QtGui/QHeaderView>
+#include <QtGui/QMenu>
+#include <QtGui/QContextMenuEvent>
+
 namespace Qml {
 namespace Internal {
 
@@ -68,7 +71,7 @@ ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWid
     : QWidget(parent),
       m_client(client),
       m_query(0),
-      m_watch(0)
+      m_watch(0), m_clickedItem(0)
 {
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -83,8 +86,13 @@ ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWid
     m_tree->setHeaderLabels(QStringList()
             << tr("Name") << tr("Value") << tr("Type"));
     QObject::connect(m_tree, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
-                     this, SLOT(itemActivated(QTreeWidgetItem *)));
+                     this, SLOT(itemDoubleClicked(QTreeWidgetItem *, int)));
     connect(m_tree, SIGNAL(itemSelectionChanged()), SLOT(changeItemSelection()));
+
+    m_addWatchAction = new QAction(tr("Watch expression"), this);
+    m_removeWatchAction = new QAction(tr("Remove watch"), this);
+    connect(m_addWatchAction, SIGNAL(triggered()), SLOT(addWatch()));
+    connect(m_removeWatchAction, SIGNAL(triggered()), SLOT(removeWatch()));
 
     m_tree->setColumnCount(3);
     m_tree->header()->setDefaultSectionSize(150);
@@ -250,6 +258,11 @@ void ObjectPropertiesView::setWatched(const QString &property, bool watched)
     }
 }
 
+bool ObjectPropertiesView::isWatched(QTreeWidgetItem *item)
+{
+    return item->font(0).bold();
+}
+
 void ObjectPropertiesView::valueChanged(const QByteArray &name, const QVariant &value)
 {
     for (int i=0; i<m_tree->topLevelItemCount(); ++i) {
@@ -261,14 +274,51 @@ void ObjectPropertiesView::valueChanged(const QByteArray &name, const QVariant &
     }
 }
 
-void ObjectPropertiesView::itemActivated(QTreeWidgetItem *i)
+void ObjectPropertiesView::itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
-    PropertiesViewItem *item = static_cast<PropertiesViewItem *>(i);
-    if (!item->property.name().isEmpty())
-        emit activated(m_object, item->property);
+    toggleWatch(item);
 }
 
+void ObjectPropertiesView::addWatch()
+{
+    toggleWatch(m_clickedItem);
 }
+void ObjectPropertiesView::removeWatch()
+{
+    toggleWatch(m_clickedItem);
 }
+
+void ObjectPropertiesView::toggleWatch(QTreeWidgetItem *item)
+{
+    if (!item)
+        return;
+
+    PropertiesViewItem *propItem = static_cast<PropertiesViewItem *>(item);
+    if (!propItem->property.name().isEmpty())
+        emit watchToggleRequested(m_object, propItem->property);
+}
+
+void ObjectPropertiesView::contextMenuEvent(QContextMenuEvent *event)
+{
+    m_clickedItem = m_tree->itemAt(QPoint(event->pos().x(),
+                                          event->pos().y() - m_tree->header()->height()));
+    if (!m_clickedItem)
+        return;
+
+    PropertiesViewItem *propItem = static_cast<PropertiesViewItem *>(m_clickedItem);
+
+    QMenu menu;
+    if (!isWatched(m_clickedItem)) {
+        m_addWatchAction->setText(tr("Watch expression '%1'").arg(propItem->property.name()));
+        menu.addAction(m_addWatchAction);
+    } else {
+        menu.addAction(m_removeWatchAction);
+    }
+
+    menu.exec(event->globalPos());
+}
+
+} // Internal
+} // Qml
 
 #include "objectpropertiesview.moc"

@@ -94,6 +94,7 @@ void WatchTableModel::removeWatch(QDeclarativeDebugWatch *watch)
     m_entities.takeAt(column);
 
     reset();
+    emit watchRemoved();
 }
 
 void WatchTableModel::updateWatch(QDeclarativeDebugWatch *watch, const QVariant &value)
@@ -274,6 +275,7 @@ void WatchTableModel::removeAllWatches()
     }
     m_entities.clear();
     reset();
+    emit watchRemoved();
 }
 
 //----------------------------------------------
@@ -303,7 +305,7 @@ WatchTableView::WatchTableView(WatchTableModel *model, QWidget *parent)
     setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
     setFrameStyle(QFrame::NoFrame);
 
-
+    connect(model, SIGNAL(watchRemoved()), SLOT(watchRemoved()));
     connect(model, SIGNAL(watchCreated(QDeclarativeDebugWatch*)), SLOT(watchCreated(QDeclarativeDebugWatch*)));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(indexActivated(QModelIndex)));
 }
@@ -320,6 +322,9 @@ void WatchTableView::watchCreated(QDeclarativeDebugWatch *watch)
     int row = m_model->rowForWatch(watch);
     resizeRowToContents(row);
     resizeColumnToContents(C_NAME);
+
+    if (!isVisible())
+        show();
 }
 
 void WatchTableView::mousePressEvent(QMouseEvent *me)
@@ -332,10 +337,25 @@ void WatchTableView::mousePressEvent(QMouseEvent *me)
             QAction action(tr("Stop watching"), 0);
             QList<QAction *> actions;
             actions << &action;
-            if (QMenu::exec(actions, me->globalPos()))
+            if (QMenu::exec(actions, me->globalPos())) {
                 m_model->removeWatchAt(row);
+                hideIfEmpty();
+            }
         }
     }
+}
+
+void WatchTableView::hideIfEmpty()
+{
+    if (m_model->rowCount() == 0) {
+        hide();
+    } else if (!isVisible())
+        show();
+}
+
+void WatchTableView::watchRemoved()
+{
+    hideIfEmpty();
 }
 
 

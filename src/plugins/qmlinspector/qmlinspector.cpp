@@ -185,9 +185,9 @@ QmlInspector::QmlInspector(QObject *parent)
     m_objectTreeWidget = new Internal::ObjectTree;
     m_propertiesWidget = new Internal::ObjectPropertiesView;
     m_watchTableView = new Internal::WatchTableView(m_watchTableModel);
+    m_expressionWidget = new Internal::ExpressionQueryWidget(Internal::ExpressionQueryWidget::SeparateEntryMode);
 //    m_frameRateWidget = new Internal::CanvasFrameRate;
 //    m_frameRateWidget->setObjectName(QLatin1String("QmlDebugFrameRate"));
-    m_expressionWidget = new Internal::ExpressionQueryWidget(Internal::ExpressionQueryWidget::SeparateEntryMode);
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 }
@@ -383,7 +383,7 @@ void QmlInspector::createDockWidgets()
     connect(m_objectTreeWidget, SIGNAL(expressionWatchRequested(QDeclarativeDebugObjectReference,QString)),
             m_watchTableModel, SLOT(expressionWatchRequested(QDeclarativeDebugObjectReference,QString)));
 
-    connect(m_propertiesWidget, SIGNAL(activated(QDeclarativeDebugObjectReference,QDeclarativeDebugPropertyReference)),
+    connect(m_propertiesWidget, SIGNAL(watchToggleRequested(QDeclarativeDebugObjectReference,QDeclarativeDebugPropertyReference)),
             m_watchTableModel, SLOT(togglePropertyWatch(QDeclarativeDebugObjectReference,QDeclarativeDebugPropertyReference)));
 
     connect(m_watchTableModel, SIGNAL(watchCreated(QDeclarativeDebugWatch*)),
@@ -399,42 +399,39 @@ void QmlInspector::createDockWidgets()
             m_expressionWidget, SLOT(setCurrentObject(QDeclarativeDebugObjectReference)));
 
 
-    Core::MiniSplitter *leftSplitter = new Core::MiniSplitter(Qt::Vertical);
-    leftSplitter->addWidget(m_propertiesWidget);
-    leftSplitter->addWidget(m_watchTableView);
-    leftSplitter->setStretchFactor(0, 2);
-    leftSplitter->setStretchFactor(1, 1);
-
-    Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Horizontal);
-    propSplitter->setObjectName(QLatin1String("QmlDebugProperties"));
-    propSplitter->addWidget(leftSplitter);
-    propSplitter->addWidget(m_expressionWidget);
+    Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Vertical);
+    propSplitter->addWidget(m_propertiesWidget);
+    propSplitter->addWidget(m_watchTableView);
     propSplitter->setStretchFactor(0, 2);
     propSplitter->setStretchFactor(1, 1);
     propSplitter->setWindowTitle(tr("Properties and Watchers"));
-
-
+    propSplitter->setObjectName(QLatin1String("QmlDebugProperties"));
 
     InspectorOutputWidget *inspectorOutput = new InspectorOutputWidget();
     inspectorOutput->setObjectName(QLatin1String("QmlDebugInspectorOutput"));
     connect(this, SIGNAL(statusMessage(QString)),
             inspectorOutput, SLOT(addInspectorStatus(QString)));
 
-    m_objectTreeDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
+    Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
+
+    m_watchTableView->hide();
+    m_objectTreeDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
                                                             treeWindow, Qt::BottomDockWidgetArea);
-//    m_frameRateDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
+//    m_frameRateDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
 //                                                            m_frameRateWidget, Qt::BottomDockWidgetArea);
-    m_propertyWatcherDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
+    m_propertyWatcherDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
                                                             propSplitter, Qt::BottomDockWidgetArea);
-    m_inspectorOutputDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
+    m_inspectorOutputDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
                                                             inspectorOutput, Qt::BottomDockWidgetArea);
 
-    m_objectTreeDock->setToolTip(tr("Contents of the scene."));
-//    m_frameRateDock->setToolTip(tr("Frame rate graph for analyzing performance."));
-    m_propertyWatcherDock->setToolTip(tr("Properties of the selected item."));
+    m_expressionWidget->setWindowTitle(tr("Script console"));
+    m_expressionQueryDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
+                                                         m_expressionWidget, Qt::BottomDockWidgetArea);
+
     m_inspectorOutputDock->setToolTip(tr("Output of the QML inspector, such as information on connecting to the server."));
 
-    m_dockWidgets << m_objectTreeDock << /*m_frameRateDock << */ m_propertyWatcherDock << m_inspectorOutputDock;
+    m_dockWidgets << m_objectTreeDock << /*m_frameRateDock << */ m_propertyWatcherDock
+                  << m_inspectorOutputDock << m_expressionQueryDock;
 
     m_context = new Internal::InspectorContext(m_objectTreeDock);
     m_propWatcherContext = new Internal::InspectorContext(m_propertyWatcherDock);
@@ -578,6 +575,7 @@ void QmlInspector::setSimpleDockWidgetArrangement()
     }
 
     //mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
+    mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_expressionQueryDock);
     mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_inspectorOutputDock);
 
     m_inspectorOutputDock->setVisible(false);

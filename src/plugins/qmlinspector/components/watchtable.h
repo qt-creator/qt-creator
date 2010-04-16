@@ -74,6 +74,7 @@ public:
 
 signals:
     void watchCreated(QDeclarativeDebugWatch *watch);
+    void watchRemoved();
 
 public slots:
     void togglePropertyWatch(const QDeclarativeDebugObjectReference &obj, const QDeclarativeDebugPropertyReference &prop);
@@ -130,7 +131,9 @@ protected:
 private slots:
     void indexActivated(const QModelIndex &index);
     void watchCreated(QDeclarativeDebugWatch *watch);
-
+    void watchRemoved();
+private:
+    void hideIfEmpty();
 private:
     WatchTableModel *m_model;
 };
