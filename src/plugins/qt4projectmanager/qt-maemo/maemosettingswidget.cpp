@@ -41,10 +41,11 @@
 #include "maemosshconfigdialog.h"
 #include "maemosshthread.h"
 
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
 
-#include <QtCore/QFileInfo>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 #include <QtGui/QIntValidator>
@@ -297,7 +298,6 @@ void MaemoSettingsWidget::authenticationTypeChanged()
     m_ui->passwordLabel->setEnabled(usePassword);
     m_ui->keyFileLineEdit->setEnabled(!usePassword);
     m_ui->keyLabel->setEnabled(!usePassword);
-    m_ui->deployKeyButton->setEnabled(usePassword);
 }
 
 void MaemoSettingsWidget::hostNameEditingFinished()
@@ -363,7 +363,7 @@ void MaemoSettingsWidget::showGenerateSshKeyDialog()
 
 void MaemoSettingsWidget::setPublicKey(const QString &path)
 {
-    m_publicKey = path;
+    m_publicKeyFileName = path;
 }
 
 void MaemoSettingsWidget::setPrivateKey(const QString &path)
@@ -377,21 +377,32 @@ void MaemoSettingsWidget::deployKey()
     if (m_keyDeployer)
         return;
 
-    if (!QFileInfo(m_publicKey).exists()) {
+    if (!QFileInfo(m_publicKeyFileName).exists()) {
         const QString &dir = QFileInfo(currentConfig().keyFile).path();
-        m_publicKey = QFileDialog::getOpenFileName(this,
+        m_publicKeyFileName = QFileDialog::getOpenFileName(this,
             tr("Choose public key file"), dir,
             tr("Public Key Files(*.pub);;All Files (*)"));
     }
 
-    if (m_publicKey.isEmpty())
+    if (m_publicKeyFileName.isEmpty())
         return;
+    QFile keyFile(m_publicKeyFileName);
+    QByteArray key;
+    const bool keyFileAccessible = keyFile.open(QIODevice::ReadOnly);
+    if (keyFileAccessible)
+        key = keyFile.readAll();
+    if (!keyFileAccessible || keyFile.error() != QFile::NoError) {
+        QMessageBox::critical(this, tr("Deployment Failed"),
+            tr("Could not read public key file '%1'.").arg(m_publicKeyFileName));
+        return;
+    }
 
     m_ui->deployKeyButton->disconnect();
-    SshDeploySpec deploySpec(m_publicKey, homeDirOnDevice(currentConfig().uname)
-        + QLatin1String("/.ssh/authorized_keys"), true);
-    m_keyDeployer = new MaemoSshDeployer(currentConfig(), QList<SshDeploySpec>() << deploySpec);
-    connect(m_keyDeployer, SIGNAL(finished()), this, SLOT(handleDeployThreadFinished()));
+    const QString command = QLatin1String("test -d .ssh || mkdir .ssh && echo '")
+        + key + QLatin1String("' >> .ssh/authorized_keys");
+    m_keyDeployer = new MaemoSshRunner(currentConfig(), command);
+    connect(m_keyDeployer, SIGNAL(finished()),
+            this, SLOT(handleDeployThreadFinished()));
     m_ui->deployKeyButton->setText(tr("Stop deploying"));
     connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(stopDeploying()));
     m_keyDeployer->start();
@@ -416,14 +427,12 @@ void MaemoSettingsWidget::stopDeploying()
 {
     if (m_keyDeployer) {
         m_ui->deployKeyButton->disconnect();
-        const bool buttonWasEnabled = m_ui->deployKeyButton->isEnabled();
         m_keyDeployer->disconnect();
         m_keyDeployer->stop();
         delete m_keyDeployer;
         m_keyDeployer = 0;
         m_ui->deployKeyButton->setText(tr("Deploy Key ..."));
         connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(deployKey()));
-        m_ui->deployKeyButton->setEnabled(buttonWasEnabled);
     }
 }
 
@@ -434,12 +443,14 @@ void MaemoSettingsWidget::currentConfigChanged(int index)
         m_ui->removeConfigButton->setEnabled(false);
         m_ui->testConfigButton->setEnabled(false);
         m_ui->generateKeyButton->setEnabled(false);
+        m_ui->deployKeyButton->setEnabled(false);
         clearDetails();
         m_ui->detailsWidget->setEnabled(false);
     } else {
         m_ui->removeConfigButton->setEnabled(true);
         m_ui->testConfigButton->setEnabled(true);
         m_ui->generateKeyButton->setEnabled(true);
+        m_ui->deployKeyButton->setEnabled(true);
         m_ui->configurationComboBox->setCurrentIndex(index);
         display(currentConfig());
     }

@@ -50,7 +50,7 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoSshDeployer;
+class MaemoSshRunner;
 class NameValidator;
 class TimeoutValidator;
 
@@ -107,8 +107,8 @@ private:
     MaemoDeviceConfig m_lastConfigSim;
     NameValidator * const m_nameValidator;
     TimeoutValidator * const m_timeoutValidator;
-    MaemoSshDeployer *m_keyDeployer;
-    QString m_publicKey;
+    MaemoSshRunner *m_keyDeployer;
+    QString m_publicKeyFileName;
 };
 
 } // namespace Internal
