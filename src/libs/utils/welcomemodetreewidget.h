@@ -32,7 +32,7 @@
 
 #include "utils_global.h"
 
-#include <QtGui/QTreeWidget>
+#include <QtGui/QScrollArea>
 #include <QtGui/QLabel>
 
 namespace Utils {
@@ -53,7 +53,7 @@ private:
 };
 
 // WelcomeModeTreeWidget: Show an itemized list with arrows and emits a signal on click.
-class QTCREATOR_UTILS_EXPORT WelcomeModeTreeWidget : public QWidget
+class QTCREATOR_UTILS_EXPORT WelcomeModeTreeWidget : public QScrollArea
 {
     Q_OBJECT
 public:
