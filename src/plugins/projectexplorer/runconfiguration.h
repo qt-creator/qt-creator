@@ -162,7 +162,7 @@ public:
     explicit RunControl(RunConfiguration *runConfiguration);
     virtual ~RunControl();
     virtual void start() = 0;
-    virtual void stop() = 0;
+    virtual void stop() = 0; // Warning: assumed to be synchroneous!
     virtual bool isRunning() const = 0;
     virtual QString displayName() const;
 

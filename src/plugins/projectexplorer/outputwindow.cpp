@@ -257,9 +257,19 @@ void OutputPane::closeTab(int index)
     RunControl *rc = m_outputWindows.key(ow);
 
     if (rc->isRunning()) {
-        QString msg = tr("The application is still running. Close it first.");
-        QMessageBox::critical(0, tr("Unable to close"), msg);
-        return;
+        QMessageBox messageBox(QMessageBox::Warning,
+                               tr("Unable to close"),
+                               tr("The application is still running."),
+                               QMessageBox::Cancel | QMessageBox::Yes,
+                               ow->window());
+        messageBox.setInformativeText(tr("Force it to quit?"));
+        messageBox.setDefaultButton(QMessageBox::Yes);
+        messageBox.button(QMessageBox::Yes)->setText(tr("Force Quit"));
+
+        if (messageBox.exec() != QMessageBox::Yes)
+            return;
+
+        rc->stop();
     }
 
     m_tabWidget->removeTab(index);
