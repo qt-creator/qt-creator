@@ -653,7 +653,20 @@ public:
 
     QList<QTextEdit::ExtraSelection> m_searchSelections;
 
-    bool handleMapping(const QString &line);
+    QString extractCommand(const QString &line, int *beginLine, int *endLine);
+    bool handleExGotoCommand(const QString &line);
+    bool handleExReadCommand(const QString &line);
+    bool handleExWriteCommand(const QString &line);
+    bool handleExRedoCommand(const QString &line);
+    bool handleExShiftRightCommand(const QString &line);
+    bool handleExBangCommand(const QString &line);
+    bool handleExNormalCommand(const QString &line);
+    bool handleExDeleteCommand(const QString &line);
+    bool handleExSetCommand(const QString &line);
+    bool handleExHistoryCommand(const QString &line);
+    bool handleExSubstituteCommand(const QString &line);
+    bool handleExMapCommand(const QString &line);
+
     // All mappings.
     typedef QHash<char, ModeMapping> Mappings;
     Mappings m_mappings;
@@ -2523,15 +2536,42 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
     EDITOR(setTextCursor(m_tc));
 }
 
-// result: (needle, replacement, opions)
-static bool isSubstitution(const QString &cmd0, QStringList *result)
+QString FakeVimHandler::Private::extractCommand(const QString &line,
+    int *beginLine, int *endLine)
 {
-    QString cmd;
-    if (cmd0.startsWith(QLatin1String("substitute")))
-        cmd = cmd0.mid(10);
-    else if (cmd0.startsWith('s') && cmd0.size() > 1
-            && !isalpha(cmd0.at(1).unicode()))
-        cmd = cmd0.mid(1);
+    QString cmd = line;
+    *beginLine = -1;
+    *endLine = -1;
+
+    // FIXME: that seems to be different for %w and %s
+    if (cmd.startsWith(QLatin1Char('%')))
+        cmd = "1,$" + cmd.mid(1);
+
+    int lineNumber = readLineCode(cmd);
+    if (lineNumber != -1)
+        *beginLine = lineNumber;
+
+    if (cmd.startsWith(',')) {
+        cmd = cmd.mid(1);
+        lineNumber = readLineCode(cmd);
+        if (lineNumber != -1)
+            *endLine = lineNumber;
+    }
+    //qDebug() << "RANGE: " << beginLine << endLine << cmd << lineNumber << m_marks;
+    return cmd;
+}
+
+bool FakeVimHandler::Private::handleExSubstituteCommand(const QString &line)
+    // :substitute
+{
+    int beginLine, endLine;
+    QString cmd = extractCommand(line, &beginLine, &endLine);
+
+    if (cmd.startsWith(QLatin1String("substitute")))
+        cmd = cmd.mid(10);
+    else if (cmd.startsWith('s') && line.size() > 1
+            && !isalpha(cmd.at(1).unicode()))
+        cmd = cmd.mid(1);
     else
         return false;
     // we have /{pattern}/{string}/[flags]  now
@@ -2558,13 +2598,51 @@ static bool isSubstitution(const QString &cmd0, QStringList *result)
     if (pos2 == -1)
         pos2 = cmd.size();
 
-    result->append(cmd.mid(1, pos1 - 1));
-    result->append(cmd.mid(pos1 + 1, pos2 - pos1 - 1));
-    result->append(cmd.mid(pos2 + 1));
+    QString needle = cmd.mid(1, pos1 - 1);
+    const QString replacement = cmd.mid(pos1 + 1, pos2 - pos1 - 1);
+    QString flags = cmd.mid(pos2 + 1);
+
+    needle.replace('$', '\n');
+    needle.replace("\\\n", "\\$");
+    QRegExp pattern(needle);
+    if (flags.contains('i'))
+        pattern.setCaseSensitivity(Qt::CaseInsensitive);
+    const bool global = flags.contains('g');
+    beginEditBlock();
+    for (int line = endLine; line >= beginLine; --line) {
+        QString origText = lineContents(line);
+        QString text = origText;
+        int pos = 0;
+        while (true) {
+            pos = pattern.indexIn(text, pos, QRegExp::CaretAtZero);
+            if (pos == -1)
+                break;
+            if (pattern.cap(0).isEmpty())
+                break;
+            QStringList caps = pattern.capturedTexts();
+            QString matched = text.mid(pos, caps.at(0).size());
+            QString repl = replacement;
+            for (int i = 1; i < caps.size(); ++i)
+                repl.replace("\\" + QString::number(i), caps.at(i));
+            for (int i = 0; i < repl.size(); ++i) {
+                if (repl.at(i) == '&' && (i == 0 || repl.at(i - 1) != '\\')) {
+                    repl.replace(i, 1, caps.at(0));
+                    i += caps.at(0).size();
+                }
+            }
+            text = text.left(pos) + repl + text.mid(pos + matched.size());
+            pos += matched.size();
+            if (!global)
+                break;
+        }
+        if (text != origText)
+            setLineContents(line, text);
+    }
+    endEditBlock();
     return true;
 }
 
-bool FakeVimHandler::Private::handleMapping(const QString &line)
+bool FakeVimHandler::Private::handleExMapCommand(const QString &line) // :map
 {
     int pos1 = line.indexOf(QLatin1Char(' '));
     if (pos1 == -1)
@@ -2641,255 +2719,286 @@ bool FakeVimHandler::Private::handleMapping(const QString &line)
     return true;
 }
 
-void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
+bool FakeVimHandler::Private::handleExHistoryCommand(const QString &cmd) // :history
 {
-    QString cmd = cmd0;
-    // FIXME: that seems to be different for %w and %s
-    if (cmd.startsWith(QLatin1Char('%')))
-        cmd = "1,$" + cmd.mid(1);
-
-    int beginLine = -1;
-    int endLine = -1;
-
-    int line = readLineCode(cmd);
-    if (line != -1)
-        beginLine = line;
-
-    if (cmd.startsWith(',')) {
-        cmd = cmd.mid(1);
-        line = readLineCode(cmd);
-        if (line != -1)
-            endLine = line;
-    }
-
-    //qDebug() << "RANGE: " << beginLine << endLine << cmd << cmd0 << m_marks;
-
-    static QRegExp reQuit("^qa?!?$");
-    static QRegExp reDelete("^d( (.*))?$");
     static QRegExp reHistory("^his(tory)?( (.*))?$");
-    static QRegExp reNormal("^norm(al)?( (.*))?$");
-    static QRegExp reSet("^set?( (.*))?$");
-    static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
-    QStringList arguments;
+    if (reHistory.indexIn(cmd) == -1)
+        return false;
 
+    QString arg = reHistory.cap(3);
+    if (arg.isEmpty()) {
+        QString info;
+        info += "#  command history\n";
+        int i = 0;
+        foreach (const QString &item, m_commandHistory) {
+            ++i;
+            info += QString("%1 %2\n").arg(i, -8).arg(item);
+        }
+        emit q->extraInformationChanged(info);
+    } else {
+        notImplementedYet();
+    }
+    updateMiniBuffer();
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExSetCommand(const QString &cmd) // :set
+{
+    static QRegExp reSet("^set?( (.*))?$");
+    if (reSet.indexIn(cmd) == -1)
+        return false;
+
+    showBlackMessage(QString());
+    QString arg = reSet.cap(2);
+    SavedAction *act = theFakeVimSettings()->item(arg);
+    if (arg.isEmpty()) {
+        theFakeVimSetting(SettingsDialog)->trigger(QVariant());
+    } else if (act && act->value().type() == QVariant::Bool) {
+        // boolean config to be switched on
+        bool oldValue = act->value().toBool();
+        if (oldValue == false)
+            act->setValue(true);
+        else if (oldValue == true)
+            {} // nothing to do
+    } else if (act) {
+        // non-boolean to show
+        showBlackMessage(arg + '=' + act->value().toString());
+    } else if (arg.startsWith(QLatin1String("no"))
+            && (act = theFakeVimSettings()->item(arg.mid(2)))) {
+        // boolean config to be switched off
+        bool oldValue = act->value().toBool();
+        if (oldValue == true)
+            act->setValue(false);
+        else if (oldValue == false)
+            {} // nothing to do
+    } else if (arg.contains('=')) {
+        // non-boolean config to set
+        int p = arg.indexOf('=');
+        act = theFakeVimSettings()->item(arg.left(p));
+        if (act)
+            act->setValue(arg.mid(p + 1));
+    } else {
+        passUnknownSetCommand(arg);
+    }
+    updateMiniBuffer();
+    updateEditor();
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExNormalCommand(const QString &cmd) // :normal
+{
+    static QRegExp reNormal("^norm(al)?( (.*))?$");
+    if (reNormal.indexIn(cmd) == -1)
+        return false;
+    //qDebug() << "REPLAY: " << reNormal.cap(3);
+    replay(reNormal.cap(3), 1);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExDeleteCommand(const QString &line) // :d
+{
+    int beginLine, endLine;
+    QString cmd = extractCommand(line, &beginLine, &endLine);
+
+    static QRegExp reDelete("^d( (.*))?$");
+    if (reDelete.indexIn(cmd) != -1)
+        return false;
+
+    selectRange(beginLine, endLine);
+    QString reg = reDelete.cap(2);
+    QString text = selectedText();
+    removeSelectedText();
+    if (!reg.isEmpty()) {
+        Register &r = m_registers[reg.at(0).unicode()];
+        r.contents = text;
+        r.rangemode = RangeLineMode;
+    }
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExWriteCommand(const QString &line)
+    // :w, :x :q
+{
+    int beginLine, endLine;
+    QString cmd = extractCommand(line, &beginLine, &endLine);
+
+    static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
+    if (reWrite.indexIn(cmd) == -1) // :w and :x
+        return false;
+
+    bool noArgs = (beginLine == -1);
+    if (beginLine == -1)
+        beginLine = 0;
+    if (endLine == -1)
+        endLine = linesInDocument();
+    //qDebug() << "LINES: " << beginLine << endLine;
+    int indexOfSpace = cmd.indexOf(QChar(' '));
+    QString prefix;
+    if (indexOfSpace < 0)
+        prefix = cmd;
+    else
+        prefix = cmd.left(indexOfSpace);
+    bool forced = prefix.contains(QChar('!'));
+    bool quit = prefix.contains(QChar('q')) || prefix.contains(QChar('x'));
+    bool quitAll = quit && prefix.contains(QChar('a'));
+    QString fileName = reWrite.cap(2);
+    if (fileName.isEmpty())
+        fileName = m_currentFileName;
+    QFile file1(fileName);
+    bool exists = file1.exists();
+    if (exists && !forced && !noArgs) {
+        showRedMessage(FakeVimHandler::tr
+            ("File '%1' exists (add ! to override)").arg(fileName));
+    } else if (file1.open(QIODevice::ReadWrite)) {
+        file1.close();
+        QTextCursor tc = m_tc;
+        Range range(firstPositionInLine(beginLine),
+            firstPositionInLine(endLine), RangeLineMode);
+        QString contents = text(range);
+        m_tc = tc;
+        //qDebug() << "LINES: " << beginLine << endLine;
+        bool handled = false;
+        emit q->writeFileRequested(&handled, fileName, contents);
+        // nobody cared, so act ourselves
+        if (!handled) {
+            //qDebug() << "HANDLING MANUAL SAVE TO " << fileName;
+            QFile::remove(fileName);
+            QFile file2(fileName);
+            if (file2.open(QIODevice::ReadWrite)) {
+                QTextStream ts(&file2);
+                ts << contents;
+            } else {
+                showRedMessage(FakeVimHandler::tr
+                   ("Cannot open file '%1' for writing").arg(fileName));
+            }
+        }
+        // check result by reading back
+        QFile file3(fileName);
+        file3.open(QIODevice::ReadOnly);
+        QByteArray ba = file3.readAll();
+        showBlackMessage(FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
+            .arg(fileName).arg(exists ? " " : " [New] ")
+            .arg(ba.count('\n')).arg(ba.size()));
+        if (quitAll)
+            passUnknownExCommand(forced ? "qa!" : "qa");
+        else if (quit)
+            passUnknownExCommand(forced ? "q!" : "q");
+    } else {
+        showRedMessage(FakeVimHandler::tr
+            ("Cannot open file '%1' for reading").arg(fileName));
+    }
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExReadCommand(const QString &line) // :r
+{
+    if (!line.startsWith(QLatin1String("r ")))
+        return false;
+
+    beginEditBlock();
+    moveToStartOfLine();
+    setTargetColumn();
+    moveDown();
+    m_currentFileName = line.mid(2);
+    QFile file(m_currentFileName);
+    file.open(QIODevice::ReadOnly);
+    QTextStream ts(&file);
+    QString data = ts.readAll();
+    m_tc.insertText(data);
+    showBlackMessage(FakeVimHandler::tr("\"%1\" %2L, %3C")
+        .arg(m_currentFileName).arg(data.count('\n')).arg(data.size()));
+    endEditBlock();
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExBangCommand(const QString &line) // :!
+{
+    int beginLine, endLine;
+    QString cmd = extractCommand(line, &beginLine, &endLine);
+
+    if (!cmd.startsWith(QLatin1Char('!')))
+        return false;
+
+    selectRange(beginLine, endLine);
+    QString command = cmd.mid(1).trimmed();
+    QString text = selectedText();
+    removeSelectedText();
+    QProcess proc;
+    proc.start(cmd.mid(1));
+    proc.waitForStarted();
+    proc.write(text.toUtf8());
+    proc.closeWriteChannel();
+    proc.waitForFinished();
+    QString result = QString::fromUtf8(proc.readAllStandardOutput());
+    m_tc.insertText(result);
+    leaveVisualMode();
+    setPosition(firstPositionInLine(beginLine));
+    //qDebug() << "FILTER: " << command;
+    showBlackMessage(FakeVimHandler::tr("%n lines filtered", 0,
+        text.count('\n')));
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExShiftRightCommand(const QString &line) // :>
+{
+    int beginLine, endLine;
+    QString cmd = extractCommand(line, &beginLine, &endLine);
+
+    if (!cmd.startsWith(QLatin1Char('>')))
+        return false;
+
+    m_anchor = firstPositionInLine(beginLine);
+    setPosition(firstPositionInLine(endLine));
+    shiftRegionRight(1);
+    leaveVisualMode();
+    showBlackMessage(FakeVimHandler::tr("%n lines >ed %1 time", 0,
+        (endLine - beginLine + 1)).arg(1));
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExRedoCommand(const QString &line) // :redo
+{
+    if (line != "red" && line != "redo")
+        return false;
+
+    redo();
+    updateMiniBuffer();
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExGotoCommand(const QString &line) // :<nr>
+{
+    int beginLine, endLine;
+    QString cmd = extractCommand(line, &beginLine, &endLine);
+
+    if (!cmd.isEmpty())
+        return false;
+
+    setPosition(firstPositionInLine(beginLine));
+    showBlackMessage(QString());
+    return true;
+}
+
+void FakeVimHandler::Private::handleExCommand(const QString &line0)
+{
+    QString line = line0; // Make sure we have a copy to prevent aliasing.
     enterCommandMode();
     showBlackMessage(QString());
 
-    if (cmd.isEmpty()) {
-        setPosition(firstPositionInLine(beginLine));
-        showBlackMessage(QString());
-    } else if (reDelete.indexIn(cmd) != -1) { // :d
-        selectRange(beginLine, endLine);
-        QString reg = reDelete.cap(2);
-        QString text = selectedText();
-        removeSelectedText();
-        if (!reg.isEmpty()) {
-            Register &r = m_registers[reg.at(0).unicode()];
-            r.contents = text;
-            r.rangemode = RangeLineMode;
-        }
-    } else if (reWrite.indexIn(cmd) != -1) { // :w and :x
-        bool noArgs = (beginLine == -1);
-        if (beginLine == -1)
-            beginLine = 0;
-        if (endLine == -1)
-            endLine = linesInDocument();
-        //qDebug() << "LINES: " << beginLine << endLine;
-        int indexOfSpace = cmd.indexOf(QChar(' '));
-        QString prefix;
-        if (indexOfSpace < 0)
-            prefix = cmd;
-        else
-            prefix = cmd.left(indexOfSpace);
-        bool forced = prefix.contains(QChar('!'));
-        bool quit = prefix.contains(QChar('q')) || prefix.contains(QChar('x'));
-        bool quitAll = quit && prefix.contains(QChar('a'));
-        QString fileName = reWrite.cap(2);
-        if (fileName.isEmpty())
-            fileName = m_currentFileName;
-        QFile file1(fileName);
-        bool exists = file1.exists();
-        if (exists && !forced && !noArgs) {
-            showRedMessage(FakeVimHandler::tr
-                ("File '%1' exists (add ! to override)").arg(fileName));
-        } else if (file1.open(QIODevice::ReadWrite)) {
-            file1.close();
-            QTextCursor tc = m_tc;
-            Range range(firstPositionInLine(beginLine),
-                firstPositionInLine(endLine), RangeLineMode);
-            QString contents = text(range);
-            m_tc = tc;
-            //qDebug() << "LINES: " << beginLine << endLine;
-            bool handled = false;
-            emit q->writeFileRequested(&handled, fileName, contents);
-            // nobody cared, so act ourselves
-            if (!handled) {
-                //qDebug() << "HANDLING MANUAL SAVE TO " << fileName;
-                QFile::remove(fileName);
-                QFile file2(fileName);
-                if (file2.open(QIODevice::ReadWrite)) {
-                    QTextStream ts(&file2);
-                    ts << contents;
-                } else {
-                    showRedMessage(FakeVimHandler::tr
-                       ("Cannot open file '%1' for writing").arg(fileName));
-                }
-            }
-            // check result by reading back
-            QFile file3(fileName);
-            file3.open(QIODevice::ReadOnly);
-            QByteArray ba = file3.readAll();
-            showBlackMessage(FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
-                .arg(fileName).arg(exists ? " " : " [New] ")
-                .arg(ba.count('\n')).arg(ba.size()));
-            if (quitAll)
-                passUnknownExCommand(forced ? "qa!" : "qa");
-            else if (quit)
-                passUnknownExCommand(forced ? "q!" : "q");
-        } else {
-            showRedMessage(FakeVimHandler::tr
-                ("Cannot open file '%1' for reading").arg(fileName));
-        }
-    } else if (cmd.startsWith(QLatin1String("r "))) { // :r
-        beginEditBlock();
-        moveToStartOfLine();
-        setTargetColumn();
-        moveDown();
-        m_currentFileName = cmd.mid(2);
-        QFile file(m_currentFileName);
-        file.open(QIODevice::ReadOnly);
-        QTextStream ts(&file);
-        QString data = ts.readAll();
-        m_tc.insertText(data);
-        showBlackMessage(FakeVimHandler::tr("\"%1\" %2L, %3C")
-            .arg(m_currentFileName).arg(data.count('\n')).arg(data.size()));
-        endEditBlock();
-    } else if (cmd.startsWith(QLatin1Char('!'))) {
-        selectRange(beginLine, endLine);
-        QString command = cmd.mid(1).trimmed();
-        QString text = selectedText();
-        removeSelectedText();
-        QProcess proc;
-        proc.start(cmd.mid(1));
-        proc.waitForStarted();
-        proc.write(text.toUtf8());
-        proc.closeWriteChannel();
-        proc.waitForFinished();
-        QString result = QString::fromUtf8(proc.readAllStandardOutput());
-        m_tc.insertText(result);
-        leaveVisualMode();
-        setPosition(firstPositionInLine(beginLine));
-        //qDebug() << "FILTER: " << command;
-        showBlackMessage(FakeVimHandler::tr("%n lines filtered", 0,
-            text.count('\n')));
-    } else if (cmd.startsWith(QLatin1Char('>'))) {
-        m_anchor = firstPositionInLine(beginLine);
-        setPosition(firstPositionInLine(endLine));
-        shiftRegionRight(1);
-        leaveVisualMode();
-        showBlackMessage(FakeVimHandler::tr("%n lines >ed %1 time", 0,
-            (endLine - beginLine + 1)).arg(1));
-    } else if (cmd == "red" || cmd == "redo") { // :redo
-        redo();
-        updateMiniBuffer();
-    } else if (reNormal.indexIn(cmd) != -1) { // :normal
-        //qDebug() << "REPLAY: " << reNormal.cap(3);
-        replay(reNormal.cap(3), 1);
-    } else if (isSubstitution(cmd, &arguments)) { // :substitute
-        QString needle = arguments.at(0);
-        const QString replacement = arguments.at(1);
-        QString flags = arguments.at(2);
-        needle.replace('$', '\n');
-        needle.replace("\\\n", "\\$");
-        QRegExp pattern(needle);
-        if (flags.contains('i'))
-            pattern.setCaseSensitivity(Qt::CaseInsensitive);
-        const bool global = flags.contains('g');
-        beginEditBlock();
-        for (int line = endLine; line >= beginLine; --line) {
-            QString origText = lineContents(line);
-            QString text = origText;
-            int pos = 0;
-            while (true) {
-                pos = pattern.indexIn(text, pos, QRegExp::CaretAtZero);
-                if (pos == -1)
-                    break;
-                if (pattern.cap(0).isEmpty())
-                    break;
-                QStringList caps = pattern.capturedTexts();
-                QString matched = text.mid(pos, caps.at(0).size());
-                QString repl = replacement;
-                for (int i = 1; i < caps.size(); ++i)
-                    repl.replace("\\" + QString::number(i), caps.at(i));
-                for (int i = 0; i < repl.size(); ++i) {
-                    if (repl.at(i) == '&' && (i == 0 || repl.at(i - 1) != '\\')) {
-                        repl.replace(i, 1, caps.at(0));
-                        i += caps.at(0).size();
-                    }
-                }
-                text = text.left(pos) + repl + text.mid(pos + matched.size());
-                pos += matched.size();
-                if (!global)
-                    break;
-            }
-            if (text != origText)
-                setLineContents(line, text);
-        }
-        endEditBlock();
-    } else if (reSet.indexIn(cmd) != -1) { // :set
-        showBlackMessage(QString());
-        QString arg = reSet.cap(2);
-        SavedAction *act = theFakeVimSettings()->item(arg);
-        if (arg.isEmpty()) {
-            theFakeVimSetting(SettingsDialog)->trigger(QVariant());
-        } else if (act && act->value().type() == QVariant::Bool) {
-            // boolean config to be switched on
-            bool oldValue = act->value().toBool();
-            if (oldValue == false)
-                act->setValue(true);
-            else if (oldValue == true)
-                {} // nothing to do
-        } else if (act) {
-            // non-boolean to show
-            showBlackMessage(arg + '=' + act->value().toString());
-        } else if (arg.startsWith(QLatin1String("no"))
-                && (act = theFakeVimSettings()->item(arg.mid(2)))) {
-            // boolean config to be switched off
-            bool oldValue = act->value().toBool();
-            if (oldValue == true)
-                act->setValue(false);
-            else if (oldValue == false)
-                {} // nothing to do
-        } else if (arg.contains('=')) {
-            // non-boolean config to set
-            int p = arg.indexOf('=');
-            act = theFakeVimSettings()->item(arg.left(p));
-            if (act)
-                act->setValue(arg.mid(p + 1));
-        } else {
-            passUnknownSetCommand(arg);
-        }
-        updateMiniBuffer();
-        updateEditor();
-    } else if (reHistory.indexIn(cmd) != -1) { // :history
-        QString arg = reSet.cap(3);
-        if (arg.isEmpty()) {
-            QString info;
-            info += "#  command history\n";
-            int i = 0;
-            foreach (const QString &item, m_commandHistory) {
-                ++i;
-                info += QString("%1 %2\n").arg(i, -8).arg(item);
-            }
-            emit q->extraInformationChanged(info);
-        } else {
-            notImplementedYet();
-        }
-        updateMiniBuffer();
-    } else if (handleMapping(cmd)) {
-        /* done */
-    } else {
-        passUnknownExCommand(cmd);
+    if (!(handleExGotoCommand(line)
+        || handleExReadCommand(line)
+        || handleExWriteCommand(line)
+        || handleExBangCommand(line)
+        || handleExShiftRightCommand(line)
+        || handleExRedoCommand(line)
+        || handleExNormalCommand(line)
+        || handleExSubstituteCommand(line)
+        || handleExSetCommand(line)
+        || handleExHistoryCommand(line)
+        || handleExMapCommand(line)))
+    {
+        int beginLine, endLine;
+        passUnknownExCommand(extractCommand(line, &beginLine, &endLine));
     }
 }
 
