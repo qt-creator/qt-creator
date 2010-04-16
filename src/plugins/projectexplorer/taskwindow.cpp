@@ -116,6 +116,7 @@ public:
 
     QList<Task> tasks(const QString &categoryId = QString()) const;
     void addTask(const Task &task);
+    void removeTask(const Task &task);
     void clearTasks(const QString &categoryId = QString());
 
     int sizeOfFile();
@@ -253,15 +254,16 @@ void TaskModel::addTask(const Task &task)
 
     m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.width(filename));
 }
-//
-//void TaskModel::removeTask(const ITaskWindow::Task &task)
-//{
-//    Q_ASSERT(m_tasks.contains(task));
-//    int index = m_tasks.indexOf(task);
-//    beginRemoveRows(QModelIndex(), index, index);
-//    m_tasks.removeAt(index);
-//    endRemoveRows();
-//}
+
+void TaskModel::removeTask(const Task &task)
+{
+    if (m_tasks.contains(task)) {
+        int index = m_tasks.indexOf(task);
+        beginRemoveRows(QModelIndex(), index, index);
+        m_tasks.removeAt(index);
+        endRemoveRows();
+    }
+}
 
 void TaskModel::clearTasks(const QString &categoryId)
 {
@@ -551,6 +553,15 @@ void TaskWindow::addCategory(const QString &categoryId, const QString &displayNa
 void TaskWindow::addTask(const Task &task)
 {
     m_model->addTask(task);
+
+    updateActions();
+    emit tasksChanged();
+    navigateStateChanged();
+}
+
+void TaskWindow::removeTask(const Task &task)
+{
+    m_model->removeTask(task);
 
     updateActions();
     emit tasksChanged();

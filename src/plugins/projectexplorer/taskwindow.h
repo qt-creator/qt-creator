@@ -99,6 +99,7 @@ public:
     void addCategory(const QString &categoryId, const QString &displayName);
 
     void addTask(const Task &task);
+    void removeTask(const Task &task);
     void clearTasks(const QString &categoryId = QString());
 
     int taskCount(const QString &categoryId = QString()) const;
