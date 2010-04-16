@@ -38,11 +38,13 @@ using namespace Find;
 
 BaseTextFind::BaseTextFind(QTextEdit *editor)
     : m_editor(editor), m_incrementalStartPos(-1)
+    , m_findScopeVerticalBlockSelection(0)
 {
 }
 
 BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
     : m_plaineditor(editor), m_incrementalStartPos(-1)
+    , m_findScopeVerticalBlockSelection(0)
 {
 }
 
@@ -280,6 +282,9 @@ bool BaseTextFind::find(const QString &txt,
 QTextCursor BaseTextFind::findOne(const QRegExp &expr, const QTextCursor &from, QTextDocument::FindFlags options) const
 {
     QTextCursor candidate = document()->find(expr, from, options);
+    if (candidate.isNull())
+        return candidate;
+
     if (!m_findScopeVerticalBlockSelection)
         return candidate;
     forever {
@@ -311,7 +316,7 @@ void BaseTextFind::defineFindScope()
     if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor())) {
         m_findScopeStart = QTextCursor(document()->docHandle(), qMax(0, cursor.selectionStart()-1));
         m_findScopeEnd = QTextCursor(document()->docHandle(), cursor.selectionEnd());
-        m_findScopeVerticalBlockSelection = false;
+        m_findScopeVerticalBlockSelection = 0;
 
         int verticalBlockSelection = 0;
         if (m_plaineditor && m_plaineditor->metaObject()->indexOfProperty("verticalBlockSelection") >= 0)
