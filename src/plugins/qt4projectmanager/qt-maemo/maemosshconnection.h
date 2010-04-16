@@ -103,7 +103,7 @@ signals:
 private:
     MaemoInteractiveSshConnection(const MaemoDeviceConfig &devConf);
 
-    const char *m_prompt;
+    char m_prompt[3];
 };
 
 

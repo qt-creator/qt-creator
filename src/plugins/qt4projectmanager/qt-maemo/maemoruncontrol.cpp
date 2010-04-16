@@ -239,8 +239,8 @@ void AbstractMaemoRunControl::killRemoteProcesses(const QStringList &apps,
         niceKill += QString::fromLocal8Bit("pkill -x %1;").arg(app);
         brutalKill += QString::fromLocal8Bit("pkill -x -9 %1;").arg(app);
     }
-    const QString remoteCall
-        = niceKill + QLatin1String("sleep 1; ") + brutalKill;
+    QString remoteCall = niceKill + QLatin1String("sleep 1; ") + brutalKill;
+    remoteCall.remove(remoteCall.count() - 1, 1); // Get rid of trailing semicolon.
     QScopedPointer<MaemoSshRunner> &runner
         = initialCleanup ? m_initialCleaner : m_sshStopper;
     runner.reset(new MaemoSshRunner(m_devConfig, remoteCall));

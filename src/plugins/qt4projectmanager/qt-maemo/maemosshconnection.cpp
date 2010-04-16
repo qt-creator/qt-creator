@@ -102,13 +102,20 @@ void MaemoSshConnection::stop()
 }
 
 MaemoInteractiveSshConnection::MaemoInteractiveSshConnection(const MaemoDeviceConfig &devConf)
-    : MaemoSshConnection(devConf, true), m_prompt(0)
+    : MaemoSshConnection(devConf, true)
 {
-    m_prompt = devConf.uname == QLatin1String("root") ? "# " : "$ ";
+    strcpy(m_prompt, devConf.uname == QLatin1String("root") ? "# " : "$ ");
     if (!ssh->waitFor(channel(), m_prompt, devConf.timeout)) {
-        const QString error
-            = tr("Could not start remote shell: %1").arg(lastError());
-        throw MaemoSshException(error);
+        QScopedPointer<char, QScopedPointerArrayDeleter<char> >
+            shellString(ssh->readAndReset(channel(), alloc));
+        if (!shellString.data()) {
+            const QString error
+                = tr("Could not start remote shell: %1").arg(lastError());
+            throw MaemoSshException(error);
+        } else {
+            const int length = strlen(shellString.data());
+            strcpy(m_prompt, shellString.data() + length - qMin(2, length));
+        }
     }
 }
 
@@ -120,26 +127,72 @@ MaemoInteractiveSshConnection::~MaemoInteractiveSshConnection()
 
 void MaemoInteractiveSshConnection::runCommand(const QString &command)
 {
-    if (!ssh->send((command + QLatin1String("\n")).toLatin1().data(),
-                  channel())) {
+    /*
+     * We don't have access to the remote process management, so we
+     * try to track the lifetime of the process by adding a second command
+     * that prints a rare character. When it occurs for the second time (the
+     * first one is the echo from the remote terminal), we assume the
+     * process has finished. If anyone actually prints this special character
+     * in their application, they are out of luck.
+     */
+    const QString endMarker(QChar(0x13a0));
+    const int endMarkerLen = strlen(endMarker.toUtf8());
+
+    const QString finalCommand
+        = command + QLatin1String(";echo ") + endMarker + QLatin1Char('\n');
+    if (!ssh->send(finalCommand.toUtf8().data(), channel())) {
         throw MaemoSshException(tr("Error running command: %1")
                                 .arg(lastError()));
     }
 
-    bool done;
+    int endMarkerCount = 0;
     do {
-        done = ssh->waitFor(channel(), m_prompt, 1);
+        ssh->waitFor(channel(), endMarker.toUtf8(), 1);
         const char * const error = lastError();
         if (error)
             throw MaemoSshException(tr("SSH error: %1").arg(error));
         QScopedPointer<char, QScopedPointerArrayDeleter<char> >
             output(ssh->readAndReset(channel(), alloc));
+
+        /*
+         * The output the user should see is everything after the first
+         * and before the last occurrence of our marker string.
+         */
         if (output.data()) {
-            emit remoteOutput(QString::fromUtf8(output.data()));
-            if (!done)
-                done = strstr(output.data(), m_prompt) != 0;
+            const char *firstCharToEmit;
+            int charsToEmitCount;
+            const char * const endMarkerPos
+                = strstr(output.data(), endMarker.toUtf8());
+            if (endMarkerPos) {
+                if (endMarkerCount++ == 0) {
+                    emit remoteOutput(QLatin1String("========== Remote output starts now. =========="));
+                    firstCharToEmit = endMarkerPos + endMarkerLen + 1;
+                    const char * const endMarkerPos2
+                        = strstr(firstCharToEmit, endMarker.toUtf8());
+                    if (endMarkerPos2) {
+                        ++ endMarkerCount;
+                        charsToEmitCount = endMarkerPos2 - firstCharToEmit;
+                    } else {
+                        charsToEmitCount = -1;
+                    }
+                } else {
+                    firstCharToEmit = output.data();
+                    charsToEmitCount = endMarkerPos - output.data();
+                }
+            } else {
+                if (endMarkerCount == 0) {
+                    charsToEmitCount = 0;
+                } else {
+                    firstCharToEmit = output.data();
+                    charsToEmitCount = -1;
+                }
+            }
+
+            if (charsToEmitCount != 0)
+                emit remoteOutput(QString::fromUtf8(firstCharToEmit, charsToEmitCount));
         }
-    } while (!done && !stopRequested());
+    } while (endMarkerCount < 2 && !stopRequested());
+    emit remoteOutput(QLatin1String("========== Remote output ends now. =========="));
 }
 
 MaemoInteractiveSshConnection::Ptr MaemoInteractiveSshConnection::create(const MaemoDeviceConfig &devConf)
