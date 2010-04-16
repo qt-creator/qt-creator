@@ -76,7 +76,6 @@ private slots:
 
     void addWatch();
     void removeWatch();
-    void filterView(const QString &filterText);
     void toggleUnwatchableProperties();
 
 private:
