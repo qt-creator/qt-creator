@@ -1804,6 +1804,8 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     d->m_actions.snapshotAction->
         setEnabled(stopped && (engineCapabilities & SnapshotCapability));
 
+    theDebuggerAction(OperateByInstruction)->setEnabled(!running);
+
     const bool interruptIsExit = !running;
     if (interruptIsExit) {
         d->m_actions.stopAction->setIcon(d->m_stopIcon);
