@@ -37,14 +37,16 @@
 using namespace Find;
 
 BaseTextFind::BaseTextFind(QTextEdit *editor)
-    : m_editor(editor), m_incrementalStartPos(-1)
+    : m_editor(editor)
     , m_findScopeVerticalBlockSelection(0)
+    , m_incrementalStartPos(-1)
 {
 }
 
 BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
-    : m_plaineditor(editor), m_incrementalStartPos(-1)
+    : m_plaineditor(editor)
     , m_findScopeVerticalBlockSelection(0)
+    , m_incrementalStartPos(-1)
 {
 }
 
