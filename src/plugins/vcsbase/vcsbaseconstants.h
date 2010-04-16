@@ -40,7 +40,7 @@ const char * const VCS_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Vers
 const char * const VCS_COMMON_SETTINGS_ID = "A.Common";
 const char * const VCS_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("VCSBase", "Common");
 
-const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
+const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Project from Version Control");
 const char * const VCS_WIZARD_CATEGORY = "L.Version Control";
 
 // Ids for sort order (wizards and preferences)

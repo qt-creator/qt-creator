@@ -31,21 +31,128 @@
 #include "ui_newdialog.h"
 #include "basefilewizard.h"
 
+#include <utils/stylehelper.h>
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/iwizard.h>
 
+#include <QtGui/QAbstractProxyModel>
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
 #include <QtGui/QStandardItem>
+#include <QtGui/QItemDelegate>
+#include <QtGui/QPainter>
 #include <QtCore/QDebug>
 
 Q_DECLARE_METATYPE(Core::IWizard*)
 
-static inline Core::IWizard *wizardOfItem(const QStandardItem *item = 0)
+
+namespace {
+
+class TwoLevelProxyModel : public QAbstractProxyModel
+{
+//    Q_OBJECT
+public:
+    TwoLevelProxyModel(QObject *parent = 0): QAbstractProxyModel(parent) {}
+
+    QModelIndex index(int row, int column, const QModelIndex &parent) const
+    {
+        QModelIndex ourModelIndex = sourceModel()->index(row, column, mapToSource(parent));
+        return createIndex(row, column, ourModelIndex.internalPointer());
+    }
+
+    QModelIndex parent(const QModelIndex &index) const
+    {
+        return mapFromSource(mapToSource(index).parent());
+    }
+
+    int rowCount(const QModelIndex &index) const
+    {
+        if (index.isValid() && index.parent().isValid() && !index.parent().parent().isValid())
+            return 0;
+        else
+            return sourceModel()->rowCount(mapToSource(index));
+    }
+
+    int columnCount(const QModelIndex &index) const
+    {
+        return sourceModel()->columnCount(mapToSource(index));
+    }
+
+    QModelIndex	mapFromSource (const QModelIndex &index) const
+    {
+        if (!index.isValid())
+            return QModelIndex();
+        return createIndex(index.row(), index.column(), index.internalPointer());
+    }
+
+    QModelIndex	mapToSource (const QModelIndex &index) const
+    {
+        if (!index.isValid())
+            return QModelIndex();
+        return static_cast<TwoLevelProxyModel*>(sourceModel())->createIndex(index.row(), index.column(), index.internalPointer());
+    }
+
+    Qt::ItemFlags flags(const QModelIndex &index) const
+    {
+        Qt::ItemFlags f = sourceModel()->flags(index);
+        if (!index.parent().isValid())
+            return f ^ Qt::ItemIsSelectable;
+        else
+            return f;
+    }
+};
+
+#define CATEGORY_ROW_HEIGHT 18
+
+class FancyTopLevelDelegate : public QItemDelegate
+{
+public:
+    FancyTopLevelDelegate(QObject *parent = 0)
+        : QItemDelegate(parent) {}
+
+
+    void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QString &text) const
+    {
+        if (rect.height() == CATEGORY_ROW_HEIGHT) {
+            QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
+            gradient.setColorAt(0, option.palette.window().color().lighter(106));
+            gradient.setColorAt(1, option.palette.window().color().darker(106));
+            painter->fillRect(rect, gradient);
+            painter->setPen(option.palette.window().color().darker(130));
+            if (rect.top())
+                painter->drawLine(rect.topRight(), rect.topLeft());
+            painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+        }
+
+        QItemDelegate::drawDisplay(painter, option, rect, text);
+    }
+
+    void drawFocus(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect) const
+    {
+        if (rect.height() != CATEGORY_ROW_HEIGHT)
+            QItemDelegate::drawFocus(painter, option, rect);
+    }
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        QSize size = QItemDelegate::sizeHint(option, index);
+
+        if (!index.parent().isValid())
+            size = size.expandedTo(QSize(0, CATEGORY_ROW_HEIGHT));
+
+        return size;
+    }
+};
+
+
+inline Core::IWizard *wizardOfItem(const QStandardItem *item = 0)
 {
     if (!item)
         return 0;
     return item->data(Qt::UserRole).value<Core::IWizard*>();
+}
+
 }
 
 using namespace Core;
@@ -61,16 +168,23 @@ NewDialog::NewDialog(QWidget *parent) :
     m_ui->setupUi(this);
     m_okButton = m_ui->buttonBox->button(QDialogButtonBox::Ok);
     m_okButton->setDefault(true);
-    m_okButton->setText(tr("&Create"));
+    m_okButton->setText(tr("&Choose..."));
 
-    m_ui->templatesTree->header()->hide();
     m_model = new QStandardItemModel(this);
-    m_ui->templatesTree->setModel(m_model);
+    m_proxyModel = new TwoLevelProxyModel(this);
+    m_proxyModel->setSourceModel(m_model);
+    m_ui->templateCategoryView->setModel(m_proxyModel);
+    m_ui->templateCategoryView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_ui->templateCategoryView->setItemDelegate(new FancyTopLevelDelegate);
 
-    connect(m_ui->templatesTree, SIGNAL(clicked(const QModelIndex&)),
+    m_ui->templatesView->setIconSize(QSize(22, 22));
+
+    connect(m_ui->templateCategoryView, SIGNAL(clicked(const QModelIndex&)),
+        this, SLOT(currentCategoryChanged(const QModelIndex&)));
+    connect(m_ui->templatesView, SIGNAL(clicked(const QModelIndex&)),
         this, SLOT(currentItemChanged(const QModelIndex&)));
-    connect(m_ui->templatesTree, SIGNAL(activated(const QModelIndex&)),
-            m_okButton, SLOT(animateClick()));
+//    connect(m_ui->templatesView, SIGNAL(activated(const QModelIndex&)),
+//            m_okButton, SLOT(animateClick()));
 
     connect(m_okButton, SIGNAL(clicked()), this, SLOT(okButtonClicked()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -95,17 +209,41 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
 
     qStableSort(wizards.begin(), wizards.end(), wizardLessThan);
 
+
     CategoryItemMap categories;
 
     m_model->clear();
+    QStandardItem *projectKindItem = new QStandardItem(tr("Projects"));
+    projectKindItem->setData(IWizard::ProjectWizard, Qt::UserRole);
+    QStandardItem *filesClassesKindItem = new QStandardItem(tr("Files & Classes"));
+    filesClassesKindItem->setData(IWizard::FileWizard, Qt::UserRole);
+
+    QStandardItem *parentItem = m_model->invisibleRootItem();
+    parentItem->appendRow(projectKindItem);
+    parentItem->appendRow(filesClassesKindItem);
+
+    static QPixmap dummyIcon(22, 22);
+    dummyIcon.fill(Qt::transparent);
+
     foreach (IWizard *wizard, wizards) {
         // ensure category root
         const QString categoryName = wizard->category();
+
         CategoryItemMap::iterator cit = categories.find(categoryName);
         if (cit == categories.end()) {
-            QStandardItem *parentItem = m_model->invisibleRootItem();
             QStandardItem *categoryItem = new QStandardItem();
-            parentItem->appendRow(categoryItem);
+            QStandardItem *kindItem;
+            switch (wizard->kind()) {
+            case IWizard::ProjectWizard:
+                kindItem = projectKindItem;
+                break;
+            case IWizard::ClassWizard:
+            case IWizard::FileWizard:
+            default:
+                kindItem = filesClassesKindItem;
+                break;
+            }
+            kindItem->appendRow(categoryItem);
             categoryItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             categoryItem->setText(wizard->displayCategory());
             categoryItem->setData(QVariant::fromValue(0), Qt::UserRole);
@@ -113,44 +251,66 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
         }
         // add item
         QStandardItem *wizardItem = new QStandardItem(wizard->displayName());
-        wizardItem->setIcon(wizard->icon());
+        QIcon wizardIcon;
+
+        // spacing hack. Add proper icons instead
+        if (wizard->icon().isNull())
+            wizardIcon = dummyIcon;
+        else
+            wizardIcon = wizard->icon();
+        wizardItem->setIcon(wizardIcon);
         wizardItem->setData(QVariant::fromValue(wizard), Qt::UserRole);
         wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
         cit.value()->appendRow(wizardItem);
     }
+
+
+    if (!projectKindItem->hasChildren()) {
+        QModelIndex idx = projectKindItem->index();
+        m_model->removeRow(idx.row());
+    }
+    if (!filesClassesKindItem->hasChildren()) {
+        QModelIndex idx = filesClassesKindItem->index();
+        m_model->removeRow(idx.row());
+    }
+
 }
 
 Core::IWizard *NewDialog::showDialog()
 {
-    QStandardItem *itemToSelect = 0;
-    if (m_preferredWizardKinds == 0) {
-        m_ui->templatesTree->expandAll();
-        if (QStandardItem *rootItem = m_model->invisibleRootItem()->child(0)) {
-            if (rootItem->rowCount())
-                itemToSelect = rootItem->child(0);
-        }
-    } else {
-        for (int i = 0; i < m_model->invisibleRootItem()->rowCount(); ++i) {
-            QStandardItem *category = m_model->invisibleRootItem()->child(i);
-            bool hasOnlyPreferred = true;
-            for (int j = 0; j < category->rowCount(); ++j) {
-                QStandardItem *item = category->child(j);
-                if (!(item->data(Qt::UserRole).value<IWizard*>()
-                        ->kind() & m_preferredWizardKinds)) {
-                    hasOnlyPreferred = false;
-                    break;
-                }
-            }
-            m_ui->templatesTree->setExpanded(category->index(), hasOnlyPreferred);
-            if (hasOnlyPreferred && itemToSelect == 0 && category->rowCount() > 0) {
-                itemToSelect = category->child(0);
-            }
-        }
-    }
-    if (itemToSelect) {
-        m_ui->templatesTree->scrollTo(itemToSelect->index());
-        m_ui->templatesTree->setCurrentIndex(itemToSelect->index());
-    }
+    for (int row = 0; row < m_proxyModel->rowCount(); ++row)
+        m_ui->templateCategoryView->setExpanded(m_proxyModel->index(row, 0), true);
+
+//    QStandardItem *itemToSelect = 0;
+//    if (m_preferredWizardKinds == 0) {
+//        if (QStandardItem *rootItem = m_model->invisibleRootItem()->child(0)) {
+//            if (rootItem->rowCount())
+//                itemToSelect = rootItem->child(0);
+//        }
+//    } else {
+//        for (int i = 0; i < m_model->invisibleRootItem()->rowCount(); ++i) {
+//            QStandardItem *type = m_model->invisibleRootItem()->child(i);
+//            bool hasOnlyPreferred = true;
+//            for (int j = 0; j < category->rowCount(); ++j) {
+//                QStandardItem *item = category->child(j);
+//                if (!(item->data(Qt::UserRole).value<IWizard*>()
+//                    ->kind() & m_preferredWizardKinds)) {
+//                    hasOnlyPreferred = false;
+//                    break;
+//                }
+//            }
+//            //m_ui->templatesTree->setExpanded(category->index(), hasOnlyPreferred);
+//            if (hasOnlyPreferred && itemToSelect == 0 && category->rowCount() > 0) {
+//                itemToSelect = category->child(0);
+//            }
+//        }
+//    }
+//    if (itemToSelect) {
+//        m_ui->templateCategoryView->scrollTo(itemToSelect->index());
+//        m_ui->templateCategoryView->setCurrentIndex(itemToSelect->index());
+//        m_ui->templatesView->scrollTo(itemToSelect->index());
+//        m_ui->templatesView->setCurrentIndex(itemToSelect->index());
+//    }
     updateOkButton();
     if (exec() != Accepted)
         return 0;
@@ -164,22 +324,33 @@ NewDialog::~NewDialog()
 
 IWizard *NewDialog::currentWizard() const
 {
-    return wizardOfItem(m_model->itemFromIndex(m_ui->templatesTree->currentIndex()));
+    return wizardOfItem(m_model->itemFromIndex(m_ui->templatesView->currentIndex()));
+}
+
+void NewDialog::currentCategoryChanged(const QModelIndex &index)
+{
+
+    if (index.parent() != m_model->invisibleRootItem()->index()) {
+        m_ui->templatesView->setModel(m_model);
+        m_ui->templatesView->setRootIndex(m_proxyModel->mapToSource(index));
+    } else  {
+        m_ui->templatesView->setModel(0);
+    }
 }
 
 void NewDialog::currentItemChanged(const QModelIndex &index)
 {
     QStandardItem* cat = m_model->itemFromIndex(index);
     if (const IWizard *wizard = wizardOfItem(cat))
-        m_ui->descLabel->setText(wizard->description());
+        m_ui->templateDescription->setText(wizard->description());
     else
-        m_ui->descLabel->setText(QString());
+        m_ui->templateDescription->setText(QString());
     updateOkButton();
 }
 
 void NewDialog::okButtonClicked()
 {
-    if (m_ui->templatesTree->currentIndex().isValid())
+    if (m_ui->templatesView->currentIndex().isValid())
         accept();
 }
 

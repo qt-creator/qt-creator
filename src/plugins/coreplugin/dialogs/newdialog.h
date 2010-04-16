@@ -36,6 +36,7 @@
 #include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
+class QAbstractProxyModel;
 class QPushButton;
 class QStandardItem;
 class QStandardItemModel;
@@ -65,6 +66,7 @@ public:
     Core::IWizard *showDialog();
 
 private slots:
+    void currentCategoryChanged(const QModelIndex &);
     void currentItemChanged(const QModelIndex &);
     void okButtonClicked();
     void updateOkButton();
@@ -74,8 +76,10 @@ private:
 
     Ui::NewDialog *m_ui;
     QStandardItemModel *m_model;
+    QAbstractProxyModel *m_proxyModel;
     QPushButton *m_okButton;
     IWizard::WizardKinds m_preferredWizardKinds;
+    QPixmap m_dummyIcon;
 };
 
 } // namespace Internal
