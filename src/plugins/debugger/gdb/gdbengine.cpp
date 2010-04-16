@@ -1817,7 +1817,8 @@ unsigned GdbEngine::debuggerCapabilities() const
         | JumpToLineCapability | ReloadModuleCapability
         | ReloadModuleSymbolsCapability | BreakOnThrowAndCatchCapability
         | ReturnFromFunctionCapability 
-        | CreateFullBacktraceCapability;
+        | CreateFullBacktraceCapability
+        | AddWatcherCapability;
 }
 
 void GdbEngine::continueInferiorInternal()

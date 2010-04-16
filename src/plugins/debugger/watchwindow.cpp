@@ -273,11 +273,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu menu;
 
-    QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
-    QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
-
     const bool actionsEnabled = m_manager->debuggerActionsEnabled();
     const unsigned engineCapabilities = m_manager->debuggerCapabilities();
+    const bool canHandleWatches = actionsEnabled && (engineCapabilities & AddWatcherCapability);
+
+    QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
+    actInsertNewWatchItem->setEnabled(canHandleWatches);
+    QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
+    actSelectWidgetToWatch->setEnabled(canHandleWatches);
+
     const QString address = model()->data(mi0, AddressRole).toString();
     QAction *actWatchKnownMemory = 0;
     QAction *actWatchUnknownMemory = new QAction(tr("Open Memory Editor..."), &menu);
@@ -292,6 +296,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actWatchOrRemove;
     if (m_type == LocalsType) {
         actWatchOrRemove = theDebuggerAction(WatchExpression)->updatedAction(exp);
+        actWatchOrRemove->setEnabled(canHandleWatches);
     } else {
         actWatchOrRemove = theDebuggerAction(RemoveWatchExpression)->updatedAction(exp);
         // Also for the case where the user cleared the expression.
