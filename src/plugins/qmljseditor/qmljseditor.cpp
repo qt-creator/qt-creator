@@ -1364,6 +1364,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     if (! doc) {
         snapshot = source.snapshot;
         doc = snapshot.documentFromSource(source.code, source.fileName);
+        doc->setDocumentRevision(source.revision);
         doc->parse();
     }
 
