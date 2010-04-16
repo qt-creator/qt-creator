@@ -91,7 +91,6 @@ QWidget { //This is a special spinBox that does color coding for states
                 transaction.end();
             }
             onEditingFinished: {
-                focus = false;
             }
         }
     }
