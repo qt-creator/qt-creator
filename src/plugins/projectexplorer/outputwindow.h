@@ -96,7 +96,6 @@ public slots:
     void coreAboutToClose();
 
 private slots:
-    void insertLine();
     void reRunRunControl();
     void stopRunControl();
     void closeTab(int index);
@@ -126,7 +125,6 @@ public:
 
     void appendOutput(const QString &out);
     void appendOutputInline(const QString &out);
-    void insertLine();
     void grayOutOldContent();
 
     void showEvent(QShowEvent *);
@@ -147,82 +145,6 @@ private:
     bool m_mousePressed;
 };
 
-#if 0
-class OutputWindow
-  : public QAbstractScrollArea
-{
-    Q_OBJECT
-
-    int max_lines;
-    bool same_height;
-    int width_used;
-    bool block_scroll;
-    QStringList lines;
-    QBasicTimer autoscroll_timer;
-    int autoscroll;
-    QPoint lastMouseMove;
-
-
-    struct Selection {
-        Selection():line(0), pos(0){}
-        int line;
-        int pos;
-
-        bool operator==(const Selection &other) const
-            { return line == other.line && pos == other.pos; }
-        bool operator!=(const Selection &other) const
-            { return !(*this == other); }
-        bool operator<(const Selection &other) const
-            { return line < other.line || (line == other.line && pos < other.pos); }
-        bool operator>=(const Selection &other) const
-        { return !(*this < other); }
-        bool operator<=(const Selection &other) const
-            { return line < other.line || (line == other.line && pos == other.pos); }
-        bool operator>(const Selection &other) const
-        { return !(*this <= other); }
-    };
-
-    Selection selection_start, selection_end;
-    void changed();
-    bool getCursorPos(int *lineNumber, int *position, const QPoint &pos);
-
-public:
-    OutputWindow(QWidget *parent = 0);
-    ~OutputWindow();
-
-    void setNumberOfLines(int max);
-    int numberOfLines() const;
-
-    bool hasSelectedText() const;
-    void clearSelection();
-
-    QString selectedText() const;
-
-    void appendOutput(const QString &out);
-    void insertLine() {
-        appendOutput(QChar(QChar::ParagraphSeparator));
-    }
-
-
-public slots:
-    void clear();
-    void copy();
-    void selectAll();
-
-signals:
-    void showPage();
-
-protected:
-    void scrollContentsBy(int dx, int dy);
-    void keyPressEvent(QKeyEvent *e);
-    void paintEvent(QPaintEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void timerEvent(QTimerEvent *e);
-    void contextMenuEvent(QContextMenuEvent * e);
-};
-#endif // 0
 } // namespace Internal
 } // namespace ProjectExplorer
 

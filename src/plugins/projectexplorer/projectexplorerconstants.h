@@ -163,7 +163,6 @@ const char * const ICON_REBUILD_SMALL   = ":/projectexplorer/images/rebuild_smal
 const char * const ICON_RUN             = ":/projectexplorer/images/run.png";
 const char * const ICON_RUN_SMALL       = ":/projectexplorer/images/run_small.png";
 const char * const ICON_SESSION         = ":/projectexplorer/images/session.png";
-const char * const ICON_INSERT_LINE     = ":/projectexplorer/images/insert_line_small.png";
 const char * const ICON_DEBUG           = ":/projectexplorer/images/debugger_start.png";
 const char * const ICON_DEBUG_SMALL     = ":/projectexplorer/images/debugger_start_small.png";
 const char * const ICON_CLOSETAB        = ":/projectexplorer/images/closetab.png";

@@ -174,8 +174,10 @@ signals:
     void error(RunControl *, const QString &error);
     void started();
     void finished();
+
 public slots:
     void bringApplicationToForeground(qint64 pid);
+
 private slots:
     void bringApplicationToForegroundInternal();
 

@@ -63,13 +63,6 @@ static const int MaxBlockCount = 100000;
 OutputPane::OutputPane()
     : m_mainWidget(new QWidget)
 {
-//     m_insertLineButton = new QToolButton;
-//     m_insertLineButton->setIcon(QIcon(ProjectExplorer::Constants::ICON_INSERT_LINE));
-//     m_insertLineButton->setText(tr("Insert line"));
-//     m_insertLineButton->setToolTip(tr("Insert line"));
-//     m_insertLineButton->setAutoRaise(true);
-//     connect(m_insertLineButton, SIGNAL(clicked()), this, SLOT(insertLine()));
-
     QIcon runIcon(Constants::ICON_RUN);
     runIcon.addFile(Constants::ICON_RUN_SMALL);
 
@@ -141,8 +134,7 @@ QWidget *OutputPane::outputWidget(QWidget *)
 
 QList<QWidget*> OutputPane::toolBarWidgets() const
 {
-    return QList<QWidget*>() << m_reRunButton << m_stopButton
-            ; // << m_insertLineButton;
+    return QList<QWidget*>() << m_reRunButton << m_stopButton;
 }
 
 QString OutputPane::name() const
@@ -236,13 +228,6 @@ void OutputPane::showTabFor(RunControl *rc)
 {
     OutputWindow *ow = m_outputWindows.value(rc);
     m_tabWidget->setCurrentWidget(ow);
-}
-
-void OutputPane::insertLine()
-{
-    OutputWindow *currentWindow = qobject_cast<OutputWindow *>(m_tabWidget->currentWidget());
-    if (currentWindow)
-        currentWindow->clear();
 }
 
 void OutputPane::reRunRunControl()
@@ -477,14 +462,6 @@ void OutputWindow::appendOutputInline(const QString &out)
         appendHtml(s);
     }
 
-    enableUndoRedo();
-}
-
-void OutputWindow::insertLine()
-{
-    m_scrollToBottom = true;
-    setMaximumBlockCount(MaxBlockCount);
-    appendPlainText(QString());
     enableUndoRedo();
 }
 
