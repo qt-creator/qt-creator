@@ -162,11 +162,13 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
     const QFileInfo sourceFileInfo(sourceFilePath);
 
     Core::GeneratedFile source(sourceFilePath);
+    source.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     source.setContents(generateTestCode(testParams, sourceFileInfo.baseName()));
 
     // Create profile with define for base dir to find test data
     const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, projectParams.fileName, profileSuffix());
     Core::GeneratedFile profile(profileName);
+    profile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     QString contents;
     {
         QTextStream proStr(&contents);

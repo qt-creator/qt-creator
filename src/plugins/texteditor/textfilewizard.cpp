@@ -54,5 +54,6 @@ Core::GeneratedFiles
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, suffix);
     Core::GeneratedFile file(fileName);
     file.setEditorId(m_editorId);
+    file.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     return Core::GeneratedFiles() << file;
 }

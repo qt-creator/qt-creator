@@ -209,7 +209,10 @@ Core::GeneratedFiles CppClassWizard::generateFiles(const QWizard *w, QString *er
         return Core::GeneratedFiles();
     }
     headerFile.setContents(header);
+    headerFile.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
+
     sourceFile.setContents(source);
+    sourceFile.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     return Core::GeneratedFiles() << headerFile << sourceFile;
 }
 

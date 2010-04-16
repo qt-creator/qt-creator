@@ -38,8 +38,8 @@ Custom class wizard example configuration file. -->
     <displaycategory>Custom Classes</displaycategory>
     <displaycategory xml:lang="de">Benutzerdefinierte Klassen</displaycategory>
     <files>
-        <file source="listmodel.cpp" target="%ClassName:l%.%CppSourceSuffix%"/>
-        <file source="listmodel.h" target="%ClassName:l%.%CppHeaderSuffix%"/>
+        <file source="listmodel.cpp" target="%ClassName:l%.%CppSourceSuffix%" openeditor="true"/>
+        <file source="listmodel.h" target="%ClassName:l%.%CppHeaderSuffix%" openeditor="true"/>
     </files>
     <!-- Create parameter wizard page -->
     <fieldpagetitle>ListModel parameters</fieldpagetitle>

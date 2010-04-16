@@ -93,7 +93,9 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
 
     // First create the widget wrappers (plugins) and - if requested - skeletons
     // for the widgets.
-    foreach (const PluginOptions::WidgetOptions &wo, options.widgetOptions) {
+    const int widgetCount = options.widgetOptions.size();
+    for (int i = 0; i < widgetCount; i++) {
+        const PluginOptions::WidgetOptions &wo = options.widgetOptions.at(i);
         sm.clear();
         sm.insert(QLatin1String("SINGLE_INCLUDE_GUARD"), headerGuard(wo.pluginHeaderFile));
         sm.insert(QLatin1String("PLUGIN_CLASS"), wo.pluginClassName);
@@ -133,6 +135,8 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile pluginSource(baseDir + wo.pluginSourceFile);
         pluginSource.setContents(p.license + pluginSourceContents);
+        if (i == 0 && widgetCount == 1) // Open first widget unless collection
+            pluginSource.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
         rc.push_back(pluginSource);
 
         if (wo.sourceType == PluginOptions::WidgetOptions::LinkLibrary)
@@ -209,7 +213,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
     }
 
     // Create the sources for the collection if necessary.
-    if (options.widgetOptions.count() > 1) {
+    if (widgetCount > 1) {
         sm.clear();
         sm.insert(QLatin1String("COLLECTION_INCLUDE_GUARD"), headerGuard(options.collectionHeaderFile));
         sm.insert(QLatin1String("COLLECTION_PLUGIN_CLASS"), options.collectionClassName);
@@ -238,6 +242,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
             return QList<Core::GeneratedFile>();
         Core::GeneratedFile collectionSource(baseDir + options.collectionSourceFile);
         collectionSource.setContents(p.license + collectionSourceFileContents);
+        collectionSource.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
         rc.push_back(collectionSource);
 
         pluginHeaders += blank + options.collectionHeaderFile;
@@ -282,6 +287,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
         return QList<Core::GeneratedFile>();
     Core::GeneratedFile proFile(baseDir + p.fileName + QLatin1String(".pro"));
     proFile.setContents(proFileContents);
+    proFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     rc.push_back(proFile);
     return rc;
 }

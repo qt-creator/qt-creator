@@ -45,8 +45,8 @@ leave room for the Qt 4 target page.
         <file source="plugin.h" target="%ProjectName%.h"/>
         <file source="plugin.cpp" target="%ProjectName%.cpp"/>
         <file source="object.h" target="%ObjectName%.h"/>
-        <file source="object.cpp" target="%ObjectName%.cpp"/>
-        <file source="project.pro" target="%ProjectName%.pro"/>
+        <file source="object.cpp" target="%ObjectName%.cpp"  openeditor="true"/>
+        <file source="project.pro" target="%ProjectName%.pro" openproject="true"/>
     </files>
     <!-- Create a 2nd wizard page with parameters -->
     <fieldpagetitle>QML Runtime Plug-in Parameters</fieldpagetitle>

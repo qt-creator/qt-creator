@@ -68,6 +68,9 @@ static const char filesElementC[] = "files";
 static const char fileElementC[] = "file";
 static const char fileNameSourceAttributeC[] = "source";
 static const char fileNameTargetAttributeC[] = "target";
+static const char fileNameOpenEditorAttributeC[] = "openeditor";
+static const char fileNameOpenProjectAttributeC[] = "openproject";
+
 
 enum ParseState {
     ParseBeginning,
@@ -93,6 +96,11 @@ void CustomWizardField::clear()
     name.clear();
     description.clear();
     controlAttributes.clear();
+}
+
+CustomWizardFile::CustomWizardFile() :
+        openEditor(false), openProject(false)
+{
 }
 
 CustomWizardParameters::CustomWizardParameters() :
@@ -409,6 +417,8 @@ bool CustomWizardParameters::parse(QIODevice &device,
                         CustomWizardFile file;
                         file.source = attributeValue(reader, fileNameSourceAttributeC);
                         file.target = attributeValue(reader, fileNameTargetAttributeC);
+                        file.openEditor = booleanAttributeValue(reader, fileNameOpenEditorAttributeC);
+                        file.openProject = booleanAttributeValue(reader, fileNameOpenProjectAttributeC);
                         if (file.target.isEmpty())
                             file.target = file.source;
                         if (file.source.isEmpty()) {
@@ -460,7 +470,12 @@ QString CustomWizardParameters::toString() const
     QTextStream str(&rc);
     str << "Directory: " << directory << " Klass: '" << klass << "'\n";
     foreach(const CustomWizardFile &f, files) {
-        str << "  File source: " << f.source << " Target: " << f.target << '\n';
+        str << "  File source: " << f.source << " Target: " << f.target;
+        if (f.openEditor)
+            str << " [editor]";
+        if (f.openProject)
+            str << " [project]";
+        str << '\n';
     }
     foreach(const CustomWizardField &f, fields) {
         str << "  Field name: " << f.name;

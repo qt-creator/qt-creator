@@ -161,6 +161,12 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
     Core::GeneratedFile generatedFile;
     generatedFile.setContents(contents);
     generatedFile.setPath(targetPath);
+    Core::GeneratedFile::Attributes attributes = 0;
+    if (cwFile.openEditor)
+        attributes |= Core::GeneratedFile::OpenEditorAttribute;
+    if (cwFile.openProject)
+        attributes |= Core::GeneratedFile::OpenProjectAttribute;
+    generatedFile.setAttributes(attributes);
     files->push_back(generatedFile);
     return true;
 }
@@ -410,18 +416,26 @@ Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QStrin
     return generateWizardFiles(targetPath, fieldReplacementMap, errorMessage);
 }
 
+bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage)
+{
+    // Post-Generate: Open the project and the editors as desired
+    foreach(const Core::GeneratedFile &file, l) {
+        if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
+            if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(file.path())) {
+                if (errorMessage)
+                    *errorMessage = tr("The project %1 could not be opened.").arg(file.path());
+                return false;
+            }
+        }
+    }
+    return BaseFileWizard::postGenerateOpenEditors(l, errorMessage);
+}
+
 bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)
 {
-    // Post-Generate: Open the project
-    const QString proFileName = l.back().path();
-    const bool opened = ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFileName);
     if (CustomWizardPrivate::verbose)
-        qDebug() << "CustomProjectWizard::postGenerateFiles: opened " << proFileName << opened;
-    if (opened) {
-        *errorMessage = tr("The project %1 could not be opened.").arg(proFileName);
-        return false;
-    }
-    return true;
+        qDebug() << "CustomProjectWizard::postGenerateFiles()";
+    return CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 
 void CustomProjectWizard::introPageLeft(const QString &project, const QString & /* path */)

@@ -37,6 +37,7 @@
 #include "targetsetuppage.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -108,20 +109,21 @@ bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l
     return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
 }
 
-bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
+                                           const Core::GeneratedFiles &generatedFiles,
+                                           QString *errorMessage)
 {
-    const QString proFileName = l.back().path();
     const BaseQt4ProjectWizardDialog *dialog = qobject_cast<const BaseQt4ProjectWizardDialog *>(w);
 
-    // Generate user settings:
-    dialog->writeUserFile(proFileName);
+    // Generate user settings
+    foreach (const Core::GeneratedFile &file, generatedFiles)
+        if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
+            dialog->writeUserFile(file.path());
+            break;
+        }
 
-    // Post-Generate: Open the project
-    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFileName)) {
-        *errorMessage = tr("The project %1 could not be opened.").arg(proFileName);
-        return false;
-    }
-    return true;
+    // Post-Generate: Open the projects/editors
+    return ProjectExplorer::CustomProjectWizard::postGenerateOpen(generatedFiles ,errorMessage);
 }
 
 QString QtWizard::templateDir()

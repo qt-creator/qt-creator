@@ -31,8 +31,7 @@
 
 #include "qmlprojectconstants.h"
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/customwizard/customwizard.h>
 
 #include <QtGui/QIcon>
 
@@ -120,6 +119,7 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
     }
     Core::GeneratedFile generatedMainFile(mainFileName);
     generatedMainFile.setContents(contents);
+    generatedMainFile.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
 
     QString projectContents;
     {
@@ -150,6 +150,7 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
     }
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
     generatedCreatorFile.setContents(projectContents);
+    generatedCreatorFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
 
     Core::GeneratedFiles files;
     files.append(generatedMainFile);
@@ -158,16 +159,10 @@ Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w
     return files;
 }
 
-bool QmlProjectApplicationWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool QmlProjectApplicationWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)
 {
-    Q_UNUSED(w);
-    // Post-Generate: Open the project
-    const QString proFileName = l.back().path();
-    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFileName)) {
-        *errorMessage = tr("The project %1 could not be opened.").arg(proFileName);
-        return false;
-    }
-    return true;
+    return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
+
 }
 
 } // namespace Internal

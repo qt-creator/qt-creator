@@ -33,8 +33,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/customwizard/customwizard.h>
 
 #include <utils/filenamevalidatinglineedit.h>
 #include <utils/filewizardpage.h>
@@ -166,6 +165,7 @@ Core::GeneratedFiles QmlProjectImportWizard::generateFiles(const QWizard *w,
     }
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
     generatedCreatorFile.setContents(projectContents);
+    generatedCreatorFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
 
     Core::GeneratedFiles files;
     files.append(generatedCreatorFile);
@@ -173,16 +173,9 @@ Core::GeneratedFiles QmlProjectImportWizard::generateFiles(const QWizard *w,
     return files;
 }
 
-bool QmlProjectImportWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool QmlProjectImportWizard::postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage)
 {
-    Q_UNUSED(w);
-    // Post-Generate: Open the project
-    const QString proFileName = l.back().path();
-    if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFileName)) {
-        *errorMessage = tr("The project %1 could not be opened.").arg(proFileName);
-        return false;
-    }
-    return true;
+    return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l ,errorMessage);
 }
 
 } // namespace Internal

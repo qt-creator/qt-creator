@@ -154,6 +154,10 @@ public:
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 
+    // Utility to open the projects and editors for the files that have
+    // the respective attributes set.
+    static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = 0);
+
 protected:
     virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 

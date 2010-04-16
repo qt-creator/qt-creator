@@ -87,10 +87,12 @@ Core::GeneratedFiles
     const QString sourceFileName = Core::BaseFileWizard::buildFileName(projectPath, QLatin1String(mainSourceFileC), sourceSuffix());
     Core::GeneratedFile source(sourceFileName);
     source.setContents(license + QLatin1String(mainCppC));
+    source.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     // Create files: Profile
     const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.fileName, profileSuffix());
 
     Core::GeneratedFile profile(profileName);
+    profile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     QString contents;
     {
         QTextStream proStr(&contents);

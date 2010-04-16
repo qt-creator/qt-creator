@@ -66,11 +66,13 @@ public:
     QByteArray contents;
     QString editorId;
     bool binary;
+    GeneratedFile::Attributes attributes;
 };
 
 GeneratedFilePrivate::GeneratedFilePrivate(const QString &p) :
     path(p),
-    binary(false)
+    binary(false),
+    attributes(0)
 {
 }
 
@@ -180,6 +182,15 @@ bool GeneratedFile::write(QString *errorMessage) const
     return true;
 }
 
+GeneratedFile::Attributes GeneratedFile::attributes() const
+{
+    return m_d->attributes;
+}
+
+void GeneratedFile::setAttributes(Attributes a)
+{
+    m_d->attributes = a;
+}
 
 // ------------ BaseFileWizardParameterData
 class BaseFileWizardParameterData : public QSharedData
@@ -584,16 +595,21 @@ void BaseFileWizard::applyExtensionPageShortTitle(Utils::Wizard *wizard, int pag
       item->setTitle(shortTitle);
 }
 
-bool BaseFileWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l, QString *errorMessage)
+bool BaseFileWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l, QString *errorMessage)
 {
-    Q_UNUSED(w);
-    // File mode: open the editors in file mode and ensure editor pane
-    const Core::GeneratedFiles::const_iterator cend = l.constEnd();
+    return BaseFileWizard::postGenerateOpenEditors(l, errorMessage);
+}
+
+bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage)
+{
     Core::EditorManager *em = Core::EditorManager::instance();
-    for (Core::GeneratedFiles::const_iterator it = l.constBegin(); it != cend; ++it) {
-        if (!em->openEditor(it->path(), it->editorId())) {
-            *errorMessage = tr("Failed to open an editor for '%1'.").arg(it->path());
-            return false;
+    foreach(const Core::GeneratedFile &file, l) {
+        if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
+            if (!em->openEditor(file.path(), file.editorId())) {
+                if (errorMessage)
+                    *errorMessage = tr("Failed to open an editor for '%1'.").arg(file.path());
+                return false;
+            }
         }
     }
     return true;

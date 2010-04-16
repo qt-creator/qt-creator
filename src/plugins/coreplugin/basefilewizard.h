@@ -65,6 +65,9 @@ class GeneratedFilePrivate;
 class CORE_EXPORT GeneratedFile
 {
 public:
+    enum Attribute { OpenEditorAttribute = 0x01, OpenProjectAttribute = 0x02 };
+    Q_DECLARE_FLAGS(Attributes, Attribute)
+
     GeneratedFile();
     explicit GeneratedFile(const QString &path);
     GeneratedFile(const GeneratedFile &);
@@ -91,6 +94,9 @@ public:
     void setEditorId(const QString &k);
 
     bool write(QString *errorMessage) const;
+
+    Attributes attributes() const;
+    void setAttributes(Attributes a);
 
 private:
     QSharedDataPointer<GeneratedFilePrivate> m_d;
@@ -207,6 +213,10 @@ protected:
     OverwriteResult promptOverwrite(const QString &location,
                                     const QStringList &files,
                                     QString *errorMessage) const;
+
+    // Utility to open the editors for the files whose attribute is set accordingly.
+    static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = 0);
+
 private:
     BaseFileWizardPrivate *m_d;
 };
@@ -238,5 +248,7 @@ protected:
 };
 
 } // namespace Core
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::GeneratedFile::Attributes)
 
 #endif // BASEFILEWIZARD_H

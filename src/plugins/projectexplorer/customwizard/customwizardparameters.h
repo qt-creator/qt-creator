@@ -56,8 +56,12 @@ struct CustomWizardField {
 };
 
 struct CustomWizardFile {
+    CustomWizardFile();
+
     QString source;
     QString target;
+    bool openEditor;
+    bool openProject;
 };
 
 struct CustomWizardParameters

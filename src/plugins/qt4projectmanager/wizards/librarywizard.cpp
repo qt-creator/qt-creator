@@ -88,6 +88,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     // Class header + source
     const QString sourceFileName = buildFileName(projectPath, params.sourceFileName, sourceSuffix());
     Core::GeneratedFile source(sourceFileName);
+    source.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
 
     const QString headerFileFullName = buildFileName(projectPath, params.headerFileName, headerSuffix());
     const QString headerFileName = QFileInfo(headerFileFullName).fileName();
@@ -116,6 +117,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     // Create files: profile
     const QString profileName = buildFileName(projectPath, projectParams.fileName, profileSuffix());
     Core::GeneratedFile profile(profileName);
+    profile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     QString profileContents;
     {
         QTextStream proStr(&profileContents);
