@@ -714,7 +714,7 @@ void QmlJSTextEditor::updateDocumentNow()
 
     const QString fileName = file()->fileName();
 
-    m_modelManager->updateSourceFiles(QStringList() << fileName);
+    m_modelManager->updateSourceFiles(QStringList() << fileName, false);
 }
 
 static void appendExtraSelectionsForMessages(

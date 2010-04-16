@@ -97,12 +97,14 @@ Snapshot ModelManager::snapshot() const
     return _snapshot;
 }
 
-void ModelManager::updateSourceFiles(const QStringList &files)
+void ModelManager::updateSourceFiles(const QStringList &files,
+                                     bool emitDocumentOnDiskChanged)
 {
-    refreshSourceFiles(files);
+    refreshSourceFiles(files, emitDocumentOnDiskChanged);
 }
 
-QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles)
+QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
+                                               bool emitDocumentOnDiskChanged)
 {
     if (sourceFiles.isEmpty()) {
         return QFuture<void>();
@@ -112,7 +114,8 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 
     QFuture<void> result = QtConcurrent::run(&ModelManager::parse,
                                               workingCopy, sourceFiles,
-                                              this, false);
+                                              this,
+                                              emitDocumentOnDiskChanged);
 
     if (m_synchronizer.futures().size() > 10) {
         QList<QFuture<void> > futures = m_synchronizer.futures();
@@ -393,7 +396,7 @@ void ModelManager::setProjectImportPaths(const QStringList &importPaths)
     foreach (const Document::Ptr &doc, snapshot)
         findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths);
 
-    updateSourceFiles(importedFiles);
+    updateSourceFiles(importedFiles, true);
 }
 
 QStringList ModelManager::importPaths() const

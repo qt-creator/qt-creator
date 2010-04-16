@@ -54,7 +54,8 @@ public:
     ModelManager(QObject *parent = 0);
 
     virtual QmlJS::Snapshot snapshot() const;
-    virtual void updateSourceFiles(const QStringList &files);
+    virtual void updateSourceFiles(const QStringList &files,
+                                   bool emitDocumentOnDiskChanged);
     virtual void fileChangedOnDisk(const QString &path);
 
     void emitDocumentUpdated(QmlJS::Document::Ptr doc);
@@ -82,7 +83,8 @@ protected:
         QString contents;
     };
 
-    QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
+    QFuture<void> refreshSourceFiles(const QStringList &sourceFiles,
+                                     bool emitDocumentOnDiskChanged);
     QMap<QString, WorkingCopy> buildWorkingCopyList();
 
     static void parse(QFutureInterface<void> &future,
