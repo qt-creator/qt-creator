@@ -184,7 +184,7 @@ class SubItem:
         self.savedValueEncoding = self.d.currentValueEncoding
         self.savedType = self.d.currentType
         self.savedTypePriority = self.d.currentTypePriority
-        self.d.currentValue = ""
+        self.d.currentValue = "<not accessible>"
         self.d.currentValuePriority = -100
         self.d.currentValueEncoding = None
         self.d.currentType = ""
