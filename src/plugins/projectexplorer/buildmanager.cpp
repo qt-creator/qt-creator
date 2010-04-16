@@ -244,6 +244,9 @@ void BuildManager::startBuildQueue()
         Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
         m_progressFutureInterface = new QFutureInterface<void>;
         m_progressWatcher.setFuture(m_progressFutureInterface->future());
+        m_outputWindow->clearContents();
+        m_taskWindow->clearTasks(Constants::TASK_CATEGORY_COMPILE);
+        m_taskWindow->clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
         progressManager->setApplicationLabel("");
         Core::FutureProgress *progress = progressManager->addTask(m_progressFutureInterface->future(),
               tr("Build"),
@@ -257,9 +260,6 @@ void BuildManager::startBuildQueue()
         m_running = true;
         m_canceling = false;
         m_progressFutureInterface->reportStarted();
-        m_outputWindow->clearContents();
-        m_taskWindow->clearTasks(Constants::TASK_CATEGORY_COMPILE);
-        m_taskWindow->clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
         nextStep();
     } else {
         // Already running
