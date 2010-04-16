@@ -47,6 +47,7 @@ ObjectTree::ObjectTree(QDeclarativeEngineDebug *client, QWidget *parent)
       m_client(client),
       m_query(0)
 {
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
     setHeaderHidden(true);
     setMinimumWidth(250);

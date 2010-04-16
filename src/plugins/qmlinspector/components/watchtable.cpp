@@ -296,6 +296,7 @@ WatchTableView::WatchTableView(WatchTableModel *model, QWidget *parent)
     : QTableView(parent),
       m_model(model)
 {
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
     setAlternatingRowColors(true);
     setSelectionMode(QAbstractItemView::SingleSelection);

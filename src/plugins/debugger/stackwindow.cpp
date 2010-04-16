@@ -56,6 +56,7 @@ namespace Internal {
 StackWindow::StackWindow(DebuggerManager *manager, QWidget *parent)
     : QTreeView(parent), m_manager(manager), m_alwaysResizeColumnsToContents(false)
 {
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
     m_disassemblerAgent = new DisassemblerViewAgent(manager);
 

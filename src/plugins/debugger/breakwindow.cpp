@@ -85,6 +85,7 @@ BreakWindow::BreakWindow(Debugger::DebuggerManager *manager)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setFrameStyle(QFrame::NoFrame);
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setWindowTitle(tr("Breakpoints"));
     setWindowIcon(QIcon(":/debugger/images/debugger_breakpoints.png"));
     setAlternatingRowColors(act->isChecked());

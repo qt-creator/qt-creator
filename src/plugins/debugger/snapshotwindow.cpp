@@ -74,7 +74,7 @@ SnapshotWindow::SnapshotWindow(DebuggerManager *manager, QWidget *parent)
 
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Snapshots"));
-
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);

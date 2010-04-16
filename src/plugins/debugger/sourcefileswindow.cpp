@@ -171,6 +171,7 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     proxyModel->setSourceModel(m_model);
     setModel(proxyModel);
 
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Source Files"));
     setSortingEnabled(true);

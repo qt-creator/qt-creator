@@ -79,6 +79,7 @@ ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWid
     setLayout(layout);
 
     m_tree = new QTreeWidget(this);
+    m_tree->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_tree->setFrameStyle(QFrame::NoFrame);
     m_tree->setAlternatingRowColors(true);
     m_tree->setExpandsOnDoubleClick(false);

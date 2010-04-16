@@ -45,6 +45,7 @@ ThreadsWindow::ThreadsWindow(QWidget *parent)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
 
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Thread"));
     setAlternatingRowColors(act->isChecked());

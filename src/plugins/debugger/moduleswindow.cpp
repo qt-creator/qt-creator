@@ -64,6 +64,7 @@ ModulesWindow::ModulesWindow(DebuggerManager *debuggerManager,
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Modules"));
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setSortingEnabled(true);
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);

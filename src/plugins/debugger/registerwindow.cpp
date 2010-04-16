@@ -149,6 +149,7 @@ RegisterWindow::RegisterWindow(DebuggerManager *manager)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Registers"));
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setItemDelegate(new RegisterDelegate(m_manager, this));
