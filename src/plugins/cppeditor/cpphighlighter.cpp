@@ -174,7 +174,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         const SimpleToken tk = tokens.last();
         const int lastTokenEnd = tk.position() + tk.length();
         if (text.length() > lastTokenEnd)
-            setFormat(lastTokenEnd, text.length() - lastTokenEnd, m_formats[CppVisualWhitespace]);
+            highightLine(text, lastTokenEnd, text.length() - lastTokenEnd, QTextCharFormat());
     }
 
     if (TextBlockUserData *userData = TextEditDocumentLayout::testUserData(currentBlock())) {
@@ -343,7 +343,10 @@ void CppHighlighter::highightLine(const QString &text, int position, int length,
         while (index != end && text.at(index).isSpace() == isSpace);
 
         const int tokenLength = index - start;
-        setFormat(start, tokenLength, isSpace ? visualSpaceFormat : format);
+        if (isSpace)
+            setFormat(start, tokenLength, visualSpaceFormat);
+        else if (format.isValid())
+            setFormat(start, tokenLength, format);
     }
 }
 
