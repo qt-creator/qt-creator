@@ -70,10 +70,12 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent, QmlProjectRunConfiguration *source) :
     ProjectExplorer::RunConfiguration(parent, source),
-    m_scriptFile(source->m_scriptFile),
+    m_fileListModel(new QStringListModel(this)),
     m_qmlViewerCustomPath(source->m_qmlViewerCustomPath),
-    m_qmlViewerArgs(source->m_qmlViewerArgs)
+    m_qmlViewerArgs(source->m_qmlViewerArgs),
+    m_projectTarget(parent)
 {
+    setMainScript(source->m_scriptFile);
     m_debugData.serverAddress = source->m_debugData.serverAddress;
     m_debugData.serverPort = source->m_debugData.serverPort;
     ctor();
