@@ -844,8 +844,10 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
             activateEditor(currentSplitterOrView->view(), editor);
     }
 
-    if (!currentEditor())
+    if (!currentEditor()) {
         emit currentEditorChanged(0);
+        updateActions();
+    }
 
     return !closingFailed;
 }
@@ -1527,6 +1529,7 @@ void EditorManager::updateActions()
             fName = curEditor->displayName();
         }
 
+        window()->setWindowModified(curEditor->file()->isModified());
         if (curEditor->file()->isModified() && curEditor->file()->isReadOnly()) {
             // we are about to change a read-only file, warn user
             showEditorInfoBar(QLatin1String("Core.EditorManager.MakeWritable"),
@@ -1535,6 +1538,8 @@ void EditorManager::updateActions()
         } else {
             hideEditorInfoBar(QLatin1String("Core.EditorManager.MakeWritable"));
         }
+    } else { // curEditor
+        window()->setWindowModified(false);
     }
 
     m_d->m_saveAction->setEnabled(curEditor != 0 && curEditor->file()->isModified());
