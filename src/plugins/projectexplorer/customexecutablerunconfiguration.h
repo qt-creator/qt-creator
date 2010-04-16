@@ -98,7 +98,7 @@ public:
     QStringList commandLineArguments() const;
     Environment environment() const;
 
-    QWidget *configurationWidget();
+    QWidget *createConfigurationWidget();
     QString dumperLibrary() const;
     QStringList dumperLibraryLocations() const;
 

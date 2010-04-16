@@ -183,7 +183,7 @@ bool S60DeviceRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *c
     return false;
 }
 
-QWidget *S60DeviceRunConfiguration::configurationWidget()
+QWidget *S60DeviceRunConfiguration::createConfigurationWidget()
 {
     return new S60DeviceRunConfigurationWidget(this);
 }

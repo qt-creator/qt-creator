@@ -52,7 +52,7 @@ public:
                                                 const QString &mode);
     virtual QString displayName() const;
 
-    virtual QWidget *configurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
+    virtual QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 
 
     ProjectExplorer::RunControl *create(const DebuggerStartParametersPtr &sp);

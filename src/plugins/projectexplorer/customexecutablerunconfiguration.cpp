@@ -339,7 +339,7 @@ QString CustomExecutableRunConfiguration::executable() const
 
     if (m_executable.isEmpty() || !QFileInfo(exec).exists()) {
         // Oh the executable doesn't exists, ask the user.
-        QWidget *confWidget = const_cast<CustomExecutableRunConfiguration *>(this)->configurationWidget();
+        QWidget *confWidget = const_cast<CustomExecutableRunConfiguration *>(this)->createConfigurationWidget();
         confWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         QDialog dialog(Core::ICore::instance()->mainWindow());
         dialog.setLayout(new QVBoxLayout());
@@ -514,7 +514,7 @@ void CustomExecutableRunConfiguration::setRunMode(RunMode runMode)
     emit changed();
 }
 
-QWidget *CustomExecutableRunConfiguration::configurationWidget()
+QWidget *CustomExecutableRunConfiguration::createConfigurationWidget()
 {
     return new CustomExecutableConfigurationWidget(this);
 }

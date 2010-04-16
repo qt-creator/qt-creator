@@ -80,7 +80,7 @@ public:
     uint debugServerPort() const;
 
     // RunConfiguration
-    virtual QWidget *configurationWidget();
+    virtual QWidget *createConfigurationWidget();
 
     QVariantMap toMap() const;
 

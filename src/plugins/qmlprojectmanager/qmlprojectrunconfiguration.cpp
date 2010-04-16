@@ -163,7 +163,7 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
     return s1.toLower() < s2.toLower();
 }
 
-QWidget *QmlProjectRunConfiguration::configurationWidget()
+QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
 {
     QWidget *config = new QWidget;
     QFormLayout *form = new QFormLayout(config);

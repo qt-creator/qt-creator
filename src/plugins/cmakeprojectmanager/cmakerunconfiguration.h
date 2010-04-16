@@ -66,7 +66,7 @@ public:
     QString workingDirectory() const;
     QStringList commandLineArguments() const;
     ProjectExplorer::Environment environment() const;
-    QWidget *configurationWidget();
+    QWidget *createConfigurationWidget();
 
     void setExecutable(const QString &executable);
     void setWorkingDirectory(const QString &workingDirectory);

@@ -93,10 +93,10 @@ public:
     ~MaemoRunControlFactory();
 
     QString displayName() const;
-    QWidget *configurationWidget(RunConfiguration *runConfiguration);
+    QWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
     bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
-    RunControl* create(RunConfiguration *runConfiguration, const QString &mode);
+    RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
 };
 
     } // namespace Internal

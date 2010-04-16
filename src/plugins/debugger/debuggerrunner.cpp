@@ -88,7 +88,7 @@ RunControl *DebuggerRunControlFactory::create(RunConfiguration *runConfiguration
     return new DebuggerRunControl(m_manager, rc);
 }
 
-QWidget *DebuggerRunControlFactory::configurationWidget(RunConfiguration *runConfiguration)
+QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
     // NBS TODO: Add GDB-specific configuration widget
     Q_UNUSED(runConfiguration)

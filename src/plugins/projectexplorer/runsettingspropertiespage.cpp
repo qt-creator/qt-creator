@@ -237,7 +237,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
 
     m_ui->removeToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 
-    m_runConfigurationWidget = m_target->activeRunConfiguration()->configurationWidget();
+    m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
     layout()->addWidget(m_runConfigurationWidget);
 
     connect(m_addMenu, SIGNAL(aboutToShow()),
@@ -255,7 +255,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     QList<IRunControlFactory *> runners = PluginManager::instance()->getObjects<IRunControlFactory>();
     foreach (IRunControlFactory * runner, runners) {
         if (runner->canRun(activeRunConfiguration))
-            m_ui->layout->addWidget(runner->configurationWidget(activeRunConfiguration));
+            m_ui->layout->addWidget(runner->createConfigurationWidget(activeRunConfiguration));
     }
     */
 }
@@ -317,7 +317,7 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     m_ignoreChange = false;
 
     delete m_runConfigurationWidget;
-    m_runConfigurationWidget = m_target->activeRunConfiguration()->configurationWidget();
+    m_runConfigurationWidget = m_target->activeRunConfiguration()->createConfigurationWidget();
     layout()->addWidget(m_runConfigurationWidget);
 }
 
@@ -339,6 +339,6 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
 
     // Update the run configuration configuration widget
     delete m_runConfigurationWidget;
-    m_runConfigurationWidget = selectedRunConfiguration->configurationWidget();
+    m_runConfigurationWidget = selectedRunConfiguration->createConfigurationWidget();
     layout()->addWidget(m_runConfigurationWidget);
 }

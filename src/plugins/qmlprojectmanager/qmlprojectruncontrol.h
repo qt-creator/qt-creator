@@ -74,7 +74,7 @@ public:
     virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
     virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
     virtual QString displayName() const;
-    virtual QWidget *configurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
+    virtual QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 };
 
 } // namespace Internal

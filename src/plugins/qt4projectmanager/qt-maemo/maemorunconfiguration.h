@@ -65,7 +65,7 @@ public:
     virtual ~MaemoRunConfiguration();
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
-    QWidget *configurationWidget();
+    QWidget *createConfigurationWidget();
     Qt4Target *qt4Target() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 

@@ -126,7 +126,7 @@ bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration 
     return type == ToolChain::WINSCW;
 }
 
-QWidget *S60EmulatorRunConfiguration::configurationWidget()
+QWidget *S60EmulatorRunConfiguration::createConfigurationWidget()
 {
     return new S60EmulatorRunConfigurationWidget(this);
 }

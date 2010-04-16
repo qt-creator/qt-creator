@@ -202,7 +202,7 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
     return RunConfiguration::fromMap(map);
 }
 
-QWidget *CMakeRunConfiguration::configurationWidget()
+QWidget *CMakeRunConfiguration::createConfigurationWidget()
 {
     return new CMakeRunConfigurationWidget(this);
 }

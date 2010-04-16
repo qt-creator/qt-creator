@@ -440,7 +440,7 @@ void Qt4RunConfigurationWidget::hideEvent(QHideEvent *event)
 }
 
 ////// TODO c&p above
-QWidget *Qt4RunConfiguration::configurationWidget()
+QWidget *Qt4RunConfiguration::createConfigurationWidget()
 {
     return new Qt4RunConfigurationWidget(this, 0);
 }

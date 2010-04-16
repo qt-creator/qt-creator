@@ -65,7 +65,7 @@ public:
     Qt4Target *qt4Target() const;
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
-    QWidget *configurationWidget();
+    QWidget *createConfigurationWidget();
 
     QString executable() const;
 

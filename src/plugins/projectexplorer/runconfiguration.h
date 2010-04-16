@@ -48,7 +48,8 @@ class Target;
 class RunControl;
 class BuildConfiguration;
 
-/* Base class for a run configuration. A run configuration specifies how a
+/**
+ * Base class for a run configuration. A run configuration specifies how a
  * target should be run, while the runner (see below) does the actual running.
  *
  * Note that all RunControls and the target hold a shared pointer to the RunConfiguration.
@@ -65,17 +66,21 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 public:
     virtual ~RunConfiguration();
 
-    // Used to find out whether a runconfiguration works with the given
-    // buildconfiguration.
-    // Note: bc may be 0!
+    /**
+     * Used to find out whether a runconfiguration works with the given
+     * buildconfiguration.
+     * \note bc may be 0!
+     */
     virtual bool isEnabled(BuildConfiguration *bc) const;
-    // Used to find out whether a runconfiguration works with the active
-    // buildconfiguration.
+
+    /**
+     * Used to find out whether a runconfiguration works with the active
+     * buildconfiguration.
+     */
     bool isEnabled() const;
 
-    // Returns the widget used to configure this run configuration. Ownership is transferred to the caller
-    // rename to createConfigurationWidget
-    virtual QWidget *configurationWidget() = 0;
+    /// Returns the widget used to configure this run configuration. Ownership is transferred to the caller
+    virtual QWidget *createConfigurationWidget() = 0;
 
     Target *target() const;
 
@@ -86,14 +91,15 @@ protected:
     RunConfiguration(Target *parent, const QString &id);
     RunConfiguration(Target *parent, RunConfiguration *source);
 
-    // convenience method to get current build configuration.
+    /// convenience method to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
 
 private:
     Target *m_target;
 };
 
-/* The run configuration factory is used for restoring run configurations from
+/**
+ * The run configuration factory is used for restoring run configurations from
  * settings. And used to create new runconfigurations in the "Run Settings" Dialog.
  * For the first case bool canRestore(Target *parent, const QString &id) and
  * RunConfiguration* create(Target *parent, const QString &id) are used.
@@ -101,8 +107,7 @@ private:
  * QString displayNameForType(const QString&) are used to generate a list of creatable
  * RunConfigurations, and create(..) is used to create it.
  */
-class PROJECTEXPLORER_EXPORT IRunConfigurationFactory :
-    public QObject
+class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
 {
     Q_OBJECT
 
@@ -110,9 +115,10 @@ public:
     explicit IRunConfigurationFactory(QObject *parent = 0);
     virtual ~IRunConfigurationFactory();
 
-    // used to show the list of possible additons to a target, returns a list of types
+    /// used to show the list of possible additons to a target, returns a list of types
     virtual QStringList availableCreationIds(Target *parent) const = 0;
-    // used to translate the types to names to display to the user
+
+    /// used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
     virtual bool canCreate(Target *parent, const QString &id) const = 0;
@@ -142,13 +148,15 @@ public:
 
     virtual QString displayName() const = 0;
 
-    // Returns the widget used to configure this runner. Ownership is transferred to the caller
-    virtual QWidget *configurationWidget(RunConfiguration *runConfiguration) = 0;
+    /// Returns the widget used to configure this runner. Ownership is transferred to the caller
+    virtual QWidget *createConfigurationWidget(RunConfiguration *runConfiguration) = 0;
 };
 
-/* Each instance of this class represents one item that is run.
+/**
+ * Each instance of this class represents one item that is run.
  */
-class PROJECTEXPLORER_EXPORT RunControl : public QObject {
+class PROJECTEXPLORER_EXPORT RunControl : public QObject
+{
     Q_OBJECT
 public:
     explicit RunControl(RunConfiguration *runConfiguration);

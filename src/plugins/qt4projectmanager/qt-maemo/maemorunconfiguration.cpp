@@ -142,7 +142,7 @@ bool MaemoRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *confi
     return type == ToolChain::GCC_MAEMO;
 }
 
-QWidget *MaemoRunConfiguration::configurationWidget()
+QWidget *MaemoRunConfiguration::createConfigurationWidget()
 {
     return new MaemoRunConfigurationWidget(this);
 }

@@ -75,7 +75,7 @@ public:
     Qt4Target *qt4Target() const;
 
     virtual bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
-    virtual QWidget *configurationWidget();
+    virtual QWidget *createConfigurationWidget();
 
     virtual QString executable() const;
     virtual RunMode runMode() const;
