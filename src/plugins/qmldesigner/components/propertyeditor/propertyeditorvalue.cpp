@@ -73,9 +73,29 @@ static bool cleverDoubleCompare(QVariant value1, QVariant value2)
     return false;
 }
 
+static bool cleverColorCompare(QVariant value1, QVariant value2)
+{
+    if ((value1.type() == QVariant::Color) && (value2.type() == QVariant::Color)) {
+        QColor c1 = value1.value<QColor>();
+        QColor c2 = value2.value<QColor>();
+        QString a = c1.name();
+        QString b = c2.name();
+        if (a != b)
+            return false;
+        return (c1.alpha() == c2.alpha());
+    }
+    if ((value1.type() == QVariant::String) && (value2.type() == QVariant::Color)) {
+        return cleverColorCompare(QVariant(QColor(value1.toString())), value2);
+    }
+    if ((value1.type() == QVariant::Color) && (value2.type() == QVariant::String)) {
+        return cleverColorCompare(value1, QVariant(QColor(value2.toString())));
+    }
+    return false;
+}
+
 void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 {
-    if ( m_value != value) {
+    if (m_value != value) {
         QVariant newValue = value;
         if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().property(name()).isValid())
             if (modelNode().metaInfo().property(name()).type() == QLatin1String("QUrl")) {
@@ -83,6 +103,8 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
         }
 
         if (cleverDoubleCompare(newValue, m_value))
+            return;
+        if (cleverColorCompare(newValue, m_value))
             return;
         setValue(newValue);
         m_isBound = false;
@@ -93,11 +115,15 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 
 void PropertyEditorValue::setValue(const QVariant &value)
 {
-    if ( m_value != value) {
-        m_value = value;       
-    }
+    if ((m_value != value) &&
+        !cleverDoubleCompare(value, m_value) &&
+        !cleverColorCompare(value, m_value))
+
+        m_value = value;
+
     emit valueChanged(QString(), value);
     emit isBoundChanged();
+
 }
 
 QString PropertyEditorValue::expression() const
