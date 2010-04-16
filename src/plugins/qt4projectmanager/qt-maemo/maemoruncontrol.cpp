@@ -127,6 +127,9 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
             m_deployables.append(Deployable(packageFileName(),
                 QFileInfo(executableOnHost()).canonicalPath(),
                 &MaemoRunConfiguration::wasDeployed));
+            m_needsInstall = true;
+        } else {
+            m_needsInstall = false;
         }
         if (forDebugging
             && m_runConfig->debuggingHelpersNeedDeployment(m_devConfig.host)) {
@@ -317,9 +320,11 @@ QString AbstractMaemoRunControl::remoteInstallCommand() const
 
 const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
 {
-    return QString::fromLocal8Bit("%1 && %2 chmod u+x %3 && source /etc/profile && ")
-        .arg(remoteInstallCommand()).arg(remoteSudo())
-        .arg(executableFilePathOnTarget());
+    const QString &installPrefix = m_needsInstall
+        ? remoteInstallCommand() + QLatin1String(" && ")
+        : QString();
+    return QString::fromLocal8Bit("%1%2 chmod u+x %3 && source /etc/profile && ")
+        .arg(installPrefix).arg(remoteSudo()).arg(executableFilePathOnTarget());
 }
 
 QString AbstractMaemoRunControl::targetCmdLineSuffix() const

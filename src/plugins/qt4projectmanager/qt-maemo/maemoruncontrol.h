@@ -125,6 +125,7 @@ private:
         updateFunc updateTimestamp;
     };
     QList<Deployable> m_deployables;
+    bool m_needsInstall;
 };
 
 class MaemoRunControl : public AbstractMaemoRunControl
