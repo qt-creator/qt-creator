@@ -535,14 +535,15 @@ void DesignModeWidget::setup()
         }
     }
 
-    m_navigator = new NavigatorView(this);
+     // Sidebar takes ownership
+    m_navigator = new NavigatorView;
+    m_allPropertiesBox = new AllPropertiesBox;
+    m_itemLibrary = new ItemLibrary;
 
-    m_allPropertiesBox = new AllPropertiesBox(this);
     m_statesEditorWidget = new StatesEditorWidget(this);
     
     m_formEditorView = new FormEditorView(this);
 
-    m_itemLibrary = new ItemLibrary(this);
 
     //m_designToolBar = new QToolBar;
     m_fakeToolBar = Core::EditorManager::createToolBar(this);
