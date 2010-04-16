@@ -101,6 +101,9 @@ public:
 
     bool addFiles(const QStringList &filePaths);
 
+signals:
+    void filesRemovedFromProject(const QStringList removedPaths);
+
 private slots:
     void refreshProjectFile();
     void refreshFiles();

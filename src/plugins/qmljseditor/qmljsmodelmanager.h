@@ -55,17 +55,19 @@ public:
 
     virtual QmlJS::Snapshot snapshot() const;
     virtual void updateSourceFiles(const QStringList &files);
+    virtual void fileChangedOnDisk(const QString &path);
 
     void emitDocumentUpdated(QmlJS::Document::Ptr doc);
     void emitLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
+    void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
 
     virtual void setProjectImportPaths(const QStringList &importPaths);
     virtual QStringList importPaths() const;
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
-    void aboutToRemoveFiles(const QStringList &files);
     void libraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
+
 
 private Q_SLOTS:
     // this should be executed in the GUI thread.
@@ -86,7 +88,8 @@ protected:
     static void parse(QFutureInterface<void> &future,
                       QMap<QString, WorkingCopy> workingCopy,
                       QStringList files,
-                      ModelManager *modelManager);
+                      ModelManager *modelManager,
+                      bool emitDocChangedOnDisk);
 
     void loadQmlTypeDescriptions();
 

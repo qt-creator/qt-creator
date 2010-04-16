@@ -651,6 +651,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
         m_semanticHighlighter->setModelManager(m_modelManager);
         connect(m_modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
                 this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
+        connect(this->document(), SIGNAL(modificationChanged(bool)), this, SLOT(modificationChanged(bool)));
     }
 
     connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::Internal::SemanticInfo)),
@@ -773,6 +774,12 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
         appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
         setExtraSelections(CodeWarningsSelection, selections);
     }
+}
+
+void QmlJSTextEditor::modificationChanged(bool changed)
+{
+    if (!changed && m_modelManager)
+        m_modelManager->fileChangedOnDisk(file()->fileName());
 }
 
 void QmlJSTextEditor::jumpToMethod(int index)

@@ -77,6 +77,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     Manager *manager = new Manager;
 
     m_qmlTaskManager = new QmlTaskManager(this);
+    addAutoReleasedObject(m_qmlTaskManager);
 
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
@@ -100,8 +101,8 @@ void QmlProjectPlugin::extensionsInitialized()
 
     QmlJSEditor::ModelManagerInterface *modelManager = pluginManager->getObject<QmlJSEditor::ModelManagerInterface>();
     Q_ASSERT(modelManager);
-    connect(modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
-            m_qmlTaskManager, SLOT(documentUpdated(QmlJS::Document::Ptr)));
+    connect(modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
+            m_qmlTaskManager, SLOT(documentChangedOnDisk(QmlJS::Document::Ptr)));
 }
 
 } // namespace Internal

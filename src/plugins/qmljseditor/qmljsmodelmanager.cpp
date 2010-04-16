@@ -112,7 +112,7 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 
     QFuture<void> result = QtConcurrent::run(&ModelManager::parse,
                                               workingCopy, sourceFiles,
-                                              this);
+                                              this, false);
 
     if (m_synchronizer.futures().size() > 10) {
         QList<QFuture<void> > futures = m_synchronizer.futures();
@@ -153,6 +153,16 @@ QMap<QString, ModelManager::WorkingCopy> ModelManager::buildWorkingCopyList()
 
     return workingCopy;
 }
+
+void ModelManager::fileChangedOnDisk(const QString &path)
+{
+    QtConcurrent::run(&ModelManager::parse,
+                      buildWorkingCopyList(), QStringList() << path,
+                      this, true);
+}
+
+void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)
+{ emit documentChangedOnDisk(doc); }
 
 void ModelManager::emitDocumentUpdated(Document::Ptr doc)
 { emit documentUpdated(doc); }
@@ -279,7 +289,8 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
 void ModelManager::parse(QFutureInterface<void> &future,
                             QMap<QString, WorkingCopy> workingCopy,
                             QStringList files,
-                            ModelManager *modelManager)
+                            ModelManager *modelManager,
+                            bool emitDocChangedOnDisk)
 {
     Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
     Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
@@ -344,6 +355,8 @@ void ModelManager::parse(QFutureInterface<void> &future,
         }
 
         modelManager->emitDocumentUpdated(doc);
+        if (emitDocChangedOnDisk)
+            modelManager->emitDocumentChangedOnDisk(doc);
     }
 
     future.setProgressValue(progressRange);

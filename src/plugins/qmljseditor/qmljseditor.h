@@ -218,6 +218,7 @@ public slots:
 
 private slots:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
+    void modificationChanged(bool);
 
     void updateDocument();
     void updateDocumentNow();

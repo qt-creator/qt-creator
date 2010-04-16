@@ -30,6 +30,7 @@
 #include "qmlprojectmanager.h"
 #include "qmlprojectconstants.h"
 #include "qmlproject.h"
+#include "qmltaskmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
@@ -79,7 +80,12 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName)
     }
 
     if (fileInfo.isFile()) {
-        return new QmlProject(this, fileName);
+        QmlProject *project = new QmlProject(this, fileName);
+        QmlTaskManager *taskManager = QmlTaskManager::instance();
+        if (taskManager)
+            connect(project, SIGNAL(filesRemovedFromProject(QStringList)),
+                    taskManager, SLOT(documentsRemoved(const QStringList)));
+        return project;
     }
 
     return 0;

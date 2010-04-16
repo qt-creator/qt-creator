@@ -34,6 +34,8 @@
 #include <qmljs/qmljsdocument.h>
 
 #include <QtCore/QObject>
+#include <QtCore/QList>
+#include <QtCore/QSet>
 
 namespace QmlProjectManager {
 namespace Internal {
@@ -43,13 +45,22 @@ class QmlTaskManager : public QObject
     Q_OBJECT
 public:
     QmlTaskManager(QObject *parent = 0);
+
     void setTaskWindow(ProjectExplorer::TaskWindow *taskWindow);
 
+    static QmlTaskManager *instance();
+
 public slots:
-    void documentUpdated(QmlJS::Document::Ptr doc);
+    void documentChangedOnDisk(QmlJS::Document::Ptr doc);
+    void documentsRemoved(const QStringList path);
+
+private:
+    void insertTask(const QString &fileName, const ProjectExplorer::Task &task);
+    void removeTasksForFile(const QString &fileName);
 
 private:
     ProjectExplorer::TaskWindow *m_taskWindow;
+    QMap<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
 };
 
 } // Internal

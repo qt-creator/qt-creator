@@ -29,6 +29,9 @@
 
 #include "qmltaskmanager.h"
 #include "qmlprojectconstants.h"
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <QDebug>
 
 namespace QmlProjectManager {
@@ -40,29 +43,58 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
 {
 }
 
+QmlTaskManager *QmlTaskManager::instance()
+{
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    return pluginManager->getObject<QmlTaskManager>();
+}
+
 void QmlTaskManager::setTaskWindow(ProjectExplorer::TaskWindow *taskWindow)
 {
     Q_ASSERT(taskWindow);
     m_taskWindow = taskWindow;
 
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_QML, "QML");
+    m_taskWindow->addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
 }
 
-void QmlTaskManager::documentUpdated(QmlJS::Document::Ptr /*doc*/)
+void QmlTaskManager::documentChangedOnDisk(QmlJS::Document::Ptr doc)
 {
-#if 0 // This will give way too many flickering errors in the build-results pane *when you're typing*
-    m_taskWindow->clearTasks(Constants::TASK_CATEGORY_QML);
+    const QString fileName = doc->fileName();
+    removeTasksForFile(fileName);
 
     foreach (const QmlJS::DiagnosticMessage &msg, doc->diagnosticMessages()) {
         ProjectExplorer::Task::TaskType type
                 = msg.isError() ? ProjectExplorer::Task::Error
                                 : ProjectExplorer::Task::Warning;
 
-        ProjectExplorer::Task task(type, msg.message, doc->fileName(), msg.loc.startLine,
+        ProjectExplorer::Task task(type, msg.message, fileName, msg.loc.startLine,
                                    Constants::TASK_CATEGORY_QML);
-        m_taskWindow->addTask(task);
+        insertTask(fileName, task);
     }
-#endif
+}
+
+void QmlTaskManager::documentsRemoved(const QStringList path)
+{
+    foreach (const QString &item, path)
+        removeTasksForFile(item);
+}
+
+void QmlTaskManager::insertTask(const QString &fileName, const ProjectExplorer::Task &task)
+{
+    QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(fileName);
+    tasks.append(task);
+    m_docsWithTasks.insert(fileName, tasks);
+    m_taskWindow->addTask(task);
+}
+
+void QmlTaskManager::removeTasksForFile(const QString &fileName)
+{
+    if (m_docsWithTasks.contains(fileName)) {
+        const QList<ProjectExplorer::Task> tasks = m_docsWithTasks.value(fileName);
+        foreach (const ProjectExplorer::Task &task, tasks)
+            m_taskWindow->removeTask(task);
+        m_docsWithTasks.remove(fileName);
+    }
 }
 
 } // Internal

@@ -121,14 +121,20 @@ void QmlProject::parseProject(RefreshOptions options)
 
 void QmlProject::refresh(RefreshOptions options)
 {
-    QSet<QString> oldFileList;
-    if (!(options & Configuration))
-        oldFileList = m_files.toSet();
+    const QSet<QString> oldFiles = m_files.toSet();
 
     parseProject(options);
 
     if (options & Files)
         m_rootNode->refresh();
+
+    const QSet<QString> newFiles = m_files.toSet();
+    QStringList removedPaths;
+    foreach (const QString &oldFile, oldFiles)
+        if (!newFiles.contains(oldFile))
+            removedPaths.append(oldFile);
+    if (!removedPaths.isEmpty())
+        emit filesRemovedFromProject(removedPaths);
 }
 
 QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const

@@ -54,12 +54,15 @@ public:
 
     virtual QmlJS::Snapshot snapshot() const = 0;
     virtual void updateSourceFiles(const QStringList &files) = 0;
+    virtual void fileChangedOnDisk(const QString &path) = 0;
 
     virtual void setProjectImportPaths(const QStringList &importPaths) = 0;
     virtual QStringList importPaths() const = 0;
 
 signals:
     void documentUpdated(QmlJS::Document::Ptr doc);
+    void documentChangedOnDisk(QmlJS::Document::Ptr doc);
+    void aboutToRemoveFiles(const QStringList &files);
 };
 
 } // namespace QmlJSEditor
