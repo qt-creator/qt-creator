@@ -111,6 +111,7 @@ QString Protocol::textFromHtml(QString data)
     data.replace(QLatin1String("&lt;"), QString(QLatin1Char('<')));
     data.replace(QLatin1String("&gt;"), QString(QLatin1Char('>')));
     data.replace(QLatin1String("&amp;"), QString(QLatin1Char('&')));
+    data.replace(QLatin1String("&quot;"), QString(QLatin1Char('"')));
     return data;
 }
 
