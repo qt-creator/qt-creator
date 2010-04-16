@@ -28,6 +28,7 @@
 **************************************************************************/
 #include "objectpropertiesview.h"
 #include "inspectorcontext.h"
+#include "watchtable.h"
 
 #include <QtCore/QDebug>
 
@@ -67,11 +68,13 @@ PropertiesViewItem::PropertiesViewItem(QTreeWidgetItem *parent, Type type)
 {
 }
 
-ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWidget *parent)
+ObjectPropertiesView::ObjectPropertiesView(WatchTableModel *watchTableModel,
+                                           QDeclarativeEngineDebug *client, QWidget *parent)
     : QWidget(parent),
       m_client(client),
       m_query(0),
-      m_watch(0), m_clickedItem(0)
+      m_watch(0), m_clickedItem(0), m_showUnwatchableProperties(false),
+      m_watchTableModel(watchTableModel)
 {
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -92,13 +95,20 @@ ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWid
 
     m_addWatchAction = new QAction(tr("Watch expression"), this);
     m_removeWatchAction = new QAction(tr("Remove watch"), this);
+    m_toggleUnwatchablePropertiesAction = new QAction(tr("Show unwatchable properties"), this);
     connect(m_addWatchAction, SIGNAL(triggered()), SLOT(addWatch()));
     connect(m_removeWatchAction, SIGNAL(triggered()), SLOT(removeWatch()));
-
+    connect(m_toggleUnwatchablePropertiesAction, SIGNAL(triggered()), SLOT(toggleUnwatchableProperties()));
     m_tree->setColumnCount(3);
     m_tree->header()->setDefaultSectionSize(150);
 
     layout->addWidget(m_tree);
+}
+
+void ObjectPropertiesView::toggleUnwatchableProperties()
+{
+    m_showUnwatchableProperties = !m_showUnwatchableProperties;
+    setObject(m_object);
 }
 
 void ObjectPropertiesView::changeItemSelection()
@@ -208,21 +218,31 @@ void ObjectPropertiesView::setObject(const QDeclarativeDebugObjectReference &obj
     for (int i=0; i<properties.count(); ++i) {
         const QDeclarativeDebugPropertyReference &p = properties[i];
 
-        PropertiesViewItem *item = new PropertiesViewItem(m_tree);
-        item->property = p;
+        if (m_showUnwatchableProperties || p.hasNotifySignal()) {
 
-        item->setText(0, p.name());
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            PropertiesViewItem *item = new PropertiesViewItem(m_tree);
+            item->property = p;
 
-        setPropertyValue(item, p.value(), !p.hasNotifySignal());
-        item->setText(2, p.valueTypeName());
+            item->setText(0, p.name());
+            item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            if (m_watchTableModel.data() && m_watchTableModel.data()->isWatchingProperty(p)) {
+                QFont font = m_tree->font();
+                font.setBold(true);
+                item->setFont(0, font);
+            }
 
-        // binding is set after property value to ensure it is added to the end of the
-        // list, if the value is a list
-        if (!p.binding().isEmpty()) {
-            PropertiesViewItem *binding = new PropertiesViewItem(item, PropertiesViewItem::BindingType);
-            binding->setText(1, p.binding());
-            binding->setForeground(1, Qt::darkGreen);
+            setPropertyValue(item, p.value(), !p.hasNotifySignal());
+
+            item->setText(2, p.valueTypeName());
+
+            // binding is set after property value to ensure it is added to the end of the
+            // list, if the value is a list
+            if (!p.binding().isEmpty()) {
+                PropertiesViewItem *binding = new PropertiesViewItem(item, PropertiesViewItem::BindingType);
+                binding->setText(1, p.binding());
+                binding->setForeground(1, Qt::darkGreen);
+            }
+
         }
     }
 }
@@ -315,6 +335,14 @@ void ObjectPropertiesView::contextMenuEvent(QContextMenuEvent *event)
     } else {
         menu.addAction(m_removeWatchAction);
     }
+    menu.addSeparator();
+
+    if (m_showUnwatchableProperties)
+        m_toggleUnwatchablePropertiesAction->setText(tr("Hide unwatchable properties"));
+    else
+        m_toggleUnwatchablePropertiesAction->setText(tr("Show unwatchable properties"));
+
+    menu.addAction(m_toggleUnwatchablePropertiesAction);
 
     menu.exec(event->globalPos());
 }

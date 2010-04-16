@@ -28,13 +28,17 @@
 **************************************************************************/
 #include "watchtable.h"
 
-#include <QtCore/qdebug.h>
-#include <QtGui/qevent.h>
-#include <QtGui/qaction.h>
-#include <QtGui/qmenu.h>
+#include <QtCore/QEvent>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
+#include <QMouseEvent>
+#include <QApplication>
+#include <QCoreApplication>
 
 #include <private/qdeclarativedebug_p.h>
 #include <private/qdeclarativemetatype_p.h>
+
+#include <QtCore/QDebug>
 
 namespace Qml {
 namespace Internal {
@@ -47,7 +51,7 @@ WatchTableModel::WatchTableModel(QDeclarativeEngineDebug *client, QObject *paren
     : QAbstractTableModel(parent),
       m_client(client)
 {
-
+    m_editablePropertyTypes << "qreal" << "bool" << "QString" << "int" << "QVariant" << "QUrl";
 }
 
 WatchTableModel::~WatchTableModel()
@@ -61,7 +65,8 @@ void WatchTableModel::setEngineDebug(QDeclarativeEngineDebug *client)
     m_client = client;
 }
 
-void WatchTableModel::addWatch(QDeclarativeDebugWatch *watch, const QString &title)
+void WatchTableModel::addWatch(const QDeclarativeDebugObjectReference &object, const QString &propertyType,
+                               QDeclarativeDebugWatch *watch, const QString &title)
 {
     QString property;
     if (qobject_cast<QDeclarativeDebugPropertyWatch *>(watch))
@@ -79,6 +84,9 @@ void WatchTableModel::addWatch(QDeclarativeDebugWatch *watch, const QString &tit
     e.title = title;
     e.property = property;
     e.watch = watch;
+    e.objectId = object.idString();
+    e.objectDebugId = object.debugId();
+    e.objectPropertyType = propertyType;
 
     m_entities.append(e);
 
@@ -157,13 +165,27 @@ QVariant WatchTableModel::data(const QModelIndex &idx, int role) const
 
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             return QVariant(m_entities.at(idx.row()).value);
+        } else if (role == CanEditRole || role == Qt::ForegroundRole) {
+            const WatchedEntity &entity = m_entities.at(idx.row());
+            bool canEdit = entity.objectId.length() > 0 && canEditProperty(entity.objectPropertyType);
 
-        } else if(role == Qt::BackgroundRole) {
-            //return QColor(Qt::green);
+            if (role == Qt::ForegroundRole)
+                return canEdit ? qApp->palette().color(QPalette::Foreground) : qApp->palette().color(QPalette::Disabled, QPalette::Foreground);
+
+            return canEdit;
         }
     }
 
     return QVariant();
+}
+
+bool WatchTableModel::isWatchingProperty(const QDeclarativeDebugPropertyReference &prop) const
+{
+    foreach (const WatchedEntity &entity, m_entities) {
+        if (entity.objectDebugId == prop.objectDebugId() && entity.property == prop.name())
+            return true;
+    }
+    return false;
 }
 
 bool WatchTableModel::setData ( const QModelIndex & index, const QVariant & value, int role)
@@ -171,17 +193,58 @@ bool WatchTableModel::setData ( const QModelIndex & index, const QVariant & valu
     Q_UNUSED(index);
     Q_UNUSED(value);
     if (role == Qt::EditRole) {
+
+        if (index.row() >= 0 && index.row() < m_entities.length()) {
+            WatchedEntity &entity = m_entities[index.row()];
+
+            qDebug() << entity.property << entity.title << entity.objectId;
+            if (entity.objectId.length()) {
+
+                QString quoteWrappedValue = value.toString();
+                if (addQuotesForData(value))
+                    quoteWrappedValue = QString("'%1'").arg(quoteWrappedValue);
+
+                QString constructedExpression = entity.objectId + "." + entity.property + "=" + quoteWrappedValue;
+                qDebug() << "EXPRESSION:" << constructedExpression;
+                m_client->queryExpressionResult(entity.objectDebugId, constructedExpression, this);
+            }
+        }
+
         return true;
     }
     return true;
 }
 
+bool WatchTableModel::canEditProperty(const QString &propertyType) const
+{
+    return m_editablePropertyTypes.contains(propertyType);
+}
+
+bool WatchTableModel::addQuotesForData(const QVariant &value) const
+{
+    switch (value.type()) {
+    case QVariant::String:
+    case QVariant::Color:
+    case QVariant::Date:
+        return true;
+    default:
+        break;
+    }
+
+    return false;
+}
+
 Qt::ItemFlags WatchTableModel::flags ( const QModelIndex & index ) const
 {
-    if (index.column() == C_VALUE)
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled; // Qt::ItemIsEditable |  <- disabled for now
+    Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
-    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+    if (index.column() == C_VALUE && index.data(CanEditRole).toBool())
+    {
+        flags |= Qt::ItemIsEditable;
+    }
+
+
+    return flags;
 }
 
 void WatchTableModel::watchStateChanged()
@@ -220,10 +283,11 @@ void WatchTableModel::togglePropertyWatch(const QDeclarativeDebugObjectReference
         delete watch;
         watch = 0;
     } else {
+
         QString desc = (object.idString().isEmpty() ? QLatin1String("<") + object.className() + QLatin1String(">") : object.idString())
                        + QLatin1String(".") + property.name();
 
-        addWatch(watch, desc);
+        addWatch(object, property.valueTypeName(), watch, desc);
         emit watchCreated(watch);
     }
 }
@@ -247,7 +311,7 @@ void WatchTableModel::expressionWatchRequested(const QDeclarativeDebugObjectRefe
         delete watch;
         watch = 0;
     } else {
-        addWatch(watch, expr);
+        addWatch(obj, "<expression>", watch, expr);
         emit watchCreated(watch);
     }
 }

@@ -45,12 +45,13 @@ namespace Qml {
 namespace Internal {
 
 class PropertiesViewItem;
+class WatchTableModel;
 
 class ObjectPropertiesView : public QWidget
 {
     Q_OBJECT
 public:
-    ObjectPropertiesView(QDeclarativeEngineDebug *client = 0, QWidget *parent = 0);
+    ObjectPropertiesView(WatchTableModel *watchTableModel, QDeclarativeEngineDebug *client = 0, QWidget *parent = 0);
 
     void setEngineDebug(QDeclarativeEngineDebug *client);
     void clear();
@@ -75,6 +76,8 @@ private slots:
 
     void addWatch();
     void removeWatch();
+    void filterView(const QString &filterText);
+    void toggleUnwatchableProperties();
 
 private:
     void toggleWatch(QTreeWidgetItem *item);
@@ -89,9 +92,13 @@ private:
 
     QAction *m_addWatchAction;
     QAction *m_removeWatchAction;
+    QAction *m_toggleUnwatchablePropertiesAction;
     QTreeWidgetItem *m_clickedItem;
 
+    bool m_showUnwatchableProperties;
     QTreeWidget *m_tree;
+    QWeakPointer<WatchTableModel> m_watchTableModel;
+
     QDeclarativeDebugObjectReference m_object;
 };
 

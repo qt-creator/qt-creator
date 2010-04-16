@@ -72,6 +72,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData (const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
 
+    bool isWatchingProperty(const QDeclarativeDebugPropertyReference &prop) const;
+
 signals:
     void watchCreated(QDeclarativeDebugWatch *watch);
     void watchRemoved();
@@ -85,7 +87,11 @@ private slots:
     void watchedValueChanged(const QByteArray &propertyName, const QVariant &value);
 
 private:
-    void addWatch(QDeclarativeDebugWatch *watch, const QString &title);
+    bool canEditProperty(const QString &propertyType) const;
+    bool addQuotesForData(const QVariant &value) const;
+    void addWatch(const QDeclarativeDebugObjectReference &object, const QString &propertyType,
+                  QDeclarativeDebugWatch *watch, const QString &title);
+
     void removeWatch(QDeclarativeDebugWatch *watch);
     void updateWatch(QDeclarativeDebugWatch *watch, const QVariant &value);
 
@@ -93,12 +99,21 @@ private:
 
     struct WatchedEntity
     {
+        int objectDebugId;
+        QString objectId;
         QString title;
         QString property;
+        QString objectPropertyType;
         QPointer<QDeclarativeDebugWatch> watch;
         QVariant value;
     };
 
+    enum DataRoles {
+        CanEditRole = Qt::UserRole + 1
+
+    };
+
+    QStringList m_editablePropertyTypes;
     QDeclarativeEngineDebug *m_client;
     QList<WatchedEntity> m_entities;
 };

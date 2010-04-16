@@ -97,7 +97,7 @@ using namespace Qml;
 namespace Qml {
 
 namespace Internal {
-class EngineSpinBox : public QSpinBox
+class EngineComboBox : public QComboBox
 {
     Q_OBJECT
 public:
@@ -107,28 +107,27 @@ public:
         int id;
     };
 
-    EngineSpinBox(QWidget *parent = 0);
+    EngineComboBox(QWidget *parent = 0);
 
     void addEngine(int engine, const QString &name);
     void clearEngines();
 
 protected:
-    virtual QString textFromValue(int value) const;
-    virtual int valueFromText(const QString &text) const;
+    //virtual QString textFromValue(int value) const;
+    //virtual int valueFromText(const QString &text) const;
 
 private:
     QList<EngineInfo> m_engines;
 };
 
-EngineSpinBox::EngineSpinBox(QWidget *parent)
-    : QSpinBox(parent)
+EngineComboBox::EngineComboBox(QWidget *parent)
+    : QComboBox(parent)
 {
     setEnabled(false);
-    setReadOnly(true);
-    setRange(0, 0);
+    setEditable(false);
 }
 
-void EngineSpinBox::addEngine(int engine, const QString &name)
+void EngineComboBox::addEngine(int engine, const QString &name)
 {
     EngineInfo info;
     info.id = engine;
@@ -138,31 +137,31 @@ void EngineSpinBox::addEngine(int engine, const QString &name)
         info.name = name;
     m_engines << info;
 
-    setRange(0, m_engines.count()-1);
+    addItem(info.name);
 }
 
-void EngineSpinBox::clearEngines()
+void EngineComboBox::clearEngines()
 {
     m_engines.clear();
 }
 
-QString EngineSpinBox::textFromValue(int value) const
-{
-    for (int i=0; i<m_engines.count(); ++i) {
-        if (m_engines[i].id == value)
-            return m_engines[i].name;
-    }
-    return QLatin1String("<None>");
-}
+//QString EngineComboBox::textFromValue(int value) const
+//{
+//    for (int i=0; i<m_engines.count(); ++i) {
+//        if (m_engines[i].id == value)
+//            return m_engines[i].name;
+//    }
+//    return QLatin1String("<None>");
+//}
 
-int EngineSpinBox::valueFromText(const QString &text) const
-{
-    for (int i=0; i<m_engines.count(); ++i) {
-        if (m_engines[i].name == text)
-            return m_engines[i].id;
-    }
-    return -1;
-}
+//int EngineComboBox::valueFromText(const QString &text) const
+//{
+//    for (int i=0; i<m_engines.count(); ++i) {
+//        if (m_engines[i].name == text)
+//            return m_engines[i].id;
+//    }
+//    return -1;
+//}
 
 } // Internal
 
@@ -183,7 +182,7 @@ QmlInspector::QmlInspector(QObject *parent)
     m_watchTableModel = new Internal::WatchTableModel(0, this);
 
     m_objectTreeWidget = new Internal::ObjectTree;
-    m_propertiesWidget = new Internal::ObjectPropertiesView;
+    m_propertiesWidget = new Internal::ObjectPropertiesView(m_watchTableModel);
     m_watchTableView = new Internal::WatchTableView(m_watchTableModel);
     m_expressionWidget = new Internal::ExpressionQueryWidget(Internal::ExpressionQueryWidget::SeparateEntryMode);
 //    m_frameRateWidget = new Internal::CanvasFrameRate;
@@ -346,9 +345,9 @@ void QmlInspector::connectionError()
 void QmlInspector::createDockWidgets()
 {
 
-    m_engineSpinBox = new Internal::EngineSpinBox;
-    m_engineSpinBox->setEnabled(false);
-    connect(m_engineSpinBox, SIGNAL(valueChanged(int)),
+    m_engineComboBox = new Internal::EngineComboBox;
+    m_engineComboBox->setEnabled(false);
+    connect(m_engineComboBox, SIGNAL(currentIndexChanged(int)),
             SLOT(queryEngineContext(int)));
 
     // FancyMainWindow uses widgets' window titles for tab labels
@@ -359,7 +358,7 @@ void QmlInspector::createDockWidgets()
     treeOptionBarLayout->setContentsMargins(5, 0, 5, 0);
     treeOptionBarLayout->setSpacing(5);
     treeOptionBarLayout->addWidget(new QLabel(tr("QML engine:")));
-    treeOptionBarLayout->addWidget(m_engineSpinBox);
+    treeOptionBarLayout->addWidget(m_engineComboBox);
 
     QWidget *treeWindow = new QWidget;
     treeWindow->setObjectName(QLatin1String("QmlDebugTree"));
@@ -590,7 +589,7 @@ void QmlInspector::reloadEngines()
         return;
     }
 
-    m_engineSpinBox->setEnabled(false);
+    m_engineComboBox->setEnabled(false);
 
     m_engineQuery = m_client->queryAvailableEngines(this);
     if (!m_engineQuery->isWaiting())
@@ -602,7 +601,7 @@ void QmlInspector::reloadEngines()
 
 void QmlInspector::enginesChanged()
 {
-    m_engineSpinBox->clearEngines();
+    m_engineComboBox->clearEngines();
 
     QList<QDeclarativeDebugEngineReference> engines = m_engineQuery->engines();
     delete m_engineQuery; m_engineQuery = 0;
@@ -610,13 +609,13 @@ void QmlInspector::enginesChanged()
     if (engines.isEmpty())
         qWarning("qmldebugger: no engines found!");
 
-    m_engineSpinBox->setEnabled(true);
+    m_engineComboBox->setEnabled(true);
 
     for (int i=0; i<engines.count(); ++i)
-        m_engineSpinBox->addEngine(engines.at(i).debugId(), engines.at(i).name());
+        m_engineComboBox->addEngine(engines.at(i).debugId(), engines.at(i).name());
 
     if (engines.count() > 0) {
-        m_engineSpinBox->setValue(engines.at(0).debugId());
+        m_engineComboBox->setCurrentIndex(engines.at(0).debugId());
         queryEngineContext(engines.at(0).debugId());
     }
 }

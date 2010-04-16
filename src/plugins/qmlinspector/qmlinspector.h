@@ -64,7 +64,7 @@ namespace Core {
 namespace Qml {
 
     namespace Internal {
-        class EngineSpinBox;
+        class EngineComboBox;
         class InspectorContext;
         class ObjectTree;
         class ObjectPropertiesView;
@@ -72,7 +72,6 @@ namespace Qml {
         class WatchTableView;
         class CanvasFrameRate;
         class ExpressionQueryWidget;
-        class EngineSpinBox;
     }
 
 const int MaxConnectionAttempts = 50;
@@ -132,7 +131,7 @@ private:
     Internal::CanvasFrameRate *m_frameRateWidget;
     Internal::ExpressionQueryWidget *m_expressionWidget;
 
-    Internal::EngineSpinBox *m_engineSpinBox;
+    Internal::EngineComboBox *m_engineComboBox;
 
     QDockWidget *m_objectTreeDock;
     QDockWidget *m_frameRateDock;
