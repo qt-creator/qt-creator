@@ -746,6 +746,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         d->m_projectExplorerSettings.buildBeforeRun = s->value("ProjectExplorer/Settings/BuildBeforeRun", true).toBool();
         d->m_projectExplorerSettings.saveBeforeBuild = s->value("ProjectExplorer/Settings/SaveBeforeBuild", false).toBool();
         d->m_projectExplorerSettings.showCompilerOutput = s->value("ProjectExplorer/Settings/ShowCompilerOutput", false).toBool();
+        d->m_projectExplorerSettings.cleanOldAppOutput = s->value("ProjectExplorer/Settings/CleanOldAppOutput", false).toBool();
         d->m_projectExplorerSettings.useJom = s->value("ProjectExplorer/Settings/UseJom", true).toBool();
     }
 
@@ -990,6 +991,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue("ProjectExplorer/Settings/BuildBeforeRun", d->m_projectExplorerSettings.buildBeforeRun);
         s->setValue("ProjectExplorer/Settings/SaveBeforeBuild", d->m_projectExplorerSettings.saveBeforeBuild);
         s->setValue("ProjectExplorer/Settings/ShowCompilerOutput", d->m_projectExplorerSettings.showCompilerOutput);
+        s->setValue("ProjectExplorer/Settings/CleanOldAppOutput", d->m_projectExplorerSettings.cleanOldAppOutput);
         s->setValue("ProjectExplorer/Settings/UseJom", d->m_projectExplorerSettings.useJom);
     }
 }
@@ -1268,6 +1270,8 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
     if (runMode == ProjectExplorer::Constants::RUNMODE)
         d->m_outputPane->popup(false);
     d->m_outputPane->showTabFor(runControl);
+    if (projectExplorerSettings().cleanOldAppOutput)
+        d->m_outputPane->clearContents();
 
     connect(runControl, SIGNAL(addToOutputWindow(RunControl *, const QString &)),
             this, SLOT(addToApplicationOutputWindow(RunControl *, const QString &)));

@@ -29,6 +29,8 @@
 
 #include "outputwindow.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
 #include "runconfiguration.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -235,7 +237,10 @@ void OutputPane::reRunRunControl()
     int index = m_tabWidget->currentIndex();
     RunControl *rc = runControlForTab(index);
     OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(index));
-    ow->grayOutOldContent();
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().cleanOldAppOutput)
+        ow->clear();
+    else
+        ow->grayOutOldContent();
     ow->verticalScrollBar()->setValue(ow->verticalScrollBar()->maximum());
     rc->start();
 }
