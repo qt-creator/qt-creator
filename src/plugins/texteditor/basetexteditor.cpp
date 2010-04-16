@@ -2596,6 +2596,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 painter.setPen(context.palette.text().color());
             }
             layout->setTextOption(option);
+            layout->setFont(doc->defaultFont()); // this really should be in qplaintextedit when creating the layout!
 
             int blpos = block.position();
             int bllen = block.length();
@@ -2645,25 +2646,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
             }
             selections += prioritySelections;
 
-            bool drawCursor = ((editable || true) // we want the cursor in read-only mode
-                               && context.cursorPosition >= blpos
-                               && context.cursorPosition < blpos + bllen);
-
-            bool drawCursorAsBlock = drawCursor && overwriteMode() ;
-
-            if (drawCursorAsBlock) {
-                if (context.cursorPosition == blpos + bllen - 1) {
-                    drawCursorAsBlock = false;
-                } else {
-                    QTextLayout::FormatRange o;
-                    o.start = context.cursorPosition - blpos;
-                    o.length = 1;
-                    o.format.setForeground(palette().base());
-                    o.format.setBackground(palette().text());
-                    selections.append(o);
-                }
-            }
-
             if (d->m_highlightCurrentLine && block == textCursorBlock) {
 
                 QRectF rr = layout->lineForTextPosition(textCursor().positionInBlock()).rect();
@@ -2691,6 +2673,43 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 if (d->m_highlightBlocksInfo.isEmpty() || TextEditDocumentLayout::ifdefedOut(block))
                     painter.fillRect(rr, d->m_currentLineFormat.background());
             }
+
+            bool drawCursor = ((editable || true) // we want the cursor in read-only mode
+                               && context.cursorPosition >= blpos
+                               && context.cursorPosition < blpos + bllen);
+
+            bool drawCursorAsBlock = drawCursor && overwriteMode() ;
+
+            if (drawCursorAsBlock) {
+                QTextLayout::FormatRange o;
+                int relativePos = context.cursorPosition - blpos;
+                o.start = relativePos;
+                o.length = 1;
+                o.format.setForeground(palette().base());
+                selections.append(o);
+                QTextLine line = layout->lineForTextPosition(relativePos);
+                qreal x = line.cursorToX(relativePos);
+                qreal w = 0;
+                if (relativePos < line.textLength() - line.textStart()) {
+                    w = line.cursorToX(relativePos + 1) - x;
+                    if (doc->characterAt(context.cursorPosition) == QLatin1Char('\t')) {
+                        int space = QFontMetrics(layout->font()).width(QLatin1Char(' '));
+                        if (w > space) {
+                            x += w-space;
+                            w = space;
+                        }
+                    }
+                } else
+                    w = QFontMetrics(layout->font()).width(QLatin1Char(' ')); // in sync with QTextLine::draw()
+
+                QRectF rr = line.rect();
+                rr.moveTop(rr.top() + r.top());
+                rr.moveLeft(r.left() + x);
+                rr.setWidth(w);
+                painter.fillRect(rr, palette().text());
+            }
+
+
 
             layout->draw(&painter, offset, selections, er);
 
