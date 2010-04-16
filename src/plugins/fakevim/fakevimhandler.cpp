@@ -288,7 +288,7 @@ class Input
 {
 public:
     Input() : key(0), unmodified(0), modifiers(0) {}
-    Input(char x) : key(x), unmodified(0), modifiers(0), text(1, QLatin1Char(x)) {}
+    Input(QChar x) : key(x.unicode()), unmodified(0), modifiers(0), text(x) {}
     Input(int k, int u, int m, QString t)
         : key(k), unmodified(u), modifiers(m), text(t)
     {}
@@ -365,7 +365,7 @@ private:
         if (needle.size() > haystack.size())
             return false;
         for (int i = 0; i != needle.size(); ++i) {
-            if (needle.at(i).key != haystack.at(i).key)
+            if (needle.at(i).text != haystack.at(i).text)
                 return false;
         }
         return true;
@@ -2564,20 +2564,19 @@ static bool isSubstitution(const QString &cmd0, QStringList *result)
     return true;
 }
 
-bool FakeVimHandler::Private::handleMapping(const QString &cmd0)
+bool FakeVimHandler::Private::handleMapping(const QString &line)
 {
-    QByteArray line = cmd0.toLatin1();
-    int pos1 = line.indexOf(' ');
+    int pos1 = line.indexOf(QLatin1Char(' '));
     if (pos1 == -1)
         return false;
-    int pos2 = line.indexOf(' ', pos1 + 1);
+    int pos2 = line.indexOf(QLatin1Char(' '), pos1 + 1);
     if (pos2 == -1)
         return false;
 
     QByteArray modes;
     enum Type { Map, Noremap, Unmap } type;
 
-    QByteArray cmd = line.left(pos1);
+    QByteArray cmd = line.left(pos1).toLatin1();
 
     // Strange formatting. But everything else is even uglier.
     if (cmd == "map") { modes = "nvo"; type = Map; } else
@@ -2615,12 +2614,12 @@ bool FakeVimHandler::Private::handleMapping(const QString &cmd0)
     else
         return false;
 
-    QByteArray lhs = line.mid(pos1 + 1, pos2 - pos1 - 1);
-    QByteArray rhs = line.mid(pos2 + 1);
+    QString lhs = line.mid(pos1 + 1, pos2 - pos1 - 1);
+    QString rhs = line.mid(pos2 + 1);
     Inputs key;
-    foreach (char c, lhs)
+    foreach (QChar c, lhs)
         key.append(Input(c));
-    qDebug() << "MAPPING: " << modes << lhs << rhs;
+    //qDebug() << "MAPPING: " << modes << lhs << rhs;
     switch (type) {
         case Unmap:
             foreach (char c, modes)
@@ -2632,7 +2631,7 @@ bool FakeVimHandler::Private::handleMapping(const QString &cmd0)
             // Fall through.
         case Noremap: {
             Inputs inputs;
-            foreach (char c, rhs)
+            foreach (QChar c, rhs)
                 inputs.append(Input(c));
             foreach (char c, modes)
                 m_mappings[c].insert(key, inputs);
