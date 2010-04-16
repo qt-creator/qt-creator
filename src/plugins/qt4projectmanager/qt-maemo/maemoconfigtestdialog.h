@@ -73,6 +73,7 @@ private:
     const MaemoDeviceConfig &m_config;
     MaemoSshRunner *m_deviceTester;
     QString m_deviceTestOutput;
+    bool m_qtVersionOk;
 };
 
 } // namespace Internal

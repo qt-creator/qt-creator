@@ -128,6 +128,10 @@ void MaemoConfigTestDialog::handleTestThreadFinished()
         output = parseTestOutput();
     }
     m_ui->testResultEdit->setPlainText(output);
+    if (!m_qtVersionOk) {
+        m_ui->errorLabel->setText(tr("Qt version mismatch! Expected Qt on device: "
+            "4.6.2 or later."));
+    }
     stopConfigTest();
 }
 
@@ -153,28 +157,36 @@ void MaemoConfigTestDialog::processSshOutput(const QString &data)
 
 QString MaemoConfigTestDialog::parseTestOutput()
 {
+    m_qtVersionOk = false;
+
     QString output;
     const QRegExp unamePattern(QLatin1String("Linux (\\S+)\\s(\\S+)"));
     int index = unamePattern.indexIn(m_deviceTestOutput);
     if (index == -1) {
-        output = tr("Device configuration test failed: Unexpected output:\n%1").arg(m_deviceTestOutput);
+        output = tr("Device configuration test failed: Unexpected output:\n%1")
+            .arg(m_deviceTestOutput);
         return output;
     }
 
     output = tr("Hardware architecture: %1\n").arg(unamePattern.cap(2));
     output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
     output.prepend(tr("Device configuration successful.\n"));
-    const QRegExp dkpgPattern(QLatin1String("libqt\\S+ \\d\\.\\d\\.\\d"));
+    const QRegExp dkpgPattern(QLatin1String("libqt\\S+ (\\d)\\.(\\d)\\.(\\d)"));
     index = dkpgPattern.indexIn(m_deviceTestOutput);
     if (index == -1) {
-        output.append("No Qt packages installed.");
+        output.append(tr("No Qt packages installed."));
         return output;
     }
-    output.append("List of installed Qt packages:\n");
+
+    output.append(tr("List of installed Qt packages:") + QLatin1Char('\n'));
     do {
-        output.append(QLatin1String("\t") + dkpgPattern.cap(0)
-                      + QLatin1String("\n"));
+        output.append(QLatin1Char('\t') + dkpgPattern.cap(0)
+            + QLatin1Char('\n'));
         index = dkpgPattern.indexIn(m_deviceTestOutput, index + 1);
+        if (!m_qtVersionOk && QT_VERSION_CHECK(dkpgPattern.cap(1).toInt(),
+            dkpgPattern.cap(2).toInt(), dkpgPattern.cap(3).toInt()) >= 0x040602) {
+            m_qtVersionOk = true;
+        }
     } while (index != -1);
     return output;
 }
