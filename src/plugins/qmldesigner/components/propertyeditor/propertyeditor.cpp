@@ -398,7 +398,6 @@ void PropertyEditor::changeValue(const QString &propertyName)
             castedValue = QVariant(newColor);
         }
 
-        qDebug() << value->value();
         try {
             if (!value->value().isValid()) { //reset
                 fxObjectNode.removeVariantProperty(propertyName);
