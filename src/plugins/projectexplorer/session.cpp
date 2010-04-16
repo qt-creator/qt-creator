@@ -926,10 +926,14 @@ void SessionManager::updateWindowTitle()
     if (m_core->editorManager()->currentEditor()) {
         QFileInfo fi(m_core->editorManager()->currentEditor()->file()->fileName());
         QString fileName = fi.fileName();
+        // [*] is placeholder for a windowModified marker, set in editor manager
         if (!fileName.isEmpty())
-            windowTitle.prepend(fileName + " - ");
+            windowTitle.prepend(fileName + "[*] - ");
+        else
+            windowTitle.append("[*]"); // placeholder will be removed by Qt)
         m_core->mainWindow()->setWindowFilePath(fi.absoluteFilePath());
     } else {
+        windowTitle.append("[*]"); // placeholder for windowModified property (is removed by Qt)
         m_core->mainWindow()->setWindowFilePath(QString());
     }
     m_core->mainWindow()->setWindowTitle(windowTitle);
