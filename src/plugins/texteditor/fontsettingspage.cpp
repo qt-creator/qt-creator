@@ -382,8 +382,7 @@ void FontSettingsPage::updatePointSizes()
             oldSize = d_ptr->m_value.fontSize();
         d_ptr->ui.sizeComboBox->clear();
     }
-    QFontDatabase db;
-    const QList<int> sizeLst = db.pointSizes(d_ptr->ui.familyComboBox->currentText());
+    const QList<int> sizeLst = pointSizesForSelectedFont();
     int idx = 0;
     int i = 0;
     for (; i < sizeLst.count(); ++i) {
@@ -393,6 +392,23 @@ void FontSettingsPage::updatePointSizes()
     }
     if (d_ptr->ui.sizeComboBox->count())
         d_ptr->ui.sizeComboBox->setCurrentIndex(idx);
+}
+
+QList<int> FontSettingsPage::pointSizesForSelectedFont() const
+{
+    QFontDatabase db;
+    const QString familyName = d_ptr->ui.familyComboBox->currentText();
+    QList<int> sizeLst = db.pointSizes(familyName);
+    if (!sizeLst.isEmpty())
+        return sizeLst;
+
+    QStringList styles = db.styles(familyName);
+    if (!styles.isEmpty())
+        sizeLst = db.pointSizes(familyName, styles.first());
+    if (sizeLst.isEmpty())
+        sizeLst = QFontDatabase::standardSizes();
+
+    return sizeLst;
 }
 
 void FontSettingsPage::fontSizeSelected(const QString &sizeString)

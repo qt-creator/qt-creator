@@ -36,6 +36,7 @@
 
 #include "texteditoroptionspage.h"
 
+#include <QtCore/QList>
 #include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
@@ -117,6 +118,7 @@ private slots:
 private:
     void maybeSaveColorScheme();
     void updatePointSizes();
+    QList<int> pointSizesForSelectedFont() const;
     void refreshColorSchemeList();
 
     Internal::FontSettingsPagePrivate *d_ptr;
