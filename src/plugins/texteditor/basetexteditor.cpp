@@ -2681,18 +2681,15 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
             bool drawCursorAsBlock = drawCursor && overwriteMode() ;
 
             if (drawCursorAsBlock) {
-                QTextLayout::FormatRange o;
                 int relativePos = context.cursorPosition - blpos;
-                o.start = relativePos;
-                o.length = 1;
-                o.format.setForeground(palette().base());
-                selections.append(o);
+                bool doSelection = true;
                 QTextLine line = layout->lineForTextPosition(relativePos);
                 qreal x = line.cursorToX(relativePos);
                 qreal w = 0;
                 if (relativePos < line.textLength() - line.textStart()) {
                     w = line.cursorToX(relativePos + 1) - x;
                     if (doc->characterAt(context.cursorPosition) == QLatin1Char('\t')) {
+                        doSelection = false;
                         int space = QFontMetrics(layout->font()).width(QLatin1Char(' '));
                         if (w > space) {
                             x += w-space;
@@ -2707,6 +2704,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 rr.moveLeft(r.left() + x);
                 rr.setWidth(w);
                 painter.fillRect(rr, palette().text());
+                if (doSelection) {
+                    QTextLayout::FormatRange o;
+                    o.start = relativePos;
+                    o.length = 1;
+                    o.format.setForeground(palette().base());
+                    selections.append(o);
+                }
             }
 
 
