@@ -358,7 +358,7 @@ class GradientLine : public QWidget {
     Q_PROPERTY(bool active READ active WRITE setActive)
 
 public:
-    GradientLine(QWidget *parent = 0) : QWidget(parent), m_gradientName("gradient"), m_activeColor(Qt::black), m_dragActive(false), m_yOffset(0), m_create(false), m_active(false)
+    GradientLine(QWidget *parent = 0) : QWidget(parent),  m_activeColor(Qt::black), m_gradientName("gradient"), m_dragActive(false), m_yOffset(0), m_create(false), m_active(false)
     {
         setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
         setFocusPolicy(Qt::StrongFocus);
@@ -408,7 +408,7 @@ signals:
     void itemNodeChanged();
     void gradientNameChanged();
 protected:
-    bool GradientLine::event(QEvent *event);
+    bool event(QEvent *event);
     void keyPressEvent(QKeyEvent * event);
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *);
