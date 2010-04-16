@@ -38,6 +38,7 @@
 #include <modelnode.h>
 #include <qdeclarative.h>
 #include <propertyeditorvalue.h>
+#include <qmlitemnode.h>
 
 QT_BEGIN_NAMESPACE
 class QtColorButton;
@@ -51,10 +52,12 @@ class ColorButton : public QToolButton {
 Q_OBJECT
 
 Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
+Q_PROPERTY(bool noColor READ noColor WRITE setNoColor)
+
 
 public:
 
-    ColorButton(QWidget *parent = 0) : QToolButton (parent), m_colorString("#ffffff")
+    ColorButton(QWidget *parent = 0) : QToolButton (parent), m_colorString("#ffffff"), m_noColor(false)
     {
     }
 
@@ -73,6 +76,9 @@ public:
         return m_colorString;
     }
 
+    bool noColor() const { return m_noColor; }
+    void setNoColor(bool f) { m_noColor = f; update(); }
+
 signals:
     void colorChanged();
 
@@ -80,6 +86,7 @@ protected:
     void paintEvent(QPaintEvent *event);
 private:
     QString m_colorString;
+    bool m_noColor;
 };
 
 inline QString properName(const QColor &color)
@@ -342,10 +349,106 @@ private:
     QPixmap m_cache;
 };
 
+class GradientLine : public QWidget {
+
+    Q_OBJECT
+    Q_PROPERTY(QColor activeColor READ activeColor WRITE setActiveColor NOTIFY activeColorChanged)
+    Q_PROPERTY(QVariant itemNode READ itemNode WRITE setItemNode NOTIFY itemNodeChanged)
+    Q_PROPERTY(QString gradientName READ gradientName WRITE setGradientName NOTIFY gradientNameChanged)
+    Q_PROPERTY(bool active READ active WRITE setActive)
+
+public:
+    GradientLine(QWidget *parent = 0) : QWidget(parent), m_gradientName("gradient"), m_activeColor(Qt::black), m_dragActive(false), m_yOffset(0), m_create(false), m_active(false)
+    {
+        setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+        setFocusPolicy(Qt::StrongFocus);
+        setFixedHeight(50);
+        setMinimumWidth(160);
+        resize(160, 50);
+        m_colorList << m_activeColor << QColor(Qt::white);
+        m_stops << 0 << 1;
+        updateGradient();
+        setCurrentIndex(0);
+    }
+
+
+    QVariant itemNode() const { return QVariant::fromValue(m_itemNode.modelNode()); }
+    void setItemNode(const QVariant &itemNode);
+    QString gradientName() const { return m_gradientName; }
+    void setGradientName(const QString &newName)
+    {
+        if (newName == m_gradientName)
+            return;
+        m_gradientName = newName;
+        setup();
+        emit gradientNameChanged();
+    }
+
+    QColor activeColor() const { return m_activeColor; }
+    void setActiveColor(const QColor &newColor)
+    {
+        if (newColor.name() == m_activeColor.name() && newColor.alpha() == m_activeColor.alpha())
+            return;
+
+        m_activeColor = newColor;
+        m_colorList.removeAt(currentColorIndex());
+        m_colorList.insert(currentColorIndex(), m_activeColor);
+        updateGradient();
+        update();
+    }
+
+    bool active() const { return m_active; }
+    void setActive(bool a) { m_active = a; }
+
+public slots:
+    void setupGradient();
+
+signals:
+    void activeColorChanged();
+    void itemNodeChanged();
+    void gradientNameChanged();
+protected:
+    bool GradientLine::event(QEvent *event);
+    void keyPressEvent(QKeyEvent * event);
+    void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *);    
+
+private:
+    void setup();
+    void updateGradient();
+    int currentColorIndex() const { return m_colorIndex; }
+    void setCurrentIndex(int i)
+    {
+        if (i == m_colorIndex)
+            return;
+        m_colorIndex = i;
+        setActiveColor(m_colorList.at(i));
+        emit activeColorChanged();
+        update();
+    }
+
+    QColor m_activeColor;
+    QmlItemNode m_itemNode;
+    QString m_gradientName;
+    QList<QColor> m_colorList;
+    QList<qreal> m_stops;
+    int m_colorIndex;
+    bool m_dragActive;
+    QPoint m_dragStart;
+    int m_yOffset;
+    bool m_create;
+    bool m_active;
+};
+
 
 class ColorWidget {
+
 public:
     static void registerDeclarativeTypes();
+
+
 };
 
 

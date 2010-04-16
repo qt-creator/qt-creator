@@ -40,6 +40,9 @@
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 #include <qmlobjectnode.h>
+#include <qmlitemnode.h>
+#include <QGradient>
+#include <metainfo.h>
 
 namespace QmlDesigner {
 
@@ -47,6 +50,7 @@ namespace QmlDesigner {
         qmlRegisterType<QmlDesigner::ColorButton>("Bauhaus",1,0,"ColorButton");
         qmlRegisterType<QmlDesigner::HueControl>("Bauhaus",1,0,"HueControl");
         qmlRegisterType<QmlDesigner::ColorBox>("Bauhaus",1,0,"ColorBox");
+        qmlRegisterType<QmlDesigner::GradientLine>("Bauhaus",1,0,"GradientLine");
     }
 
     void ColorButton::paintEvent(QPaintEvent *event)
@@ -65,7 +69,17 @@ namespace QmlDesigner {
         else
             p.setBrush(Qt::transparent);
         p.setPen(Qt::black);
-        p.drawRect(r);
+
+        if (!m_noColor) {
+            p.drawRect(r);
+        } else {
+            p.fillRect(r, Qt::white);
+            p.fillRect(0, 0, width() /2, height() /2, QColor(Qt::gray));
+            p.fillRect(width() /2, height() /2, width() /2, height() /2, QColor(Qt::gray));
+            p.setBrush(Qt::transparent);
+            p.drawRect(r);
+        }
+
 
         QVector<QPointF> points;
         if (isChecked()) {
@@ -197,5 +211,266 @@ namespace QmlDesigner {
         p.setPen(Qt::black);
         p.drawRect(QRect(0, 0, width() - 1, height() -1).adjusted(4, 4, -4, -4));
     }
+
+void GradientLine::setItemNode(const QVariant &itemNode)
+{
+
+    if (!itemNode.value<ModelNode>().isValid() || !QmlItemNode(itemNode.value<ModelNode>()).hasNodeParent())
+        return;
+    m_itemNode = itemNode.value<ModelNode>();
+    setup();
+    emit itemNodeChanged();
+}
+
+static inline QColor invertColor(const QColor color)
+{
+    QColor c = color.toHsv();
+    c.setHsv(c.hue(), c.saturation(), 255 - c.value());
+    return c;
+}
+
+void GradientLine::setupGradient()
+{
+    ModelNode modelNode = m_itemNode.modelNode();
+    m_colorList.clear();
+    m_stops.clear();
+
+    if (modelNode.hasProperty(m_gradientName)) { //gradient exists
+
+        ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
+        QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
+
+        foreach (const ModelNode &stopNode, stopList) {
+            QmlObjectNode stopObjectNode = stopNode;
+            if (stopObjectNode.isValid()) {
+                m_stops << stopObjectNode.instanceValue("position").toReal();
+                m_colorList << stopObjectNode.instanceValue("color").value<QColor>();
+            }
+        }
+    } else {
+        m_colorList << m_activeColor << QColor(Qt::black);
+        m_stops << 0 << 1;
+    }
+
+    updateGradient();
+}
+
+bool GradientLine::event(QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride)
+        if (static_cast<QKeyEvent*>(event)->matches(QKeySequence::Delete)) {
+            event->accept();
+            return true;
+    }
+
+    return QWidget::event(event);
+}
+
+void GradientLine::keyPressEvent(QKeyEvent * event)
+{
+    if (event->matches(QKeySequence::Delete)) {
+        if ((currentColorIndex()) != 0 && (currentColorIndex() < m_stops.size() - 1)) {
+            m_dragActive = false;
+            m_stops.removeAt(currentColorIndex());
+            m_colorList.removeAt(currentColorIndex());
+            updateGradient();
+            setCurrentIndex(0);
+            //delete item
+        }
+    } else {
+       QWidget::keyPressEvent(event);
+    }
+}
+
+void GradientLine::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+    QPainter p(this);
+
+    QPen pen(Qt::black);
+    pen.setWidth(1);
+    p.setPen(pen);
+
+    QLinearGradient linearGradient(QPointF(2, 0), QPointF(width() -2, 0));
+
+    for (int i =0; i < m_stops.size(); i++)
+         linearGradient.setColorAt(m_stops.at(i), m_colorList.at(i));
+
+    p.setBrush(linearGradient);
+    p.drawRoundedRect(8, 30, width() - 16, height() - 32, 5, 5);
+
+    for (int i =0; i < m_colorList.size(); i++) {
+        int localYOffset = 0;
+        QColor arrowColor(Qt::black);
+        if (i == currentColorIndex()) {
+            localYOffset = m_yOffset;
+            arrowColor = QColor("#cdcdcd");
+        }
+        p.setPen(arrowColor);
+        if (i == 0 || i == (m_colorList.size() - 1))
+            localYOffset = 0;
+
+        int pos = qreal((width() - 20)) * m_stops.at(i) + 10;
+        p.setBrush(arrowColor);
+        QVector<QPointF> points;
+        points.append(QPointF(pos, 28 + localYOffset)); //triangle
+        points.append(QPointF(pos - 4, 22 + localYOffset));
+        points.append(QPointF(pos + 4, 22 + localYOffset));
+        p.drawPolygon(points);
+
+        if (i == currentColorIndex())
+            p.fillRect(pos - 6, 9 + localYOffset, 13, 13, invertColor(m_colorList.at(i)));
+
+        p.fillRect(pos - 4, 11 + localYOffset, 9, 9, m_colorList.at(i));
+    }
+}
+
+void GradientLine::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        int xPos = event->pos().x();
+        int yPos = event->pos().y();
+
+        int draggedIndex = -1;
+        m_create = false;
+        m_dragActive = false;
+        if ((yPos > 10) && (yPos < 30))
+            for (int i =0; i < m_stops.size(); i++) {
+            int pos = qreal((width() - 20)) * m_stops.at(i) + 10;
+            if (((xPos + 5) > pos) && ((xPos - 5) < pos)) {
+                draggedIndex = i;
+                m_dragActive = true;
+                m_dragStart = event->pos();
+                setCurrentIndex(draggedIndex);
+                update();
+            }
+        }
+        if (draggedIndex == -1)
+            m_create = true;
+    }
+    setFocus(Qt::MouseFocusReason);
+    event->accept();
+    //QWidget::mousePressEvent(event);
+}
+
+void GradientLine::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        if (m_dragActive == false && m_create) {
+            qreal stopPos = qreal(event->pos().x() - 10) / qreal((width() - 20));
+            int index = -1;
+            for (int i =0; i < m_stops.size() - 1; i++) {
+                if ((stopPos > m_stops.at(i)) && (index == -1))
+                    index = i +1;
+            }
+            if (index != -1 && m_itemNode.isInBaseState()) { //creating of items only in base state
+                m_stops.insert(index, stopPos);
+                m_colorList.insert(index, QColor(Qt::white));
+                setCurrentIndex(index);
+                updateGradient();
+            }
+        }
+    }
+    m_dragActive = false;
+    m_yOffset = 0;
+    update();
+    updateGradient();
+    event->accept();
+    //QWidget::mouseReleaseEvent(event);
+}
+
+void GradientLine::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_dragActive) {
+        int xDistance = event->pos().x() - m_dragStart.x();
+        qreal distance = qreal(xDistance) / qreal((width() - 20));
+        qreal newStop  = m_stops.at(currentColorIndex()) + distance;
+        if ((newStop >=0) && (newStop <= 1))
+            m_stops[currentColorIndex()] = newStop;
+        m_yOffset += event->pos().y() - m_dragStart.y();
+        if (m_yOffset > 0 || !m_itemNode.isInBaseState()) { //deleting only in base state
+            m_yOffset = 0;         
+        } else if ((m_yOffset < - 12) && (currentColorIndex()) != 0 && (currentColorIndex() < m_stops.size() - 1)) {
+            m_yOffset = 0;
+            m_dragActive = false;
+            m_stops.removeAt(currentColorIndex());
+            m_colorList.removeAt(currentColorIndex());
+            updateGradient();
+            setCurrentIndex(0);
+            //delete item
+        }
+
+        int xPos = event->pos().x();
+        int pos = qreal((width() - 20)) * m_stops.at(currentColorIndex()) + 10;
+        if (!(((xPos + 5) > pos) && ((xPos - 5) < pos))) { //still on top of the item?
+            m_dragActive = false; //abort drag
+            m_yOffset = 0;
+        }
+        m_dragStart = event->pos();
+        update();
+    }
+
+    QWidget::mouseMoveEvent(event);
+}
+
+void GradientLine::setup()
+{    
+
+}
+
+static inline QColor normalizeColor(const QColor &color)
+{
+    QColor newColor = QColor(color.name());
+    newColor.setAlpha(color.alpha());
+    return newColor;
+}
+
+static inline qreal roundReal(qreal real)
+{
+    int i = real * 100;
+    return qreal(i) / 100;
+}
+
+void GradientLine::updateGradient()
+{
+    if (!active())
+        return;
+    RewriterTransaction transaction;
+    if (!m_itemNode.isValid())
+        return;
+
+    if (!m_itemNode.modelNode().metaInfo().hasProperty(m_gradientName))
+        return;
+
+    ModelNode modelNode = m_itemNode.modelNode();
+
+    if (m_itemNode.isInBaseState()) {
+        if (modelNode.hasProperty(m_gradientName))
+            modelNode.removeProperty(m_gradientName);
+
+        ModelNode gradientNode = modelNode.view()->createModelNode("Qt/Gradient", 4, 6);
+
+
+        for (int i = 0;i < m_stops.size(); i++) {
+            ModelNode gradientStopNode = modelNode.view()->createModelNode("Qt/GradientStop", 4, 6);
+            gradientStopNode.variantProperty("position") = roundReal(m_stops.at(i));
+            gradientStopNode.variantProperty("color") = normalizeColor(m_colorList.at(i));
+            gradientNode.nodeListProperty("stops").reparentHere(gradientStopNode);
+        }
+        modelNode.nodeProperty(m_gradientName).reparentHere(gradientNode);
+    } else { //state
+        if  (!modelNode.hasProperty(m_gradientName)) {
+            qWarning(" GradientLine::updateGradient: no gradient in state");
+            return;
+        }
+        ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
+        QList<ModelNode> stopList = gradientNode.nodeListProperty("stops").toModelNodeList();
+        for (int i = 0;i < m_stops.size(); i++) {            
+            QmlObjectNode stopObjectNode = stopList.at(i);
+            stopObjectNode.setVariantProperty("position", roundReal(m_stops.at(i)));
+            stopObjectNode.setVariantProperty("color", normalizeColor(m_colorList.at(i)));
+        }
+    }
+}
 
 }
