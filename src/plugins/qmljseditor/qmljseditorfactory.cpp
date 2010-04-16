@@ -176,6 +176,7 @@ void QmlJSEditorFactory::activateQmlDesigner()
                 disconnect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
                          this, SLOT(updateEditorInfoBar(Core::IEditor*)));
                 Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
+                neverAskAgainAboutQmlDesigner();
                 return;
             }
         }
@@ -188,6 +189,7 @@ void QmlJSEditorFactory::neverAskAgainAboutQmlDesigner()
     settings->beginGroup(QLatin1String(KEY_QMLGROUP));
     settings->setValue(QLatin1String(KEY_NAGABOUTDESIGNER), false);
     settings->endGroup();
+    settings->sync();
     disconnect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
              this, SLOT(updateEditorInfoBar(Core::IEditor*)));
 }
