@@ -79,6 +79,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTextStream>
 
+#include <QtGui/QDesktopServices>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QShortcut>
@@ -157,6 +158,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
     m_group.clear();
     m_group.insert(theFakeVimSetting(ConfigUseFakeVim),
         m_ui.checkBoxUseFakeVim);
+    m_group.insert(theFakeVimSetting(ConfigReadVimRc),
+        m_ui.checkBoxReadVimRc);
 
     m_group.insert(theFakeVimSetting(ConfigExpandTab),
         m_ui.checkBoxExpandTab);
@@ -488,6 +491,7 @@ private slots:
     void find(bool reverse);
     void findNext(bool reverse);
     void showSettingsDialog();
+    void maybeReadVimRc();
 
     void showCommandBuffer(const QString &contents);
     void showExtraInformation(const QString &msg);
@@ -532,14 +536,22 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
     m_fakeVimOptionsPage = 0;
     m_fakeVimExCommandsPage = 0;
 
-    s_defaultExCommandMap[Constants::CMD_FILE_NEXT] = QRegExp("^n(ext)?!?( (.*))?$");
-    s_defaultExCommandMap[Constants::CMD_FILE_PREV] = QRegExp("^(N(ext)?|prev(ious)?)!?( (.*))?$");
-    s_defaultExCommandMap[CppTools::Constants::SWITCH_HEADER_SOURCE] = QRegExp("^A$");
-    s_defaultExCommandMap[ProjectExplorer::Constants::BUILD] = QRegExp("^make$");
-    s_defaultExCommandMap["Coreplugin.OutputPane.previtem"] = QRegExp("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
-    s_defaultExCommandMap["Coreplugin.OutputPane.nextitem"] = QRegExp("^cn(ext)?!?( (.*))?$");
-    s_defaultExCommandMap[CppEditor::Constants::JUMP_TO_DEFINITION] = QRegExp("^tag?$");
-    s_defaultExCommandMap[Core::Constants::GO_BACK] = QRegExp("^pop?$");
+    s_defaultExCommandMap[Constants::CMD_FILE_NEXT] =
+        QRegExp("^n(ext)?!?( (.*))?$");
+    s_defaultExCommandMap[Constants::CMD_FILE_PREV] =
+        QRegExp("^(N(ext)?|prev(ious)?)!?( (.*))?$");
+    s_defaultExCommandMap[CppTools::Constants::SWITCH_HEADER_SOURCE] =
+        QRegExp("^A$");
+    s_defaultExCommandMap[ProjectExplorer::Constants::BUILD] =
+        QRegExp("^make$");
+    s_defaultExCommandMap["Coreplugin.OutputPane.previtem"] =
+        QRegExp("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
+    s_defaultExCommandMap["Coreplugin.OutputPane.nextitem"] =
+        QRegExp("^cn(ext)?!?( (.*))?$");
+    s_defaultExCommandMap[CppEditor::Constants::JUMP_TO_DEFINITION] =
+        QRegExp("^tag?$");
+    s_defaultExCommandMap[Core::Constants::GO_BACK] =
+        QRegExp("^pop?$");
 }
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
@@ -596,6 +608,8 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(showSettingsDialog()));
     connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setUseFakeVim(QVariant)));
+    connect(theFakeVimSetting(ConfigReadVimRc), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(maybeReadVimRc()));
 
     QAction *switchFileNextAction = new QAction(tr("Switch to next file"), this);
     cmd = actionManager->registerAction(switchFileNextAction, Constants::CMD_FILE_NEXT, globalcontext);
@@ -612,6 +626,8 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(handleDelayedQuit(bool,Core::IEditor*)), Qt::QueuedConnection);
     connect(this, SIGNAL(delayedQuitAllRequested(bool)),
         this, SLOT(handleDelayedQuitAll(bool)), Qt::QueuedConnection);
+    maybeReadVimRc();
+    //    << "MODE: " << theFakeVimSetting(ConfigUseFakeVim)->value();
 
     return true;
 }
@@ -625,8 +641,9 @@ void FakeVimPluginPrivate::writeSettings(QSettings *settings)
     settings->beginWriteArray(QLatin1String(exCommandMapGroup));
 
     int count = 0;
-    const QMap<QString, QRegExp>::const_iterator end = s_exCommandMap.constEnd();
-    for (QMap<QString, QRegExp>::const_iterator it = s_exCommandMap.constBegin(); it != end; ++it) {
+    typedef QMap<QString, QRegExp>::const_iterator Iterator;
+    const Iterator end = s_exCommandMap.constEnd();
+    for (Iterator it = s_exCommandMap.constBegin(); it != end; ++it) {
         const QString &id = it.key();
         const QRegExp &re = it.value();
 
@@ -647,7 +664,7 @@ void FakeVimPluginPrivate::readSettings(QSettings *settings)
     s_exCommandMap = s_defaultExCommandMap;
 
     int size = settings->beginReadArray(QLatin1String(exCommandMapGroup));
-    for (int i=0; i<size; ++i) {
+    for (int i = 0; i < size; ++i) {
         settings->setArrayIndex(i);
         const QString id = settings->value(QLatin1String(idKey)).toString();
         const QString re = settings->value(QLatin1String(reKey)).toString();
@@ -656,10 +673,30 @@ void FakeVimPluginPrivate::readSettings(QSettings *settings)
     settings->endArray();
 }
 
+void FakeVimPluginPrivate::maybeReadVimRc()
+{
+    qDebug() << theFakeVimSetting(ConfigReadVimRc)
+        << theFakeVimSetting(ConfigReadVimRc)->value();
+    qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
+    if (!theFakeVimSetting(ConfigReadVimRc)->value().toBool())
+        return;
+    QString fileName =
+        QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+            + "/.vimrc";
+    //qDebug() << "READING VIMRC: " << fileName;
+    // Read it into a temporary handler for effects modifying global state.
+    QPlainTextEdit editor;
+    FakeVimHandler handler(&editor);
+    handler.handleCommand("source " + fileName);
+    theFakeVimSettings()->writeSettings(Core::ICore::instance()->settings());
+    qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
+}
+
 void FakeVimPluginPrivate::showSettingsDialog()
 {
-    Core::ICore::instance()->showOptionsDialog(QLatin1String(Constants::SETTINGS_CATEGORY),
-                                               QLatin1String(Constants::SETTINGS_ID));
+    Core::ICore::instance()->showOptionsDialog(
+        QLatin1String(Constants::SETTINGS_CATEGORY),
+        QLatin1String(Constants::SETTINGS_ID));
 }
 
 void FakeVimPluginPrivate::triggerAction(const QString& code)
@@ -922,8 +959,9 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
         bool forced = cmd.contains(QChar('!'));
         emit delayedQuitAllRequested(forced);
     } else {
-        const QMap<QString, QRegExp>::const_iterator end = s_exCommandMap.constEnd();
-        for (QMap<QString, QRegExp>::const_iterator it = s_exCommandMap.constBegin(); it != end; ++it) {
+        typedef QMap<QString, QRegExp>::const_iterator Iterator;
+        const Iterator end = s_exCommandMap.constEnd();
+        for (Iterator it = s_exCommandMap.constBegin(); it != end; ++it) {
             const QString &id = it.key();
             const QRegExp &re = it.value();
 

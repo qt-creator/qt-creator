@@ -19,6 +19,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="checkBoxReadVimRc">
+     <property name="text">
+      <string>Read .vimrc</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Vim Behavior</string>

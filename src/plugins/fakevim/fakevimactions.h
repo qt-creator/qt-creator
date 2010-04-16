@@ -42,6 +42,7 @@ namespace Internal {
 enum FakeVimSettingsCode
 {
     ConfigUseFakeVim,
+    ConfigReadVimRc,
     ConfigStartOfLine,
     ConfigHlSearch,
     ConfigTabStop,

@@ -653,23 +653,25 @@ public:
 
     QList<QTextEdit::ExtraSelection> m_searchSelections;
 
+    bool handleExCommandHelper(const QString &cmd); // Returns success.
     QString extractCommand(const QString &line, int *beginLine, int *endLine);
-    bool handleExGotoCommand(const QString &line);
-    bool handleExReadCommand(const QString &line);
-    bool handleExWriteCommand(const QString &line);
-    bool handleExRedoCommand(const QString &line);
-    bool handleExShiftRightCommand(const QString &line);
     bool handleExBangCommand(const QString &line);
-    bool handleExNormalCommand(const QString &line);
     bool handleExDeleteCommand(const QString &line);
-    bool handleExSetCommand(const QString &line);
+    bool handleExGotoCommand(const QString &line);
     bool handleExHistoryCommand(const QString &line);
-    bool handleExSubstituteCommand(const QString &line);
     bool handleExMapCommand(const QString &line);
+    bool handleExNormalCommand(const QString &line);
+    bool handleExReadCommand(const QString &line);
+    bool handleExRedoCommand(const QString &line);
+    bool handleExSetCommand(const QString &line);
+    bool handleExShiftRightCommand(const QString &line);
+    bool handleExSourceCommand(const QString &line);
+    bool handleExSubstituteCommand(const QString &line);
+    bool handleExWriteCommand(const QString &line);
 
     // All mappings.
     typedef QHash<char, ModeMapping> Mappings;
-    Mappings m_mappings;
+    static Mappings m_mappings;
 
     QVector<Input> m_pendingInput;
 
@@ -680,6 +682,7 @@ public:
 QStringList FakeVimHandler::Private::m_searchHistory;
 QStringList FakeVimHandler::Private::m_commandHistory;
 QHash<int, Register> FakeVimHandler::Private::m_registers;
+FakeVimHandler::Private::Mappings FakeVimHandler::Private::m_mappings;
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
@@ -2817,7 +2820,7 @@ bool FakeVimHandler::Private::handleExDeleteCommand(const QString &line) // :d
 }
 
 bool FakeVimHandler::Private::handleExWriteCommand(const QString &line)
-    // :w, :x :q
+    // :w, :x, :q, :wq, ...
 {
     int beginLine, endLine;
     QString cmd = extractCommand(line, &beginLine, &endLine);
@@ -2979,27 +2982,67 @@ bool FakeVimHandler::Private::handleExGotoCommand(const QString &line) // :<nr>
     return true;
 }
 
+bool FakeVimHandler::Private::handleExSourceCommand(const QString &line) // :source
+{
+    int pos = line.indexOf(' ');
+    if (line.leftRef(pos) != "so" && line.leftRef(pos) != "source")
+        return false;
+
+    QString fileName = line.mid(pos + 1);
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        showRedMessage(FakeVimHandler::tr("Can't open file %1").arg(fileName));
+        return true;
+    }
+
+    bool inFunction = false;
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+        line = line.trimmed();
+        if (line.startsWith("function")) {
+            //qDebug() << "IGNORING FUNCTION" << line;
+            inFunction = true; 
+        } else if (inFunction && line.startsWith("endfunction")) {
+            inFunction = false;
+        } else if (line.startsWith("function")) {
+            //qDebug() << "IGNORING FUNCTION" << line;
+            inFunction = true; 
+        } else if (line.startsWith('"')) {
+            // A comment.
+        } else if (!line.isEmpty() && !inFunction) {
+            //qDebug() << "EXECUTING: " << line;
+            handleExCommandHelper(QString::fromUtf8(line));
+        }
+    }
+    file.close();
+    return true;
+}
+
 void FakeVimHandler::Private::handleExCommand(const QString &line0)
 {
     QString line = line0; // Make sure we have a copy to prevent aliasing.
     enterCommandMode();
     showBlackMessage(QString());
+    if (handleExCommandHelper(line))
+        return;
+    int beginLine, endLine;
+    passUnknownExCommand(extractCommand(line, &beginLine, &endLine));
+}
 
-    if (!(handleExGotoCommand(line)
-        || handleExReadCommand(line)
-        || handleExWriteCommand(line)
+bool FakeVimHandler::Private::handleExCommandHelper(const QString &line)
+{
+    return handleExGotoCommand(line)
         || handleExBangCommand(line)
-        || handleExShiftRightCommand(line)
-        || handleExRedoCommand(line)
-        || handleExNormalCommand(line)
-        || handleExSubstituteCommand(line)
-        || handleExSetCommand(line)
         || handleExHistoryCommand(line)
-        || handleExMapCommand(line)))
-    {
-        int beginLine, endLine;
-        passUnknownExCommand(extractCommand(line, &beginLine, &endLine));
-    }
+        || handleExMapCommand(line)
+        || handleExNormalCommand(line)
+        || handleExReadCommand(line)
+        || handleExRedoCommand(line)
+        || handleExSetCommand(line)
+        || handleExShiftRightCommand(line)
+        || handleExSourceCommand(line)
+        || handleExSubstituteCommand(line)
+        || handleExWriteCommand(line);
 }
 
 void FakeVimHandler::Private::passUnknownExCommand(const QString &cmd)
