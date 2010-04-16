@@ -21,6 +21,16 @@ QWidget {
         evaluate();
     }
 
+
+    property bool isInModel: backendValue.isInModel;
+    onIsInModelChanged: {
+        evaluate();
+    }
+    property bool isInSubState: backendValue.isInSubState;
+    onIsInSubStateChanged: {
+        evaluate();
+    }
+
     function evaluate() {
         if (!enabled) {
             lineEditWidget.setStyleSheet("color: "+scheme.disabledColor);
@@ -42,6 +52,7 @@ QWidget {
     ColorScheme { id:scheme; }
 
     QLineEdit {
+        y: 2
         id: lineEditWidget
         styleSheet: "QLineEdit { padding-left: 32; }"
         width: lineEdit.width
@@ -56,16 +67,16 @@ QWidget {
 
         onFocusChanged: {
             if (focus)
-            backendValue.lock();
+                backendValue.lock();
             else
-            backendValue.unlock();
+                backendValue.unlock();
         }
 
 
     }
     ExtendedFunctionButton {
         backendValue: lineEdit.backendValue
-        y: 4
+        y: 6
         x: 0
         visible: lineEdit.enabled
     }
