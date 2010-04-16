@@ -512,7 +512,7 @@ bool VCSBasePlugin::enableMenuAction(ActionState as, QAction *menuAction) const
     switch (as) {
     case VCSBase::VCSBasePlugin::NoVCSEnabled: {
         const bool supportsCreation = d->supportsRepositoryCreation();
-        menuAction->setVisible(true);
+        menuAction->setVisible(supportsCreation);
         menuAction->setEnabled(supportsCreation);
         return supportsCreation;
     }
