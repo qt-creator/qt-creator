@@ -165,7 +165,8 @@ private:
 
     Debugger::DebuggerManager *m_debuggerManager;
     QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
-    int m_inferiorPid;
+
+    bool m_debuggingStarted;
 };
 
 } // namespace Internal

@@ -406,7 +406,7 @@ MaemoDebugRunControl::~MaemoDebugRunControl()
 
 void MaemoDebugRunControl::startInternal()
 {
-    m_inferiorPid = -1;
+    m_debuggingStarted = false;
     startDeployment(true);
 }
 
@@ -419,27 +419,11 @@ QString MaemoDebugRunControl::remoteCall() const
 
 void MaemoDebugRunControl::handleRemoteOutput(const QString &output)
 {
-    qDebug("gdbserver's stderr output: %s", output.toLatin1().data());
-    if (m_inferiorPid != -1)
-        return;
-    const QString searchString("pid = ");
-    const int searchStringLength = searchString.length();
-    int pidStartPos = output.indexOf(searchString);
-    const int pidEndPos = output.indexOf("\n", pidStartPos + searchStringLength);
-    if (pidStartPos == -1 || pidEndPos == -1)
-        return; // gdbserver has not started yet.
-    pidStartPos += searchStringLength;
-    QString pidString = output.mid(pidStartPos, pidEndPos - pidStartPos);
-    qDebug("pidString = %s", pidString.toLatin1().data());
-    bool ok;
-    const int pid = pidString.toInt(&ok);
-    if (!ok) {
-        handleError(tr("Debugging failed: Could not parse gdbserver output."));
-        m_debuggerManager->exitDebugger();
-    } else {
-        m_inferiorPid = pid;
+    if (!m_debuggingStarted) {
+        m_debuggingStarted = true;
         startDebugging();
     }
+    emit addToOutputWindowInline(this, output);
 }
 
 void MaemoDebugRunControl::startDebugging()
@@ -465,7 +449,7 @@ void MaemoDebugRunControl::debuggingFinished()
 
 void MaemoDebugRunControl::debuggerOutput(const QString &output)
 {
-    emit addToOutputWindowInline(this, output);
+    emit addToOutputWindowInline(this, QLatin1String("[gdb says:] ") + output);
 }
 
 QString MaemoDebugRunControl::gdbServerPort() const
