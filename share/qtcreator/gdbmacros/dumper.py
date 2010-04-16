@@ -427,7 +427,7 @@ def listOfLocals(varList):
         # Assuming gdb 7.0 release or 6.8-symbianelf.
         filename, file = createTempFile()
         #warn("VARLIST: %s " % varList)
-        #warn("VARLIST: %s " % len(varList))
+        #warn("FILENAME: %s " % filename)
         gdb.execute("set logging off")
         gdb.execute("set logging redirect off")
         gdb.execute("set logging file %s" % filename)
@@ -453,16 +453,19 @@ def listOfLocals(varList):
         gdb.execute("set logging off")
         gdb.execute("set logging redirect off")
 
-        temp = open(filename, "r")
-        for line in temp:
-            if len(line) == 0 or line.startswith(" "):
-                continue
-            # The function parameters
-            pos = line.find(" = ")
-            if pos < 0:
-                continue
-            varList.append(line[0:pos])
-        temp.close()
+        try:
+            temp = open(filename, "r")
+            for line in temp:
+                if len(line) == 0 or line.startswith(" "):
+                    continue
+                # The function parameters
+                pos = line.find(" = ")
+                if pos < 0:
+                    continue
+                varList.append(line[0:pos])
+            temp.close()
+        except:
+            pass
         removeTempFile(filename, file)
         #warn("VARLIST: %s " % varList)
         for name in varList:
