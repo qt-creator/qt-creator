@@ -438,6 +438,17 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                          QLatin1String("main.cpp"), 10,
                          Constants::TASK_CATEGORY_COMPILE))
             << QString();
+    QTest::newRow("In constructor")
+            << QString::fromLatin1("/dev/creator/src/plugins/find/basetextfind.h: In constructor 'Find::BaseTextFind::BaseTextFind(QTextEdit*)':")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << ( QList<ProjectExplorer::Task>()
+                 << Task(Task::Unknown,
+                         QLatin1String("In constructor 'Find::BaseTextFind::BaseTextFind(QTextEdit*)':"),
+                         QLatin1String("/dev/creator/src/plugins/find/basetextfind.h"), -1,
+                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
     QTest::newRow("At global scope")
             << QString::fromLatin1("../../scriptbug/main.cpp: At global scope:\n"
                                    "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
