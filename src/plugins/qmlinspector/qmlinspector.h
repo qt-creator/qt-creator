@@ -47,6 +47,7 @@ class QLabel;
 
 class QDeclarativeEngineDebug;
 class QDeclarativeDebugConnection;
+class QDeclarativeDebugExpressionQuery;
 class QDeclarativeDebugEnginesQuery;
 class QDeclarativeDebugRootContextQuery;
 class QDeclarativeDebugObjectReference;
@@ -95,6 +96,11 @@ public:
     bool setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug);
     void startConnectionTimer();
 
+    static QmlInspector *instance();
+    bool canEditProperty(const QString &propertyType);
+    QDeclarativeDebugExpressionQuery *executeExpression(int objectDebugId, const QString &objectId,
+                                                        const QString &propertyName, const QVariant &value);
+
 signals:
     void statusMessage(const QString &text);
 
@@ -116,6 +122,7 @@ private slots:
     void pollInspector();
 
 private:
+    bool addQuotesForData(const QVariant &value) const;
     void resetViews();
 
     QDeclarativeDebugConnection *m_conn;
@@ -149,6 +156,9 @@ private:
     Internal::InspectorSettings m_settings;
     QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
 
+    QStringList m_editablePropertyTypes;
+
+    static QmlInspector *m_instance;
 };
 
 } // Qml

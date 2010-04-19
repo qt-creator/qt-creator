@@ -29,14 +29,17 @@
 #include "objectpropertiesview.h"
 #include "inspectorcontext.h"
 #include "watchtable.h"
+#include "qmlinspector.h"
 
-#include <QtCore/QDebug>
 
+#include <QtGui/QApplication>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 #include <QtGui/QContextMenuEvent>
+
+#include <QtCore/QDebug>
 
 namespace Qml {
 namespace Internal {
@@ -53,9 +56,14 @@ public:
 
     PropertiesViewItem(QTreeWidget *widget, Type type = OtherType);
     PropertiesViewItem(QTreeWidgetItem *parent, Type type = OtherType);
+    QVariant data (int column, int role) const;
+    void setData (int column, int role, const QVariant & value);
 
     QDeclarativeDebugPropertyReference property;
     Type type;
+private:
+    QString objectIdString() const;
+
 };
 
 PropertiesViewItem::PropertiesViewItem(QTreeWidget *widget, Type type)
@@ -66,6 +74,36 @@ PropertiesViewItem::PropertiesViewItem(QTreeWidget *widget, Type type)
 PropertiesViewItem::PropertiesViewItem(QTreeWidgetItem *parent, Type type)
     : QTreeWidgetItem(parent), type(type)
 {
+}
+
+QVariant PropertiesViewItem::data (int column, int role) const
+{
+    if (column == 1) {
+        if (role == Qt::ForegroundRole) {
+            bool canEdit = data(0, ObjectPropertiesView::CanEditRole).toBool();
+            return canEdit ? qApp->palette().color(QPalette::Foreground) : qApp->palette().color(QPalette::Disabled, QPalette::Foreground);
+        }
+    }
+
+    return QTreeWidgetItem::data(column, role);
+}
+
+void PropertiesViewItem::setData (int column, int role, const QVariant & value)
+{
+    if (role == Qt::EditRole) {
+        if (column == 1) {
+            qDebug() << "editing prop item w/role" << role << "and value" << value;
+            QmlInspector::instance()->executeExpression(property.objectDebugId(), objectIdString(), property.name(), value);
+        }
+        return;
+    }
+
+    QTreeWidgetItem::setData(column, role, value);
+}
+
+QString PropertiesViewItem::objectIdString() const
+{
+    return data(0, ObjectPropertiesView::ObjectIdStringRole).toString();
 }
 
 ObjectPropertiesView::ObjectPropertiesView(WatchTableModel *watchTableModel,
@@ -87,6 +125,8 @@ ObjectPropertiesView::ObjectPropertiesView(WatchTableModel *watchTableModel,
     m_tree->setAlternatingRowColors(true);
     m_tree->setExpandsOnDoubleClick(false);
     m_tree->setRootIsDecorated(false);
+    m_tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
     m_tree->setHeaderLabels(QStringList()
             << tr("Name") << tr("Value") << tr("Type"));
     QObject::connect(m_tree, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
@@ -222,9 +262,17 @@ void ObjectPropertiesView::setObject(const QDeclarativeDebugObjectReference &obj
 
             PropertiesViewItem *item = new PropertiesViewItem(m_tree);
             item->property = p;
-
+            item->setData(0, ObjectIdStringRole, object.idString());
             item->setText(0, p.name());
-            item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            Qt::ItemFlags itemFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+
+            bool canEdit = object.idString().length() && QmlInspector::instance()->canEditProperty(item->property.valueTypeName());
+            item->setData(0, CanEditRole, canEdit);
+
+            if (canEdit)
+                itemFlags |= Qt::ItemIsEditable;
+
+            item->setFlags(itemFlags);
             if (m_watchTableModel.data() && m_watchTableModel.data()->isWatchingProperty(p)) {
                 QFont font = m_tree->font();
                 font.setBold(true);
@@ -295,9 +343,12 @@ void ObjectPropertiesView::valueChanged(const QByteArray &name, const QVariant &
     }
 }
 
-void ObjectPropertiesView::itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
+void ObjectPropertiesView::itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    toggleWatch(item);
+    if (column == 0)
+        toggleWatch(item);
+    else if (column == 1)
+        m_tree->editItem(item, column);
 }
 
 void ObjectPropertiesView::addWatch()

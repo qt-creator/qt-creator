@@ -74,6 +74,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <private/qdeclarativedebug_p.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
 #include <QtCore/QTimer>
@@ -113,8 +115,6 @@ public:
     void clearEngines();
 
 protected:
-    //virtual QString textFromValue(int value) const;
-    //virtual int valueFromText(const QString &text) const;
 
 private:
     QList<EngineInfo> m_engines;
@@ -143,28 +143,12 @@ void EngineComboBox::addEngine(int engine, const QString &name)
 void EngineComboBox::clearEngines()
 {
     m_engines.clear();
+    clear();
 }
-
-//QString EngineComboBox::textFromValue(int value) const
-//{
-//    for (int i=0; i<m_engines.count(); ++i) {
-//        if (m_engines[i].id == value)
-//            return m_engines[i].name;
-//    }
-//    return QLatin1String("<None>");
-//}
-
-//int EngineComboBox::valueFromText(const QString &text) const
-//{
-//    for (int i=0; i<m_engines.count(); ++i) {
-//        if (m_engines[i].name == text)
-//            return m_engines[i].id;
-//    }
-//    return -1;
-//}
 
 } // Internal
 
+QmlInspector *QmlInspector::m_instance = 0;
 
 QmlInspector::QmlInspector(QObject *parent)
   : QObject(parent),
@@ -179,6 +163,7 @@ QmlInspector::QmlInspector(QObject *parent)
     m_connectionTimer(new QTimer(this)),
     m_connectionAttempts(0)
 {
+    m_instance = this;
     m_watchTableModel = new Internal::WatchTableModel(0, this);
 
     m_objectTreeWidget = new Internal::ObjectTree;
@@ -187,6 +172,10 @@ QmlInspector::QmlInspector(QObject *parent)
     m_expressionWidget = new Internal::ExpressionQueryWidget(Internal::ExpressionQueryWidget::SeparateEntryMode);
 //    m_frameRateWidget = new Internal::CanvasFrameRate;
 //    m_frameRateWidget->setObjectName(QLatin1String("QmlDebugFrameRate"));
+
+
+    m_editablePropertyTypes = QStringList() << "qreal" << "bool" << "QString"
+                                            << "int" << "QVariant" << "QUrl" << "QColor";
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 }
@@ -214,7 +203,6 @@ void QmlInspector::pollInspector()
 
 bool QmlInspector::setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug)
 {
-    //ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
     if (!projectToDebug) {
         emit statusMessage(tr("Invalid project, debugging canceled."));
         return false;
@@ -611,7 +599,7 @@ void QmlInspector::enginesChanged()
 
     m_engineComboBox->setEnabled(true);
 
-    for (int i=0; i<engines.count(); ++i)
+    for (int i = 0; i < engines.count(); ++i)
         m_engineComboBox->addEngine(engines.at(i).debugId(), engines.at(i).name());
 
     if (engines.count() > 0) {
@@ -665,6 +653,48 @@ void QmlInspector::treeObjectActivated(const QDeclarativeDebugObjectReference &o
         textEditor->gotoLine(source.lineNumber());
         textEditor->widget()->setFocus();
     }
+}
+
+bool QmlInspector::canEditProperty(const QString &propertyType)
+{
+    return m_editablePropertyTypes.contains(propertyType);
+}
+
+QDeclarativeDebugExpressionQuery *QmlInspector::executeExpression(int objectDebugId, const QString &objectId,
+                                                                  const QString &propertyName, const QVariant &value)
+{
+    //qDebug() << entity.property << entity.title << entity.objectId;
+    if (objectId.length()) {
+
+        QString quoteWrappedValue = value.toString();
+        if (addQuotesForData(value))
+            quoteWrappedValue = QString("'%1'").arg(quoteWrappedValue);
+
+        QString constructedExpression = objectId + "." + propertyName + "=" + quoteWrappedValue;
+        //qDebug() << "EXPRESSION:" << constructedExpression;
+        return m_client->queryExpressionResult(objectDebugId, constructedExpression, this);
+    }
+
+    return 0;
+}
+
+bool QmlInspector::addQuotesForData(const QVariant &value) const
+{
+    switch (value.type()) {
+    case QVariant::String:
+    case QVariant::Color:
+    case QVariant::Date:
+        return true;
+    default:
+        break;
+    }
+
+    return false;
+}
+
+QmlInspector *QmlInspector::instance()
+{
+    return m_instance;
 }
 
 } // Qml

@@ -56,6 +56,12 @@ public:
     void setEngineDebug(QDeclarativeEngineDebug *client);
     void clear();
 
+
+    enum DataRoles {
+        CanEditRole = Qt::UserRole + 1,
+        ObjectIdStringRole = Qt::UserRole + 50
+    };
+
 signals:
     void watchToggleRequested(const QDeclarativeDebugObjectReference &, const QDeclarativeDebugPropertyReference &);
     void contextHelpIdChanged(const QString &contextHelpId);

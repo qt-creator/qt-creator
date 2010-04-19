@@ -87,8 +87,6 @@ private slots:
     void watchedValueChanged(const QByteArray &propertyName, const QVariant &value);
 
 private:
-    bool canEditProperty(const QString &propertyType) const;
-    bool addQuotesForData(const QVariant &value) const;
     void addWatch(const QDeclarativeDebugObjectReference &object, const QString &propertyType,
                   QDeclarativeDebugWatch *watch, const QString &title);
 
@@ -113,7 +111,6 @@ private:
 
     };
 
-    QStringList m_editablePropertyTypes;
     QDeclarativeEngineDebug *m_client;
     QList<WatchedEntity> m_entities;
 };

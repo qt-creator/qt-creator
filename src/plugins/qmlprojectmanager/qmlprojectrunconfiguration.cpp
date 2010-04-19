@@ -75,10 +75,10 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
     m_fileListModel(new QStringListModel(this)),
     m_projectTarget(parent)
 {
-    setMainScript(source->m_scriptFile);
+    ctor();
     m_debugData.serverAddress = source->m_debugData.serverAddress;
     m_debugData.serverPort = source->m_debugData.serverPort;
-    ctor();
+    setMainScript(source->m_scriptFile);
 }
 
 bool QmlProjectRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *bc) const

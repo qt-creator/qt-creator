@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 #include "watchtable.h"
+#include "qmlinspector.h"
 
 #include <QtCore/QEvent>
 #include <QtGui/QAction>
@@ -51,7 +52,7 @@ WatchTableModel::WatchTableModel(QDeclarativeEngineDebug *client, QObject *paren
     : QAbstractTableModel(parent),
       m_client(client)
 {
-    m_editablePropertyTypes << "qreal" << "bool" << "QString" << "int" << "QVariant" << "QUrl";
+
 }
 
 WatchTableModel::~WatchTableModel()
@@ -167,7 +168,7 @@ QVariant WatchTableModel::data(const QModelIndex &idx, int role) const
             return QVariant(m_entities.at(idx.row()).value);
         } else if (role == CanEditRole || role == Qt::ForegroundRole) {
             const WatchedEntity &entity = m_entities.at(idx.row());
-            bool canEdit = entity.objectId.length() > 0 && canEditProperty(entity.objectPropertyType);
+            bool canEdit = entity.objectId.length() > 0 && QmlInspector::instance()->canEditProperty(entity.objectPropertyType);
 
             if (role == Qt::ForegroundRole)
                 return canEdit ? qApp->palette().color(QPalette::Foreground) : qApp->palette().color(QPalette::Disabled, QPalette::Foreground);
@@ -197,41 +198,11 @@ bool WatchTableModel::setData ( const QModelIndex & index, const QVariant & valu
         if (index.row() >= 0 && index.row() < m_entities.length()) {
             WatchedEntity &entity = m_entities[index.row()];
 
-            qDebug() << entity.property << entity.title << entity.objectId;
-            if (entity.objectId.length()) {
-
-                QString quoteWrappedValue = value.toString();
-                if (addQuotesForData(value))
-                    quoteWrappedValue = QString("'%1'").arg(quoteWrappedValue);
-
-                QString constructedExpression = entity.objectId + "." + entity.property + "=" + quoteWrappedValue;
-                qDebug() << "EXPRESSION:" << constructedExpression;
-                m_client->queryExpressionResult(entity.objectDebugId, constructedExpression, this);
-            }
+            QmlInspector::instance()->executeExpression(entity.objectDebugId, entity.objectId, entity.property, value);
         }
-
         return true;
     }
     return true;
-}
-
-bool WatchTableModel::canEditProperty(const QString &propertyType) const
-{
-    return m_editablePropertyTypes.contains(propertyType);
-}
-
-bool WatchTableModel::addQuotesForData(const QVariant &value) const
-{
-    switch (value.type()) {
-    case QVariant::String:
-    case QVariant::Color:
-    case QVariant::Date:
-        return true;
-    default:
-        break;
-    }
-
-    return false;
 }
 
 Qt::ItemFlags WatchTableModel::flags ( const QModelIndex & index ) const
@@ -367,6 +338,7 @@ WatchTableView::WatchTableView(WatchTableModel *model, QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setShowGrid(false);
     setVerticalHeader(0);
+
     setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
     setFrameStyle(QFrame::NoFrame);
 
