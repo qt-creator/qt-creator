@@ -62,7 +62,7 @@ public:
 
 signals:
     void processMessage(const QString &error, bool isError);
-    void receivedDebugOutput(const QString &output, bool stderr);
+    void receivedDebugOutput(const QString &output, bool isError);
     void processFinished(int exitCode);
 
 private:

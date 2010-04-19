@@ -181,7 +181,7 @@ void ConsoleProcess::readStubOutput()
         if (out.startsWith("err:chdir ")) {
             emit processMessage(msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())), true);
         } else if (out.startsWith("err:exec ")) {
-            emit processMessage(msgCannotExecute(m_executable, winErrorMessage(out.mid(9).toInt())), processMessage);
+            emit processMessage(msgCannotExecute(m_executable, winErrorMessage(out.mid(9).toInt())), true);
         } else if (out.startsWith("pid ")) {
             // Wil not need it any more
             delete m_tempFile;
