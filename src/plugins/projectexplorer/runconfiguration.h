@@ -47,6 +47,7 @@ class Target;
 
 class RunControl;
 class BuildConfiguration;
+class OutputFormatter;
 
 /**
  * Base class for a run configuration. A run configuration specifies how a
@@ -167,6 +168,8 @@ public:
     virtual QString displayName() const;
 
     bool sameRunConfiguration(RunControl *other);
+
+    virtual OutputFormatter *createOutputFormatter(QObject *parent = 0);
 
 signals:
     void addToOutputWindow(RunControl *, const QString &line);

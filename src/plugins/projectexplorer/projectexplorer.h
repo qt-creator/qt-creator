@@ -182,10 +182,6 @@ private slots:
     void startupProjectChanged(); // Calls updateRunAction
     void updateRunActions();
 
-    void addToApplicationOutputWindow(RunControl *, const QString &line);
-    void addToApplicationOutputWindowInline(RunControl *, const QString &line);
-    void addErrorToApplicationOutputWindow(RunControl *, const QString &error);
-
     void loadProject(const QString &project) { openProject(project); }
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
     void updateActions();

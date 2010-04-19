@@ -1274,11 +1274,12 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
         d->m_outputPane->clearContents();
 
     connect(runControl, SIGNAL(addToOutputWindow(RunControl *, const QString &)),
-            this, SLOT(addToApplicationOutputWindow(RunControl *, const QString &)));
+            d->m_outputPane, SLOT(appendOutput(RunControl*,const QString &)));
     connect(runControl, SIGNAL(addToOutputWindowInline(RunControl *, const QString &)),
-            this, SLOT(addToApplicationOutputWindowInline(RunControl *, const QString &)));
+            d->m_outputPane, SLOT(appendOutputInline(RunControl*,const QString &)));
     connect(runControl, SIGNAL(error(RunControl *, const QString &)),
-            this, SLOT(addErrorToApplicationOutputWindow(RunControl *, const QString &)));
+            d->m_outputPane, SLOT(appendError(RunControl *, const QString &)));
+
     connect(runControl, SIGNAL(finished()),
             this, SLOT(runControlFinished()));
 
@@ -1709,21 +1710,6 @@ bool ProjectExplorerPlugin::showBuildConfigDialog()
     default:
         return false;
     }
-}
-
-void ProjectExplorerPlugin::addToApplicationOutputWindow(RunControl *rc, const QString &line)
-{
-    d->m_outputPane->appendOutput(rc, line);
-}
-
-void ProjectExplorerPlugin::addToApplicationOutputWindowInline(RunControl *rc, const QString &line)
-{
-    d->m_outputPane->appendOutputInline(rc, line);
-}
-
-void ProjectExplorerPlugin::addErrorToApplicationOutputWindow(RunControl *rc, const QString &error)
-{
-    d->m_outputPane->appendOutput(rc, error);
 }
 
 void ProjectExplorerPlugin::runControlFinished()

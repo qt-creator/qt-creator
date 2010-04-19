@@ -42,7 +42,6 @@
 #include <coreplugin/icontext.h>
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
-#include <texteditor/basetexteditor.h>
 
 #include <QtGui/QIcon>
 #include <QtGui/QScrollBar>
@@ -176,11 +175,6 @@ void OutputPane::setFocus()
         m_tabWidget->currentWidget()->setFocus();
 }
 
-void OutputPane::appendOutput(const QString &/*out*/)
-{
-    // This function is in the interface, since we can't do anything sensible here, we don't do anything here.
-}
-
 void OutputPane::createNewOutputWindow(RunControl *rc)
 {
     connect(rc, SIGNAL(started()),
@@ -199,6 +193,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
             OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(i));
             ow->grayOutOldContent();
             ow->verticalScrollBar()->setValue(ow->verticalScrollBar()->maximum());
+            ow->setFormatter(rc->createOutputFormatter(ow));
             m_outputWindows.insert(rc, ow);
             found = true;
             break;
@@ -206,6 +201,7 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
     }
     if (!found) {
         OutputWindow *ow = new OutputWindow(m_tabWidget);
+        ow->setFormatter(rc->createOutputFormatter(ow));
         Aggregation::Aggregate *agg = new Aggregation::Aggregate;
         agg->add(ow);
         agg->add(new Find::BaseTextFind(ow));
@@ -224,6 +220,12 @@ void OutputPane::appendOutputInline(RunControl *rc, const QString &out)
 {
     OutputWindow *ow = m_outputWindows.value(rc);
     ow->appendOutputInline(out);
+}
+
+void OutputPane::appendError(RunControl *rc, const QString &out)
+{
+    OutputWindow *ow = m_outputWindows.value(rc);
+    ow->appendError(out);
 }
 
 void OutputPane::showTabFor(RunControl *rc)
@@ -346,11 +348,8 @@ bool OutputPane::canNavigate()
 
 OutputWindow::OutputWindow(QWidget *parent)
     : QPlainTextEdit(parent)
-    , m_qmlError(QLatin1String("(file:///[^:]+:\\d+:\\d+):"))
     , m_enforceNewline(false)
     , m_scrollToBottom(false)
-    , m_linksActive(true)
-    , m_mousePressed(false)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
@@ -405,6 +404,17 @@ OutputWindow::~OutputWindow()
     delete m_outputWindowContext;
 }
 
+OutputFormatter *OutputWindow::formatter() const
+{
+    return m_formatter;
+}
+
+void OutputWindow::setFormatter(OutputFormatter *formatter)
+{
+    m_formatter = formatter;
+    m_formatter->setPlainTextEdit(this);
+}
+
 void OutputWindow::showEvent(QShowEvent *e)
 {
     QPlainTextEdit::showEvent(e);
@@ -414,20 +424,28 @@ void OutputWindow::showEvent(QShowEvent *e)
     m_scrollToBottom = false;
 }
 
-void OutputWindow::appendOutput(const QString &out)
+QString OutputWindow::doNewlineMagic(const QString &out)
 {
     m_scrollToBottom = true;
     QString s = out;
-    m_enforceNewline = true; // make appendOutputInline put in a newline next time
-    if (s.endsWith(QLatin1Char('\n'))) {
-        s.chop(1);
-    }
-    setMaximumBlockCount(MaxBlockCount);
+    if (m_enforceNewline)
+        s.prepend(QLatin1Char('\n'));
 
-    QTextCharFormat format;
-    format.setForeground(palette().text().color());
-    setCurrentCharFormat(format);
-    appendPlainText(out);
+    m_enforceNewline = true; // make appendOutputInline put in a newline next time
+
+    if (s.endsWith(QLatin1Char('\n')))
+        s.chop(1);
+
+    return s;
+}
+
+void OutputWindow::appendOutput(const QString &out)
+{
+    setMaximumBlockCount(MaxBlockCount);
+    const bool atBottom = isScrollbarAtBottom();
+    m_formatter->appendOutput(doNewlineMagic(out));
+    if (atBottom)
+        scrollToBottom();
     enableUndoRedo();
 }
 
@@ -439,15 +457,12 @@ void OutputWindow::appendOutputInline(const QString &out)
     int newline = -1;
     bool enforceNewline = m_enforceNewline;
     m_enforceNewline = false;
+    const bool atBottom = isScrollbarAtBottom();
 
     if (!enforceNewline) {
         newline = out.indexOf(QLatin1Char('\n'));
         moveCursor(QTextCursor::End);
-        bool atBottom = (blockBoundingRect(document()->lastBlock()).bottom() + contentOffset().y()
-                         <= viewport()->rect().bottom());
-        insertPlainText(newline < 0 ? out : out.left(newline)); // doesn't enforce new paragraph like appendPlainText
-        if (atBottom)
-            verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+        m_formatter->appendOutput(newline < 0 ? out : out.left(newline)); // doesn't enforce new paragraph like appendPlainText
     }
 
     QString s = out.mid(newline+1);
@@ -458,26 +473,30 @@ void OutputWindow::appendOutputInline(const QString &out)
             m_enforceNewline = true;
             s.chop(1);
         }
-        QTextCharFormat format;
-        format.setForeground(palette().text().color());
-        setCurrentCharFormat(format);
-
-        // (This feature depends on the availability of QPlainTextEdit::anchorAt)
-        // Convert to HTML, preserving newlines and whitespace
-        s = Qt::convertFromPlainText(s);
-
-        // Create links from QML errors (anything of the form "file:///...:[line]:[column]:")
-        int index = 0;
-        while ((index = m_qmlError.indexIn(s, index)) != -1) {
-            const QString captured = m_qmlError.cap(1);
-            const QString link = QString(QLatin1String("<a href=\"%1\">%2</a>")).arg(captured, captured);
-            s.replace(index, captured.length(), link);
-            index += link.length();
-        }
-        appendHtml(s);
+        m_formatter->appendOutput(QLatin1Char('\n') + s);
     }
 
+    if (atBottom)
+        scrollToBottom();
     enableUndoRedo();
+}
+
+void OutputWindow::appendError(const QString &out)
+{
+    setMaximumBlockCount(MaxBlockCount);
+    m_formatter->appendError(doNewlineMagic(out));
+    enableUndoRedo();
+}
+
+bool OutputWindow::isScrollbarAtBottom() const
+{
+    return blockBoundingRect(document()->lastBlock()).bottom() + contentOffset().y()
+            <= viewport()->rect().bottom();
+}
+
+void OutputWindow::scrollToBottom()
+{
+    verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 }
 
 void OutputWindow::grayOutOldContent()
@@ -512,43 +531,17 @@ void OutputWindow::enableUndoRedo()
 void OutputWindow::mousePressEvent(QMouseEvent *e)
 {
     QPlainTextEdit::mousePressEvent(e);
-    m_mousePressed = true;
+    m_formatter->mousePressEvent(e);
 }
 
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     QPlainTextEdit::mouseReleaseEvent(e);
-    m_mousePressed = false;
-
-    if (!m_linksActive) {
-        // Mouse was released, activate links again
-        m_linksActive = true;
-        return;
-    }
-
-    const QString href = anchorAt(e->pos());
-    if (!href.isEmpty()) {
-        QRegExp qmlErrorLink(QLatin1String("^file://(/[^:]+):(\\d+):(\\d+)"));
-
-        if (qmlErrorLink.indexIn(href) != -1) {
-            const QString fileName = qmlErrorLink.cap(1);
-            const int line = qmlErrorLink.cap(2).toInt();
-            const int column = qmlErrorLink.cap(3).toInt();
-            TextEditor::BaseTextEditor::openEditorAt(fileName, line, column - 1);
-        }
-    }
+    m_formatter->mouseReleaseEvent(e);
 }
 
 void OutputWindow::mouseMoveEvent(QMouseEvent *e)
 {
     QPlainTextEdit::mouseMoveEvent(e);
-
-    // Cursor was dragged to make a selection, deactivate links
-    if (m_mousePressed && textCursor().hasSelection())
-        m_linksActive = false;
-
-    if (!m_linksActive || anchorAt(e->pos()).isEmpty())
-        viewport()->setCursor(Qt::IBeamCursor);
-    else
-        viewport()->setCursor(Qt::PointingHandCursor);
+    m_formatter->mouseMoveEvent(e);
 }

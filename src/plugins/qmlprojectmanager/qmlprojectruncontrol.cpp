@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include "qmloutputformatter.h"
 #include "qmlprojectruncontrol.h"
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojectconstants.h"
@@ -100,6 +101,11 @@ void QmlRunControl::stop()
 bool QmlRunControl::isRunning() const
 {
     return m_applicationLauncher.isRunning();
+}
+
+ProjectExplorer::OutputFormatter *QmlRunControl::createOutputFormatter(QObject *parent)
+{
+    return new QmlOutputFormatter(parent);
 }
 
 void QmlRunControl::slotBringApplicationToForeground(qint64 pid)

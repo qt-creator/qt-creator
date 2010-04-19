@@ -79,7 +79,8 @@ HEADERS += projectexplorer.h \
     buildenvironmentwidget.h \
     buildconfigdialog.h \
     ldparser.h \
-    linuxiccparser.h
+    linuxiccparser.h \
+    outputformatter.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -145,7 +146,8 @@ SOURCES += projectexplorer.cpp \
     buildenvironmentwidget.cpp \
     buildconfigdialog.cpp \
     ldparser.cpp \
-    linuxiccparser.cpp
+    linuxiccparser.cpp \
+    outputformatter.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \

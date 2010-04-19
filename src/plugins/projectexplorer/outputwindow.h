@@ -31,6 +31,7 @@
 #define OUTPUTWINDOW_H
 
 #include <coreplugin/ioutputpane.h>
+#include <projectexplorer/outputformatter.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QHash>
@@ -83,17 +84,17 @@ public:
     void goToPrev();
     bool canNavigate();
 
-    void appendOutput(const QString &out);
-
-    // ApplicationOutputspecifics
-    void createNewOutputWindow(RunControl *rc);
-    void appendOutput(RunControl *rc, const QString &out);
-    void appendOutputInline(RunControl *rc, const QString &out);
     void showTabFor(RunControl *rc);
 
 public slots:
+    // ApplicationOutputspecifics
+    void createNewOutputWindow(RunControl *rc);
     void projectRemoved();
     void coreAboutToClose();
+
+    void appendOutput(RunControl *rc, const QString &out);
+    void appendOutputInline(RunControl *rc, const QString &out);
+    void appendError(RunControl *rc, const QString &out);
 
 private slots:
     void reRunRunControl();
@@ -123,8 +124,13 @@ public:
     OutputWindow(QWidget *parent = 0);
     ~OutputWindow();
 
+    OutputFormatter* formatter() const;
+    void setFormatter(OutputFormatter *formatter);
+
     void appendOutput(const QString &out);
     void appendOutputInline(const QString &out);
+    void appendError(const QString &out);
+
     void grayOutOldContent();
 
     void showEvent(QShowEvent *);
@@ -134,15 +140,19 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
 
+    bool isScrollbarAtBottom() const;
+    void scrollToBottom();
+
+private:
+    void enableUndoRedo();
+    QString doNewlineMagic(const QString &out);
+
 private:
     Core::BaseContext *m_outputWindowContext;
-    void enableUndoRedo();
+    OutputFormatter *m_formatter;
 
-    QRegExp m_qmlError;
     bool m_enforceNewline;
     bool m_scrollToBottom;
-    bool m_linksActive;
-    bool m_mousePressed;
 };
 
 } // namespace Internal

@@ -29,6 +29,7 @@
 
 #include "runconfiguration.h"
 
+#include "outputformatter.h"
 #include "project.h"
 #include "target.h"
 #include "buildconfiguration.h"
@@ -234,6 +235,11 @@ QString RunControl::displayName() const
 bool RunControl::sameRunConfiguration(RunControl *other)
 {
     return other->m_runConfiguration.data() == m_runConfiguration.data();
+}
+
+OutputFormatter *RunControl::createOutputFormatter(QObject *parent)
+{
+    return new OutputFormatter(parent);
 }
 
 void RunControl::bringApplicationToForeground(qint64 pid)
