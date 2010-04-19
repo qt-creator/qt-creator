@@ -395,8 +395,8 @@ void TargetSetupPage::addShadowBuildLocation()
     QList<ImportInfo> tmp;
     tmp.append(recursivelyCheckDirectoryForBuild(dir.absoluteFilePath(), m_proFilePath));
     if (tmp.isEmpty()) {
-        QMessageBox::warning(this, tr("No builds found!"),
-                             tr("No builds for project file \"%1\" were found in directory \"%2\".",
+        QMessageBox::warning(this, tr("No builds found"),
+                             tr("No builds for project file \"%1\" were found in the folder \"%2\".",
                                 "%1: pro-file, %2: directory that was checked.").
                              arg(m_proFilePath, dir.absoluteFilePath()));
         return;

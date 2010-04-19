@@ -63,7 +63,7 @@ using namespace ProjectExplorer::Internal;
 
 static inline QString msgProgress(int n, int total)
 {
-    return BuildManager::tr("Finished %n of %1 build steps", 0, n).arg(total);
+    return BuildManager::tr("Finished %1 of %n build steps", 0, n).arg(total);
 }
 
 BuildManager::BuildManager(ProjectExplorerPlugin *parent)
