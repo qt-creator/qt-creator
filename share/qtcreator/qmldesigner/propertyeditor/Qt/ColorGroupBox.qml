@@ -6,13 +6,41 @@ QExtGroupBox {
 
     property variant finished;
     property variant backendColor
-    property variant color: (backendColor === undefined || backendColor.value  === undefined) ? "#000000" : backendColor.value
+    property bool gradientEditing: gradientButtonChecked
+    property variant singleColor: (backendColor === undefined || backendColor.value  === undefined) ? "#000000" : backendColor.value
+    property variant gradientColor: "#000000"
+    property variant color: "#000000"
     property variant oldMaximumHeight;
 
     property variant startupCollapse: selectionChanged === undefined ? false : selectionChanged;
     property variant firstTime: true;
-	property variant caption: ""
-	smooth: false
+    property variant caption: ""
+    property bool showButtons: false
+    property bool showGradientButton: false
+
+    property bool gradientButtonChecked: buttons.gradient
+    property bool noneButtonChecked: buttons.none
+    property bool solidButtonChecked: buttons.solid
+
+    property alias setGradientButtonChecked: buttons.setGradient
+    property alias setNoneButtonChecked: buttons.setNone
+    property alias setSolidButtonChecked: buttons.setSolid
+
+    property alias collapseBox: colorButton.checked
+
+    property alias alpha: colorControl.alpha
+
+    smooth: false
+
+    onGradientColorChanged: {
+        if (gradientEditing == true)
+            color = gradientColor;
+        colorChanged();
+    }
+    onSingleColorChanged: {
+        if (!gradientEditing == true && color != singleColor)
+            color = singleColor;
+    }
 
     onFinishedChanged: {
         oldMaximumHeight = maximumHeight;
@@ -92,45 +120,94 @@ QExtGroupBox {
 
     QWidget {
         id: colorButtonWidget
-        height: 32
+        height: 28
         width: colorGroupBox.width
         layout: HorizontalLayout {
-            topMargin: 4
-            rightMargin: 10;
+            topMargin: 0
+            rightMargin: 2;
 
             Label {
                 text: colorGroupBox.caption
                 toolTip: colorGroupBox.caption
             }
 
-            LineEdit {
-                backendValue: colorGroupBox.backendColor
-                baseStateFlag: isBaseState
-            }
-
-            ColorButton {
-                id: colorButton
-                color: colorGroupBox.color;
-                checkable: true;
-                checked: false;
-                minimumHeight: 18;
-                minimumWidth: 18;
-
-                onClicked: {
-				    if (colorGroupBox.animated)
-					    return;
-                    if (checked) {
-                        colorGroupBox.collapsed = false;
-                        colorButtonWidget.visible = true;
-                        } else {
-                        colorGroupBox.collapsed = true;
-                        colorButtonWidget.visible = true;
-                        }
-                }
-
-            }
             QWidget {
+                layout: HorizontalLayout {
+                    spacing: 6
 
+                    LineEdit {
+                        visible: gradientEditing == false
+                        backendValue: colorGroupBox.backendColor
+                        baseStateFlag: isBaseState
+                    }
+
+                    QWidget {
+                        visible: gradientEditing == true
+                        minimumHeight: 24;
+                        id: lineEditWidget;
+                        QLineEdit {
+                            y: 2
+                            text: color
+                            width: lineEditWidget.width
+                            height: lineEditWidget.height
+
+                            onEditingFinished: {
+                                color = text
+                            }
+                        }
+                    }
+
+                    ColorButton {
+                        id: colorButton
+                        color: colorGroupBox.color;
+                        noColor: noneButtonChecked;
+                        checkable: true;
+                        checked: false;
+                        fixedHeight: 22;
+                        fixedWidth: 22;
+                        width: fixedWidth
+                        height: fixedHeight
+
+                        onClicked: {
+                            if (colorGroupBox.animated)
+                                return;
+                            if (checked) {
+                                colorGroupBox.collapsed = false;
+                                colorButtonWidget.visible = true;
+                            } else {
+                                colorGroupBox.collapsed = true;
+                                colorButtonWidget.visible = true;
+                            }
+                        }
+
+                        onToggled: {
+                            if (colorGroupBox.animated)
+                                return;
+                            if (checked) {
+                                colorGroupBox.collapsed = false;
+                                colorButtonWidget.visible = true;
+                            } else {
+                                colorGroupBox.collapsed = true;
+                                colorButtonWidget.visible = true;
+                            }
+                        }
+
+                    }
+
+                    ColorTypeButtons {
+                        id: buttons;
+                        visible: showButtons && baseStateFlag
+                        showGradientButton: colorGroupBox.showGradientButton
+                    }
+
+                    QWidget {
+                        visible: !(showButtons && baseStateFlag)
+                        fixedHeight: 28
+                        fixedWidth: 93
+                        width: fixedWidth
+                        height: fixedHeight
+                    }
+                }
             }
 
         }
@@ -142,15 +219,23 @@ QExtGroupBox {
 
         QWidget {
             layout: HorizontalLayout {
-			    leftMargin: 12
-			    spacing: 0
+                leftMargin: 12
+                spacing: 0
 
                 ColorBox {
                     id: colorControl;
                     property variant backendColor: colorGroupBox.color;
                     color: colorGroupBox.color;
-                    onColorChanged: if (colorGroupBox.color != color) {
-                        colorGroupBox.backendColor.value = color;
+                    onColorChanged: {
+                        if (colorGroupBox.color != color) {
+                            if (colorGroupBox.gradientEditing == true) {
+                                colorGroupBox.color = color;
+                            } else {
+                                if (colorControl.alpha != 0)
+                                    setSolidButtonChecked = true;
+                                colorGroupBox.backendColor.value = color;
+                            }
+                        }
                     }
                 }
 
@@ -166,7 +251,7 @@ QExtGroupBox {
                         topMargin: 4
                         bottomMargin: 4
                         rightMargin: 0
-						leftMargin: 0
+                        leftMargin: 0
                         spacing: 2
                         QWidget {
                             layout: HorizontalLayout {
@@ -180,11 +265,10 @@ QExtGroupBox {
                                     maximum: 359
                                     value: colorControl.hue;
                                     onValueChanged: if (colorControl.hue != value)
-                                        colorControl.hue=value;
+                                    colorControl.hue=value;
                                 }
 
                             }
-
                         }
                         QWidget {
                             layout: HorizontalLayout {
@@ -202,7 +286,7 @@ QExtGroupBox {
                             }
 
                         }
-                        
+
                         QWidget {
                             layout: HorizontalLayout {
                                 Label {
@@ -218,7 +302,7 @@ QExtGroupBox {
                                 }
                             }
                         }
-                        
+
                         QWidget {
                             layout: HorizontalLayout {
                                 topMargin: 12

@@ -11,6 +11,7 @@ QWidget {
         spacing: 0
 
         RectangleColorGroupBox {
+            id: colorsBox
             finished: finishedNotify;
         }
 
@@ -20,19 +21,10 @@ QWidget {
             caption: qsTr("Rectangle")
 
             layout: VerticalLayout {
-			    rightMargin: 24
+                rightMargin: 24
 
                 IntEditor {
-                    backendValue: backendValues.radius
-                    caption: qsTr("Radius")
-                    baseStateFlag: isBaseState;
-                    step: 1;
-                    minimumValue: 0;
-                    maximumValue: Math.max(1,(Math.min(backendValues.width.value,backendValues.height.value)-backendValues.border_width.value)/2)
-                }
-
-
-                IntEditor {
+                    visible: colorsBox.hasBorder
                     id: borderWidth;
                     backendValue: backendValues.border_width === undefined ? 0 : backendValues.border_width
 
@@ -43,6 +35,17 @@ QWidget {
                     minimumValue: 0;
                     maximumValue: 100;
                 }
+
+                IntEditor {
+                    property int border: backendValues.border_width.value === undefined ? 0 : backendValues.border_width.value
+                    backendValue: backendValues.radius
+                    caption: qsTr("Radius")
+                    baseStateFlag: isBaseState;
+                    step: 1;
+                    minimumValue: 0;
+                    maximumValue: Math.max(1, (Math.min(backendValues.width.value,backendValues.height.value) - border) / 2)
+                }
+
             }
         }
 
