@@ -44,6 +44,10 @@
 
 using namespace Help::Internal;
 
+QString HelpViewer::DocPath = QString::fromLatin1("qthelp://com."
+    "trolltech.qt.%1/").arg(QString(QLatin1String(QT_VERSION_STR))
+    .replace(QLatin1String("."), QLatin1String("")));
+
 QString HelpViewer::AboutBlankPage =
     QCoreApplication::translate("HelpViewer", "<title>about:blank</title>");
 
@@ -51,6 +55,43 @@ QString HelpViewer::PageNotFoundMessage =
     QCoreApplication::translate("HelpViewer", "<title>Error 404...</title><div "
     "align=\"center\"><br><br><h1>The page could not be found</h1><br><h3>'%1'"
     "</h3></div>");
+
+struct ExtensionMap {
+    const char *extension;
+    const char *mimeType;
+} extensionMap[] = {
+    { ".bmp", "image/bmp" },
+    { ".css", "text/css" },
+    { ".gif", "image/gif" },
+    { ".html", "text/html" },
+    { ".htm", "text/html" },
+    { ".ico", "image/x-icon" },
+    { ".jpeg", "image/jpeg" },
+    { ".jpg", "image/jpeg" },
+    { ".js", "application/x-javascript" },
+    { ".mng", "video/x-mng" },
+    { ".pbm", "image/x-portable-bitmap" },
+    { ".pgm", "image/x-portable-graymap" },
+    { ".pdf", "application/pdf" },
+    { ".png", "image/png" },
+    { ".ppm", "image/x-portable-pixmap" },
+    { ".rss", "application/rss+xml" },
+    { ".svg", "image/svg+xml" },
+    { ".svgz", "image/svg+xml" },
+    { ".text", "text/plain" },
+    { ".tif", "image/tiff" },
+    { ".tiff", "image/tiff" },
+    { ".txt", "text/plain" },
+    { ".xbm", "image/x-xbitmap" },
+    { ".xml", "text/xml" },
+    { ".xpm", "image/x-xpm" },
+    { ".xsl", "text/xsl" },
+    { ".xhtml", "application/xhtml+xml" },
+    { ".wml", "text/vnd.wap.wml" },
+    { ".wmlc", "application/vnd.wap.wmlc" },
+    { "about:blank", 0 },
+    { 0, 0 }
+};
 
 bool HelpViewer::isLocalUrl(const QUrl &url)
 {
@@ -65,9 +106,21 @@ bool HelpViewer::isLocalUrl(const QUrl &url)
 
 bool HelpViewer::canOpenPage(const QString &url)
 {
-    return url.endsWith(QLatin1String(".html"), Qt::CaseInsensitive)
-        || url.endsWith(QLatin1String(".htm"), Qt::CaseInsensitive)
-        || url == Help::Constants::AboutBlank;
+    return !mimeFromUrl(url).isEmpty();
+}
+
+QString HelpViewer::mimeFromUrl(const QString &url)
+{
+    const int index = url.lastIndexOf(QLatin1Char('.'));
+    const QByteArray &ext = url.mid(index).toUtf8().toLower();
+
+    const ExtensionMap *e = extensionMap;
+    while (e->extension) {
+        if (ext == e->extension)
+            return QLatin1String(e->mimeType);
+        ++e;
+    }
+    return QLatin1String("");
 }
 
 bool HelpViewer::launchWithExternalApp(const QUrl &url)
