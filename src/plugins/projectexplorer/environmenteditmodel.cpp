@@ -218,7 +218,7 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
             }
 
             if (changes(old.name))
-                removeVariable(old.name);
+                resetVariable(old.name);
             old.name = newName;
             addVariable(old);
             emit renamedVariable(newName);
@@ -280,7 +280,7 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
     }
 }
 
-void EnvironmentModel::removeVariable(const QString &name)
+void EnvironmentModel::resetVariable(const QString &name)
 {
     int rowInResult = findInResult(name);
     int rowInChanges = findInChanges(name);
@@ -299,7 +299,7 @@ void EnvironmentModel::removeVariable(const QString &name)
     }
 }
 
-void EnvironmentModel::unset(const QString &name)
+void EnvironmentModel::unsetVariable(const QString &name)
 {
     int row = findInResult(name);
     // look in m_items for the variable
@@ -319,7 +319,7 @@ void EnvironmentModel::unset(const QString &name)
     emit userChangesChanged();
 }
 
-bool EnvironmentModel::isUnset(const QString &name)
+bool EnvironmentModel::canUnset(const QString &name)
 {
     int pos = findInChanges(name);
     if (pos != -1)
@@ -328,7 +328,7 @@ bool EnvironmentModel::isUnset(const QString &name)
         return false;
 }
 
-bool EnvironmentModel::isInBaseEnvironment(const QString &name)
+bool EnvironmentModel::canReset(const QString &name)
 {
     return m_baseEnvironment.hasKey(name);
 }
@@ -395,10 +395,10 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     m_addButton->setText(tr("&Add"));
     buttonLayout->addWidget(m_addButton);
 
-    m_removeButton = new QPushButton(this);
-    m_removeButton->setEnabled(false);
-    m_removeButton->setText(tr("&Reset"));
-    buttonLayout->addWidget(m_removeButton);
+    m_resetButton = new QPushButton(this);
+    m_resetButton->setEnabled(false);
+    m_resetButton->setText(tr("&Reset"));
+    buttonLayout->addWidget(m_resetButton);
 
     m_unsetButton = new QPushButton(this);
     m_unsetButton->setEnabled(false);
@@ -419,7 +419,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
             this, SLOT(editEnvironmentButtonClicked()));
     connect(m_addButton, SIGNAL(clicked(bool)),
             this, SLOT(addEnvironmentButtonClicked()));
-    connect(m_removeButton, SIGNAL(clicked(bool)),
+    connect(m_resetButton, SIGNAL(clicked(bool)),
             this, SLOT(removeEnvironmentButtonClicked()));
     connect(m_unsetButton, SIGNAL(clicked(bool)),
             this, SLOT(unsetEnvironmentButtonClicked()));
@@ -507,7 +507,7 @@ void EnvironmentWidget::addEnvironmentButtonClicked()
 void EnvironmentWidget::removeEnvironmentButtonClicked()
 {
     const QString &name = m_model->indexToVariable(m_environmentTreeView->currentIndex());
-    m_model->removeVariable(name);
+    m_model->resetVariable(name);
     updateButtons();
 }
 
@@ -516,10 +516,10 @@ void EnvironmentWidget::removeEnvironmentButtonClicked()
 void EnvironmentWidget::unsetEnvironmentButtonClicked()
 {
     const QString &name = m_model->indexToVariable(m_environmentTreeView->currentIndex());
-    if (!m_model->isInBaseEnvironment(name))
-        m_model->removeVariable(name);
+    if (!m_model->canReset(name))
+        m_model->resetVariable(name);
     else
-        m_model->unset(name);
+        m_model->unsetVariable(name);
     updateButtons();
 }
 
@@ -529,13 +529,13 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
     if (current.isValid()) {
         m_editButton->setEnabled(true);
         const QString &name = m_model->indexToVariable(current);
-        bool modified = m_model->isInBaseEnvironment(name) && m_model->changes(name);
-        bool unset = m_model->isUnset(name);
-        m_removeButton->setEnabled(modified || unset);
+        bool modified = m_model->canReset(name) && m_model->changes(name);
+        bool unset = m_model->canUnset(name);
+        m_resetButton->setEnabled(modified || unset);
         m_unsetButton->setEnabled(!unset);
     } else {
         m_editButton->setEnabled(false);
-        m_removeButton->setEnabled(false);
+        m_resetButton->setEnabled(false);
         m_unsetButton->setEnabled(false);
     }
 }

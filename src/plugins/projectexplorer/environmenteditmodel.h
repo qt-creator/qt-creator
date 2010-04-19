@@ -63,10 +63,10 @@ public:
 
     QModelIndex addVariable();
     QModelIndex addVariable(const EnvironmentItem &item);
-    void removeVariable(const QString &name);
-    void unset(const QString &name);
-    bool isUnset(const QString &name);
-    bool isInBaseEnvironment(const QString &name);
+    void resetVariable(const QString &name);
+    void unsetVariable(const QString &name);
+    bool canUnset(const QString &name);
+    bool canReset(const QString &name);
     QString indexToVariable(const QModelIndex &index) const;
     QModelIndex variableToIndex(const QString &name) const;
     bool changes(const QString &key) const;
@@ -132,7 +132,7 @@ private:
     QTreeView *m_environmentTreeView;
     QPushButton *m_editButton;
     QPushButton *m_addButton;
-    QPushButton *m_removeButton;
+    QPushButton *m_resetButton;
     QPushButton *m_unsetButton;
 };
 
