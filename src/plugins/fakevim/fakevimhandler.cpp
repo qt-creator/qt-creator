@@ -473,7 +473,7 @@ public:
     void moveDown(int n = 1); // { m_tc.movePosition(Down, MoveAnchor, n); }
     void moveRight(int n = 1) { m_tc.movePosition(Right, MoveAnchor, n); }
     void moveLeft(int n = 1) { m_tc.movePosition(Left, MoveAnchor, n); }
-    void setAnchor() { if (!isVisualMode()) m_anchor = m_tc.position(); }
+    void setAnchor();
     void setAnchor(int position) { if (!isVisualMode()) m_anchor = position; }
     void setPosition(int position) { m_tc.setPosition(position, MoveAnchor); }
 
@@ -564,7 +564,7 @@ public:
     typedef void (FakeVimHandler::Private::*Transformation)(int, QTextCursor *);
     void transformText(const Range &range, Transformation transformation);
 
-    void removeSelectedText(bool exclusive = false);
+    void removeSelectedText();
     void removeText(const Range &range);
     void removeTransform(int, QTextCursor *);
 
@@ -969,6 +969,16 @@ void FakeVimHandler::Private::setUndoPosition(int pos)
     m_undoCursorPosition[m_tc.document()->availableUndoSteps()] = pos;
 }
 
+void FakeVimHandler::Private::setAnchor()
+{
+    // FIXME: This indicates that the concept of 'Anchor' is broken.
+    if (!isVisualMode()) {
+        m_anchor = m_tc.position();
+    } else {
+        m_marks['<'] = m_tc.position();
+    }
+}
+
 void FakeVimHandler::Private::moveDown(int n)
 {
 #if 0
@@ -1078,12 +1088,13 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     }
 
     if (m_submode == ChangeSubMode) {
-        removeSelectedText(true);
+        if (m_rangemode == RangeLineMode)
+            m_rangemode = RangeLineModeExclusive;
+        removeSelectedText();
         if (!dotCommand.isEmpty())
             setDotCommand(QLatin1Char('c') + dotCommand);
-        if (m_movetype == MoveLineWise) {
+        if (m_movetype == MoveLineWise)
             insertAutomaticIndentation(true);
-        }
         endEditBlock();
         enterInsertMode();
         m_beginEditBlock = false;
@@ -1189,8 +1200,8 @@ void FakeVimHandler::Private::updateSelection()
         sel.format.setForeground(Qt::white);
         sel.format.setBackground(Qt::black);
 #endif
-        int cursorPos = m_tc.position();
-        int anchorPos = m_marks['<'];
+        const int cursorPos = m_tc.position();
+        const int anchorPos = m_marks['<'];
         //qDebug() << "POS: " << cursorPos << " ANCHOR: " << anchorPos;
         if (isVisualCharMode()) {
             sel.cursor.setPosition(qMin(cursorPos, anchorPos), MoveAnchor);
@@ -1442,7 +1453,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handleStartOfLine();
         setTargetColumn();
         finishMovement();
-    } else if (subModeCanUseTextObjects(m_submode) && (key == 'a' || key == 'i')) {
+    } else if ((subModeCanUseTextObjects(m_submode) || isVisualMode())
+            && (key == 'a' || key == 'i')) {
         m_subsubmode = TextObjectSubSubMode;
         m_subsubdata = key;
     } else if (m_submode == ShiftLeftSubMode && key == '<') {
@@ -3644,12 +3656,10 @@ void FakeVimHandler::Private::transformText(const Range &range,
     }
 }
 
-void FakeVimHandler::Private::removeSelectedText(bool exclusive)
+void FakeVimHandler::Private::removeSelectedText()
 {
     Range range(anchor(), position());
     range.rangemode = m_rangemode;
-    if (exclusive && m_rangemode == RangeLineMode)
-        range.rangemode = RangeLineModeExclusive;
     removeText(range);
 }
 
@@ -4049,20 +4059,20 @@ void FakeVimHandler::Private::selectWordTextObject(bool inner)
 {
     Q_UNUSED(inner); // FIXME
     m_movetype = MoveExclusive;
-    moveToWordBoundary(false, false);
-    enterVisualMode(VisualCharMode);
-    moveToWordBoundary(false, true);
-    leaveVisualMode();
+    moveToWordBoundary(false, false, true);
+    setAnchor();
+    moveToWordBoundary(false, true, true);
+    m_movetype = MoveInclusive;
 }
 
 void FakeVimHandler::Private::selectWORDTextObject(bool inner)
 {
     Q_UNUSED(inner); // FIXME
     m_movetype = MoveExclusive;
-    moveToWordBoundary(true, false);
-    enterVisualMode(VisualCharMode);
-    moveToWordBoundary(true, true);
-    leaveVisualMode();
+    moveToWordBoundary(true, false, true);
+    setAnchor();
+    moveToWordBoundary(true, true, true);
+    m_movetype = MoveInclusive;
 }
 
 void FakeVimHandler::Private::selectSentenceTextObject(bool inner)
