@@ -43,7 +43,6 @@ public:
     QmlOutputFormatter(QObject *parent = 0);
 
     virtual void appendApplicationOutput(const QString &text, bool onStdErr);
-    virtual void appendMessage(const QString &text, bool isError);
 
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);

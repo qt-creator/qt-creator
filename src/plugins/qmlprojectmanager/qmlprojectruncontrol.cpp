@@ -89,8 +89,8 @@ void QmlRunControl::start()
     Debugger::DebuggerUISwitcher::instance()->setActiveLanguage(Qml::Constants::LANG_QML);
 
     emit started();
-    emit addToOutputWindow(this, tr("Starting %1 %2").arg(QDir::toNativeSeparators(m_executable),
-                           m_commandLineArguments.join(QLatin1String(" "))), false);
+    emit appendMessage(this, tr("Starting %1 %2").arg(QDir::toNativeSeparators(m_executable),
+                                                      m_commandLineArguments.join(QLatin1String(" "))), false);
 }
 
 void QmlRunControl::stop()

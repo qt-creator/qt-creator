@@ -35,8 +35,9 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
-QT_FORWARD_DECLARE_CLASS(QPlainTextEdit);
 QT_FORWARD_DECLARE_CLASS(QMouseEvent);
+QT_FORWARD_DECLARE_CLASS(QPlainTextEdit);
+QT_FORWARD_DECLARE_CLASS(QTextCharFormat);
 
 namespace ProjectExplorer {
 
@@ -46,6 +47,7 @@ class PROJECTEXPLORER_EXPORT OutputFormatter: public QObject
 
 public:
     OutputFormatter(QObject *parent = 0);
+    virtual ~OutputFormatter();
 
     QPlainTextEdit *plainTextEdit() const;
     void setPlainTextEdit(QPlainTextEdit *plainText);
@@ -57,8 +59,22 @@ public:
     virtual void mouseReleaseEvent(QMouseEvent *e);
     virtual void mouseMoveEvent(QMouseEvent *e);
 
+protected:
+    enum Format {
+        NormalMessageFormat = 0,
+        ErrorMessageFormat = 1,
+        StdOutFormat = 2,
+        StdErrFormat = 3,
+
+        NumberOfFormats = 4
+    };
+
+    void initFormats();
+    void setFormat(Format theFormat) const;
+
 private:
     QPlainTextEdit *m_plainTextEdit;
+    QTextCharFormat *m_formats;
 };
 
 } // namespace ProjectExplorer

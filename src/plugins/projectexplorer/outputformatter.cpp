@@ -29,13 +29,25 @@
 
 #include "outputformatter.h"
 
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
+
 #include <QtGui/QPlainTextEdit>
 
 using namespace ProjectExplorer;
+using namespace TextEditor;
 
 OutputFormatter::OutputFormatter(QObject *parent)
     : QObject(parent)
+    , m_formats(0)
 {
+    initFormats();
+}
+
+OutputFormatter::~OutputFormatter()
+{
+    if (m_formats)
+        delete[] m_formats;
 }
 
 QPlainTextEdit *OutputFormatter::plainTextEdit() const
@@ -49,17 +61,24 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
     setParent(m_plainTextEdit);
 }
 
-void OutputFormatter::appendApplicationOutput(const QString &text, bool /*onStdErr*/)
+void OutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
 {
-    QTextCharFormat format;
-    format.setForeground(plainTextEdit()->palette().text().color());
-    plainTextEdit()->setCurrentCharFormat(format);
+    if (onStdErr)
+        setFormat(StdErrFormat);
+    else
+        setFormat(StdOutFormat);
+
     plainTextEdit()->insertPlainText(text);
 }
 
 void OutputFormatter::appendMessage(const QString &text, bool isError)
 {
-    appendApplicationOutput(text, isError);
+    if (isError)
+        setFormat(ErrorMessageFormat);
+    else
+        setFormat(NormalMessageFormat);
+
+    plainTextEdit()->insertPlainText(text);
 }
 
 void OutputFormatter::mousePressEvent(QMouseEvent * /*e*/)
@@ -70,3 +89,35 @@ void OutputFormatter::mouseReleaseEvent(QMouseEvent * /*e*/)
 
 void OutputFormatter::mouseMoveEvent(QMouseEvent * /*e*/)
 {}
+
+void OutputFormatter::initFormats()
+{
+    FontSettings fs = TextEditorSettings::instance()->fontSettings();
+    QFont font = fs.font();
+    QFont boldFont = font;
+    boldFont.setBold(true);
+
+    m_formats = new QTextCharFormat[NumberOfFormats];
+
+    // NormalMessageFormat
+    m_formats[NormalMessageFormat].setFont(boldFont);
+    m_formats[NormalMessageFormat].setForeground(QColor(Qt::black));
+
+    // ErrorMessageFormat
+    m_formats[ErrorMessageFormat].setFont(boldFont);
+    m_formats[ErrorMessageFormat].setForeground(QColor(Qt::red));
+
+    // StdOutFormat
+    m_formats[StdOutFormat].setFont(font);
+    m_formats[StdOutFormat].setForeground(QColor(Qt::black));
+
+    // StdErrFormat
+    m_formats[StdErrFormat].setFont(font);
+    m_formats[StdErrFormat].setForeground(QColor(Qt::red));
+}
+
+void OutputFormatter::setFormat(Format theFormat) const
+{
+    if (m_formats)
+        plainTextEdit()->setCurrentCharFormat(m_formats[theFormat]);
+}

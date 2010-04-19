@@ -44,15 +44,17 @@ QmlOutputFormatter::QmlOutputFormatter(QObject *parent)
 {
 }
 
-void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool /*onStdErr*/)
+void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
 {
-    QTextCharFormat normalFormat, linkFormat;
-    normalFormat.setForeground(plainTextEdit()->palette().text().color());
-    linkFormat.setForeground(plainTextEdit()->palette().link().color());
+    if (onStdErr)
+        setFormat(StdErrFormat);
+    else
+        setFormat(StdOutFormat);
+
+    QTextCharFormat normalFormat = plainTextEdit()->currentCharFormat();
+    QTextCharFormat linkFormat = normalFormat;
     linkFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
     linkFormat.setAnchor(true);
-
-    plainTextEdit()->setCurrentCharFormat(normalFormat);
 
     // Create links from QML errors (anything of the form "file:///...:[line]:[column]:")
     int index = 0;
@@ -70,11 +72,6 @@ void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool /*onS
         index = matchPos + m_qmlError.matchedLength() - 1;
     }
     plainTextEdit()->insertPlainText(text.mid(index));
-}
-
-void QmlOutputFormatter::appendMessage(const QString &text, bool isError)
-{
-    appendApplicationOutput(text, isError);
 }
 
 void QmlOutputFormatter::mousePressEvent(QMouseEvent * /*e*/)
