@@ -76,7 +76,7 @@
 #include <texteditor/basetextmark.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorplugin.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -958,7 +958,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     //
 
     // TextEditor
-    connect(TextEditorPlugin::instance(),
+    connect(TextEditorSettings::instance(),
         SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
         manager, SLOT(fontSettingsChanged(TextEditor::FontSettings)));
 

@@ -30,7 +30,6 @@
 #ifndef TEXTEDITORPLUGIN_H
 #define TEXTEDITORPLUGIN_H
 
-#include "texteditor_global.h"
 #include <extensionsystem/iplugin.h>
 
 namespace Find {
@@ -49,9 +48,7 @@ namespace Internal {
 class LineNumberFilter;
 class PlainTextEditorFactory;
 
-} // namespace Internal
-
-class TEXTEDITOR_EXPORT TextEditorPlugin : public ExtensionSystem::IPlugin
+class TextEditorPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
@@ -67,10 +64,7 @@ public:
 
     void initializeEditor(PlainTextEditor *editor);
 
-    Internal::LineNumberFilter *lineNumberFilter() { return m_lineNumberFilter; }
-
-signals:
-    void fontSettingsChanged(const TextEditor::FontSettings &);
+    LineNumberFilter *lineNumberFilter() { return m_lineNumberFilter; }
 
 private slots:
     void invokeCompletion();
@@ -81,11 +75,12 @@ private:
     static TextEditorPlugin *m_instance;
     TextEditorSettings *m_settings;
     TextFileWizard *m_wizard;
-    Internal::PlainTextEditorFactory *m_editorFactory;
-    Internal::LineNumberFilter *m_lineNumberFilter;
+    PlainTextEditorFactory *m_editorFactory;
+    LineNumberFilter *m_lineNumberFilter;
     Find::SearchResultWindow *m_searchResultWindow;
 };
 
+} // namespace Internal
 } // namespace TextEditor
 
 #endif // TEXTEDITORPLUGIN_H
