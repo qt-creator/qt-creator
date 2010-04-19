@@ -675,9 +675,9 @@ void FakeVimPluginPrivate::readSettings(QSettings *settings)
 
 void FakeVimPluginPrivate::maybeReadVimRc()
 {
-    qDebug() << theFakeVimSetting(ConfigReadVimRc)
-        << theFakeVimSetting(ConfigReadVimRc)->value();
-    qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
+    //qDebug() << theFakeVimSetting(ConfigReadVimRc)
+    //    << theFakeVimSetting(ConfigReadVimRc)->value();
+    //qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
     if (!theFakeVimSetting(ConfigReadVimRc)->value().toBool())
         return;
     QString fileName =
@@ -689,7 +689,7 @@ void FakeVimPluginPrivate::maybeReadVimRc()
     FakeVimHandler handler(&editor);
     handler.handleCommand("source " + fileName);
     theFakeVimSettings()->writeSettings(Core::ICore::instance()->settings());
-    qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
+    //qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
 }
 
 void FakeVimPluginPrivate::showSettingsDialog()
