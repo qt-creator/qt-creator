@@ -79,7 +79,7 @@
       <item>
        <widget class="QCheckBox" name="cleanOldAppOutputCheckBox">
         <property name="text">
-         <string>Clear application output of previous runs</string>
+         <string>Clear old application output on a new run</string>
         </property>
        </widget>
       </item>
