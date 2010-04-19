@@ -38,8 +38,6 @@
 #include "qt4target.h"
 #include "qtversionmanager.h"
 
-#include "qt-s60/s60manager.h"
-
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
@@ -135,18 +133,6 @@ bool QMakeStep::init()
     Qt4BuildConfiguration *qt4bc = qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
 
-    if (!qtVersion->isValid()) {
-#if defined(Q_WS_MAC)
-        emit addOutput(tr("<font color=\"#ff0000\">Qt version <b>%1</b> is invalid. Set a valid Qt Version in Preferences </font>\n")
-                       .arg(qtVersion->displayName()));
-#else
-        emit addOutput(tr("<font color=\"#ff0000\">Qt version <b>%1</b> is invalid. Set valid Qt Version in Tools/Options </b></font>\n")
-                       .arg(qtVersion->displayName()));
-#endif
-        emit addOutput("<font color=\"#ff0000\">" + qtVersion->invalidReason() + "</font><br>");
-        return false;
-    }
-
     QStringList args = allArguments();
     QString workingDirectory;
     if (qt4bc->subNodeBuild())
@@ -189,50 +175,19 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
     }
 
     // Warn on common error conditions:
-    if (qt4BuildConfiguration()->qt4Target()->id() == Constants::S60_DEVICE_TARGET_ID ||
-        qt4BuildConfiguration()->qt4Target()->id() == Constants::S60_EMULATOR_TARGET_ID)
-    {
-        QtVersion *qtVersion = qt4BuildConfiguration()->qtVersion();
-
-        const QString projectDir = QDir(qt4BuildConfiguration()->qt4Target()->qt4Project()->projectDirectory()).absolutePath();
-        const QString epocRootDir = QDir(Internal::S60Manager::instance()->deviceForQtVersion(qtVersion).epocRoot).absolutePath();
-        QFileInfo cppheader(epocRootDir + QLatin1String("/epoc32/include/stdapis/string.h"));
-#if defined (Q_OS_WIN)
-        // Report an error if project- and epoc directory are on different drives:
-        if (!epocRootDir.startsWith(projectDir.left(3), Qt::CaseInsensitive)) {
-            addTask(Task(Task::Error,
-                         tr("The Symbian SDK and the project sources must reside on the same drive."),
-                         QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-            fi.reportResult(false);
-            return;
-        }
-#endif
-        // Report an error if EPOC root is not set:
-        if (epocRootDir.isEmpty() || !QDir(epocRootDir).exists()) {
-            addTask(Task(Task::Error,
-                         tr("The Symbian SDK was not found for Qt version %1.").arg(qtVersion->displayName()),
-                         QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-            fi.reportResult(false);
-            return;
-        }
-        if (!cppheader.exists()) {
-            addTask(Task(Task::Error,
-                         tr("The \"Open C/C++ plugin\" is not installed in the Symbian SDK or the Symbian SDK path is misconfigured for Qt version %1.").arg(qtVersion->displayName()),
-                         QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-            fi.reportResult(false);
-            return;
-        }
-        // Warn of strange characters in project name:
-        QString projectPath = projectDir;
-#if defined (Q_OS_WIN)
-        if (projectPath.at(1) == QChar(':') && projectPath.at(0).toUpper() >= QChar('A') && projectPath.at(0).toUpper() <= QChar('Z'))
-            projectPath = projectPath.mid(2);
-#endif
-        if (projectPath.contains(QRegExp("[^a-zA-Z0-9./]"))) {
-            addTask(Task(Task::Warning,
-                         tr("The Symbian toolchain does not handle special characters in a project path well."),
-                         QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        }
+    QList<ProjectExplorer::Task> issues =
+            qt4BuildConfiguration()->qtVersion()->reportIssues(qt4BuildConfiguration()->qt4Target()->
+                                                               qt4Project()->file()->fileName());
+    bool canContinue = true;
+    foreach (const ProjectExplorer::Task &t, issues) {
+        addTask(t);
+        if (t.type == Task::Error)
+            canContinue = false;
+    }
+    if (!canContinue) {
+        emit addOutput(tr("<font color=\"#0000ff\">Configuration is faulty, please check the Build Issues view for details.</font>"));
+        fi.reportResult(false);
+        return;
     }
 
     if (!m_needToRunQMake) {
