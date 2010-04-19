@@ -190,56 +190,57 @@ int EnvironmentModel::findInResultInsertPosition(const QString &name) const
 
 bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid())
+    if (!index.isValid() || role != Qt::EditRole)
         return false;
 
-    if (role == Qt::EditRole && index.isValid()) {
-        // ignore changes to already set values:
-        if (data(index, role) == value)
-            return true;
+    // ignore changes to already set values:
+    if (data(index, role) == value)
+        return true;
 
-        if (index.column() == 0) {
-            //fail if a variable with the same name already exists
-#ifdef Q_OS_WIN
-            const QString &newName = value.toString().toUpper();
+    const QString oldName = data(this->index(index.row(), 0, QModelIndex())).toString();
+    const QString oldValue = data(this->index(index.row(), 1, QModelIndex())).toString();
+    int changesPos = findInChanges(oldName);
+
+    if (index.column() == 0) {
+        //fail if a variable with the same name already exists
+#if defined(Q_OS_WIN)
+        const QString &newName = value.toString().toUpper();
 #else
-            const QString &newName = value.toString();
+        const QString &newName = value.toString();
 #endif
+        // Does the new name exist already?
+        if (m_resultEnvironment.hasKey(newName))
+            return false;
 
-            if (findInChanges(newName) != -1)
-                return false;
+        EnvironmentItem newVariable(newName, oldValue);
 
-            EnvironmentItem old("", "");
-            int pos = findInChanges(indexToVariable(index));
-            if (pos != -1) {
-                old = m_items.at(pos);
+        if (changesPos != -1)
+            resetVariable(oldName); // restore the original base variable again
+
+        QModelIndex newIndex = addVariable(newVariable); // add the new variable
+        emit focusIndex(newIndex.sibling(newIndex.row(), 1)); // hint to focus on the value
+        return true;
+    } else if (index.column() == 1) {
+        // We are changing an existing value:
+        const QString stringValue = value.toString();
+        if (changesPos != -1) {
+            // We have already changed this value
+            if (stringValue == m_baseEnvironment.value(oldName)) {
+                // ... and now went back to the base value
+                m_items.removeAt(changesPos);
             } else {
-                old.name = m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
-                old.value = m_resultEnvironment.value(m_resultEnvironment.constBegin() + index.row());
-                old.unset = false;
+                // ... and changed it again
+                m_items[changesPos].value = stringValue;
+                m_items[changesPos].unset = false;
             }
-
-            if (changes(old.name))
-                resetVariable(old.name);
-            old.name = newName;
-            addVariable(old);
-            emit renamedVariable(newName);
-            return true;
-        } else if (index.column() == 1) {
-            const QString &name = indexToVariable(index);
-            int pos = findInChanges(name);
-            if (pos != -1) {
-                m_items[pos].value = value.toString();
-                m_items[pos].unset = false;
-                updateResultEnvironment();
-                emit dataChanged(index, index);
-                emit userChangesChanged();
-                return true;
-            }
-            // not found in m_items, so add it as a new variable
-            addVariable(EnvironmentItem(name, value.toString()));
-            return true;
+        } else {
+            // Add a new change item:
+            m_items.append(EnvironmentItem(oldName, stringValue));
         }
+        updateResultEnvironment();
+        emit dataChanged(index, index);
+        emit userChangesChanged();
+        return true;
     }
     return false;
 }
@@ -446,8 +447,8 @@ EnvironmentWidget::~EnvironmentWidget()
 
 void EnvironmentWidget::renamedVariable(const QString &name)
 {
-    QModelIndex idx = m_model->variableToIndex(name);
-    m_environmentTreeView->setCurrentIndex(idx);
+    QModelIndex index = m_model->variableToIndex(name);
+    m_environmentTreeView->setCurrentIndex(index);
     m_environmentTreeView->setFocus();
 }
 
