@@ -113,10 +113,7 @@ QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) c
 
 QString MaemoRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    const QString &target = targetFromId(id);
-    if (target.isEmpty())
-        return QString();
-    return tr("%1 on Maemo Device").arg(QFileInfo(target).completeBaseName());
+    return tr("New Maemo Run Configuration");
 }
 
 RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
