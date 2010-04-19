@@ -35,9 +35,11 @@
 
 #include "qt-maemo/maemomanager.h"
 #include "qt-s60/s60manager.h"
+#include "qt-s60/s60projectchecker.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/cesdkhandler.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -633,6 +635,34 @@ bool QtVersion::supportsShadowBuilds() const
     }
 
     return true;
+}
+
+QList<ProjectExplorer::Task>
+QtVersion::reportIssues(const QString &proFile)
+{
+    QList<ProjectExplorer::Task> results;
+
+    if (!isValid())
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                             QObject::tr("The Qt version is invalid: %1",
+                                                         "%1: Reason for being invalid").arg(invalidReason()),
+                                             QString(), -1,
+                                             QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+
+    QFileInfo qmakeInfo(qmakeCommand());
+    if (!qmakeInfo.exists() ||
+        !qmakeInfo.isExecutable())
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                             QObject::tr("The qmake command \"%1\" was not found or is not executable.",
+                                                         "%1: Path to qmake executable.").arg(qmakeCommand()),
+                                             QString(), -1,
+                                             QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+
+    QSet<QString> targets = supportedTargetIds();
+    if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
+        targets.contains(Constants::S60_EMULATOR_TARGET_ID))
+        results.append(S60ProjectChecker::reportIssues(proFile, this));
+    return results;
 }
 
 QString QtVersion::displayName() const

@@ -30,6 +30,7 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
+#include <projectexplorer/taskwindow.h>
 #include <projectexplorer/toolchain.h>
 #include <QSharedPointer>
 
@@ -138,6 +139,12 @@ public:
     QString toHtml() const;
 
     bool supportsShadowBuilds() const;
+
+    /// Check a .pro-file/Qt version combination on possible issues with
+    /// its symbian setup.
+    /// @return a list of tasks, ordered on severity (errors first, then
+    ///         warnings and finally info items.
+    QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
 
 private:
     QList<QSharedPointer<ProjectExplorer::ToolChain> > toolChains() const;
