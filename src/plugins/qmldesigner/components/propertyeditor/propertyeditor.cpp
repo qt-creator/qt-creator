@@ -245,6 +245,8 @@ void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl 
     ctxt->setContextProperty("specificsUrl", QVariant(qmlSpecificsFile));
     ctxt->setContextProperty("stateName", QVariant(QLatin1String("basestate")));
     ctxt->setContextProperty("isBaseState", QVariant(true));
+    ctxt->setContextProperty("specificQmlData", QVariant(QLatin1String("")));
+    ctxt->setContextProperty("globalBaseUrl", QVariant(QUrl()));
 }
 
 PropertyEditor::PropertyEditor(QWidget *parent) :

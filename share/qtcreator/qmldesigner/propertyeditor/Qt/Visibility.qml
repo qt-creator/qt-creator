@@ -52,7 +52,7 @@ GroupBox {
                     id: opacitySlider
                     minimum: 0
                     maximum: 100
-                    property var pureValue: backendValues.opacity.value;
+                    property variant pureValue: backendValues.opacity.value;
                     onPureValueChanged: {
                         if (value != pureValue * 100)
                             value = pureValue * 100;
