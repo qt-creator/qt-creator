@@ -197,6 +197,9 @@ bool CheckDeclarator::visit(FunctionDeclaratorAST *ast)
     FullySpecifiedType funTy(fun);
     funTy = semantic()->check(ast->cv_qualifier_list, _scope, funTy);
 
+    fun->setConst(funTy.isConst());
+    fun->setVolatile(funTy.isVolatile());
+
     _fullySpecifiedType = funTy;
     return false;
 }
