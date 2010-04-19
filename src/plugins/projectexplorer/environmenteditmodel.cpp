@@ -247,53 +247,62 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 
 QModelIndex EnvironmentModel::addVariable()
 {
-    const QString name = tr("<VARIABLE>");
-    int i = findInResult(name);
-    if (i != -1)
-        return index(i, 0, QModelIndex());
-    // Don't exist, really add them
-    return addVariable(EnvironmentItem(name, tr("<VALUE>")));
+    return addVariable(EnvironmentItem(tr("<VARIABLE>",
+                                          "Name when inserting a new variable"),
+                                       tr("<VALUE>",
+                                          "Value when inserting a new variable")));
 }
 
 QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
 {
-    bool existsInBaseEnvironment = m_baseEnvironment.hasKey(item.name);
-    int rowInResult;
-    if (existsInBaseEnvironment)
-        rowInResult = findInResult(item.name);
-    else
-        rowInResult = findInResultInsertPosition(item.name);
-    int rowInChanges = findInChangesInsertPosition(item.name);
+    int insertPos = findInResultInsertPosition(item.name);
 
-    //qDebug() << "addVariable " << item.name << existsInBaseEnvironment << rowInResult << rowInChanges;
+    // Return existing index if the name is already in the result set:
+    if (insertPos < m_resultEnvironment.size()
+        && m_resultEnvironment.key(m_resultEnvironment.constBegin() + insertPos) == item.name) {
+        return index(insertPos, 0, QModelIndex());
+    }
 
-    if (existsInBaseEnvironment) {
-        m_items.insert(rowInChanges, item);
-        updateResultEnvironment();
-        emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
-        emit userChangesChanged();
-        return index(rowInResult, 0, QModelIndex());
+    int changePos = findInChanges(item.name);
+    if (m_baseEnvironment.hasKey(item.name)) {
+        // We previously unset this!
+        Q_ASSERT(changePos >= 0);
+        // Do not insert a line here as we listed the variable as <UNSET> before!
+        Q_ASSERT(m_items.at(changePos).name == item.name);
+        Q_ASSERT(m_items.at(changePos).unset);
+        Q_ASSERT(m_items.at(changePos).value.isEmpty());
+        m_items[changePos] = item;
+        emit dataChanged(index(insertPos, 0, QModelIndex()), index(insertPos, 1, QModelIndex()));
     } else {
-        beginInsertRows(QModelIndex(), rowInResult, rowInResult);
-        m_items.insert(rowInChanges, item);
+        // We add something that is not in the base environment
+        // Insert a new line!
+        beginInsertRows(QModelIndex(), insertPos, insertPos);
+        Q_ASSERT(changePos < 0);
+        m_items.append(item);
         updateResultEnvironment();
         endInsertRows();
-        emit userChangesChanged();
-        return index(rowInResult, 0, QModelIndex());
     }
+    emit userChangesChanged();
+    return index(insertPos, 0, QModelIndex());
 }
 
 void EnvironmentModel::resetVariable(const QString &name)
 {
-    int rowInResult = findInResult(name);
     int rowInChanges = findInChanges(name);
-    bool existsInBaseEnvironment = m_baseEnvironment.hasKey(name);
-    if (existsInBaseEnvironment) {
+    if (rowInChanges < 0)
+        return;
+
+    int rowInResult = findInResult(name);
+    if (rowInResult < 0)
+        return;
+
+    if (m_baseEnvironment.hasKey(name)) {
         m_items.removeAt(rowInChanges);
         updateResultEnvironment();
         emit dataChanged(index(rowInResult, 0, QModelIndex()), index(rowInResult, 1, QModelIndex()));
         emit userChangesChanged();
     } else {
+        // Remove the line completely!
         beginRemoveRows(QModelIndex(), rowInResult, rowInResult);
         m_items.removeAt(rowInChanges);
         updateResultEnvironment();
@@ -304,19 +313,25 @@ void EnvironmentModel::resetVariable(const QString &name)
 
 void EnvironmentModel::unsetVariable(const QString &name)
 {
+    // This does not change the number of rows as we will display a <UNSET>
+    // in place of the original variable!
     int row = findInResult(name);
+    if (row < 0)
+        return;
+
     // look in m_items for the variable
     int pos = findInChanges(name);
     if (pos != -1) {
         m_items[pos].unset = true;
+        m_items[pos].value = QString();
         updateResultEnvironment();
         emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
         emit userChangesChanged();
         return;
     }
-    pos = findInChangesInsertPosition(name);
-    m_items.insert(pos, EnvironmentItem(name, ""));
-    m_items[pos].unset = true;
+    EnvironmentItem item(name, QString());
+    item.unset = true;
+    m_items.append(item);
     updateResultEnvironment();
     emit dataChanged(index(row, 0, QModelIndex()), index(row, 1, QModelIndex()));
     emit userChangesChanged();
