@@ -230,6 +230,7 @@ ItemLibrary::~ItemLibrary()
 void ItemLibrary::setMetaInfo(const MetaInfo &metaInfo)
 {
     m_d->m_itemLibraryModel->update(metaInfo);
+    updateSearch();
 }
 
 void ItemLibrary::setSearchFilter(const QString &searchFilter)
@@ -269,6 +270,7 @@ void ItemLibrary::setResourcePath(const QString &resourcePath)
 {
     if (m_d->m_resourcesView->model() == m_d->m_resourcesDirModel)
         m_d->m_resourcesView->setRootIndex(m_d->m_resourcesDirModel->index(resourcePath));
+    updateSearch();
 }
 
 void ItemLibrary::startDragAndDrop(int itemLibId)

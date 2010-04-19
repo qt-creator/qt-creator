@@ -342,6 +342,7 @@ void DesignDocumentController::loadCurrentModel()
 
     m_d->model->attachView(m_d->navigator.data());
     m_d->itemLibrary->setMetaInfo(m_d->model->metaInfo());
+    m_d->itemLibrary->setResourcePath(QFileInfo(m_d->fileName).absolutePath());
 
     if (!m_d->componentAction) {
         m_d->componentAction = new ComponentAction(m_d->formEditorView->widget());
