@@ -47,7 +47,13 @@ PropertyFrame {
 					
 					WidgetLoader {
                         id: specificsOne;
-                        source: specificsUrl;
+                        source: specificsUrl;						
+                    }
+					
+					WidgetLoader {
+                        id: specificsTwo;                        
+						baseUrl: globalBaseUrl;
+						qmlData: specificQmlData;
                     }
                    
 
