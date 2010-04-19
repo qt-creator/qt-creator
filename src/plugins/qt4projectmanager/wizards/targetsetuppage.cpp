@@ -47,7 +47,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
     m_preferMobile(false)
 {
-    resize(500, 400);
+    resize(550, 500);
     setTitle(tr("Set up targets for your project"));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
@@ -124,6 +124,7 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
     }
     qSort(targets.begin(), targets.end());
 
+    m_treeWidget->clear();
     Qt4TargetFactory factory;
     foreach (const QString &t, targets) {
         QTreeWidgetItem *targetItem = new QTreeWidgetItem(m_treeWidget);
@@ -139,7 +140,11 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
             if (!i.version->supportsTargetId(t))
                 continue;
             QTreeWidgetItem *versionItem = new QTreeWidgetItem(targetItem);
+            QPair<QIcon, QString> issues = reportIssues(i.version);
+
             // Column 0:
+            versionItem->setToolTip(0, issues.second);
+            versionItem->setIcon(0, issues.first);
             versionItem->setText(0, i.version->displayName());
             versionItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             versionItem->setData(0, Qt::UserRole, pos);
@@ -294,6 +299,9 @@ void TargetSetupPage::setProFilePath(const QString &path)
         m_importLabel->setText(tr("Qt Creator can set up the following targets for project <b>%1</b>:",
                                   "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
     }
+    // Force regeneration of tree widget contents:
+    QList<ImportInfo> tmp = m_infos;
+    setImportInfos(tmp);
 }
 
 QList<TargetSetupPage::ImportInfo>
@@ -426,4 +434,33 @@ void TargetSetupPage::resetInfos()
             delete info.version;
     }
     m_infos.clear();
+}
+
+QPair<QIcon, QString> TargetSetupPage::reportIssues(Qt4ProjectManager::QtVersion *version)
+{
+    if (m_proFilePath.isEmpty())
+        return qMakePair(QIcon(), QString());
+
+    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath);
+
+    QString text;
+    QIcon icon;
+    foreach (const ProjectExplorer::Task t, issues) {
+        if (!text.isEmpty())
+            text.append(QLatin1String("<br>"));
+        // set severity:
+        QString severity;
+        if (t.type == ProjectExplorer::Task::Error) {
+            icon = t.icon();
+            severity = tr("<b>Error:</b> ", "Severity is Task::Error");
+        } else if (t.type == ProjectExplorer::Task::Warning) {
+               if (icon.isNull())
+                   icon = t.icon();
+               severity = tr("<b>Warning:</b> ", "Severity is Task::Warning");
+        }
+        text.append(severity + t.description);
+    }
+    if (!text.isEmpty())
+        text = QLatin1String("<nobr>") + text;
+    return qMakePair(icon, text);
 }

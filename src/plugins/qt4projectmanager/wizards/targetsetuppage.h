@@ -33,9 +33,11 @@
 #include "qtversionmanager.h"
 
 #include <QtCore/QList>
+#include <QtCore/QPair>
 #include <QtCore/QSet>
 #include <QtCore/QString>
 
+#include <QtGui/QIcon>
 #include <QtGui/QWizard>
 
 QT_BEGIN_NAMESPACE
@@ -115,6 +117,7 @@ private slots:
 
 private:
     void resetInfos();
+    QPair<QIcon, QString> reportIssues(QtVersion *version);
 
     QList<ImportInfo> m_infos;
     QLabel *m_importLabel;
