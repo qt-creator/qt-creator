@@ -169,7 +169,7 @@ enum SubSubMode
     DownCaseSubSubMode,   // used for gu
     UpCaseSubSubMode,     // used for gU
     ReplaceSubSubMode,    // used for r after visual mode
-    TextObjectSubSubMode, // used for f, F, t, T
+    TextObjectSubSubMode, // used for thing like iw, aW, as etc.
 };
 
 enum VisualMode
@@ -1324,7 +1324,7 @@ void FakeVimHandler::Private::passShortcuts(bool enable)
 
 static bool subModeCanUseTextObjects(int submode)
 {
-    return submode == DeleteSubMode;
+    return submode == DeleteSubMode || submode == YankSubMode;
 }
 
 EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
