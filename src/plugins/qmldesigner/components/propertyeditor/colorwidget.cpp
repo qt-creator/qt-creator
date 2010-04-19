@@ -475,11 +475,10 @@ void GradientLine::deleteGradient()
 
     if (m_itemNode.isInBaseState()) {
         if (modelNode.hasProperty(m_gradientName)) {
-            RewriterTransaction transaction;
-            m_itemNode.modelNode().removeProperty(m_gradientName); //### there is atm a bug in the node instances which lead to a crash if using destroy()
-            /*ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
+            RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
+            ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
             if (QmlObjectNode(gradientNode).isValid())
-                QmlObjectNode(gradientNode).destroy();*/
+                QmlObjectNode(gradientNode).destroy();
         }
     }
 }
@@ -662,7 +661,7 @@ void GradientLine::updateGradient()
 {
     if (!active())
         return;
-    RewriterTransaction transaction;
+    RewriterTransaction transaction = m_itemNode.modelNode().view()->beginRewriterTransaction();
     if (!m_itemNode.isValid())
         return;
 
