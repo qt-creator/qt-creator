@@ -62,26 +62,6 @@ bool configNameExists(const QList<MaemoDeviceConfig> &devConfs,
         DevConfNameMatcher(name)) != devConfs.constEnd();
 }
 
-class TimeoutValidator : public QIntValidator
-{
-public:
-    TimeoutValidator() : QIntValidator(0, SHRT_MAX, 0)
-    {
-    }
-
-    void setValue(int oldValue) { m_oldValue = oldValue; }
-
-    virtual void fixup(QString &input) const
-    {
-        int dummy = 0;
-        if (validate(input, dummy) != Acceptable)
-            input = QString::number(m_oldValue);
-    }
-
-private:
-    int m_oldValue;
-};
-
 class NameValidator : public QValidator
 {
 public:
@@ -118,7 +98,6 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
       m_ui(new Ui_MaemoSettingsWidget),
       m_devConfs(MaemoDeviceConfigurations::instance().devConfigs()),
       m_nameValidator(new NameValidator(m_devConfs)),
-      m_timeoutValidator(new TimeoutValidator),
       m_keyDeployer(0)
 {
     initGui();
@@ -148,7 +127,7 @@ QString MaemoSettingsWidget::searchKeywords() const
         << ' ' << m_ui->passwordLabel->text()
         << ' ' << m_ui->portsLabel->text()
         << ' ' << m_ui->pwdLineEdit->text()
-        << ' ' << m_ui->timeoutLineEdit->text()
+        << ' ' << m_ui->timeoutSpinBox->value()
         << ' ' << m_ui->userLineEdit->text()
         << ' ' << m_ui->userNameLabel->text();
     rc.remove(QLatin1Char('&'));
@@ -159,7 +138,6 @@ void MaemoSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
     m_ui->nameLineEdit->setValidator(m_nameValidator);
-    m_ui->timeoutLineEdit->setValidator(m_timeoutValidator);
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
 
     foreach (const MaemoDeviceConfig &devConf, m_devConfs)
@@ -223,7 +201,7 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
         m_ui->keyButton->setChecked(true);
     m_ui->detailsWidget->setEnabled(true);
     m_nameValidator->setDisplayName(devConfig.name);
-    m_timeoutValidator->setValue(devConfig.timeout);
+    m_ui->timeoutSpinBox->setValue(devConfig.timeout);
     fillInValues();
 }
 
@@ -233,7 +211,7 @@ void MaemoSettingsWidget::fillInValues()
     m_ui->hostLineEdit->setText(currentConfig().host);
     m_ui->sshPortSpinBox->setValue(currentConfig().sshPort);
     m_ui->gdbServerPortSpinBox->setValue(currentConfig().gdbServerPort);
-    m_ui->timeoutLineEdit->setText(QString::number(currentConfig().timeout));
+    m_ui->timeoutSpinBox->setValue(currentConfig().timeout);
     m_ui->userLineEdit->setText(currentConfig().uname);
     m_ui->pwdLineEdit->setText(currentConfig().pwd);
     m_ui->keyFileLineEdit->setPath(currentConfig().keyFile);
@@ -317,17 +295,7 @@ void MaemoSettingsWidget::gdbServerPortEditingFinished()
 
 void MaemoSettingsWidget::timeoutEditingFinished()
 {
-    setTimeout(m_ui->timeoutLineEdit, currentConfig().timeout,
-                     m_timeoutValidator);
-}
-
-void MaemoSettingsWidget::setTimeout(const QLineEdit *lineEdit,
-    int &confVal, TimeoutValidator *validator)
-{
-    bool ok;
-    confVal = lineEdit->text().toInt(&ok);
-    Q_ASSERT(ok);
-    validator->setValue(confVal);
+    currentConfig().timeout = m_ui->timeoutSpinBox->value();
 }
 
 void MaemoSettingsWidget::userNameEditingFinished()
@@ -461,7 +429,7 @@ void MaemoSettingsWidget::clearDetails()
     m_ui->hostLineEdit->clear();
     m_ui->sshPortSpinBox->clear();
     m_ui->gdbServerPortSpinBox->clear();
-    m_ui->timeoutLineEdit->clear();
+    m_ui->timeoutSpinBox->clear();
     m_ui->userLineEdit->clear();
     m_ui->pwdLineEdit->clear();
 }

@@ -52,7 +52,6 @@ namespace Internal {
 
 class MaemoSshRunner;
 class NameValidator;
-class TimeoutValidator;
 
 class MaemoSettingsWidget : public QWidget
 {
@@ -95,8 +94,6 @@ private:
     void initGui();
     void display(const MaemoDeviceConfig &devConfig);
     MaemoDeviceConfig &currentConfig();
-    void setTimeout(const QLineEdit *lineEdit, int &confVal,
-                          TimeoutValidator *validator);
     void clearDetails();
     QString parseTestOutput();
     void fillInValues();
@@ -106,7 +103,6 @@ private:
     MaemoDeviceConfig m_lastConfigHW;
     MaemoDeviceConfig m_lastConfigSim;
     NameValidator * const m_nameValidator;
-    TimeoutValidator * const m_timeoutValidator;
     MaemoSshRunner *m_keyDeployer;
     QString m_publicKeyFileName;
 };
