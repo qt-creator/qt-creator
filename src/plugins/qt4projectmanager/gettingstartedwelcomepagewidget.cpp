@@ -273,7 +273,7 @@ void GettingStartedWelcomePageWidget::slotOpenContextHelpPage(const QString& url
 
 void GettingStartedWelcomePageWidget::slotCreateNewProject()
 {
-    Core::ICore::instance()->showNewItemDialog(tr("New Project..."),
+    Core::ICore::instance()->showNewItemDialog(tr("New Project"),
                                                Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
 }
 

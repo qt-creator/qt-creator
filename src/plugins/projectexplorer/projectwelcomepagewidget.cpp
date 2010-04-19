@@ -166,6 +166,6 @@ void ProjectWelcomePageWidget::slotProjectClicked(const QString &data)
 
 void ProjectWelcomePageWidget::slotCreateNewProject()
 {
-    Core::ICore::instance()->showNewItemDialog(tr("New Project..."),
+    Core::ICore::instance()->showNewItemDialog(tr("New Project"),
                                                Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard));
 }
