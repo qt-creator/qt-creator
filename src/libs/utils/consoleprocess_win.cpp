@@ -68,7 +68,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processError(msgCommChannelFailed(err));
+        emit processMessage(msgCommChannelFailed(err), true);
         return false;
     }
 
@@ -76,7 +76,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         m_tempFile = new QTemporaryFile();
         if (!m_tempFile->open()) {
             stubServerShutdown();
-            emit processError(msgCannotCreateTempFile(m_tempFile->errorString()));
+            emit processMessage(msgCannotCreateTempFile(m_tempFile->errorString()), true);
             delete m_tempFile;
             m_tempFile = 0;
             return false;
@@ -122,7 +122,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         delete m_tempFile;
         m_tempFile = 0;
         stubServerShutdown();
-        emit processError(tr("The process '%1' could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
+        emit processMessage(tr("The process '%1' could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())), true);
         return false;
     }
 
@@ -179,9 +179,9 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = m_stubSocket->readLine();
         out.chop(2); // \r\n
         if (out.startsWith("err:chdir ")) {
-            emit processError(msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
+            emit processMessage(msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())), true);
         } else if (out.startsWith("err:exec ")) {
-            emit processError(msgCannotExecute(m_executable, winErrorMessage(out.mid(9).toInt())));
+            emit processMessage(msgCannotExecute(m_executable, winErrorMessage(out.mid(9).toInt())), processMessage);
         } else if (out.startsWith("pid ")) {
             // Wil not need it any more
             delete m_tempFile;
@@ -192,8 +192,8 @@ void ConsoleProcess::readStubOutput()
                     SYNCHRONIZE | PROCESS_QUERY_INFORMATION | PROCESS_TERMINATE,
                     FALSE, m_appPid);
             if (m_hInferior == NULL) {
-                emit processError(tr("Cannot obtain a handle to the inferior: %1")
-                                  .arg(winErrorMessage(GetLastError())));
+                emit processMessage(tr("Cannot obtain a handle to the inferior: %1")
+                                    .arg(winErrorMessage(GetLastError())), true);
                 // Uhm, and now what?
                 continue;
             }
@@ -201,7 +201,7 @@ void ConsoleProcess::readStubOutput()
             connect(inferiorFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(inferiorExited()));
             emit processStarted();
         } else {
-            emit processError(msgUnexpectedOutput());
+            emit processMessage(msgUnexpectedOutput(), true);
             TerminateProcess(m_pid->hProcess, (unsigned)-1);
             break;
         }
@@ -222,8 +222,8 @@ void ConsoleProcess::inferiorExited()
     DWORD chldStatus;
 
     if (!GetExitCodeProcess(m_hInferior, &chldStatus))
-        emit processError(tr("Cannot obtain exit status from inferior: %1")
-                          .arg(winErrorMessage(GetLastError())));
+        emit processMessage(tr("Cannot obtain exit status from inferior: %1")
+                            .arg(winErrorMessage(GetLastError())), true);
     cleanupInferior();
     m_appStatus = QProcess::NormalExit;
     m_appCode = chldStatus;

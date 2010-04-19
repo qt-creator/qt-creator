@@ -821,9 +821,9 @@ void DebuggerManager::notifyInferiorPidChanged(qint64 pid)
     }
 }
 
-void DebuggerManager::showApplicationOutput(const QString &str)
+void DebuggerManager::showApplicationOutput(const QString &str, bool onStdErr)
 {
-     emit applicationOutputAvailable(str);
+     emit applicationOutputAvailable(str, onStdErr);
 }
 
 void DebuggerManager::shutdown()

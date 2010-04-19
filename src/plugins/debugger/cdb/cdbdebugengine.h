@@ -106,7 +106,7 @@ public slots:
 
 private slots:
     void slotConsoleStubStarted();
-    void slotConsoleStubError(const QString &msg);
+    void slotConsoleStubMessage(const QString &msg, bool);
     void slotConsoleStubTerminated();
     void slotBreakAttachToCrashed();
     void warning(const QString &w);

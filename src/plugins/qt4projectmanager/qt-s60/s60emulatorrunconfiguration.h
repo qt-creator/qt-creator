@@ -137,7 +137,7 @@ public:
 
 private slots:
     void processExited(int exitCode);
-    void slotAddToOutputWindow(const QString &line);
+    void slotAddToOutputWindow(const QString &line, bool onStdErr);
     void slotError(const QString & error);
 
 private:

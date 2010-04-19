@@ -43,11 +43,13 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
     m_outputCodec = QTextCodec::codecForLocale();
     m_currentMode = Gui;
     m_guiProcess = new QProcess(this);
-    m_guiProcess->setReadChannelMode(QProcess::MergedChannels);
+    m_guiProcess->setReadChannelMode(QProcess::SeparateChannels);
     connect(m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(guiProcessError()));
     connect(m_guiProcess, SIGNAL(readyReadStandardOutput()),
         this, SLOT(readStandardOutput()));
+    connect(m_guiProcess, SIGNAL(readyReadStandardError()),
+        this, SLOT(readStandardError()));
     connect(m_guiProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(processDone(int, QProcess::ExitStatus)));
     connect(m_guiProcess, SIGNAL(started()),
@@ -55,8 +57,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
 
     m_consoleProcess = new ConsoleProcess(this);
     m_consoleProcess->setSettings(Core::ICore::instance()->settings());
-    connect(m_consoleProcess, SIGNAL(processError(const QString&)),
-            this, SIGNAL(applicationError(const QString&)));
+    connect(m_consoleProcess, SIGNAL(processMessage(QString,bool)),
+            this, SIGNAL(appendMessage(QString,bool)));
     connect(m_consoleProcess, SIGNAL(processStopped()),
             this, SLOT(processStopped()));
 }
@@ -131,14 +133,23 @@ void ApplicationLauncher::guiProcessError()
     default:
         error = tr("Some error has occurred while running the program.");
     }
-    emit applicationError(error);
+    emit appendMessage(error, true);
 }
 
 void ApplicationLauncher::readStandardOutput()
 {
     QByteArray data = m_guiProcess->readAllStandardOutput();
     emit appendOutput(m_outputCodec->toUnicode(
-            data.constData(), data.length(), &m_outputCodecState));
+            data.constData(), data.length(), &m_outputCodecState),
+                      false);
+}
+
+void ApplicationLauncher::readStandardError()
+{
+    QByteArray data = m_guiProcess->readAllStandardError();
+    emit appendOutput(m_outputCodec->toUnicode(
+            data.constData(), data.length(), &m_outputCodecState),
+                      true);
 }
 
 void ApplicationLauncher::processStopped()

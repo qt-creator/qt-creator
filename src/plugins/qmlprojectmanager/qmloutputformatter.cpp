@@ -44,7 +44,7 @@ QmlOutputFormatter::QmlOutputFormatter(QObject *parent)
 {
 }
 
-void QmlOutputFormatter::appendOutput(const QString &text)
+void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool /*onStdErr*/)
 {
     QTextCharFormat normalFormat, linkFormat;
     normalFormat.setForeground(plainTextEdit()->palette().text().color());
@@ -72,9 +72,9 @@ void QmlOutputFormatter::appendOutput(const QString &text)
     plainTextEdit()->insertPlainText(text.mid(index));
 }
 
-void QmlOutputFormatter::appendError(const QString &text)
+void QmlOutputFormatter::appendMessage(const QString &text, bool isError)
 {
-    appendOutput(text);
+    appendApplicationOutput(text, isError);
 }
 
 void QmlOutputFormatter::mousePressEvent(QMouseEvent * /*e*/)

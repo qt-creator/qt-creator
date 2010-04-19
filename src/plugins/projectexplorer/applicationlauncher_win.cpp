@@ -43,16 +43,16 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
     m_currentMode = Gui;
 
     m_consoleProcess = new ConsoleProcess(this);
-    connect(m_consoleProcess, SIGNAL(processError(const QString&)),
-            this, SIGNAL(applicationError(const QString&)));
+    connect(m_consoleProcess, SIGNAL(processMessage(const QString&, bool)),
+            this, SIGNAL(appendMessage(QString,bool)));
     connect(m_consoleProcess, SIGNAL(processStopped()),
             this, SLOT(processStopped()));
 
     m_winGuiProcess = new WinGuiProcess(this);
-    connect(m_winGuiProcess, SIGNAL(processError(const QString&)),
-        this, SIGNAL(applicationError(const QString&)));
-    connect(m_winGuiProcess, SIGNAL(receivedDebugOutput(const QString&)),
-        this, SLOT(readWinDebugOutput(const QString&)));
+    connect(m_winGuiProcess, SIGNAL(processMessage(const QString &, bool)),
+        this, SIGNAL(appendMessage(QString,bool)));
+    connect(m_winGuiProcess, SIGNAL(receivedDebugOutput(const QString&, bool)),
+        this, SLOT(readWinDebugOutput(const QString&, bool)));
     connect(m_winGuiProcess, SIGNAL(processFinished(int)),
             this, SLOT(processFinished(int)));
 
@@ -111,9 +111,10 @@ qint64 ApplicationLauncher::applicationPID() const
     return result;
 }
 
-void ApplicationLauncher::readWinDebugOutput(const QString &output)
+void ApplicationLauncher::readWinDebugOutput(const QString &output,
+                                             bool onStdErr)
 {
-    emit appendOutput(output);
+    emit appendOutput(output, onStdErr);
 }
 
 void ApplicationLauncher::processStopped()

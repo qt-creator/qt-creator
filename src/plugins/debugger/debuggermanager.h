@@ -264,7 +264,7 @@ public slots: // FIXME
 //private slots:  // FIXME
     void showDebuggerOutput(int channel, const QString &msg);
     void showDebuggerInput(int channel, const QString &msg);
-    void showApplicationOutput(const QString &data);
+    void showApplicationOutput(const QString &data, bool onStdErr);
 
     void reloadSourceFiles();
     void sourceFilesDockToggled(bool on);
@@ -329,7 +329,8 @@ signals:
     void inferiorPidChanged(qint64 pid);
     void stateChanged(int newstatus);
     void statusMessageRequested(const QString &msg, int timeout); // -1 for 'forever'
-    void applicationOutputAvailable(const QString &output);
+    void applicationOutputAvailable(const QString &output, bool onStdErr);
+    void messageAvailable(const QString &output, bool isError);
     void emitShowOutput(int channel, const QString &output);
     void emitShowInput(int channel, const QString &input);
 

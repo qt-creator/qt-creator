@@ -56,7 +56,7 @@ public:
     virtual int exitCode() const = 0;
 
 //signals:
-    virtual void processError(const QString &error) = 0;
+    virtual void processMessage(const QString &error, bool isError) = 0;
 
 #ifdef Q_OS_WIN
     // Add PATH and SystemRoot environment variables in case they are missing

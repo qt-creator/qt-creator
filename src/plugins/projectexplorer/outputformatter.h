@@ -50,8 +50,8 @@ public:
     QPlainTextEdit *plainTextEdit() const;
     void setPlainTextEdit(QPlainTextEdit *plainText);
 
-    virtual void appendOutput(const QString &text);
-    virtual void appendError(const QString &text);
+    virtual void appendApplicationOutput(const QString &text, bool onStdErr);
+    virtual void appendMessage(const QString &text, bool isError);
 
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);

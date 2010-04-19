@@ -161,7 +161,7 @@ protected:
     void setReleaseDeviceAfterLauncherFinish(bool);
 
 protected slots:
-    void printApplicationOutput(const QString &output);
+    void printApplicationOutput(const QString &output, bool onStdErr);
     void deviceRemoved(const SymbianUtils::SymbianDevice &);
 
 private slots:

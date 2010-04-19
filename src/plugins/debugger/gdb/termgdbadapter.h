@@ -66,7 +66,7 @@ private:
 
     Q_SLOT void handleInferiorStarted();
     Q_SLOT void stubExited();
-    Q_SLOT void stubError(const QString &msg);
+    Q_SLOT void stubMessage(const QString &msg, bool isError);
 
     Utils::ConsoleProcess m_stubProc;
 };

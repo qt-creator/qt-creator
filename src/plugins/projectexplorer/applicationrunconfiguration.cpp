@@ -101,10 +101,10 @@ LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfig
     m_runMode = static_cast<ApplicationLauncher::Mode>(runConfiguration->runMode());
     m_commandLineArguments = runConfiguration->commandLineArguments();
 
-    connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
-            this, SLOT(slotError(QString)));
-    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString)),
-            this, SLOT(slotAddToOutputWindow(QString)));
+    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
+            this, SLOT(slotAppendMessage(QString,bool)));
+    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
+            this, SLOT(slotAddToOutputWindow(QString, bool)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
@@ -120,7 +120,7 @@ void LocalApplicationRunControl::start()
     m_applicationLauncher.start(m_runMode, m_executable, m_commandLineArguments);
     emit started();
 
-    emit addToOutputWindow(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)));
+    emit appendMessage(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)), false);
 }
 
 void LocalApplicationRunControl::stop()
@@ -133,20 +133,22 @@ bool LocalApplicationRunControl::isRunning() const
     return m_applicationLauncher.isRunning();
 }
 
-void LocalApplicationRunControl::slotError(const QString & err)
+void LocalApplicationRunControl::slotAppendMessage(const QString &err,
+                                                   bool isError)
 {
-    emit error(this, err);
+    emit appendMessage(this, err, isError);
     emit finished();
 }
 
-void LocalApplicationRunControl::slotAddToOutputWindow(const QString &line)
+void LocalApplicationRunControl::slotAddToOutputWindow(const QString &line,
+                                                       bool stderr)
 {
-    emit addToOutputWindowInline(this, line);
+    emit addToOutputWindowInline(this, line, stderr);
 }
 
 void LocalApplicationRunControl::processExited(int exitCode)
 {
-    emit addToOutputWindow(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode));
+    emit appendMessage(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode), false);
     emit finished();
 }
 

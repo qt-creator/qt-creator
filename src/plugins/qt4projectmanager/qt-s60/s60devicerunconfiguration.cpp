@@ -534,19 +534,19 @@ void S60DeviceRunControlBase::start()
     emit started();
     if (m_serialPortName.isEmpty()) {
         m_deployProgress->reportCanceled();
-        error(this, tr("There is no device plugged in."));
+        appendMessage(this, tr("There is no device plugged in."), true);
         emit finished();
         return;
     }
 
-    emit addToOutputWindow(this, tr("Executable file: %1").arg(msgListFile(m_executableFileName)));
+    emit appendMessage(this, tr("Executable file: %1").arg(msgListFile(m_executableFileName)), false);
 
     QString errorMessage;
     QString settingsCategory;
     QString settingsPage;
     if (!checkConfiguration(&errorMessage, &settingsCategory, &settingsPage)) {
         m_deployProgress->reportCanceled();
-        error(this, errorMessage);
+        appendMessage(this, errorMessage, true);
         emit finished();
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger for Symbian Platform"),
                                                         errorMessage, QString(),
@@ -566,14 +566,15 @@ void S60DeviceRunControlBase::start()
             if (!packageInfo.exists()
                     || packageInfo.lastModified() < packageWithTargetInfo.lastModified()) {
                 // the 'targetname_armX_udeb.sis' crap exists and is new, rename it
-                emit addToOutputWindow(this, tr("Renaming new package '%1' to '%2'")
-                                       .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget),
-                                            QDir::toNativeSeparators(m_signedPackage)));
+                emit appendMessage(this, tr("Renaming new package '%1' to '%2'")
+                                   .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget),
+                                        QDir::toNativeSeparators(m_signedPackage)), false);
                 ok = renameFile(m_packageFileNameWithTarget, m_signedPackage, &errorMessage);
             } else {
                 // the 'targetname_armX_udeb.sis' crap exists but is old, remove it
-                emit addToOutputWindow(this, tr("Removing old package '%1'")
-                                       .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget)));
+                emit appendMessage(this, tr("Removing old package '%1'")
+                                   .arg(QDir::toNativeSeparators(m_packageFileNameWithTarget)),
+                                   false);
                 QFile::remove(m_packageFileNameWithTarget);
             }
         }
@@ -589,7 +590,7 @@ void S60DeviceRunControlBase::start()
     } else {
         m_deployProgress->reportCanceled();
         errorMessage = tr("Failed to find package '%1': %2").arg(m_signedPackage, errorMessage);
-        error(this, errorMessage);
+        appendMessage(this, errorMessage, true);
         stop();
         emit finished();
     }
@@ -651,7 +652,7 @@ void S60DeviceRunControlBase::startDeployment()
         m_launcher->setCopyFileName(m_signedPackage, copyDst);
         m_launcher->setInstallFileName(copyDst);
         initLauncher(runFileName, m_launcher);
-        emit addToOutputWindow(this, tr("Package: %1\nDeploying application to '%2'...").arg(msgListFile(m_signedPackage), m_serialPortFriendlyName));
+        emit appendMessage(this, tr("Package: %1\nDeploying application to '%2'...").arg(msgListFile(m_signedPackage), m_serialPortFriendlyName), false);
         // Prompt the user to start up the Blue tooth connection
         const trk::PromptStartCommunicationResult src =
             S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
@@ -668,7 +669,7 @@ void S60DeviceRunControlBase::startDeployment()
 
     if (!success) {
         if (!errorMessage.isEmpty())
-            error(this, errorMessage);
+            appendMessage(this, errorMessage, true);
         stop();
         emit finished();
     }
@@ -676,28 +677,28 @@ void S60DeviceRunControlBase::startDeployment()
 
 void S60DeviceRunControlBase::printCreateFileFailed(const QString &filename, const QString &errorMessage)
 {
-    emit addToOutputWindow(this, tr("Could not create file %1 on device: %2").arg(filename, errorMessage));
+    emit appendMessage(this, tr("Could not create file %1 on device: %2").arg(filename, errorMessage), true);
 }
 
 void S60DeviceRunControlBase::printWriteFileFailed(const QString &filename, const QString &errorMessage)
 {
-    emit addToOutputWindow(this, tr("Could not write to file %1 on device: %2").arg(filename, errorMessage));
+    emit appendMessage(this, tr("Could not write to file %1 on device: %2").arg(filename, errorMessage), true);
 }
 
 void S60DeviceRunControlBase::printCloseFileFailed(const QString &filename, const QString &errorMessage)
 {
     const QString msg = tr("Could not close file %1 on device: %2. It will be closed when App TRK is closed.");
-    emit addToOutputWindow(this, msg.arg(filename, errorMessage));
+    emit appendMessage(this, msg.arg(filename, errorMessage), true);
 }
 
 void S60DeviceRunControlBase::printConnectFailed(const QString &errorMessage)
 {
-    emit addToOutputWindow(this, tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage));
+    emit appendMessage(this, tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage), true);
 }
 
 void S60DeviceRunControlBase::printCopyingNotice()
 {
-    emit addToOutputWindow(this, tr("Copying install file..."));
+    emit appendMessage(this, tr("Copying install file..."), false);
 }
 
 void S60DeviceRunControlBase::printCopyProgress(int progress)
@@ -708,7 +709,7 @@ void S60DeviceRunControlBase::printCopyProgress(int progress)
 void S60DeviceRunControlBase::printInstallingNotice()
 {
     m_deployProgress->setProgressValue(PROGRESS_PACKAGEDEPLOYED);
-    emit addToOutputWindow(this, tr("Installing application..."));
+    emit appendMessage(this, tr("Installing application..."), false);
 }
 
 void S60DeviceRunControlBase::printInstallingFinished()
@@ -724,7 +725,7 @@ void S60DeviceRunControlBase::printInstallFailed(const QString &filename, const 
     QTC_ASSERT(m_deployProgress, ;)
     if (m_deployProgress)
         m_deployProgress->reportCanceled();
-    emit addToOutputWindow(this, tr("Could not install from package %1 on device: %2").arg(filename, errorMessage));
+    emit appendMessage(this, tr("Could not install from package %1 on device: %2").arg(filename, errorMessage), true);
 }
 
 void S60DeviceRunControlBase::launcherFinished()
@@ -749,7 +750,7 @@ void S60DeviceRunControlBase::reportDeployFinished()
 
 void S60DeviceRunControlBase::processStopped(uint pc, uint pid, uint tid, const QString& reason)
 {
-    emit addToOutputWindow(this, trk::Launcher::msgStopped(pid, tid, pc, reason));
+    emit addToOutputWindow(this, trk::Launcher::msgStopped(pid, tid, pc, reason), false);
     m_launcher->terminate();
 }
 
@@ -779,20 +780,20 @@ void S60DeviceRunControlBase::slotWaitingForTrkClosed()
 {
     if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
         stop();
-        error(this, tr("Canceled."));
+        appendMessage(this, tr("Canceled."), true);
         emit finished();
     }
 }
 
-void S60DeviceRunControlBase::printApplicationOutput(const QString &output)
+void S60DeviceRunControlBase::printApplicationOutput(const QString &output, bool onStdErr)
 {
-    emit addToOutputWindowInline(this, output);
+    emit addToOutputWindowInline(this, output, onStdErr);
 }
 
 void S60DeviceRunControlBase::deviceRemoved(const SymbianUtils::SymbianDevice &d)
 {
     if (m_handleDeviceRemoval && d.portName() == m_serialPortName) {
-        error(this, tr("The device '%1' has been disconnected").arg(d.friendlyName()));
+        appendMessage(this, tr("The device '%1' has been disconnected").arg(d.friendlyName()), true);
         emit finished();
     }
 }
@@ -824,21 +825,21 @@ void S60DeviceRunControl::initLauncher(const QString &executable, trk::Launcher 
 void S60DeviceRunControl::handleLauncherFinished()
 {
      emit finished();
-     emit addToOutputWindow(this, tr("Finished."));
+     emit appendMessage(this, tr("Finished."), false);
  }
 
 void S60DeviceRunControl::printStartingNotice()
 {
-    emit addToOutputWindow(this, tr("Starting application..."));
+    emit appendMessage(this, tr("Starting application..."), false);
 }
 
 void S60DeviceRunControl::printRunNotice(uint pid)
 {
-    emit addToOutputWindow(this, tr("Application running with pid %1.").arg(pid));
+    emit appendMessage(this, tr("Application running with pid %1.").arg(pid), false);
 }
 
 void S60DeviceRunControl::printRunFailNotice(const QString &errorMessage) {
-    emit addToOutputWindow(this, tr("Could not start application: %1").arg(errorMessage));
+    emit appendMessage(this, tr("Could not start application: %1").arg(errorMessage), true);
 }
 
 // ======== S60DeviceDebugRunControl
@@ -854,8 +855,8 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *ru
 
     connect(dm, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()), Qt::QueuedConnection);
-    connect(dm, SIGNAL(applicationOutputAvailable(QString)),
-            this, SLOT(printApplicationOutput(QString)),
+    connect(dm, SIGNAL(applicationOutputAvailable(QString, bool)),
+            this, SLOT(printApplicationOutput(QString, bool)),
             Qt::QueuedConnection);
 
     m_startParams->remoteChannel = rc->serialPortName();
@@ -892,7 +893,7 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
 
     if (!QFileInfo(m_startParams->symbolFileName).isFile()) {
         m_startParams->symbolFileName.clear();
-        emit addToOutputWindow(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(m_localExecutableFileName));
+        emit appendMessage(this, tr("Warning: Cannot locate the symbol file belonging to %1.").arg(m_localExecutableFileName), true);
     }
 
     launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
@@ -902,13 +903,13 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
 
 void S60DeviceDebugRunControl::handleLauncherFinished()
 {
-    emit addToOutputWindow(this, tr("Launching debugger..."));
+    emit appendMessage(this, tr("Launching debugger..."), false);
     Debugger::DebuggerManager::instance()->startNewDebugger(m_startParams);
 }
 
 void S60DeviceDebugRunControl::debuggingFinished()
 {
-    emit addToOutputWindow(this, tr("Debugging finished."));
+    emit appendMessage(this, tr("Debugging finished."), false);
     emit finished();
 }
 

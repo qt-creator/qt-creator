@@ -70,19 +70,20 @@ public:
     qint64 applicationPID() const;
 
 signals:
-    void applicationError(const QString &error);
-    void appendOutput(const QString &line);
+    void appendMessage(const QString &message, bool isError);
+    void appendOutput(const QString &line, bool onStdErr);
     void processExited(int exitCode);
     void bringToForegroundRequested(qint64 pid);
 
 private slots:
     void processStopped();
 #ifdef Q_OS_WIN
-    void readWinDebugOutput(const QString &output);
+    void readWinDebugOutput(const QString &output, bool onStdErr);
     void processFinished(int exitCode);
 #else
     void guiProcessError();
     void readStandardOutput();
+    void readStandardError();
     void processDone(int, QProcess::ExitStatus);
 #endif
 

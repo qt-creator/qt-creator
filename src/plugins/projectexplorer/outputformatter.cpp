@@ -49,7 +49,7 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
     setParent(m_plainTextEdit);
 }
 
-void OutputFormatter::appendOutput(const QString &text)
+void OutputFormatter::appendApplicationOutput(const QString &text, bool /*onStdErr*/)
 {
     QTextCharFormat format;
     format.setForeground(plainTextEdit()->palette().text().color());
@@ -57,9 +57,9 @@ void OutputFormatter::appendOutput(const QString &text)
     plainTextEdit()->insertPlainText(text);
 }
 
-void OutputFormatter::appendError(const QString &text)
+void OutputFormatter::appendMessage(const QString &text, bool isError)
 {
-    appendOutput(text);
+    appendApplicationOutput(text, isError);
 }
 
 void OutputFormatter::mousePressEvent(QMouseEvent * /*e*/)

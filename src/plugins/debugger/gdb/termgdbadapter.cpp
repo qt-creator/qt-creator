@@ -59,7 +59,7 @@ TermGdbAdapter::TermGdbAdapter(GdbEngine *engine, QObject *parent)
     m_stubProc.setSettings(Core::ICore::instance()->settings());
 #endif
 
-    connect(&m_stubProc, SIGNAL(processError(QString)), SLOT(stubError(QString)));
+    connect(&m_stubProc, SIGNAL(processMessage(QString, bool)), SLOT(stubMessage(QString, bool)));
     connect(&m_stubProc, SIGNAL(processStarted()), SLOT(handleInferiorStarted()));
     connect(&m_stubProc, SIGNAL(wrapperStopped()), SLOT(stubExited()));
 }
@@ -165,7 +165,7 @@ void TermGdbAdapter::interruptInferior()
         debugMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
 }
 
-void TermGdbAdapter::stubError(const QString &msg)
+void TermGdbAdapter::stubMessage(const QString &msg, bool)
 {
     showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
 }

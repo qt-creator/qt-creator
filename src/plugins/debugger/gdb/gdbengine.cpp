@@ -329,8 +329,8 @@ static void dump(const char *first, const char *middle, const QString & to)
 
 void GdbEngine::readDebugeeOutput(const QByteArray &data)
 {
-    m_manager->showApplicationOutput(m_outputCodec->toUnicode(
-            data.constData(), data.length(), &m_outputCodecState));
+    m_manager->messageAvailable(m_outputCodec->toUnicode(
+            data.constData(), data.length(), &m_outputCodecState), true);
 }
 
 void GdbEngine::debugMessage(const QString &msg)
@@ -541,7 +541,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             // On Windows, the contents seem to depend on the debugger
             // version and/or OS version used.
             if (data.startsWith("warning:"))
-                manager()->showApplicationOutput(_(data.mid(9))); // cut "warning: "
+                manager()->messageAvailable(_(data.mid(9)), true); // cut "warning: "
             break;
         }
 

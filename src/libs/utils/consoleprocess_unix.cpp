@@ -70,7 +70,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processError(msgCommChannelFailed(err));
+        emit processMessage(msgCommChannelFailed(err), true);
         return false;
     }
 
@@ -78,7 +78,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
         m_tempFile = new QTemporaryFile();
         if (!m_tempFile->open()) {
             stubServerShutdown();
-            emit processError(msgCannotCreateTempFile(m_tempFile->errorString()));
+            emit processMessage(msgCannotCreateTempFile(m_tempFile->errorString()), true);
             delete m_tempFile;
             m_tempFile = 0;
             return false;
@@ -108,7 +108,7 @@ bool ConsoleProcess::start(const QString &program, const QStringList &args)
     m_process.start(xterm, xtermArgs);
     if (!m_process.waitForStarted()) {
         stubServerShutdown();
-        emit processError(tr("Cannot start the terminal emulator '%1'.").arg(xterm));
+        emit processMessage(tr("Cannot start the terminal emulator '%1'.").arg(xterm), true);
         delete m_tempFile;
         m_tempFile = 0;
         return false;
@@ -189,9 +189,9 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = m_stubSocket->readLine();
         out.chop(1); // \n
         if (out.startsWith("err:chdir ")) {
-            emit processError(msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())));
+            emit processMessage(msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())), true);
         } else if (out.startsWith("err:exec ")) {
-            emit processError(msgCannotExecute(m_executable, errorMsg(out.mid(9).toInt())));
+            emit processMessage(msgCannotExecute(m_executable, errorMsg(out.mid(9).toInt())), true);
         } else if (out.startsWith("pid ")) {
             // Will not need it any more
             delete m_tempFile;
@@ -210,7 +210,7 @@ void ConsoleProcess::readStubOutput()
             m_appPid = 0;
             emit processStopped();
         } else {
-            emit processError(msgUnexpectedOutput());
+            emit processMessage(msgUnexpectedOutput(), true);
             m_process.terminate();
             break;
         }

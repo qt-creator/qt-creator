@@ -304,8 +304,8 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
     m_executable = runConfiguration->executable();
     connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
             this, SLOT(slotError(QString)));
-    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString)),
-            this, SLOT(slotAddToOutputWindow(QString)));
+    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
+            this, SLOT(slotAddToOutputWindow(QString, bool)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
@@ -317,7 +317,7 @@ void S60EmulatorRunControl::start()
     m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable, QStringList());
     emit started();
 
-    emit addToOutputWindow(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)));
+    emit appendMessage(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)), false);
 }
 
 void S60EmulatorRunControl::stop()
@@ -332,22 +332,22 @@ bool S60EmulatorRunControl::isRunning() const
 
 void S60EmulatorRunControl::slotError(const QString & err)
 {
-    emit error(this, err);
+    emit appendMessage(this, err, false);
     emit finished();
 }
 
-void S60EmulatorRunControl::slotAddToOutputWindow(const QString &line)
+void S60EmulatorRunControl::slotAddToOutputWindow(const QString &line, bool onStdErr)
 {
     static QString prefix = tr("[Qt Message]");
     static int prefixLength = prefix.length();
     int index = line.indexOf(prefix);
     if (index != -1) {
-        emit addToOutputWindowInline(this, line.mid(index + prefixLength + 1));
+        emit addToOutputWindowInline(this, line.mid(index + prefixLength + 1), onStdErr);
     }
 }
 
 void S60EmulatorRunControl::processExited(int exitCode)
 {
-    emit addToOutputWindow(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode));
+    emit appendMessage(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode), exitCode != 0);
     emit finished();
 }

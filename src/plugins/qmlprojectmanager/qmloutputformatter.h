@@ -42,8 +42,8 @@ class QmlOutputFormatter: public ProjectExplorer::OutputFormatter
 public:
     QmlOutputFormatter(QObject *parent = 0);
 
-    virtual void appendOutput(const QString &text);
-    virtual void appendError(const QString &text);
+    virtual void appendApplicationOutput(const QString &text, bool onStdErr);
+    virtual void appendMessage(const QString &text, bool isError);
 
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);

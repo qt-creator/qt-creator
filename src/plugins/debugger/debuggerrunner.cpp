@@ -179,9 +179,11 @@ void DebuggerRunControl::init()
     connect(m_manager, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()),
             Qt::QueuedConnection);
-    connect(m_manager, SIGNAL(applicationOutputAvailable(QString)),
-            this, SLOT(slotAddToOutputWindowInline(QString)),
+    connect(m_manager, SIGNAL(applicationOutputAvailable(QString, bool)),
+            this, SLOT(slotAddToOutputWindowInline(QString, bool)),
             Qt::QueuedConnection);
+    connect(m_manager, SIGNAL(messageAvailable(QString, bool)),
+            this, SLOT(slotMessageAvailable(QString, bool)));
     connect(m_manager, SIGNAL(inferiorPidChanged(qint64)),
             this, SLOT(bringApplicationToForeground(qint64)),
             Qt::QueuedConnection);
@@ -200,7 +202,7 @@ void DebuggerRunControl::start()
         m_manager->startNewDebugger(m_startParameters);
         emit started();
     } else {
-        error(this, errorMessage);
+        appendMessage(this, errorMessage, true);
         emit finished();
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger"), errorMessage,
                                                         QString(),
@@ -208,9 +210,15 @@ void DebuggerRunControl::start()
     }
 }
 
-void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data)
+void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data,
+                                                     bool onStdErr)
 {
-    emit addToOutputWindowInline(this, data);
+    emit addToOutputWindowInline(this, data, onStdErr);
+}
+
+void DebuggerRunControl::slotMessageAvailable(const QString &data, bool isError)
+{
+    emit appendMessage(this, data, isError);
 }
 
 void DebuggerRunControl::stop()

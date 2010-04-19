@@ -172,9 +172,9 @@ public:
     virtual OutputFormatter *createOutputFormatter(QObject *parent = 0);
 
 signals:
-    void addToOutputWindow(RunControl *, const QString &line);
-    void addToOutputWindowInline(RunControl *, const QString &line);
-    void error(RunControl *, const QString &error);
+    void addToOutputWindow(RunControl *, const QString &line, bool onStdErr);
+    void addToOutputWindowInline(RunControl *, const QString &line, bool onStdErr);
+    void appendMessage(RunControl *, const QString &error, bool isError);
     void started();
     void finished();
 

@@ -122,12 +122,12 @@ void WinGuiProcess::run()
                                               &si, m_pid);
 
         if (!started) {
-            emit processError(tr("The process could not be started!"));
+            emit processMessage(tr("The process could not be started!"), true);
             break;
         }
 
         if (!dbgInterface) {
-            emit receivedDebugOutput(tr("Cannot retrieve debugging output!"));
+            emit receivedDebugOutput(tr("Cannot retrieve debugging output!"), true);
             WaitForSingleObject(m_pid->hProcess, INFINITE);
         } else {
             LPSTR  message;
@@ -148,7 +148,7 @@ void WinGuiProcess::run()
                 switch (ret) {
                 case WAIT_OBJECT_0 + 0:
                     if (*processId == m_pid->dwProcessId)
-                        emit receivedDebugOutput(QString::fromLocal8Bit(message));
+                        emit receivedDebugOutput(QString::fromLocal8Bit(message), false);
                     SetEvent(bufferReadyEvent);
                     break;
                 case WAIT_OBJECT_0 + 1:

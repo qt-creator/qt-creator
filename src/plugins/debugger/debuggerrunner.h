@@ -87,7 +87,8 @@ signals:
     void stopRequested();
 
 private slots:
-    void slotAddToOutputWindowInline(const QString &output);
+    void slotAddToOutputWindowInline(const QString &output, bool onStdErr);
+    void slotMessageAvailable(const QString &data, bool isError);
 
 private:
     void init();

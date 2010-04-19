@@ -83,7 +83,7 @@ void AbstractMaemoRunControl::start()
 
 void AbstractMaemoRunControl::startInitialCleanup()
 {   
-    emit addToOutputWindow(this, tr("Cleaning up remote leftovers first ..."));
+    emit appendMessage(this, tr("Cleaning up remote leftovers first ..."), false);
     const QStringList appsToKill
         = QStringList() << executableFileName() << QLatin1String("gdbserver");
     killRemoteProcesses(appsToKill, true);
@@ -103,14 +103,14 @@ void AbstractMaemoRunControl::stop()
 void AbstractMaemoRunControl::handleInitialCleanupFinished()
 {
     if (m_stoppedByUser) {
-        emit addToOutputWindow(this, tr("Initial cleanup canceled by user."));
+        emit appendMessage(this, tr("Initial cleanup canceled by user."), false);
         emit finished();
     } else if (m_initialCleaner->hasError()) {
         handleError(tr("Error running initial cleanup: %1.")
                     .arg(m_initialCleaner->error()));
         emit finished();
     } else {
-        emit addToOutputWindow(this, tr("Initial cleanup done."));
+        emit appendMessage(this, tr("Initial cleanup done."), false);
         startInternal();
     }
 }
@@ -158,7 +158,7 @@ void AbstractMaemoRunControl::deploy()
             files << srcFilePath;
             deploySpecs << SshDeploySpec(srcFilePath, tgtFilePath);
         }
-        emit addToOutputWindow(this, tr("Files to deploy: %1.").arg(files.join(" ")));
+        emit appendMessage(this, tr("Files to deploy: %1.").arg(files.join(" ")), false);
         m_sshDeployer.reset(new MaemoSshDeployer(m_devConfig, deploySpecs));
         connect(m_sshDeployer.data(), SIGNAL(finished()),
                 this, SLOT(handleDeployThreadFinished()));
@@ -213,7 +213,7 @@ void AbstractMaemoRunControl::startExecution()
             this, SLOT(handleRunThreadFinished()));
     connect(m_sshRunner.data(), SIGNAL(remoteOutput(QString)),
             this, SLOT(handleRemoteOutput(QString)));
-    emit addToOutputWindow(this, tr("Starting remote application."));
+    emit appendMessage(this, tr("Starting remote application."), false);
     m_sshRunner->start();
 }
 
@@ -257,13 +257,13 @@ void AbstractMaemoRunControl::handleDeployThreadFinished()
 {
     bool cancel;
     if (m_stoppedByUser) {
-        emit addToOutputWindow(this, tr("Deployment canceled by user."));
+        emit appendMessage(this, tr("Deployment canceled by user."), false);
         cancel = true;
     } else if (m_sshDeployer->hasError()) {
         handleError(tr("Deployment failed: %1").arg(m_sshDeployer->error()));
         cancel = true;
     } else {
-        emit addToOutputWindow(this, tr("Deployment finished."));
+        emit appendMessage(this, tr("Deployment finished."), false);
         cancel = false;
     }
 
@@ -280,13 +280,16 @@ void AbstractMaemoRunControl::handleDeployThreadFinished()
 void AbstractMaemoRunControl::handleRunThreadFinished()
 {
     if (m_stoppedByUser) {
-        emit addToOutputWindow(this,
-                 tr("Remote execution canceled due to user request."));
+        emit appendMessage(this,
+                 tr("Remote execution canceled due to user request."),
+                 false);
     } else if (m_sshRunner->hasError()) {
-        emit addToOutputWindow(this, tr("Error running remote process: %1")
-                                         .arg(m_sshRunner->error()));
+        emit appendMessage(this, tr("Error running remote process: %1")
+                                         .arg(m_sshRunner->error()),
+                               true);
     } else {
-        emit addToOutputWindow(this, tr("Finished running remote process."));
+        emit appendMessage(this, tr("Finished running remote process."),
+                               false);
     }
     emit finished();
 }
@@ -335,7 +338,7 @@ QString AbstractMaemoRunControl::targetCmdLineSuffix() const
 void AbstractMaemoRunControl::handleError(const QString &errString)
 {
     QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
-    emit error(this, errString);
+    emit appendMessage(this, errString, true);
 }
 
 
@@ -365,9 +368,9 @@ void MaemoRunControl::stopInternal()
     AbstractMaemoRunControl::stopRunning(false);
 }
 
-void MaemoRunControl::handleRemoteOutput(const QString &output)
+void MaemoRunControl::handleRemoteOutput(const QString &output, bool onStdErr)
 {
-    emit addToOutputWindowInline(this, output);
+    emit addToOutputWindowInline(this, output, onStdErr);
 }
 
 
@@ -392,8 +395,8 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
 
     connect(m_debuggerManager, SIGNAL(debuggingFinished()), this,
         SLOT(debuggingFinished()), Qt::QueuedConnection);
-    connect(m_debuggerManager, SIGNAL(applicationOutputAvailable(QString)),
-        this, SLOT(debuggerOutput(QString)), Qt::QueuedConnection);
+    connect(m_debuggerManager, SIGNAL(applicationOutputAvailable(QString, bool)),
+        this, SLOT(debuggerOutput(QString, bool)), Qt::QueuedConnection);
 }
 
 MaemoDebugRunControl::~MaemoDebugRunControl()
@@ -417,13 +420,13 @@ QString MaemoDebugRunControl::remoteCall() const
         .arg(executableFilePathOnTarget()).arg(targetCmdLineSuffix());
 }
 
-void MaemoDebugRunControl::handleRemoteOutput(const QString &output)
+void MaemoDebugRunControl::handleRemoteOutput(const QString &output, bool onStdErr)
 {
     if (!m_debuggingStarted) {
         m_debuggingStarted = true;
         startDebugging();
     }
-    emit addToOutputWindowInline(this, output);
+    emit addToOutputWindowInline(this, output, onStdErr);
 }
 
 void MaemoDebugRunControl::startDebugging()
@@ -447,9 +450,9 @@ void MaemoDebugRunControl::debuggingFinished()
     AbstractMaemoRunControl::stopRunning(true);
 }
 
-void MaemoDebugRunControl::debuggerOutput(const QString &output)
+void MaemoDebugRunControl::debuggerOutput(const QString &output, bool onStdErr)
 {
-    emit addToOutputWindowInline(this, QLatin1String("[gdb says:] ") + output);
+    emit appendMessage(this, QLatin1String("[gdb says:] ") + output, onStdErr);
 }
 
 QString MaemoDebugRunControl::gdbServerPort() const

@@ -88,8 +88,8 @@ public:
     virtual bool isRunning() const;
 private slots:
     void processExited(int exitCode);
-    void slotAddToOutputWindow(const QString &line);
-    void slotError(const QString & error);
+    void slotAddToOutputWindow(const QString &line, bool stderr);
+    void slotAppendMessage(const QString &err, bool isError);
 private:
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
     QString m_executable;

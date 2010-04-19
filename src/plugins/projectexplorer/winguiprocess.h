@@ -61,8 +61,8 @@ public:
     int exitCode() const;
 
 signals:
-    void processError(const QString &error);
-    void receivedDebugOutput(const QString &output);
+    void processMessage(const QString &error, bool isError);
+    void receivedDebugOutput(const QString &output, bool stderr);
     void processFinished(int exitCode);
 
 private:

@@ -210,22 +210,25 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
     }
 }
 
-void OutputPane::appendOutput(RunControl *rc, const QString &out)
+void OutputPane::appendApplicationOutput(RunControl *rc, const QString &out,
+                                         bool onStdErr)
 {
     OutputWindow *ow = m_outputWindows.value(rc);
-    ow->appendOutput(out);
+    ow->appendApplicationOutput(out, onStdErr);
 }
 
-void OutputPane::appendOutputInline(RunControl *rc, const QString &out)
+void OutputPane::appendApplicationOutputInline(RunControl *rc,
+                                               const QString &out,
+                                               bool onStdErr)
 {
     OutputWindow *ow = m_outputWindows.value(rc);
-    ow->appendOutputInline(out);
+    ow->appendApplicationOutputInline(out, onStdErr);
 }
 
-void OutputPane::appendError(RunControl *rc, const QString &out)
+void OutputPane::appendMessage(RunControl *rc, const QString &out, bool isError)
 {
     OutputWindow *ow = m_outputWindows.value(rc);
-    ow->appendError(out);
+    ow->appendMessage(out, isError);
 }
 
 void OutputPane::showTabFor(RunControl *rc)
@@ -424,7 +427,7 @@ void OutputWindow::showEvent(QShowEvent *e)
     m_scrollToBottom = false;
 }
 
-QString OutputWindow::doNewlineMagic(const QString &out)
+QString OutputWindow::doNewlineEnfocement(const QString &out)
 {
     m_scrollToBottom = true;
     QString s = out;
@@ -439,17 +442,17 @@ QString OutputWindow::doNewlineMagic(const QString &out)
     return s;
 }
 
-void OutputWindow::appendOutput(const QString &out)
+void OutputWindow::appendApplicationOutput(const QString &out, bool onStdErr)
 {
     setMaximumBlockCount(MaxBlockCount);
     const bool atBottom = isScrollbarAtBottom();
-    m_formatter->appendOutput(doNewlineMagic(out));
+    m_formatter->appendApplicationOutput(doNewlineEnfocement(out), onStdErr);
     if (atBottom)
         scrollToBottom();
     enableUndoRedo();
 }
 
-void OutputWindow::appendOutputInline(const QString &out)
+void OutputWindow::appendApplicationOutputInline(const QString &out, bool onStdErr)
 {
     m_scrollToBottom = true;
     setMaximumBlockCount(MaxBlockCount);
@@ -462,7 +465,7 @@ void OutputWindow::appendOutputInline(const QString &out)
     if (!enforceNewline) {
         newline = out.indexOf(QLatin1Char('\n'));
         moveCursor(QTextCursor::End);
-        m_formatter->appendOutput(newline < 0 ? out : out.left(newline)); // doesn't enforce new paragraph like appendPlainText
+        m_formatter->appendApplicationOutput(newline < 0 ? out : out.left(newline), onStdErr); // doesn't enforce new paragraph like appendPlainText
     }
 
     QString s = out.mid(newline+1);
@@ -473,7 +476,7 @@ void OutputWindow::appendOutputInline(const QString &out)
             m_enforceNewline = true;
             s.chop(1);
         }
-        m_formatter->appendOutput(QLatin1Char('\n') + s);
+        m_formatter->appendApplicationOutput(QLatin1Char('\n') + s, onStdErr);
     }
 
     if (atBottom)
@@ -481,10 +484,10 @@ void OutputWindow::appendOutputInline(const QString &out)
     enableUndoRedo();
 }
 
-void OutputWindow::appendError(const QString &out)
+void OutputWindow::appendMessage(const QString &out, bool isError)
 {
     setMaximumBlockCount(MaxBlockCount);
-    m_formatter->appendError(doNewlineMagic(out));
+    m_formatter->appendMessage(doNewlineEnfocement(out), isError);
     enableUndoRedo();
 }
 

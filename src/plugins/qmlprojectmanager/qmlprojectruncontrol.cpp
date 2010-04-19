@@ -65,10 +65,10 @@ QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, bool 
     m_executable = runConfiguration->viewerPath();
     m_commandLineArguments = runConfiguration->viewerArguments();
 
-    connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
-            this, SLOT(slotError(QString)));
-    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString)),
-            this, SLOT(slotAddToOutputWindow(QString)));
+    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,bool)),
+            this, SLOT(slotError(QString, bool)));
+    connect(&m_applicationLauncher, SIGNAL(appendOutput(QString, bool)),
+            this, SLOT(slotAddToOutputWindow(QString, bool)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
@@ -90,7 +90,7 @@ void QmlRunControl::start()
 
     emit started();
     emit addToOutputWindow(this, tr("Starting %1 %2").arg(QDir::toNativeSeparators(m_executable),
-                           m_commandLineArguments.join(QLatin1String(" "))));
+                           m_commandLineArguments.join(QLatin1String(" "))), false);
 }
 
 void QmlRunControl::stop()
@@ -113,25 +113,25 @@ void QmlRunControl::slotBringApplicationToForeground(qint64 pid)
     bringApplicationToForeground(pid);
 }
 
-void QmlRunControl::slotError(const QString &err)
+void QmlRunControl::slotError(const QString &err, bool isError)
 {
-    emit error(this, err);
+    emit appendMessage(this, err, isError);
     emit finished();
 }
 
-void QmlRunControl::slotAddToOutputWindow(const QString &line)
+void QmlRunControl::slotAddToOutputWindow(const QString &line, bool onStdErr)
 {
     if (m_debugMode && line.startsWith("QDeclarativeDebugServer: Waiting for connection")) {
         Core::ICore *core = Core::ICore::instance();
         core->modeManager()->activateMode(Debugger::Constants::MODE_DEBUG);
     }
 
-    emit addToOutputWindowInline(this, line);
+    emit addToOutputWindowInline(this, line, onStdErr);
 }
 
 void QmlRunControl::processExited(int exitCode)
 {
-    emit addToOutputWindow(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode));
+    emit appendMessage(this, tr("%1 exited with code %2").arg(QDir::toNativeSeparators(m_executable)).arg(exitCode), exitCode != 0);
     emit finished();
 }
 

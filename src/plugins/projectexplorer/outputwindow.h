@@ -92,9 +92,11 @@ public slots:
     void projectRemoved();
     void coreAboutToClose();
 
-    void appendOutput(RunControl *rc, const QString &out);
-    void appendOutputInline(RunControl *rc, const QString &out);
-    void appendError(RunControl *rc, const QString &out);
+    void appendApplicationOutput(RunControl *rc, const QString &out,
+                                 bool onStdErr);
+    void appendApplicationOutputInline(RunControl *rc, const QString &out,
+                                       bool onStdErr);
+    void appendMessage(RunControl *rc, const QString &out, bool isError);
 
 private slots:
     void reRunRunControl();
@@ -127,9 +129,9 @@ public:
     OutputFormatter* formatter() const;
     void setFormatter(OutputFormatter *formatter);
 
-    void appendOutput(const QString &out);
-    void appendOutputInline(const QString &out);
-    void appendError(const QString &out);
+    void appendApplicationOutput(const QString &out, bool onStdErr);
+    void appendApplicationOutputInline(const QString &out, bool onStdErr);
+    void appendMessage(const QString &out, bool isError);
 
     void grayOutOldContent();
 
@@ -145,7 +147,7 @@ protected:
 
 private:
     void enableUndoRedo();
-    QString doNewlineMagic(const QString &out);
+    QString doNewlineEnfocement(const QString &out);
 
 private:
     Core::BaseContext *m_outputWindowContext;

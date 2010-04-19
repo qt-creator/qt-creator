@@ -221,8 +221,8 @@ CdbDebugEngine::CdbDebugEngine(DebuggerManager *manager, const QSharedPointer<Cd
     m_d(new CdbDebugEnginePrivate(manager, options, this))
 {
     m_d->m_consoleStubProc.setMode(Utils::ConsoleProcess::Suspend);
-    connect(&m_d->m_consoleStubProc, SIGNAL(processError(QString)),
-            this, SLOT(slotConsoleStubError(QString)));
+    connect(&m_d->m_consoleStubProc, SIGNAL(processMessage(QString,bool)),
+            this, SLOT(slotConsoleStubMessage(QString, bool)));
     connect(&m_d->m_consoleStubProc, SIGNAL(processStarted()),
             this, SLOT(slotConsoleStubStarted()));
     connect(&m_d->m_consoleStubProc, SIGNAL(wrapperStopped()),
@@ -1232,7 +1232,7 @@ void CdbDebugEngine::slotConsoleStubStarted()
     }
 }
 
-void CdbDebugEngine::slotConsoleStubError(const QString &msg)
+void CdbDebugEngine::slotConsoleStubMessage(const QString &msg, bool)
 {
     QMessageBox::critical(DebuggerUISwitcher::instance()->mainWindow(), tr("Debugger Error"), msg);
 }
