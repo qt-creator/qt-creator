@@ -53,11 +53,27 @@
 #include <QtGui/QMenu>
 
 namespace {
-    const int TASK_ICON_SIZE = 16;
-    const int TASK_ICON_MARGIN = 2;
+
+const int TASK_ICON_SIZE = 16;
+const int TASK_ICON_MARGIN = 2;
+
+const QIcon ERROR_ICON(":/projectexplorer/images/compile_error.png");
+const QIcon WARNING_ICON(":/projectexplorer/images/compile_warning.png");
+
 }
 
 namespace ProjectExplorer {
+
+QIcon Task::icon() const
+{
+    if (type == ProjectExplorer::Task::Error)
+        return ERROR_ICON;
+    else if (type == ProjectExplorer::Task::Warning)
+        return WARNING_ICON;
+    else
+        return QIcon();
+}
+
 namespace Internal {
 
 class TaskView : public QListView
@@ -123,9 +139,7 @@ public:
     int sizeOfLineNumber();
     void setFileNotFound(const QModelIndex &index, bool b);
 
-    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category, Task_t };
-
-    QIcon iconFor(Task::TaskType type);
+    enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category, Icon, Task_t };
 
 private:
     QHash<QString,QString> m_categories; // category id -> display name
@@ -215,7 +229,6 @@ TaskModel::TaskModel()
     m_maxSizeOfFileName = 0;
     m_errorIcon = QIcon(":/projectexplorer/images/compile_error.png");
     m_warningIcon = QIcon(":/projectexplorer/images/compile_warning.png");
-
 }
 
 void TaskModel::addCategory(const QString &categoryId, const QString &categoryName)
@@ -339,6 +352,8 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
         return (int)m_tasks.at(index.row()).type;
     } else if (role == TaskModel::Category) {
         return m_tasks.at(index.row()).category;
+    } else if (role == TaskModel::Icon) {
+        return m_tasks.at(index.row()).icon();
     } else if (role == TaskModel::Task_t) {
         return QVariant::fromValue(m_tasks.at(index.row()));
     }
@@ -353,16 +368,6 @@ QStringList TaskModel::categoryIds() const
 QString TaskModel::categoryDisplayName(const QString &categoryId) const
 {
     return m_categories.value(categoryId);
-}
-
-QIcon TaskModel::iconFor(Task::TaskType type)
-{
-    if (type == Task::Error)
-        return m_errorIcon;
-    else if (type == Task::Warning)
-        return m_warningIcon;
-    else
-        return QIcon();
 }
 
 int TaskModel::sizeOfFile()
@@ -431,12 +436,11 @@ bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
 // TaskWindow
 /////
 
-static QToolButton *createFilterButton(Task::TaskType type,
-                                       const QString &toolTip, TaskModel *model,
+static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
                                        QObject *receiver, const char *slot)
 {
     QToolButton *button = new QToolButton;
-    button->setIcon(model->iconFor(type));
+    button->setIcon(icon);
     button->setToolTip(toolTip);
     button->setCheckable(true);
     button->setChecked(true);
@@ -491,8 +495,8 @@ TaskWindow::TaskWindow()
     connect(m_listview, SIGNAL(clicked(QModelIndex)),
             this, SLOT(showTaskInFile(QModelIndex)));
 
-    m_filterWarningsButton = createFilterButton(Task::Warning,
-                                                tr("Show Warnings"), m_model,
+    m_filterWarningsButton = createFilterButton(WARNING_ICON,
+                                                tr("Show Warnings"),
                                                 this, SLOT(setShowWarnings(bool)));
 
     m_categoriesMenu = new QMenu;
@@ -865,8 +869,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     painter->setPen(textColor);
 
     TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
-    Task::TaskType type = Task::TaskType(index.data(TaskModel::Type).toInt());
-    QIcon icon = model->iconFor(type);
+    QIcon icon = index.data(TaskModel::Icon).value<QIcon>();
     painter->drawPixmap(TASK_ICON_MARGIN, opt.rect.top() + TASK_ICON_MARGIN, icon.pixmap(TASK_ICON_SIZE, TASK_ICON_SIZE));
 
     int width = opt.rect.width() - model->sizeOfFile() - model->sizeOfLineNumber() - 12 - 22;
