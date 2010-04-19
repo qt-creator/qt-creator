@@ -28,12 +28,6 @@
 **************************************************************************/
 
 #include "colorwidget.h"
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QToolButton>
-#include <QGradient>
-#include <QPainter>
-#include <QtDebug>
 #include <modelnode.h>
 #include <abstractview.h>
 #include <nodeproperty.h>
@@ -44,173 +38,353 @@
 #include <QGradient>
 #include <metainfo.h>
 
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QToolButton>
+#include <QGradient>
+#include <QPainter>
+
+static inline int clamp(int x, int lower, int upper)
+{
+    if (x < lower)
+        x = lower;
+    if (x > upper)
+        x = upper;
+    return x;
+}
+
+inline QString properName(const QColor &color)
+{
+    QString s;
+    if (color.alpha() == 255)
+        s.sprintf("#%02x%02x%02x", color.red(), color.green(), color.blue());
+    else
+        s.sprintf("#%02x%02x%02x%02x", color.alpha(), color.red(), color.green(), color.blue());
+    return s;
+}
+
+inline QColor properColor(const QString &str)
+{
+    int lalpha = 255;
+    QString lcolorStr = str;
+    if (lcolorStr.at(0) == '#' && lcolorStr.length() == 9) {
+        QString alphaStr = lcolorStr;
+        alphaStr.truncate(3);
+        lcolorStr.remove(0, 3);
+        lcolorStr = "#" + lcolorStr;
+        alphaStr.remove(0,1);
+        bool v;
+        lalpha = alphaStr.toInt(&v, 16);
+        if (!v)
+            lalpha = 255;
+    }
+    QColor lcolor(lcolorStr);
+    lcolor.setAlpha(lalpha);
+    return lcolor;
+}
+
 namespace QmlDesigner {
 
-    void ColorWidget::registerDeclarativeTypes() {
-        qmlRegisterType<QmlDesigner::ColorButton>("Bauhaus",1,0,"ColorButton");
-        qmlRegisterType<QmlDesigner::HueControl>("Bauhaus",1,0,"HueControl");
-        qmlRegisterType<QmlDesigner::ColorBox>("Bauhaus",1,0,"ColorBox");
-        qmlRegisterType<QmlDesigner::GradientLine>("Bauhaus",1,0,"GradientLine");
+void ColorWidget::registerDeclarativeTypes() {
+    qmlRegisterType<QmlDesigner::ColorButton>("Bauhaus",1,0,"ColorButton");
+    qmlRegisterType<QmlDesigner::HueControl>("Bauhaus",1,0,"HueControl");
+    qmlRegisterType<QmlDesigner::ColorBox>("Bauhaus",1,0,"ColorBox");
+    qmlRegisterType<QmlDesigner::GradientLine>("Bauhaus",1,0,"GradientLine");
+}
+
+void ColorButton::setColor(const QString &colorStr)
+{
+    if (m_colorString == colorStr)
+        return;
+
+    m_colorString = colorStr;
+    update();
+    emit colorChanged();
+}
+
+void ColorButton::paintEvent(QPaintEvent *event)
+{
+    QToolButton::paintEvent(event);
+    if (!isEnabled())
+        return;
+
+    QColor color(m_colorString);
+
+    QPainter p(this);
+
+    QRect r(0, 0, width(), height());
+    if (isEnabled())
+        p.setBrush(color);
+    else
+        p.setBrush(Qt::transparent);
+    p.setPen(Qt::black);
+
+    if (!m_noColor) {
+        p.drawRect(r);
+    } else {
+        p.fillRect(r, Qt::white);
+        p.fillRect(0, 0, width() /2, height() /2, QColor(Qt::gray));
+        p.fillRect(width() /2, height() /2, width() /2, height() /2, QColor(Qt::gray));
+        p.setBrush(Qt::transparent);
+        p.drawRect(r);
     }
 
-    void ColorButton::paintEvent(QPaintEvent *event)
-    {
-        QToolButton::paintEvent(event);
-        if (!isEnabled())
-            return;
 
-        QColor color(m_colorString);
+    QVector<QPointF> points;
+    if (isChecked()) {
+        points.append(QPointF(2, 3));
+        points.append(QPointF(8, 3));
+        points.append(QPointF(5, 9));
+    } else {
+        points.append(QPointF(8, 6));
+        points.append(QPointF(2, 9));
+        points.append(QPointF(2, 3));
+    }
+    p.setPen("#707070");
+    p.setBrush(Qt::white);
+    p.drawPolygon(points);
+}
 
-        QPainter p(this);
 
-        QRect r(0, 0, width(), height());
-        if (isEnabled())
-            p.setBrush(color);
-        else
-            p.setBrush(Qt::transparent);
-        p.setPen(Qt::black);
+void HueControl::setCurrent(int y)
+{
+    y = clamp(y, 0, 120); 
+    int oldAlpha = m_color.alpha();
+    m_color.setHsv((y * 359)/120, m_color.hsvSaturation(), m_color.value());
+    m_color.setAlpha(oldAlpha);
+    update(); // redraw pointer
+    emit hueChanged();
+}
 
-        if (!m_noColor) {
-            p.drawRect(r);
-        } else {
-            p.fillRect(r, Qt::white);
-            p.fillRect(0, 0, width() /2, height() /2, QColor(Qt::gray));
-            p.fillRect(width() /2, height() /2, width() /2, height() /2, QColor(Qt::gray));
-            p.setBrush(Qt::transparent);
-            p.drawRect(r);
+void HueControl::setHue(int newHue)
+{
+    if (m_color.hsvHue() == newHue)
+        return;
+    m_color.setHsv(newHue, m_color.hsvSaturation(), m_color.value());
+    update();
+    emit hueChanged();
+}
+
+void HueControl::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+
+    QPainter p(this);
+
+    int localHeight = 120;
+
+    if (m_cache.isNull()) {
+        m_cache = QPixmap(10, localHeight);
+
+        QPainter cacheP(&m_cache);
+
+        for (int i = 0; i < localHeight; i++)
+        {
+            QColor c;
+            c.setHsv( (i*359) / 120.0, 255,255);
+            cacheP.fillRect(0, i, 10, i + 1, c);
         }
-
-
-        QVector<QPointF> points;
-        if (isChecked()) {
-            points.append(QPointF(2, 3));
-            points.append(QPointF(8, 3));
-            points.append(QPointF(5, 9));
-        } else {
-            points.append(QPointF(8, 6));
-            points.append(QPointF(2, 9));
-            points.append(QPointF(2, 3));
-        }
-        p.setPen("#707070");
-        p.setBrush(Qt::white);
-        p.drawPolygon(points);
     }
 
+    p.drawPixmap(10, 5, m_cache);
 
-    void HueControl::setCurrent(int y)
-    {
-        if (y<0) y=0;
-        if (y>120) y=120;
-        int oldAlpha = m_color.alpha();
-        m_color.setHsv((y * 359)/120, m_color.hsvSaturation(), m_color.value());
-        m_color.setAlpha(oldAlpha);
-        update(); // redraw pointer
-        emit hueChanged();
-    }
+    QVector<QPointF> points;
 
-    void HueControl::paintEvent(QPaintEvent *event)
-    {
-        QWidget::paintEvent(event);
+    int y = m_color.hueF() * 120 + 5;
 
-        QPainter p(this);
+    points.append(QPointF(15, y));
+    points.append(QPointF(25, y + 5));
+    points.append(QPointF(25, y - 5));
 
-        int localHeight = 120;
+    p.setPen(Qt::black);
+    p.setBrush(Qt::NoBrush);
+    p.drawRect(QRect(0, 0, width() - 1, height() - 1).adjusted(10, 5, -20, -5));
 
-        if (m_cache.isNull()) {
-            m_cache = QPixmap(10, localHeight);
+    p.setPen(Qt::black);
+    p.setBrush(QColor("#707070"));
+    p.drawPolygon(points);
+}
 
-            QPainter cacheP(&m_cache);
+void HueControl::mousePressEvent(QMouseEvent *e)
+{
+    // The current cell marker is set to the cell the mouse is pressed in
+    QPoint pos = e->pos();
+    m_mousePressed = true;
+    setCurrent(pos.y() - 5);
+}
 
-            for (int i = 0; i < localHeight; i++)
+void HueControl::mouseReleaseEvent(QMouseEvent * /* event */)
+{
+    m_mousePressed = false;
+}
+
+void HueControl::mouseMoveEvent(QMouseEvent *e)
+{
+    if (!m_mousePressed)
+        return;
+    QPoint pos = e->pos();
+    setCurrent(pos.y() - 5);
+}
+
+void ColorBox::setHue(int newHue)
+{
+    if (m_color.hsvHue() == newHue)
+        return;
+
+    int oldAlpha = m_color.alpha();
+    m_color.setHsv(newHue,m_color.hsvSaturation(),m_color.value());
+    m_color.setAlpha(oldAlpha);
+    update();
+    emit hueChanged();
+    emit colorChanged();
+}
+
+int ColorBox::hue() const
+{
+    int retval = m_color.hsvHue();
+    if (retval<0) retval=0;
+    if (retval>359) retval=359;
+    return retval;
+}
+
+void ColorBox::setAlpha(int newAlpha)
+{
+    if (m_color.alpha() == newAlpha)
+        return;
+
+    m_color.setAlpha(newAlpha);
+    update();
+    emit alphaChanged();
+    emit colorChanged();
+}
+
+QString ColorBox::strColor() const
+{
+    return properName(m_color);
+}
+
+void ColorBox::setStrColor(const QString &colorStr)
+{
+    if (properName(m_color) == colorStr)
+        return;
+
+    setColor(properColor(colorStr));
+}
+
+void ColorBox::setColor(const QColor &color)
+{
+    if (m_color == color)
+        return;
+
+    int oldsaturation = m_color.hsvSaturation();
+    int oldvalue = m_color.value();
+    int oldhue = m_color.hsvHue();
+    int oldAlpha = m_color.alpha();
+    m_color=color;
+    update();
+    if (oldhue != m_color.hsvHue()) emit hueChanged();
+    if (oldsaturation != saturation()) emit saturationChanged();
+    if (oldvalue != value()) emit valueChanged();
+    if (oldAlpha != alpha()) emit alphaChanged();
+    emit colorChanged();
+}
+
+void ColorBox::setSaturation(int newsaturation)
+{
+    if (m_color.hsvSaturation()==newsaturation) return;
+    int oldAlpha = m_color.alpha();
+    m_color.setHsv(m_color.hsvHue(),newsaturation,m_color.value());
+    m_color.setAlpha(oldAlpha);
+    update();
+    emit saturationChanged();
+    emit colorChanged();
+}
+
+void ColorBox::setCurrent(int x, int y)
+{
+    QColor newColor;
+    x = clamp(x, 0, 120);
+    y = clamp(y, 0, 120);
+    int oldAlpha = m_color.alpha();
+    newColor.setHsv(hue(), (x*255) / 120, 255 - (y*255) / 120);
+    newColor.setAlpha(oldAlpha);
+    setColor(newColor);
+}
+
+void ColorBox::setValue(int newvalue)
+{
+    if (m_color.value()==newvalue) return;
+    int oldAlpha = m_color.alpha();
+    m_color.setHsv(m_color.hsvHue(),m_color.hsvSaturation(),newvalue);
+    m_color.setAlpha(oldAlpha);
+    update();
+    emit valueChanged();
+    emit colorChanged();
+}
+
+void ColorBox::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+
+    QPainter p(this);
+
+    if ((m_color.saturation()>1) && (m_color.value()>1))
+        m_saturatedColor.setHsv(m_color.hsvHue(),255,255);
+
+    if ((hue() != m_lastHue) || (m_cache.isNull())) {
+        m_lastHue = hue();
+
+        int fixedHue = clamp(m_lastHue, 0, 359);
+
+        m_cache = QPixmap(120, 120);
+
+        int height = 120;
+        int width = 120;
+
+        QPainter chacheP(&m_cache);
+
+        for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
             {
-                QColor c;
-                c.setHsv( (i*359) / 120.0, 255,255);
-                cacheP.fillRect(0, i, 10, i + 1, c);
-            }
-        }
-
-        p.drawPixmap(10, 5, m_cache);
-
-        QVector<QPointF> points;
-
-        int y = m_color.hueF() * 120 + 5;
-
-        points.append(QPointF(15, y));
-        points.append(QPointF(25, y + 5));
-        points.append(QPointF(25, y - 5));
-
-        p.setPen(Qt::black);
-        p.setBrush(Qt::NoBrush);
-        p.drawRect(QRect(0, 0, width() - 1, height() - 1).adjusted(10, 5, -20, -5));
-
-        p.setPen(Qt::black);
-        p.setBrush(QColor("#707070"));
-        p.drawPolygon(points);
-    }
-
-    void ColorBox::setCurrent(int x, int y)
-    {
-        QColor newColor;
-        if (x<0) x=0;
-        if (x>120) x=120;
-        if (y<0) y=0;
-        if (y>120) y=120;
-        int oldAlpha = m_color.alpha();
-        newColor.setHsv(hue(), (x*255) / 120, 255 - (y*255) / 120);
-        newColor.setAlpha(oldAlpha);
-        setColor(newColor);
-    }
-
-    void ColorBox::paintEvent(QPaintEvent *event)
-    {
-        QWidget::paintEvent(event);
-
-        QPainter p(this);
-
-        if ((m_color.saturation()>1) && (m_color.value()>1))
-            m_saturatedColor.setHsv(m_color.hsvHue(),255,255);
-
-        if ((hue() != m_lastHue) || (m_cache.isNull())) {
-            m_lastHue = hue();
-
-            int fixedHue = m_lastHue;
-
-            if (fixedHue<0) fixedHue=0;
-            if (fixedHue>359) fixedHue=359;
-
-            m_cache = QPixmap(120, 120);
-
-            int height = 120;
-            int width = 120;
-
-            QPainter chacheP(&m_cache);
-
-            for (int y = 0; y < height; y++)
-                for (int x = 0; x < width; x++)
-                {
                 QColor c;
                 c.setHsv(fixedHue, (x*255) / 120, 255 - (y*255) / 120);
                 chacheP.setPen(c);
                 chacheP.drawPoint(x ,y);
             }
-        }
-
-        p.drawPixmap(5, 5, m_cache);
-
-        int x = m_color.hsvSaturationF() * 120 + 5;
-        int y = 120 - m_color.valueF() * 120 + 5;
-
-        if (x<5) x=5;
-        if (x>125) x=125;
-        if (y<5) y=5;
-        if (y>125) y=125;
-
-        p.setPen(Qt::white);
-        p.drawEllipse(x - 2, y - 2, 4, 4);
-
-        p.setPen(Qt::black);
-        p.drawRect(QRect(0, 0, width() - 1, height() -1).adjusted(4, 4, -4, -4));
     }
+
+    p.drawPixmap(5, 5, m_cache);
+
+    int x = clamp(m_color.hsvSaturationF() * 120, 0, 120) + 5; 
+    int y = clamp(120 - m_color.valueF() * 120, 0, 120) + 5; 
+
+    p.setPen(Qt::white);
+    p.drawEllipse(x - 2, y - 2, 4, 4);
+
+    p.setPen(Qt::black);
+    p.drawRect(QRect(0, 0, width() - 1, height() -1).adjusted(4, 4, -4, -4));
+}
+
+void ColorBox::mousePressEvent(QMouseEvent *e)
+{
+    // The current cell marker is set to the cell the mouse is pressed in
+    QPoint pos = e->pos();
+    m_mousePressed = true;
+    setCurrent(pos.x() - 5, pos.y() - 5);
+}
+
+void ColorBox::mouseReleaseEvent(QMouseEvent * /* event */)
+{
+    m_mousePressed = false;
+}
+
+void ColorBox::mouseMoveEvent(QMouseEvent *e)
+{
+    if (!m_mousePressed)
+        return;
+    QPoint pos = e->pos();
+    setCurrent(pos.x() - 5, pos.y() - 5);
+}
 
 void GradientLine::setItemNode(const QVariant &itemNode)
 {
@@ -227,6 +401,40 @@ static inline QColor invertColor(const QColor color)
     QColor c = color.toHsv();
     c.setHsv(c.hue(), c.saturation(), 255 - c.value());
     return c;
+}
+
+GradientLine::GradientLine(QWidget *parent) : QWidget(parent),  m_activeColor(Qt::black), m_gradientName("gradient"), m_dragActive(false), m_yOffset(0), m_create(false), m_active(false)
+{
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    setFocusPolicy(Qt::StrongFocus);
+    setFixedHeight(50);
+    setMinimumWidth(160);
+    resize(160, 50);
+    m_colorList << m_activeColor << QColor(Qt::white);
+    m_stops << 0 << 1;
+    updateGradient();
+    setCurrentIndex(0);
+}
+
+void GradientLine::setGradientName(const QString &newName)
+{
+    if (newName == m_gradientName)
+        return;
+    m_gradientName = newName;
+    setup();
+    emit gradientNameChanged();
+}
+
+void GradientLine::setActiveColor(const QColor &newColor)
+{
+    if (newColor.name() == m_activeColor.name() && newColor.alpha() == m_activeColor.alpha())
+        return;
+
+    m_activeColor = newColor;
+    m_colorList.removeAt(currentColorIndex());
+    m_colorList.insert(currentColorIndex(), m_activeColor);
+    updateGradient();
+    update();
 }
 
 void GradientLine::setupGradient()
@@ -253,6 +461,27 @@ void GradientLine::setupGradient()
     }
 
     updateGradient();
+}
+
+void GradientLine::deleteGradient()
+{
+    if (!m_itemNode.isValid())
+        return;
+
+    if (!m_itemNode.modelNode().metaInfo().hasProperty(m_gradientName))
+        return;
+
+    ModelNode modelNode = m_itemNode.modelNode();
+
+    if (m_itemNode.isInBaseState()) {
+        if (modelNode.hasProperty(m_gradientName)) {
+            RewriterTransaction transaction;
+            m_itemNode.modelNode().removeProperty(m_gradientName); //### there is atm a bug in the node instances which lead to a crash if using destroy()
+            /*ModelNode gradientNode = modelNode.nodeProperty(m_gradientName).modelNode();
+            if (QmlObjectNode(gradientNode).isValid())
+                QmlObjectNode(gradientNode).destroy();*/
+        }
+    }
 }
 
 bool GradientLine::event(QEvent *event)
@@ -350,7 +579,6 @@ void GradientLine::mousePressEvent(QMouseEvent *event)
     }
     setFocus(Qt::MouseFocusReason);
     event->accept();
-    //QWidget::mousePressEvent(event);
 }
 
 void GradientLine::mouseReleaseEvent(QMouseEvent *event)
@@ -376,7 +604,6 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
     update();
     updateGradient();
     event->accept();
-    //QWidget::mouseReleaseEvent(event);
 }
 
 void GradientLine::mouseMoveEvent(QMouseEvent *event)
@@ -414,7 +641,7 @@ void GradientLine::mouseMoveEvent(QMouseEvent *event)
 }
 
 void GradientLine::setup()
-{    
+{
 
 }
 
@@ -445,8 +672,9 @@ void GradientLine::updateGradient()
     ModelNode modelNode = m_itemNode.modelNode();
 
     if (m_itemNode.isInBaseState()) {
-        if (modelNode.hasProperty(m_gradientName))
+        if (modelNode.hasProperty(m_gradientName)) {
             modelNode.removeProperty(m_gradientName);
+        }
 
         ModelNode gradientNode = modelNode.view()->createModelNode("Qt/Gradient", 4, 6);
 
@@ -471,6 +699,16 @@ void GradientLine::updateGradient()
             stopObjectNode.setVariantProperty("color", normalizeColor(m_colorList.at(i)));
         }
     }
+}
+
+void GradientLine::setCurrentIndex(int i)
+{
+    if (i == m_colorIndex)
+        return;
+    m_colorIndex = i;
+    setActiveColor(m_colorList.at(i));
+    emit activeColorChanged();
+    update();
 }
 
 }
