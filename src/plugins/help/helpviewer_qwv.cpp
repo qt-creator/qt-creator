@@ -124,25 +124,28 @@ HelpNetworkAccessManager::HelpNetworkAccessManager(QObject *parent)
 QNetworkReply *HelpNetworkAccessManager::createRequest(Operation /*op*/,
     const QNetworkRequest &request, QIODevice* /*outgoingData*/)
 {
-    const QUrl& url = request.url();
-    QString mimeType = url.toString();
-    if (mimeType.endsWith(QLatin1String(".svg"))
-        || mimeType.endsWith(QLatin1String(".svgz"))) {
-            mimeType = QLatin1String("image/svg+xml");
-    } else if (mimeType.endsWith(QLatin1String(".css"))) {
-        mimeType = QLatin1String("text/css");
-    } else if (mimeType.endsWith(QLatin1String(".js"))) {
-        mimeType = QLatin1String("text/javascript");
-    } else if (mimeType.endsWith(QLatin1String(".txt"))) {
-        mimeType = QLatin1String("text/plain");
-    } else {
-        mimeType = QLatin1String("text/html");
+    QString url = request.url().toString();
+    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    // TODO: For some reason the url to load is already wrong (passed from webkit)
+    // though the css file and the references inside should work that way. One 
+    // possible problem might be that the css is loaded at the same level as the
+    // html, thus a path inside the css like (../images/foo.png) might cd out of
+    // the virtual folder
+    if (!engine.findFile(url).isValid()) {
+        if (url.startsWith(HelpViewer::DocPath)) {
+            if (!url.startsWith(HelpViewer::DocPath + "qdoc/")) {
+                url = url.replace(HelpViewer::DocPath,
+                    HelpViewer::DocPath + QLatin1String("qdoc/"));
+            }
+        }
     }
 
-    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    const QString &mimeType = HelpViewer::mimeFromUrl(url);
     const QByteArray &data = engine.findFile(url).isValid() ? engine.fileData(url)
-        : HelpViewer::PageNotFoundMessage.arg(url.toString()).toUtf8();
-    return new HelpNetworkReply(request, data, mimeType);
+        : HelpViewer::PageNotFoundMessage.arg(url).toUtf8();
+
+    return new HelpNetworkReply(request, data, mimeType.isEmpty()
+        ? QLatin1String("application/octet-stream") : mimeType);
 }
 
 // -- HelpPage

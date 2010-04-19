@@ -85,11 +85,13 @@ public:
     bool findText(const QString &text, Find::IFindSupport::FindFlags flags,
         bool incremental, bool fromSearch);
 
+    static QString DocPath;
     static QString AboutBlankPage;
     static QString PageNotFoundMessage;
 
     static bool isLocalUrl(const QUrl &url);
     static bool canOpenPage(const QString &url);
+    static QString mimeFromUrl(const QString &url);
     static bool launchWithExternalApp(const QUrl &url);
 
 public slots:
