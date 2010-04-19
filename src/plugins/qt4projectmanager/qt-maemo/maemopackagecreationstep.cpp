@@ -207,7 +207,8 @@ bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command
         const QString mainMessage = tr("Packaging Error: Command '%1' failed.")
                                     .arg(command);
         raiseError(mainMessage, mainMessage + QLatin1Char(' ')
-                   + tr("Output was: ") + proc.readAllStandardError());
+                   + tr("Output was: ") + proc.readAllStandardError()
+                   + QLatin1Char('\n') + proc.readAllStandardOutput());
         return false;
     }
     return true;
