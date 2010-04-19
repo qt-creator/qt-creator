@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>ProjectExplorer::Internal::ProjectWelcomePageWidget</class>
  <widget class="QWidget" name="ProjectExplorer::Internal::ProjectWelcomePageWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>486</width>
+    <height>221</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -31,25 +39,25 @@
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QFrame" name="recentProjectsFrame">
-          <layout class="QGridLayout" name="gridLayout_5">
-           <property name="rightMargin">
-            <number>9</number>
-           </property>
-           <property name="horizontalSpacing">
-            <number>0</number>
-           </property>
-           <property name="verticalSpacing">
-            <number>3</number>
-           </property>
-           <item row="3" column="0" colspan="3">
-            <widget class="Utils::WelcomeModeTreeWidget" name="projTreeWidget"/>
-           </item>
-           <item row="1" column="0" colspan="3">
-            <widget class="Utils::WelcomeModeLabel" name="projTitleLabel">
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="Utils::WelcomeModeLabel" name="recentSessionsTitleLabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
-              <string>Recent Projects</string>
+              <string>Resume Session</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
             </widget>
+           </item>
+           <item>
+            <widget class="Utils::WelcomeModeTreeWidget" name="sessTreeWidget"/>
            </item>
           </layout>
          </widget>
@@ -68,31 +76,16 @@
             <height>130</height>
            </size>
           </property>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <property name="horizontalSpacing">
-            <number>0</number>
-           </property>
-           <property name="verticalSpacing">
-            <number>3</number>
-           </property>
-           <item row="1" column="0" colspan="3">
-            <widget class="Utils::WelcomeModeLabel" name="recentSessionsTitleLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="Utils::WelcomeModeLabel" name="projTitleLabel">
              <property name="text">
-              <string>Resume Session</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <string>Recent Projects</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="3">
-            <widget class="Utils::WelcomeModeTreeWidget" name="sessTreeWidget"/>
+           <item>
+            <widget class="Utils::WelcomeModeTreeWidget" name="projTreeWidget"/>
            </item>
           </layout>
          </widget>
@@ -168,6 +161,7 @@
    <class>Utils::WelcomeModeTreeWidget</class>
    <extends>QScrollArea</extends>
    <header location="global">utils/welcomemodetreewidget.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Utils::WelcomeModeLabel</class>
