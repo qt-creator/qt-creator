@@ -103,13 +103,14 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if ((role == Qt::DisplayRole || role == Qt::EditRole)) {
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
         if (index.column() == 0) {
             return m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
         } else if (index.column() == 1) {
+            // Do not return "<UNSET>" when editing a previously unset variable:
             if (role == Qt::EditRole) {
                 int pos = findInChanges(indexToVariable(index));
-                if (pos != -1)
+                if (pos >= 0)
                     return m_items.at(pos).value;
             }
             return m_resultEnvironment.value(m_resultEnvironment.constBegin() + index.row());
@@ -126,7 +127,6 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
     }
     return QVariant();
 }
-
 
 Qt::ItemFlags EnvironmentModel::flags(const QModelIndex &index) const
 {
