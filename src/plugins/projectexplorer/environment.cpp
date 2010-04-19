@@ -291,6 +291,11 @@ void Environment::modify(const QList<EnvironmentItem> & list)
     *this = resultEnvironment;
 }
 
+bool Environment::hasKey(const QString &key)
+{
+    return m_values.contains(key);
+}
+
 bool Environment::operator!=(const Environment &other) const
 {
     return !(*this == other);

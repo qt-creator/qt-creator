@@ -271,7 +271,7 @@ QModelIndex EnvironmentModel::addVariable()
 
 QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
 {
-    bool existsInBaseEnvironment = (m_baseEnvironment.find(item.name) != m_baseEnvironment.constEnd());
+    bool existsInBaseEnvironment = m_baseEnvironment.hasKey(item.name);
     int rowInResult;
     if (existsInBaseEnvironment)
         rowInResult = findInResult(item.name);
@@ -301,7 +301,7 @@ void EnvironmentModel::removeVariable(const QString &name)
 {
     int rowInResult = findInResult(name);
     int rowInChanges = findInChanges(name);
-    bool existsInBaseEnvironment = m_baseEnvironment.find(name) != m_baseEnvironment.constEnd();
+    bool existsInBaseEnvironment = m_baseEnvironment.hasKey(name);
     if (existsInBaseEnvironment) {
         m_items.removeAt(rowInChanges);
         updateResultEnvironment();
@@ -347,7 +347,7 @@ bool EnvironmentModel::isUnset(const QString &name)
 
 bool EnvironmentModel::isInBaseEnvironment(const QString &name)
 {
-    return m_baseEnvironment.find(name) != m_baseEnvironment.constEnd();
+    return m_baseEnvironment.hasKey(name);
 }
 
 QList<EnvironmentItem> EnvironmentModel::userChanges() const
