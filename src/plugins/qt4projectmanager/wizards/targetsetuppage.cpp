@@ -81,8 +81,21 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
     disconnect(m_treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
                this, SLOT(itemWasChanged()));
 
-    // Clean up!
-    resetInfos();
+    // Create a list of all temporary Qt versions we need to delete in our existing list
+    QList<QtVersion *> toDelete;
+    foreach (const ImportInfo &info, m_infos) {
+        if (info.isTemporary)
+            toDelete.append(info.version);
+    }
+    // Remove those that got copied into the new list to set up
+    foreach (const ImportInfo &info, infos) {
+        if (info.isTemporary)
+            toDelete.removeAll(info.version);
+    }
+    // Delete the rest
+    qDeleteAll(toDelete);
+    // ... and clear the list
+    m_infos.clear();
 
     // Find possible targets:
     QStringList targets;
@@ -402,7 +415,6 @@ void TargetSetupPage::addShadowBuildLocation()
         return;
     }
     tmp.append(m_infos);
-    m_infos.clear(); // Clear m_infos without deleting temporary QtVersions!
     setImportInfos(tmp);
 }
 
