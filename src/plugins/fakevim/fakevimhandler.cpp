@@ -1335,7 +1335,9 @@ void FakeVimHandler::Private::passShortcuts(bool enable)
 
 static bool subModeCanUseTextObjects(int submode)
 {
-    return submode == DeleteSubMode || submode == YankSubMode;
+    return submode == DeleteSubMode
+        || submode == YankSubMode
+        || submode == ChangeSubMode;
 }
 
 EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
