@@ -153,7 +153,6 @@ void NodeInstanceView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
 void NodeInstanceView::nodeRemoved(const ModelNode &/*removedNode*/, const NodeAbstractProperty &/*parentProperty*/, PropertyChangeFlags /*propertyChange*/)
 {
-
 }
 
 /*! \brief Notifing the view that a AbstractProperty was added to a ModelNode.

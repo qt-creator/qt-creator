@@ -171,7 +171,7 @@ public:
 protected:
     static QObject* createObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
 
-    void resetProperty(QObject *object, const QString &propertyName);
+    void doResetProperty(const QString &propertyName);
     NodeInstance instanceForNode(const ModelNode &node, const QString &fullname);
 
     void removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty);

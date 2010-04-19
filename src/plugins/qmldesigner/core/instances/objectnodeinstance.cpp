@@ -375,7 +375,9 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
     if (isList(metaProperty)) {
         removeObjectFromList(metaProperty, object, nodeInstanceView()->engine());
     } else if (isObject(metaProperty)) {
-        resetProperty(object, oldParentProperty);
+        if (nodeInstanceView()->hasInstanceForObject(oldParent)) {
+            nodeInstanceView()->instanceForObject(oldParent).resetProperty(oldParentProperty);
+        }
     }
 
     object->setParent(0);
@@ -500,13 +502,13 @@ void ObjectNodeInstance::deleteObjectsInList(const QDeclarativeProperty &metaPro
 
 void ObjectNodeInstance::resetProperty(const QString &name)
 {
-    resetProperty(object(), name);
+    doResetProperty(name);
 
     if (name == "font.pixelSize")
-        resetProperty(object(), "font.pointSize");
+        doResetProperty("font.pointSize");
 
     if (name == "font.pointSize")
-        resetProperty(object(), "font.pixelSize");
+        doResetProperty("font.pixelSize");
 }
 
 NodeInstance ObjectNodeInstance::instanceForNode(const ModelNode &node, const QString &fullname)
@@ -543,11 +545,11 @@ void ObjectNodeInstance::refreshProperty(const QString &name)
     property.write(oldValue);
 }
 
-void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyName)
+void ObjectNodeInstance::doResetProperty(const QString &propertyName)
 {
     m_modelAbstractPropertyHash.remove(propertyName);
 
-    QDeclarativeProperty metaProperty(object, propertyName, context());
+    QDeclarativeProperty metaProperty(object(), propertyName, context());
 
     if (!metaProperty.isValid())
         return;
@@ -557,7 +559,7 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
         QUrl url = oldValue.toUrl();
         QString path = url.toLocalFile();
         if (QFileInfo(path).exists() && nodeInstanceView())
-            nodeInstanceView()->removeFilePropertyFromFileSystemWatcher(object, propertyName, path);
+            nodeInstanceView()->removeFilePropertyFromFileSystemWatcher(object(), propertyName, path);
     }
 
 
