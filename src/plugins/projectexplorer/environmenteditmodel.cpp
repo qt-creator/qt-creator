@@ -59,6 +59,8 @@ void EnvironmentModel::updateResultEnvironment()
 {
     m_resultEnvironment = m_baseEnvironment;
     m_resultEnvironment.modify(m_items);
+    // Add removed variables again and mark them as "<UNSET>" so
+    // that the user can actually see those removals:
     foreach (const EnvironmentItem &item, m_items) {
         if (item.unset) {
             m_resultEnvironment.set(item.name, tr("<UNSET>"));
@@ -68,9 +70,10 @@ void EnvironmentModel::updateResultEnvironment()
 
 void EnvironmentModel::setBaseEnvironment(const ProjectExplorer::Environment &env)
 {
+    beginResetModel();
     m_baseEnvironment = env;
     updateResultEnvironment();
-    reset();
+    endResetModel();
 }
 
 int EnvironmentModel::rowCount(const QModelIndex &parent) const
@@ -82,25 +85,23 @@ int EnvironmentModel::rowCount(const QModelIndex &parent) const
 }
 int EnvironmentModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent)
+    if (parent.isValid())
+        return 0;
+
     return 2;
 }
 
 bool EnvironmentModel::changes(const QString &name) const
 {
-    foreach (const EnvironmentItem &item, m_items)
-        if (item.name == name)
-            return true;
-    return false;
+    return findInChanges(name) >= 0;
 }
 
 QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
 {
-    if ((role == Qt::DisplayRole || role == Qt::EditRole) && index.isValid()) {
-        if (index.row() >= m_resultEnvironment.size()) {
-            return QVariant();
-        }
+    if (!index.isValid())
+        return QVariant();
 
+    if ((role == Qt::DisplayRole || role == Qt::EditRole)) {
         if (index.column() == 0) {
             return m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
         } else if (index.column() == 1) {
@@ -131,32 +132,11 @@ Qt::ItemFlags EnvironmentModel::flags(const QModelIndex &index) const
     return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
 }
 
-bool EnvironmentModel::hasChildren(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return true;
-    else
-        return false;
-}
-
 QVariant EnvironmentModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Vertical || role != Qt::DisplayRole)
         return QVariant();
     return section == 0 ? tr("Variable") : tr("Value");
-}
-
-QModelIndex EnvironmentModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (!parent.isValid())
-        return createIndex(row, column, 0);
-    return QModelIndex();
-}
-
-QModelIndex EnvironmentModel::parent(const QModelIndex &index) const
-{
-    Q_UNUSED(index)
-    return QModelIndex();
 }
 
 /// *****************
@@ -178,7 +158,7 @@ int EnvironmentModel::findInChangesInsertPosition(const QString &name) const
     return m_items.size();
 }
 
-QModelIndex EnvironmentModel::index(const QString &name)
+QModelIndex EnvironmentModel::variableToIndex(const QString &name) const
 {
     int row = findInResult(name);
     if (row == -1)
@@ -208,6 +188,9 @@ int EnvironmentModel::findInResultInsertPosition(const QString &name) const
 
 bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    if (!index.isValid())
+        return false;
+
     if (role == Qt::EditRole && index.isValid()) {
         // ignore changes to already set values:
         if (data(index, role) == value)
@@ -357,9 +340,10 @@ QList<EnvironmentItem> EnvironmentModel::userChanges() const
 
 void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
 {
+    beginResetModel();
     m_items = list;
     updateResultEnvironment();
-    emit reset();
+    endResetModel();
 }
 
 ////
@@ -453,7 +437,7 @@ EnvironmentWidget::~EnvironmentWidget()
 
 void EnvironmentWidget::renamedVariable(const QString &name)
 {
-    QModelIndex idx = m_model->index(name);
+    QModelIndex idx = m_model->variableToIndex(name);
     m_environmentTreeView->setCurrentIndex(idx);
     m_environmentTreeView->setFocus();
 }

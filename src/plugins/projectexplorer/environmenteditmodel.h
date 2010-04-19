@@ -33,7 +33,7 @@
 #include "environment.h"
 
 #include <QtCore/QString>
-#include <QtCore/QAbstractItemModel>
+#include <QtCore/QAbstractTableModel>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -47,32 +47,30 @@ class DetailsWidget;
 
 namespace ProjectExplorer {
 
-class EnvironmentModel : public QAbstractItemModel
+class EnvironmentModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
     EnvironmentModel();
     ~EnvironmentModel();
-    void setBaseEnvironment(const ProjectExplorer::Environment &env);
+
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
-
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
     Qt::ItemFlags flags(const QModelIndex &index) const;
-    bool hasChildren(const QModelIndex &index) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
     QModelIndex addVariable();
     QModelIndex addVariable(const EnvironmentItem &item);
     void removeVariable(const QString &name);
     void unset(const QString &name);
     bool isUnset(const QString &name);
     bool isInBaseEnvironment(const QString &name);
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     QString indexToVariable(const QModelIndex &index) const;
-    QModelIndex index(const QString &name);
+    QModelIndex variableToIndex(const QString &name) const;
     bool changes(const QString &key) const;
+    void setBaseEnvironment(const ProjectExplorer::Environment &env);
     QList<EnvironmentItem> userChanges() const;
     void setUserChanges(QList<EnvironmentItem> list);
 
