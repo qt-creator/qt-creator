@@ -67,12 +67,17 @@ GroupBox {
                 SliderWidget {
                     id: scaleSlider;
                     backendValue: backendValues.scale;
-                    value: backendValues.scale.value * 10;
+                    property var pureValue: backendValues.scale.value;
+                    onPureValueChanged: {
+                        if (value != pureValue * 100)
+                            value = pureValue * 100;
+                    }
                     minimum: 1;
                     maximum: 100;
                     singleStep: 1;
                     onValueChanged: {
-                        backendValues.scale.value = value / 10;
+                        if ((value > 5) && (value < 100))
+                            backendValues.scale.value = value / 100;
                     }
                 }
             }
