@@ -1296,10 +1296,10 @@
         <icon>console.png</icon>
         <description>Creates a hello-world-project with custom message.</description>
         <description xml:lang="de">Erzeugt ein Hello-Welt-Projekt mit einer Nachricht.</description>
-        <displayName>Hello World</displayName>;
-        <displayName xml:lang="de">Hallo Welt</displayName>;
-        <displayCategory>Custom Projects</displayCategory>
-        <displayCategory xml:lang="de">Benutzerdefinierte Projekte</displayCategory>
+        <displayname>Hello World</displayname>;
+        <displayname xml:lang="de">Hallo Welt</displayname>;
+        <displaycategory>Custom Projects</displaycategory>
+        <displaycategory xml:lang="de">Benutzerdefinierte Projekte</displaycategory>
 
         \endcode
 
@@ -1325,8 +1325,8 @@
         \code
 
         <files>
-            <file source="main.cpp"/>
-            <file source="project.pro" target="%ProjectName%.pro"/>
+            <file source="main.cpp" openeditor="true" />
+            <file source="project.pro" target="%ProjectName%.pro" openproject="true" />
 
         \endcode
 
@@ -1338,6 +1338,12 @@
             \o \c target specifies the new filename for the file. The \c {%ProjectName%}
             variable is replaced with the string that users specify in the \gui Name
             field on the first page of the wizard.
+
+            \o \c openproject indicates that the file is a project file which is to be opened
+            after the wizard has finished.
+
+            \o \c openeditor indicates that the file is to be opened in an editor after
+            the wizard has finished.
 
         \endlist
 
@@ -1399,11 +1405,11 @@
            <description>Creates a QAbstractListModel implementation.</description>
            <description xml:lang="de">Erzeugt eine Implementierung von QAbstractListModel.</description>
 
-           <displayName>QAbstractListModel implementation</displayName>
-           <displayName xml:lang="de">Implementierung von QAbstractListModel</displayName>
+           <displayname>QAbstractListModel implementation</displayname>
+           <displayname xml:lang="de">Implementierung von QAbstractListModel</displayname>
 
-           <displayCategory>Custom Classes</displayCategory>
-           <displayCategory xml:lang="de">Benutzerdefinierte Klassen</displayCategory>
+           <displaycategory>Custom Classes</displaycategory>
+           <displaycategory xml:lang="de">Benutzerdefinierte Klassen</displaycategory>
 
         \endcode
 
@@ -1415,8 +1421,8 @@
         \code
 
         <files>
-            <file source="listmodel.cpp" target="%ClassName:l%.%CppSourceSuffix%"/>
-            <file source="listmodel.h" target="%ClassName:l%.%CppHeaderSuffix%"/>
+            <file source="listmodel.cpp" target="%ClassName:l%.%CppSourceSuffix%"  openeditor="true" />
+            <file source="listmodel.h" target="%ClassName:l%.%CppHeaderSuffix%"  openeditor="true" />
         </files>
 
         \endcode
