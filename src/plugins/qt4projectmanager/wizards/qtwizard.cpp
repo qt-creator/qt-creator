@@ -212,6 +212,8 @@ void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
 {
     if (showModulesPage)
         m_modulesPage = new ModulesPage;
+    connect(this, SIGNAL(introPageLeft(QString,QString)),
+            this, SLOT(propagateProjectName(QString,QString)));
 }
 
 int BaseQt4ProjectWizardDialog::addModulesPage(int id)
@@ -231,6 +233,9 @@ int BaseQt4ProjectWizardDialog::addModulesPage(int id)
 int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool mobile, int id)
 {
     m_targetSetupPage = new TargetSetupPage;
+    connect(this, SIGNAL(proFileNameChanged(QString)),
+            m_targetSetupPage, SLOT(setProFilePath(QString)));
+
     QList<TargetSetupPage::ImportInfo> infos = TargetSetupPage::importInfosForKnownQtVersions(0);
     if (!targets.isEmpty())
         infos = TargetSetupPage::filterImportInfos(targets, infos);
@@ -308,6 +313,12 @@ bool BaseQt4ProjectWizardDialog::setupProject(Qt4Project *project) const
 bool BaseQt4ProjectWizardDialog::isTargetSelected(const QString &targetid) const
 {
     return m_targetSetupPage->isTargetSelected(targetid);
+}
+
+void BaseQt4ProjectWizardDialog::propagateProjectName(const QString &name, const QString &path)
+{
+    const QString proFile = QDir::fromNativeSeparators(path) + QChar('/') + name + QChar('/') + name + QLatin1String(".pro");
+    emit proFileNameChanged(proFile);
 }
 
 QSet<QString> BaseQt4ProjectWizardDialog::desktopTarget()

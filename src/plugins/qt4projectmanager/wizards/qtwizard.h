@@ -142,6 +142,12 @@ public:
     bool setupProject(Qt4Project *project) const;
     bool isTargetSelected(const QString &targetid) const;
 
+signals:
+    void proFileNameChanged(const QString &proFileName);
+
+private slots:
+    void propagateProjectName(const QString &name, const QString &path);
+
 private:
     inline void init(bool showModulesPage);
 

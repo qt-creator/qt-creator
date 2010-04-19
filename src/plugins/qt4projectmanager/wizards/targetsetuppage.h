@@ -92,7 +92,6 @@ public:
     void setImportDirectoryBrowsingLocation(const QString &directory);
     void setShowLocationInformation(bool location);
     void setPreferMobile(bool mobile);
-    void setProFilePath(const QString &dir);
 
     static QList<ImportInfo> importInfosForKnownQtVersions(Qt4ProjectManager::Qt4Project *project);
     static QList<ImportInfo> filterImportInfos(const QSet<QString> &validTargets,
@@ -106,6 +105,9 @@ public:
     bool isComplete() const;
 
     bool setupProject(Qt4Project *project);
+
+public slots:
+    void setProFilePath(const QString &dir);
 
 private slots:
     void itemWasChanged();
