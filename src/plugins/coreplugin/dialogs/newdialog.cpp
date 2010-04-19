@@ -215,7 +215,7 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
     m_model->clear();
     QStandardItem *projectKindItem = new QStandardItem(tr("Projects"));
     projectKindItem->setData(IWizard::ProjectWizard, Qt::UserRole);
-    QStandardItem *filesClassesKindItem = new QStandardItem(tr("Files & Classes"));
+    QStandardItem *filesClassesKindItem = new QStandardItem(tr("Files and Classes"));
     filesClassesKindItem->setData(IWizard::FileWizard, Qt::UserRole);
 
     QStandardItem *parentItem = m_model->invisibleRootItem();
@@ -281,36 +281,6 @@ Core::IWizard *NewDialog::showDialog()
     for (int row = 0; row < m_proxyModel->rowCount(); ++row)
         m_ui->templateCategoryView->setExpanded(m_proxyModel->index(row, 0), true);
 
-//    QStandardItem *itemToSelect = 0;
-//    if (m_preferredWizardKinds == 0) {
-//        if (QStandardItem *rootItem = m_model->invisibleRootItem()->child(0)) {
-//            if (rootItem->rowCount())
-//                itemToSelect = rootItem->child(0);
-//        }
-//    } else {
-//        for (int i = 0; i < m_model->invisibleRootItem()->rowCount(); ++i) {
-//            QStandardItem *type = m_model->invisibleRootItem()->child(i);
-//            bool hasOnlyPreferred = true;
-//            for (int j = 0; j < category->rowCount(); ++j) {
-//                QStandardItem *item = category->child(j);
-//                if (!(item->data(Qt::UserRole).value<IWizard*>()
-//                    ->kind() & m_preferredWizardKinds)) {
-//                    hasOnlyPreferred = false;
-//                    break;
-//                }
-//            }
-//            //m_ui->templatesTree->setExpanded(category->index(), hasOnlyPreferred);
-//            if (hasOnlyPreferred && itemToSelect == 0 && category->rowCount() > 0) {
-//                itemToSelect = category->child(0);
-//            }
-//        }
-//    }
-//    if (itemToSelect) {
-//        m_ui->templateCategoryView->scrollTo(itemToSelect->index());
-//        m_ui->templateCategoryView->setCurrentIndex(itemToSelect->index());
-//        m_ui->templatesView->scrollTo(itemToSelect->index());
-//        m_ui->templatesView->setCurrentIndex(itemToSelect->index());
-//    }
     updateOkButton();
     if (exec() != Accepted)
         return 0;
