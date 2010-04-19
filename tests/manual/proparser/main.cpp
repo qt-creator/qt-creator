@@ -64,8 +64,10 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
     ProFile *pro;
     if (!(pro = visitor.parsedProFile(fileName)))
         return 2;
-    if (!visitor.accept(pro))
+    if (!visitor.accept(pro)) {
+        delete pro;
         return 2;
+    }
 
     if (visitor.templateType() == ProFileEvaluator::TT_Subdirs) {
         QStringList subdirs = visitor.values(QLatin1String("SUBDIRS"));
@@ -106,6 +108,7 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
         }
     }
 
+    delete pro;
     return 0;
 }
 
