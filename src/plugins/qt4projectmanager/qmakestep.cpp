@@ -207,7 +207,7 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
             return;
         }
 #endif
-        // Report en error if EPOC root is not set:
+        // Report an error if EPOC root is not set:
         if (epocRootDir.isEmpty() || !QDir(epocRootDir).exists()) {
             addTask(Task(Task::Error,
                          tr("The Symbian SDK was not found for Qt version %1.").arg(qtVersion->displayName()),
@@ -223,7 +223,12 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
             return;
         }
         // Warn of strange characters in project name:
-        if (projectDir.contains(QRegExp("[^a-zA-Z0-9./]"))) {
+        QString projectPath = projectDir;
+#if defined (Q_OS_WIN)
+        if (projectPath.at(1) == QChar(':') && projectPath.at(0).toUpper() >= QChar('A') && projectPath.at(0).toUpper() <= QChar('Z'))
+            projectPath = projectPath.mid(2);
+#endif
+        if (projectPath.contains(QRegExp("[^a-zA-Z0-9./]"))) {
             addTask(Task(Task::Warning,
                          tr("The Symbian toolchain does not handle special characters in a project path well."),
                          QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
