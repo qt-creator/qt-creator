@@ -220,7 +220,7 @@ void PropertyEditorValue::registerDeclarativeTypes()
     qmlRegisterType<QDeclarativePropertyMap>("Bauhaus",1,0,"QDeclarativePropertyMap");
 }
 
-PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent) : m_valuesPropertyMap(this)
+PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent) : QObject(parent), m_valuesPropertyMap(this)
 {
     m_editorValue = parent;
     connect(m_editorValue, SIGNAL(modelNodeChanged()), this, SLOT(update()));
