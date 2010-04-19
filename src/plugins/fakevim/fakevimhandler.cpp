@@ -975,7 +975,7 @@ void FakeVimHandler::Private::setAnchor()
     if (!isVisualMode()) {
         m_anchor = m_tc.position();
     } else {
-        m_marks['<'] = m_tc.position();
+    //    m_marks['<'] = m_tc.position();
     }
 }
 
@@ -4063,6 +4063,9 @@ void FakeVimHandler::Private::selectWordTextObject(bool inner)
     m_movetype = MoveExclusive;
     moveToWordBoundary(false, false, true);
     setAnchor();
+    // FIXME: Rework the 'anchor' concept.
+    if (isVisualMode()) 
+        m_marks['<'] = m_tc.position();
     moveToWordBoundary(false, true, true);
     m_movetype = MoveInclusive;
 }
@@ -4073,6 +4076,9 @@ void FakeVimHandler::Private::selectWORDTextObject(bool inner)
     m_movetype = MoveExclusive;
     moveToWordBoundary(true, false, true);
     setAnchor();
+    // FIXME: Rework the 'anchor' concept.
+    if (isVisualMode()) 
+        m_marks['<'] = m_tc.position();
     moveToWordBoundary(true, true, true);
     m_movetype = MoveInclusive;
 }
