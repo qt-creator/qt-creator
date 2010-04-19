@@ -138,99 +138,99 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     painter->resetTransform();
     painter->translate(m_feedbackOriginPoint);
 
-    QColor changeColor(QColor(Qt::green).lighter(170));
+    QColor defaultColor(Qt::white);
+    QColor changeColor("#9999ff");
 
     QFont font;
     font.setFamily("Helvetica");
-    font.setPixelSize(11);
+    font.setPixelSize(12);
     painter->setFont(font);
 
     painter->save();
-    painter->setOpacity(0.7);
+    painter->setOpacity(0.85);
 
-    QLinearGradient gradient(QPoint(0, 0), QPoint(100, 0));
-    gradient.setColorAt(0.0, Qt::darkGray);
-    gradient.setColorAt(1.0, Qt::gray);
+    QLinearGradient gradient(QPoint(0, 0), QPoint(120, 45));
+    gradient.setColorAt(0.0, Qt::black);
+    gradient.setColorAt(1.0, Qt::darkGray);
     painter->setBrush(gradient);
 
     painter->setPen(Qt::black);
-    int height = 40;
-    painter->drawRoundedRect(QRect(-1, -1, 100, height), 5, 5);
+    painter->drawRoundedRect(QRect(-1, -1, 120, 45), 5, 5);
     painter->restore();
 
 
     if (m_beginXHasExpression) {
         if(m_feedbackNode.hasBindingProperty("x"))
-            painter->setPen(Qt::blue);
+            painter->setPen(defaultColor);
         else
             painter->setPen(Qt::red);
     } else {
         if (m_beginX != m_feedbackNode.instanceValue("x"))
             painter->setPen(changeColor);
         else
-            painter->setPen(Qt::black);
+            painter->setPen(defaultColor);
     }
 
-    painter->drawText(QPoint(2.0, 12.0), QString("x:"));
-    painter->drawText(QPoint(14.0, 12.0), m_feedbackNode.instanceValue("x").toString());
+    painter->drawText(QPoint(2.0, 13.0), QString("x:"));
+    painter->drawText(QPoint(14.0, 13.0), m_feedbackNode.instanceValue("x").toString());
 
 
     if (m_beginYHasExpression) {
         if(m_feedbackNode.hasBindingProperty("y"))
-            painter->setPen(Qt::blue);
+            painter->setPen(defaultColor);
         else
             painter->setPen(Qt::red);
     } else {
         if (m_beginY != m_feedbackNode.instanceValue("y"))
             painter->setPen(changeColor);
         else
-            painter->setPen(Qt::black);
+            painter->setPen(defaultColor);
     }
 
-    painter->drawText(QPoint(50.0, 12.0), QString("y:"));
-    painter->drawText(QPoint(60.0, 12.0), m_feedbackNode.instanceValue("y").toString());
+    painter->drawText(QPoint(60.0, 13.0), QString("y:"));
+    painter->drawText(QPoint(70.0, 13.0), m_feedbackNode.instanceValue("y").toString());
 
 
     if (m_beginWidthHasExpression) {
         if(m_feedbackNode.hasBindingProperty("width"))
-            painter->setPen(Qt::blue);
+            painter->setPen(defaultColor);
         else
             painter->setPen(Qt::red);
     } else {
         if (m_beginWidth != m_feedbackNode.instanceValue("width"))
             painter->setPen(changeColor);
         else
-            painter->setPen(Qt::black);
+            painter->setPen(defaultColor);
     }
 
-    painter->drawText(QPoint(2.0, 24.0), QString("w:"));
-    painter->drawText(QPoint(14.0, 24.0), m_feedbackNode.instanceValue("width").toString());
+    painter->drawText(QPoint(2.0, 26.0), QString("w:"));
+    painter->drawText(QPoint(14.0, 26.0), m_feedbackNode.instanceValue("width").toString());
 
 
     if (m_beginHeightHasExpression) {
         if(m_feedbackNode.hasBindingProperty("height"))
-            painter->setPen(Qt::blue);
+            painter->setPen(defaultColor);
         else
             painter->setPen(Qt::red);
     } else {
         if (m_beginHeight != m_feedbackNode.instanceValue("height"))
             painter->setPen(changeColor);
         else
-            painter->setPen(Qt::black);
+            painter->setPen(defaultColor);
     }
 
-    painter->drawText(QPoint(50.0, 24.0), QString("h:"));
-    painter->drawText(QPoint(60.0, 24.0),m_feedbackNode.instanceValue("height").toString());
+    painter->drawText(QPoint(60.0, 26.0), QString("h:"));
+    painter->drawText(QPoint(70.0, 26.0), m_feedbackNode.instanceValue("height").toString());
 
     if (m_parentNode == m_feedbackNode.instanceParent()) {
 
         if (!m_feedbackNode.canReparent()) {
-            painter->setPen(Qt::blue);
-            painter->drawText(QPoint(2.0, 36.0), QString("Cannot reparent"));
+            painter->setPen(defaultColor);
+            painter->drawText(QPoint(2.0, 39.0), QString("Cannot reparent"));
         }
     } else {
-        painter->setPen(Qt::yellow);
-        painter->drawText(QPoint(2.0, 36.0), QString("Parent changed"));
+        painter->setPen(changeColor);
+        painter->drawText(QPoint(2.0, 39.0), QString("Parent changed"));
 
     }
 
