@@ -72,6 +72,7 @@ static QString fullyQualifiedName(Symbol *symbol, const Overview *overview)
 
 TypePrettyPrinter::TypePrettyPrinter(const Overview *overview)
     : _overview(overview)
+    , _needsParens(false)
 { }
 
 TypePrettyPrinter::~TypePrettyPrinter()
@@ -83,17 +84,19 @@ const Overview *TypePrettyPrinter::overview() const
 QString TypePrettyPrinter::operator()(const FullySpecifiedType &ty)
 {
     QString previousName = switchText();
+    bool previousNeedsParens = switchNeedsParens(false);
     acceptType(ty);
+    switchNeedsParens(previousNeedsParens);
     return switchText(previousName).trimmed();
 }
 
 QString TypePrettyPrinter::operator()(const FullySpecifiedType &type, const QString &name)
 {
-    QString previousName = switchName(name);
+    const QString previousName = switchName(name);
     QString text = operator()(type);
     if (! _name.isEmpty() && ! text.isEmpty()) {
-        QChar ch = text.at(text.size() - 1);
-        if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
+        const QChar ch = text.at(text.size() - 1);
+        if (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char('>'))
             text += QLatin1Char(' ');
         text += _name;
     } else if (text.isEmpty()) {
@@ -106,12 +109,6 @@ QString TypePrettyPrinter::operator()(const FullySpecifiedType &type, const QStr
 
 void TypePrettyPrinter::acceptType(const FullySpecifiedType &ty)
 {
-    if (ty.isSigned())
-        _text += QLatin1String("signed ");
-
-    else if (ty.isUnsigned())
-        _text += QLatin1String("unsigned ");
-
     const FullySpecifiedType previousFullySpecifiedType = _fullySpecifiedType;
     _fullySpecifiedType = ty;
     accept(ty.type());
@@ -132,195 +129,196 @@ QString TypePrettyPrinter::switchText(const QString &name)
     return previousName;
 }
 
-QList<FullySpecifiedType> TypePrettyPrinter::switchPtrOperators(const QList<FullySpecifiedType> &ptrOperators)
+bool TypePrettyPrinter::switchNeedsParens(bool needsParens)
 {
-    QList<FullySpecifiedType> previousPtrOperators = _ptrOperators;
-    _ptrOperators = ptrOperators;
-    return previousPtrOperators;
-}
-
-void TypePrettyPrinter::applyPtrOperators(bool wantSpace)
-{
-    if (wantSpace && !_ptrOperators.isEmpty())
-        space();
-
-    for (int i = _ptrOperators.size() - 1; i != -1; --i) {
-        const FullySpecifiedType op = _ptrOperators.at(i);
-
-        if (op->isPointerType()) {
-            _text += QLatin1Char('*');
-            outCV(op);
-        } else if (const ReferenceType *ref = op->asReferenceType()) {
-            if (_text.endsWith(QLatin1Char('&')))
-                _text += QLatin1Char(' ');
-
-            if (ref->isRvalueReference())
-                _text += QLatin1String("&&");
-            else
-                _text += QLatin1Char('&');
-        } else if (const PointerToMemberType *memPtrTy = op->asPointerToMemberType()) {
-            space();
-            _text += _overview->prettyName(memPtrTy->memberName());
-            _text += QLatin1Char('*');
-            outCV(op);
-        }
-    }
+    bool previousNeedsParens = _needsParens;
+    _needsParens = needsParens;
+    return previousNeedsParens;
 }
 
 void TypePrettyPrinter::visit(UndefinedType *)
 {
-    applyPtrOperators();
+    if (_fullySpecifiedType.isSigned() || _fullySpecifiedType.isUnsigned()) {
+        prependSpaceUnlessBracket();
+        if (_fullySpecifiedType.isSigned())
+            _text.prepend(QLatin1String("signed"));
+        else if (_fullySpecifiedType.isUnsigned())
+            _text.prepend(QLatin1String("unsigned"));
+    }
+
+    prependCv(_fullySpecifiedType);
 }
 
 void TypePrettyPrinter::visit(VoidType *)
 {
-    _text += QLatin1String("void");
-    applyPtrOperators();
+    prependSpaceUnlessBracket();
+    _text.prepend(QLatin1String("void"));
+    prependCv(_fullySpecifiedType);
 }
 
 void TypePrettyPrinter::visit(NamedType *type)
 {
-    _text += overview()->prettyName(type->name());
-    applyPtrOperators();
+    prependSpaceUnlessBracket();
+    _text.prepend(overview()->prettyName(type->name()));
+    prependCv(_fullySpecifiedType);
 }
 
 void TypePrettyPrinter::visit(Namespace *type)
 {
-    _text += overview()->prettyName(type->name());
-    applyPtrOperators();
+    _text.prepend(overview()->prettyName(type->name()));
+    prependCv(_fullySpecifiedType);
 }
 
 void TypePrettyPrinter::visit(Class *classTy)
 {
     if (overview()->showFullyQualifiedNames())
-        _text += fullyQualifiedName(classTy, overview());
-
+        _text.prepend(fullyQualifiedName(classTy, overview()));
     else
-        _text += overview()->prettyName(classTy->name());
-
-    applyPtrOperators();
+        _text.prepend(overview()->prettyName(classTy->name()));
+    prependCv(_fullySpecifiedType);
 }
 
 
 void TypePrettyPrinter::visit(Enum *type)
 {
     if (overview()->showFullyQualifiedNames())
-        _text += fullyQualifiedName(type, overview());
-
+        _text.prepend(fullyQualifiedName(type, overview()));
     else
-        _text += overview()->prettyName(type->name());
-
-    applyPtrOperators();
+        _text.prepend(overview()->prettyName(type->name()));
+    prependCv(_fullySpecifiedType);
 }
 
 void TypePrettyPrinter::visit(IntegerType *type)
 {
+    prependSpaceUnlessBracket();
     switch (type->kind()) {
     case IntegerType::Char:
-        _text += QLatin1String("char");
+        _text.prepend(QLatin1String("char"));
         break;
     case IntegerType::WideChar:
-        _text += QLatin1String("wchar_t");
+        _text.prepend(QLatin1String("wchar_t"));
         break;
     case IntegerType::Bool:
-        _text += QLatin1String("bool");
+        _text.prepend(QLatin1String("bool"));
         break;
     case IntegerType::Short:
-        _text += QLatin1String("short");
+        _text.prepend(QLatin1String("short"));
         break;
     case IntegerType::Int:
-        _text += QLatin1String("int");
+        _text.prepend(QLatin1String("int"));
         break;
     case IntegerType::Long:
-        _text += QLatin1String("long");
+        _text.prepend(QLatin1String("long"));
         break;
     case IntegerType::LongLong:
-        _text += QLatin1String("long long");
+        _text.prepend(QLatin1String("long long"));
         break;
     }
 
-    applyPtrOperators();
+    if (_fullySpecifiedType.isSigned() || _fullySpecifiedType.isUnsigned()) {
+        prependWordSeparatorSpace();
+        if (_fullySpecifiedType.isSigned())
+            _text.prepend(QLatin1String("signed"));
+        else if (_fullySpecifiedType.isUnsigned())
+            _text.prepend(QLatin1String("unsigned"));
+    }
+
+    prependCv(_fullySpecifiedType);
 }
 
 void TypePrettyPrinter::visit(FloatType *type)
 {
+    prependSpaceUnlessBracket();
     switch (type->kind()) {
     case FloatType::Float:
-        _text += QLatin1String("float");
+        _text.prepend(QLatin1String("float"));
         break;
     case FloatType::Double:
-        _text += QLatin1String("double");
+        _text.prepend(QLatin1String("double"));
         break;
     case FloatType::LongDouble:
-        _text += QLatin1String("long double");
+        _text.prepend(QLatin1String("long double"));
         break;
     }
 
-    applyPtrOperators();
+    prependCv(_fullySpecifiedType);
 }
 
 void TypePrettyPrinter::visit(PointerToMemberType *type)
 {
-    outCV(type->elementType());
-    space();
-
-    _ptrOperators.append(_fullySpecifiedType);
+    prependCv(_fullySpecifiedType);
+    _text.prepend(QLatin1String("::*"));
+    _text.prepend(_overview->prettyName(type->memberName()));
+    _needsParens = true;
     acceptType(type->elementType());
 }
 
 void TypePrettyPrinter::visit(PointerType *type)
 {
-    outCV(type->elementType());
-    space();
-
-    _ptrOperators.append(_fullySpecifiedType);
+    if (! _name.isEmpty()) {
+        _text.prepend(_name);
+        _name.clear();
+    }
+    prependCv(_fullySpecifiedType);
+    _text.prepend(QLatin1String("*"));
+    _needsParens = true;
     acceptType(type->elementType());
 }
 
 void TypePrettyPrinter::visit(ReferenceType *type)
 {
-    outCV(type->elementType());
-    space();
+    if (! _name.isEmpty()) {
+        _text.prepend(_name);
+        _name.clear();
+    }
+    prependCv(_fullySpecifiedType);
 
-    _ptrOperators.append(_fullySpecifiedType);
+    if (_text.startsWith(QLatin1Char('&')))
+        _text.prepend(QLatin1Char(' '));
+
+    if (type->isRvalueReference())
+        _text.prepend(QLatin1String("&&"));
+    else
+        _text.prepend(QLatin1String("&"));
+    _needsParens = true;
     acceptType(type->elementType());
 }
 
 void TypePrettyPrinter::visit(ArrayType *type)
 {
-    _text += overview()->prettyType(type->elementType());
-    if (! _ptrOperators.isEmpty()) {
-        _text += QLatin1Char('(');
-        applyPtrOperators(false);
-        if (! _name.isEmpty()) {
-            _text += _name;
-            _name.clear();
-        }
-        _text += QLatin1Char(')');
+    if (_needsParens) {
+        _text.prepend(QLatin1Char('('));
+        _text.append(QLatin1Char(')'));
+        _needsParens = false;
+    } else if (! _name.isEmpty()) {
+        _text.prepend(_name);
+        _name.clear();
     }
-    _text += QLatin1String("[]");
+    _text.append(QLatin1String("[]"));
+
+    acceptType(type->elementType());
 }
 
 void TypePrettyPrinter::visit(Function *type)
 {
-    if (_overview->showReturnTypes())
-        _text += _overview->prettyType(type->returnType());
-
-    if (! _ptrOperators.isEmpty()) {
-        _text += QLatin1Char('(');
-        applyPtrOperators(false);
-
+    if (_needsParens) {
+        _text.prepend(QLatin1Char('('));
         if (! _name.isEmpty()) {
-            _text += _name;
+            appendSpace();
+            _text.append(_name);
             _name.clear();
         }
-
-        _text += QLatin1Char(')');
-
+        _text.append(QLatin1Char(')'));
+        _needsParens = false;
     } else if (! _name.isEmpty() && _overview->showFunctionSignatures()) {
-        space();
-        _text += _name;
+        appendSpace();
+        _text.append(_name);
         _name.clear();
+    }
+
+    if (_overview->showReturnTypes()) {
+        _text.prepend(QLatin1Char(' '));
+        _text.prepend(_overview->prettyType(type->returnType()));
     }
 
     if (_overview->showFunctionSignatures()) {
@@ -362,20 +360,18 @@ void TypePrettyPrinter::visit(Function *type)
             _text += QLatin1String("...");
 
         _text += QLatin1Char(')');
-        if (type->isConst() && type->isVolatile()) {
-            space();
-            _text += "const volatile";
-        } else if (type->isConst()) {
-            space();
+        if (type->isConst()) {
+            appendSpace();
             _text += "const";
-        } else if (type->isVolatile()) {
-            space();
+        }
+        if (type->isVolatile()) {
+            appendSpace();
             _text += "volatile";
         }
     }
 }
 
-void TypePrettyPrinter::space()
+void TypePrettyPrinter::appendSpace()
 {
     if (_text.isEmpty())
         return;
@@ -387,14 +383,38 @@ void TypePrettyPrinter::space()
         _text += QLatin1Char(' ');
 }
 
-void TypePrettyPrinter::outCV(const FullySpecifiedType &ty)
+void TypePrettyPrinter::prependSpaceUnlessBracket()
 {
-    if (ty.isConst() && ty.isVolatile())
-        _text += QLatin1String("const volatile");
+    if (_text.isEmpty())
+        return;
 
-    else if (ty.isConst())
-        _text += QLatin1String("const");
+    const QChar ch = _text.at(0);
 
-    else if (ty.isVolatile())
-        _text += QLatin1String("volatile");
+    if (ch != QLatin1Char('['))
+        _text.prepend(" ");
 }
+
+void TypePrettyPrinter::prependWordSeparatorSpace()
+{
+    if (_text.isEmpty())
+        return;
+
+    const QChar ch = _text.at(0);
+
+    if (ch.isLetterOrNumber())
+        _text.prepend(" ");
+}
+
+void TypePrettyPrinter::prependCv(const FullySpecifiedType &ty)
+{
+    if (ty.isVolatile()) {
+        prependWordSeparatorSpace();
+        _text.prepend("volatile");
+    }
+
+    if (ty.isConst()) {
+        prependWordSeparatorSpace();
+        _text.prepend("const");
+    }
+}
+

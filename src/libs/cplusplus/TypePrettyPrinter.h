@@ -52,10 +52,9 @@ public:
 
 protected:
     QString switchText(const QString &text = QString());
-    QList<FullySpecifiedType> switchPtrOperators(const QList<FullySpecifiedType> &ptrOperators);
+    bool switchNeedsParens(bool needsParens);
     QString switchName(const QString &name);
 
-    void applyPtrOperators(bool wantSpace = true);
     void acceptType(const FullySpecifiedType &ty);
 
     virtual void visit(UndefinedType *type);
@@ -72,18 +71,17 @@ protected:
     virtual void visit(Class *type);
     virtual void visit(Enum *type);
 
-    void space();
-    void outPlain(const QString &text);
-    void out(const QString &text);
-    void out(const QChar &ch);
-    void outCV(const FullySpecifiedType &ty);
+    void appendSpace();
+    void prependSpaceUnlessBracket();
+    void prependWordSeparatorSpace();
+    void prependCv(const FullySpecifiedType &ty);
 
 private:
     const Overview *_overview;
     QString _name;
     QString _text;
     FullySpecifiedType _fullySpecifiedType;
-    QList<FullySpecifiedType> _ptrOperators;
+    bool _needsParens;
 };
 
 } // end of namespace CPlusPlus
