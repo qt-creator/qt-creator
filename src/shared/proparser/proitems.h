@@ -40,7 +40,7 @@ typedef QAtomicInt ProItemRefCount;
 #else
 class ProItemRefCount {
 public:
-    ProItemRefCount() : m_cnt(0) {}
+    ProItemRefCount(int cnt = 0) : m_cnt(cnt) {}
     bool ref() { return ++m_cnt != 0; }
     bool deref() { return --m_cnt != 0; }
     ProItemRefCount &operator=(int value) { m_cnt = value; return *this; }
@@ -54,9 +54,13 @@ class ProItem
 public:
     enum ProItemKind {
         ConditionKind,
-        OperatorKind,
+        OpNotKind,
+        OpAndKind,
+        OpOrKind,
         VariableKind,
-        BlockKind
+        BranchKind,
+        LoopKind,
+        FunctionDefKind
     };
 
     enum ProItemReturn {
@@ -64,8 +68,6 @@ public:
         ReturnTrue,
         ReturnBreak,
         ReturnNext,
-        ReturnLoop,
-        ReturnSkip,
         ReturnReturn
    };
 
@@ -79,43 +81,12 @@ public:
     ProItem *next() const { return m_next; }
     ProItem **nextRef() { return &m_next; }
 
+    static void disposeItems(ProItem *nitm);
+
 private:
     ProItem *m_next;
     ProItemKind m_kind;
     int m_lineNumber;
-
-    friend class ProBlock; // C++ is braindead ...
-};
-
-class ProBlock : public ProItem
-{
-public:
-    enum ProBlockKind {
-        NormalKind          = 0x00,
-        ScopeKind           = 0x01,
-        ScopeContentsKind   = 0x02,
-        ProFileKind         = 0x08,
-        FunctionBodyKind    = 0x10,
-        SingleLine          = 0x80
-    };
-
-    ProBlock();
-    ~ProBlock();
-
-    void setBlockKind(int blockKind) { m_blockKind = blockKind; }
-    int blockKind() const { return m_blockKind; }
-
-    ProItem *items() const { return m_proitems; }
-    ProItem **itemsRef() { return &m_proitems; }
-
-    void ref() { m_refCount.ref(); }
-    void deref() { if (!m_refCount.deref()) delete this; }
-
-private:
-    ProItem *m_proitems;
-    int m_blockKind;
-    friend class ProFile; // for the pseudo-virtual d'tor
-    ProItemRefCount m_refCount;
 };
 
 class ProVariable : public ProItem
@@ -154,35 +125,82 @@ private:
     QString m_text;
 };
 
-class ProOperator : public ProItem
+class ProBranch : public ProItem
 {
 public:
-    enum OperatorKind {
-        OrOperator      = 1,
-        NotOperator     = 2
-    };
+    ProBranch() : ProItem(BranchKind) {}
+    ~ProBranch();
 
-    explicit ProOperator(OperatorKind operatorKind) : ProItem(ProItem::OperatorKind), m_operatorKind(operatorKind) {}
-    void setOperatorKind(OperatorKind operatorKind) { m_operatorKind = operatorKind; }
-    OperatorKind operatorKind() const { return m_operatorKind; }
+    ProItem *thenItems() const { return m_thenItems; }
+    ProItem **thenItemsRef() { return &m_thenItems; }
+    ProItem *elseItems() const { return m_elseItems; }
+    ProItem **elseItemsRef() { return &m_elseItems; }
 
 private:
-    OperatorKind m_operatorKind;
+    ProItem *m_thenItems;
+    ProItem *m_elseItems;
 };
 
-class ProFile : public ProBlock
+class ProLoop : public ProItem
+{
+public:
+    ProLoop(const QString &var, const QString &expr)
+        : ProItem(LoopKind), m_variable(var), m_expression(expr) {}
+    ~ProLoop();
+
+    QString variable() const { return m_variable; }
+    QString expression() const { return m_expression; }
+    ProItem *items() const { return m_proitems; }
+    ProItem **itemsRef() { return &m_proitems; }
+
+private:
+    QString m_variable;
+    QString m_expression;
+    ProItem *m_proitems;
+};
+
+class ProFunctionDef : public ProItem
+{
+public:
+    enum FunctionType { TestFunction, ReplaceFunction };
+
+    ProFunctionDef(const QString &name, FunctionType type)
+        : ProItem(FunctionDefKind), m_name(name), m_type(type), m_refCount(1) {}
+    ~ProFunctionDef();
+
+    QString name() const { return m_name; }
+    FunctionType type() const { return m_type; }
+    ProItem *items() const { return m_proitems; }
+    ProItem **itemsRef() { return &m_proitems; }
+
+    void ref() { m_refCount.ref(); }
+    void deref() { if (!m_refCount.deref()) delete this; }
+
+private:
+    QString m_name;
+    FunctionType m_type;
+    ProItemRefCount m_refCount;
+    ProItem *m_proitems;
+};
+
+class ProFile
 {
 public:
     explicit ProFile(const QString &fileName);
+    ~ProFile();
 
     QString displayFileName() const { return m_displayFileName; }
     QString fileName() const { return m_fileName; }
     QString directoryName() const { return m_directoryName; }
+    ProItem *items() const { return m_proitems; }
+    ProItem **itemsRef() { return &m_proitems; }
 
-    // d'tor is not virtual
+    void ref() { m_refCount.ref(); }
     void deref() { if (!m_refCount.deref()) delete this; }
 
 private:
+    ProItem *m_proitems;
+    ProItemRefCount m_refCount;
     QString m_fileName;
     QString m_displayFileName;
     QString m_directoryName;

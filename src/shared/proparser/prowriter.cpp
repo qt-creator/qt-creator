@@ -84,12 +84,13 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
     *lines << added;
 }
 
-static void findProVariables(ProBlock *block, const QStringList &vars,
+static void findProVariables(ProItem *item, const QStringList &vars,
                              QList<ProVariable *> *proVars)
 {
-    for (ProItem *item = block->items(); item; item = item->next()) {
-        if (item->kind() == ProItem::BlockKind) {
-            findProVariables(static_cast<ProBlock*>(item), vars, proVars);
+    for (; item; item = item->next()) {
+        if (item->kind() == ProItem::BranchKind) {
+            findProVariables(static_cast<ProBranch*>(item)->thenItems(), vars, proVars);
+            findProVariables(static_cast<ProBranch*>(item)->elseItems(), vars, proVars);
         } else if (item->kind() == ProItem::VariableKind) {
             ProVariable *proVar = static_cast<ProVariable*>(item);
             if (vars.contains(proVar->variable()))
@@ -105,7 +106,7 @@ QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
     QStringList notChanged = filePaths;
 
     QList<ProVariable *> proVars;
-    findProVariables(profile, vars, &proVars);
+    findProVariables(profile->items(), vars, &proVars);
 
     // This is a tad stupid - basically, it can remove only entries which
     // the above code added.

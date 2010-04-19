@@ -69,15 +69,15 @@ using namespace ProFileEvaluatorInternal;
 
 QT_BEGIN_NAMESPACE
 
-static void refFunctions(QHash<QString, ProBlock *> *defs)
+static void refFunctions(QHash<QString, ProFunctionDef *> *defs)
 {
-    foreach (ProBlock *itm, *defs)
+    foreach (ProFunctionDef *itm, *defs)
         itm->ref();
 }
 
-static void clearFunctions(QHash<QString, ProBlock *> *defs)
+static void clearFunctions(QHash<QString, ProFunctionDef *> *defs)
 {
-    foreach (ProBlock *itm, *defs)
+    foreach (ProFunctionDef *itm, *defs)
         itm->deref();
     defs->clear();
 }
@@ -189,42 +189,63 @@ public:
 
     struct BlockCursor {
         BlockCursor() : cursor(0) {}
-        BlockCursor(ProBlock *blk) : block(blk), cursor(blk->itemsRef()) {}
+        BlockCursor(BlockCursor &other) : cursor(other.cursor) { other.cursor = 0; }
+        BlockCursor(ProItem **itp) : cursor(itp) {}
         ~BlockCursor() { if (cursor) *cursor = 0; }
-        void set(ProBlock *blk) { if (cursor) *cursor = 0; block = blk; cursor = blk->itemsRef(); }
+        BlockCursor &operator=(BlockCursor &other) { cursor = other.cursor; other.cursor = 0; return *this; }
+        void set(ProItem **itp) { if (cursor) *cursor = 0; cursor = itp; }
         void reset() { if (cursor) { *cursor = 0; cursor = 0; } }
         void append(ProItem *item) { *cursor = item; cursor = item->nextRef(); }
         bool isValid() const { return cursor != 0; }
-        ProBlock *block;
+    private:
         ProItem **cursor;
+    };
+
+    struct BlockScope {
+        BlockScope() : braceLevel(0), special(false) {}
+        BlockScope(BlockScope &other) :
+                cursor(other.cursor), elseCursor(other.elseCursor),
+                braceLevel(other.braceLevel), special(other.special) {}
+        BlockCursor cursor; // Current appending position
+        BlockCursor elseCursor; // Appending position for else branch of last conditional in scope
+        int braceLevel; // Nesting of braces in scope
+        bool special; // Single-line conditionals cannot have else branches
+    };
+
+    enum ScopeState {
+        StNew,  // Fresh scope
+        StCtrl, // Control statement (for or else) met on current line
+        StCond  // Conditionals met on current line
     };
 
     bool read(ProFile *pro);
     bool read(ProFile *pro, const QString &content);
-    bool read(ProBlock *pro, const QString &content);
-    bool readInternal(ProBlock *pro, const QString &content, ushort *buf);
+    bool read(ProItem **itp, const QString &content);
+    bool readInternal(ProItem **itp, const QString &content, ushort *buf);
 
-    BlockCursor &currentBlock();
     void updateItem(ushort *uc, ushort *ptr);
     ProVariable *startVariable(ushort *uc, ushort *ptr);
     void finalizeVariable(ProVariable *var, ushort *uc, ushort *ptr);
-    void insertOperator(const char op);
-    void enterScope(bool multiLine);
-    void leaveScope();
-    void finalizeBlock();
+    void insertOperator(ProItem::ProItemKind opkind);
+    void enterScope(BlockCursor &cursor, bool special, ScopeState state);
+    void enterScope(ProItem **itp, bool special, ScopeState state)
+        { BlockCursor curs(itp); enterScope(curs, special, state); }
+    void flushCond();
+    void flushScopes();
 
-    QStack<BlockCursor> m_blockstack;
-    BlockCursor m_block;
+    QStack<BlockScope> m_blockstack;
+    ScopeState m_state;
+    bool m_canElse; // Conditionals met on previous line, but no scope was opened
+    bool m_invert; // Pending conditional is negated
+    enum { NoOperator, AndOperator, OrOperator } m_operator; // Pending conditional is ORed/ANDed
 
     /////////////// Evaluating pro file contents
 
     ProItem::ProItemReturn visitProFile(ProFile *pro);
-    ProItem::ProItemReturn visitProBlock(ProBlock *block);
-    ProItem::ProItemReturn visitProItem(ProItem *item);
-    ProItem::ProItemReturn visitProLoopIteration();
-    void visitProLoopCleanup();
+    ProItem::ProItemReturn visitProBlock(ProItem *items);
+    ProItem::ProItemReturn visitProLoop(ProLoop *loop);
+    void visitProFunctionDef(ProFunctionDef *def);
     void visitProVariable(ProVariable *variable);
-    void visitProOperator(ProOperator *oper);
     ProItem::ProItemReturn visitProCondition(ProCondition *condition);
 
     static inline QString map(const QString &var);
@@ -263,34 +284,19 @@ public:
         { return b ? ProItem::ReturnTrue : ProItem::ReturnFalse; }
 
     QList<QStringList> prepareFunctionArgs(const QString &arguments);
-    QStringList evaluateFunction(ProBlock *funcPtr, const QList<QStringList> &argumentsList, bool *ok);
+    QStringList evaluateFunction(ProFunctionDef *func, const QList<QStringList> &argumentsList, bool *ok);
 
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
 
-    struct State {
-        bool condition;
-        bool prevCondition;
-    } m_sts;
-    bool m_invertNext; // Short-lived, so not in State
-    bool m_hadCondition; // Nested calls set it on return, so no need for it to be in State
     int m_skipLevel;
+    int m_loopLevel; // To report unexpected break() and next()s
     bool m_cumulative;
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
-    struct ProLoop {
-        QString variable;
-        QStringList oldVarVal;
-        QStringList list;
-        int index;
-        bool infinite;
-    };
-    QStack<ProLoop> m_loopStack;
 
     QString m_outputDir;
 
     int m_listCount;
-    bool m_definingTest;
-    QString m_definingFunc;
     FunctionDefs m_functionDefs;
     QStringList m_returnValue;
     QStack<QHash<QString, QStringList> > m_valuemapStack;         // VariableName must be us-ascii, the content however can be non-us-ascii.
@@ -314,8 +320,7 @@ public:
         T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
         T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
         T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
-        T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF,
-        T_FOR, T_DEFINE_TEST, T_DEFINE_REPLACE
+        T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF
     };
 
     enum VarName {
@@ -330,9 +335,8 @@ public:
 };
 
 #if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
-Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::State, Q_PRIMITIVE_TYPE);
-Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::ProLoop, Q_MOVABLE_TYPE);
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::BlockCursor, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::BlockScope, Q_MOVABLE_TYPE);
 #endif
 
 static struct {
@@ -350,8 +354,11 @@ static struct {
     QString strARGS;
     QString strDot;
     QString strDotDot;
+    QString strfor;
     QString strever;
     QString strforever;
+    QString strdefineTest;
+    QString strdefineReplace;
     QString strTEMPLATE;
     QString strQMAKE_DIR_SEP;
     QHash<QString, int> expands;
@@ -381,8 +388,11 @@ void ProFileEvaluator::Private::initStatics()
     statics.strARGS = QLatin1String("ARGS");
     statics.strDot = QLatin1String(".");
     statics.strDotDot = QLatin1String("..");
+    statics.strfor = QLatin1String("for");
     statics.strever = QLatin1String("ever");
     statics.strforever = QLatin1String("forever");
+    statics.strdefineTest = QLatin1String("defineTest");
+    statics.strdefineReplace = QLatin1String("defineReplace");
     statics.strTEMPLATE = QLatin1String("TEMPLATE");
     statics.strQMAKE_DIR_SEP = QLatin1String("QMAKE_DIR_SEP");
 
@@ -455,9 +465,6 @@ void ProFileEvaluator::Private::initStatics()
         { "message", T_MESSAGE },
         { "warning", T_MESSAGE },
         { "error", T_MESSAGE },
-        { "for", T_FOR },
-        { "defineTest", T_DEFINE_TEST },
-        { "defineReplace", T_DEFINE_REPLACE }
     };
     for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
         statics.functions.insert(QLatin1String(testInits[i].name), testInits[i].func);
@@ -520,11 +527,8 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option)
     m_parsePreAndPostFiles = true;
 
     // Evaluator state
-    m_sts.condition = false;
-    m_sts.prevCondition = false;
-    m_invertNext = false;
     m_skipLevel = 0;
-    m_definingFunc.clear();
+    m_loopLevel = 0;
     m_listCount = 0;
     m_valuemapStack.push(QHash<QString, QStringList>());
 }
@@ -549,7 +553,7 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
     file.close();
     m_lineNo = 1;
     m_profileStack.push(pro);
-    bool ret = readInternal(pro, content, (ushort*)content.data());
+    bool ret = readInternal(pro->itemsRef(), content, (ushort*)content.data());
     m_profileStack.pop();
     return ret;
 }
@@ -560,29 +564,34 @@ bool ProFileEvaluator::Private::read(ProFile *pro, const QString &content)
     buf.reserve(content.size());
     m_lineNo = 1;
     m_profileStack.push(pro);
-    bool ret = readInternal(pro, content, (ushort*)buf.data());
+    bool ret = readInternal(pro->itemsRef(), content, (ushort*)buf.data());
     m_profileStack.pop();
     return ret;
 }
 
-bool ProFileEvaluator::Private::read(ProBlock *pro, const QString &content)
+bool ProFileEvaluator::Private::read(ProItem **itp, const QString &content)
 {
     QString buf;
     buf.reserve(content.size());
     m_lineNo = 0;
-    return readInternal(pro, content, (ushort*)buf.data());
+    return readInternal(itp, content, (ushort*)buf.data());
 }
 
 // We know that the buffer cannot grow larger than the input string,
 // and the read() functions rely on it.
-bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, ushort *buf)
+bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, ushort *buf)
 {
     // Parser state
-    m_blockstack.push(BlockCursor(pro));
+    m_blockstack.resize(m_blockstack.size() + 1);
+    m_blockstack.top().cursor.set(itp);
 
     // We rely on QStrings being null-terminated, so don't maintain a global end pointer.
     const ushort *cur = (const ushort *)in.unicode();
+    m_canElse = false;
   freshLine:
+    m_state = StNew;
+    m_invert = false;
+    m_operator = NoOperator;
     ProVariable *currAssignment = 0;
     ushort *ptr = buf;
     int parens = 0;
@@ -602,13 +611,11 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
                 } else {
                     updateItem(buf, ptr);
                 }
-                finalizeBlock();
                 if (c) {
                     ++cur;
                     ++m_lineNo;
                     goto freshLine;
                 }
-                m_block.reset();
                 m_blockstack.clear(); // FIXME: should actually check the state here
                 return true;
             }
@@ -675,7 +682,7 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
                     if (c == '"') {
                         quote = '"' - quote;
                     } else if (c == '!' && ptr == buf) {
-                        insertOperator(c);
+                        m_invert ^= true;
                         goto nextItem;
                     } else if (!quote) {
                         if (c == '(') {
@@ -685,20 +692,40 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
                         } else if (!parens) {
                             if (c == ':') {
                                 updateItem(buf, ptr);
-                                enterScope(false);
+                                if (m_state == StNew)
+                                    logMessage(format("And operator without prior condition."));
+                                else
+                                    m_operator = AndOperator;
                               nextItem:
                                 ptr = buf;
                                 putSpace = false;
                                 goto newItem;
                             }
+                            if (c == '|') {
+                                updateItem(buf, ptr);
+                                if (m_state != StCond)
+                                    logMessage(format("Or operator without prior condition."));
+                                else
+                                    m_operator = OrOperator;
+                                goto nextItem;
+                            }
                             if (c == '{') {
                                 updateItem(buf, ptr);
-                                enterScope(true);
+                                flushCond();
+                                ++m_blockstack.top().braceLevel;
                                 goto nextItem;
                             }
                             if (c == '}') {
                                 updateItem(buf, ptr);
-                                leaveScope();
+                                flushScopes();
+                                if (!m_blockstack.top().braceLevel)
+                                    errorMessage(format("Excess closing brace."));
+                                else if (!--m_blockstack.top().braceLevel
+                                         && m_blockstack.count() != 1) {
+                                    m_blockstack.resize(m_blockstack.size() - 1);
+                                    m_state = StNew;
+                                    m_canElse = false;
+                                }
                                 goto nextItem;
                             }
                             if (c == '=') {
@@ -710,11 +737,6 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
                                 ptr = buf;
                                 inError = true;
                                 goto skip;
-                            }
-                            if (c == '|') {
-                                updateItem(buf, ptr);
-                                insertOperator(c);
-                                goto nextItem;
                             }
                         }
                     }
@@ -773,7 +795,6 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
         } // !inError
       skip:
         if (!lineCont) {
-            finalizeBlock();
             cur = cptr;
             ++m_lineNo;
             goto freshLine;
@@ -784,20 +805,14 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
     }
 }
 
-void ProFileEvaluator::Private::finalizeBlock()
-{
-    if (m_blockstack.top().block->blockKind() & ProBlock::SingleLine)
-        leaveScope();
-    m_block.reset();
-}
-
 ProVariable *ProFileEvaluator::Private::startVariable(ushort *uc, ushort *ptr)
 {
-    ProVariable::VariableOperator opkind;
+    flushCond();
 
     if (ptr == uc) // Line starting with '=', like a conflict marker
         return 0;
 
+    ProVariable::VariableOperator opkind;
     switch (*(ptr - 1)) {
         case '+':
             --ptr;
@@ -836,64 +851,109 @@ void ProFileEvaluator::Private::finalizeVariable(ProVariable *variable, ushort *
 {
     variable->setValue(QString((QChar*)uc, ptr - uc));
 
-    m_blockstack.top().append(variable);
+    m_blockstack.top().cursor.append(variable);
 }
 
-void ProFileEvaluator::Private::insertOperator(const char op)
+void ProFileEvaluator::Private::enterScope(BlockCursor &cursor, bool special, ScopeState state)
 {
-    ProOperator::OperatorKind opkind;
-    switch (op) {
-        case '!':
-            opkind = ProOperator::NotOperator;
-            break;
-        case '|':
-            opkind = ProOperator::OrOperator;
-            break;
-        default:
-            opkind = ProOperator::OrOperator;
+    m_blockstack.resize(m_blockstack.size() + 1);
+    m_blockstack.top().cursor = cursor;
+    m_blockstack.top().special = special;
+    m_state = state;
+    m_canElse = false;
+}
+
+void ProFileEvaluator::Private::flushScopes()
+{
+    if (m_state == StNew) {
+        while (!m_blockstack.top().braceLevel && m_blockstack.size() > 1)
+            m_blockstack.resize(m_blockstack.size() - 1);
+        m_blockstack.top().elseCursor.reset();
+        m_canElse = false;
     }
-
-    ProOperator * const proOp = new ProOperator(opkind);
-    proOp->setLineNumber(m_lineNo);
-    currentBlock().append(proOp);
 }
 
-void ProFileEvaluator::Private::enterScope(bool multiLine)
+void ProFileEvaluator::Private::flushCond()
 {
-    BlockCursor &parent = currentBlock();
-
-    ProBlock *block = new ProBlock();
-    block->setLineNumber(m_lineNo);
-    if (multiLine)
-        block->setBlockKind(ProBlock::ScopeContentsKind);
-    else
-        block->setBlockKind(ProBlock::ScopeContentsKind|ProBlock::SingleLine);
-    m_blockstack.push(BlockCursor(block));
-
-    parent.block->setBlockKind(ProBlock::ScopeKind);
-    parent.append(block);
-
-    m_block.reset();
-}
-
-void ProFileEvaluator::Private::leaveScope()
-{
-    if (m_blockstack.count() == 1)
-        errorMessage(format("Excess closing brace."));
-    else
-        m_blockstack.pop();
-    finalizeBlock();
-}
-
-ProFileEvaluator::Private::BlockCursor &ProFileEvaluator::Private::currentBlock()
-{
-    if (!m_block.isValid()) {
-        ProBlock *blk = new ProBlock();
+    if (m_state == StCond) {
+        ProBranch *blk = new ProBranch();
         blk->setLineNumber(m_lineNo);
-        m_blockstack.top().append(blk);
-        m_block.set(blk);
+        BlockScope &top = m_blockstack.top();
+        top.cursor.append(blk);
+        if (!top.special || top.braceLevel) {
+            top.elseCursor.set(blk->elseItemsRef());
+        } else {
+            *blk->elseItemsRef() = 0;
+            // elseCursor was either never set in this scope
+            // or the last flushScopes reset it.
+        }
+        enterScope(blk->thenItemsRef(), false, StNew);
+    } else {
+        flushScopes();
     }
-    return m_block;
+}
+
+void ProFileEvaluator::Private::insertOperator(ProItem::ProItemKind opkind)
+{
+    ProItem *proOp = new ProItem(opkind);
+    proOp->setLineNumber(m_lineNo);
+    m_blockstack.top().cursor.append(proOp);
+}
+
+static bool get_next_arg(const QString &params, int *pos, QString *out)
+{
+    int quote = 0;
+    int parens = 0;
+    const ushort *uc = (const ushort *)params.constData();
+    const ushort *params_start = uc + *pos;
+    if (*params_start == ' ')
+        ++params_start;
+    const ushort *params_data = params_start;
+    const ushort *params_next = 0;
+    for (;; params_data++) {
+        ushort unicode = *params_data;
+        if (!unicode) { // Huh?
+            params_next = params_data;
+            break;
+        } else if (unicode == '(') {
+            ++parens;
+        } else if (unicode == ')') {
+            if (--parens < 0) {
+                params_next = params_data;
+                break;
+            }
+        } else if (quote && unicode == quote) {
+            quote = 0;
+        } else if (!quote && (unicode == '\'' || unicode == '"')) {
+            quote = unicode;
+        }
+        if (!parens && !quote && unicode == ',') {
+            params_next = params_data + 1;
+            break;
+        }
+    }
+    if (params_data == params_start)
+        return false;
+    if (out) {
+        if (params_data[-1] == ' ')
+            --params_data;
+        *out = params.mid(params_start - uc, params_data - params_start);
+    }
+    *pos = params_next - uc;
+    return true;
+}
+
+static bool isKeyFunc(const QString &str, const QString &key, int *pos)
+{
+    if (!str.startsWith(key))
+        return false;
+    const ushort *uc = (const ushort *)str.constData() + key.length();
+    if (*uc == ' ')
+        uc++;
+    if (*uc != '(')
+        return false;
+    *pos = uc - (const ushort *)str.constData() + 1;
+    return true;
 }
 
 void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
@@ -901,9 +961,97 @@ void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
     if (ptr == uc)
         return;
 
-    ProItem *item = new ProCondition(QString((QChar*)uc, ptr - uc));;
-    item->setLineNumber(m_lineNo);
-    currentBlock().append(item);
+    QString str((QChar*)uc, ptr - uc);
+    int pos;
+    const QString *defName;
+    ProFunctionDef::FunctionType defType;
+    if (!str.compare(statics.strelse, Qt::CaseInsensitive)) {
+        if (m_invert || m_operator != NoOperator) {
+            logMessage(format("Unexpected operator in front of else."));
+            return;
+        }
+        BlockScope &top = m_blockstack.top();
+        if (m_canElse && (!top.special || top.braceLevel)) {
+            ProBranch *blk = new ProBranch();
+            blk->setLineNumber(m_lineNo);
+            *blk->thenItemsRef() = 0;
+            top.cursor.append(blk);
+            enterScope(blk->elseItemsRef(), false, StCtrl);
+            return;
+        }
+        forever {
+            BlockScope &top = m_blockstack.top();
+            if (top.elseCursor.isValid()) {
+                BlockCursor cursor(top.elseCursor); // ref into stack becomes stale
+                enterScope(cursor, false, StCtrl);
+                return;
+            }
+            if (top.braceLevel || m_blockstack.size() == 1)
+                break;
+            m_blockstack.resize(m_blockstack.size() - 1);
+        }
+        errorMessage(format("Unexpected 'else'."));
+    } else if (isKeyFunc(str, statics.strfor, &pos)) {
+        flushCond();
+        if (m_invert || m_operator == OrOperator) {
+            // '|' could actually work reasonably, but qmake does nonsense here.
+            logMessage(format("Unexpected operator in front of for()."));
+            return;
+        }
+        QString var, expr;
+        if (!get_next_arg(str, &pos, &var)
+            || (get_next_arg(str, &pos, &expr) && get_next_arg(str, &pos, 0))) {
+            logMessage(format("Syntax is for(var, list), for(var, forever) or for(ever)."));
+            return;
+        }
+        if (expr.isEmpty()) {
+            expr = var;
+            var.clear();
+        }
+        ProLoop *loop = new ProLoop(var, expr);
+        m_blockstack.top().cursor.append(loop);
+        enterScope(loop->itemsRef(), true, StCtrl);
+    } else if (isKeyFunc(str, statics.strdefineReplace, &pos)) {
+        defName = &statics.strdefineReplace;
+        defType = ProFunctionDef::ReplaceFunction;
+        goto deffunc;
+    } else if (isKeyFunc(str, statics.strdefineTest, &pos)) {
+        defName = &statics.strdefineTest;
+        defType = ProFunctionDef::TestFunction;
+      deffunc:
+        flushScopes();
+        if (m_invert) {
+            logMessage(format("Unexpected operator in front of function definition."));
+            return;
+        }
+        QString func;
+        if (!get_next_arg(str, &pos, &func) || get_next_arg(str, &pos, 0)) {
+            logMessage(format("%s(function) requires one argument.").arg(*defName));
+            return;
+        }
+        if (m_operator != NoOperator) {
+            insertOperator(m_operator == AndOperator ? ProItem::OpAndKind : ProItem::OpOrKind);
+            m_operator = NoOperator;
+        }
+        ProFunctionDef *def = new ProFunctionDef(func, defType);
+        m_blockstack.top().cursor.append(def);
+        enterScope(def->itemsRef(), true, StCtrl);
+    } else {
+        flushScopes();
+        if (m_operator != NoOperator) {
+            insertOperator(m_operator == AndOperator ? ProItem::OpAndKind : ProItem::OpOrKind);
+            m_operator = NoOperator;
+        }
+        if (m_invert) {
+            insertOperator(ProItem::OpNotKind);
+            m_invert = false;
+        }
+        ProItem *item = new ProCondition(str);
+        item->setLineNumber(m_lineNo);
+        m_blockstack.top().cursor.append(item);
+        m_state = StCond;
+        m_canElse = true;
+    }
 }
 
 //////// Evaluator tools /////////
@@ -1019,125 +1167,177 @@ static QString fixPathToLocalOS(const QString &str)
 
 //////// Evaluator /////////
 
-ProItem::ProItemReturn ProFileEvaluator::Private::visitProItem(ProItem *item)
+ProItem::ProItemReturn ProFileEvaluator::Private::visitProBlock(ProItem *items)
 {
-    switch (item->kind()) {
-    case ProItem::BlockKind: // This is never a ProFile
-        return visitProBlock(static_cast<ProBlock*>(item));
-    case ProItem::VariableKind:
-        visitProVariable(static_cast<ProVariable*>(item));
-        break;
-    case ProItem::ConditionKind:
-        return visitProCondition(static_cast<ProCondition*>(item));
-    case ProItem::OperatorKind:
-        visitProOperator(static_cast<ProOperator*>(item));
-        break;
-    }
-    return ProItem::ReturnTrue;
-}
-
-ProItem::ProItemReturn ProFileEvaluator::Private::visitProBlock(ProBlock *block)
-{
-    if (block->blockKind() & ProBlock::ScopeContentsKind) {
-        if (!m_definingFunc.isEmpty()) {
-            if (!m_skipLevel || m_cumulative) {
-                QHash<QString, ProBlock *> *hash =
-                        (m_definingTest ? &m_functionDefs.testFunctions
-                                        : &m_functionDefs.replaceFunctions);
-                if (ProBlock *def = hash->value(m_definingFunc))
-                    def->deref();
-                hash->insert(m_definingFunc, block);
-                block->ref();
-                block->setBlockKind(block->blockKind() | ProBlock::FunctionBodyKind);
-            }
-            m_definingFunc.clear();
-            return ProItem::ReturnTrue;
-        } else if (!(block->blockKind() & ProBlock::FunctionBodyKind)) {
-            if (!m_sts.condition) {
-                if (m_skipLevel || m_hadCondition)
-                    ++m_skipLevel;
+    bool okey = true, or_op = false, invert = false;
+    ProItem::ProItemReturn ret = ProItem::ReturnTrue;
+    for (ProItem *itm = items; itm; itm = itm->next()) {
+        switch (itm->kind()) {
+        case ProItem::VariableKind:
+            visitProVariable(static_cast<ProVariable*>(itm));
+            continue;
+        case ProItem::BranchKind:
+            if (m_cumulative) {
+                if (!okey)
+                    m_skipLevel++;
+                ret = visitProBlock(static_cast<ProBranch*>(itm)->thenItems());
+                if (!okey)
+                    m_skipLevel--;
+                else
+                    m_skipLevel++;
+                if (ret == ProItem::ReturnTrue || ret == ProItem::ReturnFalse)
+                    ret = visitProBlock(static_cast<ProBranch*>(itm)->elseItems());
+                if (okey)
+                    m_skipLevel--;
             } else {
-                Q_ASSERT(!m_skipLevel);
+                ret = visitProBlock(okey ? static_cast<ProBranch*>(itm)->thenItems()
+                                         : static_cast<ProBranch*>(itm)->elseItems());
             }
-        }
-    } else {
-        m_hadCondition = false;
-        if (!m_skipLevel) {
-            if (m_sts.condition) {
-                m_sts.prevCondition = true;
-                m_sts.condition = false;
-            }
-        } else {
-            Q_ASSERT(!m_sts.condition);
-        }
-    }
-    ProItem::ProItemReturn rt = ProItem::ReturnTrue;
-    for (ProItem *item = block->items(); item; item = item->next()) {
-        rt = visitProItem(item);
-        if (rt != ProItem::ReturnTrue && rt != ProItem::ReturnFalse) {
-            if (rt == ProItem::ReturnLoop) {
-                rt = ProItem::ReturnTrue;
-                while (visitProLoopIteration())
-                    for (ProItem *lItem = item; (lItem = lItem->next()); ) {
-                        rt = visitProItem(lItem);
-                        if (rt != ProItem::ReturnTrue && rt != ProItem::ReturnFalse) {
-                            if (rt == ProItem::ReturnNext) {
-                                rt = ProItem::ReturnTrue;
-                                break;
-                            }
-                            if (rt == ProItem::ReturnBreak)
-                                rt = ProItem::ReturnTrue;
-                            goto do_break;
-                        }
-                    }
-              do_break:
-                visitProLoopCleanup();
-            }
+            okey = true, or_op = false; // force next evaluation
             break;
+        case ProItem::LoopKind:
+            if (m_cumulative) // This is a no-win situation, so just pretend it's no loop
+                ret = visitProBlock(static_cast<ProLoop*>(itm)->items());
+            else if (okey != or_op)
+                ret = visitProLoop(static_cast<ProLoop*>(itm));
+            okey = true, or_op = false; // force next evaluation
+            break;
+        case ProItem::FunctionDefKind:
+            if (m_cumulative || okey != or_op)
+                visitProFunctionDef(static_cast<ProFunctionDef *>(itm));
+            okey = true, or_op = false; // force next evaluation
+            continue;
+        case ProItem::OpNotKind:
+            invert ^= true;
+            break;
+        case ProItem::OpAndKind:
+            or_op = false;
+            break;
+        case ProItem::OpOrKind:
+            or_op = true;
+            break;
+        case ProItem::ConditionKind:
+            if (!m_skipLevel && okey != or_op) {
+                ret = visitProCondition(static_cast<ProCondition*>(itm));
+                switch (ret) {
+                case ProItem::ReturnTrue: okey = true; break;
+                case ProItem::ReturnFalse: okey = false; break;
+                default: return ret;
+                }
+                okey ^= invert;
+            } else if (m_cumulative) {
+                m_skipLevel++;
+                visitProCondition(static_cast<ProCondition*>(itm));
+                m_skipLevel--;
+            }
+            or_op = !okey; // tentatively force next evaluation
+            invert = false;
+            break;
+        default: Q_ASSERT_X(false, "visitProBlock", "unexpected item type");
         }
+        if (ret != ProItem::ReturnTrue && ret != ProItem::ReturnFalse)
+            break;
     }
-    if ((block->blockKind() & ProBlock::ScopeContentsKind)
-        && !(block->blockKind() & ProBlock::FunctionBodyKind)) {
-        if (m_skipLevel) {
-            Q_ASSERT(!m_sts.condition);
-            --m_skipLevel;
-        } else if (!(block->blockKind() & ProBlock::SingleLine)) {
-            // Conditionals contained inside this block may have changed the state.
-            // So we reset it here to make an else following us do the right thing.
-            m_sts.condition = true;
-        }
-    }
-    return rt;
+    return ret;
 }
 
-ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoopIteration()
-{
-    ProLoop &loop = m_loopStack.top();
 
-    if (loop.infinite) {
-        if (!loop.variable.isEmpty())
-            m_valuemapStack.top()[loop.variable] = QStringList(QString::number(loop.index++));
-        if (loop.index > 1000) {
-            errorMessage(format("ran into infinite loop (> 1000 iterations)."));
+void ProFileEvaluator::Private::visitProFunctionDef(ProFunctionDef *def)
+{
+    QHash<QString, ProFunctionDef *> *hash =
+            (def->type() == ProFunctionDef::TestFunction
+             ? &m_functionDefs.testFunctions
+             : &m_functionDefs.replaceFunctions);
+    if (ProFunctionDef *xdef = hash->value(def->name()))
+        xdef->deref();
+    hash->insert(def->name(), def);
+    def->ref();
+}
+
+ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoop(ProLoop *loop)
+{
+    ProItem::ProItemReturn ret = ProItem::ReturnTrue;
+    bool infinite = false;
+    int index = 0;
+    QString variable;
+    QStringList oldVarVal;
+    QString it_list = expandVariableReferences(loop->expression()).join(statics.field_sep);
+    if (loop->variable().isEmpty()) {
+        if (it_list != statics.strever) {
+            logMessage(format("Invalid loop expression."));
             return ProItem::ReturnFalse;
         }
+        it_list = statics.strforever;
     } else {
-        QString val;
-        do {
-            if (loop.index >= loop.list.count())
-                return ProItem::ReturnFalse;
-            val = loop.list.at(loop.index++);
-        } while (val.isEmpty()); // stupid, but qmake is like that
-        m_valuemapStack.top()[loop.variable] = QStringList(val);
+        variable = map(loop->variable());
+        oldVarVal = valuesDirect(variable);
+        it_list = map(it_list);
     }
-    return ProItem::ReturnTrue;
-}
+    QStringList list = valuesDirect(it_list);
+    if (list.isEmpty()) {
+        if (it_list == statics.strforever) {
+            infinite = true;
+        } else {
+            int dotdot = it_list.indexOf(statics.strDotDot);
+            if (dotdot != -1) {
+                bool ok;
+                int start = it_list.left(dotdot).toInt(&ok);
+                if (ok) {
+                    int end = it_list.mid(dotdot+2).toInt(&ok);
+                    if (ok) {
+                        if (start < end) {
+                            for (int i = start; i <= end; i++)
+                                list << QString::number(i);
+                        } else {
+                            for (int i = start; i >= end; i--)
+                                list << QString::number(i);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-void ProFileEvaluator::Private::visitProLoopCleanup()
-{
-    ProLoop &loop = m_loopStack.top();
-    m_valuemapStack.top()[loop.variable] = loop.oldVarVal;
-    m_loopStack.pop_back();
+    m_loopLevel++;
+    forever {
+        if (infinite) {
+            if (!variable.isEmpty())
+                m_valuemapStack.top()[variable] = QStringList(QString::number(index++));
+            if (index > 1000) {
+                errorMessage(format("ran into infinite loop (> 1000 iterations)."));
+                break;
+            }
+        } else {
+            QString val;
+            do {
+                if (index >= list.count())
+                    goto do_break;
+                val = list.at(index++);
+            } while (val.isEmpty()); // stupid, but qmake is like that
+            m_valuemapStack.top()[variable] = QStringList(val);
+        }
+
+        ret = visitProBlock(loop->items());
+        switch (ret) {
+        case ProItem::ReturnTrue:
+        case ProItem::ReturnFalse:
+            break;
+        case ProItem::ReturnNext:
+            ret = ProItem::ReturnTrue;
+            break;
+        case ProItem::ReturnBreak:
+            ret = ProItem::ReturnTrue;
+            goto do_break;
+        default:
+            goto do_break;
+        }
+    }
+  do_break:
+    m_loopLevel--;
+
+    if (!variable.isEmpty())
+        m_valuemapStack.top()[variable] = oldVarVal;
+    return ret;
 }
 
 void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
@@ -1221,51 +1421,25 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
     }
 }
 
-void ProFileEvaluator::Private::visitProOperator(ProOperator *oper)
-{
-    m_invertNext = (oper->operatorKind() == ProOperator::NotOperator);
-}
-
 ProItem::ProItemReturn ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 {
-    // Make sure that called subblocks don't inherit & destroy the state
-    bool invertThis = m_invertNext;
-    m_invertNext = false;
     if (cond->text().endsWith(QLatin1Char(')'))) {
-        if (!m_skipLevel) {
-            m_hadCondition = true;
-            m_sts.prevCondition = false;
-        }
-        if (m_cumulative || !m_sts.condition) {
-            int lparen = cond->text().indexOf(QLatin1Char('('));
-            QString arguments = cond->text().mid(lparen + 1, cond->text().length() - lparen - 2);
-            QString funcName = cond->text().left(lparen).trimmed();
-            m_lineNo = cond->lineNumber();
-            ProItem::ProItemReturn result = evaluateConditionalFunction(funcName, arguments);
-            if (result != ProItem::ReturnFalse && result != ProItem::ReturnTrue)
-                return result;
-            if (!m_skipLevel && ((result == ProItem::ReturnTrue) ^ invertThis))
-                m_sts.condition = true;
-        }
+        if (!m_cumulative && m_skipLevel)
+            return ProItem::ReturnTrue;
+        int lparen = cond->text().indexOf(QLatin1Char('('));
+        QString arguments = cond->text().mid(lparen + 1, cond->text().length() - lparen - 2);
+        QString funcName = cond->text().left(lparen).trimmed();
+        m_lineNo = cond->lineNumber();
+        return evaluateConditionalFunction(funcName, arguments);
     } else {
-        if (!m_skipLevel) {
-            m_hadCondition = true;
-            if (!cond->text().compare(statics.strelse, Qt::CaseInsensitive)) {
-                m_sts.condition = !m_sts.prevCondition;
-            } else {
-                m_sts.prevCondition = false;
-                if (!m_sts.condition && isActiveConfig(cond->text(), true) ^ invertThis)
-                    m_sts.condition = true;
-            }
-        }
+        if (m_skipLevel)
+            return ProItem::ReturnTrue;
+        return returnBool(isActiveConfig(cond->text(), true));
     }
-    return ProItem::ReturnTrue;
 }
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
 {
-    m_lineNo = pro->lineNumber();
-
     m_profileStack.push(pro);
     if (m_profileStack.count() == 1) {
         // Do this only for the initial profile we visit, since
@@ -1401,9 +1575,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
         }
     }
 
-    visitProBlock(pro);
-
-    m_lineNo = pro->lineNumber();
+    visitProBlock(pro->items());
 
     if (m_profileStack.count() == 1) {
         if (m_parsePreAndPostFiles) {
@@ -1888,7 +2060,7 @@ QList<QStringList> ProFileEvaluator::Private::prepareFunctionArgs(const QString 
 }
 
 QStringList ProFileEvaluator::Private::evaluateFunction(
-        ProBlock *funcPtr, const QList<QStringList> &argumentsList, bool *ok)
+        ProFunctionDef *funcPtr, const QList<QStringList> &argumentsList, bool *ok)
 {
     bool oki;
     QStringList ret;
@@ -1897,8 +2069,9 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
         errorMessage(format("ran into infinite recursion (depth > 100)."));
         oki = false;
     } else {
-        State sts = m_sts;
         m_valuemapStack.push(QHash<QString, QStringList>());
+        int loopLevel = m_loopLevel;
+        m_loopLevel = 0;
 
         QStringList args;
         for (int i = 0; i < argumentsList.count(); ++i) {
@@ -1906,12 +2079,12 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
             m_valuemapStack.top()[QString::number(i+1)] = argumentsList[i];
         }
         m_valuemapStack.top()[statics.strARGS] = args;
-        oki = (visitProBlock(funcPtr) != ProItem::ReturnFalse); // True || Return
+        oki = (visitProBlock(funcPtr->items()) != ProItem::ReturnFalse); // True || Return
         ret = m_returnValue;
         m_returnValue.clear();
 
+        m_loopLevel = loopLevel;
         m_valuemapStack.pop();
-        m_sts = sts;
     }
     if (ok)
         *ok = oki;
@@ -1924,7 +2097,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
 {
     QList<QStringList> args_list = prepareFunctionArgs(arguments);
 
-    if (ProBlock *funcPtr = m_functionDefs.replaceFunctions.value(func, 0))
+    if (ProFunctionDef *funcPtr = m_functionDefs.replaceFunctions.value(func, 0))
         return evaluateFunction(funcPtr, args_list, 0);
 
     QStringList args; //why don't the builtin functions just use args_list? --Sam
@@ -2288,7 +2461,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
 {
     QList<QStringList> args_list = prepareFunctionArgs(arguments);
 
-    if (ProBlock *funcPtr = m_functionDefs.testFunctions.value(function, 0)) {
+    if (ProFunctionDef *funcPtr = m_functionDefs.testFunctions.value(function, 0)) {
         bool ok;
         QStringList ret = evaluateFunction(funcPtr, args_list, &ok);
         if (ok) {
@@ -2322,18 +2495,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
     TestFunc func_t = (TestFunc)statics.functions.value(function);
 
     switch (func_t) {
-        case T_DEFINE_TEST:
-            m_definingTest = true;
-            goto defineFunc;
-        case T_DEFINE_REPLACE:
-            m_definingTest = false;
-          defineFunc:
-            if (args.count() != 1) {
-                logMessage(format("%s(function) requires one argument.").arg(function));
-                return ProItem::ReturnFalse;
-            }
-            m_definingFunc = args.first();
-            return ProItem::ReturnTrue;
         case T_DEFINED:
             if (args.count() < 1 || args.count() > 2) {
                 logMessage(format("defined(function, [\"test\"|\"replace\"])"
@@ -2409,83 +2570,25 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         case T_REQUIRES:
 #endif
         case T_EVAL: {
-                ProBlock *pro = new ProBlock();
+                ProItem *pro;
                 QString buf = args.join(QLatin1String(" "));
-                if (!readInternal(pro, buf, (ushort*)buf.data())) {
-                    delete pro;
+                if (!readInternal(&pro, buf, (ushort*)buf.data()))
                     return ProItem::ReturnFalse;
-                }
-                bool ret = visitProBlock(pro);
-                pro->deref();
-                return returnBool(ret);
+                ProItem::ProItemReturn ret = visitProBlock(pro);
+                ProItem::disposeItems(pro);
+                return ret;
             }
-        case T_FOR: {
-            if (m_cumulative) // This is a no-win situation, so just pretend it's no loop
-                return ProItem::ReturnTrue;
-            if (m_skipLevel)
-                return ProItem::ReturnFalse;
-            if (args.count() > 2 || args.count() < 1) {
-                logMessage(format("for({var, list|var, forever|ever})"
-                                     " requires one or two arguments."));
-                return ProItem::ReturnFalse;
-            }
-            ProLoop loop;
-            loop.infinite = false;
-            loop.index = 0;
-            QString it_list;
-            if (args.count() == 1) {
-                it_list = args[0];
-                if (args[0] != statics.strever) {
-                    logMessage(format("for({var, list|var, forever|ever})"
-                                         " requires one or two arguments."));
-                    return ProItem::ReturnFalse;
-                }
-                it_list = statics.strforever;
-            } else {
-                loop.variable = map(args.at(0));
-                loop.oldVarVal = valuesDirect(loop.variable);
-                it_list = map(args.at(1));
-            }
-            loop.list = valuesDirect(it_list);
-            if (loop.list.isEmpty()) {
-                if (it_list == statics.strforever) {
-                    loop.infinite = true;
-                } else {
-                    int dotdot = it_list.indexOf(statics.strDotDot);
-                    if (dotdot != -1) {
-                        bool ok;
-                        int start = it_list.left(dotdot).toInt(&ok);
-                        if (ok) {
-                            int end = it_list.mid(dotdot+2).toInt(&ok);
-                            if (ok) {
-                                if (start < end) {
-                                    for (int i = start; i <= end; i++)
-                                        loop.list << QString::number(i);
-                                } else {
-                                    for (int i = start; i >= end; i--)
-                                        loop.list << QString::number(i);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            m_loopStack.push(loop);
-            m_sts.condition = true;
-            return ProItem::ReturnLoop;
-        }
         case T_BREAK:
             if (m_skipLevel)
                 return ProItem::ReturnFalse;
-            if (!m_loopStack.isEmpty())
+            if (m_loopLevel)
                 return ProItem::ReturnBreak;
-            // ### missing: breaking out of multiline blocks
             logMessage(format("unexpected break()."));
             return ProItem::ReturnFalse;
         case T_NEXT:
             if (m_skipLevel)
                 return ProItem::ReturnFalse;
-            if (!m_loopStack.isEmpty())
+            if (m_loopLevel)
                 return ProItem::ReturnNext;
             logMessage(format("unexpected next()."));
             return ProItem::ReturnFalse;
@@ -2713,9 +2816,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             QString fn = resolvePath(expandEnvVars(args.first()));
             bool ok;
             if (parseInto.isEmpty()) {
-                State sts = m_sts;
                 ok = evaluateFile(fn);
-                m_sts = sts;
             } else {
                 QHash<QString, QStringList> symbols;
                 if ((ok = evaluateFileInto(fn, &symbols, 0))) {

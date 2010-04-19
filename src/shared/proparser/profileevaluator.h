@@ -51,8 +51,8 @@ class ProFileEvaluator
 
 public:
     struct FunctionDefs {
-        QHash<QString, ProBlock *> testFunctions;
-        QHash<QString, ProBlock *> replaceFunctions;
+        QHash<QString, ProFunctionDef *> testFunctions;
+        QHash<QString, ProFunctionDef *> replaceFunctions;
     };
 
     enum TemplateType {

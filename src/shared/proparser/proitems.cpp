@@ -33,37 +33,55 @@
 
 QT_BEGIN_NAMESPACE
 
-ProBlock::ProBlock()
-    : ProItem(BlockKind)
+void ProItem::disposeItems(ProItem *nitm)
 {
-    m_proitems = 0;
-    m_blockKind = 0;
-    m_refCount = 1;
-}
-
-ProBlock::~ProBlock()
-{
-    for (ProItem *itm, *nitm = m_proitems; (itm = nitm); ) {
-        nitm = itm->m_next;
+    for (ProItem *itm; (itm = nitm); ) {
+        nitm = itm->next();
         switch (itm->kind()) {
-        case BlockKind: static_cast<ProBlock *>(itm)->deref(); break;
-        case ConditionKind: delete static_cast<ProCondition *>(itm); break;
-        case OperatorKind: delete static_cast<ProOperator *>(itm); break;
-        case VariableKind: delete static_cast<ProVariable *>(itm); break;
+        case ProItem::ConditionKind: delete static_cast<ProCondition *>(itm); break;
+        case ProItem::VariableKind: delete static_cast<ProVariable *>(itm); break;
+        case ProItem::BranchKind: delete static_cast<ProBranch *>(itm); break;
+        case ProItem::LoopKind: delete static_cast<ProLoop *>(itm); break;
+        case ProItem::FunctionDefKind: static_cast<ProFunctionDef *>(itm)->deref(); break;
+        case ProItem::OpNotKind:
+        case ProItem::OpAndKind:
+        case ProItem::OpOrKind:
+            delete itm;
+            break;
         }
     }
 }
 
-ProFile::ProFile(const QString &fileName)
-    : ProBlock()
+ProBranch::~ProBranch()
 {
-    setBlockKind(ProBlock::ProFileKind);
-    m_fileName = fileName;
+    disposeItems(m_thenItems);
+    disposeItems(m_elseItems);
+}
 
+ProLoop::~ProLoop()
+{
+    disposeItems(m_proitems);
+}
+
+ProFunctionDef::~ProFunctionDef()
+{
+    disposeItems(m_proitems);
+}
+
+ProFile::ProFile(const QString &fileName)
+    : m_proitems(0),
+      m_refCount(1),
+      m_fileName(fileName)
+{
     int nameOff = fileName.lastIndexOf(QLatin1Char('/'));
     m_displayFileName = QString(fileName.constData() + nameOff + 1,
                                 fileName.length() - nameOff - 1);
     m_directoryName = QString(fileName.constData(), nameOff);
+}
+
+ProFile::~ProFile()
+{
+    ProItem::disposeItems(m_proitems);
 }
 
 QT_END_NAMESPACE
