@@ -289,7 +289,12 @@ bool Function::matchType0(const Type *otherType, TypeMatcher *matcher) const
 }
 
 FullySpecifiedType Function::type() const
-{ return FullySpecifiedType(const_cast<Function *>(this)); }
+{
+    FullySpecifiedType ty(const_cast<Function *>(this));
+    ty.setConst(isConst());
+    ty.setVolatile(isVolatile());
+    return ty;
+}
 
 FullySpecifiedType Function::returnType() const
 { return _returnType; }
