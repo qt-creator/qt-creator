@@ -296,11 +296,13 @@ void QmlPropertyChangesObject::removeActionForProperty(const QString &propertyNa
             actionIterator.remove();
     }
 
-    QMutableListIterator<QDeclarativeSimpleAction> simpleActionIterator(statePrivate()->revertList);
-    while (simpleActionIterator.hasNext()) {
-        QDeclarativeSimpleAction &qmlSimpleAction = simpleActionIterator.next();
-        if (qmlSimpleAction.specifiedProperty == propertyName && qmlSimpleAction.specifiedObject == targetObject()) {
-            simpleActionIterator.remove();
+    if (statePrivate()) {
+        QMutableListIterator<QDeclarativeSimpleAction> simpleActionIterator(statePrivate()->revertList);
+        while (simpleActionIterator.hasNext()) {
+            QDeclarativeSimpleAction &qmlSimpleAction = simpleActionIterator.next();
+            if (qmlSimpleAction.specifiedProperty == propertyName && qmlSimpleAction.specifiedObject == targetObject()) {
+                simpleActionIterator.remove();
+            }
         }
     }
 }
