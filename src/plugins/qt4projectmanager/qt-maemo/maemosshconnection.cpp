@@ -147,7 +147,7 @@ void MaemoInteractiveSshConnection::runCommand(const QString &command)
 
     int endMarkerCount = 0;
     do {
-        ssh->waitFor(channel(), endMarker.toUtf8(), 1);
+        ssh->waitFor(channel(), endMarker.toUtf8(), 1); // TODO: Hack net7 to get rid of busy loop.
         const char * const error = lastError();
         if (error)
             throw MaemoSshException(tr("SSH error: %1").arg(error));

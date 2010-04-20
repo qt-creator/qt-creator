@@ -43,6 +43,7 @@
 
 #include "maemoconstants.h"
 #include "maemopackagecreationwidget.h"
+#include "maemopackagecontents.h"
 #include "maemotoolchain.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -67,13 +68,16 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig)
-    : ProjectExplorer::BuildStep(buildConfig, CreatePackageId)
+    : ProjectExplorer::BuildStep(buildConfig, CreatePackageId),
+      m_packageContents(new MaemoPackageContents(this))
 {
 }
 
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig,
     MaemoPackageCreationStep *other)
-    : BuildStep(buildConfig, other)
+    : BuildStep(buildConfig, other),
+      m_packageContents(new MaemoPackageContents(this))
+
 {
 
 }
@@ -119,7 +123,7 @@ bool MaemoPackageCreationStep::createPackage()
     env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
     env.insert(QLatin1String("PERL5LIB"), path % QLatin1String("madlib/perl5"));
 
-    const QString projectDir = QFileInfo(executable()).absolutePath();
+    const QString projectDir = QFileInfo(localExecutableFilePath()).absolutePath();
     env.insert(QLatin1String("PWD"), projectDir);
 
     const QRegExp envPattern(QLatin1String("([^=]+)=[\"']?([^;\"']+)[\"']? ;.*"));
@@ -161,7 +165,7 @@ bool MaemoPackageCreationStep::createPackage()
         return false;
     
     const QString targetFile(projectDir % QLatin1String("/debian/")
-        % executableFileName().toLower() % executableFilePathOnTarget());
+        % executableFileName().toLower() % remoteExecutableFilePath());
     if (QFile::exists(targetFile)) {
         if (!QFile::remove(targetFile)) {
             raiseError(tr("Packaging Error: Could not replace file '%1'.")
@@ -169,9 +173,9 @@ bool MaemoPackageCreationStep::createPackage()
             return false;
         }
     }
-    if (!QFile::copy(executable(), targetFile)) {
+    if (!QFile::copy(localExecutableFilePath(), targetFile)) {
         raiseError(tr("Packaging Error: Could not copy '%1' to '%2'.")
-                   .arg(QDir::toNativeSeparators(executable()))
+                   .arg(QDir::toNativeSeparators(localExecutableFilePath()))
                    .arg(QDir::toNativeSeparators(targetFile)));
         return false;
     }
@@ -186,6 +190,7 @@ bool MaemoPackageCreationStep::createPackage()
     }
 
     emit addOutput(tr("Package created."));
+    m_packageContents->setUnModified();
     return true;
 }
 
@@ -219,7 +224,7 @@ const Qt4BuildConfiguration *MaemoPackageCreationStep::qt4BuildConfiguration() c
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
 }
 
-QString MaemoPackageCreationStep::executable() const
+QString MaemoPackageCreationStep::localExecutableFilePath() const
 {
     const TargetInformation &ti = qt4BuildConfiguration()->qt4Target()
         ->qt4Project()->rootProjectNode()->targetInformation();
@@ -232,7 +237,7 @@ QString MaemoPackageCreationStep::executable() const
 
 QString MaemoPackageCreationStep::executableFileName() const
 {
-    return QFileInfo(executable()).fileName();
+    return QFileInfo(localExecutableFilePath()).fileName();
 }
 
 const MaemoToolChain *MaemoPackageCreationStep::maemoToolChain() const
@@ -252,25 +257,28 @@ QString MaemoPackageCreationStep::targetRoot() const
 
 bool MaemoPackageCreationStep::packagingNeeded() const
 {
-    // TODO: When the package contents get user-modifiable, we need
-    // to check whether files have been added and/or removed and whether
-    // the newest one is newer than the package.
-    // For the first check, we should have a switch that the widget sets
-    // to true when the user has changed the package contents and which
-    // we set to false after a successful package creation.
     QFileInfo packageInfo(packageFilePath());
-    return !packageInfo.exists()
-        || packageInfo.lastModified() <= QFileInfo(executable()).lastModified();
+    if (!packageInfo.exists() || m_packageContents->isModified())
+        return true;
+
+    for (int i = 0; i < m_packageContents->rowCount(); ++i) {
+        if (packageInfo.lastModified()
+            <= QFileInfo(m_packageContents->deployableAt(i).localFilePath)
+               .lastModified())
+            return true;
+    }
+
+    return false;
 }
 
 QString MaemoPackageCreationStep::packageFilePath() const
 {
-    QFileInfo execInfo(executable());
+    QFileInfo execInfo(localExecutableFilePath());
     return execInfo.path() % QDir::separator() % execInfo.fileName().toLower()
         % versionString() % QLatin1String("_armel.deb");
 }
 
-QString MaemoPackageCreationStep::executableFilePathOnTarget() const
+QString MaemoPackageCreationStep::remoteExecutableFilePath() const
 {
     return QLatin1String("/usr/bin/") % executableFileName();
 }

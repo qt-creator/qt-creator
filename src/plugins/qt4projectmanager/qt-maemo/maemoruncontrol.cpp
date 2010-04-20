@@ -198,7 +198,7 @@ QString AbstractMaemoRunControl::packageFilePath() const
 
 QString AbstractMaemoRunControl::executableFilePathOnTarget() const
 {
-    return m_runConfig->packageStep()->executableFilePathOnTarget();
+    return m_runConfig->packageStep()->remoteExecutableFilePath();
 }
 
 bool AbstractMaemoRunControl::isCleaning() const

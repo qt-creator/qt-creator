@@ -52,6 +52,7 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
+class MaemoPackageContents;
 class MaemoToolChain;
 class Qt4BuildConfiguration;
 
@@ -63,7 +64,9 @@ public:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig);
 
     QString packageFilePath() const;
-    QString executableFilePathOnTarget() const;
+    QString remoteExecutableFilePath() const;
+    QString localExecutableFilePath() const;
+
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
                              MaemoPackageCreationStep *other);
@@ -77,7 +80,6 @@ private:
     bool runCommand(QProcess &proc, const QString &command);
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     const MaemoToolChain *maemoToolChain() const;
-    QString executable() const;
     QString executableFileName() const;
     QString maddeRoot() const;
     QString targetRoot() const;
@@ -88,6 +90,8 @@ private:
                     const QString &detailedMsg = QString());
 
     static const QLatin1String CreatePackageId;
+
+    MaemoPackageContents *const m_packageContents;
 };
 
 } // namespace Internal
