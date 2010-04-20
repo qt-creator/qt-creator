@@ -158,6 +158,9 @@ public:
     // the respective attributes set.
     static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = 0);
 
+signals:
+    void projectLocationChanged(const QString &path);
+
 protected:
     virtual bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 

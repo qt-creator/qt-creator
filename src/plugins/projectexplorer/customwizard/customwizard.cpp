@@ -438,10 +438,12 @@ bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::Generat
     return CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 
-void CustomProjectWizard::introPageLeft(const QString &project, const QString & /* path */)
+void CustomProjectWizard::introPageLeft(const QString &project, const QString & path)
 {
     // Make '%ProjectName%' available in base replacements.
     context()->baseReplacements.insert(QLatin1String("ProjectName"), project);
+
+    emit projectLocationChanged(path + QChar('/') + project);
 }
 
 } // namespace ProjectExplorer
