@@ -2696,29 +2696,38 @@
     \title Debugging
 
     Qt Creator does not include a debugger. It provides a debugger plugin that acts
-    as an interface between the Qt Creator core and debugger engines. Each debugger
-    engine provides an interface to a native debugger, such as GNU Symbolic Debugger (gdb),
-    Microsoft Console Debugger (CDB), and \e script that is used to debug Java Script
-    on all platforms.
+    as an interface between the Qt Creator core and external native debuggers
+    such as the GNU Symbolic Debugger (gdb), the Microsoft Console Debugger (CDB),
+    and an internal Java Script debugger.
 
-    In the \gui Debug mode you can interact with the debugger engines to:
+    In the \gui Debug mode you can:
     \list
         \o Go through a program line-by-line or instruction-by-instruction.
         \o Interrupt running programs.
         \o Set breakpoints.
-        \o Examine the contents of the call stack, local and global variables, and so on.
+        \o Examine the contents of the call stack.
+        \o Examine and modify registers and memory contents of
+           the debugged program.
+        \o Examine and modify registers and memory contents of
+           local and global variables.
+        \o Examine the list of loaded shared libraries.
+        \o Create snapshots of the current state of the debugged program
+           and re-examine them later.
     \endlist
 
-    Qt Creator displays the raw information provided by the debugger engine
-    in a clear and concise manner, which simplifies the debugging process.
+    Qt Creator displays the raw information provided by the native debuggers
+    in a clear and concise manner with the goal to simplify the debugging process
+    as much as possible without losing the power of the native debuggers.
 
-    Qt Creator comes with generic IDE functionality: stack view, views for
-    locals and watchers, registers, and so on. In addition, Qt Creator includes
+    In addition to the generic IDE functionality provided by stack view, views for
+    locals and watchers, registers, and so on, Qt Creator includes
     features to make debugging Qt-based applications easy. The debugger
     plugin understands the internal layout of several Qt classes, for
-    example, QString, the QTL containers, and most importantly QObject
+    example, QString, the Qt containers, and most importantly QObject
     (and classes derived from it), as well as most containers of the C++
-    Standard Library. The debugger plugin can present its contents in a useful way.
+    Standard Library and some gcc and Symbian extensions. This
+    deeper understanding is used to present objects of such classes in
+    a useful way.
 
     For an example of how to debug applications in the \gui Debug mode, see
     \l{Debugging the Example Application}.
@@ -2726,14 +2735,15 @@
     For more information about the functions available in the \gui Debug mode,
     see \l{Interacting with the Debugger}.
 
-    If you install Qt Creator as part of a Qt SDK, the gdb debugger engine is installed
-    automatically and you should be ready to start debugging after you create a new
+    If you install Qt Creator as part of a Qt SDK, the GNU Symbolic Debugger
+    is installed automatically and you should be ready to start debugging after
+    you create a new
     project. If you want a special setup, such as using debugging tools for Windows,
-    or if the debugging engine is not installed, see \l {Setting Up Debugger}.
+    see \l {Setting Up Debugger}.
 
     \section1 Modes of Operation
 
-    The debugger engine runs in different operating modes depending on where and
+    The debugger plugin runs in different operating modes depending on where and
     how the process is started and run. Some of the modes are only available for
     a particular operating system or platform.
 
@@ -2741,10 +2751,11 @@
 
     \list
 
-       \o \bold Plain to debug locally started GUI processes.
+       \o \bold Plain to debug locally started applications, such as a
+        Qt based GUI application.
 
        \o \bold Terminal to debug locally started processes that need a
-       console.
+       console, typically without a GUI.
 
        \o \bold Attach to debug local processes started outside Qt Creator.
 
@@ -2780,7 +2791,7 @@
 
     To launch the debugger in the attach mode, select
     \gui {Debug > Start Debugging >  Attach to Running External Application...},
-    and then select a process ID to attach to.
+    and then select a process by its name or process ID to attach to.
 
     \section2 Remote Mode
 
@@ -2820,7 +2831,8 @@
 
     \section2 TRK Mode
 
-    The TRK mode is available only for Symbian. It debugs processes running on a Symbian
+    The TRK mode is a special mode available only for Symbian. It
+    debugs processes running on a Symbian
     device using the App TRK application that runs on the device.
 
     To launch the debugger in the TRK mode, open the project, select Symbian as the
@@ -2840,7 +2852,7 @@
 
     \title Setting Up Debugger
 
-    Typically, the interaction between Qt Creator and the gdb debugger engine is set
+    Typically, the interaction between Qt Creator and the native debugger is set
     up automatically and you do not need to do anything. However, you might have an
     unsupported gdb version installed, your Linux environment might not have gdb
     installed at all, or you might want to use the debugging tools for Windows.
@@ -2851,22 +2863,25 @@
 
     This section explains the
     options you have for debugging C++ code and provides installation notes for the
-    supported debugger engines.
+    supported native debuggers.
 
-    \section1 Supported Debugger Engines
+    \section1 Supported Native Debugger Versions
 
-    The gdb debugger engine can be used with or without Python. The Python version
-    is preferred, but it is not available on Mac and on older versions of Linux.
+    The debugger plugin supports different builds of the gdb debugger, both
+    with and without the ability to use Python scripting. The Python enabled
+    versions are preferred, but they are not available on Mac and on older
+    versions of Linux.
     On Windows, Symbian, and Maemo, only the Python version is supported.
 
     The non-Python versions use the compiled version of the debugging helpers,
     that you must enable separately. For more information, see
     \l{Debugging Helper Library with C++}.
 
-    The Python version uses the script version that does not need any special setup.
+    The Python version uses a script version of the debugging helpers
+    that does not need any special setup.
 
-    The CDB debugger engine has similar funtionality to the non-Python gdb debugger
-    engine on Linux. Specifically, it also uses compiled C++ code for the debugging
+    The CDB native debugger has similar funtionality to the non-Python gdb debugger
+    engine. Specifically, it also uses compiled C++ code for the debugging
     helper library.
 
     The following table summarizes the support for debugging C++ code:
@@ -2875,9 +2890,9 @@
         \header
             \o Platform
             \o Compiler
-            \o Debugger Engine
+            \o Native Debugger
             \o Python
-            \o Debugger Adapters
+            \o Debugger Modes
         \row
             \o Linux
             \o gcc
@@ -2922,9 +2937,14 @@
             \o Remote
     \endtable
 
-    \section2 Debugger Adapter Modes
+    \omit
 
-    The gdb debugger engine runs in different adapter modes to cope with the variety
+    \section2 Gdb Adapter Modes
+
+    [Advanced Topic]
+
+    The gdb native debugger used internally by the debugger plugin runs in
+    different adapter modes to cope with the variety
     of supported platforms and environments. All gdb adapters inherit from
     AbstractGdbAdapter:
 
@@ -2949,21 +2969,27 @@
 
      \endlist
 
-    \section1 Installing Debugger Engines
+     \endomit
 
-    If the debugger engine is missing, the installed version is not supported,
-    or you want to use the debugging tools for Windows,
-    check the table below for the supported versions and other important information about
-    installing debugger engines.
+    \section1 Installing Native Debuggers
+
+    There are various reasons why the debugger plugin may fail to automatically
+    pick up a suitable native debugger. The native debugger might be missing
+    (which is usually the case for the CDB debugger on Windows which always
+    needs to be installed manually by the user) or the installed version is not
+    supported.
+    Check the table below for the supported versions and other important
+    information about installing native debuggers.
 
     \table
         \header
-            \o Debugger Engine
+            \o Native Debugger
             \o Notes
         \row
             \o Gdb
             \o On Linux, install version 6.8, 7.0.1 (version 7.0 is not supported),
-            7.1, or later. On Mac OS X, install Apple gdb version 6.3.x.
+            7.1, or later. On Mac OS X, install Apple gdb version 6.3.50-20050815
+            (build 1344) or later.
 
         \row
             \o Debugging tools for Windows
