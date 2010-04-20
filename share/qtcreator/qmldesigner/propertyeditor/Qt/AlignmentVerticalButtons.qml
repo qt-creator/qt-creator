@@ -3,6 +3,56 @@ import Bauhaus 1.0
 
 QGroupBox {
     id: alignmentVerticalButtons
+
+    property variant theValue: backendValues.verticalAlignment.value;
+
+    property bool blueHigh: false
+
+    property bool baseStateFlag: isBaseState;
+
+    property variant backendValue: backendValues.verticalAlignment;
+
+
+    onBaseStateFlagChanged: {
+        evaluate();
+    }
+
+    property bool isInModel: backendValue.isInModel;
+    onIsInModelChanged: {
+        evaluate();
+    }
+    property bool isInSubState: backendValue.isInSubState;
+    onIsInSubStateChanged: {
+        evaluate();
+    }
+
+    onTheValueChanged: {
+        if (theValue != undefined) {
+            topButton.checked = theValue == "AlignTop";
+            centerButton.checked = theValue == "AlignVCenter";
+            bottomButton.checked = theValue == "AlignBottom";
+        }
+        evaluate();
+    }
+
+    function evaluate() {
+        if (!enabled) {
+            fontSelector.setStyleSheet("color: "+scheme.disabledColor);
+        } else {
+            if (baseStateFlag) {
+                if (backendValue != null && backendValue.isInModel)
+                    blueHigh = true;
+                else
+                    blueHigh = false;
+            } else {
+                if (backendValue != null && backendValue.isInSubState)
+                    blueHigh = true;
+                else
+                    blueHigh = false;
+            }
+        }
+    }
+
     layout: HorizontalLayout {
         topMargin: 6
 
@@ -12,11 +62,16 @@ QGroupBox {
             QPushButton {
                 id: topButton;
                 checkable: true
-                fixedWidth: 32
-                fixedHeight: 32
+                iconSize.width: 24;
+                iconSize.height: 24;
+                fixedWidth: 41
                 width: fixedWidth
+                fixedHeight: 28
                 height: fixedHeight
-                styleSheetFile: "alignmenttopbutton.css";
+                styleSheetFile: "styledbuttonleft.css";
+
+                iconFromFile: blueHigh ? "images/alignmenttop-h-icon.png" : "images/alignmenttop-icon.png"
+
                 checked: backendValues.verticalAlignment.value == "AlignTop"
 
                 onClicked: {
@@ -26,17 +81,27 @@ QGroupBox {
                     centerButton.checked = false;
                 }
 
+                ExtendedFunctionButton {
+                    backendValue:   backendValues.verticalAlignment;
+                    y: 7
+                    x: 2
+                }
+
             }
             QPushButton {
-                x: 32
+                x: 41
                 id: centerButton;
                 checkable: true
-                fixedWidth: 32
-                fixedHeight: 32
+                iconSize.width: 24;
+                iconSize.height: 24;
+                fixedWidth: 31
                 width: fixedWidth
+                fixedHeight: 28
                 height: fixedHeight
+                styleSheetFile: "styledbuttonmiddle.css";
 
-                styleSheetFile: "alignmentcentervbutton.css";
+                iconFromFile: blueHigh ? "images/alignmentmiddle-h-icon.png" : "images/alignmentmiddle-icon.png"
+
                 checked: backendValues.verticalAlignment.value == "AlignVCenter"
 
                 onClicked: {
@@ -48,15 +113,19 @@ QGroupBox {
 
             }
             QPushButton {
-                x: 64
+                x: 72
                 id: bottomButton;
                 checkable: true
-                fixedWidth: 32
-                fixedHeight: 32
+                iconSize.width: 24;
+                iconSize.height: 24;
+                fixedWidth: 31
                 width: fixedWidth
+                fixedHeight: 28
                 height: fixedHeight
+                styleSheetFile: "styledbuttonright.css";
 
-                styleSheetFile: "alignmentbottombutton.css";
+                iconFromFile: blueHigh ? "images/alignmentbottom-h-icon.png" : "images/alignmentbottom-icon.png"
+
                 checked: backendValues.verticalAlignment.value == "AlignBottom"
 
                 onClicked: {
@@ -65,6 +134,7 @@ QGroupBox {
                     centerButton.checked = false;
                     topButton.checked = false;
                 }
+
             }
         }
 

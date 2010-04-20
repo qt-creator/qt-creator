@@ -46,8 +46,10 @@ QWidget {
         checked: true
         fixedWidth: 31
         fixedHeight: 28
-
-        styleSheetFile: "solidcolorbutton.css";
+        
+        
+        styleSheetFile: "styledbuttonleft.css"                
+        iconFromFile: "images/icon_color_solid.png"
 
         onToggled: {
             if (checked) {
@@ -70,8 +72,8 @@ QWidget {
         fixedWidth: 31
         fixedHeight: 28
 
-        styleSheetFile: "gradientcolorbutton.css";
-
+        styleSheetFile: "styledbuttonmiddle.css"
+        iconFromFile: "images/icon_color_gradient.png"
 
         onToggled: {
             if (checked) {
@@ -93,7 +95,8 @@ QWidget {
         checkable: true
         fixedWidth: 31
         fixedHeight: 28
-        styleSheetFile: "nonecolorbutton.css";
+        styleSheetFile: "styledbuttonright.css"
+        iconFromFile: "images/icon_color_none.png"
 
         onToggled: {
             if (checked) {
