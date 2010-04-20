@@ -222,13 +222,7 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     painter->drawText(QPoint(60.0, 26.0), QString("h:"));
     painter->drawText(QPoint(70.0, 26.0), m_feedbackNode.instanceValue("height").toString());
 
-    if (m_parentNode == m_feedbackNode.instanceParent()) {
-
-        if (!m_feedbackNode.canReparent()) {
-            painter->setPen(defaultColor);
-            painter->drawText(QPoint(2.0, 39.0), QString("Cannot reparent"));
-        }
-    } else {
+    if (m_parentNode != m_feedbackNode.instanceParent()) {
         painter->setPen(changeColor);
         painter->drawText(QPoint(2.0, 39.0), QString("Parent changed"));
 
