@@ -63,6 +63,8 @@ public:
     bool usesQmlPrototype(Interpreter::ObjectValue *prototype,
                           Interpreter::Context *context) const;
 
+    Interpreter::ObjectValue *findFunctionScope(AST::FunctionDeclaration *node) const;
+
     static QString toString(AST::UiQualifiedId *qualifiedId, QChar delimiter = QChar('.'));
 
 protected:
@@ -101,6 +103,7 @@ private:
     Interpreter::ObjectValue *_rootObjectValue;
 
     QHash<AST::Node *, Interpreter::ObjectValue *> _qmlObjects;
+    QHash<AST::FunctionDeclaration *, Interpreter::ObjectValue *> _functionScopes;
     QStringList _includedScripts;
 
     QStringList _fileImports;

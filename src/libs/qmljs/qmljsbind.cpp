@@ -107,6 +107,11 @@ bool Bind::usesQmlPrototype(ObjectValue *prototype,
     return false;
 }
 
+Interpreter::ObjectValue *Bind::findFunctionScope(AST::FunctionDeclaration *node) const
+{
+    return _functionScopes.value(node);
+}
+
 ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
 {
     ObjectValue *oldObjectValue = _currentObjectValue;
@@ -289,9 +294,37 @@ bool Bind::visit(FunctionDeclaration *ast)
     //    return false;
 
     ASTFunctionValue *function = new ASTFunctionValue(ast, &_engine);
-    // ### set the function's scope.
-
     _currentObjectValue->setProperty(ast->name->asString(), function);
 
-    return false; // ### eventually want to visit function bodies
+    // build function scope
+    ObjectValue *functionScope = _engine.newObject(/*prototype=*/0);
+    _functionScopes.insert(ast, functionScope);
+    ObjectValue *parent = switchObjectValue(functionScope);
+
+    // The order of the following is important. Example: A function with name "arguments"
+    // overrides the arguments object, a variable doesn't.
+
+    // 1. Function formal arguments
+    for (FormalParameterList *it = ast->formals; it; it = it->next) {
+        if (it->name)
+            functionScope->setProperty(it->name->asString(), _engine.undefinedValue());
+    }
+
+    // 2. Functions defined inside the function body
+    // ### TODO, currently covered by the accept(body)
+
+    // 3. Arguments object
+    ObjectValue *arguments = _engine.newObject(/*prototype=*/0);
+    arguments->setProperty(QLatin1String("callee"), function);
+    arguments->setProperty(QLatin1String("length"), _engine.numberValue());
+    functionScope->setProperty(QLatin1String("arguments"), arguments);
+
+    // 4. Variables defined inside the function body
+    // ### TODO, currently covered by the accept(body)
+
+    // visit body
+    accept(ast->body);
+    switchObjectValue(parent);
+
+    return false;
 }

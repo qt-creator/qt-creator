@@ -32,12 +32,8 @@ void ScopeBuilder::push(AST::Node *node)
 
     // JS scopes
     if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(node)) {
-        ObjectValue *activation = _context->engine()->newObject(/*prototype = */ 0);
-        for (FormalParameterList *it = fun->formals; it; it = it->next) {
-            if (it->name)
-                activation->setProperty(it->name->asString(), _context->engine()->undefinedValue());
-        }
-        _context->scopeChain().jsScopes += activation;
+        ObjectValue *functionScope = _doc->bind()->findFunctionScope(fun);
+        _context->scopeChain().jsScopes += functionScope;
     }
 
     _context->scopeChain().update();
