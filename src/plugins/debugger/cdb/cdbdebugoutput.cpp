@@ -81,10 +81,10 @@ void CdbDebugOutput::output(ULONG mask, const QString &msg)
         emit debuggerInputPrompt(logChannel(mask), msg);
         break;
     case DebuggeeOutput:
-        emit debuggeeOutput(msg);
+        emit debuggeeOutput(msg, true);
         break;
     case DebuggeePromptOutput:
-        emit debuggeeInputPrompt(msg);
+        emit debuggeeInputPrompt(msg, false);
         break;
     }
 }

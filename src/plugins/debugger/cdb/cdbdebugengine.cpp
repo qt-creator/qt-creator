@@ -152,10 +152,10 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
             manager(), SLOT(showDebuggerOutput(int,QString)));
     connect(output, SIGNAL(debuggerInputPrompt(int,QString)),
             manager(), SLOT(showDebuggerInput(int,QString)));
-    connect(output, SIGNAL(debuggeeOutput(QString)),
-            manager(), SLOT(showApplicationOutput(QString)));
-    connect(output, SIGNAL(debuggeeInputPrompt(QString)),
-            manager(), SLOT(showApplicationOutput(QString)));
+    connect(output, SIGNAL(debuggeeOutput(QString,bool)),
+            manager(), SLOT(showApplicationOutput(QString,bool)));
+    connect(output, SIGNAL(debuggeeInputPrompt(QString,bool)),
+            manager(), SLOT(showApplicationOutput(QString,bool)));
 
     setDebugEventCallback(DebugEventCallbackBasePtr(new CdbDebugEventCallback(m_engine)));
     updateCodeLevel();

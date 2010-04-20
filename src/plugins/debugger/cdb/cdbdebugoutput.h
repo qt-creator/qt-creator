@@ -50,8 +50,8 @@ protected:
 signals:
     void debuggerOutput(int channel, const QString &message);
     void debuggerInputPrompt(int channel, const QString &message);
-    void debuggeeOutput(const QString &message);
-    void debuggeeInputPrompt(const QString &message);
+    void debuggeeOutput(const QString &message, bool onStderr);
+    void debuggeeInputPrompt(const QString &message, bool onStderr);
 };
 
 } // namespace Internal
