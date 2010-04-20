@@ -70,7 +70,6 @@ private slots:
     void currentItemChanged(const QModelIndex &);
     void okButtonClicked();
     void updateOkButton();
-
 private:
     Core::IWizard *currentWizard() const;
 

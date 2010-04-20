@@ -34,6 +34,7 @@
 #include <QMap>
 #include <QHash>
 #include <QVariant>
+#include <QStyle>
 
 namespace Utils {
 

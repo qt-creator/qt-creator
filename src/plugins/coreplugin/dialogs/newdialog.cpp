@@ -37,6 +37,7 @@
 #include <coreplugin/dialogs/iwizard.h>
 
 #include <QtGui/QAbstractProxyModel>
+#include <QtGui/QItemSelectionModel>
 #include <QtGui/QHeaderView>
 #include <QtGui/QPushButton>
 #include <QtGui/QStandardItem>
@@ -92,15 +93,6 @@ public:
             return QModelIndex();
         return static_cast<TwoLevelProxyModel*>(sourceModel())->createIndex(index.row(), index.column(), index.internalPointer());
     }
-
-    Qt::ItemFlags flags(const QModelIndex &index) const
-    {
-        Qt::ItemFlags f = sourceModel()->flags(index);
-        if (!index.parent().isValid())
-            return f ^ Qt::ItemIsSelectable;
-        else
-            return f;
-    }
 };
 
 #define CATEGORY_ROW_HEIGHT 18
@@ -111,10 +103,10 @@ public:
     FancyTopLevelDelegate(QObject *parent = 0)
         : QItemDelegate(parent) {}
 
-
     void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QString &text) const
     {
-        if (rect.height() == CATEGORY_ROW_HEIGHT) {
+        QStyleOptionViewItem newoption = option;
+        if (!(option.state & QStyle::State_Enabled)) {
             QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
             gradient.setColorAt(0, option.palette.window().color().lighter(106));
             gradient.setColorAt(1, option.palette.window().color().darker(106));
@@ -123,15 +115,12 @@ public:
             if (rect.top())
                 painter->drawLine(rect.topRight(), rect.topLeft());
             painter->drawLine(rect.bottomRight(), rect.bottomLeft());
+
+            // Fake enabled state
+            newoption.state |= newoption.state | QStyle::State_Enabled;
         }
 
-        QItemDelegate::drawDisplay(painter, option, rect, text);
-    }
-
-    void drawFocus(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect) const
-    {
-        if (rect.height() != CATEGORY_ROW_HEIGHT)
-            QItemDelegate::drawFocus(painter, option, rect);
+        QItemDelegate::drawDisplay(painter, newoption, rect, text);
     }
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -183,8 +172,13 @@ NewDialog::NewDialog(QWidget *parent) :
         this, SLOT(currentCategoryChanged(const QModelIndex&)));
     connect(m_ui->templatesView, SIGNAL(clicked(const QModelIndex&)),
         this, SLOT(currentItemChanged(const QModelIndex&)));
-//    connect(m_ui->templatesView, SIGNAL(activated(const QModelIndex&)),
-//            m_okButton, SLOT(animateClick()));
+
+    connect(m_ui->templateCategoryView->selectionModel(),
+            SIGNAL(currentChanged(const QModelIndex&,const QModelIndex&)),
+            this, SLOT(currentCategoryChanged(const QModelIndex&)));
+    connect(m_ui->templatesView,
+            SIGNAL(doubleClicked(const QModelIndex&)),
+            this, SLOT(okButtonClicked()));
 
     connect(m_okButton, SIGNAL(clicked()), this, SLOT(okButtonClicked()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
@@ -215,15 +209,18 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
     m_model->clear();
     QStandardItem *projectKindItem = new QStandardItem(tr("Projects"));
     projectKindItem->setData(IWizard::ProjectWizard, Qt::UserRole);
+    projectKindItem->setFlags(0); // disable item to prevent focus
     QStandardItem *filesClassesKindItem = new QStandardItem(tr("Files and Classes"));
     filesClassesKindItem->setData(IWizard::FileWizard, Qt::UserRole);
-
+    filesClassesKindItem->setFlags(0); // disable item to prevent focus
     QStandardItem *parentItem = m_model->invisibleRootItem();
     parentItem->appendRow(projectKindItem);
     parentItem->appendRow(filesClassesKindItem);
 
-    static QPixmap dummyIcon(22, 22);
-    dummyIcon.fill(Qt::transparent);
+    if (m_dummyIcon.isNull()) {
+        m_dummyIcon = QPixmap(22, 22);
+        m_dummyIcon.fill(Qt::transparent);
+    }
 
     foreach (IWizard *wizard, wizards) {
         // ensure category root
@@ -255,7 +252,7 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
 
         // spacing hack. Add proper icons instead
         if (wizard->icon().isNull())
-            wizardIcon = dummyIcon;
+            wizardIcon = m_dummyIcon;
         else
             wizardIcon = wizard->icon();
         wizardItem->setIcon(wizardIcon);
@@ -273,11 +270,15 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
         QModelIndex idx = filesClassesKindItem->index();
         m_model->removeRow(idx.row());
     }
-
 }
 
 Core::IWizard *NewDialog::showDialog()
 {
+    // Select first category, first item by default
+    m_ui->templateCategoryView->setCurrentIndex(m_proxyModel->index(0,0, m_proxyModel->index(0,0)));
+    // We need to set ensure that the category has default focus
+    m_ui->templateCategoryView->setFocus(Qt::NoFocusReason);
+
     for (int row = 0; row < m_proxyModel->rowCount(); ++row)
         m_ui->templateCategoryView->setExpanded(m_proxyModel->index(row, 0), true);
 
@@ -299,12 +300,16 @@ IWizard *NewDialog::currentWizard() const
 
 void NewDialog::currentCategoryChanged(const QModelIndex &index)
 {
-
     if (index.parent() != m_model->invisibleRootItem()->index()) {
         m_ui->templatesView->setModel(m_model);
         m_ui->templatesView->setRootIndex(m_proxyModel->mapToSource(index));
-    } else  {
-        m_ui->templatesView->setModel(0);
+
+        // Focus the first item by default
+        m_ui->templatesView->setCurrentIndex(m_ui->templatesView->rootIndex().child(0,0));
+
+        connect(m_ui->templatesView->selectionModel(),
+                SIGNAL(currentChanged(const QModelIndex&,const QModelIndex&)),
+                this, SLOT(currentItemChanged(const QModelIndex&)));
     }
 }
 
