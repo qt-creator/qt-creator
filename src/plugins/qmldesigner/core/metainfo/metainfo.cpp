@@ -317,7 +317,8 @@ void MetaInfoPrivate::parseQmlTypes()
 void MetaInfoPrivate::parseNonQmlTypes()
 {
     foreach (QDeclarativeType *qmlType, QDeclarativeMetaType::qmlTypes()) {
-        parseNonQmlClassRecursively(qmlType->metaObject());
+        if (!qmlType->qmlTypeName().contains("Bauhaus"))
+            parseNonQmlClassRecursively(qmlType->metaObject());
     }
 
     parseNonQmlClassRecursively(&QDeclarativeAnchors::staticMetaObject);
