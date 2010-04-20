@@ -229,6 +229,12 @@ void SymbolGroupContext::populateINameIndexMap(const QString &prefix, unsigned l
                 symbolName = QLatin1String("<unnamed");
                 symbolName += QString::number(m_unnamedSymbolNumber++);
                 symbolName += QLatin1Char('>');
+            } else {
+                // Trigger numeric sorting for arrays "local.[22]" -> "local.22"
+                if (symbolName.startsWith(QLatin1Char('[')) && symbolName.endsWith(QLatin1Char(']'))) {
+                    symbolName.truncate(symbolName.size() - 1);
+                    symbolName.remove(0, 1);
+                }
             }
             // Find a unique name in case the variable is shadowed by
             // an existing one

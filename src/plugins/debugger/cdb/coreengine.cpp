@@ -30,6 +30,7 @@
 #include "coreengine.h"
 #include "debugeventcallbackbase.h"
 #include "debugoutputbase.h"
+#include "symbolgroupcontext.h"
 
 #include <utils/winutils.h>
 #include <utils/abstractprocess.h>
@@ -725,9 +726,9 @@ bool CoreEngine::endSession(QString *appendableErrorMessage)
     return true;
 }
 
-bool CoreEngine::allocDebuggeeMemory(int size, ULONG64 *address, QString *errorMessage)
+bool CoreEngine::allocDebuggeeMemory(int size, ULONG64 *addressPtr, QString *errorMessage)
 {
-    *address = 0;
+    *addressPtr = 0;
     const QString allocCmd = QLatin1String(".dvalloc ") + QString::number(size);
 
     QSharedPointer<StringOutputHandler> outputHandler(new StringOutputHandler);
@@ -735,22 +736,20 @@ bool CoreEngine::allocDebuggeeMemory(int size, ULONG64 *address, QString *errorM
     Q_UNUSED(redir)
     if (!executeDebuggerCommand(allocCmd, errorMessage))
         return false;
-   // "Allocated 1000 bytes starting at 003a0000" .. hopefully never localized
-    bool ok = false;
-    const QString output = outputHandler->result();
+    // "Allocated 1000 bytes starting at 003a0000" or
+    // "Allocated 1000 bytes starting at 00000000'000023ab" (64bit) / hopefully never localized
+    const QString output = outputHandler->result().trimmed();
     const int lastBlank = output.lastIndexOf(QLatin1Char(' '));
     if (lastBlank != -1) {
-        const qint64 addri = output.mid(lastBlank + 1).toLongLong(&ok, 16);
-        if (ok)
-            *address = addri;
-    }
-     if (debug > 1)
-        qDebug() << Q_FUNC_INFO << '\n' << output << *address << ok;
-    if (!ok) {
-        *errorMessage = QString::fromLatin1("Failed to parse output '%1'").arg(output);
-        return false;
-    }
-    return true;
+        const QString hexNumberS = QLatin1String("0x") + output.mid(lastBlank + 1);
+        quint64 address;
+        if (SymbolGroupContext::getUnsignedHexValue(hexNumberS, &address)) {
+            *addressPtr = address;
+            return true;
+        }
+    } // blank
+    *errorMessage = QString::fromLatin1("Failed to parse output '%1'").arg(output);
+    return false;
 }
 
 // Alloc an AscII string in debuggee

@@ -218,7 +218,7 @@ static inline void fixDumperResult(const WatchData &source,
 // classes (see note in its header documentation).
 bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QString *errorMessage)
 {
-    if (debugCDBWatchHandling)
+    if (debugCDBWatchHandling > 1)
         qDebug() << ">expandPointerToDumpable" << wd.toString();
 
     bool handled = false;
@@ -252,7 +252,7 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
         m_wh->insertBulkData(m_dumperResult);
         handled = true;
     } while (false);
-    if (debugCDBWatchHandling)
+    if (debugCDBWatchHandling > 1)
         qDebug() << "<expandPointerToDumpable returns " << handled << *errorMessage;
     return handled;
 }
@@ -368,14 +368,6 @@ unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
     const unsigned rc = dumpValue(index, &iname, &(wd->name), &address,
                                   &typeId, &type, &value);
     wd->exp = wd->iname = iname.toLatin1();
-    // Trigger numeric sorting for arrays "local.[22]" -> "local.22"
-    if (wd->iname.endsWith(']')) {
-        const int openingBracketPos = wd->iname.lastIndexOf('[');
-        if (openingBracketPos != -1) {
-            wd->iname.truncate(wd->iname.size() - 1);
-            wd->iname.remove(openingBracketPos, 1);
-        }
-    }
     wd->setAddress(("0x") + QByteArray::number(address, 16));
     wd->setType(type, false);
     if (rc & OutOfScope) {
@@ -396,8 +388,7 @@ unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
 bool CdbSymbolGroupContext::populateModelInitially(WatchHandler *wh, QString *errorMessage)
 {
     if (debugCDBWatchHandling)
-        qDebug() << "populateModelInitially dumpers=" << m_useDumpers
-                << toString();
+        qDebug() << ">populateModelInitially dumpers=" << m_useDumpers;
     // Recurse down items that are initially expanded in the view, stop processing for
     // dumper items.
     const CdbSymbolGroupRecursionContext rctx(this, OwnerSymbolGroupDumper);
@@ -412,6 +403,8 @@ bool CdbSymbolGroupContext::populateModelInitially(WatchHandler *wh, QString *er
                                      WatchHandlerExpandedPredicate(wh),
                                      falsePredicate,
                                      errorMessage);
+    if (debugCDBWatchHandling)
+        qDebug("<populateModelInitially\n%s\n", qPrintable(toString()));
     return rc;
 }
 
@@ -420,7 +413,9 @@ bool CdbSymbolGroupContext::completeData(const WatchData &incompleteLocal,
                                          QString *errorMessage)
 {
     if (debugCDBWatchHandling)
-        qDebug() << ">completeData src=" << incompleteLocal.source << incompleteLocal.toString();
+        qDebug(">completeData src=%d %s\n%s\n",
+               incompleteLocal.source, qPrintable(incompleteLocal.toString()),
+               qPrintable(toString()));
 
     const CdbSymbolGroupRecursionContext rctx(this, OwnerSymbolGroupDumper);
     // Expand symbol group items, recurse one level from desired item
