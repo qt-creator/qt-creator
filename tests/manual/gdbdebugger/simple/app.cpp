@@ -71,9 +71,9 @@
 #include <string>
 #include <vector>
 
-#define USE_GCC_EXT 1
-#if USE_GCC_EXT
-#include <hash_set>
+#if defined(__GNUC__)
+#    define USE_GCC_EXT 1
+#    include <hash_set>
 #endif
 
 #ifdef Q_OS_WIN
