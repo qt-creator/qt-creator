@@ -2700,7 +2700,9 @@
     such as the GNU Symbolic Debugger (gdb), the Microsoft Console Debugger (CDB),
     and an internal Java Script debugger.
 
-    In the \gui Debug mode you can:
+    In the \gui Debug mode you can interact with the debugger in several ways, including
+    the following:
+
     \list
         \o Go through a program line-by-line or instruction-by-instruction.
         \o Interrupt running programs.
