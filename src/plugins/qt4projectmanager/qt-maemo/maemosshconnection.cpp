@@ -165,7 +165,7 @@ void MaemoInteractiveSshConnection::runCommand(const QString &command)
                 = strstr(output.data(), endMarker.toUtf8());
             if (endMarkerPos) {
                 if (endMarkerCount++ == 0) {
-                    emit remoteOutput(QLatin1String("========== Remote output starts now. =========="));
+                    emit remoteOutput(QLatin1String("========== Remote output starts now. ==========\n"));
                     firstCharToEmit = endMarkerPos + endMarkerLen + 1;
                     const char * const endMarkerPos2
                         = strstr(firstCharToEmit, endMarker.toUtf8());
@@ -192,7 +192,7 @@ void MaemoInteractiveSshConnection::runCommand(const QString &command)
                 emit remoteOutput(QString::fromUtf8(firstCharToEmit, charsToEmitCount));
         }
     } while (endMarkerCount < 2 && !stopRequested());
-    emit remoteOutput(QLatin1String("========== Remote output ends now. =========="));
+    emit remoteOutput(QLatin1String("========== Remote output ends now. ==========\n"));
 }
 
 MaemoInteractiveSshConnection::Ptr MaemoInteractiveSshConnection::create(const MaemoDeviceConfig &devConf)

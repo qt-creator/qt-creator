@@ -368,9 +368,9 @@ void MaemoRunControl::stopInternal()
     AbstractMaemoRunControl::stopRunning(false);
 }
 
-void MaemoRunControl::handleRemoteOutput(const QString &output, bool onStdErr)
+void MaemoRunControl::handleRemoteOutput(const QString &output)
 {
-    emit addToOutputWindowInline(this, output, onStdErr);
+    emit addToOutputWindowInline(this, output, false);
 }
 
 
@@ -396,13 +396,13 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     connect(m_debuggerManager, SIGNAL(debuggingFinished()), this,
         SLOT(debuggingFinished()), Qt::QueuedConnection);
     connect(m_debuggerManager, SIGNAL(applicationOutputAvailable(QString, bool)),
-        this, SLOT(debuggerOutput(QString, bool)), Qt::QueuedConnection);
+        this, SLOT(debuggerOutput(QString)), Qt::QueuedConnection);
 }
 
 MaemoDebugRunControl::~MaemoDebugRunControl()
 {
-    disconnect(SIGNAL(addToOutputWindow(RunControl*,QString)));
-    disconnect(SIGNAL(addToOutputWindowInline(RunControl*,QString)));
+    disconnect(SIGNAL(addToOutputWindow(RunControl*,QString, bool)));
+    disconnect(SIGNAL(addToOutputWindowInline(RunControl*,QString, bool)));
     stop();
     debuggingFinished();
 }
@@ -420,13 +420,13 @@ QString MaemoDebugRunControl::remoteCall() const
         .arg(executableFilePathOnTarget()).arg(targetCmdLineSuffix());
 }
 
-void MaemoDebugRunControl::handleRemoteOutput(const QString &output, bool onStdErr)
+void MaemoDebugRunControl::handleRemoteOutput(const QString &output)
 {
     if (!m_debuggingStarted) {
         m_debuggingStarted = true;
         startDebugging();
     }
-    emit addToOutputWindowInline(this, output, onStdErr);
+    emit addToOutputWindowInline(this, output, false);
 }
 
 void MaemoDebugRunControl::startDebugging()
@@ -450,9 +450,9 @@ void MaemoDebugRunControl::debuggingFinished()
     AbstractMaemoRunControl::stopRunning(true);
 }
 
-void MaemoDebugRunControl::debuggerOutput(const QString &output, bool onStdErr)
+void MaemoDebugRunControl::debuggerOutput(const QString &output)
 {
-    emit appendMessage(this, QLatin1String("[gdb says:] ") + output, onStdErr);
+    emit appendMessage(this, QLatin1String("[gdb says:] ") + output, true);
 }
 
 QString MaemoDebugRunControl::gdbServerPort() const

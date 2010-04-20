@@ -86,7 +86,7 @@ protected:
     QString executableFilePathOnTarget() const;
 
 private slots:
-    virtual void handleRemoteOutput(const QString &output, bool onStdErr)=0;
+    virtual void handleRemoteOutput(const QString &output)=0;
     void handleInitialCleanupFinished();
     void handleDeployThreadFinished();
     void handleRunThreadFinished();
@@ -135,10 +135,12 @@ public:
     explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
     ~MaemoRunControl();
 
+private slots:
+    virtual void handleRemoteOutput(const QString &output);
+
 private:
     virtual void startInternal();
     virtual void stopInternal();
-    virtual void handleRemoteOutput(const QString &output, bool onStdErr);
     virtual QString remoteCall() const;
 };
 
@@ -151,13 +153,13 @@ public:
     bool isRunning() const;
 
 private slots:
-    void debuggerOutput(const QString &output, bool onStdErr);
+    virtual void handleRemoteOutput(const QString &output);
+    void debuggerOutput(const QString &output);
     void debuggingFinished();
 
 private:
     virtual void startInternal();
     virtual void stopInternal();
-    virtual void handleRemoteOutput(const QString &output, bool onStdErr);
     virtual QString remoteCall() const;
 
     QString gdbServerPort() const;
