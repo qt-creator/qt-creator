@@ -407,7 +407,7 @@ public:
     void finishMovement(const QString &dotCommand = QString());
     void finishMovement(const QString &dotCommand, int count);
     void resetCommandMode();
-    void search(const QString &needle, bool forward);
+    void search(const QString &needle, bool forward, bool incSearch = false);
     void highlightMatches(const QString &needle);
     void stopIncrementalFind();
 
@@ -1931,19 +1931,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handleStartOfLine();
         finishMovement();
     } else if (key == 'n' || key == 'N') {
-        bool forward = (key == 'n') ? m_lastSearchForward : !m_lastSearchForward;
-        if (hasConfig(ConfigIncSearch)) {
-            int pos = position();
-            emit q->findNextRequested(!forward);
-            if (forward && pos == EDITOR(textCursor()).selectionStart()) {
-                // if cursor is already positioned at the start of a find result, this is returned
-                emit q->findNextRequested(false);
-            }
-            m_tc = EDITOR(textCursor());
-            m_tc.setPosition(m_tc.selectionStart());
-        } else {
-            search(lastSearchString(), m_lastSearchForward);
-        }
+        search(lastSearchString(), m_lastSearchForward);
         recordJump();
     } else if (isVisualMode() && (key == 'o' || key == 'O')) {
         int pos = position();
@@ -2427,7 +2415,8 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
                 leaveVisualMode();
             }
         }
-    } else if (unmodified == Key_Return && isSearchMode()) {
+    } else if (unmodified == Key_Return && isSearchMode()
+            && !hasConfig(ConfigIncSearch)) {
         if (!m_commandBuffer.isEmpty()) {
             m_searchHistory.takeLast();
             m_searchHistory.append(m_commandBuffer);
@@ -2462,6 +2451,18 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
     } else if (key == Key_Tab) {
         m_commandBuffer += QChar(9);
         updateMiniBuffer();
+    } else if (unmodified == Key_Return && isSearchMode()
+            && hasConfig(ConfigIncSearch)) {
+        enterCommandMode();
+        QString needle = m_commandBuffer.mid(1); // FIXME: why
+        highlightMatches(needle);
+        updateMiniBuffer();
+    } else if (isSearchMode() && hasConfig(ConfigIncSearch)) {
+        m_commandBuffer = m_commandBuffer.mid(1); // FIXME: why
+        QString needle = m_commandBuffer + input.text;
+        search(needle, m_lastSearchForward, true);
+        updateMiniBuffer();
+        recordJump();
     } else if (!input.text.isEmpty()) {
         m_commandBuffer += input.text;
         updateMiniBuffer();
@@ -3086,7 +3087,8 @@ static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *fla
     //qDebug() << "NEEDLE " << needle0 << needle;
 }
 
-void FakeVimHandler::Private::search(const QString &needle0, bool forward)
+void FakeVimHandler::Private::search(const QString &needle0, bool forward,
+    bool incSearch)
 {
     showBlackMessage((forward ? '/' : '?') + needle0);
     CursorPosition origPosition = cursorPosition();
@@ -3109,7 +3111,8 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
         // making this unconditional feels better, but is not "vim like"
         if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
             scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
-        highlightMatches(needle);
+        if (!incSearch)
+            highlightMatches(needle);
     } else {
         m_tc.setPosition(forward ? 0 : lastPositionInDocument());
         EDITOR(setTextCursor(m_tc));
@@ -3118,16 +3121,32 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward)
             m_tc.setPosition(m_tc.anchor());
             if (oldLine != cursorLineInDocument() - cursorLineOnScreen())
                 scrollToLineInDocument(cursorLineInDocument() - linesOnScreen() / 2);
-            if (forward)
-                showRedMessage(FakeVimHandler::tr("search hit BOTTOM, continuing at TOP"));
-            else
-                showRedMessage(FakeVimHandler::tr("search hit TOP, continuing at BOTTOM"));
-            highlightMatches(needle);
+            if (!incSearch) {
+                if (forward)
+                    showRedMessage(FakeVimHandler::tr("search hit BOTTOM, continuing at TOP"));
+                else
+                    showRedMessage(FakeVimHandler::tr("search hit TOP, continuing at BOTTOM"));
+                highlightMatches(needle);
+            }
         } else {
-            highlightMatches(QString());
+            if (!incSearch)
+                highlightMatches(QString());
             setCursorPosition(origPosition);
-            showRedMessage(FakeVimHandler::tr("Pattern not found: ") + needle);
+            if (!incSearch)
+                showRedMessage(FakeVimHandler::tr("Pattern not found: ") + needle);
         }
+    }
+    if (incSearch) {
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = m_tc;
+        sel.format = m_tc.blockCharFormat();
+        sel.format.setForeground(Qt::white);
+        sel.format.setBackground(Qt::black);
+        sel.cursor.setPosition(m_tc.position(), MoveAnchor);
+        sel.cursor.setPosition(m_tc.position() + needle.size(), KeepAnchor);
+        QList<QTextEdit::ExtraSelection> selections = m_searchSelections;
+        selections.append(sel);
+        emit q->selectionChanged(selections);
     }
 }
 
