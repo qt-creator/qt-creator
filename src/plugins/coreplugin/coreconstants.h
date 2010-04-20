@@ -82,6 +82,7 @@ const char * const M_EDIT_ADVANCED       = "QtCreator.Menu.Edit.Advanced";
 const char * const M_TOOLS               = "QtCreator.Menu.Tools";
 const char * const M_WINDOW              = "QtCreator.Menu.Window";
 const char * const M_WINDOW_PANES        = "QtCreator.Menu.Window.Panes";
+const char * const M_WINDOW_VIEWS        = "QtCreator.Menu.Window.Views";
 const char * const M_HELP                = "QtCreator.Menu.Help";
 
 //contexts
@@ -193,6 +194,7 @@ const char * const G_EDIT_EDITOR         = "QtCreator.Group.Edit.Editor";
 // window menu groups
 const char * const G_WINDOW_SIZE         = "QtCreator.Group.Window.Size";
 const char * const G_WINDOW_PANES        = "QtCreator.Group.Window.Panes";
+const char * const G_WINDOW_VIEWS        = "QtCreator.Group.Window.Views";
 const char * const G_WINDOW_SPLIT        = "QtCreator.Group.Window.Split";
 const char * const G_WINDOW_NAVIGATE     = "QtCreator.Group.Window.Navigate";
 const char * const G_WINDOW_OTHER        = "QtCreator.Group.Window.Other";

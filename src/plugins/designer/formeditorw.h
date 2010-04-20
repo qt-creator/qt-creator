@@ -136,7 +136,9 @@ private:
 
     void setupActions();
     void setupViewActions();
-    inline void addDockViewAction(Core::ActionManager *am, int index,
+    inline void addDockViewAction(Core::ActionManager *am,
+                                  Core::ActionContainer *viewMenu,
+                                  int index,
                                   const QList<int> &context,
                                   const QString &title, const QString &id);
 
@@ -154,12 +156,9 @@ private:
                                          int toolNumber,
                                          const QString &iconName = QString(),
                                          const QString &keySequence = QString());
-    void addToolAction(QAction *a,
-                       Core::ActionManager *am,
-                       const QList<int> &context,
-                       const QString &name,
-                       Core::ActionContainer *c1,
-                       const QString &keySequence = QString());
+    Core::Command *addToolAction(QAction *a, Core::ActionManager *am,
+                                 const QList<int> &context, const QString &name,
+                                 Core::ActionContainer *c1, const QString &keySequence = QString());
     QToolBar *createEditorToolBar() const;
 
     static FormEditorW *m_self;
@@ -171,7 +170,6 @@ private:
     InitializationStage m_initStage;
 
     QWidget *m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
-    Core::ActionContainer *m_viewMenu;
 
     QAction *m_lockAction;
     QAction *m_resetLayoutAction;

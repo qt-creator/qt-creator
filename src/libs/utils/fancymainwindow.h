@@ -42,6 +42,10 @@ namespace Utils {
 
 struct FancyMainWindowPrivate;
 
+// MainWindow with dock widgets and additional "lock" functionality
+// (locking the dock widgets in place) and "reset layout" functionality.
+// The dock actions and the additional actions should be accessible
+// in a Window-menu.
 class QTCREATOR_UTILS_EXPORT FancyMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -63,8 +67,23 @@ public:
     QHash<QString, QVariant> saveSettings() const;
     void restoreSettings(const QHash<QString, QVariant> &settings);
 
+    // Additional context menu actions
+    QAction *menuSeparator1() const;
+    QAction *toggleLockedAction() const;
+    QAction *menuSeparator2() const;
+    QAction *resetLayoutAction() const;
+
+    // Overwritten to add locked/reset.
+    virtual QMenu *createPopupMenu();
+
+signals:
+    // Emitted by resetLayoutAction(). Connect to a slot
+    // restoring the default layout.
+    void resetLayout();
+
 public slots:
     void setLocked(bool locked);
+    void setDockActionsVisible(bool v);
 
 protected:
     void hideEvent(QHideEvent *event);

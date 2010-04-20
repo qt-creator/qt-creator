@@ -472,6 +472,7 @@ void MainWindow::registerDefaultContainers()
     menubar->addMenu(mwindow, Constants::G_WINDOW);
     mwindow->menu()->setTitle(tr("&Window"));
     mwindow->appendGroup(Constants::G_WINDOW_SIZE);
+    mwindow->appendGroup(Constants::G_WINDOW_VIEWS);
     mwindow->appendGroup(Constants::G_WINDOW_PANES);
     mwindow->appendGroup(Constants::G_WINDOW_SPLIT);
     mwindow->appendGroup(Constants::G_WINDOW_NAVIGATE);
@@ -714,7 +715,7 @@ void MainWindow::registerDefaultActions()
 #endif
     connect(m_toggleSideBarAction, SIGNAL(triggered(bool)), this, SLOT(setSidebarVisible(bool)));
     m_toggleSideBarButton->setDefaultAction(cmd->action());
-    mwindow->addAction(cmd, Constants::G_WINDOW_PANES);
+    mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
     m_toggleSideBarAction->setEnabled(false);
 
 #ifndef Q_WS_MAC
@@ -726,6 +727,11 @@ void MainWindow::registerDefaultActions()
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
     connect(m_toggleFullScreenAction, SIGNAL(triggered(bool)), this, SLOT(setFullScreen(bool)));
 #endif
+
+    // Window->Views
+    ActionContainer *mviews = am->createMenu(Constants::M_WINDOW_VIEWS);
+    mwindow->addMenu(mviews, Constants::G_WINDOW_VIEWS);
+    mviews->menu()->setTitle(tr("&Views"));
 
     // About IDE Action
     icon = QIcon::fromTheme(QLatin1String("help-about"));

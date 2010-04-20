@@ -145,7 +145,6 @@ FormEditorW::FormEditorW() :
     m_fwm(0),
     m_core(Core::ICore::instance()),
     m_initStage(RegisterPlugins),
-    m_viewMenu(0),
     m_actionGroupEditMode(0),
     m_actionPrint(0),
     m_actionPreview(0),
@@ -219,13 +218,15 @@ FormEditorW::~FormEditorW()
 
 // Add an actioon to toggle the view state of a dock window
 void FormEditorW::addDockViewAction(Core::ActionManager *am,
+                                    Core::ActionContainer *viewMenu,
                                     int index, const QList<int> &context,
                                     const QString &title, const QString &id)
 {
     if (const QDockWidget *dw = m_editorWidget->designerDockWidgets()[index]) {
         QAction *action = dw->toggleViewAction();
         action->setText(title);
-        addToolAction(action, am, context, id, m_viewMenu, QString());
+        Core::Command *cmd = addToolAction(action, am, context, id, viewMenu, QString());
+        cmd->setAttribute(Core::Command::CA_Hide);
     }
 }
 
@@ -233,37 +234,36 @@ void FormEditorW::setupViewActions()
 {
     // Populate "View" menu of form editor menu
     Core::ActionManager *am = m_core->actionManager();
-    QList<int> globalcontext;
-    globalcontext << m_core->uniqueIDManager()->uniqueIdentifier(Core::Constants::C_GLOBAL);
+    Core::ActionContainer *viewMenu = am->actionContainer(QLatin1String(Core::Constants::M_WINDOW_VIEWS));
+    QTC_ASSERT(viewMenu, return)
 
-    addDockViewAction(am, WidgetBoxSubWindow, globalcontext,
+    addDockViewAction(am, viewMenu, WidgetBoxSubWindow, m_contexts,
                       tr("Widget box"), QLatin1String("FormEditor.WidgetBox"));
 
-    addDockViewAction(am, ObjectInspectorSubWindow, globalcontext,
+    addDockViewAction(am, viewMenu, ObjectInspectorSubWindow, m_contexts,
                       tr("Object Inspector"), QLatin1String("FormEditor.ObjectInspector"));
 
-    addDockViewAction(am, PropertyEditorSubWindow, globalcontext,
+    addDockViewAction(am, viewMenu, PropertyEditorSubWindow, m_contexts,
                       tr("Property Editor"), QLatin1String("FormEditor.PropertyEditor"));
 
-    addDockViewAction(am, SignalSlotEditorSubWindow, globalcontext,
+    addDockViewAction(am, viewMenu, SignalSlotEditorSubWindow, m_contexts,
                       tr("Signals && Slots Editor"), QLatin1String("FormEditor.SignalsAndSlotsEditor"));
 
-    addDockViewAction(am, ActionEditorSubWindow, globalcontext,
+    addDockViewAction(am, viewMenu, ActionEditorSubWindow, m_contexts,
                       tr("Action Editor"), QLatin1String("FormEditor.ActionEditor"));
+    // Lock/Reset
+    Core::Command *cmd = addToolAction(m_editorWidget->menuSeparator1(), am, m_contexts, QLatin1String("FormEditor.SeparatorLock"), viewMenu, QString());
+    cmd->setAttribute(Core::Command::CA_Hide);
 
-    createSeparator(this, am, globalcontext, m_viewMenu, QLatin1String("FormEditor.Menu.Tools.Views.SeparatorLock"));
+    cmd = addToolAction(m_editorWidget->toggleLockedAction(), am, m_contexts, QLatin1String("FormEditor.Locked"), viewMenu, QString());
+    cmd->setAttribute(Core::Command::CA_Hide);
 
-    m_lockAction = new QAction(tr("Locked"), this);
-    m_lockAction->setCheckable(true);
-    addToolAction(m_lockAction, am, globalcontext, QLatin1String("FormEditor.Locked"), m_viewMenu, QString());
-    connect(m_lockAction, SIGNAL(toggled(bool)), m_editorWidget, SLOT(setLocked(bool)));
+    cmd = addToolAction(m_editorWidget->menuSeparator2(), am, m_contexts, QLatin1String("FormEditor.SeparatorReset"), viewMenu, QString());
+    cmd->setAttribute(Core::Command::CA_Hide);
 
-    createSeparator(this, am, globalcontext, m_viewMenu, QLatin1String("FormEditor.Menu.Tools.Views.SeparatorReset"));
-
-    m_resetLayoutAction = new QAction(tr("Reset to Default Layout"), this);
-    m_lockAction->setChecked(m_editorWidget->isLocked());
-    connect(m_resetLayoutAction, SIGNAL(triggered()), m_editorWidget, SLOT(resetToDefaultLayout()));
-    addToolAction(m_resetLayoutAction, am, globalcontext, QLatin1String("FormEditor.ResetToDefaultLayout"), m_viewMenu, QString());
+    cmd = addToolAction(m_editorWidget->resetLayoutAction(), am, m_contexts, QLatin1String("FormEditor.ResetToDefaultLayout"), viewMenu, QString());
+    connect(m_editorWidget, SIGNAL(resetLayout()), m_editorWidget, SLOT(resetToDefaultLayout()));
+    cmd->setAttribute(Core::Command::CA_Hide);
 }
 
 void FormEditorW::fullInit()
@@ -538,13 +538,6 @@ void FormEditorW::setupActions()
     connect(m_actionAboutPlugins,  SIGNAL(triggered()), m_fwm, SLOT(aboutPlugins()));
     m_actionAboutPlugins->setEnabled(false);
 
-    // Views. Populated later on.
-    createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.SeparatorViews"));
-
-    m_viewMenu = am->createMenu(QLatin1String(M_FORMEDITOR_VIEWS));
-    m_viewMenu->menu()->setTitle(tr("Views"));
-    mformtools->addMenu(m_viewMenu);
-
     // FWM
     connect(m_fwm, SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface *)), this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
 }
@@ -653,18 +646,17 @@ QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
 }
 
 // Create a tool action
-void FormEditorW::addToolAction(QAction *a,
-                   Core::ActionManager *am,
-                   const QList<int> &context,
-                   const QString &name,
-                   Core::ActionContainer *c1,
-                   const QString &keySequence)
+Core::Command *FormEditorW::addToolAction(QAction *a, Core::ActionManager *am,
+                                          const QList<int> &context, const QString &name,
+                                          Core::ActionContainer *c1, const QString &keySequence)
 {
     Core::Command *command = am->registerAction(a, name, context);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
-    bindShortcut(command, a);
+    if (!a->isSeparator())
+        bindShortcut(command, a);
     c1->addAction(command);
+    return command;
 }
 
 EditorData FormEditorW::createEditor(QWidget *parent)

@@ -114,6 +114,7 @@ private:
     void createViewsMenuItems();
     void readSettings();
     void writeSettings() const;
+
     QWidget *createContents(Core::BaseMode *mode);
     QWidget *createMainWindow(Core::BaseMode *mode);
 
