@@ -1,11 +1,6 @@
 import Qt 4.7
 import Bauhaus 1.0
 
-
-import Qt 4.7
-import Bauhaus 1.0
-
-
 QWidget {
     layout: QVBoxLayout {
         topMargin: 0
@@ -38,7 +33,7 @@ QWidget {
                             showComboBox: true
                         }
                     }
-                }               
+                }
 
                 QWidget {
                     layout: HorizontalLayout {

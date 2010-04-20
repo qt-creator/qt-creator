@@ -26,7 +26,6 @@ QWidget {
             height = 40;
         }
     }
-
     opacity: 0
     onOpacityChanged: {
         if (opacity == 0)
@@ -37,14 +36,11 @@ QWidget {
             duration: 100
         }
     }
-
     Behavior on height {
         NumberAnimation {
             duration: 100
         }
     }
-
-
     ExpressionEdit {
         id: textEdit;
         styleSheet: "QTextEdit {border-radius: 0px;}"
@@ -59,12 +55,11 @@ QWidget {
             if (!focus)
                 expressionEdit.active = false;
         }
-		onReturnPressed: {
-		    expressionEdit.backendValue.expression = textEdit.plainText;
-			expressionEdit.active = false;		
-		}
+        onReturnPressed: {
+            expressionEdit.backendValue.expression = textEdit.plainText;
+            expressionEdit.active = false;
+        }
     }
-	
     QPushButton {
         focusPolicy: "Qt::NoFocus";
         y: expressionEdit.height - 22;
@@ -77,7 +72,6 @@ QWidget {
             expressionEdit.active = false;
         }
     }
-
     QPushButton {
         focusPolicy: "Qt::NoFocus";
         y: expressionEdit.height - 22;

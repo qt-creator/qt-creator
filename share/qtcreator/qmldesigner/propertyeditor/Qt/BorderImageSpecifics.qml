@@ -36,8 +36,8 @@ QWidget {
                         }
                     }
                 }
-								
-				QWidget {  // 1
+
+                QWidget {  // 1
                     layout: HorizontalLayout {
 
                         Label {

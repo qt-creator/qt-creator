@@ -14,13 +14,11 @@ QWidget {
         StandardTextGroupBox {
             finished: finishedNotify;
         }
-
         StandardTextColorGroupBox {
             finished: finishedNotify;
-			showSelectionColor: true;
-			showSelectedTextColor: true;
+            showSelectionColor: true;
+            showSelectedTextColor: true;
         }
-
         GroupBox {
             caption: qsTr("Text Edit")
             finished: finishedNotify;
@@ -28,7 +26,7 @@ QWidget {
 
                 QWidget {
                     layout: HorizontalLayout {
-					rightMargin: 12
+                        rightMargin: 12
                         Label {
                             text: qsTr("Format")
                         }
@@ -48,12 +46,10 @@ QWidget {
 
             }
         }
-
         FontGroupBox {
             finished: finishedNotify;
 
         }
-
         TextInputGroupBox {
             finished: finishedNotify;
         }

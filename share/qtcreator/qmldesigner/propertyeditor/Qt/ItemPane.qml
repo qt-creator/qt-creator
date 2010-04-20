@@ -7,22 +7,17 @@ PropertyFrame {
     ExpressionEditor {
         id: expressionEdit
     }
-
     layout: QVBoxLayout {
         topMargin: 0;
         bottomMargin: 0;
         leftMargin: 0;
         rightMargin: 0;
         spacing: 0;
-
         Switches {
         }
-        
         HorizontalWhiteLine {
         }
-
         ScrollArea {
-
             styleSheetFile: ":/qmldesigner/scrollbar.css";
             widgetResizable: true;
 
@@ -30,8 +25,6 @@ PropertyFrame {
 
             horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
             id: standardPane;
-
-
             content: properyEditorStandard;
             QFrame {
                 //minimumHeight: 1100
@@ -44,34 +37,27 @@ PropertyFrame {
                     spacing: 0;
                     Type {
                     }
-					
-					WidgetLoader {
+
+                    WidgetLoader {
                         id: specificsOne;
-                        source: specificsUrl;						
+                        source: specificsUrl;
                     }
-					
-					WidgetLoader {
-                        id: specificsTwo;                        
-						baseUrl: globalBaseUrl;
-						qmlData: specificQmlData;
+
+                    WidgetLoader {
+                        id: specificsTwo;
+                        baseUrl: globalBaseUrl;
+                        qmlData: specificQmlData;
                     }
-                   
-
-
                     QScrollArea {
                     }
-
                 } // layout
             } //QWidget
         } //QScrollArea
-
         ExtendedPane {
             id: extendedPane;
         }
-
         LayoutPane {
             id: layoutPane;
         }
-
     }
 }

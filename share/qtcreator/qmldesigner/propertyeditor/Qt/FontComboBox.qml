@@ -54,21 +54,21 @@ QWidget {
 
     ColorScheme { id:scheme; }
 
-    layout: HorizontalLayout {        
+    layout: HorizontalLayout {
         QFontComboBox {
-            id: fontSelector            
-			
-			currentFont.family: backendValue.value
-			property variant fontFamily: currentFont.family
+            id: fontSelector
+
+            currentFont.family: backendValue.value
+            property variant fontFamily: currentFont.family
             onFontFamilyChanged: {
-			    if (backendValue === undefined)
-			        return;
+                if (backendValue === undefined)
+                    return;
                 if (backendValue.value != currentFont.family)
-					backendValue.value = currentFont.family;
-                }
+                    backendValue.value = currentFont.family;
+            }
         }
     }
-     ExtendedFunctionButton {
+    ExtendedFunctionButton {
         backendValue: fontComboBox.backendValue
         y: 4
         x: 2

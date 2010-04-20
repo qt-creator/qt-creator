@@ -47,6 +47,6 @@ GroupBox {
                 AlignmentHorizontalButtons {}
                 AlignmentVerticalButtons { visible: showVerticalAlignment }
             }
-        }       
+        }
     }
 }

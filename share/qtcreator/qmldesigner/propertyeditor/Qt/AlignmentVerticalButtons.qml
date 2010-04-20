@@ -14,8 +14,8 @@ QGroupBox {
                 checkable: true
                 fixedWidth: 32
                 fixedHeight: 32
-				width: fixedWidth
-				height: fixedHeight
+                width: fixedWidth
+                height: fixedHeight
                 styleSheetFile: "alignmenttopbutton.css";
                 checked: backendValues.verticalAlignment.value == "AlignTop"
 
@@ -33,8 +33,8 @@ QGroupBox {
                 checkable: true
                 fixedWidth: 32
                 fixedHeight: 32
-				width: fixedWidth
-				height: fixedHeight
+                width: fixedWidth
+                height: fixedHeight
 
                 styleSheetFile: "alignmentcentervbutton.css";
                 checked: backendValues.verticalAlignment.value == "AlignVCenter"
@@ -53,8 +53,8 @@ QGroupBox {
                 checkable: true
                 fixedWidth: 32
                 fixedHeight: 32
-				width: fixedWidth
-				height: fixedHeight
+                width: fixedWidth
+                height: fixedHeight
 
                 styleSheetFile: "alignmentbottombutton.css";
                 checked: backendValues.verticalAlignment.value == "AlignBottom"

@@ -10,11 +10,11 @@ GroupBox {
 
         QWidget {
             layout: HorizontalLayout {
-			    rightMargin: 12
+                rightMargin: 12
                 Label {
                     text: qsTr("Font")
                 }
-				
+
                 FontComboBox {
                     backendValue: backendValues.font_family
                     baseStateFlag: isBaseState
@@ -55,7 +55,7 @@ GroupBox {
         QWidget {
             visible: showStyle
             layout: HorizontalLayout {
-			    rightMargin: 12
+                rightMargin: 12
                 Label {
                     text: qsTr("Style")
                 }

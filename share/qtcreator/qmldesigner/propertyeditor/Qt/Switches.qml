@@ -30,8 +30,8 @@ QFrame {
                 layoutPane.visible = false;
             }
         }
-		
-		QPushButton {
+
+        QPushButton {
             id: layoutMode;
             checkable: true;
             checked: false;
@@ -46,7 +46,7 @@ QFrame {
                 layoutPane.visible = true;
             }
         }
-		
+
         QPushButton {
             id: extendedMode;
             toolTip: "advanced properties";
@@ -62,6 +62,6 @@ QFrame {
                 layoutPane.visible = false;
             }
         }
-        
+
     }
 }

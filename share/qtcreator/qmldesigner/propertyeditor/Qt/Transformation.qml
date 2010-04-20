@@ -7,7 +7,7 @@ GroupBox {
     maximumHeight: 200;
     id: transformation;
 
-    layout: VerticalLayout {       
+    layout: VerticalLayout {
         QWidget {
             layout: HorizontalLayout {
 
