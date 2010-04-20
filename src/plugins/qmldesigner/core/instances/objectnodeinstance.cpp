@@ -320,14 +320,14 @@ QPair<QString, NodeInstance> ObjectNodeInstance::anchor(const QString &/*name*/)
 }
 
 
-static bool isList(const QDeclarativeProperty &metaProperty)
+static bool isList(const QDeclarativeProperty &property)
 {
-    return metaProperty.propertyTypeCategory() == QDeclarativeProperty::List;
+    return property.propertyTypeCategory() == QDeclarativeProperty::List;
 }
 
-static bool isObject(const QDeclarativeProperty &metaProperty)
+static bool isObject(const QDeclarativeProperty &property)
 {
-    return metaProperty.propertyTypeCategory() == QDeclarativeProperty::Object;
+    return property.propertyTypeCategory() == QDeclarativeProperty::Object;
 }
 
 static QVariant objectToVariant(QObject *object)
@@ -340,12 +340,12 @@ static bool hasFullImplementedListInterface(const QDeclarativeListReference &lis
     return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
 }
 
-static void removeObjectFromList(const QDeclarativeProperty &metaProperty, QObject *objectToBeRemoved, QDeclarativeEngine * engine)
+static void removeObjectFromList(const QDeclarativeProperty &property, QObject *objectToBeRemoved, QDeclarativeEngine * engine)
 {
-    QDeclarativeListReference listReference(metaProperty.object(), metaProperty.name().toLatin1(), engine);
+    QDeclarativeListReference listReference(property.object(), property.name().toLatin1(), engine);
 
     if (!hasFullImplementedListInterface(listReference)) {
-        qWarning() << "Property list interface not fully implemented for Class " << metaProperty.property().typeName() << " in property " << metaProperty.name() << "!";
+        qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
         return;
     }
 
@@ -367,14 +367,14 @@ static void removeObjectFromList(const QDeclarativeProperty &metaProperty, QObje
 
 void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty)
 {
-    QDeclarativeProperty metaProperty(oldParent, oldParentProperty, context());
+    QDeclarativeProperty property(oldParent, oldParentProperty, context());
 
-    if (!metaProperty.isValid())
+    if (!property.isValid())
         return;
 
-    if (isList(metaProperty)) {
-        removeObjectFromList(metaProperty, object, nodeInstanceView()->engine());
-    } else if (isObject(metaProperty)) {
+    if (isList(property)) {
+        removeObjectFromList(property, object, nodeInstanceView()->engine());
+    } else if (isObject(property)) {
         if (nodeInstanceView()->hasInstanceForObject(oldParent)) {
             nodeInstanceView()->instanceForObject(oldParent).resetProperty(oldParentProperty);
         }
@@ -385,19 +385,19 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
 
 void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty)
 {
-    QDeclarativeProperty metaProperty(newParent, newParentProperty, context());
+    QDeclarativeProperty property(newParent, newParentProperty, context());
 
-    if (isList(metaProperty)) {
-        QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
+    if (isList(property)) {
+        QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(property.read());
 
         if (!hasFullImplementedListInterface(list)) {
-            qWarning() << "Property list interface not fully implemented for Class " << metaProperty.property().typeName() << " in property " << metaProperty.name() << "!";
+            qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
             return;
         }
 
         list.append(object);
-    } else if (isObject(metaProperty)) {
-        metaProperty.write(objectToVariant(object));
+    } else if (isObject(property)) {
+        property.write(objectToVariant(object));
     }
 
     object->setParent(newParent);
@@ -464,16 +464,16 @@ void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant 
 
 void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
 {
-    QDeclarativeProperty metaProperty(object(), name, context());
+    QDeclarativeProperty property(object(), name, context());
 
-    if (!metaProperty.isValid())
+    if (!property.isValid())
         return;
 
-    if (metaProperty.isProperty()) {
+    if (property.isProperty()) {
         QDeclarativeBinding *binding = new QDeclarativeBinding(expression, object(), context());
-        binding->setTarget(metaProperty);
+        binding->setTarget(property);
         binding->setNotifyOnValueChanged(true);
-        QDeclarativeAbstractBinding *oldBinding = QDeclarativePropertyPrivate::setBinding(metaProperty, binding);
+        QDeclarativeAbstractBinding *oldBinding = QDeclarativePropertyPrivate::setBinding(property, binding);
         if (oldBinding)
             oldBinding->destroy();
         binding->update();
@@ -483,13 +483,13 @@ void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &
     }
 }
 
-void ObjectNodeInstance::deleteObjectsInList(const QDeclarativeProperty &metaProperty)
+void ObjectNodeInstance::deleteObjectsInList(const QDeclarativeProperty &property)
 {
     QObjectList objectList;
-    QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
+    QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(property.read());
 
     if (!hasFullImplementedListInterface(list)) {
-        qWarning() << "Property list interface not fully implemented for Class " << metaProperty.property().typeName() << " in property " << metaProperty.name() << "!";
+        qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
         return;
     }
 
@@ -594,14 +594,14 @@ QVariant ObjectNodeInstance::property(const QString &name) const
 
     // TODO: handle model nodes
 
-    QDeclarativeProperty metaProperty(object(), name, context());
-    if (metaProperty.property().isEnumType()) {
+    QDeclarativeProperty property(object(), name, context());
+    if (property.property().isEnumType()) {
         QVariant value = object()->property(name.toLatin1());
-        return metaProperty.property().enumerator().valueToKey(value.toInt());
+        return property.property().enumerator().valueToKey(value.toInt());
     }
 
-    if (metaProperty.propertyType() == QVariant::Url) {
-        QUrl url = metaProperty.read().toUrl();
+    if (property.propertyType() == QVariant::Url) {
+        QUrl url = property.read().toUrl();
         if (url.isEmpty())
             return QVariant();
 
@@ -611,7 +611,7 @@ QVariant ObjectNodeInstance::property(const QString &name) const
         }
     }
 
-    return metaProperty.read();
+    return property.read();
 }
 
 
@@ -718,9 +718,9 @@ void ObjectNodeInstance::populateResetValueHash()
     QStringList propertyNameList = propertyNameForWritableProperties(object());
 
     foreach(const QString &propertyName, propertyNameList) {
-        QDeclarativeProperty metaProperty(object(), propertyName, context());
-        if (metaProperty.isWritable())
-            m_resetValueHash.insert(propertyName, metaProperty.read());
+        QDeclarativeProperty property(object(), propertyName, context());
+        if (property.isWritable())
+            m_resetValueHash.insert(propertyName, property.read());
     }
 }
 
