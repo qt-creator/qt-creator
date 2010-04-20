@@ -49,6 +49,7 @@ protected:
     void wheelEvent(QWheelEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void leaveEvent(QEvent *);
     void keyPressEvent(QKeyEvent *event);
 private:
     QmlItemNode m_feedbackNode;

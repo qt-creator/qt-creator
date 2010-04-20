@@ -123,7 +123,11 @@ void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     m_feedbackOriginPoint = QPoint();
 }
 
-
+void FormEditorGraphicsView::leaveEvent(QEvent *event)
+{
+     m_feedbackOriginPoint = QPoint();
+     QGraphicsView::leaveEvent(event);
+}
 
 void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*rect*/ )
 {
