@@ -53,6 +53,7 @@ void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool onStd
 
     QTextCharFormat normalFormat = plainTextEdit()->currentCharFormat();
     QTextCharFormat linkFormat = normalFormat;
+    linkFormat.setForeground(plainTextEdit()->palette().link().color());
     linkFormat.setUnderlineStyle(QTextCharFormat::SingleUnderline);
     linkFormat.setAnchor(true);
 
