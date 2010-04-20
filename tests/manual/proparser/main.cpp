@@ -68,7 +68,9 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
         return 2;
 
     if (visitor.templateType() == ProFileEvaluator::TT_Subdirs) {
-        foreach (const QString &subDirVar, visitor.values(QLatin1String("SUBDIRS"))) {
+        QStringList subdirs = visitor.values(QLatin1String("SUBDIRS"));
+        subdirs.removeDuplicates();
+        foreach (const QString &subDirVar, subdirs) {
             QString realDir;
             const QString subDirKey = subDirVar + QLatin1String(".subdir");
             const QString subDirFileKey = subDirVar + QLatin1String(".file");
