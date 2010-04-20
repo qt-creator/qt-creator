@@ -563,7 +563,7 @@ void CanvasFrameRate::enabledToggled(bool checked)
         static_cast<QDeclarativeDebugClient *>(m_plugin)->setEnabled(checked);
 }
 
-}
-}
+} // Internal
+} // Qml
 
 #include "canvasframerate.moc"

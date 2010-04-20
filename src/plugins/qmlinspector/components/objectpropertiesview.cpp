@@ -27,10 +27,15 @@
 **
 **************************************************************************/
 #include "objectpropertiesview.h"
+#include "inspectortreeitems.h"
 #include "inspectorcontext.h"
 #include "watchtable.h"
 #include "qmlinspector.h"
+#include "propertytypefinder.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <qmljseditor/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsdocument.h>
 
 #include <QtGui/QApplication>
 #include <QtGui/QTreeWidget>
@@ -39,79 +44,19 @@
 #include <QtGui/QMenu>
 #include <QtGui/QContextMenuEvent>
 
+#include <QtCore/QFile>
 #include <QtCore/QDebug>
 
 namespace Qml {
 namespace Internal {
-
-
-class PropertiesViewItem : public QObject, public QTreeWidgetItem
-{
-    Q_OBJECT
-public:
-    enum Type {
-        BindingType,
-        OtherType
-    };
-
-    PropertiesViewItem(QTreeWidget *widget, Type type = OtherType);
-    PropertiesViewItem(QTreeWidgetItem *parent, Type type = OtherType);
-    QVariant data (int column, int role) const;
-    void setData (int column, int role, const QVariant & value);
-
-    QDeclarativeDebugPropertyReference property;
-    Type type;
-private:
-    QString objectIdString() const;
-
-};
-
-PropertiesViewItem::PropertiesViewItem(QTreeWidget *widget, Type type)
-    : QTreeWidgetItem(widget), type(type)
-{
-}
-
-PropertiesViewItem::PropertiesViewItem(QTreeWidgetItem *parent, Type type)
-    : QTreeWidgetItem(parent), type(type)
-{
-}
-
-QVariant PropertiesViewItem::data (int column, int role) const
-{
-    if (column == 1) {
-        if (role == Qt::ForegroundRole) {
-            bool canEdit = data(0, ObjectPropertiesView::CanEditRole).toBool();
-            return canEdit ? qApp->palette().color(QPalette::Foreground) : qApp->palette().color(QPalette::Disabled, QPalette::Foreground);
-        }
-    }
-
-    return QTreeWidgetItem::data(column, role);
-}
-
-void PropertiesViewItem::setData (int column, int role, const QVariant & value)
-{
-    if (role == Qt::EditRole) {
-        if (column == 1) {
-            qDebug() << "editing prop item w/role" << role << "and value" << value;
-            QmlInspector::instance()->executeExpression(property.objectDebugId(), objectIdString(), property.name(), value);
-        }
-        return;
-    }
-
-    QTreeWidgetItem::setData(column, role, value);
-}
-
-QString PropertiesViewItem::objectIdString() const
-{
-    return data(0, ObjectPropertiesView::ObjectIdStringRole).toString();
-}
 
 ObjectPropertiesView::ObjectPropertiesView(WatchTableModel *watchTableModel,
                                            QDeclarativeEngineDebug *client, QWidget *parent)
     : QWidget(parent),
       m_client(client),
       m_query(0),
-      m_watch(0), m_clickedItem(0), m_showUnwatchableProperties(false),
+      m_watch(0), m_clickedItem(0),
+      m_groupByItemType(true), m_showUnwatchableProperties(false),
       m_watchTableModel(watchTableModel)
 {
     QVBoxLayout *layout = new QVBoxLayout;
@@ -124,7 +69,7 @@ ObjectPropertiesView::ObjectPropertiesView(WatchTableModel *watchTableModel,
     m_tree->setFrameStyle(QFrame::NoFrame);
     m_tree->setAlternatingRowColors(true);
     m_tree->setExpandsOnDoubleClick(false);
-    m_tree->setRootIsDecorated(false);
+    m_tree->setRootIsDecorated(m_groupByItemType);
     m_tree->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     m_tree->setHeaderLabels(QStringList()
@@ -133,21 +78,50 @@ ObjectPropertiesView::ObjectPropertiesView(WatchTableModel *watchTableModel,
                      this, SLOT(itemDoubleClicked(QTreeWidgetItem *, int)));
     connect(m_tree, SIGNAL(itemSelectionChanged()), SLOT(changeItemSelection()));
 
-    m_addWatchAction = new QAction(tr("Watch expression"), this);
-    m_removeWatchAction = new QAction(tr("Remove watch"), this);
-    m_toggleUnwatchablePropertiesAction = new QAction(tr("Show unwatchable properties"), this);
+    m_addWatchAction = new QAction(tr("&Watch expression"), this);
+    m_removeWatchAction = new QAction(tr("&Remove watch"), this);
+    m_toggleUnwatchablePropertiesAction = new QAction(tr("Show &unwatchable properties"), this);
+
+
+    m_toggleGroupByItemTypeAction = new QAction(tr("&Group by item type"), this);
+    m_toggleGroupByItemTypeAction->setCheckable(true);
+    m_toggleGroupByItemTypeAction->setChecked(m_groupByItemType);
     connect(m_addWatchAction, SIGNAL(triggered()), SLOT(addWatch()));
     connect(m_removeWatchAction, SIGNAL(triggered()), SLOT(removeWatch()));
     connect(m_toggleUnwatchablePropertiesAction, SIGNAL(triggered()), SLOT(toggleUnwatchableProperties()));
+    connect(m_toggleGroupByItemTypeAction, SIGNAL(triggered()), SLOT(toggleGroupingByItemType()));
+
     m_tree->setColumnCount(3);
     m_tree->header()->setDefaultSectionSize(150);
 
     layout->addWidget(m_tree);
 }
 
+void ObjectPropertiesView::readSettings(const InspectorSettings &settings)
+{
+    if (settings.showUnwatchableProperties() != m_showUnwatchableProperties)
+        toggleUnwatchableProperties();
+    if (settings.groupPropertiesByItemType() != m_groupByItemType)
+        toggleGroupingByItemType();
+}
+
+void ObjectPropertiesView::saveSettings(InspectorSettings &settings)
+{
+    settings.setShowUnwatchableProperties(m_showUnwatchableProperties);
+    settings.setGroupPropertiesByItemType(m_groupByItemType);
+}
+
 void ObjectPropertiesView::toggleUnwatchableProperties()
 {
     m_showUnwatchableProperties = !m_showUnwatchableProperties;
+    setObject(m_object);
+}
+
+void ObjectPropertiesView::toggleGroupingByItemType()
+{
+    m_groupByItemType = !m_groupByItemType;
+    m_tree->setRootIsDecorated(m_groupByItemType);
+    m_toggleGroupByItemTypeAction->setChecked(m_groupByItemType);
     setObject(m_object);
 }
 
@@ -249,25 +223,98 @@ void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVar
     }
 }
 
+QString ObjectPropertiesView::propertyBaseClass(const QDeclarativeDebugObjectReference &object, const QDeclarativeDebugPropertyReference &property, int &depth)
+{
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    QmlJSEditor::ModelManagerInterface *modelManager = pluginManager->getObject<QmlJSEditor::ModelManagerInterface>();
+    QmlJS::Snapshot snapshot = modelManager->snapshot();
+
+    //qDebug() << property.name() << object.source().url().path();
+
+    QmlJS::Document::Ptr document = snapshot.document(object.source().url().path());
+    if (document.isNull()) {
+
+        QFile inFile(object.source().url().path());
+        QString contents;
+        if (inFile.open(QIODevice::ReadOnly)) {
+            QTextStream ins(&inFile);
+            contents = ins.readAll();
+            inFile.close();
+        }
+        //qDebug() << contents;
+
+        document = QmlJS::Document::create(object.source().url().path());
+        document->setSource(contents);
+        if (!document->parse())
+            return QString();
+
+        snapshot.insert(document);
+    }
+
+    PropertyTypeFinder find(document, snapshot, modelManager->importPaths());
+    QString baseClassName = find(object.source().lineNumber(), object.source().columnNumber(), property.name());
+    depth = find.depth();
+
+    return baseClassName;
+
+}
+
 void ObjectPropertiesView::setObject(const QDeclarativeDebugObjectReference &object)
 {
     m_object = object;
     m_tree->clear();
 
+    QHash<QString, PropertiesViewItem*> baseClassItems;
+    PropertiesViewItem* currentParentItem = 0;
+
+    QList<QString> insertedPropertyNames;
+
     QList<QDeclarativeDebugPropertyReference> properties = object.properties();
     for (int i=0; i<properties.count(); ++i) {
         const QDeclarativeDebugPropertyReference &p = properties[i];
 
+        // ignore overridden/redefined/shadowed properties; and do special ignore for QGraphicsObject* parent,
+        // which is useless while debugging.
+        if (insertedPropertyNames.contains(p.name())
+            || (p.name() == "parent" && p.valueTypeName() == "QGraphicsObject*"))
+        {
+            continue;
+        }
+        insertedPropertyNames.append(p.name());
+
         if (m_showUnwatchableProperties || p.hasNotifySignal()) {
 
-            PropertiesViewItem *item = new PropertiesViewItem(m_tree);
+            PropertiesViewItem *item = 0;
+
+            if (m_groupByItemType) {
+                int depth = 0;
+                QString baseClassName = propertyBaseClass(object, p, depth);
+                if (!baseClassItems.contains(baseClassName)) {
+                    PropertiesViewItem *baseClassItem = new PropertiesViewItem(m_tree, PropertiesViewItem::ClassType);
+                    baseClassItem->setData(0, PropertiesViewItem::CanEditRole, false);
+                    baseClassItem->setData(0, PropertiesViewItem::ClassDepthRole, depth);
+                    baseClassItem->setText(0, baseClassName);
+
+                    QFont font = m_tree->font();
+                    font.setBold(true);
+                    baseClassItem->setFont(0, font);
+
+                    baseClassItems.insert(baseClassName, baseClassItem);
+
+                    qDebug() << "Baseclass" << baseClassName;
+                }
+                currentParentItem = baseClassItems.value(baseClassName);
+                item = new PropertiesViewItem(currentParentItem);
+            } else
+                item = new PropertiesViewItem(m_tree);
+
             item->property = p;
-            item->setData(0, ObjectIdStringRole, object.idString());
+            item->setData(0, PropertiesViewItem::ObjectIdStringRole, object.idString());
             item->setText(0, p.name());
             Qt::ItemFlags itemFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
             bool canEdit = object.idString().length() && QmlInspector::instance()->canEditProperty(item->property.valueTypeName());
-            item->setData(0, CanEditRole, canEdit);
+            item->setData(0, PropertiesViewItem::CanEditRole, canEdit);
 
             if (canEdit)
                 itemFlags |= Qt::ItemIsEditable;
@@ -293,10 +340,36 @@ void ObjectPropertiesView::setObject(const QDeclarativeDebugObjectReference &obj
 
         }
     }
+    if (m_groupByItemType)
+        sortBaseClassItems();
+    m_tree->expandAll();
+
+}
+
+static bool baseClassItemsDepthLessThan(const PropertiesViewItem *item1, const PropertiesViewItem *item2)
+{
+    int depth1 = item1->data(0, PropertiesViewItem::ClassDepthRole).toInt();
+    int depth2 = item2->data(0, PropertiesViewItem::ClassDepthRole).toInt();
+
+    // reversed order
+    return !(depth1 < depth2);
+}
+
+void ObjectPropertiesView::sortBaseClassItems()
+{
+    QList<PropertiesViewItem*> topLevelItems;
+    while(m_tree->topLevelItemCount())
+        topLevelItems.append(static_cast<PropertiesViewItem*>(m_tree->takeTopLevelItem(0)));
+
+    qSort(topLevelItems.begin(), topLevelItems.end(), baseClassItemsDepthLessThan);
+    foreach(PropertiesViewItem *item, topLevelItems)
+        m_tree->addTopLevelItem(item);
+
 }
 
 void ObjectPropertiesView::watchCreated(QDeclarativeDebugWatch *watch)
 {
+
     if (watch->objectDebugId() == m_object.debugId()
             && qobject_cast<QDeclarativeDebugPropertyWatch*>(watch)) {
         connect(watch, SIGNAL(stateChanged(QDeclarativeDebugWatch::State)), SLOT(watchStateChanged()));
@@ -317,14 +390,30 @@ void ObjectPropertiesView::watchStateChanged()
 
 void ObjectPropertiesView::setWatched(const QString &property, bool watched)
 {
-    for (int i=0; i<m_tree->topLevelItemCount(); ++i) {
-        PropertiesViewItem *item = static_cast<PropertiesViewItem *>(m_tree->topLevelItem(i));
-        if (item->property.name() == property && item->property.hasNotifySignal()) {
-            QFont font = m_tree->font();
-            font.setBold(watched);
-            item->setFont(0, font);
+    for (int i = 0; i < m_tree->topLevelItemCount(); ++i) {
+        PropertiesViewItem *topLevelItem = static_cast<PropertiesViewItem *>(m_tree->topLevelItem(i));
+        if (m_groupByItemType) {
+            for(int j = 0; j < topLevelItem->childCount(); ++j) {
+                PropertiesViewItem *item = static_cast<PropertiesViewItem*>(topLevelItem->child(j));
+                if (styleWatchedItem(item, property, watched))
+                    return;
+            }
+        } else {
+            if (styleWatchedItem(topLevelItem, property, watched))
+                return;
         }
     }
+}
+
+bool ObjectPropertiesView::styleWatchedItem(PropertiesViewItem *item, const QString &property, bool isWatched) const
+{
+    if (item->property.name() == property && item->property.hasNotifySignal()) {
+        QFont font = m_tree->font();
+        font.setBold(isWatched);
+        item->setFont(0, font);
+        return true;
+    }
+    return false;
 }
 
 bool ObjectPropertiesView::isWatched(QTreeWidgetItem *item)
@@ -335,16 +424,31 @@ bool ObjectPropertiesView::isWatched(QTreeWidgetItem *item)
 void ObjectPropertiesView::valueChanged(const QByteArray &name, const QVariant &value)
 {
     for (int i=0; i<m_tree->topLevelItemCount(); ++i) {
-        PropertiesViewItem *item = static_cast<PropertiesViewItem *>(m_tree->topLevelItem(i));
-        if (item->property.name() == name) {
-            setPropertyValue(item, value, !item->property.hasNotifySignal());
-            return;
+        PropertiesViewItem *topLevelItem = static_cast<PropertiesViewItem *>(m_tree->topLevelItem(i));
+
+        if (m_groupByItemType) {
+            for(int j = 0; j < topLevelItem->childCount(); ++j) {
+                PropertiesViewItem *item = static_cast<PropertiesViewItem*>(topLevelItem->child(j));
+                if (item->property.name() == name) {
+                    setPropertyValue(item, value, !item->property.hasNotifySignal());
+                    return;
+                }
+            }
+        } else {
+            if (topLevelItem->property.name() == name) {
+                setPropertyValue(topLevelItem, value, !topLevelItem->property.hasNotifySignal());
+                return;
+            }
         }
+
     }
 }
 
 void ObjectPropertiesView::itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    if (item->type() == PropertiesViewItem::ClassType)
+        return;
+
     if (column == 0)
         toggleWatch(item);
     else if (column == 1)
@@ -355,6 +459,7 @@ void ObjectPropertiesView::addWatch()
 {
     toggleWatch(m_clickedItem);
 }
+
 void ObjectPropertiesView::removeWatch()
 {
     toggleWatch(m_clickedItem);
@@ -393,6 +498,7 @@ void ObjectPropertiesView::contextMenuEvent(QContextMenuEvent *event)
     else
         m_toggleUnwatchablePropertiesAction->setText(tr("Show unwatchable properties"));
 
+    menu.addAction(m_toggleGroupByItemTypeAction);
     menu.addAction(m_toggleUnwatchablePropertiesAction);
 
     menu.exec(event->globalPos());
@@ -400,5 +506,3 @@ void ObjectPropertiesView::contextMenuEvent(QContextMenuEvent *event)
 
 } // Internal
 } // Qml
-
-#include "objectpropertiesview.moc"

@@ -25,5 +25,6 @@ will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
         <dependency name="CppTools" version="1.3.84"/>
         <dependency name="CppEditor" version="1.3.84"/>
         <dependency name="Debugger" version="1.3.84"/>
+        <dependency name="QmlJSEditor" version="1.3.84"/>
     </dependencyList>
 </plugin>

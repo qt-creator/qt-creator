@@ -161,7 +161,8 @@ QmlInspector::QmlInspector(QObject *parent)
     m_propertyWatcherDock(0),
     m_inspectorOutputDock(0),
     m_connectionTimer(new QTimer(this)),
-    m_connectionAttempts(0)
+    m_connectionAttempts(0),
+    m_simultaneousCppAndQmlDebugMode(false)
 {
     m_instance = this;
     m_watchTableModel = new Internal::WatchTableModel(0, this);
@@ -182,6 +183,8 @@ QmlInspector::QmlInspector(QObject *parent)
 
 QmlInspector::~QmlInspector()
 {
+    m_objectTreeWidget->saveSettings(m_settings);
+    m_propertiesWidget->saveSettings(m_settings);
     m_settings.saveSettings(Core::ICore::instance()->settings());
 }
 
@@ -219,6 +222,12 @@ bool QmlInspector::setDebugConfigurationDataFromProject(ProjectExplorer::Project
     m_connectionTimer->setInterval(ConnectionAttemptDefaultInterval);
 
     return true;
+}
+
+void QmlInspector::startQmlProjectDebugger()
+{
+    m_simultaneousCppAndQmlDebugMode = false;
+    startConnectionTimer();
 }
 
 void QmlInspector::startConnectionTimer()
@@ -313,7 +322,7 @@ void QmlInspector::connectionStateChanged()
 
 void QmlInspector::resetViews()
 {
-    m_objectTreeWidget->clear();
+    m_objectTreeWidget->cleanup();
     m_propertiesWidget->clear();
     m_expressionWidget->clear();
     m_watchTableModel->removeAllWatches();
@@ -354,8 +363,10 @@ void QmlInspector::createDockWidgets()
     QVBoxLayout *treeWindowLayout = new QVBoxLayout(treeWindow);
     treeWindowLayout->setMargin(0);
     treeWindowLayout->setSpacing(0);
+    treeWindowLayout->setContentsMargins(0,0,0,0);
     treeWindowLayout->addWidget(treeOptionBar);
     treeWindowLayout->addWidget(m_objectTreeWidget);
+
 
     m_watchTableView->setModel(m_watchTableModel);
     Internal::WatchTableHeaderView *header = new Internal::WatchTableHeaderView(m_watchTableModel);
@@ -386,13 +397,20 @@ void QmlInspector::createDockWidgets()
             m_expressionWidget, SLOT(setCurrentObject(QDeclarativeDebugObjectReference)));
 
 
-    Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Vertical);
-    propSplitter->addWidget(m_propertiesWidget);
-    propSplitter->addWidget(m_watchTableView);
-    propSplitter->setStretchFactor(0, 2);
-    propSplitter->setStretchFactor(1, 1);
+    Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Horizontal);
+    Core::MiniSplitter *propWatcherSplitter = new Core::MiniSplitter(Qt::Vertical);
+    propWatcherSplitter->addWidget(m_propertiesWidget);
+    propWatcherSplitter->addWidget(m_watchTableView);
+    propWatcherSplitter->setStretchFactor(0, 2);
+    propWatcherSplitter->setStretchFactor(1, 1);
+    propWatcherSplitter->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+
     propSplitter->setWindowTitle(tr("Properties and Watchers"));
     propSplitter->setObjectName(QLatin1String("QmlDebugProperties"));
+    propSplitter->addWidget(m_objectTreeWidget);
+    propSplitter->addWidget(propWatcherSplitter);
+    propSplitter->setStretchFactor(0, 1);
+    propSplitter->setStretchFactor(1, 3);
 
     InspectorOutputWidget *inspectorOutput = new InspectorOutputWidget();
     inspectorOutput->setObjectName(QLatin1String("QmlDebugInspectorOutput"));
@@ -402,8 +420,8 @@ void QmlInspector::createDockWidgets()
     Debugger::DebuggerUISwitcher *uiSwitcher = Debugger::DebuggerUISwitcher::instance();
 
     m_watchTableView->hide();
-    m_objectTreeDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
-                                                            treeWindow, Qt::BottomDockWidgetArea);
+//    m_objectTreeDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
+//                                                            treeWindow, Qt::BottomDockWidgetArea);
 //    m_frameRateDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
 //                                                            m_frameRateWidget, Qt::BottomDockWidgetArea);
     m_propertyWatcherDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
@@ -417,10 +435,10 @@ void QmlInspector::createDockWidgets()
 
     m_inspectorOutputDock->setToolTip(tr("Output of the QML inspector, such as information on connecting to the server."));
 
-    m_dockWidgets << m_objectTreeDock << /*m_frameRateDock << */ m_propertyWatcherDock
+    m_dockWidgets << /*m_objectTreeDock << *//*m_frameRateDock << */ m_propertyWatcherDock
                   << m_inspectorOutputDock << m_expressionQueryDock;
 
-    m_context = new Internal::InspectorContext(m_objectTreeDock);
+    m_context = new Internal::InspectorContext(m_objectTreeWidget);
     m_propWatcherContext = new Internal::InspectorContext(m_propertyWatcherDock);
 
     Core::ICore *core = Core::ICore::instance();
@@ -440,6 +458,8 @@ void QmlInspector::createDockWidgets()
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     m_settings.readSettings(core->settings());
+    m_objectTreeWidget->readSettings(m_settings);
+    m_propertiesWidget->readSettings(m_settings);
 
     connect(m_objectTreeWidget, SIGNAL(contextHelpIdChanged(QString)), m_context,
             SLOT(setContextHelpId(QString)));
@@ -503,6 +523,7 @@ void QmlInspector::attachToExternalQmlApplication()
             connect(debugManager, SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
 
             pex->startRunControl(debuggableRunControl, ProjectExplorer::Constants::DEBUGMODE);
+            m_simultaneousCppAndQmlDebugMode = true;
 
         } else {
             errorMessage = QString(tr("A valid run control was not registered in Qt Creator for this project run configuration."));
@@ -517,22 +538,61 @@ void QmlInspector::attachToExternalQmlApplication()
 
 void QmlInspector::debuggerStateChanged(int newState)
 {
+    if (!m_simultaneousCppAndQmlDebugMode)
+        return;
+
     switch(newState) {
+    case Debugger::EngineStarting:
+        {
+            m_connectionInitialized = false;
+            break;
+        }
     case Debugger::AdapterStartFailed:
     case Debugger::InferiorStartFailed:
         disconnect(Debugger::DebuggerManager::instance(), SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
         emit statusMessage(QString(tr("Debugging failed: could not start C++ debugger.")));
         break;
+    case Debugger::InferiorRunningRequested:
+        {
+            if (m_cppDebuggerState == Debugger::InferiorStopped) {
+                // re-enable UI again
+                m_objectTreeWidget->setEnabled(true);
+                m_propertiesWidget->setEnabled(true);
+                m_expressionWidget->setEnabled(true);
+            }
+            break;
+        }
+    case Debugger::InferiorRunning:
+        {
+            if (!m_connectionInitialized) {
+                m_connectionInitialized = true;
+                m_connectionTimer->setInterval(ConnectionAttemptSimultaneousInterval);
+                startConnectionTimer();
+            }
+            break;
+        }
+    case Debugger::InferiorStopped:
+        {
+            m_objectTreeWidget->setEnabled(false);
+            m_propertiesWidget->setEnabled(false);
+            m_expressionWidget->setEnabled(false);
+            break;
+        }
+    case Debugger::EngineShuttingDown:
+        {
+            m_connectionInitialized = false;
+            // here it's safe to enable the debugger windows again -
+            // disabled ones look ugly.
+            m_objectTreeWidget->setEnabled(true);
+            m_propertiesWidget->setEnabled(true);
+            m_expressionWidget->setEnabled(true);
+            m_simultaneousCppAndQmlDebugMode = false;
+            break;
+        }
     default:
         break;
     }
-
-    if (newState == Debugger::InferiorRunning) {
-        disconnect(Debugger::DebuggerManager::instance(), SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
-        m_connectionTimer->setInterval(ConnectionAttemptSimultaneousInterval);
-        startConnectionTimer();
-    }
-
+    m_cppDebuggerState = newState;
 }
 
 
@@ -551,19 +611,14 @@ void QmlInspector::setSimpleDockWidgetArrangement()
 
     foreach (QDockWidget *dockWidget, dockWidgets) {
         if (m_dockWidgets.contains(dockWidget)) {
-            if (dockWidget == m_objectTreeDock)
-                mainWindow->addDockWidget(Qt::RightDockWidgetArea, dockWidget);
-            else
-                mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+            mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
             dockWidget->show();
-            // dockwidget is not actually visible during init because debugger is
-            // not visible, either. we can use isVisibleTo(), though.
         }
     }
-
     //mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
     mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_expressionQueryDock);
     mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_inspectorOutputDock);
+    m_propertyWatcherDock->raise();
 
     m_inspectorOutputDock->setVisible(false);
 

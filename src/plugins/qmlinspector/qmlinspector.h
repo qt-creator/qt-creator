@@ -94,7 +94,7 @@ public:
 
     // returns false if project is not debuggable.
     bool setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug);
-    void startConnectionTimer();
+    void startQmlProjectDebugger();
 
     static QmlInspector *instance();
     bool canEditProperty(const QString &propertyType);
@@ -109,6 +109,7 @@ public slots:
     void setSimpleDockWidgetArrangement();
 
 private slots:
+    void startConnectionTimer();
     void connectionStateChanged();
     void connectionError();
     void reloadEngines();
@@ -157,6 +158,10 @@ private:
     QmlProjectManager::QmlProjectRunConfigurationDebugData m_runConfigurationDebugData;
 
     QStringList m_editablePropertyTypes;
+
+    int m_cppDebuggerState;
+    bool m_connectionInitialized;
+    bool m_simultaneousCppAndQmlDebugMode;
 
     static QmlInspector *m_instance;
 };

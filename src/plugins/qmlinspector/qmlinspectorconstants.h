@@ -47,6 +47,9 @@ namespace Qml {
         const char * const S_QML_INSPECTOR    = "QML.Inspector";
         const char * const S_EXTERNALPORT_KEY = "ExternalPort";
         const char * const S_EXTERNALURL_KEY  = "ExternalUrl";
+        const char * const S_SHOW_UNINSPECTABLE_ITEMS  = "ShowUninspectableProperties";
+        const char * const S_SHOW_UNWATCHABLE_PROPERTIES = "ShowUninspectableItem";
+        const char * const S_GROUP_PROPERTIES_BY_ITEM_TYPE = "GroupPropertiesByItemType";
 
     };
 

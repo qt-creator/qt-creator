@@ -6,11 +6,14 @@ HEADERS += $$PWD/canvasframerate.h \
            $$PWD/watchtable.h \
            $$PWD/objecttree.h \
            $$PWD/objectpropertiesview.h \
-           $$PWD/expressionquerywidget.h
+           $$PWD/expressionquerywidget.h \
+    components/inspectortreeitems.h \
+    components/propertytypefinder.h
 
 SOURCES += $$PWD/canvasframerate.cpp \
            $$PWD/watchtable.cpp \
            $$PWD/objecttree.cpp \
            $$PWD/objectpropertiesview.cpp \
-           $$PWD/expressionquerywidget.cpp
-
+           $$PWD/expressionquerywidget.cpp \
+    components/inspectortreeitems.cpp \
+    components/propertytypefinder.cpp

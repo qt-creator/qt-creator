@@ -145,7 +145,7 @@ void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *pr
         // if they contain Qml files. Some kind of options should exist for this behavior.
         QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
         if (qmlproj && m_inspector->setDebugConfigurationDataFromProject(qmlproj))
-            m_inspector->startConnectionTimer();
+            m_inspector->startQmlProjectDebugger();
     }
 
 }

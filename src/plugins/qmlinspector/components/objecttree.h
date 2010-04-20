@@ -29,6 +29,8 @@
 #ifndef OBJECTTREE_H
 #define OBJECTTREE_H
 
+#include "inspectorsettings.h"
+#include <private/qdeclarativedebug_p.h>
 #include <QtGui/qtreewidget.h>
 
 QT_BEGIN_NAMESPACE
@@ -54,6 +56,8 @@ public:
     ObjectTree(QDeclarativeEngineDebug *client = 0, QWidget *parent = 0);
 
     void setEngineDebug(QDeclarativeEngineDebug *client);
+    void readSettings(const InspectorSettings &settings);
+    void saveSettings(InspectorSettings &settings);
 
 signals:
     void currentObjectChanged(const QDeclarativeDebugObjectReference &);
@@ -62,17 +66,21 @@ signals:
     void contextHelpIdChanged(const QString &contextHelpId);
 
 public slots:
+    void cleanup();
     void reload(int objectDebugId);     // set the root object
     void setCurrentObject(int debugId); // select an object in the tree
 
 protected:
-    virtual void mousePressEvent(QMouseEvent *);
+    virtual void contextMenuEvent(QContextMenuEvent *);
 
 private slots:
-    void objectFetched();
+    void addWatch();
+    void toggleUninspectableItems();
+    void objectFetched(QDeclarativeDebugQuery::State = QDeclarativeDebugQuery::Completed);
     void currentItemChanged(QTreeWidgetItem *);
     void activated(QTreeWidgetItem *);
     void selectionChanged();
+    void goToFile();
 
 private:
     QTreeWidgetItem *findItemByObjectId(int debugId) const;
@@ -83,6 +91,14 @@ private:
 
     QDeclarativeEngineDebug *m_client;
     QDeclarativeDebugObjectQuery *m_query;
+
+    QTreeWidgetItem *m_clickedItem;
+    QAction *m_toggleUninspectableItemsAction;
+    QAction *m_addWatchAction;
+    QAction *m_goToFileAction;
+    bool m_showUninspectableItems;
+    int m_currentObjectDebugId;
+    bool m_showUninspectableOnInitDone;
 };
 
 } // Internal

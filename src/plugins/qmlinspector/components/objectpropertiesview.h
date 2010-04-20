@@ -29,8 +29,9 @@
 #ifndef PROPERTIESTABLEMODEL_H
 #define PROPERTIESTABLEMODEL_H
 
-#include <private/qdeclarativedebug_p.h>
+#include "inspectorsettings.h"
 
+#include <private/qdeclarativedebug_p.h>
 #include <QtGui/qwidget.h>
 
 QT_BEGIN_NAMESPACE
@@ -52,15 +53,11 @@ class ObjectPropertiesView : public QWidget
     Q_OBJECT
 public:
     ObjectPropertiesView(WatchTableModel *watchTableModel, QDeclarativeEngineDebug *client = 0, QWidget *parent = 0);
+    void readSettings(const InspectorSettings &settings);
+    void saveSettings(InspectorSettings &settings);
 
     void setEngineDebug(QDeclarativeEngineDebug *client);
     void clear();
-
-
-    enum DataRoles {
-        CanEditRole = Qt::UserRole + 1,
-        ObjectIdStringRole = Qt::UserRole + 50
-    };
 
 signals:
     void watchToggleRequested(const QDeclarativeDebugObjectReference &, const QDeclarativeDebugPropertyReference &);
@@ -83,8 +80,12 @@ private slots:
     void addWatch();
     void removeWatch();
     void toggleUnwatchableProperties();
+    void toggleGroupingByItemType();
 
 private:
+    void sortBaseClassItems();
+    bool styleWatchedItem(PropertiesViewItem *item, const QString &property, bool isWatched) const;
+    QString propertyBaseClass(const QDeclarativeDebugObjectReference &object, const QDeclarativeDebugPropertyReference &property, int &depth);
     void toggleWatch(QTreeWidgetItem *item);
     void setObject(const QDeclarativeDebugObjectReference &object);
     bool isWatched(QTreeWidgetItem *item);
@@ -98,8 +99,10 @@ private:
     QAction *m_addWatchAction;
     QAction *m_removeWatchAction;
     QAction *m_toggleUnwatchablePropertiesAction;
+    QAction *m_toggleGroupByItemTypeAction;
     QTreeWidgetItem *m_clickedItem;
 
+    bool m_groupByItemType;
     bool m_showUnwatchableProperties;
     QTreeWidget *m_tree;
     QWeakPointer<WatchTableModel> m_watchTableModel;
