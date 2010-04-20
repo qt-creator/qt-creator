@@ -63,6 +63,8 @@ void OutputFormatter::setPlainTextEdit(QPlainTextEdit *plainText)
 
 void OutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
 {
+    gotoEnd();
+
     if (onStdErr)
         setFormat(StdErrFormat);
     else
@@ -73,6 +75,8 @@ void OutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr
 
 void OutputFormatter::appendMessage(const QString &text, bool isError)
 {
+    gotoEnd();
+
     if (isError)
         setFormat(ErrorMessageFormat);
     else
@@ -120,4 +124,9 @@ void OutputFormatter::setFormat(Format theFormat) const
 {
     if (m_formats)
         plainTextEdit()->setCurrentCharFormat(m_formats[theFormat]);
+}
+
+void OutputFormatter::gotoEnd() const
+{
+    plainTextEdit()->moveCursor(QTextCursor::End);
 }

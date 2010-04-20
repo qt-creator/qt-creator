@@ -44,7 +44,8 @@
 
 #include <QtCore/QDebug>
 
-#define MAX_RECENT_ITEMS 6
+#define MAX_RECENT_PROJECT_ITEMS 6
+#define MAX_RECENT_SESSION_ITEMS 10
 
 using namespace ProjectExplorer::Internal;
 
@@ -105,7 +106,7 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
     if (welcomePageData.sessionList.count() > 0) {
         int items = 0;
         foreach (const QString &s, welcomePageData.sessionList) {
-            if (++items > MAX_RECENT_ITEMS)
+            if (++items > MAX_RECENT_SESSION_ITEMS)
                 break;
             QString str = s;
             if (welcomePageData.activeSession.isEmpty()) {
@@ -128,7 +129,7 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
         int items = 0;
         QFontMetrics fm = fontMetrics();
         foreach (const QStringPair &it, welcomePageData.projectList) {
-            if (++items > MAX_RECENT_ITEMS)
+            if (++items > MAX_RECENT_PROJECT_ITEMS)
                 break;
             const QFileInfo fi(it.first);
             QString label = "<b>" + it.second +

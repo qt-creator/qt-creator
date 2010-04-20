@@ -72,6 +72,8 @@ protected:
     void initFormats();
     void setFormat(Format theFormat) const;
 
+    void gotoEnd() const;
+
 private:
     QPlainTextEdit *m_plainTextEdit;
     QTextCharFormat *m_formats;

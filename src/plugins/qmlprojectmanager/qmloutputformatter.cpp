@@ -46,6 +46,8 @@ QmlOutputFormatter::QmlOutputFormatter(QObject *parent)
 
 void QmlOutputFormatter::appendApplicationOutput(const QString &text, bool onStdErr)
 {
+    gotoEnd();
+
     if (onStdErr)
         setFormat(StdErrFormat);
     else
