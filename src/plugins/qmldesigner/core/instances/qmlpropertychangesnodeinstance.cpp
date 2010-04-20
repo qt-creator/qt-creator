@@ -264,12 +264,12 @@ bool QmlPropertyChangesObject::hasActionForProperty(const QString &propertyName)
         actionIterator != m_qmlActionList.end();
         ++actionIterator) {
             QDeclarativeAction &qmlAction = *actionIterator;
-        if (qmlAction.specifiedProperty == propertyName) {
-            return true;
+            if (qmlAction.specifiedProperty == propertyName) {
+                return true;
+            }
         }
-    }
 
-        return false;
+    return false;
 }
 
 QDeclarativeAction &QmlPropertyChangesObject::qmlActionForProperty(const QString &propertyName) const
