@@ -394,6 +394,9 @@ void QmlPropertyChangesObject::setVariantValue(const QString &name, const QVaria
     }
 
     QDeclarativeAction &qmlAction = qmlActionForProperty(name);
+    if (qmlAction.fromBinding)
+        qmlAction.fromBinding->setEnabled(false, QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
+
     qmlAction.toValue = value;
 }
 
