@@ -426,9 +426,10 @@ void FormEditorW::setupActions()
     bindShortcut(am->registerAction(m_actionPrint, Core::Constants::PRINT, m_contexts), m_actionPrint);
     connect(m_actionPrint, SIGNAL(triggered()), this, SLOT(print()));
 
-    //'delete' action
+    //'delete' action. Do not set a shortcut as Designer handles
+    // the 'Delete' key by event filter. Setting a shortcut triggers
+    // buggy behaviour on Mac (Pressing Delete in QLineEdit removing the widget).
     command = am->registerAction(m_fwm->actionDelete(), QLatin1String("FormEditor.Edit.Delete"), m_contexts);
-    command->setDefaultKeySequence(QKeySequence::Delete);
     bindShortcut(command, m_fwm->actionDelete());
     command->setAttribute(Core::Command::CA_Hide);
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
