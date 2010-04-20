@@ -3148,6 +3148,7 @@ void FakeVimHandler::Private::search(const QString &needle0, bool forward,
         selections.append(sel);
         emit q->selectionChanged(selections);
     }
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::highlightMatches(const QString &needle0)
