@@ -413,21 +413,17 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         }
     }
 
-    if (!formatTooltip.isEmpty()) {
+    if (!formatTooltip.isEmpty())
         m_toolTip = formatTooltip;
-    }
-
-    if (!m_toolTip.isEmpty())
-        m_toolTip = Qt::escape(m_toolTip);
 
     if (!m_helpId.isEmpty() && !helpLinks.isEmpty()) {
         if (showF1) {
             m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
                                               "<td><img src=\":/cppeditor/images/f1.png\"></td></tr></table>"))
-                        .arg(m_toolTip);
+                        .arg(Qt::escape(m_toolTip));
         }
         editor->setContextHelpId(m_helpId);
     } else if (!m_toolTip.isEmpty() && Qt::mightBeRichText(m_toolTip)) {
-        m_toolTip = QString(QLatin1String("<nobr>%1")).arg(m_toolTip);
+        m_toolTip = QString(QLatin1String("<nobr>%1")).arg(Qt::escape(m_toolTip));
     }
 }
