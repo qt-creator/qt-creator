@@ -224,8 +224,13 @@ bool FolderNavigationWidget::setCurrentDirectory(const QString &directory)
     // Set the root path on the model instead of changing the top index
     // of the view to cause the model to clean out its file watchers.
     const QModelIndex index = m_fileSystemModel->setRootPath(newDirectory);
-    QTC_ASSERT(index.isValid(), return false)
+    if (!index.isValid()) {
+        setCurrentTitle(QString(), QString());
+        return false;
+    }
     m_listView->setRootIndex(m_filterModel->mapFromSource(index));
+    const QDir current(QDir::cleanPath(newDirectory));
+    setCurrentTitle(current.dirName(), current.absolutePath());
     return !directory.isEmpty();
 }
 
