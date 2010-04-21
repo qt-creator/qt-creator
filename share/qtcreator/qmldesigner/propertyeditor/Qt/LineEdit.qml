@@ -57,8 +57,14 @@ QWidget {
         styleSheet: "QLineEdit { padding-left: 32; }"
         width: lineEdit.width
         height: lineEdit.height
+        
+        property string valueFromBackend: (backendValue === undefined || backendValue.value === undefined) ? "" : backendValue.value;
 
-        text: (backendValue === undefined || backendValue.value === undefined) ? "" : backendValue.value
+        onValueFromBackendChanged: {
+            if (backendValue.value === undefined)
+                return;
+            text = backendValue.value;
+        }
 
         onEditingFinished: {
             backendValue.value = text
