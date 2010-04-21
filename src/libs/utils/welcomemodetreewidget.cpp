@@ -35,6 +35,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QResizeEvent>
+#include <QtGui/QImage>
 
 enum { leftContentsMargin = 2,
        topContentsMargin = 2,
@@ -240,24 +241,14 @@ WelcomeModeTreeWidgetPrivate::WelcomeModeTreeWidgetPrivate() :
     itemLayout(new QVBoxLayout)
 {
     layout->setMargin(0);
-    itemLayout->setMargin(0);
 }
 
 WelcomeModeTreeWidget::WelcomeModeTreeWidget(QWidget *parent) :
-        QScrollArea(parent), m_d(new WelcomeModeTreeWidgetPrivate)
+        QWidget(parent), m_d(new WelcomeModeTreeWidgetPrivate)
 {
+    setLayout(m_d->layout);
     m_d->layout->addLayout(m_d->itemLayout);
     m_d->layout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
-    QWidget *contents = new QWidget;
-    contents->setLayout(m_d->layout);
-    viewport()->setBackgroundRole(QPalette::Base); // Bright background.
-    setWidget(contents);
-    setWidgetResizable(true);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setFrameStyle(QFrame::NoFrame);
-    setFrameShadow(QFrame::Plain);
-    setContentsMargins(0, 0, 0, 0);
 }
 
 WelcomeModeTreeWidget::~WelcomeModeTreeWidget()

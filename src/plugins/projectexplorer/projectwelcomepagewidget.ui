@@ -159,7 +159,7 @@
  <customwidgets>
   <customwidget>
    <class>Utils::WelcomeModeTreeWidget</class>
-   <extends>QScrollArea</extends>
+   <extends>QWidget</extends>
    <header location="global">utils/welcomemodetreewidget.h</header>
    <container>1</container>
   </customwidget>
