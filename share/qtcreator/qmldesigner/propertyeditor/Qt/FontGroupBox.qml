@@ -36,7 +36,9 @@ GroupBox {
                     text: qsTr("Font Style")
                 }
 
-                CheckBox {
+                FontStyleButtons {}
+
+                /*CheckBox {
                     text: qsTr("Bold")
                     backendValue: backendValues.font_bold
                     baseStateFlag: isBaseState;
@@ -47,7 +49,7 @@ GroupBox {
                     backendValue: backendValues.font_italic
                     baseStateFlag: isBaseState;
                     checkable: true;
-                }
+                }*/
 
             }
         }
