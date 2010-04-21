@@ -45,7 +45,16 @@ GroupBox {
                     text: qsTr("Alignment")
                 }
                 AlignmentHorizontalButtons {}
-                AlignmentVerticalButtons { visible: showVerticalAlignment }
+            }
+        }
+        QWidget {
+            visible: showVerticalAlignment
+            layout: HorizontalLayout {
+
+                Label {
+                    text: qsTr("")
+                }
+                AlignmentVerticalButtons { }
             }
         }
     }
