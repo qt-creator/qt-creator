@@ -50,13 +50,14 @@ namespace Internal {
 StatesEditorView::StatesEditorView(StatesEditorModel *editorModel, QObject *parent) :
         QmlModelView(parent),
         m_editorModel(editorModel),
-        m_attachedToModel(false)
+        m_attachedToModel(false), m_settingSilentState(false)
 {
     Q_ASSERT(m_editorModel);
 }
 
 void StatesEditorView::setCurrentStateSilent(int index)
 {
+    m_settingSilentState = true;
     if (debug)
         qDebug() << __FUNCTION__ << index;
 
@@ -64,11 +65,17 @@ void StatesEditorView::setCurrentStateSilent(int index)
 
     // TODO
     QmlModelState state(m_modelStates.at(index));
-    if (!state.isValid())
+    if (!state.isValid()) {
+        m_settingSilentState = false;
         return;
-    if (state == currentState())
+    }
+    if (state == currentState()) {
+        m_settingSilentState = false;
         return;
+    }
     QmlModelView::activateState(state);
+
+    m_settingSilentState = false;
 }
 
 void StatesEditorView::setCurrentState(int index)
@@ -332,11 +339,13 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
 
 void StatesEditorView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
-    if (QmlModelState(node).isValid()) {
-        startUpdateTimer(modelStateIndex(node) + 1, 0);
-    } else { //a change to the base state update all
-        for (int i = 0; i < m_modelStates.count(); ++i)
-            startUpdateTimer(i, 0);
+    if (!m_settingSilentState) {
+        if (QmlModelState(node).isValid()) {
+            startUpdateTimer(modelStateIndex(node) + 1, 0);
+        } else { //a change to the base state update all
+            for (int i = 0; i < m_modelStates.count(); ++i)
+                startUpdateTimer(i, 0);
+        }
     }
 
     QmlModelView::nodeInstancePropertyChanged(node, propertyName);
@@ -349,10 +358,12 @@ void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const
 
     QmlModelView::stateChanged(newQmlModelState, oldQmlModelState);
 
-    if (newQmlModelState.isBaseState())
-        m_editorModel->emitChangedToState(0);
-    else
-        m_editorModel->emitChangedToState(m_modelStates.indexOf(newQmlModelState));
+    if (!m_settingSilentState) {
+        if (newQmlModelState.isBaseState())
+            m_editorModel->emitChangedToState(0);
+        else
+            m_editorModel->emitChangedToState(m_modelStates.indexOf(newQmlModelState));
+    }
 }
 
 void StatesEditorView::transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
@@ -431,7 +442,7 @@ QPixmap StatesEditorView::renderState(int i)
     painter.drawTiledPixmap(pixmap.rect(), tilePixmap);
     nodeInstanceView()->render(&painter, pixmap.rect(), nodeInstanceView()->sceneRect());
 
-    setCurrentState(m_modelStates.indexOf(oldState));
+    setCurrentStateSilent(m_modelStates.indexOf(oldState));
 
     Q_ASSERT(oldState == currentState());
 

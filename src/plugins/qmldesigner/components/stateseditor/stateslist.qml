@@ -24,7 +24,7 @@ Rectangle {
 
     Connections {
         target: statesEditorModel
-        onChangedToState: { root.currentStateIndex = n; }
+        onChangedToState: root.currentStateIndex = n;
     }
 
     // TextInputs don't loose focus automatically when user clicks away, have to be done explicitly
@@ -35,7 +35,11 @@ Rectangle {
         onExited: root.unFocus();
     }
     onCurrentStateIndexChanged: {
-        if (currentStateIndex<0) currentStateIndex=0; else unFocus();
+        if (currentStateIndex <= 0)
+            currentStateIndex = 0;
+        else
+            unFocus();
+
     }
 
     Flickable {
@@ -75,7 +79,7 @@ Rectangle {
             width:img.width+32
             height: img.height + txt.height + 29
 
-            property bool isCurrentState:root.currentStateIndex==index;
+            property bool isCurrentState: root.currentStateIndex == index;
             onXChanged: scrollBarAdjuster.adjustScrollBar();
             onIsCurrentStateChanged: scrollBarAdjuster.adjustScrollBar();
 
@@ -160,7 +164,7 @@ Rectangle {
                     anchors.topMargin: 2
                     anchors.horizontalCenter: textLimits.horizontalCenter
                     id: txt
-                    color: root.currentStateIndex==index?"white":"#E1E1E1";
+                    color: root.currentStateIndex==index ? "white" : "#E1E1E1";
                     text: stateName
                     width:parent.width
                     elide:Qt.ElideMiddle
@@ -198,7 +202,7 @@ Rectangle {
                     function unFocus() {
                         if (visible) {
                             visible=false;
-                            statesEditorModel.renameState(index,stateNameInput.text);
+                            statesEditorModel.renameState(index, stateNameInput.text);
                         }
                     }
 
@@ -236,7 +240,7 @@ Rectangle {
                             }
                             onAccepted: {
                                 if (stateNameEditor.visible) {
-                                    stateNameEditor.visible=false;
+                                    stateNameEditor.visible = false;
                                     statesEditorModel.renameState(index,text);
                                 }
                             }
@@ -422,7 +426,7 @@ Rectangle {
             },
             State {
                 name: "Disabled"
-                when: root.currentStateIndex==0;
+                when: root.currentStateIndex == 0;
                 PropertyChanges {
                     target: renameStateText
                     color: "#5f5f5f"
@@ -476,19 +480,19 @@ Rectangle {
 
         states: [
             State {
-               name: "Pressed"
-               PropertyChanges {
-                   target: removeStatePressedBorder
-                   visible:true
-               }
-            PropertyChanges {
-                   target: removeStateText
-                   color: "#1c1c1c"
-               }
+                name: "Pressed"
+                PropertyChanges {
+                    target: removeStatePressedBorder
+                    visible:true
+                }
+                PropertyChanges {
+                    target: removeStateText
+                    color: "#1c1c1c"
+                }
             },
             State {
                 name: "Disabled"
-                when: root.currentStateIndex==0;
+                when: root.currentStateIndex == 0;
                 PropertyChanges {
                     target: removeStateText
                     color: "#5f5f5f"
@@ -505,12 +509,18 @@ Rectangle {
         }
         MouseArea {
             anchors.fill: parent
-            onPressed: if (parent.state != "Disabled") parent.state = "Pressed";
-            onReleased: if (parent.state == "Pressed") {
-                parent.state = "";
-                root.unFocus();
-                root.deleteState(root.currentStateIndex);
-                horizontalScrollbar.contentSizeDecreased();
+            onPressed: {
+                if (parent.state != "Disabled") {
+                    parent.state = "Pressed";
+                }
+            }
+            onReleased: {
+                if (parent.state == "Pressed") {
+                    parent.state = "";
+                    root.unFocus();
+                    root.deleteState(root.currentStateIndex);
+                    horizontalScrollbar.contentSizeDecreased();
+                }
             }
         }
     }

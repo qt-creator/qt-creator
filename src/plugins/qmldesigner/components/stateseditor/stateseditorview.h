@@ -99,6 +99,7 @@ private:
     QList<int> m_updateTimerIdList;
     QmlModelState m_oldRewriterAmendState;
     bool m_attachedToModel;
+    bool m_settingSilentState;
 };
 
 } // namespace Internal
