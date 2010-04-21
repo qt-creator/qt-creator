@@ -31,6 +31,8 @@
 
 #include <utils/detailswidget.h>
 
+
+#include <QtGui/QTextDocument>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QToolButton>
@@ -491,9 +493,9 @@ void EnvironmentWidget::updateSummaryText()
         if (item.name != EnvironmentModel::tr("<VARIABLE>")) {
             text.append("<br>");
             if (item.unset)
-                text.append(tr("Unset <b>%1</b>").arg(item.name));
+                text.append(tr("Unset <b>%1</b>").arg(Qt::escape(item.name)));
             else
-                text.append(tr("Set <b>%1</b> to <b>%2</b>").arg(item.name, item.value));
+                text.append(tr("Set <b>%1</b> to <b>%2</b>").arg(Qt::escape(item.name), Qt::escape(item.value)));
         }
     }
 
