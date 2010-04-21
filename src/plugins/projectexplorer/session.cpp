@@ -1029,24 +1029,17 @@ QString SessionManager::activeSession() const
     return m_sessionName;
 }
 
-static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
-{
-    return s1.compare(s2, Qt::CaseInsensitive) < 0;
-}
-
 QStringList SessionManager::sessions() const
 {
     if (m_sessions.isEmpty()) {
         // We are not initialized yet, so do that now
-        QDirIterator dirIter(QFileInfo(m_core->settings()->fileName()).path() + "/qtcreator/");
-        while (dirIter.hasNext()) {
-            dirIter.next();
-            const QFileInfo &fileInfo = dirIter.fileInfo();
-            if (fileInfo.suffix() == "qws" && fileInfo.completeBaseName() != "default")
+        QDir sessionDir(QFileInfo(m_core->settings()->fileName()).path()+ "/qtcreator/");
+        QList<QFileInfo> sessionFiles = sessionDir.entryInfoList(QStringList() << QLatin1String("*.qws"), QDir::NoFilter, QDir::Time);
+        Q_FOREACH(const QFileInfo& fileInfo, sessionFiles) {
+            if (fileInfo.completeBaseName() != "default")
                 m_sessions << fileInfo.completeBaseName();
         }
         m_sessions.prepend("default");
-        qSort(m_sessions.begin(), m_sessions.end(), caseInsensitiveLessThan);
     }
     return m_sessions;
 }
@@ -1066,9 +1059,18 @@ bool SessionManager::createSession(const QString &session)
 {
     if (sessions().contains(session))
         return false;
-    m_sessions.append(session);
-    qSort(m_sessions.begin(), m_sessions.end(), caseInsensitiveLessThan);
+    Q_ASSERT(m_sessions.size() > 0);
+    m_sessions.insert(1, session);
     return true;
+}
+
+bool SessionManager::renameSession(const QString &original, const QString &newName)
+{
+    if (!cloneSession(original, newName))
+        return false;
+    if (original == activeSession())
+        loadSession(newName);
+    return deleteSession(original);
 }
 
 bool SessionManager::deleteSession(const QString &session)
@@ -1090,8 +1092,8 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
     QFile fi(sessionNameToFileName(original));
     // If the file does not exist, we can still clone
     if (!fi.exists() || fi.copy(sessionNameToFileName(clone))) {
-        m_sessions.append(clone);
-        qSort(m_sessions.begin(), m_sessions.end(), caseInsensitiveLessThan);
+        Q_ASSERT(m_sessions.size() > 0);
+        m_sessions.insert(1, clone);
         return true;
     }
     return false;

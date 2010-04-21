@@ -45,20 +45,22 @@ class SessionDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SessionDialog(SessionManager *sessionManager, const QString &lastSession, bool startup);
+    SessionDialog(SessionManager *sessionManager);
 
 private slots:
     void createNew();
     void clone();
     void remove();
+    void rename();
     void switchToSession();
 
     void updateActions();
 
 private:
+    void addItems(bool setDefaultSession);
+    void markItems();
     Ui::SessionDialog m_ui;
     SessionManager *m_sessionManager;
-    bool m_startup;
 };
 
 } // namespace Internal

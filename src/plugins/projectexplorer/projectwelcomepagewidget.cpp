@@ -45,7 +45,12 @@
 #include <QtCore/QDebug>
 
 #define MAX_RECENT_PROJECT_ITEMS 6
-#define MAX_RECENT_SESSION_ITEMS 10
+
+#ifdef Q_OS_MAC
+#  define MAX_RECENT_SESSION_ITEMS 8
+#else
+#  define MAX_RECENT_SESSION_ITEMS 9
+#endif
 
 using namespace ProjectExplorer::Internal;
 

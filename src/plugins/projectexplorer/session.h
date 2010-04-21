@@ -107,6 +107,7 @@ public:
     bool deleteSession(const QString &session);
 
     bool cloneSession(const QString &original, const QString &clone);
+    bool renameSession(const QString &original, const QString &newName);
 
     // loads a session, takes a session name (not filename)
     bool loadSession(const QString &session);

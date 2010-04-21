@@ -935,7 +935,7 @@ void ProjectExplorerPlugin::showSessionManager()
     } else {
         d->m_session->save();
     }
-    SessionDialog sessionDialog(d->m_session, d->m_session->activeSession(), false);
+    SessionDialog sessionDialog(d->m_session);
     sessionDialog.exec();
 
     updateActions();

@@ -14,29 +14,46 @@
    <string>Session Manager</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
+   <item row="0" column="0">
     <widget class="QListWidget" name="sessionList"/>
    </item>
-   <item row="0" column="2">
+   <item row="0" column="1">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QPushButton" name="btCreateNew">
        <property name="text">
-        <string>Create New Session</string>
+        <string>&amp;New</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btRename">
+       <property name="text">
+        <string>&amp;Rename</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="btClone">
        <property name="text">
-        <string>Clone Session</string>
+        <string>C&amp;lone</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="btDelete">
        <property name="text">
-        <string>Delete Session</string>
+        <string>&amp;Delete</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btSwitch">
+       <property name="text">
+        <string>&amp;Switch to</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -47,22 +64,29 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
-         <height>40</height>
+         <width>85</width>
+         <height>13</height>
         </size>
        </property>
       </spacer>
      </item>
     </layout>
    </item>
-   <item row="1" column="0">
+   <item row="1" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" rowspan="2">
     <widget class="QLabel" name="whatsASessionLabel">
      <property name="text">
       <string>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="2">
+   <item row="3" column="1">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Close</set>
@@ -73,22 +97,6 @@
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>ProjectExplorer::Internal::SessionDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>246</x>
-     <y>237</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>78</x>
-     <y>216</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
@@ -102,6 +110,22 @@
     <hint type="destinationlabel">
      <x>114</x>
      <y>237</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ProjectExplorer::Internal::SessionDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>246</x>
+     <y>237</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>78</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
