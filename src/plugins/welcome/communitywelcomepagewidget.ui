@@ -32,7 +32,6 @@
       <string notr="true">#contentframe{
    border: none 0px;
    border-bottom: 1px solid #c9c9c9;
-   background: #f9f9f9;
    margin: 0px;
 }</string>
      </property>
@@ -107,6 +106,7 @@
    <class>Utils::WelcomeModeTreeWidget</class>
    <extends>QWidget</extends>
    <header location="global">utils/welcomemodetreewidget.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>Utils::WelcomeModeLabel</class>
