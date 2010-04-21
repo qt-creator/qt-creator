@@ -3888,6 +3888,9 @@
           \l{Developing Symbian Applications}.
     \endlist
 
+    \note The only supported build system for Maemo and Qt for Symbian
+    applications in Qt Creator is qmake.
+
     Once your application is ready you can deploy it on a mobile device.
     If you do not have a mobile device connected to your computer, you can
     run Maemo applications in the \gui{Local Simulator}, and Symbian
@@ -4187,6 +4190,9 @@
        \o  Windows (32 bit and 64 bit)
        \o  MacOS 10.5 ("Leopard") or higher
     \endlist
+
+    \note The only supported build system for Maemo applications in Qt
+    Creator is qmake.
 
     \section1 Setting Up the N900
 
@@ -4507,7 +4513,7 @@
     with the installation file, including:
     \list
        \o  Self-signed applications cannot access the more sensitive
-           capabilities of the mobile device.
+           \l{Capabilities and Signing}{capabilities} of the mobile device.
        \o  Security warnings will be displayed when you install the self-signed
            application on a mobile device.
        \o  Self-signed applications cannot be distributed commercially on Ovi
@@ -4524,13 +4530,50 @@
 
     There are also options that do not require you to get a Publisher ID. For
     more detail about how the Symbian Signed process works, see
-    \l{http://developer.symbian.com/wiki/display/pub/The+Complete+Guide+to+Symbian+Signed}
-    {The complete guide to Symbian Signed}.
+    \l{http://developer.symbian.org/wiki/index.php/Complete_Guide_To_Symbian_Signed}
+    {Complete Guide to Symbian Signed}.
 
-    When you have your own certificate and private key you can specify them in
+    When you have your own certificate and private key, you can specify them in
     the \gui{Create sis Package} step in your build configuration.
 
     \image qtcreator-qt4-symbian-signing.png
+
+    \section3 Capabilities and Signing
+
+    Capabilities allow the Symbian platform to control access by applications to
+    the functionality provided by the platform APIs. Access to capabilities is
+    determined by the device configuration and how the application has been signed.
+
+    Symbian Signed offers the following signing options depending on the
+    capabilities that the application accesses:
+
+    \list
+
+        \o \bold{Express signed} for applications that access only user and system
+        capabilities.
+
+        \o \bold{Certified signed} for applications that access also restricted or
+        device manufacturer capabilities.
+
+        \note You need to request the rights to access device manufacturer
+        capabilities from the manufacturer.
+
+    \endlist
+
+    For more information about how to choose the appropriate signing option, see
+    \l{http://developer.symbian.org/wiki/index.php/Symbian_Signed_For_Distributing_Your_Application}{Symbian Signed For Distributing Your Application}.
+
+    If you select a signing option that does not allow the application to access
+    the defined capabilities, installing the application on mobile devices
+    fails. To avoid problems, only define capabilities and link libraries to a project
+    if you really need them.
+
+    For more information about capabilities and how you can check which ones you
+    need, see
+    \l{http://developer.symbian.org/wiki/index.php/Capabilities_(Symbian_Signed)}{Capabilities (Symbian Signed)}.
+
+    For more information on how to define capabilities for a project, see
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#capabilities}{Capabilities}.
 
     \section1 Running Your Project
 
