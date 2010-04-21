@@ -43,6 +43,7 @@ GroupBox {
     layout: VerticalLayout {
 
         QWidget {
+            visible: colorGroupBox.gradientButtonChecked
             layout: HorizontalLayout {
                 spacing: 2
                 Label {
@@ -54,8 +55,7 @@ GroupBox {
                     id: gradientLine;
                     activeColor: colorGroupBox.color
                     itemNode: anchorBackend.itemNode
-                    visible: colorGroupBox.gradientButtonChecked
-                    active: visible
+                    active: colorGroupBox.gradientButtonChecked
                 }
             }
         }
