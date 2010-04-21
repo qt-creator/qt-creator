@@ -37,7 +37,7 @@
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-class QTreeView;
+class QTableView;
 class QPushButton;
 QT_END_NAMESPACE
 
@@ -125,7 +125,7 @@ private:
     EnvironmentModel *m_model;
     QString m_baseEnvironmentText;
     Utils::DetailsWidget *m_detailsContainer;
-    QTreeView *m_environmentTreeView;
+    QTableView *m_environmentView;
     QPushButton *m_editButton;
     QPushButton *m_addButton;
     QPushButton *m_resetButton;

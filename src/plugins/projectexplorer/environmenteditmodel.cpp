@@ -37,7 +37,7 @@
 #include <QtCore/QDebug>
 #include <QtGui/QWidget>
 #include <QtGui/QCheckBox>
-#include <QtGui/QTreeView>
+#include <QtGui/QTableView>
 #include <QtGui/QPushButton>
 #include <QtGui/QLabel>
 #include <QtGui/QStackedWidget>
@@ -392,13 +392,18 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->setMargin(0);
-    m_environmentTreeView = new QTreeView(this);
-    m_environmentTreeView->setRootIsDecorated(false);
-    m_environmentTreeView->setHeaderHidden(false);
-    m_environmentTreeView->setModel(m_model);
-    m_environmentTreeView->header()->resizeSection(0, 250);
-    m_environmentTreeView->setMinimumHeight(400);
-    horizontalLayout->addWidget(m_environmentTreeView);
+    m_environmentView = new QTableView(this);
+    m_environmentView->setModel(m_model);
+    m_environmentView->setMinimumHeight(400);
+    m_environmentView->setGridStyle(Qt::NoPen);
+    m_environmentView->horizontalHeader()->setStretchLastSection(true);
+    m_environmentView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
+    m_environmentView->horizontalHeader()->setHighlightSections(false);
+    m_environmentView->verticalHeader()->hide();
+    QFontMetrics fm(font());
+    m_environmentView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
+    m_environmentView->setSelectionMode(QAbstractItemView::SingleSelection);
+    horizontalLayout->addWidget(m_environmentView);
 
     QVBoxLayout *buttonLayout = new QVBoxLayout();
 
@@ -438,7 +443,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
             this, SLOT(removeEnvironmentButtonClicked()));
     connect(m_unsetButton, SIGNAL(clicked(bool)),
             this, SLOT(unsetEnvironmentButtonClicked()));
-    connect(m_environmentTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+    connect(m_environmentView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(environmentCurrentIndexChanged(QModelIndex)));
 
     connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(updateSummaryText()));
@@ -452,8 +457,8 @@ EnvironmentWidget::~EnvironmentWidget()
 
 void EnvironmentWidget::focusIndex(const QModelIndex &index)
 {
-    m_environmentTreeView->setCurrentIndex(index);
-    m_environmentTreeView->setFocus();
+    m_environmentView->setCurrentIndex(index);
+    m_environmentView->setFocus();
 }
 
 void EnvironmentWidget::setBaseEnvironment(const ProjectExplorer::Environment &env)
@@ -502,24 +507,24 @@ void EnvironmentWidget::updateSummaryText()
 
 void EnvironmentWidget::updateButtons()
 {
-    environmentCurrentIndexChanged(m_environmentTreeView->currentIndex());
+    environmentCurrentIndexChanged(m_environmentView->currentIndex());
 }
 
 void EnvironmentWidget::editEnvironmentButtonClicked()
 {
-    m_environmentTreeView->edit(m_environmentTreeView->currentIndex());
+    m_environmentView->edit(m_environmentView->currentIndex());
 }
 
 void EnvironmentWidget::addEnvironmentButtonClicked()
 {
     QModelIndex index = m_model->addVariable();
-    m_environmentTreeView->setCurrentIndex(index);
-    m_environmentTreeView->edit(index);
+    m_environmentView->setCurrentIndex(index);
+    m_environmentView->edit(index);
 }
 
 void EnvironmentWidget::removeEnvironmentButtonClicked()
 {
-    const QString &name = m_model->indexToVariable(m_environmentTreeView->currentIndex());
+    const QString &name = m_model->indexToVariable(m_environmentView->currentIndex());
     m_model->resetVariable(name);
 }
 
@@ -527,7 +532,7 @@ void EnvironmentWidget::removeEnvironmentButtonClicked()
 // or remove when it is just a change we added
 void EnvironmentWidget::unsetEnvironmentButtonClicked()
 {
-    const QString &name = m_model->indexToVariable(m_environmentTreeView->currentIndex());
+    const QString &name = m_model->indexToVariable(m_environmentView->currentIndex());
     if (!m_model->canReset(name))
         m_model->resetVariable(name);
     else
