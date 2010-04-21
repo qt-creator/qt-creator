@@ -165,7 +165,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager, const DebuggerS
     init();
 
     if (m_startParameters->environment.empty())
-        m_startParameters->environment = ProjectExplorer::Environment::Environment().toStringList();
+     m_startParameters->environment = ProjectExplorer::Environment().toStringList();
     m_startParameters->useTerminal = false;
 }
 
