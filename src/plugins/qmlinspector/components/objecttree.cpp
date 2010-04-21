@@ -184,8 +184,6 @@ void ObjectTree::buildTree(const QDeclarativeDebugObjectReference &obj, QTreeWid
     if (!parent)
         clear();
 
-    qDebug() << obj.className();
-
     if (obj.contextDebugId() < 0 && !m_showUninspectableItems)
         return;
 

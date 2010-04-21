@@ -229,8 +229,6 @@ QString ObjectPropertiesView::propertyBaseClass(const QDeclarativeDebugObjectRef
     QmlJSEditor::ModelManagerInterface *modelManager = pluginManager->getObject<QmlJSEditor::ModelManagerInterface>();
     QmlJS::Snapshot snapshot = modelManager->snapshot();
 
-    //qDebug() << property.name() << object.source().url().path();
-
     QmlJS::Document::Ptr document = snapshot.document(object.source().url().path());
     if (document.isNull()) {
 
@@ -241,7 +239,6 @@ QString ObjectPropertiesView::propertyBaseClass(const QDeclarativeDebugObjectRef
             contents = ins.readAll();
             inFile.close();
         }
-        //qDebug() << contents;
 
         document = QmlJS::Document::create(object.source().url().path());
         document->setSource(contents);
@@ -301,7 +298,6 @@ void ObjectPropertiesView::setObject(const QDeclarativeDebugObjectReference &obj
 
                     baseClassItems.insert(baseClassName, baseClassItem);
 
-                    qDebug() << "Baseclass" << baseClassName;
                 }
                 currentParentItem = baseClassItems.value(baseClassName);
                 item = new PropertiesViewItem(currentParentItem);

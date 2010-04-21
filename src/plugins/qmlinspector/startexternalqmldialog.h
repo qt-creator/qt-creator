@@ -21,6 +21,19 @@ public:
     explicit StartExternalQmlDialog(QWidget *parent);
     ~StartExternalQmlDialog();
 
+    enum DebugMode {
+        QmlProjectWithCppPlugins,
+        CppProjectWithQmlEngine
+    };
+
+    void setDebugMode(DebugMode mode);
+
+    void setQmlViewerPath(const QString &path);
+    QString qmlViewerPath() const;
+
+    void setQmlViewerArguments(const QString &arguments);
+    QString qmlViewerArguments() const;
+
     void setDebuggerUrl(const QString &url);
     QString debuggerUrl() const;
 
@@ -33,6 +46,7 @@ private slots:
 
 private:
     Ui::StartExternalQmlDialog *m_ui;
+    DebugMode m_debugMode;
 };
 
 } // Internal

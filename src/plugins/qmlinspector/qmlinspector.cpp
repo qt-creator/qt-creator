@@ -162,7 +162,8 @@ QmlInspector::QmlInspector(QObject *parent)
     m_inspectorOutputDock(0),
     m_connectionTimer(new QTimer(this)),
     m_connectionAttempts(0),
-    m_simultaneousCppAndQmlDebugMode(false)
+    m_simultaneousCppAndQmlDebugMode(false),
+    m_debugMode(StandaloneMode)
 {
     m_instance = this;
     m_watchTableModel = new Internal::WatchTableModel(0, this);
@@ -174,6 +175,8 @@ QmlInspector::QmlInspector(QObject *parent)
 //    m_frameRateWidget = new Internal::CanvasFrameRate;
 //    m_frameRateWidget->setObjectName(QLatin1String("QmlDebugFrameRate"));
 
+    Debugger::DebuggerManager *debugManager = Debugger::DebuggerManager::instance();
+    connect(debugManager, SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
 
     m_editablePropertyTypes = QStringList() << "qreal" << "bool" << "QString"
                                             << "int" << "QVariant" << "QUrl" << "QColor";
@@ -202,6 +205,7 @@ void QmlInspector::pollInspector()
                               tr("Failed to connect to debugger"),
                               tr("Could not connect to debugger server.") );
     }
+    updateMenuActions();
 }
 
 bool QmlInspector::setDebugConfigurationDataFromProject(ProjectExplorer::Project *projectToDebug)
@@ -227,11 +231,6 @@ bool QmlInspector::setDebugConfigurationDataFromProject(ProjectExplorer::Project
 void QmlInspector::startQmlProjectDebugger()
 {
     m_simultaneousCppAndQmlDebugMode = false;
-    startConnectionTimer();
-}
-
-void QmlInspector::startConnectionTimer()
-{
     m_connectionTimer->start();
 }
 
@@ -269,6 +268,7 @@ bool QmlInspector::connectToViewer()
 void QmlInspector::disconnectFromViewer()
 {
     m_conn->disconnectFromHost();
+    updateMenuActions();
 }
 
 void QmlInspector::connectionStateChanged()
@@ -284,6 +284,8 @@ void QmlInspector::connectionStateChanged()
             m_contextQuery = 0;
 
             resetViews();
+
+            updateMenuActions();
 
             break;
         }
@@ -445,14 +447,14 @@ void QmlInspector::createDockWidgets()
     core->addContextObject(m_propWatcherContext);
     core->addContextObject(m_context);
 
-    QAction *attachToExternalAction = new QAction(this);
-    attachToExternalAction->setText(tr("Start Debugging C++ and QML Simultaneously..."));
-    connect(attachToExternalAction, SIGNAL(triggered()),
-        this, SLOT(attachToExternalQmlApplication()));
+    m_simultaneousDebugAction = new QAction(this);
+    m_simultaneousDebugAction->setText(tr("Start Debugging C++ and QML Simultaneously..."));
+    connect(m_simultaneousDebugAction, SIGNAL(triggered()),
+        this, SLOT(simultaneouslyDebugQmlCppApplication()));
 
     Core::ActionManager *am = core->actionManager();
     Core::ActionContainer *mstart = am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
-    Core::Command *cmd = am->registerAction(attachToExternalAction, Constants::M_ATTACH_TO_EXTERNAL,
+    Core::Command *cmd = am->registerAction(m_simultaneousDebugAction, Constants::M_DEBUG_SIMULTANEOUSLY,
                                             QList<int>() << m_context->context());
     cmd->setAttribute(Core::Command::CA_Hide);
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
@@ -471,128 +473,222 @@ void QmlInspector::createDockWidgets()
             SLOT(setContextHelpId(QString)));
 }
 
-void QmlInspector::attachToExternalQmlApplication()
+void QmlInspector::simultaneouslyDebugQmlCppApplication()
 {
+    QString errorMessage;
     ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *project = pex->startupProject();
-    ProjectExplorer::LocalApplicationRunConfiguration* runConfig =
-                qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration*>(project->activeTarget()->activeRunConfiguration());
-
-    QString errorMessage;
 
     if (!project)
-        errorMessage = QString(tr("No project was found."));
-    else if (!project->activeTarget() || !project->activeTarget()->activeRunConfiguration())
-        errorMessage = QString(tr("No run configurations were found for the project '%1'.").arg(project->displayName()));
-    else if (!runConfig)
-        errorMessage = QString(tr("No valid run configuration was found for the project %1. "
-                                  "Only locally runnable configurations are supported.\n"
-                                  "Please check your project settings.").arg(project->displayName()));
-
-
-    if (errorMessage.isEmpty()) {
-
-        Internal::StartExternalQmlDialog dlg(Debugger::DebuggerUISwitcher::instance()->mainWindow());
-
-        dlg.setPort(m_settings.externalPort());
-        dlg.setDebuggerUrl(m_settings.externalUrl());
-        dlg.setProjectDisplayName(project->displayName());
-        if (dlg.exec() != QDialog::Accepted)
-            return;
-
-        m_runConfigurationDebugData.serverAddress = dlg.debuggerUrl();
-        m_runConfigurationDebugData.serverPort = dlg.port();
-        m_settings.setExternalPort(dlg.port());
-        m_settings.setExternalUrl(dlg.debuggerUrl());
-
-        ProjectExplorer::Environment customEnv = runConfig->environment();
-        customEnv.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(m_settings.externalPort()));
-
-        ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-        const QList<Debugger::Internal::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::Internal::DebuggerRunControlFactory>();
-        // to make sure we have a valid, debuggable run control, find the correct factory for it
-        if (factories.length() && factories.first()->canRun(runConfig, ProjectExplorer::Constants::DEBUGMODE)) {
-
-
-            ProjectExplorer::RunControl *runControl = factories.first()->create(runConfig, ProjectExplorer::Constants::DEBUGMODE);
-            Debugger::Internal::DebuggerRunControl *debuggableRunControl = qobject_cast<Debugger::Internal::DebuggerRunControl *>(runControl);
-            // modify the env
-            debuggableRunControl->setCustomEnvironment(customEnv);
-
-            Debugger::DebuggerManager *debugManager = Debugger::DebuggerManager::instance();
-            connect(debugManager, SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
-
-            pex->startRunControl(debuggableRunControl, ProjectExplorer::Constants::DEBUGMODE);
-            m_simultaneousCppAndQmlDebugMode = true;
-
-        } else {
-            errorMessage = QString(tr("A valid run control was not registered in Qt Creator for this project run configuration."));
+         errorMessage = QString(tr("No project was found."));
+    else {
+        if (project->id() == "QmlProjectManager.QmlProject")
+            errorMessage = attachToQmlViewerAsExternalApp(project);
+        else {
+            errorMessage = attachToExternalCppAppWithQml(project);
         }
-
-
     }
 
     if (!errorMessage.isEmpty())
         QMessageBox::warning(Core::ICore::instance()->mainWindow(), "Failed to debug C++ and QML", errorMessage);
 }
 
+QString QmlInspector::attachToQmlViewerAsExternalApp(ProjectExplorer::Project *project)
+{
+    m_debugMode = QmlProjectWithCppPlugins;
+
+    QmlProjectManager::QmlProjectRunConfiguration* runConfig =
+                qobject_cast<QmlProjectManager::QmlProjectRunConfiguration*>(project->activeTarget()->activeRunConfiguration());
+
+    if (!runConfig)
+        return QString(tr("No run configurations were found for the project '%1'.").arg(project->displayName()));
+
+    Internal::StartExternalQmlDialog dlg(Debugger::DebuggerUISwitcher::instance()->mainWindow());
+
+    QString importPathArgument = "-I";
+    QString execArgs;
+    if (runConfig->viewerArguments().contains(importPathArgument))
+        execArgs = runConfig->viewerArguments().join(" ");
+    else {
+        QFileInfo qmlFileInfo(runConfig->viewerArguments().last());
+        importPathArgument.append(" " + qmlFileInfo.absolutePath() + " ");
+        execArgs = importPathArgument + runConfig->viewerArguments().join(" ");
+    }
+
+
+    dlg.setPort(runConfig->debugServerPort());
+    dlg.setDebuggerUrl(runConfig->debugServerAddress());
+    dlg.setProjectDisplayName(project->displayName());
+    dlg.setDebugMode(Internal::StartExternalQmlDialog::QmlProjectWithCppPlugins);
+    dlg.setQmlViewerArguments(execArgs);
+    dlg.setQmlViewerPath(runConfig->viewerPath());
+
+    if (dlg.exec() != QDialog::Accepted)
+        return QString();
+
+    m_runConfigurationDebugData.serverAddress = dlg.debuggerUrl();
+    m_runConfigurationDebugData.serverPort = dlg.port();
+    m_settings.setExternalPort(dlg.port());
+    m_settings.setExternalUrl(dlg.debuggerUrl());
+
+    ProjectExplorer::Environment customEnv = ProjectExplorer::Environment::systemEnvironment(); // empty env by default
+    customEnv.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(m_settings.externalPort()));
+
+    Debugger::Internal::DebuggerRunControl *debuggableRunControl = createDebuggerRunControl(runConfig,
+                                                                                            dlg.qmlViewerPath(), dlg.qmlViewerArguments());
+
+    return executeDebuggerRunControl(debuggableRunControl, &customEnv);
+}
+
+QString QmlInspector::attachToExternalCppAppWithQml(ProjectExplorer::Project *project)
+{
+    m_debugMode = CppProjectWithQmlEngines;
+
+    ProjectExplorer::LocalApplicationRunConfiguration* runConfig =
+                qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration*>(project->activeTarget()->activeRunConfiguration());
+
+    if (!project->activeTarget() || !project->activeTarget()->activeRunConfiguration())
+        return QString(tr("No run configurations were found for the project '%1'.").arg(project->displayName()));
+    else if (!runConfig)
+        return QString(tr("No valid run configuration was found for the project %1. "
+                                  "Only locally runnable configurations are supported.\n"
+                                  "Please check your project settings.").arg(project->displayName()));
+
+    Internal::StartExternalQmlDialog dlg(Debugger::DebuggerUISwitcher::instance()->mainWindow());
+
+    dlg.setPort(m_settings.externalPort());
+    dlg.setDebuggerUrl(m_settings.externalUrl());
+    dlg.setProjectDisplayName(project->displayName());
+    dlg.setDebugMode(Internal::StartExternalQmlDialog::CppProjectWithQmlEngine);
+    if (dlg.exec() != QDialog::Accepted)
+        return QString();
+
+    m_runConfigurationDebugData.serverAddress = dlg.debuggerUrl();
+    m_runConfigurationDebugData.serverPort = dlg.port();
+    m_settings.setExternalPort(dlg.port());
+    m_settings.setExternalUrl(dlg.debuggerUrl());
+
+    ProjectExplorer::Environment customEnv = runConfig->environment();
+    customEnv.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(m_settings.externalPort()));
+    Debugger::Internal::DebuggerRunControl *debuggableRunControl = createDebuggerRunControl(runConfig);
+    return executeDebuggerRunControl(debuggableRunControl, &customEnv);
+}
+
+QString QmlInspector::executeDebuggerRunControl(Debugger::Internal::DebuggerRunControl *debuggableRunControl, ProjectExplorer::Environment *environment)
+{
+    ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
+
+    // to make sure we have a valid, debuggable run control, find the correct factory for it
+    if (debuggableRunControl) {
+
+        // modify the env
+        debuggableRunControl->setCustomEnvironment(*environment);
+
+        pex->startRunControl(debuggableRunControl, ProjectExplorer::Constants::DEBUGMODE);
+        m_simultaneousCppAndQmlDebugMode = true;
+
+        return QString();
+    }
+    return QString(tr("A valid run control was not registered in Qt Creator for this project run configuration."));;
+}
+
+Debugger::Internal::DebuggerRunControl *QmlInspector::createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
+                                                                               const QString &executableFile, const QString &executableArguments)
+{
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    const QList<Debugger::Internal::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::Internal::DebuggerRunControlFactory>();
+    ProjectExplorer::RunControl *runControl = 0;
+    if (m_debugMode == QmlProjectWithCppPlugins) {
+
+        const Debugger::DebuggerStartParametersPtr sp(new Debugger::DebuggerStartParameters);
+        sp->startMode = Debugger::StartExternal;
+        sp->executable = executableFile;
+        sp->processArgs = executableArguments.split(QLatin1Char(' '));
+
+        runControl = factories.first()->create(sp);
+        return qobject_cast<Debugger::Internal::DebuggerRunControl *>(runControl);
+
+    } else if (m_debugMode == CppProjectWithQmlEngines) {
+        if (factories.length() && factories.first()->canRun(runConfig, ProjectExplorer::Constants::DEBUGMODE)) {
+            runControl = factories.first()->create(runConfig, ProjectExplorer::Constants::DEBUGMODE);
+            return qobject_cast<Debugger::Internal::DebuggerRunControl *>(runControl);
+        }
+    }
+
+    return 0;
+}
+
+void QmlInspector::updateMenuActions()
+{
+
+    bool enabled = true;
+    if (m_simultaneousCppAndQmlDebugMode)
+        enabled = (m_cppDebuggerState == Debugger::DebuggerNotReady && (!m_conn || m_conn->state() == QAbstractSocket::UnconnectedState));
+    else
+        enabled = (!m_conn || m_conn->state() == QAbstractSocket::UnconnectedState);
+
+    m_simultaneousDebugAction->setEnabled(enabled);
+}
+
+
 void QmlInspector::debuggerStateChanged(int newState)
 {
-    if (!m_simultaneousCppAndQmlDebugMode)
-        return;
+    if (m_simultaneousCppAndQmlDebugMode) {
 
-    switch(newState) {
-    case Debugger::EngineStarting:
-        {
-            m_connectionInitialized = false;
+        switch(newState) {
+        case Debugger::EngineStarting:
+            {
+                m_connectionInitialized = false;
+                break;
+            }
+        case Debugger::AdapterStartFailed:
+        case Debugger::InferiorStartFailed:
+            emit statusMessage(QString(tr("Debugging failed: could not start C++ debugger.")));
             break;
-        }
-    case Debugger::AdapterStartFailed:
-    case Debugger::InferiorStartFailed:
-        disconnect(Debugger::DebuggerManager::instance(), SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
-        emit statusMessage(QString(tr("Debugging failed: could not start C++ debugger.")));
-        break;
-    case Debugger::InferiorRunningRequested:
-        {
-            if (m_cppDebuggerState == Debugger::InferiorStopped) {
-                // re-enable UI again
+        case Debugger::InferiorRunningRequested:
+            {
+                if (m_cppDebuggerState == Debugger::InferiorStopped) {
+                    // re-enable UI again
+                    m_objectTreeWidget->setEnabled(true);
+                    m_propertiesWidget->setEnabled(true);
+                    m_expressionWidget->setEnabled(true);
+                }
+                break;
+            }
+        case Debugger::InferiorRunning:
+            {
+                if (!m_connectionInitialized) {
+                    m_connectionInitialized = true;
+                    m_connectionTimer->setInterval(ConnectionAttemptSimultaneousInterval);
+                    m_connectionTimer->start();
+                }
+                break;
+            }
+        case Debugger::InferiorStopped:
+            {
+                m_objectTreeWidget->setEnabled(false);
+                m_propertiesWidget->setEnabled(false);
+                m_expressionWidget->setEnabled(false);
+                break;
+            }
+        case Debugger::EngineShuttingDown:
+            {
+                m_connectionInitialized = false;
+                // here it's safe to enable the debugger windows again -
+                // disabled ones look ugly.
                 m_objectTreeWidget->setEnabled(true);
                 m_propertiesWidget->setEnabled(true);
                 m_expressionWidget->setEnabled(true);
+                m_simultaneousCppAndQmlDebugMode = false;
+                break;
             }
+        default:
             break;
         }
-    case Debugger::InferiorRunning:
-        {
-            if (!m_connectionInitialized) {
-                m_connectionInitialized = true;
-                m_connectionTimer->setInterval(ConnectionAttemptSimultaneousInterval);
-                startConnectionTimer();
-            }
-            break;
-        }
-    case Debugger::InferiorStopped:
-        {
-            m_objectTreeWidget->setEnabled(false);
-            m_propertiesWidget->setEnabled(false);
-            m_expressionWidget->setEnabled(false);
-            break;
-        }
-    case Debugger::EngineShuttingDown:
-        {
-            m_connectionInitialized = false;
-            // here it's safe to enable the debugger windows again -
-            // disabled ones look ugly.
-            m_objectTreeWidget->setEnabled(true);
-            m_propertiesWidget->setEnabled(true);
-            m_expressionWidget->setEnabled(true);
-            m_simultaneousCppAndQmlDebugMode = false;
-            break;
-        }
-    default:
-        break;
     }
+
     m_cppDebuggerState = newState;
+    updateMenuActions();
 }
 
 

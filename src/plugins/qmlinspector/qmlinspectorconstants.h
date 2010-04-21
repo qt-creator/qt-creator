@@ -39,7 +39,7 @@ namespace Qml {
         const char * const C_INSPECTOR = "QmlInspector";
         const char * const COMPLETE_THIS = "QmlInspector.CompleteThis";
 
-        const char * const M_ATTACH_TO_EXTERNAL = "QmlInspector.Menu.AttachToExternal";
+        const char * const M_DEBUG_SIMULTANEOUSLY = "QmlInspector.Menu.SimultaneousDebug";
 
         const char * const LANG_QML = "QML";
 

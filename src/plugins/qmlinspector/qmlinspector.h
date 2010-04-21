@@ -56,11 +56,17 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
     class Project;
+    class Environment;
 }
 
 namespace Core {
     class IContext;
 }
+namespace Debugger {
+namespace Internal {
+    class DebuggerRunControl;
+} // Internal
+} // Debugger
 
 namespace Qml {
 
@@ -85,6 +91,12 @@ class QMLINSPECTOR_EXPORT QmlInspector : public QObject
     Q_OBJECT
 
 public:
+    enum DebugMode {
+        StandaloneMode,
+        CppProjectWithQmlEngines,
+        QmlProjectWithCppPlugins
+    };
+
     QmlInspector(QObject *parent = 0);
     ~QmlInspector();
 
@@ -109,7 +121,6 @@ public slots:
     void setSimpleDockWidgetArrangement();
 
 private slots:
-    void startConnectionTimer();
     void connectionStateChanged();
     void connectionError();
     void reloadEngines();
@@ -117,12 +128,20 @@ private slots:
     void queryEngineContext(int);
     void contextChanged();
     void treeObjectActivated(const QDeclarativeDebugObjectReference &obj);
-    void attachToExternalQmlApplication();
+    void simultaneouslyDebugQmlCppApplication();
 
     void debuggerStateChanged(int newState);
     void pollInspector();
 
 private:
+    void updateMenuActions();
+    Debugger::Internal::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
+                                                                     const QString &executableFile = QString(),
+                                                                     const QString &executableArguments = QString());
+    QString executeDebuggerRunControl(Debugger::Internal::DebuggerRunControl *debuggableRunControl, ProjectExplorer::Environment *environment);
+    QString attachToQmlViewerAsExternalApp(ProjectExplorer::Project *project);
+    QString attachToExternalCppAppWithQml(ProjectExplorer::Project *project);
+
     bool addQuotesForData(const QVariant &value) const;
     void resetViews();
 
@@ -151,6 +170,8 @@ private:
     Internal::InspectorContext *m_context;
     Internal::InspectorContext *m_propWatcherContext;
 
+    QAction *m_simultaneousDebugAction;
+
     QTimer *m_connectionTimer;
     int m_connectionAttempts;
 
@@ -159,9 +180,11 @@ private:
 
     QStringList m_editablePropertyTypes;
 
+    // simultaneous debug mode stuff
     int m_cppDebuggerState;
     bool m_connectionInitialized;
     bool m_simultaneousCppAndQmlDebugMode;
+    DebugMode m_debugMode;
 
     static QmlInspector *m_instance;
 };
