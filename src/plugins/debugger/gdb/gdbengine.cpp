@@ -2414,6 +2414,8 @@ void GdbEngine::handleInfoLine(const GdbResponse &response)
         const int bpNumber = response.cookie.toInt();
         const BreakHandler *handler = manager()->breakHandler();
         BreakpointData *data = handler->findBreakpoint(bpNumber);
+        if (!data)
+            return;
         QByteArray ba = response.data.findChild("consolestreamoutput").data();
         const int pos = ba.indexOf(' ', 5);
         if (ba.startsWith("Line ") && pos != -1) {
