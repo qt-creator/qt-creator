@@ -70,6 +70,8 @@ void EnvironmentModel::updateResultEnvironment()
 
 void EnvironmentModel::setBaseEnvironment(const ProjectExplorer::Environment &env)
 {
+    if (m_baseEnvironment == env)
+        return;
     beginResetModel();
     m_baseEnvironment = env;
     updateResultEnvironment();
@@ -340,6 +342,9 @@ QList<EnvironmentItem> EnvironmentModel::userChanges() const
 
 void EnvironmentModel::setUserChanges(QList<EnvironmentItem> list)
 {
+    // We assume nobody is reordering the items here.
+    if (list == m_items)
+        return;
     beginResetModel();
     m_items = list;
     updateResultEnvironment();
@@ -356,6 +361,8 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     m_model = new EnvironmentModel();
     connect(m_model, SIGNAL(userChangesChanged()),
             this, SIGNAL(userChangesChanged()));
+    connect(m_model, SIGNAL(modelReset()),
+            this, SLOT(invalidateCurrentIndex()));
 
     connect(m_model, SIGNAL(renamedVariable(QString)),
             this, SLOT(renamedVariable(QString)));
@@ -537,4 +544,9 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
         m_resetButton->setEnabled(false);
         m_unsetButton->setEnabled(false);
     }
+}
+
+void EnvironmentWidget::invalidateCurrentIndex()
+{
+    environmentCurrentIndexChanged(QModelIndex());
 }

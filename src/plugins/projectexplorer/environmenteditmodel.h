@@ -122,6 +122,7 @@ private slots:
     void removeEnvironmentButtonClicked();
     void unsetEnvironmentButtonClicked();
     void environmentCurrentIndexChanged(const QModelIndex &current);
+    void invalidateCurrentIndex();
     void updateSummaryText();
     void renamedVariable(const QString &name);
 
