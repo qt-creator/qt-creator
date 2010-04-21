@@ -1529,7 +1529,9 @@ void EditorManager::updateActions()
             fName = curEditor->displayName();
         }
 
+#ifdef Q_WS_MAC
         window()->setWindowModified(curEditor->file()->isModified());
+#endif
         if (curEditor->file()->isModified() && curEditor->file()->isReadOnly()) {
             // we are about to change a read-only file, warn user
             showEditorInfoBar(QLatin1String("Core.EditorManager.MakeWritable"),
@@ -1538,8 +1540,10 @@ void EditorManager::updateActions()
         } else {
             hideEditorInfoBar(QLatin1String("Core.EditorManager.MakeWritable"));
         }
+#ifdef Q_WS_MAC
     } else { // curEditor
         window()->setWindowModified(false);
+#endif
     }
 
     m_d->m_saveAction->setEnabled(curEditor != 0 && curEditor->file()->isModified());
