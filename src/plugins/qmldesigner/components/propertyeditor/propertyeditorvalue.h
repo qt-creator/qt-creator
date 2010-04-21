@@ -80,10 +80,10 @@ private:
 class PropertyEditorValue : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant value READ value WRITE setValueWithEmit NOTIFY valueChanged)
+    Q_PROPERTY(QVariant value READ value WRITE setValueWithEmit NOTIFY valueChangedQml)
     Q_PROPERTY(QString expression READ expression WRITE setExpressionWithEmit NOTIFY expressionChanged FINAL)
-    Q_PROPERTY(bool isInModel READ isInModel NOTIFY valueChanged FINAL)
-    Q_PROPERTY(bool isInSubState READ isInSubState NOTIFY valueChanged FINAL)
+    Q_PROPERTY(bool isInModel READ isInModel NOTIFY valueChangedQml FINAL)
+    Q_PROPERTY(bool isInSubState READ isInSubState NOTIFY valueChangedQml FINAL)
     Q_PROPERTY(bool isBound READ isBound NOTIFY isBoundChanged FINAL)
     Q_PROPERTY(bool isValid READ isValid NOTIFY isValid FINAL)
     Q_PROPERTY(QString name READ name FINAL)
@@ -124,6 +124,7 @@ public slots:
 
 signals:
     void valueChanged(const QString &name, const QVariant&);
+    void valueChangedQml();
 
     void expressionChanged(const QString &name);
 

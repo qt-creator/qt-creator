@@ -109,6 +109,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
         setValue(newValue);
         m_isBound = false;
         emit valueChanged(name(), value);
+        emit valueChangedQml();
         emit isBoundChanged();
     }
 }
@@ -121,7 +122,8 @@ void PropertyEditorValue::setValue(const QVariant &value)
 
         m_value = value;
 
-    emit valueChanged(QString(), value);
+    if (m_value.isValid())
+        emit valueChangedQml();
     emit isBoundChanged();
 
 }
@@ -156,7 +158,8 @@ bool PropertyEditorValue::isInSubState() const
 
 bool PropertyEditorValue::isBound() const
 {
-    return modelNode().isValid() && modelNode().property(name()).isValid() && modelNode().property(name()).isBindingProperty();
+    const QmlDesigner::QmlObjectNode objectNode(modelNode());
+    return objectNode.isValid() && objectNode.hasBindingProperty(name());
 }
 
 bool PropertyEditorValue::isInModel() const
@@ -206,8 +209,8 @@ PropertyEditorNodeWrapper* PropertyEditorValue::complexNode()
 
 void PropertyEditorValue::resetValue()
 {
-    if (m_value.isValid()) {
-        setValue(QVariant());
+    if (m_value.isValid() || isBound()) {
+        m_value = QVariant();
         m_isBound = false;
         emit valueChanged(name(), QVariant());
     }
