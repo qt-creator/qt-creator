@@ -57,7 +57,7 @@
 
 static const char categoryKeyC[] = "General/LastPreferenceCategory";
 static const char pageKeyC[] = "General/LastPreferencePage";
-const int categoryIconSize = 32;
+const int categoryIconSize = 24;
 
 namespace Core {
 namespace Internal {
