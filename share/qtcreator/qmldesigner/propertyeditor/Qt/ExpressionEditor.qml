@@ -12,9 +12,6 @@ QWidget {
 
 
     onActiveChanged: {
-        //text = "";
-        print("active")
-        print(y)
         if (active) {
             textEdit.plainText = backendValue.expression
             textEdit.setFocus();
