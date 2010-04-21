@@ -1122,12 +1122,14 @@ void testStdVector()
 
 void testQStandardItemModel()
 {
-    // This is known not to work with the Python dumpers.
-    // Tracked as http://bugreports.qt.nokia.com/browse/QTCREATORBUG-1009
+    //char buf[100];
+    //QString *s = static_cast<QString *>(static_cast<void *>(&(v.data_ptr().data.c)));
+    //QString *t = (QString *)&(v.data_ptr());
+
     QStandardItemModel m;
     QStandardItem *i1, *i2, *i11;
     m.appendRow(QList<QStandardItem *>()
-         << (i1 = new QStandardItem("1")) << (new QStandardItem("a")));
+         << (i1 = new QStandardItem("1")) << (new QStandardItem("a")) << (new QStandardItem("a2")));
     m.appendRow(QList<QStandardItem *>()
          << (i2 = new QStandardItem("2")) << (new QStandardItem("b")));
     i1->appendRow(QList<QStandardItem *>()

@@ -68,46 +68,95 @@ def qdump__QAbstractItem(d, item):
                         d.putNumChild(rr * cc)
                         d.putField("value",
                             call(m, "data(child, Qt::DisplayRole).toString())"), 6)
+
             #with SubItem(d):
-            #    d.putName("DisplayRole")
-            #    d.putNumChild(0)
-            #    d.putValue(m->data(mi, Qt::DisplayRole).toString(), 2)
-            #    d.putField("type", ns + "QString")
+            #    d.putNumChild(1)
+            #    d.putName(d.ns + "QObject")
+            #    d.putStringValue(call(item.value, "objectName()"))
+            #    d.putType(d.ns + "QObject")
+            #    d.put('addr="%s",' % cleanAddress(item.value.address))
 
 
-#def qdump__QAbstractItemModel(d, item):
-#    # Create a default-constructed QModelIndex on the stack.
-#    dummy = "(('%sQModelIndex'*)($sp-100))" % d.ns
-#    gdb.execute("set variable %s->m=0" % dummy)
-#    gdb.execute("set variable %s->p=0" % dummy)
-#    gdb.execute("set variable %s->r=-1" % dummy)
-#    gdb.execute("set variable %s->c=-1" % dummy)
-#    value = parseAndEvaluate("%s->m" % dummy)
-#    rowCount = call(item.value, "rowCount(*%s)" % dummy)
-#    columnCount = call(item.value, "columnCount(*%s)" % dummy)
-#    d.putValue("(%s,%s)" % (rowCount, columnCount))
-#    d.putNumChild(1)
-#    if d.isExpanded(item):
-#        with Children(d, 1 + rowCount * columnCount):
-#            with SubItem(d):
-    #            d.putNumChild(1)
-    #            d.putName(d.ns + "QObject")
-    #            d.putStringValue(call(item.value, "objectName()"))
-    #            d.putType(d.ns + "QObject")
-    #            d.put('addr="%s",' % cleanAddress(item.value.address))
-#            #d.putField("displayedtype", call(item, "m.metaObject()->className()"))
-#            gdb.execute("set variable %s->m=('%sQAbstractItemModel'*)%s" \
-#                % (dummy, d.ns, item.value.address))
-#            for row in xrange(rowCount):
-#                for column in xrange(columnCount):
-#                    gdb.execute("set variable %s->r=-1" % dummy)
-#                    gdb.execute("set variable %s->c=-1" % dummy)
-#                    with SubItem(d):
-    #                    d.putName("[%s,%s]" % (row, column))
-    #                    value = call(item.value, "data(*%s, 0)" % dummy)
-    #                    d.putValue(str(value))
-    #                    d.putNumChild(0)
-    #                    d.putType(" ")
+def qdump__QAbstractItemModel(d, item):
+    # Create a default-constructed QModelIndex on the stack.
+    ri = makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
+    this_ = makeExpression(item.value)
+    ri_ = makeExpression(ri)
+    rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
+    columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (this_, ri_)))
+    d.putValue("%d x %d" % (rowCount, columnCount))
+    d.putNumChild(rowCount * columnCount)
+    if d.isExpanded(item):
+        with Children(d, rowCount * columnCount, ri.type):
+            i = 0
+            for row in xrange(rowCount):
+                for column in xrange(columnCount):
+                    with SubItem(d):
+                        d.putField("iname", "%s.%d" % (item.iname, i))
+                        d.putName("[%s, %s]" % (row, column))
+                        mi = parseAndEvaluate("%s.index(%d,%d,%s)"
+                            % (this_, row, column, ri_))
+                        #warn("MI: %s " % mi)
+                        #name = "[%d,%d]" % (row, column)
+                        #d.putValue("%s" % mi)
+                        d.putItemHelper(Item(mi, item.iname, i))
+                        i = i + 1
+                        #warn("MI: %s " % mi)
+                        #d.putName("[%d,%d]" % (row, column))
+                        #d.putValue("%s" % mi)
+                        #d.putNumChild(0)
+                        #d.putType(mi.type)
+    #gdb.execute("call free($ri)")
+
+def qdump__QModelIndex(d, item):
+    r = item.value["r"]
+    c = item.value["c"]
+    p = item.value["p"]
+    m = item.value["m"]
+    mm = m.dereference()
+    mm = mm.cast(mm.type.unqualified())
+    mi = makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
+    mm_ = makeExpression(mm)
+    mi_ = makeExpression(mi)
+    rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
+    columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
+
+    try:
+        # Access DisplayRole as value
+        value = parseAndEvaluate("%s.data(%s, 0)" % (mm_, mi_))
+        v = value["d"]["data"]["ptr"]
+        d.putStringValue(makeValue(d.ns + 'QString', v))
+    except:
+        d.putValue("(invalid)")
+
+    if r >= 0 and c >= 0 and not isNull(m):
+        d.putNumChild(rowCount * columnCount)
+        if d.isExpanded(item):
+            with Children(d):
+                i = 0
+                for row in xrange(rowCount):
+                    for column in xrange(columnCount):
+                        with SubItem(d):
+                            d.putField("iname", "%s.%d" % (item.iname, i))
+                            d.putName("[%s, %s]" % (row, column))
+                            mi2 = parseAndEvaluate("%s.index(%d,%d,%s)"
+                                % (mm_, row, column, mi_))
+                            d.putItemHelper(Item(mi2, item.iname, i))
+                            i = i + 1
+                #d.putCallItem("parent", item, "parent()")
+                #with SubItem(d):
+                #    d.putName("model")
+                #    d.putValue(m)
+                #    d.putType(d.ns + "QAbstractItemModel*")
+                #    d.putNumChild(1)
+    else:
+        d.putValue("(invalid)")
+        d.putNumChild(0)
+        if d.isExpanded(item):
+            with Children(d):
+                pass
+    #gdb.execute("call free($mi)")
+
 
 
 def qdump__QDateTime(d, item):
@@ -515,35 +564,6 @@ def qdump__QMap(d, item):
 
 def qdump__MultiMap(d, item):
     qdump__Map(d, item)
-
-
-def qdump__QModelIndex(d, item):
-    r = item.value["r"]
-    c = item.value["c"]
-    p = item.value["p"]
-    m = item.value["m"]
-    if r >= 0 and c >= 0 and not isNull(m):
-        d.putValue("(%s, %s)" % (r, c))
-        d.putNumChild(5)
-        if d.isExpanded(item):
-            with Children(d):
-                d.putIntItem("row", r)
-                d.putIntItem("column", c)
-                d.putCallItem("parent", item, "parent()")
-
-                with SubItem(d):
-                    d.putValue(m)
-                    d.putType(d.ns + "QAbstractItemModel*")
-                    d.putNumChild(1)
-
-                with SubItem(d):
-                    d.putName("model")
-                    d.putValue(m)
-                    d.putType(d.ns + "QAbstractItemModel*")
-                    d.putNumChild(1)
-    else:
-        d.putValue("(invalid)")
-        d.putNumChild(0)
 
 
 def extractCString(table, offset):

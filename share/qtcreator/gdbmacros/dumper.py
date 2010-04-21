@@ -607,6 +607,28 @@ def call(value, func):
     #warn("  -> %s" % result)
     return result
 
+def makeValue(type, init):
+    type = stripClassTag(type)
+    if type.find(":") >= 0:
+        type = "'" + type + "'"
+    gdb.execute("set $d = (%s*)malloc(sizeof(%s))" % (type, type))
+    gdb.execute("set *$d = {%s}" % init)
+    value = parseAndEvaluate("$d").dereference()
+    #warn("  TYPE: %s" % value.type)
+    #warn("  ADDR: %s" % value.address)
+    #warn("  VALUE: %s" % value)
+    return value
+
+def makeExpression(value):
+    type = stripClassTag(str(value.type))
+    if type.find(":") >= 0:
+        type = "'" + type + "'"
+    #warn("  TYPE: %s" % type)
+    #exp = "(*(%s*)(&%s))" % (type, value.address)
+    exp = "(*(%s*)(%s))" % (type, value.address)
+    #warn("  EXP: %s" % exp)
+    return exp
+
 def qtNamespace():
     try:
         type = str(parseAndEvaluate("&QString::null").type.target().unqualified())
