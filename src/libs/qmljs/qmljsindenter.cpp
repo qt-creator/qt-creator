@@ -85,6 +85,12 @@ const int QmlJSIndenter::BigRoof = 400;
 
 QmlJSIndenter::QmlJSIndenter()
     : braceX(QRegExp(QLatin1String("^\\s*\\}\\s*(?:else|catch)\\b")))
+    , caseOrDefault(QRegExp(QLatin1String(
+            "\\s*(?:"
+            "case\\b[^:]+|"
+            "default)"
+            "\\s*:.*")))
+
 {
 
     /*
@@ -1007,12 +1013,16 @@ int QmlJSIndenter::indentForStandaloneLine()
             while (isContinuationLine())
                 readLine();
 
+            int indentChange = - *yyBraceDepth;
+            if (caseOrDefault.exactMatch(*yyLine))
+                ++indentChange;
+
             /*
               Never trust lines containing only '{' or '}', as some
               people (Richard M. Stallman) format them weirdly.
             */
             if (yyLine->trimmed().length() > 1)
-                return indentOfLine(*yyLine) - *yyBraceDepth * ppIndentSize;
+                return indentOfLine(*yyLine) + indentChange * ppIndentSize;
         }
 
         if (!readLine())
@@ -1071,12 +1081,7 @@ int QmlJSIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar t
             */
             indent -= ppIndentSize;
         } else if (okay(typedIn, QLatin1Char(':'))) {
-            QRegExp caseLabel(
-                QLatin1String("\\s*(?:case\\b(?:[^:]|::)+"
-                              "|(?:default)\\s*"
-                              ")?:.*"));
-
-            if (caseLabel.exactMatch(bottomLine)) {
+            if (caseOrDefault.exactMatch(bottomLine)) {
                 /*
                     Move a case label (or the ':' in front of a
                     constructor initialization list) one level to the

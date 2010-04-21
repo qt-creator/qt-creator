@@ -932,7 +932,8 @@ QString QmlJSTextEditor::wordUnderCursor() const
 bool QmlJSTextEditor::isElectricCharacter(const QChar &ch) const
 {
     if (ch == QLatin1Char('}')
-        || ch == QLatin1Char(']'))
+            || ch == QLatin1Char(']')
+            || ch == QLatin1Char(':'))
         return true;
     return false;
 }

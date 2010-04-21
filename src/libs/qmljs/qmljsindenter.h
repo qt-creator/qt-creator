@@ -134,6 +134,7 @@ private:
     const bool *yyLeftBraceFollows;
 
     QRegExp braceX;
+    QRegExp caseOrDefault;
 };
 
 } // namespace QmlJS
