@@ -27,13 +27,18 @@ GroupBox {
             visible: showIsWrapping
             layout: HorizontalLayout {
                 Label {
-                    text: ""
+                    text: "Wrap Mode"
                 }
-                CheckBox {
-                    baseStateFlag: isBaseState;
-                    text: qsTr("Is Wrapping")
-                    checkable: true;
-                    backendValue: backendValues.wrap;
+                ComboBox {
+                    baseStateFlag: isBaseState
+                    minimumHeight: 22;
+                    items : { ["NoWrap", "WordWrap", "WrapAnywhere", "WrapAtWordBoundaryOrAnywhere"] }
+                    currentText: backendValues.wrapMode.value;
+                    onItemsChanged: {
+                        currentText =  backendValues.wrapMode.value;
+                    }
+
+                    backendValue: backendValues.wrapMode
                 }
             }
         }

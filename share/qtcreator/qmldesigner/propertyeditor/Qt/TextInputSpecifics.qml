@@ -17,8 +17,8 @@ QWidget {
 
         StandardTextColorGroupBox {
             finished: finishedNotify;
-			showSelectionColor: true;
-			showSelectedTextColor: true;
+            showSelectionColor: true;
+            showSelectedTextColor: true;
         }
 
         FontGroupBox {
@@ -27,7 +27,8 @@ QWidget {
         }
 
         TextInputGroupBox {
-            finished: finishedNotify;
+            finished: finishedNotify
+            isTextInput: true
         }
         QScrollArea {
         }

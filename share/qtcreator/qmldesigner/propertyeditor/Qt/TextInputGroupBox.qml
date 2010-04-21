@@ -5,8 +5,22 @@ GroupBox {
 
     id: textInputGroupBox
     caption: qsTr("Text Input")
+    property bool isTextInput: false
 
-    layout: VerticalLayout {       
+    layout: VerticalLayout {
+
+        QWidget {
+            visible: isTextInput
+            layout: HorizontalLayout {
+
+                Label {text: "Input Mask"}
+
+                LineEdit {
+                    backendValue: backendValues.inputMask
+                    baseStateFlag: isBaseState
+                }
+            }
+        }
 
         QWidget {
             layout: HorizontalLayout {
@@ -18,12 +32,9 @@ GroupBox {
                     checkable: true;
                     backendValue: backendValues.readOnly;
                 }
-
-
-
-                
             }
         }
+
 
         QWidget {
             layout: HorizontalLayout {
@@ -48,7 +59,20 @@ GroupBox {
                     text: qsTr("Focus On Press")
                     baseStateFlag: isBaseState;
                     checkable: true;
-                    backendValue:  backendValues. focusOnPress;
+                    backendValue:  backendValues.focusOnPress;
+                }
+            }
+        }
+
+        QWidget {
+            visible: isTextInput
+            layout: HorizontalLayout {
+                Label {text: ""}
+                CheckBox {
+                    text: qsTr("Auto Scroll")
+                    baseStateFlag: isBaseState;
+                    checkable: true;
+                    backendValue:  backendValues.autoScroll;
                 }
             }
         }

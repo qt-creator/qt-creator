@@ -13,6 +13,7 @@ QWidget {
 
         StandardTextGroupBox {
             finished: finishedNotify;
+            showIsWrapping: true
         }
         StandardTextColorGroupBox {
             finished: finishedNotify;
