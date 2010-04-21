@@ -121,7 +121,7 @@ private slots:
     void addEnvironmentButtonClicked();
     void removeEnvironmentButtonClicked();
     void unsetEnvironmentButtonClicked();
-    void environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous);
+    void environmentCurrentIndexChanged(const QModelIndex &current);
     void updateSummaryText();
     void renamedVariable(const QString &name);
 

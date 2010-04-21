@@ -423,8 +423,8 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
             this, SLOT(removeEnvironmentButtonClicked()));
     connect(m_unsetButton, SIGNAL(clicked(bool)),
             this, SLOT(unsetEnvironmentButtonClicked()));
-    connect(m_environmentTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-            this, SLOT(environmentCurrentIndexChanged(QModelIndex, QModelIndex)));
+    connect(m_environmentTreeView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(environmentCurrentIndexChanged(QModelIndex)));
 
     connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(updateSummaryText()));
 }
@@ -488,7 +488,7 @@ void EnvironmentWidget::updateSummaryText()
 
 void EnvironmentWidget::updateButtons()
 {
-    environmentCurrentIndexChanged(m_environmentTreeView->currentIndex(), QModelIndex());
+    environmentCurrentIndexChanged(m_environmentTreeView->currentIndex());
 }
 
 void EnvironmentWidget::editEnvironmentButtonClicked()
@@ -523,9 +523,8 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
     updateButtons();
 }
 
-void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current, const QModelIndex &previous)
+void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current)
 {
-    Q_UNUSED(previous)
     if (current.isValid()) {
         m_editButton->setEnabled(true);
         const QString &name = m_model->indexToVariable(current);
