@@ -396,14 +396,6 @@ void StatesEditorView::customNotification(const AbstractView *view, const QStrin
     if (debug)
         qDebug() << __FUNCTION__;
 
-    QmlModelView::customNotification(view, identifier, nodeList, data);
-    if (identifier == StartRewriterAmend) {
-        m_oldRewriterAmendState = currentState();
-        QmlModelView::setCurrentState(baseState());
-    } else if (identifier == EndRewriterAmend) {
-        if (m_oldRewriterAmendState.isValid())
-            QmlModelView::setCurrentState(m_oldRewriterAmendState);
-    }
 }
 
 QPixmap StatesEditorView::renderState(int i)
