@@ -32,13 +32,14 @@
 #include "navigatorwidget.h"
 
 #include <nodeproperty.h>
+#include <nodelistproperty.h>
 #include <QHeaderView>
 
 
 namespace QmlDesigner {
 
 NavigatorView::NavigatorView(QObject* parent) :
-        QmlModelView(parent),
+        AbstractView(parent),
         m_blockSelectionChangedSignal(false),
         m_widget(new NavigatorWidget),
         m_treeModel(new NavigatorTreeModel(this))
@@ -81,7 +82,7 @@ QWidget *NavigatorView::widget()
 
 void NavigatorView::modelAttached(Model *model)
 {
-    QmlModelView::modelAttached(model);
+    AbstractView::modelAttached(model);
 
     m_treeModel->setView(this);
 
@@ -100,14 +101,33 @@ void NavigatorView::modelAttached(Model *model)
 void NavigatorView::modelAboutToBeDetached(Model *model)
 {
     m_treeModel->clearView();
-    QmlModelView::modelAboutToBeDetached(model);
+    AbstractView::modelAboutToBeDetached(model);
+}
+
+void NavigatorView::nodeCreated(const ModelNode &createdNode)
+{
+}
+
+void NavigatorView::nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange)
+{
+}
+
+void NavigatorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
+{
+}
+
+void NavigatorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange)
+{
+}
+
+void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags propertyChange)
+{
 }
 
 void NavigatorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (m_treeModel->isInTree(removedNode))
         m_treeModel->removeSubTree(removedNode);
-    QmlModelView::nodeAboutToBeRemoved(removedNode);
 }
 
 void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty & /*newPropertyParent*/, const NodeAbstractProperty & /*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
@@ -127,14 +147,12 @@ void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProp
 
 void NavigatorView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
 {
-    QmlModelView::nodeIdChanged(node, newId, oldId);
     if (m_treeModel->isInTree(node))
         m_treeModel->updateItemRow(node);
 }
 
 void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
-    QmlModelView::propertiesAboutToBeRemoved(propertyList);
     foreach (const AbstractProperty &property, propertyList) {
         if (property.isNodeProperty()) {
             NodeProperty nodeProperty(property.toNodeProperty());
@@ -150,14 +168,12 @@ void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& pr
 
 void NavigatorView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
-    QmlModelView::rootNodeTypeChanged(type, majorVersion, minorVersion);
     if (m_treeModel->isInTree(rootModelNode()))
         m_treeModel->updateItemRow(rootModelNode());
 }
 
 void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)
 {
-    QmlModelView::auxiliaryDataChanged(node, name, data);
     if (m_treeModel->isInTree(node))
     {
         // update model
@@ -172,14 +188,8 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString &n
 
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
 {
-    QmlModelView::nodeOrderChanged(listProperty, node, oldIndex);
-
     if (m_treeModel->isInTree(node))
         m_treeModel->updateItemRowOrder(node);
-}
-
-void NavigatorView::stateChanged(const QmlModelState &/*newQmlModelState*/, const QmlModelState &/*oldQmlModelState*/)
-{
 }
 
 void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, const QItemSelection &/*deselected*/)
@@ -198,8 +208,6 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
 
 void NavigatorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList)
 {
-    QmlModelView::selectedNodesChanged(selectedNodeList, lastSelectedNodeList);
-
     updateItemSelection();
 }
 

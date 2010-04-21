@@ -123,6 +123,7 @@ private:
     ItemRow createItemRow(const ModelNode &node);
     void updateItemRow(const ModelNode &node, ItemRow row);
 
+    void reparentModelNode(const ModelNode &parentNode, const ModelNode &node);
     QList<ModelNode> modelNodeChildren(const ModelNode &parentNode);
 
     bool blockItemChangedSignal(bool block);

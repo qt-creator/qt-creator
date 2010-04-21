@@ -32,7 +32,6 @@
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <abstractview.h>
-#include <qmlitemnode.h>
 #include <invalididexception.h>
 
 #include <QMimeData>
@@ -142,7 +141,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
     QByteArray encodedData = data->data("application/vnd.modelnode.list");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
 
-    QmlItemNode parentItemNode(nodeForIndex(parentIdIndex));
+    ModelNode parentNode(nodeForIndex(parentIdIndex));
 
     QList<ModelNode> nodeList;
 
@@ -150,7 +149,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         uint nodeHash;
         stream >> nodeHash;
         ModelNode node(nodeForHash(nodeHash));
-        if (!node.isValid() || (parentItemNode == node) || node.isAncestorOf(parentItemNode))
+        if (!node.isValid() || (parentNode == node) || node.isAncestorOf(parentNode))
             continue;
         nodeList.append(node);
     }
@@ -158,10 +157,9 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
     RewriterTransaction transaction = m_view->beginRewriterTransaction();
     foreach (const ModelNode &node, nodeList) {
         if (!isAnchestorInList(node, nodeList)) {
-            if (node.parentProperty().parentModelNode() != parentItemNode) {
-                QmlItemNode itemNode(node);
-                if (node != parentItemNode) {
-                    itemNode.setParent(parentItemNode);
+            if (node.parentProperty().parentModelNode() != parentNode) {
+                if (node != parentNode) {
+                    reparentModelNode(parentNode, node);
                 }
             }
 
@@ -177,7 +175,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         }
     }
 
-    propagateInvisible(parentItemNode, isNodeInvisible(parentItemNode));
+    propagateInvisible(parentNode, isNodeInvisible(parentNode));
 
     return false; // don't let the view do drag&drop on its own
 }
@@ -436,12 +434,23 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
     m_nodeItemHash.remove(node);
 }
 
+void NavigatorTreeModel::reparentModelNode(const ModelNode &parentNode, const ModelNode &node)
+{
+    parentNode.nodeListProperty("data").reparentHere(node);
+}
+
 QList<ModelNode> NavigatorTreeModel::modelNodeChildren(const ModelNode &parentNode)
 {
     QList<ModelNode> children;
-    if (QmlItemNode(parentNode).isValid())
-        foreach (const QmlItemNode &childNode, QmlItemNode(parentNode).children())
-            children << childNode.modelNode();
+
+    if (parentNode.hasProperty("children")) {
+        children.append(parentNode.nodeListProperty("children").toModelNodeList());
+    }
+
+    if (parentNode.hasProperty("data")) {
+        children.append(parentNode.nodeListProperty("data").toModelNodeList());
+    }
+
     return children;
 }
 
@@ -467,6 +476,4 @@ void NavigatorTreeModel::setVisible(const QModelIndex &index, bool visible)
     itemRow.visibilityItem->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
 }
 
-
-}
-
+} // QmlDesigner

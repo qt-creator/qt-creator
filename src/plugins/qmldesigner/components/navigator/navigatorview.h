@@ -30,7 +30,7 @@
 #ifndef NAVIGATORVIEW_H
 #define NAVIGATORVIEW_H
 
-#include <qmlmodelview.h>
+#include <abstractview.h>
 
 #include <QWeakPointer>
 
@@ -48,7 +48,7 @@ class NavigatorTreeModel;
 class IconCheckboxItemDelegate;
 class IdItemDelegate;
 
-class NavigatorView : public QmlModelView
+class NavigatorView : public AbstractView
 {
     Q_OBJECT
 
@@ -61,6 +61,12 @@ public:
     // AbstractView
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
+
+    void nodeCreated(const ModelNode &createdNode);
+    void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
+    void propertiesRemoved(const QList<AbstractProperty> &propertyList);
+    void variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange);
+    void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags propertyChange);
 
     void nodeAboutToBeRemoved(const ModelNode &removedNode);
     void nodeReparented(const ModelNode &node, const ModelNode &oldParent, const ModelNode &newParent);
@@ -75,7 +81,6 @@ public:
                                       const QList<ModelNode> &lastSelectedNodeList);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 
-    void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
 private slots:
 //    void handleChangedItem(QStandardItem * item);
