@@ -155,6 +155,8 @@ void PropertyEditor::NodeType::setValue(const QmlObjectNode & fxObjectNode, cons
         propertyValue->setValue(value);
         if (!fxObjectNode.hasBindingProperty(name))
             propertyValue->setExpression(value.toString());
+        else
+            propertyValue->setExpression(fxObjectNode.expression(name));
     }
 }
 
@@ -469,10 +471,8 @@ void PropertyEditor::changeExpression(const QString &name)
     }
 
     try {
-        if (fxObjectNode.currentState().isBaseState()) {
-            if (fxObjectNode.modelNode().bindingProperty(name).expression() != value->expression())
-                fxObjectNode.modelNode().bindingProperty(name).setExpression(value->expression());
-        }
+        if (fxObjectNode.expression(name) != value->expression() || !fxObjectNode.propertyAffectedByCurrentState(name))
+            fxObjectNode.setBindingProperty(name, value->expression());
     }
 
     catch (RewritingException &e) {
