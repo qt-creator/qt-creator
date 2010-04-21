@@ -84,6 +84,9 @@ signals:
     /// and to ensure that the model is in a consistent
     /// state at each signal emission
     void renamedVariable(const QString &newName);
+    /// Hint to the view where it should make sense to focus on next
+    void focusIndex(const QModelIndex &index);
+
 private:
     void updateResultEnvironment();
     int findInChanges(const QString &name) const;
@@ -125,6 +128,7 @@ private slots:
     void invalidateCurrentIndex();
     void updateSummaryText();
     void renamedVariable(const QString &name);
+    void focusIndex(const QModelIndex &index);
 
 private:
     EnvironmentModel *m_model;

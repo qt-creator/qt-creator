@@ -366,6 +366,8 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
 
     connect(m_model, SIGNAL(renamedVariable(QString)),
             this, SLOT(renamedVariable(QString)));
+    connect(m_model, SIGNAL(focusIndex(QModelIndex)),
+            this, SLOT(focusIndex(QModelIndex)));
 
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -446,6 +448,12 @@ void EnvironmentWidget::renamedVariable(const QString &name)
 {
     QModelIndex idx = m_model->variableToIndex(name);
     m_environmentTreeView->setCurrentIndex(idx);
+    m_environmentTreeView->setFocus();
+}
+
+void EnvironmentWidget::focusIndex(const QModelIndex &index)
+{
+    m_environmentTreeView->setCurrentIndex(index);
     m_environmentTreeView->setFocus();
 }
 
