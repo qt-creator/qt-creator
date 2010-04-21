@@ -459,7 +459,40 @@ MSVCToolChain::InstallationList MSVCToolChain::installations()
     return installs;
 }
 
-MSVCToolChain::Installation MSVCToolChain::findInstallation(bool is64Bit,
+// Return a substring to match the MSVC official version against by mkSpec name.
+static inline const QString msvcVersionStringFromMkSpec(const QString &mkSpec)
+{
+    if (mkSpec.isEmpty())
+        return QString();
+    if (mkSpec.endsWith(QLatin1String("msvc2002")))
+       return QLatin1String(" 7.0");
+    if (mkSpec.endsWith(QLatin1String("msvc2003")))
+       return QLatin1String(" 7.1");
+    if (mkSpec.endsWith(QLatin1String("msvc2005")))
+       return QLatin1String(" 8.0");
+    if (mkSpec.endsWith(QLatin1String("msvc2008")))
+        return QLatin1String(" 9.0");
+    if (mkSpec.endsWith(QLatin1String("msvc2010")))
+        return QLatin1String(" 10.0");
+    return QString();
+}
+
+MSVCToolChain::Installation MSVCToolChain::findInstallationByMkSpec(bool is64Bit,
+                                                                    const QString &mkSpec,
+                                                                    bool excludeSDK)
+{
+    const QString mkSpecMatchString = msvcVersionStringFromMkSpec(mkSpec);
+    if (!mkSpecMatchString.isEmpty()) {
+        foreach(const Installation &i, installations()) {
+            if ((i.type == Installation::VS) && (i.is64bit() == is64Bit)
+                && (i.name.indexOf(mkSpecMatchString) != -1))
+                    return i;
+        }
+    }
+    return findInstallationByName(is64Bit, QString(), excludeSDK);
+}
+
+MSVCToolChain::Installation MSVCToolChain::findInstallationByName(bool is64Bit,
                                                             const QString &name,
                                                             bool excludeSDK)
 {
@@ -488,7 +521,7 @@ PROJECTEXPLORER_EXPORT QDebug operator<<(QDebug in, const MSVCToolChain::Install
 
 MSVCToolChain *MSVCToolChain::create(const QString &name, bool amd64)
 {
-    return new MSVCToolChain(MSVCToolChain::findInstallation(amd64, name));
+    return new MSVCToolChain(MSVCToolChain::findInstallationByName(amd64, name));
 }
 
 MSVCToolChain::MSVCToolChain(const Installation &in) :
@@ -740,7 +773,7 @@ IOutputParser *MSVCToolChain::outputParser() const
 WinCEToolChain *WinCEToolChain::create(const QString &name, const QString &platform)
 {
     const bool excludeSDK = true;
-    return new WinCEToolChain(findInstallation(false, name, excludeSDK), platform);
+    return new WinCEToolChain(findInstallationByName(false, name, excludeSDK), platform);
 }
 
 WinCEToolChain::WinCEToolChain(const Installation &in, const QString &platform) :

@@ -194,9 +194,12 @@ public:
     typedef QList<Installation> InstallationList;
     static InstallationList installations();
     // Return matching installation or empty one
-    static Installation findInstallation(bool is64Bit,
-                                         const QString &name = QString(),
-                                         bool excludeSDK = false);
+    static Installation findInstallationByName(bool is64Bit,
+                                               const QString &name = QString(),
+                                               bool excludeSDK = false);
+    static Installation findInstallationByMkSpec(bool is64Bit,
+                                                 const QString &mkSpec,
+                                                 bool excludeSDK = false);
 
     static MSVCToolChain *create(const QString &name,
                                  bool amd64 = false);

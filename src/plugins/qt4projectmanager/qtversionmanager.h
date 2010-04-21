@@ -157,7 +157,7 @@ private:
     QString m_displayName;
     QString m_sourcePath;
     QString m_mingwDirectory;
-    QString m_msvcVersion;
+    mutable QString m_msvcVersion;
     int m_id;
     bool m_isAutodetected;
     QString m_autodetectionSource;

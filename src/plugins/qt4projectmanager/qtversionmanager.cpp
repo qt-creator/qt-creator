@@ -316,7 +316,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
 {
     // Add new versions which may have been installed by the WB installer in the form:
     // NewQtVersions="qt 4.3.2=c:\\qt\\qt432\bin\qmake.exe;qt embedded=c:\\qtembedded;"
-    // or NewQtVersions="qt 4.3.2=c:\\qt\\qt432bin\qmake.exe=c:\\qtcreator\\mingw\\;
+    // or NewQtVersions="qt 4.3.2=c:\\qt\\qt432bin\qmake.exe=c:\\qtcreator\\mingw\\=MSVCName;
     // i.e.
     // NewQtVersions="versionname=pathtoversion=mingw=s60sdk=gcce=carbide;"
     // Duplicate entries are not added, the first new version is set as default.
@@ -355,6 +355,8 @@ void QtVersionManager::addNewVersionsFromInstaller()
                     version->setGcceDirectory(QDir::fromNativeSeparators(newVersionData[4]));
                 if (newVersionData.count() >= 6)
                     version->setMwcDirectory(QDir::fromNativeSeparators(newVersionData[5]));
+                if (newVersionData.count() >= 7)
+                    version->setMsvcVersion(newVersionData[6]);
 
                 bool versionWasAlreadyInList = false;
                 foreach(const QtVersion * const it, m_versions) {
@@ -1367,9 +1369,11 @@ void QtVersion::updateToolChainAndMkspec() const
         m_toolChains << ToolChainPtr(MaemoManager::instance().maemoToolChain(this));
         m_targetIds.insert(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID));
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
-        // TODO proper support for intel cl
+        // TODO proper support for intel cl. Detect matching VC version unless set.
+        if (m_msvcVersion.isEmpty())
+            m_msvcVersion = ProjectExplorer::MSVCToolChain::findInstallationByMkSpec(isQt64Bit(), mkspec).name;
         m_toolChains << ToolChainPtr(
-                ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isQt64Bit()));
+                ProjectExplorer::ToolChain::createMSVCToolChain(m_msvcVersion, isQt64Bit()));
         m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
     } else if (qmakeCXX == "g++" && makefileGenerator == "MINGW") {
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
