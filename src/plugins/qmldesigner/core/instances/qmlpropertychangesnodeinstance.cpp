@@ -406,14 +406,18 @@ void QmlPropertyChangesObject::setExpression(const QString &name, const QString 
         m_qmlActionList.append(createQDeclarativeAction(name));
     }
 
-    QDeclarativeAction &qmlAction = qmlActionForProperty(name);
-    if (m_expressionHash.contains(name) && m_expressionHash[name].second) {
-        m_expressionHash[name].second->destroy();
-    }
-
     QDeclarativeContext *context = QDeclarativeEngine::contextForObject(targetObject());
     QDeclarativeBinding *binding = 0;
     QDeclarativeProperty metaProperty(targetObject(), name, context);
+
+    QDeclarativeAction &qmlAction = qmlActionForProperty(name);
+    if (m_expressionHash.contains(name) && m_expressionHash[name].second) {
+        if (QDeclarativePropertyPrivate::binding(metaProperty) == m_expressionHash[name].second.data())
+            QDeclarativePropertyPrivate::setBinding(metaProperty, 0,  QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
+        m_expressionHash.take(name).second->destroy();
+    }
+
+
     if (metaProperty.isValid() && metaProperty.isProperty()) {
         binding = new QDeclarativeBinding(expression, targetObject(), context, this);
         binding->setTarget(metaProperty);
@@ -486,8 +490,12 @@ void QmlPropertyChangesObject::resetProperty(const QString &name)
     }
 
     if (m_expressionHash.contains(name)) {
-        if (m_expressionHash[name].second)
+        if (m_expressionHash[name].second) {
+            QDeclarativeProperty metaProperty(targetObject(), name, QDeclarativeEngine::contextForObject(targetObject()));
+            if (metaProperty.isValid() && QDeclarativePropertyPrivate::binding(metaProperty) == m_expressionHash[name].second.data())
+                QDeclarativePropertyPrivate::setBinding(metaProperty, 0,  QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
             m_expressionHash[name].second.data()->destroy();
+        }
         m_expressionHash.remove(name);
     }
 
