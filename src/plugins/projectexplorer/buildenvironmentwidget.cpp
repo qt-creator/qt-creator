@@ -85,7 +85,6 @@ void BuildEnvironmentWidget::init(BuildConfiguration *bc)
     m_buildEnvironmentWidget->setBaseEnvironment(m_buildConfiguration->baseEnvironment());
     m_buildEnvironmentWidget->setBaseEnvironmentText(m_buildConfiguration->baseEnvironmentText());
     m_buildEnvironmentWidget->setUserChanges(m_buildConfiguration->userEnvironmentChanges());
-    m_buildEnvironmentWidget->updateButtons();
 }
 
 void BuildEnvironmentWidget::environmentModelUserChangesChanged()

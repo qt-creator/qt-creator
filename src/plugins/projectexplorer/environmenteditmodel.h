@@ -76,21 +76,14 @@ public:
 
 signals:
     void userChangesChanged();
-    /// Strictly speaking this is a hack to work around
-    /// the problem that we don't emit the right signals
-    /// on editing a variable
-    /// Don't try to fix that with out consulting me
-    /// In short it's impossible to emit the right signals
-    /// and to ensure that the model is in a consistent
-    /// state at each signal emission
-    void renamedVariable(const QString &newName);
     /// Hint to the view where it should make sense to focus on next
+    // This is a hack since there is no way for a model to suggest
+    // the next interesting place to focus on to the view.
     void focusIndex(const QModelIndex &index);
 
 private:
     void updateResultEnvironment();
     int findInChanges(const QString &name) const;
-    int findInChangesInsertPosition(const QString &name) const;
     int findInResultInsertPosition(const QString &name) const;
     int findInResult(const QString &name) const;
 
@@ -112,8 +105,6 @@ public:
     QList<EnvironmentItem> userChanges() const;
     void setUserChanges(QList<EnvironmentItem> list);
 
-public slots:
-    void updateButtons();
 
 signals:
     void userChangesChanged();
@@ -127,8 +118,8 @@ private slots:
     void environmentCurrentIndexChanged(const QModelIndex &current);
     void invalidateCurrentIndex();
     void updateSummaryText();
-    void renamedVariable(const QString &name);
     void focusIndex(const QModelIndex &index);
+    void updateButtons();
 
 private:
     EnvironmentModel *m_model;

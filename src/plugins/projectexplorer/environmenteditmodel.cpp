@@ -152,14 +152,6 @@ int EnvironmentModel::findInChanges(const QString &name) const
     return -1;
 }
 
-int EnvironmentModel::findInChangesInsertPosition(const QString &name) const
-{
-    for (int i=0; i<m_items.size(); ++i)
-        if (m_items.at(i).name > name)
-            return i;
-    return m_items.size();
-}
-
 QModelIndex EnvironmentModel::variableToIndex(const QString &name) const
 {
     int row = findInResult(name);
@@ -380,8 +372,6 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     connect(m_model, SIGNAL(modelReset()),
             this, SLOT(invalidateCurrentIndex()));
 
-    connect(m_model, SIGNAL(renamedVariable(QString)),
-            this, SLOT(renamedVariable(QString)));
     connect(m_model, SIGNAL(focusIndex(QModelIndex)),
             this, SLOT(focusIndex(QModelIndex)));
 
@@ -460,13 +450,6 @@ EnvironmentWidget::~EnvironmentWidget()
     m_model = 0;
 }
 
-void EnvironmentWidget::renamedVariable(const QString &name)
-{
-    QModelIndex index = m_model->variableToIndex(name);
-    m_environmentTreeView->setCurrentIndex(index);
-    m_environmentTreeView->setFocus();
-}
-
 void EnvironmentWidget::focusIndex(const QModelIndex &index)
 {
     m_environmentTreeView->setCurrentIndex(index);
@@ -532,14 +515,12 @@ void EnvironmentWidget::addEnvironmentButtonClicked()
     QModelIndex index = m_model->addVariable();
     m_environmentTreeView->setCurrentIndex(index);
     m_environmentTreeView->edit(index);
-    updateButtons();
 }
 
 void EnvironmentWidget::removeEnvironmentButtonClicked()
 {
     const QString &name = m_model->indexToVariable(m_environmentTreeView->currentIndex());
     m_model->resetVariable(name);
-    updateButtons();
 }
 
 // unset in Merged Environment Mode means, unset if it comes from the base environment
@@ -551,7 +532,6 @@ void EnvironmentWidget::unsetEnvironmentButtonClicked()
         m_model->resetVariable(name);
     else
         m_model->unsetVariable(name);
-    updateButtons();
 }
 
 void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current)
