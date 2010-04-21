@@ -68,6 +68,7 @@ public:
     bool hasBindingProperty(const QString &name) const;
     bool propertyAffectedByCurrentState(const QString &name) const;
     QVariant modelValue(const QString &name) const;
+    QString expression(const QString &name) const;
     bool isInBaseState() const;
     QmlPropertyChanges propertyChangeForCurrentState() const;
 

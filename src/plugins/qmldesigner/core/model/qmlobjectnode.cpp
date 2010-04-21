@@ -175,6 +175,25 @@ QVariant QmlObjectNode::modelValue(const QString &name) const
     return propertyChanges.modelNode().variantProperty(name).value();
 }
 
+QString QmlObjectNode::expression(const QString &name) const
+{
+    if (!isValid())
+        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (currentState().isBaseState())
+        return modelNode().bindingProperty(name).expression();
+
+    if (!currentState().hasPropertyChanges(modelNode()))
+        return modelNode().bindingProperty(name).expression();
+
+    QmlPropertyChanges propertyChanges(currentState().propertyChanges(modelNode()));
+
+    if (!propertyChanges.modelNode().hasProperty(name))
+        return modelNode().bindingProperty(name).expression();
+
+    return propertyChanges.modelNode().bindingProperty(name).expression();
+}
+
 /*! \brief returns if ObjectNode is the BaseState
 
 \return true if the ObjectNode is in the BaseState
