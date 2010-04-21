@@ -53,6 +53,7 @@ OriginWidget::OriginWidget(QWidget *parent) : QWidget(parent), m_pressed(false),
     m_originString = "Center";
     resize(50, 50);
     setMinimumHeight(50);
+    m_index = 0;
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 }
 
