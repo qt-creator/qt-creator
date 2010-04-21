@@ -47,6 +47,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QVariant>
 #include <QtCore/QVector>
+#include <QtCore/QUrl>
 #if QT_VERSION >= 0x040500
 #include <QtCore/QSharedPointer>
 #endif
@@ -1165,6 +1166,8 @@ void testQStack()
 
 void testQString()
 {
+    QUrl url(QString("http://www.nokia.com"));
+
     QString str = "Hello ";
     str += " big, ";
     str += " fat ";

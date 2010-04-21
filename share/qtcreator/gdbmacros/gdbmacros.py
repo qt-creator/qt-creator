@@ -1440,6 +1440,15 @@ def qdump__QTextCodec(d, item):
             d.putCallItem("name", item, "name()")
             d.putCallItem("mibEnum", item, "mibEnum()")
 
+def qdump__QUrl(d, item):
+    d_ptr = item.value["d"].dereference()
+    d.putStringValue(d_ptr["encodedOriginal"])
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        with Children(d):
+           d.putItem(Item(d_ptr, item.iname, "d", "d"))
+
+
 def qdumpHelper__QVariant(d, value):
     #warn("VARIANT TYPE: %s : " % variantType)
     data = value["d"]["data"]
