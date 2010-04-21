@@ -88,7 +88,7 @@ int EnvironmentModel::columnCount(const QModelIndex &parent) const
 
 bool EnvironmentModel::changes(const QString &name) const
 {
-    foreach (const EnvironmentItem& item, m_items)
+    foreach (const EnvironmentItem &item, m_items)
         if (item.name == name)
             return true;
     return false;
@@ -451,7 +451,7 @@ EnvironmentWidget::~EnvironmentWidget()
     m_model = 0;
 }
 
-void EnvironmentWidget::renamedVariable(const QString& name)
+void EnvironmentWidget::renamedVariable(const QString &name)
 {
     QModelIndex idx = m_model->index(name);
     m_environmentTreeView->setCurrentIndex(idx);

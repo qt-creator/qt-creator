@@ -64,7 +64,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
     QModelIndex addVariable();
-    QModelIndex addVariable(const EnvironmentItem& item);
+    QModelIndex addVariable(const EnvironmentItem &item);
     void removeVariable(const QString &name);
     void unset(const QString &name);
     bool isUnset(const QString &name);
