@@ -248,6 +248,10 @@ void MetaInfoPrivate::parseValueTypes()
                     propertyInfo.setType("bool");
                 else if (propertyName == "italic")
                     propertyInfo.setType("bool");
+                else if (propertyName == "underline")
+                    propertyInfo.setType("bool");
+                else if (propertyName == "strikeout")
+                    propertyInfo.setType("bool");
                 else if (propertyName == "family")
                     propertyInfo.setType("string");
                 else if (propertyName == "pixelSize")
