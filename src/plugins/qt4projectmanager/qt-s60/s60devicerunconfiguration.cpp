@@ -785,6 +785,11 @@ void S60DeviceRunControlBase::slotWaitingForTrkClosed()
     }
 }
 
+void S60DeviceRunControlBase::printApplicationOutput(const QString &output)
+{
+    printApplicationOutput(output, false);
+}
+
 void S60DeviceRunControlBase::printApplicationOutput(const QString &output, bool onStdErr)
 {
     emit addToOutputWindowInline(this, output, onStdErr);

@@ -162,6 +162,7 @@ protected:
 
 protected slots:
     void printApplicationOutput(const QString &output, bool onStdErr);
+    void printApplicationOutput(const QString &output);
     void deviceRemoved(const SymbianUtils::SymbianDevice &);
 
 private slots:
