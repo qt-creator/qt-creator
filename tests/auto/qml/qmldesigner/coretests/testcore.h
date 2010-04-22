@@ -119,6 +119,7 @@ private slots:
     void testRewriterNodeSliding();
     void testRewriterExceptionHandling();
     void testRewriterDynamicProperties();
+    void testRewriterGroupedProperties();
 
 
     //

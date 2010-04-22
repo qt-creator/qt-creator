@@ -535,6 +535,38 @@ void TestCore::testRewriterDynamicProperties()
 //    QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
 
+void TestCore::testRewriterGroupedProperties()
+{
+    const QLatin1String qmlString("\n"
+                                  "import Qt 4.6\n"
+                                  "\n"
+                                  "Text {\n"
+                                  "  font {\n"
+                                  "    pointSize: 10\n"
+                                  "    underline: true\n"
+                                  "  }\n"
+                                  "}");
+
+    QPlainTextEdit textEdit1;
+    textEdit1.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
+
+    QScopedPointer<Model> model1(Model::create("Qt/Text"));
+
+    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    testRewriterView1->setTextModifier(&modifier1);
+    model1->attachView(testRewriterView1.data());
+
+    QVERIFY(testRewriterView1->errors().isEmpty());
+
+    //
+    // text2model
+    //
+    ModelNode rootModelNode = testRewriterView1->rootModelNode();
+    QCOMPARE(rootModelNode.property(QLatin1String("font.pointSize")).toVariantProperty().value().toDouble(), 10.0);
+    QCOMPARE(rootModelNode.property(QLatin1String("font.underline")).toVariantProperty().value().toBool(), true);
+}
+
 void TestCore::loadSubItems()
 {
     QFile file(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/topitem.qml");

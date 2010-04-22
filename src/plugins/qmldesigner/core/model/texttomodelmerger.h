@@ -34,7 +34,10 @@
 #include "import.h"
 #include "nodelistproperty.h"
 #include "modelnode.h"
+
 #include <qmljs/qmljsdocument.h>
+
+#include <QtCore/QStringList>
 
 namespace QmlDesigner {
 
@@ -68,6 +71,11 @@ public:
                   QmlJS::AST::UiObjectMember *astNode,
                   ReadingContext *context,
                   DifferenceHandler &differenceHandler);
+    QString syncScriptBinding(ModelNode &modelNode,
+                              const QString &prefix,
+                              QmlJS::AST::UiScriptBinding *script,
+                              ReadingContext *context,
+                              DifferenceHandler &differenceHandler);
     void syncNodeId(ModelNode &modelNode, const QString &astObjectId,
                     DifferenceHandler &differenceHandler);
     void syncNodeProperty(AbstractProperty &modelProperty,
@@ -95,6 +103,11 @@ public:
                               QmlJS::AST::UiObjectMember *astNode,
                               ReadingContext *context,
                               DifferenceHandler &differenceHandler);
+    QStringList syncGroupedProperties(ModelNode &modelNode,
+                                      const QString &name,
+                                      QmlJS::AST::UiObjectMemberList *members,
+                                      ReadingContext *context,
+                                      DifferenceHandler &differenceHandler);
 
 private:
     void setupComponent(const ModelNode &node);
