@@ -250,6 +250,14 @@ QString ObjectPropertiesView::propertyBaseClass(const QDeclarativeDebugObjectRef
 
     PropertyTypeFinder find(document, snapshot, modelManager->importPaths());
     QString baseClassName = find(object.source().lineNumber(), object.source().columnNumber(), property.name());
+
+    if (baseClassName.isEmpty()) {
+        if (!object.idString().isEmpty())
+            baseClassName = object.idString();
+        else
+            baseClassName = QString("<%1>").arg(object.className());
+    }
+
     depth = find.depth();
 
     return baseClassName;

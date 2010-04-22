@@ -14,7 +14,9 @@ PropertyTypeFinder::PropertyTypeFinder(QmlJS::Document::Ptr doc, QmlJS::Snapshot
     , m_snapshot(snapshot)
     , m_engine()
     , m_context(&m_engine)
-    , m_link(&m_context, doc, snapshot, importPaths), m_depth(0)
+    , m_link(&m_context, doc, snapshot, importPaths)
+    , m_scopeBuilder(doc, &m_context)
+    , m_depth(0)
 {
 }
 
@@ -22,20 +24,11 @@ QString PropertyTypeFinder::operator()(int objectLine, int objectColumn, const Q
 {
     m_objectLine = objectLine;
     m_objectColumn = objectColumn;
-    m_typeNameId = 0;
+    m_propertyName = propertyName;
+    m_definingClass.clear();
 
     Node::accept(m_doc->ast(), this);
-    if (m_typeNameId) {
-        for (const ObjectValue *iter = m_context.lookupType(m_doc.data(), m_typeNameId); iter; iter = iter->prototype(&m_context)) {
-            if (iter->lookupMember(propertyName, &m_context, false)) {
-                // gotcha!
-                return iter->className();
-            }
-            ++m_depth;
-        }
-    }
-    //### Eep: we didn't find it...
-    return QString();
+    return m_definingClass;
 }
 
 int PropertyTypeFinder::depth() const
@@ -45,12 +38,26 @@ int PropertyTypeFinder::depth() const
 
 bool PropertyTypeFinder::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    m_scopeBuilder.push(ast);
+
     return check(ast->qualifiedTypeNameId);
 }
 
 bool PropertyTypeFinder::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    m_scopeBuilder.push(ast);
+
     return check(ast->qualifiedTypeNameId);
+}
+
+void PropertyTypeFinder::endVisit(QmlJS::AST::UiObjectBinding * /*ast*/)
+{
+    m_scopeBuilder.pop();
+}
+
+void PropertyTypeFinder::endVisit(QmlJS::AST::UiObjectDefinition * /*ast*/)
+{
+    m_scopeBuilder.pop();
 }
 
 bool PropertyTypeFinder::check(QmlJS::AST::UiQualifiedId *qId)
@@ -61,7 +68,14 @@ bool PropertyTypeFinder::check(QmlJS::AST::UiQualifiedId *qId)
     if (qId->identifierToken.startLine == m_objectLine
         && qId->identifierToken.startColumn == m_objectColumn) {
         // got it!
-        m_typeNameId = qId;
+        for (const ObjectValue *iter = m_context.scopeChain().qmlScopeObjects.last(); iter; iter = iter->prototype(&m_context)) {
+
+            if (iter->lookupMember(m_propertyName, &m_context, false)) {
+                m_definingClass = iter->className();
+                return true;
+            }
+            ++m_depth;
+        }
         return false;
     }
 

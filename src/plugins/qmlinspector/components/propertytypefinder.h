@@ -5,6 +5,7 @@
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslink.h>
+#include <qmljs/qmljsscopebuilder.h>
 
 namespace Qml {
 namespace Internal {
@@ -18,10 +19,13 @@ public:
     int depth() const;
 protected:
     using QmlJS::AST::Visitor::visit;
+    using QmlJS::AST::Visitor::endVisit;
 
     virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
 
+    virtual void endVisit(QmlJS::AST::UiObjectBinding *ast);
+    virtual void endVisit(QmlJS::AST::UiObjectDefinition *ast);
 
 private:
     bool check(QmlJS::AST::UiQualifiedId *qId);
@@ -32,10 +36,12 @@ private:
     QmlJS::Interpreter::Engine m_engine;
     QmlJS::Interpreter::Context m_context;
     QmlJS::Link m_link;
+    QmlJS::ScopeBuilder m_scopeBuilder;
 
     quint32 m_objectLine;
     quint32 m_objectColumn;
-    QmlJS::AST::UiQualifiedId *m_typeNameId;
+    QString m_definingClass;
+    QString m_propertyName;
     quint8 m_depth;
 };
 
