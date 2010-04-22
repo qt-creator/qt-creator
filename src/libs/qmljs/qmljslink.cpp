@@ -64,14 +64,15 @@ void Link::initializeScopeChain()
         if (const ObjectValue *typeEnvironment = _context->typeEnvironment(_doc.data()))
             scopeChain.qmlTypes = typeEnvironment;
     } else {
-        // add scope chains for all components that source this document
-        // ### TODO: This needs updates for the new way of importing scripts
+        // add scope chains for all components that import this file
         foreach (Document::Ptr otherDoc, _snapshot) {
-            if (otherDoc->bind()->includedScripts().contains(_doc->fileName())) {
-                ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
-                componentScopes.insert(otherDoc.data(), component);
-                scopeChain.qmlComponentScope.instantiatingComponents += component;
-                makeComponentChain(otherDoc, component, &componentScopes);
+            foreach (const QString &fileImport, otherDoc->bind()->fileImports()) {
+                if (_doc->fileName() == fileImport) {
+                    ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
+                    componentScopes.insert(otherDoc.data(), component);
+                    scopeChain.qmlComponentScope.instantiatingComponents += component;
+                    makeComponentChain(otherDoc, component, &componentScopes);
+                }
             }
         }
 
@@ -113,16 +114,6 @@ void Link::makeComponentChain(
     // build this component scope
     if (bind->rootObjectValue())
         target->rootObject = bind->rootObjectValue();
-
-    const QStringList &includedScripts = bind->includedScripts();
-    for (int index = includedScripts.size() - 1; index != -1; --index) {
-        const QString &scriptFile = includedScripts.at(index);
-
-        if (Document::Ptr scriptDoc = _snapshot.document(scriptFile)) {
-            if (scriptDoc->jsProgram())
-                target->functionScopes += scriptDoc->bind()->rootObjectValue();
-        }
-    }
 
     target->functionScopes += bind->functionEnvironment();
     target->ids = bind->idEnvironment();

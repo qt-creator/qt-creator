@@ -54,14 +54,14 @@ Bind::~Bind()
 {
 }
 
-QStringList Bind::includedScripts() const
-{
-    return _includedScripts;
-}
-
 QStringList Bind::fileImports() const
 {
     return _fileImports;
+}
+
+QStringList Bind::directoryImports() const
+{
+    return _directoryImports;
 }
 
 QStringList Bind::libraryImports() const
@@ -142,46 +142,10 @@ ExpressionNode *Bind::expression(UiScriptBinding *ast) const
     return 0;
 }
 
-void Bind::processScript(AST::UiQualifiedId *qualifiedId, AST::UiObjectInitializer *initializer)
-{
-    Q_UNUSED(qualifiedId);
-
-    if (! initializer)
-        return;
-
-    for (UiObjectMemberList *it = initializer->members; it; it = it->next) {
-        if (UiScriptBinding *binding = cast<UiScriptBinding *>(it->member)) {
-            const QString bindingName = toString(binding->qualifiedId);
-            if (bindingName == QLatin1String("source")) {
-                if (StringLiteral *literal = cast<StringLiteral *>(expression(binding))) {
-                    QFileInfo fileInfo(QDir(_doc->path()), literal->value->asString());
-                    const QString scriptPath = fileInfo.absoluteFilePath();
-                    _includedScripts.append(scriptPath);
-                }
-            }
-        } else if (UiSourceElement *binding = cast<UiSourceElement *>(it->member)) {
-            if (FunctionDeclaration *decl = cast<FunctionDeclaration *>(binding->sourceElement)) {
-                accept(decl); // process the function declaration
-            } else {
-                // ### unexpected source element
-            }
-        } else {
-            // ### unexpected binding.
-        }
-    }
-}
-
 ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)
 {
     ObjectValue *parentObjectValue = 0;
     const QString typeName = toString(qualifiedTypeNameId);
-
-    if (typeName == QLatin1String("Script")) {
-        // Script blocks all contribute to the same scope
-        parentObjectValue = switchObjectValue(_functionEnvironment);
-        processScript(qualifiedTypeNameId, initializer);
-        switchObjectValue(parentObjectValue);
-    }
 
     // normal component instance
     ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _doc, &_engine);
@@ -225,7 +189,13 @@ bool Bind::visit(UiImport *ast)
     if (ast->importUri) {
         _libraryImports += toString(ast->importUri, QLatin1Char('/'));
     } else if (ast->fileName) {
-        _fileImports += ast->fileName->asString();
+        const QFileInfo importFileInfo(_doc->path() + QLatin1Char('/') + ast->fileName->asString());
+        if (importFileInfo.isFile())
+            _fileImports += importFileInfo.absoluteFilePath();
+        else if (importFileInfo.isDir())
+            _directoryImports += importFileInfo.absoluteFilePath();
+        //else
+        //    error: file or directory does not exist
     }
 
     return false;

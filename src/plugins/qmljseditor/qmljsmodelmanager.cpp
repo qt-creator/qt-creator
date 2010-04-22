@@ -227,17 +227,14 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
 {
     // scan files and directories that are explicitly imported
     foreach (const QString &fileImport, doc->bind()->fileImports()) {
-        const QFileInfo importFileInfo(doc->path() + QLatin1Char('/') + fileImport);
-        const QString &importFilePath = importFileInfo.absoluteFilePath();
-        if (importFileInfo.isFile()) {
-            if (! snapshot.document(importFilePath))
-                *importedFiles += importFilePath;
-        } else if (importFileInfo.isDir()) {
-            if (snapshot.documentsInDirectory(importFilePath).isEmpty()) {
-                if (! scannedPaths->contains(importFilePath)) {
-                    *importedFiles += qmlFilesInDirectory(importFilePath);
-                    scannedPaths->insert(importFilePath);
-                }
+        if (! snapshot.document(fileImport))
+            *importedFiles += fileImport;
+    }
+    foreach (const QString &directoryImport, doc->bind()->directoryImports()) {
+        if (snapshot.documentsInDirectory(directoryImport).isEmpty()) {
+            if (! scannedPaths->contains(directoryImport)) {
+                *importedFiles += qmlFilesInDirectory(directoryImport);
+                scannedPaths->insert(directoryImport);
             }
         }
     }

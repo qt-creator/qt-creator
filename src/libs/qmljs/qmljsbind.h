@@ -50,8 +50,8 @@ public:
     Bind(Document *doc);
     virtual ~Bind();
 
-    QStringList includedScripts() const;
     QStringList fileImports() const;
+    QStringList directoryImports() const;
     QStringList libraryImports() const;
 
     Interpreter::ObjectValue *currentObjectValue() const;
@@ -91,7 +91,6 @@ protected:
     Interpreter::ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);
 
     AST::ExpressionNode *expression(AST::UiScriptBinding *ast) const;
-    void processScript(AST::UiQualifiedId *qualifiedId, AST::UiObjectInitializer *initializer);
 
 private:
     Document *_doc;
@@ -107,6 +106,7 @@ private:
     QStringList _includedScripts;
 
     QStringList _fileImports;
+    QStringList _directoryImports;
     QStringList _libraryImports;
 };
 
