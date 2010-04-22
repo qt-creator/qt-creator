@@ -105,7 +105,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role == Qt::DisplayRole || role == Qt::EditRole) {
+    if (role == Qt::DisplayRole || role == Qt::EditRole || role == Qt::ToolTipRole) {
         if (index.column() == 0) {
             return m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row());
         } else if (index.column() == 1) {
