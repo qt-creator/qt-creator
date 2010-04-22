@@ -391,7 +391,7 @@ void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, 
 }
 
 
-void StatesEditorView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+void StatesEditorView::customNotification(const AbstractView * /*view*/, const QString & /*identifier*/, const QList<ModelNode> & /*nodeList*/, const QList<QVariant> & /*data*/)
 {
     if (debug)
         qDebug() << __FUNCTION__;
