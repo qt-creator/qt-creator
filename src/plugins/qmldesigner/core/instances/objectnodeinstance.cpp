@@ -549,12 +549,12 @@ void ObjectNodeInstance::doResetProperty(const QString &propertyName)
 {
     m_modelAbstractPropertyHash.remove(propertyName);
 
-    QDeclarativeProperty metaProperty(object(), propertyName, context());
+    QDeclarativeProperty property(object(), propertyName, context());
 
-    if (!metaProperty.isValid())
+    if (!property.isValid())
         return;
 
-    QVariant oldValue = metaProperty.read();
+    QVariant oldValue = property.read();
     if (oldValue.type() == QVariant::Url) {
         QUrl url = oldValue.toUrl();
         QString path = url.toLocalFile();
@@ -563,27 +563,27 @@ void ObjectNodeInstance::doResetProperty(const QString &propertyName)
     }
 
 
-    QDeclarativeAbstractBinding *binding = QDeclarativePropertyPrivate::binding(metaProperty);
+    QDeclarativeAbstractBinding *binding = QDeclarativePropertyPrivate::binding(property);
     if (binding) {
         binding->setEnabled(false, 0);
         binding->destroy();
     }
 
-    if (metaProperty.isResettable()) {
-        metaProperty.reset();
-    } else if (metaProperty.propertyTypeCategory() == QDeclarativeProperty::List) {
-        QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
+    if (property.isResettable()) {
+        property.reset();
+    } else if (property.propertyTypeCategory() == QDeclarativeProperty::List) {
+        QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(property.read());
 
         if (!hasFullImplementedListInterface(list)) {
-            qWarning() << "Property list interface not fully implemented for Class " << metaProperty.property().typeName() << " in property " << metaProperty.name() << "!";
+            qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
             return;
         }
 
         list.clear();
-    } else if (metaProperty.isWritable()) {
-        if (metaProperty.read() == resetValue(propertyName))
+    } else if (property.isWritable()) {
+        if (property.read() == resetValue(propertyName))
             return;
-        metaProperty.write(resetValue(propertyName));
+        property.write(resetValue(propertyName));
     }
 }
 
