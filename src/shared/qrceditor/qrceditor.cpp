@@ -211,7 +211,7 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
         } else {
             // Path troublesome -> query user
             QMessageBox message(this);
-            message.setWindowTitle(tr("Invalid file"));
+            message.setWindowTitle(tr("Invalid file location"));
             message.setIcon(QMessageBox::Warning);
             QPushButton * const copyButton = message.addButton(tr("Copy"), QMessageBox::ActionRole);
             QPushButton * skipButton = NULL;
@@ -222,7 +222,7 @@ void QrcEditor::resolveLocationIssues(QStringList &files)
             }
             QPushButton * const abortButton = message.addButton(tr("Abort"), QMessageBox::RejectRole);
             message.setDefaultButton(copyButton);
-            message.setText(tr("The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.")
+            message.setText(tr("The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.")
                             .arg(QDir::toNativeSeparators(file)));
             message.exec();
             if (message.clickedButton() == skipButton) {
