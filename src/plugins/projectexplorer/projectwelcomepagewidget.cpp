@@ -124,9 +124,6 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
             ui->sessTreeWidget->addItem(str, s);
         }
         ui->sessTreeWidget->updateGeometry();
-        ui->sessTreeWidget->show();
-    } else {
-        ui->sessTreeWidget->hide();
     }
 
     typedef QPair<QString, QString> QStringPair;
@@ -143,10 +140,8 @@ void ProjectWelcomePageWidget::updateWelcomePage(const WelcomePageData &welcomeP
             ui->projTreeWidget->addItem(label, it.first,
                                         QDir::toNativeSeparators(fi.absolutePath()));
         }
-    } else {
-        ui->projTreeWidget->hide();
+        ui->projTreeWidget->updateGeometry();
     }
-    ui->projTreeWidget->updateGeometry();
     setUpdatesEnabled(true);
 }
 
