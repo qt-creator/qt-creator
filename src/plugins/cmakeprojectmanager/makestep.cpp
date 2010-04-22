@@ -159,7 +159,7 @@ BuildStepConfigWidget *MakeStep::createConfigWidget()
 
 bool MakeStep::immutable() const
 {
-    return true;
+    return false;
 }
 
 void MakeStep::stdOutput(const QString &line)
