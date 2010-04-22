@@ -61,15 +61,13 @@
                 \o \l{Setting Up a qmake Project}
                 \o \l{Setting Up a CMake Project}
                 \o \l{Setting Up a Generic Project}
+                \o \l{Setting Up Development Environment for Maemo}
+                \o \l{Setting Up Development Environment for Symbian}
+                \o \l{Building and Running Applications}
                 \o \l{Managing Sessions}
             \endlist
        \o \l{Developing Qt Quick Applications}
-       \o \l{Developing Mobile Applications}
-            \list
-                \o \l{Developing Maemo Applications}
-                \o \l{Developing Symbian Applications}
-                \o \l{Developing Usable Applications}
-            \endlist
+       \o \l{Optimizing Applications for Mobile Devices}
        \o \l{Debugging}
             \list
                 \o \l{Debugging the Example Application}
@@ -262,7 +260,7 @@
             \o Mac OS X
             \o Yes
             \o No
-            \o Yes
+            \o No
     \endtable
 */
 
@@ -1105,7 +1103,7 @@
     .pro.user, and object files. Other approaches are possible,
     but we recommend that you do not use network resources, for example.
 
-    Qt Creator allows you to specify separate \l{Build Settings} {build settings}
+    Qt Creator allows you to specify separate \l{Building for Multiple Targets} {build settings}
     for each development platform. By default, \l{glossary-shadow-build}{shadow builds} are used to
     keep the build specific files separate from the source.
 
@@ -1122,16 +1120,42 @@
     qmake and CMake. In addition, you can import generic projects that do not use qmake
     or CMake, and specify that Qt Creator ignores your build system.
     \list
-       \o To work with \bold{qmake projects}, open a \c .pro file. For more
+       \o To use \bold{qmake} to build applications, open a \c .pro file. For more
           information, see \l{Setting Up a qmake Project}.
-       \o To work with \bold{CMake projects} you need to have CMake version
+       \o To use \bold{CMake} to build applications you need to have CMake version
           2.8.0 or later installed. For more information, see
           \l{Setting Up a CMake Project}.
-       \o To work with \bold{generic projects}, specify which files belong to
+       \o To use \bold{other build systems} to build applications, specify which files belong to
           your project and which include directories or defines you want to pass
           to your compiler. For more information, see
           \l{Setting Up a Generic Project}.
     \endlist
+
+    Qt Creator provides support for \l{Building and Running Applications}{building and running} Qt applications for
+    desktop environment and mobile devices. When you install the Nokia Qt SDK,
+    the build and run settings for the desktop, Maemo, and Symbian targets are set up
+    automatically. However, you need to install and configure some additional software
+    on the devices:
+
+    \list
+
+       \o \l{Setting Up Development Environment for Maemo}.
+
+       \o \l{Setting Up Development Environment for Symbian}.
+
+    \endlist
+
+    \note The only supported build system for mobile applications in Qt
+    Creator is qmake.
+
+    Once your mobile application is ready, you can test it in the Qt Simulator.
+    You can also connect Maemo and Symbian devices to your development PC and
+    debug applications on the devices. After you have tested the application,
+    you can deploy it on mobile devices.
+
+    Developing applications for mobile devices is different from developing
+    desktop applications. For more information, see
+    \l{Optimizing Applications for Mobile Devices}.
 
     To change the location of the project directory, and to make changes in
     the build and run settings, select \gui{Tools} > \gui{Options...} >
@@ -1508,7 +1532,7 @@
     \section1 Selecting the Qt Version
 
     Qt Creator allows you to have multiple versions of Qt installed on
-    your computer and use different versions for each of your projects.
+    your development PC and use different versions for each of your projects.
 
     If Qt Creator finds \bold qmake in the \c{PATH} environment variable, it uses
     that version. The \l{glossary-system-qt}{ qmake version of Qt} is referred
@@ -1516,9 +1540,6 @@
     is already in the \c{PATH} and correctly set up for command line use, you do
     not need to manually configure your Qt version.
 
-    \note By default, Qt Creator compiles projects with the
-    \l{glossary-default-qt}{default Qt version}. For information on how to
-    override this setting, see \l{Build Settings}.
 
     \section2 Windows
 
@@ -1607,8 +1628,26 @@
            \image qtcreator-qt4-qtversions.png
     \endlist
 
+*/
 
-    \section1 Setting Up a Project
+
+/*!
+    \contentspage index.html
+    \previouspage creator-developing-symbian.html
+    \page creator-building-running.html
+    \nextpage creator-project-managing-sessions.html
+
+    \title Building and Running Applications
+
+    Qt Creator provides support for building and running Qt applications for
+    desktop environment and mobile devices. When you install the Nokia Qt SDK,
+    the build and run settings for the desktop, Maemo, and Symbian targets are
+    set up automatically.
+
+    You can select the targets and click the \gui Run button to build and
+    run the applications on the targets.
+
+     \section1 Setting Up a Project
 
     To view and modify the settings for currently open projects, switch to the
     \gui Projects mode by pressing \key Ctrl+4.
@@ -1622,22 +1661,231 @@
        \o Dependencies
     \endlist
 
-    Use the \gui Build and \gui Run buttons on *Desktop* to switch between
+    Use the \gui Build and \gui Run buttons to switch between
     the build and run settings for the active project.
 
     If you have multiple projects open in Qt Creator, use
     \gui{Select a Project} option at the top to navigate between different
     project edits.
 
-    \section1 Build Settings
+    \section1 Building for Multiple Targets
 
     Different build configurations allow you to quickly switch between
     different build settings. By default, Qt Creator creates \bold debug
-    and \bold release build configurations. The \bold{debug} and \bold{release}
-    build configurations both use the
-    \l{glossary-default-qt}{default Qt version}.
+    and \bold release build configurations.
 
-    \image qtcreator-ppbuildsettings.png
+    \section2 Building for Desktop
+
+    \list 1
+
+        \o Select \gui Desktop as the target.
+
+        \o Click the \gui Run button.
+
+    \endlist
+
+    \section2 Building for Qt Simulator
+
+    You can use the Qt Simulator to test Qt applications that are intended
+    for mobile devices in an environment similar to that of the device. You
+    can change the information that the device has about its configuration
+    and environment.
+
+    \list 1
+
+        \o Select \gui {Qt Simulator} as the target.
+
+        \o Click the \gui Run button.
+
+    \endlist
+
+    \section2 Building for Maemo
+
+    \list 1
+
+        \o Set up the MADDE development environment and specify a connection
+        to the device. For more information, see
+        \l{Setting Up Development Environment for Maemo}.
+
+        \o Connect the device to the development PC.
+
+        \o Click the \gui Run button.
+
+        Qt Creator uses the compiler specified in the MADDE toolchain to
+        build the application.
+
+        The application is automatically copied to the device and executed
+        there. The application views are displayed on the N900. Command-line
+        output is visible in the Qt Creator \gui {Application output} view.
+
+        Debugging also works transparently.
+
+    \endlist
+
+    \section2 Building for Symbian
+
+    \list 1
+
+        \o Build and run the application for \l{Building for Qt Simulator}{Qt Simulator}.
+
+        \o If no problems are found, build and run the application for a device.
+
+        \o To test functionality that uses Symbian APIs, you can build and
+        run the application for Symbian Emulator.
+
+    \endlist
+
+    The build configuration for the \gui{Symbian Device} target
+    uses the GCCE tool chain by default. If you want to build
+    for the device using RVCT, select it in the \gui {Tool chain} field
+    in the \gui{General} section.
+
+    \section3 Building and Running for a Device
+
+    \list 1
+
+        \o Install the required software on the device. For more information, see
+        \l{Setting Up Development Environment for Symbian}.
+
+        \o Connect the device to the development PC through a USB cable.
+        Qt Creator shows the current connection state
+        of a device in its main toolbar, showing a red cross when no device is
+        connected, or a green check mark when a device is connected.
+
+        \image qtcreator-qt4-symbian-device-notconnected.png
+        \image qtcreator-qt4-symbian-device-connected.png
+
+        The tool tip of the target button shows more details about the actual
+        device that will be used when you run your application.
+
+        \o Start the \gui{App TRK} application on your device.
+
+        \o Click the \gui Run button.
+
+    \endlist
+
+    You can connect several devices to your development PC simultaneously.
+    In the details of the run configuration for the \gui{Symbian Device} target,
+    select the device to run your application on.
+
+    \section3 Creating Installation Packages
+
+    When you build the application for the \gui{Symbian Device} target, Qt
+    Creator automatically generates a Symbian installation system (SIS) file
+    in the project folder. You can deliver the installation file to users for
+    installation on Symbian devices.
+
+    Only installation files signed with a certificate and private key are
+    allowed to be installed onto Symbian devices. By default, Qt Creator
+    self-signs the installation file. This self-signing allows you to install
+    the application on a mobile  device but places limits on what you can do
+    with the installation file, including:
+    \list
+       \o  Self-signed applications cannot access the more sensitive
+           \l{Capabilities and Signing}{capabilities} of the mobile device.
+       \o  Security warnings will be displayed when you install the self-signed
+           application on a mobile device.
+       \o  Self-signed applications cannot be distributed commercially on Ovi
+           Store.
+    \endlist
+
+    To get around these limitations, you need to go through the Symbian Signed
+    process. The Symbian Signed organisation manages a public key
+    infrastructure to provide public authentication of the information in the
+    application signing certificates. Their security partner can validate your
+    certificate and give you a Publisher ID. Then, when you sign an
+    application, other people can be confident that the information in your
+    certificate is correct and that the application does actually come from you.
+
+    There are also options that do not require you to get a Publisher ID. For
+    more detail about how the Symbian Signed process works, see
+    \l{http://developer.symbian.org/wiki/index.php/Complete_Guide_To_Symbian_Signed}
+    {Complete Guide to Symbian Signed}.
+
+    When you have your own certificate and private key, you can specify them in
+    the \gui{Create sis Package} step in your build configuration.
+
+    \image qtcreator-qt4-symbian-signing.png
+
+    \section3 Capabilities and Signing
+
+    Capabilities allow the Symbian platform to control access by applications to
+    the functionality provided by the platform APIs. Access to capabilities is
+    determined by the device configuration and how the application has been signed.
+
+    Symbian Signed offers the following signing options depending on the
+    capabilities that the application accesses:
+
+    \list
+
+        \o \bold{Express signed} for applications that access only user and system
+        capabilities.
+
+        \o \bold{Certified signed} for applications that access also restricted or
+        device manufacturer capabilities.
+
+        \note You need to request the rights to access device manufacturer
+        capabilities from the manufacturer.
+
+    \endlist
+
+    For more information about how to choose the appropriate signing option, see
+    \l{http://developer.symbian.org/wiki/index.php/Symbian_Signed_For_Distributing_Your_Application}{Symbian Signed For Distributing Your Application}.
+
+    If you select a signing option that does not allow the application to access
+    the defined capabilities, installing the application on mobile devices
+    fails. To avoid problems, only define capabilities and link libraries to a project
+    if you really need them.
+
+    For more information about capabilities and how you can check which ones you
+    need, see
+    \l{http://developer.symbian.org/wiki/index.php/Capabilities_(Symbian_Signed)}{Capabilities (Symbian Signed)}
+    and
+    \l{http://doc.qt.nokia.com/4.7-snapshot/platform-notes-symbian.html#required-capabilities}{Required Capabilities for Qt Applications}.
+
+    For more information on how to define capabilities for a project, see
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#capabilities}{Capabilities}.
+
+
+    \section3 Building and Running for Symbian Emulator
+
+    Select
+    the \gui{Symbian Emulator} target as the active one, and build and run your
+    project.
+
+    \section3 Troubleshooting
+
+    If you cannot build the application, check if:
+     \list
+        \o You selected the Symbian Device target for building the application.
+        \o The settings for the Qt version you use to build your project are
+           correct. The path to the S60 SDK must point to the S60 SDK
+           installation directory.  Select \gui Tools > \gui Options...
+           > \gui Debugger > \gui{Symbian TRK} and check if it points to the
+           debugger toolchain.
+     \endlist
+    If you cannot run the application on a device, check if:
+     \list
+        \o The device is connected through the USB cable in \e{PC Suite} mode.
+        \o \gui{App TRK} is running on the device, using the USB connection,
+           with the status \e connected.
+        \o The device is detected and selected in the run configuration
+           details.
+     \endlist
+
+    If you cannot run the application in the emulator, check if:
+     \list
+        \o You selected the \gui{Symbian Emulator} target for your application.
+        \o If the emulator process cannot be started, try closing Qt Creator and
+           starting the application directly from your file manager. Having
+           done this, Qt Creator should be able to run your projects in the
+           emulator.
+     \endlist
+
+    If this does not help to solve your problem, search the qt-creator@trolltech.com
+    mailing list archives or provide feedback to us via the methods described on the
+    \l{http://qt.gitorious.org/qt-creator/pages/Home}{Qt Creator Development Wiki}.
+
 
     \section2 Adding and Removing Build Configurations
 
@@ -1706,7 +1954,6 @@
     necessary environment variables. You can edit existing environment
     variables or add, reset and unset new variables based on your project
     requirements.
-
 
     \section1 Run Settings
 
@@ -2656,7 +2903,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-generic.html
+    \previouspage creator-building-running.html
     \page creator-project-managing-sessions.html
     \nextpage creator-visual-editor.html
 
@@ -2841,7 +3088,7 @@
     target, and click the \gui {Start Debugging} button.
 
     For more information on setting up Symbian projects, see
-    \l{Developing Symbian Applications}.
+    \l{Setting Up Development Environment for Symbian}.
 
 
 */
@@ -3759,7 +4006,7 @@
     \contentspage index.html
     \previouspage creator-project-cmake.html
     \page creator-project-generic.html
-    \nextpage creator-project-managing-sessions.html
+    \nextpage creator-developing-maemo.html
 
     \title Setting Up a Generic Project
 
@@ -3863,51 +4110,13 @@
 */
 
 
-/*!
-    \contentspage index.html
-    \previouspage creator-visual-editor.html
-    \page creator-developing-applications.html
-    \nextpage creator-developing-maemo.html
-
-    \title Developing Mobile Applications
-
-    \omit Use \QD or \QMLD to design and implement application UI. \endomit
-
-    Qt Creator provides support for development of various mobile device
-    applications. Once you specify the build and run settings in Qt Creator,
-    you can build and run various types of mobile applications.
-
-    To develop applications for mobile devices using Qt Creator, you can use
-    the following development environments:
-    \list
-       \o To develop \bold{Maemo} applications, you need to set up the
-          MADDE development tool. For more information, see
-          \l{Developing Maemo Applications}.
-       \o To develop \bold{Symbian} applications, you need to set up the S60
-          platform SDK and the Qt for Symbian. For more information, see
-          \l{Developing Symbian Applications}.
-    \endlist
-
-    \note The only supported build system for Maemo and Qt for Symbian
-    applications in Qt Creator is qmake.
-
-    Once your application is ready you can deploy it on a mobile device.
-    If you do not have a mobile device connected to your computer, you can
-    run Maemo applications in the \gui{Local Simulator}, and Symbian
-    applications in the \gui{Symbian Emulator}.
-
-    Developing applications for mobile devices is different from developing
-    desktop applications. For more information, see
-    \l{Developing Usable Applications}.
-
-*/
 
 /*!
 
     \contentspage index.html
     \previouspage creator-project-managing-sessions.html
     \page creator-visual-editor.html
-    \nextpage creator-developing-applications.html
+    \nextpage creator-usability.html
 
     \title Developing Qt Quick Applications
 
@@ -4335,11 +4544,11 @@
 /*!
 
     \contentspage index.html
-    \previouspage creator-developing-applications.html
+    \previouspage creator-project-generic.html
     \page creator-developing-maemo.html
     \nextpage creator-developing-symbian.html
 
-    \title Developing Maemo Applications
+    \title Setting Up Development Environment for Maemo
 
     Maemo is a software platform developed by Nokia for smartphones and
     Internet Tablets. The Maemo SDK provides an open development environment
@@ -4348,12 +4557,12 @@
     information about the Maemo platform \l{http://maemo.org/intro/platform/}{here}.
 
 
-    \section1 Getting Started with Maemo Based Applications
+    \section1 Hardware and Software Requirements
 
-    To begin development for Maemo applications, you require the following:
+    To build and run Qt applications for Maemo, you need the following:
     \list
        \o  An N900 device with updates installed.
-       \o  MADDE is a cross-platform Maemo development
+       \o  The MADDE cross-platform Maemo development
            tool.
 
            For more information about MADDE pertaining to its
@@ -4369,10 +4578,11 @@
            {here}.
     \endlist
 
-    For deploying and running applications on the device, you need the
+    To deploy and run Qt applications on Maemo devices, you need the
     following:
     \list
-       \o The Nokia USB drivers that come, for example with, PC Suite.
+       \o The Nokia USB drivers that come, for example with, PC Suite, if you use
+       a USB connection to run applications on the device.
        \o Qt installed on the device. Recent images should have Qt pre-installed.
     \endlist
 
@@ -4380,26 +4590,25 @@
     \list
        \o  Linux (32 bit and 64 bit)
        \o  Windows (32 bit and 64 bit)
-       \o  MacOS 10.5 ("Leopard") or higher
+       \omit \o  Mac OS 10.5 Leopard, or higher \endomit
     \endlist
 
-    \note The only supported build system for Maemo applications in Qt
+    \note The only supported build system for Maemo in Qt
     Creator is qmake.
 
     \section1 Setting Up the N900
 
-    You can connect your device to your workstation using either an USB or a
+    You can connect your device to your development PC using either an USB or a
     WLAN connection.
 
     For the device, you need to use a tool called Mad Developer to create the
     device-side end point for USB and WLAN connections. It provides no
     diagnostics functions but is essential for creating connections between the
-    device and your workstation.
+    device and your development PC.
 
-    For the workstation, you need to set up the N900 as a network device.
+    For the development PC, you need to set up the N900 as a network device.
 
-    \note If you use the device's USB network functionality and plan to
-    connect your development PC to the N900 via a common WLAN network, you can
+    \note If you plan to connect your development PC to the N900 only over WLAN, you can
     ignore the USB-specific parts in the following sections.
 
     \section2 Installing the Mad Developer Package
@@ -4470,7 +4679,7 @@
     with a different address inside the same subnet too.
 
     \note If you have changed the IP address of the device when configuring
-    Mad Developer, you need to reflect those changes in your workstation's USB
+    Mad Developer, you need to reflect those changes in your development PC USB
     network settings as well.
 
     Run the following command in a shell as root user:
@@ -4503,6 +4712,9 @@
 
     \section2 Setting Up MADDE
 
+    If you install Nokia Qt SDK, the MADDE package is installed and
+    configured automatically on your development PC and you can omit this step.
+
     After having downloaded the MADDE installer file for your platform from
     \l{http://wiki.maemo.org/MADDE}{here}, execute it and follow the
     instructions. The package will be installed. Then run:
@@ -4515,72 +4727,79 @@
 
     \section1 Setting Up Qt Creator
 
-    Set up the Qt Creator for developing Maemo applications by following the
-    steps mentioned below:
+    Set up a connection to the device in the
+    Qt Creator build and run settings, as follows:
 
     \list 1
-        \o  \bold{Registering the MADDE Toolchain}
+        \o  If you install Qt Creator separately, you must register the
+        MADDE toolchain:
 
-            Select \gui Tools > \gui Options > \gui Qt4 > \gui{Qt Versions}.
-            Click \inlineimage qtcreator-windows-add.png,
-            to add a new Qt version. The \gui{qmake Location} is the qmake
+            \list a
+
+            \o Select \gui Tools > \gui Options > \gui Qt4 > \gui{Qt Versions}.
+
+            \o Click \inlineimage qtcreator-windows-add.png,
+            to add a new Qt version.
+
+            The \gui{qmake Location} is the qmake
             executable in \c{<MADDE dir>/targets/<fremantle target>/bin}.
 
             \image qtcreator-screenshot-toolchain.png
 
+            \endlist
 
-        \o  \bold{Creating a Device Configuration}
+            If you installed the Nokia Qt SDK, you can omit this step.
 
-            In order to deploy applications and run them remotely, Qt Creator
-            needs parameters for device access which you can set in device
-            configurations.
+        \o  To deploy applications and run them remotely, specify parameters
+            for accessing devices:
 
-            Select \gui Tools > \gui Options > \gui Qt4 >
-            \gui{Maemo Device Configurations} and add a new configuration.
+            \list a
+
+            \o Select \gui Tools > \gui Options > \gui Qt4 >
+            \gui{Maemo Devices} and add a new configuration.
 
             \image qtcreator-screenshot-devconf.png
 
 
             \note The password is the one MADDE Developer displays on the
-            device. Click \gui Test to check whether the device can be accessed
-            properly. It is recommended that you use the password-based login
+            device.
+
+            \o Click \gui Test to check whether the device can be accessed
+            properly.
+
+             It is recommended that you use the password-based login
             only to deploy your public SSH key to the device
             (using the \gui{Deploy Key} button) and then switch to key-based
             authentication.
 
-            Close the dialog by clicking the \gui OK button after completion.
+            \o Click \gui OK to close the dialog.
 
+            \endlist
 
-        \o  \bold{Setting Build and Run Configuration}
+         \o To specify build settings:
 
-            Open a project for an application you want to develop for your
-            N900. Click \gui Projects to open the projects mode. In the
-            \gui{Build Settings} section, choose the MADDE Qt version which you
-            registered earlier:
+            \list a
 
-            \image qtcreator-screenshot-build-settings.png
+                \o Open a project for an application you want to develop for your
+                N900.
 
-            In the \gui{Run Settings} section, click \gui Add to add a new
-            run configuration on the Maemo device. Set a name and select the
-            device configuration you created above in the popup menu.
+                \o Click \gui Projects to open the projects mode.
 
-            The following screenshot shows the result below:
+                \o In the \gui{Build Settings} section, choose the MADDE Qt version.
 
-            \image qtcreator-screenshot-run-settings.png
+                 \image qtcreator-screenshot-build-settings.png
 
-        \o  \bold{Compiling, Running and Debugging Your Application}
+                 \o In the \gui{Run Settings} section, click \gui Add to add a new
+                 run configuration on the Maemo device.
 
-            You can now continue your work as if developing for any
-            other platform supported by Qt Creator: for compiling, Qt Creator
-            will use the MADDE toolchain's cross compiler.
+                 \o Set a name and select the device configuration.
 
-            When you run your application, it is automatically copied onto
-            the device and executed there. Your application's windows will be
-            displayed on the N900 and command-line output is visible in Qt
-            Creator's "Application output" window.
+                 \image qtcreator-screenshot-run-settings.png
 
-            Debugging also works transparently.
-    \endlist
+             \endlist
+
+         \endlist
+
 */
 
 
@@ -4589,21 +4808,37 @@
     \contentspage index.html
     \previouspage creator-developing-maemo.html
     \page creator-developing-symbian.html
-    \nextpage creator-usability.html
+    \nextpage creator-building-running.html
 
-    \title Developing Symbian Applications
+    \title Setting Up Development Environment for Symbian
 
-    \section1 Getting Started with Symbian Based Applications
+    \section1 Hardware and Software Requirements
 
-    Windows is the only development platform supported at the moment. You
-    need to install the following software on your system:
+    Windows is the only development platform for the Symbian target
+    supported at the moment.
+
+    For deploying and running applications on the device, you need the
+    following:
+    \list
+        \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
+        \o The \l{http://tools.ext.nokia.com/trk/}{App TRK} application for
+           your device
+        \o The \e{qt_installer.sis} package installed on the device, that is
+         bundled with the binary Qt distribution
+    \endlist
+
+    To run your applications in the Symbian emulator, you also need
+    to install Carbide.c++ v2.0.0 or higher.
+
+    \section1 Adding Symbian Platform SDKs
+
+    Nokia Qt SDK contains all the tools you need for developing Qt applications for
+    Symbian devices. To use Symbian APIs directly in your applications, you can
+    install additional Symbian Platform SDKs:
 
     \list
         \o \l{http://www.forum.nokia.com/main/resources/tools_and_sdks/S60SDK/}
            {S60 Platform SDK 3rd Edition FP1 or higher}.
-        \o \l{http://www.forum.nokia.com/main/resources/technologies/openc_cpp/}
-           {Open C/C++ v1.6.0 or higher}
-           (install this into all S60 SDKs you plan to use Qt with).
         \o Either the GCCE ARM Toolchain that is included in the S60 Platform
            SDKs, or RVCT 2.2 [build 686] or later (which is not available free
            of charge)(Your environment needs to find the compiler in the PATH).
@@ -4612,27 +4847,12 @@
 
     \endlist
 
-    For deploying and running applications on the device, you need the
-    following:
-    \list
-        \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
-        \o The \l{http://tools.ext.nokia.com/trk/}{App TRK} application for
-           your device
-    \endlist
-
-    Running Qt based applications on real devices requires the
-    \e{qt_installer.sis} package installed on the device, that is bundled with
-    the binary Qt distribution.
-
-    If you want to run your applications in the Symbian emulator, you also need
-    to install Carbide.c++ v2.0.0 or higher.
-
-    \section1 Setting Up Qt Creator
+    \section2 Setting Up Qt Creator
 
     When you run Qt Creator after installing the S60 Platform SDK and Qt for
     Symbian, the installed SDKs and their corresponding Qt versions are
     automatically detected. For each detected S60 SDK with Qt, a special entry
-    is made in the Qt version management settings \gui{Tools} >
+    is made in the Qt version management settings in \gui{Tools} >
     \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}.
 
     \note If you manually add a Qt version for Symbian, you must
@@ -4651,197 +4871,7 @@
 
     \image qtcreator-qt4-s60sdks.png
 
-    \section1 Setting Up Your Project
 
-    After installing all the prerequisites and checking the setup in Qt Creator
-    as described above, you need to set up your project.
-
-    \note The only supported build system for Qt for Symbian applications in Qt
-    Creator is qmake.
-
-    Before you can build your project for the Symbian platform, you need to
-    create build and run configurations for it. To do this, follow the steps
-    listed below:
-    \list 1
-        \o Open \gui{Projects} mode and make sure that your project is selected
-           at the top of the page.
-        \o Select the \gui{Targets} configuration. The \gui{Targets}
-           configuration page allows you to add and configure the build and run
-           configurations for your project, categorized by the target platform
-           you want to build and run your application on.
-
-           \note Targets for instance can be \gui{Desktop},
-           \gui{Symbian Emulator}, and \gui{Symbian Device}.
-        \o Ensure that your project has a \gui{Symbian Device} entry. In case
-           you want to target the symbian emulator then your project needs to
-           have \gui{Symbian Emulator} entry as well.
-        \o If one of the targets is missing in the list for your project, you
-           can add a complete configuration for a new target by pressing the
-           \inlineimage qtcreator-qt4-addbutton.png
-           button and selecting the desired target from the wizard page that
-           appears.
-    \endlist
-
-    \image qtcreator-qt4-symbian-target-tabs.png
-    \image qtcreator-qt4-symbian-add-target.png
-    \image qtcreator-qt4-symbian-target-added.png
-
-    The build configuration that is created for the \gui{Symbian Device} target,
-    uses the GCCE tool chain by default. If you want to build
-    for the device using RVCT, select the tool chain in the \gui{General}
-    section for your build configurations.
-
-    \section2 Creating Installation Packages
-
-    When you build the application for the \gui{Symbian Device} target, Qt
-    Creator automatically generates a Symbian installation system (SIS) file
-    in the project folder. You can deliver the installation file to users for
-    installation on Symbian devices.
-
-    Only installation files signed with a certificate and private key are
-    allowed to be installed onto Symbian devices. By default, Qt Creator
-    self-signs the installation file. This self-signing allows you to install
-    the application on a mobile  device but places limits on what you can do
-    with the installation file, including:
-    \list
-       \o  Self-signed applications cannot access the more sensitive
-           \l{Capabilities and Signing}{capabilities} of the mobile device.
-       \o  Security warnings will be displayed when you install the self-signed
-           application on a mobile device.
-       \o  Self-signed applications cannot be distributed commercially on Ovi
-           Store.
-    \endlist
-
-    To get around these limitations, you need to go through the Symbian Signed
-    process. The Symbian Signed organisation manages a public key
-    infrastructure to provide public authentication of the information in the
-    application signing certificates. Their security partner can validate your
-    certificate and give you a Publisher ID. Then, when you sign an
-    application, other people can be confident that the information in your
-    certificate is correct and that the application does actually come from you.
-
-    There are also options that do not require you to get a Publisher ID. For
-    more detail about how the Symbian Signed process works, see
-    \l{http://developer.symbian.org/wiki/index.php/Complete_Guide_To_Symbian_Signed}
-    {Complete Guide to Symbian Signed}.
-
-    When you have your own certificate and private key, you can specify them in
-    the \gui{Create sis Package} step in your build configuration.
-
-    \image qtcreator-qt4-symbian-signing.png
-
-    \section3 Capabilities and Signing
-
-    Capabilities allow the Symbian platform to control access by applications to
-    the functionality provided by the platform APIs. Access to capabilities is
-    determined by the device configuration and how the application has been signed.
-
-    Symbian Signed offers the following signing options depending on the
-    capabilities that the application accesses:
-
-    \list
-
-        \o \bold{Express signed} for applications that access only user and system
-        capabilities.
-
-        \o \bold{Certified signed} for applications that access also restricted or
-        device manufacturer capabilities.
-
-        \note You need to request the rights to access device manufacturer
-        capabilities from the manufacturer.
-
-    \endlist
-
-    For more information about how to choose the appropriate signing option, see
-    \l{http://developer.symbian.org/wiki/index.php/Symbian_Signed_For_Distributing_Your_Application}{Symbian Signed For Distributing Your Application}.
-
-    If you select a signing option that does not allow the application to access
-    the defined capabilities, installing the application on mobile devices
-    fails. To avoid problems, only define capabilities and link libraries to a project
-    if you really need them.
-
-    For more information about capabilities and how you can check which ones you
-    need, see
-    \l{http://developer.symbian.org/wiki/index.php/Capabilities_(Symbian_Signed)}{Capabilities (Symbian Signed)}.
-
-    For more information on how to define capabilities for a project, see
-    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#capabilities}{Capabilities}.
-
-    \section1 Running Your Project
-
-    After setting up your project as described above you build and run your
-    project for a specific target platform by selecting the target as the
-    active one, using the target button from the left hand tool bar, and then
-    press the run button.
-
-    \image qtcreator-qt4-symbian-select-symbian-device.png
-
-    The icon in the target selector indicates if a device is currently
-    connected. When Qt Creator detects a device being connected, it shows a
-    green check mark.
-
-    \image qtcreator-qt4-symbian-device-connected.png
-
-    \section2 Running Your Project in the Emulator
-
-    Running your project in the emulator doesn't require special setup. Select
-    the \gui{Symbian Emulator} target as the active one, and build and run your
-    project.
-
-    \section2 Running Your Project on the Device
-
-    To run your project on a device, you first need to connect it to your
-    computer through a USB cable. Qt Creator shows the current connection state
-    of a device in its main toolbar, showing a red cross when no device is
-    connected, or a green check mark when a device is connected.
-
-    \image qtcreator-qt4-symbian-device-notconnected.png
-    \image qtcreator-qt4-symbian-device-connected.png
-
-    The tool tip of the target button shows more details about the actual
-    device that will be used when you run your application.
-
-    Start the \gui{App TRK} application on your device and press the run button
-    to create a package for your application, deploy, install and run it
-    automatically on your device.
-
-    In the details of the run configuration for the \gui{Symbian Device} target
-    you can select a specific device to run your application on, if you have
-    multiple devices connected simultaneously to your computer. If you only
-    connect a single device, this will automatically be chosen for running your
-    application.
-
-    \section2 Troubleshooting
-
-    If you cannot build the application, check if:
-     \list
-        \o You selected the Symbian Device target for building the application.
-        \o The settings for the Qt version you use to build your project are
-           correct. The path to the S60 SDK must point to the S60 SDK
-           installation directory.  Select \gui Tools > \gui Options...
-           > \gui Debugger > \gui{Symbian TRK} and check if it points to the
-           debugger toolchain.
-     \endlist
-    If you cannot run the application in the emulator, check if:
-     \list
-        \o You selected the \gui{Symbian Emulator} target for your application.
-        \o If the emulator process cannot be started, try closing Qt Creator and
-           starting the application directly from your file manager. Having
-           done this, Qt Creator should be able to run your projects in the
-           emulator.
-     \endlist
-    If you cannot run the application on a device, check if:
-     \list
-        \o The device is connected through the USB cable in \e{PC Suite} mode.
-        \o \gui{App TRK} is running on the device, using the USB connection,
-           with the status \e connected.
-        \o The device is detected and selected in the run configuration
-           details.
-     \endlist
-
-    If this does not help to solve your problem, search the qt-creator@trolltech.com
-    mailing list archives or provide feedback to us via the methods described on the
-    \l{http://qt.gitorious.org/qt-creator/pages/Home}{Qt Creator Development Wiki}.
 
 */
 
@@ -4902,11 +4932,11 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-developing-symbian.html
+    \previouspage creator-visual-editor.html
     \page creator-usability.html
     \nextpage creator-debugging.html
 
-    \title Developing Usable Applications
+    \title Optimizing Applications for Mobile Devices
 
     Before starting application development, analyze and define the requirements, scope, and
     functionality of the application to ensure efficient functionality and a smooth user
@@ -5640,15 +5670,6 @@
                 environment variable.
                 This is likely to be the system's Qt version.
 
-        \row
-            \o
-                \raw HTML
-                Default&nbsp;Qt
-                \endraw
-                \target glossary-default-qt
-            \o  The version of Qt configured in \gui{Tools > Options... > Qt 4
-                > Default Qt Version}. This is the Qt version used by your
-                new projects. It defaults to the Qt in PATH.
 
         \row
             \o
@@ -5656,10 +5677,9 @@
                 Project&nbsp;Qt
                 \endraw
                 \target glossary-project-qt
-            \o  The version of Qt configured in \gui{Build&Run > Build
-                Settings > Build Configurations}. This is the Qt version that
-                is actually used by a particular project. It defaults to
-                Default Qt.
+            \o  The version of Qt configured in the \gui{Projects} mode, \gui {Build
+                Settings}, \gui {Qt Version} field. This is the Qt version that
+                is actually used by a particular project.
 
         \row
             \o
