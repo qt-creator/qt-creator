@@ -3919,7 +3919,7 @@
     You can use the code editor (\gui Edit mode) or the visual editor
     (\gui Design mode) to develop Qt Quick applications.
 
-    \note The visual \QMLD editor is provided as an experimental plugin that you must
+    \note The \QMLD visual editor is provided as an experimental plugin that you must
     enable to be able to edit QML files in the \gui Design mode. Enabling the
     visual editor can negatively affect the overall stability of Qt Creator.
 
@@ -3972,7 +3972,7 @@
     \list
 
         \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
-        uses an image as a border.
+        uses an image as a border or background.
         \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-image.html}{Image}
         adds a bitmap to the scene. You can stretch and tile images.
         \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-item.html}{Item}
@@ -3991,12 +3991,22 @@
 
     \endlist
 
-    For example, to create a button component:
+    You can use QML to add properties for a component in the code editor.
+
+    \omit
+
+    The following sections describe some use cases for the QML elements.
+
+    \endomit
+
+    \section3 Creating Buttons
+
+    To create a button component:
 
     \list 1
 
         \o Select \gui {File > New File or Project > Qt > Qt QML File} to create a QML file
-        called Button.qml.
+        called Button.qml (for example).
 
         \note Components are listed in the \gui Library pane only if the filename begins
         with a capital letter.
@@ -4046,10 +4056,85 @@
 
         \image qmldesigner-button.png "Button component"
 
+        \o Click the \gui Run button to view the button in the QML viewer.
+
     \endlist
 
-    You can use QML to add properties for a component. The properties are automatically
-    displayed in the \gui Properties pane.
+    To create a graphical button that scales beautifully without using vector graphics,
+    use the \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
+    element.
+
+    \omit
+
+    \section3 Creating Scalable Buttons and Borders
+
+    You can use the \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
+    element to display an image, such as a PNG file, as a border and a background.
+
+    Use two Border Image elements and suitable graphics to make it look like the button
+    is pushed down when it is clicked. One of the Border Image elements is visible by default.
+    You can specify that it is hidden and the other one becomes visible when the mouse is clicked.
+
+    Add a MouseArea that covers the whole area and emits the clicked signal (parent.clicked())
+    when it detects a mouse click.
+
+    You can add text to the button and set it up as a property. The text can then be initialized
+    from the outside, making the button a reusable UI component. The font size is also available in case
+    the default size is too big. You can scale down the button text and use smooth text rendering
+    for some extra quality.
+
+    \image qmldesigner-borderimage.png "Graphical button"
+
+    To create a graphical button:
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > Qt > Qt QML File} to create a QML file
+        called Button.qml (for example).
+
+        \o Double-click the file to open it in the code editor.
+
+        \o Click \gui {Design} to edit the file in the visual editor.
+
+        \o Drag and drop a \gui BorderImage from the \gui Library pane to the scene.
+
+        \o Drag and drop another \gui BorderImage on top of the first one.
+
+        \o To switch the background image upon mouse click, create two .sci files that
+        specify the file names of the images:
+
+        \list a
+
+            \o Select \gui {File > New File or Project > General > Text File} to create
+            a text file called button-up.sci in the project folder.
+
+            \o Double-click the button-up.sci file to open it in the code editor.
+
+            \o Specify settings for the background image as illustrated by the following
+            code snippet:
+
+            \code
+
+            border.left:32
+            border.top:32
+            border.right:32
+            border.bottom:32
+            source:button-up.png
+
+            \endcode
+
+            \o Create another .sci file called button-down.sci and specify the other
+            background image as the source file.
+
+            \o Copy the background image files to the project folder.
+
+            \endlist
+
+        \o Click the \gui Run button to view the button in the QML viewer.
+
+        \endlist
+
+    \endomit
 
     \section2 Creating Screens
 
@@ -4087,16 +4172,123 @@
 
     \endlist
 
+    \section3 Creating List Views
+
+    You use list views and list models to create lists. You use delegates to handle list items.
+    Typically, the list model is provided by a QAbstractListModel C++ model object,
+    but you can also create it in QML.
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > Qt > Qt QML File} to create a QML file
+        called ListView.qml (for example).
+
+        \o Double-click the file to open it in the code editor.
+
+        \o Add a list model that contains the data to be shown on the list, as
+        illustrated by the following code snippet:
+
+        \code
+
+        import Qt 4.6
+
+            Rectangle {
+                width: 360
+                height: 640
+
+            ListModel {
+                id: myListModel
+                ListElement {
+                   item_index: 0
+                   item_name: "Item 1"
+                   item_description: "Description 1"
+            }
+            ListElement {
+                item_index: 1
+                item_name: "Item 2"
+                item_description: "Description 2"
+            }
+            ListElement {
+                item_index: 2
+                item_name: "Item 3"
+                item_description: "Description 3"
+            }
+        }
+
+        \endcode
+
+        \o Add a delegate that draws each item in the list.
+
+        \code
+
+        Component {
+            id: myListDelegate
+            Item {
+                id: wrapper
+                width: parent.width
+                height: 40
+                Column {
+                    x: 5; y: 5
+                    Text { text: '<b>Name:</b> ' + item_name }
+                    Text { text: '<b>Descriptionr:</b> ' + item_description }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: myList.currentIndex = item_index
+                }
+            }
+        }
+
+        \endcode
+
+        You can use a separate delegate to hilight the currently selected item.
+
+        \code
+
+        Component {
+            id: myListHilight
+            Rectangle {
+                width: parent.width
+                height: 40
+                color: "lightsteelblue"
+                radius: 5
+                SpringFollow on y {
+                    to: myList.currentItem.y
+                    spring: 3
+                    damping: 0.2
+                }
+            }
+        }
+
+        \endcode
+
+        \o Add the list view, as illustrated by the following code snippet:
+
+        \code
+
+        ListView {
+            id: myList
+            width: parent.width; height: parent.height
+            model: myListModel
+            delegate: myListDelegate
+            highlight: myListHilight
+            focus: true
+            }
+        }
+
+        \endcode
+
+        \o Click the \gui Run button to view the list view in the QML viewer.
+
+    \endlist
+
     \section2 Navigating Between Screens
 
-    To make movement between states smooth, you can specify transitions. The
-    \c from and \c to properties define the states between which the transitions run. To
-    run the transitions in reverse when changing back from the down state to the default state,
-    set \c reversible to \c true. This is equivalent to writing the two transitions separately.
-
+    To make movement between states smooth, you can specify transitions.
     You can use different types of animated transitions. For example, you can animate changes
     to property values and colors. You can use rotation animation to control the direction of
-    rotation.
+    rotation. For more information, see
+    \l{http://doc.trolltech.com/4.7-snapshot/qdeclarativeanimation.html}{QML Animation}.
 
     You can use the \c ParallelAnimation element to start several animations at the same time.
     Or use the \c SequentialAnimation element to run them one after another.
@@ -4132,7 +4324,7 @@
     A user interface is only a part of an application, and not really useful by itself.
     You can use Qt or JavaScript to implement the application logic. For more information on
     using JavaScript, see
-    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativejavascript.html} {JavaScript Blocks}.
+    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativejavascript.html} {Integrating JavaScript}.
 
     For an example of how to use JavaScript to develop a game, see the
     \l {http://qt.nokia.com/doc/4.7-snapshot/qml-advtutorial.html} {QML Advanced Tutorial}.
