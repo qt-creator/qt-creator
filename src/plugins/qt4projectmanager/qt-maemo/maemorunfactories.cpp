@@ -111,7 +111,7 @@ QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) c
     return QStringList();
 }
 
-QString MaemoRunConfigurationFactory::displayNameForId(const QString & /*id*/) const
+QString MaemoRunConfigurationFactory::displayNameForId(const QString &id) const
 {
     Q_UNUSED(id)
     return tr("New Maemo Run Configuration");
