@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/utils">
         <file>images/removesubmitfield.png</file>
+        <file>images/arrow.png</file>
     </qresource>
 </RCC>
