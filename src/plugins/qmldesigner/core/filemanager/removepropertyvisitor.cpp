@@ -65,35 +65,68 @@ bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 
 void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
 {
-    UiObjectMember *previousMember = 0, *wantedMember = 0, *nextMember = 0;
+    QString prefix;
+    int dotIdx = propertyName.indexOf(QLatin1Char('.'));
+    if (dotIdx != -1)
+        prefix = propertyName.left(dotIdx);
 
     for (UiObjectMemberList *it = ast->members; it; it = it->next) {
-        if (memberNameMatchesPropertyName(it->member)) {
-            wantedMember = it->member;
+        UiObjectMember *member = it->member;
 
-            if (it->next)
-                nextMember = it->next->member;
-
-            break;
+        // run full name match (for ungrouped properties):
+        if (memberNameMatchesPropertyName(propertyName, member)) {
+            removeMember(member);
         }
-
-        previousMember = it->member;
+        // check for grouped properties:
+        else if (!prefix.isEmpty()) {
+            if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
+                if (flatten(def->qualifiedTypeNameId) == prefix) {
+                    removeGroupedProperty(def);
+                }
+            }
+        }
     }
+}
 
-    if (!wantedMember)
+void RemovePropertyVisitor::removeGroupedProperty(UiObjectDefinition *ast)
+{
+    int dotIdx = propertyName.indexOf(QLatin1Char('.'));
+    if (dotIdx == -1)
         return;
 
-    int start = wantedMember->firstSourceLocation().offset;
-    int end = wantedMember->lastSourceLocation().end();
+    const QString propName = propertyName.mid(dotIdx + 1);
+
+    UiObjectMember *wanted = 0;
+    unsigned memberCount = 0;
+    for (UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
+        ++memberCount;
+        UiObjectMember *member = it->member;
+
+        if (!wanted && memberNameMatchesPropertyName(propName, member)) {
+            wanted = member;
+        }
+    }
+
+    if (!wanted)
+        return;
+    if (memberCount == 1)
+        removeMember(ast);
+    else
+        removeMember(wanted);
+}
+
+void RemovePropertyVisitor::removeMember(UiObjectMember *member)
+{
+    int start = member->firstSourceLocation().offset;
+    int end = member->lastSourceLocation().end();
 
     includeSurroundingWhitespace(start, end);
 
     replace(start, end - start, QLatin1String(""));
-
     setDidRewriting(true);
 }
 
-bool RemovePropertyVisitor::memberNameMatchesPropertyName(QmlJS::AST::UiObjectMember *ast) const
+bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propertyName, UiObjectMember *ast)
 {
     if (UiPublicMember *publicMember = cast<UiPublicMember*>(ast))
         return publicMember->name->asString() == propertyName;

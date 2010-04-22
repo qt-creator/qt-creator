@@ -50,9 +50,11 @@ protected:
     virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
 
 private:
-    void replaceInMembers(QmlJS::AST::UiObjectInitializer *initializer);
+    void replaceInMembers(QmlJS::AST::UiObjectInitializer *initializer,
+                          const QString &propertyName);
     void replaceMemberValue(QmlJS::AST::UiObjectMember *propertyMember, bool needsSemicolon);
-    bool isMatchingPropertyMember(QmlJS::AST::UiObjectMember *member) const;
+    static bool isMatchingPropertyMember(const QString &propName,
+                                         QmlJS::AST::UiObjectMember *member);
     static bool nextMemberOnSameLine(QmlJS::AST::UiObjectMemberList *members);
 
     void insertIntoArray(QmlJS::AST::UiArrayBinding* ast);

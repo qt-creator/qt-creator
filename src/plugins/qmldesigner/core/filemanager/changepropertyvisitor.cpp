@@ -58,7 +58,7 @@ bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     const quint32 objectStart = ast->firstSourceLocation().offset;
 
     if (objectStart == m_parentLocation) {
-        replaceInMembers(ast->initializer);
+        replaceInMembers(ast->initializer, m_name);
         return false;
     }
 
@@ -73,30 +73,39 @@ bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
     const quint32 objectStart = ast->qualifiedTypeNameId->identifierToken.offset;
 
     if (objectStart == m_parentLocation) {
-        replaceInMembers(ast->initializer);
+        replaceInMembers(ast->initializer, m_name);
         return false;
     }
 
     return !didRewriting();
 }
 
-void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer)
+void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
+                                             const QString &propertyName)
 {
-    for (UiObjectMemberList *members = initializer->members; members; members = members->next) {
-        UiObjectMember *propertyMember = members->member;
+    QString prefix, suffix;
+    int dotIdx = propertyName.indexOf(QLatin1Char('.'));
+    if (dotIdx != -1) {
+        prefix = propertyName.left(dotIdx);
+        suffix = propertyName.mid(dotIdx + 1);
+    }
 
-        if (isMatchingPropertyMember(propertyMember)) {
+    for (UiObjectMemberList *members = initializer->members; members; members = members->next) {
+        UiObjectMember *member = members->member;
+
+        // for non-grouped properties:
+        if (isMatchingPropertyMember(propertyName, member)) {
             switch (m_propertyType) {
             case QmlRefactoring::ArrayBinding:
-                insertIntoArray(cast<UiArrayBinding*>(propertyMember));
+                insertIntoArray(cast<UiArrayBinding*>(member));
                 break;
 
             case QmlRefactoring::ObjectBinding:
-                replaceMemberValue(propertyMember, false);
+                replaceMemberValue(member, false);
                 break;
 
             case QmlRefactoring::ScriptBinding:
-                replaceMemberValue(propertyMember, nextMemberOnSameLine(members));
+                replaceMemberValue(member, nextMemberOnSameLine(members));
                 break;
 
             default:
@@ -104,6 +113,14 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer)
             }
 
             break;
+        }
+        // for grouped properties:
+        else if (!prefix.isEmpty()) {
+            if (UiObjectDefinition *def = cast<UiObjectDefinition *>(member)) {
+                if (flatten(def->qualifiedTypeNameId) == prefix) {
+                    replaceInMembers(def->initializer, suffix);
+                }
+            }
         }
     }
 }
@@ -147,16 +164,17 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
     setDidRewriting(true);
 }
 
-bool ChangePropertyVisitor::isMatchingPropertyMember(QmlJS::AST::UiObjectMember *member) const
+bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
+                                                     UiObjectMember *member)
 {
     if (UiObjectBinding *objectBinding = AST::cast<UiObjectBinding *>(member)) {
-        return m_name == flatten(objectBinding->qualifiedId);
+        return propName == flatten(objectBinding->qualifiedId);
     } else if (UiScriptBinding *scriptBinding = AST::cast<UiScriptBinding *>(member)) {
-        return m_name == flatten(scriptBinding->qualifiedId);
+        return propName == flatten(scriptBinding->qualifiedId);
     } else if (UiArrayBinding *arrayBinding = AST::cast<UiArrayBinding *>(member)) {
-        return m_name == flatten(arrayBinding->qualifiedId);
+        return propName == flatten(arrayBinding->qualifiedId);
     } else if (UiPublicMember *publicMember = AST::cast<UiPublicMember *>(member)) {
-        return m_name == publicMember->name->asString();
+        return propName == publicMember->name->asString();
     } else {
         return false;
     }

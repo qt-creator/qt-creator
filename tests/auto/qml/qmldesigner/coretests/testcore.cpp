@@ -545,11 +545,11 @@ void TestCore::testRewriterGroupedProperties()
                                   "    pointSize: 10\n"
                                   "    underline: true\n"
                                   "  }\n"
-                                  "}");
+                                  "}\n");
 
-    QPlainTextEdit textEdit1;
-    textEdit1.setPlainText(qmlString);
-    NotIndentingTextEditModifier modifier1(&textEdit1);
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier1(&textEdit);
 
     QScopedPointer<Model> model1(Model::create("Qt/Text"));
 
@@ -565,6 +565,22 @@ void TestCore::testRewriterGroupedProperties()
     ModelNode rootModelNode = testRewriterView1->rootModelNode();
     QCOMPARE(rootModelNode.property(QLatin1String("font.pointSize")).toVariantProperty().value().toDouble(), 10.0);
     QCOMPARE(rootModelNode.property(QLatin1String("font.underline")).toVariantProperty().value().toBool(), true);
+
+    rootModelNode.removeProperty(QLatin1String("font.underline"));
+    QCOMPARE(rootModelNode.property(QLatin1String("font.pointSize")).toVariantProperty().value().toDouble(), 10.0);
+    QVERIFY(!rootModelNode.hasProperty(QLatin1String("font.underline")));
+
+    rootModelNode.variantProperty(QLatin1String("font.pointSize")).setValue(20.0);
+    QCOMPARE(rootModelNode.property(QLatin1String("font.pointSize")).toVariantProperty().value().toDouble(), 20.0);
+
+    rootModelNode.removeProperty(QLatin1String("font.pointSize"));
+    const QLatin1String expected("\n"
+                                 "import Qt 4.6\n"
+                                 "\n"
+                                 "Text {\n"
+                                 "}\n");
+
+    QCOMPARE(textEdit.toPlainText(), expected);
 }
 
 void TestCore::loadSubItems()

@@ -50,7 +50,10 @@ protected:
 
 private:
     void removeFrom(QmlJS::AST::UiObjectInitializer *ast);
-    bool memberNameMatchesPropertyName(QmlJS::AST::UiObjectMember *ast) const;
+    static bool memberNameMatchesPropertyName(const QString &propertyName,
+                                              QmlJS::AST::UiObjectMember *ast);
+    void removeGroupedProperty(QmlJS::AST::UiObjectDefinition *ast);
+    void removeMember(QmlJS::AST::UiObjectMember *ast);
 
 private:
     quint32 parentLocation;
