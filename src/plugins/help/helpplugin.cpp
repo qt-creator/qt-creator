@@ -243,7 +243,9 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         action = new QAction(tr("Reset Font Size"), this);
         cmd = am->registerAction(action, TextEditor::Constants::RESET_FONT_SIZE,
             modecontext);
+#ifndef Q_WS_MAC
         cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+0")));
+#endif
         connect(action, SIGNAL(triggered()), m_centralWidget, SLOT(resetZoom()));
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
