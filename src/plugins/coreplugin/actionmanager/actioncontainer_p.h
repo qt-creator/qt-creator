@@ -40,6 +40,8 @@ namespace Internal {
 
 class ActionContainerPrivate : public Core::ActionContainer
 {
+    Q_OBJECT
+
 public:
     ActionContainerPrivate(int id);
     virtual ~ActionContainerPrivate() {}
@@ -62,6 +64,9 @@ public:
 
     QList<Command *> commands() const { return m_commands; }
     QList<ActionContainer *> subContainers() const { return m_subContainers; }
+
+    virtual bool updateInternal() = 0;
+
 protected:
     bool canAddAction(Command *action) const;
     bool canAddMenu(ActionContainer *menu) const;
@@ -69,6 +74,10 @@ protected:
 
     void addAction(Command *action, int pos, bool setpos);
     void addMenu(ActionContainer *menu, int pos, bool setpos);
+
+private slots:
+    void scheduleUpdate();
+    void update();
 
 private:
     QAction *beforeAction(int pos, int *prevKey) const;
@@ -80,6 +89,7 @@ private:
     QMap<int, int> m_posmap;
     QList<ActionContainer *> m_subContainers;
     QList<Command *> m_commands;
+    bool m_updateRequested;
 };
 
 class MenuActionContainer : public ActionContainerPrivate
@@ -95,10 +105,11 @@ public:
 
     void insertAction(QAction *before, QAction *action);
     void insertMenu(QAction *before, QMenu *menu);
-    bool update();
 
 protected:
     bool canBeAddedToMenu() const;
+    bool updateInternal();
+
 private:
     QMenu *m_menu;
     CommandLocation m_location;
@@ -114,10 +125,11 @@ public:
 
     void insertAction(QAction *before, QAction *action);
     void insertMenu(QAction *before, QMenu *menu);
-    bool update();
 
 protected:
     bool canBeAddedToMenu() const;
+    bool updateInternal();
+
 private:
     QMenuBar *m_menuBar;
 };

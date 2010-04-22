@@ -137,6 +137,8 @@ private slots:
     void actionChanged();
 
 private:
+    void setActive(bool state);
+
     QAction *m_action;
     QList<CommandLocation> m_locations;
     QString m_toolTip;

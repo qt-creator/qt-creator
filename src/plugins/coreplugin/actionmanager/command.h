@@ -81,6 +81,7 @@ public:
 
 signals:
     void keySequenceChanged();
+    void activeStateChanged();
 };
 
 } // namespace Core

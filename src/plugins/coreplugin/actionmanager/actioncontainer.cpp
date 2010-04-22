@@ -36,6 +36,7 @@
 #include "uniqueidmanager.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QTimer>
 #include <QtGui/QAction>
 #include <QtGui/QMenuBar>
 
@@ -152,7 +153,7 @@ using namespace Core::Internal;
 */
 
 ActionContainerPrivate::ActionContainerPrivate(int id)
-    : m_data(0), m_id(id)
+    : m_data(0), m_id(id), m_updateRequested(false)
 {
 
 }
@@ -253,6 +254,7 @@ void ActionContainerPrivate::addAction(Command *action, int pos, bool setpos)
 
     m_commands.append(action);
     m_posmap.insert(pos, action->id());
+    connect(action, SIGNAL(activeStateChanged()), this, SLOT(scheduleUpdate()));
     insertAction(ba, a->action());
 }
 
@@ -320,6 +322,20 @@ int ActionContainerPrivate::calcPosition(int pos, int prevKey) const
     return grp + (prevKey & 0xFFFF) + 10;
 }
 
+void ActionContainerPrivate::scheduleUpdate()
+{
+    if (m_updateRequested)
+        return;
+    m_updateRequested = true;
+    QTimer::singleShot(0, this, SLOT(update()));
+}
+
+void ActionContainerPrivate::update()
+{
+    updateInternal();
+    m_updateRequested = false;
+}
+
 // ---------- MenuActionContainer ------------
 
 /*!
@@ -368,7 +384,7 @@ CommandLocation MenuActionContainer::location() const
     return m_location;
 }
 
-bool MenuActionContainer::update()
+bool MenuActionContainer::updateInternal()
 {
     if (hasEmptyAction(EA_None))
         return true;
@@ -380,7 +396,7 @@ bool MenuActionContainer::update()
             qWarning() << Q_FUNC_INFO << "container" << (this->menu() ? this->menu()->title() : "") <<  "contains itself as subcontainer";
             continue;
         }
-        if (container->update()) {
+        if (qobject_cast<ActionContainerPrivate*>(container)->updateInternal()) {
             hasitems = true;
             break;
         }
@@ -441,7 +457,7 @@ void MenuBarActionContainer::insertMenu(QAction *before, QMenu *menu)
     m_menuBar->insertMenu(before, menu);
 }
 
-bool MenuBarActionContainer::update()
+bool MenuBarActionContainer::updateInternal()
 {
     if (hasEmptyAction(EA_None))
         return true;

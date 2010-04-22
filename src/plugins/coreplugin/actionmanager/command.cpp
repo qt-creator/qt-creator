@@ -337,11 +337,17 @@ bool Shortcut::setCurrentContext(const QList<int> &context)
 {
     foreach (int ctxt, m_context) {
         if (context.contains(ctxt)) {
-            m_shortcut->setEnabled(true);
+            if (!m_shortcut->isEnabled()) {
+                m_shortcut->setEnabled(true);
+                emit activeStateChanged();
+            }
             return true;
         }
     }
-    m_shortcut->setEnabled(false);
+    if (m_shortcut->isEnabled()) {
+        m_shortcut->setEnabled(false);
+        emit activeStateChanged();
+    }
     return false;
 }
 
@@ -454,14 +460,13 @@ bool Action::setCurrentContext(const QList<int> &context)
         // we need to update the checked state, so we connect to setChecked slot, which also fires a toggled signal
         connect(m_action, SIGNAL(toggled(bool)), m_currentAction, SLOT(setChecked(bool)));
         actionChanged();
-        m_active = true;
         return true;
     }
     // no active/delegate action, "visible" action is not enabled/visible
     if (hasAttribute(CA_Hide))
         m_action->setVisible(false);
     m_action->setEnabled(false);
-    m_active = false;
+    setActive(false);
     return false;
 }
 
@@ -517,9 +522,18 @@ void Action::actionChanged()
 
     m_action->setEnabled(m_currentAction->isEnabled());
     m_action->setVisible(m_currentAction->isVisible());
+    setActive(m_action->isEnabled() && m_action->isVisible() && !m_action->isSeparator());
 }
 
 bool Action::isActive() const
 {
     return m_active;
+}
+
+void Action::setActive(bool state)
+{
+    if (state != m_active) {
+        m_active = state;
+        emit activeStateChanged();
+    }
 }

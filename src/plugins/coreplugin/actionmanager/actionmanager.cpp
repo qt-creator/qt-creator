@@ -274,10 +274,6 @@ void ActionManagerPrivate::setContext(const QList<int> &context)
     const IdCmdMap::const_iterator cmdcend = m_idCmdMap.constEnd();
     for (IdCmdMap::const_iterator it = m_idCmdMap.constBegin(); it != cmdcend; ++it)
         it.value()->setCurrentContext(m_context);
-
-    const IdContainerMap::const_iterator acend = m_idContainerMap.constEnd();
-    for (IdContainerMap::const_iterator it = m_idContainerMap.constBegin(); it != acend; ++it)
-        it.value()->update();
 }
 
 bool ActionManagerPrivate::hasContext(QList<int> context) const

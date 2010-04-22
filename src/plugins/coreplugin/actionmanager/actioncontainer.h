@@ -66,7 +66,6 @@ public:
     virtual void addAction(Core::Command *action, const QString &group = QString()) = 0;
     virtual void addMenu(Core::ActionContainer *menu, const QString &group = QString()) = 0;
 
-    virtual bool update() = 0;
     virtual ~ActionContainer() {}
 };
 
