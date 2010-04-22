@@ -22,6 +22,7 @@ public:
     ~ScopeBuilder();
 
     void push(AST::Node *node);
+    void push(const QList<AST::Node *> &nodes);
     void pop();
 
 private:

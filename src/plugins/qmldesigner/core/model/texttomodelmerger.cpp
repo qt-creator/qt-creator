@@ -192,8 +192,6 @@ public:
         , m_link(m_context, doc, snapshot, importPaths)
         , m_scopeBuilder(doc, m_context)
     {
-        m_context->build(QList<Node *>(), doc, snapshot, importPaths);
-        m_link.scopeChainAt(doc);
     }
 
     ~ReadingContext()

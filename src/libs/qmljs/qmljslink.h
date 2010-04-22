@@ -24,9 +24,6 @@ public:
          const QStringList &importPaths);
     ~Link();
 
-    // Get the scope chain for the currentObject inside doc.
-    void scopeChainAt(Document::Ptr doc, const QList<AST::Node *> &astPath = QList<AST::Node *>());
-
     QList<DiagnosticMessage> diagnosticMessages() const;
 
 private:
@@ -42,6 +39,7 @@ private:
     static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 
     void linkImports();
+    void initializeScopeChain();
 
     void populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Ptr doc);
     void importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,

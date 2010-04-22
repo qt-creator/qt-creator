@@ -22,6 +22,7 @@ Link::Link(Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
     , _importPaths(importPaths)
 {
     linkImports();
+    initializeScopeChain();
 }
 
 Link::~Link()
@@ -38,56 +39,48 @@ QList<DiagnosticMessage> Link::diagnosticMessages() const
     return _diagnosticMessages;
 }
 
-void Link::scopeChainAt(Document::Ptr doc, const QList<Node *> &astPath)
+void Link::initializeScopeChain()
 {
     ScopeChain &scopeChain = _context->scopeChain();
 
     // ### TODO: This object ought to contain the global namespace additions by QML.
     scopeChain.globalScope = engine()->globalObject();
 
-    if (! doc) {
+    if (! _doc) {
         scopeChain.update();
         return;
     }
 
-    Bind *bind = doc->bind();
+    Bind *bind = _doc->bind();
     QHash<Document *, ScopeChain::QmlComponentChain *> componentScopes;
 
-    if (doc->qmlProgram()) {
+    if (_doc->qmlProgram()) {
         _context->setLookupMode(Context::QmlLookup);
 
         scopeChain.qmlComponentScope.clear();
-        componentScopes.insert(doc.data(), &scopeChain.qmlComponentScope);
-        makeComponentChain(doc, &scopeChain.qmlComponentScope, &componentScopes);
+        componentScopes.insert(_doc.data(), &scopeChain.qmlComponentScope);
+        makeComponentChain(_doc, &scopeChain.qmlComponentScope, &componentScopes);
 
-        if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
+        if (const ObjectValue *typeEnvironment = _context->typeEnvironment(_doc.data()))
             scopeChain.qmlTypes = typeEnvironment;
     } else {
-        // the global scope of a js file does not see the instantiating component
-        if (astPath.size() > 0) {
-            // add scope chains for all components that source this document
-            foreach (Document::Ptr otherDoc, _snapshot) {
-                if (otherDoc->bind()->includedScripts().contains(doc->fileName())) {
-                    ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
-                    componentScopes.insert(otherDoc.data(), component);
-                    scopeChain.qmlComponentScope.instantiatingComponents += component;
-                    makeComponentChain(otherDoc, component, &componentScopes);
-                }
+        // add scope chains for all components that source this document
+        // ### TODO: This needs updates for the new way of importing scripts
+        foreach (Document::Ptr otherDoc, _snapshot) {
+            if (otherDoc->bind()->includedScripts().contains(_doc->fileName())) {
+                ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
+                componentScopes.insert(otherDoc.data(), component);
+                scopeChain.qmlComponentScope.instantiatingComponents += component;
+                makeComponentChain(otherDoc, component, &componentScopes);
             }
-
-            // ### TODO: Which type environment do scripts see?
         }
+
+        // ### TODO: Which type environment do scripts see?
 
         scopeChain.jsScopes += bind->rootObjectValue();
     }
 
-    if (astPath.isEmpty()) {
-        scopeChain.update();
-    } else {
-        ScopeBuilder scopeBuilder(doc, _context);
-        foreach (Node *node, astPath)
-            scopeBuilder.push(node);
-    }
+    scopeChain.update();
 }
 
 void Link::makeComponentChain(

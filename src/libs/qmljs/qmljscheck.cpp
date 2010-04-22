@@ -194,9 +194,6 @@ QList<DiagnosticMessage> Check::operator()()
 
 bool Check::visit(UiProgram *)
 {
-    // build the initial scope chain
-    _link.scopeChainAt(_doc);
-
     return true;
 }
 

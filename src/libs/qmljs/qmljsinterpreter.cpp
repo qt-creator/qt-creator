@@ -30,6 +30,7 @@
 #include "qmljsinterpreter.h"
 #include "qmljsevaluate.h"
 #include "qmljslink.h"
+#include "qmljsscopebuilder.h"
 #include "parser/qmljsast_p.h"
 
 #include <QtCore/QFile>
@@ -1337,8 +1338,11 @@ void ScopeChain::update()
 
     _all += globalScope;
 
-    foreach (QmlComponentChain *parent, qmlComponentScope.instantiatingComponents)
-        parent->add(&_all);
+    // the root scope in js files doesn't see instantiating components
+    if (jsScopes.count() != 1 || !qmlScopeObjects.isEmpty()) {
+        foreach (QmlComponentChain *parent, qmlComponentScope.instantiatingComponents)
+            parent->add(&_all);
+    }
 
     if (qmlComponentScope.rootObject && ! qmlScopeObjects.contains(qmlComponentScope.rootObject))
         _all += qmlComponentScope.rootObject;
@@ -1373,7 +1377,7 @@ void Context::build(const QList<Node *> &astPath, QmlJS::Document::Ptr doc,
                     const QmlJS::Snapshot &snapshot, const QStringList &importPaths)
 {
     Link link(this, doc, snapshot, importPaths);
-    link.scopeChainAt(doc, astPath);
+    ScopeBuilder(doc, this).push(astPath);
 }
 
 Engine *Context::engine() const

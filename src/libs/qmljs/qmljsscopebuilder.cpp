@@ -39,6 +39,12 @@ void ScopeBuilder::push(AST::Node *node)
     _context->scopeChain().update();
 }
 
+void ScopeBuilder::push(const QList<AST::Node *> &nodes)
+{
+    foreach (Node *node, nodes)
+        push(node);
+}
+
 void ScopeBuilder::pop()
 {
     Node *toRemove = _nodes.last();
