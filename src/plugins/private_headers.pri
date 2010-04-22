@@ -5,5 +5,6 @@ isEmpty(QT_PRIVATE_HEADERS) {
     INCLUDEPATH += $$quote($${QT_PRIVATE_HEADERS}) \
                    $$quote($${QT_PRIVATE_HEADERS}/QtDeclarative) \
                    $$quote($${QT_PRIVATE_HEADERS}/QtCore) \
-                   $$quote($${QT_PRIVATE_HEADERS}/QtScript)
+                   $$quote($${QT_PRIVATE_HEADERS}/QtScript) \
+                   $$quote($${QT_PRIVATE_HEADERS}/QtGui)
 }
