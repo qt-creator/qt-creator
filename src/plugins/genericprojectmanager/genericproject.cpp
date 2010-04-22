@@ -82,6 +82,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
 
 GenericProject::~GenericProject()
 {
+    m_codeModelFuture.cancel();
     m_manager->unregisterProject(this);
 
     delete m_rootNode;
@@ -238,6 +239,8 @@ void GenericProject::refresh(RefreshOptions options)
         if (options & Configuration) {
             filesToUpdate = pinfo.sourceFiles;
             filesToUpdate.append(QLatin1String("<configuration>")); // XXX don't hardcode configuration file name
+            // Full update, if there's a code model update, cancel it
+            m_codeModelFuture.cancel();
         } else if (options & Files) {
             // Only update files that got added to the list
             QSet<QString> newFileList = m_files.toSet();
@@ -246,7 +249,7 @@ void GenericProject::refresh(RefreshOptions options)
         }
 
         modelManager->updateProjectInfo(pinfo);
-        modelManager->updateSourceFiles(filesToUpdate);
+        m_codeModelFuture = modelManager->updateSourceFiles(filesToUpdate);
     }
 }
 

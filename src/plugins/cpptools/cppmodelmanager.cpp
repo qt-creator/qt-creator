@@ -1209,7 +1209,6 @@ void CppModelManager::onAboutToUnloadSession()
     if (m_core->progressManager()) {
         m_core->progressManager()->cancelTasks(CppTools::Constants::TASK_INDEX);
     }
-
     do {
         QMutexLocker locker(&mutex);
         m_projects.clear();

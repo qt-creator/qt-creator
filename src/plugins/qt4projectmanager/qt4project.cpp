@@ -257,6 +257,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
 
 Qt4Project::~Qt4Project()
 {
+    m_codeModelFuture.cancel();
     m_asyncUpdateState = ShuttingDown;
     m_manager->unregisterProject(this);
     delete m_projectFiles;
@@ -412,8 +413,6 @@ void Qt4Project::updateCodeModel()
 {
     if (debug)
         qDebug()<<"Qt4Project::updateCodeModel()";
-
-    m_codeModelFuture.cancel();
 
     if (!activeTarget() || !activeTarget()->activeBuildConfiguration())
         return;
@@ -723,6 +722,9 @@ void Qt4Project::scheduleAsyncUpdate()
     m_partialEvaluate.clear();
     m_asyncUpdateState = AsyncFullUpdatePending;
     m_asyncUpdateTimer.start();
+
+    // Cancel running code model update
+    m_codeModelFuture.cancel();
 }
 
 

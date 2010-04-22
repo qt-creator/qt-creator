@@ -41,7 +41,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/ifile.h>
-
+#include <QFuture>
 #include <QtGui/QLineEdit>
 
 namespace Utils {
@@ -140,6 +140,7 @@ private:
     GenericProjectNode *m_rootNode;
     ProjectExplorer::ToolChain *m_toolChain;
     ProjectExplorer::ToolChain::ToolChainType m_toolChainType;
+    QFuture<void> m_codeModelFuture;
 };
 
 class GenericProjectFile : public Core::IFile

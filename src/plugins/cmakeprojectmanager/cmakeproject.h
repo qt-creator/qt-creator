@@ -132,6 +132,7 @@ private:
     bool m_insideFileChanged;
     QSet<QString> m_watchedFiles;
     CMakeTargetFactory *m_targetFactory;
+    QFuture<void> m_codeModelFuture;
 };
 
 class CMakeCbpParser : public QXmlStreamReader

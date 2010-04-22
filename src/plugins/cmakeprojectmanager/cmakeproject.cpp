@@ -85,6 +85,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
 
 CMakeProject::~CMakeProject()
 {
+    m_codeModelFuture.cancel();
     delete m_rootNode;
 }
 
@@ -257,7 +258,8 @@ bool CMakeProject::parseCMakeLists()
             pinfo.defines = activeBC->toolChain()->predefinedMacros(); // TODO this is to simplistic
             pinfo.frameworkPaths = allFrameworkPaths;
             modelmanager->updateProjectInfo(pinfo);
-            modelmanager->updateSourceFiles(pinfo.sourceFiles);
+            m_codeModelFuture.cancel();
+            m_codeModelFuture = modelmanager->updateSourceFiles(pinfo.sourceFiles);
         }
     }
 
