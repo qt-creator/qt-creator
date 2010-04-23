@@ -861,7 +861,8 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
         // Also remove them from the list
         result = qmakeBuildConfigFromCmdArgs(&assignments, defaultBuildConfig);
 
-        dumpQMakeAssignments(assignments);
+        if (debug)
+            dumpQMakeAssignments(assignments);
 
         result2.append(additionalArguments);
         foreach(const QMakeAssignment &qa, assignments)
