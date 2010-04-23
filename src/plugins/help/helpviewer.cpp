@@ -44,14 +44,12 @@
 
 using namespace Help::Internal;
 
-QString HelpViewer::DocPath = QString::fromLatin1("qthelp://com."
-    "trolltech.qt.%1/").arg(QString(QLatin1String(QT_VERSION_STR))
-    .replace(QLatin1String("."), QLatin1String("")));
+const QString HelpViewer::DocPath = QLatin1String("qthelp://com.trolltech.");
 
-QString HelpViewer::AboutBlankPage =
+const QString HelpViewer::AboutBlankPage =
     QCoreApplication::translate("HelpViewer", "<title>about:blank</title>");
 
-QString HelpViewer::PageNotFoundMessage =
+const QString HelpViewer::PageNotFoundMessage =
     QCoreApplication::translate("HelpViewer", "<title>Error 404...</title><div "
     "align=\"center\"><br><br><h1>The page could not be found</h1><br><h3>'%1'"
     "</h3></div>");
