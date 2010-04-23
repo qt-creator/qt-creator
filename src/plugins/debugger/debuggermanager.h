@@ -83,6 +83,7 @@ class WatchHandler;
 class IDebuggerEngine;
 class GdbEngine;
 class ScriptEngine;
+class PythonEngine;
 class CdbDebugEngine;
 class CdbDebugEnginePrivate;
 struct DebuggerManagerActions;
@@ -138,9 +139,11 @@ enum DebuggerEngineTypeFlags
     GdbEngineType     = 0x01,
     ScriptEngineType  = 0x02,
     CdbEngineType     = 0x04,
+    PythonEngineType  = 0x08,
     AllEngineTypes = GdbEngineType
         | ScriptEngineType
         | CdbEngineType
+        | PythonEngineType
 };
 
 QDebug operator<<(QDebug d, DebuggerState state);
@@ -167,6 +170,7 @@ public:
     friend class Internal::CdbExceptionLoggerEventCallback;
     friend class Internal::GdbEngine;
     friend class Internal::ScriptEngine;
+    friend class Internal::PythonEngine;
     friend class Internal::CdbDebugEngine;
     friend class Internal::CdbDebugEnginePrivate;
     friend class Internal::TrkGdbAdapter;

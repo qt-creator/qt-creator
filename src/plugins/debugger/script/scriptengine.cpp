@@ -550,7 +550,7 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
 void ScriptEngine::assignValueInDebugger(const QString &expression,
     const QString &value)
 {
-    XSDEBUG("ASSIGNING: " << (expression + QLatin1Char('=') + value));
+    SDEBUG("ASSIGNING: " << (expression + QLatin1Char('=') + value));
     m_scriptEngine->evaluate(expression + QLatin1Char('=') + value);
     updateLocals();
 }

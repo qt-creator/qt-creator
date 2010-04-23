@@ -155,6 +155,7 @@ namespace Internal {
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
+IDebuggerEngine *createPythonEngine(DebuggerManager *parent);
 
 // The createWinEngine function takes a list of options pages it can add to.
 // This allows for having a "enabled" toggle on the page independently
@@ -250,6 +251,7 @@ void DebuggerStartParameters::clear()
 static Debugger::Internal::IDebuggerEngine *gdbEngine = 0;
 static Debugger::Internal::IDebuggerEngine *scriptEngine = 0;
 static Debugger::Internal::IDebuggerEngine *winEngine = 0;
+static Debugger::Internal::IDebuggerEngine *pythonEngine = 0;
 
 struct DebuggerManagerPrivate
 {
@@ -647,8 +649,14 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
         scriptEngine->addOptionPages(&rc);
     }
 
+    if (enabledTypeFlags & PythonEngineType) {
+        pythonEngine = createPythonEngine(this);
+        //pythonEngine->addOptionPages(&rc);
+    }
+
     d->m_engine = 0;
-    STATE_DEBUG(gdbEngine << winEngine << scriptEngine << rc.size());
+    STATE_DEBUG(gdbEngine << winEngine << scriptEngine
+        << pythonEngine << rc.size());
     return rc;
 }
 
@@ -842,6 +850,7 @@ void DebuggerManager::shutdown()
 
     #define doDelete(ptr) delete ptr; ptr = 0
     doDelete(scriptEngine);
+    doDelete(pythonEngine);
     doDelete(gdbEngine);
     doDelete(winEngine);
 
@@ -1006,6 +1015,14 @@ static IDebuggerEngine *debuggerEngineForExecutable(const QString &executable,
         return scriptEngine;
     }
 
+    if (executable.endsWith(_(".py"))) {
+        if (!pythonEngine) {
+            *errorMessage = msgEngineNotAvailable("Python Engine");
+            return 0;
+        }
+        return pythonEngine;
+    }
+
 #ifndef Q_OS_WIN
     Q_UNUSED(settingsIdHint)
     if (!gdbEngine) {
@@ -1080,6 +1097,8 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 
     if (sp->executable.endsWith(_(".js")))
         d->m_engine = scriptEngine;
+    else if (sp->executable.endsWith(_(".py")))
+        d->m_engine = pythonEngine;
     else
         d->m_engine = debuggerEngineForToolChain(sp->toolChainType);
 

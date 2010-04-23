@@ -100,6 +100,7 @@ LIBS  *= -lole32 \
 include(cdb/cdb.pri)
 include(gdb/gdb.pri)
 include(script/script.pri)
+include(python/python.pri)
 include(shared/shared.pri)
 
 OTHER_FILES += Debugger.pluginspec
