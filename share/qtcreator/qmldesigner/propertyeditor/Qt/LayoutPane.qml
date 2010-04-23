@@ -20,8 +20,7 @@ QScrollArea {
 			 Geometry {
              }
 			
-            Layout {
-                enabled: isBaseState
+            Layout {                
                 id: layoutBox;
             }
             QScrollArea {

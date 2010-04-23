@@ -8,6 +8,8 @@ GroupBox {
 
     id: layout;
     enabled: anchorBackend.hasParent;
+    
+    property bool isInBaseState: isBaseState
 
     property variant targetLabelWidth: 90 - 20 - 26
 	property int leftMarginMargin: 16
@@ -24,6 +26,7 @@ GroupBox {
 
                 AnchorButtons {
                     //opacity: enabled?1.0:0.5;
+                    enabled: isInBaseState
                     fixedWidth:266
                 }
             }
@@ -50,6 +53,7 @@ GroupBox {
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
+                            enabled: isInBaseState
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.topTarget
                             onSelectedItemNodeChanged: { anchorBackend.topTarget = selectedItemNode; }
@@ -66,7 +70,7 @@ GroupBox {
                             slider: false
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_topMargin
-                            baseStateFlag: isBaseState;
+                            baseStateFlag: isInBaseState;
                             maximumValue: 1000
                             minimumValue: -1000
                         }
@@ -99,6 +103,7 @@ GroupBox {
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
+                            enabled: isInBaseState
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.bottomTarget
                             onSelectedItemNodeChanged: { anchorBackend.bottomTarget = selectedItemNode; }
@@ -114,7 +119,7 @@ GroupBox {
                             slider: false
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_bottomMargin
-                            baseStateFlag: isBaseState;
+                            baseStateFlag: isInBaseState;
                             maximumValue: 1000
                             minimumValue: -1000
                         }
@@ -147,6 +152,7 @@ GroupBox {
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
+                            enabled: isInBaseState
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.leftTarget
                             onSelectedItemNodeChanged: { anchorBackend.leftTarget = selectedItemNode; }
@@ -161,7 +167,7 @@ GroupBox {
                             slider: false
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_leftMargin
-                            baseStateFlag: isBaseState;
+                            baseStateFlag: isInBaseState;
                             maximumValue: 1000
                             minimumValue: -1000
                         }
@@ -194,6 +200,7 @@ GroupBox {
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
+                            enabled: isInBaseState
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.rightTarget
                             onSelectedItemNodeChanged: { anchorBackend.rightTarget = selectedItemNode; }
@@ -208,7 +215,7 @@ GroupBox {
                             slider: false
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_rightMargin
-                            baseStateFlag: isBaseState;
+                            baseStateFlag: isInBaseState;
                             maximumValue: 1000
                             minimumValue: -1000
                         }
@@ -241,6 +248,7 @@ GroupBox {
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
+                            enabled: isInBaseState
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.horizontalTarget
                             onSelectedItemNodeChanged: { anchorBackend.horizontalTarget = selectedItemNode; }
@@ -254,7 +262,7 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: qsTr("Margin")
-                            baseStateFlag: isBaseState;
+                            baseStateFlag: isInBaseState;
                             backendValue: backendValues.anchors_horizontalCenterOffset
                             maximumValue: 1000
                             minimumValue: -1000
@@ -288,6 +296,7 @@ GroupBox {
                             fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
+                            enabled: isInBaseState
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.verticalTarget
                             onSelectedItemNodeChanged: { anchorBackend.verticalTarget = selectedItemNode; }
@@ -302,7 +311,7 @@ GroupBox {
                             slider: false
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_verticalCenterOffset
-                            baseStateFlag: isBaseState;
+                            baseStateFlag: isInBaseState;
                             maximumValue: 1000
                             minimumValue: -1000
                         }
