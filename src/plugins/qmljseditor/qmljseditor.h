@@ -215,7 +215,6 @@ public:
 public slots:
     void followSymbolUnderCursor();
     virtual void setFontSettings(const TextEditor::FontSettings &);
-    void openPreview();
 
 private slots:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
