@@ -189,6 +189,9 @@ bool Function::isSignal() const
 bool Function::isSlot() const
 { return f._methodKey == SlotMethod; }
 
+bool Function::isInvokable() const
+{ return f._methodKey == InvokableMethod; }
+
 int Function::methodKey() const
 { return f._methodKey; }
 

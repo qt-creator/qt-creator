@@ -313,6 +313,7 @@ public:
     bool isNormal() const;
     bool isSignal() const;
     bool isSlot() const;
+    bool isInvokable() const;
     int methodKey() const;
     void setMethodKey(int key);
 

@@ -3556,9 +3556,6 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         }
         SimpleDeclarationAST *ast = new (_pool) SimpleDeclarationAST;
         ast->qt_invokable_token = qt_invokable_token;
-#ifdef ICHECK_BUILD
-        ast->invoke_token = invoke_token;
-#endif
         ast->decl_specifier_list = decl_specifier_seq;
         ast->declarator_list = declarator_list;
         match(T_SEMICOLON, &ast->semicolon_token);
@@ -3588,9 +3585,6 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         if (LA() == T_LBRACE || hasCtorInitializer) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
             ast->qt_invokable_token = qt_invokable_token;
-#ifdef ICHECK_BUILD
-            ast->invoke_token = invoke_token;
-#endif
             ast->decl_specifier_list = decl_specifier_seq;
             ast->declarator = firstDeclarator;
             ast->ctor_initializer = ctor_initializer;
@@ -3600,9 +3594,6 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         } else if (LA() == T_TRY) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
             ast->qt_invokable_token = qt_invokable_token;
-#ifdef ICHECK_BUILD
-            ast->invoke_token = invoke_token;
-#endif
             ast->decl_specifier_list = decl_specifier_seq;
             ast->declarator = firstDeclarator;
             ast->ctor_initializer = ctor_initializer;
