@@ -120,6 +120,7 @@ private slots:
     void testRewriterExceptionHandling();
     void testRewriterDynamicProperties();
     void testRewriterGroupedProperties();
+    void testRewriterPreserveOrder();
 
 
     //

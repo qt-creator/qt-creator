@@ -583,6 +583,124 @@ void TestCore::testRewriterGroupedProperties()
     QCOMPARE(textEdit.toPlainText(), expected);
 }
 
+void TestCore::testRewriterPreserveOrder()
+{
+    const QLatin1String qmlString1("\n"
+        "import Qt 4.7\n"
+        "\n"
+        "Rectangle {\n"
+            "width: 640\n"
+            "height: 480\n"
+            "\n"
+            "states: [\n"
+                "State {\n"
+                    "name: \"State1\"\n"
+                "}\n"
+            "]\n"
+            "\n"
+            "Rectangle {\n"
+                "id: rectangle1\n"
+                "x: 18\n"
+                "y: 19\n"
+                "width: 100\n"
+                "height: 100\n"
+            "}\n"
+        "}\n");
+    const QLatin1String qmlString2("\n"
+        "import Qt 4.7\n"
+        "\n"
+        "Rectangle {\n"
+            "width: 640\n"
+            "height: 480\n"
+            "\n"
+            "Rectangle {\n"
+                "id: rectangle1\n"
+                "x: 18\n"
+                "y: 19\n"
+                "width: 100\n"
+                "height: 100\n"
+            "}\n"
+            "states: [\n"
+                "State {\n"
+                    "name: \"State1\"\n"
+                "}\n"
+            "]\n"
+            "\n"
+        "}\n");
+
+        {
+        QPlainTextEdit textEdit;
+        textEdit.setPlainText(qmlString2);
+        NotIndentingTextEditModifier modifier(&textEdit);
+
+        QScopedPointer<Model> model(Model::create("Qt/Text"));
+
+        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        testRewriterView->setTextModifier(&modifier);
+        model->attachView(testRewriterView.data());
+
+        QVERIFY(testRewriterView->errors().isEmpty());
+
+        ModelNode rootModelNode = testRewriterView->rootModelNode();
+        QVERIFY(rootModelNode.isValid());
+
+        RewriterTransaction transaction = testRewriterView->beginRewriterTransaction();
+
+        ModelNode newModelNode = testRewriterView->createModelNode("Qt/Rectangle", 4, 7);
+
+        newModelNode.setParentProperty(rootModelNode.nodeAbstractProperty("data"));
+
+        newModelNode.setId("rectangle2");
+        QCOMPARE(newModelNode.id(), QString("rectangle2"));
+
+        newModelNode.variantProperty("x") = 10;
+        newModelNode.variantProperty("y") = 10;
+        newModelNode.variantProperty("width") = 100;
+        newModelNode.variantProperty("height") = 100;
+
+        transaction.commit();
+
+        QCOMPARE(newModelNode.id(), QString("rectangle2"));
+    }
+
+    QSKIP("See BAUHAUS-631", SkipAll);
+
+    {
+        QPlainTextEdit textEdit;
+        textEdit.setPlainText(qmlString1);
+        NotIndentingTextEditModifier modifier(&textEdit);
+
+        QScopedPointer<Model> model(Model::create("Qt/Text"));
+
+        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        testRewriterView->setTextModifier(&modifier);
+        model->attachView(testRewriterView.data());
+
+        QVERIFY(testRewriterView->errors().isEmpty());
+
+        ModelNode rootModelNode = testRewriterView->rootModelNode();
+        QVERIFY(rootModelNode.isValid());
+
+        RewriterTransaction transaction = testRewriterView->beginRewriterTransaction();
+
+        ModelNode newModelNode = testRewriterView->createModelNode("Qt/Rectangle", 4, 7);
+
+        newModelNode.setParentProperty(rootModelNode.nodeAbstractProperty("data"));
+
+        newModelNode.setId("rectangle2");
+        QCOMPARE(newModelNode.id(), QString("rectangle2"));
+
+        newModelNode.variantProperty("x") = 10;
+        newModelNode.variantProperty("y") = 10;
+        newModelNode.variantProperty("width") = 100;
+        newModelNode.variantProperty("height") = 100;
+
+        transaction.commit();
+
+        QCOMPARE(newModelNode.id(), QString("rectangle2"));
+    }
+}
+
 void TestCore::loadSubItems()
 {
     QFile file(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/topitem.qml");
