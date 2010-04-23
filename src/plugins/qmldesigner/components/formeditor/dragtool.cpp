@@ -304,8 +304,7 @@ void  DragTool::move(QPointF scenePos)
 
     FormEditorItem *containerItem = calculateContainer(scenePos - QPoint(2, 2), m_movingItem.data());
     if (containerItem &&
-       containerItem != m_movingItem->parentItem() &&
-       view()->currentState().isBaseState()) {
+       containerItem != m_movingItem->parentItem()) {
 
         m_moveManipulator.reparentTo(containerItem);
     }
