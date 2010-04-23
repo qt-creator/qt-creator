@@ -188,7 +188,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
         item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
         item->setData(0, Qt::UserRole, version->uniqueId());
 
-        if (version->isValid())
+        if (version->isValid() && version->supportsBinaryDebuggingHelper())
             item->setData(2, Qt::DecorationRole, version->hasDebuggingHelper() ? m_debuggingHelperOkIcon : m_debuggingHelperErrorIcon);
         else
             item->setData(2, Qt::DecorationRole, QIcon());
@@ -447,6 +447,14 @@ void QtOptionsPageWidget::makeS60Visible(bool visible)
     m_ui->gccePath->setVisible(visible);
 }
 
+void QtOptionsPageWidget::makeDebuggingHelperVisible(bool visible)
+{
+    m_ui->debuggingHelperLabel->setVisible(visible);
+    m_ui->debuggingHelperStateLabel->setVisible(visible);
+    m_ui->showLogButton->setVisible(visible);
+    m_ui->rebuildButton->setVisible(visible);
+}
+
 void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 {
     if (item) {
@@ -456,11 +464,13 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
+            makeDebuggingHelperVisible(false);
             return;
         }
         const QSharedPointerQtVersion qtVersion = m_versions.at(index);
         QList<ProjectExplorer::ToolChain::ToolChainType> types = qtVersion->possibleToolChainTypes();
         QSet<QString> targets = qtVersion->supportedTargetIds();
+        makeDebuggingHelperVisible(qtVersion->supportsBinaryDebuggingHelper());
         if (types.isEmpty()) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
@@ -528,6 +538,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
         makeMSVCVisible(false);
         makeMingwVisible(false);
         makeS60Visible(false);
+        makeDebuggingHelperVisible(false);
     }
 }
 
@@ -668,7 +679,7 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
     currentItem->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
     showEnvironmentPage(currentItem);
 
-    if (version->isValid()) {
+    if (version->isValid() && version->supportsBinaryDebuggingHelper()) {
         const bool hasLog = !currentItem->data(2, Qt::UserRole).toString().isEmpty();
         currentItem->setData(2, Qt::DecorationRole, version->hasDebuggingHelper() ? m_debuggingHelperOkIcon : m_debuggingHelperErrorIcon);
         m_ui->showLogButton->setEnabled(hasLog);

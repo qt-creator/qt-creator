@@ -1550,6 +1550,20 @@ QStringList QtVersion::debuggingHelperLibraryLocations() const
     return DebuggingHelperLibrary::debuggingHelperLibraryLocationsByInstallData(qtInstallData);
 }
 
+bool QtVersion::supportsBinaryDebuggingHelper() const
+{
+    QList<ProjectExplorer::ToolChain::ToolChainType> types = possibleToolChainTypes();
+    if (types.contains(ProjectExplorer::ToolChain::GCC)
+            || types.contains(ProjectExplorer::ToolChain::LINUX_ICC)
+            || types.contains(ProjectExplorer::ToolChain::MSVC)
+            || types.contains(ProjectExplorer::ToolChain::WINCE)
+            || types.contains(ProjectExplorer::ToolChain::GCC_MAEMO)
+            || types.contains(ProjectExplorer::ToolChain::OTHER)
+            || types.contains(ProjectExplorer::ToolChain::UNKNOWN))
+        return true;
+    return false;
+}
+
 bool QtVersion::hasDocumentation() const
 {
     updateVersionInfo();

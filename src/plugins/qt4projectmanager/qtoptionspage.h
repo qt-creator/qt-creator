@@ -112,6 +112,7 @@ private slots:
     void makeMingwVisible(bool visible);
     void makeMSVCVisible(bool visible);
     void makeS60Visible(bool visible);
+    void makeDebuggingHelperVisible(bool visible);
     void onQtBrowsed();
     void onMingwBrowsed();
     void updateCurrentQtName();
