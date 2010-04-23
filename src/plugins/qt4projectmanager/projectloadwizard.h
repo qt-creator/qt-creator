@@ -32,7 +32,8 @@
 
 #include "qtversionmanager.h"
 #include <wizards/targetsetuppage.h>
-#include <utils/wizard.h>
+
+#include <QtGui/QWizard>
 
 namespace Qt4ProjectManager {
 class Qt4Project;
@@ -41,7 +42,7 @@ namespace Internal {
 
 class TargetsPage;
 
-class ProjectLoadWizard : public Utils::Wizard
+class ProjectLoadWizard : public QWizard
 {
     Q_OBJECT
 public:
