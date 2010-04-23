@@ -34,6 +34,7 @@
 #include "codepasterprotocol.h"
 #include "pastebindotcomprotocol.h"
 #include "pastebindotcaprotocol.h"
+#include "fileshareprotocol.h"
 #include "pasteselectdialog.h"
 #include "settingspage.h"
 #include "settings.h"
@@ -94,7 +95,8 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     const QSharedPointer<NetworkAccessManagerProxy> networkAccessMgrProxy(new NetworkAccessManagerProxy);
     Protocol *protos[] =  { new PasteBinDotComProtocol(networkAccessMgrProxy),
                             new PasteBinDotCaProtocol(networkAccessMgrProxy),
-                            new CodePasterProtocol(networkAccessMgrProxy)
+                            new CodePasterProtocol(networkAccessMgrProxy),
+                            new FileShareProtocol
                            };
     const int count = sizeof(protos) / sizeof(Protocol *);
     for(int i = 0; i < count; ++i) {
@@ -221,7 +223,8 @@ void CodepasterPlugin::post(QString data, const QString &mimeType)
     foreach(Protocol *protocol, m_protocols) {
         if (protocol->name() == protocolName) {
             const Protocol::ContentType ct = Protocol::contentType(mimeType);
-            protocol->paste(data, ct, username, comment, description);
+            if (Protocol::ensureConfiguration(protocol))
+                protocol->paste(data, ct, username, comment, description);
             break;
         }
     }
@@ -237,7 +240,9 @@ void CodepasterPlugin::fetch()
     const QString pasteID = dialog.pasteId();
     if (pasteID.isEmpty())
         return;
-    m_protocols[dialog.protocolIndex()]->fetch(pasteID);
+    Protocol *protocol = m_protocols[dialog.protocolIndex()];
+    if (Protocol::ensureConfiguration(protocol))
+        protocol->fetch(pasteID);
 }
 
 void CodepasterPlugin::finishPost(const QString &link)

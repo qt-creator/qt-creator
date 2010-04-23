@@ -114,11 +114,14 @@ void PasteSelectDialog::list()
 {
     const int index = protocolIndex();
 
-    QTC_ASSERT((m_protocols.at(index)->capabilities() & Protocol::ListCapability), return);
+    Protocol *protocol = m_protocols[index];
+    QTC_ASSERT((protocol->capabilities() & Protocol::ListCapability), return);
 
     m_ui.listWidget->clear();
-    m_ui.listWidget->addItem(new QListWidgetItem(tr("Waiting for items")));
-    m_protocols[index]->list();
+    if (Protocol::ensureConfiguration(protocol, this)) {
+        m_ui.listWidget->addItem(new QListWidgetItem(tr("Waiting for items")));
+        protocol->list();
+    }
 }
 
 void PasteSelectDialog::protocolChanged(int i)

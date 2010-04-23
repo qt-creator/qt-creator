@@ -46,7 +46,7 @@ public:
 
     virtual unsigned capabilities() const;
     bool hasSettings() const { return true; }
-    Core::IOptionsPage *settingsPage();
+    Core::IOptionsPage *settingsPage() const;
 
     virtual void fetch(const QString &id);
     virtual void paste(const QString &text,

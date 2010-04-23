@@ -30,11 +30,16 @@
 
 #include <cpptools/cpptoolsconstants.h>
 #include <qmljseditor/qmljseditorconstants.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 
 #include <QtCore/QUrl>
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
+#include <QtGui/QPushButton>
 
 namespace CodePaster {
 
@@ -47,22 +52,17 @@ Protocol::~Protocol()
 {
 }
 
-bool Protocol::canFetch() const
-{
-    return true;
-}
-
-bool Protocol::canPost() const
-{
-    return true;
-}
-
 bool Protocol::hasSettings() const
 {
     return false;
 }
 
-Core::IOptionsPage *Protocol::settingsPage()
+bool Protocol::checkConfiguration(QString *) const
+{
+    return true;
+}
+
+Core::IOptionsPage *Protocol::settingsPage() const
 {
     return 0;
 }
@@ -114,6 +114,46 @@ QString Protocol::textFromHtml(QString data)
     data.replace(QLatin1String("&quot;"), QString(QLatin1Char('"')));
     return data;
 }
+
+bool Protocol::ensureConfiguration(const Protocol *p, QWidget *parent)
+{
+    QString errorMessage;
+    bool ok = false;
+    while (true) {
+        if (p->checkConfiguration(&errorMessage)) {
+            ok = true;
+            break;
+        }
+        if (!showConfigurationError(p, errorMessage, parent))
+            break;
+    }
+    return ok;
+}
+
+bool Protocol::showConfigurationError(const Protocol *p,
+                                      const QString &message,
+                                      QWidget *parent,
+                                      bool showConfig)
+{
+    if (!p->settingsPage())
+        showConfig = false;
+
+    if (!parent)
+        parent = Core::ICore::instance()->mainWindow();
+    const QString title = tr("%1 - Configuration Error").arg(p->name());
+    QMessageBox mb(QMessageBox::Warning, title, message, QMessageBox::Cancel, parent);
+    QPushButton *settingsButton = 0;
+    if (showConfig)
+        settingsButton = mb.addButton(tr("Settings..."), QMessageBox::AcceptRole);
+    mb.exec();
+    bool rc = false;
+    if (mb.clickedButton() == settingsButton)
+        rc = Core::ICore::instance()->showOptionsDialog(p->settingsPage()->category(),
+                                                        p->settingsPage()->id(),
+                                                        parent);
+    return rc;
+}
+
 
 // ------------ NetworkAccessManagerProxy
 NetworkAccessManagerProxy::NetworkAccessManagerProxy()

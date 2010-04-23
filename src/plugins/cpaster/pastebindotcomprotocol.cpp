@@ -320,7 +320,7 @@ void PasteBinDotComProtocol::listFinished()
     m_listReply = 0;
 }
 
-Core::IOptionsPage *PasteBinDotComProtocol::settingsPage()
+Core::IOptionsPage *PasteBinDotComProtocol::settingsPage() const
 {
     return m_settings;
 }

@@ -37,6 +37,7 @@
 QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;
 class QNetworkReply;
+class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -62,14 +63,11 @@ public:
 
     virtual QString name() const = 0;
 
-    bool canFetch() const;
-    bool canPost() const;
-
-
     virtual unsigned capabilities() const = 0;
     virtual bool hasSettings() const;
-    virtual Core::IOptionsPage *settingsPage();
+    virtual Core::IOptionsPage *settingsPage() const;
 
+    virtual bool checkConfiguration(QString *errorMessage = 0) const;
     virtual void fetch(const QString &id) = 0;
     virtual void list();
     virtual void paste(const QString &text,
@@ -80,6 +78,16 @@ public:
 
     // Convenience to determine content type from mime type
     static ContentType contentType(const QString &mimeType);
+
+    // Show a configuration error and point user to settings.
+    // Return true when settings changed.
+    static bool showConfigurationError(const Protocol *p,
+                                       const QString &message,
+                                       QWidget *parent = 0,
+                                       bool showConfig = true);
+    // Ensure configuration is correct
+    static bool ensureConfiguration(const Protocol *p,
+                                    QWidget *parent = 0);
 
 signals:
     void pasteDone(const QString &link);
