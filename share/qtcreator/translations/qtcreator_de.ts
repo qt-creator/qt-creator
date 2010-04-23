@@ -5091,7 +5091,7 @@ Möchten Sie den zu debuggenden Prozess anhalten und den gewählten Snapshot lad
     <message>
         <location line="+3"/>
         <source>%1 object at %2</source>
-        <translation>Objekt vom Typ %1bei %2</translation>
+        <translation>Objekt vom Typ %1 bei %2</translation>
     </message>
     <message>
         <location line="+202"/>
