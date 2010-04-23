@@ -54,6 +54,7 @@ Thumbs.db
 
 # translation related:
 share/qtcreator/translations/extract-mimetypes.xq
+share/qtcreator/translations/extract-customwizards.xq
 
 # Directories to ignore
 # ---------------------
