@@ -752,7 +752,7 @@ def encodeString(value):
 #######################################################################
 
 class Item:
-    def __init__(self, value, parentiname, iname, name = None):
+    def __init__(self, value, parentiname, iname = None, name = None):
         self.value = value
         if iname is None:
             self.iname = parentiname
@@ -1366,52 +1366,57 @@ class Dumper:
                 if len(fields) == 1 and fields[0].name is None:
                     innerType = value.type.target()
                 with Children(self, 1, innerType):
+                    self.putFields(item)
 
-                    baseNumber = 0
-                    for field in fields:
-                        #warn("FIELD: %s" % field)
-                        #warn("  BITSIZE: %s" % field.bitsize)
-                        #warn("  ARTIFICIAL: %s" % field.artificial)
-                        bitpos = getattr(field, "bitpos", None)
-                        if bitpos is None: # FIXME: Is check correct?
-                            continue  # A static class member(?).
+    def putFields(self, item, innerType = None):
+            value = item.value
+            fields = value.type.strip_typedefs().fields()
+            baseNumber = 0
+            for field in fields:
+                #warn("FIELD: %s" % field)
+                #warn("  BITSIZE: %s" % field.bitsize)
+                #warn("  ARTIFICIAL: %s" % field.artificial)
+                bitpos = getattr(field, "bitpos", None)
+                if bitpos is None: # FIXME: Is check correct?
+                    continue  # A static class member(?).
 
-                        if field.name is None:
-                            innerType = value.type.target()
-                            p = value.cast(innerType.pointer())
-                            for i in xrange(value.type.sizeof / innerType.sizeof):
-                                self.putItem(Item(p.dereference(), item.iname, i, None))
-                                p = p + 1
-                            continue
+                if field.name is None:
+                    innerType = value.type.target()
+                    p = value.cast(innerType.pointer())
+                    for i in xrange(value.type.sizeof / innerType.sizeof):
+                        self.putItem(Item(p.dereference(), item.iname, i, None))
+                        p = p + 1
+                    continue
 
-                        # Ignore vtable pointers for virtual inheritance.
-                        if field.name.startswith("_vptr."):
-                            continue
+                # Ignore vtable pointers for virtual inheritance.
+                if field.name.startswith("_vptr."):
+                    continue
 
-                        #warn("FIELD NAME: %s" % field.name)
-                        #warn("FIELD TYPE: %s" % field.type)
-                        if field.name == stripClassTag(str(field.type)):
-                            # Field is base type. We cannot use field.name as part
-                            # of the iname as it might contain spaces and other
-                            # strange characters.
-                            child = Item(value.cast(field.type),
-                                item.iname, "@%d" % baseNumber, field.name)
-                            baseNumber += 1
-                            with SubItem(self):
-                                self.putField("iname", child.iname)
-                                self.putItemHelper(child)
-                        elif len(field.name) == 0:
-                            # Anonymous union. We need a dummy name to distinguish
-                            # multiple anonymous unions in the struct.
-                            self.anonNumber += 1
-                            self.listAnonymous(item, "#%d" % self.anonNumber,
-                                field.type)
-                        else:
-                            # Named field.
-                            with SubItem(self):
-                                child = Item(value[field.name],
-                                    item.iname, field.name, field.name)
-                                self.putItemHelper(child)
+                #warn("FIELD NAME: %s" % field.name)
+                #warn("FIELD TYPE: %s" % field.type)
+                if field.name == stripClassTag(str(field.type)):
+                    # Field is base type. We cannot use field.name as part
+                    # of the iname as it might contain spaces and other
+                    # strange characters.
+                    child = Item(value.cast(field.type),
+                        item.iname, "@%d" % baseNumber, field.name)
+                    baseNumber += 1
+                    with SubItem(self):
+                        self.putField("iname", child.iname)
+                        self.putItemHelper(child)
+                elif len(field.name) == 0:
+                    # Anonymous union. We need a dummy name to distinguish
+                    # multiple anonymous unions in the struct.
+                    self.anonNumber += 1
+                    self.listAnonymous(item, "#%d" % self.anonNumber,
+                        field.type)
+                else:
+                    # Named field.
+                    with SubItem(self):
+                        child = Item(value[field.name],
+                            item.iname, field.name, field.name)
+                        self.putItemHelper(child)
+
 
     def listAnonymous(self, item, name, type):
         for field in type.fields():
