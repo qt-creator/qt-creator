@@ -223,6 +223,12 @@ void BauhausPlugin::createDesignModeWidget()
     command->setDefaultKeySequence(QKeySequence::SelectAll);
     editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
 
+    Core::UniqueIDManager *uuidManager = Core::UniqueIDManager::instance();
+    actionManager->command(Core::Constants::TOGGLE_SIDEBAR);
+    command = actionManager->registerAction(m_mainWidget->hideSidebarsAction(),
+                                            Core::Constants::TOGGLE_SIDEBAR,
+                                            QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
+
 #ifdef Q_OS_MACX
     // add second shortcut to trigger delete
     QAction *deleteAction = new QAction(m_mainWidget);

@@ -114,6 +114,7 @@ public:
     QAction *copyAction() const;
     QAction *pasteAction() const;
     QAction *selectAllAction() const;
+    QAction *hideSidebarsAction() const;
 
     void readSettings();
     void saveSettings();
@@ -130,7 +131,7 @@ private slots:
     void paste();
     void selectAll();
     void closeCurrentEditor();
-
+    void toggleSidebars();
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
 
@@ -157,6 +158,7 @@ private:
     QAction *m_copyAction;
     QAction *m_pasteAction;
     QAction *m_selectAllAction;
+    QAction *m_hideSidebarsAction;
 
     QWeakPointer<ItemLibrary> m_itemLibrary;
     QWeakPointer<NavigatorView> m_navigator;
@@ -180,6 +182,7 @@ private:
     Core::MiniSplitter *m_outputPlaceholderSplitter;
 
     bool m_isDisabled;
+    bool m_showSidebars;
 
     enum InitializeStatus { NotInitialized, Initializing, Initialized };
     InitializeStatus m_initStatus;

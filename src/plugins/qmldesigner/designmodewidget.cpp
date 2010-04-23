@@ -133,6 +133,8 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_mainSplitter(0),
     m_leftSideBar(0),
     m_rightSideBar(0),
+    m_isDisabled(false),
+    m_showSidebars(true),
     m_initStatus(NotInitialized),
     m_warningWidget(0)
 {
@@ -150,6 +152,8 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     connect(m_pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
     m_selectAllAction = new Utils::ParameterAction(tr("Select &All"), tr("Select All \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     connect(m_selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
+    m_hideSidebarsAction = new QAction(tr("Toggle Full Screen"), this);
+    connect(m_hideSidebarsAction, SIGNAL(triggered()), this, SLOT(toggleSidebars()));
 
     Core::ModeManager *modeManager = Core::ModeManager::instance();
     Core::IMode *designmode = modeManager->mode(Core::Constants::MODE_DESIGN);
@@ -159,7 +163,23 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
 
 DesignModeWidget::~DesignModeWidget()
 {
-};
+}
+
+void DesignModeWidget::toggleSidebars()
+{
+    if (m_initStatus == Initializing)
+        return;
+
+    m_showSidebars = !m_showSidebars;
+
+    if (m_leftSideBar)
+        m_leftSideBar->setVisible(m_showSidebars);
+    if (m_rightSideBar)
+        m_rightSideBar->setVisible(m_showSidebars);
+    if (!m_statesEditorWidget.isNull())
+        m_statesEditorWidget->setVisible(m_showSidebars);
+
+}
 
 void DesignModeWidget::showEditor(Core::IEditor *editor)
 {
@@ -271,6 +291,11 @@ QAction *DesignModeWidget::pasteAction() const
 QAction *DesignModeWidget::selectAllAction() const
 {
     return m_selectAllAction;
+}
+
+QAction *DesignModeWidget::hideSidebarsAction() const
+{
+    return m_hideSidebarsAction;
 }
 
 void DesignModeWidget::readSettings()

@@ -39,7 +39,7 @@ namespace Internal {
 DesignModeContext::DesignModeContext(DesignModeWidget *widget) : IContext(widget),
     m_widget(widget)
 {
-    Core::UniqueIDManager *uuidManager =Core::UniqueIDManager::instance();
+    Core::UniqueIDManager *uuidManager = Core::UniqueIDManager::instance();
     m_context << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR)
               << uuidManager->uniqueIdentifier(Constants::C_QT_QUICK_TOOLS_MENU);
 }
