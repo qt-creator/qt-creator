@@ -29,6 +29,8 @@
 
 #include "targetsetuppage.h"
 
+#include "ui_targetsetuppage.h"
+
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
@@ -45,40 +47,26 @@ using namespace Qt4ProjectManager::Internal;
 
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
-    m_preferMobile(false)
+    m_preferMobile(false),
+    m_ui(new Ui::TargetSetupPage)
 {
-    resize(550, 500);
-    setTitle(tr("Set up targets for your project"));
+    m_ui->setupUi(this);
+    m_ui->versionTree->header()->setResizeMode(0, QHeaderView::ResizeToContents);
+    m_ui->versionTree->header()->setResizeMode(1, QHeaderView::ResizeToContents);
 
-    QVBoxLayout *vbox = new QVBoxLayout(this);
-
-    m_importLabel = new QLabel(this);
-    m_importLabel->setText(tr("Qt Creator can set up the following targets:"));
-    m_importLabel->setWordWrap(true);
-    vbox->addWidget(m_importLabel);
-
-    m_treeWidget = new QTreeWidget(this);
-    m_treeWidget->setColumnCount(3);
-    m_treeWidget->header()->setResizeMode(0, QHeaderView::ResizeToContents);
-    m_treeWidget->header()->setResizeMode(1, QHeaderView::ResizeToContents);
-    m_treeWidget->setHeaderLabels(QStringList() << tr("Qt Version") << tr("Status") << tr("Directory"));
-    vbox->addWidget(m_treeWidget);
-
-    m_addDirectoryButton = new QPushButton(tr("Add shadow build location..."));
-    vbox->addWidget(m_addDirectoryButton);
-
-    connect(m_addDirectoryButton, SIGNAL(clicked()),
+    connect(m_ui->importButton, SIGNAL(clicked()),
             this, SLOT(addShadowBuildLocation()));
 }
 
 TargetSetupPage::~TargetSetupPage()
 {
     resetInfos();
+    delete m_ui;
 }
 
 void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
 {
-    disconnect(m_treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
+    disconnect(m_ui->versionTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
                this, SLOT(itemWasChanged()));
 
     // Create a list of all temporary Qt versions we need to delete in our existing list
@@ -124,11 +112,13 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
     }
     qSort(targets.begin(), targets.end());
 
-    m_treeWidget->clear();
+    m_ui->versionTree->clear();
     Qt4TargetFactory factory;
     foreach (const QString &t, targets) {
-        QTreeWidgetItem *targetItem = new QTreeWidgetItem(m_treeWidget);
-        targetItem->setText(0, factory.displayNameForId(t));
+        QTreeWidgetItem *targetItem = new QTreeWidgetItem(m_ui->versionTree);
+        const QString targetName = factory.displayNameForId(t);
+        targetItem->setText(0, targetName);
+        targetItem->setToolTip(0, targetName);
         targetItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         targetItem->setData(0, Qt::UserRole, t);
         targetItem->setExpanded(true);
@@ -142,8 +132,12 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
             QTreeWidgetItem *versionItem = new QTreeWidgetItem(targetItem);
             QPair<QIcon, QString> issues = reportIssues(i.version);
 
+            QString toolTip = i.version->displayName();
+            if (!issues.second.isEmpty())
+                toolTip.append(QString::fromLatin1("<br><br>%1").arg(issues.second));
+
             // Column 0:
-            versionItem->setToolTip(0, issues.second);
+            versionItem->setToolTip(0, toolTip);
             versionItem->setIcon(0, issues.first);
             versionItem->setText(0, i.version->displayName());
             versionItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
@@ -165,15 +159,19 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
             versionItem->setCheckState(0, shouldCheck ? Qt::Checked : Qt::Unchecked);
 
             // Column 1 (status):
-            versionItem->setText(1, i.isExistingBuild ? tr("Import", "Is this an import of an existing build or a new one?") :
-                                                        tr("New", "Is this an import of an existing build or a new one?"));
+            const QString status = i.isExistingBuild ? tr("Import", "Is this an import of an existing build or a new one?") :
+                                                       tr("New", "Is this an import of an existing build or a new one?");
+            versionItem->setText(1, status);
+            versionItem->setToolTip(1, status);
 
             // Column 2 (directory):
-            versionItem->setText(2, QDir::toNativeSeparators(i.directory));
+            const QString dir = QDir::toNativeSeparators(i.directory);
+            versionItem->setText(2, dir);
+            versionItem->setToolTip(2, dir);
         }
     }
 
-    connect(m_treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
+    connect(m_ui->versionTree, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
             this, SLOT(itemWasChanged()));
 
     emit completeChanged();
@@ -186,8 +184,8 @@ QList<TargetSetupPage::ImportInfo> TargetSetupPage::importInfos() const
 
 bool TargetSetupPage::hasSelection() const
 {
-    for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
-        QTreeWidgetItem * current = m_treeWidget->topLevelItem(i);
+    for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
+        QTreeWidgetItem * current = m_ui->versionTree->topLevelItem(i);
         for (int j = 0; j < current->childCount(); ++j) {
             QTreeWidgetItem * child = current->child(j);
             if (child->checkState(0) == Qt::Checked)
@@ -199,8 +197,8 @@ bool TargetSetupPage::hasSelection() const
 
 bool TargetSetupPage::isTargetSelected(const QString &targetid) const
 {
-    for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
-        QTreeWidgetItem * current = m_treeWidget->topLevelItem(i);
+    for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
+        QTreeWidgetItem * current = m_ui->versionTree->topLevelItem(i);
         if (current->data(0, Qt::UserRole).toString() != targetid)
             continue;
         for (int j = 0; j < current->childCount(); ++j) {
@@ -217,8 +215,8 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
     Q_ASSERT(project->targets().isEmpty());
     QtVersionManager *vm = QtVersionManager::instance();
 
-    for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *current = m_treeWidget->topLevelItem(i);
+    for (int i = 0; i < m_ui->versionTree->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *current = m_ui->versionTree->topLevelItem(i);
         QString targetId = current->data(0, Qt::UserRole).toString();
 
         QList<BuildConfigurationInfo> targetInfos;
@@ -273,8 +271,8 @@ bool TargetSetupPage::isComplete() const
 
 void TargetSetupPage::setImportDirectoryBrowsingEnabled(bool browsing)
 {
-    m_addDirectoryButton->setEnabled(browsing);
-    m_addDirectoryButton->setVisible(browsing);
+    m_ui->importButton->setEnabled(browsing);
+    m_ui->importButton->setVisible(browsing);
 }
 
 void TargetSetupPage::setImportDirectoryBrowsingLocation(const QString &directory)
@@ -284,7 +282,7 @@ void TargetSetupPage::setImportDirectoryBrowsingLocation(const QString &director
 
 void TargetSetupPage::setShowLocationInformation(bool location)
 {
-    m_treeWidget->setColumnCount(location ? 3 : 1);
+    m_ui->versionTree->setColumnCount(location ? 3 : 1);
 }
 
 void TargetSetupPage::setPreferMobile(bool mobile)
@@ -296,8 +294,8 @@ void TargetSetupPage::setProFilePath(const QString &path)
 {
     m_proFilePath = path;
     if (!m_proFilePath.isEmpty()) {
-        m_importLabel->setText(tr("Qt Creator can set up the following targets for project <b>%1</b>:",
-                                  "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
+        m_ui->descriptionLabel->setText(tr("Qt Creator can set up the following targets for project <b>%1</b>:",
+                                           "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
     }
     // Force regeneration of tree widget contents:
     QList<ImportInfo> tmp = m_infos;
@@ -428,7 +426,7 @@ void TargetSetupPage::addShadowBuildLocation()
 
 void TargetSetupPage::resetInfos()
 {
-    m_treeWidget->clear();
+    m_ui->versionTree->clear();
     foreach (const ImportInfo &info, m_infos) {
         if (info.isTemporary)
             delete info.version;

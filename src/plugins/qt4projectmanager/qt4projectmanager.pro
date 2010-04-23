@@ -92,7 +92,8 @@ FORMS += makestep.ui \
     qtversionmanager.ui \
     showbuildlog.ui \
     gettingstartedwelcomepagewidget.ui \
-    wizards/testwizardpage.ui
+    wizards/testwizardpage.ui \
+    wizards/targetsetuppage.ui
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
 DEFINES += PROPARSER_THREAD_SAFE

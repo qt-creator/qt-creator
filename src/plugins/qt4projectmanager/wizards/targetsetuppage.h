@@ -51,6 +51,10 @@ class Qt4Project;
 
 namespace Internal {
 
+namespace Ui {
+class TargetSetupPage;
+}
+
 class TargetSetupPage : public QWizardPage
 {
     Q_OBJECT
@@ -120,12 +124,11 @@ private:
     QPair<QIcon, QString> reportIssues(QtVersion *version);
 
     QList<ImportInfo> m_infos;
-    QLabel *m_importLabel;
-    QTreeWidget *m_treeWidget;
-    QPushButton *m_addDirectoryButton;
     bool m_preferMobile;
     QString m_proFilePath;
     QString m_defaultShadowBuildLocation;
+
+    Ui::TargetSetupPage *m_ui;
 };
 
 } // namespace Internal
