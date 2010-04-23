@@ -456,7 +456,7 @@ def qdump__QImage(d, item):
         else:
             # Write to an external file. Much faster ;-(
             file = tempfile.mkstemp(prefix="gdbpy_")
-            filename = file[1]
+            filename = file[1].replace("\\", "\\\\")
             p = bits.cast(gdb.lookup_type("unsigned char").pointer())
             gdb.execute("dump binary memory %s %s %s" %
                 (filename, cleanAddress(p), cleanAddress(p + nbytes)))
