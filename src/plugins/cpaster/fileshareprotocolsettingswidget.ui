@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CodePaster::FileShareProtocolSettingsWidget</class>
+ <widget class="QWidget" name="CodePaster::FileShareProtocolSettingsWidget">
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="1" column="0">
+    <widget class="QLabel" name="pathLabel">
+     <property name="text">
+      <string>&amp;Path:</string>
+     </property>
+     <property name="buddy">
+      <cstring>pathChooser</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="Utils::PathChooser" name="pathChooser"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="displayCountLabel">
+     <property name="text">
+      <string>&amp;Display:</string>
+     </property>
+     <property name="buddy">
+      <cstring>displayCountSpinBox</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QSpinBox" name="displayCountSpinBox">
+     <property name="suffix">
+      <string>entries</string>
+     </property>
+     <property name="minimum">
+      <number>2</number>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="value">
+      <number>11</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="helpLabel">
+     <property name="text">
+      <string>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
