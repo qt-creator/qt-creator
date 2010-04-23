@@ -622,11 +622,12 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
 
     (void) switchDocument(previousDoc);
 #else
-    (void) switchDocument(previousDoc);
     Document::CheckMode mode = Document::FastCheck;
     mode = Document::FullCheck;
     doc->parse();
     doc->check(mode);
+
+    (void) switchDocument(previousDoc);
 #endif
 }
 

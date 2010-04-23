@@ -61,11 +61,14 @@
 #ifndef PARSEMANAGER_H
 #define PARSEMANAGER_H
 
+#include "cplusplus/CppDocument.h"
+#include "ASTfwd.h"
+#include "FullySpecifiedType.h"
+
 #include <QObject>
 #include <QList>
 #include <QFuture>
 #include <QStringList>
-#include "cplusplus/CppDocument.h"
 #include <QFile>
 
 namespace CppTools{
@@ -75,15 +78,6 @@ namespace CppTools{
 }
 
 namespace CPlusPlus {
-    class TranslationUnit;
-    class AST;
-    class ClassSpecifierAST;
-    class QPropertyDeclarationAST;
-    class QDeclareFlagsDeclarationAST;
-    class EnumSpecifierAST;
-    class Function;
-    class EnumeratorAST;
-
     class CLASSLISTITEM
     {
     public:
@@ -106,6 +100,7 @@ namespace CPlusPlus {
         CPlusPlus::Function* function;
 
         bool isEqualTo(FUNCTIONITEM* cpfct, bool ignoreName = true);
+
         FUNCTIONITEM()
         {
             highestlevelclass = 0;
@@ -119,15 +114,16 @@ namespace CPlusPlus {
     public:
         const CLASSLISTITEM* highestlevelclass;
         QStringList classWichIsNotFound;
-        QPropertyDeclarationAST *ast;
+        QtPropertyDeclarationAST *ast;
         CPlusPlus::TranslationUnit* trlUnit;
-        bool readdefined;
+        FullySpecifiedType type;
+        ExpressionAST *readAst;
         FUNCTIONITEM *readFct;
-        bool writedefined;
+        ExpressionAST *writeAst;
         FUNCTIONITEM *writeFct;
-        bool resetdefined;
+        ExpressionAST *resetAst;
         FUNCTIONITEM *resetFct;
-        bool notifydefined;
+        ExpressionAST *notifyAst;
         FUNCTIONITEM *notifyFct;
         bool foundalldefinedfct;
 
@@ -137,25 +133,26 @@ namespace CPlusPlus {
             highestlevelclass = 0;
             ast = 0;
             trlUnit = 0;
-            readdefined = false;
+            readAst = 0;
             readFct = 0;
-            writedefined = false;
+            writeAst = 0;
             writeFct = 0;
-            resetdefined = false;
+            resetAst = 0;
             resetFct = 0;
-            notifydefined = false;
+            notifyAst = 0;
             notifyFct = 0;
             foundalldefinedfct = false;
         }
+
+        static PROPERTYITEM *create(QtPropertyDeclarationAST *ast, const CLASSLISTITEM *clazz);
     };
 
     class QENUMITEM
     {
     public:
         const CLASSLISTITEM* highestlevelclass;
-        CPlusPlus::TranslationUnit* trlUnit;
         QStringList classWichIsNotFound;
-        EnumeratorAST* ast;
+        QString name;
         //an item in this list will be shown like:
         //EnumName.EnumItemName.Value
         //ConnectionState.disconnected.0
@@ -166,8 +163,6 @@ namespace CPlusPlus {
         QENUMITEM()
         {
             highestlevelclass = 0;
-            trlUnit = 0;
-            ast = 0;
             values.clear();
             foundallenums = true;
         }
@@ -193,9 +188,8 @@ namespace CPlusPlus {
     {
     public:
         const CLASSLISTITEM* highestlevelclass;
-        CPlusPlus::TranslationUnit* trlUnit;
+        const Name *name;
         QStringList classWichIsNotFound;
-        EnumeratorAST* ast;
         QStringList enumvalues;
         bool foundallenums;
 
@@ -203,8 +197,6 @@ namespace CPlusPlus {
         QFLAGITEM()
         {
             highestlevelclass = 0;
-            trlUnit = 0;
-            ast = 0;
             enumvalues.clear();
             foundallenums = true;
         }
@@ -216,7 +208,7 @@ namespace CPlusPlus {
         const CLASSLISTITEM* highestlevelclass;
         CPlusPlus::TranslationUnit* trlUnit;
         QStringList classWichIsNotFound;
-        QDeclareFlagsDeclarationAST* ast;
+        QtFlagsDeclarationAST* ast;
 
         QDECLAREFLAGSITEM()
         {

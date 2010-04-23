@@ -30,6 +30,10 @@
 #include "parsemanager.h"
 #include "cplusplus/CppDocument.h"
 #include "Control.h"
+#include "Literals.h"
+#include "Overview.h"
+#include "Scope.h"
+#include "Semantic.h"
 #include "TranslationUnit.h"
 #include "AST.h"
 #include "Symbols.h"
@@ -68,48 +72,52 @@ Q_PROPERTY( ConnectionState state READ state NOTIFY stateChanged);
 ******************************************************************/
 bool PROPERTYITEM::isEqualTo(PROPERTYITEM *cpppt)
 {
-    QString thistype = this->trlUnit->spell(this->ast->type_token);
-    QString cppttype = cpppt->trlUnit->spell(cpppt->ast->type_token);
-
-    if(thistype != cppttype)
+    if (!ast->type_id || !cpppt->ast->type_id)
+        return false;
+    if (type != cpppt->type)
         return false;
 
-    QString thistypename = this->trlUnit->spell(this->ast->type_name_token);
-    QString cppttypename = cpppt->trlUnit->spell(cpppt->ast->type_name_token);
+    if (!ast->property_name || !ast->property_name->name || !ast->property_name->name->identifier())
+        return false;
+    QString thistypename = ast->property_name->name->identifier()->chars();
+
+    if (!cpppt->ast->property_name || !cpppt->ast->property_name->name || !cpppt->ast->property_name->name->identifier())
+        return false;
+    QString cppttypename = cpppt->ast->property_name->name->identifier()->chars();
     if(thistypename != cppttypename)
         return false;
 
-    if(this->readdefined != cpppt->readdefined)
+    if ((this->readAst == 0) != (cpppt->readAst == 0))
         return false;
-    if(this->writedefined != cpppt->writedefined)
+    if((this->writeAst == 0) != (cpppt->writeAst == 0))
         return false;
-    if(this->resetdefined != cpppt->resetdefined)
+    if((this->resetAst == 0) != (cpppt->resetAst == 0))
         return false;
-    if(this->notifydefined != cpppt->notifydefined)
+    if((this->notifyAst == 0) != (cpppt->notifyAst == 0))
         return false;
     //check for read function
-    if(this->readdefined){
+    if(this->readAst){
         if(!this->readFct || !cpppt->readFct)
             return false;
         if(!this->readFct->isEqualTo(cpppt->readFct))
             return false;
     }
     //check for write function
-    if(this->writedefined){
+    if(this->writeAst){
         if(!this->writeFct || !cpppt->writeFct)
             return false;
         if(!this->writeFct->isEqualTo(cpppt->writeFct))
             return false;
     }
     //check for reset function
-    if(this->resetdefined){
+    if(this->resetAst){
         if(!this->resetFct || !cpppt->resetFct)
             return false;
         if(!this->resetFct->isEqualTo(cpppt->resetFct))
             return false;
     }
     //check for notify function
-    if(this->notifydefined){
+    if(this->notifyAst){
         if(!this->notifyFct || !cpppt->notifyFct)
             return false;
         if(!this->notifyFct->isEqualTo(cpppt->notifyFct))
@@ -380,9 +388,8 @@ void ParseManager::getElements(QList<FUNCTIONITEM*> &functionlist
             /**********
             Functions
             **********/
-            FunctionDefinitionAST *pfctdef = pmemberlist->value->asFunctionDefinition();
-            if(pfctdef){
-                FUNCTIONITEM* item = new FUNCTIONITEM();
+            if (FunctionDefinitionAST *pfctdef = pmemberlist->value->asFunctionDefinition()){
+                FUNCTIONITEM* item = new FUNCTIONITEM;
                 item->trlUnit = classitem->trlUnit;
                 item->function = pfctdef->symbol;
                 item->classAst = classitem->classspec;
@@ -427,64 +434,46 @@ void ParseManager::getElements(QList<FUNCTIONITEM*> &functionlist
                 /**********
                 Q_PROPERTY
                 **********/
-                QPropertyDeclarationAST *ppdecl = pmemberlist->value->asQPropertyDeclarationAST();
-                if(ppdecl){
-                    PROPERTYITEM* item = new PROPERTYITEM();
-                    item->ast = ppdecl;
-                    item->highestlevelclass = highestlevelclass;
-                    item->trlUnit = classitem->trlUnit;
-                    item->readdefined = (ppdecl->read_token > 0);
-                    item->writedefined = (ppdecl->write_token > 0);
-                    item->resetdefined = (ppdecl->reset_token > 0);
-                    item->notifydefined = (ppdecl->notify_token > 0);
-                    propertylist.push_back(item);
-                    if(item->ast->type_name_token > 0){
-                        QString propertyname = item->trlUnit->spell(item->ast->type_name_token);
-                        Trace("  - Q_PROPERTY: " + classname + "::" + propertyname + " found");
+                if(QtPropertyDeclarationAST *ppdecl = pmemberlist->value->asQtPropertyDeclaration()) {
+                    propertylist.push_back(PROPERTYITEM::create(ppdecl, highestlevelclass));
+                    if (ppdecl->property_name && ppdecl->property_name->name && ppdecl->property_name->name->identifier()) {
+                        Trace("  - Q_PROPERTY: " + QLatin1String(ppdecl->property_name->name->identifier()->chars()) + " found");
                     }
-                }
-                else{
+                } else{
                     /**********
                     Q_ENUM
                     **********/
-                    QEnumDeclarationAST *pqenum = pmemberlist->value->asQEnumDeclarationAST();
-                    if(pqenum){
-                        if(pqenum->enumerator_list){
-                            for (EnumeratorListAST *plist = pqenum->enumerator_list; plist; plist = plist->next) {
-                                QENUMITEM* item = new QENUMITEM();
-                                item->ast = plist->value;
-                                item->highestlevelclass = highestlevelclass;
-                                item->trlUnit = classitem->trlUnit;
-                                qenumlist.push_back(item);
-                                QString enumname = item->trlUnit->spell(item->ast->firstToken());
-                                Trace("  - Q_ENUM: " + classname + "::" + enumname + " found");
-                            }
+                    if (QtEnumDeclarationAST *pqenum = pmemberlist->value->asQtEnumDeclaration()) {
+                        for (NameListAST *plist = pqenum->enumerator_list; plist; plist = plist->next) {
+                            QENUMITEM* item = new QENUMITEM;
+                            item->name = plist->value->name->identifier()->chars();
+                            item->highestlevelclass = highestlevelclass;
+                            qenumlist.push_back(item);
+                            Trace("  - Q_ENUM: " + classname + "::" + item->name + " found");
                         }
-
                     }
                     else{
                         /**********
                         Q_FLAGS
                         **********/
-                        QFlagsDeclarationAST *pqflags = pmemberlist->value->asQFlagsDeclarationAST();
-                        if(pqflags){
-                            if(pqflags->enumerator_list){
-                                for (EnumeratorListAST *plist = pqflags->enumerator_list; plist; plist = plist->next) {
-                                    QFLAGITEM* item = new QFLAGITEM();
-                                    item->ast = plist->value;
-                                    item->highestlevelclass = highestlevelclass;
-                                    item->trlUnit = classitem->trlUnit;
-                                    qflaglist.push_back(item);
-                                    QString enumname = item->trlUnit->spell(plist->firstToken());
-                                    Trace("  - Q_FLAGS: " + classname + "::" + enumname + " found");
-                                }
+                        if (QtFlagsDeclarationAST *pqflags = pmemberlist->value->asQtFlagsDeclaration()){
+                            for (NameListAST *plist = pqflags->flag_enums_list; plist; plist = plist->next) {
+                                QFLAGITEM* item = new QFLAGITEM;
+                                item->name = plist->value->name;
+                                item->highestlevelclass = highestlevelclass;
+                                qflaglist.push_back(item);
+                                Trace("  - Q_FLAGS: " + classname + "::" + item->name->identifier()->chars() + " found");
                             }
                         }
+#if 0
+                        The code for Q_DECLARE_FLAGS was wrong. It's optional, and only does a typedef.
+                        That means, if you do the typedef yourself and not use Q_DECLARE_FLAGS, that *is* valid.
+                        Meaning, if one would want to do a check like the ones in this app, one has to check the defined types in the class scope.
                         else {
                             /****************
                             Q_DECLARE_FLAGS
                             ****************/
-                            QDeclareFlagsDeclarationAST *pqdeclflags = pmemberlist->value->asQDeclareFlagsDeclarationAST();
+                            QtDeclareFlagsDeclarationAST *pqdeclflags = pmemberlist->value->asQDeclareFlagsDeclarationAST();
                             if(pqdeclflags){
                                 QDECLAREFLAGSITEM* item = new QDECLAREFLAGSITEM();
                                 item->ast = pqdeclflags;
@@ -493,6 +482,7 @@ void ParseManager::getElements(QList<FUNCTIONITEM*> &functionlist
                                 qdeclareflaglist.push_back(item);
                             }
                         }
+#endif
                     }
                 }
             }
@@ -841,15 +831,12 @@ QStringList ParseManager::getErrorMessage(FUNCTIONITEM* fct)
         fctstring += "::";
 
         unsigned int token = fct->function->sourceLocation() - 1;
-        if(token >= 0){
-            //tok.isNot(T_EOF_SYMBOL)
-            while(fct->trlUnit->tokenAt(token).isNot(T_EOF_SYMBOL)){
-                fctstring += fct->trlUnit->tokenAt(token).spell();
-                if(*fct->trlUnit->tokenAt(token).spell() == ')')
-                    break;
-                fctstring += " ";
-                token++;
-            }
+        while(fct->trlUnit->tokenAt(token).isNot(T_EOF_SYMBOL)){
+            fctstring += fct->trlUnit->tokenAt(token).spell();
+            if(*fct->trlUnit->tokenAt(token).spell() == ')')
+                break;
+            fctstring += " ";
+            token++;
         }
 
         Function* pfct = fct->function;
@@ -925,7 +912,7 @@ QList<PROPERTYITEM*> ParseManager::checkMetadataProperties(const QList<QList<PRO
         else {
             foreach(PROPERTYITEM *pprop, ipropertylist){
                 pprop->classWichIsNotFound << "<all classes>";
-                QString name = pprop->trlUnit->spell(pprop->ast->type_name_token);
+                QString name = pprop->ast->property_name->name->identifier()->chars();
                 Trace("- Property: <all classes>::" + name + " not found!");
             }
             ippts.append(ipropertylist);
@@ -933,6 +920,15 @@ QList<PROPERTYITEM*> ParseManager::checkMetadataProperties(const QList<QList<PRO
         missingiprops.append(ippts);
     }
     return missingiprops;
+}
+
+static QString findName(ExpressionAST *ast)
+{
+    // The "old" icheck code assumed that functions were only a single identifier, so I'll assume the same:
+    if (NameAST *nameAST = ast->asName())
+        return nameAST->name->identifier()->chars();
+    else
+        return QString();
 }
 
 /**************************************
@@ -944,28 +940,26 @@ functions.
 void ParseManager::assignPropertyFunctions(PROPERTYITEM* prop, const QList<QList<FUNCTIONITEM*> > &fctlookuplist)
 {
     //get the name of the needed functions
-    QString type;
     QString readfctname;
     QString writefctname;
     QString resetfctname;
     QString notifyfctname;
 
     int needtofind = 0;
-    type = prop->trlUnit->spell(prop->ast->type_token);
-    if(prop->readdefined){
-        readfctname = prop->trlUnit->spell(prop->ast->read_function_token);
+    if(prop->readAst){
+        readfctname = findName(prop->readAst);
         needtofind++;
     }
-    if(prop->writedefined){
-        writefctname = prop->trlUnit->spell(prop->ast->write_function_token);
+    if(prop->writeAst){
+        writefctname = findName(prop->writeAst);
         needtofind++;
     }
-    if(prop->resetdefined){
-        resetfctname = prop->trlUnit->spell(prop->ast->reset_function_token);
+    if(prop->resetAst){
+        resetfctname = findName(prop->resetAst);
         needtofind++;
     }
-    if(prop->notifydefined){
-        notifyfctname = prop->trlUnit->spell(prop->ast->notify_function_token);
+    if(prop->notifyAst){
+        notifyfctname = findName(prop->notifyAst);
         needtofind++;
     }
     //Now iterate over all function to find all functions wich are defined in the Q_PROPERTY macro
@@ -975,24 +969,24 @@ void ParseManager::assignPropertyFunctions(PROPERTYITEM* prop, const QList<QList
             foreach(FUNCTIONITEM* pfct, fctlist){
                 QString fctname = pfct->trlUnit->spell(pfct->function->sourceLocation());
                 //check the function type against the property type
-                QString fcttype =pfct->trlUnit->spell(pfct->function->sourceLocation() - 1);
+                FullySpecifiedType retTy = pfct->function->returnType();
 
-                if(fctname.length() > 0 && fcttype.length() > 0){
-                    if(prop->readdefined && fctname == readfctname){
-                        if(type != fcttype)
+                if (!fctname.isEmpty() && retTy.isValid()) {
+                    if(prop->readAst && fctname == readfctname){
+                        if (prop->type != retTy)
                             continue;
                         prop->readFct = pfct;
                         needtofind--;
                     }
-                    if(prop->writedefined && fctname == writefctname){
+                    if(prop->writeAst && fctname == writefctname){
                         prop->writeFct = pfct;
                         needtofind--;
                     }
-                    if(prop->resetdefined && fctname == resetfctname){
+                    if(prop->resetAst && fctname == resetfctname){
                         prop->resetFct = pfct;
                         needtofind--;
                     }
-                    if(prop->notifydefined && fctname == notifyfctname){
+                    if(prop->notifyAst && fctname == notifyfctname){
                         prop->notifyFct = pfct;
                         needtofind--;
                     }
@@ -1033,7 +1027,7 @@ QList<PROPERTYITEM*> ParseManager::containsAllPropertyFunction(const QList<PROPE
                 if(propt->isEqualTo(ipropt)){
                     found = true;
                     missingimplinclasses.clear();
-                    Trace("- Property: " + classname + "::" + propt->trlUnit->spell(propt->ast->type_name_token) + " found");
+                    Trace("- Property: " + classname + "::" + propt->ast->property_name->name->identifier()->chars() + " found");
                     break;
                 }
             }
@@ -1041,12 +1035,13 @@ QList<PROPERTYITEM*> ParseManager::containsAllPropertyFunction(const QList<PROPE
                 ipropt->classWichIsNotFound.append(missingimplinclasses);
                 ret.push_back(ipropt);
                 QString classname = ipropt->trlUnit->spell(ipropt->highestlevelclass->classspec->name->firstToken());
-                Trace("- Property: " + classname + "::" + ipropt->trlUnit->spell(ipropt->ast->type_name_token) + " not found!");
+                Trace("- Property: " + classname + "::" + ipropt->ast->property_name->name->identifier()->chars() + " not found!");
             }
         }
         else{
             QString classname = ipropt->trlUnit->spell(ipropt->highestlevelclass->classspec->name->firstToken());
-            QString proptype = ipropt->trlUnit->spell(ipropt->ast->type_name_token);
+            Overview oo;
+            QString proptype = oo(ipropt->type);
             Trace("- Property: " + classname + "::" + proptype + " functions are missing!");
             ret.push_back(ipropt);
         }
@@ -1080,13 +1075,13 @@ QStringList ParseManager::getErrorMessage(PROPERTYITEM* ppt)
             out << ppt->trlUnit->spell(i) << " ";
         }
         out << endl << " -";
-        if(ppt->readdefined && !ppt->readFct)
+        if(ppt->readAst && !ppt->readFct)
             out << "READ ";
-        if(ppt->writedefined && !ppt->writeFct)
+        if(ppt->writeAst && !ppt->writeFct)
             out << "WRITE ";
-        if(ppt->resetdefined && !ppt->resetFct)
+        if(ppt->resetAst && !ppt->resetFct)
             out << "RESET.";
-        if(ppt->notifydefined && !ppt->notifyFct)
+        if(ppt->notifyAst && !ppt->notifyFct)
             out << "NOTIFY ";
         out << "functions missing." << endl;
         ret << tmp;
@@ -1154,8 +1149,7 @@ QList<QENUMITEM*> ParseManager::checkMetadataEnums(const QList<QList<QENUMITEM*>
         else {
             foreach(QENUMITEM *qenum, iqenumlist){
                 qenum->classWichIsNotFound << "<all classes>";
-                QString name= qenum->trlUnit->spell(qenum->ast->firstToken());
-                Trace("- Enum: <all classes>::" + name + " not found!");
+                Trace("- Enum: <all classes>::" + qenum->name + " not found!");
             }
             iqenums.append(iqenumlist);
         }
@@ -1210,26 +1204,20 @@ between Q_ENUMS and enums.
 ***************************************/
 void ParseManager::assignEnumValues(QENUMITEM* qenum, const QList<QList<ENUMITEM*> > &enumlookuplist)
 {
-    QString enumname;
-    EnumeratorAST *penum = qenum->ast->asEnumerator();
-    if(penum){
-        //get the name of the enum definition
-        enumname = qenum->trlUnit->spell(penum->firstToken());
-        //iterate over all enums and find the one with the same name like enumname
-        bool found = false;
-        foreach (QList<ENUMITEM*> penumlist, enumlookuplist) {
-            foreach(ENUMITEM *penum, penumlist){
-                EnumSpecifierAST *penumsec = penum->ast;
-                QString enumname1 = penum->trlUnit->spell(penumsec->name->firstToken());
-                if(enumname == enumname1){
-                    qenum->values << getEnumValueStringList(penum);
-                    found = true;
-                    break;
-                }
+    //iterate over all enums and find the one with the same name like enumname
+    bool found = false;
+    foreach (QList<ENUMITEM*> penumlist, enumlookuplist) {
+        foreach(ENUMITEM *penum, penumlist){
+            EnumSpecifierAST *penumsec = penum->ast;
+            QString enumname1 = penum->trlUnit->spell(penumsec->name->firstToken());
+            if(qenum->name == enumname1){
+                qenum->values << getEnumValueStringList(penum);
+                found = true;
+                break;
             }
-            if(!found)
-                qenum->foundallenums = false;
         }
+        if(!found)
+            qenum->foundallenums = false;
     }
 }
 
@@ -1240,6 +1228,8 @@ Enum values are the same.
 ***********************************/
 QList<QENUMITEM*> ParseManager::containsAllEnums(const QList<QENUMITEM*> &classqenumlist, const QList<QENUMITEM*> &iclassqenumlist)
 {
+    Overview oo;
+
     QList<QENUMITEM*> ret;
     foreach(QENUMITEM* iqenum, iclassqenumlist){
         bool found = false;
@@ -1250,23 +1240,22 @@ QList<QENUMITEM*> ParseManager::containsAllEnums(const QList<QENUMITEM*> &classq
             if(clspec != qenum->highestlevelclass->classspec){
                 clspec = qenum->highestlevelclass->classspec;
                 //get the classname
-                unsigned int firsttoken = clspec->name->firstToken();
-                classname += qenum->trlUnit->spell(firsttoken);
+                classname += oo(clspec->symbol);
                 if(missingimplinclasses.indexOf(classname) < 0)
                     missingimplinclasses.push_back(classname);
             }
             if(qenum->isEqualTo(iqenum)){
                 found = true;
                 missingimplinclasses.clear();
-                Trace("- Enum: " + classname + "::" + qenum->trlUnit->spell(qenum->ast->firstToken()) + " found");
+                Trace("- Enum: " + classname + "::" + qenum->name + " found");
                 break;
             }
         }
         if(!found){
             iqenum->classWichIsNotFound.append(missingimplinclasses);
             ret.push_back(iqenum);
-            QString classname = iqenum->trlUnit->spell(iqenum->highestlevelclass->classspec->name->firstToken());
-            Trace("- Enum: " + classname + "::" + iqenum->trlUnit->spell(iqenum->ast->firstToken()) + " not found!");
+            QString classname = oo(iqenum->highestlevelclass->classspec->symbol);
+            Trace("- Enum: " + classname + "::" + iqenum->name + " not found!");
         }
     }
     return ret;
@@ -1278,6 +1267,7 @@ string for a Q_ENUMS mismatch.
 ************************************/
 QStringList ParseManager::getErrorMessage(QENUMITEM* qenum)
 {
+    Overview oo;
     QStringList ret;
 
     if(!qenum->foundallenums)
@@ -1285,32 +1275,17 @@ QStringList ParseManager::getErrorMessage(QENUMITEM* qenum)
         QString tmp;
         QTextStream out(&tmp);
 
-        unsigned int firsttoken = qenum->highestlevelclass->classspec->name->firstToken();
-        unsigned int lasttoken = qenum->highestlevelclass->classspec->name->lastToken();
-        for(unsigned int i = firsttoken; i < lasttoken; i++){
-            out << qenum->trlUnit->spell(i);
-        }
-        out << "::Q_ENUMS ( ";
-        firsttoken = qenum->ast->firstToken();
-        lasttoken = qenum->ast->lastToken();
-        for(unsigned int i = firsttoken; i < lasttoken; i++)
-            out << qenum->trlUnit->spell(i) << " ";
-        out << ")";
-        out << endl << " - one or more Enums missing." << endl;
+        out << oo(qenum->highestlevelclass->classspec->symbol);
+        out << "::Q_ENUMS " << qenum->name << " enum missing.";
         ret << tmp;
     }
 
-    for(int i = 0; i < qenum->classWichIsNotFound.size(); i++){
+    for (int i = 0; i < qenum->classWichIsNotFound.size(); i++){
         QString tmp;
         QTextStream out(&tmp);
 
-        out << qenum->classWichIsNotFound[i] << "::Q_ENUMS ( ";
-
-        unsigned int firsttoken = qenum->ast->firstToken();
-        unsigned int lasttoken = qenum->ast->lastToken();
-        for(unsigned int i = firsttoken; i < lasttoken; i++)
-            out << qenum->trlUnit->spell(i) << " ";
-        out << ")";
+        out << qenum->classWichIsNotFound[i] << "::Q_ENUMS "
+                << qenum->name;
         ret << tmp;
     }
     return ret;
@@ -1360,7 +1335,7 @@ QList<QFLAGITEM*> ParseManager::checkMetadataFlags(const QList<QList<QFLAGITEM*>
         else {
             foreach(QFLAGITEM *pflag, iqflaglist){
                 pflag->classWichIsNotFound << "<all classes>";
-                QString name= pflag->trlUnit->spell(pflag->ast->firstToken());
+                QString name= pflag->name->identifier()->chars();
                 Trace("- Flag: <all classes>::" + name + " not found!");
             }
             iqflags.append(iqflaglist);
@@ -1377,46 +1352,35 @@ and enums.
 ***************************************/
 void ParseManager::assignFlagValues(QFLAGITEM* qflags, const QList<QList<QDECLAREFLAGSITEM*> > &qdeclareflagslookuplist, const QList<QList<ENUMITEM*> > &enumlookuplist)
 {
-    QString qflagname;
     QString enumname;
-    //read the flag names
-    EnumeratorAST *pflags = qflags->ast->asEnumerator();
-    if(pflags){
-        qflagname = qflags->trlUnit->spell(pflags->firstToken());
-        enumname = qflagname;
-        //try to find if there is a deflare flag macro with the same name as in qflagname
-        bool found = false;
-        foreach(QList<QDECLAREFLAGSITEM*> qdeclarelist, qdeclareflagslookuplist){
-            foreach(QDECLAREFLAGSITEM* qdeclare, qdeclarelist){
-                QString declarename = qdeclare->trlUnit->spell(qdeclare->ast->flag_token);
-                if(declarename == qflagname){
-                    //now map the right enum name to the flag
-                    enumname = qdeclare->trlUnit->spell(qdeclare->ast->enum_token);
-                    found = true;
-                    break;
-                }
-            }
-            if(found)
-                break;
+
+    //try to find if there is a deflare flag macro with the same name as in qflagname
+    Scope *classMembers = qflags->highestlevelclass->classspec->symbol->members();
+    Symbol *s = classMembers->lookat(qflags->name);
+    if (s->isTypedef()) {
+        FullySpecifiedType ty = s->type();
+        if (Enum *e = ty->asEnumType()) {
+            enumname = e->name()->identifier()->chars();
         }
-        //now we have the right enum name now we need to find the enum
-        found = false;
-        foreach(QList<ENUMITEM*> enumitemlist, enumlookuplist){
-            foreach(ENUMITEM* enumitem, enumitemlist){
-                EnumSpecifierAST *penumspec = enumitem->ast;
-                QString enumspecname = enumitem->trlUnit->spell(penumspec->name->firstToken());
-                if(enumspecname == enumname){
-                    qflags->enumvalues << getEnumValueStringList(enumitem, qflagname);
-                    found = true;
-                    break;
-                }
-            }
-            if(found)
-                break;
-        }
-        if(!found)
-            qflags->foundallenums = false;
     }
+
+    //now we have the right enum name now we need to find the enum
+    bool found = false;
+    foreach(QList<ENUMITEM*> enumitemlist, enumlookuplist){
+        foreach(ENUMITEM* enumitem, enumitemlist){
+            EnumSpecifierAST *penumspec = enumitem->ast;
+            QString enumspecname = enumitem->trlUnit->spell(penumspec->name->firstToken());
+            if(enumspecname == enumname){
+                qflags->enumvalues << getEnumValueStringList(enumitem, qflags->name->identifier()->chars());
+                found = true;
+                break;
+            }
+        }
+        if(found)
+            break;
+    }
+    if(!found)
+        qflags->foundallenums = false;
 }
 
 /*****************************************
@@ -1437,23 +1401,22 @@ QList<QFLAGITEM*> ParseManager::containsAllFlags(const QList<QFLAGITEM*> &classq
                 if(clspec != qflags->highestlevelclass->classspec){
                     clspec = qflags->highestlevelclass->classspec;
                     //get the classname
-                    unsigned int firsttoken = clspec->name->firstToken();
-                    classname += qflags->trlUnit->spell(firsttoken);
+                    classname += clspec->symbol->name()->identifier()->chars();
                     if(missingimplinclasses.indexOf(classname) < 0)
                         missingimplinclasses.push_back(classname);
                 }
                 if(qflags->isEqualTo(iqflags)){
                     found = true;
                     missingimplinclasses.clear();
-                    Trace("- Flag: " + classname + "::" + qflags->trlUnit->spell(qflags->ast->firstToken()) + " found");
+                    Trace("- Flag: " + classname + "::" + qflags->name->identifier()->chars() + " found");
                     break;
                 }
             }
             if(!found){
                 iqflags->classWichIsNotFound.append(missingimplinclasses);
                 ret.push_back(iqflags);
-                QString classname = iqflags->trlUnit->spell(iqflags->highestlevelclass->classspec->name->firstToken());
-                Trace("- Flag: " + classname + "::" + iqflags->trlUnit->spell(iqflags->ast->firstToken()) + " not found!");
+                QString classname = iqflags->highestlevelclass->classspec->symbol->name()->identifier()->chars();
+                Trace("- Flag: " + classname + "::" + iqflags->name->identifier()->chars() + " not found!");
             }
         }
         else
@@ -1468,6 +1431,7 @@ string for a Q_FLAGS mismatch.
 ************************************/
 QStringList ParseManager::getErrorMessage(QFLAGITEM* pfg)
 {
+    Overview oo;
     QStringList ret;
 
     if(!pfg->foundallenums)
@@ -1475,31 +1439,15 @@ QStringList ParseManager::getErrorMessage(QFLAGITEM* pfg)
         QString tmp;
         QTextStream out(&tmp);
 
-        unsigned int firsttoken = pfg->highestlevelclass->classspec->name->firstToken();
-        unsigned int lasttoken = pfg->highestlevelclass->classspec->name->lastToken();
-        for(unsigned int i = firsttoken; i < lasttoken; i++){
-            out << pfg->trlUnit->spell(i);
-        }
-        out << "::Q_FLAGS ( ";
-        firsttoken = pfg->ast->firstToken();
-        lasttoken = pfg->ast->lastToken();
-        for(unsigned int i = firsttoken; i < lasttoken; i++)
-            out << pfg->trlUnit->spell(i) << " ";
-        out << ")";
-        out << endl << " - one or more Enums missing." << endl;
+        out << oo(pfg->highestlevelclass->classspec->symbol->name());
+        out << "::Q_FLAGS "<<pfg->name->identifier()->chars()<< ": enum missing.";
         ret << tmp;
     }
     for(int i = 0; i < pfg->classWichIsNotFound.size(); i++){
         QString tmp;
         QTextStream out(&tmp);
 
-        out << pfg->classWichIsNotFound[i] << "::Q_FLAGS ( ";
-
-        unsigned int firsttoken = pfg->ast->firstToken();
-        unsigned int lasttoken = pfg->ast->lastToken();
-        for(unsigned int i = firsttoken; i < lasttoken; i++)
-            out << pfg->trlUnit->spell(i) << " ";
-        out << ")";
+        out << pfg->classWichIsNotFound[i] << "::Q_FLAGS " << oo(pfg->name);
         ret << tmp;
     }
     return ret;
@@ -1546,4 +1494,35 @@ void ParseManager::Trace(QString value)
             out << value << endl;
     }
 }
+
+PROPERTYITEM *PROPERTYITEM::create(QtPropertyDeclarationAST *ast, const CLASSLISTITEM *clazz)
+{
+    PROPERTYITEM *item = new PROPERTYITEM;
+    item->ast = ast;
+    item->highestlevelclass = clazz;
+    item->trlUnit = clazz->trlUnit;
+
+    if (ast->type_id) {
+        Semantic mySem(item->trlUnit);
+        item->type = mySem.check(ast->type_id, clazz->classspec->symbol->asClass()->members());
+    }
+
+    for (QtPropertyDeclarationItemListAST *it = ast->property_declaration_items;
+         it; it = it->next) {
+        if (!it->value->item_name_token)
+            continue;
+        const char *name = item->trlUnit->spell(it->value->item_name_token);
+        if (!qstrcmp(name, "READ"))
+            item->readAst = it->value->expression;
+        else if (!qstrcmp(name, "WRITE"))
+            item->writeAst = it->value->expression;
+        else if (!qstrcmp(name, "RESET"))
+            item->resetAst = it->value->expression;
+        else if (!qstrcmp(name, "NOTIFY"))
+            item->notifyAst = it->value->expression;
+    }
+
+    return item;
+}
+
 //--->
