@@ -1429,6 +1429,13 @@ void WatchHandler::showEditValue(const WatchData &data)
             bits = (uchar*)ba.data();
         }
         QImage im(bits, width, height, QImage::Format(format));
+
+#if 1
+        // enforcing copy of image data
+        QImage im2(im);
+        im.detach();
+#endif
+
         l->setPixmap(QPixmap::fromImage(im));
         l->resize(width, height);
         l->show();
