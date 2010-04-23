@@ -112,10 +112,9 @@ GroupBox {
             showButtons: true;
 
             backendColor: backendValues.border_color
-            
+
             property variant backendColorValue: backendValues.border_color.vlaue
             enabled: isBaseState || hasBorder
-
 
             onBackendColorValueChanged: {
                 if (backendValues.border_color.isInModel)

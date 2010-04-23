@@ -8,11 +8,11 @@ GroupBox {
 
     id: layout;
     enabled: anchorBackend.hasParent;
-    
+
     property bool isInBaseState: isBaseState
 
     property variant targetLabelWidth: 90 - 20 - 26
-	property int leftMarginMargin: 16
+    property int leftMarginMargin: 16
 
     layout: VerticalLayout {
         Label {
@@ -21,7 +21,7 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {
                 leftMargin: 10
-				topMargin: 8
+                topMargin: 8
 
 
                 AnchorButtons {
@@ -64,7 +64,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
-					    leftMargin: leftMarginMargin
+                        leftMargin: leftMarginMargin
                         IntEditor {
                             id:topbox
                             slider: false
@@ -114,7 +114,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
-					    leftMargin: leftMarginMargin
+                        leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
                             caption: qsTr("Margin")
@@ -162,7 +162,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
-					    leftMargin: leftMarginMargin
+                        leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
                             caption: qsTr("Margin")
@@ -210,7 +210,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
-					    leftMargin: leftMarginMargin
+                        leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
                             caption: qsTr("Margin")
@@ -258,7 +258,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
-					    leftMargin: leftMarginMargin
+                        leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
                             caption: qsTr("Margin")
@@ -306,8 +306,8 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
-					    leftMargin: leftMarginMargin
-                        IntEditor {						    
+                        leftMargin: leftMarginMargin
+                        IntEditor {
                             slider: false
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_verticalCenterOffset
