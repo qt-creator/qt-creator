@@ -71,17 +71,17 @@ unsigned CodePasterProtocol::capabilities() const
     return ListCapability|PostCommentCapability|PostDescriptionCapability;
 }
 
-bool CodePasterProtocol::isValidHostName(const QString& hostName)
+bool CodePasterProtocol::checkConfiguration(QString *errorMessage) const
 {
-    if (hostName.isEmpty()) {
-        Core::ICore::instance()->messageManager()->printToOutputPane(
+    if (m_page->hostName().isEmpty()) {
+        if (errorMessage) {
+            *errorMessage =
 #ifdef Q_OS_MAC
-                       tr("No Server defined in the CodePaster preferences."),
+                       tr("No Server defined in the CodePaster preferences.");
 #else
-                       tr("No Server defined in the CodePaster options."),
+                       tr("No Server defined in the CodePaster options.");
 #endif
-                       true /*error*/);
-        Core::ICore::instance()->messageManager()->showOutputPane();
+        }
         return false;
     }
     return true;
@@ -92,8 +92,6 @@ void CodePasterProtocol::fetch(const QString &id)
     QTC_ASSERT(!m_fetchReply, return; )
 
     QString hostName = m_page->hostName();
-    if (!isValidHostName(hostName))
-        return;
     QString link = "http://";
     link.append(hostName);
     link.append("/?format=raw&id=");
@@ -108,8 +106,6 @@ void CodePasterProtocol::list()
     QTC_ASSERT(!m_listReply, return; )
 
     QString hostName = m_page->hostName();
-    if (!isValidHostName(hostName))
-        return;
     QString link = QLatin1String("http://");
     link += hostName;
     link += QLatin1String("/?command=browse&format=raw");
@@ -125,8 +121,6 @@ void CodePasterProtocol::paste(const QString &text,
 {
     QTC_ASSERT(!m_pasteReply, return; )
     const QString hostName = m_page->hostName();
-    if (!isValidHostName(hostName))
-        return;
 
     QByteArray data = "command=processcreate&submit=submit&highlight_type=0&description=";
     data += QUrl::toPercentEncoding(description);
@@ -165,7 +159,7 @@ bool CodePasterProtocol::hasSettings() const
     return true;
 }
 
-Core::IOptionsPage *CodePasterProtocol::settingsPage()
+Core::IOptionsPage *CodePasterProtocol::settingsPage() const
 {
     return m_page;
 }

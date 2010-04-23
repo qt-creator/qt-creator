@@ -51,8 +51,9 @@ public:
 
     virtual unsigned capabilities() const;
     bool hasSettings() const;
-    Core::IOptionsPage *settingsPage();
+    Core::IOptionsPage *settingsPage() const;
 
+    virtual bool checkConfiguration(QString *errorMessage = 0) const;
     void fetch(const QString &id);
     void list();
     void paste(const QString &text,
@@ -66,7 +67,6 @@ public slots:
     void pasteFinished();
 
 private:
-    bool isValidHostName(const QString& hostName);
     CodePasterSettingsPage *m_page;
     QNetworkReply *m_pasteReply;
     QNetworkReply *m_fetchReply;
