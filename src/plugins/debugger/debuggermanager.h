@@ -259,6 +259,7 @@ public slots: // FIXME
         { showDebuggerOutput(LogDebug, msg); }
     void ensureLogVisible();
     void updateWatchersWindow();
+    void updateWatchersHeader(int section, int oldSize, int newSize);
     void activateBreakpoint(int index);
 
 //private slots:  // FIXME

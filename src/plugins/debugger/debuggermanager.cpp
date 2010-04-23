@@ -88,6 +88,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QErrorMessage>
 #include <QtGui/QFileDialog>
+#include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
@@ -386,7 +387,8 @@ void DebuggerManager::init()
     d->m_watchersWindow->setObjectName(QLatin1String("CppDebugWatchers"));
     d->m_statusTimer = new QTimer(this);
 
-    d->m_mainWindow = qobject_cast<Debugger::Internal::DebuggerMainWindow*>(DebuggerUISwitcher::instance()->mainWindow());
+    d->m_mainWindow =
+        qobject_cast<DebuggerMainWindow*>(DebuggerUISwitcher::instance()->mainWindow());
     QTC_ASSERT(d->m_mainWindow, return)
 
     // Snapshots
@@ -473,6 +475,8 @@ void DebuggerManager::init()
         this, SLOT(assignValueInDebugger()), Qt::QueuedConnection);
     connect(theDebuggerAction(RemoveWatchExpression), SIGNAL(triggered()),
         this, SLOT(updateWatchersWindow()), Qt::QueuedConnection);
+    connect(localsView->header(), SIGNAL(sectionResized(int,int,int)),
+        this, SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
 
     // Log
     connect(this, SIGNAL(emitShowInput(int, QString)),
@@ -1073,9 +1077,11 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     const DebuggerStartMode startMode = d->m_startParameters->startMode;
     d->m_engine = debuggerEngineForToolChain(d->m_startParameters->toolChainType);
 
-    if (d->m_engine == 0 && startMode != StartRemote
-        && !d->m_startParameters->executable.isEmpty())
-        d->m_engine = debuggerEngineForExecutable(d->m_startParameters->executable, &errorMessage, &settingsIdHint);
+    if (d->m_engine == 0
+            && startMode != StartRemote
+            && !d->m_startParameters->executable.isEmpty())
+        d->m_engine = debuggerEngineForExecutable(
+            d->m_startParameters->executable, &errorMessage, &settingsIdHint);
 
     if (d->m_engine == 0)
         d->m_engine = debuggerEngineForMode(startMode, &errorMessage);
@@ -1962,6 +1968,12 @@ void DebuggerManager::fontSettingsChanged(const TextEditor::FontSettings &settin
     changeFontSize(d->m_stackWindow, size);
     changeFontSize(d->m_sourceFilesWindow, size);
     changeFontSize(d->m_threadsWindow, size);
+}
+
+void DebuggerManager::updateWatchersHeader(int section, int, int newSize)
+{
+    QTreeView *watchersView = qobject_cast<QTreeView *>(d->m_watchersWindow);
+    watchersView->header()->resizeSection(section, newSize);
 }
 
 void DebuggerManager::updateWatchersWindow()
