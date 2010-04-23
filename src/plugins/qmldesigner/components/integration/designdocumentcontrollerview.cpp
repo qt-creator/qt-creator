@@ -102,7 +102,7 @@ QString DesignDocumentControllerView::toText() const
     QScopedPointer<Model> outputModel(Model::create("Qt/Rectangle"));
     outputModel->setMetaInfo(model()->metaInfo());
     QPlainTextEdit textEdit;
-    textEdit.setPlainText("import Qt 4.6; Item {}");
+    textEdit.setPlainText("import Qt 4.7; Item {}");
     NotIndentingTextEditModifier modifier(&textEdit);
 
     QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
@@ -125,7 +125,7 @@ void DesignDocumentControllerView::fromText(QString text)
     inputModel->setMetaInfo(model()->metaInfo());
     inputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;
-    QString imports("import Qt 4.6;\n");
+    QString imports("import Qt 4.7;\n");
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(&textEdit);
 

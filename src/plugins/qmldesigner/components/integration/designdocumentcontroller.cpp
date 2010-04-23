@@ -261,10 +261,10 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 
     //m_d->masterModel = Model::create(m_d->textModifier, m_d->searchPath, errors);
 
-    m_d->masterModel = Model::create("Qt/Rectangle", 4, 6);
+    m_d->masterModel = Model::create("Qt/Rectangle", 4, 7);
     m_d->masterModel->setFileUrl(m_d->searchPath);
 
-    m_d->subComponentModel = Model::create("Qt/Rectangle", 4, 6);
+    m_d->subComponentModel = Model::create("Qt/Rectangle", 4, 7);
     m_d->subComponentModel->setFileUrl(m_d->searchPath);
 
     m_d->subComponentManager = new SubComponentManager(m_d->masterModel->metaInfo(), this);
@@ -499,7 +499,7 @@ void DesignDocumentController::copySelected()
         foreach (ModelNode node, view.rootModelNode().allDirectSubModelNodes()) {
             node.destroy();
         }
-        view.changeRootNodeType("Qt/Rectangle", 4, 6);
+        view.changeRootNodeType("Qt/Rectangle", 4, 7);
         view.rootModelNode().setId("designer__Selection");
 
         foreach (const ModelNode &selectedNode, selectedNodes) {

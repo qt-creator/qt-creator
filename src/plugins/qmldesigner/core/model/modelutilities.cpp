@@ -83,7 +83,7 @@ bool mustBeProxied(const ModelNode &child, const ModelNode &parent)
 
 QVariant parseProperty(const QString &className, const QString &propertyName, const QString &value)
 {
-    const QMetaObject *metaObject = QmlMetaType::qmlType(className.toAscii().constData(), 4, 6)->metaObject();
+    const QMetaObject *metaObject = QmlMetaType::qmlType(className.toAscii().constData(), 4, 7)->metaObject();
     if (!metaObject) {
         qWarning() << "Type " << className << "is unknown to the Qml type system";
         return QVariant();

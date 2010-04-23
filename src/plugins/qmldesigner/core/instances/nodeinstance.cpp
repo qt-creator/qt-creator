@@ -136,29 +136,29 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
         instance = Internal::DummyNodeInstance::create();
     else if (metaInfo.isSubclassOf("org.webkit/WebView", 1, 0))
         instance = Internal::DummyNodeInstance::create();
-    else if (metaInfo.isSubclassOf("Qt/QWidget", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/QWidget", 4, 7))
         instance = Internal::DummyNodeInstance::create();
-    else if (metaInfo.isSubclassOf("Qt/QGraphicsView", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/QGraphicsView", 4, 7))
         instance = Internal::GraphicsViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QDeclarativeView", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/QDeclarativeView", 4, 7))
         instance = Internal::QDeclarativeViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QGraphicsWidget", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/QGraphicsWidget", 4, 7))
         instance = Internal::GraphicsWidgetNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/Item", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/Item", 4, 7))
         instance = Internal::QmlGraphicsItemNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QGraphicsScene", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/QGraphicsScene", 4, 7))
         instance = Internal::GraphicsSceneNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/Component", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/Component", 4, 7))
         instance = Internal::ComponentNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/PropertyChanges", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/PropertyChanges", 4, 7))
         instance = Internal::QmlPropertyChangesNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/State", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/State", 4, 7))
         instance = Internal::QmlStateNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/Transition", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/Transition", 4, 7))
         instance = Internal::QmlTransitionNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/Behavior", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/Behavior", 4, 7))
         instance = Internal::BehaviorNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QtObject", 4, 6))
+    else if (metaInfo.isSubclassOf("Qt/QtObject", 4, 7))
         instance = Internal::ObjectNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else
         instance = Internal::DummyNodeInstance::create();

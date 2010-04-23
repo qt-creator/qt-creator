@@ -38,8 +38,8 @@ namespace QmlDesigner {
 
 FxPlugin::FxPlugin()
 {
-    qmlRegisterType<QDeclarativePen>("Qt",4,6,"Pen");
-    qmlRegisterType<QDeclarativeScaleGrid>("Qt",4,6,"ScaleGrid");
+    qmlRegisterType<QDeclarativePen>("Qt", 4, 7, "Pen");
+    qmlRegisterType<QDeclarativeScaleGrid>("Qt", 4, 7, "ScaleGrid");
 }
 
 QString FxPlugin::pluginName()

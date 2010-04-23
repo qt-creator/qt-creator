@@ -217,7 +217,7 @@ void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl 
 {
     QDeclarativeContext *ctxt = m_view->rootContext();
 
-    NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo().nodeMetaInfo(typeName, 4, 6);
+    NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo().nodeMetaInfo(typeName, 4, 7);
 
     foreach (const QString &propertyName, metaInfo.properties(true).keys())
         setupPropertyEditorValue(propertyName, &m_backendValuesPropertyMap, propertyEditor, metaInfo.property(propertyName, true).type());
@@ -615,7 +615,7 @@ void PropertyEditor::timerEvent(QTimerEvent *timerEvent)
 
 QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType)
 {
-    QString qmlTemplate = QLatin1String("import Qt 4.6\nimport Bauhaus 1.0\n");
+    QString qmlTemplate = QLatin1String("import Qt 4.7\nimport Bauhaus 1.0\n");
     qmlTemplate += QLatin1String("GroupBox {\n");
     qmlTemplate += QString(QLatin1String("caption: \"%1\"\n")).arg(type.typeName());
     qmlTemplate += QLatin1String("layout: VerticalLayout {\n");

@@ -44,7 +44,7 @@ ProxyWidgetNodeInstance::ProxyWidgetNodeInstance(QGraphicsProxyWidget *widget)
 
 ProxyWidgetNodeInstance::Pointer ProxyWidgetNodeInstance::create(const QString &typeName)
 {
-    QObject *object = QDeclarativeMetaType::qmlType(typeName.toLatin1(), 4, 6)->create();
+    QObject *object = QDeclarativeMetaType::qmlType(typeName.toLatin1(), 4, 7)->create();
     Q_ASSERT(object);
     if (object == 0)
         return Pointer();

@@ -87,7 +87,7 @@ namespace Internal {
 
 ModelPrivate::ModelPrivate(Model *model) :
         m_q(model),
-        m_rootInternalNode(createNode("Qt/Rectangle", 4, 6, PropertyListType())),
+        m_rootInternalNode(createNode("Qt/Rectangle", 4, 7, PropertyListType())),
         m_writeLock(false)
 {
 }

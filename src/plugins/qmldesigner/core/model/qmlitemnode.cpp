@@ -45,7 +45,7 @@ namespace QmlDesigner {
 
 bool QmlItemNode::isValid() const
 {
-    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().isSubclassOf("Qt/Item", 4, 6);
+    return QmlModelNodeFacade::isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().isSubclassOf("Qt/Item", 4, 7);
 }
 
 bool QmlItemNode::isRootNode() const
@@ -269,7 +269,7 @@ QmlModelState QmlModelStateGroup::addState(const QString &name)
     PropertyListType propertyList;
     propertyList.append(qMakePair(QString("name"), QVariant(name)));
 
-    ModelNode newState = modelNode().view()->createModelNode("Qt/State", 4, 6, propertyList);
+    ModelNode newState = modelNode().view()->createModelNode("Qt/State", 4, 7, propertyList);
     modelNode().nodeListProperty("states").reparentHere(newState);
 
     return newState;

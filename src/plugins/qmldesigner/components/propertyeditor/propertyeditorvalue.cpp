@@ -275,7 +275,7 @@ void PropertyEditorNodeWrapper::add(const QString &type)
             propertyType = m_editorValue->modelNode().metaInfo().property(m_editorValue->name()).type();
         while (propertyType.contains('*')) //strip star
             propertyType.chop(1);
-        m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType, 4, 6);
+        m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType, 4, 7);
         m_editorValue->modelNode().nodeAbstractProperty(m_editorValue->name()).reparentHere(m_modelNode);
         if (!m_modelNode.isValid()) {
             qWarning("PropertyEditorNodeWrapper::add failed");

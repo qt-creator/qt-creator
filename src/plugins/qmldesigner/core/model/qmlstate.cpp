@@ -178,7 +178,7 @@ void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
         return; //changeSet already there
     }
 
-    ModelNode newChangeSet = modelNode().view()->createModelNode("Qt/PropertyChanges", 4, 6);
+    ModelNode newChangeSet = modelNode().view()->createModelNode("Qt/PropertyChanges", 4, 7);
     modelNode().nodeListProperty("changes").reparentHere(newChangeSet);
 
     QmlPropertyChanges(newChangeSet).setTarget(node);
@@ -229,7 +229,7 @@ bool QmlModelState::isValid() const
 {
     return QmlModelNodeFacade::isValid() &&
             modelNode().metaInfo().isValid() &&
-            (modelNode().metaInfo().isSubclassOf("Qt/State", 4, 6) || isBaseState());
+            (modelNode().metaInfo().isSubclassOf("Qt/State", 4, 7) || isBaseState());
 }
 
 /**
@@ -263,7 +263,7 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
 //    QmlModelState newState(stateGroup().addState(name));
     PropertyListType propertyList;
     propertyList.append(qMakePair(QString("name"), QVariant(name)));
-    QmlModelState newState ( qmlModelView()->createModelNode("Qt/State", 4, 6, propertyList) );
+    QmlModelState newState ( qmlModelView()->createModelNode("Qt/State", 4, 7, propertyList) );
 
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
         ModelNode newModelNode(qmlModelView()->createModelNode(childNode.type(), childNode.majorVersion(), childNode.minorVersion()));
