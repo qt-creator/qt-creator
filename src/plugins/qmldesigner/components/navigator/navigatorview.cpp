@@ -104,23 +104,23 @@ void NavigatorView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void NavigatorView::nodeCreated(const ModelNode &createdNode)
+void NavigatorView::nodeCreated(const ModelNode & /*createdNode*/)
 {
 }
 
-void NavigatorView::nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange)
+void NavigatorView::nodeRemoved(const ModelNode & /*removedNode*/, const NodeAbstractProperty & /*parentProperty*/, PropertyChangeFlags /*propertyChange*/)
 {
 }
 
-void NavigatorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
+void NavigatorView::propertiesRemoved(const QList<AbstractProperty> & /*propertyList*/)
 {
 }
 
-void NavigatorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange)
+void NavigatorView::variantPropertiesChanged(const QList<VariantProperty> & /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
 {
 }
 
-void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags propertyChange)
+void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
 {
 }
 
@@ -145,7 +145,7 @@ void NavigatorView::nodeReparented(const ModelNode &node, const NodeAbstractProp
     blockSelectionChangedSignal(blocked);
 }
 
-void NavigatorView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
+void NavigatorView::nodeIdChanged(const ModelNode& node, const QString & /*newId*/, const QString & /*oldId*/)
 {
     if (m_treeModel->isInTree(node))
         m_treeModel->updateItemRow(node);
@@ -166,13 +166,13 @@ void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& pr
     }
 }
 
-void NavigatorView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
+void NavigatorView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
     if (m_treeModel->isInTree(rootModelNode()))
         m_treeModel->updateItemRow(rootModelNode());
 }
 
-void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)
+void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString & /*name*/, const QVariant & /*data*/)
 {
     if (m_treeModel->isInTree(node))
     {
@@ -186,7 +186,7 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString &n
     }
 }
 
-void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
+void NavigatorView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &node, int /*oldIndex*/)
 {
     if (m_treeModel->isInTree(node))
         m_treeModel->updateItemRowOrder(node);
@@ -206,7 +206,7 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
     blockSelectionChangedSignal(blocked);
 }
 
-void NavigatorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList)
+void NavigatorView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/, const QList<ModelNode> &/*lastSelectedNodeList*/)
 {
     updateItemSelection();
 }
