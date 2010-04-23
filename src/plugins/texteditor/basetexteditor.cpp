@@ -563,11 +563,11 @@ void BaseTextEditor::maybeEmitContentsChangedBecauseOfUndo()
 
     }
     if (document()->isRedoAvailable()) {
-        emit d->m_editable->contentsChangedBecauseOfUndo();
+        emit editableInterface()->contentsChangedBecauseOfUndo();
     }
 }
 
-ITextEditable *BaseTextEditor::editableInterface() const
+BaseTextEditorEditable *BaseTextEditor::editableInterface() const
 {
     if (!d->m_editable) {
         d->m_editable = const_cast<BaseTextEditor*>(this)->createEditableInterface();
@@ -584,7 +584,7 @@ ITextEditable *BaseTextEditor::editableInterface() const
 
 void BaseTextEditor::currentEditorChanged(Core::IEditor *editor)
 {
-    if (editor == d->m_editable) {
+    if (editor == editableInterface()) {
         if (d->m_document->hasDecodingError()) {
             Core::EditorManager::instance()->showEditorInfoBar(QLatin1String(Constants::SELECT_ENCODING),
                 tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
@@ -754,7 +754,7 @@ void BaseTextEditor::editorContentsChange(int position, int charsRemoved, int ch
     }
 
     if (doc->isRedoAvailable())
-        emit d->m_editable->contentsChangedBecauseOfUndo();
+        emit editableInterface()->contentsChangedBecauseOfUndo();
 }
 
 
@@ -2099,9 +2099,7 @@ bool BaseTextEditor::viewportEvent(QEvent *event)
         QPoint cursorPos = mapToGlobal(cursorRect(c).bottomRight() + QPoint(1,1));
         cursorPos.setX(cursorPos.x() + d->m_extraArea->width());
 
-        editableInterface(); // create if necessary
-
-        emit d->m_editable->tooltipRequested(editableInterface(), cursorPos, c.position());
+        emit editableInterface()->tooltipRequested(editableInterface(), cursorPos, c.position());
         return true;
     }
     return QPlainTextEdit::viewportEvent(event);
@@ -3700,7 +3698,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             }
         } else if (d->m_marksVisible && e->button() == Qt::RightButton) {
             QMenu * contextMenu = new QMenu(this);
-            emit d->m_editable->markContextMenuRequested(editableInterface(), cursor.blockNumber() + 1, contextMenu);
+            emit editableInterface()->markContextMenuRequested(editableInterface(), cursor.blockNumber() + 1, contextMenu);
             if (!contextMenu->isEmpty())
                 contextMenu->exec(e->globalPos());
             delete contextMenu;
@@ -3738,7 +3736,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
             d->extraAreaToggleMarkBlockNumber = -1;
             if (cursor.blockNumber() == n) {
                 int line = n + 1;
-                emit d->m_editable->markRequested(editableInterface(), line);
+                emit editableInterface()->markRequested(editableInterface(), line);
             }
         }
     }

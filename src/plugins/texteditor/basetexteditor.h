@@ -315,7 +315,7 @@ public:
         , int at = -1) const;
     void convertPosition(int pos, int *line, int *column) const;
 
-    ITextEditable *editableInterface() const;
+    BaseTextEditorEditable *editableInterface() const;
     ITextMarkable *markableInterface() const;
 
     virtual void triggerCompletions();
