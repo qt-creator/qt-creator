@@ -515,7 +515,6 @@ void MaemoRunConfiguration::qemuProcessFinished()
 
 void MaemoRunConfiguration::updateDeviceConfigurations()
 {
-    qDebug("%s: Current devid = %llu", Q_FUNC_INFO, m_devConfig.internalId);
     const MaemoDeviceConfigurations &configManager
         = MaemoDeviceConfigurations::instance();
     if (!m_devConfig.isValid()) {
@@ -525,7 +524,6 @@ void MaemoRunConfiguration::updateDeviceConfigurations()
     } else {
         m_devConfig = configManager.find(m_devConfig.internalId);
     }
-    qDebug("%s: new devid = %llu", Q_FUNC_INFO, m_devConfig.internalId);
     emit deviceConfigurationsUpdated();
 }
 
