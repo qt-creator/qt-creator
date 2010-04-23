@@ -285,7 +285,6 @@ void FormEditorView::changeToDragTool()
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
     setCursor(Qt::ArrowCursor);
-    setCurrentState(baseState());
     m_currentTool->clear();
     m_currentTool = m_dragTool;
     m_currentTool->clear();
@@ -330,7 +329,6 @@ void FormEditorView::changeToItemCreatorTool()
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
     setCursor(Qt::CrossCursor);
-    setCurrentState(baseState());
     m_currentTool->clear();
     m_currentTool = m_itemCreatorTool;
     m_currentTool->clear();
