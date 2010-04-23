@@ -179,7 +179,7 @@ QObject *NodeMetaInfo::createInstance(QDeclarativeContext *context) const
         object = component.create(context);
     } else {
         // primitive
-        object = QDeclarativeMetaType::qmlType(typeName().toAscii(), 4, 6)->create();
+        object = QDeclarativeMetaType::qmlType(typeName().toAscii(), minorVersion(), majorVersion())->create();
         if (object && context)
             QDeclarativeEngine::setContextForObject(object, context);
     }
