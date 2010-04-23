@@ -65,6 +65,7 @@ namespace Core {
     class SideBar;
     class OpenEditorsModel;
     class EditorToolBar;
+    class OutputPanePlaceHolder;
 }
 
 namespace QmlDesigner {
@@ -175,6 +176,8 @@ private:
     Core::SideBar *m_leftSideBar;
     Core::SideBar *m_rightSideBar;
     Core::EditorToolBar *m_fakeToolBar;
+    Core::OutputPanePlaceHolder *m_outputPanePlaceholder;
+    Core::MiniSplitter *m_outputPlaceholderSplitter;
 
     bool m_isDisabled;
 

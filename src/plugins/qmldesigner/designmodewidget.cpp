@@ -29,11 +29,15 @@
 
 #include "designmodewidget.h"
 #include "qmldesignerconstants.h"
+#include "styledoutputpaneplaceholder.h"
 
 #include <model.h>
 #include <rewriterview.h>
 #include <formeditorwidget.h>
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/outputpane.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
@@ -146,6 +150,11 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     connect(m_pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
     m_selectAllAction = new Utils::ParameterAction(tr("Select &All"), tr("Select All \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     connect(m_selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
+
+    Core::ModeManager *modeManager = Core::ModeManager::instance();
+    Core::IMode *designmode = modeManager->mode(Core::Constants::MODE_DESIGN);
+    m_outputPlaceholderSplitter = new Core::MiniSplitter;
+    m_outputPanePlaceholder = new StyledOutputpanePlaceHolder(designmode, m_outputPlaceholderSplitter);
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -600,7 +609,15 @@ void DesignModeWidget::setup()
         rightLayout->addWidget(m_fakeToolBar);
         //### we now own these here
         rightLayout->addWidget(m_statesEditorWidget.data());
-        rightLayout->addWidget(m_formEditorView->widget());
+
+        // editor and output panes
+        m_outputPlaceholderSplitter->addWidget(m_formEditorView->widget());
+        m_outputPlaceholderSplitter->addWidget(m_outputPanePlaceholder);
+        m_outputPlaceholderSplitter->setStretchFactor(0, 10);
+        m_outputPlaceholderSplitter->setStretchFactor(1, 0);
+        m_outputPlaceholderSplitter->setOrientation(Qt::Vertical);
+
+        rightLayout->addWidget(m_outputPlaceholderSplitter);
     }
 
     // m_mainSplitter area:

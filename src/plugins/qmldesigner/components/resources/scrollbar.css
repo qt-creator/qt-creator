@@ -39,7 +39,7 @@
       subcontrol-origin: margin;
   }
   QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
-      border: 0px solid;
+      border: none;
       width: 0px;
       height: 0px;
   }

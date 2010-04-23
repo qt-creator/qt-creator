@@ -23,13 +23,15 @@ HEADERS += qmldesignerconstants.h \
     application.h \
     designersettings.h \
     settingspage.h \
-    designmodecontext.h
+    designmodecontext.h \
+    styledoutputpaneplaceholder.h
 SOURCES += qmldesignerplugin.cpp \
     designmodewidget.cpp \
     application.cpp \
     designersettings.cpp \
     settingspage.cpp \
-    designmodecontext.cpp
+    designmodecontext.cpp \
+    styledoutputpaneplaceholder.cpp
 FORMS += settingspage.ui
 
 OTHER_FILES += QmlDesigner.pluginspec
