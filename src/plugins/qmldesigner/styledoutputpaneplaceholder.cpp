@@ -15,8 +15,6 @@ StyledOutputpanePlaceHolder::StyledOutputpanePlaceHolder(Core::IMode *mode, QSpl
     m_customStylesheet = file.readAll() + file2.readAll();
     file.close();
     file2.close();
-
-
 }
 
 void StyledOutputpanePlaceHolder::childEvent(QChildEvent *event)
@@ -28,12 +26,6 @@ void StyledOutputpanePlaceHolder::childEvent(QChildEvent *event)
         if (child) {
             QList<QTabWidget*> widgets = child->findChildren<QTabWidget*>();
             if (!widgets.isEmpty()) {
-                QPalette paletteP = palette();
-                paletteP.setBrush(QPalette::All, QPalette::Light, Qt::red);
-                paletteP.setBrush(QPalette::All, QPalette::Shadow, Qt::red);
-                paletteP.setBrush(QPalette::All, QPalette::Dark, Qt::red);
-                paletteP.setBrush(QPalette::All, QPalette::Window, Qt::red);
-                setPalette(paletteP);
                 widgets.first()->parentWidget()->ensurePolished();
                 widgets.first()->parentWidget()->setStyleSheet(m_customStylesheet);
             }
@@ -45,7 +37,6 @@ void StyledOutputpanePlaceHolder::childEvent(QChildEvent *event)
             QList<QTabWidget*> widgets = child->findChildren<QTabWidget*>();
             if (!widgets.isEmpty())
                 widgets.first()->parentWidget()->setStyleSheet(QString());
-
         }
     }
 }
