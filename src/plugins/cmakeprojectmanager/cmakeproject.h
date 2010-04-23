@@ -57,7 +57,8 @@ class CMakeBuildSettingsWidget;
 struct CMakeBuildTarget
 {
     QString title;
-    QString executable;
+    QString executable; // TODO: rename to output?
+    bool library;
     QString workingDirectory;
     QString makeCommand;
     QString makeCleanCommand;

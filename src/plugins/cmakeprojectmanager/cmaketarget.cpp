@@ -106,6 +106,8 @@ void CMakeTarget::updateRunConfigurations()
     }
 
     foreach(const CMakeBuildTarget &ct, cmakeProject()->buildTargets()) {
+        if (ct.library)
+            continue;
         if (ct.executable.isEmpty())
             continue;
         if (ct.title.endsWith("/fast"))

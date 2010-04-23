@@ -222,7 +222,7 @@ bool CMakeProject::parseCMakeLists()
     //qDebug()<<"Adding Targets";
     m_buildTargets = cbpparser.buildTargets();
 //        qDebug()<<"Printing targets";
-//        foreach(CMakeTarget ct, m_targets) {
+//        foreach(CMakeBuildTarget ct, m_buildTargets) {
 //            qDebug()<<ct.title<<" with executable:"<<ct.executable;
 //            qDebug()<<"WD:"<<ct.workingDirectory;
 //            qDebug()<<ct.makeCommand<<ct.makeCleanCommand;
@@ -754,12 +754,16 @@ void CMakeCbpParser::parseBuildTarget()
 
 void CMakeCbpParser::parseBuildTargetOption()
 {
-    if (attributes().hasAttribute("output"))
+    if (attributes().hasAttribute("output")) {
         m_buildTarget.executable = attributes().value("output").toString();
-    else if (attributes().hasAttribute("type") && (attributes().value("type") == "1" || attributes().value("type") == "0"))
+    } else if (attributes().hasAttribute("type") && (attributes().value("type") == "1" || attributes().value("type") == "0")) {
         m_buildTargetType = true;
-    else if (attributes().hasAttribute("working_dir"))
+    } else if (attributes().hasAttribute("type") && (attributes().value("type") == "3" || attributes().value("type") == "2")) {
+        m_buildTargetType = true;
+        m_buildTarget.library = true;
+    } else if (attributes().hasAttribute("working_dir")) {
         m_buildTarget.workingDirectory = attributes().value("working_dir").toString();
+    }
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -963,5 +967,6 @@ void CMakeBuildTarget::clear()
     makeCleanCommand.clear();
     workingDirectory.clear();
     title.clear();
+    library = false;
 }
 
