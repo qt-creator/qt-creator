@@ -120,6 +120,10 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         } while (hasId(id)); //If the name already exists count upwards
 
         newNode.setId(id);
+        if (!currentState().isBaseState()) {
+            newNode.modelNode().variantProperty("visible") = false;
+            newNode.setVariantProperty("visible", true);
+        }
 
         Q_ASSERT(newNode.isValid());
     }
@@ -162,6 +166,10 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryInfo &itemLibraryRe
         } while (hasId(id)); //If the name already exists count upwards
 
         newNode.setId(id);
+        if (!currentState().isBaseState()) {
+            newNode.modelNode().variantProperty("visible") = false;
+            newNode.setVariantProperty("visible", true);
+        }
 
         Q_ASSERT(newNode.isValid());
     }
