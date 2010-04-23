@@ -182,7 +182,7 @@ reasons and then passed to the section views */
                                 anchors.bottom: parent.bottom
                                 anchors.left: parent.left
                                 anchors.right: scrollbarFrame.left
-                                overShoot: false
+                                boundsBehavior: Flickable.DragOverBounds
 
                                 interactive: false
                                 contentHeight: col.height

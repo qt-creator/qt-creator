@@ -67,7 +67,7 @@ Rectangle {
 
         focus: true;
         clip: true;
-        overShoot: false;
+        boundsBehavior: Flickable.DragOverBounds;
         interactive:false;
 
     }
