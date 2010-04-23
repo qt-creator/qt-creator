@@ -173,8 +173,6 @@ StateListener::StateListener(QObject *parent) :
         QObject(parent)
 {
     Core::ICore *core = Core::ICore::instance();
-    connect(core, SIGNAL(contextChanged(Core::IContext*,QList<int>)),
-            this, SLOT(slotStateChanged()));
     connect(core->fileManager(), SIGNAL(currentFileChanged(QString)),
             this, SLOT(slotStateChanged()));
 
