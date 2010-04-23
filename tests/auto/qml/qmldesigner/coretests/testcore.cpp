@@ -3941,6 +3941,9 @@ void TestCore::testStatesBaseState()
     QVERIFY(textItem.propertyAffectedByCurrentState("text"));
     QCOMPARE(textItem.instanceValue("text"), QVariant("state 1"));
 
+    ModelNode newNode = view->createModelNode("Qt/Rectangle", 4, 7);
+    QVERIFY(!QmlObjectNode(newNode).currentState().isBaseState());
+
     view->setCurrentState(view->baseState()); //set currentState base state
     QVERIFY(view->currentState().isBaseState());
 
@@ -3948,6 +3951,7 @@ void TestCore::testStatesBaseState()
 
     view->setCurrentState(state1); //set currentState "state 1"
     QCOMPARE(view->currentState(), state1);
+    QVERIFY(!view->currentState().isBaseState());
     QCOMPARE(textItem.instanceValue("text"), QVariant("state 1"));
 
     view->setCurrentState(view->baseState()); //set currentState base state
