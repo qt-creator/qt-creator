@@ -191,6 +191,12 @@ void MetaInfoPrivate::parseNonQmlClassRecursively(const QMetaObject *qMetaObject
 {
     Q_ASSERT_X(qMetaObject, Q_FUNC_INFO, "invalid QMetaObject");
     const QString className = qMetaObject->className();
+
+    if (className.isEmpty()) {
+        qWarning() << "Meta type system: Registered class has no name.";
+        return;
+    }
+
     if ( !m_q->hasNodeMetaInfo(className)
         && !QDeclarativeMetaType::qmlTypeNames().contains(typeName(qMetaObject).toAscii()) ) {
         NodeMetaInfo nodeMetaInfo(*m_q);
