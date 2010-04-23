@@ -16,5 +16,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <dependencyList>
         <dependency name="Core" version="1.3.84"/>
         <dependency name="TextEditor" version="1.3.84"/>
+        <dependency name="ProjectExplorer" version="1.3.84"/>
     </dependencyList>
 </plugin>

@@ -36,6 +36,9 @@
 #include "qmljshoverhandler.h"
 #include "qmljsmodelmanager.h"
 #include "qmlfilewizard.h"
+#include "qmljspreviewrunner.h"
+
+#include <qmldesigner/qmldesignerconstants.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -61,6 +64,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
+#include <QtGui/QMenu>
 #include <QtGui/QAction>
 
 using namespace QmlJSEditor;
@@ -96,7 +100,8 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     addAutoReleasedObject(m_modelManager);
 
     QList<int> context;
-    context<< core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+    context << core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
+            << core->uniqueIDManager()->uniqueIdentifier(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
 
     m_editor = new QmlJSEditorFactory(this);
     addObject(m_editor);
@@ -118,7 +123,18 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::ActionManager *am =  core->actionManager();
     Core::ActionContainer *contextMenu = am->createMenu(QmlJSEditor::Constants::M_CONTEXT);
 
-    Core::Command *cmd = 0;
+    Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
+    Core::ActionContainer *menuQtQuick = am->createMenu(Constants::M_QTQUICK);
+    menuQtQuick->menu()->setTitle(tr("Qt Quick"));
+    mtools->addMenu(menuQtQuick);
+    m_actionPreview = new QAction("&Preview", this);
+
+    QList<int> toolsMenuContext = QList<int>()
+                                  << core->uniqueIDManager()->uniqueIdentifier(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
+    Core::Command *cmd = addToolAction(m_actionPreview,  am, toolsMenuContext,
+                   QLatin1String("QtQuick.Preview"), menuQtQuick, tr("Ctrl+Alt+R"));
+    connect(cmd->action(), SIGNAL(triggered()), SLOT(openPreview()));
+    m_previewRunner = new QmlJSPreviewRunner(this);
 
     QAction *followSymbolUnderCursorAction = new QAction(tr("Follow Symbol Under Cursor"), this);
     cmd = am->registerAction(followSymbolUnderCursorAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR, context);
@@ -158,6 +174,15 @@ void QmlJSEditorPlugin::extensionsInitialized()
 {
 }
 
+void QmlJSEditorPlugin::openPreview()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+
+    if (em->currentEditor() && em->currentEditor()->id() == Constants::C_QMLJSEDITOR_ID)
+        m_previewRunner->run(em->currentEditor()->file()->fileName());
+
+}
+
 void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::Internal::QmlJSTextEditor *editor)
 {
     QTC_ASSERT(m_instance, /**/);
@@ -178,5 +203,17 @@ void QmlJSEditorPlugin::followSymbolUnderCursor()
     if (QmlJSTextEditor *editor = qobject_cast<QmlJSTextEditor*>(em->currentEditor()->widget()))
         editor->followSymbolUnderCursor();
 }
+
+Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a, Core::ActionManager *am,
+                                          const QList<int> &context, const QString &name,
+                                          Core::ActionContainer *c1, const QString &keySequence)
+{
+    Core::Command *command = am->registerAction(a, name, context);
+    if (!keySequence.isEmpty())
+        command->setDefaultKeySequence(QKeySequence(keySequence));
+    c1->addAction(command);
+    return command;
+}
+
 
 Q_EXPORT_PLUGIN(QmlJSEditorPlugin)

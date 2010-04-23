@@ -577,6 +577,7 @@ QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+    m_context << uidm->uniqueIdentifier(QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU);
 }
 
 // Use preferred mode from Bauhaus settings

@@ -35,7 +35,10 @@
 namespace QmlJSEditor {
 namespace Constants {
 
+// menus
+const char * const M_QTQUICK = "QtQuickDesigner.Menu";
 const char * const M_CONTEXT = "QML JS Editor.ContextMenu";
+
 const char * const RUN_SEP = "QmlJSEditor.Run.Separator";
 const char * const C_QMLJSEDITOR_ID = "QMLProjectManager.QMLJSEditor";
 const char * const C_QMLJSEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "QMLJS Editor");
@@ -45,6 +48,8 @@ const char * const FOLLOW_SYMBOL_UNDER_CURSOR = "QmlJSEditor.FollowSymbolUnderCu
 
 const char * const QML_MIMETYPE = "application/x-qml";
 const char * const JS_MIMETYPE = "application/javascript";
+
+
 
 } // namespace Constants
 } // namespace QmlJSEditor
