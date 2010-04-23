@@ -1060,10 +1060,9 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     if (d->m_state != DebuggerNotReady)
         return;
     d->m_startParameters = sp;
-    d->m_inferiorPid = d->m_startParameters->attachPID > 0
-        ? d->m_startParameters->attachPID : 0;
+    d->m_inferiorPid = sp->attachPID > 0 ? sp->attachPID : 0;
     const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(
-    ProjectExplorer::ToolChain::ToolChainType(d->m_startParameters->toolChainType));
+        ProjectExplorer::ToolChain::ToolChainType(sp->toolChainType));
 
     d->m_plugin->activateDebugMode();
     showDebuggerOutput(LogStatus,
@@ -1074,14 +1073,18 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     QString settingsIdHint;
 
     // Figure out engine: toolchain, executable, attach or default
-    const DebuggerStartMode startMode = d->m_startParameters->startMode;
-    d->m_engine = debuggerEngineForToolChain(d->m_startParameters->toolChainType);
+    const DebuggerStartMode startMode = sp->startMode;
+
+    if (sp->executable.endsWith(_(".js")))
+        d->m_engine = scriptEngine;
+    else
+        d->m_engine = debuggerEngineForToolChain(sp->toolChainType);
 
     if (d->m_engine == 0
             && startMode != StartRemote
-            && !d->m_startParameters->executable.isEmpty())
+            && !sp->executable.isEmpty())
         d->m_engine = debuggerEngineForExecutable(
-            d->m_startParameters->executable, &errorMessage, &settingsIdHint);
+            sp->executable, &errorMessage, &settingsIdHint);
 
     if (d->m_engine == 0)
         d->m_engine = debuggerEngineForMode(startMode, &errorMessage);
@@ -1089,18 +1092,18 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     if (!d->m_engine) {
         emit debuggingFinished();
         // Create Message box with possibility to go to settings
-        const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3").
-            arg(d->m_startParameters->executable, toolChainName, errorMessage);
+        const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3")
+            .arg(sp->executable, toolChainName, errorMessage);
         Core::ICore::instance()->showWarningWithOptions(tr("Warning"), msg, QString(),
             QLatin1String(DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
         return;
     }
 
-    STATE_DEBUG(d->m_startParameters->executable << d->m_engine);
+    STATE_DEBUG(sp->executable << d->m_engine);
     setBusyCursor(false);
     setState(EngineStarting);
     connect(d->m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
-    d->m_engine->startDebugger(d->m_startParameters);
+    d->m_engine->startDebugger(sp);
 
     const unsigned engineCapabilities = d->m_engine->debuggerCapabilities();
     theDebuggerAction(OperateByInstruction)
