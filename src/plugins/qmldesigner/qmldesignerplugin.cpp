@@ -166,89 +166,86 @@ void BauhausPlugin::createDesignModeWidget()
 
     m_context = new DesignModeContext(m_mainWidget);
     creatorCore->addContextObject(m_context);
+    Core::UniqueIDManager *uuidManager = Core::UniqueIDManager::instance();
+    QList<int> formEditorContext = QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR);
 
     // Revert to saved
     actionManager->registerAction(m_revertToSavedAction,
-                                      Core::Constants::REVERTTOSAVED, m_context->context());
+                                      Core::Constants::REVERTTOSAVED, formEditorContext);
     connect(m_revertToSavedAction, SIGNAL(triggered()), m_editorManager, SLOT(revertToSaved()));
 
     //Save
-    actionManager->registerAction(m_saveAction, Core::Constants::SAVE, m_context->context());
+    actionManager->registerAction(m_saveAction, Core::Constants::SAVE, formEditorContext);
     connect(m_saveAction, SIGNAL(triggered()), m_editorManager, SLOT(saveFile()));
 
     //Save As
-    actionManager->registerAction(m_saveAsAction, Core::Constants::SAVEAS, m_context->context());
+    actionManager->registerAction(m_saveAsAction, Core::Constants::SAVEAS, formEditorContext);
     connect(m_saveAsAction, SIGNAL(triggered()), m_editorManager, SLOT(saveFileAs()));
 
     //Close Editor
-    actionManager->registerAction(m_closeCurrentEditorAction, Core::Constants::CLOSE, m_context->context());
+    actionManager->registerAction(m_closeCurrentEditorAction, Core::Constants::CLOSE, formEditorContext);
     connect(m_closeCurrentEditorAction, SIGNAL(triggered()), m_editorManager, SLOT(closeEditor()));
 
     //Close All
-    actionManager->registerAction(m_closeAllEditorsAction, Core::Constants::CLOSEALL, m_context->context());
+    actionManager->registerAction(m_closeAllEditorsAction, Core::Constants::CLOSEALL, formEditorContext);
     connect(m_closeAllEditorsAction, SIGNAL(triggered()), m_editorManager, SLOT(closeAllEditors()));
 
     //Close All Others Action
-    actionManager->registerAction(m_closeOtherEditorsAction, Core::Constants::CLOSEOTHERS, m_context->context());
+    actionManager->registerAction(m_closeOtherEditorsAction, Core::Constants::CLOSEOTHERS, formEditorContext);
     connect(m_closeOtherEditorsAction, SIGNAL(triggered()), m_editorManager, SLOT(closeOtherEditors()));
 
     // Undo / Redo
-    actionManager->registerAction(m_mainWidget->undoAction(), Core::Constants::UNDO, m_context->context());
-    actionManager->registerAction(m_mainWidget->redoAction(), Core::Constants::REDO, m_context->context());
+    actionManager->registerAction(m_mainWidget->undoAction(), Core::Constants::UNDO, formEditorContext);
+    actionManager->registerAction(m_mainWidget->redoAction(), Core::Constants::REDO, formEditorContext);
 
     Core::Command *command;
     command = actionManager->registerAction(m_mainWidget->deleteAction(),
-                                            QmlDesigner::Constants::DELETE, m_context->context());
+                                            QmlDesigner::Constants::DELETE, formEditorContext);
     command->setDefaultKeySequence(QKeySequence::Delete);
     command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     command = actionManager->registerAction(m_mainWidget->cutAction(),
-                                            Core::Constants::CUT, m_context->context());
+                                            Core::Constants::CUT, formEditorContext);
     command->setDefaultKeySequence(QKeySequence::Cut);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     command = actionManager->registerAction(m_mainWidget->copyAction(),
-                                            Core::Constants::COPY, m_context->context());
+                                            Core::Constants::COPY, formEditorContext);
     command->setDefaultKeySequence(QKeySequence::Copy);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     command = actionManager->registerAction(m_mainWidget->pasteAction(),
-                                            Core::Constants::PASTE, m_context->context());
+                                            Core::Constants::PASTE, formEditorContext);
     command->setDefaultKeySequence(QKeySequence::Paste);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     command = actionManager->registerAction(m_mainWidget->selectAllAction(),
-                                            Core::Constants::SELECTALL, m_context->context());
+                                            Core::Constants::SELECTALL, formEditorContext);
     command->setDefaultKeySequence(QKeySequence::SelectAll);
     editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
 
-    Core::UniqueIDManager *uuidManager = Core::UniqueIDManager::instance();
     Core::ActionContainer *viewsMenu = actionManager->actionContainer(Core::Constants::M_WINDOW_VIEWS);
 
     command = actionManager->registerAction(m_mainWidget->toggleLeftSidebarAction(),
-                                            Constants::TOGGLE_LEFT_SIDEBAR,
-                                            QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
+                                            Constants::TOGGLE_LEFT_SIDEBAR, formEditorContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+0"));
     viewsMenu->addAction(command);
 
     command = actionManager->registerAction(m_mainWidget->toggleRightSidebarAction(),
-                                            Constants::TOGGLE_RIGHT_SIDEBAR,
-                                            QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
+                                            Constants::TOGGLE_RIGHT_SIDEBAR, formEditorContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+Shift+0"));
     viewsMenu->addAction(command);
 
     command = actionManager->registerAction(m_mainWidget->restoreDefaultViewAction(),
-                                            Constants::RESTORE_DEFAULT_VIEW,
-                                            QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
+                                            Constants::RESTORE_DEFAULT_VIEW, formEditorContext);
     command->setAttribute(Core::Command::CA_Hide);
     viewsMenu->addAction(command);
 
     command = actionManager->registerAction(m_mainWidget->hideSidebarsAction(),
-                                            Core::Constants::TOGGLE_SIDEBAR,
-                                            QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
+                                            Core::Constants::TOGGLE_SIDEBAR, formEditorContext);
 
 #ifdef Q_OS_MACX
     // add second shortcut to trigger delete
