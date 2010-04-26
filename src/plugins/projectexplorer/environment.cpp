@@ -196,7 +196,7 @@ QString Environment::searchInPath(QString executable) const
 #endif
     const QChar slash = QLatin1Char('/');
     foreach (const QString &p, path()) {
-//        qDebug()<<"trying"<<path + '/' + executable;
+//        qDebug()<<"trying"<<p + '/' + executable;
         QString fp = p;
         fp += slash;
         fp += executable;
@@ -216,7 +216,7 @@ QStringList Environment::path() const
 #else
     const QChar sep = QLatin1Char(':');
 #endif
-    return m_values.value(QLatin1String("PATH")).split(sep);
+    return m_values.value(QLatin1String("PATH")).split(sep, QString::SkipEmptyParts);
 }
 
 QString Environment::value(const QString &key) const
