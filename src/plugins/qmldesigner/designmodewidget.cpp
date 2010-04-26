@@ -156,7 +156,10 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     connect(m_hideSidebarsAction, SIGNAL(triggered()), this, SLOT(toggleSidebars()));
     m_restoreDefaultViewAction = new QAction(tr("&Restore Default View"), this);
     connect(m_restoreDefaultViewAction, SIGNAL(triggered()), SLOT(restoreDefaultView()));
-
+    m_toggleLeftSidebarAction = new QAction(tr("Toggle &Left Sidebar"), this);
+    connect(m_toggleLeftSidebarAction, SIGNAL(triggered()), SLOT(toggleLeftSidebar()));
+    m_toggleRightSidebarAction = new QAction(tr("Toggle &Right Sidebar"), this);
+    connect(m_toggleRightSidebarAction, SIGNAL(triggered()), SLOT(toggleRightSidebar()));
 
     Core::ModeManager *modeManager = Core::ModeManager::instance();
     Core::IMode *designmode = modeManager->mode(Core::Constants::MODE_DESIGN);
@@ -177,6 +180,18 @@ void DesignModeWidget::restoreDefaultView()
     m_rightSideBar->readSettings(settings, "none.RightSideBar");
     m_leftSideBar->show();
     m_rightSideBar->show();
+}
+
+void DesignModeWidget::toggleLeftSidebar()
+{
+    if (m_leftSideBar)
+        m_leftSideBar->setVisible(!m_leftSideBar->isVisible());
+}
+
+void DesignModeWidget::toggleRightSidebar()
+{
+    if (m_rightSideBar)
+        m_rightSideBar->setVisible(!m_rightSideBar->isVisible());
 }
 
 void DesignModeWidget::toggleSidebars()
@@ -311,6 +326,17 @@ QAction *DesignModeWidget::hideSidebarsAction() const
 {
     return m_hideSidebarsAction;
 }
+
+QAction *DesignModeWidget::toggleLeftSidebarAction() const
+{
+    return m_toggleLeftSidebarAction;
+}
+
+QAction *DesignModeWidget::toggleRightSidebarAction() const
+{
+    return m_toggleRightSidebarAction;
+}
+
 
 QAction *DesignModeWidget::restoreDefaultViewAction() const
 {

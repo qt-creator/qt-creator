@@ -45,6 +45,8 @@ const char * const C_QT_QUICK_TOOLS_MENU = "QmlDesigner::ToolsMenu";
 // actions
 const char * const SWITCH_TEXT_DESIGN   = "QmlDesigner.SwitchTextDesign";
 const char * const RESTORE_DEFAULT_VIEW = "QmlDesigner.RestoreDefaultView";
+const char * const TOGGLE_LEFT_SIDEBAR = "QmlDesigner.ToggleLeftSideBar";
+const char * const TOGGLE_RIGHT_SIDEBAR = "QmlDesigner.ToggleRightSideBar";
 
 // mode
 const char * const DESIGN_MODE_NAME     = "Design";

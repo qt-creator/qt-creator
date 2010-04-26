@@ -116,6 +116,8 @@ public:
     QAction *pasteAction() const;
     QAction *selectAllAction() const;
     QAction *hideSidebarsAction() const;
+    QAction *toggleLeftSidebarAction() const;
+    QAction *toggleRightSidebarAction() const;
     QAction *restoreDefaultViewAction() const;
 
     void readSettings();
@@ -134,6 +136,8 @@ private slots:
     void selectAll();
     void closeCurrentEditor();
     void toggleSidebars();
+    void toggleLeftSidebar();
+    void toggleRightSidebar();
     void restoreDefaultView();
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
@@ -165,6 +169,8 @@ private:
     QAction *m_selectAllAction;
     QAction *m_hideSidebarsAction;
     QAction *m_restoreDefaultViewAction;
+    QAction *m_toggleLeftSidebarAction;
+    QAction *m_toggleRightSidebarAction;
 
     QWeakPointer<ItemLibrary> m_itemLibrary;
     QWeakPointer<NavigatorView> m_navigator;
