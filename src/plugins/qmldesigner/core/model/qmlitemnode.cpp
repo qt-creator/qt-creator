@@ -250,7 +250,7 @@ QList<QmlModelState> QmlModelStateGroup::allStates() const
     return returnList;
 }
 
-QString QmlItemNode::simplfiedTypeName() const
+QString QmlItemNode::simplifiedTypeName() const
 {
     return modelNode().simplifiedTypeName();
 }

@@ -80,7 +80,7 @@ void SiblingComboBox::setup()
     foreach (const QmlItemNode &itemNode, m_itemList) {
         if (itemNode.isValid()) {
             if (itemNode.id().isEmpty())
-                addItem(itemNode.simplfiedTypeName());
+                addItem(itemNode.simplifiedTypeName());
             else
                 addItem(itemNode.id());
         }
@@ -93,7 +93,7 @@ void SiblingComboBox::setup()
         QString parentString("Parent (");
 
         if (parent.id().isEmpty())
-            parentString += parent.simplfiedTypeName();
+            parentString += parent.simplifiedTypeName();
         else
             parentString += parent.id();
         parentString += ")";

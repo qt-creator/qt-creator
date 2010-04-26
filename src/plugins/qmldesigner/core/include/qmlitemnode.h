@@ -82,7 +82,7 @@ public:
     void deselectNode();
     bool isSelected() const;
 
-    QString simplfiedTypeName() const;
+    QString simplifiedTypeName() const;
 
     const QList<QmlItemNode> allDirectSubModelNodes() const;
     const QList<QmlItemNode> allSubModelNodes() const;

@@ -371,7 +371,7 @@ QPainterPath AnchorController::createTargetNamePathPath(AnchorLine::Type anchorL
 
         QFont font;
         font.setPixelSize(24);
-        QString nameString(QString("%1 (%2)").arg(targetAnchorLine.qmlItemNode().simplfiedTypeName()).arg(targetAnchorLine.qmlItemNode().id()));
+        QString nameString(QString("%1 (%2)").arg(targetAnchorLine.qmlItemNode().simplifiedTypeName()).arg(targetAnchorLine.qmlItemNode().id()));
         path.addText(0., -4., font, nameString);
         //path.translate(centerBoundingBoxInLayerSpace - path.qmlItemNode().instanceBoundingRect().center());
 

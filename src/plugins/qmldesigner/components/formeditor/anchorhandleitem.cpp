@@ -101,13 +101,13 @@ QString AnchorHandleItem::toolTipString() const
 {
     QString templateString("<p>Anchor Handle</p><p>%1</p><p>%2</p>");
     QmlItemNode fromNode(anchorController().formEditorItem()->qmlItemNode());
-    QString fromString(QString("%3: %1(%2)").arg(fromNode.simplfiedTypeName(), fromNode.id(), anchorLineToString(sourceAnchorLine())));
+    QString fromString(QString("%3: %1(%2)").arg(fromNode.simplifiedTypeName(), fromNode.id(), anchorLineToString(sourceAnchorLine())));
 
     AnchorLine toAnchorLine(targetAnchorLine());
     QmlItemNode toNode(toAnchorLine.qmlItemNode());
     QString toString;
     if (toNode.isValid())
-        toString = QString("%3: %1(%2)").arg(toNode.simplfiedTypeName(), toNode.id(), anchorLineToString(toAnchorLine.type()));
+        toString = QString("%3: %1(%2)").arg(toNode.simplifiedTypeName(), toNode.id(), anchorLineToString(toAnchorLine.type()));
 
     return templateString.arg(fromString).arg(toString);
 }
