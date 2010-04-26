@@ -5,7 +5,6 @@ GroupBox {
     id: fontGroupBox
     caption: qsTr("Font")
     property variant showStyle: false
-
     layout: VerticalLayout {
 
         QWidget {
@@ -37,19 +36,6 @@ GroupBox {
                 }
 
                 FontStyleButtons {}
-
-                /*CheckBox {
-                    text: qsTr("Bold")
-                    backendValue: backendValues.font_bold
-                    baseStateFlag: isBaseState;
-                    checkable: true;
-                }
-                CheckBox {
-                    text: qsTr("Italic")
-                    backendValue: backendValues.font_italic
-                    baseStateFlag: isBaseState;
-                    checkable: true;
-                }*/
 
             }
         }
