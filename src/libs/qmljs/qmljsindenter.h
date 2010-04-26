@@ -32,6 +32,7 @@
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljsscanner.h>
+#include <qmljs/qmljslineinfo.h>
 
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
@@ -39,7 +40,7 @@
 
 namespace QmlJS {
 
-class QMLJS_EXPORT QmlJSIndenter
+class QMLJS_EXPORT QmlJSIndenter : public LineInfo
 {
     Q_DISABLE_COPY(QmlJSIndenter)
 
@@ -51,42 +52,19 @@ public:
     void setIndentSize(int size);
 
     int indentForBottomLine(QTextBlock firstBlock, QTextBlock lastBlock, QChar typedIn);
-    QChar firstNonWhiteSpace(const QString &t) const;
 
 private:
-    static const int SmallRoof;
-    static const int BigRoof;
-
     bool isOnlyWhiteSpace(const QString &t) const;
     int columnForIndex(const QString &t, int index) const;
     int indentOfLine(const QString &t) const;
-    QString trimmedCodeLine(const QString &t);
 
     void eraseChar(QString &t, int k, QChar ch) const;
     QChar lastParen() const;
-    bool hasUnclosedParenOrBracket() const;
     bool okay(QChar typedIn, QChar okayCh) const;
 
-    /*
-        The "linizer" is a group of functions and variables to iterate
-        through the source code of the program to indent. The program is
-        given as a list of strings, with the bottom line being the line
-        to indent. The actual program might contain extra lines, but
-        those are uninteresting and not passed over to us.
-    */
-
-    bool readLine();
-    void startLinizer();
-    bool bottomLineStartsInMultilineComment();
     int indentWhenBottomLineStartsInMultiLineComment();
-    bool matchBracelessControlStatement();
-    bool isUnfinishedLine();
-    bool isContinuationLine();
     int indentForContinuationLine();
     int indentForStandaloneLine();
-
-    Token lastToken() const;
-    QStringRef tokenText(const Token &token) const;
 
 private:
     int ppHardwareTabSize;
@@ -95,45 +73,6 @@ private:
     int ppCommentOffset;
 
 private:
-    struct LinizerState
-    {
-        LinizerState()
-            : braceDepth(0),
-              leftBraceFollows(false),
-              pendingRightBrace(false)
-        { }
-
-        int braceDepth;
-        bool leftBraceFollows;
-        bool pendingRightBrace;
-        QString line;
-        QList<Token> tokens;
-        QTextBlock iter;
-    };
-
-    class Program
-    {
-    public:
-        Program() {}
-        Program(QTextBlock begin, QTextBlock end)
-            : begin(begin), end(end) {}
-
-        QTextBlock firstBlock() const { return begin; }
-        QTextBlock lastBlock() const { return end; }
-
-    private:
-        QTextBlock begin, end;
-    };
-
-    Program yyProgram;
-    LinizerState yyLinizerState;
-
-    // shorthands
-    const QString *yyLine;
-    const int *yyBraceDepth;
-    const bool *yyLeftBraceFollows;
-
-    QRegExp braceX;
     QRegExp caseOrDefault;
 };
 

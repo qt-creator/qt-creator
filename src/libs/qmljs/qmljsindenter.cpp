@@ -73,19 +73,17 @@
 using namespace QmlJS;
 
 /*
-    The indenter avoids getting stuck in almost infinite loops by
-    imposing arbitrary limits on the number of lines it analyzes when
-    looking for a construct.
+    Saves and restores the state of the global linizer. This enables
+    backtracking.
 
-    For example, the indenter never considers more than BigRoof lines
-    backwards when looking for the start of a C-style comment.
+    Identical to the defines in qmljslineinfo.cpp
 */
-const int QmlJSIndenter::SmallRoof = 40;
-const int QmlJSIndenter::BigRoof = 400;
+#define YY_SAVE() LinizerState savedState = yyLinizerState
+#define YY_RESTORE() yyLinizerState = savedState
+
 
 QmlJSIndenter::QmlJSIndenter()
-    : braceX(QRegExp(QLatin1String("^\\s*\\}\\s*(?:else|catch)\\b")))
-    , caseOrDefault(QRegExp(QLatin1String(
+    : caseOrDefault(QRegExp(QLatin1String(
             "\\s*(?:"
             "case\\b[^:]+|"
             "default)"
@@ -110,19 +108,6 @@ QmlJSIndenter::QmlJSIndenter()
     ppIndentSize = 4;
     ppContinuationIndentSize = 8;
     ppCommentOffset = 2;
-
-    /*
-        The "linizer" is a group of functions and variables to iterate
-        through the source code of the program to indent. The program is
-        given as a list of strings, with the bottom line being the line
-        to indent. The actual program might contain extra lines, but
-        those are uninteresting and not passed over to us.
-    */
-
-    // shorthands
-    yyLine = 0;
-    yyBraceDepth = 0;
-    yyLeftBraceFollows = 0;
 }
 
 QmlJSIndenter::~QmlJSIndenter()
@@ -138,21 +123,6 @@ void QmlJSIndenter::setIndentSize(int size)
 {
     ppIndentSize = size;
     ppContinuationIndentSize = 2 * size;
-}
-
-/*
-    Returns the first non-space character in the string t, or
-    QChar() if the string is made only of white space.
-*/
-QChar QmlJSIndenter::firstNonWhiteSpace(const QString &t) const
-{
-    int i = 0;
-    while (i < t.length()) {
-        if (!t.at(i).isSpace())
-            return t.at(i);
-        i++;
-    }
-    return QChar();
 }
 
 /*
@@ -206,102 +176,6 @@ void QmlJSIndenter::eraseChar(QString &t, int k, QChar ch) const
 }
 
 /*
-   Removes some nefast constructs from a code line and returns the
-   resulting line.
-*/
-QString QmlJSIndenter::trimmedCodeLine(const QString &t)
-{
-    Scanner scanner;
-
-    QTextBlock currentLine = yyLinizerState.iter;
-    int startState = qMax(0, currentLine.previous().userState()) & 0xff;
-
-    yyLinizerState.tokens = scanner(t, startState);
-    QString trimmed;
-    int previousTokenEnd = 0;
-    foreach (const Token &token, yyLinizerState.tokens) {
-        trimmed.append(t.midRef(previousTokenEnd, token.begin() - previousTokenEnd));
-
-        if (token.is(Token::String)) {
-            for (int i = 0; i < token.length; ++i)
-                trimmed.append(QLatin1Char('X'));
-
-        } else if (token.is(Token::Comment)) {
-            for (int i = 0; i < token.length; ++i)
-                trimmed.append(QLatin1Char(' '));
-
-        } else {
-            trimmed.append(tokenText(token));
-        }
-
-        previousTokenEnd = token.end();
-    }
-
-    int index = yyLinizerState.tokens.size() - 1;
-    for (; index != -1; --index) {
-        const Token &token = yyLinizerState.tokens.at(index);
-        if (token.isNot(Token::Comment))
-            break;
-    }
-
-    bool isBinding = false;
-    foreach (const Token &token, yyLinizerState.tokens) {
-        if (token.is(Token::Colon)) {
-            isBinding = true;
-            break;
-        }
-    }
-
-    if (index != -1) {
-        const Token &last = yyLinizerState.tokens.at(index);
-        bool needSemicolon = false;
-
-        switch (last.kind) {
-        case Token::LeftParenthesis:
-        case Token::LeftBrace:
-        case Token::LeftBracket:
-        case Token::Semicolon:
-        case Token::Delimiter:
-            break;
-
-        case Token::RightParenthesis:
-        case Token::RightBrace:
-        case Token::RightBracket:
-            if (isBinding)
-                needSemicolon = true;
-            break;
-
-        case Token::String:
-        case Token::Number:
-        case Token::Colon:
-        case Token::Comma:
-            needSemicolon = true;
-            break;
-
-        case Token::Identifier:
-            needSemicolon = true;
-            break;
-
-        case Token::Keyword:
-            if (tokenText(last) != QLatin1String("else"))
-                needSemicolon = true;
-            break;
-
-        default:
-            break;
-        } // end of switch
-
-        if (needSemicolon) {
-            const Token sc(trimmed.size(), 1, Token::Semicolon);
-            yyLinizerState.tokens.append(sc);
-            trimmed.append(QLatin1Char(';'));
-        }
-    }
-
-    return trimmed;
-}
-
-/*
     Returns '(' if the last parenthesis is opening, ')' if it is
     closing, and QChar() if there are no parentheses in t.
 */
@@ -320,31 +194,6 @@ QChar QmlJSIndenter::lastParen() const
     return QChar();
 }
 
-bool QmlJSIndenter::hasUnclosedParenOrBracket() const
-{
-    int closedParen = 0;
-    int closedBracket = 0;
-    for (int index = yyLinizerState.tokens.size() - 1; index != -1; --index) {
-        const Token &token = yyLinizerState.tokens.at(index);
-
-        if (token.is(Token::RightParenthesis)) {
-            closedParen++;
-        } else if (token.is(Token::RightBracket)) {
-            closedBracket++;
-        } else if (token.is(Token::LeftParenthesis)) {
-            closedParen--;
-            if (closedParen < 0)
-                return true;
-        } else if (token.is(Token::LeftBracket)) {
-            closedBracket--;
-            if (closedBracket < 0)
-                return true;
-        }
-    }
-
-    return false;
-}
-
 /*
     Returns true if typedIn the same as okayCh or is null; otherwise
     returns false.
@@ -352,127 +201,6 @@ bool QmlJSIndenter::hasUnclosedParenOrBracket() const
 bool QmlJSIndenter::okay(QChar typedIn, QChar okayCh) const
 {
     return typedIn == QChar() || typedIn == okayCh;
-}
-
-Token QmlJSIndenter::lastToken() const
-{
-    for (int index = yyLinizerState.tokens.size() - 1; index != -1; --index) {
-        const Token &token = yyLinizerState.tokens.at(index);
-
-        if (token.isNot(Token::Comment))
-            return token;
-    }
-
-    return Token();
-}
-
-QStringRef QmlJSIndenter::tokenText(const Token &token) const
-{
-    return yyLinizerState.line.midRef(token.offset, token.length);
-}
-
-/*
-    Saves and restores the state of the global linizer. This enables
-    backtracking.
-*/
-#define YY_SAVE() LinizerState savedState = yyLinizerState
-#define YY_RESTORE() yyLinizerState = savedState
-
-/*
-    Advances to the previous line in yyProgram and update yyLine
-    accordingly. yyLine is cleaned from comments and other damageable
-    constructs. Empty lines are skipped.
-*/
-bool QmlJSIndenter::readLine()
-{
-    int k;
-
-    yyLinizerState.leftBraceFollows =
-            (firstNonWhiteSpace(yyLinizerState.line) == QLatin1Char('{'));
-
-    do {
-        if (yyLinizerState.iter == yyProgram.firstBlock()) {
-            yyLinizerState.line.clear();
-            return false;
-        }
-
-        yyLinizerState.iter = yyLinizerState.iter.previous();
-        yyLinizerState.line = yyLinizerState.iter.text();
-
-        yyLinizerState.line = trimmedCodeLine(yyLinizerState.line);
-
-        /*
-            Remove trailing spaces.
-        */
-        k = yyLinizerState.line.length();
-        while (k > 0 && yyLinizerState.line.at(k - 1).isSpace())
-            k--;
-        yyLinizerState.line.truncate(k);
-
-        /*
-            '}' increment the brace depth and '{' decrements it and not
-            the other way around, as we are parsing backwards.
-        */
-        yyLinizerState.braceDepth +=
-                yyLinizerState.line.count('}') + yyLinizerState.line.count(']') -
-                yyLinizerState.line.count('{') - yyLinizerState.line.count('[');
-
-        /*
-            We use a dirty trick for
-
-                } else ...
-
-            We don't count the '}' yet, so that it's more or less
-            equivalent to the friendly construct
-
-                }
-                else ...
-        */
-        if (yyLinizerState.pendingRightBrace)
-            yyLinizerState.braceDepth++;
-        yyLinizerState.pendingRightBrace =
-                (yyLinizerState.line.indexOf(braceX) == 0);
-        if (yyLinizerState.pendingRightBrace)
-            yyLinizerState.braceDepth--;
-    } while (yyLinizerState.line.isEmpty());
-
-    return true;
-}
-
-/*
-    Resets the linizer to its initial state, with yyLine containing the
-    line above the bottom line of the program.
-*/
-void QmlJSIndenter::startLinizer()
-{
-    yyLinizerState.braceDepth = 0;
-    yyLinizerState.pendingRightBrace = false;
-
-    yyLine = &yyLinizerState.line;
-    yyBraceDepth = &yyLinizerState.braceDepth;
-    yyLeftBraceFollows = &yyLinizerState.leftBraceFollows;
-
-    yyLinizerState.iter = yyProgram.lastBlock();
-    yyLinizerState.iter = yyLinizerState.iter.previous();
-    yyLinizerState.line = yyLinizerState.iter.text();
-    readLine();
-}
-
-/*
-    Returns true if the start of the bottom line of yyProgram (and
-    potentially the whole line) is part of a C-style comment;
-    otherwise returns false.
-*/
-bool QmlJSIndenter::bottomLineStartsInMultilineComment()
-{
-    QTextBlock currentLine = yyProgram.lastBlock().previous();
-    QTextBlock previousLine = currentLine.previous();
-
-    int startState = qMax(0, previousLine.userState()) & 0xff;
-    if (startState > 0)
-        return true;
-
-    return false;
 }
 
 /*
@@ -496,208 +224,6 @@ int QmlJSIndenter::indentWhenBottomLineStartsInMultiLineComment()
     }
 
     return indentOfLine(blockText);
-}
-
-/*
-    A function called match...() modifies the linizer state. If it
-    returns true, yyLine is the top line of the matched construct;
-    otherwise, the linizer is left in an unknown state.
-
-    A function called is...() keeps the linizer state intact.
-*/
-
-/*
-    Returns true if the current line (and upwards) forms a braceless
-    control statement; otherwise returns false.
-
-    The first line of the following example is a "braceless control
-    statement":
-
-        if (x)
-            y;
-*/
-bool QmlJSIndenter::matchBracelessControlStatement()
-{
-    int delimDepth = 0;
-
-    if (! yyLinizerState.tokens.isEmpty()) {
-        Token tk = lastToken();
-
-        if (tk.is(Token::Keyword) && tokenText(tk) == QLatin1String("else"))
-            return true;
-
-        else if (tk.isNot(Token::RightParenthesis))
-            return false;
-    }
-
-    for (int i = 0; i < SmallRoof; i++) {
-        for (int tokenIndex = yyLinizerState.tokens.size() - 1; tokenIndex != -1; --tokenIndex) {
-            const Token &token = yyLinizerState.tokens.at(tokenIndex);
-
-            switch (token.kind) {
-            default:
-                break;
-
-            case Token::Comment:
-                // skip comments
-                break;
-
-            case Token::RightParenthesis:
-                ++delimDepth;
-                break;
-
-            case Token::LeftBrace:
-            case Token::RightBrace:
-            case Token::Semicolon:
-                /*
-                    We met a statement separator, but not where we
-                    expected it. What follows is probably a weird
-                    continuation line. Be careful with ';' in for,
-                    though.
-                */
-                if (token.kind != Token::Semicolon || delimDepth == 0)
-                    return false;
-                break;
-
-
-            case Token::LeftParenthesis:
-                --delimDepth;
-
-                if (delimDepth == 0 && tokenIndex > 0) {
-                    const Token &tk = yyLinizerState.tokens.at(tokenIndex - 1);
-
-                    if (tk.is(Token::Keyword)) {
-                        const QStringRef text = tokenText(tk);
-
-                        /*
-                            We have
-
-                                if-like (x)
-                                    y
-
-                            "if (x)" is not part of the statement
-                            "y".
-                        */
-
-
-                        if      (tk.length == 5 && text == QLatin1String("catch"))
-                            return true;
-
-                        else if (tk.length == 2 && text == QLatin1String("do"))
-                            return true;
-
-                        else if (tk.length == 3 && text == QLatin1String("for"))
-                            return true;
-
-                        else if (tk.length == 2 && text == QLatin1String("if"))
-                            return true;
-
-                        else if (tk.length == 5 && text == QLatin1String("while"))
-                            return true;
-
-                        else if (tk.length == 4 && text == QLatin1String("with"))
-                            return true;
-                    }
-                }
-
-                if (delimDepth == -1) {
-                    /*
-                      We have
-
-                          if ((1 +
-                                2)
-
-                      and not
-
-                          if (1 +
-                               2)
-                    */
-                    return false;
-                }
-                break;
-
-            } // end of switch
-        }
-
-        if (! readLine())
-            break;
-    }
-
-    return false;
-}
-
-/*
-    Returns true if yyLine is an unfinished line; otherwise returns
-    false.
-
-    In many places we'll use the terms "standalone line", "unfinished
-    line" and "continuation line". The meaning of these should be
-    evident from this code example:
-
-        a = b;    // standalone line
-        c = d +   // unfinished line
-            e +   // unfinished continuation line
-            f +   // unfinished continuation line
-            g;    // continuation line
-*/
-bool QmlJSIndenter::isUnfinishedLine()
-{
-    bool unf = false;
-
-    YY_SAVE();
-
-    if (yyLine->isEmpty())
-        return false;
-
-    const QChar lastCh = yyLine->at(yyLine->length() - 1);
-
-    if (QString::fromLatin1("{};[]").indexOf(lastCh) == -1) {
-        /*
-          It doesn't end with ';' or similar. If it's not an "if (x)", it must be an unfinished line.
-        */
-        unf = ! matchBracelessControlStatement();
-
-        if (unf && lastCh == QLatin1Char(')'))
-            unf = false;
-
-    } else if (lastCh == QLatin1Char(';')) {
-        if (hasUnclosedParenOrBracket()) {
-            /*
-              Exception:
-
-                  for (int i = 1; i < 10;
-            */
-            unf = true;
-
-        // ### This only checks one line back.
-        } else if (readLine() && yyLine->endsWith(QLatin1String(";")) && hasUnclosedParenOrBracket()) {
-            /*
-              Exception:
-
-                  for (int i = 1;
-                        i < 10;
-            */
-            unf = true;
-        }
-    }
-
-    YY_RESTORE();
-    return unf;
-}
-
-/*
-    Returns true if yyLine is a continuation line; otherwise returns
-    false.
-*/
-bool QmlJSIndenter::isContinuationLine()
-{
-    bool cont = false;
-
-    YY_SAVE();
-    if (readLine())
-        cont = isUnfinishedLine();
-    YY_RESTORE();
-    return cont;
 }
 
 /*
