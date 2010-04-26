@@ -34,8 +34,21 @@ int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
     int metaCallReturnValue = -1;
 
     if (call == QMetaObject::WriteProperty
+        && property(id).userType() == QMetaType::QVariant
         && reinterpret_cast<QVariant *>(a[0])->type() == QVariant::Double
         && qIsNaN(reinterpret_cast<QVariant *>(a[0])->toDouble())) {
+        return -1;
+    }
+
+    if (call == QMetaObject::WriteProperty
+        && property(id).userType() == QMetaType::Double
+        && qIsNaN(*reinterpret_cast<double*>(a[0]))) {
+        return -1;
+    }
+
+    if (call == QMetaObject::WriteProperty
+        && property(id).userType() == QMetaType::Float
+        && qIsNaN(*reinterpret_cast<float*>(a[0]))) {
         return -1;
     }
 
