@@ -67,7 +67,7 @@ QVariant DesignerPropertyMap<DefaultType>::value(const QString &key) const
 template <class DefaultType>
 void DesignerPropertyMap<DefaultType>::registerDeclarativeType(const QString &name)
 {
-    typedef typename DesignerPropertyMap<DefaultType> myType;
+    typedef DesignerPropertyMap<DefaultType> myType;
     qmlRegisterType<myType>("Bauhaus",1,0,name);
 }
 
