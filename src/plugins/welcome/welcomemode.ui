@@ -76,13 +76,13 @@ QToolButton:pressed, QPushButton:pressed{
    <item>
     <widget class="QWidget" name="gradientWidget" native="true">
      <property name="styleSheet">
-      <string notr="true">
+      <string notr="true">/*
 #gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:1.0, y2:1, stop:0 rgba(240, 240, 240, 255), stop:1 rgba(200, 200, 200, 255));
 }
-
+*/
 #gradientWidget {
-    border-image: url(:/core/images/welcomebg.png) 4;
+    border-image: url(:/welcome/images/welcomebg.png) 0;
 }
 </string>
      </property>
@@ -119,8 +119,8 @@ QToolButton:pressed, QPushButton:pressed{
         <property name="styleSheet">
          <string notr="true">#mainFrame {
     border-image: url(:/welcome/images/background_center_frame.png);
-    border-width: 4;
-	padding:-3;
+    border-width: 2;
+	padding:-1;
     padding-bottom:20	;
 }
 

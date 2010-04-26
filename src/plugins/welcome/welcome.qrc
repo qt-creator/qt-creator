@@ -1,6 +1,6 @@
 <RCC>
-    <qresource prefix="/welcome" >
-       <file>images/btn_26.png</file>
+    <qresource prefix="/welcome">
+        <file>images/btn_26.png</file>
         <file>images/btn_26_hover.png</file>
         <file>images/btn_27.png</file>
         <file>images/btn_27_hover.png</file>
@@ -19,5 +19,6 @@
         <file>images/combobox_arrow.png</file>
         <file>images/arrow-left.png</file>
         <file>images/arrow-right.png</file>
+        <file>images/welcomebg.png</file>
     </qresource>
 </RCC>
