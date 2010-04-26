@@ -81,7 +81,7 @@ public:
 
 private slots:
     void addRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
-    void removeRunConfiguration(ProjectExplorer::RunConfiguration *buildConfig);
+    void removeRunConfiguration(ProjectExplorer::RunConfiguration *runConfig);
     void addBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfig);
     void removeBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfig);
 
