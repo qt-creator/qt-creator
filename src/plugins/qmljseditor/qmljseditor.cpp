@@ -595,16 +595,22 @@ static bool openInDesignMode()
     }
     if (!bauhausPresent)
         return false;
-    // Query the bauhaus setting if it wants to be opened in Design mode.
-    const QString settingsKey = QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP)
-                                + QLatin1Char('/') + QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP)
-                                + QLatin1Char('/') + QLatin1String(QmlDesigner::Constants::QML_OPENDESIGNMODE_SETTINGS_KEY);
-    const QVariant openDesignMode = Core::ICore::instance()->settings()->value(settingsKey);
-    return openDesignMode.isValid() ? openDesignMode.toBool() : bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT);
+
+    return bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT);
 }
 
 QString QmlJSEditorEditable::preferredMode() const
 {
+    Core::ModeManager *modeManager = Core::ModeManager::instance();
+    if (modeManager->currentMode()->id() == Core::Constants::MODE_DESIGN
+        || modeManager->currentMode()->id() == Core::Constants::MODE_EDIT)
+    {
+        return modeManager->currentMode()->id();
+    }
+
+    // if we are in other mode than edit or design, use the hard-coded default.
+    // because the editor opening decision is modal, it would be confusing to
+    // have the user also access to this failsafe setting.
     if (editor()->mimeType() == QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
         && openInDesignMode())
         return QLatin1String(Core::Constants::MODE_DESIGN);

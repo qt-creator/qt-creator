@@ -38,8 +38,6 @@
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
-enum EditModeCombo { EditModeDesign, EditModeEdit };
-
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -49,7 +47,6 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 DesignerSettings SettingsPageWidget::settings() const
 {
     DesignerSettings ds;
-    ds.openDesignMode = m_ui.editorModeComboBox->currentIndex() == EditModeDesign;
     ds.itemSpacing = m_ui.spinItemSpacing->value();
     ds.snapMargin = m_ui.spinSnapMargin->value();
     return ds;
@@ -57,7 +54,6 @@ DesignerSettings SettingsPageWidget::settings() const
 
 void SettingsPageWidget::setSettings(const DesignerSettings &s)
 {
-    m_ui.editorModeComboBox->setCurrentIndex(s.openDesignMode ? EditModeDesign : EditModeEdit);
     m_ui.spinItemSpacing->setValue(s.itemSpacing);
     m_ui.spinSnapMargin->setValue(s.snapMargin);
 }

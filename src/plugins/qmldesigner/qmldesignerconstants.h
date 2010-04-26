@@ -57,7 +57,7 @@ const char * const QML_DESIGNER_SETTINGS_GROUP = "Designer";
 const char * const QML_OPENDESIGNMODE_SETTINGS_KEY = "OpenDesignMode";
 const char * const QML_ITEMSPACING_KEY = "ItemSpacing";
 const char * const QML_SNAPMARGIN_KEY = "SnapMargin";
-enum { QML_OPENDESIGNMODE_DEFAULT = 0 };
+enum { QML_OPENDESIGNMODE_DEFAULT = 0 }; // 0 for text mode, 1 for design mode
 
 namespace Internal {
     enum { debug = 0 };
