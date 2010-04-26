@@ -5,5 +5,6 @@ WidgetFrame {
    id: propertyFrame;
 
     minimumWidth: 300;
+    objectName:     "propertyEditorFrame"
     styleSheetFile: "propertyEditor.css";
 }
