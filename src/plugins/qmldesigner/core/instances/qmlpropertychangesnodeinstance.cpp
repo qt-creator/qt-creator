@@ -94,6 +94,30 @@ void QmlPropertyChangesObject::setTargetObject(QObject *object)
         qmlAction.property = createMetaProperty(qmlAction.specifiedProperty);
         qmlAction.fromValue = qmlAction.property.read();
         qmlAction.fromBinding = QDeclarativePropertyPrivate::binding(qmlAction.property);
+        if (m_expressionHash.contains(qmlAction.specifiedProperty) && m_expressionHash[qmlAction.specifiedProperty].second) {
+            if (isActive()) {
+                QDeclarativePropertyPrivate::setBinding(qmlAction.property, 0, QDeclarativePropertyPrivate::DontRemoveBinding| QDeclarativePropertyPrivate::BypassInterceptor);
+                qmlAction.property.write(qmlAction.fromValue);
+            }
+
+            m_expressionHash[qmlAction.specifiedProperty].second.data()->destroy();
+            qmlAction.toBinding = 0;
+        }
+
+        if (m_expressionHash.contains(qmlAction.specifiedProperty) && targetObject()) {
+            QDeclarativeBinding *binding = new QDeclarativeBinding(m_expressionHash[qmlAction.specifiedProperty].first ,targetObject(), QDeclarativeEngine::contextForObject(targetObject()));
+            binding->setTarget(qmlAction.property);
+            binding->setNotifyOnValueChanged(true);
+            qmlAction.toBinding = binding;
+            m_expressionHash.insert(qmlAction.specifiedProperty, ExpressionPair(m_expressionHash[qmlAction.specifiedProperty].first, binding));
+            if (isActive()) {
+                QDeclarativePropertyPrivate::setBinding(qmlAction.property, qmlAction.toBinding, QDeclarativePropertyPrivate::DontRemoveBinding| QDeclarativePropertyPrivate::BypassInterceptor);
+            }
+        }
+
+        if (isActive() && targetObject()) {
+            updateRevertValueAndBinding(qmlAction.specifiedProperty);
+        }
     }
 }
 
@@ -372,6 +396,9 @@ void QmlPropertyChangesObject::updateRevertValueAndBinding(const QString &name)
                     const QDeclarativeAction &qmlAction = qmlActionForProperty(name);
                     simpleAction.value = qmlAction.fromValue;
                     simpleAction.binding = qmlAction.fromBinding;
+                    simpleAction.specifiedObject = qmlAction.specifiedObject;
+                    simpleAction.specifiedProperty = qmlAction.specifiedProperty;
+                    simpleAction.property = qmlAction.property;
                     return; //return since we just had to update exisisting simple action
                 }
             }
@@ -425,7 +452,7 @@ void QmlPropertyChangesObject::setExpression(const QString &name, const QString 
         qmlAction.toBinding = binding;
         m_expressionHash.insert(name, ExpressionPair(expression, binding));
     } else {
-        qWarning() << "Cannot set binding for property" << name << ": property is unknown for type";
+         m_expressionHash.insert(name, ExpressionPair(expression, static_cast<QDeclarativeBinding*>(0)));
     }
 
     updateRevertValueAndBinding(name);
