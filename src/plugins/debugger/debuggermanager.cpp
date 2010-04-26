@@ -399,9 +399,12 @@ void DebuggerManager::init()
 
     // Stack
     d->m_stackHandler = new StackHandler;
-    QAbstractItemView *stackView =
-        qobject_cast<QAbstractItemView *>(d->m_stackWindow);
+    StackWindow *stackView =
+        qobject_cast<StackWindow *>(d->m_stackWindow);
     stackView->setModel(d->m_stackHandler->stackModel());
+    stackView->header()->resizeSection(0, 60);
+    stackView->header()->resizeSection(3, 60);
+
     connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
         this, SLOT(reloadFullStack()));
     connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
