@@ -226,12 +226,6 @@ void BauhausPlugin::createDesignModeWidget()
     Core::UniqueIDManager *uuidManager = Core::UniqueIDManager::instance();
     Core::ActionContainer *viewsMenu = actionManager->actionContainer(Core::Constants::M_WINDOW_VIEWS);
 
-    command = actionManager->registerAction(m_mainWidget->hideSidebarsAction(),
-                                            Core::Constants::TOGGLE_SIDEBAR,
-                                            QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
-    command->setAttribute(Core::Command::CA_Hide);
-    viewsMenu->addAction(command);
-
     command = actionManager->registerAction(m_mainWidget->toggleLeftSidebarAction(),
                                             Constants::TOGGLE_LEFT_SIDEBAR,
                                             QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
@@ -245,6 +239,16 @@ void BauhausPlugin::createDesignModeWidget()
     command->setAttribute(Core::Command::CA_Hide);
     command->setDefaultKeySequence(QKeySequence("Ctrl+Alt+Shift+0"));
     viewsMenu->addAction(command);
+
+    command = actionManager->registerAction(m_mainWidget->restoreDefaultViewAction(),
+                                            Constants::RESTORE_DEFAULT_VIEW,
+                                            QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
+    command->setAttribute(Core::Command::CA_Hide);
+    viewsMenu->addAction(command);
+
+    command = actionManager->registerAction(m_mainWidget->hideSidebarsAction(),
+                                            Core::Constants::TOGGLE_SIDEBAR,
+                                            QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
 
 #ifdef Q_OS_MACX
     // add second shortcut to trigger delete
