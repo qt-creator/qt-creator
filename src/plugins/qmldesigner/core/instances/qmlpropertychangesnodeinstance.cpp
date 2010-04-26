@@ -252,7 +252,7 @@ QDeclarativeStateGroup *QmlPropertyChangesObject::stateGroup() const
 
 QDeclarativeStatePrivate *QmlPropertyChangesObject::statePrivate() const
 {
-    if (!parent())
+    if (!parent() || QObjectPrivate::get(parent())->wasDeleted)
         return 0;
 
     Q_ASSERT(qobject_cast<QDeclarativeState*>(parent()));
@@ -350,12 +350,13 @@ void QmlPropertyChangesObject::removeFromStateRevertList()
         while(simpleActionIterator.hasNext()) {
             QDeclarativeSimpleAction &simpleAction = simpleActionIterator.next();
             if (simpleAction.specifiedObject == targetObject()) {
-                Q_ASSERT(simpleAction.property.isValid());
-                if (simpleAction.binding) {
-                    QDeclarativePropertyPrivate::setBinding(simpleAction.property, simpleAction.binding);
-                } else if (simpleAction.value.isValid()) {
-                    QDeclarativePropertyPrivate::setBinding(simpleAction.property, 0);
-                    simpleAction.property.write(simpleAction.value);
+                if (simpleAction.property.isValid()) {
+                    if (simpleAction.binding) {
+                        QDeclarativePropertyPrivate::setBinding(simpleAction.property, simpleAction.binding);
+                    } else if (simpleAction.value.isValid()) {
+                        QDeclarativePropertyPrivate::setBinding(simpleAction.property, 0);
+                        simpleAction.property.write(simpleAction.value);
+                    }
                 }
                 simpleActionIterator.remove();
             }
