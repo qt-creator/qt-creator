@@ -326,7 +326,6 @@ Utils::FancyMainWindow *DebuggerUISwitcher::mainWindow() const
 QWidget *DebuggerUISwitcher::createMainWindow(Core::BaseMode *mode)
 {
     d->m_mainWindow = new DebuggerMainWindow(this);
-    d->m_mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
     d->m_mainWindow->setDocumentMode(true);
     connect(d->m_mainWindow, SIGNAL(resetLayout()),
             this, SLOT(resetDebuggerLayout()));
