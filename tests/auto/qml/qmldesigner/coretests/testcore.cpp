@@ -423,8 +423,8 @@ void TestCore::testRewriterDynamicProperties()
                                   "  property color cc: \"#ffffff\"\n"
                                   "  property date t\n"
                                   "  property date tt: \"2000-03-20\"\n"
-                                  "  property var v\n"
-                                  "  property var vv: \"Hello\"\n"
+                                  "  property variant v\n"
+                                  "  property variant vv: \"Hello\"\n"
                                   "}");
 
     QPlainTextEdit textEdit1;
@@ -511,7 +511,7 @@ void TestCore::testRewriterDynamicProperties()
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("tt").value().value<QDate>(), QDate(2000, 3, 20));
 
     QVERIFY(rootModelNode.hasVariantProperty("v"));
-    QCOMPARE(rootModelNode.variantProperty("v").dynamicTypeName(), QString("var"));
+    QCOMPARE(rootModelNode.variantProperty("v").dynamicTypeName(), QString("variant"));
     const int type = rootModelNode.variantProperty("v").value().type();
     QCOMPARE(type, QMetaType::type("QVariant"));
 
@@ -2312,19 +2312,19 @@ void TestCore::testRewriterPropertyDeclarations()
     //
     // [default] property <type> <name>[: defaultValue]
     //
-    // where type is (int | bool | double | real | string | url | color | date | var | variant)
+    // where type is (int | bool | double | real | string | url | color | date | variant)
     //
 
     // Unsupported:
-    //  property var varProperty2: boolProperty
-    //  property var myArray: [ Rectangle {} ]
-    //  property var someGradient: Gradient {}
+    //  property variant varProperty2: boolProperty
+    //  property variant myArray: [ Rectangle {} ]
+    //  property variant someGradient: Gradient {}
 
     char qmlString[] = "import Qt 4.7\n"
         "Item {\n"
         "   property int intProperty\n"
         "   property bool boolProperty: true\n"
-        "   property var varProperty1\n"
+        "   property variant varProperty1\n"
         "   default property url urlProperty\n"
         "   intProperty: 2\n"
         "}\n";
@@ -2381,7 +2381,7 @@ void TestCore::testRewriterPropertyAliases()
     //
     // [default] property alias <name>: <alias reference>
     //
-    // where type is (int | bool | double | real | string | url | color | date | var | variant)
+    // where type is (int | bool | double | real | string | url | color | date | variant)
     //
 
     char qmlString[] = "import Qt 4.7\n"
