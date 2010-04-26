@@ -224,10 +224,16 @@ void BauhausPlugin::createDesignModeWidget()
     editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
 
     Core::UniqueIDManager *uuidManager = Core::UniqueIDManager::instance();
-    actionManager->command(Core::Constants::TOGGLE_SIDEBAR);
     command = actionManager->registerAction(m_mainWidget->hideSidebarsAction(),
                                             Core::Constants::TOGGLE_SIDEBAR,
                                             QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
+
+    Core::ActionContainer *viewsMenu = actionManager->actionContainer(Core::Constants::M_WINDOW_VIEWS);
+    command = actionManager->registerAction(m_mainWidget->restoreDefaultViewAction(),
+                                            Constants::RESTORE_DEFAULT_VIEW,
+                                            QList<int> () << uuidManager->uniqueIdentifier(Constants::C_FORMEDITOR));
+    command->setAttribute(Core::Command::CA_Hide);
+    viewsMenu->addAction(command);
 
 #ifdef Q_OS_MACX
     // add second shortcut to trigger delete

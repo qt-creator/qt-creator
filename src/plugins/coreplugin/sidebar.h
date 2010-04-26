@@ -109,7 +109,7 @@ public:
 
     void saveSettings(QSettings *settings, const QString &name);
     void readSettings(QSettings *settings, const QString &name);
-
+    void closeAllWidgets();
     void activateItem(SideBarItem *item);
 
     void setShortcutMap(const QMap<QString, Core::Command*> &shortcutMap);

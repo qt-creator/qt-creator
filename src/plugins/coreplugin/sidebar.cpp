@@ -201,12 +201,17 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
     settings->setValue(prefix + "Width", width());
 }
 
+void SideBar::closeAllWidgets()
+{
+    foreach (SideBarWidget *widget, m_widgets)
+        removeSideBarWidget(widget);
+}
+
 void SideBar::readSettings(QSettings *settings, const QString &name)
 {
     const QString prefix = name.isEmpty() ? name : (name + QLatin1Char('/'));
 
-    foreach (SideBarWidget *widget, m_widgets)
-        removeSideBarWidget(widget);
+    closeAllWidgets();
 
     if (settings->contains(prefix + "Views")) {
         QStringList views = settings->value(prefix + "Views").toStringList();

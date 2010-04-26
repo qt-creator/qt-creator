@@ -154,6 +154,9 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     connect(m_selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
     m_hideSidebarsAction = new QAction(tr("Toggle Full Screen"), this);
     connect(m_hideSidebarsAction, SIGNAL(triggered()), this, SLOT(toggleSidebars()));
+    m_restoreDefaultViewAction = new QAction(tr("&Restore Default View"), this);
+    connect(m_restoreDefaultViewAction, SIGNAL(triggered()), SLOT(restoreDefaultView()));
+
 
     Core::ModeManager *modeManager = Core::ModeManager::instance();
     Core::IMode *designmode = modeManager->mode(Core::Constants::MODE_DESIGN);
@@ -163,6 +166,17 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
 
 DesignModeWidget::~DesignModeWidget()
 {
+}
+
+void DesignModeWidget::restoreDefaultView()
+{
+    QSettings *settings = Core::ICore::instance()->settings();
+    m_leftSideBar->closeAllWidgets();
+    m_rightSideBar->closeAllWidgets();
+    m_leftSideBar->readSettings(settings,  "none.LeftSideBar");
+    m_rightSideBar->readSettings(settings, "none.RightSideBar");
+    m_leftSideBar->show();
+    m_rightSideBar->show();
 }
 
 void DesignModeWidget::toggleSidebars()
@@ -296,6 +310,11 @@ QAction *DesignModeWidget::selectAllAction() const
 QAction *DesignModeWidget::hideSidebarsAction() const
 {
     return m_hideSidebarsAction;
+}
+
+QAction *DesignModeWidget::restoreDefaultViewAction() const
+{
+    return m_restoreDefaultViewAction;
 }
 
 void DesignModeWidget::readSettings()
@@ -591,28 +610,26 @@ void DesignModeWidget::setup()
     Core::SideBarItem *libraryItem = new Core::SideBarItem(m_itemLibrary.data());
     Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_allPropertiesBox.data());
 
-    QList<Core::SideBarItem*> sideBarItems;
-
     // default items
-    sideBarItems << navigatorItem << libraryItem << propertiesItem;
+    m_sideBarItems << navigatorItem << libraryItem << propertiesItem;
 
     if (projectsExplorer) {
         Core::SideBarItem *projectExplorerItem = new Core::SideBarItem(projectsExplorer);
-        sideBarItems << projectExplorerItem;
+        m_sideBarItems << projectExplorerItem;
     }
 
     if (fileSystemExplorer) {
         Core::SideBarItem *fileSystemExplorerItem = new Core::SideBarItem(fileSystemExplorer);
-        sideBarItems << fileSystemExplorerItem;
+        m_sideBarItems << fileSystemExplorerItem;
     }
 
     if (openDocumentsWidget) {
         Core::SideBarItem *openDocumentsItem = new Core::SideBarItem(openDocumentsWidget);
-        sideBarItems << openDocumentsItem;
+        m_sideBarItems << openDocumentsItem;
     }
 
-    m_leftSideBar = new Core::SideBar(sideBarItems, QList<Core::SideBarItem*>() << navigatorItem << libraryItem);
-    m_rightSideBar = new Core::SideBar(sideBarItems, QList<Core::SideBarItem*>() << propertiesItem);
+    m_leftSideBar = new Core::SideBar(m_sideBarItems, QList<Core::SideBarItem*>() << navigatorItem << libraryItem);
+    m_rightSideBar = new Core::SideBar(m_sideBarItems, QList<Core::SideBarItem*>() << propertiesItem);
 
     connect(m_leftSideBar, SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsRight()));
     connect(m_rightSideBar, SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsLeft()));

@@ -44,12 +44,14 @@ const char * const C_QT_QUICK_TOOLS_MENU = "QmlDesigner::ToolsMenu";
 
 // actions
 const char * const SWITCH_TEXT_DESIGN   = "QmlDesigner.SwitchTextDesign";
+const char * const RESTORE_DEFAULT_VIEW = "QmlDesigner.RestoreDefaultView";
 
 // mode
 const char * const DESIGN_MODE_NAME     = "Design";
 
 // Wizard type
 const char * const FORM_MIMETYPE        = "application/x-qmldesigner";
+
 
 // This setting is also accessed by the QMlJsEditor.
 const char * const QML_SETTINGS_GROUP = "QML";

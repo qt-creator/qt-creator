@@ -63,6 +63,7 @@ QT_END_NAMESPACE
 
 namespace Core {
     class SideBar;
+    class SideBarItem;
     class OpenEditorsModel;
     class EditorToolBar;
     class OutputPanePlaceHolder;
@@ -115,6 +116,7 @@ public:
     QAction *pasteAction() const;
     QAction *selectAllAction() const;
     QAction *hideSidebarsAction() const;
+    QAction *restoreDefaultViewAction() const;
 
     void readSettings();
     void saveSettings();
@@ -132,6 +134,7 @@ private slots:
     void selectAll();
     void closeCurrentEditor();
     void toggleSidebars();
+    void restoreDefaultView();
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
 
@@ -161,6 +164,7 @@ private:
     QAction *m_pasteAction;
     QAction *m_selectAllAction;
     QAction *m_hideSidebarsAction;
+    QAction *m_restoreDefaultViewAction;
 
     QWeakPointer<ItemLibrary> m_itemLibrary;
     QWeakPointer<NavigatorView> m_navigator;
@@ -182,7 +186,7 @@ private:
     Core::EditorToolBar *m_fakeToolBar;
     Core::OutputPanePlaceHolder *m_outputPanePlaceholder;
     Core::MiniSplitter *m_outputPlaceholderSplitter;
-
+    QList<Core::SideBarItem*> m_sideBarItems;
     bool m_isDisabled;
     bool m_showSidebars;
 
