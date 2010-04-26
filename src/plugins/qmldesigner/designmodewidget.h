@@ -138,6 +138,8 @@ private slots:
     void enable();
     void disable(const QList<RewriterView::Error> &errors);
     void updateErrorStatus(const QList<RewriterView::Error> &errors);
+    void updateAvailableSidebarItemsLeft();
+    void updateAvailableSidebarItemsRight();
 
 protected:
     void resizeEvent(QResizeEvent *event);

@@ -98,8 +98,14 @@ public:
     ~SideBar();
 
     QStringList availableItems() const;
+    QStringList unavailableItems() const;
     void makeItemAvailable(SideBarItem *item);
+    void setUnavailableItems(const QStringList &itemTitles);
+
     SideBarItem *item(const QString &title);
+
+    bool closeWhenEmpty() const;
+    void setCloseWhenEmpty(bool value);
 
     void saveSettings(QSettings *settings, const QString &name);
     void readSettings(QSettings *settings, const QString &name);
@@ -108,6 +114,9 @@ public:
 
     void setShortcutMap(const QMap<QString, Core::Command*> &shortcutMap);
     QMap<QString, Core::Command*> shortcutMap() const;
+
+signals:
+    void availableItemsChanged();
 
 private slots:
     void splitSubWidget();
@@ -120,11 +129,12 @@ private:
     void removeSideBarWidget(Internal::SideBarWidget *widget);
 
     QList<Internal::SideBarWidget*> m_widgets;
-
     QMap<QString, SideBarItem*> m_itemMap;
     QStringList m_availableItems;
+    QStringList m_unavailableItems;
     QStringList m_defaultVisible;
     QMap<QString, Core::Command*> m_shortcutMap;
+    bool m_closeWhenEmpty;
 };
 
 namespace Internal {

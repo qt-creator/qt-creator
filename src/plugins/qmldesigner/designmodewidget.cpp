@@ -578,10 +578,7 @@ void DesignModeWidget::setup()
     
     m_formEditorView = new FormEditorView(this);
 
-
-    //m_designToolBar = new QToolBar;
     m_fakeToolBar = Core::EditorManager::createToolBar(this);
-
 
     m_mainSplitter = new MiniSplitter(this);
     m_mainSplitter->setObjectName("mainSplitter");
@@ -590,34 +587,35 @@ void DesignModeWidget::setup()
     m_warningWidget = new DocumentWarningWidget(this);
     m_warningWidget->setVisible(false);
 
-    // Left area:
-
     Core::SideBarItem *navigatorItem = new Core::SideBarItem(m_navigator->widget());
     Core::SideBarItem *libraryItem = new Core::SideBarItem(m_itemLibrary.data());
     Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_allPropertiesBox.data());
 
+    QList<Core::SideBarItem*> sideBarItems;
 
-    QList<Core::SideBarItem*> leftSideBarItems, rightSideBarItems;
-    leftSideBarItems << navigatorItem << libraryItem;
-    rightSideBarItems << propertiesItem;
+    // default items
+    sideBarItems << navigatorItem << libraryItem << propertiesItem;
 
     if (projectsExplorer) {
         Core::SideBarItem *projectExplorerItem = new Core::SideBarItem(projectsExplorer);
-        rightSideBarItems << projectExplorerItem;
+        sideBarItems << projectExplorerItem;
     }
 
     if (fileSystemExplorer) {
         Core::SideBarItem *fileSystemExplorerItem = new Core::SideBarItem(fileSystemExplorer);
-        rightSideBarItems << fileSystemExplorerItem;
+        sideBarItems << fileSystemExplorerItem;
     }
 
-     if (openDocumentsWidget) {
+    if (openDocumentsWidget) {
         Core::SideBarItem *openDocumentsItem = new Core::SideBarItem(openDocumentsWidget);
-        rightSideBarItems << openDocumentsItem;
+        sideBarItems << openDocumentsItem;
     }
 
-    m_leftSideBar = new Core::SideBar(leftSideBarItems, QList<Core::SideBarItem*>() << navigatorItem << libraryItem);
-    m_rightSideBar = new Core::SideBar(rightSideBarItems, QList<Core::SideBarItem*>() << propertiesItem);
+    m_leftSideBar = new Core::SideBar(sideBarItems, QList<Core::SideBarItem*>() << navigatorItem << libraryItem);
+    m_rightSideBar = new Core::SideBar(sideBarItems, QList<Core::SideBarItem*>() << propertiesItem);
+
+    connect(m_leftSideBar, SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsRight()));
+    connect(m_rightSideBar, SIGNAL(availableItemsChanged()), SLOT(updateAvailableSidebarItemsLeft()));
 
     m_fakeToolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
     //m_fakeToolBar->addEditor(textEditor()); ### what does this mean?
@@ -664,11 +662,25 @@ void DesignModeWidget::setup()
     m_statesEditorWidget->setEnabled(true);
     m_leftSideBar->setEnabled(true);
     m_rightSideBar->setEnabled(true);
+    m_leftSideBar->setCloseWhenEmpty(true);
+    m_rightSideBar->setCloseWhenEmpty(true);
 
     readSettings();
 
     show();
     QApplication::processEvents();
+}
+
+void DesignModeWidget::updateAvailableSidebarItemsRight()
+{
+    // event comes from m_leftSidebar, so update right side.
+    m_rightSideBar->setUnavailableItems(m_leftSideBar->unavailableItems());
+}
+
+void DesignModeWidget::updateAvailableSidebarItemsLeft()
+{
+    // event comes from m_rightSidebar, so update left side.
+    m_leftSideBar->setUnavailableItems(m_rightSideBar->unavailableItems());
 }
 
 void DesignModeWidget::resizeEvent(QResizeEvent *event)

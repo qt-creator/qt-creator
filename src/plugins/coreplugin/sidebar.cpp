@@ -50,7 +50,8 @@ SideBarItem::~SideBarItem()
 }
 
 SideBar::SideBar(QList<SideBarItem*> itemList,
-                 QList<SideBarItem*> defaultVisible)
+                 QList<SideBarItem*> defaultVisible) :
+    m_closeWhenEmpty(false)
 {
     setOrientation(Qt::Vertical);
     foreach (SideBarItem *item, itemList) {
@@ -76,23 +77,64 @@ QStringList SideBar::availableItems() const
     return m_availableItems;
 }
 
+QStringList SideBar::unavailableItems() const
+{
+    return m_unavailableItems;
+}
+
+bool SideBar::closeWhenEmpty() const
+{
+    return m_closeWhenEmpty;
+}
+void SideBar::setCloseWhenEmpty(bool value)
+{
+    m_closeWhenEmpty = value;
+}
+
 void SideBar::makeItemAvailable(SideBarItem *item)
 {
     QMap<QString, SideBarItem*>::const_iterator it = m_itemMap.constBegin();
     while (it != m_itemMap.constEnd()) {
         if (it.value() == item) {
             m_availableItems.append(it.key());
+            m_unavailableItems.removeAll(it.key());
             qSort(m_availableItems);
+            emit availableItemsChanged();
+            //updateWidgets();
             break;
         }
         ++it;
     }
 }
 
+// sets a list of externally used, unavailable items. For example,
+// another sidebar could set
+void SideBar::setUnavailableItems(const QStringList &itemTitles)
+{
+    // re-enable previous items
+    foreach(const QString &title, m_unavailableItems)
+        m_availableItems.append(title);
+
+    m_unavailableItems.clear();
+
+    foreach (const QString &title, itemTitles) {
+        if (!m_unavailableItems.contains(title))
+            m_unavailableItems.append(title);
+        m_availableItems.removeAll(title);
+    }
+    qSort(m_availableItems);
+    updateWidgets();
+}
+
 SideBarItem *SideBar::item(const QString &title)
 {
     if (m_itemMap.contains(title)) {
         m_availableItems.removeAll(title);
+
+        if (!m_unavailableItems.contains(title))
+            m_unavailableItems.append(title);
+
+        emit availableItemsChanged();
         return m_itemMap.value(title);
     }
     return 0;
@@ -134,6 +176,9 @@ void SideBar::closeSubWidget()
             return;
         removeSideBarWidget(widget);
         updateWidgets();
+    } else {
+        if (m_closeWhenEmpty)
+            setVisible(false);
     }
 }
 
@@ -227,8 +272,6 @@ QMap<QString, Core::Command*> SideBar::shortcutMap() const
     return m_shortcutMap;
 }
 
-
-
 SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &title)
     : m_currentItem(0)
     , m_sideBar(sideBar)
@@ -302,6 +345,7 @@ void SideBarWidget::setCurrentItem(const QString &title)
         return;
     removeCurrentItem();
     m_currentItem = item;
+
     layout()->addWidget(m_currentItem->widget());
 
     // Add buttons and remember their actions for later removal
@@ -358,8 +402,6 @@ Core::Command *SideBarWidget::command(const QString &title) const
         return r.value();
     return 0;
 }
-
-
 
 ComboBox::ComboBox(SideBarWidget *sideBarWidget)
     : m_sideBarWidget(sideBarWidget)
