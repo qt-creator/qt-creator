@@ -70,7 +70,6 @@ public:
     virtual ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType();
-    virtual bool contains(const QString &variableName) const;
     void setVerbose(bool on); // Default is false
     void setCumulative(bool on); // Default is true!
     void setOutputDir(const QString &dir); // Default is empty
@@ -85,6 +84,7 @@ public:
     ProFile *parsedProFile(const QString &fileName, const QString &contents = QString());
     bool accept(ProFile *pro);
 
+    bool contains(const QString &variableName) const;
     QStringList values(const QString &variableName) const;
     QStringList values(const QString &variableName, const ProFile *pro) const;
     QStringList absolutePathValues(const QString &variable, const QString &baseDirectory) const;
