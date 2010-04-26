@@ -27,7 +27,6 @@ HEADERS += breakhandler.h \
     debuggerrunner.h \
     debuggertooltip.h \
     debuggerstringutils.h \
-    watchutils.h \
     idebuggerengine.h \
     moduleshandler.h \
     moduleswindow.h \
@@ -42,6 +41,7 @@ HEADERS += breakhandler.h \
     sourcefileswindow.h \
     threadswindow.h \
     watchhandler.h \
+    watchutils.h \
     watchwindow.h \
     name_demangler.h \
     debuggeruiswitcher.h \
@@ -57,7 +57,6 @@ SOURCES += breakhandler.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
     debuggertooltip.cpp \
-    watchutils.cpp \
     moduleshandler.cpp \
     moduleswindow.cpp \
     outputcollector.cpp \
@@ -70,8 +69,10 @@ SOURCES += breakhandler.cpp \
     stackwindow.cpp \
     sourcefileswindow.cpp \
     threadswindow.cpp \
+    watchdata.cpp \
     watchhandler.cpp \
     watchwindow.cpp \
+    watchutils.cpp \
     name_demangler.cpp \
     debuggeruiswitcher.cpp \
     debuggermainwindow.cpp

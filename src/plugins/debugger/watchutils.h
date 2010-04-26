@@ -30,6 +30,7 @@
 #ifndef WATCHUTILS_H
 #define WATCHUTILS_H
 
+#include <QtCore/QSet>
 #include <QtCore/QString>
 #include <QtCore/QMap>
 
@@ -237,6 +238,27 @@ QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d);
 
 // remove the default template argument in std:: containers
 QString removeDefaultTemplateArguments(QString type);
+
+
+//
+// GdbMi interaction
+//
+
+void setWatchDataValue(WatchData &data, const GdbMi &item);
+void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
+    int encoding);
+void setWatchDataChildCount(WatchData &data, const GdbMi &mi);
+void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi);
+void setWatchDataValueEditable(WatchData &data, const GdbMi &mi);
+void setWatchDataExpression(WatchData &data, const GdbMi &mi);
+void setWatchDataAddress(WatchData &data, const GdbMi &mi);
+void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr);
+void setWatchDataType(WatchData &data, const GdbMi &mi);
+void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
+
+void parseWatchData(const QSet<QByteArray> &expandedINames,
+    const WatchData &parent, const GdbMi &child,
+    QList<WatchData> *insertions);
 
 } // namespace Internal
 } // namespace Debugger

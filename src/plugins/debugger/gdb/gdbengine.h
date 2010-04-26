@@ -459,8 +459,6 @@ private: ////////// View & Data Stuff //////////
 
     // FIXME: BaseClass. called to improve situation for a watch item
     void updateSubItemClassic(const WatchData &data);
-    void handleChildren(const WatchData &parent, const GdbMi &child,
-        QList<WatchData> *insertions);
 
     void virtual updateWatchData(const WatchData &data);
     Q_SLOT void updateWatchDataHelper(const WatchData &data);
@@ -503,11 +501,8 @@ private: ////////// View & Data Stuff //////////
                             QMap<QByteArray, int> *seen);
     void setLocals(const QList<GdbMi> &locals);
     void handleStackListArgumentsClassic(const GdbResponse &response);
-    void setWatchDataType(WatchData &data, const GdbMi &mi);
-    void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
 
     QSet<QByteArray> m_processedNames;
-    QMap<QString, QString> m_varToType;
 
 private: ////////// Dumper Management //////////
     QString qtDumperLibraryName() const;
@@ -538,16 +533,6 @@ private: ////////// Convenience Functions //////////
     static QString m_toolTipExpression;
     static QPoint m_toolTipPos;
     static QByteArray tooltipINameForExpression(const QByteArray &exp);
-
-    static void setWatchDataValue(WatchData &data, const GdbMi &item);
-    static void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
-            int encoding = 0);
-    static void setWatchDataChildCount(WatchData &data, const GdbMi &mi);
-    static void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi);
-    static void setWatchDataValueEditable(WatchData &data, const GdbMi &mi);
-    static void setWatchDataExpression(WatchData &data, const GdbMi &mi);
-    static void setWatchDataAddress(WatchData &data, const GdbMi &mi);
-    static void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr);
 };
 
 } // namespace Internal

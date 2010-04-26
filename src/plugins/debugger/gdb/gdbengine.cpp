@@ -251,7 +251,6 @@ void GdbEngine::initializeVariables()
 
     m_fullToShortName.clear();
     m_shortToFullName.clear();
-    m_varToType.clear();
 
     invalidateSourcesList();
     m_sourcesListUpdating = false;
@@ -3236,65 +3235,6 @@ void GdbEngine::setToolTipExpression(const QPoint &mousePos,
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::setWatchDataValue(WatchData &data, const GdbMi &item)
-{
-    GdbMi value = item.findChild("value");
-    if (value.isValid()) {
-        int encoding = item.findChild("valueencoded").data().toInt();
-        data.setValue(decodeData(value.data(), encoding));
-    } else {
-        data.setValueNeeded();
-    }
-}
-
-void GdbEngine::setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
-    int encoding)
-{
-    if (mi.isValid())
-        data.setValueToolTip(decodeData(mi.data(), encoding));
-}
-
-void GdbEngine::setWatchDataChildCount(WatchData &data, const GdbMi &mi)
-{
-    if (mi.isValid())
-        data.setHasChildren(mi.data().toInt() > 0);
-}
-
-void GdbEngine::setWatchDataValueEnabled(WatchData &data, const GdbMi &mi)
-{
-    if (mi.data() == "true")
-        data.valueEnabled = true;
-    else if (mi.data() == "false")
-        data.valueEnabled = false;
-}
-
-void GdbEngine::setWatchDataValueEditable(WatchData &data, const GdbMi &mi)
-{
-    if (mi.data() == "true")
-        data.valueEditable = true;
-    else if (mi.data() == "false")
-        data.valueEditable = false;
-}
-
-void GdbEngine::setWatchDataExpression(WatchData &data, const GdbMi &mi)
-{
-    if (mi.isValid())
-        data.exp = mi.data();
-}
-
-void GdbEngine::setWatchDataAddress(WatchData &data, const GdbMi &mi)
-{
-    if (mi.isValid())
-        setWatchDataAddressHelper(data, mi.data());
-}
-
-void GdbEngine::setWatchDataAddressHelper(WatchData &data, const QByteArray &addr)
-{
-    data.addr = addr;
-    if (data.exp.isEmpty() && !data.addr.startsWith("$"))
-        data.exp = "*(" + gdbQuoteTypes(data.type).toLatin1() + "*)" + data.addr;
-}
-
 void GdbEngine::setAutoDerefPointers(const QVariant &on)
 {
     Q_UNUSED(on)
@@ -3443,25 +3383,6 @@ void GdbEngine::handleVarAssign(const GdbResponse &)
     updateLocals();
 }
 
-// Find the "type" and "displayedtype" children of root and set up type.
-void GdbEngine::setWatchDataType(WatchData &data, const GdbMi &item)
-{
-    if (item.isValid()) {
-        const QString miData = _(item.data());
-        if (!data.framekey.isEmpty())
-            m_varToType[data.framekey] = miData;
-        data.setType(miData);
-    } else if (data.type.isEmpty()) {
-        data.setTypeNeeded();
-    }
-}
-
-void GdbEngine::setWatchDataDisplayedType(WatchData &data, const GdbMi &item)
-{
-    if (item.isValid())
-        data.displayedType = _(item.data());
-}
-
 void GdbEngine::handleVarCreate(const GdbResponse &response)
 {
     WatchData data = response.cookie.value<WatchData>();
@@ -3499,84 +3420,6 @@ void GdbEngine::handleDebuggingHelperSetup(const GdbResponse &response)
     } else {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         showStatusMessage(tr("Custom dumper setup: %1").arg(msg), 10000);
-    }
-}
-
-void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
-    QList<WatchData> *list)
-{
-    //qDebug() << "HANDLE CHILDREN: " << data0.toString() << item.toString();
-    WatchData data = data0;
-    if (!manager()->watchHandler()->isExpandedIName(data.iname))
-        data.setChildrenUnneeded();
-
-    GdbMi children = item.findChild("children");
-    if (children.isValid() || !manager()->watchHandler()->isExpandedIName(data.iname))
-        data.setChildrenUnneeded();
-
-    setWatchDataType(data, item.findChild("type"));
-    GdbMi mi = item.findChild("editvalue");
-    if (mi.isValid())
-        data.editvalue = mi.data();
-    mi = item.findChild("editformat");
-    if (mi.isValid())
-        data.editformat = mi.data().toInt();
-    mi = item.findChild("typeformats");
-    if (mi.isValid())
-        data.typeFormats = QString::fromUtf8(mi.data());
-
-    setWatchDataValue(data, item);
-    setWatchDataAddress(data, item.findChild("addr"));
-    setWatchDataExpression(data, item.findChild("exp"));
-    setWatchDataValueEnabled(data, item.findChild("valueenabled"));
-    setWatchDataValueEditable(data, item.findChild("valueeditable"));
-    setWatchDataChildCount(data, item.findChild("numchild"));
-    //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
-    list->append(data);
-
-    bool ok = false;
-    qulonglong addressBase = item.findChild("addrbase").data().toULongLong(&ok, 0);
-    qulonglong addressStep = item.findChild("addrstep").data().toULongLong();
-
-    // Try not to repeat data too often.
-    WatchData childtemplate;
-    setWatchDataType(childtemplate, item.findChild("childtype"));
-    setWatchDataChildCount(childtemplate, item.findChild("childnumchild"));
-    //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
-
-    int i = 0;
-    foreach (const GdbMi &child, children.children()) {
-        WatchData data1 = childtemplate;
-        GdbMi name = child.findChild("name");
-        if (name.isValid())
-            data1.name = _(name.data());
-        else
-            data1.name = QString::number(i);
-        GdbMi iname = child.findChild("iname");
-        if (iname.isValid())
-            data1.iname = iname.data();
-        else
-            data1.iname = data.iname + '.' + data1.name.toLatin1();
-        if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
-            data1.name = _c('[') + data1.name + _c(']');
-        if (addressStep) {
-            const QByteArray addr = "0x" + QByteArray::number(addressBase, 16);
-            setWatchDataAddressHelper(data1, addr);
-            addressBase += addressStep;
-        }
-        QByteArray key = child.findChild("key").data();
-        if (!key.isEmpty()) {
-            int encoding = child.findChild("keyencoded").data().toInt();
-            QString skey = decodeData(key, encoding);
-            if (skey.size() > 13) {
-                skey = skey.left(12);
-                skey += _("...");
-            }
-            //data1.name += " (" + skey + ")";
-            data1.name = skey;
-        }
-        handleChildren(data1, child, list);
-        ++i;
     }
 }
 
