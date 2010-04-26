@@ -51,19 +51,18 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QDebug>
 
-#include <QtGui/QPainter>
-#include <QtGui/QLabel>
-#include <QtGui/QStyle>
-#include <QtGui/QToolButton>
-#include <QtGui/QHBoxLayout>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QPainter>
+#include <QtGui/QStyle>
+#include <QtGui/QTextBlock>
+#include <QtGui/QToolButton>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
-
-// #define QML_WITH_SNIPPETS
 
 namespace {
 

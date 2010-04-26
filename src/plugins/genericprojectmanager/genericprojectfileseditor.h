@@ -35,6 +35,10 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
+namespace TextEditor {
+class TextEditorActionHandler;
+}
+
 namespace GenericProjectManager {
 namespace Internal {
 

@@ -48,7 +48,8 @@
 
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <QtDebug>
+
+#include <QtGui/QTextBlock>
 
 using namespace CppEditor::Internal;
 using namespace CPlusPlus;

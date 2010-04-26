@@ -42,12 +42,13 @@
 #include <QtCore/QSharedData>
 #include <QtCore/QPointer>
 
-#include <QtGui/QTextEdit>
 #include <QtGui/QPixmap>
+#include <QtGui/QTextEdit>
 
 namespace TextEditor {
 
 class BaseTextDocument;
+class TextEditorActionHandler;
 
 namespace Internal {
 

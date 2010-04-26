@@ -32,7 +32,7 @@
 
 #include <Token.h>
 #include <cplusplus/SimpleLexer.h>
-#include <texteditor/basetexteditor.h>
+#include <texteditor/basetextdocumentlayout.h>
 
 #include <QtGui/QTextDocument>
 #include <QtCore/QDebug>

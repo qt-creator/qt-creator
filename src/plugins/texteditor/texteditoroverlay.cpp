@@ -27,9 +27,10 @@
 **
 **************************************************************************/
 
-#include <QtGui/QPainter>
 #include "texteditoroverlay.h"
-#include <QDebug>
+
+#include <QtGui/QPainter>
+#include <QtGui/QTextBlock>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;

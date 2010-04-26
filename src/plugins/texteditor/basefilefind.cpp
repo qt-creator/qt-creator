@@ -43,11 +43,12 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDirIterator>
 #include <QtCore/QSettings>
-#include <QtGui/QLabel>
-#include <QtGui/QComboBox>
-#include <QtGui/QCheckBox>
-#include <QtGui/QPushButton>
 #include <QtGui/QFileDialog>
+#include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
+#include <QtGui/QLabel>
+#include <QtGui/QPushButton>
+#include <QtGui/QTextBlock>
 
 using namespace Utils;
 using namespace Find;

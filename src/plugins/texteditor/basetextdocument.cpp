@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "basetextdocument.h"
+
+#include "basetextdocumentlayout.h"
 #include "basetexteditor.h"
 #include "storagesettings.h"
 
@@ -51,6 +53,75 @@ DocumentMarker::DocumentMarker(QTextDocument *doc)
   : ITextMarkable(doc), document(doc)
 {
 }
+
+bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
+{
+    QTC_ASSERT(line >= 1, return false);
+    int blockNumber = line - 1;
+    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
+    QTC_ASSERT(documentLayout, return false);
+    QTextBlock block = document->findBlockByNumber(blockNumber);
+
+    if (block.isValid()) {
+        TextBlockUserData *userData = TextEditDocumentLayout::userData(block);
+        userData->addMark(mark);
+        mark->updateLineNumber(blockNumber + 1);
+        mark->updateBlock(block);
+        documentLayout->hasMarks = true;
+        documentLayout->requestUpdate();
+        return true;
+    }
+    return false;
+}
+
+TextEditor::TextMarks DocumentMarker::marksAt(int line) const
+{
+    QTC_ASSERT(line >= 1, return TextMarks());
+    int blockNumber = line - 1;
+    QTextBlock block = document->findBlockByNumber(blockNumber);
+
+    if (block.isValid()) {
+        if (TextBlockUserData *userData = TextEditDocumentLayout::testUserData(block))
+            return userData->marks();
+    }
+    return TextMarks();
+}
+
+void DocumentMarker::removeMark(TextEditor::ITextMark *mark)
+{
+    bool needUpdate = false;
+    QTextBlock block = document->begin();
+    while (block.isValid()) {
+        if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
+            needUpdate |= data->removeMark(mark);
+        }
+        block = block.next();
+    }
+    if (needUpdate)
+        updateMark(0);
+}
+
+bool DocumentMarker::hasMark(TextEditor::ITextMark *mark) const
+{
+    QTextBlock block = document->begin();
+    while (block.isValid()) {
+        if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
+            if (data->hasMark(mark))
+                return true;
+        }
+        block = block.next();
+    }
+    return false;
+}
+
+void DocumentMarker::updateMark(ITextMark *mark)
+{
+    Q_UNUSED(mark)
+    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    documentLayout->requestUpdate();
+}
+
 
 BaseTextDocument::BaseTextDocument()
   : m_document(new QTextDocument(this)),

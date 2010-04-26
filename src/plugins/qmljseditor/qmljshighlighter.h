@@ -38,7 +38,7 @@
 #include <QtCore/QSet>
 #include <QtGui/QSyntaxHighlighter>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/basetextdocumentlayout.h>
 
 namespace QmlJSEditor {
 

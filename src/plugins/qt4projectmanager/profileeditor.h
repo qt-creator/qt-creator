@@ -35,6 +35,7 @@
 
 namespace TextEditor {
 class FontSettings;
+class TextEditorActionHandler;
 }
 
 namespace Qt4ProjectManager {

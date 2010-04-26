@@ -85,6 +85,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 #include <QtConcurrentMap>
+
+#include <QtGui/QTextBlock>
+
 #include <iostream>
 #include <sstream>
 
