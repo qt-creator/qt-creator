@@ -124,6 +124,7 @@ void ObjectNodeInstance::destroy()
     if (deleteHeldInstance()) {
         // Remove from old property
         if (object() && modelNode().isValid() && modelNode().parentProperty().isValid()) {
+            setId(QString());
             NodeAbstractProperty parentProperty = modelNode().parentProperty();
             ModelNode parentNode = parentProperty.parentModelNode();
             if (parentNode.isValid() && nodeInstanceView()->hasInstanceForNode(parentNode)) {
