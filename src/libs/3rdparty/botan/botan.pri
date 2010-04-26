@@ -1,2 +1,2 @@
-INCLUDEPATH += $$PWD/build
+INCLUDEPATH *= $$PWD/build
 LIBS *= -l$$qtLibraryTarget(Botan)
