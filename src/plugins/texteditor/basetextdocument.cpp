@@ -58,12 +58,12 @@ bool DocumentMarker::addMark(TextEditor::ITextMark *mark, int line)
 {
     QTC_ASSERT(line >= 1, return false);
     int blockNumber = line - 1;
-    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
+    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
     QTC_ASSERT(documentLayout, return false);
     QTextBlock block = document->findBlockByNumber(blockNumber);
 
     if (block.isValid()) {
-        TextBlockUserData *userData = TextEditDocumentLayout::userData(block);
+        TextBlockUserData *userData = BaseTextDocumentLayout::userData(block);
         userData->addMark(mark);
         mark->updateLineNumber(blockNumber + 1);
         mark->updateBlock(block);
@@ -81,7 +81,7 @@ TextEditor::TextMarks DocumentMarker::marksAt(int line) const
     QTextBlock block = document->findBlockByNumber(blockNumber);
 
     if (block.isValid()) {
-        if (TextBlockUserData *userData = TextEditDocumentLayout::testUserData(block))
+        if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(block))
             return userData->marks();
     }
     return TextMarks();
@@ -117,7 +117,7 @@ bool DocumentMarker::hasMark(TextEditor::ITextMark *mark) const
 void DocumentMarker::updateMark(ITextMark *mark)
 {
     Q_UNUSED(mark)
-    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(document->documentLayout());
+    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(document->documentLayout());
     QTC_ASSERT(documentLayout, return);
     documentLayout->requestUpdate();
 }
@@ -304,7 +304,7 @@ bool BaseTextDocument::open(const QString &fileName)
             m_document->setHtml(tr("<em>Binary data</em>"));
         else
             m_document->setPlainText(text);
-        TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(m_document->documentLayout());
+        BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document->documentLayout());
         QTC_ASSERT(documentLayout, return true);
         documentLayout->lastSaveRevision = m_document->revision();
         m_document->setModified(false);
@@ -376,7 +376,7 @@ void BaseTextDocument::cleanWhitespace(const QTextCursor &cursor)
 void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool cleanIndentation, bool inEntireDocument)
 {
 
-    TextEditDocumentLayout *documentLayout = qobject_cast<TextEditDocumentLayout*>(m_document->documentLayout());
+    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document->documentLayout());
 
     QTextBlock block = m_document->findBlock(cursor.selectionStart());
     QTextBlock end;

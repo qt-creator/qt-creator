@@ -67,11 +67,11 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     if (tokens.isEmpty()) {
         setCurrentBlockState(previousState);
-        if (TextBlockUserData *userData = TextEditDocumentLayout::testUserData(currentBlock())) {
+        if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(currentBlock())) {
             userData->setClosingCollapseMode(TextBlockUserData::NoClosingCollapse);
             userData->setCollapseMode(TextBlockUserData::NoCollapse);
         }
-        TextEditDocumentLayout::clearParentheses(currentBlock());
+        BaseTextDocumentLayout::clearParentheses(currentBlock());
         if (text.length()) // the empty line can still contain whitespace
             setFormat(0, text.length(), m_formats[CppVisualWhitespace]);
         return;
@@ -177,7 +177,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             highlightLine(text, lastTokenEnd, text.length() - lastTokenEnd, QTextCharFormat());
     }
 
-    if (TextBlockUserData *userData = TextEditDocumentLayout::testUserData(currentBlock())) {
+    if (TextBlockUserData *userData = BaseTextDocumentLayout::testUserData(currentBlock())) {
         userData->setClosingCollapseMode(TextBlockUserData::NoClosingCollapse);
         userData->setCollapseMode(TextBlockUserData::NoCollapse);
     }
@@ -194,13 +194,13 @@ void CppHighlighter::highlightBlock(const QString &text)
         TextBlockUserData::CollapseMode collapseMode = TextBlockUserData::CollapseAfter;
         if (collapse == firstNonSpace && c != QLatin1Char('+'))
             collapseMode = TextBlockUserData::CollapseThis;
-        TextEditDocumentLayout::userData(currentBlock())->setCollapseMode(collapseMode);
+        BaseTextDocumentLayout::userData(currentBlock())->setCollapseMode(collapseMode);
     }
 
 
     int cc = Parenthesis::closeCollapseAtPos(parentheses);
     if (cc >= 0) {
-        TextBlockUserData *userData = TextEditDocumentLayout::userData(currentBlock());
+        TextBlockUserData *userData = BaseTextDocumentLayout::userData(currentBlock());
         userData->setClosingCollapseMode(TextBlockUserData::ClosingCollapse);
         QString trailingText = text.mid(cc+1).simplified();
         if (trailingText.isEmpty() || trailingText == QLatin1String(";")) {
@@ -208,11 +208,11 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
     }
 
-    TextEditDocumentLayout::setParentheses(currentBlock(), parentheses);
+    BaseTextDocumentLayout::setParentheses(currentBlock(), parentheses);
 
     // if the block is ifdefed out, we only store the parentheses, but
     // do not adjust the brace depth.
-    if (TextEditDocumentLayout::ifdefedOut(currentBlock()))
+    if (BaseTextDocumentLayout::ifdefedOut(currentBlock()))
         braceDepth = initialBraceDepth;
 
     // optimization: if only the brace depth changes, we adjust subsequent blocks
@@ -225,7 +225,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             int delta = braceDepth - oldBraceDepth;
             QTextBlock block = currentBlock().next();
             while (block.isValid() && block.userState() != -1) {
-                TextEditDocumentLayout::changeBraceDepth(block, delta);
+                BaseTextDocumentLayout::changeBraceDepth(block, delta);
                 block = block.next();
             }
         }

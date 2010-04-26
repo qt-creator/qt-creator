@@ -173,13 +173,13 @@ private:
 };
 
 
-class TEXTEDITOR_EXPORT TextEditDocumentLayout : public QPlainTextDocumentLayout
+class TEXTEDITOR_EXPORT BaseTextDocumentLayout : public QPlainTextDocumentLayout
 {
     Q_OBJECT
 
 public:
-    TextEditDocumentLayout(QTextDocument *doc);
-    ~TextEditDocumentLayout();
+    BaseTextDocumentLayout(QTextDocument *doc);
+    ~BaseTextDocumentLayout();
 
     static void setParentheses(const QTextBlock &block, const Parentheses &parentheses);
     static void clearParentheses(const QTextBlock &block) { setParentheses(block, Parentheses());}
