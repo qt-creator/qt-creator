@@ -82,10 +82,13 @@ void ApplicationLauncher::start(Mode mode, const QString &program, const QString
 
 void ApplicationLauncher::stop()
 {
+    if (!isRunning())
+        return;
     if (m_currentMode == Gui) {
         m_winGuiProcess->stop();
     } else {
         m_consoleProcess->stop();
+        processStopped();
     }
 }
 

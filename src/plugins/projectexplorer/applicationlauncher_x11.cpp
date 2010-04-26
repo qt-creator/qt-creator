@@ -87,6 +87,8 @@ void ApplicationLauncher::start(Mode mode, const QString &program, const QString
 
 void ApplicationLauncher::stop()
 {
+    if (!isRunning())
+        return;
     if (m_currentMode == Gui) {
         m_guiProcess->terminate();
         if (!m_guiProcess->waitForFinished(1000)) { // This is blocking, so be fast.
@@ -95,6 +97,7 @@ void ApplicationLauncher::stop()
         }
     } else {
         m_consoleProcess->stop();
+        processStopped();
     }
 }
 
