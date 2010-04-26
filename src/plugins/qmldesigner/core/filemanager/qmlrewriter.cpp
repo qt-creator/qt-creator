@@ -276,29 +276,33 @@ void QMLRewriter::includeLeadingEmptyLine(int &start) const
 UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QStringList &propertyOrder)
 {
     const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString::null);
-    UiObjectMemberList *previous = 0;
+
+    UiObjectMemberList *lastObjectDef = 0;
+    UiObjectMemberList *lastNonObjectDef = 0;
+
     for (UiObjectMemberList *iter = members; iter; iter = iter->next) {
         UiObjectMember *member = iter->member;
         int idx = -1;
 
-        if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
+        if (cast<UiObjectDefinition*>(member))
+            lastObjectDef = iter;
+        else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
             idx = propertyOrder.indexOf(flatten(arrayBinding->qualifiedId));
         else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
             idx = propertyOrder.indexOf(flatten(objectBinding->qualifiedId));
-        else if (cast<UiObjectDefinition*>(member))
-            idx = propertyOrder.indexOf(QString::null);
         else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
             idx = propertyOrder.indexOf(flatten(scriptBinding->qualifiedId));
         else if (cast<UiPublicMember*>(member))
             idx = propertyOrder.indexOf(QLatin1String("property"));
 
-        if (idx > objectDefinitionInsertionPoint)
-            return iter;
-
-        previous = iter;
+        if (idx < objectDefinitionInsertionPoint)
+            lastNonObjectDef = iter;
     }
 
-    return previous;
+    if (lastObjectDef)
+        return lastObjectDef;
+    else
+        return lastNonObjectDef;
 }
 
 UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QString &propertyName, const QStringList &propertyOrder)

@@ -663,8 +663,6 @@ void TestCore::testRewriterPreserveOrder()
         QCOMPARE(newModelNode.id(), QString("rectangle2"));
     }
 
-    QSKIP("See BAUHAUS-631", SkipAll);
-
     {
         QPlainTextEdit textEdit;
         textEdit.setPlainText(qmlString1);
