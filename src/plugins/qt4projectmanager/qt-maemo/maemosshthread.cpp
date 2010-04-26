@@ -41,86 +41,164 @@
 
 #include "maemosshthread.h"
 
-#include <exception>
-
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoSshThread::MaemoSshThread(const MaemoDeviceConfig &devConf)
-    : m_stopRequested(false), m_devConf(devConf)
+template <class SshConnection> MaemoSshThread<SshConnection>::MaemoSshThread(const Core::SshServerInfo &server)
+    : m_server(server), m_stopRequested(false)
 {
 }
 
-MaemoSshThread::~MaemoSshThread()
+template <class SshConnection> MaemoSshThread<SshConnection>::~MaemoSshThread()
 {
     stop();
     wait();
 }
 
-void MaemoSshThread::run()
+template <class SshConnection> void MaemoSshThread<SshConnection>::run()
 {
-    try {
-        if (!m_stopRequested)
-            runInternal();
-    } catch (const MaemoSshException &e) {
-        m_error = e.error();
-    } catch (const std::exception &e) {
-        // Should in theory not be necessary, but Net7 leaks Botan exceptions.
-        m_error = tr("Error in cryptography backend: %1").arg(QLatin1String(e.what()));
-    }
+    if (m_stopRequested)
+        return;
+
+    if (!runInternal())
+        m_error = m_connection->error();
 }
 
-void MaemoSshThread::stop()
+template<class SshConnection> void MaemoSshThread<SshConnection>::stop()
 {
     m_mutex.lock();
     m_stopRequested = true;
+    m_waitCond.wakeAll();
     const bool hasConnection = !m_connection.isNull();
-    m_mutex.unlock();
     if (hasConnection)
-        m_connection->stop();
+        m_connection->quit();
+    m_mutex.unlock();
 }
 
-template <class Conn> typename Conn::Ptr MaemoSshThread::createConnection()
+template<class SshConnection> void MaemoSshThread<SshConnection>::waitForStop()
 {
-    typename Conn::Ptr connection = Conn::create(m_devConf);
+    m_mutex.lock();
+    while (!stopRequested())
+        m_waitCond.wait(&m_mutex);
+    m_mutex.unlock();
+}
+
+template<class SshConnection> void MaemoSshThread<SshConnection>::createConnection()
+{
+    typename SshConnection::Ptr connection = SshConnection::create(m_server);
     m_mutex.lock();
     m_connection = connection;
     m_mutex.unlock();
-    return connection;
 }
 
-MaemoSshRunner::MaemoSshRunner(const MaemoDeviceConfig &devConf,
+MaemoSshRunner::MaemoSshRunner(const Core::SshServerInfo &server,
                                const QString &command)
-    : MaemoSshThread(devConf), m_command(command)
+    : MaemoSshThread<Core::InteractiveSshConnection>(server),
+      m_command(command)
 {
+    m_prompt = server.uname == QLatin1String("root") ? "#" : "$";
 }
 
-void MaemoSshRunner::runInternal()
+bool MaemoSshRunner::runInternal()
 {
-    MaemoInteractiveSshConnection::Ptr connection
-        = createConnection<MaemoInteractiveSshConnection>();
+    createConnection();
+    connect(m_connection.data(), SIGNAL(remoteOutput(QByteArray)),
+            this, SLOT(handleRemoteOutput(QByteArray)));
+    m_endMarkerCount = 0;
+    m_promptEncountered = false;
+    if (!m_connection->start())
+        return false;
     if (stopRequested())
+        return true;
+
+    waitForStop();
+    return !m_connection->hasError();
+}
+
+void MaemoSshRunner::handleRemoteOutput(const QByteArray &output)
+{
+    // Wait for a prompt before sending the command.
+    if (!m_promptEncountered) {
+        if (output.indexOf(m_prompt) != -1) {
+            m_promptEncountered = true;
+
+            /*
+             * We don't have access to the remote process management, so we
+             * try to track the lifetime of the process by adding a second command
+             * that prints a rare character. When it occurs for the second time (the
+             * first one is the echo from the remote terminal), we assume the
+             * process has finished. If anyone actually prints this special character
+             * in their application, they are out of luck.
+             */
+            const QString finalCommand = m_command + QLatin1String(";echo ")
+                + QString::fromUtf8(EndMarker) + QLatin1Char('\n');
+            if (!m_connection->sendInput(finalCommand.toUtf8()))
+                stop();
+        }
         return;
-    connect(connection.data(), SIGNAL(remoteOutput(QString)),
-            this, SIGNAL(remoteOutput(QString)));
-    connection->runCommand(m_command);
+    }
+
+    /*
+     * The output the user should see is everything after the first
+     * and before the last occurrence of our marker string.
+     * Note: We don't currently handle the case of an incomplete unicode
+     *       character being sent.
+     */
+    int firstCharToEmit;
+    int charsToEmitCount;
+    const int endMarkerPos = output.indexOf(EndMarker);
+    if (endMarkerPos != -1) {
+        if (m_endMarkerCount++ == 0) {
+            firstCharToEmit = endMarkerPos + EndMarker.count() + 1;
+            int endMarkerPos2
+                    = output.indexOf(EndMarker, firstCharToEmit);
+            if (endMarkerPos2 != -1) {
+                ++ m_endMarkerCount;
+                charsToEmitCount = endMarkerPos2 - firstCharToEmit;
+            } else {
+                charsToEmitCount = -1;
+            }
+        } else {
+            firstCharToEmit = 0;
+            charsToEmitCount = endMarkerPos;
+        }
+    } else {
+        if (m_endMarkerCount == 0) {
+            charsToEmitCount = 0;
+        } else {
+            firstCharToEmit = 0;
+            charsToEmitCount = -1;
+        }
+    }
+
+    if (charsToEmitCount != 0)
+        emit remoteOutput(QString::fromUtf8(output.data() + firstCharToEmit,
+                                            charsToEmitCount));
+    if (m_endMarkerCount == 2)
+        stop();
 }
 
-MaemoSshDeployer::MaemoSshDeployer(const MaemoDeviceConfig &devConf,
-                                   const QList<SshDeploySpec> &deploySpecs)
-    : MaemoSshThread(devConf), m_deploySpecs(deploySpecs)
+const QByteArray MaemoSshRunner::EndMarker(QString(QChar(0x13a0)).toUtf8());
+
+
+MaemoSshDeployer::MaemoSshDeployer(const Core::SshServerInfo &server,
+    const QList<Core::SftpTransferInfo> &deploySpecs)
+    : MaemoSshThread<Core::SftpConnection>(server),
+      m_deploySpecs(deploySpecs)
 {
 }
 
-void MaemoSshDeployer::runInternal()
+bool MaemoSshDeployer::runInternal()
 {
-    MaemoSftpConnection::Ptr connection
-        = createConnection<MaemoSftpConnection>();
+    createConnection();
+    if (!m_connection->start())
+        return false;
     if (stopRequested())
-        return;
-    connect(connection.data(), SIGNAL(fileCopied(QString)),
+        return true;
+
+    connect(m_connection.data(), SIGNAL(fileCopied(QString)),
             this, SIGNAL(fileCopied(QString)));
-    connection->transferFiles(m_deploySpecs);
+    return m_connection->transferFiles(m_deploySpecs);
 }
 
 } // namespace Internal

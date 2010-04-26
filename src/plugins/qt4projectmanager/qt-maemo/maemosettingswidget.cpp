@@ -190,31 +190,31 @@ void MaemoSettingsWidget::display(const MaemoDeviceConfig &devConfig)
         otherConfig = &m_lastConfigHW;
         m_ui->simulatorButton->setChecked(true);
     }
-    otherConfig->authentication = devConfig.authentication;
-    otherConfig->timeout = devConfig.timeout;
-    otherConfig->pwd = devConfig.pwd;
-    otherConfig->keyFile = devConfig.keyFile;
+    otherConfig->server.authType = devConfig.server.authType;
+    otherConfig->server.timeout = devConfig.server.timeout;
+    otherConfig->server.pwd = devConfig.server.pwd;
+    otherConfig->server.privateKeyFile = devConfig.server.privateKeyFile;
 
-    if (devConfig.authentication == MaemoDeviceConfig::Password)
+    if (devConfig.server.authType == Core::SshServerInfo::AuthByPwd)
         m_ui->passwordButton->setChecked(true);
     else
         m_ui->keyButton->setChecked(true);
     m_ui->detailsWidget->setEnabled(true);
     m_nameValidator->setDisplayName(devConfig.name);
-    m_ui->timeoutSpinBox->setValue(devConfig.timeout);
+    m_ui->timeoutSpinBox->setValue(devConfig.server.timeout);
     fillInValues();
 }
 
 void MaemoSettingsWidget::fillInValues()
 {
     m_ui->nameLineEdit->setText(currentConfig().name);
-    m_ui->hostLineEdit->setText(currentConfig().host);
-    m_ui->sshPortSpinBox->setValue(currentConfig().sshPort);
+    m_ui->hostLineEdit->setText(currentConfig().server.host);
+    m_ui->sshPortSpinBox->setValue(currentConfig().server.port);
     m_ui->gdbServerPortSpinBox->setValue(currentConfig().gdbServerPort);
-    m_ui->timeoutSpinBox->setValue(currentConfig().timeout);
-    m_ui->userLineEdit->setText(currentConfig().uname);
-    m_ui->pwdLineEdit->setText(currentConfig().pwd);
-    m_ui->keyFileLineEdit->setPath(currentConfig().keyFile);
+    m_ui->timeoutSpinBox->setValue(currentConfig().server.timeout);
+    m_ui->userLineEdit->setText(currentConfig().server.uname);
+    m_ui->pwdLineEdit->setText(currentConfig().server.pwd);
+    m_ui->keyFileLineEdit->setPath(currentConfig().server.privateKeyFile);
 
     const bool isSimulator
         = currentConfig().type == MaemoDeviceConfig::Simulator;
@@ -269,9 +269,8 @@ void MaemoSettingsWidget::deviceTypeChanged()
 void MaemoSettingsWidget::authenticationTypeChanged()
 {
     const bool usePassword = m_ui->passwordButton->isChecked();
-    currentConfig().authentication = usePassword
-        ? MaemoDeviceConfig::Password
-        : MaemoDeviceConfig::Key;
+    currentConfig().server.authType
+        = usePassword ? Core::SshServerInfo::AuthByPwd : Core::SshServerInfo::AuthByKey;
     m_ui->pwdLineEdit->setEnabled(usePassword);
     m_ui->passwordLabel->setEnabled(usePassword);
     m_ui->keyFileLineEdit->setEnabled(!usePassword);
@@ -280,12 +279,12 @@ void MaemoSettingsWidget::authenticationTypeChanged()
 
 void MaemoSettingsWidget::hostNameEditingFinished()
 {
-    currentConfig().host = m_ui->hostLineEdit->text();
+    currentConfig().server.host = m_ui->hostLineEdit->text();
 }
 
 void MaemoSettingsWidget::sshPortEditingFinished()
 {
-    currentConfig().sshPort = m_ui->sshPortSpinBox->value();
+    currentConfig().server.port = m_ui->sshPortSpinBox->value();
 }
 
 void MaemoSettingsWidget::gdbServerPortEditingFinished()
@@ -295,22 +294,22 @@ void MaemoSettingsWidget::gdbServerPortEditingFinished()
 
 void MaemoSettingsWidget::timeoutEditingFinished()
 {
-    currentConfig().timeout = m_ui->timeoutSpinBox->value();
+    currentConfig().server.timeout = m_ui->timeoutSpinBox->value();
 }
 
 void MaemoSettingsWidget::userNameEditingFinished()
 {
-    currentConfig().uname = m_ui->userLineEdit->text();
+    currentConfig().server.uname = m_ui->userLineEdit->text();
 }
 
 void MaemoSettingsWidget::passwordEditingFinished()
 {
-    currentConfig().pwd = m_ui->pwdLineEdit->text();
+    currentConfig().server.pwd = m_ui->pwdLineEdit->text();
 }
 
 void MaemoSettingsWidget::keyFileEditingFinished()
 {
-    currentConfig().keyFile = m_ui->keyFileLineEdit->path();
+    currentConfig().server.privateKeyFile = m_ui->keyFileLineEdit->path();
 }
 
 void MaemoSettingsWidget::testConfig()
@@ -322,16 +321,7 @@ void MaemoSettingsWidget::testConfig()
 void MaemoSettingsWidget::showGenerateSshKeyDialog()
 {
     MaemoSshConfigDialog dialog(this);
-    connect(&dialog, SIGNAL(publicKeyGenerated(QString)), this,
-        SLOT(setPublicKey(QString)));
-    connect(&dialog, SIGNAL(privateKeyGenerated(QString)), this,
-        SLOT(setPrivateKey(QString)));
     dialog.exec();
-}
-
-void MaemoSettingsWidget::setPublicKey(const QString &path)
-{
-    m_publicKeyFileName = path;
 }
 
 void MaemoSettingsWidget::setPrivateKey(const QString &path)
@@ -345,30 +335,29 @@ void MaemoSettingsWidget::deployKey()
     if (m_keyDeployer)
         return;
 
-    if (!QFileInfo(m_publicKeyFileName).exists()) {
-        const QString &dir = QFileInfo(currentConfig().keyFile).path();
-        m_publicKeyFileName = QFileDialog::getOpenFileName(this,
-            tr("Choose public key file"), dir,
-            tr("Public Key Files(*.pub);;All Files (*)"));
-    }
-
-    if (m_publicKeyFileName.isEmpty())
+    const QString &dir
+        = QFileInfo(currentConfig().server.privateKeyFile).path();
+    QString publicKeyFileName = QFileDialog::getOpenFileName(this,
+        tr("Choose public key file"), dir,
+        tr("Public Key Files(*.pub);;All Files (*)"));
+    if (publicKeyFileName.isEmpty())
         return;
-    QFile keyFile(m_publicKeyFileName);
+
+    QFile keyFile(publicKeyFileName);
     QByteArray key;
     const bool keyFileAccessible = keyFile.open(QIODevice::ReadOnly);
     if (keyFileAccessible)
         key = keyFile.readAll();
     if (!keyFileAccessible || keyFile.error() != QFile::NoError) {
         QMessageBox::critical(this, tr("Deployment Failed"),
-            tr("Could not read public key file '%1'.").arg(m_publicKeyFileName));
+            tr("Could not read public key file '%1'.").arg(publicKeyFileName));
         return;
     }
 
     m_ui->deployKeyButton->disconnect();
     const QString command = QLatin1String("test -d .ssh || mkdir .ssh && echo '")
         + key + QLatin1String("' >> .ssh/authorized_keys");
-    m_keyDeployer = new MaemoSshRunner(currentConfig(), command);
+    m_keyDeployer = new MaemoSshRunner(currentConfig().server, command);
     connect(m_keyDeployer, SIGNAL(finished()),
             this, SLOT(handleDeployThreadFinished()));
     m_ui->deployKeyButton->setText(tr("Stop deploying"));
@@ -399,7 +388,7 @@ void MaemoSettingsWidget::stopDeploying()
         m_keyDeployer->stop();
         delete m_keyDeployer;
         m_keyDeployer = 0;
-        m_ui->deployKeyButton->setText(tr("Deploy Key ..."));
+        m_ui->deployKeyButton->setText(tr("Deploy Public Key ..."));
         connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(deployKey()));
     }
 }

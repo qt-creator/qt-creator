@@ -123,7 +123,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
         emit finished();
     } else {
         m_deployables.clear();
-        if (m_runConfig->currentlyNeedsDeployment(m_devConfig.host)) {
+        if (m_runConfig->currentlyNeedsDeployment(m_devConfig.server.host)) {
             m_deployables.append(Deployable(packageFileName(),
                 QFileInfo(executableOnHost()).canonicalPath(),
                 &MaemoRunConfiguration::wasDeployed));
@@ -132,7 +132,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
             m_needsInstall = false;
         }
         if (forDebugging
-            && m_runConfig->debuggingHelpersNeedDeployment(m_devConfig.host)) {
+            && m_runConfig->debuggingHelpersNeedDeployment(m_devConfig.server.host)) {
             const QFileInfo &info(m_runConfig->dumperLib());
             m_deployables.append(Deployable(info.fileName(), info.canonicalPath(),
                 &MaemoRunConfiguration::debuggingHelpersDeployed));
@@ -148,7 +148,7 @@ void AbstractMaemoRunControl::deploy()
         ->addTask(m_progress.future(), tr("Deploying"),
                   QLatin1String("Maemo.Deploy"));
     if (!m_deployables.isEmpty()) {
-        QList<SshDeploySpec> deploySpecs;
+        QList<Core::SftpTransferInfo> deploySpecs;
         QStringList files;
         foreach (const Deployable &deployable, m_deployables) {
             const QString srcFilePath
@@ -156,10 +156,11 @@ void AbstractMaemoRunControl::deploy()
             const QString tgtFilePath
                 = remoteDir() % QDir::separator() % deployable.fileName;
             files << srcFilePath;
-            deploySpecs << SshDeploySpec(srcFilePath, tgtFilePath);
+            deploySpecs << Core::SftpTransferInfo(srcFilePath,
+                               tgtFilePath.toUtf8(), Core::SftpTransferInfo::Upload);
         }
         emit appendMessage(this, tr("Files to deploy: %1.").arg(files.join(" ")), false);
-        m_sshDeployer.reset(new MaemoSshDeployer(m_devConfig, deploySpecs));
+        m_sshDeployer.reset(new MaemoSshDeployer(m_devConfig.server, deploySpecs));
         connect(m_sshDeployer.data(), SIGNAL(finished()),
                 this, SLOT(handleDeployThreadFinished()));
         connect(m_sshDeployer.data(), SIGNAL(fileCopied(QString)),
@@ -177,7 +178,7 @@ void AbstractMaemoRunControl::deploy()
 void AbstractMaemoRunControl::handleFileCopied()
 {
     Deployable deployable = m_deployables.takeFirst();
-    (m_runConfig->*deployable.updateTimestamp)(m_devConfig.host);
+    (m_runConfig->*deployable.updateTimestamp)(m_devConfig.server.host);
     m_progress.setProgressValue(m_progress.progressValue() + 1);
 }
 
@@ -208,7 +209,7 @@ bool AbstractMaemoRunControl::isCleaning() const
 
 void AbstractMaemoRunControl::startExecution()
 {
-    m_sshRunner.reset(new MaemoSshRunner(m_devConfig, remoteCall()));
+    m_sshRunner.reset(new MaemoSshRunner(m_devConfig.server, remoteCall()));
     connect(m_sshRunner.data(), SIGNAL(finished()),
             this, SLOT(handleRunThreadFinished()));
     connect(m_sshRunner.data(), SIGNAL(remoteOutput(QString)),
@@ -246,7 +247,7 @@ void AbstractMaemoRunControl::killRemoteProcesses(const QStringList &apps,
     remoteCall.remove(remoteCall.count() - 1, 1); // Get rid of trailing semicolon.
     QScopedPointer<MaemoSshRunner> &runner
         = initialCleanup ? m_initialCleaner : m_sshStopper;
-    runner.reset(new MaemoSshRunner(m_devConfig, remoteCall));
+    runner.reset(new MaemoSshRunner(m_devConfig.server, remoteCall));
     if (initialCleanup)
         connect(runner.data(), SIGNAL(finished()),
                 this, SLOT(handleInitialCleanupFinished()));
@@ -296,7 +297,6 @@ void AbstractMaemoRunControl::handleRunThreadFinished()
 
 const QString AbstractMaemoRunControl::executableOnHost() const
 {
-    qDebug("runconfig->executable: %s", qPrintable(m_runConfig->executable()));
     return m_runConfig->executable();
 }
 
@@ -307,7 +307,7 @@ const QString AbstractMaemoRunControl::executableFileName() const
 
 const QString AbstractMaemoRunControl::remoteDir() const
 {
-    return homeDirOnDevice(m_devConfig.uname);
+    return homeDirOnDevice(m_devConfig.server.uname);
 }
 
 QString AbstractMaemoRunControl::remoteSudo() const
@@ -384,7 +384,7 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     m_startParams->startMode = Debugger::StartRemote;
     m_startParams->executable = executableOnHost();
     m_startParams->remoteChannel
-        = m_devConfig.host % QLatin1Char(':') % gdbServerPort();
+        = m_devConfig.server.host % QLatin1Char(':') % gdbServerPort();
     m_startParams->remoteArchitecture = QLatin1String("arm");
     m_startParams->sysRoot = m_runConfig->sysRoot();
     m_startParams->toolChainType = ToolChain::GCC_MAEMO;

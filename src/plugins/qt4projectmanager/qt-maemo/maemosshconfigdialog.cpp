@@ -35,23 +35,23 @@
 #include "maemosshconfigdialog.h"
 
 #include "maemodeviceconfigurations.h"
-#include "ne7sshobject.h"
 
-#include <ne7ssh.h>
+#include <coreplugin/ssh/sshkeygenerator.h>
 
 #include <QtCore/QDir>
-
-#include <QtNetwork/QHostInfo>
-
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
+#include <QtNetwork/QHostInfo>
+
 
 using namespace Qt4ProjectManager::Internal;
 
 MaemoSshConfigDialog::MaemoSshConfigDialog(QWidget *parent)
     : QDialog(parent)
     , home(QDesktopServices::storageLocation(QDesktopServices::HomeLocation))
+    , m_keyGenerator(new Core::SshKeyGenerator)
 {
     m_ui.setupUi(this);
 
@@ -75,26 +75,22 @@ void MaemoSshConfigDialog::slotToggled()
 
 void MaemoSshConfigDialog::generateSshKey()
 {
-    algorithm = m_ui.rsa->isChecked() ? "rsa" : "dsa";
-    tmpKey = QDir::tempPath().append(QLatin1Char('/') + algorithm).toUtf8();
+    const Core::SshKeyGenerator::KeyType keyType = m_ui.rsa->isChecked()
+        ? Core::SshKeyGenerator::Rsa
+        : Core::SshKeyGenerator::Dsa;
+
     QByteArray userId = QString(home.mid(home.lastIndexOf(QLatin1Char('/')) + 1)
         + QLatin1Char('@') + QHostInfo::localHostName()).toUtf8();
 
-    QFile::remove(tmpKey);
-    QFile::remove(tmpKey + ".pub");
-
     QApplication::setOverrideCursor(Qt::BusyCursor);
 
-    QSharedPointer<ne7ssh> ssh = Ne7SshObject::instance()->get();
-    if (ssh->generateKeyPair(algorithm, userId, tmpKey, tmpKey + ".pub",
-        m_ui.comboBox->currentText().toUShort())) {
-        QFile file(tmpKey + ".pub");
-        if (file.open(QIODevice::ReadOnly))
-            m_ui.plainTextEdit->setPlainText(file.readAll());
+    if (m_keyGenerator->generateKeys(keyType, userId,
+                                     m_ui.comboBox->currentText().toUShort())) {
+        m_ui.plainTextEdit->setPlainText(m_keyGenerator->publicKey());
         m_ui.savePublicKey->setEnabled(true);
         m_ui.savePrivateKey->setEnabled(true);
     } else {
-        m_ui.plainTextEdit->setPlainText(tr("Could not create SSH key pair."));
+        m_ui.plainTextEdit->setPlainText(m_keyGenerator->error());
     }
 
     QApplication::restoreOverrideCursor();
@@ -102,18 +98,12 @@ void MaemoSshConfigDialog::generateSshKey()
 
 void MaemoSshConfigDialog::savePublicKey()
 {
-    checkSshDir();
-    copyFile(QFileDialog::getSaveFileName(this, tr("Choose folder to save "
-        "public key file"), home + QString::fromLatin1("/.ssh/id_%1.pub")
-        .arg(algorithm.constData())), true);
+    saveKey(true);
 }
 
 void MaemoSshConfigDialog::savePrivateKey()
 {
-    checkSshDir();
-    copyFile(QFileDialog::getSaveFileName(this, tr("Choose folder to save "
-        "private key file"), home + QString::fromLatin1("/.ssh/id_%1")
-        .arg(algorithm.constData())), false);
+    saveKey(false);
 }
 
 void MaemoSshConfigDialog::checkSshDir()
@@ -123,15 +113,31 @@ void MaemoSshConfigDialog::checkSshDir()
         dir.mkpath(home + QString::fromLatin1("/.ssh"));
 }
 
-void MaemoSshConfigDialog::copyFile(const QString &file, bool pubKey)
+void MaemoSshConfigDialog::saveKey(bool publicKey)
 {
-    if (!file.isEmpty()) {
-        if (!QFile::exists(file) || QFile::remove(file)) {
-            QFile(tmpKey + (pubKey ? ".pub" : "")).copy(file);
-            if (pubKey)
-                emit publicKeyGenerated(file);
-            else
-                emit privateKeyGenerated(file);
-        }
+    checkSshDir();
+    const QString suggestedTypeSuffix =
+        m_keyGenerator->type() == Core::SshKeyGenerator::Rsa ? "rsa" : "dsa";
+    const QString suggestedName = home + QString::fromLatin1("/.ssh/id_%1%2")
+        .arg(suggestedTypeSuffix).arg(publicKey ? ".pub" : "");
+    const QString dlgTitle
+        = publicKey ? tr("Save public key file") : tr("Save private key file");
+    const QString fileName
+        = QFileDialog::getSaveFileName(this, dlgTitle, suggestedName);
+    if (fileName.isEmpty())
+        return;
+
+    QFile file(fileName);
+    const bool canOpen = file.open(QIODevice::WriteOnly);
+    if (canOpen)
+        file.write(publicKey
+            ? m_keyGenerator->publicKey().toUtf8()
+            : m_keyGenerator->privateKey().toUtf8());
+    if (!canOpen || file.error() != QFile::NoError) {
+        QMessageBox::critical(this, tr("Error writing file"),
+                              tr("Could not write file '%1':\n %2")
+                              .arg(fileName, file.errorString()));
+    } else if (!publicKey) {
+        emit privateKeyGenerated(fileName);
     }
 }

@@ -35,6 +35,8 @@
 #ifndef MAEMODEVICECONFIGURATIONS_H
 #define MAEMODEVICECONFIGURATIONS_H
 
+#include <coreplugin/ssh/sshconnection.h>
+
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -52,22 +54,16 @@ class MaemoDeviceConfig
 {
 public:
     enum DeviceType { Physical, Simulator };
-    enum AuthType { Password, Key };
     MaemoDeviceConfig();
     MaemoDeviceConfig(const QString &name, DeviceType type);
     MaemoDeviceConfig(const QSettings &settings, quint64 &nextId);
     void save(QSettings &settings) const;
     bool isValid() const;
+
+    Core::SshServerInfo server;
     QString name;
     DeviceType type;
-    QString host;
-    int sshPort;
     int gdbServerPort;
-    QString uname;
-    AuthType authentication;
-    QString pwd;
-    QString keyFile;
-    int timeout;
     quint64 internalId;
 
 private:

@@ -43,18 +43,20 @@
 #define MAEMOSSHTHREAD_H
 
 #include "maemodeviceconfigurations.h"
-#include "maemosshconnection.h"
 
+#include <coreplugin/ssh/sshconnection.h>
+
+#include <QtCore/QByteArray>
 #include <QtCore/QList>
 #include <QtCore/QMutex>
 #include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoSshThread : public QThread
+template<class SshConnection> class MaemoSshThread : public QThread
 {
-    Q_OBJECT
     Q_DISABLE_COPY(MaemoSshThread)
 public:
     QString error() const { return m_error; }
@@ -64,53 +66,62 @@ public:
     ~MaemoSshThread();
 
 protected:
-    MaemoSshThread(const MaemoDeviceConfig &devConf);
-    template <class Conn> typename Conn::Ptr createConnection();
+    MaemoSshThread(const Core::SshServerInfo &server);
+    void createConnection();
     bool stopRequested() const { return m_stopRequested; }
+    void waitForStop();
+
+    typename SshConnection::Ptr m_connection;
 
 private:
-    virtual void runInternal() = 0;
+    virtual bool runInternal() = 0;
 
+    const Core::SshServerInfo m_server;
     bool m_stopRequested;
     QString m_error;
     QMutex m_mutex;
-    const MaemoDeviceConfig m_devConf;
-    MaemoSshConnection::Ptr m_connection;
+    QWaitCondition m_waitCond;
 };
 
 
-class MaemoSshRunner : public MaemoSshThread
+class MaemoSshRunner : public MaemoSshThread<Core::InteractiveSshConnection>
 {
     Q_OBJECT
     Q_DISABLE_COPY(MaemoSshRunner)
 public:
-    MaemoSshRunner(const MaemoDeviceConfig &devConf, const QString &command);
+    MaemoSshRunner(const Core::SshServerInfo &server, const QString &command);
 
 signals:
     void remoteOutput(const QString &output);
 
 private:
-    virtual void runInternal();
+    virtual bool runInternal();
+    Q_SLOT void handleRemoteOutput(const QByteArray &output);
+
+    static const QByteArray EndMarker;
 
     const QString m_command;
+    const char *m_prompt;
+    int m_endMarkerCount;
+    bool m_promptEncountered;
 };
 
 
-class MaemoSshDeployer : public MaemoSshThread
+class MaemoSshDeployer : public MaemoSshThread<Core::SftpConnection>
 {
     Q_OBJECT
     Q_DISABLE_COPY(MaemoSshDeployer)
 public:
-    MaemoSshDeployer(const MaemoDeviceConfig &devConf,
-                     const QList<SshDeploySpec> &deploySpecs);
+    MaemoSshDeployer(const Core::SshServerInfo &server,
+                     const QList<Core::SftpTransferInfo> &deploySpecs);
 
 signals:
     void fileCopied(const QString &filePath);
 
 private:
-    virtual void runInternal();
+    virtual bool runInternal();
 
-    const QList<SshDeploySpec> m_deploySpecs;
+    const QList<Core::SftpTransferInfo> m_deploySpecs;
 };
 
 } // namespace Internal

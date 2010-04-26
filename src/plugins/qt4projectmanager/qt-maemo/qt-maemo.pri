@@ -1,7 +1,3 @@
-INCLUDEPATH += $$PWD/../../../libs/3rdparty/botan/build
-INCLUDEPATH += $$PWD/../../../libs/3rdparty/net7ssh/src
-LIBS += -l$$qtLibraryTarget(Net7ssh) -l$$qtLibraryTarget(Botan)
-
 HEADERS += \
     $$PWD/maemoconfigtestdialog.h \
     $$PWD/maemoconstants.h \
@@ -14,12 +10,10 @@ HEADERS += \
     $$PWD/maemosettingspage.h \
     $$PWD/maemosettingswidget.h \
     $$PWD/maemosshconfigdialog.h \
-    $$PWD/maemosshconnection.h \
     $$PWD/maemosshthread.h \
     $$PWD/maemotoolchain.h \
     $$PWD/maemopackagecreationstep.h \
     $$PWD/maemopackagecreationfactory.h \
-    $$PWD/ne7sshobject.h \
     $$PWD/maemopackagecreationwidget.h \
     $$PWD/maemopackagecontents.h
 
@@ -34,12 +28,10 @@ SOURCES += \
     $$PWD/maemosettingspage.cpp \
     $$PWD/maemosettingswidget.cpp \
     $$PWD/maemosshconfigdialog.cpp \
-    $$PWD/maemosshconnection.cpp \
     $$PWD/maemosshthread.cpp \
     $$PWD/maemotoolchain.cpp \
     $$PWD/maemopackagecreationstep.cpp \
     $$PWD/maemopackagecreationfactory.cpp \
-    $$PWD/ne7sshobject.cpp \
     $$PWD/maemopackagecreationwidget.cpp \
     $$PWD/maemopackagecontents.cpp
 

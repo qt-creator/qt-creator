@@ -83,7 +83,10 @@ SOURCES += mainwindow.cpp \
     imode.cpp \
     editormanager/systemeditor.cpp \
     designmode.cpp \
-    editortoolbar.cpp
+    editortoolbar.cpp \
+    ssh/ne7sshobject.cpp \
+    ssh/sshconnection.cpp \
+    ssh/sshkeygenerator.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -165,7 +168,10 @@ HEADERS += mainwindow.h \
     eventfilteringmainwindow.h \
     editormanager/systemeditor.h \
     designmode.h \
-    editortoolbar.h
+    editortoolbar.h \
+    ssh/ne7sshobject.h \
+    ssh/sshconnection.h \
+    ssh/sshkeygenerator.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

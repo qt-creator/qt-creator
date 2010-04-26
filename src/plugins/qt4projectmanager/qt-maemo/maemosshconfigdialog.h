@@ -37,7 +37,12 @@
 
 #include "ui_maemosshconfigdialog.h"
 
+#include <QtCore/QScopedPointer>
 #include <QtGui/QDialog>
+
+namespace Core {
+    class SshKeyGenerator;
+}
 
 namespace Qt4ProjectManager {
     namespace Internal {
@@ -46,11 +51,10 @@ class MaemoSshConfigDialog : public QDialog
 {
     Q_OBJECT
 public:
-        MaemoSshConfigDialog(QWidget *parent = 0);
-        ~MaemoSshConfigDialog();
+    MaemoSshConfigDialog(QWidget *parent = 0);
+    ~MaemoSshConfigDialog();
 
 signals:
-    void publicKeyGenerated(const QString &path);
     void privateKeyGenerated(const QString &path);
 
 private slots:
@@ -61,12 +65,11 @@ private slots:
 
 private:
     void checkSshDir();
-    void copyFile(const QString &file, bool pubKey);
+    void saveKey(bool publicKey);
 
 private:
     QString home;
-    QByteArray tmpKey;
-    QByteArray algorithm;
+    QScopedPointer<Core::SshKeyGenerator> m_keyGenerator;
     Ui::MaemoSshConfigDialog m_ui;
 };
 

@@ -39,38 +39,43 @@
 **
 ****************************************************************************/
 
-#ifndef NE7SSHOBJECT_H
-#define NE7SSHOBJECT_H
+#include "ne7sshobject.h"
 
-#include <QtCore/QMutex>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QWeakPointer>
+#include <QtCore/QMutexLocker>
 
-class ne7ssh;
+#include <ne7ssh.h>
 
-namespace Qt4ProjectManager {
+namespace Core {
 namespace Internal {
 
-class Ne7SshObject
+Ne7SshObject *Ne7SshObject::instance()
 {
-public:
-    static Ne7SshObject *instance();
-    static void removeInstance();
+    if (!m_instance)
+        m_instance = new Ne7SshObject;
+    return m_instance;
+}
 
-    QSharedPointer<ne7ssh> get();
+void Ne7SshObject::removeInstance()
+{
+    delete m_instance;
+}
 
-private:
-    Ne7SshObject();
-    Ne7SshObject(const Ne7SshObject &);
-    Ne7SshObject &operator=(const Ne7SshObject &);
+Ne7SshObject::Ptr Ne7SshObject::get()
+{
+    QMutexLocker locker(&m_mutex);
+    QSharedPointer<ne7ssh> shared = m_weakRef.toStrongRef();
+    if (!shared) {
+        shared = QSharedPointer<ne7ssh>(new ne7ssh);
+        m_weakRef = shared;
+    }
+    return shared;
+}
 
-    static Ne7SshObject *m_instance;
+Ne7SshObject::Ne7SshObject()
+{
+}
 
-    QWeakPointer<ne7ssh> m_weakRef;
-    QMutex m_mutex;
-};
+Ne7SshObject *Ne7SshObject::m_instance = 0;
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
-
-#endif // NE7SSHOBJECT_H
+} // namespace Core

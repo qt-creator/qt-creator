@@ -105,7 +105,7 @@ void MaemoConfigTestDialog::startConfigTest()
         "|sed 's/[[:space:]][[:space:]]*/ /g' "
         "|cut -d ' ' -f 2,3 |sed 's/~.*//g'");
     QString command(sysInfoCmd + " && " + qtInfoCmd);
-    m_deviceTester = new MaemoSshRunner(m_config, command);
+    m_deviceTester = new MaemoSshRunner(m_config.server, command);
     connect(m_deviceTester, SIGNAL(remoteOutput(QString)),
             this, SLOT(processSshOutput(QString)));
     connect(m_deviceTester, SIGNAL(finished()),
@@ -126,12 +126,12 @@ void MaemoConfigTestDialog::handleTestThreadFinished()
             output.append(tr("\nDid you start Qemu?"));
     } else {
         output = parseTestOutput();
+        if (!m_qtVersionOk) {
+            m_ui->errorLabel->setText(tr("Qt version mismatch! "
+                " Expected Qt on device: 4.6.2 or later."));
+        }
     }
     m_ui->testResultEdit->setPlainText(output);
-    if (!m_qtVersionOk) {
-        m_ui->errorLabel->setText(tr("Qt version mismatch! Expected Qt on device: "
-            "4.6.2 or later."));
-    }
     stopConfigTest();
 }
 

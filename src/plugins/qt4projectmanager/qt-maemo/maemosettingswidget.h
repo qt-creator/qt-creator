@@ -82,7 +82,6 @@ private slots:
     void testConfig();
 
     void showGenerateSshKeyDialog();
-    void setPublicKey(const QString &path);
     void setPrivateKey(const QString &path);
 
     // For key deploying.
@@ -104,7 +103,6 @@ private:
     MaemoDeviceConfig m_lastConfigSim;
     NameValidator * const m_nameValidator;
     MaemoSshRunner *m_keyDeployer;
-    QString m_publicKeyFileName;
 };
 
 } // namespace Internal

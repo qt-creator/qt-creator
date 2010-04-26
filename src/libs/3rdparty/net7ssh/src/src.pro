@@ -8,7 +8,7 @@ include(../../../../qtcreatorlibrary.pri)
 DEPENDPATH += .
 INCLUDEPATH += $$PWD $$PWD/../../botan $$PWD/../../botan/build
 
-LIBS += -l$$qtLibraryTarget(Botan)
+include(../net7ssh_dependencies.pri)
 
 win32 {
     LIBS +=  -lWs2_32

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>563</width>
+    <width>596</width>
     <height>336</height>
    </rect>
   </property>
@@ -335,7 +335,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Deploy public Key ...</string>
+        <string>Deploy Public Key ...</string>
        </property>
       </widget>
      </item>
