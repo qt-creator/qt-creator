@@ -1974,6 +1974,8 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
         if (idx < 0)
             break;
         l = m_searchExpr.matchedLength();
+        if (l == 0)
+            break;
         if ((m_findFlags & Find::IFindSupport::FindWholeWords)
             && ((idx && text.at(idx-1).isLetterOrNumber())
                 || (idx + l < text.length() && text.at(idx + l).isLetterOrNumber())))
