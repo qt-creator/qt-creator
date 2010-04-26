@@ -66,6 +66,7 @@ public:
     QString packageFilePath() const;
     QString remoteExecutableFilePath() const;
     QString localExecutableFilePath() const;
+    MaemoPackageContents *packageContents() const { return m_packageContents; }
 
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,

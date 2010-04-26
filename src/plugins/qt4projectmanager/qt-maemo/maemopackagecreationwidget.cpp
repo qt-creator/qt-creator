@@ -40,15 +40,28 @@
 ****************************************************************************/
 
 #include "maemopackagecreationwidget.h"
+#include "ui_maemopackagecreationwidget.h"
 
+#include "maemopackagecontents.h"
 #include "maemopackagecreationstep.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep *step)
-    : ProjectExplorer::BuildStepConfigWidget(), m_step(step)
+    : ProjectExplorer::BuildStepConfigWidget(),
+      m_step(step),
+      m_ui(new Ui::MaemoPackageCreationWidget)
 {
+    m_ui->setupUi(this);
+    m_ui->packageContentsView->setModel(step->packageContents());
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    connect(step->packageContents(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            m_ui->packageContentsView, SLOT(resizeColumnsToContents()));
+    connect(step->packageContents(), SIGNAL(rowsInserted(QModelIndex, int, int)),
+            m_ui->packageContentsView, SLOT(resizeColumnsToContents()));
+    m_ui->packageContentsView->resizeColumnsToContents();
+    m_ui->packageContentsView->horizontalHeader()->setStretchLastSection(true);
 }
 
 void MaemoPackageCreationWidget::init()
@@ -57,7 +70,7 @@ void MaemoPackageCreationWidget::init()
 
 QString MaemoPackageCreationWidget::summaryText() const
 {
-    return tr("Package Creation");
+    return tr("<b>Create Package:</b> ") + m_step->packageFilePath();
 }
 
 QString MaemoPackageCreationWidget::displayName() const

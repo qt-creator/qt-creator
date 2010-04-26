@@ -70,5 +70,13 @@ QVariant MaemoPackageContents::data(const QModelIndex &index, int role) const
     return index.column() == 0 ? d.localFilePath : d.remoteFilePath;
 }
 
+QVariant MaemoPackageContents::headerData(int section,
+             Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Vertical || role != Qt::DisplayRole)
+        return QVariant();
+    return section == 0 ? tr("Local File Path") : tr("Remote File Path");
+}
+
 } // namespace Qt4ProjectManager
 } // namespace Internal

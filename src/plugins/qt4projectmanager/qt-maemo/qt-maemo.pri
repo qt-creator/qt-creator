@@ -38,6 +38,7 @@ SOURCES += \
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \
     $$PWD/maemosettingswidget.ui \
-    $$PWD/maemosshconfigdialog.ui
+    $$PWD/maemosshconfigdialog.ui \
+    $$PWD/maemopackagecreationwidget.ui
 
 RESOURCES += $$PWD/qt-maemo.qrc

@@ -44,6 +44,10 @@
 
 #include <projectexplorer/buildstep.h>
 
+QT_BEGIN_NAMESPACE
+namespace Ui { class MaemoPackageCreationWidget; }
+QT_END_NAMESPACE
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -60,6 +64,7 @@ public:
     virtual QString displayName() const;
 private:
     MaemoPackageCreationStep * const m_step;
+    Ui::MaemoPackageCreationWidget * const m_ui;
 };
 
 } // namespace Internal
