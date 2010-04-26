@@ -153,28 +153,14 @@ GitClient::~GitClient()
 
 const char *GitClient::noColorOption = "--no-color";
 
-QString GitClient::findRepositoryForFile(const QString &fileName)
-{
-    const QString gitDirectory = QLatin1String(kGitDirectoryC);
-    const QFileInfo info(fileName);
-    QDir dir = info.absoluteDir();
-    do {
-        if (dir.entryList(QDir::AllDirs|QDir::Hidden).contains(gitDirectory))
-            return dir.absolutePath();
-    } while (dir.cdUp());
-
-    return QString();
-}
-
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
     const QString gitDirectory = QLatin1String(kGitDirectoryC);
     QDir directory(dir);
     do {
-        if (directory.entryList(QDir::AllDirs|QDir::Hidden).contains(gitDirectory))
+        if (QFileInfo(directory, gitDirectory).isDir())
             return directory.absolutePath();
     } while (directory.cdUp());
-
     return QString();
 }
 

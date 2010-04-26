@@ -75,7 +75,6 @@ public:
     bool managesDirectory(const QString &) const { return false; }
     QString findTopLevelForDirectory(const QString &) const { return QString(); }
 
-    static QString findRepositoryForFile(const QString &fileName);
     static QString findRepositoryForDirectory(const QString &dir);
 
     void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
