@@ -184,6 +184,7 @@ plugin_genericprojectmanager.depends += plugin_cppeditor
 plugin_qmljseditor.subdir = qmljseditor
 plugin_qmljseditor.depends = plugin_texteditor
 plugin_qmljseditor.depends += plugin_coreplugin
+plugin_qmljseditor.depends += plugin_projectexplorer
 
 plugin_qmlprojectmanager.subdir = qmlprojectmanager
 plugin_qmlprojectmanager.depends = plugin_texteditor
