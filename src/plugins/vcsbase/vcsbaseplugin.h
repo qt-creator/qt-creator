@@ -151,7 +151,8 @@ class VCSBASE_EXPORT VCSBasePlugin : public ExtensionSystem::IPlugin
 protected:
     explicit VCSBasePlugin(const QString &submitEditorId);
 
-    void initialize(Core::IVersionControl *vc);
+    virtual void initialize(Core::IVersionControl *vc);
+    virtual void extensionsInitialized();
 
 public:
     virtual ~VCSBasePlugin();

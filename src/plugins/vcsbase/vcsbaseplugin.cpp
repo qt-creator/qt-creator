@@ -165,7 +165,7 @@ public:
 signals:
     void stateChanged(const VCSBase::Internal::State &s, Core::IVersionControl *vc);
 
-private slots:
+public slots:
     void slotStateChanged();
 };
 
@@ -463,6 +463,12 @@ void VCSBasePlugin::initialize(Core::IVersionControl *vc)
             SIGNAL(stateChanged(VCSBase::Internal::State, Core::IVersionControl*)),
             this,
             SLOT(slotStateChanged(VCSBase::Internal::State,Core::IVersionControl*)));
+}
+
+void VCSBasePlugin::extensionsInitialized()
+{
+    // Initialize enable menus.
+    VCSBasePluginPrivate::m_listener->slotStateChanged();
 }
 
 void VCSBasePlugin::slotSubmitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor, bool *result)

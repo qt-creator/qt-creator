@@ -81,7 +81,6 @@ public:
     ~SubversionPlugin();
 
     bool initialize(const QStringList &arguments, QString *error_message);
-    void extensionsInitialized();
 
     void svnDiff(const QString  &workingDir, const QStringList &files, QString diffname = QString());
 

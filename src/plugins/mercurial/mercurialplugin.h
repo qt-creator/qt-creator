@@ -81,7 +81,7 @@ public:
     MercurialPlugin();
     virtual ~MercurialPlugin();
     bool initialize(const QStringList &arguments, QString *error_message);
-    void extensionsInitialized();
+
     static MercurialPlugin *instance() { return m_instance; }
     MercurialClient *client() const { return m_client; }
 

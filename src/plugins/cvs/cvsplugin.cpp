@@ -398,10 +398,6 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     return true;
 }
 
-void CVSPlugin::extensionsInitialized()
-{
-}
-
 bool CVSPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
 {
     if (!isCommitEditorOpen())

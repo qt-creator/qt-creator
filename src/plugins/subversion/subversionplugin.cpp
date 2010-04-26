@@ -440,10 +440,6 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     return true;
 }
 
-void SubversionPlugin::extensionsInitialized()
-{
-}
-
 bool SubversionPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEditor)
 {
     if (!isCommitEditorOpen())

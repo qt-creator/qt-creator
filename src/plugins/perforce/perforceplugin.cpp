@@ -456,6 +456,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
 
 void PerforcePlugin::extensionsInitialized()
 {
+    VCSBase::VCSBasePlugin::extensionsInitialized();
     getTopLevel();
 }
 

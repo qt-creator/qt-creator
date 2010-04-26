@@ -188,10 +188,6 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     return true;
 }
 
-void MercurialPlugin::extensionsInitialized()
-{
-}
-
 const MercurialSettings &MercurialPlugin::settings() const
 {
     return mercurialSettings;

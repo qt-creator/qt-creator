@@ -507,10 +507,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     return true;
 }
 
-void GitPlugin::extensionsInitialized()
-{
-}
-
 GitVersionControl *GitPlugin::gitVersionControl() const
 {
     return static_cast<GitVersionControl *>(versionControl());
