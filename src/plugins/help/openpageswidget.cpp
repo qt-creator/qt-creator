@@ -68,7 +68,8 @@ void OpenPagesDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     QStyledItemDelegate::paint(painter, option, index);
 
-    if (index.column() == 1 && option.state & QStyle::State_MouseOver) {
+    if (index.column() == 1 && index.model()->rowCount() > 1
+        && option.state & QStyle::State_MouseOver) {
         QIcon icon((option.state & QStyle::State_Selected)
             ? ":/core/images/closebutton.png" : ":/core/images/darkclosebutton.png");
 
@@ -137,10 +138,12 @@ void OpenPagesWidget::allowContextMenu(bool ok)
 
 void OpenPagesWidget::contextMenuRequested(QPoint pos)
 {
-    const QModelIndex &index = indexAt(pos);
+    QModelIndex index = indexAt(pos);
     if (!index.isValid() || !m_allowContextMenu)
         return;
 
+    if (index.column() == 1)
+        index = index.sibling(index.row(), 0);
     QMenu contextMenu;
     QAction *closeEditor = contextMenu.addAction(tr("Close %1").arg(index.data()
         .toString()));
