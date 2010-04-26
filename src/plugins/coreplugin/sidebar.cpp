@@ -69,7 +69,12 @@ SideBar::SideBar(QList<SideBarItem*> itemList,
 
 SideBar::~SideBar()
 {
-    qDeleteAll(m_itemMap);
+    QMutableMapIterator<QString, QWeakPointer<SideBarItem> > iter(m_itemMap);
+    while(iter.hasNext()) {
+        iter.next();
+        if (!iter.value().isNull())
+            delete iter.value().data();
+    }
 }
 
 QStringList SideBar::availableItems() const
@@ -93,9 +98,9 @@ void SideBar::setCloseWhenEmpty(bool value)
 
 void SideBar::makeItemAvailable(SideBarItem *item)
 {
-    QMap<QString, SideBarItem*>::const_iterator it = m_itemMap.constBegin();
+    QMap<QString, QWeakPointer<SideBarItem> >::const_iterator it = m_itemMap.constBegin();
     while (it != m_itemMap.constEnd()) {
-        if (it.value() == item) {
+        if (it.value().data() == item) {
             m_availableItems.append(it.key());
             m_unavailableItems.removeAll(it.key());
             qSort(m_availableItems);
@@ -135,7 +140,7 @@ SideBarItem *SideBar::item(const QString &title)
             m_unavailableItems.append(title);
 
         emit availableItemsChanged();
-        return m_itemMap.value(title);
+        return m_itemMap.value(title).data();
     }
     return 0;
 }
@@ -241,10 +246,10 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
 
 void SideBar::activateItem(SideBarItem *item)
 {
-    QMap<QString, SideBarItem*>::const_iterator it = m_itemMap.constBegin();
+    QMap<QString, QWeakPointer<SideBarItem> >::const_iterator it = m_itemMap.constBegin();
     QString title;
     while (it != m_itemMap.constEnd()) {
-        if (it.value() == item) {
+        if (it.value().data() == item) {
             title = it.key();
             break;
         }

@@ -60,8 +60,9 @@ class ComboBox;
  *
  * The SideBarItem takes ownership over the widget.
  */
-class CORE_EXPORT SideBarItem
+class CORE_EXPORT SideBarItem : public QObject
 {
+    Q_OBJECT
 public:
     SideBarItem(QWidget *widget)
         : m_widget(widget)
@@ -93,8 +94,8 @@ public:
     /*
      * The SideBar takes ownership of the SideBarItems.
      */
-    SideBar(QList<SideBarItem*> widgetList,
-            QList<SideBarItem*> defaultVisible);
+    SideBar(QList< SideBarItem*> widgetList,
+            QList< SideBarItem*> defaultVisible);
     ~SideBar();
 
     QStringList availableItems() const;
@@ -129,7 +130,7 @@ private:
     void removeSideBarWidget(Internal::SideBarWidget *widget);
 
     QList<Internal::SideBarWidget*> m_widgets;
-    QMap<QString, SideBarItem*> m_itemMap;
+    QMap<QString, QWeakPointer<SideBarItem> > m_itemMap;
     QStringList m_availableItems;
     QStringList m_unavailableItems;
     QStringList m_defaultVisible;
