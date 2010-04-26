@@ -275,9 +275,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
     } else {
         // check the filesystem
         const QString packagePath = Bind::toString(import->importUri, QDir::separator());
-        QStringList localImportPaths = _importPaths;
-        localImportPaths.prepend(doc->path());
-        foreach (const QString &importPath, localImportPaths) {
+        foreach (const QString &importPath, _importPaths) {
             QDir dir(importPath);
             if (!dir.cd(packagePath))
                 continue;
