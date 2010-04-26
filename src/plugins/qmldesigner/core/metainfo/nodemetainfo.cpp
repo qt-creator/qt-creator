@@ -176,7 +176,9 @@ QObject *NodeMetaInfo::createInstance(QDeclarativeContext *context) const
         // qml component
         // TODO: This is maybe expensive ...
         QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(m_data->qmlFile));
-        object = component.create(new QDeclarativeContext(context));
+        QDeclarativeContext *newContext =  new QDeclarativeContext(context);
+        object = component.create(newContext);
+        newContext->setParent(object);
     } else {
         // primitive
         object = QDeclarativeMetaType::qmlType(typeName().toAscii(), minorVersion(), majorVersion())->create();
