@@ -37,6 +37,8 @@
 #include <QStackedWidget>
 
 #include "qmlanchorbindingproxy.h"
+#include "designerpropertymap.h"
+#include "propertyeditorvalue.h"
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
@@ -66,7 +68,7 @@ class PropertyEditor: public QmlModelView
 
         QDeclarativeView *m_view;
         Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
-        QDeclarativePropertyMap m_backendValuesPropertyMap;
+        DesignerPropertyMap<PropertyEditorValue> m_backendValuesPropertyMap;
         QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;
         QScopedPointer<PropertyEditorValue> m_dummyPropertyEditorValue;
     };
@@ -111,9 +113,7 @@ private slots:
     void reloadQml();
     void changeValue(const QString &name);
     void changeExpression(const QString &name);
-    void expand();
-    void collapse();
-    void updateCollapseButton();
+    void updateSize();
 
 private: //functions
     QString qmlFileName(const NodeMetaInfo &nodeInfo) const;
@@ -132,7 +132,6 @@ private: //variables
     QShortcut *m_updateShortcut;
     int m_timerId;
     StackedWidget* m_stackedWidget;
-    CollapseButton *m_collapseButton;
     QString m_qmlDir;
     QHash<QString, NodeType *> m_typeHash;
     NodeType *m_currentType;
@@ -156,61 +155,6 @@ protected:
         emit resized();
     }
 };
-
-class CollapseButton : public QWidget
-{
-Q_OBJECT
-
-public:
-
-    CollapseButton(QWidget *parent = 0);
-    bool isCollapsed() const
-    { return m_collapsed; }
-
-signals:
-    void expand();
-    void collapse();
-
-protected:
-    void paintEvent(QPaintEvent *event);
-
-    void mouseReleaseEvent(QMouseEvent *)
-    {
-        if (m_collapsed) {
-            m_collapsed = false;
-            emit expand();
-        } else {
-            m_collapsed = true;
-            emit collapse();
-        }
-        update();
-    }
-
-    void enterEvent ( QEvent *)
-    {
-         m_hovered = true;
-         setOpacity(0.9);
-         update();
-    }
-
-    void leaveEvent ( QEvent *)
-    {
-        m_hovered = false;
-        setOpacity(0.4);
-        update();
-    }
-
-    void setOpacity(qreal opacity);
-
-private:
-    bool m_collapsed;
-    bool m_hovered;
-    QPixmap m_pixmap_normal;
-    QPixmap m_pixmap_hover;
-    QPixmap m_pixmap_normal_mirrored;
-    QPixmap m_pixmap_hover_mirrored;
-};
-
 }
 
 #endif // QmlPropertyView_h

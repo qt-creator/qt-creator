@@ -85,7 +85,7 @@ PropertyEditor::NodeType::NodeType(PropertyEditor *propertyEditor) :
 {
     Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
 
-    m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    //m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     QDeclarativeContext *ctxt = m_view->rootContext();
     m_dummyPropertyEditorValue->setValue("#000000");
     ctxt->setContextProperty("dummyBackendValue", m_dummyPropertyEditorValue.data());
@@ -257,7 +257,6 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
         m_updateShortcut(0),
         m_timerId(0),
         m_stackedWidget(new StackedWidget(parent)),
-        m_collapseButton(new CollapseButton(m_stackedWidget)),
         m_currentType(0),
         m_locked(false)
 {
@@ -269,11 +268,7 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
     QString styleSheet = QLatin1String(file.readAll());
     m_stackedWidget->setStyleSheet(styleSheet);
     m_stackedWidget->setMinimumWidth(300);
-    m_collapseButton->raise();
-    m_collapseButton->show();
-    connect(m_collapseButton, SIGNAL(expand()), this, SLOT(expand()));
-    connect(m_collapseButton, SIGNAL(collapse()), this, SLOT(collapse()));
-    connect(m_stackedWidget, SIGNAL(resized()), this, SLOT(updateCollapseButton()));
+    connect(m_stackedWidget, SIGNAL(resized()), this, SLOT(updateSize()));
 
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));
 
@@ -480,85 +475,13 @@ void PropertyEditor::changeExpression(const QString &name)
     }
 }
 
-
-void PropertyEditor::expand()
+void PropertyEditor::updateSize()
 {
-    m_stackedWidget->setMinimumWidth(300);
-    m_stackedWidget->setMaximumWidth(1000);
-    m_stackedWidget->parentWidget()->layout()->update();
-
-    QWidget * parentWidget = m_stackedWidget->parentWidget();
-    QWidget *childWidget = m_stackedWidget;
-
-    while (parentWidget) {
-        if (Core::SideBar *sideBar  = qobject_cast<Core::SideBar*>(parentWidget)) {
-            childWidget->setMaximumWidth(2000);
-            foreach (QObject* child, sideBar->children()) {
-                if (QWidget* otherWidget = qobject_cast<QWidget*>(child))
-                    if (otherWidget != childWidget && !qobject_cast<QComboBox*>(otherWidget))
-                    otherWidget->show();
-            }
-            QList<QComboBox*> list = sideBar->findChildren<QComboBox*>();
-            foreach (QComboBox* box, list) {
-                if (qobject_cast<QToolBar*>(box->parentWidget()))
-                    box->parentWidget()->show();
-            }
-            sideBar->refresh();
-            sideBar->update();
-            break;
-        }
-        childWidget = parentWidget;
-        parentWidget = parentWidget->parentWidget();
-    }
-    m_collapseButton->move(0, m_stackedWidget->height() - collapseButtonOffset);
-    resetView();
-}
-
-void PropertyEditor::collapse()
-{
-    m_stackedWidget->setCurrentIndex(0);
-    m_stackedWidget->setMinimumWidth(0);
-
-    QWidget * parentWidget = m_stackedWidget->parentWidget();
-    QWidget *childWidget = m_stackedWidget;
-
-    while (parentWidget) {
-        if (Core::SideBar *sideBar  = qobject_cast<Core::SideBar*>(parentWidget)) {
-            childWidget->setMaximumWidth(22);
-            foreach (QObject* child, sideBar->children()) {
-                if (QWidget* otherWidget = qobject_cast<QWidget*>(child))
-                    if (otherWidget != childWidget && !qobject_cast<QComboBox*>(otherWidget))
-                    otherWidget->hide();
-            }
-
-            QSplitter* parentSplitter = qobject_cast<QSplitter*>(sideBar->parentWidget());
-            QList<int> s = parentSplitter->sizes();
-            s.removeLast();
-            s.append(25);
-            parentSplitter->setSizes(s);
-            parentSplitter->refresh();
-            parentSplitter->update();
-            QApplication::processEvents();
-            QList<QComboBox*> list = sideBar->findChildren<QComboBox*>();
-            foreach (QComboBox* box, list) {
-                if (qobject_cast<QToolBar*>(box->parentWidget())) {
-                    box->parentWidget()->hide();
-                }
-            }
-            break;
-        }
-        childWidget = parentWidget;
-        parentWidget = parentWidget->parentWidget();
-    }
-    m_collapseButton->raise();
-    m_stackedWidget->parentWidget()->layout()->activate();
-    m_collapseButton->move(0, m_stackedWidget->height() - collapseButtonOffset + 20);
-}
-
-void PropertyEditor::updateCollapseButton()
-{
-    m_collapseButton->move(0, m_stackedWidget->height() - collapseButtonOffset + 20);
-    m_collapseButton->update();
+    if (!m_currentType)
+        return;
+    QWidget* frame = m_currentType->m_view->findChild<QWidget*>("propertyEditorFrame");
+    if (frame)
+        frame->resize(m_stackedWidget->size());
 }
 
 void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode, const QString &propertyName)
@@ -669,9 +592,6 @@ void PropertyEditor::resetView()
     if (model() == 0)
         return;
 
-    if (m_collapseButton->isCollapsed())
-        return;
-
     m_locked = true;
 
     if (debug)
@@ -737,8 +657,6 @@ void PropertyEditor::resetView()
 
     m_stackedWidget->setCurrentWidget(type->m_view);
 
-    m_collapseButton->raise();
-    m_collapseButton->move(0, m_stackedWidget->height() - collapseButtonOffset);
 
     QDeclarativeContext *ctxt = type->m_view->rootContext();
     ctxt->setContextProperty("finishedNotify", QVariant(true));
@@ -752,6 +670,8 @@ void PropertyEditor::resetView()
 
     if (m_timerId)
         m_timerId = 0;
+
+    updateSize();
 }
 
 void PropertyEditor::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
@@ -781,10 +701,10 @@ void PropertyEditor::modelAttached(Model *model)
 
     m_locked = true;
 
-    setupPane("Qt/Rectangle");
+    /*setupPane("Qt/Rectangle");
     setupPane("Qt/Text");
     setupPane("Qt/TextInput");
-    setupPane("Qt/TextEdit");
+    setupPane("Qt/TextEdit");*/
     resetView();
 
     m_locked = false;
@@ -971,45 +891,6 @@ QString PropertyEditor::locateQmlFile(const QString &relativePath) const
     return QString();
 }
 
-CollapseButton::CollapseButton(QWidget *parent) : QWidget(parent), m_collapsed(false), m_hovered(false),
-                                  m_pixmap_normal(":/qmldesigner/images/collapse-button-normal.png"),
-                                  m_pixmap_hover(":/qmldesigner/images/collapse-button-hover.png"),
-                                  m_pixmap_normal_mirrored(":/qmldesigner/images/collapse-button-normal-mirrored.png"),
-                                  m_pixmap_hover_mirrored(":/qmldesigner/images/collapse-button-hover-mirrored.png")
-{
-    setFixedWidth(20);
-    setFixedHeight(81);
-    setMouseTracking(true);
-    setAttribute(Qt::WA_TranslucentBackground, true);
-    QGraphicsOpacityEffect* graphicsOpacityEffect = new QGraphicsOpacityEffect(this);
-    setGraphicsEffect(graphicsOpacityEffect);
-    graphicsOpacityEffect->setOpacity(0.4);
-    setToolTip(QLatin1String("Properties"));
-}
-
-
-void CollapseButton::setOpacity(qreal opacity)
-{
-    qobject_cast<QGraphicsOpacityEffect*>(graphicsEffect())->setOpacity(opacity);
-}
-
-void CollapseButton::paintEvent(QPaintEvent *event)
-{
-    QWidget::paintEvent(event);
-    QPainter p(this);
-
-    if (m_hovered) {
-        if (m_collapsed)
-            p.drawPixmap(0,0, m_pixmap_hover_mirrored);
-        else
-            p.drawPixmap(0,0, m_pixmap_hover);
-    } else {
-        if (m_collapsed)
-            p.drawPixmap(0,0, m_pixmap_normal_mirrored);
-        else
-            p.drawPixmap(0,0, m_pixmap_normal);
-    }
-}
 
 } //QmlDesigner
 
