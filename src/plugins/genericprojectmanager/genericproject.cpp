@@ -34,6 +34,7 @@
 #include "generictarget.h"
 
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -435,7 +436,19 @@ bool GenericProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    // Add default BC:
+    // Sanity check: We need both a buildconfiguration and a runconfiguration!
+    QList<Target *> targetList = targets();
+    foreach (Target *t, targetList) {
+        if (!t->activeBuildConfiguration()) {
+            removeTarget(t);
+            delete t;
+            continue;
+        }
+        if (!t->activeRunConfiguration())
+            t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
+    }
+
+    // Add default setup:
     if (targets().isEmpty())
         addTarget(targetFactory()->create(this, QLatin1String(GENERIC_DESKTOP_TARGET_ID)));
 
