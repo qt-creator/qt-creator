@@ -34,6 +34,8 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qtversionmanager.h>
 
+#include <QtCore/QCoreApplication>
+
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -48,19 +50,22 @@ S60ProjectChecker::reportIssues(const QString &proFile, const QtVersion *version
     // Report an error if project- and epoc directory are on different drives:
     if (!epocRootDir.startsWith(proFile.left(3), Qt::CaseInsensitive)) {
         results.append(Task(Task::Error,
-                            QObject::tr("The Symbian SDK and the project sources must reside on the same drive."),
+                            QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
+                                                        "The Symbian SDK and the project sources must reside on the same drive."),
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
 #endif
     // Report an error if EPOC root is not set:
     if (epocRootDir.isEmpty() || !QDir(epocRootDir).exists()) {
         results.append(Task(Task::Error,
-                            QObject::tr("The Symbian SDK was not found for Qt version %1.").arg(version->displayName()),
+                            QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
+                                                        "The Symbian SDK was not found for Qt version %1.").arg(version->displayName()),
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     if (!cppheader.exists()) {
         results.append(Task(Task::Error,
-                            QObject::tr("The \"Open C/C++ plugin\" is not installed in the Symbian SDK or the Symbian SDK path is misconfigured for Qt version %1.").arg(version->displayName()),
+                            QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
+                                                        "The \"Open C/C++ plugin\" is not installed in the Symbian SDK or the Symbian SDK path is misconfigured for Qt version %1.").arg(version->displayName()),
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     // Warn of strange characters in project name:
@@ -71,7 +76,8 @@ S60ProjectChecker::reportIssues(const QString &proFile, const QtVersion *version
 #endif
     if (projectPath.contains(QRegExp("[^a-zA-Z0-9./]"))) {
         results.append(Task(Task::Warning,
-                            QObject::tr("The Symbian toolchain does not handle special characters in a project path well."),
+                            QCoreApplication::translate("ProjectExplorer::Internal::S60ProjectChecker",
+                                                        "The Symbian toolchain does not handle special characters in a project path well."),
                             QString(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     return results;
