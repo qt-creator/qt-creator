@@ -274,7 +274,7 @@ void IconButton::paintEvent(QPaintEvent *)
     QPixmap iconpixmap = icon().pixmap(QSize(ICONBUTTON_SIZE, ICONBUTTON_SIZE),
                                        state, QIcon::Off);
     QRect pixmapRect = QRect(0, 0, iconpixmap.width(), iconpixmap.height());
-    pixmapRect.moveCenter(rect().translated(0,-1).center());
+    pixmapRect.moveCenter(rect().center());
 
     if (static_cast<FancyLineEdit*>(parentWidget())->autoHideIcon())
         painter.setOpacity(m_iconOpacity);
