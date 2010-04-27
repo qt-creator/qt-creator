@@ -108,13 +108,17 @@ void S60DevicesModel::appendDevice(const S60Devices::Device &device)
     const Qt::ItemFlags flags = Qt::ItemIsEnabled|Qt::ItemIsSelectable;
 
     QStandardItem *defaultItem = new QStandardItem;
-    defaultItem->setCheckable(true);
-    defaultItem->setCheckState(device.isDefault ? Qt::Checked : Qt::Unchecked);
-    // Item is only checkable if it is not the default.
-    Qt::ItemFlags checkFlags = flags;
-    if (!device.isDefault && m_defaultColumnCheckable)
-        checkFlags |= Qt::ItemIsUserCheckable;
-    defaultItem->setFlags(checkFlags);
+    if (m_defaultColumnCheckable) {
+        defaultItem->setCheckable(true);
+        defaultItem->setCheckState(device.isDefault ? Qt::Checked : Qt::Unchecked);
+        // Item is only checkable if it is not the default.
+        Qt::ItemFlags checkFlags = flags;
+        if (!device.isDefault)
+            checkFlags |= Qt::ItemIsUserCheckable;
+        defaultItem->setFlags(checkFlags);
+    } else {
+        defaultItem->setIcon(device.isDefault ? QIcon(QLatin1String(":/extensionsystem/images/ok.png")) : QIcon());
+    }
 
     defaultItem->setData(deviceData);
 
