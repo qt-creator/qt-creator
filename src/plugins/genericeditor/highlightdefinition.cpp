@@ -1,0 +1,189 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#include "highlightdefinition.h"
+#include "highlighterexception.h"
+#include "context.h"
+#include "keywordlist.h"
+#include "itemdata.h"
+#include "reuse.h"
+
+#include <QLatin1String>
+
+using namespace Highlight;
+using namespace Internal;
+
+HighlightDefinition::HighlightDefinition() :
+    m_delimiters(QLatin1String(".():!+,-<=>%&/;?[]^{|}~\\*, \t")),
+    m_singleLineCommentPosition(0),
+    m_singleLineCommentAfterWhiteSpaces(false),
+    m_keywordCaseSensitivity(Qt::CaseSensitive)
+{}
+
+HighlightDefinition::~HighlightDefinition()
+{}
+
+template <class Element, class Container>
+const QSharedPointer<Element> &HighlightDefinition::
+GenericHelper::create(const QString &name, Container &container)
+{
+    if (name.isEmpty())
+        throw HighlighterException();
+
+    if (container.contains(name))
+        throw HighlighterException();
+
+    container.insert(name, QSharedPointer<Element>(new Element));
+    return *container.constFind(name);
+}
+
+template <class Element, class Container>
+const QSharedPointer<Element> &HighlightDefinition::
+GenericHelper::find(const QString &name, const Container &container) const
+{
+    typename Container::const_iterator it = container.find(name);
+    if (it == container.end())
+        throw HighlighterException();
+
+    return it.value();
+}
+
+const QSharedPointer<KeywordList> &HighlightDefinition::createKeywordList(const QString &list)
+{ return m_helper.create<KeywordList>(list, m_lists); }
+
+const QSharedPointer<KeywordList> &HighlightDefinition::keywordList(const QString &list)
+{ return m_helper.find<KeywordList>(list, m_lists); }
+
+const QSharedPointer<Context> &HighlightDefinition::createContext(const QString &context,
+                                                                  bool initial)
+{
+    if (initial)
+        m_initialContext = context;
+
+    return m_helper.create<Context>(context, m_contexts);
+}
+
+const QSharedPointer<Context> &HighlightDefinition::initialContext() const
+{ return m_helper.find<Context>(m_initialContext, m_contexts); }
+
+const QSharedPointer<Context> &HighlightDefinition::context(const QString &context) const
+{ return m_helper.find<Context>(context, m_contexts); }
+
+const QHash<QString, QSharedPointer<Context> > &HighlightDefinition::contexts() const
+{ return m_contexts; }
+
+const QSharedPointer<ItemData> &HighlightDefinition::createItemData(const QString &itemData)
+{ return m_helper.create<ItemData>(itemData, m_itemsData); }
+
+const QSharedPointer<ItemData> &HighlightDefinition::itemData(const QString &itemData) const
+{ return m_helper.find<ItemData>(itemData, m_itemsData); }
+
+void HighlightDefinition::setSingleLineComment(const QString &start)
+{ m_singleLineComment = start; }
+
+const QString &HighlightDefinition::singleLineComment() const
+{ return m_singleLineComment; }
+
+void HighlightDefinition::setSingleLineCommentPosition(const QString &position)
+{
+    if (position == QLatin1String("afterwhitespace")) {
+        m_singleLineCommentAfterWhiteSpaces = true;
+    } else {
+        bool ok;
+        m_singleLineCommentPosition = position.toInt(&ok);
+        if (!ok)
+            m_singleLineCommentPosition = 0;
+    }
+}
+
+int HighlightDefinition::singleLineCommentPosition() const
+{ return m_singleLineCommentPosition; }
+
+bool HighlightDefinition::isSingleLineCommentAfterWhiteSpaces() const
+{ return m_singleLineCommentAfterWhiteSpaces; }
+
+void HighlightDefinition::setMultiLineCommentStart(const QString &start)
+{ m_multiLineCommentStart = start; }
+
+const QString &HighlightDefinition::multiLineCommentStart() const
+{ return m_multiLineCommentStart; }
+
+void HighlightDefinition::setMultiLineCommentEnd(const QString &end)
+{ m_multiLineCommentEnd = end; }
+
+const QString &HighlightDefinition::multiLineCommentEnd() const
+{ return m_multiLineCommentEnd; }
+
+void HighlightDefinition::setMultiLineCommentRegion(const QString &region)
+{ m_multiLineCommentRegion = region; }
+
+const QString &HighlightDefinition::multiLineCommentRegion() const
+{ return m_multiLineCommentRegion; }
+
+void HighlightDefinition::removeDelimiters(const QString &characters)
+{
+    for (int i = 0; i < characters.length(); ++i)
+        m_delimiters.remove(characters.at(i));
+}
+
+void HighlightDefinition::addDelimiters(const QString &characters)
+{
+    for (int i = 0; i < characters.length(); ++i) {
+        if (!m_delimiters.contains(characters.at(i)))
+            m_delimiters.append(characters.at(i));
+    }
+}
+
+bool HighlightDefinition::isDelimiter(const QChar &character) const
+{
+    if (m_delimiters.contains(character))
+        return true;
+    return false;
+}
+
+void HighlightDefinition::setKeywordsSensitive(const QString &sensitivity)
+{
+    if (!sensitivity.isEmpty())
+        m_keywordCaseSensitivity = toCaseSensitivity(toBool(sensitivity));
+}
+
+Qt::CaseSensitivity HighlightDefinition::keywordsSensitive() const
+{ return m_keywordCaseSensitivity; }
+
+void HighlightDefinition::setLanguageName(const QString &name)
+{ m_languageName = name; }
+
+const QString &HighlightDefinition::languageName() const
+{ return m_languageName; }
+
+void HighlightDefinition::setFileExtensions(const QString &extensions)
+{
+    //Todo
+    Q_UNUSED(extensions);
+}

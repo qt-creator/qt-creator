@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/genericeditor">
+        <file>XML/c.xml</file>
+        <file>XML/cpp.xml</file>
+        <file>XML/fortran.xml</file>
+        <file>XML/html.xml</file>
+        <file>XML/java.xml</file>
+        <file>XML/javadoc.xml</file>
+        <file>XML/javascript.xml</file>
+        <file>XML/language.dtd</file>
+        <file>XML/objectivec.xml</file>
+        <file>XML/perl.xml</file>
+        <file>XML/php.xml</file>
+        <file>XML/python.xml</file>
+        <file>XML/ruby.xml</file>
+        <file>XML/sql.xml</file>
+        <file>XML/tcl.xml</file>
+        <file>XML/alert.xml</file>
+        <file>XML/css.xml</file>
+        <file>XML/doxygen.xml</file>
+        <file>GenericEditor.mimetypes.xml</file>
+    </qresource>
+</RCC>

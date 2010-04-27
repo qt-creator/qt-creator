@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="text/css">
+        <sub-class-of type="text/plain"/>
+        <comment>CSS file</comment>
+        <glob pattern="*.css"/>
+    </mime-type>    
+	<mime-type type="text/x-fortran">
+        <sub-class-of type="text/plain"/>
+        <comment>Fortran file</comment>
+        <glob pattern="*.f90"/>
+    </mime-type>
+    <mime-type type="text/html">
+        <sub-class-of type="text/plain"/>
+        <comment>HTML file</comment>
+        <glob pattern="*.htm"/>
+		<glob pattern="*.html"/>
+		<glob pattern="*.shtml"/>
+    </mime-type>	
+    <mime-type type="text/x-java">
+        <sub-class-of type="text/plain"/>
+        <comment>Java file</comment>
+        <glob pattern="*.java"/>
+    </mime-type>
+    <mime-type type="application/x-javascript">
+        <sub-class-of type="text/plain"/>
+        <comment>Javascript file</comment>
+        <glob pattern="*.js"/>
+    </mime-type>
+    <mime-type type="application/x-perl">
+        <sub-class-of type="text/plain"/>
+        <comment>Perl file</comment>
+        <glob pattern="*.pl"/>
+		<glob pattern="*.pm"/>
+    </mime-type>
+    <mime-type type="application/x-php">
+        <sub-class-of type="text/plain"/>
+        <comment>PHP file</comment>
+        <glob pattern="*.php"/>
+    </mime-type>	
+    <mime-type type="text/x-python">
+        <sub-class-of type="text/plain"/>
+        <comment>Python file</comment>
+        <glob pattern="*.py"/>
+    </mime-type>
+    <mime-type type="text/x-ruby">
+        <sub-class-of type="text/plain"/>
+        <comment>Ruby file</comment>
+        <glob pattern="*.rb"/>
+    </mime-type>
+    <mime-type type="text/x-sql">
+        <sub-class-of type="text/plain"/>
+        <comment>SQL file</comment>
+        <glob pattern="*.sql"/>
+    </mime-type>
+    <mime-type type="application/x-tcl">
+        <sub-class-of type="text/plain"/>
+        <comment>TCL file</comment>
+        <glob pattern="*.tcl"/>
+    </mime-type>
+	
+	
+	
+    <mime-type type="text/x-csrc">
+        <sub-class-of type="text/plain"/>
+        <comment>C Source file</comment>
+        <glob pattern="*.c"/>
+        <!-- NVIDIA CUDA files are like C -->
+        <glob pattern="*.cu"/>
+    </mime-type>
+
+    <!-- A C Header file is virtually undistinguishable from the C++ header  -->
+    <mime-type type="text/x-chdr">
+        <sub-class-of type="text/x-csrc"/>
+        <comment>C Header file</comment>
+        <glob pattern="*.h"/>
+    </mime-type>
+
+    <!-- Those are used to find matching headers by the CppTools plugin,
+         so, they should match -->
+    <mime-type type="text/x-c++hdr">
+        <sub-class-of type="text/x-chdr"/>
+        <comment>C++ Header file</comment>
+        <comment>C++ header</comment>
+        <glob pattern="*.h"/>
+        <glob pattern="*.hh"/>
+        <glob pattern="*.hxx"/>
+        <glob pattern="*.h++"/>
+        <glob pattern="*.H"/>
+        <glob pattern="*.hpp"/>
+        <glob pattern="*.hp"/>
+        <!-- Find include guards of header files without extension, for
+             example, STL ones like <string> -->
+        <magic priority="50">
+           <match value="#ifndef" type="string" offset="0:1000"/>
+        </magic>
+    </mime-type>
+
+    <mime-type type="text/x-c++src">
+        <comment>C++ Source file</comment>
+        <sub-class-of type="text/x-csrc"/>
+        <comment>C++ source code</comment>
+        <glob pattern="*.cpp"/>
+        <glob pattern="*.cp"/>
+        <glob pattern="*.cc"/>
+        <glob pattern="*.cxx"/>
+        <glob pattern="*.c++"/>
+        <glob pattern="*.C"/>
+        <glob pattern="*.inl"/>
+        <glob pattern="*.moc"/>
+        <glob pattern="*.qdoc"/>
+    </mime-type>
+	
+    <mime-type type="text/x-objcsrc">
+         <comment>Objective-C source code</comment>
+         <sub-class-of type="text/x-csrc"/>
+         <magic priority="30">
+         <match value="#import" type="string" offset="0"/>
+         </magic>
+         <glob pattern="*.m"/>
+         <glob pattern="*.mm"/>
+    </mime-type>	
+</mime-info>

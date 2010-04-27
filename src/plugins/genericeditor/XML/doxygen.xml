@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd"
+[
+        <!ENTITY wordsep "([][,?;()]|\.$|\.?\s)">     <!-- things that end a TagWord -->
+]>
+<!--
+  This file is part of KDE's kate project.
+
+  Copyright 2004 Dominik Haumann (dhdev@gmx.de)
+  Copyright 2007 Matthew Woehlke (mw_triad@users.sourceforge.net)
+
+ **********************************************************************
+ * This library is free software; you can redistribute it and/or      *
+ * modify it under the terms of the GNU Lesser General Public         *
+ * License as published by the Free Software Foundation; either       *
+ * version 2 of the License, or (at your option) any later version.   *
+ *                                                                    *
+ * This library is distributed in the hope that it will be useful,    *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of     *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  *
+ * Lesser General Public License for more details.                    *
+ *                                                                    *
+ * You should have received a copy of the GNU Lesser General Public   *
+ * License along with this library; if not, write to the              *
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,   *
+ * Boston, MA  02110-1301, USA.                                       *
+ **********************************************************************
+ -->
+<language name="Doxygen" version="1.30" kateversion="2.4" section="Markup" extensions="*.dox;*.doxygen" mimetype="text/x-doxygen" author="Dominik Haumann (dhdev@gmx.de)" license="LGPL" priority="9">
+  <highlighting>
+    <!-- note: all tags may begin with a \ or @ char
+         so if you add/change tags you have to do it twice -->
+    <list name="TagOnly">
+      <item> \arg </item>
+      <item> \attention </item>
+      <item> \author </item>
+      <item> \callgraph </item>
+      <item> \code </item>
+      <item> \dot </item>
+      <item> \else </item>
+      <item> \endcode </item>
+      <item> \endcond </item>
+      <item> \enddot </item>
+      <item> \endhtmlonly </item>
+      <item> \endif </item>
+      <item> \endlatexonly </item>
+      <item> \endlink </item>
+      <item> \endmanonly </item>
+      <item> \endverbatim </item>
+      <item> \endxmlonly </item>
+      <item> \f[ </item>
+      <item> \f] </item>
+      <item> \f$ </item>
+      <item> \hideinitializer </item>
+      <item> \htmlonly </item>
+      <item> \interface </item>
+      <item> \internal </item>
+      <item> \invariant </item>
+      <item> \~ </item>
+      <item> \@ </item>
+      <item> \$ </item>
+      <item> \\ </item>
+      <item> \# </item>
+      <item> \latexonly </item>
+      <item> \li </item>
+      <item> \manonly </item>
+      <item> \n </item>
+      <item> \nosubgrouping </item>
+      <item> \note </item>
+      <item> \only </item>
+      <item> \post </item>
+      <item> \pre </item>
+      <item> \remarks </item>
+      <item> \return </item>
+      <item> \returns </item>
+      <item> \sa </item>
+      <item> \see </item>
+      <item> \showinitializer </item>
+      <item> \since </item>
+      <item> \test </item>
+      <item> \todo </item>
+      <item> \verbatim </item>
+      <item> \warning </item>
+      <item> \xmlonly </item>
+
+      <item> @arg </item>
+      <item> @attention </item>
+      <item> @author </item>
+      <item> @callgraph </item>
+      <item> @code </item>
+      <item> @dot </item>
+      <item> @else </item>
+      <item> @endcode </item>
+      <item> @endcond </item>
+      <item> @enddot </item>
+      <item> @endhtmlonly </item>
+      <item> @endif </item>
+      <item> @endlatexonly </item>
+      <item> @endlink </item>
+      <item> @endmanonly </item>
+      <item> @endverbatim </item>
+      <item> @endxmlonly </item>
+      <item> @f[ </item>
+      <item> @f] </item>
+      <item> @f$ </item>
+      <item> @hideinitializer </item>
+      <item> @htmlonly </item>
+      <item> @interface </item>
+      <item> @internal </item>
+      <item> @invariant </item>
+      <item> @~ </item>
+      <item> @@ </item>
+      <item> @$ </item>
+      <item> @\ </item>
+      <item> @# </item>
+      <item> @latexonly </item>
+      <item> @li </item>
+      <item> @manonly </item>
+      <item> @n </item>
+      <item> @nosubgrouping </item>
+      <item> @note </item>
+      <item> @only </item>
+      <item> @post </item>
+      <item> @pre </item>
+      <item> @remarks </item>
+      <item> @return </item>
+      <item> @returns </item>
+      <item> @sa </item>
+      <item> @see </item>
+      <item> @showinitializer </item>
+      <item> @since </item>
+      <item> @test </item>
+      <item> @todo </item>
+      <item> @verbatim </item>
+      <item> @warning </item>
+      <item> @xmlonly </item>
+    </list>
+
+    <list name="TagWord">
+      <item> \addtogroup </item>
+      <item> \a </item>
+      <item> \anchor </item>
+      <item> \b </item>
+      <item> \c </item>
+      <item> \class </item>
+      <item> \cond </item>
+      <item> \copydoc </item>
+      <item> \def </item>
+      <item> \dontinclude </item>
+      <item> \dotfile </item>
+      <item> \e </item>
+      <item> \elseif </item>
+      <item> \em </item>
+      <item> \enum </item>
+      <item> \example </item>
+      <item> \exception </item>
+      <item> \exceptions </item>
+      <item> \file </item>
+      <item> \htmlinclude </item>
+      <item> \if </item>
+      <item> \ifnot </item>
+      <item> \include </item>
+      <item> \link </item>
+      <item> \namespace </item>
+      <item> \p </item>
+      <item> \package </item>
+      <item> \ref </item>
+      <item> \relatesalso </item>
+      <item> \relates </item>
+      <item> \retval </item>
+      <item> \throw </item>
+      <item> \throws </item>
+      <item> \verbinclude </item>
+      <item> \version </item>
+      <item> \xrefitem </item>
+
+      <item> @addtogroup </item>
+      <item> @a </item>
+      <item> @anchor </item>
+      <item> @b </item>
+      <item> @c </item>
+      <item> @class </item>
+      <item> @cond </item>
+      <item> @copydoc </item>
+      <item> @def </item>
+      <item> @dontinclude </item>
+      <item> @dotfile </item>
+      <item> @e </item>
+      <item> @elseif </item>
+      <item> @em </item>
+      <item> @enum </item>
+      <item> @example </item>
+      <item> @exception </item>
+      <item> @exceptions </item>
+      <item> @file </item>
+      <item> @htmlinclude </item>
+      <item> @if </item>
+      <item> @ifnot </item>
+      <item> @include </item>
+      <item> @link </item>
+      <item> @namespace </item>
+      <item> @p </item>
+      <item> @package </item>
+      <item> @ref </item>
+      <item> @relatesalso </item>
+      <item> @relates </item>
+      <item> @retval </item>
+      <item> @throw </item>
+      <item> @throws </item>
+      <item> @verbinclude </item>
+      <item> @version </item>
+      <item> @xrefitem </item>
+    </list>
+    <list name="TagParam">
+      <item> \param </item>
+      <item> \tparam </item>
+
+      <item> @param </item>
+      <item> @tparam </item>
+    </list>
+    <list name="TagWordWord">
+      <item> \image </item>
+
+      <item> @image </item>
+    </list>
+    <list name="TagWordString">
+      <item> \defgroup </item>
+      <item> \page </item>
+      <item> \paragraph </item>
+      <item> \section </item>
+      <item> \struct </item>
+      <item> \subsection </item>
+      <item> \subsubsection </item>
+      <item> \union </item>
+      <item> \weakgroup </item>
+
+      <item> @defgroup </item>
+      <item> @page </item>
+      <item> @paragraph </item>
+      <item> @section </item>
+      <item> @struct </item>
+      <item> @subsection </item>
+      <item> @subsubsection </item>
+      <item> @union </item>
+      <item> @weakgroup </item>
+    </list>
+    <list name="TagString">
+      <item> \addindex </item>
+      <item> \brief </item>
+      <item> \bug </item>
+      <item> \date </item>
+      <item> \deprecated </item>
+      <item> \fn </item>
+      <item> \ingroup </item>
+      <item> \line </item>
+      <item> \mainpage </item>
+      <item> \name </item>
+      <item> \overload </item>
+      <item> \par </item>
+      <item> \short </item>
+      <item> \skip </item>
+      <item> \skipline </item>
+      <item> \typedef </item>
+      <item> \until </item>
+      <item> \var </item>
+
+      <item> @addindex </item>
+      <item> @brief </item>
+      <item> @bug </item>
+      <item> @date </item>
+      <item> @deprecated </item>
+      <item> @fn </item>
+      <item> @ingroup </item>
+      <item> @line </item>
+      <item> @mainpage </item>
+      <item> @name </item>
+      <item> @overload </item>
+      <item> @par </item>
+      <item> @short </item>
+      <item> @skip </item>
+      <item> @skipline </item>
+      <item> @typedef </item>
+      <item> @until </item>
+      <item> @var </item>
+    </list>
+    <contexts>
+    <!-- different formats:
+      @tag                     : TagOnly
+      @tag rest_of_line        : TagString
+      @tag <word>              : TagWord
+      @tag <word> <word>       : TagWordWord
+      @tag <word> rest_of_line : TagWordString
+    -->
+      <context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+        <RegExpr attribute="Comment" context="LineComment" String="//(!|(/(?=[^/]|$)))&lt;?"/>
+        <RegExpr attribute="Comment" context="BlockComment" String="/\*(\*[^*/]|!|[*!]&lt;|\*$)" beginRegion="BlockComment"/>
+        <RegExpr attribute="Region" context="#stay" String="//\s*@\{\s*$" beginRegion="MemberGroup"/>
+        <RegExpr attribute="Region" context="#stay" String="//\s*@\}\s*$"   endRegion="MemberGroup"/>
+        <RegExpr attribute="Region" context="#stay" String="/\*\s*@\{\s*\*/" beginRegion="MemberGroup"/>
+        <RegExpr attribute="Region" context="#stay" String="/\*\s*@\}\s*\*/"   endRegion="MemberGroup"/>
+      </context>
+      <context attribute="Comment" lineEndContext="#pop" name="LineComment">
+        <LineContinue attribute="Comment" context="#stay"/>
+        <DetectSpaces />
+        <IncludeRules context="##Alerts" />
+        <keyword attribute="Tags" context="#stay" String="TagOnly" />
+        <keyword attribute="Tags" context="SL_TagWord" String="TagWord" />
+        <keyword attribute="Tags" context="SL_TagParam" String="TagParam" />
+        <keyword attribute="Tags" context="SL_TagWordWord" String="TagWordWord" />
+        <keyword attribute="Tags" context="SL_TagString" String="TagString" />
+        <keyword attribute="Tags" context="SL_TagWordString" String="TagWordString" />
+        <DetectIdentifier />
+        <StringDetect attribute="HTML Comment" context="SL_htmlcomment" String="&lt;!--" />
+        <Detect2Chars attribute="Comment" context="#stay" char="&lt;" char1="&lt;" />
+        <RegExpr attribute="HTML Tag" context="SL_htmltag" String="&lt;\/?[a-zA-Z_:][a-zA-Z0-9._:-]*" />
+      </context>
+      <context attribute="Comment" lineEndContext="#stay" name="BlockComment">
+        <DetectSpaces />
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="BlockComment"/>
+        <IncludeRules context="##Alerts" />
+        <Detect2Chars attribute="Region" context="#stay" char="@" char1="{" />
+        <Detect2Chars attribute="Region" context="#stay" char="@" char1="}" />
+        <keyword attribute="Tags" context="#stay" String="TagOnly" />
+        <keyword attribute="Tags" context="ML_TagWord" String="TagWord" />
+        <keyword attribute="Tags" context="ML_TagParam" String="TagParam" />
+        <keyword attribute="Tags" context="ML_TagWordWord" String="TagWordWord" />
+        <keyword attribute="Tags" context="ML_TagString" String="TagString" />
+        <keyword attribute="Tags" context="ML_TagWordString" String="TagWordString" />
+        <DetectIdentifier />
+        <RegExpr attribute="Tags" context="#stay" String="\\(&lt;|&gt;)" />
+        <Detect2Chars attribute="Comment" context="#stay" char="&lt;" char1="&lt;" />
+        <RegExpr attribute="HTML Tag" context="ML_htmltag" String="&lt;\/?[a-zA-Z_:][a-zA-Z0-9._:-]*" />
+        <StringDetect attribute="HTML Comment" context="ML_htmlcomment" String="&lt;!--" />
+      </context>
+
+<!-- NOTE: all contexts beginning with ML_ are for multiline comments
+     The following contexts contain a Detect2Chars that looks for a */ sequence to end multiline comments. Singleline comments do not have this limitation - that's why all contexts are copy&pasted and the line <Detect2Chars ... */> is removed. <IncludeRules context="acontext"> could be used instead but it would make context switching much more complex and very hard to understand! (But use IncludeRules where the rules don't refer to another SL_*/ML_* context, to help maintainability.)
+-->
+      <!-- tag contexts -->
+      <context attribute="Comment" lineEndContext="#pop" name="ML_TagWord">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <IncludeRules context="SL_TagWord" />
+      </context>
+      <context attribute="Comment" lineEndContext="#pop" name="ML_TagParam">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <DetectSpaces />
+        <StringDetect attribute="Tags" context="ML_Tag2ndWord" String="[in]" />
+        <StringDetect attribute="Tags" context="ML_Tag2ndWord" String="[out]" />
+        <StringDetect attribute="Tags" context="ML_Tag2ndWord" String="[in,out]" />
+        <RegExpr attribute="Word" context="#pop" String="\S(?=&wordsep;)" />
+        <RegExpr attribute="Word" context="#stay" String="\S" />
+      </context>
+      <context attribute="Comment" lineEndContext="#pop" name="ML_TagWordWord">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <DetectSpaces />
+        <RegExpr attribute="Word" context="ML_Tag2ndWord" String="\S(?=&wordsep;)" />
+        <RegExpr attribute="Word" context="#stay" String="\S" />
+      </context>
+      <!-- TODO for kate 2.x, convert references to "#pop!ML_TagWord" -->
+      <context attribute="Comment" lineEndContext="#pop#pop" name="ML_Tag2ndWord">
+        <Detect2Chars attribute="Comment" context="#pop#pop" char="*" char1="/" lookAhead="true"/>
+        <IncludeRules context="SL_Tag2ndWord" />
+      </context>
+      <context attribute="Comment" lineEndContext="#pop" name="ML_TagString">
+        <DetectSpaces />
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <StringDetect attribute="HTML Comment" context="ML_htmlcomment" String="&lt;!--" />
+        <Detect2Chars attribute="Comment" context="#stay" char="&lt;" char1="&lt;" />
+        <RegExpr attribute="HTML Tag" context="ML_htmltag" String="&lt;\/?[a-zA-Z_:][a-zA-Z0-9._:-]*" />
+        <RegExpr attribute="Description" context="#stay" String="." />
+      </context>
+      <context attribute="Comment" lineEndContext="#pop" name="ML_TagWordString">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <IncludeRules context="SL_TagWordString" />
+      </context>
+
+      <!-- html contexts -->
+      <context name="ML_htmltag" attribute="Identifier" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <Detect2Chars attribute="HTML Tag" context="#pop" char="/" char1="&gt;" />
+        <DetectChar attribute="HTML Tag" context="#pop" char="&gt;"/>
+        <RegExpr attribute="Identifier" context="ML_identifiers" String="\s*=\s*"/>
+      </context>
+      <context name="ML_htmlcomment" attribute="HTML Comment" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <IncludeRules context="##Alerts" />
+        <StringDetect attribute="HTML Comment" context="#pop" String="--&gt;" />
+      </context>
+      <context name="ML_identifiers" attribute="Identifier" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <RegExpr attribute="String" context="#pop" String="\s*#?[a-zA-Z0-9]*" />
+        <DetectChar attribute="Types" context="ML_types1" char="'" />
+        <DetectChar attribute="Types" context="ML_types2" char="&quot;" />
+      </context>
+      <context name="ML_types1" attribute="Types" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <DetectChar attribute="Types" context="#pop#pop" char="'" />
+      </context>
+      <context name="ML_types2" attribute="Types" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" lookAhead="true"/>
+        <DetectChar attribute="Types" context="#pop#pop" char="&quot;" />
+      </context>
+
+<!-- NOTE: all contexts beginning with SL_ are for singleline comments -->
+      <!-- tag contexts -->
+      <context attribute="Comment" lineEndContext="#pop" name="SL_TagWord">
+        <DetectSpaces />
+        <keyword attribute="Tags" context="#pop" String="TagWord" lookAhead="true"/>
+        <RegExpr attribute="Word" context="#pop" String="\S(?=&wordsep;)" />
+        <RegExpr attribute="Word" context="#stay" String="\S" />
+      </context>
+      <context attribute="Comment" lineEndContext="#pop" name="SL_TagParam">
+        <DetectSpaces />
+        <StringDetect attribute="Tags" context="SL_Tag2ndWord" String="[in]" />
+        <StringDetect attribute="Tags" context="SL_Tag2ndWord" String="[out]" />
+        <StringDetect attribute="Tags" context="SL_Tag2ndWord" String="[in,out]" />
+        <RegExpr attribute="Word" context="#pop" String="\S(?=&wordsep;)" />
+        <RegExpr attribute="Word" context="#stay" String="\S" />
+      </context>
+      <context attribute="Comment" lineEndContext="#pop" name="SL_TagWordWord">
+        <DetectSpaces />
+        <RegExpr attribute="Word" context="SL_Tag2ndWord" String="\S(?=&wordsep;)" />
+        <RegExpr attribute="Word" context="#stay" String="\S" />
+      </context>
+      <!-- TODO for kate 2.x, convert references to "#pop!SL_TagWord" -->
+      <context attribute="Comment" lineEndContext="#pop#pop" name="SL_Tag2ndWord">
+        <DetectSpaces />
+        <RegExpr attribute="Word" context="#pop#pop" String="\S(?=&wordsep;)" />
+        <RegExpr attribute="Word" context="#stay" String="\S" />
+      </context>
+      <context attribute="Comment" lineEndContext="#pop" name="SL_TagString">
+        <DetectSpaces />
+        <StringDetect attribute="HTML Comment" context="SL_htmlcomment" String="&lt;!--" />
+        <Detect2Chars attribute="Comment" context="#stay" char="&lt;" char1="&lt;" />
+        <RegExpr attribute="HTML Tag" context="SL_htmltag" String="&lt;\/?[a-zA-Z_:][a-zA-Z0-9._:-]*" />
+        <RegExpr attribute="Description" context="#stay" String="." />
+      </context>
+      <context attribute="Comment" lineEndContext="#pop" name="SL_TagWordString">
+        <DetectSpaces />
+        <RegExpr attribute="Word" context="#pop" String="\S(?=&wordsep;)" />
+        <RegExpr attribute="Word" context="#stay" String="\S" />
+      </context>
+
+      <!-- html contexts -->
+      <context name="SL_htmltag" attribute="Identifier" lineEndContext="#pop">
+        <Detect2Chars attribute="HTML Tag" context="#pop" char="/" char1="&gt;" />
+        <DetectChar attribute="HTML Tag" context="#pop" char="&gt;"/>
+        <RegExpr attribute="Identifier" context="SL_identifiers" String="\s*=\s*"/>
+      </context>
+      <context name="SL_htmlcomment" attribute="HTML Comment" lineEndContext="#pop">
+        <IncludeRules context="##Alerts" />
+        <StringDetect attribute="HTML Comment" context="#pop" String="--&gt;" />
+      </context>
+      <context name="SL_identifiers" attribute="Identifier" lineEndContext="#pop">
+        <RegExpr attribute="String" context="#pop" String="\s*#?[a-zA-Z0-9]*" />
+        <DetectChar attribute="Types" context="SL_types1" char="'" />
+        <DetectChar attribute="Types" context="SL_types2" char="&quot;" />
+      </context>
+      <context name="SL_types1" attribute="Types" lineEndContext="#pop">
+        <DetectChar attribute="Types" context="#pop#pop" char="'" />
+      </context>
+      <context name="SL_types2" attribute="Types" lineEndContext="#pop">
+        <DetectChar attribute="Types" context="#pop#pop" char="&quot;" />
+      </context>
+
+    </contexts>
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal" />
+      <itemData name="Tags"        defStyleNum="dsKeyword" color="#ca60ca" selColor="#ffffff" bold="1" italic="0" />
+      <itemData name="Word"        defStyleNum="dsKeyword" color="#0095ff" selColor="#ffffff" bold="1" italic="0" />
+      <itemData name="HTML Tag"    defStyleNum="dsKeyword" color="#000000" selColor="#ffffff" bold="1" italic="0" />
+      <itemData name="Description" defStyleNum="dsString"  color="#ff0000" />
+      <itemData name="Comment"     defStyleNum="dsComment" color="#0000ff" selColor="#ffffff" italic="1" />
+      <itemData name="Region"      defStyleNum="dsRegionMarker" />
+      <itemData name="Identifier"  defStyleNum="dsOthers" />
+      <itemData name="HTML Comment" defStyleNum="dsComment" />
+      <itemData name="Types"       defStyleNum="dsDataType" />
+    </itemDatas>
+  </highlighting>
+  <general>
+    <keywords casesensitive="0" weakDeliminator="\$~" />
+  </general>
+</language>
