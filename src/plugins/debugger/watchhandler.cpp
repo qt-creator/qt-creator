@@ -1390,13 +1390,11 @@ int WatchHandler::format(const QByteArray &iname) const
     return result;
 }
 
-QByteArray WatchHandler::formatRequests() const
+QByteArray WatchHandler::expansionRequests() const
 {
     QByteArray ba;
     //m_locals->formatRequests(&ba, m_locals->m_root);
     //m_watchers->formatRequests(&ba, m_watchers->m_root);
-
-    ba.append("expanded:");
     if (!m_expandedINames.isEmpty()) {
         QSetIterator<QByteArray> jt(m_expandedINames);
         while (jt.hasNext()) {
@@ -1406,9 +1404,12 @@ QByteArray WatchHandler::formatRequests() const
         }
         ba.chop(1);
     }
-    ba.append(' ');
+    return ba;
+}
 
-    ba.append("typeformats:");
+QByteArray WatchHandler::typeFormatRequests() const
+{
+    QByteArray ba;
     if (!m_typeFormats.isEmpty()) {
         QHashIterator<QString, int> it(m_typeFormats);
         while (it.hasNext()) {
@@ -1420,9 +1421,12 @@ QByteArray WatchHandler::formatRequests() const
         }
         ba.chop(1);
     }
-    ba.append(' ');
+    return ba;
+}
 
-    ba.append("formats:");
+QByteArray WatchHandler::individualFormatRequests() const
+{
+    QByteArray ba;
     if (!m_individualFormats.isEmpty()) {
         QHashIterator<QByteArray, int> it(m_individualFormats);
         while (it.hasNext()) {
@@ -1434,8 +1438,6 @@ QByteArray WatchHandler::formatRequests() const
         }
         ba.chop(1);
     }
-    ba.append(' ');
-
     return ba;
 }
 

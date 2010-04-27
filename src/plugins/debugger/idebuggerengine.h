@@ -113,18 +113,23 @@ public:
     virtual void reloadFullStack() = 0;
 
     virtual void watchPoint(const QPoint &) {}
-    virtual void fetchMemory(MemoryViewAgent *, QObject *, quint64 addr, quint64 length)
-        { Q_UNUSED(addr); Q_UNUSED(length); }
+    virtual void fetchMemory(MemoryViewAgent *, QObject *,
+            quint64 addr, quint64 length);
     virtual void fetchDisassembler(DisassemblerViewAgent *) {}
-    virtual void setRegisterValue(int regnr, const QString &value)
-        { Q_UNUSED(regnr); Q_UNUSED(value); }
-
+    virtual void setRegisterValue(int regnr, const QString &value);
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
     virtual unsigned debuggerCapabilities() const { return 0; }
-    virtual bool checkConfiguration(int /* toolChain */, QString * /* errorMessage */, QString * /* settingsPage */ = 0) const { return true; }
+
+    virtual bool checkConfiguration(int toolChain,
+        QString *errorMessage, QString *settingsPage = 0) const;
 
     virtual bool isSynchroneous() const { return false; }
     virtual QString qtNamespace() const { return QString(); }
+
+    // Convenience
+    void showDebuggerInput(int channel, const QString &msg);
+    void showDebuggerOutput(int channel, const QString &msg);
+
 protected:
     void showStatusMessage(const QString &msg, int timeout = -1);
     DebuggerState state() const;

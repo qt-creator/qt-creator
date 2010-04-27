@@ -4,6 +4,7 @@ def square(a):
     return a
 
 def cube(a):
+    l = [1, 2, 4]
     x = square(a)
     x = x * a
     x = x + 1

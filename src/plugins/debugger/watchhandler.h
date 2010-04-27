@@ -173,7 +173,10 @@ public:
     QStringList watchedExpressions() const;
     QHash<QByteArray, int> watcherNames() const
         { return m_watcherNames; }
-    QByteArray formatRequests() const;
+
+    QByteArray expansionRequests() const;
+    QByteArray typeFormatRequests() const;
+    QByteArray individualFormatRequests() const;
 
     static QString watcherEditPlaceHolder();
     int format(const QByteArray &iname) const;

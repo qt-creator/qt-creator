@@ -55,10 +55,9 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
     //m_toolTipExpression.clear();
     WatchHandler *handler = m_manager->watchHandler();
 
-    QByteArray expanded = handler->formatRequests();
-    if (expanded.isEmpty())
-        expanded.append("defaults,");
-    expanded.chop(1);
+    QByteArray expanded = "expanded:" + handler->expansionRequests() + ' ';
+    expanded += "typeformats:" + handler->typeFormatRequests() + ' ';
+    expanded += "formats:" + handler->individualFormatRequests();
 
     QByteArray watchers;
     if (!m_toolTipExpression.isEmpty())

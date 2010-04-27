@@ -57,6 +57,7 @@ SOURCES += breakhandler.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
     debuggertooltip.cpp \
+    idebuggerengine.cpp \
     moduleshandler.cpp \
     moduleswindow.cpp \
     outputcollector.cpp \
