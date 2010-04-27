@@ -258,7 +258,7 @@ public:
 
     static QStringList split_value_list(const QString &vals);
     bool isActiveConfig(const QString &config, bool regex = false);
-    QStringList expandVariableReferences(const QString &value, int *pos = 0);
+    QStringList expandVariableReferences(const QString &value, int *pos = 0, bool joined = false);
     QStringList evaluateExpandFunction(const QString &function, const QString &arguments);
     QString format(const char *format) const;
     void logMessage(const QString &msg) const;
@@ -1268,7 +1268,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoop(ProLoop *loop)
     int index = 0;
     QString variable;
     QStringList oldVarVal;
-    QString it_list = expandVariableReferences(loop->expression()).join(statics.field_sep);
+    QString it_list = expandVariableReferences(loop->expression(), 0, true).first();
     if (loop->variable().isEmpty()) {
         if (it_list != statics.strever) {
             logMessage(format("Invalid loop expression."));
@@ -1351,12 +1351,11 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
 {
     m_lineNo = var->lineNumber();
     const QString &varName = var->variable();
-    QStringList varVal = expandVariableReferences(var->value());
 
     if (var->variableOperator() == ProVariable::ReplaceOperator) {      // ~=
         // DEFINES ~= s/a/b/?[gqi]
 
-        QString val = varVal.join(statics.field_sep);
+        QString val = expandVariableReferences(var->value(), 0, true).first();
         if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
             logMessage(format("the ~= operator can handle only the s/// function."));
             return;
@@ -1388,6 +1387,7 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
             replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
         }
     } else {
+        QStringList varVal = expandVariableReferences(var->value());
         switch (var->variableOperator()) {
         default: // ReplaceOperator - cannot happen
         case ProVariable::SetOperator:          // =
@@ -1796,7 +1796,7 @@ static void appendString(const QString &string,
 }
 
 static void flushCurrent(QStringList *ret,
-    QString *current, QChar **ptr, QString *pending)
+    QString *current, QChar **ptr, QString *pending, bool joined)
 {
     QChar *uc = (QChar*)current->constData();
     int len = *ptr - uc;
@@ -1806,12 +1806,14 @@ static void flushCurrent(QStringList *ret,
     } else if (!pending->isEmpty()) {
         ret->append(*pending);
         pending->clear();
+    } else if (joined) {
+        ret->append(QString());
     }
 }
 
 static inline void flushFinal(QStringList *ret,
     const QString &current, const QChar *ptr, const QString &pending,
-    const QString &str, bool replaced)
+    const QString &str, bool replaced, bool joined)
 {
     int len = ptr - current.data();
     if (len) {
@@ -1821,10 +1823,13 @@ static inline void flushFinal(QStringList *ret,
             ret->append(QString(current.data(), len));
     } else if (!pending.isEmpty()) {
         ret->append(pending);
+    } else if (joined) {
+        ret->append(QString());
     }
 }
 
-QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &str, int *pos)
+QStringList ProFileEvaluator::Private::expandVariableReferences(
+    const QString &str, int *pos, bool joined)
 {
     QStringList ret;
 //    if (ok)
@@ -1855,6 +1860,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
     QString var, args;
 
     bool replaced = false;
+    bool putSpace = false;
     QString current; // Buffer for successively assembled string segments
     current.resize(str.size());
     QChar *ptr = current.data();
@@ -1946,13 +1952,18 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
                     replacement = values(map(var));
                 }
                 if (!replacement.isEmpty()) {
-                    if (quote) {
+                    if (quote || joined) {
+                        if (putSpace) {
+                            putSpace = false;
+                            if (!replacement.at(0).isEmpty()) // Bizarre, indeed
+                                appendChar(' ', &current, &ptr, &pending);
+                        }
                         appendString(replacement.join(statics.field_sep),
                                      &current, &ptr, &pending);
                     } else {
                         appendString(replacement.at(0), &current, &ptr, &pending);
                         if (replacement.size() > 1) {
-                            flushCurrent(&ret, &current, &ptr, &pending);
+                            flushCurrent(&ret, &current, &ptr, &pending, false);
                             int j = 1;
                             if (replacement.size() > 2) {
                                 // FIXME: ret.reserve(ret.size() + replacement.size() - 2);
@@ -1983,7 +1994,10 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
                 quote = unicode;
                 continue;
             } else if (unicode == SPACE || unicode == TAB) {
-                flushCurrent(&ret, &current, &ptr, &pending);
+                if (!joined)
+                    flushCurrent(&ret, &current, &ptr, &pending, false);
+                else if ((ptr - (QChar*)current.constData()) || !pending.isEmpty())
+                    putSpace = true;
                 continue;
             } else if (pos) {
                 if (unicode == LPAREN) {
@@ -1991,17 +2005,26 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
                 } else if (unicode == RPAREN) {
                     --parens;
                 } else if (!parens && unicode == COMMA) {
-                    *pos = i + 1;
-                    flushFinal(&ret, current, ptr, pending, str, replaced);
-                    return ret;
+                    if (!joined) {
+                        *pos = i + 1;
+                        flushFinal(&ret, current, ptr, pending, str, replaced, false);
+                        return ret;
+                    }
+                    flushCurrent(&ret, &current, &ptr, &pending, true);
+                    putSpace = false;
+                    continue;
                 }
             }
+        }
+        if (putSpace) {
+            putSpace = false;
+            appendChar(' ', &current, &ptr, &pending);
         }
         appendChar(unicode, &current, &ptr, &pending);
     }
     if (pos)
         *pos = str_len;
-    flushFinal(&ret, current, ptr, pending, str, replaced);
+    flushFinal(&ret, current, ptr, pending, str, replaced, joined);
     return ret;
 }
 
@@ -2100,14 +2123,12 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
 
 QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &func, const QString &arguments)
 {
-    QList<QStringList> args_list = prepareFunctionArgs(arguments);
-
     if (ProFunctionDef *funcPtr = m_functionDefs.replaceFunctions.value(func, 0))
-        return evaluateFunction(funcPtr, args_list, 0);
+        return evaluateFunction(funcPtr, prepareFunctionArgs(arguments), 0);
 
-    QStringList args; //why don't the builtin functions just use args_list? --Sam
-    foreach (const QStringList &arg, args_list)
-        args += arg.join(statics.field_sep);
+    //why don't the builtin functions just use args_list? --Sam
+    int pos = 0;
+    QStringList args = expandVariableReferences(arguments, &pos, true);
 
     ExpandFunc func_t = ExpandFunc(statics.expands.value(func.toLower()));
 
@@ -2469,11 +2490,9 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
 ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         const QString &function, const QString &arguments)
 {
-    QList<QStringList> args_list = prepareFunctionArgs(arguments);
-
     if (ProFunctionDef *funcPtr = m_functionDefs.testFunctions.value(function, 0)) {
         bool ok;
-        QStringList ret = evaluateFunction(funcPtr, args_list, &ok);
+        QStringList ret = evaluateFunction(funcPtr, prepareFunctionArgs(arguments), &ok);
         if (ok) {
             if (ret.isEmpty()) {
                 return ProItem::ReturnTrue;
@@ -2498,9 +2517,9 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         return ProItem::ReturnFalse;
     }
 
-    QStringList args; //why don't the builtin functions just use args_list? --Sam
-    foreach (const QStringList &arg, args_list)
-        args += arg.join(statics.field_sep);
+    //why don't the builtin functions just use args_list? --Sam
+    int pos = 0;
+    QStringList args = expandVariableReferences(arguments, &pos, true);
 
     TestFunc func_t = (TestFunc)statics.functions.value(function);
 
