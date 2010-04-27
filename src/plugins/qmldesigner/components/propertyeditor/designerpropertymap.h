@@ -59,7 +59,6 @@ QVariant DesignerPropertyMap<DefaultType>::value(const QString &key) const
 {
     if (contains(key))
         return QDeclarativePropertyMap::value(key);
-    qWarning() << QString("DesignerPropertyMap::value() %1 not found").arg(key);
     return QVariant(&m_defaultValue);
 }
 
