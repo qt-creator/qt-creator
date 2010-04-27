@@ -1,12 +1,12 @@
 #include "targetselector.h"
 
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QFontMetrics>
 
-static const int TARGET_WIDTH = 109;
 static const int TARGET_HEIGHT = 43;
 static const int ADDBUTTON_WIDTH = 27;
 
@@ -124,9 +124,20 @@ bool TargetSelector::isRemoveButtonEnabled() const
     return m_removeButtonEnabled;
 }
 
+int TargetSelector::targetWidth() const
+{
+    static int width = -1;
+    if (width < 0) {
+        QFontMetrics fm = fontMetrics();
+        width = qMax(fm.width(runButtonString()), fm.width(buildButtonString()));
+        width = qMax(129, width * 2 + 31);
+    }
+    return width;
+}
+
 QSize TargetSelector::minimumSizeHint() const
 {
-    return QSize((TARGET_WIDTH + 1) * m_targets.size() + (ADDBUTTON_WIDTH + 1) * 2 + 1, TARGET_HEIGHT + 2);
+    return QSize((targetWidth() + 1) * m_targets.size() + (ADDBUTTON_WIDTH + 1) * 2 + 1, TARGET_HEIGHT + 2);
 }
 
 void TargetSelector::mousePressEvent(QMouseEvent *event)
@@ -135,7 +146,7 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
         event->accept();
         if (m_removeButtonEnabled)
             emit removeButtonClicked();
-    } else if (event->x() > ADDBUTTON_WIDTH + (TARGET_WIDTH + 1) * m_targets.size()) {
+    } else if (event->x() > ADDBUTTON_WIDTH + (targetWidth() + 1) * m_targets.size()) {
         // check for add button
         event->accept();
         if (m_addButtonEnabled)
@@ -148,14 +159,14 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
             if (event->x() <= x) {
                 break;
             }
-            x += TARGET_WIDTH + 1;
+            x += targetWidth() + 1;
         }
         --index;
         if (index >= 0 && index < m_targets.size()) {
             // handle clicked target
             // check if user clicked on Build or Run
             if (event->y() > TARGET_HEIGHT * 3/5) {
-                if ((event->x() - (ADDBUTTON_WIDTH + (TARGET_WIDTH + 1) * index)) - 2 > TARGET_WIDTH / 2) {
+                if ((event->x() - (ADDBUTTON_WIDTH + (targetWidth() + 1) * index)) - 2 > targetWidth() / 2) {
                     m_targets[index].currentSubIndex = 1;
                 } else {
                     m_targets[index].currentSubIndex = 0;
@@ -195,22 +206,49 @@ void TargetSelector::paintEvent(QPaintEvent *event)
     p.setPen(QColor(0, 0, 0));
     p.drawLine(x, 1, x, TARGET_HEIGHT);
     x += 1;
+
+    const QString runString = runButtonString();
+    const QString buildString = buildButtonString();
     foreach (const Target &target, m_targets) {
-        const QPixmap *pixmap = &m_unselected;
+        QImage image = m_unselected;
+        bool buildSelected = target.currentSubIndex == 0;
         if (index == m_currentTargetIndex) {
             p.setPen(QColor(255, 255, 255));
-            if (target.currentSubIndex == 0) {
-                pixmap = &m_buildselected;
+            if (buildSelected) {
+                image = m_buildselected;
             } else {
-                pixmap = &m_runselected;
+                image= m_runselected;
             }
-        } else {
-            p.setPen(QColor(0, 0, 0));
         }
-        p.drawPixmap(x, 1, *pixmap);
-        p.drawText(x + (TARGET_WIDTH - fm.width(target.name))/2 + 1, 7 + fm.ascent(),
+
+        QRect buttonRect(x, 1, targetWidth() , image.height());
+        Utils::StyleHelper::drawCornerImage(image, &p, buttonRect, 16, 0, 16, 0);
+        p.drawText(x + (targetWidth()- fm.width(target.name))/2 + 1, 7 + fm.ascent(),
             target.name);
-        x += TARGET_WIDTH;
+
+        // Build
+        int margin = 2; // position centered within the rounded buttons
+        QFontMetrics fm = fontMetrics();
+        QRect textRect(x + margin, size.height() - fm.height() - 5, targetWidth()/2, fm.height());
+        p.setPen(buildSelected ? Qt::black : Qt::white);
+        if (index!=m_currentTargetIndex)
+            p.setPen(QColor(0x555555));
+        else
+            p.setPen(buildSelected ? Qt::black : Qt::white);
+
+        p.drawText(textRect, Qt::AlignHCenter, runString);
+
+        // Run
+        textRect.moveLeft(x + targetWidth()/2 - 2 * margin);
+        if (index!=m_currentTargetIndex)
+            p.setPen(QColor(0x555555));
+        else
+            p.setPen(buildSelected ? Qt::white: Qt::black);
+        p.drawText(textRect, Qt::AlignHCenter, buildString);
+
+        x += targetWidth();
+
+        p.setPen(index == m_currentTargetIndex ? QColor(0x222222) : QColor(0xcccccc));
         p.drawLine(x, 1, x, TARGET_HEIGHT);
         ++x;
         ++index;

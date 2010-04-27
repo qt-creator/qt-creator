@@ -20,6 +20,10 @@ public:
 
     QSize minimumSizeHint() const;
 
+    int targetWidth() const;
+    QString runButtonString() const { return tr("Run"); }
+    QString buildButtonString() const { return tr("Build"); }
+
     Target targetAt(int index) const;
     int targetCount() const { return m_targets.size(); }
     int currentIndex() const { return m_currentTargetIndex; }
@@ -49,9 +53,9 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
 private:
-    const QPixmap m_unselected;
-    const QPixmap m_runselected;
-    const QPixmap m_buildselected;
+    const QImage m_unselected;
+    const QImage m_runselected;
+    const QImage m_buildselected;
     const QPixmap m_targetaddbutton;
     const QPixmap m_targetaddbuttondisabled;
     const QPixmap m_targetremovebutton;
