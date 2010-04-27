@@ -3529,7 +3529,7 @@ void GdbEngine::assignValueInDebugger(const QString &expression, const QString &
 {
     postCommand("-var-delete assign");
     postCommand("-var-create assign * " + expression.toLatin1());
-    postCommand("-var-assign assign " + value.toLatin1(),
+    postCommand("-var-assign assign " + GdbMi::escapeCString(value.toLatin1()),
         Discardable, CB(handleVarAssign));
 }
 
