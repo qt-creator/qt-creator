@@ -31,7 +31,7 @@
 
 #include <QtCore/QtGlobal>
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
 ProgressData::ProgressData() :

@@ -39,7 +39,7 @@
 
 #include <texteditor/basetexteditor.h>
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
 class Rule;
@@ -139,6 +139,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // HIGHLIGHTER_H

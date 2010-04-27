@@ -35,7 +35,7 @@
 
 #include <QLatin1Char>
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
 namespace {

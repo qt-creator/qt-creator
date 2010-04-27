@@ -27,46 +27,46 @@
 **
 **************************************************************************/
 
-#include "genericeditorfactory.h"
-#include "generichighlighterconstants.h"
-#include "genericeditor.h"
+#include "editorfactory.h"
+#include "genericeditorconstants.h"
+#include "editor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
-GenericEditorFactory::GenericEditorFactory(QObject *parent) :
+EditorFactory::EditorFactory(QObject *parent) :
     Core::IEditorFactory(parent)
 {}
 
-GenericEditorFactory::~GenericEditorFactory()
+EditorFactory::~EditorFactory()
 {}
 
-Core::IEditor *GenericEditorFactory::createEditor(QWidget *parent)
+Core::IEditor *EditorFactory::createEditor(QWidget *parent)
 {
-    GenericEditor *genericEditor = createGenericEditor(parent);
+    Editor *genericEditor = createGenericEditor(parent);
     return genericEditor->editableInterface();
 }
 
-QString GenericEditorFactory::id() const
+QString EditorFactory::id() const
 {
-    return QLatin1String(Highlight::Constants::GENERIC_EDITOR);
+    return QLatin1String(GenericEditor::Constants::GENERIC_EDITOR);
 }
 
-QStringList GenericEditorFactory::mimeTypes() const
+QStringList EditorFactory::mimeTypes() const
 { return m_mimeTypes; }
 
-QString GenericEditorFactory::displayName() const
+QString EditorFactory::displayName() const
 {
-    return tr(Highlight::Constants::GENERIC_EDITOR_DISPLAY_NAME);
+    return tr(GenericEditor::Constants::GENERIC_EDITOR_DISPLAY_NAME);
 }
 
-Core::IFile *GenericEditorFactory::open(const QString &fileName)
+Core::IFile *EditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
 
-void GenericEditorFactory::addMimeType(const QString &mimeType)
+void EditorFactory::addMimeType(const QString &mimeType)
 { m_mimeTypes.append(mimeType); }

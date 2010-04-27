@@ -36,7 +36,7 @@
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
 class Rule;
@@ -105,6 +105,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // CONTEXT_H

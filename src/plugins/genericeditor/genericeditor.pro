@@ -8,8 +8,6 @@ CONFIG += help
 HEADERS += \
     genericeditorplugin.h \
     progressdata.h \
-    genericeditorfactory.h \
-    genericeditor.h \
     languagespecificfactories.h \
     specificrules.h \
     rule.h \
@@ -23,13 +21,13 @@ HEADERS += \
     highlightdefinition.h \
     dynamicrule.h \
     context.h \
-    genericeditorconstants.h
+    genericeditorconstants.h \
+    editor.h \
+    editorfactory.h
 
 SOURCES += \
     genericeditorplugin.cpp \
     progressdata.cpp \
-    genericeditorfactory.cpp \
-    genericeditor.cpp \
     languagespecificfactories.cpp \
     specificrules.cpp \
     rule.cpp \
@@ -40,7 +38,9 @@ SOURCES += \
     highlightdefinitionhandler.cpp \
     highlightdefinition.cpp \
     dynamicrule.cpp \
-    context.cpp
+    context.cpp \
+    editor.cpp \
+    editorfactory.cpp
 
 OTHER_FILES += GenericEditor.pluginspec GenericEditor.mimetypes.xml
 

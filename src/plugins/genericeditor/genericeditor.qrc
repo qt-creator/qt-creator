@@ -7,7 +7,6 @@
         <file>XML/java.xml</file>
         <file>XML/javadoc.xml</file>
         <file>XML/javascript.xml</file>
-        <file>XML/language.dtd</file>
         <file>XML/objectivec.xml</file>
         <file>XML/perl.xml</file>
         <file>XML/php.xml</file>

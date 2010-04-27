@@ -35,7 +35,7 @@
 #include <QtCore/QLatin1String>
 #include <QtCore/QChar>
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
 inline bool toBool(const QString &s)
@@ -86,6 +86,6 @@ inline void setStartCharacter(QChar &c, const QString &character)
 }
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // REUSE_H

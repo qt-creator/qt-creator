@@ -27,12 +27,12 @@
 **
 **************************************************************************/
 
-#ifndef GENERICHIGHLIGHTERCONSTANTS_H
-#define GENERICHIGHLIGHTERCONSTANTS_H
+#ifndef GENERICEDITORCONSTANTS_H
+#define GENERICEDITORCONSTANTS_H
 
 #include <QtCore/QtGlobal>
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Constants {
 
 const char * const GENERIC_EDITOR = "GenericEditorPlugin.GenericEditor";
@@ -57,6 +57,6 @@ const char * const SQL_MIMETYPE = "text/x-sql";
 const char * const TCL_MIMETYPE = "application/x-tcl";
 
 } // namespace Constants
-} // namespace Highlight
+} // namespace GenericEditor
 
-#endif // GENERICHIGHLIGHTERCONSTANTS_H
+#endif // GENERICEDITORCONSTANTS_H

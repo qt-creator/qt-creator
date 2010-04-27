@@ -39,7 +39,7 @@
 
 #include <QLatin1String>
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
 namespace {

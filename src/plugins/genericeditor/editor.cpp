@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#include "genericeditor.h"
-#include "generichighlighterconstants.h"
+#include "editor.h"
+#include "genericeditorconstants.h"
 #include "genericeditorplugin.h"
 #include "highlightdefinition.h"
 #include "highlighter.h"
@@ -43,37 +43,37 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFileInfo>
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
-GenericEditorEditable::GenericEditorEditable(GenericEditor *editor) :
+EditorEditable::EditorEditable(Editor *editor) :
     TextEditor::BaseTextEditorEditable(editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Highlight::Constants::GENERIC_EDITOR);
+    m_context << uidm->uniqueIdentifier(GenericEditor::Constants::GENERIC_EDITOR);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
-QString GenericEditorEditable::id() const
-{ return QLatin1String(Highlight::Constants::GENERIC_EDITOR); }
+QString EditorEditable::id() const
+{ return QLatin1String(GenericEditor::Constants::GENERIC_EDITOR); }
 
-QList<int> GenericEditorEditable::context() const
+QList<int> EditorEditable::context() const
 { return m_context; }
 
-bool GenericEditorEditable::isTemporary() const
+bool EditorEditable::isTemporary() const
 { return false; }
 
-bool GenericEditorEditable::duplicateSupported() const
+bool EditorEditable::duplicateSupported() const
 { return true; }
 
-Core::IEditor *GenericEditorEditable::duplicate(QWidget *parent)
+Core::IEditor *EditorEditable::duplicate(QWidget *parent)
 {
-    GenericEditor *newEditor = new GenericEditor(editor()->mimeType(), parent);
+    Editor *newEditor = new Editor(editor()->mimeType(), parent);
     newEditor->duplicateFrom(editor());
     return newEditor->editableInterface();
 }
 
-bool GenericEditorEditable::open(const QString &fileName)
+bool EditorEditable::open(const QString &fileName)
 {
     if (TextEditor::BaseTextEditorEditable::open(fileName)) {
         editor()->setMimeType(
@@ -83,8 +83,7 @@ bool GenericEditorEditable::open(const QString &fileName)
     return false;
 }
 
-GenericEditor::GenericEditor(const QString &definitionId, QWidget *parent) :
-    TextEditor::BaseTextEditor(parent)
+Editor::Editor(const QString &definitionId, QWidget *parent) : TextEditor::BaseTextEditor(parent)
 {
     try {
         QSharedPointer<HighlightDefinition> definition =
@@ -95,8 +94,8 @@ GenericEditor::GenericEditor(const QString &definitionId, QWidget *parent) :
     }
 }
 
-TextEditor::BaseTextEditorEditable *GenericEditor::createEditableInterface()
+TextEditor::BaseTextEditorEditable *Editor::createEditableInterface()
 {
-    GenericEditorEditable *editable = new GenericEditorEditable(this);
+    EditorEditable *editable = new EditorEditable(this);
     return editable;
 }

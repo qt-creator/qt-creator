@@ -36,7 +36,7 @@ QT_BEGIN_NAMESPACE
 class QStringList;
 QT_END_NAMESPACE
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
 class DynamicRule : public Rule
@@ -59,6 +59,6 @@ private:
 void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QStringList &captures);
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // DYNAMICRULE_H

@@ -30,12 +30,12 @@
 #ifndef HIGHLIGHTEREXCEPTION_H
 #define HIGHLIGHTEREXCEPTION_H
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
 class HighlighterException {};
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // HIGHLIGHTEREXCEPTION_H

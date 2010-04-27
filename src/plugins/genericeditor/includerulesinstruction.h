@@ -32,7 +32,7 @@
 
 #include <QtCore/QString>
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
 class IncludeRulesInstruction
@@ -51,6 +51,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // INCLUDERULESINSTRUCTION_H

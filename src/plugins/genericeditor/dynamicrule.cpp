@@ -30,7 +30,7 @@
 #include "dynamicrule.h"
 #include "reuse.h"
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
 DynamicRule::DynamicRule() : m_active(false)
@@ -51,7 +51,7 @@ void DynamicRule::replaceExpressions(const QStringList &captures)
     updateDynamicRules(childs(), captures);
 }
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
 void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QStringList &captures)
@@ -64,4 +64,4 @@ void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QString
 }
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor

@@ -30,7 +30,7 @@
 #include "itemdata.h"
 #include "reuse.h"
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
 namespace {

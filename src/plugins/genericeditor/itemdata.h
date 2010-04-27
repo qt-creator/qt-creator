@@ -36,7 +36,7 @@
 #include <QtGui/QFont>
 #include <QtGui/QTextCharFormat>
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
 class ItemData
@@ -64,6 +64,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // ITEMDATA_H

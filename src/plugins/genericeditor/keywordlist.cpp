@@ -29,7 +29,7 @@
 
 #include "keywordlist.h"
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
 void KeywordList::addKeyword(const QString &keyword)

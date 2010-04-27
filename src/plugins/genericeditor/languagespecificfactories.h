@@ -30,12 +30,12 @@
 #ifndef LANGUAGESPECIFICFACTORIES_H
 #define LANGUAGESPECIFICFACTORIES_H
 
-#include "genericeditorfactory.h"
+#include "editorfactory.h"
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
-class CFactory : public GenericEditorFactory
+class CFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -43,10 +43,10 @@ public:
     virtual ~CFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class CppFactory : public GenericEditorFactory
+class CppFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -54,10 +54,10 @@ public:
     virtual ~CppFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class CssFactory : public GenericEditorFactory
+class CssFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -65,10 +65,10 @@ public:
     virtual ~CssFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class FortranFactory : public GenericEditorFactory
+class FortranFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -76,10 +76,10 @@ public:
     virtual ~FortranFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class HtmlFactory : public GenericEditorFactory
+class HtmlFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -87,10 +87,10 @@ public:
     virtual ~HtmlFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class JavaFactory : public GenericEditorFactory
+class JavaFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -98,10 +98,10 @@ public:
     virtual ~JavaFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class JavascriptFactory : public GenericEditorFactory
+class JavascriptFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -109,10 +109,10 @@ public:
     virtual ~JavascriptFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class ObjectiveCFactory : public GenericEditorFactory
+class ObjectiveCFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -120,10 +120,10 @@ public:
     virtual ~ObjectiveCFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class PerlFactory : public GenericEditorFactory
+class PerlFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -131,10 +131,10 @@ public:
     virtual ~PerlFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class PhpFactory : public GenericEditorFactory
+class PhpFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -142,10 +142,10 @@ public:
     virtual ~PhpFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class PythonFactory : public GenericEditorFactory
+class PythonFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -153,10 +153,10 @@ public:
     virtual ~PythonFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class RubyFactory : public GenericEditorFactory
+class RubyFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -164,10 +164,10 @@ public:
     virtual ~RubyFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class SqlFactory : public GenericEditorFactory
+class SqlFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -175,10 +175,10 @@ public:
     virtual ~SqlFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
-class TclFactory : public GenericEditorFactory
+class TclFactory : public EditorFactory
 {
     Q_OBJECT
 public:
@@ -186,10 +186,10 @@ public:
     virtual ~TclFactory() {}
 
 private:
-    virtual GenericEditor *createGenericEditor(QWidget *parent);
+    virtual Editor *createGenericEditor(QWidget *parent);
 };
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // LANGUAGESPECIFICFACTORIES_H

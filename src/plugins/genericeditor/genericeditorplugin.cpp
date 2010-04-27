@@ -45,7 +45,7 @@
 #include <QtXml/QXmlSimpleReader>
 #include <QtXml/QXmlInputSource>
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
 const QLatin1String GenericEditorPlugin::kAlertDefinitionId(":/genericeditor/XML/alert.xml");
@@ -80,22 +80,22 @@ GenericEditorPlugin::GenericEditorPlugin()
 
     //Todo
 
-    m_idByMimeType.insert(Highlight::Constants::C_HEADER_MIMETYPE, kCDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::C_SOURCE_MIMETYPE, kCDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::CPP_HEADER_MIMETYPE, kCppDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::CPP_SOURCE_MIMETYPE, kCppDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::CSS_MIMETYPE, kCssDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::FORTRAN_MIMETYPE, kFortranDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::HTML_MIMETYPE, kHtmlDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::JAVA_MIMETYPE, kJavaDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::JAVASCRIPT_MIMETYPE, kJavascriptDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::OBJECTIVEC_MIMETYPE, kObjectiveCDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::PERL_MIMETYPE, kPerlDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::PHP_MIMETYPE, kPhpDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::PYTHON_MIMETYPE, kPythonDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::RUBY_MIMETYPE, kRubyDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::SQL_MIMETYPE, kSqlDefinitionId);
-    m_idByMimeType.insert(Highlight::Constants::TCL_MIMETYPE, kTclDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::C_HEADER_MIMETYPE, kCDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::C_SOURCE_MIMETYPE, kCDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::CPP_HEADER_MIMETYPE, kCppDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::CPP_SOURCE_MIMETYPE, kCppDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::CSS_MIMETYPE, kCssDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::FORTRAN_MIMETYPE, kFortranDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::HTML_MIMETYPE, kHtmlDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::JAVA_MIMETYPE, kJavaDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::JAVASCRIPT_MIMETYPE, kJavascriptDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::OBJECTIVEC_MIMETYPE, kObjectiveCDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::PERL_MIMETYPE, kPerlDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::PHP_MIMETYPE, kPhpDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::PYTHON_MIMETYPE, kPythonDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::RUBY_MIMETYPE, kRubyDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::SQL_MIMETYPE, kSqlDefinitionId);
+    m_idByMimeType.insert(GenericEditor::Constants::TCL_MIMETYPE, kTclDefinitionId);
 
     m_idByName.insert(QLatin1String("alerts"), kAlertDefinitionId);
     m_idByName.insert(QLatin1String("c"), kCDefinitionId);

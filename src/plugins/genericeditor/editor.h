@@ -38,17 +38,17 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
-class GenericEditor;
+class Editor;
 
-class GenericEditorEditable : public TextEditor::BaseTextEditorEditable
+class EditorEditable : public TextEditor::BaseTextEditorEditable
 {
     Q_OBJECT
 
 public:
-    GenericEditorEditable(GenericEditor *editor);
+    EditorEditable(Editor *editor);
 
 protected:
     virtual QString id() const;
@@ -62,18 +62,18 @@ private:
     QList<int> m_context;
 };
 
-class GenericEditor : public TextEditor::BaseTextEditor
+class Editor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
 public:
-    GenericEditor(const QString &definitionId, QWidget *parent = 0);
+    Editor(const QString &definitionId, QWidget *parent = 0);
 
 protected:
     virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
 };
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // GENERICEDITOR_H

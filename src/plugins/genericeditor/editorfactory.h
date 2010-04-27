@@ -34,18 +34,18 @@
 
 #include <QtCore/QStringList>
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
-class GenericEditor;
+class Editor;
 
-class GenericEditorFactory : public Core::IEditorFactory
+class EditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 
 public:
-    GenericEditorFactory(QObject *parent = 0);
-    virtual ~GenericEditorFactory();
+    EditorFactory(QObject *parent = 0);
+    virtual ~EditorFactory();
 
     // Currently there are language specific factores which configure the correct highlighter.
     // Would it be a good idea if the createEditor method also received the mime type? This would
@@ -60,12 +60,12 @@ protected:
     void addMimeType(const QString &mimeType);
 
 private:    
-    virtual GenericEditor *createGenericEditor(QWidget *parent) = 0;
+    virtual Editor *createGenericEditor(QWidget *parent) = 0;
 
     QStringList m_mimeTypes;
 };
 
 } // namespace Internal
-} // namespace Highlight
+} // namespace GenericEditor
 
 #endif // GENERICEDITORFACTORY_H

@@ -30,7 +30,7 @@
 #include "includerulesinstruction.h"
 #include "reuse.h"
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
 IncludeRulesInstruction::IncludeRulesInstruction(const QString &context,

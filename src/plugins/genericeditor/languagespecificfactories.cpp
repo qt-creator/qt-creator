@@ -29,115 +29,115 @@
 
 #include "languagespecificfactories.h"
 #include "genericeditorconstants.h"
-#include "genericeditor.h"
+#include "editor.h"
 #include "genericeditorplugin.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
-using namespace Highlight;
+using namespace GenericEditor;
 using namespace Internal;
 
 // C
-CFactory::CFactory(QObject *parent) : GenericEditorFactory(parent)
+CFactory::CFactory(QObject *parent) : EditorFactory(parent)
 {
-    addMimeType(QLatin1String(Highlight::Constants::C_HEADER_MIMETYPE));
-    addMimeType(QLatin1String(Highlight::Constants::C_SOURCE_MIMETYPE));
+    addMimeType(QLatin1String(GenericEditor::Constants::C_HEADER_MIMETYPE));
+    addMimeType(QLatin1String(GenericEditor::Constants::C_SOURCE_MIMETYPE));
 }
 
-GenericEditor *CFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kCDefinitionId, parent); }
+Editor *CFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kCDefinitionId, parent); }
 
 // C++
-CppFactory::CppFactory(QObject *parent) : GenericEditorFactory(parent)
+CppFactory::CppFactory(QObject *parent) : EditorFactory(parent)
 {
-    addMimeType(QLatin1String(Highlight::Constants::CPP_HEADER_MIMETYPE));
-    addMimeType(QLatin1String(Highlight::Constants::CPP_SOURCE_MIMETYPE));
+    addMimeType(QLatin1String(GenericEditor::Constants::CPP_HEADER_MIMETYPE));
+    addMimeType(QLatin1String(GenericEditor::Constants::CPP_SOURCE_MIMETYPE));
 }
 
-GenericEditor *CppFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kCppDefinitionId, parent); }
+Editor *CppFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kCppDefinitionId, parent); }
 
 // Css
-CssFactory::CssFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::CSS_MIMETYPE)); }
+CssFactory::CssFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::CSS_MIMETYPE)); }
 
-GenericEditor *CssFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kCssDefinitionId, parent); }
+Editor *CssFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kCssDefinitionId, parent); }
 
 // Fortran
-FortranFactory::FortranFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::FORTRAN_MIMETYPE)); }
+FortranFactory::FortranFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::FORTRAN_MIMETYPE)); }
 
-GenericEditor *FortranFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kFortranDefinitionId, parent); }
+Editor *FortranFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kFortranDefinitionId, parent); }
 
 // Html
-HtmlFactory::HtmlFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::HTML_MIMETYPE)); }
+HtmlFactory::HtmlFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::HTML_MIMETYPE)); }
 
-GenericEditor *HtmlFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kHtmlDefinitionId, parent); }
+Editor *HtmlFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kHtmlDefinitionId, parent); }
 
 // Java
-JavaFactory::JavaFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::JAVA_MIMETYPE)); }
+JavaFactory::JavaFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::JAVA_MIMETYPE)); }
 
-GenericEditor *JavaFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kJavaDefinitionId, parent); }
+Editor *JavaFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kJavaDefinitionId, parent); }
 
 // Javascript
-JavascriptFactory::JavascriptFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::JAVASCRIPT_MIMETYPE)); }
+JavascriptFactory::JavascriptFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::JAVASCRIPT_MIMETYPE)); }
 
-GenericEditor *JavascriptFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kJavascriptDefinitionId, parent); }
+Editor *JavascriptFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kJavascriptDefinitionId, parent); }
 
 // ObjectiveC
-ObjectiveCFactory::ObjectiveCFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::OBJECTIVEC_MIMETYPE)); }
+ObjectiveCFactory::ObjectiveCFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::OBJECTIVEC_MIMETYPE)); }
 
-GenericEditor *ObjectiveCFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kObjectiveCDefinitionId, parent); }
+Editor *ObjectiveCFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kObjectiveCDefinitionId, parent); }
 
 // Perl
-PerlFactory::PerlFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::PERL_MIMETYPE)); }
+PerlFactory::PerlFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::PERL_MIMETYPE)); }
 
-GenericEditor *PerlFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kPerlDefinitionId, parent); }
+Editor *PerlFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kPerlDefinitionId, parent); }
 
 // Php
-PhpFactory::PhpFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::PHP_MIMETYPE)); }
+PhpFactory::PhpFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::PHP_MIMETYPE)); }
 
-GenericEditor *PhpFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kPhpDefinitionId, parent); }
+Editor *PhpFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kPhpDefinitionId, parent); }
 
 // Python
-PythonFactory::PythonFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::PYTHON_MIMETYPE)); }
+PythonFactory::PythonFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::PYTHON_MIMETYPE)); }
 
-GenericEditor *PythonFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kPythonDefinitionId, parent); }
+Editor *PythonFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kPythonDefinitionId, parent); }
 
 // Ruby
-RubyFactory::RubyFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::RUBY_MIMETYPE)); }
+RubyFactory::RubyFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::RUBY_MIMETYPE)); }
 
-GenericEditor *RubyFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kRubyDefinitionId, parent); }
+Editor *RubyFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kRubyDefinitionId, parent); }
 
 // SQL
-SqlFactory::SqlFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::SQL_MIMETYPE)); }
+SqlFactory::SqlFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::SQL_MIMETYPE)); }
 
-GenericEditor *SqlFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kSqlDefinitionId, parent); }
+Editor *SqlFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kSqlDefinitionId, parent); }
 
 // Tcl
-TclFactory::TclFactory(QObject *parent) : GenericEditorFactory(parent)
-{ addMimeType(QLatin1String(Highlight::Constants::TCL_MIMETYPE)); }
+TclFactory::TclFactory(QObject *parent) : EditorFactory(parent)
+{ addMimeType(QLatin1String(GenericEditor::Constants::TCL_MIMETYPE)); }
 
-GenericEditor *TclFactory::createGenericEditor(QWidget *parent)
-{ return new GenericEditor(GenericEditorPlugin::kTclDefinitionId, parent); }
+Editor *TclFactory::createGenericEditor(QWidget *parent)
+{ return new Editor(GenericEditorPlugin::kTclDefinitionId, parent); }

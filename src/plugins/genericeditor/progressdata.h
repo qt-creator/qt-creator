@@ -32,7 +32,7 @@
 
 #include <QtCore/QStringList>
 
-namespace Highlight {
+namespace GenericEditor {
 namespace Internal {
 
 class ProgressData
@@ -67,6 +67,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Highgliht
+} // namespace GenericEditor
 
 #endif // PROGRESSDATA_H
