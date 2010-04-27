@@ -155,14 +155,14 @@ namespace Internal {
 
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
-IDebuggerEngine *createPythonEngine(DebuggerManager *parent);
+IDebuggerEngine *createPdbEngine(DebuggerManager *parent);
 
-// The createWinEngine function takes a list of options pages it can add to.
+// The createCdbEngine function takes a list of options pages it can add to.
 // This allows for having a "enabled" toggle on the page independently
 // of the engine. That's good for not enabling the related ActiveX control
 // unnecessarily.
 
-IDebuggerEngine *createWinEngine(DebuggerManager *, bool /* cmdLineEnabled */, QList<Core::IOptionsPage*> *)
+IDebuggerEngine *createCdbEngine(DebuggerManager *, bool /* cmdLineEnabled */, QList<Core::IOptionsPage*> *)
 #ifdef CDB_ENABLED
 ;
 #else
@@ -250,8 +250,8 @@ void DebuggerStartParameters::clear()
 
 static Debugger::Internal::IDebuggerEngine *gdbEngine = 0;
 static Debugger::Internal::IDebuggerEngine *scriptEngine = 0;
-static Debugger::Internal::IDebuggerEngine *winEngine = 0;
-static Debugger::Internal::IDebuggerEngine *pythonEngine = 0;
+static Debugger::Internal::IDebuggerEngine *cdbEngine = 0;
+static Debugger::Internal::IDebuggerEngine *pdbEngine = 0;
 
 struct DebuggerManagerPrivate
 {
@@ -344,7 +344,7 @@ DebuggerManager::~DebuggerManager()
     #define doDelete(ptr) delete ptr; ptr = 0
     doDelete(gdbEngine);
     doDelete(scriptEngine);
-    doDelete(winEngine);
+    doDelete(cdbEngine);
     #undef doDelete
     DebuggerManagerPrivate::instance = 0;
     delete d;
@@ -642,21 +642,21 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
         gdbEngine->addOptionPages(&rc);
     }
 
-    winEngine = createWinEngine(this, (enabledTypeFlags & CdbEngineType), &rc);
+    cdbEngine = createCdbEngine(this, (enabledTypeFlags & CdbEngineType), &rc);
 
     if (enabledTypeFlags & ScriptEngineType) {
         scriptEngine = createScriptEngine(this);
         scriptEngine->addOptionPages(&rc);
     }
 
-    if (enabledTypeFlags & PythonEngineType) {
-        pythonEngine = createPythonEngine(this);
-        //pythonEngine->addOptionPages(&rc);
+    if (enabledTypeFlags & PdbEngineType) {
+        pdbEngine = createPdbEngine(this);
+        //pdbEngine->addOptionPages(&rc);
     }
 
     d->m_engine = 0;
-    STATE_DEBUG(gdbEngine << winEngine << scriptEngine
-        << pythonEngine << rc.size());
+    STATE_DEBUG(gdbEngine << cdbEngine << scriptEngine
+        << pdbEngine << rc.size());
     return rc;
 }
 
@@ -850,9 +850,9 @@ void DebuggerManager::shutdown()
 
     #define doDelete(ptr) delete ptr; ptr = 0
     doDelete(scriptEngine);
-    doDelete(pythonEngine);
+    doDelete(pdbEngine);
     doDelete(gdbEngine);
-    doDelete(winEngine);
+    doDelete(cdbEngine);
 
     // Delete these manually before deleting the manager
     // (who will delete the models for most views)
@@ -984,7 +984,7 @@ static IDebuggerEngine *debuggerEngineForToolChain(int toolChainType)
         return gdbEngine;
     case ProjectExplorer::ToolChain::MSVC:
     case ProjectExplorer::ToolChain::WINCE:
-        return winEngine;
+        return cdbEngine;
     case ProjectExplorer::ToolChain::WINSCW: // S60
     case ProjectExplorer::ToolChain::GCCE:
     case ProjectExplorer::ToolChain::RVCT_ARMV5:
@@ -1016,11 +1016,11 @@ static IDebuggerEngine *debuggerEngineForExecutable(const QString &executable,
     }
 
     if (executable.endsWith(_(".py"))) {
-        if (!pythonEngine) {
-            *errorMessage = msgEngineNotAvailable("Python Engine");
+        if (!pdbEngine) {
+            *errorMessage = msgEngineNotAvailable("Pdb Engine");
             return 0;
         }
-        return pythonEngine;
+        return pdbEngine;
     }
 
 #ifndef Q_OS_WIN
@@ -1049,7 +1049,7 @@ static IDebuggerEngine *debuggerEngineForExecutable(const QString &executable,
     // executables
     if (!DebuggerManager::instance()->checkDebugConfiguration(ProjectExplorer::ToolChain::MSVC, errorMessage, 0 , settingsIdHint))
         return 0;
-    return winEngine;
+    return cdbEngine;
 #endif
 }
 
@@ -1058,8 +1058,8 @@ static IDebuggerEngine *debuggerEngineForMode(DebuggerStartMode startMode, QStri
 {
 #ifdef Q_OS_WIN
     // Preferably Windows debugger for attaching locally.
-    if (startMode != StartRemote && winEngine)
-        return winEngine;
+    if (startMode != StartRemote && cdbEngine)
+        return cdbEngine;
     if (gdbEngine)
         return gdbEngine;
     *errorMessage = msgEngineNotAvailable("Gdb Engine");
@@ -1098,7 +1098,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     if (sp->executable.endsWith(_(".js")))
         d->m_engine = scriptEngine;
     else if (sp->executable.endsWith(_(".py")))
-        d->m_engine = pythonEngine;
+        d->m_engine = pdbEngine;
     else
         d->m_engine = debuggerEngineForToolChain(sp->toolChainType);
 
@@ -1942,8 +1942,8 @@ bool DebuggerManager::checkDebugConfiguration(int toolChain,
         }
         break;
     case ProjectExplorer::ToolChain::MSVC:
-        if (winEngine) {
-            success = winEngine->checkConfiguration(toolChain, errorMessage, settingsPage);
+        if (cdbEngine) {
+            success = cdbEngine->checkConfiguration(toolChain, errorMessage, settingsPage);
         } else {
             success = false;
             *errorMessage = msgEngineNotAvailable("Cdb");

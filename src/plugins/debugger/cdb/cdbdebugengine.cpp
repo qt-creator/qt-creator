@@ -1564,7 +1564,7 @@ unsigned CdbDebugEngine::debuggerCapabilities() const
 }
 
 // Accessed by DebuggerManager
-IDebuggerEngine *createWinEngine(DebuggerManager *parent,
+IDebuggerEngine *createCdbEngine(DebuggerManager *parent,
                                  bool cmdLineEnabled,
                                  QList<Core::IOptionsPage*> *opts)
 {
