@@ -1410,9 +1410,10 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
 
 EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
 {
-    const int key = input.key;
+    //const int key0 = input.key;
     const int unmodified = input.unmodified;
     const QString &text = input.text;
+    const int key = (text.size() == 1 ? text.at(0).unicode() : input.key);
 
     EventResult handled = EventHandled;
 
