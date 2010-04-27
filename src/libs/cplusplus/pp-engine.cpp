@@ -287,6 +287,10 @@ protected:
         } else if ((*_lex)->is(T_PLUS)) {
             ++(*_lex);
             process_primary();
+        } else if ((*_lex)->is(T_TILDE)) {
+            ++(*_lex);
+            process_primary();
+            _value.set_long(~ _value.l);
         } else if ((*_lex)->is(T_EXCLAIM)) {
             ++(*_lex);
             process_primary();
