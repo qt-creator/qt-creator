@@ -59,7 +59,7 @@
           </widget>
          </item>
          <item>
-          <widget class="Utils::WelcomeModeTreeWidget" name="newsTreeWidget"/>
+          <widget class="Utils::WelcomeModeTreeWidget" name="newsTreeWidget" native="true"/>
          </item>
         </layout>
        </widget>
@@ -81,7 +81,7 @@
           </widget>
          </item>
          <item>
-          <widget class="Utils::WelcomeModeTreeWidget" name="supportSitesTreeWidget"/>
+          <widget class="Utils::WelcomeModeTreeWidget" name="supportSitesTreeWidget" native="true"/>
          </item>
          <item>
           <widget class="Utils::WelcomeModeLabel" name="miscSitesTitleLabel">
@@ -91,7 +91,20 @@
           </widget>
          </item>
          <item>
-          <widget class="Utils::WelcomeModeTreeWidget" name="miscSitesTreeWidget"/>
+          <widget class="Utils::WelcomeModeTreeWidget" name="miscSitesTreeWidget" native="true"/>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>
