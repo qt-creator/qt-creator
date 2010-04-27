@@ -101,4 +101,4 @@ private:
 } // namespace Internal
 } // namespace FakeVim
 
-#endif // FAKEVIM_H
+#endif // FAKEVIM_HANDLER_H

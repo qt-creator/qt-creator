@@ -27,8 +27,6 @@
 **
 **************************************************************************/
 
-#include "fakevimhandler.h"
-
 //
 // ATTENTION:
 //
@@ -58,6 +56,9 @@
 //   m_tc.position() (== position()). The character below position() is not included
 //   if the last movement command was exclusive (MoveExclusive).
 //   The value of m_tc.anchor() is not used.
+
+#include "fakevimhandler.h"
+#include "fakevimsyntax.h"
 
 #include <utils/qtcassert.h>
 
@@ -686,9 +687,11 @@ FakeVimHandler::Private::Mappings FakeVimHandler::Private::m_mappings;
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
+    //static PythonHighlighterRules pythonRules;
     q = parent;
     m_textedit = qobject_cast<QTextEdit *>(widget);
     m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
+    //new Highlighter(EDITOR(document()), &pythonRules);
     init();
 }
 
