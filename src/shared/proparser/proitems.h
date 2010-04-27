@@ -103,7 +103,6 @@ public:
     ProVariable(const QString &name) : ProItem(VariableKind), m_variableKind(SetOperator), m_variable(name) {}
     void setVariableOperator(VariableOperator variableKind) { m_variableKind = variableKind; }
     VariableOperator variableOperator() const { return m_variableKind; }
-    void setVariable(const QString &name) { m_variable = name; }
     QString variable() const { return m_variable; }
     void setValue(const QString &value) { m_value = value; }
     QString value() const { return m_value; }
@@ -118,7 +117,6 @@ class ProCondition : public ProItem
 {
 public:
     explicit ProCondition(const QString &text) : ProItem(ConditionKind), m_text(text) {}
-    void setText(const QString &text) { m_text = text; }
     QString text() const { return m_text; }
 
 private:
