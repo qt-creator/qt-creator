@@ -32,7 +32,6 @@
 
 #include <projectexplorer/taskwindow.h>
 #include <projectexplorer/toolchain.h>
-#include <QSharedPointer>
 
 #include <QtCore/QHash>
 #include <QtCore/QSet>
