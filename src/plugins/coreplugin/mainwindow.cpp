@@ -603,6 +603,7 @@ void MainWindow::registerDefaultActions()
     icon = QIcon::fromTheme(QLatin1String("document-print"));
     tmpaction = new QAction(icon, tr("&Print..."), this);
     cmd = am->registerAction(tmpaction, Constants::PRINT, m_globalContext);
+    cmd->setDefaultKeySequence(QKeySequence::Print);
     mfile->addAction(cmd, Constants::G_FILE_PRINT);
 
     // Exit Action

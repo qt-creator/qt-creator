@@ -127,7 +127,7 @@
   <key value="Ctrl+Shift+S" />
  </shortcut>
  <shortcut id="QtCreator.Print" >
-  <key value="" />
+  <key value="Ctrl+P" />
  </shortcut>
  <shortcut id="QtCreator.Exit" >
   <key value="Ctrl+Q" />
