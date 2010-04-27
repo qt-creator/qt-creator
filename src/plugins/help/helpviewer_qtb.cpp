@@ -225,7 +225,7 @@ bool HelpViewer::findText(const QString &text, IFindSupport::FindFlags flags,
         found.setPosition(position);
     }
     setTextCursor(found);
-    return cursorIsNull;
+    return !cursorIsNull;
 }
 
 // -- public slots
