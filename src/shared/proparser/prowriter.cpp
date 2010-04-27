@@ -43,7 +43,7 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
     for (ProItem *item = profile->items(); item; item = item->next()) {
         if (item->kind() == ProItem::VariableKind) {
             ProVariable *proVar = static_cast<ProVariable*>(item);
-            if (var == proVar->variable()
+            if (var == proVar->variable().toQString()
                 && proVar->variableOperator() != ProVariable::RemoveOperator
                 && proVar->variableOperator() != ProVariable::ReplaceOperator) {
 
@@ -93,7 +93,7 @@ static void findProVariables(ProItem *item, const QStringList &vars,
             findProVariables(static_cast<ProBranch*>(item)->elseItems(), vars, proVars);
         } else if (item->kind() == ProItem::VariableKind) {
             ProVariable *proVar = static_cast<ProVariable*>(item);
-            if (vars.contains(proVar->variable()))
+            if (vars.contains(proVar->variable().toQString()))
                 *proVars << proVar;
         }
     }

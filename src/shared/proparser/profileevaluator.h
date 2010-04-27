@@ -51,8 +51,8 @@ class ProFileEvaluator
 
 public:
     struct FunctionDefs {
-        QHash<QString, ProFunctionDef *> testFunctions;
-        QHash<QString, ProFunctionDef *> replaceFunctions;
+        QHash<ProString, ProFunctionDef *> testFunctions;
+        QHash<ProString, ProFunctionDef *> replaceFunctions;
     };
 
     enum TemplateType {
@@ -178,7 +178,7 @@ struct ProFileOption
   private:
     friend class ProFileEvaluator;
     friend class ProFileEvaluator::Private;
-    QHash<QString, QStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
+    QHash<ProString, ProStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
     ProFileEvaluator::FunctionDefs base_functions;
     QStringList feature_roots;
     QString qmakespec_name;
