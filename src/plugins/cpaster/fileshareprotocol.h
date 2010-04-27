@@ -44,6 +44,7 @@ struct FileShareProtocolSettings;
 
 class FileShareProtocol : public Protocol
 {
+    Q_OBJECT
     Q_DISABLE_COPY(FileShareProtocol)
 public:
     FileShareProtocol();

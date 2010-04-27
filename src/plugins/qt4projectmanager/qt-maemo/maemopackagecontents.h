@@ -41,6 +41,7 @@ class MaemoPackageCreationStep;
 
 class MaemoPackageContents : public QAbstractTableModel
 {
+    Q_OBJECT
 public:
     struct Deployable
     {
