@@ -85,24 +85,33 @@ QObject *QmlPropertyChangesObject::targetObject() const
 
 void QmlPropertyChangesObject::setTargetObject(QObject *object)
 {
+    QMutableListIterator<QDeclarativeAction> actionIterator(m_qmlActionList);
+    while (actionIterator.hasNext()) {
+         QDeclarativeAction &qmlAction = actionIterator.next();
+         if (m_expressionHash.contains(qmlAction.specifiedProperty) && m_expressionHash[qmlAction.specifiedProperty].second) {
+             if (isActive()) {
+                 QDeclarativePropertyPrivate::setBinding(qmlAction.property, 0, QDeclarativePropertyPrivate::DontRemoveBinding| QDeclarativePropertyPrivate::BypassInterceptor);
+                 qmlAction.property.write(qmlAction.fromValue);
+             }
+
+             m_expressionHash[qmlAction.specifiedProperty].second.data()->destroy();
+             qmlAction.toBinding = 0;
+         }
+
+         if (isActive() && targetObject()) {
+             updateRevertValueAndBinding(qmlAction.specifiedProperty);
+         }
+    }
+
     m_targetObject = object;
 
-    QMutableListIterator<QDeclarativeAction> actionIterator(m_qmlActionList);
+    actionIterator.toFront();
     while (actionIterator.hasNext()) {
         QDeclarativeAction &qmlAction = actionIterator.next();
         qmlAction.specifiedObject = object;
         qmlAction.property = createMetaProperty(qmlAction.specifiedProperty);
         qmlAction.fromValue = qmlAction.property.read();
         qmlAction.fromBinding = QDeclarativePropertyPrivate::binding(qmlAction.property);
-        if (m_expressionHash.contains(qmlAction.specifiedProperty) && m_expressionHash[qmlAction.specifiedProperty].second) {
-            if (isActive()) {
-                QDeclarativePropertyPrivate::setBinding(qmlAction.property, 0, QDeclarativePropertyPrivate::DontRemoveBinding| QDeclarativePropertyPrivate::BypassInterceptor);
-                qmlAction.property.write(qmlAction.fromValue);
-            }
-
-            m_expressionHash[qmlAction.specifiedProperty].second.data()->destroy();
-            qmlAction.toBinding = 0;
-        }
 
         if (m_expressionHash.contains(qmlAction.specifiedProperty) && targetObject()) {
             QDeclarativeBinding *binding = new QDeclarativeBinding(m_expressionHash[qmlAction.specifiedProperty].first ,targetObject(), QDeclarativeEngine::contextForObject(targetObject()));
@@ -443,6 +452,7 @@ void QmlPropertyChangesObject::setExpression(const QString &name, const QString 
         if (QDeclarativePropertyPrivate::binding(metaProperty) == m_expressionHash[name].second.data())
             QDeclarativePropertyPrivate::setBinding(metaProperty, 0,  QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
         m_expressionHash.take(name).second->destroy();
+        qmlAction.toBinding = 0;
     }
 
 
@@ -457,7 +467,7 @@ void QmlPropertyChangesObject::setExpression(const QString &name, const QString 
     }
 
     updateRevertValueAndBinding(name);
-    if (isActive())
+    if (isActive() && binding)
         QDeclarativePropertyPrivate::setBinding(metaProperty, binding,  QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
 }
 
