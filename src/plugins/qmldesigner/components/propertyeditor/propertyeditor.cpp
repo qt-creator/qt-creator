@@ -81,14 +81,17 @@ const int collapseButtonOffset = 114;
 namespace QmlDesigner {
 
 PropertyEditor::NodeType::NodeType(PropertyEditor *propertyEditor) :
-        m_view(new QDeclarativeView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue())
+        m_view(new QDeclarativeView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
+        m_contextObject(new PropertyEditorContextObject())
 {
     Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
 
-    //m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     QDeclarativeContext *ctxt = m_view->rootContext();
     m_dummyPropertyEditorValue->setValue("#000000");
     ctxt->setContextProperty("dummyBackendValue", m_dummyPropertyEditorValue.data());
+    m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
+    ctxt->setContextObject(m_contextObject.data());
 
     connect(&m_backendValuesPropertyMap, SIGNAL(valueChanged(const QString&, const QVariant&)), propertyEditor, SLOT(changeValue(const QString&)));
 }
@@ -162,8 +165,10 @@ void PropertyEditor::NodeType::setValue(const QmlObjectNode & fxObjectNode, cons
 
 void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor)
 {
-    if (!fxObjectNode.isValid())
+    if (!fxObjectNode.isValid()) {
+        qWarning() << "invalid node for setup";
         return;
+    }
 
     QDeclarativeContext *ctxt = m_view->rootContext();
 
@@ -194,20 +199,21 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         m_backendAnchorBinding.setup(QmlItemNode(fxObjectNode.modelNode()));
 
         ctxt->setContextProperty("anchorBackend", &m_backendAnchorBinding);
-        QApplication::processEvents();
+        
         ctxt->setContextProperty("transaction", m_propertyEditorTransaction.data());
-        QApplication::processEvents();
-        ctxt->setContextProperty("backendValues", &m_backendValuesPropertyMap);
-        QApplication::processEvents();
-        ctxt->setContextProperty("specificsUrl", QVariant(qmlSpecificsFile));
-        QApplication::processEvents();
-        ctxt->setContextProperty("stateName", QVariant(stateName));
+        
+        m_contextObject->setSpecificsUrl(qmlSpecificsFile);
+        
+        m_contextObject->setStateName(stateName);
         QApplication::processEvents();
         if (!fxObjectNode.isValid())
             return;
         ctxt->setContextProperty("propertyCount", QVariant(fxObjectNode.modelNode().properties().count()));
-        ctxt->setContextProperty("isBaseState", QVariant(fxObjectNode.isInBaseState()));
-        ctxt->setContextProperty("selectionChanged", QVariant(false));
+
+        m_contextObject->setIsBaseState(fxObjectNode.isInBaseState());
+        m_contextObject->setSelectionChanged(false);
+
+        m_contextObject->setSelectionChanged(false);
     } else {
         qWarning() << "PropertyEditor: invalid node for setup";
     }
@@ -242,13 +248,16 @@ void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl 
 
     ctxt->setContextProperty("anchorBackend", &m_backendAnchorBinding);
     ctxt->setContextProperty("transaction", m_propertyEditorTransaction.data());
-    ctxt->setContextProperty("backendValues", &m_backendValuesPropertyMap);
 
-    ctxt->setContextProperty("specificsUrl", QVariant(qmlSpecificsFile));
-    ctxt->setContextProperty("stateName", QVariant(QLatin1String("basestate")));
-    ctxt->setContextProperty("isBaseState", QVariant(true));
-    ctxt->setContextProperty("specificQmlData", QVariant(QLatin1String("")));
-    ctxt->setContextProperty("globalBaseUrl", QVariant(QUrl()));
+    m_contextObject->setSpecificsUrl(qmlSpecificsFile);
+
+    m_contextObject->setStateName(QLatin1String("basestate"));
+
+    m_contextObject->setIsBaseState(true);
+
+    m_contextObject->setSpecificQmlData(QLatin1String(""));
+
+    m_contextObject->setGlobalBaseUrl(QUrl());
 }
 
 PropertyEditor::PropertyEditor(QWidget *parent) :
@@ -630,12 +639,13 @@ void PropertyEditor::resetView()
             Q_ASSERT(fxObjectNode.isValid());
         }
         QDeclarativeContext *ctxt = type->m_view->rootContext();
+        type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
         ctxt->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
-            ctxt->setContextProperty("specificQmlData", specificQmlData);
-        type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
-        ctxt->setContextProperty("globalBaseUrl", QVariant(qmlFile));
-        ctxt->setContextProperty("specificQmlData", specificQmlData);
+            type->m_contextObject->setSpecificQmlData(specificQmlData);
+            
+        type->m_contextObject->setGlobalBaseUrl(qmlFile);
+        type->m_contextObject->setSpecificQmlData(specificQmlData);
         type->m_view->setSource(qmlFile);
         ctxt->setContextProperty("finishedNotify", QVariant(true));
     } else {
@@ -644,15 +654,15 @@ void PropertyEditor::resetView()
             fxObjectNode = QmlObjectNode(m_selectedNode);
         }
         QDeclarativeContext *ctxt = type->m_view->rootContext();
-        ctxt->setContextProperty("selectionChanged", QVariant(false));
-        ctxt->setContextProperty("selectionChanged", QVariant(true));
-        ctxt->setContextProperty("selectionChanged", QVariant(false));
+        type->m_contextObject->triggerSelectionChanged();
+        
         ctxt->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
-            ctxt->setContextProperty("specificQmlData", specificQmlData);
+            type->m_contextObject->setSpecificQmlData(specificQmlData);
+        
         type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
-        ctxt->setContextProperty("globalBaseUrl", QVariant(qmlFile));
-        ctxt->setContextProperty("specificQmlData", specificQmlData);
+        type->m_contextObject->setGlobalBaseUrl(qmlFile);
+        type->m_contextObject->setSpecificQmlData(specificQmlData);
     }
 
     m_stackedWidget->setCurrentWidget(type->m_view);
@@ -660,9 +670,10 @@ void PropertyEditor::resetView()
 
     QDeclarativeContext *ctxt = type->m_view->rootContext();
     ctxt->setContextProperty("finishedNotify", QVariant(true));
-    ctxt->setContextProperty("selectionChanged", QVariant(false));
+    /*ctxt->setContextProperty("selectionChanged", QVariant(false));
     ctxt->setContextProperty("selectionChanged", QVariant(true));
-    ctxt->setContextProperty("selectionChanged", QVariant(false));
+    ctxt->setContextProperty("selectionChanged", QVariant(false));*/
+    type->m_contextObject->triggerSelectionChanged();
 
     m_currentType = type;
 
@@ -701,10 +712,10 @@ void PropertyEditor::modelAttached(Model *model)
 
     m_locked = true;
 
-    /*setupPane("Qt/Rectangle");
+    setupPane("Qt/Rectangle");
     setupPane("Qt/Text");
     setupPane("Qt/TextInput");
-    setupPane("Qt/TextEdit");*/
+    setupPane("Qt/TextEdit");
     resetView();
 
     m_locked = false;

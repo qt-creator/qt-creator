@@ -39,6 +39,7 @@
 #include "qmlanchorbindingproxy.h"
 #include "designerpropertymap.h"
 #include "propertyeditorvalue.h"
+#include "propertyeditorcontextobject.h"
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
@@ -71,6 +72,7 @@ class PropertyEditor: public QmlModelView
         DesignerPropertyMap<PropertyEditorValue> m_backendValuesPropertyMap;
         QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;
         QScopedPointer<PropertyEditorValue> m_dummyPropertyEditorValue;
+        QScopedPointer<PropertyEditorContextObject> m_contextObject;
     };
 
 public:
