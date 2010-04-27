@@ -65,6 +65,7 @@
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QTextCodec>
 #include <QtCore/QtPlugin>
+#include <QtCore/QProcessEnvironment>
 #include <QtGui/QAction>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMainWindow>
@@ -95,7 +96,11 @@ static const char * const CMD_ID_SEPARATOR4         = "Subversion.Separator4";
 static const char * const CMD_ID_STATUS             = "Subversion.Status";
 static const char * const CMD_ID_PROJECTLOG         = "Subversion.ProjectLog";
 static const char * const CMD_ID_REPOSITORYLOG      = "Subversion.RepositoryLog";
+static const char * const CMD_ID_REPOSITORYUPDATE   = "Subversion.RepositoryUpdate";
+static const char * const CMD_ID_REPOSITORYDIFF     = "Subversion.RepositoryDiff";
+static const char * const CMD_ID_REPOSITORYSTATUS   = "Subversion.RepositoryStatus";
 static const char * const CMD_ID_UPDATE             = "Subversion.Update";
+static const char * const CMD_ID_COMMIT_PROJECT     = "Subversion.CommitProject";
 static const char * const CMD_ID_DESCRIBE           = "Subversion.Describe";
 
 static const char *nonInteractiveOptionC = "--non-interactive";
@@ -197,11 +202,15 @@ SubversionPlugin::SubversionPlugin() :
     m_logRepositoryAction(0),
     m_commitAllAction(0),
     m_revertRepositoryAction(0),
+    m_diffRepositoryAction(0),
+    m_statusRepositoryAction(0),
+    m_updateRepositoryAction(0),
     m_commitCurrentAction(0),
     m_filelogCurrentAction(0),
     m_annotateCurrentAction(0),
     m_statusProjectAction(0),
     m_updateProjectAction(0),
+    m_commitProjectAction(0),
     m_describeAction(0),
     m_submitCurrentLogAction(0),
     m_submitDiffAction(0),
@@ -393,18 +402,38 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
+    m_commitProjectAction = new Utils::ParameterAction(tr("Commit Project"), tr("Commit Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = ami->registerAction(m_commitProjectAction, CMD_ID_COMMIT_PROJECT, globalcontext);
+    connect(m_commitProjectAction, SIGNAL(triggered()), this, SLOT(startCommitProject()));
+    command->setAttribute(Core::Command::CA_UpdateText);
+    subversionMenu->addAction(command);
+    m_commandLocator->appendCommand(command);
+
     subversionMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR2, globalcontext));
 
-    m_logRepositoryAction = new QAction(tr("Repository Log"), this);
+    m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
+    command = ami->registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, globalcontext);
+    connect(m_diffRepositoryAction, SIGNAL(triggered()), this, SLOT(diffRepository()));
+    subversionMenu->addAction(command);
+    m_commandLocator->appendCommand(command);
+
+    m_statusRepositoryAction = new QAction(tr("Repository Status"), this);
+    command = ami->registerAction(m_statusRepositoryAction, CMD_ID_REPOSITORYSTATUS, globalcontext);
+    connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
+    subversionMenu->addAction(command);
+    m_commandLocator->appendCommand(command);
+
+    m_logRepositoryAction = new QAction(tr("Log Repository"), this);
     command = ami->registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
     connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_describeAction = new QAction(tr("Describe..."), this);
-    command = ami->registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);
-    connect(m_describeAction, SIGNAL(triggered()), this, SLOT(slotDescribe()));
+    m_updateRepositoryAction = new QAction(tr("Update Repository"), this);
+    command = ami->registerAction(m_updateRepositoryAction, CMD_ID_REPOSITORYUPDATE, globalcontext);
+    connect(m_updateRepositoryAction, SIGNAL(triggered()), this, SLOT(updateRepository()));
     subversionMenu->addAction(command);
+    m_commandLocator->appendCommand(command);
 
     m_commitAllAction = new QAction(tr("Commit All Files"), this);
     command = ami->registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
@@ -412,6 +441,11 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     connect(m_commitAllAction, SIGNAL(triggered()), this, SLOT(startCommitAll()));
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
+
+    m_describeAction = new QAction(tr("Describe..."), this);
+    command = ami->registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);
+    connect(m_describeAction, SIGNAL(triggered()), this, SLOT(slotDescribe()));
+    subversionMenu->addAction(command);
 
     m_revertRepositoryAction = new QAction(tr("Revert Repository..."), this);
     command = ami->registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
@@ -562,11 +596,15 @@ void SubversionPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_statusProjectAction->setParameter(projectName);
     m_updateProjectAction->setParameter(projectName);
     m_logProjectAction->setParameter(projectName);
+    m_commitProjectAction->setParameter(projectName);
 
     const bool repoEnabled = currentState().hasTopLevel();
     m_commitAllAction->setEnabled(repoEnabled);
     m_describeAction->setEnabled(repoEnabled);
     m_revertRepositoryAction->setEnabled(repoEnabled);
+    m_diffRepositoryAction->setEnabled(repoEnabled);
+    m_statusRepositoryAction->setEnabled(repoEnabled);
+    m_updateRepositoryAction->setEnabled(repoEnabled);
 
     const QString fileName = currentState().currentFileName();
 
@@ -664,6 +702,13 @@ void SubversionPlugin::startCommitAll()
     startCommit(state.topLevel());
 }
 
+void SubversionPlugin::startCommitProject()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasProject(), return);
+    startCommit(state.currentProjectPath());
+}
+
 /* Start commit of files of a single repository by displaying
  * template and files in a submit editor. On closing, the real
  * commit will start. */
@@ -745,6 +790,40 @@ void SubversionPlugin::logRepository()
     filelog(state.topLevel());
 }
 
+void SubversionPlugin::diffRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    svnDiff(state.topLevel(), QStringList());
+}
+
+void SubversionPlugin::statusRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    svnStatus(state.topLevel());
+}
+
+void SubversionPlugin::updateRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    svnUpdate(state.topLevel());
+}
+
+void SubversionPlugin::svnStatus(const QString &workingDir, const QStringList &relativePaths)
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    QStringList args(QLatin1String("status"));
+    if (!relativePaths.isEmpty())
+        args.append(relativePaths);
+    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    outwin->setRepository(workingDir);
+    runSvn(workingDir, args, m_settings.timeOutMS(), true);
+    outwin->clearRepository();
+}
+
 void SubversionPlugin::filelog(const QString &workingDir,
                                const QStringList &files,
                                bool enableAnnotationContextMenu)
@@ -782,13 +861,18 @@ void SubversionPlugin::updateProject()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
+    svnUpdate(state.currentProjectTopLevel(), state.relativeCurrentProject());
+}
 
+void SubversionPlugin::svnUpdate(const QString &workingDir, const QStringList &relativePaths)
+{
     QStringList args(QLatin1String("update"));
     args.push_back(QLatin1String(nonInteractiveOptionC));
-    args.append(state.relativeCurrentProject());
-    const SubversionResponse response = runSvn(state.currentProjectTopLevel(), args, m_settings.longTimeOutMS(), true);
+    if (!relativePaths.isEmpty())
+        args.append(relativePaths);
+        const SubversionResponse response = runSvn(workingDir, args, m_settings.longTimeOutMS(), true);
     if (!response.error)
-        subVersionControl()->emitRepositoryChanged(state.currentProjectTopLevel());
+        subVersionControl()->emitRepositoryChanged(workingDir);
 }
 
 void SubversionPlugin::annotateCurrentFile()
@@ -848,12 +932,7 @@ void SubversionPlugin::projectStatus()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
-    QStringList args(QLatin1String("status"));
-    args += state.relativeCurrentProject();
-    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
-    outwin->setRepository(state.currentProjectTopLevel());
-    runSvn(state.currentProjectTopLevel(), args, m_settings.timeOutMS(), true);
-    outwin->clearRepository();
+    svnStatus(state.currentFileTopLevel(), state.relativeCurrentProject());
 }
 
 void SubversionPlugin::describe(const QString &source, const QString &changeNr)
@@ -945,6 +1024,15 @@ static inline QString processStdOut(QProcess &proc, QTextCodec *outputCodec = 0)
     return stdOut.remove(QLatin1Char('\r'));
 }
 
+// Format log entry for command
+static inline QString msgExecutionLogEntry(const QString &workingDir, const QString &executable, const QStringList &arguments)
+{
+    const QString argsS = SubversionSettings::formatArguments(arguments);
+    if (workingDir.isEmpty())
+        return SubversionPlugin::tr("Executing: %1 %2\n").arg(executable, argsS);
+    return SubversionPlugin::tr("Executing in %1: %2 %3\n").arg(workingDir, executable, argsS);
+}
+
 SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
                                             const QStringList &arguments,
                                             int timeOut,
@@ -963,7 +1051,7 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     // Hide passwords, etc in the log window
     //: Executing: <executable> <arguments>
-    const QString outputText = tr("Executing: %1 %2\n").arg(executable, SubversionSettings::formatArguments(allArgs));
+    const QString outputText = msgExecutionLogEntry(workingDir, executable, allArgs);
     outputWindow->appendCommand(outputText);
 
     if (Subversion::Constants::debug)
@@ -973,6 +1061,9 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
     Utils::SynchronousProcess process;
     if (!workingDir.isEmpty())
         process.setWorkingDirectory(workingDir);
+    QProcessEnvironment env = process.processEnvironment();
+    env.insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
+    process.setProcessEnvironment(env);
     process.setTimeout(timeOut);
     process.setStdOutCodec(outputCodec);
 

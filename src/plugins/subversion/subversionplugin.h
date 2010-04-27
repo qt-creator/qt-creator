@@ -109,6 +109,7 @@ private slots:
     void diffProject();
     void diffCurrentFile();
     void startCommitAll();
+    void startCommitProject();
     void startCommitCurrentFile();
     void revertAll();
     void filelogCurrentFile();
@@ -122,6 +123,9 @@ private slots:
     void diffCommitFiles(const QStringList &);
     void logProject();
     void logRepository();
+    void diffRepository();
+    void statusRepository();
+    void updateRepository();
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
@@ -138,6 +142,8 @@ private:
     void filelog(const QString &workingDir,
                  const QStringList &file = QStringList(),
                  bool enableAnnotationContextMenu = false);
+    void svnStatus(const QString &workingDir, const QStringList &relativePath = QStringList());
+    void svnUpdate(const QString &workingDir, const QStringList &relativePaths = QStringList());
     bool managesDirectory(const QDir &directory) const;
     QString findTopLevelForDirectoryI(const QString &directory) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
@@ -161,11 +167,15 @@ private:
     QAction *m_logRepositoryAction;
     QAction *m_commitAllAction;
     QAction *m_revertRepositoryAction;
+    QAction *m_diffRepositoryAction;
+    QAction *m_statusRepositoryAction;
+    QAction *m_updateRepositoryAction;
     Utils::ParameterAction *m_commitCurrentAction;
     Utils::ParameterAction *m_filelogCurrentAction;
     Utils::ParameterAction *m_annotateCurrentAction;
     Utils::ParameterAction *m_statusProjectAction;
     Utils::ParameterAction *m_updateProjectAction;
+    Utils::ParameterAction *m_commitProjectAction;
     QAction *m_describeAction;
 
     QAction *m_submitCurrentLogAction;
