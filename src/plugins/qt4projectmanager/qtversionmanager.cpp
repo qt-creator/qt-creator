@@ -644,21 +644,22 @@ QtVersion::reportIssues(const QString &proFile)
 {
     QList<ProjectExplorer::Task> results;
 
-    if (!isValid())
-        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                             QObject::tr("The Qt version is invalid: %1",
-                                                         "%1: Reason for being invalid").arg(invalidReason()),
-                                             QString(), -1,
+    if (!isValid()) {
+        //: %1: Reason for being invalid
+        const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion", "The Qt version is invalid: %1").arg(invalidReason());
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error, msg, QString(), -1,
                                              QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    }
 
     QFileInfo qmakeInfo(qmakeCommand());
     if (!qmakeInfo.exists() ||
-        !qmakeInfo.isExecutable())
-        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                             QObject::tr("The qmake command \"%1\" was not found or is not executable.",
-                                                         "%1: Path to qmake executable.").arg(qmakeCommand()),
-                                             QString(), -1,
+        !qmakeInfo.isExecutable()) {
+        //: %1: Path to qmake executable
+        const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
+                                                        "The qmake command \"%1\" was not found or is not executable.").arg(qmakeCommand());
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error, msg, QString(), -1,
                                              QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    }
 
     QSet<QString> targets = supportedTargetIds();
     if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
