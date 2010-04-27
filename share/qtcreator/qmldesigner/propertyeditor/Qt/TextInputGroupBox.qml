@@ -13,10 +13,44 @@ GroupBox {
             visible: isTextInput
             layout: HorizontalLayout {
 
-                Label {text: "Input Mask"}
+                Label {text: qsTr("Input Mask") }
 
                 LineEdit {
                     backendValue: backendValues.inputMask
+                    baseStateFlag: isBaseState
+                }
+            }
+        }
+
+        QWidget {
+            visible: isTextInput
+            layout: HorizontalLayout {
+
+                Label {text: "Echo Mode"}
+
+                ComboBox {
+                    baseStateFlag: isBaseState
+                    items : { ["Normal", "Password", "PasswordEchoOnEdit", "NoEcho"] }
+                    currentText: backendValues.echoMode.value;
+                    onItemsChanged: {
+                        currentText =  backendValues.echoMode.value;
+                    }
+                    backendValue: backendValues.echoMode
+                }
+            }
+        }
+
+        QWidget {
+            visible: isTextInput
+            layout: HorizontalLayout {
+
+                Label {
+                    text: qsTr("Pass. Char")
+                    toolTip: qsTr("Password Character")
+                }
+
+                LineEdit {
+                    backendValue: backendValues.passwordCharacter
                     baseStateFlag: isBaseState
                 }
             }
