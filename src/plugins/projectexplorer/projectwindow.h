@@ -85,7 +85,7 @@ public:
     explicit ProjectWindow(QWidget *parent = 0);
     ~ProjectWindow();
 
-    void shutdown();
+    void aboutToShutdown();
 private slots:
     void showProperties(int index, int subIndex);
     void restoreStatus();

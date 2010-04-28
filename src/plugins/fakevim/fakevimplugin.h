@@ -50,7 +50,7 @@ public:
 private:
     // implementation of ExtensionSystem::IPlugin
     bool initialize(const QStringList &arguments, QString *error_message);
-    void shutdown();
+    void aboutToShutdown();
     void extensionsInitialized();
 
 private:

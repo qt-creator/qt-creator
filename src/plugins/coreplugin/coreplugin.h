@@ -49,7 +49,7 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
     virtual void extensionsInitialized();
-    virtual void shutdown();
+    virtual void aboutToShutdown();
     virtual void remoteCommand(const QStringList & /* options */, const QStringList &args);
 
 public slots:

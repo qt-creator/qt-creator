@@ -421,7 +421,7 @@ QWidget *DebuggerUISwitcher::createContents(Core::BaseMode *mode)
     return splitter;
 }
 
-void DebuggerUISwitcher::shutdown()
+void DebuggerUISwitcher::aboutToShutdown()
 {
     writeSettings();
 }

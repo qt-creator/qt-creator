@@ -66,7 +66,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
-    void shutdown();
+    void aboutToShutdown();
     CppModelManager *cppModelManager() { return m_modelManager; }
     QString correspondingHeaderOrSource(const QString &fileName) const;
 

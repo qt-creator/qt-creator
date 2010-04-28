@@ -318,7 +318,7 @@ void CppPlugin::extensionsInitialized()
 {
 }
 
-void CppPlugin::shutdown()
+void CppPlugin::aboutToShutdown()
 {
     writeSettings();
 }

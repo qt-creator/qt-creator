@@ -146,7 +146,7 @@ void CodepasterPlugin::extensionsInitialized()
 {
 }
 
-void CodepasterPlugin::shutdown()
+void CodepasterPlugin::aboutToShutdown()
 {
     // Delete temporary, fetched files
     foreach(const QString &fetchedSnippet, m_fetchedSnippets) {

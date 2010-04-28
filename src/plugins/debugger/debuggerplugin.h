@@ -83,7 +83,7 @@ public:
 
 private:
     virtual bool initialize(const QStringList &arguments, QString *error_message);
-    virtual void shutdown();
+    virtual void aboutToShutdown();
     virtual void extensionsInitialized();
     virtual void remoteCommand(const QStringList &options, const QStringList &arguments);
 

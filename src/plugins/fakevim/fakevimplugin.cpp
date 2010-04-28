@@ -480,7 +480,7 @@ public:
     friend class FakeVimPlugin;
 
     bool initialize();
-    void shutdown();
+    void aboutToShutdown();
 
 private slots:
     void editorOpened(Core::IEditor *);
@@ -560,7 +560,7 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
 {
 }
 
-void FakeVimPluginPrivate::shutdown()
+void FakeVimPluginPrivate::aboutToShutdown()
 {
     q->removeObject(m_fakeVimOptionsPage);
     delete m_fakeVimOptionsPage;
@@ -1151,9 +1151,9 @@ bool FakeVimPlugin::initialize(const QStringList &arguments, QString *errorMessa
     return d->initialize();
 }
 
-void FakeVimPlugin::shutdown()
+void FakeVimPlugin::aboutToShutdown()
 {
-    d->shutdown();
+    d->aboutToShutdown();
 }
 
 void FakeVimPlugin::extensionsInitialized()

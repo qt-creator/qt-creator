@@ -58,7 +58,7 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
-    virtual void shutdown();
+    virtual void aboutToShutdown();
 
 public slots:
     void activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode);

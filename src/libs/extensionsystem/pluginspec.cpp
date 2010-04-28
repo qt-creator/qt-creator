@@ -119,7 +119,7 @@
             extensionsInitialized has been called. The loading process is
             complete.
     \value Stopped
-            The plugin has been shut down, i.e. the plugin's IPlugin::shutdown() method has been called.
+            The plugin has been shut down, i.e. the plugin's IPlugin::aboutToShutdown() method has been called.
     \value Deleted
             The plugin instance has been deleted.
 */
@@ -959,7 +959,7 @@ void PluginSpecPrivate::stop()
 {
     if (!plugin)
         return;
-    plugin->shutdown();
+    plugin->aboutToShutdown();
     state = PluginSpec::Stopped;
 }
 

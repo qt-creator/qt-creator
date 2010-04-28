@@ -358,7 +358,7 @@ void HelpPlugin::extensionsInitialized()
     connect(engine, SIGNAL(setupFinished()), this, SLOT(updateFilterComboBox()));
 }
 
-void HelpPlugin::shutdown()
+void HelpPlugin::aboutToShutdown()
 {
     if (m_sideBar)
         m_sideBar->saveSettings(m_core->settings(), QLatin1String("HelpSideBar"));

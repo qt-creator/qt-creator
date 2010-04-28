@@ -565,16 +565,16 @@ DebuggerPlugin::~DebuggerPlugin()
     m_uiSwitcher = 0;
 }
 
-void DebuggerPlugin::shutdown()
+void DebuggerPlugin::aboutToShutdown()
 {
     QTC_ASSERT(m_manager, /**/);
     if (m_manager)
-        m_manager->shutdown();
+        m_manager->aboutToShutdown();
 
     writeSettings();
 
     if (m_uiSwitcher)
-        m_uiSwitcher->shutdown();
+        m_uiSwitcher->aboutToShutdown();
 }
 
 static QString msgParameterMissing(const QString &a)

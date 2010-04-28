@@ -344,7 +344,7 @@ private:
     void runTest(const QString &fileName);
     Q_SLOT void createNewDock(QWidget *widget);
 
-    void shutdown();
+    void aboutToShutdown();
 
     void toggleBreakpoint(const QString &fileName, int lineNumber);
     Internal::BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);

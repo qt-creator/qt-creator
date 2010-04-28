@@ -71,7 +71,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
-    void shutdown();
+    void aboutToShutdown();
 
 private slots:
     void modeChanged(Core::IMode *mode);

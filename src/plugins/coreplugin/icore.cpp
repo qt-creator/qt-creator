@@ -341,7 +341,7 @@
 
     The application is guaranteed to shut down after this signal is emitted.
     It's there as an addition to the usual plugin lifecycle methods, namely
-    IPlugin::shutdown(), just for convenience.
+    IPlugin::aboutToShutdown(), just for convenience.
 */
 
 /*!

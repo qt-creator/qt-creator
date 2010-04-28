@@ -85,7 +85,7 @@ public:
     // called when all dependent plugins have loaded
     void initialize();
 
-    void shutdown();
+    void aboutToShutdown();
 
     // dockwidgets are registered to the main window
     QDockWidget *createDockWidget(const QString &langName, QWidget *widget,

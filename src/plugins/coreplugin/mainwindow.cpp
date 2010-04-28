@@ -1111,7 +1111,7 @@ void MainWindow::resetContext()
     updateContextObject(0);
 }
 
-void MainWindow::shutdown()
+void MainWindow::aboutToShutdown()
 {
     disconnect(QApplication::instance(), SIGNAL(focusChanged(QWidget*,QWidget*)),
                this, SLOT(updateFocusWidget(QWidget*,QWidget*)));

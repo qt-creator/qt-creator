@@ -269,7 +269,7 @@ ProjectWindow::~ProjectWindow()
 {
 }
 
-void ProjectWindow::shutdown()
+void ProjectWindow::aboutToShutdown()
 {
     showProperties(-1, -1); // TODO that's a bit stupid, but otherwise stuff is still
                              // connected to the session

@@ -88,7 +88,7 @@ public:
 
     bool init(QString *errorMessage);
     void extensionsInitialized();
-    void shutdown();
+    void aboutToShutdown();
 
     IContext *contextObject(QWidget *widget);
     void addContextObject(IContext *contex);

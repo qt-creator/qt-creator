@@ -84,7 +84,7 @@ QmlInspectorPlugin::~QmlInspectorPlugin()
     m_inspector = 0;
 }
 
-void QmlInspectorPlugin::shutdown()
+void QmlInspectorPlugin::aboutToShutdown()
 {
 
 }

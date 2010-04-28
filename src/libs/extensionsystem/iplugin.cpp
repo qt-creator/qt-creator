@@ -240,7 +240,7 @@
 */
 
 /*!
-    \fn void IPlugin::shutdown()
+    \fn void IPlugin::aboutToShutdown()
     Called during a shutdown sequence in the same order as initialization
     before the plugins get deleted in reverse order.
     This method can be used to optimize the shutdown down, e.g. to

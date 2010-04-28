@@ -899,9 +899,9 @@ void ProjectExplorerPlugin::extensionsInitialized()
         addAutoReleasedObject(cpw);
 }
 
-void ProjectExplorerPlugin::shutdown()
+void ProjectExplorerPlugin::aboutToShutdown()
 {
-    d->m_proWindow->shutdown(); // disconnect from session
+    d->m_proWindow->aboutToShutdown(); // disconnect from session
     d->m_session->clear();
     d->m_projectsMode = 0;
 //    d->m_proWindow->saveConfigChanges();

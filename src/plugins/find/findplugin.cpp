@@ -142,7 +142,7 @@ void FindPlugin::extensionsInitialized()
     readSettings();
 }
 
-void FindPlugin::shutdown()
+void FindPlugin::aboutToShutdown()
 {
     d->m_findToolBar->setVisible(false);
     d->m_findToolBar->setParent(0);

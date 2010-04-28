@@ -854,7 +854,7 @@ void DebuggerManager::showApplicationOutput(const QString &str, bool onStdErr)
      emit applicationOutputAvailable(str, onStdErr);
 }
 
-void DebuggerManager::shutdown()
+void DebuggerManager::aboutToShutdown()
 {
     STATE_DEBUG(d->m_engine);
     if (d->m_engine)

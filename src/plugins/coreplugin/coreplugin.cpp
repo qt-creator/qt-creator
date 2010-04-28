@@ -110,9 +110,9 @@ void CorePlugin::fileOpenRequest(const QString &f)
     remoteCommand(QStringList(), QStringList(f));
 }
 
-void CorePlugin::shutdown()
+void CorePlugin::aboutToShutdown()
 {
-    m_mainWindow->shutdown();
+    m_mainWindow->aboutToShutdown();
     Ne7SshObject::removeInstance();
 }
 

@@ -168,7 +168,7 @@ void CppToolsPlugin::extensionsInitialized()
     m_modelManager->setHeaderSuffixes(mimeType.suffixes());
 }
 
-void CppToolsPlugin::shutdown()
+void CppToolsPlugin::aboutToShutdown()
 {
     // Save settings
     QSettings *settings = Core::ICore::instance()->settings();
