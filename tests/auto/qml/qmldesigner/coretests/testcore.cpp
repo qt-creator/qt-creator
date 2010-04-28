@@ -6090,10 +6090,8 @@ void TestCore::changePropertyBinding()
 
 void TestCore::loadTestFiles()
 {
-    const QString manualTestPath = QLatin1String(QTCREATORDIR) + "/tests/manual/qml/testfiles";
-    qDebug() << manualTestPath;
     { //empty.qml
-        QFile file(manualTestPath + "/empty.qml");
+        QFile file(":/fx/empty.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QPlainTextEdit textEdit;
@@ -6111,12 +6109,12 @@ void TestCore::loadTestFiles()
         QVERIFY(model.data());
         ModelNode rootModelNode(testRewriterView->rootModelNode());
         QVERIFY(rootModelNode.isValid());
-        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
+        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Item"));
         QVERIFY(rootModelNode.allDirectSubModelNodes().isEmpty());
     }
 
     { //helloworld.qml
-        QFile file(manualTestPath + "/helloworld.qml");
+        QFile file(":/fx/helloworld.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QPlainTextEdit textEdit;
@@ -6146,7 +6144,7 @@ void TestCore::loadTestFiles()
         QCOMPARE(textNode.variantProperty("y").value().toInt(), 93);
     }
     { //states.qml
-        QFile file(manualTestPath + "/states.qml");
+        QFile file(":/fx/states.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QPlainTextEdit textEdit;
@@ -6195,7 +6193,7 @@ void TestCore::loadTestFiles()
 
     QSKIP("Fails because the text editor model doesn't know about components", SkipAll);
     { //usingbutton.qml
-        QFile file(manualTestPath + "/usingbutton.qml");
+        QFile file(":/fx/usingbutton.qml");
         QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
         QPlainTextEdit textEdit;
@@ -6209,7 +6207,6 @@ void TestCore::loadTestFiles()
         testRewriterView->setTextModifier(&textModifier);
         model->attachView(testRewriterView.data());
 
-        qDebug() << testRewriterView->errors().first().toString();
         QVERIFY(testRewriterView->errors().isEmpty());
 
         QVERIFY(model.data());

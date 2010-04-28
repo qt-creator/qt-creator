@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/" >
+    <qresource prefix="/">
         <file>fx/attributes.qml</file>
         <file>fx/empty.qml</file>
         <file>fx/helloworld.qml</file>
@@ -7,5 +7,6 @@
         <file>qwidget/test.qml</file>
         <file>fx/topitem.qml</file>
         <file>fx/subitems/SubItem.qml</file>
+        <file>fx/states.qml</file>
     </qresource>
 </RCC>
