@@ -70,10 +70,17 @@
        \o \l{Optimizing Applications for Mobile Devices}
        \o \l{Debugging}
             \list
+            \o \l {Debugging Qt Applications}
+            \list
                 \o \l{Debugging the Example Application}
                 \o \l{Interacting with the Debugger}
                 \o \l{Setting Up Debugger}
                 \o \l{Using Debugging Helpers}
+            \endlist
+            \o \l{Debugging Qt Quick Applications}
+                \list
+                    \o \l{Using the QML Inspector}
+                \endlist
             \endlist
        \o \l{Using Version Control Systems}
        \o \l{Adding Qt Designer Plugins}
@@ -2493,7 +2500,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging-helpers.html
+    \previouspage creator-qml-inspector.html
     \page creator-version-control.html
     \nextpage adding-plugins.html
 
@@ -2938,14 +2945,236 @@
     \contentspage index.html
     \previouspage creator-usability.html
     \page creator-debugging.html
-    \nextpage creator-debugging-example.html
+    \nextpage creator-debugging-cpp.html
 
     \title Debugging
+
+    You can use the Qt Creator \gui Debug mode to inspect the state of your
+    Qt and Qt Quick projects while debugging.
 
     Qt Creator does not include a debugger. It provides a debugger plugin that acts
     as an interface between the Qt Creator core and external native debuggers
     such as the GNU Symbolic Debugger (gdb), the Microsoft Console Debugger (CDB),
-    and an internal Java Script debugger.
+    and an internal Java Script debugger. You can use the native debuggers to
+    debug the C++ language.
+
+    \image qtcreator-debugger-views.png "Native debugger views"
+
+    Qt Creator includes a QML inspector plugin that you can use to debug QML.
+
+    \image qmldesigner-inspector.png "QML inspector views"
+
+    When you start debugging, the appropriate tool is automatically selected depending
+    on the type of the project. If you only develop one kind of projects, you can turn
+    off this automation in \gui {Tools > Options > Debugger > General}. Deselect the
+    \gui {Change debugger language automatically} check box.
+
+    The choice of language also determines the contents of the \gui Debug menu.
+    The \gui {Start Debugging > Start Debugging} command starts debugging by using the
+    tool appropriate for the project type. The availability of the other commands depends
+    on whether \gui C++ or \gui QML is selected in \gui {Debug > Language}.
+
+    You can create Qt Quick projects that contain C++ plugins or Qt projects that contain
+    QML content. While debugging such projects, you can switch between the native
+    debuggers and the QML inspector during debugging.
+
+    To switch between debugged languages, select \gui {Debug > Language > C++} or
+    \gui QML. You can also press \key {Ctrl+L, 1} to switch to the native debugger and
+    \key {Ctrl+L, 2} to switch to the QML inspector.
+
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging-helpers.html
+    \page creator-debugging-qml.html
+    \nextpage creator-qml-inspector.html
+
+    \title Debugging Qt Quick Applications
+
+    In the \gui Debug mode you can use the QML inspector plugin to:
+
+    \list
+
+        \o View the status of the application when it is executed.
+
+        \o View debug output.
+
+        \o Write JavaScript expressions and evaluate them.
+
+        \o Modify the values of properties.
+
+        \o Watch the values of expressions.
+
+
+    \note You can press \key {Ctr+Alt+R} or select \gui {Tools > Qt Quick > Preview}
+    to view QML files that do not belong to projects in the QML viewer. However,
+    you can only debug QML files that belong to open projects, because the QML
+    inspector plugin needs information about the project.
+
+    \endlist
+
+    \section1 Modes of Operation
+
+    When a Qt Quick project is active and you select \gui {Debug > Start Debugging >
+    Start Debugging} the application is started in the QML viewer and inspected by
+    the QML inspector.
+
+    If the Qt Quick project includes C++ plugins, select
+    \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
+    The QML runtime is started, debugged with the native debugger, and attached to
+    the QML viewer.
+
+    \note This command is available only if \gui QML is selected in
+    \gui {Debug > Language (QML)}.
+
+    To debug a Qt project that contains QML content, select
+    \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
+    The application is started under the control of the native debugger, attached
+    to the QML viewer, and inspected by the QML inspector.
+
+    You must use the native debugger to set breakpoints to C++ code and to examine
+    the state of the interrupted Qt application. When a C++ program is interrupted,
+    for example when a breakpoint is hit, you cannot use the QML inspector.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging-qml.html
+    \page creator-qml-inspector.html
+    \nextpage creator-version-control.html
+
+    \title Using the QML Inspector
+
+    In \gui Debug mode, you can use several views to interact with the
+    application you are debugging. Frequently used views are shown by
+    default and rarely used ones are hidden. To change the default settings,
+    select \gui Debug > \gui Views, and then select views to display
+    or hide. You can also lock views. The position of views is saved for future
+    sessions.
+
+    \image qmldesigner-inspector.png "QML inspector views"
+
+    \section1 Starting the QML Inspector
+
+    To start an active application under the control of the QML inspector, select
+    \gui {Debug > Start Debugging > Start Debugging}, or press \key{F5}.
+
+    The application is run in the QML viewer. It behaves and performs as usual.
+    You can view the status of the application when it is executed and the debug
+    output in the \gui {Application Output} view.
+
+    \image qmldesigner-application-output.png "Application Output view"
+
+    \section1 Starting Simultaneous QML and C++ Debugging
+
+    To debug a Qt Quick project that includes C++ plugins, select
+    \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
+
+    \note This command is available only if \gui QML is selected in
+    \gui {Debug > Language (QML)}.
+
+    \image qmldesigner-debugging-simultaneous.png "Start Simultaneous QML and C++ Debugging view"
+
+    Usually, the settings for the QML viewer are specified automatically and you do
+    not need to change them:
+
+    \list
+
+        \o \gui {Debugging address} is the local IP address to access the QML viewer.
+
+        \o \gui {Debugging port} is the port to access the QML viewer. You can use any
+        free port in the registered port range.
+
+        \o \gui {Viewer path} is the path to QML viewer executable.
+
+        \o \gui {Viewer arguments} sets arguments for running the QML viewer.
+        The \c{-I <directory>} argument searches for C++ or QML plugins from
+        the project folder. For a list of available arguments, enter \c {qml --help}
+        on the command line.
+
+    \endlist
+
+    The QML runtime is started, debugged with the native debugger, and attached to
+    the QML viewer.
+
+    \section1 Viewing and Modifying Values of Properties
+
+    The \gui {Properties and Watchers} view lists the JavaScript expressions
+    in the project and their properties and values. The properties are grouped
+    by type, but you can also view them in one long list.
+    Right-click the list of properties to open a context-menu and then click
+    \gui {Group by Item Type} to change the way in which the properties are
+    sorted.
+
+    If an item does not have an ID, you cannot change the values of its
+    properties. The item type is enclosed in angle brackets and the value
+    is grayed.
+
+    Double-click an item to move to the place in code where it is declared.
+
+    You can change the values of properties and see the results in the QML viewer.
+
+    If the QML inspector cannot retrieve the value for an item or a property for
+    inspection, the item or property is grayed in the view. Right-click the item list
+    to open a context menu, and then click \gui {Show Uninspectable Items} to hide
+    or show the items that cannot be inspected.
+
+    \section1 Watching Expressions
+
+    In the \gui {Properties and Watchers} view, you can specify that an expression is
+    watched. Right-click a property and then click \gui {Watch Expression}.
+    The \gui Name and \gui Value of the expression are displayed at the bottom
+    of the view.
+
+    \image qmldesigner-inspector-watchers.png "Watched expressions"
+
+    You can add JavaScript expressions to object instances to evaluate them.
+    Right-click the list of items and select \gui {Add Watch Expression}. Enter
+    the expression to evaluate and click \gui OK.
+
+    \image qmldesigner-inspector-add-watch.png "Add Watch Expression dialog"
+
+    To stop watching a expression, right-click it and select \gui {Stop Watching}.
+
+    The QML inspector cannot show the values for some items, such as composite objects
+    or complicated item that you cannot change. These items cannot be watched.
+    To show them, right-click the properties list, and then select
+    \gui {Show Unwatchable Properties}.
+
+    \section1 Executing JavaScript
+
+    In the \gui {Script Console} view, you can write JavaScript expressions, see
+    how they are executed, and evaluate them during runtime.
+
+    You can also test the C++ code without rebuilding the whole application.
+
+    \section1 Viewing Connections to the QML Viewer
+
+    The \gui Output view displays the status of the connection between the QML
+    inspector and the QML viewer.
+
+    You specify the connection in the \gui {Run Settings} in the \gui Projects mode.
+    For more information, see \l{Run Settings}.
+
+    If the connection does not work, check the values of the \gui {Debugging address}
+    and \gui {Debugging port} fields. Check that the default port number is not reserved
+    by another application or another instance of the QML viewer that was not shut
+    down properly. You can specify any free port number in the registered port range
+    (1024-49151).
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-debugging.html
+    \page creator-debugging-cpp.html
+    \nextpage creator-debugging-example.html
+
+    \title Debugging Qt Applications
 
     In the \gui Debug mode you can interact with the debugger in several ways, including
     the following:
@@ -3532,7 +3761,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging.html
+    \previouspage creator-debugging-cpp.html
     \page creator-debugging-example.html
     \nextpage creator-debug-mode.html
 
@@ -3617,7 +3846,7 @@
     \contentspage index.html
     \previouspage creator-debugger-engines.html
     \page creator-debugging-helpers.html
-    \nextpage creator-version-control.html
+    \nextpage creator-debugging-qml.html
 
     \title Using Debugging Helpers
 
