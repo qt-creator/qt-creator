@@ -18,8 +18,7 @@ GroupBox {
                     baseStateFlag: isBaseState
                 }
             }
-        }
-        
+        }        
         QWidget {
             id: sizeWidget
             property bool selectionFlag: selectionChanged
@@ -33,8 +32,7 @@ GroupBox {
                 if (backendValues.font_pixelSize.isInModel)
                     sizeType.currentText = "pixels";
                 isSetup = false;
-            }
-            
+            }            
             layout: HorizontalLayout {
                 Label {
                     text: qsTr("Size")
@@ -65,28 +63,21 @@ GroupBox {
                     }
                 }
             }
-        }
-
-        
-        
+        }               
         QWidget {
             layout: HorizontalLayout {
                 Label {
                     text: qsTr("Font Style")
                 }
-
                 FontStyleButtons {}
-
             }
         }
-
         QWidget {
             visible: showStyle
             layout: HorizontalLayout {                
                 Label {
                     text: qsTr("Style")
                 }
-
                 ComboBox {
                     baseStateFlag:isBaseState
                     backendValue: (backendValues.style === undefined) ? dummyBackendValue : backendValues.style

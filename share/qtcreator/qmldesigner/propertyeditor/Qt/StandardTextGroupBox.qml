@@ -12,11 +12,9 @@ GroupBox {
     layout: VerticalLayout {
         QWidget {
             layout: HorizontalLayout {
-
                 Label {
                     text: qsTr("Text")
                 }
-
                 LineEdit {
                     backendValue: backendValues.text
                     baseStateFlag: isBaseState;
@@ -37,12 +35,10 @@ GroupBox {
                     onItemsChanged: {
                         currentText =  backendValues.wrapMode.value;
                     }
-
                     backendValue: backendValues.wrapMode
                 }
             }
         }
-
         QWidget {
             layout: HorizontalLayout {
 

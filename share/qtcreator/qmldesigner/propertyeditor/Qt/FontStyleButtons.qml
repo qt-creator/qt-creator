@@ -6,7 +6,6 @@ QGroupBox {
 
     property int buttonWidth: 46
     layout: HorizontalLayout {
-        topMargin: 6
 
         QWidget {
             fixedHeight: 32
