@@ -726,7 +726,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     q = parent;
     m_textedit = qobject_cast<QTextEdit *>(widget);
     m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
-    new Highlighter(EDITOR(document()), &pythonRules);
+    //new Highlighter(EDITOR(document()), &pythonRules);
     init();
 }
 
