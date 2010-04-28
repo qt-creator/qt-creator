@@ -201,6 +201,14 @@ void StyleHelper::verticalGradient(QPainter *painter, const QRect &spanRect, con
 static void horizontalGradientHelper(QPainter *p, const QRect &spanRect, const
 QRect &rect, bool lightColored)
 {
+    if (lightColored) {
+        QLinearGradient shadowGradient(rect.topLeft(), rect.bottomLeft());
+        shadowGradient.setColorAt(0, 0xf0f0f0);
+        shadowGradient.setColorAt(1, 0xcfcfcf);
+        p->fillRect(rect, shadowGradient);
+        return;
+    }
+
     QColor base = StyleHelper::baseColor(lightColored);
     QColor highlight = StyleHelper::highlightColor(lightColored);
     QColor shadow = StyleHelper::shadowColor(lightColored);

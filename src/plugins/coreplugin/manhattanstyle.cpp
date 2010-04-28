@@ -795,13 +795,18 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             else
                 Utils::StyleHelper::verticalGradient(painter, gradientSpan, rect, drawLightColored);
 
-            painter->setPen(Utils::StyleHelper::borderColor());
+            if (!drawLightColored)
+                painter->setPen(Utils::StyleHelper::borderColor());
+            else
+                painter->setPen(QColor(0x888888));
 
             if (horizontal) {
                 // Note: This is a hack to determine if the
                 // toolbar should draw the top or bottom outline
                 // (needed for the find toolbar for instance)
                 QColor lighter(Utils::StyleHelper::sidebarHighlight());
+                if (drawLightColored)
+                    lighter = QColor(255, 255, 255, 180);
                 if (widget && widget->property("topBorder").toBool()) {
                     painter->drawLine(rect.topLeft(), rect.topRight());
                     painter->setPen(lighter);
@@ -817,6 +822,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             }
         }
         break;
+
     default:
         QProxyStyle::drawControl(element, option, painter, widget);
         break;
@@ -887,7 +893,8 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                 }
                 tool.rect = tool.rect.adjusted(2, 2, -2, -2);
                 drawPrimitive(PE_IndicatorArrowDown, &tool, painter, widget);
-            } else if (toolbutton->features & QStyleOptionToolButton::HasMenu) {
+            } else if (toolbutton->features & QStyleOptionToolButton::HasMenu
+                       && !widget->property("noArrow").toBool()) {
                 int arrowSize = 6;
                 QRect ir = toolbutton->rect.adjusted(1, 1, -1, -1);
                 QStyleOptionToolButton newBtn = *toolbutton;
@@ -968,6 +975,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             painter->restore();
         }
         break;
+
     default:
         QProxyStyle::drawComplexControl(control, option, painter, widget);
         break;
