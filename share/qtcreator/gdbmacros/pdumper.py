@@ -6,11 +6,11 @@ import linecache
 
 class qdebug:
     def __init__(self,
-            options = Null,
-            expanded = Null,
-            typeformats = Null,
-            individualformats = Null,
-            watchers = Null):
+            options = None,
+            expanded = None,
+            typeformats = None,
+            individualformats = None,
+            watchers = None):
         self.options = options
         self.expanded = expanded
         self.typeformats = typeformats
@@ -88,25 +88,57 @@ class qdebug:
         tt = self.cleanType(t)
         if tt == "module" or tt == "function":
             return
-        if tt == "list":
-            self.warn("LIST: %s" % dir(value))
-            self.put("{")
-            self.putField("iname", iname)
-            self.putName(name)
-            self.putType(tt)
-            self.putValue(value)
+        self.put("{")
+        self.putField("iname", iname)
+        self.putName(name)
+        self.putType(tt)
+        if tt == "list" or tt == "tuple":
+            self.putItemCount(len(value))
+            #self.putValue(value)
             self.put("children=[")
             for i in xrange(len(value)):
                 self.dumpValue(value[i], str(i), "%s.%d" % (iname, i))
             self.put("]")
-            self.put("},")
-        elif tt != "module" and tt != "function":
-            self.put("{")
-            self.putField("iname", iname)
-            self.putName(name)
-            self.putType(tt)
+        elif tt == "str":
+            v = value
+            self.putValue(v.encode('hex'))
+            self.putField("valueencoded", 6)
+            self.putNumChild(0)
+        elif tt == "unicode":
+            v = value
+            self.putValue(v.encode('hex'))
+            self.putField("valueencoded", 6)
+            self.putNumChild(0)
+        elif tt == "buffer":
+            v = str(value)
+            self.putValue(v.encode('hex'))
+            self.putField("valueencoded", 6)
+            self.putNumChild(0)
+        elif tt == "xrange":
+            b = iter(value).next()
+            e = b + len(value)
+            self.putValue("(%d, %d)" % (b, e))
+            self.putNumChild(0)
+        elif tt == "dict":
+            self.putItemCount(len(value))
+            self.putField("childnumchild", 2)
+            self.put("children=[")
+            i = 0
+            for (k, v) in value.iteritems():
+                self.put("{")
+                self.putType(" ")
+                self.putValue("%s: %s" % (k, v))
+                self.put("children=[")
+                self.dumpValue(k, "key", "%s.%d.k" % (iname, i))
+                self.dumpValue(v, "value", "%s.%d.v" % (iname, i))
+                self.put("]},")
+                i += 1
+            self.put("]")
+        elif tt == "module" or tt == "function":
+            pass
+        else:
             self.putValue(value)
-            self.put("},")
+        self.put("},")
 
 
     def warn(self, msg):

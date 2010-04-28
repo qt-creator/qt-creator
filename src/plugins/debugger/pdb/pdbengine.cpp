@@ -179,7 +179,7 @@ void PdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     m_commands.enqueue(cmd);
 
     m_pdbProc.start(m_pdb, gdbArgs);
-    qDebug() << "STARTING:" << m_pdb << gdbArgs;
+    //qDebug() << "STARTING:" << m_pdb << gdbArgs;
 
     if (!m_pdbProc.waitForStarted()) {
         const QString msg = tr("Unable to start pdb '%1': %2")
