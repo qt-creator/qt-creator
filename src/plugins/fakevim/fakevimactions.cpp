@@ -205,6 +205,11 @@ FakeVimSettings *theFakeVimSettings()
     instance->insertItem(ConfigBackspace, item, _("backspace"), _("bs"));
 
     item = new SavedAction(instance);
+    item->setDefaultValue(_("@,48-57,_,192-255"));
+    item->setSettingsKey(group, _("IsKeyword"));
+    instance->insertItem(ConfigIsKeyword, item, _("iskeyword"), _("isk"));
+
+    item = new SavedAction(instance);
     item->setText(QCoreApplication::translate("FakeVim::Internal",
         "FakeVim properties..."));
     instance->insertItem(SettingsDialog, item);

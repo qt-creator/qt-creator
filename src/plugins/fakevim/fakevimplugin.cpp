@@ -176,6 +176,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.spinBoxTabStop);
     m_group.insert(theFakeVimSetting(ConfigBackspace),
         m_ui.lineEditBackspace);
+    m_group.insert(theFakeVimSetting(ConfigIsKeyword),
+        m_ui.lineEditIsKeyword);
 
     m_group.insert(theFakeVimSetting(ConfigAutoIndent),
         m_ui.checkBoxAutoIndent);

@@ -60,6 +60,9 @@ enum FakeVimSettingsCode
     //         stop once at the start of insert.
     ConfigBackspace,
 
+    // @,48-57,_,192-255
+    ConfigIsKeyword,
+
     // other actions
     SettingsDialog,
 };
