@@ -79,13 +79,14 @@ QmlInspectorPlugin::QmlInspectorPlugin()
 
 QmlInspectorPlugin::~QmlInspectorPlugin()
 {
+    removeObject(m_inspector);
+    delete m_inspector;
+    m_inspector = 0;
 }
 
 void QmlInspectorPlugin::shutdown()
 {
-    removeObject(m_inspector);
-    delete m_inspector;
-    m_inspector = 0;
+
 }
 
 bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *errorString)
