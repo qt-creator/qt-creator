@@ -342,6 +342,19 @@ DebuggerManager::DebuggerManager(DebuggerPlugin *plugin)
 DebuggerManager::~DebuggerManager()
 {
     #define doDelete(ptr) delete ptr; ptr = 0
+    doDelete(scriptEngine);
+    doDelete(pdbEngine);
+    doDelete(gdbEngine);
+    doDelete(cdbEngine);
+
+    doDelete(d->m_breakHandler);
+    doDelete(d->m_threadsHandler);
+    doDelete(d->m_modulesHandler);
+    doDelete(d->m_registerHandler);
+    doDelete(d->m_snapshotHandler);
+    doDelete(d->m_stackHandler);
+    doDelete(d->m_watchHandler);
+
     doDelete(gdbEngine);
     doDelete(scriptEngine);
     doDelete(cdbEngine);
@@ -847,34 +860,6 @@ void DebuggerManager::shutdown()
     if (d->m_engine)
         d->m_engine->shutdown();
     d->m_engine = 0;
-
-    #define doDelete(ptr) delete ptr; ptr = 0
-    doDelete(scriptEngine);
-    doDelete(pdbEngine);
-    doDelete(gdbEngine);
-    doDelete(cdbEngine);
-
-    // Delete these manually before deleting the manager
-    // (who will delete the models for most views)
-    doDelete(d->m_breakWindow);
-    doDelete(d->m_modulesWindow);
-    doDelete(d->m_outputWindow);
-    doDelete(d->m_registerWindow);
-    doDelete(d->m_stackWindow);
-    doDelete(d->m_sourceFilesWindow);
-    doDelete(d->m_threadsWindow);
-    //doDelete(d->m_tooltipWindow);
-    doDelete(d->m_watchersWindow);
-    doDelete(d->m_localsWindow);
-
-    doDelete(d->m_breakHandler);
-    doDelete(d->m_threadsHandler);
-    doDelete(d->m_modulesHandler);
-    doDelete(d->m_registerHandler);
-    doDelete(d->m_snapshotHandler);
-    doDelete(d->m_stackHandler);
-    doDelete(d->m_watchHandler);
-    #undef doDelete
 }
 
 void DebuggerManager::makeSnapshot()

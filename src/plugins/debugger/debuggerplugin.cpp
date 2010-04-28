@@ -545,25 +545,11 @@ DebuggerPlugin::DebuggerPlugin()
 {}
 
 DebuggerPlugin::~DebuggerPlugin()
-{}
-
-void DebuggerPlugin::shutdown()
 {
-    QTC_ASSERT(m_manager, /**/);
-    if (m_manager)
-        m_manager->shutdown();
-
-    writeSettings();
-
-    if (m_uiSwitcher)
-        m_uiSwitcher->shutdown();
-
     delete DebuggerSettings::instance();
 
     removeObject(m_debugMode);
 
-    // FIXME: when using the line below, BreakWindow etc gets deleted twice.
-    // so better leak for now...
     delete m_debugMode;
     m_debugMode = 0;
 
@@ -577,6 +563,18 @@ void DebuggerPlugin::shutdown()
     removeObject(m_uiSwitcher);
     delete m_uiSwitcher;
     m_uiSwitcher = 0;
+}
+
+void DebuggerPlugin::shutdown()
+{
+    QTC_ASSERT(m_manager, /**/);
+    if (m_manager)
+        m_manager->shutdown();
+
+    writeSettings();
+
+    if (m_uiSwitcher)
+        m_uiSwitcher->shutdown();
 }
 
 static QString msgParameterMissing(const QString &a)
