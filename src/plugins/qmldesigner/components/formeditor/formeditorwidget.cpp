@@ -85,7 +85,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     QActionGroup *layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(false);
-    m_snappingAction = layoutActionGroup->addAction("Toogle Snapping (Press Key E)");
+    m_snappingAction = layoutActionGroup->addAction(tr("Snap to guides (E)"));
     m_snappingAction->setShortcut(Qt::Key_E);
     m_snappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_snappingAction->setCheckable(true);
@@ -109,7 +109,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(separatorAction);
     upperActions.append(separatorAction);
 
-    m_showBoundingRectAction = new QAction("Toogle Bounding Rectangles (Press Key A)", this);
+    m_showBoundingRectAction = new QAction(tr("Show bounding rectangles (A)"), this);
     m_showBoundingRectAction->setShortcut(Qt::Key_A);
     m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_showBoundingRectAction->setCheckable(true);
@@ -119,7 +119,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addAction(m_showBoundingRectAction.data());
     upperActions.append(m_showBoundingRectAction.data());
 
-    m_selectOnlyContentItemsAction = new QAction("Select Only Items with Content (Press Key S)", this);
+    m_selectOnlyContentItemsAction = new QAction(tr("Only select items with content (S)"), this);
     m_selectOnlyContentItemsAction->setShortcut(Qt::Key_S);
     m_selectOnlyContentItemsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_selectOnlyContentItemsAction->setCheckable(true);
