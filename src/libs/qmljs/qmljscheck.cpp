@@ -38,22 +38,6 @@
 #include <QtGui/QColor>
 #include <QtGui/QApplication>
 
-namespace QmlJS {
-namespace Messages {
-static const char *invalid_property_name =  QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' is not a valid property name");
-static const char *unknown_type = QT_TRANSLATE_NOOP("QmlJS::Check", "unknown type");
-static const char *has_no_members = QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' does not have members");
-static const char *is_not_a_member = QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' is not a member of '%2'");
-static const char *easing_curve_not_a_string = QT_TRANSLATE_NOOP("QmlJS::Check", "easing-curve name is not a string");
-static const char *unknown_easing_curve_name = QT_TRANSLATE_NOOP("QmlJS::Check", "unknown easing-curve name");
-static const char *value_might_be_undefined = QT_TRANSLATE_NOOP("QmlJS::Check", "value might be 'undefined'");
-} // namespace Messages
-
-static inline QString tr(const char *msg)
-{ return qApp->translate("QmlJS::Check", msg); }
-
-} // namespace QmlJS
-
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
@@ -119,13 +103,13 @@ public:
             const QString curveName = stringLiteral->value->asString();
 
             if (!EasingCurveNameValue::curveNames().contains(curveName)) {
-                _message.message = tr(Messages::unknown_easing_curve_name);
+                _message.message = QCoreApplication::translate("QmlJS::Check", "unknown easing-curve name");
             }
         } else if (_rhsValue->asUndefinedValue()) {
             _message.kind = DiagnosticMessage::Warning;
-            _message.message = tr(Messages::value_might_be_undefined);
+            _message.message = QCoreApplication::translate("QmlJS::Check", "value might be 'undefined'");
         } else if (! _rhsValue->asStringValue()) {
-            _message.message = tr(Messages::easing_curve_not_a_string);
+            _message.message = QCoreApplication::translate("QmlJS::Check", "easing-curve name is not a string");
         }
     }
 
@@ -226,7 +210,8 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
     if (! _context.lookupType(_doc.data(), typeId)) {
         if (! _ignoreTypeErrors)
-            error(typeId->identifierToken, tr(Messages::unknown_type));
+            error(typeId->identifierToken,
+                  QCoreApplication::translate("QmlJS::Check", "unknown type"));
         // suppress subsequent errors about scope object lookup by clearing
         // the scope object list
         // ### todo: better way?
@@ -340,7 +325,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     }
     if (!value) {
         error(id->identifierToken,
-              tr(Messages::invalid_property_name).arg(propertyName));
+              QCoreApplication::translate("QmlJS::Check", "'%1' is not a valid property name").arg(propertyName));
     }
 
     // can't look up members for attached properties
@@ -353,7 +338,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         const ObjectValue *objectValue = value_cast<const ObjectValue *>(value);
         if (! objectValue) {
             error(idPart->identifierToken,
-                  tr(Messages::has_no_members).arg(propertyName));
+                  QCoreApplication::translate("QmlJS::Check", "'%1' does not have members").arg(propertyName));
             return 0;
         }
 
@@ -369,8 +354,8 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         value = objectValue->lookupMember(propertyName, &_context);
         if (! value) {
             error(idPart->identifierToken,
-                  tr(Messages::is_not_a_member).arg(propertyName,
-                                               objectValue->className()));
+                  QCoreApplication::translate("QmlJS::Check", "'%1' is not a member of '%2'").arg(
+                          propertyName, objectValue->className()));
             return 0;
         }
     }
