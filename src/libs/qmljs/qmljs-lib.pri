@@ -19,7 +19,8 @@ HEADERS += \
     $$PWD/qmljslink.h \
     $$PWD/qmljscheck.h \
     $$PWD/qmljsscopebuilder.h \
-    $$PWD/qmljslineinfo.h
+    $$PWD/qmljslineinfo.h \
+    $$PWD/qmljscompletioncontextfinder.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -30,7 +31,8 @@ SOURCES += \
     $$PWD/qmljslink.cpp \
     $$PWD/qmljscheck.cpp \
     $$PWD/qmljsscopebuilder.cpp \
-    $$PWD/qmljslineinfo.cpp
+    $$PWD/qmljslineinfo.cpp \
+    $$PWD/qmljscompletioncontextfinder.cpp
 
 contains(QT, gui) {
     SOURCES += $$PWD/qmljsindenter.cpp

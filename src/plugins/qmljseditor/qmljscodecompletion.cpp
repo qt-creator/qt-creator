@@ -37,6 +37,7 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsevaluate.h>
+#include <qmljs/qmljscompletioncontextfinder.h>
 
 #include <texteditor/basetexteditor.h>
 
@@ -638,6 +639,12 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
             (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
+/*
+        QTextCursor startPositionCursor(edit->document());
+        startPositionCursor.setPosition(m_startPosition);
+        CompletionContextFinder contextFinder(startPositionCursor);
+        qDebug() << "Qml type name" << contextFinder.qmlObjectTypeName();
+*/
         // It's a global completion.
         EnumerateProperties enumerateProperties(&context);
         enumerateProperties.setGlobalCompletion(true);

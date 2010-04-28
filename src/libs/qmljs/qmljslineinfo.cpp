@@ -339,7 +339,6 @@ void LineInfo::startLinizer()
     yyLeftBraceFollows = &yyLinizerState.leftBraceFollows;
 
     yyLinizerState.iter = yyProgram.lastBlock();
-    yyLinizerState.iter = yyLinizerState.iter.previous();
     yyLinizerState.line = yyLinizerState.iter.text();
     readLine();
 }
