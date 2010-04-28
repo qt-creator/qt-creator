@@ -257,38 +257,38 @@ void TextEditorActionHandler::createActions()
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+}")));
     connect(m_gotoBlockEndWithSelectionAction, SIGNAL(triggered()), this, SLOT(gotoBlockEndWithSelection()));
 
-    m_selectBlockUpAction= new QAction(tr("Select Block Up"), this);
+    m_selectBlockUpAction = new QAction(tr("Select Block Up"), this);
     command = am->registerAction(m_selectBlockUpAction, Constants::SELECT_BLOCK_UP, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+U")));
     connect(m_selectBlockUpAction, SIGNAL(triggered()), this, SLOT(selectBlockUp()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
-    m_selectBlockDownAction= new QAction(tr("Select Block Down"), this);
+    m_selectBlockDownAction = new QAction(tr("Select Block Down"), this);
     command = am->registerAction(m_selectBlockDownAction, Constants::SELECT_BLOCK_DOWN, m_contextId);
     connect(m_selectBlockDownAction, SIGNAL(triggered()), this, SLOT(selectBlockDown()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
-    m_moveLineUpAction= new QAction(tr("Move Line Up"), this);
+    m_moveLineUpAction = new QAction(tr("Move Line Up"), this);
     command = am->registerAction(m_moveLineUpAction, Constants::MOVE_LINE_UP, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Up")));
     connect(m_moveLineUpAction, SIGNAL(triggered()), this, SLOT(moveLineUp()));
 
-    m_moveLineDownAction= new QAction(tr("Move Line Down"), this);
+    m_moveLineDownAction = new QAction(tr("Move Line Down"), this);
     command = am->registerAction(m_moveLineDownAction, Constants::MOVE_LINE_DOWN, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Down")));
     connect(m_moveLineDownAction, SIGNAL(triggered()), this, SLOT(moveLineDown()));
 
-    m_copyLineUpAction= new QAction(tr("Copy Line Up"), this);
+    m_copyLineUpAction = new QAction(tr("Copy Line Up"), this);
     command = am->registerAction(m_copyLineUpAction, Constants::COPY_LINE_UP, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Up")));
     connect(m_copyLineUpAction, SIGNAL(triggered()), this, SLOT(copyLineUp()));
 
-    m_copyLineDownAction= new QAction(tr("Copy Line Down"), this);
+    m_copyLineDownAction = new QAction(tr("Copy Line Down"), this);
     command = am->registerAction(m_copyLineDownAction, Constants::COPY_LINE_DOWN, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Down")));
     connect(m_copyLineDownAction, SIGNAL(triggered()), this, SLOT(copyLineDown()));
 
-    m_joinLinesAction= new QAction(tr("Join Lines"), this);
+    m_joinLinesAction = new QAction(tr("Join Lines"), this);
     command = am->registerAction(m_joinLinesAction, Constants::JOIN_LINES, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+J")));
     connect(m_joinLinesAction, SIGNAL(triggered()), this, SLOT(joinLines()));
