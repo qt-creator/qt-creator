@@ -54,8 +54,6 @@ QGroupBox {
     }
 
     layout: HorizontalLayout {
-        topMargin: 6
-
         QWidget {
             fixedHeight: 32
 
