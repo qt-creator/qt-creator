@@ -56,7 +56,6 @@ public:
 
     Interpreter::ObjectValue *currentObjectValue() const;
     Interpreter::ObjectValue *idEnvironment() const;
-    Interpreter::ObjectValue *functionEnvironment() const;
     Interpreter::ObjectValue *rootObjectValue() const;
 
     Interpreter::ObjectValue *findQmlObject(AST::Node *node) const;
@@ -98,7 +97,6 @@ private:
 
     Interpreter::ObjectValue *_currentObjectValue;
     Interpreter::ObjectValue *_idEnvironment;
-    Interpreter::ObjectValue *_functionEnvironment;
     Interpreter::ObjectValue *_rootObjectValue;
 
     QHash<AST::Node *, Interpreter::ObjectValue *> _qmlObjects;

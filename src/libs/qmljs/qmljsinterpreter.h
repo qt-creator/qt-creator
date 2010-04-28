@@ -256,7 +256,6 @@ public:
 
         QList<QmlComponentChain *> instantiatingComponents;
         const ObjectValue *rootObject;
-        QList<const ObjectValue *> functionScopes;
         const ObjectValue *ids;
 
         void add(QList<const ObjectValue *> *list) const;

@@ -1316,7 +1316,6 @@ void ScopeChain::QmlComponentChain::clear()
     qDeleteAll(instantiatingComponents);
     instantiatingComponents.clear();
     rootObject = 0;
-    functionScopes.clear();
     ids = 0;
 }
 
@@ -1327,7 +1326,6 @@ void ScopeChain::QmlComponentChain::add(QList<const ObjectValue *> *list) const
 
     if (rootObject)
         list->append(rootObject);
-    list->append(functionScopes);
     if (ids)
         list->append(ids);
 }
@@ -1347,7 +1345,6 @@ void ScopeChain::update()
     if (qmlComponentScope.rootObject && ! qmlScopeObjects.contains(qmlComponentScope.rootObject))
         _all += qmlComponentScope.rootObject;
     _all += qmlScopeObjects;
-    _all += qmlComponentScope.functionScopes;
     if (qmlComponentScope.ids)
         _all += qmlComponentScope.ids;
     if (qmlTypes)

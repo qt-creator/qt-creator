@@ -43,7 +43,6 @@ Bind::Bind(Document *doc)
     : _doc(doc),
       _currentObjectValue(0),
       _idEnvironment(0),
-      _functionEnvironment(0),
       _rootObjectValue(0)
 {
     if (_doc)
@@ -77,11 +76,6 @@ Interpreter::ObjectValue *Bind::currentObjectValue() const
 Interpreter::ObjectValue *Bind::idEnvironment() const
 {
     return _idEnvironment;
-}
-
-Interpreter::ObjectValue *Bind::functionEnvironment() const
-{
-    return _functionEnvironment;
 }
 
 Interpreter::ObjectValue *Bind::rootObjectValue() const
@@ -175,7 +169,6 @@ void Bind::accept(Node *node)
 bool Bind::visit(AST::UiProgram *)
 {
     _idEnvironment = _engine.newObject(/*prototype =*/ 0);
-    _functionEnvironment = _engine.newObject(/*prototype =*/ 0);
     return true;
 }
 

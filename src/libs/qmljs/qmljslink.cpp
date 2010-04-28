@@ -115,7 +115,6 @@ void Link::makeComponentChain(
     if (bind->rootObjectValue())
         target->rootObject = bind->rootObjectValue();
 
-    target->functionScopes += bind->functionEnvironment();
     target->ids = bind->idEnvironment();
 }
 
