@@ -39,9 +39,19 @@ class CORESHARED_EXPORT InvalidIdException : public InvalidArgumentException
 public:
     InvalidIdException(int line,
                        const QString &function,
-                       const QString &file);
+                       const QString &file,
+                       const QString &id,
+                       bool duplicate = false);
 
     QString type() const;
+    QString description() const;
+
+    static QString duplicateErrorMessage(const QString &id);
+    static QString invalidErrorMessage(const QString &id);
+
+private:
+    QString m_id;
+    bool m_duplicate;
 
 };
 

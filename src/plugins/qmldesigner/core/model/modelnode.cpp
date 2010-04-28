@@ -180,13 +180,13 @@ void ModelNode::setId(const QString& id)
     }
 
     if (!isValidId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__);
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id);
 
     if (id == ModelNode::id())
         return;
 
     if (view()->hasId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__);
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, true);
 
     m_model.data()->m_d->changeNodeId(internalNode(), id);
 }

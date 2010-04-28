@@ -33,8 +33,10 @@ namespace QmlDesigner {
 
 InvalidIdException::InvalidIdException(int line,
                                        const QString &function,
-                                       const QString &file):
-    InvalidArgumentException(line, function, file, "id")
+                                       const QString &file,
+                                       const QString &id,
+                                       bool duplicate) :
+    InvalidArgumentException(line, function, file, "id"), m_id(id), m_duplicate(duplicate)
 {
 }
 
@@ -42,4 +44,23 @@ QString InvalidIdException::type() const
 {
     return "InvalidIdException";
 }
+
+QString InvalidIdException::description() const
+{
+    if (m_duplicate)
+        return duplicateErrorMessage(m_id);
+
+    return invalidErrorMessage(m_id);
+}
+
+QString InvalidIdException::duplicateErrorMessage(const QString &id)
+{
+     return QObject::tr("Ids have to be unique: ") + id;
+}
+
+QString InvalidIdException::invalidErrorMessage(const QString &id)
+{
+    return QObject::tr("Invalid Id: ") + id + QObject::tr("\nOnly alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter.");
+}
+
 }

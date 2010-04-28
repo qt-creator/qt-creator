@@ -166,7 +166,6 @@ void PropertyEditor::NodeType::setValue(const QmlObjectNode & fxObjectNode, cons
 void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor)
 {
     if (!fxObjectNode.isValid()) {
-        qWarning() << "invalid node for setup";
         return;
     }
 
@@ -354,12 +353,10 @@ void PropertyEditor::changeValue(const QString &propertyName)
         const QString newId = value->value().toString();
 
         try {
-            if (ModelNode::isValidId(newId))
-                m_selectedNode.setId(newId);
-            else
-                value->setValue(m_selectedNode.id());
-        } catch (InvalidIdException &) {
+            m_selectedNode.setId(newId);
+        } catch (InvalidIdException &e) {
             value->setValue(m_selectedNode.id());
+            QMessageBox::warning(0, tr("Invalid Id"), e.description());
         }
 
         return;

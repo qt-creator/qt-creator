@@ -272,14 +272,9 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
     ItemRow itemRow = itemRowForNode(node);
     if (item == itemRow.idItem) {
         try {
-            if (ModelNode::isValidId(item->text()))
-                node.setId(item->text());
-            else {
-                QMessageBox::warning(0,"Invalid Id",tr("Invalid id.\nOnly alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter."));
-                item->setText(node.id());
-            }
-        } catch (InvalidIdException &) {
-            QMessageBox::warning(0,"Invalid Id",tr("Item id must be unique."));
+            node.setId(item->text());
+        } catch (InvalidIdException &e) {
+            QMessageBox::warning(0, tr("Invalid Id"), e.description());
             item->setText(node.id());
         }
     } else if (item == itemRow.visibilityItem) {
