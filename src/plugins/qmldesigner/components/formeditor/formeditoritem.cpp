@@ -100,8 +100,8 @@ void FormEditorItem::updateGeometry()
     setTransform(qmlItemNode().instanceTransform());
     setTransform(m_attentionTransform, true);
     //the property for zValue is called z in QGraphicsObject
-    Q_ASSERT(qmlItemNode().instanceValue("z").isValid());
-    setZValue(qmlItemNode().instanceValue("z").toDouble());
+    if (qmlItemNode().instanceValue("z").isValid())
+        setZValue(qmlItemNode().instanceValue("z").toDouble());
 }
 
 void FormEditorItem::updateVisibilty()
