@@ -309,7 +309,7 @@ public:
     ProFileOption *m_option;
 
     enum ExpandFunc {
-        E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
+        E_MEMBER=1, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
         E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
         E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
         E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
@@ -408,6 +408,7 @@ void ProFileEvaluator::Private::initStatics()
         { "member", E_MEMBER },
         { "first", E_FIRST },
         { "last", E_LAST },
+        { "size", E_SIZE },
         { "cat", E_CAT },
         { "fromfile", E_FROMFILE },
         { "eval", E_EVAL },
@@ -2254,6 +2255,12 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                         ret.append(var.last());
                 }
             }
+            break;
+        case E_SIZE:
+            if(args.count() != 1)
+                logMessage(format("size(var) requires one argument."));
+            else
+                ret.append(QString::number(values(map(args.at(0))).size()));
             break;
         case E_CAT:
             if (args.count() < 1 || args.count() > 2) {
