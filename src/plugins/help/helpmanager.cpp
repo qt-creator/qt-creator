@@ -102,7 +102,7 @@ bool HelpManager::guiEngineNeedsUpdate() const
 
 void HelpManager::handleHelpRequest(const QString &url)
 {
-    emit helpRequested(url);
+    emit helpRequested(QUrl(url));
 }
 
 void HelpManager::verifyDocumenation()

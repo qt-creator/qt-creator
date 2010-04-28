@@ -73,9 +73,6 @@ public:
     void extensionsInitialized();
     void shutdown();
 
-public slots:
-    void handleHelpRequest(const QString &url);
-
 private slots:
     void modeChanged(Core::IMode *mode);
 
@@ -100,6 +97,8 @@ private slots:
     void fontChanged();
     void updateCloseButton();
     void setupHelpEngineIfNeeded();
+
+    void handleHelpRequest(const QUrl &url);
 
 private:
     void setupUi();

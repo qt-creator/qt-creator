@@ -145,8 +145,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(updateFilterPage()));
     connect(m_generalSettingsPage, SIGNAL(fontChanged()), this,
         SLOT(fontChanged()));
-    connect(m_helpManager, SIGNAL(helpRequested(QString)), this,
-        SLOT(handleHelpRequest(QString)));
+    connect(m_helpManager, SIGNAL(helpRequested(QUrl)), this,
+        SLOT(handleHelpRequest(QUrl)));
     connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
     connect(m_docSettingsPage, SIGNAL(documentationChanged()), this,
@@ -825,13 +825,12 @@ void HelpPlugin::addBookmark()
     manager->showBookmarkDialog(m_centralWidget, viewer->title(), url);
 }
 
-void HelpPlugin::handleHelpRequest(const QString &address)
+void HelpPlugin::handleHelpRequest(const QUrl &url)
 {
-    if (HelpViewer::launchWithExternalApp(address))
+    if (HelpViewer::launchWithExternalApp(url))
         return;
 
-    if (m_helpManager->helpEngineCore().findFile(address).isValid()) {
-        const QUrl url(address);
+    if (m_helpManager->helpEngineCore().findFile(url).isValid()) {
         if (url.queryItemValue(QLatin1String("view")) == QLatin1String("split")) {
             if (HelpViewer* viewer = viewerForContextMode())
                 viewer->setSource(url);
@@ -840,16 +839,20 @@ void HelpPlugin::handleHelpRequest(const QString &address)
             m_centralWidget->setSource(url);
         }
     } else {
-        // local help not installed, resort to external web help
-        QString urlPrefix;
-        if (address.startsWith(QLatin1String("qthelp://com.nokia.qtcreator"))) {
-            urlPrefix = QString::fromLatin1("http://doc.trolltech.com/qtcreator"
-                "-%1.%2/").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR);
-        } else {
-            urlPrefix = QLatin1String("http://doc.trolltech.com/latest/");
+        QString address = url.toString();
+        if (address.startsWith(HelpViewer::NsNokia)
+            || address.startsWith(HelpViewer::NsTrolltech)) {
+                // local help not installed, resort to external web help
+                QString urlPrefix = QLatin1String("http://doc.trolltech.com/");
+                if (url.authority() == QLatin1String("com.nokia.qtcreator")) {
+                    urlPrefix.append(QString::fromLatin1("qtcreator-%1.%2")
+                        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+                } else {
+                    urlPrefix.append(QLatin1String("latest"));
+                }
+            address = urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')));
         }
-        QDesktopServices::openUrl(QUrl(urlPrefix + address.mid(address
-            .lastIndexOf(QLatin1Char('/')) + 1)));
+        QDesktopServices::openUrl(address);
     }
 }
 

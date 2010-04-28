@@ -39,6 +39,7 @@ QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 QT_FORWARD_DECLARE_CLASS(QHelpEngineCore)
 QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QStringList)
+QT_FORWARD_DECLARE_CLASS(QUrl)
 
 class BookmarkManager;
 
@@ -69,7 +70,7 @@ public:
     static BookmarkManager& bookmarkManager();
 
 signals:
-    void helpRequested(const QString &Url);
+    void helpRequested(const QUrl &url);
 
 private:
     static bool m_guiNeedsSetup;
