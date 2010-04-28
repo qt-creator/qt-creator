@@ -132,7 +132,7 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation /*op*/,
     // html, thus a path inside the css like (../images/foo.png) might cd out of
     // the virtual folder
     if (!engine.findFile(url).isValid()) {
-        if (url.startsWith(HelpViewer::DocPath)) {
+        if (url.startsWith(HelpViewer::NsNokia) || url.startsWith(HelpViewer::NsTrolltech)) {
             QUrl newUrl = request.url();
             if (!newUrl.path().startsWith(QLatin1String("/qdoc/"))) {
                 newUrl.setPath(QLatin1String("/qdoc/") + newUrl.path());

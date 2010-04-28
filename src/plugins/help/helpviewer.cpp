@@ -44,7 +44,8 @@
 
 using namespace Help::Internal;
 
-const QString HelpViewer::DocPath = QLatin1String("qthelp://com.trolltech.");
+const QString HelpViewer::NsNokia = QLatin1String("qthelp://com.nokia.");
+const QString HelpViewer::NsTrolltech = QLatin1String("qthelp://com.trolltech.");
 
 const QString HelpViewer::AboutBlankPage =
     QCoreApplication::translate("HelpViewer", "<title>about:blank</title>");

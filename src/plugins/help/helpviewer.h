@@ -85,7 +85,8 @@ public:
     bool findText(const QString &text, Find::IFindSupport::FindFlags flags,
         bool incremental, bool fromSearch);
 
-    static const QString DocPath;
+    static const QString NsNokia;
+    static const QString NsTrolltech;
     static const QString AboutBlankPage;
     static const QString PageNotFoundMessage;
 
