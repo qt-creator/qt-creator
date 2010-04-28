@@ -1829,7 +1829,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
     QStringList ret;
 //    if (ok)
 //        *ok = true;
-    if (str.isEmpty())
+    if (str.isEmpty() && !pos)
         return ret;
 
     const ushort LSQUARE = '[';
