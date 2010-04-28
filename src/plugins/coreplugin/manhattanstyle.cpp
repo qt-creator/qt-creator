@@ -720,12 +720,12 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 QString text = option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, editRect.width());
                 if ((option->state & State_Enabled)) {
                     painter->setPen(QColor(0, 0, 0, 70));
-                    painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, cb->currentText);
+                    painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
                 } else {
                     painter->setOpacity(0.8);
                 }
                 painter->setPen(Utils::StyleHelper::panelTextColor());
-                painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, cb->currentText);
+                painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
 
                 painter->restore();
             } else {
@@ -941,8 +941,11 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             QRect arrowRect((left + right) / 2 + (reverse ? 6 : -6), rect.center().y() - 3, 9, 9);
 
             if (!alignarrow) {
-                int leftOffset = option->fontMetrics.width(cb->currentText) + 12;
-                arrowRect.moveLeft(leftOffset);
+                int labelwidth = option->fontMetrics.width(cb->currentText);
+                if (reverse)
+                    arrowRect.moveLeft(qMax(rect.width() - labelwidth - menuButtonWidth - 2, 4));
+                else
+                    arrowRect.moveLeft(qMin(labelwidth + menuButtonWidth - 2, rect.width() - menuButtonWidth - 4));
             }
             if (option->state & State_On)
                 arrowRect.translate(QProxyStyle::pixelMetric(PM_ButtonShiftHorizontal, option, widget),
