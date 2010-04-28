@@ -499,6 +499,37 @@ void ItemLibraryModel::updateVisibility()
         emit visibilityChanged();
 }
 
+static inline int getWidth(const ItemLibraryInfo &itemLibraryRepresentation)
+{
+    foreach (const ItemLibraryInfo::Property &property, itemLibraryRepresentation.properties())
+    {
+        if (property.name() == QLatin1String("width"))
+            return property.value().toInt();
+    }
+    return 64;
+}
+
+static inline int getHeight(const ItemLibraryInfo &itemLibraryRepresentation)
+{
+    foreach (const ItemLibraryInfo::Property &property, itemLibraryRepresentation.properties())
+    {
+        if (property.name() == QLatin1String("height"))
+            return property.value().toInt();
+    }
+    return 64;
+}
+
+static inline QPixmap createDragPixmap(int width, int height)
+{
+    QImage dragImage(width, height, QImage::Format_RGB32); // TODO: draw item drag icon
+    dragImage.fill(0xffffffff);
+    QPainter p(&dragImage);
+    QPen pen(Qt::gray);
+    pen.setWidth(2);
+    p.setPen(pen);
+    p.drawRect(1, 1, dragImage.width() - 2, dragImage.height() - 2);
+    return QPixmap::fromImage(dragImage);
+}
 
 QList<ItemLibraryInfo> ItemLibraryModel::itemLibraryRepresentations(const QString &type)
 {
@@ -507,15 +538,6 @@ QList<ItemLibraryInfo> ItemLibraryModel::itemLibraryRepresentations(const QStrin
 
     if (nodeInfo.isQmlGraphicsItem()) {
         itemLibraryRepresentationList = m_metaInfo->itemLibraryRepresentations(nodeInfo);
-
-        QImage dragImage(64, 64, QImage::Format_RGB32); // TODO: draw item drag icon
-        dragImage.fill(0xffffffff);
-        QPainter p(&dragImage);
-        QPen pen(Qt::gray);
-        pen.setWidth(2);
-        p.setPen(pen);
-        p.drawRect(1, 1, dragImage.width() - 2, dragImage.height() - 2);
-        QPixmap dragPixmap(QPixmap::fromImage(dragImage));
 
         if (!m_metaInfo->hasNodeMetaInfo(type))
             qWarning() << "ItemLibrary: type not declared: " << type;
@@ -532,19 +554,20 @@ QList<ItemLibraryInfo> ItemLibraryModel::itemLibraryRepresentations(const QStrin
             itemLibraryInfo.setTypeName(nodeInfo.typeName());
             itemLibraryInfo.setCategory(nodeInfo.category());
             itemLibraryInfo.setIcon(icon);
-            itemLibraryInfo.setDragIcon(dragPixmap);
+            itemLibraryInfo.setDragIcon(createDragPixmap(64, 64));
             itemLibraryInfo.setMajorVersion(nodeInfo.majorVersion());
             itemLibraryInfo.setMinorVersion(nodeInfo.minorVersion());
             itemLibraryRepresentationList.append(itemLibraryInfo);
         }
         else {
             foreach (ItemLibraryInfo itemLibraryRepresentation, itemLibraryRepresentationList) {
+                
                 QIcon icon = itemLibraryRepresentation.icon();
                 if (itemLibraryRepresentation.icon().isNull())
                     itemLibraryRepresentation.setIcon(defaultIcon);
 
                 if (itemLibraryRepresentation.dragIcon().isNull())
-                    itemLibraryRepresentation.setDragIcon(dragPixmap);
+                    itemLibraryRepresentation.setDragIcon(createDragPixmap(getWidth(itemLibraryRepresentation), getHeight(itemLibraryRepresentation)));
 
                 if (itemLibraryRepresentation.category().isEmpty())
                     itemLibraryRepresentation.setCategory(nodeInfo.category());
