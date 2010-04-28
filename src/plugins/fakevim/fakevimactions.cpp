@@ -205,7 +205,7 @@ FakeVimSettings *theFakeVimSettings()
     instance->insertItem(ConfigBackspace, item, _("backspace"), _("bs"));
 
     item = new SavedAction(instance);
-    item->setDefaultValue(_("@,48-57,_,192-255"));
+    item->setDefaultValue(_("@,48-57,_,192-255,a-z,A-Z"));
     item->setSettingsKey(group, _("IsKeyword"));
     instance->insertItem(ConfigIsKeyword, item, _("iskeyword"), _("isk"));
 

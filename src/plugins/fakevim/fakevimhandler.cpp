@@ -713,6 +713,10 @@ public:
 
     void timerEvent(QTimerEvent *ev);
     int m_inputTimer;
+
+    void setupCharClass();
+    int charClass(QChar c, bool simple) const;
+    signed char m_charClass[256];
 };
 
 QStringList FakeVimHandler::Private::m_searchHistory;
@@ -722,7 +726,7 @@ FakeVimHandler::Private::Mappings FakeVimHandler::Private::m_mappings;
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
-    static PythonHighlighterRules pythonRules;
+    //static PythonHighlighterRules pythonRules;
     q = parent;
     m_textedit = qobject_cast<QTextEdit *>(widget);
     m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
@@ -753,6 +757,8 @@ void FakeVimHandler::Private::init()
     m_rangemode = RangeCharMode;
     m_beginEditBlock = true;
     m_inputTimer = -1;
+
+    setupCharClass();
 }
 
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
@@ -909,6 +915,8 @@ void FakeVimHandler::Private::updateEditor()
 {
     const int charWidth = QFontMetrics(EDITOR(font())).width(QChar(' '));
     EDITOR(setTabStopWidth(charWidth * config(ConfigTabStop).toInt()));
+
+    setupCharClass();
 }
 
 void FakeVimHandler::Private::restoreWidget(int tabSize)
@@ -3351,13 +3359,52 @@ void FakeVimHandler::Private::moveToTargetColumn()
  *  class 1: non-space-or-letter-or-number
  *  class 2: letter-or-number
  */
-static int charClass(QChar c, bool simple)
+
+
+int FakeVimHandler::Private::charClass(QChar c, bool simple) const
 {
     if (simple)
         return c.isSpace() ? 0 : 1;
+    // FIXME: This means that only characters < 256 in the
+    // ConfigIsKeyword setting are handled properly.
+    if (c.unicode() < 256) {
+        //int old = (c.isLetterOrNumber() || c.unicode() == '_') ? 2
+        //    :  c.isSpace() ? 0 : 1;
+        //qDebug() << c.unicode() << old << m_charClass[c.unicode()];
+        return m_charClass[c.unicode()];
+    }
     if (c.isLetterOrNumber() || c.unicode() == '_')
         return 2;
     return c.isSpace() ? 0 : 1;
+}
+
+// Helper to parse a-z,A-Z,48-57,_
+static int someInt(const QString &str)
+{
+    if (str.toInt())
+        return str.toInt();
+    if (str.size())
+        return str.at(0).unicode();
+    return 0;
+}
+
+void FakeVimHandler::Private::setupCharClass()
+{
+    for (int i = 0; i < 256; ++i) {
+        const QChar c = QChar(QLatin1Char(i));
+        m_charClass[i] = c.isSpace() ? 0 : 1;
+    }
+    const QString conf = config(ConfigIsKeyword).toString();
+    foreach (const QString &part, conf.split(QLatin1Char(','))) {
+        if (part.contains(QLatin1Char('-'))) {
+            const int from = someInt(part.section(QLatin1Char('-'), 0, 0));
+            const int to = someInt(part.section(QLatin1Char('-'), 1, 1));
+            for (int i = qMax(0, from); i <= qMin(255, to); ++i)
+                m_charClass[i] = 2;
+        } else {
+            m_charClass[qMin(255, someInt(part))] = 2;
+        }
+    }
 }
 
 void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward, bool changeWord)
