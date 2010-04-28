@@ -7,4 +7,5 @@ HEADERS += stateseditorwidget.h \
     stateseditormodel.h \
     stateseditorview.h
 RESOURCES += $$PWD/stateseditor.qrc
-OTHER_FILES +=$$PWD/stateslist.qml
+OTHER_FILES +=$$PWD/stateslist.qml \
+$$PWD/HorizontalScrollBar.qml

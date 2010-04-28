@@ -1,9 +1,8 @@
 import Qt 4.7
 
-// Shows list of states
-// the model has to expose the path through an iconUrl property
 Rectangle {
     id: root
+
     property int currentStateIndex : 0
     signal createNewState
     signal deleteState(int index)
@@ -14,7 +13,7 @@ Rectangle {
 
     function adjustCurrentStateIndex() {
         if (currentStateIndex >= statesEditorModel.count)
-            currentStateIndex = statesEditorModel.count-1;
+        currentStateIndex = statesEditorModel.count-1;
     }
 
     Connections {
@@ -27,7 +26,6 @@ Rectangle {
         onChangedToState: root.currentStateIndex = n;
     }
 
-    // TextInputs don't loose focus automatically when user clicks away, have to be done explicitly
     signal unFocus
     MouseArea {
         anchors.fill:parent
@@ -36,11 +34,12 @@ Rectangle {
     }
     onCurrentStateIndexChanged: {
         if (currentStateIndex <= 0)
-            currentStateIndex = 0;
+        currentStateIndex = 0;
         else
-            unFocus();
+        unFocus();
 
     }
+
 
     Flickable {
         id: listView
@@ -62,6 +61,20 @@ Rectangle {
                     model: statesEditorModel
                     delegate: delegate
                 }
+                Item {
+                    id: newStateBoxLoader;
+                    width:132
+                    height:listViewRow.height
+                    Loader {
+                        sourceComponent: addState;
+                        // make it square
+                        width: 100
+                        height: 100
+                        anchors.horizontalCenter:parent.horizontalCenter
+                        anchors.bottom:parent.bottom
+                        anchors.bottomMargin:9
+                    }
+                }
             }
         }
 
@@ -72,12 +85,16 @@ Rectangle {
 
     }
 
+
     Component {
         id: delegate
         Item {
             id: container
-            width:img.width+32
-            height: img.height + txt.height + 29
+            property int baseStateOffset:(index==0?15:0)
+
+            width:img.width+32+baseStateOffset + (index==0?6:0)
+            height: img.height + txt.height + (index==0?29:25)
+            y:(index==0?0:4)
 
             property bool isCurrentState: root.currentStateIndex == index;
             onXChanged: scrollBarAdjuster.adjustScrollBar();
@@ -86,11 +103,11 @@ Rectangle {
             Item {
                 id:scrollBarAdjuster
                 function adjustScrollBar() {
-                    if (parent.isCurrentState) {
-                        if (container.x+container.width > listView.contentX + listView.width)
-                            horizontalScrollbar.viewPosition = container.x+container.width - listView.width;
+                    if ((parent.isCurrentState) && (container.x+container.width<=listView.contentWidth-floatingNewStateBox.width)) {
+                        if (container.x+container.width > listView.contentX + listView.width - floatingNewStateBox.width)
+                        horizontalScrollbar.viewPosition = container.x+container.width - listView.width+floatingNewStateBox.width + (index<statesEditorModel.count-1?25:0);
                         if (container.x < listView.contentX)
-                            horizontalScrollbar.viewPosition = container.x;
+                        horizontalScrollbar.viewPosition = container.x - (index>0?25:0);
                     }
                 }
             }
@@ -112,6 +129,7 @@ Rectangle {
             Loader {
                 sourceComponent: underlay
                 anchors.fill: parent
+                anchors.rightMargin: index==0?container.baseStateOffset:0
                 property variant color: parent.isCurrentState?highlightColor:"#4F4F4F";
             }
 
@@ -120,9 +138,10 @@ Rectangle {
 
                 width:100
                 height:100
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: textLimits.bottom
-                anchors.topMargin: 16
+                anchors.left: parent.left
+                anchors.leftMargin: (parent.width - width - container.baseStateOffset)/2
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 9
                 Image {
                     anchors.centerIn:parent
                     pixmap: statePixmap
@@ -154,9 +173,9 @@ Rectangle {
                 anchors.top: parent.top
                 anchors.topMargin:4
                 anchors.left:parent.left
-                anchors.right:parent.right
+                anchors.right:index==0 ? parent.right : removeState.left
                 anchors.leftMargin:4
-                anchors.rightMargin:4
+                anchors.rightMargin:4 + container.baseStateOffset
                 height: txt.height
                 clip: false
                 Text {
@@ -170,29 +189,40 @@ Rectangle {
                     elide:Qt.ElideMiddle
                     horizontalAlignment:Qt.AlignHCenter
                 }
+                Rectangle {
+                    id: textFrame
+                    visible:false
+                    anchors.fill:parent
+                    anchors.topMargin:0
+                    anchors.bottomMargin:-4
+                    color:"transparent"
+                    border.width:2
+                    border.color:index!=0 ? highlightColor : "transparent";
+                    radius:4
+                }
                 MouseArea {
                     id: txtRegion
                     anchors.fill:parent
                     onClicked: {
                         if (root.currentStateIndex != index)
-                            root.unFocus();
+                        root.unFocus();
                         root.currentStateIndex = index;
                     }
                     onDoubleClicked: if (index!=0) {
                         startRenaming();
                     }
+                    hoverEnabled:true
+                    onEntered: textFrame.visible=container.isCurrentState;
+                    onExited: textFrame.visible=false;
                 }
 
                 Rectangle {
                     id:stateNameEditor
                     visible:false
-                    // force update
                     onVisibleChanged: stateNameInput.updateScroll();
 
-                    x:2-parent.anchors.leftMargin
-                    y:2
-                    height:parent.height
-                    width:container.width-3
+                    height:parent.height+4
+                    width:parent.width
                     clip:true
 
                     color:"white"
@@ -219,6 +249,7 @@ Rectangle {
 
                     Item {
                         x:6
+                        y:2
                         width:parent.width-10
                         height:parent.height
                         clip:true
@@ -232,11 +263,11 @@ Rectangle {
                                 cursorMetric.text=text.substring(0,cursorPosition);
                                 var cM = cursorPosition>0?cursorMetric.width:0;
                                 if (cM+4+x>parent.width)
-                                    x = parent.width - cM - 4;
+                                x = parent.width - cM - 4;
                                 cursorMetric.text=text.substring(0,cursorPosition-1);
                                 var cM = cursorPosition>1?cursorMetric.width:0;
                                 if (cM+x<0)
-                                    x = -cM;
+                                x = -cM;
                             }
                             onAccepted: {
                                 if (stateNameEditor.visible) {
@@ -246,6 +277,108 @@ Rectangle {
                             }
                         }
                     }
+                }
+            }
+
+            // The erase button
+            Item {
+                id: removeState
+
+                visible: (index != 0 && root.currentStateIndex==index)
+
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.topMargin: 7;
+                anchors.rightMargin:4;
+
+                width: 12
+                height: width
+
+                states: [
+                    State{
+                        name: "Pressed";
+                        PropertyChanges {
+                            target: removeState
+                            buttonColor: buttonColorDown
+                        }
+                        },
+                        State{
+                            name: "Hover";
+                            PropertyChanges {
+                                target: removeState
+                                buttonColor: buttonColorHover
+                            }
+                        }
+                ]
+
+
+                property variant buttonColorUp: "#E1E1E1"
+                property variant buttonColorDown: Qt.darker(buttonColorUp)
+                property variant buttonColor: buttonColorUp
+                property variant buttonColorHover: "white"
+
+                Item {
+                    width:parent.width
+                    height:parent.height/2 - 1
+                    clip: true
+                    Rectangle {
+                        color: removeState.buttonColor
+                        width: removeState.width
+                        height: removeState.height
+                        radius: width/2
+                    }
+                }
+                Item {
+                    width:parent.width
+                    height:parent.height/2 - 1
+                    y:parent.height/2+1
+                    clip: true
+                    Rectangle {
+                        color: removeState.buttonColor
+                        width: removeState.width
+                        height: removeState.height
+                        radius: width/2
+                        y:-parent.y
+                    }
+                }
+                Item {
+                    width:2
+                    height:parent.height
+                    clip: true
+                    Rectangle {
+                        color: removeState.buttonColor
+                        width: removeState.width
+                        height: removeState.height
+                        radius: width/2
+                    }
+                }
+                Item {
+                    width:2
+                    height:parent.height
+                    x:parent.width-2
+                    clip: true
+                    Rectangle {
+                        color: removeState.buttonColor
+                        width: removeState.width
+                        height: removeState.height
+                        radius: width/2
+                        x: -parent.x
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill:parent
+                    onClicked: {
+                        root.unFocus();
+
+                        root.deleteState(index);
+                        horizontalScrollbar.contentSizeDecreased();
+                    }
+                    onPressed: {parent.state="Pressed"}
+                    onReleased: {parent.state=""}
+                    hoverEnabled:true
+                    onEntered: {parent.state="Hover"}
+                    onExited: {parent.state=""}
                 }
             }
         }
@@ -315,212 +448,129 @@ Rectangle {
         }
     }
 
-    Rectangle {
-        id: addStateButton
-        color: "#4f4f4f"
-        width: addStateText.width
-        height: addStateText.height+3
-        anchors.left: listView.left
-        anchors.bottom: root.bottom
+    Item {
+        id: floatingNewStateBox
+        width:132
+        height:listViewRow.height
+        anchors.right:root.right
 
-        Loader {
-            sourceComponent: underlay
-            anchors.fill: parent
-            property variant color: "#4f4f4f"
+        visible: (newStateBoxLoader.x+newStateBoxLoader.width>=listView.width)
+
+        Rectangle {
+            color: root.color
+            width:parent.width - 8
+            height:parent.height
+            anchors.right:parent.right
         }
 
         Rectangle {
-            id: addStatePressedBorder
-            anchors.fill:parent
-            anchors.bottomMargin:1
-            anchors.rightMargin:1
-            border.width:1
-            border.color:"black"
-            color:"transparent"
-            visible:false
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 1.0; color: root.color }
+            }
+            width:parent.height
+            height:8
+            rotation:-90
+            y : 68
+            x : -68
         }
 
-        states: [
-            State {
-               name: "Pressed"
-               PropertyChanges {
-                   target: addStatePressedBorder
-                   visible:true
-               }
-               PropertyChanges {
-                   target: addStateText
-                   color: "#1c1c1c"
-               }
-            },
-            State {
-                name: "Disabled"
-                PropertyChanges {
-                    target: addStateText
-                    color: "#5f5f5f"
-                }
-            }
-        ]
 
-        Text {
-            id: addStateText
-            text: " Clone "
-            color: "#cfcfcf"
-            font.pixelSize:10
-            y:1
-        }
-        MouseArea {
-            anchors.fill: parent
-            onPressed: if (parent.state != "Disabled") parent.state = "Pressed";
-            onReleased: if (parent.state == "Pressed") {
-                parent.state = "";
-                // force close textinput
-                root.unFocus();
-                if (root.currentStateIndex == 0)
-                    root.createNewState(); //create new state
-                else
-                    root.duplicateCurrentState(); //duplicate current state
-                // select the new state
-                root.currentStateIndex = statesEditorModel.count - 1;
-            }
+        Loader {
+            sourceComponent: addState
+            width: 100
+            height: 100
+            anchors.horizontalCenter:parent.horizontalCenter
+            anchors.bottom:parent.bottom
+            anchors.bottomMargin:9
         }
     }
 
-    Rectangle {
-        id: renameStateButton
-        color: "#4f4f4f"
-        border.color: "black"
-        border.width: 1
-        width: renameStateText.width
-        height: renameStateText.height+3
-        anchors.left: addStateButton.right
-        anchors.bottom: root.bottom
 
-        Loader {
-            sourceComponent: underlay
-            anchors.fill: parent
-            property variant color: "#4f4f4f"
-        }
-
-        Rectangle {
-            id: renameStatePressedBorder
+    // The add button
+    Component {
+        id: addState
+        Item {
             anchors.fill:parent
-            anchors.bottomMargin:1
-            anchors.rightMargin:1
-            border.width:1
-            border.color:"black"
-            color:"transparent"
-            visible:false
-        }
+            id: addStateBox
 
-        states: [
-            State {
-               name: "Pressed"
-               PropertyChanges {
-                   target: renameStatePressedBorder
-                   visible:true
-               }
-            PropertyChanges {
-                   target: renameStateText
-                   color: "#1c1c1c"
-               }
-            },
-            State {
-                name: "Disabled"
-                when: root.currentStateIndex == 0;
-                PropertyChanges {
-                    target: renameStateText
-                    color: "#5f5f5f"
+            states: [
+                State {
+                    name:"Hover"
+                    PropertyChanges {
+                        target:addStateBox
+                        buttonColor:hoverColor
+                    }
+                    },
+                    State {
+                        name:"Pressed"
+                        PropertyChanges {
+                            target:addStateBox
+                            buttonColor:pressedColor
+                        }
+                    }
+            ]
+
+            property variant buttonColor:"#282828"
+            property variant defaultColor:"#282828"
+            property variant hoverColor:"#E1E1E1"
+            property variant pressedColor:Qt.darker("#282828")
+
+            Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+                border.width: 1
+                border.color: addStateBox.buttonColor
+            }
+
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 21
+                height: width
+                color:addStateBox.buttonColor
+                radius: width/2
+                id:plusSign
+
+
+                // "plus" sign
+                Rectangle {
+                    width:parent.width-10
+                    height:3
+                    color:root.color
+                    anchors.centerIn:parent
+                }
+                Rectangle {
+                    width:3
+                    height:parent.height-10
+                    color:root.color
+                    anchors.centerIn:parent
+
                 }
             }
-        ]
 
-        Text {
-            id: renameStateText
-            text: " Rename "
-            color: "#cfcfcf"
-            font.pixelSize:10
-            y:1
-        }
-        MouseArea {
-            anchors.fill: parent
-            onPressed: if (parent.state != "Disabled") parent.state = "Pressed";
-            onReleased: if (parent.state == "Pressed") {
-                parent.state = "";
-                root.startRenaming();
-            }
-        }
-    }
-
-    Rectangle {
-        id: removeStateButton
-        color: "#4f4f4f"
-        border.color: "black"
-        border.width: 0
-        width: removeStateText.width
-        height: removeStateText.height+3
-        anchors.left: renameStateButton.right
-        anchors.bottom: root.bottom
-
-        Loader {
-            sourceComponent: underlay
-            anchors.fill: parent
-            property variant color: "#4f4f4f"
-        }
-
-        Rectangle {
-            id: removeStatePressedBorder
-            anchors.fill:parent
-            anchors.bottomMargin:1
-            anchors.rightMargin:1
-            border.width:1
-            border.color:"black"
-            color:"transparent"
-            visible:false
-        }
-
-        states: [
-            State {
-                name: "Pressed"
-                PropertyChanges {
-                    target: removeStatePressedBorder
-                    visible:true
-                }
-                PropertyChanges {
-                    target: removeStateText
-                    color: "#1c1c1c"
-                }
-            },
-            State {
-                name: "Disabled"
-                when: root.currentStateIndex == 0;
-                PropertyChanges {
-                    target: removeStateText
-                    color: "#5f5f5f"
-                }
-            }
-        ]
-
-        Text {
-            id: removeStateText
-            text: " Delete "
-            color: "#cfcfcf"
-            font.pixelSize:10
-            y:1
-        }
-        MouseArea {
-            anchors.fill: parent
-            onPressed: {
-                if (parent.state != "Disabled") {
-                    parent.state = "Pressed";
-                }
-            }
-            onReleased: {
-                if (parent.state == "Pressed") {
-                    parent.state = "";
+            MouseArea {
+                anchors.fill:parent
+                onClicked: {
+                    // force close textinput
                     root.unFocus();
-                    root.deleteState(root.currentStateIndex);
-                    horizontalScrollbar.contentSizeDecreased();
+                    if (root.currentStateIndex == 0)
+                    root.createNewState(); //create new state
+                    else
+                    root.duplicateCurrentState(); //duplicate current state
+                    // select the new state
+                    root.currentStateIndex = statesEditorModel.count - 1;
+
+                    // this should happen automatically
+                    if (floatingNewStateBox.visible)
+                    addStateBox.state = "Hover";
                 }
+                onPressed: addStateBox.state="Pressed"
+                onReleased: addStateBox.state=""
+                hoverEnabled: true
+                onEntered: addStateBox.state="Hover"
+                onExited: addStateBox.state=""
+
             }
         }
     }
@@ -529,13 +579,13 @@ Rectangle {
         id: horizontalScrollbar
 
         flickable: listView
-        anchors.left: removeStateButton.right
+        anchors.left: listView.left
         anchors.right : listView.right
         anchors.top : listView.bottom
         anchors.topMargin: 0
         anchors.rightMargin: 1
+        anchors.leftMargin: 1
         height: 10
         onUnFocus: root.unFocus();
     }
-
 }
