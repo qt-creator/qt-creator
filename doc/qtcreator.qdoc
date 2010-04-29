@@ -4431,11 +4431,7 @@
 
     You can use QML to add properties for a component in the code editor.
 
-    \omit
-
     The following sections describe some use cases for the QML elements.
-
-    \endomit
 
     \section3 Creating Buttons
 
@@ -4502,8 +4498,6 @@
     use the \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
     element.
 
-    \omit
-
     \section3 Creating Scalable Buttons and Borders
 
     You can use the \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
@@ -4513,7 +4507,7 @@
     is pushed down when it is clicked. One of the Border Image elements is visible by default.
     You can specify that it is hidden and the other one becomes visible when the mouse is clicked.
 
-    Add a MouseArea that covers the whole area and emits the clicked signal (parent.clicked())
+    Add a MouseArea that covers the whole area and emits the clicked signal (\c {parent.clicked()})
     when it detects a mouse click.
 
     You can add text to the button and set it up as a property. The text can then be initialized
@@ -4532,47 +4526,128 @@
 
         \o Double-click the file to open it in the code editor.
 
+        \o Replace the \gui Rectangle with an \gui Item, as illustrated by the
+        following code snippet:
+
+        \code
+
+        Item {
+
+        }
+
+        \endcode
+
         \o Click \gui {Design} to edit the file in the visual editor.
 
-        \o Drag and drop a \gui BorderImage from the \gui Library pane to the scene.
+        \o Drag and drop two \gui BorderImage items from the \gui Library pane to
+        the scene.
 
-        \o Drag and drop another \gui BorderImage on top of the first one.
+        \o Drag and drop a \gui Text item to the scene.
 
-        \o To switch the background image upon mouse click, create two .sci files that
-        specify the file names of the images:
+        \o Drag and drop a \gui MouseArea to the screen.
+
+        \o Click \gui Edit to specify properties for the \gui Item, as
+        illustrated by the following code snippet:
+
+        \code
+
+        property string text: ""
+        property int fontSize: 44
+
+        signal clicked
+
+        \endcode
+
+        \o In the \gui Navigator view, select \gui borderimage1 to specify
+        settings for it in the \gui Properties pane:
 
         \list a
 
-            \o Select \gui {File > New File or Project > General > Text File} to create
-            a text file called button-up.sci in the project folder.
+            \o In the \gui Source field, select the image file for the
+            button, for example button_up.png.
 
-            \o Double-click the button-up.sci file to open it in the code editor.
+            \o In the \gui Left, \gui Right, \gui Top, and \gui Bottom fields,
+            enter 32 to set the margins for the image.
 
-            \o Specify settings for the background image as illustrated by the following
-            code snippet:
+            \o Click \gui {Geometry}, and then click the
+            \inlineimage qmldesigner-anchor-fill-screen.png
+            button to anchor the border image to the \gui Item.
 
-            \code
+            \o Click \gui Advanced, and select \gui {Set Expression} in the menu
+            next to the \gui Visibility check box.
 
-            border.left:32
-            border.top:32
-            border.right:32
-            border.bottom:32
-            source:button-up.png
+            \o Enter the following expression to specify that the image is visible
+            when the mouse is not pressed down: \c {!mousearea1.pressed}.
 
-            \endcode
+        \endlist
 
-            \o Create another .sci file called button-down.sci and specify the other
-            background image as the source file.
+        \o Select \gui borderimage2 to specify similar settings for it:
 
-            \o Copy the background image files to the project folder.
+        \list a
 
-            \endlist
+            \o In the \gui Source field, select the image file for the
+            button when it is clicked, for example button_down.png.
+
+            \o In the \gui Left, \gui Right, \gui Top, and \gui Bottom fields,
+            enter 32 to set the margins for the image.
+
+            \o Click \gui {Geometry}, and then click the
+            \inlineimage qmldesigner-anchor-fill-screen.png
+            button to anchor the border image to the \gui Item.
+
+            \o Click \gui Advanced, and set the following epression for
+            \gui Visibility, to specify that the the image is visible
+            when the mouse is pressed down: \c {mousearea1.pressed}.
+
+        \endlist
+
+
+        \o Select \gui Text to specify font size and color, and text
+        scaling and rendering:
+
+        \list a
+
+            \o In the \gui Color field, use the color picker to select
+            the font color, or enter a value in the field.
+
+            \o In the \gui Text field, select \gui {Set Expression} and
+            enter a pointer to the \c {text} property that you specified
+            earlier: \c {parent.txt}.
+
+            \o In the \gui Size field, select \gui {Pixel} to specify
+            the font size in pixels. By default, the size is specified in
+            points.
+
+            \o In the \gui Size field, select \gui {Set Expression} and
+            enter a pointer to the \c {fontSize} property that you specified
+            earlier.
+
+            \o Select the \gui Smooth check box to enable smooth text
+            rendering.
+
+            \o Click \gui {Geometry}, and then click the
+            \inlineimage qmldesigner-center-in.png "Anchor buttons"
+            buttons to inherit the vertical and horizontal centering from
+            the parent.
+
+            \o Click \gui Advanced to specify scaling for the text in the
+            \gui Scale field.
+
+            \o Select \gui {Set Expression} and enter the following expression:
+            \c {if (!mousearea1.pressed) { 1 } else { 0.95 }}.
+
+            \note You can enter long and complicated expressions also in the
+            code editor.
+
+        \endlist
+
+        \o In the code editor, add to the \c MouseArea item
+        a pointer to the \c clicked expression that you added earlier:
+        \c {onClicked: parent.clicked()}.
 
         \o Click the \gui Run button to view the button in the QML viewer.
 
         \endlist
-
-    \endomit
 
     \section2 Creating Screens
 
