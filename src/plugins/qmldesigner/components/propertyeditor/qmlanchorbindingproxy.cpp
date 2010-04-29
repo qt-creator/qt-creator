@@ -290,6 +290,7 @@ void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
         removeBottomAnchor();
     } else {
         calcBottomMargin();
+        m_fxItemNode.removeVariantProperty("height");
     }
     emit bottomAnchorChanged();
 
@@ -311,6 +312,7 @@ void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
         removeLeftAnchor();
     } else {
         calcLeftMargin();
+        m_fxItemNode.removeVariantProperty("width");
     }
     emit leftAnchorChanged();
     if (hasAnchors() != anchor)
@@ -331,6 +333,7 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
         removeRightAnchor();
     } else {
         calcRightMargin();
+        m_fxItemNode.removeVariantProperty("x");
     }
     emit rightAnchorChanged();
     if (hasAnchors() != anchor)
@@ -441,6 +444,7 @@ void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
         removeTopAnchor();
     } else {
         calcTopMargin();
+        m_fxItemNode.removeVariantProperty("y");
     }
     emit topAnchorChanged();
     if (hasAnchors() != anchor)
@@ -537,6 +541,11 @@ void QmlAnchorBindingProxy::fill()
     m_fxItemNode.anchors().removeMargin(AnchorLine::Left);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Top);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Bottom);
+
+    m_fxItemNode.removeVariantProperty("x");
+    m_fxItemNode.removeVariantProperty("y");
+    m_fxItemNode.removeVariantProperty("width");
+    m_fxItemNode.removeVariantProperty("height");
 
     emit topAnchorChanged();
     emit bottomAnchorChanged();
