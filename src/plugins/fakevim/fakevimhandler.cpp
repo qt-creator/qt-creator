@@ -3249,7 +3249,6 @@ void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
     indentText(range, typedChar);
 
     setPosition(firstPositionInLine(beginLine));
-    moveToTargetColumn();
     handleStartOfLine();
     setTargetColumn();
     setDotCommand("%1==", endLine - beginLine + 1);
@@ -3278,24 +3277,27 @@ bool FakeVimHandler::Private::isElectricCharacter(QChar c) const
 
 void FakeVimHandler::Private::shiftRegionRight(int repeat)
 {
-    setTargetColumn();
     int beginLine = lineForPosition(anchor());
     int endLine = lineForPosition(position());
-    if (beginLine > endLine)
+    int targetPos = anchor();
+    if (beginLine > endLine) {
         qSwap(beginLine, endLine);
+        targetPos = position();
+    }
+    if (hasConfig(ConfigStartOfLine))
+        targetPos = firstPositionInLine(beginLine);
+
     int len = config(ConfigShiftWidth).toInt() * repeat;
     QString indent(len, ' ');
-    int firstPos = firstPositionInLine(beginLine);
 
-    beginEditBlock(firstPos);
+    beginEditBlock(targetPos);
     for (int line = beginLine; line <= endLine; ++line) {
         setPosition(firstPositionInLine(line));
         m_tc.insertText(indent);
     }
     endEditBlock();
 
-    setPosition(firstPos);
-    moveToTargetColumn();
+    setPosition(targetPos);
     handleStartOfLine();
     setTargetColumn();
     setDotCommand("%1>>", endLine - beginLine + 1);
@@ -3303,16 +3305,19 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
 
 void FakeVimHandler::Private::shiftRegionLeft(int repeat)
 {
-    setTargetColumn();
     int beginLine = lineForPosition(anchor());
     int endLine = lineForPosition(position());
-    if (beginLine > endLine)
+    int targetPos = anchor();
+    if (beginLine > endLine) {
         qSwap(beginLine, endLine);
+        targetPos = position(); 
+    }
     const int shift = config(ConfigShiftWidth).toInt() * repeat;
     const int tab = config(ConfigTabStop).toInt();
-    const int firstPos = firstPositionInLine(beginLine);
+    if (hasConfig(ConfigStartOfLine))
+        targetPos = firstPositionInLine(beginLine);
 
-    beginEditBlock(firstPos);
+    beginEditBlock(targetPos);
     for (int line = endLine; line >= beginLine; --line) {
         int pos = firstPositionInLine(line);
         const QString text = lineContents(line);
@@ -3331,8 +3336,7 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
     }
     endEditBlock();
 
-    setPosition(firstPos);
-    moveToTargetColumn();
+    setPosition(targetPos);
     handleStartOfLine();
     setTargetColumn();
     setDotCommand("%1<<", endLine - beginLine + 1);
