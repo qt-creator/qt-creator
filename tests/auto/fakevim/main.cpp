@@ -148,11 +148,6 @@ const QStringList tst_FakeVim::l = tst_FakeVim::lines.split('\n');
 
 const QString tst_FakeVim::escape = QChar(27);
 
-QString control(int c)
-{
-    return QChar(c + 256);
-}
-
 
 tst_FakeVim::tst_FakeVim(bool usePlainTextEdit)
 {
@@ -616,7 +611,7 @@ void tst_FakeVim::command_i()
     // small insertion at start of document
     check("ix" + escape, "@x" + lines);
     check("u", "@" + lines);
-    check(control('r'), "@x" + lines);
+    checkEx("redo", "@x" + lines);
     check("u", "@" + lines);
 
     // small insertion at start of document
