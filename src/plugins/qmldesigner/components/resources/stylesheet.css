@@ -46,17 +46,18 @@ QLineEdit
      selection-background-color: darkgray;
 }
 
-QLineEdit#itemLibrarySearchInput {
-    color: black;
+QLineEdit#itemLibrarySearchInput
+{
+    color: white;
+    font-size: 11px;
     border: 2px solid #0F0F0F;
     border-radius: 6px;
     border-width: 1;
     max-height: 20px;
     min-height: 20px;
     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                      stop: 0 #e0e0e0, stop: 1 #f0f0f0);
+                                        stop: 0 #2c2c2c, stop: 1 #333333);
 }
-
 
  QTreeView {
     color: white;
@@ -143,7 +144,6 @@ QTabBar::tab:selected {
     color: #3c3c3c;
 }
 
-QWidget#itemLibrarySearchInputFrame {
+QWidget#itemLibrarySearchInputSpacer {
     background-color: #eeeeee;
 }
-
