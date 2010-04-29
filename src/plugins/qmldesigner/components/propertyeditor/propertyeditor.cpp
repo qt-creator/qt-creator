@@ -803,7 +803,7 @@ void PropertyEditor::nodeIdChanged(const ModelNode& node, const QString& newId, 
 
 void PropertyEditor::select(const ModelNode &node)
 {
-    if (node.isValid())
+    if (QmlItemNode(node).isValid())
         m_selectedNode = node;
     else
         m_selectedNode = ModelNode();
