@@ -1715,7 +1715,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::Internal::ComboBox</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+427"/>
+        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+464"/>
         <source>Activate %1</source>
         <translation>Aktiviere %1</translation>
     </message>
@@ -2397,7 +2397,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::Internal::SideBarWidget</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="-129"/>
+        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="-145"/>
         <source>Split</source>
         <translation>Teilen</translation>
     </message>
@@ -2800,18 +2800,18 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Debugger::DebuggerManager</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+498"/>
+        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+509"/>
         <source>Continue</source>
         <translation>Fortsetzen</translation>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+1343"/>
+        <location line="+1315"/>
         <source>Interrupt</source>
         <translation>Anhalten</translation>
     </message>
     <message>
-        <location line="-1336"/>
+        <location line="-1308"/>
         <source>Step Over</source>
         <translation>Einzelschritt über</translation>
     </message>
@@ -2874,7 +2874,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Läuft...</translation>
     </message>
     <message>
-        <location line="+118"/>
+        <location line="+90"/>
         <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
         <translation>Das Ändern des Haltepunkt-Status erfordert, dass die Anwendung läuft oder vollständig gestoppt ist.</translation>
     </message>
@@ -2914,7 +2914,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Der Debugger kann nicht mit &apos;%1&apos; (Toolchain &apos;%2&apos;) gestartet werden: %3</translation>
     </message>
     <message>
-        <location line="-611"/>
+        <location line="-583"/>
         <source>Abort Debugging</source>
         <translation>Debuggen abbrechen</translation>
     </message>
@@ -2934,7 +2934,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Beendet</translation>
     </message>
     <message>
-        <location line="+503"/>
+        <location line="+475"/>
         <source>Save Debugger Log</source>
         <translation>Debugger Log speichern</translation>
     </message>
@@ -3586,7 +3586,7 @@ Would you like to terminate it?</source>
 <context>
     <name>Debugger::Internal::DebuggerPlugin</name>
     <message>
-        <location line="+317"/>
+        <location line="+315"/>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>Das Kommandozeilenargument %1erfordert ein Argument.</translation>
     </message>
@@ -3944,7 +3944,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
 <context>
     <name>Debugger::Internal::DebuggingHelperOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-610"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-608"/>
         <source>Debugging Helper</source>
         <translation>Ausgabe-Hilfsbibliothek</translation>
     </message>
@@ -4084,12 +4084,12 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
 </translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="+688"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="+689"/>
         <source>The debugging helper library was not found at %1.</source>
         <translation>Die Ausgabe-Hilfsbibliothek konnte nicht unter %1 gefunden werden.</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+2030"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+2034"/>
         <source>Unable to start gdb &apos;%1&apos;: %2</source>
         <translation>Der gdb-Debugger &apos;%1&apos; kann nicht ausgeführt werden: %2</translation>
     </message>
@@ -4104,7 +4104,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Auf die in den Debugger-Einstellungen angegebene Skriptdatei &apos;%1&apos; kann nicht zugegriffen werden. Wenn kein Skript benötigt wird, können Sie die Einstellung rücksetzen, um diese Warnung zu umgehen.</translation>
     </message>
     <message>
-        <location line="-1477"/>
+        <location line="-1481"/>
         <source>Unable to run &apos;%1&apos;: %2</source>
         <translation>&apos;%1&apos; kann nicht ausgeführt werden: %2</translation>
     </message>
@@ -4115,7 +4115,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Daten der Stack-Anzeige werden empfangen...</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="-559"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="-560"/>
         <source>Retrieving data for watch view (%n requests pending)...</source>
         <translation>
             <numerusform>Daten der für die Anzeige der lokalen Variablen werden empfangen (noch eine ausstehende Anfrage) ...</numerusform>
@@ -4132,7 +4132,7 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         </translation>
     </message>
     <message>
-        <location line="+260"/>
+        <location line="+261"/>
         <source>Debugging helpers not found.</source>
         <translation>Die Ausgabe-Hilfsbibliothek konnte nicht gefunden werden.</translation>
     </message>
@@ -4378,7 +4378,7 @@ Möchten Sie den zu debuggenden Prozess anhalten und den gewählten Snapshot lad
         <translation>Ausgabe-Hilfsbibliothek-Initialisierung: %1</translation>
     </message>
     <message>
-        <location line="+767"/>
+        <location line="+771"/>
         <source>Failed to start application: </source>
         <translation>Die Anwendung konnte nicht gestartet werden: </translation>
     </message>
@@ -4388,17 +4388,17 @@ Möchten Sie den zu debuggenden Prozess anhalten und den gewählten Snapshot lad
         <translation>Anwendung konnte nicht gestartet</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="-261"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="-262"/>
         <source>&lt;0 items&gt;</source>
         <translation>&lt;leer&gt;</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="-721"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="-725"/>
         <source>&lt;shadowed&gt;</source>
         <translation>&lt;überlagert&gt;</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="+355"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="+356"/>
         <source>&lt;n/a&gt;</source>
         <translation>&lt;k.a.&gt;</translation>
     </message>
@@ -4414,7 +4414,7 @@ Möchten Sie den zu debuggenden Prozess anhalten und den gewählten Snapshot lad
         <translation>&lt;keine Angabe&gt;</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+318"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+322"/>
         <location line="+26"/>
         <location line="+15"/>
         <location line="+61"/>
@@ -6005,17 +6005,17 @@ Grund: %3</translation>
 <context>
     <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+1359"/>
+        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+1367"/>
         <source>Not implemented in FakeVim</source>
         <translation>In FakeVim nicht implementiert</translation>
     </message>
     <message>
-        <location line="-1074"/>
+        <location line="-1082"/>
         <source>E20: Mark &apos;%1&apos; not set</source>
         <translation>E20: Die Marke &apos;%1&apos; ist nicht gesetzt</translation>
     </message>
     <message>
-        <location line="+1050"/>
+        <location line="+1058"/>
         <source>%1%2%</source>
         <translation>%1%2%</translation>
     </message>
@@ -6045,12 +6045,12 @@ Grund: %3</translation>
         <translation>Die Datei &apos;%1&apos; kann nicht zum Lesen geöffnet werden</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+22"/>
         <source>&quot;%1&quot; %2L, %3C</source>
         <translation>&quot;%1&quot; %2L, %3C</translation>
     </message>
     <message numerus="yes">
-        <location line="+29"/>
+        <location line="+31"/>
         <source>%n lines filtered</source>
         <translation>
             <numerusform>Eine Zeile gefiltert</numerusform>
@@ -6093,7 +6093,7 @@ Grund: %3</translation>
         <translation>Die Suche hat den Anfang erreicht, setze am Ende fort</translation>
     </message>
     <message>
-        <location line="+806"/>
+        <location line="+849"/>
         <source>Already at oldest change</source>
         <translation>Älteste Änderung erreicht</translation>
     </message>
@@ -8038,7 +8038,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Help::Internal::HelpPlugin</name>
     <message>
-        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+194"/>
+        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+200"/>
         <location line="+199"/>
         <source>Contents</source>
         <translation>Inhalt</translation>
@@ -10490,7 +10490,7 @@ No project selected</extracomment>
         <translation>Sitzungen...</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectwelcomepagewidget.cpp" line="+119"/>
+        <location filename="../../../src/plugins/projectexplorer/projectwelcomepagewidget.cpp" line="+127"/>
         <source>%1 (last session)</source>
         <translation>%1 (zuletzt benutzt)</translation>
     </message>
@@ -10500,7 +10500,12 @@ No project selected</extracomment>
         <translation>%1 (aktuelle Sitzung)</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+42"/>
+        <source>Open Project</source>
+        <translation>Projekt öffnen</translation>
+    </message>
+    <message>
+        <location line="+22"/>
         <source>New Project</source>
         <translation>Neues Projekt</translation>
     </message>
@@ -10518,6 +10523,11 @@ No project selected</extracomment>
         <location/>
         <source>Recent Sessions</source>
         <translation>Zuletzt benutzte Sitzungen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Open Project...</source>
+        <translation>Projekt öffnen...</translation>
     </message>
 </context>
 <context>
@@ -11198,43 +11208,11 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../../../src/plugins/qmldesigner/core/exceptions/invalidargumentexception.cpp" line="+60"/>
-        <source>Failed to create item of type %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The Qt version is invalid: %1</source>
-        <comment>%1: Reason for being invalid</comment>
-        <translation type="obsolete">Ungültige Qt-Version: %1</translation>
-    </message>
-    <message>
-        <source>The qmake command &quot;%1&quot; was not found or is not executable.</source>
-        <comment>%1: Path to qmake executable.</comment>
-        <translation type="obsolete">Das qmake-Kommando &quot;%1&quot; konnte nicht gefunden werden, oder die Datei ist nicht ausführbar.</translation>
-    </message>
-    <message>
-        <location filename="../../../src/plugins/qmldesigner/core/exceptions/invalididexception.cpp" line="+58"/>
-        <source>Ids have to be unique: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Invalid Id: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>
-Only alphanumeric characters and underscore allowed.
-Ids must begin with a lowercase letter.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>QTestLib::Internal::QTestOutputPane</name>
     <message>
-        <location filename="../../../src/plugins/qtestlib/qtestlibplugin.cpp" line="+266"/>
+        <location line="+266"/>
         <source>Test Results</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11664,11 +11642,6 @@ Ids must begin with a lowercase letter.</source>
     </message>
     <message>
         <location/>
-        <source>Explore Qt Examples</source>
-        <translation>Qt Beispiele öffnen</translation>
-    </message>
-    <message>
-        <location/>
         <source>Did You Know?</source>
         <translation>Schon gewusst?</translation>
     </message>
@@ -11688,12 +11661,13 @@ Ids must begin with a lowercase letter.</source>
         <translation>Erstellen einer Qt-Quick-Anwendung</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+35"/>
+        <location line="+58"/>
         <source>Choose an example...</source>
         <translation>Beispiel wählen...</translation>
     </message>
     <message>
-        <location line="+84"/>
+        <location line="+69"/>
         <source>Copy Project to writable Location?</source>
         <translation>Soll das Projekt in ein schreibbares Verzeichnis kopiert werden?</translation>
     </message>
@@ -11728,7 +11702,7 @@ Ids must begin with a lowercase letter.</source>
         <translation>Das angegebene Verzeichnis existiert bereits. Bitte geben Sie ein gültiges Verzeichnis an.</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+49"/>
         <source>New Project</source>
         <translation>Neues Projekt</translation>
     </message>
@@ -11835,6 +11809,16 @@ Ids must begin with a lowercase letter.</source>
         <location/>
         <source>Create Project...</source>
         <translation>Projekt erstellen...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Explore Qt C++ Examples</source>
+        <translation>Qt C++-Beispiele öffnen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Explore Qt Quick Examples</source>
+        <translation>Qt Quick-Beispiele öffnen</translation>
     </message>
 </context>
 <context>
@@ -13901,10 +13885,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <location line="+7"/>
         <source>Update Project &quot;%1&quot;</source>
         <translation>Projekt &quot;%1&quot;auf aktuellen Stand bringen</translation>
-    </message>
-    <message>
-        <source>Repository Log</source>
-        <translation type="obsolete">Log des Repositories</translation>
     </message>
     <message>
         <location line="+52"/>
@@ -18543,20 +18523,9 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QmlDesigner::NavigatorTreeModel</name>
     <message>
-        <source>Invalid id.
-Only alphanumeric characters and underscore allowed.
-Ids must begin with a lowercase letter.</source>
-        <translation type="obsolete">Ungültig Id.
-Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Zeichen und Unterstriche enthalten.</translation>
-    </message>
-    <message>
-        <source>Item id must be unique.</source>
-        <translation type="obsolete">Die Id des Elements muss eindeutig sein.</translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/qmldesigner/components/navigator/navigatortreemodel.cpp" line="+277"/>
         <source>Invalid Id</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Id</translation>
     </message>
 </context>
 <context>
@@ -18771,7 +18740,7 @@ Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Z
 <context>
     <name>QmlDesigner::Internal::DocumentWarningWidget</name>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/designmodewidget.cpp" line="+96"/>
+        <location filename="../../../src/plugins/qmldesigner/designmodewidget.cpp" line="+103"/>
         <source>&lt;a href=&quot;goToError&quot;&gt;Go to error&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;goToError&quot;&gt;Gehe zu Fehler&lt;/a&gt;</translation>
     </message>
@@ -18874,12 +18843,12 @@ Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Z
         <translation>Projekte</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+4"/>
         <source>File System</source>
         <translation>Dateisystem</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+4"/>
         <source>Open Documents</source>
         <translation>Offene Dokumente</translation>
     </message>
@@ -19624,7 +19593,7 @@ Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Z
 <context>
     <name>Qml::QmlInspector</name>
     <message>
-        <location filename="../../../src/plugins/qmlinspector/qmlinspector.cpp" line="+205"/>
+        <location filename="../../../src/plugins/qmlinspector/qmlinspector.cpp" line="+210"/>
         <source>Failed to connect to debugger</source>
         <translation>Keine Verbindung zum Debugger</translation>
     </message>
@@ -19688,12 +19657,7 @@ Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Z
         <translation>[Inspektor] Fehler: (%1) %2</translation>
     </message>
     <message>
-        <location line="+94"/>
-        <source>Script console</source>
-        <translation>Skript-Konsole</translation>
-    </message>
-    <message>
-        <location line="+17"/>
+        <location line="+111"/>
         <source>Start Debugging C++ and QML Simultaneously...</source>
         <translation>Debuggen von C++ und QML gleichzeitig starten...</translation>
     </message>
@@ -19740,7 +19704,12 @@ Please check your project settings.</source>
         <translation>Eigenschaften und überwachte Ausdrücke</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+24"/>
+        <source>Script Console</source>
+        <translation>Skript-Konsole</translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Output of the QML inspector, such as information on connecting to the server.</source>
         <translation>Ausgaben des QML-Inspektors, wie zum Beispiel Information über die Verbindung zum Server.</translation>
     </message>
@@ -20792,7 +20761,7 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>QmlJS::Interpreter::QmlXmlReader</name>
     <message>
-        <location filename="../../../src/libs/qmljs/qmljsinterpreter.cpp" line="+339"/>
+        <location filename="../../../src/libs/qmljs/qmljsinterpreter.cpp" line="+342"/>
         <source>The file is not module file.</source>
         <translation>Die Datei ist keine Moduldatei.</translation>
     </message>
@@ -20812,7 +20781,7 @@ Haben Sie Qemu gestartet?</translation>
         <translation>&lt;%1&gt; hat kein gültiges Attribut %2</translation>
     </message>
     <message>
-        <location line="+1578"/>
+        <location line="+1631"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -20882,7 +20851,7 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>ExpressionEditor</name>
     <message>
-        <location filename="../qmldesigner/propertyeditor/Qt/ExpressionEditor.qml" line="+44"/>
+        <location filename="../qmldesigner/propertyeditor/Qt/ExpressionEditor.qml" line="+49"/>
         <source>Expression</source>
         <translation>Ausdruck</translation>
     </message>
@@ -21101,7 +21070,22 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Text</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+12"/>
+        <source>Wrap Mode</source>
+        <translation>Umbruch</translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>Aliasing</source>
+        <translation>Kantenglättung</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Smooth</source>
+        <translation>Glatt</translation>
+    </message>
+    <message>
+        <location line="-8"/>
         <source></source>
         <translation></translation>
     </message>
@@ -21114,7 +21098,12 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>Switches</name>
     <message>
-        <location filename="../qmldesigner/propertyeditor/Qt/Switches.qml" line="+38"/>
+        <location filename="../qmldesigner/propertyeditor/Qt/Switches.qml" line="+21"/>
+        <source>special properties</source>
+        <translation>spezielle Eigenschaften</translation>
+    </message>
+    <message>
+        <location line="+17"/>
         <source>layout and geometry</source>
         <translation>Layout und Geometrie</translation>
     </message>
@@ -21124,7 +21113,12 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Geometrie</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+13"/>
+        <source>advanced properties</source>
+        <translation>weitere Eigenschaften</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Advanced</source>
         <translation>Erweitert</translation>
     </message>
@@ -21155,7 +21149,12 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Eingabemaske</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+13"/>
+        <source>Echo Mode</source>
+        <translation>Echo-Mode</translation>
+    </message>
+    <message>
+        <location line="+19"/>
         <source>Pass. Char</source>
         <translation>Passwort-Zeichen</translation>
     </message>
@@ -21960,7 +21959,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>Qml::Internal::EngineComboBox</name>
     <message>
-        <location filename="../../../src/plugins/qmlinspector/qmlinspector.cpp" line="-303"/>
+        <location filename="../../../src/plugins/qmlinspector/qmlinspector.cpp" line="-308"/>
         <source>Engine %1</source>
         <comment>engine number</comment>
         <translation>Engine %1</translation>
@@ -22177,7 +22176,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Reset to default layout</source>
+        <source>Reset to Default Layout</source>
         <translation>Vorgabe wiederherstellen</translation>
     </message>
 </context>
@@ -22527,7 +22526,62 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/propertyeditor.cpp" line="+359"/>
         <source>Invalid Id</source>
-        <translation type="unfinished">Ungültige Id</translation>
+        <translation>Ungültige Id</translation>
+    </message>
+</context>
+<context>
+    <name>emptyPane</name>
+    <message>
+        <location filename="../qmldesigner/propertyeditor/Qt/emptyPane.qml" line="+38"/>
+        <source>none or multiple items selected</source>
+        <translation>keines oder mehrere Elemente ausgewählt</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::FormEditorWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/formeditor/formeditorwidget.cpp" line="+88"/>
+        <source>Snap to guides (E)</source>
+        <translation>An Hilfslinien ausrichten (E)</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Show bounding rectangles (A)</source>
+        <translation>Rahmen anzeigen (A)</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Only select items with content (S)</source>
+        <translation>Nur Elemente mit Inhalt auswählen (S)</translation>
+    </message>
+</context>
+<context>
+    <name>InvalidIdException</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/core/exceptions/invalididexception.cpp" line="+59"/>
+        <source>Ids have to be unique: </source>
+        <translation>Ids müssen eindeutig sein: </translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Invalid Id: </source>
+        <translation>Ungültige Id: </translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>
+Only alphanumeric characters and underscore allowed.
+Ids must begin with a lowercase letter.</source>
+        <translation>
+Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Zeichen und Unterstriche enthalten.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::InvalidArgumentException</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/core/exceptions/invalidargumentexception.cpp" line="+60"/>
+        <source>Failed to create item of type %1</source>
+        <translation>Es konnte kein Element des Typs %1 erzeugt werden</translation>
     </message>
 </context>
 </TS>
