@@ -102,9 +102,6 @@ private slots:
     void deleteConfiguration();
     void updateAddButtonMenu();
 
-    void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
-    void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
-    void buildConfigurationDisplayNameChanged();
     void updateActiveConfiguration();
 
 private:

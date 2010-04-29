@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "miniprojecttargetselector.h"
+#include "buildconfigurationmodel.h"
+#include "runconfigurationmodel.h"
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -186,6 +188,7 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
         m_buildComboBox->setProperty("hideborder", true);
         m_buildComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
         m_buildComboBox->setToolTip(tr("Select active build configuration"));
+        m_buildComboBox->setModel(new BuildConfigurationModel(m_target, this));
     } else {
         m_buildComboBox = 0;
     }
@@ -195,6 +198,8 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
     m_runComboBox ->setProperty("hideborder", true);
     m_runComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     m_runComboBox->setToolTip(tr("Select active run configuration"));
+    RunConfigurationModel *model = new RunConfigurationModel(m_target, this);
+    m_runComboBox->setModel(model);
     int fontSize = font().pointSize();
     setStyleSheet(QString::fromLatin1("QLabel { font-size: %2pt; color: white; } "
                                       "#target { font: bold %1pt;} "
@@ -212,6 +217,9 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
         Q_FOREACH(BuildConfiguration* bc, m_target->buildConfigurations())
                 addBuildConfiguration(bc);
 
+        BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildComboBox->model());
+        m_buildComboBox->setCurrentIndex(model->indexFor(m_target->activeBuildConfiguration()).row());
+
         connect(m_target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
                 SLOT(addBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
         connect(m_target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
@@ -222,8 +230,8 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
         connect(m_buildComboBox, SIGNAL(currentIndexChanged(int)), SLOT(setActiveBuildConfiguration(int)));
     }
 
-    Q_FOREACH(RunConfiguration* rc, m_target->runConfigurations())
-            addRunConfiguration(rc);
+    m_runComboBox->setEnabled(m_target->runConfigurations().count() > 1);
+    m_runComboBox->setCurrentIndex(model->indexFor(m_target->activeRunConfiguration()).row());
 
     connect(m_target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
             SLOT(addRunConfiguration(ProjectExplorer::RunConfiguration*)));
@@ -280,79 +288,57 @@ ProjectExplorer::Target *MiniTargetWidget::target() const
 
 void MiniTargetWidget::setActiveBuildConfiguration(int index)
 {
-    ProjectExplorer::BuildConfiguration* bc =
-            m_buildComboBox->itemData(index).value<ProjectExplorer::BuildConfiguration*>();
-    m_target->setActiveBuildConfiguration(bc);
+    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildComboBox->model());
+    m_target->setActiveBuildConfiguration(model->buildConfigurationAt(index));
     emit changed();
 }
 
 void MiniTargetWidget::setActiveRunConfiguration(int index)
 {
-    m_target->setActiveRunConfiguration(
-            m_runComboBox->itemData(index).value<ProjectExplorer::RunConfiguration*>());
+    RunConfigurationModel *model = static_cast<RunConfigurationModel *>(m_runComboBox->model());
+    m_target->setActiveRunConfiguration(model->runConfigurationAt(index));
     updateIcon();
     emit changed();
 }
+
 void MiniTargetWidget::setActiveBuildConfiguration()
 {
-    QTC_ASSERT(m_buildComboBox, return)
-    m_buildComboBox->setCurrentIndex(m_buildComboBox->findData(
-            QVariant::fromValue(m_target->activeBuildConfiguration())));
+    QTC_ASSERT(m_buildComboBox, return);
+    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildComboBox->model());
+    m_buildComboBox->setCurrentIndex(model->indexFor(m_target->activeBuildConfiguration()).row());
 }
 
 void MiniTargetWidget::setActiveRunConfiguration()
 {
-    m_runComboBox->setCurrentIndex(m_runComboBox->findData(
-            QVariant::fromValue(m_target->activeRunConfiguration())));
+    RunConfigurationModel *model = static_cast<RunConfigurationModel *>(m_runComboBox->model());
+    m_runComboBox->setCurrentIndex(model->indexFor(m_target->activeRunConfiguration()).row());
 }
 
 void MiniTargetWidget::addRunConfiguration(ProjectExplorer::RunConfiguration* rc)
 {
-    connect(rc, SIGNAL(displayNameChanged()), SLOT(updateDisplayName()));
-    m_runComboBox->addItem(rc->displayName(), QVariant::fromValue(rc));
-    if (m_target->activeRunConfiguration() == rc)
-        m_runComboBox->setCurrentIndex(m_runComboBox->count()-1);
-
-    m_runComboBox->setEnabled(m_runComboBox->count()>1);
+    Q_UNUSED(rc);
+    m_runComboBox->setEnabled(m_target->runConfigurations().count()>1);
 }
 
 void MiniTargetWidget::removeRunConfiguration(ProjectExplorer::RunConfiguration* rc)
 {
-    m_runComboBox->removeItem(m_runComboBox->findData(QVariant::fromValue(rc)));
-    m_runComboBox->setEnabled(m_runComboBox->count()>1);
+    Q_UNUSED(rc);
+    m_runComboBox->setEnabled(m_target->runConfigurations().count()>1);
 }
 
 void MiniTargetWidget::addBuildConfiguration(ProjectExplorer::BuildConfiguration* bc)
 {
+    Q_UNUSED(bc);
     QTC_ASSERT(m_buildComboBox, return);
-    connect(bc, SIGNAL(displayNameChanged()), SLOT(updateDisplayName()));
-    m_buildComboBox->addItem(bc->displayName(), QVariant::fromValue(bc));
-    if (m_target->activeBuildConfiguration() == bc)
-        m_buildComboBox->setCurrentIndex(m_buildComboBox->count()-1);
-
-    m_buildComboBox->setEnabled(m_buildComboBox->count() > 1);
+    connect(bc, SIGNAL(displayNameChanged()), SIGNAL(changed()), Qt::UniqueConnection);
+    m_buildComboBox->setEnabled(m_target->buildConfigurations().count() > 1);
 }
 
 void MiniTargetWidget::removeBuildConfiguration(ProjectExplorer::BuildConfiguration* bc)
 {
+    Q_UNUSED(bc);
     QTC_ASSERT(m_buildComboBox, return);
-    m_buildComboBox->removeItem(m_buildComboBox->findData(QVariant::fromValue(bc)));
-    m_buildComboBox->setEnabled(m_buildComboBox->count() > 1);
-}
-
-void MiniTargetWidget::updateDisplayName()
-{
-    QObject *obj = sender();
-    RunConfiguration *rc = qobject_cast<RunConfiguration*>(obj);
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration*>(obj);
-    if (rc) {
-        m_runComboBox->setItemText(m_runComboBox->findData(QVariant::fromValue(rc)),
-                                   rc->displayName());
-    } else if (bc) {
-        m_buildComboBox->setItemText(m_buildComboBox->findData(QVariant::fromValue(bc)),
-                                     bc->displayName());
-    }
-    emit changed();
+    m_buildComboBox->setEnabled(m_target->buildConfigurations().count() > 1);
 }
 
 bool MiniTargetWidget::hasBuildConfiguration() const

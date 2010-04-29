@@ -90,7 +90,6 @@ private slots:
     void setActiveBuildConfiguration();
     void setActiveRunConfiguration();
 
-    void updateDisplayName();
     void updateIcon();
 
 signals:

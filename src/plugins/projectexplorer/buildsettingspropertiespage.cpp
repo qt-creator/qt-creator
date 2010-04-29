@@ -33,6 +33,7 @@
 #include "project.h"
 #include "target.h"
 #include "buildconfiguration.h"
+#include "buildconfigurationmodel.h"
 
 #include <coreplugin/coreconstants.h>
 #include <extensionsystem/pluginmanager.h>
@@ -148,6 +149,7 @@ void BuildSettingsWidget::setupUi()
         hbox->addWidget(new QLabel(tr("Edit Build Configuration:"), this));
         m_buildConfigurationComboBox = new QComboBox(this);
         m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        m_buildConfigurationComboBox->setModel(new BuildConfigurationModel(m_target, this));
         hbox->addWidget(m_buildConfigurationComboBox);
 
         m_addButton = new QPushButton(this);
@@ -167,6 +169,8 @@ void BuildSettingsWidget::setupUi()
     }
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
+    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
+    m_buildConfigurationComboBox->setCurrentIndex(model->indexFor(m_buildConfiguration).row());
 
     updateAddButtonMenu();
     updateBuildSettings();
@@ -180,40 +184,9 @@ void BuildSettingsWidget::setupUi()
     connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(updateActiveConfiguration()));
 
-    connect(m_target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-
-    connect(m_target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-
-    foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
-        connect(bc, SIGNAL(displayNameChanged()),
-                this, SLOT(buildConfigurationDisplayNameChanged()));
-    }
-
     if (m_target->buildConfigurationFactory())
         connect(m_target->buildConfigurationFactory(), SIGNAL(availableCreationIdsChanged()),
                 SLOT(updateAddButtonMenu()));
-}
-
-void BuildSettingsWidget::addedBuildConfiguration(BuildConfiguration *bc)
-{
-    connect(bc, SIGNAL(displayNameChanged()),
-            this, SLOT(buildConfigurationDisplayNameChanged()));
-}
-
-void BuildSettingsWidget::removedBuildConfiguration(BuildConfiguration *bc)
-{
-    disconnect(bc, SIGNAL(displayNameChanged()),
-               this, SLOT(buildConfigurationDisplayNameChanged()));
-}
-
-void BuildSettingsWidget::buildConfigurationDisplayNameChanged()
-{
-    for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
-        BuildConfiguration *bc = m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>();
-        m_buildConfigurationComboBox->setItemText(i, bc->displayName());
-    }
 }
 
 void BuildSettingsWidget::addSubWidget(const QString &name, BuildConfigWidget *widget)
@@ -268,9 +241,6 @@ void BuildSettingsWidget::updateAddButtonMenu()
 
 void BuildSettingsWidget::updateBuildSettings()
 {
-    // Delete old tree items
-    bool blocked = m_buildConfigurationComboBox->blockSignals(true);
-    m_buildConfigurationComboBox->clear();
     clear();
 
     // update buttons
@@ -287,22 +257,14 @@ void BuildSettingsWidget::updateBuildSettings()
     foreach (BuildConfigWidget *subConfigWidget, subConfigWidgets)
         addSubWidget(subConfigWidget->displayName(), subConfigWidget);
 
-    // Add tree items
-    foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
-        m_buildConfigurationComboBox->addItem(bc->displayName(), QVariant::fromValue<BuildConfiguration *>(bc));
-        if (bc == m_buildConfiguration)
-            m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
-    }
-
     foreach (BuildConfigWidget *widget, subWidgets())
         widget->init(m_buildConfiguration);
-
-    m_buildConfigurationComboBox->blockSignals(blocked);
 }
 
 void BuildSettingsWidget::currentIndexChanged(int index)
 {
-    BuildConfiguration *buildConfiguration = m_buildConfigurationComboBox->itemData(index).value<BuildConfiguration *>();
+    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
+    BuildConfiguration *buildConfiguration = model->buildConfigurationAt(index);
     m_target->setActiveBuildConfiguration(buildConfiguration);
 }
 
@@ -313,12 +275,8 @@ void BuildSettingsWidget::updateActiveConfiguration()
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
 
-    for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
-        if (m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>() == m_buildConfiguration) {
-            m_buildConfigurationComboBox->setCurrentIndex(i);
-            break;
-        }
-    }
+    BuildConfigurationModel *model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
+    m_buildConfigurationComboBox->setCurrentIndex(model->indexFor(m_buildConfiguration).row());
 
     foreach (QWidget *widget, subWidgets()) {
         if (BuildConfigWidget *buildStepWidget = qobject_cast<BuildConfigWidget*>(widget)) {

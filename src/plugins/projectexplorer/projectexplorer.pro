@@ -80,7 +80,9 @@ HEADERS += projectexplorer.h \
     buildconfigdialog.h \
     ldparser.h \
     linuxiccparser.h \
-    outputformatter.h
+    outputformatter.h \
+    runconfigurationmodel.h \
+    buildconfigurationmodel.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -147,7 +149,9 @@ SOURCES += projectexplorer.cpp \
     buildconfigdialog.cpp \
     ldparser.cpp \
     linuxiccparser.cpp \
-    outputformatter.cpp
+    outputformatter.cpp \
+    runconfigurationmodel.cpp \
+    buildconfigurationmodel.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \

@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "runsettingspropertiespage.h"
+#include "runconfigurationmodel.h"
 #include "runconfiguration.h"
 #include "target.h"
 #include "project.h"
@@ -116,110 +117,12 @@ QIcon RunSettingsPanel::icon() const
 }
 
 ///
-/// RunConfigurationsModel
-///
-
-RunConfigurationsModel::RunConfigurationsModel(Target *target, QObject *parent)
-    : QAbstractListModel(parent),
-      m_target(target)
-{
-    m_runConfigurations = m_target->runConfigurations();
-    connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
-    connect(target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration*)));
-
-    foreach (RunConfiguration *rc, m_runConfigurations)
-        connect(rc, SIGNAL(displayNameChanged()),
-                this, SLOT(displayNameChanged()));
-}
-
-int RunConfigurationsModel::rowCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : m_runConfigurations.size();
-}
-
-int RunConfigurationsModel::columnCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : 1;
-}
-
-void RunConfigurationsModel::displayNameChanged()
-{
-    RunConfiguration *rc = qobject_cast<RunConfiguration *>(sender());
-    QTC_ASSERT(rc, return);
-    for (int i = 0; i < m_runConfigurations.size(); ++i) {
-        if (m_runConfigurations.at(i) == rc) {
-            emit dataChanged(index(i, 0), index(i,0));
-            break;
-        }
-    }
-}
-
-QVariant RunConfigurationsModel::data(const QModelIndex &index, int role) const
-{
-    if (role == Qt::DisplayRole) {
-        const int row = index.row();
-        if (row < m_runConfigurations.size()) {
-            return m_runConfigurations.at(row)->displayName();
-        }
-    }
-
-    return QVariant();
-}
-
-RunConfiguration *RunConfigurationsModel::runConfigurationAt(int i)
-{
-    if (i > m_runConfigurations.size() || i < 0)
-        return 0;
-    return m_runConfigurations.at(i);
-}
-
-RunConfiguration *RunConfigurationsModel::runConfigurationFor(const QModelIndex &idx)
-{
-    if (idx.row() > m_runConfigurations.size() || idx.row() < 0)
-        return 0;
-    return m_runConfigurations.at(idx.row());
-}
-
-QModelIndex RunConfigurationsModel::indexFor(RunConfiguration *rc)
-{
-    int idx = m_runConfigurations.indexOf(rc);
-    if (idx == -1)
-        return QModelIndex();
-    return index(idx, 0);
-}
-
-void RunConfigurationsModel::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
-{
-    int i = m_target->runConfigurations().indexOf(rc);
-    QTC_ASSERT(i > 0, return);
-    beginInsertRows(QModelIndex(), i, i);
-    m_runConfigurations.insert(i, rc);
-    endInsertRows();
-    QTC_ASSERT(m_runConfigurations == m_target->runConfigurations(), return);
-    connect(rc, SIGNAL(displayNameChanged()),
-            this, SLOT(displayNameChanged()));
-}
-
-void RunConfigurationsModel::removedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
-{
-    int i = m_runConfigurations.indexOf(rc);
-    QTC_ASSERT(i >= 0, return);
-    beginRemoveRows(QModelIndex(), i, i);
-    m_runConfigurations.removeAt(i);
-    endRemoveRows();
-    QTC_ASSERT(m_runConfigurations == m_target->runConfigurations(), return);
-}
-
-
-///
 /// RunSettingsWidget
 ///
 
 RunSettingsWidget::RunSettingsWidget(Target *target)
     : m_target(target),
-      m_runConfigurationsModel(new RunConfigurationsModel(target, this)),
+      m_runConfigurationsModel(new RunConfigurationModel(target, this)),
       m_runConfigurationWidget(0),
       m_ignoreChange(false)
 {
@@ -233,7 +136,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_ui->removeToolButton->setText(tr("Remove"));
     m_ui->runConfigurationCombo->setModel(m_runConfigurationsModel);
     m_ui->runConfigurationCombo->setCurrentIndex(
-            m_target->runConfigurations().indexOf(m_target->activeRunConfiguration()));
+            m_runConfigurationsModel->indexFor(m_target->activeRunConfiguration()).row());
 
     m_ui->removeToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 
