@@ -58,5 +58,19 @@ GroupBox {
                 AlignmentVerticalButtons { }
             }
         }
+        QWidget {
+            layout: HorizontalLayout {
+                Label {
+                    text: qsTr("Aliasing")
+                }
+
+                CheckBox {
+                    text: qsTr("Smooth")
+                    backendValue: backendValues.smooth
+                    baseStateFlag: isBaseState;
+                    checkable: true;
+                }
+            }
+        }
     }
 }
