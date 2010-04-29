@@ -114,6 +114,7 @@ private:
     bool isSideStored() const;
 
     FancyLineEditPrivate *m_d;
+    QString m_oldText;
 };
 
 } // namespace Utils

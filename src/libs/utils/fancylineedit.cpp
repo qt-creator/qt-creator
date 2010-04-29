@@ -126,10 +126,9 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
 void FancyLineEdit::checkButton(const QString &text)
 {
     if (autoHideIcon()) {
-        static QString oldtext;
-        if (oldtext.isEmpty() || text.isEmpty())
+        if (m_oldText.isEmpty() || text.isEmpty())
             m_d->m_iconbutton->animateShow(!text.isEmpty());
-        oldtext = text;
+        m_oldText = text;
     }
 }
 
