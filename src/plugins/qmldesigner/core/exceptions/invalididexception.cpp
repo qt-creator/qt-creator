@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include <QCoreApplication>
 #include "invalididexception.h"
 
 namespace QmlDesigner {
@@ -55,12 +56,14 @@ QString InvalidIdException::description() const
 
 QString InvalidIdException::duplicateErrorMessage(const QString &id)
 {
-     return QObject::tr("Ids have to be unique: ") + id;
+     return QCoreApplication::translate("InvalidIdException", "Ids have to be unique: ") + id;
 }
 
 QString InvalidIdException::invalidErrorMessage(const QString &id)
 {
-    return QObject::tr("Invalid Id: ") + id + QObject::tr("\nOnly alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter.");
+    return QCoreApplication::translate("InvalidIdException", "Invalid Id: ") + 
+      id + QCoreApplication::translate("InvalidIdException", 
+      "\nOnly alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter.");
 }
 
 }
