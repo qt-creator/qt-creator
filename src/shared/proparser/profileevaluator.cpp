@@ -1166,6 +1166,11 @@ static QString fixPathToLocalOS(const QString &str)
     return string;
 }
 
+static bool isTrue(const QString &str)
+{
+    return !str.compare(statics.strtrue, Qt::CaseInsensitive) || str.toInt();
+}
+
 //////// Evaluator /////////
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitProBlock(ProItem *items)
@@ -2258,7 +2263,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
 
                 bool singleLine = true;
                 if (args.count() > 1)
-                    singleLine = (!args[1].compare(statics.strtrue, Qt::CaseInsensitive));
+                    singleLine = isTrue(args.at(1));
 
                 QFile qfile(resolvePath(expandEnvVars(file)));
                 if (qfile.open(QIODevice::ReadOnly)) {
@@ -2318,7 +2323,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                                            + QLatin1String(" && ") + args[0]).toLatin1(), "r");
                     bool singleLine = true;
                     if (args.count() > 1)
-                        singleLine = (!args[1].compare(QLatin1String("true"), Qt::CaseInsensitive));
+                        singleLine = isTrue(args.at(1));
                     QString output;
                     while (proc && !feof(proc)) {
                         int read_in = int(fread(buff, 1, 255, proc));
@@ -2399,7 +2404,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             } else {
                 bool recursive = false;
                 if (args.count() == 2)
-                    recursive = (!args[1].compare(statics.strtrue, Qt::CaseInsensitive) || args[1].toInt());
+                    recursive = isTrue(args.at(1));
                 QStringList dirs;
                 QString r = fixPathToLocalOS(args[0]);
                 QString pfx;
@@ -2842,8 +2847,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             bool ignore_error = false;
             if (args.count() == 2) {
-                QString sarg = args[1];
-                ignore_error = (!sarg.compare(statics.strtrue, Qt::CaseInsensitive) || sarg.toInt());
+                ignore_error = isTrue(args.at(1));
             } else if (args.count() != 1) {
                 logMessage(format("load(feature) requires one or two arguments."));
                 return ProItem::ReturnFalse;
