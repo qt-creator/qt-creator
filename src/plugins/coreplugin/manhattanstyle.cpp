@@ -40,7 +40,6 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QComboBox>
-#include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QDockWidget>
 #include <QtGui/QLabel>
@@ -84,7 +83,7 @@ bool panelWidget(const QWidget *widget)
         return false;
 
     // Do not style dialogs or explicitly ignored widgets
-    if (qobject_cast<const QDialog *>(widget->window()))
+    if ((widget->window()->windowFlags() & Qt::WindowType_Mask) == Qt::Dialog)
         return false;
 
     if (qobject_cast<const Utils::FancyMainWindow *>(widget))
@@ -112,7 +111,7 @@ bool lightColored(const QWidget *widget)
         return false;
 
     // Don't style dialogs or explicitly ignored widgets
-    if (qobject_cast<const QDialog *>(widget->window()))
+    if ((widget->window()->windowFlags() & Qt::WindowType_Mask) == Qt::Dialog)
         return false;
 
     const QWidget *p = widget;
