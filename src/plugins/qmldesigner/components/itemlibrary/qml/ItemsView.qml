@@ -219,10 +219,7 @@ content position out of scope regarding the scrollbar. */
                                 anchors.bottom: parent.bottom
                                 anchors.bottomMargin: 1
                                 anchors.right: parent.right
-// The next line unfortunately introduces a cyclic property binding (strangely,
-// in SectionView)
-//                                width: (itemsFlickable.contentHeight > itemsFlickable.height)? 11:0
-                                width: 11
+                                width: (itemsFlickable.contentHeight > itemsFlickable.height)? 11:0
 
                                 Scrollbar {
                                     id: scrollbar
