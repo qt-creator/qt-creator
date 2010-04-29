@@ -1446,6 +1446,21 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId
     return objectValue;
 }
 
+const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QStringList &qmlTypeName)
+{
+    const ObjectValue *objectValue = typeEnvironment(doc);
+
+    foreach (const QString &name, qmlTypeName) {
+        const Value *value = objectValue->property(name, this);
+        if (!value)
+            return 0;
+
+        objectValue = value->asObjectValue();
+    }
+
+    return objectValue;
+}
+
 const Value *Context::property(const ObjectValue *object, const QString &name) const
 {
     const Properties properties = _properties.value(object);

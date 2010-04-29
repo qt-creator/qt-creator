@@ -639,31 +639,72 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
             (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
-/*
+
         QTextCursor startPositionCursor(edit->document());
         startPositionCursor.setPosition(m_startPosition);
         CompletionContextFinder contextFinder(startPositionCursor);
-        qDebug() << "Qml type name" << contextFinder.qmlObjectTypeName();
-*/
-        // It's a global completion.
-        EnumerateProperties enumerateProperties(&context);
-        enumerateProperties.setGlobalCompletion(true);
-        QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties());
-        while (it.hasNext()) {
-            it.next();
 
-            TextEditor::CompletionItem item(this);
-            item.text = it.key();
-            item.icon = symbolIcon;
-            m_completions.append(item);
+        const Interpreter::ObjectValue *qmlScopeType = 0;
+        if (contextFinder.isInQmlContext())
+             qmlScopeType = context.lookupType(document.data(), contextFinder.qmlObjectTypeName());
+
+        bool doGlobalCompletion = true;
+        if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
+            qDebug() << "LHS of binding!";
+
+            doGlobalCompletion = false;
+            EnumerateProperties enumerateProperties(&context);
+            enumerateProperties.setGlobalCompletion(true);
+
+            QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(qmlScopeType));
+            while (it.hasNext()) {
+                it.next();
+
+                TextEditor::CompletionItem item(this);
+                item.text = it.key();
+                item.data = QString(it.key() + QLatin1String(": "));
+                item.icon = symbolIcon;
+                m_completions.append(item);
+            }
+
+            it = enumerateProperties(context.scopeChain().qmlTypes);
+            while (it.hasNext()) {
+                it.next();
+
+                TextEditor::CompletionItem item(this);
+                item.text = it.key();
+                QString data = it.key();
+                data.append(QLatin1String(" {\n"));
+                data.append(QChar::ObjectReplacementCharacter);
+                data.append(QChar::ObjectReplacementCharacter);
+                data.append(QLatin1String("\n}"));
+                item.data = data;
+                item.icon = symbolIcon;
+                m_completions.append(item);
+            }
         }
 
-        // add js keywords
-        foreach (const QString &word, Scanner::keywords()) {
-            TextEditor::CompletionItem item(this);
-            item.text = word;
-            item.icon = keywordIcon;
-            m_completions.append(item);
+        if (doGlobalCompletion) {
+            // It's a global completion.
+            EnumerateProperties enumerateProperties(&context);
+            enumerateProperties.setGlobalCompletion(true);
+            QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties());
+            while (it.hasNext()) {
+                it.next();
+
+                TextEditor::CompletionItem item(this);
+                item.text = it.key();
+                item.icon = symbolIcon;
+                m_completions.append(item);
+            }
+
+            // add js keywords
+            foreach (const QString &word, Scanner::keywords()) {
+                TextEditor::CompletionItem item(this);
+                item.text = word;
+                item.icon = keywordIcon;
+                m_completions.append(item);
+            }
         }
 
         // add qml extra words

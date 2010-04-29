@@ -303,6 +303,7 @@ public:
 
     const Value *lookup(const QString &name);
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName);
+    const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName);
 
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);

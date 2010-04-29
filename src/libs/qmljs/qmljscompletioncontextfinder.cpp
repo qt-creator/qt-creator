@@ -16,20 +16,22 @@ using namespace QmlJS;
 
 CompletionContextFinder::CompletionContextFinder(const QTextCursor &cursor)
     : m_cursor(cursor)
+    , m_colonCount(-1)
 {
     QTextBlock lastBlock = cursor.block();
     if (lastBlock.next().isValid())
         lastBlock = lastBlock.next();
     initialize(cursor.document()->begin(), lastBlock);
 
-    int startTokenIndex = yyLinizerState.tokens.size() - 1;
-    for (; startTokenIndex >= 0; --startTokenIndex) {
-        const Token &token = yyLinizerState.tokens.at(startTokenIndex);
+    m_startTokenIndex = yyLinizerState.tokens.size() - 1;
+    for (; m_startTokenIndex >= 0; --m_startTokenIndex) {
+        const Token &token = yyLinizerState.tokens.at(m_startTokenIndex);
         if (token.end() <= cursor.positionInBlock())
             break;
     }
 
-    getQmlObjectTypeName(startTokenIndex);
+    getQmlObjectTypeName(m_startTokenIndex);
+    checkBinding();
 }
 
 void CompletionContextFinder::getQmlObjectTypeName(int startTokenIndex)
@@ -79,9 +81,68 @@ void CompletionContextFinder::getQmlObjectTypeName(int startTokenIndex)
     YY_RESTORE();
 }
 
+void CompletionContextFinder::checkBinding()
+{
+    YY_SAVE();
+
+    //qDebug() << "Start line:" << *yyLine << m_startTokenIndex;
+
+    int i = m_startTokenIndex;
+    int colonCount = 0;
+    bool delimiterFound = false;
+    while (!delimiterFound) {
+        if (i < 0) {
+            if (!readLine())
+                break;
+            else
+                i = yyLinizerState.tokens.size() - 1;
+            //qDebug() << "New Line" << *yyLine;
+        }
+
+        const Token &token = yyLinizerState.tokens.at(i);
+        //qDebug() << "Token:" << yyLine->mid(token.begin(), token.length);
+
+        switch (token.kind) {
+        case Token::RightBrace:
+        case Token::LeftBrace:
+        case Token::Semicolon:
+            delimiterFound = true;
+            break;
+
+        case Token::Colon:
+            ++colonCount;
+            break;
+
+        default:
+            break;
+        }
+
+        --i;
+    }
+
+    YY_RESTORE();
+    if (delimiterFound)
+        m_colonCount = colonCount;
+}
+
 QStringList CompletionContextFinder::qmlObjectTypeName() const
 {
     return m_qmlObjectTypeName;
+}
+
+bool CompletionContextFinder::isInQmlContext() const
+{
+    return !qmlObjectTypeName().isEmpty();
+}
+
+bool CompletionContextFinder::isInLhsOfBinding() const
+{
+    return isInQmlContext() && m_colonCount == 0;
+}
+
+bool CompletionContextFinder::isInRhsOfBinding() const
+{
+    return isInQmlContext() && m_colonCount == 1;
 }
 
 int CompletionContextFinder::findOpeningBrace(int startTokenIndex)
@@ -91,7 +152,7 @@ int CompletionContextFinder::findOpeningBrace(int startTokenIndex)
     if (startTokenIndex == -1)
         readLine();
 
-    Token::Kind nestedClosing;
+    Token::Kind nestedClosing = Token::EndOfFile;
     int nestingCount = 0;
 
     for (int i = 0; i < BigRoof; ++i) {
