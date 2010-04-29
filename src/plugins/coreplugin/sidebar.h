@@ -64,13 +64,15 @@ class CORE_EXPORT SideBarItem : public QObject
 {
     Q_OBJECT
 public:
-    SideBarItem(QWidget *widget)
-        : m_widget(widget)
+    // id is non-localized string of the item that's used to store the settings.
+    SideBarItem(QWidget *widget, const QString &id)
+        : m_widget(widget), m_id(id)
     {}
 
     virtual ~SideBarItem();
-
     QWidget *widget() { return m_widget; }
+    QString id() const { return m_id; }
+    QString title() const { return m_widget->windowTitle(); }
 
     /* Should always return a new set of tool buttons.
      *
@@ -85,6 +87,7 @@ public:
 
 private:
     QWidget *m_widget;
+    QString m_id;
 };
 
 class CORE_EXPORT SideBar : public MiniSplitter
@@ -92,16 +95,20 @@ class CORE_EXPORT SideBar : public MiniSplitter
     Q_OBJECT
 public:
     /*
-     * The SideBar takes ownership of the SideBarItems.
+     * The SideBar takes explicit ownership of the SideBarItems
+     * if you have one SideBar, or shared ownership in case
+     * of multiple SideBars.
      */
     SideBar(QList< SideBarItem*> widgetList,
             QList< SideBarItem*> defaultVisible);
     ~SideBar();
 
-    QStringList availableItems() const;
-    QStringList unavailableItems() const;
+    QStringList availableItemIds() const;
+    QStringList availableItemTitles() const;
+    QStringList unavailableItemIds() const;
     void makeItemAvailable(SideBarItem *item);
-    void setUnavailableItems(const QStringList &itemTitles);
+    void setUnavailableItemIds(const QStringList &itemTitles);
+    QString idForTitle(const QString &itemId) const;
 
     SideBarItem *item(const QString &title);
 
@@ -131,8 +138,9 @@ private:
 
     QList<Internal::SideBarWidget*> m_widgets;
     QMap<QString, QWeakPointer<SideBarItem> > m_itemMap;
-    QStringList m_availableItems;
-    QStringList m_unavailableItems;
+    QStringList m_availableItemIds;
+    QStringList m_availableItemTitles;
+    QStringList m_unavailableItemIds;
     QStringList m_defaultVisible;
     QMap<QString, Core::Command*> m_shortcutMap;
     bool m_closeWhenEmpty;
@@ -147,13 +155,14 @@ public:
     SideBarWidget(SideBar *sideBar, const QString &title);
     ~SideBarWidget();
 
+    QString currentItemId() const;
     QString currentItemTitle() const;
-    void setCurrentItem(const QString &title);
+    void setCurrentItem(const QString &id);
 
     void updateAvailableItems();
     void removeCurrentItem();
 
-    Core::Command *command(const QString &title) const;
+    Core::Command *command(const QString &id) const;
 
 signals:
     void splitMe();
@@ -179,6 +188,10 @@ class ComboBox : public QComboBox
     Q_OBJECT
 
 public:
+    enum DataRoles {
+        IdRole = Qt::UserRole
+    };
+
     ComboBox(SideBarWidget *sideBarWidget);
 
 protected:

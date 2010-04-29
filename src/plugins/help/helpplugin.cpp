@@ -84,6 +84,12 @@ using namespace Core::Constants;
 using namespace Help;
 using namespace Help::Internal;
 
+const char * const SB_INDEX = "Index";
+const char * const SB_CONTENTS = "Contents";
+const char * const SB_BOOKMARKS = "Bookmarks";
+const char * const SB_SEARCH = "Search";
+const char * const SB_OPENPAGES = "OpenPages";
+
 #define IMAGEPATH ":/help/images/"
 #if defined(Q_OS_MAC)
 #   define DOCPATH "/../Resources/doc/"
@@ -373,7 +379,7 @@ void HelpPlugin::setupUi()
 
     IndexWindow *indexWindow = new IndexWindow();
     indexWindow->setWindowTitle(tr("Index"));
-    m_indexItem = new Core::SideBarItem(indexWindow);
+    m_indexItem = new Core::SideBarItem(indexWindow, QLatin1String(SB_INDEX));
 
     connect(indexWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
@@ -387,11 +393,11 @@ void HelpPlugin::setupUi()
         QLatin1String("Help.IndexShortcut"), modecontext);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateIndex()));
-    shortcutMap.insert(indexWindow->windowTitle(), cmd);
+    shortcutMap.insert(QLatin1String(SB_INDEX), cmd);
 
     ContentWindow *contentWindow = new ContentWindow();
     contentWindow->setWindowTitle(tr("Contents"));
-    m_contentItem = new Core::SideBarItem(contentWindow);
+    m_contentItem = new Core::SideBarItem(contentWindow, QLatin1String(SB_CONTENTS));
     connect(contentWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
 
@@ -401,11 +407,11 @@ void HelpPlugin::setupUi()
         modecontext);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateContents()));
-    shortcutMap.insert(contentWindow->windowTitle(), cmd);
+    shortcutMap.insert(QLatin1String(SB_CONTENTS), cmd);
 
     SearchWidget *searchWidget = new SearchWidget();
     searchWidget->setWindowTitle(tr("Search"));
-    m_searchItem = new Core::SideBarItem(searchWidget);
+    m_searchItem = new Core::SideBarItem(searchWidget, "Search");
     connect(searchWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSourceFromSearch(QUrl)));
 
@@ -416,12 +422,12 @@ void HelpPlugin::setupUi()
     //     modecontext);
     // cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_S));
     // connect(shortcut, SIGNAL(activated()), this, SLOT(activateSearch()));
-    // shortcutMap.insert(searchWidget->windowTitle(), cmd);
+    // shortcutMap.insert("Search", cmd);
 
     BookmarkManager *manager = &HelpManager::bookmarkManager();
     BookmarkWidget *bookmarkWidget = new BookmarkWidget(manager, 0, false);
     bookmarkWidget->setWindowTitle(tr("Bookmarks"));
-    m_bookmarkItem = new Core::SideBarItem(bookmarkWidget);
+    m_bookmarkItem = new Core::SideBarItem(bookmarkWidget, QLatin1String(SB_BOOKMARKS));
     connect(bookmarkWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
 
@@ -432,11 +438,11 @@ void HelpPlugin::setupUi()
     //     modecontext);
     // cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_B));
     // connect(shortcut, SIGNAL(activated()), this, SLOT(activateBookmarks()));
-    // shortcutMap.insert(bookmarkWidget->windowTitle(), cmd);
+    // shortcutMap.insert("Bookmarks", cmd);
 
     QWidget *openPagesWidget = OpenPagesManager::instance().openPagesWidget();
     openPagesWidget->setWindowTitle(tr("Open Pages"));
-    m_openPagesItem = new Core::SideBarItem(openPagesWidget);
+    m_openPagesItem = new Core::SideBarItem(openPagesWidget, QLatin1String(SB_OPENPAGES));
 
     shortcut = new QShortcut(m_splitter);
     shortcut->setWhatsThis(tr("Activate Open Pages in Help mode"));
@@ -444,7 +450,7 @@ void HelpPlugin::setupUi()
         modecontext);
     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateOpenPages()));
-    shortcutMap.insert(openPagesWidget->windowTitle(), cmd);
+    shortcutMap.insert(QLatin1String(SB_OPENPAGES), cmd);
 
     QList<Core::SideBarItem*> itemList;
     itemList << m_contentItem << m_indexItem << m_searchItem << m_bookmarkItem

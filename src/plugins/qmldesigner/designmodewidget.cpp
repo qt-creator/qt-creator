@@ -77,6 +77,13 @@ enum {
     debug = false
 };
 
+const char * const SB_NAVIGATOR = "Navigator";
+const char * const SB_LIBRARY = "Library";
+const char * const SB_PROPERTIES = "Properties";
+const char * const SB_PROJECTS = "Projects";
+const char * const SB_FILESYSTEM = "FileSystem";
+const char * const SB_OPENDOCUMENTS = "OpenDocuments";
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -584,17 +591,15 @@ void DesignModeWidget::setup()
     {
         Core::NavigationView navigationView;
         navigationView.widget = 0;
-        if (factory->displayName() == QLatin1String("Projects")) {
+        if (factory->id() == QLatin1String("Projects")) {
             navigationView = factory->createWidget();
             projectsExplorer = navigationView.widget;
             projectsExplorer->setWindowTitle(tr("Projects"));
-        }
-        if (factory->displayName() == QLatin1String("File System")) {
+        } else if (factory->id() == QLatin1String("File System")) {
             navigationView = factory->createWidget();
             fileSystemExplorer = navigationView.widget;
             fileSystemExplorer->setWindowTitle(tr("File System"));
-        }
-        if (factory->displayName() == QLatin1String("Open Documents")) {
+        } else if (factory->id() == QLatin1String("Open Documents")) {
             navigationView = factory->createWidget();
             openDocumentsWidget = navigationView.widget;
             openDocumentsWidget->setWindowTitle(tr("Open Documents"));
@@ -632,25 +637,25 @@ void DesignModeWidget::setup()
     m_warningWidget = new DocumentWarningWidget(this);
     m_warningWidget->setVisible(false);
 
-    Core::SideBarItem *navigatorItem = new Core::SideBarItem(m_navigator->widget());
-    Core::SideBarItem *libraryItem = new Core::SideBarItem(m_itemLibrary.data());
-    Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_allPropertiesBox.data());
+    Core::SideBarItem *navigatorItem = new Core::SideBarItem(m_navigator->widget(), QLatin1String(SB_NAVIGATOR));
+    Core::SideBarItem *libraryItem = new Core::SideBarItem(m_itemLibrary.data(), QLatin1String(SB_LIBRARY));
+    Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_allPropertiesBox.data(), QLatin1String(SB_PROPERTIES));
 
     // default items
     m_sideBarItems << navigatorItem << libraryItem << propertiesItem;
 
     if (projectsExplorer) {
-        Core::SideBarItem *projectExplorerItem = new Core::SideBarItem(projectsExplorer);
+        Core::SideBarItem *projectExplorerItem = new Core::SideBarItem(projectsExplorer, QLatin1String(SB_PROJECTS));
         m_sideBarItems << projectExplorerItem;
     }
 
     if (fileSystemExplorer) {
-        Core::SideBarItem *fileSystemExplorerItem = new Core::SideBarItem(fileSystemExplorer);
+        Core::SideBarItem *fileSystemExplorerItem = new Core::SideBarItem(fileSystemExplorer, QLatin1String(SB_FILESYSTEM));
         m_sideBarItems << fileSystemExplorerItem;
     }
 
     if (openDocumentsWidget) {
-        Core::SideBarItem *openDocumentsItem = new Core::SideBarItem(openDocumentsWidget);
+        Core::SideBarItem *openDocumentsItem = new Core::SideBarItem(openDocumentsWidget, QLatin1String(SB_OPENDOCUMENTS));
         m_sideBarItems << openDocumentsItem;
     }
 
@@ -717,13 +722,13 @@ void DesignModeWidget::setup()
 void DesignModeWidget::updateAvailableSidebarItemsRight()
 {
     // event comes from m_leftSidebar, so update right side.
-    m_rightSideBar->setUnavailableItems(m_leftSideBar->unavailableItems());
+    m_rightSideBar->setUnavailableItemIds(m_leftSideBar->unavailableItemIds());
 }
 
 void DesignModeWidget::updateAvailableSidebarItemsLeft()
 {
     // event comes from m_rightSidebar, so update left side.
-    m_leftSideBar->setUnavailableItems(m_rightSideBar->unavailableItems());
+    m_leftSideBar->setUnavailableItemIds(m_rightSideBar->unavailableItemIds());
 }
 
 void DesignModeWidget::resizeEvent(QResizeEvent *event)
