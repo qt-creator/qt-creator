@@ -86,7 +86,7 @@ QmlInspectorPlugin::~QmlInspectorPlugin()
 
 void QmlInspectorPlugin::aboutToShutdown()
 {
-
+    m_inspector->shutdown();
 }
 
 bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *errorString)

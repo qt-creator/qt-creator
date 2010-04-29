@@ -186,6 +186,11 @@ QmlInspector::QmlInspector(QObject *parent)
 
 QmlInspector::~QmlInspector()
 {
+
+}
+
+void QmlInspector::shutdown()
+{
     m_objectTreeWidget->saveSettings(m_settings);
     m_propertiesWidget->saveSettings(m_settings);
     m_settings.saveSettings(Core::ICore::instance()->settings());
@@ -431,7 +436,7 @@ void QmlInspector::createDockWidgets()
     m_inspectorOutputDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
                                                             inspectorOutput, Qt::BottomDockWidgetArea);
 
-    m_expressionWidget->setWindowTitle(tr("Script console"));
+    m_expressionWidget->setWindowTitle(tr("Script Console"));
     m_expressionQueryDock = uiSwitcher->createDockWidget(Qml::Constants::LANG_QML,
                                                          m_expressionWidget, Qt::BottomDockWidgetArea);
 

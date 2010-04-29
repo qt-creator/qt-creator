@@ -99,6 +99,7 @@ public:
 
     QmlInspector(QObject *parent = 0);
     ~QmlInspector();
+    void shutdown();
 
     void createDockWidgets();
     bool connectToViewer(); // using host, port from widgets

@@ -62,7 +62,7 @@ FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *q) :
     m_menuSeparator1(new QAction(q)),
     m_toggleLockedAction(new QAction(FancyMainWindow::tr("Locked"), q)),
     m_menuSeparator2(new QAction(q)),
-    m_resetLayoutAction(new QAction(FancyMainWindow::tr("Reset to default layout") ,q))
+    m_resetLayoutAction(new QAction(FancyMainWindow::tr("Reset to Default Layout") ,q))
 {
     m_toggleLockedAction->setCheckable(true);
     m_toggleLockedAction->setChecked(m_locked);
