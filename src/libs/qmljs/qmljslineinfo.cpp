@@ -187,7 +187,6 @@ QString LineInfo::trimmedCodeLine(const QString &t)
 
         case Token::String:
         case Token::Number:
-        case Token::Colon:
         case Token::Comma:
             needSemicolon = true;
             break;
