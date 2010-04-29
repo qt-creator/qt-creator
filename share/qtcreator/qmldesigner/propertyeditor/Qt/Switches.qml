@@ -18,7 +18,7 @@ QFrame {
             checkable: true;
             checked: true;
             id: standardMode;
-            toolTip: "special properties";
+            toolTip: qsTr(""special properties");
             //iconFromFile: "images/rect-icon.png";
             text: backendValues === undefined || backendValues.className === undefined || backendValues.className == "empty" ? "empty" : backendValues.className.value
             onClicked: {
@@ -49,7 +49,7 @@ QFrame {
 
         QPushButton {
             id: extendedMode;
-            toolTip: "advanced properties";
+            toolTip: qsTr("advanced properties");
             checkable: true;
             checked: false;
             text: qsTr("Advanced")
