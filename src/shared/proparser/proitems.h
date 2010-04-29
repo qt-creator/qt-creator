@@ -118,14 +118,6 @@ public:
         FunctionDefKind
     };
 
-    enum ProItemReturn {
-        ReturnFalse,
-        ReturnTrue,
-        ReturnBreak,
-        ReturnNext,
-        ReturnReturn
-   };
-
     ProItem(ProItemKind kind) : m_kind(kind), m_lineNumber(0) {}
 
     ProItemKind kind() const { return m_kind; }

@@ -244,12 +244,20 @@ public:
 
     /////////////// Evaluating pro file contents
 
-    ProItem::ProItemReturn visitProFile(ProFile *pro);
-    ProItem::ProItemReturn visitProBlock(ProItem *items);
-    ProItem::ProItemReturn visitProLoop(ProLoop *loop);
+    enum VisitReturn {
+        ReturnFalse,
+        ReturnTrue,
+        ReturnBreak,
+        ReturnNext,
+        ReturnReturn
+    };
+
+    VisitReturn visitProFile(ProFile *pro);
+    VisitReturn visitProBlock(ProItem *items);
+    VisitReturn visitProLoop(ProLoop *loop);
     void visitProFunctionDef(ProFunctionDef *def);
     void visitProVariable(ProVariable *variable);
-    ProItem::ProItemReturn visitProCondition(ProCondition *condition);
+    VisitReturn visitProCondition(ProCondition *condition);
 
     static inline ProString map(const ProString &var);
     QHash<ProString, ProStringList> *findValues(const ProString &variableName,
@@ -274,7 +282,7 @@ public:
     QString resolvePath(const QString &fileName) const
         { return IoUtils::resolvePath(currentDirectory(), fileName); }
 
-    ProItem::ProItemReturn evaluateConditionalFunction(const ProString &function, const ProString &arguments);
+    VisitReturn evaluateConditionalFunction(const ProString &function, const ProString &arguments);
     ProFile *parsedProFile(const QString &fileName, bool cache,
                            const QString &contents = QString());
     bool evaluateFile(const QString &fileName);
@@ -283,8 +291,8 @@ public:
     bool evaluateFileInto(const QString &fileName,
                           QHash<ProString, ProStringList> *values, FunctionDefs *defs);
 
-    static inline ProItem::ProItemReturn returnBool(bool b)
-        { return b ? ProItem::ReturnTrue : ProItem::ReturnFalse; }
+    static inline VisitReturn returnBool(bool b)
+        { return b ? ReturnTrue : ReturnFalse; }
 
     QList<ProStringList> prepareFunctionArgs(const ProString &arguments);
     ProStringList evaluateFunction(ProFunctionDef *func, const QList<ProStringList> &argumentsList, bool *ok);
@@ -1184,10 +1192,10 @@ static bool isTrue(const ProString &_str, QString &tmp)
 
 //////// Evaluator /////////
 
-ProItem::ProItemReturn ProFileEvaluator::Private::visitProBlock(ProItem *items)
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(ProItem *items)
 {
     bool okey = true, or_op = false, invert = false;
-    ProItem::ProItemReturn ret = ProItem::ReturnTrue;
+    VisitReturn ret = ReturnTrue;
     for (ProItem *itm = items; itm; itm = itm->next()) {
         switch (itm->kind()) {
         case ProItem::VariableKind:
@@ -1202,7 +1210,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProBlock(ProItem *items)
                     m_skipLevel--;
                 else
                     m_skipLevel++;
-                if (ret == ProItem::ReturnTrue || ret == ProItem::ReturnFalse)
+                if (ret == ReturnTrue || ret == ReturnFalse)
                     ret = visitProBlock(static_cast<ProBranch*>(itm)->elseItems());
                 if (okey)
                     m_skipLevel--;
@@ -1237,8 +1245,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProBlock(ProItem *items)
             if (!m_skipLevel && okey != or_op) {
                 ret = visitProCondition(static_cast<ProCondition*>(itm));
                 switch (ret) {
-                case ProItem::ReturnTrue: okey = true; break;
-                case ProItem::ReturnFalse: okey = false; break;
+                case ReturnTrue: okey = true; break;
+                case ReturnFalse: okey = false; break;
                 default: return ret;
                 }
                 okey ^= invert;
@@ -1252,7 +1260,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProBlock(ProItem *items)
             break;
         default: Q_ASSERT_X(false, "visitProBlock", "unexpected item type");
         }
-        if (ret != ProItem::ReturnTrue && ret != ProItem::ReturnFalse)
+        if (ret != ReturnTrue && ret != ReturnFalse)
             break;
     }
     return ret;
@@ -1271,9 +1279,9 @@ void ProFileEvaluator::Private::visitProFunctionDef(ProFunctionDef *def)
     def->ref();
 }
 
-ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoop(ProLoop *loop)
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(ProLoop *loop)
 {
-    ProItem::ProItemReturn ret = ProItem::ReturnTrue;
+    VisitReturn ret = ReturnTrue;
     bool infinite = false;
     int index = 0;
     ProString variable;
@@ -1282,7 +1290,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoop(ProLoop *loop)
     if (loop->variable().isEmpty()) {
         if (it_list != statics.strever) {
             logMessage(format("Invalid loop expression."));
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
         }
         it_list = ProString(statics.strforever);
     } else {
@@ -1336,14 +1344,14 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoop(ProLoop *loop)
 
         ret = visitProBlock(loop->items());
         switch (ret) {
-        case ProItem::ReturnTrue:
-        case ProItem::ReturnFalse:
+        case ReturnTrue:
+        case ReturnFalse:
             break;
-        case ProItem::ReturnNext:
-            ret = ProItem::ReturnTrue;
+        case ReturnNext:
+            ret = ReturnTrue;
             break;
-        case ProItem::ReturnBreak:
-            ret = ProItem::ReturnTrue;
+        case ReturnBreak:
+            ret = ReturnTrue;
             goto do_break;
         default:
             goto do_break;
@@ -1439,11 +1447,11 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
     }
 }
 
-ProItem::ProItemReturn ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
 {
     if (cond->text().endsWith(QLatin1Char(')'))) {
         if (!m_cumulative && m_skipLevel)
-            return ProItem::ReturnTrue;
+            return ReturnTrue;
         int lparen = cond->text().indexOf(QLatin1Char('('));
         ProString text(cond->text());
         ProString arguments = text.mid(lparen + 1, text.size() - lparen - 2);
@@ -1452,12 +1460,12 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProCondition(ProCondition
         return evaluateConditionalFunction(funcName, arguments);
     } else {
         if (m_skipLevel)
-            return ProItem::ReturnTrue;
+            return ReturnTrue;
         return returnBool(isActiveConfig(cond->text(), true));
     }
 }
 
-ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
 {
     m_profileStack.push(pro);
     if (m_profileStack.count() == 1) {
@@ -1623,7 +1631,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
     }
     m_profileStack.pop();
 
-    return ProItem::ReturnTrue;
+    return ReturnTrue;
 }
 
 
@@ -2127,7 +2135,7 @@ ProStringList ProFileEvaluator::Private::evaluateFunction(
             m_valuemapStack.top()[ProString(QString::number(i+1))] = argumentsList[i];
         }
         m_valuemapStack.top()[statics.strARGS] = args;
-        oki = (visitProBlock(funcPtr->items()) != ProItem::ReturnFalse); // True || Return
+        oki = (visitProBlock(funcPtr->items()) != ReturnFalse); // True || Return
         ret = m_returnValue;
         m_returnValue.clear();
 
@@ -2528,7 +2536,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
     return ret;
 }
 
-ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         const ProString &function, const ProString &arguments)
 {
     if (ProFunctionDef *funcPtr = m_functionDefs.testFunctions.value(function, 0)) {
@@ -2536,17 +2544,17 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         ProStringList ret = evaluateFunction(funcPtr, prepareFunctionArgs(arguments), &ok);
         if (ok) {
             if (ret.isEmpty()) {
-                return ProItem::ReturnTrue;
+                return ReturnTrue;
             } else {
                 if (ret.at(0) != statics.strfalse) {
                     if (ret.at(0) == statics.strtrue) {
-                        return ProItem::ReturnTrue;
+                        return ReturnTrue;
                     } else {
                         bool ok;
                         int val = ret.at(0).toQString(m_tmp1).toInt(&ok);
                         if (ok) {
                             if (val)
-                                return ProItem::ReturnTrue;
+                                return ReturnTrue;
                         } else {
                             logMessage(format("Unexpected return value from test '%1': %2")
                                           .arg(function.toQString(m_tmp1))
@@ -2556,7 +2564,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 }
             }
         }
-        return ProItem::ReturnFalse;
+        return ReturnFalse;
     }
 
     //why don't the builtin functions just use args_list? --Sam
@@ -2570,7 +2578,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             if (args.count() < 1 || args.count() > 2) {
                 logMessage(format("defined(function, [\"test\"|\"replace\"])"
                                      " requires one or two arguments."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             if (args.count() > 1) {
                 if (args[1] == QLatin1String("test"))
@@ -2579,7 +2587,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     return returnBool(m_functionDefs.replaceFunctions.contains(args[0]));
                 logMessage(format("defined(function, type):"
                                   " unexpected type [%1].\n").arg(args.at(1).toQString(m_tmp1)));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             return returnBool(m_functionDefs.replaceFunctions.contains(args[0])
                               || m_functionDefs.testFunctions.contains(args[0]));
@@ -2588,18 +2596,18 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             // It is "safe" to ignore returns - due to qmake brokeness
             // they cannot be used to terminate loops anyway.
             if (m_skipLevel || m_cumulative)
-                return ProItem::ReturnTrue;
+                return ReturnTrue;
             if (m_valuemapStack.isEmpty()) {
                 logMessage(format("unexpected return()."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
-            return ProItem::ReturnReturn;
+            return ReturnReturn;
         case T_EXPORT: {
             if (m_skipLevel && !m_cumulative)
-                return ProItem::ReturnTrue;
+                return ReturnTrue;
             if (args.count() != 1) {
                 logMessage(format("export(variable) requires one argument."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             const ProString &var = map(args.at(0));
             for (int i = m_valuemapStack.size(); --i > 0; ) {
@@ -2617,7 +2625,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     break;
                 }
             }
-            return ProItem::ReturnTrue;
+            return ReturnTrue;
         }
         case T_INFILE:
             if (args.count() < 2 || args.count() > 3) {
@@ -2625,7 +2633,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             } else {
                 QHash<ProString, ProStringList> vars;
                 if (!evaluateFileInto(resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1))), &vars, 0))
-                    return ProItem::ReturnFalse;
+                    return ReturnFalse;
                 if (args.count() == 2)
                     return returnBool(vars.contains(args.at(1)));
                 QRegExp regx;
@@ -2638,11 +2646,11 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 int t = 0;
                 foreach (const ProString &s, vars.value(map(args.at(1)))) {
                     if ((!regx.isEmpty() && regx.exactMatch(s.toQString(m_tmp[t]))) || s == qry)
-                        return ProItem::ReturnTrue;
+                        return ReturnTrue;
                     t ^= 1;
                 }
             }
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
 #if 0
         case T_REQUIRES:
 #endif
@@ -2650,31 +2658,31 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 ProItem *pro;
                 QString buf = args.join(QLatin1String(" "));
                 if (!readInternal(&pro, buf, (ushort*)buf.data()))
-                    return ProItem::ReturnFalse;
-                ProItem::ProItemReturn ret = visitProBlock(pro);
+                    return ReturnFalse;
+                VisitReturn ret = visitProBlock(pro);
                 ProItem::disposeItems(pro);
                 return ret;
             }
         case T_BREAK:
             if (m_skipLevel)
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             if (m_loopLevel)
-                return ProItem::ReturnBreak;
+                return ReturnBreak;
             logMessage(format("unexpected break()."));
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
         case T_NEXT:
             if (m_skipLevel)
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             if (m_loopLevel)
-                return ProItem::ReturnNext;
+                return ReturnNext;
             logMessage(format("unexpected next()."));
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
         case T_IF: {
             if (m_skipLevel && !m_cumulative)
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             if (args.count() != 1) {
                 logMessage(format("if(condition) requires one argument."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             const ProString &cond = args.at(0);
             bool quoted = false;
@@ -2740,7 +2748,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         case T_CONFIG: {
             if (args.count() < 1 || args.count() > 2) {
                 logMessage(format("CONFIG(config) requires one or two arguments."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             if (args.count() == 1)
                 return returnBool(isActiveConfig(args.at(0).toQString(m_tmp2)));
@@ -2754,12 +2762,12 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     }
                 }
             }
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
         }
         case T_CONTAINS: {
             if (args.count() < 2 || args.count() > 3) {
                 logMessage(format("contains(var, val) requires two or three arguments."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
 
             const QString &qry = args.at(1).toQString(m_tmp1);
@@ -2775,7 +2783,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 for (int i = 0; i < l.size(); ++i) {
                     const ProString &val = l[i];
                     if ((!regx.isEmpty() && regx.exactMatch(val.toQString(m_tmp[t]))) || val == qry)
-                        return ProItem::ReturnTrue;
+                        return ReturnTrue;
                     t ^= 1;
                 }
             } else {
@@ -2791,12 +2799,12 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     }
                 }
             }
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
         }
         case T_COUNT: {
             if (args.count() != 2 && args.count() != 3) {
                 logMessage(format("count(var, count, op=\"equals\") requires two or three arguments."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             int cnt = values(map(args.at(0))).count();
             if (args.count() == 3) {
@@ -2816,7 +2824,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 } else {
                     logMessage(format("unexpected modifier to count(%2)")
                                .arg(comp.toQString(m_tmp1)));
-                    return ProItem::ReturnFalse;
+                    return ReturnFalse;
                 }
             }
             return returnBool(cnt == args.at(1).toQString(m_tmp1).toInt());
@@ -2826,7 +2834,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             if (args.count() != 2) {
                 logMessage(format("%1(variable, value) requires two arguments.")
                            .arg(function.toQString(m_tmp1)));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             const QString &rhs(args.at(1).toQString(m_tmp1)),
                           &lhs(values(map(args.at(0))).join(statics.field_sep));
@@ -2848,53 +2856,53 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             if (args.count() != 2) {
                 logMessage(format("%1(variable, value) requires two arguments.")
                            .arg(function.toQString(m_tmp1)));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             return returnBool(values(map(args.at(0))).join(statics.field_sep)
                               == args.at(1).toQString(m_tmp1));
         case T_CLEAR: {
             if (m_skipLevel && !m_cumulative)
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             if (args.count() != 1) {
                 logMessage(format("%1(variable) requires one argument.")
                            .arg(function.toQString(m_tmp1)));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             QHash<ProString, ProStringList> *hsh;
             QHash<ProString, ProStringList>::Iterator it;
             const ProString &var = map(args.at(0));
             if (!(hsh = findValues(var, &it)))
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             if (hsh == &m_valuemapStack.top())
                 it->clear();
             else
                 m_valuemapStack.top()[var].clear();
-            return ProItem::ReturnTrue;
+            return ReturnTrue;
         }
         case T_UNSET: {
             if (m_skipLevel && !m_cumulative)
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             if (args.count() != 1) {
                 logMessage(format("%1(variable) requires one argument.")
                            .arg(function.toQString(m_tmp1)));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             QHash<ProString, ProStringList> *hsh;
             QHash<ProString, ProStringList>::Iterator it;
             const ProString &var = map(args.at(0));
             if (!(hsh = findValues(var, &it)))
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             if (m_valuemapStack.size() == 1)
                 hsh->erase(it);
             else if (hsh == &m_valuemapStack.top())
                 *it = statics.fakeValue;
             else
                 m_valuemapStack.top()[var] = statics.fakeValue;
-            return ProItem::ReturnTrue;
+            return ReturnTrue;
         }
         case T_INCLUDE: {
             if (m_skipLevel && !m_cumulative)
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             QString parseInto;
             // the third optional argument to include() controls warnings
             //      and is not used here
@@ -2902,7 +2910,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 parseInto = args.at(1).toQString(m_tmp2);
             } else if (args.count() != 1) {
                 logMessage(format("include(file, into, silent) requires one, two or three arguments."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             QString fn = resolvePath(expandEnvVars(args.at(0).toQString()));
             bool ok;
@@ -2935,25 +2943,25 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         }
         case T_LOAD: {
             if (m_skipLevel && !m_cumulative)
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             bool ignore_error = false;
             if (args.count() == 2) {
                 ignore_error = isTrue(args.at(1), m_tmp2);
             } else if (args.count() != 1) {
                 logMessage(format("load(feature) requires one or two arguments."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             // XXX ignore_error unused
             return returnBool(evaluateFeatureFile(expandEnvVars(args.at(0).toQString())));
         }
         case T_DEBUG:
             // Yup - do nothing. Nothing is going to enable debug output anyway.
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
         case T_MESSAGE: {
             if (args.count() != 1) {
                 logMessage(format("%1(message) requires one argument.")
                            .arg(function.toQString(m_tmp1)));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             const QString &msg = expandEnvVars(args.at(0).toQString(m_tmp2));
             fileMessage(QString::fromLatin1("Project %1: %2")
@@ -2965,7 +2973,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         case T_SYSTEM: {
             if (args.count() != 1) {
                 logMessage(format("system(exec) requires one argument."));
-                ProItem::ReturnFalse;
+                ReturnFalse;
             }
             return returnBool(system((QLatin1String("cd ")
                                       + IoUtils::shellQuote(currentDirectory())
@@ -2975,45 +2983,45 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         case T_ISEMPTY: {
             if (args.count() != 1) {
                 logMessage(format("isEmpty(var) requires one argument."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             const ProStringList &sl = values(map(args.at(0)));
             if (sl.count() == 0) {
-                return ProItem::ReturnTrue;
+                return ReturnTrue;
             } else if (sl.count() > 0) {
                 const ProString &var = sl.first();
                 if (var.isEmpty())
-                    return ProItem::ReturnTrue;
+                    return ReturnTrue;
             }
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
         }
         case T_EXISTS: {
             if (args.count() != 1) {
                 logMessage(format("exists(file) requires one argument."));
-                return ProItem::ReturnFalse;
+                return ReturnFalse;
             }
             const QString &file = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
 
             if (IoUtils::exists(file)) {
-                return ProItem::ReturnTrue;
+                return ReturnTrue;
             }
             int slsh = file.lastIndexOf(QLatin1Char('/'));
             QString fn = file.mid(slsh+1);
             if (fn.contains(QLatin1Char('*')) || fn.contains(QLatin1Char('?'))) {
                 QString dirstr = file.left(slsh+1);
                 if (!QDir(dirstr).entryList(QStringList(fn)).isEmpty())
-                    return ProItem::ReturnTrue;
+                    return ReturnTrue;
             }
 
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
         }
         case 0:
             logMessage(format("'%1' is not a recognized test function")
                        .arg(function.toQString(m_tmp1)));
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
         default:
             logMessage(format("Function '%1' is not implemented").arg(function.toQString(m_tmp1)));
-            return ProItem::ReturnFalse;
+            return ReturnFalse;
     }
 }
 
@@ -3259,7 +3267,7 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
         }
     if (ProFile *pro = parsedProFile(fileName, true)) {
         q->aboutToEval(pro);
-        bool ok = (visitProFile(pro) == ProItem::ReturnTrue);
+        bool ok = (visitProFile(pro) == ReturnTrue);
         pro->deref();
         return ok;
     } else {
@@ -3316,7 +3324,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
         // The path is fully normalized already.
         bool ok = false;
         if (ProFile *pro = parsedProFile(fn, true)) {
-            ok = (visitProFile(pro) == ProItem::ReturnTrue);
+            ok = (visitProFile(pro) == ReturnTrue);
             pro->deref();
         }
 
