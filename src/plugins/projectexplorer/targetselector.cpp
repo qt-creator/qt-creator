@@ -236,7 +236,7 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         else
             p.setPen(buildSelected ? Qt::black : Qt::white);
 
-        p.drawText(textRect, Qt::AlignHCenter, runString);
+        p.drawText(textRect, Qt::AlignHCenter, buildString);
 
         // Run
         textRect.moveLeft(x + targetWidth()/2 - 2 * margin);
@@ -244,7 +244,7 @@ void TargetSelector::paintEvent(QPaintEvent *event)
             p.setPen(QColor(0x555555));
         else
             p.setPen(buildSelected ? Qt::white: Qt::black);
-        p.drawText(textRect, Qt::AlignHCenter, buildString);
+        p.drawText(textRect, Qt::AlignHCenter, runString);
 
         x += targetWidth();
 
