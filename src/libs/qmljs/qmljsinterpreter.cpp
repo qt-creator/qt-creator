@@ -123,6 +123,9 @@ public:
 
     int keyCount() const
     { return m_keys.size(); }
+
+    QStringList keys() const
+    { return m_keys; }
 };
 
 class FakeMetaMethod {
@@ -854,6 +857,13 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         value = object;
     }
 
+    // might be an enum
+    int enumIndex = _metaObject->enumeratorIndex(prop.typeName());
+    if (enumIndex != -1) {
+        const FakeMetaEnum &metaEnum = _metaObject->enumerator(enumIndex);
+        value = new QmlEnumValue(metaEnum, engine());
+    }
+
     return value;
 }
 
@@ -914,6 +924,28 @@ bool QmlObjectValue::isDerivedFrom(const FakeMetaObject *base) const
             return true;
     }
     return false;
+}
+
+QmlEnumValue::QmlEnumValue(const FakeMetaEnum &metaEnum, Engine *engine)
+    : NumberValue(),
+      _metaEnum(new FakeMetaEnum(metaEnum))
+{
+    engine->registerValue(this);
+}
+
+QmlEnumValue::~QmlEnumValue()
+{
+    delete _metaEnum;
+}
+
+QString QmlEnumValue::name() const
+{
+    return _metaEnum->name();
+}
+
+QStringList QmlEnumValue::keys() const
+{
+    return _metaEnum->keys();
 }
 
 namespace {

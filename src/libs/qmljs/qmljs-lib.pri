@@ -34,6 +34,9 @@ SOURCES += \
     $$PWD/qmljslineinfo.cpp \
     $$PWD/qmljscompletioncontextfinder.cpp
 
+OTHER_FILES += \
+    $$PWD/parser/qmljs.g
+
 contains(QT, gui) {
     SOURCES += $$PWD/qmljsindenter.cpp
     HEADERS += $$PWD/qmljsindenter.h

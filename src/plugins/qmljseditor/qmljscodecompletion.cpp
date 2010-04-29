@@ -157,12 +157,14 @@ class EnumerateProperties: private Interpreter::MemberProcessor
     QSet<const Interpreter::ObjectValue *> _processed;
     QHash<QString, const Interpreter::Value *> _properties;
     bool _globalCompletion;
+    bool _enumerateGeneratedSlots;
     Interpreter::Context *_context;
     const Interpreter::ObjectValue *_currentObject;
 
 public:
     EnumerateProperties(Interpreter::Context *context)
         : _globalCompletion(false),
+          _enumerateGeneratedSlots(false),
           _context(context),
           _currentObject(0)
     {
@@ -171,6 +173,11 @@ public:
     void setGlobalCompletion(bool globalCompletion)
     {
         _globalCompletion = globalCompletion;
+    }
+
+    void setEnumerateGeneratedSlots(bool enumerate)
+    {
+        _enumerateGeneratedSlots = enumerate;
     }
 
     QHash<QString, const Interpreter::Value *> operator ()(const Interpreter::Value *value)
@@ -231,7 +238,7 @@ private:
 
     virtual bool processGeneratedSlot(const QString &name, const Interpreter::Value *value)
     {
-        if (_globalCompletion || (_currentObject && _currentObject->className().endsWith(QLatin1String("Keys")))) {
+        if (_enumerateGeneratedSlots || (_currentObject && _currentObject->className().endsWith(QLatin1String("Keys")))) {
             // ### FIXME: add support for attached properties.
             insertProperty(name, value);
         }
@@ -640,6 +647,10 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
             (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
 
+        bool doGlobalCompletion = true;
+        bool doQmlKeywordCompletion = true;
+        bool doJsKeywordCompletion = true;
+
         QTextCursor startPositionCursor(edit->document());
         startPositionCursor.setPosition(m_startPosition);
         CompletionContextFinder contextFinder(startPositionCursor);
@@ -648,11 +659,13 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         if (contextFinder.isInQmlContext())
              qmlScopeType = context.lookupType(document.data(), contextFinder.qmlObjectTypeName());
 
-        bool doGlobalCompletion = true;
         if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
             doGlobalCompletion = false;
+            doJsKeywordCompletion = false;
+
             EnumerateProperties enumerateProperties(&context);
             enumerateProperties.setGlobalCompletion(true);
+            enumerateProperties.setEnumerateGeneratedSlots(true);
 
             QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(qmlScopeType));
             while (it.hasNext()) {
@@ -660,9 +673,6 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
                 TextEditor::CompletionItem item(this);
                 item.text = it.key();
-                item.data = it.key();
-                if (!contextFinder.isAfterOnInLhsOfBinding())
-                    item.data = QString(item.data.toString() + QLatin1String(": "));
                 item.icon = symbolIcon;
                 m_completions.append(item);
             }
@@ -675,6 +685,35 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 item.text = it.key();
                 item.icon = symbolIcon;
                 m_completions.append(item);
+            }
+        }
+
+        if (contextFinder.isInRhsOfBinding() && qmlScopeType) {
+            doQmlKeywordCompletion = false;
+            qDebug() << "property name: " << contextFinder.bindingPropertyName();
+
+            if (!contextFinder.bindingPropertyName().isEmpty()) {
+                const Interpreter::Value *value = qmlScopeType;
+                foreach (const QString &name, contextFinder.bindingPropertyName()) {
+                    if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
+                        value = objectValue->property(name, &context);
+                        if (!value)
+                            break;
+                    } else {
+                        value = 0;
+                        break;
+                    }
+                }
+
+                if (const Interpreter::QmlEnumValue *enumValue = dynamic_cast<const Interpreter::QmlEnumValue *>(value)) {
+                    foreach (const QString &key, enumValue->keys()) {
+                        TextEditor::CompletionItem item(this);
+                        item.text = key;
+                        item.data = QString("\"%1\"").arg(key);
+                        item.icon = symbolIcon;
+                        m_completions.append(item);
+                    }
+                }
             }
         }
 
@@ -691,7 +730,9 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 item.icon = symbolIcon;
                 m_completions.append(item);
             }
+        }
 
+        if (doJsKeywordCompletion) {
             // add js keywords
             foreach (const QString &word, Scanner::keywords()) {
                 TextEditor::CompletionItem item(this);
@@ -702,7 +743,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
 
         // add qml extra words
-        if (isQmlFile) {
+        if (doQmlKeywordCompletion && isQmlFile) {
             static QStringList qmlWords;
 
             if (qmlWords.isEmpty()) {
@@ -717,6 +758,22 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 item.text = word;
                 item.icon = keywordIcon;
                 m_completions.append(item);
+            }
+
+            if (!doJsKeywordCompletion) {
+                {
+                    TextEditor::CompletionItem item(this);
+                    item.text = QLatin1String("default");
+                    item.icon = keywordIcon;
+                    m_completions.append(item);
+                }
+
+                {
+                    TextEditor::CompletionItem item(this);
+                    item.text = QLatin1String("function");
+                    item.icon = keywordIcon;
+                    m_completions.append(item);
+                }
             }
         }
     }

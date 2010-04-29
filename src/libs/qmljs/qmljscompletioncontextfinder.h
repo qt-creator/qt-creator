@@ -24,6 +24,7 @@ public:
     bool isInRhsOfBinding() const;
 
     bool isAfterOnInLhsOfBinding() const;
+    QStringList bindingPropertyName() const;
 
 private:
     int findOpeningBrace(int startTokenIndex);
@@ -32,7 +33,7 @@ private:
 
     QTextCursor m_cursor;
     QStringList m_qmlObjectTypeName;
-
+    QStringList m_bindingPropertyName;
     int m_startTokenIndex;
     int m_colonCount;
     bool m_behaviorBinding;

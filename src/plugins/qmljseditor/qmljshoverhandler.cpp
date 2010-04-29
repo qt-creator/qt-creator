@@ -227,6 +227,8 @@ QString HoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS:
 
         if (! baseClasses->isEmpty())
             return baseClasses->first();
+    } else if (const Interpreter::QmlEnumValue *enumValue = dynamic_cast<const Interpreter::QmlEnumValue *>(value)) {
+        return enumValue->name();
     }
 
     QString typeId = context->engine()->typeId(value);

@@ -92,6 +92,8 @@ void CompletionContextFinder::checkBinding()
     int colonCount = 0;
     bool delimiterFound = false;
     bool firstToken = true;
+    bool identifierExpected = false;
+    bool dotExpected = false;
     while (!delimiterFound) {
         if (i < 0) {
             if (!readLine())
@@ -113,14 +115,36 @@ void CompletionContextFinder::checkBinding()
 
         case Token::Colon:
             ++colonCount;
+            identifierExpected = true;
+            dotExpected = false;
+            m_bindingPropertyName.clear();
             break;
 
-        case Token::Identifier:
-            if (firstToken && yyLine->midRef(token.begin(), token.length) == QLatin1String("on"))
+        case Token::Identifier: {
+            QStringRef tokenString = yyLine->midRef(token.begin(), token.length);
+            if (firstToken && tokenString == QLatin1String("on")) {
                 m_behaviorBinding = true;
+            } else if (identifierExpected) {
+                m_bindingPropertyName.prepend(tokenString.toString());
+                identifierExpected = false;
+                dotExpected = true;
+            } else {
+                dotExpected = false;
+            }
+        } break;
+
+        case Token::Dot:
+            if (dotExpected) {
+                dotExpected = false;
+                identifierExpected = true;
+            } else {
+                identifierExpected = false;
+            }
             break;
 
         default:
+            dotExpected = false;
+            identifierExpected = false;
             break;
         }
 
@@ -150,7 +174,12 @@ bool CompletionContextFinder::isInLhsOfBinding() const
 
 bool CompletionContextFinder::isInRhsOfBinding() const
 {
-    return isInQmlContext() && m_colonCount == 1;
+    return isInQmlContext() && m_colonCount >= 1;
+}
+
+QStringList CompletionContextFinder::bindingPropertyName() const
+{
+    return m_bindingPropertyName;
 }
 
 /*!

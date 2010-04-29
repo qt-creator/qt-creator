@@ -69,6 +69,7 @@ typedef QList<const Value *> ValueList;
 class FakeMetaObject;
 class FakeMetaMethod;
 class FakeMetaProperty;
+class FakeMetaEnum;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Value visitor
@@ -433,6 +434,19 @@ protected:
 private:
     const FakeMetaObject *_metaObject;
     mutable QHash<int, const Value *> _metaSignature;
+};
+
+class QMLJS_EXPORT QmlEnumValue: public NumberValue
+{
+public:
+    QmlEnumValue(const FakeMetaEnum &metaEnum, Engine *engine);
+    virtual ~QmlEnumValue();
+
+    QString name() const;
+    QStringList keys() const;
+
+private:
+    FakeMetaEnum *_metaEnum;
 };
 
 class QMLJS_EXPORT Activation
