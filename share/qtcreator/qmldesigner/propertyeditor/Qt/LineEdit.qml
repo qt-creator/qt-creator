@@ -57,6 +57,7 @@ QWidget {
         styleSheet: "QLineEdit { padding-left: 32; }"
         width: lineEdit.width
         height: lineEdit.height
+        toolTip: backendValue.isBound ? backendValue.expression : ""
         
         property string valueFromBackend: (backendValue === undefined || backendValue.value === undefined) ? "" : backendValue.value;
 

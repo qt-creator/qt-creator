@@ -65,6 +65,7 @@ QWidget { //This is a special spinBox that does color coding for states
 	    spacing: 4
         QSpinBox {
             property alias backendValue: spinBox.backendValue
+            toolTip: backendValue.isBound ? backendValue.expression : ""
 			
 			enabled: !backendValue.isBound && spinBox.enabled;
 
