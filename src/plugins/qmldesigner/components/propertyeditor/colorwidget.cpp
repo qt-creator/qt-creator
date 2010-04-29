@@ -405,7 +405,7 @@ static inline QColor invertColor(const QColor color)
 
 GradientLine::GradientLine(QWidget *parent) : QWidget(parent),  m_activeColor(Qt::black), m_gradientName("gradient"),
                                                                 m_dragActive(false), m_yOffset(0), m_create(false),
-                                                                m_active(false), m_colorIndex(0)
+                                                                m_active(false), m_colorIndex(0), m_dragOff(false)
 {
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     setFocusPolicy(Qt::StrongFocus);
@@ -611,29 +611,31 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
 void GradientLine::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_dragActive) {
-        int xDistance = event->pos().x() - m_dragStart.x();
-        qreal distance = qreal(xDistance) / qreal((width() - 20));
-        qreal newStop  = m_stops.at(currentColorIndex()) + distance;
-        if ((newStop >=0) && (newStop <= 1))
-            m_stops[currentColorIndex()] = newStop;
-        m_yOffset += event->pos().y() - m_dragStart.y();
-        if (m_yOffset > 0 || !m_itemNode.isInBaseState()) { //deleting only in base state
-            m_yOffset = 0;         
-        } else if ((m_yOffset < - 12) && (currentColorIndex()) != 0 && (currentColorIndex() < m_stops.size() - 1)) {
-            m_yOffset = 0;
-            m_dragActive = false;
-            m_stops.removeAt(currentColorIndex());
-            m_colorList.removeAt(currentColorIndex());
-            updateGradient();
-            setCurrentIndex(0);
-            //delete item
-        }
-
         int xPos = event->pos().x();
         int pos = qreal((width() - 20)) * m_stops.at(currentColorIndex()) + 10;
-        if (!(((xPos + 5) > pos) && ((xPos - 5) < pos))) { //still on top of the item?
-            m_dragActive = false; //abort drag
-            m_yOffset = 0;
+        int offset = m_dragOff ? 2 : 20;
+        if (xPos < pos + offset && xPos > pos - offset) {
+            m_dragOff = false;
+            qDebug() << xPos;
+            int xDistance = event->pos().x() - m_dragStart.x();
+            qreal distance = qreal(xDistance) / qreal((width() - 20));
+            qreal newStop  = m_stops.at(currentColorIndex()) + distance;
+            if ((newStop >=0) && (newStop <= 1))
+                m_stops[currentColorIndex()] = newStop;
+            m_yOffset += event->pos().y() - m_dragStart.y();
+            if (m_yOffset > 0 || !m_itemNode.isInBaseState()) { //deleting only in base state
+                m_yOffset = 0;
+            } else if ((m_yOffset < - 12) && (currentColorIndex()) != 0 && (currentColorIndex() < m_stops.size() - 1)) {
+                m_yOffset = 0;
+                m_dragActive = false;
+                m_stops.removeAt(currentColorIndex());
+                m_colorList.removeAt(currentColorIndex());
+                updateGradient();
+                setCurrentIndex(0);
+                //delete item
+            }
+        } else {
+            m_dragOff = true;
         }
         m_dragStart = event->pos();
         update();

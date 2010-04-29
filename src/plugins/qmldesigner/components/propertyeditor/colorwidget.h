@@ -212,6 +212,7 @@ private:
     int m_yOffset;
     bool m_create;
     bool m_active;
+    bool m_dragOff;
 };
 
 
