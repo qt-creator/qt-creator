@@ -1283,6 +1283,18 @@ QPrinter *MainWindow::printer() const
     return m_printer;
 }
 
+void MainWindow::openProject()
+{
+    // ### We need a way to access the mimedatabase and differentiate
+    // between project types and other files. This is currently not possible
+    const QString filters = "All Files (*);;Projects(*.pro *.qmlproject)";
+    QString selectedFilters = "Projects(*.pro *.qmlproject)";
+    QStringList files =
+            Core::ICore::instance()->fileManager()->getOpenFileNames(
+                    filters, tr("Open Project"), &selectedFilters);
+    openFiles(files);
+}
+
 void MainWindow::setFullScreen(bool on)
 {
     if (bool(windowState() & Qt::WindowFullScreen) == on)

@@ -61,7 +61,9 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="Utils::WelcomeModeTreeWidget" name="tutorialTreeWidget" native="true"/>
+          <widget class="Utils::WelcomeModeTreeWidget" name="tutorialTreeWidget" native="true">
+           <zorder></zorder>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -354,6 +356,19 @@
          </spacer>
         </item>
         <item>
+         <widget class="QPushButton" name="openProjectButton">
+          <property name="minimumSize">
+           <size>
+            <width>160</width>
+            <height>36</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Open Project...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="createNewProjectButton">
           <property name="minimumSize">
            <size>
@@ -366,10 +381,6 @@
           </property>
           <property name="text">
            <string>Create Project...</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../coreplugin/core.qrc">
-            <normaloff>:/core/images/filenew.png</normaloff>:/core/images/filenew.png</iconset>
           </property>
           <property name="flat">
            <bool>false</bool>
@@ -397,7 +408,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../coreplugin/core.qrc"/>
   <include location="../welcome/welcome.qrc"/>
  </resources>
  <connections/>

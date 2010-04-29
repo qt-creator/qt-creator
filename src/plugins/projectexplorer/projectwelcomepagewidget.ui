@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>486</width>
+    <width>520</width>
     <height>221</height>
    </rect>
   </property>
@@ -153,10 +153,6 @@
           <property name="text">
            <string>Create Project...</string>
           </property>
-          <property name="icon">
-           <iconset resource="../coreplugin/core.qrc">
-            <normaloff>:/core/images/filenew.png</normaloff>:/core/images/filenew.png</iconset>
-          </property>
           <property name="flat">
            <bool>false</bool>
           </property>
@@ -182,8 +178,6 @@
    <header location="global">utils/welcomemodetreewidget.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../coreplugin/core.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

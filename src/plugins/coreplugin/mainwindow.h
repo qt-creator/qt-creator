@@ -126,6 +126,7 @@ signals:
     void windowActivated();
 
 public slots:
+    void openProject();
     void newFile();
     void openFileWith();
     void exit();
