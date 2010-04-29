@@ -9,7 +9,12 @@ QWidget {
     height: 40
     property bool active: false
     property variant backendValue;
-
+    
+    property bool selectionFlag: selectionChanged
+    
+    onSelectionFlagChanged: {
+        expressionEdit.active = false;    
+    }
 
     onActiveChanged: {
         if (active) {
