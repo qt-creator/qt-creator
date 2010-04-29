@@ -93,8 +93,8 @@ Rectangle {
             property int baseStateOffset:(index==0?15:0)
 
             width:img.width+32+baseStateOffset + (index==0?6:0)
-            height: img.height + txt.height + (index==0?29:25)
-            y:(index==0?0:4)
+            height: img.height + txt.height + 29 //(index==0?29:25)
+            //y:(index==0?0:4)
 
             property bool isCurrentState: root.currentStateIndex == index;
             onXChanged: scrollBarAdjuster.adjustScrollBar();
@@ -466,13 +466,14 @@ Rectangle {
         Rectangle {
             gradient: Gradient {
                 GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 0.5; color: root.colorAlpha }
                 GradientStop { position: 1.0; color: root.color }
             }
             width:parent.height
             height:8
             rotation:-90
-            y : 68
-            x : -68
+            y : 67
+            x : -67
         }
 
 
@@ -510,6 +511,19 @@ Rectangle {
                         }
                     }
             ]
+            
+            transitions: [
+                    Transition {
+                        from: ""
+                        to: "Hover"
+                        reversible: true
+                        ColorAnimation {
+                            duration: 150
+                            target: addStateBox
+                            properties: "buttonColor"
+                        }
+                    }
+                ]
 
             property variant buttonColor:"#282828"
             property variant defaultColor:"#282828"
