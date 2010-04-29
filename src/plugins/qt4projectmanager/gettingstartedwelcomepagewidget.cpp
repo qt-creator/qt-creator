@@ -94,25 +94,20 @@ GettingStartedWelcomePageWidget::~GettingStartedWelcomePageWidget()
     delete ui;
 }
 
-void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
-                                                     const QString &demosPath,
-                                                     const QString &sourcePath)
+void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePath,
+                                                        const QString &sourcePath,
+                                                        const QString &demoXml)
 {
-    QString demoxml = demosPath + "/qtdemo/xml/examples.xml";
-    if (!QFile::exists(demoxml)) {
-        demoxml = sourcePath + "/demos/qtdemo/xml/examples.xml";
-        if (!QFile::exists(demoxml))
-            return;
-    }
 
-    QFile description(demoxml);
+    QFile description(demoXml);
     if (!description.open(QFile::ReadOnly))
         return;
 
-    ui->examplesButton->setEnabled(true);
-    ui->examplesButton->setText(tr("Choose an example..."));
-    QMenu *menu = new QMenu;
-    ui->examplesButton->setMenu(menu);
+    ui->cppExamplesButton->setEnabled(true);;
+    ui->cppExamplesButton->setText(tr("Choose an example..."));
+
+    QMenu *menu = new QMenu(ui->cppExamplesButton);
+    ui->cppExamplesButton->setMenu(menu);
 
     QMenu *subMenu = 0;
     bool inExamples = false;
@@ -157,6 +152,48 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
             break;
         }
     }
+}
+
+void GettingStartedWelcomePageWidget::updateQmlExamples(const QString &examplePath)
+{
+    QDir declarativeDir(examplePath + "/declarative");
+
+    if (!declarativeDir.exists())
+        return;
+
+    ui->qmlExamplesButton->setEnabled(true);;
+    ui->qmlExamplesButton->setText(tr("Choose an example..."));
+
+    QList<QFileInfo> examples = declarativeDir.entryInfoList(QStringList(), QDir::AllDirs|QDir::NoDotAndDotDot, QDir::Name);
+
+    QMenu *menu = new QMenu(ui->qmlExamplesButton);
+    ui->qmlExamplesButton->setMenu(menu);
+
+    foreach(const QFileInfo &example, examples) {
+        const QString exampleProject = example.absoluteFilePath()+'/'+example.fileName()+QLatin1String(".qmlproject");
+        if (QFile::exists(exampleProject)) {
+            QAction *exampleAction = menu->addAction(example.fileName());
+            connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
+            exampleAction->setProperty(ExamplePathPropertyName, exampleProject);
+            // FIXME once we have help for QML examples
+            // exampleAction->setProperty(HelpPathPropertyName, helpPath);
+        }
+    }
+
+}
+
+void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
+                                                     const QString &demosPath,
+                                                     const QString &sourcePath)
+{
+    QString demoxml = demosPath + "/qtdemo/xml/examples.xml";
+    if (!QFile::exists(demoxml)) {
+        demoxml = sourcePath + "/demos/qtdemo/xml/examples.xml";
+        if (!QFile::exists(demoxml))
+            return;
+    }
+    updateCppExamples(examplePath, sourcePath, demoxml);
+    updateQmlExamples(examplePath);
 }
 
 
@@ -250,10 +287,16 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
     files << proFile;
     if(!QFile::exists(tryFile))
         tryFile = proFileInfo.path() + '/' + proFileInfo.baseName() + ".cpp";
+    // maybe it's a QML project?
+    if(!QFile::exists(tryFile))
+        tryFile = proFileInfo.path() + '/' + "/main.qml";
+    if(!QFile::exists(tryFile))
+        tryFile = proFileInfo.path() + '/' + proFileInfo.baseName() + ".qml";
     if(QFile::exists(tryFile))
         files << tryFile;
     Core::ICore::instance()->openFiles(files);
-    slotOpenContextHelpPage(helpFile);
+    if (!helpFile.isEmpty())
+        slotOpenContextHelpPage(helpFile);
 }
 
 void GettingStartedWelcomePageWidget::slotOpenHelpPage(const QString& url)

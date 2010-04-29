@@ -61,6 +61,10 @@ private slots:
 
 private:
     QStringList tipsOfTheDay();
+    void updateCppExamples(const QString &examplePath,
+                           const QString &sourcePath,
+                           const QString &demoXml);
+    void updateQmlExamples(const QString &examplePath);
 
     Ui::GettingStartedWelcomePageWidget *ui;
     int m_currentTip;
