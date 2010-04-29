@@ -262,6 +262,12 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     //m_d->masterModel = Model::create(m_d->textModifier, m_d->searchPath, errors);
 
     m_d->masterModel = Model::create("Qt/Rectangle", 4, 7);
+
+#if defined(VIEWLOGGER)
+    m_d->viewLogger = new Internal::ViewLogger(m_d->model.data());
+    m_d->masterModel->attachView(m_d->viewLogger.data());
+#endif
+
     m_d->masterModel->setFileUrl(m_d->searchPath);
 
     m_d->subComponentModel = Model::create("Qt/Rectangle", 4, 7);
@@ -278,10 +284,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     m_d->masterModel->attachView(m_d->rewriterView.data());
     m_d->model = m_d->masterModel;
 
-#if defined(VIEWLOGGER)
-    m_d->viewLogger = new Internal::ViewLogger(m_d->model.data());
-    m_d->masterModel->attachView(m_d->viewLogger.data());
-#endif
+
 
     loadCurrentModel();
 
