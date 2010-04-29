@@ -172,15 +172,16 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     m_d->m_lineEdit->setPlaceholderText(tr("<Filter>", "Library search input hint text"));
     m_d->m_lineEdit->setDragEnabled(false);
     m_d->m_lineEdit->setMinimumWidth(75);
-    m_d->m_lineEdit->setTextMargins(0, 0, 0, 0);
+    m_d->m_lineEdit->setTextMargins(0, 0, 20, 0);
     QWidget *lineEditFrame = new QWidget(this);
     lineEditFrame->setObjectName(QLatin1String("itemLibrarySearchInputFrame"));
     QGridLayout *lineEditLayout = new QGridLayout(lineEditFrame);
     lineEditLayout->setMargin(2);
     lineEditLayout->setSpacing(0);
-    lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 0);
-    lineEditLayout->addWidget(m_d->m_lineEdit, 0, 1, 1, 1);
-    lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 2);
+    lineEditLayout->addItem(new QSpacerItem(5, 3, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 0, 1, 3);
+    lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 0);
+    lineEditLayout->addWidget(m_d->m_lineEdit, 1, 1, 1, 1);
+    lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 2);
     connect(m_d->m_lineEdit, SIGNAL(filterChanged(QString)), this, SLOT(setSearchFilter(QString)));
     connect(m_d->m_lineEdit, SIGNAL(buttonClicked()), this, SLOT(clearLineEditFocus()));
 
@@ -192,12 +193,17 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     connect(tabBar, SIGNAL(currentChanged(int)),
             this, SLOT(updateSearch()));
 
+    QWidget *spacer = new QWidget(this);
+    spacer->setObjectName(QLatin1String("itemLibrarySearchInputSpacer"));
+    spacer->setFixedHeight(4);
+
     QGridLayout *layout = new QGridLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(tabBar, 0, 0, 1, 1);
-    layout->addWidget(lineEditFrame, 1, 0, 1, 1);
-    layout->addWidget(m_d->m_stackedWidget, 2, 0, 1, 1);
+    layout->addWidget(spacer, 1, 0);
+    layout->addWidget(lineEditFrame, 2, 0, 1, 1);
+    layout->addWidget(m_d->m_stackedWidget, 3, 0, 1, 1);
 
     setResourcePath(QDir::currentPath());
     setSearchFilter(QString());
