@@ -192,7 +192,7 @@ private:
                 if (output)
                     emit m_conn->remoteOutput(QByteArray(output.data()));
             }
-            sleep(1); // TODO: Hack Net7 to enable wait() functionality.
+            usleep(100000); // TODO: Hack Net7 to enable wait() functionality.
         }
     }
 
