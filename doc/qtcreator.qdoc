@@ -195,7 +195,7 @@
     \list
         \o Windows XP Service Pack 2
         \o Windows Vista
-        \o (K)Ubuntu Linux 7.04 32-bit and 64-bit with the following:
+        \o (K)Ubuntu Linux 7.04 (32-bit and 64-bit) or later, with the following:
            \list
                \o g++
                \o make
