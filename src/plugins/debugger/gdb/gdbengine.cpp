@@ -3690,7 +3690,11 @@ void GdbEngine::fetchDisassemblerByAddressCli(const DisassemblerAgentCookie &ac0
     quint64 address = ac.agent->address().toULongLong(&ok, 0);
     QByteArray start = QByteArray::number(address - 20, 16);
     QByteArray end = QByteArray::number(address + 100, 16);
-    QByteArray cmd = "disassemble 0x" + start + ",0x" + end;
+    // There have been changes to the syntax sometime between 7.0 and 7.1.
+    // As it is unclear how a given incarnation of gdb behaves without
+    // actually calling the command, try both.
+    const char sep = (ac.attempts % 2) ? ',' : ' ';
+    QByteArray cmd = "disassemble 0x" + start + sep + "0x" + end;
     ++ac.attempts;
     postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCli),
         QVariant::fromValue(ac));
