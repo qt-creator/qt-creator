@@ -112,7 +112,7 @@
          </widget>
         </item>
         <item>
-         <widget class="Utils::FilterLineEdit" name="targetEdit"/>
+         <widget class="Utils::FancyLineEdit" name="targetEdit"/>
         </item>
         <item>
          <widget class="QToolButton" name="resetButton">
@@ -161,6 +161,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>Utils::FancyLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/fancylineedit.h</header>
+  </customwidget>
   <customwidget>
    <class>Utils::FilterLineEdit</class>
    <extends>QLineEdit</extends>
