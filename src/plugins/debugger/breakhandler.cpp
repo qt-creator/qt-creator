@@ -247,6 +247,8 @@ QString BreakpointData::toToolTip() const
         << "</td><td>" << condition << "</td><td>" << bpCondition << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Ignore Count:")
         << "</td><td>" << ignoreCount << "</td><td>" << bpIgnoreCount << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Thread Specification:")
+        << "</td><td>" << threadSpec << "</td><td>" << bpThreadSpec << "</td></tr>"
         << "</table></body></html>";
     return rc;
 }
@@ -268,7 +270,9 @@ QString BreakpointData::toString() const
         << BreakHandler::tr("Condition:")
         << condition << " -- " << bpCondition << '\n'
         << BreakHandler::tr("Ignore Count:")
-        << ignoreCount << " -- " << bpIgnoreCount << '\n';
+        << ignoreCount << " -- " << bpIgnoreCount << '\n'
+        << BreakHandler::tr("Thread Specification:")
+        << threadSpec << " -- " << bpThreadSpec << '\n';
     return rc;
 }
 
@@ -320,7 +324,7 @@ BreakHandler::~BreakHandler()
 
 int BreakHandler::columnCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : 7;
+    return parent.isValid() ? 0 : 8;
 }
 
 int BreakHandler::rowCount(const QModelIndex &parent) const
@@ -418,6 +422,8 @@ void BreakHandler::saveBreakpoints()
             map.insert(QLatin1String("condition"), data->condition);
         if (!data->ignoreCount.isEmpty())
             map.insert(QLatin1String("ignorecount"), data->ignoreCount);
+        if (!data->threadSpec.isEmpty())
+            map.insert(QLatin1String("threadspec"), data->threadSpec);
         if (!data->enabled)
             map.insert(QLatin1String("disabled"), QLatin1String("1"));
         if (data->useFullPath)
@@ -447,6 +453,9 @@ void BreakHandler::loadBreakpoints()
         v = map.value(QLatin1String("ignorecount"));
         if (v.isValid())
             data->ignoreCount = v.toString().toLatin1();
+        v = map.value(QLatin1String("threadspec"));
+        if (v.isValid())
+            data->threadSpec = v.toString().toLatin1();
         v = map.value(QLatin1String("funcname"));
         if (v.isValid())
             data->funcName = v.toString();
@@ -476,6 +485,7 @@ void BreakHandler::resetBreakpoints()
         data->bpCorrectedLineNumber.clear();
         data->bpCondition.clear();
         data->bpIgnoreCount.clear();
+        data->bpThreadSpec.clear();
         data->bpAddress.clear();
         // Keep marker data if it was primary.
         if (data->markerFileName() != data->fileName)
@@ -502,7 +512,7 @@ QVariant BreakHandler::headerData(int section,
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
             tr("Number"),  tr("Function"), tr("File"), tr("Line"),
-            tr("Condition"), tr("Ignore"), tr("Address")
+            tr("Condition"), tr("Ignore"), tr("Threads"), tr("Address")
         };
         return headers[section];
     }
@@ -538,6 +548,8 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 const QString str = data->pending ? data->funcName : data->bpFuncName;
                 return str.isEmpty() ? empty : str;
             }
+            if (role == Qt::UserRole + 1)
+                return data->funcName;
             break;
         case 2:
             if (role == Qt::DisplayRole) {
@@ -553,6 +565,8 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             }
             if (role == Qt::UserRole)
                 return data->useFullPath;
+            if (role == Qt::UserRole + 1)
+                return data->fileName;
             break;
         case 3:
             if (role == Qt::DisplayRole) {
@@ -562,19 +576,36 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 const QString str = data->pending ? data->lineNumber : data->bpLineNumber;
                 return str.isEmpty() ? empty : str;
             }
+            if (role == Qt::UserRole + 1)
+                return data->lineNumber;
             break;
         case 4:
             if (role == Qt::DisplayRole)
                 return data->pending ? data->condition : data->bpCondition;
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit if this condition is met.");
+            if (role == Qt::UserRole + 1)
+                return data->condition;
             break;
         case 5:
             if (role == Qt::DisplayRole)
                 return data->pending ? data->ignoreCount : data->bpIgnoreCount;
             if (role == Qt::ToolTipRole)
                 return tr("Breakpoint will only be hit after being ignored so many times.");
+            if (role == Qt::UserRole + 1)
+                return data->ignoreCount;
         case 6:
+            if (role == Qt::DisplayRole) {
+                if (data->pending)
+                    return !data->threadSpec.isEmpty() ? data->threadSpec : tr("(all)");
+                else
+                    return !data->bpThreadSpec.isEmpty() ? data->bpThreadSpec : tr("(all)");
+            }
+            if (role == Qt::ToolTipRole)
+                return tr("Breakpoint will only be hit in the specified thread(s).");
+            if (role == Qt::UserRole + 1)
+                return data->threadSpec;
+        case 7:
             if (role == Qt::DisplayRole)
                 return data->bpAddress;
             break;
@@ -597,38 +628,73 @@ Qt::ItemFlags BreakHandler::flags(const QModelIndex &mi) const
 
 bool BreakHandler::setData(const QModelIndex &mi, const QVariant &value, int role)
 {
-    if (role != Qt::EditRole)
-        return false;
-
     BreakpointData *data = at(mi.row());
+
+    if (role == Qt::UserRole + 1) {
+        if (data->enabled != value.toBool()) {
+            toggleBreakpointEnabled(data);
+            layoutChanged();
+        }
+        return true;
+    }
+
+    if (role == Qt::UserRole + 2) {
+        if (data->useFullPath != value.toBool()) {
+            data->useFullPath = value.toBool();
+            layoutChanged();
+        }
+        return true;
+    }
+
+    //if (role != Qt::EditRole)
+    //    return false;
+
     switch (mi.column()) {
-        case 0: {
-            if (data->enabled != value.toBool()) {
-                toggleBreakpointEnabled(data);
-                dataChanged(mi, mi);
+        case 1: {
+            QString val = value.toString();
+            if (data->funcName != val) {
+                data->funcName = val;
+                layoutChanged();
             }
             return true;
         }
         case 2: {
-            if (data->useFullPath != value.toBool()) {
-                data->useFullPath = value.toBool();
-                dataChanged(mi, mi);
+            QString val = value.toString();
+            if (data->fileName != val) {
+                data->fileName = val;
+                layoutChanged();
+            }
+            return true;
+        }
+        case 3: {
+            QByteArray val = value.toString().toLatin1();
+            if (data->lineNumber != val) {
+                data->lineNumber = val;
+                layoutChanged();
             }
             return true;
         }
         case 4: {
-            QString val = value.toString();
+            QByteArray val = value.toString().toLatin1();
             if (val != data->condition) {
-                data->condition = val.toLatin1();
-                dataChanged(mi, mi);
+                data->condition = val;
+                layoutChanged();
             }
             return true;
         }
         case 5: {
-            QString val = value.toString();
+            QByteArray val = value.toString().toLatin1();
             if (val != data->ignoreCount) {
-                data->ignoreCount = val.toLatin1();
-                dataChanged(mi, mi);
+                data->ignoreCount = val;
+                layoutChanged();
+            }
+            return true;
+        }
+        case 6: {
+            QByteArray val = value.toString().toLatin1();
+            if (val != data->threadSpec) {
+                data->threadSpec = val;
+                layoutChanged();
             }
             return true;
         }

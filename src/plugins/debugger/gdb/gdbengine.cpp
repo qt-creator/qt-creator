@@ -443,7 +443,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 int progress = m_progress->progressValue();
                 m_progress->setProgressValue(qMin(70, progress + 1));
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Thread group %1 created.").arg(_(id)), 1000);
+                showStatusMessage(tr("Thread group %1 created").arg(_(id)), 1000);
                 int pid = id.toInt();
                 if (pid != inferiorPid())
                     handleInferiorPidChanged(pid);
@@ -789,7 +789,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
             } else if (state() == InferiorRunningRequested_Kill) {
                 debugMessage(_("RUNNING REQUESTED; POSTPONING INTERRUPT (KILL PENDING)"));
             } else if (state() == InferiorRunning) {
-                showStatusMessage(tr("Stopping temporarily."), 1000);
+                showStatusMessage(tr("Stopping temporarily"), 1000);
                 interruptInferiorTemporarily();
             } else {
                 qDebug() << "ATTEMPTING TO QUEUE COMMAND IN INAPPROPRIATE STATE" << state();
@@ -802,7 +802,7 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 
 void GdbEngine::flushQueuedCommands()
 {
-    showStatusMessage(tr("Processing queued commands."), 1000);
+    showStatusMessage(tr("Processing queued commands"), 1000);
     while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
         debugMessage(_("RUNNING QUEUED COMMAND " + cmd.command + ' '
@@ -908,7 +908,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 debugMessage(_("APPLYING WORKAROUND #1"));
                 showMessageBox(QMessageBox::Critical,
                     tr("Executable failed"), QString::fromLocal8Bit(msg));
-                showStatusMessage(tr("Process failed to start."));
+                showStatusMessage(tr("Process failed to start"));
                 shutdown();
             } else if (msg == "\"finish\" not meaningful in the outermost frame.") {
                 // Handle a case known to appear on gdb 6.4 symbianelf when
@@ -1091,7 +1091,7 @@ void GdbEngine::handleExecJumpToLine(const GdbResponse &response)
     // ~"242\t x *= 2;"
     //109^done"
     setState(InferiorStopped);
-    showStatusMessage(tr("Jumped. Stopped."));
+    showStatusMessage(tr("Jumped. Stopped"));
     QByteArray output = response.data.findChild("logstreamoutput").data();
     if (output.isEmpty())
         return;
@@ -1117,7 +1117,7 @@ void GdbEngine::handleExecJumpToLine(const GdbResponse &response)
 //    // file="main.cpp",fullname="/tmp/g/main.cpp",line="37"}
 //    QTC_ASSERT(state() == InferiorStopping, qDebug() << state())
 //    setState(InferiorStopped);
-//    showStatusMessage(tr("Function reached. Stopped."));
+//    showStatusMessage(tr("Function reached. Stopped"));
 //    GdbMi frame = response.data.findChild("frame");
 //    StackFrame f = parseStackFrame(frame, 0);
 //    gotoLocation(f, true);
@@ -1389,7 +1389,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
     if (reason == "breakpoint-hit") {
         QByteArray bpNumber = data.findChild("bkptno").data();
         QByteArray threadId = data.findChild("thread-id").data();
-        showStatusMessage(tr("Stopped at breakpoint %1 in thread %2.")
+        showStatusMessage(tr("Stopped at breakpoint %1 in thread %2")
             .arg(_(bpNumber), _(threadId)));
     } else {
         QString reasontr = tr("Stopped: \"%1\"").arg(_(reason));
@@ -2115,6 +2115,8 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             if (ba.startsWith('<') && ba.endsWith('>'))
                 ba = ba.mid(1, ba.size() - 2);
             data->bpFuncName = _(ba);
+        } else if (child.hasName("thread")) {
+            data->bpThreadSpec = child.data();
         }
     }
     // This field is not present.  Contents needs to be parsed from
@@ -2145,9 +2147,8 @@ QString GdbEngine::breakLocation(const QString &file) const
     return where;
 }
 
-QByteArray GdbEngine::breakpointLocation(int index)
+QByteArray GdbEngine::breakpointLocation(const BreakpointData *data)
 {
-    const BreakpointData *data = manager()->breakHandler()->at(index);
     if (!data->funcName.isEmpty())
         return data->funcName.toLatin1();
     // In this case, data->funcName is something like '*0xdeadbeef'
@@ -2162,21 +2163,28 @@ QByteArray GdbEngine::breakpointLocation(int index)
 
 void GdbEngine::sendInsertBreakpoint(int index)
 {
+    const BreakpointData *data = manager()->breakHandler()->at(index);
     // Set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface.
     QByteArray cmd;
-    if (m_isMacGdb)
+    if (m_isMacGdb) {
         cmd = "-break-insert -l -1 -f ";
-    else if (m_gdbAdapter->isTrkAdapter())
+    } else if (m_gdbAdapter->isTrkAdapter()) {
         cmd = "-break-insert -h -f ";
-    else if (m_gdbVersion >= 60800)
+    } else if (m_gdbVersion >= 70000) {
+        cmd = "-break-insert ";
+        if (!data->threadSpec.isEmpty())
+            cmd += "-p " + data->threadSpec;
+        cmd += " -f ";
+    } else if (m_gdbVersion >= 60800) {
         // Probably some earlier version would work as well.
         cmd = "-break-insert -f ";
-    else
+    } else {
         cmd = "-break-insert ";
+    }
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + ' ';
-    cmd += breakpointLocation(index);
+    cmd += breakpointLocation(data);
     postCommand(cmd, NeedsStop | RebuildBreakpointModel,
         CB(handleBreakInsert1), index);
 }
@@ -2184,17 +2192,16 @@ void GdbEngine::sendInsertBreakpoint(int index)
 void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 {
     int index = response.cookie.toInt();
-    BreakHandler *handler = manager()->breakHandler();
+    BreakpointData *data = manager()->breakHandler()->at(index);
     if (response.resultClass == GdbResultDone) {
         // Interesting only on Mac?
-        BreakpointData *data = handler->at(index);
         GdbMi bkpt = response.data.findChild("bkpt");
         breakpointDataFromOutput(data, bkpt);
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try 
         // again with MI.
-        QByteArray cmd = "break " + breakpointLocation(index);
+        QByteArray cmd = "break " + breakpointLocation(data);
         postCommand(cmd, NeedsStop | RebuildBreakpointModel,
             CB(handleBreakInsert2), index);
     }
@@ -2524,7 +2531,8 @@ void GdbEngine::attemptBreakpointSynchronization()
             else // Because gdb won't do both changes at a time anyway.
             if (data->ignoreCount != data->bpIgnoreCount) {
                 // Update ignorecount if needed.
-                postCommand("ignore " + data->bpNumber + ' ' + data->ignoreCount,
+                QByteArray ic = QByteArray::number(data->ignoreCount.toInt());
+                postCommand("ignore " + data->bpNumber + ' ' + ic,
                     NeedsStop | RebuildBreakpointModel,
                     CB(handleBreakIgnore), data->bpNumber.toInt());
                 continue;
@@ -2534,6 +2542,17 @@ void GdbEngine::attemptBreakpointSynchronization()
                     NeedsStop | RebuildBreakpointModel,
                     CB(handleBreakInfo));
                 data->bpEnabled = false;
+                continue;
+            }
+            if (data->threadSpec != data->bpThreadSpec && !data->bpThreadSpec.isEmpty()) {
+                // The only way to change this seems to be to re-set the bp completely.
+                //qDebug() << "FIXME: THREAD: " << data->threadSpec << data->bpThreadSpec;
+                //data->bpThreadSpec = data->threadSpec;
+                if (!data->bpNumber.isEmpty()) {
+                    postCommand("-break-delete " + data->bpNumber,
+                        NeedsStop | RebuildBreakpointModel);
+                    sendInsertBreakpoint(index);
+                }
                 continue;
             }
             if (data->bpAddress.startsWith("0x")
@@ -3958,7 +3977,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     }
     if (!foundPython) {
         debugMessage(_("UNSUPPORTED GDB %1 DOES NOT HAVE PYTHON.").arg(m_gdb));
-        showStatusMessage(_("Gdb at %1 does not have python.").arg(m_gdb));
+        showStatusMessage(_("Gdb at %1 does not have python").arg(m_gdb));
     }
 #endif
 

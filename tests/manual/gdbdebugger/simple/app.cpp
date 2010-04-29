@@ -1218,10 +1218,13 @@ public:
 
     void run()
     {
+        int j = 2;
+        ++j;
         for (int i = 0; i != 100000; ++i) {
             //sleep(1);
             std::cerr << m_id;
         }
+        std::cerr << j;
     }
 
 private:
@@ -1655,7 +1658,7 @@ int main(int argc, char *argv[])
     #endif
     testQStringList();
     testStruct();
-    //testThreads();
+    testQThread();
     testQVariant1();
     testQVariant2();
     testQVariant3();

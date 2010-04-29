@@ -80,6 +80,7 @@ public:
     QByteArray condition;    // Condition associated with breakpoint.
     QByteArray ignoreCount;  // Ignore count associated with breakpoint.
     QByteArray lineNumber;   // Line in source file.
+    QByteArray threadSpec;   // Thread specification.
     QString funcName;        // Name of containing function.
     bool useFullPath;        // Should we use the full path when setting the bp?
 
@@ -91,6 +92,7 @@ public:
     QString bpFullName;      // Full file name acknowledged by the debugger engine.
     QByteArray bpLineNumber; // Line number acknowledged by the debugger engine.
     QByteArray bpCorrectedLineNumber; // Acknowledged by the debugger engine.
+    QByteArray bpThreadSpec; // Thread spec acknowledged by the debugger engine.
     QString bpFuncName;      // Function name acknowledged by the debugger engine.
     QByteArray bpAddress;    // Address acknowledged by the debugger engine.
     bool bpMultiple;         // Happens in constructors/gdb.

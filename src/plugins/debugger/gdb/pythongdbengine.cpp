@@ -114,8 +114,8 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         //qDebug() << "SECOND CHUNK: " << out;
         int pos = out.indexOf("data=");
         if (pos != 0) {
-            qDebug() << "DISCARDING JUNK AT BEGIN OF RESPONSE: "
-                << out.left(pos);
+            debugMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
+                + out.left(pos)));
             out = out.mid(pos);
         }
         GdbMi all;

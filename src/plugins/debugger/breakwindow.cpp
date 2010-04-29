@@ -103,7 +103,7 @@ BreakWindow::BreakWindow(Debugger::DebuggerManager *manager)
 
 void BreakWindow::showAddressColumn(bool on)
 {
-    setColumnHidden(6, !on);
+    setColumnHidden(7, !on);
 }
 
 static QModelIndexList normalizeIndexes(const QModelIndexList &list)
@@ -131,6 +131,13 @@ void BreakWindow::keyPressEvent(QKeyEvent *ev)
 void BreakWindow::resizeEvent(QResizeEvent *ev)
 {
     QTreeView::resizeEvent(ev);
+}
+
+void BreakWindow::mouseDoubleClickEvent(QMouseEvent *ev)
+{
+    QModelIndex indexUnderMouse = indexAt(ev->pos());
+    if (indexUnderMouse.isValid())
+        editBreakpoint(QModelIndexList() << indexUnderMouse);
 }
 
 void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -185,9 +192,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     alwaysAdjustAction->setCheckable(true);
     alwaysAdjustAction->setChecked(m_alwaysResizeColumnsToContents);
 
-    QAction *editConditionAction =
-        new QAction(tr("Edit Condition..."), &menu);
-    editConditionAction->setEnabled(si.size() > 0);
+    QAction *editBreakpointAction =
+        new QAction(tr("Edit Breakpoint..."), &menu);
+    editBreakpointAction->setEnabled(si.size() > 0);
 
     QAction *synchronizeAction =
         new QAction(tr("Synchronize Breakpoints"), &menu);
@@ -223,7 +230,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         new QAction(tr("Set Breakpoint at \"catch\""), this);
 
     menu.addAction(deleteAction);
-    menu.addAction(editConditionAction);
+    menu.addAction(editBreakpointAction);
     menu.addAction(toggleEnabledAction);
     menu.addAction(pathAction);
     menu.addSeparator();
@@ -261,8 +268,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         resizeColumnsToContents();
     else if (act == alwaysAdjustAction)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    else if (act == editConditionAction)
-        editConditions(si);
+    else if (act == editBreakpointAction)
+        editBreakpoint(si);
     else if (act == synchronizeAction)
         emit breakpointSynchronizationRequested();
     else if (act == toggleEnabledAction)
@@ -284,7 +291,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)
 {
     foreach (const QModelIndex &idx, list)
-        model()->setData(idx, enabled);
+        model()->setData(idx, enabled, Qt::UserRole + 1);
     emit breakpointSynchronizationRequested();
 }
 
@@ -292,7 +299,7 @@ void BreakWindow::setBreakpointsFullPath(const QModelIndexList &list, bool fullp
 {
     foreach (const QModelIndex &idx, list) {
         QModelIndex idx2 = idx.sibling(idx.row(), 2);
-        model()->setData(idx2, fullpath);
+        model()->setData(idx2, fullpath, Qt::UserRole + 2);
     }
     emit breakpointSynchronizationRequested();
 }
@@ -320,7 +327,7 @@ void BreakWindow::deleteBreakpoints(QList<int> list)
         setCurrentIndex(model()->index(row, 0));
 }
 
-void BreakWindow::editConditions(const QModelIndexList &list)
+void BreakWindow::editBreakpoint(const QModelIndexList &list)
 {
     QDialog dlg(this);
     Ui::BreakCondition ui;
@@ -330,15 +337,36 @@ void BreakWindow::editConditions(const QModelIndexList &list)
     QModelIndex idx = list.front();
     int row = idx.row();
     dlg.setWindowTitle(tr("Conditions on Breakpoint %1").arg(row));
-    ui.lineEditCondition->setText(model()->data(idx.sibling(row, 4)).toString());
-    ui.spinBoxIgnoreCount->setValue(model()->data(idx.sibling(row, 5)).toInt());
+    int role = Qt::UserRole + 1;
+    ui.lineEditFunction->hide();
+    ui.labelFunction->hide();
+    ui.lineEditFileName->hide();
+    ui.labelFileName->hide();
+    ui.lineEditLineNumber->hide();
+    ui.labelLineNumber->hide();
+    //ui.lineEditFunction->setText(
+    //    model()->data(idx.sibling(row, 1), role).toString());
+    //ui.lineEditFileName->setText(
+    //    model()->data(idx.sibling(row, 2), role).toString());
+    //ui.lineEditLineNumber->setText(
+    //    model()->data(idx.sibling(row, 3), role).toString());
+    ui.lineEditCondition->setText(
+        model()->data(idx.sibling(row, 4), role).toString());
+    ui.lineEditIgnoreCount->setText(
+        model()->data(idx.sibling(row, 5), role).toString());
+    ui.lineEditThreadSpec->setText(
+        model()->data(idx.sibling(row, 6), role).toString());
 
     if (dlg.exec() == QDialog::Rejected)
         return;
 
     foreach (const QModelIndex &idx, list) {
+        //model()->setData(idx.sibling(idx.row(), 1), ui.lineEditFunction->text());
+        //model()->setData(idx.sibling(idx.row(), 2), ui.lineEditFileName->text());
+        //model()->setData(idx.sibling(idx.row(), 3), ui.lineEditLineNumber->text());
         model()->setData(idx.sibling(idx.row(), 4), ui.lineEditCondition->text());
-        model()->setData(idx.sibling(idx.row(), 5), ui.spinBoxIgnoreCount->value());
+        model()->setData(idx.sibling(idx.row(), 5), ui.lineEditIgnoreCount->text());
+        model()->setData(idx.sibling(idx.row(), 6), ui.lineEditThreadSpec->text());
     }
     emit breakpointSynchronizationRequested();
 }

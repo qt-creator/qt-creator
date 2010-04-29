@@ -102,6 +102,7 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
                 // Take over rest as is
                 nbd->bpCondition = nbd->condition;
                 nbd->bpIgnoreCount = nbd->ignoreCount;
+                nbd->bpThreadSpec = nbd->threadSpec;
                 nbd->bpFileName = nbd->fileName;
                 nbd->bpLineNumber = nbd->lineNumber;
                 nbd->bpFuncName = nbd->funcName;

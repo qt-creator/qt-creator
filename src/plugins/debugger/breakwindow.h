@@ -1,4 +1,5 @@
 /**************************************************************************
+QT_END_NAMESPACE
 **
 ** This file is part of Qt Creator
 **
@@ -65,11 +66,12 @@ protected:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void keyPressEvent(QKeyEvent *ev);
+    void mouseDoubleClickEvent(QMouseEvent *ev);
 
 private:
     void deleteBreakpoints(const QModelIndexList &list);
     void deleteBreakpoints(QList<int> rows);
-    void editConditions(const QModelIndexList &list);
+    void editBreakpoint(const QModelIndexList &list);
     void setBreakpointsEnabled(const QModelIndexList &list, bool enabled);
     void setBreakpointsFullPath(const QModelIndexList &list, bool fullpath);
 
