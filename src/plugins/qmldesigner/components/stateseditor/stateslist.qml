@@ -10,6 +10,7 @@ Rectangle {
     signal startRenaming
 
     color: "#4f4f4f";
+    property color colorAlpha: "#994f4f4f";
 
     function adjustCurrentStateIndex() {
         if (currentStateIndex >= statesEditorModel.count)
