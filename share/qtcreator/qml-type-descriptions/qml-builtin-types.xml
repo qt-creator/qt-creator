@@ -48,13 +48,6 @@
         <signal name="toggled">
             <param type="bool"/>
         </signal>
-        <signal name="activated">
-            <param type="int"/>
-        </signal>
-        <signal name="activated"/>
-        <method name="setOn">
-            <param name="b" type="bool"/>
-        </method>
         <method name="trigger"/>
         <method name="hover"/>
         <method name="setChecked">
@@ -137,6 +130,15 @@
         <property name="widthRatio" type="qreal"/>
         <property name="heightRatio" type="qreal"/>
         <signal name="pageChanged"/>
+    </type>
+    <type name="QDeclarativeGraphicsWidget" defaultProperty="children" extends="Qt.QGraphicsWidget">
+        <property name="anchors" type="QDeclarativeAnchors"/>
+        <property name="left" type="QDeclarativeAnchorLine"/>
+        <property name="right" type="QDeclarativeAnchorLine"/>
+        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="top" type="QDeclarativeAnchorLine"/>
+        <property name="bottom" type="QDeclarativeAnchorLine"/>
+        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
     </type>
     <type name="QDeclarativeImageBase" defaultProperty="data" extends="Qt.Item">
         <enum name="Status">
@@ -410,44 +412,6 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
-            <enumerator name="WMouseNoMask" value="524288"/>
-            <enumerator name="WDestructiveClose" value="1048576"/>
-            <enumerator name="WStaticContents" value="2097152"/>
-            <enumerator name="WGroupLeader" value="4194304"/>
-            <enumerator name="WShowModal" value="8388608"/>
-            <enumerator name="WNoMousePropagation" value="16777216"/>
-            <enumerator name="WType_TopLevel" value="1"/>
-            <enumerator name="WType_Dialog" value="3"/>
-            <enumerator name="WType_Popup" value="9"/>
-            <enumerator name="WType_Desktop" value="17"/>
-            <enumerator name="WType_Mask" value="255"/>
-            <enumerator name="WStyle_Customize" value="0"/>
-            <enumerator name="WStyle_NormalBorder" value="0"/>
-            <enumerator name="WStyle_DialogBorder" value="256"/>
-            <enumerator name="WStyle_NoBorder" value="2048"/>
-            <enumerator name="WStyle_Title" value="4096"/>
-            <enumerator name="WStyle_SysMenu" value="8192"/>
-            <enumerator name="WStyle_Minimize" value="16384"/>
-            <enumerator name="WStyle_Maximize" value="32768"/>
-            <enumerator name="WStyle_MinMax" value="49152"/>
-            <enumerator name="WStyle_Tool" value="11"/>
-            <enumerator name="WStyle_StaysOnTop" value="262144"/>
-            <enumerator name="WStyle_ContextHelp" value="65536"/>
-            <enumerator name="WPaintDesktop" value="0"/>
-            <enumerator name="WPaintClever" value="0"/>
-            <enumerator name="WX11BypassWM" value="1024"/>
-            <enumerator name="WWinOwnDC" value="512"/>
-            <enumerator name="WMacSheet" value="5"/>
-            <enumerator name="WMacDrawer" value="7"/>
-            <enumerator name="WStyle_Splash" value="15"/>
-            <enumerator name="WNoAutoErase" value="0"/>
-            <enumerator name="WRepaintNoErase" value="0"/>
-            <enumerator name="WNorthWestGravity" value="2097152"/>
-            <enumerator name="WType_Modal" value="8388611"/>
-            <enumerator name="WStyle_Dialog" value="3"/>
-            <enumerator name="WStyle_NoBorderEx" value="2048"/>
-            <enumerator name="WResizeNoErase" value="0"/>
-            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowFlags">
             <enumerator name="Widget" value="0"/>
@@ -483,44 +447,6 @@
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
             <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
             <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
-            <enumerator name="WMouseNoMask" value="524288"/>
-            <enumerator name="WDestructiveClose" value="1048576"/>
-            <enumerator name="WStaticContents" value="2097152"/>
-            <enumerator name="WGroupLeader" value="4194304"/>
-            <enumerator name="WShowModal" value="8388608"/>
-            <enumerator name="WNoMousePropagation" value="16777216"/>
-            <enumerator name="WType_TopLevel" value="1"/>
-            <enumerator name="WType_Dialog" value="3"/>
-            <enumerator name="WType_Popup" value="9"/>
-            <enumerator name="WType_Desktop" value="17"/>
-            <enumerator name="WType_Mask" value="255"/>
-            <enumerator name="WStyle_Customize" value="0"/>
-            <enumerator name="WStyle_NormalBorder" value="0"/>
-            <enumerator name="WStyle_DialogBorder" value="256"/>
-            <enumerator name="WStyle_NoBorder" value="2048"/>
-            <enumerator name="WStyle_Title" value="4096"/>
-            <enumerator name="WStyle_SysMenu" value="8192"/>
-            <enumerator name="WStyle_Minimize" value="16384"/>
-            <enumerator name="WStyle_Maximize" value="32768"/>
-            <enumerator name="WStyle_MinMax" value="49152"/>
-            <enumerator name="WStyle_Tool" value="11"/>
-            <enumerator name="WStyle_StaysOnTop" value="262144"/>
-            <enumerator name="WStyle_ContextHelp" value="65536"/>
-            <enumerator name="WPaintDesktop" value="0"/>
-            <enumerator name="WPaintClever" value="0"/>
-            <enumerator name="WX11BypassWM" value="1024"/>
-            <enumerator name="WWinOwnDC" value="512"/>
-            <enumerator name="WMacSheet" value="5"/>
-            <enumerator name="WMacDrawer" value="7"/>
-            <enumerator name="WStyle_Splash" value="15"/>
-            <enumerator name="WNoAutoErase" value="0"/>
-            <enumerator name="WRepaintNoErase" value="0"/>
-            <enumerator name="WNorthWestGravity" value="2097152"/>
-            <enumerator name="WType_Modal" value="8388611"/>
-            <enumerator name="WStyle_Dialog" value="3"/>
-            <enumerator name="WStyle_NoBorderEx" value="2048"/>
-            <enumerator name="WResizeNoErase" value="0"/>
-            <enumerator name="WMacNoSheet" value="0"/>
         </enum>
         <enum name="WindowState">
             <enumerator name="WindowNoState" value="0"/>
@@ -1259,28 +1185,6 @@
             <enumerator name="ScrollBarAsNeeded" value="0"/>
             <enumerator name="ScrollBarAlwaysOff" value="1"/>
             <enumerator name="ScrollBarAlwaysOn" value="2"/>
-        </enum>
-        <enum name="BackgroundMode">
-            <enumerator name="FixedColor" value="0"/>
-            <enumerator name="FixedPixmap" value="1"/>
-            <enumerator name="NoBackground" value="2"/>
-            <enumerator name="PaletteForeground" value="3"/>
-            <enumerator name="PaletteButton" value="4"/>
-            <enumerator name="PaletteLight" value="5"/>
-            <enumerator name="PaletteMidlight" value="6"/>
-            <enumerator name="PaletteDark" value="7"/>
-            <enumerator name="PaletteMid" value="8"/>
-            <enumerator name="PaletteText" value="9"/>
-            <enumerator name="PaletteBrightText" value="10"/>
-            <enumerator name="PaletteBase" value="11"/>
-            <enumerator name="PaletteBackground" value="12"/>
-            <enumerator name="PaletteShadow" value="13"/>
-            <enumerator name="PaletteHighlight" value="14"/>
-            <enumerator name="PaletteHighlightedText" value="15"/>
-            <enumerator name="PaletteButtonText" value="16"/>
-            <enumerator name="PaletteLink" value="17"/>
-            <enumerator name="PaletteLinkVisited" value="18"/>
-            <enumerator name="X11ParentRelative" value="19"/>
         </enum>
         <enum name="CaseSensitivity">
             <enumerator name="CaseInsensitive" value="0"/>
@@ -2425,19 +2329,29 @@
             <param type="string"/>
         </signal>
     </type>
-    <type name="Qt.PropertyChanges" version="4.6" extends="QDeclarativeStateOperation">
+    <type name="Qt.PropertyChanges" version="4.7" extends="QDeclarativeStateOperation">
         <property name="target" type="Qt.QtObject"/>
         <property name="restoreEntryValues" type="bool"/>
         <property name="explicit" type="bool"/>
     </type>
-    <type name="Qt.QGraphicsWidget" version="4.7" defaultProperty="children" extends="Qt.QGraphicsWidget">
-        <property name="anchors" type="QDeclarativeAnchors"/>
-        <property name="left" type="QDeclarativeAnchorLine"/>
-        <property name="right" type="QDeclarativeAnchorLine"/>
-        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
-        <property name="top" type="QDeclarativeAnchorLine"/>
-        <property name="bottom" type="QDeclarativeAnchorLine"/>
-        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
+    <type name="Qt.QGraphicsWidget" version="4.7" defaultProperty="children" extends="QGraphicsObject">
+        <property name="palette" type="QPalette"/>
+        <property name="font" type="QFont"/>
+        <property name="layoutDirection" type="Qt.LayoutDirection"/>
+        <property name="size" type="QSizeF"/>
+        <property name="minimumSize" type="QSizeF"/>
+        <property name="preferredSize" type="QSizeF"/>
+        <property name="maximumSize" type="QSizeF"/>
+        <property name="sizePolicy" type="QSizePolicy"/>
+        <property name="focusPolicy" type="Qt.FocusPolicy"/>
+        <property name="windowFlags" type="Qt.WindowFlags"/>
+        <property name="windowTitle" type="string"/>
+        <property name="geometry" type="QRectF"/>
+        <property name="autoFillBackground" type="bool"/>
+        <property name="layout" type="QGraphicsLayout"/>
+        <signal name="geometryChanged"/>
+        <signal name="layoutChanged"/>
+        <method name="close" type="bool"/>
     </type>
     <type name="Qt.QtObject" version="4.7">
         <property name="objectName" type="string"/>

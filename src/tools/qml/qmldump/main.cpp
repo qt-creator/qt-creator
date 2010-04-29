@@ -273,13 +273,21 @@ int main(int argc, char *argv[])
 
     metas.insert(FriendlyQObject::qtMeta());
 
+    // ### TODO: We don't treat extended types correctly. Currently only hits the
+    // QDeclarativeGraphicsWidget extension to QGraphicsWidget
     foreach (const QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {
+        if (ty->isExtendedType())
+            continue;
+
         cppToQml.insert(ty->metaObject()->className(), ty->qmlTypeName());
         qmlTypeByCppName.insert(ty->metaObject()->className(), ty);
         processDeclarativeType(ty, &metas);
     }
 
     foreach (const QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {
+        if (ty->isExtendedType())
+            continue;
+
         QByteArray tyName = ty->qmlTypeName();
         tyName = tyName.mid(tyName.lastIndexOf('/') + 1);
 
