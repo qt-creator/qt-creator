@@ -18,7 +18,7 @@ QFrame {
             checkable: true;
             checked: true;
             id: standardMode;
-            toolTip: qsTr(""special properties");
+            toolTip: qsTr("special properties");
             //iconFromFile: "images/rect-icon.png";
             text: backendValues === undefined || backendValues.className === undefined || backendValues.className == "empty" ? "empty" : backendValues.className.value
             onClicked: {

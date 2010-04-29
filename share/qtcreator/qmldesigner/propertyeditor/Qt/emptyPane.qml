@@ -35,7 +35,7 @@ PropertyFrame {
                             bottomMargin: 2;
                             QLabel {
                                 minimumHeight: 20;
-                                text: "none or multiple items selected";
+                                text: qsTr("none or multiple items selected");
                                 alignment: "AlignHCenter";
                             }
                         }

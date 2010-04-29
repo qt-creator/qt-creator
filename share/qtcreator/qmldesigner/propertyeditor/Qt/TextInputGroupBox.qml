@@ -26,7 +26,7 @@ GroupBox {
             visible: isTextInput
             layout: HorizontalLayout {
 
-                Label {text: "Echo Mode"}
+                Label {text: qsTr("Echo Mode") }
 
                 ComboBox {
                     baseStateFlag: isBaseState
