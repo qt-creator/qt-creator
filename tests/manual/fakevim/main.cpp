@@ -122,6 +122,7 @@ int main(int argc, char *argv[])
     theFakeVimSetting(ConfigShiftWidth)->setValue(8);
     theFakeVimSetting(ConfigTabStop)->setValue(8);
     theFakeVimSetting(ConfigAutoIndent)->setValue(true);
+    theFakeVimSetting(ConfigIsKeyword)->setValue("@,48-57,_,192-255,a-z,A-Z");
 
     handler.installEventFilter();
     handler.setupWidget();

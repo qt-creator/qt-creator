@@ -204,6 +204,8 @@ void tst_FakeVim::setup()
         this, SLOT(changeStatusData(QString)));
 
     QCOMPARE(EDITOR(toPlainText()), lines);
+
+    sendEx("set iskeyword=@,48-57,_,192-255,a-z,A-Z");
 }
 
 void tst_FakeVim::sendEx(const QString &command)
