@@ -650,8 +650,6 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         bool doGlobalCompletion = true;
         if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
-            qDebug() << "LHS of binding!";
-
             doGlobalCompletion = false;
             EnumerateProperties enumerateProperties(&context);
             enumerateProperties.setGlobalCompletion(true);
@@ -662,7 +660,9 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
                 TextEditor::CompletionItem item(this);
                 item.text = it.key();
-                item.data = QString(it.key() + QLatin1String(": "));
+                item.data = it.key();
+                if (!contextFinder.isAfterOnInLhsOfBinding())
+                    item.data = QString(item.data.toString() + QLatin1String(": "));
                 item.icon = symbolIcon;
                 m_completions.append(item);
             }
@@ -673,12 +673,6 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
                 TextEditor::CompletionItem item(this);
                 item.text = it.key();
-                QString data = it.key();
-                data.append(QLatin1String(" {\n"));
-                data.append(QChar::ObjectReplacementCharacter);
-                data.append(QChar::ObjectReplacementCharacter);
-                data.append(QLatin1String("\n}"));
-                item.data = data;
                 item.icon = symbolIcon;
                 m_completions.append(item);
             }

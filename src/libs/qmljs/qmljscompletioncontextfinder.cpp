@@ -17,6 +17,7 @@ using namespace QmlJS;
 CompletionContextFinder::CompletionContextFinder(const QTextCursor &cursor)
     : m_cursor(cursor)
     , m_colonCount(-1)
+    , m_behaviorBinding(false)
 {
     QTextBlock lastBlock = cursor.block();
     if (lastBlock.next().isValid())
@@ -90,6 +91,7 @@ void CompletionContextFinder::checkBinding()
     int i = m_startTokenIndex;
     int colonCount = 0;
     bool delimiterFound = false;
+    bool firstToken = true;
     while (!delimiterFound) {
         if (i < 0) {
             if (!readLine())
@@ -113,11 +115,17 @@ void CompletionContextFinder::checkBinding()
             ++colonCount;
             break;
 
+        case Token::Identifier:
+            if (firstToken && yyLine->midRef(token.begin(), token.length) == QLatin1String("on"))
+                m_behaviorBinding = true;
+            break;
+
         default:
             break;
         }
 
         --i;
+        firstToken = false;
     }
 
     YY_RESTORE();
@@ -143,6 +151,15 @@ bool CompletionContextFinder::isInLhsOfBinding() const
 bool CompletionContextFinder::isInRhsOfBinding() const
 {
     return isInQmlContext() && m_colonCount == 1;
+}
+
+/*!
+  \return true if the cursor after "Type on" in the left hand side
+  of a binding, false otherwise.
+*/
+bool CompletionContextFinder::isAfterOnInLhsOfBinding() const
+{
+    return isInLhsOfBinding() && m_behaviorBinding;
 }
 
 int CompletionContextFinder::findOpeningBrace(int startTokenIndex)
@@ -210,9 +227,4 @@ int CompletionContextFinder::findOpeningBrace(int startTokenIndex)
 
     YY_RESTORE();
     return -1;
-}
-
-bool CompletionContextFinder::inQmlBindingRhs()
-{
-    return false;
 }

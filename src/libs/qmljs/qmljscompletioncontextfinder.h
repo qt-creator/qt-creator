@@ -23,6 +23,8 @@ public:
     bool isInLhsOfBinding() const;
     bool isInRhsOfBinding() const;
 
+    bool isAfterOnInLhsOfBinding() const;
+
 private:
     int findOpeningBrace(int startTokenIndex);
     void getQmlObjectTypeName(int startTokenIndex);
@@ -33,6 +35,7 @@ private:
 
     int m_startTokenIndex;
     int m_colonCount;
+    bool m_behaviorBinding;
 };
 
 } // namespace QmlJS
