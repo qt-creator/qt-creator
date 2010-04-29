@@ -2963,9 +2963,9 @@ bool FakeVimHandler::Private::handleExReadCommand(const QString &line) // :r
     QTextStream ts(&file);
     QString data = ts.readAll();
     m_tc.insertText(data);
+    endEditBlock();
     showBlackMessage(FakeVimHandler::tr("\"%1\" %2L, %3C")
         .arg(m_currentFileName).arg(data.count('\n')).arg(data.size()));
-    endEditBlock();
     return true;
 }
 
@@ -2978,9 +2978,9 @@ bool FakeVimHandler::Private::handleExBangCommand(const QString &line) // :!
         return false;
 
     selectRange(beginLine, endLine);
+    int targetPosition = firstPositionInLine(beginLine);
     QString command = cmd.mid(1).trimmed();
     QString text = selectedText();
-    removeSelectedText();
     QProcess proc;
     proc.start(cmd.mid(1));
     proc.waitForStarted();
@@ -2988,9 +2988,12 @@ bool FakeVimHandler::Private::handleExBangCommand(const QString &line) // :!
     proc.closeWriteChannel();
     proc.waitForFinished();
     QString result = QString::fromUtf8(proc.readAllStandardOutput());
+    beginEditBlock(targetPosition);
+    removeSelectedText();
     m_tc.insertText(result);
+    setPosition(targetPosition);
+    endEditBlock();
     leaveVisualMode();
-    setPosition(firstPositionInLine(beginLine));
     //qDebug() << "FILTER: " << command;
     showBlackMessage(FakeVimHandler::tr("%n lines filtered", 0,
         text.count('\n')));
