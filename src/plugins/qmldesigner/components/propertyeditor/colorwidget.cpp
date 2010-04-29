@@ -516,6 +516,7 @@ void GradientLine::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing, true);
 
     QPen pen(Qt::black);
     pen.setWidth(1);
@@ -543,9 +544,9 @@ void GradientLine::paintEvent(QPaintEvent *event)
         int pos = qreal((width() - 20)) * m_stops.at(i) + 10;
         p.setBrush(arrowColor);
         QVector<QPointF> points;
-        points.append(QPointF(pos, 28 + localYOffset)); //triangle
-        points.append(QPointF(pos - 4, 22 + localYOffset));
-        points.append(QPointF(pos + 4, 22 + localYOffset));
+        points.append(QPointF(pos + 0.5, 28 + localYOffset)); //triangle
+        points.append(QPointF(pos - 3.5, 22 + localYOffset));
+        points.append(QPointF(pos + 4.5, 22 + localYOffset));
         p.drawPolygon(points);
 
         if (i == currentColorIndex())
