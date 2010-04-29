@@ -253,14 +253,24 @@ protected:
     {
         if ((*_lex)->is(T_NUMERIC_LITERAL)) {
             int base = 10;
-            const QByteArray spell = tokenSpell();
+            QByteArray spell = tokenSpell();
             if (spell.at(0) == '0') {
                 if (spell.size() > 1 && (spell.at(1) == 'x' || spell.at(1) == 'X'))
                     base = 16;
                 else
                     base = 8;
             }
-            _value.set_long(tokenSpell().toLong(0, base));
+
+            while (! spell.isEmpty()) {
+                const QChar ch = spell.at(spell.length() - 1);
+
+                if (! (ch == QLatin1Char('u') || ch == QLatin1Char('U') ||
+                       ch == QLatin1Char('l') || ch == QLatin1Char('L')))
+                    break;
+                spell.chop(1);
+            }
+
+            _value.set_long(spell.toLong(0, base));
             ++(*_lex);
         } else if (isTokenDefined()) {
             ++(*_lex);
