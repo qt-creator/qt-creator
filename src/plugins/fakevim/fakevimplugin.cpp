@@ -558,19 +558,19 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
 {
-}
-
-void FakeVimPluginPrivate::aboutToShutdown()
-{
     q->removeObject(m_fakeVimOptionsPage);
     delete m_fakeVimOptionsPage;
     m_fakeVimOptionsPage = 0;
-    theFakeVimSettings()->writeSettings(Core::ICore::instance()->settings());
     delete theFakeVimSettings();
 
     q->removeObject(m_fakeVimExCommandsPage);
     delete m_fakeVimExCommandsPage;
     m_fakeVimExCommandsPage = 0;
+}
+
+void FakeVimPluginPrivate::aboutToShutdown()
+{
+    theFakeVimSettings()->writeSettings(Core::ICore::instance()->settings());
     writeSettings(Core::ICore::instance()->settings());
 }
 
