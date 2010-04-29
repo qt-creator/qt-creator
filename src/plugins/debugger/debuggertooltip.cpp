@@ -61,6 +61,8 @@ public:
     int computeHeight(const QModelIndex &index) const;
     Q_SLOT void computeSize();
 
+    void leaveEvent(QEvent *ev);
+
 private:
     QSize m_size;
 };
@@ -159,6 +161,13 @@ void ToolTipWidget::run(const QPoint &point, QAbstractItemModel *model,
     pal.setColor(QPalette::Base, bg);
     setPalette(pal);
     //viewport()->setPalette(pal);
+}
+
+void ToolTipWidget::leaveEvent(QEvent *ev)
+{
+    Q_UNUSED(ev);
+    if (QApplication::keyboardModifiers() == Qt::NoModifier)
+        hide();
 }
 
 void showDebuggerToolTip(const QPoint &point, QAbstractItemModel *model,
