@@ -35,6 +35,8 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/iwizard.h>
+#include <coreplugin/mainwindow.h>
+#include <coreplugin/filemanager.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
@@ -89,7 +91,13 @@ ProjectWelcomePageWidget::ProjectWelcomePageWidget(QWidget *parent) :
     connect(ui->sessTreeWidget, SIGNAL(activated(QString)), SLOT(slotSessionClicked(QString)));
     connect(ui->projTreeWidget, SIGNAL(activated(QString)), SLOT(slotProjectClicked(QString)));
     connect(ui->createNewProjectButton, SIGNAL(clicked()), SLOT(slotCreateNewProject()));
+    connect(ui->openProjectButton, SIGNAL(clicked()), this, SLOT(slotOpenProject()));
     connect(ui->manageSessionsButton, SIGNAL(clicked()), SIGNAL(manageSessions()));
+
+    ui->createNewProjectButton->setIcon(
+            QIcon::fromTheme("document-new", ui->createNewProjectButton->icon()));
+    ui->openProjectButton->setIcon(
+            QIcon::fromTheme("document-open", ui->openProjectButton->icon()));
 }
 
 ProjectWelcomePageWidget::~ProjectWelcomePageWidget()
@@ -152,6 +160,22 @@ void ProjectWelcomePageWidget::activateEditMode()
         modeManager->activateMode(Core::Constants::MODE_EDIT);
 }
 
+void ProjectWelcomePageWidget::slotOpenProject()
+{
+    // ### We need a way to access the mimedatabase and differentiate
+    // between project types and other files. This is currently not possible
+
+    const QString filters = "All Files (*);;Projects(*.pro *.qmlproject)";
+    QString selectedFilters = "Projects(*.pro *.qmlproject)";
+    QStringList files =
+            Core::ICore::instance()->fileManager()->getOpenFileNames(
+                    filters, tr("Open Project"), &selectedFilters);
+
+    Core::Internal::MainWindow *mw = qobject_cast<Core::Internal::MainWindow*>
+                                     (Core::ICore::instance()->mainWindow());
+    Q_ASSERT(mw);
+    mw->openFiles(files);
+}
 
 void ProjectWelcomePageWidget::slotSessionClicked(const QString &data)
 {

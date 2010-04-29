@@ -69,6 +69,7 @@ private slots:
     void slotSessionClicked(const QString &data);
     void slotProjectClicked(const QString &data);
     void slotCreateNewProject();
+    void slotOpenProject();
 
 private:
     void activateEditMode();

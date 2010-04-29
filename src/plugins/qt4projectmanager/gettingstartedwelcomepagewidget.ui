@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>646</width>
-    <height>361</height>
+    <height>367</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -357,8 +357,8 @@
          <widget class="QPushButton" name="createNewProjectButton">
           <property name="minimumSize">
            <size>
-            <width>180</width>
-            <height>40</height>
+            <width>160</width>
+            <height>36</height>
            </size>
           </property>
           <property name="focusPolicy">

@@ -87,6 +87,9 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     connect(ui->nextTipBtn, SIGNAL(clicked()), this, SLOT(slotNextTip()));
     connect(ui->prevTipBtn, SIGNAL(clicked()), this, SLOT(slotPrevTip()));
     connect(ui->createNewProjectButton, SIGNAL(clicked()), this, SLOT(slotCreateNewProject()));
+
+    ui->createNewProjectButton->setIcon(
+            QIcon::fromTheme("document-new", ui->createNewProjectButton->icon()));
 }
 
 GettingStartedWelcomePageWidget::~GettingStartedWelcomePageWidget()

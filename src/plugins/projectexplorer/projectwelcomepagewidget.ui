@@ -57,7 +57,7 @@
             </widget>
            </item>
            <item>
-            <widget class="Utils::WelcomeModeTreeWidget" name="sessTreeWidget"/>
+            <widget class="Utils::WelcomeModeTreeWidget" name="sessTreeWidget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -85,7 +85,7 @@
             </widget>
            </item>
            <item>
-            <widget class="Utils::WelcomeModeTreeWidget" name="projTreeWidget"/>
+            <widget class="Utils::WelcomeModeTreeWidget" name="projTreeWidget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -98,7 +98,23 @@
          <number>6</number>
         </property>
         <item>
-         <spacer name="horizontalSpacer_2">
+         <widget class="QPushButton" name="manageSessionsButton">
+          <property name="minimumSize">
+           <size>
+            <width>160</width>
+            <height>36</height>
+           </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::TabFocus</enum>
+          </property>
+          <property name="text">
+           <string>Manage Sessions...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -111,18 +127,15 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="manageSessionsButton">
+         <widget class="QPushButton" name="openProjectButton">
           <property name="minimumSize">
            <size>
-            <width>180</width>
-            <height>40</height>
+            <width>160</width>
+            <height>36</height>
            </size>
           </property>
-          <property name="focusPolicy">
-           <enum>Qt::TabFocus</enum>
-          </property>
           <property name="text">
-           <string>Manage Sessions...</string>
+           <string>Open Project...</string>
           </property>
          </widget>
         </item>
@@ -130,8 +143,8 @@
          <widget class="QPushButton" name="createNewProjectButton">
           <property name="minimumSize">
            <size>
-            <width>180</width>
-            <height>40</height>
+            <width>160</width>
+            <height>36</height>
            </size>
           </property>
           <property name="focusPolicy">
