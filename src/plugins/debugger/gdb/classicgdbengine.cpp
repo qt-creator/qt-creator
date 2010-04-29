@@ -637,8 +637,9 @@ void GdbEngine::handleStackListArgumentsClassic(const GdbResponse &response)
         const GdbMi args = frame.findChild("args");
         m_currentFunctionArgs = args.children();
     } else {
-        qDebug() << "FIXME: GdbEngine::handleStackListArguments: should not happen"
-            << response.toString();
+        // Seems to occur on "RedHat 4 based Linux" gdb 7.0.1:
+        // ^error,msg="Cannot access memory at address 0x0"
+        debugMessage(_("UNEXPECTED RESPONSE: ") + response.toString());
     }
 }
 
