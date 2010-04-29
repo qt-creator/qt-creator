@@ -29,7 +29,7 @@
 
 #include "invalidargumentexception.h"
 #include <QString>
-
+#include <QCoreApplication>
 /*!
 \class QmlDesigner::InvalidArgumentException
 \ingroup CoreExceptions
@@ -57,7 +57,7 @@ InvalidArgumentException::InvalidArgumentException(int line,
 QString InvalidArgumentException::description() const
 {
     if (function() == "createNode")
-        return QString(QObject::tr("Failed to create item of type %1")).arg(m_argument);
+        return QCoreApplication::translate("QmlDesigner::InvalidArgumentException", "Failed to create item of type %1").arg(m_argument);
 
     return Exception::description();
 }
