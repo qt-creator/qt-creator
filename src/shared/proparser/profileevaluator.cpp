@@ -2351,8 +2351,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             }
             break;
         case E_QUOTE:
-            for (int i = 0; i < args.count(); ++i)
-                ret += QStringList(args.at(i));
+            ret += args;
             break;
         case E_ESCAPE_EXPAND:
             for (int i = 0; i < args.size(); ++i) {
