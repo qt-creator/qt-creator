@@ -384,6 +384,7 @@ private:
         const QLatin1String tag("type");
         Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
 
+        bool doInsert = true;
         QString name, defaultPropertyName;
         int major = -1, minor = -1;
         QString extends;
@@ -423,6 +424,11 @@ private:
             } else if (attr.name() == QLatin1String("extends")) {
                 if (! attr.value().isEmpty())
                     extends = attr.value().toString();
+
+                if (extends == name) {
+                    invalidAttr(extends, QLatin1String("extends"), tag);
+                    doInsert = false;
+                }
             } else {
                 ignoreAttr(attr);
             }
@@ -450,7 +456,10 @@ private:
                 unexpectedElement(_xml.name(), tag);
         }
 
-        _objects->insert(name, metaObject);
+        if (doInsert)
+            _objects->insert(name, metaObject);
+        else
+            delete metaObject;
     }
 
     bool split(const QString &name, QString *packageName, QString *className) {
