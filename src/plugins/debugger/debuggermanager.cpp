@@ -192,8 +192,6 @@ using namespace Constants;
 using namespace Debugger::Internal;
 using namespace TextEditor;
 
-static const QString tooltipIName = "tooltip";
-
 const char *DebuggerManager::stateName(int s)
 {
     #define SN(x) case x: return #x;
