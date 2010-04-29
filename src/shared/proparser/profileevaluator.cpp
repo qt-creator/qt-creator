@@ -2043,10 +2043,8 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
             return true;
 
         // CONFIG variable
-        foreach (const QString &configValue, valuesDirect(statics.strCONFIG)) {
-            if (configValue == config)
-                return true;
-        }
+        if (valuesDirect(statics.strCONFIG).contains(config))
+            return true;
     }
 
     return false;
