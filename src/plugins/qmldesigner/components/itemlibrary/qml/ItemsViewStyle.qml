@@ -47,11 +47,11 @@ Item {
     property string gridLineLighter: "#5f5f5f"
     property string gridLineDarker: "#3f3f3f"
 
-    property string sectionArrowColor: "#aeaeae"
-    property string sectionTitleTextColor: "#f0f0f0"
-    property string sectionTitleBackgroundColor: "#909090"
+    property string sectionArrowColor: "#ffffff"
+    property string sectionTitleTextColor: "#ffffff"
+    property string sectionTitleBackgroundColor: "#656565"
 
-    property int sectionTitleHeight: 20
+    property int sectionTitleHeight: 18
     property int sectionTitleSpacing: 2
 
     property int iconWidth: 32
