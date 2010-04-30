@@ -528,6 +528,8 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
                 envs = tr("Symbian", "Qt Version is meant for Symbian");
             else if (targets.contains(Constants::MAEMO_DEVICE_TARGET_ID))
                 envs = tr("Maemo", "Qt Version is meant for Maemo");
+            else if (targets.contains(Constants::QT_SIMULATOR_TARGET_ID))
+                envs = tr("Qt Simulator", "Qt Version is meant for Qt Simulator");
             else
                 envs = tr("unkown", "No idea what this Qt Version is meant for!");
             m_ui->errorLabel->setText(tr("Found Qt version %1, using mkspec %2 (%3)")

@@ -690,7 +690,6 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         if (contextFinder.isInRhsOfBinding() && qmlScopeType) {
             doQmlKeywordCompletion = false;
-            qDebug() << "property name: " << contextFinder.bindingPropertyName();
 
             if (!contextFinder.bindingPropertyName().isEmpty()) {
                 const Interpreter::Value *value = qmlScopeType;

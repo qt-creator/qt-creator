@@ -31,6 +31,9 @@ CompletionContextFinder::CompletionContextFinder(const QTextCursor &cursor)
             break;
     }
 
+    if (m_startTokenIndex == yyLinizerState.tokens.size() - 1 && yyLinizerState.insertedSemicolon)
+        --m_startTokenIndex;
+
     getQmlObjectTypeName(m_startTokenIndex);
     checkBinding();
 }

@@ -569,6 +569,9 @@ int QmlJSIndenter::indentForStandaloneLine()
 */
 int QmlJSIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar typedIn)
 {
+    if (begin == end)
+        return 0;
+
     const QTextBlock last = end.previous();
 
     initialize(begin, last);
