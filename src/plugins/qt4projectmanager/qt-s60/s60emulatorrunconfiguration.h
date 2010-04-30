@@ -129,7 +129,7 @@ class S60EmulatorRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration);
+    explicit S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration, QString mode);
     ~S60EmulatorRunControl() {}
     void start();
     void stop();

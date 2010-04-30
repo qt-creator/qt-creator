@@ -44,6 +44,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -59,8 +60,8 @@ namespace Internal {
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::ToolChain;
 
-AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
-    : RunControl(rc)
+AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc, QString mode)
+    : RunControl(rc, mode)
     , m_runConfig(qobject_cast<MaemoRunConfiguration *>(rc))
     , m_devConfig(m_runConfig ? m_runConfig->deviceConfig() : MaemoDeviceConfig())
 {
@@ -343,7 +344,7 @@ void AbstractMaemoRunControl::handleError(const QString &errString)
 
 
 MaemoRunControl::MaemoRunControl(RunConfiguration *runConfiguration)
-    : AbstractMaemoRunControl(runConfiguration)
+    : AbstractMaemoRunControl(runConfiguration, ProjectExplorer::Constants::RUNMODE)
 {
 }
 
@@ -375,7 +376,7 @@ void MaemoRunControl::handleRemoteOutput(const QString &output)
 
 
 MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
-    : AbstractMaemoRunControl(runConfiguration)
+    : AbstractMaemoRunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE)
     , m_debuggerManager(ExtensionSystem::PluginManager::instance()
                       ->getObject<Debugger::DebuggerManager>())
     , m_startParams(new Debugger::DebuggerStartParameters)

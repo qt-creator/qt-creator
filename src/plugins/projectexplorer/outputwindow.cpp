@@ -64,12 +64,15 @@ static const int MaxBlockCount = 100000;
 OutputPane::OutputPane()
     : m_mainWidget(new QWidget)
 {
-    QIcon runIcon(Constants::ICON_RUN);
-    runIcon.addFile(Constants::ICON_RUN_SMALL);
+    m_runIcon.addFile(Constants::ICON_RUN);
+    m_runIcon.addFile(Constants::ICON_RUN_SMALL);
+
+    m_debugIcon.addFile(Constants::ICON_DEBUG);
+    m_debugIcon.addFile(Constants::ICON_DEBUG_SMALL);
 
     // Rerun
     m_reRunButton = new QToolButton;
-    m_reRunButton->setIcon(runIcon);
+    m_reRunButton->setIcon(m_runIcon);
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
@@ -296,6 +299,7 @@ void OutputPane::tabChanged(int i)
         RunControl *rc = runControlForTab(i);
         m_stopAction->setEnabled(rc->isRunning());
         m_reRunButton->setEnabled(!rc->isRunning());
+        m_reRunButton->setIcon( rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
     }
 }
 
@@ -305,6 +309,7 @@ void OutputPane::runControlStarted()
     if (rc == qobject_cast<RunControl *>(sender())) {
         m_reRunButton->setEnabled(false);
         m_stopAction->setEnabled(true);
+        m_reRunButton->setIcon( rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
     }
 }
 
@@ -314,6 +319,7 @@ void OutputPane::runControlFinished()
     if (rc == qobject_cast<RunControl *>(sender())) {
         m_reRunButton->setEnabled(rc);
         m_stopAction->setEnabled(false);
+        m_reRunButton->setIcon( rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
     }
 }
 

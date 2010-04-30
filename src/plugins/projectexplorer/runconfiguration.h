@@ -160,7 +160,7 @@ class PROJECTEXPLORER_EXPORT RunControl : public QObject
 {
     Q_OBJECT
 public:
-    explicit RunControl(RunConfiguration *runConfiguration);
+    explicit RunControl(RunConfiguration *runConfiguration, QString mode);
     virtual ~RunControl();
     virtual void start() = 0;
     virtual void stop() = 0; // Warning: assumed to be synchroneous!
@@ -170,6 +170,7 @@ public:
     bool sameRunConfiguration(RunControl *other);
 
     virtual OutputFormatter *createOutputFormatter(QObject *parent = 0);
+    QString runMode() const;
 
 signals:
     void addToOutputWindow(RunControl *, const QString &line, bool onStdErr);
@@ -186,6 +187,7 @@ private slots:
 
 private:
     QString m_displayName;
+    QString m_runMode;
     const QWeakPointer<RunConfiguration> m_runConfiguration;
 
 #ifdef Q_OS_MAC

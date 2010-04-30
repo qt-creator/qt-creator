@@ -63,7 +63,7 @@ class AbstractMaemoRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 
 public:
-    explicit AbstractMaemoRunControl(ProjectExplorer::RunConfiguration *runConfig);
+    explicit AbstractMaemoRunControl(ProjectExplorer::RunConfiguration *runConfig, QString mode);
     virtual ~AbstractMaemoRunControl();
 
 protected:

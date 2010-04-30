@@ -293,8 +293,8 @@ QString S60EmulatorRunConfigurationFactory::displayNameForId(const QString &id) 
 
 // ======== S60EmulatorRunControl
 
-S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration)
-    : RunControl(runConfiguration)
+S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runConfiguration, QString mode)
+    : RunControl(runConfiguration, mode)
 {
     // stuff like the EPOCROOT and EPOCDEVICE env variable
     Environment env = Environment::systemEnvironment();

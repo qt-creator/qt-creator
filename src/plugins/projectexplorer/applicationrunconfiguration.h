@@ -81,7 +81,7 @@ class LocalApplicationRunControl : public RunControl
 {
     Q_OBJECT
 public:
-    LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration);
+    LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration, QString mode);
     virtual ~LocalApplicationRunControl();
     virtual void start();
     virtual void stop();

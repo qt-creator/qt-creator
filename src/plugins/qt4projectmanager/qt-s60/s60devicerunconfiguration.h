@@ -144,7 +144,7 @@ class S60DeviceRunControlBase : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit S60DeviceRunControlBase(ProjectExplorer::RunConfiguration *runConfiguration);
+    explicit S60DeviceRunControlBase(ProjectExplorer::RunConfiguration *runConfiguration, QString mode);
     ~S60DeviceRunControlBase();
     virtual void start();
     virtual void stop();
@@ -206,7 +206,7 @@ class S60DeviceRunControl : public S60DeviceRunControlBase
 {
     Q_OBJECT
 public:
-    explicit S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration);
+    explicit S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration, QString mode);
 
 protected:
     virtual void initLauncher(const QString &executable, trk::Launcher *);
@@ -225,7 +225,7 @@ class S60DeviceDebugRunControl : public S60DeviceRunControlBase
     Q_DISABLE_COPY(S60DeviceDebugRunControl)
     Q_OBJECT
 public:
-    explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration);
+    explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration, QString mode);
     virtual ~S60DeviceDebugRunControl();
 
     virtual void stop();

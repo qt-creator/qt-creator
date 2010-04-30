@@ -106,7 +106,7 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
        LocalApplicationRunConfiguration *runConfiguration)
-  : RunControl(runConfiguration),
+  : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
     m_startParameters(new DebuggerStartParameters()),
     m_manager(manager),
     m_running(false)
@@ -157,7 +157,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
 }
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters)
-    : RunControl(0),
+    : RunControl(0, ProjectExplorer::Constants::DEBUGMODE),
       m_startParameters(startParameters),
       m_manager(manager),
       m_running(false)

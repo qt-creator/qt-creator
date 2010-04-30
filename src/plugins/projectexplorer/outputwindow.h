@@ -35,6 +35,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QHash>
+#include <QtGui/QIcon>
 #include <QtGui/QShowEvent>
 #include <QtGui/QPlainTextEdit>
 
@@ -115,6 +116,8 @@ private:
     QAction *m_stopAction;
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
+    QIcon m_runIcon;
+    QIcon m_debugIcon;
 };
 
 

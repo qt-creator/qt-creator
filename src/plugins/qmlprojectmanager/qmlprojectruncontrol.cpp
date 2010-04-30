@@ -52,11 +52,11 @@ using ProjectExplorer::RunControl;
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, bool debugMode)
-    : RunControl(runConfiguration), m_debugMode(debugMode)
+QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode)
+    : RunControl(runConfiguration, mode)
 {
     ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
-    if (debugMode)
+    if (runMode() == ProjectExplorer::Constants::DEBUGMODE)
         environment.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(runConfiguration->debugServerPort()));
 
     m_applicationLauncher.setEnvironment(environment.toStringList());
@@ -121,7 +121,7 @@ void QmlRunControl::slotError(const QString &err, bool isError)
 
 void QmlRunControl::slotAddToOutputWindow(const QString &line, bool onStdErr)
 {
-    if (m_debugMode && line.startsWith("QDeclarativeDebugServer: Waiting for connection")) {
+    if (runMode() == ProjectExplorer::Constants::DEBUGMODE && line.startsWith("QDeclarativeDebugServer: Waiting for connection")) {
         Core::ICore *core = Core::ICore::instance();
         core->modeManager()->activateMode(Debugger::Constants::MODE_DEBUG);
     }
@@ -155,8 +155,7 @@ RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration,
                                          const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new QmlRunControl(qobject_cast<QmlProjectRunConfiguration *>(runConfiguration),
-                             mode == ProjectExplorer::Constants::DEBUGMODE);
+    return new QmlRunControl(qobject_cast<QmlProjectRunConfiguration *>(runConfiguration), mode);
 }
 
 QString QmlRunControlFactory::displayName() const

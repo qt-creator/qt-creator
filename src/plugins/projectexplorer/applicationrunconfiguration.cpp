@@ -80,7 +80,7 @@ QString LocalApplicationRunControlFactory::displayName() const
 RunControl *LocalApplicationRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    return new LocalApplicationRunControl(qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration));
+    return new LocalApplicationRunControl(qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration), mode);
 }
 
 QWidget *LocalApplicationRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
@@ -91,8 +91,8 @@ QWidget *LocalApplicationRunControlFactory::createConfigurationWidget(RunConfigu
 
 // ApplicationRunControl
 
-LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration)
-    : RunControl(runConfiguration)
+LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *runConfiguration, QString mode)
+    : RunControl(runConfiguration, mode)
 {
     m_applicationLauncher.setEnvironment(runConfiguration->environment().toStringList());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());

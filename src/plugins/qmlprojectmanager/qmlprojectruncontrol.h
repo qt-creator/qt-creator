@@ -39,10 +39,11 @@ class QmlProjectRunConfiguration;
 
 namespace Internal {
 
-class QmlRunControl : public ProjectExplorer::RunControl {
+class QmlRunControl : public ProjectExplorer::RunControl
+{
     Q_OBJECT
 public:
-    explicit QmlRunControl(QmlProjectRunConfiguration *runConfiguration, bool debugMode);
+    explicit QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode);
     virtual ~QmlRunControl ();
 
     // RunControl
@@ -63,7 +64,6 @@ private:
 
     QString m_executable;
     QStringList m_commandLineArguments;
-    bool m_debugMode;
 };
 
 class QmlRunControlFactory : public ProjectExplorer::IRunControlFactory {

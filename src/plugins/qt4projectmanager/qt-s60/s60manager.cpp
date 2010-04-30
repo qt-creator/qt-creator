@@ -80,7 +80,7 @@ public:
     ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) {
         RunConfiguration *rc = qobject_cast<RunConfiguration *>(runConfiguration);
         QTC_ASSERT(rc && mode == m_mode, return 0);
-        return new RunControl(rc);
+        return new RunControl(rc, mode);
     }
 
     QString displayName() const {

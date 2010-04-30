@@ -451,8 +451,8 @@ RunConfiguration *S60DeviceRunConfigurationFactory::clone(Target *parent, RunCon
 
 // ======== S60DeviceRunControlBase
 
-S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfiguration) :
-    RunControl(runConfiguration),
+S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfiguration, QString mode) :
+    RunControl(runConfiguration, mode),
     m_toolChain(ProjectExplorer::ToolChain::INVALID),
     m_releaseDeviceAfterLauncherFinish(false),
     m_handleDeviceRemoval(true),
@@ -812,8 +812,8 @@ bool S60DeviceRunControlBase::checkConfiguration(QString * /* errorMessage */,
 
 // =============== S60DeviceRunControl
 
-S60DeviceRunControl::S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration) :
-    S60DeviceRunControlBase(runConfiguration)
+S60DeviceRunControl::S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration, QString mode) :
+    S60DeviceRunControlBase(runConfiguration, mode)
 {
 }
 
@@ -849,8 +849,8 @@ void S60DeviceRunControl::printRunFailNotice(const QString &errorMessage) {
 
 // ======== S60DeviceDebugRunControl
 
-S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration) :
-    S60DeviceRunControlBase(runConfiguration),
+S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration, QString mode) :
+    S60DeviceRunControlBase(runConfiguration, mode),
     m_startParams(new Debugger::DebuggerStartParameters)
 {
     setReleaseDeviceAfterLauncherFinish(true); // Debugger controls device after install

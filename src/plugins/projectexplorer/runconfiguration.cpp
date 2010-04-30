@@ -215,8 +215,8 @@ IRunControlFactory::~IRunControlFactory()
 {
 }
 
-RunControl::RunControl(RunConfiguration *runConfiguration)
-    : m_runConfiguration(runConfiguration)
+RunControl::RunControl(RunConfiguration *runConfiguration, QString mode)
+    : m_runMode(mode), m_runConfiguration(runConfiguration)
 {
     if (runConfiguration)
         m_displayName  = runConfiguration->displayName();
@@ -225,6 +225,11 @@ RunControl::RunControl(RunConfiguration *runConfiguration)
 RunControl::~RunControl()
 {
 
+}
+
+QString RunControl::runMode() const
+{
+    return m_runMode;
 }
 
 QString RunControl::displayName() const
