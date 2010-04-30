@@ -37,7 +37,7 @@
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextBlockUserData>
 
-#include <texteditor/basetexteditor.h>
+#include <texteditor/basetextdocumentlayout.h>
 
 namespace GenericEditor {
 namespace Internal {
