@@ -104,6 +104,7 @@ bool openRegistryKey(HKEY category, // HKEY_LOCAL_MACHINE, etc.
                      HKEY *keyHandle,
                      QString *errorMessage)
 {
+    Q_UNUSED(debuggerRegistryKeyC);  // avoid warning from MinGW
 
     REGSAM accessRights = KEY_READ;
     if (readWrite)
