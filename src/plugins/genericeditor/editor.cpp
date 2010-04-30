@@ -43,8 +43,49 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFileInfo>
 
+#include <QDebug>
+
 using namespace GenericEditor;
 using namespace Internal;
+
+Editor::Editor(QWidget *parent) : TextEditor::BaseTextEditor(parent)
+{
+    connect(file(), SIGNAL(changed()), this, SLOT(configure()));
+}
+
+void Editor::unCommentSelection()
+{
+    Utils::unCommentSelection(this, m_commentDefinition);
+}
+
+TextEditor::BaseTextEditorEditable *Editor::createEditableInterface()
+{
+    EditorEditable *editable = new EditorEditable(this);
+    return editable;
+}
+
+void Editor::configure()
+{
+    const QString &mimeType = Core::ICore::instance()->mimeDatabase()->findByFile(
+            QFileInfo(file()->fileName())).type();
+    baseTextDocument()->setMimeType(mimeType);
+
+    try {
+        const QString &definitionId =
+                GenericEditorPlugin::instance()->definitionIdByMimeType(mimeType);
+        QSharedPointer<HighlightDefinition> definition =
+                GenericEditorPlugin::instance()->definition(definitionId);
+
+        baseTextDocument()->setSyntaxHighlighter(new Highlighter(definition->initialContext()));
+
+        m_commentDefinition.setAfterWhiteSpaces(definition->isCommentAfterWhiteSpaces());
+        m_commentDefinition.setSingleLine(definition->singleLineComment());
+        m_commentDefinition.setMultiLineStart(definition->multiLineCommentStart());
+        m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
+    } catch (const HighlighterException &) {
+        // No highlighter will be set.
+    }
+}
 
 EditorEditable::EditorEditable(Editor *editor) :
     TextEditor::BaseTextEditorEditable(editor)
@@ -68,34 +109,7 @@ bool EditorEditable::duplicateSupported() const
 
 Core::IEditor *EditorEditable::duplicate(QWidget *parent)
 {
-    Editor *newEditor = new Editor(editor()->mimeType(), parent);
+    Editor *newEditor = new Editor(parent);
     newEditor->duplicateFrom(editor());
     return newEditor->editableInterface();
-}
-
-bool EditorEditable::open(const QString &fileName)
-{
-    if (TextEditor::BaseTextEditorEditable::open(fileName)) {
-        editor()->setMimeType(
-                Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
-        return true;
-    }
-    return false;
-}
-
-Editor::Editor(const QString &definitionId, QWidget *parent) : TextEditor::BaseTextEditor(parent)
-{
-    try {
-        QSharedPointer<HighlightDefinition> definition =
-            GenericEditorPlugin::instance()->definition(definitionId);
-        baseTextDocument()->setSyntaxHighlighter(new Highlighter(definition->initialContext()));
-    } catch (const HighlighterException &) {
-        // No highlighter will be set.
-    }
-}
-
-TextEditor::BaseTextEditorEditable *Editor::createEditableInterface()
-{
-    EditorEditable *editable = new EditorEditable(this);
-    return editable;
 }

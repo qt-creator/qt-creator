@@ -41,7 +41,6 @@ using namespace Internal;
 
 HighlightDefinition::HighlightDefinition() :
     m_delimiters(QLatin1String(".():!+,-<=>%&/;?[]^{|}~\\*, \t")),
-    m_singleLineCommentPosition(0),
     m_singleLineCommentAfterWhiteSpaces(false),
     m_keywordCaseSensitivity(Qt::CaseSensitive)
 {}
@@ -110,22 +109,13 @@ void HighlightDefinition::setSingleLineComment(const QString &start)
 const QString &HighlightDefinition::singleLineComment() const
 { return m_singleLineComment; }
 
-void HighlightDefinition::setSingleLineCommentPosition(const QString &position)
+void HighlightDefinition::setCommentAfterWhitespaces(const QString &after)
 {
-    if (position == QLatin1String("afterwhitespace")) {
+    if (after == QLatin1String("afterwhitespace"))
         m_singleLineCommentAfterWhiteSpaces = true;
-    } else {
-        bool ok;
-        m_singleLineCommentPosition = position.toInt(&ok);
-        if (!ok)
-            m_singleLineCommentPosition = 0;
-    }
 }
 
-int HighlightDefinition::singleLineCommentPosition() const
-{ return m_singleLineCommentPosition; }
-
-bool HighlightDefinition::isSingleLineCommentAfterWhiteSpaces() const
+bool HighlightDefinition::isCommentAfterWhiteSpaces() const
 { return m_singleLineCommentAfterWhiteSpaces; }
 
 void HighlightDefinition::setMultiLineCommentStart(const QString &start)

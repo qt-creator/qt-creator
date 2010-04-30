@@ -28,12 +28,13 @@
 **************************************************************************/
 
 #include "genericeditorplugin.h"
-#include "languagespecificfactories.h"
 #include "highlightdefinition.h"
 #include "highlightdefinitionhandler.h"
 #include "highlighter.h"
 #include "highlighterexception.h"
 #include "genericeditorconstants.h"
+#include "editor.h"
+#include "editorfactory.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -48,6 +49,7 @@
 using namespace GenericEditor;
 using namespace Internal;
 
+// Todo: Temp.
 const QLatin1String GenericEditorPlugin::kAlertDefinitionId(":/genericeditor/XML/alert.xml");
 const QLatin1String GenericEditorPlugin::kCDefinitionId(":/genericeditor/XML/c.xml");
 const QLatin1String GenericEditorPlugin::kCppDefinitionId(":/genericeditor/XML/cpp.xml");
@@ -73,7 +75,8 @@ const QLatin1String GenericEditorPlugin::kTclDefinitionId(":/genericeditor/XML/t
 
 GenericEditorPlugin *GenericEditorPlugin::m_instance = 0;
 
-GenericEditorPlugin::GenericEditorPlugin()
+GenericEditorPlugin::GenericEditorPlugin() :
+    m_actionHandler(0)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
@@ -117,7 +120,13 @@ GenericEditorPlugin::GenericEditorPlugin()
 }
 
 GenericEditorPlugin::~GenericEditorPlugin()
-{}
+{
+    delete m_actionHandler;
+    m_instance = 0;
+}
+
+GenericEditorPlugin *GenericEditorPlugin::instance()
+{ return m_instance; }
 
 bool GenericEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
@@ -129,20 +138,12 @@ bool GenericEditorPlugin::initialize(const QStringList &arguments, QString *erro
         return false;
     }
 
-    addAutoReleasedObject(new CFactory(this));
-    addAutoReleasedObject(new CppFactory(this));
-    addAutoReleasedObject(new CssFactory(this));
-    addAutoReleasedObject(new FortranFactory(this));
-    addAutoReleasedObject(new HtmlFactory(this));
-    addAutoReleasedObject(new JavaFactory(this));
-    addAutoReleasedObject(new JavascriptFactory(this));
-    addAutoReleasedObject(new ObjectiveCFactory(this));
-    addAutoReleasedObject(new PerlFactory(this));
-    addAutoReleasedObject(new PhpFactory(this)); // Php definition file is broken.
-    addAutoReleasedObject(new PythonFactory(this));
-    addAutoReleasedObject(new RubyFactory(this));
-    addAutoReleasedObject(new SqlFactory(this));
-    addAutoReleasedObject(new TclFactory(this));
+    addAutoReleasedObject(new EditorFactory(this));
+
+    m_actionHandler = new TextEditor::TextEditorActionHandler(
+        GenericEditor::Constants::GENERIC_EDITOR,
+        TextEditor::TextEditorActionHandler::UnCommentSelection);
+    m_actionHandler->initializeActions();
 
     return true;
 }
@@ -150,8 +151,10 @@ bool GenericEditorPlugin::initialize(const QStringList &arguments, QString *erro
 void GenericEditorPlugin::extensionsInitialized()
 {}
 
-GenericEditorPlugin *GenericEditorPlugin::instance()
-{ return m_instance; }
+void GenericEditorPlugin::initializeEditor(Editor *editor)
+{
+    m_actionHandler->setupActions(editor);
+}
 
 QString GenericEditorPlugin::definitionIdByName(const QString &name) const
 { return m_idByName.value(name.toLower()); }
@@ -186,6 +189,5 @@ const QSharedPointer<HighlightDefinition> &GenericEditorPlugin::definition(const
 
     return *m_definitions.constFind(id);
 }
-
 
 Q_EXPORT_PLUGIN(GenericEditorPlugin)

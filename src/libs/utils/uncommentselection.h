@@ -32,13 +32,42 @@
 
 #include "utils_global.h"
 
+#include <QtCore/QString>
+
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
 
-QTCREATOR_UTILS_EXPORT void unCommentSelection(QPlainTextEdit *edit);
+class QTCREATOR_UTILS_EXPORT CommentDefinition
+{
+public:
+    CommentDefinition();
+
+    CommentDefinition &setAfterWhiteSpaces(const bool);
+    CommentDefinition &setSingleLine(const QString &singleLine);
+    CommentDefinition &setMultiLineStart(const QString &multiLineStart);
+    CommentDefinition &setMultiLineEnd(const QString &multiLineEnd);
+
+    bool isAfterWhiteSpaces() const;
+    const QString &singleLine() const;
+    const QString &multiLineStart() const;
+    const QString &multiLineEnd() const;
+
+    bool hasSingleLineStyle() const;
+    bool hasMultiLineStyle() const;
+
+private:
+    bool m_afterWhiteSpaces;
+    QString m_singleLine;
+    QString m_multiLineStart;
+    QString m_multiLineEnd;
+};
+
+QTCREATOR_UTILS_EXPORT
+void unCommentSelection(QPlainTextEdit *edit,
+                        const CommentDefinition &definiton = CommentDefinition());
 
 } // end of namespace Utils
 

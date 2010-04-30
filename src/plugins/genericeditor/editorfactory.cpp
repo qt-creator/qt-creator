@@ -30,22 +30,41 @@
 #include "editorfactory.h"
 #include "genericeditorconstants.h"
 #include "editor.h"
+#include "genericeditorplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
 using namespace GenericEditor;
 using namespace Internal;
 
-EditorFactory::EditorFactory(QObject *parent) :
-    Core::IEditorFactory(parent)
-{}
+EditorFactory::EditorFactory(QObject *parent) : Core::IEditorFactory(parent)
+{
+    // Note: This is temporary until it is definied how definition files should be "integrated".
+    m_mimeTypes << QLatin1String(GenericEditor::Constants::C_HEADER_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::C_SOURCE_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::CPP_HEADER_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::CPP_SOURCE_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::CSS_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::FORTRAN_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::HTML_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::JAVA_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::JAVASCRIPT_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::OBJECTIVEC_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::PERL_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::PHP_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::PYTHON_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::RUBY_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::SQL_MIMETYPE)
+            << QLatin1String(GenericEditor::Constants::TCL_MIMETYPE);
+}
 
 EditorFactory::~EditorFactory()
 {}
 
 Core::IEditor *EditorFactory::createEditor(QWidget *parent)
 {
-    Editor *genericEditor = createGenericEditor(parent);
+    Editor *genericEditor = new Editor(parent);
+    GenericEditorPlugin::instance()->initializeEditor(genericEditor);
     return genericEditor->editableInterface();
 }
 
@@ -67,6 +86,3 @@ Core::IFile *EditorFactory::open(const QString &fileName)
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
-
-void EditorFactory::addMimeType(const QString &mimeType)
-{ m_mimeTypes.append(mimeType); }

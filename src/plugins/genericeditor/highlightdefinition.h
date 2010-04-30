@@ -69,9 +69,8 @@ public:
     void setSingleLineComment(const QString &start);
     const QString &singleLineComment() const;
 
-    void setSingleLineCommentPosition(const QString &position);
-    int singleLineCommentPosition() const;
-    bool isSingleLineCommentAfterWhiteSpaces() const;
+    void setCommentAfterWhitespaces(const QString &after);
+    bool isCommentAfterWhiteSpaces() const;
 
     void setMultiLineCommentStart(const QString &start);
     const QString &multiLineCommentStart() const;
@@ -112,7 +111,6 @@ private:
     QString m_delimiters;
 
     QString m_singleLineComment;
-    int m_singleLineCommentPosition;
     bool m_singleLineCommentAfterWhiteSpaces;
 
     QString m_multiLineCommentStart;

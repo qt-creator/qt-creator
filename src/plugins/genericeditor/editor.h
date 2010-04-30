@@ -31,6 +31,7 @@
 #define GENERICEDITOR_H
 
 #include <texteditor/basetexteditor.h>
+#include <utils/uncommentselection.h>
 
 #include <QtCore/QList>
 
@@ -41,12 +42,27 @@ QT_END_NAMESPACE
 namespace GenericEditor {
 namespace Internal {
 
-class Editor;
+class Editor : public TextEditor::BaseTextEditor
+{
+    Q_OBJECT
+public:
+    Editor(QWidget *parent = 0);
+
+    virtual void unCommentSelection();
+
+protected:
+    virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
+
+private slots:
+    void configure();
+
+private:
+    Utils::CommentDefinition m_commentDefinition;
+};
 
 class EditorEditable : public TextEditor::BaseTextEditorEditable
 {
     Q_OBJECT
-
 public:
     EditorEditable(Editor *editor);
 
@@ -56,22 +72,12 @@ protected:
     virtual bool isTemporary() const;
     virtual bool duplicateSupported() const;
     virtual Core::IEditor *duplicate(QWidget *parent);
-    virtual bool open(const QString & fileName);
 
 private:
     QList<int> m_context;
 };
 
-class Editor : public TextEditor::BaseTextEditor
-{
-    Q_OBJECT
 
-public:
-    Editor(const QString &definitionId, QWidget *parent = 0);
-
-protected:
-    virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
-};
 
 } // namespace Internal
 } // namespace GenericEditor

@@ -47,21 +47,13 @@ public:
     EditorFactory(QObject *parent = 0);
     virtual ~EditorFactory();
 
-    // Currently there are language specific factores which configure the correct highlighter.
-    // Would it be a good idea if the createEditor method also received the mime type? This would
-    // also discard the necessity of overriding the open method.
     virtual Core::IEditor *createEditor(QWidget *parent);
     virtual QStringList mimeTypes() const;
     virtual QString id() const;
     virtual QString displayName() const;
     virtual Core::IFile *open(const QString &fileName);
 
-protected:
-    void addMimeType(const QString &mimeType);
-
-private:    
-    virtual Editor *createGenericEditor(QWidget *parent) = 0;
-
+private:
     QStringList m_mimeTypes;
 };
 

@@ -31,6 +31,7 @@
 #define GENERICEDITORPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
+#include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/QString>
 #include <QtCore/QLatin1String>
@@ -42,6 +43,7 @@ namespace GenericEditor {
 namespace Internal {
 
 class HighlightDefinition;
+class Editor;
 
 // Note: The general interface of this class is temporary. Still need discussing details about
 // the definition files integration with Creator.
@@ -59,9 +61,10 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
 
+    void initializeEditor(Editor *editor);
+
     QString definitionIdByName(const QString &name) const;
     QString definitionIdByMimeType(const QString &mimeType) const;
-
     bool isBuildingDefinition(const QString &id) const;
     const QSharedPointer<HighlightDefinition> &definition(const QString &id);
 
@@ -87,12 +90,14 @@ private:
     GenericEditorPlugin(const GenericEditorPlugin &HighlighterPlugin);
     const GenericEditorPlugin &operator=(const GenericEditorPlugin &HighlighterPlugin);
 
+    static GenericEditorPlugin *m_instance;
+
     QSet<QString> m_isBuilding;
     QHash<QString, QString> m_idByName;
     QHash<QString, QString> m_idByMimeType;
     QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
 
-    static GenericEditorPlugin *m_instance;
+    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

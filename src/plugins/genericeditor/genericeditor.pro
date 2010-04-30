@@ -8,7 +8,6 @@ CONFIG += help
 HEADERS += \
     genericeditorplugin.h \
     progressdata.h \
-    languagespecificfactories.h \
     specificrules.h \
     rule.h \
     reuse.h \
@@ -28,7 +27,6 @@ HEADERS += \
 SOURCES += \
     genericeditorplugin.cpp \
     progressdata.cpp \
-    languagespecificfactories.cpp \
     specificrules.cpp \
     rule.cpp \
     keywordlist.cpp \

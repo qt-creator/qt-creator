@@ -281,10 +281,10 @@ void HighlightDefinitionHandler::itemDataElementStarted(const QXmlAttributes &at
 void HighlightDefinitionHandler::commentElementStarted(const QXmlAttributes &atts) const
 {
     const QString &commentType = atts.value(kName);
-    if (commentType == kSingleLine) {
+    if (commentType.compare(kSingleLine, Qt::CaseInsensitive) == 0) {
         m_definition->setSingleLineComment(atts.value(kStart));
-        m_definition->setSingleLineCommentPosition(atts.value(kPosition));
-    } else if (commentType == kMultiLine) {
+        m_definition->setCommentAfterWhitespaces(atts.value(kPosition));
+    } else if (commentType.compare(kMultiLine, Qt::CaseInsensitive) == 0) {
         m_definition->setMultiLineCommentStart(atts.value(kStart));
         m_definition->setMultiLineCommentEnd(atts.value(kEnd));
         m_definition->setMultiLineCommentRegion(atts.value(kRegion));
