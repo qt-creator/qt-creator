@@ -564,9 +564,6 @@ bool LineInfo::isContinuationLine()
 
 void LineInfo::initialize(QTextBlock begin, QTextBlock end)
 {
-    if (begin == end)
-        return;
-
     yyProgram = Program(begin, end);
     startLinizer();
 }
