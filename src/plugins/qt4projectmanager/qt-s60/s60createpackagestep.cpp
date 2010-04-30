@@ -42,13 +42,15 @@ namespace {
     const char * const SIGNMODE_KEY("Qt4ProjectManager.S60CreatePackageStep.SignMode");
     const char * const CERTIFICATE_KEY("Qt4ProjectManager.S60CreatePackageStep.Certificate");
     const char * const KEYFILE_KEY("Qt4ProjectManager.S60CreatePackageStep.Keyfile");
+    const char * const SMART_INSTALLER_KEY("Qt4ProjectManager.S60CreatorPackageStep.SmartInstaller");
 }
 
 // #pragma mark -- S60SignBuildStep
 
 S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc) :
     MakeStep(bc, QLatin1String(SIGN_BS_ID)),
-    m_signingMode(SignSelf)
+    m_signingMode(SignSelf),
+    m_createSmartInstaller(false)
 {
     ctor_package();
 }
@@ -57,14 +59,16 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *
     MakeStep(bc, bs),
     m_signingMode(bs->m_signingMode),
     m_customSignaturePath(bs->m_customSignaturePath),
-    m_customKeyPath(bs->m_customKeyPath)
+    m_customKeyPath(bs->m_customKeyPath),
+    m_createSmartInstaller(bs->m_createSmartInstaller)
 {
     ctor_package();
 }
 
 S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc, const QString &id) :
     MakeStep(bc, id),
-    m_signingMode(SignSelf)
+    m_signingMode(SignSelf),
+    m_createSmartInstaller(false)
 {
     ctor_package();
 }
@@ -84,6 +88,7 @@ QVariantMap S60CreatePackageStep::toMap() const
     map.insert(QLatin1String(SIGNMODE_KEY), (int)m_signingMode);
     map.insert(QLatin1String(CERTIFICATE_KEY), m_customSignaturePath);
     map.insert(QLatin1String(KEYFILE_KEY), m_customKeyPath);
+    map.insert(QLatin1String(SMART_INSTALLER_KEY), m_createSmartInstaller);
     return map;
 }
 
@@ -92,6 +97,7 @@ bool S60CreatePackageStep::fromMap(const QVariantMap &map)
     m_signingMode = (SigningMode)map.value(QLatin1String(SIGNMODE_KEY)).toInt();
     m_customSignaturePath = map.value(QLatin1String(CERTIFICATE_KEY)).toString();
     m_customKeyPath = map.value(QLatin1String(KEYFILE_KEY)).toString();
+    m_createSmartInstaller = map.value(QLatin1String(SMART_INSTALLER_KEY), false).toBool();
     return MakeStep::fromMap(map);
 }
 
@@ -103,7 +109,10 @@ bool S60CreatePackageStep::init()
     ProjectExplorer::Environment environment = bc->environment();
     setEnvironment(environment);
     QStringList args;
-    args << QLatin1String("sis");
+    if (m_createSmartInstaller)
+        args << QLatin1String("installer_sis");
+    else
+        args << QLatin1String("sis");
     if (signingMode() == SignCustom) {
         args << QLatin1String("QT_SIS_CERTIFICATE=") + QDir::toNativeSeparators(customSignaturePath())
              << QLatin1String("QT_SIS_KEY=") + QDir::toNativeSeparators(customKeyPath());
@@ -150,6 +159,16 @@ QString S60CreatePackageStep::customKeyPath() const
 void S60CreatePackageStep::setCustomKeyPath(const QString &path)
 {
     m_customKeyPath = path;
+}
+
+bool S60CreatePackageStep::createSmartInstaller() const
+{
+    return m_createSmartInstaller;
+}
+
+void S60CreatePackageStep::setCreateSmartInstaller(bool value)
+{
+    m_createSmartInstaller = value;
 }
 
 // #pragma mark -- S60SignBuildStepFactory
@@ -239,6 +258,8 @@ S60CreatePackageStepConfigWidget::S60CreatePackageStepConfigWidget(S60CreatePack
             this, SLOT(updateFromUi()));
     connect(m_ui.keyFilePath, SIGNAL(changed(QString)),
             this, SLOT(updateFromUi()));
+    connect(m_ui.smartInstaller, SIGNAL(clicked()),
+            this, SLOT(updateFromUi()));
 }
 
 void S60CreatePackageStepConfigWidget::updateUi()
@@ -250,6 +271,7 @@ void S60CreatePackageStepConfigWidget::updateUi()
     m_ui.keyFilePath->setEnabled(!selfSigned);
     m_ui.signaturePath->setPath(m_signStep->customSignaturePath());
     m_ui.keyFilePath->setPath(m_signStep->customKeyPath());
+    m_ui.smartInstaller->setChecked(m_signStep->createSmartInstaller());
     emit updateSummary();
 }
 
@@ -260,6 +282,7 @@ void S60CreatePackageStepConfigWidget::updateFromUi()
         : S60CreatePackageStep::SignCustom);
     m_signStep->setCustomSignaturePath(m_ui.signaturePath->path());
     m_signStep->setCustomKeyPath(m_ui.keyFilePath->path());
+    m_signStep->setCreateSmartInstaller(m_ui.smartInstaller->isChecked());
     updateUi();
 }
 
@@ -273,6 +296,8 @@ QString S60CreatePackageStepConfigWidget::summaryText() const
                .arg(m_signStep->customSignaturePath())
                .arg(m_signStep->customKeyPath());
     }
+    if (m_signStep->createSmartInstaller())
+        return tr("<b>Create sis Package:</b> %1, using Smart Installer").arg(text);
     return tr("<b>Create sis Package:</b> %1").arg(text);
 }
 

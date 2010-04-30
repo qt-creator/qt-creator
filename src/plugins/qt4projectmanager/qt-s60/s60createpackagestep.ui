@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>517</width>
-    <height>95</height>
+    <height>108</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,6 +84,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="smartInstaller">
+     <property name="text">
+      <string>Create Smart Installer package</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -103,6 +110,11 @@
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
