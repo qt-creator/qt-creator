@@ -31,6 +31,7 @@
 
 #include "debuggeractions.h"
 #include "debuggermanager.h"
+#include "stackhandler.h"
 #include "ui_breakcondition.h"
 #include "ui_breakbyfunction.h"
 
@@ -196,6 +197,13 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         new QAction(tr("Edit Breakpoint..."), &menu);
     editBreakpointAction->setEnabled(si.size() > 0);
 
+    int threadId = m_manager->threadsHandler()->currentThreadId();
+    QString associateTitle = threadId == -1
+        ?  tr("Associate Breakpoint With All Threads")
+        :  tr("Associate Breakpoint With Thread %1").arg(threadId);
+    QAction *associateBreakpointAction = new QAction(associateTitle, &menu);
+    associateBreakpointAction->setEnabled(si.size() > 0);
+
     QAction *synchronizeAction =
         new QAction(tr("Synchronize Breakpoints"), &menu);
     synchronizeAction->setEnabled(
@@ -231,6 +239,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(deleteAction);
     menu.addAction(editBreakpointAction);
+    menu.addAction(associateBreakpointAction);
     menu.addAction(toggleEnabledAction);
     menu.addAction(pathAction);
     menu.addSeparator();
@@ -270,6 +279,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == editBreakpointAction)
         editBreakpoint(si);
+    else if (act == associateBreakpointAction)
+        associateBreakpoint(si, threadId);
     else if (act == synchronizeAction)
         emit breakpointSynchronizationRequested();
     else if (act == toggleEnabledAction)
@@ -368,6 +379,16 @@ void BreakWindow::editBreakpoint(const QModelIndexList &list)
         model()->setData(idx.sibling(idx.row(), 5), ui.lineEditIgnoreCount->text());
         model()->setData(idx.sibling(idx.row(), 6), ui.lineEditThreadSpec->text());
     }
+    emit breakpointSynchronizationRequested();
+}
+
+void BreakWindow::associateBreakpoint(const QModelIndexList &list, int threadId)
+{
+    QString str;
+    if (threadId != -1)
+        str = QString::number(threadId);
+    foreach (const QModelIndex &idx, list)
+        model()->setData(idx.sibling(idx.row(), 6), str);
     emit breakpointSynchronizationRequested();
 }
 

@@ -287,7 +287,7 @@ public slots: // FIXME
     void operateByInstructionTriggered();
     void startFailed();
 
-private:
+public:
     Internal::ModulesHandler *modulesHandler() const;
     Internal::BreakHandler *breakHandler() const;
     Internal::RegisterHandler *registerHandler() const;
@@ -295,6 +295,8 @@ private:
     Internal::ThreadsHandler *threadsHandler() const;
     Internal::WatchHandler *watchHandler() const;
     Internal::SnapshotHandler *snapshotHandler() const;
+
+private:
     Internal::SourceFilesWindow *sourceFileWindow() const;
     QWidget *threadsWindow() const;
 

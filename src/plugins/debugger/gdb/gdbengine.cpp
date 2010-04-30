@@ -2544,15 +2544,13 @@ void GdbEngine::attemptBreakpointSynchronization()
                 data->bpEnabled = false;
                 continue;
             }
-            if (data->threadSpec != data->bpThreadSpec && !data->bpThreadSpec.isEmpty()) {
+            if (data->threadSpec != data->bpThreadSpec && !data->bpNumber.isEmpty()) {
                 // The only way to change this seems to be to re-set the bp completely.
                 //qDebug() << "FIXME: THREAD: " << data->threadSpec << data->bpThreadSpec;
-                //data->bpThreadSpec = data->threadSpec;
-                if (!data->bpNumber.isEmpty()) {
-                    postCommand("-break-delete " + data->bpNumber,
-                        NeedsStop | RebuildBreakpointModel);
-                    sendInsertBreakpoint(index);
-                }
+                data->bpThreadSpec.clear();
+                postCommand("-break-delete " + data->bpNumber,
+                    NeedsStop | RebuildBreakpointModel);
+                sendInsertBreakpoint(index);
                 continue;
             }
             if (data->bpAddress.startsWith("0x")

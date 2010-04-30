@@ -361,6 +361,13 @@ QVariant ThreadsHandler::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
+int ThreadsHandler::currentThreadId() const
+{
+    if (m_currentIndex < 0 || m_currentIndex >= m_threads.size())
+        return -1;
+    return m_threads[m_currentIndex].id;
+}
+
 void ThreadsHandler::setCurrentThread(int index)
 {
     if (index == m_currentIndex)

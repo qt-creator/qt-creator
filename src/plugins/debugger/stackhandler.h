@@ -119,6 +119,7 @@ class ThreadsHandler : public QAbstractTableModel
 public:
     ThreadsHandler(QObject *parent = 0);
 
+    int currentThreadId() const;
     void setCurrentThread(int index);
     void selectThread(int index);
     void setThreads(const QList<ThreadData> &threads);
