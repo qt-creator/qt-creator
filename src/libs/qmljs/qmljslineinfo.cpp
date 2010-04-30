@@ -208,6 +208,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
             const Token sc(trimmed.size(), 1, Token::Semicolon);
             yyLinizerState.tokens.append(sc);
             trimmed.append(QLatin1Char(';'));
+            yyLinizerState.insertedSemicolon = true;
         }
     }
 
@@ -276,6 +277,8 @@ bool LineInfo::readLine()
             (firstNonWhiteSpace(yyLinizerState.line) == QLatin1Char('{'));
 
     do {
+        yyLinizerState.insertedSemicolon = false;
+
         if (yyLinizerState.iter == yyProgram.firstBlock()) {
             yyLinizerState.line.clear();
             return false;
@@ -332,6 +335,7 @@ void LineInfo::startLinizer()
 {
     yyLinizerState.braceDepth = 0;
     yyLinizerState.pendingRightBrace = false;
+    yyLinizerState.insertedSemicolon = false;
 
     yyLine = &yyLinizerState.line;
     yyBraceDepth = &yyLinizerState.braceDepth;

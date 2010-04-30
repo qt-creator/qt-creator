@@ -84,12 +84,14 @@ protected:
         LinizerState()
             : braceDepth(0),
               leftBraceFollows(false),
-              pendingRightBrace(false)
+              pendingRightBrace(false),
+              insertedSemicolon(false)
         { }
 
         int braceDepth;
         bool leftBraceFollows;
         bool pendingRightBrace;
+        bool insertedSemicolon;
         QString line;
         QList<Token> tokens;
         QTextBlock iter;
