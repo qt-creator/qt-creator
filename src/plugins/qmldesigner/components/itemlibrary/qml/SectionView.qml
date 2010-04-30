@@ -111,17 +111,18 @@ Column {
         Item {
             id: arrow
 
-            Rectangle { y: 0; x: 0; height: 1; width: 9; color: style.sectionArrowColor }
-            Rectangle { y: 1; x: 1; height: 1; width: 7; color: style.sectionArrowColor }
-            Rectangle { y: 2; x: 2; height: 1; width: 5; color: style.sectionArrowColor }
-            Rectangle { y: 3; x: 3; height: 1; width: 3; color: style.sectionArrowColor }
-            Rectangle { y: 4; x: 4; height: 1; width: 1; color: style.sectionArrowColor }
+            Rectangle { y: 0; x: 0; height: 1; width: 11; color: style.sectionArrowColor }
+            Rectangle { y: 1; x: 1; height: 1; width: 9;  color: style.sectionArrowColor }
+            Rectangle { y: 2; x: 2; height: 1; width: 7;  color: style.sectionArrowColor }
+            Rectangle { y: 3; x: 3; height: 1; width: 5;  color: style.sectionArrowColor }
+            Rectangle { y: 4; x: 4; height: 1; width: 3;  color: style.sectionArrowColor }
+            Rectangle { y: 5; x: 5; height: 1; width: 1;  color: style.sectionArrowColor }
 
             anchors.left: parent.left
-            anchors.leftMargin: 5
+            anchors.leftMargin: 10
             anchors.verticalCenter: parent.verticalCenter
-            width: 9
-            height: 5
+            width: 11
+            height: 6
 
             transformOrigin: Item.Center
         }
@@ -130,11 +131,12 @@ Column {
 
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: arrow.right
-            anchors.leftMargin: 5
+            anchors.leftMargin: 12
 
             text: sectionName  // to be set by model
             color: style.sectionTitleTextColor
             elide: Text.ElideMiddle
+            font.bold: true
         }
         MouseArea {
             anchors.fill: parent
