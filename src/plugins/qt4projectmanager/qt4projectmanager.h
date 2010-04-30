@@ -90,10 +90,14 @@ public:
     // Return the id string of a file
     static QString fileTypeId(ProjectExplorer::FileType type);
 
+    enum Action { BUILD, REBUILD, CLEAN };
+
 public slots:
     void runQMake();
     void runQMakeContextMenu();
     void buildSubDirContextMenu();
+    void rebuildSubDirContextMenu();
+    void cleanSubDirContextMenu();
 
 private slots:
     void editorAboutToClose(Core::IEditor *editor);
@@ -102,6 +106,7 @@ private slots:
 
 private:
     QList<Qt4Project *> m_projects;
+    void handleSubDirContexMenu(Action action);
     void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
     Internal::Qt4ProjectManagerPlugin *m_plugin;

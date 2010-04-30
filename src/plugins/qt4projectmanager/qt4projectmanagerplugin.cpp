@@ -185,7 +185,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_runQMakeActionContextMenu = new QAction(qmakeIcon, tr("Run qmake"), this);
     command = am->registerAction(m_runQMakeActionContextMenu, Constants::RUNQMAKECONTEXTMENU, context);
     command->setAttribute(Core::Command::CA_Hide);
-    command->setAttribute(Core::Command::CA_UpdateText);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_runQMakeActionContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(runQMakeContextMenu()));
@@ -195,9 +194,24 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_buildSubProjectContextMenu = new QAction(buildIcon, tr("Build"), this);
     command = am->registerAction(m_buildSubProjectContextMenu, Constants::BUILDSUBDIR, context);
     command->setAttribute(Core::Command::CA_Hide);
-    command->setAttribute(Core::Command::CA_UpdateText);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_buildSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildSubDirContextMenu()));
+
+    QIcon rebuildIcon(ProjectExplorer::Constants::ICON_REBUILD);
+    rebuildIcon.addFile(ProjectExplorer::Constants::ICON_REBUILD_SMALL);
+    m_rebuildSubProjectContextMenu = new QAction(rebuildIcon, tr("Rebuild"), this);
+    command = am->registerAction(m_rebuildSubProjectContextMenu, Constants::REBUILDSUBDIR, context);
+    command->setAttribute(Core::Command::CA_Hide);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(m_rebuildSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(rebuildSubDirContextMenu()));
+
+    QIcon cleanIcon(ProjectExplorer::Constants::ICON_CLEAN);
+    cleanIcon.addFile(ProjectExplorer::Constants::ICON_CLEAN_SMALL);
+    m_cleanSubProjectContextMenu = new QAction(cleanIcon, tr("Clean"), this);
+    command = am->registerAction(m_cleanSubProjectContextMenu, Constants::CLEANSUBDIR, context);
+    command->setAttribute(Core::Command::CA_Hide);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(m_cleanSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(cleanSubDirContextMenu()));
 
     connect(m_projectExplorer,
             SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)),
@@ -223,23 +237,27 @@ void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,
     m_qt4ProjectManager->setContextNode(node);
     m_runQMakeActionContextMenu->setEnabled(false);
     m_buildSubProjectContextMenu->setEnabled(false);
+    m_rebuildSubProjectContextMenu->setEnabled(false);
+    m_cleanSubProjectContextMenu->setEnabled(false);
 
     Qt4ProFileNode *proFileNode = qobject_cast<Qt4ProFileNode *>(node);
     if (qobject_cast<Qt4Project *>(project) && proFileNode) {
         m_runQMakeActionContextMenu->setVisible(true);
         m_buildSubProjectContextMenu->setVisible(true);
-
-        const QString nativeBuildDir = QDir::toNativeSeparators(proFileNode->buildDir());
-        m_runQMakeActionContextMenu->setText(tr("Run qmake in %1").arg(nativeBuildDir));
-        m_buildSubProjectContextMenu->setText(tr("Build in %1").arg(nativeBuildDir));
+        m_rebuildSubProjectContextMenu->setVisible(true);
+        m_cleanSubProjectContextMenu->setVisible(true);
 
         if (!m_projectExplorer->buildManager()->isBuilding(project)) {
             m_runQMakeActionContextMenu->setEnabled(true);
             m_buildSubProjectContextMenu->setEnabled(true);
+            m_rebuildSubProjectContextMenu->setEnabled(true);
+            m_cleanSubProjectContextMenu->setEnabled(true);
         }
     } else {
         m_runQMakeActionContextMenu->setVisible(false);
         m_buildSubProjectContextMenu->setVisible(false);
+        m_rebuildSubProjectContextMenu->setVisible(false);
+        m_cleanSubProjectContextMenu->setVisible(false);
     }
 }
 

@@ -269,6 +269,21 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
 
 void Qt4Manager::buildSubDirContextMenu()
 {
+    handleSubDirContexMenu(BUILD);
+}
+
+void Qt4Manager::cleanSubDirContextMenu()
+{
+    handleSubDirContexMenu(CLEAN);
+}
+
+void Qt4Manager::rebuildSubDirContextMenu()
+{
+    handleSubDirContexMenu(REBUILD);
+}
+
+void Qt4Manager::handleSubDirContexMenu(Qt4Manager::Action action)
+{
     Qt4Project *qt4pro = qobject_cast<Qt4Project *>(m_contextProject);
     QTC_ASSERT(qt4pro, return);
 
@@ -281,8 +296,16 @@ void Qt4Manager::buildSubDirContextMenu()
         if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(m_contextNode))
             bc->setSubNodeBuild(profile);
 
-    if (projectExplorer()->saveModifiedFiles())
-        projectExplorer()->buildManager()->buildProject(bc);
+    if (projectExplorer()->saveModifiedFiles()) {
+        if (action == BUILD)
+            projectExplorer()->buildManager()->buildProject(bc);
+        else if (action == CLEAN)
+            projectExplorer()->buildManager()->cleanProject(bc);
+        else if (action == REBUILD) {
+            projectExplorer()->buildManager()->cleanProject(bc);
+            projectExplorer()->buildManager()->buildProject(bc);
+        }
+    }
 
     bc->setSubNodeBuild(0);
 }

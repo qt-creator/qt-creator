@@ -91,6 +91,8 @@ private:
     QAction *m_runQMakeAction;
     QAction *m_runQMakeActionContextMenu;
     QAction *m_buildSubProjectContextMenu;
+    QAction *m_rebuildSubProjectContextMenu;
+    QAction *m_cleanSubProjectContextMenu;
     GettingStartedWelcomePage *m_welcomePage;
 };
 

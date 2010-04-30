@@ -58,6 +58,8 @@ const char * const ADDTOPROJECT        = "Qt4.AddToProject";
 const char * const RUNQMAKE            = "Qt4Builder.RunQMake";
 const char * const RUNQMAKECONTEXTMENU = "Qt4Builder.RunQMakeContextMenu";
 const char * const BUILDSUBDIR         = "Qt4Builder.BuildSubDir";
+const char * const REBUILDSUBDIR       = "Qt4Builder.RebuildSubDir";
+const char * const CLEANSUBDIR         = "Qt4Builder.CleanSubDir";
 
 //configurations
 const char * const CONFIG_DEBUG     = "debug";
