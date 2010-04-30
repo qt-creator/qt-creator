@@ -68,7 +68,7 @@ bool sortNodes(Node *n1, Node *n2)
             const QString fileName2 = QFileInfo(file2->path()).fileName();
 
             if (fileName1 != fileName2)
-                return fileName1 < fileName2;
+                return fileName1.compare(fileName2, Qt::CaseInsensitive) < 0;
             else
                 return file1 < file2;
         } else {
@@ -87,7 +87,7 @@ bool sortNodes(Node *n1, Node *n2)
             ProjectNode *project2 = static_cast<ProjectNode*>(n2);
 
             if (project1->displayName() != project2->displayName())
-                return project1->displayName() < project2->displayName(); // sort by name
+                return project1->displayName().compare(project2->displayName(), Qt::CaseInsensitive) < 0; // sort by name
             else
                 return project1 < project2; // sort by pointer value
         } else {
@@ -103,7 +103,7 @@ bool sortNodes(Node *n1, Node *n2)
             FolderNode *folder2 = static_cast<FolderNode*>(n2);
 
             if (folder1->displayName() != folder2->displayName())
-                return folder1->displayName() < folder2->displayName();
+                return folder1->displayName().compare(folder2->displayName(), Qt::CaseInsensitive) < 0;
             else
                 return folder1 < folder2;
         } else {
@@ -122,10 +122,10 @@ bool sortNodes(Node *n1, Node *n2)
         const QString fileName2 = QFileInfo(filePath2).fileName();
 
         if (fileName1 != fileName2) {
-            return fileName1 < fileName2; // sort by file names
+            return fileName1.compare(fileName2, Qt::CaseInsensitive) < 0; // sort by file names
         } else {
             if (filePath1 != filePath2) {
-                return filePath1 < filePath2; // sort by path names
+                return filePath1.compare(filePath2, Qt::CaseInsensitive) < 0; // sort by path names
             } else {
                 return n1 < n2; // sort by pointer value
             }
