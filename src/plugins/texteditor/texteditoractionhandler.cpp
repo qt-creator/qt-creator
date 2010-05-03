@@ -300,7 +300,7 @@ void TextEditorActionHandler::createActions()
 
     m_insertLineBelowAction = new QAction(tr("Insert Line Below Current Line"), this);
     command = am->registerAction(m_insertLineBelowAction, Constants::INSERT_LINE_BELOW, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("Shift+Return")));
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Return")));
     connect(m_insertLineBelowAction, SIGNAL(triggered()), this, SLOT(insertLineBelow()));
 }
 
