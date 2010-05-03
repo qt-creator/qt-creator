@@ -2587,7 +2587,7 @@ void GdbEngine::loadAllSymbols()
     reloadModulesInternal();
 }
 
-QList<Symbol> GdbEngine::moduleSymbols(const QString &moduleName)
+void GdbEngine::requestModuleSymbols(const QString &moduleName)
 {
     QList<Symbol> rc;
     bool success = false;
@@ -2618,7 +2618,7 @@ QList<Symbol> GdbEngine::moduleSymbols(const QString &moduleName)
     } while (false);
     if (!success)
         qWarning("moduleSymbols: %s\n", qPrintable(errorMessage));
-    return rc;
+    manager()->showModuleSymbols(moduleName, rc);
 }
 
 void GdbEngine::reloadModules()

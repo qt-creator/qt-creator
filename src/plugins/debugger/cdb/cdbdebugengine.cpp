@@ -1183,7 +1183,7 @@ void CdbDebugEngine::loadAllSymbols()
         qDebug() << Q_FUNC_INFO;
 }
 
-QList<Symbol> CdbDebugEngine::moduleSymbols(const QString &moduleName)
+void> CdbDebugEngine::requestModuleSymbols(const QString &moduleName)
 {
     QList<Symbol> rc;
     QString errorMessage;
@@ -1199,7 +1199,7 @@ QList<Symbol> CdbDebugEngine::moduleSymbols(const QString &moduleName)
     } while (false);
     if (!success)
         warning(errorMessage);
-    return rc;
+    manager()->showModuleSymbols(moduleName, rc);
 }
 
 void CdbDebugEngine::reloadRegisters()

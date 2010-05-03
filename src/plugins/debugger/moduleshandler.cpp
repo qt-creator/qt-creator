@@ -62,7 +62,7 @@ public:
 
     // QAbstractItemModel
     int columnCount(const QModelIndex &parent) const
-        { return parent.isValid() ? 0 : 4; }
+        { return parent.isValid() ? 0 : 5; }
     int rowCount(const QModelIndex &parent) const
         { return parent.isValid() ? 0 : m_modules.size(); }
     QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
@@ -85,6 +85,7 @@ QVariant ModulesModel::headerData(int section,
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
             tr("Module name") + "        ",
+            tr("Module path") + "        ",
             tr("Symbols read") + "        ",
             tr("Start address") + "        ",
             tr("End address") + "        "
@@ -112,13 +113,17 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
             break;
         case 1:
             if (role == Qt::DisplayRole)
-                return module.symbolsRead ? "yes" : "no";
+                return module.modulePath;
             break;
         case 2:
             if (role == Qt::DisplayRole)
-                return module.startAddress;
+                return module.symbolsRead ? "yes" : "no";
             break;
         case 3:
+            if (role == Qt::DisplayRole)
+                return module.startAddress;
+            break;
+        case 4:
             if (role == Qt::DisplayRole)
                 return module.endAddress;
             break;

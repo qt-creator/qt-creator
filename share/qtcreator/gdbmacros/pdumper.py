@@ -16,7 +16,12 @@ class qdebug:
         self.typeformats = typeformats
         self.individualformats = individualformats
         self.watchers = watchers
-        self.doit()
+        if self.options == "listmodules":
+            self.handleListModules()
+        elif self.options == "listsymbols":
+            self.handleListSymbols(expanded)
+        else:
+            self.handleListVars()
 
     def put(self, value):
         sys.stdout.write(value)
@@ -90,6 +95,9 @@ class qdebug:
             return
         if str(value).startswith("<class '"):
             return
+        # FIXME: Should we?
+        if str(value).startswith("<enum-item "):
+            return
         self.put("{")
         self.putField("iname", iname)
         self.putName(name)
@@ -146,13 +154,15 @@ class qdebug:
             pass
         elif tt == "function":
             pass
+        elif str(value).startswith("<enum-item "):
+            # FIXME: Having enums always shown like this is not nice.
+            self.putValue(str(value)[11:-1])
+            self.putNumChild(0)
         else:
             v = str(value)
             p = v.find(" object at ")
             if p > 1:
                 v = "@" + v[p + 11:-1]
-            elif v.startswith("<enum-item "):
-                v = v[11:-1]
             self.putValue(v)
             if self.isExpanded(iname):
                 self.put("children=[")
@@ -177,7 +187,7 @@ class qdebug:
     def warn(self, msg):
         self.putField("warning", msg)
 
-    def doit(self):
+    def handleListVars(self):
         # Trigger error to get a backtrace.
         frame = None
         #self.warn("frame: %s" % frame)
@@ -206,4 +216,25 @@ class qdebug:
             frame = frame.f_back
             n = n + 1
 
+        sys.stdout.flush()
+
+    def handleListModules(self):
+        self.put("modules=[");
+        for name in sys.modules:
+            self.put("{")
+            self.putName(name)
+            self.putValue(sys.modules[name])
+            self.put("},")
+        self.put("]")
+        sys.stdout.flush()
+
+    def handleListSymbols(self, module):
+        #self.put("symbols=%s" % dir(sys.modules[module]))
+        self.put("symbols=[");
+        for name in sys.modules:
+            self.put("{")
+            self.putName(name)
+            #self.putValue(sys.modules[name])
+            self.put("},")
+        self.put("]")
         sys.stdout.flush()

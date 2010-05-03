@@ -94,7 +94,7 @@ private:
 
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
-    virtual QList<Symbol> moduleSymbols(const QString &moduleName);
+    void requestModuleSymbols(const QString &moduleName);
     void reloadModules();
     void reloadRegisters() {}
     void reloadSourceFiles() {}
@@ -107,6 +107,7 @@ private:
 private:
     void debugMessage(const QString &msg);
     QString errorMessage(QProcess::ProcessError error) const;
+    unsigned debuggerCapabilities() const;
 
     Q_SLOT void handlePdbFinished(int, QProcess::ExitStatus status);
     Q_SLOT void handlePdbError(QProcess::ProcessError error);
@@ -135,6 +136,8 @@ private:
     void handleStop(const PdbResponse &response);
     void handleBacktrace(const PdbResponse &response);
     void handleListLocals(const PdbResponse &response);
+    void handleListModules(const PdbResponse &response);
+    void handleListSymbols(const PdbResponse &response);
     void handleLoadDumper(const PdbResponse &response);
     void handleBreakInsert(const PdbResponse &response);
 

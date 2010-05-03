@@ -98,6 +98,7 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QToolButton>
 #include <QtGui/QToolTip>
+#include <QtGui/QTreeWidget>
 
 #define DEBUG_STATE 1
 #ifdef DEBUG_STATE
@@ -460,8 +461,6 @@ void DebuggerManager::init()
         this, SLOT(loadAllSymbols()));
     connect(modulesView, SIGNAL(fileOpenRequested(QString)),
         this, SLOT(fileOpen(QString)));
-    connect(modulesView, SIGNAL(newDockRequested(QWidget*)),
-        this, SLOT(createNewDock(QWidget*)));
 
     // Source Files
     //d->m_sourceFilesHandler = new SourceFilesHandler;
@@ -1214,10 +1213,31 @@ void DebuggerManager::loadSymbols(const QString &module)
     d->m_engine->loadSymbols(module);
 }
 
-QList<Symbol> DebuggerManager::moduleSymbols(const QString &moduleName)
+void DebuggerManager::requestModuleSymbols(const QString &moduleName)
 {
-    QTC_ASSERT(d->m_engine, return QList<Symbol>());
-    return d->m_engine->moduleSymbols(moduleName);
+    QTC_ASSERT(d->m_engine, return);
+    d->m_engine->requestModuleSymbols(moduleName);
+}
+
+void DebuggerManager::showModuleSymbols(const QString &moduleName,
+    const QList<Symbol> &symbols)
+{ 
+    QTC_ASSERT(d->m_engine, return);
+    QTreeWidget *w = new QTreeWidget;
+    w->setColumnCount(3);
+    w->setRootIsDecorated(false);
+    w->setAlternatingRowColors(true);
+    w->setSortingEnabled(true);
+    w->setHeaderLabels(QStringList() << tr("Symbol") << tr("Address") << tr("Code"));
+    w->setWindowTitle(tr("Symbols in \"%1\"").arg(moduleName));
+    foreach (const Symbol &s, symbols) {
+        QTreeWidgetItem *it = new QTreeWidgetItem;
+        it->setData(0, Qt::DisplayRole, s.name);
+        it->setData(1, Qt::DisplayRole, s.address);
+        it->setData(2, Qt::DisplayRole, s.state);
+        w->addTopLevelItem(it);
+    }
+    createNewDock(w);
 }
 
 void DebuggerManager::executeStep()

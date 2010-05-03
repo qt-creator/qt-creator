@@ -448,9 +448,8 @@ void ScriptEngine::reloadModules()
 {
 }
 
-QList<Symbol> ScriptEngine::moduleSymbols(const QString & /*moduleName*/)
+void ScriptEngine::requestModuleSymbols(const QString & /*moduleName*/)
 {
-    return QList<Symbol>();
 }
 
 

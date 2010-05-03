@@ -394,13 +394,52 @@ void PdbEngine::loadAllSymbols()
 
 void PdbEngine::reloadModules()
 {
+    postCommand("qdebug('listmodules')", CB(handleListModules));
 }
 
-QList<Symbol> PdbEngine::moduleSymbols(const QString & /*moduleName*/)
+void PdbEngine::handleListModules(const PdbResponse &response)
 {
-    return QList<Symbol>();
+    GdbMi out;
+    out.fromString(response.data.trimmed());
+    QList<Module> modules;
+    foreach (const GdbMi &item, out.children()) {
+        Module module;
+        module.moduleName = _(item.findChild("name").data());
+        QString path = _(item.findChild("value").data());
+        int pos = path.indexOf(_("' from '"));
+        if (pos != -1) {
+            path = path.mid(pos + 8);
+            if (path.size() >= 2)
+                path.chop(2);
+        } else if (path.startsWith(_("<module '"))
+                && path.endsWith(_("' (built-in)>"))) {
+            path = _("(builtin)");
+        }
+        module.modulePath = path;
+        modules.append(module);
+    }
+    manager()->modulesHandler()->setModules(modules);
 }
 
+void PdbEngine::requestModuleSymbols(const QString &moduleName)
+{
+    postCommand("qdebug('listsymbols','" + moduleName.toLatin1() + "')",
+        CB(handleListSymbols), moduleName);
+}
+
+void PdbEngine::handleListSymbols(const PdbResponse &response)
+{
+    GdbMi out;
+    out.fromString(response.data.trimmed());
+    QList<Symbol> symbols;
+    QString moduleName = response.cookie.toString();
+    foreach (const GdbMi &item, out.children()) {
+        Symbol symbol;
+        symbol.name = _(item.findChild("name").data());
+        symbols.append(symbol);
+    }
+    manager()->showModuleSymbols(moduleName, symbols);
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -769,6 +808,11 @@ void PdbEngine::handleLoadDumper(const PdbResponse &response)
 void PdbEngine::debugMessage(const QString &msg)
 {
     showDebuggerOutput(LogDebug, msg);
+}
+
+unsigned PdbEngine::debuggerCapabilities() const
+{
+    return ReloadModuleCapability;
 }
 
 IDebuggerEngine *createPdbEngine(DebuggerManager *manager)

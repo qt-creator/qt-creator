@@ -78,6 +78,7 @@ public:
 
 public:
     QString moduleName;
+    QString modulePath;
     bool symbolsRead;
     QString startAddress;
     QString endAddress;

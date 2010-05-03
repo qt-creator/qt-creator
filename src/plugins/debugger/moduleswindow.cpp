@@ -175,6 +175,7 @@ void ModulesWindow::resizeColumnsToContents()
     resizeColumnToContents(0);
     resizeColumnToContents(1);
     resizeColumnToContents(2);
+    resizeColumnToContents(3);
 }
 
 void ModulesWindow::setAlwaysResizeColumnsToContents(bool on)
@@ -186,6 +187,7 @@ void ModulesWindow::setAlwaysResizeColumnsToContents(bool on)
     header()->setResizeMode(1, mode);
     header()->setResizeMode(2, mode);
     header()->setResizeMode(3, mode);
+    header()->setResizeMode(4, mode);
     //setColumnHidden(3, true);
 }
 
@@ -197,27 +199,8 @@ void ModulesWindow::setModel(QAbstractItemModel *model)
 
 void ModulesWindow::showSymbols(const QString &name)
 {
-    if (name.isEmpty())
-        return;
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    const QList<Symbol> symbols = m_debuggerManager->moduleSymbols(name);
-    QApplication::restoreOverrideCursor();
-    if (symbols.empty())
-        return;
-    QTreeWidget *w = new QTreeWidget;
-    w->setColumnCount(3);
-    w->setRootIsDecorated(false);
-    w->setAlternatingRowColors(true);
-    w->setHeaderLabels(QStringList() << tr("Address") << tr("Code") << tr("Symbol"));
-    w->setWindowTitle(tr("Symbols in \"%1\"").arg(name));
-    foreach (const Symbol &s, symbols) {
-        QTreeWidgetItem *it = new QTreeWidgetItem;
-        it->setData(0, Qt::DisplayRole, s.address);
-        it->setData(1, Qt::DisplayRole, s.state);
-        it->setData(2, Qt::DisplayRole, s.name);
-        w->addTopLevelItem(it);
-    }
-    emit newDockRequested(w);
+    if (!name.isEmpty())
+        m_debuggerManager->requestModuleSymbols(name);
 }
 
 } // namespace Internal

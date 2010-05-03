@@ -95,7 +95,7 @@ public:
     virtual void reloadModules();
     virtual void loadSymbols(const QString &moduleName);
     virtual void loadAllSymbols();
-    virtual QList<Symbol> moduleSymbols(const QString &moduleName);
+    virtual void requestModuleSymbols(const QString &moduleName);
 
     virtual void reloadRegisters();
     virtual void reloadSourceFiles();

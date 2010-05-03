@@ -105,7 +105,7 @@ public:
     virtual void reloadModules() = 0;
     virtual void loadSymbols(const QString &moduleName) = 0;
     virtual void loadAllSymbols() = 0;
-    virtual QList<Symbol> moduleSymbols(const QString &moduleName) = 0;
+    virtual void requestModuleSymbols(const QString &moduleName) = 0;
 
     virtual void reloadRegisters() = 0;
 

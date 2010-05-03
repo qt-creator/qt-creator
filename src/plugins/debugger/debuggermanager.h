@@ -329,7 +329,9 @@ private:
 public:
     // stuff in this block should be made private by moving it to
     // one of the interfaces
-    QList<Internal::Symbol> moduleSymbols(const QString &moduleName);
+    void requestModuleSymbols(const QString &moduleName);
+    void showModuleSymbols(const QString &moduleName,
+        const QList<Internal::Symbol> &symbols);
 
 signals:
     void debuggingFinished();

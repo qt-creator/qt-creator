@@ -358,7 +358,7 @@ private: ////////// View & Data Stuff //////////
     //
     virtual void loadSymbols(const QString &moduleName);
     virtual void loadAllSymbols();
-    virtual QList<Symbol> moduleSymbols(const QString &moduleName);
+    virtual void requestModuleSymbols(const QString &moduleName);
     virtual void reloadModules();
     void reloadModulesInternal();
     void handleModulesList(const GdbResponse &response);

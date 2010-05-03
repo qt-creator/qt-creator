@@ -93,7 +93,7 @@ private:
 
     void loadSymbols(const QString &moduleName);
     void loadAllSymbols();
-    virtual QList<Symbol> moduleSymbols(const QString &moduleName);
+    void requestModuleSymbols(const QString &moduleName);
     void reloadModules();
     void reloadRegisters() {}
     void reloadSourceFiles() {}
