@@ -31,13 +31,22 @@
 
 #include "maemopackagecreationstep.h"
 
+namespace {
+    const char * const MODIFIED_KEY =
+        "Qt4ProjectManager.BuildStep.MaemoPackage.Modified";
+    const char * const LOCAL_FILES_KEY
+        = "Qt4ProjectManager.BuildStep.MaemoPackage.LocalFiles";
+    const char * const REMOTE_FILES_KEY
+        = "Qt4ProjectManager.BuildStep.MaemoPackage.RemoteFiles";
+}
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
 MaemoPackageContents::MaemoPackageContents(MaemoPackageCreationStep *packageStep)
     : QAbstractTableModel(packageStep),
       m_packageStep(packageStep),
-      m_modified(true) // TODO: Has to come from settings
+      m_modified(true)
 {
 }
 
@@ -97,6 +106,33 @@ QVariant MaemoPackageContents::headerData(int section,
     if (orientation == Qt::Vertical || role != Qt::DisplayRole)
         return QVariant();
     return section == 0 ? tr("Local File Path") : tr("Remote File Path");
+}
+
+QVariantMap MaemoPackageContents::toMap() const
+{
+    QVariantMap map;
+    map.insert(MODIFIED_KEY, m_modified);
+    QStringList localFiles;
+    QStringList remoteFiles;
+    foreach (const Deployable &p, m_deployables) {
+        localFiles << p.localFilePath;
+        remoteFiles << p.remoteFilePath;
+    }
+    map.insert(LOCAL_FILES_KEY, localFiles);
+    map.insert(REMOTE_FILES_KEY, remoteFiles);
+    return map;
+}
+
+void MaemoPackageContents::fromMap(const QVariantMap &map)
+{
+    m_modified = map.value(MODIFIED_KEY).toBool();
+    const QStringList localFiles = map.value(LOCAL_FILES_KEY).toStringList();
+    const QStringList remoteFiles = map.value(REMOTE_FILES_KEY).toStringList();
+    if (localFiles.count() != remoteFiles.count())
+        qWarning("%s: serialized data inconsistent", Q_FUNC_INFO);
+    const int count = qMin(localFiles.count(), remoteFiles.count());
+    for (int i = 0; i < count; ++i)
+        m_deployables << Deployable(localFiles.at(i), remoteFiles.at(i));
 }
 
 } // namespace Qt4ProjectManager

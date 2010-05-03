@@ -76,6 +76,8 @@ private:
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const { return true; }
+    virtual QVariantMap toMap() const;
+    virtual bool fromMap(const QVariantMap &map);
 
     bool createPackage();
     bool runCommand(QProcess &proc, const QString &command);
