@@ -50,6 +50,27 @@ MaemoPackageContents::Deployable MaemoPackageContents::deployableAt(int row) con
         : m_deployables.at(row - 1);
 }
 
+bool MaemoPackageContents::addDeployable(const Deployable &deployable)
+{
+    if (m_deployables.contains(deployable))
+        return false;
+
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    m_deployables << deployable;
+    endInsertRows();
+    m_modified = true;
+    return true;
+}
+
+void MaemoPackageContents::removeDeployableAt(int row)
+{
+    Q_ASSERT(row > 0 && row < rowCount());
+    beginRemoveRows(QModelIndex(), row, row);
+    m_deployables.removeAt(row);
+    endRemoveRows();
+    m_modified = true;
+}
+
 int MaemoPackageContents::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : m_deployables.count() + 1;

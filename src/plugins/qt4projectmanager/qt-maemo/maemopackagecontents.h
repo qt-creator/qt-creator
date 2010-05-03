@@ -47,15 +47,24 @@ public:
     {
         Deployable(const QString &localFilePath, const QString &remoteFilePath)
             : localFilePath(localFilePath), remoteFilePath(remoteFilePath) {}
+
+        bool operator==(const Deployable &other) const
+        {
+            return localFilePath == other.localFilePath
+                    && remoteFilePath == other.remoteFilePath;
+        }
+
         QString localFilePath;
         QString remoteFilePath;
     };
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-
     MaemoPackageContents(MaemoPackageCreationStep *packageStep);
 
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+
     Deployable deployableAt(int row) const;
+    bool addDeployable(const Deployable &deployable);
+    void removeDeployableAt(int row);
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
 

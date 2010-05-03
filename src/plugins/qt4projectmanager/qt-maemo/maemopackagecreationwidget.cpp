@@ -44,6 +44,16 @@
 
 #include "maemopackagecontents.h"
 #include "maemopackagecreationstep.h"
+#include "maemotoolchain.h"
+
+#include <utils/qtcassert.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
+
+#include <QtCore/QFileInfo>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -60,8 +70,12 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
             m_ui->packageContentsView, SLOT(resizeColumnsToContents()));
     connect(step->packageContents(), SIGNAL(rowsInserted(QModelIndex, int, int)),
             m_ui->packageContentsView, SLOT(resizeColumnsToContents()));
+    connect(m_ui->packageContentsView->selectionModel(),
+            SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
+            SLOT(enableOrDisableRemoveButton()));
     m_ui->packageContentsView->resizeColumnsToContents();
     m_ui->packageContentsView->horizontalHeader()->setStretchLastSection(true);
+    enableOrDisableRemoveButton();
 }
 
 void MaemoPackageCreationWidget::init()
@@ -76,6 +90,69 @@ QString MaemoPackageCreationWidget::summaryText() const
 QString MaemoPackageCreationWidget::displayName() const
 {
     return m_step->displayName();
+}
+
+void MaemoPackageCreationWidget::addFile()
+{
+    const Qt4BuildConfiguration * const bc
+        = static_cast<Qt4BuildConfiguration *>(m_step->buildConfiguration());
+    QTC_ASSERT(bc, return);
+    QString title = tr("Choose a local file");
+    QString baseDir = bc->target()->project()->projectDirectory();
+    const QString localFile = QFileDialog::getOpenFileName(this, title, baseDir);
+    if (localFile.isEmpty())
+        return;
+    title = tr("Choose a remote file path");
+    QTC_ASSERT(bc->toolChainType() == ProjectExplorer::ToolChain::GCC_MAEMO, return);
+    baseDir = static_cast<MaemoToolChain *>(bc->toolChain())->sysrootRoot();
+    QString remoteFile;
+    const QString canonicalSysRoot = QFileInfo(baseDir).canonicalFilePath();
+    do {
+        QFileDialog d(this, title, baseDir);
+        d.setFileMode(QFileDialog::AnyFile);
+        d.selectFile(QFileInfo(localFile).fileName());
+        if (!d.exec())
+            return;
+        remoteFile = d.selectedFiles().first();
+        if (remoteFile.isEmpty())
+            return;
+        const QFileInfo remoteFileInfo(remoteFile);
+        QString remoteDir = remoteFileInfo.dir().canonicalPath();
+        if (!remoteDir.startsWith(canonicalSysRoot)) {
+            QMessageBox::warning(this, tr("Invalid path"),
+                tr("Please choose a location inside your sysroot directory."));
+            remoteFile.clear();
+        } else {
+            remoteDir.remove(canonicalSysRoot);
+            remoteFile = remoteDir + '/' + remoteFileInfo.fileName();
+        }
+    } while (remoteFile.isEmpty());
+
+    const MaemoPackageContents::Deployable
+        deployable(QFileInfo(localFile).absoluteFilePath(), remoteFile);
+    if (!m_step->packageContents()->addDeployable(deployable)) {
+        QMessageBox::information(this, tr("File already in package"),
+                                 tr("You have already added this file."));
+    }
+}
+
+void MaemoPackageCreationWidget::removeFile()
+{
+    const QModelIndexList selectedRows
+        = m_ui->packageContentsView->selectionModel()->selectedRows();
+    if (selectedRows.isEmpty())
+        return;
+    const int row = selectedRows.first().row();
+    if (row != 0)
+        m_step->packageContents()->removeDeployableAt(row);
+}
+
+void MaemoPackageCreationWidget::enableOrDisableRemoveButton()
+{
+    const QModelIndexList selectedRows
+        = m_ui->packageContentsView->selectionModel()->selectedRows();
+    m_ui->removeFileButton->setEnabled(!selectedRows.isEmpty()
+                                       && selectedRows.first().row() != 0);
 }
 
 } // namespace Internal

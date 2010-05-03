@@ -62,6 +62,12 @@ public:
     virtual void init();
     virtual QString summaryText() const;
     virtual QString displayName() const;
+
+private slots:
+    void addFile();
+    void removeFile();
+    void enableOrDisableRemoveButton();
+
 private:
     MaemoPackageCreationStep * const m_step;
     Ui::MaemoPackageCreationWidget * const m_ui;
