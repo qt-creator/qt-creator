@@ -12,7 +12,7 @@ class qdebug:
             individualformats = None,
             watchers = None):
         self.options = options
-        self.expanded = expanded
+        self.expandedINames = expanded
         self.typeformats = typeformats
         self.individualformats = individualformats
         self.watchers = watchers
@@ -34,6 +34,8 @@ class qdebug:
         t = str(type)
         if t.startswith("<type '") and t.endswith("'>"):
             t = t[7:-2]
+        if t.startswith("<class '") and t.endswith("'>"):
+            t = t[8:-2]
         return t
 
     def putType(self, type, priority = 0):
@@ -51,14 +53,12 @@ class qdebug:
     def putName(self, name):
         self.put('name="%s",' % name)
 
-    def isExpanded(self, item):
-        #warn("IS EXPANDED: %s in %s" % (item.iname, self.expandedINames))
-        if item.iname is None:
-            raise "Illegal iname 'None'"
-        if item.iname.startswith("None"):
-            raise "Illegal iname '%s'" % item.iname
-        #warn("   --> %s" % (item.iname in self.expandedINames))
-        return item.iname in self.expandedINames
+    def isExpanded(self, iname):
+        #self.warn("IS EXPANDED: %s in %s" % (iname, self.expandedINames))
+        if iname.startswith("None"):
+            raise "Illegal iname '%s'" % iname
+        #self.warn("   --> %s" % (iname in self.expandedINames))
+        return iname in self.expandedINames
 
     def isExpandedIName(self, iname):
         return iname in self.expandedINames
@@ -88,11 +88,16 @@ class qdebug:
         tt = self.cleanType(t)
         if tt == "module" or tt == "function":
             return
+        if str(value).startswith("<class '"):
+            return
         self.put("{")
         self.putField("iname", iname)
         self.putName(name)
         self.putType(tt)
-        if tt == "list" or tt == "tuple":
+        if tt == "NoneType":
+            self.putValue("None")
+            self.putNumChild(0)
+        elif tt == "list" or tt == "tuple":
             self.putItemCount(len(value))
             #self.putValue(value)
             self.put("children=[")
@@ -128,16 +133,44 @@ class qdebug:
                 self.put("{")
                 self.putType(" ")
                 self.putValue("%s: %s" % (k, v))
-                self.put("children=[")
-                self.dumpValue(k, "key", "%s.%d.k" % (iname, i))
-                self.dumpValue(v, "value", "%s.%d.v" % (iname, i))
-                self.put("]},")
+                if self.isExpanded(iname):
+                    self.put("children=[")
+                    self.dumpValue(k, "key", "%s.%d.k" % (iname, i))
+                    self.dumpValue(v, "value", "%s.%d.v" % (iname, i))
+                    self.put("]},")
                 i += 1
             self.put("]")
-        elif tt == "module" or tt == "function":
+        elif tt == "class":
+            pass
+        elif tt == "module":
+            pass
+        elif tt == "function":
             pass
         else:
-            self.putValue(value)
+            v = str(value)
+            p = v.find(" object at ")
+            if p > 1:
+                v = "@" + v[p + 11:-1]
+            elif v.startswith("<enum-item "):
+                v = v[11:-1]
+            self.putValue(v)
+            if self.isExpanded(iname):
+                self.put("children=[")
+                for child in dir(value):
+                    if child == "__dict__":
+                        continue
+                    if child == "__doc__":
+                        continue
+                    if child == "__module__":
+                        continue
+                    attr = getattr(value, child)
+                    if callable(attr):
+                        continue
+                    try:
+                        self.dumpValue(attr, child, "%s.%s" % (iname, child))
+                    except:
+                        pass
+                self.put("],")
         self.put("},")
 
 
