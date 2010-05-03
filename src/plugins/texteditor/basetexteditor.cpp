@@ -882,6 +882,29 @@ void BaseTextEditor::joinLines()
     setTextCursor(cursor);
 }
 
+void BaseTextEditor::insertLineAbove()
+{
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
+    cursor.insertBlock();
+    indent(document(), cursor, QChar::Null);
+    cursor.endEditBlock();
+    setTextCursor(cursor);
+}
+
+void BaseTextEditor::insertLineBelow()
+{
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::MoveAnchor);
+    cursor.insertBlock();
+    indent(document(), cursor, QChar::Null);
+    cursor.endEditBlock();
+    setTextCursor(cursor);
+}
+
 void BaseTextEditor::moveLineUp()
 {
     moveLineUpDown(true);

@@ -292,6 +292,16 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_joinLinesAction, Constants::JOIN_LINES, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+J")));
     connect(m_joinLinesAction, SIGNAL(triggered()), this, SLOT(joinLines()));
+
+    m_insertLineAboveAction = new QAction(tr("Insert Line Above Current Line"), this);
+    command = am->registerAction(m_insertLineAboveAction, Constants::INSERT_LINE_ABOVE, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Return")));
+    connect(m_insertLineAboveAction, SIGNAL(triggered()), this, SLOT(insertLineAbove()));
+
+    m_insertLineBelowAction = new QAction(tr("Insert Line Below Current Line"), this);
+    command = am->registerAction(m_insertLineBelowAction, Constants::INSERT_LINE_BELOW, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Shift+Return")));
+    connect(m_insertLineBelowAction, SIGNAL(triggered()), this, SLOT(insertLineBelow()));
 }
 
 bool TextEditorActionHandler::supportsAction(const QString & /*id */) const
@@ -454,6 +464,8 @@ FUNCTION(moveLineDown)
 FUNCTION(copyLineUp)
 FUNCTION(copyLineDown)
 FUNCTION(joinLines)
+FUNCTION(insertLineAbove)
+FUNCTION(insertLineBelow)
 
 void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
 {

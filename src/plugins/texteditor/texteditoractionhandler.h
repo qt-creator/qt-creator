@@ -116,6 +116,8 @@ private slots:
     void copyLineUp();
     void copyLineDown();
     void joinLines();
+    void insertLineAbove();
+    void insertLineBelow();
     void updateCurrentEditor(Core::IEditor *editor);
 
 private:
@@ -153,6 +155,8 @@ private:
     QAction *m_copyLineUpAction;
     QAction *m_copyLineDownAction;
     QAction *m_joinLinesAction;
+    QAction *m_insertLineAboveAction;
+    QAction *m_insertLineBelowAction;
 
     uint m_optionalActions;
     QPointer<BaseTextEditor> m_currentEditor;

@@ -242,6 +242,9 @@ public slots:
 
     void joinLines();
 
+    void insertLineAbove();
+    void insertLineBelow();
+
     void cleanWhitespace();
 
 signals:
