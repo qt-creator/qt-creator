@@ -92,7 +92,7 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
     m_isSearching = true;
     emit changed();
     if (m_filterCombo)
-        updateComboEntries(m_filterCombo, false);
+        updateComboEntries(m_filterCombo, true);
     m_watcher.setFuture(QFuture<FileSearchResult>());
     SearchResult *result = m_resultWindow->startNewSearch();
     connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
@@ -114,7 +114,7 @@ void BaseFileFind::replaceAll(const QString &txt, QTextDocument::FindFlags findF
     m_isSearching = true;
     emit changed();
     if (m_filterCombo)
-        updateComboEntries(m_filterCombo, false);
+        updateComboEntries(m_filterCombo, true);
     m_watcher.setFuture(QFuture<FileSearchResult>());
     SearchResult *result = m_resultWindow->startNewSearch(SearchResultWindow::SearchAndReplace);
     connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
