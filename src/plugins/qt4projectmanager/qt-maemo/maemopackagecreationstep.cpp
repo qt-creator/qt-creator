@@ -123,8 +123,8 @@ bool MaemoPackageCreationStep::createPackage()
     env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
     env.insert(QLatin1String("PERL5LIB"), path % QLatin1String("madlib/perl5"));
 
-    const QString projectDir = QFileInfo(localExecutableFilePath()).absolutePath();
-    env.insert(QLatin1String("PWD"), projectDir);
+    const QString buildDir = QFileInfo(localExecutableFilePath()).absolutePath();
+    env.insert(QLatin1String("PWD"), buildDir);
 
     const QRegExp envPattern(QLatin1String("([^=]+)=[\"']?([^;\"']+)[\"']? ;.*"));
     QByteArray line;
@@ -136,14 +136,14 @@ bool MaemoPackageCreationStep::createPackage()
     
     QProcess buildProc;
     buildProc.setProcessEnvironment(env);
-    buildProc.setWorkingDirectory(projectDir);
+    buildProc.setWorkingDirectory(buildDir);
 
-    if (!QFileInfo(projectDir + QLatin1String("/debian")).exists()) {
+    if (!QFileInfo(buildDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
             % executableFileName().toLower() % versionString();
         if (!runCommand(buildProc, command))
             return false;
-        QFile rulesFile(projectDir + QLatin1String("/debian/rules"));
+        QFile rulesFile(buildDir + QLatin1String("/debian/rules"));
         if (!rulesFile.open(QIODevice::ReadWrite)) {
             raiseError(tr("Packaging Error: Cannot open file '%1'.")
                        .arg(nativePath(rulesFile)));
@@ -164,20 +164,32 @@ bool MaemoPackageCreationStep::createPackage()
     if (!runCommand(buildProc, QLatin1String("dh_installdirs")))
         return false;
     
-    const QString targetFile(projectDir % QLatin1String("/debian/")
-        % executableFileName().toLower() % remoteExecutableFilePath());
-    if (QFile::exists(targetFile)) {
-        if (!QFile::remove(targetFile)) {
+    const QDir debianRoot = QDir(buildDir % QLatin1String("/debian/")
+                                 % executableFileName().toLower());
+    for (int i = 0; i < m_packageContents->rowCount(); ++i) {
+        const MaemoPackageContents::Deployable &d
+            = m_packageContents->deployableAt(i);
+        const QString targetFile = debianRoot.path() + '/' + d.remoteFilePath;
+        const QString absTargetDir = QFileInfo(targetFile).dir().path();
+        const QString relTargetDir = debianRoot.relativeFilePath(absTargetDir);
+        if (!debianRoot.exists(relTargetDir)
+            && !debianRoot.mkpath(relTargetDir)) {
+            raiseError(tr("Packaging Error: Could not create directory '%1'.")
+                       .arg(QDir::toNativeSeparators(absTargetDir)));
+            return false;
+        }
+        if (QFile::exists(targetFile) && !QFile::remove(targetFile)) {
             raiseError(tr("Packaging Error: Could not replace file '%1'.")
                        .arg(QDir::toNativeSeparators(targetFile)));
             return false;
         }
-    }
-    if (!QFile::copy(localExecutableFilePath(), targetFile)) {
-        raiseError(tr("Packaging Error: Could not copy '%1' to '%2'.")
-                   .arg(QDir::toNativeSeparators(localExecutableFilePath()))
-                   .arg(QDir::toNativeSeparators(targetFile)));
-        return false;
+
+        if (!QFile::copy(d.localFilePath, targetFile)) {
+            raiseError(tr("Packaging Error: Could not copy '%1' to '%2'.")
+                       .arg(QDir::toNativeSeparators(d.localFilePath))
+                       .arg(QDir::toNativeSeparators(targetFile)));
+            return false;
+        }
     }
 
     const QStringList commands = QStringList() << QLatin1String("dh_link")
@@ -280,7 +292,7 @@ QString MaemoPackageCreationStep::packageFilePath() const
 
 QString MaemoPackageCreationStep::remoteExecutableFilePath() const
 {
-    return QLatin1String("/usr/bin/") % executableFileName();
+    return QLatin1String("/usr/local/bin/") % executableFileName();
 }
 
 QString MaemoPackageCreationStep::versionString() const
