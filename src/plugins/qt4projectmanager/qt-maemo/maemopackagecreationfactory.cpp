@@ -94,7 +94,13 @@ BuildStep *MaemoPackageCreationFactory::restore(BuildConfiguration *parent,
                StepType type, const QVariantMap &map)
 {
     Q_ASSERT(canRestore(parent, type, map));
-    return new MaemoPackageCreationStep(parent);
+    MaemoPackageCreationStep * const step
+        = new MaemoPackageCreationStep(parent);
+    if (!step->fromMap(map)) {
+        delete step;
+        return 0;
+    }
+    return step;
 }
 
 bool MaemoPackageCreationFactory::canClone(BuildConfiguration *parent,

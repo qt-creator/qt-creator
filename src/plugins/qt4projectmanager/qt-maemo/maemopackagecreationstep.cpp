@@ -87,6 +87,18 @@ bool MaemoPackageCreationStep::init()
     return true;
 }
 
+QVariantMap MaemoPackageCreationStep::toMap() const
+{
+    QVariantMap map(ProjectExplorer::BuildStep::toMap());
+    return map.unite(m_packageContents->toMap());
+}
+
+bool MaemoPackageCreationStep::fromMap(const QVariantMap &map)
+{
+    m_packageContents->fromMap(map);
+    return ProjectExplorer::BuildStep::fromMap(map);
+}
+
 void MaemoPackageCreationStep::run(QFutureInterface<bool> &fi)
 {
     fi.reportResult(createPackage());

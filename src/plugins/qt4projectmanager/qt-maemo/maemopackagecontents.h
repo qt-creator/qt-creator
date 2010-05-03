@@ -33,6 +33,7 @@
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QList>
 #include <QtCore/QString>
+#include <QtCore/QVariantMap>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -62,13 +63,14 @@ public:
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
+    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &map);
+
     Deployable deployableAt(int row) const;
     bool addDeployable(const Deployable &deployable);
     void removeDeployableAt(int row);
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
-
-    // TODO: to/from map
 
 private:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
