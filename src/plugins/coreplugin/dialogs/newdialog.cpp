@@ -95,7 +95,7 @@ public:
     }
 };
 
-#define CATEGORY_ROW_HEIGHT 18
+#define ROW_HEIGHT 24
 
 class FancyTopLevelDelegate : public QItemDelegate
 {
@@ -127,8 +127,8 @@ public:
     {
         QSize size = QItemDelegate::sizeHint(option, index);
 
-        if (!index.parent().isValid())
-            size = size.expandedTo(QSize(0, CATEGORY_ROW_HEIGHT));
+
+        size = size.expandedTo(QSize(0, ROW_HEIGHT));
 
         return size;
     }
