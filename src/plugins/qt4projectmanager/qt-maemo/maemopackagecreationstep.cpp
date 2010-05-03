@@ -302,11 +302,6 @@ QString MaemoPackageCreationStep::packageFilePath() const
         % versionString() % QLatin1String("_armel.deb");
 }
 
-QString MaemoPackageCreationStep::remoteExecutableFilePath() const
-{
-    return QLatin1String("/usr/local/bin/") % executableFileName();
-}
-
 QString MaemoPackageCreationStep::versionString() const
 {
     return QLatin1String("_0.1");

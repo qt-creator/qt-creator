@@ -34,6 +34,7 @@
 
 #include "maemoruncontrol.h"
 
+#include "maemopackagecontents.h"
 #include "maemopackagecreationstep.h"
 #include "maemosshthread.h"
 #include "maemorunconfiguration.h"
@@ -200,7 +201,7 @@ QString AbstractMaemoRunControl::packageFilePath() const
 
 QString AbstractMaemoRunControl::executableFilePathOnTarget() const
 {
-    return m_runConfig->packageStep()->remoteExecutableFilePath();
+    return m_runConfig->packageStep()->packageContents()->remoteExecutableFilePath();
 }
 
 bool AbstractMaemoRunControl::isCleaning() const
