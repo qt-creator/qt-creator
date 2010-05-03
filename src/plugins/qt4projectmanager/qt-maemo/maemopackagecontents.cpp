@@ -32,8 +32,10 @@
 #include "maemopackagecreationstep.h"
 
 namespace {
-    const char * const MODIFIED_KEY =
-        "Qt4ProjectManager.BuildStep.MaemoPackage.Modified";
+    const char * const MODIFIED_KEY
+        = "Qt4ProjectManager.BuildStep.MaemoPackage.Modified";
+    const char * const REMOTE_EXE_KEY
+        = "Qt4ProjectManager.BuildStep.MaemoPackage.RemoteExe";
     const char * const LOCAL_FILES_KEY
         = "Qt4ProjectManager.BuildStep.MaemoPackage.LocalFiles";
     const char * const REMOTE_FILES_KEY
@@ -55,7 +57,7 @@ MaemoPackageContents::Deployable MaemoPackageContents::deployableAt(int row) con
     Q_ASSERT(row >= 0 && row < rowCount());
     return row == 0
         ? Deployable(m_packageStep->localExecutableFilePath(),
-                     m_packageStep->remoteExecutableFilePath())
+                     remoteExecutableFilePath())
         : m_deployables.at(row - 1);
 }
 
@@ -112,6 +114,7 @@ QVariantMap MaemoPackageContents::toMap() const
 {
     QVariantMap map;
     map.insert(MODIFIED_KEY, m_modified);
+    map.insert(REMOTE_EXE_KEY, remoteExecutableFilePath());
     QStringList localFiles;
     QStringList remoteFiles;
     foreach (const Deployable &p, m_deployables) {
@@ -126,6 +129,7 @@ QVariantMap MaemoPackageContents::toMap() const
 void MaemoPackageContents::fromMap(const QVariantMap &map)
 {
     m_modified = map.value(MODIFIED_KEY).toBool();
+    m_remoteExecutableFilePath = map.value(REMOTE_EXE_KEY).toString();
     const QStringList localFiles = map.value(LOCAL_FILES_KEY).toStringList();
     const QStringList remoteFiles = map.value(REMOTE_FILES_KEY).toStringList();
     if (localFiles.count() != remoteFiles.count())
@@ -133,6 +137,15 @@ void MaemoPackageContents::fromMap(const QVariantMap &map)
     const int count = qMin(localFiles.count(), remoteFiles.count());
     for (int i = 0; i < count; ++i)
         m_deployables << Deployable(localFiles.at(i), remoteFiles.at(i));
+}
+
+QString MaemoPackageContents::remoteExecutableFilePath() const
+{
+    if (m_remoteExecutableFilePath.isEmpty()) {
+        m_remoteExecutableFilePath = QLatin1String("/usr/local/bin/")
+                                     + m_packageStep->executableFileName();
+    }
+    return m_remoteExecutableFilePath;
 }
 
 } // namespace Qt4ProjectManager

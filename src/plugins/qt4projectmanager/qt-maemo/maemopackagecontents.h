@@ -71,6 +71,7 @@ public:
     void removeDeployableAt(int row);
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
+    QString remoteExecutableFilePath() const;
 
 private:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -86,6 +87,7 @@ private:
     const MaemoPackageCreationStep * const m_packageStep;
     QList<Deployable> m_deployables;
     bool m_modified;
+    mutable QString m_remoteExecutableFilePath;
 };
 
 } // namespace Qt4ProjectManager
