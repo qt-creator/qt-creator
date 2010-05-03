@@ -3838,8 +3838,8 @@
 			<itemData name="Normal Text"  defStyleNum="dsNormal"/>
 			<itemData name="Keyword"      defStyleNum="dsKeyword"/>
 			<itemData name="Function"     defStyleNum="dsFunction"/>
-			<itemData name="StaticImports"      defStyleNum="dsKeyword" color="#800080" selColor="#FFFFFF" bold="0" italic="0"/>
-			<itemData name="Imports"      defStyleNum="dsKeyword" color="#808000" selColor="#FFFFFF" bold="0" italic="0"/>
+			<itemData name="StaticImports"      defStyleNum="dsKeyword" color="#B00080" selColor="#FFFFFF" bold="0" italic="0"/>
+			<itemData name="Imports"      defStyleNum="dsKeyword" color="#B00080" selColor="#FFFFFF" bold="0" italic="0"/>
 			<itemData name="Data Type"    defStyleNum="dsDataType"/>
 			<itemData name="Decimal"      defStyleNum="dsDecVal"/>
 			<itemData name="Octal"        defStyleNum="dsBaseN"/>

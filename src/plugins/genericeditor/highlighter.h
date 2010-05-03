@@ -30,6 +30,7 @@
 #ifndef HIGHLIGHTER_H
 #define HIGHLIGHTER_H
 
+#include <QtCore/QString>
 #include <QtCore/QVector>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
@@ -38,6 +39,10 @@
 #include <QtGui/QTextBlockUserData>
 
 #include <texteditor/basetextdocumentlayout.h>
+
+namespace TextEditor {
+class FontSettings;
+}
 
 namespace GenericEditor {
 namespace Internal {
@@ -52,6 +57,8 @@ class Highlighter : public QSyntaxHighlighter
 public:
     Highlighter(const QSharedPointer<Context> &defaultContext, QTextDocument *parent = 0);
     virtual ~Highlighter();
+
+    void configureFormats(const TextEditor::FontSettings & fs);
 
 protected:
     virtual void highlightBlock(const QString &text);
@@ -80,8 +87,9 @@ private:
 
     void applyFormat(int offset,
                      int count,
-                     const QString &itemData,
+                     const QString &itemDataName,
                      const QSharedPointer<HighlightDefinition> &definition);
+    void applyVisualWhitespaceFormat(const QString &text);
 
     QString currentContextSequence() const;
     void mapContextSequence(const QString &contextSequence);
@@ -136,6 +144,9 @@ private:
 
     // Captures used in dynamic rules.
     QStringList m_currentCaptures;
+
+    QTextCharFormat m_visualWhitespaceFormat;
+    QHash<QString, QTextCharFormat> m_genericFormats;
 };
 
 } // namespace Internal

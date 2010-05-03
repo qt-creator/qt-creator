@@ -34,6 +34,7 @@
 #include <QtCore/QString>
 #include <QtCore/QLatin1String>
 #include <QtCore/QChar>
+#include <QtGui/QFont>
 
 namespace GenericEditor {
 namespace Internal {
@@ -54,6 +55,14 @@ inline Qt::CaseSensitivity toCaseSensitivity(const bool sensitive)
     if (sensitive)
         return Qt::CaseSensitive;
     return Qt::CaseInsensitive;
+}
+
+inline QFont::Weight toFontWeight(const bool bold)
+{
+    if (bold)
+        return QFont::Bold;
+    else
+        return QFont::Normal;
 }
 
 inline bool isOctalDigit(const QChar &c)

@@ -53,6 +53,9 @@ public:
 protected:
     virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
 
+public slots:
+    virtual void setFontSettings(const TextEditor::FontSettings &);
+
 private slots:
     void configure();
 

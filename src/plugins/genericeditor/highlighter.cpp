@@ -34,8 +34,13 @@
 #include "itemdata.h"
 #include "highlighterexception.h"
 #include "progressdata.h"
+#include "reuse.h"
 
-#include <QtCore/QStringList>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/fontsettings.h>
+
+#include <QtCore/QLatin1String>
+#include <QtCore/QLatin1Char>
 
 using namespace GenericEditor;
 using namespace Internal;
@@ -91,11 +96,13 @@ void Highlighter::highlightBlock(const QString &text)
 
         handleContextChange(m_currentContext->lineEndContext(), m_currentContext->definition(),
                             false);
-
-        m_contexts.clear();
     } catch (const HighlighterException &) {
         m_isBroken = true;
+        return;
     }
+
+    m_contexts.clear();
+    applyVisualWhitespaceFormat(text);
 }
 
 void Highlighter::setupDataForBlock(const QString &text)
@@ -283,18 +290,53 @@ void Highlighter::handleContextChange(const QString &contextName,
 
 void Highlighter::applyFormat(int offset,
                               int count,
-                              const QString &itemData,
+                              const QString &itemDataName,
                               const QSharedPointer<HighlightDefinition> &definition)
 {
     if (count == 0)
         return;
 
+    QSharedPointer<ItemData> itemData;
     try {
-        setFormat(offset, count, definition->itemData(itemData)->format());
+        itemData = definition->itemData(itemDataName);
     } catch (const HighlighterException &) {
-        // This case does not break the highlighter. In fact, currently there are broken xml
-        // definition files which Kate can cope with. For instance, the Printf context in java.xml
-        // points to an inexistent Printf item data.
+        // Although the formatting is skipped this case does not break the highlighter. In fact,
+        // currently there are broken xml definition files which Kate can cope with. For instance,
+        // the Printf context in java.xml points to an inexistent Printf item data.
+        return;
+    }
+
+    QTextCharFormat format = m_genericFormats.value(itemData->style());
+
+    // Apply personalizations (if specified) for this particular item data from the current
+    // definition only.
+    if (itemData->color().isValid())
+        format.setForeground(itemData->color());
+    if (itemData->isItalicSpecified())
+        format.setFontItalic(itemData->isItalic());
+    if (itemData->isBoldSpecified())
+        format.setFontWeight(toFontWeight(itemData->isBold()));
+    if (itemData->isUnderlinedSpecified())
+        format.setFontUnderline(itemData->isUnderlined());
+    if (itemData->isStrikedOutSpecified())
+        format.setFontStrikeOut(itemData->isStrikedOut());
+
+    setFormat(offset, count, format);
+}
+
+void Highlighter::applyVisualWhitespaceFormat(const QString &text)
+{
+    int offset = 0;
+    const int length = text.length();
+    while (offset < length) {
+        if (text.at(offset).isSpace()) {
+            int start = offset++;
+            while (offset < length && text.at(offset).isSpace())
+                ++offset;
+            setFormat(start, offset - start, m_visualWhitespaceFormat);
+        } else {
+            ++offset;
+        }
     }
 }
 
@@ -383,4 +425,43 @@ void Highlighter::setCurrentContext()
     if (m_contexts.isEmpty())
         throw HighlighterException();
     m_currentContext = m_contexts.back();
+}
+
+void Highlighter::configureFormats(const TextEditor::FontSettings & fs)
+{
+    m_visualWhitespaceFormat = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE));
+
+    m_genericFormats[ItemData::kDsNormal] = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_TEXT));
+    m_genericFormats[ItemData::kDsKeyword] = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_KEYWORD));
+    m_genericFormats[ItemData::kDsDataType] = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_TYPE));
+    m_genericFormats[ItemData::kDsDecVal] = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_NUMBER));
+    m_genericFormats[ItemData::kDsBaseN] = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_NUMBER));
+    m_genericFormats[ItemData::kDsFloat] = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_NUMBER));
+    m_genericFormats[ItemData::kDsChar] = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_STRING));
+    m_genericFormats[ItemData::kDsString] = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_STRING));
+    m_genericFormats[ItemData::kDsComment] = fs.toTextCharFormat(
+            QLatin1String(TextEditor::Constants::C_COMMENT));
+
+    // Currently Creator does not have corresponding formats for the following items. We can
+    // implement them... Just for now I will leave hardcoded colors.
+    QTextCharFormat format;
+    format.setForeground(Qt::blue);
+    m_genericFormats[ItemData::kDsOthers] = format;
+    format.setForeground(Qt::red);
+    m_genericFormats[ItemData::kDsAlert] = format;
+    format.setForeground(Qt::darkBlue);
+    m_genericFormats[ItemData::kDsFunction] = format;
+    format.setForeground(Qt::darkGray);
+    m_genericFormats[ItemData::kDsRegionMarker] = format;
+    format.setForeground(Qt::darkRed);
+    m_genericFormats[ItemData::kDsError] = format;
 }

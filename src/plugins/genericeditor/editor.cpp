@@ -39,6 +39,8 @@
 #include <coreplugin/mimedatabase.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/basetextdocument.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/fontsettings.h>
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFileInfo>
@@ -64,6 +66,18 @@ TextEditor::BaseTextEditorEditable *Editor::createEditableInterface()
     return editable;
 }
 
+void Editor::setFontSettings(const TextEditor::FontSettings & fs)
+{
+    TextEditor::BaseTextEditor::setFontSettings(fs);
+
+    Highlighter *highlighter = static_cast<Highlighter *>(baseTextDocument()->syntaxHighlighter());
+    if (!highlighter)
+        return;
+
+    highlighter->configureFormats(fs);
+    highlighter->rehighlight();
+}
+
 void Editor::configure()
 {
     const QString &mimeType = Core::ICore::instance()->mimeDatabase()->findByFile(
@@ -76,7 +90,10 @@ void Editor::configure()
         QSharedPointer<HighlightDefinition> definition =
                 GenericEditorPlugin::instance()->definition(definitionId);
 
-        baseTextDocument()->setSyntaxHighlighter(new Highlighter(definition->initialContext()));
+        Highlighter *highlighter = new Highlighter(definition->initialContext());
+        highlighter->configureFormats(TextEditor::TextEditorSettings::instance()->fontSettings());
+
+        baseTextDocument()->setSyntaxHighlighter(highlighter);
 
         m_commentDefinition.setAfterWhiteSpaces(definition->isCommentAfterWhiteSpaces());
         m_commentDefinition.setSingleLine(definition->singleLineComment());

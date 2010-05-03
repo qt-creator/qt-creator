@@ -275,7 +275,6 @@ void HighlightDefinitionHandler::itemDataElementStarted(const QXmlAttributes &at
     itemData->setBold(atts.value(kBold));
     itemData->setUnderlined(atts.value(kUnderline));
     itemData->setStrikedOut(atts.value(kStrikeout));
-    itemData->configureFormat();
 }
 
 void HighlightDefinitionHandler::commentElementStarted(const QXmlAttributes &atts) const
@@ -434,8 +433,8 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
         const QString &sourceName = instruction.sourceContext();
         if (sourceName.startsWith(kDoubleHash)) {
             // This refers to an external definition. The rules included are the ones from its
-            // initial context. Others contexts and rules from the external definition will
-            // transparently to the highlighter. This because contexts and rules know the
+            // initial context. Others contexts and rules from the external definition will work
+            // transparently to the highlighter. This is because contexts and rules know the
             // definition they are from.
             QString externalName = QString::fromRawData(sourceName.unicode() + 2,
                                                         sourceName.length() - 2);

@@ -38,6 +38,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+#include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>
@@ -142,6 +143,7 @@ bool GenericEditorPlugin::initialize(const QStringList &arguments, QString *erro
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(
         GenericEditor::Constants::GENERIC_EDITOR,
+        TextEditor::TextEditorActionHandler::Format |
         TextEditor::TextEditorActionHandler::UnCommentSelection);
     m_actionHandler->initializeActions();
 
@@ -154,6 +156,8 @@ void GenericEditorPlugin::extensionsInitialized()
 void GenericEditorPlugin::initializeEditor(Editor *editor)
 {
     m_actionHandler->setupActions(editor);
+
+    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
 }
 
 QString GenericEditorPlugin::definitionIdByName(const QString &name) const
