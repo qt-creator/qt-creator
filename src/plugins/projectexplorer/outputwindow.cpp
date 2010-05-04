@@ -32,6 +32,7 @@
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "runconfiguration.h"
+#include "session.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -114,6 +115,9 @@ OutputPane::OutputPane()
 
     connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
             this, SLOT(coreAboutToClose()));
+
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance()->session(), SIGNAL(aboutToUnloadSession()),
+            this, SLOT(aboutToUnloadSession()));
 }
 
 void OutputPane::coreAboutToClose()
@@ -123,6 +127,16 @@ void OutputPane::coreAboutToClose()
         if (rc->isRunning())
             rc->stop();
         closeTab(0);
+    }
+}
+
+void OutputPane::aboutToUnloadSession()
+{
+    int i = 0;
+    while (i < m_tabWidget->count()) {
+        bool closed = closeTab(i);
+        if (!closed) // skip to next one
+            ++i;
     }
 }
 
@@ -259,7 +273,7 @@ void OutputPane::stopRunControl()
     rc->stop();
 }
 
-void OutputPane::closeTab(int index)
+bool OutputPane::closeTab(int index)
 {
     OutputWindow *ow = static_cast<OutputWindow *>(m_tabWidget->widget(index));
     RunControl *rc = m_outputWindows.key(ow);
@@ -267,15 +281,16 @@ void OutputPane::closeTab(int index)
     if (rc->isRunning()) {
         QMessageBox messageBox(QMessageBox::Warning,
                                tr("Unable to close"),
-                               tr("The application is still running."),
+                               tr("%1 is still running.").arg(rc->displayName()),
                                QMessageBox::Cancel | QMessageBox::Yes,
                                ow->window());
         messageBox.setInformativeText(tr("Force it to quit?"));
         messageBox.setDefaultButton(QMessageBox::Yes);
         messageBox.button(QMessageBox::Yes)->setText(tr("Force Quit"));
+        messageBox.button(QMessageBox::Cancel)->setText(tr("Keep Running"));
 
         if (messageBox.exec() != QMessageBox::Yes)
-            return;
+            return false;
 
         rc->stop();
     }
@@ -283,6 +298,7 @@ void OutputPane::closeTab(int index)
     m_tabWidget->removeTab(index);
     delete ow;
     delete rc;
+    return true;
 }
 
 void OutputPane::projectRemoved()

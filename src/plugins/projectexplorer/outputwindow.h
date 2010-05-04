@@ -102,10 +102,12 @@ public slots:
 private slots:
     void reRunRunControl();
     void stopRunControl();
-    void closeTab(int index);
+    bool closeTab(int index);
     void tabChanged(int);
     void runControlStarted();
     void runControlFinished();
+
+    void aboutToUnloadSession();
 
 private:
     RunControl *runControlForTab(int index) const;
