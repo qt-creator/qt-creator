@@ -342,6 +342,11 @@ private:
     QString m_text;
 };
 
+QDebug &operator<<(QDebug &ts, const Input &input)
+{
+    return ts << input.text() << input.key();
+}
+
 typedef QVector<Input> Inputs;
 
 // Mappings for a specific mode.
@@ -527,6 +532,7 @@ public:
     void notImplementedYet();
     void updateMiniBuffer();
     void updateSelection();
+    void updateCursor();
     QWidget *editor() const;
     QChar characterAtCursor() const
         { return m_tc.document()->characterAt(m_tc.position()); }
@@ -883,14 +889,12 @@ void FakeVimHandler::Private::installEventFilter()
 void FakeVimHandler::Private::setupWidget()
 {
     enterCommandMode();
-    //EDITOR(setCursorWidth(QFontMetrics(ed->font()).width(QChar('x')));
     if (m_textedit) {
         m_textedit->setLineWrapMode(QTextEdit::NoWrap);
     } else if (m_plaintextedit) {
         m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
     m_wasReadOnly = EDITOR(isReadOnly());
-    //EDITOR(setReadOnly(true));
 
     updateEditor();
 
@@ -909,6 +913,7 @@ void FakeVimHandler::Private::setupWidget()
     }
 
     updateMiniBuffer();
+    updateCursor();
 }
 
 void FakeVimHandler::Private::updateEditor()
@@ -924,9 +929,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
     //showBlackMessage(QString());
     //updateMiniBuffer();
     //EDITOR(removeEventFilter(q));
-    EDITOR(setReadOnly(m_wasReadOnly));
-    EDITOR(setCursorWidth(m_cursorWidth));
-    EDITOR(setOverwriteMode(false));
+    //EDITOR(setReadOnly(m_wasReadOnly));
     const int charWidth = QFontMetrics(EDITOR(font())).width(QChar(' '));
     EDITOR(setTabStopWidth(charWidth * tabSize));
 
@@ -945,6 +948,11 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
     }
 
     m_visualMode = NoVisualMode;
+    // Force "ordinary" cursor.
+    m_mode = InsertMode;
+    m_submode = NoSubMode;
+    m_subsubmode = NoSubSubMode;
+    updateCursor();
     updateSelection();
 }
 
@@ -1088,6 +1096,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_commandHistory.append(QString());
         m_commandHistoryIndex = m_commandHistory.size() - 1;
         updateMiniBuffer();
+        updateCursor();
         return;
     }
 
@@ -1215,6 +1224,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     }
 
     resetCommandMode();
+    updateCursor();
 }
 
 void FakeVimHandler::Private::resetCommandMode()
@@ -2021,9 +2031,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         // FIXME: right now we repeat the insertion count() times,
         // but not the deletion
         m_lastInsertion.clear();
-        enterInsertMode();
         m_submode = ReplaceSubMode;
         setDotCommand(QString(QLatin1Char('R')));
+        enterInsertMode();
         updateMiniBuffer();
     } else if (input.isControl('r')) {
         redo();
@@ -2283,15 +2293,11 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         enterCommandMode();
         m_submode = NoSubMode;
     } else if (input.isKey(Key_Insert)) {
-        if (m_submode == ReplaceSubMode) {
-            EDITOR(setCursorWidth(m_cursorWidth));
-            EDITOR(setOverwriteMode(false));
+        if (m_submode == ReplaceSubMode)
             m_submode = NoSubMode;
-        } else {
-            EDITOR(setCursorWidth(m_cursorWidth));
-            EDITOR(setOverwriteMode(true));
+        else
             m_submode = ReplaceSubMode;
-        }
+        updateCursor();
     } else if (input.isKey(Key_Left)) {
         moveLeft(count());
         setTargetColumn();
@@ -4043,30 +4049,42 @@ void FakeVimHandler::Private::redo()
         m_tc.setPosition(m_undoCursorPosition[rev]);
 }
 
+void FakeVimHandler::Private::updateCursor()
+{
+    if (m_mode == ExMode) {
+        EDITOR(setCursorWidth(0));
+        EDITOR(setOverwriteMode(false));
+    } else if (m_mode == InsertMode || m_submode == ReplaceSubMode) {
+        EDITOR(setCursorWidth(m_cursorWidth));
+        EDITOR(setOverwriteMode(false));
+    } else {
+        // "ordinary" CommandMode
+        EDITOR(setCursorWidth(m_cursorWidth));
+        EDITOR(setOverwriteMode(true));
+    }
+}
+
 void FakeVimHandler::Private::enterInsertMode()
 {
-    EDITOR(setCursorWidth(m_cursorWidth));
-    EDITOR(setOverwriteMode(false));
     //leaveVisualMode();
     m_mode = InsertMode;
     m_lastInsertion.clear();
     m_beginEditBlock = true;
+    updateCursor();
 }
 
 void FakeVimHandler::Private::enterCommandMode()
 {
-    EDITOR(setCursorWidth(m_cursorWidth));
-    EDITOR(setOverwriteMode(true));
     if (atEndOfLine())
         moveLeft();
     m_mode = CommandMode;
+    updateCursor();
 }
 
 void FakeVimHandler::Private::enterExMode()
 {
-    EDITOR(setCursorWidth(0));
-    EDITOR(setOverwriteMode(false));
     m_mode = ExMode;
+    updateCursor();
 }
 
 void FakeVimHandler::Private::recordJump()
