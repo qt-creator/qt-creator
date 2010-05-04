@@ -148,7 +148,7 @@ QVariantMap MaemoPackageContents::toMap() const
 {
     QVariantMap map;
     map.insert(MODIFIED_KEY, m_modified);
-    map.insert(REMOTE_EXE_KEY, remoteExecutableFilePath());
+    map.insert(REMOTE_EXE_KEY, m_remoteExecutableFilePath);
     QStringList localFiles;
     QStringList remoteFiles;
     foreach (const Deployable &p, m_deployables) {
