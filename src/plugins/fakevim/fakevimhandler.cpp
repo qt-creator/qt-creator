@@ -3038,7 +3038,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const QString &line) // :!
     QString command = cmd.mid(1).trimmed();
     QString text = selectedText();
     QProcess proc;
-    proc.start(cmd.mid(1));
+    proc.start(command);
     proc.waitForStarted();
     proc.write(text.toUtf8());
     proc.closeWriteChannel();
