@@ -30,6 +30,7 @@
 #include "branchmodel.h"
 #include "gitclient.h"
 
+#include <QtGui/QFont>
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
 #include <QtCore/QTimer>
@@ -229,14 +230,16 @@ QVariant LocalBranchModel::data(const QModelIndex &index, int role) const
             return m_typeHere;
         case Qt::ToolTipRole:
             return m_typeHereToolTip;
-        case Qt::CheckStateRole:
-            return QVariant(false);
         }
         return QVariant();
     }
 
-    if (role == Qt::CheckStateRole)
-        return index.row() == m_currentBranch ? Qt::Checked : Qt::Unchecked;
+    if (role == Qt::FontRole && index.row() == m_currentBranch) {
+        QFont font = RemoteBranchModel::data(index, role).value<QFont>();
+        font.setBold(true);
+        font.setUnderline(true);
+        return font;
+    }
     return RemoteBranchModel::data(index, role);
 }
 
