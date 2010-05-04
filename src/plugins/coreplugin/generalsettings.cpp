@@ -107,7 +107,7 @@ void GeneralSettings::fillLanguageBox() const
 
     Q_FOREACH(const QString &languageFile, languageFiles)
     {
-        int start = languageFile.lastIndexOf(QLatin1Char('_'))+1;
+        int start = languageFile.indexOf(QLatin1Char('_'))+1;
         int end = languageFile.lastIndexOf(QLatin1Char('.'));
         const QString locale = languageFile.mid(start, end-start);
         // no need to show a language that creator will not load anyway
