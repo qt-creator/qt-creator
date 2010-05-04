@@ -90,7 +90,7 @@ private:
     void setObject(const QDeclarativeDebugObjectReference &object);
     bool isWatched(QTreeWidgetItem *item);
     void setWatched(const QString &property, bool watched);
-    void setPropertyValue(PropertiesViewItem *item, const QVariant &value, bool makeGray);
+    void setPropertyValue(PropertiesViewItem *item, const QVariant &value, bool isDisabled);
 
     QDeclarativeEngineDebug *m_client;
     QDeclarativeDebugObjectQuery *m_query;

@@ -43,24 +43,26 @@ void ObjectTreeItem::setHasValidDebugId(bool value)
 // *************************************************************************
 //  PropertiesViewItem
 // *************************************************************************
-PropertiesViewItem::PropertiesViewItem(QTreeWidget *widget, Type type)
-    : QTreeWidgetItem(widget), type(type)
+PropertiesViewItem::PropertiesViewItem(QTreeWidget *widget, int type)
+    : QTreeWidgetItem(widget, type), m_disabled(false)
 {
+
 }
 
-PropertiesViewItem::PropertiesViewItem(QTreeWidgetItem *parent, Type type)
-    : QTreeWidgetItem(parent), type(type)
+PropertiesViewItem::PropertiesViewItem(QTreeWidgetItem *parent, int type)
+    : QTreeWidgetItem(parent, type), m_disabled(false)
 {
 }
 
 QVariant PropertiesViewItem::data (int column, int role) const
 {
-    if (column == 1) {
-        if (role == Qt::ForegroundRole) {
-            bool canEdit = data(0, CanEditRole).toBool();
-            return canEdit ? qApp->palette().color(QPalette::Foreground) : qApp->palette().color(QPalette::Disabled, QPalette::Foreground);
-        }
+    if (role == Qt::ForegroundRole) {
+        bool makeDisabledColor = m_disabled;
+        if (column == 1 && !data(0, CanEditRole).toBool())
+            makeDisabledColor = true;
+        return makeDisabledColor ? qApp->palette().color(QPalette::Disabled, QPalette::Foreground) : qApp->palette().color(QPalette::Foreground);
     }
+
 
     return QTreeWidgetItem::data(column, role);
 }
@@ -79,7 +81,15 @@ QString PropertiesViewItem::objectIdString() const
 {
     return data(0, ObjectIdStringRole).toString();
 }
+void PropertiesViewItem::setWatchingDisabled(bool disabled)
+{
+    m_disabled = disabled;
+}
 
+bool PropertiesViewItem::isWatchingDisabled() const
+{
+    return m_disabled;
+}
 
 } // Internal
 } // Qml

@@ -28,25 +28,27 @@ class PropertiesViewItem : public QTreeWidgetItem
 {
 public:
     enum Type {
-        BindingType,
-        OtherType,
-        ClassType,
+        BindingType = QTreeWidgetItem::UserType,
+        OtherType = QTreeWidgetItem::UserType + 1,
+        ClassType = QTreeWidgetItem::UserType + 2
     };
     enum DataRoles {
-        CanEditRole = Qt::UserRole + 1,
-        ObjectIdStringRole = Qt::UserRole + 50,
-        ClassDepthRole = Qt::UserRole + 51
+        CanEditRole = Qt::UserRole,
+        ObjectIdStringRole = Qt::UserRole + 1,
+        ClassDepthRole = Qt::UserRole + 2
     };
 
-    PropertiesViewItem(QTreeWidget *widget, Type type = OtherType);
-    PropertiesViewItem(QTreeWidgetItem *parent, Type type = OtherType);
+    PropertiesViewItem(QTreeWidget *widget, int type = OtherType);
+    PropertiesViewItem(QTreeWidgetItem *parent, int type = OtherType);
     QVariant data (int column, int role) const;
     void setData (int column, int role, const QVariant & value);
-
+    void setWatchingDisabled(bool disabled);
+    bool isWatchingDisabled() const;
     QDeclarativeDebugPropertyReference property;
-    Type type;
+
 private:
     QString objectIdString() const;
+    bool m_disabled;
 
 };
 

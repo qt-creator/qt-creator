@@ -187,11 +187,13 @@ void ObjectPropertiesView::queryFinished()
     setObject(obj);
 }
 
-void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVariant &value, bool makeGray)
+void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVariant &value, bool isDisabled)
 {
+    item->setWatchingDisabled(isDisabled);
+
     if (value.type() == QVariant::List || value.type() == QVariant::StringList) {
         PropertiesViewItem *bindingItem = static_cast<PropertiesViewItem*>(item->takeChild(item->childCount() - 1));
-        if (bindingItem && bindingItem->type != PropertiesViewItem::BindingType) {
+        if (bindingItem && bindingItem->type() != PropertiesViewItem::BindingType) {
             delete bindingItem;
             bindingItem = 0;
         }
@@ -205,7 +207,7 @@ void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVar
         PropertiesViewItem *child;
         for (int i=0; i<variants.count(); ++i) {
             child = new PropertiesViewItem(item);
-            setPropertyValue(child, variants[i], makeGray);
+            setPropertyValue(child, variants[i], isDisabled);
         }
 
         if (bindingItem)
@@ -217,10 +219,6 @@ void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVar
         item->setExpanded(true);
     }
 
-    if (makeGray) {
-        for (int i=0; i<m_tree->columnCount(); ++i)
-            item->setForeground(i, Qt::gray);
-    }
 }
 
 QString ObjectPropertiesView::propertyBaseClass(const QDeclarativeDebugObjectReference &object, const QDeclarativeDebugPropertyReference &property, int &depth)
@@ -483,19 +481,28 @@ void ObjectPropertiesView::contextMenuEvent(QContextMenuEvent *event)
 {
     m_clickedItem = m_tree->itemAt(QPoint(event->pos().x(),
                                           event->pos().y() - m_tree->header()->height()));
+
     if (!m_clickedItem)
         return;
 
     PropertiesViewItem *propItem = static_cast<PropertiesViewItem *>(m_clickedItem);
 
+    bool isWatchableItem = propItem->type() != PropertiesViewItem::ClassType &&
+                    propItem->type() != PropertiesViewItem::BindingType;
+
     QMenu menu;
-    if (!isWatched(m_clickedItem)) {
-        m_addWatchAction->setText(tr("Watch expression '%1'").arg(propItem->property.name()));
-        menu.addAction(m_addWatchAction);
-    } else {
-        menu.addAction(m_removeWatchAction);
+    if (isWatchableItem) {
+        if (!isWatched(m_clickedItem)) {
+            m_addWatchAction->setText(tr("Watch expression '%1'").arg(propItem->property.name()));
+            m_addWatchAction->setDisabled(propItem->isWatchingDisabled());
+            menu.addAction(m_addWatchAction);
+        } else {
+            menu.addAction(m_removeWatchAction);
+            m_addWatchAction->setDisabled(propItem->isWatchingDisabled());
+        }
     }
     menu.addSeparator();
+
 
     if (m_showUnwatchableProperties)
         m_toggleUnwatchablePropertiesAction->setText(tr("Hide unwatchable properties"));
