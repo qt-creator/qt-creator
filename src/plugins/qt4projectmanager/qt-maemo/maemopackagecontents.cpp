@@ -30,6 +30,12 @@
 #include "maemopackagecontents.h"
 
 #include "maemopackagecreationstep.h"
+#include "maemotoolchain.h"
+
+#include <qt4projectmanager/qt4buildconfiguration.h>
+
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 
 namespace {
     const char * const MODIFIED_KEY
@@ -63,7 +69,7 @@ MaemoPackageContents::Deployable MaemoPackageContents::deployableAt(int row) con
 
 bool MaemoPackageContents::addDeployable(const Deployable &deployable)
 {
-    if (m_deployables.contains(deployable))
+    if (m_deployables.contains(deployable) || deployableAt(0) == deployable)
         return false;
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
@@ -77,7 +83,7 @@ void MaemoPackageContents::removeDeployableAt(int row)
 {
     Q_ASSERT(row > 0 && row < rowCount());
     beginRemoveRows(QModelIndex(), row, row);
-    m_deployables.removeAt(row);
+    m_deployables.removeAt(row - 1);
     endRemoveRows();
     m_modified = true;
 }
@@ -94,12 +100,40 @@ int MaemoPackageContents::columnCount(const QModelIndex &parent) const
 
 QVariant MaemoPackageContents::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || role != Qt::DisplayRole
-        || index.row() >= rowCount())
+    if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
 
     const Deployable &d = deployableAt(index.row());
-    return index.column() == 0 ? d.localFilePath : d.remoteFilePath;
+    if (index.column() == 0 && role == Qt::DisplayRole)
+        return d.localFilePath;
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
+        return d.remoteFilePath;
+    return QVariant();
+}
+
+Qt::ItemFlags MaemoPackageContents::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags parentFlags = QAbstractTableModel::flags(index);
+    if (index.column() == 1)
+        return parentFlags | Qt::ItemIsEditable;
+    return parentFlags;
+}
+
+bool MaemoPackageContents::setData(const QModelIndex &index,
+                                   const QVariant &value, int role)
+{
+    if (!index.isValid() || index.row() >= rowCount() || index.column() != 1
+        || role != Qt::EditRole)
+        return false;
+
+    const QString &remoteFilePath = value.toString();
+    if (index.row() == 0)
+        m_remoteExecutableFilePath = remoteFilePath;
+    else
+        m_deployables[index.row() - 1].remoteFilePath = remoteFilePath;
+    m_modified = true;
+    emit dataChanged(index, index);
+    return true;
 }
 
 QVariant MaemoPackageContents::headerData(int section,

@@ -40,6 +40,12 @@
          <verstretch>1</verstretch>
         </sizepolicy>
        </property>
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>200</height>
+        </size>
+       </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::SingleSelection</enum>
        </property>

@@ -79,9 +79,9 @@ private:
                           int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
-
-    // TODO: setData
-
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual bool setData(const QModelIndex &index, const QVariant &value,
+                         int role = Qt::EditRole);
 
 private:
     const MaemoPackageCreationStep * const m_packageStep;
