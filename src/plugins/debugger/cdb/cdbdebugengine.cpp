@@ -1183,7 +1183,7 @@ void CdbDebugEngine::loadAllSymbols()
         qDebug() << Q_FUNC_INFO;
 }
 
-void> CdbDebugEngine::requestModuleSymbols(const QString &moduleName)
+void CdbDebugEngine::requestModuleSymbols(const QString &moduleName)
 {
     QList<Symbol> rc;
     QString errorMessage;
