@@ -35,6 +35,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
 #include <QtCore/QRegExp>
 #include <QtGui/QGridLayout>
@@ -87,7 +88,7 @@ QStringList CurrentProjectFind::files()
     if (!filterRegs.isEmpty()) {
         foreach (const QString &file, project->files(Project::AllFiles)) {
             foreach (const QRegExp &reg, filterRegs) {
-                if (reg.exactMatch(file)) {
+                if (reg.exactMatch(file) || reg.exactMatch(QFileInfo(file).fileName())) {
                     files.append(file);
                     break;
                 }
