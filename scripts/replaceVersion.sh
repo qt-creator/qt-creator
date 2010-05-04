@@ -101,6 +101,16 @@ sed \
     "${QDOCCONF}" > "${TMPFILE}"
 mv -f "${TMPFILE}" "${QDOCCONF}"
 
+## Patch qt-html-templates.qdocconf
+TMPFILE=`mktemp versionPatch.XXXXXX`
+QDOCCONF="${SCRIPT_DIR}/doc/qt-html-templates.qdocconf"
+echo "Patching \`${QDOCCONF}'"
+sed \
+        -e "s/"${OLD_DOT_THREE}"/"${NEW_DOT_THREE}"/" \
+        -e "s/"${OLD_THREE}"/"${NEW_THREE}"/" \
+    "${QDOCCONF}" > "${TMPFILE}"
+mv -f "${TMPFILE}" "${QDOCCONF}"
+
 
 ## Patch qtcreator.qdoc
 TMPFILE=`mktemp versionPatch.XXXXXX`
