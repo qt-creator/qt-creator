@@ -63,11 +63,19 @@
                 \o \l{Setting Up a Generic Project}
                 \o \l{Setting Up Development Environment for Maemo}
                 \o \l{Setting Up Development Environment for Symbian}
-                \o \l{Building and Running Applications}
                 \o \l{Managing Sessions}
+            \endlist
+       \o \l{Building and Running Applications}
+            \list
+                \o \l{Building for Multiple Targets}
+                \o \l{Specifying Build Settings}
+                \o \l{Specifying Run Settings}
+                \o \l{Specifying Editor Settings}
+                \o \l{Specifying Dependencies}
             \endlist
        \o \l{Developing Qt Quick Applications}
        \o \l{Optimizing Applications for Mobile Devices}
+       \o \l{Using the Maemo Emulator}
        \o \l{Debugging}
             \list
             \o \l {Debugging Qt Applications}
@@ -1640,6 +1648,22 @@
            \image qtcreator-qt4-qtversions.png
     \endlist
 
+    \section1 Adding External Libraries to a qmake Project
+
+    Through external libraries Qt Creator can support code completion and
+    syntax highlighting as if they were part of the current project or the Qt
+    library.
+
+    To add an external library:
+    \list 1
+        \o Open your project file (.pro) using the \gui Projects pane.
+        \o Follow the instructions at \l{http://doc.trolltech.com/latest/qmake-project-files.html#declaring-other-libraries}
+           {Declaring other Libraries}.
+    \endlist
+
+    Syntax completion and highlighting work once your project successfully
+    builds and links against the external library.
+
 */
 
 
@@ -1647,7 +1671,7 @@
     \contentspage index.html
     \previouspage creator-developing-symbian.html
     \page creator-building-running.html
-    \nextpage creator-project-managing-sessions.html
+    \nextpage creator-building-targets.html
 
     \title Building and Running Applications
 
@@ -1668,9 +1692,9 @@
 
     The project pane consists of the following tabs:
     \list
-       \o Targets
-       \o Editor Settings
-       \o Dependencies
+       \o \l{Building for Multiple Targets}{Targets}
+       \o \l{Specifying Editor Settings}{Editor Settings}
+       \o \l{Specifying Dependencies}{Dependencies}
     \endlist
 
     Use the \gui Build and \gui Run buttons to switch between
@@ -1680,13 +1704,22 @@
     \gui{Select a Project} option at the top to navigate between different
     project edits.
 
-    \section1 Building for Multiple Targets
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-building-running.html
+    \page creator-building-targets.html
+    \nextpage creator-build-settings.html
+
+    \title Building for Multiple Targets
 
     Different build configurations allow you to quickly switch between
     different build settings. By default, Qt Creator creates \bold debug
     and \bold release build configurations.
 
-    \section2 Building for Desktop
+    \section1 Building for Desktop
 
     \list 1
 
@@ -1696,7 +1729,7 @@
 
     \endlist
 
-    \section2 Building for Qt Simulator
+    \section1 Building for Qt Simulator
 
     You can use the Qt Simulator to test Qt applications that are intended
     for mobile devices in an environment similar to that of the device. You
@@ -1752,7 +1785,7 @@
     for the device using RVCT, select it in the \gui {Tool chain} field
     in the \gui{General} section.
 
-    \section3 Building and Running for a Device
+    \section2 Building and Running for a Device
 
     \list 1
 
@@ -1859,13 +1892,13 @@
     \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#capabilities}{Capabilities}.
 
 
-    \section3 Building and Running for Symbian Emulator
+    \section2 Building and Running for Symbian Emulator
 
     Select
     the \gui{Symbian Emulator} target as the active one, and build and run your
     project.
 
-    \section3 Troubleshooting
+    \section2 Troubleshooting
 
     If you cannot build the application, check if:
      \list
@@ -1898,8 +1931,20 @@
     mailing list archives or provide feedback to us via the methods described on the
     \l{http://qt.gitorious.org/qt-creator/pages/Home}{Qt Creator Development Wiki}.
 
+*/
 
-    \section2 Adding and Removing Build Configurations
+
+/*!
+    \contentspage index.html
+    \previouspage creator-building-targets.html
+    \page creator-build-settings.html
+    \nextpage creator-run-settings.html
+
+    \title Specifying Build Settings
+
+    You specify build settings in the \gui Projects mode.
+
+    \image qtcreator-projectpane.png
 
     To add a new build configuration, click \gui Add and select the type of
     configuration you would like to add. You can add as many build
@@ -1907,7 +1952,7 @@
 
     To delete the build configuration currently selected, click \gui Remove.
 
-    \section2 Editing Build Configurations
+    \section1 Editing Build Configurations
 
     To edit a build configuration:
     \list 1
@@ -1930,18 +1975,22 @@
         \endlist
     \endlist
 
-    \section2 Build Steps
+    \section1 Build Steps
 
     The build system of Qt Creator is built on qmake and make. In
     \gui{Build Steps} you can change the settings for qmake and make. Qt
     Creator runs the make command using the Qt version defined for the current
     build configuration.
 
-    \section2 Clean Steps
+    \image qtcreator-build-steps.png "Build steps"
+
+    \section1 Clean Steps
 
     You can use the cleaning process to remove intermediate files. This process
     might help you to fix obscure issues during the process of building a
     project.
+
+    \image qtcreator-clean-steps.png "Clean steps"
 
     You can define the cleaning steps for your builds in the \gui{Clean Steps}:
     \list
@@ -1957,7 +2006,7 @@
            .
     \endlist
 
-    \section2 Build Environment
+    \section1 Build Environment
 
     You can specify the environment you want to use for building in the
     \bold{Build Environment} section. By default, the environment in which Qt
@@ -1967,24 +2016,88 @@
     variables or add, reset and unset new variables based on your project
     requirements.
 
-    \section1 Run Settings
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-build-settings.html
+    \page creator-run-settings.html
+    \nextpage creator-editor-settings.html
+
+    \title Specifying Run Settings
 
     Qt Creator automatically creates run configurations for your project.
-    These run configurations derive their executable from the parsed .pro
+    To view and modify the settings, select \gui {Projects > Run}.
+    The settings to specify depend on the type of the project: qmake project
+    or Qt Quick project.
+
+    \section1 Specifying Run Settings for qmake Projects
+
+    The run configurations for qmake projects derive their executable from the parsed .pro
     files. You can also create custom executable run configurations where you
     can set the executable to be run.
 
     \image qtcreator-pprunsettings.png
 
+    \section1 Specifying Run Settings for Qt Quick Projects
 
-    \section1 File Encoding
+    To run Qt Quick projects in the QML viewer, specify the connection to the
+    \gui {QML Runtime} in the \gui {Run configuration} field. The settings
+    are specified automatically and, usually, you do not need to change them:
 
-    To define the default file encoding, select the desired encoding in the
+    \list
+
+        \o \gui {QML runtime} is the path to QML viewer executable.
+
+        \o \gui {QML runtime arguments} sets arguments for running the QML viewer.
+        The \c{-I <directory>} argument searches for C++ or QML plugins from
+        the project folder. For a list of available arguments, enter \c {qml --help}
+        on the command line.
+
+        \o \gui {Main QML File} is the Qt Quick project file.
+
+        \o \gui {Debugging address} is the IP address to access the QML viewer.
+
+        \o \gui {Debugging port} is the port to access the QML viewer. You can use any
+        free port in the registered port range.
+
+    \endlist
+
+    \image qmldesigner-run-settings.png "Run settings for Qt Quick projects"
+
+    To set the executable to run, select \gui {Custom Executable} in the
+    \gui {Run configuration} field.
+
+    \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-run-settings.html
+    \page creator-editor-settings.html
+    \nextpage creator-build-dependencies.html
+
+    \title Specifying Editor Settings
+
+    To define the default file encoding, select the desired encoding in \gui Projects >
     \gui{Editor Settings}. By default, the Qt Creator uses the file encoding
     used by your system.
 
+    \image qtcreator-editor-settings.png "Editor Settings view"
 
-    \section1 Dependencies
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-settings.html
+    \page creator-build-dependencies.html
+    \nextpage creator-project-managing-sessions.html
+
+    \title Specifying Dependencies
 
     If you have multiple projects loaded in your session, you can define the
     dependencies between them. Inter-project dependencies affect the build
@@ -1993,29 +2106,15 @@
     \note Inter-project dependencies are unrelated inside a qmake
     project.
 
+    \image qtcreator-build-dependencies.png "Dependencies view"
+
     To define the dependencies between projects:
     \list 1
-        \o Select the project for which you want to configure dependencies.
-        \o Check the checkboxes in the Dependencies section to select other
-           projects as dependencies.
+        \o In \gui Projects, select a project.
+        \o Click \gui Dependencies.
+        \o Select projects as dependencies.
     \endlist
 
-
-    \section1 Adding External Libraries to a qmake Project
-
-    Through external libraries Qt Creator can support code completion and
-    syntax highlighting as if they were part of the current project or the Qt
-    library.
-
-    To add an external library:
-    \list 1
-        \o Open your project file (.pro) using the \gui Projects pane.
-        \o Follow the instructions at \l{http://doc.trolltech.com/latest/qmake-project-files.html#declaring-other-libraries}
-           {Declaring other Libraries}.
-    \endlist
-
-    Syntax completion and highlighting work once your project successfully
-    builds and links against the external library.
 */
 
 
@@ -2209,7 +2308,7 @@
 
     \endlist
 
-    \section1 Buiding and Running the Application
+    \section1 Building and Running the Application
 
     \list 1
 
@@ -2915,7 +3014,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-building-running.html
+    \previouspage creator-build-dependencies.html
     \page creator-project-managing-sessions.html
     \nextpage creator-visual-editor.html
 
@@ -2948,7 +3047,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-usability.html
+    \previouspage creator-maemo-emulator.html
     \page creator-debugging.html
     \nextpage creator-debugging-cpp.html
 
@@ -3088,7 +3187,7 @@
 
     \list
 
-        \o \gui {Debugging address} is the local IP address to access the QML viewer.
+        \o \gui {Debugging address} is the IP address to access the QML viewer.
 
         \o \gui {Debugging port} is the port to access the QML viewer. You can use any
         free port in the registered port range.
@@ -3162,7 +3261,7 @@
     inspector and the QML viewer.
 
     You specify the connection in the \gui {Run Settings} in the \gui Projects mode.
-    For more information, see \l{Run Settings}.
+    For more information, see \l{Specifying Run Settings for Qt Quick Projects}.
 
     If the connection does not work, check the values of the \gui {Debugging address}
     and \gui {Debugging port} fields. Check that the default port number is not reserved
@@ -5243,7 +5342,7 @@
     \contentspage index.html
     \previouspage creator-visual-editor.html
     \page creator-usability.html
-    \nextpage creator-debugging.html
+    \nextpage creator-maemo-emulator.html
 
     \title Optimizing Applications for Mobile Devices
 
