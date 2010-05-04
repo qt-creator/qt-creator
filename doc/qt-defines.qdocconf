@@ -1,0 +1,71 @@
+defines                 = Q_QDOC \
+                          QT_.*_SUPPORT \
+                          QT_.*_LIB \
+                          QT_COMPAT \
+                          QT_KEYPAD_NAVIGATION \
+			  QT_NO_EGL \
+                          QT3_SUPPORT \
+                          Q_WS_.* \
+                          Q_OS_.* \
+                          Q_BYTE_ORDER \
+			  QT_DEPRECATED \
+                          Q_NO_USING_KEYWORD \
+                          __cplusplus
+
+versionsym              = QT_VERSION_STR
+
+codeindent              = 1
+
+# Files not referenced in any qdoc file (last four needed by qtdemo)
+# See also qhp.Qt.extraFiles
+extraimages.HTML        = qt-logo \
+                          trolltech-logo \
+			  api_examples.png \
+			  bg_ll.png \
+			  bg_ul_blank.png \
+			  bullet_gt.png \
+			  horBar.png \
+			  qt_ref_doc.png \
+			  api_lookup.png \
+			  bg_ll_blank.png \
+			  bg_ur.png \
+			  bullet_sq.png \
+			  bullet_dn.png \
+			  bullet_up.png \
+			  page_bg.png \
+			  qt_tools.png \
+			  api_topics.png \
+			  bg_lr.png \
+			  bg_ur_blank.png \
+			  content_bg.png \
+			  print.png \
+			  sep.png \
+			  bg_l.png \
+			  bg_r.png \
+			  box_bg.png \
+			  feedbackground.png \
+			  qt_guide.png \
+			  sprites-combined.png \
+			  bg_l_blank.png \
+			  bg_ul.png \
+			  breadcrumb.png \
+			  form_bg.png \
+			  qt_icon.png \
+			  header.png \
+                          qtcreator-screenshots.png \
+                          taskmenuextension-example.png \
+                          coloreditorfactoryimage.png \
+                          dynamiclayouts-example.png \
+                          stylesheet-coffee-plastique.png
+
+# This stuff is used by the new doc format.
+scriptdirs              = $SRCDIR/templates/scripts
+styledirs               = $SRCDIR/templates/style
+
+scripts.HTML		= functions.js \
+			  jquery.js
+
+styles.HTML		= style.css \
+			  style_ie6.css \
+			  style_ie7.css \
+			  style_ie8.css

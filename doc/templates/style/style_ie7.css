@@ -1,0 +1,19 @@
+.indexbox, .indexboxcont, .group {
+  min-height: 1px;
+}
+
+.sidebar .search form input#searchstring  {
+  border: 1px solid #fff;
+  height: 17px;
+}
+
+
+.indexboxcont .section {
+  zoom: 1;
+  float: left;
+}
+
+.indexboxcont .sectionlist {
+  zoom: 1;
+  float: left;
+}

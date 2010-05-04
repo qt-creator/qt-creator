@@ -1,4 +1,5 @@
 # Run qdoc from the directory that contains this file.
+include(qt-html-templates.qdocconf)
 
 project     = qtcreator
 description = "Qt Creator Manual"
@@ -6,13 +7,12 @@ description = "Qt Creator Manual"
 headerdirs = 
 sourcedirs =
 sourcedirs = $SRCDIR
-imagedirs = $SRCDIR/images
+imagedirs = $SRCDIR/images $SRCDIR/templates/images
 outputdir = $OUTDIR
 exampledirs = $SRCDIR
 indexes                 = qt.index
 
-extraimages.HTML        = qt-logo \
-                          qtcreator-screenshots
+include(qt-defines.qdocconf)
 
 sources.fileextensions  = "qtcreator.qdoc addressbook-sdk.qdoc"
 
@@ -22,13 +22,46 @@ qhp.QtCreator.file             = qtcreator.qhp
 qhp.QtCreator.namespace        = com.nokia.qtcreator.2080
 qhp.QtCreator.virtualFolder    = doc
 qhp.QtCreator.indexTitle       = Qt Creator
-qhp.QtCreator.indexRoot        =
-qhp.QtCreator.extraFiles       = classic.css \
-                          images/qt-logo.png \
-                          images/qtcreator-screenshots.png
 qhp.QtCreator.filterAttributes = qtcreator 2.0.80
 qhp.QtCreator.customFilters.QtCreator.name = Qt Creator 2.0.80
 qhp.QtCreator.customFilters.QtCreator.filterAttributes = qtcreator 2.0.80
+qhp.QtCreator.indexRoot        =
+qhp.QtCreator.extraFiles       = \
+                          style/style.css \
+                          style/style_ie6.css \
+                          style/style_ie7.css \
+                          style/style_ie8.css \
+                          images/qt-logo.png \
+                          images/qtcreator-screenshots.png \
+                          scripts/functions.js \
+                          scripts/jquery.js \
+                          images/api_examples.png \
+                          images/api_lookup.png \
+                          images/api_topics.png \
+                          images/bg_ll.png \
+                          images/bg_l_blank.png \
+                          images/bg_l.png \
+                          images/bg_lr.png \
+                          images/bg_r.png \
+                          images/bg_ul_blank.png \
+                          images/bg_ul.png \
+                          images/bg_ur_blank.png \
+                          images/bg_ur.png \
+                          images/breadcrumb.png \
+                          images/bullet_dn.png \
+                          images/bullet_gt.png \
+                          images/feedbackground.png \
+                          images/form_bg.png \
+                          images/horBar.png \
+                          images/page_bg.png \
+                          images/print.png \
+                          images/qt_guide.png \
+                          images/qt-logo.png \
+                          images/qt_ref_doc.png \
+                          images/qt_tools.png \
+                          images/sep.png \
+                          images/header.png \
+                          images/sprites-combined.png
 
 # macros.qdocconf
 
@@ -185,33 +218,3 @@ Cpp.ignoredirectives    = Q_DECLARE_HANDLE \
                           K_DECLARE_PRIVATE \
                           PHONON_OBJECT \
                           PHONON_HEIR
-
-
-
-HTML.stylesheets        = classic.css
-HTML.postheader         = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n" \
-                          "<tr>\n" \
-                          "<td align=\"left\" valign=\"top\" width=\"32\">" \
-                          "<a href=\"http://qt.nokia.com/\"><img src=\"images/qt-logo.png\" align=\"left\" border=\"0\" /></a>" \
-                          "</td>\n" \
-                          "<td width=\"1\">&nbsp;&nbsp;</td>" \
-                          "<td class=\"postheader\" valign=\"center\">" \
-                          "<a href=\"index.html\">" \
-                          "<font color=\"#004faf\">Home</font></a>&nbsp;&middot; " \
-                          "<a href=\"creator-code-editor.html\">" \
-                          "<font color=\"#004faf\">Editor</font></a>&nbsp;&middot; " \
-                          "<a href=\"creator-navigation.html\">" \
-                          "<font color=\"#004faf\">Code Navigation</font></a>&nbsp;&middot; " \
-                          "<a href=\"creator-keyboard-shortcuts.html\">" \
-                          "<font color=\"#004faf\">Shortcuts</font></a>&nbsp;&middot; " \
-                          "<a href=\"http://qt.gitorious.org/qt-creator/pages/Home\">" \
-                          "<font color=\"#004faf\">Wiki</font></a>" \
-                          "</td>" \
-                          "</tr></table>"                          
-
-HTML.footer             = "<p /><address><hr /><div align=\"center\">\n" \
-                          "<table width=\"100%\" cellspacing=\"0\" border=\"0\"><tr class=\"address\">\n" \
-                          "<td width=\"40%\" align=\"left\">Copyright &copy; 2010 Nokia Corporation and/or its subsidiary(-ies)</td>\n" \
-                          "<td width=\"20%\" align=\"center\"><a href=\"trademarks.html\">Trademarks</a></td>\n" \
-                          "<td width=\"40%\" align=\"right\"><div align=\"right\">Qt Creator 2.0.80</div></td>\n" \
-                          "</tr></table></div></address>"
