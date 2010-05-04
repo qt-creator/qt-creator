@@ -135,8 +135,6 @@ enum Mode
     InsertMode,
     CommandMode,
     ExMode,
-    SearchForwardMode,
-    SearchBackwardMode,
 };
 
 enum SubMode
@@ -171,6 +169,8 @@ enum SubSubMode
     UpCaseSubSubMode,     // used for gU
     ReplaceSubSubMode,    // used for r after visual mode
     TextObjectSubSubMode, // used for thing like iw, aW, as etc.
+    SearchForwardSubSubMode,
+    SearchBackwardSubSubMode,
 };
 
 enum VisualMode
@@ -260,11 +260,14 @@ QString quoteUnprintable(const QString &ba)
 {
     QString res;
     for (int i = 0, n = ba.size(); i != n; ++i) {
-        QChar c = ba.at(i);
+        const QChar c = ba.at(i);
+        const int cc = c.unicode();
         if (c.isPrint())
             res += c;
+        else if (cc == '\n')
+            res += QLatin1String("<CR>");
         else
-            res += QString("\\x%1").arg(c.unicode(), 2, 16);
+            res += QString("\\x%1").arg(c.unicode(), 2, 16, QLatin1Char('0'));
     }
     return res;
 }
@@ -589,7 +592,10 @@ public:
     bool m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
 
     bool isSearchMode() const
-        { return m_mode == SearchForwardMode || m_mode == SearchBackwardMode; }
+    {
+        return m_subsubmode == SearchForwardSubSubMode
+            || m_subsubmode == SearchBackwardSubSubMode;
+    }
     int m_gflag;  // whether current command started with 'g'
 
     QString m_commandBuffer;
@@ -774,6 +780,8 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     KEY_DEBUG("SHORTCUT OVERRIDE" << key << "  PASSING: " << m_passing);
 
     if (key == Key_Escape) {
+        if (isSearchMode())
+            return true;
         // Not sure this feels good. People often hit Esc several times
         if (isNoVisualMode() && m_mode == CommandMode)
             return false;
@@ -958,6 +966,8 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
 
 EventResult FakeVimHandler::Private::handleKey(const Input &input)
 {
+    if (m_mode == ExMode || isSearchMode())
+        return handleMiniBufferModes(input);
     if (m_mode == InsertMode || m_mode == CommandMode) {
         m_pendingInput.append(input);
         const char code = m_mode == InsertMode ? 'i' : 'n';
@@ -968,9 +978,6 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
         m_inputTimer = startTimer(1000);
         return EventHandled;
     }
-    if (m_mode == ExMode || m_mode == SearchForwardMode
-            || m_mode == SearchBackwardMode)
-        return handleMiniBufferModes(input);
     return EventUnhandled;
 }
 
@@ -1210,20 +1217,19 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         indentSelectedText();
         endEditBlock();
         m_submode = NoSubMode;
-        updateMiniBuffer();
     } else if (m_submode == ShiftRightSubMode) {
         recordJump();
         shiftRegionRight(1);
         m_submode = NoSubMode;
-        updateMiniBuffer();
     } else if (m_submode == ShiftLeftSubMode) {
         recordJump();
         shiftRegionLeft(1);
         m_submode = NoSubMode;
-        updateMiniBuffer();
     }
 
     resetCommandMode();
+    updateSelection();
+    updateMiniBuffer();
     updateCursor();
 }
 
@@ -1236,9 +1242,6 @@ void FakeVimHandler::Private::resetCommandMode()
     m_register = '"';
     m_tc.clearSelection();
     m_rangemode = RangeCharMode;
-
-    updateSelection();
-    updateMiniBuffer();
 }
 
 void FakeVimHandler::Private::updateSelection()
@@ -1324,9 +1327,9 @@ void FakeVimHandler::Private::updateMiniBuffer()
         else
             msg = "-- INSERT --";
     } else {
-        if (m_mode == SearchForwardMode)
+        if (m_subsubmode == SearchForwardSubSubMode)
             msg += '/';
-        else if (m_mode == SearchBackwardMode)
+        else if (m_subsubmode == SearchBackwardSubSubMode)
             msg += '?';
         else if (m_mode == ExMode)
             msg += ':';
@@ -1475,6 +1478,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             finishMovement();
         } else {
             resetCommandMode();
+            updateSelection();
+            updateMiniBuffer();
         }
     } else if (m_subsubmode != NoSubSubMode) {
         handleCommandSubSubMode(input);
@@ -1630,12 +1635,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         } else {
             // FIXME: make core find dialog sufficiently flexible to
             // produce the "default vi" behaviour too. For now, roll our own.
-            enterExMode(); // to get the cursor disabled
             m_currentMessage.clear();
-            m_mode = (input.is('/')) ? SearchForwardMode : SearchBackwardMode;
+            m_subsubmode = (input.is('/'))
+                ? SearchForwardSubSubMode : SearchBackwardSubSubMode;
             m_commandBuffer.clear();
             m_searchHistory.append(QString());
             m_searchHistoryIndex = m_searchHistory.size() - 1;
+            updateCursor();
             updateMiniBuffer();
         }
     } else if (input.is('`')) {
@@ -1703,7 +1709,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
     } else if (input.is(',')) {
         passShortcuts(true);
     } else if (input.is('.')) {
-        //qDebug() << "REPEATING" << quoteUnprintable(m_dotCommand) << count();
+        //qDebug() << "REPEATING" << quoteUnprintable(m_dotCommand) << count()
+        //    << input;
         QString savedCommand = m_dotCommand;
         m_dotCommand.clear();
         replay(savedCommand, count());
@@ -2452,6 +2459,20 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
         if (!m_commandBuffer.isEmpty())
             m_commandBuffer.chop(1);
         updateMiniBuffer();
+    } else if (input.isKey(Key_Return) && isSearchMode()
+            && !hasConfig(ConfigIncSearch)) {
+        if (!m_commandBuffer.isEmpty()) {
+            m_searchHistory.takeLast();
+            m_searchHistory.append(m_commandBuffer);
+            m_lastSearchForward = (m_subsubmode == SearchForwardSubSubMode);
+            search(lastSearchString(), m_lastSearchForward);
+            recordJump();
+        }
+        QString needle = m_commandBuffer.mid(1); // FIXME: why
+        finishMovement("/" + needle + "\n");
+        enterCommandMode();
+        highlightMatches(needle);
+        updateMiniBuffer();
     } else if (input.isKey(Key_Return) && m_mode == ExMode) {
         if (!m_commandBuffer.isEmpty()) {
             m_commandHistory.takeLast();
@@ -2461,17 +2482,6 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
                 leaveVisualMode();
             }
         }
-    } else if (input.isKey(Key_Return) && isSearchMode()
-            && !hasConfig(ConfigIncSearch)) {
-        if (!m_commandBuffer.isEmpty()) {
-            m_searchHistory.takeLast();
-            m_searchHistory.append(m_commandBuffer);
-            m_lastSearchForward = (m_mode == SearchForwardMode);
-            search(lastSearchString(), m_lastSearchForward);
-            recordJump();
-        }
-        enterCommandMode();
-        updateMiniBuffer();
     } else if ((input.isKey(Key_Up) || input.isKey(Key_PageUp)) && isSearchMode()) {
         // FIXME: This and the three cases below are wrong as vim
         // takes only matching entries in the history into account.
@@ -2854,7 +2864,7 @@ bool FakeVimHandler::Private::handleExNormalCommand(const QString &cmd) // :norm
     static QRegExp reNormal("^norm(al)?( (.*))?$");
     if (reNormal.indexIn(cmd) == -1)
         return false;
-    //qDebug() << "REPLAY: " << reNormal.cap(3);
+    //qDebug() << "REPLAY NORMAL: " << quoteUnprintable(reNormal.cap(3));
     replay(reNormal.cap(3), 1);
     return true;
 }
@@ -3319,7 +3329,7 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
     int targetPos = anchor();
     if (beginLine > endLine) {
         qSwap(beginLine, endLine);
-        targetPos = position(); 
+        targetPos = position();
     }
     const int shift = config(ConfigShiftWidth).toInt() * repeat;
     const int tab = config(ConfigTabStop).toInt();
@@ -4068,6 +4078,8 @@ void FakeVimHandler::Private::enterInsertMode()
 {
     //leaveVisualMode();
     m_mode = InsertMode;
+    m_submode = NoSubMode;
+    m_subsubmode = NoSubSubMode;
     m_lastInsertion.clear();
     m_beginEditBlock = true;
     updateCursor();
@@ -4078,12 +4090,16 @@ void FakeVimHandler::Private::enterCommandMode()
     if (atEndOfLine())
         moveLeft();
     m_mode = CommandMode;
+    m_submode = NoSubMode;
+    m_subsubmode = NoSubSubMode;
     updateCursor();
 }
 
 void FakeVimHandler::Private::enterExMode()
 {
     m_mode = ExMode;
+    m_submode = NoSubMode;
+    m_subsubmode = NoSubSubMode;
     updateCursor();
 }
 
@@ -4170,7 +4186,7 @@ void FakeVimHandler::Private::handleStartOfLine()
 
 void FakeVimHandler::Private::replay(const QString &command, int n)
 {
-    //qDebug() << "REPLAY: " << command;
+    //qDebug() << "REPLAY: " << quoteUnprintable(command);
     m_inReplay = true;
     for (int i = n; --i >= 0; ) {
         foreach (QChar c, command) {
