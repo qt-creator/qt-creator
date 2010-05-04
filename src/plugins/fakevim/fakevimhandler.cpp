@@ -2813,7 +2813,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const QString &cmd) // :set
         return false;
 
     showBlackMessage(QString());
-    QString arg = reSet.cap(2);
+    QString arg = reSet.cap(2).trimmed();
     SavedAction *act = theFakeVimSettings()->item(arg);
     if (arg.isEmpty()) {
         theFakeVimSetting(SettingsDialog)->trigger(QVariant());
