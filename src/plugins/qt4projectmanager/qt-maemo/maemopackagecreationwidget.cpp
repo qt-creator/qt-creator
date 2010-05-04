@@ -97,42 +97,23 @@ void MaemoPackageCreationWidget::addFile()
     const Qt4BuildConfiguration * const bc
         = static_cast<Qt4BuildConfiguration *>(m_step->buildConfiguration());
     QTC_ASSERT(bc, return);
-    QString title = tr("Choose a local file");
-    QString baseDir = bc->target()->project()->projectDirectory();
+    const QString title = tr("Choose a local file");
+    const QString baseDir = bc->target()->project()->projectDirectory();
     const QString localFile = QFileDialog::getOpenFileName(this, title, baseDir);
     if (localFile.isEmpty())
         return;
-    title = tr("Choose a remote file path");
-    QTC_ASSERT(bc->toolChainType() == ProjectExplorer::ToolChain::GCC_MAEMO, return);
-    baseDir = static_cast<MaemoToolChain *>(bc->toolChain())->sysrootRoot();
-    QString remoteFile;
-    const QString canonicalSysRoot = QFileInfo(baseDir).canonicalFilePath();
-    do {
-        QFileDialog d(this, title, baseDir);
-        d.setFileMode(QFileDialog::AnyFile);
-        d.selectFile(QFileInfo(localFile).fileName());
-        if (!d.exec())
-            return;
-        remoteFile = d.selectedFiles().first();
-        if (remoteFile.isEmpty())
-            return;
-        const QFileInfo remoteFileInfo(remoteFile);
-        QString remoteDir = remoteFileInfo.dir().canonicalPath();
-        if (!remoteDir.startsWith(canonicalSysRoot)) {
-            QMessageBox::warning(this, tr("Invalid path"),
-                tr("Please choose a location inside your sysroot directory."));
-            remoteFile.clear();
-        } else {
-            remoteDir.remove(canonicalSysRoot);
-            remoteFile = remoteDir + '/' + remoteFileInfo.fileName();
-        }
-    } while (remoteFile.isEmpty());
-
     const MaemoPackageContents::Deployable
-        deployable(QFileInfo(localFile).absoluteFilePath(), remoteFile);
-    if (!m_step->packageContents()->addDeployable(deployable)) {
+        deployable(QFileInfo(localFile).absoluteFilePath(), "/");
+    MaemoPackageContents * const contents = m_step->packageContents();
+    if (!contents->addDeployable(deployable)) {
         QMessageBox::information(this, tr("File already in package"),
                                  tr("You have already added this file."));
+    } else {
+        const QModelIndex newIndex
+            = contents->index(contents->rowCount() - 1, 1);
+        m_ui->packageContentsView->selectionModel()->clear();
+        m_ui->packageContentsView->scrollTo(newIndex);
+        m_ui->packageContentsView->edit(newIndex);
     }
 }
 
