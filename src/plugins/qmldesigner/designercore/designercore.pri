@@ -196,5 +196,5 @@ contains(CONFIG, plugin) {
 }
 
 DISTFILES += $$PWD/metafile/widget.metafile
-RESOURCES += $$PWD/core.qrc
+RESOURCES += $$PWD/designercore.qrc
 OTHER_FILES += $$PWD/metainfo/gui.metainfo

@@ -6,7 +6,7 @@ include(../private_headers.pri)
 include(qmldesigner_dependencies.pri)
 include(../qmljseditor/qmljseditor.pri)
 
-include(core/core.pri)
+include(designercore/designercore.pri)
 include(components/integration/integration.pri)
 include(components/propertyeditor/propertyeditor.pri)
 include(components/formeditor/formeditor.pri)

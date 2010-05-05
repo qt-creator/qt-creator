@@ -5,12 +5,12 @@ CONFIG += plugin
 QT += script \
       declarative
 
-include (../core/iwidgetplugin.pri)
+include (../designercore/iwidgetplugin.pri)
 
 DEFINES += FX_LIBRARY
 SOURCES += $$PWD/fxplugin.cpp
 
-HEADERS += $$PWD/fxplugin.h  $$PWD/../core/include/iwidgetplugin.h
+HEADERS += $$PWD/fxplugin.h  $$PWD/../designercore/include/iwidgetplugin.h
 
 RESOURCES += $$PWD/fxplugin.qrc
 
