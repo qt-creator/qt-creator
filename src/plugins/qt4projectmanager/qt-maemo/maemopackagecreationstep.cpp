@@ -254,14 +254,22 @@ QString MaemoPackageCreationStep::localExecutableFilePath() const
         ->qt4Project()->rootProjectNode()->targetInformation();
     if (!ti.valid)
         return QString();
-
     return QDir::toNativeSeparators(QDir::cleanPath(ti.workingDir
-        + QLatin1Char('/') + ti.target));
+        + QLatin1Char('/') + executableFileName()));
 }
 
 QString MaemoPackageCreationStep::executableFileName() const
 {
-    return QFileInfo(localExecutableFilePath()).fileName();
+    const Qt4Project * const project
+        = qt4BuildConfiguration()->qt4Target()->qt4Project();
+    const TargetInformation &ti
+        = project->rootProjectNode()->targetInformation();
+    if (!ti.valid)
+        return QString();
+
+    return project->rootProjectNode()->projectType() == LibraryTemplate
+        ? QLatin1String("lib") + ti.target + QLatin1String(".so")
+        : ti.target;
 }
 
 const MaemoToolChain *MaemoPackageCreationStep::maemoToolChain() const

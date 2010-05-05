@@ -67,6 +67,7 @@ public:
     QString localExecutableFilePath() const;
     QString executableFileName() const;
     MaemoPackageContents *packageContents() const { return m_packageContents; }
+    const Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
@@ -81,7 +82,6 @@ private:
 
     bool createPackage();
     bool runCommand(QProcess &proc, const QString &command);
-    const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     const MaemoToolChain *maemoToolChain() const;
     QString maddeRoot() const;
     QString targetRoot() const;

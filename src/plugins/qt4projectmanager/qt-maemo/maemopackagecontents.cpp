@@ -33,6 +33,8 @@
 #include "maemotoolchain.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4target.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -176,8 +178,14 @@ void MaemoPackageContents::fromMap(const QVariantMap &map)
 QString MaemoPackageContents::remoteExecutableFilePath() const
 {
     if (m_remoteExecutableFilePath.isEmpty()) {
-        m_remoteExecutableFilePath = QLatin1String("/usr/local/bin/")
-                                     + m_packageStep->executableFileName();
+        const Qt4ProjectType projectType
+            = m_packageStep->qt4BuildConfiguration()->qt4Target()->qt4Project()
+              ->rootProjectNode()->projectType();
+        const QString remoteDir = projectType == LibraryTemplate
+            ? QLatin1String("/usr/local/lib/")
+            : QLatin1String("/usr/local/bin/");
+        m_remoteExecutableFilePath
+            = remoteDir + m_packageStep->executableFileName();
     }
     return m_remoteExecutableFilePath;
 }
