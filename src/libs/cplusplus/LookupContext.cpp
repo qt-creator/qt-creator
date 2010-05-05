@@ -145,7 +145,7 @@ ClassOrNamespace *LookupContext::classOrNamespace(const Name *name, Symbol *last
     if (lastVisibleSymbol && lastVisibleSymbol->scope())
         scope = lastVisibleSymbol->scope();
 
-    return classOrNamespace(name, lastVisibleSymbol);
+    return classOrNamespace(name, scope);
 }
 
 QList<Symbol *> LookupContext::lookup(const Name *name, Symbol *lastVisibleSymbol) const
