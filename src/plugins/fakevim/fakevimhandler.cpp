@@ -447,7 +447,8 @@ public:
     EventResult handleInsertMode(const Input &);
     EventResult handleCommandMode(const Input &);
     EventResult handleRegisterMode(const Input &);
-    EventResult handleMiniBufferModes(const Input &);
+    EventResult handleExMode(const Input &);
+    EventResult handleSearchSubSubMode(const Input &);
     EventResult handleCommandSubSubMode(const Input &);
     void finishMovement(const QString &dotCommand = QString());
     void finishMovement(const QString &dotCommand, int count);
@@ -591,7 +592,7 @@ public:
     bool m_anchorPastEnd;
     bool m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
 
-    bool isSearchMode() const
+    bool isSearchSubSubMode() const
     {
         return m_subsubmode == SearchForwardSubSubMode
             || m_subsubmode == SearchBackwardSubSubMode;
@@ -791,7 +792,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     KEY_DEBUG("SHORTCUT OVERRIDE" << key << "  PASSING: " << m_passing);
 
     if (key == Key_Escape) {
-        if (isSearchMode())
+        if (isSearchSubSubMode())
             return true;
         // Not sure this feels good. People often hit Esc several times
         if (isNoVisualMode() && m_mode == CommandMode)
@@ -977,8 +978,10 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
 
 EventResult FakeVimHandler::Private::handleKey(const Input &input)
 {
-    if (m_mode == ExMode || isSearchMode())
-        return handleMiniBufferModes(input);
+    if (m_mode == ExMode)
+        return handleExMode(input);
+    if (isSearchSubSubMode())
+        return handleSearchSubSubMode(input);
     if (m_mode == InsertMode || m_mode == CommandMode) {
         g.pendingInput.append(input);
         const char code = m_mode == InsertMode ? 'i' : 'n';
@@ -2451,7 +2454,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     return EventHandled;
 }
 
-EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
+EventResult FakeVimHandler::Private::handleExMode(const Input &input)
 {
     if (input.isKey(Key_Escape) || input.isControl('c')
             || input.isControl(Key_BracketLeft)) {
@@ -2470,8 +2473,57 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
         if (!m_commandBuffer.isEmpty())
             m_commandBuffer.chop(1);
         updateMiniBuffer();
-    } else if (input.isKey(Key_Return) && isSearchMode()
-            && !hasConfig(ConfigIncSearch)) {
+    } else if (input.isKey(Key_Return)) {
+        if (!m_commandBuffer.isEmpty()) {
+            g.commandHistory.takeLast();
+            g.commandHistory.append(m_commandBuffer);
+            handleExCommand(m_commandBuffer);
+            if (m_textedit || m_plaintextedit)
+                leaveVisualMode();
+        }
+    } else if (input.isKey(Key_Up) || input.isKey(Key_PageUp)) {
+        if (g.commandHistoryIndex > 0) {
+            --g.commandHistoryIndex;
+            showBlackMessage(g.commandHistory.at(g.commandHistoryIndex));
+        }
+    } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
+        if (g.commandHistoryIndex < g.commandHistory.size() - 1) {
+            ++g.commandHistoryIndex;
+            showBlackMessage(g.commandHistory.at(g.commandHistoryIndex));
+        }
+    } else if (input.isKey(Key_Tab)) {
+        m_commandBuffer += QChar(9);
+        updateMiniBuffer();
+    } else if (!input.text().isEmpty()) {
+        m_commandBuffer += input.text();
+        updateMiniBuffer();
+    } else {
+        qDebug() << "IGNORED IN EX-MODE: " << input.key() << input.text();
+        return EventUnhandled;
+    }
+    return EventHandled;
+}
+
+EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
+{
+    if (input.isKey(Key_Escape) || input.isControl('c')
+            || input.isControl(Key_BracketLeft)) {
+        m_commandBuffer.clear();
+        enterCommandMode();
+        updateMiniBuffer();
+    } else if (input.isKey(Key_Backspace)) {
+        if (m_commandBuffer.isEmpty()) {
+            enterCommandMode();
+        } else {
+            m_commandBuffer.chop(1);
+        }
+        updateMiniBuffer();
+    } else if (input.isKey(Key_Left)) {
+        // FIXME:
+        if (!m_commandBuffer.isEmpty())
+            m_commandBuffer.chop(1);
+        updateMiniBuffer();
+    } else if (input.isKey(Key_Return) && !hasConfig(ConfigIncSearch)) {
         if (!m_commandBuffer.isEmpty()) {
             g.searchHistory.takeLast();
             g.searchHistory.append(m_commandBuffer);
@@ -2484,47 +2536,27 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
         enterCommandMode();
         highlightMatches(needle);
         updateMiniBuffer();
-    } else if (input.isKey(Key_Return) && m_mode == ExMode) {
-        if (!m_commandBuffer.isEmpty()) {
-            g.commandHistory.takeLast();
-            g.commandHistory.append(m_commandBuffer);
-            handleExCommand(m_commandBuffer);
-            if (m_textedit || m_plaintextedit) {
-                leaveVisualMode();
-            }
-        }
-    } else if ((input.isKey(Key_Up) || input.isKey(Key_PageUp)) && isSearchMode()) {
+    } else if (input.isKey(Key_Up) || input.isKey(Key_PageUp)) {
         // FIXME: This and the three cases below are wrong as vim
         // takes only matching entries in the history into account.
         if (g.searchHistoryIndex > 0) {
             --g.searchHistoryIndex;
             showBlackMessage(g.searchHistory.at(g.searchHistoryIndex));
         }
-    } else if ((input.isKey(Key_Up) || input.isKey(Key_PageUp)) && m_mode == ExMode) {
-        if (g.commandHistoryIndex > 0) {
-            --g.commandHistoryIndex;
-            showBlackMessage(g.commandHistory.at(g.commandHistoryIndex));
-        }
-    } else if ((input.isKey(Key_Down) || input.isKey(Key_PageDown)) && isSearchMode()) {
+    } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
         if (g.searchHistoryIndex < g.searchHistory.size() - 1) {
             ++g.searchHistoryIndex;
             showBlackMessage(g.searchHistory.at(g.searchHistoryIndex));
         }
-    } else if ((input.isKey(Key_Down) || input.isKey(Key_PageDown)) && m_mode == ExMode) {
-        if (g.commandHistoryIndex < g.commandHistory.size() - 1) {
-            ++g.commandHistoryIndex;
-            showBlackMessage(g.commandHistory.at(g.commandHistoryIndex));
-        }
     } else if (input.isKey(Key_Tab)) {
         m_commandBuffer += QChar(9);
         updateMiniBuffer();
-    } else if (input.isKey(Key_Return) && isSearchMode()
-            && hasConfig(ConfigIncSearch)) {
+    } else if (input.isKey(Key_Return) && hasConfig(ConfigIncSearch)) {
         enterCommandMode();
         QString needle = m_commandBuffer.mid(1); // FIXME: why
         highlightMatches(needle);
         updateMiniBuffer();
-    } else if (isSearchMode() && hasConfig(ConfigIncSearch)) {
+    } else if (hasConfig(ConfigIncSearch)) {
         m_commandBuffer = m_commandBuffer.mid(1); // FIXME: why
         QString needle = m_commandBuffer + input.text();
         search(needle, m_lastSearchForward, true);
@@ -2534,7 +2566,7 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
         m_commandBuffer += input.text();
         updateMiniBuffer();
     } else {
-        qDebug() << "IGNORED IN MINIBUFFER MODE: " << input.key() << input.text();
+        qDebug() << "IGNORED IN SEARCH MODE: " << input.key() << input.text();
         return EventUnhandled;
     }
     return EventHandled;
