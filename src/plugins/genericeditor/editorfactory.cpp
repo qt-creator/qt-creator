@@ -38,25 +38,7 @@ using namespace GenericEditor;
 using namespace Internal;
 
 EditorFactory::EditorFactory(QObject *parent) : Core::IEditorFactory(parent)
-{
-    // Note: This is temporary until it is definied how definition files should be "integrated".
-    m_mimeTypes << QLatin1String(GenericEditor::Constants::C_HEADER_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::C_SOURCE_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::CPP_HEADER_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::CPP_SOURCE_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::CSS_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::FORTRAN_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::HTML_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::JAVA_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::JAVASCRIPT_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::OBJECTIVEC_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::PERL_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::PHP_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::PYTHON_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::RUBY_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::SQL_MIMETYPE)
-            << QLatin1String(GenericEditor::Constants::TCL_MIMETYPE);
-}
+{}
 
 EditorFactory::~EditorFactory()
 {}
@@ -68,13 +50,13 @@ Core::IEditor *EditorFactory::createEditor(QWidget *parent)
     return genericEditor->editableInterface();
 }
 
+QStringList EditorFactory::mimeTypes() const
+{ return m_mimeTypes; }
+
 QString EditorFactory::id() const
 {
     return QLatin1String(GenericEditor::Constants::GENERIC_EDITOR);
 }
-
-QStringList EditorFactory::mimeTypes() const
-{ return m_mimeTypes; }
 
 QString EditorFactory::displayName() const
 {

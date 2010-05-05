@@ -40,7 +40,4 @@ SOURCES += \
     editor.cpp \
     editorfactory.cpp
 
-OTHER_FILES += GenericEditor.pluginspec GenericEditor.mimetypes.xml
-
-RESOURCES += \
-    genericeditor.qrc
+OTHER_FILES += GenericEditor.pluginspec

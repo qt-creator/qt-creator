@@ -40,39 +40,27 @@
 #include <coreplugin/mimedatabase.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
+#include <cppeditor/cppeditorconstants.h>
+#include <qmljseditor/qmljseditorconstants.h>
 
+#include <QtCore/QtAlgorithms>
 #include <QtCore/QtPlugin>
+#include <QtCore/QString>
+#include <QtCore/QLatin1Char>
 #include <QtCore/QLatin1String>
+#include <QtCore/QStringList>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+#include <QtCore/QList>
+#include <QtCore/QRegExp>
 #include <QtXml/QXmlSimpleReader>
 #include <QtXml/QXmlInputSource>
+#include <QtXml/QXmlStreamReader>
+#include <QtXml/QXmlStreamAttributes>
 
 using namespace GenericEditor;
 using namespace Internal;
-
-// Todo: Temp.
-const QLatin1String GenericEditorPlugin::kAlertDefinitionId(":/genericeditor/XML/alert.xml");
-const QLatin1String GenericEditorPlugin::kCDefinitionId(":/genericeditor/XML/c.xml");
-const QLatin1String GenericEditorPlugin::kCppDefinitionId(":/genericeditor/XML/cpp.xml");
-const QLatin1String GenericEditorPlugin::kCssDefinitionId(":/genericeditor/XML/css.xml");
-const QLatin1String GenericEditorPlugin::kDoxygenDefinitionId(
-        ":/genericeditor/XML/doxygen.xml");
-const QLatin1String GenericEditorPlugin::kFortranDefinitionId(
-        ":/genericeditor/XML/fortran.xml");
-const QLatin1String GenericEditorPlugin::kHtmlDefinitionId(":/genericeditor/XML/html.xml");
-const QLatin1String GenericEditorPlugin::kJavaDefinitionId(":/genericeditor/XML/java.xml");
-const QLatin1String GenericEditorPlugin::kJavadocDefinitionId(
-        ":/genericeditor/XML/javadoc.xml");
-const QLatin1String GenericEditorPlugin::kJavascriptDefinitionId(
-        ":/genericeditor/XML/javascript.xml");
-const QLatin1String GenericEditorPlugin::kObjectiveCDefinitionId(
-        ":/genericeditor/XML/objectivec.xml");
-const QLatin1String GenericEditorPlugin::kPerlDefinitionId(":/genericeditor/XML/perl.xml");
-const QLatin1String GenericEditorPlugin::kPhpDefinitionId(":/genericeditor/XML/php.xml");
-const QLatin1String GenericEditorPlugin::kPythonDefinitionId(":/genericeditor/XML/python.xml");
-const QLatin1String GenericEditorPlugin::kRubyDefinitionId(":/genericeditor/XML/ruby.xml");
-const QLatin1String GenericEditorPlugin::kSqlDefinitionId(":/genericeditor/XML/sql.xml");
-const QLatin1String GenericEditorPlugin::kTclDefinitionId(":/genericeditor/XML/tcl.xml");
 
 GenericEditorPlugin *GenericEditorPlugin::m_instance = 0;
 
@@ -82,42 +70,8 @@ GenericEditorPlugin::GenericEditorPlugin() :
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
 
-    //Todo
-
-    m_idByMimeType.insert(GenericEditor::Constants::C_HEADER_MIMETYPE, kCDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::C_SOURCE_MIMETYPE, kCDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::CPP_HEADER_MIMETYPE, kCppDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::CPP_SOURCE_MIMETYPE, kCppDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::CSS_MIMETYPE, kCssDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::FORTRAN_MIMETYPE, kFortranDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::HTML_MIMETYPE, kHtmlDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::JAVA_MIMETYPE, kJavaDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::JAVASCRIPT_MIMETYPE, kJavascriptDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::OBJECTIVEC_MIMETYPE, kObjectiveCDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::PERL_MIMETYPE, kPerlDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::PHP_MIMETYPE, kPhpDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::PYTHON_MIMETYPE, kPythonDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::RUBY_MIMETYPE, kRubyDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::SQL_MIMETYPE, kSqlDefinitionId);
-    m_idByMimeType.insert(GenericEditor::Constants::TCL_MIMETYPE, kTclDefinitionId);
-
-    m_idByName.insert(QLatin1String("alerts"), kAlertDefinitionId);
-    m_idByName.insert(QLatin1String("c"), kCDefinitionId);
-    m_idByName.insert(QLatin1String("cpp"), kCppDefinitionId);
-    m_idByName.insert(QLatin1String("css"), kCssDefinitionId);
-    m_idByName.insert(QLatin1String("doxygen"), kDoxygenDefinitionId);
-    m_idByName.insert(QLatin1String("fortran"), kFortranDefinitionId);
-    m_idByName.insert(QLatin1String("html"), kHtmlDefinitionId);
-    m_idByName.insert(QLatin1String("java"), kJavaDefinitionId);
-    m_idByName.insert(QLatin1String("javadoc"), kJavadocDefinitionId);
-    m_idByName.insert(QLatin1String("javascript"), kJavascriptDefinitionId);
-    m_idByName.insert(QLatin1String("objectivec"), kObjectiveCDefinitionId);
-    m_idByName.insert(QLatin1String("perl"), kPerlDefinitionId);
-    m_idByName.insert(QLatin1String("php"), kPhpDefinitionId);
-    m_idByName.insert(QLatin1String("python"), kPythonDefinitionId);
-    m_idByName.insert(QLatin1String("ruby"), kRubyDefinitionId);
-    m_idByName.insert(QLatin1String("sql"), kSqlDefinitionId);
-    m_idByName.insert(QLatin1String("tcl"), kTclDefinitionId);
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()),
+            this, SLOT(lookforAvailableDefinitions()));
 }
 
 GenericEditorPlugin::~GenericEditorPlugin()
@@ -132,14 +86,10 @@ GenericEditorPlugin *GenericEditorPlugin::instance()
 bool GenericEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
 
-    Core::ICore *core = Core::ICore::instance();
-    if (!core->mimeDatabase()->addMimeTypes(
-            QLatin1String(":/genericeditor/GenericEditor.mimetypes.xml"), errorString)) {
-        return false;
-    }
-
-    addAutoReleasedObject(new EditorFactory(this));
+    m_factory = new EditorFactory(this);
+    addAutoReleasedObject(m_factory);
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(
         GenericEditor::Constants::GENERIC_EDITOR,
@@ -161,13 +111,25 @@ void GenericEditorPlugin::initializeEditor(Editor *editor)
 }
 
 QString GenericEditorPlugin::definitionIdByName(const QString &name) const
-{ return m_idByName.value(name.toLower()); }
+{ return m_idByName.value(name); }
 
 QString GenericEditorPlugin::definitionIdByMimeType(const QString &mimeType) const
-{ return m_idByMimeType.value(mimeType.toLower()); }
+{
+    Q_ASSERT(!mimeType.isEmpty() && m_idByMimeType.count(mimeType) > 0);
 
-bool GenericEditorPlugin::isBuildingDefinition(const QString &id) const
-{ return m_isBuilding.contains(id); }
+    if (m_idByMimeType.count(mimeType) == 1) {
+        return m_idByMimeType.value(mimeType);
+    } else {
+        QStringList candidateIds;
+        QMultiHash<QString, QString>::const_iterator it = m_idByMimeType.find(mimeType);
+        QMultiHash<QString, QString>::const_iterator endIt = m_idByMimeType.end();
+        for (; it != endIt && it.key() == mimeType; ++it)
+            candidateIds.append(it.value());
+
+        qSort(candidateIds.begin(), candidateIds.end(), m_priorityComp);
+        return candidateIds.first();
+    }
+}
 
 const QSharedPointer<HighlightDefinition> &GenericEditorPlugin::definition(const QString &id)
 {
@@ -192,6 +154,109 @@ const QSharedPointer<HighlightDefinition> &GenericEditorPlugin::definition(const
     }
 
     return *m_definitions.constFind(id);
+}
+
+bool GenericEditorPlugin::isBuildingDefinition(const QString &id) const
+{ return m_isBuilding.contains(id); }
+
+void GenericEditorPlugin::lookforAvailableDefinitions()
+{
+    QDir definitionsDir(Core::ICore::instance()->resourcePath() +
+                        QLatin1String("/generic-highlighter"));
+
+    QStringList filter(QLatin1String("*.xml"));
+    definitionsDir.setNameFilters(filter);
+
+    const QFileInfoList &filesInfo = definitionsDir.entryInfoList();
+    foreach (const QFileInfo &fileInfo, filesInfo)
+        parseDefinitionMetadata(fileInfo);
+}
+
+void GenericEditorPlugin::parseDefinitionMetadata(const QFileInfo &fileInfo)
+{
+    static const QLatin1Char kSemiColon(';');
+    static const QLatin1Char kSlash('/');
+    static const QLatin1String kLanguage("language");
+    static const QLatin1String kName("name");
+    static const QLatin1String kExtensions("extensions");
+    static const QLatin1String kMimeType("mimetype");
+    static const QLatin1String kPriority("priority");
+    static const QLatin1String kArtificial("artificial");
+
+    const QString &id = fileInfo.absoluteFilePath();
+
+    QFile definitionFile(id);
+    if (!definitionFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    QXmlStreamReader reader(&definitionFile);
+    while (!reader.atEnd() && !reader.hasError()) {
+        if (reader.readNext() == QXmlStreamReader::StartElement &&
+            reader.name() == kLanguage) {
+            const QXmlStreamAttributes &attr = reader.attributes();
+
+            const QString &name = attr.value(kName).toString();
+            m_idByName.insert(name, id);
+
+            const QStringList &patterns =
+                    attr.value(kExtensions).toString().split(kSemiColon, QString::SkipEmptyParts);
+
+            QStringList mimeTypes =
+                    attr.value(kMimeType).toString().split(kSemiColon, QString::SkipEmptyParts);
+            if (mimeTypes.isEmpty()) {
+                // There are definitions which do not specify a MIME type, but specify file
+                // patterns. Creating an artificial MIME type is a workaround.
+                QString mimeType(kArtificial);
+                mimeType.append(kSlash).append(name);
+                m_idByMimeType.insert(mimeType, id);
+                mimeTypes.append(mimeType);
+            } else {
+                foreach (const QString &mimeType, mimeTypes)
+                    m_idByMimeType.insert(mimeType, id);
+            }
+
+            // The priority below should not be confused with the priority used when matching files
+            // to MIME types. This priority is for choosing a highlight definition when there are
+            // multiple ones associated with the same MIME type or file extensions/patterns.
+            m_priorityComp.m_priorityById.insert(id, attr.value(kPriority).toString().toInt());
+
+            registerMimeTypes(name, mimeTypes, patterns);
+            break;
+        }
+    }
+    reader.clear();
+    definitionFile.close();
+}
+
+void GenericEditorPlugin::registerMimeTypes(const QString &comment,
+                                            const QStringList &types,
+                                            const QStringList &patterns)
+{
+    static const QStringList textPlain(QLatin1String("text/plain"));
+
+    // A definition can specify multiple MIME types and file extensions/patterns. However, each
+    // thing is done with a single string. Then, there is no direct way to tell which extensions/
+    // patterns belong to which MIME types nor whether a MIME type is just an alias for the other.
+    // Currently, I associate all expressions/patterns with all MIME types.
+
+    QList<QRegExp> expressions;
+    foreach (const QString &type, types) {
+        Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByType(type);
+        if (mimeType.isNull()) {
+            if (expressions.isEmpty()) {
+                foreach (const QString &pattern, patterns)
+                    expressions.append(QRegExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard));
+            }
+
+            mimeType.setType(type);
+            mimeType.setSubClassesOf(textPlain);
+            mimeType.setComment(comment);
+            mimeType.setGlobPatterns(expressions);
+
+            Core::ICore::instance()->mimeDatabase()->addMimeType(mimeType);
+            m_factory->m_mimeTypes.append(type);
+        }
+    }
 }
 
 Q_EXPORT_PLUGIN(GenericEditorPlugin)

@@ -438,12 +438,14 @@ void Highlighter::configureFormats(const TextEditor::FontSettings & fs)
             QLatin1String(TextEditor::Constants::C_KEYWORD));
     m_genericFormats[ItemData::kDsDataType] = fs.toTextCharFormat(
             QLatin1String(TextEditor::Constants::C_TYPE));
+    // Currenlty using C_NUMBER for all kinds of numbers.
     m_genericFormats[ItemData::kDsDecVal] = fs.toTextCharFormat(
             QLatin1String(TextEditor::Constants::C_NUMBER));
     m_genericFormats[ItemData::kDsBaseN] = fs.toTextCharFormat(
             QLatin1String(TextEditor::Constants::C_NUMBER));
     m_genericFormats[ItemData::kDsFloat] = fs.toTextCharFormat(
             QLatin1String(TextEditor::Constants::C_NUMBER));
+    // Currently using C_STRING for strings and chars.
     m_genericFormats[ItemData::kDsChar] = fs.toTextCharFormat(
             QLatin1String(TextEditor::Constants::C_STRING));
     m_genericFormats[ItemData::kDsString] = fs.toTextCharFormat(

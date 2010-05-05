@@ -179,8 +179,6 @@ bool HighlightDefinitionHandler::startElement(const QString &,
         detectSpacesStarted(atts);
     } else if (qName == kDetectIdentifier) {
         detectIdentifier(atts);
-    } else if (qName == kLanguage) {
-        languageElementStarted(atts);
     }
 
     return true;
@@ -209,12 +207,6 @@ bool HighlightDefinitionHandler::characters(const QString& ch)
         m_currentKeyword.append(ch);
 
     return true;
-}
-
-void HighlightDefinitionHandler::languageElementStarted(const QXmlAttributes &atts) const
-{
-    m_definition->setLanguageName(atts.value(kName));
-    m_definition->setFileExtensions(atts.value(kExtensions));
 }
 
 void HighlightDefinitionHandler::listElementStarted(const QXmlAttributes &atts)

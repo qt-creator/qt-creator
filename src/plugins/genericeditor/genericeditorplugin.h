@@ -34,19 +34,25 @@
 #include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QLatin1String>
 #include <QtCore/QHash>
+#include <QtCore/QMultiHash>
 #include <QtCore/QSet>
 #include <QtCore/QSharedPointer>
+
+QT_BEGIN_NAMESPACE
+class QFileInfo;
+class QStringList;
+QT_END_NAMESPACE
 
 namespace GenericEditor {
 namespace Internal {
 
 class HighlightDefinition;
+class HighlightDefinitionMetadata;
 class Editor;
-
-// Note: The general interface of this class is temporary. Still need discussing details about
-// the definition files integration with Creator.
+class EditorFactory;
 
 class GenericEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -68,23 +74,8 @@ public:
     bool isBuildingDefinition(const QString &id) const;
     const QSharedPointer<HighlightDefinition> &definition(const QString &id);
 
-    static const QLatin1String kAlertDefinitionId;
-    static const QLatin1String kCDefinitionId;
-    static const QLatin1String kCppDefinitionId;
-    static const QLatin1String kCssDefinitionId;
-    static const QLatin1String kDoxygenDefinitionId;
-    static const QLatin1String kFortranDefinitionId;
-    static const QLatin1String kHtmlDefinitionId;
-    static const QLatin1String kJavaDefinitionId;
-    static const QLatin1String kJavadocDefinitionId;
-    static const QLatin1String kJavascriptDefinitionId;
-    static const QLatin1String kObjectiveCDefinitionId;
-    static const QLatin1String kPerlDefinitionId;
-    static const QLatin1String kPhpDefinitionId;
-    static const QLatin1String kPythonDefinitionId;
-    static const QLatin1String kRubyDefinitionId;
-    static const QLatin1String kSqlDefinitionId;
-    static const QLatin1String kTclDefinitionId;
+private slots:
+    void lookforAvailableDefinitions();
 
 private:
     GenericEditorPlugin(const GenericEditorPlugin &HighlighterPlugin);
@@ -92,12 +83,28 @@ private:
 
     static GenericEditorPlugin *m_instance;
 
-    QSet<QString> m_isBuilding;
-    QHash<QString, QString> m_idByName;
-    QHash<QString, QString> m_idByMimeType;
-    QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
+    void parseDefinitionMetadata(const QFileInfo &fileInfo);
+    void registerMimeTypes(const QString &comment,
+                           const QStringList &types,
+                           const QStringList &patterns);
+
+    struct PriorityCompare
+    {
+        bool operator()(const QString &a, const QString &b)
+        { return m_priorityById.value(a) < m_priorityById.value(b); }
+
+        QHash<QString, int> m_priorityById;
+    };
+    PriorityCompare m_priorityComp;
 
     TextEditor::TextEditorActionHandler *m_actionHandler;
+
+    EditorFactory *m_factory;
+
+    QHash<QString, QString> m_idByName;
+    QMultiHash<QString, QString> m_idByMimeType;
+    QHash<QString, QSharedPointer<HighlightDefinition> > m_definitions;
+    QSet<QString> m_isBuilding;
 };
 
 } // namespace Internal

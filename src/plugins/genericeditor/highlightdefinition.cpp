@@ -165,15 +165,3 @@ void HighlightDefinition::setKeywordsSensitive(const QString &sensitivity)
 
 Qt::CaseSensitivity HighlightDefinition::keywordsSensitive() const
 { return m_keywordCaseSensitivity; }
-
-void HighlightDefinition::setLanguageName(const QString &name)
-{ m_languageName = name; }
-
-const QString &HighlightDefinition::languageName() const
-{ return m_languageName; }
-
-void HighlightDefinition::setFileExtensions(const QString &extensions)
-{
-    //Todo
-    Q_UNUSED(extensions);
-}

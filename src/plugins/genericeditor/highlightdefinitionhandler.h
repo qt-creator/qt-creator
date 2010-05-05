@@ -59,7 +59,6 @@ public:
     bool characters(const QString &ch);
 
 private:
-    void languageElementStarted(const QXmlAttributes &atts) const;
     void listElementStarted(const QXmlAttributes &atts);
     void itemElementStarted();
     void contextElementStarted(const QXmlAttributes &atts);

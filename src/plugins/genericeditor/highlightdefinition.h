@@ -81,12 +81,6 @@ public:
     void setMultiLineCommentRegion(const QString &region);
     const QString &multiLineCommentRegion() const;
 
-    void setLanguageName(const QString &name);
-    const QString &languageName() const;
-
-    //Todo: Will use?
-    void setFileExtensions(const QString &extensions);    
-
 private:
 
     HighlightDefinition(const HighlightDefinition &);

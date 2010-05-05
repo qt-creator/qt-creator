@@ -43,6 +43,7 @@ class EditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
 
+    friend class GenericEditorPlugin;
 public:
     EditorFactory(QObject *parent = 0);
     virtual ~EditorFactory();

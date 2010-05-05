@@ -39,23 +39,6 @@ const char * const GENERIC_EDITOR = "GenericEditorPlugin.GenericEditor";
 const char * const GENERIC_EDITOR_DISPLAY_NAME =
     QT_TRANSLATE_NOOP("OpenWith::Editors", "Generic Editor");
 
-const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
-const char * const C_HEADER_MIMETYPE = "text/x-chdr";
-const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
-const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
-const char * const CSS_MIMETYPE = "text/css";
-const char * const FORTRAN_MIMETYPE = "text/x-fortran";
-const char * const HTML_MIMETYPE = "text/html";
-const char * const JAVA_MIMETYPE = "text/x-java";
-const char * const JAVASCRIPT_MIMETYPE = "application/x-javascript";
-const char * const OBJECTIVEC_MIMETYPE = "text/x-objcsrc";
-const char * const PERL_MIMETYPE = "application/x-perl";
-const char * const PHP_MIMETYPE = "application/x-php";
-const char * const PYTHON_MIMETYPE = "text/x-python";
-const char * const RUBY_MIMETYPE = "text/x-ruby";
-const char * const SQL_MIMETYPE = "text/x-sql";
-const char * const TCL_MIMETYPE = "application/x-tcl";
-
 } // namespace Constants
 } // namespace GenericEditor
 
