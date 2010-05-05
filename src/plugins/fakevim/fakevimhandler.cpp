@@ -717,7 +717,13 @@ public:
 
     static struct GlobalData
     {
-        GlobalData() { inReplay = false; inputTimer = -1; }
+        GlobalData()
+        {
+            inReplay = false;
+            inputTimer = -1;
+            searchHistoryIndex = 0;
+            commandHistoryIndex = 0;
+        }
 
         // Input.
         QVector<Input> pendingInput;

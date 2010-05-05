@@ -340,7 +340,7 @@ void FakeVimExCommandsPage::initialize()
         QTreeWidgetItem *item = new QTreeWidgetItem;
         ci->m_cmd = c;
         ci->m_item = item;
-        m_citems << ci;
+        m_citems.append(ci);
 
         const QString name = uidm->stringForUniqueIdentifier(c->id());
         const int pos = name.indexOf(QLatin1Char('.'));
@@ -348,7 +348,8 @@ void FakeVimExCommandsPage::initialize()
         const QString subId = name.mid(pos+1);
 
         if (!sections.contains(section)) {
-            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(commandList(), QStringList() << section);
+            QTreeWidgetItem *categoryItem =
+                new QTreeWidgetItem(commandList(), QStringList() << section);
             QFont f = categoryItem->font(0);
             f.setBold(true);
             categoryItem->setFont(0, f);
@@ -360,7 +361,9 @@ void FakeVimExCommandsPage::initialize()
         item->setText(0, subId);
 
         if (c->action()) {
-            QString text = c->hasAttribute(Command::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
+            QString text = c->hasAttribute(Command::CA_UpdateText)
+                    && !c->defaultText().isNull()
+                ? c->defaultText() : c->action()->text();
             text.remove(QRegExp("&(?!&)"));
             item->setText(1, text);
         } else {
@@ -933,6 +936,8 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
     static QRegExp reWriteAll("^wa(ll)?!?$");
     static QRegExp reQuit("^q!?$");
     static QRegExp reQuitAll("^qa!?$");
+    static QRegExp reSplit("^sp(lit)?$");
+    static QRegExp reVSplit("^vs(plit)?$");
 
     using namespace Core;
 
@@ -960,6 +965,12 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
         // :qa
         bool forced = cmd.contains(QChar('!'));
         emit delayedQuitAllRequested(forced);
+    } else if (reSplit.indexIn(cmd) != -1) {
+        // :sp[lit]
+        triggerAction(Core::Constants::SPLIT);
+    } else if (reVSplit.indexIn(cmd) != -1) {
+        // :vs[plit]
+        triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
     } else {
         typedef QMap<QString, QRegExp>::const_iterator Iterator;
         const Iterator end = s_exCommandMap.constEnd();
