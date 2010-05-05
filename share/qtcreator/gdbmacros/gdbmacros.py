@@ -1950,6 +1950,37 @@ def qdump__TLitC(d, item):
 #######################################################################
 
 if False:
+
+    # FIXME: Make that work
+    def qdump__Color(d, item):
+        v = item.value
+        d.putValue("(%s, %s, %s; %s)" % (v["r"], v["g"], v["b"], v["a"]))
+        if d.isExpanded(item):
+            with Children(d):
+                d.putItem(Item(v["r"], item.iname, "0", "r"))
+                d.putItem(Item(v["g"], item.iname, "1", "g"))
+                d.putItem(Item(v["b"], item.iname, "2", "b"))
+                d.putItem(Item(v["a"], item.iname, "3", "a"))
+
+    def qdump__Color_(d, item):
+        v = item.value
+        d.putValue("(%s, %s, %s; %s)" % (v["r"], v["g"], v["b"], v["a"]))
+        if d.isExpanded(item):
+            with Children(d):
+                with SubItem(d):
+                    d.putField("iname", item.iname + ".0")
+                    d.putItemHelper(Item(v["r"], item.iname, "0", "r"))
+                with SubItem(d):
+                    d.putField("iname", item.iname + ".1")
+                    d.putItemHelper(Item(v["g"], item.iname, "1", "g"))
+                with SubItem(d):
+                    d.putField("iname", item.iname + ".2")
+                    d.putItemHelper(Item(v["b"], item.iname, "2", "b"))
+                with SubItem(d):
+                    d.putField("iname", item.iname + ".3")
+                    d.putItemHelper(Item(v["a"], item.iname, "3", "a"))
+
+
     def qdump__Function(d, item):
         min = item.value["min"]
         max = item.value["max"]

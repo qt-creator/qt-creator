@@ -1593,8 +1593,22 @@ int testReference()
     return a.size() + b.size() + c.size();
 }
 
+struct Color
+{
+    int r,g,b,a;
+    Color() { r = 1, g = 2, b = 3, a = 4; }
+};
+
+void testColor()
+{
+    Color c;
+    c.r = 5;
+}
+
 int main(int argc, char *argv[])
 {
+    testColor();
+
     testPeekAndPoke3();
     testFunctionPointer();
     testAnonymous();
