@@ -93,6 +93,7 @@ protected:
     virtual bool visit(QualifiedNameAST *ast);
     virtual bool visit(CastExpressionAST *ast);
     virtual bool visit(SizeofExpressionAST *ast);
+    virtual bool visit(NamespaceAliasDefinitionAST *ast);
 
     virtual bool visit(ObjCClassDeclarationAST *ast);
     virtual bool visit(ObjCProtocolRefsAST *ast);

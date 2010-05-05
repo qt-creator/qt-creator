@@ -255,6 +255,14 @@ bool CheckUndefinedSymbols::visit(TypeofSpecifierAST *)
     return false;
 }
 
+bool CheckUndefinedSymbols::visit(NamespaceAliasDefinitionAST *ast)
+{
+    if (const Identifier *id = identifier(ast->namespace_name_token))
+        _types.insert(QByteArray(id->chars(), id->size()));
+
+    return true;
+}
+
 bool CheckUndefinedSymbols::visit(NamedTypeSpecifierAST *ast)
 {
     if (ast->name) {
