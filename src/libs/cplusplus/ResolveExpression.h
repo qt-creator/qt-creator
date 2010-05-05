@@ -30,7 +30,7 @@
 #ifndef CPLUSPLUS_RESOLVEEXPRESSION_H
 #define CPLUSPLUS_RESOLVEEXPRESSION_H
 
-#include "LookupContext.h"
+#include "DeprecatedLookupContext.h"
 
 #include <ASTVisitor.h>
 #include <Semantic.h>
@@ -41,7 +41,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ResolveExpression: protected ASTVisitor
 {
 public:
-    ResolveExpression(const LookupContext &context);
+    ResolveExpression(const DeprecatedLookupContext &context);
     virtual ~ResolveExpression();
 
     QList<LookupItem> operator()(ExpressionAST *ast);
@@ -116,7 +116,7 @@ protected:
     QList<Scope *> visibleScopes(const LookupItem &result) const;
 
 private:
-    LookupContext _context;
+    DeprecatedLookupContext _context;
     Semantic sem;
     QList<LookupItem> _results;
     Symbol *_declSymbol;
@@ -129,12 +129,12 @@ public:
 
     QList<Symbol *> operator()(const Name *name,
                                const LookupItem &p,
-                               const LookupContext &context);
+                               const DeprecatedLookupContext &context);
 
 private:
     QList<Symbol *> resolveClass(const Name *name,
                                  const LookupItem &p,
-                                 const LookupContext &context);
+                                 const DeprecatedLookupContext &context);
 
 private:
     QList<LookupItem> _blackList;
@@ -147,7 +147,7 @@ public:
 
     QList<Symbol *> operator()(const Name *name,
                                const LookupItem &p,
-                               const LookupContext &context);
+                               const DeprecatedLookupContext &context);
 };
 
 

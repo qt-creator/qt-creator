@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "LookupContext.h"
+#include "DeprecatedLookupContext.h"
 #include "ResolveExpression.h"
 #include "Overview.h"
 #include "CppBindings.h"
@@ -53,12 +53,12 @@ using namespace CPlusPlus;
 /////////////////////////////////////////////////////////////////////
 // LookupContext
 /////////////////////////////////////////////////////////////////////
-LookupContext::LookupContext(Control *control)
+DeprecatedLookupContext::DeprecatedLookupContext(Control *control)
     : _control(control),
       _symbol(0)
 { }
 
-LookupContext::LookupContext(Symbol *symbol,
+DeprecatedLookupContext::DeprecatedLookupContext(Symbol *symbol,
                              Document::Ptr expressionDocument,
                              Document::Ptr thisDocument,
                              const Snapshot &snapshot)
@@ -71,28 +71,28 @@ LookupContext::LookupContext(Symbol *symbol,
     _visibleScopes = buildVisibleScopes();
 }
 
-bool LookupContext::isValid() const
+bool DeprecatedLookupContext::isValid() const
 { return _control != 0; }
 
-Control *LookupContext::control() const
+Control *DeprecatedLookupContext::control() const
 { return _control; }
 
-Symbol *LookupContext::symbol() const
+Symbol *DeprecatedLookupContext::symbol() const
 { return _symbol; }
 
-Document::Ptr LookupContext::expressionDocument() const
+Document::Ptr DeprecatedLookupContext::expressionDocument() const
 { return _expressionDocument; }
 
-Document::Ptr LookupContext::thisDocument() const
+Document::Ptr DeprecatedLookupContext::thisDocument() const
 { return _thisDocument; }
 
-Document::Ptr LookupContext::document(const QString &fileName) const
+Document::Ptr DeprecatedLookupContext::document(const QString &fileName) const
 { return _snapshot.document(fileName); }
 
-Snapshot LookupContext::snapshot() const
+Snapshot DeprecatedLookupContext::snapshot() const
 { return _snapshot; }
 
-bool LookupContext::maybeValidSymbol(Symbol *symbol,
+bool DeprecatedLookupContext::maybeValidSymbol(Symbol *symbol,
                                      ResolveMode mode,
                                      const QList<Symbol *> &candidates)
 {
@@ -107,7 +107,7 @@ bool LookupContext::maybeValidSymbol(Symbol *symbol,
     return false;
 }
 
-QList<Scope *> LookupContext::resolveNestedNameSpecifier(const QualifiedNameId *q,
+QList<Scope *> DeprecatedLookupContext::resolveNestedNameSpecifier(const QualifiedNameId *q,
                                                          const QList<Scope *> &visibleScopes) const
 {
     QList<Symbol *> candidates;
@@ -135,7 +135,7 @@ QList<Scope *> LookupContext::resolveNestedNameSpecifier(const QualifiedNameId *
     return scopes;
 }
 
-QList<Symbol *> LookupContext::resolveQualifiedNameId(const QualifiedNameId *q,
+QList<Symbol *> DeprecatedLookupContext::resolveQualifiedNameId(const QualifiedNameId *q,
                                                       const QList<Scope *> &visibleScopes,
                                                       ResolveMode mode) const
 {
@@ -203,7 +203,7 @@ QList<Symbol *> LookupContext::resolveQualifiedNameId(const QualifiedNameId *q,
     return candidates;
 }
 
-QList<Symbol *> LookupContext::resolveOperatorNameId(const OperatorNameId *opId,
+QList<Symbol *> DeprecatedLookupContext::resolveOperatorNameId(const OperatorNameId *opId,
                                                      const QList<Scope *> &visibleScopes,
                                                      ResolveMode) const
 {
@@ -224,7 +224,7 @@ QList<Symbol *> LookupContext::resolveOperatorNameId(const OperatorNameId *opId,
     return candidates;
 }
 
-QList<Symbol *> LookupContext::resolve(const Name *name, const QList<Scope *> &visibleScopes,
+QList<Symbol *> DeprecatedLookupContext::resolve(const Name *name, const QList<Scope *> &visibleScopes,
                                        ResolveMode mode) const
 {
     QList<Symbol *> candidates;
@@ -297,7 +297,7 @@ QList<Symbol *> LookupContext::resolve(const Name *name, const QList<Scope *> &v
     return candidates;
 }
 
-const Identifier *LookupContext::identifier(const Name *name) const
+const Identifier *DeprecatedLookupContext::identifier(const Name *name) const
 {
     if (name)
         return name->identifier();
@@ -305,7 +305,7 @@ const Identifier *LookupContext::identifier(const Name *name) const
     return 0;
 }
 
-void LookupContext::buildVisibleScopes_helper(Document::Ptr doc, QList<Scope *> *scopes,
+void DeprecatedLookupContext::buildVisibleScopes_helper(Document::Ptr doc, QList<Scope *> *scopes,
                                               QSet<QString> *processed)
 {
     if (doc && ! processed->contains(doc->fileName())) {
@@ -321,7 +321,7 @@ void LookupContext::buildVisibleScopes_helper(Document::Ptr doc, QList<Scope *> 
     }
 }
 
-QList<Scope *> LookupContext::buildVisibleScopes()
+QList<Scope *> DeprecatedLookupContext::buildVisibleScopes()
 {
     QList<Scope *> scopes;
 
@@ -355,10 +355,10 @@ QList<Scope *> LookupContext::buildVisibleScopes()
     return scopes;
 }
 
-QList<Scope *> LookupContext::visibleScopes(const LookupItem &result) const
+QList<Scope *> DeprecatedLookupContext::visibleScopes(const LookupItem &result) const
 { return visibleScopes(result.lastVisibleSymbol()); }
 
-QList<Scope *> LookupContext::visibleScopes(Symbol *symbol) const
+QList<Scope *> DeprecatedLookupContext::visibleScopes(Symbol *symbol) const
 {
     QList<Scope *> scopes;
     if (symbol) {
@@ -370,7 +370,7 @@ QList<Scope *> LookupContext::visibleScopes(Symbol *symbol) const
     return scopes;
 }
 
-void LookupContext::expandEnumOrAnonymousSymbol(ScopedSymbol *scopedSymbol,
+void DeprecatedLookupContext::expandEnumOrAnonymousSymbol(ScopedSymbol *scopedSymbol,
                                                 QList<Scope *> *expandedScopes) const
 {
     if (! scopedSymbol || expandedScopes->contains(scopedSymbol->members()))
@@ -395,21 +395,21 @@ void LookupContext::expandEnumOrAnonymousSymbol(ScopedSymbol *scopedSymbol,
     }
 }
 
-QList<Scope *> LookupContext::expand(const QList<Scope *> &scopes) const
+QList<Scope *> DeprecatedLookupContext::expand(const QList<Scope *> &scopes) const
 {
     QList<Scope *> expanded;
     expand(scopes, &expanded);
     return expanded;
 }
 
-void LookupContext::expand(const QList<Scope *> &scopes, QList<Scope *> *expandedScopes) const
+void DeprecatedLookupContext::expand(const QList<Scope *> &scopes, QList<Scope *> *expandedScopes) const
 {
     for (int i = 0; i < scopes.size(); ++i) {
         expand(scopes.at(i), scopes, expandedScopes);
     }
 }
 
-void LookupContext::expandNamespace(Namespace *ns,
+void DeprecatedLookupContext::expandNamespace(Namespace *ns,
                                     const QList<Scope *> &visibleScopes,
                                     QList<Scope *> *expandedScopes) const
 {
@@ -445,7 +445,7 @@ void LookupContext::expandNamespace(Namespace *ns,
     }
 }
 
-void LookupContext::expandClass(Class *klass,
+void DeprecatedLookupContext::expandClass(Class *klass,
                                 const QList<Scope *> &visibleScopes,
                                 QList<Scope *> *expandedScopes) const
 {
@@ -493,7 +493,7 @@ void LookupContext::expandClass(Class *klass,
     }
 }
 
-void LookupContext::expandBlock(Block *blockSymbol,
+void DeprecatedLookupContext::expandBlock(Block *blockSymbol,
                                 const QList<Scope *> &visibleScopes,
                                 QList<Scope *> *expandedScopes) const
 {
@@ -511,7 +511,7 @@ void LookupContext::expandBlock(Block *blockSymbol,
     }
 }
 
-void LookupContext::expandFunction(Function *function,
+void DeprecatedLookupContext::expandFunction(Function *function,
                                    const QList<Scope *> &visibleScopes,
                                    QList<Scope *> *expandedScopes) const
 {
@@ -536,7 +536,7 @@ void LookupContext::expandFunction(Function *function,
     }
 }
 
-void LookupContext::expandObjCMethod(ObjCMethod *method,
+void DeprecatedLookupContext::expandObjCMethod(ObjCMethod *method,
                                      const QList<Scope *> &,
                                      QList<Scope *> *expandedScopes) const
 {
@@ -544,7 +544,7 @@ void LookupContext::expandObjCMethod(ObjCMethod *method,
         expandedScopes->append(method->arguments());
 }
 
-void LookupContext::expandObjCClass(ObjCClass *klass,
+void DeprecatedLookupContext::expandObjCClass(ObjCClass *klass,
                                     const QList<Scope *> &visibleScopes,
                                     QList<Scope *> *expandedScopes) const
 {
@@ -592,7 +592,7 @@ void LookupContext::expandObjCClass(ObjCClass *klass,
     }
 }
 
-void LookupContext::expandObjCProtocol(ObjCProtocol *protocol, const QList<Scope *> &visibleScopes, QList<Scope *> *expandedScopes) const
+void DeprecatedLookupContext::expandObjCProtocol(ObjCProtocol *protocol, const QList<Scope *> &visibleScopes, QList<Scope *> *expandedScopes) const
 {
     // First expand the protocol itself
     expand(protocol->members(), visibleScopes, expandedScopes);
@@ -607,7 +607,7 @@ void LookupContext::expandObjCProtocol(ObjCProtocol *protocol, const QList<Scope
     }
 }
 
-void LookupContext::expand(Scope *scope,
+void DeprecatedLookupContext::expand(Scope *scope,
                            const QList<Scope *> &visibleScopes,
                            QList<Scope *> *expandedScopes) const
 {
@@ -666,10 +666,10 @@ static QList<ClassBinding *> visibleClassBindings(Symbol *symbol, NamespaceBindi
     return classBindings;
 }
 
-Symbol *LookupContext::canonicalSymbol(Symbol *symbol,
+Symbol *DeprecatedLookupContext::canonicalSymbol(Symbol *symbol,
                                        NamespaceBinding *globalNamespace)
 {
-    Symbol *canonicalSymbol = LookupContext::canonicalSymbol(symbol);
+    Symbol *canonicalSymbol = DeprecatedLookupContext::canonicalSymbol(symbol);
     if (! canonicalSymbol)
         return 0;
 
@@ -691,7 +691,7 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol,
                             continue;
                         else if (Function *f = c->type()->asFunctionType()) {
                             if (f->isVirtual())
-                                return LookupContext::canonicalSymbol(f);
+                                return DeprecatedLookupContext::canonicalSymbol(f);
                         }
                     }
                 }
@@ -702,7 +702,7 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol,
     return canonicalSymbol;
 }
 
-Symbol *LookupContext::canonicalSymbol(const QList<Symbol *> &candidates,
+Symbol *DeprecatedLookupContext::canonicalSymbol(const QList<Symbol *> &candidates,
                                        NamespaceBinding *globalNamespaceBinding)
 {
     if (candidates.isEmpty())
@@ -711,7 +711,7 @@ Symbol *LookupContext::canonicalSymbol(const QList<Symbol *> &candidates,
     return canonicalSymbol(candidates.first(), globalNamespaceBinding);
 }
 
-Symbol *LookupContext::canonicalSymbol(const QList<LookupItem> &results,
+Symbol *DeprecatedLookupContext::canonicalSymbol(const QList<LookupItem> &results,
                                        NamespaceBinding *globalNamespaceBinding)
 {
     QList<Symbol *> candidates;
@@ -723,7 +723,7 @@ Symbol *LookupContext::canonicalSymbol(const QList<LookupItem> &results,
 }
 
 
-Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
+Symbol *DeprecatedLookupContext::canonicalSymbol(Symbol *symbol)
 {
     Symbol *canonical = symbol;
     Class *canonicalClass = 0;

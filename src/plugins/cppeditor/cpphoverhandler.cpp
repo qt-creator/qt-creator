@@ -180,7 +180,7 @@ static QString buildHelpId(Symbol *symbol, const Name *name)
 
 // ### move me
 static FullySpecifiedType resolve(const FullySpecifiedType &ty,
-                                  const LookupContext &context,
+                                  const DeprecatedLookupContext &context,
                                   Symbol **resolvedSymbol,
                                   const Name **resolvedName)
 {

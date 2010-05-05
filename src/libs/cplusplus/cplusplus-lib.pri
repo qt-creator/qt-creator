@@ -34,7 +34,7 @@ HEADERS += \
     $$PWD/TypeOfExpression.h \
     $$PWD/TypePrettyPrinter.h \
     $$PWD/ResolveExpression.h \
-    $$PWD/LookupContext.h \
+    $$PWD/DeprecatedLookupContext.h \
     $$PWD/CppBindings.h \
     $$PWD/ASTParent.h \
     $$PWD/GenTemplateInstance.h \
@@ -59,7 +59,7 @@ SOURCES += \
     $$PWD/TypeOfExpression.cpp \
     $$PWD/TypePrettyPrinter.cpp \
     $$PWD/ResolveExpression.cpp \
-    $$PWD/LookupContext.cpp \
+    $$PWD/DeprecatedLookupContext.cpp \
     $$PWD/CppBindings.cpp \
     $$PWD/ASTParent.cpp \
     $$PWD/GenTemplateInstance.cpp \

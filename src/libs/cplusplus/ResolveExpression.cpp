@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "ResolveExpression.h"
-#include "LookupContext.h"
+#include "DeprecatedLookupContext.h"
 #include "Overview.h"
 #include "GenTemplateInstance.h"
 
@@ -71,7 +71,7 @@ static QList<_Tp> removeDuplicates(const QList<_Tp> &results)
 /////////////////////////////////////////////////////////////////////
 // ResolveExpression
 /////////////////////////////////////////////////////////////////////
-ResolveExpression::ResolveExpression(const LookupContext &context)
+ResolveExpression::ResolveExpression(const DeprecatedLookupContext &context)
     : ASTVisitor(context.expressionDocument()->translationUnit()),
       _context(context),
       sem(context.expressionDocument()->translationUnit())
@@ -845,7 +845,7 @@ ResolveClass::ResolveClass()
 
 QList<Symbol *> ResolveClass::operator()(const Name *name,
                                          const LookupItem &p,
-                                         const LookupContext &context)
+                                         const DeprecatedLookupContext &context)
 {
     const QList<LookupItem> previousBlackList = _blackList;
     const QList<Symbol *> symbols = resolveClass(name, p, context);
@@ -855,7 +855,7 @@ QList<Symbol *> ResolveClass::operator()(const Name *name,
 
 QList<Symbol *> ResolveClass::resolveClass(const Name *name,
                                            const LookupItem &p,
-                                           const LookupContext &context)
+                                           const DeprecatedLookupContext &context)
 {
     QList<Symbol *> resolvedSymbols;
 
@@ -913,7 +913,7 @@ ResolveObjCClass::ResolveObjCClass()
 
 QList<Symbol *> ResolveObjCClass::operator ()(const Name *name,
                                               const LookupItem &p,
-                                              const LookupContext &context)
+                                              const DeprecatedLookupContext &context)
 {
     QList<Symbol *> resolvedSymbols;
 

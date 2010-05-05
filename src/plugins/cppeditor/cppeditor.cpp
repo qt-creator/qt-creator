@@ -48,7 +48,7 @@
 #include <TranslationUnit.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cplusplus/LookupContext.h>
+#include <cplusplus/DeprecatedLookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/OverviewModel.h>
 #include <cplusplus/SimpleLexer.h>
@@ -560,7 +560,7 @@ protected:
 
 } // end of anonymous namespace
 
-static const QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const LookupContext &context)
+static const QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const DeprecatedLookupContext &context)
 {
     const Name *symbolName = s->name();
     if (! symbolName)
@@ -878,7 +878,7 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
                                                    TypeOfExpression::Preprocess);
 
     NamespaceBindingPtr glo = bind(doc, snapshot);
-    Symbol *canonicalSymbol = LookupContext::canonicalSymbol(results, glo.data());
+    Symbol *canonicalSymbol = DeprecatedLookupContext::canonicalSymbol(results, glo.data());
 
     return canonicalSymbol;
 }
@@ -1258,7 +1258,7 @@ void CPPEditor::switchDeclarationDefinition()
         TypeOfExpression typeOfExpression;
         typeOfExpression.setSnapshot(m_modelManager->snapshot());
         QList<LookupItem> resolvedSymbols = typeOfExpression(QString(), doc, lastSymbol);
-        const LookupContext &context = typeOfExpression.lookupContext();
+        const DeprecatedLookupContext &context = typeOfExpression.lookupContext();
 
         const QualifiedNameId *q = qualifiedNameIdForSymbol(f, context);
         QList<Symbol *> symbols = context.resolve(q);
@@ -1556,7 +1556,7 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
 
             if (score > bestScore) {
                 // create a lookup context
-                const LookupContext context(f, expressionDocument,
+                const DeprecatedLookupContext context(f, expressionDocument,
                                             thisDocument, snapshot);
 
                 // search the matching definition for the function declaration `symbol'.

@@ -29,7 +29,7 @@
 
 #include "TypeOfExpression.h"
 #include <TranslationUnit.h>
-#include "LookupContext.h"
+#include "DeprecatedLookupContext.h"
 #include "ResolveExpression.h"
 #include "pp.h"
 
@@ -51,7 +51,7 @@ Snapshot TypeOfExpression::snapshot() const
 void TypeOfExpression::setSnapshot(const Snapshot &documents)
 {
     m_snapshot = documents;
-    m_lookupContext = LookupContext();
+    m_lookupContext = DeprecatedLookupContext();
 }
 
 QList<LookupItem> TypeOfExpression::operator()(const QString &expression,
@@ -66,7 +66,7 @@ QList<LookupItem> TypeOfExpression::operator()(const QString &expression,
     expressionDoc->check();
     m_ast = extractExpressionAST(expressionDoc);
 
-    m_lookupContext = LookupContext(lastVisibleSymbol, expressionDoc,
+    m_lookupContext = DeprecatedLookupContext(lastVisibleSymbol, expressionDoc,
                                     document, m_snapshot);
 
     ResolveExpression resolveExpression(m_lookupContext);
@@ -84,7 +84,7 @@ ExpressionAST *TypeOfExpression::ast() const
     return m_ast;
 }
 
-const LookupContext &TypeOfExpression::lookupContext() const
+const DeprecatedLookupContext &TypeOfExpression::lookupContext() const
 {
     return m_lookupContext;
 }

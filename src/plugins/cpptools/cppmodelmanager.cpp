@@ -77,7 +77,7 @@
 #include <Parser.h>
 #include <Control.h>
 
-#include <cplusplus/LookupContext.h>
+#include <cplusplus/DeprecatedLookupContext.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -282,12 +282,12 @@ public:
           _workingCopy(workingCopy)
     { }
 
-    LookupContext lookupContext(unsigned line, unsigned column) const
+    DeprecatedLookupContext lookupContext(unsigned line, unsigned column) const
     { return lookupContext(_doc->findSymbolAt(line, column)); }
 
-    LookupContext lookupContext(Symbol *symbol) const
+    DeprecatedLookupContext lookupContext(Symbol *symbol) const
     {
-        LookupContext context(symbol, Document::create(QLatin1String("<none>")), _doc, _snapshot);
+        DeprecatedLookupContext context(symbol, Document::create(QLatin1String("<none>")), _doc, _snapshot);
         return context;
     }
 
@@ -825,7 +825,7 @@ QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol,
                                        const CPlusPlus::Snapshot &snapshot)
 {
     NamespaceBindingPtr glo = bind(doc, snapshot);
-    return m_findReferences->references(LookupContext::canonicalSymbol(symbol, glo.data()), doc, snapshot);
+    return m_findReferences->references(DeprecatedLookupContext::canonicalSymbol(symbol, glo.data()), doc, snapshot);
 }
 
 void CppModelManager::findUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol)

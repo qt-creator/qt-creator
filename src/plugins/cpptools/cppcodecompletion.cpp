@@ -46,7 +46,7 @@
 #include <TranslationUnit.h>
 
 #include <cplusplus/ResolveExpression.h>
-#include <cplusplus/LookupContext.h>
+#include <cplusplus/DeprecatedLookupContext.h>
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -89,7 +89,7 @@ class FunctionArgumentWidget : public QLabel
 public:
     FunctionArgumentWidget();
     void showFunctionHint(QList<Function *> functionSymbols,
-                          const LookupContext &context,
+                          const DeprecatedLookupContext &context,
                           int startPosition);
 
 protected:
@@ -117,7 +117,7 @@ private:
     QLabel *m_numberLabel;
     Utils::FakeToolTip *m_popupFrame;
     QList<Function *> m_items;
-    LookupContext m_context;
+    DeprecatedLookupContext m_context;
 };
 
 class ConvertToCompletionItem: protected NameVisitor
@@ -265,7 +265,7 @@ FunctionArgumentWidget::FunctionArgumentWidget():
 }
 
 void FunctionArgumentWidget::showFunctionHint(QList<Function *> functionSymbols,
-                                              const LookupContext &context,
+                                              const DeprecatedLookupContext &context,
                                               int startPosition)
 {
     Q_ASSERT(!functionSymbols.isEmpty());
@@ -798,7 +798,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
 
 
     QList<LookupItem> results = typeOfExpression(expression, thisDocument, lastVisibleSymbol, TypeOfExpression::Preprocess);
-    LookupContext context = typeOfExpression.lookupContext();
+    DeprecatedLookupContext context = typeOfExpression.lookupContext();
 
     if (results.isEmpty()) {
         if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
@@ -894,7 +894,7 @@ int CppCodeCompletion::globalCompletion(Symbol *lastVisibleSymbol,
     }
 
     Document::Ptr exprDoc = Document::create(QLatin1String("<expression>"));
-    const LookupContext context(lastVisibleSymbol, exprDoc, thisDocument, snapshot);
+    const DeprecatedLookupContext context(lastVisibleSymbol, exprDoc, thisDocument, snapshot);
     const QList<Scope *> scopes = context.expand(context.visibleScopes());
 
     foreach (Scope *scope, scopes) {
@@ -907,7 +907,7 @@ int CppCodeCompletion::globalCompletion(Symbol *lastVisibleSymbol,
 }
 
 bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &results,
-                                                      const LookupContext &context,
+                                                      const DeprecatedLookupContext &context,
                                                       int endOfExpression, bool toolTipOnly)
 {
     QList<Function *> functions;
@@ -1101,7 +1101,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 }
 
 bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
-                                       const LookupContext &context)
+                                       const DeprecatedLookupContext &context)
 {
     if (baseResults.isEmpty())
         return false;
@@ -1149,7 +1149,7 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
 }
 
 bool CppCodeCompletion::completeScope(const QList<LookupItem> &results,
-                                      const LookupContext &context)
+                                      const DeprecatedLookupContext &context)
 {
     QList<Symbol *> classes, namespaces;
 
@@ -1296,7 +1296,7 @@ bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
 }
 
 void CppCodeCompletion::completeNamespace(const QList<Symbol *> &candidates,
-                                          const LookupContext &context)
+                                          const DeprecatedLookupContext &context)
 {
     QList<Scope *> todo;
     QList<Scope *> visibleScopes = context.visibleScopes();
@@ -1318,7 +1318,7 @@ void CppCodeCompletion::completeNamespace(const QList<Symbol *> &candidates,
 }
 
 void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
-                                      const LookupContext &context,
+                                      const DeprecatedLookupContext &context,
                                       bool staticLookup)
 {
     if (candidates.isEmpty())
@@ -1351,7 +1351,7 @@ void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
 }
 
 bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
-                                         const LookupContext &context,
+                                         const DeprecatedLookupContext &context,
                                          bool wantSignals)
 {
     if (results.isEmpty())

@@ -47,7 +47,7 @@ namespace {
 class ApplySubstitution
 {
 public:
-    ApplySubstitution(const LookupContext &context, Symbol *symbol, const GenTemplateInstance::Substitution &substitution);
+    ApplySubstitution(const DeprecatedLookupContext &context, Symbol *symbol, const GenTemplateInstance::Substitution &substitution);
     ~ApplySubstitution();
 
     Control *control() const { return context.control(); }
@@ -309,14 +309,14 @@ private:
     };
 
 public: // attributes
-    LookupContext context;
+    DeprecatedLookupContext context;
     Symbol *symbol;
     GenTemplateInstance::Substitution substitution;
     ApplyToType applyToType;
     ApplyToName applyToName;
 };
 
-ApplySubstitution::ApplySubstitution(const LookupContext &context, Symbol *symbol,
+ApplySubstitution::ApplySubstitution(const DeprecatedLookupContext &context, Symbol *symbol,
                                      const GenTemplateInstance::Substitution &substitution)
     : context(context), symbol(symbol),
       substitution(substitution),
@@ -363,7 +363,7 @@ FullySpecifiedType ApplySubstitution::applySubstitution(int index) const
 
 } // end of anonymous namespace
 
-GenTemplateInstance::GenTemplateInstance(const LookupContext &context, const Substitution &substitution)
+GenTemplateInstance::GenTemplateInstance(const DeprecatedLookupContext &context, const Substitution &substitution)
     : _symbol(0),
       _context(context),
       _substitution(substitution)

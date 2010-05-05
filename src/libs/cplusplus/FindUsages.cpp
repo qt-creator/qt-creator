@@ -141,7 +141,7 @@ void FindUsages::reportResult(unsigned tokenIndex)
 
 bool FindUsages::checkCandidates(const QList<Symbol *> &candidates) const
 {
-    if (Symbol *canonicalSymbol = LookupContext::canonicalSymbol(candidates, _globalNamespaceBinding.data())) {
+    if (Symbol *canonicalSymbol = DeprecatedLookupContext::canonicalSymbol(candidates, _globalNamespaceBinding.data())) {
 
 #if 0
         Symbol *c = candidates.first();
@@ -201,7 +201,7 @@ bool FindUsages::checkSymbol(Symbol *symbol) const
     return false;
 }
 
-LookupContext FindUsages::currentContext(AST *ast)
+DeprecatedLookupContext FindUsages::currentContext(AST *ast)
 {
     unsigned line, column;
     getTokenStartPosition(ast->firstToken(), &line, &column);
@@ -217,7 +217,7 @@ LookupContext FindUsages::currentContext(AST *ast)
     if (lastVisibleSymbol && lastVisibleSymbol == _previousContext.symbol())
         return _previousContext;
 
-    LookupContext ctx(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
+    DeprecatedLookupContext ctx(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
     _previousContext = ctx;
     return _previousContext;
 }
@@ -235,7 +235,7 @@ bool FindUsages::visit(MemInitializerAST *ast)
 
         SimpleNameAST *simple = ast->name->asSimpleName();
         if (identifier(simple->identifier_token) == _id) {
-            LookupContext context = currentContext(ast);
+            DeprecatedLookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(simple->name);
             reportResult(simple->identifier_token, candidates);
         }
@@ -365,7 +365,7 @@ bool FindUsages::visit(EnumeratorAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        LookupContext context = currentContext(ast);
+        DeprecatedLookupContext context = currentContext(ast);
         const QList<Symbol *> candidates = context.resolve(control()->nameId(id));
         reportResult(ast->identifier_token, candidates);
     }
@@ -379,7 +379,7 @@ bool FindUsages::visit(SimpleNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        LookupContext context = currentContext(ast);
+        DeprecatedLookupContext context = currentContext(ast);
         const QList<Symbol *> candidates = context.resolve(ast->name);
         reportResult(ast->identifier_token, candidates);
     }
@@ -391,7 +391,7 @@ bool FindUsages::visit(DestructorNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        LookupContext context = currentContext(ast);
+        DeprecatedLookupContext context = currentContext(ast);
         const QList<Symbol *> candidates = context.resolve(ast->name);
         reportResult(ast->identifier_token, candidates);
     }
@@ -402,7 +402,7 @@ bool FindUsages::visit(DestructorNameAST *ast)
 bool FindUsages::visit(TemplateIdAST *ast)
 {
     if (_id == identifier(ast->identifier_token)) {
-        LookupContext context = currentContext(ast);
+        DeprecatedLookupContext context = currentContext(ast);
         const QList<Symbol *> candidates = context.resolve(ast->name);
         reportResult(ast->identifier_token, candidates);
     }
@@ -478,7 +478,7 @@ bool FindUsages::visit(ObjCSelectorAST *ast)
     if (ast->name) {
         const Identifier *id = ast->name->identifier();
         if (id == _id) {
-            LookupContext context = currentContext(ast);
+            DeprecatedLookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(ast->name);
             reportResult(ast->firstToken(), candidates);
         }

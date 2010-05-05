@@ -30,7 +30,7 @@
 #define CPLUSPLUS_TYPEOFEXPRESSION_H
 
 #include "CppDocument.h"
-#include "LookupContext.h"
+#include "DeprecatedLookupContext.h"
 
 #include <ASTfwd.h>
 #include <QtCore/QMap>
@@ -89,7 +89,7 @@ public:
     /**
      * Returns the lookup context of the last evaluated expression.
      */
-    const LookupContext &lookupContext() const;
+    const DeprecatedLookupContext &lookupContext() const;
 
     ExpressionAST *expressionAST() const;
 
@@ -107,7 +107,7 @@ private:
 
     Snapshot m_snapshot;
     ExpressionAST *m_ast;
-    LookupContext m_lookupContext;
+    DeprecatedLookupContext m_lookupContext;
 };
 
 } // namespace CPlusPlus

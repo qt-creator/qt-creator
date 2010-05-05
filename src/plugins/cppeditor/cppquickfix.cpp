@@ -1327,7 +1327,7 @@ const QList<LookupItem> QuickFixOperation::typeOf(CPlusPlus::ExpressionAST *ast)
     document()->translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
     Symbol *lastVisibleSymbol = document()->findSymbolAt(line, column);
 
-    _lookupContext = LookupContext(lastVisibleSymbol, document(), document(), snapshot());
+    _lookupContext = DeprecatedLookupContext(lastVisibleSymbol, document(), document(), snapshot());
 
     ResolveExpression resolveExpression(_lookupContext);
     return resolveExpression(ast);

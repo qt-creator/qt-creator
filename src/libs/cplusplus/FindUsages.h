@@ -30,7 +30,7 @@
 #ifndef FINDUSAGES_H
 #define FINDUSAGES_H
 
-#include "LookupContext.h"
+#include "DeprecatedLookupContext.h"
 #include "CppDocument.h"
 #include "CppBindings.h"
 #include "Semantic.h"
@@ -82,7 +82,7 @@ protected:
     bool checkScope(Symbol *symbol, Symbol *otherSymbol) const;
     void checkExpression(unsigned startToken, unsigned endToken);
 
-    LookupContext currentContext(AST *ast);
+    DeprecatedLookupContext currentContext(AST *ast);
 
     void ensureNameIsValid(NameAST *ast);
 
@@ -116,7 +116,7 @@ private:
     QList<QualifiedNameAST *> _qualifiedNameStack;
     QList<int> _references;
     QList<Usage> _usages;
-    LookupContext _previousContext;
+    DeprecatedLookupContext _previousContext;
     int _inSimpleDeclaration;
     bool _inQProperty;
     QSet<unsigned> _processed;

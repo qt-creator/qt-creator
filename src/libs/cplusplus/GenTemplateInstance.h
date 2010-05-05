@@ -34,7 +34,7 @@
 #include <NameVisitor.h>
 #include <FullySpecifiedType.h>
 
-#include "LookupContext.h"
+#include "DeprecatedLookupContext.h"
 
 #include <QtCore/QList>
 #include <QtCore/QPair>
@@ -47,7 +47,7 @@ public:
     typedef QList< QPair<const Identifier *, FullySpecifiedType> > Substitution;
 
 public:
-    GenTemplateInstance(const LookupContext &context, const Substitution &substitution);
+    GenTemplateInstance(const DeprecatedLookupContext &context, const Substitution &substitution);
 
     FullySpecifiedType operator()(Symbol *symbol);
 
@@ -55,7 +55,7 @@ public:
 
 private:
     Symbol *_symbol;
-    LookupContext _context;
+    DeprecatedLookupContext _context;
     const Substitution _substitution;
 };
 

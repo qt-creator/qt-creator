@@ -44,7 +44,7 @@
 #include <cplusplus/Literals.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/Control.h>
-#include <cplusplus/LookupContext.h>
+#include <cplusplus/DeprecatedLookupContext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -317,7 +317,7 @@ static Document::Ptr findDefinition(const Function *functionDeclaration, int *li
 
     Control control;
     const QualifiedNameId *q = control.qualifiedNameId(&qualifiedName[0], qualifiedName.size());
-    LookupContext context(&control);
+    DeprecatedLookupContext context(&control);
     const Snapshot documents = cppModelManager->snapshot();
     foreach (Document::Ptr doc, documents) {
         QList<Scope *> visibleScopes;

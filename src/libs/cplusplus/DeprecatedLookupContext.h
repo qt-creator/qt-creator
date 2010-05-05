@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef CPLUSPLUS_LOOKUPCONTEXT_H
-#define CPLUSPLUS_LOOKUPCONTEXT_H
+#ifndef CPLUSPLUS_DEPRECATEDLOOKUPCONTEXT_H
+#define CPLUSPLUS_DEPRECATEDLOOKUPCONTEXT_H
 
 #include "CppDocument.h"
 #include <FullySpecifiedType.h>
@@ -66,12 +66,12 @@ private:
     Symbol *_lastVisibleSymbol;
 };
 
-class CPLUSPLUS_EXPORT LookupContext
+class CPLUSPLUS_EXPORT DeprecatedLookupContext
 {
 public:
-    LookupContext(Control *control = 0);
+    DeprecatedLookupContext(Control *control = 0);
 
-    LookupContext(Symbol *symbol,
+    DeprecatedLookupContext(Symbol *symbol,
                   Document::Ptr expressionDocument,
                   Document::Ptr thisDocument,
                   const Snapshot &snapshot);
@@ -238,4 +238,4 @@ uint qHash(const CPlusPlus::LookupItem &result);
 inline uint qHash(const CPlusPlus::LookupItem &item) { return CPlusPlus::qHash(item); }
 #endif
 
-#endif // CPLUSPLUS_LOOKUPCONTEXT_H
+#endif // CPLUSPLUS_DEPRECATEDLOOKUPCONTEXT_H

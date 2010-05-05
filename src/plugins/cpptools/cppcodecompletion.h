@@ -107,34 +107,34 @@ private:
                          const CPlusPlus::Snapshot &snapshot);
 
     bool completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &,
-                                       const CPlusPlus::LookupContext &,
+                                       const CPlusPlus::DeprecatedLookupContext &,
                                        int endOfExpression, bool toolTipOnly);
 
     bool completeMember(const QList<CPlusPlus::LookupItem> &,
-                        const CPlusPlus::LookupContext &context);
+                        const CPlusPlus::DeprecatedLookupContext &context);
 
     bool completeScope(const QList<CPlusPlus::LookupItem> &,
-                       const CPlusPlus::LookupContext &context);
+                       const CPlusPlus::DeprecatedLookupContext &context);
 
     void completeNamespace(const QList<CPlusPlus::Symbol *> &candidates,
-                           const CPlusPlus::LookupContext &context);
+                           const CPlusPlus::DeprecatedLookupContext &context);
 
     void completeClass(const QList<CPlusPlus::Symbol *> &candidates,
-                       const CPlusPlus::LookupContext &context,
+                       const CPlusPlus::DeprecatedLookupContext &context,
                        bool staticLookup = true);
 
     bool completeConstructors(CPlusPlus::Class *klass);
 
     bool completeQtMethod(const QList<CPlusPlus::LookupItem> &,
-                          const CPlusPlus::LookupContext &context,
+                          const CPlusPlus::DeprecatedLookupContext &context,
                           bool wantSignals);
 
     bool completeSignal(const QList<CPlusPlus::LookupItem> &results,
-                        const CPlusPlus::LookupContext &context)
+                        const CPlusPlus::DeprecatedLookupContext &context)
     { return completeQtMethod(results, context, true); }
 
     bool completeSlot(const QList<CPlusPlus::LookupItem> &results,
-                      const CPlusPlus::LookupContext &context)
+                      const CPlusPlus::DeprecatedLookupContext &context)
     { return completeQtMethod(results, context, false); }
 
     int findStartOfName(int pos = -1) const;
