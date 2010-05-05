@@ -46,7 +46,9 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QMutex>
 #include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
 
 #include <ne7ssh.h>
 
@@ -71,14 +73,14 @@ public:
         quit();
     }
 
-    bool start(bool shell)
+    bool start(bool shell, void (*callbackFunc)(void *), void *callbackArg)
     {
         Q_ASSERT(m_channel == -1);
 
         try {
             const QString *authString;
             int (ne7ssh::*connFunc)(const char *, int, const char *,
-                                    const char *, bool, int);
+                const char *, bool, int, void (*)(void *), void *);
             if (m_server.authType == SshServerInfo::AuthByPwd) {
                 authString = &m_server.pwd;
                 connFunc = &ne7ssh::connectWithPassword;
@@ -87,14 +89,14 @@ public:
                 connFunc = &ne7ssh::connectWithKey;
             }
             m_channel = (ssh.data()->*connFunc)(m_server.host.toLatin1(),
-                            m_server.port, m_server.uname.toAscii(),
-                            authString->toLatin1(), shell, m_server.timeout);
+                m_server.port, m_server.uname.toAscii(), authString->toLatin1(),
+                shell, m_server.timeout, callbackFunc, callbackArg);
             if (m_channel == -1) {
                 setError(tr("Could not connect to host."), false);
                 return false;
             }
         } catch (const std::exception &e) {
-        // Should in theory not be necessary, but Net7 leaks Botan exceptions.
+            // Should in theory not be necessary, but Net7 leaks Botan exceptions.
             setError(tr("Error in cryptography backend: %1")
                      .arg(QLatin1String(e.what())), false);
             return false;
@@ -133,7 +135,6 @@ private:
     int m_channel;
 };
 
-
 char *alloc(size_t n)
 {
     return new char[n];
@@ -165,7 +166,8 @@ class ConnectionOutputReader : public QThread
 {
 public:
     ConnectionOutputReader(InteractiveSshConnection *parent)
-        : QThread(parent), m_conn(parent), m_stopRequested(false)
+        : QThread(parent), m_conn(parent), m_stopRequested(false),
+          m_dataAvailable(false)
     {}
 
     ~ConnectionOutputReader()
@@ -174,33 +176,61 @@ public:
         wait();
     }
 
-    // TODO: Use a wakeup mechanism here as soon as we no longer poll for output
-    // from Net7.
     void stop()
     {
+        m_mutex.lock();
         m_stopRequested = true;
+        m_waitCond.wakeOne();
+        m_mutex.unlock();
+    }
+
+    void dataAvailable()
+    {
+        m_mutex.lock();
+        m_dataAvailable = true;
+        m_waitCond.wakeOne();
+        m_mutex.unlock();
     }
 
 private:
     virtual void run()
     {
-        while (!m_stopRequested) {
-            const int channel = m_conn->d->conn.channel();
-            if (channel != -1) {
-                QScopedPointer<char, QScopedPointerArrayDeleter<char> >
-                    output(m_conn->d->conn.ssh->readAndReset(channel, alloc));
-                if (output)
-                    emit m_conn->remoteOutput(QByteArray(output.data()));
+        while (true) {
+            m_mutex.lock();
+            if (m_stopRequested) {
+                m_mutex.unlock();
+                return;
             }
-            usleep(100000); // TODO: Hack Net7 to enable wait() functionality.
+            const int channel = m_conn->d->conn.channel();
+            if (!m_dataAvailable || channel == -1)
+                m_waitCond.wait(&m_mutex);
+            m_dataAvailable = false;
+            m_mutex.unlock();
+            QScopedPointer<char, QScopedPointerArrayDeleter<char> >
+                    output(m_conn->d->conn.ssh->readAndReset(channel, alloc));
+            if (output)
+                emit m_conn->remoteOutput(QByteArray(output.data()));
         }
     }
 
     InteractiveSshConnection *m_conn;
     bool m_stopRequested;
+    bool m_dataAvailable;
+    QMutex m_mutex;
+    QWaitCondition m_waitCond;
 };
 
 } // namespace Internal
+
+
+namespace {
+
+void wakeupReader(void *opaqueReader)
+{
+    static_cast<Internal::ConnectionOutputReader*>(opaqueReader)->dataAvailable();
+}
+
+} // Anonymous namespace
 
 
 InteractiveSshConnection::InteractiveSshConnection(const SshServerInfo &server)
@@ -218,7 +248,7 @@ InteractiveSshConnection::~InteractiveSshConnection()
 
 bool InteractiveSshConnection::start()
 {
-    if (!d->conn.start(true))
+    if (!d->conn.start(true, wakeupReader, d->outputReader))
         return false;
 
     d->outputReader->start();
@@ -283,7 +313,7 @@ SftpConnection::~SftpConnection()
 
 bool SftpConnection::start()
 {
-    if (!d->conn.start(false))
+    if (!d->conn.start(false, 0, 0))
         return false;
     if (!d->conn.ssh->initSftp(d->sftp, d->conn.channel())
         || !d->sftp.setTimeout(d->conn.server().timeout)) {

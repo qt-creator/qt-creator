@@ -46,6 +46,8 @@ class ne7ssh_connection
     bool cmdRunning;
     bool cmdClosed;
 
+    void (*callbackFunc)(void *);
+    void *callbackArg;
 
     /**
      * Checks if remote side is returning a correctly formated SSH version string, and makes sure that version 2 of SSH protocol is supported by the remote side.
@@ -88,7 +90,7 @@ class ne7ssh_connection
     /**
      * ne7ssh_connection class constructor.
      */
-    ne7ssh_connection();
+    ne7ssh_connection(void (*callbackFunc)(void *) = 0, void *callbackArg = 0);
 
     /**
      * ne7ssh_connection class destructor.

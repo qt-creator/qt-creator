@@ -293,13 +293,15 @@ void *ne7ssh::selectThread (void *initData)
   return 0;
 }
 
-int ne7ssh::connectWithPassword (const char *host, const int port, const char* username, const char* password, bool shell, const int timeout)
+int ne7ssh::connectWithPassword (const char *host, const int port,
+    const char* username, const char* password, bool shell, const int timeout,
+    void (*callbackFunc)(void *), void *callbackArg)
 {
   int channel;
   uint32 currentRecord, z;
   uint32 channelID;
 
-  ne7ssh_connection* con = new ne7ssh_connection ();
+  ne7ssh_connection* con = new ne7ssh_connection (callbackFunc, callbackArg);
 
   if (!lock()) return -1;
   if (!conCount) connections = (ne7ssh_connection**) malloc (sizeof (ne7ssh_connection*));
@@ -344,13 +346,15 @@ int ne7ssh::connectWithPassword (const char *host, const int port, const char* u
   return channel;
 }
 
-int ne7ssh::connectWithKey (const char* host, const int port, const char* username, const char* privKeyFileName, bool shell, const int timeout)
+int ne7ssh::connectWithKey (const char* host, const int port,
+    const char* username, const char* privKeyFileName, bool shell,
+    const int timeout, void (*callbackFunc)(void *), void *callbackArg)
 {
   int channel;
   uint32 currentRecord, z;
   uint32 channelID;
 
-  ne7ssh_connection* con = new ne7ssh_connection ();
+  ne7ssh_connection* con = new ne7ssh_connection (callbackFunc, callbackArg);
   if (!lock()) return -1;
   if (!conCount) connections = (ne7ssh_connection**) malloc (sizeof (ne7ssh_connection*) * (conCount + 1));
   else connections = (ne7ssh_connection**) realloc (connections, sizeof (ne7ssh_connection*) * (conCount + 1));

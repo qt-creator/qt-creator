@@ -20,7 +20,10 @@
 
 using namespace Botan;
 
-ne7ssh_connection::ne7ssh_connection() : sock (-1), thisChannel(0), sftp(0), connected(false), cmdRunning(false), cmdClosed(false)
+ne7ssh_connection::ne7ssh_connection(void (*callbackFunc)(void *),
+    void *callbackArg)
+    : sock (-1), thisChannel(0), sftp(0), connected(false), cmdRunning(false),
+      cmdClosed(false), callbackFunc(callbackFunc), callbackArg(callbackArg)
 {
   session = new ne7ssh_session();
   crypto = new ne7ssh_crypt(session);
@@ -285,6 +288,8 @@ bool ne7ssh_connection::sendLocalVersion ()
 void ne7ssh_connection::handleData ()
 {
   channel->receive();
+  if (callbackFunc && getReceived().size() > 0)
+      callbackFunc(callbackArg);
 }
 
 void ne7ssh_connection::sendData (const char* data)

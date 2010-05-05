@@ -175,7 +175,9 @@ class SSH_EXPORT ne7ssh
      * @param timeout Timeout for the connection procedure, in seconds.
      * @return Returns newly assigned channel ID, or -1 if connection failed.
      */
-    int connectWithPassword (const char* host, const int port, const char* username, const char* password, bool shell = true, const int timeout = 0);
+    int connectWithPassword (const char* host, const int port, const char* username,
+        const char* password, bool shell = true, const int timeout = 0,
+        void (*callbackFunc)(void *) = 0, void *callbackArg = 0);
 
     /**
      * Connect to remote host using SSH2 protocol, with publickey authentication.
@@ -189,7 +191,9 @@ class SSH_EXPORT ne7ssh
      * @param timeout Timeout for the connection procedure, in seconds.
      * @return Returns newly assigned channel ID, or -1 if connection failed.
      */
-    int connectWithKey (const char* host, const int port, const char* username, const char* privKeyFileName, bool shell = true, const int timeout = 0);
+    int connectWithKey (const char* host, const int port, const char* username,
+        const char* privKeyFileName, bool shell = true, const int timeout = 0,
+        void (*callbackFunc)(void *) = 0, void *callbackArg = 0);
 
     /**
      * Retrieves a pointer to all current connections.
