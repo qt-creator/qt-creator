@@ -110,6 +110,31 @@ protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 };
 
+class CPLUSPLUS_EXPORT NamespaceAlias: public Symbol
+{
+public:
+    NamespaceAlias(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    virtual ~NamespaceAlias();
+
+    const Name *namespaceName() const;
+    void setNamespaceName(const Name *namespaceName);
+
+    // Symbol's interface
+    virtual FullySpecifiedType type() const;
+
+    virtual const NamespaceAlias *asNamespaceAlias() const
+    { return this; }
+
+    virtual NamespaceAlias *asNamespaceAlias()
+    { return this; }
+
+protected:
+    virtual void visitSymbol0(SymbolVisitor *visitor);
+
+private:
+    const Name *_namespaceName;
+};
+
 class CPLUSPLUS_EXPORT Declaration: public Symbol
 {
 public:

@@ -119,6 +119,7 @@ class Argument;
 class TypenameArgument;
 class Function;
 class Namespace;
+class NamespaceAlias;
 class BaseClass;
 class Block;
 class Class;

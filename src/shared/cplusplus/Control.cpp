@@ -385,6 +385,14 @@ public:
         return ns;
     }
 
+    NamespaceAlias *newNamespaceAlias(unsigned sourceLocation, const Name *name)
+    {
+        NamespaceAlias *ns = new NamespaceAlias(translationUnit,
+                                                sourceLocation, name);
+        symbols.push_back(ns);
+        return ns;
+    }
+
     UsingNamespaceDirective *newUsingNamespaceDirective(unsigned sourceLocation, const Name *name)
     {
         UsingNamespaceDirective *u = new UsingNamespaceDirective(translationUnit,
@@ -671,6 +679,9 @@ Function *Control::newFunction(unsigned sourceLocation, const Name *name)
 
 Namespace *Control::newNamespace(unsigned sourceLocation, const Name *name)
 { return d->newNamespace(sourceLocation, name); }
+
+NamespaceAlias *Control::newNamespaceAlias(unsigned sourceLocation, const Name *name)
+{ return d->newNamespaceAlias(sourceLocation, name); }
 
 BaseClass *Control::newBaseClass(unsigned sourceLocation, const Name *name)
 { return d->newBaseClass(sourceLocation, name); }

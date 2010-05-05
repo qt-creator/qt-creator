@@ -179,6 +179,13 @@ bool Scope::isObjCClassScope() const
     return false;
 }
 
+bool Scope::isObjCProtocolScope() const
+{
+    if (_owner)
+        return _owner->isObjCProtocol();
+    return false;
+}
+
 bool Scope::isFunctionScope() const
 {
     Function *f = 0;

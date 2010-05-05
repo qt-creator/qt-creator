@@ -131,6 +131,9 @@ public:
     /// Creates a new Namespace symbol.
     Namespace *newNamespace(unsigned sourceLocation, const Name *name = 0);
 
+    /// Creates a new Namespace symbol.
+    NamespaceAlias *newNamespaceAlias(unsigned sourceLocation, const Name *name = 0);
+
     /// Creates a new BaseClass symbol.
     BaseClass *newBaseClass(unsigned sourceLocation, const Name *name = 0);
 

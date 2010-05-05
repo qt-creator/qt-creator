@@ -409,8 +409,27 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
     return false;
 }
 
-bool CheckDeclaration::visit(NamespaceAliasDefinitionAST *)
+bool CheckDeclaration::visit(NamespaceAliasDefinitionAST *ast)
 {
+    const Name *name = 0;
+
+    if (const Identifier *id = identifier(ast->namespace_name_token))
+        name = control()->nameId(id);
+
+    unsigned sourceLocation = ast->firstToken();
+
+    if (ast->namespace_name_token)
+        sourceLocation = ast->namespace_name_token;
+
+    const Name *namespaceName = semantic()->check(ast->name, _scope);
+
+    NamespaceAlias *namespaceAlias = control()->newNamespaceAlias(sourceLocation, name);
+    namespaceAlias->setNamespaceName(namespaceName);
+    namespaceAlias->setStartOffset(tokenAt(ast->firstToken()).offset);
+    namespaceAlias->setEndOffset(tokenAt(ast->lastToken()).offset);
+    //ast->symbol = namespaceAlias;
+    _scope->enterSymbol(namespaceAlias);
+
     return false;
 }
 

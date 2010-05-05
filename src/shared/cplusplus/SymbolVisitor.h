@@ -70,6 +70,7 @@ public:
 
     virtual bool visit(UsingNamespaceDirective *) { return true; }
     virtual bool visit(UsingDeclaration *) { return true; }
+    virtual bool visit(NamespaceAlias *) { return true; }
     virtual bool visit(Declaration *) { return true; }
     virtual bool visit(Argument *) { return true; }
     virtual bool visit(TypenameArgument *) { return true; }

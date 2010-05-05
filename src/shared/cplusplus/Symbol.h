@@ -239,6 +239,7 @@ public:
     virtual const Enum *asEnum() const { return 0; }
     virtual const Function *asFunction() const { return 0; }
     virtual const Namespace *asNamespace() const { return 0; }
+    virtual const NamespaceAlias *asNamespaceAlias() const { return 0; }
     virtual const Class *asClass() const { return 0; }
     virtual const Block *asBlock() const { return 0; }
     virtual const UsingNamespaceDirective *asUsingNamespaceDirective() const { return 0; }
@@ -261,6 +262,7 @@ public:
     virtual Enum *asEnum() { return 0; }
     virtual Function *asFunction() { return 0; }
     virtual Namespace *asNamespace() { return 0; }
+    virtual NamespaceAlias *asNamespaceAlias() { return 0; }
     virtual Class *asClass() { return 0; }
     virtual Block *asBlock() { return 0; }
     virtual UsingNamespaceDirective *asUsingNamespaceDirective() { return 0; }
@@ -324,7 +326,7 @@ protected:
     TranslationUnit *translationUnit() const;
 
 private:
-    Control *_control;
+    TranslationUnit *_translationUnit;
     unsigned _sourceLocation;
     unsigned _sourceOffset;
     unsigned _startOffset;

@@ -89,6 +89,27 @@ FullySpecifiedType UsingNamespaceDirective::type() const
 void UsingNamespaceDirective::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
+NamespaceAlias::NamespaceAlias(TranslationUnit *translationUnit,
+                               unsigned sourceLocation, const Name *name)
+    : Symbol(translationUnit, sourceLocation, name), _namespaceName(0)
+{ }
+
+NamespaceAlias::~NamespaceAlias()
+{ }
+
+const Name *NamespaceAlias::namespaceName() const
+{ return _namespaceName; }
+
+void NamespaceAlias::setNamespaceName(const Name *namespaceName)
+{ _namespaceName = namespaceName; }
+
+FullySpecifiedType NamespaceAlias::type() const
+{ return FullySpecifiedType(); }
+
+void NamespaceAlias::visitSymbol0(SymbolVisitor *visitor)
+{ visitor->visit(this); }
+
+
 UsingDeclaration::UsingDeclaration(TranslationUnit *translationUnit,
                                    unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)

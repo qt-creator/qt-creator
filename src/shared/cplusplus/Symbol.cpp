@@ -161,7 +161,7 @@ private:
 };
 
 Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : _control(translationUnit->control()),
+    : _translationUnit(translationUnit),
       _sourceLocation(sourceLocation),
       _sourceOffset(0),
       _startOffset(0),
@@ -183,10 +183,15 @@ Symbol::~Symbol()
 { }
 
 Control *Symbol::control() const
-{ return _control; }
+{
+    if (_translationUnit)
+        return _translationUnit->control();
+
+    return 0;
+}
 
 TranslationUnit *Symbol::translationUnit() const
-{ return _control->translationUnit(); }
+{ return _translationUnit; }
 
 void Symbol::visitSymbol(SymbolVisitor *visitor)
 {
