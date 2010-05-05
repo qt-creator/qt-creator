@@ -418,6 +418,7 @@ private:
     }
 };
 
+
 class FakeVimHandler::Private : public QObject
 {
     Q_OBJECT
@@ -579,7 +580,6 @@ public:
     QTextCursor m_tc;
     int m_oldPosition; // copy from last event to check for external changes
     int m_anchor;
-    static QHash<int, Register> m_registers;
     int m_register;
     QString m_mvcount;
     QString m_opcount;
@@ -646,10 +646,8 @@ public:
 
     // extra data for '.'
     void replay(const QString &text, int count);
-    void setDotCommand(const QString &cmd) { m_dotCommand = cmd; }
-    void setDotCommand(const QString &cmd, int n) { m_dotCommand = cmd.arg(n); }
-    QString m_dotCommand;
-    bool m_inReplay; // true if we are executing a '.'
+    void setDotCommand(const QString &cmd) { g.dotCommand = cmd; }
+    void setDotCommand(const QString &cmd, int n) { g.dotCommand = cmd.arg(n); }
 
     // extra data for ';'
     QString m_semicolonCount;
@@ -658,12 +656,6 @@ public:
 
     // history for '/'
     QString lastSearchString() const;
-    static QStringList m_searchHistory;
-    int m_searchHistoryIndex;
-
-    // history for ':'
-    static QStringList m_commandHistory;
-    int m_commandHistoryIndex;
 
     // visual line mode
     void enterVisualMode(VisualMode visualMode);
@@ -717,24 +709,39 @@ public:
     bool handleExSubstituteCommand(const QString &line);
     bool handleExWriteCommand(const QString &line);
 
-    // All mappings.
-    typedef QHash<char, ModeMapping> Mappings;
-    static Mappings m_mappings;
-
-    QVector<Input> m_pendingInput;
-
     void timerEvent(QTimerEvent *ev);
-    int m_inputTimer;
 
     void setupCharClass();
     int charClass(QChar c, bool simple) const;
     signed char m_charClass[256];
+
+    static struct GlobalData
+    {
+        GlobalData() { inReplay = false; inputTimer = -1; }
+
+        // Input.
+        QVector<Input> pendingInput;
+        int inputTimer;
+
+        // Repetition.
+        QString dotCommand;
+        bool inReplay; // true if we are executing a '.'
+
+        // Histories.
+        QStringList searchHistory;
+        int searchHistoryIndex;
+        QStringList commandHistory;
+        int commandHistoryIndex;
+
+        QHash<int, Register> registers;
+
+        // All mappings.
+        typedef QHash<char, ModeMapping> Mappings;
+        Mappings mappings;
+    } g;
 };
 
-QStringList FakeVimHandler::Private::m_searchHistory;
-QStringList FakeVimHandler::Private::m_commandHistory;
-QHash<int, Register> FakeVimHandler::Private::m_registers;
-FakeVimHandler::Private::Mappings FakeVimHandler::Private::m_mappings;
+FakeVimHandler::Private::GlobalData FakeVimHandler::Private::g;
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
@@ -764,11 +771,9 @@ void FakeVimHandler::Private::init()
     m_movetype = MoveInclusive;
     m_anchor = 0;
     m_cursorWidth = EDITOR(cursorWidth());
-    m_inReplay = false;
     m_justAutoIndented = 0;
     m_rangemode = RangeCharMode;
     m_beginEditBlock = true;
-    m_inputTimer = -1;
 
     setupCharClass();
 }
@@ -969,13 +974,13 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
     if (m_mode == ExMode || isSearchMode())
         return handleMiniBufferModes(input);
     if (m_mode == InsertMode || m_mode == CommandMode) {
-        m_pendingInput.append(input);
+        g.pendingInput.append(input);
         const char code = m_mode == InsertMode ? 'i' : 'n';
-        if (m_mappings[code].mappingDone(&m_pendingInput))
+        if (g.mappings[code].mappingDone(&g.pendingInput))
             return handleKey2();
-        if (m_inputTimer != -1)
-            killTimer(m_inputTimer);
-        m_inputTimer = startTimer(1000);
+        if (g.inputTimer != -1)
+            killTimer(g.inputTimer);
+        g.inputTimer = startTimer(1000);
         return EventHandled;
     }
     return EventUnhandled;
@@ -986,22 +991,22 @@ EventResult FakeVimHandler::Private::handleKey2()
     setUndoPosition(m_tc.position());
     if (m_mode == InsertMode) {
         EventResult result = EventUnhandled;
-        foreach (const Input &in, m_pendingInput) {
+        foreach (const Input &in, g.pendingInput) {
             EventResult r = handleInsertMode(in);
             if (r == EventHandled)
                 result = EventHandled;
         }
-        m_pendingInput.clear();
+        g.pendingInput.clear();
         return result;
     }
     if (m_mode == CommandMode) {
         EventResult result = EventUnhandled;
-        foreach (const Input &in, m_pendingInput) {
+        foreach (const Input &in, g.pendingInput) {
             EventResult r = handleCommandMode(in);
             if (r == EventHandled)
                 result = EventHandled;
         }
-        m_pendingInput.clear();
+        g.pendingInput.clear();
         return result;
     }
     return EventUnhandled;
@@ -1100,8 +1105,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         enterExMode();
         m_currentMessage.clear();
         m_commandBuffer = QString(".,+%1!").arg(qAbs(endLine - beginLine));
-        m_commandHistory.append(QString());
-        m_commandHistoryIndex = m_commandHistory.size() - 1;
+        g.commandHistory.append(QString());
+        g.commandHistoryIndex = g.commandHistory.size() - 1;
         updateMiniBuffer();
         updateCursor();
         return;
@@ -1142,7 +1147,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         if (m_submode != TransformSubMode) {
             yankSelectedText();
             if (m_movetype == MoveLineWise)
-                m_registers[m_register].rangemode = RangeLineMode;
+                g.registers[m_register].rangemode = RangeLineMode;
         }
 
         m_positionPastEnd = m_anchorPastEnd = false;
@@ -1620,8 +1625,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_commandBuffer.clear();
         if (isVisualMode())
             m_commandBuffer = "'<,'>";
-        m_commandHistory.append(QString());
-        m_commandHistoryIndex = m_commandHistory.size() - 1;
+        g.commandHistory.append(QString());
+        g.commandHistoryIndex = g.commandHistory.size() - 1;
         updateMiniBuffer();
     } else if (input.is('/') || input.is('?')) {
         if (hasConfig(ConfigUseCoreSearch)) {
@@ -1639,8 +1644,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             m_subsubmode = (input.is('/'))
                 ? SearchForwardSubSubMode : SearchBackwardSubSubMode;
             m_commandBuffer.clear();
-            m_searchHistory.append(QString());
-            m_searchHistoryIndex = m_searchHistory.size() - 1;
+            g.searchHistory.append(QString());
+            g.searchHistoryIndex = g.searchHistory.size() - 1;
             updateCursor();
             updateMiniBuffer();
         }
@@ -1650,7 +1655,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         // FIXME: That's not proper vim behaviour
         m_tc.select(QTextCursor::WordUnderCursor);
         QString needle = "\\<" + m_tc.selection().toPlainText() + "\\>";
-        m_searchHistory.append(needle);
+        g.searchHistory.append(needle);
         m_lastSearchForward = (input.is('*'));
         updateMiniBuffer();
         search(needle, m_lastSearchForward);
@@ -1668,8 +1673,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         enterExMode();
         m_currentMessage.clear();
         m_commandBuffer = "'<,'>!";
-        m_commandHistory.append(QString());
-        m_commandHistoryIndex = m_commandHistory.size() - 1;
+        g.commandHistory.append(QString());
+        g.commandHistoryIndex = g.commandHistory.size() - 1;
         updateMiniBuffer();
     } else if (input.is('"')) {
         m_submode = RegisterSubMode;
@@ -1709,13 +1714,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
     } else if (input.is(',')) {
         passShortcuts(true);
     } else if (input.is('.')) {
-        //qDebug() << "REPEATING" << quoteUnprintable(m_dotCommand) << count()
+        //qDebug() << "REPEATING" << quoteUnprintable(g.dotCommand) << count()
         //    << input;
-        QString savedCommand = m_dotCommand;
-        m_dotCommand.clear();
+        QString savedCommand = g.dotCommand;
+        g.dotCommand.clear();
         replay(savedCommand, count());
         enterCommandMode();
-        m_dotCommand = savedCommand;
+        g.dotCommand = savedCommand;
     } else if (input.is('<') && isNoVisualMode()) {
         m_submode = ShiftLeftSubMode;
     } else if (input.is('<') && isVisualMode()) {
@@ -2295,8 +2300,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             leaveVisualMode();
             recordNewUndo();
         }
-        m_dotCommand += m_lastInsertion;
-        m_dotCommand += QChar(27);
+        g.dotCommand += m_lastInsertion;
+        g.dotCommand += QChar(27);
         enterCommandMode();
         m_submode = NoSubMode;
     } else if (input.isKey(Key_Insert)) {
@@ -2429,7 +2434,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             }
         }
 
-        if (!m_inReplay)
+        if (!g.inReplay)
             emit q->completionRequested();
         setTargetColumn();
         endEditBlock();
@@ -2462,8 +2467,8 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
     } else if (input.isKey(Key_Return) && isSearchMode()
             && !hasConfig(ConfigIncSearch)) {
         if (!m_commandBuffer.isEmpty()) {
-            m_searchHistory.takeLast();
-            m_searchHistory.append(m_commandBuffer);
+            g.searchHistory.takeLast();
+            g.searchHistory.append(m_commandBuffer);
             m_lastSearchForward = (m_subsubmode == SearchForwardSubSubMode);
             search(lastSearchString(), m_lastSearchForward);
             recordJump();
@@ -2475,8 +2480,8 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
         updateMiniBuffer();
     } else if (input.isKey(Key_Return) && m_mode == ExMode) {
         if (!m_commandBuffer.isEmpty()) {
-            m_commandHistory.takeLast();
-            m_commandHistory.append(m_commandBuffer);
+            g.commandHistory.takeLast();
+            g.commandHistory.append(m_commandBuffer);
             handleExCommand(m_commandBuffer);
             if (m_textedit || m_plaintextedit) {
                 leaveVisualMode();
@@ -2485,24 +2490,24 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(const Input &input)
     } else if ((input.isKey(Key_Up) || input.isKey(Key_PageUp)) && isSearchMode()) {
         // FIXME: This and the three cases below are wrong as vim
         // takes only matching entries in the history into account.
-        if (m_searchHistoryIndex > 0) {
-            --m_searchHistoryIndex;
-            showBlackMessage(m_searchHistory.at(m_searchHistoryIndex));
+        if (g.searchHistoryIndex > 0) {
+            --g.searchHistoryIndex;
+            showBlackMessage(g.searchHistory.at(g.searchHistoryIndex));
         }
     } else if ((input.isKey(Key_Up) || input.isKey(Key_PageUp)) && m_mode == ExMode) {
-        if (m_commandHistoryIndex > 0) {
-            --m_commandHistoryIndex;
-            showBlackMessage(m_commandHistory.at(m_commandHistoryIndex));
+        if (g.commandHistoryIndex > 0) {
+            --g.commandHistoryIndex;
+            showBlackMessage(g.commandHistory.at(g.commandHistoryIndex));
         }
     } else if ((input.isKey(Key_Down) || input.isKey(Key_PageDown)) && isSearchMode()) {
-        if (m_searchHistoryIndex < m_searchHistory.size() - 1) {
-            ++m_searchHistoryIndex;
-            showBlackMessage(m_searchHistory.at(m_searchHistoryIndex));
+        if (g.searchHistoryIndex < g.searchHistory.size() - 1) {
+            ++g.searchHistoryIndex;
+            showBlackMessage(g.searchHistory.at(g.searchHistoryIndex));
         }
     } else if ((input.isKey(Key_Down) || input.isKey(Key_PageDown)) && m_mode == ExMode) {
-        if (m_commandHistoryIndex < m_commandHistory.size() - 1) {
-            ++m_commandHistoryIndex;
-            showBlackMessage(m_commandHistory.at(m_commandHistoryIndex));
+        if (g.commandHistoryIndex < g.commandHistory.size() - 1) {
+            ++g.commandHistoryIndex;
+            showBlackMessage(g.commandHistory.at(g.commandHistoryIndex));
         }
     } else if (input.isKey(Key_Tab)) {
         m_commandBuffer += QChar(9);
@@ -2775,8 +2780,8 @@ bool FakeVimHandler::Private::handleExMapCommand(const QString &line) // :map
     switch (type) {
         case Unmap:
             foreach (char c, modes)
-                if (m_mappings.contains(c))
-                    m_mappings[c].remove(key);
+                if (g.mappings.contains(c))
+                    g.mappings[c].remove(key);
             break;
         case Map:
             rhs = rhs; // FIXME: expand rhs.
@@ -2786,7 +2791,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const QString &line) // :map
             foreach (QChar c, rhs)
                 inputs.append(Input(c));
             foreach (char c, modes)
-                m_mappings[c].insert(key, inputs);
+                g.mappings[c].insert(key, inputs);
             break;
         }
     }
@@ -2804,7 +2809,7 @@ bool FakeVimHandler::Private::handleExHistoryCommand(const QString &cmd) // :his
         QString info;
         info += "#  command history\n";
         int i = 0;
-        foreach (const QString &item, m_commandHistory) {
+        foreach (const QString &item, g.commandHistory) {
             ++i;
             info += QString("%1 %2\n").arg(i, -8).arg(item);
         }
@@ -2883,7 +2888,7 @@ bool FakeVimHandler::Private::handleExDeleteCommand(const QString &line) // :d
     QString text = selectedText();
     removeSelectedText();
     if (!reg.isEmpty()) {
-        Register &r = m_registers[reg.at(0).unicode()];
+        Register &r = g.registers[reg.at(0).unicode()];
         r.contents = text;
         r.rangemode = RangeLineMode;
     }
@@ -3653,7 +3658,7 @@ int FakeVimHandler::Private::lastPositionInDocument() const
 
 QString FakeVimHandler::Private::lastSearchString() const
 {
-     return m_searchHistory.empty() ? QString() : m_searchHistory.back();
+     return g.searchHistory.empty() ? QString() : g.searchHistory.back();
 }
 
 QString FakeVimHandler::Private::text(const Range &range) const
@@ -3713,7 +3718,7 @@ void FakeVimHandler::Private::yankSelectedText()
 
 void FakeVimHandler::Private::yankText(const Range &range, int toregister)
 {
-    Register &reg = m_registers[toregister];
+    Register &reg = g.registers[toregister];
     reg.contents = text(range);
     reg.rangemode = range.rangemode;
     //qDebug() << "YANKED: " << reg.contents;
@@ -3877,9 +3882,9 @@ void FakeVimHandler::Private::replaceTransform(int updateMarksAfter, QTextCursor
 
 void FakeVimHandler::Private::pasteText(bool afterCursor)
 {
-    const QString text = m_registers[m_register].contents;
+    const QString text = g.registers[m_register].contents;
     const QStringList lines = text.split(QChar('\n'));
-    switch (m_registers[m_register].rangemode) {
+    switch (g.registers[m_register].rangemode) {
         case RangeCharMode: {
             m_targetColumn = 0;
             for (int i = count(); --i >= 0; ) {
@@ -4187,14 +4192,14 @@ void FakeVimHandler::Private::handleStartOfLine()
 void FakeVimHandler::Private::replay(const QString &command, int n)
 {
     //qDebug() << "REPLAY: " << quoteUnprintable(command);
-    m_inReplay = true;
+    g.inReplay = true;
     for (int i = n; --i >= 0; ) {
         foreach (QChar c, command) {
             //qDebug() << "  REPLAY: " << QString(c);
             handleKey(Input(c));
         }
     }
-    m_inReplay = false;
+    g.inReplay = false;
 }
 
 
