@@ -139,7 +139,7 @@ private:
 
     bool completeConstructors(CPlusPlus::Class *klass);
 
-    bool completeQtMethod(const QList<CPlusPlus::LookupItem> &context,
+    bool completeQtMethod(const QList<CPlusPlus::LookupItem> &results,
                           const CPlusPlus::LookupContext &context,
                           bool wantSignals);
 
