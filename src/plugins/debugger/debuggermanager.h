@@ -92,6 +92,7 @@ class CdbDumperHelper;
 class CdbDumperInitThread;
 class CdbExceptionLoggerEventCallback;
 class GdbEngine;
+class TcfEngine;
 class CdbDebugEngine;
 class CdbDebugEnginePrivate;
 class TrkGdbAdapter;
@@ -140,10 +141,12 @@ enum DebuggerEngineTypeFlags
     ScriptEngineType  = 0x02,
     CdbEngineType     = 0x04,
     PdbEngineType     = 0x08,
+    TcfEngineType     = 0x10,
     AllEngineTypes = GdbEngineType
         | ScriptEngineType
         | CdbEngineType
         | PdbEngineType
+        | TcfEngineType
 };
 
 QDebug operator<<(QDebug d, DebuggerState state);
@@ -171,6 +174,7 @@ public:
     friend class Internal::GdbEngine;
     friend class Internal::ScriptEngine;
     friend class Internal::PdbEngine;
+    friend class Internal::TcfEngine;
     friend class Internal::CdbDebugEngine;
     friend class Internal::CdbDebugEnginePrivate;
     friend class Internal::TrkGdbAdapter;

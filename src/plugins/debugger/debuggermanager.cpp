@@ -157,6 +157,7 @@ namespace Internal {
 IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
 IDebuggerEngine *createPdbEngine(DebuggerManager *parent);
+IDebuggerEngine *createTcfEngine(DebuggerManager *parent);
 
 // The createCdbEngine function takes a list of options pages it can add to.
 // This allows for having a "enabled" toggle on the page independently
@@ -251,6 +252,7 @@ static Debugger::Internal::IDebuggerEngine *gdbEngine = 0;
 static Debugger::Internal::IDebuggerEngine *scriptEngine = 0;
 static Debugger::Internal::IDebuggerEngine *cdbEngine = 0;
 static Debugger::Internal::IDebuggerEngine *pdbEngine = 0;
+static Debugger::Internal::IDebuggerEngine *tcfEngine = 0;
 
 struct DebuggerManagerPrivate
 {
@@ -345,6 +347,7 @@ DebuggerManager::~DebuggerManager()
     doDelete(pdbEngine);
     doDelete(gdbEngine);
     doDelete(cdbEngine);
+    doDelete(tcfEngine);
 
     doDelete(d->m_breakHandler);
     doDelete(d->m_threadsHandler);
@@ -357,6 +360,7 @@ DebuggerManager::~DebuggerManager()
     doDelete(gdbEngine);
     doDelete(scriptEngine);
     doDelete(cdbEngine);
+    doDelete(tcfEngine);
     #undef doDelete
     DebuggerManagerPrivate::instance = 0;
     delete d;
@@ -662,6 +666,11 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
     if (enabledTypeFlags & PdbEngineType) {
         pdbEngine = createPdbEngine(this);
         //pdbEngine->addOptionPages(&rc);
+    }
+
+    if (enabledTypeFlags & TcfEngineType) {
+        tcfEngine = createTcfEngine(this);
+        tcfEngine->addOptionPages(&rc);
     }
 
     d->m_engine = 0;
@@ -1038,6 +1047,9 @@ static IDebuggerEngine *debuggerEngineForExecutable(const QString &executable,
 // Debugger type for mode
 static IDebuggerEngine *debuggerEngineForMode(DebuggerStartMode startMode, QString *errorMessage)
 {
+    if (startMode == AttachTcf)
+        return tcfEngine;
+
 #ifdef Q_OS_WIN
     // Preferably Windows debugger for attaching locally.
     if (startMode != StartRemote && cdbEngine)
@@ -1676,10 +1688,12 @@ void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
         dialog.setDetailedText(details);
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
-        Core::ICore::instance()->showOptionsDialog(_(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY),
-                                                   _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
+        Core::ICore::instance()->showOptionsDialog(
+            _(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY),
+            _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
     } else if (dialog.clickedButton() == helperOff) {
-        theDebuggerAction(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
+        theDebuggerAction(UseDebuggingHelpers)
+            ->setValue(qVariantFromValue(false), false);
     }
 }
 

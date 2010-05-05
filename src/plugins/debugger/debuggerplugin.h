@@ -120,6 +120,7 @@ private slots:
     void attachExternalApplication();
     void attachCore();
     void attachCmdLine();
+    void attachRemoteTcf();
 
     void enableReverseDebuggingTriggered(const QVariant &value);
     void languageChanged(const QString &debuggerLanguage);
@@ -153,6 +154,7 @@ private:
     QAction *m_startRemoteAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
+    QAction *m_attachTcfAction;
     QAction *m_detachAction;
     QComboBox *m_langBox;
     QToolButton *m_reverseToolButton;

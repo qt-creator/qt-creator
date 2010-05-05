@@ -80,6 +80,7 @@ SOURCES += breakhandler.cpp \
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
+    attachtcfdialog.ui \
     breakbyfunction.ui \
     breakcondition.ui \
     dumperoptionpage.ui \
@@ -103,6 +104,7 @@ include(cdb/cdb.pri)
 include(gdb/gdb.pri)
 include(script/script.pri)
 include(pdb/pdb.pri)
+include(tcf/tcf.pri)
 include(shared/shared.pri)
 
 OTHER_FILES += Debugger.pluginspec
