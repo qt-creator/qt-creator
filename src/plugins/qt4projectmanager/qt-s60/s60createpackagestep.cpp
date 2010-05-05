@@ -230,6 +230,8 @@ S60CreatePackageStepConfigWidget::S60CreatePackageStepConfigWidget(S60CreatePack
     : BuildStepConfigWidget(), m_signStep(signStep)
 {
     m_ui.setupUi(this);
+    m_ui.signaturePath->setExpectedKind(Utils::PathChooser::File);
+    m_ui.keyFilePath->setExpectedKind(Utils::PathChooser::File);
     updateUi();
     connect(m_ui.customCertificateButton, SIGNAL(clicked()),
             this, SLOT(updateFromUi()));
