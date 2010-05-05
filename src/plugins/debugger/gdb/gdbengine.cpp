@@ -1266,6 +1266,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 #endif
 
+    // FIXME: Replace the #ifdef by the "target" architecture
 #ifdef Q_OS_LINUX
     if (!m_entryPoint.isEmpty()) {
         GdbMi frameData = data.findChild("frame");
@@ -1463,7 +1464,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
     manager()->reloadRegisters();
 }
 
-#ifdef Q_OS_LINUX
 void GdbEngine::handleInfoProc(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
@@ -1473,7 +1473,6 @@ void GdbEngine::handleInfoProc(const GdbResponse &response)
             maybeHandleInferiorPidChanged(re.cap(1));
     }
 }
-#endif
 
 void GdbEngine::handleShowVersion(const GdbResponse &response)
 {

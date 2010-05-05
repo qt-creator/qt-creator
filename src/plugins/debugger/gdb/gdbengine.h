@@ -321,11 +321,8 @@ private: ////////// Inferior Management //////////
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
     void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }
     void maybeHandleInferiorPidChanged(const QString &pid);
-
-#ifdef Q_OS_LINUX
     void handleInfoProc(const GdbResponse &response);
 
-#endif
     QByteArray m_entryPoint;
     QFutureInterface<void> *m_progress;
 
