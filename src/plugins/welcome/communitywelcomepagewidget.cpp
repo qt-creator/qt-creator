@@ -90,9 +90,12 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
     connect(ui->supportSitesTreeWidget, SIGNAL(activated(QString)), SLOT(slotUrlClicked(QString)));
 
     connect(m_rssFetcher, SIGNAL(newsItemReady(QString, QString, QString)),
-        ui->newsTreeWidget, SLOT(addNewsItem(QString, QString, QString)));
+            ui->newsTreeWidget, SLOT(addNewsItem(QString, QString, QString)), Qt::QueuedConnection);
+    connect(this, SIGNAL(startRssFetching(QUrl)), m_rssFetcher, SLOT(fetch(QUrl)), Qt::QueuedConnection);
+
     //: Add localized feed here only if one exists
-    m_rssFetcher->fetch(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
+    m_rssFetcher->start(QThread::LowestPriority);
+    emit startRssFetching(QUrl(tr("http://labs.trolltech.com/blogs/feed")));
 
     populateWelcomeTreeWidget(supportSites, sizeof(supportSites)/sizeof(Site), ui->supportSitesTreeWidget);
     populateWelcomeTreeWidget(sites, sizeof(sites)/sizeof(Site), ui->miscSitesTreeWidget);
@@ -100,6 +103,8 @@ CommunityWelcomePageWidget::CommunityWelcomePageWidget(QWidget *parent) :
 
 CommunityWelcomePageWidget::~CommunityWelcomePageWidget()
 {
+    m_rssFetcher->exit();
+    m_rssFetcher->wait();
     delete m_rssFetcher;
     delete ui;
 }
