@@ -47,7 +47,7 @@ public:
     typedef QList< QPair<const Identifier *, FullySpecifiedType> > Substitution;
 
 public:
-    GenTemplateInstance(const DeprecatedLookupContext &context, const Substitution &substitution);
+    GenTemplateInstance(Control *control, const Substitution &substitution);
 
     FullySpecifiedType operator()(Symbol *symbol);
 
@@ -55,7 +55,7 @@ public:
 
 private:
     Symbol *_symbol;
-    DeprecatedLookupContext _context;
+    Control *_control;
     const Substitution _substitution;
 };
 

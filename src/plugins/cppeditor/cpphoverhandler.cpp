@@ -180,7 +180,8 @@ static QString buildHelpId(Symbol *symbol, const Name *name)
 
 // ### move me
 static FullySpecifiedType resolve(const FullySpecifiedType &ty,
-                                  const DeprecatedLookupContext &context,
+                                  const LookupContext &context,
+                                  Symbol *lastVisibleSymbol,
                                   Symbol **resolvedSymbol,
                                   const Name **resolvedName)
 {
@@ -188,22 +189,25 @@ static FullySpecifiedType resolve(const FullySpecifiedType &ty,
 
     if (const PointerType *ptrTy = ty->asPointerType()) {
         return control->pointerType(resolve(ptrTy->elementType(), context,
+                                            lastVisibleSymbol,
                                             resolvedSymbol, resolvedName));
 
     } else if (const ReferenceType *refTy = ty->asReferenceType()) {
         return control->referenceType(resolve(refTy->elementType(), context,
+                                              lastVisibleSymbol,
                                               resolvedSymbol, resolvedName));
 
     } else if (const PointerToMemberType *ptrToMemTy = ty->asPointerToMemberType()) {
         return control->pointerToMemberType(ptrToMemTy->memberName(),
                                             resolve(ptrToMemTy->elementType(), context,
+                                                    lastVisibleSymbol,
                                                     resolvedSymbol, resolvedName));
 
     } else if (const NamedType *namedTy = ty->asNamedType()) {
         if (resolvedName)
             *resolvedName = namedTy->name();
 
-        const QList<Symbol *> candidates = context.resolve(namedTy->name());
+        const QList<Symbol *> candidates = context.lookup(namedTy->name(), lastVisibleSymbol);
 
         foreach (Symbol *c, candidates) {
             if (c->isClass() || c->isEnum()) {
@@ -284,7 +288,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     Symbol *lastSymbol = doc->findSymbolAt(line, column);
 
     TypeOfExpression typeOfExpression;
-    typeOfExpression.setSnapshot(documents);
+    typeOfExpression.init(doc, documents);
 
     // We only want to show F1 if the tooltip matches the help id
     bool showF1 = true;
@@ -332,7 +336,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         ExpressionUnderCursor expressionUnderCursor;
         const QString expression = expressionUnderCursor(tc);
 
-        const QList<LookupItem> types = typeOfExpression(expression, doc, lastSymbol);
+        const QList<LookupItem> types = typeOfExpression(expression, lastSymbol);
 
         if (!types.isEmpty()) {
             const LookupItem result = types.first();
@@ -343,6 +347,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             Symbol *resolvedSymbol = lookupSymbol;
             const Name *resolvedName = lookupSymbol ? lookupSymbol->name() : 0;
             firstType = resolve(firstType, typeOfExpression.lookupContext(),
+                                lastSymbol,
                                 &resolvedSymbol, &resolvedName);
 
             if (resolvedSymbol && resolvedSymbol->scope()

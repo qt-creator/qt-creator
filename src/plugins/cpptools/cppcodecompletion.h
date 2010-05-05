@@ -114,14 +114,14 @@ private:
                          const CPlusPlus::Snapshot &snapshot);
 
     bool completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &,
-                                       const CPlusPlus::DeprecatedLookupContext &,
+                                       const CPlusPlus::LookupContext &,
                                        int endOfExpression, bool toolTipOnly);
 
     bool completeMember(const QList<CPlusPlus::LookupItem> &,
-                        const CPlusPlus::DeprecatedLookupContext &context);
+                        const CPlusPlus::LookupContext &context);
 
     bool completeScope(const QList<CPlusPlus::LookupItem> &,
-                       const CPlusPlus::DeprecatedLookupContext &context);
+                       const CPlusPlus::LookupContext &context);
 
     void completeNamespace(CPlusPlus::ClassOrNamespace *binding,
                            const CPlusPlus::LookupContext &context);
@@ -139,16 +139,16 @@ private:
 
     bool completeConstructors(CPlusPlus::Class *klass);
 
-    bool completeQtMethod(const QList<CPlusPlus::LookupItem> &,
-                          const CPlusPlus::DeprecatedLookupContext &context,
+    bool completeQtMethod(const QList<CPlusPlus::LookupItem> &context,
+                          const CPlusPlus::LookupContext &context,
                           bool wantSignals);
 
     bool completeSignal(const QList<CPlusPlus::LookupItem> &results,
-                        const CPlusPlus::DeprecatedLookupContext &context)
+                        const CPlusPlus::LookupContext &context)
     { return completeQtMethod(results, context, true); }
 
     bool completeSlot(const QList<CPlusPlus::LookupItem> &results,
-                      const CPlusPlus::DeprecatedLookupContext &context)
+                      const CPlusPlus::LookupContext &context)
     { return completeQtMethod(results, context, false); }
 
     int findStartOfName(int pos = -1) const;

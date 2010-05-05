@@ -47,10 +47,10 @@ namespace {
 class ApplySubstitution
 {
 public:
-    ApplySubstitution(const DeprecatedLookupContext &context, Symbol *symbol, const GenTemplateInstance::Substitution &substitution);
+    ApplySubstitution(Control *control, Symbol *symbol, const GenTemplateInstance::Substitution &substitution);
     ~ApplySubstitution();
 
-    Control *control() const { return context.control(); }
+    inline Control *control() const { return _control; }
 
     FullySpecifiedType apply(const Name *name);
     FullySpecifiedType apply(const FullySpecifiedType &type);
@@ -309,16 +309,16 @@ private:
     };
 
 public: // attributes
-    DeprecatedLookupContext context;
+    Control *_control;
     Symbol *symbol;
     GenTemplateInstance::Substitution substitution;
     ApplyToType applyToType;
     ApplyToName applyToName;
 };
 
-ApplySubstitution::ApplySubstitution(const DeprecatedLookupContext &context, Symbol *symbol,
+ApplySubstitution::ApplySubstitution(Control *control, Symbol *symbol,
                                      const GenTemplateInstance::Substitution &substitution)
-    : context(context), symbol(symbol),
+    : _control(control), symbol(symbol),
       substitution(substitution),
       applyToType(this), applyToName(this)
 { }
@@ -363,17 +363,17 @@ FullySpecifiedType ApplySubstitution::applySubstitution(int index) const
 
 } // end of anonymous namespace
 
-GenTemplateInstance::GenTemplateInstance(const DeprecatedLookupContext &context, const Substitution &substitution)
+GenTemplateInstance::GenTemplateInstance(Control *control, const Substitution &substitution)
     : _symbol(0),
-      _context(context),
+      _control(control),
       _substitution(substitution)
 { }
 
 FullySpecifiedType GenTemplateInstance::operator()(Symbol *symbol)
 {
-    ApplySubstitution o(_context, symbol, _substitution);
+    ApplySubstitution o(_control, symbol, _substitution);
     return o.apply(symbol->type());
 }
 
 Control *GenTemplateInstance::control() const
-{ return _context.control(); }
+{ return _control; }

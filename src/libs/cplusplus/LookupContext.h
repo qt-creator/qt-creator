@@ -174,6 +174,7 @@ public:
     Document::Ptr document(const QString &fileName) const;
     Snapshot snapshot() const;
 
+    QList<Symbol *> lookup(const Name *name, Symbol *lastVisibleSymbol) const;
     QList<Symbol *> lookup(const Name *name, Scope *scope) const;
 
     ClassOrNamespace *globalNamespace() const;
@@ -188,7 +189,7 @@ public:
     /// \internal
     void setBindings(QSharedPointer<CreateBindings> bindings);
 
-    Q_DECL_DEPRECATED Control *control() const;
+    Control *control() const; // ### deprecate
 
 private:
     Control *_control;

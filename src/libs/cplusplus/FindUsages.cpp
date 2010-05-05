@@ -282,14 +282,14 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken)
     // qDebug() << "*** check expression:" << expression;
 
     TypeOfExpression typeofExpression;
-    typeofExpression.setSnapshot(_snapshot);
+    typeofExpression.init(_doc, _snapshot);
 
     unsigned line, column;
     getTokenStartPosition(startToken, &line, &column);
     Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
 
-    const QList<LookupItem> results = typeofExpression(expression, _doc, lastVisibleSymbol,
-                                                   TypeOfExpression::Preprocess);
+    const QList<LookupItem> results = typeofExpression(expression, lastVisibleSymbol,
+                                                       TypeOfExpression::Preprocess);
 
     QList<Symbol *> candidates;
 

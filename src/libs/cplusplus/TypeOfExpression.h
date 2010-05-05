@@ -30,7 +30,8 @@
 #define CPLUSPLUS_TYPEOFEXPRESSION_H
 
 #include "CppDocument.h"
-#include "DeprecatedLookupContext.h"
+#include "LookupContext.h"
+#include "PreprocessorEnvironment.h"
 
 #include <ASTfwd.h>
 #include <QtCore/QMap>
@@ -44,10 +45,10 @@ class Macro;
 
 class CPLUSPLUS_EXPORT TypeOfExpression
 {
+    Q_DISABLE_COPY(TypeOfExpression)
+
 public:
     TypeOfExpression();
-
-    Snapshot snapshot() const;
 
     /**
      * Sets the documents used to evaluate expressions. Should be set before
@@ -56,7 +57,10 @@ public:
      * Also clears the lookup context, so can be used to make sure references
      * to the documents previously used are removed.
      */
-    void setSnapshot(const Snapshot &documents);
+    void init(Document::Ptr thisDocument, const Snapshot &snapshot,
+              QSharedPointer<CreateBindings> bindings = QSharedPointer<CreateBindings>());
+
+    void reset();
 
     enum PreprocessMode {
         NoPreprocess,
@@ -72,14 +76,13 @@ public:
      * has been made!
      *
      * @param expression        The expression to evaluate.
-     * @param document          The document the expression is part of.
      * @param lastVisibleSymbol The last visible symbol in the document.
      */
-    QList<LookupItem> operator()(const QString &expression, Document::Ptr document,
-                             Symbol *lastVisibleSymbol,
-                             PreprocessMode mode = NoPreprocess);
+    QList<LookupItem> operator()(const QString &expression,
+                                 Symbol *lastVisibleSymbol,
+                                 PreprocessMode mode = NoPreprocess);
 
-    QString preprocess(const QString &expression, Document::Ptr document) const;
+    QString preprocess(const QString &expression) const;
 
     /**
      * Returns the AST of the last evaluated expression.
@@ -89,7 +92,8 @@ public:
     /**
      * Returns the lookup context of the last evaluated expression.
      */
-    const DeprecatedLookupContext &lookupContext() const;
+    const LookupContext &lookupContext() const;
+    Symbol *lastVisibleSymbol() const;
 
     ExpressionAST *expressionAST() const;
 
@@ -97,17 +101,19 @@ private:
     ExpressionAST *extractExpressionAST(Document::Ptr doc) const;
     Document::Ptr documentForExpression(const QString &expression) const;
 
-    void processEnvironment(CPlusPlus::Snapshot documents,
-                            CPlusPlus::Document::Ptr doc, CPlusPlus::Environment *env,
+    void processEnvironment(Document::Ptr doc, Environment *env,
                             QSet<QString> *processed) const;
 
-    QString preprocessedExpression(const QString &expression,
-                                   CPlusPlus::Snapshot documents,
-                                   CPlusPlus::Document::Ptr thisDocument) const;
+    QString preprocessedExpression(const QString &expression) const;
 
+private:
+    Document::Ptr m_thisDocument;
     Snapshot m_snapshot;
+    QSharedPointer<CreateBindings> m_bindings;
     ExpressionAST *m_ast;
-    DeprecatedLookupContext m_lookupContext;
+    Symbol *m_lastVisibleSymbol;
+    LookupContext m_lookupContext;
+    mutable QSharedPointer<Environment> m_environment;
 };
 
 } // namespace CPlusPlus

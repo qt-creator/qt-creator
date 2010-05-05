@@ -560,7 +560,7 @@ protected:
 
 } // end of anonymous namespace
 
-static const QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const DeprecatedLookupContext &context)
+static const QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, Control *control)
 {
     const Name *symbolName = s->name();
     if (! symbolName)
@@ -591,7 +591,7 @@ static const QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, const Deprecat
         names.append(symbolName);
     }
 
-    return context.control()->qualifiedNameId(names.constData(), names.size());
+    return control->qualifiedNameId(names.constData(), names.size());
 }
 
 CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
@@ -869,13 +869,12 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     // qDebug() << "code:" << code;
 
     TypeOfExpression typeOfExpression;
-    typeOfExpression.setSnapshot(snapshot);
+    typeOfExpression.init(doc, snapshot);
 
     Symbol *lastVisibleSymbol = doc->findSymbolAt(line, col);
 
-    const QList<LookupItem> results = typeOfExpression(code, doc,
-                                                   lastVisibleSymbol,
-                                                   TypeOfExpression::Preprocess);
+    const QList<LookupItem> results = typeOfExpression(code, lastVisibleSymbol,
+                                                       TypeOfExpression::Preprocess);
 
     NamespaceBindingPtr glo = bind(doc, snapshot);
     Symbol *canonicalSymbol = DeprecatedLookupContext::canonicalSymbol(results, glo.data());
@@ -1255,13 +1254,10 @@ void CPPEditor::switchDeclarationDefinition()
     }
 
     if (f) {
-        TypeOfExpression typeOfExpression;
-        typeOfExpression.setSnapshot(m_modelManager->snapshot());
-        QList<LookupItem> resolvedSymbols = typeOfExpression(QString(), doc, lastSymbol);
-        const DeprecatedLookupContext &context = typeOfExpression.lookupContext();
+        LookupContext context(doc, snapshot);
 
-        const QualifiedNameId *q = qualifiedNameIdForSymbol(f, context);
-        QList<Symbol *> symbols = context.resolve(q);
+        const QualifiedNameId *q = qualifiedNameIdForSymbol(f, context.control());
+        const QList<Symbol *> symbols = context.lookup(q, lastSymbol); // ### FIXME
 
         Symbol *declaration = 0;
         foreach (declaration, symbols) {
@@ -1438,9 +1434,9 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     const QString expression = expressionUnderCursor(tc);
 
     TypeOfExpression typeOfExpression;
-    typeOfExpression.setSnapshot(snapshot);
+    typeOfExpression.init(doc, snapshot);
     QList<LookupItem> resolvedSymbols =
-            typeOfExpression(expression, doc, lastSymbol);
+            typeOfExpression(expression, lastSymbol);
 
     if (!resolvedSymbols.isEmpty()) {
         LookupItem result = skipForwardDeclarations(resolvedSymbols);

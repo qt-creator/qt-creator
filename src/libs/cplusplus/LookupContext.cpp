@@ -148,6 +148,16 @@ ClassOrNamespace *LookupContext::classOrNamespace(const Name *name, Symbol *last
     return classOrNamespace(name, lastVisibleSymbol);
 }
 
+QList<Symbol *> LookupContext::lookup(const Name *name, Symbol *lastVisibleSymbol) const
+{
+    Scope *scope = _thisDocument->globalSymbols();
+
+    if (lastVisibleSymbol && lastVisibleSymbol->scope())
+        scope = lastVisibleSymbol->scope();
+
+    return lookup(name, scope);
+}
+
 QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 {
     QList<Symbol *> candidates;
@@ -168,19 +178,15 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
                 Symbol *member = scope->symbolAt(index);
 
                 if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
-                    Namespace *enclosingNamespace = u->enclosingNamespaceScope()->owner()->asNamespace();
-                    //qDebug() << "*** enclosing namespace:" << enclosingNamespace;
-                    Q_ASSERT(enclosingNamespace != 0);
+                    if (Namespace *enclosingNamespace = u->enclosingNamespaceScope()->owner()->asNamespace()) {
+                        if (ClassOrNamespace *b = bindings()->findClassOrNamespace(enclosingNamespace)) {
+                            if (ClassOrNamespace *uu = b->lookupClassOrNamespace(u->name())) {
+                                candidates = uu->lookup(name);
 
-                    ClassOrNamespace *b = bindings()->findClassOrNamespace(enclosingNamespace);
-                    //qDebug() << "**** binding:" << b;
-                    Q_ASSERT(b != 0);
-
-                    if (ClassOrNamespace *uu = b->lookupClassOrNamespace(u->name())) {
-                        candidates = uu->lookup(name);
-
-                        if (! candidates.isEmpty())
-                            return candidates;
+                                if (! candidates.isEmpty())
+                                    return candidates;
+                            }
+                        }
                     }
                 }
             }

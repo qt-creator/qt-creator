@@ -1323,14 +1323,21 @@ void QuickFixOperation::apply()
  */
 const QList<LookupItem> QuickFixOperation::typeOf(CPlusPlus::ExpressionAST *ast)
 {
+#ifdef __GNUC__
+#  warning port me
+#endif
+
+    qWarning() << Q_FUNC_INFO << __LINE__;
+    return QList<LookupItem>();
+
+#if 0
     unsigned line, column;
     document()->translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
     Symbol *lastVisibleSymbol = document()->findSymbolAt(line, column);
 
-    _lookupContext = DeprecatedLookupContext(lastVisibleSymbol, document(), document(), snapshot());
-
-    ResolveExpression resolveExpression(_lookupContext);
+    ResolveExpression resolveExpression(lastVisibleSymbol, _lookupContext);
     return resolveExpression(ast);
+#endif
 }
 
 CPPQuickFixCollector::CPPQuickFixCollector()

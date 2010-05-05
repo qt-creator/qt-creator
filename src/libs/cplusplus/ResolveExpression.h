@@ -30,7 +30,7 @@
 #ifndef CPLUSPLUS_RESOLVEEXPRESSION_H
 #define CPLUSPLUS_RESOLVEEXPRESSION_H
 
-#include "DeprecatedLookupContext.h"
+#include "LookupContext.h"
 
 #include <ASTVisitor.h>
 #include <Semantic.h>
@@ -41,27 +41,30 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ResolveExpression: protected ASTVisitor
 {
 public:
-    ResolveExpression(const DeprecatedLookupContext &context);
+    ResolveExpression(Symbol *lastVisibleSymbol, const LookupContext &context);
+    ResolveExpression(Scope *scope, const LookupContext &context);
+
     virtual ~ResolveExpression();
 
     QList<LookupItem> operator()(ExpressionAST *ast);
 
     QList<LookupItem> resolveMemberExpression(const QList<LookupItem> &baseResults,
-                                          unsigned accessOp,
-                                          const Name *memberName,
-                                          bool *replacedDotOperator = 0) const;
+                                              unsigned accessOp,
+                                              const Name *memberName,
+                                              bool *replacedDotOperator = 0) const;
 
     QList<LookupItem> resolveBaseExpression(const QList<LookupItem> &baseResults,
-                                        int accessOp,
-                                        bool *replacedDotOperator = 0) const;
+                                            int accessOp,
+                                            bool *replacedDotOperator = 0) const;
 
-    QList<LookupItem> resolveMember(const Name *memberName, Class *klass,
-                                    const Name *className = 0) const;
+    Q_DECL_DEPRECATED QList<LookupItem> resolveMember(const Name *memberName, Class *klass,
+                                                      const Name *className = 0) const;
 
-    QList<LookupItem> resolveMember(const Name *memberName, ObjCClass *klass) const;
+    Q_DECL_DEPRECATED QList<LookupItem> resolveMember(const Name *memberName, ObjCClass *klass) const;
 
 protected:
     QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
+    FullySpecifiedType instantiate(const Name *className, Symbol *candidate) const;
 
     void thisObject();
     void addResult(const FullySpecifiedType &ty, Symbol *symbol = 0);
@@ -113,43 +116,14 @@ protected:
     // Objective-C expressions
     virtual bool visit(ObjCMessageExpressionAST *ast);
 
-    QList<Scope *> visibleScopes(const LookupItem &result) const;
-
 private:
-    DeprecatedLookupContext _context;
+    Symbol *_lastVisibleSymbol;
+    Scope *_scope;
+    LookupContext _context;
     Semantic sem;
     QList<LookupItem> _results;
     Symbol *_declSymbol;
 };
-
-class CPLUSPLUS_EXPORT ResolveClass
-{
-public:
-    ResolveClass();
-
-    QList<Symbol *> operator()(const Name *name,
-                               const LookupItem &p,
-                               const DeprecatedLookupContext &context);
-
-private:
-    QList<Symbol *> resolveClass(const Name *name,
-                                 const LookupItem &p,
-                                 const DeprecatedLookupContext &context);
-
-private:
-    QList<LookupItem> _blackList;
-};
-
-class CPLUSPLUS_EXPORT ResolveObjCClass
-{
-public:
-    ResolveObjCClass();
-
-    QList<Symbol *> operator()(const Name *name,
-                               const LookupItem &p,
-                               const DeprecatedLookupContext &context);
-};
-
 
 } // end of namespace CPlusPlus
 

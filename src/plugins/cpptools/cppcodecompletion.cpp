@@ -90,7 +90,7 @@ class FunctionArgumentWidget : public QLabel
 public:
     FunctionArgumentWidget();
     void showFunctionHint(QList<Function *> functionSymbols,
-                          const DeprecatedLookupContext &context,
+                          const LookupContext &context,
                           int startPosition);
 
 protected:
@@ -118,7 +118,7 @@ private:
     QLabel *m_numberLabel;
     Utils::FakeToolTip *m_popupFrame;
     QList<Function *> m_items;
-    DeprecatedLookupContext m_context;
+    LookupContext m_context;
 };
 
 class ConvertToCompletionItem: protected NameVisitor
@@ -266,7 +266,7 @@ FunctionArgumentWidget::FunctionArgumentWidget():
 }
 
 void FunctionArgumentWidget::showFunctionHint(QList<Function *> functionSymbols,
-                                              const DeprecatedLookupContext &context,
+                                              const LookupContext &context,
                                               int startPosition)
 {
     Q_ASSERT(!functionSymbols.isEmpty());
@@ -784,7 +784,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
     if (! thisDocument)
         return -1;
 
-    typeOfExpression.setSnapshot(snapshot);
+    typeOfExpression.init(thisDocument, snapshot);
     Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
 
     if (expression.isEmpty()) {
@@ -798,14 +798,14 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
     }
 
 
-    QList<LookupItem> results = typeOfExpression(expression, thisDocument, lastVisibleSymbol, TypeOfExpression::Preprocess);
-    DeprecatedLookupContext context = typeOfExpression.lookupContext();
+    QList<LookupItem> results = typeOfExpression(expression, lastVisibleSymbol, TypeOfExpression::Preprocess);
+    LookupContext context = typeOfExpression.lookupContext();
 
     if (results.isEmpty()) {
         if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
             if (! (expression.isEmpty() || expression == QLatin1String("this"))) {
                 expression = QLatin1String("this");
-                results = typeOfExpression(expression, thisDocument, lastVisibleSymbol);
+                results = typeOfExpression(expression, lastVisibleSymbol);
             }
 
             if (results.isEmpty())
@@ -828,8 +828,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
 
             // Resolve the type of this expression
             const QList<LookupItem> results =
-                    typeOfExpression(baseExpression, thisDocument,
-                                     lastVisibleSymbol,
+                    typeOfExpression(baseExpression, lastVisibleSymbol,
                                      TypeOfExpression::Preprocess);
 
             // If it's a class, add completions for the constructors
@@ -908,7 +907,7 @@ int CppCodeCompletion::globalCompletion(Symbol *lastVisibleSymbol,
 }
 
 bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &results,
-                                                      const DeprecatedLookupContext &context,
+                                                      const LookupContext &context,
                                                       int endOfExpression, bool toolTipOnly)
 {
     QList<Function *> functions;
@@ -970,28 +969,19 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
     }
 
     if (functions.isEmpty()) {
-        ResolveExpression resolveExpression(context);
-        ResolveClass resolveClass;
         const Name *functionCallOp = context.control()->operatorNameId(OperatorNameId::FunctionCallOp);
 
         foreach (const LookupItem &result, results) {
             FullySpecifiedType ty = result.type().simplified();
+            Symbol *lastVisibleSymbol = result.lastVisibleSymbol();
 
             if (NamedType *namedTy = ty->asNamedType()) {
-                const QList<Symbol *> classObjectCandidates = resolveClass(namedTy->name(), result, context);
+                if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), lastVisibleSymbol)) {
+                    foreach (Symbol *overload, b->lookup(functionCallOp)) {
+                        FullySpecifiedType overloadTy = overload->type().simplified();
 
-                foreach (Symbol *classObjectCandidate, classObjectCandidates) {
-                    if (Class *klass = classObjectCandidate->asClass()) {
-                        const QList<LookupItem> overloads =
-                                resolveExpression.resolveMember(functionCallOp, klass,
-                                                                namedTy->name());
-
-                        foreach (const LookupItem &overloadResult, overloads) {
-                            FullySpecifiedType overloadTy = overloadResult.type().simplified();
-
-                            if (Function *funTy = overloadTy->asFunctionType())
-                                functions.append(funTy);
-                        }
+                        if (Function *funTy = overloadTy->asFunctionType())
+                            functions.append(funTy);
                     }
                 }
             }
@@ -1019,8 +1009,8 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
         // find a scope that encloses the current location, starting from the lastVisibileSymbol
         // and moving outwards
         Scope *sc = 0;
-        if (context.symbol())
-            sc = context.symbol()->scope();
+        if (typeOfExpression.lastVisibleSymbol())
+            sc = typeOfExpression.lastVisibleSymbol()->scope();
         else if (context.thisDocument())
             sc = context.thisDocument()->globalSymbols();
 
@@ -1102,19 +1092,20 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 }
 
 bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
-                                       const DeprecatedLookupContext &context)
+                                       const LookupContext &context)
 {
     if (baseResults.isEmpty())
         return false;
 
-    ResolveExpression resolveExpression(context);
-    ResolveClass resolveClass;
+    ResolveExpression resolveExpression(typeOfExpression.lastVisibleSymbol(), context);
 
     bool replacedDotOperator = false;
     const QList<LookupItem> classObjectResults =
             resolveExpression.resolveBaseExpression(baseResults,
                                                     m_completionOperator,
                                                     &replacedDotOperator);
+
+    ClassOrNamespace *classOrNamespace = 0;
 
     QList<Symbol *> classObjectCandidates;
     foreach (const LookupItem &r, classObjectResults) {
@@ -1124,17 +1115,19 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
             classObjectCandidates.append(klass);
 
         else if (NamedType *namedTy = ty->asNamedType()) {
-            const Name *className = namedTy->name();
-            const QList<Symbol *> classes = resolveClass(className, r, context);
+            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), r.lastVisibleSymbol()->scope())) {
+                classOrNamespace = b;
+                break;
 
-            foreach (Symbol *c, classes) {
-                if (Class *klass = c->asClass())
-                    classObjectCandidates.append(klass);
+            }  else {
+                Overview oo;
+
+                qDebug() << "*** no class for" << oo(namedTy->name());
             }
         }
     }
 
-    if (replacedDotOperator && ! classObjectCandidates.isEmpty()) {
+    if (replacedDotOperator && classOrNamespace) {
         // Replace . with ->
         int length = m_editor->position() - m_startPosition + 1;
         m_editor->setCurPos(m_startPosition - 1);
@@ -1142,7 +1135,9 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
         ++m_startPosition;
     }
 
-    completeClass(classObjectCandidates, context, /*static lookup = */ false);
+    if (classOrNamespace)
+        completeClass(classOrNamespace, context, /*static lookup = */ false);
+
     if (! m_completions.isEmpty())
         return true;
 
@@ -1150,16 +1145,10 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
 }
 
 bool CppCodeCompletion::completeScope(const QList<LookupItem> &results,
-                                      const DeprecatedLookupContext &deprecatedContext)
+                                      const LookupContext &context)
 {
-    qDebug() << Q_FUNC_INFO;
-
     if (results.isEmpty())
         return false;
-
-    LookupContext context(deprecatedContext.expressionDocument(),
-                          deprecatedContext.thisDocument(),
-                          deprecatedContext.snapshot());
 
     foreach (const LookupItem &result, results) {
         FullySpecifiedType ty = result.type();
@@ -1434,13 +1423,16 @@ void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
 }
 
 bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
-                                         const DeprecatedLookupContext &context,
+                                         const LookupContext &newContext,
                                          bool wantSignals)
 {
     if (results.isEmpty())
         return false;
 
-    ResolveClass resolveClass;
+    DeprecatedLookupContext context(typeOfExpression.lastVisibleSymbol(),
+                                    newContext.expressionDocument(),
+                                    newContext.thisDocument(),
+                                    newContext.snapshot());
 
     ConvertToCompletionItem toCompletionItem(this);
     Overview o;
@@ -1461,8 +1453,11 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
         if (! namedTy) // not a class name.
             continue;
 
-        const QList<Symbol *> classObjects =
-                resolveClass(namedTy->name(), p, context);
+        ClassOrNamespace *b = newContext.classOrNamespace(namedTy->name(), p.lastVisibleSymbol());
+        if (! b)
+            continue;
+
+        const QList<Symbol *> classObjects = b->symbols();
 
         if (classObjects.isEmpty())
             continue;
@@ -1710,7 +1705,7 @@ void CppCodeCompletion::cleanup()
 
     // Set empty map in order to avoid referencing old versions of the documents
     // until the next completion
-    typeOfExpression.setSnapshot(Snapshot());
+    typeOfExpression.reset();
 }
 
 int CppCodeCompletion::findStartOfName(int pos) const

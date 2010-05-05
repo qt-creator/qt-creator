@@ -29,7 +29,7 @@
 
 #include "TypeOfExpression.h"
 #include <TranslationUnit.h>
-#include "DeprecatedLookupContext.h"
+#include "LookupContext.h"
 #include "ResolveExpression.h"
 #include "pp.h"
 
@@ -39,44 +39,59 @@
 using namespace CPlusPlus;
 
 TypeOfExpression::TypeOfExpression():
-    m_ast(0)
+    m_ast(0),
+    m_lastVisibleSymbol(0)
 {
 }
 
-Snapshot TypeOfExpression::snapshot() const
+void TypeOfExpression::reset()
 {
-    return m_snapshot;
+    m_thisDocument.clear();
+    m_snapshot = Snapshot();
+    m_ast = 0;
+    m_lastVisibleSymbol = 0;
+    m_lookupContext = LookupContext();
+    m_bindings.clear();
+    m_environment.clear();
 }
 
-void TypeOfExpression::setSnapshot(const Snapshot &documents)
+void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot,
+                            QSharedPointer<CreateBindings> bindings)
 {
-    m_snapshot = documents;
-    m_lookupContext = DeprecatedLookupContext();
+    m_thisDocument = thisDocument;
+    m_snapshot = snapshot;
+    m_ast = 0;
+    m_lastVisibleSymbol = 0;
+    m_lookupContext = LookupContext();
+    m_bindings = bindings;
+    m_environment.clear();
 }
 
 QList<LookupItem> TypeOfExpression::operator()(const QString &expression,
-                                           Document::Ptr document,
-                                           Symbol *lastVisibleSymbol,
-                                           PreprocessMode mode)
+                                               Symbol *lastVisibleSymbol,
+                                               PreprocessMode mode)
 {
     QString code = expression;
+
     if (mode == Preprocess)
-        code = preprocessedExpression(expression, m_snapshot, document);
+        code = preprocessedExpression(expression);
+
     Document::Ptr expressionDoc = documentForExpression(code);
     expressionDoc->check();
     m_ast = extractExpressionAST(expressionDoc);
 
-    m_lookupContext = DeprecatedLookupContext(lastVisibleSymbol, expressionDoc,
-                                    document, m_snapshot);
+    m_lastVisibleSymbol = lastVisibleSymbol;
 
-    ResolveExpression resolveExpression(m_lookupContext);
+    m_lookupContext = LookupContext(expressionDoc, m_thisDocument, m_snapshot);
+    m_lookupContext.setBindings(m_bindings);
+
+    ResolveExpression resolveExpression(lastVisibleSymbol, m_lookupContext);
     return resolveExpression(m_ast);
 }
 
-QString TypeOfExpression::preprocess(const QString &expression,
-                                     Document::Ptr document) const
+QString TypeOfExpression::preprocess(const QString &expression) const
 {
-    return preprocessedExpression(expression, m_snapshot, document);
+    return preprocessedExpression(expression);
 }
 
 ExpressionAST *TypeOfExpression::ast() const
@@ -84,7 +99,12 @@ ExpressionAST *TypeOfExpression::ast() const
     return m_ast;
 }
 
-const DeprecatedLookupContext &TypeOfExpression::lookupContext() const
+Symbol *TypeOfExpression::lastVisibleSymbol() const
+{
+    return m_lastVisibleSymbol;
+}
+
+const LookupContext &TypeOfExpression::lookupContext() const
 {
     return m_lookupContext;
 }
@@ -112,37 +132,35 @@ Document::Ptr TypeOfExpression::documentForExpression(const QString &expression)
     return doc;
 }
 
-void TypeOfExpression::processEnvironment(Snapshot documents,
-                                          Document::Ptr doc, Environment *env,
+void TypeOfExpression::processEnvironment(Document::Ptr doc, Environment *env,
                                           QSet<QString> *processed) const
 {
-    if (! doc)
-        return;
-    if (processed->contains(doc->fileName()))
-        return;
-    processed->insert(doc->fileName());
-    foreach (const Document::Include &incl, doc->includes()) {
-        processEnvironment(documents,
-                           documents.document(incl.fileName()),
-                           env, processed);
+    if (doc && ! processed->contains(doc->fileName())) {
+        processed->insert(doc->fileName());
+
+        foreach (const Document::Include &incl, doc->includes())
+            processEnvironment(m_snapshot.document(incl.fileName()), env, processed);
+
+        foreach (const Macro &macro, doc->definedMacros())
+            env->bind(macro);
     }
-    foreach (const Macro &macro, doc->definedMacros())
-        env->bind(macro);
 }
 
-QString TypeOfExpression::preprocessedExpression(const QString &expression,
-                                                 Snapshot documents,
-                                                 Document::Ptr thisDocument) const
+QString TypeOfExpression::preprocessedExpression(const QString &expression) const
 {
     if (expression.trimmed().isEmpty())
         return expression;
 
-    Environment env;
-    QSet<QString> processed;
-    processEnvironment(documents, thisDocument,
-                       &env, &processed);
+    if (! m_environment) {
+        Environment *env = new Environment(); // ### cache the environment.
+
+        QSet<QString> processed;
+        processEnvironment(m_thisDocument, env, &processed);
+        m_environment = QSharedPointer<Environment>(env);
+    }
+
     const QByteArray code = expression.toUtf8();
-    Preprocessor preproc(0, &env);
+    Preprocessor preproc(0, m_environment.data());
     const QByteArray preprocessedCode = preproc("<expression>", code);
     return QString::fromUtf8(preprocessedCode.constData(), preprocessedCode.size());
 }
