@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+Custom project wizard configuration example file. Note that by convention, 
+the project file goes last.
+The "class" and "firstpage" attributes specify that it is a Qt 4 wizard and 
+leave room for the Qt 4 target page.
+-->
+<wizard version="1" kind="project"
+        class="qt4project" firstpage="10"
+        id="R.QtCreatorPlugin" category="I.Projects">
+    <icon>qtcreator_logo_24.png</icon>
+    <description>Creates a custom Qt Creator plugin.</description>
+    <displayname>Qt Creator plugin</displayname>;
+    <displaycategory>Other Project</displaycategory>
+    <files>
+        <file source="myplugin.pro" target="%PluginName:l%.pro" openproject="true"/>
+        <file source="MyPlugin.pluginspec" target="%PluginName%.pluginspec" openeditor="true"/>
+        <file source="myplugin.h" target="%PluginName:l%.%CppHeaderSuffix%" openeditor="true"/>
+        <file source="myplugin.cpp" target="%PluginName:l%.%CppSourceSuffix%" openeditor="true"/>
+        <file source="myplugin_global.h" target="%PluginName:l%_global.%CppHeaderSuffix%" openeditor="true"/>
+    </files>
+    <!-- Create a 2nd wizard page with parameters -->
+    <fieldpagetitle>Plugin Information</fieldpagetitle>
+    <fieldpagetitle xml:lang="de">Plugininformationen</fieldpagetitle>
+    <fields>
+        <field mandatory="true" name="PluginName">
+            <fieldcontrol class="QLineEdit" validator="^[a-zA-Z0-9_]+$"
+                          defaulttext="MyPlugin" />
+            <fielddescription>Plugin name:</fielddescription>
+            <fielddescription xml:lang="de">Name des Plugins:</fielddescription>
+        </field>
+        <field mandatory="true" name="VendorName">
+            <fieldcontrol class="QLineEdit" validator="^[a-zA-Z0-9_]+$"
+                          defaulttext="MyCompany" />
+            <fielddescription>Vendor name:</fielddescription>
+            <fielddescription xml:lang="de">Name des Anbieters:</fielddescription>
+        </field>
+        <field name="Copyright">
+            <fieldcontrol class="QLineEdit"
+                          defaulttext="(C) MyCompany" />
+            <fielddescription>Copyright:</fielddescription>
+            <fielddescription xml:lang="de">Copyright:</fielddescription>
+        </field>
+        <field name="License">
+            <fieldcontrol class="QTextEdit"
+                          defaulttext="Put your license text here" />
+            <fielddescription>License:</fielddescription>
+            <fielddescription xml:lang="de">Lizenz:</fielddescription>
+        </field>
+        <field name="Description">
+            <fieldcontrol class="QTextEdit"
+                          defaulttext="Put a short description of your plugin here"/>
+            <fielddescription>Description:</fielddescription>
+            <fielddescription xml:lang="de">Beschreibung:</fielddescription>
+        </field>
+        <field name="URL">
+            <fieldcontrol class="QLineEdit"
+                          defaulttext="http://www.mycompany.com" />
+            <fielddescription>Url:</fielddescription>
+            <fielddescription xml:lang="de">Url:</fielddescription>
+        </field>
+        <field mandatory="true" name="QtCreatorSources">
+            <fieldcontrol class="Utils::PathChooser"
+                          defaulttext="" />
+            <fielddescription>Qt Creator sources:</fielddescription>
+            <fielddescription xml:lang="de">Qt Creator Quellen:</fielddescription>
+        </field>
+        <field mandatory="true" name="QtCreatorBuild">
+            <fieldcontrol class="Utils::PathChooser"
+                          defaulttext="" />
+            <fielddescription>Qt Creator build:</fielddescription>
+            <fielddescription xml:lang="de">Qt Creator build:</fielddescription>
+        </field>
+    </fields>
+</wizard>
