@@ -42,6 +42,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QRegExpValidator>
 #include <QtGui/QComboBox>
+#include <QtGui/QTextEdit>
 
 enum { debug = 0 };
 
@@ -69,6 +70,11 @@ CustomWizardFieldPage::LineEditData::LineEditData(QLineEdit* le, const QString &
 {
 }
 
+CustomWizardFieldPage::TextEditData::TextEditData(QTextEdit* le, const QString &defText) :
+    textEdit(le), defaultText(defText)
+{
+}
+
 CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
                                              const FieldList &fields,
                                              QWidget *parent) :
@@ -76,6 +82,7 @@ CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardCo
     m_context(ctx),
     m_formLayout(new QFormLayout)
 {
+    m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     if (debug)
         qDebug() << Q_FUNC_INFO << fields.size();
     foreach(const CustomWizardField &f, fields)
@@ -105,6 +112,10 @@ void CustomWizardFieldPage::addField(const CustomWizardField &field)\
     QWidget *fieldWidget = 0;
     if (className == QLatin1String("QComboBox")) {
         fieldWidget = registerComboBox(fieldName, field);
+    } else if (className == QLatin1String("QTextEdit")) {
+        fieldWidget = registerTextEdit(fieldName, field);
+    } else if (className == QLatin1String("Utils::PathChooser")) {
+        fieldWidget = registerPathChooser(fieldName, field);
     } else {
         fieldWidget = registerLineEdit(fieldName, field);
     }
@@ -132,6 +143,24 @@ QWidget *CustomWizardFieldPage::registerComboBox(const QString &fieldName,
     registerField(fieldName, combo, "text", SIGNAL(text4Changed(QString)));
     return combo;
 } // QComboBox
+
+QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
+                                                 const CustomWizardField &field)
+{
+    QTextEdit *textEdit = new QTextEdit;
+    registerField(fieldName, textEdit, "plainText", SIGNAL(textChanged(QString)));
+    const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
+    m_textEdits.push_back(TextEditData(textEdit, defaultText));
+    return textEdit;
+} // QTextEdit
+
+QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
+                                                 const CustomWizardField &field)
+{
+    Utils::PathChooser *pathChooser = new Utils::PathChooser;
+    registerField(fieldName, pathChooser, "path", SIGNAL(changed(QString)));
+    return pathChooser;
+} // Utils::PathChooser
 
 QWidget *CustomWizardFieldPage::registerLineEdit(const QString &fieldName,
                                                  const CustomWizardField &field)
@@ -165,6 +194,13 @@ void CustomWizardFieldPage::initializePage()
             QString defaultText = led.defaultText;
             CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
             led.lineEdit->setText(defaultText);
+        }
+    }
+    foreach(const TextEditData &ted, m_textEdits) {
+        if (!ted.defaultText.isEmpty()) {
+            QString defaultText = ted.defaultText;
+            CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
+            ted.textEdit->setText(defaultText);
         }
     }
 }

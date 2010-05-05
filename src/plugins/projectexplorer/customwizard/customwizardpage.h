@@ -37,6 +37,7 @@
 QT_BEGIN_NAMESPACE
 class QFormLayout;
 class QLineEdit;
+class QTextEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -92,16 +93,24 @@ private:
         QLineEdit* lineEdit;
         QString defaultText;
     };
+    struct TextEditData {
+        explicit TextEditData(QTextEdit* le = 0, const QString &defText = QString());
+        QTextEdit* textEdit;
+        QString defaultText;
+    };
     typedef QList<LineEditData> LineEditDataList;
+    typedef QList<TextEditData> TextEditDataList;
 
     QWidget *registerLineEdit(const QString &fieldName, const CustomWizardField &field);
     QWidget *registerComboBox(const QString &fieldName, const CustomWizardField &field);
-
+    QWidget *registerTextEdit(const QString &fieldName, const CustomWizardField &field);
+    QWidget *registerPathChooser(const QString &fieldName, const CustomWizardField &field);
     void addField(const CustomWizardField &f);
 
     const QSharedPointer<CustomWizardContext> m_context;
     QFormLayout *m_formLayout;
     LineEditDataList m_lineEdits;
+    TextEditDataList m_textEdits;
 };
 
 // A custom wizard page presenting the fields to be used and a path chooser
