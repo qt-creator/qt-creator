@@ -30,8 +30,7 @@
 #ifndef RSSFETCHER_H
 #define RSSFETCHER_H
 
-#include <QtCore/QScopedPointer>
-#include <QtCore/QObject>
+#include <QtCore/QThread>
 
 QT_BEGIN_NAMESPACE
 class QNetworkReply;
@@ -43,11 +42,12 @@ QT_END_NAMESPACE
 namespace Welcome {
 namespace Internal {
 
-class RSSFetcher : public QObject
+class RSSFetcher : public QThread
 {
     Q_OBJECT
 public:
-    explicit RSSFetcher(int maxItems, QObject *parent = 0);
+    explicit RSSFetcher(int maxItems);
+    virtual void run();
     virtual ~RSSFetcher();
 
 signals:
@@ -64,9 +64,9 @@ private:
     void parseXml(QIODevice *);
 
     const int m_maxItems;
-
-    QScopedPointer<QNetworkAccessManager> m_networkAccessManager;
     int m_items;
+
+    QNetworkAccessManager* m_networkAccessManager;
 };
 
 } // namespace Welcome

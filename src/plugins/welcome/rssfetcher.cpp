@@ -33,6 +33,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSysInfo>
 #include <QtCore/QLocale>
+#include <QtCore/QEventLoop>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QLineEdit>
 #include <QtNetwork/QNetworkReply>
@@ -113,13 +114,20 @@ static const QString getOsString()
     return osString;
 }
 
-RSSFetcher::RSSFetcher(int maxItems, QObject *parent)
-    : QObject(parent), m_maxItems(maxItems), m_items(0)
+RSSFetcher::RSSFetcher(int maxItems)
+    : QThread(0), m_maxItems(maxItems), m_items(0), m_networkAccessManager(0)
 {
+    moveToThread(this);
 }
 
 RSSFetcher::~RSSFetcher()
 {
+}
+
+void RSSFetcher::run()
+{
+    exec();
+    delete m_networkAccessManager;
 }
 
 void RSSFetcher::fetch(const QUrl &url)
@@ -130,9 +138,9 @@ void RSSFetcher::fetch(const QUrl &url)
                     .arg(QSysInfo::WordSize);
     QNetworkRequest req(url);
     req.setRawHeader("User-Agent", agentStr.toLatin1());
-    if (m_networkAccessManager.isNull()) {
-        m_networkAccessManager.reset(new QNetworkAccessManager);
-        connect(m_networkAccessManager.data(), SIGNAL(finished(QNetworkReply*)),
+    if (!m_networkAccessManager) {
+        m_networkAccessManager = new QNetworkAccessManager;
+        connect(m_networkAccessManager, SIGNAL(finished(QNetworkReply*)),
                 SLOT(fetchingFinished(QNetworkReply*)));
     }
     m_networkAccessManager->get(req);

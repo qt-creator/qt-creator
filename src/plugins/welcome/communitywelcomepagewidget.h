@@ -32,6 +32,10 @@
 
 #include <QtGui/QWidget>
 
+QT_BEGIN_NAMESPACE
+class QUrl;
+QT_END_NAMESPACE
+
 namespace Welcome {
 namespace Internal {
 
@@ -48,6 +52,9 @@ class CommunityWelcomePageWidget : public QWidget
 public:
     explicit CommunityWelcomePageWidget(QWidget *parent = 0);
     ~CommunityWelcomePageWidget();
+
+signals:
+    void startRssFetching(const QUrl& url);
 
 private slots:
     void slotUrlClicked(const QString &data);
