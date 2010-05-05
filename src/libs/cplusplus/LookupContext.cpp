@@ -41,7 +41,7 @@
 
 #include <QtDebug>
 
-#define CPLUSPLUS_NO_LAZY_LOOKUP
+//#define CPLUSPLUS_NO_LAZY_LOOKUP
 
 using namespace CPlusPlus;
 
@@ -229,7 +229,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 }
 
 ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent)
-    : _factory(factory), _parent(parent), _flushing(false)
+    : _factory(factory), _parent(parent)
 {
 }
 
@@ -483,13 +483,12 @@ ClassOrNamespace *ClassOrNamespace::nestedClassOrNamespace(const QByteArray &nam
 void ClassOrNamespace::flush()
 {
 #ifndef CPLUSPLUS_NO_LAZY_LOOKUP
-    if (! _flushing) {
-        _flushing = true;
+    if (! _todo.isEmpty()) {
+        const QList<Symbol *> todo = _todo;
+        _todo.clear();
 
-        while (! _todo.isEmpty()) {
-            Symbol *member = _todo.takeFirst();
+        foreach (Symbol *member, todo)
             _factory->process(member, this);
-        }
     }
 #endif
 }

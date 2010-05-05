@@ -92,7 +92,6 @@ private:
     QHash<QByteArray, ClassOrNamespace *> _classOrNamespaces;
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
-    bool _flushing;
 
     friend class CreateBindings;
 };

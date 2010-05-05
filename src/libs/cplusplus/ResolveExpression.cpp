@@ -590,7 +590,7 @@ ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, i
         if (NamedType *namedTy = ty->asNamedType()) {
             const Name *arrowAccessOp = control()->operatorNameId(OperatorNameId::ArrowOp);
 
-            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), result.lastVisibleSymbol()->scope())) {
+            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), result.lastVisibleSymbol())) {
                 foreach (Symbol *overload, b->lookup(arrowAccessOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         FullySpecifiedType f = instantiate(namedTy->name(), funTy);
@@ -667,7 +667,7 @@ ResolveExpression::resolveMemberExpression(const QList<LookupItem> &baseResults,
             results += resolveMember(memberName, klass);
 
         else if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), r.lastVisibleSymbol()->scope())) {
+            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), r.lastVisibleSymbol())) {
                 foreach (Symbol *c, b->lookup(memberName))
                     results.append(LookupItem(instantiate(namedTy->name(), c), c));
             }
