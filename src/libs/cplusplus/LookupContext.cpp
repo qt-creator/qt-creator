@@ -45,6 +45,25 @@
 
 using namespace CPlusPlus;
 
+static void fullyQualifiedName(Symbol *symbol, QList<const Name *> *names)
+{
+    if (! symbol)
+        return;
+
+    fullyQualifiedName(symbol->enclosingSymbol(), names);
+
+    if (symbol->name() && (symbol->isClass() || symbol->isNamespace())) {
+        if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
+            for (unsigned i = 0; i < q->nameCount(); ++i)
+                names->append(q->nameAt(i));
+
+        } else if (symbol->name()->isNameId() || symbol->name()->isTemplateNameId()) {
+            names->append(symbol->name());
+
+        }
+    }
+}
+
 /////////////////////////////////////////////////////////////////////
 // LookupContext
 /////////////////////////////////////////////////////////////////////
@@ -200,6 +219,14 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
             if (fun->name() && fun->name()->isQualifiedNameId()) {
                 const QualifiedNameId *q = fun->name()->asQualifiedNameId();
                 QList<QByteArray> path;
+
+                QList<const Name *> enclosingNames;
+                fullyQualifiedName(scope->owner(), &enclosingNames);
+                foreach (const Name *p, enclosingNames) {
+                    if (const Identifier *id = p->identifier()) {
+                        path.append(QByteArray::fromRawData(id->chars(), id->size()));
+                    }
+                }
 
                 for (unsigned index = 0; index < q->nameCount() - 1; ++index) {
                     if (const Identifier *id = q->nameAt(index)->identifier())
@@ -572,22 +599,20 @@ ClassOrNamespace *CreateBindings::globalNamespace() const
     return _globalNamespace;
 }
 
-ClassOrNamespace *CreateBindings::findClassOrNamespace(Symbol *s)
+ClassOrNamespace *CreateBindings::findClassOrNamespace(Symbol *symbol)
 {
-    // jump to the enclosing class or namespace.
-    for (; s; s = s->enclosingSymbol()) {
-        if (s->isClass() || s->isNamespace())
-            break;
-    }
+    QList<const Name *> names;
+    fullyQualifiedName(symbol, &names);
 
-    QList<QByteArray> path;
-    for (; s; s = s->enclosingSymbol()) {
-        if (const Identifier *id = s->identifier())
-            path.prepend(QByteArray::fromRawData(id->chars(), id->size()));
-    }
+    if (names.isEmpty())
+        return _globalNamespace;
 
-    ClassOrNamespace *e = _globalNamespace->findClassOrNamespace(path);
-    return e;
+    ClassOrNamespace *b = _globalNamespace->lookupClassOrNamespace(names.at(0));
+
+    for (int i = 1; b && i < names.size(); ++i)
+        b = b->findClassOrNamespace(names.at(i));
+
+    return b;
 }
 
 ClassOrNamespace *CreateBindings::findClassOrNamespace(const QList<QByteArray> &path)
