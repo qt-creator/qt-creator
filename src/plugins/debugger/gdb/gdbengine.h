@@ -325,8 +325,8 @@ private: ////////// Inferior Management //////////
 #ifdef Q_OS_LINUX
     void handleInfoProc(const GdbResponse &response);
 
-    QByteArray m_entryPoint;
 #endif
+    QByteArray m_entryPoint;
     QFutureInterface<void> *m_progress;
 
 private: ////////// View & Data Stuff //////////
