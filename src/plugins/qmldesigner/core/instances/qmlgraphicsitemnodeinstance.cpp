@@ -437,32 +437,32 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 //    qmlGraphicsItem()->anchors()->setVerticalCenterOffset(anchors.margin(AnchorLine::VerticalCenter));
 //}
 
-QDeclarativeAnchors::Anchor anchorLineFlagForName(const QString &name)
+QDeclarativeAnchors::UsedAnchor anchorLineFlagForName(const QString &name)
 {
     if (name == "anchors.top")
-        return QDeclarativeAnchors::TopAnchor;
+        return QDeclarativeAnchors::HasTopAnchor;
 
     if (name == "anchors.left")
-        return QDeclarativeAnchors::LeftAnchor;
+        return QDeclarativeAnchors::HasLeftAnchor;
 
     if (name == "anchors.bottom")
-         return QDeclarativeAnchors::BottomAnchor;
+         return QDeclarativeAnchors::HasBottomAnchor;
 
     if (name == "anchors.right")
-        return QDeclarativeAnchors::RightAnchor;
+        return QDeclarativeAnchors::HasRightAnchor;
 
     if (name == "anchors.horizontalCenter")
-        return QDeclarativeAnchors::HCenterAnchor;
+        return QDeclarativeAnchors::HasHCenterAnchor;
 
     if (name == "anchors.verticalCenter")
-         return QDeclarativeAnchors::VCenterAnchor;
+         return QDeclarativeAnchors::HasVCenterAnchor;
 
     if (name == "anchors.baseline")
-         return QDeclarativeAnchors::BaselineAnchor;
+         return QDeclarativeAnchors::HasBaselineAnchor;
 
 
     Q_ASSERT_X(false, Q_FUNC_INFO, "wrong anchor name - this should never happen");
-    return QDeclarativeAnchors::LeftAnchor;
+    return QDeclarativeAnchors::HasLeftAnchor;
 }
 
 QString propertyNameForAnchorLine(const QDeclarativeAnchorLine::AnchorLine &anchorLine)

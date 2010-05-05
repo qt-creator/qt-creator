@@ -64,11 +64,11 @@ QDeclarativeStateOperation::ActionList QmlPropertyChangesObject::actions()
                 binding->setTarget(action.property);
                 binding->setNotifyOnValueChanged(true);
                 action.toBinding = binding;
-                action.toValue = binding->evaluate();
+                action.toValue = binding->value();
                 m_expressionHash.insert(action.specifiedProperty, ExpressionPair(m_expressionHash[action.specifiedProperty].first, binding));
             } else {
                 action.toBinding = m_expressionHash[action.specifiedProperty].second.data();
-                action.toValue = m_expressionHash[action.specifiedProperty].second->evaluate();
+                action.toValue = m_expressionHash[action.specifiedProperty].second->value();
             }
         } else {
             action.toBinding = 0;
