@@ -52,6 +52,7 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/TokenUnderCursor.h>
+#include <cplusplus/LookupContext.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -1149,25 +1150,41 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
 }
 
 bool CppCodeCompletion::completeScope(const QList<LookupItem> &results,
-                                      const DeprecatedLookupContext &context)
+                                      const DeprecatedLookupContext &deprecatedContext)
 {
-    QList<Symbol *> classes, namespaces;
+    qDebug() << Q_FUNC_INFO;
+
+    if (results.isEmpty())
+        return false;
+
+    LookupContext context(deprecatedContext.expressionDocument(),
+                          deprecatedContext.thisDocument(),
+                          deprecatedContext.snapshot());
 
     foreach (const LookupItem &result, results) {
         FullySpecifiedType ty = result.type();
+        Symbol *lastVisibleSymbol = result.lastVisibleSymbol();
 
-        if (Class *classTy = ty->asClassType())
-            classes.append(classTy);
+        if (NamedType *namedTy = ty->asNamedType()) {
+            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), lastVisibleSymbol)) {
+                completeClass(b, context);
+                break;
+            }
 
-        else if (Namespace *namespaceTy = ty->asNamespaceType())
-            namespaces.append(namespaceTy);
+        } else if (Class *classTy = ty->asClassType()) {
+            if (ClassOrNamespace *b = context.classOrNamespace(classTy)) {
+                completeClass(b, context);
+                break;
+            }
+
+        } else if (Namespace *nsTy = ty->asNamespaceType()) {
+            if (ClassOrNamespace *b = context.classOrNamespace(nsTy)) {
+                completeNamespace(b, context);
+                break;
+            }
+
+        }
     }
-
-    if (! classes.isEmpty())
-        completeClass(classes, context);
-
-    else if (! namespaces.isEmpty() && m_completions.isEmpty())
-        completeNamespace(namespaces, context);
 
     return ! m_completions.isEmpty();
 }
@@ -1295,58 +1312,124 @@ bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
     return !m_completions.isEmpty();
 }
 
-void CppCodeCompletion::completeNamespace(const QList<Symbol *> &candidates,
-                                          const DeprecatedLookupContext &context)
+void CppCodeCompletion::completeNamespace(ClassOrNamespace *b, const LookupContext &)
 {
-    QList<Scope *> todo;
-    QList<Scope *> visibleScopes = context.visibleScopes();
-    foreach (Symbol *candidate, candidates) {
-        if (Namespace *ns = candidate->asNamespace())
-            context.expand(ns->members(), visibleScopes, &todo);
-    }
+    QSet<ClassOrNamespace *> bindingsVisited;
+    QList<ClassOrNamespace *> bindingsToVisit;
+    bindingsToVisit.append(b);
 
-    foreach (Scope *scope, todo) {
-        if (! (scope->isNamespaceScope() || scope->isEnumScope()))
+    while (! bindingsToVisit.isEmpty()) {
+        ClassOrNamespace *binding = bindingsToVisit.takeFirst();
+        if (! binding || bindingsVisited.contains(binding))
             continue;
 
-        addCompletionItem(scope->owner());
+        bindingsVisited.insert(binding);
+        bindingsToVisit += binding->usings();
 
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-            addCompletionItem(scope->symbolAt(i));
+        QList<Scope *> scopesToVisit;
+        QSet<Scope *> scopesVisited;
+
+        foreach (Symbol *bb, binding->symbols()) {
+            if (Namespace *ns = bb->asNamespace())
+                scopesToVisit.append(ns->members());
+        }
+
+        foreach (Enum *e, binding->enums()) {
+            scopesToVisit.append(e->members());
+        }
+
+        while (! scopesToVisit.isEmpty()) {
+            Scope *scope = scopesToVisit.takeFirst();
+            if (! scope || scopesVisited.contains(scope))
+                continue;
+
+            scopesVisited.insert(scope);
+
+            for (Scope::iterator it = scope->firstSymbol(); it != scope->lastSymbol(); ++it) {
+                Symbol *member = *it;
+                addCompletionItem(member);
+            }
+        }
+    }
+}
+
+void CppCodeCompletion::completeNamespace(const QList<Symbol *> &candidates,
+                                          const DeprecatedLookupContext &deprecatedContext)
+{
+    if (candidates.isEmpty())
+        return;
+
+    else if (Namespace *ns = candidates.first()->asNamespace()) {
+        LookupContext context(deprecatedContext.expressionDocument(),
+                              deprecatedContext.thisDocument(),
+                              deprecatedContext.snapshot());
+
+        if (ClassOrNamespace *binding = context.classOrNamespace(ns))
+            completeNamespace(binding, context);
+    }
+}
+
+void CppCodeCompletion::completeClass(ClassOrNamespace *b, const LookupContext &, bool staticLookup)
+{
+    QSet<ClassOrNamespace *> bindingsVisited;
+    QList<ClassOrNamespace *> bindingsToVisit;
+    bindingsToVisit.append(b);
+
+    while (! bindingsToVisit.isEmpty()) {
+        ClassOrNamespace *binding = bindingsToVisit.takeFirst();
+        if (! binding || bindingsVisited.contains(binding))
+            continue;
+
+        bindingsVisited.insert(binding);
+        bindingsToVisit += binding->usings();
+
+        QList<Scope *> scopesToVisit;
+        QSet<Scope *> scopesVisited;
+
+        foreach (Symbol *bb, binding->symbols()) {
+            if (Class *k = bb->asClass())
+                scopesToVisit.append(k->members());
+        }
+
+        foreach (Enum *e, binding->enums())
+            scopesToVisit.append(e->members());
+
+        while (! scopesToVisit.isEmpty()) {
+            Scope *scope = scopesToVisit.takeFirst();
+            if (! scope || scopesVisited.contains(scope))
+                continue;
+
+            scopesVisited.insert(scope);
+
+            for (Scope::iterator it = scope->firstSymbol(); it != scope->lastSymbol(); ++it) {
+                Symbol *member = *it;
+                if (member->isFriend())
+                    continue;
+                else if (! staticLookup && (member->isTypedef() ||
+                                            member->isEnum()    ||
+                                            member->isClass()))
+                    continue;
+
+                addCompletionItem(member);
+            }
         }
     }
 }
 
 void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
-                                      const DeprecatedLookupContext &context,
+                                      const DeprecatedLookupContext &deprecatedContext,
                                       bool staticLookup)
 {
     if (candidates.isEmpty())
         return;
 
-    Class *klass = candidates.first()->asClass();
+    else if (Symbol *klass = candidates.first()) {
+        LookupContext context(deprecatedContext.expressionDocument(),
+                              deprecatedContext.thisDocument(),
+                              deprecatedContext.snapshot());
 
-    QList<Scope *> todo;
-    context.expand(klass->members(), context.visibleScopes(), &todo);
-
-    foreach (Scope *scope, todo) {
-        if (! (scope->isClassScope() || scope->isEnumScope()))
-            continue;
-
-        addCompletionItem(scope->owner());
-
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-            Symbol *symbol = scope->symbolAt(i);
-
-            if (symbol->type().isFriend())
-                continue;
-            else if (! staticLookup && (symbol->isTypedef() ||
-                                        symbol->isEnum()    ||
-                                        symbol->isClass()))
-                continue;
-
-            addCompletionItem(symbol);
-        }
+        if (ClassOrNamespace *binding = context.classOrNamespace(klass))
+            completeClass(binding, context, staticLookup);
     }
 }
 
@@ -1550,8 +1633,8 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                         extraChars += QLatin1Char('<');
                     }
                 } else if (! function->isAmbiguous()) {
-		    if (m_spaceAfterFunctionName)
-			extraChars += QLatin1Char(' ');
+                    if (m_spaceAfterFunctionName)
+                        extraChars += QLatin1Char(' ');
                     extraChars += QLatin1Char('(');
 
                     // If the function doesn't return anything, automatically place the semicolon,

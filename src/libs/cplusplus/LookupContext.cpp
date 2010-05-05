@@ -138,6 +138,16 @@ ClassOrNamespace *LookupContext::classOrNamespace(Symbol *symbol) const
     return bindings()->findClassOrNamespace(symbol);
 }
 
+ClassOrNamespace *LookupContext::classOrNamespace(const Name *name, Symbol *lastVisibleSymbol) const
+{
+    Scope *scope = _thisDocument->globalSymbols();
+
+    if (lastVisibleSymbol && lastVisibleSymbol->scope())
+        scope = lastVisibleSymbol->scope();
+
+    return classOrNamespace(name, lastVisibleSymbol);
+}
+
 QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 {
     QList<Symbol *> candidates;

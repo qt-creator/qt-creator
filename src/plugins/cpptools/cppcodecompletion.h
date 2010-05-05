@@ -50,6 +50,13 @@ class ITextEditor;
 class BaseTextEditor;
 }
 
+namespace CPlusPlus {
+class LookupItem;
+class LookupContext;
+class DeprecatedLookupContext;
+class ClassOrNamespace;
+}
+
 namespace CppTools {
 namespace Internal {
 
@@ -116,8 +123,15 @@ private:
     bool completeScope(const QList<CPlusPlus::LookupItem> &,
                        const CPlusPlus::DeprecatedLookupContext &context);
 
+    void completeNamespace(CPlusPlus::ClassOrNamespace *binding,
+                           const CPlusPlus::LookupContext &context);
+
     void completeNamespace(const QList<CPlusPlus::Symbol *> &candidates,
                            const CPlusPlus::DeprecatedLookupContext &context);
+
+    void completeClass(CPlusPlus::ClassOrNamespace *b,
+                       const CPlusPlus::LookupContext &context,
+                       bool staticLookup = true);
 
     void completeClass(const QList<CPlusPlus::Symbol *> &candidates,
                        const CPlusPlus::DeprecatedLookupContext &context,

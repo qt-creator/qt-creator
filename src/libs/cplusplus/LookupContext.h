@@ -178,6 +178,7 @@ public:
 
     ClassOrNamespace *globalNamespace() const;
 
+    ClassOrNamespace *classOrNamespace(const Name *name, Symbol *lastVisibleSymbol) const;
     ClassOrNamespace *classOrNamespace(const Name *name, Scope *scope) const;
     ClassOrNamespace *classOrNamespace(Symbol *symbol) const;
 
