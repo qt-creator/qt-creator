@@ -237,7 +237,6 @@ private:
 };
 #endif
 
-using namespace CPlusPlus;
 class CppPreprocessor: public CPlusPlus::Client
 {
 public:
@@ -264,7 +263,7 @@ public:
     { return m_todo; }
 
 public: // attributes
-    Snapshot snapshot;
+    CPlusPlus::Snapshot snapshot;
 
 protected:
     CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
@@ -274,15 +273,15 @@ protected:
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
-    virtual void macroAdded(const Macro &macro);
-    virtual void passedMacroDefinitionCheck(unsigned offset, const Macro &macro);
+    virtual void macroAdded(const CPlusPlus::Macro &macro);
+    virtual void passedMacroDefinitionCheck(unsigned offset, const CPlusPlus::Macro &macro);
     virtual void failedMacroDefinitionCheck(unsigned offset, const QByteArray &name);
     virtual void startExpandingMacro(unsigned offset,
-                                     const Macro &macro,
+                                     const CPlusPlus::Macro &macro,
                                      const QByteArray &originalText,
                                      bool inCondition,
-                                     const QVector<MacroArgumentReference> &actuals);
-    virtual void stopExpandingMacro(unsigned offset, const Macro &macro);
+                                     const QVector<CPlusPlus::MacroArgumentReference> &actuals);
+    virtual void stopExpandingMacro(unsigned offset, const CPlusPlus::Macro &macro);
     virtual void startSkippingBlocks(unsigned offset);
     virtual void stopSkippingBlocks(unsigned offset);
     virtual void sourceNeeded(QString &fileName, IncludeType type,
@@ -292,15 +291,15 @@ private:
 #ifndef ICHECK_BUILD
     QPointer<CppModelManager> m_modelManager;
 #endif
-    Environment env;
-    Preprocessor preprocess;
+    CPlusPlus::Environment env;
+    CPlusPlus::Preprocessor preprocess;
     QStringList m_includePaths;
     QStringList m_systemIncludePaths;
     CppModelManagerInterface::WorkingCopy m_workingCopy;
     QStringList m_projectFiles;
     QStringList m_frameworkPaths;
     QSet<QString> m_included;
-    Document::Ptr m_currentDoc;
+    CPlusPlus::Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
     QSet<QString> m_processed;
     unsigned m_revision;
