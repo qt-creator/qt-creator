@@ -31,40 +31,10 @@
 #define CPLUSPLUS_DEPRECATEDLOOKUPCONTEXT_H
 
 #include "CppDocument.h"
+#include "LookupItem.h"
 #include <FullySpecifiedType.h>
 
 namespace CPlusPlus {
-
-class CPLUSPLUS_EXPORT LookupItem
-{
-public:
-    LookupItem()
-        : _lastVisibleSymbol(0) {}
-
-    LookupItem(const FullySpecifiedType &type, Symbol *lastVisibleSymbol)
-        : _type(type), _lastVisibleSymbol(lastVisibleSymbol) {}
-
-    FullySpecifiedType type() const { return _type; }
-    void setType(const FullySpecifiedType &type) { _type = type; }
-
-    Symbol *lastVisibleSymbol() const { return _lastVisibleSymbol; }
-    void setLastVisibleSymbol(Symbol *symbol) { _lastVisibleSymbol = symbol; }
-
-    bool operator == (const LookupItem &other) const
-    {
-        if (_type == other._type)
-            return _lastVisibleSymbol == other._lastVisibleSymbol;
-
-        return false;
-    }
-
-    bool operator != (const LookupItem &result) const
-    { return ! operator == (result); }
-
-private:
-    FullySpecifiedType _type;
-    Symbol *_lastVisibleSymbol;
-};
 
 class CPLUSPLUS_EXPORT DeprecatedLookupContext
 {
@@ -228,14 +198,6 @@ private:
     QList<Scope *> _visibleScopes;
 };
 
-uint qHash(const CPlusPlus::LookupItem &result);
-
 } // end of namespace CPlusPlus
-
-#if defined(Q_CC_MSVC) && _MSC_VER <= 1300
-//this ensures that code outside QmlJS can use the hash function
-//it also a workaround for some compilers
-inline uint qHash(const CPlusPlus::LookupItem &item) { return CPlusPlus::qHash(item); }
-#endif
 
 #endif // CPLUSPLUS_DEPRECATEDLOOKUPCONTEXT_H
