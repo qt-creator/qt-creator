@@ -1097,7 +1097,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
         d->m_engine = debuggerEngineForToolChain(sp->toolChainType);
 
     if (d->m_engine == 0
-            && startMode != StartRemote
+            && startMode != AttachToRemote
             && !sp->executable.isEmpty())
         d->m_engine = debuggerEngineForExecutable(
             sp->executable, &errorMessage, &settingsIdHint);

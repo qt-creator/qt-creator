@@ -38,6 +38,8 @@
 namespace Debugger {
 namespace Internal {
 
+class AbstractGdbProcess;
+
 // AbstractGdbAdapter is inherited by PlainGdbAdapter used for local
 // debugging and TrkGdbAdapter used for on-device debugging.
 // In the PlainGdbAdapter case it's just a wrapper around a QProcess running
@@ -64,6 +66,7 @@ public:
     virtual void interruptInferior() = 0;
     virtual void shutdown();
     virtual const char *inferiorShutdownCommand() const;
+    virtual AbstractGdbProcess *gdbProc() = 0;
 
     virtual DumperHandling dumperHandling() const = 0;
 

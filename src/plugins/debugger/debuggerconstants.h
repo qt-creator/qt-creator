@@ -114,7 +114,8 @@ enum DebuggerStartMode
     AttachCrashedExternal, // Attach to crashed process by process id
     AttachTcf,             // Attach to a running Target Communication Framework agent
     AttachCore,            // Attach to a core file
-    StartRemote            // Start and attach to a remote process
+    AttachToRemote,        // Start and attach to a remote process
+    StartRemoteGdb         // Start gdb itself remotely
 };
 
 enum DebuggerCapabilities

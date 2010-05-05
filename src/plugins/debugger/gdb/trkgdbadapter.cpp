@@ -1929,7 +1929,7 @@ void TrkGdbAdapter::write(const QByteArray &data)
            trkReadMemoryMessage(m_session.dataseg, 12));
         return;
     }
-    m_engine->m_gdbProc.write(data);
+    m_gdbProc.write(data);
 }
 
 uint oldPC;

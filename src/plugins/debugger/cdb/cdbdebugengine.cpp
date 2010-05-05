@@ -362,7 +362,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     }
     switch (sp->startMode) {
     case AttachCore:
-    case StartRemote:
+    case AttachToRemote:
         warning(QLatin1String("Internal error: Mode not supported."));
         setState(AdapterStartFailed, Q_FUNC_INFO, __LINE__);
         emit startFailed();

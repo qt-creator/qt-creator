@@ -6,11 +6,16 @@ HEADERS += \
     $$PWD/abstractgdbadapter.h \
     $$PWD/attachgdbadapter.h \
     $$PWD/coregdbadapter.h \
-    $$PWD/plaingdbadapter.h \
+    $$PWD/localplaingdbadapter.h \
     $$PWD/termgdbadapter.h \
-    $$PWD/remotegdbadapter.h \
+    $$PWD/remotegdbserveradapter.h \
     $$PWD/trkgdbadapter.h \
-    $$PWD/s60debuggerbluetoothstarter.h
+    $$PWD/s60debuggerbluetoothstarter.h \
+    $$PWD/abstractgdbprocess.h \
+    $$PWD/localgdbprocess.h \
+    $$PWD/remotegdbprocess.h \
+    $$PWD/remoteplaingdbadapter.h \
+    $$PWD/abstractplaingdbadapter.h
 
 SOURCES += \
     $$PWD/gdbmi.cpp \
@@ -22,11 +27,16 @@ SOURCES += \
     $$PWD/abstractgdbadapter.cpp \
     $$PWD/attachgdbadapter.cpp \
     $$PWD/coregdbadapter.cpp \
-    $$PWD/plaingdbadapter.cpp \
+    $$PWD/localplaingdbadapter.cpp \
     $$PWD/termgdbadapter.cpp \
-    $$PWD/remotegdbadapter.cpp \
+    $$PWD/remotegdbserveradapter.cpp \
     $$PWD/trkgdbadapter.cpp \
-    $$PWD/s60debuggerbluetoothstarter.cpp
+    $$PWD/s60debuggerbluetoothstarter.cpp \
+    $$PWD/abstractgdbprocess.cpp \
+    $$PWD/localgdbprocess.cpp \
+    $$PWD/remotegdbprocess.cpp \
+    $$PWD/remoteplaingdbadapter.cpp \
+    $$PWD/abstractplaingdbadapter.cpp
 
 FORMS +=  $$PWD/gdboptionspage.ui
 

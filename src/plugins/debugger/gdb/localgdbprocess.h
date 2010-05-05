@@ -27,49 +27,40 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_PLAINGDBADAPTER_H
-#define DEBUGGER_PLAINGDBADAPTER_H
+#ifndef LOCALGDBPROCESS_H
+#define LOCALGDBPROCESS_H
 
-#include "abstractgdbadapter.h"
-
-#include <outputcollector.h>
+#include "abstractgdbprocess.h"
 
 namespace Debugger {
 namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// PlainGdbAdapter
-//
-///////////////////////////////////////////////////////////////////////
-
-class PlainGdbAdapter : public AbstractGdbAdapter
+class LocalGdbProcess : public AbstractGdbProcess
 {
-    Q_OBJECT
-
 public:
-    PlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit LocalGdbProcess(QObject *parent = 0);
 
-    virtual DumperHandling dumperHandling() const;
+    virtual QByteArray readAllStandardOutput();
+    virtual QByteArray readAllStandardError();
 
-    void startAdapter();
-    void startInferior();
-    void startInferiorPhase2();
-    void interruptInferior();
-    void shutdown();
-    const char *inferiorShutdownCommand() const { return "kill"; }
+    virtual void start(const QString &cmd, const QStringList &args);
+    virtual bool waitForStarted();
+    virtual qint64 write(const QByteArray &data);
+    virtual void kill();
+
+    virtual QProcess::ProcessState state() const;
+    virtual QString errorString() const;
+
+    virtual QProcessEnvironment processEnvironment() const;
+    virtual void setProcessEnvironment(const QProcessEnvironment &env);
+    virtual void setEnvironment(const QStringList &env);
+    virtual void setWorkingDirectory(const QString &dir);
 
 private:
-    void handleFileExecAndSymbols(const GdbResponse &response);
-    void handleExecRun(const GdbResponse &response);
-#ifdef Q_OS_LINUX
-    void handleInfoTarget(const GdbResponse &response);
-#endif
-
-    OutputCollector m_outputCollector;
+    QProcess m_gdbProc;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_PLAINGDBADAPTER_H
+#endif // LOCALGDBPROCESS_H

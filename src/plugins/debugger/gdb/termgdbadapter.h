@@ -32,6 +32,8 @@
 
 #include "abstractgdbadapter.h"
 
+#include "abstractgdbprocess.h"
+
 #include <consoleprocess.h>
 
 namespace Debugger {
@@ -57,6 +59,7 @@ public:
     void startInferior();
     void startInferiorPhase2();
     void interruptInferior();
+    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
 private:
     void handleStubAttached(const GdbResponse &response);
@@ -69,6 +72,7 @@ private:
     Q_SLOT void stubMessage(const QString &msg, bool isError);
 
     Utils::ConsoleProcess m_stubProc;
+    LocalGdbProcess m_gdbProc;
 };
 
 } // namespace Internal

@@ -27,44 +27,10 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_ATTACHGDBADAPTER_H
-#define DEBUGGER_ATTACHGDBADAPTER_H
-
-#include "abstractgdbadapter.h"
-
 #include "abstractgdbprocess.h"
 
 namespace Debugger {
 namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// AttachGdbAdapter
-//
-///////////////////////////////////////////////////////////////////////
-
-class AttachGdbAdapter : public AbstractGdbAdapter
-{
-    Q_OBJECT
-
-public:
-    AttachGdbAdapter(GdbEngine *engine, QObject *parent = 0);
-
-    virtual DumperHandling dumperHandling() const { return DumperLoadedByGdb; }
-
-    void startAdapter();
-    void startInferior();
-    void interruptInferior();
-    const char *inferiorShutdownCommand() const { return "detach"; }
-    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
-
-private:
-    void handleAttach(const GdbResponse &response);
-
-    LocalGdbProcess m_gdbProc;
-};
-
 } // namespace Internal
 } // namespace Debugger
-
-#endif // DEBUGGER_ATTACHDBADAPTER_H

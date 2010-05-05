@@ -27,44 +27,50 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_ATTACHGDBADAPTER_H
-#define DEBUGGER_ATTACHGDBADAPTER_H
+#ifndef GDBPROCESSWRAPPER_H
+#define GDBPROCESSWRAPPER_H
 
-#include "abstractgdbadapter.h"
-
-#include "abstractgdbprocess.h"
+#include <QtCore/QObject>
+#include <QtCore/QProcess>
 
 namespace Debugger {
 namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// AttachGdbAdapter
-//
-///////////////////////////////////////////////////////////////////////
-
-class AttachGdbAdapter : public AbstractGdbAdapter
+class AbstractGdbProcess : public QObject
 {
     Q_OBJECT
-
+    Q_DISABLE_COPY(AbstractGdbProcess)
 public:
-    AttachGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    virtual QByteArray readAllStandardOutput() = 0;
+    virtual QByteArray readAllStandardError() = 0;
 
-    virtual DumperHandling dumperHandling() const { return DumperLoadedByGdb; }
+    virtual void start(const QString &cmd, const QStringList &args) = 0;
+    virtual bool waitForStarted() = 0;
+    virtual qint64 write(const QByteArray &data) = 0;
+    virtual void kill() = 0;
 
-    void startAdapter();
-    void startInferior();
-    void interruptInferior();
-    const char *inferiorShutdownCommand() const { return "detach"; }
-    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
+    virtual QProcess::ProcessState state() const = 0;
+    virtual QString errorString() const = 0;
 
-private:
-    void handleAttach(const GdbResponse &response);
+    virtual QProcessEnvironment processEnvironment() const = 0;
+    virtual void setProcessEnvironment(const QProcessEnvironment &env) = 0;
+    virtual void setEnvironment(const QStringList &env) = 0;
+    virtual void setWorkingDirectory(const QString &dir) = 0;
 
-    LocalGdbProcess m_gdbProc;
+    virtual ~AbstractGdbProcess() {}
+
+signals:
+    void error(QProcess::ProcessError);
+    void finished(int exitCode, QProcess::ExitStatus exitStatus);
+    void readyReadStandardError();
+    void readyReadStandardOutput();
+
+protected:
+    explicit AbstractGdbProcess(QObject *parent = 0) : QObject(parent) {}
+
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_ATTACHDBADAPTER_H
+#endif // GDBPROCESSWRAPPER_H

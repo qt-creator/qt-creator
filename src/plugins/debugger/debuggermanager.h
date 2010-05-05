@@ -33,6 +33,8 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
+#include <coreplugin/ssh/sshconnection.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
@@ -122,11 +124,12 @@ public:
     QString sysRoot;
     QString debuggerCommand;
     int toolChainType;
-    QString remoteDumperLib;
+    QByteArray remoteDumperLib;
     QString qtInstallPath;
 
     QString dumperLibrary;
     QStringList dumperLibraryLocations;
+    Core::SshServerInfo sshserver;
     DebuggerStartMode startMode;
 };
 

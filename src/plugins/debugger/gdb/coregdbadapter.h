@@ -32,6 +32,8 @@
 
 #include "abstractgdbadapter.h"
 
+#include "abstractgdbprocess.h"
+
 #ifdef Q_OS_LINUX
 # define EXE_FROM_CORE
 #endif
@@ -57,6 +59,7 @@ public:
     void startAdapter();
     void startInferior();
     void interruptInferior();
+    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
 private:
     void loadExeAndSyms();
@@ -68,6 +71,7 @@ private:
     int m_round;
 #endif
     QString m_executable;
+    LocalGdbProcess m_gdbProc;
 };
 
 } // namespace Internal

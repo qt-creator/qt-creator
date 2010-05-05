@@ -29,6 +29,8 @@
 
 #include "abstractgdbadapter.h"
 
+#include "abstractgdbprocess.h"
+
 #include <utils/qtcassert.h>
 
 #include <QtCore/QProcess>
@@ -61,7 +63,7 @@ const char *AbstractGdbAdapter::inferiorShutdownCommand() const
 
 void AbstractGdbAdapter::write(const QByteArray &data)
 {
-    m_engine->m_gdbProc.write(data);
+    gdbProc()->write(data);
 }
 
 bool AbstractGdbAdapter::isTrkAdapter() const

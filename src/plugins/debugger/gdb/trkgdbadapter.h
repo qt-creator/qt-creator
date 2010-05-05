@@ -35,6 +35,7 @@
 #include "trkutils.h"
 #include "trkdevice.h"
 #include "launcher.h"
+#include "abstractgdbprocess.h"
 
 #include <QtCore/QHash>
 #include <QtCore/QPointer>
@@ -182,6 +183,7 @@ private:
     void startInferiorPhase2();
     void interruptInferior();
     void shutdown();
+    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
     void cleanup();
     void emitDelayedInferiorStartFailed(const QString &msg);
@@ -307,6 +309,7 @@ private:
     QString m_symbolFile;
     int m_verbose;
     bool m_bufferedMemoryRead;
+    LocalGdbProcess m_gdbProc;
 };
 
 } // namespace Internal

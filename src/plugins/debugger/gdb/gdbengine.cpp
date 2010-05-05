@@ -36,9 +36,10 @@
 
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
-#include "plaingdbadapter.h"
+#include "localplaingdbadapter.h"
 #include "termgdbadapter.h"
-#include "remotegdbadapter.h"
+#include "remotegdbserveradapter.h"
+#include "remoteplaingdbadapter.h"
 #include "trkgdbadapter.h"
 
 #include "watchutils.h"
@@ -218,10 +219,16 @@ QMainWindow *GdbEngine::mainWindow() const
     return DebuggerUISwitcher::instance()->mainWindow();
 }
 
+AbstractGdbProcess *GdbEngine::gdbProc() const
+{
+    return m_gdbAdapter->gdbProc();
+}
+
 GdbEngine::~GdbEngine()
 {
     // Prevent sending error messages afterwards.
-    disconnect(&m_gdbProc, 0, this, 0);
+    if (m_gdbAdapter)
+        disconnect(gdbProc(), 0, this, 0);
     delete m_gdbAdapter;
     m_gdbAdapter = 0;
 }
@@ -614,7 +621,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
 void GdbEngine::readGdbStandardError()
 {
-    QByteArray err = m_gdbProc.readAllStandardError();
+    QByteArray err = gdbProc()->readAllStandardError();
     debugMessage(_("UNEXPECTED GDB STDERR: " + err));
     if (err == "Undefined command: \"bb\".  Try \"help\".\n")
         return;
@@ -631,7 +638,7 @@ void GdbEngine::readGdbStandardOutput()
     int newstart = 0;
     int scan = m_inbuffer.size();
 
-    m_inbuffer.append(m_gdbProc.readAllStandardOutput());
+    m_inbuffer.append(gdbProc()->readAllStandardOutput());
 
     // This can trigger when a dialog starts a nested event loop
     if (m_busy)
@@ -873,7 +880,7 @@ void GdbEngine::commandTimeout()
             debugMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
             // This is an undefined state, so we just pull the emergency brake.
             manager()->watchHandler()->endCycle();
-            m_gdbProc.kill();
+            gdbProc()->kill();
         } else {
             debugMessage(_("CONTINUE DEBUGGER AS REQUESTED BY USER"));
         }
@@ -1333,7 +1340,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             && reason == "signal-received") {
         QByteArray name = data.findChild("signal-name").data();
         if (name != STOP_SIGNAL
-            && (startParameters().startMode != StartRemote
+            && (startParameters().startMode != AttachToRemote
                 || name != CROSS_STOP_SIGNAL))
             initHelpers = false;
     }
@@ -1400,7 +1407,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             // Ignore these as they are showing up regularly when
             // stopping debugging.
             if (name != STOP_SIGNAL
-                && (startParameters().startMode != StartRemote
+                && (startParameters().startMode != AttachToRemote
                     || name != CROSS_STOP_SIGNAL)) {
                 QString msg = tr("<p>The inferior stopped because it received a "
                     "signal from the Operating System.<p>"
@@ -1629,7 +1636,7 @@ void GdbEngine::shutdown()
         m_gdbAdapter->shutdown();
         // fall-through
     case AdapterStartFailed: // Adapter "did something", but it did not help
-        if (m_gdbProc.state() == QProcess::Running) {
+        if (gdbProc()->state() == QProcess::Running) {
             m_commandsToRunOnTemporaryBreak.clear();
             postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
         } else {
@@ -1658,7 +1665,7 @@ void GdbEngine::shutdown()
         // fall-through
     case InferiorStopFailed: // Tough luck, I guess. But unreachable as of now anyway.
         setState(EngineShuttingDown);
-        m_gdbProc.kill();
+        gdbProc()->kill();
         break;
     }
 }
@@ -1698,7 +1705,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
         QString msg = m_gdbAdapter->msgGdbStopFailed(
             QString::fromLocal8Bit(response.data.findChild("msg").data()));
         debugMessage(_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
-        m_gdbProc.kill();
+        gdbProc()->kill();
     }
 }
 
@@ -1722,7 +1729,7 @@ void GdbEngine::abortDebugger() // called from the manager
 {
     disconnectDebuggingHelperActions();
     shutdown();
-    m_gdbProc.kill();
+    gdbProc()->kill();
 }
 
 int GdbEngine::currentFrame() const
@@ -1766,14 +1773,16 @@ AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &s
     switch (sp->startMode) {
     case AttachCore:
         return new CoreGdbAdapter(this);
-    case StartRemote:
-        return new RemoteGdbAdapter(this, sp->toolChainType);
+    case AttachToRemote:
+        return new RemoteGdbServerAdapter(this, sp->toolChainType);
+    case StartRemoteGdb:
+        return new RemotePlainGdbAdapter(this);
     case AttachExternal:
         return new AttachGdbAdapter(this);
     default:
         if (sp->useTerminal)
             return new TermGdbAdapter(this);
-        return new PlainGdbAdapter(this);
+        return new LocalPlainGdbAdapter(this);
     }
 }
 
@@ -3929,7 +3938,7 @@ void GdbEngine::gotoLocation(const StackFrame &frame, bool setMarker)
 
 bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QString &settingsIdHint)
 {
-    m_gdbProc.disconnect(); // From any previous runs
+    gdbProc()->disconnect(); // From any previous runs
 
     m_gdb = QString::fromLatin1(qgetenv("QTC_DEBUGGER_PATH"));
     if (m_gdb.isEmpty())
@@ -3955,7 +3964,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         const QString winPythonVersion = QLatin1String(winPythonVersionC);
         const QDir dir = fi.absoluteDir();
         if (dir.exists(winPythonVersion)) {
-            QProcessEnvironment environment = m_gdbProc.processEnvironment();
+            QProcessEnvironment environment = gdbProc()->processEnvironment();
             const QString pythonPathVariable = QLatin1String("PYTHONPATH");
             // Check for existing values.
             if (environment.contains(pythonPathVariable)) {
@@ -3968,7 +3977,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
                 environment.insert(pythonPathVariable, pythonPath);
                 manager()->showDebuggerOutput(LogMisc,
                     _("Python path: %1").arg(pythonPath));
-                m_gdbProc.setProcessEnvironment(environment);
+                gdbProc()->setProcessEnvironment(environment);
             }
             foundPython = true;
         }
@@ -3979,20 +3988,20 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     }
 #endif
 
-    connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
+    connect(gdbProc(), SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(gdbProc(), SIGNAL(finished(int, QProcess::ExitStatus)),
         SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardOutput()),
+    connect(gdbProc(), SIGNAL(readyReadStandardOutput()),
         SLOT(readGdbStandardOutput()));
-    connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
+    connect(gdbProc(), SIGNAL(readyReadStandardError()),
         SLOT(readGdbStandardError()));
 
-    m_gdbProc.start(m_gdb, gdbArgs);
+    gdbProc()->start(m_gdb, gdbArgs);
 
-    if (!m_gdbProc.waitForStarted()) {
+    if (!gdbProc()->waitForStarted()) {
         const QString msg = tr("Unable to start gdb '%1': %2")
-            .arg(m_gdb, m_gdbProc.errorString());
+            .arg(m_gdb, gdbProc()->errorString());
         handleAdapterStartFailed(msg, settingsIdHint);
         return false;
     }
@@ -4114,7 +4123,7 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
     case QProcess::WriteError:
     case QProcess::Timedout:
     default:
-        m_gdbProc.kill();
+        gdbProc()->kill();
         setState(EngineShuttingDown, true);
         showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"),
                        errorMessage(error));
@@ -4230,7 +4239,7 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
     setState(AdapterStartFailed, true);
 
     // No point in being friendly here ...
-    m_gdbProc.kill();
+    gdbProc()->kill();
 
     if (!msg.isEmpty())
         showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);

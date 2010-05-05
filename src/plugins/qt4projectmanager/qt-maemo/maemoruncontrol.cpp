@@ -58,6 +58,8 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+#define USE_GDBSERVER
+
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::ToolChain;
 
@@ -132,7 +134,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
             m_needsInstall = true;
         } else {
             m_needsInstall = false;
-        }
+        }        
         if (forDebugging
             && m_runConfig->debuggingHelpersNeedDeployment(m_devConfig.server.host)) {
             const QFileInfo &info(m_runConfig->dumperLib());
@@ -286,7 +288,7 @@ void AbstractMaemoRunControl::handleRunThreadFinished()
         emit appendMessage(this,
                  tr("Remote execution canceled due to user request."),
                  false);
-    } else if (m_sshRunner->hasError()) {
+    } else if (m_sshRunner && m_sshRunner->hasError()) {
         emit appendMessage(this, tr("Error running remote process: %1")
                                          .arg(m_sshRunner->error()),
                                true);
@@ -383,22 +385,36 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     , m_startParams(new Debugger::DebuggerStartParameters)
 {
     QTC_ASSERT(m_debuggerManager != 0, return);
-    m_startParams->startMode = Debugger::StartRemote;
+#ifdef USE_GDBSERVER
+    m_startParams->startMode = Debugger::AttachToRemote;
     m_startParams->executable = executableOnHost();
+    m_startParams->debuggerCommand = m_runConfig->gdbCmd();
     m_startParams->remoteChannel
         = m_devConfig.server.host % QLatin1Char(':') % gdbServerPort();
     m_startParams->remoteArchitecture = QLatin1String("arm");
+#else
+    m_startParams->startMode = Debugger::StartRemoteGdb;
+    m_startParams->executable = executableFilePathOnTarget();
+    m_startParams->debuggerCommand = QLatin1String("/usr/bin/gdb");
+    m_startParams->sshserver = m_devConfig.server;
+#endif
+    m_startParams->processArgs = m_runConfig->arguments();
     m_startParams->sysRoot = m_runConfig->sysRoot();
     m_startParams->toolChainType = ToolChain::GCC_MAEMO;
-    m_startParams->debuggerCommand = m_runConfig->gdbCmd();
     m_startParams->dumperLibrary = m_runConfig->dumperLib();
-    m_startParams->remoteDumperLib = QString::fromLocal8Bit("%1/%2")
-        .arg(remoteDir()).arg(QFileInfo(m_runConfig->dumperLib()).fileName());
+    m_startParams->remoteDumperLib = remoteDir().toUtf8() + '/'
+        + QFileInfo(m_runConfig->dumperLib()).fileName().toUtf8();
 
     connect(m_debuggerManager, SIGNAL(debuggingFinished()), this,
         SLOT(debuggingFinished()), Qt::QueuedConnection);
     connect(m_debuggerManager, SIGNAL(applicationOutputAvailable(QString, bool)),
-        this, SLOT(debuggerOutput(QString)), Qt::QueuedConnection);
+            this,
+#ifdef USE_GDBSERVER
+            SLOT(debuggerOutput(QString))
+#else
+            SLOT(handleRemoteOutput(QString))
+#endif
+            , Qt::QueuedConnection);
 }
 
 MaemoDebugRunControl::~MaemoDebugRunControl()
@@ -406,7 +422,6 @@ MaemoDebugRunControl::~MaemoDebugRunControl()
     disconnect(SIGNAL(addToOutputWindow(RunControl*,QString, bool)));
     disconnect(SIGNAL(addToOutputWindowInline(RunControl*,QString, bool)));
     stop();
-    debuggingFinished();
 }
 
 void MaemoDebugRunControl::startInternal()
@@ -422,12 +437,23 @@ QString MaemoDebugRunControl::remoteCall() const
         .arg(executableFilePathOnTarget()).arg(targetCmdLineSuffix());
 }
 
+void MaemoDebugRunControl::startExecution()
+{
+#ifdef USE_GDBSERVER
+    AbstractMaemoRunControl::startExecution();
+#else
+    startDebugging();
+#endif
+}
+
 void MaemoDebugRunControl::handleRemoteOutput(const QString &output)
 {
+#ifdef USE_GDBSERVER
     if (!m_debuggingStarted) {
         m_debuggingStarted = true;
         startDebugging();
     }
+#endif
     emit addToOutputWindowInline(this, output, false);
 }
 
@@ -449,7 +475,11 @@ bool MaemoDebugRunControl::isRunning() const
 
 void MaemoDebugRunControl::debuggingFinished()
 {
+#ifdef USE_GDBSERVER
     AbstractMaemoRunControl::stopRunning(true);
+#else
+    AbstractMaemoRunControl::handleRunThreadFinished();
+#endif
 }
 
 void MaemoDebugRunControl::debuggerOutput(const QString &output)

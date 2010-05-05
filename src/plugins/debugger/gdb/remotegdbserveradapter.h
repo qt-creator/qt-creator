@@ -32,6 +32,8 @@
 
 #include "abstractgdbadapter.h"
 
+#include "abstractgdbprocess.h"
+
 namespace Debugger {
 namespace Internal {
 
@@ -41,12 +43,12 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-class RemoteGdbAdapter : public AbstractGdbAdapter
+class RemoteGdbServerAdapter : public AbstractGdbAdapter
 {
     Q_OBJECT
 
 public:
-    RemoteGdbAdapter(GdbEngine *engine, int toolChainType, QObject *parent = 0);
+    RemoteGdbServerAdapter(GdbEngine *engine, int toolChainType, QObject *parent = 0);
 
     virtual DumperHandling dumperHandling() const;
 
@@ -55,6 +57,7 @@ public:
     void startInferiorPhase2();
     void interruptInferior();
     void shutdown();
+    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
 private:
     Q_SLOT void readUploadStandardOutput();
@@ -68,6 +71,7 @@ private:
     const int m_toolChainType;
 
     QProcess m_uploadProc;
+    LocalGdbProcess m_gdbProc;
 };
 
 } // namespace Internal

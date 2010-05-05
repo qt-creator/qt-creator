@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "remotegdbadapter.h"
+#include "remotegdbserveradapter.h"
 
 #include "debuggerstringutils.h"
 #include "gdbengine.h"
@@ -43,7 +43,7 @@ namespace Debugger {
 namespace Internal {
 
 #define CB(callback) \
-    static_cast<GdbEngine::AdapterCallback>(&RemoteGdbAdapter::callback), \
+    static_cast<GdbEngine::AdapterCallback>(&RemoteGdbServerAdapter::callback), \
     STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, int toolChainType, QObject *parent) :
+RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine, int toolChainType, QObject *parent) :
     AbstractGdbAdapter(engine, parent),
     m_toolChainType(toolChainType)
 {
@@ -64,7 +64,7 @@ RemoteGdbAdapter::RemoteGdbAdapter(GdbEngine *engine, int toolChainType, QObject
         this, SLOT(readUploadStandardError()));
 }
 
-AbstractGdbAdapter::DumperHandling RemoteGdbAdapter::dumperHandling() const
+AbstractGdbAdapter::DumperHandling RemoteGdbServerAdapter::dumperHandling() const
 {
     switch (m_toolChainType) {
     case ProjectExplorer::ToolChain::MinGW:
@@ -82,7 +82,7 @@ AbstractGdbAdapter::DumperHandling RemoteGdbAdapter::dumperHandling() const
     return DumperLoadedByGdbPreload;
 }
 
-void RemoteGdbAdapter::startAdapter()
+void RemoteGdbServerAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
@@ -105,7 +105,7 @@ void RemoteGdbAdapter::startAdapter()
     emit adapterStarted();
 }
 
-void RemoteGdbAdapter::uploadProcError(QProcess::ProcessError error)
+void RemoteGdbServerAdapter::uploadProcError(QProcess::ProcessError error)
 {
     QString msg;
     switch (error) {
@@ -139,19 +139,19 @@ void RemoteGdbAdapter::uploadProcError(QProcess::ProcessError error)
     showMessageBox(QMessageBox::Critical, tr("Error"), msg);
 }
 
-void RemoteGdbAdapter::readUploadStandardOutput()
+void RemoteGdbServerAdapter::readUploadStandardOutput()
 {
     QByteArray ba = m_uploadProc.readAllStandardOutput();
     m_engine->showDebuggerOutput(LogOutput, QString::fromLocal8Bit(ba, ba.length()));
 }
 
-void RemoteGdbAdapter::readUploadStandardError()
+void RemoteGdbServerAdapter::readUploadStandardError()
 {
     QByteArray ba = m_uploadProc.readAllStandardError();
     m_engine->showDebuggerOutput(LogError, QString::fromLocal8Bit(ba, ba.length()));
 }
 
-void RemoteGdbAdapter::startInferior()
+void RemoteGdbServerAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
 
@@ -176,14 +176,14 @@ void RemoteGdbAdapter::startInferior()
         CB(handleFileExecAndSymbols));
 }
 
-void RemoteGdbAdapter::handleSetTargetAsync(const GdbResponse &response)
+void RemoteGdbServerAdapter::handleSetTargetAsync(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultError)
         qDebug() << "Adapter too old: does not support asynchronous mode.";
 }
 
-void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
+void RemoteGdbServerAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
@@ -203,7 +203,7 @@ void RemoteGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
     }
 }
 
-void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
+void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
@@ -220,19 +220,19 @@ void RemoteGdbAdapter::handleTargetRemote(const GdbResponse &record)
     }
 }
 
-void RemoteGdbAdapter::startInferiorPhase2()
+void RemoteGdbServerAdapter::startInferiorPhase2()
 {
     m_engine->continueInferiorInternal();
 }
 
-void RemoteGdbAdapter::interruptInferior()
+void RemoteGdbServerAdapter::interruptInferior()
 {
     // FIXME: On some gdb versions like git 170ffa5d7dd this produces
     // >810^error,msg="mi_cmd_exec_interrupt: Inferior not executing."
     m_engine->postCommand("-exec-interrupt", GdbEngine::Immediate);
 }
 
-void RemoteGdbAdapter::shutdown()
+void RemoteGdbServerAdapter::shutdown()
 {
     // FIXME: cleanup missing
 }

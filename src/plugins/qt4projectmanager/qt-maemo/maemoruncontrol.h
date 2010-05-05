@@ -74,7 +74,7 @@ protected:
     void startDeployment(bool forDebugging);
     void deploy();
     void stopRunning(bool forDebugging);
-    void startExecution();
+    virtual void startExecution();
     void handleError(const QString &errString);
     const QString executableOnHost() const;
     const QString executableFileName() const;
@@ -85,11 +85,13 @@ protected:
     QString packageFilePath() const;
     QString executableFilePathOnTarget() const;
 
+protected slots:
+    void handleRunThreadFinished();
+
 private slots:
     virtual void handleRemoteOutput(const QString &output)=0;
     void handleInitialCleanupFinished();
     void handleDeployThreadFinished();
-    void handleRunThreadFinished();
     void handleFileCopied();
 
 protected:
@@ -160,6 +162,7 @@ private slots:
 private:
     virtual void startInternal();
     virtual void stopInternal();
+    virtual void startExecution();
     virtual QString remoteCall() const;
 
     QString gdbServerPort() const;

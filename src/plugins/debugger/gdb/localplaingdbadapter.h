@@ -27,44 +27,49 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_ATTACHGDBADAPTER_H
-#define DEBUGGER_ATTACHGDBADAPTER_H
+#ifndef DEBUGGER_PLAINGDBADAPTER_H
+#define DEBUGGER_PLAINGDBADAPTER_H
 
-#include "abstractgdbadapter.h"
+#include "abstractplaingdbadapter.h"
 
 #include "abstractgdbprocess.h"
+
+#include <outputcollector.h>
 
 namespace Debugger {
 namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// AttachGdbAdapter
+// PlainGdbAdapter
 //
 ///////////////////////////////////////////////////////////////////////
 
-class AttachGdbAdapter : public AbstractGdbAdapter
+class LocalPlainGdbAdapter : public AbstractPlainGdbAdapter
 {
     Q_OBJECT
 
 public:
-    AttachGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    LocalPlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
 
-    virtual DumperHandling dumperHandling() const { return DumperLoadedByGdb; }
+    virtual DumperHandling dumperHandling() const;
 
     void startAdapter();
-    void startInferior();
     void interruptInferior();
-    const char *inferiorShutdownCommand() const { return "detach"; }
+    void shutdown();
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
 private:
-    void handleAttach(const GdbResponse &response);
+    virtual QByteArray execFilePath() const;
+    virtual bool infoTargetNecessary() const;
+    virtual QByteArray toLocalEncoding(const QString &s) const;
+    virtual QString fromLocalEncoding(const QByteArray &b) const;
 
+    OutputCollector m_outputCollector;
     LocalGdbProcess m_gdbProc;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_ATTACHDBADAPTER_H
+#endif // DEBUGGER_PLAINGDBADAPTER_H

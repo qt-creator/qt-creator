@@ -33,6 +33,7 @@
 #include "idebuggerengine.h"
 #include "debuggermanager.h" // only for StartParameters
 #include "gdbmi.h"
+#include "localgdbprocess.h"
 #include "watchutils.h"
 
 #include <QtCore/QByteArray>
@@ -41,7 +42,6 @@
 #include <QtCore/QMap>
 #include <QtCore/QMultiMap>
 #include <QtCore/QObject>
-#include <QtCore/QProcess>
 #include <QtCore/QPoint>
 #include <QtCore/QSet>
 #include <QtCore/QTextCodec>
@@ -60,6 +60,7 @@ class DebuggerManager;
 namespace Internal {
 
 class AbstractGdbAdapter;
+class AbstractGdbProcess;
 class GdbResponse;
 class GdbMi;
 
@@ -69,8 +70,8 @@ class DisassemblerAgentCookie;
 
 class AttachGdbAdapter;
 class CoreGdbAdapter;
-class PlainGdbAdapter;
-class RemoteGdbAdapter;
+class LocalPlainGdbAdapter;
+class RemoteGdbServerAdapter;
 class TrkGdbAdapter;
 
 enum DebuggingHelperState
@@ -95,11 +96,13 @@ public:
 
 private:
     friend class AbstractGdbAdapter;
+    friend class AbstractPlainGdbAdapter;
     friend class AttachGdbAdapter;
     friend class CoreGdbAdapter;
-    friend class PlainGdbAdapter;
+    friend class LocalPlainGdbAdapter;
     friend class TermGdbAdapter;
-    friend class RemoteGdbAdapter;
+    friend class RemoteGdbServerAdapter;
+    friend class RemotePlainGdbAdapter;
     friend class TrkGdbAdapter;
 
 private: ////////// General Interface //////////
@@ -165,7 +168,6 @@ private:
     QByteArray m_inbuffer;
     bool m_busy;
 
-    QProcess m_gdbProc;
     AbstractGdbAdapter *m_gdbAdapter;
 
 private: ////////// Gdb Command Management //////////
@@ -524,6 +526,7 @@ private: ////////// Convenience Functions //////////
         int buttons = 0);
     void debugMessage(const QString &msg);
     QMainWindow *mainWindow() const;
+    AbstractGdbProcess *gdbProc() const;
 
     static QString m_toolTipExpression;
     static QPoint m_toolTipPos;
