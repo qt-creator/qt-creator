@@ -525,8 +525,8 @@ private:
     FakeVimExCommandsPage *m_fakeVimExCommandsPage;
     QHash<Core::IEditor *, FakeVimHandler *> m_editorToHandler;
 
-    void triggerAction(const QString& code);
-    void setActionChecked(const QString& code, bool check);
+    void triggerAction(const QString &code);
+    void setActionChecked(const QString &code, bool check);
 
     void readSettings(QSettings *settings);
     void writeSettings(QSettings *settings);
@@ -557,6 +557,8 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
         QRegExp("^tag?$");
     s_defaultExCommandMap[Core::Constants::GO_BACK] =
         QRegExp("^pop?$");
+    s_defaultExCommandMap[QLatin1String("QtCreator.Locate")] =
+        QRegExp("^e$");
 }
 
 FakeVimPluginPrivate::~FakeVimPluginPrivate()
@@ -704,7 +706,7 @@ void FakeVimPluginPrivate::showSettingsDialog()
         QLatin1String(Constants::SETTINGS_ID));
 }
 
-void FakeVimPluginPrivate::triggerAction(const QString& code)
+void FakeVimPluginPrivate::triggerAction(const QString &code)
 {
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     QTC_ASSERT(am, return);
@@ -715,7 +717,7 @@ void FakeVimPluginPrivate::triggerAction(const QString& code)
     action->trigger();
 }
 
-void FakeVimPluginPrivate::setActionChecked(const QString& code, bool check)
+void FakeVimPluginPrivate::setActionChecked(const QString &code, bool check)
 {
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     QTC_ASSERT(am, return);
