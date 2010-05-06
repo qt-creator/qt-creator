@@ -36,6 +36,8 @@
 #include <Type.h>
 #include <SymbolVisitor.h>
 #include <QtCore/QSet>
+#include <map>
+#include <functional>
 
 namespace CPlusPlus {
 
@@ -56,7 +58,7 @@ public:
 
     ClassOrNamespace *lookupClassOrNamespace(const Name *name);
     ClassOrNamespace *findClassOrNamespace(const Name *name);
-    ClassOrNamespace *findClassOrNamespace(const QList<QByteArray> &path);
+    ClassOrNamespace *findClassOrNamespace(const QList<const Name *> &path);
 
     /// \internal
     static void lookup_helper(const Name *name, Scope *scope, QList<Symbol *> *result);
@@ -72,7 +74,7 @@ private:
     void addSymbol(Symbol *symbol);
     void addEnum(Enum *e);
     void addUsing(ClassOrNamespace *u);
-    void addNestedClassOrNamespace(const QByteArray &alias, ClassOrNamespace *e);
+    void addNestedClassOrNamespace(const Name *alias, ClassOrNamespace *e);
 
     void lookup_helper(const Name *name, ClassOrNamespace *binding,
                        QList<Symbol *> *result,
@@ -80,16 +82,20 @@ private:
 
     ClassOrNamespace *lookupClassOrNamespace_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
     ClassOrNamespace *findClassOrNamespace_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
-    ClassOrNamespace *findClassOrNamespace_helper(const QByteArray &name, QSet<ClassOrNamespace *> *processed);
-
-    ClassOrNamespace *nestedClassOrNamespace(const QByteArray &name) const;
+    ClassOrNamespace *nestedClassOrNamespace(const Name *name) const;
 
 private:
+    struct CompareName: std::binary_function<const Name *, const Name *, bool> {
+        bool operator()(const Name *name, const Name *other) const;
+    };
+
+private:
+    typedef std::map<const Name *, ClassOrNamespace *, CompareName> Table;
     CreateBindings *_factory;
     ClassOrNamespace *_parent;
     QList<Symbol *> _symbols;
     QList<ClassOrNamespace *> _usings;
-    QHash<QByteArray, ClassOrNamespace *> _classOrNamespaces;
+    Table _classOrNamespaces;
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
 
@@ -107,7 +113,7 @@ public:
     ClassOrNamespace *globalNamespace() const;
 
     ClassOrNamespace *findClassOrNamespace(Symbol *s); // ### rename
-    ClassOrNamespace *findClassOrNamespace(const QList<QByteArray> &path);
+    ClassOrNamespace *findClassOrNamespace(const QList<const Name *> &path);
 
     /// \internal
     void process(Symbol *s, ClassOrNamespace *classOrNamespace);

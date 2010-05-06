@@ -64,6 +64,15 @@ static void fullyQualifiedName(Symbol *symbol, QList<const Name *> *names)
     }
 }
 
+bool ClassOrNamespace::CompareName::operator()(const Name *name, const Name *other) const
+{
+    Q_ASSERT(name != 0);
+    Q_ASSERT(other != 0);
+    const Identifier *id = name->identifier();
+    const Identifier *otherId = other->identifier();
+    return std::lexicographical_compare(id->begin(), id->end(), otherId->begin(), otherId->end());
+}
+
 /////////////////////////////////////////////////////////////////////
 // LookupContext
 /////////////////////////////////////////////////////////////////////
@@ -218,19 +227,15 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
             if (fun->name() && fun->name()->isQualifiedNameId()) {
                 const QualifiedNameId *q = fun->name()->asQualifiedNameId();
-                QList<QByteArray> path;
 
-                QList<const Name *> enclosingNames;
-                fullyQualifiedName(scope->owner(), &enclosingNames);
-                foreach (const Name *p, enclosingNames) {
-                    if (const Identifier *id = p->identifier()) {
-                        path.append(QByteArray::fromRawData(id->chars(), id->size()));
-                    }
-                }
+                QList<const Name *> path;
+                fullyQualifiedName(scope->owner(), &path);
 
-                for (unsigned index = 0; index < q->nameCount() - 1; ++index) {
-                    if (const Identifier *id = q->nameAt(index)->identifier())
-                        path.append(QByteArray::fromRawData(id->chars(), id->size()));
+                for (unsigned index = 0; index < q->nameCount() - 1; ++index) { // ### TODO remove me.
+                    const Name *name = q->nameAt(index);
+
+                    if (name->isNameId() || name->isTemplateNameId())
+                        path.append(name);
                 }
 
                 if (ClassOrNamespace *binding = bindings()->findClassOrNamespace(path))
@@ -398,7 +403,7 @@ ClassOrNamespace *ClassOrNamespace::findClassOrNamespace(const Name *name)
     return findClassOrNamespace_helper(name, &processed);
 }
 
-ClassOrNamespace *ClassOrNamespace::findClassOrNamespace(const QList<QByteArray> &path)
+ClassOrNamespace *ClassOrNamespace::findClassOrNamespace(const QList<const Name *> &path)
 {
     if (path.isEmpty())
         return globalNamespace();
@@ -436,10 +441,8 @@ ClassOrNamespace *ClassOrNamespace::lookupClassOrNamespace_helper(const Name *na
 
             return e;
 
-        } else if (const Identifier *id = name->identifier()) {
-            const QByteArray classOrNamespaceName = QByteArray::fromRawData(id->chars(), id->size());
-
-            if (ClassOrNamespace *e = nestedClassOrNamespace(classOrNamespaceName))
+        } else if (name->isNameId() || name->isTemplateNameId()) {
+            if (ClassOrNamespace *e = nestedClassOrNamespace(name))
                 return e;
 
             foreach (ClassOrNamespace *u, usings()) {
@@ -474,37 +477,37 @@ ClassOrNamespace *ClassOrNamespace::findClassOrNamespace_helper(const Name *name
 
         return e;
 
-    } else if (const Identifier *id = name->identifier()) {
-        const QByteArray classOrNamespaceName = QByteArray::fromRawData(id->chars(), id->size());
-        return findClassOrNamespace_helper(classOrNamespaceName, processed);
+    } else if (name->isNameId() || name->isTemplateNameId()) {
+        if (ClassOrNamespace *e = nestedClassOrNamespace(name))
+            return e;
 
-    }
+        else if (! processed->contains(this)) {
+            processed->insert(this);
 
-    return 0;
-}
-
-ClassOrNamespace *ClassOrNamespace::findClassOrNamespace_helper(const QByteArray &name,
-                                                                QSet<ClassOrNamespace *> *processed)
-{
-    if (ClassOrNamespace *e = nestedClassOrNamespace(name))
-        return e;
-
-    else if (! processed->contains(this)) {
-        processed->insert(this);
-
-        foreach (ClassOrNamespace *u, usings()) {
-            if (ClassOrNamespace *e = u->findClassOrNamespace_helper(name, processed))
-                return e;
+            foreach (ClassOrNamespace *u, usings()) {
+                if (ClassOrNamespace *e = u->findClassOrNamespace_helper(name, processed))
+                    return e;
+            }
         }
+
     }
 
     return 0;
 }
 
-ClassOrNamespace *ClassOrNamespace::nestedClassOrNamespace(const QByteArray &name) const
+ClassOrNamespace *ClassOrNamespace::nestedClassOrNamespace(const Name *name) const
 {
+    Q_ASSERT(name != 0);
+    Q_ASSERT(name->isNameId() || name->isTemplateNameId());
+
     const_cast<ClassOrNamespace *>(this)->flush();
-    return _classOrNamespaces.value(name);
+
+    Table::const_iterator it = _classOrNamespaces.find(name);
+
+    if (it == _classOrNamespaces.end())
+        return 0;
+
+    return it->second;
 }
 
 void ClassOrNamespace::flush()
@@ -540,9 +543,9 @@ void ClassOrNamespace::addUsing(ClassOrNamespace *u)
     _usings.append(u);
 }
 
-void ClassOrNamespace::addNestedClassOrNamespace(const QByteArray &alias, ClassOrNamespace *e)
+void ClassOrNamespace::addNestedClassOrNamespace(const Name *alias, ClassOrNamespace *e)
 {
-    _classOrNamespaces.insert(alias, e);
+    _classOrNamespaces[alias] = e;
 }
 
 ClassOrNamespace *ClassOrNamespace::findOrCreate(const Name *name)
@@ -558,13 +561,12 @@ ClassOrNamespace *ClassOrNamespace::findOrCreate(const Name *name)
 
         return e;
 
-    } else if (const Identifier *id = name->identifier()) {
-        const QByteArray name = QByteArray::fromRawData(id->chars(), id->size());
+    } else if (name->isNameId() || name->isTemplateNameId()) {
         ClassOrNamespace *e = nestedClassOrNamespace(name);
 
         if (! e) {
             e = _factory->allocClassOrNamespace(this);
-            _classOrNamespaces.insert(name, e);
+            _classOrNamespaces[name] = e;
         }
 
         return e;
@@ -615,7 +617,7 @@ ClassOrNamespace *CreateBindings::findClassOrNamespace(Symbol *symbol)
     return b;
 }
 
-ClassOrNamespace *CreateBindings::findClassOrNamespace(const QList<QByteArray> &path)
+ClassOrNamespace *CreateBindings::findClassOrNamespace(const QList<const Name *> &path)
 {
     ClassOrNamespace *e = _globalNamespace->findClassOrNamespace(path);
     return e;
@@ -726,8 +728,7 @@ bool CreateBindings::visit(Declaration *decl)
         if (typedefId && ! (ty.isConst() || ty.isVolatile())) {
             if (const NamedType *namedTy = ty->asNamedType()) {
                 if (ClassOrNamespace *e = _currentClassOrNamespace->lookupClassOrNamespace(namedTy->name())) {
-                    const QByteArray alias = QByteArray::fromRawData(typedefId->chars(), typedefId->size());
-                    _currentClassOrNamespace->addNestedClassOrNamespace(alias, e);
+                    _currentClassOrNamespace->addNestedClassOrNamespace(decl->name(), e);
                 } else if (false) {
                     Overview oo;
                     qDebug() << "found entity not found for" << oo(namedTy->name());
@@ -772,8 +773,8 @@ bool CreateBindings::visit(NamespaceAlias *a)
         return false;
 
     } else if (ClassOrNamespace *e = _currentClassOrNamespace->lookupClassOrNamespace(a->namespaceName())) {
-        const QByteArray name = QByteArray::fromRawData(a->identifier()->chars(), a->identifier()->size());
-        _currentClassOrNamespace->addNestedClassOrNamespace(name, e);
+        if (a->name()->isNameId() || a->name()->isTemplateNameId())
+            _currentClassOrNamespace->addNestedClassOrNamespace(a->name(), e);
 
     } else if (false) {
         Overview oo;
