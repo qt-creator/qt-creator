@@ -56,6 +56,7 @@
 //   m_tc.position() (== position()). The character below position() is not included
 //   if the last movement command was exclusive (MoveExclusive).
 //   The value of m_tc.anchor() is not used.
+//
 
 #include "fakevimhandler.h"
 #include "fakevimsyntax.h"
@@ -129,6 +130,8 @@ const int ParagraphSeparator = 0x00002029;
 
 using namespace Qt;
 
+/*! A \e Mode represents one of the basic modes of operation of FakeVim.
+*/
 
 enum Mode
 {
@@ -138,37 +141,41 @@ enum Mode
     ExMode,
 };
 
+/*! A \e SubMode is used for things that require one more data item
+    and are 'nested' behind a \l Mode.
+*/
 enum SubMode
 {
     NoSubMode,
-    ChangeSubMode,     // used for c
-    DeleteSubMode,     // used for d
-    FilterSubMode,     // used for !
-    IndentSubMode,     // used for =
-    RegisterSubMode,   // used for "
-    ShiftLeftSubMode,  // used for <
-    ShiftRightSubMode, // used for >
-    TransformSubMode,  // used for ~/gu/gU
-    WindowSubMode,     // used for Ctrl-w
-    YankSubMode,       // used for y
-    ZSubMode,          // used for z
-    CapitalZSubMode    // used for Z
+    ChangeSubMode,     // Used for c
+    DeleteSubMode,     // Used for d
+    FilterSubMode,     // Used for !
+    IndentSubMode,     // Used for =
+    RegisterSubMode,   // Used for "
+    ShiftLeftSubMode,  // Used for <
+    ShiftRightSubMode, // Used for >
+    TransformSubMode,  // Used for ~/gu/gU
+    WindowSubMode,     // Used for Ctrl-w
+    YankSubMode,       // Used for y
+    ZSubMode,          // Used for z
+    CapitalZSubMode    // Used for Z
 };
 
+/*! A \e SubSubMode is used for things that require one more data item
+    and are 'nested' behind a \l SubMode.
+*/
 enum SubSubMode
 {
-    // typically used for things that require one more data item
-    // and are 'nested' behind a mode
     NoSubSubMode,
-    FtSubSubMode,         // used for f, F, t, T
-    MarkSubSubMode,       // used for m
-    BackTickSubSubMode,   // used for `
-    TickSubSubMode,       // used for '
-    InvertCaseSubSubMode, // used for ~
-    DownCaseSubSubMode,   // used for gu
-    UpCaseSubSubMode,     // used for gU
-    ReplaceSubSubMode,    // used for r after visual mode
-    TextObjectSubSubMode, // used for thing like iw, aW, as etc.
+    FtSubSubMode,         // Used for f, F, t, T.
+    MarkSubSubMode,       // Used for m.
+    BackTickSubSubMode,   // Used for `.
+    TickSubSubMode,       // Used for '.
+    InvertCaseSubSubMode, // Used for ~.
+    DownCaseSubSubMode,   // Used for gu.
+    UpCaseSubSubMode,     // Used for gU.
+    ReplaceSubSubMode,    // Used for r after visual mode.
+    TextObjectSubSubMode, // Used for thing like iw, aW, as etc.
     SearchSubSubMode,
 };
 
@@ -187,12 +194,33 @@ enum MoveType
     MoveLineWise,
 };
 
+/*!
+    \enum RangeMode
+
+    The \e RangeMode serves as a means to define how the "Range" between
+    the \l cursor and the \l anchor position is to be interpreted.
+
+    \value RangeCharMode   Entered by pressing \key v. The range includes
+                           all characters between cursor and anchor.
+    \value RangeLineMode   Entered by pressing \key V. The range includes
+                           all lines between the line of the cursor and
+                           the line of the anchor.
+    \value RangeLineModeExclusice Like \l RangeLineMode, but keeps one
+                           newline when deleting.
+    \value RangeBlockMode  Entered by pressing \key Ctrl-v. The range includes
+                           all characters with line and column coordinates
+                           between line and columns coordinates of cursor and
+                           anchor.
+    \value RangeBlockAndTailMode Like \l RangeBlockMode, but also includes
+                           all characters in the affected lines up to the end
+                           of these lines.
+*/
 enum RangeMode
 {
-    RangeCharMode,  // v
-    RangeLineMode,  // V
-    RangeLineModeExclusive, // like above, but keep one newline when deleting
-    RangeBlockMode, // Ctrl-v
+    RangeCharMode,         // v
+    RangeLineMode,         // V
+    RangeLineModeExclusive,
+    RangeBlockMode,        // Ctrl-v
     RangeBlockAndTailMode, // Ctrl-v for D and X
 };
 
@@ -206,8 +234,8 @@ enum EventResult
 struct Column
 {
     Column(int p, int l) : physical(p), logical(l) {}
-    int physical; // number of characters in the data
-    int logical; // column on screen
+    int physical; // Number of characters in the data.
+    int logical; // Column on screen.
 };
 
 struct CursorPosition
