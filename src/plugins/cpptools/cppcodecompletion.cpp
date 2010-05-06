@@ -1462,7 +1462,15 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
         if (classObjects.isEmpty())
             continue;
 
-        Class *klass = classObjects.first()->asClass();
+        Class *klass = 0;
+        foreach (Symbol *c, classObjects) {
+            klass = c->asClass();
+            if (klass != 0)
+                break;
+        }
+
+        if (! klass)
+            continue;
 
         QList<Scope *> todo;
         const QList<Scope *> visibleScopes = context.visibleScopes(p);
