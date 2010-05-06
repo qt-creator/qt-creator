@@ -537,7 +537,7 @@
            position.
     \endlist
 
-    To change \QD properties, select \gui Tools > \gui Options >
+    To change \QD properties, select \gui Tools > \gui Options... >
     \gui Designer.
     \list
         \o Set the class properties and code generation preferences in \gui
@@ -1481,7 +1481,7 @@
         conventions.
 
         \o \c {%CppSourceSuffix%} is replaced by the default source suffix, which
-        is defined in Qt Creator in \gui {Tools > Options > C++ > File Naming}.
+        is defined in Qt Creator in \gui {Tools > Options... > C++ > File Naming}.
         For example, if users enter \bold MyClass, the filename becomes myclass.cpp
         when the project is created.
 
@@ -3087,7 +3087,7 @@
 
     When you start debugging, the appropriate tool is automatically selected depending
     on the type of the project. If you only develop one kind of projects, you can turn
-    off this automation in \gui {Tools > Options > Debugger > General}. Deselect the
+    off this automation in \gui {Tools > Options... > Debugger > General}. Deselect the
     \gui {Change debugger language automatically} check box.
 
     The choice of language also determines the contents of the \gui Debug menu.
@@ -3422,7 +3422,7 @@
 
     The Qt Creator installation program asks you whether you want to
     register Qt Creator as a post-mortem debugger. To change the setting, select
-    \gui{Tools > Options  > Debugger > Common > Use Creator for post-mortem debugging}.
+    \gui{Tools > Options...  > Debugger > Common > Use Creator for post-mortem debugging}.
 
     You can launch the debugger in the post-mortem mode if an application crashes
     on Windows. Click the \gui {Debug in Qt Creator} button in the error message
@@ -5758,7 +5758,7 @@
     \section1 Using the Filter in Options Dialog
 
     To find specific settings you require in \gui{Tools} > \gui{Options...}
-    use the filter located at the top left of the Options dialog box.
+    use the filter located at the top left of the \gui Options dialog box.
 
 
     \section1 Using Keyboard Shortcuts
@@ -5849,7 +5849,7 @@
 
     To customize a keyboard shortcut:
     \list 1
-        \o Select \gui Tools > \gui Options > \gui Environment >
+        \o Select \gui Tools > \gui Options... > \gui Environment >
            \gui Keyboard.
         \o Select an action from the list.
         \o In \gui{Key Sequence} enter the shortcut key you want to associate
