@@ -422,8 +422,12 @@ void Highlighter::pushDynamicContext(const QSharedPointer<Context> &baseContext)
 
 void Highlighter::setCurrentContext()
 {
-    if (m_contexts.isEmpty())
-        throw HighlighterException();
+    if (m_contexts.isEmpty()) {
+        // This is not supposed to happen. However, there might be broken files (for example, the
+        // PHP definition) which will cause this behaviour. In such cases just pushing the default
+        // context is enough to keep highlighter working.
+        m_contexts.push_back(m_defaultContext);
+    }
     m_currentContext = m_contexts.back();
 }
 
