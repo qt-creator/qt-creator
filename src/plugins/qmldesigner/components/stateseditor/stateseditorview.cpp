@@ -339,16 +339,11 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
 
 void StatesEditorView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
-    if (!m_settingSilentState) {
-        if (QmlModelState(node).isValid()) {
-            startUpdateTimer(modelStateIndex(node) + 1, 0);
-        } else { //a change to the base state update all
-            for (int i = 0; i < m_modelStates.count(); ++i)
-                startUpdateTimer(i, 0);
-        }
-    }
-
+    // sets currentState() used in sceneChanged
     QmlModelView::nodeInstancePropertyChanged(node, propertyName);
+
+    if (!m_settingSilentState)
+        sceneChanged();
 }
 
 void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
@@ -456,8 +451,11 @@ void StatesEditorView::sceneChanged()
     if (debug)
         qDebug() << __FUNCTION__;
 
-    // If we are in base state we have to update the pixmaps of all states
-    // otherwise only the pixmpap for the current state
+    // If we are in base state we have to update the pixmaps of all states,
+    // otherwise only the pixmap for the current state
+
+    // TODO: Since a switch to the base state also results in nodePropertyChanged and
+    // therefore sceneChanged calls, we're rendering too much here
 
     if (currentState().isValid()) { //during setup we might get sceneChanged signals with an invalid currentState()
         if (currentState().isBaseState()) {
