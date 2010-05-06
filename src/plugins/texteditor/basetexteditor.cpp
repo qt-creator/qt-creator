@@ -2802,7 +2802,6 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
     grad.setColorAt(0, c.lighter(110));
     grad.setColorAt(1, c.lighter(130));
     QColor outline = c;
-    QRect r = rect;
 
     painter->fillRect(rect, grad);
     painter->setPen(outline);
@@ -2954,7 +2953,9 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
                 int boxWidth = collapseBoxWidth(fm);
                 if (hovered) {
-                    QRect box = QRect(extraAreaWidth + 1, top, boxWidth - 2, bottom - top);
+                    int itop = qRound(top);
+                    int ibottom = qRound(bottom);
+                    QRect box = QRect(extraAreaWidth + 1, itop, boxWidth - 2, ibottom - itop);
                     drawRectBox(&painter, box, drawStart, drawEnd, pal);
                 }
 
