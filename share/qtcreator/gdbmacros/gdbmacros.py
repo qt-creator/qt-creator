@@ -1421,6 +1421,7 @@ def qdump__QStringList(d, item):
     if d.isExpanded(item):
         innerType = gdb.lookup_type(d.ns + "QString")
         ptr = gdb.Value(d_ptr["array"]).cast(innerType.pointer())
+        ptr += d_ptr["begin"]
         with Children(d, [size, 1000], innerType):
             for i in d.childRange():
                 d.putItem(Item(ptr.dereference(), item.iname, i))
