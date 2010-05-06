@@ -196,6 +196,8 @@ void CheckUndefinedSymbols::buildTypeMap(NamespaceBinding *binding, QSet<Namespa
                     addType(e->name());
                 } else if (ForwardClassDeclaration *fwd = member->asForwardClassDeclaration()) {
                     addType(fwd->name());
+                } else if (NamespaceAlias *alias = member->asNamespaceAlias()) {
+                    addType(alias->name());
                 } else if (Declaration *decl = member->asDeclaration()) {
                     if (decl->isTypedef())
                         addType(decl->name());
