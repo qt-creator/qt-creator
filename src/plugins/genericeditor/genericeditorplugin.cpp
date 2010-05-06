@@ -30,7 +30,6 @@
 #include "genericeditorplugin.h"
 #include "highlightdefinition.h"
 #include "highlightdefinitionhandler.h"
-#include "highlighter.h"
 #include "highlighterexception.h"
 #include "genericeditorconstants.h"
 #include "editor.h"
@@ -127,7 +126,7 @@ QString GenericEditorPlugin::definitionIdByMimeType(const QString &mimeType) con
             candidateIds.append(it.value());
 
         qSort(candidateIds.begin(), candidateIds.end(), m_priorityComp);
-        return candidateIds.first();
+        return candidateIds.last();
     }
 }
 
@@ -216,8 +215,9 @@ void GenericEditorPlugin::parseDefinitionMetadata(const QFileInfo &fileInfo)
             }
 
             // The priority below should not be confused with the priority used when matching files
-            // to MIME types. This priority is for choosing a highlight definition when there are
-            // multiple ones associated with the same MIME type or file extensions/patterns.
+            // to MIME types. Kate uses this when there are definitions which share equal
+            // extensions/patterns. Here it is for choosing a highlight definition if there are
+            // multiple ones associated with the same MIME type (should not happen in general).
             m_priorityComp.m_priorityById.insert(id, attr.value(kPriority).toString().toInt());
 
             registerMimeTypes(name, mimeTypes, patterns);
@@ -237,7 +237,7 @@ void GenericEditorPlugin::registerMimeTypes(const QString &comment,
     // A definition can specify multiple MIME types and file extensions/patterns. However, each
     // thing is done with a single string. Then, there is no direct way to tell which extensions/
     // patterns belong to which MIME types nor whether a MIME type is just an alias for the other.
-    // Currently, I associate all expressions/patterns with all MIME types.
+    // Currentl y, I associate all expressions/patterns with all MIME types from a definition.
 
     QList<QRegExp> expressions;
     foreach (const QString &type, types) {

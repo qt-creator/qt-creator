@@ -90,7 +90,7 @@ private:
 
     struct PriorityCompare
     {
-        bool operator()(const QString &a, const QString &b)
+        bool operator()(const QString &a, const QString &b) const
         { return m_priorityById.value(a) < m_priorityById.value(b); }
 
         QHash<QString, int> m_priorityById;
