@@ -1200,6 +1200,7 @@ void testQStringList()
     l << "Hello ";
     l << " big, ";
     l << " fat ";
+    l.takeFirst();
     l << " World ";
 }
 
