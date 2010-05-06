@@ -154,7 +154,7 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
             start -= multiLineStartLength;
         }
 
-        bool hasSelStart = (startPos < startText.length() - multiLineStartLength
+        bool hasSelStart = (startPos <= startText.length() - multiLineStartLength
                             && isComment(startText,
                                          startPos,
                                          definition,
