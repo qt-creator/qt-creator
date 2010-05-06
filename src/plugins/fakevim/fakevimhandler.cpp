@@ -636,25 +636,34 @@ public:
     int anchor() const { return m_anchor; }
     int position() const { return m_tc.position(); }
 
-    typedef void (FakeVimHandler::Private::*Transformation)(int, QTextCursor *);
-    void transformText(const Range &range, Transformation transformation);
+    struct TransformationData
+    {
+        TransformationData(const QString &s, const QVariant &d)
+            : from(s), extraData(d) {}
+        QString from;
+        QString to;
+        QVariant extraData;
+    };
+    typedef void (Private::*Transformation)(TransformationData *td);
+    void transformText(const Range &range, Transformation transformation,
+        const QVariant &extraData = QVariant());
 
     void removeSelectedText();
     void removeText(const Range &range);
-    void removeTransform(int, QTextCursor *);
+    void removeTransform(TransformationData *td);
 
     void invertCaseSelectedText();
-    void invertCaseTransform(int, QTextCursor *);
+    void invertCaseTransform(TransformationData *td);
 
     void upCaseSelectedText();
-    void upCaseTransform(int, QTextCursor *);
+    void upCaseTransform(TransformationData *td);
 
     void downCaseSelectedText();
-    void downCaseTransform(int, QTextCursor *);
+    void downCaseTransform(TransformationData *td);
 
     QString m_replacement;
     void replaceSelectedText(); // replace each character with m_replacement
-    void replaceTransform(int, QTextCursor *);
+    void replaceTransform(TransformationData *td);
 
     QString selectedText() const { return text(Range(position(), anchor())); }
     QString text(const Range &range) const;
@@ -1492,10 +1501,10 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             m_replacement = input.text();
             finishMovement();
         } else {
-            Range range(position(), position() + count());
-            range.rangemode = RangeCharMode;
+            Range range(position(), position() + count(), RangeCharMode);
             m_replacement = input.text();
-            transformText(range, &FakeVimHandler::Private::replaceTransform);
+            Transformation tr = &FakeVimHandler::Private::replaceTransform;
+            transformText(range, tr);
             m_subsubmode = NoSubSubMode;
             m_submode = NoSubMode;
             setDotCommand("%1r" + input.text(), count());
@@ -2490,8 +2499,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             const QString leftText = m_tc.block().text()
                    .left(m_tc.position() - 1 - m_tc.block().position());
             if (leftText.simplified().isEmpty()) {
-                Range range(position(), position());
-                range.rangemode = m_rangemode;
+                Range range(position(), position(), m_rangemode);
                 indentText(range, text.at(0));
             }
         }
@@ -3357,8 +3365,7 @@ void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
     int beginLine = qMin(lineForPosition(position()), lineForPosition(anchor()));
     int endLine = qMax(lineForPosition(position()), lineForPosition(anchor()));
 
-    Range range(anchor(), position());
-    range.rangemode = m_rangemode;
+    Range range(anchor(), position(), m_rangemode);
     indentText(range, typedChar);
 
     setPosition(firstPositionInLine(beginLine));
@@ -3800,8 +3807,7 @@ QString FakeVimHandler::Private::text(const Range &range) const
 
 void FakeVimHandler::Private::yankSelectedText()
 {
-    Range range(anchor(), position());
-    range.rangemode = m_rangemode;
+    Range range(anchor(), position(), m_rangemode);
     yankText(range, m_register);
 }
 
@@ -3814,14 +3820,18 @@ void FakeVimHandler::Private::yankText(const Range &range, int toregister)
 }
 
 void FakeVimHandler::Private::transformText(const Range &range,
-    Transformation transformFunc)
+    Transformation transformFunc, const QVariant &extra)
 {
     QTextCursor tc = m_tc;
     switch (range.rangemode) {
         case RangeCharMode: {
             tc.setPosition(range.beginPos, MoveAnchor);
             tc.setPosition(range.endPos, KeepAnchor);
-            (this->*transformFunc)(range.beginPos, &tc);
+            TransformationData td(tc.selectedText(), extra);
+            (this->*transformFunc)(&td);
+            tc.removeSelectedText();
+            fixMarks(range.beginPos, td.to.size() - td.from.size());
+            tc.insertText(td.to);
             return;
         }
         case RangeLineMode:
@@ -3847,7 +3857,11 @@ void FakeVimHandler::Private::transformText(const Range &range,
                     tc.movePosition(Right, KeepAnchor, 1);
                 }
             }
-            (this->*transformFunc)(range.beginPos, &tc);
+            TransformationData td(tc.selectedText(), extra);
+            (this->*transformFunc)(&td);
+            tc.removeSelectedText();
+            fixMarks(range.beginPos, td.to.size() - td.from.size());
+            tc.insertText(td.to);
             return;
         }
         case RangeBlockAndTailMode:
@@ -3867,7 +3881,11 @@ void FakeVimHandler::Private::transformText(const Range &range,
                 int eCol = qMin(endColumn + 1, block.length() - 1);
                 tc.setPosition(block.position() + bCol, MoveAnchor);
                 tc.setPosition(block.position() + eCol, KeepAnchor);
-                (this->*transformFunc)(block.position() + bCol, &tc);
+                TransformationData td(tc.selectedText(), extra);
+                (this->*transformFunc)(&td);
+                tc.removeSelectedText();
+                fixMarks(block.position() + bCol, td.to.size() - td.from.size());
+                tc.insertText(td.to);
                 block = block.previous();
             }
             endEditBlock();
@@ -3877,8 +3895,7 @@ void FakeVimHandler::Private::transformText(const Range &range,
 
 void FakeVimHandler::Private::removeSelectedText()
 {
-    Range range(anchor(), position());
-    range.rangemode = m_rangemode;
+    Range range(anchor(), position(), m_rangemode);
     removeText(range);
 }
 
@@ -3887,92 +3904,60 @@ void FakeVimHandler::Private::removeText(const Range &range)
     transformText(range, &FakeVimHandler::Private::removeTransform);
 }
 
-void FakeVimHandler::Private::removeTransform(int updateMarksAfter, QTextCursor *tc)
+void FakeVimHandler::Private::removeTransform(TransformationData *td)
 {
-    fixMarks(updateMarksAfter, tc->selectionStart() - tc->selectionEnd());
-    tc->removeSelectedText();
+    Q_UNUSED(td);
 }
 
 void FakeVimHandler::Private::downCaseSelectedText()
 {
-    Range range(anchor(), position());
-    range.rangemode = m_rangemode;
+    Range range(anchor(), position(), m_rangemode);
     transformText(range, &FakeVimHandler::Private::downCaseTransform);
 }
 
-void FakeVimHandler::Private::downCaseTransform(int updateMarksAfter, QTextCursor *tc)
+void FakeVimHandler::Private::downCaseTransform(TransformationData *td)
 {
-    Q_UNUSED(updateMarksAfter);
-    QString str = tc->selectedText();
-    tc->removeSelectedText();
-    for (int i = str.size(); --i >= 0; ) {
-        QChar c = str.at(i);
-        str[i] = c.toLower();
-    }
-    tc->insertText(str);
+    td->to = td->from.toLower();
 }
 
 void FakeVimHandler::Private::upCaseSelectedText()
 {
-    Range range(anchor(), position());
-    range.rangemode = m_rangemode;
+    Range range(anchor(), position(), m_rangemode);
     transformText(range, &FakeVimHandler::Private::upCaseTransform);
 }
 
-void FakeVimHandler::Private::upCaseTransform(int updateMarksAfter, QTextCursor *tc)
+void FakeVimHandler::Private::upCaseTransform(TransformationData *td)
 {
-    Q_UNUSED(updateMarksAfter);
-    QString str = tc->selectedText();
-    tc->removeSelectedText();
-    for (int i = str.size(); --i >= 0; ) {
-        QChar c = str.at(i);
-        str[i] = c.toUpper();
-    }
-    tc->insertText(str);
+    td->to = td->from.toUpper();
 }
 
 void FakeVimHandler::Private::invertCaseSelectedText()
 {
-    Range range(anchor(), position());
-    range.rangemode = m_rangemode;
-    transformText(range, &FakeVimHandler::Private::invertCaseTransform);
+    Range range(anchor(), position(), m_rangemode);
+    transformText(range, &FakeVimHandler::Private::invertCaseTransform, QVariant());
 }
 
-void FakeVimHandler::Private::invertCaseTransform(int updateMarksAfter, QTextCursor *tc)
+void FakeVimHandler::Private::invertCaseTransform(TransformationData *td)
 {
-    Q_UNUSED(updateMarksAfter);
-    QString str = tc->selectedText();
-    tc->removeSelectedText();
-    for (int i = str.size(); --i >= 0; ) {
-        QChar c = str.at(i);
-        str[i] = c.isUpper() ? c.toLower() : c.toUpper();
-    }
-    tc->insertText(str);
+    foreach (QChar c, td->from)
+        td->to += c.isUpper() ? c.toLower() : c.toUpper();
 }
 
 void FakeVimHandler::Private::replaceSelectedText()
 {
-    Range range(anchor(), position());
-    range.rangemode = m_rangemode;
-    transformText(range, &FakeVimHandler::Private::replaceTransform);
+    Range range(anchor(), position(), m_rangemode);
+    transformText(range, &FakeVimHandler::Private::replaceTransform, QVariant());
 }
 
-void FakeVimHandler::Private::replaceTransform(int updateMarksAfter, QTextCursor *tc)
+void FakeVimHandler::Private::replaceTransform(TransformationData *td)
 {
-    beginEditBlock();
-    Q_UNUSED(updateMarksAfter);
-    QString str = tc->selectedText();
-    tc->removeSelectedText();
-    QString s;
-    for (int i = str.size(); --i >= 0; ) {
-        QChar c = str.at(i);
+    for (int i = td->from.size(); --i >= 0; ) {
+        QChar c = td->from.at(i);
         if (c.unicode() == '\n' || c.unicode() == '\0')
-            s += QLatin1Char('\n');
+            td->to += QLatin1Char('\n');
         else
-            s += m_replacement;
+            td->to += m_replacement;
     }
-    tc->insertText(s);
-    endEditBlock();
 }
 
 void FakeVimHandler::Private::pasteText(bool afterCursor)
@@ -4307,7 +4292,6 @@ void FakeVimHandler::Private::replay(const QString &command, int n)
     }
     g.inReplay = false;
 }
-
 
 void FakeVimHandler::Private::selectWordTextObject(bool inner)
 {
