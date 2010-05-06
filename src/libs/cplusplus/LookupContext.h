@@ -60,9 +60,6 @@ public:
     ClassOrNamespace *findClassOrNamespace(const Name *name);
     ClassOrNamespace *findClassOrNamespace(const QList<const Name *> &path);
 
-    /// \internal
-    static void lookup_helper(const Name *name, Scope *scope, QList<Symbol *> *result);
-
 private:
     /// \internal
     void flush();
@@ -78,7 +75,8 @@ private:
 
     void lookup_helper(const Name *name, ClassOrNamespace *binding,
                        QList<Symbol *> *result,
-                       QSet<ClassOrNamespace *> *processed);
+                       QSet<ClassOrNamespace *> *processed,
+                       const TemplateNameId *templateId);
 
     ClassOrNamespace *lookupClassOrNamespace_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
     ClassOrNamespace *findClassOrNamespace_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
@@ -98,6 +96,12 @@ private:
     Table _classOrNamespaces;
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
+
+    // it's an instantiation.
+    const TemplateNameId *_templateId;
+
+    // templates
+    QList<ClassOrNamespace *> _instantiations;
 
     friend class CreateBindings;
 };
@@ -120,6 +124,13 @@ public:
 
     /// \internal
     ClassOrNamespace *allocClassOrNamespace(ClassOrNamespace *parent);
+
+    /// \internal
+    Control *control() const;
+
+    /// \internal
+    void lookup_helper(const Name *name, Scope *scope, QList<Symbol *> *result,
+                       const TemplateNameId *templateId);
 
 protected:
     using SymbolVisitor::visit;
@@ -150,6 +161,7 @@ protected:
     virtual bool visit(ObjCMethod *);
 
 private:
+    Control *_control;
     Snapshot _snapshot;
     QSet<Namespace *> _processed;
     QList<ClassOrNamespace *> _entities;

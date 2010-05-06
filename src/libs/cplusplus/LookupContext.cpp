@@ -31,6 +31,7 @@
 #include "ResolveExpression.h"
 #include "Overview.h"
 #include "CppBindings.h"
+#include "GenTemplateInstance.h"
 
 #include <CoreTypes.h>
 #include <Symbols.h>
@@ -40,6 +41,7 @@
 #include <Control.h>
 
 #include <QtDebug>
+#include <cxxabi.h>
 
 //#define CPLUSPLUS_NO_LAZY_LOOKUP
 
@@ -197,7 +199,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
     for (; scope; scope = scope->enclosingScope()) {
         if (id && scope->isBlockScope()) {
-            ClassOrNamespace::lookup_helper(name, scope, &candidates);
+            bindings()->lookup_helper(name, scope, &candidates, /*templateId = */ 0);
 
             if (! candidates.isEmpty())
                 break; // it's a local.
@@ -221,7 +223,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
         } else if (scope->isFunctionScope()) {
             Function *fun = scope->owner()->asFunction();
-            ClassOrNamespace::lookup_helper(name, fun->arguments(), &candidates);
+            bindings()->lookup_helper(name, fun->arguments(), &candidates, /*templateId = */ 0);
             if (! candidates.isEmpty())
                 break; // it's a formal argument.
 
@@ -244,7 +246,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
         } else if (scope->isObjCMethodScope()) {
             ObjCMethod *method = scope->owner()->asObjCMethod();
-            ClassOrNamespace::lookup_helper(name, method->arguments(), &candidates);
+            bindings()->lookup_helper(name, method->arguments(), &candidates, /*templateId = */ 0);
             if (! candidates.isEmpty())
                 break; // it's a formal argument.
 
@@ -261,7 +263,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 }
 
 ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent)
-    : _factory(factory), _parent(parent)
+    : _factory(factory), _parent(parent), _templateId(0)
 {
 }
 
@@ -323,7 +325,7 @@ QList<Symbol *> ClassOrNamespace::lookup(const Name *name)
     QSet<ClassOrNamespace *> processed;
     ClassOrNamespace *binding = this;
     do {
-        lookup_helper(name, binding, &result, &processed);
+        lookup_helper(name, binding, &result, &processed, /*templateId = */ 0);
         binding = binding->_parent;
     } while (binding);
 
@@ -332,7 +334,8 @@ QList<Symbol *> ClassOrNamespace::lookup(const Name *name)
 
 void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding,
                                      QList<Symbol *> *result,
-                                     QSet<ClassOrNamespace *> *processed)
+                                     QSet<ClassOrNamespace *> *processed,
+                                     const TemplateNameId *templateId)
 {
     if (! binding)
         return;
@@ -340,21 +343,30 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
     else if (! processed->contains(binding)) {
         processed->insert(binding);
 
+        //Overview oo;
+        //qDebug() << "search for:" << oo(name) << "template:" << oo(templateId) << "b:" << oo(binding->_templateId);
+
         foreach (Symbol *s, binding->symbols()) {
             if (ScopedSymbol *scoped = s->asScopedSymbol())
-                lookup_helper(name, scoped->members(), result);
+                _factory->lookup_helper(name, scoped->members(), result, templateId);
         }
 
         foreach (Enum *e, binding->enums())
-            lookup_helper(name, e->members(), result);
+            _factory->lookup_helper(name, e->members(), result, templateId);
 
         foreach (ClassOrNamespace *u, binding->usings())
-            lookup_helper(name, u, result, processed);
+            lookup_helper(name, u, result, processed, binding->_templateId);
+
+        //qDebug() << "=======" << oo(name) << "template:" << oo(binding->_templateId);
     }
 }
 
-void ClassOrNamespace::lookup_helper(const Name *name, Scope *scope, QList<Symbol *> *result)
+void CreateBindings::lookup_helper(const Name *name, Scope *scope,
+                                   QList<Symbol *> *result,
+                                   const TemplateNameId *templateId)
 {
+    Q_UNUSED(templateId);
+
     if (! name) {
         return;
 
@@ -364,6 +376,7 @@ void ClassOrNamespace::lookup_helper(const Name *name, Scope *scope, QList<Symbo
                 continue;
             else if (! s->name()->isEqualTo(op))
                 continue;
+
             result->append(s);
         }
 
@@ -382,6 +395,7 @@ void ClassOrNamespace::lookup_helper(const Name *name, Scope *scope, QList<Symbo
 #endif
                 continue;
             }
+
             result->append(s);
         }
 
@@ -507,7 +521,28 @@ ClassOrNamespace *ClassOrNamespace::nestedClassOrNamespace(const Name *name) con
     if (it == _classOrNamespaces.end())
         return 0;
 
-    return it->second;
+    ClassOrNamespace *c = it->second;
+
+    if (const TemplateNameId *templId = name->asTemplateNameId()) {
+        Overview oo;
+        qDebug() << "search for:" << oo(templId);
+
+        foreach (ClassOrNamespace *i, c->_instantiations) {
+            if (templId->isEqualTo(i->_templateId)) {
+                qDebug() << "*** got a match";
+                return i;
+            }
+        }
+
+        ClassOrNamespace *i = _factory->allocClassOrNamespace(c);
+        i->_templateId = templId;
+        i->_usings.append(c);
+        c->_instantiations.append(i);
+        qDebug() << "created a new instantiation" << i;
+        return i;
+    }
+
+    return c;
 }
 
 void ClassOrNamespace::flush()
@@ -566,6 +601,11 @@ ClassOrNamespace *ClassOrNamespace::findOrCreate(const Name *name)
 
         if (! e) {
             e = _factory->allocClassOrNamespace(this);
+
+            if (const TemplateNameId *templId = name->asTemplateNameId()) {
+                Overview oo;
+                qDebug() << "find or create:" << oo(templId);
+            }
             _classOrNamespaces[name] = e;
         }
 
@@ -578,6 +618,7 @@ ClassOrNamespace *ClassOrNamespace::findOrCreate(const Name *name)
 CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot)
     : _snapshot(snapshot)
 {
+    _control = new Control();
     _globalNamespace = allocClassOrNamespace(/*parent = */ 0);
     _currentClassOrNamespace = _globalNamespace;
 
@@ -587,6 +628,7 @@ CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snaps
 CreateBindings::~CreateBindings()
 {
     qDeleteAll(_entities);
+    delete _control;
 }
 
 ClassOrNamespace *CreateBindings::switchCurrentEntity(ClassOrNamespace *classOrNamespace)
@@ -637,6 +679,11 @@ void CreateBindings::process(Symbol *symbol)
 #else
     accept(symbol);
 #endif
+}
+
+Control *CreateBindings::control() const
+{
+    return _control;
 }
 
 ClassOrNamespace *CreateBindings::allocClassOrNamespace(ClassOrNamespace *parent)

@@ -47,11 +47,11 @@ public:
     typedef QList< QPair<const Identifier *, FullySpecifiedType> > Substitution;
 
 public:
+    static FullySpecifiedType instantiate(const Name *className, Symbol *candidate, Control *control);
+
+private:
     GenTemplateInstance(Control *control, const Substitution &substitution);
-
-    FullySpecifiedType operator()(Symbol *symbol);
-
-    Control *control() const;
+    FullySpecifiedType gen(Symbol *symbol);
 
 private:
     Symbol *_symbol;

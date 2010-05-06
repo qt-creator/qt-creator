@@ -679,29 +679,7 @@ ResolveExpression::resolveMemberExpression(const QList<LookupItem> &baseResults,
 
 FullySpecifiedType ResolveExpression::instantiate(const Name *className, Symbol *candidate) const
 {
-    if (const TemplateNameId *templId = className->asTemplateNameId()) {
-        if (Class *klass = candidate->enclosingSymbol()->asClass()) {
-            GenTemplateInstance::Substitution subst;
-
-            for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
-                FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
-
-                if (i < klass->templateParameterCount()) {
-                    const Name *templArgName = klass->templateParameterAt(i)->name();
-
-                    if (templArgName && templArgName->identifier()) {
-                        const Identifier *templArgId = templArgName->identifier();
-                        subst.append(qMakePair(templArgId, templArgTy));
-                    }
-                }
-            }
-
-            GenTemplateInstance inst(_context.control(), subst);
-            return inst(candidate);
-        }
-    }
-
-    return candidate->type();
+    return GenTemplateInstance::instantiate(className, candidate, _context.control());
 }
 
 QList<LookupItem>
@@ -728,24 +706,8 @@ ResolveExpression::resolveMember(const Name *memberName, Class *klass,
         if (const QualifiedNameId *q = className->asQualifiedNameId())
             unqualifiedNameId = q->unqualifiedNameId();
 
-        if (const TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
-            GenTemplateInstance::Substitution subst;
-
-            for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
-                FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
-
-                if (i < klass->templateParameterCount()) {
-                    const Name *templArgName = klass->templateParameterAt(i)->name();
-                    if (templArgName && templArgName->identifier()) {
-                        const Identifier *templArgId = templArgName->identifier();
-                        subst.append(qMakePair(templArgId, templArgTy));
-                    }
-                }
-            }
-
-            GenTemplateInstance inst(_context.control(), subst);
-            ty = inst(candidate);
-        }
+        if (const TemplateNameId *templId = unqualifiedNameId->asTemplateNameId())
+            ty = GenTemplateInstance::instantiate(templId, candidate, _context.control());
 
         results.append(LookupItem(ty, candidate));
     }

@@ -369,11 +369,37 @@ GenTemplateInstance::GenTemplateInstance(Control *control, const Substitution &s
       _substitution(substitution)
 { }
 
-FullySpecifiedType GenTemplateInstance::operator()(Symbol *symbol)
+FullySpecifiedType GenTemplateInstance::gen(Symbol *symbol)
 {
     ApplySubstitution o(_control, symbol, _substitution);
     return o.apply(symbol->type());
 }
 
-Control *GenTemplateInstance::control() const
-{ return _control; }
+FullySpecifiedType GenTemplateInstance::instantiate(const Name *className, Symbol *candidate, Control *control)
+{
+    if (className) {
+        if (const TemplateNameId *templId = className->asTemplateNameId()) {
+            if (Class *klass = candidate->enclosingSymbol()->asClass()) {
+                GenTemplateInstance::Substitution subst;
+
+                for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
+                    FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
+
+                    if (i < klass->templateParameterCount()) {
+                        const Name *templArgName = klass->templateParameterAt(i)->name();
+
+                        if (templArgName && templArgName->identifier()) {
+                            const Identifier *templArgId = templArgName->identifier();
+                            subst.append(qMakePair(templArgId, templArgTy));
+                        }
+                    }
+                }
+
+                GenTemplateInstance inst(control, subst);
+                return inst.gen(candidate);
+            }
+        }
+    }
+
+    return candidate->type();
+}
