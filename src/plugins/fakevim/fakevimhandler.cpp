@@ -573,7 +573,10 @@ public:
     void beginEditBlock() { UNDO_DEBUG("BEGIN EDIT BLOCK"); m_tc.beginEditBlock(); }
     void beginEditBlock(int pos) { setUndoPosition(pos); beginEditBlock(); }
     void endEditBlock() { UNDO_DEBUG("END EDIT BLOCK"); m_tc.endEditBlock(); }
-    void joinPreviousEditBlock() { UNDO_DEBUG("JOIN EDIT BLOCK"); m_tc.joinPreviousEditBlock(); }
+    void joinPreviousEditBlock() { UNDO_DEBUG("JOIN"); m_tc.joinPreviousEditBlock(); }
+    void breakEditBlock()
+        { m_tc.beginEditBlock(); m_tc.insertText("x");
+          m_tc.deletePreviousChar(); m_tc.endEditBlock(); }
 
     // this asks the layer above (e.g. the fake vim plugin or the
     // stand-alone test application to handle the command)
@@ -678,7 +681,6 @@ public:
     void redo();
     void setUndoPosition(int pos);
     QMap<int, int> m_undoCursorPosition; // revision -> position
-    bool m_beginEditBlock;
 
     // extra data for '.'
     void replay(const QString &text, int count);
@@ -815,7 +817,6 @@ void FakeVimHandler::Private::init()
     m_cursorWidth = EDITOR(cursorWidth());
     m_justAutoIndented = 0;
     m_rangemode = RangeCharMode;
-    m_beginEditBlock = true;
 
     setupCharClass();
 }
@@ -1218,7 +1219,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             insertAutomaticIndentation(true);
         endEditBlock();
         enterInsertMode();
-        m_beginEditBlock = false;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
         removeSelectedText();
@@ -2062,7 +2062,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         beginEditBlock();
         setDotCommand("%1o", count());
         enterInsertMode();
-        m_beginEditBlock = false;
         moveToFirstNonBlankOnLine();
         if (input.is('O'))
             moveToStartOfLine();
@@ -2112,7 +2111,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         }
         setDotCommand("%1S", count());
         enterInsertMode();
-        m_beginEditBlock = false;
         m_submode = ChangeSubMode;
         m_movetype = MoveLineWise;
         finishMovement();
@@ -2316,12 +2314,7 @@ EventResult FakeVimHandler::Private::handleReplaceMode(const Input &input)
         m_mode = CommandMode;
         finishMovement();
     } else {
-        if (m_beginEditBlock) {
-            beginEditBlock();
-            m_beginEditBlock = false;
-        } else {
-            joinPreviousEditBlock();
-        }
+        joinPreviousEditBlock();
         if (!atEndOfLine()) {
             setAnchor();
         //    m_tc.deleteChar();
@@ -2485,14 +2478,9 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     //} else if (key >= control('a') && key <= control('z')) {
     //    // ignore these
     } else if (!input.text().isEmpty()) {
-        const QString text = input.text();
-        if (m_beginEditBlock) {
-            beginEditBlock();
-            m_beginEditBlock = false;
-        } else {
-            joinPreviousEditBlock();
-        }
+        joinPreviousEditBlock();
         m_justAutoIndented = 0;
+        const QString text = input.text();
         m_lastInsertion.append(text);
         m_tc.insertText(text);
         if (hasConfig(ConfigSmartIndent) && isElectricCharacter(text.at(0))) {
@@ -4160,24 +4148,24 @@ void FakeVimHandler::Private::updateCursor()
 
 void FakeVimHandler::Private::enterReplaceMode()
 {
-    //leaveVisualMode();
     m_mode = ReplaceMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
     m_lastInsertion.clear();
     m_lastDeletion.clear();
-    m_beginEditBlock = true;
+    setUndoPosition(position());
+    breakEditBlock();
     updateCursor();
 }
 
 void FakeVimHandler::Private::enterInsertMode()
 {
-    //leaveVisualMode();
     m_mode = InsertMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
     m_lastInsertion.clear();
-    m_beginEditBlock = true;
+    setUndoPosition(position());
+    breakEditBlock();
     updateCursor();
 }
 
