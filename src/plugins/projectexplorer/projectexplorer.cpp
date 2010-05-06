@@ -973,7 +973,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
 
     QSettings *s = Core::ICore::instance()->settings();
     if (s) {
-        s->setValue("ProjectExplorer/StartupSession", d->m_session->file()->fileName());
+        s->setValue("ProjectExplorer/StartupSession", d->m_session->currentSession());
         s->remove("ProjectExplorer/RecentProjects/Files");
 
         QStringList fileNames;

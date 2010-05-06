@@ -128,7 +128,7 @@ public:
     bool addDependency(Project *project, Project *depProject);
     void removeDependency(Project *project, Project *depProject);
 
-    Core::IFile *file() const;
+    QString currentSession() const;
     Project *startupProject() const;
 
     const QList<Project *> &projects() const;

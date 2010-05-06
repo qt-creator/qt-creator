@@ -68,7 +68,7 @@ namespace {
 namespace ProjectExplorer {
 namespace Internal {
 
-class SessionFile : public Core::IFile
+    class SessionFile : QObject
 {
     Q_OBJECT
 
@@ -81,23 +81,10 @@ public:
     QString fileName() const;
     void setFileName(const QString &fileName);
 
-    QString defaultPath() const;
-    QString suggestedFileName() const;
-    virtual QString mimeType() const;
-
-    bool isModified() const;
-    bool isReadOnly() const;
-    bool isSaveAsAllowed() const;
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    void reload(ReloadFlag flag, ChangeType type);
-
 public slots:
     void sessionLoadingProgress();
 
-
 private:
-    const QString m_mimeType;
     Core::ICore *m_core;
 
     QString m_fileName;
@@ -125,15 +112,9 @@ void SessionFile::sessionLoadingProgress()
 }
 
 SessionFile::SessionFile()
-  : m_mimeType(QLatin1String(ProjectExplorer::Constants::SESSIONFILE_MIMETYPE)),
-    m_core(Core::ICore::instance()),
+  : m_core(Core::ICore::instance()),
     m_startupProject(0)
 {
-}
-
-QString SessionFile::mimeType() const
-{
-    return m_mimeType;
 }
 
 bool SessionFile::load(const QString &fileName)
@@ -306,53 +287,8 @@ void SessionFile::setFileName(const QString &fileName)
     m_fileName = fileName;
 }
 
-bool SessionFile::isModified() const
-{
-    return true;
-}
-
-bool SessionFile::isReadOnly() const
-{
-    return false;
-}
-
-bool SessionFile::isSaveAsAllowed() const
-{
-    return true;
-}
-
-Core::IFile::ReloadBehavior SessionFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    Q_UNUSED(state)
-    Q_UNUSED(type)
-    return BehaviorSilent;
-}
-
-void SessionFile::reload(ReloadFlag flag, ChangeType type)
-{
-    Q_UNUSED(flag)
-    Q_UNUSED(type)
-}
-
-QString SessionFile::defaultPath() const
-{
-    if (!m_projects.isEmpty()) {
-        const QFileInfo fi(m_projects.first()->file()->fileName());
-        return fi.absolutePath();
-    }
-    return QString();
-}
-
-QString SessionFile::suggestedFileName() const
-{
-    if (m_startupProject)
-        return m_startupProject->displayName();
-
-    return tr("Untitled", "default file name to display");
-}
-
 Internal::SessionNodeImpl::SessionNodeImpl(SessionManager *manager)
-        : ProjectExplorer::SessionNode(manager->file()->fileName(), manager)
+        : ProjectExplorer::SessionNode(manager->currentSession(), manager)
 {
     setFileName("session");
 }
@@ -894,9 +830,9 @@ void SessionManager::setEditorCodec(Core::IEditor *editor, const QString &fileNa
             textEditor->setTextCodec(project->editorConfiguration()->defaultTextCodec());
 }
 
-Core::IFile *SessionManager::file() const
+QString SessionManager::currentSession() const
 {
-    return m_file;
+    return m_file->fileName();
 }
 
 void SessionManager::handleCurrentEditorChange(Core::IEditor *editor)

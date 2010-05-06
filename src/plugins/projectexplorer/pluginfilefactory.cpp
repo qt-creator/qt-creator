@@ -76,8 +76,6 @@ Core::IFile *ProjectFileFactory::open(const QString &fileName)
         SessionManager *session = pe->session();
         if (session->projects().count() == 1)
             fIFace = session->projects().first()->file();
-        else if (session->projects().count() > 1)
-            fIFace = session->file();  // TODO: Why return session file interface here ???
     }
     return fIFace;
 }
