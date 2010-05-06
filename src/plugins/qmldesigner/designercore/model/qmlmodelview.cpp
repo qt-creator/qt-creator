@@ -39,6 +39,10 @@
 #include <QDebug>
 #include <QMessageBox>
 
+enum {
+    debug = false
+};
+
 namespace QmlDesigner {
 
 QmlModelView::QmlModelView(QObject *parent)
@@ -235,12 +239,16 @@ QmlObjectNode QmlModelView::fxObjectNodeForId(const QString &id)
 
 void QmlModelView::customNotification(const AbstractView * /* view */, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> & /* data */)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << identifier << nodeList;
+
     if (identifier == "__state changed__") {
         QmlModelState state(nodeList.first());
-        if (state.isValid())
+        if (state.isValid()) {
             activateState(state);
-        else
+        } else {
             activateState(baseState());
+        }
     }
 }
 
@@ -289,6 +297,8 @@ static bool isTransformProperty(const QString &name)
 
 void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << node << propertyName;
 
     QmlObjectNode qmlObjectNode(node);
 
@@ -307,6 +317,9 @@ void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QStr
 
 void QmlModelView::activateState(const QmlModelState &state)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << state;
+
     if (!state.isValid())
         return;
 
@@ -326,6 +339,9 @@ void QmlModelView::activateState(const QmlModelState &state)
 
 void QmlModelView::changeToState(const ModelNode &node, const QString &stateName)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << node << stateName;
+
     QmlItemNode itemNode(node);
 
     QmlModelState newState;
@@ -355,8 +371,10 @@ void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, 
 {
 }
 
-void  QmlModelView::stateChanged(const QmlModelState &/*newQmlModelState*/, const QmlModelState &/*oldQmlModelState*/)
+void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << oldQmlModelState << "to" << newQmlModelState;
 }
 
 } //QmlDesigner
