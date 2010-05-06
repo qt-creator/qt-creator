@@ -69,9 +69,10 @@ QmlStateNodeInstance::Pointer
 void QmlStateNodeInstance::activateState()
 {
     if (stateGroup()) {
-        if (!isStateActive())
+        if (!isStateActive()) {
             nodeInstanceView()->setStateInstance(nodeInstanceView()->instanceForNode(modelNode()));
             stateGroup()->setState(property("name").toString());
+        }
     }
 }
 
