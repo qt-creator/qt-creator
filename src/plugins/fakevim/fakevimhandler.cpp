@@ -1676,6 +1676,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             // FIXME: make core find dialog sufficiently flexible to
             // produce the "default vi" behaviour too. For now, roll our own.
             m_currentMessage.clear();
+            m_movetype = MoveExclusive;
             m_subsubmode = SearchSubSubMode;
             m_commandPrefix = QLatin1Char(m_lastSearchForward ? '/' : '?');
             m_commandBuffer = QString();
