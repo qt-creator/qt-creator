@@ -34,6 +34,7 @@ Editing
    * Fixed auto indent for C style coments
    * Copying text from the editor now supports HTML mime type, preserving
      the syntax highlighting.
+   * Block selection defines a find & replace scope
 
 CodePaster
    * Implemented new protocol of pastebin.com including list functionality
