@@ -1052,7 +1052,7 @@ static IDebuggerEngine *debuggerEngineForMode(DebuggerStartMode startMode, QStri
 
 #ifdef Q_OS_WIN
     // Preferably Windows debugger for attaching locally.
-    if (startMode != StartRemote && cdbEngine)
+    if (startMode != AttachToRemote && cdbEngine)
         return cdbEngine;
     if (gdbEngine)
         return gdbEngine;
