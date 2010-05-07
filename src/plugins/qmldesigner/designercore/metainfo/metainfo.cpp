@@ -82,9 +82,8 @@ public:
     QMultiHash<QString, QString> m_superClassHash; // the list of direct superclasses
     QHash<QString, NodeMetaInfo> m_nodeMetaInfoHash;
     QHash<QString, EnumeratorMetaInfo> m_enumeratorMetaInfoHash;
-    QMultiHash<NodeMetaInfo, ItemLibraryEntry> m_itemLibraryInfoHash;
-    QHash<QString, ItemLibraryEntry> m_itemLibraryInfoHashAll;
     QHash<QString, QString> m_QtTypesToQmlTypes;
+    ItemLibraryInfo m_itemLibraryInfo;
 
     MetaInfo *m_q;
     bool m_isInitialized;
@@ -94,6 +93,8 @@ MetaInfoPrivate::MetaInfoPrivate(MetaInfo *q) :
         m_q(q),
         m_isInitialized(false)
 {
+    if (!m_q->isGlobal())
+        m_itemLibraryInfo = ItemLibraryInfo::createItemLibraryInfo(m_q->global().itemLibraryInfo());
 }
 
 void MetaInfoPrivate::clear()
@@ -101,8 +102,7 @@ void MetaInfoPrivate::clear()
     m_superClassHash.clear();
     m_nodeMetaInfoHash.clear();
     m_enumeratorMetaInfoHash.clear();
-    m_itemLibraryInfoHash.clear();
-    m_itemLibraryInfoHashAll.clear();
+    m_itemLibraryInfo.clear();
     m_isInitialized = false;
 }
 
@@ -484,44 +484,12 @@ QList<NodeMetaInfo> MetaInfo::directSuperClasses(const NodeMetaInfo &nodeInfo) c
     return superClassList;
 }
 
-QList<ItemLibraryEntry> MetaInfo::itemLibraryEntrys(const NodeMetaInfo &nodeMetaInfo) const
-{
-    QList<ItemLibraryEntry> itemLibraryItems = m_p->m_itemLibraryInfoHash.values(nodeMetaInfo);
-    if (!isGlobal())
-        itemLibraryItems += global().itemLibraryEntrys(nodeMetaInfo);
-    return itemLibraryItems;
-}
-
-ItemLibraryEntry MetaInfo::itemLibraryEntry(const QString &name) const
-{
-    if (m_p->m_itemLibraryInfoHashAll.contains(name))
-        return m_p->m_itemLibraryInfoHashAll.value(name);
-    if (!isGlobal())
-        return global().itemLibraryEntry(name);
-    return ItemLibraryEntry();
-}
-
 QString MetaInfo::fromQtTypes(const QString &type) const
 {
     if (m_p->m_QtTypesToQmlTypes.contains(type))
         return m_p->m_QtTypesToQmlTypes.value(type);
 
     return type;
-}
-
-QStringList MetaInfo::itemLibraryItems() const
-{
-    QStringList completeList = m_p->m_nodeMetaInfoHash.keys();
-    QStringList finalList;
-    foreach (const QString &name, completeList) {
-        if (nodeMetaInfo(name).isVisibleToItemLibrary())
-            finalList.append(name);
-    }
-
-    if (!isGlobal())
-        finalList += global().itemLibraryItems();
-
-    return finalList;
 }
 
 /*!
@@ -564,6 +532,11 @@ EnumeratorMetaInfo MetaInfo::enumerator(const QString &enumeratorName) const
     if (!isGlobal())
         return global().enumerator(enumeratorName);
     return EnumeratorMetaInfo();
+}
+
+ItemLibraryInfo MetaInfo::itemLibraryInfo() const
+{
+    return m_p->m_itemLibraryInfo;
 }
 
 /*!
@@ -635,8 +608,7 @@ void MetaInfo::removeNodeInfo(NodeMetaInfo &info)
 
         m_p->m_superClassHash.remove(info.typeName());
         // TODO: Other types might specify type as parent type
-        m_p->m_itemLibraryInfoHash.remove(info);
-        m_p->m_itemLibraryInfoHashAll.remove(info.typeName());
+        m_p->m_itemLibraryInfo.remove(info);
 
     } else if (!isGlobal()) {
         global().removeNodeInfo(info);
@@ -680,18 +652,6 @@ EnumeratorMetaInfo MetaInfo::addFlag(const QString &enumeratorScope, const QStri
     return enumeratorMetaInfo;
 }
 
-ItemLibraryEntry MetaInfo::addItemLibraryEntry(const NodeMetaInfo &nodeMetaInfo, const QString &itemLibraryEntryName)
-{
-    ItemLibraryEntry itemLibraryEntry;
-    itemLibraryEntry.setName(itemLibraryEntryName);
-    itemLibraryEntry.setTypeName(nodeMetaInfo.typeName());
-    itemLibraryEntry.setMajorVersion(nodeMetaInfo.majorVersion());
-    itemLibraryEntry.setMinorVersion(nodeMetaInfo.minorVersion());
-    m_p->m_itemLibraryInfoHash.insert(nodeMetaInfo, itemLibraryEntry);
-    m_p->m_itemLibraryInfoHashAll.insert(itemLibraryEntryName, itemLibraryEntry);
-    return itemLibraryEntry;
-}
-
 bool MetaInfo::isGlobal() const
 {
     return (this->m_p == s_global.m_p);
@@ -706,4 +666,5 @@ bool operator!=(const MetaInfo &first, const MetaInfo &second)
 {
     return !(first == second);
 }
+
 } //namespace QmlDesigner

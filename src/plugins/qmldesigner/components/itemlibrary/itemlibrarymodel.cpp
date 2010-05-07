@@ -387,7 +387,6 @@ bool ItemLibraryModel::isItemVisible(int itemLibId)
     return elementModel(sectionLibId)->isItemVisible(itemLibId);
 }
 
-
 void ItemLibraryModel::update(const MetaInfo &metaInfo)
 {
     QMap<QString, int> sections;
@@ -403,32 +402,36 @@ void ItemLibraryModel::update(const MetaInfo &metaInfo)
         *m_metaInfo = metaInfo;
     }
 
-    foreach (const QString &type, metaInfo.itemLibraryItems()) {
-        foreach (const ItemLibraryEntry &itemLibraryEntry, itemLibraryEntrys(type)) {
+    foreach (ItemLibraryEntry entry, metaInfo.itemLibraryInfo().entries()) {
+        QString itemSectionName = entry.category();
+        ItemLibrarySectionModel *sectionModel;
+        ItemLibraryItemModel *itemModel;
+        int itemId = m_nextLibId++, sectionId;
 
-            QString itemSectionName = itemLibraryEntry.category();
-            ItemLibrarySectionModel *sectionModel;
-            ItemLibraryItemModel *itemModel;
-            int itemId = m_nextLibId++, sectionId;
-
-            if (sections.contains(itemSectionName)) {
-                sectionId = sections.value(itemSectionName);
-                sectionModel = elementModel(sectionId);
-            } else {
-                sectionId = m_nextLibId++;
-                sectionModel = new ItemLibrarySectionModel(m_scriptEngine.data(), sectionId, itemSectionName, this);
-                addElement(sectionModel, sectionId);
-                sections.insert(itemSectionName, sectionId);
-            }
-
-            m_itemInfos.insert(itemId, itemLibraryEntry);
-
-            itemModel = new ItemLibraryItemModel(m_scriptEngine.data(), itemId, itemLibraryEntry.name());
-            itemModel->setItemIcon(itemLibraryEntry.icon());
-            itemModel->setItemIconSize(m_itemIconSize);
-            sectionModel->addSectionEntry(itemModel);
-            m_sections.insert(itemId, sectionId);
+        if (sections.contains(itemSectionName)) {
+            sectionId = sections.value(itemSectionName);
+            sectionModel = elementModel(sectionId);
+        } else {
+            sectionId = m_nextLibId++;
+            sectionModel = new ItemLibrarySectionModel(m_scriptEngine.data(), sectionId, itemSectionName, this);
+            addElement(sectionModel, sectionId);
+            sections.insert(itemSectionName, sectionId);
         }
+
+        m_itemInfos.insert(itemId, entry);
+
+        itemModel = new ItemLibraryItemModel(m_scriptEngine.data(), itemId, entry.name());
+
+        // delayed creation of (default) icons
+        if (entry.icon().isNull())
+            entry.setIcon(QIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png")));
+        if (entry.dragIcon().isNull())
+            entry.setDragIcon(createDragPixmap(getWidth(entry), getHeight(entry)));
+
+        itemModel->setItemIcon(entry.icon());
+        itemModel->setItemIconSize(m_itemIconSize);
+        sectionModel->addSectionEntry(itemModel);
+        m_sections.insert(itemId, sectionId);
     }
 
     updateVisibility();
@@ -499,7 +502,7 @@ void ItemLibraryModel::updateVisibility()
         emit visibilityChanged();
 }
 
-static inline int getWidth(const ItemLibraryEntry &itemLibraryEntry)
+int ItemLibraryModel::getWidth(const ItemLibraryEntry &itemLibraryEntry)
 {
     foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
     {
@@ -509,7 +512,7 @@ static inline int getWidth(const ItemLibraryEntry &itemLibraryEntry)
     return 64;
 }
 
-static inline int getHeight(const ItemLibraryEntry &itemLibraryEntry)
+int ItemLibraryModel::getHeight(const ItemLibraryEntry &itemLibraryEntry)
 {
     foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
     {
@@ -519,7 +522,7 @@ static inline int getHeight(const ItemLibraryEntry &itemLibraryEntry)
     return 64;
 }
 
-static inline QPixmap createDragPixmap(int width, int height)
+QPixmap ItemLibraryModel::createDragPixmap(int width, int height)
 {
     QImage dragImage(width, height, QImage::Format_RGB32); // TODO: draw item drag icon
     dragImage.fill(0xffffffff);
@@ -529,53 +532,6 @@ static inline QPixmap createDragPixmap(int width, int height)
     p.setPen(pen);
     p.drawRect(1, 1, dragImage.width() - 2, dragImage.height() - 2);
     return QPixmap::fromImage(dragImage);
-}
-
-QList<ItemLibraryEntry> ItemLibraryModel::itemLibraryEntrys(const QString &type)
-{
-    QList<ItemLibraryEntry> itemLibraryEntryList;
-    NodeMetaInfo nodeInfo = m_metaInfo->nodeMetaInfo(type);
-
-    if (nodeInfo.isQmlGraphicsItem()) {
-        itemLibraryEntryList = m_metaInfo->itemLibraryEntrys(nodeInfo);
-
-        if (!m_metaInfo->hasNodeMetaInfo(type))
-            qWarning() << "ItemLibrary: type not declared: " << type;
-
-        static QIcon defaultIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
-
-        if (itemLibraryEntryList.isEmpty() || !m_metaInfo->hasNodeMetaInfo(type)) {
-            QIcon icon = nodeInfo.icon();
-            if (icon.isNull())
-                icon = defaultIcon;
-
-            ItemLibraryEntry itemLibraryEntry;
-            itemLibraryEntry.setName(type);
-            itemLibraryEntry.setTypeName(nodeInfo.typeName());
-            itemLibraryEntry.setCategory(nodeInfo.category());
-            itemLibraryEntry.setIcon(icon);
-            itemLibraryEntry.setDragIcon(createDragPixmap(64, 64));
-            itemLibraryEntry.setMajorVersion(nodeInfo.majorVersion());
-            itemLibraryEntry.setMinorVersion(nodeInfo.minorVersion());
-            itemLibraryEntryList.append(itemLibraryEntry);
-        }
-        else {
-            foreach (ItemLibraryEntry itemLibraryEntry, itemLibraryEntryList) {
-                
-                QIcon icon = itemLibraryEntry.icon();
-                if (itemLibraryEntry.icon().isNull())
-                    itemLibraryEntry.setIcon(defaultIcon);
-
-                if (itemLibraryEntry.dragIcon().isNull())
-                    itemLibraryEntry.setDragIcon(createDragPixmap(getWidth(itemLibraryEntry), getHeight(itemLibraryEntry)));
-
-                if (itemLibraryEntry.category().isEmpty())
-                    itemLibraryEntry.setCategory(nodeInfo.category());
-            }
-        }
-    }
-
-    return itemLibraryEntryList;
 }
 
 } // namespace Internal

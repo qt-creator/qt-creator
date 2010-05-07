@@ -45,7 +45,10 @@ class NodeMetaInfo;
 
 namespace Internal {
 
+class MetaInfoPrivate;
 class ItemLibraryEntryData;
+class ItemLibraryInfoPrivate;
+
 }
 
 class ItemLibraryEntry;
@@ -93,8 +96,32 @@ private:
     QExplicitlySharedDataPointer<Internal::ItemLibraryEntryData> m_data;
 };
 
-}
 
-Q_DECLARE_METATYPE(QmlDesigner::ItemLibraryEntry)
+class CORESHARED_EXPORT ItemLibraryInfo
+{
+    friend class Internal::MetaInfoPrivate;
+public:
+    ItemLibraryInfo();
+    ItemLibraryInfo(const ItemLibraryInfo &other);
+    ~ItemLibraryInfo();
+
+    ItemLibraryInfo& operator=(const ItemLibraryInfo &other);
+
+    bool isValid();
+
+    QList<ItemLibraryEntry> entries() const;
+    QList<ItemLibraryEntry> entriesForNodeMetaInfo(const NodeMetaInfo &nodeMetaInfo) const;
+    ItemLibraryEntry entry(const QString &name) const;
+
+    ItemLibraryEntry addItemLibraryEntry(const NodeMetaInfo &nodeMetaInfo, const QString &itemLibraryRepresentationName);
+    void remove(const NodeMetaInfo &nodeMetaInfo);
+    void clear();
+
+private:
+    static ItemLibraryInfo createItemLibraryInfo(const ItemLibraryInfo &parentInfo);
+    QSharedPointer<Internal::ItemLibraryInfoPrivate> m_data;
+};
+
+} // namespace QmlDesigner
 
 #endif // ITEMLIBRARYINFO_H

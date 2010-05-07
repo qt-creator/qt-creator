@@ -179,16 +179,6 @@ void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
         nodeMetaInfo.setIsContainer(stringToBool(isContainer));
     }
 
-    if (attributes.hasAttribute("showInItemLibrary")) {
-        const QString showInItemLibrary = attributes.value("showInItemLibrary").toString();
-        nodeMetaInfo.setIsVisibleToItemLibrary(stringToBool(showInItemLibrary));
-    }
-
-    if (attributes.hasAttribute("category")) {
-        const QString category = attributes.value("category").toString();
-        nodeMetaInfo.setCategory(category);
-    }
-
     if (attributes.hasAttribute("icon")) {
         const QString iconPath = reader.attributes().value("icon").toString();
         nodeMetaInfo.setIcon(QIcon(iconPath));
@@ -209,11 +199,15 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
     if (reader.isStartElement() && reader.name() == "itemlibraryentry")
     {
         QString name = reader.attributes().value("name").toString();
-        ItemLibraryEntry itemLibraryEntry = m_metaInfo.addItemLibraryEntry(m_metaInfo.nodeMetaInfo(className), name);
+        ItemLibraryEntry itemLibraryEntry = m_metaInfo.itemLibraryInfo().addItemLibraryEntry(m_metaInfo.nodeMetaInfo(className), name);
 
         QString iconPath = reader.attributes().value("icon").toString();
         if (!iconPath.isEmpty())
             itemLibraryEntry.setIcon(QIcon(iconPath));
+
+        QString category = reader.attributes().value("category").toString();
+        if (!category.isEmpty())
+            itemLibraryEntry.setCategory(category);
 
         while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "itemlibraryentry")) {
             reader.readNext();

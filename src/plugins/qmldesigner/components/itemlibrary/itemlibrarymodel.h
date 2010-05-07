@@ -153,7 +153,10 @@ signals:
 
 private:
     void updateVisibility();
-    QList<ItemLibraryEntry> itemLibraryEntrys(const QString &type);
+
+    int getWidth(const ItemLibraryEntry &entry);
+    int getHeight(const ItemLibraryEntry &entry);
+    QPixmap createDragPixmap(int width, int height);
 
     QWeakPointer<QScriptEngine> m_scriptEngine;
     MetaInfo *m_metaInfo;
