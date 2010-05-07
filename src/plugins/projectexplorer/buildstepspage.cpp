@@ -29,6 +29,7 @@
 
 #include "buildstepspage.h"
 #include "buildconfiguration.h"
+#include "detailsbutton.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -117,6 +118,12 @@ void BuildStepsPage::init(BuildConfiguration *bc)
         s.detailsWidget->setSummaryText(s.widget->summaryText());
     }
     updateBuildStepButtonsState();
+
+    static QLatin1String buttonStyle(
+            "QToolButton{ border-width: 2;}"
+            "QToolButton:hover{border-image: url(:/welcome/images/btn_26_hover.png) 4;}"
+            "QToolButton:pressed{ border-image: url(:/welcome/images/btn_26_pressed.png) 4;}");
+    setStyleSheet(buttonStyle);
 }
 
 void BuildStepsPage::updateAddBuildStepMenu()
@@ -160,30 +167,32 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     s.detailsWidget->setSummaryText(s.widget->summaryText());
     s.detailsWidget->setWidget(s.widget);
 
-    s.upButton = new QToolButton(this);
-    s.upButton->setArrowType(Qt::UpArrow);
-    s.upButton->setMaximumHeight(22);
-    s.upButton->setMaximumWidth(22);
-
-    s.downButton = new QToolButton(this);
-    s.downButton->setArrowType(Qt::DownArrow);
-    s.downButton->setMaximumHeight(22);
-    s.downButton->setMaximumWidth(22);
-#ifdef Q_OS_MAC
-    s.upButton->setIconSize(QSize(10, 10));
-    s.downButton->setIconSize(QSize(10, 10));
-#endif
-    s.removeButton = new QToolButton(this);
-    s.removeButton->setText(QChar('X'));
-    s.removeButton->setMaximumHeight(22);
-    s.removeButton->setMaximumWidth(22);
-
     // layout
-    QWidget *toolWidget = new QWidget(s.detailsWidget);
-    toolWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    Utils::FadingPanel *toolWidget = new Utils::FadingPanel(s.detailsWidget);
+    QSize buttonSize(20, 26);
+
+    s.upButton = new QToolButton(toolWidget);
+    s.upButton->setAutoRaise(true);
+    s.upButton->setToolTip(tr("Move Up"));
+    s.upButton->setFixedSize(buttonSize);
+    s.upButton->setIcon(QIcon(":/core/images/darkarrowup.png"));
+
+    s.downButton = new QToolButton(toolWidget);
+    s.downButton->setAutoRaise(true);
+    s.downButton->setToolTip(tr("Move Down"));
+    s.downButton->setFixedSize(buttonSize);
+    s.downButton->setIcon(QIcon(":/core/images/darkarrowdown.png"));
+
+    s.removeButton  = new QToolButton(toolWidget);
+    s.removeButton->setAutoRaise(true);
+    s.removeButton->setToolTip(tr("Remove Item"));
+    s.removeButton->setFixedSize(buttonSize);
+    s.removeButton->setIcon(QIcon(":/core/images/darkclose.png"));
+
+    toolWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     QHBoxLayout *hbox = new QHBoxLayout();
     toolWidget->setLayout(hbox);
-    hbox->setMargin(0);
+    hbox->setMargin(4);
     hbox->setSpacing(0);
     hbox->addWidget(s.upButton);
     hbox->addWidget(s.downButton);
@@ -316,9 +325,14 @@ void BuildStepsPage::updateBuildStepButtonsState()
         BuildStepsWidgetStruct s = m_buildSteps.at(i);
         s.removeButton->setEnabled(!steps.at(i)->immutable());
         m_removeMapper->setMapping(s.removeButton, i);
+
         s.upButton->setEnabled((i > 0) && !(steps.at(i)->immutable() && steps.at(i - 1)));
         m_upMapper->setMapping(s.upButton, i);
         s.downButton->setEnabled((i + 1 < steps.count()) && !(steps.at(i)->immutable() && steps.at(i + 1)->immutable()));
         m_downMapper->setMapping(s.downButton, i);
+
+        // Only show buttons when needed
+        s.downButton->setVisible(steps.count() != 1);
+        s.upButton->setVisible(steps.count() != 1);
     }
 }

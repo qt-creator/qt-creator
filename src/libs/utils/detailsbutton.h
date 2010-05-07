@@ -31,11 +31,25 @@
 #define DETAILSBUTTON_H
 
 #include <QtGui/QAbstractButton>
+#include <QtGui/QToolButton>
 #include <QtGui/QPixmap>
+#include <QtGui/QPainter>
+#include <QtGui/QGraphicsOpacityEffect>
+#include <QtCore/QPropertyAnimation>
 
 #include "utils_global.h"
 
 namespace Utils {
+
+class QTCREATOR_UTILS_EXPORT FadingPanel : public QWidget
+{
+public:
+    FadingPanel(QWidget *parent = 0);
+    void fadeTo(float value);
+protected:
+    QGraphicsOpacityEffect *m_opacityEffect;
+};
+
 
 class QTCREATOR_UTILS_EXPORT DetailsButton : public QAbstractButton
 {

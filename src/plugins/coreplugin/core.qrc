@@ -54,5 +54,8 @@
         <file>images/progressbar.png</file>
         <file>images/help.png</file>
         <file>images/editclear.png</file>
+        <file>images/darkarrowdown.png</file>
+        <file>images/darkarrowup.png</file>
+        <file>images/darkclose.png</file>
     </qresource>
 </RCC>

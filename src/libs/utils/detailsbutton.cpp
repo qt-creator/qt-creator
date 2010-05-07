@@ -38,10 +38,34 @@
 
 using namespace Utils;
 
+FadingPanel::FadingPanel(QWidget *parent) : QWidget(parent), m_opacityEffect(0)
+
+{
+    m_opacityEffect = new QGraphicsOpacityEffect;
+    m_opacityEffect->setOpacity(0);
+    setGraphicsEffect(m_opacityEffect);
+
+    // Workaround for issue with QGraphicsEffect. GraphicsEffect
+    // currently clears with Window color. Remove if flickering
+    // no longer occurs on fade-in
+    QPalette pal;
+    pal.setBrush(QPalette::All, QPalette::Window, Qt::transparent);
+    setPalette(pal);
+}
+
+void FadingPanel::fadeTo(float value)
+{
+    QPropertyAnimation *animation = new QPropertyAnimation(m_opacityEffect, "opacity");
+    animation->setDuration(200);
+    animation->setEndValue(value);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
 DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent), m_fader(0)
 {
     setCheckable(true);
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    setText(tr("Details"));
 }
 
 QSize DetailsButton::sizeHint() const
@@ -114,7 +138,6 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
     p.setRenderHint(QPainter::Antialiasing, true);
     p.translate(0.5, 0.5);
     p.setPen(Qt::NoPen);
-    QColor color = palette().highlight().color();
     if(!checked) {
         lg.setColorAt(0, QColor(0, 0, 0, 10));
         lg.setColorAt(1, QColor(0, 0, 0, 16));
@@ -133,12 +156,11 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
 
     p.setPen(palette().color(QPalette::Text));
 
-    QString text = tr("Details");
-    QRect textRect = p.fontMetrics().boundingRect(text);
+    QRect textRect = p.fontMetrics().boundingRect(text());
     textRect.setWidth(textRect.width() + 15);
     textRect.moveCenter(rect().center());
 
-    p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
+    p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text());
 
     int arrowsize = 15;
     QStyleOption arrowOpt;

@@ -31,6 +31,7 @@
 #include "detailsbutton.h"
 
 #include <QtCore/QStack>
+#include <QtCore/QPropertyAnimation>
 
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
@@ -57,7 +58,7 @@ namespace Utils {
         DetailsButton *m_detailsButton;
         QGridLayout *m_grid;
         QLabel *m_summaryLabel;
-        QWidget *m_toolWidget;
+        Utils::FadingPanel *m_toolWidget;
         QWidget *m_widget;
 
         QPixmap m_collapsedPixmap;
@@ -210,7 +211,7 @@ namespace Utils {
         updateControls();
     }
 
-    void DetailsWidget::setToolWidget(QWidget *widget)
+    void DetailsWidget::setToolWidget(Utils::FadingPanel *widget)
     {
         if (d->m_toolWidget == widget)
             return;
@@ -221,7 +222,7 @@ namespace Utils {
             return;
 
         d->m_toolWidget->adjustSize();
-        d->m_grid->addWidget(d->m_toolWidget, 0, 0, 1, 1, Qt::AlignCenter);
+        d->m_grid->addWidget(d->m_toolWidget, 0, 1, 1, 1, Qt::AlignRight);
 
         d->m_grid->setColumnMinimumWidth(0, d->m_toolWidget->width());
         d->m_grid->setRowMinimumHeight(0, d->m_toolWidget->height());
@@ -271,9 +272,11 @@ namespace Utils {
     {
         if (!d->m_toolWidget)
             return;
-
+#ifdef Q_OS_MAC
         d->m_toolWidget->setVisible(hovered);
-
+#else
+        d->m_toolWidget->fadeTo(hovered ? 1.0 : 0);
+#endif
         d->m_hovered = hovered;
     }
 
