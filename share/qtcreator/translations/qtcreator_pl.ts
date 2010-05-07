@@ -1770,12 +1770,12 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+17"/>
         <source>Failed to create branch</source>
-        <translation>Utworzenie gałęzi niepomyślnie zakończone</translation>
+        <translation>Nie można utworzyć gałęzi</translation>
     </message>
     <message>
         <location line="+37"/>
         <source>Failed to stash</source>
-        <translation>Odłożenie zmian zakończone niepowodzeniem</translation>
+        <translation>Nie można odłożyć zmian</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -1795,7 +1795,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+15"/>
         <source>Failed to create a tracking branch</source>
-        <translation>Utworzenie gałęzi śledzącej zakończone niepowodzeniem</translation>
+        <translation>Nie można utworzyć gałęzi śledzącej</translation>
     </message>
 </context>
 <context>
@@ -4358,7 +4358,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/app/main.cpp" line="+132"/>
         <source>Failed to load core: %1</source>
-        <translation>Nie udało się załadować zrzutu: %1</translation>
+        <translation>Nie można załadować zrzutu: %1</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -7967,42 +7967,42 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location line="+13"/>
         <source>Watch Expression &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Obserwuj wyrażenie &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Remove Watch Expression &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń obserwowanie wyrażenia &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Watch Expression &quot;%1&quot; in Separate Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Obserwuj wyrażenie &quot;%1&quot; w osobnym oknie</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Show &quot;std::&quot; Namespace in Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj przestrzeń nazw &quot;std::&quot; w widoku typów</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Show Qt&apos;s Namespace in Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj przestrzeń nazw Qt w widoku typów</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Use Debugging Helpers</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj asystenta debuggera</translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Debug Debugging Helpers</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuguj asystenta debuggera</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Use Code Model</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj modelu kodu</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -8012,17 +8012,17 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location line="+9"/>
         <source>Recheck Debugging Helper Availability</source>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdź ponownie dostępność asystenta debuggera</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Synchronize Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Zsynchronizuj pułapki</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Use Precise Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj dokładnych pułapek</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -8042,7 +8042,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location line="+23"/>
         <source>Automatically Quit Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie zakańczaj debugger</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -8057,22 +8057,22 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location line="+10"/>
         <source>Use Tooltips in Locals View When Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj podpowiedzi w widoku ze zmiennymi lokalnymi podczas debugowania</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Use Tooltips in Breakpoints View When Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj podpowiedzi w widoku z pułapkami podczas debugowania</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Show Address Data in Breakpoints View When Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj adresy w widoku z pułapkami podczas debugowania</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Show Address Data in Stack View When Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokazuj adresy w widoku stosu podczas debugowania</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -8097,12 +8097,12 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location line="+8"/>
         <source>Register For Post-Mortem Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Zarejestruj do pośmiertnego debugowania</translation>
     </message>
     <message>
         <location line="+32"/>
         <source>Reload Full Stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Przeładuj cały stos</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -8117,12 +8117,12 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location line="+11"/>
         <source>Change debugger language automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatycznie zmieniaj język debuggera</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Changes the debugger language according to the currently opened file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienia język debuggera odpowiednio do zawartości otwartego pliku.</translation>
     </message>
     <message>
         <source>Use tooltips in locals view when debugging</source>
@@ -8725,22 +8725,23 @@ Czy chcesz ją zakończyć?</translation>
         <location line="+5"/>
         <source>Application process could not be stopped:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zatrzymać procesu aplikacji:
+%1</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Application started</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchomiono aplikację</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Application running</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja uruchomiona</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Attached to stopped application</source>
-        <translation type="unfinished"></translation>
+        <translation>Dołączono do zatrzymanej aplikacji</translation>
     </message>
     <message>
         <source>Inferior process could not be stopped:
@@ -9082,7 +9083,7 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+52"/>
         <source>&lt;shadowed&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;przykryto&gt;</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="+349"/>
@@ -9121,12 +9122,12 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
     <message>
         <location line="+18"/>
         <source>Unexpected Gdb Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwanie zakończenie Gdb</translation>
     </message>
     <message>
         <location line="-3"/>
         <source>The gdb process exited unexpectedly (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces gdb nieoczekiwanie zakończył się (%1).</translation>
     </message>
     <message>
         <location line="-1187"/>
@@ -9272,7 +9273,7 @@ You can choose between waiting longer or abort debugging.</source>
     <message>
         <location line="+4"/>
         <source>Stopped: %1 by signal %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymano: %1 przez sygnał %2</translation>
     </message>
     <message>
         <location line="+106"/>
@@ -10297,7 +10298,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location line="+1"/>
         <source>Generation</source>
-        <translation type="unfinished">Generowanie</translation>
+        <translation>Generowanie</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+45"/>
@@ -10779,7 +10780,7 @@ Rebuilding the project might help.</source>
     <message>
         <location line="+175"/>
         <source>The image could not be created: %1</source>
-        <translation>Nie można utworzyć obrazu: %1</translation>
+        <translation>Nie można utworzyć pliku graficznego: %1</translation>
     </message>
 </context>
 <context>
@@ -12254,7 +12255,7 @@ Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
     <message>
         <location line="+138"/>
         <source>Open Image</source>
-        <translation>Otwórz obraz</translation>
+        <translation>Otwórz plik graficzny</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -13160,12 +13161,12 @@ Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
         <location line="+57"/>
         <location line="+70"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1 (target: %2)&lt;/font&gt;</source>
-        <translation>&lt;font color=&quot;#ff0000&quot;&gt;Błąd podczas budowania projektu %1 (cel: %2)&lt;/font&gt;</translation>
+        <translation>&lt;font color=&quot;#ff0000&quot;&gt;Błąd podczas budowania projektu %1 (produkt docelowy: %2)&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="-67"/>
         <source>Error while building project %1 (target: %2)</source>
-        <translation>Błąd podczas budowania projektu %1 (cel: %2)</translation>
+        <translation>Błąd podczas budowania projektu %1 (produkt docelowy: %2)</translation>
     </message>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1&lt;/font&gt;</source>
@@ -13672,17 +13673,17 @@ Powód: %2</translation>
     <message>
         <location line="+182"/>
         <source>The application is still running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplikacja jest wciąż uruchomiona.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Force it to quit?</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakończyć ją?</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Force Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Zakończ</translation>
     </message>
     <message>
         <source>Ctrl+Shift+R</source>
@@ -13943,7 +13944,7 @@ Powód: %2</translation>
     <message>
         <location line="-123"/>
         <source>Recent P&amp;rojects</source>
-        <translation type="unfinished"></translation>
+        <translation>Ostatnie p&amp;rojekty</translation>
     </message>
     <message>
         <location line="+133"/>
@@ -13989,7 +13990,7 @@ Powód: %2</translation>
     <message>
         <location line="+4"/>
         <source>Ctrl+T</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+T</translation>
     </message>
     <message>
         <location line="+119"/>
@@ -14142,7 +14143,7 @@ do systemu kontroli wersji (%2)?</translation>
     <message>
         <location line="+27"/>
         <source>Active run configuration</source>
-        <translation type="unfinished">Aktywna konfiguracja uruchamiania</translation>
+        <translation>Aktywna konfiguracja uruchamiania</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -14168,7 +14169,7 @@ do systemu kontroli wersji (%2)?</translation>
     <message>
         <location filename="../../../src/plugins/projectexplorer/projectexplorersettingspage.cpp" line="+129"/>
         <source>General</source>
-        <translation type="unfinished">Ogólne</translation>
+        <translation>Ogólne</translation>
     </message>
 </context>
 <context>
@@ -14180,7 +14181,7 @@ do systemu kontroli wersji (%2)?</translation>
         <extracomment>No version control system selected
 ----------
 No project selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Brak&gt;</translation>
     </message>
     <message>
         <location line="+47"/>
@@ -14192,7 +14193,7 @@ No project selected</extracomment>
     <message>
         <location line="+20"/>
         <source>A version control system repository could not be created in &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można utworzyć składnicy systemu kontroli wersji w &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -14309,7 +14310,7 @@ No project selected</extracomment>
     <message>
         <location line="+0"/>
         <source>Files to be added in</source>
-        <translation type="unfinished"></translation>
+        <translation>Pliki które mają zostać dodane w</translation>
     </message>
 </context>
 <context>
@@ -14433,7 +14434,7 @@ No project selected</extracomment>
     <message>
         <location line="+2"/>
         <source>Intel C++ Compiler (Linux)</source>
-        <translation type="unfinished">Kompilator Intel C++ (Linux)</translation>
+        <translation>Kompilator Intel C++ (Linux)</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -14458,12 +14459,12 @@ No project selected</extracomment>
     <message>
         <location line="+2"/>
         <source>GCCE/GnuPoc</source>
-        <translation type="unfinished"></translation>
+        <translation>GCCE/GnuPoc</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>RVCT (ARMV6)/GnuPoc</source>
-        <translation type="unfinished"></translation>
+        <translation>RVCT (ARMV6)/GnuPoc</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -14478,7 +14479,7 @@ No project selected</extracomment>
     <message>
         <location line="+2"/>
         <source>GCC for Maemo</source>
-        <translation type="unfinished"></translation>
+        <translation>GCC dla Maemo</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -14680,12 +14681,12 @@ No project selected</extracomment>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizard.cpp" line="+49"/>
         <source>Qt Custom Designer Widget</source>
-        <translation type="unfinished"></translation>
+        <translation>Własny widżet Qt Designer</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy własny widżet Qt Designer lub kolekcję własnych widżetów.</translation>
     </message>
 </context>
 <context>
@@ -14764,7 +14765,7 @@ No project selected</extracomment>
         <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="+83"/>
         <source>Make</source>
         <comment>Qt4 MakeStep display name.</comment>
-        <translation type="unfinished">Make</translation>
+        <translation>Make</translation>
     </message>
     <message>
         <location line="+55"/>
@@ -14786,7 +14787,7 @@ No project selected</extracomment>
     <message>
         <location line="+16"/>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; Nie odnaleziono %1 w środowisku.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Make Step:&lt;/b&gt; %1 not found in the environment.</source>
@@ -14856,17 +14857,17 @@ No project selected</extracomment>
         <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+81"/>
         <source>qmake</source>
         <comment>QMakeStep display name.</comment>
-        <translation type="unfinished"></translation>
+        <translation>QMake</translation>
     </message>
     <message>
         <location line="+107"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration is faulty, please check the Build Issues view for details.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&quot;#0000ff&quot;&gt;Konfiguracja jest błędna, sprawdź szczegóły w widoku &quot;Problemy budowania&quot;.&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration unchanged, skipping qmake step.&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;font color=&quot;#0000ff&quot;&gt;Konfiguracja niezmieniona, krok qmake opuszczony.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -14886,12 +14887,12 @@ No project selected</extracomment>
     <message>
         <location line="+176"/>
         <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;QMake:&lt;/b&gt; Brak ustawionej wersji Qt. Nie można uruchomić qmake.</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
     </message>
 </context>
 <context>
@@ -14903,7 +14904,7 @@ No project selected</extracomment>
     <message>
         <location line="+89"/>
         <source>qmake</source>
-        <translation type="unfinished"></translation>
+        <translation>qmake</translation>
     </message>
 </context>
 <context>
@@ -14938,7 +14939,7 @@ No project selected</extracomment>
     <message>
         <location line="+3"/>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumenty:</translation>
+        <translation>Argumenty:</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -15059,37 +15060,37 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="-152"/>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można usunąć istniejącego pliku &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <location line="+15"/>
         <source>Unable to rename file &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zmienić nazwy pliku &quot;%1&quot; na &quot;%2&quot;: %3</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Deploying</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalowanie</translation>
     </message>
     <message>
         <location line="+40"/>
         <source>Renaming new package &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Zmienianie nazwy pakietu &quot;%1&quot; na &quot;%2&quot;</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Removing old package &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuwanie starego pakietu &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Package file not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik pakietu nie został odnaleziony</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Failed to find package &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odnaleźć pakietu &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <location line="+71"/>
@@ -15126,7 +15127,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+100"/>
         <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>Urządzenie &quot;%1&quot; zostało odłączone</translation>
     </message>
     <message>
         <source>%1% copied.</source>
@@ -15228,7 +15229,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+2"/>
         <source>Qt Symbian Emulator RunConfiguration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja uruchamiania emulatora Qt Symbian</translation>
     </message>
     <message>
         <source>QtSymbianEmulatorRunConfiguration</source>
@@ -15362,7 +15363,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+37"/>
         <source>Error while reading PRO file %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd podczas czytania pliku PRO %1: %2</translation>
     </message>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
@@ -15454,17 +15455,17 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+10"/>
         <source>Build</source>
-        <translation type="unfinished">Budowanie</translation>
+        <translation>Budowanie</translation>
     </message>
     <message>
         <location line="+38"/>
         <source>Run qmake in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom qmake w %1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Build in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zbuduj w %1</translation>
     </message>
 </context>
 <context>
@@ -15480,22 +15481,22 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4runconfiguration.cpp" line="+533"/>
         <source>Clean Environment</source>
-        <translation type="unfinished">Czyste środowisko</translation>
+        <translation>Czyste środowisko</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>System Environment</source>
-        <translation type="unfinished">Środowisko systemowe</translation>
+        <translation>Środowisko systemowe</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Build Environment</source>
-        <translation type="unfinished">Środowisko budowania</translation>
+        <translation>Środowisko budowania</translation>
     </message>
     <message>
         <location line="+114"/>
         <source>Qt4 RunConfiguration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja uruchamiania Qt4</translation>
     </message>
 </context>
 <context>
@@ -15676,7 +15677,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+9"/>
         <source>Select qmake Executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Wskaż program qmake</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -15696,7 +15697,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+2"/>
         <source>Select the CSL ARM Toolchain (GCCE) Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Wskaż katalog zestawu narzędzi CSL ARM (GCCE)</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -15717,41 +15718,41 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
         <location line="+63"/>
         <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Tooltip showing the debugging helper library file.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Plik:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ostatnio&amp;nbsp;zmodyfikowany:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Rozmiar:&lt;/td&gt;&lt;td&gt;%3 Bajtów&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location line="+103"/>
         <source>This Qt Version has a unknown toolchain.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta wersja Qt posiada nieznany zestaw narzędzi.</translation>
     </message>
     <message>
         <location line="+44"/>
         <source>Desktop</source>
         <comment>Qt Version is meant for the desktop</comment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Symbian</source>
         <comment>Qt Version is meant for Symbian</comment>
-        <translation type="unfinished"></translation>
+        <translation>Symbian</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Maemo</source>
         <comment>Qt Version is meant for Maemo</comment>
-        <translation type="unfinished"></translation>
+        <translation>Maemo</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>unkown</source>
         <comment>No idea what this Qt Version is meant for!</comment>
-        <translation type="unfinished"></translation>
+        <translation>nieznana</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Found Qt version %1, using mkspec %2 (%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono wersję Qt %1 używającą mkspec %2 (%3)</translation>
     </message>
     <message>
         <source>The Qt Version identified by %1 is not installed. Run make install</source>
@@ -15829,13 +15830,13 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
         <location filename="../../../src/plugins/help/helpplugin.cpp" line="-520"/>
         <source>EditorManager</source>
         <comment>Next Open Document in History</comment>
-        <translation type="unfinished"></translation>
+        <translation>Manager edytorów</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>EditorManager</source>
         <comment>Previous Open Document in History</comment>
-        <translation type="unfinished"></translation>
+        <translation>Manager edytorów</translation>
     </message>
 </context>
 <context>
@@ -15902,7 +15903,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+2"/>
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
-        <translation>Podaj podstawowe informacje o klasach dla których chcesz wygenerować szkielet dla plików z kodem źródłowym.</translation>
+        <translation>Podaj podstawowe informacje o klasach dla których chcesz wygenerować szkielet plików z kodem źródłowym.</translation>
     </message>
 </context>
 <context>
@@ -16476,22 +16477,22 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="-26"/>
         <source>Delete...</source>
-        <translation type="unfinished">Usuń...</translation>
+        <translation>Usuń...</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Delete &quot;%1&quot;...</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń &quot;%1&quot;...</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Revert...</source>
-        <translation type="unfinished"></translation>
+        <translation>Odwróć zmiany...</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Revert &quot;%1&quot;...</source>
-        <translation type="unfinished"></translation>
+        <translation>Odwróć zmiany w &quot;%1&quot;...</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -16501,7 +16502,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+8"/>
         <source>Status of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż stan projektu &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -16526,7 +16527,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+52"/>
         <source>Revert Repository...</source>
-        <translation type="unfinished"></translation>
+        <translation>Odwróć zmiany w składnicy...</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -16566,17 +16567,17 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     <message>
         <location line="+131"/>
         <source>Revert repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Odwróć zmiany w składnicy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Would you like to revert all changes to the repository?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz odwrócić wszystkie zmiany w składnicy?</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Revert failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odwrócić zmian: %1</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -16616,7 +16617,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
         <location line="+33"/>
         <source>Executing in %1: %2 %3
 </source>
-        <translation type="unfinished">Wykonywanie w %1: %2 %3
+        <translation>Wykonywanie w %1: %2 %3
 </translation>
     </message>
     <message>
@@ -17163,42 +17164,42 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location filename="../../../src/plugins/texteditor/texteditorplugin.cpp" line="+94"/>
         <source>Creates a text file (.txt).</source>
-        <translation type="unfinished">Tworzy plik tekstowy (.txt).</translation>
+        <translation>Tworzy plik tekstowy (.txt).</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Text File</source>
-        <translation type="unfinished">Plik tekstowy</translation>
+        <translation>Plik tekstowy</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>General</source>
-        <translation type="unfinished">Ogólne</translation>
+        <translation>Ogólne</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Triggers a completion in this scope</source>
-        <translation type="unfinished">Przełącza uzupełnianie kody w tym zakresie</translation>
+        <translation>Przełącza uzupełnianie kodu w tym zakresie</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Ctrl+Space</source>
-        <translation type="unfinished">Ctrl+Space</translation>
+        <translation>Ctrl+Space</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Meta+Space</source>
-        <translation type="unfinished">Meta+Space</translation>
+        <translation>Meta+Space</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Triggers a quick fix in this scope</source>
-        <translation type="unfinished">Uaktywnia w tym zakresie szybką poprawkę</translation>
+        <translation>Uaktywnia w tym zakresie szybką poprawkę</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Alt+Return</source>
-        <translation type="unfinished">Alt+Return</translation>
+        <translation>Alt+Return</translation>
     </message>
 </context>
 <context>
@@ -17705,7 +17706,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location filename="../../../src/plugins/help/helpviewer.cpp" line="+51"/>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;title&gt;o:pusty&lt;/title&gt;</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -17834,7 +17835,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="-9"/>
         <source>Invalid file location</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawne położenie pliku</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -17960,7 +17961,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+3"/>
         <source>&amp;New...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nowy...</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -17970,7 +17971,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+4"/>
         <source>&amp;Open...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Otwórz...</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -18000,7 +18001,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+7"/>
         <source>&amp;Preview</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Podgląd</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -18020,7 +18021,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+11"/>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Za&amp;kończ</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -18050,7 +18051,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+6"/>
         <source>&amp;Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Wy&amp;tnij</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -18060,7 +18061,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+6"/>
         <source>&amp;Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Usuń</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -18075,7 +18076,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+5"/>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Widok</translation>
     </message>
     <message>
         <location line="+59"/>
@@ -18085,7 +18086,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+4"/>
         <source>&amp;About...</source>
-        <translation type="unfinished"></translation>
+        <translation>Inform&amp;acje o...</translation>
     </message>
     <message>
         <location line="+51"/>
@@ -18095,7 +18096,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+94"/>
         <source>Could not open file &lt;%1&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można otworzyć pliku &lt;%1&gt;</translation>
     </message>
     <message>
         <location line="+107"/>
@@ -18315,72 +18316,72 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="-29"/>
         <source>BMP image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny BMP</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>GIF image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny GIF</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>ICO image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny ICO</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>JPEG image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny JPEG</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>MNG video</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik wideo MNG</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>PBM image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny PBM</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>PGM image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny PGM</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>PNG image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny PNG</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>PPM image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny PPM</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>SVG image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny SVG</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>TIFF image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny TIFF</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>XBM image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny XBM</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>XPM image</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik graficzny XPM</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>QML Project file</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik projektu QML</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -18527,7 +18528,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     <message>
         <location/>
         <source>Refresh interval:</source>
-        <translation type="unfinished"></translation>
+        <translation>Odświeżanie co:</translation>
     </message>
 </context>
 <context>
@@ -18652,7 +18653,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     <message>
         <location line="+1"/>
         <source>Options</source>
-        <translation type="unfinished">Opcje</translation>
+        <translation>Opcje</translation>
     </message>
     <message>
         <location line="+179"/>
@@ -18929,7 +18930,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     <message>
         <location/>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation>Produkt docelowy</translation>
     </message>
     <message>
         <location/>
@@ -18949,12 +18950,12 @@ aktywny tylko po wpisaniu przedrostka</translation>
     <message>
         <location/>
         <source>Target Identifier</source>
-        <translation type="unfinished"></translation>
+        <translation>Identyfikator produktu docelowego</translation>
     </message>
     <message>
         <location/>
         <source>Target:</source>
-        <translation type="unfinished"></translation>
+        <translation>Produkt docelowy:</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -18963,7 +18964,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     <message>
         <location/>
         <source>Reset</source>
-        <translation type="unfinished">Przywróć</translation>
+        <translation>Przywróć</translation>
     </message>
 </context>
 <context>
@@ -19102,27 +19103,27 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/mercurial/mercurialcommitpanel.ui"/>
         <source>General Information</source>
-        <translation type="unfinished">Ogólne informacje</translation>
+        <translation>Ogólne informacje</translation>
     </message>
     <message>
         <location/>
         <source>Repository:</source>
-        <translation type="unfinished">Składnica:</translation>
+        <translation>Składnica:</translation>
     </message>
     <message>
         <location/>
         <source>repository</source>
-        <translation type="unfinished">składnica</translation>
+        <translation>składnica</translation>
     </message>
     <message>
         <location/>
         <source>Branch:</source>
-        <translation type="unfinished">Gałąź:</translation>
+        <translation>Gałąź:</translation>
     </message>
     <message>
         <location/>
         <source>branch</source>
-        <translation type="unfinished">gałąź</translation>
+        <translation>gałąź</translation>
     </message>
     <message>
         <location/>
@@ -19132,12 +19133,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Author:</source>
-        <translation type="unfinished">Autor:</translation>
+        <translation>Autor:</translation>
     </message>
     <message>
         <location/>
         <source>Email:</source>
-        <translation type="unfinished">Email:</translation>
+        <translation>Email:</translation>
     </message>
 </context>
 <context>
@@ -19145,22 +19146,22 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/mercurial/optionspage.ui"/>
         <source>Form</source>
-        <translation type="unfinished">Formularz</translation>
+        <translation>Formularz</translation>
     </message>
     <message>
         <location/>
         <source>Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja</translation>
     </message>
     <message>
         <location/>
         <source>Command:</source>
-        <translation type="unfinished">Komenda:</translation>
+        <translation>Komenda:</translation>
     </message>
     <message>
         <location/>
         <source>User</source>
-        <translation type="unfinished"></translation>
+        <translation>Użytkownik</translation>
     </message>
     <message>
         <location/>
@@ -19170,7 +19171,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Default username:</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślna nazwa użytkownika:</translation>
     </message>
     <message>
         <location/>
@@ -19180,12 +19181,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Default Email:</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślny adres email:</translation>
     </message>
     <message>
         <location/>
         <source>Miscellaneous</source>
-        <translation type="unfinished"></translation>
+        <translation>Różne</translation>
     </message>
     <message>
         <location/>
@@ -19205,17 +19206,17 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>s</source>
-        <translation type="unfinished"></translation>
+        <translation>s</translation>
     </message>
     <message>
         <location/>
         <source>Prompt on submit</source>
-        <translation type="unfinished"></translation>
+        <translation>Pytaj przed wysłaniem zmian do serwera</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/mercurial/optionspage.cpp" line="+97"/>
         <source>Mercurial</source>
-        <translation type="unfinished">Mercurial</translation>
+        <translation>Mercurial</translation>
     </message>
 </context>
 <context>
@@ -19223,7 +19224,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/mercurial/revertdialog.ui"/>
         <source>Revert</source>
-        <translation type="unfinished">Odwróć zmiany</translation>
+        <translation>Odwróć zmiany</translation>
     </message>
     <message>
         <location/>
@@ -19251,12 +19252,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Local filesystem:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalny system plików:</translation>
     </message>
     <message>
         <location/>
         <source>e.g. https://[user[:pass]@]host[:port]/[path]</source>
-        <translation type="unfinished"></translation>
+        <translation>np. https://[użytkownik[:hasło]@]host[:port]/[ścieżka]</translation>
     </message>
     <message>
         <location/>
@@ -19269,12 +19270,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/projectexplorer/addtargetdialog.ui"/>
         <source>Add target</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj produkt docelowy</translation>
     </message>
     <message>
         <location/>
         <source>Target:</source>
-        <translation type="unfinished"></translation>
+        <translation>Produkt docelowy:</translation>
     </message>
 </context>
 <context>
@@ -19282,7 +19283,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/projectexplorer/doubletabwidget.ui"/>
         <source>DoubleTabWidget</source>
-        <translation type="unfinished"></translation>
+        <translation>PodwójnyTabWidżet</translation>
     </message>
 </context>
 <context>
@@ -19290,7 +19291,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/projectexplorer/targetsettingswidget.ui"/>
         <source>TargetSettingsWidget</source>
-        <translation type="unfinished"></translation>
+        <translation>WidżetDoUstawieńProduktuDocelowego</translation>
     </message>
 </context>
 <context>
@@ -19389,7 +19390,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten obszar pokazuje podgląd edytowanego gradientu. Możesz tutaj również zmieniać parametry specyficzne dla typu gradientu, takie jak: punkt początkowy i końcowy, promień, itp... poprzez przeciągnięcie i upuszczenie uchwytu.</translation>
     </message>
     <message>
         <location/>
@@ -19419,12 +19420,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Gradient Stops Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor punktów gradientu</translation>
     </message>
     <message>
         <location/>
         <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten obszar pozwala na edycję punktów gradientu. Aby skopiować istniejący punkt kliknij dwukrotnie na jego uchwyt. W celu stworzenia nowego punktu kliknij dwukrotnie poza istniejącymi uchwytami punków. Przeciągnij i upuść uchwyt aby go przesunąć. Naciśnij prawy przycisk myszy aby pokazać menu z dodatkowymi akcjami.</translation>
     </message>
     <message>
         <location/>
@@ -19434,37 +19435,37 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalny rozmiar</translation>
     </message>
     <message>
         <location/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozycja</translation>
     </message>
     <message>
         <location/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Barwa</translation>
     </message>
     <message>
         <location/>
         <source>H</source>
-        <translation type="unfinished"></translation>
+        <translation>H</translation>
     </message>
     <message>
         <location/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Nasycenie</translation>
     </message>
     <message>
         <location/>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <location/>
         <source>Sat</source>
-        <translation type="unfinished"></translation>
+        <translation>Nasycenie</translation>
     </message>
     <message>
         <location/>
@@ -19474,22 +19475,22 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>V</source>
-        <translation type="unfinished"></translation>
+        <translation>V</translation>
     </message>
     <message>
         <location/>
         <source>Val</source>
-        <translation type="unfinished"></translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <location/>
         <source>Alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanał alfa</translation>
     </message>
     <message>
         <location/>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <location/>
@@ -19499,72 +19500,72 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozciąganie</translation>
     </message>
     <message>
         <location/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <location/>
         <source>Current stop&apos;s color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolor bieżącego punktu</translation>
     </message>
     <message>
         <location/>
         <source>Show HSV specification</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż specyfikację HSV</translation>
     </message>
     <message>
         <location/>
         <source>HSV</source>
-        <translation type="unfinished"></translation>
+        <translation>HSV</translation>
     </message>
     <message>
         <location/>
         <source>Show RGB specification</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż specyfikację RGB</translation>
     </message>
     <message>
         <location/>
         <source>RGB</source>
-        <translation type="unfinished"></translation>
+        <translation>RGB</translation>
     </message>
     <message>
         <location/>
         <source>Current stop&apos;s position</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozycja bieżącego punktu</translation>
     </message>
     <message>
         <location/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <location/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Powiększ</translation>
     </message>
     <message>
         <location/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomniejsz</translation>
     </message>
     <message>
         <location/>
         <source>Toggle details extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz rozszerzenie ze szczegółami</translation>
     </message>
     <message>
         <location/>
         <source>&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&gt;</translation>
     </message>
     <message>
         <location/>
         <source>Linear Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ liniowy</translation>
     </message>
     <message>
         <location/>
@@ -19574,109 +19575,109 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Radial Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ radialny</translation>
     </message>
     <message>
         <location/>
         <source>Conical Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ stożkowy</translation>
     </message>
     <message>
         <location/>
         <source>Pad Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzaj punkt brzegowy</translation>
     </message>
     <message>
         <location/>
         <source>Repeat Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzaj cały zakres</translation>
     </message>
     <message>
         <location/>
         <source>Reflect Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzaj z odbiciami</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/gradienteditor.cpp" line="+412"/>
         <source>Start X</source>
-        <translation type="unfinished"></translation>
+        <translation>Początek X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Start Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Początek Y</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Final X</source>
-        <translation type="unfinished"></translation>
+        <translation>Koniec X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Final Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Koniec Y</translation>
     </message>
     <message>
         <location line="+7"/>
         <location line="+24"/>
         <source>Central X</source>
-        <translation type="unfinished"></translation>
+        <translation>Środek X</translation>
     </message>
     <message>
         <location line="-20"/>
         <location line="+24"/>
         <source>Central Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Środek Y</translation>
     </message>
     <message>
         <location line="-20"/>
         <source>Focal X</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogniskowa X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Focal Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogniskowa Y</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Kąt</translation>
     </message>
     <message>
         <location line="+288"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Liniowy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Radial</source>
-        <translation type="unfinished"></translation>
+        <translation>Radialny</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Conical</source>
-        <translation type="unfinished"></translation>
+        <translation>Stożkowy</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Pad</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Repeat</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtórzone</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Reflect</source>
-        <translation type="unfinished"></translation>
+        <translation>Odbite</translation>
     </message>
 </context>
 <context>
@@ -19697,12 +19698,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Gradient Editor</source>
-        <translation type="unfinished">Edytor gradientu</translation>
+        <translation>Edytor gradientu</translation>
     </message>
     <message>
         <location/>
         <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten obszar pokazuje podgląd edytowanego gradientu. Możesz tutaj również zmieniać parametry specyficzne dla typu gradientu, takie jak: punkt początkowy i końcowy, promień, itp... poprzez przeciągnięcie i upuszczenie uchwytu.</translation>
     </message>
     <message>
         <location/>
@@ -19732,12 +19733,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Gradient Stops Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor punktów gradientu</translation>
     </message>
     <message>
         <location/>
         <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ten obszar pozwala na edycję punktów gradientu. Aby skopiować istniejący punkt kliknij dwukrotnie na jego uchwyt. W celu stworzenia nowego punktu kliknij dwukrotnie poza istniejącymi uchwytami punków. Przeciągnij i upuść uchwyt aby go przesunąć. Naciśnij prawy przycisk myszy aby pokazać menu z dodatkowymi akcjami.</translation>
     </message>
     <message>
         <location/>
@@ -19747,37 +19748,37 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalny rozmiar</translation>
     </message>
     <message>
         <location/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozycja</translation>
     </message>
     <message>
         <location/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Barwa</translation>
     </message>
     <message>
         <location/>
         <source>H</source>
-        <translation type="unfinished"></translation>
+        <translation>H</translation>
     </message>
     <message>
         <location/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Nasycenie</translation>
     </message>
     <message>
         <location/>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <location/>
         <source>Sat</source>
-        <translation type="unfinished"></translation>
+        <translation>Nasycenie</translation>
     </message>
     <message>
         <location/>
@@ -19787,22 +19788,22 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>V</source>
-        <translation type="unfinished"></translation>
+        <translation>V</translation>
     </message>
     <message>
         <location/>
         <source>Val</source>
-        <translation type="unfinished"></translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <location/>
         <source>Alpha</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanał alfa</translation>
     </message>
     <message>
         <location/>
         <source>A</source>
-        <translation type="unfinished"></translation>
+        <translation>A</translation>
     </message>
     <message>
         <location/>
@@ -19812,72 +19813,72 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozciąganie</translation>
     </message>
     <message>
         <location/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolor</translation>
     </message>
     <message>
         <location/>
         <source>Current stop&apos;s color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolor bieżącego punktu</translation>
     </message>
     <message>
         <location/>
         <source>Show HSV specification</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż specyfikację HSV</translation>
     </message>
     <message>
         <location/>
         <source>HSV</source>
-        <translation type="unfinished"></translation>
+        <translation>HSV</translation>
     </message>
     <message>
         <location/>
         <source>Show RGB specification</source>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż specyfikację RGB</translation>
     </message>
     <message>
         <location/>
         <source>RGB</source>
-        <translation type="unfinished"></translation>
+        <translation>RGB</translation>
     </message>
     <message>
         <location/>
         <source>Current stop&apos;s position</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozycja bieżącego punktu</translation>
     </message>
     <message>
         <location/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation>%</translation>
     </message>
     <message>
         <location/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Powiększ</translation>
     </message>
     <message>
         <location/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomniejsz</translation>
     </message>
     <message>
         <location/>
         <source>Toggle details extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz rozszerzenie ze szczegółami</translation>
     </message>
     <message>
         <location/>
         <source>&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&gt;</translation>
     </message>
     <message>
         <location/>
         <source>Linear Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ liniowy</translation>
     </message>
     <message>
         <location/>
@@ -19887,109 +19888,109 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Radial Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ radialny</translation>
     </message>
     <message>
         <location/>
         <source>Conical Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ stożkowy</translation>
     </message>
     <message>
         <location/>
         <source>Pad Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzaj punkt brzegowy</translation>
     </message>
     <message>
         <location/>
         <source>Repeat Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzaj cały zakres</translation>
     </message>
     <message>
         <location/>
         <source>Reflect Spread</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzaj z odbiciami</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradienteditor.cpp" line="+431"/>
         <source>Start X</source>
-        <translation type="unfinished"></translation>
+        <translation>Początek X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Start Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Początek Y</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Final X</source>
-        <translation type="unfinished"></translation>
+        <translation>Koniec X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Final Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Koniec Y</translation>
     </message>
     <message>
         <location line="+7"/>
         <location line="+24"/>
         <source>Central X</source>
-        <translation type="unfinished"></translation>
+        <translation>Środek X</translation>
     </message>
     <message>
         <location line="-20"/>
         <location line="+24"/>
         <source>Central Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Środek Y</translation>
     </message>
     <message>
         <location line="-20"/>
         <source>Focal X</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogniskowa X</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Focal Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ogniskowa Y</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Promień</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Kąt</translation>
     </message>
     <message>
         <location line="+288"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Liniowy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Radial</source>
-        <translation type="unfinished"></translation>
+        <translation>Radialny</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Conical</source>
-        <translation type="unfinished"></translation>
+        <translation>Stożkowy</translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Pad</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Repeat</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtórzone</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Reflect</source>
-        <translation type="unfinished"></translation>
+        <translation>Odbite</translation>
     </message>
 </context>
 <context>
@@ -19997,7 +19998,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.ui"/>
         <source>Gradient View</source>
-        <translation type="unfinished"></translation>
+        <translation>Widok gradientów</translation>
     </message>
     <message>
         <location/>
@@ -20026,17 +20027,17 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="-104"/>
         <source>Grad</source>
-        <translation type="unfinished"></translation>
+        <translation>Grad</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Remove Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuń gradient</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Are you sure you want to remove the selected gradient?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz usunąć zaznaczony gradient?</translation>
     </message>
 </context>
 <context>
@@ -20045,7 +20046,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientviewdialog.ui"/>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientviewdialog.h" line="+62"/>
         <source>Select Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz gradient</translation>
     </message>
 </context>
 <context>
@@ -20053,7 +20054,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/settingspage.ui"/>
         <source>Form</source>
-        <translation type="unfinished">Formularz</translation>
+        <translation>Formularz</translation>
     </message>
     <message>
         <source>Designer</source>
@@ -20062,22 +20063,22 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Przyciąganie</translation>
     </message>
     <message>
         <location/>
         <source>Item spacing</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstępy</translation>
     </message>
     <message>
         <location/>
         <source>Snap margin</source>
-        <translation type="unfinished"></translation>
+        <translation>Margines</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/settingspage.cpp" line="+83"/>
         <source>Qt Quick Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick Designer</translation>
     </message>
 </context>
 <context>
@@ -20176,47 +20177,47 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja:</translation>
     </message>
     <message>
         <location/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <location/>
         <source>IP or host name of the device</source>
-        <translation type="unfinished"></translation>
+        <translation>IP lub nazwa hosta urządzenia</translation>
     </message>
     <message>
         <location/>
         <source>Ports:</source>
-        <translation type="unfinished"></translation>
+        <translation>Porty:</translation>
     </message>
     <message>
         <location/>
         <source>SSH:</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH:</translation>
     </message>
     <message>
         <location/>
         <source>Gdb server:</source>
-        <translation type="unfinished"></translation>
+        <translation>Server Gdb:</translation>
     </message>
     <message>
         <location/>
         <source>s</source>
-        <translation type="unfinished"></translation>
+        <translation>s</translation>
     </message>
     <message>
         <location/>
         <source>Generate SSH Key ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj klucz SSH...</translation>
     </message>
     <message>
         <location/>
         <source>Deploy Public Key ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj klucz publiczny...</translation>
     </message>
 </context>
 <context>
@@ -20224,27 +20225,27 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60createpackagestep.ui"/>
         <source>Form</source>
-        <translation type="unfinished">Formularz</translation>
+        <translation>Formularz</translation>
     </message>
     <message>
         <location/>
         <source>Self-signed certificate</source>
-        <translation type="unfinished">Własnoręcznie podpisany certyfikat</translation>
+        <translation>Własnoręcznie podpisany certyfikat</translation>
     </message>
     <message>
         <location/>
         <source>Custom certificate:</source>
-        <translation type="unfinished">Własny certyfikat:</translation>
+        <translation>Własny certyfikat:</translation>
     </message>
     <message>
         <location/>
         <source>Choose certificate file (.cer)</source>
-        <translation type="unfinished">Wybierz certyfikat (.cer)</translation>
+        <translation>Wybierz certyfikat (.cer)</translation>
     </message>
     <message>
         <location/>
         <source>Key file:</source>
-        <translation type="unfinished">Plik z kluczem:</translation>
+        <translation>Plik z kluczem:</translation>
     </message>
 </context>
 <context>
@@ -20252,27 +20253,27 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/testwizardpage.ui"/>
         <source>WizardPage</source>
-        <translation type="unfinished">StronaKreatora</translation>
+        <translation>StronaKreatora</translation>
     </message>
     <message>
         <location/>
         <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Podaj podstawowe informacje o klasie testowej dla której chcesz wygenerować szkielet pliku z kodem źródłowym.</translation>
     </message>
     <message>
         <location/>
         <source>Class name:</source>
-        <translation type="unfinished">Nazwa klasy:</translation>
+        <translation>Nazwa klasy:</translation>
     </message>
     <message>
         <location/>
         <source>Type:</source>
-        <translation type="unfinished">Typ:</translation>
+        <translation>Typ:</translation>
     </message>
     <message>
         <location/>
         <source>Test</source>
-        <translation type="unfinished">Przetestuj</translation>
+        <translation>Przetestuj</translation>
     </message>
     <message>
         <location/>
@@ -20282,32 +20283,32 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>File:</source>
-        <translation type="unfinished">Plik:</translation>
+        <translation>Plik:</translation>
     </message>
     <message>
         <location/>
         <source>Generate initialization and cleanup code</source>
-        <translation type="unfinished"></translation>
+        <translation>Generuj inicjalizację i kod porządkujący</translation>
     </message>
     <message>
         <location/>
         <source>Test slot:</source>
-        <translation type="unfinished"></translation>
+        <translation>Slot z testem:</translation>
     </message>
     <message>
         <location/>
         <source>Requires QApplication</source>
-        <translation type="unfinished"></translation>
+        <translation>Wymaga QApplication</translation>
     </message>
     <message>
         <location/>
         <source>Use a test data set</source>
-        <translation type="unfinished"></translation>
+        <translation>Użyj zestawy danych testowych</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/testwizardpage.cpp" line="+46"/>
         <source>Test Class Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informacja o klasie testowej</translation>
     </message>
 </context>
 <context>
@@ -20315,59 +20316,61 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/vcsbase/cleandialog.ui"/>
         <source>Clean repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść składnicę</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/vcsbase/cleandialog.cpp" line="+68"/>
         <source>The directory %1 could not be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można usunąć katalogu &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>The file %1 could not be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można usunąć pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+36"/>
         <source>There were errors when cleaning the repository %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpiły błędy podczas usuwania składnicy %1:</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Delete...</source>
-        <translation type="unfinished">Usuń...</translation>
+        <translation>Usuń...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Repository: %1</source>
-        <translation type="unfinished">Składnica: %1</translation>
+        <translation>Składnica: %1</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>%1 bytes, last modified %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 bajtów, ostatnio zmodyfikowano %2</translation>
     </message>
     <message>
         <location line="+36"/>
         <source>Delete</source>
-        <translation type="unfinished">Usuń</translation>
+        <translation>Usuń</translation>
     </message>
     <message numerus="yes">
         <location line="+1"/>
         <source>Do you want to delete %n files?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Czy chcesz usunąć %n plik?</numerusform>
+            <numerusform>Czy chcesz usunąć %n pliki?</numerusform>
+            <numerusform>Czy chcesz usunąć %n plików?</numerusform>
         </translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Cleaning %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Czyszczenie %1</translation>
     </message>
 </context>
 <context>
@@ -20375,7 +20378,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/libs/extensionsystem/plugindetailsview.cpp" line="+81"/>
         <source>None</source>
-        <translation type="unfinished">Brak</translation>
+        <translation>Brak</translation>
     </message>
 </context>
 <context>
@@ -20398,7 +20401,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/libs/qmljs/qmljscheck.cpp" line="+328"/>
         <source>&apos;%1&apos; is not a valid property name</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; nie jest poprawną nazwą właściwości</translation>
     </message>
     <message>
         <location line="-114"/>
@@ -20438,7 +20441,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+11"/>
         <source>boolean value expected</source>
-        <translation type="unfinished"></translation>
+        <translation>oczekiwano wartości boolowskiej</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -20477,17 +20480,17 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/libs/qmljs/qmljsinterpreter.cpp" line="+342"/>
         <source>The file is not module file.</source>
-        <translation type="unfinished"></translation>
+        <translation>To nie jest plik modułu.</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Unexpected element &lt;%1&gt; in &lt;%2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieoczekiwany element &lt;%1&gt; w &lt;%2&gt;</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>invalid value &apos;%1&apos; for attribute %2 in &lt;%3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>niepoprawna wartość &quot;%1&quot; dla atrybutu %2 w &lt;%3&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -20497,7 +20500,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+1631"/>
         <source>%1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: %2</translation>
     </message>
 </context>
 <context>
@@ -20515,12 +20518,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+8"/>
         <source>package import requires a version number</source>
-        <translation type="unfinished"></translation>
+        <translation>import pakietu wymaga podania numeru wersji</translation>
     </message>
     <message>
         <location line="+46"/>
         <source>package not found</source>
-        <translation type="unfinished"></translation>
+        <translation>pakiet nie został odnaleziony</translation>
     </message>
 </context>
 <context>
@@ -20963,7 +20966,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+213"/>
         <source>Unable to set the image path to %1: %2</source>
-        <translation type="unfinished">Nie można ustawić ścieżki do obrazu programu na %1: %2</translation>
+        <translation>Nie można ustawić ścieżki do obrazu na %1: %2</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -21982,7 +21985,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/projectexplorer/projectwindow.cpp" line="+306"/>
         <source>Targets</source>
-        <translation type="unfinished"></translation>
+        <translation>Produkty docelowe</translation>
     </message>
 </context>
 <context>
@@ -22006,18 +22009,19 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/projectexplorer/targetsettingspanel.cpp" line="+101"/>
         <source>No target defined.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak zdefiniowanych produktów docelowych.</translation>
     </message>
     <message>
         <location line="+103"/>
         <source>Qt Creator</source>
-        <translation type="unfinished">Qt Creator</translation>
+        <translation>Qt Creator</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Do you really want to remove the
 &quot;%1&quot; target?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz usunąć produkt docelowy
+&quot;%1&quot;?</translation>
     </message>
 </context>
 <context>
@@ -22256,73 +22260,73 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientstopscontroller.cpp" line="+173"/>
         <source>H</source>
-        <translation type="unfinished"></translation>
+        <translation>H</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>V</source>
-        <translation type="unfinished"></translation>
+        <translation>V</translation>
     </message>
     <message>
         <location line="+6"/>
         <location line="+4"/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Barwa</translation>
     </message>
     <message>
         <location line="-3"/>
         <source>Sat</source>
-        <translation type="unfinished"></translation>
+        <translation>Nasycenie</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Val</source>
-        <translation type="unfinished"></translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Nasycenie</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Value</source>
-        <translation type="unfinished">Wartość</translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <location line="+22"/>
         <source>R</source>
-        <translation type="unfinished">R</translation>
+        <translation>R</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>G</source>
-        <translation type="unfinished"></translation>
+        <translation>G</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>B</source>
-        <translation type="unfinished"></translation>
+        <translation>B</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>Czerwień</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>Zieleń</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Błękit</translation>
     </message>
 </context>
 <context>
@@ -22330,37 +22334,37 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientstopswidget.cpp" line="+947"/>
         <source>New Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowy punkt</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Delete</source>
-        <translation type="unfinished">Usuń</translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Flip All</source>
-        <translation type="unfinished"></translation>
+        <translation>Odwróć wszystko</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Select All</source>
-        <translation type="unfinished">Zaznacz wszystko</translation>
+        <translation>Zaznacz wszystko</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Powiększ</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomniejsz</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Reset Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalny rozmiar</translation>
     </message>
 </context>
 <context>
@@ -22369,22 +22373,22 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <location filename="../../../src/plugins/qmldesigner/components/stateseditor/stateseditormodel.cpp" line="+76"/>
         <source>base state</source>
         <comment>Implicit default state</comment>
-        <translation type="unfinished"></translation>
+        <translation>Stan bazowy</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>Invalid state name</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawna nazwa stanu</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>The empty string as a name is reserved for the base state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pusta nazwa jest zarezerwowana dla stanu bazowego.</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Name already used in another state</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa jest już użyta w innym stanie</translation>
     </message>
 </context>
 <context>
@@ -22392,13 +22396,13 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/stateseditor/stateseditorwidget.cpp" line="+106"/>
         <source>base state</source>
-        <translation type="unfinished"></translation>
+        <translation>Stan bazowy</translation>
     </message>
     <message>
         <location line="+27"/>
         <source>State%1</source>
         <comment>Default name for newly created states</comment>
-        <translation type="unfinished"></translation>
+        <translation>Stan%1</translation>
     </message>
 </context>
 <context>
@@ -22407,7 +22411,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <location line="+60"/>
         <source>States</source>
         <comment>Title of Editor widget</comment>
-        <translation type="unfinished"></translation>
+        <translation>Stany</translation>
     </message>
 </context>
 <context>
@@ -22415,7 +22419,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/core/metainfo/subcomponentmanager.cpp" line="+307"/>
         <source>QML Components</source>
-        <translation type="unfinished"></translation>
+        <translation>Komponenty QML</translation>
     </message>
 </context>
 <context>
@@ -22423,27 +22427,27 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/core/model/rewriterview.cpp" line="+79"/>
         <source>Error parsing</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd parsowania</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Internal error</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd wewnętrzny</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>&quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>line %1</source>
-        <translation type="unfinished"></translation>
+        <translation>linia %1</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>column %1</source>
-        <translation type="unfinished"></translation>
+        <translation>kolumna %1</translation>
     </message>
 </context>
 <context>
@@ -22451,17 +22455,17 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/designmodewidget.cpp" line="+103"/>
         <source>&lt;a href=&quot;goToError&quot;&gt;Go to error&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;goToError&quot;&gt;Przejdź do błędu&lt;/a&gt;</translation>
     </message>
     <message>
         <location line="+16"/>
         <source>%3 (%1:%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>%3 (%1:%2)</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Internal error (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd wewnętrzny (%1)</translation>
     </message>
 </context>
 <context>
@@ -22469,72 +22473,72 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+26"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Cofnij</translation>
+        <translation>&amp;Cofnij</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Przywróć</translation>
+        <translation>&amp;Przywróć</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Delete</source>
-        <translation type="unfinished">Usuń</translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Delete &quot;%1&quot;</source>
-        <translation type="unfinished">Usuń &quot;%1&quot;</translation>
+        <translation>Usuń &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">Wy&amp;tnij</translation>
+        <translation>Wy&amp;tnij</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Cut &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wytnij &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Copy</source>
-        <translation type="unfinished">S&amp;kopiuj</translation>
+        <translation>S&amp;kopiuj</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Copy &quot;%1&quot;</source>
-        <translation type="unfinished">Skopiuj &quot;%1&quot;</translation>
+        <translation>Skopiuj &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished">Wk&amp;lej</translation>
+        <translation>Wk&amp;lej</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Paste &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wklej &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Select &amp;All</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz &amp;wszystko</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Select All &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaznacz wszystkie &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Toggle Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz pełny ekran</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>&amp;Restore Default View</source>
-        <translation type="unfinished"></translation>
+        <translation>P&amp;rzywróć domyślny widok</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -22549,17 +22553,17 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+429"/>
         <source>Projects</source>
-        <translation type="unfinished">Projekty</translation>
+        <translation>Projekty</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>File System</source>
-        <translation type="unfinished">System plików</translation>
+        <translation>System plików</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Open Documents</source>
-        <translation type="unfinished">Otwarte dokumenty</translation>
+        <translation>Otwarte dokumenty</translation>
     </message>
 </context>
 <context>
@@ -22567,37 +22571,37 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmldesigner/qmldesignerplugin.cpp" line="+130"/>
         <source>Switch Text/Design</source>
-        <translation type="unfinished"></translation>
+        <translation>Przełącz tekst / projekt</translation>
     </message>
     <message>
         <location line="+200"/>
         <source>Save %1 As...</source>
-        <translation type="unfinished">Zachowaj %1 jako...</translation>
+        <translation>Zachowaj %1 jako...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&amp;Save %1</source>
-        <translation type="unfinished">&amp;Zachowaj %1</translation>
+        <translation>&amp;Zachowaj %1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Revert %1 to Saved</source>
-        <translation type="unfinished">Odwróć zmiany w %1</translation>
+        <translation>Odwróć zmiany w %1</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Close %1</source>
-        <translation type="unfinished">Zamknij %1</translation>
+        <translation>Zamknij %1</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Close All Except %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zamknij wszystko z wyjątkiem %1</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Close Others</source>
-        <translation type="unfinished">Zamknij inne</translation>
+        <translation>Zamknij inne</translation>
     </message>
 </context>
 <context>
@@ -22621,22 +22625,22 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+77"/>
         <source>Resolution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozdzielczość:</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Clear</source>
-        <translation type="unfinished">Wyczyść</translation>
+        <translation>Wyczyść</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>New Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Nowy graf</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączony</translation>
     </message>
 </context>
 <context>
@@ -22688,7 +22692,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message numerus="yes">
         <location line="+79"/>
         <source>&lt;%n items&gt;</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>&lt;%n element&gt;</numerusform>
             <numerusform>&lt;%n elementy&gt;</numerusform>
             <numerusform>&lt;%n elementów&gt;</numerusform>
@@ -22700,22 +22704,22 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmlinspector/components/objectpropertiesview.cpp" line="+76"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Value</source>
-        <translation type="unfinished">Wartość</translation>
+        <translation>Wartość</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>&amp;Watch expression</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Obserwuj wyrażenie</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -22735,7 +22739,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message numerus="yes">
         <location line="+116"/>
         <source>&lt;%n items&gt;</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>&lt;%n element&gt;</numerusform>
             <numerusform>&lt;%n elementy&gt;</numerusform>
             <numerusform>&lt;%n elementów&gt;</numerusform>
@@ -22744,7 +22748,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+291"/>
         <source>Watch expression &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Obserwuj wyrażenie &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -22772,17 +22776,17 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+2"/>
         <source>Go to file</source>
-        <translation type="unfinished"></translation>
+        <translation>Przejdź do pliku</translation>
     </message>
     <message>
         <location line="+215"/>
         <source>Watch expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Obserwuj wyrażenie</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Expression:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyrażenie:</translation>
     </message>
 </context>
 <context>
@@ -22790,12 +22794,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmlinspector/components/watchtable.cpp" line="+153"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Value</source>
-        <translation type="unfinished">Wartość</translation>
+        <translation>Wartość</translation>
     </message>
 </context>
 <context>
@@ -22803,7 +22807,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+219"/>
         <source>Stop watching</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj obserwowanie</translation>
     </message>
 </context>
 <context>
@@ -22811,12 +22815,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/plugins/qmlinspector/inspectoroutputwidget.cpp" line="+43"/>
         <source>Output</source>
-        <translation type="unfinished">Komunikaty</translation>
+        <translation>Komunikaty</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Clear</source>
-        <translation type="unfinished">Wyczyść</translation>
+        <translation>Wyczyść</translation>
     </message>
 </context>
 <context>
@@ -23123,7 +23127,7 @@ Please check your project settings.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectconstants.h" line="+8"/>
         <source>Qt Quick Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Qt Quick</translation>
     </message>
 </context>
 <context>
@@ -23159,19 +23163,19 @@ Please check your project settings.</source>
     <message>
         <location line="+36"/>
         <source>Import Existing Qt QML Directory</source>
-        <translation type="unfinished">Import istniejącego katalogu QML</translation>
+        <translation>Import istniejącego katalogu QML</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Creates a QML project from an existing directory of QML files.</source>
-        <translation type="unfinished">Tworzy projekt QML na podstawie istniejącego katalogu z plikami QML.</translation>
+        <translation>Tworzy projekt QML na podstawie istniejącego katalogu z plikami QML.</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>File generated by QtCreator</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Plik wygenerowany przez Qt Creatora</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -23197,7 +23201,7 @@ Please check your project settings.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectmanager.cpp" line="+76"/>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
-        <translation type="unfinished">Nie można otworzyć projektu &quot;%1&quot;: projekt jest już otwarty</translation>
+        <translation>Nie można otworzyć projektu &quot;%1&quot;: projekt jest już otwarty</translation>
     </message>
 </context>
 <context>
@@ -23221,7 +23225,7 @@ Please check your project settings.</source>
     <message>
         <location line="+1"/>
         <source>Main QML File:</source>
-        <translation type="unfinished">Główny plik QML:</translation>
+        <translation>Główny plik QML:</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -23239,7 +23243,7 @@ Please check your project settings.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectrunconfiguration.h" line="+52"/>
         <source>&lt;Current File&gt;</source>
-        <translation type="unfinished">&lt;Bieżący plik&gt;</translation>
+        <translation>&lt;Bieżący plik&gt;</translation>
     </message>
 </context>
 <context>
@@ -23247,7 +23251,7 @@ Please check your project settings.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectrunconfigurationfactory.cpp" line="+60"/>
         <source>Run QML Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom skrypt QML</translation>
     </message>
 </context>
 <context>
@@ -23255,12 +23259,12 @@ Please check your project settings.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectruncontrol.cpp" line="+92"/>
         <source>Starting %1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchamianie %1 %2</translation>
     </message>
     <message>
         <location line="+42"/>
         <source>%1 exited with code %2</source>
-        <translation type="unfinished">%1 zakończone kodem %2</translation>
+        <translation>%1 zakończone kodem %2</translation>
     </message>
 </context>
 <context>
@@ -23268,7 +23272,7 @@ Please check your project settings.</source>
     <message>
         <location line="+30"/>
         <source>Run</source>
-        <translation type="unfinished">Uruchom</translation>
+        <translation>Uruchom</translation>
     </message>
 </context>
 <context>
@@ -23276,68 +23280,74 @@ Please check your project settings.</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemoconfigtestdialog.cpp" line="+100"/>
         <source>Testing configuration...</source>
-        <translation type="unfinished"></translation>
+        <translation>Testowanie konfiguracji...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Stop Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj test</translation>
     </message>
     <message>
         <location line="+23"/>
         <source>Device configuration test failed:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Test konfiguracji urządzenia zakończony niepowodzeniem:
+%1</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>
 Did you start Qemu?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+Czy uruchomiłeś Qemu?</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezgodność wersji Qt. Oczekiwano wersji 4.6.2 lub późniejszej dla urządzenia.</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Close</source>
-        <translation type="unfinished">Zamknij</translation>
+        <translation>Zamknij</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Device configuration test failed: Unexpected output:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Test konfiguracji urządzenia zakończony niepowodzeniem: Nieoczekiwany komunikat:
+%1</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Hardware architecture: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Architektura sprzętu: %1
+</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Kernel version: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja kernela: %1
+</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Device configuration successful.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguracja urządzenia zakończona pomyślnie.
+</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>No Qt packages installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak zainstalowanych pakietów Qt.</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>List of installed Qt packages:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista zainstalowanych pakietów Qt:</translation>
     </message>
 </context>
 <context>
@@ -23346,12 +23356,12 @@ Did you start Qemu?</source>
         <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemomanager.cpp" line="+156"/>
         <location line="+40"/>
         <source>Start Maemo Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom emulator Maemo</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Stop Maemo Emulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj emulator Maemo</translation>
     </message>
 </context>
 <context>
@@ -23485,7 +23495,7 @@ Did you start Qemu?</source>
     <message>
         <location line="-76"/>
         <source>Deployment failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja zakończona niepowodzeniem: %1</translation>
     </message>
 </context>
 <context>
@@ -23508,24 +23518,24 @@ Did you start Qemu?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemosettingswidget.cpp" line="+341"/>
         <source>Choose public key file</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz plik z kluczem publicznym</translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Stop deploying</source>
-        <translation type="unfinished"></translation>
+        <translation>Zatrzymaj instalowanie</translation>
     </message>
     <message>
         <location line="-11"/>
         <location line="+22"/>
         <source>Deployment Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja zakończona niepowodzeniem</translation>
     </message>
     <message>
         <location line="-222"/>
         <source>New Device Configuration %1</source>
         <comment>Standard Configuration name with number</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nowa konfiguracja urządzenia %1</translation>
     </message>
     <message>
         <location line="+190"/>
@@ -23535,27 +23545,27 @@ Did you start Qemu?</source>
     <message>
         <location line="+11"/>
         <source>Could not read public key file &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odczytać pliku z publicznym kluczem &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Key deployment failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja klucza zakończona niepowodzeniem: %1</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Deployment Succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalacja zakończona pomyślnie</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Key was successfully deployed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klucz został pomyślnie zainstalowany.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Deploy Public Key ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zainstaluj klucz publiczny...</translation>
     </message>
 </context>
 <context>
@@ -23580,7 +23590,7 @@ Did you start Qemu?</source>
     <message>
         <location line="+47"/>
         <source>self-signed</source>
-        <translation type="unfinished"></translation>
+        <translation>własnoręcznie podpisany</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -23598,27 +23608,27 @@ Did you start Qemu?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4buildconfiguration.cpp" line="+571"/>
         <source>Using Qt Version &quot;%1&quot;</source>
-        <translation type="unfinished">Używając wersji &quot;%1&quot;</translation>
+        <translation>Używając wersji &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+54"/>
         <source>New configuration</source>
-        <translation type="unfinished">Nowa konfiguracja</translation>
+        <translation>Nowa konfiguracja</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>New Configuration Name:</source>
-        <translation type="unfinished">Nazwa nowej konfiguracji:</translation>
+        <translation>Nazwa nowej konfiguracji:</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>%1 Debug</source>
-        <translation type="unfinished">%1 Debug</translation>
+        <translation>%1 Debug</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>%1 Release</source>
-        <translation type="unfinished">%1 Release</translation>
+        <translation>%1 Release</translation>
     </message>
 </context>
 <context>
@@ -23626,17 +23636,17 @@ Did you start Qemu?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerconstants.h" line="+35"/>
         <source>Qt4</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt4</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Qt Versions</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersje Qt</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Qt C++ Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt Qt C++</translation>
     </message>
 </context>
 <context>
@@ -23644,12 +23654,12 @@ Did you start Qemu?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="-271"/>
         <source>Debug</source>
-        <translation type="unfinished"></translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Release</source>
-        <translation type="unfinished"></translation>
+        <translation>Release</translation>
     </message>
 </context>
 <context>
@@ -23685,12 +23695,12 @@ Did you start Qemu?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/mobileguiappwizard.cpp" line="+44"/>
         <source>Mobile Qt Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Mobilna aplikacja Qt</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Creates a mobile Qt Gui Application with one form.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tworzy mobilną aplikację Qt Gui z jednym formularzem.</translation>
     </message>
 </context>
 <context>
@@ -23699,12 +23709,12 @@ Did you start Qemu?</source>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/qtwizard.cpp" line="+225"/>
         <location line="+4"/>
         <source>Modules</source>
-        <translation type="unfinished">Moduły</translation>
+        <translation>Moduły</translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Qt Versions</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersje Qt</translation>
     </message>
 </context>
 <context>
@@ -23712,78 +23722,78 @@ Did you start Qemu?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/targetsetuppage.ui"/>
         <source>Qt Creator can set up the following targets:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator może ustawić następujące produkty docelowe:</translation>
     </message>
     <message>
         <location/>
         <source>Qt Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Wersja Qt</translation>
     </message>
     <message>
         <location/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Stan</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/targetsetuppage.cpp" line="+162"/>
         <source>Import</source>
         <comment>Is this an import of an existing build or a new one?</comment>
-        <translation type="unfinished"></translation>
+        <translation>Import</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>New</source>
         <comment>Is this an import of an existing build or a new one?</comment>
-        <translation type="unfinished">Nowy</translation>
+        <translation>Nowy</translation>
     </message>
     <message>
         <location line="+134"/>
         <source>Qt Creator can set up the following targets for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator może ustawić następujące produkty docelowe dla projektu &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
         <location line="+107"/>
         <source>Choose a directory to scan for additional shadow builds</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz katalog w którym przeszukiwać dodatkowych wersji zbudowanych na zewnątrz</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>No builds found</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak zbudowanych wersji</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>No builds for project file &quot;%1&quot; were found in the folder &quot;%2&quot;.</source>
         <comment>%1: pro-file, %2: directory that was checked.</comment>
-        <translation type="unfinished"></translation>
+        <translation>Brak zbudowanych wersji dla projektu &quot;%1&quot; w katalogu &quot;%2&quot;.</translation>
     </message>
     <message>
         <location line="+35"/>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Błąd:&lt;/b&gt; </translation>
     </message>
     <message>
         <location line="+4"/>
         <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
         <comment>Severity is Task::Warning</comment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Ostrzeżenie:&lt;/b&gt; </translation>
     </message>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/targetsetuppage.ui"/>
         <source>Setup targets for your project</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustaw produkty docelowe dla projektu</translation>
     </message>
     <message>
         <location/>
         <source>Build Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog wersji</translation>
     </message>
     <message>
         <location/>
         <source>Import existing shadow build...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zaimportuj istniejącą wersję zbudowaną w innym miejscu...</translation>
     </message>
 </context>
 <context>
@@ -23873,7 +23883,7 @@ Did you start Qemu?</source>
     <message>
         <location line="+0"/>
         <source>The file &apos;%1&apos; could not be deleted.</source>
-        <translation type="unfinished">Nie można skasować pliku &quot;%1&quot;.</translation>
+        <translation>Nie można usunąć pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -24317,7 +24327,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
         <location line="+48"/>
         <location line="+48"/>
         <source>Target</source>
-        <translation type="unfinished"></translation>
+        <translation>Produkt docelowy</translation>
     </message>
     <message>
         <location line="-224"/>
