@@ -177,7 +177,8 @@ public:
 
 private:
     explicit MimeType(const MimeTypeData &d);
-    unsigned matchesFile(Internal::FileMatchContext &c) const;
+    unsigned matchesFileBySuffix(Internal::FileMatchContext &c) const;
+    unsigned matchesFileByContent(Internal::FileMatchContext &c) const;
 
     friend class Internal::BaseMimeTypeParser;
     friend class MimeDatabasePrivate;
