@@ -214,24 +214,21 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
     Core::ICore *core = Core::ICore::instance();
 
     if (editor && editor->file()) {
-        MimeType type = core->mimeDatabase()->findByFile(QFileInfo(editor->file()->fileName()));
-        QString mimeType = editor->file()->mimeType();
-
-        if (type && !type.type().isEmpty())
-            mimeType = type.type();
-
-        foreach (DesignEditorInfo *editorInfo, d->m_editors) {
-            foreach (const QString &mime, editorInfo->mimeTypes) {
-                if (mime == mimeType) {
-                    d->m_stackWidget->setCurrentIndex(editorInfo->widgetIndex);
-                    setActiveContext(editorInfo->context);
-                    mimeEditorAvailable = true;
-                    setEnabled(true);
+        const QString mimeType = editor->file()->mimeType();
+        if (!mimeType.isEmpty()) {
+            foreach (DesignEditorInfo *editorInfo, d->m_editors) {
+                foreach (const QString &mime, editorInfo->mimeTypes) {
+                    if (mime == mimeType) {
+                        d->m_stackWidget->setCurrentIndex(editorInfo->widgetIndex);
+                        setActiveContext(editorInfo->context);
+                        mimeEditorAvailable = true;
+                        setEnabled(true);
+                        break;
+                    }
+                } // foreach mime
+                if (mimeEditorAvailable)
                     break;
-                }
-            }
-            if (mimeEditorAvailable)
-                break;
+            } // foreach editorInfo
         }
     }
     if (d->m_currentEditor)
