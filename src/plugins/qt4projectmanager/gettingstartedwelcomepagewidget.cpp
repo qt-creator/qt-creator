@@ -124,15 +124,15 @@ void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePa
     while (!reader.atEnd()) {
         switch (reader.readNext()) {
             case QXmlStreamReader::StartElement:
-            if (reader.name() == "category") {
+            if (reader.name() == QLatin1String("category")) {
                 QString name = reader.attributes().value(QLatin1String("name")).toString();
-                if (name.contains("tutorial"))
+                if (name.contains(QLatin1String("tutorial")))
                     break;
                 dirName = reader.attributes().value(QLatin1String("dirname")).toString();
                 subMenu = menu->addMenu(name);
                 inExamples = true;
             }
-            if (inExamples && reader.name() == "example") {
+            if (inExamples && reader.name() == QLatin1String("example")) {
                 const QChar slash = QLatin1Char('/');
                 const QString name = reader.attributes().value(QLatin1String("name")).toString();
                 const QString fn = reader.attributes().value(QLatin1String("filename")).toString();
@@ -152,7 +152,7 @@ void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePa
             }
             break;
             case QXmlStreamReader::EndElement:
-            if (reader.name() == "category")
+            if (reader.name() == QLatin1String("category"))
                 inExamples = false;
             break;
             default:
@@ -161,32 +161,43 @@ void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePa
     }
 }
 
-void GettingStartedWelcomePageWidget::updateQmlExamples(const QString &examplePath)
+void GettingStartedWelcomePageWidget::updateQmlExamples(const QString &examplePath,
+                                                        const QString &sourcePath)
 {
-    QDir declarativeDir(examplePath + "/declarative");
-
-    if (!declarativeDir.exists())
-        return;
-
-    ui->qmlExamplesButton->setEnabled(true);;
     ui->qmlExamplesButton->setText(tr("Choose an example..."));
-
-    QList<QFileInfo> examples = declarativeDir.entryInfoList(QStringList(), QDir::AllDirs|QDir::NoDotAndDotDot, QDir::Name);
-
     QMenu *menu = new QMenu(ui->qmlExamplesButton);
     ui->qmlExamplesButton->setMenu(menu);
 
-    foreach(const QFileInfo &example, examples) {
-        const QString exampleProject = example.absoluteFilePath()+'/'+example.fileName()+QLatin1String(".qmlproject");
-        if (QFile::exists(exampleProject)) {
-            QAction *exampleAction = menu->addAction(example.fileName());
-            connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
-            exampleAction->setProperty(ExamplePathPropertyName, exampleProject);
-            // FIXME once we have help for QML examples
-            // exampleAction->setProperty(HelpPathPropertyName, helpPath);
+    QStringList roots;
+    roots << (examplePath + QLatin1String("/declarative"))
+            << (sourcePath + QLatin1String("/examples/declarative"));
+    QMap<QString, QString> exampleProjects;
+
+    foreach (const QString &root, roots) {
+        QList<QFileInfo> examples = QDir(root).entryInfoList(QStringList(), QDir::AllDirs|QDir::NoDotAndDotDot, QDir::Name);
+        foreach(const QFileInfo &example, examples) {
+            const QString fileName = example.fileName();
+            if (exampleProjects.contains(fileName))
+                continue;
+            const QString exampleProject = example.absoluteFilePath()
+                                           + QLatin1Char('/') + fileName
+                                           + QLatin1String(".qmlproject");
+            if (!QFile::exists(exampleProject))
+                continue;
+            exampleProjects.insert(fileName, exampleProject);
         }
     }
+    QMapIterator<QString, QString> it(exampleProjects);
+    while (it.hasNext()) {
+        it.next();
+        QAction *exampleAction = menu->addAction(it.key());
+        connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
+        exampleAction->setProperty(ExamplePathPropertyName, it.value());
+        // FIXME once we have help for QML examples
+        // exampleAction->setProperty(HelpPathPropertyName, helpPath);
+    }
 
+    ui->qmlExamplesButton->setEnabled(!exampleProjects.isEmpty());
 }
 
 void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
@@ -200,7 +211,7 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString &examplePath,
             return;
     }
     updateCppExamples(examplePath, sourcePath, demoxml);
-    updateQmlExamples(examplePath);
+    updateQmlExamples(examplePath, sourcePath);
 }
 
 

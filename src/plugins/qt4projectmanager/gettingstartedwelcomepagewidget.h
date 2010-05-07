@@ -64,7 +64,8 @@ private:
     void updateCppExamples(const QString &examplePath,
                            const QString &sourcePath,
                            const QString &demoXml);
-    void updateQmlExamples(const QString &examplePath);
+    void updateQmlExamples(const QString &examplePath,
+                           const QString &sourcePath);
 
     Ui::GettingStartedWelcomePageWidget *ui;
     int m_currentTip;
