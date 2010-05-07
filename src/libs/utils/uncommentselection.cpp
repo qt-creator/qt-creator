@@ -193,6 +193,15 @@ void Utils::unCommentSelection(QPlainTextEdit *edit, const CommentDefinition &de
 
         start = startBlock.position();
         end = endBlock.position() + endBlock.length() - 1;
+
+        if (doMultiLineStyleUncomment) {
+            int offset = 0;
+            text = startBlock.text();
+            const int length = text.length();
+            while (offset < length && text.at(offset).isSpace())
+                ++offset;
+            start += offset;
+        }
     }
 
     if (doMultiLineStyleUncomment) {
