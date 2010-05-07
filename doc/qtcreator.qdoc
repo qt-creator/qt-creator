@@ -626,14 +626,14 @@
     \list
         \o Set the font preferences and apply syntax highlighting in
            \gui{Font & Colors}.
-        \o Set tabs, indentation and the handling of whitespace in
+        \o Set tabs, indentation, the handling of whitespace, and mouse operations in
            \gui Behavior.
         \o Set various display properties, for example,
            \l{Highlighting and folding blocks}{highlighting and folding blocks},
            text wrapping or \l{Moving to symbol definition or declaration}
            {moving to symbol definition or declaration}
            in \gui Display.
-        \o Configure \l{Code Completion}{code completion} in \gui Completion.
+        \o Configure \l{Completing Code}{code completion} in \gui Completion.
     \endlist
 
 
@@ -712,7 +712,7 @@
     option is enabled by default.
 
 
-    \section1 Syntax Checking
+    \section1 Checking Code Syntax
 
     As you write code Qt Creator checks code syntax. When Qt Creator spots a
     syntax error in your code it underlines it and shows error details when you
@@ -732,21 +732,28 @@
     \endlist
 
 
-    \section1 Code Completion
+    \section1 Completing Code
+
+    Qt Creator understands the code as code, not just as plain text. This
+    allows it to help you to write well formatted code and to anticipate
+    what you are going to write and complete the code. The code completion
+    differs somewhat depending on whether you write Qt code or QML code.
+
+    \section2 Completing Qt Code
 
     As you write code, Qt Creator provides a list of context-sensitive
     suggestions to the statement currently under your cursor.
 
     \image qtcreator-codecompletion.png
 
-    Set code completion preferences in \gui Tools > \gui{Options...} >
-    \gui{Text Editor} > \gui Completion. To trigger code completion
-    manually press \key{Ctrl+Space}.
+    To open the list of suggestions at any time, press \key{Ctrl+Space}.
+    If only one option is available, Qt Creator inserts it automatically.
 
     When completion is invoked manually, Qt Creator completes the common prefix
     of the list of suggestions. This is especially useful for classes with
     several similarly named members. To disable this functionality, uncheck
     \gui{Autocomplete common prefix} in the code completion preferences.
+    Select \gui Tools > \gui{Options...} > \gui{Text Editor} > \gui Completion.
 
     The following table lists available types for code completion and icon
     used for each.
@@ -805,6 +812,15 @@
             \i  A namespace
     \endtable
 
+    \section2 Completing QML Code
+
+    As you write QML code, Qt Creator suggests properties, IDs, and code
+    snippets to complete the code. The snippets can consist of multiple
+    fields that you specify values for. Select an item in the list and press
+    \key Tab or \key Enter to complete the code. Press \key Tab to
+    move between the fields and specify values for them.
+
+    \image qmldesigner-code-completion.png "Completing QML code"
 
     \section1 Using Bookmarks
 
@@ -947,10 +963,8 @@
            , or press \key Shift+F3.
     \endlist
 
-    To narrow your search results, click
-    \inlineimage qtcreator-locator-magnify.png
-    in the \gui Find/Replace pane and select any of the following
-    preferences:
+    You can restrict the search in the \gui Find field by selecting one
+    or several search criteria:
     \list
         \o To make your search case sensitive, select
            \inlineimage qtcreator-editor-casesensitive.png
@@ -971,7 +985,7 @@
     search is conducted within the selection.
 
     To replace occurrences of the existing text, enter the new text in the
-    \gui{Replace with} text box.
+    \gui{Replace with} field.
     \list
         \o To replace the selected occurrence and move to the next one,
            click \inlineimage qtcreator-next.png
@@ -1079,7 +1093,10 @@
 
     \section1 Renaming Symbols
 
-    To rename a specific symbol in your project:
+    The functions used to rename symbols depends on whether you are
+    writing C++ or QML code. For QML, you can only rename IDs.
+
+    To rename a specific symbol in a Qt project:
     \list 1
         \o In the editor, place the cursor on the symbol you would like to
            change and select \gui Tools > \gui C++ >
@@ -1102,6 +1119,17 @@
     \note Renaming local symbols does not open the \gui{Search Results} pane.
     The instances of the symbol are highlighted in code and you can edit the
     symbol. All instances of the local symbol are changed as you type.
+
+    To rename an ID in a Qt Quick project:
+
+    \list 1
+
+        \o Right-click an ID in the QML code and select
+        \gui {Rename id}.
+
+        \o In the \gui {Rename id} field, enter the new ID.
+
+   \endlist
 */
 
 /*!
