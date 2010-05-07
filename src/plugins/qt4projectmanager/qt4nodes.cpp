@@ -1428,7 +1428,8 @@ TargetInformation Qt4ProFileNode::targetInformation(ProFileReader *reader) const
     if (!reader)
         return result;
 
-    const QString baseDir = buildDir();
+    result.buildDir = buildDir();
+    const QString baseDir = result.buildDir;
     // qDebug() << "base build dir is:"<<baseDir;
 
     // Working Directory

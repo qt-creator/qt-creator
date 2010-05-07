@@ -247,7 +247,7 @@ QString S60DeviceRunConfiguration::packageFileNameWithTargetInfo() const
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();
-    QString baseFileName = ti.workingDir + QLatin1Char('/') + ti.target;
+    QString baseFileName = ti.buildDir + QLatin1Char('/') + ti.target;
     baseFileName += QLatin1Char('_')
                     + (isDebug() ? QLatin1String("debug") : QLatin1String("release"))
                     + QLatin1Char('-') + symbianPlatform() + QLatin1String(".sis");
@@ -284,7 +284,7 @@ QString S60DeviceRunConfiguration::packageTemplateFileName() const
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();
-    return ti.workingDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
+    return ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
 }
 
 /* Grep a package file for the '.exe' file. Curently for use on Linux only
@@ -351,7 +351,7 @@ QString S60DeviceRunConfiguration::signedPackage() const
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();
-    return ti.workingDir + QLatin1Char('/') + ti.target + QLatin1String(".sis");
+    return ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String(".sis");
 }
 
 QStringList S60DeviceRunConfiguration::commandLineArguments() const

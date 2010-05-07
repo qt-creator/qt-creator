@@ -196,12 +196,14 @@ struct TargetInformation
     QString workingDir;
     QString target;
     QString executable;
+    QString buildDir;
     bool operator==(const TargetInformation &other) const
     {
         return workingDir == other.workingDir
                 && target == other.target
                 && executable == other.executable
-                && valid == valid;
+                && valid == valid
+                && buildDir == buildDir;
     }
     bool operator!=(const TargetInformation &other) const
     {
@@ -216,7 +218,8 @@ struct TargetInformation
         : valid(other.valid),
           workingDir(other.workingDir),
           target(other.target),
-          executable(other.executable)
+          executable(other.executable),
+          buildDir(other.buildDir)
     {
     }
 
