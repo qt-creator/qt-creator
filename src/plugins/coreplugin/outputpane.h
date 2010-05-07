@@ -148,6 +148,9 @@ private:
     QWidget *m_buttonsWidget;
     QMap<int, QPushButton *> m_buttons;
     QMap<QAction *, int> m_actions;
+    QPixmap m_minimizeIcon;
+    QPixmap m_maximizeIcon;
+    bool m_maximised;
 };
 
 class OutputPaneToggleButton : public QPushButton

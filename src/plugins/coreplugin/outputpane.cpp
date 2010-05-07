@@ -201,7 +201,10 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_prevAction(0),
     m_lastIndex(-1),
     m_outputWidgetPane(new QStackedWidget),
-    m_opToolBarWidgets(new QStackedWidget)
+    m_opToolBarWidgets(new QStackedWidget),
+    m_minimizeIcon(":/core/images/arrowdown.png"),
+    m_maximizeIcon(":/core/images/arrowup.png"),
+    m_maximised(false)
 {
     setWindowTitle(tr("Output"));
     connect(m_widgetComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changePage()));
@@ -221,8 +224,9 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
 
     m_minMaxAction = new QAction(this);
-    m_minMaxAction->setText(tr("Maximize Output Pane"));
-    m_minMaxButton->setArrowType(Qt::UpArrow);
+    m_minMaxButton->setIcon(m_maximizeIcon);
+    m_minMaxButton->setToolTip(tr("Maximize Output Pane"));
+    m_minMaxAction->setText(m_minMaxButton->toolTip());
 
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
@@ -309,8 +313,8 @@ void OutputPaneManager::init()
 #endif
     cmd->setAttribute(Command::CA_UpdateText);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
-    m_minMaxButton->setDefaultAction(cmd->action());
     connect(m_minMaxAction, SIGNAL(triggered()), this, SLOT(slotMinMax()));
+    connect(m_minMaxButton, SIGNAL(clicked()), this, SLOT(slotMinMax()));
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
@@ -403,7 +407,7 @@ void OutputPaneManager::shortcutTriggered()
 
 bool OutputPaneManager::isMaximized()const
 {
-    return m_minMaxButton->arrowType() == Qt::DownArrow;
+    return m_maximised;
 }
 
 void OutputPaneManager::slotMinMax()
@@ -412,11 +416,12 @@ void OutputPaneManager::slotMinMax()
 
     if (!OutputPanePlaceHolder::m_current->isVisible()) // easier than disabling/enabling the action
         return;
-    bool maximize = m_minMaxButton->arrowType() == Qt::UpArrow;
-    OutputPanePlaceHolder::m_current->maximizeOrMinimize(maximize);
-    m_minMaxButton->setArrowType(maximize ? Qt::DownArrow : Qt::UpArrow);
-    m_minMaxAction->setToolTip(maximize ? tr("Minimize Output Pane")
-                                        : tr("Maximize Output Pane"));
+    m_maximised = !m_maximised;
+    OutputPanePlaceHolder::m_current->maximizeOrMinimize(m_maximised);
+    m_minMaxButton->setIcon(m_maximised ? m_minimizeIcon : m_maximizeIcon);
+    m_minMaxButton->setToolTip(m_maximised ? tr("Minimize Output Pane")
+                                            : tr("Maximize Output Pane"));
+    m_minMaxAction->setText(m_minMaxButton->toolTip());
 }
 
 void OutputPaneManager::buttonTriggered()
