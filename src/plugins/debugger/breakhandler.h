@@ -30,89 +30,14 @@
 #ifndef DEBUGGER_BREAKHANDLER_H
 #define DEBUGGER_BREAKHANDLER_H
 
+#include "breakpoint.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QAbstractTableModel>
 #include <QtGui/QIcon>
 
 namespace Debugger {
-class DebuggerManager;
 namespace Internal {
-
-class BreakpointMarker;
-class BreakHandler;
-
-//////////////////////////////////////////////////////////////////
-//
-// BreakpointData
-//
-//////////////////////////////////////////////////////////////////
-
-class BreakpointData
-{
-public:
-    explicit BreakpointData(BreakHandler *handler);
-    ~BreakpointData();
-
-    void removeMarker();
-    void updateMarker();
-    QString toToolTip() const;
-    QString toString() const;
-    BreakHandler *handler() { return m_handler; }
-
-    bool isLocatedAt(const QString &fileName, int lineNumber) const;
-    bool conditionsMatch() const;
-
-private:
-    // Intentionally unimplemented.
-    // Making it copyable is tricky because of the markers.
-    void operator=(const BreakpointData &);
-    BreakpointData(const BreakpointData &);
-
-    // Our owner
-    BreakHandler *m_handler; // Not owned.
-
-public:
-    bool enabled;            // Should we talk to the debugger engine?
-    bool pending;            // Does the debugger engine know about us already?
-
-    // This "user requested information" will get stored in the session.
-    QString fileName;        // Short name of source file.
-    QByteArray condition;    // Condition associated with breakpoint.
-    QByteArray ignoreCount;  // Ignore count associated with breakpoint.
-    QByteArray lineNumber;   // Line in source file.
-    QByteArray threadSpec;   // Thread specification.
-    QString funcName;        // Name of containing function.
-    bool useFullPath;        // Should we use the full path when setting the bp?
-
-    // This is what gdb produced in response.
-    QByteArray bpNumber;     // Breakpoint number assigned by the debugger engine.
-    QByteArray bpCondition;  // Condition acknowledged by the debugger engine.
-    QByteArray bpIgnoreCount;// Ignore count acknowledged by the debugger engine.
-    QString bpFileName;      // File name acknowledged by the debugger engine.
-    QString bpFullName;      // Full file name acknowledged by the debugger engine.
-    QByteArray bpLineNumber; // Line number acknowledged by the debugger engine.
-    QByteArray bpCorrectedLineNumber; // Acknowledged by the debugger engine.
-    QByteArray bpThreadSpec; // Thread spec acknowledged by the debugger engine.
-    QString bpFuncName;      // Function name acknowledged by the debugger engine.
-    QByteArray bpAddress;    // Address acknowledged by the debugger engine.
-    bool bpMultiple;         // Happens in constructors/gdb.
-    bool bpEnabled;          // Enable/disable command sent.
-
-    void setMarkerFileName(const QString &fileName);
-    QString markerFileName() const { return m_markerFileName; }
-
-    void setMarkerLineNumber(int lineNumber);
-    int markerLineNumber() const { return m_markerLineNumber; }
-
-private:
-    // Taken from either user input or gdb responses.
-    QString m_markerFileName; // Used to locate the marker.
-    int m_markerLineNumber;
-
-    // Our red blob in the editor.
-    BreakpointMarker *marker;
-};
-
 
 //////////////////////////////////////////////////////////////////
 //
@@ -184,6 +109,7 @@ private:
     const QIcon m_breakpointIcon;
     const QIcon m_disabledBreakpointIcon;
     const QIcon m_pendingBreakPointIcon;
+    const QIcon m_watchpointIcon;
 
     DebuggerManager *m_manager; // Not owned.
     QList<BreakpointData *> m_bp;

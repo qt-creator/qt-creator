@@ -289,6 +289,7 @@ public slots: // FIXME
     void reloadRegisters();
     void registerDockToggled(bool on);
     void clearStatusMessage();
+    void appendBreakpoint(Internal::BreakpointData *data);
     void attemptBreakpointSynchronization();
     void reloadFullStack();
     void operateByInstructionTriggered();

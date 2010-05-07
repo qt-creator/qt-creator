@@ -355,29 +355,30 @@ void BreakWindow::editBreakpoint(const QModelIndexList &list)
     ui.labelFileName->hide();
     ui.lineEditLineNumber->hide();
     ui.labelLineNumber->hide();
+    QAbstractItemModel *m = model();
     //ui.lineEditFunction->setText(
-    //    model()->data(idx.sibling(row, 1), role).toString());
+    //    m->data(idx.sibling(row, 1), role).toString());
     //ui.lineEditFileName->setText(
-    //    model()->data(idx.sibling(row, 2), role).toString());
+    //    m->data(idx.sibling(row, 2), role).toString());
     //ui.lineEditLineNumber->setText(
-    //    model()->data(idx.sibling(row, 3), role).toString());
+    //    m->data(idx.sibling(row, 3), role).toString());
     ui.lineEditCondition->setText(
-        model()->data(idx.sibling(row, 4), role).toString());
+        m->data(idx.sibling(row, 4), role).toString());
     ui.lineEditIgnoreCount->setText(
-        model()->data(idx.sibling(row, 5), role).toString());
+        m->data(idx.sibling(row, 5), role).toString());
     ui.lineEditThreadSpec->setText(
-        model()->data(idx.sibling(row, 6), role).toString());
+        m->data(idx.sibling(row, 6), role).toString());
 
     if (dlg.exec() == QDialog::Rejected)
         return;
 
     foreach (const QModelIndex &idx, list) {
-        //model()->setData(idx.sibling(idx.row(), 1), ui.lineEditFunction->text());
-        //model()->setData(idx.sibling(idx.row(), 2), ui.lineEditFileName->text());
-        //model()->setData(idx.sibling(idx.row(), 3), ui.lineEditLineNumber->text());
-        model()->setData(idx.sibling(idx.row(), 4), ui.lineEditCondition->text());
-        model()->setData(idx.sibling(idx.row(), 5), ui.lineEditIgnoreCount->text());
-        model()->setData(idx.sibling(idx.row(), 6), ui.lineEditThreadSpec->text());
+        //m->setData(idx.sibling(idx.row(), 1), ui.lineEditFunction->text());
+        //m->setData(idx.sibling(idx.row(), 2), ui.lineEditFileName->text());
+        //m->setData(idx.sibling(idx.row(), 3), ui.lineEditLineNumber->text());
+        m->setData(idx.sibling(idx.row(), 4), ui.lineEditCondition->text());
+        m->setData(idx.sibling(idx.row(), 5), ui.lineEditIgnoreCount->text());
+        m->setData(idx.sibling(idx.row(), 6), ui.lineEditThreadSpec->text());
     }
     emit breakpointSynchronizationRequested();
 }

@@ -18,6 +18,7 @@
         <file>images/debugger_stepoverproc_small.png</file>
         <file>images/debugger_stop.png</file>
         <file>images/debugger_stop_small.png</file>
+        <file>images/watchpoint.png</file>
         <file>images/breakpoint_16.png</file>
         <file>images/breakpoint_24.png</file>
         <file>images/breakpoint_disabled_16.png</file>

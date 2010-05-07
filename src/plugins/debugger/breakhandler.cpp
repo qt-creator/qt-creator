@@ -31,6 +31,7 @@
 
 #include "debuggeractions.h"
 #include "debuggermanager.h"
+#include "debuggerstringutils.h"
 #include "stackframe.h"
 
 #include <texteditor/basetextmark.h>
@@ -53,13 +54,11 @@ using namespace Debugger::Internal;
 // Compare file names case insensitively on Windows.
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
 {
-    return f1.compare(f2,
 #ifdef Q_OS_WIN
-                      Qt::CaseInsensitive
+    return f1.compare(f2, Qt::CaseInsensitive) == 0;
 #else
-                      Qt::CaseSensitive
+    return f1 == f2;
 #endif
-                      ) == 0;
 }
 
 namespace Debugger {
@@ -87,7 +86,7 @@ public:
 
     QIcon icon() const
     {
-        const BreakHandler *handler = DebuggerManager::instance()->breakHandler();
+        const BreakHandler *handler = m_data->handler();
         if (!m_enabled)
             return handler->disabledBreakpointIcon();
         return m_pending ? handler->pendingBreakPointIcon() : handler->breakpointIcon();
@@ -162,28 +161,21 @@ private:
 //
 //////////////////////////////////////////////////////////////////
 
-BreakpointData::BreakpointData(BreakHandler *handler)
+BreakpointData::BreakpointData()
 {
-    //qDebug() << "CREATE BREAKPOINTDATA" << this;
-    m_handler = handler;
+    m_handler = 0;
     enabled = true;
     pending = true;
+    type = BreakpointType;
     marker = 0;
     m_markerLineNumber = 0;
     bpMultiple = false;
-//#if defined(Q_OS_MAC)
-//    // full names do not work on Mac/MI
     useFullPath = false;
-//#else
-//    //where = m_manager->shortName(data->fileName);
-//    useFullPath = true;
-//#endif
 }
 
 BreakpointData::~BreakpointData()
 {
     removeMarker();
-    //qDebug() << "DESTROY BREAKPOINTDATA" << this;
 }
 
 void BreakpointData::removeMarker()
@@ -227,8 +219,6 @@ QString BreakpointData::toToolTip() const
         << "</td><td>" << m_markerLineNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Breakpoint Number:")
         << "</td><td>" << bpNumber << "</td></tr>"
-        << "<tr><td>" << BreakHandler::tr("Breakpoint Address:")
-        << "</td><td>" << bpAddress << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << BreakHandler::tr("Property")
         << "</th><th>" << BreakHandler::tr("Requested")
@@ -241,6 +231,8 @@ QString BreakpointData::toToolTip() const
         << "</td><td>" << funcName << "</td><td>" << bpFuncName << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Line Number:")
         << "</td><td>" << lineNumber << "</td><td>" << bpLineNumber << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Breakpoint Address:")
+        << "</td><td>" << address << "</td><td>" << bpAddress << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Corrected Line Number:")
         << "</td><td>-</td><td>" << bpCorrectedLineNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Condition:")
@@ -260,13 +252,14 @@ QString BreakpointData::toString() const
     str << BreakHandler::tr("Marker File:") << m_markerFileName << ' '
         << BreakHandler::tr("Marker Line:") << m_markerLineNumber << ' '
         << BreakHandler::tr("Breakpoint Number:") << bpNumber << ' '
-        << BreakHandler::tr("Breakpoint Address:") << bpAddress << '\n'
         << BreakHandler::tr("File Name:")
         << fileName << " -- " << bpFileName << '\n'
         << BreakHandler::tr("Function Name:")
         << funcName << " -- " << bpFuncName << '\n'
         << BreakHandler::tr("Line Number:")
         << lineNumber << " -- " << bpLineNumber << '\n'
+        << BreakHandler::tr("Breakpoint Address:")
+        << address << " -- " << bpAddress << '\n'
         << BreakHandler::tr("Condition:")
         << condition << " -- " << bpCondition << '\n'
         << BreakHandler::tr("Ignore Count:")
@@ -310,9 +303,10 @@ bool BreakpointData::conditionsMatch() const
 
 BreakHandler::BreakHandler(DebuggerManager *manager, QObject *parent) :
     QAbstractTableModel(parent),
-    m_breakpointIcon(QLatin1String(":/debugger/images/breakpoint_16.png")),
-    m_disabledBreakpointIcon(QLatin1String(":/debugger/images/breakpoint_disabled_16.png")),
-    m_pendingBreakPointIcon(QLatin1String(":/debugger/images/breakpoint_pending_16.png")),
+    m_breakpointIcon(_(":/debugger/images/breakpoint_16.png")),
+    m_disabledBreakpointIcon(_(":/debugger/images/breakpoint_disabled_16.png")),
+    m_pendingBreakPointIcon(_(":/debugger/images/breakpoint_pending_16.png")),
+    m_watchpointIcon(_(":/debugger/images/watchpoint.png")),
     m_manager(manager)
 {
 }
@@ -412,22 +406,29 @@ void BreakHandler::saveBreakpoints()
     for (int index = 0; index != size(); ++index) {
         const BreakpointData *data = at(index);
         QMap<QString, QVariant> map;
+        // Do not persist Watchpoints.
+        //if (data->type == BreakpointData::WatchpointType)
+        //    continue;
+        if (data->type != BreakpointData::BreakpointType)
+            map.insert(_("type"), data->type);
         if (!data->fileName.isEmpty())
-            map.insert(QLatin1String("filename"), data->fileName);
+            map.insert(_("filename"), data->fileName);
         if (!data->lineNumber.isEmpty())
-            map.insert(QLatin1String("linenumber"), data->lineNumber);
+            map.insert(_("linenumber"), data->lineNumber);
         if (!data->funcName.isEmpty())
-            map.insert(QLatin1String("funcname"), data->funcName);
+            map.insert(_("funcname"), data->funcName);
+        if (!data->address.isEmpty())
+            map.insert(_("address"), data->address);
         if (!data->condition.isEmpty())
-            map.insert(QLatin1String("condition"), data->condition);
+            map.insert(_("condition"), data->condition);
         if (!data->ignoreCount.isEmpty())
-            map.insert(QLatin1String("ignorecount"), data->ignoreCount);
+            map.insert(_("ignorecount"), data->ignoreCount);
         if (!data->threadSpec.isEmpty())
-            map.insert(QLatin1String("threadspec"), data->threadSpec);
+            map.insert(_("threadspec"), data->threadSpec);
         if (!data->enabled)
-            map.insert(QLatin1String("disabled"), QLatin1String("1"));
+            map.insert(_("disabled"), _("1"));
         if (data->useFullPath)
-            map.insert(QLatin1String("usefullpath"), QLatin1String("1"));
+            map.insert(_("usefullpath"), _("1"));
         list.append(map);
     }
     m_manager->setSessionValue("Breakpoints", list);
@@ -440,31 +441,37 @@ void BreakHandler::loadBreakpoints()
     clear();
     foreach (const QVariant &var, list) {
         const QMap<QString, QVariant> map = var.toMap();
-        BreakpointData *data = new BreakpointData(this);
-        QVariant v = map.value(QLatin1String("filename"));
+        BreakpointData *data = new BreakpointData;
+        QVariant v = map.value(_("filename"));
         if (v.isValid())
             data->fileName = v.toString();
-        v = map.value(QLatin1String("linenumber"));
+        v = map.value(_("linenumber"));
         if (v.isValid())
             data->lineNumber = v.toString().toLatin1();
-        v = map.value(QLatin1String("condition"));
+        v = map.value(_("condition"));
         if (v.isValid())
             data->condition = v.toString().toLatin1();
-        v = map.value(QLatin1String("ignorecount"));
+        v = map.value(_("address"));
+        if (v.isValid())
+            data->address = v.toString().toLatin1();
+        v = map.value(_("ignorecount"));
         if (v.isValid())
             data->ignoreCount = v.toString().toLatin1();
-        v = map.value(QLatin1String("threadspec"));
+        v = map.value(_("threadspec"));
         if (v.isValid())
             data->threadSpec = v.toString().toLatin1();
-        v = map.value(QLatin1String("funcname"));
+        v = map.value(_("funcname"));
         if (v.isValid())
             data->funcName = v.toString();
-        v = map.value(QLatin1String("disabled"));
+        v = map.value(_("disabled"));
         if (v.isValid())
             data->enabled = !v.toInt();
-        v = map.value(QLatin1String("usefullpath"));
+        v = map.value(_("usefullpath"));
         if (v.isValid())
             data->useFullPath = bool(v.toInt());
+        v = map.value(_("type"));
+        if (v.isValid())
+            data->type = BreakpointData::Type(v.toInt());
         data->setMarkerFileName(data->fileName);
         data->setMarkerLineNumber(data->lineNumber.toInt());
         append(data);
@@ -538,6 +545,8 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             if (role == Qt::UserRole)
                 return data->enabled;
             if (role == Qt::DecorationRole) {
+                if (data->type == BreakpointData::WatchpointType)
+                    return m_watchpointIcon;
                 if (!data->enabled)
                     return m_disabledBreakpointIcon;
                 return data->pending ? m_pendingBreakPointIcon : m_breakpointIcon;
@@ -606,8 +615,11 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             if (role == Qt::UserRole + 1)
                 return data->threadSpec;
         case 7:
-            if (role == Qt::DisplayRole)
+            if (role == Qt::DisplayRole) {
+                if (data->type == BreakpointData::WatchpointType)
+                    return data->address;
                 return data->bpAddress;
+            } 
             break;
     }
     if (role == Qt::ToolTipRole)
@@ -706,6 +718,7 @@ bool BreakHandler::setData(const QModelIndex &mi, const QVariant &value, int rol
 
 void BreakHandler::append(BreakpointData *data)
 {
+    data->m_handler = this;
     m_bp.append(data);
     m_inserted.append(data);
 }
@@ -823,7 +836,7 @@ void BreakHandler::breakByFunction(const QString &functionName)
                 && data->ignoreCount.isEmpty())
             return;
     }
-    BreakpointData *data = new BreakpointData(this);
+    BreakpointData *data = new BreakpointData;
     data->funcName = functionName;
     append(data);
     saveBreakpoints();

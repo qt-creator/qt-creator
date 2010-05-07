@@ -1394,7 +1394,19 @@ void GdbEngine::handleStop1(const GdbMi &data)
             reloadBreakListInternal();
     }
 
-    if (reason == "breakpoint-hit") {
+    if (reason == "watchpoint-trigger") {
+        // *stopped,reason="watchpoint-trigger",wpt={number="2",exp="*0xbfffed40"},
+        // value={old="1",new="0"},frame={addr="0x00451e1b",
+        // func="QScopedPointer",args=[{name="this",value="0xbfffed40"},
+        // {name="p",value="0x0"}],file="x.h",fullname="/home/.../x.h",line="95"},
+        // thread-id="1",stopped-threads="all",core="2" 
+        GdbMi wpt = data.findChild("wpt");
+        QByteArray bpNumber = wpt.findChild("number").data();
+        QByteArray bpAddress = wpt.findChild("exp").data();
+        //QByteArray threadId = data.findChild("thread-id").data();
+        showStatusMessage(tr("Watchpoint %1 at %2 triggered:")
+            .arg(_(bpNumber), _(bpAddress)));
+    } else if (reason == "breakpoint-hit") {
         QByteArray bpNumber = data.findChild("bkptno").data();
         QByteArray threadId = data.findChild("thread-id").data();
         showStatusMessage(tr("Stopped at breakpoint %1 in thread %2")
@@ -1825,6 +1837,7 @@ unsigned GdbEngine::debuggerCapabilities() const
         | ReloadModuleSymbolsCapability | BreakOnThrowAndCatchCapability
         | ReturnFromFunctionCapability 
         | CreateFullBacktraceCapability
+        | WatchpointCapability
         | AddWatcherCapability;
 }
 
@@ -2174,6 +2187,13 @@ void GdbEngine::sendInsertBreakpoint(int index)
     const BreakpointData *data = manager()->breakHandler()->at(index);
     // Set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface.
+    if (data->type == BreakpointData::WatchpointType) {
+        postCommand("watch *" + data->address,
+            NeedsStop | RebuildBreakpointModel,
+            CB(handleWatchInsert), index);
+        return;
+    }
+
     QByteArray cmd;
     if (m_isMacGdb) {
         cmd = "-break-insert -l -1 -f ";
@@ -2195,6 +2215,23 @@ void GdbEngine::sendInsertBreakpoint(int index)
     cmd += breakpointLocation(data);
     postCommand(cmd, NeedsStop | RebuildBreakpointModel,
         CB(handleBreakInsert1), index);
+}
+
+void GdbEngine::handleWatchInsert(const GdbResponse &response)
+{
+    int index = response.cookie.toInt();
+    if (response.resultClass == GdbResultDone) {
+        // "Hardware watchpoint 2: *0xbfffed40\n"
+        QByteArray ba = response.data.findChild("consolestreamoutput").data();
+        if (ba.startsWith("Hardware watchpoint ")) {
+            const int pos = ba.indexOf(':', 20);
+            BreakpointData *data = manager()->breakHandler()->at(index);
+            data->bpNumber = ba.mid(20, pos - 20);
+            manager()->breakHandler()->updateMarkers();
+        } else {
+            debugMessage(_("CANNOT PARSE WATCHPOINT FROM" + ba));
+        }
+    }
 }
 
 void GdbEngine::handleBreakInsert1(const GdbResponse &response)
@@ -2275,7 +2312,7 @@ void GdbEngine::handleBreakList(const GdbMi &table)
 
     BreakHandler *handler = manager()->breakHandler();
     for (int index = 0; index != bkpts.size(); ++index) {
-        BreakpointData temp(handler);
+        BreakpointData temp;
         breakpointDataFromOutput(&temp, bkpts.at(index));
         int found = handler->findBreakpoint(temp);
         if (found != -1)
@@ -2444,7 +2481,7 @@ void GdbEngine::attemptBreakpointSynchronization()
 {
     QTC_ASSERT(!m_sourcesListUpdating,
         qDebug() << "SOURCES LIST CURRENTLY UPDATING"; return);
-    debugMessage(tr("ATTEMPT BREAKPOINT SYNC"));
+    debugMessage(_("ATTEMPT BREAKPOINT SYNC"));
 
     switch (state()) {
     case InferiorStarting:
@@ -2455,6 +2492,7 @@ void GdbEngine::attemptBreakpointSynchronization()
         break;
     default:
         //qDebug() << "attempted breakpoint sync in state" << state();
+        debugMessage(_("... NOT POSSIBLE IN CURRENT STATE"));
         return;
     }
 

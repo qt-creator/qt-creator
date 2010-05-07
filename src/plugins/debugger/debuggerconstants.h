@@ -132,7 +132,8 @@ enum DebuggerCapabilities
     BreakOnThrowAndCatchCapability = 0x200,
     ReturnFromFunctionCapability = 0x400,
     CreateFullBacktraceCapability = 0x800,
-    AddWatcherCapability = 0x1000
+    AddWatcherCapability = 0x1000,
+    WatchpointCapability = 0x2000
 };
 
 enum LogChannel

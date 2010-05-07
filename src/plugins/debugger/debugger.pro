@@ -16,6 +16,7 @@ QT += gui \
     script
 HEADERS += breakhandler.h \
     breakwindow.h \
+    breakpoint.h \
     debuggeragents.h \
     debuggeractions.h \
     debuggerconstants.h \

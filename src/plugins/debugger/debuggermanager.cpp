@@ -897,9 +897,9 @@ BreakpointData *DebuggerManager::findBreakpoint(const QString &fileName, int lin
 // FIXME: move further up the plugin where there's more specific context
 // information available.
 static BreakpointData *createBreakpointByFileAndLine
-    (const QString &fileName, int lineNumber, BreakHandler *handler)
+    (const QString &fileName, int lineNumber)
 {
-    BreakpointData *data = new BreakpointData(handler);
+    BreakpointData *data = new BreakpointData;
     if (lineNumber > 0) {
         data->fileName = fileName;
         data->lineNumber = QByteArray::number(lineNumber);
@@ -934,7 +934,7 @@ void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
     int index = d->m_breakHandler->findBreakpoint(fileName, lineNumber);
     if (index == -1)
         d->m_breakHandler->appendBreakpoint(
-            createBreakpointByFileAndLine(fileName, lineNumber, d->m_breakHandler));
+            createBreakpointByFileAndLine(fileName, lineNumber));
     else
         d->m_breakHandler->removeBreakpoint(index);
 
@@ -1407,6 +1407,13 @@ void DebuggerManager::breakByFunction(const QString &functionName)
 {
     QTC_ASSERT(d->m_breakHandler, return);
     d->m_breakHandler->breakByFunction(functionName);
+    attemptBreakpointSynchronization();
+}
+
+void DebuggerManager::appendBreakpoint(BreakpointData *data)
+{
+    QTC_ASSERT(d->m_breakHandler, return);
+    d->m_breakHandler->appendBreakpoint(data);
     attemptBreakpointSynchronization();
 }
 

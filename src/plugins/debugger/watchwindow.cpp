@@ -30,6 +30,7 @@
 #include "watchwindow.h"
 #include "watchhandler.h"
 
+#include "breakpoint.h"
 #include "debuggeractions.h"
 #include "debuggeragents.h"
 #include "debuggerdialogs.h"
@@ -284,7 +285,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     const QString address = model()->data(mi0, AddressRole).toString();
     QAction *actWatchKnownMemory = 0;
-    QAction *actWatchUnknownMemory = new QAction(tr("Open Memory Editor..."), &menu);
+    QAction *actWatchUnknownMemory =
+        new QAction(tr("Open Memory Editor..."), &menu);
     const bool canShowMemory = engineCapabilities & ShowMemoryCapability;
     actWatchUnknownMemory->setEnabled(actionsEnabled && canShowMemory);
 
@@ -292,6 +294,17 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         actWatchKnownMemory =
             new QAction(tr("Open Memory Editor at %1").arg(address), &menu);
     menu.addSeparator();
+
+    QAction *actSetWatchpoint = 0;
+    const bool canSetWatchpoint = engineCapabilities & WatchpointCapability;
+    if (canSetWatchpoint && !address.isEmpty()) {
+        actSetWatchpoint =
+            new QAction(tr("Break on changing %1").arg(address), &menu);
+    } else {
+        actSetWatchpoint =
+            new QAction(tr("Break on changing contents"), &menu);
+        actSetWatchpoint->setEnabled(false);
+    }
 
     QAction *actWatchOrRemove;
     if (m_type == LocalsType) {
@@ -311,6 +324,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (actWatchKnownMemory)
         menu.addAction(actWatchKnownMemory);
     menu.addAction(actWatchUnknownMemory);
+    menu.addAction(actSetWatchpoint);
     menu.addSeparator();
 
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
@@ -353,6 +367,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         if (dialog.exec() == QDialog::Accepted) {
             (void) new MemoryViewAgent(m_manager, dialog.address());
         }
+    } else if (act == actSetWatchpoint) {
+        BreakpointData *data = new BreakpointData;
+        data->type = BreakpointData::WatchpointType;
+        data->address = address.toLatin1();
+        m_manager->appendBreakpoint(data);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
