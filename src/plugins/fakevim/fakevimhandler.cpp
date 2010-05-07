@@ -102,6 +102,8 @@
 #   define UNDO_DEBUG(s)
 #endif
 
+//#define DEBUG_MARKS  1
+
 using namespace Utils;
 
 namespace FakeVim {
@@ -712,7 +714,6 @@ public:
 
     int m_targetColumn; // -1 if past end of line
     int m_visualTargetColumn; // 'l' can move past eol in visual mode only
-
     int m_cursorWidth;
 
     // auto-indent
@@ -725,7 +726,6 @@ public:
     void handleStartOfLine();
 
     void recordJump();
-    void recordNewUndo();
     QVector<CursorPosition> m_jumpListUndo;
     QVector<CursorPosition> m_jumpListRedo;
 
@@ -934,6 +934,9 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         EDITOR(setTextCursor(m_tc));
         m_oldPosition = m_tc.position();
     }
+#ifdef DEBUG_MARKS
+    updateSelection();
+#endif
     return result;
 }
 
@@ -1358,6 +1361,19 @@ void FakeVimHandler::Private::updateSelection()
         }
     }
     //qDebug() << "SELECTION: " << selections;
+#ifdef DEBUG_MARKS
+    for (QHashIterator<int, int> it(m_marks); it.hasNext(); ) {
+        it.next();
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = m_tc;
+        sel.cursor.setPosition(it.value(), MoveAnchor);
+        sel.cursor.setPosition(it.value() + 1, KeepAnchor);
+        sel.format = m_tc.blockCharFormat();
+        sel.format.setForeground(Qt::blue);
+        sel.format.setBackground(Qt::green);
+        selections.append(sel);
+    }
+#endif
     emit q->selectionChanged(selections);
 }
 
@@ -2368,7 +2384,6 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
             moveLeft(qMin(1, leftDist()));
             setTargetColumn();
             leaveVisualMode();
-            recordNewUndo();
         }
         g.dotCommand += m_lastInsertion;
         g.dotCommand += QChar(27);
@@ -4192,13 +4207,6 @@ void FakeVimHandler::Private::recordJump()
     m_jumpListUndo.append(cursorPosition());
     m_jumpListRedo.clear();
     UNDO_DEBUG("jumps: " << m_jumpListUndo);
-}
-
-void FakeVimHandler::Private::recordNewUndo()
-{
-    //endEditBlock();
-    UNDO_DEBUG("---- BREAK ----");
-    //beginEditBlock();
 }
 
 Column FakeVimHandler::Private::indentation(const QString &line) const
