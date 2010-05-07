@@ -47,7 +47,6 @@ public:
     ItemLibrary(QWidget *parent = 0);
     virtual ~ItemLibrary();
 
-    void addItemLibraryEntry(const ItemLibraryEntry &itemLibraryEntry);
     void setMetaInfo(const MetaInfo &metaInfo);
 
 public Q_SLOTS:
