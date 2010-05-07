@@ -43,6 +43,7 @@ signals:
     void currentChanged(int targetIndex, int subIndex);
 
 protected:
+    void resizeEvent(QResizeEvent *);
     void changeEvent(QEvent *e);
 
 private:
@@ -50,6 +51,7 @@ private:
     Ui::TargetSettingsWidget *ui;
 
     TargetSelector *m_targetSelector;
+    QWidget *m_shadow;
 };
 
 } // namespace Internal
