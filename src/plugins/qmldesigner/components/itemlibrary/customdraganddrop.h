@@ -60,10 +60,9 @@ public slots:
 
 protected:
     virtual void mouseMoveEvent(QMouseEvent *);
+    virtual void paintEvent(QPaintEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *);
 private:
-    QPixmap currentImage();
-
     QWidget *m_oldTarget;
     QPixmap m_preview;
     QPixmap m_icon;
