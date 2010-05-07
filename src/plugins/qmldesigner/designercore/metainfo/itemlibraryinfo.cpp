@@ -40,10 +40,10 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-class ItemLibraryInfoData : public QSharedData
+class ItemLibraryEntryData : public QSharedData
 {
 public:
-    ItemLibraryInfoData() : majorVersion(-1), minorVersion(-1)
+    ItemLibraryEntryData() : majorVersion(-1), minorVersion(-1)
     { }
     QString name;
     QString typeName;
@@ -57,12 +57,12 @@ public:
 };
 }
 
-ItemLibraryInfo::ItemLibraryInfo(const ItemLibraryInfo &other)
+ItemLibraryEntry::ItemLibraryEntry(const ItemLibraryEntry &other)
     : m_data(other.m_data)
 {
 }
 
-ItemLibraryInfo& ItemLibraryInfo::operator=(const ItemLibraryInfo &other)
+ItemLibraryEntry& ItemLibraryEntry::operator=(const ItemLibraryEntry &other)
 {
     if (this !=&other)
         m_data = other.m_data;
@@ -70,136 +70,136 @@ ItemLibraryInfo& ItemLibraryInfo::operator=(const ItemLibraryInfo &other)
     return *this;
 }
 
-void ItemLibraryInfo::setDragIcon(const QIcon &icon)
+void ItemLibraryEntry::setDragIcon(const QIcon &icon)
 {
     m_data->dragIcon = icon;
 }
 
-QIcon ItemLibraryInfo::dragIcon() const
+QIcon ItemLibraryEntry::dragIcon() const
 {
     return m_data->dragIcon;
 }
 
-void ItemLibraryInfo::addProperty(const Property &property)
+void ItemLibraryEntry::addProperty(const Property &property)
 {
     m_data->properties.append(property);
 }
 
-QList<ItemLibraryInfo::Property> ItemLibraryInfo::properties() const
+QList<ItemLibraryEntry::Property> ItemLibraryEntry::properties() const
 {
     return m_data->properties;
 }
 
-ItemLibraryInfo::ItemLibraryInfo() : m_data(new Internal::ItemLibraryInfoData)
+ItemLibraryEntry::ItemLibraryEntry() : m_data(new Internal::ItemLibraryEntryData)
 {
     m_data->name.clear();
 }
 
-ItemLibraryInfo::~ItemLibraryInfo()
+ItemLibraryEntry::~ItemLibraryEntry()
 {
 }
 
-QString ItemLibraryInfo::name() const
+QString ItemLibraryEntry::name() const
 {
     return m_data->name;
 }
 
-QString ItemLibraryInfo::typeName() const
+QString ItemLibraryEntry::typeName() const
 {
     return m_data->typeName;
 }
 
-QString ItemLibraryInfo::qml() const
+QString ItemLibraryEntry::qml() const
 {
     return m_data->qml;
 }
 
-int ItemLibraryInfo::majorVersion() const
+int ItemLibraryEntry::majorVersion() const
 {
     return m_data->majorVersion;
 }
 
-int ItemLibraryInfo::minorVersion() const
+int ItemLibraryEntry::minorVersion() const
 {
     return m_data->minorVersion;
 }
 
-QString ItemLibraryInfo::category() const
+QString ItemLibraryEntry::category() const
 {
     return m_data->category;
 }
 
-void ItemLibraryInfo::setCategory(const QString &category)
+void ItemLibraryEntry::setCategory(const QString &category)
 {
     m_data->category = category;
 }
 
-QIcon ItemLibraryInfo::icon() const
+QIcon ItemLibraryEntry::icon() const
 {
     return m_data->icon;
 }
 
-void ItemLibraryInfo::setName(const QString &name)
+void ItemLibraryEntry::setName(const QString &name)
 {
      m_data->name = name;
 }
 
-void ItemLibraryInfo::setTypeName(const QString &typeName)
+void ItemLibraryEntry::setTypeName(const QString &typeName)
 {
     m_data->typeName = typeName;
 }
 
-void ItemLibraryInfo::setIcon(const QIcon &icon)
+void ItemLibraryEntry::setIcon(const QIcon &icon)
 {
     m_data->icon = icon;
 }
 
-void ItemLibraryInfo::setMajorVersion(int majorVersion)
+void ItemLibraryEntry::setMajorVersion(int majorVersion)
 {
     m_data->majorVersion = majorVersion;
 }
 
-void ItemLibraryInfo::setMinorVersion(int minorVersion)
+void ItemLibraryEntry::setMinorVersion(int minorVersion)
 {
      m_data->minorVersion = minorVersion;
 }
 
-void ItemLibraryInfo::setQml(const QString &qml)
+void ItemLibraryEntry::setQml(const QString &qml)
 {
     m_data->qml = qml;
 }
 
-void ItemLibraryInfo::addProperty(QString &name, QString &type, QString &value)
+void ItemLibraryEntry::addProperty(QString &name, QString &type, QString &value)
 {
     Property property;
     property.set(name, type, value);
     addProperty(property);
 }
 
-QDataStream& operator<<(QDataStream& stream, const ItemLibraryInfo& itemLibraryInfo)
+QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry)
 {
-    stream << itemLibraryInfo.name();
-    stream << itemLibraryInfo.typeName();
-    stream << itemLibraryInfo.majorVersion();
-    stream << itemLibraryInfo.minorVersion();
-    stream << itemLibraryInfo.icon();
-    stream << itemLibraryInfo.category();
-    stream << itemLibraryInfo.dragIcon();
-    stream << itemLibraryInfo.m_data->properties;
+    stream << itemLibraryEntry.name();
+    stream << itemLibraryEntry.typeName();
+    stream << itemLibraryEntry.majorVersion();
+    stream << itemLibraryEntry.minorVersion();
+    stream << itemLibraryEntry.icon();
+    stream << itemLibraryEntry.category();
+    stream << itemLibraryEntry.dragIcon();
+    stream << itemLibraryEntry.m_data->properties;
 
     return stream;
 }
 
-QDataStream& operator>>(QDataStream& stream, ItemLibraryInfo& itemLibraryInfo)
+QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
 {
-    stream >> itemLibraryInfo.m_data->name;
-    stream >> itemLibraryInfo.m_data->typeName;
-    stream >> itemLibraryInfo.m_data->majorVersion;
-    stream >> itemLibraryInfo.m_data->minorVersion;
-    stream >> itemLibraryInfo.m_data->icon;
-    stream >> itemLibraryInfo.m_data->category;
-    stream >> itemLibraryInfo.m_data->dragIcon;
-    stream >> itemLibraryInfo.m_data->properties;
+    stream >> itemLibraryEntry.m_data->name;
+    stream >> itemLibraryEntry.m_data->typeName;
+    stream >> itemLibraryEntry.m_data->majorVersion;
+    stream >> itemLibraryEntry.m_data->minorVersion;
+    stream >> itemLibraryEntry.m_data->icon;
+    stream >> itemLibraryEntry.m_data->category;
+    stream >> itemLibraryEntry.m_data->dragIcon;
+    stream >> itemLibraryEntry.m_data->properties;
 
     return stream;
 }

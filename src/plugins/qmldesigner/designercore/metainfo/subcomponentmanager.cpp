@@ -306,7 +306,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
     nodeInfo.setCategory(tr("QML Components"));
     nodeInfo.setIsVisibleToItemLibrary(true);
 
-    m_metaInfo.addItemLibraryInfo(nodeInfo, componentName);
+    m_metaInfo.addItemLibraryEntry(nodeInfo, componentName);
     m_metaInfo.addNodeInfo(nodeInfo, baseType);
 
     foreach (const QDeclarativeDomDynamicProperty &dynamicProperty, document.rootObject().dynamicProperties()) {

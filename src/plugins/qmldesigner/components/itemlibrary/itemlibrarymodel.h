@@ -41,7 +41,7 @@ QT_FORWARD_DECLARE_CLASS(QMimeData);
 namespace QmlDesigner {
 
 class MetaInfo;
-class ItemLibraryInfo;
+class ItemLibraryEntry;
 
 namespace Internal {
 
@@ -153,11 +153,11 @@ signals:
 
 private:
     void updateVisibility();
-    QList<ItemLibraryInfo> itemLibraryRepresentations(const QString &type);
+    QList<ItemLibraryEntry> itemLibraryEntrys(const QString &type);
 
     QWeakPointer<QScriptEngine> m_scriptEngine;
     MetaInfo *m_metaInfo;
-    QMap<int, ItemLibraryInfo> m_itemInfos;
+    QMap<int, ItemLibraryEntry> m_itemInfos;
     QMap<int, int> m_sections;
 
     QString m_searchText;

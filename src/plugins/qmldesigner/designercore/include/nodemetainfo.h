@@ -52,7 +52,7 @@ namespace Internal {
     class MetaInfoParser;
     class NodeMetaInfoData;
     class SubComponentManagerPrivate;
-    class ItemLibraryInfoData;
+    class ItemLibraryEntryData;
 }
 
 class PropertyMetaInfo;
@@ -60,7 +60,7 @@ class PropertyMetaInfo;
 class CORESHARED_EXPORT NodeMetaInfo
 {
     friend class QmlDesigner::MetaInfo;
-    friend class QmlDesigner::Internal::ItemLibraryInfoData;
+    friend class QmlDesigner::Internal::ItemLibraryEntryData;
     friend class QmlDesigner::Internal::MetaInfoPrivate;
     friend class QmlDesigner::Internal::MetaInfoParser;
     friend class QmlDesigner::Internal::SubComponentManagerPrivate;

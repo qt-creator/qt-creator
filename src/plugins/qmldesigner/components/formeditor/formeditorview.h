@@ -51,7 +51,7 @@ class ResizeTool;
 class AnchorTool;
 class DragTool;
 class ItemCreatorTool;
-class ItemLibraryInfo;
+class ItemLibraryEntry;
 class QmlItemNode;
 
 class  FormEditorView : public QmlModelView

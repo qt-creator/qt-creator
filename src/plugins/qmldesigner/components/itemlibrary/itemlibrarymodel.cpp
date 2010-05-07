@@ -404,9 +404,9 @@ void ItemLibraryModel::update(const MetaInfo &metaInfo)
     }
 
     foreach (const QString &type, metaInfo.itemLibraryItems()) {
-        foreach (const ItemLibraryInfo &itemLibraryRepresentation, itemLibraryRepresentations(type)) {
+        foreach (const ItemLibraryEntry &itemLibraryEntry, itemLibraryEntrys(type)) {
 
-            QString itemSectionName = itemLibraryRepresentation.category();
+            QString itemSectionName = itemLibraryEntry.category();
             ItemLibrarySectionModel *sectionModel;
             ItemLibraryItemModel *itemModel;
             int itemId = m_nextLibId++, sectionId;
@@ -421,10 +421,10 @@ void ItemLibraryModel::update(const MetaInfo &metaInfo)
                 sections.insert(itemSectionName, sectionId);
             }
 
-            m_itemInfos.insert(itemId, itemLibraryRepresentation);
+            m_itemInfos.insert(itemId, itemLibraryEntry);
 
-            itemModel = new ItemLibraryItemModel(m_scriptEngine.data(), itemId, itemLibraryRepresentation.name());
-            itemModel->setItemIcon(itemLibraryRepresentation.icon());
+            itemModel = new ItemLibraryItemModel(m_scriptEngine.data(), itemId, itemLibraryEntry.name());
+            itemModel->setItemIcon(itemLibraryEntry.icon());
             itemModel->setItemIconSize(m_itemIconSize);
             sectionModel->addSectionEntry(itemModel);
             m_sections.insert(itemId, sectionId);
@@ -499,9 +499,9 @@ void ItemLibraryModel::updateVisibility()
         emit visibilityChanged();
 }
 
-static inline int getWidth(const ItemLibraryInfo &itemLibraryRepresentation)
+static inline int getWidth(const ItemLibraryEntry &itemLibraryEntry)
 {
-    foreach (const ItemLibraryInfo::Property &property, itemLibraryRepresentation.properties())
+    foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
     {
         if (property.name() == QLatin1String("width"))
             return property.value().toInt();
@@ -509,9 +509,9 @@ static inline int getWidth(const ItemLibraryInfo &itemLibraryRepresentation)
     return 64;
 }
 
-static inline int getHeight(const ItemLibraryInfo &itemLibraryRepresentation)
+static inline int getHeight(const ItemLibraryEntry &itemLibraryEntry)
 {
-    foreach (const ItemLibraryInfo::Property &property, itemLibraryRepresentation.properties())
+    foreach (const ItemLibraryEntry::Property &property, itemLibraryEntry.properties())
     {
         if (property.name() == QLatin1String("height"))
             return property.value().toInt();
@@ -531,51 +531,51 @@ static inline QPixmap createDragPixmap(int width, int height)
     return QPixmap::fromImage(dragImage);
 }
 
-QList<ItemLibraryInfo> ItemLibraryModel::itemLibraryRepresentations(const QString &type)
+QList<ItemLibraryEntry> ItemLibraryModel::itemLibraryEntrys(const QString &type)
 {
-    QList<ItemLibraryInfo> itemLibraryRepresentationList;
+    QList<ItemLibraryEntry> itemLibraryEntryList;
     NodeMetaInfo nodeInfo = m_metaInfo->nodeMetaInfo(type);
 
     if (nodeInfo.isQmlGraphicsItem()) {
-        itemLibraryRepresentationList = m_metaInfo->itemLibraryRepresentations(nodeInfo);
+        itemLibraryEntryList = m_metaInfo->itemLibraryEntrys(nodeInfo);
 
         if (!m_metaInfo->hasNodeMetaInfo(type))
             qWarning() << "ItemLibrary: type not declared: " << type;
 
         static QIcon defaultIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
 
-        if (itemLibraryRepresentationList.isEmpty() || !m_metaInfo->hasNodeMetaInfo(type)) {
+        if (itemLibraryEntryList.isEmpty() || !m_metaInfo->hasNodeMetaInfo(type)) {
             QIcon icon = nodeInfo.icon();
             if (icon.isNull())
                 icon = defaultIcon;
 
-            ItemLibraryInfo itemLibraryInfo;
-            itemLibraryInfo.setName(type);
-            itemLibraryInfo.setTypeName(nodeInfo.typeName());
-            itemLibraryInfo.setCategory(nodeInfo.category());
-            itemLibraryInfo.setIcon(icon);
-            itemLibraryInfo.setDragIcon(createDragPixmap(64, 64));
-            itemLibraryInfo.setMajorVersion(nodeInfo.majorVersion());
-            itemLibraryInfo.setMinorVersion(nodeInfo.minorVersion());
-            itemLibraryRepresentationList.append(itemLibraryInfo);
+            ItemLibraryEntry itemLibraryEntry;
+            itemLibraryEntry.setName(type);
+            itemLibraryEntry.setTypeName(nodeInfo.typeName());
+            itemLibraryEntry.setCategory(nodeInfo.category());
+            itemLibraryEntry.setIcon(icon);
+            itemLibraryEntry.setDragIcon(createDragPixmap(64, 64));
+            itemLibraryEntry.setMajorVersion(nodeInfo.majorVersion());
+            itemLibraryEntry.setMinorVersion(nodeInfo.minorVersion());
+            itemLibraryEntryList.append(itemLibraryEntry);
         }
         else {
-            foreach (ItemLibraryInfo itemLibraryRepresentation, itemLibraryRepresentationList) {
+            foreach (ItemLibraryEntry itemLibraryEntry, itemLibraryEntryList) {
                 
-                QIcon icon = itemLibraryRepresentation.icon();
-                if (itemLibraryRepresentation.icon().isNull())
-                    itemLibraryRepresentation.setIcon(defaultIcon);
+                QIcon icon = itemLibraryEntry.icon();
+                if (itemLibraryEntry.icon().isNull())
+                    itemLibraryEntry.setIcon(defaultIcon);
 
-                if (itemLibraryRepresentation.dragIcon().isNull())
-                    itemLibraryRepresentation.setDragIcon(createDragPixmap(getWidth(itemLibraryRepresentation), getHeight(itemLibraryRepresentation)));
+                if (itemLibraryEntry.dragIcon().isNull())
+                    itemLibraryEntry.setDragIcon(createDragPixmap(getWidth(itemLibraryEntry), getHeight(itemLibraryEntry)));
 
-                if (itemLibraryRepresentation.category().isEmpty())
-                    itemLibraryRepresentation.setCategory(nodeInfo.category());
+                if (itemLibraryEntry.category().isEmpty())
+                    itemLibraryEntry.setCategory(nodeInfo.category());
             }
         }
     }
 
-    return itemLibraryRepresentationList;
+    return itemLibraryEntryList;
 }
 
 } // namespace Internal

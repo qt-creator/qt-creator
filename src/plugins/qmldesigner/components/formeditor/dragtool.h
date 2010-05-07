@@ -86,7 +86,7 @@ protected:
 
 private:
 
-    void createQmlItemNode(const ItemLibraryInfo &ItemLibraryRepresentation, QmlItemNode parentNode, QPointF scenePos);
+    void createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlItemNode parentNode, QPointF scenePos);
     void createQmlItemNodeFromImage(const QString &imageName, QmlItemNode parentNode, QPointF scenePos);
     FormEditorItem* calculateContainer(const QPointF &point, FormEditorItem * currentItem = 0);
 

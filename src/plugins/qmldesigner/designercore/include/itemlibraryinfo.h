@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef ItemLibraryINFO_H
-#define ItemLibraryINFO_H
+#ifndef ITEMLIBRARYINFO_H
+#define ITEMLIBRARYINFO_H
 
 #include "corelib_global.h"
 
@@ -45,23 +45,23 @@ class NodeMetaInfo;
 
 namespace Internal {
 
-class ItemLibraryInfoData;
+class ItemLibraryEntryData;
 }
 
-class ItemLibraryInfo;
+class ItemLibraryEntry;
 
-CORESHARED_EXPORT QDataStream& operator<<(QDataStream& stream, const ItemLibraryInfo& ItemLibraryInfo);
-CORESHARED_EXPORT QDataStream& operator>>(QDataStream& stream, ItemLibraryInfo& ItemLibraryInfo);
+CORESHARED_EXPORT QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry);
+CORESHARED_EXPORT QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry);
 
-class CORESHARED_EXPORT ItemLibraryInfo
+class CORESHARED_EXPORT ItemLibraryEntry
 {
     friend class QmlDesigner::MetaInfo;
     friend class QmlDesigner::Internal::MetaInfoParser;
-    friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator<<(QDataStream& stream, const ItemLibraryInfo& image);
-    friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator>>(QDataStream& stream, ItemLibraryInfo& image);
+    friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry);
+    friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry);
 public:
-    ItemLibraryInfo();
-    ~ItemLibraryInfo();
+    ItemLibraryEntry();
+    ~ItemLibraryEntry();
 
     QString name() const;
     QString typeName() const;
@@ -72,8 +72,8 @@ public:
     QIcon dragIcon() const;
     QString qml() const;
 
-    ItemLibraryInfo(const ItemLibraryInfo &other);
-    ItemLibraryInfo& operator=(const ItemLibraryInfo &other);
+    ItemLibraryEntry(const ItemLibraryEntry &other);
+    ItemLibraryEntry& operator=(const ItemLibraryEntry &other);
 
     typedef QmlDesigner::PropertyContainer Property;
 
@@ -90,11 +90,11 @@ public:
     void setCategory(const QString &category);
     void setQml(const QString &qml);
 private:
-    QExplicitlySharedDataPointer<Internal::ItemLibraryInfoData> m_data;
+    QExplicitlySharedDataPointer<Internal::ItemLibraryEntryData> m_data;
 };
 
 }
 
-Q_DECLARE_METATYPE(QmlDesigner::ItemLibraryInfo)
+Q_DECLARE_METATYPE(QmlDesigner::ItemLibraryEntry)
 
-#endif // ItemLibraryINFO_H
+#endif // ITEMLIBRARYINFO_H

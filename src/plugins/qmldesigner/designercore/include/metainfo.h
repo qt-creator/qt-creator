@@ -83,8 +83,8 @@ public:
     EnumeratorMetaInfo enumerator(const QString &enumeratorName) const;
 
     QStringList itemLibraryItems() const;
-    QList<ItemLibraryInfo> itemLibraryRepresentations(const NodeMetaInfo &nodeMetaInfo) const;
-    ItemLibraryInfo itemLibraryRepresentation(const QString &name) const;
+    QList<ItemLibraryEntry> itemLibraryEntrys(const NodeMetaInfo &nodeMetaInfo) const;
+    ItemLibraryEntry itemLibraryEntry(const QString &name) const;
     QString fromQtTypes(const QString &type) const;
 
 public:
@@ -107,7 +107,7 @@ private:
 
     EnumeratorMetaInfo addEnumerator(const QString &enumeratorScope, const QString &enumeratorName);
     EnumeratorMetaInfo addFlag(const QString &enumeratorScope, const QString &enumeratorName);
-    ItemLibraryInfo addItemLibraryInfo(const NodeMetaInfo &nodeMetaInfo, const QString &itemLibraryRepresentationName);
+    ItemLibraryEntry addItemLibraryEntry(const NodeMetaInfo &nodeMetaInfo, const QString &itemLibraryEntryName);
 
     bool isGlobal() const;
 

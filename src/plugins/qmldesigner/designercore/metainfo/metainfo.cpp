@@ -82,8 +82,8 @@ public:
     QMultiHash<QString, QString> m_superClassHash; // the list of direct superclasses
     QHash<QString, NodeMetaInfo> m_nodeMetaInfoHash;
     QHash<QString, EnumeratorMetaInfo> m_enumeratorMetaInfoHash;
-    QMultiHash<NodeMetaInfo, ItemLibraryInfo> m_itemLibraryInfoHash;
-    QHash<QString, ItemLibraryInfo> m_itemLibraryInfoHashAll;
+    QMultiHash<NodeMetaInfo, ItemLibraryEntry> m_itemLibraryInfoHash;
+    QHash<QString, ItemLibraryEntry> m_itemLibraryInfoHashAll;
     QHash<QString, QString> m_QtTypesToQmlTypes;
 
     MetaInfo *m_q;
@@ -484,21 +484,21 @@ QList<NodeMetaInfo> MetaInfo::directSuperClasses(const NodeMetaInfo &nodeInfo) c
     return superClassList;
 }
 
-QList<ItemLibraryInfo> MetaInfo::itemLibraryRepresentations(const NodeMetaInfo &nodeMetaInfo) const
+QList<ItemLibraryEntry> MetaInfo::itemLibraryEntrys(const NodeMetaInfo &nodeMetaInfo) const
 {
-    QList<ItemLibraryInfo> itemLibraryItems = m_p->m_itemLibraryInfoHash.values(nodeMetaInfo);
+    QList<ItemLibraryEntry> itemLibraryItems = m_p->m_itemLibraryInfoHash.values(nodeMetaInfo);
     if (!isGlobal())
-        itemLibraryItems += global().itemLibraryRepresentations(nodeMetaInfo);
+        itemLibraryItems += global().itemLibraryEntrys(nodeMetaInfo);
     return itemLibraryItems;
 }
 
-ItemLibraryInfo MetaInfo::itemLibraryRepresentation(const QString &name) const
+ItemLibraryEntry MetaInfo::itemLibraryEntry(const QString &name) const
 {
     if (m_p->m_itemLibraryInfoHashAll.contains(name))
         return m_p->m_itemLibraryInfoHashAll.value(name);
     if (!isGlobal())
-        return global().itemLibraryRepresentation(name);
-    return ItemLibraryInfo();
+        return global().itemLibraryEntry(name);
+    return ItemLibraryEntry();
 }
 
 QString MetaInfo::fromQtTypes(const QString &type) const
@@ -680,16 +680,16 @@ EnumeratorMetaInfo MetaInfo::addFlag(const QString &enumeratorScope, const QStri
     return enumeratorMetaInfo;
 }
 
-ItemLibraryInfo MetaInfo::addItemLibraryInfo(const NodeMetaInfo &nodeMetaInfo, const QString &itemLibraryRepresentationName)
+ItemLibraryEntry MetaInfo::addItemLibraryEntry(const NodeMetaInfo &nodeMetaInfo, const QString &itemLibraryEntryName)
 {
-    ItemLibraryInfo itemLibraryInfo;
-    itemLibraryInfo.setName(itemLibraryRepresentationName);
-    itemLibraryInfo.setTypeName(nodeMetaInfo.typeName());
-    itemLibraryInfo.setMajorVersion(nodeMetaInfo.majorVersion());
-    itemLibraryInfo.setMinorVersion(nodeMetaInfo.minorVersion());
-    m_p->m_itemLibraryInfoHash.insert(nodeMetaInfo, itemLibraryInfo);
-    m_p->m_itemLibraryInfoHashAll.insert(itemLibraryRepresentationName, itemLibraryInfo);
-    return itemLibraryInfo;
+    ItemLibraryEntry itemLibraryEntry;
+    itemLibraryEntry.setName(itemLibraryEntryName);
+    itemLibraryEntry.setTypeName(nodeMetaInfo.typeName());
+    itemLibraryEntry.setMajorVersion(nodeMetaInfo.majorVersion());
+    itemLibraryEntry.setMinorVersion(nodeMetaInfo.minorVersion());
+    m_p->m_itemLibraryInfoHash.insert(nodeMetaInfo, itemLibraryEntry);
+    m_p->m_itemLibraryInfoHashAll.insert(itemLibraryEntryName, itemLibraryEntry);
+    return itemLibraryEntry;
 }
 
 bool MetaInfo::isGlobal() const

@@ -54,8 +54,6 @@ public:
     QStringList qmlFiles() const;
     QStringList directories() const;
 
-signals:
-    void qmlFilesChanged(const QStringList &oldPathList, const QStringList &newPathList);
 
 private:
     friend class Internal::SubComponentManagerPrivate;

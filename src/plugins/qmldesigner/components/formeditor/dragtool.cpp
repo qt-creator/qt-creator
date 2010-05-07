@@ -133,7 +133,7 @@ void DragTool::beginWithPoint(const QPointF &beginPoint)
 
 }
 
-void DragTool::createQmlItemNode(const ItemLibraryInfo &itemLibraryRepresentation, QmlItemNode parentNode, QPointF scenePos)
+void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlItemNode parentNode, QPointF scenePos)
 {
     QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 
@@ -142,7 +142,7 @@ void DragTool::createQmlItemNode(const ItemLibraryInfo &itemLibraryRepresentatio
     FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
     QPointF pos = parentItem->mapFromScene(scenePos);
 
-    m_dragNode = view()->createQmlItemNode(itemLibraryRepresentation, pos, parentNode);
+    m_dragNode = view()->createQmlItemNode(itemLibraryEntry, pos, parentNode);
 
     Q_ASSERT(m_dragNode.modelNode().isValid());
     Q_ASSERT(m_dragNode.isValid());
@@ -238,14 +238,14 @@ void DragTool::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
     }
 }
 
-static ItemLibraryInfo ItemLibraryInfoFromData(const QByteArray &data)
+static ItemLibraryEntry itemLibraryEntryFromData(const QByteArray &data)
 {
     QDataStream stream(data);
 
-    ItemLibraryInfo itemLibraryInfo;
-    stream >> itemLibraryInfo;
+    ItemLibraryEntry itemLibraryEntry;
+    stream >> itemLibraryEntry;
 
-    return itemLibraryInfo;
+    return itemLibraryEntry;
 }
 
 void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
@@ -277,8 +277,8 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
 
             if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
                 Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo").isEmpty());
-                ItemLibraryInfo ItemLibraryInfo = ItemLibraryInfoFromData(event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo"));
-                createQmlItemNode(ItemLibraryInfo, parentNode, event->scenePos());
+                ItemLibraryEntry itemLibraryEntry = itemLibraryEntryFromData(event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo"));
+                createQmlItemNode(itemLibraryEntry, parentNode, event->scenePos());
             } else if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
                 Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.libraryresource").isEmpty());
                 QString imageName = QString::fromLatin1((event->mimeData()->data("application/vnd.bauhaus.libraryresource")));
