@@ -136,6 +136,16 @@ ModelNode BindingProperty::resolveToModelNode() const
     return resolveBinding(expression(), parentModelNode(), view());
 }
 
+static inline QStringList commaSeparatedSimplifiedStringList(const QString &string)
+{
+    QStringList stringList = string.split(QLatin1String(","));
+    QStringList simpleList;
+    foreach (const QString &simpleString, stringList)
+        simpleList.append(simpleString.simplified());
+    return simpleList;
+}
+
+
 AbstractProperty BindingProperty::resolveToProperty() const
 {
     if (!isValid())
@@ -157,6 +167,33 @@ AbstractProperty BindingProperty::resolveToProperty() const
         return node.property(element);
     else
         return AbstractProperty();
+}
+
+bool BindingProperty::isList() const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return expression().startsWith('[') && expression().endsWith(']');
+}
+
+QList<ModelNode> BindingProperty::resolveToModelNodeList() const
+{
+    QList<ModelNode> returnList;
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    if (isList()) {
+        QString string = expression();
+        string.chop(1);
+        string.remove(0, 1);
+        QStringList simplifiedList = commaSeparatedSimplifiedStringList(string);
+        foreach (const QString &nodeId, simplifiedList) {
+            ModelNode modelNode = view()->modelNodeForId(nodeId);
+            if (modelNode.isValid())
+                returnList.append(modelNode);
+        }
+    }
+    return returnList;
 }
 
 void BindingProperty::setDynamicTypeNameAndExpression(const QString &typeName, const QString &expression)

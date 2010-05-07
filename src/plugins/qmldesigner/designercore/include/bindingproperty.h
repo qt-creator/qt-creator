@@ -54,6 +54,8 @@ public:
 
     ModelNode resolveToModelNode() const;
     AbstractProperty resolveToProperty() const;
+    bool isList() const;
+    QList<ModelNode> resolveToModelNodeList() const;
 
 protected:
     BindingProperty(const QString &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
