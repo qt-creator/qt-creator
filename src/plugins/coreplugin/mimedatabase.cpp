@@ -491,17 +491,23 @@ bool MimeType::matchesType(const QString &type) const
 unsigned MimeType::matchesFile(const QFileInfo &file) const
 {
     Internal::FileMatchContext context(file);
-    return matchesFile(context);
+    if (const unsigned suffixPriority = matchesFileBySuffix(context))
+        return suffixPriority;
+    return matchesFileByContent(context);
 }
 
-unsigned MimeType::matchesFile(Internal::FileMatchContext &c) const
+unsigned MimeType::matchesFileBySuffix(Internal::FileMatchContext &c) const
 {
     // check globs
     foreach (const QRegExp &pattern, m_d->globPatterns) {
         if (pattern.exactMatch(c.fileName()))
             return GlobMatchPriority;
     }
+    return 0;
+}
 
+unsigned MimeType::matchesFileByContent(Internal::FileMatchContext &c) const
+{
     // Nope, try magic matchers on context data
     if (m_d->magicMatchers.isEmpty())
         return 0;
@@ -1031,7 +1037,7 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f) const
 {
     unsigned priority = 0;
     if (debugMimeDB)
-        qDebug() << '>' << Q_FUNC_INFO << f.fileName();
+        qDebug() << '>' << Q_FUNC_INFO << f.absoluteFilePath();
     const MimeType rc = findByFile(f, &priority);
     if (debugMimeDB) {
         if (rc) {
@@ -1046,8 +1052,6 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f) const
 // Returns a mime type or Null one if none found
 MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f, unsigned *priorityPtr) const
 {
-    typedef QList<MimeMapEntry> MimeMapEntryList;
-
     // Is the hierarchy set up in case we find several matches?
     if (m_maxLevel < 0) {
         MimeDatabasePrivate *db = const_cast<MimeDatabasePrivate *>(this);
@@ -1056,27 +1060,31 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f, unsigned *priorityP
     // Starting from max level (most specific): Try to find a match of
     // best (max) priority. Return if a glob match triggers.
     *priorityPtr = 0;
-    unsigned maxPriority = 0;
-    MimeType rc;
     Internal::FileMatchContext context(f);
+    // Pass 1) Try to match on suffix
     const TypeMimeTypeMap::const_iterator cend = m_typeMimeTypeMap.constEnd();
     for (int level = m_maxLevel; level >= 0; level--)
         for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
+            if (it.value().level == level)
+                if (const unsigned suffixPriority = it.value().type.matchesFileBySuffix(context)) {
+                    *priorityPtr = suffixPriority;
+                    return it.value().type;
+                }
+    // Pass 2) Match on content
+    MimeType rc;
+    if (!f.isReadable())
+        return rc;
+    unsigned maxPriority = 0;
+    for (int level = m_maxLevel; level >= 0; level--)
+        for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
             if (it.value().level == level) {
-                const unsigned priority = it.value().type.matchesFile(context);
-                if (debugMimeDB > 1)
-                    qDebug() <<  "pass" << level << it.value().type.type() << " matches " << priority;
-                if (priority)
-                    if (priority > maxPriority) {
-                        rc = it.value().type;
-                        maxPriority = priority;
-                        // Glob (exact) match?! We are done
-                        if (maxPriority == MimeType::GlobMatchPriority) {
-                            *priorityPtr = priority;
-                            return rc;
-                        }
-                    }
+                const unsigned priority = it.value().type.matchesFileByContent(context);
+                if (priority && priority > maxPriority) {
+                    rc = it.value().type;
+                    maxPriority = priority;
+                }
             }
+    *priorityPtr = maxPriority;
     return rc;
 }
 
