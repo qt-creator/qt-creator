@@ -5028,20 +5028,16 @@
            installation, configuration, and deployment on the device, see
           \l{http://wiki.maemo.org/MADDE}{Introduction to MADDE}.
 
-       \o  IP address for the device.
+       \o Nokia USB drivers.
 
-           To set up the device IP address, you need to install
-           PC Connectivity or implement it using CLI. For more information about PC
-           Connectivity, see
-          \l{http://pc-connectivity.garage.maemo.org/2nd_edition/node3.html#SECTION00032300000000000000}
-           {Windows} on the PC Connectivity web site.
-    \endlist
+       Only needed if you develop on Windows and if you use a USB connection
+       to run applications on the device. The drivers are
+       installed as part of the Nokia Qt SDK. You can also download them from
+       \l{https://garage.maemo.org/frs/?group_id=801&release_id=2655}{PC Connectivity}
+       on the Maemo web site. Download and install the latest
+       PC_Connectivity_<version>.exe (at the time of writing,
+       PC_Connectivity_0.9.4.exe).
 
-    To deploy and run Qt applications on Maemo devices, you need the
-    following:
-    \list
-       \o Nokia USB drivers that come with PC Suite, for example, if you use
-       a USB connection to run applications on the device.
        \o Qt installed on the device. Recent images should have Qt pre-installed.
     \endlist
 
