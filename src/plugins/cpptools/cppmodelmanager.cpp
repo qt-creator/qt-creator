@@ -1326,41 +1326,6 @@ void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
     future.reportFinished();
 }
 
-// Function that sorts headers and sources apart to be used for
-// MimeDB::findByFile() on a sequence of file names.
-class HeaderSourceSorter {
-public:
-    explicit HeaderSourceSorter(QStringList *sources, QStringList *headers);
-    void operator()(const Core::MimeType &, const QFileInfo &, const QString &);
-
-private:
-    QStringList m_sourceMimeTypes;
-    QStringList m_headerMimeTypes;
-
-    QStringList *m_sources;
-    QStringList *m_headers;
-};
-
-HeaderSourceSorter::HeaderSourceSorter(QStringList *sources, QStringList *headers) :
-        m_sources(sources),
-        m_headers(headers)
-{
-    m_headerMimeTypes << QLatin1String("text/x-hdr") << QLatin1String("text/x-c++hdr");
-    m_sourceMimeTypes << QLatin1String("text/x-csrc") << QLatin1String("text/x-c++src")
-                      << QLatin1String("text/x-objcsrc");
-}
-
-void HeaderSourceSorter::operator()(const Core::MimeType &mimeType, const QFileInfo &, const QString &name)
-{
-    if (mimeType) {
-        if (m_sourceMimeTypes.contains(mimeType.type())) {
-            m_sources->append(name);
-        } else if (m_headerMimeTypes.contains(mimeType.type())) {
-            m_headers->append(name);
-        }
-    }
-}
-
 void CppModelManager::parse(QFutureInterface<void> &future,
                             CppPreprocessor *preproc,
                             QStringList files)
@@ -1368,14 +1333,28 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     if (files.isEmpty())
         return;
 
-    foreach (const QString &file, files)
-        preproc->snapshot.remove(file);
+    const Core::MimeDatabase *mimeDb = Core::ICore::instance()->mimeDatabase();
+    Core::MimeType cSourceTy = mimeDb->findByType(QLatin1String("text/x-csrc"));
+    Core::MimeType cppSourceTy = mimeDb->findByType(QLatin1String("text/x-c++src"));
+    Core::MimeType mSourceTy = mimeDb->findByType(QLatin1String("text/x-objcsrc"));
 
     QStringList sources;
     QStringList headers;
-    const Core::MimeDatabase *mimeDb = Core::ICore::instance()->mimeDatabase();
-    mimeDb->findByFile(files.constBegin(), files.constEnd(),
-                       HeaderSourceSorter(&sources, &headers));
+
+    QStringList suffixes = cSourceTy.suffixes();
+    suffixes += cppSourceTy.suffixes();
+    suffixes += mSourceTy.suffixes();
+
+    foreach (const QString &file, files) {
+        QFileInfo info(file);
+
+        preproc->snapshot.remove(file);
+
+        if (suffixes.contains(info.suffix()))
+            sources.append(file);
+        else
+            headers.append(file);
+    }
 
     const int sourceCount = sources.size();
     files = sources;
