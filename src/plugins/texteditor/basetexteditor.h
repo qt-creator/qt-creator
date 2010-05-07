@@ -231,6 +231,23 @@ public slots:
     void gotoBlockStartWithSelection();
     void gotoBlockEndWithSelection();
 
+    void gotoLineStart();
+    void gotoLineStartWithSelection();
+    void gotoLineEnd();
+    void gotoLineEndWithSelection();
+    void gotoNextLine();
+    void gotoNextLineWithSelection();
+    void gotoPreviousLine();
+    void gotoPreviousLineWithSelection();
+    void gotoPreviousCharacter();
+    void gotoPreviousCharacterWithSelection();
+    void gotoNextCharacter();
+    void gotoNextCharacterWithSelection();
+    void gotoPreviousWord();
+    void gotoPreviousWordWithSelection();
+    void gotoNextWord();
+    void gotoNextWordWithSelection();
+
     void selectBlockUp();
     void selectBlockDown();
 
