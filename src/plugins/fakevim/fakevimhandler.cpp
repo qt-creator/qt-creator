@@ -326,7 +326,7 @@ public:
     explicit Input(QChar x)
         : m_key(x.unicode()), m_xkey(x.unicode()), m_modifiers(0), m_text(x) {}
 
-    Input(int k, int m, QString t)
+    Input(int k, int m, const QString &t)
         : m_key(k), m_modifiers(m), m_text(t)
     {
         // m_xkey is only a cache.
@@ -360,13 +360,21 @@ public:
 
     bool operator==(const Input &a) const
     {
-        return a.m_key == m_key && m_text == a.m_text;
+        return a.m_key == m_key && a.m_modifiers == m_modifiers
+            && m_text == a.m_text;
     }
+
+    bool operator!=(const Input &a) const { return !operator==(a); }
 
     QString text() const { return m_text; }
 
     int key() const { return m_key; }
 
+    QDebug dump(QDebug ts) const
+    {
+        return ts << m_key << '-' << m_modifiers << '-'
+            << quoteUnprintable(m_text);
+    }
 private:
     int m_key;
     int m_xkey;
@@ -374,15 +382,48 @@ private:
     QString m_text;
 };
 
-QDebug &operator<<(QDebug &ts, const Input &input)
+QDebug operator<<(QDebug ts, const Input &input) { return input.dump(ts); }
+
+class Inputs : public QVector<Input>
 {
-    return ts << input.text() << input.key();
+public:
+    Inputs() {}
+    explicit Inputs(const QString &str) { parseFrom(str); }
+    void parseFrom(const QString &str);
+};
+
+
+void Inputs::parseFrom(const QString &str)
+{
+    const int n = str.size();
+    for (int i = 0; i < n; ++i) {
+        uint c0 = str.at(i).unicode(), c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = 0;
+        if (i + 1 < n)
+            c1 = str.at(i + 1).unicode();
+        if (i + 2 < n)
+            c2 = str.at(i + 2).unicode();
+        if (i + 3 < n)
+            c3 = str.at(i + 3).unicode();
+        if (i + 4 < n)
+            c4 = str.at(i + 4).unicode();
+        if (i + 5 < n)
+            c5 = str.at(i + 5).unicode();
+        if (c0 == '<') {
+            if ((c1 == 'C' || c1 == 'c') && c2 == '-' && c4 == '>') {
+                uint c = (c3 < 90 ? c3 : c3 - 32);
+                append(Input(c, Qt::ControlModifier, QString(QChar(c - 64))));
+                i += 4;
+            } else {
+                append(Input(QLatin1Char(c0)));
+            }
+        } else {
+            append(Input(QLatin1Char(c0)));
+        }
+    }
 }
 
-typedef QVector<Input> Inputs;
-
 // Mappings for a specific mode.
-class ModeMapping : private QList<QPair<Inputs, Inputs> >
+class ModeMapping : public QList<QPair<Inputs, Inputs> >
 {
 public:
     ModeMapping() { test(); }
@@ -412,24 +453,24 @@ public:
             }
     }
 
-    // Returns 'false' if more input input is needed to decide whether a
-    // mapping needs to be applied. If a decision can be made, return 'true',
+    // Returns 'false' if more input is needed to decide whether a mapping
+    // needs to be applied. If a decision can be made, return 'true',
     // and replace *input with the mapped data.
-    bool mappingDone(Inputs *input) const
+    bool mappingDone(Inputs *inputs) const
     {
-        Q_UNUSED(input);
         // FIXME: inefficient.
         for (int i = 0; i != size(); ++i) {
+            const Inputs &haystack = at(i).first;
             // A mapping
-            if (startsWith(at(i).first, *input)) {
-                if (at(i).first.size() != input->size())
+            if (startsWith(haystack, *inputs)) {
+                if (haystack.size() != inputs->size())
                     return false; // This can be extended.
                 // Actual mapping.
-                *input = at(i).second;
+                *inputs = at(i).second;
                 return true;
             }
         }
-        // No extensible mapping found. Use input as-is.
+        // No extensible mapping found. Use inputs as-is.
         return true;
     }
 
@@ -440,7 +481,7 @@ private:
         if (needle.size() > haystack.size())
             return false;
         for (int i = 0; i != needle.size(); ++i) {
-            if (needle.at(i).text() != haystack.at(i).text())
+            if (needle.at(i) != haystack.at(i))
                 return false;
         }
         return true;
@@ -764,7 +805,7 @@ public:
         }
 
         // Input.
-        QVector<Input> pendingInput;
+        Inputs pendingInput;
         int inputTimer;
 
         // Repetition.
@@ -1017,6 +1058,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
 
 EventResult FakeVimHandler::Private::handleKey(const Input &input)
 {
+    KEY_DEBUG("HANDLE INPUT: " << input);
     if (m_mode == ExMode)
         return handleExMode(input);
     if (m_subsubmode == SearchSubSubMode)
@@ -2821,12 +2863,13 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const QString &line)
 
 bool FakeVimHandler::Private::handleExMapCommand(const QString &line) // :map
 {
-    int pos1 = line.indexOf(QLatin1Char(' '));
-    if (pos1 == -1)
-        return false;
-    int pos2 = line.indexOf(QLatin1Char(' '), pos1 + 1);
-    if (pos2 == -1)
-        return false;
+    const int pos1 = line.indexOf(QLatin1Char(' '));
+    const int pos2 = line.indexOf(QLatin1Char(' '), pos1 + 1);
+    if (pos1 == -1 || pos2 == -1) {
+        // FIXME: Dump mappings here.
+        qDebug() << g.mappings;
+        return true;;
+    }
 
     QByteArray modes;
     enum Type { Map, Noremap, Unmap } type;
@@ -2872,8 +2915,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const QString &line) // :map
     QString lhs = line.mid(pos1 + 1, pos2 - pos1 - 1);
     QString rhs = line.mid(pos2 + 1);
     Inputs key;
-    foreach (QChar c, lhs)
-        key.append(Input(c));
+    key.parseFrom(lhs);
     //qDebug() << "MAPPING: " << modes << lhs << rhs;
     switch (type) {
         case Unmap:
@@ -2885,9 +2927,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const QString &line) // :map
             rhs = rhs; // FIXME: expand rhs.
             // Fall through.
         case Noremap: {
-            Inputs inputs;
-            foreach (QChar c, rhs)
-                inputs.append(Input(c));
+            Inputs inputs(rhs);
             foreach (char c, modes)
                 g.mappings[c].insert(key, inputs);
             break;
