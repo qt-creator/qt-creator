@@ -293,6 +293,11 @@
 
     \image qtcreator-breakdown.png
 
+    Qt Creator has been localized into several languages. If the system language
+    is one of the supported languages, it is automatically selected. To change
+    the language, select \gui {Tools > Options > Environment} and select a language
+    in the \gui Language field. The change takes effect after you restart Qt Creator.
+
     \section1 Qt Creator Modes
 
     The mode selector allows you to quickly switch between tasks such as
