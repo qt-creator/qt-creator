@@ -177,7 +177,7 @@ void ModeManager::objectAdded(QObject *obj)
     ActionManager *am = d->m_mainWindow->actionManager();
     const QString shortcutId = QLatin1String("QtCreator.Mode.") + mode->id();
     QShortcut *shortcut = new QShortcut(d->m_mainWindow);
-    shortcut->setWhatsThis(tr("Switch to %1 Mode").arg(mode->displayName()));
+    shortcut->setWhatsThis(tr("Switch to <b>%1</b> mode").arg(mode->displayName()));
     Command *cmd = am->registerShortcut(shortcut, shortcutId, QList<int>() << Constants::C_GLOBAL_ID);
 
     d->m_modeShortcuts.insert(index, cmd);
