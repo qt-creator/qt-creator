@@ -189,6 +189,9 @@ void QmlModelState::removePropertyChanges(const ModelNode &node)
 {
     //### exception if not valid
 
+    if (!isValid())
+        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
     if (isBaseState())
         return;
 
@@ -209,6 +212,19 @@ bool QmlModelState::affectsModelNode(const ModelNode &node) const
         return false;
 
     return !stateOperations(node).isEmpty();
+}
+
+QList<QmlObjectNode> QmlModelState::allAffectedNodes() const
+{
+    QList<QmlObjectNode> returnList;
+
+    foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
+        //### exception if not valid QmlModelStateOperation
+        if (QmlModelStateOperation(childNode).isValid() &&
+            !returnList.contains(QmlModelStateOperation(childNode).target()))
+            returnList.append(QmlModelStateOperation(childNode).target());
+    }
+    return returnList;
 }
 
 QString QmlModelState::name() const

@@ -89,6 +89,8 @@ public:
 
     bool isAncestorOf(const QmlObjectNode &objectNode) const;
 
+    static  QVariant instanceValue(const ModelNode &modelNode, const QString &name);
+
 protected:
     NodeInstance nodeInstance() const;
     QmlObjectNode nodeForInstance(const NodeInstance &instance) const;

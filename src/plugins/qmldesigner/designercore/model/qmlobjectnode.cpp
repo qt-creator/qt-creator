@@ -93,9 +93,8 @@ instanciated instance of this object.
 
 */
 QVariant  QmlObjectNode::instanceValue(const QString &name) const
-{
-    Q_ASSERT(qmlModelView()->hasInstanceForModelNode(modelNode()));
-    return qmlModelView()->instanceForModelNode(modelNode()).property(name);
+{    
+    return instanceValue(modelNode(), name);
 }
 
 
@@ -376,6 +375,15 @@ QList<QmlObjectNode> toQmlObjectNodeList(const QList<ModelNode> &modelNodeList)
 bool QmlObjectNode::isAncestorOf(const QmlObjectNode &objectNode) const
 {
     return modelNode().isAncestorOf(objectNode.modelNode());
+}
+
+QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const QString &name)
+{
+    QmlModelView *modelView = qobject_cast<QmlModelView*>(modelNode.view());
+    if (!modelView)
+        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    Q_ASSERT(modelView->hasInstanceForModelNode(modelNode));
+    return modelView->instanceForModelNode(modelNode).property(name);
 }
 
 NodeInstance QmlObjectNode::nodeInstance() const

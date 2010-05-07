@@ -38,6 +38,7 @@ namespace QmlDesigner {
 
 class QmlModelView;
 class QmlModelStateGroup;
+class QmlObjectNode;
 
 class CORESHARED_EXPORT QmlModelState : public QmlModelNodeFacade
 {
@@ -59,6 +60,7 @@ public:
     void removePropertyChanges(const ModelNode &node);
 
     bool affectsModelNode(const ModelNode &node) const;
+    QList<QmlObjectNode> allAffectedNodes() const;
     QString name() const;
     void setName(const QString &name);
     bool isValid() const;
