@@ -115,8 +115,8 @@ void MetaInfoPrivate::initialize()
 
     parseQmlTypes();
     parseNonQmlTypes();
-    parseValueTypes();
     parseXmlFiles();
+    parseValueTypes();
 
     m_isInitialized = true;
 }
@@ -155,9 +155,9 @@ void MetaInfoPrivate::parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObj
         propertyInfo.setFlagType(qProperty.isFlagType());
 
         if (propertyInfo.isEnumType()) {
-            EnumeratorMetaInfo enumerator;
-
             QMetaEnum qEnumerator = qProperty.enumerator();
+            EnumeratorMetaInfo enumerator = m_q->addEnumerator(qEnumerator.scope(), qEnumerator.name());
+
             enumerator.setValid(qEnumerator.isValid());
             enumerator.setIsFlagType(qEnumerator.isFlag());
             enumerator.setScope(qEnumerator.scope());
@@ -168,6 +168,7 @@ void MetaInfoPrivate::parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObj
             }
 
             propertyInfo.setEnumerator(enumerator);
+            
         }
 
         nodeMetaInfo.addProperty(propertyInfo);
@@ -240,7 +241,8 @@ void MetaInfoPrivate::parseValueTypes()
                << "QRectF"
                << "QSize"
                << "QSizeF"
-               << "QVector3D";
+               << "QVector3D"
+               << "QEasingCurve";
 
     foreach (const QString &type, valueTypes) {
         NodeMetaInfo nodeMetaInfo(*m_q);
@@ -268,6 +270,12 @@ void MetaInfoPrivate::parseValueTypes()
                 propertyInfo.setType("int");
             } else if (type == ("QRect")) {
                 propertyInfo.setType("int");
+            } else if (type == ("QEasingCurve")) {
+                if (propertyName == "type") {
+                    propertyInfo.setEnumType("true");
+                    propertyInfo.setType("QEasingCurve::Type");
+                    propertyInfo.setEnumerator(m_q->enumerator("QEasingCurve::Type"));
+                }
             }
             propertyInfo.setValid(true);
             propertyInfo.setReadable(true);

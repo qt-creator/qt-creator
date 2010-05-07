@@ -118,6 +118,11 @@ int EnumeratorMetaInfo::elementValue(const QString &enumeratorName) const
     return m_data->elements.value(unscoped, -1);
 }
 
+QString EnumeratorMetaInfo::valueToString(int value) const
+{
+    return m_data->elements.key(value);
+}
+
 void EnumeratorMetaInfo::setScope(const QString &scope)
 {
     Q_ASSERT(!scope.isEmpty());

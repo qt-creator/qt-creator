@@ -68,6 +68,7 @@ public:
     QString scopeAndName(const QString &combiner = QString("::")) const;
     QList<QString> elementNames() const;
     int elementValue(const QString &enumeratorName) const;
+    QString valueToString(int value) const;
 
 private:
     void setScope(const QString &scope);

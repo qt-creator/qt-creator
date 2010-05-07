@@ -38,6 +38,7 @@
 #include <QSize>
 #include <QSizeF>
 #include <QVector3D>
+#include <QEasingCurve>
 #include <QMetaProperty>
 
 namespace QmlDesigner {
@@ -114,6 +115,8 @@ VariantParser VariantParser::create(const QString &type)
         return VariantParser(QVariant(QRectF()));
     if (type == "QVector3D")
         return VariantParser(QVariant(QVector3D()));
+    if (type == "QEasingCurve")
+        return VariantParser(QVariant(QEasingCurve()));
 
     return VariantParser(QVariant());
 }
@@ -135,7 +138,9 @@ void VariantParser::init(const QString &type)
     if (type == "QRectF")
         m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::RectF);
     if (type == "QVector3D")
-        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::Vector3D);
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::Vector3D);    
+    if (type == "QEasingCurve")
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::EasingCurve);
 }
 
 bool VariantParser::isValid()

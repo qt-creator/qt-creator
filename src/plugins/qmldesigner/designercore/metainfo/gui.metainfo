@@ -127,6 +127,55 @@
     <element name="NonModal" value="0" />
     <element name="ApplicationModal" value="2" />
   </enumerator>
+  <enumerator name="Type" scope="QEasingCurve">
+     <element name="Linear" value="0" />
+     <element name="InQuad" value="1" />
+     <element name="OutQuad" value="2" />
+     <element name="InOutQuad" value="3" />
+     <element name="OutInQuad" value="4" />
+     <element name="InCubic" value="5" />
+     <element name="OutCubic" value="6" />
+     <element name="InOutCubic" value="7" />
+     <element name="OutInCubic" value="8" />
+     <element name="InQuart" value="9" />
+     <element name="OutQuart" value="10" />
+     <element name="InOutQuart" value="11" />
+     <element name="OutInQuart" value="12" />
+     <element name="InQuint" value="13" />
+     <element name="OutQuint" value="14" />
+     <element name="InOutQuint" value="15" />
+     <element name="OutInQuint" value="16" />
+     <element name="InSine" value="17" />
+     <element name="OutSine" value="18" />
+     <element name="InOutSine" value="19" />
+     <element name="OutInSine" value="20" />
+     <element name="InExpo" value="21" />
+     <element name="OutExpo" value="22" />
+     <element name="InOutExpo" value="23" />
+     <element name="OutInExpo" value="24" />
+     <element name="InCirc" value="25" />
+     <element name="OutCirc" value="26" />
+     <element name="InOutCirc" value="27" />
+     <element name="OutInCirc" value="28" />
+     <element name="InElastic" value="29" />
+     <element name="OutElastic" value="30" />
+     <element name="InOutElastic" value="31" />
+     <element name="OutInElastic" value="32" />
+     <element name="InBack" value="33" />
+     <element name="OutBack" value="34" />
+     <element name="InOutBack" value="35" />
+     <element name="OutInBack" value="36" />
+     <element name="InBounce" value="37" />
+     <element name="OutBounce" value="38" />
+     <element name="InOutBounce" value="39" />
+     <element name="OutInBounce" value="40" />
+     <element name="InCurve" value="41" />
+     <element name="OutCurve" value="42" />
+     <element name="SineCurve" value="43" />
+     <element name="CosineCurve" value="44" />
+     <element name="Custom" value="45" />
+     <element name="NCurveTypes" value="46" />
+  </enumerator>
   <flag name="Alignment" scope="Qt">
     <element name="AlignLeft" value="1" />
     <element name="AlignTrailing" value="2" />

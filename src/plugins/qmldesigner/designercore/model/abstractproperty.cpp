@@ -230,7 +230,7 @@ QmlObjectNode AbstractProperty::parentQmlObjectNode() const
 */
 PropertyMetaInfo AbstractProperty::metaInfo() const
 {
-    return ModelNode(m_internalNode, m_model.data(), view()).metaInfo().property(m_propertyName);
+    return ModelNode(m_internalNode, m_model.data(), view()).metaInfo().property(m_propertyName, true);
 }
 
 /*!
