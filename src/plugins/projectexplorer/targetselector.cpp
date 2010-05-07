@@ -219,6 +219,8 @@ void TargetSelector::paintEvent(QPaintEvent *event)
             } else {
                 image= m_runselected;
             }
+        } else {
+            p.setPen(Qt::black);
         }
 
         QRect buttonRect(x, 1, targetWidth() , image.height());
