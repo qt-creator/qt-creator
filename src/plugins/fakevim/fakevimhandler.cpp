@@ -70,6 +70,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
+#include <QtCore/QTimer>
 #include <QtCore/QtAlgorithms>
 #include <QtCore/QStack>
 
@@ -127,6 +128,7 @@ namespace Internal {
 #define StartOfDocument QTextCursor::Start
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
+#define DEDITOR(s) (d->m_textedit ? d->m_textedit->s : d->m_plaintextedit->s)
 
 const int ParagraphSeparator = 0x00002029;
 
@@ -278,7 +280,7 @@ struct Range
     RangeMode rangemode;
 };
 
-QDebug &operator<<(QDebug &ts, const QList<QTextEdit::ExtraSelection> &sels)
+QDebug operator<<(QDebug ts, const QList<QTextEdit::ExtraSelection> &sels)
 {
     foreach (const QTextEdit::ExtraSelection &sel, sels)
         ts << "SEL: " << sel.cursor.anchor() << sel.cursor.position();
@@ -312,7 +314,7 @@ static bool startsWithWhitespace(const QString &str, int col)
     return true;
 }
 
-inline QString msgE20MarkNotSet(const QString &text)
+inline QString msgMarkNotSet(const QString &text)
 {
     return FakeVimHandler::tr("E20: Mark '%1' not set").arg(text);
 }
@@ -641,6 +643,8 @@ public:
     void selectParagraphTextObject(bool inner);
     void selectBlockTextObject(bool inner, char left, char right);
     void selectQuotedStringTextObject(bool inner, int type);
+
+    Q_SLOT void importSelection();
 
 public:
     QTextEdit *m_textedit;
@@ -983,6 +987,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
 void FakeVimHandler::Private::installEventFilter()
 {
+    EDITOR(viewport()->installEventFilter(q));
     EDITOR(installEventFilter(q));
 }
 
@@ -997,23 +1002,37 @@ void FakeVimHandler::Private::setupWidget()
     m_wasReadOnly = EDITOR(isReadOnly());
 
     updateEditor();
-
-    QTextCursor tc = EDITOR(textCursor());
-    if (tc.hasSelection()) {
-        int pos = tc.position();
-        int anc = tc.anchor();
-        m_marks['<'] = anc;
-        m_marks['>'] = pos;
-        m_anchor = anc;
-        m_visualMode = VisualCharMode;
-        tc.clearSelection();
-        EDITOR(setTextCursor(tc));
-        m_tc = tc; // needed in updateSelection
-        updateSelection();
-    }
-
+    importSelection();
     updateMiniBuffer();
     updateCursor();
+}
+
+void FakeVimHandler::Private::importSelection()
+{
+    QTextCursor tc = EDITOR(textCursor());
+    int pos = tc.position();
+    int anc = tc.anchor();
+    // FIXME: Why?
+    if (pos < anc)
+        --anc;
+    else
+        tc.movePosition(Left, KeepAnchor);
+    m_marks['<'] = anc;
+    m_marks['>'] = pos;
+    m_anchor = anc;
+    Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
+    if (mods & Qt::ControlModifier)
+        m_visualMode = VisualBlockMode;
+    else if (mods & Qt::AltModifier)
+        m_visualMode = VisualBlockMode;
+    else if (mods & Qt::ShiftModifier)
+        m_visualMode = VisualLineMode;
+    else
+        m_visualMode = VisualCharMode;
+    m_tc = tc; // needed in updateSelection
+    tc.clearSelection();
+    EDITOR(setTextCursor(tc));
+    updateSelection();
 }
 
 void FakeVimHandler::Private::updateEditor()
@@ -1579,7 +1598,7 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
                 moveToFirstNonBlankOnLine();
             finishMovement();
         } else {
-            showRedMessage(msgE20MarkNotSet(input.text()));
+            showRedMessage(msgMarkNotSet(input.text()));
         }
         m_subsubmode = NoSubSubMode;
     } else {
@@ -2689,7 +2708,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     if (c == '\'' && !cmd.isEmpty()) {
         int mark = m_marks.value(cmd.at(0).unicode());
         if (!mark) {
-            showRedMessage(msgE20MarkNotSet(cmd.at(0)));
+            showRedMessage(msgMarkNotSet(cmd.at(0)));
             cmd = cmd.mid(1);
             return -1;
         }
@@ -2708,7 +2727,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
         int pos = m_marks.value(cmd.at(0).unicode(), -1);
         //qDebug() << " MARK: " << cmd.at(0) << pos << lineForPosition(pos);
         if (pos == -1) {
-            showRedMessage(msgE20MarkNotSet(cmd.at(0)));
+            showRedMessage(msgMarkNotSet(cmd.at(0)));
             cmd = cmd.mid(1);
             return -1;
         }
@@ -2867,7 +2886,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const QString &line) // :map
     const int pos2 = line.indexOf(QLatin1Char(' '), pos1 + 1);
     if (pos1 == -1 || pos2 == -1) {
         // FIXME: Dump mappings here.
-        qDebug() << g.mappings;
+        //qDebug() << g.mappings;
         return true;;
     }
 
@@ -4404,6 +4423,25 @@ void FakeVimHandler::disconnectFromEditor()
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
 {
     bool active = theFakeVimSetting(ConfigUseFakeVim)->value().toBool();
+
+    // Catch mouse events on the viewport.
+    if (ob == DEDITOR(viewport())) {
+        if (active && ev->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
+            if (mev->button() == Qt::LeftButton) {
+                d->importSelection();
+                //return true;
+            }
+        }
+        if (active && ev->type() == QEvent::MouseButtonPress) {
+            QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
+            if (mev->button() == Qt::LeftButton) {
+                d->m_visualMode = NoVisualMode;
+                d->updateSelection();
+            }
+        }
+        return QObject::eventFilter(ob, ev);
+    }
 
     if (active && ev->type() == QEvent::Shortcut) {
         d->passShortcuts(false);
