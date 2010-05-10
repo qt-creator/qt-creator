@@ -1020,7 +1020,9 @@ void FakeVimHandler::Private::importSelection()
     m_marks['>'] = pos;
     m_anchor = anc;
     Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
-    if (mods & Qt::ControlModifier)
+    if (!tc.hasSelection())
+        m_visualMode = NoVisualMode;
+    else if (mods & Qt::ControlModifier)
         m_visualMode = VisualBlockMode;
     else if (mods & Qt::AltModifier)
         m_visualMode = VisualBlockMode;
