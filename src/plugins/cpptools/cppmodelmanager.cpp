@@ -398,6 +398,28 @@ bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *resu
 
 QString CppPreprocessor::tryIncludeFile(QString &fileName, IncludeType type, unsigned *revision)
 {
+    if (type == IncludeGlobal) {
+        const QString fn = m_fileNameCache.value(fileName);
+
+        if (! fn.isEmpty()) {
+            fileName = fn;
+
+            if (revision)
+                *revision = 0;
+
+            return QString();
+        }
+    }
+
+    const QString originalFileName = fileName;
+    const QString contents = tryIncludeFile_helper(fileName, type, revision);
+    if (type == IncludeGlobal)
+        m_fileNameCache.insert(originalFileName, fileName);
+    return contents;
+}
+
+QString CppPreprocessor::tryIncludeFile_helper(QString &fileName, IncludeType type, unsigned *revision)
+{
     QFileInfo fileInfo(fileName);
     if (fileName == QLatin1String(pp_configuration_file) || fileInfo.isAbsolute()) {
         QString contents;
@@ -1375,9 +1397,6 @@ void CppModelManager::parse(QFutureInterface<void> &future,
         if (future.isCanceled())
             break;
 
-        // Change the priority of the background parser thread to idle.
-        QThread::currentThread()->setPriority(QThread::IdlePriority);
-
         const QString fileName = files.at(i);
 
         const bool isSourceFile = i < sourceCount;
@@ -1396,9 +1415,6 @@ void CppModelManager::parse(QFutureInterface<void> &future,
 
         if (isSourceFile)
             preproc->resetEnvironment();
-
-        // Restore the previous thread priority.
-        QThread::currentThread()->setPriority(QThread::NormalPriority);
     }
 
     future.setProgressValue(files.size());

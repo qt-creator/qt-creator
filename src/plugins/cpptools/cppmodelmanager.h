@@ -270,6 +270,7 @@ protected:
 
     bool includeFile(const QString &absoluteFilePath, QString *result, unsigned *revision);
     QString tryIncludeFile(QString &fileName, IncludeType type, unsigned *revision);
+    QString tryIncludeFile_helper(QString &fileName, IncludeType type, unsigned *revision);
 
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
@@ -303,6 +304,7 @@ private:
     QSet<QString> m_todo;
     QSet<QString> m_processed;
     unsigned m_revision;
+    QHash<QString, QString> m_fileNameCache;
 };
 
 } // namespace Internal
