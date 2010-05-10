@@ -347,7 +347,7 @@ private: ////////// View & Data Stuff //////////
     void handleWatchInsert(const GdbResponse &response);
     void handleInfoLine(const GdbResponse &response);
     void extractDataFromInfoBreak(const QString &output, BreakpointData *data);
-    void breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt);
+    void setBreakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt);
     QByteArray breakpointLocation(const BreakpointData *data);
     void sendInsertBreakpoint(int index);
     QString breakLocation(const QString &file) const;

@@ -357,7 +357,7 @@ void BreakHandler::clear()
     m_inserted.clear();
 }
 
-int BreakHandler::findBreakpoint(const BreakpointData &needle) const
+int BreakHandler::findSimilarBreakpoint(const BreakpointData &needle) const
 {
     // Search a breakpoint we might refer to.
     for (int index = 0; index != size(); ++index) {
@@ -389,7 +389,7 @@ int BreakHandler::findBreakpoint(const QString &fileName, int lineNumber) const
     return -1;
 }
 
-BreakpointData *BreakHandler::findBreakpoint(int bpNumber) const
+BreakpointData *BreakHandler::findBreakpointByNumber(int bpNumber) const
 {
     if (!size())
         return 0;

@@ -137,8 +137,9 @@ void BreakWindow::resizeEvent(QResizeEvent *ev)
 void BreakWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     QModelIndex indexUnderMouse = indexAt(ev->pos());
-    if (indexUnderMouse.isValid())
+    if (indexUnderMouse.isValid() && indexUnderMouse.column() >= 4)
         editBreakpoint(QModelIndexList() << indexUnderMouse);
+    QTreeView::mouseDoubleClickEvent(ev);
 }
 
 void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)

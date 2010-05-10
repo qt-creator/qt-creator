@@ -492,8 +492,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 const GdbMi bkpt = result.findChild("bkpt");
                 const int number = bkpt.findChild("number").data().toInt();
                 BreakHandler *handler = manager()->breakHandler();
-                BreakpointData *data = handler->findBreakpoint(number);
-                breakpointDataFromOutput(data, bkpt);
+                BreakpointData *data = handler->findBreakpointByNumber(number);
+                setBreakpointDataFromOutput(data, bkpt);
                 handler->updateMarkers();
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
@@ -2088,7 +2088,7 @@ void GdbEngine::setTokenBarrier()
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt)
+void GdbEngine::setBreakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt)
 {
     if (!bkpt.isValid())
         return;
@@ -2241,7 +2241,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // Interesting only on Mac?
         GdbMi bkpt = response.data.findChild("bkpt");
-        breakpointDataFromOutput(data, bkpt);
+        setBreakpointDataFromOutput(data, bkpt);
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try 
@@ -2313,10 +2313,10 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     BreakHandler *handler = manager()->breakHandler();
     for (int index = 0; index != bkpts.size(); ++index) {
         BreakpointData temp;
-        breakpointDataFromOutput(&temp, bkpts.at(index));
-        int found = handler->findBreakpoint(temp);
+        setBreakpointDataFromOutput(&temp, bkpts.at(index));
+        int found = handler->findSimilarBreakpoint(temp);
         if (found != -1)
-            breakpointDataFromOutput(handler->at(found), bkpts.at(index));
+            setBreakpointDataFromOutput(handler->at(found), bkpts.at(index));
         //else
             //qDebug() << "CANNOT HANDLE RESPONSE" << bkpts.at(index).toString();
     }
@@ -2346,7 +2346,7 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     //
     // gdb 6.3 does not produce any console output
     BreakHandler *handler = manager()->breakHandler();
-    BreakpointData *data = handler->findBreakpoint(bpNumber);
+    BreakpointData *data = handler->findBreakpointByNumber(bpNumber);
     if (response.resultClass == GdbResultDone && data) {
         QString msg = _(response.data.findChild("consolestreamoutput").data());
         //if (msg.contains(__("Will stop next time breakpoint"))) {
@@ -2364,7 +2364,7 @@ void GdbEngine::handleBreakCondition(const GdbResponse &response)
 {
     int bpNumber = response.cookie.toInt();
     BreakHandler *handler = manager()->breakHandler();
-    BreakpointData *data = handler->findBreakpoint(bpNumber);
+    BreakpointData *data = handler->findBreakpointByNumber(bpNumber);
     if (response.resultClass == GdbResultDone) {
         // We just assume it was successful. Otherwise we had to parse
         // the output stream data.
@@ -2447,7 +2447,7 @@ void GdbEngine::handleBreakInfo(const GdbResponse &response)
         // constructor.
         const int bpNumber = response.cookie.toInt();
         const BreakHandler *handler = manager()->breakHandler();
-        BreakpointData *data = handler->findBreakpoint(bpNumber);
+        BreakpointData *data = handler->findBreakpointByNumber(bpNumber);
         if (data) {
             QString str = QString::fromLocal8Bit(
                 response.data.findChild("consolestreamoutput").data());
@@ -2464,7 +2464,7 @@ void GdbEngine::handleInfoLine(const GdbResponse &response)
         // <_Z10testQStackv+142>.\n"
         const int bpNumber = response.cookie.toInt();
         const BreakHandler *handler = manager()->breakHandler();
-        BreakpointData *data = handler->findBreakpoint(bpNumber);
+        BreakpointData *data = handler->findBreakpointByNumber(bpNumber);
         if (!data)
             return;
         QByteArray ba = response.data.findChild("consolestreamoutput").data();
