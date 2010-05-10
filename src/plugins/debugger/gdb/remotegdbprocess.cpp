@@ -57,40 +57,49 @@ QByteArray RemoteGdbProcess::readAllStandardError()
 
 void RemoteGdbProcess::start(const QString &cmd, const QStringList &args)
 {
-    m_gdbState = CmdNotYetSent;
     m_gdbConn = Core::InteractiveSshConnection::create(m_serverInfo);
-    if (m_gdbConn->hasError())
-        return;
-    m_appOutputReaderState = CmdNotYetSent;
     m_appOutputConn = Core::InteractiveSshConnection::create(m_serverInfo);
-    if (m_appOutputConn->hasError())
-        return;
-    m_errOutputReaderState = CmdNotYetSent;
     m_errOutputConn = Core::InteractiveSshConnection::create(m_serverInfo);
-    if (m_errOutputConn->hasError())
-        return;
     m_command = cmd;
     m_cmdArgs = args;
-    connect(m_gdbConn.data(), SIGNAL(remoteOutputAvailable()),
-            this, SLOT(handleGdbOutput()));
+    m_errOutputConn->start();
+    m_appOutputConn->start();
+    m_gdbConn->start();
+ }
+
+bool RemoteGdbProcess::waitForStarted()
+{
+    if (!waitForInputReady(m_appOutputConn))
+        return false;
+    if (!sendAndWaitForEcho(m_appOutputConn, readerCmdLine(AppOutputFile)))
+        return false;
+    if (!waitForInputReady(m_errOutputConn))
+        return false;
+    if (!sendAndWaitForEcho(m_errOutputConn, readerCmdLine(ErrOutputFile)))
+        return false;
+    if (!waitForInputReady(m_gdbConn))
+        return false;
     connect(m_appOutputConn.data(), SIGNAL(remoteOutputAvailable()),
             this, SLOT(handleAppOutput()));
     connect(m_errOutputConn.data(), SIGNAL(remoteOutputAvailable()),
             this, SLOT(handleErrOutput()));
-    m_gdbConn->start();
-    m_errOutputConn->start();
-    m_appOutputConn->start();
-}
+    connect(m_gdbConn.data(), SIGNAL(remoteOutputAvailable()),
+            this, SLOT(handleGdbOutput()));
+    m_gdbStarted = false;
+    m_gdbCmdLine = "stty -echo && " + m_command.toUtf8() + ' '
+        + m_cmdArgs.join(QLatin1String(" ")).toUtf8()
+        + " -tty=" + AppOutputFile + " 2>" + ErrOutputFile + '\n';
+    if (!m_wd.isEmpty())
+        m_gdbCmdLine.prepend("cd " + m_wd.toUtf8() + " && ");
+    if (sendInput(m_gdbCmdLine) != m_gdbCmdLine.count())
+        return false;
 
-bool RemoteGdbProcess::waitForStarted()
-{
     return true;
 }
 
 qint64 RemoteGdbProcess::write(const QByteArray &data)
 {
-    if (m_gdbState != CmdReceived || !m_inputToSend.isEmpty()
-        || !m_lastSeqNr.isEmpty()) {
+    if (!m_gdbStarted || !m_inputToSend.isEmpty() || !m_lastSeqNr.isEmpty()) {
         m_inputToSend.enqueue(data);
         return data.size();
     } else {
@@ -114,15 +123,7 @@ void RemoteGdbProcess::kill()
 
 QProcess::ProcessState RemoteGdbProcess::state() const
 {
-    switch (m_gdbState) {
-    case CmdNotYetSent:
-        return QProcess::NotRunning;
-    case CmdSent:
-        return QProcess::Starting;
-    case CmdReceived:
-    default:
-        return QProcess::Running;
-    }
+    return m_gdbStarted ? QProcess::Running : QProcess::Starting;
 }
 
 QString RemoteGdbProcess::errorString() const
@@ -132,30 +133,30 @@ QString RemoteGdbProcess::errorString() const
 
 void RemoteGdbProcess::handleGdbOutput()
 {
-#if 0
-    qDebug("%s: output is '%s'", Q_FUNC_INFO, output.data());
-#endif
-
-    if (m_gdbState == CmdNotYetSent)
-        return;
-
     m_currentGdbOutput
         += removeCarriageReturn(m_gdbConn->waitForRemoteOutput(0));
+#if 0
+    qDebug("%s: complete unread output is '%s'", Q_FUNC_INFO, m_currentGdbOutput.data());
+#endif
+    if (checkForGdbExit(m_currentGdbOutput)) {
+        m_currentGdbOutput.clear();
+        return;
+    }
+
     if (!m_currentGdbOutput.endsWith('\n'))
         return;
 
-    if (m_gdbState == CmdSent) {
-        const int index = m_currentGdbOutput.indexOf(m_startCmdLine);
+    if (!m_gdbStarted) {
+        const int index = m_currentGdbOutput.indexOf(m_gdbCmdLine);
         if (index != -1)
-            m_currentGdbOutput.remove(index, m_startCmdLine.size());
+            m_currentGdbOutput.remove(index, m_gdbCmdLine.size());
         // Note: We can't guarantee that we will match the command line,
         // because the remote terminal sometimes inserts control characters.
-        // Otherwise we could change the state to CmdReceived here.
+        // Otherwise we could set m_gdbStarted here.
     }
 
-    m_gdbState = CmdReceived;
+    m_gdbStarted = true;
 
-    checkForGdbExit(m_currentGdbOutput);
     if (m_currentGdbOutput.contains(m_lastSeqNr + '^'))
         m_lastSeqNr.clear();
 
@@ -220,61 +221,13 @@ qint64 RemoteGdbProcess::sendInput(const QByteArray &data)
 
 void RemoteGdbProcess::handleAppOutput()
 {
-    const QByteArray output = m_appOutputConn->waitForRemoteOutput(0);
-    if (!handleAppOrErrOutput(m_appOutputConn, m_appOutputReaderState,
-                              m_initialAppOutput, AppOutputFile, output))
-        m_adapter->handleApplicationOutput(output);
+    m_adapter->handleApplicationOutput(m_appOutputConn->waitForRemoteOutput(0));
 }
 
 void RemoteGdbProcess::handleErrOutput()
 {
-    const QByteArray output = m_errOutputConn->waitForRemoteOutput(0);
-    if (!handleAppOrErrOutput(m_errOutputConn, m_errOutputReaderState,
-                              m_initialErrOutput, ErrOutputFile, output)) {
-        m_errorOutput += output;
-        emit readyReadStandardError();
-    }
-}
-
-bool RemoteGdbProcess::handleAppOrErrOutput(Core::InteractiveSshConnection::Ptr &conn,
-         CmdState &cmdState, QByteArray &initialOutput, const QByteArray &file,
-         const QByteArray &output)
-{
-    const QByteArray cmdLine1 = mkFifoCmdLine(file);
-    const QByteArray cmdLine2 = readerCmdLine(file);
-    if (cmdState == CmdNotYetSent) {
-        conn->sendInput(cmdLine1);
-        cmdState = CmdSent;
-        return true;
-    }
-
-    if (cmdState == CmdSent) {
-        initialOutput += output;
-        if (initialOutput.endsWith(cmdLine2)) {
-            cmdState = CmdReceived;
-            if (m_appOutputReaderState == m_errOutputReaderState
-                && m_gdbState == CmdNotYetSent)
-                startGdb();
-        } else if (initialOutput.contains(cmdLine1)
-            && !initialOutput.endsWith(cmdLine1)) {
-            initialOutput.clear();
-            conn->sendInput(cmdLine2);
-        }
-        return true;
-    }
-
-    return false;
-}
-
-void RemoteGdbProcess::startGdb()
-{
-    m_startCmdLine = "stty -echo && " + m_command.toUtf8() + ' '
-        + m_cmdArgs.join(QLatin1String(" ")).toUtf8()
-        + " -tty=" + AppOutputFile + " 2>" + ErrOutputFile + '\n';
-    if (!m_wd.isEmpty())
-        m_startCmdLine.prepend("cd " + m_wd.toUtf8() + " && ");
-    sendInput(m_startCmdLine);
-    m_gdbState = CmdSent;
+    m_errorOutput += m_errOutputConn->waitForRemoteOutput(0);
+    emit readyReadStandardError();
 }
 
 void RemoteGdbProcess::stopReaders()
@@ -293,14 +246,9 @@ void RemoteGdbProcess::stopReaders()
     }
 }
 
-QByteArray RemoteGdbProcess::mkFifoCmdLine(const QByteArray &file)
-{
-    return "rm -f " + file + " && mkfifo " + file + "\r\n";
-}
-
 QByteArray RemoteGdbProcess::readerCmdLine(const QByteArray &file)
 {
-    return  "cat " + file + "\r\n";
+    return "rm -f " + file + " && mkfifo " + file +  " && cat " + file + "\r\n";
 }
 
 QByteArray RemoteGdbProcess::removeCarriageReturn(const QByteArray &data)
@@ -314,17 +262,42 @@ QByteArray RemoteGdbProcess::removeCarriageReturn(const QByteArray &data)
     return output;
 }
 
-void RemoteGdbProcess::checkForGdbExit(QByteArray &output)
+bool RemoteGdbProcess::checkForGdbExit(QByteArray &output)
 {
     const QByteArray exitString("^exit");
     const int exitPos = output.indexOf(exitString);
-    if (exitPos != -1) {
-        disconnect(m_gdbConn.data(), SIGNAL(remoteOutputAvailable()),
-                   this, SLOT(handleGdbOutput()));
-        output.remove(exitPos + exitString.size(), output.size());
-        stopReaders();
-        emit finished(0, QProcess::NormalExit);
+    if (exitPos == -1)
+        return false;
+
+    emit finished(0, QProcess::NormalExit);
+    disconnect(m_gdbConn.data(), SIGNAL(remoteOutputAvailable()),
+               this, SLOT(handleGdbOutput()));
+    output.remove(exitPos + exitString.size(), output.size());
+    stopReaders();
+    return true;
+}
+
+bool RemoteGdbProcess::waitForInputReady(Core::InteractiveSshConnection::Ptr &conn)
+{
+    if (conn->waitForRemoteOutput(m_serverInfo.timeout).isEmpty())
+        return false;
+    while (!conn->waitForRemoteOutput(100).isEmpty())
+        ;
+    return true;
+}
+
+bool RemoteGdbProcess::sendAndWaitForEcho(Core::InteractiveSshConnection::Ptr &conn,
+    const QByteArray &cmdLine)
+{
+    conn->sendInput(cmdLine);
+    QByteArray allOutput;
+    while (!allOutput.endsWith(cmdLine)) {
+        const QByteArray curOutput = conn->waitForRemoteOutput(100);
+        if (curOutput.isEmpty())
+            return false;
+        allOutput += curOutput;
     }
+    return true;
 }
 
 

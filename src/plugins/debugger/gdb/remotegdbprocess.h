@@ -73,20 +73,16 @@ private slots:
     void handleErrOutput();
 
 private:
-    enum CmdState { CmdNotYetSent, CmdSent, CmdReceived };
-
-    static QByteArray mkFifoCmdLine(const QByteArray &file);
     static QByteArray readerCmdLine(const QByteArray &file);
 
     int findAnchor(const QByteArray &data) const;
-    bool handleAppOrErrOutput(Core::InteractiveSshConnection::Ptr &conn,
-             CmdState &cmdState, QByteArray &initialOutput,
-             const QByteArray &file, const QByteArray &output);
     qint64 sendInput(const QByteArray &data);
-    void startGdb();
     void stopReaders();
     QByteArray removeCarriageReturn(const QByteArray &data);
-    void checkForGdbExit(QByteArray &output);
+    bool checkForGdbExit(QByteArray &output);
+    bool sendAndWaitForEcho(Core::InteractiveSshConnection::Ptr &conn,
+        const QByteArray &cmdLine);
+    bool waitForInputReady(Core::InteractiveSshConnection::Ptr &conn);
 
     static const QByteArray AppOutputFile;
     static const QByteArray ErrOutputFile;
@@ -102,14 +98,9 @@ private:
     QString m_wd;
     QQueue<QByteArray> m_inputToSend;
     QByteArray m_currentGdbOutput;
-    QByteArray m_initialAppOutput;
-    QByteArray m_initialErrOutput;
     QByteArray m_lastSeqNr;
-    QByteArray m_startCmdLine;
-
-    CmdState m_gdbState;
-    CmdState m_appOutputReaderState;
-    CmdState m_errOutputReaderState;
+    QByteArray m_gdbCmdLine;
+    bool m_gdbStarted;
 
     RemotePlainGdbAdapter *m_adapter;
 };
