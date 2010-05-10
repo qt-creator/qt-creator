@@ -489,7 +489,7 @@ bool ResolveExpression::visit(CallAST *ast)
         Symbol *lastVisibleSymbol = result.lastVisibleSymbol();
 
         if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), lastVisibleSymbol->scope())) {
+            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), lastVisibleSymbol)) {
                 foreach (Symbol *overload, b->lookup(functionCallOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         if (maybeValidPrototype(funTy, actualArgumentCount)) {
@@ -534,7 +534,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
             addResult(arrTy->elementType().simplified(), lastVisibleSymbol);
 
         } else if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), lastVisibleSymbol->scope())) {
+            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), lastVisibleSymbol)) {
                 foreach (Symbol *overload, b->lookup(arrayAccessOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType();
