@@ -904,6 +904,127 @@ void CoreEngine::setModuleCount(unsigned m)
         m_debugEventCallback->setModuleCount(m);
 }
 
+static inline const char *debugFilterDescription(ULONG in)
+{
+    switch (in) {
+    case DEBUG_FILTER_BREAK:
+        return "break";
+    case DEBUG_FILTER_SECOND_CHANCE_BREAK:
+        return "2nd-chance-break";
+    case DEBUG_FILTER_OUTPUT:
+        return "output";
+    case DEBUG_FILTER_IGNORE:
+        return "ignore";
+    default:
+        break;
+    }
+    return "unknown";
+}
+
+static inline QString msgCannotChangeExceptionCommands(unsigned long code, const QString &why)
+{
+    return QString::fromLatin1("Cannot change exception commands for 0x%1: %2").
+            arg(code, 0, 16).arg(why);
+}
+
+bool CoreEngine::setBreakOnThrow(bool b, QString *errorMessage)
+{
+    // See eventFilterStatus() for defaults
+    const unsigned long code = 0xe06d7363;
+    const unsigned long executionCommand = b ? DEBUG_FILTER_BREAK : DEBUG_FILTER_SECOND_CHANCE_BREAK;
+    const unsigned long continueCommand  = b ? DEBUG_FILTER_BREAK : DEBUG_FILTER_SECOND_CHANCE_BREAK;
+    return setExceptionCommands(code, executionCommand, continueCommand, errorMessage);
+}
+
+bool CoreEngine::setExceptionCommands(ULONG code,
+                                      ULONG executionCommand,
+                                      ULONG continueCommand,
+                                      QString *errorMessage)
+{
+    DEBUG_EXCEPTION_FILTER_PARAMETERS exceptionParameters;
+    HRESULT hr = m_cif.debugControl->GetExceptionFilterParameters(1, &code, 0, &exceptionParameters);
+    if (FAILED(hr)) {
+        *errorMessage = msgCannotChangeExceptionCommands(code, msgComFailed("GetExceptionFilterParameters", hr));
+        return false;
+    }
+    if (exceptionParameters.ExecutionOption == executionCommand
+        && exceptionParameters.ContinueOption == continueCommand)
+        return true;
+    if (debug)
+        qDebug("Changing exception commands of 0x%x from %s/%s to %s/%s",
+               code,
+               debugFilterDescription(exceptionParameters.ExecutionOption),
+               debugFilterDescription(exceptionParameters.ContinueOption),
+               debugFilterDescription(executionCommand),
+               debugFilterDescription(continueCommand));
+
+    exceptionParameters.ExecutionOption = executionCommand;
+    exceptionParameters.ContinueOption = continueCommand;
+    hr = m_cif.debugControl->SetExceptionFilterParameters(1, &exceptionParameters);
+    if (FAILED(hr)) {
+        *errorMessage = msgCannotChangeExceptionCommands(code, msgComFailed("SetExceptionFilterParameters", hr));
+        return false;
+    }
+    return true;
+}
+
+static void formatEventFilter(CIDebugControl *ctl, unsigned long start, unsigned long end,
+                              bool isException,
+                              QTextStream &str)
+{
+    enum { bufSize =2048 };
+    WCHAR buffer[bufSize];
+    for (unsigned long i = start; i < end; i++) {
+        HRESULT hr = ctl->GetEventFilterTextWide(i, buffer, bufSize, 0);
+        if (SUCCEEDED(hr)) {
+            ULONG size;
+            str << "- #" << i << " \"" << QString::fromUtf16(buffer) << '"';
+            hr = ctl->GetEventFilterCommandWide(i, buffer, bufSize, &size);
+            if (SUCCEEDED(hr) && size > 1)
+                str << " command: '" << QString::fromUtf16(buffer) << '\'';
+            if (isException) {
+                DEBUG_EXCEPTION_FILTER_PARAMETERS exceptionParameters;
+                hr = ctl->GetExceptionFilterParameters(1, 0, i, &exceptionParameters);
+                if (SUCCEEDED(hr)) {
+                    str.setIntegerBase(16);
+                    str << " code: 0x" <<  exceptionParameters.ExceptionCode;
+                    str.setIntegerBase(10);
+                    str << " execute: '"
+                            << debugFilterDescription(exceptionParameters.ExecutionOption)
+                            << "' continue: '" << debugFilterDescription(exceptionParameters.ContinueOption)
+                            << '\'';
+                    if (exceptionParameters.SecondCommandSize) {
+                        hr = ctl->GetExceptionFilterSecondCommandWide(i, buffer, bufSize, 0);
+                        if (SUCCEEDED(hr))
+                            str << " 2nd-command '" << QString::fromUtf16(buffer) << '\'';
+                    }
+                }
+            } // isException
+            str << '\n';
+        }
+    }
+}
+
+QString CoreEngine::eventFilterStatus() const
+{
+    ULONG specificEvents, specificExceptions, arbitraryExceptions;
+    QString rc;
+    QTextStream str(&rc);
+
+    HRESULT hr = m_cif.debugControl->GetNumberEventFilters(&specificEvents, &specificExceptions, &arbitraryExceptions);
+    if (FAILED(hr))
+        return QString();
+    str << "Specific events\n";
+    formatEventFilter(m_cif.debugControl, 0, specificEvents, false, str);
+    const ULONG arbitraryExceptionsStart = specificEvents + specificExceptions;
+    str << "Specific exceptions\n";
+    formatEventFilter(m_cif.debugControl, specificEvents, arbitraryExceptionsStart, true, str);
+    str << "Arbitrary exceptions\n";
+    const ULONG arbitraryExceptionsEnd = arbitraryExceptionsStart + arbitraryExceptions;
+    formatEventFilter(m_cif.debugControl, arbitraryExceptionsStart, arbitraryExceptionsEnd, true, str);
+    return rc;
+}
+
 // ------------- DEBUG_VALUE formatting helpers
 
 // format an array of integers as "0x323, 0x2322, ..."

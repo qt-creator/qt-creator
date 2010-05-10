@@ -151,6 +151,14 @@ public:
 
     unsigned moduleCount() const;
 
+    bool setBreakOnThrow(bool b, QString *errorMessage);
+    bool setExceptionCommands(ULONG code,
+                              ULONG executionCommand,
+                              ULONG continueCommand,
+                              QString *errorMessage);
+
+    QString eventFilterStatus() const;
+
 signals:
     void watchTimerDebugEvent();
 

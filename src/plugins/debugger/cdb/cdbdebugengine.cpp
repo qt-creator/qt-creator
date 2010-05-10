@@ -374,7 +374,10 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     m_d->clearDisplay();
     m_d->m_inferiorStartupComplete = false;
     setState(AdapterStarted, Q_FUNC_INFO, __LINE__);
-
+    // Options
+    QString errorMessage;
+    if (!m_d->setBreakOnThrow(theDebuggerBoolSetting(BreakOnThrow), &errorMessage))
+      manager()->showDebuggerOutput(LogWarning, errorMessage);
     m_d->setVerboseSymbolLoading(m_d->m_options->verboseSymbolLoading);
     // Figure out dumper. @TODO: same in gdb...
     const QString dumperLibName = QDir::toNativeSeparators(manager()->qtDumperLibraryName());
@@ -396,7 +399,6 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     setState(InferiorStarting, Q_FUNC_INFO, __LINE__);
     manager()->showStatusMessage("Starting Debugger", messageTimeOut);
 
-    QString errorMessage;
     bool rc = false;
     bool needWatchTimer = false;
     m_d->clearForRun();
@@ -1563,7 +1565,8 @@ void CdbDebugEngine::syncDebuggerPaths()
 unsigned CdbDebugEngine::debuggerCapabilities() const
 {
     return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
-           |WatchpointCapability;
+           |WatchpointCapability
+           |BreakOnThrowAndCatchCapability; // Sort-of: Can break on throw().
 }
 
 // Accessed by DebuggerManager
