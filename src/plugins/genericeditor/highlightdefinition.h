@@ -63,8 +63,7 @@ public:
 
     void addDelimiters(const QString &characters);
     void removeDelimiters(const QString &characters);
-    //Todo: wordWrapDelimiters?
-    bool isDelimiter(const QChar &character) const;    
+    bool isDelimiter(const QChar &character) const;
 
     void setSingleLineComment(const QString &start);
     const QString &singleLineComment() const;

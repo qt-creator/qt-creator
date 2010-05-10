@@ -76,49 +76,7 @@ QString PlainTextEditorEditable::id() const
     return QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
-// Indent a text block based on previous line.
-// Simple text paragraph layout:
-// aaaa aaaa
-//
-//   bbb bb
-//   bbb bb
-//
-//  - list
-//    list line2
-//
-//  - listn
-//
-// ccc
-//
-// @todo{Add formatting to wrap paragraphs. This requires some
-// hoops as the current indentation routines are not prepared
-// for additional block being inserted. It might be possible
-// to do in 2 steps (indenting/wrapping)}
-//
-
 void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
-    Q_UNUSED(typedChar)
-
-    // At beginning: Leave as is.
-    if (block == doc->begin())
-        return;
-
-    const QTextBlock previous = block.previous();
-    const QString previousText = previous.text();
-    // Empty line indicates a start of a new paragraph. Leave as is.
-    if (previousText.isEmpty() || previousText.trimmed().isEmpty())
-        return;
-
-    // Just use previous line.
-    // Skip blank characters when determining the indentation
-    int i = 0;
-    while (i < previousText.size()) {
-        if (!previousText.at(i).isSpace()) {
-            const TextEditor::TabSettings &ts = tabSettings();
-            ts.indentLine(block, ts.columnAt(previousText, i));
-            break;
-        }
-        ++i;
-    }
+    m_indenter.indentBlock(doc, block, typedChar, tabSettings());
 }

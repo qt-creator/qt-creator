@@ -27,49 +27,26 @@
 **
 **************************************************************************/
 
-#ifndef PLAINTEXTEDITOR_H
-#define PLAINTEXTEDITOR_H
+#ifndef NORMALINDENTER_H
+#define NORMALINDENTER_H
 
-#include "basetexteditor.h"
-#include "normalindenter.h"
-
-#include <QtCore/QList>
+#include "indenter.h"
 
 namespace TextEditor {
 
-class PlainTextEditor;
-
-class TEXTEDITOR_EXPORT PlainTextEditorEditable : public BaseTextEditorEditable
+class TEXTEDITOR_EXPORT NormalIndenter : public Indenter
 {
 public:
-    PlainTextEditorEditable(PlainTextEditor *);
-    QList<int> context() const;
-
-    bool duplicateSupported() const { return true; }
-    Core::IEditor *duplicate(QWidget *parent);
-    bool isTemporary() const { return false; }
-    virtual QString id() const;
+    NormalIndenter();
+    virtual ~NormalIndenter();
 
 private:
-    QList<int> m_context;
-};
-
-class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
-{
-    Q_OBJECT
-
-public:
-    PlainTextEditor(QWidget *parent);
-
-protected:
-    virtual BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }    
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-
-private:
-    // Indent a text block based on previous line.
-    NormalIndenter m_indenter;
+    virtual void doIndentBlock(QTextDocument *doc,
+                               QTextBlock block,
+                               QChar typedChar,
+                               const TabSettings &ts);
 };
 
 } // namespace TextEditor
 
-#endif // PLAINTEXTEDITOR_H
+#endif // NORMALINDENTER_H

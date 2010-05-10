@@ -288,7 +288,7 @@ void HighlightDefinitionHandler::keywordsElementStarted(const QXmlAttributes &at
     m_definition->setKeywordsSensitive(atts.value(kCaseSensitive));
     m_definition->removeDelimiters(atts.value(kWeakDeliminator));
     m_definition->addDelimiters(atts.value(kAdditionalDeliminator));
-    //Todo: wordWrapDelimiters?
+    //@todo: wordWrapDelimiters?
 }
 
 void HighlightDefinitionHandler::detectCharStarted(const QXmlAttributes &atts)

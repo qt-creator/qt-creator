@@ -41,6 +41,8 @@
 #include <texteditor/basetextdocument.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/normalindenter.h>
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFileInfo>
@@ -54,6 +56,9 @@ Editor::Editor(QWidget *parent) : TextEditor::BaseTextEditor(parent)
 {
     connect(file(), SIGNAL(changed()), this, SLOT(configure()));
 }
+
+Editor::~Editor()
+{}
 
 void Editor::unCommentSelection()
 {
@@ -78,6 +83,11 @@ void Editor::setFontSettings(const TextEditor::FontSettings & fs)
     highlighter->rehighlight();
 }
 
+void Editor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
+{
+    m_indenter->indentBlock(doc, block, typedChar, tabSettings());
+}
+
 void Editor::configure()
 {
     const QString &mimeType = Core::ICore::instance()->mimeDatabase()->findByFile(
@@ -99,6 +109,12 @@ void Editor::configure()
         m_commentDefinition.setSingleLine(definition->singleLineComment());
         m_commentDefinition.setMultiLineStart(definition->multiLineCommentStart());
         m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
+
+        //@todo: It's possible to specify an indenter style in the definition file. However, this
+        // is not really being used because Kate recommends to configure indentation through
+        // another editor feature. Maybe we should provide something similar in Creator?
+        // For now the normal indenter is used.
+        m_indenter.reset(new TextEditor::NormalIndenter);
     } catch (const HighlighterException &) {
         // No highlighter will be set.
     }

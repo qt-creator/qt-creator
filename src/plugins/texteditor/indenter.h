@@ -27,76 +27,37 @@
 **
 **************************************************************************/
 
-#ifndef GENERICEDITOR_H
-#define GENERICEDITOR_H
+#ifndef INDENTER_H
+#define INDENTER_H
 
-#include <texteditor/basetexteditor.h>
-#include <utils/uncommentselection.h>
+#include "texteditor_global.h"
 
-#include <QtCore/QList>
-#include <QtCore/QScopedPointer>
+#include <QtCore/QChar>
 #include <QtGui/QTextBlock>
 
 QT_BEGIN_NAMESPACE
-class QString;
 class QTextDocument;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-class Indenter;
-}
 
-namespace GenericEditor {
-namespace Internal {
+struct TabSettings;
 
-class Editor : public TextEditor::BaseTextEditor
+class TEXTEDITOR_EXPORT Indenter
 {
-    Q_OBJECT
 public:
-    Editor(QWidget *parent = 0);
-    virtual ~Editor();
+    Indenter();
+    virtual ~Indenter();
 
-    virtual void unCommentSelection();
-
-protected:
-    virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
-
-public slots:
-    virtual void setFontSettings(const TextEditor::FontSettings &);
-
-private slots:
-    void configure();
+    void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar, const TabSettings &ts);
 
 private:
-    Editor(const Editor &);
-    Editor &operator=(const Editor &);
-
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-
-    Utils::CommentDefinition m_commentDefinition;
-    QScopedPointer<TextEditor::Indenter> m_indenter;
+    virtual void doIndentBlock(QTextDocument *doc,
+                               QTextBlock block,
+                               QChar typedChar,
+                               const TabSettings &ts) = 0;
 };
 
-class EditorEditable : public TextEditor::BaseTextEditorEditable
-{
-    Q_OBJECT
-public:
-    EditorEditable(Editor *editor);
+} // namespace TextEditor
 
-protected:
-    virtual QString id() const;
-    virtual QList<int> context() const;
-    virtual bool isTemporary() const;
-    virtual bool duplicateSupported() const;
-    virtual Core::IEditor *duplicate(QWidget *parent);
-
-private:
-    QList<int> m_context;
-};
-
-
-
-} // namespace Internal
-} // namespace GenericEditor
-
-#endif // GENERICEDITOR_H
+#endif // INDENTER_H

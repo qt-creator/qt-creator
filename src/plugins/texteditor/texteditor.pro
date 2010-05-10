@@ -35,7 +35,9 @@ SOURCES += texteditorplugin.cpp \
     texteditoroverlay.cpp \
     texteditoroptionspage.cpp \
     basetextdocumentlayout.cpp \
-    completionsettings.cpp
+    completionsettings.cpp \
+    normalindenter.cpp \
+    indenter.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -73,7 +75,9 @@ HEADERS += texteditorplugin.h \
     texteditoroverlay.h \
     texteditoroptionspage.h \
     basetextdocumentlayout.h \
-    completionsettings.h
+    completionsettings.h \
+    normalindenter.h \
+    indenter.h
 
 
 FORMS += behaviorsettingspage.ui \
