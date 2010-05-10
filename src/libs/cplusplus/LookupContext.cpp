@@ -779,8 +779,11 @@ bool CreateBindings::visit(Class *klass)
 
 bool CreateBindings::visit(ForwardClassDeclaration *klass)
 {
-    ClassOrNamespace *previous = enterEntity(klass);
-    _currentClassOrNamespace = previous;
+    if (! klass->isFriend()) {
+        ClassOrNamespace *previous = enterEntity(klass);
+        _currentClassOrNamespace = previous;
+    }
+
     return false;
 }
 
