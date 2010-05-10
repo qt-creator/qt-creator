@@ -68,8 +68,7 @@ private slots:
     void configure();
 
 private:
-    Editor(const Editor &);
-    Editor &operator=(const Editor &);
+    Q_DISABLE_COPY(Editor)
 
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 

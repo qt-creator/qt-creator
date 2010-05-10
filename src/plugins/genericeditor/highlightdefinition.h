@@ -81,9 +81,7 @@ public:
     const QString &multiLineCommentRegion() const;
 
 private:
-
-    HighlightDefinition(const HighlightDefinition &);
-    HighlightDefinition &operator=(const HighlightDefinition &);
+    Q_DISABLE_COPY(HighlightDefinition)
 
     struct GenericHelper
     {

@@ -78,8 +78,7 @@ private slots:
     void lookforAvailableDefinitions();
 
 private:
-    GenericEditorPlugin(const GenericEditorPlugin &HighlighterPlugin);
-    const GenericEditorPlugin &operator=(const GenericEditorPlugin &HighlighterPlugin);
+    Q_DISABLE_COPY(GenericEditorPlugin)
 
     static GenericEditorPlugin *m_instance;
 
