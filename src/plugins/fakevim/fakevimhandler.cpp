@@ -336,9 +336,20 @@ public:
     {
         return m_xkey >= '0' && m_xkey <= '9';
     }
+
     bool isKey(int c) const
     {
         return !m_modifiers && m_key == c;
+    }
+
+    bool isBackspace() const
+    {
+        return m_key == Key_Backspace || isControl('h');
+    }
+
+    bool isReturn() const
+    {
+        return m_key == Key_Return;
     }
 
     bool is(int c) const
@@ -1679,12 +1690,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         finishMovement();
     } else if (m_submode == ZSubMode) {
         //qDebug() << "Z_MODE " << cursorLineInDocument() << linesOnScreen();
-        if (input.isKey(Key_Return) || input.is('t')) {
+        if (input.isReturn() || input.is('t')) {
             // Cursor line to top of window.
             if (!m_mvcount.isEmpty())
                 setPosition(firstPositionInLine(count()));
             scrollUp(- cursorLineOnScreen());
-            if (input.isKey(Key_Return))
+            if (input.isReturn())
                 moveToFirstNonBlankOnLine();
             finishMovement();
         } else if (input.is('.') || input.is('z')) {
@@ -1806,7 +1817,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         updateMiniBuffer();
     } else if (input.is('"')) {
         m_submode = RegisterSubMode;
-    } else if (input.isKey(Key_Return)) {
+    } else if (input.isReturn()) {
         moveToStartOfLine();
         moveDown();
         moveToFirstNonBlankOnLine();
@@ -2024,8 +2035,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             m_tc.setPosition(firstPositionInLine(n), KeepAnchor);
         }
         finishMovement(dotCommand);
-    } else if (input.is('h') || input.isKey(Key_Left)
-            || input.isKey(Key_Backspace) || input.isControl('h')) {
+    } else if (input.is('h') || input.isKey(Key_Left) || input.isBackspace()) {
         m_movetype = MoveExclusive;
         int n = qMin(count(), leftDist());
         if (m_fakeEnd && m_tc.block().length() > 1)
@@ -2487,13 +2497,13 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         moveBehindEndOfLine();
         setTargetColumn();
         m_lastInsertion.clear();
-    } else if (input.isKey(Key_Return)) {
+    } else if (input.isReturn()) {
         m_submode = NoSubMode;
         m_tc.insertBlock();
         m_lastInsertion += "\n";
         insertAutomaticIndentation(true);
         setTargetColumn();
-    } else if (input.isKey(Key_Backspace) || input.isControl('h')) {
+    } else if (input.isBackspace()) {
         joinPreviousEditBlock();
         m_justAutoIndented = 0;
         if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
@@ -2589,7 +2599,7 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
         m_commandBuffer.clear();
         enterCommandMode();
         updateMiniBuffer();
-    } else if (input.isKey(Key_Backspace)) {
+    } else if (input.isBackspace()) {
         if (m_commandBuffer.isEmpty()) {
             enterCommandMode();
         } else {
@@ -2601,7 +2611,7 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
         if (!m_commandBuffer.isEmpty())
             m_commandBuffer.chop(1);
         updateMiniBuffer();
-    } else if (input.isKey(Key_Return)) {
+    } else if (input.isReturn()) {
         if (!m_commandBuffer.isEmpty()) {
             g.commandHistory.takeLast();
             g.commandHistory.append(m_commandBuffer);
@@ -2639,7 +2649,7 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         m_commandBuffer.clear();
         enterCommandMode();
         updateMiniBuffer();
-    } else if (input.isKey(Key_Backspace)) {
+    } else if (input.isBackspace()) {
         if (m_commandBuffer.isEmpty())
             enterCommandMode();
         else
@@ -2649,7 +2659,7 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         if (!m_commandBuffer.isEmpty())
             m_commandBuffer.chop(1);
         updateMiniBuffer();
-    } else if (input.isKey(Key_Return) && !hasConfig(ConfigIncSearch)) {
+    } else if (input.isReturn() && !hasConfig(ConfigIncSearch)) {
         QString needle = m_commandBuffer;
         if (!needle.isEmpty()) {
             g.searchHistory.takeLast();
@@ -2676,7 +2686,7 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
     } else if (input.isKey(Key_Tab)) {
         m_commandBuffer += QChar(9);
         updateMiniBuffer();
-    } else if (input.isKey(Key_Return) && hasConfig(ConfigIncSearch)) {
+    } else if (input.isReturn() && hasConfig(ConfigIncSearch)) {
         QString needle = m_commandBuffer;
         enterCommandMode();
         highlightMatches(needle);
