@@ -1481,7 +1481,8 @@ void FakeVimHandler::Private::updateMiniBuffer()
     int linesInDoc = linesInDocument();
     int l = cursorLineInDocument();
     QString status;
-    const QString pos = QString::fromLatin1("%1,%2").arg(l + 1).arg(physicalCursorColumnInDocument() + 1);
+    const QString pos = QString::fromLatin1("%1,%2")
+        .arg(l + 1).arg(physicalCursorColumnInDocument() + 1);
     // FIXME: physical "-" logical
     if (linesInDoc != 0) {
         status = FakeVimHandler::tr("%1%2%").arg(pos, -10).arg(l * 100 / linesInDoc, 4);
@@ -2882,12 +2883,6 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const QString &line)
 bool FakeVimHandler::Private::handleExMapCommand(const QString &line) // :map
 {
     const int pos1 = line.indexOf(QLatin1Char(' '));
-    const int pos2 = line.indexOf(QLatin1Char(' '), pos1 + 1);
-    if (pos1 == -1 || pos2 == -1) {
-        // FIXME: Dump mappings here.
-        //qDebug() << g.mappings;
-        return true;;
-    }
 
     QByteArray modes;
     enum Type { Map, Noremap, Unmap } type;
@@ -2929,6 +2924,13 @@ bool FakeVimHandler::Private::handleExMapCommand(const QString &line) // :map
 
     else
         return false;
+
+    const int pos2 = line.indexOf(QLatin1Char(' '), pos1 + 1);
+    if (pos1 == -1 || pos2 == -1) {
+        // FIXME: Dump mappings here.
+        //qDebug() << g.mappings;
+        return true;;
+    }
 
     QString lhs = line.mid(pos1 + 1, pos2 - pos1 - 1);
     QString rhs = line.mid(pos2 + 1);
@@ -3313,7 +3315,8 @@ static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *fla
 void FakeVimHandler::Private::search(const QString &needle0, bool forward,
     bool incSearch)
 {
-    showBlackMessage(QLatin1Char(forward ? '/' : '?') + needle0);
+    //showBlackMessage(QLatin1Char(forward ? '/' : '?') + needle0);
+    showBlackMessage(needle0);
     CursorPosition origPosition = cursorPosition();
     QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
     if (!forward)
