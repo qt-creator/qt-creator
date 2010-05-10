@@ -1390,9 +1390,9 @@ void ProjectExplorerPlugin::updateActions()
     d->m_rebuildAction->setEnabled(enableBuildActions);
     d->m_cleanAction->setEnabled(enableBuildActions);
 
-    d->m_buildAction->setParameter(projectNameContextMenu);
-    d->m_rebuildAction->setParameter(projectNameContextMenu);
-    d->m_cleanAction->setParameter(projectNameContextMenu);
+    d->m_buildActionContextMenu->setParameter(projectNameContextMenu);
+    d->m_rebuildActionContextMenu->setParameter(projectNameContextMenu);
+    d->m_cleanActionContextMenu->setParameter(projectNameContextMenu);
 
     d->m_buildActionContextMenu->setEnabled(enableBuildActionsContextMenu);
     d->m_rebuildActionContextMenu->setEnabled(enableBuildActionsContextMenu);
