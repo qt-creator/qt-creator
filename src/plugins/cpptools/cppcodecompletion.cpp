@@ -1105,8 +1105,6 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
                                                     m_completionOperator,
                                                     &replacedDotOperator);
 
-    qDebug() << "results:" << classObjectResults.size() << "repl:" << replacedDotOperator;
-
     ClassOrNamespace *classOrNamespace = 0;
 
     QList<Symbol *> classObjectCandidates;

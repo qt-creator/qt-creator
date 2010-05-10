@@ -398,6 +398,7 @@ void CreateBindings::lookup_helper(const Name *name, Scope *scope,
                 continue;
             }
 
+#if 0
             if (templateId && (s->isDeclaration() || s->isFunction())) {
 
                 FullySpecifiedType ty = GenTemplateInstance::instantiate(templateId, s, control);
@@ -409,7 +410,6 @@ void CreateBindings::lookup_helper(const Name *name, Scope *scope,
                 qDebug() << "TODO: instantiate:" << oo(s->type(), s->name()) << "using:" << oo(templateId)
                         << oo(ty);
 
-#if 0
                 if (Declaration *decl = s->asDeclaration()) {
                     qDebug() << "instantiate declaration";
                     qDebug() << "is typedef:" << ty.isTypedef() << s->isTypedef() << s->type().isTypedef();
@@ -428,8 +428,8 @@ void CreateBindings::lookup_helper(const Name *name, Scope *scope,
                     result->append(d);
                     continue;
                 }
-#endif
             }
+#endif
 
             result->append(s);
         }
