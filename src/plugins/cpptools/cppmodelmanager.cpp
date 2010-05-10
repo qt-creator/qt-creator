@@ -282,15 +282,6 @@ public:
           _workingCopy(workingCopy)
     { }
 
-    DeprecatedLookupContext lookupContext(unsigned line, unsigned column) const
-    { return lookupContext(_doc->findSymbolAt(line, column)); }
-
-    DeprecatedLookupContext lookupContext(Symbol *symbol) const
-    {
-        DeprecatedLookupContext context(symbol, Document::create(QLatin1String("<none>")), _doc, _snapshot);
-        return context;
-    }
-
     void operator()(Document::Ptr doc)
     {
         _doc = doc;
@@ -300,49 +291,17 @@ public:
         if (_workingCopy.contains(doc->fileName()))
             mode = Document::FullCheck;
 
-        if (doc->isParsed() && mode == Document::FastCheck) {
-            TranslationUnit *unit = doc->translationUnit();
-            MemoryPool *pool = unit->memoryPool();
+        doc->check(mode);
 
-            Parser parser(unit);
-            Semantic semantic(unit);
+        if (mode == Document::FullCheck) {
+            // run the binding pass
+            NamespaceBindingPtr ns = bind(doc, _snapshot);
 
-            Namespace *globalNamespace = doc->control()->newNamespace(0);
-            doc->setGlobalNamespace(globalNamespace);
+            // check for undefined symbols.
+            CheckUndefinedSymbols checkUndefinedSymbols(doc);
+            checkUndefinedSymbols.setGlobalNamespaceBinding(ns);
 
-            Scope *globals = globalNamespace->members();
-
-            while (parser.LA()) {
-                unsigned start_declaration = parser.cursor();
-                DeclarationAST *declaration = 0;
-
-                if (parser.parseDeclaration(declaration)) {
-                    semantic.check(declaration, globals);
-
-                } else {
-                    doc->translationUnit()->error(start_declaration, "expected a declaration");
-                    parser.rewind(start_declaration + 1);
-                    parser.skipUntilDeclaration();
-                }
-
-                parser.clearTemplateArgumentList();
-                pool->reset();
-            }
-
-        } else {
-            doc->parse();
-            doc->check(mode);
-
-            if (mode == Document::FullCheck) {
-                // run the binding pass
-                NamespaceBindingPtr ns = bind(doc, _snapshot);
-
-                // check for undefined symbols.
-                CheckUndefinedSymbols checkUndefinedSymbols(doc);
-                checkUndefinedSymbols.setGlobalNamespaceBinding(ns);
-
-                checkUndefinedSymbols(doc->translationUnit()->ast()); // ### FIXME
-            }
+            checkUndefinedSymbols(doc->translationUnit()->ast()); // ### FIXME
         }
 
         doc->releaseTranslationUnit();
