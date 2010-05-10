@@ -767,7 +767,17 @@ bool CreateBindings::visit(Namespace *ns)
 
 bool CreateBindings::visit(Class *klass)
 {
-    ClassOrNamespace *previous = enterEntity(klass);
+    ClassOrNamespace *previous = _currentClassOrNamespace;
+    ClassOrNamespace *binding = 0;
+
+    if (klass->name() && klass->name()->isQualifiedNameId())
+        binding = _currentClassOrNamespace->lookupClassOrNamespace(klass->name());
+
+    if (! binding)
+        binding = _currentClassOrNamespace->findOrCreate(klass->name());
+
+    _currentClassOrNamespace = binding;
+    _currentClassOrNamespace->addSymbol(klass);
 
     for (unsigned i = 0; i < klass->baseClassCount(); ++i)
         process(klass->baseClassAt(i));
