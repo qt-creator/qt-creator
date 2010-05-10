@@ -22,7 +22,7 @@ QToolButton, QPushButton, QComboBox {
     font-size: 12px;
 }
 
-*{
+QToolButton, QPushButton, QComboBox, QLabel {
     color: black;
 }
 
