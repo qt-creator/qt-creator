@@ -1566,7 +1566,9 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
             QByteArray cmd = "set environment ";
             cmd += Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR;
             cmd += ' ';
-            cmd += manager()->qtDumperLibraryName().toLocal8Bit();
+            cmd += startParameters().startMode == StartRemoteGdb
+               ? startParameters().remoteDumperLib
+               : cmd += manager()->qtDumperLibraryName().toLocal8Bit();
             postCommand(cmd);
             m_debuggingHelperState = DebuggingHelperLoadTried;
         }
