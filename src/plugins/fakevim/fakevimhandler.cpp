@@ -128,7 +128,6 @@ namespace Internal {
 #define StartOfDocument QTextCursor::Start
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
-#define DEDITOR(s) (d->m_textedit ? d->m_textedit->s : d->m_plaintextedit->s)
 
 const int ParagraphSeparator = 0x00002029;
 
@@ -4425,7 +4424,12 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
     bool active = theFakeVimSetting(ConfigUseFakeVim)->value().toBool();
 
     // Catch mouse events on the viewport.
-    if (ob == DEDITOR(viewport())) {
+    QWidget *viewport = 0;
+    if (d->m_plaintextedit)
+        viewport = d->m_plaintextedit->viewport();
+    else if (d->m_textedit)
+        viewport = d->m_textedit->viewport();
+    if (ob == viewport) {
         if (active && ev->type() == QEvent::MouseButtonRelease) {
             QMouseEvent *mev = static_cast<QMouseEvent *>(ev);
             if (mev->button() == Qt::LeftButton) {
