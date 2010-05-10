@@ -45,8 +45,7 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
     m_actionHandler = new TextEditorActionHandler(
         QLatin1String(TextEditor::Constants::C_TEXTEDITOR),
         TextEditorActionHandler::Format);
-    m_mimeTypes << QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT)
-                << QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_XML);
+    m_mimeTypes << QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT);
 }
 
 PlainTextEditorFactory::~PlainTextEditorFactory()

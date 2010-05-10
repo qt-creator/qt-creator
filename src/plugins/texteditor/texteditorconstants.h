@@ -87,7 +87,6 @@ const char * const GOTO_NEXT_CHARACTER_WITH_SELECTION = "TextEditor.GotoNextChar
 const char * const GOTO_PREVIOUS_WORD_WITH_SELECTION = "TextEditor.GotoPreviousWordWithSelection";
 const char * const GOTO_NEXT_WORD_WITH_SELECTION = "TextEditor.GotoNextWordWithSelection";
 const char * const C_TEXTEDITOR_MIMETYPE_TEXT = "text/plain";
-const char * const C_TEXTEDITOR_MIMETYPE_XML = "application/xml";
 
 
 // Text color and style categories
