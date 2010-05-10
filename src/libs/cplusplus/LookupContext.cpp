@@ -41,7 +41,6 @@
 #include <Control.h>
 
 #include <QtDebug>
-#include <cxxabi.h>
 
 //#define CPLUSPLUS_NO_LAZY_LOOKUP
 
