@@ -52,7 +52,8 @@ ItemData::ItemData() :
     m_italicSpecified(false),
     m_boldSpecified(false),
     m_underlinedSpecified(false),
-    m_strikedOutSpecified(false)
+    m_strikedOutSpecified(false),
+    m_isCustomized(false)
 {}
 
 void ItemData::setStyle(const QString &style)
@@ -62,13 +63,23 @@ const QString &ItemData::style() const
 { return m_style; }
 
 void ItemData::setColor(const QString &color)
-{ m_color.setNamedColor(color); }
+{
+    if (!color.isEmpty()) {
+        m_color.setNamedColor(color);
+        m_isCustomized = true;
+    }
+}
 
 const QColor &ItemData::color() const
 { return m_color; }
 
 void ItemData::setSelectionColor(const QString &color)
-{ m_selectionColor.setNamedColor(color); }
+{
+    if (!color.isEmpty()) {
+        m_selectionColor.setNamedColor(color);
+        m_isCustomized = true;
+    }
+}
 
 const QColor &ItemData::selectionColor() const
 { return m_selectionColor; }
@@ -78,6 +89,7 @@ void ItemData::setItalic(const QString &italic)
     if (!italic.isEmpty()) {
         m_italic = toBool(italic);
         m_italicSpecified = true;
+        m_isCustomized = true;
     }
 }
 
@@ -92,6 +104,7 @@ void ItemData::setBold(const QString &bold)
     if (!bold.isEmpty()) {
         m_bold = toBool(bold);
         m_boldSpecified = true;
+        m_isCustomized = true;
     }
 }
 
@@ -106,6 +119,7 @@ void ItemData::setUnderlined(const QString &underlined)
     if (!underlined.isEmpty()) {
         m_underlined = toBool(underlined);
         m_underlinedSpecified = true;
+        m_isCustomized = true;
     }
 }
 
@@ -120,6 +134,7 @@ void ItemData::setStrikedOut(const QString &striked)
     if (!striked.isEmpty()) {
         m_strikedOut = toBool(striked);
         m_strikedOutSpecified = true;
+        m_isCustomized = true;
     }
 }
 
@@ -128,3 +143,6 @@ bool ItemData::isStrikedOut() const
 
 bool ItemData::isStrikedOutSpecified() const
 { return m_strikedOutSpecified; }
+
+bool ItemData::isCustomized() const
+{ return m_isCustomized; }

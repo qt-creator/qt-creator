@@ -308,18 +308,25 @@ void Highlighter::applyFormat(int offset,
 
     QTextCharFormat format = m_genericFormats.value(itemData->style());
 
-    // Apply personalizations (if specified) for this particular item data from the current
-    // definition only.
-    if (itemData->color().isValid())
-        format.setForeground(itemData->color());
-    if (itemData->isItalicSpecified())
-        format.setFontItalic(itemData->isItalic());
-    if (itemData->isBoldSpecified())
-        format.setFontWeight(toFontWeight(itemData->isBold()));
-    if (itemData->isUnderlinedSpecified())
-        format.setFontUnderline(itemData->isUnderlined());
-    if (itemData->isStrikedOutSpecified())
-        format.setFontStrikeOut(itemData->isStrikedOut());
+    if (itemData->isCustomized()) {
+        // Please notice that the following are applied every time for item datas which have
+        // customizations. The configureFormats method could be used to provide a "one time"
+        // configuration, but it would probably require to traverse all item datas from all
+        // definitions available/loaded (either to set the values or for some "notifying"
+        // strategy). This is because the highlighter does not really know on which definition(s)
+        // it is working. Since not many item datas specify customizations I think this approach
+        // would fit better. If there are other ideas...
+        if (itemData->color().isValid())
+            format.setForeground(itemData->color());
+        if (itemData->isItalicSpecified())
+            format.setFontItalic(itemData->isItalic());
+        if (itemData->isBoldSpecified())
+            format.setFontWeight(toFontWeight(itemData->isBold()));
+        if (itemData->isUnderlinedSpecified())
+            format.setFontUnderline(itemData->isUnderlined());
+        if (itemData->isStrikedOutSpecified())
+            format.setFontStrikeOut(itemData->isStrikedOut());
+    }
 
     setFormat(offset, count, format);
 }
@@ -424,7 +431,7 @@ void Highlighter::setCurrentContext()
 {
     if (m_contexts.isEmpty()) {
         // This is not supposed to happen. However, there might be broken files (for example, the
-        // PHP definition) which will cause this behaviour. In such cases just pushing the default
+        // php.xml) which will cause this behaviour. In such cases just pushing the default
         // context is enough to keep highlighter working.
         m_contexts.push_back(m_defaultContext);
     }

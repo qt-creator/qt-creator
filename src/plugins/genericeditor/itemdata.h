@@ -69,6 +69,8 @@ public:
     bool isStrikedOut() const;
     bool isStrikedOutSpecified() const;
 
+    bool isCustomized() const;
+
     static const QLatin1String kDsNormal;
     static const QLatin1String kDsKeyword;
     static const QLatin1String kDsDataType;
@@ -96,6 +98,7 @@ private:
     bool m_underlinedSpecified;
     bool m_strikedOut;
     bool m_strikedOutSpecified;
+    bool m_isCustomized;
 };
 
 } // namespace Internal
