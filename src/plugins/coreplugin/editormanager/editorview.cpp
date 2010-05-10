@@ -130,22 +130,23 @@ EditorView::EditorView(QWidget *parent) :
     {
         m_statusHLine->setFrameStyle(QFrame::HLine);
 
-        m_statusWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
-        m_statusWidget->setLineWidth(1);
+        m_statusWidget->setFrameStyle(QFrame::NoFrame);
+        m_statusWidget->setLineWidth(0);
         //m_statusWidget->setForegroundRole(QPalette::ToolTipText);
         //m_statusWidget->setBackgroundRole(QPalette::ToolTipBase);
         m_statusWidget->setAutoFillBackground(true);
 
-
         QHBoxLayout *hbox = new QHBoxLayout(m_statusWidget);
-        hbox->setMargin(2);
-        m_statusWidgetLabel = new QLabel("Placeholder");
+        hbox->setContentsMargins(1, 0, 1, 1);
+        m_statusWidgetLabel = new QLabel;
         m_statusWidgetLabel->setForegroundRole(QPalette::ToolTipText);
+        m_statusWidgetLabel->setContentsMargins(3, 0, 3, 0);
         hbox->addWidget(m_statusWidgetLabel);
         hbox->addStretch(1);
 
         m_statusWidgetButton = new QToolButton;
-        m_statusWidgetButton->setText(tr("Placeholder"));
+        m_statusWidgetButton->setContentsMargins(0, 0, 0, 0);
+        //m_statusWidgetButton->setIcon(QIcon(":/core/images/clear.png"));
         hbox->addWidget(m_statusWidgetButton);
 
         m_statusHLine->setVisible(false);
@@ -206,6 +207,7 @@ void EditorView::showEditorStatusBar(const QString &id,
     m_statusWidgetId = id;
     m_statusWidgetLabel->setText(infoText);
     m_statusWidgetButton->setText(buttonText);
+    m_statusWidgetButton->setToolTip(buttonText);
     m_statusWidgetButton->disconnect();
     if (object && member)
         connect(m_statusWidgetButton, SIGNAL(clicked()), object, member);
