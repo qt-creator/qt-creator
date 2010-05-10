@@ -65,6 +65,7 @@ enum FakeVimSettingsCode
 
     // other actions
     SettingsDialog,
+    ConfigShowMarks,
 };
 
 class FakeVimSettings : public QObject

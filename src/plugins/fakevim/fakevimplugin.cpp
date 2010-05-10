@@ -167,6 +167,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxHlSearch);
     m_group.insert(theFakeVimSetting(ConfigShiftWidth),
         m_ui.spinBoxShiftWidth);
+    m_group.insert(theFakeVimSetting(ConfigShowMarks),
+        m_ui.checkBoxShowMarks);
 
     m_group.insert(theFakeVimSetting(ConfigSmartTab),
         m_ui.checkBoxSmartTab);
@@ -198,8 +200,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         QTextStream(&m_searchKeywords)
             << ' ' << m_ui.checkBoxAutoIndent->text()
             << ' ' << m_ui.checkBoxExpandTab->text()
+            << ' ' << m_ui.checkBoxShowMarks->text()
             << ' ' << m_ui.checkBoxSmartIndent->text()
-            << ' ' << m_ui.checkBoxExpandTab->text()
             << ' ' << m_ui.checkBoxHlSearch->text()
             << ' ' << m_ui.checkBoxIncSearch->text()
             << ' ' << m_ui.checkBoxSmartTab->text()

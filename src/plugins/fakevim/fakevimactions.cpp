@@ -214,6 +214,14 @@ FakeVimSettings *theFakeVimSettings()
         "FakeVim properties..."));
     instance->insertItem(SettingsDialog, item);
 
+    // Invented here.
+    item = new SavedAction(instance);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    item->setSettingsKey(group, _("ShowMarks"));
+    item->setCheckable(true);
+    instance->insertItem(ConfigShowMarks, item, _("showmarks"), _("sm"));
+
     return instance;
 }
 

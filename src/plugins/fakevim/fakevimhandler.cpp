@@ -103,8 +103,6 @@
 #   define UNDO_DEBUG(s)
 #endif
 
-//#define DEBUG_MARKS  1
-
 using namespace Utils;
 
 namespace FakeVim {
@@ -978,9 +976,10 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         EDITOR(setTextCursor(m_tc));
         m_oldPosition = m_tc.position();
     }
-#ifdef DEBUG_MARKS
-    updateSelection();
-#endif
+
+    if (hasConfig(ConfigShowMarks))
+        updateSelection();
+
     return result;
 }
 
@@ -1425,19 +1424,19 @@ void FakeVimHandler::Private::updateSelection()
         }
     }
     //qDebug() << "SELECTION: " << selections;
-#ifdef DEBUG_MARKS
-    for (QHashIterator<int, int> it(m_marks); it.hasNext(); ) {
-        it.next();
-        QTextEdit::ExtraSelection sel;
-        sel.cursor = m_tc;
-        sel.cursor.setPosition(it.value(), MoveAnchor);
-        sel.cursor.setPosition(it.value() + 1, KeepAnchor);
-        sel.format = m_tc.blockCharFormat();
-        sel.format.setForeground(Qt::blue);
-        sel.format.setBackground(Qt::green);
-        selections.append(sel);
+    if (hasConfig(ConfigShowMarks)) {
+        for (QHashIterator<int, int> it(m_marks); it.hasNext(); ) {
+            it.next();
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = m_tc;
+            sel.cursor.setPosition(it.value(), MoveAnchor);
+            sel.cursor.setPosition(it.value() + 1, KeepAnchor);
+            sel.format = m_tc.blockCharFormat();
+            sel.format.setForeground(Qt::blue);
+            sel.format.setBackground(Qt::green);
+            selections.append(sel);
+        }
     }
-#endif
     emit q->selectionChanged(selections);
 }
 
