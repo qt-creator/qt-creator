@@ -588,44 +588,17 @@ ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, i
 
     if (accessOp == T_ARROW)  {
         if (NamedType *namedTy = ty->asNamedType()) {
-
-            Overview oo;
-            qDebug() << "got here:" << oo(namedTy->name());
-
             const Name *arrowAccessOp = control()->operatorNameId(OperatorNameId::ArrowOp);
 
-#if 0
-            qDebug() << "last visible symbol is:" << result.lastVisibleSymbol()->fileName()
-                    << result.lastVisibleSymbol()->line()
-                    << result.lastVisibleSymbol()->column();
-#endif
-
-#if 0
-            if (const QualifiedNameId *q = namedTy->name()->asQualifiedNameId()) {
-                QList<const Name *> names;
-                for (unsigned i = 0; i < q->nameCount() - 1; ++i)
-                    names.append(q->nameAt(i));
-                if (ClassOrNamespace *b = _context.globalNamespace()->findClassOrNamespace(names)) {
-                    qDebug() << "yuppi du" << b << oo(b->_templateId);
-                    foreach (Symbol *s, b->lookup(q->unqualifiedNameId())) {
-                        qDebug() << "r:" << oo(s->type(), s->name());
-                    }
-                }
-            }
-#endif
-
             foreach (Symbol *s, _context.lookup(namedTy->name(), result.lastVisibleSymbol())) {
-                qDebug() << "r:" << oo(s->type(), s->name());
-
                 if (PointerType *ptrTy = s->type()->asPointerType()) {
                     FullySpecifiedType elementTy = ptrTy->elementType().simplified();
 
                     if (elementTy->isNamedType() || elementTy->isClassType())
                         results.append(LookupItem(elementTy, lastVisibleSymbol));
+
                 } else if (const NamedType *nt = s->type()->asNamedType()) {
-                    qDebug() << "f***";
                     Symbol *l = _context.lookup(nt->name(), result.lastVisibleSymbol()).first();
-                    qDebug() << "l" << oo(l->type(), l->name());
 
                     if (PointerType *ptrTy = l->type()->asPointerType()) {
                         FullySpecifiedType elementTy = ptrTy->elementType().simplified();
