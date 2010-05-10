@@ -381,8 +381,6 @@ void CreateBindings::lookup_helper(const Name *name, Scope *scope,
         }
 
     } else if (const Identifier *id = name->identifier()) {
-        Control *control = new Control();
-
         for (Symbol *s = scope->lookat(id); s; s = s->next()) {
             if (! s->name())
                 continue;
