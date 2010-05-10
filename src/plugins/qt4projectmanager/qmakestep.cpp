@@ -109,6 +109,19 @@ QStringList QMakeStep::allArguments()
     if (type == ToolChain::GCC_MAEMO)
         arguments << QLatin1String("-unix");
 #endif
+    if (bc->target()->id() == Constants::S60_DEVICE_TARGET_ID
+        || bc->target()->id() == Constants::S60_EMULATOR_TARGET_ID) {
+        // We have a target which does not allow shadow building.
+        // But we really don't want to have the build artefacts in the source dir
+        // so we try to hack around it, to make the common cases work.
+        // This is a HACK, remove once the symbian make generator supports
+        // shadow building
+        arguments << QLatin1String("-after")
+                  << QLatin1String("OBJECTS_DIR=.obj")
+                  << QLatin1String("MOC_DIR=.moc")
+                  << QLatin1String("UI_DIR=.ui")
+                  << QLatin1String("RCC_DIR=.rcc");
+    }
 
     // Find out what flags we pass on to qmake
     QStringList addedUserConfigArguments;
