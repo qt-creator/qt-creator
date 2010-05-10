@@ -209,18 +209,17 @@ void Symbol::setDeprecated(bool isDeprecated)
 void Symbol::setSourceLocation(unsigned sourceLocation, TranslationUnit *translationUnit)
 {
     _sourceLocation = sourceLocation;
-    unsigned offset = 0;
 
-    if (! _sourceLocation) {
-        _isGenerated = false;
-
-    } else {
+    if (translationUnit) {
         const Token &tk = translationUnit->tokenAt(sourceLocation);
         _isGenerated = tk.f.generated;
-        offset = tk.offset;
+        translationUnit->getPosition(tk.offset, &_line, &_column, &_fileId);
+    } else {
+        _isGenerated = false;
+        _line = 0;
+        _column = 0;
+        _fileId = 0;
     }
-
-    translationUnit->getPosition(offset, &_line, &_column, &_fileId);
 }
 
 unsigned Symbol::line() const
