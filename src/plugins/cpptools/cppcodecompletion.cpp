@@ -1115,7 +1115,7 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
             classObjectCandidates.append(klass);
 
         else if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), r.lastVisibleSymbol()->scope())) {
+            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), r.lastVisibleSymbol())) {
                 classOrNamespace = b;
                 break;
 
@@ -1342,22 +1342,6 @@ void CppCodeCompletion::completeNamespace(ClassOrNamespace *b, const LookupConte
     }
 }
 
-void CppCodeCompletion::completeNamespace(const QList<Symbol *> &candidates,
-                                          const DeprecatedLookupContext &deprecatedContext)
-{
-    if (candidates.isEmpty())
-        return;
-
-    else if (Namespace *ns = candidates.first()->asNamespace()) {
-        LookupContext context(deprecatedContext.expressionDocument(),
-                              deprecatedContext.thisDocument(),
-                              deprecatedContext.snapshot());
-
-        if (ClassOrNamespace *binding = context.classOrNamespace(ns))
-            completeNamespace(binding, context);
-    }
-}
-
 void CppCodeCompletion::completeClass(ClassOrNamespace *b, const LookupContext &, bool staticLookup)
 {
     QSet<ClassOrNamespace *> bindingsVisited;
@@ -1402,23 +1386,6 @@ void CppCodeCompletion::completeClass(ClassOrNamespace *b, const LookupContext &
                 addCompletionItem(member);
             }
         }
-    }
-}
-
-void CppCodeCompletion::completeClass(const QList<Symbol *> &candidates,
-                                      const DeprecatedLookupContext &deprecatedContext,
-                                      bool staticLookup)
-{
-    if (candidates.isEmpty())
-        return;
-
-    else if (Symbol *klass = candidates.first()) {
-        LookupContext context(deprecatedContext.expressionDocument(),
-                              deprecatedContext.thisDocument(),
-                              deprecatedContext.snapshot());
-
-        if (ClassOrNamespace *binding = context.classOrNamespace(klass))
-            completeClass(binding, context, staticLookup);
     }
 }
 

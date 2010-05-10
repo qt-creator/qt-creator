@@ -317,6 +317,8 @@ public:
     void visitSymbol(SymbolVisitor *visitor);
     static void visitSymbol(Symbol *symbol, SymbolVisitor *visitor);
 
+    virtual void copy(Symbol *other);
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor) = 0;
 

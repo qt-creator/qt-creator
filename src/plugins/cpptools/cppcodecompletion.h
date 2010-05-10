@@ -126,15 +126,8 @@ private:
     void completeNamespace(CPlusPlus::ClassOrNamespace *binding,
                            const CPlusPlus::LookupContext &context);
 
-    void completeNamespace(const QList<CPlusPlus::Symbol *> &candidates,
-                           const CPlusPlus::DeprecatedLookupContext &context);
-
     void completeClass(CPlusPlus::ClassOrNamespace *b,
                        const CPlusPlus::LookupContext &context,
-                       bool staticLookup = true);
-
-    void completeClass(const QList<CPlusPlus::Symbol *> &candidates,
-                       const CPlusPlus::DeprecatedLookupContext &context,
                        bool staticLookup = true);
 
     bool completeConstructors(CPlusPlus::Class *klass);

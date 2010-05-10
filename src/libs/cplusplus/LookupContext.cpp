@@ -69,9 +69,10 @@ bool ClassOrNamespace::CompareName::operator()(const Name *name, const Name *oth
 {
     Q_ASSERT(name != 0);
     Q_ASSERT(other != 0);
+
     const Identifier *id = name->identifier();
     const Identifier *otherId = other->identifier();
-    return std::lexicographical_compare(id->begin(), id->end(), otherId->begin(), otherId->end());
+    return strcmp(id->chars(), otherId->chars()) < 0;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -266,6 +267,11 @@ ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *pa
 {
 }
 
+ClassOrNamespace *ClassOrNamespace::parent() const
+{
+    return _parent;
+}
+
 QList<ClassOrNamespace *> ClassOrNamespace::usings() const
 {
     const_cast<ClassOrNamespace *>(this)->flush();
@@ -401,7 +407,7 @@ void CreateBindings::lookup_helper(const Name *name, Scope *scope,
 #if 0
             if (templateId && (s->isDeclaration() || s->isFunction())) {
 
-                FullySpecifiedType ty = GenTemplateInstance::instantiate(templateId, s, control);
+                FullySpecifiedType ty = GenTemplateInstance::instantiate(templateId, s, _control);
 
                 Overview oo;
                 oo.setShowFunctionSignatures(true);
@@ -412,19 +418,15 @@ void CreateBindings::lookup_helper(const Name *name, Scope *scope,
 
                 if (Declaration *decl = s->asDeclaration()) {
                     qDebug() << "instantiate declaration";
-                    qDebug() << "is typedef:" << ty.isTypedef() << s->isTypedef() << s->type().isTypedef();
-                    Declaration *d = control->newDeclaration(0, 0);
-                    d->setStorage(decl->storage());
-                    d->setName(decl->name());
+                    Declaration *d = _control->newDeclaration(0, 0);
+                    d->copy(decl);
                     d->setType(ty);
-                    d->setScope(decl->scope());
                     result->append(d);
                     continue;
                 } else if (Function *fun = s->asFunction()) {
                     qDebug() << "instantiate function";
                     Function *d = ty->asFunctionType();
-                    d->setStorage(fun->storage());
-                    d->setScope(fun->scope());
+                    d->copy(fun);
                     result->append(d);
                     continue;
                 }

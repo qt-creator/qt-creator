@@ -161,7 +161,7 @@ private:
 };
 
 Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : _control(translationUnit->control()),
+    : _control(0),
       _sourceLocation(sourceLocation),
       _sourceOffset(0),
       _startOffset(0),
@@ -175,7 +175,11 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const 
       _next(0),
       _isGenerated(false)
 {
-    setSourceLocation(sourceLocation);
+    if (translationUnit) {
+        _control = translationUnit->control();
+        setSourceLocation(sourceLocation);
+    }
+
     setName(name);
 }
 
@@ -504,3 +508,22 @@ bool Symbol::isObjCMethod() const
 
 bool Symbol::isObjCPropertyDeclaration() const
 { return asObjCPropertyDeclaration() != 0; }
+
+void Symbol::copy(Symbol *other)
+{
+    _control = other->_control;
+    _sourceLocation = other->_sourceLocation;
+    _sourceOffset = other->_sourceOffset;
+    _startOffset = other->_startOffset;
+    _endOffset = other->_endOffset;
+    _name = other->_name;
+    _hashCode = other->_hashCode;
+    _storage = other->_storage;
+    _visibility = other->_visibility;
+    _scope = other->_scope;
+    _index = other->_index;
+    _next = other->_next;
+
+    _isGenerated = other->_isGenerated;
+    _isDeprecated = other->_isDeprecated;
+}
