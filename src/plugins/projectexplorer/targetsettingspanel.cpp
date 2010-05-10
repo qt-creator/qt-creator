@@ -127,8 +127,7 @@ void TargetSettingsPanelWidget::setupUi()
 
     updateTargetAddAndRemoveButtons();
 
-    // Restore target originally set:
-    m_project->setActiveTarget(activeTarget);
+    activeTargetChanged(activeTarget);
 }
 
 void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subIndex)
