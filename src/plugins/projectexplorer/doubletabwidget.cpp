@@ -266,7 +266,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
 
     // draw background of second bar
     painter.fillRect(QRect(0, r.height(), r.width(), OTHER_HEIGHT), grad);
-    painter.setPen(Qt::black);
+    painter.setPen(QColor(0x505050));
     painter.drawLine(0, r.height() + OTHER_HEIGHT,
                      r.width(), r.height() + OTHER_HEIGHT);
     painter.setPen(Qt::white);
