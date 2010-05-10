@@ -44,6 +44,7 @@
 #include <cplusplus/Literals.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/Control.h>
+#include <cplusplus/TranslationUnit.h>
 #include <cplusplus/DeprecatedLookupContext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -404,8 +405,10 @@ static inline ITextEditable *editableAt(const QString &fileName, int line, int c
     return qobject_cast<ITextEditable *>(TextEditor::BaseTextEditor::openEditorAt(fileName, line, column));
 }
 
-static void addDeclaration(const QString &docFileName, const Class *cl, const QString &functionName)
+static void addDeclaration(Document::Ptr doc, const Class *cl, const QString &functionName)
 {
+    const QString docFileName = doc->fileName();
+    TranslationUnit *unit = doc->translationUnit();
     QString declaration = QLatin1String("void ");
     declaration += functionName;
     declaration += QLatin1String(";\n");
@@ -423,7 +426,7 @@ static void addDeclaration(const QString &docFileName, const Class *cl, const QS
                     const int column = fun->column();
                     if (ITextEditable *editable = editableAt(docFileName, line, column)) {
                         unsigned dl, dc; // this position is the beginning of return value: "^void foo(...)"
-                        decl->getStartPosition(&dl, &dc);
+                        unit->getPosition(decl->startOffset(), &dl, &dc);
                         dc--; // if the first character in line is 'v' coming from "void" getStartPosition returns 1, not 0, so we always decrement it.
                         editable->gotoLine(dl, dc);
                         editable->position(ITextEditor::StartOfLine);
@@ -661,7 +664,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         }
     } else {
         // add function declaration to cl
-        addDeclaration(doc->fileName(), cl, functionNameWithParameterNames);
+        addDeclaration(doc, cl, functionNameWithParameterNames);
 
         // add function definition to cpp file
         sourceDoc = addDefinition(docTable, doc->fileName(), className, functionNameWithParameterNames, &line);
