@@ -27,45 +27,44 @@
 **
 **************************************************************************/
 
-#ifndef COMPLETIONSETTINGSPAGE_H
-#define COMPLETIONSETTINGSPAGE_H
+#ifndef COMPLETIONSETTINGS_H
+#define COMPLETIONSETTINGS_H
 
-#include <texteditor/completionsettings.h>
-#include <texteditor/texteditoroptionspage.h>
+#include "texteditor_global.h"
 
 QT_BEGIN_NAMESPACE
-class Ui_CompletionSettingsPage;
+class QSettings;
 QT_END_NAMESPACE
 
-namespace CppTools {
-namespace Internal {
+namespace TextEditor {
 
-// TODO: Move this class to the text editor plugin
-
-class CompletionSettingsPage : public TextEditor::TextEditorOptionsPage
-{
-    Q_OBJECT
-
-public:
-    CompletionSettingsPage();
-    ~CompletionSettingsPage();
-
-    QString id() const;
-    QString displayName() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() { }
-    virtual bool matches(const QString &) const;
-
-private:
-    TextEditor::CaseSensitivity caseSensitivity() const;
-
-    Ui_CompletionSettingsPage *m_page;
-    QString m_searchKeywords;
+enum CaseSensitivity {
+    CaseInsensitive,
+    CaseSensitive,
+    FirstLetterCaseSensitive
 };
 
-} // namespace Internal
-} // namespace CppTools
+/**
+ * Settings that describe how the code completion behaves.
+ */
+struct TEXTEDITOR_EXPORT CompletionSettings
+{
+    CompletionSettings();
 
-#endif // COMPLETIONSETTINGSPAGE_H
+    void toSettings(const QString &category, QSettings *s) const;
+    void fromSettings(const QString &category, const QSettings *s);
+
+    bool equals(const CompletionSettings &bs) const;
+
+    CaseSensitivity m_caseSensitivity;
+    bool m_autoInsertBrackets;
+    bool m_partiallyComplete;
+    bool m_spaceAfterFunctionName;
+};
+
+inline bool operator==(const CompletionSettings &t1, const CompletionSettings &t2) { return t1.equals(t2); }
+inline bool operator!=(const CompletionSettings &t1, const CompletionSettings &t2) { return !t1.equals(t2); }
+
+} // namespace TextEditor
+
+#endif // COMPLETIONSETTINGS_H

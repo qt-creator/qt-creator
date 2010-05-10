@@ -34,7 +34,8 @@ SOURCES += texteditorplugin.cpp \
     itexteditor.cpp \
     texteditoroverlay.cpp \
     texteditoroptionspage.cpp \
-    basetextdocumentlayout.cpp
+    basetextdocumentlayout.cpp \
+    completionsettings.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -71,7 +72,8 @@ HEADERS += texteditorplugin.h \
     colorschemeedit.h \
     texteditoroverlay.h \
     texteditoroptionspage.h \
-    basetextdocumentlayout.h
+    basetextdocumentlayout.h \
+    completionsettings.h
 
 
 FORMS += behaviorsettingspage.ui \

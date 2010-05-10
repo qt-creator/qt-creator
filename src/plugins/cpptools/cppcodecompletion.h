@@ -79,18 +79,6 @@ public:
 
     QIcon iconForSymbol(CPlusPlus::Symbol *symbol) const;
 
-    CaseSensitivity caseSensitivity() const;
-    void setCaseSensitivity(CaseSensitivity caseSensitivity);
-
-    bool autoInsertBrackets() const;
-    void setAutoInsertBrackets(bool autoInsertBrackets);
-
-    bool isPartialCompletionEnabled() const;
-    void setPartialCompletionEnabled(bool partialCompletionEnabled);
-
-    bool isSpaceAfterFunctionName() const;
-    void setSpaceAfterFunctionName(bool spaceAfterFunctionName);
-
 private:
     void addKeywords();
     void addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot);
@@ -152,10 +140,6 @@ private:
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;     // Position of the cursor from which completion started
 
-    CaseSensitivity m_caseSensitivity;
-    bool m_autoInsertBrackets;
-    bool m_partialCompletionEnabled;
-    bool m_spaceAfterFunctionName;
     bool m_forcedCompletion;
     unsigned m_completionOperator;
     bool m_objcEnabled;

@@ -56,6 +56,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/completionsettings.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/itexteditable.h>
 #include <texteditor/basetexteditor.h>
@@ -435,10 +436,6 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_manager(manager),
       m_editor(0),
       m_startPosition(-1),
-      m_caseSensitivity(FirstLetterCaseSensitive),
-      m_autoInsertBrackets(true),
-      m_partialCompletionEnabled(true),
-      m_spaceAfterFunctionName(false),
       m_forcedCompletion(false),
       m_completionOperator(T_EOF_SYMBOL),
       m_objcEnabled(true)
@@ -448,46 +445,6 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
 QIcon CppCodeCompletion::iconForSymbol(Symbol *symbol) const
 {
     return m_icons.iconForSymbol(symbol);
-}
-
-CppCodeCompletion::CaseSensitivity CppCodeCompletion::caseSensitivity() const
-{
-    return m_caseSensitivity;
-}
-
-void CppCodeCompletion::setCaseSensitivity(CaseSensitivity caseSensitivity)
-{
-    m_caseSensitivity = caseSensitivity;
-}
-
-bool CppCodeCompletion::autoInsertBrackets() const
-{
-    return m_autoInsertBrackets;
-}
-
-void CppCodeCompletion::setAutoInsertBrackets(bool autoInsertBrackets)
-{
-    m_autoInsertBrackets = autoInsertBrackets;
-}
-
-bool CppCodeCompletion::isPartialCompletionEnabled() const
-{
-    return m_partialCompletionEnabled;
-}
-
-void CppCodeCompletion::setPartialCompletionEnabled(bool partialCompletionEnabled)
-{
-    m_partialCompletionEnabled = partialCompletionEnabled;
-}
-
-bool CppCodeCompletion::isSpaceAfterFunctionName() const
-{
-    return m_spaceAfterFunctionName;
-}
-
-void CppCodeCompletion::setSpaceAfterFunctionName(bool spaceAfterFunctionName)
-{
-    m_spaceAfterFunctionName = spaceAfterFunctionName;
 }
 
 /*
@@ -1459,7 +1416,7 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
             return;
 
         if (m_completionOperator != T_LPAREN) {
-            filter(m_completions, completions, key, m_caseSensitivity);
+            filter(m_completions, completions, key);
 
         } else if (m_completionOperator == T_LPAREN ||
                    m_completionOperator == T_SIGNAL ||
@@ -1537,7 +1494,9 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
         //qDebug() << "current symbol:" << overview.prettyName(symbol->name())
         //<< overview.prettyType(symbol->type());
 
-        if (m_autoInsertBrackets && symbol && symbol->type()) {
+        const bool autoInsertBrackets = completionSettings().m_autoInsertBrackets;
+
+        if (autoInsertBrackets && symbol && symbol->type()) {
             if (Function *function = symbol->type()->asFunctionType()) {
                 // If the member is a function, automatically place the opening parenthesis,
                 // except when it might take template parameters.
@@ -1550,7 +1509,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                         extraChars += QLatin1Char('<');
                     }
                 } else if (! function->isAmbiguous()) {
-		    if (m_spaceAfterFunctionName)
+                    if (completionSettings().m_spaceAfterFunctionName)
 			extraChars += QLatin1Char(' ');
                     extraChars += QLatin1Char('(');
 
@@ -1578,7 +1537,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
             }
         }
 
-        if (m_autoInsertBrackets && item.data.canConvert<CompleteFunctionDeclaration>()) {
+        if (autoInsertBrackets && item.data.canConvert<CompleteFunctionDeclaration>()) {
             // everything from the closing parenthesis on are extra chars, to
             // make sure an auto-inserted ")" gets replaced by ") const" if necessary
             int closingParen = toInsert.lastIndexOf(QLatin1Char(')'));
@@ -1614,7 +1573,7 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
     } else if (completionItems.count() == 1) {
         complete(completionItems.first());
         return true;
-    } else if (m_partialCompletionEnabled && m_completionOperator != T_LPAREN) {
+    } else if (m_completionOperator != T_LPAREN) {
         return TextEditor::ICompletionCollector::partiallyComplete(completionItems);
     }
 

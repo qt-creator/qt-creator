@@ -51,6 +51,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/filemanager.h>
+#include <texteditor/texteditorsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <QtCore/QtConcurrentRun>
@@ -109,8 +110,8 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
             m_modelManager, SLOT(updateSourceFiles(QStringList)));
     addAutoReleasedObject(m_modelManager);
 
-    m_completion = new CppCodeCompletion(m_modelManager);
-    addAutoReleasedObject(m_completion);
+    CppCodeCompletion *completion = new CppCodeCompletion(m_modelManager);
+    addAutoReleasedObject(completion);
 
     CppLocatorFilter *locatorFilter = new CppLocatorFilter(m_modelManager,
                                                                  core->editorManager());
@@ -118,7 +119,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppClassesFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager, core->editorManager()));
     addAutoReleasedObject(new CppCurrentDocumentFilter(m_modelManager, core->editorManager()));
-    addAutoReleasedObject(new CompletionSettingsPage(m_completion));
+    addAutoReleasedObject(new CompletionSettingsPage);
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
 
     // Menus
@@ -139,17 +140,11 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
 
-    // Restore settings
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String("CppTools"));
-    settings->beginGroup(QLatin1String("Completion"));
-    const int caseSensitivity = settings->value(QLatin1String("CaseSensitivity"), m_completion->caseSensitivity()).toInt();
-    m_completion->setCaseSensitivity((CppCodeCompletion::CaseSensitivity) caseSensitivity);
-    m_completion->setAutoInsertBrackets(settings->value(QLatin1String("AutoInsertBraces"), true).toBool());
-    m_completion->setPartialCompletionEnabled(settings->value(QLatin1String("PartiallyComplete"), true).toBool());
-    m_completion->setSpaceAfterFunctionName(settings->value(QLatin1String("SpaceAfterFunctionName"), false).toBool());
-    settings->endGroup();
-    settings->endGroup();
+    // Set completion settings and keep them up to date
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
+    completion->setCompletionSettings(textEditorSettings->completionSettings());
+    connect(textEditorSettings, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
+            completion, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
 
     return true;
 }
@@ -170,16 +165,6 @@ void CppToolsPlugin::extensionsInitialized()
 
 void CppToolsPlugin::aboutToShutdown()
 {
-    // Save settings
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String("CppTools"));
-    settings->beginGroup(QLatin1String("Completion"));
-    settings->setValue(QLatin1String("CaseSensitivity"), (int) m_completion->caseSensitivity());
-    settings->setValue(QLatin1String("AutoInsertBraces"), m_completion->autoInsertBrackets());
-    settings->setValue(QLatin1String("PartiallyComplete"), m_completion->isPartialCompletionEnabled());
-    settings->setValue(QLatin1String("SpaceAfterFunctionName"), m_completion->isSpaceAfterFunctionName());
-    settings->endGroup();
-    settings->endGroup();
 }
 
 void CppToolsPlugin::switchHeaderSource()

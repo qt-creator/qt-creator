@@ -33,6 +33,7 @@
 #include "basetexteditor.h"
 #include "behaviorsettings.h"
 #include "behaviorsettingspage.h"
+#include "completionsettings.h"
 #include "displaysettings.h"
 #include "displaysettingspage.h"
 #include "fontsettingspage.h"
@@ -41,17 +42,54 @@
 #include "texteditorplugin.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QApplication>
 
 using namespace TextEditor;
 using namespace TextEditor::Constants;
+using namespace TextEditor::Internal;
+
+namespace TextEditor {
+namespace Internal {
+
+class TextEditorSettingsPrivate
+{
+public:
+    FontSettingsPage *m_fontSettingsPage;
+    BehaviorSettingsPage *m_behaviorSettingsPage;
+    DisplaySettingsPage *m_displaySettingsPage;
+
+    CompletionSettings m_completionSettings;
+
+    void fontZoomRequested(int pointSize);
+    void zoomResetRequested();
+};
+
+void TextEditorSettingsPrivate::fontZoomRequested(int zoom)
+{
+    FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
+    fs.setFontZoom(qMax(10, fs.fontZoom() + zoom));
+    m_fontSettingsPage->saveSettings();
+}
+
+void TextEditorSettingsPrivate::zoomResetRequested()
+{
+    FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
+    fs.setFontZoom(100);
+    m_fontSettingsPage->saveSettings();
+}
+
+} // namespace Internal
+} // namespace TextEditor
+
 
 TextEditorSettings *TextEditorSettings::m_instance = 0;
 
 TextEditorSettings::TextEditorSettings(QObject *parent)
     : QObject(parent)
+    , m_d(new Internal::TextEditorSettingsPrivate)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
@@ -102,44 +140,50 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.append(FormatDescription(QLatin1String(C_DIFF_FILE), tr("Diff File"), Qt::darkBlue));
     formatDescriptions.append(FormatDescription(QLatin1String(C_DIFF_LOCATION), tr("Diff Location"), Qt::blue));
 
-    m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
-                                              QLatin1String("A.FontSettings"),
-                                              this);
-    pm->addObject(m_fontSettingsPage);
+    m_d->m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
+                                                   QLatin1String("A.FontSettings"),
+                                                   this);
+    pm->addObject(m_d->m_fontSettingsPage);
 
     // Add the GUI used to configure the tab, storage and interaction settings
     TextEditor::BehaviorSettingsPageParameters behaviorSettingsPageParameters;
     behaviorSettingsPageParameters.id = QLatin1String("B.BehaviourSettings");
     behaviorSettingsPageParameters.displayName = tr("Behavior");
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
-    m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
-    pm->addObject(m_behaviorSettingsPage);
+    m_d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
+    pm->addObject(m_d->m_behaviorSettingsPage);
 
     TextEditor::DisplaySettingsPageParameters displaySettingsPageParameters;
     displaySettingsPageParameters.id = QLatin1String("D.DisplaySettings"),
     displaySettingsPageParameters.displayName = tr("Display");
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
-    m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
-    pm->addObject(m_displaySettingsPage);
+    m_d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
+    pm->addObject(m_d->m_displaySettingsPage);
 
-    connect(m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
+    connect(m_d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
             this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
-    connect(m_behaviorSettingsPage, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
+    connect(m_d->m_behaviorSettingsPage, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
             this, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)));
-    connect(m_behaviorSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
+    connect(m_d->m_behaviorSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)));
-    connect(m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
+    connect(m_d->m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
             this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)));
-    connect(m_displaySettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+    connect(m_d->m_displaySettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)));
+
+    // TODO: Move these settings to TextEditor category
+    if (QSettings *s = Core::ICore::instance()->settings())
+        m_d->m_completionSettings.fromSettings(QLatin1String("CppTools/"), s);
 }
 
 TextEditorSettings::~TextEditorSettings()
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    pm->removeObject(m_fontSettingsPage);
-    pm->removeObject(m_behaviorSettingsPage);
-    pm->removeObject(m_displaySettingsPage);
+    pm->removeObject(m_d->m_fontSettingsPage);
+    pm->removeObject(m_d->m_behaviorSettingsPage);
+    pm->removeObject(m_d->m_displaySettingsPage);
+
+    delete m_d;
 
     m_instance = 0;
 }
@@ -181,41 +225,46 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
 }
 
 
-void TextEditorSettings::fontZoomRequested(int zoom)
-{
-    FontSettings &fs = const_cast<FontSettings&>(fontSettings());
-    fs.setFontZoom(qMax(10, fs.fontZoom() + zoom));
-    m_fontSettingsPage->saveSettings();
-}
-
-void TextEditorSettings::zoomResetRequested()
-{
-    FontSettings &fs = const_cast<FontSettings&>(fontSettings());
-    fs.setFontZoom(100);
-    m_fontSettingsPage->saveSettings();
-}
-
 const FontSettings &TextEditorSettings::fontSettings() const
 {
-    return m_fontSettingsPage->fontSettings();
+    return m_d->m_fontSettingsPage->fontSettings();
 }
 
 const TabSettings &TextEditorSettings::tabSettings() const
 {
-    return m_behaviorSettingsPage->tabSettings();
+    return m_d->m_behaviorSettingsPage->tabSettings();
 }
 
 const StorageSettings &TextEditorSettings::storageSettings() const
 {
-    return m_behaviorSettingsPage->storageSettings();
+    return m_d->m_behaviorSettingsPage->storageSettings();
 }
 
 const BehaviorSettings &TextEditorSettings::behaviorSettings() const
 {
-    return m_behaviorSettingsPage->behaviorSettings();
+    return m_d->m_behaviorSettingsPage->behaviorSettings();
 }
 
 const DisplaySettings &TextEditorSettings::displaySettings() const
 {
-    return m_displaySettingsPage->displaySettings();
+    return m_d->m_displaySettingsPage->displaySettings();
 }
+
+const CompletionSettings &TextEditorSettings::completionSettings() const
+{
+    return m_d->m_completionSettings;
+}
+
+void TextEditorSettings::setCompletionSettings(const TextEditor::CompletionSettings &settings)
+{
+    if (m_d->m_completionSettings == settings)
+        return;
+
+    m_d->m_completionSettings = settings;
+    if (QSettings *s = Core::ICore::instance()->settings())
+        m_d->m_completionSettings.toSettings(QLatin1String("CppTools/"), s);
+
+    emit completionSettingsChanged(m_d->m_completionSettings);
+}
+
+#include "moc_texteditorsettings.cpp"

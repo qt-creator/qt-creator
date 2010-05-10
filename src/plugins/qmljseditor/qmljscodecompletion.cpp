@@ -477,20 +477,13 @@ CodeCompletion::CodeCompletion(ModelManagerInterface *modelManager, QObject *par
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
       m_editor(0),
-      m_startPosition(0),
-      m_caseSensitivity(Qt::CaseSensitive)
+      m_startPosition(0)
 {
     Q_ASSERT(modelManager);
 }
 
 CodeCompletion::~CodeCompletion()
 { }
-
-Qt::CaseSensitivity CodeCompletion::caseSensitivity() const
-{ return m_caseSensitivity; }
-
-void CodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
-{ m_caseSensitivity = caseSensitivity; }
 
 TextEditor::ITextEditable *CodeCompletion::editor() const
 { return m_editor; }
@@ -854,7 +847,7 @@ void CodeCompletion::completions(QList<TextEditor::CompletionItem> *completions)
     else if (length > 0) {
         const QString key = m_editor->textAt(m_startPosition, length);
 
-        filter(m_completions, completions, key, FirstLetterCaseSensitive);
+        filter(m_completions, completions, key);
 
         if (completions->size() == 1) {
             if (key == completions->first().text)

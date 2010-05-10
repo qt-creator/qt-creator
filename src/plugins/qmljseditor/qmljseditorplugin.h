@@ -52,7 +52,6 @@ class QmlFileWizard;
 namespace Internal {
 
 class QmlJSEditorFactory;
-class CodeCompletion;
 class QmlJSTextEditor;
 class QmlJSPreviewRunner;
 
@@ -92,7 +91,6 @@ private:
     QmlFileWizard *m_wizard;
     QmlJSEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;
-    CodeCompletion *m_completion;
 };
 
 } // namespace Internal

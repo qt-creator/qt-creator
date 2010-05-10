@@ -38,8 +38,13 @@
 
 namespace TextEditor {
 
+namespace Internal {
+class ICompletionCollectorPrivate;
+}
+
 class ICompletionCollector;
 class ITextEditable;
+struct CompletionSettings;
 
 struct CompletionItem
 {
@@ -73,8 +78,10 @@ class TEXTEDITOR_EXPORT ICompletionCollector : public QObject
 {
     Q_OBJECT
 public:
-    ICompletionCollector(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ICompletionCollector() {}
+    ICompletionCollector(QObject *parent = 0);
+    virtual ~ICompletionCollector();
+
+    const CompletionSettings &completionSettings() const;
 
     virtual QList<CompletionItem> getCompletions();
     virtual bool shouldRestartCompletion();
@@ -120,21 +127,20 @@ public:
 
     // helpers
 
-    enum CaseSensitivity {
-        CaseInsensitive,
-        CaseSensitive,
-        FirstLetterCaseSensitive
-    };
-
     void filter(const QList<TextEditor::CompletionItem> &items,
                 QList<TextEditor::CompletionItem> *filteredItems,
-                const QString &key,
-                CaseSensitivity caseSensitivity);
+                const QString &key);
+
+public slots:
+    void setCompletionSettings(const TextEditor::CompletionSettings &);
 
 protected:
     static bool compareChar(const QChar &item, const QChar &other);
     static bool lessThan(const QString &item, const QString &other);
     static bool completionItemLessThan(const CompletionItem &item, const CompletionItem &other);
+
+private:
+    Internal::ICompletionCollectorPrivate *m_d;
 };
 
 class TEXTEDITOR_EXPORT IQuickFixCollector : public ICompletionCollector

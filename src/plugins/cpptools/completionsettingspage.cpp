@@ -32,15 +32,15 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
 
 using namespace CppTools::Internal;
 
-CompletionSettingsPage::CompletionSettingsPage(CppCodeCompletion *completion)
-    : m_completion(completion)
-    , m_page(new Ui_CompletionSettingsPage)
+CompletionSettingsPage::CompletionSettingsPage()
+    : m_page(new Ui_CompletionSettingsPage)
 {
 }
 
@@ -64,23 +64,27 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
+    const TextEditor::CompletionSettings &settings =
+            TextEditor::TextEditorSettings::instance()->completionSettings();
+
     int caseSensitivityIndex = 0;
-    switch (m_completion->caseSensitivity()) {
-    case CppCodeCompletion::CaseSensitive:
+    switch (settings.m_caseSensitivity) {
+    case TextEditor::CaseSensitive:
         caseSensitivityIndex = 0;
         break;
-    case CppCodeCompletion::CaseInsensitive:
+    case TextEditor::CaseInsensitive:
         caseSensitivityIndex = 1;
         break;
-    case CppCodeCompletion::FirstLetterCaseSensitive:
+    case TextEditor::FirstLetterCaseSensitive:
         caseSensitivityIndex = 2;
         break;
     }
 
     m_page->caseSensitivity->setCurrentIndex(caseSensitivityIndex);
-    m_page->autoInsertBrackets->setChecked(m_completion->autoInsertBrackets());
-    m_page->partiallyComplete->setChecked(m_completion->isPartialCompletionEnabled());
-    m_page->spaceAfterFunctionName->setChecked(m_completion->isSpaceAfterFunctionName());
+    m_page->autoInsertBrackets->setChecked(settings.m_autoInsertBrackets);
+    m_page->partiallyComplete->setChecked(settings.m_partiallyComplete);
+    m_page->spaceAfterFunctionName->setChecked(settings.m_spaceAfterFunctionName);
+
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords) << m_page->caseSensitivityLabel->text()
                 << ' ' << m_page->autoInsertBrackets->text()
@@ -88,15 +92,19 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
 		<< ' ' << m_page->spaceAfterFunctionName->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
+
     return w;
 }
 
 void CompletionSettingsPage::apply()
 {
-    m_completion->setCaseSensitivity(caseSensitivity());
-    m_completion->setAutoInsertBrackets(m_page->autoInsertBrackets->isChecked());
-    m_completion->setPartialCompletionEnabled(m_page->partiallyComplete->isChecked());
-    m_completion->setSpaceAfterFunctionName(m_page->spaceAfterFunctionName->isChecked());
+    TextEditor::CompletionSettings settings;
+    settings.m_caseSensitivity = caseSensitivity();
+    settings.m_autoInsertBrackets = m_page->autoInsertBrackets->isChecked();
+    settings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
+    settings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
+
+    TextEditor::TextEditorSettings::instance()->setCompletionSettings(settings);
 }
 
 bool CompletionSettingsPage::matches(const QString &s) const
@@ -104,14 +112,14 @@ bool CompletionSettingsPage::matches(const QString &s) const
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
-CppCodeCompletion::CaseSensitivity CompletionSettingsPage::caseSensitivity() const
+TextEditor::CaseSensitivity CompletionSettingsPage::caseSensitivity() const
 {
     switch (m_page->caseSensitivity->currentIndex()) {
     case 0: // Full
-        return CppCodeCompletion::CaseSensitive;
+        return TextEditor::CaseSensitive;
     case 1: // None
-        return CppCodeCompletion::CaseInsensitive;
+        return TextEditor::CaseInsensitive;
     default: // First letter
-        return CppCodeCompletion::FirstLetterCaseSensitive;
+        return TextEditor::FirstLetterCaseSensitive;
     }
 }
