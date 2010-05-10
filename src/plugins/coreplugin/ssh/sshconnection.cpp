@@ -151,6 +151,9 @@ struct InteractiveSshConnectionPrivate
 
     GenericSshConnection conn;
     ConnectionOutputReader *outputReader;
+    QByteArray remoteOutput;
+    QMutex mutex;
+    QWaitCondition waitCond;
 };
 
 struct NonInteractiveSshConnectionPrivate
@@ -208,8 +211,12 @@ private:
             m_mutex.unlock();
             QScopedPointer<char, QScopedPointerArrayDeleter<char> >
                     output(m_conn->d->conn.ssh->readAndReset(channel, alloc));
-            if (output)
-                emit m_conn->remoteOutput(QByteArray(output.data()));
+            if (output) {
+                m_conn->d->mutex.lock();
+                m_conn->d->remoteOutput += output.data();
+                emit m_conn->remoteOutputAvailable();
+                m_conn->d->mutex.unlock();
+            }
         }
     }
 
@@ -266,9 +273,24 @@ bool InteractiveSshConnection::sendInput(const QByteArray &input)
 
 void InteractiveSshConnection::quit()
 {
+    d->mutex.lock();
+    d->waitCond.wakeOne();
+    d->mutex.unlock();
     d->outputReader->stop();
     d->conn.quit();
 }
+
+QByteArray InteractiveSshConnection::waitForRemoteOutput(int msecs)
+{
+    d->mutex.lock();
+    if (d->remoteOutput.isEmpty())
+        d->waitCond.wait(&d->mutex, msecs == -1 ? ULONG_MAX : msecs);
+    const QByteArray remoteOutput = d->remoteOutput;
+    d->remoteOutput.clear();
+    d->mutex.unlock();
+    return remoteOutput;
+}
+
 
 InteractiveSshConnection::Ptr InteractiveSshConnection::create(const SshServerInfo &server)
 {

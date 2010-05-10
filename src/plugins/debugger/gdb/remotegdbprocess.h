@@ -68,9 +68,9 @@ public:
     static const QByteArray CtrlC;
 
 private slots:
-    void handleGdbOutput(const QByteArray &output);
-    void handleAppOutput(const QByteArray &output);
-    void handleErrOutput(const QByteArray &output);
+    void handleGdbOutput();
+    void handleAppOutput();
+    void handleErrOutput();
 
 private:
     enum CmdState { CmdNotYetSent, CmdSent, CmdReceived };

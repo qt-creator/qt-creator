@@ -102,8 +102,8 @@ MaemoSshRunner::MaemoSshRunner(const Core::SshServerInfo &server,
 bool MaemoSshRunner::runInternal()
 {
     createConnection();
-    connect(m_connection.data(), SIGNAL(remoteOutput(QByteArray)),
-            this, SLOT(handleRemoteOutput(QByteArray)));
+    connect(m_connection.data(), SIGNAL(remoteOutputAvailable()),
+            this, SLOT(handleRemoteOutput()));
     m_endMarkerCount = 0;
     m_promptEncountered = false;
     if (!m_connection->start())
@@ -115,8 +115,10 @@ bool MaemoSshRunner::runInternal()
     return !m_connection->hasError();
 }
 
-void MaemoSshRunner::handleRemoteOutput(const QByteArray &output)
+void MaemoSshRunner::handleRemoteOutput()
 {
+    const QByteArray output = m_connection->waitForRemoteOutput(0);
+
     // Wait for a prompt before sending the command.
     if (!m_promptEncountered) {
         if (output.indexOf(m_prompt) != -1) {

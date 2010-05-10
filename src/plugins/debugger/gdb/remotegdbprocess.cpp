@@ -71,12 +71,12 @@ void RemoteGdbProcess::start(const QString &cmd, const QStringList &args)
         return;
     m_command = cmd;
     m_cmdArgs = args;
-    connect(m_gdbConn.data(), SIGNAL(remoteOutput(QByteArray)),
-            this, SLOT(handleGdbOutput(QByteArray)));
-    connect(m_appOutputConn.data(), SIGNAL(remoteOutput(QByteArray)),
-            this, SLOT(handleAppOutput(QByteArray)));
-    connect(m_errOutputConn.data(), SIGNAL(remoteOutput(QByteArray)),
-            this, SLOT(handleErrOutput(QByteArray)));
+    connect(m_gdbConn.data(), SIGNAL(remoteOutputAvailable()),
+            this, SLOT(handleGdbOutput()));
+    connect(m_appOutputConn.data(), SIGNAL(remoteOutputAvailable()),
+            this, SLOT(handleAppOutput()));
+    connect(m_errOutputConn.data(), SIGNAL(remoteOutputAvailable()),
+            this, SLOT(handleErrOutput()));
     m_gdbConn->start();
     m_errOutputConn->start();
     m_appOutputConn->start();
@@ -130,7 +130,7 @@ QString RemoteGdbProcess::errorString() const
     return m_gdbConn ? m_gdbConn->error() : QString();
 }
 
-void RemoteGdbProcess::handleGdbOutput(const QByteArray &output)
+void RemoteGdbProcess::handleGdbOutput()
 {
 #if 0
     qDebug("%s: output is '%s'", Q_FUNC_INFO, output.data());
@@ -139,7 +139,8 @@ void RemoteGdbProcess::handleGdbOutput(const QByteArray &output)
     if (m_gdbState == CmdNotYetSent)
         return;
 
-    m_currentGdbOutput += removeCarriageReturn(output);
+    m_currentGdbOutput
+        += removeCarriageReturn(m_gdbConn->waitForRemoteOutput(0));
     if (!m_currentGdbOutput.endsWith('\n'))
         return;
 
@@ -217,15 +218,17 @@ qint64 RemoteGdbProcess::sendInput(const QByteArray &data)
     return m_gdbConn->sendInput(data) ? data.size() : 0;
 }
 
-void RemoteGdbProcess::handleAppOutput(const QByteArray &output)
+void RemoteGdbProcess::handleAppOutput()
 {
+    const QByteArray output = m_appOutputConn->waitForRemoteOutput(0);
     if (!handleAppOrErrOutput(m_appOutputConn, m_appOutputReaderState,
                               m_initialAppOutput, AppOutputFile, output))
         m_adapter->handleApplicationOutput(output);
 }
 
-void RemoteGdbProcess::handleErrOutput(const QByteArray &output)
+void RemoteGdbProcess::handleErrOutput()
 {
+    const QByteArray output = m_errOutputConn->waitForRemoteOutput(0);
     if (!handleAppOrErrOutput(m_errOutputConn, m_errOutputReaderState,
                               m_initialErrOutput, ErrOutputFile, output)) {
         m_errorOutput += output;
@@ -277,14 +280,14 @@ void RemoteGdbProcess::startGdb()
 void RemoteGdbProcess::stopReaders()
 {
     if (m_appOutputConn) {
-        disconnect(m_appOutputConn.data(), SIGNAL(remoteOutput(QByteArray)),
-                   this, SLOT(handleAppOutput(QByteArray)));
+        disconnect(m_appOutputConn.data(), SIGNAL(remoteOutputAvailable()),
+                   this, SLOT(handleAppOutput()));
         m_appOutputConn->sendInput(CtrlC);
         m_appOutputConn->quit();
     }
     if (m_errOutputConn)  {
-        disconnect(m_errOutputConn.data(), SIGNAL(remoteOutput(QByteArray)),
-                   this, SLOT(handleErrOutput(QByteArray)));
+        disconnect(m_errOutputConn.data(), SIGNAL(remoteOutputAvailable()),
+                   this, SLOT(handleErrOutput()));
         m_errOutputConn->sendInput(CtrlC);
         m_errOutputConn->quit();
     }
@@ -316,8 +319,8 @@ void RemoteGdbProcess::checkForGdbExit(QByteArray &output)
     const QByteArray exitString("^exit");
     const int exitPos = output.indexOf(exitString);
     if (exitPos != -1) {
-        disconnect(m_gdbConn.data(), SIGNAL(remoteOutput(QByteArray)),
-                   this, SLOT(handleGdbOutput(QByteArray)));
+        disconnect(m_gdbConn.data(), SIGNAL(remoteOutputAvailable()),
+                   this, SLOT(handleGdbOutput()));
         output.remove(exitPos + exitString.size(), output.size());
         stopReaders();
         emit finished(0, QProcess::NormalExit);

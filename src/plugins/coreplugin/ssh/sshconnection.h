@@ -82,12 +82,13 @@ public:
     bool start();
     void quit();
     bool sendInput(const QByteArray &input); // Should normally end in newline.
+    QByteArray waitForRemoteOutput(int msecs = -1);
     bool hasError() const;
     QString error() const;
     ~InteractiveSshConnection();
 
 signals:
-    void remoteOutput(const QByteArray &output);
+    void remoteOutputAvailable();
 
 private:
     InteractiveSshConnection(const SshServerInfo &server);
