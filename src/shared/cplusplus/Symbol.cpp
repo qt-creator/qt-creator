@@ -242,6 +242,8 @@ void Symbol::setSourceLocation(unsigned sourceLocation)
 
 unsigned Symbol::line() const
 {
+    assert(_sourceOffset != 0);
+
     unsigned line = 0, column = 0;
     const StringLiteral *fileId = 0;
     translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);
@@ -250,6 +252,8 @@ unsigned Symbol::line() const
 
 unsigned Symbol::column() const
 {
+    assert(_sourceOffset != 0);
+
     unsigned line = 0, column = 0;
     const StringLiteral *fileId = 0;
     translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);
@@ -258,6 +262,8 @@ unsigned Symbol::column() const
 
 const StringLiteral *Symbol::fileId() const
 {
+    assert(_sourceOffset != 0);
+
     unsigned line = 0, column = 0;
     const StringLiteral *fileId = 0;
     translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);

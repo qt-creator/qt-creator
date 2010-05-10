@@ -381,6 +381,8 @@ void CreateBindings::lookup_helper(const Name *name, Scope *scope,
         }
 
     } else if (const Identifier *id = name->identifier()) {
+        Control *control = new Control();
+
         for (Symbol *s = scope->lookat(id); s; s = s->next()) {
             if (! s->name())
                 continue;
@@ -394,6 +396,39 @@ void CreateBindings::lookup_helper(const Name *name, Scope *scope,
                 qDebug() << "SKIP:" << oo(s->type(), s->name()) << s->fileName() << s->line() << s->column();
 #endif
                 continue;
+            }
+
+            if (templateId && (s->isDeclaration() || s->isFunction())) {
+
+                FullySpecifiedType ty = GenTemplateInstance::instantiate(templateId, s, control);
+
+                Overview oo;
+                oo.setShowFunctionSignatures(true);
+                oo.setShowReturnTypes(true);
+
+                qDebug() << "TODO: instantiate:" << oo(s->type(), s->name()) << "using:" << oo(templateId)
+                        << oo(ty);
+
+#if 0
+                if (Declaration *decl = s->asDeclaration()) {
+                    qDebug() << "instantiate declaration";
+                    qDebug() << "is typedef:" << ty.isTypedef() << s->isTypedef() << s->type().isTypedef();
+                    Declaration *d = control->newDeclaration(0, 0);
+                    d->setStorage(decl->storage());
+                    d->setName(decl->name());
+                    d->setType(ty);
+                    d->setScope(decl->scope());
+                    result->append(d);
+                    continue;
+                } else if (Function *fun = s->asFunction()) {
+                    qDebug() << "instantiate function";
+                    Function *d = ty->asFunctionType();
+                    d->setStorage(fun->storage());
+                    d->setScope(fun->scope());
+                    result->append(d);
+                    continue;
+                }
+#endif
             }
 
             result->append(s);
@@ -524,21 +559,15 @@ ClassOrNamespace *ClassOrNamespace::nestedClassOrNamespace(const Name *name) con
     ClassOrNamespace *c = it->second;
 
     if (const TemplateNameId *templId = name->asTemplateNameId()) {
-        Overview oo;
-        qDebug() << "search for:" << oo(templId);
-
         foreach (ClassOrNamespace *i, c->_instantiations) {
-            if (templId->isEqualTo(i->_templateId)) {
-                qDebug() << "*** got a match";
+            if (templId->isEqualTo(i->_templateId))
                 return i;
-            }
         }
 
         ClassOrNamespace *i = _factory->allocClassOrNamespace(c);
         i->_templateId = templId;
         i->_usings.append(c);
         c->_instantiations.append(i);
-        qDebug() << "created a new instantiation" << i;
         return i;
     }
 
@@ -601,11 +630,6 @@ ClassOrNamespace *ClassOrNamespace::findOrCreate(const Name *name)
 
         if (! e) {
             e = _factory->allocClassOrNamespace(this);
-
-            if (const TemplateNameId *templId = name->asTemplateNameId()) {
-                Overview oo;
-                qDebug() << "find or create:" << oo(templId);
-            }
             _classOrNamespaces[name] = e;
         }
 
