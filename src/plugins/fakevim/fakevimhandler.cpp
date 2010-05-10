@@ -1011,11 +1011,13 @@ void FakeVimHandler::Private::importSelection()
     QTextCursor tc = EDITOR(textCursor());
     int pos = tc.position();
     int anc = tc.anchor();
-    // FIXME: Why?
-    if (pos < anc)
-        --anc;
-    else
-        tc.movePosition(Left, KeepAnchor);
+    if (tc.hasSelection()) {
+        // FIXME: Why?
+        if (pos < anc)
+            --anc;
+        else
+            tc.movePosition(Left, KeepAnchor);
+    }
     m_marks['<'] = anc;
     m_marks['>'] = pos;
     m_anchor = anc;
@@ -1060,7 +1062,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
         m_tc.setPosition(firstPositionInLine(beginLine), MoveAnchor);
         m_tc.setPosition(lastPositionInLine(endLine), KeepAnchor);
         EDITOR(setTextCursor(m_tc));
-    } else if (isVisualCharMode()) {
+    } else if (isVisualCharMode() || isVisualBlockMode()) {
         m_tc = EDITOR(textCursor());
         m_tc.setPosition(m_marks['<'], MoveAnchor);
         m_tc.setPosition(m_marks['>'], KeepAnchor);
