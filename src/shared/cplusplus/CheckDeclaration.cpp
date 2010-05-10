@@ -174,8 +174,12 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
                 symbol->setTemplateParameters(_templateParameters);
                 _templateParameters = 0;
             }
+
             if (ty.isDeprecated())
                 symbol->setDeprecated(true);
+
+            if (ty.isFriend())
+                symbol->setStorage(Symbol::Friend);
 
             _scope->enterSymbol(symbol);
             return false;
