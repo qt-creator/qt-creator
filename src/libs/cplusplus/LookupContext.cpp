@@ -311,6 +311,9 @@ QList<Symbol *> ClassOrNamespace::lookup(const Name *name)
         if (q->isGlobal())
             binding = globalNamespace();
 
+        if (q->nameCount() == 1)
+            return binding->lookup(q->unqualifiedNameId());
+
         binding = binding->lookupClassOrNamespace(q->nameAt(0));
 
         for (unsigned index = 1; binding && index < q->nameCount() - 1; ++index)
