@@ -42,22 +42,11 @@ QT_BEGIN_NAMESPACE
 class QDebug;
 QT_END_NAMESPACE
 
-// Convert breakpoint structs
-inline CdbCore::BreakPoint breakPointFromBreakPointData(const Debugger::Internal::BreakpointData &bpd)
-{
-    CdbCore::BreakPoint rc;
-    rc.fileName = QDir::toNativeSeparators(bpd.fileName);
-    rc.condition = bpd.condition;
-    rc.funcName = bpd.funcName;
-    rc.ignoreCount = bpd.ignoreCount.isEmpty() ? 0  : bpd.ignoreCount.toInt();
-    rc.lineNumber  = bpd.lineNumber.isEmpty()  ? -1 : bpd.lineNumber.toInt();
-    rc.oneShot = false;
-    rc.enabled = bpd.enabled;
-    return rc;
-}
-
 namespace Debugger {
 namespace Internal {
+
+// Convert breakpoint structs
+CdbCore::BreakPoint breakPointFromBreakPointData(const Debugger::Internal::BreakpointData &bpd);
 
 // Synchronize (halted) engine with BreakHandler.
 bool synchronizeBreakPoints(CIDebugControl* ctl, CIDebugSymbols *syms,

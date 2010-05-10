@@ -49,18 +49,21 @@ namespace CdbCore {
 
 struct BreakPoint
 {
-    BreakPoint();
+    enum Type { Code, // Stop in code.
+                Data  // Stop when accessing address.
+              };
 
-    int compare(const BreakPoint& rhs) const;
+    BreakPoint();
 
     void clear();
     void clearExpressionData();
 
     QString expression() const;
 
-    // Apply parameters
+    // Apply parameters (with the exception of type, which is
+    // passed as a parameter to IDebugControl within add().
     bool apply(IDebugBreakpoint2 *ibp, QString *errorMessage) const;
-    // Convenience to add to a IDebugControl4
+    // Convenience to add to a IDebugControl4.
     bool add(CIDebugControl* debugControl,
              QString *errorMessage,
              unsigned long *id = 0,
@@ -76,16 +79,20 @@ struct BreakPoint
     static IDebugBreakpoint2 *breakPointById(CIDebugControl *ctl, unsigned long id, QString *errorMessage);
     static bool removeBreakPointById(CIDebugControl *ctl, unsigned long id, QString *errorMessage);
     static bool setBreakPointEnabledById(CIDebugControl *ctl, unsigned long id, bool enabled, QString *errorMessage);
+    static bool setBreakPointThreadById(CIDebugControl *ctl, unsigned long id, int threadId, QString *errorMessage);
 
     // Return a 'canonical' file (using '/' and capitalized drive letter)
     static QString normalizeFileName(const QString &f);
     static void clearNormalizeFileNameCache();
+    QString toString() const;
 
+    Type type;
     QString fileName;       // short name of source file
     int lineNumber;     // line in source file
     QString funcName;       // name of containing function
     quint64 address;
 
+    int threadId;
     QString condition;      // condition associated with breakpoint
     unsigned long ignoreCount;    // ignore count associated with breakpoint
     bool oneShot;
@@ -94,10 +101,6 @@ struct BreakPoint
 
 QDebug operator<<(QDebug, const BreakPoint &bp);
 
-inline bool operator==(const BreakPoint& b1, const BreakPoint& b2)
-    { return b1.compare(b2) == 0; }
-inline bool operator!=(const BreakPoint& b1, const BreakPoint& b2)
-    { return b1.compare(b2) != 0; }
-}
+} // namespace CdbCore
 
 #endif // CDBCOREBREAKPOINTS_H

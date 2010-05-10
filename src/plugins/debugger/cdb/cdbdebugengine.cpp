@@ -1539,7 +1539,9 @@ void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP)
         expression.clear();
     }
     if (!expression.isEmpty())
-        m_stoppedMessage = CdbDebugEngine::tr("Breakpoint: %1").arg(expression);
+        m_stoppedMessage = breakpoint.type == CdbCore::BreakPoint::Code ?
+                           CdbDebugEngine::tr("Breakpoint: %1").arg(expression) :
+                           CdbDebugEngine::tr("Watchpoint: %1").arg(expression);
 }
 
 void CdbDebugEngine::reloadSourceFiles()
@@ -1560,7 +1562,8 @@ void CdbDebugEngine::syncDebuggerPaths()
 
 unsigned CdbDebugEngine::debuggerCapabilities() const
 {
-    return DisassemblerCapability | RegisterCapability | ShowMemoryCapability;
+    return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
+           |WatchpointCapability;
 }
 
 // Accessed by DebuggerManager

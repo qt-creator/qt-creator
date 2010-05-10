@@ -37,6 +37,37 @@ namespace Internal {
 
 enum { debugBP = 0 };
 
+// Convert breakpoint structs
+CdbCore::BreakPoint breakPointFromBreakPointData(const Debugger::Internal::BreakpointData &bpd)
+{
+    CdbCore::BreakPoint rc;
+    rc.type = bpd.type == Debugger::Internal::BreakpointData::BreakpointType ?
+              CdbCore::BreakPoint::Code : CdbCore::BreakPoint::Data;
+
+    if (rc.type == CdbCore::BreakPoint::Data) {
+        QByteArray addressBA = bpd.address;
+        if (addressBA.startsWith("0x"))
+            addressBA.remove(0, 2);
+        bool ok;
+        rc.address = addressBA.toULongLong(&ok, 16);
+        if (!ok)
+            qWarning("Cdb: Cannot convert watchpoint address '%s'", bpd.address.constData());
+    }
+    if (!bpd.threadSpec.isEmpty()) {
+        bool ok;
+        rc.threadId = bpd.threadSpec.toInt(&ok);
+        if (!ok)
+            qWarning("Cdb: Cannot convert breakpoint thread specification '%s'", bpd.address.constData());
+    }
+    rc.fileName = QDir::toNativeSeparators(bpd.fileName);
+    rc.condition = bpd.condition;
+    rc.funcName = bpd.funcName;
+    rc.ignoreCount = bpd.ignoreCount.isEmpty() ? 0  : bpd.ignoreCount.toInt();
+    rc.lineNumber  = bpd.lineNumber.isEmpty()  ? -1 : bpd.lineNumber.toInt();
+    rc.oneShot = false;
+    rc.enabled = bpd.enabled;
+    return rc;
+}
 
 static inline QString msgCannotSetBreakAtFunction(const QString &func, const QString &why)
 {
@@ -93,7 +124,7 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
             breakPointOk = ncdbbp.add(debugControl, &warning, &id, &address);
             if (breakPointOk) {
                 if (debugBP)
-                    qDebug() << "Added " << id << " at " << address << ncdbbp;
+                    qDebug("Added %lu at 0x%lx %s", id, address, qPrintable(ncdbbp.toString()));
                 handler->takeInsertedBreakPoint(nbd);
                 updateMarkers = true;
                 nbd->pending = false;
@@ -123,6 +154,18 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
     foreach (BreakpointData *dbd, handler->takeDisabledBreakpoints())
         if (!CdbCore::BreakPoint::setBreakPointEnabledById(debugControl, dbd->bpNumber.toUInt(), false, &warning))
             warnings->push_back(warning);
+    // Check for modified thread ids.
+    for (int i = handler->size() - 1; i >= 0; i--) {
+        BreakpointData *bpd = handler->at(i);
+        if (bpd->threadSpec != bpd->bpThreadSpec) {
+            const int newThreadSpec = bpd->threadSpec.isEmpty() ? -1 : bpd->threadSpec.toInt();
+            if (CdbCore::BreakPoint::setBreakPointThreadById(debugControl, bpd->bpNumber.toUInt(), newThreadSpec, errorMessage)) {
+                bpd->bpThreadSpec = bpd->threadSpec;
+            } else {
+                qWarning("%s", qPrintable(*errorMessage));
+            }
+        }
+    }
 
     if (updateMarkers)
         handler->updateMarkers();
@@ -130,7 +173,11 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
     if (debugBP > 1) {
         QList<CdbCore::BreakPoint> bps;
         CdbCore::BreakPoint::getBreakPoints(debugControl, &bps, errorMessage);
-        qDebug().nospace() << "### Breakpoints in engine: " << bps;
+        QDebug nsp = qDebug().nospace();
+        const int count = bps.size();
+        nsp <<"### Breakpoints in engine: " << count << '\n';
+        for (int i = 0; i < count; i++)
+            nsp << "  #" << i << ' ' << bps.at(i) << '\n';
     }
     return true;
 }

@@ -50,48 +50,21 @@ namespace CdbCore {
 static const char sourceFileQuoteC = '`';
 
 BreakPoint::BreakPoint() :
+    type(Code),
     lineNumber(-1),
     address(0),
+    threadId(-1),
     ignoreCount(0),
     oneShot(false),
     enabled(true)
 {
 }
 
-int BreakPoint::compare(const BreakPoint& rhs) const
-{
-    if (lineNumber > rhs.lineNumber)
-        return 1;
-    if (lineNumber < rhs.lineNumber)
-        return -1;
-    if (address > rhs.address)
-        return 1;
-    if (address < rhs.address)
-        return -1;
-    if (ignoreCount > rhs.ignoreCount)
-        return 1;
-    if (ignoreCount < rhs.ignoreCount)
-        return -1;
-    if (oneShot && !rhs.oneShot)
-        return 1;
-    if (!oneShot && rhs.oneShot)
-        return -1;
-    if (enabled && !rhs.enabled)
-        return 1;
-    if (!enabled && rhs.enabled)
-        return -1;
-    if (const int fileCmp = fileName.compare(rhs.fileName))
-        return fileCmp;
-    if (const int  funcCmp = funcName.compare(rhs.funcName))
-        return funcCmp;
-    if (const int condCmp = condition.compare(rhs.condition))
-        return condCmp;
-    return 0;
-}
-
 void BreakPoint::clear()
 {
+     type = Code;
      ignoreCount = 0;
+     threadId = -1;
      oneShot = false;
      enabled = true;
      clearExpressionData();
@@ -108,23 +81,35 @@ void BreakPoint::clearExpressionData()
 
 QDebug operator<<(QDebug dbg, const BreakPoint &bp)
 {
-    QDebug nsp = dbg.nospace();
-    if (bp.address)
-        nsp << "0x" << QString::number(bp.address, 16) << ' ';
-    if (!bp.fileName.isEmpty()) {
-        nsp << "fileName='" << bp.fileName << ':' << bp.lineNumber << '\'';
-    } else {
-        nsp << "funcName='" << bp.funcName << '\'';
-    }
-    if (!bp.condition.isEmpty())
-        nsp << " condition='" << bp.condition << '\'';
-    if (bp.ignoreCount)
-        nsp << " ignoreCount=" << bp.ignoreCount;
-    if (bp.enabled)
-        nsp << " enabled";
-    if (bp.oneShot)
-        nsp << " oneShot";
+    dbg.nospace() << bp.toString();
     return dbg;
+}
+
+QString BreakPoint::toString() const
+{
+    QString rc;
+    QTextStream str(&rc);
+    str << (type == BreakPoint::Code ?  "Code " : "Data ");
+    if (address) {
+        str.setIntegerBase(16);
+        str << "0x" << address << ' ';
+        str.setIntegerBase(10);
+    }
+    if (!fileName.isEmpty()) {
+        str << "fileName='" << fileName << ':' << lineNumber << '\'';
+    } else {
+        str << "funcName='" << funcName << '\'';
+    }
+    if (threadId >= 0)
+        str << " thread=" << threadId;
+    if (!condition.isEmpty())
+        str << " condition='" << condition << '\'';
+    if (ignoreCount)
+        str << " ignoreCount=" << ignoreCount;
+    str << (enabled ? " enabled" : " disabled");
+    if (oneShot)
+        str << " oneShot";
+    return rc;
 }
 
 QString BreakPoint::expression() const
@@ -155,25 +140,59 @@ QString BreakPoint::expression() const
     return rc;
 }
 
+static inline QString msgCannotSetBreakpoint(const QString &exp, const QString &why)
+{
+    return QString::fromLatin1("Unable to set breakpoint '%1' : %2").arg(exp, why);
+}
+
 bool BreakPoint::apply(CIDebugBreakpoint *ibp, QString *errorMessage) const
 {
     const QString expr = expression();
     if (debugBP)
         qDebug() << Q_FUNC_INFO << *this << expr;
-    const HRESULT hr = ibp->SetOffsetExpressionWide(reinterpret_cast<PCWSTR>(expr.utf16()));
+    HRESULT hr = ibp->SetOffsetExpressionWide(reinterpret_cast<PCWSTR>(expr.utf16()));
     if (FAILED(hr)) {
-        *errorMessage = QString::fromLatin1("Unable to set breakpoint '%1' : %2").
-                        arg(expr, CdbCore::msgComFailed("SetOffsetExpressionWide", hr));
+        *errorMessage = msgCannotSetBreakpoint(expr, CdbCore::msgComFailed("SetOffsetExpressionWide", hr));
         return false;
     }
     // Pass Count is ignoreCount + 1
-    ibp->SetPassCount(ignoreCount + 1u);
+    hr = ibp->SetPassCount(ignoreCount + 1u);
+    if (FAILED(hr))
+        qWarning("Error setting passcount %d %s ", ignoreCount, qPrintable(expr));
+    // Set up size for data breakpoints
+    if (type == Data) {
+        const ULONG size = 1u;
+        hr = ibp->SetDataParameters(size, DEBUG_BREAK_READ | DEBUG_BREAK_WRITE);
+        if (FAILED(hr)) {
+            const QString msg = QString::fromLatin1("Cannot set watch size to %1: %2").
+                                arg(size).arg(CdbCore::msgComFailed("SetDataParameters", hr));
+            *errorMessage = msgCannotSetBreakpoint(expr, msg);
+            return false;
+        }
+    }
+    // Thread
+    if (threadId >= 0) {
+        hr = ibp->SetMatchThreadId(threadId);
+        if (FAILED(hr)) {
+            const QString msg = QString::fromLatin1("Cannot set thread id to %1: %2").
+                                arg(threadId).arg(CdbCore::msgComFailed("SetMatchThreadId", hr));
+            *errorMessage = msgCannotSetBreakpoint(expr, msg);
+            return false;
+        }
+    }
+    // Flags
     ULONG flags = 0;
     if (enabled)
         flags |= DEBUG_BREAKPOINT_ENABLED;
     if (oneShot)
         flags |= DEBUG_BREAKPOINT_ONE_SHOT;
-    ibp->AddFlags(flags);
+    hr = ibp->AddFlags(flags);
+    if (FAILED(hr)) {
+        const QString msg = QString::fromLatin1("Cannot set flags to 0x%1: %2").
+                            arg(flags, 0 ,16).arg(CdbCore::msgComFailed("AddFlags", hr));
+        *errorMessage = msgCannotSetBreakpoint(expr, msg);
+        return false;
+    }
     return true;
 }
 
@@ -192,7 +211,8 @@ bool BreakPoint::add(CIDebugControl* debugControl,
         *address = 0;
     if (id)
         *id = 0;
-    HRESULT hr = debugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &ibp);
+    const ULONG iType = type == Code ? DEBUG_BREAKPOINT_CODE : DEBUG_BREAKPOINT_DATA;
+    HRESULT hr = debugControl->AddBreakpoint2(iType, DEBUG_ANY_ID, &ibp);
     if (FAILED(hr)) {
         *errorMessage = msgCannotAddBreakPoint(CdbCore::msgComFailed("AddBreakpoint2", hr));
         return false;
@@ -321,16 +341,41 @@ void BreakPoint::clearNormalizeFileNameCache()
     normalizedFileNameCache()->clear();
 }
 
+static inline QString msgCannotRetrieveBreakpoint(const QString &why)
+{
+    return QString::fromLatin1("Cannot retrieve breakpoint: %1").arg(why);
+}
+
+static inline int threadIdOfBreakpoint(CIDebugBreakpoint *ibp)
+{
+    // Thread: E_NOINTERFACE indicates no thread has been set.
+    int threadId = -1;
+    ULONG iThreadId;
+    if (S_OK == ibp->GetMatchThreadId(&iThreadId))
+        threadId = iThreadId;
+    return threadId;
+}
+
 bool BreakPoint::retrieve(CIDebugBreakpoint *ibp, QString *errorMessage)
 {
     clear();
-    WCHAR wszBuf[MAX_PATH];
-    const HRESULT hr =ibp->GetOffsetExpressionWide(wszBuf, MAX_PATH, 0);
+    // Get type
+    ULONG iType;
+    ULONG processorType;
+    HRESULT hr = ibp->GetType(&iType, &processorType);
     if (FAILED(hr)) {
-        *errorMessage = QString::fromLatin1("Cannot retrieve breakpoint: %1").
-                        arg(CdbCore::msgComFailed("GetOffsetExpressionWide", hr));
+        *errorMessage = msgCannotRetrieveBreakpoint(CdbCore::msgComFailed("GetType", hr));
         return false;
     }
+    type = iType == DEBUG_BREAKPOINT_CODE ? Code : Data;
+    // Get & parse expression
+    WCHAR wszBuf[MAX_PATH];
+    hr =ibp->GetOffsetExpressionWide(wszBuf, MAX_PATH, 0);
+    if (FAILED(hr)) {
+        *errorMessage = msgCannotRetrieveBreakpoint(CdbCore::msgComFailed("GetOffsetExpressionWide", hr));
+        return false;
+    }
+    threadId = threadIdOfBreakpoint(ibp);
     // Pass Count is ignoreCount + 1
     ibp->GetPassCount(&ignoreCount);
     if (ignoreCount)
@@ -523,4 +568,34 @@ bool BreakPoint::setBreakPointEnabledById(CIDebugControl *ctl, unsigned long id,
     return true;
 }
 
+// Change thread-id of a breakpoint
+static inline QString msgCannotSetBreakPointThread(unsigned long id, int tid, const QString &why)
+{
+    return QString::fromLatin1("Cannot set breakpoint %1 thread to %2: %3").arg(id).arg(tid).arg(why);
 }
+
+bool BreakPoint::setBreakPointThreadById(CIDebugControl *ctl, unsigned long id, int threadId, QString *errorMessage)
+{
+    if (debugBP)
+        qDebug() << Q_FUNC_INFO << id << threadId;
+    CIDebugBreakpoint *ibp = breakPointById(ctl, id, errorMessage);
+    if (!ibp) {
+        *errorMessage = msgCannotSetBreakPointThread(id, threadId, *errorMessage);
+        return false;
+    }
+    // Compare thread ids
+    const int oldThreadId = threadIdOfBreakpoint(ibp);
+    if (oldThreadId == threadId)
+        return true;
+    const ULONG newIThreadId = threadId == -1 ? DEBUG_ANY_ID : static_cast<ULONG>(threadId);
+    if (debugBP)
+        qDebug() << "Changing thread id of " << id << " from " << oldThreadId << " to " << threadId
+                << '(' << newIThreadId << ')';
+    const HRESULT hr = ibp->SetMatchThreadId(newIThreadId);
+    if (FAILED(hr)) {
+        *errorMessage = msgCannotSetBreakPointThread(id, threadId, *errorMessage);
+        return false;
+    }
+    return true;
+}
+} // namespace CdbCore
