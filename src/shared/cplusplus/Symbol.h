@@ -87,9 +87,6 @@ public:
     /// Destroy this Symbol.
     virtual ~Symbol();
 
-    /// Returns this Symbol's Control object.
-    Control *control() const;
-
     /// Returns this Symbol's source location.
     unsigned sourceLocation() const;
 
@@ -323,10 +320,14 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor) = 0;
 
+    /// Returns this Symbol's Control object.
+    Control *control() const;
+
+    /// Returns this Symbol's TranslationUnit.
     TranslationUnit *translationUnit() const;
 
 private:
-    TranslationUnit *_translationUnit;
+    Control *_control;
     unsigned _sourceLocation;
     unsigned _sourceOffset;
     unsigned _startOffset;
