@@ -29,16 +29,17 @@
 
 #include "debuggermanager.h"
 
-#include "debuggerplugin.h"
 #include "debuggeractions.h"
 #include "debuggeragents.h"
-#include "debuggerrunner.h"
 #include "debuggerconstants.h"
-#include "idebuggerengine.h"
-#include "debuggerstringutils.h"
-#include "watchutils.h"
-#include "debuggeruiswitcher.h"
 #include "debuggermainwindow.h"
+#include "debuggerplugin.h"
+#include "debuggerrunner.h"
+#include "debuggerstringutils.h"
+#include "debuggertooltip.h"
+#include "debuggeruiswitcher.h"
+#include "idebuggerengine.h"
+#include "watchutils.h"
 
 #include "breakwindow.h"
 #include "debuggeroutputwindow.h"
@@ -504,8 +505,6 @@ void DebuggerManager::init()
             d->m_outputWindow, SLOT(showOutput(int, QString)), Qt::QueuedConnection);
 
     // Tooltip
-    //QTreeView *tooltipView = qobject_cast<QTreeView *>(d->m_tooltipWindow);
-    //tooltipView->setModel(d->m_watchHandler->model(TooltipsWatch));
     qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<StackCookie>("StackCookie");
 
@@ -1147,6 +1146,7 @@ void DebuggerManager::cleanupViews()
     d->m_sourceFilesWindow->removeAll();
     d->m_disassemblerViewAgent.cleanup();
     d->m_actions.reverseDirectionAction->setChecked(false);
+    hideDebuggerToolTip();
 
     // FIXME: Move to plugin?
     using namespace Core;
