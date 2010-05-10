@@ -161,10 +161,7 @@ private:
 };
 
 Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
-    : _control(0),
-      _sourceLocation(sourceLocation),
-      _sourceOffset(0),
-      _startOffset(0),
+    : _startOffset(0),
       _endOffset(0),
       _name(0),
       _hashCode(0),
@@ -175,22 +172,12 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const 
       _next(0),
       _isGenerated(false)
 {
-    if (translationUnit) {
-        _control = translationUnit->control();
-        setSourceLocation(sourceLocation);
-    }
-
+    setSourceLocation(sourceLocation, translationUnit);
     setName(name);
 }
 
 Symbol::~Symbol()
 { }
-
-Control *Symbol::control() const
-{ return _control; }
-
-TranslationUnit *Symbol::translationUnit() const
-{ return _control->translationUnit(); }
 
 void Symbol::visitSymbol(SymbolVisitor *visitor)
 {
@@ -210,9 +197,6 @@ void Symbol::visitSymbol(Symbol *symbol, SymbolVisitor *visitor)
 unsigned Symbol::sourceLocation() const
 { return _sourceLocation; }
 
-unsigned Symbol::sourceOffset() const
-{ return _sourceOffset; }
-
 bool Symbol::isGenerated() const
 { return _isGenerated; }
 
@@ -222,61 +206,37 @@ bool Symbol::isDeprecated() const
 void Symbol::setDeprecated(bool isDeprecated)
 { _isDeprecated = isDeprecated; }
 
-void Symbol::setSourceLocation(unsigned sourceLocation)
+void Symbol::setSourceLocation(unsigned sourceLocation, TranslationUnit *translationUnit)
 {
     _sourceLocation = sourceLocation;
+    unsigned offset = 0;
 
     if (! _sourceLocation) {
         _isGenerated = false;
-        _sourceOffset = 0;
+
     } else {
-        TranslationUnit *unit = translationUnit();
-
-        const Token &tk = unit->tokenAt(sourceLocation);
-
+        const Token &tk = translationUnit->tokenAt(sourceLocation);
         _isGenerated = tk.f.generated;
-        _sourceOffset = tk.offset;
+        offset = tk.offset;
     }
+
+    translationUnit->getPosition(offset, &_line, &_column, &_fileId);
 }
 
 unsigned Symbol::line() const
 {
-    assert(_sourceOffset != 0);
-
-    unsigned line = 0, column = 0;
-    const StringLiteral *fileId = 0;
-    translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);
-    return line;
+    return _line;
 }
 
 unsigned Symbol::column() const
 {
-    assert(_sourceOffset != 0);
-
-    unsigned line = 0, column = 0;
-    const StringLiteral *fileId = 0;
-    translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);
-    return column;
+    return _column;
 }
 
 const StringLiteral *Symbol::fileId() const
 {
-    assert(_sourceOffset != 0);
-
-    unsigned line = 0, column = 0;
-    const StringLiteral *fileId = 0;
-    translationUnit()->getPosition(_sourceOffset, &line, &column, &fileId);
-    return fileId;
+    return _fileId;
 }
-
-void Symbol::getPosition(unsigned *line, unsigned *column, const StringLiteral **fileId) const
-{ translationUnit()->getPosition(_sourceOffset, line, column, fileId); }
-
-void Symbol::getStartPosition(unsigned *line, unsigned *column, const StringLiteral **fileId) const
-{ translationUnit()->getPosition(_startOffset, line, column, fileId); }
-
-void Symbol::getEndPosition(unsigned *line, unsigned *column, const StringLiteral **fileId) const
-{ translationUnit()->getPosition(_endOffset, line, column, fileId); }
 
 const char *Symbol::fileName() const
 { return fileId()->chars(); }
@@ -511,9 +471,7 @@ bool Symbol::isObjCPropertyDeclaration() const
 
 void Symbol::copy(Symbol *other)
 {
-    _control = other->_control;
     _sourceLocation = other->_sourceLocation;
-    _sourceOffset = other->_sourceOffset;
     _startOffset = other->_startOffset;
     _endOffset = other->_endOffset;
     _name = other->_name;
@@ -523,6 +481,9 @@ void Symbol::copy(Symbol *other)
     _scope = other->_scope;
     _index = other->_index;
     _next = other->_next;
+    _fileId = other->_fileId;
+    _line = other->_line;
+    _column = other->_column;
 
     _isGenerated = other->_isGenerated;
     _isDeprecated = other->_isDeprecated;

@@ -206,7 +206,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
         Function *fun = 0;
         if (declTy && 0 != (fun = declTy->asFunctionType())) {
-            fun->setSourceLocation(location);
+            fun->setSourceLocation(location, translationUnit());
             fun->setScope(_scope);
             fun->setName(name);
             fun->setMethodKey(semantic()->currentMethodKey());
@@ -341,7 +341,7 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     fun->setStartOffset(tokenAt(ast->firstToken()).offset);
     fun->setEndOffset(tokenAt(ast->lastToken()).offset);
     if (ast->declarator)
-        fun->setSourceLocation(ast->declarator->firstToken());
+        fun->setSourceLocation(ast->declarator->firstToken(), translationUnit());
     fun->setName(name);
     fun->setTemplateParameters(_templateParameters);
     fun->setVisibility(semantic()->currentVisibility());

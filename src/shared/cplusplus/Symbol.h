@@ -90,9 +90,6 @@ public:
     /// Returns this Symbol's source location.
     unsigned sourceLocation() const;
 
-    /// Returns this Symbol's source offset.
-    unsigned sourceOffset() const;
-
     /// Returns this Symbol's line number.
     unsigned line() const;
 
@@ -113,10 +110,6 @@ public:
 
     unsigned endOffset() const;
     void setEndOffset(unsigned offset);
-
-    void getPosition(unsigned *line, unsigned *column = 0, const StringLiteral **fileId = 0) const;
-    void getStartPosition(unsigned *line, unsigned *column = 0, const StringLiteral **fileId = 0) const;
-    void getEndPosition(unsigned *line, unsigned *column = 0, const StringLiteral **fileId = 0) const;
 
     /// Returns this Symbol's name.
     const Name *name() const;
@@ -312,7 +305,7 @@ public:
     Scope *enclosingBlockScope() const;
 
     void setScope(Scope *scope); // ### make me private
-    void setSourceLocation(unsigned sourceLocation); // ### make me private
+    void setSourceLocation(unsigned sourceLocation, TranslationUnit *translationUnit); // ### make me private
 
     void visitSymbol(SymbolVisitor *visitor);
     static void visitSymbol(Symbol *symbol, SymbolVisitor *visitor);
@@ -322,16 +315,8 @@ public:
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor) = 0;
 
-    /// Returns this Symbol's Control object.
-    Control *control() const;
-
-    /// Returns this Symbol's TranslationUnit.
-    TranslationUnit *translationUnit() const;
-
 private:
-    Control *_control;
     unsigned _sourceLocation;
-    unsigned _sourceOffset;
     unsigned _startOffset;
     unsigned _endOffset;
     const Name *_name;
@@ -341,6 +326,9 @@ private:
     Scope *_scope;
     unsigned _index;
     Symbol *_next;
+    const StringLiteral *_fileId;
+    unsigned _line;
+    unsigned _column;
 
     bool _isGenerated: 1;
     bool _isDeprecated: 1;
