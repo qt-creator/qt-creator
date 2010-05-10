@@ -270,44 +270,43 @@ class Process: public std::unary_function<Document::Ptr, void>
 {
     QPointer<CppModelManager> _modelManager;
     Snapshot _snapshot;
-    CppModelManager::WorkingCopy _workingCopy;
     Document::Ptr _doc;
+    Document::CheckMode _mode;
 
 public:
     Process(QPointer<CppModelManager> modelManager,
-            Snapshot snapshot,
+            Document::Ptr doc,
+            const Snapshot &snapshot,
             const CppModelManager::WorkingCopy &workingCopy)
         : _modelManager(modelManager),
           _snapshot(snapshot),
-          _workingCopy(workingCopy)
-    { }
-
-    void operator()(Document::Ptr doc)
+          _doc(doc),
+          _mode(Document::FastCheck)
     {
-        _doc = doc;
 
-        Document::CheckMode mode = Document::FastCheck;
+        if (workingCopy.contains(_doc->fileName()))
+            _mode = Document::FullCheck;
+    }
 
-        if (_workingCopy.contains(doc->fileName()))
-            mode = Document::FullCheck;
+    void operator()()
+    {
+        _doc->check(_mode);
 
-        doc->check(mode);
-
-        if (mode == Document::FullCheck) {
+        if (_mode == Document::FullCheck) {
             // run the binding pass
-            NamespaceBindingPtr ns = bind(doc, _snapshot);
+            NamespaceBindingPtr ns = bind(_doc, _snapshot);
 
             // check for undefined symbols.
-            CheckUndefinedSymbols checkUndefinedSymbols(doc);
+            CheckUndefinedSymbols checkUndefinedSymbols(_doc);
             checkUndefinedSymbols.setGlobalNamespaceBinding(ns);
 
-            checkUndefinedSymbols(doc->translationUnit()->ast()); // ### FIXME
+            checkUndefinedSymbols(_doc->translationUnit()->ast()); // ### FIXME
         }
 
-        doc->releaseTranslationUnit();
+        _doc->releaseTranslationUnit();
 
         if (_modelManager)
-            _modelManager->emitDocumentUpdated(doc); // ### TODO: compress
+            _modelManager->emitDocumentUpdated(_doc); // ### TODO: compress
     }
 };
 } // end of anonymous namespace
@@ -600,9 +599,9 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
     m_todo.remove(fileName);
 
 #ifndef ICHECK_BUILD
-    Process process(m_modelManager, snapshot, m_workingCopy);
+    Process process(m_modelManager, doc, snapshot, m_workingCopy);
 
-    process(doc);
+    process();
 
     (void) switchDocument(previousDoc);
 #else
