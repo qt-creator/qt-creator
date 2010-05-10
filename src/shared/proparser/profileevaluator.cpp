@@ -65,6 +65,15 @@
 #define QT_PCLOSE pclose
 #endif
 
+// Be fast even for debug builds
+#ifdef __GNUC__
+# define ALWAYS_INLINE inline __attribute__((always_inline))
+#elif defined(_MSC_VER)
+# define ALWAYS_INLINE __forceinline
+#else
+# define ALWAYS_INLINE inline
+#endif
+
 using namespace ProFileEvaluatorInternal;
 
 QT_BEGIN_NAMESPACE
@@ -291,7 +300,7 @@ public:
     bool evaluateFileInto(const QString &fileName,
                           QHash<ProString, ProStringList> *values, FunctionDefs *defs);
 
-    static inline VisitReturn returnBool(bool b)
+    static ALWAYS_INLINE VisitReturn returnBool(bool b)
         { return b ? ReturnTrue : ReturnFalse; }
 
     QList<ProStringList> prepareFunctionArgs(const ProString &arguments);
@@ -1772,16 +1781,9 @@ QString ProFileEvaluator::Private::currentDirectory() const
     return cur->directoryName();
 }
 
-// Be fast even for debug builds
-#ifdef __GNUC__
-# define ALWAYS_INLINE __attribute__((always_inline))
-#else
-# define ALWAYS_INLINE
-#endif
-
 // The (QChar*)current->constData() constructs below avoid pointless detach() calls
 // FIXME: This is inefficient. Should not make new string if it is a straight subsegment
-static inline void ALWAYS_INLINE appendChar(ushort unicode,
+static ALWAYS_INLINE void appendChar(ushort unicode,
     QString *current, QChar **ptr, ProString *pending)
 {
     if (!pending->isEmpty()) {
