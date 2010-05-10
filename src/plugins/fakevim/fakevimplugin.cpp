@@ -711,7 +711,7 @@ void FakeVimPluginPrivate::triggerAction(const QString &code)
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     QTC_ASSERT(am, return);
     Core::Command *cmd = am->command(code);
-    QTC_ASSERT(cmd, return);
+    QTC_ASSERT(cmd, qDebug() << "UNKNOW CODE: " << code; return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
     action->trigger();
