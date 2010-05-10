@@ -2138,12 +2138,17 @@ void GdbEngine::setBreakpointDataFromOutput(BreakpointData *data, const GdbMi &b
             data->bpFuncName = _(ba);
         } else if (child.hasName("thread")) {
             data->bpThreadSpec = child.data();
+        } else if (child.hasName("type")) {
+            if (child.data() == "breakpoint")
+                data->type = BreakpointData::BreakpointType;
+            else // FIXME: Incomplete list of cases.
+                data->type = BreakpointData::WatchpointType;
         }
+        // This field is not present.  Contents needs to be parsed from
+        // the plain "ignore" response.
+        //else if (child.hasName("ignore"))
+        //    data->bpIgnoreCount = child.data();
     }
-    // This field is not present.  Contents needs to be parsed from
-    // the plain "ignore" response.
-    //else if (child.hasName("ignore"))
-    //    data->bpIgnoreCount = child.data();
 
     QString name;
     if (!fullName.isEmpty()) {
@@ -2293,7 +2298,7 @@ void GdbEngine::handleBreakList(const GdbResponse &response)
 
 void GdbEngine::handleBreakList(const GdbMi &table)
 {
-    GdbMi body = table.findChild("body");
+    const GdbMi body = table.findChild("body");
     QList<GdbMi> bkpts;
     if (body.isValid()) {
         // Non-Mac
@@ -2311,14 +2316,19 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     }
 
     BreakHandler *handler = manager()->breakHandler();
-    for (int index = 0; index != bkpts.size(); ++index) {
+    foreach (const GdbMi &bkpt, bkpts) {
         BreakpointData temp;
-        setBreakpointDataFromOutput(&temp, bkpts.at(index));
-        int found = handler->findSimilarBreakpoint(temp);
-        if (found != -1)
-            setBreakpointDataFromOutput(handler->at(found), bkpts.at(index));
-        //else
-            //qDebug() << "CANNOT HANDLE RESPONSE" << bkpts.at(index).toString();
+        setBreakpointDataFromOutput(&temp, bkpt);
+        BreakpointData *data = handler->findSimilarBreakpoint(temp);
+        //qDebug() << "\n\nGOT: " << bkpt.toString() << '\n' << temp.toString();
+        if (data) {
+            //qDebug() << "  FROM: " << data->toString();
+            setBreakpointDataFromOutput(data, bkpt);
+            //qDebug() << "  TO: " << data->toString();
+        } else {
+            //qDebug() << "  NOTHING SUITABLE FOUND";
+            debugMessage(_("CANNOT FIND BP: " + bkpt.toString()));
+        }
     }
 
     m_breakListOutdated = false;
@@ -2548,11 +2558,14 @@ void GdbEngine::attemptBreakpointSynchronization()
 
     foreach (BreakpointData *data, handler->takeRemovedBreakpoints()) {
         QByteArray bpNumber = data->bpNumber;
-        debugMessage(_("DELETING BP " + bpNumber + " IN "
-            + data->markerFileName().toLocal8Bit()));
-        if (!bpNumber.trimmed().isEmpty())
+        if (!bpNumber.trimmed().isEmpty()) {
+            debugMessage(_("DELETING BP " + bpNumber + " IN "
+                + data->markerFileName().toLocal8Bit()));
             postCommand("-break-delete " + bpNumber,
                 NeedsStop | RebuildBreakpointModel);
+        } else {
+            debugMessage(_("QUIETLY REMOVING UNNUMBERED BREAKPOINT"));
+        }
         delete data;
     }
 
@@ -2586,7 +2599,7 @@ void GdbEngine::attemptBreakpointSynchronization()
             if (!data->enabled && data->bpEnabled) {
                 postCommand("-break-disable " + data->bpNumber,
                     NeedsStop | RebuildBreakpointModel,
-                    CB(handleBreakInfo));
+                    CB(handleBreakDisable), data->bpNumber.toInt());
                 data->bpEnabled = false;
                 continue;
             }

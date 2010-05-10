@@ -69,7 +69,7 @@ public:
     int indexOf(BreakpointData *data) { return m_bp.indexOf(data); }
     // If lineNumber < 0, interpret fileName as address.
     int findBreakpoint(const QString &fileName, int lineNumber) const;
-    int findSimilarBreakpoint(const BreakpointData &data) const; // Returns index.
+    BreakpointData *findSimilarBreakpoint(const BreakpointData &data) const;
     BreakpointData *findBreakpointByNumber(int bpNumber) const;
     void updateMarkers();
 

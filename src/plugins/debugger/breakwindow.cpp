@@ -337,6 +337,7 @@ void BreakWindow::deleteBreakpoints(QList<int> list)
     const int row = qMin(firstRow, model()->rowCount() - 1);
     if (row >= 0)
         setCurrentIndex(model()->index(row, 0));
+    emit breakpointSynchronizationRequested();
 }
 
 void BreakWindow::editBreakpoint(const QModelIndexList &list)

@@ -219,6 +219,12 @@ QString BreakpointData::toToolTip() const
         << "</td><td>" << m_markerLineNumber << "</td></tr>"
         << "<tr><td>" << BreakHandler::tr("Breakpoint Number:")
         << "</td><td>" << bpNumber << "</td></tr>"
+        << "<tr><td>" << BreakHandler::tr("Breakpoint Type:")
+        << "</td><td>"
+        << (type == BreakpointType ? BreakHandler::tr("Breakpoint") 
+            : type == WatchpointType ? BreakHandler::tr("Watchpoint")
+            : BreakHandler::tr("Unknown breakpoint type"))
+        << "</td></tr>"
         << "</table><br><hr><table>"
         << "<tr><th>" << BreakHandler::tr("Property")
         << "</th><th>" << BreakHandler::tr("Requested")
@@ -249,22 +255,26 @@ QString BreakpointData::toString() const
 {
     QString rc;
     QTextStream str(&rc);
-    str << BreakHandler::tr("Marker File:") << m_markerFileName << ' '
-        << BreakHandler::tr("Marker Line:") << m_markerLineNumber << ' '
-        << BreakHandler::tr("Breakpoint Number:") << bpNumber << ' '
-        << BreakHandler::tr("File Name:")
+    str << BreakHandler::tr("Marker File:") << ' ' <<  m_markerFileName << '\n'
+        << BreakHandler::tr("Marker Line:") <<  ' ' << m_markerLineNumber << '\n'
+        << BreakHandler::tr("Breakpoint Number:") <<  ' ' << bpNumber << '\n'
+        << BreakHandler::tr("Breakpoint Type:") << ' '
+        << (type == BreakpointType ? BreakHandler::tr("Breakpoint") 
+            : type == WatchpointType ? BreakHandler::tr("Watchpoint")
+            : BreakHandler::tr("Unknown breakpoint type")) << '\n'
+        << BreakHandler::tr("File Name:") << ' '
         << fileName << " -- " << bpFileName << '\n'
-        << BreakHandler::tr("Function Name:")
+        << BreakHandler::tr("Function Name:") << ' '
         << funcName << " -- " << bpFuncName << '\n'
-        << BreakHandler::tr("Line Number:")
+        << BreakHandler::tr("Line Number:") << ' '
         << lineNumber << " -- " << bpLineNumber << '\n'
-        << BreakHandler::tr("Breakpoint Address:")
+        << BreakHandler::tr("Breakpoint Address:") << ' '
         << address << " -- " << bpAddress << '\n'
-        << BreakHandler::tr("Condition:")
+        << BreakHandler::tr("Condition:") << ' '
         << condition << " -- " << bpCondition << '\n'
-        << BreakHandler::tr("Ignore Count:")
+        << BreakHandler::tr("Ignore Count:") << ' '
         << ignoreCount << " -- " << bpIgnoreCount << '\n'
-        << BreakHandler::tr("Thread Specification:")
+        << BreakHandler::tr("Thread Specification:") << ' '
         << threadSpec << " -- " << bpThreadSpec << '\n';
     return rc;
 }
@@ -357,21 +367,30 @@ void BreakHandler::clear()
     m_inserted.clear();
 }
 
-int BreakHandler::findSimilarBreakpoint(const BreakpointData &needle) const
+BreakpointData *BreakHandler::findSimilarBreakpoint(const BreakpointData &needle) const
 {
     // Search a breakpoint we might refer to.
     for (int index = 0; index != size(); ++index) {
-        const BreakpointData *data = at(index);
+        BreakpointData *data = m_bp[index];
         // Clear hit.
         if (data->bpNumber == needle.bpNumber)
-            return index;
+            return data;
+        // Clear miss.
+        if (data->type != needle.type)
+            continue;
+        // We have numbers, but they are different.
+        if (!data->bpNumber.isEmpty() && !needle.bpNumber.isEmpty()
+                && !data->bpNumber.startsWith(needle.bpNumber)
+                && !needle.bpNumber.startsWith(data->bpNumber))
+            continue;
         // At least at a position we were looking for.
         // FIXME: breaks multiple breakpoints at the same location
-        if (fileNameMatch(data->fileName, needle.bpFileName)
+        if (!data->fileName.isEmpty()
+                && fileNameMatch(data->fileName, needle.bpFileName)
                 && data->lineNumber == needle.bpLineNumber)
-            return index;
+            return data;
     }
-    return -1;
+    return 0;
 }
 
 int BreakHandler::findBreakpoint(const QString &fileName, int lineNumber) const
