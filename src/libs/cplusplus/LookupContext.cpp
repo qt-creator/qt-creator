@@ -738,7 +738,7 @@ void CreateBindings::process(Document::Ptr doc)
     }
 }
 
-ClassOrNamespace *CreateBindings::enterEntity(Symbol *symbol)
+ClassOrNamespace *CreateBindings::enterClassOrNamespaceBinding(Symbol *symbol)
 {
     ClassOrNamespace *entity = _currentClassOrNamespace->findOrCreate(symbol->name());
     entity->addSymbol(symbol);
@@ -746,7 +746,7 @@ ClassOrNamespace *CreateBindings::enterEntity(Symbol *symbol)
     return switchCurrentClassOrNamespace(entity);
 }
 
-ClassOrNamespace *CreateBindings::enterGlobalEntity(Symbol *symbol)
+ClassOrNamespace *CreateBindings::enterGlobalClassOrNamespace(Symbol *symbol)
 {
     ClassOrNamespace *entity = _globalNamespace->findOrCreate(symbol->name());
     entity->addSymbol(symbol);
@@ -756,7 +756,7 @@ ClassOrNamespace *CreateBindings::enterGlobalEntity(Symbol *symbol)
 
 bool CreateBindings::visit(Namespace *ns)
 {
-    ClassOrNamespace *previous = enterEntity(ns);
+    ClassOrNamespace *previous = enterClassOrNamespaceBinding(ns);
 
     for (unsigned i = 0; i < ns->memberCount(); ++i)
         process(ns->memberAt(i));
@@ -792,7 +792,7 @@ bool CreateBindings::visit(Class *klass)
 bool CreateBindings::visit(ForwardClassDeclaration *klass)
 {
     if (! klass->isFriend()) {
-        ClassOrNamespace *previous = enterEntity(klass);
+        ClassOrNamespace *previous = enterClassOrNamespaceBinding(klass);
         _currentClassOrNamespace = previous;
     }
 
@@ -872,7 +872,7 @@ bool CreateBindings::visit(NamespaceAlias *a)
 
 bool CreateBindings::visit(ObjCClass *klass)
 {
-    ClassOrNamespace *previous = enterGlobalEntity(klass);
+    ClassOrNamespace *previous = enterGlobalClassOrNamespace(klass);
 
     process(klass->baseClass());
 
@@ -899,14 +899,14 @@ bool CreateBindings::visit(ObjCBaseClass *b)
 
 bool CreateBindings::visit(ObjCForwardClassDeclaration *klass)
 {
-    ClassOrNamespace *previous = enterGlobalEntity(klass);
+    ClassOrNamespace *previous = enterGlobalClassOrNamespace(klass);
     _currentClassOrNamespace = previous;
     return false;
 }
 
 bool CreateBindings::visit(ObjCProtocol *proto)
 {
-    ClassOrNamespace *previous = enterGlobalEntity(proto);
+    ClassOrNamespace *previous = enterGlobalClassOrNamespace(proto);
 
     for (unsigned i = 0; i < proto->protocolCount(); ++i)
         process(proto->protocolAt(i));
@@ -931,7 +931,7 @@ bool CreateBindings::visit(ObjCBaseProtocol *b)
 
 bool CreateBindings::visit(ObjCForwardProtocolDeclaration *proto)
 {
-    ClassOrNamespace *previous = enterGlobalEntity(proto);
+    ClassOrNamespace *previous = enterGlobalClassOrNamespace(proto);
     _currentClassOrNamespace = previous;
     return false;
 }

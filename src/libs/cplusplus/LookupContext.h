@@ -115,33 +115,52 @@ public:
     CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot);
     virtual ~CreateBindings();
 
+    /// Returns the binding for the global namespace.
     ClassOrNamespace *globalNamespace() const;
 
-    ClassOrNamespace *findClassOrNamespace(Symbol *s); // ### rename
+    /// Finds the binding associated to the given symbol.
+    ClassOrNamespace *findClassOrNamespace(Symbol *symbol);
+
+    /// Find the binding with the given path.
+    /// \internal
     ClassOrNamespace *findClassOrNamespace(const QList<const Name *> &path);
 
+    /// Returns the Control that must be used to create temporary symbols.
     /// \internal
     Control *control() const;
 
+    /// Searches in \a scope for symbols with the given \a name.
+    /// Store the result in \a results.
     /// \internal
     void lookupInScope(const Name *name, Scope *scope, QList<Symbol *> *result,
                        const TemplateNameId *templateId);
 
+    /// Create bindings for the symbols reachable from \a rootSymbol.
     /// \internal
-    void process(Symbol *s, ClassOrNamespace *classOrNamespace);
+    void process(Symbol *rootSymbol, ClassOrNamespace *classOrNamespace);
 
+    /// Create an empty ClassOrNamespace binding with the given \a parent.
     /// \internal
     ClassOrNamespace *allocClassOrNamespace(ClassOrNamespace *parent);
 
 protected:
     using SymbolVisitor::visit;
 
+    /// Change the current ClassOrNamespace binding.
     ClassOrNamespace *switchCurrentClassOrNamespace(ClassOrNamespace *classOrNamespace);
-    ClassOrNamespace *enterEntity(Symbol *symbol);
-    ClassOrNamespace *enterGlobalEntity(Symbol *symbol);
 
-    void process(Document::Ptr doc);
-    void process(Symbol *symbol);
+    /// Enters the ClassOrNamespace binding associated with the given \a symbol.
+    ClassOrNamespace *enterClassOrNamespaceBinding(Symbol *symbol);
+
+    /// Enters a ClassOrNamespace binding for the given \a symbol in the global
+    /// namespace binding.
+    ClassOrNamespace *enterGlobalClassOrNamespace(Symbol *symbol);
+
+    /// Creates bindings for the given \a document.
+    void process(Document::Ptr document);
+
+    /// Creates bindings for the symbols reachable from the \a root symbol.
+    void process(Symbol *root);
 
     virtual bool visit(Namespace *ns);
     virtual bool visit(Class *klass);
