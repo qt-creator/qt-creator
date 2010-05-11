@@ -44,11 +44,11 @@ uint CPlusPlus::qHash(const CPlusPlus::LookupItem &key)
 }
 
 LookupItem::LookupItem()
-    : _lastVisibleSymbol(0)
+    : _lastVisibleSymbol(0), _declaration(0)
 { }
 
-LookupItem::LookupItem(const FullySpecifiedType &type, Symbol *lastVisibleSymbol)
-    : _type(type), _lastVisibleSymbol(lastVisibleSymbol)
+LookupItem::LookupItem(const FullySpecifiedType &type, Symbol *lastVisibleSymbol, Symbol *declaration)
+    : _type(type), _lastVisibleSymbol(lastVisibleSymbol), _declaration(declaration)
 { }
 
 FullySpecifiedType LookupItem::type() const
@@ -56,6 +56,12 @@ FullySpecifiedType LookupItem::type() const
 
 void LookupItem::setType(const FullySpecifiedType &type)
 { _type = type; }
+
+Symbol *LookupItem::declaration() const
+{ return _declaration; }
+
+void LookupItem::setDeclaration(Symbol *declaration)
+{ _declaration = declaration; }
 
 Symbol *LookupItem::lastVisibleSymbol() const
 { return _lastVisibleSymbol; }
@@ -65,8 +71,8 @@ void LookupItem::setLastVisibleSymbol(Symbol *symbol)
 
 bool LookupItem::operator == (const LookupItem &other) const
 {
-    if (_type == other._type)
-        return _lastVisibleSymbol == other._lastVisibleSymbol;
+    if (_type == other._type && _declaration == other._declaration && _lastVisibleSymbol == other._lastVisibleSymbol)
+        return true;
 
     return false;
 }

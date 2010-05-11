@@ -107,10 +107,12 @@ ResolveExpression::switchResults(const QList<LookupItem> &results)
     return previousResults;
 }
 
-void ResolveExpression::addResults(const QList<LookupItem> &results)
+void ResolveExpression::addResults(const QList<Symbol *> &symbols)
 {
-    foreach (const LookupItem r, results)
-        addResult(r);
+    foreach (Symbol *s, symbols) {
+        LookupItem item(s->type(), s, s);
+        _results.append(item);
+    }
 }
 
 void ResolveExpression::addResult(const FullySpecifiedType &ty, Symbol *symbol)
@@ -402,9 +404,7 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
 {
     if (const Name *name = ast->name) {
         const QList<Symbol *> candidates = _context.lookup(name, _scope);
-
-        foreach (Symbol *candidate, candidates)
-            addResult(candidate->type(), candidate);
+        addResults(candidates);
     }
 
     return false;
@@ -412,19 +412,15 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
 
 bool ResolveExpression::visit(SimpleNameAST *ast)
 {
-    QList<Symbol *> symbols = _context.lookup(ast->name, _scope);
-    foreach (Symbol *symbol, symbols)
-        addResult(symbol->type(), symbol);
-
+    const QList<Symbol *> candidates = _context.lookup(ast->name, _scope);
+    addResults(candidates);
     return false;
 }
 
 bool ResolveExpression::visit(TemplateIdAST *ast)
 {
-    const QList<Symbol *> symbols = _context.lookup(ast->name, _scope);
-    foreach (Symbol *symbol, symbols)
-        addResult(symbol->type(), symbol);
-
+    const QList<Symbol *> candidates = _context.lookup(ast->name, _scope);
+    addResults(candidates);
     return false;
 }
 

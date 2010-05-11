@@ -67,9 +67,11 @@ protected:
     FullySpecifiedType instantiate(const Name *className, Symbol *candidate) const;
 
     void thisObject();
+
     void addResult(const FullySpecifiedType &ty, Symbol *symbol = 0);
     void addResult(const LookupItem &result);
-    void addResults(const QList<LookupItem> &results);
+
+    void addResults(const QList<Symbol *> &symbols);
 
     bool maybeValidPrototype(Function *funTy, unsigned actualArgumentCount) const;
 

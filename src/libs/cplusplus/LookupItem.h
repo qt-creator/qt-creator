@@ -38,14 +38,29 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT LookupItem
 {
 public:
+    /// Constructs an null LookupItem.
     LookupItem();
-    LookupItem(const FullySpecifiedType &type, Symbol *lastVisibleSymbol);
 
+    /// Contructs a LookupItem with the given \a type, \a lastVisibleSymbol and \a declaration.
+    LookupItem(const FullySpecifiedType &type, Symbol *lastVisibleSymbol, Symbol *declaration = 0);
+
+    /// Returns this item's type.
     FullySpecifiedType type() const;
+
+    /// Sets this item's type.
     void setType(const FullySpecifiedType &type);
 
+    /// Returns the last visible symbol.
     Symbol *lastVisibleSymbol() const;
+
+    /// Sets the last visible symbol.
     void setLastVisibleSymbol(Symbol *symbol);
+
+    /// Returns this item's declaration.
+    Symbol *declaration() const;
+
+    /// Sets this item's declaration.
+    void setDeclaration(Symbol *declaration);
 
     bool operator == (const LookupItem &other) const;
     bool operator != (const LookupItem &other) const;
@@ -53,6 +68,7 @@ public:
 private:
     FullySpecifiedType _type;
     Symbol *_lastVisibleSymbol;
+    Symbol *_declaration;
 };
 
 uint qHash(const CPlusPlus::LookupItem &result);
