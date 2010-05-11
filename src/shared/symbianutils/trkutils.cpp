@@ -264,14 +264,13 @@ QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool s
 
 /* returns 0 if array doesn't represent a result,
 otherwise returns the length of the result data */
-ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame)
+ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame, ushort& mux)
 {
     if (serialFrame) {
         // Serial protocol with length info
         if (buffer.length() < 4)
             return 0;
-        if (buffer.at(0) != 0x01 || byte(buffer.at(1)) != 0x90)
-            return 0;
+        mux = extractShort(buffer.data());
         const ushort len = extractShort(buffer.data() + 2);
         return (buffer.size() >= len + 4) ? len : ushort(0);
     }
@@ -280,6 +279,7 @@ ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame)
     const int firstDelimiterPos = buffer.indexOf(delimiter);
     // Regular message delimited by 0x7e..0x7e
     if (firstDelimiterPos == 0) {
+        mux = MuxTrk;
         const int endPos = buffer.indexOf(delimiter, firstDelimiterPos + 1);
         return endPos != -1 ? endPos + 1 - firstDelimiterPos : 0;
     }
@@ -292,7 +292,7 @@ bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, QByt
     result->clear();
     if(rawData)
         rawData->clear();
-    const ushort len = isValidTrkResult(*buffer, serialFrame);
+    const ushort len = isValidTrkResult(*buffer, serialFrame, result->multiplex);
     if (!len)
         return false;
     // handle receiving application output, which is not a regular command
@@ -300,7 +300,6 @@ bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, QByt
     if (buffer->at(delimiterPos) != 0x7e) {
         result->isDebugOutput = true;
         result->data = buffer->mid(delimiterPos, len);
-        result->data.replace("\r\n", "\n");
         *buffer->remove(0, delimiterPos + len);
         return true;
     }
@@ -338,6 +337,19 @@ SYMBIANUTILS_EXPORT uint extractInt(const char *data)
     res *= 256; res += byte(data[1]);
     res *= 256; res += byte(data[2]);
     res *= 256; res += byte(data[3]);
+    return res;
+}
+
+SYMBIANUTILS_EXPORT quint64 extractInt64(const char *data)
+{
+    quint64 res = byte(data[0]);
+    res <<= 8; res += byte(data[1]);
+    res <<= 8; res += byte(data[2]);
+    res <<= 8; res += byte(data[3]);
+    res <<= 8; res += byte(data[4]);
+    res <<= 8; res += byte(data[5]);
+    res <<= 8; res += byte(data[6]);
+    res <<= 8; res += byte(data[7]);
     return res;
 }
 
