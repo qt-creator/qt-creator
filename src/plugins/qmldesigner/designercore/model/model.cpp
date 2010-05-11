@@ -403,7 +403,7 @@ void ModelPrivate::resetModelByRewriter(const QString &description)
     }
     Q_ASSERT(rewriterView);
     rewriterView->resetToLastCorrectQml();
-    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description);
+    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description, rewriterView->textModifierContent());
 }
 
 
