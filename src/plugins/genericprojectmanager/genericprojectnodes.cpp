@@ -170,8 +170,9 @@ bool GenericProjectNode::hasBuildTargets() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectNode::ProjectAction> GenericProjectNode::supportedActions() const
+QList<ProjectExplorer::ProjectNode::ProjectAction> GenericProjectNode::supportedActions(Node *node) const
 {
+    Q_UNUSED(node);
     return QList<ProjectAction>()
         << AddFile
         << RemoveFile;

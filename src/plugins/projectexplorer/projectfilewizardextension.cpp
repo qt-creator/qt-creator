@@ -60,7 +60,8 @@ typedef QList<ProjectNode *> ProjectNodeList;
 
 namespace Internal {
 
-// AllProjectNodesVisitor: Retrieve all projects (*.pri/*.pro).
+// AllProjectNodesVisitor: Retrieve all projects (*.pri/*.pro)
+// which support adding files
 class AllProjectNodesVisitor : public NodesVisitor
 {
 public:
@@ -81,7 +82,7 @@ ProjectNodeList AllProjectNodesVisitor::allProjects()
 
 void AllProjectNodesVisitor::visitProjectNode(ProjectNode *node)
 {
-    if (node->supportedActions().contains(ProjectNode::AddFile))
+    if (node->supportedActions(node).contains(ProjectNode::AddFile))
         m_projectNodes.push_back(node);
 }
 

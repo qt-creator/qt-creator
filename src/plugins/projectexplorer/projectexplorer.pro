@@ -41,7 +41,6 @@ HEADERS += projectexplorer.h \
     buildsettingspropertiespage.h \
     environmenteditmodel.h \
     processstep.h \
-    abstractprocessstep.h \
     editorconfiguration.h \
     editorsettingspropertiespage.h \
     runconfiguration.h \
@@ -82,7 +81,8 @@ HEADERS += projectexplorer.h \
     linuxiccparser.h \
     outputformatter.h \
     runconfigurationmodel.h \
-    buildconfigurationmodel.h
+    buildconfigurationmodel.h \
+    abstractprocessstep.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \

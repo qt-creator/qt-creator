@@ -43,7 +43,8 @@ class SessionNode;
 
 namespace Internal {
 
-class FlatModel : public QAbstractItemModel {
+class FlatModel : public QAbstractItemModel
+{
     Q_OBJECT
 public:
     FlatModel(SessionNode *rootNode, QObject *parent);
@@ -52,6 +53,8 @@ public:
     QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
     int columnCount(const QModelIndex & parent = QModelIndex()) const;

@@ -81,6 +81,7 @@ FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditor *editor,
     connect(&(d->m_file), SIGNAL(reload(QString)), this, SLOT(slotOpen(QString)));
     // Force update of open editors model.
     connect(&(d->m_file), SIGNAL(saved()), this, SIGNAL(changed()));
+    connect(&(d->m_file), SIGNAL(changed()), this, SIGNAL(changed()));
 }
 
 FormWindowEditor::~FormWindowEditor()

@@ -42,7 +42,7 @@ class CORE_EXPORT IVersionControl : public QObject
     Q_OBJECT
 public:
     enum Operation {
-        AddOperation, DeleteOperation, OpenOperation,
+        AddOperation, DeleteOperation, OpenOperation, MoveOperation,
         CreateRepositoryOperation,
         SnapshotOperations,
         AnnotateOperation
@@ -100,6 +100,12 @@ public:
      * wants), e.g. 'p4 delete', 'svn delete'.
      */
     virtual bool vcsDelete(const QString &filename) = 0;
+
+    /*!
+     * Called to rename a file, should do the actual on disk renaming
+     * (e.g. git mv, svn move, p4 move)
+     */
+    virtual bool vcsMove(const QString &from, const QString &to) = 0;
 
     /*!
      * Called to initialize the version control system in a directory.

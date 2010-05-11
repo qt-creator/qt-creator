@@ -155,6 +155,9 @@ ImageViewer::ImageViewer(QObject *parent)
     layout->setMargin(0);
     m_imageView->setLayout(layout);
     layout->addWidget(m_label, 0, 0, 1, 1);
+
+    connect(m_file, SIGNAL(changed()),
+            this, SIGNAL(changed()));
 }
 
 ImageViewer::~ImageViewer()

@@ -95,6 +95,14 @@ bool MercurialClient::remove(const QString &workingDir, const QString &filename)
     return executeHgSynchronously(workingDir, args, &stdOut);
 }
 
+bool MercurialClient::move(const QString &workingDir, const QString &from, const QString &to)
+{
+    QStringList args;
+    args << QLatin1String("rename") << from << to;
+    QByteArray stdOut;
+    return executeHgSynchronously(workingDir, args, &stdOut);
+}
+
 bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)
 {
     // This  only works when called from the repo and outputs paths relative to it.

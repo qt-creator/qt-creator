@@ -157,6 +157,12 @@ bool ResourceEditorFile::save(const QString &name /*= QString()*/)
     return true;
 }
 
+void ResourceEditorFile::rename(const QString &newName)
+{
+    m_parent->m_resourceEditor->setFileName(newName);
+    emit changed();
+}
+
 QString ResourceEditorW::id() const {
     return QLatin1String(ResourceEditor::Constants::RESOURCEEDITOR_ID);
 }

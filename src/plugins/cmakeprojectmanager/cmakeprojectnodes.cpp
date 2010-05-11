@@ -43,8 +43,9 @@ bool CMakeProjectNode::hasBuildTargets() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectNode::ProjectAction> CMakeProjectNode::supportedActions() const
+QList<ProjectExplorer::ProjectNode::ProjectAction> CMakeProjectNode::supportedActions(Node *node) const
 {
+    Q_UNUSED(node);
     return QList<ProjectAction>();
 }
 

@@ -91,6 +91,15 @@ bool FormWindowFile::save(const QString &name /*= QString()*/)
     return true;
 }
 
+void FormWindowFile::rename(const QString &newName)
+{
+    m_formWindow->setFileName(newName);
+    QFileInfo fi(newName);
+    m_fileName = fi.absoluteFilePath();
+    emit setDisplayName(fi.fileName());
+    emit changed();
+}
+
 QString FormWindowFile::fileName() const
 {
     return m_fileName;

@@ -196,6 +196,8 @@ public:
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     void reload(ReloadFlag flag, ChangeType type);
 
+    void rename(const QString &newName);
+
 private:
     CMakeProject *m_project;
     QString m_fileName;

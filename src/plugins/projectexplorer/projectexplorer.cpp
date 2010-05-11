@@ -690,13 +690,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OTHER);
 
-    // renamefile action (TODO: Not supported yet)
+    // renamefile action
     d->m_renameFileAction = new QAction(tr("Rename"), this);
     cmd = am->registerAction(d->m_renameFileAction, ProjectExplorer::Constants::RENAMEFILE,
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OTHER);
-    d->m_renameFileAction->setEnabled(false);
-    d->m_renameFileAction->setVisible(false);
+    // Not yet used by anyone, so hide for now
+//    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
+//    msubProject->addAction(cmd, Constants::G_FOLDER_FILES);
+//    mproject->addAction(cmd, Constants::G_FOLDER_FILES);
 
     // target selector
     d->m_projectSelectorAction = new QAction(this);
@@ -1232,7 +1234,7 @@ void ProjectExplorerPlugin::showContextMenu(const QPoint &globalPos, Node *node)
         contextMenu = d->m_sessionContextMenu;
     }
 
-    updateContextMenuActions();
+    updateContextMenuActions(d->m_currentNode);
     if (contextMenu && contextMenu->actions().count() > 0) {
         contextMenu->popup(globalPos);
     }
@@ -1915,19 +1917,24 @@ void ProjectExplorerPlugin::goToTaskWindow()
     d->m_buildManager->gotoTaskWindow();
 }
 
-void ProjectExplorerPlugin::updateContextMenuActions()
+void ProjectExplorerPlugin::updateContextMenuActions(Node *node)
 {
     d->m_addExistingFilesAction->setEnabled(false);
     d->m_addNewFileAction->setEnabled(false);
     d->m_removeFileAction->setEnabled(false);
 
-    if (FolderNode *folderNode = qobject_cast<FolderNode*>(d->m_currentNode)) {
-        const bool addFilesEnabled = folderNode->projectNode()->supportedActions().contains(ProjectNode::AddFile);
+    QList<ProjectNode::ProjectAction> actions =
+            d->m_currentNode->projectNode()->supportedActions(node);
+
+    if (qobject_cast<FolderNode*>(d->m_currentNode)) {
+        bool addFilesEnabled = actions.contains(ProjectNode::AddFile);
         d->m_addExistingFilesAction->setEnabled(addFilesEnabled);
         d->m_addNewFileAction->setEnabled(addFilesEnabled);
-    } else if (FileNode *fileNode = qobject_cast<FileNode*>(d->m_currentNode)) {
-        const bool removeFileEnabled = fileNode->projectNode()->supportedActions().contains(ProjectNode::RemoveFile);
+        d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
+    } else if (qobject_cast<FileNode*>(d->m_currentNode)) {
+        bool removeFileEnabled = actions.contains(ProjectNode::RemoveFile);
         d->m_removeFileAction->setEnabled(removeFileEnabled);
+        d->m_renameFileAction->setEnabled(actions.contains(ProjectNode::Rename));
     }
 }
 
@@ -2025,8 +2032,7 @@ void ProjectExplorerPlugin::removeFile()
     FileNode *fileNode = qobject_cast<FileNode*>(d->m_currentNode);
     Core::ICore *core = Core::ICore::instance();
 
-    const QString filePath = d->m_currentNode->path();
-    const QString fileDir = QFileInfo(filePath).dir().absolutePath();
+    QString filePath = d->m_currentNode->path();
     RemoveFileDialog removeFileDialog(filePath, core->mainWindow());
 
     if (removeFileDialog.exec() == QDialog::Accepted) {
@@ -2069,6 +2075,31 @@ void ProjectExplorerPlugin::renameFile()
             break;
         }
         focusWidget = focusWidget->parentWidget();
+    }
+}
+
+void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
+{
+    FileNode *fileNode = qobject_cast<FileNode *>(node);
+    if (!fileNode)
+        return;
+    QString orgFilePath = node->path();
+    QString dir = QFileInfo(orgFilePath).absolutePath();
+    QString newFilePath = dir + "/" + to;
+    Core::ICore *core = Core::ICore::instance();
+    Core::IVersionControl *vc = core->vcsManager()->findVersionControlForDirectory(dir);
+    bool result = false;
+    if (vc->supportsOperation(Core::IVersionControl::MoveOperation))
+        result = vc->vcsMove(orgFilePath, newFilePath);
+    if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
+        result = QFile::rename(orgFilePath, newFilePath);
+    if (result) {
+        // yeah we moved, tell the filemanager about it
+        Core::ICore::instance()->fileManager()->renamedFile(orgFilePath, newFilePath);
+        // Tell the project plugin about it
+        ProjectNode *projectNode = fileNode->projectNode();
+        projectNode->renameFile(fileNode->fileType(), orgFilePath, newFilePath);
+        // TODO emit a signal?
     }
 }
 

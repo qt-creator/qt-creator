@@ -595,6 +595,13 @@ bool CMakeFile::isSaveAsAllowed() const
     return false;
 }
 
+void CMakeFile::rename(const QString &newName)
+{
+    Q_ASSERT(false);
+    Q_UNUSED(newName);
+    // Can't happen....
+}
+
 Core::IFile::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)

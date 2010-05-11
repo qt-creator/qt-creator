@@ -56,6 +56,7 @@ public:
     bool vcsOpen(const QString &fileName);
     bool vcsAdd(const QString &filename);
     bool vcsDelete(const QString &filename);
+    bool vcsMove(const QString &from, const QString &to);
     bool vcsCreateRepository(const QString &directory);
     QString vcsCreateSnapshot(const QString &topLevel);
     QStringList vcsSnapshots(const QString &topLevel);

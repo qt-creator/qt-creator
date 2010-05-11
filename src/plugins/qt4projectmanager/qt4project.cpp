@@ -180,6 +180,13 @@ bool Qt4ProjectFile::save(const QString &)
     return false;
 }
 
+void Qt4ProjectFile::rename(const QString &newName)
+{
+    // Can't happen
+    Q_UNUSED(newName);
+    Q_ASSERT(false);
+}
+
 QString Qt4ProjectFile::fileName() const
 {
     return m_filePath;

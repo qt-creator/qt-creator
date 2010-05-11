@@ -75,6 +75,9 @@ bool GitVersionControl::supportsOperation(Operation operation) const
     case DeleteOperation:
         rc = true;
         break;
+    case MoveOperation:
+        rc = true;
+        break;
     case OpenOperation:
         break;
     case CreateRepositoryOperation:
@@ -105,6 +108,13 @@ bool GitVersionControl::vcsDelete(const QString & fileName)
 {
     const QFileInfo fi(fileName);
     return gitClient()->synchronousDelete(fi.absolutePath(), true, QStringList(fi.fileName()));
+}
+
+bool GitVersionControl::vcsMove(const QString &from, const QString &to)
+{
+    const QFileInfo fromInfo(from);
+    const QFileInfo toInfo(to);
+    return gitClient()->synchronousMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
 bool GitVersionControl::vcsCreateRepository(const QString &directory)

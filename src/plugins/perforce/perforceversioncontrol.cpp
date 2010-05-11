@@ -53,6 +53,7 @@ bool PerforceVersionControl::supportsOperation(Operation operation) const
     switch (operation) {
     case AddOperation:
     case DeleteOperation:
+    case MoveOperation:
     case OpenOperation:
     case AnnotateOperation:
         return true;
@@ -79,6 +80,13 @@ bool PerforceVersionControl::vcsDelete(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
+}
+
+bool PerforceVersionControl::vcsMove(const QString &from, const QString &to)
+{
+    const QFileInfo fromInfo(from);
+    const QFileInfo toInfo(to);
+    return m_plugin->vcsMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
 bool PerforceVersionControl::vcsCreateRepository(const QString &)

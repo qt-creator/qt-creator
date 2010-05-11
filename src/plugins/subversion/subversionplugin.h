@@ -94,6 +94,7 @@ public:
     bool vcsAdd14(const QString &workingDir, const QString &fileName);
     bool vcsAdd15(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
+    bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
     bool managesDirectory(const QString &directory) const;
     QString findTopLevelForDirectory(const QString &directory) const;
 

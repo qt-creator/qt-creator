@@ -70,6 +70,7 @@ public:
     explicit ImageViewerFile(ImageViewer *parent = 0);
 
     bool save(const QString &fileName = QString()) { Q_UNUSED(fileName); return false; }
+    void rename(const QString &newName) { m_fileName = newName; }
     QString fileName() const { return m_fileName; }
 
     QString defaultPath() const { return QString(); }

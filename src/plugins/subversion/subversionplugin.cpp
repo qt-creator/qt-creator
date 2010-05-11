@@ -1210,6 +1210,16 @@ bool SubversionPlugin::vcsDelete(const QString &workingDir, const QString &rawFi
     return !response.error;
 }
 
+bool SubversionPlugin::vcsMove(const QString &workingDir, const QString &from, const QString &to)
+{
+    QStringList args(QLatin1String("move"));
+    args << QDir::toNativeSeparators(from) << QDir::toNativeSeparators(to);
+    qDebug()<<args;
+    const SubversionResponse response = runSvn(workingDir, args, m_settings.timeOutMS(), true);
+    qDebug() << response.stdOut << "\n"<<response.stdErr;
+    return !response.error;
+}
+
 /* Subversion has ".svn" directory in each directory
  * it manages. The top level is the first directory
  * under the directory that does not have a  ".svn". */

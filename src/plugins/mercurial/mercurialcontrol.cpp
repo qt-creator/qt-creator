@@ -65,6 +65,7 @@ bool MercurialControl::supportsOperation(Operation operation) const
     switch (operation) {
     case Core::IVersionControl::AddOperation:
     case Core::IVersionControl::DeleteOperation:
+    case Core::IVersionControl::MoveOperation:
     case Core::IVersionControl::CreateRepositoryOperation:
     case Core::IVersionControl::AnnotateOperation:
         break;
@@ -92,6 +93,13 @@ bool MercurialControl::vcsDelete(const QString &filename)
 {
     const QFileInfo fi(filename);
     return mercurialClient->remove(fi.absolutePath(), fi.fileName());
+}
+
+bool MercurialControl::vcsMove(const QString &from, const QString &to)
+{
+    const QFileInfo fromInfo(from);
+    const QFileInfo toInfo(to);
+    return mercurialClient->move(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
 bool MercurialControl::vcsCreateRepository(const QString &directory)

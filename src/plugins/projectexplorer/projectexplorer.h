@@ -107,6 +107,9 @@ public:
 
     void startRunControl(RunControl *runControl, const QString &mode);
 
+    // internal public for FlatModel
+    void renameFile(Node *node, const QString &to);
+
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);
@@ -159,7 +162,7 @@ private slots:
     void savePersistentSettings();
     void goToTaskWindow();
 
-    void updateContextMenuActions();
+    void updateContextMenuActions(Node *node);
     void addNewFile();
     void addExistingFiles();
     void openFile();

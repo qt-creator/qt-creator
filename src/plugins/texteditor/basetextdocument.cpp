@@ -205,6 +205,14 @@ bool BaseTextDocument::save(const QString &fileName)
     return true;
 }
 
+void BaseTextDocument::rename(const QString &newName)
+{
+    const QFileInfo fi(newName);
+    m_fileName = QDir::cleanPath(fi.absoluteFilePath());
+    emit titleChanged(fi.fileName());
+    emit changed();
+}
+
 bool BaseTextDocument::isReadOnly() const
 {
     if (m_isBinaryData || m_hasDecodingError)

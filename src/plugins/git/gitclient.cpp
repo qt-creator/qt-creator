@@ -525,6 +525,27 @@ bool GitClient::synchronousDelete(const QString &workingDirectory,
     return rc;
 }
 
+bool GitClient::synchronousMove(const QString &workingDirectory,
+                                const QString &from,
+                                const QString &to)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << from << to;
+    QByteArray outputText;
+    QByteArray errorText;
+    QStringList arguments;
+    arguments << QLatin1String("mv");
+    arguments << (from);
+    arguments << (to);
+    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    if (!rc) {
+        const QString errorMessage = tr("Unable to move from %1 to %2: %3").
+                                     arg(from, to, commandOutputFromLocal8Bit(errorText));
+        outputWindow()->appendError(errorMessage);
+    }
+    return rc;
+}
+
 bool GitClient::synchronousReset(const QString &workingDirectory,
                                  const QStringList &files,
                                  QString *errorMessage)

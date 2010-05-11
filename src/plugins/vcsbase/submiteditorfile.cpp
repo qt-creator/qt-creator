@@ -39,6 +39,13 @@ SubmitEditorFile::SubmitEditorFile(const QString &mimeType, QObject *parent) :
 {
 }
 
+void SubmitEditorFile::rename(const QString &newName)
+{
+    Q_UNUSED(newName);
+    // We can't be renamed
+    return;
+}
+
 void SubmitEditorFile::setFileName(const QString name)
 {
      m_fileName = name;

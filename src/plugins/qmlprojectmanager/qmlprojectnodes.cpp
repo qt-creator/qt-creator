@@ -172,8 +172,9 @@ bool QmlProjectNode::hasBuildTargets() const
     return true;
 }
 
-QList<ProjectExplorer::ProjectNode::ProjectAction> QmlProjectNode::supportedActions() const
+QList<ProjectExplorer::ProjectNode::ProjectAction> QmlProjectNode::supportedActions(Node *node) const
 {
+    Q_UNUSED(node);
     QList<ProjectAction> actions;
     actions.append(AddFile);
     return actions;

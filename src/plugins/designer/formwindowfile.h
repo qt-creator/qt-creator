@@ -60,6 +60,7 @@ public:
     virtual QString defaultPath() const;
     virtual QString suggestedFileName() const;
     virtual QString mimeType() const;
+    virtual void rename(const QString &newName);
 
     // Internal
     void setSuggestedFileName(const QString &fileName);

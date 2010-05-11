@@ -88,6 +88,7 @@ public:
 
     bool save(const QString &fileName = QString());
     QString fileName() const;
+    virtual void rename(const QString &newName);
 
     QString defaultPath() const;
     QString suggestedFileName() const;

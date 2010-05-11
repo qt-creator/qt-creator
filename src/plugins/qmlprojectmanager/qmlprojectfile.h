@@ -48,6 +48,7 @@ public:
 
     virtual bool save(const QString &fileName = QString());
     virtual QString fileName() const;
+    virtual void rename(const QString &newName);
 
     virtual QString defaultPath() const;
     virtual QString suggestedFileName() const;

@@ -68,7 +68,7 @@ namespace {
 namespace ProjectExplorer {
 namespace Internal {
 
-    class SessionFile : QObject
+class SessionFile : QObject
 {
     Q_OBJECT
 

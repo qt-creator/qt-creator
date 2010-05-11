@@ -87,6 +87,7 @@ public:
 
     virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const = 0;
     virtual void reload(ReloadFlag flag, ChangeType type) = 0;
+    virtual void rename(const QString &newName) = 0;
 
     virtual void checkPermissions() {}
 

@@ -123,6 +123,11 @@ struct FileManagerPrivate {
     QString m_lastVisitedDirectory;
     QString m_projectsDirectory;
     bool m_useProjectsDirectory;
+    // When we are callling into a IFile
+    // we don't want to receive a changed()
+    // signal
+    // That makes the code easier
+    IFile *m_blockedIFile;
 };
 
 FileManagerPrivate::FileManagerPrivate(QObject *q, QMainWindow *mw) :
@@ -131,10 +136,11 @@ FileManagerPrivate::FileManagerPrivate(QObject *q, QMainWindow *mw) :
     m_blockActivated(false),
     m_lastVisitedDirectory(QDir::currentPath()),
 #ifdef Q_OS_MAC  // Creator is in bizarre places when launched via finder.
-    m_useProjectsDirectory(true)
+    m_useProjectsDirectory(true),
 #else
-    m_useProjectsDirectory(false)
+    m_useProjectsDirectory(false),
 #endif
+    m_blockedIFile(0)
 {
 }
 
@@ -252,6 +258,55 @@ void FileManager::updateFileInfo(IFile *file)
         d->m_states[fixedname].lastUpdatedState.insert(file, item);
 }
 
+/// Dumps the state of the file manager's map
+/// For debugging purposes
+void FileManager::dump()
+{
+    QMap<QString, Internal::FileState>::const_iterator it, end;
+    it = d->m_states.constBegin();
+    end = d->m_states.constEnd();
+    for (; it != end; ++it) {
+        qDebug()<<" ";
+        qDebug() << it.key();
+        qDebug() << it.value().expected.modified;
+
+        QMap<IFile *, Internal::FileStateItem>::const_iterator jt, jend;
+        jt = it.value().lastUpdatedState.constBegin();
+        jend = it.value().lastUpdatedState.constEnd();
+        for (; jt != jend; ++jt) {
+            qDebug() << jt.key() << jt.value().modified;
+        }
+    }
+}
+
+void FileManager::renamedFile(const QString &from, QString &to)
+{
+    QString fixedFrom = fixFileName(from);
+    QString fixedTo = fixFileName(to);
+    if (d->m_states.contains(fixedFrom)) {
+        QTC_ASSERT(!d->m_states.contains(to), return);
+        d->m_states.insert(fixedTo, d->m_states.value(fixedFrom));
+        d->m_states.remove(fixedFrom);
+        QFileInfo fi(to);
+        d->m_states[fixedTo].expected.modified = fi.lastModified();
+        d->m_states[fixedTo].expected.permissions = fi.permissions();
+
+        d->m_fileWatcher->removePath(fixedFrom);
+        d->m_fileWatcher->addPath(fixedTo);
+
+        QMap<IFile *, Internal::FileStateItem>::iterator it, end;
+        it = d->m_states[fixedTo].lastUpdatedState.begin();
+        end = d->m_states[fixedTo].lastUpdatedState.end();
+
+        for ( ; it != end; ++it) {
+            d->m_blockedIFile = it.key();
+            it.key()->rename(to);
+            d->m_blockedIFile = it.key();
+            it.value().modified = fi.lastModified();
+        }
+    }
+}
+
 ///
 /// Does not use file->fileName, as such is save to use
 /// with renamed files and deleted files
@@ -336,6 +391,10 @@ bool FileManager::removeFile(IFile *file)
 void FileManager::checkForNewFileName()
 {
     IFile *file = qobject_cast<IFile *>(sender());
+    // We modified the IFile
+    // Trust the other code to also update the m_states map
+    if (file == d->m_blockedIFile)
+        return;
     QTC_ASSERT(file, return);
     const QString &fileName = fixFileName(file->fileName());
 
@@ -751,6 +810,7 @@ void FileManager::checkForReload()
         end = lastUpdated.constEnd();
         for ( ; it != end; ++it) {
             IFile *file = it.key();
+            d->m_blockedIFile = file;
             // Compare
             if (it.value().modified == fi.lastModified()
                 && it.value().permissions == fi.permissions()) {
@@ -832,6 +892,7 @@ void FileManager::checkForReload()
             }
 
             updateFileInfo(file);
+            d->m_blockedIFile = 0;
         }
     }
 

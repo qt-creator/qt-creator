@@ -159,7 +159,8 @@ public:
         AddSubProject,
         RemoveSubProject,
         AddFile,
-        RemoveFile
+        RemoveFile,
+        Rename
     };
 
     // all subFolders that are projects
@@ -169,7 +170,7 @@ public:
     // TODO find a better name
     virtual bool hasBuildTargets() const = 0;
 
-    virtual QList<ProjectAction> supportedActions() const = 0;
+    virtual QList<ProjectAction> supportedActions(Node *node) const = 0;
 
     virtual bool addSubProjects(const QStringList &proFilePaths) = 0;
 

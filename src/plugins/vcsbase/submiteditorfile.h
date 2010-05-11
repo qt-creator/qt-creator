@@ -54,7 +54,7 @@ public:
     bool save(const QString &fileName);
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     void reload(ReloadFlag flag, ChangeType type);
-
+    void rename(const QString &newName);
 
     void setFileName(const QString name);
     void setModified(bool modified = true);

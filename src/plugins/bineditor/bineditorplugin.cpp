@@ -196,6 +196,12 @@ public:
         }
     }
 
+    void rename(const QString &newName) {
+        m_fileName = newName;
+        m_editor->editorInterface()->setDisplayName(QFileInfo(fileName()).fileName());
+        emit changed();
+    }
+
     bool open(const QString &fileName) {
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly)) {
@@ -305,6 +311,7 @@ public:
         m_toolBar->addWidget(w);
 
         connect(m_editor, SIGNAL(cursorPositionChanged(int)), this, SLOT(updateCursorPosition(int)));
+        connect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
     }
     ~BinEditorInterface() {
         delete m_editor;

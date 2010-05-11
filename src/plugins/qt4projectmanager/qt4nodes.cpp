@@ -172,6 +172,13 @@ bool Qt4PriFile::save(const QString &fileName)
     return false;
 }
 
+void Qt4PriFile::rename(const QString &newName)
+{
+    // Can't happen
+    Q_ASSERT(false);
+    Q_UNUSED(newName);
+}
+
 QString Qt4PriFile::fileName() const
 {
     return m_priFile->path();
@@ -537,7 +544,7 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
     contents.updateSubFolders(this, this);
 }
 
-QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions() const
+QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) const
 {
     QList<ProjectAction> actions;
 
@@ -558,6 +565,11 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions() const
     default:
         break;
     }
+
+    FileNode *fileNode = qobject_cast<FileNode *>(node);
+    if (fileNode && fileNode->fileType() != ProjectExplorer::ProjectFileType)
+        actions << Rename;
+
     return actions;
 }
 
@@ -598,9 +610,6 @@ bool Qt4PriFileNode::renameFile(const FileType fileType, const QString &filePath
                              const QString &newFilePath)
 {
     if (newFilePath.isEmpty())
-        return false;
-
-    if (!QFile::rename(filePath, newFilePath))
         return false;
 
     QStringList dummy;

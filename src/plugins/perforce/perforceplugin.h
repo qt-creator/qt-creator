@@ -89,6 +89,7 @@ public:
     bool vcsOpen(const QString &workingDir, const QString &fileName);
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &filename);
+    bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
 
     void p4Diff(const QString &workingDir, const QStringList &files);
 

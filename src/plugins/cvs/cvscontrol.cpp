@@ -54,6 +54,7 @@ bool CVSControl::supportsOperation(Operation operation) const
     case DeleteOperation:
     case AnnotateOperation:
         break;
+    case MoveOperation:
     case OpenOperation:
     case CreateRepositoryOperation:
     case SnapshotOperations:
@@ -79,6 +80,11 @@ bool CVSControl::vcsDelete(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
+}
+
+bool CVSControl::vcsMove(const QString &from, const QString &to)
+{
+    return false;
 }
 
 bool CVSControl::vcsCreateRepository(const QString &)

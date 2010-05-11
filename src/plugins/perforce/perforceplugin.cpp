@@ -925,6 +925,22 @@ bool PerforcePlugin::vcsDelete(const QString &workingDir, const QString &fileNam
     return !deleteResult.error;
 }
 
+bool PerforcePlugin::vcsMove(const QString &workingDir, const QString &from, const QString &to)
+{
+    // TODO verify this works
+    QStringList args;
+    args << QLatin1String("edit") << from;
+    const PerforceResponse editResult = runP4Cmd(workingDir, args,
+                                                 CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+    if (editResult.error)
+        return false;
+    args.clear();
+    args << QLatin1String("move") << from << to;
+    const PerforceResponse moveResult = runP4Cmd(workingDir, args,
+                                                 CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
+    return !moveResult.error;
+}
+
 static QString formatCommand(const QString &cmd, const QStringList &args)
 {
     const QChar blank = QLatin1Char(' ');

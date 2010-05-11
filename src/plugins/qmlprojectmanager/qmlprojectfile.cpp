@@ -48,6 +48,13 @@ bool QmlProjectFile::save(const QString &)
     return false;
 }
 
+void QmlProjectFile::rename(const QString &newName)
+{
+    // Can't happen...
+    Q_UNUSED(newName);
+    Q_ASSERT(false);
+}
+
 QString QmlProjectFile::fileName() const
 {
     return m_fileName;

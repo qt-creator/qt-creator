@@ -52,6 +52,7 @@ bool SubversionControl::supportsOperation(Operation operation) const
     switch (operation) {
     case AddOperation:
     case DeleteOperation:
+    case MoveOperation:
     case AnnotateOperation:
         break;
     case OpenOperation:
@@ -79,6 +80,13 @@ bool SubversionControl::vcsDelete(const QString &fileName)
 {
     const QFileInfo fi(fileName);
     return m_plugin->vcsDelete(fi.absolutePath(), fi.fileName());
+}
+
+bool SubversionControl::vcsMove(const QString &from, const QString &to)
+{
+    const QFileInfo fromInfo(from);
+    const QFileInfo toInfo(to);
+    return m_plugin->vcsMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
 bool SubversionControl::vcsCreateRepository(const QString &)

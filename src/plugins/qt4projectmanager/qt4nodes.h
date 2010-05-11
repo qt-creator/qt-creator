@@ -105,6 +105,7 @@ public:
     Qt4PriFile(Qt4PriFileNode *qt4PriFile);
     virtual bool save(const QString &fileName = QString());
     virtual QString fileName() const;
+    virtual void rename(const QString &newName);
 
     virtual QString defaultPath() const;
     virtual QString suggestedFileName() const;
@@ -133,7 +134,7 @@ public:
 
 
 // ProjectNode interface
-    QList<ProjectAction> supportedActions() const;
+    QList<ProjectAction> supportedActions(Node *node) const;
 
     bool hasBuildTargets() const { return false; }
 

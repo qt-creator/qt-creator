@@ -101,6 +101,9 @@ public:
     bool synchronousDelete(const QString &workingDirectory,
                            bool force,
                            const QStringList &files);
+    bool synchronousMove(const QString &workingDirectory,
+                         const QString &from,
+                         const QString &to);
     bool synchronousReset(const QString &workingDirectory,
                           const QStringList &files = QStringList(),
                           QString *errorMessage = 0);

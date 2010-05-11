@@ -89,6 +89,7 @@ public:
     void reload(ReloadFlag flag, ChangeType type);
     virtual QString mimeType() const;
     void setMimeType(const QString &mt);
+    virtual void rename(const QString &newName);
 
     virtual QString defaultPath() const { return m_defaultPath; }
     virtual QString suggestedFileName() const { return m_suggestedFileName; }

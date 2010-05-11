@@ -591,6 +591,13 @@ bool GenericProjectFile::isSaveAsAllowed() const
     return false;
 }
 
+void GenericProjectFile::rename(const QString &newName)
+{
+    // Can't happen
+    Q_UNUSED(newName);
+    Q_ASSERT(false);
+}
+
 Core::IFile::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)

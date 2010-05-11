@@ -62,6 +62,7 @@ public:
     ~MercurialClient();
     bool add(const QString &workingDir, const QString &fileName);
     bool remove(const QString &workingDir, const QString &fileName);
+    bool move(const QString &workingDir, const QString &from, const QString &to);
     bool manifestSync(const QString &repository, const QString &filename);
     QString branchQuerySync(const QString &repositoryRoot);
     bool parentRevisionsSync(const QString &workingDirectory,

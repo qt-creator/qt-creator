@@ -63,6 +63,8 @@ public:
     bool isFileManaged(const QString &fileName) const;
     QList<IFile *> modifiedFiles() const;
 
+    void renamedFile(const QString &from, QString &to);
+
     void blockFileChange(IFile *file);
     void unblockFileChange(IFile *file);
 
@@ -73,6 +75,7 @@ public:
     void addToRecentFiles(const QString &fileName);
     QStringList recentFiles() const;
     void saveRecentFiles();
+
 
     // current file
     void setCurrentFile(const QString &filePath);
@@ -128,6 +131,7 @@ private slots:
     void syncWithEditor(Core::IContext *context);
 
 private:
+    void dump();
     void addFileInfo(IFile *file);
     void removeFileInfo(IFile *file);
     void removeFileInfo(const QString &fileName, IFile *file);

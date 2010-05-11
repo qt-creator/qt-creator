@@ -32,6 +32,7 @@
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectnodes.h"
+#include "projectexplorer.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <utils/qtcassert.h>
@@ -259,6 +260,27 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     }
 
     return result;
+}
+
+Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return 0;
+    // We claim that everything is editable
+    // That's slightly wrong
+    // We control the only view, and that one does the checks
+    return Qt::ItemIsSelectable|Qt::ItemIsEnabled | Qt::ItemIsEditable;
+}
+
+bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid())
+        return false;
+    if (role != Qt::EditRole)
+        return false;
+
+    ProjectExplorerPlugin::instance()->renameFile(nodeForIndex(index), value.toString());
+    return true;
 }
 
 int FlatModel::rowCount(const QModelIndex &parent) const
