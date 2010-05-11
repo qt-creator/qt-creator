@@ -170,8 +170,8 @@ void ItemCreatorTool::createAtItem(const QRectF &rect)
         return;
     if (list.first() == "item") {
         RewriterTransaction transaction = view()->beginRewriterTransaction();
-        ItemLibraryInfo itemLibraryRepresentation = view()->model()->metaInfo().itemLibraryRepresentation(list.at(1));
-        QmlItemNode newNode = view()->createQmlItemNode(itemLibraryRepresentation, pos, parentNode);
+        ItemLibraryEntry itemLibraryEntry = view()->model()->metaInfo().itemLibraryInfo().entry(list.at(1));
+        QmlItemNode newNode = view()->createQmlItemNode(itemLibraryEntry, pos, parentNode);
         newNode.modelNode().variantProperty("width") = rect.width();
         newNode.modelNode().variantProperty("height") = rect.height();
         QList<QmlItemNode> nodeList;

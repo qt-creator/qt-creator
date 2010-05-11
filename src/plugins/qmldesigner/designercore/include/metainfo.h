@@ -47,6 +47,7 @@ namespace QmlDesigner {
 
 class ModelNode;
 class AbstractProperty;
+class ItemLibraryInfo;
 
 namespace Internal {
     class MetaInfoPrivate;
@@ -57,6 +58,7 @@ namespace Internal {
 
 CORESHARED_EXPORT bool operator==(const MetaInfo &first, const MetaInfo &second);
 CORESHARED_EXPORT bool operator!=(const MetaInfo &first, const MetaInfo &second);
+
 
 class CORESHARED_EXPORT MetaInfo
 {
@@ -82,10 +84,10 @@ public:
     bool hasEnumerator(const QString &enumeratorName) const;
     EnumeratorMetaInfo enumerator(const QString &enumeratorName) const;
 
-    QStringList itemLibraryItems() const;
-    QList<ItemLibraryInfo> itemLibraryRepresentations(const NodeMetaInfo &nodeMetaInfo) const;
-    ItemLibraryInfo itemLibraryRepresentation(const QString &name) const;
+    ItemLibraryInfo itemLibraryInfo() const;
+
     QString fromQtTypes(const QString &type) const;
+
 
 public:
     static MetaInfo global();
@@ -107,7 +109,6 @@ private:
 
     EnumeratorMetaInfo addEnumerator(const QString &enumeratorScope, const QString &enumeratorName);
     EnumeratorMetaInfo addFlag(const QString &enumeratorScope, const QString &enumeratorName);
-    ItemLibraryInfo addItemLibraryInfo(const NodeMetaInfo &nodeMetaInfo, const QString &itemLibraryRepresentationName);
 
     bool isGlobal() const;
 

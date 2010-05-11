@@ -17608,7 +17608,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/debugger/cdb/coreengine.cpp" line="+54"/>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
-        <translation>Die Debugger-Bibliothek konnte &apos;%1&apos; nicht geladen werden: %2</translation>
+        <translation>Die Debugger-Bibliothek &apos;%1&apos; konnte nicht geladen werden: %2</translation>
     </message>
     <message>
         <location line="+163"/>

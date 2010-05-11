@@ -90,8 +90,8 @@ void FormEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
 {
     if (qobject_cast<FormWindowEditor *>(editor)) {
         Core::EditorManager::instance()->showEditorInfoBar(Constants::INFO_READ_ONLY,
-            tr("This file can only be edited in Design Mode."),
-            tr("Open Designer"), this, SLOT(designerModeClicked()));
+            tr("This file can only be edited in <b>Design</b> mode."),
+            tr("Switch mode"), this, SLOT(designerModeClicked()));
     } else {
         Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_READ_ONLY);
     }

@@ -739,6 +739,89 @@ void BaseTextEditor::gotoBlockEndWithSelection()
     }
 }
 
+
+void BaseTextEditor::gotoLineStart()
+{
+    handleHomeKey(false);
+}
+
+void BaseTextEditor::gotoLineStartWithSelection()
+{
+    handleHomeKey(true);
+}
+
+void BaseTextEditor::gotoLineEnd()
+{
+    moveCursor(QTextCursor::EndOfLine);
+}
+
+void BaseTextEditor::gotoLineEndWithSelection()
+{
+    moveCursor(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+}
+
+void BaseTextEditor::gotoNextLine()
+{
+    moveCursor(QTextCursor::NextRow);
+}
+
+void BaseTextEditor::gotoNextLineWithSelection()
+{
+    moveCursor(QTextCursor::NextRow, QTextCursor::KeepAnchor);
+}
+
+void BaseTextEditor::gotoPreviousLine()
+{
+    moveCursor(QTextCursor::PreviousRow);
+}
+
+void BaseTextEditor::gotoPreviousLineWithSelection()
+{
+    moveCursor(QTextCursor::PreviousRow, QTextCursor::KeepAnchor);
+}
+
+void BaseTextEditor::gotoPreviousCharacter()
+{
+    moveCursor(QTextCursor::PreviousCharacter);
+}
+
+void BaseTextEditor::gotoPreviousCharacterWithSelection()
+{
+    moveCursor(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+}
+
+void BaseTextEditor::gotoNextCharacter()
+{
+    moveCursor(QTextCursor::NextCharacter);
+}
+
+void BaseTextEditor::gotoNextCharacterWithSelection()
+{
+    moveCursor(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+}
+
+void BaseTextEditor::gotoPreviousWord()
+{
+    moveCursor(QTextCursor::PreviousWord);
+}
+
+void BaseTextEditor::gotoPreviousWordWithSelection()
+{
+    moveCursor(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+}
+
+void BaseTextEditor::gotoNextWord()
+{
+    moveCursor(QTextCursor::NextWord);
+}
+
+void BaseTextEditor::gotoNextWordWithSelection()
+{
+    moveCursor(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+}
+
+
+
 static QTextCursor flippedCursor(const QTextCursor &cursor)
 {
     QTextCursor flipped = cursor;
@@ -2825,7 +2908,6 @@ static void drawRectBox(QPainter *painter, const QRect &rect, bool start, bool e
     grad.setColorAt(0, c.lighter(110));
     grad.setColorAt(1, c.lighter(130));
     QColor outline = c;
-    QRect r = rect;
 
     painter->fillRect(rect, grad);
     painter->setPen(outline);
@@ -2977,7 +3059,9 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
                 int boxWidth = collapseBoxWidth(fm);
                 if (hovered) {
-                    QRect box = QRect(extraAreaWidth + 1, top, boxWidth - 2, bottom - top);
+                    int itop = qRound(top);
+                    int ibottom = qRound(bottom);
+                    QRect box = QRect(extraAreaWidth + 1, itop, boxWidth - 2, ibottom - itop);
                     drawRectBox(&painter, box, drawStart, drawEnd, pal);
                 }
 

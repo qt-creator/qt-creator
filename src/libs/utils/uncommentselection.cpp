@@ -70,7 +70,7 @@ void Utils::unCommentSelection(QPlainTextEdit *edit)
             start -= 2;
         }
 
-        bool hasSelStart = (startPos < startText.length() - 2
+        bool hasSelStart = (startPos < startText.length() - 1
                             && startText.at(startPos) == QLatin1Char('/')
                             && startText.at(startPos+1) == QLatin1Char('*'));
 

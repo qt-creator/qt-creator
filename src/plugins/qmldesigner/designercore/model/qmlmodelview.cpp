@@ -133,7 +133,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
     return newNode;
 }
 
-QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryInfo &itemLibraryRepresentation, const QPointF &position, QmlItemNode parentNode)
+QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentNode)
 {
     if (!parentNode.isValid())
         parentNode = rootQmlItemNode();
@@ -148,17 +148,17 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryInfo &itemLibraryRe
         propertyPairList.append(qMakePair(QString("x"), QVariant(round(position.x(), 4))));
         propertyPairList.append(qMakePair(QString("y"), QVariant(round(position.y(), 4))));
 
-        foreach (const PropertyContainer &property, itemLibraryRepresentation.properties())
+        foreach (const PropertyContainer &property, itemLibraryEntry.properties())
             propertyPairList.append(qMakePair(property.name(), property.value()));
 
-        newNode = createQmlItemNode(itemLibraryRepresentation.typeName(), itemLibraryRepresentation.majorVersion(), itemLibraryRepresentation.minorVersion(), propertyPairList);
+        newNode = createQmlItemNode(itemLibraryEntry.typeName(), itemLibraryEntry.majorVersion(), itemLibraryEntry.minorVersion(), propertyPairList);
         parentNode.nodeAbstractProperty("data").reparentHere(newNode);
 
         Q_ASSERT(newNode.isValid());
 
         QString id;
         int i = 1;
-        QString name(itemLibraryRepresentation.name().toLower());
+        QString name(itemLibraryEntry.name().toLower());
         name.remove(QLatin1Char(' '));
         do {
             id = name + QString::number(i);

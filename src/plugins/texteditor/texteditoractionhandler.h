@@ -120,6 +120,24 @@ private slots:
     void insertLineBelow();
     void updateCurrentEditor(Core::IEditor *editor);
 
+    void gotoLineStart();
+    void gotoLineStartWithSelection();
+    void gotoLineEnd();
+    void gotoLineEndWithSelection();
+    void gotoNextLine();
+    void gotoNextLineWithSelection();
+    void gotoPreviousLine();
+    void gotoPreviousLineWithSelection();
+    void gotoPreviousCharacter();
+    void gotoPreviousCharacterWithSelection();
+    void gotoNextCharacter();
+    void gotoNextCharacterWithSelection();
+    void gotoPreviousWord();
+    void gotoPreviousWordWithSelection();
+    void gotoNextWord();
+    void gotoNextWordWithSelection();
+
+
 private:
     QAction *m_undoAction;
     QAction *m_redoAction;

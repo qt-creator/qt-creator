@@ -36,7 +36,7 @@ namespace QmlDesigner {
 
 class ItemLibraryPrivate;
 class MetaInfo;
-class ItemLibraryInfo;
+class ItemLibraryEntry;
 
 class ItemLibrary : public QFrame
 {
@@ -47,7 +47,6 @@ public:
     ItemLibrary(QWidget *parent = 0);
     virtual ~ItemLibrary();
 
-    void addItemLibraryInfo(const ItemLibraryInfo &ItemLibraryInfo);
     void setMetaInfo(const MetaInfo &metaInfo);
 
 public Q_SLOTS:

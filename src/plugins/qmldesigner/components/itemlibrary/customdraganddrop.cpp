@@ -45,7 +45,6 @@ namespace QmlDesignerItemLibraryDragAndDrop {
 void CustomDragAndDropIcon::startDrag()
 {
     m_size = m_icon.size();
-    setPixmap(m_icon);
     m_iconAlpha = 1;
     m_previewAlpha = 0;
 
@@ -83,7 +82,6 @@ void CustomDragAndDropIcon::mouseMoveEvent(QMouseEvent *event)
             move(pos);
         else
             move(-1000, -1000); //no hiding because of mouse grabbing
-        setPixmap(currentImage());
         resize(m_size);
         show();
         update();
@@ -119,13 +117,10 @@ void CustomDragAndDropIcon::mouseMoveEvent(QMouseEvent *event)
     m_oldTarget = target;
 }
 
-
-QPixmap CustomDragAndDropIcon::currentImage()
+void CustomDragAndDropIcon::paintEvent(QPaintEvent *event)
 {
-    //blend the two images (icon and preview) according to alpha values
-    QPixmap pixmap(m_size);
-    pixmap.fill(Qt::white);
-    QPainter p(&pixmap);
+    QWidget::paintEvent(event);
+    QPainter p(this);
     if  (CustomDragAndDrop::isAccepted()) {
         p.setOpacity(m_previewAlpha);
         p.drawPixmap(0 ,0 , m_size.width(), m_size.height(), m_preview);
@@ -137,7 +132,6 @@ QPixmap CustomDragAndDropIcon::currentImage()
         p.setOpacity(m_previewAlpha);
         p.drawPixmap(0 ,0 , m_size.width(), m_size.height(), m_preview);
     }
-    return pixmap;
 }
 
 void CustomDragAndDropIcon::enter()
@@ -185,7 +179,6 @@ void CustomDragAndDropIcon::animateDrag(int frame)
          m_size = QSize(width, height);
     }
     QPoint p = pos();
-    setPixmap(currentImage());
     resize(m_size);
     move(p);
     update(); //redrawing needed

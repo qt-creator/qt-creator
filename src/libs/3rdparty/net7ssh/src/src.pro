@@ -12,7 +12,7 @@ include(../net7ssh_dependencies.pri)
 
 win32 {
     LIBS +=  -lWs2_32
-    win32-msvc*: QMAKE_CXXFLAGS += -wd4250 -wd4251 -wd4290
+    win32-msvc*: QMAKE_CXXFLAGS += -wd4100 -wd4101 -wd4250 -wd4251 -wd4290
 
     DEFINES += _CRT_SECURE_NO_WARNINGS
     DEFINES += NE7SSH_EXPORTS=1 _WINDLL _USRDLL _CONSOLE _WINDOWS

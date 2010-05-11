@@ -62,7 +62,6 @@ public:
     NodeMetaInfoData(const MetaInfo &metaInfo) :
             metaInfo(metaInfo),
             isContainer(false),
-            isVisibleToItemLibrary(false),
             isFXItem(Unknown),
             icon(),
             category("misc")
@@ -71,7 +70,6 @@ public:
     MetaInfo metaInfo;
     QString typeName;
     bool isContainer;
-    bool isVisibleToItemLibrary;
     TristateBoolean isFXItem;
     QHash<QString, PropertyMetaInfo> propertyMetaInfoHash;
     QIcon icon;
@@ -547,15 +545,6 @@ bool NodeMetaInfo::isContainer() const
     return m_data->isContainer;
 }
 
-bool NodeMetaInfo::isVisibleToItemLibrary() const
-{
-    if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return false;
-    }
-    return m_data->isVisibleToItemLibrary;
-}
-
 void NodeMetaInfo::setIsContainer(bool isContainer)
 {
     if (!isValid()) {
@@ -563,15 +552,6 @@ void NodeMetaInfo::setIsContainer(bool isContainer)
         return;
     }
     m_data->isContainer = isContainer;
-}
-
-void NodeMetaInfo::setIsVisibleToItemLibrary(bool isVisibleToItemLibrary)
-{
-    if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return;
-    }
-    m_data->isVisibleToItemLibrary = isVisibleToItemLibrary;
 }
 
 QIcon NodeMetaInfo::icon() const
@@ -583,15 +563,6 @@ QIcon NodeMetaInfo::icon() const
     return m_data->icon;
 }
 
-QString NodeMetaInfo::category() const
-{
-    if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return QString();
-    }
-    return m_data->category;
-}
-
 void NodeMetaInfo::setIcon(const QIcon &icon)
 {
     if (!isValid()) {
@@ -599,15 +570,6 @@ void NodeMetaInfo::setIcon(const QIcon &icon)
         return;
     }
     m_data->icon = icon;
-}
-
-void NodeMetaInfo::setCategory(const QString &category)
-{
-    if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return;
-    }
-    m_data->category = category;
 }
 
 /*!

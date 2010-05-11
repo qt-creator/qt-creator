@@ -179,16 +179,6 @@ void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
         nodeMetaInfo.setIsContainer(stringToBool(isContainer));
     }
 
-    if (attributes.hasAttribute("showInItemLibrary")) {
-        const QString showInItemLibrary = attributes.value("showInItemLibrary").toString();
-        nodeMetaInfo.setIsVisibleToItemLibrary(stringToBool(showInItemLibrary));
-    }
-
-    if (attributes.hasAttribute("category")) {
-        const QString category = attributes.value("category").toString();
-        nodeMetaInfo.setCategory(category);
-    }
-
     if (attributes.hasAttribute("icon")) {
         const QString iconPath = reader.attributes().value("icon").toString();
         nodeMetaInfo.setIcon(QIcon(iconPath));
@@ -200,29 +190,33 @@ void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
         handleNodeInheritElement(reader, className);
         handleAbstractPropertyElement(reader, nodeMetaInfo);
         handleAbstractPropertyDefaultValueElement(reader, nodeMetaInfo);
-        handleNodeItemLibraryRepresentationElement(reader, className);
+        handleNodeItemLibraryEntryElement(reader, className);
     }
 }
 
-void MetaInfoParser::handleNodeItemLibraryRepresentationElement(QXmlStreamReader &reader, const QString & className)
+void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader, const QString & className)
 {
-    if (reader.isStartElement() && reader.name() == "itemlibraryrepresentation")
+    if (reader.isStartElement() && reader.name() == "itemlibraryentry")
     {
         QString name = reader.attributes().value("name").toString();
-        ItemLibraryInfo ItemLibraryInfo = m_metaInfo.addItemLibraryInfo(m_metaInfo.nodeMetaInfo(className), name);
+        ItemLibraryEntry itemLibraryEntry = m_metaInfo.itemLibraryInfo().addItemLibraryEntry(m_metaInfo.nodeMetaInfo(className), name);
 
         QString iconPath = reader.attributes().value("icon").toString();
         if (!iconPath.isEmpty())
-            ItemLibraryInfo.setIcon(QIcon(iconPath));
+            itemLibraryEntry.setIcon(QIcon(iconPath));
 
-        while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "itemlibraryrepresentation")) {
+        QString category = reader.attributes().value("category").toString();
+        if (!category.isEmpty())
+            itemLibraryEntry.setCategory(category);
+
+        while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "itemlibraryentry")) {
             reader.readNext();
-            handleItemLibraryInfoPropertyElement(reader, ItemLibraryInfo);
+            handleItemLibraryEntryPropertyElement(reader, itemLibraryEntry);
         }
     }
 }
 
-void MetaInfoParser::handleNodeInheritElement(QXmlStreamReader &reader, const QString & className)
+void MetaInfoParser::handleNodeInheritElement(QXmlStreamReader &reader, const QString &className)
 {
     if (reader.isStartElement() && reader.name() == "inherits")
     {
@@ -233,7 +227,7 @@ void MetaInfoParser::handleNodeInheritElement(QXmlStreamReader &reader, const QS
     }
 }
 
-void MetaInfoParser::handleItemLibraryInfoPropertyElement(QXmlStreamReader &reader, ItemLibraryInfo &ItemLibraryInfo)
+void MetaInfoParser::handleItemLibraryEntryPropertyElement(QXmlStreamReader &reader, ItemLibraryEntry &itemLibraryEntry)
 {
     if (reader.isStartElement() && reader.name() == "property")
     {
@@ -241,7 +235,7 @@ void MetaInfoParser::handleItemLibraryInfoPropertyElement(QXmlStreamReader &read
         QString name = attributes.value("name").toString();
         QString type = attributes.value("type").toString();
         QString value = attributes.value("value").toString();
-        ItemLibraryInfo.addProperty(name, type, value);
+        itemLibraryEntry.addProperty(name, type, value);
 
         reader.readNext();
     }

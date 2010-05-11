@@ -52,7 +52,7 @@ namespace Internal {
     class MetaInfoParser;
     class NodeMetaInfoData;
     class SubComponentManagerPrivate;
-    class ItemLibraryInfoData;
+    class ItemLibraryEntryData;
 }
 
 class PropertyMetaInfo;
@@ -60,7 +60,7 @@ class PropertyMetaInfo;
 class CORESHARED_EXPORT NodeMetaInfo
 {
     friend class QmlDesigner::MetaInfo;
-    friend class QmlDesigner::Internal::ItemLibraryInfoData;
+    friend class QmlDesigner::Internal::ItemLibraryEntryData;
     friend class QmlDesigner::Internal::MetaInfoPrivate;
     friend class QmlDesigner::Internal::MetaInfoParser;
     friend class QmlDesigner::Internal::SubComponentManagerPrivate;
@@ -95,7 +95,6 @@ public:
 
     bool hasProperty(const QString &propertyName, bool resolveDotSyntax = false) const;
     bool isContainer() const;
-    bool isVisibleToItemLibrary() const;
 
     bool isWidget() const;
     bool isGraphicsWidget() const;
@@ -105,7 +104,6 @@ public:
     bool isSubclassOf(const QString& type, int majorVersion = 4, int minorVersion = 6) const;
 
     QIcon icon() const;
-    QString category() const;
 
 private:
     NodeMetaInfo();
@@ -115,9 +113,7 @@ private:
     void setTypeName(const QString &typeName);
     void addProperty(const PropertyMetaInfo &property);
     void setIsContainer(bool isContainer);
-    void setIsVisibleToItemLibrary(bool isVisibleToItemLibrary);
     void setIcon(const QIcon &icon);
-    void setCategory(const QString &category);
     void setQmlFile(const QString &filePath);
     void setDefaultProperty(const QString &defaultProperty);
     void setMajorVersion(int version);

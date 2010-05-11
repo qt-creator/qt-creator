@@ -40,7 +40,7 @@
 
 namespace QmlDesigner {
 
-class ItemLibraryInfo;
+class ItemLibraryEntry;
 
 class CORESHARED_EXPORT QmlModelView : public ForwardView<NodeInstanceView>
 {
@@ -66,7 +66,7 @@ public:
                                     int minorVersion,
                                     const PropertyListType &propertyList = PropertyListType());
 
-    QmlItemNode createQmlItemNode(const ItemLibraryInfo &ItemLibraryRepresentation, const QPointF &position, QmlItemNode parentNode);
+    QmlItemNode createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentNode);
     QmlItemNode createQmlItemNodeFromImage(const QString &imageName, const QPointF &position, QmlItemNode parentNode);
 
     QmlObjectNode rootQmlObjectNode() const;

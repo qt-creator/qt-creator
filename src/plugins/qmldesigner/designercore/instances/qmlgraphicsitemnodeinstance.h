@@ -68,6 +68,7 @@ public:
 protected:
     QmlGraphicsItemNodeInstance(QDeclarativeItem *item, bool hasContent);
     QDeclarativeItem *qmlGraphicsItem() const;
+    QDeclarativeAnchors *anchors() const;
     void resetHorizontal();
     void resetVertical();
 

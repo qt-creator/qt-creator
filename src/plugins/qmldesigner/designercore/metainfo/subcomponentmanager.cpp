@@ -42,17 +42,13 @@ enum { debug = false };
 
 QT_BEGIN_NAMESPACE
 
-// Allow usage of QFileInfo in hash / qSort
+// Allow usage of QFileInfo in qSort
 
 static bool operator<(const QFileInfo &file1, const QFileInfo &file2)
 {
     return file1.filePath() < file2.filePath();
 }
 
-static uint qHash(const QFileInfo &fileInfo)
-{
-    return qHash(fileInfo.filePath());
-}
 
 QT_END_NAMESPACE
 
@@ -73,11 +69,11 @@ public:
     void parseDirectories();
 
 public slots:
-    void parseDirectory(const QString &dirPath);
-    void parseFile(const QString &filePath);
+    void parseDirectory(const QString &canonicalDirPath);
+    void parseFile(const QString &canonicalFilePath);
 
 public:
-    QList<QFileInfo> watchedFiles(const QDir &dirInfo);
+    QList<QFileInfo> watchedFiles(const QString &canonicalDirPath);
     void unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier);
     void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, const QDeclarativeDomDocument &document);
 
@@ -88,7 +84,8 @@ public:
 
     QFileSystemWatcher m_watcher;
 
-    QMultiHash<QFileInfo,QString> m_dirToQualifier;
+    // key: canonical directory path
+    QMultiHash<QString,QString> m_dirToQualifier;
 
     QUrl m_filePath;
 
@@ -111,8 +108,9 @@ void SubComponentManagerPrivate::addImport(int pos, const QDeclarativeDomImport 
     if (import.type() == QDeclarativeDomImport::File) {
         QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
         if (dirInfo.exists() && dirInfo.isDir()) {
-            m_watcher.addPath(dirInfo.filePath());
-            m_dirToQualifier.insertMulti(dirInfo, import.qualifier());
+            const QString canonicalDirPath = dirInfo.canonicalFilePath();
+            m_watcher.addPath(canonicalDirPath);
+            m_dirToQualifier.insertMulti(canonicalDirPath, import.qualifier());
         }
     } else {
         // TODO: QDeclarativeDomImport::Library
@@ -126,15 +124,16 @@ void SubComponentManagerPrivate::removeImport(int pos)
     const QDeclarativeDomImport import = m_imports.takeAt(pos);
 
     if (import.type() == QDeclarativeDomImport::File) {
-        QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
+        const QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
+        const QString canonicalDirPath = dirInfo.canonicalFilePath();
 
-        m_dirToQualifier.remove(dirInfo, import.qualifier());
+        m_dirToQualifier.remove(canonicalDirPath, import.qualifier());
 
-        if (!m_dirToQualifier.contains(dirInfo))
-            m_watcher.removePath(dirInfo.filePath());
+        if (!m_dirToQualifier.contains(canonicalDirPath))
+            m_watcher.removePath(canonicalDirPath);
 
-        foreach (const QFileInfo &monitoredFile, watchedFiles(dirInfo.filePath())) {
-            if (!m_dirToQualifier.contains(dirInfo))
+        foreach (const QFileInfo &monitoredFile, watchedFiles(canonicalDirPath)) {
+            if (!m_dirToQualifier.contains(canonicalDirPath))
                 m_watcher.removePath(monitoredFile.filePath());
             unregisterQmlFile(monitoredFile, import.qualifier());
         }
@@ -149,30 +148,30 @@ void SubComponentManagerPrivate::parseDirectories()
         const QString file = m_filePath.toLocalFile();
         QFileInfo dirInfo = QFileInfo(QFileInfo(file).path());
         if (dirInfo.exists() && dirInfo.isDir())
-            parseDirectory(dirInfo.filePath());
+            parseDirectory(dirInfo.canonicalFilePath());
     }
 
     foreach (const QDeclarativeDomImport &import, m_imports) {
         if (import.type() == QDeclarativeDomImport::File) {
             QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
             if (dirInfo.exists() && dirInfo.isDir()) {
-                parseDirectory(dirInfo.filePath());
+                parseDirectory(dirInfo.canonicalFilePath());
             }
         }
     }
 }
 
-void SubComponentManagerPrivate::parseDirectory(const QString &dirPath)
+void SubComponentManagerPrivate::parseDirectory(const QString &canonicalDirPath)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << dirPath;
+        qDebug() << Q_FUNC_INFO << canonicalDirPath;
 
-    QDir dir(dirPath);
+    QDir dir(canonicalDirPath);
 
     dir.setNameFilters(QStringList(QMLFILEPATTERN));
     dir.setFilter(QDir::Files | QDir::Readable | QDir::CaseSensitive);
 
-    QList<QFileInfo> monitoredList = watchedFiles(dir);
+    QList<QFileInfo> monitoredList = watchedFiles(canonicalDirPath);
     QList<QFileInfo> newList;
     foreach (const QFileInfo &qmlFile, dir.entryInfoList()) {
         if (QFileInfo(m_filePath.toLocalFile()) == qmlFile) {
@@ -203,7 +202,7 @@ void SubComponentManagerPrivate::parseDirectory(const QString &dirPath)
             continue;
         }
         if (oldFileInfo < newFileInfo) {
-            foreach (const QString &qualifier, m_dirToQualifier.value(dirPath))
+            foreach (const QString &qualifier, m_dirToQualifier.value(canonicalDirPath))
                 unregisterQmlFile(oldFileInfo, qualifier);
             m_watcher.removePath(oldFileInfo.filePath());
             ++oldIter;
@@ -216,7 +215,7 @@ void SubComponentManagerPrivate::parseDirectory(const QString &dirPath)
     }
 
     while (oldIter != monitoredList.constEnd()) {
-        foreach (const QString &qualifier, m_dirToQualifier.value(dirPath))
+        foreach (const QString &qualifier, m_dirToQualifier.value(canonicalDirPath))
             unregisterQmlFile(*oldIter, qualifier);
         m_watcher.removePath(oldIter->filePath());
         ++oldIter;
@@ -231,37 +230,37 @@ void SubComponentManagerPrivate::parseDirectory(const QString &dirPath)
     }
 }
 
-void SubComponentManagerPrivate::parseFile(const QString &filePath)
+void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << filePath;
+        qDebug() << Q_FUNC_INFO << canonicalFilePath;
 
-    QFile file(filePath);
+    QFile file(canonicalFilePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return;
     }
 
     QDeclarativeDomDocument document;
-    if (!document.load(&m_engine, file.readAll(), QUrl::fromLocalFile(filePath))) {
+    if (!document.load(&m_engine, file.readAll(), QUrl::fromLocalFile(canonicalFilePath))) {
         // TODO: Put the errors somewhere?
-        qWarning() << "Could not load qml file " << filePath;
+        qWarning() << "Could not load qml file " << canonicalFilePath;
         return;
     }
 
-    QFileInfo dir = QFileInfo(filePath).absolutePath();
+    QString dir = QFileInfo(canonicalFilePath).path();
     foreach (const QString &qualifier, m_dirToQualifier.values(dir)) {
-        registerQmlFile(filePath, qualifier, document);
+        registerQmlFile(canonicalFilePath, qualifier, document);
     }
 }
 
-QList<QFileInfo> SubComponentManagerPrivate::watchedFiles(const QDir &dirInfo)
+// dirInfo must already contain a canonical path
+QList<QFileInfo> SubComponentManagerPrivate::watchedFiles(const QString &canonicalDirPath)
 {
     QList<QFileInfo> files;
 
-    const QString dirPath = dirInfo.absolutePath();
     foreach (const QString &monitoredFile, m_watcher.files()) {
         QFileInfo fileInfo(monitoredFile);
-        if (fileInfo.dir().absolutePath() == dirPath) {
+        if (fileInfo.dir().absolutePath() == canonicalDirPath) {
             files.append(fileInfo);
         }
     }
@@ -304,10 +303,9 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
     nodeInfo.setQmlFile(fileInfo.filePath());
 
     // Add file components to the library
-    nodeInfo.setCategory(tr("QML Components"));
-    nodeInfo.setIsVisibleToItemLibrary(true);
+    ItemLibraryEntry itemLibType = m_metaInfo.itemLibraryInfo().addItemLibraryEntry(nodeInfo, componentName);
+    itemLibType.setCategory(tr("QML Components"));
 
-    m_metaInfo.addItemLibraryInfo(nodeInfo, componentName);
     m_metaInfo.addNodeInfo(nodeInfo, baseType);
 
     foreach (const QDeclarativeDomDynamicProperty &dynamicProperty, document.rootObject().dynamicProperties()) {
@@ -405,14 +403,14 @@ void SubComponentManager::update(const QUrl &filePath, const QList<QDeclarativeD
     //
     if (oldDir != newDir) {
         if (!oldDir.filePath().isEmpty()) {
-            m_d->m_dirToQualifier.remove(oldDir, QString());
-            if (!m_d->m_dirToQualifier.contains(oldDir))
+            m_d->m_dirToQualifier.remove(oldDir.canonicalFilePath(), QString());
+            if (!m_d->m_dirToQualifier.contains(oldDir.canonicalFilePath()))
                 m_d->m_watcher.removePath(oldDir.filePath());
         }
 
         if (!newDir.filePath().isEmpty()) {
             m_d->m_watcher.addPath(newDir.filePath());
-            m_d->m_dirToQualifier.insertMulti(newDir, QString());
+            m_d->m_dirToQualifier.insertMulti(newDir.canonicalFilePath(), QString());
         }
     }
 

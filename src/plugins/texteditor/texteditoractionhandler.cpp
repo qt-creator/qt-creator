@@ -302,6 +302,58 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_insertLineBelowAction, Constants::INSERT_LINE_BELOW, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Return")));
     connect(m_insertLineBelowAction, SIGNAL(triggered()), this, SLOT(insertLineBelow()));
+
+    QAction *a = 0;
+    a = new QAction(tr("Goto Line Start"), this);
+    command = am->registerAction(a, Constants::GOTO_LINE_START, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoLineStart()));
+    a = new QAction(tr("Goto Line End"), this);
+    command = am->registerAction(a, Constants::GOTO_LINE_END, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoLineEnd()));
+    a = new QAction(tr("Goto Next Line"), this);
+    command = am->registerAction(a, Constants::GOTO_NEXT_LINE, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextLine()));
+    a = new QAction(tr("Goto Previous Line"), this);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_LINE, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousLine()));
+    a = new QAction(tr("Goto Previous Character"), this);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousCharacter()));
+    a = new QAction(tr("Goto Next Character"), this);
+    command = am->registerAction(a, Constants::GOTO_NEXT_CHARACTER, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextCharacter()));
+    a = new QAction(tr("Goto Previous Word"), this);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWord()));
+    a = new QAction(tr("Goto Next Word"), this);
+    command = am->registerAction(a, Constants::GOTO_NEXT_WORD, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWord()));
+
+    a = new QAction(tr("Goto Line Start With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_LINE_START_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoLineStartWithSelection()));
+    a = new QAction(tr("Goto Line End With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_LINE_END_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoLineEndWithSelection()));
+    a = new QAction(tr("Goto Next Line With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_NEXT_LINE_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextLineWithSelection()));
+    a = new QAction(tr("Goto Previous Line With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_LINE_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousLineWithSelection()));
+    a = new QAction(tr("Goto Previous Character With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_CHARACTER_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousCharacterWithSelection()));
+    a = new QAction(tr("Goto Next Character With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_NEXT_CHARACTER_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextCharacterWithSelection()));
+    a = new QAction(tr("Goto Previous Word With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_PREVIOUS_WORD_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoPreviousWordWithSelection()));
+    a = new QAction(tr("Goto Next Word With Selection"), this);
+    command = am->registerAction(a, Constants::GOTO_NEXT_WORD_WITH_SELECTION, m_contextId);
+    connect(a, SIGNAL(triggered()), this, SLOT(gotoNextWordWithSelection()));
+
 }
 
 bool TextEditorActionHandler::supportsAction(const QString & /*id */) const
@@ -466,6 +518,24 @@ FUNCTION(copyLineDown)
 FUNCTION(joinLines)
 FUNCTION(insertLineAbove)
 FUNCTION(insertLineBelow)
+
+FUNCTION(gotoLineStart)
+FUNCTION(gotoLineStartWithSelection)
+FUNCTION(gotoLineEnd)
+FUNCTION(gotoLineEndWithSelection)
+FUNCTION(gotoNextLine)
+FUNCTION(gotoNextLineWithSelection)
+FUNCTION(gotoPreviousLine)
+FUNCTION(gotoPreviousLineWithSelection)
+FUNCTION(gotoPreviousCharacter)
+FUNCTION(gotoPreviousCharacterWithSelection)
+FUNCTION(gotoNextCharacter)
+FUNCTION(gotoNextCharacterWithSelection)
+FUNCTION(gotoPreviousWord)
+FUNCTION(gotoPreviousWordWithSelection)
+FUNCTION(gotoNextWord)
+FUNCTION(gotoNextWordWithSelection)
+
 
 void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
 {

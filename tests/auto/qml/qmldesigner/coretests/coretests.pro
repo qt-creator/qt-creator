@@ -5,7 +5,7 @@ QT += testlib \
     script \
     declarative
 
-include($$CREATORDIR/src/plugins/qmldesigner/core/core.pri)
+include($$CREATORDIR/src/plugins/qmldesigner/designercore/designercore.pri)
 include($$CREATORDIR/src/libs/qmljs/qmljs-lib.pri)
 HEADERS+=$$CREATORDIR/src/libs/utils/changeset.h
 SOURCES+=$$CREATORDIR/src/libs/utils/changeset.cpp
@@ -16,7 +16,7 @@ DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB QTCREATOR_TEST
 DEFINES+=QTCREATORDIR=\\\"$$CREATORDIR\\\"
 
 DEPENDPATH += ..
-DEPENDPATH += $$CREATORDIR/src/plugins/qmldesigner/core/include
+DEPENDPATH += $$CREATORDIR/src/plugins/qmldesigner/designercore/include
 
 TARGET = tst_qmldesigner_core
 

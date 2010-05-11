@@ -34,6 +34,8 @@
 #include "cmakerunconfiguration.h"
 #include "cmakebuildconfiguration.h"
 
+#include <projectexplorer/customexecutablerunconfiguration.h>
+
 #include <QtGui/QApplication>
 #include <QtGui/QStyle>
 
@@ -130,6 +132,12 @@ void CMakeTarget::updateRunConfigurations()
     for( ; it != existingRunConfigurations.constEnd(); ++it) {
         CMakeRunConfiguration *rc = it.value();
         removeRunConfiguration(rc);
+    }
+    if (runConfigurations().isEmpty()) {
+        // Oh no, no run configuration,
+        // create a custom executable run configuration
+        ProjectExplorer::CustomExecutableRunConfiguration *rc = new ProjectExplorer::CustomExecutableRunConfiguration(this);
+        addRunConfiguration(rc);
     }
 }
 

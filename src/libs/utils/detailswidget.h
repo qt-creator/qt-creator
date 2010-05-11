@@ -41,6 +41,7 @@ QT_END_NAMESPACE
 namespace Utils {
 
 struct DetailsWidgetPrivate;
+class FadingPanel;
 
 class QTCREATOR_UTILS_EXPORT DetailsWidget : public QWidget
 {
@@ -68,7 +69,7 @@ public:
     void setWidget(QWidget *widget);
     QWidget *widget() const;
 
-    void setToolWidget(QWidget *widget);
+    void setToolWidget(Utils::FadingPanel *widget);
     QWidget *toolWidget() const;
 
 private slots:
