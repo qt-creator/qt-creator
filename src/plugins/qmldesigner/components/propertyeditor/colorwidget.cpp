@@ -389,7 +389,7 @@ void ColorBox::mouseMoveEvent(QMouseEvent *e)
 void GradientLine::setItemNode(const QVariant &itemNode)
 {
 
-    if (!itemNode.value<ModelNode>().isValid() || !QmlItemNode(itemNode.value<ModelNode>()).hasNodeParent())
+    if (!itemNode.value<ModelNode>().isValid())
         return;
     m_itemNode = itemNode.value<ModelNode>();
     setup();
@@ -442,6 +442,8 @@ void GradientLine::setActiveColor(const QColor &newColor)
 void GradientLine::setupGradient()
 {
     ModelNode modelNode = m_itemNode.modelNode();
+    if (!modelNode.isValid())
+        return;
     m_colorList.clear();
     m_stops.clear();
 
