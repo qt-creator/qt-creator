@@ -1472,6 +1472,8 @@ const Value *Context::lookup(const QString &name)
 const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId *qmlTypeName)
 {
     const ObjectValue *objectValue = typeEnvironment(doc);
+    if (!objectValue)
+        return 0;
 
     for (UiQualifiedId *iter = qmlTypeName; objectValue && iter; iter = iter->next) {
         if (! iter->name)
@@ -1490,6 +1492,8 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId
 const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QStringList &qmlTypeName)
 {
     const ObjectValue *objectValue = typeEnvironment(doc);
+    if (!objectValue)
+        return 0;
 
     foreach (const QString &name, qmlTypeName) {
         const Value *value = objectValue->property(name, this);
