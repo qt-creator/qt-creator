@@ -34,6 +34,9 @@
 #include "openpagesmanager.h"
 #include "topicchooser.h"
 
+#include <utils/filterlineedit.h>
+#include <utils/styledbar.h>
+
 #include <QtGui/QLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
@@ -41,6 +44,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QListWidgetItem>
+#include <QtGui/QToolBar>
 
 #include <QtHelp/QHelpEngine>
 #include <QtHelp/QHelpIndexWidget>
@@ -52,17 +56,29 @@ IndexWindow::IndexWindow()
     , m_indexWidget(0)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
-    QLabel *l = new QLabel(tr("&Look for:"));
-    layout->addWidget(l);
 
-    m_searchLineEdit = new QLineEdit();
-    l->setBuddy(m_searchLineEdit);
+    m_searchLineEdit = new Utils::FilterLineEdit();
+    m_searchLineEdit->setPlaceholderText(QString());
     setFocusProxy(m_searchLineEdit);
     connect(m_searchLineEdit, SIGNAL(textChanged(QString)), this,
         SLOT(filterIndices(QString)));
     m_searchLineEdit->installEventFilter(this);
-    layout->setMargin(4);
-    layout->addWidget(m_searchLineEdit);
+
+    QLabel *l = new QLabel(tr("&Look for:"));
+    l->setBuddy(m_searchLineEdit);
+    layout->addWidget(l);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+
+    Utils::StyledBar *toolbar = new Utils::StyledBar(this);
+    toolbar->setSingleRow(false);
+    QLayout *tbLayout = new QHBoxLayout();
+    tbLayout->setSpacing(6);
+    tbLayout->setMargin(4);
+    tbLayout->addWidget(l);
+    tbLayout->addWidget(m_searchLineEdit);
+    toolbar->setLayout(tbLayout);
+    layout->addWidget(toolbar);
 
     QHelpEngine *engine = &Help::HelpManager::helpEngine();
     m_indexWidget = engine->indexWidget();
@@ -77,6 +93,7 @@ IndexWindow::IndexWindow()
         this, SIGNAL(linksActivated(QMap<QString, QUrl>, QString)));
     connect(m_searchLineEdit, SIGNAL(returnPressed()), m_indexWidget,
         SLOT(activateCurrentItem()));
+    m_indexWidget->setFrameStyle(QFrame::NoFrame);
     layout->addWidget(m_indexWidget);
 
     m_indexWidget->viewport()->installEventFilter(this);

@@ -33,6 +33,9 @@
 #include "helpmanager.h"
 #include "openpagesmanager.h"
 
+#include <utils/filterlineedit.h>
+#include <utils/styledbar.h>
+
 #include <QtGui/QMenu>
 #include <QtGui/QIcon>
 #include <QtGui/QStyle>
@@ -423,19 +426,27 @@ void BookmarkWidget::setup(bool showButtons)
     regExp.setCaseSensitivity(Qt::CaseInsensitive);
 
     QLayout *vlayout = new QVBoxLayout(this);
-    vlayout->setMargin(4);
+    vlayout->setMargin(0);
+    vlayout->setSpacing(0);
 
-    QLabel *label = new QLabel(tr("Filter:"), this);
-    vlayout->addWidget(label);
-
-    searchField = new QLineEdit(this);
+    searchField = new Utils::FilterLineEdit(this);
     setFocusProxy(searchField);
+
+    Utils::StyledBar *toolbar = new Utils::StyledBar(this);
+    toolbar->setSingleRow(false);
+    QLayout *tbLayout = new QHBoxLayout();
+    tbLayout->setMargin(4);
+    tbLayout->addWidget(searchField);
+    toolbar->setLayout(tbLayout);
+
+    vlayout->addWidget(toolbar);
+
     searchField->installEventFilter(this);
-    vlayout->addWidget(searchField);
     connect(searchField, SIGNAL(textChanged(const QString &)), this,
         SLOT(filterChanged()));
 
     treeView = new TreeView(this);
+    treeView->setFrameStyle(QFrame::NoFrame);
     vlayout->addWidget(treeView);
 
 #ifdef Q_OS_MAC

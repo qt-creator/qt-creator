@@ -52,7 +52,7 @@ ContentWindow::ContentWindow()
     setFocusProxy(m_contentWidget);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setMargin(4);
+    layout->setMargin(0);
     layout->addWidget(m_contentWidget);
 
     connect(m_contentWidget, SIGNAL(customContextMenuRequested(QPoint)), this,
@@ -63,6 +63,8 @@ ContentWindow::ContentWindow()
     QHelpContentModel *contentModel =
         qobject_cast<QHelpContentModel*>(m_contentWidget->model());
     connect(contentModel, SIGNAL(contentsCreated()), this, SLOT(expandTOC()));
+
+    m_contentWidget->setFrameStyle(QFrame::NoFrame);
 }
 
 ContentWindow::~ContentWindow()
