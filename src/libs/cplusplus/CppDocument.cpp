@@ -29,6 +29,8 @@
 
 #include "CppDocument.h"
 #include "FastPreprocessor.h"
+#include "LookupContext.h"
+#include "Overview.h"
 
 #include <Control.h>
 #include <TranslationUnit.h>
@@ -36,8 +38,10 @@
 #include <Semantic.h>
 #include <Literals.h>
 #include <Symbols.h>
+#include <Names.h>
 #include <AST.h>
 #include <Scope.h>
+#include <SymbolVisitor.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QBitArray>
@@ -569,4 +573,121 @@ void Snapshot::simplified_helper(Document::Ptr doc, Snapshot *snapshot) const
             simplified_helper(includedDoc, snapshot);
         }
     }
+}
+
+namespace {
+class FindMatchingDefinition: public SymbolVisitor
+{
+    Symbol *_declaration;
+    QList<Function *> _result;
+
+public:
+    FindMatchingDefinition(Symbol *declaration)
+        : _declaration(declaration) {}
+
+    QList<Function *> result() const { return _result; }
+
+    using SymbolVisitor::visit;
+
+    virtual bool visit(Function *fun)
+    {
+        if (_declaration->identifier()->isEqualTo(fun->identifier()))
+            _result.append(fun);
+
+        return false;
+    }
+
+    virtual bool visit(Block *)
+    {
+        return false;
+    }
+};
+} // end of anonymous namespace
+
+Symbol *Snapshot::findMatchingDefinition(Symbol *symbol) const
+{
+    if (! symbol->identifier())
+        return 0;
+
+    Document::Ptr thisDocument = document(QString::fromUtf8(symbol->fileName(), symbol->fileNameLength()));
+    if (! thisDocument) {
+        qWarning() << "undefined document:" << symbol->fileName();
+        return 0;
+    }
+
+    LookupContext thisContext(thisDocument, *this);
+    const QList<Symbol *> declarationCandidates = thisContext.lookup(symbol->name(), symbol);
+    if (declarationCandidates.isEmpty()) {
+        qWarning() << "unresolved declaration:" << symbol->fileName() << symbol->line() << symbol->column();
+        return 0;
+    }
+
+    Symbol *declaration = declarationCandidates.first();
+    Function *declarationTy = declaration->type()->asFunctionType();
+    if (! declarationTy) {
+        qWarning() << "not a function:" << declaration->fileName() << declaration->line() << declaration->column();
+        return 0;
+    }
+
+    foreach (Document::Ptr doc, *this) {
+        if (! doc->control()->findIdentifier(declaration->identifier()->chars(),
+                                             declaration->identifier()->size()))
+            continue;
+
+        FindMatchingDefinition candidates(declaration);
+        candidates.accept(doc->globalNamespace());
+
+        const QList<Function *> result = candidates.result();
+        if (! result.isEmpty()) {
+            LookupContext context(doc, *this);
+
+            QList<Function *> viableFunctions;
+
+            foreach (Function *fun, result) {
+                const QList<Symbol *> declarations = context.lookup(fun->name(), fun);
+
+                if (declarations.contains(declaration))
+                    viableFunctions.append(fun);
+
+                else if (false)
+                    qDebug() << "does not contain" << declaration->fileName() << declaration->line() << declaration->column();
+            }
+
+            if (viableFunctions.isEmpty())
+                continue;
+
+            else if (viableFunctions.length() == 1)
+                return viableFunctions.first();
+
+            Function *best = 0;
+
+            foreach (Function *fun, viableFunctions) {
+                if (fun->identity()->isEqualTo(declaration->identity()))
+                    continue;
+
+                else if (fun->argumentCount() == declarationTy->argumentCount()) {
+                    if (! best)
+                        best = fun;
+
+                    unsigned argc = 0;
+                    for (; argc < declarationTy->argumentCount(); ++argc) {
+                        Symbol *arg = fun->argumentAt(argc);
+                        Symbol *otherArg = declarationTy->argumentAt(argc);
+                        if (! arg->type().isEqualTo(otherArg->type()))
+                            break;
+                    }
+
+                    if (argc == declarationTy->argumentCount())
+                        best = fun;
+                }
+            }
+
+            if (! best)
+                best = viableFunctions.first();
+
+            return best;
+        }
+    }
+
+    return 0;
 }

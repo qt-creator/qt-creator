@@ -1271,7 +1271,7 @@ void CPPEditor::switchDeclarationDefinition()
         if (declaration)
             openCppEditorAt(linkToSymbol(declaration));
     } else if (lastSymbol->type()->isFunctionType()) {
-        if (Symbol *def = findDefinition(lastSymbol))
+        if (Symbol *def = findDefinition(lastSymbol, snapshot))
             openCppEditorAt(linkToSymbol(def));
     }
 }
@@ -1444,7 +1444,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         if (Symbol *symbol = result.lastVisibleSymbol()) {
             Symbol *def = 0;
             if (resolveTarget && !lastSymbol->isFunction())
-                def = findDefinition(symbol);
+                def = findDefinition(symbol, snapshot);
 
             link = linkToSymbol(def ? def : symbol);
             link.begin = beginOfToken;
@@ -1482,91 +1482,15 @@ void CPPEditor::jumpToDefinition()
     openLink(findLinkAt(textCursor()));
 }
 
-Symbol *CPPEditor::findDefinition(Symbol *symbol)
+Symbol *CPPEditor::findDefinition(Symbol *symbol, const Snapshot &snapshot)
 {
     if (symbol->isFunction())
         return 0; // symbol is a function definition.
 
-    Function *funTy = symbol->type()->asFunctionType();
-    if (! funTy)
-        return 0; // symbol does not have function type.
+    else if (! symbol->type()->isFunctionType())
+        return 0; // not a function declaration
 
-    const Name *name = symbol->name();
-    if (! name)
-        return 0; // skip anonymous functions!
-
-    if (const QualifiedNameId *q = name->asQualifiedNameId())
-        name = q->unqualifiedNameId();
-
-    // map from file names to function definitions.
-    QMap<QString, QList<Function *> > functionDefinitions;
-
-    // find function definitions.
-    FindFunctionDefinitions findFunctionDefinitions;
-
-    // save the current snapshot
-    const Snapshot snapshot = m_modelManager->snapshot();
-
-    foreach (Document::Ptr doc, snapshot) {
-        if (Scope *globals = doc->globalSymbols()) {
-            QList<Function *> *localFunctionDefinitions =
-                    &functionDefinitions[doc->fileName()];
-
-            findFunctionDefinitions(name, globals,
-                                    localFunctionDefinitions);
-        }
-    }
-
-    // a dummy document.
-    Document::Ptr expressionDocument = Document::create("<empty>");
-
-    Function *bestMatch = 0;
-    int bestScore = -1;
-
-    QMapIterator<QString, QList<Function *> > it(functionDefinitions);
-    while (it.hasNext()) {
-        it.next();
-
-        // get the instance of the document.
-        Document::Ptr thisDocument = snapshot.document(it.key());
-
-        foreach (Function *f, it.value()) {
-            int score = 0; // current function's score
-
-            const int funTyArgsCount = funTy->argumentCount();
-            const int fArgsCount = f->argumentCount();
-
-            // max score if arguments count equals
-            if (funTyArgsCount == fArgsCount)
-                score += funTyArgsCount + 1;
-            else
-                score += (funTyArgsCount < fArgsCount) ? funTyArgsCount : fArgsCount;
-
-            // +1 to score for every equal parameter
-            unsigned minCount = (funTyArgsCount < fArgsCount) ? funTyArgsCount : fArgsCount;
-            for (unsigned i = 0; i < minCount; ++i)
-                if (Symbol *funTyArg = funTy->argumentAt(i))
-                    if (Symbol *fArg = f->argumentAt(i))
-                        if (funTyArg->type().isEqualTo(fArg->type()))
-                            score++;
-
-            if (score > bestScore) {
-                // create a lookup context
-                const DeprecatedLookupContext context(f, expressionDocument,
-                                            thisDocument, snapshot);
-
-                // search the matching definition for the function declaration `symbol'.
-                foreach (Symbol *s, context.resolve(f->name())) {
-                    if (s == symbol) {
-                        bestMatch = f;
-                        bestScore = score;
-                    }
-                }
-            }
-        }
-    }
-
-    return bestMatch;
+    return snapshot.findMatchingDefinition(symbol);
 }
 
 unsigned CPPEditor::editorRevision() const

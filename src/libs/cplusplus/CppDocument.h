@@ -364,6 +364,8 @@ public:
     Document::Ptr documentFromSource(const QByteArray &preprocessedCode,
                                      const QString &fileName) const;
 
+    Symbol *findMatchingDefinition(Symbol *symbol) const;
+
 private:
     void simplified_helper(Document::Ptr doc, Snapshot *snapshot) const;
 

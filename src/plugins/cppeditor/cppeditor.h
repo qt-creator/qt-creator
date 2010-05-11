@@ -252,7 +252,7 @@ private:
 
     CPlusPlus::Symbol *markSymbols();
     bool sortedMethodOverview() const;
-    CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol);
+    CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,

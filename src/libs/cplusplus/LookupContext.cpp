@@ -46,12 +46,12 @@
 
 using namespace CPlusPlus;
 
-static void fullyQualifiedName(Symbol *symbol, QList<const Name *> *names)
+static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names)
 {
     if (! symbol)
         return;
 
-    fullyQualifiedName(symbol->enclosingSymbol(), names);
+    fullyQualifiedName_helper(symbol->enclosingSymbol(), names);
 
     if (symbol->name() && (symbol->isClass() || symbol->isNamespace())) {
         if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
@@ -117,6 +117,13 @@ LookupContext &LookupContext::operator = (const LookupContext &other)
     _snapshot = other._snapshot;
     _bindings = other._bindings;
     return *this;
+}
+
+QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol)
+{
+    QList<const Name *> names;
+    fullyQualifiedName_helper(symbol, &names);
+    return names;
 }
 
 QSharedPointer<CreateBindings> LookupContext::bindings() const
@@ -230,8 +237,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
             if (fun->name() && fun->name()->isQualifiedNameId()) {
                 const QualifiedNameId *q = fun->name()->asQualifiedNameId();
 
-                QList<const Name *> path;
-                fullyQualifiedName(scope->owner(), &path);
+                QList<const Name *> path = fullyQualifiedName(scope->owner());
 
                 for (unsigned index = 0; index < q->nameCount() - 1; ++index) { // ### TODO remove me.
                     const Name *name = q->nameAt(index);
@@ -681,8 +687,7 @@ ClassOrNamespace *CreateBindings::globalNamespace() const
 
 ClassOrNamespace *CreateBindings::findClassOrNamespace(Symbol *symbol)
 {
-    QList<const Name *> names;
-    fullyQualifiedName(symbol, &names);
+    const QList<const Name *> names = LookupContext::fullyQualifiedName(symbol);
 
     if (names.isEmpty())
         return _globalNamespace;

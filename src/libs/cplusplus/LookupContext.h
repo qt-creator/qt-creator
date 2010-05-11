@@ -231,6 +231,8 @@ public:
 
     Control *control() const; // ### deprecate
 
+    static QList<const Name *> fullyQualifiedName(Symbol *symbol);
+
 private:
     Control *_control;
 
