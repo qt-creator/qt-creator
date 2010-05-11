@@ -74,7 +74,7 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
     if (horizontalCentered())
         m_horizontalTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::HorizontalCenter).qmlItemNode();
 
-
+    emit itemNodeChanged();
     emit parentChanged();
     emit topAnchorChanged();
     emit bottomAnchorChanged();
