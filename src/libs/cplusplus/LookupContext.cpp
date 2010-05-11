@@ -657,7 +657,7 @@ CreateBindings::~CreateBindings()
     delete _control;
 }
 
-ClassOrNamespace *CreateBindings::switchCurrentEntity(ClassOrNamespace *classOrNamespace)
+ClassOrNamespace *CreateBindings::switchCurrentClassOrNamespace(ClassOrNamespace *classOrNamespace)
 {
     ClassOrNamespace *previous = _currentClassOrNamespace;
     _currentClassOrNamespace = classOrNamespace;
@@ -693,9 +693,9 @@ ClassOrNamespace *CreateBindings::findClassOrNamespace(const QList<const Name *>
 
 void CreateBindings::process(Symbol *s, ClassOrNamespace *classOrNamespace)
 {
-    ClassOrNamespace *previous = switchCurrentEntity(classOrNamespace);
+    ClassOrNamespace *previous = switchCurrentClassOrNamespace(classOrNamespace);
     accept(s);
-    (void) switchCurrentEntity(previous);
+    (void) switchCurrentClassOrNamespace(previous);
 }
 
 void CreateBindings::process(Symbol *symbol)
@@ -743,7 +743,7 @@ ClassOrNamespace *CreateBindings::enterEntity(Symbol *symbol)
     ClassOrNamespace *entity = _currentClassOrNamespace->findOrCreate(symbol->name());
     entity->addSymbol(symbol);
 
-    return switchCurrentEntity(entity);
+    return switchCurrentClassOrNamespace(entity);
 }
 
 ClassOrNamespace *CreateBindings::enterGlobalEntity(Symbol *symbol)
@@ -751,7 +751,7 @@ ClassOrNamespace *CreateBindings::enterGlobalEntity(Symbol *symbol)
     ClassOrNamespace *entity = _globalNamespace->findOrCreate(symbol->name());
     entity->addSymbol(symbol);
 
-    return switchCurrentEntity(entity);
+    return switchCurrentClassOrNamespace(entity);
 }
 
 bool CreateBindings::visit(Namespace *ns)

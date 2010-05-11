@@ -121,22 +121,22 @@ public:
     ClassOrNamespace *findClassOrNamespace(const QList<const Name *> &path);
 
     /// \internal
-    void process(Symbol *s, ClassOrNamespace *classOrNamespace);
-
-    /// \internal
-    ClassOrNamespace *allocClassOrNamespace(ClassOrNamespace *parent);
-
-    /// \internal
     Control *control() const;
 
     /// \internal
     void lookupInScope(const Name *name, Scope *scope, QList<Symbol *> *result,
                        const TemplateNameId *templateId);
 
+    /// \internal
+    void process(Symbol *s, ClassOrNamespace *classOrNamespace);
+
+    /// \internal
+    ClassOrNamespace *allocClassOrNamespace(ClassOrNamespace *parent);
+
 protected:
     using SymbolVisitor::visit;
 
-    ClassOrNamespace *switchCurrentEntity(ClassOrNamespace *classOrNamespace);
+    ClassOrNamespace *switchCurrentClassOrNamespace(ClassOrNamespace *classOrNamespace);
     ClassOrNamespace *enterEntity(Symbol *symbol);
     ClassOrNamespace *enterGlobalEntity(Symbol *symbol);
 
