@@ -50,6 +50,12 @@ const char * const IDE_VERSION_LONG      = IDE_VERSION;
 const char * const IDE_AUTHOR            = "Nokia Corporation";
 const char * const IDE_YEAR              = "2010";
 
+#ifdef IDE_VERSION_DESCRIPTION
+const char * const IDE_VERSION_DESCRIPTION_STR = STRINGIFY(IDE_VERSION_DESCRIPTION);
+#else
+const char * const IDE_VERSION_DESCRIPTION_STR = "";
+#endif
+
 #ifdef IDE_REVISION
 const char * const IDE_REVISION_STR      = STRINGIFY(IDE_REVISION);
 #else

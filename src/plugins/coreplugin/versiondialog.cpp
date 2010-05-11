@@ -61,7 +61,11 @@ VersionDialog::VersionDialog(QWidget *parent)
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
     QString version = QLatin1String(IDE_VERSION_LONG);
-    version += QDate(2007, 25, 10).toString(Qt::SystemLocaleDate);
+
+    QString ideVersionDescription;
+#ifdef IDE_VERSION_DESCRIPTION
+    ideVersionDescription = tr("(%1)").arg(QLatin1String(IDE_VERSION_DESCRIPTION_STR));
+#endif
 
     QString ideRev;
 #ifdef IDE_REVISION
@@ -70,21 +74,23 @@ VersionDialog::VersionDialog(QWidget *parent)
 #endif
 
      const QString description = tr(
-        "<h3>Qt Creator %1</h3>"
+        "<h3>Qt Creator %1 %8</h3>"
         "Based on Qt %2 (%3 bit)<br/>"
         "<br/>"
         "Built on %4 at %5<br />"
         "<br/>"
-        "%8"
+        "%9"
         "<br/>"
         "Copyright 2008-%6 %7. All rights reserved.<br/>"
         "<br/>"
         "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
         "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
         "PARTICULAR PURPOSE.<br/>")
-        .arg(version, QLatin1String(QT_VERSION_STR), QString::number(QSysInfo::WordSize),
+        .arg(version, 
+             QLatin1String(QT_VERSION_STR), QString::number(QSysInfo::WordSize),
              QLatin1String(__DATE__), QLatin1String(__TIME__), QLatin1String(IDE_YEAR),
-             (QLatin1String(IDE_AUTHOR)), ideRev);
+             (QLatin1String(IDE_AUTHOR)), ideVersionDescription,
+             ideRev);
 
     QLabel *copyRightLabel = new QLabel(description);
     copyRightLabel->setWordWrap(true);
