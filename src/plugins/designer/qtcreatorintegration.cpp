@@ -205,7 +205,7 @@ static const Class *findClass(const Namespace *parentNameSpace, const QString &c
     return 0;
 }
 
-static const Function *findDeclaration(const Class *cl, const QString &functionName)
+static Function *findDeclaration(const Class *cl, const QString &functionName)
 {
     const QString funName = QString::fromUtf8(QMetaObject::normalizedSignature(functionName.toUtf8()));
     const unsigned mCount = cl->memberCount();
@@ -213,8 +213,8 @@ static const Function *findDeclaration(const Class *cl, const QString &functionN
     // we are only interested in declarations of methods
     const Overview overview;
     for (unsigned j = 0; j < mCount; j++) { // go through all members
-        if (const Declaration *decl = cl->memberAt(j)->asDeclaration())
-            if (const Function *fun = decl->type()->asFunctionType()) {
+        if (Declaration *decl = cl->memberAt(j)->asDeclaration())
+            if (Function *fun = decl->type()->asFunctionType()) {
                 // Format signature
                 QString memberFunction = overview.prettyName(fun->name());
                 memberFunction += QLatin1Char('(');
@@ -235,118 +235,21 @@ static const Function *findDeclaration(const Class *cl, const QString &functionN
     return 0;
 }
 
-// TODO: remove me, see below
-static bool isCompatible(const Name *name, const Name *otherName)
-{
-    if (const NameId *nameId = name->asNameId()) {
-        if (const TemplateNameId *otherTemplId = otherName->asTemplateNameId())
-            return nameId->identifier()->isEqualTo(otherTemplId->identifier());
-    } else if (const TemplateNameId *templId = name->asTemplateNameId()) {
-        if (const NameId *otherNameId = otherName->asNameId())
-            return templId->identifier()->isEqualTo(otherNameId->identifier());
-    }
-
-    return name->isEqualTo(otherName);
-}
-
-// TODO: remove me, see below
-static bool isCompatible(const Function *definition, const Symbol *declaration, const QualifiedNameId *declarationName)
-{
-    Function *declTy = declaration->type()->asFunctionType();
-    if (! declTy)
-        return false;
-
-    const Name *definitionName = definition->name();
-    if (const QualifiedNameId *q = definitionName->asQualifiedNameId()) {
-        if (! isCompatible(q->unqualifiedNameId(), declaration->name()))
-            return false;
-        else if (q->nameCount() > declarationName->nameCount())
-            return false;
-        else if (declTy->argumentCount() != definition->argumentCount())
-            return false;
-        else if (declTy->isConst() != definition->isConst())
-            return false;
-        else if (declTy->isVolatile() != definition->isVolatile())
-            return false;
-
-        for (unsigned i = 0; i < definition->argumentCount(); ++i) {
-            Symbol *arg = definition->argumentAt(i);
-            Symbol *otherArg = declTy->argumentAt(i);
-            if (! arg->type().isEqualTo(otherArg->type()))
-                return false;
-        }
-
-        for (unsigned i = 0; i != q->nameCount(); ++i) {
-            const Name *n = q->nameAt(q->nameCount() - i - 1);
-            const Name *m = declarationName->nameAt(declarationName->nameCount() - i - 1);
-            if (! isCompatible(n, m))
-                return false;
-        }
-        return true;
-    } else {
-        // ### TODO: implement isCompatible for unqualified name ids.
-    }
-    return false;
-}
-
 // TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this method
-static Document::Ptr findDefinition(const Function *functionDeclaration, int *line)
+static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 {
-    CppTools::CppModelManagerInterface *cppModelManager = cppModelManagerInstance();
-    if (!cppModelManager)
-        return Document::Ptr();
+    if (CppTools::CppModelManagerInterface *cppModelManager = cppModelManagerInstance()) {
+        const Snapshot snapshot = cppModelManager->snapshot();
 
-    QVector<const Name *> qualifiedName;
-    Scope *scope = functionDeclaration->scope();
-    for (; scope; scope = scope->enclosingScope()) {
-        if (scope->isClassScope() || scope->isNamespaceScope()) {
-            if (scope->owner() && scope->owner()->name()) {
-                const Name *scopeOwnerName = scope->owner()->name();
-                if (const QualifiedNameId *q = scopeOwnerName->asQualifiedNameId()) {
-                    for (unsigned i = 0; i < q->nameCount(); ++i) {
-                        qualifiedName.prepend(q->nameAt(i));
+        if (Symbol *def = snapshot.findMatchingDefinition(functionDeclaration)) {
+            if (line)
+                *line = def->line();
 
-}
-                } else {
-                    qualifiedName.prepend(scopeOwnerName);
-                }
-            }
+            return snapshot.document(QString::fromUtf8(def->fileName(), def->fileNameLength()));
         }
     }
 
-    qualifiedName.append(functionDeclaration->name());
-
-    Control control;
-    const QualifiedNameId *q = control.qualifiedNameId(&qualifiedName[0], qualifiedName.size());
-    DeprecatedLookupContext context(&control);
-    const Snapshot documents = cppModelManager->snapshot();
-    foreach (Document::Ptr doc, documents) {
-        QList<Scope *> visibleScopes;
-        visibleScopes.append(doc->globalSymbols());
-        visibleScopes = context.expand(visibleScopes);
-        foreach (Scope *visibleScope, visibleScopes) {
-            Symbol *symbol = 0;
-            if (const NameId *nameId = q->unqualifiedNameId()->asNameId())
-                symbol = visibleScope->lookat(nameId->identifier());
-            else if (const DestructorNameId *dtorId = q->unqualifiedNameId()->asDestructorNameId())
-                symbol = visibleScope->lookat(dtorId->identifier());
-            else if (const TemplateNameId *templNameId = q->unqualifiedNameId()->asTemplateNameId())
-                symbol = visibleScope->lookat(templNameId->identifier());
-            else if (const OperatorNameId *opId = q->unqualifiedNameId()->asOperatorNameId())
-                symbol = visibleScope->lookat(opId->kind());
-            // ### cast operators
-            for (; symbol; symbol = symbol->next()) {
-                if (! symbol->isFunction())
-                    continue;
-                else if (! isCompatible(symbol->asFunction(), functionDeclaration, q))
-                    continue;
-                *line = symbol->line(); // TODO: shift the line so that we are inside a function. Maybe just find the nearest '{'?
-                return doc;
-            }
-        }
-    }
     return Document::Ptr();
-
 }
 
 static bool isEndingQuote(const QString &contents, int quoteIndex)
@@ -656,7 +559,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     int line = 0;
     Document::Ptr sourceDoc;
 
-    if (const Function *fun = findDeclaration(cl, functionName)) {
+    if (Function *fun = findDeclaration(cl, functionName)) {
         sourceDoc = findDefinition(fun, &line);
         if (!sourceDoc) {
             // add function definition to cpp file
