@@ -34,6 +34,7 @@
 #include "basetexteditor_p.h"
 #include "behaviorsettings.h"
 #include "codecselector.h"
+#include "completionsettings.h"
 #include "completionsupport.h"
 #include "tabsettings.h"
 #include "texteditorconstants.h"
@@ -179,7 +180,7 @@ static void convertToPlainText(QString &txt)
 BaseTextEditor::BaseTextEditor(QWidget *parent)
     : QPlainTextEdit(parent)
 {
-    d = new BaseTextEditorPrivate();
+    d = new BaseTextEditorPrivate;
     d->q = this;
     d->m_extraArea = new TextEditExtraArea(this);
     d->m_extraArea->setMouseTracking(true);
@@ -194,8 +195,6 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
 
     d->m_lastScrollPos = -1;
     setCursorWidth(2);
-
-    d->m_allowSkippingOfBlockEnd = false;
 
     // from RESEARCH
 
@@ -221,7 +220,6 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
 
 
     // parentheses matcher
-    d->m_parenthesesMatchingEnabled = false;
     d->m_formatRange = true;
     d->m_matchFormat.setForeground(Qt::red);
     d->m_rangeFormat.setBackground(QColor(0xb4, 0xee, 0xb4));
@@ -1686,6 +1684,16 @@ bool BaseTextEditor::isParenthesesMatchingEnabled() const
     return d->m_parenthesesMatchingEnabled;
 }
 
+void BaseTextEditor::setAutoParenthesesEnabled(bool b)
+{
+    d->m_autoParenthesesEnabled = b;
+}
+
+bool BaseTextEditor::isAutoParenthesesEnabled() const
+{
+    return d->m_autoParenthesesEnabled;
+}
+
 void BaseTextEditor::setHighlightCurrentLine(bool b)
 {
     d->m_highlightCurrentLine = b;
@@ -1814,8 +1822,10 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     :
     m_contentsChanged(false),
     m_lastCursorChangeWasInteresting(false),
-    m_document(new BaseTextDocument()),
+    m_allowSkippingOfBlockEnd(false),
+    m_document(new BaseTextDocument),
     m_parenthesesMatchingEnabled(false),
+    m_autoParenthesesEnabled(true),
     m_extraArea(0),
     m_mouseOnCollapsedMarker(false),
     m_marksVisible(false),
@@ -3866,13 +3876,16 @@ QString BaseTextEditor::autoComplete(QTextCursor &cursor, const QString &textToI
     const bool checkBlockEnd = d->m_allowSkippingOfBlockEnd;
     d->m_allowSkippingOfBlockEnd = false; // consume blockEnd.
 
+    if (!d->m_autoParenthesesEnabled)
+        return QString();
+
     if (!contextAllowsAutoParentheses(cursor, textToInsert))
         return QString();
 
     const QString text = textToInsert;
     const QChar lookAhead = characterAt(cursor.selectionEnd());
 
-    QChar character = textToInsert.at(0);
+    const QChar character = textToInsert.at(0);
     const QString parentheses = QLatin1String("()");
     const QString brackets = QLatin1String("[]");
     if (parentheses.contains(character) || brackets.contains(character)) {
@@ -3927,17 +3940,20 @@ bool BaseTextEditor::autoBackspace(QTextCursor &cursor)
 {
     d->m_allowSkippingOfBlockEnd = false;
 
+    if (!d->m_autoParenthesesEnabled)
+        return false;
+
     int pos = cursor.position();
     if (pos == 0)
         return false;
     QTextCursor c = cursor;
     c.setPosition(pos - 1);
 
-    QChar lookAhead = characterAt(pos);
-    QChar lookBehind = characterAt(pos-1);
-    QChar lookFurtherBehind = characterAt(pos-2);
+    const QChar lookAhead = characterAt(pos);
+    const QChar lookBehind = characterAt(pos - 1);
+    const QChar lookFurtherBehind = characterAt(pos - 2);
 
-    QChar character = lookBehind;
+    const QChar character = lookBehind;
     if (character == QLatin1Char('(') || character == QLatin1Char('[')) {
         QTextCursor tmp = cursor;
         TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tmp);
@@ -3982,7 +3998,10 @@ bool BaseTextEditor::autoBackspace(QTextCursor &cursor)
 
 int BaseTextEditor::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 {
-    if (characterAt(cursor.position()-1) != QLatin1Char('{'))
+    if (!d->m_autoParenthesesEnabled)
+        return 0;
+
+    if (characterAt(cursor.position() - 1) != QLatin1Char('{'))
         return 0;
 
     if (!contextAllowsAutoParentheses(cursor))
@@ -4883,6 +4902,11 @@ void BaseTextEditor::setBehaviorSettings(const TextEditor::BehaviorSettings &bs)
 void BaseTextEditor::setStorageSettings(const StorageSettings &storageSettings)
 {
     d->m_document->setStorageSettings(storageSettings);
+}
+
+void BaseTextEditor::setCompletionSettings(const TextEditor::CompletionSettings &completionSettings)
+{
+    setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
 }
 
 void BaseTextEditor::collapse()

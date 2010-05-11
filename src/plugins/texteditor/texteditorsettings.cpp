@@ -210,6 +210,8 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
             editor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
     connect(this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
+    connect(this, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
+            editor, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
 
     connect(editor, SIGNAL(requestFontZoom(int)),
             this, SLOT(fontZoomRequested(int)));
@@ -222,6 +224,7 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
     editor->setStorageSettings(storageSettings());
     editor->setBehaviorSettings(behaviorSettings());
     editor->setDisplaySettings(displaySettings());
+    editor->setCompletionSettings(completionSettings());
 }
 
 
