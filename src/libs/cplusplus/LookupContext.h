@@ -130,7 +130,7 @@ public:
     Control *control() const;
 
     /// \internal
-    void lookup_helper(const Name *name, Scope *scope, QList<Symbol *> *result,
+    void lookupInScope(const Name *name, Scope *scope, QList<Symbol *> *result,
                        const TemplateNameId *templateId);
 
 protected:

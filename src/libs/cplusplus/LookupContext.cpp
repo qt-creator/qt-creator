@@ -199,7 +199,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
     for (; scope; scope = scope->enclosingScope()) {
         if (id && scope->isBlockScope()) {
-            bindings()->lookup_helper(name, scope, &candidates, /*templateId = */ 0);
+            bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0);
 
             if (! candidates.isEmpty())
                 break; // it's a local.
@@ -223,7 +223,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
         } else if (scope->isFunctionScope()) {
             Function *fun = scope->owner()->asFunction();
-            bindings()->lookup_helper(name, fun->arguments(), &candidates, /*templateId = */ 0);
+            bindings()->lookupInScope(name, fun->arguments(), &candidates, /*templateId = */ 0);
             if (! candidates.isEmpty())
                 break; // it's a formal argument.
 
@@ -246,7 +246,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
         } else if (scope->isObjCMethodScope()) {
             ObjCMethod *method = scope->owner()->asObjCMethod();
-            bindings()->lookup_helper(name, method->arguments(), &candidates, /*templateId = */ 0);
+            bindings()->lookupInScope(name, method->arguments(), &candidates, /*templateId = */ 0);
             if (! candidates.isEmpty())
                 break; // it's a formal argument.
 
@@ -356,11 +356,11 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
 
         foreach (Symbol *s, binding->symbols()) {
             if (ScopedSymbol *scoped = s->asScopedSymbol())
-                _factory->lookup_helper(name, scoped->members(), result, templateId);
+                _factory->lookupInScope(name, scoped->members(), result, templateId);
         }
 
         foreach (Enum *e, binding->enums())
-            _factory->lookup_helper(name, e->members(), result, templateId);
+            _factory->lookupInScope(name, e->members(), result, templateId);
 
         foreach (ClassOrNamespace *u, binding->usings())
             lookup_helper(name, u, result, processed, binding->_templateId);
@@ -369,7 +369,7 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
     }
 }
 
-void CreateBindings::lookup_helper(const Name *name, Scope *scope,
+void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                                    QList<Symbol *> *result,
                                    const TemplateNameId *templateId)
 {
