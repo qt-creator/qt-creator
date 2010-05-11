@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "CppDocument.h"
-#include "CppBindings.h"
 #include "FastPreprocessor.h"
 
 #include <Control.h>
@@ -543,11 +542,6 @@ Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,
 
     newDoc->setSource(preprocessedCode);
     return newDoc;
-}
-
-QSharedPointer<NamespaceBinding> Snapshot::globalNamespaceBinding(Document::Ptr doc) const
-{
-    return CPlusPlus::bind(doc, *this);
 }
 
 Document::Ptr Snapshot::document(const QString &fileName) const

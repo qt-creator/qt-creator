@@ -36,6 +36,8 @@
 
 namespace CPlusPlus {
 
+class NamespaceBinding;
+
 class CPLUSPLUS_EXPORT DeprecatedLookupContext
 {
 public:

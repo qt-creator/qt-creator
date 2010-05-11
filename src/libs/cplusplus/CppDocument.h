@@ -42,7 +42,6 @@ namespace CPlusPlus {
 
 class Macro;
 class MacroArgumentReference;
-class NamespaceBinding;
 
 class CPLUSPLUS_EXPORT Document
 {
@@ -364,8 +363,6 @@ public:
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedCode,
                                      const QString &fileName) const;
-
-    QSharedPointer<NamespaceBinding> globalNamespaceBinding(Document::Ptr doc) const;
 
 private:
     void simplified_helper(Document::Ptr doc, Snapshot *snapshot) const;
