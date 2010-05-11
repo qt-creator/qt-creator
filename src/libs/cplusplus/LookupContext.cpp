@@ -304,7 +304,17 @@ ClassOrNamespace *ClassOrNamespace::globalNamespace() const
     return e;
 }
 
+QList<Symbol *> ClassOrNamespace::find(const Name *name)
+{
+    return lookup_helper(name, false);
+}
+
 QList<Symbol *> ClassOrNamespace::lookup(const Name *name)
+{
+    return lookup_helper(name, true);
+}
+
+QList<Symbol *> ClassOrNamespace::lookup_helper(const Name *name, bool searchInEnclosingScope)
 {
     QList<Symbol *> result;
     if (! name)
@@ -317,7 +327,7 @@ QList<Symbol *> ClassOrNamespace::lookup(const Name *name)
             binding = globalNamespace();
 
         if (q->nameCount() == 1)
-            return binding->lookup(q->unqualifiedNameId());
+            return binding->find(q->unqualifiedNameId());
 
         binding = binding->lookupClassOrNamespace(q->nameAt(0));
 
@@ -325,7 +335,7 @@ QList<Symbol *> ClassOrNamespace::lookup(const Name *name)
             binding = binding->findClassOrNamespace(q->nameAt(index));
 
         if (binding)
-            result = binding->lookup(q->unqualifiedNameId());
+            result = binding->find(q->unqualifiedNameId());
 
         return result;
     }
@@ -335,7 +345,7 @@ QList<Symbol *> ClassOrNamespace::lookup(const Name *name)
     do {
         lookup_helper(name, binding, &result, &processed, /*templateId = */ 0);
         binding = binding->_parent;
-    } while (binding);
+    } while (searchInEnclosingScope && binding);
 
     return result;
 }

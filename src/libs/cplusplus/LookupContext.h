@@ -56,6 +56,7 @@ public:
     ClassOrNamespace *globalNamespace() const;
 
     QList<Symbol *> lookup(const Name *name);
+    QList<Symbol *> find(const Name *name);
 
     ClassOrNamespace *lookupClassOrNamespace(const Name *name);
     ClassOrNamespace *findClassOrNamespace(const Name *name);
@@ -67,6 +68,8 @@ private:
 
     /// \internal
     ClassOrNamespace *findOrCreate(const Name *name);
+
+    QList<Symbol *> lookup_helper(const Name *name, bool searchInEnclosingScope);
 
     void addTodo(Symbol *symbol);
     void addSymbol(Symbol *symbol);

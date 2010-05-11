@@ -490,7 +490,7 @@ bool ResolveExpression::visit(CallAST *ast)
 
         if (NamedType *namedTy = ty->asNamedType()) {
             if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), lastVisibleSymbol)) {
-                foreach (Symbol *overload, b->lookup(functionCallOp)) {
+                foreach (Symbol *overload, b->find(functionCallOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         if (maybeValidPrototype(funTy, actualArgumentCount)) {
                             Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType();
@@ -535,7 +535,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
 
         } else if (NamedType *namedTy = ty->asNamedType()) {
             if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), lastVisibleSymbol)) {
-                foreach (Symbol *overload, b->lookup(arrayAccessOp)) {
+                foreach (Symbol *overload, b->find(arrayAccessOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType();
                         // ### TODO: check the actual arguments
@@ -610,7 +610,7 @@ ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, i
             }
 
             if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), result.lastVisibleSymbol())) {
-                foreach (Symbol *overload, b->lookup(arrowAccessOp)) {
+                foreach (Symbol *overload, b->find(arrowAccessOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         FullySpecifiedType f = instantiate(namedTy->name(), funTy);
                         FullySpecifiedType retTy = f->asFunctionType()->returnType().simplified();
@@ -687,7 +687,7 @@ ResolveExpression::resolveMemberExpression(const QList<LookupItem> &baseResults,
 
         else if (NamedType *namedTy = ty->asNamedType()) {
             if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), r.lastVisibleSymbol())) {
-                foreach (Symbol *c, b->lookup(memberName))
+                foreach (Symbol *c, b->find(memberName))
                     results.append(LookupItem(instantiate(namedTy->name(), c), c));
             }
         }
