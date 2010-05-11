@@ -50,9 +50,14 @@ class ProFileEvaluator
     class Private;
 
 public:
+    struct FunctionDef {
+        QString string;
+        int offset;
+    };
+
     struct FunctionDefs {
-        QHash<ProString, ProFunctionDef *> testFunctions;
-        QHash<ProString, ProFunctionDef *> replaceFunctions;
+        QHash<ProString, FunctionDef> testFunctions;
+        QHash<ProString, FunctionDef> replaceFunctions;
     };
 
     enum TemplateType {
@@ -108,6 +113,8 @@ private:
     friend struct ProFileOption;
     friend class ProFileCache;
 };
+
+Q_DECLARE_TYPEINFO(ProFileEvaluator::FunctionDef, Q_MOVABLE_TYPE);
 
 class ProFileCache
 {

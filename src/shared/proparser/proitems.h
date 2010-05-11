@@ -62,6 +62,9 @@ public:
     ProString(const QString &str, ProStringConstants::OmitPreHashing);
     explicit ProString(const char *str);
     ProString(const char *str, ProStringConstants::OmitPreHashing);
+    ProString(const QString &str, int offset, int length);
+    ProString(const QString &str, int offset, int length, uint hash);
+    ProString(const QString &str, int offset, int length, ProStringConstants::OmitPreHashing);
     QString toQString() const;
     QString &toQString(QString &tmp) const;
     bool operator==(const ProString &other) const;
@@ -78,6 +81,8 @@ public:
     ProString right(int len) const { return mid(qMax(0, size() - len)); }
     ProString trimmed() const;
     void clear() { m_string.clear(); m_length = 0; }
+
+    static uint hash(const QChar *p, int n);
 
 private:
     QString m_string;
@@ -104,130 +109,38 @@ public:
     void removeDuplicates();
 };
 
-class ProItem
-{
-public:
-    enum ProItemKind {
-        ConditionKind,
-        OpNotKind,
-        OpAndKind,
-        OpOrKind,
-        VariableKind,
-        BranchKind,
-        LoopKind,
-        FunctionDefKind
-    };
-
-    ProItem(ProItemKind kind) : m_kind(kind), m_lineNumber(0) {}
-
-    ProItemKind kind() const { return m_kind; }
-
-    int lineNumber() const { return m_lineNumber; }
-    void setLineNumber(int lineNumber) { m_lineNumber = lineNumber; }
-
-    ProItem *next() const { return m_next; }
-    ProItem **nextRef() { return &m_next; }
-
-    static void disposeItems(ProItem *nitm);
-
-private:
-    ProItem *m_next;
-    ProItemKind m_kind;
-    int m_lineNumber;
-};
-
-class ProVariable : public ProItem
-{
-public:
-    enum VariableOperator {
-        AddOperator         = 0,
-        RemoveOperator      = 1,
-        ReplaceOperator     = 2,
-        SetOperator         = 3,
-        UniqueAddOperator   = 4
-    };
-
-    ProVariable(const ProString &name) : ProItem(VariableKind),
-            m_variableKind(SetOperator), m_variable(name) {}
-    void setVariableOperator(VariableOperator variableKind) { m_variableKind = variableKind; }
-    VariableOperator variableOperator() const { return m_variableKind; }
-    ProString variable() const { return m_variable; }
-    void setValue(const ProString &value) { m_value = value; }
-    ProString value() const { return m_value; }
-
-private:
-    VariableOperator m_variableKind;
-    ProString m_variable;
-    ProString m_value;
-};
-
-class ProCondition : public ProItem
-{
-public:
-    explicit ProCondition(const QString &text) : ProItem(ConditionKind), m_text(text) {}
-    QString text() const { return m_text; }
-
-private:
-    QString m_text;
-};
-
-class ProBranch : public ProItem
-{
-public:
-    ProBranch() : ProItem(BranchKind) {}
-    ~ProBranch();
-
-    ProItem *thenItems() const { return m_thenItems; }
-    ProItem **thenItemsRef() { return &m_thenItems; }
-    ProItem *elseItems() const { return m_elseItems; }
-    ProItem **elseItemsRef() { return &m_elseItems; }
-
-private:
-    ProItem *m_thenItems;
-    ProItem *m_elseItems;
-};
-
-class ProLoop : public ProItem
-{
-public:
-    ProLoop(const QString &var, const QString &expr)
-        : ProItem(LoopKind), m_variable(ProString(var)),
-          m_expression(ProString(expr, ProStringConstants::NoHash)) {}
-    ~ProLoop();
-
-    ProString variable() const { return m_variable; }
-    ProString expression() const { return m_expression; }
-    ProItem *items() const { return m_proitems; }
-    ProItem **itemsRef() { return &m_proitems; }
-
-private:
-    ProString m_variable;
-    ProString m_expression;
-    ProItem *m_proitems;
-};
-
-class ProFunctionDef : public ProItem
-{
-public:
-    enum FunctionType { TestFunction, ReplaceFunction };
-
-    ProFunctionDef(const QString &name, FunctionType type)
-        : ProItem(FunctionDefKind), m_name(ProString(name)), m_type(type), m_refCount(1) {}
-    ~ProFunctionDef();
-
-    ProString name() const { return m_name; }
-    FunctionType type() const { return m_type; }
-    ProItem *items() const { return m_proitems; }
-    ProItem **itemsRef() { return &m_proitems; }
-
-    void ref() { m_refCount.ref(); }
-    void deref() { if (!m_refCount.deref()) delete this; }
-
-private:
-    ProString m_name;
-    FunctionType m_type;
-    ProItemRefCount m_refCount;
-    ProItem *m_proitems;
+// These token definitions affect both ProFileEvaluator and ProWriter
+enum ProToken {
+    TokTerminator = 0,  // end of stream (possibly not included in length; must be zero)
+    TokLine,            // line marker: // +1 (2-nl) to 1st token of each line
+                        // - line (1)
+    TokAssign,          // variable =   // "A=":2 => 1+4+2=7 (8)
+    TokAppend,          // variable +=  // "A+=":3 => 1+4+2=7 (8)
+    TokAppendUnique,    // variable *=  // "A*=":3 => 1+4+2=7 (8)
+    TokRemove,          // variable -=  // "A-=":3 => 1+4+2=7 (8)
+    TokReplace,         // variable ~=  // "A~=":3 => 1+4+2=7 (8)
+                        // - variable name: hash (2), length (1), chars (length)
+                        // - expression: length (2), chars (length)
+    TokCondition,       // CONFIG test:   // "A":1 => 1+2=3 (4)
+                        // - test name: lenght (1), chars (length)
+    TokNot,             // '!' operator
+    TokAnd,             // ':' operator
+    TokOr,              // '|' operator
+    TokBranch,          // branch point:   // "X:A=":4 => [5]+1+4+1+1+[7]=19 (20)
+                        // - then block length (2)
+                        // - then block + TokTerminator (then block length)
+                        // - else block length (2)
+                        // - else block + TokTerminator (else block length)
+    TokForLoop,         // for loop:   // "for(A,B)":8 => 1+4+3+2+1=11 (12)
+                        // - variable name: hash (2), length (1), chars (length)
+                        // - expression: length (2), chars (length)
+                        // - body length (2)
+                        // - body + TokTerminator (body length)
+    TokTestDef,         // test function definition:     // "defineTest(A):":14 => 1+4+2+1=8 (9)
+    TokReplaceDef,      // replace function definition:  // "defineReplace(A):":17 => 1+4+2+1=8 (9)
+                        // - function name: hash (2), length (1), chars (length)
+                        // - body length (2)
+                        // - body + TokTerminator (body length)
 };
 
 class ProFile
@@ -239,15 +152,15 @@ public:
     QString displayFileName() const { return m_displayFileName; }
     QString fileName() const { return m_fileName; }
     QString directoryName() const { return m_directoryName; }
-    ProItem *items() const { return m_proitems; }
-    ProItem **itemsRef() { return &m_proitems; }
+    const QString &items() const { return m_proitems; }
+    QString *itemsRef() { return &m_proitems; }
 
     void ref() { m_refCount.ref(); }
     void deref() { if (!m_refCount.deref()) delete this; }
 
 private:
-    ProItem *m_proitems;
     ProItemRefCount m_refCount;
+    QString m_proitems;
     QString m_fileName;
     QString m_displayFileName;
     QString m_directoryName;

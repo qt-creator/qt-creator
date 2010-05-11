@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 using namespace ProStringConstants;
 
 // from qhash.cpp
-static uint hash(const QChar *p, int n)
+uint ProString::hash(const QChar *p, int n)
 {
     uint h = 0;
 
@@ -83,6 +83,22 @@ ProString::ProString(const char *str) :
 
 ProString::ProString(const char *str, OmitPreHashing) :
     m_string(QString::fromLatin1(str)), m_offset(0), m_length(qstrlen(str)), m_hash(0x80000000)
+{
+}
+
+ProString::ProString(const QString &str, int offset, int length) :
+        m_string(str), m_offset(offset), m_length(length)
+{
+    updatedHash();
+}
+
+ProString::ProString(const QString &str, int offset, int length, uint hash) :
+    m_string(str), m_offset(offset), m_length(length), m_hash(hash)
+{
+}
+
+ProString::ProString(const QString &str, int offset, int length, ProStringConstants::OmitPreHashing) :
+    m_string(str), m_offset(offset), m_length(length), m_hash(0x80000000)
 {
 }
 
@@ -231,44 +247,8 @@ void ProStringList::removeDuplicates()
         erase(begin() + j, end());
 }
 
-void ProItem::disposeItems(ProItem *nitm)
-{
-    for (ProItem *itm; (itm = nitm); ) {
-        nitm = itm->next();
-        switch (itm->kind()) {
-        case ProItem::ConditionKind: delete static_cast<ProCondition *>(itm); break;
-        case ProItem::VariableKind: delete static_cast<ProVariable *>(itm); break;
-        case ProItem::BranchKind: delete static_cast<ProBranch *>(itm); break;
-        case ProItem::LoopKind: delete static_cast<ProLoop *>(itm); break;
-        case ProItem::FunctionDefKind: static_cast<ProFunctionDef *>(itm)->deref(); break;
-        case ProItem::OpNotKind:
-        case ProItem::OpAndKind:
-        case ProItem::OpOrKind:
-            delete itm;
-            break;
-        }
-    }
-}
-
-ProBranch::~ProBranch()
-{
-    disposeItems(m_thenItems);
-    disposeItems(m_elseItems);
-}
-
-ProLoop::~ProLoop()
-{
-    disposeItems(m_proitems);
-}
-
-ProFunctionDef::~ProFunctionDef()
-{
-    disposeItems(m_proitems);
-}
-
 ProFile::ProFile(const QString &fileName)
-    : m_proitems(0),
-      m_refCount(1),
+    : m_refCount(1),
       m_fileName(fileName)
 {
     int nameOff = fileName.lastIndexOf(QLatin1Char('/'));
@@ -279,7 +259,6 @@ ProFile::ProFile(const QString &fileName)
 
 ProFile::~ProFile()
 {
-    ProItem::disposeItems(m_proitems);
 }
 
 QT_END_NAMESPACE

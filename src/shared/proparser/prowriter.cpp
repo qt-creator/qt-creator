@@ -35,20 +35,98 @@
 
 using namespace Qt4ProjectManager::Internal;
 
+static uint getBlockLen(const ushort *&tokPtr)
+{
+    uint len = *tokPtr++;
+    len |= (uint)*tokPtr++ << 16;
+    return len;
+}
+
+static QString &getHashStr(const ushort *&tokPtr, QString &tmp)
+{
+    tokPtr += 2; // ignore hash
+    uint len = *tokPtr++;
+    tmp.setRawData((const QChar *)tokPtr, len);
+    tokPtr += len;
+    return tmp;
+}
+
+static void skipStr(const ushort *&tokPtr)
+{
+    uint len = *tokPtr++;
+    tokPtr += len;
+}
+
+static void skipHashStr(const ushort *&tokPtr)
+{
+    tokPtr += 2;
+    uint len = *tokPtr++;
+    tokPtr += len;
+}
+
+static void skipLongStr(const ushort *&tokPtr)
+{
+    uint len = getBlockLen(tokPtr);
+    tokPtr += len;
+}
+
+static void skipBlock(const ushort *&tokPtr)
+{
+    uint len = getBlockLen(tokPtr);
+    tokPtr += len;
+}
+
+static void skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
+{
+    switch (tok) {
+    case TokLine:
+        lineNo = *tokPtr++;
+        break;
+    case TokAssign:
+    case TokAppend:
+    case TokAppendUnique:
+    case TokRemove:
+    case TokReplace:
+        skipHashStr(tokPtr);
+        skipLongStr(tokPtr);
+        break;
+    case TokBranch:
+        skipBlock(tokPtr);
+        skipBlock(tokPtr);
+        break;
+    case TokForLoop:
+        skipHashStr(tokPtr);
+        skipLongStr(tokPtr);
+        skipBlock(tokPtr);
+        break;
+    case TokTestDef:
+    case TokReplaceDef:
+        skipHashStr(tokPtr);
+        skipBlock(tokPtr);
+        break;
+    case TokNot:
+    case TokAnd:
+    case TokOr:
+        break;
+    case TokCondition:
+        skipStr(tokPtr);
+        break;
+    default: Q_ASSERT_X(false, "skipToken", "unexpected item type");
+    }
+}
+
 void ProWriter::addFiles(ProFile *profile, QStringList *lines,
                          const QDir &proFileDir, const QStringList &filePaths,
                          const QString &var)
 {
     // Check if variable item exists as child of root item
-    for (ProItem *item = profile->items(); item; item = item->next()) {
-        if (item->kind() == ProItem::VariableKind) {
-            ProVariable *proVar = static_cast<ProVariable*>(item);
-            if (var == proVar->variable().toQString()
-                && proVar->variableOperator() != ProVariable::RemoveOperator
-                && proVar->variableOperator() != ProVariable::ReplaceOperator) {
-
-                int lineNo = proVar->lineNumber() - 1;
-                for (; lineNo < lines->count(); lineNo++) {
+    const ushort *tokPtr = (const ushort *)profile->items().constData();
+    int lineNo = 0;
+    QString tmp;
+    while (ushort tok = *tokPtr++) {
+        if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
+            if (var == getHashStr(tokPtr, tmp)) {
+                for (--lineNo; lineNo < lines->count(); lineNo++) {
                     QString line = lines->at(lineNo);
                     int idx = line.indexOf(QLatin1Char('#'));
                     if (idx >= 0)
@@ -74,6 +152,9 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
                 lines->insert(lineNo, added);
                 return;
             }
+            skipLongStr(tokPtr);
+        } else {
+            skipToken(tok, tokPtr, lineNo);
         }
     }
 
@@ -84,17 +165,25 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
     *lines << added;
 }
 
-static void findProVariables(ProItem *item, const QStringList &vars,
-                             QList<ProVariable *> *proVars)
+static void findProVariables(const ushort *tokPtr, const QStringList &vars,
+                             QList<int> *proVars)
 {
-    for (; item; item = item->next()) {
-        if (item->kind() == ProItem::BranchKind) {
-            findProVariables(static_cast<ProBranch*>(item)->thenItems(), vars, proVars);
-            findProVariables(static_cast<ProBranch*>(item)->elseItems(), vars, proVars);
-        } else if (item->kind() == ProItem::VariableKind) {
-            ProVariable *proVar = static_cast<ProVariable*>(item);
-            if (vars.contains(proVar->variable().toQString()))
-                *proVars << proVar;
+    int lineNo = 0;
+    QString tmp;
+    while (ushort tok = *tokPtr++) {
+        if (tok == TokBranch) {
+            uint blockLen = getBlockLen(tokPtr);
+            findProVariables(tokPtr, vars, proVars);
+            tokPtr += blockLen;
+            blockLen = getBlockLen(tokPtr);
+            findProVariables(tokPtr, vars, proVars);
+            tokPtr += blockLen;
+        } else if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
+            if (vars.contains(getHashStr(tokPtr, tmp)))
+                *proVars << lineNo;
+            skipLongStr(tokPtr);
+        } else {
+            skipToken(tok, tokPtr, lineNo);
         }
     }
 }
@@ -105,8 +194,8 @@ QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
 {
     QStringList notChanged = filePaths;
 
-    QList<ProVariable *> proVars;
-    findProVariables(profile->items(), vars, &proVars);
+    QList<int> varLines;
+    findProVariables((const ushort *)profile->items().constData(), vars, &varLines);
 
     // This is a tad stupid - basically, it can remove only entries which
     // the above code added.
@@ -116,109 +205,105 @@ QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
 
     // This code expects proVars to be sorted by the variables' appearance in the file.
     int delta = 1;
-    foreach (ProVariable *proVar, proVars) {
-        if (proVar->variableOperator() != ProVariable::RemoveOperator
-            && proVar->variableOperator() != ProVariable::ReplaceOperator) {
-
-            bool first = true;
-            int lineNo = proVar->lineNumber() - delta;
-            typedef QPair<int, int> ContPos;
-            QList<ContPos> contPos;
-            while (lineNo < lines->count()) {
-                QString &line = (*lines)[lineNo];
-                int lineLen = line.length();
-                bool killed = false;
-                bool saved = false;
-                int idx = line.indexOf(QLatin1Char('#'));
-                if (idx >= 0)
-                    lineLen = idx;
-                QChar *chars = line.data();
-                forever {
-                    if (!lineLen) {
-                        if (idx >= 0)
-                            goto nextLine;
-                        goto nextVar;
-                    }
-                    QChar c = chars[lineLen - 1];
-                    if (c != QLatin1Char(' ') && c != QLatin1Char('\t'))
-                        break;
-                    lineLen--;
-                }
-                {
-                    int contCol = -1;
-                    if (chars[lineLen - 1] == QLatin1Char('\\'))
-                        contCol = --lineLen;
-                    int colNo = 0;
-                    if (first) {
-                        colNo = line.indexOf(QLatin1Char('=')) + 1;
-                        first = false;
-                        saved = true;
-                    }
-                    while (colNo < lineLen) {
-                        QChar c = chars[colNo];
-                        if (c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
-                            colNo++;
-                            continue;
-                        }
-                        int varCol = colNo;
-                        while (colNo < lineLen) {
-                            QChar c = chars[colNo];
-                            if (c == QLatin1Char(' ') || c == QLatin1Char('\t'))
-                                break;
-                            colNo++;
-                        }
-                        QString fn = line.mid(varCol, colNo - varCol);
-                        if (relativeFilePaths.contains(fn)) {
-                            notChanged.removeOne(QDir::cleanPath(proFileDir.absoluteFilePath(fn)));
-                            if (colNo < lineLen)
-                                colNo++;
-                            else if (varCol)
-                                varCol--;
-                            int len = colNo - varCol;
-                            colNo = varCol;
-                            line.remove(varCol, len);
-                            lineLen -= len;
-                            contCol -= len;
-                            idx -= len;
-                            if (idx >= 0)
-                                line.insert(idx, QLatin1String("# ") + fn + QLatin1Char(' '));
-                            killed = true;
-                        } else {
-                            saved = true;
-                        }
-                    }
-                    if (saved) {
-                        // Entries remained
-                        contPos.clear();
-                    } else if (killed) {
-                        // Entries existed, but were all removed
-                        if (contCol < 0) {
-                            // This is the last line, so clear continuations leading to it
-                            foreach (const ContPos &pos, contPos) {
-                                QString &bline = (*lines)[pos.first];
-                                bline.remove(pos.second, 1);
-                                if (pos.second == bline.length())
-                                    while (bline.endsWith(QLatin1Char(' '))
-                                           || bline.endsWith(QLatin1Char('\t')))
-                                        bline.chop(1);
-                            }
-                            contPos.clear();
-                        }
-                        if (idx < 0) {
-                            // Not even a comment stayed behind, so zap the line
-                            lines->removeAt(lineNo);
-                            delta++;
-                            continue;
-                        }
-                    }
-                    if (contCol >= 0)
-                        contPos.append(qMakePair(lineNo, contCol));
-                }
-              nextLine:
-                lineNo++;
-            }
-          nextVar: ;
-        }
+    foreach (int ln, varLines) {
+       bool first = true;
+       int lineNo = ln - delta;
+       typedef QPair<int, int> ContPos;
+       QList<ContPos> contPos;
+       while (lineNo < lines->count()) {
+           QString &line = (*lines)[lineNo];
+           int lineLen = line.length();
+           bool killed = false;
+           bool saved = false;
+           int idx = line.indexOf(QLatin1Char('#'));
+           if (idx >= 0)
+               lineLen = idx;
+           QChar *chars = line.data();
+           forever {
+               if (!lineLen) {
+                   if (idx >= 0)
+                       goto nextLine;
+                   goto nextVar;
+               }
+               QChar c = chars[lineLen - 1];
+               if (c != QLatin1Char(' ') && c != QLatin1Char('\t'))
+                   break;
+               lineLen--;
+           }
+           {
+               int contCol = -1;
+               if (chars[lineLen - 1] == QLatin1Char('\\'))
+                   contCol = --lineLen;
+               int colNo = 0;
+               if (first) {
+                   colNo = line.indexOf(QLatin1Char('=')) + 1;
+                   first = false;
+                   saved = true;
+               }
+               while (colNo < lineLen) {
+                   QChar c = chars[colNo];
+                   if (c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
+                       colNo++;
+                       continue;
+                   }
+                   int varCol = colNo;
+                   while (colNo < lineLen) {
+                       QChar c = chars[colNo];
+                       if (c == QLatin1Char(' ') || c == QLatin1Char('\t'))
+                           break;
+                       colNo++;
+                   }
+                   QString fn = line.mid(varCol, colNo - varCol);
+                   if (relativeFilePaths.contains(fn)) {
+                       notChanged.removeOne(QDir::cleanPath(proFileDir.absoluteFilePath(fn)));
+                       if (colNo < lineLen)
+                           colNo++;
+                       else if (varCol)
+                           varCol--;
+                       int len = colNo - varCol;
+                       colNo = varCol;
+                       line.remove(varCol, len);
+                       lineLen -= len;
+                       contCol -= len;
+                       idx -= len;
+                       if (idx >= 0)
+                           line.insert(idx, QLatin1String("# ") + fn + QLatin1Char(' '));
+                       killed = true;
+                   } else {
+                       saved = true;
+                   }
+               }
+               if (saved) {
+                   // Entries remained
+                   contPos.clear();
+               } else if (killed) {
+                   // Entries existed, but were all removed
+                   if (contCol < 0) {
+                       // This is the last line, so clear continuations leading to it
+                       foreach (const ContPos &pos, contPos) {
+                           QString &bline = (*lines)[pos.first];
+                           bline.remove(pos.second, 1);
+                           if (pos.second == bline.length())
+                               while (bline.endsWith(QLatin1Char(' '))
+                                      || bline.endsWith(QLatin1Char('\t')))
+                                   bline.chop(1);
+                       }
+                       contPos.clear();
+                   }
+                   if (idx < 0) {
+                       // Not even a comment stayed behind, so zap the line
+                       lines->removeAt(lineNo);
+                       delta++;
+                       continue;
+                   }
+               }
+               if (contCol >= 0)
+                   contPos.append(qMakePair(lineNo, contCol));
+           }
+         nextLine:
+           lineNo++;
+       }
+     nextVar: ;
     }
     return notChanged;
 }

@@ -81,26 +81,6 @@ QT_BEGIN_NAMESPACE
 using namespace ProStringConstants;
 
 
-static void refFunctions(QHash<ProString, ProFunctionDef *> *defs)
-{
-    foreach (ProFunctionDef *itm, *defs)
-        itm->ref();
-}
-
-static void clearFunctions(QHash<ProString, ProFunctionDef *> *defs)
-{
-    foreach (ProFunctionDef *itm, *defs)
-        itm->deref();
-    defs->clear();
-}
-
-static void clearFunctions(ProFileEvaluator::FunctionDefs *defs)
-{
-    clearFunctions(&defs->replaceFunctions);
-    clearFunctions(&defs->testFunctions);
-}
-
-
 ///////////////////////////////////////////////////////////////////////
 //
 // ProFileCache
@@ -177,7 +157,6 @@ ProFileOption::ProFileOption()
 
 ProFileOption::~ProFileOption()
 {
-    clearFunctions(&base_functions);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -199,29 +178,15 @@ public:
 
     /////////////// Reading pro file
 
-    struct BlockCursor {
-        BlockCursor() : cursor(0) {}
-        BlockCursor(BlockCursor &other) : cursor(other.cursor) { other.cursor = 0; }
-        BlockCursor(ProItem **itp) : cursor(itp) {}
-        ~BlockCursor() { if (cursor) *cursor = 0; }
-        BlockCursor &operator=(BlockCursor &other) { cursor = other.cursor; other.cursor = 0; return *this; }
-        void set(ProItem **itp) { if (cursor) *cursor = 0; cursor = itp; }
-        void reset() { if (cursor) { *cursor = 0; cursor = 0; } }
-        void append(ProItem *item) { *cursor = item; cursor = item->nextRef(); }
-        bool isValid() const { return cursor != 0; }
-    private:
-        ProItem **cursor;
-    };
-
     struct BlockScope {
-        BlockScope() : braceLevel(0), special(false) {}
+        BlockScope() : start(0), braceLevel(0), special(false), inBranch(false) {}
         BlockScope(BlockScope &other) :
-                cursor(other.cursor), elseCursor(other.elseCursor),
-                braceLevel(other.braceLevel), special(other.special) {}
-        BlockCursor cursor; // Current appending position
-        BlockCursor elseCursor; // Appending position for else branch of last conditional in scope
+                start(other.start), braceLevel(other.braceLevel),
+                special(other.special), inBranch(other.inBranch) {}
+        ushort *start; // Where this block started; store length here
         int braceLevel; // Nesting of braces in scope
         bool special; // Single-line conditionals cannot have else branches
+        bool inBranch; // The 'else' branch of the previous TokBranch is still open
     };
 
     enum ScopeState {
@@ -232,21 +197,26 @@ public:
 
     bool read(ProFile *pro);
     bool read(ProFile *pro, const QString &content);
-    bool read(ProItem **itp, const QString &content);
-    bool readInternal(ProItem **itp, const QString &content, ushort *buf);
+    bool read(QString *out, const QString &content);
+    bool readInternal(QString *out, const QString &content, ushort *buf);
 
-    void updateItem(ushort *uc, ushort *ptr);
-    ProVariable *startVariable(ushort *uc, ushort *ptr);
-    void finalizeVariable(ProVariable *var, ushort *uc, ushort *ptr);
-    void insertOperator(ProItem::ProItemKind opkind);
-    void enterScope(BlockCursor &cursor, bool special, ScopeState state);
-    void enterScope(ProItem **itp, bool special, ScopeState state)
-        { BlockCursor curs(itp); enterScope(curs, special, state); }
-    void flushCond();
-    void flushScopes();
+    ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
+    ALWAYS_INLINE void putBlockLen(ushort *&tokPtr, uint len);
+    ALWAYS_INLINE void putBlock(ushort *&tokPtr, const ushort *buf, uint len);
+    void putHashStr(ushort *&pTokPtr, const ushort *buf, uint len);
+    ALWAYS_INLINE void putHashStr(ushort *&pTokPtr, const ushort *buf, const ushort *ptr);
+    ALWAYS_INLINE void putHashStr(ushort *&pTokPtr, const QString &str);
+    void putLineMarker(ushort *&tokPtr);
+    void updateItem(ushort *&tokPtr, ushort *uc, ushort *ptr);
+    bool startVariable(ushort *&tokPtr, ushort *uc, ushort *ptr);
+    void enterScope(ushort *&tokPtr, bool special, ScopeState state);
+    void leaveScope(ushort *&tokPtr);
+    void flushCond(ushort *&tokPtr);
+    void flushScopes(ushort *&tokPtr);
 
     QStack<BlockScope> m_blockstack;
     ScopeState m_state;
+    bool m_lineMarked; // Current line already got a marker
     bool m_canElse; // Conditionals met on previous line, but no scope was opened
     bool m_invert; // Pending conditional is negated
     enum { NoOperator, AndOperator, OrOperator } m_operator; // Pending conditional is ORed/ANDed
@@ -261,12 +231,21 @@ public:
         ReturnReturn
     };
 
+    static ALWAYS_INLINE uint getBlockLen(const ushort *&tokPtr);
+    ProString getStr(const ushort *&tokPtr);
+    ProString getHashStr(const ushort *&tokPtr);
+    ProString getLongStr(const ushort *&tokPtr);
+    static ALWAYS_INLINE void skipStr(const ushort *&tokPtr);
+    static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
+    inline void skipLongStr(const ushort *&tokPtr);
+
     VisitReturn visitProFile(ProFile *pro);
-    VisitReturn visitProBlock(ProItem *items);
-    VisitReturn visitProLoop(ProLoop *loop);
-    void visitProFunctionDef(ProFunctionDef *def);
-    void visitProVariable(ProVariable *variable);
-    VisitReturn visitProCondition(ProCondition *condition);
+    VisitReturn visitProBlock(const ushort *tokPtr);
+    VisitReturn visitProLoop(const ProString &variable, const ProString &expression,
+                             const ushort *tokPtr);
+    void visitProFunctionDef(ushort tok, const ProString &name, const ushort *tokPtr);
+    void visitProVariable(ushort tok, const ProString &varName, const ProString &value);
+    VisitReturn visitProCondition(const ProString &text);
 
     static inline ProString map(const ProString &var);
     QHash<ProString, ProStringList> *findValues(const ProString &variableName,
@@ -304,7 +283,7 @@ public:
         { return b ? ReturnTrue : ReturnFalse; }
 
     QList<ProStringList> prepareFunctionArgs(const ProString &arguments);
-    ProStringList evaluateFunction(ProFunctionDef *func, const QList<ProStringList> &argumentsList, bool *ok);
+    ProStringList evaluateFunction(const FunctionDef &func, const QList<ProStringList> &argumentsList, bool *ok);
 
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
@@ -313,6 +292,7 @@ public:
     int m_loopLevel; // To report unexpected break() and next()s
     bool m_cumulative;
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
+    QStack<QString> m_stringStack;                  // To handle token string refcounting
 
     QString m_outputDir;
 
@@ -356,7 +336,6 @@ public:
 };
 
 #if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
-Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::BlockCursor, Q_MOVABLE_TYPE);
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::BlockScope, Q_MOVABLE_TYPE);
 #endif
 
@@ -557,7 +536,6 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option)
 
 ProFileEvaluator::Private::~Private()
 {
-    clearFunctions(&m_functionDefs);
 }
 
 ////////// Parser ///////////
@@ -591,21 +569,85 @@ bool ProFileEvaluator::Private::read(ProFile *pro, const QString &content)
     return ret;
 }
 
-bool ProFileEvaluator::Private::read(ProItem **itp, const QString &content)
+bool ProFileEvaluator::Private::read(QString *out, const QString &content)
 {
     QString buf;
     buf.reserve(content.size());
     m_lineNo = 0;
-    return readInternal(itp, content, (ushort*)buf.data());
+    return readInternal(out, content, (ushort*)buf.data());
+}
+
+void ProFileEvaluator::Private::putTok(ushort *&tokPtr, ushort tok)
+{
+    *tokPtr++ = tok;
+}
+
+void ProFileEvaluator::Private::putBlockLen(ushort *&tokPtr, uint len)
+{
+    *tokPtr++ = (ushort)len;
+    *tokPtr++ = (ushort)(len >> 16);
+}
+
+static void putStr(ushort *&pTokPtr, const QString &str)
+{
+    ushort *tokPtr = pTokPtr;
+    uint len = str.length();
+    *tokPtr++ = (ushort)len;
+    memcpy(tokPtr, str.constData(), len * 2);
+    pTokPtr = tokPtr + len;
+}
+
+void ProFileEvaluator::Private::putHashStr(ushort *&pTokPtr, const ushort *buf, uint len)
+{
+    uint hash = ProString::hash((const QChar *)buf, len);
+    ushort *tokPtr = pTokPtr;
+    *tokPtr++ = (ushort)hash;
+    *tokPtr++ = (ushort)(hash >> 16);
+    *tokPtr++ = (ushort)len;
+    memcpy(tokPtr, buf, len * 2);
+    pTokPtr = tokPtr + len;
+}
+
+void ProFileEvaluator::Private::putHashStr(ushort *&pTokPtr, const ushort *buf, const ushort *ptr)
+{
+    putHashStr(pTokPtr, buf, ptr - buf);
+}
+
+void ProFileEvaluator::Private::putHashStr(ushort *&pTokPtr, const QString &str)
+{
+    putHashStr(pTokPtr, (const ushort *)str.constData(), str.length());
+}
+
+static void putLongStr(ushort *&pTokPtr, const ushort *buf, uint len)
+{
+    ushort *tokPtr = pTokPtr;
+    *tokPtr++ = (ushort)len;
+    *tokPtr++ = (ushort)(len >> 16);
+    memcpy(tokPtr, buf, len * 2);
+    pTokPtr = tokPtr + len;
+}
+
+static void putLongStr(ushort *&pTokPtr, const ushort *buf, const ushort *ptr)
+{
+    putLongStr(pTokPtr, buf, ptr - buf);
+}
+
+static void putLongStr(ushort *&pTokPtr, const QString &str)
+{
+    putLongStr(pTokPtr, (const ushort *)str.constData(), str.length());
 }
 
 // We know that the buffer cannot grow larger than the input string,
 // and the read() functions rely on it.
-bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, ushort *buf)
+bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in, ushort *buf)
 {
+    // Expression precompiler buffer
+    QString tokBuff;
+    tokBuff.reserve((in.size() + 1) * 5);
+    ushort *tokPtr = (ushort *)tokBuff.constData(); // Current writing position
+
     // Parser state
     m_blockstack.resize(m_blockstack.size() + 1);
-    m_blockstack.top().cursor.set(itp);
 
     // We rely on QStrings being null-terminated, so don't maintain a global end pointer.
     const ushort *cur = (const ushort *)in.unicode();
@@ -614,7 +656,8 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
     m_state = StNew;
     m_invert = false;
     m_operator = NoOperator;
-    ProVariable *currAssignment = 0;
+    m_lineMarked = false;
+    bool inAssignment = false;
     ushort *ptr = buf;
     int parens = 0;
     bool inError = false;
@@ -627,19 +670,23 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
         for (;; ++cur) {
             c = *cur;
             if (c == '\n' || !c) { // Entirely empty line (sans whitespace)
-                if (currAssignment) {
-                    finalizeVariable(currAssignment, buf, ptr);
-                    currAssignment = 0;
+                if (inAssignment) {
+                    putLongStr(tokPtr, buf, ptr);
+                    inAssignment = false;
                 } else {
-                    updateItem(buf, ptr);
+                    updateItem(tokPtr, buf, ptr);
                 }
                 if (c) {
                     ++cur;
                     ++m_lineNo;
                     goto freshLine;
                 }
+                flushScopes(tokPtr);
                 if (m_blockstack.size() > 1)
                     logMessage(format("Missing closing brace(s)."));
+                while (m_blockstack.size())
+                    leaveScope(tokPtr);
+                *out = QString(tokBuff.constData(), tokPtr - (ushort *)tokBuff.constData());
                 return true;
             }
             if (c != ' ' && c != '\t' && c != '\r')
@@ -694,7 +741,7 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
 
         if (!inError) {
             // Finally, do the tokenization
-            if (!currAssignment) {
+            if (!inAssignment) {
               newItem:
                 do {
                     if (cur == end)
@@ -714,7 +761,7 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
                             --parens;
                         } else if (!parens) {
                             if (c == ':') {
-                                updateItem(buf, ptr);
+                                updateItem(tokPtr, buf, ptr);
                                 if (m_state == StNew)
                                     logMessage(format("And operator without prior condition."));
                                 else
@@ -725,7 +772,7 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
                                 goto newItem;
                             }
                             if (c == '|') {
-                                updateItem(buf, ptr);
+                                updateItem(tokPtr, buf, ptr);
                                 if (m_state != StCond)
                                     logMessage(format("Or operator without prior condition."));
                                 else
@@ -733,26 +780,27 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
                                 goto nextItem;
                             }
                             if (c == '{') {
-                                updateItem(buf, ptr);
-                                flushCond();
+                                updateItem(tokPtr, buf, ptr);
+                                flushCond(tokPtr);
                                 ++m_blockstack.top().braceLevel;
                                 goto nextItem;
                             }
                             if (c == '}') {
-                                updateItem(buf, ptr);
-                                flushScopes();
+                                updateItem(tokPtr, buf, ptr);
+                                flushScopes(tokPtr);
                                 if (!m_blockstack.top().braceLevel)
                                     errorMessage(format("Excess closing brace."));
                                 else if (!--m_blockstack.top().braceLevel
                                          && m_blockstack.count() != 1) {
-                                    m_blockstack.resize(m_blockstack.size() - 1);
+                                    leaveScope(tokPtr);
                                     m_state = StNew;
                                     m_canElse = false;
+                                    m_lineMarked = false;
                                 }
                                 goto nextItem;
                             }
                             if (c == '=') {
-                                if ((currAssignment = startVariable(buf, ptr))) {
+                                if ((inAssignment = startVariable(tokPtr, buf, ptr))) {
                                     ptr = buf;
                                     putSpace = false;
                                     break;
@@ -779,7 +827,7 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
                         putSpace = true;
                     }
                 }
-            } // !currAssignment
+            } // !inAssignment
 
             do {
                 if (cur == end)
@@ -806,11 +854,11 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
             if (lineCont) {
                 putSpace = (ptr != buf);
             } else {
-                if (currAssignment) {
-                    finalizeVariable(currAssignment, buf, ptr);
-                    currAssignment = 0;
+                if (inAssignment) {
+                    putLongStr(tokPtr, buf, ptr);
+                    inAssignment = false;
                 } else {
-                    updateItem(buf, ptr);
+                    updateItem(tokPtr, buf, ptr);
                 }
                 ptr = buf;
                 putSpace = false;
@@ -828,99 +876,106 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
     }
 }
 
-ProVariable *ProFileEvaluator::Private::startVariable(ushort *uc, ushort *ptr)
+bool ProFileEvaluator::Private::startVariable(ushort *&tokPtr, ushort *uc, ushort *ptr)
 {
-    flushCond();
+    flushCond(tokPtr);
 
     if (ptr == uc) // Line starting with '=', like a conflict marker
-        return 0;
+        return false;
 
-    ProVariable::VariableOperator opkind;
+    putLineMarker(tokPtr);
+
+    ProToken opkind;
     switch (*(ptr - 1)) {
         case '+':
             --ptr;
-            opkind = ProVariable::AddOperator;
+            opkind = TokAppend;
             break;
         case '-':
             --ptr;
-            opkind = ProVariable::RemoveOperator;
+            opkind = TokRemove;
             break;
         case '*':
             --ptr;
-            opkind = ProVariable::UniqueAddOperator;
+            opkind = TokAppendUnique;
             break;
         case '~':
             --ptr;
-            opkind = ProVariable::ReplaceOperator;
+            opkind = TokReplace;
             break;
         default:
-            opkind = ProVariable::SetOperator;
+            opkind = TokAssign;
             goto skipTrunc;
     }
 
     if (ptr == uc) // Line starting with manipulation operator
-        return 0;
+        return false;
     if (*(ptr - 1) == ' ')
         --ptr;
 
   skipTrunc:
-    ProVariable *variable = new ProVariable(map(ProString(QString((QChar*)uc, ptr - uc))));
-    variable->setLineNumber(m_lineNo);
-    variable->setVariableOperator(opkind);
-    return variable;
+    putTok(tokPtr, opkind);
+    putHashStr(tokPtr, uc, ptr);
+    return true;
 }
 
-void ProFileEvaluator::Private::finalizeVariable(ProVariable *variable, ushort *uc, ushort *ptr)
+void ProFileEvaluator::Private::putLineMarker(ushort *&tokPtr)
 {
-    variable->setValue(ProString(QString((QChar*)uc, ptr - uc), NoHash));
-
-    m_blockstack.top().cursor.append(variable);
+    if (!m_lineMarked) {
+        m_lineMarked = true;
+        *tokPtr++ = TokLine;
+        *tokPtr++ = (ushort)m_lineNo;
+    }
 }
 
-void ProFileEvaluator::Private::enterScope(BlockCursor &cursor, bool special, ScopeState state)
+void ProFileEvaluator::Private::enterScope(ushort *&tokPtr, bool special, ScopeState state)
 {
     m_blockstack.resize(m_blockstack.size() + 1);
-    m_blockstack.top().cursor = cursor;
     m_blockstack.top().special = special;
+    m_blockstack.top().start = tokPtr;
+    tokPtr += 2;
     m_state = state;
     m_canElse = false;
 }
 
-void ProFileEvaluator::Private::flushScopes()
+void ProFileEvaluator::Private::leaveScope(ushort *&tokPtr)
+{
+    if (m_blockstack.top().inBranch) {
+        // Put empty else block
+        putBlockLen(tokPtr, 0);
+    }
+    if (ushort *start = m_blockstack.top().start) {
+        putTok(tokPtr, TokTerminator);
+        uint len = tokPtr - start - 2;
+        start[0] = (ushort)len;
+        start[1] = (ushort)(len >> 16);
+    }
+    m_blockstack.resize(m_blockstack.size() - 1);
+}
+
+void ProFileEvaluator::Private::flushScopes(ushort *&tokPtr)
 {
     if (m_state == StNew) {
         while (!m_blockstack.top().braceLevel && m_blockstack.size() > 1)
-            m_blockstack.resize(m_blockstack.size() - 1);
-        m_blockstack.top().elseCursor.reset();
+            leaveScope(tokPtr);
+        if (m_blockstack.top().inBranch) {
+            m_blockstack.top().inBranch = false;
+            // Put empty else block
+            putBlockLen(tokPtr, 0);
+        }
         m_canElse = false;
     }
 }
 
-void ProFileEvaluator::Private::flushCond()
+void ProFileEvaluator::Private::flushCond(ushort *&tokPtr)
 {
     if (m_state == StCond) {
-        ProBranch *blk = new ProBranch();
-        blk->setLineNumber(m_lineNo);
-        BlockScope &top = m_blockstack.top();
-        top.cursor.append(blk);
-        if (!top.special || top.braceLevel) {
-            top.elseCursor.set(blk->elseItemsRef());
-        } else {
-            *blk->elseItemsRef() = 0;
-            // elseCursor was either never set in this scope
-            // or the last flushScopes reset it.
-        }
-        enterScope(blk->thenItemsRef(), false, StNew);
+        putTok(tokPtr, TokBranch);
+        m_blockstack.top().inBranch = true;
+        enterScope(tokPtr, false, StNew);
     } else {
-        flushScopes();
+        flushScopes(tokPtr);
     }
-}
-
-void ProFileEvaluator::Private::insertOperator(ProItem::ProItemKind opkind)
-{
-    ProItem *proOp = new ProItem(opkind);
-    proOp->setLineNumber(m_lineNo);
-    m_blockstack.top().cursor.append(proOp);
 }
 
 static bool get_next_arg(const QString &params, int *pos, QString *out)
@@ -979,7 +1034,7 @@ static bool isKeyFunc(const QString &str, const QString &key, int *pos)
     return true;
 }
 
-void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
+void ProFileEvaluator::Private::updateItem(ushort *&tokPtr, ushort *uc, ushort *ptr)
 {
     if (ptr == uc)
         return;
@@ -987,7 +1042,7 @@ void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
     QString str((QChar*)uc, ptr - uc);
     int pos;
     const QString *defName;
-    ProFunctionDef::FunctionType defType;
+    ushort defType;
     if (!str.compare(statics.strelse, Qt::CaseInsensitive)) {
         if (m_invert || m_operator != NoOperator) {
             logMessage(format("Unexpected operator in front of else."));
@@ -995,27 +1050,28 @@ void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
         }
         BlockScope &top = m_blockstack.top();
         if (m_canElse && (!top.special || top.braceLevel)) {
-            ProBranch *blk = new ProBranch();
-            blk->setLineNumber(m_lineNo);
-            *blk->thenItemsRef() = 0;
-            top.cursor.append(blk);
-            enterScope(blk->elseItemsRef(), false, StCtrl);
+            putTok(tokPtr, TokBranch);
+            // Put empty then block
+            *tokPtr++ = 0;
+            *tokPtr++ = 0;
+            enterScope(tokPtr, false, StCtrl);
             return;
         }
         forever {
             BlockScope &top = m_blockstack.top();
-            if (top.elseCursor.isValid()) {
-                BlockCursor cursor(top.elseCursor); // ref into stack becomes stale
-                enterScope(cursor, false, StCtrl);
+            if (top.inBranch && (!top.special || top.braceLevel)) {
+                top.inBranch = false;
+                enterScope(tokPtr, false, StCtrl);
                 return;
             }
             if (top.braceLevel || m_blockstack.size() == 1)
                 break;
-            m_blockstack.resize(m_blockstack.size() - 1);
+            leaveScope(tokPtr);
         }
         errorMessage(format("Unexpected 'else'."));
     } else if (isKeyFunc(str, statics.strfor, &pos)) {
-        flushCond();
+        flushCond(tokPtr);
+        putLineMarker(tokPtr);
         if (m_invert || m_operator == OrOperator) {
             // '|' could actually work reasonably, but qmake does nonsense here.
             logMessage(format("Unexpected operator in front of for()."));
@@ -1031,18 +1087,20 @@ void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
             expr = var;
             var.clear();
         }
-        ProLoop *loop = new ProLoop(var, expr);
-        m_blockstack.top().cursor.append(loop);
-        enterScope(loop->itemsRef(), true, StCtrl);
+        putTok(tokPtr, TokForLoop);
+        putHashStr(tokPtr, var);
+        putLongStr(tokPtr, expr);
+        enterScope(tokPtr, true, StCtrl);
     } else if (isKeyFunc(str, statics.strdefineReplace, &pos)) {
         defName = &statics.strdefineReplace;
-        defType = ProFunctionDef::ReplaceFunction;
+        defType = TokReplaceDef;
         goto deffunc;
     } else if (isKeyFunc(str, statics.strdefineTest, &pos)) {
         defName = &statics.strdefineTest;
-        defType = ProFunctionDef::TestFunction;
+        defType = TokTestDef;
       deffunc:
-        flushScopes();
+        flushScopes(tokPtr);
+        putLineMarker(tokPtr);
         if (m_invert) {
             logMessage(format("Unexpected operator in front of function definition."));
             return;
@@ -1053,31 +1111,85 @@ void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
             return;
         }
         if (m_operator != NoOperator) {
-            insertOperator(m_operator == AndOperator ? ProItem::OpAndKind : ProItem::OpOrKind);
+            putTok(tokPtr, (m_operator == AndOperator) ? TokAnd : TokOr);
             m_operator = NoOperator;
         }
-        ProFunctionDef *def = new ProFunctionDef(func, defType);
-        m_blockstack.top().cursor.append(def);
-        enterScope(def->itemsRef(), true, StCtrl);
+        putTok(tokPtr, defType);
+        putHashStr(tokPtr, func);
+        enterScope(tokPtr, true, StCtrl);
     } else {
-        flushScopes();
+        flushScopes(tokPtr);
+        putLineMarker(tokPtr);
         if (m_operator != NoOperator) {
-            insertOperator(m_operator == AndOperator ? ProItem::OpAndKind : ProItem::OpOrKind);
+            putTok(tokPtr, (m_operator == AndOperator) ? TokAnd : TokOr);
             m_operator = NoOperator;
         }
         if (m_invert) {
-            insertOperator(ProItem::OpNotKind);
+            putTok(tokPtr, TokNot);
             m_invert = false;
         }
-        ProItem *item = new ProCondition(str);
-        item->setLineNumber(m_lineNo);
-        m_blockstack.top().cursor.append(item);
+        putTok(tokPtr, TokCondition);
+        putStr(tokPtr, str);
         m_state = StCond;
         m_canElse = true;
     }
 }
 
 //////// Evaluator tools /////////
+
+uint ProFileEvaluator::Private::getBlockLen(const ushort *&tokPtr)
+{
+    uint len = *tokPtr++;
+    len |= (uint)*tokPtr++ << 16;
+    return len;
+}
+
+ProString ProFileEvaluator::Private::getStr(const ushort *&tokPtr)
+{
+    const QString &str(m_stringStack.top());
+    uint len = *tokPtr++;
+    ProString ret(str, tokPtr - (const ushort *)str.constData(), len, NoHash);
+    tokPtr += len;
+    return ret;
+}
+
+ProString ProFileEvaluator::Private::getHashStr(const ushort *&tokPtr)
+{
+    uint hash = getBlockLen(tokPtr);
+    uint len = *tokPtr++;
+    const QString &str(m_stringStack.top());
+    ProString ret(str, tokPtr - (const ushort *)str.constData(), len, hash);
+    tokPtr += len;
+    return ret;
+}
+
+ProString ProFileEvaluator::Private::getLongStr(const ushort *&tokPtr)
+{
+    uint len = getBlockLen(tokPtr);
+    const QString &str(m_stringStack.top());
+    ProString ret(str, tokPtr - (const ushort *)str.constData(), len, NoHash);
+    tokPtr += len;
+    return ret;
+}
+
+void ProFileEvaluator::Private::skipStr(const ushort *&tokPtr)
+{
+    uint len = *tokPtr++;
+    tokPtr += len;
+}
+
+void ProFileEvaluator::Private::skipHashStr(const ushort *&tokPtr)
+{
+    tokPtr += 2;
+    uint len = *tokPtr++;
+    tokPtr += len;
+}
+
+void ProFileEvaluator::Private::skipLongStr(const ushort *&tokPtr)
+{
+    uint len = getBlockLen(tokPtr);
+    tokPtr += len;
+}
 
 // FIXME: this should not build new strings for direct sections.
 // Note that the E_SPRINTF and E_LIST implementations rely on the deep copy.
@@ -1201,58 +1313,98 @@ static bool isTrue(const ProString &_str, QString &tmp)
 
 //////// Evaluator /////////
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(ProItem *items)
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
+        const ushort *tokPtr)
 {
     bool okey = true, or_op = false, invert = false;
+    uint blockLen;
     VisitReturn ret = ReturnTrue;
-    for (ProItem *itm = items; itm; itm = itm->next()) {
-        switch (itm->kind()) {
-        case ProItem::VariableKind:
-            visitProVariable(static_cast<ProVariable*>(itm));
+    while (ushort tok = *tokPtr++) {
+        switch (tok) {
+        case TokLine:
+            m_lineNo = *tokPtr++;
             continue;
-        case ProItem::BranchKind:
+        case TokAssign:
+        case TokAppend:
+        case TokAppendUnique:
+        case TokRemove:
+        case TokReplace: {
+            const ProString &varName = getHashStr(tokPtr);
+            const ProString &varVal = getLongStr(tokPtr);
+            visitProVariable(tok, varName, varVal);
+            continue; }
+        case TokBranch:
+            blockLen = getBlockLen(tokPtr);
             if (m_cumulative) {
                 if (!okey)
                     m_skipLevel++;
-                ret = visitProBlock(static_cast<ProBranch*>(itm)->thenItems());
+                ret = blockLen ? visitProBlock(tokPtr) : ReturnTrue;
+                tokPtr += blockLen;
+                blockLen = getBlockLen(tokPtr);
                 if (!okey)
                     m_skipLevel--;
                 else
                     m_skipLevel++;
-                if (ret == ReturnTrue || ret == ReturnFalse)
-                    ret = visitProBlock(static_cast<ProBranch*>(itm)->elseItems());
+                if ((ret == ReturnTrue || ret == ReturnFalse) && blockLen)
+                    ret = visitProBlock(tokPtr);
                 if (okey)
                     m_skipLevel--;
             } else {
-                ret = visitProBlock(okey ? static_cast<ProBranch*>(itm)->thenItems()
-                                         : static_cast<ProBranch*>(itm)->elseItems());
+                if (okey)
+                    ret = blockLen ? visitProBlock(tokPtr) : ReturnTrue;
+                tokPtr += blockLen;
+                blockLen = getBlockLen(tokPtr);
+                if (!okey)
+                    ret = blockLen ? visitProBlock(tokPtr) : ReturnTrue;
             }
+            tokPtr += blockLen;
             okey = true, or_op = false; // force next evaluation
             break;
-        case ProItem::LoopKind:
-            if (m_cumulative) // This is a no-win situation, so just pretend it's no loop
-                ret = visitProBlock(static_cast<ProLoop*>(itm)->items());
-            else if (okey != or_op)
-                ret = visitProLoop(static_cast<ProLoop*>(itm));
+        case TokForLoop:
+            if (m_cumulative) { // This is a no-win situation, so just pretend it's no loop
+                skipHashStr(tokPtr);
+                skipLongStr(tokPtr);
+                blockLen = getBlockLen(tokPtr);
+                ret = visitProBlock(tokPtr);
+            } else if (okey != or_op) {
+                const ProString &variable = getHashStr(tokPtr);
+                const ProString &expression = getLongStr(tokPtr);
+                blockLen = getBlockLen(tokPtr);
+                ret = visitProLoop(variable, expression, tokPtr);
+            } else {
+                skipHashStr(tokPtr);
+                skipLongStr(tokPtr);
+                blockLen = getBlockLen(tokPtr);
+                ret = ReturnTrue;
+            }
+            tokPtr += blockLen;
             okey = true, or_op = false; // force next evaluation
             break;
-        case ProItem::FunctionDefKind:
-            if (m_cumulative || okey != or_op)
-                visitProFunctionDef(static_cast<ProFunctionDef *>(itm));
+        case TokTestDef:
+        case TokReplaceDef:
+            if (m_cumulative || okey != or_op) {
+                const ProString &name = getHashStr(tokPtr);
+                blockLen = getBlockLen(tokPtr);
+                visitProFunctionDef(tok, name, tokPtr);
+            } else {
+                skipHashStr(tokPtr);
+                blockLen = getBlockLen(tokPtr);
+            }
+            tokPtr += blockLen;
             okey = true, or_op = false; // force next evaluation
             continue;
-        case ProItem::OpNotKind:
+        case TokNot:
             invert ^= true;
-            break;
-        case ProItem::OpAndKind:
+            continue;
+        case TokAnd:
             or_op = false;
-            break;
-        case ProItem::OpOrKind:
+            continue;
+        case TokOr:
             or_op = true;
-            break;
-        case ProItem::ConditionKind:
+            continue;
+        case TokCondition:
             if (!m_skipLevel && okey != or_op) {
-                ret = visitProCondition(static_cast<ProCondition*>(itm));
+                ret = visitProCondition(getStr(tokPtr));
                 switch (ret) {
                 case ReturnTrue: okey = true; break;
                 case ReturnFalse: okey = false; break;
@@ -1261,12 +1413,14 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
                 okey ^= invert;
             } else if (m_cumulative) {
                 m_skipLevel++;
-                visitProCondition(static_cast<ProCondition*>(itm));
+                visitProCondition(getStr(tokPtr));
                 m_skipLevel--;
+            } else {
+                skipStr(tokPtr);
             }
             or_op = !okey; // tentatively force next evaluation
             invert = false;
-            break;
+            continue;
         default: Q_ASSERT_X(false, "visitProBlock", "unexpected item type");
         }
         if (ret != ReturnTrue && ret != ReturnFalse)
@@ -1276,34 +1430,36 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
 }
 
 
-void ProFileEvaluator::Private::visitProFunctionDef(ProFunctionDef *def)
+void ProFileEvaluator::Private::visitProFunctionDef(
+        ushort tok, const ProString &name, const ushort *tokPtr)
 {
-    QHash<ProString, ProFunctionDef *> *hash =
-            (def->type() == ProFunctionDef::TestFunction
+    QHash<ProString, FunctionDef> *hash =
+            (tok == TokTestDef
              ? &m_functionDefs.testFunctions
              : &m_functionDefs.replaceFunctions);
-    if (ProFunctionDef *xdef = hash->value(def->name()))
-        xdef->deref();
-    hash->insert(def->name(), def);
-    def->ref();
+    FunctionDef def;
+    def.string = m_stringStack.top();
+    def.offset = tokPtr - (const ushort *)def.string.constData();
+    hash->insert(name, def);
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(ProLoop *loop)
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
+        const ProString &_variable, const ProString &expression, const ushort *tokPtr)
 {
     VisitReturn ret = ReturnTrue;
     bool infinite = false;
     int index = 0;
     ProString variable;
     ProStringList oldVarVal;
-    ProString it_list = expandVariableReferences(loop->expression(), 0, true).first();
-    if (loop->variable().isEmpty()) {
+    ProString it_list = expandVariableReferences(expression, 0, true).first();
+    if (_variable.isEmpty()) {
         if (it_list != statics.strever) {
             logMessage(format("Invalid loop expression."));
             return ReturnFalse;
         }
         it_list = ProString(statics.strforever);
     } else {
-        variable = map(loop->variable());
+        variable = map(_variable);
         oldVarVal = valuesDirect(variable);
     }
     ProStringList list = valuesDirect(it_list);
@@ -1351,7 +1507,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(P
             m_valuemapStack.top()[variable] = ProStringList(val);
         }
 
-        ret = visitProBlock(loop->items());
+        ret = visitProBlock(tokPtr);
         switch (ret) {
         case ReturnTrue:
         case ReturnFalse:
@@ -1374,15 +1530,13 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(P
     return ret;
 }
 
-void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
+void ProFileEvaluator::Private::visitProVariable(
+        ushort tok, const ProString &varName, const ProString &value)
 {
-    m_lineNo = var->lineNumber();
-    const ProString &varName = var->variable();
-
-    if (var->variableOperator() == ProVariable::ReplaceOperator) {      // ~=
+    if (tok == TokReplace) {      // ~=
         // DEFINES ~= s/a/b/?[gqi]
 
-        const ProStringList &varVal = expandVariableReferences(var->value(), 0, true);
+        const ProStringList &varVal = expandVariableReferences(value, 0, true);
         const QString &val = varVal.at(0).toQString(m_tmp1);
         if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
             logMessage(format("the ~= operator can handle only the s/// function."));
@@ -1415,10 +1569,10 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
             replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global, m_tmp2);
         }
     } else {
-        const ProStringList &varVal = expandVariableReferences(var->value());
-        switch (var->variableOperator()) {
-        default: // ReplaceOperator - cannot happen
-        case ProVariable::SetOperator:          // =
+        const ProStringList &varVal = expandVariableReferences(value);
+        switch (tok) {
+        default: // whatever - cannot happen
+        case TokAssign:          // =
             if (!m_cumulative) {
                 if (!m_skipLevel) {
                     m_valuemapStack.top()[varName] = varVal;
@@ -1430,19 +1584,19 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
                 m_filevaluemap[currentProFile()][varName] += varVal;
             }
             break;
-        case ProVariable::UniqueAddOperator:    // *=
+        case TokAppendUnique:    // *=
             if (!m_skipLevel || m_cumulative) {
                 insertUnique(&valuesRef(varName), varVal);
                 insertUnique(&m_filevaluemap[currentProFile()][varName], varVal);
             }
             break;
-        case ProVariable::AddOperator:          // +=
+        case TokAppend:          // +=
             if (!m_skipLevel || m_cumulative) {
                 valuesRef(varName) += varVal;
                 m_filevaluemap[currentProFile()][varName] += varVal;
             }
             break;
-        case ProVariable::RemoveOperator:       // -=
+        case TokRemove:       // -=
             if (!m_cumulative) {
                 if (!m_skipLevel) {
                     removeEach(&valuesRef(varName), varVal);
@@ -1456,21 +1610,21 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
     }
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProCondition(
+        const ProString &text)
 {
-    if (cond->text().endsWith(QLatin1Char(')'))) {
+    const QString &txt = text.toQString(m_tmp1);
+    if (txt.endsWith(QLatin1Char(')'))) {
         if (!m_cumulative && m_skipLevel)
             return ReturnTrue;
-        int lparen = cond->text().indexOf(QLatin1Char('('));
-        ProString text(cond->text());
+        int lparen = txt.indexOf(QLatin1Char('('));
         ProString arguments = text.mid(lparen + 1, text.size() - lparen - 2);
         ProString funcName = text.left(lparen).trimmed();
-        m_lineNo = cond->lineNumber();
         return evaluateConditionalFunction(funcName, arguments);
     } else {
         if (m_skipLevel)
             return ReturnTrue;
-        return returnBool(isActiveConfig(cond->text(), true));
+        return returnBool(isActiveConfig(txt, true));
     }
 }
 
@@ -1595,11 +1749,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
             }
 
             m_valuemapStack.top() = m_option->base_valuemap;
-
-            clearFunctions(&m_functionDefs);
             m_functionDefs = m_option->base_functions;
-            refFunctions(&m_functionDefs.testFunctions);
-            refFunctions(&m_functionDefs.replaceFunctions);
 
             ProStringList &tgt = m_valuemapStack.top()[ProString("TARGET")];
             if (tgt.isEmpty())
@@ -1613,7 +1763,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
         }
     }
 
-    visitProBlock(pro->items());
+    m_stringStack.push(pro->items());
+    visitProBlock((const ushort *)pro->items().constData());
+    m_stringStack.pop();
 
     if (m_profileStack.count() == 1) {
         if (m_parsePreAndPostFiles) {
@@ -2119,16 +2271,18 @@ QList<ProStringList> ProFileEvaluator::Private::prepareFunctionArgs(const ProStr
 }
 
 ProStringList ProFileEvaluator::Private::evaluateFunction(
-        ProFunctionDef *funcPtr, const QList<ProStringList> &argumentsList, bool *ok)
+        const FunctionDef &func, const QList<ProStringList> &argumentsList, bool *ok)
 {
     bool oki;
     ProStringList ret;
 
+    const ushort *tokPtr = (const ushort *)func.string.constData() + func.offset;
     if (m_valuemapStack.count() >= 100) {
         errorMessage(format("ran into infinite recursion (depth > 100)."));
         oki = false;
     } else {
         m_valuemapStack.push(QHash<ProString, ProStringList>());
+        m_stringStack.push(func.string);
         int loopLevel = m_loopLevel;
         m_loopLevel = 0;
 
@@ -2138,11 +2292,12 @@ ProStringList ProFileEvaluator::Private::evaluateFunction(
             m_valuemapStack.top()[ProString(QString::number(i+1))] = argumentsList[i];
         }
         m_valuemapStack.top()[statics.strARGS] = args;
-        oki = (visitProBlock(funcPtr->items()) != ReturnFalse); // True || Return
+        oki = (visitProBlock(tokPtr) != ReturnFalse); // True || Return
         ret = m_returnValue;
         m_returnValue.clear();
 
         m_loopLevel = loopLevel;
+        m_stringStack.pop();
         m_valuemapStack.pop();
     }
     if (ok)
@@ -2155,8 +2310,10 @@ ProStringList ProFileEvaluator::Private::evaluateFunction(
 ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         const ProString &func, const ProString &arguments)
 {
-    if (ProFunctionDef *funcPtr = m_functionDefs.replaceFunctions.value(func, 0))
-        return evaluateFunction(funcPtr, prepareFunctionArgs(arguments), 0);
+    QHash<ProString, FunctionDef>::ConstIterator it =
+            m_functionDefs.replaceFunctions.constFind(func);
+    if (it != m_functionDefs.replaceFunctions.constEnd())
+        return evaluateFunction(*it, prepareFunctionArgs(arguments), 0);
 
     //why don't the builtin functions just use args_list? --Sam
     int pos = 0;
@@ -2542,9 +2699,11 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         const ProString &function, const ProString &arguments)
 {
-    if (ProFunctionDef *funcPtr = m_functionDefs.testFunctions.value(function, 0)) {
+    QHash<ProString, FunctionDef>::ConstIterator it =
+            m_functionDefs.testFunctions.constFind(function);
+    if (it != m_functionDefs.testFunctions.constEnd()) {
         bool ok;
-        ProStringList ret = evaluateFunction(funcPtr, prepareFunctionArgs(arguments), &ok);
+        ProStringList ret = evaluateFunction(*it, prepareFunctionArgs(arguments), &ok);
         if (ok) {
             if (ret.isEmpty()) {
                 return ReturnTrue;
@@ -2658,12 +2817,13 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         case T_REQUIRES:
 #endif
         case T_EVAL: {
-                ProItem *pro;
+                QString pro;
                 QString buf = args.join(QLatin1String(" "));
                 if (!readInternal(&pro, buf, (ushort*)buf.data()))
                     return ReturnFalse;
-                VisitReturn ret = visitProBlock(pro);
-                ProItem::disposeItems(pro);
+                m_stringStack.push(pro);
+                VisitReturn ret = visitProBlock((const ushort *)pro.constData());
+                m_stringStack.pop();
                 return ret;
             }
         case T_BREAK:
@@ -3354,12 +3514,8 @@ bool ProFileEvaluator::Private::evaluateFileInto(
     if (!visitor.d->evaluateFile(fileName))
         return false;
     *values = visitor.d->m_valuemapStack.top();
-    if (funcs) {
+    if (funcs)
         *funcs = visitor.d->m_functionDefs;
-        // So they are not unref'd
-        visitor.d->m_functionDefs.testFunctions.clear();
-        visitor.d->m_functionDefs.replaceFunctions.clear();
-    }
     return true;
 }
 
