@@ -282,6 +282,9 @@ Core::IWizard *NewDialog::showDialog()
     for (int row = 0; row < m_proxyModel->rowCount(); ++row)
         m_ui->templateCategoryView->setExpanded(m_proxyModel->index(row, 0), true);
 
+    // Ensure that item description is visible on first show
+    currentItemChanged(m_ui->templatesView->rootIndex().child(0,0));
+
     updateOkButton();
     if (exec() != Accepted)
         return 0;
