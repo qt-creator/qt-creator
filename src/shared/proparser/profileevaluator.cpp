@@ -616,7 +616,8 @@ bool ProFileEvaluator::Private::readInternal(ProItem **itp, const QString &in, u
                     ++m_lineNo;
                     goto freshLine;
                 }
-                m_blockstack.clear(); // FIXME: should actually check the state here
+                if (m_blockstack.size() > 1)
+                    logMessage(format("Missing closing brace(s)."));
                 return true;
             }
             if (c != ' ' && c != '\t' && c != '\r')
