@@ -30,27 +30,28 @@
 #ifndef GENERICEDITORPLUGIN_H
 #define GENERICEDITORPLUGIN_H
 
+#include <coreplugin/mimedatabase.h>
 #include <extensionsystem/iplugin.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QLatin1String>
 #include <QtCore/QHash>
 #include <QtCore/QMultiHash>
 #include <QtCore/QSet>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QFutureWatcher>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
 class QStringList;
+template <class> class QFutureInterface;
 QT_END_NAMESPACE
 
 namespace GenericEditor {
 namespace Internal {
 
 class HighlightDefinition;
-class HighlightDefinitionMetadata;
 class Editor;
 class EditorFactory;
 
@@ -75,17 +76,19 @@ public:
     const QSharedPointer<HighlightDefinition> &definition(const QString &id);
 
 private slots:
-    void lookforAvailableDefinitions();
+    void registerMimeTypes();
+    void registerMimeType(int index) const;
 
 private:
     Q_DISABLE_COPY(GenericEditorPlugin)
 
     static GenericEditorPlugin *m_instance;
 
-    void parseDefinitionMetadata(const QFileInfo &fileInfo);
-    void registerMimeTypes(const QString &comment,
-                           const QStringList &types,
-                           const QStringList &patterns);
+    void gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future);
+    void parseDefinitionMetadata(const QFileInfo &fileInfo,
+                                 QString *comment,
+                                 QStringList *mimeTypes,
+                                 QStringList *patterns);
 
     struct PriorityCompare
     {
@@ -99,6 +102,8 @@ private:
     TextEditor::TextEditorActionHandler *m_actionHandler;
 
     EditorFactory *m_factory;
+
+    QFutureWatcher<Core::MimeType> m_watcher;
 
     QHash<QString, QString> m_idByName;
     QMultiHash<QString, QString> m_idByMimeType;

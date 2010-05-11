@@ -109,9 +109,6 @@ private:
     QString m_multiLineCommentRegion;
 
     Qt::CaseSensitivity m_keywordCaseSensitivity;
-
-    QString m_languageName;
-    QString m_fileExtensions;
 };
 
 } // namespace Internal

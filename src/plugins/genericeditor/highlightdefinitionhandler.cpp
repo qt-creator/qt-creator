@@ -430,13 +430,13 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
             // definition they are from.
             QString externalName = QString::fromRawData(sourceName.unicode() + 2,
                                                         sourceName.length() - 2);
-            const QString id = GenericEditorPlugin::instance()->definitionIdByName(externalName);
+            const QString &id = GenericEditorPlugin::instance()->definitionIdByName(externalName);
 
             // If there is an incorrect circular dependency among definitions this is skipped.
             if (GenericEditorPlugin::instance()->isBuildingDefinition(id))
                 continue;
 
-            QSharedPointer<HighlightDefinition> externalDefinition =
+            const QSharedPointer<HighlightDefinition> &externalDefinition =
                 GenericEditorPlugin::instance()->definition(id);
             sourceContext = externalDefinition->initialContext();
         } else if (!sourceName.startsWith(kHash)) {

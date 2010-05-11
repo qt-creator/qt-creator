@@ -47,8 +47,6 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFileInfo>
 
-#include <QDebug>
-
 using namespace GenericEditor;
 using namespace Internal;
 
@@ -97,7 +95,7 @@ void Editor::configure()
     try {
         const QString &definitionId =
                 GenericEditorPlugin::instance()->definitionIdByMimeType(mimeType);
-        QSharedPointer<HighlightDefinition> definition =
+        const QSharedPointer<HighlightDefinition> &definition =
                 GenericEditorPlugin::instance()->definition(definitionId);
 
         Highlighter *highlighter = new Highlighter(definition->initialContext());
@@ -112,9 +110,10 @@ void Editor::configure()
 
         //@todo: It's possible to specify an indenter style in the definition file. However, this
         // is not really being used because Kate recommends to configure indentation through
-        // another editor feature. Maybe we should provide something similar in Creator?
-        // For now the normal indenter is used.
+        // another feature. Maybe we should provide something similar in Creator? For now the
+        // normal indenter is used.
         m_indenter.reset(new TextEditor::NormalIndenter);
+
     } catch (const HighlighterException &) {
         // No highlighter will be set.
     }

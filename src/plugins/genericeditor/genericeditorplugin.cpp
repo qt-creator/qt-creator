@@ -36,11 +36,9 @@
 #include "editorfactory.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
-#include <cppeditor/cppeditorconstants.h>
-#include <qmljseditor/qmljseditorconstants.h>
+#include <qtconcurrent/QtConcurrentTools>
 
 #include <QtCore/QtAlgorithms>
 #include <QtCore/QtPlugin>
@@ -53,6 +51,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QList>
 #include <QtCore/QRegExp>
+#include <QtCore/QFuture>
+#include <QtCore/QtConcurrentRun>
 #include <QtXml/QXmlSimpleReader>
 #include <QtXml/QXmlInputSource>
 #include <QtXml/QXmlStreamReader>
@@ -69,8 +69,7 @@ GenericEditorPlugin::GenericEditorPlugin() :
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
 
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()),
-            this, SLOT(lookforAvailableDefinitions()));
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(registerMimeTypes()));
 }
 
 GenericEditorPlugin::~GenericEditorPlugin()
@@ -158,7 +157,16 @@ const QSharedPointer<HighlightDefinition> &GenericEditorPlugin::definition(const
 bool GenericEditorPlugin::isBuildingDefinition(const QString &id) const
 { return m_isBuilding.contains(id); }
 
-void GenericEditorPlugin::lookforAvailableDefinitions()
+void GenericEditorPlugin::registerMimeTypes()
+{
+    QFuture<Core::MimeType> future =
+            QtConcurrent::run(&GenericEditorPlugin::gatherDefinitionsMimeTypes, this);
+    m_watcher.setFuture(future);
+
+    connect(&m_watcher, SIGNAL(resultReadyAt(int)), this, SLOT(registerMimeType(int)));
+}
+
+void GenericEditorPlugin::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future)
 {
     QDir definitionsDir(Core::ICore::instance()->resourcePath() +
                         QLatin1String("/generic-highlighter"));
@@ -167,11 +175,50 @@ void GenericEditorPlugin::lookforAvailableDefinitions()
     definitionsDir.setNameFilters(filter);
 
     const QFileInfoList &filesInfo = definitionsDir.entryInfoList();
-    foreach (const QFileInfo &fileInfo, filesInfo)
-        parseDefinitionMetadata(fileInfo);
+    foreach (const QFileInfo &fileInfo, filesInfo) {
+        QString comment;
+        QStringList mimeTypes;
+        QStringList patterns;
+        parseDefinitionMetadata(fileInfo, &comment, &mimeTypes, &patterns);
+
+        // A definition can specify multiple MIME types and file extensions/patterns. However, each
+        // thing is done with a single string. Then, there is no direct way to tell which patterns
+        // belong to which MIME types nor whether a MIME type is just an alias for the other.
+        // Currently, I associate all expressions/patterns with all MIME types from a definition.
+
+        static const QStringList textPlain(QLatin1String("text/plain"));
+
+        QList<QRegExp> expressions;
+        foreach (const QString &type, mimeTypes) {
+            Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByType(type);
+            if (mimeType.isNull()) {
+                if (expressions.isEmpty()) {
+                    foreach (const QString &pattern, patterns)
+                        expressions.append(QRegExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard));
+                }
+
+                mimeType.setType(type);
+                mimeType.setSubClassesOf(textPlain);
+                mimeType.setComment(comment);
+                mimeType.setGlobPatterns(expressions);
+
+                future.reportResult(mimeType);
+            }
+        }
+    }
 }
 
-void GenericEditorPlugin::parseDefinitionMetadata(const QFileInfo &fileInfo)
+void GenericEditorPlugin::registerMimeType(int index) const
+{
+    const Core::MimeType &mimeType = m_watcher.resultAt(index);
+    Core::ICore::instance()->mimeDatabase()->addMimeType(mimeType);
+    m_factory->m_mimeTypes.append(mimeType.type());
+}
+
+void GenericEditorPlugin::parseDefinitionMetadata(const QFileInfo &fileInfo,
+                                                  QString *comment,
+                                                  QStringList *mimeTypes,
+                                                  QStringList *patterns)
 {
     static const QLatin1Char kSemiColon(';');
     static const QLatin1Char kSlash('/');
@@ -194,24 +241,24 @@ void GenericEditorPlugin::parseDefinitionMetadata(const QFileInfo &fileInfo)
             reader.name() == kLanguage) {
             const QXmlStreamAttributes &attr = reader.attributes();
 
-            const QString &name = attr.value(kName).toString();
-            m_idByName.insert(name, id);
+            *comment = attr.value(kName).toString();
+            m_idByName.insert(*comment, id);
 
-            const QStringList &patterns =
-                    attr.value(kExtensions).toString().split(kSemiColon, QString::SkipEmptyParts);
+            *patterns = attr.value(kExtensions).toString().split(kSemiColon,
+                                                                 QString::SkipEmptyParts);
 
-            QStringList mimeTypes =
-                    attr.value(kMimeType).toString().split(kSemiColon, QString::SkipEmptyParts);
-            if (mimeTypes.isEmpty()) {
+            *mimeTypes = attr.value(kMimeType).toString().split(kSemiColon,
+                                                                QString::SkipEmptyParts);
+            if (mimeTypes->isEmpty()) {
                 // There are definitions which do not specify a MIME type, but specify file
                 // patterns. Creating an artificial MIME type is a workaround.
-                QString mimeType(kArtificial);
-                mimeType.append(kSlash).append(name);
-                m_idByMimeType.insert(mimeType, id);
-                mimeTypes.append(mimeType);
+                QString artificialType(kArtificial);
+                artificialType.append(kSlash).append(*comment);
+                m_idByMimeType.insert(artificialType, id);
+                mimeTypes->append(artificialType);
             } else {
-                foreach (const QString &mimeType, mimeTypes)
-                    m_idByMimeType.insert(mimeType, id);
+                foreach (const QString &type, *mimeTypes)
+                    m_idByMimeType.insert(type, id);
             }
 
             // The priority below should not be confused with the priority used when matching files
@@ -220,43 +267,11 @@ void GenericEditorPlugin::parseDefinitionMetadata(const QFileInfo &fileInfo)
             // multiple ones associated with the same MIME type (should not happen in general).
             m_priorityComp.m_priorityById.insert(id, attr.value(kPriority).toString().toInt());
 
-            registerMimeTypes(name, mimeTypes, patterns);
             break;
         }
     }
     reader.clear();
     definitionFile.close();
-}
-
-void GenericEditorPlugin::registerMimeTypes(const QString &comment,
-                                            const QStringList &types,
-                                            const QStringList &patterns)
-{
-    static const QStringList textPlain(QLatin1String("text/plain"));
-
-    // A definition can specify multiple MIME types and file extensions/patterns. However, each
-    // thing is done with a single string. Then, there is no direct way to tell which extensions/
-    // patterns belong to which MIME types nor whether a MIME type is just an alias for the other.
-    // Currentl y, I associate all expressions/patterns with all MIME types from a definition.
-
-    QList<QRegExp> expressions;
-    foreach (const QString &type, types) {
-        Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByType(type);
-        if (mimeType.isNull()) {
-            if (expressions.isEmpty()) {
-                foreach (const QString &pattern, patterns)
-                    expressions.append(QRegExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard));
-            }
-
-            mimeType.setType(type);
-            mimeType.setSubClassesOf(textPlain);
-            mimeType.setComment(comment);
-            mimeType.setGlobPatterns(expressions);
-
-            Core::ICore::instance()->mimeDatabase()->addMimeType(mimeType);
-            m_factory->m_mimeTypes.append(type);
-        }
-    }
 }
 
 Q_EXPORT_PLUGIN(GenericEditorPlugin)

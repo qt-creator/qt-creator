@@ -36,7 +36,6 @@
 #include <QtCore/QStringList>
 
 #include <QtGui/QSyntaxHighlighter>
-#include <QtGui/QTextBlockUserData>
 
 #include <texteditor/basetextdocumentlayout.h>
 

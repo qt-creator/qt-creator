@@ -31,10 +31,7 @@
 #define ITEMDATA_H
 
 #include <QtCore/QString>
-
 #include <QtGui/QColor>
-#include <QtGui/QFont>
-#include <QtGui/QTextCharFormat>
 
 namespace GenericEditor {
 namespace Internal {

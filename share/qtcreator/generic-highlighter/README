@@ -1,0 +1,3 @@
+Place syntax definitions files inside this directory. 
+Files can be downloaded at http://kate-editor.org/downloads/syntax_highlighting?kateversion=3.2
+Instructions on how to write your own definitions can be found at http://kate-editor.org/article/writing_a_kate_highlighting_xml_file
