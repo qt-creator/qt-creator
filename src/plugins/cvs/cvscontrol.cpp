@@ -84,6 +84,8 @@ bool CVSControl::vcsDelete(const QString &fileName)
 
 bool CVSControl::vcsMove(const QString &from, const QString &to)
 {
+    Q_UNUSED(from);
+    Q_UNUSED(to);
     return false;
 }
 
