@@ -51,10 +51,6 @@ public:
                                      int accessOp,
                                      bool *replacedDotOperator = 0) const;
 
-    Q_DECL_DEPRECATED QList<LookupItem> resolveBaseExpression(const QList<LookupItem> &baseResults,
-                                                              int accessOp,
-                                                              bool *replacedDotOperator = 0) const;
-
 protected:
     ClassOrNamespace *findClass(const FullySpecifiedType &ty, Scope *scope) const;
 
