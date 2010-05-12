@@ -71,7 +71,7 @@ public:
     void profilingReport(const char *what, const PluginSpec *spec = 0);
     void loadSettings();
     void writeSettings();
-    void removePluginSpec(PluginSpec *spec);
+    void disablePluginIndirectly(PluginSpec *spec);
 
     QHash<QString, PluginCollection *> pluginCategories;
     QList<PluginSpec *> pluginSpecs;

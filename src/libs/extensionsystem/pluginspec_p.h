@@ -71,7 +71,7 @@ public:
     QString category;
     QList<PluginDependency> dependencies;
     bool enabled;
-    bool disabledByDependency;
+    bool disabledIndirectly;
 
     QString location;
     QString filePath;
@@ -88,6 +88,10 @@ public:
 
     static bool isValidVersion(const QString &version);
     static int versionCompare(const QString &version1, const QString &version2);
+
+    // add/remove from providesSpecs
+    void addProvidesForPlugin(PluginSpec *dependent);
+    void removeProvidesForPlugin(PluginSpec *dependent);
 
 private:
     PluginSpec *q;
