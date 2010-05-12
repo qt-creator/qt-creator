@@ -61,7 +61,8 @@ QrcEditor::QrcEditor(QWidget *parent)
     connect(m_treeview, SIGNAL(addPrefixTriggered()), this, SLOT(onAddPrefix()));
     connect(m_treeview, SIGNAL(addFilesTriggered(QString)), this, SLOT(onAddFiles()));
     connect(m_treeview, SIGNAL(removeItem()), this, SLOT(onRemove()));
-    connect(m_treeview, SIGNAL(currentIndexChanged()), this, SLOT(updateCurrent()));
+    connect(m_treeview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(updateCurrent()));
     connect(m_treeview, SIGNAL(dirtyChanged(bool)), this, SIGNAL(dirtyChanged(bool)));
     m_treeview->setFocus();
 
