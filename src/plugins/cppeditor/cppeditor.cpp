@@ -1227,56 +1227,45 @@ static bool isCompatible(Function *definition, Symbol *declaration,
 
 void CPPEditor::switchDeclarationDefinition()
 {
-    int line = 0, column = 0;
-    convertPosition(position(), &line, &column);
-
-    if (!m_modelManager)
+    if (! m_modelManager)
         return;
 
-#warning implement CPPEditor::switchDeclarationDefinition
-    qWarning() << Q_FUNC_INFO << __LINE__;
-
-#if 0
     const Snapshot snapshot = m_modelManager->snapshot();
 
-    Document::Ptr doc = snapshot.document(file()->fileName());
-    if (!doc)
-        return;
-    Symbol *lastSymbol = doc->findSymbolAt(line, column);
-    if (!lastSymbol || !lastSymbol->scope())
-        return;
+    if (Document::Ptr thisDocument = snapshot.document(file()->fileName())) {
+        int line = 0, column = 0;
+        convertPosition(position(), &line, &column);
 
-    Function *f = lastSymbol->asFunction();
-    if (!f) {
-        Scope *fs = lastSymbol->scope();
-        if (!fs->isFunctionScope())
-            fs = fs->enclosingFunctionScope();
-        if (fs)
-            f = fs->owner()->asFunction();
-    }
+        Scope *scope = thisDocument->scopeAt(line, column);
+        Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
 
-    if (f) {
-        LookupContext context(doc, snapshot);
+        Scope *functionScope = 0;
+        if (scope->isFunctionScope())
+            functionScope = scope;
+        else
+            functionScope = scope->enclosingFunctionScope();
 
-        const QualifiedNameId *q = qualifiedNameIdForSymbol(f, context.control());
-        const QList<Symbol *> symbols = context.lookup(q, lastSymbol); // ### FIXME
-
-        Symbol *declaration = 0;
-        foreach (declaration, symbols) {
-            if (isCompatible(f, declaration, q))
-                break;
+        if (! functionScope && lastVisibleSymbol) {
+            if (Function *def = lastVisibleSymbol->asFunction())
+                functionScope = def->members();
         }
 
-        if (! declaration && ! symbols.isEmpty())
-            declaration = symbols.first();
+        if (functionScope) {
+            LookupContext context(thisDocument, snapshot);
 
-        if (declaration)
-            openCppEditorAt(linkToSymbol(declaration));
-    } else if (lastSymbol->type()->isFunctionType()) {
-        if (Symbol *def = findDefinition(lastSymbol, snapshot))
-            openCppEditorAt(linkToSymbol(def));
+            Function *functionDefinition = functionScope->owner()->asFunction();
+            const QList<Symbol *> declarations = context.lookup(functionDefinition->name(), functionDefinition->scope());
+            foreach (Symbol *decl, declarations) {
+                // TODO: check decl.
+                openCppEditorAt(linkToSymbol(decl));
+                break;
+            }
+
+        } else if (lastVisibleSymbol && lastVisibleSymbol->isDeclaration() && lastVisibleSymbol->type()->isFunctionType()) {
+            if (Symbol *def = snapshot.findMatchingDefinition(lastVisibleSymbol))
+                openCppEditorAt(linkToSymbol(def));
+        }
     }
-#endif
 }
 
 static inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbols)
