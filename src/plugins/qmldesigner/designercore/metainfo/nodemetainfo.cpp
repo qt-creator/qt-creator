@@ -76,6 +76,11 @@ public:
     QString category;
     QString qmlFile;
     QString defaultProperty;
+
+    QString superClassType;
+    int superClassMajorVersion;
+    int superClassMinorVersion;
+
     int majorVersion;
     int minorVersion;
 };
@@ -179,7 +184,7 @@ QObject *NodeMetaInfo::createInstance(QDeclarativeContext *context) const
         newContext->setParent(object);
     } else {
         // primitive
-        object = QDeclarativeMetaType::qmlType(typeName().toAscii(), minorVersion(), majorVersion())->create();
+        object = QDeclarativeMetaType::qmlType(typeName().toAscii(), majorVersion(), minorVersion())->create();
         if (object && context)
             QDeclarativeEngine::setContextForObject(object, context);
     }
@@ -198,22 +203,39 @@ QList<NodeMetaInfo> NodeMetaInfo::superClasses() const
         return QList<NodeMetaInfo>();
     }
 
-    return m_data->metaInfo.superClasses(*this);
+    QList<NodeMetaInfo> types;
+
+    NodeMetaInfo superType = directSuperClass();
+    if (superType.isValid()) {
+        types += superType;
+        types += superType.superClasses();
+    }
+
+    return types;
 }
 
 /*!
-  \brief Returns direct ancestor types.
-
-  \throws InvalidMetaInfoException if the object is not valid
+  \brief Returns direct ancestor type. An invalid type if there is none.
   */
-QList<NodeMetaInfo> NodeMetaInfo::directSuperClasses() const
+NodeMetaInfo NodeMetaInfo::directSuperClass() const
 {
     if (!isValid()) {
         qWarning() << "NodeMetaInfo is invalid";
-        return QList<NodeMetaInfo>();
+        return NodeMetaInfo();
     }
 
-    return m_data->metaInfo.directSuperClasses(*this);
+    if (!m_data->superClassType.isEmpty()) {
+        int superClassMajorVersion = m_data->superClassMajorVersion;
+        int superClassMinorVersion = m_data->superClassMinorVersion;
+        if (superClassMajorVersion == -1) {
+            // If we don't know the version of the super type, assume that it's the same like our version.
+            superClassMajorVersion = majorVersion();
+            superClassMinorVersion = minorVersion();
+        }
+        return m_data->metaInfo.nodeMetaInfo(m_data->superClassType,
+                                             superClassMajorVersion, superClassMinorVersion);
+    }
+    return NodeMetaInfo();
 }
 
 /*!
@@ -225,7 +247,7 @@ QList<NodeMetaInfo> NodeMetaInfo::directSuperClasses() const
 
   \throws InvalidMetaInfoException if the object is not valid
   */
-QHash<QString,PropertyMetaInfo> NodeMetaInfo::properties(bool resolveDotSyntax ) const
+QHash<QString,PropertyMetaInfo> NodeMetaInfo::properties(bool resolveDotSyntax) const
 {
     if (!isValid()) {
         qWarning() << "NodeMetaInfo is invalid";
@@ -234,7 +256,8 @@ QHash<QString,PropertyMetaInfo> NodeMetaInfo::properties(bool resolveDotSyntax )
 
     QHash<QString,PropertyMetaInfo> propertiesInfo;
     propertiesInfo = m_data->propertyMetaInfoHash;
-    foreach (const NodeMetaInfo &nodeInfo, directSuperClasses()) {
+
+    foreach (const NodeMetaInfo &nodeInfo, superClasses()) {
         QHash<QString,PropertyMetaInfo> superClassProperties = nodeInfo.properties();
         QHashIterator<QString,PropertyMetaInfo> iter(superClassProperties);
         while (iter.hasNext()) {
@@ -318,7 +341,7 @@ PropertyMetaInfo NodeMetaInfo::property(const QString &propertyName, bool resolv
                 propertyType = propertyType.left(propertyType.size() - 1).trimmed();
             nodeInfo = m_data->metaInfo.nodeMetaInfo(m_data->metaInfo.fromQtTypes(propertyType), majorVersion(), minorVersion());
             if (!nodeInfo.isValid()) {
-                qDebug() << "no type info available for" << propertyType;
+                qWarning() << "no type info available for" << propertyType;
                 break;
             }
         }
@@ -330,7 +353,7 @@ PropertyMetaInfo NodeMetaInfo::property(const QString &propertyName, bool resolv
         if (hasLocalProperty(propertyName)) {
             propertyMetaInfo = m_data->propertyMetaInfoHash.value(propertyName, PropertyMetaInfo());
         } else {
-            foreach (const NodeMetaInfo &superTypeMetaInfo, directSuperClasses()) {
+            foreach (const NodeMetaInfo &superTypeMetaInfo, superClasses()) {
                 Q_ASSERT(superTypeMetaInfo.isValid());
                 propertyMetaInfo = superTypeMetaInfo.property(propertyName);
                 if (propertyMetaInfo.isValid())
@@ -373,7 +396,7 @@ bool NodeMetaInfo::hasLocalProperty(const QString &propertyName, bool resolveDot
                 propertyType = propertyType.left(propertyType.size() - 1).trimmed();
             nodeInfo = m_data->metaInfo.nodeMetaInfo(m_data->metaInfo.fromQtTypes(propertyType), majorVersion(), minorVersion());
             if (!nodeInfo.isValid()) {
-                qDebug() << "no type info available for" << propertyType;
+                qWarning() << "no type info available for" << propertyType;
                 break;
             }
         }
@@ -399,10 +422,8 @@ bool NodeMetaInfo::hasProperty(const QString &propertyName, bool resolveDotSynta
     if (hasLocalProperty(propertyName, resolveDotSyntax))
         return true;
 
-    foreach (const NodeMetaInfo &nodeMetaInfo, directSuperClasses()) {
-        if (nodeMetaInfo.hasProperty(propertyName, resolveDotSyntax))
-            return true;
-    }
+    if (directSuperClass().hasProperty(propertyName, resolveDotSyntax))
+        return true;
 
     return false;
 }
@@ -443,7 +464,7 @@ int NodeMetaInfo::majorVersion() const
         return -1;
     }
 
-    return 4;
+    return m_data->majorVersion;
 }
 
 
@@ -459,6 +480,13 @@ int NodeMetaInfo::minorVersion() const
     }
 
     return m_data->minorVersion;
+}
+
+bool NodeMetaInfo::availableInVersion(int majorVersion, int minorVersion) const
+{
+    return ((majorVersion > m_data->majorVersion)
+            || (majorVersion == m_data->majorVersion && minorVersion >= m_data->minorVersion))
+            || (majorVersion == -1 && minorVersion == -1);
 }
 
 bool NodeMetaInfo::hasDefaultProperty() const
@@ -488,14 +516,14 @@ void NodeMetaInfo::setDefaultProperty(const QString &defaultProperty)
     m_data->defaultProperty = defaultProperty;
 }
 
-void NodeMetaInfo::setMajorVersion(int version)
+void NodeMetaInfo::setSuperClass(const QString &typeName, int majorVersion, int minorVersion)
 {
-    m_data->majorVersion = version;
-}
-
-void NodeMetaInfo::setMinorVersion(int version)
-{
-     m_data->minorVersion = version;
+    if (!isValid()) {
+        return;
+    }
+    m_data->superClassType = typeName;
+    m_data->superClassMajorVersion = majorVersion;
+    m_data->superClassMinorVersion = minorVersion;
 }
 
 void NodeMetaInfo::setInvalid()
@@ -506,13 +534,15 @@ void NodeMetaInfo::setInvalid()
     m_data = 0;
 }
 
-void NodeMetaInfo::setTypeName(const QString &typeName)
+void NodeMetaInfo::setType(const QString &typeName, int majorVersion, int minorVersion)
 {
     if (!isValid()) {
         qWarning() << "NodeMetaInfo is invalid";
         return;
     }
     m_data->typeName = typeName;
+    m_data->majorVersion = majorVersion;
+    m_data->minorVersion = minorVersion;
 }
 
 uint qHash(const NodeMetaInfo &nodeMetaInfo)
@@ -572,67 +602,6 @@ void NodeMetaInfo::setIcon(const QIcon &icon)
     m_data->icon = icon;
 }
 
-/*!
-  \brief Returns whether the type inherits from "QWidget".
-
-  \throws InvalidMetaInfoException if the object is not valid
-  */
-bool NodeMetaInfo::isWidget() const
-{
-    if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return false;
-    }
-    return m_data->metaInfo.isSubclassOf(m_data->typeName, "Qt/QWidget");
-}
-
-/*!
-  \brief Returns whether the type inherits from "QGraphicsWidget".
-
-  \throws InvalidMetaInfoException if the object is not valid
-  */
-bool NodeMetaInfo::isGraphicsWidget() const
-{
-    if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return false;
-    }
-    return m_data->metaInfo.isSubclassOf(m_data->typeName, "Qt/QGraphicsWidget");
-}
-
-/*!
-  \brief Returns whether the type inherits from "QGraphicsObject".
-
-  \throws InvalidMetaInfoException if the object is not valid
-  */
-bool NodeMetaInfo::isGraphicsObject() const
-{
-    if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return false;
-    }
-    return m_data->metaInfo.isSubclassOf(m_data->typeName, "QGraphicsObject");
-}
-
-/*!
-  \brief Returns whether the type inherits from "Item/QDeclarativeItem".
-
-  \throws InvalidMetaInfoException if the object is not valid
-  */
-bool NodeMetaInfo::isQmlGraphicsItem() const
-{
-    if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return false;
-    }
-
-    if (m_data->isFXItem == Internal::NodeMetaInfoData::Unknown) {
-        m_data->isFXItem = m_data->metaInfo.isSubclassOf(m_data->typeName, "Qt/Item") ? Internal::NodeMetaInfoData::Yes : Internal::NodeMetaInfoData::No;
-    }
-
-    return m_data->isFXItem == Internal::NodeMetaInfoData::Yes;
-}
-
 bool NodeMetaInfo::isComponent() const
 {
     if (!isValid()) {
@@ -648,13 +617,23 @@ bool NodeMetaInfo::isComponent() const
 
   \throws InvalidMetaInfoException if the object is not valid
   */
-bool NodeMetaInfo::isSubclassOf(const QString &type, int /*majorVersion*/, int /*minorVersion*/) const
+bool NodeMetaInfo::isSubclassOf(const QString &type, int majorVersion, int minorVersion) const
 {
     if (!isValid()) {
         qWarning() << "NodeMetaInfo is invalid";
         return false;
     }
-    return m_data->metaInfo.isSubclassOf(m_data->typeName, type);
+
+    if (typeName() == type
+        && availableInVersion(majorVersion, minorVersion))
+        return true;
+
+    foreach (const NodeMetaInfo &superClass, superClasses()) {
+        if (superClass.typeName() == type
+            && superClass.availableInVersion(majorVersion, minorVersion))
+            return true;
+    }
+    return false;
 }
 
 void NodeMetaInfo::setQmlFile(const QString &filePath)

@@ -71,7 +71,7 @@ public:
     void parseQmlTypes();
     void parseNonQmlTypes();
     void parseValueTypes();
-    void parseNonQmlClassRecursively(const QMetaObject *qMetaObject);
+    void parseNonQmlClassRecursively(const QMetaObject *qMetaObject, int majorVersion, int minorVersion);
     void parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObject *qMetaObject) const;
     void parseClassInfo(NodeMetaInfo &nodeMetaInfo, const QMetaObject *qMetaObject) const;
 
@@ -79,8 +79,7 @@ public:
 
     void parseXmlFiles();
 
-    QMultiHash<QString, QString> m_superClassHash; // the list of direct superclasses
-    QHash<QString, NodeMetaInfo> m_nodeMetaInfoHash;
+    QMultiHash<QString, NodeMetaInfo> m_nodeMetaInfoHash;
     QHash<QString, EnumeratorMetaInfo> m_enumeratorMetaInfoHash;
     QHash<QString, QString> m_QtTypesToQmlTypes;
     QScopedPointer<ItemLibraryInfo> m_itemLibraryInfo;
@@ -100,7 +99,6 @@ MetaInfoPrivate::MetaInfoPrivate(MetaInfo *q) :
 
 void MetaInfoPrivate::clear()
 {
-    m_superClassHash.clear();
     m_nodeMetaInfoHash.clear();
     m_enumeratorMetaInfoHash.clear();
     m_itemLibraryInfo->clearEntries();
@@ -188,7 +186,7 @@ void MetaInfoPrivate::parseClassInfo(NodeMetaInfo &nodeMetaInfo, const QMetaObje
     }
 }
 
-void MetaInfoPrivate::parseNonQmlClassRecursively(const QMetaObject *qMetaObject)
+void MetaInfoPrivate::parseNonQmlClassRecursively(const QMetaObject *qMetaObject, int majorVersion, int minorVersion)
 {
     Q_ASSERT_X(qMetaObject, Q_FUNC_INFO, "invalid QMetaObject");
     const QString className = qMetaObject->className();
@@ -198,20 +196,22 @@ void MetaInfoPrivate::parseNonQmlClassRecursively(const QMetaObject *qMetaObject
         return;
     }
 
-    if ( !m_q->hasNodeMetaInfo(className)
-        && !QDeclarativeMetaType::qmlTypeNames().contains(typeName(qMetaObject).toAscii()) ) {
+    if (!m_q->hasNodeMetaInfo(typeName(qMetaObject), majorVersion, minorVersion)) {
         NodeMetaInfo nodeMetaInfo(*m_q);
-        nodeMetaInfo.setTypeName(typeName(qMetaObject));
+        nodeMetaInfo.setType(typeName(qMetaObject), majorVersion, minorVersion);
         parseProperties(nodeMetaInfo, qMetaObject);
         parseClassInfo(nodeMetaInfo, qMetaObject);
 
         if (debug)
-            qDebug() << "adding non qml type" << className << typeName(qMetaObject) << ", parent type" << typeName(qMetaObject->superClass());
-        m_q->addNodeInfo(nodeMetaInfo, typeName(qMetaObject->superClass()));
+            qDebug() << "adding non qml type" << nodeMetaInfo.typeName() << nodeMetaInfo.majorVersion() << nodeMetaInfo.minorVersion() << ", parent type" << typeName(qMetaObject->superClass());
+        if (qMetaObject->superClass())
+            nodeMetaInfo.setSuperClass(typeName(qMetaObject->superClass()));
+
+        m_q->addNodeInfo(nodeMetaInfo);
     }
 
     if (const QMetaObject *superClass = qMetaObject->superClass()) {
-        parseNonQmlClassRecursively(superClass);
+        parseNonQmlClassRecursively(superClass, majorVersion, minorVersion);
     }
 }
 
@@ -245,7 +245,7 @@ void MetaInfoPrivate::parseValueTypes()
 
     foreach (const QString &type, valueTypes) {
         NodeMetaInfo nodeMetaInfo(*m_q);
-        nodeMetaInfo.setTypeName(type);
+        nodeMetaInfo.setType(type, -1, -1);
         foreach (const QString &propertyName, VariantParser::create(type).properties()) {
             PropertyMetaInfo propertyInfo;
             propertyInfo.setName(propertyName);
@@ -277,7 +277,7 @@ void MetaInfoPrivate::parseValueTypes()
         }
         if (debug)
             qDebug() << "adding value type" << nodeMetaInfo.typeName();
-        m_q->addNodeInfo(nodeMetaInfo, QString());
+        m_q->addNodeInfo(nodeMetaInfo);
     }
 }
 
@@ -296,9 +296,7 @@ void MetaInfoPrivate::parseQmlTypes()
             continue;
 
         NodeMetaInfo nodeMetaInfo(*m_q);
-        nodeMetaInfo.setTypeName(qmlType->qmlTypeName());
-        nodeMetaInfo.setMajorVersion(qmlType->majorVersion());
-        nodeMetaInfo.setMinorVersion(qmlType->minorVersion());
+        nodeMetaInfo.setType(qmlType->qmlTypeName(), qmlType->majorVersion(), qmlType->minorVersion());
 
         parseProperties(nodeMetaInfo, qMetaObject);
         parseClassInfo(nodeMetaInfo, qMetaObject);
@@ -311,7 +309,11 @@ void MetaInfoPrivate::parseQmlTypes()
             superTypeName = typeName(qmlType->baseMetaObject()->superClass());
         }
 
-        m_q->addNodeInfo(nodeMetaInfo, superTypeName);
+        nodeMetaInfo.setSuperClass(superTypeName);
+
+        if (debug)
+            qDebug() << "adding qml type" << nodeMetaInfo.typeName() << nodeMetaInfo.majorVersion() << nodeMetaInfo.minorVersion() << "super class" << superTypeName;
+        m_q->addNodeInfo(nodeMetaInfo);
     }
 }
 
@@ -319,10 +321,10 @@ void MetaInfoPrivate::parseNonQmlTypes()
 {
     foreach (QDeclarativeType *qmlType, QDeclarativeMetaType::qmlTypes()) {
         if (!qmlType->qmlTypeName().contains("Bauhaus"))
-            parseNonQmlClassRecursively(qmlType->metaObject());
+            parseNonQmlClassRecursively(qmlType->metaObject(), qmlType->majorVersion(), qmlType->minorVersion());
     }
 
-    parseNonQmlClassRecursively(&QDeclarativeAnchors::staticMetaObject);
+    parseNonQmlClassRecursively(&QDeclarativeAnchors::staticMetaObject, -1, -1);
 }
 
 
@@ -404,10 +406,13 @@ MetaInfo& MetaInfo::operator=(const MetaInfo &other)
 /*!
   \brief Returns whether a type with the given name is registered in the meta system.
   */
-bool MetaInfo::hasNodeMetaInfo(const QString &typeName, int /*majorVersion*/, int /*minorVersion*/) const
+bool MetaInfo::hasNodeMetaInfo(const QString &typeName, int majorVersion, int minorVersion) const
 {
-    if (m_p->m_nodeMetaInfoHash.contains(typeName))
-        return true;
+    foreach (const NodeMetaInfo &info, m_p->m_nodeMetaInfoHash.values(typeName)) {
+        if (info.availableInVersion(majorVersion, minorVersion)) {
+            return true;
+        }
+    }
     if (!isGlobal())
         return global().hasNodeMetaInfo(typeName);
     return false;
@@ -416,73 +421,18 @@ bool MetaInfo::hasNodeMetaInfo(const QString &typeName, int /*majorVersion*/, in
 /*!
   \brief Returns meta information for a qml type. An invalid NodeMetaInfo object if the type is unknown.
   */
-NodeMetaInfo MetaInfo::nodeMetaInfo(const QString &typeName, int /*majorVersion*/, int /*minorVersion*/) const
+NodeMetaInfo MetaInfo::nodeMetaInfo(const QString &typeName, int majorVersion, int minorVersion) const
 {
-    if (m_p->m_nodeMetaInfoHash.contains(typeName))
-        return m_p->m_nodeMetaInfoHash.value(typeName, NodeMetaInfo());
+    foreach (const NodeMetaInfo &info, m_p->m_nodeMetaInfoHash.values(typeName)) {
+        // todo: The order for different types for different versions is random here.
+        if (info.availableInVersion(majorVersion, minorVersion)) {
+            return info;
+        }
+    }
     if (!isGlobal())
         return global().nodeMetaInfo(typeName);
 
     return NodeMetaInfo();
-}
-
-QStringList MetaInfo::superClasses(const QString &className) const
-{
-    QStringList ancestorList = m_p->m_superClassHash.values(className);
-    foreach (const QString &ancestor, ancestorList) {
-        QStringList superClassList = superClasses(ancestor);
-        if (!superClassList.isEmpty())
-            ancestorList += superClassList;
-    }
-    if (!isGlobal())
-        ancestorList += global().superClasses(className);
-    return ancestorList;
-}
-
-QStringList MetaInfo::directSuperClasses(const QString &className) const
-{
-    QStringList directAncestorList = m_p->m_superClassHash.values(className);
-    if (!isGlobal())
-        directAncestorList += global().directSuperClasses(className);
-    return directAncestorList;
-}
-
-QList<NodeMetaInfo> MetaInfo::superClasses(const NodeMetaInfo &nodeInfo) const
-{
-    if (!nodeInfo.isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return QList<NodeMetaInfo>();
-    }
-
-    QList<NodeMetaInfo> superClassList;
-
-    foreach (const QString &typeName, superClasses(nodeInfo.typeName())) {
-        if (!hasNodeMetaInfo(typeName))
-            continue;
-        const NodeMetaInfo superClass = nodeMetaInfo(typeName);
-        if (!superClassList.contains(superClass))
-            superClassList.append(superClass);
-    }
-    return superClassList;
-}
-
-QList<NodeMetaInfo> MetaInfo::directSuperClasses(const NodeMetaInfo &nodeInfo) const
-{
-    if (!nodeInfo.isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return QList<NodeMetaInfo>();
-    }
-
-    QList<NodeMetaInfo> superClassList;
-
-    foreach (const QString &typeName, directSuperClasses(nodeInfo.typeName())) {
-        if (!hasNodeMetaInfo(typeName))
-            continue;
-        const NodeMetaInfo superClass = nodeMetaInfo(typeName);
-        if (!superClassList.contains(superClass))
-            superClassList.append(superClass);
-    }
-    return superClassList;
 }
 
 QString MetaInfo::fromQtTypes(const QString &type) const
@@ -491,27 +441,6 @@ QString MetaInfo::fromQtTypes(const QString &type) const
         return m_p->m_QtTypesToQmlTypes.value(type);
 
     return type;
-}
-
-/*!
-  \brief Returns whether className is the same type or a type derived from superClassName.
-  */
-bool MetaInfo::isSubclassOf(const QString &className, const QString &superClassName) const
-{
-    return (className == superClassName) || superClasses(className).contains(superClassName);
-}
-
-/*!
-  \brief Returns whether the type of modelNode is the same type or a type derived from superClassName.
-  \throws InvalidModelNode if !modelNode.isValid()
-  */
-bool MetaInfo::isSubclassOf(const ModelNode &modelNode, const QString &superClassName) const
-{
-    if (!modelNode.isValid()) {
-        Q_ASSERT_X(modelNode.isValid(), Q_FUNC_INFO, "Invalid modelNode argument");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
-    return (modelNode.type() == superClassName) || isSubclassOf(modelNode.type(), superClassName);
 }
 
 /*!
@@ -573,28 +502,13 @@ void MetaInfo::setPluginPaths(const QStringList &paths)
     s_pluginDirs = paths;
 }
 
-/*!
-  This bypasses the notifications to the model that the metatype has changed.
-  Use MetaInfo::addNodeInfo() instead
-  */
-void MetaInfo::addSuperClassRelationship(const QString &superClassName, const QString &className)
-{
-    m_p->m_superClassHash.insert(className, superClassName);
-}
-
-void MetaInfo::addNodeInfo(NodeMetaInfo &nodeInfo, const QString &baseType)
+void MetaInfo::addNodeInfo(NodeMetaInfo &nodeInfo)
 {
     if (nodeInfo.typeName().isEmpty() || nodeInfo.metaInfo() != *this)
         throw new InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, QLatin1String("nodeInfo"));
 
-    if (nodeInfo.typeName() == baseType) // prevent simple recursion
-        throw new InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, QLatin1String("baseType"));
 
-    m_p->m_nodeMetaInfoHash.insert(nodeInfo.typeName(), nodeInfo);
-
-    if (!baseType.isEmpty()) {
-        m_p->m_superClassHash.insert(nodeInfo.typeName(), baseType);
-    }
+    m_p->m_nodeMetaInfoHash.insertMulti(nodeInfo.typeName(), nodeInfo);
 }
 
 void MetaInfo::removeNodeInfo(NodeMetaInfo &info)
@@ -604,11 +518,9 @@ void MetaInfo::removeNodeInfo(NodeMetaInfo &info)
         return;
     }
 
-    if (m_p->m_nodeMetaInfoHash.contains(info.typeName())) {
-        m_p->m_nodeMetaInfoHash.remove(info.typeName());
+    if (m_p->m_nodeMetaInfoHash.contains(info.typeName())
+        && m_p->m_nodeMetaInfoHash.remove(info.typeName(), info)) {
 
-        m_p->m_superClassHash.remove(info.typeName());
-        // TODO: Other types might specify type as parent type
         foreach (const ItemLibraryEntry &entry,
                  m_p->m_itemLibraryInfo->entriesForType(info.typeName(), info.majorVersion(), info.minorVersion())) {
             m_p->m_itemLibraryInfo->removeEntry(entry.name());
@@ -621,11 +533,6 @@ void MetaInfo::removeNodeInfo(NodeMetaInfo &info)
     }
 
     info.setInvalid();
-}
-
-void MetaInfo::replaceNodeInfo(NodeMetaInfo & /*oldInfo*/, NodeMetaInfo & /*newInfo*/, const QString & /*baseType*/)
-{
-    // TODO
 }
 
 EnumeratorMetaInfo MetaInfo::addEnumerator(const QString &enumeratorScope, const QString &enumeratorName)

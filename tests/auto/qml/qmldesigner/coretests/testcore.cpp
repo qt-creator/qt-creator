@@ -3284,53 +3284,136 @@ void TestCore::testMetaInfo()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
+}
 
-    QScopedPointer<TestView> view(new TestView);
-    QVERIFY(view.data());
-    model->attachView(view.data());
+void TestCore::testMetaInfoSimpleType()
+{
+    //
+    // Test type registered with qmlRegisterType:
+    //
+    // qmlRegisterType<QDeclarativeItem>("Qt",4,7,"Item")
+    //
+
+    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QVERIFY(model.data());
 
     QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Item"));
-    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/QtObject"));
-    QVERIFY(model->metaInfo().isSubclassOf("Qt/Text", "Qt/QtObject"));
-    QVERIFY(model->metaInfo().isSubclassOf("Qt/Text", "Qt/Item"));
-    QVERIFY(model->metaInfo().isSubclassOf("Qt/Rectangle", "Qt/QtObject"));
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Item", 4, 7));
 
-    QVERIFY(!model->metaInfo().isSubclassOf("Fooo", "Qt/QtObject"));
+    NodeMetaInfo itemMetaInfo = model->metaInfo().nodeMetaInfo("Qt/Item", 4, 7);
+    NodeMetaInfo itemMetaInfo2 = model->metaInfo().nodeMetaInfo("Qt/Item");
+    QCOMPARE(itemMetaInfo, itemMetaInfo2);
 
-    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("Qt/Item"));
-    QVERIFY(view->rootModelNode().metaInfo().hasProperty("x"));
-    QVERIFY(!view->rootModelNode().metaInfo().hasProperty("blah"));
-    QVERIFY(!view->rootModelNode().metaInfo().property("blah").isValid());
+    QVERIFY(itemMetaInfo.isValid());
+    QCOMPARE(itemMetaInfo.typeName(), QLatin1String("Qt/Item"));
+    QCOMPARE(itemMetaInfo.majorVersion(), 4);
+    QCOMPARE(itemMetaInfo.minorVersion(), 7);
 
-    ModelNode rectNode = addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data");
+    // super classes
+    NodeMetaInfo graphicsObjectInfo = itemMetaInfo.directSuperClass();
+    QVERIFY(graphicsObjectInfo.isValid());
+    QCOMPARE(graphicsObjectInfo.typeName(), QLatin1String("QGraphicsObject"));
+    QCOMPARE(graphicsObjectInfo.majorVersion(), 4);
+    QCOMPARE(graphicsObjectInfo.minorVersion(), 7);
 
-    QVERIFY(rectNode.metaInfo().isSubclassOf("Qt/QtObject"));
-    QVERIFY(rectNode.metaInfo().isSubclassOf("Qt/Item"));
-    QVERIFY(!rectNode.metaInfo().isSubclassOf("Qt/Text"));
-    QVERIFY(rectNode.metaInfo().hasProperty("color"));
-    QVERIFY(rectNode.metaInfo().hasProperty("x"));
-    QVERIFY(!rectNode.metaInfo().hasProperty("blah"));
+    QCOMPARE(itemMetaInfo.superClasses().size(), 2); // QGraphicsObject, Qt/QtObject
+    QVERIFY(itemMetaInfo.isSubclassOf("QGraphicsObject", 4, 7));
+    QVERIFY(itemMetaInfo.isSubclassOf("Qt/QtObject", -1, -1));
 
-    ModelNode textNode = addNodeListChild(view->rootModelNode(), "Qt/TextEdit", 4, 7, "data");
-    NodeMetaInfo textNodeMetaInfo = textNode.metaInfo();
-    QVERIFY(textNodeMetaInfo.hasProperty("text"));
-    QVERIFY(textNodeMetaInfo.property("text").isValid());
-    QVERIFY(textNodeMetaInfo.property("text").isReadable());
-    QVERIFY(textNodeMetaInfo.property("text").isWriteable());
-    QVERIFY(textNodeMetaInfo.property("x").isReadable());
-    QVERIFY(textNodeMetaInfo.property("x").isWriteable());
-    QVERIFY(textNodeMetaInfo.isSubclassOf("Qt/Item", 4, 7));
-    QVERIFY(!textNodeMetaInfo.isSubclassOf("Blah"));
-    QVERIFY(textNodeMetaInfo.isQmlGraphicsItem());
-    QVERIFY(textNodeMetaInfo.isGraphicsObject());
-    QVERIFY(!textNodeMetaInfo.isGraphicsWidget());
+    // availableInVersion
+    QVERIFY(itemMetaInfo.availableInVersion(4, 7));
+    QVERIFY(itemMetaInfo.availableInVersion(4, 8));
+    QVERIFY(itemMetaInfo.availableInVersion(5, 0));
+    QVERIFY(itemMetaInfo.availableInVersion(-1, -1));
+    QVERIFY(!itemMetaInfo.availableInVersion(4, 6));
+    QVERIFY(!itemMetaInfo.availableInVersion(3, 7));
+}
 
-    // test types declared with EXTENDED_OBJECT
-//    NodeMetaInfo graphicsWidgetInfo = model->metaInfo().nodeMetaInfo("Qt/QGraphicsWidget", 4, 7);
-//    QVERIFY(graphicsWidgetInfo.isValid());
-//    QVERIFY(graphicsWidgetInfo.hasProperty("layout")); // from QGraphicsWidgetDeclarativeUI
-//    QVERIFY(graphicsWidgetInfo.hasProperty("font")); // from QGraphicsWidget
-//    QVERIFY(graphicsWidgetInfo.hasProperty("enabled")); // from QGraphicsItem
+void TestCore::testMetaInfoUncreatableType()
+{
+    // Test type registered with qmlRegisterUncreatableType or qmlRegisterTypeNotAvailable:
+    //
+    // qmlRegisterUncreatableType<QDeclarativeAbstractAnimation>("Qt",4,7,"Animation",QDeclarativeAbstractAnimation::tr("Animation is an abstract class"));
+    //
+
+    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QVERIFY(model.data());
+
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Animation"));
+    NodeMetaInfo animationTypeInfo = model->metaInfo().nodeMetaInfo("Qt/Animation", 4, 7);
+    QVERIFY(animationTypeInfo.isValid());
+
+    QVERIFY(animationTypeInfo.isValid());
+    QCOMPARE(animationTypeInfo.typeName(), QLatin1String("Qt/Animation"));
+    QCOMPARE(animationTypeInfo.majorVersion(), 4);
+    QCOMPARE(animationTypeInfo.minorVersion(), 7);
+
+    NodeMetaInfo qObjectTypeInfo = animationTypeInfo.directSuperClass();
+    QVERIFY(qObjectTypeInfo.isValid());
+    QCOMPARE(qObjectTypeInfo.typeName(), QLatin1String("Qt/QtObject"));
+    QCOMPARE(qObjectTypeInfo.majorVersion(), 4);
+    QCOMPARE(qObjectTypeInfo.minorVersion(), 7);
+    QCOMPARE(animationTypeInfo.superClasses().size(), 1);
+}
+
+void TestCore::testMetaInfoExtendedType()
+{
+    // Test type registered with qmlRegisterExtendedType
+    //
+    // qmlRegisterExtendedType<QGraphicsWidget,QDeclarativeGraphicsWidget>("Qt",4,7,"QGraphicsWidget");
+    //
+
+    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QVERIFY(model.data());
+
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/QGraphicsWidget"));
+    NodeMetaInfo graphicsWidgetTypeInfo = model->metaInfo().nodeMetaInfo("Qt/QGraphicsWidget", 4, 7);
+    QVERIFY(graphicsWidgetTypeInfo.isValid());
+    QVERIFY(graphicsWidgetTypeInfo.hasProperty("layout")); // from QGraphicsWidgetDeclarativeUI
+    QVERIFY(graphicsWidgetTypeInfo.hasProperty("font")); // from QGraphicsWidget
+    QVERIFY(graphicsWidgetTypeInfo.hasProperty("enabled")); // from QGraphicsItem
+
+    NodeMetaInfo graphicsObjectTypeInfo = graphicsWidgetTypeInfo.directSuperClass();
+    QVERIFY(graphicsObjectTypeInfo.isValid());
+    QCOMPARE(graphicsObjectTypeInfo.typeName(), QLatin1String("QGraphicsObject"));
+    QCOMPARE(graphicsObjectTypeInfo.majorVersion(), 4);
+    QCOMPARE(graphicsObjectTypeInfo.minorVersion(), 7);
+    QCOMPARE(graphicsWidgetTypeInfo.superClasses().size(), 2);
+}
+
+void TestCore::testMetaInfoInterface()
+{
+    // Test type registered with qmlRegisterInterface
+    //
+
+    QSKIP("TODO: Test not implemented yet", SkipAll);
+}
+
+void TestCore::testMetaInfoCustomType()
+{
+    // Test type registered with qmlRegisterCustomType:
+    //
+    // qmlRegisterCustomType<QDeclarativePropertyChanges>("Qt", 4, 7, "PropertyChanges", new QDeclarativePropertyChangesParser);
+
+    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QVERIFY(model.data());
+
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/PropertyChanges"));
+    NodeMetaInfo propertyChangesInfo = model->metaInfo().nodeMetaInfo("Qt/PropertyChanges", 4, 7);
+    QVERIFY(propertyChangesInfo.isValid());
+    QVERIFY(propertyChangesInfo.hasProperty("target")); // from QDeclarativePropertyChanges
+    QVERIFY(propertyChangesInfo.hasProperty("restoreEntryValues")); // from QDeclarativePropertyChanges
+    QVERIFY(propertyChangesInfo.hasProperty("explicit")); // from QDeclarativePropertyChanges
+
+    NodeMetaInfo stateOperationInfo = propertyChangesInfo.directSuperClass();
+    QVERIFY(stateOperationInfo.isValid());
+    QCOMPARE(stateOperationInfo.typeName(), QLatin1String("QDeclarativeStateOperation"));
+    QCOMPARE(stateOperationInfo.majorVersion(), 4);
+    QCOMPARE(stateOperationInfo.minorVersion(), 7);
+    QCOMPARE(propertyChangesInfo.superClasses().size(), 2);
+
+    // DeclarativePropertyChanges just has 3 properties
+    QCOMPARE(propertyChangesInfo.properties().size() - stateOperationInfo.properties().size(), 3);
 }
 
 void TestCore::testMetaInfoEnums()
@@ -3355,6 +3438,26 @@ void TestCore::testMetaInfoEnums()
     QCOMPARE(view->rootModelNode().metaInfo().property("horizontalAlignment").type(), QLatin1String("HAlignment"));
     QVERIFY(view->rootModelNode().metaInfo().property("horizontalAlignment").enumerator().elementNames().contains(QLatin1String("AlignLeft")));
     QVERIFY(view->rootModelNode().metaInfo().property("horizontalAlignment").enumerator().elementNames().contains(QLatin1String("AlignRight")));
+}
+
+void TestCore::testMetaInfoProperties()
+{
+    QScopedPointer<Model> model(Model::create("Qt/Text"));
+    QVERIFY(model.data());
+
+    NodeMetaInfo textNodeMetaInfo = model->metaInfo().nodeMetaInfo("Qt/TextEdit", 4, 7);
+    QVERIFY(textNodeMetaInfo.hasProperty("text"));   // QDeclarativeTextEdit
+    QVERIFY(textNodeMetaInfo.hasProperty("parent"));     // QDeclarativeItem
+    QVERIFY(textNodeMetaInfo.hasProperty("x"));          // QGraphicsObject
+    QVERIFY(textNodeMetaInfo.hasProperty("objectName")); // Qt/QObject
+    QVERIFY(!textNodeMetaInfo.hasProperty("bla"));
+
+    QVERIFY(textNodeMetaInfo.property("text").isValid());
+    QVERIFY(textNodeMetaInfo.property("text").isReadable());
+    QVERIFY(textNodeMetaInfo.property("text").isWriteable());
+    QVERIFY(textNodeMetaInfo.property("x").isValid());
+    QVERIFY(textNodeMetaInfo.property("x").isReadable());
+    QVERIFY(textNodeMetaInfo.property("x").isWriteable());
 }
 
 void TestCore::testMetaInfoDotProperties()
@@ -6291,7 +6394,7 @@ void TestCore::loadGradient()
     {
         ModelNode gradientNode = rootModelNode.allDirectSubModelNodes().last();
         QVERIFY(gradientNode.isValid());
-        QVERIFY(!gradientNode.metaInfo().isQmlGraphicsItem());
+        QVERIFY(!gradientNode.metaInfo().isSubclassOf("Qt/Item", -1, -1));
         QCOMPARE(gradientNode.type(), QString("Qt/Gradient"));
         QCOMPARE(gradientNode.id(), QString("secondGradient"));
         QCOMPARE(gradientNode.allDirectSubModelNodes().size(), 2);

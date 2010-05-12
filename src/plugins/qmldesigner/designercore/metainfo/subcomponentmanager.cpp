@@ -295,12 +295,12 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
 
     const QDeclarativeDomObject rootObject = document.rootObject();
 
-    const QString baseType = document.rootObject().objectType();
-    Q_ASSERT_X(!baseType.isEmpty(), Q_FUNC_INFO, "Type of root object cannot be empty");
-
     NodeMetaInfo nodeInfo(m_metaInfo);
-    nodeInfo.setTypeName(componentName);
+    nodeInfo.setType(componentName, -1, -1);
     nodeInfo.setQmlFile(fileInfo.filePath());
+    nodeInfo.setSuperClass(rootObject.objectType(),
+                           rootObject.objectTypeMajorVersion(),
+                           rootObject.objectTypeMinorVersion());
 
     // Add file components to the library
     ItemLibraryEntry itemLibraryEntry;
@@ -309,7 +309,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
     itemLibraryEntry.setCategory(tr("QML Components"));
     m_metaInfo.itemLibraryInfo()->addEntry(itemLibraryEntry);
 
-    m_metaInfo.addNodeInfo(nodeInfo, baseType);
+    m_metaInfo.addNodeInfo(nodeInfo);
 
     foreach (const QDeclarativeDomDynamicProperty &dynamicProperty, document.rootObject().dynamicProperties()) {
         Q_ASSERT(!dynamicProperty.propertyName().isEmpty());

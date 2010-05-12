@@ -187,7 +187,6 @@ void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
     while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "node")) {
         reader.readNext();
 
-        handleNodeInheritElement(reader, className);
         handleAbstractPropertyElement(reader, nodeMetaInfo);
         handleAbstractPropertyDefaultValueElement(reader, nodeMetaInfo);
         handleNodeItemLibraryEntryElement(reader, className);
@@ -219,17 +218,6 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
         }
 
         m_metaInfo.itemLibraryInfo()->addEntry(entry);
-    }
-}
-
-void MetaInfoParser::handleNodeInheritElement(QXmlStreamReader &reader, const QString &className)
-{
-    if (reader.isStartElement() && reader.name() == "inherits")
-    {
-        QString superClassName = reader.attributes().value("name").toString();
-        Q_ASSERT(!superClassName.isEmpty());
-        m_metaInfo.addSuperClassRelationship(superClassName, className);
-        reader.readNext();
     }
 }
 
