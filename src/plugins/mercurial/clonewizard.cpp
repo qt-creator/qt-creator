@@ -53,7 +53,7 @@ QIcon CloneWizard::icon() const
 
 QString CloneWizard::description() const
 {
-    return tr("Clone a Mercurial repository");
+    return tr("Clones a Mercurial repository and tries to load the contained project.");
 }
 
 QString CloneWizard::displayName() const

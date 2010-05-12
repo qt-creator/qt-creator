@@ -57,7 +57,8 @@ ConsoleAppWizard::ConsoleAppWizard()
              QLatin1String(Constants::QT_APP_WIZARD_TR_SCOPE),
              QLatin1String(Constants::QT_APP_WIZARD_TR_CATEGORY),
              tr("Qt Console Application"),
-             tr("Creates a Qt console application."),
+             tr("Creates a project containing a single main.cpp file with a stub implementation.\n\n"
+                "Preselects a desktop Qt for building the application if available."),
              QIcon(QLatin1String(":/wizards/images/console.png")))
 {
 }

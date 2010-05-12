@@ -91,7 +91,8 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
         return false;
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setDescription(tr("Creates a text file (.txt)."));
+    wizardParameters.setDescription(tr("Creates a text file. The default file extension is <tt>.txt</tt>. "
+                                       "You can specify a different extension as part of the filename."));
     wizardParameters.setDisplayName(tr("Text File"));
     wizardParameters.setCategory(QLatin1String("U.General"));
     wizardParameters.setDisplayCategory(tr("General"));

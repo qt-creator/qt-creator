@@ -75,7 +75,7 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     addObject(m_editor);
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setDescription(tr("Creates a Qt Resource file (.qrc)."));
+    wizardParameters.setDescription(tr("Creates a Qt Resource file (.qrc) that you can add to a Qt C++ project."));
     wizardParameters.setDisplayName(tr("Qt Resource file"));
     wizardParameters.setId(QLatin1String("F.Resource"));
     wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));

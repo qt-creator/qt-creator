@@ -42,7 +42,9 @@ MobileGuiAppWizard::MobileGuiAppWizard() :
                  QLatin1String(Constants::QT_APP_WIZARD_TR_SCOPE),
                  QLatin1String(Constants::QT_APP_WIZARD_TR_CATEGORY),
                  tr("Mobile Qt Application"),
-                 tr("Creates a mobile Qt Gui Application with one form."),
+                 tr("Creates a Qt application optimized for mobile devices "
+                    "with a Qt Designer-based main window.\n\n"
+                    "Preselects Qt for Simulator and mobile targets if available"),
                  QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png")),
                  true)
 {
