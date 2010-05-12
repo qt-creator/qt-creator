@@ -747,61 +747,6 @@ FullySpecifiedType ResolveExpression::instantiate(const Name *className, Symbol 
     return GenTemplateInstance::instantiate(className, candidate, _context.control());
 }
 
-QList<LookupItem> ResolveExpression::resolveMember(const Name *memberName, Class *klass,
-                                                   const Name *className) const
-{
-    QList<LookupItem> results;
-
-    if (! klass)
-        return results;
-
-    if (! className)
-        className = klass->name();
-
-    if (! className)
-        return results;
-
-    const QList<Symbol *> candidates = _context.lookup(memberName, klass->members());
-
-    foreach (Symbol *candidate, candidates) {
-        FullySpecifiedType ty = candidate->type();
-        const Name *unqualifiedNameId = className;
-
-        if (const QualifiedNameId *q = className->asQualifiedNameId())
-            unqualifiedNameId = q->unqualifiedNameId();
-
-        if (const TemplateNameId *templId = unqualifiedNameId->asTemplateNameId())
-            ty = GenTemplateInstance::instantiate(templId, candidate, _context.control());
-
-        LookupItem item;
-        item.setType(ty);
-        item.setDeclaration(candidate);
-        results.append(item);
-    }
-
-    return removeDuplicates(results);
-}
-
-
-QList<LookupItem> ResolveExpression::resolveMember(const Name *memberName, ObjCClass *klass) const
-{
-    QList<LookupItem> results;
-    if (!memberName || !klass)
-        return results;
-
-    const QList<Symbol *> candidates = _context.lookup(memberName, klass->members());
-
-    foreach (Symbol *candidate, candidates) {
-        FullySpecifiedType ty = candidate->type();
-        LookupItem item;
-        item.setType(ty);
-        item.setDeclaration(candidate);
-        results.append(item);
-    }
-
-    return removeDuplicates(results);
-}
-
 bool ResolveExpression::visit(PostIncrDecrAST *)
 {
     return false;
@@ -809,6 +754,11 @@ bool ResolveExpression::visit(PostIncrDecrAST *)
 
 bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
 {
+#warning implement ResolveExpression::visit
+    qWarning() << Q_FUNC_INFO << __LINE__;
+    return false;
+
+#if 0
     const QList<LookupItem> receiverResults = resolve(ast->receiver_expression);
 
     if (!receiverResults.isEmpty()) {
@@ -838,5 +788,6 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
     }
 
     return false;
+#endif
 }
 

@@ -55,15 +55,10 @@ public:
                                                               int accessOp,
                                                               bool *replacedDotOperator = 0) const;
 
+protected:
     ClassOrNamespace *findClass(const FullySpecifiedType &ty, Scope *scope) const;
 
-protected:
     QList<LookupItem> resolve(ExpressionAST *ast);
-
-    Q_DECL_DEPRECATED QList<LookupItem> resolveMember(const Name *memberName, Class *klass,
-                                                      const Name *className = 0) const;
-
-    Q_DECL_DEPRECATED QList<LookupItem> resolveMember(const Name *memberName, ObjCClass *klass) const;
 
     QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
     FullySpecifiedType instantiate(const Name *className, Symbol *candidate) const;
