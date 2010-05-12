@@ -214,12 +214,10 @@ public:
     Document::Ptr document(const QString &fileName) const;
     Snapshot snapshot() const;
 
-    QList<Symbol *> lookup(const Name *name, Symbol *lastVisibleSymbol) const;
     QList<Symbol *> lookup(const Name *name, Scope *scope) const;
 
     ClassOrNamespace *globalNamespace() const;
 
-    ClassOrNamespace *classOrNamespace(const Name *name, Symbol *lastVisibleSymbol) const;
     ClassOrNamespace *classOrNamespace(const Name *name, Scope *scope) const;
     ClassOrNamespace *classOrNamespace(Symbol *symbol) const;
 
@@ -232,6 +230,8 @@ public:
     Control *control() const; // ### deprecate
 
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
+
+    Q_DECL_DEPRECATED ClassOrNamespace *classOrNamespace(const Name *name, Symbol *lastVisibleSymbol) const;
 
 private:
     Control *_control;

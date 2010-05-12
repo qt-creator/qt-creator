@@ -871,9 +871,7 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
 
-    Symbol *lastVisibleSymbol = doc->findSymbolAt(line, col);
-
-    const QList<LookupItem> results = typeOfExpression(code, lastVisibleSymbol,
+    const QList<LookupItem> results = typeOfExpression(code, doc->scopeAt(line, col),
                                                        TypeOfExpression::Preprocess);
 
     NamespaceBindingPtr glo = bind(doc, snapshot);
@@ -1235,6 +1233,10 @@ void CPPEditor::switchDeclarationDefinition()
     if (!m_modelManager)
         return;
 
+#warning implement CPPEditor::switchDeclarationDefinition
+    qWarning() << Q_FUNC_INFO << __LINE__;
+
+#if 0
     const Snapshot snapshot = m_modelManager->snapshot();
 
     Document::Ptr doc = snapshot.document(file()->fileName());
@@ -1274,6 +1276,7 @@ void CPPEditor::switchDeclarationDefinition()
         if (Symbol *def = findDefinition(lastSymbol, snapshot))
             openCppEditorAt(linkToSymbol(def));
     }
+#endif
 }
 
 static inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbols)
@@ -1425,8 +1428,8 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     }
 
     // Find the last symbol up to the cursor position
-    Symbol *lastSymbol = doc->findSymbolAt(line, column);
-    if (!lastSymbol)
+    Scope *scope = doc->scopeAt(line, column);
+    if (!scope)
         return link;
 
     // Evaluate the type of the expression under the cursor
@@ -1435,16 +1438,20 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
-    QList<LookupItem> resolvedSymbols =
-            typeOfExpression(expression, lastSymbol);
+    QList<LookupItem> resolvedSymbols = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
 
     if (!resolvedSymbols.isEmpty()) {
-        LookupItem result = skipForwardDeclarations(resolvedSymbols);
+        const LookupItem result = skipForwardDeclarations(resolvedSymbols);
 
-        if (Symbol *symbol = result.lastVisibleSymbol()) {
+        if (Symbol *symbol = result.declaration()) {
             Symbol *def = 0;
+
+            qWarning() << "find definition?";
+#warning port me
+#if 0
             if (resolveTarget && !lastSymbol->isFunction())
                 def = findDefinition(symbol, snapshot);
+#endif
 
             link = linkToSymbol(def ? def : symbol);
             link.begin = beginOfToken;

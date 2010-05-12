@@ -178,6 +178,9 @@ static QString buildHelpId(Symbol *symbol, const Name *name)
     return qualifiedNames.join(QLatin1String("::"));
 }
 
+#warning implement static FullySpecifiedType resolve()
+
+#if 0
 // ### move me
 static FullySpecifiedType resolve(const FullySpecifiedType &ty,
                                   const LookupContext &context,
@@ -257,6 +260,7 @@ static FullySpecifiedType resolve(const FullySpecifiedType &ty,
 
     return ty;
 }
+#endif
 
 void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
 {
@@ -270,6 +274,8 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!edit)
         return;
 
+#warning void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
+#if 0
     const Snapshot documents = m_modelManager->snapshot();
     const QString fileName = editor->file()->fileName();
     Document::Ptr doc = documents.document(fileName);
@@ -285,7 +291,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     // Find the last symbol up to the cursor position
     int line = 0, column = 0;
     editor->convertPosition(tc.position(), &line, &column);
-    Symbol *lastSymbol = doc->findSymbolAt(line, column);
+    Scope *scope = doc->scopeAt(line, column);
 
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, documents);
@@ -336,18 +342,18 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         ExpressionUnderCursor expressionUnderCursor;
         const QString expression = expressionUnderCursor(tc);
 
-        const QList<LookupItem> types = typeOfExpression(expression, lastSymbol);
+        const QList<LookupItem> types = typeOfExpression(expression, scope);
 
         if (!types.isEmpty()) {
             const LookupItem result = types.first();
 
             FullySpecifiedType firstType = result.type(); // result of `type of expression'.
-            Symbol *lookupSymbol = result.lastVisibleSymbol(); // lookup symbol
+            Symbol *lookupSymbol = result.declaration(); // lookup symbol
 
             Symbol *resolvedSymbol = lookupSymbol;
             const Name *resolvedName = lookupSymbol ? lookupSymbol->name() : 0;
             firstType = resolve(firstType, typeOfExpression.lookupContext(),
-                                lastSymbol,
+                                scope,
                                 &resolvedSymbol, &resolvedName);
 
             if (resolvedSymbol && resolvedSymbol->scope()
@@ -362,7 +368,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             m_helpId = buildHelpId(resolvedSymbol, resolvedName);
 
             if (m_toolTip.isEmpty()) {
-                Symbol *symbol = result.lastVisibleSymbol();
+                Symbol *symbol = result.declaration();
                 if (resolvedSymbol)
                     symbol = resolvedSymbol;
 
@@ -431,4 +437,5 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     } else if (!m_toolTip.isEmpty() && Qt::mightBeRichText(m_toolTip)) {
         m_toolTip = QString(QLatin1String("<nobr>%1")).arg(Qt::escape(m_toolTip));
     }
+#endif
 }

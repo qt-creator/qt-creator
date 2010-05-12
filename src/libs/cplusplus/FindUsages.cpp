@@ -29,6 +29,7 @@
 
 #include "FindUsages.h"
 #include "TypeOfExpression.h"
+#include "DeprecatedLookupContext.h"
 
 #include <Control.h>
 #include <Literals.h>
@@ -46,6 +47,7 @@ FindUsages::FindUsages(Document::Ptr doc, const Snapshot &snapshot)
     : ASTVisitor(doc->translationUnit()),
       _doc(doc),
       _snapshot(snapshot),
+      _context(doc, snapshot),
       _source(_doc->source()),
       _sem(doc->translationUnit()),
       _inSimpleDeclaration(0),
@@ -103,6 +105,14 @@ QString FindUsages::matchingLine(const Token &tk) const
 
     const QString matchingLine = QString::fromUtf8(cp, lineEnd - cp);
     return matchingLine;
+}
+
+Scope *FindUsages::scopeAt(unsigned tokenIndex) const
+{
+    TranslationUnit *unit = _doc->translationUnit();
+    unsigned line, column;
+    unit->getTokenPosition(tokenIndex, &line, &column);
+    return _doc->scopeAt(line, column);
 }
 
 void FindUsages::reportResult(unsigned tokenIndex, const QList<Symbol *> &candidates)
@@ -201,27 +211,6 @@ bool FindUsages::checkSymbol(Symbol *symbol) const
     return false;
 }
 
-DeprecatedLookupContext FindUsages::currentContext(AST *ast)
-{
-    unsigned line, column;
-    getTokenStartPosition(ast->firstToken(), &line, &column);
-    Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
-
-    if (_inQProperty && lastVisibleSymbol->isClass()) {
-        Scope *memberScope = lastVisibleSymbol->asClass()->members();
-
-        if (unsigned count = memberScope->symbolCount())
-            lastVisibleSymbol = memberScope->symbolAt(count - 1);
-    }
-
-    if (lastVisibleSymbol && lastVisibleSymbol == _previousContext.symbol())
-        return _previousContext;
-
-    DeprecatedLookupContext ctx(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
-    _previousContext = ctx;
-    return _previousContext;
-}
-
 void FindUsages::ensureNameIsValid(NameAST *ast)
 {
     if (ast && ! ast->name)
@@ -235,8 +224,7 @@ bool FindUsages::visit(MemInitializerAST *ast)
 
         SimpleNameAST *simple = ast->name->asSimpleName();
         if (identifier(simple->identifier_token) == _id) {
-            DeprecatedLookupContext context = currentContext(ast);
-            const QList<Symbol *> candidates = context.resolve(simple->name);
+            const QList<Symbol *> candidates = _context.lookup(simple->name, scopeAt(simple->identifier_token));
             reportResult(simple->identifier_token, candidates);
         }
     }
@@ -286,15 +274,15 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken)
 
     unsigned line, column;
     getTokenStartPosition(startToken, &line, &column);
-    Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
+    Scope *scope = _doc->scopeAt(line, column);
 
-    const QList<LookupItem> results = typeofExpression(expression, lastVisibleSymbol,
+    const QList<LookupItem> results = typeofExpression(expression, scope,
                                                        TypeOfExpression::Preprocess);
 
     QList<Symbol *> candidates;
 
     foreach (const LookupItem &r, results) {
-        Symbol *lastVisibleSymbol = r.lastVisibleSymbol();
+        Symbol *lastVisibleSymbol = r.declaration();
         candidates.append(lastVisibleSymbol);
     }
 
@@ -365,8 +353,7 @@ bool FindUsages::visit(EnumeratorAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        DeprecatedLookupContext context = currentContext(ast);
-        const QList<Symbol *> candidates = context.resolve(control()->nameId(id));
+        const QList<Symbol *> candidates = _context.lookup(control()->nameId(id), scopeAt(ast->identifier_token));
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -379,8 +366,7 @@ bool FindUsages::visit(SimpleNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        DeprecatedLookupContext context = currentContext(ast);
-        const QList<Symbol *> candidates = context.resolve(ast->name);
+        const QList<Symbol *> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -391,8 +377,7 @@ bool FindUsages::visit(DestructorNameAST *ast)
 {
     const Identifier *id = identifier(ast->identifier_token);
     if (id == _id) {
-        DeprecatedLookupContext context = currentContext(ast);
-        const QList<Symbol *> candidates = context.resolve(ast->name);
+        const QList<Symbol *> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -402,8 +387,7 @@ bool FindUsages::visit(DestructorNameAST *ast)
 bool FindUsages::visit(TemplateIdAST *ast)
 {
     if (_id == identifier(ast->identifier_token)) {
-        DeprecatedLookupContext context = currentContext(ast);
-        const QList<Symbol *> candidates = context.resolve(ast->name);
+        const QList<Symbol *> candidates = _context.lookup(ast->name, scopeAt(ast->identifier_token));
         reportResult(ast->identifier_token, candidates);
     }
 
@@ -478,8 +462,7 @@ bool FindUsages::visit(ObjCSelectorAST *ast)
     if (ast->name) {
         const Identifier *id = ast->name->identifier();
         if (id == _id) {
-            DeprecatedLookupContext context = currentContext(ast);
-            const QList<Symbol *> candidates = context.resolve(ast->name);
+            const QList<Symbol *> candidates = _context.lookup(ast->name, scopeAt(ast->firstToken()));
             reportResult(ast->firstToken(), candidates);
         }
     }

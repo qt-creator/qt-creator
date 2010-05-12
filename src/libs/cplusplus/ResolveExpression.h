@@ -41,12 +41,11 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ResolveExpression: protected ASTVisitor
 {
 public:
-    ResolveExpression(Symbol *lastVisibleSymbol, const LookupContext &context);
-    ResolveExpression(Scope *scope, const LookupContext &context);
-
+    ResolveExpression(const LookupContext &context);
     virtual ~ResolveExpression();
 
-    QList<LookupItem> operator()(ExpressionAST *ast);
+    QList<LookupItem> operator()(ExpressionAST *ast, Scope *scope);
+    QList<LookupItem> resolve(ExpressionAST *ast, Scope *scope);
 
     QList<LookupItem> resolveMemberExpression(const QList<LookupItem> &baseResults,
                                               unsigned accessOp,
@@ -57,19 +56,20 @@ public:
                                             int accessOp,
                                             bool *replacedDotOperator = 0) const;
 
+protected:
+    QList<LookupItem> resolve(ExpressionAST *ast);
+
     Q_DECL_DEPRECATED QList<LookupItem> resolveMember(const Name *memberName, Class *klass,
                                                       const Name *className = 0) const;
 
     Q_DECL_DEPRECATED QList<LookupItem> resolveMember(const Name *memberName, ObjCClass *klass) const;
 
-protected:
     QList<LookupItem> switchResults(const QList<LookupItem> &symbols);
     FullySpecifiedType instantiate(const Name *className, Symbol *candidate) const;
 
     void thisObject();
 
-    void addResult(const FullySpecifiedType &ty, Symbol *symbol = 0);
-
+    void addResult(const FullySpecifiedType &ty, Scope *scope);
     void addResults(const QList<Symbol *> &symbols);
 
     bool maybeValidPrototype(Function *funTy, unsigned actualArgumentCount) const;
@@ -118,7 +118,6 @@ protected:
     virtual bool visit(ObjCMessageExpressionAST *ast);
 
 private:
-    Symbol *_lastVisibleSymbol;
     Scope *_scope;
     LookupContext _context;
     Semantic sem;

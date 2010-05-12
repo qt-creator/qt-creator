@@ -39,16 +39,12 @@ using namespace CPlusPlus;
 uint CPlusPlus::qHash(const CPlusPlus::LookupItem &key)
 {
     const uint h1 = QT_PREPEND_NAMESPACE(qHash)(key.type().type());
-    const uint h2 = QT_PREPEND_NAMESPACE(qHash)(key.lastVisibleSymbol());
+    const uint h2 = QT_PREPEND_NAMESPACE(qHash)(key.scope());
     return ((h1 << 16) | (h1 >> 16)) ^ h2;
 }
 
 LookupItem::LookupItem()
-    : _lastVisibleSymbol(0), _declaration(0)
-{ }
-
-LookupItem::LookupItem(const FullySpecifiedType &type, Symbol *lastVisibleSymbol, Symbol *declaration)
-    : _type(type), _lastVisibleSymbol(lastVisibleSymbol), _declaration(declaration)
+    : _scope(0), _declaration(0)
 { }
 
 FullySpecifiedType LookupItem::type() const
@@ -63,15 +59,20 @@ Symbol *LookupItem::declaration() const
 void LookupItem::setDeclaration(Symbol *declaration)
 { _declaration = declaration; }
 
-Symbol *LookupItem::lastVisibleSymbol() const
-{ return _lastVisibleSymbol; }
+Scope *LookupItem::scope() const
+{
+    if (! _scope && _declaration)
+        return _declaration->scope();
 
-void LookupItem::setLastVisibleSymbol(Symbol *symbol)
-{ _lastVisibleSymbol = symbol; }
+    return _scope;
+}
+
+void LookupItem::setScope(Scope *scope)
+{ _scope = scope; }
 
 bool LookupItem::operator == (const LookupItem &other) const
 {
-    if (_type == other._type && _declaration == other._declaration && _lastVisibleSymbol == other._lastVisibleSymbol)
+    if (_type == other._type && _declaration == other._declaration && _scope == other._scope)
         return true;
 
     return false;

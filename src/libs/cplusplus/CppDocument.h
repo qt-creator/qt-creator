@@ -92,7 +92,8 @@ public:
     QList<Macro> definedMacros() const
     { return _definedMacros; }
 
-    Symbol *findSymbolAt(unsigned line, unsigned column) const;
+    Q_DECL_DEPRECATED Symbol *findSymbolAt(unsigned line, unsigned column) const;
+    Scope *scopeAt(unsigned line, unsigned column);
 
     QByteArray source() const;
     void setSource(const QByteArray &source);

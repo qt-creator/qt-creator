@@ -349,7 +349,7 @@ QList<Scope *> DeprecatedLookupContext::buildVisibleScopes()
 }
 
 QList<Scope *> DeprecatedLookupContext::visibleScopes(const LookupItem &result) const
-{ return visibleScopes(result.lastVisibleSymbol()); }
+{ return visibleScopes(result.declaration()); }
 
 QList<Scope *> DeprecatedLookupContext::visibleScopes(Symbol *symbol) const
 {
@@ -710,7 +710,7 @@ Symbol *DeprecatedLookupContext::canonicalSymbol(const QList<LookupItem> &result
     QList<Symbol *> candidates;
 
     foreach (const LookupItem &result, results)
-        candidates.append(result.lastVisibleSymbol()); // ### not exactly.
+        candidates.append(result.declaration()); // ### not exactly.
 
     return canonicalSymbol(candidates, globalNamespaceBinding);
 }

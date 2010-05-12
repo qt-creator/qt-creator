@@ -30,7 +30,7 @@
 #ifndef FINDUSAGES_H
 #define FINDUSAGES_H
 
-#include "DeprecatedLookupContext.h"
+#include "LookupContext.h"
 #include "CppDocument.h"
 #include "CppBindings.h"
 #include "Semantic.h"
@@ -73,6 +73,7 @@ protected:
     using ASTVisitor::endVisit;
 
     QString matchingLine(const Token &tk) const;
+    Scope *scopeAt(unsigned tokenIndex) const;
 
     void reportResult(unsigned tokenIndex, const QList<Symbol *> &candidates);
     void reportResult(unsigned tokenIndex);
@@ -81,8 +82,6 @@ protected:
     bool checkCandidates(const QList<Symbol *> &candidates) const;
     bool checkScope(Symbol *symbol, Symbol *otherSymbol) const;
     void checkExpression(unsigned startToken, unsigned endToken);
-
-    DeprecatedLookupContext currentContext(AST *ast);
 
     void ensureNameIsValid(NameAST *ast);
 
@@ -108,6 +107,7 @@ private:
     Symbol *_declSymbol;
     Document::Ptr _doc;
     Snapshot _snapshot;
+    LookupContext _context;
     QByteArray _source;
     Document::Ptr _exprDoc;
     Semantic _sem;
@@ -116,7 +116,6 @@ private:
     QList<QualifiedNameAST *> _qualifiedNameStack;
     QList<int> _references;
     QList<Usage> _usages;
-    DeprecatedLookupContext _previousContext;
     int _inSimpleDeclaration;
     bool _inQProperty;
     QSet<unsigned> _processed;

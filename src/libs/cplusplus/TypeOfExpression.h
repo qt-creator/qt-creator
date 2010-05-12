@@ -76,10 +76,10 @@ public:
      * has been made!
      *
      * @param expression        The expression to evaluate.
-     * @param lastVisibleSymbol The last visible symbol in the document.
+     * @param scope             The scope enclosing the expression.
      */
     QList<LookupItem> operator()(const QString &expression,
-                                 Symbol *lastVisibleSymbol,
+                                 Scope *scope,
                                  PreprocessMode mode = NoPreprocess);
 
     QString preprocess(const QString &expression) const;
@@ -93,7 +93,7 @@ public:
      * Returns the lookup context of the last evaluated expression.
      */
     const LookupContext &lookupContext() const;
-    Symbol *lastVisibleSymbol() const;
+    Scope *scope() const;
 
     ExpressionAST *expressionAST() const;
 
@@ -111,7 +111,7 @@ private:
     Snapshot m_snapshot;
     QSharedPointer<CreateBindings> m_bindings;
     ExpressionAST *m_ast;
-    Symbol *m_lastVisibleSymbol;
+    Scope *m_scope;
     LookupContext m_lookupContext;
     mutable QSharedPointer<Environment> m_environment;
 };

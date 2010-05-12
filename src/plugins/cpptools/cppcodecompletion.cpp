@@ -754,15 +754,17 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
         }
     }
 
+    Scope *scope = thisDocument->scopeAt(line, column);
+    Q_ASSERT(scope != 0);
 
-    QList<LookupItem> results = typeOfExpression(expression, lastVisibleSymbol, TypeOfExpression::Preprocess);
+    QList<LookupItem> results = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
     LookupContext context = typeOfExpression.lookupContext();
 
     if (results.isEmpty()) {
         if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
             if (! (expression.isEmpty() || expression == QLatin1String("this"))) {
                 expression = QLatin1String("this");
-                results = typeOfExpression(expression, lastVisibleSymbol);
+                results = typeOfExpression(expression, scope);
             }
 
             if (results.isEmpty())
@@ -785,7 +787,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
 
             // Resolve the type of this expression
             const QList<LookupItem> results =
-                    typeOfExpression(baseExpression, lastVisibleSymbol,
+                    typeOfExpression(baseExpression, scope,
                                      TypeOfExpression::Preprocess);
 
             // If it's a class, add completions for the constructors
@@ -930,10 +932,10 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 
         foreach (const LookupItem &result, results) {
             FullySpecifiedType ty = result.type().simplified();
-            Symbol *lastVisibleSymbol = result.lastVisibleSymbol();
+            Scope *scope = result.scope();
 
             if (NamedType *namedTy = ty->asNamedType()) {
-                if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), lastVisibleSymbol)) {
+                if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), scope)) {
                     foreach (Symbol *overload, b->lookup(functionCallOp)) {
                         FullySpecifiedType overloadTy = overload->type().simplified();
 
@@ -966,8 +968,8 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
         // find a scope that encloses the current location, starting from the lastVisibileSymbol
         // and moving outwards
         Scope *sc = 0;
-        if (typeOfExpression.lastVisibleSymbol())
-            sc = typeOfExpression.lastVisibleSymbol()->scope();
+        if (typeOfExpression.scope())
+            sc = typeOfExpression.scope();
         else if (context.thisDocument())
             sc = context.thisDocument()->globalSymbols();
 
@@ -1054,7 +1056,7 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
     if (baseResults.isEmpty())
         return false;
 
-    ResolveExpression resolveExpression(typeOfExpression.lastVisibleSymbol(), context);
+    ResolveExpression resolveExpression(context);
 
     bool replacedDotOperator = false;
     const QList<LookupItem> classObjectResults =
@@ -1064,21 +1066,22 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
 
     ClassOrNamespace *classOrNamespace = 0;
 
-    QList<Symbol *> classObjectCandidates;
     foreach (const LookupItem &r, classObjectResults) {
         FullySpecifiedType ty = r.type().simplified();
 
-        if (Class *klass = ty->asClassType())
-            classObjectCandidates.append(klass);
-
-        else if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), r.lastVisibleSymbol())) {
+        if (Class *klass = ty->asClassType()) {
+            if (ClassOrNamespace *b = context.classOrNamespace(klass)) {
                 classOrNamespace = b;
                 break;
+            }
+        }
 
+        else if (NamedType *namedTy = ty->asNamedType()) {
+            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), r.scope())) {
+                classOrNamespace = b;
+                break;
             }  else {
                 Overview oo;
-
                 qDebug() << "*** no class for" << oo(namedTy->name());
             }
         }
@@ -1109,10 +1112,10 @@ bool CppCodeCompletion::completeScope(const QList<LookupItem> &results,
 
     foreach (const LookupItem &result, results) {
         FullySpecifiedType ty = result.type();
-        Symbol *lastVisibleSymbol = result.lastVisibleSymbol();
+        Scope *scope = result.scope();
 
         if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), lastVisibleSymbol)) {
+            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), scope)) {
                 completeClass(b, context);
                 break;
             }
@@ -1353,7 +1356,7 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
     if (results.isEmpty())
         return false;
 
-    DeprecatedLookupContext context(typeOfExpression.lastVisibleSymbol(),
+    DeprecatedLookupContext context(typeOfExpression.scope()->owner(),
                                     newContext.expressionDocument(),
                                     newContext.thisDocument(),
                                     newContext.snapshot());
@@ -1377,7 +1380,7 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
         if (! namedTy) // not a class name.
             continue;
 
-        ClassOrNamespace *b = newContext.classOrNamespace(namedTy->name(), p.lastVisibleSymbol());
+        ClassOrNamespace *b = newContext.classOrNamespace(namedTy->name(), p.scope());
         if (! b)
             continue;
 

@@ -41,9 +41,6 @@ public:
     /// Constructs an null LookupItem.
     LookupItem();
 
-    /// Contructs a LookupItem with the given \a type, \a lastVisibleSymbol and \a declaration.
-    LookupItem(const FullySpecifiedType &type, Symbol *lastVisibleSymbol, Symbol *declaration = 0);
-
     /// Returns this item's type.
     FullySpecifiedType type() const;
 
@@ -51,23 +48,23 @@ public:
     void setType(const FullySpecifiedType &type);
 
     /// Returns the last visible symbol.
-    Symbol *lastVisibleSymbol() const;
-
-    /// Sets the last visible symbol.
-    void setLastVisibleSymbol(Symbol *symbol);
-
-    /// Returns this item's declaration.
     Symbol *declaration() const;
 
-    /// Sets this item's declaration.
+    /// Sets the last visible symbol.
     void setDeclaration(Symbol *declaration);
+
+    /// Returns this item's scope.
+    Scope *scope() const;
+
+    /// Sets this item's scope.
+    void setScope(Scope *scope);
 
     bool operator == (const LookupItem &other) const;
     bool operator != (const LookupItem &other) const;
 
 private:
     FullySpecifiedType _type;
-    Symbol *_lastVisibleSymbol;
+    Scope *_scope;
     Symbol *_declaration;
 };
 

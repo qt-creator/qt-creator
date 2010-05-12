@@ -57,6 +57,91 @@ using namespace CPlusPlus;
 
 namespace {
 
+class FindScopeAt: protected SymbolVisitor
+{
+    TranslationUnit *_unit;
+    unsigned _line;
+    unsigned _column;
+    Scope *_scope;
+
+public:
+    FindScopeAt(TranslationUnit *unit, unsigned line, unsigned column)
+        : _unit(unit), _line(line), _column(column), _scope(0) {}
+
+    Scope *operator()(Symbol *symbol)
+    {
+        accept(symbol);
+        return _scope;
+    }
+
+protected:
+    bool process(ScopedSymbol *symbol)
+    {
+        if (! _scope) {
+            Scope *scope = symbol->members();
+
+            for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+                accept(scope->symbolAt(i));
+
+                if (_scope)
+                    return false;
+            }
+
+            unsigned startLine, startColumn;
+            _unit->getPosition(symbol->startOffset(), &startLine, &startColumn);
+
+            if (_line > startLine || (_line == startLine && _column >= startColumn)) {
+                unsigned endLine, endColumn;
+                _unit->getPosition(symbol->endOffset(), &endLine, &endColumn);
+
+                if (_line < endLine || (_line == endLine && _column < endColumn))
+                    _scope = scope;
+            }
+        }
+
+        return false;
+    }
+
+    using SymbolVisitor::visit;
+
+    virtual bool preVisit(Symbol *)
+    { return ! _scope; }
+
+    virtual bool visit(UsingNamespaceDirective *) { return false; }
+    virtual bool visit(UsingDeclaration *) { return false; }
+    virtual bool visit(NamespaceAlias *) { return false; }
+    virtual bool visit(Declaration *) { return false; }
+    virtual bool visit(Argument *) { return false; }
+    virtual bool visit(TypenameArgument *) { return false; }
+    virtual bool visit(BaseClass *) { return false; }
+    virtual bool visit(ForwardClassDeclaration *) { return false; }
+
+    virtual bool visit(Enum *symbol)
+    { return process(symbol); }
+
+    virtual bool visit(Function *symbol)
+    { return process(symbol); }
+
+    virtual bool visit(Namespace *symbol)
+    { return process(symbol); }
+
+    virtual bool visit(Class *symbol)
+    { return process(symbol); }
+
+    virtual bool visit(Block *symbol)
+    { return process(symbol); }
+
+    // Objective-C
+    virtual bool visit(ObjCBaseClass *) { return false; }
+    virtual bool visit(ObjCBaseProtocol *) { return false; }
+    virtual bool visit(ObjCClass *) { return false; }
+    virtual bool visit(ObjCForwardClassDeclaration *) { return false; }
+    virtual bool visit(ObjCProtocol *) { return false; }
+    virtual bool visit(ObjCForwardProtocolDeclaration *) { return false; }
+    virtual bool visit(ObjCMethod *) { return false; }
+    virtual bool visit(ObjCPropertyDeclaration *) { return false; }
+};
+
 class DocumentDiagnosticClient : public DiagnosticClient
 {
     enum { MAX_MESSAGE_COUNT = 10 };
@@ -311,6 +396,12 @@ Namespace *Document::globalNamespace() const
 void Document::setGlobalNamespace(Namespace *globalNamespace)
 {
     _globalNamespace = globalNamespace;
+}
+
+Scope *Document::scopeAt(unsigned line, unsigned column)
+{
+    FindScopeAt findScopeAt(_translationUnit, line, column);
+    return findScopeAt(_globalNamespace);
 }
 
 Symbol *Document::findSymbolAt(unsigned line, unsigned column) const
@@ -616,7 +707,7 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *symbol) const
     }
 
     LookupContext thisContext(thisDocument, *this);
-    const QList<Symbol *> declarationCandidates = thisContext.lookup(symbol->name(), symbol);
+    const QList<Symbol *> declarationCandidates = thisContext.lookup(symbol->name(), symbol->scope());
     if (declarationCandidates.isEmpty()) {
         qWarning() << "unresolved declaration:" << symbol->fileName() << symbol->line() << symbol->column();
         return 0;
@@ -644,7 +735,7 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *symbol) const
             QList<Function *> viableFunctions;
 
             foreach (Function *fun, result) {
-                const QList<Symbol *> declarations = context.lookup(fun->name(), fun);
+                const QList<Symbol *> declarations = context.lookup(fun->name(), fun->scope());
 
                 if (declarations.contains(declaration))
                     viableFunctions.append(fun);
