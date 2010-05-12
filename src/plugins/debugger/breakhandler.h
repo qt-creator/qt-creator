@@ -67,9 +67,8 @@ public:
     void removeAt(int index); // This also deletes the marker.
     void clear(); // This also deletes all the marker.
     int indexOf(BreakpointData *data) { return m_bp.indexOf(data); }
-    // If lineNumber < 0, interpret fileName as address.
-    int findBreakpoint(const QString &fileName, int lineNumber) const;
-    BreakpointData *findSimilarBreakpoint(const BreakpointData &data) const;
+    // Find a breakpoint matching approximately the data in needle.bp*,
+    BreakpointData *findSimilarBreakpoint(const BreakpointData &needle) const;
     BreakpointData *findBreakpointByNumber(int bpNumber) const;
     void updateMarkers();
 
@@ -88,6 +87,7 @@ public slots:
     void toggleBreakpointEnabled(BreakpointData *data);
     void breakByFunction(const QString &functionName);
     void removeBreakpoint(int index);
+    void removeBreakpoint(BreakpointData *data);
 
 private:
     friend class BreakpointMarker;

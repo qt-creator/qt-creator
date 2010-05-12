@@ -289,7 +289,6 @@ public slots: // FIXME
     void reloadRegisters();
     void registerDockToggled(bool on);
     void clearStatusMessage();
-    void appendBreakpoint(Internal::BreakpointData *data);
     void attemptBreakpointSynchronization();
     void reloadFullStack();
     void operateByInstructionTriggered();
@@ -358,8 +357,7 @@ private:
 
     void aboutToShutdown();
 
-    void toggleBreakpoint(const QString &fileName, int lineNumber);
-    Internal::BreakpointData *findBreakpoint(const QString &fileName, int lineNumber);
+    //void toggleBreakpoint(const QString &fileName, int lineNumber);
     void setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, int cursorPos);
     void openTextEditor(const QString &titlePattern,

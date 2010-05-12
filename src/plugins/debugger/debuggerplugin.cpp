@@ -1146,19 +1146,28 @@ void DebuggerPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
     if (!isDebuggable(editor))
         return;
 
-    QString fileName, position;
+    BreakHandler *handler = m_manager->breakHandler();
+    QTC_ASSERT(handler, return);
+
+    BreakpointData *data = 0;
+    QString position;
     if (editor->property("DisassemblerView").toBool()) {
         QString fileName = editor->file()->fileName();
         QString line = editor->contents()
             .section('\n', lineNumber - 1, lineNumber - 1);
-        fileName = line.left(line.indexOf(QLatin1Char(' ')));
-        lineNumber = -1;
         position = _("*") + fileName;
+        BreakpointData needle;
+        needle.bpAddress = line.left(line.indexOf(QLatin1Char(' '))).toLatin1();
+        needle.bpLineNumber = "-1";
+        data = handler->findSimilarBreakpoint(needle);
     } else {
-        fileName = editor->file()->fileName();
+        QString fileName = editor->file()->fileName();
         position = fileName + QString(":%1").arg(lineNumber);
+        BreakpointData needle;
+        needle.bpFileName = fileName;
+        needle.bpLineNumber = QByteArray::number(lineNumber);
+        data = handler->findSimilarBreakpoint(needle);
     }
-    BreakpointData *data = m_manager->findBreakpoint(fileName, lineNumber);
 
     if (data) {
         // existing breakpoint
@@ -1191,9 +1200,11 @@ void DebuggerPlugin::breakpointSetRemoveMarginActionTriggered()
 {
     QAction *act = qobject_cast<QAction *>(sender());
     QTC_ASSERT(act, return);
+    BreakHandler *handler = m_manager->breakHandler();
+    QTC_ASSERT(handler, return);
     QString str = act->data().toString();
     int pos = str.lastIndexOf(':');
-    m_manager->toggleBreakpoint(str.left(pos), str.mid(pos + 1).toInt());
+    toggleBreakpoint(str, pos);
 }
 
 void DebuggerPlugin::breakpointEnableDisableMarginActionTriggered()
@@ -1205,12 +1216,12 @@ void DebuggerPlugin::breakpointEnableDisableMarginActionTriggered()
 
     QString str = act->data().toString();
     int pos = str.lastIndexOf(':');
-    QString fileName = str.left(pos);
-    int lineNumber = str.mid(pos + 1).toInt();
-
-    BreakpointData *data = handler->at(handler->findBreakpoint(fileName, lineNumber));
+    BreakpointData needle;
+    needle.bpFileName = str.left(pos);
+    needle.bpLineNumber = str.mid(pos + 1).toLatin1();
+    BreakpointData *data = handler->findSimilarBreakpoint(needle);
+    QTC_ASSERT(data, return);
     handler->toggleBreakpointEnabled(data);
-
     m_manager->attemptBreakpointSynchronization();
 }
 
@@ -1218,7 +1229,7 @@ void DebuggerPlugin::requestMark(ITextEditor *editor, int lineNumber)
 {
     if (!isDebuggable(editor))
         return;
-    m_manager->toggleBreakpoint(editor->file()->fileName(), lineNumber);
+    toggleBreakpoint(editor->file()->fileName(), lineNumber);
 }
 
 void DebuggerPlugin::showToolTip(ITextEditor *editor, const QPoint &point, int pos)
@@ -1532,14 +1543,58 @@ void DebuggerPlugin::enableReverseDebuggingTriggered(const QVariant &value)
         m_manager->debuggerManagerActions().reverseDirectionAction->setChecked(false);
 }
 
+static BreakpointData *createBreakpointByFileAndLine
+    (const QString &fileName, int lineNumber)
+{
+    BreakpointData *data = new BreakpointData;
+    if (lineNumber > 0) {
+        data->fileName = fileName;
+        data->lineNumber = QByteArray::number(lineNumber);
+        data->pending = true;
+        data->setMarkerFileName(fileName);
+        data->setMarkerLineNumber(lineNumber);
+    } else {
+        data->funcName = fileName;
+        data->lineNumber = 0;
+        data->pending = true;
+        // FIXME: Figure out in which disassembler view the Marker sits.
+        // Might be better to let the user code create the BreakpointData
+        // structure and insert it here.
+        data->setMarkerFileName(QString());
+        data->setMarkerLineNumber(0);
+    }
+    return data;
+}
+
 void DebuggerPlugin::toggleBreakpoint()
 {
     ITextEditor *textEditor = currentTextEditor();
     QTC_ASSERT(textEditor, return);
-    QString fileName = textEditor->file()->fileName();
     int lineNumber = textEditor->currentLine();
     if (lineNumber >= 0)
-        m_manager->toggleBreakpoint(fileName, lineNumber);
+        toggleBreakpoint(textEditor->file()->fileName(), lineNumber);
+}
+
+void DebuggerPlugin::toggleBreakpoint(const QString &fileName, int lineNumber)
+{
+    BreakHandler *handler = m_manager->breakHandler();
+    QTC_ASSERT(handler, return);
+    BreakpointData needle;
+    needle.bpFileName = fileName;
+    needle.bpLineNumber.setNum(lineNumber);
+    BreakpointData *data = handler->findSimilarBreakpoint(needle);
+    if (data) {
+        handler->removeBreakpoint(data);
+    } else {
+        data = new BreakpointData;
+        data->fileName = fileName;
+        data->lineNumber = QByteArray::number(lineNumber);
+        data->pending = true;
+        data->setMarkerFileName(fileName);
+        data->setMarkerLineNumber(lineNumber);
+        handler->appendBreakpoint(data);
+    }
+    m_manager->attemptBreakpointSynchronization();
 }
 
 void DebuggerPlugin::attachRemoteTcf()

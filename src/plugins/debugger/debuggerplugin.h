@@ -82,10 +82,10 @@ public:
     ~DebuggerPlugin();
 
 private:
-    virtual bool initialize(const QStringList &arguments, QString *error_message);
-    virtual void aboutToShutdown();
-    virtual void extensionsInitialized();
-    virtual void remoteCommand(const QStringList &options, const QStringList &arguments);
+    bool initialize(const QStringList &arguments, QString *error_message);
+    void aboutToShutdown();
+    void extensionsInitialized();
+    void remoteCommand(const QStringList &options, const QStringList &arguments);
 
     QVariant configValue(const QString &name) const;
     TextEditor::ITextEditor *currentTextEditor();
@@ -96,8 +96,8 @@ private:
 private slots:
     void activatePreviousMode();
     void activateDebugMode();
-    void editorOpened(Core::IEditor *);
-    void editorAboutToClose(Core::IEditor *);
+    void editorOpened(Core::IEditor *editor);
+    void editorAboutToClose(Core::IEditor *editor);
     void handleStateChanged(int state);
     void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
     void showToolTip(TextEditor::ITextEditor *editor, const QPoint &pnt, int pos);
@@ -105,11 +105,12 @@ private slots:
         int lineNumber, QMenu *menu);
 
     void resetLocation();
-    void gotoLocation(const QString &file, int line, bool setMarker);
+    void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
 
     void openTextEditor(const QString &titlePattern, const QString &contents);
 
     void toggleBreakpoint();
+    void toggleBreakpoint(const QString &fileName, int lineNumber);
     void breakpointSetRemoveMarginActionTriggered();
     void breakpointEnableDisableMarginActionTriggered();
     void onModeChanged(Core::IMode *mode);

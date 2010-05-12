@@ -29,6 +29,7 @@
 
 #include "breakwindow.h"
 
+#include "breakhandler.h"
 #include "debuggeractions.h"
 #include "debuggermanager.h"
 #include "stackhandler.h"

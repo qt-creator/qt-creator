@@ -885,61 +885,6 @@ void DebuggerManager::removeSnapshot(int index)
     d->m_snapshotHandler->removeSnapshot(index);
 }
 
-BreakpointData *DebuggerManager::findBreakpoint(const QString &fileName, int lineNumber)
-{
-    if (!d->m_breakHandler)
-        return 0;
-    int index = d->m_breakHandler->findBreakpoint(fileName, lineNumber);
-    return index == -1 ? 0 : d->m_breakHandler->at(index);
-}
-
-// FIXME: move further up the plugin where there's more specific context
-// information available.
-static BreakpointData *createBreakpointByFileAndLine
-    (const QString &fileName, int lineNumber)
-{
-    BreakpointData *data = new BreakpointData;
-    if (lineNumber > 0) {
-        data->fileName = fileName;
-        data->lineNumber = QByteArray::number(lineNumber);
-        data->pending = true;
-        data->setMarkerFileName(fileName);
-        data->setMarkerLineNumber(lineNumber);
-    } else {
-        data->funcName = fileName;
-        data->lineNumber = 0;
-        data->pending = true;
-        // FIXME: Figure out in which disassembler view the Marker sits.
-        // Might be better to let the user code create the BreakpointData
-        // structure and insert it here.
-        data->setMarkerFileName(QString());
-        data->setMarkerLineNumber(0);
-    }
-    return data;
-}
-
-void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
-{
-    STATE_DEBUG(fileName << lineNumber);
-    QTC_ASSERT(d->m_breakHandler, return);
-    if (state() != InferiorRunning
-         && state() != InferiorStopped
-         && state() != DebuggerNotReady) {
-        showStatusMessage(tr("Changing breakpoint state requires either a "
-            "fully running or fully stopped application."));
-        return;
-    }
-
-    int index = d->m_breakHandler->findBreakpoint(fileName, lineNumber);
-    if (index == -1)
-        d->m_breakHandler->appendBreakpoint(
-            createBreakpointByFileAndLine(fileName, lineNumber));
-    else
-        d->m_breakHandler->removeBreakpoint(index);
-
-    attemptBreakpointSynchronization();
-}
-
 void DebuggerManager::attemptBreakpointSynchronization()
 {
     if (d->m_engine)
@@ -1407,13 +1352,6 @@ void DebuggerManager::breakByFunction(const QString &functionName)
 {
     QTC_ASSERT(d->m_breakHandler, return);
     d->m_breakHandler->breakByFunction(functionName);
-    attemptBreakpointSynchronization();
-}
-
-void DebuggerManager::appendBreakpoint(BreakpointData *data)
-{
-    QTC_ASSERT(d->m_breakHandler, return);
-    d->m_breakHandler->appendBreakpoint(data);
     attemptBreakpointSynchronization();
 }
 

@@ -112,7 +112,7 @@ public:
             return;
 
         BreakHandler *handler = m_data->handler();
-        handler->removeBreakpoint(handler->indexOf(m_data));
+        handler->removeBreakpoint(m_data);
         handler->saveBreakpoints();
         handler->updateMarkers();
     }
@@ -373,7 +373,9 @@ BreakpointData *BreakHandler::findSimilarBreakpoint(const BreakpointData &needle
     for (int index = 0; index != size(); ++index) {
         BreakpointData *data = m_bp[index];
         // Clear hit.
-        if (data->bpNumber == needle.bpNumber)
+        if (data->bpNumber == needle.bpNumber
+                && !data->bpNumber.isEmpty()
+                && data->bpNumber.toInt() != 0)
             return data;
         // Clear miss.
         if (data->type != needle.type)
@@ -391,21 +393,6 @@ BreakpointData *BreakHandler::findSimilarBreakpoint(const BreakpointData &needle
             return data;
     }
     return 0;
-}
-
-int BreakHandler::findBreakpoint(const QString &fileName, int lineNumber) const
-{
-    if (lineNumber <= 0) {
-        QByteArray address = fileName.toLatin1();
-        for (int index = 0; index != size(); ++index)
-            if (at(index)->bpAddress == address)
-                return index;
-    } else {
-        for (int index = 0; index != size(); ++index)
-            if (at(index)->isLocatedAt(fileName, lineNumber))
-                return index;
-    }
-    return -1;
 }
 
 BreakpointData *BreakHandler::findBreakpointByNumber(int bpNumber) const
@@ -786,6 +773,13 @@ void BreakHandler::removeBreakpoint(int index)
     if (index < 0 || index >= size())
         return;
     removeBreakpointHelper(index);
+    emit layoutChanged();
+    saveBreakpoints();
+}
+
+void BreakHandler::removeBreakpoint(BreakpointData *data)
+{
+    removeBreakpointHelper(m_bp.indexOf(data));
     emit layoutChanged();
     saveBreakpoints();
 }

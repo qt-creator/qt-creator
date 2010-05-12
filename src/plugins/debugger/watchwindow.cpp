@@ -31,6 +31,7 @@
 #include "watchhandler.h"
 
 #include "breakpoint.h"
+#include "breakhandler.h"
 #include "debuggeractions.h"
 #include "debuggeragents.h"
 #include "debuggerdialogs.h"
@@ -371,7 +372,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         BreakpointData *data = new BreakpointData;
         data->type = BreakpointData::WatchpointType;
         data->address = address.toLatin1();
-        m_manager->appendBreakpoint(data);
+        m_manager->breakHandler()->appendBreakpoint(data);
+        m_manager->attemptBreakpointSynchronization();
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
