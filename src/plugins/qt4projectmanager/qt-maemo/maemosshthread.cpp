@@ -117,7 +117,8 @@ bool MaemoSshRunner::runInternal()
 
 void MaemoSshRunner::handleRemoteOutput()
 {
-    const QByteArray output = m_connection->waitForRemoteOutput(0);
+    const QByteArray output
+        = m_potentialEndMarkerPrefix + m_connection->waitForRemoteOutput(0);
 
     // Wait for a prompt before sending the command.
     if (!m_promptEncountered) {
@@ -143,8 +144,6 @@ void MaemoSshRunner::handleRemoteOutput()
     /*
      * The output the user should see is everything after the first
      * and before the last occurrence of our marker string.
-     * Note: We don't currently handle the case of an incomplete unicode
-     *       character being sent.
      */
     int firstCharToEmit;
     int charsToEmitCount;
@@ -168,16 +167,19 @@ void MaemoSshRunner::handleRemoteOutput()
         if (m_endMarkerCount == 0) {
             charsToEmitCount = 0;
         } else {
-            firstCharToEmit = 0;
+            firstCharToEmit = m_potentialEndMarkerPrefix.count();
             charsToEmitCount = -1;
         }
     }
 
-    if (charsToEmitCount != 0)
+    if (charsToEmitCount != 0) {
         emit remoteOutput(QString::fromUtf8(output.data() + firstCharToEmit,
                                             charsToEmitCount));
+    }
     if (m_endMarkerCount == 2)
         stop();
+
+    m_potentialEndMarkerPrefix = output.right(EndMarker.count() - 1);
 }
 
 const QByteArray MaemoSshRunner::EndMarker(QString(QChar(0x13a0)).toUtf8());

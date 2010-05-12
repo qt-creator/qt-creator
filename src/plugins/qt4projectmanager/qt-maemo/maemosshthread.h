@@ -104,6 +104,7 @@ private:
     const char *m_prompt;
     int m_endMarkerCount;
     bool m_promptEncountered;
+    QByteArray m_potentialEndMarkerPrefix;
 };
 
 
