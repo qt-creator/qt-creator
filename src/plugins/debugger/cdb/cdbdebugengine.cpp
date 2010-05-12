@@ -417,7 +417,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
             m_d->m_ignoreInitialBreakPoint = true;
             // Launch console stub and wait for its startup
             m_d->m_consoleStubProc.stop(); // We leave the console open, so recycle it now.
-            m_d->m_consoleStubProc.setWorkingDirectory(sp->workingDir);
+            m_d->m_consoleStubProc.setWorkingDirectory(sp->workingDirectory);
             m_d->m_consoleStubProc.setEnvironment(sp->environment);
             rc = m_d->m_consoleStubProc.start(sp->executable, sp->processArgs);
             if (!rc)
@@ -425,7 +425,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
             // continues in slotConsoleStubStarted()...
         } else {
             needWatchTimer = true;
-            rc = m_d->startDebuggerWithExecutable(sp->workingDir,
+            rc = m_d->startDebuggerWithExecutable(sp->workingDirectory,
                                                   sp->executable,
                                                   sp->processArgs,
                                                   sp->environment,
