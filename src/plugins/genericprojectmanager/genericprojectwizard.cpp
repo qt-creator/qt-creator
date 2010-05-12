@@ -96,7 +96,8 @@ Core::BaseFileWizardParameters GenericProjectWizard::parameters()
     parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
     parameters.setDisplayName(tr("Import Existing Project"));
     parameters.setId(QLatin1String("Z.Makefile"));
-    parameters.setDescription(tr("Creates a generic project, supporting any build system."));
+    parameters.setDescription(tr("Imports existing projects that do not use qmake or CMake. "
+                                 "This allows you to use Qt Creator as a code editor."));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
     return parameters;

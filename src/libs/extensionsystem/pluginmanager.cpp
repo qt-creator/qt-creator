@@ -574,6 +574,17 @@ QString PluginManager::testDataDirectory() const
     return s;
 }
 
+/*!
+    \fn void PluginManager::profilingReport(const char *what, const PluginSpec *spec = 0)
+
+    Create a profiling entry showing the elapsed time if profiling is activated.
+*/
+
+void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
+{
+    d->profilingReport(what, spec);
+}
+
 //============PluginManagerPrivate===========
 
 /*!
@@ -601,6 +612,7 @@ PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
 PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
     extension(QLatin1String("xml")),
     m_profileElapsedMS(0),
+    m_profilingVerbosity(0),
     q(pluginManager)
 {
 }
@@ -678,6 +690,13 @@ void PluginManagerPrivate::addObject(QObject *obj)
 
         if (debugLeaks)
             qDebug() << "PluginManagerPrivate::addObject" << obj << obj->objectName();
+
+        if (m_profilingVerbosity && !m_profileTimer.isNull()) {
+            // Report a timestamp when adding an object. Useful for profiling
+            // its initialization time.
+            const int absoluteElapsedMS = m_profileTimer->elapsed();
+            qDebug("  %-43s %8dms", obj->metaObject()->className(), absoluteElapsedMS);
+        }
 
         allObjects.append(obj);
     }
@@ -954,6 +973,8 @@ void PluginManagerPrivate::initProfiling()
         m_profileTimer->start();
         m_profileElapsedMS = 0;
         qDebug("Profiling started");
+    } else {
+        m_profilingVerbosity++;
     }
 }
 
@@ -966,7 +987,7 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
         if (spec) {
             qDebug("%-22s %-22s %8dms (%8dms)", what, qPrintable(spec->name()), absoluteElapsedMS, elapsedMS);
         } else {
-            qDebug("%-22s %8dms (%8dms)", what, absoluteElapsedMS, elapsedMS);
+            qDebug("%-45s %8dms (%8dms)", what, absoluteElapsedMS, elapsedMS);
         }
     }
 }

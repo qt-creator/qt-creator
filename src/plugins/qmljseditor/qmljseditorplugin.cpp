@@ -77,8 +77,7 @@ QmlJSEditorPlugin::QmlJSEditorPlugin() :
         m_modelManager(0),
     m_wizard(0),
     m_editor(0),
-    m_actionHandler(0),
-    m_completion(0)
+    m_actionHandler(0)
 {
     m_instance = this;
 }
@@ -148,19 +147,16 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    m_completion = new CodeCompletion(m_modelManager);
-    addAutoReleasedObject(m_completion);
+    CodeCompletion *completion = new CodeCompletion(m_modelManager);
+    addAutoReleasedObject(completion);
 
-    addAutoReleasedObject(new HoverHandler());
+    addAutoReleasedObject(new HoverHandler);
 
-    // Restore settings
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String("CppTools")); // ### FIXME:
-    settings->beginGroup(QLatin1String("Completion"));
-    const bool caseSensitive = settings->value(QLatin1String("CaseSensitive"), true).toBool();
-    m_completion->setCaseSensitivity(caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
-    settings->endGroup();
-    settings->endGroup();
+    // Set completion settings and keep them up to date
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
+    completion->setCompletionSettings(textEditorSettings->completionSettings());
+    connect(textEditorSettings, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
+            completion, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
 
     error_message->clear();
 

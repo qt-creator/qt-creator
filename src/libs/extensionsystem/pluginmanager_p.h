@@ -85,6 +85,7 @@ public:
     QStringList arguments;
     QScopedPointer<QTime> m_profileTimer;
     int m_profileElapsedMS;
+    unsigned m_profilingVerbosity;
 
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;

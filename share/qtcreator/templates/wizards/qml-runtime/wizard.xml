@@ -37,7 +37,7 @@ leave room for the Qt 4 target page.
 <wizard version="1" kind="project"
         class="qt4project" firstpage="10"
         id="QmlRuntimePlugin" category="F.Projects">
-    <description>Creates a plug-in for the QML runtime.</description>
+    <description>Creates a C++ plugin to extend the funtionality of the QML runtime.</description>
     <displayname>QML Runtime Plug-in</displayname>
     <displaycategory>QML Runtime Plug-in</displaycategory>
     <files>

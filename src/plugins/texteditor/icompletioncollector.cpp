@@ -28,11 +28,27 @@
 **************************************************************************/
 
 #include "icompletioncollector.h"
+
+#include "completionsettings.h"
 #include "itexteditable.h"
+
 #include <QtCore/QRegExp>
 #include <algorithm>
 
 using namespace TextEditor;
+using namespace TextEditor::Internal;
+
+namespace TextEditor {
+namespace Internal {
+
+struct ICompletionCollectorPrivate
+{
+public:
+    CompletionSettings m_completionSettings;
+};
+
+} // namespace Internal
+} // namespace TextEditor
 
 bool ICompletionCollector::compareChar(const QChar &l, const QChar &r)
 {
@@ -62,6 +78,27 @@ bool ICompletionCollector::completionItemLessThan(const CompletionItem &i1, cons
         return lessThan(lower1, lower2);
 }
 
+ICompletionCollector::ICompletionCollector(QObject *parent)
+    : QObject(parent)
+    , m_d(new Internal::ICompletionCollectorPrivate)
+{
+}
+
+ICompletionCollector::~ICompletionCollector()
+{
+    delete m_d;
+}
+
+void ICompletionCollector::setCompletionSettings(const CompletionSettings &settings)
+{
+    m_d->m_completionSettings = settings;
+}
+
+const CompletionSettings &ICompletionCollector::completionSettings() const
+{
+    return m_d->m_completionSettings;
+}
+
 QList<CompletionItem> ICompletionCollector::getCompletions()
 {
     QList<CompletionItem> completionItems;
@@ -88,6 +125,9 @@ QList<CompletionItem> ICompletionCollector::getCompletions()
 
 bool ICompletionCollector::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)
 {
+    if (! m_d->m_completionSettings.m_partiallyComplete)
+        return false;
+
     // Compute common prefix
     QString firstKey = completionItems.first().text;
     QString lastKey = completionItems.last().text;
@@ -113,9 +153,10 @@ bool ICompletionCollector::partiallyComplete(const QList<TextEditor::CompletionI
 
 void ICompletionCollector::filter(const QList<TextEditor::CompletionItem> &items,
                                   QList<TextEditor::CompletionItem> *filteredItems,
-                                  const QString &key,
-                                  ICompletionCollector::CaseSensitivity caseSensitivity)
+                                  const QString &key)
 {
+    const TextEditor::CaseSensitivity caseSensitivity = m_d->m_completionSettings.m_caseSensitivity;
+
     /*
      * This code builds a regular expression in order to more intelligently match
      * camel-case style. This means upper-case characters will be rewritten as follows:
@@ -132,8 +173,8 @@ void ICompletionCollector::filter(const QList<TextEditor::CompletionItem> &items
     bool first = true;
     const QLatin1String wordContinuation("[a-z0-9_]*");
     foreach (const QChar &c, key) {
-        if (caseSensitivity == CaseInsensitive ||
-            (caseSensitivity == FirstLetterCaseSensitive && !first)) {
+        if (caseSensitivity == TextEditor::CaseInsensitive ||
+            (caseSensitivity == TextEditor::FirstLetterCaseSensitive && !first)) {
 
             keyRegExp += QLatin1String("(?:");
             if (c.isUpper() && !first)
@@ -158,7 +199,7 @@ void ICompletionCollector::filter(const QList<TextEditor::CompletionItem> &items
             if (hasKey) {
                 if (item.text.startsWith(key, Qt::CaseSensitive)) {
                     item.relevance = 2;
-                } else if (caseSensitivity != CaseSensitive
+                } else if (caseSensitivity != TextEditor::CaseSensitive
                            && item.text.startsWith(key, Qt::CaseInsensitive)) {
                     item.relevance = 1;
                 }

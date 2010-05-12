@@ -63,6 +63,7 @@ public:
                           Interpreter::Context *context) const;
 
     Interpreter::ObjectValue *findFunctionScope(AST::FunctionDeclaration *node) const;
+    bool isGroupedPropertyBinding(AST::Node *node) const;
 
     static QString toString(AST::UiQualifiedId *qualifiedId, QChar delimiter = QChar('.'));
 
@@ -100,6 +101,7 @@ private:
     Interpreter::ObjectValue *_rootObjectValue;
 
     QHash<AST::Node *, Interpreter::ObjectValue *> _qmlObjects;
+    QSet<AST::Node *> _groupedPropertyBindings;
     QHash<AST::FunctionDeclaration *, Interpreter::ObjectValue *> _functionScopes;
     QStringList _includedScripts;
 

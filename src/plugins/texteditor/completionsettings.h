@@ -27,28 +27,44 @@
 **
 **************************************************************************/
 
-#include "mobileguiappwizard.h"
+#ifndef COMPLETIONSETTINGS_H
+#define COMPLETIONSETTINGS_H
 
-#include "qt4projectmanagerconstants.h"
+#include "texteditor_global.h"
 
-#include <QtGui/QIcon>
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
-namespace Internal {
+namespace TextEditor {
 
-MobileGuiAppWizard::MobileGuiAppWizard() :
-    GuiAppWizard(QLatin1String("C.Qt4GuiMobile"),
-                 QLatin1String(Constants::QT_APP_WIZARD_CATEGORY),
-                 QLatin1String(Constants::QT_APP_WIZARD_TR_SCOPE),
-                 QLatin1String(Constants::QT_APP_WIZARD_TR_CATEGORY),
-                 tr("Mobile Qt Application"),
-                 tr("Creates a Qt application optimized for mobile devices "
-                    "with a Qt Designer-based main window.\n\n"
-                    "Preselects Qt for Simulator and mobile targets if available"),
-                 QIcon(QLatin1String(":/projectexplorer/images/SymbianDevice.png")),
-                 true)
+enum CaseSensitivity {
+    CaseInsensitive,
+    CaseSensitive,
+    FirstLetterCaseSensitive
+};
+
+/**
+ * Settings that describe how the code completion behaves.
+ */
+struct TEXTEDITOR_EXPORT CompletionSettings
 {
-}
+    CompletionSettings();
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+    void toSettings(const QString &category, QSettings *s) const;
+    void fromSettings(const QString &category, const QSettings *s);
+
+    bool equals(const CompletionSettings &bs) const;
+
+    CaseSensitivity m_caseSensitivity;
+    bool m_autoInsertBrackets;
+    bool m_partiallyComplete;
+    bool m_spaceAfterFunctionName;
+};
+
+inline bool operator==(const CompletionSettings &t1, const CompletionSettings &t2) { return t1.equals(t2); }
+inline bool operator!=(const CompletionSettings &t1, const CompletionSettings &t2) { return !t1.equals(t2); }
+
+} // namespace TextEditor
+
+#endif // COMPLETIONSETTINGS_H

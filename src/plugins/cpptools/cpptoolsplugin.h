@@ -50,7 +50,6 @@ QT_END_NAMESPACE
 namespace CppTools {
 namespace Internal {
 
-class CppCodeCompletion;
 class CppModelManager;
 struct CppFileSettings;
 
@@ -79,7 +78,6 @@ private:
 
     int m_context;
     CppModelManager *m_modelManager;
-    CppCodeCompletion *m_completion;
     QSharedPointer<CppFileSettings> m_fileSettings;
 
     static CppToolsPlugin *m_instance;

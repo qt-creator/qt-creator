@@ -53,7 +53,9 @@ LibraryWizard::LibraryWizard()
              QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
              QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
              tr("C++ Library"),
-             tr("Creates a Qt based C++ Library."),
+             tr("Creates a C++ library based on qmake. This can be used to create:<ul>"
+                "<li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li>"
+                "<li>a shared or static C++ library for use with another project at linktime</li></ul>."),
              QIcon(QLatin1String(":/wizards/images/lib.png")))
 {
 }

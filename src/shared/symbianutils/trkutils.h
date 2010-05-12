@@ -123,9 +123,16 @@ enum Command {
     TrkDSPositionFile = 0xd4
 };
 
+enum SerialMultiplexor {
+    MuxRaw = 0,
+    MuxTextTrace = 0x0102,
+    MuxTrk = 0x0190
+};
+
 inline byte extractByte(const char *data) { return *data; }
 SYMBIANUTILS_EXPORT ushort extractShort(const char *data);
 SYMBIANUTILS_EXPORT uint extractInt(const char *data);
+SYMBIANUTILS_EXPORT quint64 extractInt64(const char *data);
 
 SYMBIANUTILS_EXPORT QString quoteUnprintableLatin1(const QByteArray &ba);
 
@@ -205,6 +212,7 @@ struct SYMBIANUTILS_EXPORT TrkResult
     int errorCode() const;
     QString errorString() const;
 
+    ushort multiplex;
     byte code;
     byte token;
     QByteArray data;

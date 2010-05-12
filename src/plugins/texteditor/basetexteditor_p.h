@@ -265,7 +265,6 @@ public:
     int m_cursorBlockNumber;
 
     bool m_inKeyPressEvent;
-
 };
 
 } // namespace Internal

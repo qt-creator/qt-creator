@@ -44,7 +44,8 @@ EmptyProjectWizard::EmptyProjectWizard()
              QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
              QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
              tr("Empty Qt Project"),
-             tr("Creates an empty Qt project."),
+             tr("Creates a qmake-based project without any files. This allows you to create "
+                "an application without any default classes."),
              QIcon(QLatin1String(":/wizards/images/gui.png")))
 {
 }

@@ -45,11 +45,16 @@ struct TabSettings;
 struct StorageSettings;
 struct BehaviorSettings;
 struct DisplaySettings;
+struct CompletionSettings;
+
+namespace Internal {
+class TextEditorSettingsPrivate;
+}
 
 /**
  * This class provides a central place for basic text editor settings. These
  * settings include font settings, tab settings, storage settings, behavior
- * settings and display settings.
+ * settings, display settings and completion settings.
  */
 class TEXTEDITOR_EXPORT TextEditorSettings : public QObject
 {
@@ -68,6 +73,9 @@ public:
     const StorageSettings &storageSettings() const;
     const BehaviorSettings &behaviorSettings() const;
     const DisplaySettings &displaySettings() const;
+    const CompletionSettings &completionSettings() const;
+
+    void setCompletionSettings(const TextEditor::CompletionSettings &);
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);
@@ -75,15 +83,12 @@ signals:
     void storageSettingsChanged(const TextEditor::StorageSettings &);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &);
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
-
-private slots:
-    void fontZoomRequested(int pointSize);
-    void zoomResetRequested();
+    void completionSettingsChanged(const TextEditor::CompletionSettings &);
 
 private:
-    FontSettingsPage *m_fontSettingsPage;
-    BehaviorSettingsPage *m_behaviorSettingsPage;
-    DisplaySettingsPage *m_displaySettingsPage;
+    Internal::TextEditorSettingsPrivate *m_d;
+    Q_PRIVATE_SLOT(m_d, void fontZoomRequested(int pointSize));
+    Q_PRIVATE_SLOT(m_d, void zoomResetRequested());
 
     static TextEditorSettings *m_instance;
 };

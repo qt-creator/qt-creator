@@ -59,6 +59,7 @@ class BaseTextDocument;
 class BaseTextEditorEditable;
 class FontSettings;
 struct BehaviorSettings;
+struct CompletionSettings;
 struct DisplaySettings;
 struct StorageSettings;
 struct TabSettings;
@@ -160,12 +161,14 @@ public:
     void setParenthesesMatchingEnabled(bool b);
     bool isParenthesesMatchingEnabled() const;
 
+    void setAutoParenthesesEnabled(bool b);
+    bool isAutoParenthesesEnabled() const;
+
     void setHighlightCurrentLine(bool b);
     bool highlightCurrentLine() const;
 
     void setLineNumbersVisible(bool b);
     bool lineNumbersVisible() const;
-
 
     void setMarksVisible(bool b);
     bool marksVisible() const;
@@ -366,6 +369,7 @@ public slots:
     virtual void setDisplaySettings(const TextEditor::DisplaySettings &);
     virtual void setBehaviorSettings(const TextEditor::BehaviorSettings &);
     virtual void setStorageSettings(const TextEditor::StorageSettings &);
+    virtual void setCompletionSettings(const TextEditor::CompletionSettings &);
 
 protected:
     bool viewportEvent(QEvent *event);

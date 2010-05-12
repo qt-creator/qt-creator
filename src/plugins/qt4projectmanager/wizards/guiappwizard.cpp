@@ -81,7 +81,9 @@ GuiAppWizard::GuiAppWizard()
                QLatin1String(Constants::QT_APP_WIZARD_TR_SCOPE),
                QLatin1String(Constants::QT_APP_WIZARD_TR_CATEGORY),
                tr("Qt Gui Application"),
-               tr("Creates a Qt Gui Application with one form."),
+               tr("Creates a Qt application for the desktop. "
+                  "Includes a Qt Designer-based main window.\n\n"
+                  "Preselects a desktop Qt for building the application if available."),
                QIcon(QLatin1String(":/wizards/images/gui.png"))),
       m_createMobileProject(false)
 {

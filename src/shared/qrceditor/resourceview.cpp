@@ -203,13 +203,6 @@ ResourceView::~ResourceView()
 {
 }
 
-void ResourceView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
-{
-    Q_UNUSED(current)
-    Q_UNUSED(previous)
-    emit currentIndexChanged();
-}
-
 bool ResourceView::isDirty() const
 {
     return m_qrcModel->dirty();

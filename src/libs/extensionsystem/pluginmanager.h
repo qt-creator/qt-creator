@@ -118,6 +118,8 @@ public:
     bool runningTests() const;
     QString testDataDirectory() const;
 
+    void profilingReport(const char *what, const PluginSpec *spec = 0);
+
 signals:
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);

@@ -13,6 +13,7 @@ namespace AST {
 
 namespace Interpreter {
     class Context;
+    class Value;
 }
 
 class QMLJS_EXPORT ScopeBuilder
@@ -27,6 +28,7 @@ public:
 
 private:
     void setQmlScopeObject(AST::Node *node);
+    const Interpreter::Value *scopeObjectLookup(AST::UiQualifiedId *id);
 
     Document::Ptr _doc;
     Interpreter::Context *_context;

@@ -2102,7 +2102,12 @@ Sollen sie überschrieben werden?</translation>
         <translation>Neu</translation>
     </message>
     <message>
-        <location line="+542"/>
+        <location line="+516"/>
+        <source>Open Project</source>
+        <translation>Projekt öffnen</translation>
+    </message>
+    <message>
+        <location line="+38"/>
         <source>Settings...</source>
         <translation>Einstellungen...</translation>
     </message>
@@ -2236,7 +2241,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::Internal::OutputPaneManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/outputpane.cpp" line="+206"/>
+        <location filename="../../../src/plugins/coreplugin/outputpane.cpp" line="+209"/>
         <source>Output</source>
         <translation>Ausgaben</translation>
     </message>
@@ -2256,7 +2261,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Vorangehender Eintrag</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <location line="+195"/>
         <source>Maximize Output Pane</source>
         <translation>Ausgabepanel maximiert darstellen</translation>
@@ -2429,9 +2434,13 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::ModeManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/modemanager.cpp" line="+180"/>
         <source>Switch to %1 mode</source>
-        <translation>Gehe zu Mode &apos;%1&apos;</translation>
+        <translation type="obsolete">Gehe zu Mode &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/modemanager.cpp" line="+180"/>
+        <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
+        <translation>Gehe zu Mode &lt;b&gt;&apos;%1&apos;&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -7620,7 +7629,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::LocalBranchModel</name>
     <message>
-        <location filename="../../../src/plugins/git/branchmodel.cpp" line="+196"/>
+        <location filename="../../../src/plugins/git/branchmodel.cpp" line="+197"/>
         <source>&lt;New branch&gt;</source>
         <translation>&lt;Neuer Branch&gt;</translation>
     </message>
@@ -9447,7 +9456,7 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Umgebungsvariablen</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="+136"/>
+        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="+137"/>
         <source>Perforce</source>
         <translation>Perforce</translation>
     </message>
@@ -9596,7 +9605,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <location filename="../../../src/plugins/qmldesigner/components/pluginmanager/pluginpath.cpp" line="+181"/>
-        <location filename="../../../src/plugins/qmldesigner/core/pluginmanager/widgetpluginpath.cpp" line="+204"/>
+        <location filename="../../../src/plugins/qmldesigner/designercore/pluginmanager/widgetpluginpath.cpp" line="+204"/>
         <source>Failed Plugins</source>
         <translation>Nicht geladene Plugins (Fehlschlag beim Ladevorgang)</translation>
     </message>
@@ -9972,7 +9981,7 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/allprojectsfind.cpp" line="+64"/>
+        <location filename="../../../src/plugins/projectexplorer/allprojectsfind.cpp" line="+65"/>
         <source>All Projects</source>
         <translation>Alle Projekte</translation>
     </message>
@@ -10033,7 +10042,22 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildstepspage.cpp" line="+259"/>
+        <location filename="../../../src/plugins/projectexplorer/buildstepspage.cpp" line="+176"/>
+        <source>Move Up</source>
+        <translation>Nach oben</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Move Down</source>
+        <translation>Nach unten</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Remove Item</source>
+        <translation>Element löschen</translation>
+    </message>
+    <message>
+        <location line="+80"/>
         <source>Removing Step failed</source>
         <translation>Das Entfernen des Build-Schritts schlug fehl</translation>
     </message>
@@ -10058,7 +10082,7 @@ Fehler: %2</translation>
         <translation>Schritt zur Bereinigung hinzufügen</translation>
     </message>
     <message>
-        <location line="-210"/>
+        <location line="-218"/>
         <source>Build Steps</source>
         <translation>Erstellungsschritte</translation>
     </message>
@@ -10116,7 +10140,7 @@ Fehler: %2</translation>
 <context>
     <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/currentprojectfind.cpp" line="+64"/>
+        <location filename="../../../src/plugins/projectexplorer/currentprojectfind.cpp" line="+65"/>
         <source>Current Project</source>
         <translation>Aktuelles Projekt</translation>
     </message>
@@ -10490,7 +10514,7 @@ No project selected</extracomment>
         <translation>Sitzungen...</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectwelcomepagewidget.cpp" line="+127"/>
+        <location filename="../../../src/plugins/projectexplorer/projectwelcomepagewidget.cpp" line="+128"/>
         <source>%1 (last session)</source>
         <translation>%1 (zuletzt benutzt)</translation>
     </message>
@@ -10500,12 +10524,11 @@ No project selected</extracomment>
         <translation>%1 (aktuelle Sitzung)</translation>
     </message>
     <message>
-        <location line="+42"/>
         <source>Open Project</source>
-        <translation>Projekt öffnen</translation>
+        <translation type="obsolete">Projekt öffnen</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+47"/>
         <source>New Project</source>
         <translation>Neues Projekt</translation>
     </message>
@@ -11646,7 +11669,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Schon gewusst?</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/gettingstartedwelcomepagewidget.cpp" line="+71"/>
+        <location filename="../../../src/plugins/qt4projectmanager/gettingstartedwelcomepagewidget.cpp" line="+72"/>
         <source>The Qt Creator User Interface</source>
         <translation>Die Benutzeroberfläche von Qt Creator</translation>
     </message>
@@ -11661,13 +11684,13 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Erstellen einer Qt-Quick-Anwendung</translation>
     </message>
     <message>
-        <location line="+35"/>
-        <location line="+58"/>
+        <location line="+38"/>
+        <location line="+53"/>
         <source>Choose an example...</source>
         <translation>Beispiel wählen...</translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location line="+85"/>
         <source>Copy Project to writable Location?</source>
         <translation>Soll das Projekt in ein schreibbares Verzeichnis kopiert werden?</translation>
     </message>
@@ -11820,6 +11843,11 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <source>Explore Qt Quick Examples</source>
         <translation>Qt Quick-Beispiele öffnen</translation>
     </message>
+    <message>
+        <location/>
+        <source>Open Project...</source>
+        <translation>Projekt öffnen...</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::GuiAppWizard</name>
@@ -11948,7 +11976,7 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::QMakeStepFactory</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+473"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+486"/>
         <source>qmake</source>
         <translation>qmake</translation>
     </message>
@@ -12300,6 +12328,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <source>Maemo</source>
         <comment>Qt Version is meant for Maemo</comment>
         <translation>Maemo</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Qt Simulator</source>
+        <comment>Qt Version is meant for Qt Simulator</comment>
+        <translation>Qt Simulator</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -12769,13 +12803,13 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
 <context>
     <name>Qt4ProjectManager::QMakeStep</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="-392"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="-405"/>
         <source>qmake</source>
         <comment>QMakeStep display name.</comment>
         <translation></translation>
     </message>
     <message>
-        <location line="+107"/>
+        <location line="+120"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration is faulty, please check the Build Issues view for details.&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#0000ff&quot;&gt;Die Konfiguration ist fehlerhaft. Details befinden sich in der Ansicht &quot;Build-Probleme&quot;.&lt;/font&gt;</translation>
     </message>
@@ -12814,7 +12848,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
 <context>
     <name>Qt4ProjectManager::QtVersionManager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+387"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+388"/>
         <source>&lt;not found&gt;</source>
         <translation>&lt;nicht gefunden&gt;</translation>
     </message>
@@ -14034,7 +14068,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+4718"/>
+        <location line="+4802"/>
         <source>Line: %1, Col: %2</source>
         <translation>Zeile: %1, Spalte: %2</translation>
     </message>
@@ -14584,12 +14618,12 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location line="+6"/>
         <source>Go to Block Start With Selection</source>
-        <translation>Zum Blockanfang mit Auswahl gehen</translation>
+        <translation>Bis Blockanfang markieren</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Go to Block End With Selection</source>
-        <translation>Zum Blockende mit Auswahl gehen</translation>
+        <translation>Bis Blockende markieren</translation>
     </message>
     <message>
         <location line="-61"/>
@@ -14747,7 +14781,87 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Ctrl+J</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+5"/>
+        <source>Goto Line Start</source>
+        <translation>Zeilenanfang</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Line End</source>
+        <translation>Zeilenende</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Next Line</source>
+        <translation>Nächste Zeile</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Previous Line</source>
+        <translation>Vorangehende Zeile</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Previous Character</source>
+        <translation>Vorangehendes Zeichen</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Next Character</source>
+        <translation>Nächstes Zeichen</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Previous Word</source>
+        <translation>Vorangehendes Wort</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Next Word</source>
+        <translation>Nächstes Wort</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Goto Line Start With Selection</source>
+        <translation>Bis Zeilenanfang markieren</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Line End With Selection</source>
+        <translation>Bis Zeilenende markieren</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Next Line With Selection</source>
+        <translation>Bis zur nächsten Zeile markieren</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Previous Line With Selection</source>
+        <translation>Bis zur vorangehenden Zeile markieren</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Previous Character With Selection</source>
+        <translation>Vorangehendes Zeichen markieren</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Next Character With Selection</source>
+        <translation>Nächstes Zeichen markieren</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Previous Word With Selection</source>
+        <translation>Vorangehendes Wort markieren</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Goto Next Word With Selection</source>
+        <translation>Nächstes Wort markieren</translation>
+    </message>
+    <message>
+        <location line="+96"/>
         <source>&lt;line number&gt;</source>
         <translation>&lt;Zeilennummer&gt;</translation>
     </message>
@@ -15108,7 +15222,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
 <context>
     <name>Utils::DetailsButton</name>
     <message>
-        <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+136"/>
+        <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+68"/>
         <source>Details</source>
         <translation>Details</translation>
     </message>
@@ -15809,9 +15923,8 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;b&gt;Qt Apps&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Finden Sie freie, Qt-basierte Applikationen&lt;/font&gt;</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+34"/>
         <source>http://labs.trolltech.com/blogs/feed</source>
-        <extracomment>Add localized feed here only if one exists</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17390,7 +17503,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>CMakeProjectManager::Internal::CMakeTarget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmaketarget.cpp" line="+47"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmaketarget.cpp" line="+49"/>
         <location filename="../../../src/plugins/projectexplorer/userfileaccessor.cpp" line="+772"/>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -18382,7 +18495,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Es ist kein Ziel festgelegt.</translation>
     </message>
     <message>
-        <location line="+103"/>
+        <location line="+102"/>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
     </message>
@@ -18473,7 +18586,13 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Maemo</translation>
     </message>
     <message>
-        <location line="+378"/>
+        <location line="+2"/>
+        <source>Qt Simulator</source>
+        <comment>Qt4 Simulator target display name</comment>
+        <translation>Qt Simulator</translation>
+    </message>
+    <message>
+        <location line="+383"/>
         <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
         <translation>&lt;b&gt;Gerät:&lt;/b&gt; Nicht angeschlossen</translation>
     </message>
@@ -18505,7 +18624,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>-Neues Formular-</translation>
     </message>
     <message>
-        <location line="+179"/>
+        <location line="+182"/>
         <source>Cannot save to file &quot;%1&quot;: permission denied.</source>
         <translation>Die Datei &quot;%1&quot; konnte wegen nicht ausreichender Zugriffsrechte nicht geschrieben werden.</translation>
     </message>
@@ -18550,7 +18669,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Kein QmlDesigner-Plugin.</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/core/pluginmanager/widgetpluginpath.cpp" line="-133"/>
+        <location filename="../../../src/plugins/qmldesigner/designercore/pluginmanager/widgetpluginpath.cpp" line="-133"/>
         <source>Failed to create instance of file &apos;%1&apos;: %2</source>
         <translation>Es konnte keine Instanz der Datei &apos;%1&apos; erzeugt werden: %2</translation>
     </message>
@@ -18712,7 +18831,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QmlDesigner::RewriterView</name>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/core/model/rewriterview.cpp" line="+79"/>
+        <location filename="../../../src/plugins/qmldesigner/designercore/model/rewriterview.cpp" line="+79"/>
         <source>Error parsing</source>
         <translation>Fehler beim Parsen</translation>
     </message>
@@ -19200,7 +19319,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QtVersion</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+902"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+928"/>
         <source>No qmake path set</source>
         <translation>Es ist keine qmake-Pfad gesetzt</translation>
     </message>
@@ -19220,7 +19339,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Der Pfad zu den ausführbaren Dateien der Qt-Installation konnte nicht bestimmt werden, möglicherweise ist der Pfad zu qmake falsch?</translation>
     </message>
     <message>
-        <location line="+122"/>
+        <location line="+128"/>
         <source>The Qt Version has no toolchain.</source>
         <translation>Dieser Qt-Version ist keine Toolchain zugeordnet.</translation>
     </message>
@@ -19262,7 +19381,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>TextEditor</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/texteditorconstants.h" line="+111"/>
+        <location filename="../../../src/plugins/texteditor/texteditorconstants.h" line="+127"/>
         <source>Text Editor</source>
         <translation>Text Editor</translation>
     </message>
@@ -19318,7 +19437,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>trk::Launcher</name>
     <message>
-        <location filename="../../../src/shared/symbianutils/launcher.cpp" line="+492"/>
+        <location filename="../../../src/shared/symbianutils/launcher.cpp" line="+506"/>
         <source>Cannot open remote file &apos;%1&apos;: %2</source>
         <translation>Die Datei &apos;%1&apos; auf dem Gerät konnte nicht geöffnet werden: %2</translation>
     </message>
@@ -19892,7 +20011,7 @@ Please check your project settings.</source>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4TargetFactory</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="-271"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="-274"/>
         <source>Debug</source>
         <translation>Debug</translation>
     </message>
@@ -20313,7 +20432,7 @@ Please check your project settings.</source>
 <context>
     <name>Core::CommandMappings</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/actionmanager/commandmappings.cpp" line="+138"/>
+        <location filename="../../../src/plugins/coreplugin/actionmanager/commandmappings.cpp" line="+139"/>
         <source>Command</source>
         <translation>Kommando</translation>
     </message>
@@ -20434,7 +20553,7 @@ Please check your project settings.</source>
 <context>
     <name>QmlDesigner::Internal::SubComponentManagerPrivate</name>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/core/metainfo/subcomponentmanager.cpp" line="+307"/>
+        <location filename="../../../src/plugins/qmldesigner/designercore/metainfo/subcomponentmanager.cpp" line="+307"/>
         <source>QML Components</source>
         <translation>QML-Komponenten</translation>
     </message>
@@ -20735,7 +20854,7 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
     <message>
-        <location line="+47"/>
+        <location line="+49"/>
         <source>self-signed</source>
         <translation>Selbstsigniert</translation>
     </message>
@@ -21319,14 +21438,22 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>Designer::Internal::FormEditorFactory</name>
     <message>
-        <location filename="../../../src/plugins/designer/formeditorfactory.cpp" line="+93"/>
         <source>This file can only be edited in Design Mode.</source>
-        <translation>Datei kann nur im Entwurfsmodus bearbeitet werden.</translation>
+        <translation type="obsolete">Datei kann nur im Entwurfsmodus bearbeitet werden.</translation>
+    </message>
+    <message>
+        <source>Open Designer</source>
+        <translation type="obsolete">Designer öffnen</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/designer/formeditorfactory.cpp" line="+93"/>
+        <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
+        <translation>Datei kann nur im &lt;b&gt;Entwurfsmodus&lt;/b&gt; bearbeitet werden.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Open Designer</source>
-        <translation>Designer öffnen</translation>
+        <source>Switch mode</source>
+        <translation>Modus umschalten</translation>
     </message>
 </context>
 <context>
@@ -21410,7 +21537,7 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/targetsetuppage.cpp" line="+297"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/targetsetuppage.cpp" line="+300"/>
         <source>Qt Creator can set up the following targets for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation>Qt Creator kann für das Projekt &lt;b&gt;%1&lt;/b&gt; die folgenden Ziele anlegen:</translation>
@@ -21444,7 +21571,7 @@ Haben Sie Qemu gestartet?</translation>
         <translation>&lt;b&gt;Warnung:&lt;/b&gt; </translation>
     </message>
     <message>
-        <location line="-295"/>
+        <location line="-298"/>
         <source>Import</source>
         <comment>Is this an import of an existing build or a new one?</comment>
         <translation>Import</translation>
@@ -21943,7 +22070,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>QmlDesigner::Internal::ModelPrivate</name>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/core/model/model.cpp" line="+172"/>
+        <location filename="../../../src/plugins/qmldesigner/designercore/model/model.cpp" line="+172"/>
         <source>invalid type</source>
         <translation>ungültiger Typ</translation>
     </message>
@@ -22428,7 +22555,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>Qt4ProjectManager::QtVersion</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="-989"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="-1021"/>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
         <translation>Ungültige Qt-Version: %1</translation>
@@ -22558,7 +22685,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>InvalidIdException</name>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/core/exceptions/invalididexception.cpp" line="+59"/>
+        <location filename="../../../src/plugins/qmldesigner/designercore/exceptions/invalididexception.cpp" line="+59"/>
         <source>Ids have to be unique: </source>
         <translation>Ids müssen eindeutig sein: </translation>
     </message>
@@ -22579,7 +22706,7 @@ Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Z
 <context>
     <name>QmlDesigner::InvalidArgumentException</name>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/core/exceptions/invalidargumentexception.cpp" line="+60"/>
+        <location filename="../../../src/plugins/qmldesigner/designercore/exceptions/invalidargumentexception.cpp" line="+60"/>
         <source>Failed to create item of type %1</source>
         <translation>Es konnte kein Element des Typs %1 erzeugt werden</translation>
     </message>

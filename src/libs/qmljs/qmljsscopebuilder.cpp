@@ -66,10 +66,24 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
 {
     ScopeChain &scopeChain = _context->scopeChain();
 
-    scopeChain.qmlScopeObjects.clear();
+    if (_doc->bind()->isGroupedPropertyBinding(node)) {
+        UiObjectDefinition *definition = cast<UiObjectDefinition *>(node);
+        if (!definition)
+            return;
+        const Value *v = scopeObjectLookup(definition->qualifiedTypeNameId);
+        if (!v)
+            return;
+        const ObjectValue *object = v->asObjectValue();
+        if (!object)
+            return;
+
+        scopeChain.qmlScopeObjects.clear();
+        scopeChain.qmlScopeObjects += object;
+    }
 
     const ObjectValue *scopeObject = _doc->bind()->findQmlObject(node);
     if (scopeObject) {
+        scopeChain.qmlScopeObjects.clear();
         scopeChain.qmlScopeObjects += scopeObject;
     } else {
         return; // Probably syntax errors, where we're working with a "recovered" AST.
@@ -129,4 +143,29 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
             }
         }
     }
+}
+
+const Value *ScopeBuilder::scopeObjectLookup(AST::UiQualifiedId *id)
+{
+    // do a name lookup on the scope objects
+    const Value *result = 0;
+    foreach (const ObjectValue *scopeObject, _context->scopeChain().qmlScopeObjects) {
+        const ObjectValue *object = scopeObject;
+        for (UiQualifiedId *it = id; it; it = it->next) {
+            result = object->property(it->name->asString(), _context);
+            if (!result)
+                break;
+            if (it->next) {
+                object = result->asObjectValue();
+                if (!object) {
+                    result = 0;
+                    break;
+                }
+            }
+        }
+        if (result)
+            break;
+    }
+
+    return result;
 }

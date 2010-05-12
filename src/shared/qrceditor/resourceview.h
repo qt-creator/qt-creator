@@ -139,13 +139,9 @@ protected:
 signals:
     void removeItem();
     void dirtyChanged(bool b);
-    void currentIndexChanged();
 
     void addFilesTriggered(const QString &prefix);
     void addPrefixTriggered();
-
-protected slots:
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private slots:
     void onEditAlias();

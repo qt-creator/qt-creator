@@ -353,8 +353,22 @@ void Launcher::handleResult(const TrkResult &result)
     QByteArray prefix = "READ BUF:                                       ";
     QByteArray str = result.toString().toUtf8();
     if (result.isDebugOutput) { // handle application output
-        logMessage("APPLICATION OUTPUT: " + result.data);
-        emit applicationOutputReceived(result.data);
+        QString msg;
+        if (result.multiplex == MuxTextTrace) {
+            if (result.data.length() > 8) {
+            quint64 timestamp = extractInt64(result.data) & 0x0FFFFFFFFFFFFFFFULL;
+            quint64 secs = timestamp / 1000000000;
+            quint64 ns = timestamp % 1000000000;
+            msg = QString("[%1.%2] %3").arg(secs).arg(ns).arg(QString(result.data.mid(8)));
+            logMessage("TEXT TRACE: " + msg);
+            }
+        } else {
+            logMessage("APPLICATION OUTPUT: " + result.data);
+            msg = result.data;
+        }
+        msg.replace("\r\n", "\n");
+        if(!msg.endsWith('\n')) msg.append('\n');
+        emit applicationOutputReceived(msg);
         return;
     }
     switch (result.code) {

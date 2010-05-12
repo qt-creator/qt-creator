@@ -55,9 +55,6 @@ public:
     CodeCompletion(ModelManagerInterface *modelManager, QObject *parent = 0);
     virtual ~CodeCompletion();
 
-    Qt::CaseSensitivity caseSensitivity() const;
-    void setCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
-
     virtual TextEditor::ITextEditable *editor() const;
     virtual int startPosition() const;
     virtual bool shouldRestartCompletion();
@@ -81,7 +78,6 @@ private:
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
     QList<TextEditor::CompletionItem> m_completions;
-    Qt::CaseSensitivity m_caseSensitivity;
 
     QList<TextEditor::CompletionItem> m_snippets;
     QDateTime m_snippetFileLastModified;

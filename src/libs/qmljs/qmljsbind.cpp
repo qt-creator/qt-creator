@@ -106,6 +106,11 @@ Interpreter::ObjectValue *Bind::findFunctionScope(AST::FunctionDeclaration *node
     return _functionScopes.value(node);
 }
 
+bool Bind::isGroupedPropertyBinding(AST::Node *node) const
+{
+    return _groupedPropertyBindings.contains(node);
+}
+
 ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
 {
     ObjectValue *oldObjectValue = _currentObjectValue;
@@ -139,7 +144,6 @@ ExpressionNode *Bind::expression(UiScriptBinding *ast) const
 ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)
 {
     ObjectValue *parentObjectValue = 0;
-    const QString typeName = toString(qualifiedTypeNameId);
 
     // normal component instance
     ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _doc, &_engine);
@@ -204,8 +208,20 @@ bool Bind::visit(UiPublicMember *)
 
 bool Bind::visit(UiObjectDefinition *ast)
 {
-    ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
-    _qmlObjects.insert(ast, value);
+    // an UiObjectDefinition may be used to group property bindings
+    // think anchors { ... }
+    bool isGroupedBinding = false;
+    for (UiQualifiedId *it = ast->qualifiedTypeNameId; it; it = it->next) {
+        if (!it->next)
+            isGroupedBinding = it->name->asString().at(0).isLower();
+    }
+
+    if (!isGroupedBinding) {
+        ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
+        _qmlObjects.insert(ast, value);
+    } else {
+        _groupedPropertyBindings.insert(ast);
+    }
 
     return false;
 }

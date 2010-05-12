@@ -49,7 +49,9 @@ TestWizard::TestWizard() :
              QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
              QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
              tr("Qt Unit Test"),
-             tr("Creates a Qt Unit Test."),
+             tr("Creates a QTestLib-based unit test for a feature or a class. "
+                "Unit tests allow you to verify that the code is fit for use "
+                "and that there are no regressions."),
              QIcon(QLatin1String(":/wizards/images/console.png")))
 {
 }

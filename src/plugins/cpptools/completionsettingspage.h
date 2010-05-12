@@ -30,9 +30,8 @@
 #ifndef COMPLETIONSETTINGSPAGE_H
 #define COMPLETIONSETTINGSPAGE_H
 
+#include <texteditor/completionsettings.h>
 #include <texteditor/texteditoroptionspage.h>
-
-#include "cppcodecompletion.h"
 
 QT_BEGIN_NAMESPACE
 class Ui_CompletionSettingsPage;
@@ -41,12 +40,14 @@ QT_END_NAMESPACE
 namespace CppTools {
 namespace Internal {
 
+// TODO: Move this class to the text editor plugin
+
 class CompletionSettingsPage : public TextEditor::TextEditorOptionsPage
 {
     Q_OBJECT
 
 public:
-    CompletionSettingsPage(CppCodeCompletion *completion);
+    CompletionSettingsPage();
     ~CompletionSettingsPage();
 
     QString id() const;
@@ -58,9 +59,8 @@ public:
     virtual bool matches(const QString &) const;
 
 private:
-    CppCodeCompletion::CaseSensitivity caseSensitivity() const;
+    TextEditor::CaseSensitivity caseSensitivity() const;
 
-    CppCodeCompletion *m_completion;
     Ui_CompletionSettingsPage *m_page;
     QString m_searchKeywords;
 };

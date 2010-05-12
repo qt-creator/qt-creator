@@ -627,16 +627,6 @@ bool QtVersion::supportsShadowBuilds() const
 	// We can not support shadow building with the ABLD system
         return false;
     }
-    if (targets.contains(Constants::MAEMO_DEVICE_TARGET_ID)) {
-#if defined(Q_OS_WIN)
-        // qmake -unix fails with shadow building on windows
-        return false;
-#else
-        // ... but works fine anywhere else
-        return true;
-#endif
-    }
-
     return true;
 }
 
