@@ -598,7 +598,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 if (ClassOrNamespace *binding = findClass(ptrTy->elementType(), scope))
                     return binding;
 
-            } else if (ClassOrNamespace *binding = findClass(ptrTy->elementType(), scope)) {
+            } else if (ClassOrNamespace *binding = findClass(ty, scope)) {
                 // lookup for overloads of operator->
                 const OperatorNameId *arrowOp = control()->operatorNameId(OperatorNameId::ArrowOp);
 
