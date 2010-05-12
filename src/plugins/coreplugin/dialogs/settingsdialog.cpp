@@ -382,6 +382,7 @@ void SettingsDialog::updateEnabledTabs(Category *category, const QString &search
     for (int i = 0; i < category->pages.size(); ++i) {
         const IOptionsPage *page = category->pages.at(i);
         const bool enabled = searchText.isEmpty()
+                             || page->category().contains(searchText, Qt::CaseInsensitive)
                              || page->displayName().contains(searchText, Qt::CaseInsensitive)
                              || page->matches(searchText);
         category->tabWidget->setTabEnabled(i, enabled);
