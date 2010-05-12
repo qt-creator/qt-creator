@@ -2334,6 +2334,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
     } else if (input.is('Z')) {
         m_submode = CapitalZSubMode;
     } else if (!m_gflag && input.is('~') && !isVisualMode()) {
+        m_movetype = MoveExclusive;
         if (!atEndOfLine()) {
             beginEditBlock();
             setAnchor();
@@ -2355,6 +2356,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         || (m_gflag && input.is('u') && !isVisualMode())
         || (m_gflag && input.is('U') && !isVisualMode())) {
         m_gflag = false;
+        m_movetype = MoveExclusive;
         if (atEndOfLine())
             moveLeft();
         setAnchor();
@@ -2369,6 +2371,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         || (m_gflag && input.is('u') && isVisualMode())
         || (m_gflag && input.is('U') && isVisualMode())) {
         m_gflag = false;
+        m_movetype = MoveExclusive;
         if (isVisualLineMode())
             m_rangemode = RangeLineMode;
         else if (isVisualBlockMode())
