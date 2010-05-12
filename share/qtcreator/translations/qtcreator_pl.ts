@@ -128,7 +128,7 @@
     <message>
         <location/>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation>Załadowana</translation>
     </message>
 </context>
 <context>
@@ -911,7 +911,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas oczekiwania:</translation>
     </message>
     <message>
         <location/>
@@ -1262,17 +1262,20 @@ p, li { white-space: pre-wrap; }
 to extract full path information for all source files from gdb. This is a
 slow process but enables setting breakpoints in files with the same file
 name in different directories.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kiedy ta opcja jest zaznaczona, debugger próbuje uzyskać informacje od gdb
+o pełnych ścieżkach dla wszystkich plików źródłowych. Jest to wolny proces
+ale umożliwia ustawianie pułapek w plikach o tych samych nazwach
+leżących w różnych katalogach.</translation>
     </message>
     <message>
         <location/>
         <source>Use full path information to set breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Używaj informacji o pełnych ścieżkach do ustawiania pułapek</translation>
     </message>
     <message>
         <location/>
         <source>Gdb timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas oczekiwania:</translation>
     </message>
     <message>
         <location/>
@@ -1281,7 +1284,11 @@ it terminates non-responsive gdb process. The default value of 20 seconds
 should be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than that
 on slow machines. In this case, the value should be increased.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jest to czas wyrażony w sekundach przez który Qt Creator będzie oczekiwał na odpowiedź
+od procesu gdb zanim go zakończy. Domyślna wartość 20 sekund powinna być
+wystarczająca dla większości aplikacji, lecz mogą zdarzyć się sytuacje że ładowanie
+bibliotek o dużych rozmiarach lub wyświetlanie plików źródłowych zajmie dużo więcej
+czasu na powolnych maszynach. W takich przypadkach wartość ta powinna zostać zwiększona.</translation>
     </message>
     <message>
         <location/>
@@ -1297,7 +1304,7 @@ on slow machines. In this case, the value should be increased.</source>
         <location/>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation>Kiedy ta opcja jest zaznaczona &quot;Wskocz do wnętrza&quot; kompresuje w pewnych sytuacjach kilka kroków w jeden, co prowadzi do przejrzystszego debugowania. I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyńcze &quot;Wskocz do wnętrza&quot; dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
+        <translation>Kiedy ta opcja jest zaznaczona &quot;Wskocz do wnętrza&quot; kompresuje w pewnych sytuacjach kilka kroków w jeden, co prowadzi do przejrzystszego debugowania. I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &quot;Wskocz do wnętrza&quot; dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <location/>
@@ -1507,7 +1514,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location/>
         <source>Shift width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Szerokość przesunięcia:</translation>
     </message>
     <message>
         <source>Smart tabulators:</source>
@@ -1530,7 +1537,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location/>
         <source>Backspace:</source>
-        <translation type="unfinished"></translation>
+        <translation>Cofnięcie:</translation>
     </message>
     <message>
         <source>VIM&apos;s &quot;autoindent&quot; option</source>
@@ -2049,7 +2056,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location/>
         <source>Timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas oczekiwania:</translation>
     </message>
     <message>
         <location/>
@@ -2351,7 +2358,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <location/>
         <source>Timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas oczekiwania:</translation>
     </message>
     <message>
         <location/>
@@ -2366,7 +2373,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <location/>
         <source>Log count:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licznik dziennika:</translation>
     </message>
     <message>
         <location/>
@@ -3103,7 +3110,7 @@ Jednocześnie samoczynnie ustawia odpowiednią wersję Qt.</translation>
     <message>
         <location line="+4"/>
         <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Możesz przełączać tryby Qt Creator&apos;a używając &lt;tt&gt;Ctrl+liczba&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Powitanie&lt;/li&gt;&lt;li&gt;2 - Edycja&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projekty&lt;/li&gt;&lt;li&gt;5 - Pomoc&lt;/li&gt;&lt;/ul&gt;</translation>
+        <translation>Możesz przełączać tryby Qt Creator&apos;a używając &lt;tt&gt;Ctrl+liczba&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Powitanie&lt;/li&gt;&lt;li&gt;2 - Edycja&lt;/li&gt;&lt;li&gt;3 - Debugowanie&lt;/li&gt;&lt;li&gt;4 - Projekty&lt;/li&gt;&lt;li&gt;5 - Pomoc&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <location line="+21"/>
@@ -3590,7 +3597,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas oczekiwania:</translation>
     </message>
     <message>
         <location/>
@@ -3833,7 +3840,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>&amp;Visualize whitespace</source>
-        <translation>&amp;Pokazuj białe znaki</translation>
+        <translation>Pokazuj &amp;białe znaki</translation>
     </message>
     <message>
         <source>Animate matching parentheses</source>
@@ -3875,12 +3882,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Auto-fold first &amp;comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwijaj automatycznie początkowy &amp;komentarz</translation>
     </message>
     <message>
         <location/>
         <source>Center &amp;cursor on scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyśrodkowuj przy &amp;przewijaniu</translation>
     </message>
 </context>
 <context>
@@ -3991,32 +3998,32 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/welcome/communitywelcomepagewidget.cpp" line="+46"/>
         <source>&lt;b&gt;Forum Nokia&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Mobile Application Support&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Forum Nokii&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Wsparcie techniczne dla mobilnych aplikacji&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&lt;b&gt;Qt LGPL Support&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Buy professional Qt support&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Wsparcie techniczne Qt LGPL&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Kup profesjonalne wsparcie techniczne Qt&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&lt;b&gt;Qt Centre&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Community based Qt support&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Qt Centre&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Społeczne wsparcie techniczne Qt&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>&lt;b&gt;Qt Home&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Qt by Nokia on the web&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Strona domowa Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Strona domowa Qt / Nokia&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&lt;b&gt;Qt Git Hosting&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Participate in Qt development&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Składnica Git dla Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Weź udział w rozwoju Qt&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>&lt;b&gt;Qt Apps&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Find free Qt-based apps&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Aplikacje Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Znajdź darmowe aplikacje bazujące na Qt&lt;/font&gt;</translation>
     </message>
     <message>
         <location line="+34"/>
@@ -4594,7 +4601,7 @@ Przyczyna: %3</translation>
     <message>
         <location line="+244"/>
         <source>Resolving dependencies failed because state != Read</source>
-        <translation>Rozwiązanie zależności nie udało się, bo stan wtyczki jest inny niż &quot;wczytana&quot;</translation>
+        <translation>Nie udało się rozwiązać zależności ponieważ stan wtyczki jest inny niż &quot;wczytana&quot;</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -4604,7 +4611,7 @@ Przyczyna: %3</translation>
     <message>
         <location line="+28"/>
         <source>Loading the library failed because state != Resolved</source>
-        <translation>Ładowanie biblioteki nie powiodło się, bo stan wtyczki jest inny niż &quot;rozwiązana&quot;</translation>
+        <translation>Błąd ładowania biblioteki, stan wtyczki jest inny niż &quot;rozwiązana&quot;</translation>
     </message>
     <message>
         <location line="+36"/>
@@ -4614,7 +4621,7 @@ Przyczyna: %3</translation>
     <message>
         <location line="+21"/>
         <source>Initializing the plugin failed because state != Loaded</source>
-        <translation>Zainicjowanie wtyczki nie powiodło się, bo jej stan jest inny niż &quot;załadowana&quot;</translation>
+        <translation>Błąd inicjalizacji wtyczki, jej stan jest inny niż &quot;załadowana&quot;</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -4624,7 +4631,7 @@ Przyczyna: %3</translation>
     <message>
         <location line="+6"/>
         <source>Plugin initialization failed: %1</source>
-        <translation>Nie można zainicjalizować wtyczki: %1</translation>
+        <translation>Błąd inicjalizacji wtyczki: %1</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -7556,7 +7563,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location line="+2"/>
         <source>&lt;html&gt;The installed version of the &lt;i&gt;Debugging Tools for Windows&lt;/i&gt; (%1) is rather old. Upgrading to version %2 is recommended for the proper display of Qt&apos;s data types.&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;Zainstalowana wersja &lt;i&gt;narzędzi debugowych dla Windows&lt;/i&gt; (%1) jest przestarzała. Zalecane jest uaktualnienie do wersji %2 w celu poprawnego wyświetlania typów danych Qt.&lt;/html&gt;</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -7622,7 +7629,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location line="+37"/>
         <source>Stepping %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kroczenie %1</translation>
     </message>
     <message>
         <source>Running to 0x%1...</source>
@@ -7763,7 +7770,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location line="+29"/>
         <source>The debuggee does not appear to be Qt application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugowany proces nie wygląda na aplikację Qt.</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -7841,12 +7848,12 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/cdb/cdbsymbolpathlisteditor.cpp" line="+42"/>
         <source>Symbol Server...</source>
-        <translation type="unfinished"></translation>
+        <translation>Serwer z symbolami...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Adds the Microsoft symbol server providing symbols for operating system libraries.Requires specifying a local cache directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaje serwer z symbolami Microsoft dostarczający symboli dla bibliotek systemu operacyjnego. Wymaga podania katalogu dla lokalnego cache.</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -8539,7 +8546,7 @@ Zwróć uwagę że spowoduje to usunięcie lokalnego pliku.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+216"/>
         <source>Debug</source>
-        <translation>Debug</translation>
+        <translation>Debugowanie</translation>
     </message>
 </context>
 <context>
@@ -8629,12 +8636,12 @@ Czy chcesz ją zakończyć?</translation>
     <message>
         <location line="+5"/>
         <source>Detach Debugger</source>
-        <translation>Odłącz debugger</translation>
+        <translation>Odłącz debuggera</translation>
     </message>
     <message>
         <location line="+44"/>
         <source>Stop Debugger/Interrupt Debugger</source>
-        <translation>Zatrzymaj debugger / przerwij debugger</translation>
+        <translation>Zatrzymaj debuggera / przerwij debuggera</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -8825,7 +8832,7 @@ Czy chcesz ją zakończyć?</translation>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+290"/>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można rozpocząć procesu Gdb. Brak programu &quot;%1&quot; albo brak wymaganych uprawnień aby go uruchomić.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -9022,12 +9029,12 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
     <message>
         <location line="+12"/>
         <source>Run to line %1 requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zażądano wykonania do osiągnięcia linii %1...</translation>
     </message>
     <message>
         <location line="+23"/>
         <source>Run to function %1 requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zażądano wykonania do osiągnięcia funkcji %1...</translation>
     </message>
     <message>
         <location line="+594"/>
@@ -9161,7 +9168,8 @@ Zaleca się użycie gdb wersji 6.7 lub późniejszej.</translation>
         <location line="+1"/>
         <source>In order to load snapshots the debugged process needs to be stopped. Continuation will not be possible afterwards.
 Do you want to stop the debugged process and load the selected snapshot?</source>
-        <translation type="unfinished"></translation>
+        <translation>W celu załadowania zrzutów należy zakończyć debugowany proces. Kontynuacja debugowania nie będzie wtedy możliwa.
+Czy chcesz zakończyć debugowany proces i załadować wybrany zrzut?</translation>
     </message>
     <message>
         <location line="+378"/>
@@ -9171,7 +9179,7 @@ Do you want to stop the debugged process and load the selected snapshot?</source
     <message>
         <location line="+777"/>
         <source>crashed</source>
-        <translation type="unfinished"></translation>
+        <translation>zakończył pracę błędem</translation>
     </message>
     <message>
         <location line="+0"/>
@@ -9181,12 +9189,12 @@ Do you want to stop the debugged process and load the selected snapshot?</source
     <message>
         <location line="+14"/>
         <source>Adapter start failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić adaptera</translation>
     </message>
     <message>
         <location line="-70"/>
         <source>Cannot find debugger initialization script</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odnaleźć skryptu inicjalizującego dla debuggera</translation>
     </message>
     <message>
         <location line="-3638"/>
@@ -9314,7 +9322,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location line="+53"/>
         <source>There is no gdb binary available for &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak dostępnego pliku binarnego gdb dla &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+57"/>
@@ -9324,12 +9332,12 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location line="+232"/>
         <source>Immediate return from function requested...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zażądano natychmiastowego powrotu z funkcji...</translation>
     </message>
     <message>
         <location line="+406"/>
         <source>ATTEMPT BREAKPOINT SYNC</source>
-        <translation type="unfinished"></translation>
+        <translation>PRÓBA SYNCHRONIZACJI PUŁAPEK</translation>
     </message>
     <message>
         <location line="+229"/>
@@ -9356,12 +9364,12 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="-161"/>
         <source>The debugging helper library was not found at %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie odnaleziono biblioteki asystenta debuggera w %1.</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="-135"/>
         <source>The debugger settings point to a script file at &apos;%1&apos; which is not accessible. If a script file is not needed, consider clearing that entry to avoid this warning. </source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienia debuggera pokazują na skrypt w &quot;%1&quot; króry nie jest dostępny. Jeśli plik ze skryptem nie jest potrzebny rozważ usunięcie go z ustawień w celu uniknięcia tego ostrzeżenia.</translation>
     </message>
     <message>
         <location line="+109"/>
@@ -9385,7 +9393,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location line="+68"/>
         <source>Adapter crashed</source>
-        <translation type="unfinished"></translation>
+        <translation>Adapter zakończył pracę błędem</translation>
     </message>
 </context>
 <context>
@@ -9425,7 +9433,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/remotegdbadapter.cpp" line="+113"/>
         <source>The upload process failed to start. Shell missing?</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można rozpocząć procesu upload. Brak powłoki?</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -9473,7 +9481,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/gdb/trkgdbadapter.cpp" line="+1723"/>
         <source>Port specification missing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie podano portu.</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -9483,7 +9491,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location line="+118"/>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation type="unfinished"></translation>
+        <translation>Proces uruchomiony, PID: 0x%1, identyfikator wątku: 0x%2, segment kodu: 0x%3, segment danych: 0x%4.</translation>
     </message>
     <message>
         <location line="+40"/>
@@ -9715,7 +9723,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location line="+43"/>
         <source>Invalid non-negative number</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawna liczba naturalna</translation>
     </message>
     <message>
         <location line="+58"/>
@@ -9786,29 +9794,29 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location line="+17"/>
         <source>Invalid pointer-to-member-type</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawny wskaźnik do typu składnika</translation>
     </message>
     <message>
         <location line="+47"/>
         <location line="+10"/>
         <location line="+36"/>
         <source>Invalid substitution</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawne zastąpienie</translation>
     </message>
     <message>
         <location line="-42"/>
         <source>Invalid substitution: element %1 was requested, but there are only %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawne zastąpienie: zażądano elementu %1 podczas gdy wszystkich elementów jest %2</translation>
     </message>
     <message>
         <location line="+11"/>
         <source>Invalid substitution: There are no elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawne zastąpienie: brak elementów</translation>
     </message>
     <message>
         <location line="+103"/>
         <source>Invalid special-name</source>
-        <translation type="unfinished"></translation>
+        <translation>Niepoprawna nazwa specjalna</translation>
     </message>
     <message>
         <location line="+43"/>
@@ -10372,22 +10380,22 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location line="+1"/>
         <source>Latin1 string</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciąg Latin1</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>UTF8 string</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciąg UTF8</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>UTF16 string</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciąg UTF16</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>UCS4 string</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciąg UCS4</translation>
     </message>
     <message>
         <location line="+89"/>
@@ -10410,7 +10418,7 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
     <message>
         <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+103"/>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
-        <translation type="unfinished"></translation>
+        <translation>Znaleziono nieaktualną wersję biblioteki asystenta debuggera (%1); wymagana wersja: %2.</translation>
     </message>
     <message>
         <location line="+36"/>
@@ -10596,13 +10604,15 @@ Zaleca się użycie gdb wersji 7.1 lub późniejszej.</translation>
         <location filename="../../../src/plugins/designer/codemodelhelpers.cpp" line="+129"/>
         <source>The generated header of the form &apos;%1&apos; could be found.
 Rebuilding the project might help.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odnaleźć wygenerowanego pliku nagłówkowego dla formularza &quot;%1&quot;.
+Spróbuj ponownie przebudować projekt.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>The generated header &apos;%1&apos; could not be found in the code model.
 Rebuilding the project might help.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odnaleźć wygenerowanego pliku nagłówkowego &quot;%1&quot; w modelu kodu.
+Spróbuj ponownie przebudować projekt.</translation>
     </message>
 </context>
 <context>
@@ -10867,7 +10877,7 @@ Rebuilding the project might help.</source>
         <source>No documents matching &apos;%1&apos; could be found.
 Rebuilding the project might help.</source>
         <translation>Brak dokumentów załączających &quot;%1&quot;.
-Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
+Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <location line="+59"/>
@@ -11545,7 +11555,7 @@ Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
     <message>
         <location line="+2"/>
         <source>Unable apply patch %1 to %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zastosować łaty %1 do %2: %3</translation>
     </message>
     <message>
         <location line="+576"/>
@@ -11654,7 +11664,7 @@ Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
     <message>
         <location line="+32"/>
         <source>Git SVN Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Dziennik git SVN</translation>
     </message>
     <message>
         <location line="+14"/>
@@ -11670,7 +11680,7 @@ Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
 &apos;%1&apos; failed (exit code %2).
 </source>
         <translation>
-&apos;%1&apos; zakończone niepowodzeniem (kod wyjściowy %2).
+&apos;%1&apos; zakończone błędem (kod wyjściowy %2).
 </translation>
     </message>
     <message>
@@ -11693,7 +11703,7 @@ Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
     <message>
         <location line="+45"/>
         <source>Request failed for &apos;%1&apos;: %2</source>
-        <translation>Żądanie zostało niepomyślnie zakończone dla &quot;%1&quot;: %2</translation>
+        <translation>Żądanie zostało błędnie zakończone dla &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <location line="+80"/>
@@ -11894,12 +11904,12 @@ Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
     <message>
         <location line="-51"/>
         <source>Clean Project...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść projekt...</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Clean Project &quot;%1&quot;...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyczyść projekt &quot;%1&quot;...</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -11959,7 +11969,7 @@ Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
     <message>
         <location line="+3"/>
         <source>Pull</source>
-        <translation type="unfinished"></translation>
+        <translation>Pociągnij</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -11984,7 +11994,7 @@ Przebudowanie projektu może pomóc w odnalezieniu ich.</translation>
     <message>
         <location line="+3"/>
         <source>Push</source>
-        <translation type="unfinished"></translation>
+        <translation>Popchnij</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -14032,12 +14042,12 @@ Powód: %2</translation>
     <message>
         <location line="+338"/>
         <source>Cannot run without a project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchamiać bez wybranego projektu.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Cannot debug without a project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można debugować bez wybranego projektu.</translation>
     </message>
     <message>
         <location line="+151"/>
@@ -16947,7 +16957,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+3"/>
         <source>&amp;Rewrap Paragraph</source>
-        <translation type="unfinished"></translation>
+        <translation>Zawiń &amp;ponownie paragraf</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -16957,7 +16967,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+5"/>
         <source>&amp;Visualize Whitespace</source>
-        <translation>&amp;Pokazuj białe znaki</translation>
+        <translation>Pokazuj &amp;białe znaki</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -17967,7 +17977,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <location line="+10"/>
         <source>Copying failed</source>
-        <translation>Kopiowanie zakończone niepowodzeniem</translation>
+        <translation>Błąd kopiowania</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -18842,7 +18852,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     <message>
         <location line="+4"/>
         <source>%1: Process %2 crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Proces %2 zakończył pracę błędem.</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -19298,7 +19308,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Log count:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licznik dziennika:</translation>
     </message>
     <message>
         <location/>
@@ -19308,7 +19318,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas oczekiwania:</translation>
     </message>
     <message>
         <location/>
@@ -20249,7 +20259,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location/>
         <source>Connection Timeout:</source>
-        <translation type="unfinished"></translation>
+        <translation>Czas oczekiwania na połączenie:</translation>
     </message>
     <message>
         <location/>
@@ -20528,12 +20538,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="-245"/>
         <source>easing-curve name is not a string</source>
-        <translation type="unfinished"></translation>
+        <translation>nazwa łagodnej krzywej nie jest ciągiem</translation>
     </message>
     <message>
         <location line="-6"/>
         <source>unknown easing-curve name</source>
-        <translation type="unfinished"></translation>
+        <translation>nieznana nazwa łagodnej krzywej</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -20553,7 +20563,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+12"/>
         <source>string value expected</source>
-        <translation type="unfinished"></translation>
+        <translation>Oczekiwano wartości typu ciąg</translation>
     </message>
     <message>
         <location line="+41"/>
@@ -20563,7 +20573,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+9"/>
         <source>expected anchor line</source>
-        <translation type="unfinished"></translation>
+        <translation>oczekiwano linii kotwicznej</translation>
     </message>
     <message>
         <location line="+93"/>
@@ -20691,7 +20701,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location filename="../../../src/libs/utils/unixutils.cpp" line="+60"/>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Zmienna&lt;/th&gt;&lt;th&gt;Rozwinięcie&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;katalog bieżącego pliku&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;nazwa pliku (z pełną ścieżką)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;nazwa pliku (bez ścieżki)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
 </context>
 <context>
@@ -20717,12 +20727,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+110"/>
         <source>Copy Selection as ASCII Characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Skopiuj jako znaki ASCII</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Copy Selection as Hex Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Skopiuj jako wartości szesnastkowe</translation>
     </message>
     <message>
         <location line="+27"/>
@@ -21596,12 +21606,12 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+44"/>
         <source>Pull...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pociągnij...</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Push...</source>
-        <translation type="unfinished"></translation>
+        <translation>Popchnij...</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -21656,7 +21666,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+28"/>
         <source>Incoming Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Nadchodzące źródło</translation>
     </message>
     <message>
         <location line="+18"/>
@@ -21747,7 +21757,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+19"/>
         <source>&quot;%1&quot; crashed.</source>
-        <translation>Wystąpił błąd w &quot;%1&quot; - proces zakończony.</translation>
+        <translation>&quot;%1&quot; zakończył pracę błędem.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -21862,7 +21872,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+1"/>
         <source>Example Object Class-name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Przykładowa nazwa klasy obiektu:</translation>
     </message>
 </context>
 <context>
@@ -21976,7 +21986,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+2"/>
         <source>Open Terminal here...</source>
-        <translation type="unfinished"></translation>
+        <translation>Otwórz tutaj terminal...</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -22891,7 +22901,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+1"/>
         <source>Show uninspectable items</source>
-        <translation type="unfinished">Pokazuj elementy</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
@@ -22975,7 +22985,9 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <source>[Inspector] disconnected.
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>[Inspektor] rozłączony.
+
+</translation>
     </message>
     <message>
         <location line="+14"/>
@@ -23002,7 +23014,8 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <location line="+23"/>
         <source>[Inspector] error: (%1) %2</source>
         <comment>%1=error code, %2=error message</comment>
-        <translation type="unfinished"></translation>
+        <translation>[Inspektor] błąd: (%1) %2
+</translation>
     </message>
     <message>
         <location line="+111"/>
@@ -23012,13 +23025,13 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <location line="+32"/>
         <source>No project was found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono żadnego projektu.</translation>
     </message>
     <message>
         <location line="+21"/>
         <location line="+47"/>
         <source>No run configurations were found for the project &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie znaleziono żadnych konfiguracji uruchamiania dla projektu &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -23034,7 +23047,7 @@ Please check your project settings.</source>
     <message>
         <location line="+54"/>
         <source>Debugging failed: could not start C++ debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd debugowania: nie można uruchomić debuggera C++.</translation>
     </message>
     <message>
         <location line="-287"/>
@@ -23095,28 +23108,28 @@ Please check your project settings.</source>
     <message>
         <location filename="../../../src/plugins/qmljseditor/qmljseditorfactory.cpp" line="+141"/>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
-        <translation type="unfinished"></translation>
+        <translation>Czy chcesz włączyć eksperymentalnego Qt Quick Designera?</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+23"/>
         <source>Enable Qt Quick Designer</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz Qt Quick Designera</translation>
     </message>
     <message>
         <location line="-11"/>
         <source>Qt Creator -&gt; About Plugins...</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator -&gt; Informacje o wtyczkach...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Help -&gt; About Plugins...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pomoc -&gt; Informacje o wtyczkach...</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Enable experimental Qt Quick Designer?</source>
-        <translation type="unfinished"></translation>
+        <translation>Włączyć Qt Quick Designera?</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -23131,12 +23144,12 @@ Please check your project settings.</source>
     <message>
         <location line="+8"/>
         <source>Please restart Qt Creator</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom ponownie Qt Creatora</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Please restart Qt Creator to make the change effective.</source>
-        <translation type="unfinished"></translation>
+        <translation>Uruchom ponownie Qt Creatora aby zmiana mogła zostać zastosowana.</translation>
     </message>
 </context>
 <context>
@@ -23188,7 +23201,7 @@ Please check your project settings.</source>
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+102"/>
         <source>Error while loading project file!</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd podczas ładowania pliku z projektem!</translation>
     </message>
 </context>
 <context>
@@ -23228,7 +23241,7 @@ Please check your project settings.</source>
         <source>Include .qml, .js, and image files from current directory and subdirectories</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Włącz .qml, .js i pliki graficzne z bieżącego katalogu i jego podkatalogów</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -23302,7 +23315,7 @@ Please check your project settings.</source>
         <source>Include .qml, .js, and image files from current directory and subdirectories</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Włącz .qml, .js i pliki graficzne z bieżącego katalogu i jego podkatalogów</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -23494,12 +23507,12 @@ Czy uruchomiłeś Qemu?</translation>
     <message>
         <location line="+323"/>
         <source>&apos;%1&apos; does not contain a valid Maemo simulator image.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; nie zawiera prawidłowego obrazu symulatora Maemo.</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>Simulator could not be found. Please check the Qt Version you are using and that a simulator image is already installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można odnaleźć symulatora. Sprawdź którą wersję Qt używasz i upewnij się że obraz symulatora jest już zainstalowany.</translation>
     </message>
 </context>
 <context>
@@ -23615,7 +23628,7 @@ Czy uruchomiłeś Qemu?</translation>
     <message>
         <location line="-76"/>
         <source>Deployment failed: %1</source>
-        <translation>Instalacja zakończona niepowodzeniem: %1</translation>
+        <translation>Błąd instalacji: %1</translation>
     </message>
 </context>
 <context>
@@ -23649,7 +23662,7 @@ Czy uruchomiłeś Qemu?</translation>
         <location line="-11"/>
         <location line="+22"/>
         <source>Deployment Failed</source>
-        <translation>Instalacja zakończona niepowodzeniem</translation>
+        <translation>Błąd instalacji</translation>
     </message>
     <message>
         <location line="-222"/>
@@ -23670,7 +23683,7 @@ Czy uruchomiłeś Qemu?</translation>
     <message>
         <location line="+22"/>
         <source>Key deployment failed: %1</source>
-        <translation>Instalacja klucza zakończona niepowodzeniem: %1</translation>
+        <translation>Błąd instalacji klucza: %1</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -24131,17 +24144,17 @@ Czy uruchomiłeś Qemu?</translation>
     <message>
         <location/>
         <source>Viewer path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ścieżka przeglądarki:</translation>
     </message>
     <message>
         <location/>
         <source>Viewer arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Argumenty przeglądarki:</translation>
     </message>
     <message>
         <location/>
         <source>To switch languages while debugging, go to Debug-&gt;Language menu.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aby zmienić język podczas debugowania przejdź do menu: Debugowanie-&gt;Język.</translation>
     </message>
 </context>
 <context>
@@ -24259,7 +24272,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location filename="../qmldesigner/propertyeditor/Qt/BorderImageSpecifics.qml" line="+17"/>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrazek</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -24274,22 +24287,22 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+35"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Lewy</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Prawy</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Górny</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolny</translation>
     </message>
 </context>
 <context>
@@ -24394,7 +24407,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location filename="../qmldesigner/propertyeditor/Qt/ImageSpecifics.qml" line="+15"/>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrazek</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -24414,7 +24427,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+4"/>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Gładki</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -24563,12 +24576,12 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+12"/>
         <source>Wrap Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Tryb zawijania</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Alignment</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyrównanie</translation>
     </message>
     <message>
         <location line="+18"/>
@@ -24578,7 +24591,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+4"/>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Gładki</translation>
     </message>
     <message>
         <location line="-8"/>
@@ -24619,7 +24632,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location filename="../qmldesigner/propertyeditor/Qt/TextEditSpecifics.qml" line="+24"/>
         <source>Text Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Edytor tekstu</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -24672,12 +24685,12 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+14"/>
         <source>Focus On Press</source>
-        <translation type="unfinished"></translation>
+        <translation>Fokus po naciśnięciu</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Auto Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatyczne przewijanie</translation>
     </message>
 </context>
 <context>
@@ -24695,47 +24708,47 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+20"/>
         <source>Top Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Górny lewy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Górny</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Top Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Górny prawy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Lewy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation>Centralny</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Prawy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Bottom Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolny lewy</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolny</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Bottom Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Dolny prawy</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -24930,7 +24943,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+11"/>
         <source>Please configure a path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skonfiguruj ścieżkę.</translation>
     </message>
     <message>
         <location line="+59"/>
@@ -24940,7 +24953,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+17"/>
         <source>Pasted: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Wklejono: %1</translation>
     </message>
 </context>
 <context>
@@ -25031,7 +25044,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+3"/>
         <source>Gdb binary</source>
-        <translation type="unfinished"></translation>
+        <translation>Plik binarny Gdb</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -25049,12 +25062,12 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+30"/>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można rozpocząć pdb &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Adapter start failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić adaptera</translation>
     </message>
     <message>
         <location line="+263"/>
@@ -25079,7 +25092,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+10"/>
         <source>The Pdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można rozpocząć procesu Pdb. Brak programu &quot;%1&quot; albo brak wymaganych uprawnień aby go uruchomić.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -25104,7 +25117,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+3"/>
         <source>An unknown error in the Pdb process occurred. </source>
-        <translation type="unfinished"></translation>
+        <translation>Wystąpił nieznany błąd w procesie Pdb.</translation>
     </message>
 </context>
 <context>
@@ -25228,22 +25241,22 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+40"/>
         <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pakowania: Nie można otworzyć pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Packaging Error: Cannot write file &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pakowania: Nie można zapisać pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Packaging Error: Could not replace file &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pakowania: Nie można zastąpić pliku &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Packaging Error: Could not copy &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pakowania: Nie można skopiować pliku &quot;%1&quot; do &quot;%2&quot;.</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -25258,7 +25271,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+8"/>
         <source>Packaging failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pakowania.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -25268,7 +25281,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+4"/>
         <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Błąd pakowania: Komenda &quot;%1&quot; zakończona błędem.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25330,7 +25343,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicespreferencepane.cpp" line="-277"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Domyślne</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -25430,7 +25443,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location filename="../qmldesigner/propertyeditor/Qt/emptyPane.qml" line="+38"/>
         <source>none or multiple items selected</source>
-        <translation type="unfinished"></translation>
+        <translation>nie zaznaczono lub zaznaczono wiele elementów</translation>
     </message>
 </context>
 <context>
@@ -25448,7 +25461,7 @@ name &lt;email&gt; alias &lt;email&gt;</source>
     <message>
         <location line="+10"/>
         <source>Only select items with content (S)</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz tylko elementy z zawartością (S)</translation>
     </message>
 </context>
 <context>
