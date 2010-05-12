@@ -603,10 +603,23 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 const OperatorNameId *arrowOp = control()->operatorNameId(OperatorNameId::ArrowOp);
 
                 foreach (Symbol *overload, binding->find(arrowOp)) {
-                    FullySpecifiedType overloadTy = overload->type();
+                    if (Function *funTy = overload->type()->asFunctionType()) {
+                        FullySpecifiedType overloadTy = GenTemplateInstance::instantiate(binding->templateId(), overload, control());
+                        Function *instantiatedFunction = overloadTy->asFunctionType();
+                        Q_ASSERT(instantiatedFunction != 0);
 
-                    if (ClassOrNamespace *retBinding = findClass(overloadTy, overload->scope()))
-                        return retBinding;
+                        FullySpecifiedType retTy = instantiatedFunction->returnType().simplified();
+
+                        if (PointerType *ptrTy = retTy->asPointerType()) {
+                            if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), overload->scope()))
+                                return retBinding;
+
+                            else if (debug) {
+                                Overview oo;
+                                qDebug() << "no class for:" << oo(ptrTy->elementType());
+                            }
+                        }
+                    }
                 }
             }
         } else if (accessOp == T_DOT) {

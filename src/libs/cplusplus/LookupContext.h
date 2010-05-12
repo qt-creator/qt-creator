@@ -48,6 +48,7 @@ class CPLUSPLUS_EXPORT ClassOrNamespace
 public:
     ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent);
 
+    const TemplateNameId *templateId() const;
     ClassOrNamespace *parent() const;
     QList<ClassOrNamespace *> usings() const;
     QList<Enum *> enums() const;

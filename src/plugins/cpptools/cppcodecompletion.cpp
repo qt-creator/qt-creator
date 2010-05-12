@@ -1095,6 +1095,11 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
         return ! m_completions.isEmpty();
     }
 
+    if (debug) {
+        Overview oo;
+        qDebug() << "hmm, got:" << oo(baseResults.first().type()) << typeid(*baseResults.first().type().type()).name();
+    }
+
     return false;
 }
 

@@ -263,6 +263,11 @@ ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *pa
 {
 }
 
+const TemplateNameId *ClassOrNamespace::templateId() const
+{
+    return _templateId;
+}
+
 ClassOrNamespace *ClassOrNamespace::parent() const
 {
     return _parent;
@@ -316,35 +321,35 @@ QList<Symbol *> ClassOrNamespace::lookup(const Name *name)
 QList<Symbol *> ClassOrNamespace::lookup_helper(const Name *name, bool searchInEnclosingScope)
 {
     QList<Symbol *> result;
-    if (! name)
-        return result;
 
-    if (const QualifiedNameId *q = name->asQualifiedNameId()) {
+    if (name) {
+        if (const QualifiedNameId *q = name->asQualifiedNameId()) {
+            ClassOrNamespace *binding = this;
+
+            if (q->isGlobal())
+                binding = globalNamespace();
+
+            if (q->nameCount() == 1)
+                return binding->find(q->unqualifiedNameId());
+
+            binding = binding->lookupClassOrNamespace(q->nameAt(0));
+
+            for (unsigned index = 1; binding && index < q->nameCount() - 1; ++index)
+                binding = binding->findClassOrNamespace(q->nameAt(index));
+
+            if (binding)
+                result = binding->find(q->unqualifiedNameId());
+
+            return result;
+        }
+
+        QSet<ClassOrNamespace *> processed;
         ClassOrNamespace *binding = this;
-
-        if (q->isGlobal())
-            binding = globalNamespace();
-
-        if (q->nameCount() == 1)
-            return binding->find(q->unqualifiedNameId());
-
-        binding = binding->lookupClassOrNamespace(q->nameAt(0));
-
-        for (unsigned index = 1; binding && index < q->nameCount() - 1; ++index)
-            binding = binding->findClassOrNamespace(q->nameAt(index));
-
-        if (binding)
-            result = binding->find(q->unqualifiedNameId());
-
-        return result;
+        do {
+            lookup_helper(name, binding, &result, &processed, /*templateId = */ 0);
+            binding = binding->_parent;
+        } while (searchInEnclosingScope && binding);
     }
-
-    QSet<ClassOrNamespace *> processed;
-    ClassOrNamespace *binding = this;
-    do {
-        lookup_helper(name, binding, &result, &processed, /*templateId = */ 0);
-        binding = binding->_parent;
-    } while (searchInEnclosingScope && binding);
 
     return result;
 }
@@ -404,7 +409,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             else if (s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
 
-#if 0
+#if 1
             if (templateId && (s->isDeclaration() || s->isFunction())) {
 
                 FullySpecifiedType ty = GenTemplateInstance::instantiate(templateId, s, _control);
@@ -416,6 +421,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                 qDebug() << "TODO: instantiate:" << oo(s->type(), s->name()) << "using:" << oo(templateId)
                         << oo(ty);
 
+#if 0
                 if (Declaration *decl = s->asDeclaration()) {
                     qDebug() << "instantiate declaration";
                     Declaration *d = _control->newDeclaration(0, 0);
@@ -430,6 +436,8 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                     result->append(d);
                     continue;
                 }
+#endif
+
             }
 #endif
 
