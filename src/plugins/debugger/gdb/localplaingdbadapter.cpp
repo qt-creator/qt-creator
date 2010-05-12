@@ -79,8 +79,8 @@ void LocalPlainGdbAdapter::startAdapter()
     }
     gdbArgs.append(_("--tty=") + m_outputCollector.serverName());
 
-    if (!startParameters().workingDir.isEmpty())
-        m_gdbProc.setWorkingDirectory(startParameters().workingDir);
+    if (!startParameters().workingDirectory.isEmpty())
+        m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
     if (!startParameters().environment.isEmpty())
         m_gdbProc.setEnvironment(startParameters().environment);
 

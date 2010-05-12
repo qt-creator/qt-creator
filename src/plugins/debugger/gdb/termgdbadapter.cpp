@@ -91,7 +91,7 @@ void TermGdbAdapter::startAdapter()
 //    m_stubProc.stop();
 //    m_stubProc.blockSignals(false);
 
-    m_stubProc.setWorkingDirectory(startParameters().workingDir);
+    m_stubProc.setWorkingDirectory(startParameters().workingDirectory);
     // Set environment + dumper preload.
     QStringList environment = startParameters().environment;
     m_stubProc.setEnvironment(environment);

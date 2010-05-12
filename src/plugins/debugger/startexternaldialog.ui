@@ -48,6 +48,9 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="Utils::PathChooser" name="execFile" native="true"/>
+     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="argLabel">
        <property name="text">
@@ -58,17 +61,24 @@
      <item row="1" column="1">
       <widget class="QLineEdit" name="argsEdit"/>
      </item>
-     <item row="0" column="1">
-      <widget class="Utils::PathChooser" name="execFile" native="true"/>
+     <item row="2" column="0">
+      <widget class="QLabel" name="workingDirectoryLabel">
+       <property name="text">
+        <string>Working directory:</string>
+       </property>
+      </widget>
      </item>
      <item row="2" column="1">
+      <widget class="Utils::PathChooser" name="workingDirectory" native="true"/>
+     </item>
+     <item row="3" column="1">
       <widget class="QCheckBox" name="checkBoxBreakAtMain">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="labelBreakAtMain">
        <property name="text">
         <string>Break at 'main':</string>

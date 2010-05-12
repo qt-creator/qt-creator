@@ -116,15 +116,17 @@ public:
     explicit AttachTcfDialog(QWidget *parent);
     ~AttachTcfDialog();
 
+    QString remoteChannel() const;
     void setRemoteChannel(const QString &host);
+
+    QString remoteArchitecture() const;
     void setRemoteArchitecture(const QString &arch);
     void setRemoteArchitectures(const QStringList &arches);
-    QString remoteChannel() const;
-    QString remoteArchitecture() const;
-    void setServerStartScript(const QString &scriptName);
+
     QString serverStartScript() const;
-    void setUseServerStartScript(bool on);
     bool useServerStartScript() const;
+    void setUseServerStartScript(bool on);
+    void setServerStartScript(const QString &scriptName);
 
 private slots:
     void updateState();
@@ -141,11 +143,15 @@ public:
     explicit StartExternalDialog(QWidget *parent);
     ~StartExternalDialog();
 
+    QString executableFile() const;
     void setExecutableFile(const QString &executable);
+
+    QString executableArguments() const;
     void setExecutableArguments(const QString &args);
 
-    QString executableFile() const;
-    QString executableArguments() const;
+    QString workingDirectory() const;
+    void setWorkingDirectory(const QString &str);
+
     bool breakAtMain() const;
 
 private:
@@ -160,21 +166,26 @@ public:
     explicit StartRemoteDialog(QWidget *parent);
     ~StartRemoteDialog();
 
+    QString localExecutable() const;
+    void setLocalExecutable(const QString &executable);
+
+    QString remoteChannel() const;
     void setRemoteChannel(const QString &host);
+
+    QString remoteArchitecture() const;
     void setRemoteArchitecture(const QString &arch);
     void setRemoteArchitectures(const QStringList &arches);
-    void setLocalExecutable(const QString &executable);
-    void setDebugger(const QString &debugger);
-    QString localExecutable() const;
-    QString remoteChannel() const;
-    QString remoteArchitecture() const;
-    void setServerStartScript(const QString &scriptName);
-    QString serverStartScript() const;
-    void setUseServerStartScript(bool on);
+
     bool useServerStartScript() const;
-    void setSysRoot(const QString &sysRoot);
+    void setUseServerStartScript(bool on);
+    QString serverStartScript() const;
+    void setServerStartScript(const QString &scriptName);
+
     QString sysRoot() const;
+    void setSysRoot(const QString &sysRoot);
+
     QString debugger() const;
+    void setDebugger(const QString &debugger);
 
 private slots:
     void updateState();

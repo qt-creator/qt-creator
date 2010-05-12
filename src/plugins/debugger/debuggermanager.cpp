@@ -181,7 +181,7 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
     nospace << "executable=" << p.executable << " coreFile=" << p.coreFile
             << " processArgs=" << p.processArgs.join(sep)
             << " environment=<" << p.environment.size() << " variables>"
-            << " workingDir=" << p.workingDir << " buildDir=" << p.buildDir
+            << " workingDir=" << p.workingDirectory << " buildDir=" << p.buildDirectory
             << " attachPID=" << p.attachPID << " useTerminal=" << p.useTerminal
             << " remoteChannel=" << p.remoteChannel
             << " remoteArchitecture=" << p.remoteArchitecture
@@ -2068,7 +2068,7 @@ void DebuggerManager::runTest(const QString &fileName)
 {
     d->m_startParameters->executable = fileName;
     d->m_startParameters->processArgs = QStringList() << "--run-debuggee";
-    d->m_startParameters->workingDir.clear();
+    d->m_startParameters->workingDirectory.clear();
     //startNewDebugger(StartInternal);
 }
 

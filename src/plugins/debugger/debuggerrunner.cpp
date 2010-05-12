@@ -118,7 +118,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
     m_startParameters->startMode = StartInternal;
     m_startParameters->executable = runConfiguration->executable();
     m_startParameters->environment = runConfiguration->environment().toStringList();
-    m_startParameters->workingDir = runConfiguration->workingDirectory();
+    m_startParameters->workingDirectory = runConfiguration->workingDirectory();
     m_startParameters->processArgs = runConfiguration->commandLineArguments();
 
     switch (m_startParameters->toolChainType) {
@@ -130,7 +130,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
         break;
     }
     if (runConfiguration->target()->project()) {
-        m_startParameters->buildDir =
+        m_startParameters->buildDirectory =
             runConfiguration->target()->activeBuildConfiguration()->buildDirectory();
     }
     m_startParameters->useTerminal =

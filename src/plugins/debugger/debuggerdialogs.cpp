@@ -516,6 +516,8 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
     m_ui->execFile->setExpectedKind(Utils::PathChooser::File);
     m_ui->execFile->setPromptDialogTitle(tr("Select Executable"));
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    m_ui->workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
+    m_ui->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
 
     //execLabel->setHidden(false);
     //execEdit->setHidden(false);
@@ -541,6 +543,16 @@ void StartExternalDialog::setExecutableFile(const QString &str)
 QString StartExternalDialog::executableFile() const
 {
     return m_ui->execFile->path();
+}
+
+void StartExternalDialog::setWorkingDirectory(const QString &str)
+{
+    m_ui->workingDirectory->setPath(str);
+}
+
+QString StartExternalDialog::workingDirectory() const
+{
+    return m_ui->workingDirectory->path();
 }
 
 void StartExternalDialog::setExecutableArguments(const QString &str)

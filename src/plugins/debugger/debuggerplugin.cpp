@@ -1401,6 +1401,8 @@ void DebuggerPlugin::startExternalApplication()
             configValue(_("LastExternalExecutableFile")).toString());
     dlg.setExecutableArguments(
             configValue(_("LastExternalExecutableArguments")).toString());
+    dlg.setWorkingDirectory(
+            configValue(_("LastExternalWorkingDirectory")).toString());
     if (dlg.exec() != QDialog::Accepted)
         return;
 
@@ -1408,8 +1410,11 @@ void DebuggerPlugin::startExternalApplication()
                    dlg.executableFile());
     setConfigValue(_("LastExternalExecutableArguments"),
                    dlg.executableArguments());
+    setConfigValue(_("LastExternalWorkingDirectory"),
+                   dlg.workingDirectory());
     sp->executable = dlg.executableFile();
     sp->startMode = StartExternal;
+    sp->workingDirectory = dlg.workingDirectory();
     if (!dlg.executableArguments().isEmpty())
         sp->processArgs = dlg.executableArguments().split(QLatin1Char(' '));
 

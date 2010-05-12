@@ -50,8 +50,8 @@ void RemotePlainGdbAdapter::startAdapter()
     setState(AdapterStarting);
     debugMessage(QLatin1String("TRYING TO START ADAPTER"));
 
-    if (!startParameters().workingDir.isEmpty())
-        m_gdbProc.setWorkingDirectory(startParameters().workingDir);
+    if (!startParameters().workingDirectory.isEmpty())
+        m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
     if (!startParameters().environment.isEmpty())
         m_gdbProc.setEnvironment(startParameters().environment);
 
