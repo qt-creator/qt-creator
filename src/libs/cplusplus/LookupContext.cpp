@@ -282,6 +282,9 @@ QList<Enum *> ClassOrNamespace::enums() const
 
 QList<Symbol *> ClassOrNamespace::symbols() const
 {
+    if (_templateId && ! _usings.isEmpty())
+        return _usings.first()->symbols(); // ask to the base implementation
+
     const_cast<ClassOrNamespace *>(this)->flush();
     return _symbols;
 }
