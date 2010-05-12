@@ -33,9 +33,11 @@
 #include "itemlibraryinfo.h"
 #include "modelutilities.h"
 #include "mathutils.h"
+#include "invalididexception.h"
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>
+#include <QMessageBox>
 
 namespace QmlDesigner {
 
@@ -159,13 +161,20 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
         QString id;
         int i = 1;
         QString name(itemLibraryEntry.name().toLower());
-        name.remove(QLatin1Char(' '));
+        //remove forbidden characters
+        name.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_]")), QLatin1String("_"));
         do {
             id = name + QString::number(i);
             i++;
         } while (hasId(id)); //If the name already exists count upwards
 
-        newNode.setId(id);
+        try {
+            newNode.setId(id);
+        } catch (InvalidIdException &e) {
+            // should never happen
+            QMessageBox::warning(0, tr("Invalid Id"), e.description());
+        }
+
         if (!currentState().isBaseState()) {
             newNode.modelNode().variantProperty("visible") = false;
             newNode.setVariantProperty("visible", true);
