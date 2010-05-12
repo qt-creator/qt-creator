@@ -145,9 +145,14 @@ bool ResolveExpression::visit(BinaryExpressionAST *ast)
         QtMethodAST *qtMethod = ast->right_expression->asQtMethod();
         if (DeclaratorAST *d = qtMethod->declarator) {
             if (d->core_declarator) {
-                if (DeclaratorIdAST *declaratorId = d->core_declarator->asDeclaratorId())
-                    if (NameAST *nameAST = declaratorId->name)
-                        _results = resolveMemberExpression(_results, T_ARROW, nameAST->name);
+                if (DeclaratorIdAST *declaratorId = d->core_declarator->asDeclaratorId()) {
+                    if (NameAST *nameAST = declaratorId->name) {
+                        if (ClassOrNamespace *binding = baseExpression(_results, T_ARROW)) {
+                            _results.clear();
+                            addResults(binding->lookup(nameAST->name));
+                        }
+                    }
+                }
             }
         }
 
@@ -246,9 +251,8 @@ bool ResolveExpression::visit(PostfixExpressionAST *ast)
 {
     accept(ast->base_expression);
 
-    for (PostfixListAST *it = ast->postfix_expression_list; it; it = it->next) {
+    for (PostfixListAST *it = ast->postfix_expression_list; it; it = it->next)
         accept(it->value);
-    }
 
     return false;
 }
@@ -560,9 +564,25 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
     // Remember the access operator.
     const int accessOp = tokenKind(ast->access_token);
 
-    _results = resolveMemberExpression(baseResults, accessOp, memberName);
+    if (ClassOrNamespace *binding = baseExpression(baseResults, accessOp))
+        addResults(binding->lookup(memberName));
 
     return false;
+}
+
+ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &originalTy, Scope *scope) const
+{
+    ClassOrNamespace *binding = 0;
+
+    FullySpecifiedType ty = originalTy.simplified();
+
+    if (Class *klass = ty->asClassType())
+        binding = _context.classOrNamespace(klass);
+
+    else if (NamedType *namedTy = ty->asNamedType())
+        binding = _context.classOrNamespace(namedTy->name(), scope);
+
+    return binding;
 }
 
 ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &baseResults,
@@ -571,24 +591,35 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 {
     foreach (const LookupItem &r, baseResults) {
         FullySpecifiedType ty = r.type().simplified();
+        Scope *scope = r.scope();
 
-        if (accessOp == T_DOT) {
+        if (accessOp == T_ARROW) {
             if (PointerType *ptrTy = ty->asPointerType()) {
-                ty = ptrTy->elementType();
+                if (ClassOrNamespace *binding = findClass(ptrTy->elementType(), scope))
+                    return binding;
 
-                if (replacedDotOperator)
-                    *replacedDotOperator = true;
+            } else if (ClassOrNamespace *binding = findClass(ptrTy->elementType(), scope)) {
+                // lookup for overloads of operator->
+                const OperatorNameId *arrowOp = control()->operatorNameId(OperatorNameId::ArrowOp);
+
+                foreach (Symbol *overload, binding->find(arrowOp)) {
+                    FullySpecifiedType overloadTy = overload->type();
+
+                    if (ClassOrNamespace *retBinding = findClass(overloadTy, overload->scope()))
+                        return retBinding;
+                }
             }
         }
 
-        if (Class *klass = ty->asClassType()) {
-            if (ClassOrNamespace *binding = _context.classOrNamespace(klass))
-                return binding;
-
-        } else if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *binding = _context.classOrNamespace(namedTy->name(), r.scope()))
-                return binding;
+        if (replacedDotOperator && accessOp == T_DOT) {
+            if (PointerType *ptrTy = ty->asPointerType()) {
+                ty = ptrTy->elementType();
+                *replacedDotOperator = true;
+            }
         }
+
+        if (ClassOrNamespace *binding = findClass(ty, scope))
+            return binding;
     }
 
     return 0;
@@ -704,37 +735,6 @@ ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, i
                 item.setType(retTy);
                 item.setDeclaration(fun);
                 results.append(item);
-            }
-        }
-    }
-
-    return removeDuplicates(results);
-}
-
-QList<LookupItem>
-ResolveExpression::resolveMemberExpression(const QList<LookupItem> &baseResults,
-                                           unsigned accessOp,
-                                           const Name *memberName,
-                                           bool *replacedDotOperator) const
-{
-    QList<LookupItem> results;
-
-    const QList<LookupItem> classObjectResults = resolveBaseExpression(baseResults, accessOp, replacedDotOperator);
-
-    foreach (const LookupItem &r, classObjectResults) {
-        FullySpecifiedType ty = r.type();
-
-        if (Class *klass = ty->asClassType())
-            results += resolveMember(memberName, klass);
-
-        else if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), r.scope())) {
-                foreach (Symbol *overload, b->find(memberName)) {
-                    LookupItem item;
-                    item.setType(instantiate(namedTy->name(), overload));
-                    item.setDeclaration(overload);
-                    results.append(item);
-                }
             }
         }
     }

@@ -51,14 +51,11 @@ public:
                                      int accessOp,
                                      bool *replacedDotOperator = 0) const;
 
-    Q_DECL_DEPRECATED QList<LookupItem> resolveMemberExpression(const QList<LookupItem> &baseResults,
-                                                                unsigned accessOp,
-                                                                const Name *memberName,
-                                                                bool *replacedDotOperator = 0) const;
-
     Q_DECL_DEPRECATED QList<LookupItem> resolveBaseExpression(const QList<LookupItem> &baseResults,
                                                               int accessOp,
                                                               bool *replacedDotOperator = 0) const;
+
+    ClassOrNamespace *findClass(const FullySpecifiedType &ty, Scope *scope) const;
 
 protected:
     QList<LookupItem> resolve(ExpressionAST *ast);
