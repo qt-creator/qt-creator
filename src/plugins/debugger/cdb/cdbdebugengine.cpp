@@ -1578,11 +1578,12 @@ IDebuggerEngine *createCdbEngine(DebuggerManager *parent,
     // Create engine
     QString errorMessage;
     IDebuggerEngine *engine = CdbDebugEngine::create(parent, options, &errorMessage);
-    if (!engine) {
+    if (engine) {
+        QObject::connect(optionsPage, SIGNAL(debuggerPathsChanged()), engine, SLOT(syncDebuggerPaths()));
+    } else {
         optionsPage->setFailureMessage(errorMessage);
         qWarning("%s\n" ,qPrintable(errorMessage));
     }
-    QObject::connect(optionsPage, SIGNAL(debuggerPathsChanged()), engine, SLOT(syncDebuggerPaths()));
     return engine;
 }
 
