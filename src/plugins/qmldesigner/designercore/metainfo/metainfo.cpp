@@ -83,18 +83,19 @@ public:
     QHash<QString, NodeMetaInfo> m_nodeMetaInfoHash;
     QHash<QString, EnumeratorMetaInfo> m_enumeratorMetaInfoHash;
     QHash<QString, QString> m_QtTypesToQmlTypes;
-    ItemLibraryInfo m_itemLibraryInfo;
+    QScopedPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
     MetaInfo *m_q;
     bool m_isInitialized;
 };
 
 MetaInfoPrivate::MetaInfoPrivate(MetaInfo *q) :
+        m_itemLibraryInfo(new ItemLibraryInfo()),
         m_q(q),
         m_isInitialized(false)
 {
     if (!m_q->isGlobal())
-        m_itemLibraryInfo = ItemLibraryInfo::createItemLibraryInfo(m_q->global().itemLibraryInfo());
+        m_itemLibraryInfo->setBaseInfo(MetaInfo::global().itemLibraryInfo());
 }
 
 void MetaInfoPrivate::clear()
@@ -102,7 +103,7 @@ void MetaInfoPrivate::clear()
     m_superClassHash.clear();
     m_nodeMetaInfoHash.clear();
     m_enumeratorMetaInfoHash.clear();
-    m_itemLibraryInfo.clearEntries();
+    m_itemLibraryInfo->clearEntries();
     m_isInitialized = false;
 }
 
@@ -534,9 +535,9 @@ EnumeratorMetaInfo MetaInfo::enumerator(const QString &enumeratorName) const
     return EnumeratorMetaInfo();
 }
 
-ItemLibraryInfo MetaInfo::itemLibraryInfo() const
+ItemLibraryInfo *MetaInfo::itemLibraryInfo() const
 {
-    return m_p->m_itemLibraryInfo;
+    return m_p->m_itemLibraryInfo.data();
 }
 
 /*!
@@ -609,8 +610,8 @@ void MetaInfo::removeNodeInfo(NodeMetaInfo &info)
         m_p->m_superClassHash.remove(info.typeName());
         // TODO: Other types might specify type as parent type
         foreach (const ItemLibraryEntry &entry,
-                 m_p->m_itemLibraryInfo.entriesForType(info.typeName(), info.majorVersion(), info.minorVersion())) {
-            m_p->m_itemLibraryInfo.removeEntry(entry.name());
+                 m_p->m_itemLibraryInfo->entriesForType(info.typeName(), info.majorVersion(), info.minorVersion())) {
+            m_p->m_itemLibraryInfo->removeEntry(entry.name());
         }
 
     } else if (!isGlobal()) {

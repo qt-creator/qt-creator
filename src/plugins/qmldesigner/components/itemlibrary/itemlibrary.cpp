@@ -101,6 +101,7 @@ public:
     Utils::FilterLineEdit *m_lineEdit;
     QDeclarativeView *m_itemsView;
     Internal::ItemLibraryTreeView *m_resourcesView;
+    QWeakPointer<ItemLibraryInfo> m_itemLibraryInfo;
 
     QSize m_itemIconSize, m_resIconSize;
     MyFileIconProvider m_iconProvider;
@@ -233,9 +234,20 @@ ItemLibrary::~ItemLibrary()
     delete m_d;
 }
 
-void ItemLibrary::setMetaInfo(const MetaInfo &metaInfo)
+void ItemLibrary::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
 {
-    m_d->m_itemLibraryModel->update(metaInfo);
+    if (m_d->m_itemLibraryInfo.data() == itemLibraryInfo)
+        return;
+
+    if (m_d->m_itemLibraryInfo)
+        disconnect(m_d->m_itemLibraryInfo.data(), SIGNAL(entriesChanged()),
+                   this, SLOT(updateModel()));
+    m_d->m_itemLibraryInfo = itemLibraryInfo;
+    if (itemLibraryInfo)
+        connect(m_d->m_itemLibraryInfo.data(), SIGNAL(entriesChanged()),
+                this, SLOT(updateModel()));
+
+    updateModel();
     updateSearch();
 }
 
@@ -260,6 +272,12 @@ void ItemLibrary::setSearchFilter(const QString &searchFilter)
        m_d->m_resourcesView->expandToDepth(1);
         m_d->m_resourcesView->scrollToTop();
     }
+}
+
+void ItemLibrary::updateModel()
+{
+    m_d->m_itemLibraryModel->update(m_d->m_itemLibraryInfo.data());
+    updateSearch();
 }
 
 void ItemLibrary::updateSearch()

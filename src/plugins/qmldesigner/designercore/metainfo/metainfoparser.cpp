@@ -218,7 +218,7 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
             handleItemLibraryEntryPropertyElement(reader, entry);
         }
 
-        m_metaInfo.itemLibraryInfo().addEntry(entry);
+        m_metaInfo.itemLibraryInfo()->addEntry(entry);
     }
 }
 

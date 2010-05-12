@@ -87,18 +87,13 @@ private:
     QExplicitlySharedDataPointer<Internal::ItemLibraryEntryData> m_data;
 };
 
-
-class CORESHARED_EXPORT ItemLibraryInfo
+class CORESHARED_EXPORT ItemLibraryInfo : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(ItemLibraryInfo)
     friend class Internal::MetaInfoPrivate;
 public:
-    ItemLibraryInfo();
-    ItemLibraryInfo(const ItemLibraryInfo &other);
     ~ItemLibraryInfo();
-
-    ItemLibraryInfo& operator=(const ItemLibraryInfo &other);
-
-    bool isValid();
 
     QList<ItemLibraryEntry> entries() const;
     QList<ItemLibraryEntry> entriesForType(const QString &typeName, int majorVersion, int minorVersion) const;
@@ -108,9 +103,13 @@ public:
     bool removeEntry(const QString &name);
     void clearEntries();
 
+signals:
+    void entriesChanged();
+
 private:
-    static ItemLibraryInfo createItemLibraryInfo(const ItemLibraryInfo &parentInfo);
-    QSharedPointer<Internal::ItemLibraryInfoPrivate> m_data;
+    ItemLibraryInfo(QObject *parent = 0);
+    void setBaseInfo(ItemLibraryInfo *baseInfo);
+    QScopedPointer<Internal::ItemLibraryInfoPrivate> m_d;
 };
 
 } // namespace QmlDesigner

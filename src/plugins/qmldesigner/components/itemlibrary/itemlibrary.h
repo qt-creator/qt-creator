@@ -30,6 +30,7 @@
 #ifndef ITEMLIBRARY_H
 #define ITEMLIBRARY_H
 
+#include "itemlibraryinfo.h"
 #include <QtGui/QFrame>
 
 namespace QmlDesigner {
@@ -47,10 +48,11 @@ public:
     ItemLibrary(QWidget *parent = 0);
     virtual ~ItemLibrary();
 
-    void setMetaInfo(const MetaInfo &metaInfo);
+    void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
 
 public Q_SLOTS:
     void setSearchFilter(const QString &searchFilter);
+    void updateModel();
     void updateSearch();
     void clearLineEditFocus();
 

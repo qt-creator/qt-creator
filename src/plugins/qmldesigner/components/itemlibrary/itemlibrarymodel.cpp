@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "itemlibrarymodel.h"
-#include "metainfo.h"
+#include "itemlibraryinfo.h"
 
 #include <QVariant>
 #include <QMimeData>
@@ -317,7 +317,6 @@ bool ItemLibrarySectionModel::operator<(const ItemLibrarySectionModel &other) co
 ItemLibraryModel::ItemLibraryModel(QScriptEngine *scriptEngine, QObject *parent)
     : ItemLibrarySortedModel<ItemLibrarySectionModel>(parent),
       m_scriptEngine(scriptEngine),
-      m_metaInfo(0),
       m_searchText(""),
       m_itemIconSize(64, 64),
       m_nextLibId(0)
@@ -327,8 +326,6 @@ ItemLibraryModel::ItemLibraryModel(QScriptEngine *scriptEngine, QObject *parent)
 
 ItemLibraryModel::~ItemLibraryModel()
 {
-    if (m_metaInfo)
-        delete m_metaInfo;
 }
 
 
@@ -387,7 +384,7 @@ bool ItemLibraryModel::isItemVisible(int itemLibId)
     return elementModel(sectionLibId)->isItemVisible(itemLibId);
 }
 
-void ItemLibraryModel::update(const MetaInfo &metaInfo)
+void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo)
 {
     QMap<QString, int> sections;
 
@@ -396,13 +393,7 @@ void ItemLibraryModel::update(const MetaInfo &metaInfo)
     m_sections.clear();
     m_nextLibId = 0;
 
-    if (!m_metaInfo) {
-        m_metaInfo = new MetaInfo(metaInfo);
-    } else {
-        *m_metaInfo = metaInfo;
-    }
-
-    foreach (ItemLibraryEntry entry, metaInfo.itemLibraryInfo().entries()) {
+    foreach (ItemLibraryEntry entry, itemLibraryInfo->entries()) {
         QString itemSectionName = entry.category();
         ItemLibrarySectionModel *sectionModel;
         ItemLibraryItemModel *itemModel;

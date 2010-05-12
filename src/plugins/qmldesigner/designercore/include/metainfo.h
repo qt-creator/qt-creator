@@ -84,7 +84,7 @@ public:
     bool hasEnumerator(const QString &enumeratorName) const;
     EnumeratorMetaInfo enumerator(const QString &enumeratorName) const;
 
-    ItemLibraryInfo itemLibraryInfo() const;
+    ItemLibraryInfo *itemLibraryInfo() const;
 
     QString fromQtTypes(const QString &type) const;
 
