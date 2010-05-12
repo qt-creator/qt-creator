@@ -117,10 +117,10 @@ QStringList QMakeStep::allArguments()
         // This is a HACK, remove once the symbian make generator supports
         // shadow building
         arguments << QLatin1String("-after")
-                  << QLatin1String("OBJECTS_DIR=.obj")
-                  << QLatin1String("MOC_DIR=.moc")
-                  << QLatin1String("UI_DIR=.ui")
-                  << QLatin1String("RCC_DIR=.rcc");
+                  << QLatin1String("OBJECTS_DIR=obj")
+                  << QLatin1String("MOC_DIR=moc")
+                  << QLatin1String("UI_DIR=ui")
+                  << QLatin1String("RCC_DIR=rcc");
     }
 
     // Find out what flags we pass on to qmake
