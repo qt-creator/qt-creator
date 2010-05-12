@@ -330,7 +330,7 @@ const QString AbstractMaemoRunControl::targetCmdLinePrefix() const
     const QString &installPrefix = m_needsInstall
         ? remoteInstallCommand() + QLatin1String(" && ")
         : QString();
-    return QString::fromLocal8Bit("%1%2 chmod a+x %3 && source /etc/profile && ")
+    return QString::fromLocal8Bit("%1%2 chmod a+x %3 && source /etc/profile && DISPLAY=:0.0 ")
         .arg(installPrefix).arg(remoteSudo()).arg(executableFilePathOnTarget());
 }
 
