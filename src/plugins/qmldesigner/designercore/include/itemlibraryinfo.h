@@ -32,20 +32,13 @@
 
 #include "corelib_global.h"
 
-#include <QExplicitlySharedDataPointer>
-#include <QList>
-#include <QString>
-#include <QIcon>
 #include "propertycontainer.h"
-#include <qdeclarative.h>
+#include <QSharedPointer>
 
 namespace QmlDesigner {
 
-class NodeMetaInfo;
-
 namespace Internal {
 
-class MetaInfoPrivate;
 class ItemLibraryEntryData;
 class ItemLibraryInfoPrivate;
 
@@ -58,8 +51,8 @@ CORESHARED_EXPORT QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry 
 
 class CORESHARED_EXPORT ItemLibraryEntry
 {
-    friend class QmlDesigner::MetaInfo;
-    friend class QmlDesigner::Internal::MetaInfoParser;
+    //friend class QmlDesigner::MetaInfo;
+    //friend class QmlDesigner::Internal::MetaInfoParser;
     friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry);
     friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry);
 public:
@@ -82,9 +75,7 @@ public:
 
     QList<Property> properties() const;
 
-    void setTypeName(const QString &typeName);
-    void setMajorVersion(int majorNumber);
-    void setMinorVersion(int minorNumber);
+    void setType(const QString &typeName, int majorVersion, int minorVersion);
     void setName(const QString &name);
     void setIcon(const QIcon &icon);
     void addProperty(const Property &p);
@@ -110,12 +101,12 @@ public:
     bool isValid();
 
     QList<ItemLibraryEntry> entries() const;
-    QList<ItemLibraryEntry> entriesForNodeMetaInfo(const NodeMetaInfo &nodeMetaInfo) const;
+    QList<ItemLibraryEntry> entriesForType(const QString &typeName, int majorVersion, int minorVersion) const;
     ItemLibraryEntry entry(const QString &name) const;
 
-    ItemLibraryEntry addItemLibraryEntry(const NodeMetaInfo &nodeMetaInfo, const QString &itemLibraryRepresentationName);
-    void remove(const NodeMetaInfo &nodeMetaInfo);
-    void clear();
+    void addEntry(const ItemLibraryEntry &entry);
+    bool removeEntry(const QString &name);
+    void clearEntries();
 
 private:
     static ItemLibraryInfo createItemLibraryInfo(const ItemLibraryInfo &parentInfo);

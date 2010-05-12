@@ -198,21 +198,27 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
 {
     if (reader.isStartElement() && reader.name() == "itemlibraryentry")
     {
-        QString name = reader.attributes().value("name").toString();
-        ItemLibraryEntry itemLibraryEntry = m_metaInfo.itemLibraryInfo().addItemLibraryEntry(m_metaInfo.nodeMetaInfo(className), name);
+        const QString name = reader.attributes().value("name").toString();
+        const NodeMetaInfo typeInfo = m_metaInfo.nodeMetaInfo(className);
+
+        ItemLibraryEntry entry;
+        entry.setType(typeInfo.typeName(), typeInfo.majorVersion(), typeInfo.minorVersion());
+        entry.setName(name);
 
         QString iconPath = reader.attributes().value("icon").toString();
         if (!iconPath.isEmpty())
-            itemLibraryEntry.setIcon(QIcon(iconPath));
+            entry.setIcon(QIcon(iconPath));
 
         QString category = reader.attributes().value("category").toString();
         if (!category.isEmpty())
-            itemLibraryEntry.setCategory(category);
+            entry.setCategory(category);
 
         while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "itemlibraryentry")) {
             reader.readNext();
-            handleItemLibraryEntryPropertyElement(reader, itemLibraryEntry);
+            handleItemLibraryEntryPropertyElement(reader, entry);
         }
+
+        m_metaInfo.itemLibraryInfo().addEntry(entry);
     }
 }
 

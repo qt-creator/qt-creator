@@ -171,23 +171,23 @@ void IdItemDelegate::paint(QPainter *painter,
         if (icon.isNull())
         {
             // if node has no own icon, search for it in the itemlibrary
+            const NodeMetaInfo typeInfo = node.metaInfo();
             const ItemLibraryInfo libraryInfo = node.metaInfo().metaInfo().itemLibraryInfo();
-            QList <ItemLibraryEntry> infoList = libraryInfo.entriesForNodeMetaInfo(node.metaInfo());
-            foreach (const ItemLibraryEntry &entry, infoList)
-            {
-                if (entry.typeName()==node.metaInfo().typeName()) {
+            QList <ItemLibraryEntry> infoList = libraryInfo.entriesForType(typeInfo.typeName(),
+                                                                           typeInfo.majorVersion(),
+                                                                           typeInfo.minorVersion());
+            foreach (const ItemLibraryEntry &entry, infoList) {
+                if (!icon.isNull()) {
                     icon = entry.icon();
                     break;
                 }
             }
-
-            // if the library was also empty, use the default icon
         }
     }
 
+    // if the library was also empty, use the default icon
     if (icon.isNull())
         icon = QIcon(":/ItemLibrary/images/item-default-icon.png");
-
 
     // If no icon is present, leave an empty space of 24 pixels anyway
     int pixmapSide = 16;

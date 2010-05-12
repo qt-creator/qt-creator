@@ -102,7 +102,7 @@ void MetaInfoPrivate::clear()
     m_superClassHash.clear();
     m_nodeMetaInfoHash.clear();
     m_enumeratorMetaInfoHash.clear();
-    m_itemLibraryInfo.clear();
+    m_itemLibraryInfo.clearEntries();
     m_isInitialized = false;
 }
 
@@ -608,7 +608,10 @@ void MetaInfo::removeNodeInfo(NodeMetaInfo &info)
 
         m_p->m_superClassHash.remove(info.typeName());
         // TODO: Other types might specify type as parent type
-        m_p->m_itemLibraryInfo.remove(info);
+        foreach (const ItemLibraryEntry &entry,
+                 m_p->m_itemLibraryInfo.entriesForType(info.typeName(), info.majorVersion(), info.minorVersion())) {
+            m_p->m_itemLibraryInfo.removeEntry(entry.name());
+        }
 
     } else if (!isGlobal()) {
         global().removeNodeInfo(info);
