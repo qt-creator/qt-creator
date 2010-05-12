@@ -401,7 +401,9 @@ void Document::setGlobalNamespace(Namespace *globalNamespace)
 Scope *Document::scopeAt(unsigned line, unsigned column)
 {
     FindScopeAt findScopeAt(_translationUnit, line, column);
-    return findScopeAt(_globalNamespace);
+    if (Scope *scope = findScopeAt(_globalNamespace))
+        return scope;
+    return globalSymbols();
 }
 
 Symbol *Document::findSymbolAt(unsigned line, unsigned column) const
