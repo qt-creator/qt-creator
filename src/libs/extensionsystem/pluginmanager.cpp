@@ -767,7 +767,7 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
     circularityCheckQueue.append(spec);
     // check if we have the dependencies
     if (spec->state() == PluginSpec::Invalid || spec->state() == PluginSpec::Read) {
-        if (!spec->isDisabledByDependency() && spec->isEnabled()) {
+        if (!spec->isDisabledIndirectly() && spec->isEnabled()) {
             spec->d->hasError = true;
             spec->d->errorString += "\n";
             spec->d->errorString += PluginManager::tr("Cannot load plugin because dependencies are not resolved");
@@ -795,7 +795,7 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
 */
 void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destState)
 {
-    if (spec->hasError() || spec->isDisabledByDependency())
+    if (spec->hasError() || spec->isDisabledIndirectly())
         return;
 
     switch (destState) {
@@ -934,19 +934,9 @@ PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *r
     return 0;
 }
 
-void PluginManagerPrivate::removePluginSpec(PluginSpec *spec)
+void PluginManagerPrivate::disablePluginIndirectly(PluginSpec *spec)
 {
-    pluginSpecs.removeAll(spec);
-
-    if (pluginCategories.contains(spec->category()))
-        pluginCategories.value(spec->category())->removePlugin(spec);
-
-    foreach(PluginSpec *dep, spec->dependencySpecs()) {
-        dep->removeDependentPlugin(spec);
-    }
-
-    delete spec;
-    spec = 0;
+    spec->d->disabledIndirectly = true;
 }
 
 PluginSpec *PluginManagerPrivate::pluginByName(const QString &name) const

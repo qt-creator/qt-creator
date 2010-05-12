@@ -81,8 +81,7 @@ public:
     QString category() const;
     bool isExperimental() const;
     bool isEnabled() const;
-    // true if loading was not done due to user unselecting this plugin or its dependencies
-    bool isDisabledByDependency() const;
+    bool isDisabledIndirectly() const;
     QList<PluginDependency> dependencies() const;
 
     typedef QList<PluginArgumentDescription> PluginArgumentDescriptions;
@@ -104,11 +103,7 @@ public:
     QList<PluginSpec *> dependencySpecs() const;
 
     // list of plugins that depend on this - e.g. this plugins provides for them
-    QList<PluginSpec *> providesSpecs() const;
-
-    // add/remove from providesSpecs
-    void addDependentPlugin(PluginSpec *dependent);
-    void removeDependentPlugin(PluginSpec *dependent);
+    QList<PluginSpec *> providesForSpecs() const;
 
     // linked plugin instance, valid after 'Loaded' state is reached
     IPlugin *plugin() const;
@@ -123,6 +118,7 @@ private:
 
     Internal::PluginSpecPrivate *d;
     friend class Internal::PluginManagerPrivate;
+    friend class Internal::PluginSpecPrivate;
 };
 
 } // namespace ExtensionSystem

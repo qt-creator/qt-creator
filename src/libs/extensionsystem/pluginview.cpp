@@ -178,7 +178,7 @@ void PluginView::updateList()
     defaultCollectionItem->setData(0, Qt::UserRole, qVariantFromValue(defaultCollection));
 
     foreach (PluginSpec *spec, m_specToItem.keys())
-        toggleRelatedPlugins(spec, spec->isEnabled() && !spec->isDisabledByDependency());
+        toggleRelatedPlugins(spec, spec->isEnabled() && !spec->isDisabledIndirectly());
 
     m_ui->categoryWidget->clear();
     if (!m_items.isEmpty()) {
@@ -347,8 +347,8 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
 void PluginView::toggleRelatedPlugins(PluginSpec *modifiedPlugin, bool isPluginEnabled)
 {
 
-    for(int i = 0; i < modifiedPlugin->providesSpecs().length(); ++i) {
-        PluginSpec *spec = modifiedPlugin->providesSpecs().at(i);
+    for(int i = 0; i < modifiedPlugin->providesForSpecs().length(); ++i) {
+        PluginSpec *spec = modifiedPlugin->providesForSpecs().at(i);
         QTreeWidgetItem *childItem = m_specToItem.value(spec);
 
         if (childItem->isDisabled() != !isPluginEnabled) {

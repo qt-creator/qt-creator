@@ -254,9 +254,14 @@ bool PluginSpec::isEnabled() const
     return d->enabled;
 }
 
-bool PluginSpec::isDisabledByDependency() const
+/*!
+    \fn bool PluginSpec::isDisabledIndirectly() const
+    Returns true if loading was not done due to user unselecting this plugin or its dependencies,
+    or if command-line parameter -noload was used.
+*/
+bool PluginSpec::isDisabledIndirectly() const
 {
-    return d->disabledByDependency;
+    return d->disabledIndirectly;
 }
 
 /*!
@@ -397,25 +402,9 @@ QList<PluginSpec *> PluginSpec::dependencySpecs() const
 
     \sa PluginSpec::dependencySpecs()
 */
-QList<PluginSpec *> PluginSpec::providesSpecs() const
+QList<PluginSpec *> PluginSpec::providesForSpecs() const
 {
     return d->providesSpecs;
-}
-
-/*!
-    \fn void PluginSpec::addDependentPlugin(PluginSpec *dependent)
-    Adds a dependent the list of plugins that depend on this one.
-
-    \sa PluginSpec::providesSpecs()
-*/
-void PluginSpec::addDependentPlugin(PluginSpec *dependent)
-{
-    d->providesSpecs.append(dependent);
-}
-
-void PluginSpec::removeDependentPlugin(PluginSpec *dependent)
-{
-    d->providesSpecs.removeOne(dependent);
 }
 
 //==========PluginSpecPrivate==================
@@ -448,7 +437,7 @@ namespace {
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
     :
     enabled(true),
-    disabledByDependency(false),
+    disabledIndirectly(false),
     plugin(0),
     state(PluginSpec::Invalid),
     hasError(false),
@@ -810,10 +799,10 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
         foreach (PluginSpec *spec, specs) {
             if (spec->provides(dependency.name, dependency.version)) {
                 found = spec;
-                if (!spec->isEnabled() || spec->isDisabledByDependency())
-                    disabledByDependency = true;
+                if (!spec->isEnabled() || spec->isDisabledIndirectly())
+                    disabledIndirectly = true;
 
-                spec->addDependentPlugin(q);
+                spec->d->addProvidesForPlugin(q);
 
                 break;
             }
@@ -833,7 +822,7 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
 
     dependencySpecs = resolvedDependencies;
 
-    if (enabled && !disabledByDependency)
+    if (enabled && !disabledIndirectly)
         state = PluginSpec::Resolved;
 
     return true;
@@ -976,3 +965,18 @@ void PluginSpecPrivate::kill()
     state = PluginSpec::Deleted;
 }
 
+/*!
+    \fn void PluginSpec::addDependentPlugin(PluginSpec *dependent)
+    Adds a dependent the list of plugins that depend on this one.
+
+    \sa PluginSpec::providesSpecs()
+*/
+void PluginSpecPrivate::addProvidesForPlugin(PluginSpec *dependent)
+{
+    providesSpecs.append(dependent);
+}
+
+void PluginSpecPrivate::removeProvidesForPlugin(PluginSpec *dependent)
+{
+    providesSpecs.removeOne(dependent);
+}

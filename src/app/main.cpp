@@ -296,7 +296,7 @@ int main(int argc, char **argv)
         QStringList errors;
         foreach (ExtensionSystem::PluginSpec *p, pluginManager.plugins())
             // only show errors on startup if plugin is enabled.
-            if (p->hasError() && p->isEnabled() && !p->isDisabledByDependency())
+            if (p->hasError() && p->isEnabled() && !p->isDisabledIndirectly())
                 errors.append(p->name() + "\n" + p->errorString());
         if (!errors.isEmpty())
             QMessageBox::warning(0,
