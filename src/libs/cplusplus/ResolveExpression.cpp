@@ -609,17 +609,18 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                         return retBinding;
                 }
             }
-        }
-
-        if (replacedDotOperator && accessOp == T_DOT) {
-            if (PointerType *ptrTy = ty->asPointerType()) {
-                ty = ptrTy->elementType();
-                *replacedDotOperator = true;
+        } else if (accessOp == T_DOT) {
+            if (replacedDotOperator) {
+                if (PointerType *ptrTy = ty->asPointerType()) {
+                    // replace . with ->
+                    ty = ptrTy->elementType();
+                    *replacedDotOperator = true;
+                }
             }
-        }
 
-        if (ClassOrNamespace *binding = findClass(ty, scope))
-            return binding;
+            if (ClassOrNamespace *binding = findClass(ty, scope))
+                return binding;
+        }
     }
 
     return 0;
