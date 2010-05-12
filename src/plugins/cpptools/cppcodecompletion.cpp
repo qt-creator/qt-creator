@@ -79,6 +79,11 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
 
+
+namespace {
+    const bool debug = ! qgetenv("CPLUSPLUS_DEBUG").isEmpty();
+}
+
 using namespace CPlusPlus;
 
 namespace CppTools {
@@ -757,7 +762,14 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
     Scope *scope = thisDocument->scopeAt(line, column);
     Q_ASSERT(scope != 0);
 
+    if (debug)
+        qDebug() << "scope:" << scope->owner()->fileName() << scope->owner()->line() << scope->owner()->column();
+
     QList<LookupItem> results = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
+
+    if (debug)
+        qDebug() << "got:" << results.size() << "results";
+
     LookupContext context = typeOfExpression.lookupContext();
 
     if (results.isEmpty()) {
@@ -1053,53 +1065,35 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
                                        const LookupContext &context)
 {
+    if (debug)
+        qDebug() << Q_FUNC_INFO << __LINE__;
+
     if (baseResults.isEmpty())
         return false;
 
     ResolveExpression resolveExpression(context);
 
     bool replacedDotOperator = false;
-    const QList<LookupItem> classObjectResults =
-            resolveExpression.resolveBaseExpression(baseResults,
-                                                    m_completionOperator,
-                                                    &replacedDotOperator);
 
-    ClassOrNamespace *classOrNamespace = 0;
+    if (ClassOrNamespace *binding = resolveExpression.baseExpression(baseResults,
+                                                                     m_completionOperator,
+                                                                     &replacedDotOperator)) {
+        if (debug)
+            qDebug() << "cool we got a binding for the base expression";
 
-    foreach (const LookupItem &r, classObjectResults) {
-        FullySpecifiedType ty = r.type().simplified();
-
-        if (Class *klass = ty->asClassType()) {
-            if (ClassOrNamespace *b = context.classOrNamespace(klass)) {
-                classOrNamespace = b;
-                break;
-            }
+        if (replacedDotOperator && binding) {
+            // Replace . with ->
+            int length = m_editor->position() - m_startPosition + 1;
+            m_editor->setCurPos(m_startPosition - 1);
+            m_editor->replace(length, QLatin1String("->"));
+            ++m_startPosition;
         }
 
-        else if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), r.scope())) {
-                classOrNamespace = b;
-                break;
-            }  else {
-                Overview oo;
-                qDebug() << "*** no class for" << oo(namedTy->name());
-            }
-        }
+        if (binding)
+            completeClass(binding, context, /*static lookup = */ false);
+
+        return ! m_completions.isEmpty();
     }
-
-    if (replacedDotOperator && classOrNamespace) {
-        // Replace . with ->
-        int length = m_editor->position() - m_startPosition + 1;
-        m_editor->setCurPos(m_startPosition - 1);
-        m_editor->replace(length, QLatin1String("->"));
-        ++m_startPosition;
-    }
-
-    if (classOrNamespace)
-        completeClass(classOrNamespace, context, /*static lookup = */ false);
-
-    if (! m_completions.isEmpty())
-        return true;
 
     return false;
 }

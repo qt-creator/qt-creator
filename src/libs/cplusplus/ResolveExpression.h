@@ -47,14 +47,18 @@ public:
     QList<LookupItem> operator()(ExpressionAST *ast, Scope *scope);
     QList<LookupItem> resolve(ExpressionAST *ast, Scope *scope);
 
-    QList<LookupItem> resolveMemberExpression(const QList<LookupItem> &baseResults,
-                                              unsigned accessOp,
-                                              const Name *memberName,
-                                              bool *replacedDotOperator = 0) const;
+    ClassOrNamespace *baseExpression(const QList<LookupItem> &baseResults,
+                                     int accessOp,
+                                     bool *replacedDotOperator = 0) const;
 
-    QList<LookupItem> resolveBaseExpression(const QList<LookupItem> &baseResults,
-                                            int accessOp,
-                                            bool *replacedDotOperator = 0) const;
+    Q_DECL_DEPRECATED QList<LookupItem> resolveMemberExpression(const QList<LookupItem> &baseResults,
+                                                                unsigned accessOp,
+                                                                const Name *memberName,
+                                                                bool *replacedDotOperator = 0) const;
+
+    Q_DECL_DEPRECATED QList<LookupItem> resolveBaseExpression(const QList<LookupItem> &baseResults,
+                                                              int accessOp,
+                                                              bool *replacedDotOperator = 0) const;
 
 protected:
     QList<LookupItem> resolve(ExpressionAST *ast);

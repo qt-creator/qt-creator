@@ -49,6 +49,8 @@ using namespace CPlusPlus;
 
 namespace {
 
+const bool debug = ! qgetenv("CPLUSPLUS_DEBUG").isEmpty();
+
 template <typename _Tp>
 static QList<_Tp> removeDuplicates(const QList<_Tp> &results)
 {
@@ -562,6 +564,36 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
 
     return false;
 }
+
+ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &baseResults,
+                                                    int accessOp,
+                                                    bool *replacedDotOperator) const
+{
+    foreach (const LookupItem &r, baseResults) {
+        FullySpecifiedType ty = r.type().simplified();
+
+        if (accessOp == T_DOT) {
+            if (PointerType *ptrTy = ty->asPointerType()) {
+                ty = ptrTy->elementType();
+
+                if (replacedDotOperator)
+                    *replacedDotOperator = true;
+            }
+        }
+
+        if (Class *klass = ty->asClassType()) {
+            if (ClassOrNamespace *binding = _context.classOrNamespace(klass))
+                return binding;
+
+        } else if (NamedType *namedTy = ty->asNamedType()) {
+            if (ClassOrNamespace *binding = _context.classOrNamespace(namedTy->name(), r.scope()))
+                return binding;
+        }
+    }
+
+    return 0;
+}
+
 
 QList<LookupItem>
 ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, int accessOp,
