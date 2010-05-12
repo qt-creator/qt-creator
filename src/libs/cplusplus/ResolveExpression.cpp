@@ -125,15 +125,7 @@ void ResolveExpression::addResult(const FullySpecifiedType &ty, Symbol *symbol)
             symbol = _context.thisDocument()->globalNamespace();
     }
 
-    return addResult(LookupItem(ty, symbol));
-}
-
-void ResolveExpression::addResult(const LookupItem &r)
-{
-    Q_ASSERT(r.lastVisibleSymbol() != 0);
-
-    if (! _results.contains(r))
-        _results.append(r);
+    _results.append(LookupItem(ty, symbol));
 }
 
 bool ResolveExpression::visit(BinaryExpressionAST *ast)

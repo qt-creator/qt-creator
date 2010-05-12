@@ -69,7 +69,6 @@ protected:
     void thisObject();
 
     void addResult(const FullySpecifiedType &ty, Symbol *symbol = 0);
-    void addResult(const LookupItem &result);
 
     void addResults(const QList<Symbol *> &symbols);
 
