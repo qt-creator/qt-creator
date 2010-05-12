@@ -1404,6 +1404,14 @@ def qdump__QStack(d, item):
 def qdump__QString(d, item):
     d.putStringValue(item.value)
     d.putNumChild(0)
+    d.putField("typeformats", "Normal,Displayed");
+    format = d.itemFormat(item)
+    if format == 0:
+        d.putDisplay(StopDisplay)
+    elif format == 1:
+        d.putField("editformat", 2)
+        str = encodeString(item.value)
+        d.putField("editvalue", str)
 
 
 def qdump__QStringList(d, item):
