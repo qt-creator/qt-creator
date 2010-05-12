@@ -406,19 +406,10 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
 
     } else if (const Identifier *id = name->identifier()) {
         for (Symbol *s = scope->lookat(id); s; s = s->next()) {
-            if (! s->name())
+            if (! id->isEqualTo(s->identifier()))
                 continue;
-            else if (! id->isEqualTo(s->identifier()))
-                continue;
-            else if (s->name()->isQualifiedNameId()) {
-#if 0
-                Overview oo;
-                oo.setShowReturnTypes(true);
-                oo.setShowFunctionSignatures(true);
-                qDebug() << "SKIP:" << oo(s->type(), s->name()) << s->fileName() << s->line() << s->column();
-#endif
-                continue;
-            }
+            else if (s->name()->isQualifiedNameId())
+                continue; // skip qualified ids.
 
 #if 0
             if (templateId && (s->isDeclaration() || s->isFunction())) {
