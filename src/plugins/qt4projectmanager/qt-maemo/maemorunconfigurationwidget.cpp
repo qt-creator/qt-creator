@@ -82,7 +82,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     debuggerConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     devConfLayout->addWidget(debuggerConfLabel);
 
-    mainLayout->addRow(new QLabel(tr("Device Configuration:")), devConfWidget);
+    mainLayout->addRow(new QLabel(tr("Device configuration:")), devConfWidget);
     m_executableLabel = new QLabel(m_runConfiguration->executable());
     mainLayout->addRow(tr("Executable:"), m_executableLabel);
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));

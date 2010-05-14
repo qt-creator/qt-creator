@@ -171,13 +171,13 @@ void PathChooser::slotBrowse()
     switch (m_d->m_acceptingKind) {
     case PathChooser::Directory:
         newPath = QFileDialog::getExistingDirectory(this,
-                makeDialogTitle(tr("Choose a directory")), predefined);
+                makeDialogTitle(tr("Choose Directory")), predefined);
         break;
 
     case PathChooser::File: // fall through
     case PathChooser::Command:
         newPath = QFileDialog::getOpenFileName(this,
-                makeDialogTitle(tr("Choose a file")), predefined,
+                makeDialogTitle(tr("Choose File")), predefined,
                 m_d->m_dialogFilter);
         break;
 

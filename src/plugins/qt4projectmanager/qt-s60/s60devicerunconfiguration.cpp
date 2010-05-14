@@ -698,7 +698,7 @@ void S60DeviceRunControlBase::printConnectFailed(const QString &errorMessage)
 
 void S60DeviceRunControlBase::printCopyingNotice()
 {
-    emit appendMessage(this, tr("Copying install file..."), false);
+    emit appendMessage(this, tr("Copying installation file..."), false);
 }
 
 void S60DeviceRunControlBase::printCopyProgress(int progress)

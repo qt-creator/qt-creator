@@ -42,7 +42,7 @@
    <item>
     <widget class="QGroupBox" name="remoteBranchGroupBox">
      <property name="title">
-      <string>Remote branches</string>
+      <string>Remote Branches</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>

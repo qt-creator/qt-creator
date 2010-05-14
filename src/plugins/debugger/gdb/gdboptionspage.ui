@@ -135,7 +135,7 @@ name in different directories.</string>
    <item>
     <widget class="QGroupBox" name="groupBoxPluginDebugging">
      <property name="title">
-      <string>Behaviour of breakpoint setting in plugins</string>
+      <string>Behavior of Breakpoint Setting in Plugins</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">

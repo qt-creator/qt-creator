@@ -445,22 +445,22 @@ void FormEditorW::setupActions()
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.WidgetEditor"));
     createEditModeAction(m_actionGroupEditMode, m_contexts, am, medit,
-                         tr("Edit widgets"), m_toolActionIds.back(),
+                         tr("Edit Widgets"), m_toolActionIds.back(),
                          EditModeWidgetEditor, QLatin1String("widgettool.png"), tr("F3"));
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.SignalsSlotsEditor"));
     createEditModeAction(m_actionGroupEditMode, m_contexts, am, medit,
-                         tr("Edit signals/slots"), m_toolActionIds.back(),
+                         tr("Edit Signals/Slots"), m_toolActionIds.back(),
                          EditModeSignalsSlotEditor, QLatin1String("signalslottool.png"), tr("F4"));
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.BuddyEditor"));
     createEditModeAction(m_actionGroupEditMode, m_contexts, am, medit,
-                         tr("Edit buddies"), m_toolActionIds.back(),
+                         tr("Edit Buddies"), m_toolActionIds.back(),
                          EditModeBuddyEditor, QLatin1String("buddytool.png"));
 
     m_toolActionIds.push_back(QLatin1String("FormEditor.TabOrderEditor"));
     createEditModeAction(m_actionGroupEditMode, m_contexts, am, medit,
-                         tr("Edit tab order"),  m_toolActionIds.back(),
+                         tr("Edit Tab Order"),  m_toolActionIds.back(),
                          EditModeTabOrderEditor, QLatin1String("tabordertool.png"));
 
     //tool actions

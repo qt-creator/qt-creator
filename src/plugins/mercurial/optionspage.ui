@@ -62,7 +62,7 @@
          <string>Email to use by default on commit.</string>
         </property>
         <property name="text">
-         <string>Default Email:</string>
+         <string>Default email:</string>
         </property>
        </widget>
       </item>

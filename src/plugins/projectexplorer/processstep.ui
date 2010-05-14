@@ -14,7 +14,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Enable Custom Process Step</string>
+      <string>Enable custom process step</string>
      </property>
     </widget>
    </item>
@@ -48,7 +48,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="workingDirecoryLabel">
      <property name="text">
-      <string>Working Directory:</string>
+      <string>Working directory:</string>
      </property>
     </widget>
    </item>
@@ -58,7 +58,7 @@
    <item row="4" column="0">
     <widget class="QLabel" name="commandArgumentsLabel">
      <property name="text">
-      <string>Command Arguments:</string>
+      <string>Command arguments:</string>
      </property>
     </widget>
    </item>

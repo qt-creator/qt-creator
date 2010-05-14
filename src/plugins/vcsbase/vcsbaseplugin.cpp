@@ -557,7 +557,7 @@ void VCSBasePlugin::createRepository()
     // Prompt for a directory that is not under version control yet
     QMainWindow *mw = Core::ICore::instance()->mainWindow();
     do {
-        directory = QFileDialog::getExistingDirectory(mw, tr("Choose repository directory"), directory);
+        directory = QFileDialog::getExistingDirectory(mw, tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())
             return;
         const Core::IVersionControl *managingControl = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(directory);

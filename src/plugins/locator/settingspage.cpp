@@ -165,7 +165,7 @@ void SettingsPage::updateFilterList()
         if (filter->isIncludedByDefault())
             title = filter->displayName();
         else
-            title = tr("%1 (Prefix: %2)").arg(filter->displayName()).arg(filter->shortcutString());
+            title = tr("%1 (prefix: %2)").arg(filter->displayName()).arg(filter->shortcutString());
         QListWidgetItem *item = new QListWidgetItem(title);
         item->setData(Qt::UserRole, qVariantFromValue(filter));
         m_ui.filterList->addItem(item);

@@ -12,7 +12,7 @@
 
     \title Qt Creator Manual
 
-    \section1 Version 1.3.84
+    \section1 Version 2.0 (Beta)
 
     Qt Creator provides integrated tools for both application designers
     and developers to create applications for multiple desktop and mobile device
@@ -851,10 +851,10 @@
     \section1 Using Update Code Model
 
     To refresh the internal information in Qt Creator pertaining to your code,
-    select \gui{Tools} > \gui{C++} > \gui{Update code model}.
+    select \gui{Tools} > \gui{C++} > \gui{Update Code Model}.
 
     \note In Qt Creator indexing updates the code automatically. Use
-    \gui{Update code model} only as an emergency command.
+    \gui{Update Code Model} only as an emergency command.
 
 
     \section1 Pasting and Fetching Code Snippets
@@ -894,7 +894,7 @@
 
     In the \gui{FakeVim} mode, you can run the main editor in a manner similar
     to the Vim editor. To run the editor in the \gui{FakeVim} mode, select
-    \gui{Edit} > \gui{Advanced} > \gui{Use vim-style editing} or press
+    \gui{Edit} > \gui{Advanced} > \gui{Use Vim-style Editing} or press
     \key{Alt+V,Alt+V}.
 
     In the \gui{FakeVim} mode, most keystrokes in the main editor will be
@@ -1898,7 +1898,7 @@
     {Complete Guide to Symbian Signed}.
 
     When you have your own certificate and private key, you can specify them in
-    the \gui{Create sis Package} step in your build configuration.
+    the \gui{Create SIS Package} step in your build configuration.
 
     \image qtcreator-qt4-symbian-signing.png
 
@@ -2048,9 +2048,8 @@
            \gui{Add clean step} and select the type of step you want to add.
 
            By default, custom steps are disabled. Activate custom steps by
-           checking the \gui{Enable Custom Process Step} check-box.
-        \o To remove a clean step, click \gui{Remove clean step} and select the
-           step you want to remove.
+           checking the \gui{Enable custom process step} check-box.
+        \o To remove a clean step, click \gui{Remove Item}.
         \o To change the order of steps, click
            \inlineimage qtcreator-movestep.png
            .
@@ -2844,7 +2843,7 @@
 
     \table
         \row
-            \i  \gui{Stash snapshot...}
+            \i  \gui{Stash Snapshot...}
             \i  Allows you to save a snapshot of your current
                 work under a name for later reference. For example, if you
                 want to try out something and find out later that it does not work,
@@ -2860,7 +2859,7 @@
                 a rebase operation while pulling.
 
         \row
-            \i  \gui{Clean repository.../Clean project...}
+            \i  \gui{Clean Repository.../Clean Project...}
             \i  Collect all files that are not under version control
                 with the exception of patches and project files
                 and show them as a checkable list in a dialog
@@ -2880,7 +2879,7 @@
         \row
             \i  \gui{Stashes...}
             \i  Displays a dialog showing the stashes created by
-                \gui{Stash snapshots...} with options to restore,
+                \gui{Stash Snapshot...} with options to restore,
                 display or delete them.
     \endtable
 */
@@ -3416,7 +3415,7 @@
     \section2 Terminal Mode
 
     To launch the debugger in the terminal mode, select \gui {Projects > Run Settings}
-    and select the \gui {Run in Terminal} check box. Then click the
+    and select the \gui {Run in terminal} check box. Then click the
     \gui {Start Debugging} button for the active project.
 
     \section2 Attach Mode
@@ -3889,7 +3888,7 @@
     To enable Qt's basic objects data display feature:
     \list
        \o  Select \gui Tools > \gui {Options...} > \gui Debugger >
-           \gui{Debugging Helper} and check the \gui{Use debugging helper}
+           \gui{Debugging Helper} and check the \gui{Use Debugging Helper}
            checkbox.
        \o  The \gui{Locals and Watchers} view is reorganized to provide a
            high-level view of the objects.
@@ -5271,7 +5270,7 @@
             \o In the \gui {Configuration name} field, enter a name for
             the connection.
 
-            \o In the \gui {Device type} field, select \gui {Local simulator}.
+            \o In the \gui {Device type} field, select \gui {Maemo emulator}.
 
             \o In the \gui {Authentication type} field, select \gui Password
             for the initial connection.
@@ -5856,7 +5855,7 @@
     \list 1
         \o Select \gui Tools > \gui Options... > \gui Debugger >
            \gui{Debugging Helper}.
-        \o Uncheck the \gui{Use debugging helper} checkbox.
+        \o Uncheck the \gui{Use Debugging Helper} checkbox.
     \endlist
 
 */

@@ -126,12 +126,12 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     mbm->addAction(cmd);
 
     //Previous Doc
-    m_docPrevAction = new QAction(tr("Previous Bookmark In Document"), this);
+    m_docPrevAction = new QAction(tr("Previous Bookmark in Document"), this);
     cmd = am->registerAction(m_docPrevAction, BOOKMARKS_PREVDOC_ACTION, globalcontext);
     mbm->addAction(cmd);
 
     //Next Doc
-    m_docNextAction = new QAction(tr("Next Bookmark In Document"), this);
+    m_docNextAction = new QAction(tr("Next Bookmark in Document"), this);
     cmd = am->registerAction(m_docNextAction, BOOKMARKS_NEXTDOC_ACTION, globalcontext);
     mbm->addAction(cmd);
 

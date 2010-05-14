@@ -270,17 +270,17 @@
           </property>
           <item>
            <property name="text">
-            <string>Always ask</string>
+            <string>Always Ask</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Reload all unchanged editors</string>
+            <string>Reload All Unchanged Editors</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Ignore modifications</string>
+            <string>Ignore Modifications</string>
            </property>
           </item>
          </widget>
