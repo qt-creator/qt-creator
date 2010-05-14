@@ -162,15 +162,15 @@ ClassOrNamespace *LookupContext::globalNamespace() const
     return bindings()->globalNamespace();
 }
 
-ClassOrNamespace *LookupContext::classOrNamespace(const Name *name, Scope *scope) const
+ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope) const
 {
     if (ClassOrNamespace *b = bindings()->findClassOrNamespace(scope->owner()))
-        return b->lookupClassOrNamespace(name);
+        return b->lookupType(name);
 
     return 0;
 }
 
-ClassOrNamespace *LookupContext::classOrNamespace(Symbol *symbol) const
+ClassOrNamespace *LookupContext::lookupType(Symbol *symbol) const
 {
     return bindings()->findClassOrNamespace(symbol);
 }
@@ -197,7 +197,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
                 if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
                     if (Namespace *enclosingNamespace = u->enclosingNamespaceScope()->owner()->asNamespace()) {
                         if (ClassOrNamespace *b = bindings()->findClassOrNamespace(enclosingNamespace)) {
-                            if (ClassOrNamespace *uu = b->lookupClassOrNamespace(u->name())) {
+                            if (ClassOrNamespace *uu = b->lookupType(u->name())) {
                                 candidates = uu->lookup(name);
 
                                 if (! candidates.isEmpty())
@@ -322,10 +322,10 @@ QList<Symbol *> ClassOrNamespace::lookup_helper(const Name *name, bool searchInE
             if (q->nameCount() == 1)
                 return binding->find(q->unqualifiedNameId());
 
-            binding = binding->lookupClassOrNamespace(q->nameAt(0));
+            binding = binding->lookupType(q->nameAt(0));
 
             for (unsigned index = 1; binding && index < q->nameCount() - 1; ++index)
-                binding = binding->findClassOrNamespace(q->nameAt(index));
+                binding = binding->findType(q->nameAt(index));
 
             if (binding)
                 result = binding->find(q->unqualifiedNameId());
@@ -437,7 +437,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
     }
 }
 
-ClassOrNamespace *ClassOrNamespace::lookupClassOrNamespace(const Name *name)
+ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name)
 {
     if (! name)
         return 0;
@@ -446,13 +446,13 @@ ClassOrNamespace *ClassOrNamespace::lookupClassOrNamespace(const Name *name)
     return lookupClassOrNamespace_helper(name, &processed);
 }
 
-ClassOrNamespace *ClassOrNamespace::findClassOrNamespace(const Name *name)
+ClassOrNamespace *ClassOrNamespace::findType(const Name *name)
 {
     QSet<ClassOrNamespace *> processed;
     return findClassOrNamespace_helper(name, &processed);
 }
 
-ClassOrNamespace *ClassOrNamespace::findClassOrNamespace(const QList<const Name *> &path)
+ClassOrNamespace *ClassOrNamespace::findType(const QList<const Name *> &path)
 {
     if (path.isEmpty())
         return globalNamespace();
@@ -481,7 +481,7 @@ ClassOrNamespace *ClassOrNamespace::lookupClassOrNamespace_helper(const Name *na
             if (q->isGlobal())
                 e = globalNamespace();
 
-            e = e->lookupClassOrNamespace(q->nameAt(0));
+            e = e->lookupType(q->nameAt(0));
 
             for (unsigned index = 1; e && index < q->nameCount(); ++index) {
                 QSet<ClassOrNamespace *> processed;
@@ -674,17 +674,17 @@ ClassOrNamespace *CreateBindings::findClassOrNamespace(Symbol *symbol)
     if (names.isEmpty())
         return _globalNamespace;
 
-    ClassOrNamespace *b = _globalNamespace->lookupClassOrNamespace(names.at(0));
+    ClassOrNamespace *b = _globalNamespace->lookupType(names.at(0));
 
     for (int i = 1; b && i < names.size(); ++i)
-        b = b->findClassOrNamespace(names.at(i));
+        b = b->findType(names.at(i));
 
     return b;
 }
 
 ClassOrNamespace *CreateBindings::findClassOrNamespace(const QList<const Name *> &path)
 {
-    ClassOrNamespace *e = _globalNamespace->findClassOrNamespace(path);
+    ClassOrNamespace *e = _globalNamespace->findType(path);
     return e;
 }
 
@@ -768,7 +768,7 @@ bool CreateBindings::visit(Class *klass)
     ClassOrNamespace *binding = 0;
 
     if (klass->name() && klass->name()->isQualifiedNameId())
-        binding = _currentClassOrNamespace->lookupClassOrNamespace(klass->name());
+        binding = _currentClassOrNamespace->lookupType(klass->name());
 
     if (! binding)
         binding = _currentClassOrNamespace->findOrCreate(klass->name());
@@ -810,7 +810,7 @@ bool CreateBindings::visit(Declaration *decl)
 
         if (typedefId && ! (ty.isConst() || ty.isVolatile())) {
             if (const NamedType *namedTy = ty->asNamedType()) {
-                if (ClassOrNamespace *e = _currentClassOrNamespace->lookupClassOrNamespace(namedTy->name())) {
+                if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(namedTy->name())) {
                     _currentClassOrNamespace->addNestedClassOrNamespace(decl->name(), e);
                 } else if (false) {
                     Overview oo;
@@ -830,7 +830,7 @@ bool CreateBindings::visit(Function *)
 
 bool CreateBindings::visit(BaseClass *b)
 {
-    if (ClassOrNamespace *base = _currentClassOrNamespace->lookupClassOrNamespace(b->name())) {
+    if (ClassOrNamespace *base = _currentClassOrNamespace->lookupType(b->name())) {
         _currentClassOrNamespace->addUsing(base);
     } else if (false) {
         Overview oo;
@@ -841,7 +841,7 @@ bool CreateBindings::visit(BaseClass *b)
 
 bool CreateBindings::visit(UsingNamespaceDirective *u)
 {
-    if (ClassOrNamespace *e = _currentClassOrNamespace->lookupClassOrNamespace(u->name())) {
+    if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(u->name())) {
         _currentClassOrNamespace->addUsing(e);
     } else if (false) {
         Overview oo;
@@ -855,7 +855,7 @@ bool CreateBindings::visit(NamespaceAlias *a)
     if (! a->identifier()) {
         return false;
 
-    } else if (ClassOrNamespace *e = _currentClassOrNamespace->lookupClassOrNamespace(a->namespaceName())) {
+    } else if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(a->namespaceName())) {
         if (a->name()->isNameId() || a->name()->isTemplateNameId())
             _currentClassOrNamespace->addNestedClassOrNamespace(a->name(), e);
 
@@ -885,7 +885,7 @@ bool CreateBindings::visit(ObjCClass *klass)
 
 bool CreateBindings::visit(ObjCBaseClass *b)
 {
-    if (ClassOrNamespace *base = _globalNamespace->lookupClassOrNamespace(b->name())) {
+    if (ClassOrNamespace *base = _globalNamespace->lookupType(b->name())) {
         _currentClassOrNamespace->addUsing(base);
     } else if (false) {
         Overview oo;
@@ -917,7 +917,7 @@ bool CreateBindings::visit(ObjCProtocol *proto)
 
 bool CreateBindings::visit(ObjCBaseProtocol *b)
 {
-    if (ClassOrNamespace *base = _globalNamespace->lookupClassOrNamespace(b->name())) {
+    if (ClassOrNamespace *base = _globalNamespace->lookupType(b->name())) {
         _currentClassOrNamespace->addUsing(base);
     } else if (false) {
         Overview oo;

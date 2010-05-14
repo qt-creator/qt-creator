@@ -487,7 +487,7 @@ bool ResolveExpression::visit(CallAST *ast)
         Scope *scope = result.scope();
 
         if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), scope)) {
+            if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), scope)) {
                 foreach (Symbol *overload, b->find(functionCallOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         if (maybeValidPrototype(funTy, actualArgumentCount)) {
@@ -532,7 +532,7 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
             addResult(arrTy->elementType().simplified(), scope);
 
         } else if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = _context.classOrNamespace(namedTy->name(), scope)) {
+            if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), scope)) {
                 foreach (Symbol *overload, b->find(arrayAccessOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType();
@@ -574,10 +574,10 @@ ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &origina
     ClassOrNamespace *binding = 0;
 
     if (Class *klass = ty->asClassType())
-        binding = _context.classOrNamespace(klass);
+        binding = _context.lookupType(klass);
 
     else if (NamedType *namedTy = ty->asNamedType())
-        binding = _context.classOrNamespace(namedTy->name(), scope);
+        binding = _context.lookupType(namedTy->name(), scope);
 
     else if (Function *funTy = ty->asFunctionType())
         return findClass(funTy->returnType(), scope);

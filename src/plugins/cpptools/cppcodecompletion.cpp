@@ -947,7 +947,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
             Scope *scope = result.scope();
 
             if (NamedType *namedTy = ty->asNamedType()) {
-                if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), scope)) {
+                if (ClassOrNamespace *b = context.lookupType(namedTy->name(), scope)) {
                     foreach (Symbol *overload, b->lookup(functionCallOp)) {
                         FullySpecifiedType overloadTy = overload->type().simplified();
 
@@ -1114,19 +1114,19 @@ bool CppCodeCompletion::completeScope(const QList<LookupItem> &results,
         Scope *scope = result.scope();
 
         if (NamedType *namedTy = ty->asNamedType()) {
-            if (ClassOrNamespace *b = context.classOrNamespace(namedTy->name(), scope)) {
+            if (ClassOrNamespace *b = context.lookupType(namedTy->name(), scope)) {
                 completeClass(b, context);
                 break;
             }
 
         } else if (Class *classTy = ty->asClassType()) {
-            if (ClassOrNamespace *b = context.classOrNamespace(classTy)) {
+            if (ClassOrNamespace *b = context.lookupType(classTy)) {
                 completeClass(b, context);
                 break;
             }
 
         } else if (Namespace *nsTy = ty->asNamespaceType()) {
-            if (ClassOrNamespace *b = context.classOrNamespace(nsTy)) {
+            if (ClassOrNamespace *b = context.lookupType(nsTy)) {
                 completeNamespace(b, context);
                 break;
             }
@@ -1379,7 +1379,7 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
         if (! namedTy) // not a class name.
             continue;
 
-        ClassOrNamespace *b = newContext.classOrNamespace(namedTy->name(), p.scope());
+        ClassOrNamespace *b = newContext.lookupType(namedTy->name(), p.scope());
         if (! b)
             continue;
 

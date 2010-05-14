@@ -59,9 +59,9 @@ public:
     QList<Symbol *> lookup(const Name *name);
     QList<Symbol *> find(const Name *name);
 
-    ClassOrNamespace *lookupClassOrNamespace(const Name *name);
-    ClassOrNamespace *findClassOrNamespace(const Name *name);
-    ClassOrNamespace *findClassOrNamespace(const QList<const Name *> &path);
+    ClassOrNamespace *lookupType(const Name *name);
+    ClassOrNamespace *findType(const Name *name);
+    ClassOrNamespace *findType(const QList<const Name *> &path);
 
 private:
     /// \internal
@@ -215,12 +215,11 @@ public:
     Document::Ptr document(const QString &fileName) const;
     Snapshot snapshot() const;
 
-    QList<Symbol *> lookup(const Name *name, Scope *scope) const;
-
     ClassOrNamespace *globalNamespace() const;
 
-    ClassOrNamespace *classOrNamespace(const Name *name, Scope *scope) const;
-    ClassOrNamespace *classOrNamespace(Symbol *symbol) const;
+    QList<Symbol *> lookup(const Name *name, Scope *scope) const;
+    ClassOrNamespace *lookupType(const Name *name, Scope *scope) const;
+    ClassOrNamespace *lookupType(Symbol *symbol) const;
 
     /// \internal
     QSharedPointer<CreateBindings> bindings() const;
