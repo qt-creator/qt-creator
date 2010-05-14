@@ -218,18 +218,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
                 break; // it's a formal argument.
 
             if (fun->name() && fun->name()->isQualifiedNameId()) {
-                const QualifiedNameId *q = fun->name()->asQualifiedNameId();
-
-                QList<const Name *> path = fullyQualifiedName(scope->owner());
-
-                for (unsigned index = 0; index < q->nameCount() - 1; ++index) { // ### TODO remove me.
-                    const Name *name = q->nameAt(index);
-
-                    if (name->isNameId() || name->isTemplateNameId())
-                        path.append(name);
-                }
-
-                if (ClassOrNamespace *binding = bindings()->lookupType(path))
+                if (ClassOrNamespace *binding = bindings()->lookupType(fun))
                     return binding->lookup(name);
             }
 
@@ -645,12 +634,6 @@ ClassOrNamespace *CreateBindings::lookupType(Symbol *symbol)
         b = b->findType(names.at(i));
 
     return b;
-}
-
-ClassOrNamespace *CreateBindings::lookupType(const QList<const Name *> &path)
-{
-    ClassOrNamespace *e = _globalNamespace->findType(path);
-    return e;
 }
 
 void CreateBindings::process(Symbol *s, ClassOrNamespace *classOrNamespace)

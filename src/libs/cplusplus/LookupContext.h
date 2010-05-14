@@ -126,10 +126,6 @@ public:
     /// Finds the binding associated to the given symbol.
     ClassOrNamespace *lookupType(Symbol *symbol);
 
-    /// Find the binding with the given path.
-    /// \internal
-    ClassOrNamespace *lookupType(const QList<const Name *> &path);
-
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
     Control *control() const;
