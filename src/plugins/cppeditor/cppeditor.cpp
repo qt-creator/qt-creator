@@ -560,40 +560,6 @@ protected:
 
 } // end of anonymous namespace
 
-static const QualifiedNameId *qualifiedNameIdForSymbol(Symbol *s, Control *control)
-{
-    const Name *symbolName = s->name();
-    if (! symbolName)
-        return 0; // nothing to do.
-
-    QVector<const Name *> names;
-
-    for (Scope *scope = s->scope(); scope; scope = scope->enclosingScope()) {
-        if (scope->isClassScope() || scope->isNamespaceScope()) {
-            if (scope->owner() && scope->owner()->name()) {
-                const Name *ownerName = scope->owner()->name();
-                if (const QualifiedNameId *q = ownerName->asQualifiedNameId()) {
-                    for (unsigned i = 0; i < q->nameCount(); ++i) {
-                        names.prepend(q->nameAt(i));
-                    }
-                } else {
-                    names.prepend(ownerName);
-                }
-            }
-        }
-    }
-
-    if (const QualifiedNameId *q = symbolName->asQualifiedNameId()) {
-        for (unsigned i = 0; i < q->nameCount(); ++i) {
-            names.append(q->nameAt(i));
-        }
-    } else {
-        names.append(symbolName);
-    }
-
-    return control->qualifiedNameId(names.constData(), names.size());
-}
-
 CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
     : BaseTextEditorEditable(editor)
 {
@@ -1170,59 +1136,6 @@ void CPPEditor::updateUsesNow()
         return;
 
     semanticRehighlight();
-}
-
-static bool isCompatible(const Name *name, const Name *otherName)
-{
-    if (const NameId *nameId = name->asNameId()) {
-        if (const TemplateNameId *otherTemplId = otherName->asTemplateNameId())
-            return nameId->identifier()->isEqualTo(otherTemplId->identifier());
-    } else if (const TemplateNameId *templId = name->asTemplateNameId()) {
-        if (const NameId *otherNameId = otherName->asNameId())
-            return templId->identifier()->isEqualTo(otherNameId->identifier());
-    }
-
-    return name->isEqualTo(otherName);
-}
-
-static bool isCompatible(Function *definition, Symbol *declaration,
-                         const QualifiedNameId *declarationName)
-{
-    Function *declTy = declaration->type()->asFunctionType();
-    if (! declTy)
-        return false;
-
-    const Name *definitionName = definition->name();
-    if (const QualifiedNameId *q = definitionName->asQualifiedNameId()) {
-        if (! isCompatible(q->unqualifiedNameId(), declaration->name()))
-            return false;
-        else if (q->nameCount() > declarationName->nameCount())
-            return false;
-        else if (declTy->argumentCount() != definition->argumentCount())
-            return false;
-        else if (declTy->isConst() != definition->isConst())
-            return false;
-        else if (declTy->isVolatile() != definition->isVolatile())
-            return false;
-
-        for (unsigned i = 0; i < definition->argumentCount(); ++i) {
-            Symbol *arg = definition->argumentAt(i);
-            Symbol *otherArg = declTy->argumentAt(i);
-            if (! arg->type().isEqualTo(otherArg->type()))
-                return false;
-        }
-
-        for (unsigned i = 0; i != q->nameCount(); ++i) {
-            const Name *n = q->nameAt(q->nameCount() - i - 1);
-            const Name *m = declarationName->nameAt(declarationName->nameCount() - i - 1);
-            if (! isCompatible(n, m))
-                return false;
-        }
-        return true;
-    } else {
-        // ### TODO: implement isCompatible for unqualified name ids.
-    }
-    return false;
 }
 
 void CPPEditor::switchDeclarationDefinition()
