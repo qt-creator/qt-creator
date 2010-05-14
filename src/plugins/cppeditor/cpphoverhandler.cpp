@@ -178,90 +178,6 @@ static QString buildHelpId(Symbol *symbol, const Name *name)
     return qualifiedNames.join(QLatin1String("::"));
 }
 
-#warning implement static FullySpecifiedType resolve()
-
-#if 0
-// ### move me
-static FullySpecifiedType resolve(const FullySpecifiedType &ty,
-                                  const LookupContext &context,
-                                  Symbol *lastVisibleSymbol,
-                                  Symbol **resolvedSymbol,
-                                  const Name **resolvedName)
-{
-    Control *control = context.control();
-
-    if (const PointerType *ptrTy = ty->asPointerType()) {
-        return control->pointerType(resolve(ptrTy->elementType(), context,
-                                            lastVisibleSymbol,
-                                            resolvedSymbol, resolvedName));
-
-    } else if (const ReferenceType *refTy = ty->asReferenceType()) {
-        return control->referenceType(resolve(refTy->elementType(), context,
-                                              lastVisibleSymbol,
-                                              resolvedSymbol, resolvedName));
-
-    } else if (const PointerToMemberType *ptrToMemTy = ty->asPointerToMemberType()) {
-        return control->pointerToMemberType(ptrToMemTy->memberName(),
-                                            resolve(ptrToMemTy->elementType(), context,
-                                                    lastVisibleSymbol,
-                                                    resolvedSymbol, resolvedName));
-
-    } else if (const NamedType *namedTy = ty->asNamedType()) {
-        if (resolvedName)
-            *resolvedName = namedTy->name();
-
-        const QList<Symbol *> candidates = context.lookup(namedTy->name(), lastVisibleSymbol);
-
-        foreach (Symbol *c, candidates) {
-            if (c->isClass() || c->isEnum()) {
-                if (resolvedSymbol)
-                    *resolvedSymbol = c;
-
-                return c->type();
-            }
-        }
-
-    } else if (const Namespace *nsTy = ty->asNamespaceType()) {
-        if (resolvedName)
-            *resolvedName = nsTy->name();
-
-        if (resolvedSymbol)
-            *resolvedSymbol = const_cast<Namespace *>(nsTy);
-
-    } else if (const Class *classTy = ty->asClassType()) {
-        if (resolvedName)
-            *resolvedName = classTy->name();
-
-        if (resolvedSymbol)
-            *resolvedSymbol = const_cast<Class *>(classTy);
-
-    } else if (const ForwardClassDeclaration *fwdClassTy = ty->asForwardClassDeclarationType()) {
-        if (resolvedName)
-            *resolvedName = fwdClassTy->name();
-
-        if (resolvedSymbol)
-            *resolvedSymbol = const_cast<ForwardClassDeclaration *>(fwdClassTy);
-
-    } else if (const Enum *enumTy = ty->asEnumType()) {
-        if (resolvedName)
-            *resolvedName = enumTy->name();
-
-        if (resolvedSymbol)
-            *resolvedSymbol = const_cast<Enum *>(enumTy);
-
-    } else if (const Function *funTy = ty->asFunctionType()) {
-        if (resolvedName)
-            *resolvedName = funTy->name();
-
-        if (resolvedSymbol)
-            *resolvedSymbol = const_cast<Function *>(funTy);
-
-    }
-
-    return ty;
-}
-#endif
-
 void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
 {
     m_helpId.clear();
@@ -274,11 +190,9 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!edit)
         return;
 
-#warning void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
-#if 0
-    const Snapshot documents = m_modelManager->snapshot();
+    const Snapshot snapshot = m_modelManager->snapshot();
     const QString fileName = editor->file()->fileName();
-    Document::Ptr doc = documents.document(fileName);
+    Document::Ptr doc = snapshot.document(fileName);
     if (!doc)
         return; // nothing to do
 
@@ -294,7 +208,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     Scope *scope = doc->scopeAt(line, column);
 
     TypeOfExpression typeOfExpression;
-    typeOfExpression.init(doc, documents);
+    typeOfExpression.init(doc, snapshot);
 
     // We only want to show F1 if the tooltip matches the help id
     bool showF1 = true;
@@ -344,51 +258,47 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
         const QList<LookupItem> types = typeOfExpression(expression, scope);
 
+
         if (!types.isEmpty()) {
-            const LookupItem result = types.first();
+            Overview overview;
+            overview.setShowArgumentNames(true);
+            overview.setShowReturnTypes(true);
+            overview.setShowFullyQualifiedNamed(true);
 
-            FullySpecifiedType firstType = result.type(); // result of `type of expression'.
-            Symbol *lookupSymbol = result.declaration(); // lookup symbol
+            const LookupItem result = types.first(); // ### TODO: select the best candidate.
+            FullySpecifiedType symbolTy = result.type(); // result of `type of expression'.
+            Symbol *declaration = result.declaration(); // lookup symbol
+            const Name *declarationName = declaration ? declaration->name() : 0;
 
-            Symbol *resolvedSymbol = lookupSymbol;
-            const Name *resolvedName = lookupSymbol ? lookupSymbol->name() : 0;
-            firstType = resolve(firstType, typeOfExpression.lookupContext(),
-                                scope,
-                                &resolvedSymbol, &resolvedName);
-
-            if (resolvedSymbol && resolvedSymbol->scope()
-                && resolvedSymbol->scope()->isClassScope()) {
-                Class *enclosingClass = resolvedSymbol->scope()->owner()->asClass();
+            if (declaration && declaration->scope()
+                && declaration->scope()->isClassScope()) {
+                Class *enclosingClass = declaration->scope()->owner()->asClass();
                 if (const Identifier *id = enclosingClass->identifier()) {
-                    if (id->isEqualTo(resolvedSymbol->identifier()))
-                        resolvedSymbol = enclosingClass;
+                    if (id->isEqualTo(declaration->identifier()))
+                        declaration = enclosingClass;
                 }
             }
 
-            m_helpId = buildHelpId(resolvedSymbol, resolvedName);
+            m_helpId = buildHelpId(declaration, declarationName);
 
             if (m_toolTip.isEmpty()) {
-                Symbol *symbol = result.declaration();
-                if (resolvedSymbol)
-                    symbol = resolvedSymbol;
+                Symbol *symbol = declaration;
 
-                Overview overview;
-                overview.setShowArgumentNames(true);
-                overview.setShowReturnTypes(true);
-                overview.setShowFullyQualifiedNamed(true);
+                if (declaration)
+                    symbol = declaration;
 
-                if (symbol && symbol == resolvedSymbol && symbol->isClass()) {
+                if (symbol && symbol == declaration && symbol->isClass()) {
                     m_toolTip = m_helpId;
 
-                } else if (lookupSymbol && (lookupSymbol->isDeclaration() || lookupSymbol->isArgument())) {
-                    m_toolTip = overview.prettyType(firstType, buildHelpId(lookupSymbol, lookupSymbol->name()));
+                } else if (declaration && (declaration->isDeclaration() || declaration->isArgument())) {
+                    m_toolTip = overview.prettyType(symbolTy, buildHelpId(declaration, declaration->name()));
 
-                } else if (firstType->isClassType() || firstType->isEnumType() ||
-                           firstType->isForwardClassDeclarationType()) {
+                } else if (symbolTy->isClassType() || symbolTy->isEnumType() ||
+                           symbolTy->isForwardClassDeclarationType()) {
                     m_toolTip = m_helpId;
 
                 } else {
-                    m_toolTip = overview.prettyType(firstType, m_helpId);
+                    m_toolTip = overview.prettyType(symbolTy, m_helpId);
 
                 }
             }
@@ -437,5 +347,4 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     } else if (!m_toolTip.isEmpty() && Qt::mightBeRichText(m_toolTip)) {
         m_toolTip = QString(QLatin1String("<nobr>%1")).arg(Qt::escape(m_toolTip));
     }
-#endif
 }

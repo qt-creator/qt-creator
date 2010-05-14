@@ -87,7 +87,6 @@ QList<LookupItem> TypeOfExpression::operator()(const QString &expression,
     m_lookupContext.setBindings(m_bindings);
 
     ResolveExpression resolve(m_lookupContext);
-#warning fix the signature of operator()
     return resolve(m_ast, scope);
 }
 

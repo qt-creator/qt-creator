@@ -123,9 +123,6 @@ void ResolveExpression::addResults(const QList<Symbol *> &symbols)
 
 void ResolveExpression::addResult(const FullySpecifiedType &ty, Scope *scope)
 {
-    Q_ASSERT(scope != 0);
-#warning fix the signature of addResult.
-
     LookupItem item;
     item.setType(ty);
     item.setScope(scope);
@@ -604,7 +601,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 const OperatorNameId *arrowOp = control()->operatorNameId(OperatorNameId::ArrowOp);
 
                 foreach (Symbol *overload, binding->find(arrowOp)) {
-                    if (Function *funTy = overload->type()->asFunctionType()) {
+                    if (overload->type()->isFunctionType()) {
                         FullySpecifiedType overloadTy = GenTemplateInstance::instantiate(binding->templateId(), overload, control());
                         Function *instantiatedFunction = overloadTy->asFunctionType();
                         Q_ASSERT(instantiatedFunction != 0);
@@ -650,10 +647,9 @@ bool ResolveExpression::visit(PostIncrDecrAST *)
     return false;
 }
 
-bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
+bool ResolveExpression::visit(ObjCMessageExpressionAST *)
 {
-#warning implement ResolveExpression::visit
-    qWarning() << Q_FUNC_INFO << __LINE__;
+    qWarning() << "TODO" << Q_FUNC_INFO;
     return false;
 
 #if 0
