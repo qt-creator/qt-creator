@@ -71,7 +71,7 @@ QString SettingsPage::displayCategory() const
 
 QIcon SettingsPage::categoryIcon() const
 {
-    return QIcon(); // TODO: Icon for Locator
+    return QIcon(QLatin1String(Locator::Constants::SETTINGS_CATEGORY_LOCATOR_ICON));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

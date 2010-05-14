@@ -52,7 +52,7 @@ QString VCSBaseOptionsPage::displayCategory() const
 
 QIcon VCSBaseOptionsPage::categoryIcon() const
 {
-    return QIcon(); // TODO: Icon for Version Control
+    return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_VCS_ICON));
 }
 
 } // namespace VCSBase

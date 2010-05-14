@@ -50,6 +50,8 @@ Q_DECLARE_METATYPE(Core::IWizard*)
 
 namespace {
 
+const int ICON_SIZE = 22;
+
 class TwoLevelProxyModel : public QAbstractProxyModel
 {
 //    Q_OBJECT
@@ -166,7 +168,7 @@ NewDialog::NewDialog(QWidget *parent) :
     m_ui->templateCategoryView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_ui->templateCategoryView->setItemDelegate(new FancyTopLevelDelegate);
 
-    m_ui->templatesView->setIconSize(QSize(22, 22));
+    m_ui->templatesView->setIconSize(QSize(ICON_SIZE, ICON_SIZE));
 
     connect(m_ui->templateCategoryView, SIGNAL(clicked(const QModelIndex&)),
         this, SLOT(currentCategoryChanged(const QModelIndex&)));
@@ -218,7 +220,7 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
     parentItem->appendRow(filesClassesKindItem);
 
     if (m_dummyIcon.isNull()) {
-        m_dummyIcon = QPixmap(22, 22);
+        m_dummyIcon = QPixmap(ICON_SIZE, ICON_SIZE);
         m_dummyIcon.fill(Qt::transparent);
     }
 
@@ -251,10 +253,11 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
         QIcon wizardIcon;
 
         // spacing hack. Add proper icons instead
-        if (wizard->icon().isNull())
+        if (wizard->icon().isNull()) {
             wizardIcon = m_dummyIcon;
-        else
+        } else {
             wizardIcon = wizard->icon();
+        }
         wizardItem->setIcon(wizardIcon);
         wizardItem->setData(QVariant::fromValue(wizard), Qt::UserRole);
         wizardItem->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);

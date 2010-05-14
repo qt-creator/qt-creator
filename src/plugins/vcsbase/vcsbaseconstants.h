@@ -37,6 +37,7 @@ namespace Constants {
 
 const char * const VCS_SETTINGS_CATEGORY = "V.Version Control";
 const char * const VCS_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
+const char * const SETTINGS_CATEGORY_VCS_ICON = ":/core/images/category_vcs.png";
 const char * const VCS_COMMON_SETTINGS_ID = "A.Common";
 const char * const VCS_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("VCSBase", "Common");
 
