@@ -391,37 +391,36 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             else if (s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
 
-#if 1
-            if (templateId && (s->isDeclaration() || s->isFunction())) {
+            if (debug) {
+                if (templateId && (s->isDeclaration() || s->isFunction())) {
 
-                FullySpecifiedType ty = GenTemplateInstance::instantiate(templateId, s, _control);
+                    FullySpecifiedType ty = GenTemplateInstance::instantiate(templateId, s, _control);
 
-                Overview oo;
-                oo.setShowFunctionSignatures(true);
-                oo.setShowReturnTypes(true);
+                    Overview oo;
+                    oo.setShowFunctionSignatures(true);
+                    oo.setShowReturnTypes(true);
 
-                qDebug() << "TODO: instantiate:" << oo(s->type(), s->name()) << "using:" << oo(templateId)
-                        << oo(ty);
+                    qDebug() << "TODO: instantiate:" << oo(s->type(), s->name()) << "using:" << oo(templateId)
+                            << oo(ty);
 
 #if 0
-                if (Declaration *decl = s->asDeclaration()) {
-                    qDebug() << "instantiate declaration";
-                    Declaration *d = _control->newDeclaration(0, 0);
-                    d->copy(decl);
-                    d->setType(ty);
-                    result->append(d);
-                    continue;
-                } else if (Function *fun = s->asFunction()) {
-                    qDebug() << "instantiate function";
-                    Function *d = ty->asFunctionType();
-                    d->copy(fun);
-                    result->append(d);
-                    continue;
+                    if (Declaration *decl = s->asDeclaration()) {
+                        qDebug() << "instantiate declaration";
+                        Declaration *d = _control->newDeclaration(0, 0);
+                        d->copy(decl);
+                        d->setType(ty);
+                        result->append(d);
+                        continue;
+                    } else if (Function *fun = s->asFunction()) {
+                        qDebug() << "instantiate function";
+                        Function *d = ty->asFunctionType();
+                        d->copy(fun);
+                        result->append(d);
+                        continue;
+                    }
+#endif
                 }
-#endif
-
             }
-#endif
 
             result->append(s);
         }
