@@ -32,14 +32,48 @@
 
 #include <utils/pathlisteditor.h>
 
+#include <QtGui/QDialog>
+
+namespace Utils {
+    class PathChooser;
+}
+
+QT_BEGIN_NAMESPACE
+class QDialogButtonBox;
+QT_END_NAMESPACE
+
 namespace Debugger {
 namespace Internal {
+
+// Internal helper dialog prompting for a cache directory
+// using a PathChooser.
+// Note that QFileDialog does not offer a way of suggesting
+// a non-existent folder, which is in turn automatically
+// created. This is done here (suggest $TEMP\symbolcache
+// regardless of its existence).
+
+class CacheDirectoryDialog    : public QDialog {
+    Q_OBJECT
+public:
+   explicit CacheDirectoryDialog(QWidget *parent = 0);
+
+   void setPath(const QString &p);
+   QString path() const;
+
+   virtual void accept();
+
+private:
+   Utils::PathChooser *m_chooser;
+   QDialogButtonBox *m_buttonBox;
+};
 
 class CdbSymbolPathListEditor : public Utils::PathListEditor
 {
     Q_OBJECT
 public:
     explicit CdbSymbolPathListEditor(QWidget *parent = 0);
+
+    static QString promptCacheDirectory(QWidget *parent);
 
 private slots:
     void addSymbolServer();

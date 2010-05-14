@@ -50,6 +50,11 @@ CdbOptions::CdbOptions() :
 {
 }
 
+QString CdbOptions::settingsGroup()
+{
+    return QLatin1String(settingsGroupC);
+}
+
 void CdbOptions::clear()
 {
     enabled = false;
@@ -97,6 +102,38 @@ unsigned CdbOptions::compare(const CdbOptions &rhs) const
     if (verboseSymbolLoading != rhs.verboseSymbolLoading)
         rc |= SymbolOptionsChanged;
     return rc;
+}
+
+static const char symbolServerPrefixC[] = "symsrv*symsrv.dll*";
+static const char symbolServerPostfixC[] = "*http://msdl.microsoft.com/download/symbols";
+
+QString CdbOptions::symbolServerPath(const QString &cacheDir)
+{
+    QString s = QLatin1String(symbolServerPrefixC);
+    s +=  QDir::toNativeSeparators(cacheDir);
+    s += QLatin1String(symbolServerPostfixC);
+    return s;
+}
+
+bool CdbOptions::isSymbolServerPath(const QString &path, QString *cacheDir /*  = 0 */)
+{
+    // Split apart symbol server post/prefixes
+    if (!path.startsWith(QLatin1String(symbolServerPrefixC)) || !path.endsWith(QLatin1String(symbolServerPostfixC)))
+        return false;
+    if (cacheDir) {
+        const unsigned prefixLength = qstrlen(symbolServerPrefixC);
+        *cacheDir = path.mid(prefixLength, path.size() - prefixLength - qstrlen(symbolServerPostfixC));
+    }
+    return true;
+}
+
+int CdbOptions::indexOfSymbolServerPath(const QStringList &paths, QString *cacheDir /*  = 0 */)
+{
+    const int count = paths.size();
+    for (int i = 0; i < count; i++)
+        if (CdbOptions::isSymbolServerPath(paths.at(i), cacheDir))
+            return i;
+    return -1;
 }
 
 } // namespace Internal

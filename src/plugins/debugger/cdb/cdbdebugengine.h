@@ -112,6 +112,7 @@ private slots:
     void warning(const QString &w);
 
 private:
+    void startupChecks();
     void setState(DebuggerState state, const char *func, int line);
     inline bool startAttachDebugger(qint64 pid, DebuggerStartMode sm, QString *errorMessage);
     void processTerminated(unsigned long exitCode);
