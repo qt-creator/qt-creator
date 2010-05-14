@@ -42,7 +42,6 @@
 
 #include <QtDebug>
 
-
 namespace {
     const bool debug = ! qgetenv("CPLUSPLUS_LOOKUPCONTEXT_DEBUG").isEmpty();
 }
@@ -56,16 +55,25 @@ static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names
 
     fullyQualifiedName_helper(symbol->enclosingSymbol(), names);
 
-    if (symbol->name() && (symbol->isClass() || symbol->isNamespace())) {
-        if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
-            for (unsigned i = 0; i < q->nameCount(); ++i)
-                names->append(q->nameAt(i));
+    if (symbol->name()) {
+        if (symbol->isClass() || symbol->isNamespace()) {
+            if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
+                for (unsigned i = 0; i < q->nameCount(); ++i)
+                    names->append(q->nameAt(i));
 
-        } else if (symbol->name()->isNameId() || symbol->name()->isTemplateNameId()) {
-            names->append(symbol->name());
+            } else if (symbol->name()->isNameId() || symbol->name()->isTemplateNameId()) {
+                names->append(symbol->name());
 
+            }
+
+        } else if (symbol->isFunction()) {
+            if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
+                for (unsigned i = 0; i < q->nameCount() - 1; ++i)
+                    names->append(q->nameAt(i));
+            }
         }
     }
+
 }
 
 bool ClassOrNamespace::CompareName::operator()(const Name *name, const Name *other) const
