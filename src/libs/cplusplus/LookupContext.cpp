@@ -441,13 +441,13 @@ ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name)
         return 0;
 
     QSet<ClassOrNamespace *> processed;
-    return lookupClassOrNamespace_helper(name, &processed);
+    return lookupType_helper(name, &processed);
 }
 
 ClassOrNamespace *ClassOrNamespace::findType(const Name *name)
 {
     QSet<ClassOrNamespace *> processed;
-    return findClassOrNamespace_helper(name, &processed);
+    return findType_helper(name, &processed);
 }
 
 ClassOrNamespace *ClassOrNamespace::findType(const QList<const Name *> &path)
@@ -459,13 +459,13 @@ ClassOrNamespace *ClassOrNamespace::findType(const QList<const Name *> &path)
 
     for (int i = 0; e && i < path.size(); ++i) {
         QSet<ClassOrNamespace *> processed;
-        e = e->findClassOrNamespace_helper(path.at(i), &processed);
+        e = e->findType_helper(path.at(i), &processed);
     }
 
     return e;
 }
 
-ClassOrNamespace *ClassOrNamespace::lookupClassOrNamespace_helper(const Name *name,
+ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                                                                   QSet<ClassOrNamespace *> *processed)
 {
     Q_ASSERT(name != 0);
@@ -483,29 +483,29 @@ ClassOrNamespace *ClassOrNamespace::lookupClassOrNamespace_helper(const Name *na
 
             for (unsigned index = 1; e && index < q->nameCount(); ++index) {
                 QSet<ClassOrNamespace *> processed;
-                e = e->findClassOrNamespace_helper(q->nameAt(index), &processed);
+                e = e->findType_helper(q->nameAt(index), &processed);
             }
 
             return e;
 
         } else if (name->isNameId() || name->isTemplateNameId()) {
-            if (ClassOrNamespace *e = nestedClassOrNamespace(name))
+            if (ClassOrNamespace *e = nestedType(name))
                 return e;
 
             foreach (ClassOrNamespace *u, usings()) {
-                if (ClassOrNamespace *r = u->lookupClassOrNamespace_helper(name, processed))
+                if (ClassOrNamespace *r = u->lookupType_helper(name, processed))
                     return r;
             }
         }
 
         if (_parent)
-            return _parent->lookupClassOrNamespace_helper(name, processed);
+            return _parent->lookupType_helper(name, processed);
     }
 
     return 0;
 }
 
-ClassOrNamespace *ClassOrNamespace::findClassOrNamespace_helper(const Name *name,
+ClassOrNamespace *ClassOrNamespace::findType_helper(const Name *name,
                                                                 QSet<ClassOrNamespace *> *processed)
 {
     if (! name) {
@@ -519,20 +519,20 @@ ClassOrNamespace *ClassOrNamespace::findClassOrNamespace_helper(const Name *name
 
         for (unsigned i = 0; e && i < q->nameCount(); ++i) {
             QSet<ClassOrNamespace *> processed;
-            e = e->findClassOrNamespace_helper(q->nameAt(i), &processed);
+            e = e->findType_helper(q->nameAt(i), &processed);
         }
 
         return e;
 
     } else if (name->isNameId() || name->isTemplateNameId()) {
-        if (ClassOrNamespace *e = nestedClassOrNamespace(name))
+        if (ClassOrNamespace *e = nestedType(name))
             return e;
 
         else if (! processed->contains(this)) {
             processed->insert(this);
 
             foreach (ClassOrNamespace *u, usings()) {
-                if (ClassOrNamespace *e = u->findClassOrNamespace_helper(name, processed))
+                if (ClassOrNamespace *e = u->findType_helper(name, processed))
                     return e;
             }
         }
@@ -542,7 +542,7 @@ ClassOrNamespace *ClassOrNamespace::findClassOrNamespace_helper(const Name *name
     return 0;
 }
 
-ClassOrNamespace *ClassOrNamespace::nestedClassOrNamespace(const Name *name) const
+ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name) const
 {
     Q_ASSERT(name != 0);
     Q_ASSERT(name->isNameId() || name->isTemplateNameId());
@@ -603,7 +603,7 @@ void ClassOrNamespace::addUsing(ClassOrNamespace *u)
     _usings.append(u);
 }
 
-void ClassOrNamespace::addNestedClassOrNamespace(const Name *alias, ClassOrNamespace *e)
+void ClassOrNamespace::addNestedType(const Name *alias, ClassOrNamespace *e)
 {
     _classOrNamespaces[alias] = e;
 }
@@ -622,7 +622,7 @@ ClassOrNamespace *ClassOrNamespace::findOrCreate(const Name *name)
         return e;
 
     } else if (name->isNameId() || name->isTemplateNameId()) {
-        ClassOrNamespace *e = nestedClassOrNamespace(name);
+        ClassOrNamespace *e = nestedType(name);
 
         if (! e) {
             e = _factory->allocClassOrNamespace(this);
@@ -803,7 +803,7 @@ bool CreateBindings::visit(Declaration *decl)
         if (typedefId && ! (ty.isConst() || ty.isVolatile())) {
             if (const NamedType *namedTy = ty->asNamedType()) {
                 if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(namedTy->name())) {
-                    _currentClassOrNamespace->addNestedClassOrNamespace(decl->name(), e);
+                    _currentClassOrNamespace->addNestedType(decl->name(), e);
                 } else if (false) {
                     Overview oo;
                     qDebug() << "found entity not found for" << oo(namedTy->name());
@@ -849,7 +849,7 @@ bool CreateBindings::visit(NamespaceAlias *a)
 
     } else if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(a->namespaceName())) {
         if (a->name()->isNameId() || a->name()->isTemplateNameId())
-            _currentClassOrNamespace->addNestedClassOrNamespace(a->name(), e);
+            _currentClassOrNamespace->addNestedType(a->name(), e);
 
     } else if (false) {
         Overview oo;

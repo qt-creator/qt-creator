@@ -76,16 +76,16 @@ private:
     void addSymbol(Symbol *symbol);
     void addEnum(Enum *e);
     void addUsing(ClassOrNamespace *u);
-    void addNestedClassOrNamespace(const Name *alias, ClassOrNamespace *e);
+    void addNestedType(const Name *alias, ClassOrNamespace *e);
 
     void lookup_helper(const Name *name, ClassOrNamespace *binding,
                        QList<Symbol *> *result,
                        QSet<ClassOrNamespace *> *processed,
                        const TemplateNameId *templateId);
 
-    ClassOrNamespace *lookupClassOrNamespace_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
-    ClassOrNamespace *findClassOrNamespace_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
-    ClassOrNamespace *nestedClassOrNamespace(const Name *name) const;
+    ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
+    ClassOrNamespace *findType_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
+    ClassOrNamespace *nestedType(const Name *name) const;
 
 private:
     struct CompareName: std::binary_function<const Name *, const Name *, bool> {
