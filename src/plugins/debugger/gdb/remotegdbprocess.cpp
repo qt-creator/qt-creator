@@ -86,7 +86,7 @@ bool RemoteGdbProcess::waitForStarted()
     connect(m_gdbConn.data(), SIGNAL(remoteOutputAvailable()),
             this, SLOT(handleGdbOutput()));
     m_gdbStarted = false;
-    m_gdbCmdLine = "stty -echo && " + m_command.toUtf8() + ' '
+    m_gdbCmdLine = "stty -echo && DISPLAY=:0.0 " + m_command.toUtf8() + ' '
         + m_cmdArgs.join(QLatin1String(" ")).toUtf8()
         + " -tty=" + AppOutputFile + " 2>" + ErrOutputFile + '\n';
     if (!m_wd.isEmpty())
