@@ -1348,8 +1348,12 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         if (Symbol *symbol = result.declaration()) {
             Symbol *def = 0;
 
-            if (resolveTarget)
+            if (resolveTarget) {
                 def = findDefinition(symbol, snapshot);
+
+                if (def == doc->findSymbolAt(line, column))
+                    def = 0; // jump to declaration then.
+            }
 
             link = linkToSymbol(def ? def : symbol);
             link.begin = beginOfToken;
