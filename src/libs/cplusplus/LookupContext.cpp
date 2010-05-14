@@ -441,13 +441,13 @@ ClassOrNamespace *ClassOrNamespace::lookupType(const Name *name)
         return 0;
 
     QSet<ClassOrNamespace *> processed;
-    return lookupType_helper(name, &processed);
+    return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ true);
 }
 
 ClassOrNamespace *ClassOrNamespace::findType(const Name *name)
 {
     QSet<ClassOrNamespace *> processed;
-    return findType_helper(name, &processed);
+    return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ false);
 }
 
 ClassOrNamespace *ClassOrNamespace::findType(const QList<const Name *> &path)
@@ -459,14 +459,15 @@ ClassOrNamespace *ClassOrNamespace::findType(const QList<const Name *> &path)
 
     for (int i = 0; e && i < path.size(); ++i) {
         QSet<ClassOrNamespace *> processed;
-        e = e->findType_helper(path.at(i), &processed);
+        e = e->lookupType_helper(path.at(i), &processed, /*searchInEnclosingScope =*/ false);
     }
 
     return e;
 }
 
 ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
-                                                                  QSet<ClassOrNamespace *> *processed)
+                                                      QSet<ClassOrNamespace *> *processed,
+                                                      bool searchInEnclosingScope)
 {
     Q_ASSERT(name != 0);
 
@@ -483,7 +484,7 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
 
             for (unsigned index = 1; e && index < q->nameCount(); ++index) {
                 QSet<ClassOrNamespace *> processed;
-                e = e->findType_helper(q->nameAt(index), &processed);
+                e = e->lookupType_helper(q->nameAt(index), &processed, /*searchInEnclosingScope =*/ false);
             }
 
             return e;
@@ -493,50 +494,13 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                 return e;
 
             foreach (ClassOrNamespace *u, usings()) {
-                if (ClassOrNamespace *r = u->lookupType_helper(name, processed))
+                if (ClassOrNamespace *r = u->lookupType_helper(name, processed, /*searchInEnclosingScope =*/ false))
                     return r;
             }
         }
 
-        if (_parent)
-            return _parent->lookupType_helper(name, processed);
-    }
-
-    return 0;
-}
-
-ClassOrNamespace *ClassOrNamespace::findType_helper(const Name *name,
-                                                                QSet<ClassOrNamespace *> *processed)
-{
-    if (! name) {
-        return 0;
-
-    } else if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-        ClassOrNamespace *e = this;
-
-        if (q->isGlobal())
-            e = globalNamespace();
-
-        for (unsigned i = 0; e && i < q->nameCount(); ++i) {
-            QSet<ClassOrNamespace *> processed;
-            e = e->findType_helper(q->nameAt(i), &processed);
-        }
-
-        return e;
-
-    } else if (name->isNameId() || name->isTemplateNameId()) {
-        if (ClassOrNamespace *e = nestedType(name))
-            return e;
-
-        else if (! processed->contains(this)) {
-            processed->insert(this);
-
-            foreach (ClassOrNamespace *u, usings()) {
-                if (ClassOrNamespace *e = u->findType_helper(name, processed))
-                    return e;
-            }
-        }
-
+        if (_parent && searchInEnclosingScope)
+            return _parent->lookupType_helper(name, processed, searchInEnclosingScope);
     }
 
     return 0;
@@ -608,7 +572,7 @@ void ClassOrNamespace::addNestedType(const Name *alias, ClassOrNamespace *e)
     _classOrNamespaces[alias] = e;
 }
 
-ClassOrNamespace *ClassOrNamespace::findOrCreate(const Name *name)
+ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name)
 {
     if (! name)
         return this;
@@ -617,7 +581,7 @@ ClassOrNamespace *ClassOrNamespace::findOrCreate(const Name *name)
         ClassOrNamespace *e = this;
 
         for (unsigned i = 0; e && i < q->nameCount(); ++i)
-            e = e->findOrCreate(q->nameAt(i));
+            e = e->findOrCreateType(q->nameAt(i));
 
         return e;
 
@@ -729,7 +693,7 @@ void CreateBindings::process(Document::Ptr doc)
 
 ClassOrNamespace *CreateBindings::enterClassOrNamespaceBinding(Symbol *symbol)
 {
-    ClassOrNamespace *entity = _currentClassOrNamespace->findOrCreate(symbol->name());
+    ClassOrNamespace *entity = _currentClassOrNamespace->findOrCreateType(symbol->name());
     entity->addSymbol(symbol);
 
     return switchCurrentClassOrNamespace(entity);
@@ -737,7 +701,7 @@ ClassOrNamespace *CreateBindings::enterClassOrNamespaceBinding(Symbol *symbol)
 
 ClassOrNamespace *CreateBindings::enterGlobalClassOrNamespace(Symbol *symbol)
 {
-    ClassOrNamespace *entity = _globalNamespace->findOrCreate(symbol->name());
+    ClassOrNamespace *entity = _globalNamespace->findOrCreateType(symbol->name());
     entity->addSymbol(symbol);
 
     return switchCurrentClassOrNamespace(entity);
@@ -763,7 +727,7 @@ bool CreateBindings::visit(Class *klass)
         binding = _currentClassOrNamespace->lookupType(klass->name());
 
     if (! binding)
-        binding = _currentClassOrNamespace->findOrCreate(klass->name());
+        binding = _currentClassOrNamespace->findOrCreateType(klass->name());
 
     _currentClassOrNamespace = binding;
     _currentClassOrNamespace->addSymbol(klass);

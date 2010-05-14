@@ -68,9 +68,7 @@ private:
     void flush();
 
     /// \internal
-    ClassOrNamespace *findOrCreate(const Name *name);
-
-    QList<Symbol *> lookup_helper(const Name *name, bool searchInEnclosingScope);
+    ClassOrNamespace *findOrCreateType(const Name *name);
 
     void addTodo(Symbol *symbol);
     void addSymbol(Symbol *symbol);
@@ -78,13 +76,16 @@ private:
     void addUsing(ClassOrNamespace *u);
     void addNestedType(const Name *alias, ClassOrNamespace *e);
 
+    QList<Symbol *> lookup_helper(const Name *name, bool searchInEnclosingScope);
+
     void lookup_helper(const Name *name, ClassOrNamespace *binding,
                        QList<Symbol *> *result,
                        QSet<ClassOrNamespace *> *processed,
                        const TemplateNameId *templateId);
 
-    ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
-    ClassOrNamespace *findType_helper(const Name *name, QSet<ClassOrNamespace *> *processed);
+    ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
+                                        bool searchInEnclosingScope);
+
     ClassOrNamespace *nestedType(const Name *name) const;
 
 private:
