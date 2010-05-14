@@ -39,6 +39,7 @@
 #include "cdboptionspage.h"
 #include "cdboptions.h"
 #include "cdbexceptionutils.h"
+#include "cdbsymbolpathlisteditor.h"
 #include "debuggeragents.h"
 #include "debuggeruiswitcher.h"
 #include "debuggermainwindow.h"
@@ -59,6 +60,7 @@
 #include <utils/fancymainwindow.h>
 #include <texteditor/itexteditor.h>
 #include <utils/savedaction.h>
+#include <utils/checkablemessagebox.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
@@ -347,11 +349,48 @@ void CdbDebugEnginePrivate::checkVersion()
     }
 }
 
+void CdbDebugEngine::startupChecks()
+{
+    // Check symbol server unless the user has an external/internal setup
+    if (!qgetenv("_NT_SYMBOL_PATH").isEmpty()
+        || CdbOptions::indexOfSymbolServerPath(m_d->m_options->symbolPaths) != -1)
+        return;
+    // Prompt to use Symbol server unless the user checked "No nagging".
+    Core::ICore *core = Core::ICore::instance();
+    const QString nagSymbolServerKey = CdbOptions::settingsGroup() + QLatin1String("/NoPromptSymbolServer");
+    bool noFurtherNagging = core->settings()->value(nagSymbolServerKey, false).toBool();
+    if (noFurtherNagging)
+        return;
+
+    const QString symServUrl = QLatin1String("http://support.microsoft.com/kb/311503");
+    const QString msg = tr("<html><head/><body><p>The debugger is not configured to use the public "
+                           "<a href=\"%1\">Microsoft Symbol Server</a>. This is recommended "
+                           "for retrieval of the symbols of the operating system libraries.</p>"
+                           "<p><i>Note:</i> A fast internet connection is required for this to work smoothly. Also, a delay "
+                           "might occur when connecting for the first time.</p>"
+                           "<p>Would you like to set it up?</p></br>"
+                           "</body></html>").arg(symServUrl);
+    const QDialogButtonBox::StandardButton answer =
+            Utils::CheckableMessageBox::question(core->mainWindow(), tr("Symbol Server"), msg,
+                                                 tr("Do not ask again"), &noFurtherNagging);
+    core->settings()->setValue(nagSymbolServerKey, noFurtherNagging);
+    if (answer == QDialogButtonBox::No)
+        return;
+    // Prompt for path and add it. Synchronize QSetting and debugger.
+    const QString cacheDir = CdbSymbolPathListEditor::promptCacheDirectory(core->mainWindow());
+    if (cacheDir.isEmpty())
+        return;
+    m_d->m_options->symbolPaths.push_back(CdbOptions::symbolServerPath(cacheDir));
+    m_d->m_options->toSettings(core->settings());
+    syncDebuggerPaths();
+}
+
 void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters> &sp)
 {
     if (debugCDBExecution)
         qDebug() << "startDebugger" << *sp;
     CdbCore::BreakPoint::clearNormalizeFileNameCache();
+    startupChecks();
     setState(AdapterStarting, Q_FUNC_INFO, __LINE__);
     m_d->checkVersion();
     if (m_d->m_hDebuggeeProcess) {

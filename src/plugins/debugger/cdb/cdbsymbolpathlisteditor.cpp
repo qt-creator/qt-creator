@@ -28,12 +28,82 @@
 **************************************************************************/
 
 #include "cdbsymbolpathlisteditor.h"
+#include "cdboptions.h"
 
+#include <utils/pathchooser.h>
+
+#include <QtCore/QDir>
+#include <QtCore/QDebug>
 #include <QtGui/QFileDialog>
 #include <QtGui/QAction>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QFormLayout>
+#include <QtGui/QMessageBox>
 
 namespace Debugger {
 namespace Internal {
+
+CacheDirectoryDialog::CacheDirectoryDialog(QWidget *parent) :
+    QDialog(parent), m_chooser(new Utils::PathChooser),
+    m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel))
+{
+    setWindowTitle(tr("Select Local Cache Folder"));
+    setModal(true);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    QFormLayout *formLayout = new QFormLayout;
+    m_chooser->setExpectedKind(Utils::PathChooser::Directory);
+    m_chooser->setMinimumWidth(400);
+    formLayout->addRow(tr("Path:"), m_chooser);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(formLayout);
+    mainLayout->addWidget(m_buttonBox);
+
+    setLayout(mainLayout);
+
+    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+}
+
+void CacheDirectoryDialog::setPath(const QString &p)
+{
+    m_chooser->setPath(p);
+}
+
+QString CacheDirectoryDialog::path() const
+{
+    return m_chooser->path();
+}
+
+void CacheDirectoryDialog::accept()
+{
+    // Ensure path exists
+    QString cache = path();
+    if (cache.isEmpty())
+        return;
+    QFileInfo fi(cache);
+    // Folder exists - all happy.
+    if (fi.isDir()) {
+        QDialog::accept();
+        return;
+    }
+    // Does a file of the same name exist?
+    if (fi.exists()) {
+        QMessageBox::warning(this, tr("Already Exists"),
+                             tr("A file named '%1' already exists.").arg(cache));
+        return;
+    }
+    // Create
+    QDir root(QDir::root());
+    if (!root.mkpath(cache)) {
+        QMessageBox::warning(this, tr("Cannot Create"),
+                             tr("The folder '%1' could not be created.").arg(cache));
+        return;
+    }
+    QDialog::accept();
+}
 
 CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
     Utils::PathListEditor(parent)
@@ -44,15 +114,20 @@ CdbSymbolPathListEditor::CdbSymbolPathListEditor(QWidget *parent) :
                       "Requires specifying a local cache directory."));
 }
 
+QString CdbSymbolPathListEditor::promptCacheDirectory(QWidget *parent)
+{
+    CacheDirectoryDialog dialog(parent);
+    dialog.setPath(QDir::tempPath() + QDir::separator() + QLatin1String("symbolcache"));
+    if (dialog.exec() != QDialog::Accepted)
+        return QString();
+    return dialog.path();
+}
+
 void CdbSymbolPathListEditor::addSymbolServer()
 {
-    const QString title = tr("Pick a local cache directory");
-    const QString cacheDir = QFileDialog::getExistingDirectory(this, title);
-    if (!cacheDir.isEmpty()) {
-        const QString path = QString::fromLatin1("symsrv*symsrv.dll*%1*http://msdl.microsoft.com/download/symbols").
-                             arg(QDir::toNativeSeparators(cacheDir));
-        insertPathAtCursor(path);
-    }
+    const QString cacheDir = promptCacheDirectory(this);
+    if (!cacheDir.isEmpty())
+        insertPathAtCursor(CdbOptions::symbolServerPath(cacheDir));
 }
 
 } // namespace Internal
