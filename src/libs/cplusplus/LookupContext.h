@@ -232,8 +232,6 @@ public:
 
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
 
-    Q_DECL_DEPRECATED ClassOrNamespace *classOrNamespace(const Name *name, Symbol *lastVisibleSymbol) const;
-
 private:
     Control *_control;
 
