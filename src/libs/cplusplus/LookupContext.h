@@ -124,11 +124,11 @@ public:
     ClassOrNamespace *globalNamespace() const;
 
     /// Finds the binding associated to the given symbol.
-    ClassOrNamespace *findClassOrNamespace(Symbol *symbol);
+    ClassOrNamespace *lookupType(Symbol *symbol);
 
     /// Find the binding with the given path.
     /// \internal
-    ClassOrNamespace *findClassOrNamespace(const QList<const Name *> &path);
+    ClassOrNamespace *lookupType(const QList<const Name *> &path);
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal

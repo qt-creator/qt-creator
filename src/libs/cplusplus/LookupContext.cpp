@@ -42,6 +42,11 @@
 
 #include <QtDebug>
 
+
+namespace {
+    const bool debug = ! qgetenv("CPLUSPLUS_LOOKUPCONTEXT_DEBUG").isEmpty();
+}
+
 using namespace CPlusPlus;
 
 static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names)
@@ -162,7 +167,7 @@ ClassOrNamespace *LookupContext::globalNamespace() const
 
 ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope) const
 {
-    if (ClassOrNamespace *b = bindings()->findClassOrNamespace(scope->owner()))
+    if (ClassOrNamespace *b = bindings()->lookupType(scope->owner()))
         return b->lookupType(name);
 
     return 0;
@@ -170,7 +175,7 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope) cons
 
 ClassOrNamespace *LookupContext::lookupType(Symbol *symbol) const
 {
-    return bindings()->findClassOrNamespace(symbol);
+    return bindings()->lookupType(symbol);
 }
 
 QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
@@ -194,7 +199,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
                 if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
                     if (Namespace *enclosingNamespace = u->enclosingNamespaceScope()->owner()->asNamespace()) {
-                        if (ClassOrNamespace *b = bindings()->findClassOrNamespace(enclosingNamespace)) {
+                        if (ClassOrNamespace *b = bindings()->lookupType(enclosingNamespace)) {
                             if (ClassOrNamespace *uu = b->lookupType(u->name())) {
                                 candidates = uu->lookup(name);
 
@@ -224,7 +229,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
                         path.append(name);
                 }
 
-                if (ClassOrNamespace *binding = bindings()->findClassOrNamespace(path))
+                if (ClassOrNamespace *binding = bindings()->lookupType(path))
                     return binding->lookup(name);
             }
 
@@ -236,7 +241,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
         } else if (scope->isClassScope() || scope->isNamespaceScope()
                     || scope->isObjCClassScope() || scope->isObjCProtocolScope()) {
-            if (ClassOrNamespace *binding = bindings()->findClassOrNamespace(scope->owner()))
+            if (ClassOrNamespace *binding = bindings()->lookupType(scope->owner()))
                 return binding->lookup(name);
 
             break;
@@ -627,7 +632,7 @@ ClassOrNamespace *CreateBindings::globalNamespace() const
     return _globalNamespace;
 }
 
-ClassOrNamespace *CreateBindings::findClassOrNamespace(Symbol *symbol)
+ClassOrNamespace *CreateBindings::lookupType(Symbol *symbol)
 {
     const QList<const Name *> names = LookupContext::fullyQualifiedName(symbol);
 
@@ -642,7 +647,7 @@ ClassOrNamespace *CreateBindings::findClassOrNamespace(Symbol *symbol)
     return b;
 }
 
-ClassOrNamespace *CreateBindings::findClassOrNamespace(const QList<const Name *> &path)
+ClassOrNamespace *CreateBindings::lookupType(const QList<const Name *> &path)
 {
     ClassOrNamespace *e = _globalNamespace->findType(path);
     return e;
