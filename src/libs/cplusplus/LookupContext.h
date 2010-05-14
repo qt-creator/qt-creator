@@ -61,7 +61,6 @@ public:
 
     ClassOrNamespace *lookupType(const Name *name);
     ClassOrNamespace *findType(const Name *name);
-    ClassOrNamespace *findType(const QList<const Name *> &path);
 
 private:
     /// \internal

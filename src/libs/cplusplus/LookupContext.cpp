@@ -341,14 +341,8 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
                                      QSet<ClassOrNamespace *> *processed,
                                      const TemplateNameId *templateId)
 {
-    if (! binding)
-        return;
-
-    else if (! processed->contains(binding)) {
+    if (binding && ! processed->contains(binding)) {
         processed->insert(binding);
-
-        //Overview oo;
-        //qDebug() << "search for:" << oo(name) << "template:" << oo(templateId) << "b:" << oo(binding->_templateId);
 
         foreach (Symbol *s, binding->symbols()) {
             if (ScopedSymbol *scoped = s->asScopedSymbol())
@@ -360,8 +354,6 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
 
         foreach (ClassOrNamespace *u, binding->usings())
             lookup_helper(name, u, result, processed, binding->_templateId);
-
-        //qDebug() << "=======" << oo(name) << "template:" << oo(binding->_templateId);
     }
 }
 
@@ -442,21 +434,6 @@ ClassOrNamespace *ClassOrNamespace::findType(const Name *name)
 {
     QSet<ClassOrNamespace *> processed;
     return lookupType_helper(name, &processed, /*searchInEnclosingScope =*/ false);
-}
-
-ClassOrNamespace *ClassOrNamespace::findType(const QList<const Name *> &path)
-{
-    if (path.isEmpty())
-        return globalNamespace();
-
-    ClassOrNamespace *e = this;
-
-    for (int i = 0; e && i < path.size(); ++i) {
-        QSet<ClassOrNamespace *> processed;
-        e = e->lookupType_helper(path.at(i), &processed, /*searchInEnclosingScope =*/ false);
-    }
-
-    return e;
 }
 
 ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
