@@ -1427,7 +1427,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
 
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
-    QList<LookupItem> resolvedSymbols = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
+    const QList<LookupItem> resolvedSymbols = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
 
     if (!resolvedSymbols.isEmpty()) {
         const LookupItem result = skipForwardDeclarations(resolvedSymbols);
@@ -1435,12 +1435,8 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         if (Symbol *symbol = result.declaration()) {
             Symbol *def = 0;
 
-            qWarning() << "find definition?";
-#warning port me
-#if 0
-            if (resolveTarget && !lastSymbol->isFunction())
+            if (resolveTarget)
                 def = findDefinition(symbol, snapshot);
-#endif
 
             link = linkToSymbol(def ? def : symbol);
             link.begin = beginOfToken;

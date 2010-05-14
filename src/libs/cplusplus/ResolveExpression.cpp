@@ -555,6 +555,7 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
     // The candidate types for the base expression are stored in
     // _results.
     const QList<LookupItem> baseResults = _results;
+    _results.clear();
 
     // Evaluate the expression-id that follows the access operator.
     const Name *memberName = 0;
