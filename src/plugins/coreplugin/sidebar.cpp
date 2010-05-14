@@ -218,11 +218,19 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
     const QString prefix = name.isEmpty() ? name : (name + QLatin1Char('/'));
 
     QStringList views;
-    for (int i = 0; i < m_widgets.count(); ++i)
-        views.append(m_widgets.at(i)->currentItemId());
+    for (int i = 0; i < m_widgets.count(); ++i) {
+        QString currentItemId = m_widgets.at(i)->currentItemId();
+        if (!currentItemId.isEmpty())
+            views.append(currentItemId);
+    }
+    if (views.isEmpty() && m_itemMap.size()) {
+        QMapIterator<QString, QWeakPointer<SideBarItem> > iter(m_itemMap);
+        iter.next();
+        views.append(iter.key());
+    }
 
     settings->setValue(prefix + "Views", views);
-    settings->setValue(prefix + "Visible", true);//isVisible());
+    settings->setValue(prefix + "Visible", true);
     settings->setValue(prefix + "VerticalPosition", saveState());
     settings->setValue(prefix + "Width", width());
 }
@@ -244,6 +252,7 @@ void SideBar::readSettings(QSettings *settings, const QString &name)
         if (views.count()) {
             foreach (const QString &id, views)
                 insertSideBarWidget(m_widgets.count(), id);
+
         } else {
             insertSideBarWidget(0);
         }
@@ -365,7 +374,9 @@ QString SideBarWidget::currentItemTitle() const
 
 QString SideBarWidget::currentItemId() const
 {
-    return m_currentItem->id();
+    if (m_currentItem)
+        return m_currentItem->id();
+    return QString();
 }
 
 void SideBarWidget::setCurrentItem(const QString &id)
