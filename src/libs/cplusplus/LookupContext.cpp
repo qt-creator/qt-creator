@@ -448,27 +448,25 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                                                       QSet<ClassOrNamespace *> *processed,
                                                       bool searchInEnclosingScope)
 {
-    Q_ASSERT(name != 0);
+    if (const QualifiedNameId *q = name->asQualifiedNameId()) {
+        ClassOrNamespace *e = this;
 
-    if (! processed->contains(this)) {
+        if (q->isGlobal())
+            e = globalNamespace();
+
+        e = e->lookupType(q->nameAt(0));
+
+        for (unsigned index = 1; e && index < q->nameCount(); ++index)
+            e = e->findType(q->nameAt(index));
+
+        return e;
+
+    } else if (! processed->contains(this)) {
         processed->insert(this);
 
-        if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-            ClassOrNamespace *e = this;
+        if (name->isNameId() || name->isTemplateNameId()) {
+            flush();
 
-            if (q->isGlobal())
-                e = globalNamespace();
-
-            e = e->lookupType(q->nameAt(0));
-
-            for (unsigned index = 1; e && index < q->nameCount(); ++index) {
-                QSet<ClassOrNamespace *> processed;
-                e = e->lookupType_helper(q->nameAt(index), &processed, /*searchInEnclosingScope =*/ false);
-            }
-
-            return e;
-
-        } else if (name->isNameId() || name->isTemplateNameId()) {
             if (ClassOrNamespace *e = nestedType(name))
                 return e;
 
