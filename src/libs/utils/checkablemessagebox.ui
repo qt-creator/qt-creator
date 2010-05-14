@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>Utils::CheckableMessageBox</class>
  <widget class="QDialog" name="Utils::CheckableMessageBox">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>195</width>
-    <height>107</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
@@ -19,7 +11,14 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="pixmapLabel"/>
+        <widget class="QLabel" name="pixmapLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
        <item>
         <spacer name="pixmapSpacer">
@@ -41,8 +40,23 @@
      </item>
      <item>
       <widget class="QLabel" name="messageLabel">
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
-        <string>TextLabel</string>
+        <string notr="true">dummyText</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
        </property>
       </widget>
      </item>
@@ -66,7 +80,7 @@
      <item>
       <widget class="QCheckBox" name="checkBox">
        <property name="text">
-        <string>CheckBox</string>
+        <string notr="true">CheckBox</string>
        </property>
       </widget>
      </item>
