@@ -42,8 +42,6 @@
 
 #include <QtDebug>
 
-//#define CPLUSPLUS_NO_LAZY_LOOKUP
-
 using namespace CPlusPlus;
 
 static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names)
@@ -576,7 +574,6 @@ ClassOrNamespace *ClassOrNamespace::nestedClassOrNamespace(const Name *name) con
 
 void ClassOrNamespace::flush()
 {
-#ifndef CPLUSPLUS_NO_LAZY_LOOKUP
     if (! _todo.isEmpty()) {
         const QList<Symbol *> todo = _todo;
         _todo.clear();
@@ -584,7 +581,6 @@ void ClassOrNamespace::flush()
         foreach (Symbol *member, todo)
             _factory->process(member, this);
     }
-#endif
 }
 
 void ClassOrNamespace::addSymbol(Symbol *symbol)
@@ -697,11 +693,7 @@ void CreateBindings::process(Symbol *s, ClassOrNamespace *classOrNamespace)
 
 void CreateBindings::process(Symbol *symbol)
 {
-#ifndef CPLUSPLUS_NO_LAZY_LOOKUP
     _currentClassOrNamespace->addTodo(symbol);
-#else
-    accept(symbol);
-#endif
 }
 
 Control *CreateBindings::control() const
