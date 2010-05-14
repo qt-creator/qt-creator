@@ -570,15 +570,17 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
 
 ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &originalTy, Scope *scope) const
 {
-    ClassOrNamespace *binding = 0;
-
     FullySpecifiedType ty = originalTy.simplified();
+    ClassOrNamespace *binding = 0;
 
     if (Class *klass = ty->asClassType())
         binding = _context.classOrNamespace(klass);
 
     else if (NamedType *namedTy = ty->asNamedType())
         binding = _context.classOrNamespace(namedTy->name(), scope);
+
+    else if (Function *funTy = ty->asFunctionType())
+        return findClass(funTy->returnType(), scope);
 
     return binding;
 }
