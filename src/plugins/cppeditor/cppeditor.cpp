@@ -1150,7 +1150,7 @@ void CPPEditor::switchDeclarationDefinition()
         convertPosition(position(), &line, &column);
 
         Scope *scope = thisDocument->scopeAt(line, column);
-        Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
+        Symbol *lastVisibleSymbol = thisDocument->lastVisibleSymbolAt(line, column);
 
         Scope *functionScope = 0;
         if (scope->isFunctionScope())
@@ -1351,7 +1351,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             if (resolveTarget) {
                 def = findDefinition(symbol, snapshot);
 
-                if (def == doc->findSymbolAt(line, column))
+                if (def == doc->lastVisibleSymbolAt(line, column))
                     def = 0; // jump to declaration then.
             }
 

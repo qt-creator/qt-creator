@@ -66,7 +66,7 @@ QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelM
     const CPlusPlus::Document::Ptr document = snapshot.document(fileName);
     if (!document)
         return QString();
-    if (const CPlusPlus::Symbol *symbol = document->findSymbolAt(line, column))
+    if (const CPlusPlus::Symbol *symbol = document->lastVisibleSymbolAt(line, column))
         if (const CPlusPlus::Scope *scope = symbol->scope())
             if (const CPlusPlus::Scope *functionScope = scope->enclosingFunctionScope())
                 if (const CPlusPlus::Symbol *function = functionScope->owner()) {

@@ -746,7 +746,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
         return -1;
 
     typeOfExpression.init(thisDocument, snapshot);
-    Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
+    Symbol *lastVisibleSymbol = thisDocument->lastVisibleSymbolAt(line, column);
 
     if (expression.isEmpty()) {
         if (m_completionOperator == T_EOF_SYMBOL || m_completionOperator == T_COLON_COLON)
@@ -1564,7 +1564,7 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
                     }
                 } else if (! function->isAmbiguous()) {
                     if (completionSettings().m_spaceAfterFunctionName)
-			extraChars += QLatin1Char(' ');
+                        extraChars += QLatin1Char(' ');
                     extraChars += QLatin1Char('(');
 
                     // If the function doesn't return anything, automatically place the semicolon,

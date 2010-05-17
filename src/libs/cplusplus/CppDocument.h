@@ -92,7 +92,7 @@ public:
     QList<Macro> definedMacros() const
     { return _definedMacros; }
 
-    Q_DECL_DEPRECATED Symbol *findSymbolAt(unsigned line, unsigned column) const;
+    Symbol *lastVisibleSymbolAt(unsigned line, unsigned column) const;
     Scope *scopeAt(unsigned line, unsigned column);
 
     QByteArray source() const;
@@ -310,7 +310,7 @@ public:
     const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned offset) const;
 
 private:
-    Symbol *findSymbolAt(unsigned line, unsigned column, Scope *scope) const;
+    Symbol *lastVisibleSymbolAt(unsigned line, unsigned column, Scope *scope) const;
 
 private:
     QString _fileName;

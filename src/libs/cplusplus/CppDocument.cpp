@@ -406,12 +406,12 @@ Scope *Document::scopeAt(unsigned line, unsigned column)
     return globalSymbols();
 }
 
-Symbol *Document::findSymbolAt(unsigned line, unsigned column) const
+Symbol *Document::lastVisibleSymbolAt(unsigned line, unsigned column) const
 {
-    return findSymbolAt(line, column, globalSymbols());
+    return lastVisibleSymbolAt(line, column, globalSymbols());
 }
 
-Symbol *Document::findSymbolAt(unsigned line, unsigned column, Scope *scope) const
+Symbol *Document::lastVisibleSymbolAt(unsigned line, unsigned column, Scope *scope) const
 {
     Symbol *previousSymbol = 0;
 
@@ -425,7 +425,7 @@ Symbol *Document::findSymbolAt(unsigned line, unsigned column, Scope *scope) con
 
     if (previousSymbol) {
         if (ScopedSymbol *scoped = previousSymbol->asScopedSymbol()) {
-            if (Symbol *member = findSymbolAt(line, column, scoped->members()))
+            if (Symbol *member = lastVisibleSymbolAt(line, column, scoped->members()))
                 return member;
         }
     }

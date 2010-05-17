@@ -361,7 +361,7 @@ int getUninitializedVariablesI(const CPlusPlus::Snapshot &snapshot,
     const CPlusPlus::Document::Ptr doc = docIt.value();
     // Look at symbol at line and find its function. Either it is the
     // function itself or some expression/variable.
-    const CPlusPlus::Symbol *symbolAtLine = doc->findSymbolAt(line, 0);
+    const CPlusPlus::Symbol *symbolAtLine = doc->lastVisibleSymbolAt(line, 0);
     if (!symbolAtLine)
         return 4;
     // First figure out the function to do a safety name check
