@@ -75,7 +75,9 @@ signals:
 
 private slots:
     void updateCandidateFindFilter(QWidget *old, QWidget *now);
-    void findSupportDestroyed();
+    void clearFindSupport();
+    void aggregationChanged();
+    void candidateAggregationChanged();
 
 private:
     void removeFindSupportConnections();

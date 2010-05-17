@@ -154,8 +154,14 @@ void CurrentDocumentFind::updateCandidateFindFilter(QWidget *old, QWidget *now)
         if (!impl)
             candidate = candidate->parentWidget();
     }
+    if (m_candidateWidget)
+        disconnect(Aggregation::Aggregate::parentAggregate(m_candidateWidget), SIGNAL(changed()),
+                   this, SLOT(candidateAggregationChanged()));
     m_candidateWidget = candidate;
     m_candidateFind = impl;
+    if (m_candidateWidget)
+        connect(Aggregation::Aggregate::parentAggregate(m_candidateWidget), SIGNAL(changed()),
+                this, SLOT(candidateAggregationChanged()));
     emit candidateChanged();
 }
 
@@ -166,11 +172,18 @@ void CurrentDocumentFind::acceptCandidate()
     removeFindSupportConnections();
     if (m_currentFind)
         m_currentFind->highlightAll(QString(), 0);
+
+    if (m_currentWidget)
+        disconnect(Aggregation::Aggregate::parentAggregate(m_currentWidget), SIGNAL(changed()),
+                   this, SLOT(aggregationChanged()));
     m_currentWidget = m_candidateWidget;
+    connect(Aggregation::Aggregate::parentAggregate(m_currentWidget), SIGNAL(changed()),
+            this, SLOT(aggregationChanged()));
+
     m_currentFind = m_candidateFind;
     if (m_currentFind) {
         connect(m_currentFind, SIGNAL(changed()), this, SIGNAL(changed()));
-        connect(m_currentFind, SIGNAL(destroyed(QObject*)), SLOT(findSupportDestroyed()));
+        connect(m_currentFind, SIGNAL(destroyed(QObject*)), SLOT(clearFindSupport()));
     }
     if (m_currentWidget)
         m_currentWidget->installEventFilter(this);
@@ -181,13 +194,13 @@ void CurrentDocumentFind::removeFindSupportConnections()
 {
     if (m_currentFind) {
         disconnect(m_currentFind, SIGNAL(changed()), this, SIGNAL(changed()));
-        disconnect(m_currentFind, SIGNAL(destroyed(QObject*)), this, SLOT(findSupportDestroyed()));
+        disconnect(m_currentFind, SIGNAL(destroyed(QObject*)), this, SLOT(clearFindSupport()));
     }
     if (m_currentWidget)
         m_currentWidget->removeEventFilter(this);
 }
 
-void CurrentDocumentFind::findSupportDestroyed()
+void CurrentDocumentFind::clearFindSupport()
 {
     removeFindSupportConnections();
     m_currentWidget = 0;
@@ -212,4 +225,31 @@ bool CurrentDocumentFind::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return QObject::eventFilter(obj, event);
+}
+
+void CurrentDocumentFind::aggregationChanged()
+{
+    if (m_currentWidget) {
+        QPointer<IFindSupport> currentFind = Aggregation::query<IFindSupport>(m_currentWidget);
+        if (currentFind != m_currentFind) {
+            // There's a change in the find support
+            if (currentFind) {
+                m_candidateWidget = m_currentWidget;
+                m_candidateFind = currentFind;
+                acceptCandidate();
+            }
+            else {
+                clearFindSupport();
+                m_currentFind = 0;
+            }
+        }
+    }
+}
+
+void CurrentDocumentFind::candidateAggregationChanged()
+{
+    if (m_candidateWidget && m_candidateWidget!=m_currentWidget) {
+        m_candidateFind = Aggregation::query<IFindSupport>(m_candidateWidget);
+        emit candidateChanged();
+    }
 }
