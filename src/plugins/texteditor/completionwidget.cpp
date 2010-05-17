@@ -153,6 +153,7 @@ CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *ed
     setObjectName(QLatin1String("m_popupFrame"));
     setAttribute(Qt::WA_DeleteOnClose);
     setMinimumSize(1, 1);
+    setFont(editor->widget()->font());
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
