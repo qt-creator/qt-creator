@@ -32,8 +32,11 @@
 #include "genericproject.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/session.h>
 
 #include <QtDebug>
 
@@ -60,14 +63,21 @@ QString Manager::mimeType() const
 
 ProjectExplorer::Project *Manager::openProject(const QString &fileName)
 {
-    QFileInfo fileInfo(fileName);
+    if (!QFileInfo(fileName).isFile())
+        return 0;
 
-    if (fileInfo.isFile()) {
-        GenericProject *project = new GenericProject(this, fileName);
-        return project;
+    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+    foreach (ProjectExplorer::Project *pi, projectExplorer->session()->projects()) {
+        if (fileName == pi->file()->fileName()) {
+            Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
+            messageManager->printToOutputPanePopup(tr("Failed opening project '%1': Project already open")
+                                                   .arg(QDir::toNativeSeparators(fileName)));
+            return 0;
+        }
     }
 
-    return 0;
+    GenericProject *project = new GenericProject(this, fileName);
+    return project;
 }
 
 void Manager::registerProject(GenericProject *project)

@@ -37,7 +37,7 @@ namespace Internal {
 
 class GenericProject;
 
-class Manager: public ProjectExplorer::IProjectManager
+class Manager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 

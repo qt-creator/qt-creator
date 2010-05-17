@@ -79,7 +79,7 @@ public:
     int projectLanguage() const;
 
     virtual QString mimeType() const;
-    ProjectExplorer::Project* openProject(const QString &fileName);
+    ProjectExplorer::Project *openProject(const QString &fileName);
 
     // Context information used in the slot implementations
     ProjectExplorer::Node *contextNode() const;
