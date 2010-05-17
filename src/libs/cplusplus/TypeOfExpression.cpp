@@ -105,7 +105,7 @@ Scope *TypeOfExpression::scope() const
     return m_scope;
 }
 
-const LookupContext &TypeOfExpression::lookupContext() const
+const LookupContext &TypeOfExpression::context() const
 {
     return m_lookupContext;
 }

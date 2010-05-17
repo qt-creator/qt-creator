@@ -92,7 +92,7 @@ public:
     /**
      * Returns the lookup context of the last evaluated expression.
      */
-    const LookupContext &lookupContext() const;
+    const LookupContext &context() const;
     Scope *scope() const;
 
     ExpressionAST *expressionAST() const;

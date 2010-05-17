@@ -52,8 +52,6 @@ class BaseTextEditor;
 
 namespace CPlusPlus {
 class LookupItem;
-class LookupContext;
-class DeprecatedLookupContext;
 class ClassOrNamespace;
 }
 
@@ -101,36 +99,27 @@ private:
                          CPlusPlus::Document::Ptr thisDocument,
                          const CPlusPlus::Snapshot &snapshot);
 
-    bool completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &,
-                                       const CPlusPlus::LookupContext &,
+    bool completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &results,
                                        int endOfExpression, bool toolTipOnly);
 
-    bool completeMember(const QList<CPlusPlus::LookupItem> &,
-                        const CPlusPlus::LookupContext &context);
+    bool completeMember(const QList<CPlusPlus::LookupItem> &results);
+    bool completeScope(const QList<CPlusPlus::LookupItem> &results);
 
-    bool completeScope(const QList<CPlusPlus::LookupItem> &,
-                       const CPlusPlus::LookupContext &context);
-
-    void completeNamespace(CPlusPlus::ClassOrNamespace *binding,
-                           const CPlusPlus::LookupContext &context);
+    void completeNamespace(CPlusPlus::ClassOrNamespace *binding);
 
     void completeClass(CPlusPlus::ClassOrNamespace *b,
-                       const CPlusPlus::LookupContext &context,
                        bool staticLookup = true);
 
     bool completeConstructors(CPlusPlus::Class *klass);
 
     bool completeQtMethod(const QList<CPlusPlus::LookupItem> &results,
-                          const CPlusPlus::LookupContext &context,
                           bool wantSignals);
 
-    bool completeSignal(const QList<CPlusPlus::LookupItem> &results,
-                        const CPlusPlus::LookupContext &context)
-    { return completeQtMethod(results, context, true); }
+    bool completeSignal(const QList<CPlusPlus::LookupItem> &results)
+    { return completeQtMethod(results, true); }
 
-    bool completeSlot(const QList<CPlusPlus::LookupItem> &results,
-                      const CPlusPlus::LookupContext &context)
-    { return completeQtMethod(results, context, false); }
+    bool completeSlot(const QList<CPlusPlus::LookupItem> &results)
+    { return completeQtMethod(results, false); }
 
     int findStartOfName(int pos = -1) const;
 
