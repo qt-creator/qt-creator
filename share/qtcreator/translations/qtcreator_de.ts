@@ -51,7 +51,7 @@
     </message>
     <message>
         <location/>
-        <source>Attach to Process ID:</source>
+        <source>Attach to process ID:</source>
         <translation>Prozess-Id:</translation>
     </message>
 </context>
@@ -96,7 +96,7 @@
         <translation>Neuer Ordner</translation>
     </message>
     <message>
-        <location filename="../../../src/shared/help/bookmarkmanager.cpp" line="+175"/>
+        <location filename="../../../src/shared/help/bookmarkmanager.cpp" line="+178"/>
         <location line="+18"/>
         <location line="+39"/>
         <location line="+18"/>
@@ -118,7 +118,7 @@
 <context>
     <name>BookmarkManager</name>
     <message>
-        <location line="+424"/>
+        <location line="+432"/>
         <source>Bookmarks</source>
         <translation>Lesezeichen</translation>
     </message>
@@ -142,7 +142,7 @@
 <context>
     <name>BookmarkWidget</name>
     <message>
-        <location line="-420"/>
+        <location line="-428"/>
         <source>Delete Folder</source>
         <translation>Ordner löschen</translation>
     </message>
@@ -172,12 +172,7 @@
         <translation>Lesezeichen umbenennen</translation>
     </message>
     <message>
-        <location line="+38"/>
-        <source>Filter:</source>
-        <translation>Filter:</translation>
-    </message>
-    <message>
-        <location line="+26"/>
+        <location line="+72"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
     </message>
@@ -271,12 +266,12 @@
     </message>
     <message>
         <location line="+10"/>
-        <source>Previous Bookmark In Document</source>
+        <source>Previous Bookmark in Document</source>
         <translation>Vorhergehendes Lesezeichen im Dokument</translation>
     </message>
     <message>
         <location line="+5"/>
-        <source>Next Bookmark In Document</source>
+        <source>Next Bookmark in Document</source>
         <translation>Nächstes Lesezeichen im Dokument</translation>
     </message>
 </context>
@@ -349,7 +344,7 @@
     </message>
     <message>
         <location line="+5"/>
-        <source>Select the working directory</source>
+        <source>Select Working Directory</source>
         <translation>Wählen Sie das Arbeitsverzeichnis aus</translation>
     </message>
     <message>
@@ -863,9 +858,13 @@
 <context>
     <name>CVS::Internal::CheckoutWizard</name>
     <message>
+        <source>Checks out a project from a CVS repository and tries to load the contained project.</source>
+        <translation type="obsolete">Holt ein Projekt aus einem CVS-Repository und versucht, das darin enthaltene Projekt zu laden.</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/cvs/checkoutwizard.cpp" line="+56"/>
-        <source>Checks out a project from a CVS repository.</source>
-        <translation>Holt ein Projekt aus einem CVS-Repository.</translation>
+        <source>Checks out a CVS repository and tries to load the contained project.</source>
+        <translation>Erstellt einen Checkout eines CVS-Repositories und versucht, das darin enthaltene Projekt zu laden.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -893,11 +892,6 @@
 </context>
 <context>
     <name>CVS::Internal::SettingsPage</name>
-    <message>
-        <location filename="../../../src/plugins/cvs/settingspage.ui"/>
-        <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</source>
-        <translation>Wenn die Option aktiviert ist, werden beim Klick auf die Revisionsnummer in der Annotationsansicht alle Dateien angezeigt, die zu einer Abgabe gehören (mittels Commit-Id bestimmt). Ansonsten wird nur die betreffende Datei angezeigt.</translation>
-    </message>
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.cpp" line="+98"/>
         <source>CVS</source>
@@ -948,6 +942,11 @@
         <source>Diff options:</source>
         <translation>Optionen für Diff:</translation>
     </message>
+    <message>
+        <location/>
+        <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
+        <translation>Wenn die Option aktiviert ist, werden beim Klick auf die Revisionsnummer in der Annotationsansicht alle Dateien angezeigt, die zu einer Abgabe gehören (mittels Commit-Id bestimmt). Ansonsten wird nur die betreffende Datei angezeigt.</translation>
+    </message>
 </context>
 <context>
     <name>CVS::Internal::SettingsPageWidget</name>
@@ -971,12 +970,6 @@
         <location filename="../../../src/plugins/debugger/cdb/cdboptionspagewidget.ui"/>
         <source>These options take effect at the next start of Qt Creator.</source>
         <translation>Die Einstellungen werden beim nächsten Start von Qt Creator wirksam.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Cdb</source>
-        <extracomment>Placeholder</extracomment>
-        <translation>Cdb</translation>
     </message>
     <message>
         <location/>
@@ -1016,12 +1009,18 @@
     </message>
     <message>
         <location filename="../../../src/plugins/debugger/cdb/cdboptionspagewidget.ui"/>
-        <source>Other options</source>
-        <translation>Weiter Optionen:</translation>
+        <source>CDB</source>
+        <extracomment>Placeholder</extracomment>
+        <translation>CDB</translation>
     </message>
     <message>
         <location/>
-        <source>Verbose Symbol Loading</source>
+        <source>Other Options</source>
+        <translation>Weiter Optionen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Verbose symbol loading</source>
         <translation>Ausführliche Meldungen beim Laden der Symbole</translation>
     </message>
 </context>
@@ -1047,11 +1046,6 @@
     <name>ChangeSelectionDialog</name>
     <message>
         <location filename="../../../src/plugins/git/changeselectiondialog.ui"/>
-        <source>Repository Location:</source>
-        <translation>Repository:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Select</source>
         <translation>Auswählen</translation>
     </message>
@@ -1059,6 +1053,11 @@
         <location/>
         <source>Change:</source>
         <translation>Änderung:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Repository location:</source>
+        <translation>Repository:</translation>
     </message>
 </context>
 <context>
@@ -1171,16 +1170,6 @@
         <translation>Nutzername:</translation>
     </message>
     <message>
-        <location/>
-        <source>Copy Paste URL to clipboard</source>
-        <translation>Kopiere den URL in die Zwischenablage</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Display Output Pane after sending a post</source>
-        <translation>Ausgabepanel nach Senden anzeigen</translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/cpaster/settingspage.cpp" line="+94"/>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -1189,6 +1178,16 @@
         <location filename="../../../src/plugins/cpaster/settingspage.ui"/>
         <source>Default protocol:</source>
         <translation>Vorgabeprotokoll:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Display Output pane after sending a post</source>
+        <translation>Ausgabepanel nach Senden anzeigen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Copy-paste URL to clipboard</source>
+        <translation>Kopiere den URL in die Zwischenablage</translation>
     </message>
 </context>
 <context>
@@ -1245,13 +1244,13 @@
     </message>
     <message>
         <location/>
-        <source>Use Creator for post-mortem debugging</source>
-        <translation>Qt Creator als Post-Mortem-Debugger verwenden</translation>
+        <source>GUI Behavior</source>
+        <translation>Verhalten</translation>
     </message>
     <message>
         <location/>
-        <source>Gui behavior</source>
-        <translation>Verhalten</translation>
+        <source>Use Qt Creator for post-mortem debugging</source>
+        <translation>Qt Creator als Post-Mortem-Debugger verwenden</translation>
     </message>
 </context>
 <context>
@@ -1298,19 +1297,19 @@
     </message>
     <message>
         <location/>
-        <source>First letter</source>
-        <translation>Erster Buchstabe</translation>
+        <source>Insert &amp;space after function name</source>
+        <translation>Leerzeichen nach &amp;Funktionsname einfügen</translation>
     </message>
     <message>
         <location/>
-        <source>Insert &amp;space after function name</source>
-        <translation>Leerzeichen nach &amp;Funktionsname einfügen</translation>
+        <source>First Letter</source>
+        <translation>Erster Buchstabe</translation>
     </message>
 </context>
 <context>
     <name>ContentWindow</name>
     <message>
-        <location filename="../../../src/shared/help/contentwindow.cpp" line="+136"/>
+        <location filename="../../../src/shared/help/contentwindow.cpp" line="+138"/>
         <source>Open Link</source>
         <translation>Adresse öffnen</translation>
     </message>
@@ -1391,30 +1390,31 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::EditorManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="+225"/>
-        <location line="+1540"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="+226"/>
+        <location line="+1547"/>
         <source>Revert to Saved</source>
         <translation>Wiederherstellen</translation>
     </message>
     <message>
-        <location line="-1537"/>
+        <location line="-1544"/>
+        <location line="+97"/>
         <location filename="../../../src/plugins/coreplugin/editortoolbar.cpp" line="+302"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-96"/>
         <source>Close All</source>
         <translation>Alle schließen</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+1336"/>
+        <location line="+1343"/>
         <source>Close Others</source>
         <translation>Andere schließen</translation>
     </message>
     <message>
-        <location line="-1331"/>
+        <location line="-1338"/>
         <source>Open in External Editor</source>
         <translation>Öffne in externem Editor</translation>
     </message>
@@ -1424,17 +1424,17 @@ Sollen sie überschrieben werden?</translation>
         <translation>Gespeicherten Stand wiederherstellen</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+38"/>
         <source>Ctrl+F4</source>
         <translation>Ctrl+F4</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-10"/>
         <source>Ctrl+W</source>
         <translation>Ctrl+W</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+17"/>
         <source>Ctrl+Shift+W</source>
         <translation>Ctrl+Shift+W</translation>
     </message>
@@ -1509,12 +1509,12 @@ Sollen sie überschrieben werden?</translation>
         <translation>Alle Teilungen aufheben</translation>
     </message>
     <message>
-        <location line="+1158"/>
+        <location line="+1160"/>
         <source>Save %1 &amp;As...</source>
         <translation>Speichere &apos;%1&apos; &amp;unter...</translation>
     </message>
     <message>
-        <location line="-1143"/>
+        <location line="-1145"/>
         <source>&amp;Advanced</source>
         <translation>&amp;Weitere</translation>
     </message>
@@ -1524,7 +1524,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Alt+V,Alt+I</translation>
     </message>
     <message>
-        <location line="+748"/>
+        <location line="+750"/>
         <source>All Files (*)</source>
         <translation>Alle Dateien (*)</translation>
     </message>
@@ -1587,7 +1587,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Schreibbar machen</translation>
     </message>
     <message>
-        <location line="-1308"/>
+        <location line="-1315"/>
         <source>Next Open Document in History</source>
         <translation>Nächstes geöffnetes Dokument im Verlauf</translation>
     </message>
@@ -1609,7 +1609,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Nächstes</translation>
     </message>
     <message>
-        <location line="+150"/>
+        <location line="+155"/>
         <source>%1,2</source>
         <translation>%1,2</translation>
     </message>
@@ -1639,7 +1639,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>%1,o</translation>
     </message>
     <message>
-        <location line="+1151"/>
+        <location line="+1153"/>
         <source>&amp;Save %1</source>
         <translation>&amp;Speichere %1</translation>
     </message>
@@ -1715,7 +1715,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::Internal::ComboBox</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+464"/>
+        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+475"/>
         <source>Activate %1</source>
         <translation>Aktiviere %1</translation>
     </message>
@@ -1874,16 +1874,6 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <location/>
-        <source>Always ask</source>
-        <translation>Stets fragen</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Ignore modifications</source>
-        <translation>Änderungen ignorieren</translation>
-    </message>
-    <message>
-        <location/>
         <source>External file browser:</source>
         <translation>Externer Datei-Browser:</translation>
     </message>
@@ -1909,13 +1899,23 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <location/>
-        <source>Reload all unchanged editors</source>
+        <source>Default file encoding: </source>
+        <translation>Vorgabe-Encoding:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Always Ask</source>
+        <translation>Stets fragen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reload All Unchanged Editors</source>
         <translation>Alle Dateien in ungeänderten Editoren neu laden</translation>
     </message>
     <message>
         <location/>
-        <source>Default file encoding: </source>
-        <translation>Vorgabe-Encoding:</translation>
+        <source>Ignore Modifications</source>
+        <translation>Änderungen ignorieren</translation>
     </message>
 </context>
 <context>
@@ -2402,7 +2402,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::Internal::SideBarWidget</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="-145"/>
+        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="-147"/>
         <source>Split</source>
         <translation>Teilen</translation>
     </message>
@@ -2420,23 +2420,24 @@ Sollen sie überschrieben werden?</translation>
         <translation>Über Qt Creator</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+9"/>
+        <source>(%1)</source>
+        <translation>(%1)</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>From revision %1&lt;br/&gt;</source>
         <extracomment>This gets conditionally inserted as argument %8 into the description string.</extracomment>
         <translation>Revision %1&lt;br/&gt;</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
+        <source>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Basierend auf Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Erstellt am %4 um %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. Alle Rechte vorbehalten.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</translation>
     </message>
 </context>
 <context>
     <name>Core::ModeManager</name>
-    <message>
-        <source>Switch to %1 mode</source>
-        <translation type="obsolete">Gehe zu Mode &apos;%1&apos;</translation>
-    </message>
     <message>
         <location filename="../../../src/plugins/coreplugin/modemanager.cpp" line="+180"/>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
@@ -2545,14 +2546,14 @@ Sollen sie überschrieben werden?</translation>
         <translation>C++ Header-Datei</translation>
     </message>
     <message>
-        <location line="-1"/>
-        <source>Creates a C++ header file.</source>
-        <translation>Erzeugt eine neue C++-Header-Datei.</translation>
+        <location line="-10"/>
+        <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
+        <translation>Erstellt C++-Header- und Quelldateien für eine neue Klasse eines C++-Projekts.</translation>
     </message>
     <message>
-        <location line="-5"/>
-        <source>Creates a C++ source file.</source>
-        <translation>Erzeugt eine neue C++-Quelldatei</translation>
+        <location line="+4"/>
+        <source>Creates a C++ source file that you can add to a C++ project.</source>
+        <translation>Erstellt eine C++-Quelldatei für ein C++-Projekt.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2560,7 +2561,12 @@ Sollen sie überschrieben werden?</translation>
         <translation>C++-Quelldatei</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+4"/>
+        <source>Creates a C++ header file that you can add to a C++ project.</source>
+        <translation>Erstellt eine C++-Header-Datei für ein C++-Projekt.</translation>
+    </message>
+    <message>
+        <location line="+14"/>
         <source>Follow Symbol Under Cursor</source>
         <translation>Symbol unter Einfügemarke verfolgen</translation>
     </message>
@@ -2575,17 +2581,17 @@ Sollen sie überschrieben werden?</translation>
         <translation>Symbol unter Einfügemarke umbenennen</translation>
     </message>
     <message>
-        <location line="-51"/>
+        <location line="+12"/>
+        <source>Update Code Model</source>
+        <translation>Code-Modell aktualisieren</translation>
+    </message>
+    <message>
+        <location line="-63"/>
         <source>C++ Class</source>
         <translation>C++-Klasse</translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Creates a header and a source file for a new class.</source>
-        <translation>Erzeugt C++-Header- und Quelldatei für eine neue Klasse</translation>
-    </message>
-    <message>
-        <location line="+41"/>
+        <location line="+44"/>
         <source>Find Usages</source>
         <translation>Verwendung suchen</translation>
     </message>
@@ -2593,11 +2599,6 @@ Sollen sie überschrieben werden?</translation>
         <location line="+2"/>
         <source>Ctrl+Shift+U</source>
         <translation>Ctrl+Shift+U</translation>
-    </message>
-    <message>
-        <location line="+17"/>
-        <source>Update code model</source>
-        <translation>Code-Modell aktualisieren</translation>
     </message>
 </context>
 <context>
@@ -2694,7 +2695,7 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <location line="+62"/>
-        <source>Choose a location for the new license template file</source>
+        <source>Choose Location for New License Template File</source>
         <translation>Dateiname für eine neue Lizenzvorlage</translation>
     </message>
     <message>
@@ -2749,7 +2750,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+128"/>
+        <location filename="../../../src/plugins/cpptools/cpptoolsplugin.cpp" line="+129"/>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
     </message>
@@ -2762,7 +2763,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+412"/>
+        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+413"/>
         <source>%1 of %2</source>
         <translation>%1 von %2</translation>
     </message>
@@ -5336,17 +5337,17 @@ Möchten Sie den zu debuggenden Prozess anhalten und den gewählten Snapshot lad
     </message>
     <message>
         <location/>
-        <source>Use debugging helper</source>
-        <translation>Ausgabe-Hilfsbibliothek benutzen</translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Watchers&amp;quot; view.&lt;/p&gt;
 &lt;p&gt; It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 Die Ausgabe-Hilfsbibliothek dient lediglich zur formatierten Ausgabe von Objekten bestimmten Typs wie QString oder std::map im Fenster &quot;Lokale Variablen und überwachte Ausdrücke&quot;.&lt;/p&gt;
 &lt;p&gt;Zum Debuggen mit Qt Creator ist sie jedoch nicht unbedingt erforderlich. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use Debugging Helper</source>
+        <translation>Ausgabe-Hilfsbibliothek benutzen</translation>
     </message>
 </context>
 <context>
@@ -5446,11 +5447,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <location/>
-        <source>Multiple Inheritance</source>
-        <translation>Mehrfachvererbung</translation>
-    </message>
-    <message>
-        <location/>
         <source>Code Generation</source>
         <translation>Code-Erzeugung</translation>
     </message>
@@ -5463,6 +5459,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <location/>
         <source>Use Qt module name in #include-directive</source>
         <translation>Qt-Modulnamen in #include-Direktive verwenden</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Multiple inheritance</source>
+        <translation>Mehrfachvererbung</translation>
     </message>
 </context>
 <context>
@@ -5515,13 +5516,13 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Creates a Qt Designer form file (.ui).</source>
-        <translation>Erstellt eine Qt Designer-Formular-Datei (.ui).</translation>
+        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt C++ Project.</source>
+        <translation>Erstellt eine Qt Designer-Formular-Datei mit zugehörigem Klassenrumpf (bestehend aus C++-Header- und Quelldatei) für ein existierendes C++-Projekt.</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
-        <translation>Erstellt eine Qt Designer-Formular-Datei (.ui) mit zugehörigem Klassenrumpf.</translation>
+        <location line="+8"/>
+        <source>Creates a Qt Designer form that you can add to a Qt C++ project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Erstellt eine Qt Designer-Formular-Datei für ein C++-Projekt. Verwenden Sie diese Vorlage, wenn bereits Geschäftslogik existiert.</translation>
     </message>
     <message>
         <location line="-2"/>
@@ -5560,37 +5561,17 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>For&amp;mulareditor</translation>
     </message>
     <message>
-        <location line="+34"/>
-        <source>Edit widgets</source>
-        <translation>Widgets bearbeiten</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+35"/>
         <source>F3</source>
         <translation>F3</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Edit signals/slots</source>
-        <translation>Signale und Slots bearbeiten</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+5"/>
         <source>F4</source>
         <translation>F4</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Edit buddies</source>
-        <translation>Buddies bearbeiten</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Edit tab order</source>
-        <translation>Tabulatorreihenfolge bearbeiten</translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+14"/>
         <source>Meta+H</source>
         <translation>Meta+H</translation>
     </message>
@@ -5641,7 +5622,27 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Widget-Box</translation>
     </message>
     <message>
-        <location line="+280"/>
+        <location line="+207"/>
+        <source>Edit Widgets</source>
+        <translation>Widgets bearbeiten</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Edit Signals/Slots</source>
+        <translation>Signale und Slots bearbeiten</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Edit Buddies</source>
+        <translation>Buddies bearbeiten</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Edit Tab Order</source>
+        <translation>Tabulatorreihenfolge bearbeiten</translation>
+    </message>
+    <message>
+        <location line="+58"/>
         <source>Ctrl+Alt+R</source>
         <translation>Ctrl+Alt+R</translation>
     </message>
@@ -5837,7 +5838,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
 <context>
     <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
-        <location filename="../../../src/libs/extensionsystem/pluginspec.cpp" line="+482"/>
+        <location filename="../../../src/libs/extensionsystem/pluginspec.cpp" line="+471"/>
         <source>File does not exist: %1</source>
         <translation>Die Datei &apos;%1&apos; existiert nicht.</translation>
     </message>
@@ -5961,7 +5962,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
 <context>
     <name>ExtensionSystem::PluginManager</name>
     <message>
-        <location filename="../../../src/libs/extensionsystem/pluginmanager.cpp" line="+758"/>
+        <location filename="../../../src/libs/extensionsystem/pluginmanager.cpp" line="+777"/>
         <source>Circular dependency detected:
 </source>
         <translation>Zirkuläre Abhängigkeit festgestellt:
@@ -5997,7 +5998,7 @@ Grund: %3</translation>
     <name>FakeVim::Internal</name>
     <message>
         <location filename="../../../src/plugins/fakevim/fakevimactions.cpp" line="+120"/>
-        <source>Use vim-style editing</source>
+        <source>Use Vim-style Editing</source>
         <translation>Vim benutzen</translation>
     </message>
     <message>
@@ -6191,21 +6192,6 @@ Grund: %3</translation>
     </message>
     <message>
         <location/>
-        <source>Copy text editor settings</source>
-        <translation>Texteditor-Einstellungen</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Set Qt style</source>
-        <translation>Qt-Stil setzen</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Set plain style</source>
-        <translation>Einfachen Stil setzen</translation>
-    </message>
-    <message>
-        <location/>
         <source>Use FakeVim</source>
         <translation>FakeVim benutzen</translation>
     </message>
@@ -6263,6 +6249,21 @@ Grund: %3</translation>
         <location/>
         <source>Keyword characters:</source>
         <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Copy Text Editor Settings</source>
+        <translation>Texteditor-Einstellungen übernehmen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Set Qt Style</source>
+        <translation>Qt-Stil setzen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Set Plain Style</source>
+        <translation>Einfachen Stil setzen</translation>
     </message>
 </context>
 <context>
@@ -6500,11 +6501,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <location/>
-        <source>Behaviour of breakpoint setting in plugins</source>
-        <translation>Setzen von Haltepunkten in Plugins</translation>
-    </message>
-    <message>
-        <location/>
         <source>This is the slowest but safest option.</source>
         <translation>Die sicherste Einstellung, zugleich aber auch die langsamste.</translation>
     </message>
@@ -6581,6 +6577,11 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Show a message box when receiving a signal</source>
         <translation>Empfang eines Signals durch Dialogbox anzeigen</translation>
     </message>
+    <message>
+        <location/>
+        <source>Behavior of Breakpoint Setting in Plugins</source>
+        <translation>Setzen von Haltepunkten in Plugins</translation>
+    </message>
 </context>
 <context>
     <name>GeneralSettingsPage</name>
@@ -6621,38 +6622,8 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <location/>
-        <source>Show side-by-side if possible</source>
-        <translation>Möglichst nebeneinander zeigen</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Always show side-by-side</source>
-        <translation>Immer nebeneinander zeigen</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Always start full help</source>
-        <translation>Stets Vollbild</translation>
-    </message>
-    <message>
-        <location/>
         <source>On help start:</source>
         <translation>Zu Beginn:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Show my home page</source>
-        <translation>Startseite zeigen</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Show a blank page</source>
-        <translation>Leere Seite zeigen</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Show my tabs from last session</source>
-        <translation>Reiter aus letzter Sitzung zeigen</translation>
     </message>
     <message>
         <location/>
@@ -6688,6 +6659,36 @@ on slow machines. In this case, the value should be increased.</source>
         <location/>
         <source>Home page:</source>
         <translation>Startseite:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show Side-by-Side if Possible</source>
+        <translation>Möglichst nebeneinander zeigen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Always Show Side-by-Side</source>
+        <translation>Immer nebeneinander zeigen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Always Start Full Help</source>
+        <translation>Stets Vollbild</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show My Home Page</source>
+        <translation>Startseite zeigen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show a Blank Page</source>
+        <translation>Leere Seite zeigen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show My Tabs from Last Session</source>
+        <translation>Reiter aus letzter Sitzung zeigen</translation>
     </message>
 </context>
 <context>
@@ -6777,8 +6778,8 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <location line="+2"/>
-        <source>Creates a generic project, supporting any build system.</source>
-        <translation>Erstellt ein generisches Projekt, was ein beliebiges Build-System unterstützt.</translation>
+        <source>Imports existing projects that do not use qmake or CMake. This allows you to use Qt Creator as a code editor.</source>
+        <translation>Importiert bereits existierende Projekte, die weder qmake noch CMake verwenden. Dadurch kann Qt Creator als Code-Editor benutzt werden.</translation>
     </message>
 </context>
 <context>
@@ -6901,7 +6902,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <location/>
-        <source>Remote branches</source>
+        <source>Remote Branches</source>
         <translation>Nichtlokale Branches</translation>
     </message>
 </context>
@@ -6909,12 +6910,12 @@ on slow machines. In this case, the value should be increased.</source>
     <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
         <location filename="../../../src/plugins/git/changeselectiondialog.cpp" line="+43"/>
-        <source>Select a Git commit</source>
+        <source>Select a Git Commit</source>
         <translation>Wählen Sie einen Commit aus</translation>
     </message>
     <message>
         <location line="+22"/>
-        <source>Select Git repository</source>
+        <source>Select Git Repository</source>
         <translation>Wählen ein Git-Repository aus</translation>
     </message>
     <message>
@@ -6931,9 +6932,13 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::CloneWizard</name>
     <message>
+        <source>Clones a project from a Git repository and tries to load the contained project.</source>
+        <translation type="obsolete">Holt ein Projekt aus einem Git-Repository und versucht, es zu laden.</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/git/clonewizard.cpp" line="+55"/>
-        <source>Clones a project from a git repository.</source>
-        <translation>Erstellt einen Clone eines Projektes aus einem Git-Repository.</translation>
+        <source>Clones a Git repository and tries to load the contained project.</source>
+        <translation>Erstellt einen Clone eines Git-Repositories und versucht, das darin enthaltene Projekt zu laden.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -7076,13 +7081,13 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <location line="+45"/>
-        <source>Stash description</source>
-        <translation>Beschreibung</translation>
+        <source>Description:</source>
+        <translation>Beschreibung:</translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Description:</source>
-        <translation>Beschreibung:</translation>
+        <source>Stash Description</source>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <location line="+94"/>
@@ -7331,7 +7336,12 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Diff für Projekt &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+98"/>
+        <location line="+64"/>
+        <source>Stash Snapshot...</source>
+        <translation>Snapshot als Stash speichern...</translation>
+    </message>
+    <message>
+        <location line="+34"/>
         <source>Stashes...</source>
         <translation>Stashes...</translation>
     </message>
@@ -7422,12 +7432,7 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Repository bereinigen...</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Stash snapshot...</source>
-        <translation>Snapshot als Stash speichern...</translation>
-    </message>
-    <message>
-        <location line="+7"/>
+        <location line="+14"/>
         <source>Saves the current state of your work and resets the repository.</source>
         <translation>Speichert den gegenwärtigen Stand der Arbeit und setzt das Repository zurück.</translation>
     </message>
@@ -7653,18 +7658,8 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <location filename="../../../src/plugins/git/settingspage.ui"/>
-        <source>Environment variables</source>
-        <translation>Umgebungsvariablen</translation>
-    </message>
-    <message>
-        <location/>
         <source>PATH:</source>
         <translation>Pfad-Variable:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>From system</source>
-        <translation>Vom System</translation>
     </message>
     <message>
         <location/>
@@ -7726,6 +7721,16 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Pull with rebase</source>
         <translation>pull mit rebase</translation>
     </message>
+    <message>
+        <location/>
+        <source>Environment Variables</source>
+        <translation>Umgebungsvariablen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>From System</source>
+        <translation>Vom System</translation>
+    </message>
 </context>
 <context>
     <name>GitCommand</name>
@@ -7769,9 +7774,13 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Gitorious::Internal::GitoriousCloneWizard</name>
     <message>
+        <source>Clones a project from a Gitorious repository and tries to load the contained project.</source>
+        <translation type="obsolete">Holt ein Projekt aus einem Gitorious-Repository und versucht, das darin enthaltene Projekt zu laden.</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/git/gitorious/gitoriousclonewizard.cpp" line="+83"/>
-        <source>Clones a project from a Gitorious repository.</source>
-        <translation>Erstellt einen Clone eines Projektes aus einem Gitorious-Repository.</translation>
+        <source>Clones a Gitorious repository and tries to load the contained project.</source>
+        <translation>Erstellt einen Clone eines Gitorious-Repositories und versucht, das darin enthaltene Projekt zu laden.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -8003,7 +8012,7 @@ on slow machines. In this case, the value should be increased.</source>
     <name>Help::Internal::GeneralSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/help/generalsettingspage.cpp" line="+71"/>
-        <source>General settings</source>
+        <source>General Settings</source>
         <translation>Allgemeine Einstellungen</translation>
     </message>
     <message>
@@ -8266,12 +8275,12 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>IndexWindow</name>
     <message>
-        <location filename="../../../src/shared/help/indexwindow.cpp" line="+55"/>
+        <location filename="../../../src/shared/help/indexwindow.cpp" line="+67"/>
         <source>&amp;Look for:</source>
         <translation>&amp;Suche nach:</translation>
     </message>
     <message>
-        <location line="+72"/>
+        <location line="+77"/>
         <source>Open Link</source>
         <translation>Adresse öffnen</translation>
     </message>
@@ -8895,7 +8904,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>OpenWith::Editors</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/coreconstants.h" line="+99"/>
+        <location filename="../../../src/plugins/coreplugin/coreconstants.h" line="+105"/>
         <source>Plain Text Editor</source>
         <translation>Texteditor</translation>
     </message>
@@ -8967,17 +8976,17 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <location/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows to send posts to custom subdomains (eg. qtcreator.pastebin.com). Fill in the desired prefix.&lt;/p&gt;
-&lt;p&gt;Note that the plugin will use this for posting as well as fetching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; erlaubt das Senden an benutzerdefinierte Subdomänen (zum Beispiel qtcreator.pastebin.com). Geben Sie den gewünschten Präfix an.&lt;/p&gt;
-&lt;p&gt;Hinweis: Es wird sowohl zum Senden als auch zum Abholen verwendet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>Server prefix:</source>
+        <translation>Server-Präfix:</translation>
     </message>
     <message>
         <location/>
-        <source>Server prefix:</source>
-        <translation>Server-Präfix:</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows to send posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.&lt;/p&gt;
+&lt;p&gt;Note that the plugin will use this for posting as well as fetching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; erlaubt das Senden an benutzerdefinierte Subdomänen (zum Beispiel creator.pastebin.com). Geben Sie den gewünschten Präfix an.&lt;/p&gt;
+&lt;p&gt;Hinweis: Es wird sowohl zum Senden als auch zum Abholen verwendet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -9451,11 +9460,6 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Perforce::Internal::SettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/perforce/settingspage.ui"/>
-        <source>Environment variables</source>
-        <translation>Umgebungsvariablen</translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/perforce/settingspage.cpp" line="+137"/>
         <source>Perforce</source>
         <translation>Perforce</translation>
@@ -9514,6 +9518,11 @@ on slow machines. In this case, the value should be increased.</source>
         <location/>
         <source>P4 port:</source>
         <translation>P4 Port-Nummer:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Environment Variables</source>
+        <translation>Umgebungsvariablen</translation>
     </message>
 </context>
 <context>
@@ -10004,17 +10013,17 @@ Fehler: %2</translation>
         <translation>Erstellungsschritte</translation>
     </message>
     <message>
-        <location line="-135"/>
-        <source>Edit Build Configuration:</source>
-        <translation>Build-Konfiguration bearbeiten:</translation>
-    </message>
-    <message>
-        <location line="-13"/>
-        <source>No Build Settings available</source>
+        <location line="-148"/>
+        <source>No build settings available</source>
         <translation>Es sind keine Build-Einstellungen verfügbar</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+13"/>
+        <source>Edit build configuration:</source>
+        <translation>Build-Konfiguration bearbeiten:</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
     </message>
@@ -10073,13 +10082,13 @@ Fehler: %2</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Add build step</source>
-        <translation>Build-Schritt hinzufügen</translation>
+        <source>Add Clean Step</source>
+        <translation>Schritt zur Bereinigung hinzufügen</translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Add clean step</source>
-        <translation>Schritt zur Bereinigung hinzufügen</translation>
+        <source>Add Build Step</source>
+        <translation>Build-Schritt hinzufügen</translation>
     </message>
     <message>
         <location line="-218"/>
@@ -10340,18 +10349,18 @@ Fehler: %2</translation>
     </message>
     <message>
         <location/>
-        <source>Working Directory:</source>
+        <source>Enable custom process step</source>
+        <translation>Benutzerdefinierten Verarbeitungsschritt aktivieren</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Working directory:</source>
         <translation>Arbeitsverzeichnis:</translation>
     </message>
     <message>
         <location/>
-        <source>Command Arguments:</source>
+        <source>Command arguments:</source>
         <translation>Kommandozeilenargumente:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Enable Custom Process Step</source>
-        <translation>Benutzerdefinierten Verarbeitungsschritt aktivieren</translation>
     </message>
 </context>
 <context>
@@ -10522,10 +10531,6 @@ No project selected</extracomment>
         <location line="+3"/>
         <source>%1 (current session)</source>
         <translation>%1 (aktuelle Sitzung)</translation>
-    </message>
-    <message>
-        <source>Open Project</source>
-        <translation type="obsolete">Projekt öffnen</translation>
     </message>
     <message>
         <location line="+47"/>
@@ -11150,16 +11155,6 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>QMakeStep</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qmakestep.ui"/>
-        <source>debug</source>
-        <translation>debug</translation>
-    </message>
-    <message>
-        <location/>
-        <source>release</source>
-        <translation>release</translation>
-    </message>
-    <message>
-        <location/>
         <source>Additional arguments:</source>
         <translation>Zusätzliche Argumente:</translation>
     </message>
@@ -11170,8 +11165,18 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location/>
-        <source>qmake Build Configuration:</source>
-        <translation>qmake Build-Konfiguration:&apos;</translation>
+        <source>qmake build configuration:</source>
+        <translation>qmake Build-Konfiguration:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Debug</source>
+        <translation>Debug</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Release</source>
+        <translation>Release</translation>
     </message>
 </context>
 <context>
@@ -11464,8 +11469,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a Qt console application.</source>
-        <translation>Erstellt eine Qt Konsolenanwendung.</translation>
+        <source>Creates a project containing a single main.cpp file with a stub implementation.
+
+Preselects a desktop Qt for building the application if available.</source>
+        <translation>Erstellt ein Projekt welches aus einer main.cpp-Datei mit einem Implementationsrumpf besteht.
+
+Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
     </message>
 </context>
 <context>
@@ -11605,8 +11614,8 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates an empty Qt project.</source>
-        <translation>Erstellt ein leeres Qt-Projekt.</translation>
+        <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
+        <translation>Erstellt ein auf qmake basierendes Qt-Projekt ohne Dateien und vorgegebene Klassen.</translation>
     </message>
 </context>
 <context>
@@ -11858,11 +11867,15 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a Qt Gui Application with one form.</source>
-        <translation>Erstellt eine Qt-Gui-Anwendung mit einem Formular.</translation>
+        <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
+
+Preselects a desktop Qt for building the application if available.</source>
+        <translation>Erstellt eine Qt-Anwendung für den Desktop mit einem Qt Designer-basierten Hauptfenster.
+
+Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
     </message>
     <message>
-        <location line="+160"/>
+        <location line="+162"/>
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
         <translation>Die Vorgabendatei &apos;%1&apos; konnte nicht zum Lesen geöffnet werden: %2</translation>
     </message>
@@ -11889,8 +11902,8 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a Qt based C++ Library.</source>
-        <translation>Erstellt eine Qt-basierte C++-Bibliothek.</translation>
+        <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
+        <translation type="unfinished">Erstellt qmake-basierte C++-Bibliotheken:&lt;ul&gt;&lt;li&gt;Dynamisch linkbare C++-Bibliothek zur Verwendung mit &lt;tt&gt;QPluginLoader&lt;/tt&gt; zur Laufzeit (Plugin)&lt;/li&gt;&lt;li&gt;Statisch oder dynamisch linkbare C++-Bibliothek zur Verwendung in einem anderen Projekt zur Linkzeit&lt;/li&gt;&lt;/ul&gt;.</translation>
     </message>
 </context>
 <context>
@@ -12053,31 +12066,6 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     <name>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.ui"/>
-        <source>Configuration Name:</source>
-        <translation>Name der Konfiguration:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Qt Version:</source>
-        <translation>Qt-Version:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>This Qt-Version is invalid.</source>
-        <translation>Diese Qt-Version ist ungültig.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Shadow Build:</source>
-        <translation>Shadow-Build:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Build Directory:</source>
-        <translation>Build-Verzeichnis:</translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;import&quot;&gt;Existierenden Build importieren&lt;/a&gt;</translation>
     </message>
@@ -12124,13 +12112,38 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
     </message>
     <message>
         <location/>
-        <source>Tool Chain:</source>
+        <source>problemLabel</source>
+        <translation>problemLabel</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Configuration name:</source>
+        <translation>Name der Konfiguration:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Qt version:</source>
+        <translation>Qt-Version:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>This Qt version is invalid.</source>
+        <translation>Diese Qt-Version ist ungültig.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Tool chain:</source>
         <translation>Toolchain:</translation>
     </message>
     <message>
         <location/>
-        <source>problemLabel</source>
-        <translation>problemLabel</translation>
+        <source>Shadow build:</source>
+        <translation>Shadow-Build:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Build directory:</source>
+        <translation>Build-Verzeichnis:</translation>
     </message>
 </context>
 <context>
@@ -12188,8 +12201,18 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Argumente:</translation>
     </message>
     <message>
-        <location line="+20"/>
-        <source>Run in Terminal</source>
+        <location line="+8"/>
+        <source>Select Working Directory</source>
+        <translation>Wählen Sie das Arbeitsverzeichnis aus</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Working directory:</source>
+        <translation>Arbeitsverzeichnis:</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Run in terminal</source>
         <translation>In Terminal ausführen</translation>
     </message>
     <message>
@@ -12228,22 +12251,12 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <translation>Ausführbare Datei:</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Select the working directory</source>
-        <translation>Wählen Sie das Arbeitsverzeichnis aus</translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+13"/>
         <source>Reset to default</source>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Working Directory:</source>
-        <translation>Arbeitsverzeichnis:</translation>
-    </message>
-    <message>
-        <location line="+7"/>
+        <location line="+14"/>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>Debug-Version von Frameworks verwenden (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
@@ -12496,12 +12509,12 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location line="+1"/>
-        <source>Install File:</source>
+        <source>Installation file:</source>
         <translation>Installationspaket:</translation>
     </message>
     <message>
         <location line="+19"/>
-        <source>Device on Serial Port:</source>
+        <source>Device on serial port:</source>
         <translation>Gerät auf serieller Schnittstelle:</translation>
     </message>
     <message>
@@ -12630,12 +12643,7 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
         <translation>Es konnte keine Verbindung zu App TRK über den Port &apos;%1&apos; hergestellt werden. Bitte versuchen Sie, App TRK neu zu starten.</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Copying install file...</source>
-        <translation>Kopiere Installationspaket...</translation>
-    </message>
-    <message>
-        <location line="+100"/>
+        <location line="+105"/>
         <source>The device &apos;%1&apos; has been disconnected</source>
         <translation>Das Gerät &apos;%1&apos; wurde entfernt</translation>
     </message>
@@ -12645,7 +12653,12 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
         <translation>Installiere Anwendung...</translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="-11"/>
+        <source>Copying installation file...</source>
+        <translation>Kopiere Installationspaket...</translation>
+    </message>
+    <message>
+        <location line="+58"/>
         <source>Waiting for App TRK</source>
         <translation>Warte auf App TRK</translation>
     </message>
@@ -13010,8 +13023,8 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
     <message>
         <location line="+45"/>
         <location line="+11"/>
-        <source>Choose a directory to add</source>
-        <translation>Bitte wählen Sie das hinzuzufügende Verzeichnis</translation>
+        <source>Select Directory</source>
+        <translation>Arbeitsordner</translation>
     </message>
     <message>
         <location line="+30"/>
@@ -13038,11 +13051,6 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
         <location filename="../../../src/plugins/locator/directoryfilter.ui"/>
         <source>Name:</source>
         <translation>Name:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>File Types:</source>
-        <translation>Dateitypen:</translation>
     </message>
     <message>
         <location/>
@@ -13085,6 +13093,11 @@ Installiere Anwendung auf &apos;%2&apos;...</translation>
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
         <translation>Geben Sie ein Kürzel oder eine Abkürzung ein, die die Funde auf Dateien von diesem Verzeichnis beschränkt.
 Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeichen und dem Suchbegriff.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>File types:</source>
+        <translation>Dateitypen:</translation>
     </message>
 </context>
 <context>
@@ -13184,7 +13197,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>Locator::Internal::SettingsPage</name>
     <message>
         <location filename="../../../src/plugins/locator/settingspage.cpp" line="+168"/>
-        <source>%1 (Prefix: %2)</source>
+        <source>%1 (prefix: %2)</source>
         <translation>%1 (Präfix: %2)</translation>
     </message>
 </context>
@@ -13328,8 +13341,8 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
     <message>
         <location filename="../../../src/plugins/resourceeditor/resourceeditorplugin.cpp" line="+78"/>
-        <source>Creates a Qt Resource file (.qrc).</source>
-        <translation>Erzeugt eine neue Qt-Ressource-Datei (.qrc).</translation>
+        <source>Creates a Qt Resource file (.qrc) that you can add to a Qt C++ project.</source>
+        <translation>Erstellt eine C++-Quelldatei für ein C++-Projekt.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -13386,7 +13399,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>Präfix hinzufügen</translation>
     </message>
     <message>
-        <location line="+158"/>
+        <location line="+159"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
@@ -13439,7 +13452,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>SharedTools::ResourceView</name>
     <message>
-        <location filename="../../../src/shared/qrceditor/resourceview.cpp" line="+362"/>
+        <location filename="../../../src/shared/qrceditor/resourceview.cpp" line="+355"/>
         <source>Add Files...</source>
         <translation>Dateien hinzufügen...</translation>
     </message>
@@ -13602,9 +13615,13 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>Subversion::Internal::CheckoutWizard</name>
     <message>
+        <source>Checks out a project from a Subversion repository and tries to load the contained project.</source>
+        <translation type="obsolete">Holt ein Projekt aus einem Subversion-Repository und versucht, das darin enthaltene Projekt zu laden.</translation>
+    </message>
+    <message>
         <location filename="../../../src/plugins/subversion/checkoutwizard.cpp" line="+56"/>
-        <source>Checks out a project from a Subversion repository.</source>
-        <translation>Holt ein Projekt aus einem Subversion-Repository.</translation>
+        <source>Checks out a Subversion repository and tries to load the contained project.</source>
+        <translation>Erstellt einen Checkout eines Subversion-Repositories und versucht, das darin enthaltene Projekt zu laden.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -13636,11 +13653,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <location filename="../../../src/plugins/subversion/settingspage.ui"/>
         <source>Authentication</source>
         <translation>Authentifizierung</translation>
-    </message>
-    <message>
-        <location/>
-        <source>User name:</source>
-        <translation>Nutzername:</translation>
     </message>
     <message>
         <location/>
@@ -13691,6 +13703,11 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <location/>
         <source>Subversion command:</source>
         <translation>Subversion-Kommando:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Username:</source>
+        <translation>Nutzername:</translation>
     </message>
 </context>
 <context>
@@ -14030,7 +14047,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     </message>
     <message>
         <location line="+27"/>
-        <source>Use Regular E&amp;xpressions</source>
+        <source>Use regular e&amp;xpressions</source>
         <translation>Benutze reguläre Ausdrücke</translation>
     </message>
 </context>
@@ -14050,7 +14067,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditor</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+277"/>
+        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+275"/>
         <source>Print Document</source>
         <translation>Dokument drucken</translation>
     </message>
@@ -14068,7 +14085,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+4802"/>
+        <location line="+4828"/>
         <source>Line: %1, Col: %2</source>
         <translation>Zeile: %1, Spalte: %2</translation>
     </message>
@@ -14172,11 +14189,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     </message>
     <message>
         <location/>
-        <source>In leading white space</source>
-        <translation>Nur in Leerzeichen am Zeilenanfang</translation>
-    </message>
-    <message>
-        <location/>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
         <translation>Bestimme automatisch basierend auf der nächstliegenden, eingerückten Zeile (unter Bevorzugung der vorhergehenden Zeile)</translation>
     </message>
@@ -14219,6 +14231,11 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <location/>
         <source>GNU Style</source>
         <translation>GNU-Stil</translation>
+    </message>
+    <message>
+        <location/>
+        <source>In Leading White Space</source>
+        <translation>Nur in Leerzeichen am Zeilenanfang</translation>
     </message>
 </context>
 <context>
@@ -14308,7 +14325,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     </message>
     <message>
         <location line="+1"/>
-        <source>Color Scheme name:</source>
+        <source>Color scheme name:</source>
         <translation>Name des Farbschemas:</translation>
     </message>
     <message>
@@ -14869,7 +14886,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
 <context>
     <name>TextEditor::TextEditorSettings</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/texteditorsettings.cpp" line="+65"/>
+        <location filename="../../../src/plugins/texteditor/texteditorsettings.cpp" line="+103"/>
         <source>Text</source>
         <translation>Text</translation>
     </message>
@@ -15379,13 +15396,13 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
     <message>
         <location line="+123"/>
-        <source>Choose a directory</source>
-        <translation>Wählen Sie ein Verzeichnis</translation>
+        <source>Choose Directory</source>
+        <translation>Ordner wählen</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Choose a file</source>
-        <translation>Wählen Sie eine Datei</translation>
+        <source>Choose File</source>
+        <translation>Datei wählen</translation>
     </message>
     <message>
         <location line="+33"/>
@@ -15427,7 +15444,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Delete line</source>
+        <source>Delete Line</source>
         <translation>Zeile löschen</translation>
     </message>
     <message>
@@ -15855,11 +15872,6 @@ Hinweis: Unter Umständen wird die Datei gelöscht.</translation>
     </message>
     <message>
         <location/>
-        <source>Parts to send to server</source>
-        <translation>Zu versendende Ausschnitte</translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -15870,6 +15882,11 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;; font-size:9pt;&quot;&gt;&amp;lt;Kommentar&amp;gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Parts to Send to Server</source>
+        <translation>Zu versendende Ausschnitte</translation>
     </message>
 </context>
 <context>
@@ -16474,11 +16491,6 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <location/>
-        <source>Default Email:</source>
-        <translation>Vorgabe-Email:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Miscellaneous</source>
         <translation>Sonstige Einstellungen</translation>
     </message>
@@ -16511,6 +16523,11 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <location filename="../../../src/plugins/mercurial/optionspage.ui"/>
         <source>Log count:</source>
         <translation>Log-Anzeige beschränken auf:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Default email:</source>
+        <translation>Vorgabe-Email:</translation>
     </message>
 </context>
 <context>
@@ -16591,7 +16608,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QmlDesigner::ItemLibrary</name>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/components/itemlibrary/itemlibrary.cpp" line="+127"/>
+        <location filename="../../../src/plugins/qmldesigner/components/itemlibrary/itemlibrary.cpp" line="+128"/>
         <source>Library</source>
         <comment>Title of library view</comment>
         <translation>Bibliothek</translation>
@@ -17531,7 +17548,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>Core</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/coreconstants.h" line="+130"/>
+        <location filename="../../../src/plugins/coreplugin/coreconstants.h" line="+131"/>
         <source>Qt</source>
         <translation>Qt</translation>
     </message>
@@ -17875,8 +17892,8 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <name>Mercurial::Internal::CloneWizard</name>
     <message>
         <location filename="../../../src/plugins/mercurial/clonewizard.cpp" line="+56"/>
-        <source>Clone a Mercurial repository</source>
-        <translation>Clone eines Mercurial-Repository erstellen</translation>
+        <source>Clones a Mercurial repository and tries to load the contained project.</source>
+        <translation>Erstellt einen Clone eines Mercurial-Repositories und versucht, das darin enthaltene Projekt zu laden.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -18642,7 +18659,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QmlDesigner::NavigatorTreeModel</name>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/components/navigator/navigatortreemodel.cpp" line="+277"/>
+        <location filename="../../../src/plugins/qmldesigner/components/navigator/navigatortreemodel.cpp" line="+279"/>
         <source>Invalid Id</source>
         <translation>Ungültige Id</translation>
     </message>
@@ -19003,9 +19020,9 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/qmljseditor/qmljseditorplugin.cpp" line="+112"/>
+        <location filename="../../../src/plugins/qmljseditor/qmljseditorplugin.cpp" line="+111"/>
         <source>Creates a Qt QML file.</source>
-        <translation>Erzeugt eine Qt-QML-Datei.</translation>
+        <translation>Erstellt eine Qt-QML-Datei.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -19118,7 +19135,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <location line="+5"/>
-        <source>Device Configuration:</source>
+        <source>Device configuration:</source>
         <translation>Geräte-Konfiguration:</translation>
     </message>
     <message>
@@ -19218,12 +19235,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>Qt4ProjectManager::Internal::MaemoSettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemosettingswidget.cpp" line="+341"/>
-        <source>Choose public key file</source>
-        <translation>Datei mit öffentlichem Schlüssel</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemosettingswidget.cpp" line="+342"/>
         <source>Public Key Files(*.pub);;All Files (*)</source>
         <translation>Öffentliche Schlüssel (*.pub);;Alle Dateien (*)</translation>
     </message>
@@ -19233,12 +19245,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Die öffentliche Schlüsseldatei &apos;%1&apos; konnte nicht gelesen werden.</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Stop deploying</source>
-        <translation>Deployement beenden</translation>
-    </message>
-    <message>
-        <location line="+12"/>
+        <location line="+22"/>
         <source>Key deployment failed: %1</source>
         <translation>Das Versenden des Schlüssels schlug fehl: %1</translation>
     </message>
@@ -19260,7 +19267,17 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>New Device Configuration %1</translation>
     </message>
     <message>
-        <location line="+226"/>
+        <location line="+189"/>
+        <source>Choose Public Key File</source>
+        <translation>Datei mit öffentlichem Schlüssel</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Stop Deploying</source>
+        <translation>Deployement beenden</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>Key was successfully deployed.</source>
         <translation>Der Schlüssel wurde erfolgreich versandt.</translation>
     </message>
@@ -19319,7 +19336,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QtVersion</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+928"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+918"/>
         <source>No qmake path set</source>
         <translation>Es ist keine qmake-Pfad gesetzt</translation>
     </message>
@@ -19353,8 +19370,8 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a Qt Unit Test.</source>
-        <translation>Erstellt einen Qt-Unit-Test.</translation>
+        <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
+        <translation>Erstellt einen auf QTestLib basierenden Unit-Test für eine Funktion oder eine Klasse. Unit-Tests dienen zur Überprüfung der Verwendbarkeit des Codes und der Feststellung von Regressionen.</translation>
     </message>
 </context>
 <context>
@@ -19400,7 +19417,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <location line="+20"/>
-        <source>Choose repository directory</source>
+        <source>Choose Repository Directory</source>
         <translation>Ordner für Repository wählen</translation>
     </message>
     <message>
@@ -19879,11 +19896,15 @@ Please check your project settings.</source>
     </message>
     <message>
         <location line="+2"/>
-        <source>Creates a Qt QML application.</source>
-        <translation>Erstellt eine Qt-QML-Anwendung.</translation>
+        <source>Creates a Qt QML application project with a single QML file containing the main view.
+
+QML application projects are executed through the QML runtime and do not need to be built.</source>
+        <translation>Erstellt eine Qt-QML-Anwendung aus einer einzelnen QML-Datei, die die Hauptansicht enthält.
+
+QML-Anwendungen werden durch die QML-Laufzeitumgebung direkt ausgeführt und benötigen keine Compilierung.</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+67"/>
         <source>File generated by QtCreator</source>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
@@ -20180,16 +20201,6 @@ Please check your project settings.</source>
     </message>
     <message>
         <location/>
-        <source>Remote Device</source>
-        <translation>Gerät</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Local Simulator</source>
-        <translation>Lokaler Simulator</translation>
-    </message>
-    <message>
-        <location/>
         <source>Authentication type:</source>
         <translation>Art der Authentifizierung:</translation>
     </message>
@@ -20202,21 +20213,6 @@ Please check your project settings.</source>
         <location/>
         <source>Key</source>
         <translation>Schlüssel</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Host Name:</source>
-        <translation>Hostname:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Connection Timeout:</source>
-        <translation>Zeitlimit der Verbindung:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>User Name:</source>
-        <translation>Nutzername:</translation>
     </message>
     <message>
         <location/>
@@ -20288,6 +20284,31 @@ Please check your project settings.</source>
         <source>Deploy Public Key ...</source>
         <translation>Öffentlichen Schlüssel senden...</translation>
     </message>
+    <message>
+        <location/>
+        <source>Remote device</source>
+        <translation>Gerät</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Maemo emulator</source>
+        <translation>Maemo-Emulator</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Host name:</source>
+        <translation>Hostname:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Connection timeout:</source>
+        <translation>Zeitlimit der Verbindung:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Username:</source>
+        <translation>Nutzername:</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60CreatePackageStepWidget</name>
@@ -20319,11 +20340,6 @@ Please check your project settings.</source>
 </context>
 <context>
     <name>VCSBase::CleanDialog</name>
-    <message>
-        <location filename="../../../src/plugins/vcsbase/cleandialog.ui"/>
-        <source>Clean repository</source>
-        <translation>Repository bereinigen</translation>
-    </message>
     <message>
         <location filename="../../../src/plugins/vcsbase/cleandialog.cpp" line="+68"/>
         <source>The directory %1 could not be deleted.</source>
@@ -20376,6 +20392,11 @@ Please check your project settings.</source>
         <location line="+11"/>
         <source>Cleaning %1</source>
         <translation>Bereinige %1</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/vcsbase/cleandialog.ui"/>
+        <source>Clean Repository</source>
+        <translation>Repository bereinigen</translation>
     </message>
 </context>
 <context>
@@ -20553,7 +20574,7 @@ Please check your project settings.</source>
 <context>
     <name>QmlDesigner::Internal::SubComponentManagerPrivate</name>
     <message>
-        <location filename="../../../src/plugins/qmldesigner/designercore/metainfo/subcomponentmanager.cpp" line="+307"/>
+        <location filename="../../../src/plugins/qmldesigner/designercore/metainfo/subcomponentmanager.cpp" line="+309"/>
         <source>QML Components</source>
         <translation>QML-Komponenten</translation>
     </message>
@@ -20838,17 +20859,17 @@ Haben Sie Qemu gestartet?</translation>
     <name>Qt4ProjectManager::Internal::S60CreatePackageStep</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60createpackagestep.cpp" line="+74"/>
-        <source>Create sis Package</source>
-        <comment>Create sis package build step name</comment>
-        <translation>sis-Paketdatei erzeugen</translation>
+        <source>Create SIS Package</source>
+        <comment>Create SIS package build step name</comment>
+        <translation>SIS-Paketdatei erzeugen</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60CreatePackageStepFactory</name>
     <message>
         <location line="+149"/>
-        <source>Create sis Package</source>
-        <translation>Erzeuge sis-Paketdatei</translation>
+        <source>Create SIS Package</source>
+        <translation>SIS-Paketdatei erzeugen</translation>
     </message>
 </context>
 <context>
@@ -20865,8 +20886,8 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>&lt;b&gt;Create sis Package:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Erzeuge sis-Paketdatei:&lt;/b&gt; %1</translation>
+        <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1</source>
+        <translation>&lt;b&gt;Erzeuge SIS-Paketdatei:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
@@ -20900,7 +20921,7 @@ Haben Sie Qemu gestartet?</translation>
         <translation>&lt;%1&gt; hat kein gültiges Attribut %2</translation>
     </message>
     <message>
-        <location line="+1631"/>
+        <location line="+1635"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -21438,14 +21459,6 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>Designer::Internal::FormEditorFactory</name>
     <message>
-        <source>This file can only be edited in Design Mode.</source>
-        <translation type="obsolete">Datei kann nur im Entwurfsmodus bearbeitet werden.</translation>
-    </message>
-    <message>
-        <source>Open Designer</source>
-        <translation type="obsolete">Designer öffnen</translation>
-    </message>
-    <message>
         <location filename="../../../src/plugins/designer/formeditorfactory.cpp" line="+93"/>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Datei kann nur im &lt;b&gt;Entwurfsmodus&lt;/b&gt; bearbeitet werden.</translation>
@@ -21515,8 +21528,12 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a mobile Qt Gui Application with one form.</source>
-        <translation>Erstellt eine mobile Qt-Gui-Anwendung mit einem Formular.</translation>
+        <source>Creates a Qt application optimized for mobile devices with a Qt Designer-based main window.
+
+Preselects Qt for Simulator and mobile targets if available</source>
+        <translation>Erstellt eine Qt-Anwendung für mobile Geräte mit einem Qt Designer-basierten Hauptfenster.
+
+Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar sind.</translation>
     </message>
 </context>
 <context>
@@ -21594,7 +21611,7 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <location/>
-        <source>Import existing shadow build...</source>
+        <source>Import Existing Shadow Build...</source>
         <translation>Importiere existierenden Shadow-Build...</translation>
     </message>
 </context>
@@ -21673,8 +21690,9 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <location filename="customwizard_tr.h" line="+1"/>
-        <source>Creates a plug-in for the QML runtime.</source>
-        <translation>Erzeugt ein Plugin für die QML-Laufzeitumgebung.</translation>
+        <source>Creates a C++ plugin to extend the funtionality of the QML runtime.</source>
+        <oldsource>Creates a plug-in for the QML runtime.</oldsource>
+        <translation>Erstellt ein C++-Plugin zur Erweiterung der Funktionalität der QML-Laufzeitumgebung.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -21799,18 +21817,18 @@ Haben Sie Qemu gestartet?</translation>
     </message>
     <message>
         <location/>
-        <source>Save public Key...</source>
+        <source>Close</source>
+        <translation>Schließen</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Save Public Key...</source>
         <translation>Öffentlichen Schlüssel speichern...</translation>
     </message>
     <message>
         <location/>
-        <source>Save private Key...</source>
+        <source>Save Private Key...</source>
         <translation>Privaten Schlüssel speichern...</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Close</source>
-        <translation>Schließen</translation>
     </message>
 </context>
 <context>
@@ -22183,12 +22201,12 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
     <name>Qt4ProjectManager::Internal::MaemoSshConfigDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemosshconfigdialog.cpp" line="+124"/>
-        <source>Save public key file</source>
+        <source>Save Public Key File</source>
         <translation>Öffentlichen Schlüssel speichern</translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Save private key file</source>
+        <source>Save Private Key File</source>
         <translation>Privaten Schlüssel speichern</translation>
     </message>
     <message>
@@ -22432,7 +22450,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/fileshareprotocolsettingspage.cpp" line="+105"/>
+        <location filename="../../../src/plugins/cpaster/fileshareprotocolsettingspage.cpp" line="+110"/>
         <source>Fileshare</source>
         <translation>Dateibasiert</translation>
     </message>
@@ -22490,11 +22508,11 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
     <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <location filename="../../../src/plugins/texteditor/texteditorplugin.cpp" line="+94"/>
-        <source>Creates a text file (.txt).</source>
-        <translation>Erzeugt eine Textdatei (.txt)</translation>
+        <source>Creates a text file. The default file extension is &lt;tt&gt;.txt&lt;/tt&gt;. You can specify a different extension as part of the filename.</source>
+        <translation>Erstellt eine Textdatei mit der Erweiterung &lt;tt&gt;.txt&lt;/tt&gt;. Sie können eine andere Erweiterung als Teil des Dateinamens angeben.</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Text File</source>
         <translation>Textdatei</translation>
     </message>
@@ -22709,6 +22727,14 @@ Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Z
         <location filename="../../../src/plugins/qmldesigner/designercore/exceptions/invalidargumentexception.cpp" line="+60"/>
         <source>Failed to create item of type %1</source>
         <translation>Es konnte kein Element des Typs %1 erzeugt werden</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::QmlModelView</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/designercore/model/qmlmodelview.cpp" line="+179"/>
+        <source>Invalid Id</source>
+        <translation>Ungültige Id</translation>
     </message>
 </context>
 </TS>
