@@ -79,8 +79,6 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
 
-#include <typeinfo>
-
 namespace {
     const bool debug = ! qgetenv("CPLUSPLUS_DEBUG").isEmpty();
 }
@@ -1098,7 +1096,7 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults,
 
     if (debug) {
         Overview oo;
-        qDebug() << "hmm, got:" << oo(baseResults.first().type()) << typeid(*baseResults.first().type().type()).name();
+        qDebug() << "hmm, got:" << oo(baseResults.first().type());
     }
 
     return false;
