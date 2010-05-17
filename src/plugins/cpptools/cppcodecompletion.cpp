@@ -79,6 +79,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
 
+#include <typeinfo>
 
 namespace {
     const bool debug = ! qgetenv("CPLUSPLUS_DEBUG").isEmpty();
