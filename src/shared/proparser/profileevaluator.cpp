@@ -674,6 +674,9 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
                 forever {
                     if (c == '"') {
                         quote = '"' - quote;
+                    } else if (c == '!' && ptr == buf) {
+                        insertOperator(c);
+                        goto nextItem;
                     } else if (!quote) {
                         if (c == '(') {
                             ++parens;
@@ -708,7 +711,7 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
                                 inError = true;
                                 goto skip;
                             }
-                            if (c == '|' || c == '!') {
+                            if (c == '|') {
                                 updateItem(buf, ptr);
                                 insertOperator(c);
                                 goto nextItem;
@@ -2538,7 +2541,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     } else if (!parens) {
                         if (c == ':' || c == '|')
                             isOp = true;
-                        else if (c == '!')
+                        else if (c == '!' && test.isEmpty())
                             invert = true;
                         else
                             test += c;
