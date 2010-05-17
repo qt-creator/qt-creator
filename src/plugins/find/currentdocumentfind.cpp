@@ -240,7 +240,6 @@ void CurrentDocumentFind::aggregationChanged()
             }
             else {
                 clearFindSupport();
-                m_currentFind = 0;
             }
         }
     }
@@ -248,7 +247,7 @@ void CurrentDocumentFind::aggregationChanged()
 
 void CurrentDocumentFind::candidateAggregationChanged()
 {
-    if (m_candidateWidget && m_candidateWidget!=m_currentWidget) {
+    if (m_candidateWidget && m_candidateWidget != m_currentWidget) {
         m_candidateFind = Aggregation::query<IFindSupport>(m_candidateWidget);
         emit candidateChanged();
     }
