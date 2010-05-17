@@ -141,6 +141,7 @@ const char * const GOTO_OTHER_SPLIT      = "QtCreator.GotoOtherSplit";
 const char * const SAVEASDEFAULT         = "QtCreator.SaveAsDefaultLayout";
 const char * const RESTOREDEFAULT        = "QtCreator.RestoreDefaultLayout";
 const char * const CLOSE                 = "QtCreator.Close";
+const char * const CLOSE_ALTERNATIVE     = "QtCreator.Close_Alternative"; // temporary, see QTCREATORBUG-72
 const char * const CLOSEALL              = "QtCreator.CloseAll";
 const char * const CLOSEOTHERS           = "QtCreator.CloseOthers";
 const char * const GOTONEXT              = "QtCreator.GotoNext";
