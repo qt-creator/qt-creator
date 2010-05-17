@@ -232,15 +232,18 @@ void Aggregate::add(QObject *component)
 {
     if (!component)
         return;
-    QWriteLocker locker(&lock());
-    Aggregate *parentAggregation = aggregateMap().value(component);
-    if (parentAggregation == this)
-        return;
-    if (parentAggregation)
-        parentAggregation->remove(component);
-    m_components.append(component);
-    connect(component, SIGNAL(destroyed(QObject*)), this, SLOT(deleteSelf(QObject*)));
-    aggregateMap().insert(component, this);
+    {
+        QWriteLocker locker(&lock());
+        Aggregate *parentAggregation = aggregateMap().value(component);
+        if (parentAggregation == this)
+            return;
+        if (parentAggregation)
+            parentAggregation->remove(component);
+        m_components.append(component);
+        connect(component, SIGNAL(destroyed(QObject*)), this, SLOT(deleteSelf(QObject*)));
+        aggregateMap().insert(component, this);
+    }
+    emit changed();
 }
 
 /*!
@@ -254,8 +257,11 @@ void Aggregate::remove(QObject *component)
 {
     if (!component)
         return;
-    QWriteLocker locker(&lock());
-    aggregateMap().remove(component);
-    m_components.removeAll(component);
-    disconnect(component, SIGNAL(destroyed(QObject*)), this, SLOT(deleteSelf(QObject*)));
+    {
+        QWriteLocker locker(&lock());
+        aggregateMap().remove(component);
+        m_components.removeAll(component);
+        disconnect(component, SIGNAL(destroyed(QObject*)), this, SLOT(deleteSelf(QObject*)));
+    }
+    emit changed();
 }

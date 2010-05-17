@@ -74,6 +74,9 @@ public:
     static Aggregate *parentAggregate(QObject *obj);
     static QReadWriteLock &lock();
 
+signals:
+    void changed();
+
 private slots:
     void deleteSelf(QObject *obj);
 
