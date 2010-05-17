@@ -121,7 +121,7 @@ void MaemoSshConfigDialog::saveKey(bool publicKey)
     const QString suggestedName = home + QString::fromLatin1("/.ssh/id_%1%2")
         .arg(suggestedTypeSuffix).arg(publicKey ? ".pub" : "");
     const QString dlgTitle
-        = publicKey ? tr("Save public key file") : tr("Save private key file");
+        = publicKey ? tr("Save Public Key File") : tr("Save Private Key File");
     const QString fileName
         = QFileDialog::getSaveFileName(this, dlgTitle, suggestedName);
     if (fileName.isEmpty())

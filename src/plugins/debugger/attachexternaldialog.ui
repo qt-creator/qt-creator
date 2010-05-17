@@ -28,7 +28,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="pidLabel">
        <property name="text">
-        <string>Attach to Process ID:</string>
+        <string>Attach to process ID:</string>
        </property>
       </widget>
      </item>

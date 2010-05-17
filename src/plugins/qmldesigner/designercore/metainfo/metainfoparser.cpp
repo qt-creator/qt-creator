@@ -187,7 +187,6 @@ void MetaInfoParser::handleNodeElement(QXmlStreamReader &reader)
     while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "node")) {
         reader.readNext();
 
-        handleNodeInheritElement(reader, className);
         handleAbstractPropertyElement(reader, nodeMetaInfo);
         handleAbstractPropertyDefaultValueElement(reader, nodeMetaInfo);
         handleNodeItemLibraryEntryElement(reader, className);
@@ -198,32 +197,27 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
 {
     if (reader.isStartElement() && reader.name() == "itemlibraryentry")
     {
-        QString name = reader.attributes().value("name").toString();
-        ItemLibraryEntry itemLibraryEntry = m_metaInfo.itemLibraryInfo().addItemLibraryEntry(m_metaInfo.nodeMetaInfo(className), name);
+        const QString name = reader.attributes().value("name").toString();
+        const NodeMetaInfo typeInfo = m_metaInfo.nodeMetaInfo(className);
+
+        ItemLibraryEntry entry;
+        entry.setType(typeInfo.typeName(), typeInfo.majorVersion(), typeInfo.minorVersion());
+        entry.setName(name);
 
         QString iconPath = reader.attributes().value("icon").toString();
         if (!iconPath.isEmpty())
-            itemLibraryEntry.setIcon(QIcon(iconPath));
+            entry.setIcon(QIcon(iconPath));
 
         QString category = reader.attributes().value("category").toString();
         if (!category.isEmpty())
-            itemLibraryEntry.setCategory(category);
+            entry.setCategory(category);
 
         while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "itemlibraryentry")) {
             reader.readNext();
-            handleItemLibraryEntryPropertyElement(reader, itemLibraryEntry);
+            handleItemLibraryEntryPropertyElement(reader, entry);
         }
-    }
-}
 
-void MetaInfoParser::handleNodeInheritElement(QXmlStreamReader &reader, const QString &className)
-{
-    if (reader.isStartElement() && reader.name() == "inherits")
-    {
-        QString superClassName = reader.attributes().value("name").toString();
-        Q_ASSERT(!superClassName.isEmpty());
-        m_metaInfo.addSuperClassRelationship(superClassName, className);
-        reader.readNext();
+        m_metaInfo.itemLibraryInfo()->addEntry(entry);
     }
 }
 

@@ -97,7 +97,7 @@ p, li { white-space: pre-wrap; }
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Parts to send to server</string>
+      <string>Parts to Send to Server</string>
      </property>
      <property name="flat">
       <bool>true</bool>

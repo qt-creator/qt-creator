@@ -420,7 +420,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     ActionCommandPair actionCommand =
                     createRepositoryAction(actionManager, gitContainer,
-                                           tr("Stash snapshot..."), QLatin1String("Git.StashSnapshot"),
+                                           tr("Stash Snapshot..."), QLatin1String("Git.StashSnapshot"),
                                            globalcontext, true, SLOT(stashSnapshot()));
     actionCommand.first->setToolTip(tr("Saves the current state of your work."));
 

@@ -403,9 +403,16 @@ static inline QColor invertColor(const QColor color)
     return c;
 }
 
-GradientLine::GradientLine(QWidget *parent) : QWidget(parent),  m_activeColor(Qt::black), m_gradientName("gradient"),
-                                                                m_dragActive(false), m_yOffset(0), m_create(false),
-                                                                m_active(false), m_colorIndex(0), m_dragOff(false)
+GradientLine::GradientLine(QWidget *parent) :
+        QWidget(parent),
+        m_activeColor(Qt::black),
+        m_gradientName("gradient"),
+        m_colorIndex(0),
+        m_dragActive(false),
+        m_yOffset(0),
+        m_create(false),
+        m_active(false),
+        m_dragOff(false)
 {
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     setFocusPolicy(Qt::StrongFocus);

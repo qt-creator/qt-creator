@@ -181,7 +181,7 @@ QString Qt4Manager::mimeType() const
     return QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
 }
 
-ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
+ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName)
 {
     Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
 

@@ -3674,19 +3674,7 @@ void BaseTextEditor::indentOrUnindent(bool doIndent)
 
     QTextDocument *doc = document();
 
-    if (!cursor.hasSelection() && doIndent) {
-        // Insert tab if there is no selection and indent is requested
-        QTextBlock block = cursor.block();
-        QString text = block.text();
-        int indentPosition = (cursor.position() - block.position());;
-        int spaces = tabSettings.spacesLeftFromPosition(text, indentPosition);
-        int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
-        int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
-        cursor.setPosition(block.position() + indentPosition);
-        cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
-        cursor.removeSelectedText();
-        cursor.insertText(tabSettings.indentationString(startColumn, targetColumn, block));
-    } else {
+    if (cursor.hasSelection()) {
         // Indent or unindent the selected lines
         int anchor = cursor.anchor();
         int start = qMin(anchor, pos);
@@ -3707,6 +3695,18 @@ void BaseTextEditor::indentOrUnindent(bool doIndent)
             cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
         }
+    } else {
+        // Indent or unindent at cursor position
+        QTextBlock block = cursor.block();
+        QString text = block.text();
+        int indentPosition = cursor.positionInBlock();
+        int spaces = tabSettings.spacesLeftFromPosition(text, indentPosition);
+        int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
+        int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
+        cursor.setPosition(block.position() + indentPosition);
+        cursor.setPosition(block.position() + indentPosition - spaces, QTextCursor::KeepAnchor);
+        cursor.removeSelectedText();
+        cursor.insertText(tabSettings.indentationString(startColumn, targetColumn, block));
     }
 
     cursor.endEditBlock();

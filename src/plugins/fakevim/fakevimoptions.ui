@@ -200,21 +200,21 @@
         <item>
          <widget class="QPushButton" name="pushButtonCopyTextEditorSettings">
           <property name="text">
-           <string>Copy text editor settings</string>
+           <string>Copy Text Editor Settings</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonSetQtStyle">
           <property name="text">
-           <string>Set Qt style</string>
+           <string>Set Qt Style</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushButtonSetPlainStyle">
           <property name="text">
-           <string>Set plain style</string>
+           <string>Set Plain Style</string>
           </property>
          </widget>
         </item>

@@ -17,7 +17,7 @@
       <bool>true</bool>
      </property>
      <property name="title">
-      <string>Environment variables</string>
+      <string>Environment Variables</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -38,7 +38,7 @@
         <item>
          <widget class="QPushButton" name="adoptButton">
           <property name="text">
-           <string>From system</string>
+           <string>From System</string>
           </property>
          </widget>
         </item>

@@ -54,7 +54,7 @@
      <item>
       <widget class="QPushButton" name="importButton">
        <property name="text">
-        <string>Import existing shadow build...</string>
+        <string>Import Existing Shadow Build...</string>
        </property>
        <property name="flat">
         <bool>false</bool>

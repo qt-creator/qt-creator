@@ -123,13 +123,15 @@ void ObjectNodeInstance::destroy()
 {
     if (deleteHeldInstance()) {
         // Remove from old property
-        if (object() && modelNode().isValid() && modelNode().parentProperty().isValid()) {
+        if (object()) {
             setId(QString());
-            NodeAbstractProperty parentProperty = modelNode().parentProperty();
-            ModelNode parentNode = parentProperty.parentModelNode();
-            if (parentNode.isValid() && nodeInstanceView()->hasInstanceForNode(parentNode)) {
-                NodeInstance parentInstance = nodeInstanceView()->instanceForNode(parentNode);
-                reparent(parentInstance, parentProperty.name(), NodeInstance() , QString());
+            if (modelNode().isValid() && modelNode().parentProperty().isValid()) {
+                NodeAbstractProperty parentProperty = modelNode().parentProperty();
+                ModelNode parentNode = parentProperty.parentModelNode();
+                if (parentNode.isValid() && nodeInstanceView()->hasInstanceForNode(parentNode)) {
+                    NodeInstance parentInstance = nodeInstanceView()->instanceForNode(parentNode);
+                    reparent(parentInstance, parentProperty.name(), NodeInstance() , QString());
+                }
             }
         }
 

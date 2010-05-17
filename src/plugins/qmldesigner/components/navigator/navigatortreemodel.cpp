@@ -186,23 +186,25 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
 
     uint hash = qHash(node);
 
+    const bool dropEnabled = node.metaInfo().isValid();
+
     QStandardItem *idItem = new QStandardItem;
     idItem->setDragEnabled(true);
-    idItem->setDropEnabled(node.metaInfo().isValid() && node.metaInfo().isContainer());
+    idItem->setDropEnabled(dropEnabled);
     idItem->setEditable(true);
     idItem->setData(hash, Qt::UserRole);
 
     #ifdef _LOCK_ITEMS_
     QStandardItem *lockItem = new QStandardItem;
     lockItem->setDragEnabled(true);
-    lockItem->setDropEnabled(node.metaInfo().isContainer());
+    lockItem->setDropEnabled(dropEnabled);
     lockItem->setEditable(false);
     lockItem->setCheckable(true);
     lockItem->setData(hash, Qt::UserRole);
     #endif
 
     QStandardItem *visibilityItem = new QStandardItem;
-    visibilityItem->setDropEnabled(node.metaInfo().isValid() && node.metaInfo().isContainer());
+    visibilityItem->setDropEnabled(dropEnabled);
     visibilityItem->setCheckable(true);
     visibilityItem->setEditable(false);
     visibilityItem->setData(hash, Qt::UserRole);

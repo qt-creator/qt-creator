@@ -21,7 +21,7 @@
    <item>
     <widget class="QGroupBox" name="debuggingHelperGroupBox">
      <property name="title">
-      <string>Use debugging helper</string>
+      <string>Use Debugging Helper</string>
      </property>
      <property name="checkable">
       <bool>true</bool>

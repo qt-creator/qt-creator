@@ -40,7 +40,7 @@ QT_FORWARD_DECLARE_CLASS(QMimeData);
 
 namespace QmlDesigner {
 
-class MetaInfo;
+class ItemLibraryInfo;
 class ItemLibraryEntry;
 
 namespace Internal {
@@ -131,7 +131,7 @@ public:
 
     QString searchText() const;
 
-    void update(const MetaInfo &metaInfo);
+    void update(ItemLibraryInfo *itemLibraryInfo);
 
     QString getTypeName(int libId);
     QMimeData *getMimeData(int libId);
@@ -159,7 +159,6 @@ private:
     QPixmap createDragPixmap(int width, int height);
 
     QWeakPointer<QScriptEngine> m_scriptEngine;
-    MetaInfo *m_metaInfo;
     QMap<int, ItemLibraryEntry> m_itemInfos;
     QMap<int, int> m_sections;
 

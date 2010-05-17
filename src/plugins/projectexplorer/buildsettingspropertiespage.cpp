@@ -133,7 +133,7 @@ void BuildSettingsWidget::setupUi()
 
     if (!m_target->buildConfigurationFactory()) {
         QLabel * noSettingsLabel(new QLabel(this));
-        noSettingsLabel->setText(tr("No Build Settings available"));
+        noSettingsLabel->setText(tr("No build settings available"));
         {
             QFont f(noSettingsLabel->font());
             f.setPointSizeF(f.pointSizeF() * 1.2);
@@ -146,7 +146,7 @@ void BuildSettingsWidget::setupUi()
     { // Edit Build Configuration row
         QHBoxLayout *hbox = new QHBoxLayout();
         hbox->setContentsMargins(m_leftMargin, 0, 0, 0);
-        hbox->addWidget(new QLabel(tr("Edit Build Configuration:"), this));
+        hbox->addWidget(new QLabel(tr("Edit build configuration:"), this));
         m_buildConfigurationComboBox = new QComboBox(this);
         m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_buildConfigurationComboBox->setModel(new BuildConfigurationModel(m_target, this));

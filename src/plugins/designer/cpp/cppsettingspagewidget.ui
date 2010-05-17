@@ -32,7 +32,7 @@
       <item>
        <widget class="QRadioButton" name="multipleInheritanceButton">
         <property name="text">
-         <string>Multiple Inheritance</string>
+         <string>Multiple inheritance</string>
         </property>
        </widget>
       </item>

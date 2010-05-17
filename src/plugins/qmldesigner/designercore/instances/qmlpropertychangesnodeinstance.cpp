@@ -60,12 +60,16 @@ QDeclarativeStateOperation::ActionList QmlPropertyChangesObject::actions()
         action.fromValue = action.property.read();
         if (m_expressionHash.contains(action.specifiedProperty)) {
             if(m_expressionHash[action.specifiedProperty].second.isNull()) {
-                QDeclarativeBinding *binding = new QDeclarativeBinding(m_expressionHash[action.specifiedProperty].first, targetObject(), QDeclarativeEngine::contextForObject(targetObject()), this);
-                binding->setTarget(action.property);
-                binding->setNotifyOnValueChanged(true);
-                action.toBinding = binding;
-                action.toValue = binding->evaluate();
-                m_expressionHash.insert(action.specifiedProperty, ExpressionPair(m_expressionHash[action.specifiedProperty].first, binding));
+                if (targetObject()) {
+                    QDeclarativeBinding *binding = new QDeclarativeBinding(m_expressionHash[action.specifiedProperty].first, targetObject(), QDeclarativeEngine::contextForObject(targetObject()), this);
+                    binding->setTarget(action.property);
+                    binding->setNotifyOnValueChanged(true);
+                    action.toBinding = binding;
+                    action.toValue = binding->evaluate();
+                    m_expressionHash.insert(action.specifiedProperty, ExpressionPair(m_expressionHash[action.specifiedProperty].first, binding));
+                } else {
+                    action.toBinding = 0;
+                }
             } else {
                 action.toBinding = m_expressionHash[action.specifiedProperty].second.data();
                 action.toValue = m_expressionHash[action.specifiedProperty].second->evaluate();
@@ -85,6 +89,9 @@ QObject *QmlPropertyChangesObject::targetObject() const
 
 void QmlPropertyChangesObject::setTargetObject(QObject *object)
 {
+    if (m_targetObject.data() == object)
+        return;
+
     QMutableListIterator<QDeclarativeAction> actionIterator(m_qmlActionList);
     while (actionIterator.hasNext()) {
          QDeclarativeAction &qmlAction = actionIterator.next();
@@ -92,9 +99,10 @@ void QmlPropertyChangesObject::setTargetObject(QObject *object)
              if (isActive()) {
                  QDeclarativePropertyPrivate::setBinding(qmlAction.property, 0, QDeclarativePropertyPrivate::DontRemoveBinding| QDeclarativePropertyPrivate::BypassInterceptor);
                  qmlAction.property.write(qmlAction.fromValue);
+                 m_expressionHash[qmlAction.specifiedProperty].second.data()->destroy();
              }
 
-             m_expressionHash[qmlAction.specifiedProperty].second.data()->destroy();
+
              qmlAction.toBinding = 0;
          }
 

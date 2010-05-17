@@ -121,7 +121,7 @@ PathListEditor::PathListEditor(QWidget *parent) :
     connect(m_d->toolButton, SIGNAL(clicked()), this, SLOT(slotInsert()));
 
     addAction(tr("Add..."), this, SLOT(slotAdd()));
-    addAction(tr("Delete line"), this, SLOT(deletePathAtCursor()));
+    addAction(tr("Delete Line"), this, SLOT(deletePathAtCursor()));
     addAction(tr("Clear"), this, SLOT(clear()));
 }
 

@@ -90,14 +90,14 @@
               <item>
                <widget class="QRadioButton" name="deviceButton">
                 <property name="text">
-                 <string>Remote Device</string>
+                 <string>Remote device</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QRadioButton" name="simulatorButton">
                 <property name="text">
-                 <string>Local Simulator</string>
+                 <string>Maemo emulator</string>
                 </property>
                </widget>
               </item>
@@ -137,7 +137,7 @@
            <item row="3" column="0">
             <widget class="QLabel" name="hostNameLabel">
              <property name="text">
-              <string>Host Name:</string>
+              <string>Host name:</string>
              </property>
             </widget>
            </item>
@@ -211,7 +211,7 @@
            <item row="5" column="0">
             <widget class="QLabel" name="connectionTimeoutLabel">
              <property name="text">
-              <string>Connection Timeout:</string>
+              <string>Connection timeout:</string>
              </property>
             </widget>
            </item>
@@ -251,7 +251,7 @@
            <item row="6" column="0">
             <widget class="QLabel" name="userNameLabel">
              <property name="text">
-              <string>User Name:</string>
+              <string>Username:</string>
              </property>
             </widget>
            </item>

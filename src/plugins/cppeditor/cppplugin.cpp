@@ -275,7 +275,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     QList<int> globalContext;
     globalContext.append(Core::Constants::C_GLOBAL_ID);
     cppToolsMenu->addAction(createSeparator(am, this, globalContext, CppEditor::Constants::SEPARATOR2));
-    m_updateCodeModelAction = new QAction(tr("Update code model"), this);
+    m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
     cmd = am->registerAction(m_updateCodeModelAction, QLatin1String(Constants::UPDATE_CODEMODEL), globalContext);
     CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance();
     connect(m_updateCodeModelAction, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));

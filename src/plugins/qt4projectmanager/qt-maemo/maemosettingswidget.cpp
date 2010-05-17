@@ -340,7 +340,7 @@ void MaemoSettingsWidget::deployKey()
     const QString &dir
         = QFileInfo(currentConfig().server.privateKeyFile).path();
     QString publicKeyFileName = QFileDialog::getOpenFileName(this,
-        tr("Choose public key file"), dir,
+        tr("Choose Public Key File"), dir,
         tr("Public Key Files(*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty())
         return;
@@ -362,7 +362,7 @@ void MaemoSettingsWidget::deployKey()
     m_keyDeployer = new MaemoSshRunner(currentConfig().server, command);
     connect(m_keyDeployer, SIGNAL(finished()),
             this, SLOT(handleDeployThreadFinished()));
-    m_ui->deployKeyButton->setText(tr("Stop deploying"));
+    m_ui->deployKeyButton->setText(tr("Stop Deploying"));
     connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(stopDeploying()));
     m_keyDeployer->start();
 }

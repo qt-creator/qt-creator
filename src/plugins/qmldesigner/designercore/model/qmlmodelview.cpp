@@ -33,9 +33,15 @@
 #include "itemlibraryinfo.h"
 #include "modelutilities.h"
 #include "mathutils.h"
+#include "invalididexception.h"
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>
+#include <QMessageBox>
+
+enum {
+    debug = false
+};
 
 namespace QmlDesigner {
 
@@ -159,13 +165,20 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
         QString id;
         int i = 1;
         QString name(itemLibraryEntry.name().toLower());
-        name.remove(QLatin1Char(' '));
+        //remove forbidden characters
+        name.replace(QRegExp(QLatin1String("[^a-zA-Z0-9_]")), QLatin1String("_"));
         do {
             id = name + QString::number(i);
             i++;
         } while (hasId(id)); //If the name already exists count upwards
 
-        newNode.setId(id);
+        try {
+            newNode.setId(id);
+        } catch (InvalidIdException &e) {
+            // should never happen
+            QMessageBox::warning(0, tr("Invalid Id"), e.description());
+        }
+
         if (!currentState().isBaseState()) {
             newNode.modelNode().variantProperty("visible") = false;
             newNode.setVariantProperty("visible", true);
@@ -226,12 +239,16 @@ QmlObjectNode QmlModelView::fxObjectNodeForId(const QString &id)
 
 void QmlModelView::customNotification(const AbstractView * /* view */, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> & /* data */)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << identifier << nodeList;
+
     if (identifier == "__state changed__") {
         QmlModelState state(nodeList.first());
-        if (state.isValid())
+        if (state.isValid()) {
             activateState(state);
-        else
+        } else {
             activateState(baseState());
+        }
     }
 }
 
@@ -280,6 +297,8 @@ static bool isTransformProperty(const QString &name)
 
 void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << node << propertyName;
 
     QmlObjectNode qmlObjectNode(node);
 
@@ -298,6 +317,9 @@ void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QStr
 
 void QmlModelView::activateState(const QmlModelState &state)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << state;
+
     if (!state.isValid())
         return;
 
@@ -317,6 +339,9 @@ void QmlModelView::activateState(const QmlModelState &state)
 
 void QmlModelView::changeToState(const ModelNode &node, const QString &stateName)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << node << stateName;
+
     QmlItemNode itemNode(node);
 
     QmlModelState newState;
@@ -346,8 +371,10 @@ void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, 
 {
 }
 
-void  QmlModelView::stateChanged(const QmlModelState &/*newQmlModelState*/, const QmlModelState &/*oldQmlModelState*/)
+void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
 {
+    if (debug)
+        qDebug() << this << __FUNCTION__ << oldQmlModelState << "to" << newQmlModelState;
 }
 
 } //QmlDesigner

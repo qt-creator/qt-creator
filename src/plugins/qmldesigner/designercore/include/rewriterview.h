@@ -134,6 +134,7 @@ public:
 
     TextModifier *textModifier() const;
     void setTextModifier(TextModifier *textModifier);
+    QString textModifierContent() const;
 
     Internal::ModelNodePositionStorage *positionStorage() const
     { return m_positionStorage; }

@@ -27,14 +27,14 @@
    <item row="4" column="0" colspan="2">
     <widget class="QCheckBox" name="displayBox">
      <property name="text">
-      <string>Display Output Pane after sending a post</string>
+      <string>Display Output pane after sending a post</string>
      </property>
     </widget>
    </item>
    <item row="3" column="0" colspan="2">
     <widget class="QCheckBox" name="clipboardBox">
      <property name="text">
-      <string>Copy Paste URL to clipboard</string>
+      <string>Copy-paste URL to clipboard</string>
      </property>
     </widget>
    </item>

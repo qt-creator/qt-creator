@@ -145,7 +145,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 
 void DirectoryFilter::addDirectory()
 {
-    QString dir = QFileDialog::getExistingDirectory(m_dialog, tr("Choose a directory to add"));
+    QString dir = QFileDialog::getExistingDirectory(m_dialog, tr("Select Directory"));
     if (!dir.isEmpty()) {
         m_ui.directoryList->addItem(dir);
     }
@@ -156,7 +156,7 @@ void DirectoryFilter::editDirectory()
     if (m_ui.directoryList->selectedItems().count() < 1)
         return;
     QListWidgetItem *currentItem = m_ui.directoryList->selectedItems().at(0);
-    QString dir = QFileDialog::getExistingDirectory(m_dialog, tr("Choose a directory to add"),
+    QString dir = QFileDialog::getExistingDirectory(m_dialog, tr("Select Directory"),
                                                     currentItem->text());
     if (!dir.isEmpty()) {
         currentItem->setText(dir);

@@ -210,7 +210,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_workingDirectoryEdit = new Utils::PathChooser(this);
     m_workingDirectoryEdit->setPath(m_qt4RunConfiguration->workingDirectory());
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
-    m_workingDirectoryEdit->setPromptDialogTitle(tr("Select the working directory"));
+    m_workingDirectoryEdit->setPromptDialogTitle(tr("Select Working Directory"));
 
     QToolButton *resetButton = new QToolButton(this);
     resetButton->setToolTip(tr("Reset to default"));
@@ -220,9 +220,9 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     boxlayout->setMargin(0);
     boxlayout->addWidget(m_workingDirectoryEdit);
     boxlayout->addWidget(resetButton);
-    toplayout->addRow(tr("Working Directory:"), boxlayout);
+    toplayout->addRow(tr("Working directory:"), boxlayout);
 
-    m_useTerminalCheck = new QCheckBox(tr("Run in Terminal"), this);
+    m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
     toplayout->addRow(QString(), m_useTerminalCheck);
 

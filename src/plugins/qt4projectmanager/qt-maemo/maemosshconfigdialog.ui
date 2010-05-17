@@ -198,7 +198,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Save public Key...</string>
+           <string>Save Public Key...</string>
           </property>
          </widget>
         </item>
@@ -208,7 +208,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Save private Key...</string>
+           <string>Save Private Key...</string>
           </property>
          </widget>
         </item>

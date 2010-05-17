@@ -212,7 +212,7 @@ QWidget *BaseFileFind::createPatternWidget()
 
 QWidget *BaseFileFind::createRegExpWidget()
 {
-    m_useRegExpCheckBox = new QCheckBox(tr("Use Regular E&xpressions"));
+    m_useRegExpCheckBox = new QCheckBox(tr("Use regular e&xpressions"));
     m_useRegExpCheckBox->setChecked(m_useRegExp);
     connect(m_useRegExpCheckBox, SIGNAL(toggled(bool)), this, SLOT(syncRegExpSetting(bool)));
     return m_useRegExpCheckBox;

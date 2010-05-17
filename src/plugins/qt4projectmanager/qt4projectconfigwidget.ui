@@ -14,7 +14,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="nameLabel">
      <property name="text">
-      <string>Configuration Name:</string>
+      <string>Configuration name:</string>
      </property>
     </widget>
    </item>
@@ -37,7 +37,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Qt Version:</string>
+      <string>Qt version:</string>
      </property>
     </widget>
    </item>
@@ -65,7 +65,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>This Qt-Version is invalid.</string>
+        <string>This Qt version is invalid.</string>
        </property>
       </widget>
      </item>
@@ -81,7 +81,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Tool Chain:</string>
+      <string>Tool chain:</string>
      </property>
     </widget>
    </item>
@@ -91,7 +91,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Shadow Build:</string>
+      <string>Shadow build:</string>
      </property>
     </widget>
    </item>
@@ -111,7 +111,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Build Directory:</string>
+      <string>Build directory:</string>
      </property>
     </widget>
    </item>

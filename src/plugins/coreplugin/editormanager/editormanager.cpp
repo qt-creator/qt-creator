@@ -67,6 +67,7 @@
 #include <QtCore/QSettings>
 
 #include <QtGui/QAction>
+#include <QtGui/QShortcut>
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 #include <QtGui/QLayout>
@@ -311,15 +312,20 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
     // Close Action
     cmd = am->registerAction(m_d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext);
-#ifdef Q_WS_WIN
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
-#else
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+W")));
-#endif
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_d->m_closeCurrentEditorAction->text());
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(m_d->m_closeCurrentEditorAction, SIGNAL(triggered()), this, SLOT(closeEditor()));
+
+#ifdef Q_WS_WIN
+    // workaround for QTCREATORBUG-72
+    QShortcut *sc = new QShortcut(parent);
+    cmd = am->registerShortcut(sc, Constants::CLOSE_ALTERNATIVE, editManagerContext);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
+    cmd->setDefaultText(EditorManager::tr("Close"));
+    connect(sc, SIGNAL(activated()), this, SLOT(closeEditor()));
+#endif
 
     // Close All Action
     cmd = am->registerAction(m_d->m_closeAllEditorsAction, Constants::CLOSEALL, editManagerContext);
@@ -733,6 +739,8 @@ void EditorManager::closeOtherEditors()
 // SLOT connected to action
 void EditorManager::closeEditor()
 {
+    if (!m_d->m_currentEditor)
+        return;
     addCurrentPositionToNavigationHistory();
     closeEditor(m_d->m_currentEditor);
 }

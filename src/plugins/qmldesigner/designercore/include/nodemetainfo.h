@@ -82,26 +82,22 @@ public:
     PropertyMetaInfo property(const QString &propertyName, bool resolveDotSyntax = false) const;
 
     QList<NodeMetaInfo> superClasses() const;
-    QList<NodeMetaInfo> directSuperClasses() const;
+    NodeMetaInfo directSuperClass() const;
     QHash<QString,PropertyMetaInfo> properties(bool resolveDotSyntax = false) const;
-
 
     QString typeName() const;
     int majorVersion() const;
     int minorVersion() const;
+
+    bool availableInVersion(int majorVersion, int minorVersion) const;
 
     bool hasDefaultProperty() const;
     QString defaultProperty() const;
 
     bool hasProperty(const QString &propertyName, bool resolveDotSyntax = false) const;
     bool isContainer() const;
-
-    bool isWidget() const;
-    bool isGraphicsWidget() const;
-    bool isGraphicsObject() const;
-    bool isQmlGraphicsItem() const;
     bool isComponent() const;
-    bool isSubclassOf(const QString& type, int majorVersion = 4, int minorVersion = 6) const;
+    bool isSubclassOf(const QString& type, int majorVersion, int minorVersio) const;
 
     QIcon icon() const;
 
@@ -110,14 +106,13 @@ private:
     NodeMetaInfo(const MetaInfo &metaInfo);
 
     void setInvalid();
-    void setTypeName(const QString &typeName);
+    void setType(const QString &typeName, int majorVersion, int minorVersion);
     void addProperty(const PropertyMetaInfo &property);
     void setIsContainer(bool isContainer);
     void setIcon(const QIcon &icon);
     void setQmlFile(const QString &filePath);
     void setDefaultProperty(const QString &defaultProperty);
-    void setMajorVersion(int version);
-    void setMinorVersion(int version);
+    void setSuperClass(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
 
     bool hasLocalProperty(const QString &propertyName, bool resolveDotSyntax = false) const;
     QHash<QString,PropertyMetaInfo> dotProperties() const;

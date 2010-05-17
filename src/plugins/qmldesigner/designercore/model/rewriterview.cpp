@@ -382,6 +382,14 @@ void RewriterView::setTextModifier(TextModifier *textModifier)
         connect(m_textModifier, SIGNAL(textChanged()), this, SLOT(qmlTextChanged()));
 }
 
+QString RewriterView::textModifierContent() const
+{
+    if (textModifier())
+        return textModifier()->text();
+
+    return QString();
+}
+
 void RewriterView::applyModificationGroupChanges()
 {
     Q_ASSERT(transactionLevel == 0);
@@ -397,7 +405,7 @@ void RewriterView::applyChanges()
 
     if (inErrorState()) {
         qDebug() << "RewriterView::applyChanges() got called while in error state. Will do a quick-exit now.";
-        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "RewriterView::applyChanges() already in error state");
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "RewriterView::applyChanges() already in error state", textModifierContent());
     }
 
     try {
@@ -410,7 +418,7 @@ void RewriterView::applyChanges()
     }
 
     if (inErrorState()) {
-        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, m_rewritingErrorMessage);
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, m_rewritingErrorMessage, textModifierContent());
     }
 }
 

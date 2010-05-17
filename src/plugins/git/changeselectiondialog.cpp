@@ -40,7 +40,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(QWidget *parent)
 {
     m_ui.setupUi(this);
     connect(m_ui.repositoryButton, SIGNAL(clicked()), this, SLOT(selectWorkingDirectory()));
-    setWindowTitle(tr("Select a Git commit"));
+    setWindowTitle(tr("Select a Git Commit"));
 }
 
 QString ChangeSelectionDialog::change() const
@@ -62,7 +62,7 @@ void ChangeSelectionDialog::selectWorkingDirectory()
 {
     static QString location;
     location = QFileDialog::getExistingDirectory(this,
-                                      tr("Select Git repository"),
+                                      tr("Select Git Repository"),
                                       location);
     if (location.isEmpty())
         return;

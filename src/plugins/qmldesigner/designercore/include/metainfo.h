@@ -74,17 +74,13 @@ public:
     ~MetaInfo();
     MetaInfo& operator=(const MetaInfo &other);
 
-    bool hasNodeMetaInfo(const QString &typeName, int majorVersion = 4, int minorVersion = 6) const;
-    NodeMetaInfo nodeMetaInfo(const QString &typeName, int majorVersion = 4, int minorVersion = 6) const;
-
-    // TODO: Move these to private
-    bool isSubclassOf(const QString &className, const QString &superClassName) const;
-    bool isSubclassOf(const ModelNode &modelNode, const QString &superClassName) const;
+    bool hasNodeMetaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1) const;
+    NodeMetaInfo nodeMetaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1) const;
 
     bool hasEnumerator(const QString &enumeratorName) const;
     EnumeratorMetaInfo enumerator(const QString &enumeratorName) const;
 
-    ItemLibraryInfo itemLibraryInfo() const;
+    ItemLibraryInfo *itemLibraryInfo() const;
 
     QString fromQtTypes(const QString &type) const;
 
@@ -96,16 +92,8 @@ public:
     static void setPluginPaths(const QStringList &paths);
 
 private:
-    QStringList superClasses(const QString &className) const;
-    QStringList directSuperClasses(const QString &className) const;
-    QList<NodeMetaInfo> superClasses(const NodeMetaInfo &nodeMetaInfo) const;
-    QList<NodeMetaInfo> directSuperClasses(const NodeMetaInfo &nodeMetaInfo) const;
-
-    void addSuperClassRelationship(const QString &superClassName, const QString &className);
-
-    void addNodeInfo(NodeMetaInfo &info, const QString &baseType);
+    void addNodeInfo(NodeMetaInfo &info);
     void removeNodeInfo(NodeMetaInfo &info);
-    void replaceNodeInfo(NodeMetaInfo &oldInfo, NodeMetaInfo &newInfo, const QString &baseType);
 
     EnumeratorMetaInfo addEnumerator(const QString &enumeratorScope, const QString &enumeratorName);
     EnumeratorMetaInfo addFlag(const QString &enumeratorScope, const QString &enumeratorName);

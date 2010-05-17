@@ -72,6 +72,11 @@ FileShareProtocolSettingsWidget::FileShareProtocolSettingsWidget(QWidget *parent
     QWidget(parent)
 {
     m_ui.setupUi(this);
+
+    // Add a space in front of the suffix
+    QString suffix = m_ui.displayCountSpinBox->suffix();
+    suffix.prepend(QLatin1Char(' '));
+    m_ui.displayCountSpinBox->setSuffix(suffix);
 }
 
 void FileShareProtocolSettingsWidget::setSettings(const FileShareProtocolSettings &s)

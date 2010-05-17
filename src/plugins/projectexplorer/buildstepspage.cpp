@@ -302,7 +302,7 @@ void BuildStepsPage::setupUi()
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     hboxLayout->setContentsMargins(m_leftMargin, 4, 0, 0);
     m_addButton = new QPushButton(this);
-    m_addButton->setText(m_type == Clean ? tr("Add clean step") :  tr("Add build step"));
+    m_addButton->setText(m_type == Clean ? tr("Add Clean Step") :  tr("Add Build Step"));
     m_addButton->setMenu(new QMenu(this));
     hboxLayout->addWidget(m_addButton);
 

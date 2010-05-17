@@ -36,7 +36,7 @@
       <bool>true</bool>
      </property>
      <property name="title">
-      <string>Environment variables</string>
+      <string>Environment Variables</string>
      </property>
      <property name="checkable">
       <bool>true</bool>

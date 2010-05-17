@@ -461,6 +461,9 @@ void StatesEditorView::sceneChanged()
 }
 
 void StatesEditorView::startUpdateTimer(int i, int offset) {
+    if (debug)
+        qDebug() << __FUNCTION__ << i << offset;
+
     if (i < 0 || i >  m_modelStates.count())
         return;
 

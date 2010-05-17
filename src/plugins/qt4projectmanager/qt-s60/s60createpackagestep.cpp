@@ -75,7 +75,7 @@ S60CreatePackageStep::S60CreatePackageStep(ProjectExplorer::BuildConfiguration *
 
 void S60CreatePackageStep::ctor_package()
 {
-    setDisplayName(tr("Create sis Package", "Create sis package build step name"));
+    setDisplayName(tr("Create SIS Package", "Create SIS package build step name"));
 }
 
 S60CreatePackageStep::~S60CreatePackageStep()
@@ -239,7 +239,7 @@ QStringList S60CreatePackageStepFactory::availableCreationIds(ProjectExplorer::B
 QString S60CreatePackageStepFactory::displayNameForId(const QString &id) const
 {
     if (id == QLatin1String(SIGN_BS_ID))
-        return tr("Create sis Package");
+        return tr("Create SIS Package");
     return QString();
 }
 
@@ -299,8 +299,8 @@ QString S60CreatePackageStepConfigWidget::summaryText() const
                .arg(m_signStep->customKeyPath());
     }
     if (m_signStep->createSmartInstaller())
-        return tr("<b>Create sis Package:</b> %1, using Smart Installer").arg(text);
-    return tr("<b>Create sis Package:</b> %1").arg(text);
+        return tr("<b>Create SIS Package:</b> %1, using Smart Installer").arg(text);
+    return tr("<b>Create SIS Package:</b> %1").arg(text);
 }
 
 QString S60CreatePackageStepConfigWidget::displayName() const

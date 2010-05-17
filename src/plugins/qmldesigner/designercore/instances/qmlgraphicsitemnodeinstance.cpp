@@ -150,7 +150,7 @@ QRectF QmlGraphicsItemNodeInstance::boundingRect() const
 
         double implicitHeight = qmlGraphicsItem()->implicitHeight();
         if (!m_hasHeight
-            && implicitWidth // WORKAROUND
+            && implicitHeight // WORKAROUND
             && implicitHeight != qmlGraphicsItem()->height()
             && !modelNode().hasBindingProperty("height")) {
             qmlGraphicsItem()->blockSignals(true);

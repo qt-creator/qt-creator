@@ -103,7 +103,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     nameLabel->setBuddy(m_nameLineEdit);
     formLayout->addRow(nameLabel, m_nameLineEdit);
     formLayout->addRow(tr("Arguments:"), m_argumentsLineEdit);
-    formLayout->addRow(tr("Install File:"), m_sisFileLabel);
+    formLayout->addRow(tr("Installation file:"), m_sisFileLabel);
 
     updateSerialDevices();
     connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(updated()),
@@ -122,7 +122,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
         serialPortHBoxLayout->addWidget(updateSerialDevicesButton);
     }
 
-    formLayout->addRow(tr("Device on Serial Port:"), serialPortHBoxLayout);
+    formLayout->addRow(tr("Device on serial port:"), serialPortHBoxLayout);
 
     // Device Info with button. Widgets are enabled in above call to updateSerialDevices()
     QHBoxLayout *infoHBoxLayout = new QHBoxLayout;

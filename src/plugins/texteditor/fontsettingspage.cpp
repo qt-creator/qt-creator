@@ -450,7 +450,7 @@ void FontSettingsPage::copyColorScheme()
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setInputMode(QInputDialog::TextInput);
     dialog->setWindowTitle(tr("Copy Color Scheme"));
-    dialog->setLabelText(tr("Color Scheme name:"));
+    dialog->setLabelText(tr("Color scheme name:"));
     dialog->setTextValue(tr("%1 (copy)").arg(d_ptr->m_value.colorScheme().displayName()));
 
     connect(dialog, SIGNAL(textValueSelected(QString)), this, SLOT(copyColorScheme(QString)));

@@ -616,6 +616,7 @@ NodeInstance NodeInstanceView::loadNode(const ModelNode &node, QObject *objectTo
 
 void NodeInstanceView::activateState(const NodeInstance &instance)
 {
+    activateBaseState();
     NodeInstance stateInstance(instance);
     stateInstance.activateState();
 }

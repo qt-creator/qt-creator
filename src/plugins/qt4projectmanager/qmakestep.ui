@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>qmake Build Configuration:</string>
+      <string>qmake build configuration:</string>
      </property>
     </widget>
    </item>
@@ -31,12 +31,12 @@
      </property>
      <item>
       <property name="text">
-       <string>debug</string>
+       <string>Debug</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>release</string>
+       <string>Release</string>
       </property>
      </item>
     </widget>

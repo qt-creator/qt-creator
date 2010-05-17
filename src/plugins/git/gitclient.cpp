@@ -862,7 +862,7 @@ QString GitClient::synchronousStash(const QString &workingDirectory,
             do {
                 if ((flags & StashPromptDescription)) {
                     if (!inputText(Core::ICore::instance()->mainWindow(),
-                         tr("Stash description"), tr("Description:"), &message))
+                         tr("Stash Description"), tr("Description:"), &message))
                         break;
                 }
                 if (!executeSynchronousStash(workingDirectory, message))
