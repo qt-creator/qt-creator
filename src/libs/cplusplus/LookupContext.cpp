@@ -90,7 +90,6 @@ bool ClassOrNamespace::CompareName::operator()(const Name *name, const Name *oth
 // LookupContext
 /////////////////////////////////////////////////////////////////////
 LookupContext::LookupContext()
-    : _control(0)
 { }
 
 LookupContext::LookupContext(Document::Ptr thisDocument,
@@ -99,7 +98,6 @@ LookupContext::LookupContext(Document::Ptr thisDocument,
       _thisDocument(thisDocument),
       _snapshot(snapshot)
 {
-    _control = _expressionDocument->control();
 }
 
 LookupContext::LookupContext(Document::Ptr expressionDocument,
@@ -109,12 +107,10 @@ LookupContext::LookupContext(Document::Ptr expressionDocument,
       _thisDocument(thisDocument),
       _snapshot(snapshot)
 {
-    _control = _expressionDocument->control();
 }
 
 LookupContext::LookupContext(const LookupContext &other)
-    : _control(other._control),
-      _expressionDocument(other._expressionDocument),
+    : _expressionDocument(other._expressionDocument),
       _thisDocument(other._thisDocument),
       _snapshot(other._snapshot),
       _bindings(other._bindings)
@@ -122,7 +118,6 @@ LookupContext::LookupContext(const LookupContext &other)
 
 LookupContext &LookupContext::operator = (const LookupContext &other)
 {
-    _control = other._control;
     _expressionDocument = other._expressionDocument;
     _thisDocument = other._thisDocument;
     _snapshot = other._snapshot;
@@ -150,11 +145,8 @@ void LookupContext::setBindings(QSharedPointer<CreateBindings> bindings)
     _bindings = bindings;
 }
 
-bool LookupContext::isValid() const
-{ return _control != 0; }
-
 Control *LookupContext::control() const
-{ return _control; }
+{ return bindings()->control(); }
 
 Document::Ptr LookupContext::expressionDocument() const
 { return _expressionDocument; }
@@ -391,6 +383,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             else if (s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
 
+#if 0
             if (templateId && (s->isDeclaration() || s->isFunction())) {
 
                 FullySpecifiedType ty = GenTemplateInstance::instantiate(templateId, s, _control);
@@ -415,6 +408,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
                     continue;
                 }
             }
+#endif
 
             result->append(s);
         }

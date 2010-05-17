@@ -204,8 +204,6 @@ public:
     LookupContext(const LookupContext &other);
     LookupContext &operator = (const LookupContext &other);
 
-    bool isValid() const;
-
     Document::Ptr expressionDocument() const;
     Document::Ptr thisDocument() const;
     Document::Ptr document(const QString &fileName) const;
@@ -228,8 +226,6 @@ public:
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
 
 private:
-    Control *_control;
-
     // The current expression.
     Document::Ptr _expressionDocument;
 
