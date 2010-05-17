@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "FindUsages.h"
-#include "TypeOfExpression.h"
 #include "DeprecatedLookupContext.h"
 
 #include <Control.h>
@@ -54,6 +53,7 @@ FindUsages::FindUsages(Document::Ptr doc, const Snapshot &snapshot)
       _inQProperty(false)
 {
     _snapshot.insert(_doc);
+    typeofExpression.init(_doc, _snapshot, _context.bindings());
 }
 
 void FindUsages::setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding)
@@ -268,9 +268,6 @@ void FindUsages::checkExpression(unsigned startToken, unsigned endToken)
 
     const QString expression = _source.mid(begin, end - begin);
     // qDebug() << "*** check expression:" << expression;
-
-    TypeOfExpression typeofExpression;
-    typeofExpression.init(_doc, _snapshot);
 
     unsigned line, column;
     getTokenStartPosition(startToken, &line, &column);

@@ -34,6 +34,7 @@
 #include "CppDocument.h"
 #include "CppBindings.h"
 #include "Semantic.h"
+#include "TypeOfExpression.h"
 #include <ASTVisitor.h>
 #include <QtCore/QSet>
 
@@ -119,6 +120,7 @@ private:
     int _inSimpleDeclaration;
     bool _inQProperty;
     QSet<unsigned> _processed;
+    TypeOfExpression typeofExpression;
 };
 
 } // end of namespace CPlusPlus
