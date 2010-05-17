@@ -89,6 +89,9 @@ QObject *QmlPropertyChangesObject::targetObject() const
 
 void QmlPropertyChangesObject::setTargetObject(QObject *object)
 {
+    if (m_targetObject.data() == object)
+        return;
+
     QMutableListIterator<QDeclarativeAction> actionIterator(m_qmlActionList);
     while (actionIterator.hasNext()) {
          QDeclarativeAction &qmlAction = actionIterator.next();
