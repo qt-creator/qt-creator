@@ -80,7 +80,7 @@ QIcon GitoriousCloneWizard::icon() const
 
 QString GitoriousCloneWizard::description() const
 {
-    return tr("Clones a project from a Gitorious repository and tries to load the contained project.");
+    return tr("Clones a Gitorious repository and tries to load the contained project.");
 }
 
 QString GitoriousCloneWizard::displayName() const

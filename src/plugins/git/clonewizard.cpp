@@ -52,7 +52,7 @@ QIcon CloneWizard::icon() const
 
 QString CloneWizard::description() const
 {
-    return tr("Clones a project from a Git repository and tries to load the contained project.");
+    return tr("Clones a Git repository and tries to load the contained project.");
 }
 
 QString CloneWizard::displayName() const
