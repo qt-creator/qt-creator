@@ -57,9 +57,21 @@ Project support
      directory
 
 Debugging
-   * CDB: Fixed bug in location marker
-   * CDB: Fixed handling of mixed-case file names correctly by normalizing file
+   * Add on-device debugging for the Symbian platform using gdb
+   * Add on-device debugging for the Maemo platform using gdb
+   * gdb: Replace compiled "debugging helpers" by Python based ones
+     (except on Mac)
+   * New debugging helpers for QUrl, QAtomicInt, __gnu_ext::hash_map and more
+   * Additional features for breakpoint, disassembler output, stack,
+     registers and watchers views
+   * Improve variable tooltip handling
+   * gdb: Support reverse execution where available
+   * gdb: Added mixed disassembler/source output whenever possible
+   * cdb: Fixed bug in location marker
+   * cdb: Fixed handling of mixed-case file names correctly by normalizing file
      names
+   * pdb: Added some basic debugging for Python scripts based on pdb
+   * Improvements in the dialogs, status messages, and general appearance
 
 Help
 
