@@ -2170,19 +2170,24 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         if (m_positionPastEnd)
             m_visualTargetColumn = -1;
         updateSelection();
-    } else if (input.is('o') || input.is('O')) {
-        beginEditBlock();
+    } else if (input.is('o')) {
         setDotCommand("%1o", count());
         enterInsertMode();
+        beginEditBlock(position());
         moveToFirstNonBlankOnLine();
-        if (input.is('O'))
-            moveToStartOfLine();
-        else
-            moveBehindEndOfLine();
-        m_tc.insertText("\n");
-        if (input.is('O'))
-            moveUp();
-        insertAutomaticIndentation(input.is('o'));
+        moveBehindEndOfLine();
+        insertText(Register("\n"));
+        insertAutomaticIndentation(true);
+        endEditBlock();
+    } else if (input.is('O')) {
+        setDotCommand("%1O", count());
+        enterInsertMode();
+        beginEditBlock(position());
+        moveToFirstNonBlankOnLine();
+        moveToStartOfLine();
+        insertText(Register("\n"));
+        moveUp();
+        insertAutomaticIndentation(false);
         endEditBlock();
     } else if (input.isControl('o')) {
         if (!m_jumpListUndo.isEmpty()) {
@@ -2519,7 +2524,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         m_lastInsertion.clear();
     } else if (input.isReturn()) {
         m_submode = NoSubMode;
-        m_tc.insertBlock();
+        insertText(Register("\n"));
         m_lastInsertion += "\n";
         insertAutomaticIndentation(true);
         setTargetColumn();
@@ -2542,6 +2547,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
                 m_lastInsertion.clear(); // FIXME
             } else {
                 m_tc.deletePreviousChar();
+                fixMarks(position(), -1);
                 m_lastInsertion.chop(1);
             }
             setTargetColumn();
@@ -3465,9 +3471,10 @@ int FakeVimHandler::Private::indentText(const Range &range, QChar typedChar)
 
     int amount = 0;
     // lineForPosition has returned 1-based line numbers
-    emit q->indentRegion(&amount, beginLine-1, endLine-1, typedChar);
-
-    showBlackMessage("MARKS ARE OFF NOW");
+    emit q->indentRegion(&amount, beginLine - 1, endLine - 1, typedChar);
+    fixMarks(firstPositionInLine(beginLine), amount);
+    if (beginLine != endLine)
+        showBlackMessage("MARKS ARE OFF NOW");
     return amount;
 }
 
@@ -4153,8 +4160,7 @@ void FakeVimHandler::Private::setLineContents(int line, const QString &contents)
     tc.setPosition(block.position());
     tc.setPosition(block.position() + block.length() - 1, KeepAnchor);
     tc.removeSelectedText();
-    fixMarks(block.position(),
-        block.position() + block.length() - 1 - contents.size());
+    fixMarks(block.position(), block.length() - contents.size());
     tc.insertText(contents);
 }
 
@@ -4226,6 +4232,7 @@ void FakeVimHandler::Private::undo()
 
     if (m_undoCursorPosition.contains(rev))
         m_tc.setPosition(m_undoCursorPosition[rev]);
+    setTargetColumn();
     if (atEndOfLine())
         moveLeft();
 }
@@ -4246,6 +4253,7 @@ void FakeVimHandler::Private::redo()
 
     if (m_undoCursorPosition.contains(rev))
         m_tc.setPosition(m_undoCursorPosition[rev]);
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::updateCursor()
@@ -4346,7 +4354,6 @@ void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown)
     if (hasConfig(ConfigSmartIndent)) {
         Range range(m_tc.block().position(), m_tc.block().position());
         m_justAutoIndented = indentText(range, QLatin1Char('\n'));
-        fixMarks(m_tc.block().position(), m_justAutoIndented);
     } else {
         QTextBlock block = goingDown ? m_tc.block().previous() : m_tc.block().next();
         QString text = block.text();
