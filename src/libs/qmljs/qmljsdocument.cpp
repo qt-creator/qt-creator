@@ -251,8 +251,14 @@ Snapshot::~Snapshot()
 void Snapshot::insert(const Document::Ptr &document)
 {
     if (document && (document->qmlProgram() || document->jsProgram())) {
-        _documents.insert(document->fileName(), document);
-        _documentsByPath.insert(document->path(), document);
+        const QString fileName = document->fileName();
+        const QString path = document->path();
+
+        Document::Ptr old = _documents.value(fileName);
+        if (old)
+            _documentsByPath.remove(path, old);
+        _documentsByPath.insert(path, document);
+        _documents.insert(fileName, document);
     }
 }
 
