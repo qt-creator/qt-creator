@@ -2497,7 +2497,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             }
             QString cond = args.first();
-            bool escaped = false; // This is more than qmake does
             bool quoted = false;
             bool ret = true;
             bool orOp = false;
@@ -2512,56 +2511,48 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             const QChar *ed = d + cond.length();
             while (d < ed) {
                 ushort c = (d++)->unicode();
-                if (!escaped) {
-                    if (c == '\\') {
-                        escaped = true;
-                        args += c; // Assume no-one quotes the test name
-                        continue;
-                    } else if (c == '"') {
-                        quoted = !quoted;
-                        args += c; // Ditto
-                        continue;
-                    }
-                } else {
-                    escaped = false;
-                }
+                bool isOp = false;
                 if (quoted) {
-                    args += c; // Ditto
-                } else {
-                    bool isOp = false;
-                    if (c == '(') {
-                        isFunc = true;
-                        if (parens)
-                            args += c;
-                        ++parens;
-                    } else if (c == ')') {
-                        --parens;
-                        if (parens)
-                            args += c;
-                    } else if (!parens) {
-                        if (c == ':' || c == '|')
-                            isOp = true;
-                        else if (c == '!' && test.isEmpty())
-                            invert = true;
-                        else
-                            test += c;
-                    } else {
+                    if (c == '"')
+                        quoted = false;
+                    else if (c == '!' && test.isEmpty())
+                        invert = true;
+                    else
+                        test += c;
+                } else if (c == '(') {
+                    isFunc = true;
+                    if (parens)
                         args += c;
+                    ++parens;
+                } else if (c == ')') {
+                    --parens;
+                    if (parens)
+                        args += c;
+                } else if (!parens) {
+                    if (c == '"')
+                        quoted = true;
+                    else if (c == ':' || c == '|')
+                        isOp = true;
+                    else if (c == '!' && test.isEmpty())
+                        invert = true;
+                    else
+                        test += c;
+                } else {
+                    args += c;
+                }
+                if (!quoted && !parens && (isOp || d == ed)) {
+                    if (m_cumulative || (orOp != ret)) {
+                        if (isFunc)
+                            ret = evaluateConditionalFunction(test, args);
+                        else
+                            ret = isActiveConfig(test, true);
+                        ret ^= invert;
                     }
-                    if (!parens && (isOp || d == ed)) {
-                        if (m_cumulative || (orOp != ret)) {
-                            if (isFunc)
-                                ret = evaluateConditionalFunction(test, args);
-                            else
-                                ret = isActiveConfig(test, true);
-                            ret ^= invert;
-                        }
-                        orOp = (c == '|');
-                        invert = false;
-                        isFunc = false;
-                        test.clear();
-                        args.clear();
-                    }
+                    orOp = (c == '|');
+                    invert = false;
+                    isFunc = false;
+                    test.clear();
+                    args.clear();
                 }
             }
             return returnBool(ret);
