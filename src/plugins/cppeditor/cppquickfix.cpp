@@ -49,6 +49,7 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
+#include <QtGui/QApplication>
 #include <QtGui/QTextBlock>
 
 using namespace CppEditor::Internal;
@@ -129,7 +130,7 @@ public:
 
     virtual QString description() const
     {
-        return QLatin1String("Rewrite using ") + replacement; // ### tr?
+        return QApplication::translate("CppTools::QuickFix", "Rewrite Using %1").arg(replacement);
     }
 
     virtual int match(const QList<AST *> &path)
@@ -223,9 +224,9 @@ public:
     virtual QString description() const
     {
         if (replacement.isEmpty())
-            return QLatin1String("Flip");
+            return QApplication::translate("CppTools::QuickFix", "Swap Operands");
         else
-            return QLatin1String("Flip to use ") + replacement; // ### tr?
+            return QApplication::translate("CppTools::QuickFix", "Rewrite Using %1").arg(replacement);
     }
 
     virtual int match(const QList<AST *> &path)
@@ -297,7 +298,7 @@ public:
 
     virtual QString description() const
     {
-        return QLatin1String("Rewrite condition using ||"); // ### tr?
+        return QApplication::translate("CppTools::QuickFix", "Rewrite Condition Using ||");
     }
 
     virtual int match(const QList<AST *> &path)
@@ -358,7 +359,7 @@ public:
 
     virtual QString description() const
     {
-        return QLatin1String("Split declaration"); // ### tr?
+        return QApplication::translate("CppTools::QuickFix", "Split Declaration");
     }
 
     bool checkDeclaration(SimpleDeclarationAST *declaration) const
@@ -464,7 +465,7 @@ public:
 
     virtual QString description() const
     {
-        return QLatin1String("Add curly braces"); // ### tr?
+        return QApplication::translate("CppTools::QuickFix", "Add Curly Braces");
     }
 
     virtual int match(const QList<AST *> &path)
@@ -524,7 +525,7 @@ public:
 
     virtual QString description() const
     {
-        return QLatin1String("Move declaration out of condition"); // ### tr?
+        return QApplication::translate("CppTools::QuickFix", "Move Declaration out of Condition");
     }
 
     virtual int match(const QList<AST *> &path)
@@ -587,7 +588,7 @@ public:
 
     virtual QString description() const
     {
-        return QLatin1String("Move declaration out of condition"); // ### tr?
+        return QApplication::translate("CppTools::QuickFix", "Move Declaration out of Condition");
     }
 
     virtual int match(const QList<AST *> &path)
@@ -672,7 +673,7 @@ public:
 
     virtual QString description() const
     {
-        return QLatin1String("Split if statement"); // ### tr?
+        return QApplication::translate("CppTools::QuickFix", "Split if Statement");
     }
 
     virtual int match(const QList<AST *> &path)
@@ -782,7 +783,7 @@ public:
 
     virtual QString description() const
     {
-        return QLatin1String("Enclose in QLatin1String(...)"); // ### tr?
+        return QApplication::translate("CppTools::QuickFix", "Enclose in QLatin1String(...)");
     }
 
     virtual int match(const QList<AST *> &path)
@@ -849,7 +850,9 @@ public:
     {}
 
     virtual QString description() const
-    { return QLatin1String("Convert to Objective-C string literal"); }// ### tr?
+    {
+        return QApplication::translate("CppTools::QuickFix", "Convert to Objective-C String Literal");
+    }
 
     virtual int match(const QList<AST *> &path)
     {
@@ -922,7 +925,7 @@ public:
 
     virtual QString description() const
     {
-        return QLatin1String("Use fast string concatenation with %"); // ### tr?
+        return QApplication::translate("CppTools::QuickFix", "Use Fast String Concatenation with %");
     }
 
     virtual int match(const QList<AST *> &path)
