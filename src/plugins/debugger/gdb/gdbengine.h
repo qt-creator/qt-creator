@@ -429,7 +429,8 @@ private: ////////// View & Data Stuff //////////
     void handleStackListFrames(const GdbResponse &response);
     void handleStackSelectThread(const GdbResponse &response);
     void handleStackSelectFrame(const GdbResponse &response);
-    void handleStackListThreads(const GdbResponse &response);
+    void handleThreadListIds(const GdbResponse &response);
+    void handleThreadInfo(const GdbResponse &response);
     Q_SLOT void reloadStack(bool forceGotoLocation);
     Q_SLOT virtual void reloadFullStack();
     int currentFrame() const;

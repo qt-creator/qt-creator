@@ -101,14 +101,21 @@ private:
 struct ThreadData
 {
     ThreadData(int threadId = 0);
+
+    // Permanent data.
+    int id;
+    QString targetId;
+    QString core;
+
+    // State information when stopped
     void notifyRunning(); // Clear state information
 
-    int id;
-    // State information when stopped
+    int frameLevel;
     quint64 address;
     QString function;
-    QString file;
-    int line;
+    QString fileName;
+    QString state;
+    int lineNumber;
 };
 
 /*! A model to represent the running threads in a QTreeView or ComboBox */

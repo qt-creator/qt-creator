@@ -197,7 +197,7 @@ void GdbEngine::updateAllPython()
     if (m_gdbAdapter->isTrkAdapter())
         m_gdbAdapter->trkReloadThreads();
     else
-        postCommand("-thread-list-ids", CB(handleStackListThreads), 0);
+        postCommand("-thread-list-ids", CB(handleThreadListIds), 0);
     manager()->reloadRegisters();
     updateLocals();
 }

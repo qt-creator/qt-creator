@@ -129,10 +129,10 @@ bool CdbStackTraceContext::getThreads(const CdbCore::ComInterfaces &cif,
         const CdbCore::StackFrame &coreFrame = it.value();
         data.address = coreFrame.address;
         data.function = coreFrame.function;
-        data.line = coreFrame.line;
+        data.lineNumber = coreFrame.line;
         // Basename only for brevity
         const int slashPos = coreFrame.fileName.lastIndexOf(slash);
-        data.file = slashPos == -1 ? coreFrame.fileName : coreFrame.fileName.mid(slashPos + 1);
+        data.fileName = slashPos == -1 ? coreFrame.fileName : coreFrame.fileName.mid(slashPos + 1);
         threads->push_back(data);
     }
     return true;

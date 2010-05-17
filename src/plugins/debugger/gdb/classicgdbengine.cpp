@@ -581,7 +581,7 @@ void GdbEngine::updateAllClassic()
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     manager()->stackHandler()->setCurrentIndex(0);
     if (supportsThreads())
-        postCommand("-thread-list-ids", WatchUpdate, CB(handleStackListThreads), 0);
+        postCommand("-thread-list-ids", WatchUpdate, CB(handleThreadListIds), 0);
     manager()->reloadRegisters();
     updateLocals();
 }

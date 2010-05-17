@@ -268,19 +268,20 @@ bool StackHandler::isDebuggingDebuggingHelpers() const
 //
 ////////////////////////////////////////////////////////////////////////
 
-ThreadData::ThreadData(int threadId) :
-    id(threadId),
-    address(0),
-    line(-1)
+ThreadData::ThreadData(int threadId)
 {
+    notifyRunning();
+    id = threadId;
 }
 
 void ThreadData::notifyRunning()
 {
     address = 0;
     function.clear();
-    file.clear();
-    line = -1;
+    fileName.clear();
+    frameLevel = -1;
+    state.clear();
+    lineNumber = -1;
 }
 
 enum { IdColumn, AddressColumn, FunctionColumn, FileColumn, LineColumn, ColumnCount };
@@ -320,9 +321,9 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
         case FunctionColumn:
             return thread.function;
         case FileColumn:
-            return thread.file;
+            return thread.fileName;
         case LineColumn:
-            return thread.line >= 0 ? QString::number(thread.line) : QString();
+            return thread.lineNumber >= 0 ? QString::number(thread.lineNumber) : QString();
         case AddressColumn:
             return thread.address > 0 ? QLatin1String("0x") + QString::number(thread.address, 16) : QString();
         }
@@ -330,10 +331,10 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
         if (thread.address == 0)
             return tr("Thread: %1").arg(thread.id);
         // Stopped
-        if (thread.file.isEmpty())
+        if (thread.fileName.isEmpty())
             return tr("Thread: %1 at %2 (0x%3)").arg(thread.id).arg(thread.function).arg(thread.address, 0, 16);
         return tr("Thread: %1 at %2, %3:%4 (0x%5)").
-                arg(thread.id).arg(thread.function, thread.file).arg(thread.line).arg(thread.address, 0, 16);
+                arg(thread.id).arg(thread.function, thread.fileName).arg(thread.lineNumber).arg(thread.address, 0, 16);
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
