@@ -111,7 +111,7 @@
     </itemlibraryentry>
   </node>
 
-  <node name="Qt/WebView" icon=":/fxplugin/images/webview-icon16.png">
+  <node name="org.webkit/WebView" icon=":/fxplugin/images/webview-icon16.png">
     <propertyDefaultValue name="width" type="int" defaultValue="300"/>
     <propertyDefaultValue name="height" type="int" defaultValue="300"/>
     <itemlibraryentry name="Web View" category="Qt - Widgets" icon=":/fxplugin/images/webview-icon.png">
