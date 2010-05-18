@@ -31,7 +31,7 @@
 #define QmlPropertyView_h
 
 #include <qmlmodelview.h>
-#include <QDeclarativeView>
+#include <declarativewidgetview.h>
 #include <QHash>
 #include <QDeclarativePropertyMap>
 #include <QStackedWidget>
@@ -67,7 +67,7 @@ class PropertyEditor: public QmlModelView
         void initialSetup(const QString &typeName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
         void setValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value);
 
-        QDeclarativeView *m_view;
+        DeclarativeWidgetView *m_view;
         Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
         DesignerPropertyMap<PropertyEditorValue> m_backendValuesPropertyMap;
         QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;

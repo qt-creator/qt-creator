@@ -1,4 +1,5 @@
 #include "propertyeditortransaction.h"
+#include <QTimerEvent>
 
 #include <QDebug>
 
