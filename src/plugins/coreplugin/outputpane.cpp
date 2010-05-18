@@ -186,7 +186,7 @@ void OutputPaneManager::updateStatusButtons(bool visible)
     int idx = m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt();
     if (m_buttons.value(idx))
         m_buttons.value(idx)->setChecked(visible);
-    m_minMaxButton->setVisible(OutputPanePlaceHolder::m_current
+    m_minMaxAction->setVisible(OutputPanePlaceHolder::m_current
                                && OutputPanePlaceHolder::m_current->canMaximizeOrMinimize());
 }
 
@@ -224,9 +224,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
 
     m_minMaxAction = new QAction(this);
-    m_minMaxButton->setIcon(m_maximizeIcon);
-    m_minMaxButton->setToolTip(tr("Maximize Output Pane"));
-    m_minMaxAction->setText(m_minMaxButton->toolTip());
+    m_minMaxAction->setIcon(m_maximizeIcon);
+    m_minMaxAction->setText(tr("Maximize Output Pane"));
 
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(slotHide()));
@@ -312,9 +311,10 @@ void OutputPaneManager::init()
     cmd->setDefaultKeySequence(QKeySequence("Alt+9"));
 #endif
     cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setAttribute(Command::CA_UpdateIcon);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
     connect(m_minMaxAction, SIGNAL(triggered()), this, SLOT(slotMinMax()));
-    connect(m_minMaxButton, SIGNAL(clicked()), this, SLOT(slotMinMax()));
+    m_minMaxButton->setDefaultAction(cmd->action());
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
@@ -418,10 +418,9 @@ void OutputPaneManager::slotMinMax()
         return;
     m_maximised = !m_maximised;
     OutputPanePlaceHolder::m_current->maximizeOrMinimize(m_maximised);
-    m_minMaxButton->setIcon(m_maximised ? m_minimizeIcon : m_maximizeIcon);
-    m_minMaxButton->setToolTip(m_maximised ? tr("Minimize Output Pane")
+    m_minMaxAction->setIcon(m_maximised ? m_minimizeIcon : m_maximizeIcon);
+    m_minMaxAction->setText(m_maximised ? tr("Minimize Output Pane")
                                             : tr("Maximize Output Pane"));
-    m_minMaxAction->setText(m_minMaxButton->toolTip());
 }
 
 void OutputPaneManager::buttonTriggered()
