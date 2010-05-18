@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <snippets>
-<snippet>property <tab>type</tab> <tab>name</tab> : <tab>name</tab>
+<snippet>property <tab>type</tab> <tab>name</tab>: <tab>name</tab>
 </snippet>
 <snippet>Item {
 	id: <tab>name</tab>
