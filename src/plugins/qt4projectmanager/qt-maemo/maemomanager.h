@@ -35,13 +35,8 @@
 
 #include <QtGui/QIcon>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QAction);
 
-namespace Core {
-    class Command;
-}
 namespace ProjectExplorer {
     class Project;
     class ToolChain;
@@ -95,7 +90,7 @@ private:
     QIcon icon;
     int m_runCount;
     QSet<Project*> projects;
-    Core::Command *m_qemuCommand;
+    QAction *m_qemuAction;
 };
 
     } // namespace Internal
