@@ -94,6 +94,7 @@ private:
     void addCompletionItem(CPlusPlus::Symbol *symbol);
 
     bool completeInclude(const QTextCursor &cursor);
+    void completePreprocessor();
 
     int globalCompletion(CPlusPlus::Symbol *lastVisibleSymbol,
                          CPlusPlus::Document::Ptr thisDocument,
@@ -131,6 +132,8 @@ private:
 
 private:
     bool objcKeywordsWanted() const;
+
+    static QStringList preprocessorCompletions;
 
     CppModelManager *m_manager;
     TextEditor::ITextEditable *m_editor;

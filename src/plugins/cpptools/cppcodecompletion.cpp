@@ -523,6 +523,10 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
         completionKind = T_SLASH;
         --start;
         break;
+    case '#':
+        completionKind = T_POUND;
+        --start;
+        break;
     }
 
     if (start == pos)
@@ -675,6 +679,13 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             m_completions.append(item);
         }
 
+        return m_startPosition;
+    }
+
+    // Pre-processor completion
+    if (m_completionOperator == T_POUND) {
+        completePreprocessor();
+        m_startPosition = startOfName;
         return m_startPosition;
     }
 
@@ -1254,6 +1265,37 @@ bool CppCodeCompletion::completeInclude(const QTextCursor &cursor)
     }
 
     return !m_completions.isEmpty();
+}
+
+QStringList CppCodeCompletion::preprocessorCompletions
+        = QStringList()
+          << QLatin1String("define")
+          << QLatin1String("error")
+          << QLatin1String("include")
+          << QLatin1String("line")
+          << QLatin1String("pragma")
+          << QLatin1String("undef")
+          << QLatin1String("if")
+          << QLatin1String("ifdef")
+          << QLatin1String("ifndef")
+          << QLatin1String("elif")
+          << QLatin1String("else")
+          << QLatin1String("endif")
+          ;
+
+void CppCodeCompletion::completePreprocessor()
+{
+    TextEditor::CompletionItem item(this);
+
+    foreach (const QString &preprocessorCompletion, preprocessorCompletions) {
+        item.text = preprocessorCompletion;
+        m_completions.append(item);
+    }
+
+    if (objcKeywordsWanted()) {
+        item.text = QLatin1String("import");
+        m_completions.append(item);
+    }
 }
 
 void CppCodeCompletion::completeNamespace(ClassOrNamespace *b)
