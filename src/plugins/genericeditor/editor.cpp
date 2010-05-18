@@ -108,7 +108,7 @@ void Editor::configure()
         m_commentDefinition.setMultiLineStart(definition->multiLineCommentStart());
         m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
 
-        //@todo: It's possible to specify an indenter style in the definition file. However, this
+        // @todo: It's possible to specify an indenter style in the definition file. However, this
         // is not really being used because Kate recommends to configure indentation through
         // another feature. Maybe we should provide something similar in Creator? For now the
         // normal indenter is used.
@@ -143,5 +143,6 @@ Core::IEditor *EditorEditable::duplicate(QWidget *parent)
 {
     Editor *newEditor = new Editor(parent);
     newEditor->duplicateFrom(editor());
+    GenericEditorPlugin::instance()->initializeEditor(newEditor);
     return newEditor->editableInterface();
 }
