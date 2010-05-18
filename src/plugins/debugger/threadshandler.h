@@ -27,82 +27,96 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_STACKHANDLER_H
-#define DEBUGGER_STACKHANDLER_H
+#ifndef THREADSHANDLER_H
+#define THREADSHANDLER_H
 
-#include "stackframe.h"
-
-#include <QtCore/QAbstractItemModel>
-#include <QtCore/QObject>
+#include <QtCore/QAbstractTableModel>
+#include <QtCore/QList>
 
 #include <QtGui/QIcon>
+
 
 namespace Debugger {
 namespace Internal {
 
 ////////////////////////////////////////////////////////////////////////
 //
-// StackModel
+// ThreadData
 //
 ////////////////////////////////////////////////////////////////////////
 
-struct StackCookie
+/*! A structure containing information about a single thread */
+struct ThreadData
 {
-    StackCookie() : isFull(true), gotoLocation(false) {}
-    StackCookie(bool full, bool jump) : isFull(full), gotoLocation(jump) {}
-    bool isFull;
-    bool gotoLocation;
+    ThreadData(int threadId = 0);
+
+    enum {
+        IdColumn,
+        AddressColumn,
+        FunctionColumn,
+        FileColumn,
+        LineColumn,
+        StateColumn,
+        CoreColumn,
+        ColumnCount = CoreColumn
+    };
+
+    // Permanent data.
+    int id;
+    QString targetId;
+    QString core;
+
+    // State information when stopped
+    void notifyRunning(); // Clear state information
+
+    int frameLevel;
+    quint64 address;
+    QString function;
+    QString fileName;
+    QString state;
+    int lineNumber;
 };
 
+
 ////////////////////////////////////////////////////////////////////////
 //
-// StackModel
+// ThreadsHandler
 //
 ////////////////////////////////////////////////////////////////////////
 
-/*! A model to represent the stack in a QTreeView. */
-class StackHandler : public QAbstractTableModel
+/*! A model to represent the running threads in a QTreeView or ComboBox */
+class ThreadsHandler : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    StackHandler(QObject *parent = 0);
+    ThreadsHandler(QObject *parent = 0);
 
-    void setFrames(const QList<StackFrame> &frames, bool canExpand = false);
-    QList<StackFrame> frames() const;
-    void setCurrentIndex(int index);
-    int currentIndex() const { return m_currentIndex; }
-    StackFrame currentFrame() const;
-    int stackSize() const { return m_stackFrames.size(); }
-    QString topAddress() const { return m_stackFrames.at(0).address; }
-
-    // Called from StackHandler after a new stack list has been received
+    int currentThreadId() const;
+    void setCurrentThread(int index);
+    void selectThread(int index);
+    void setThreads(const QList<ThreadData> &threads);
     void removeAll();
-    QAbstractItemModel *stackModel() { return this; }
-    bool isDebuggingDebuggingHelpers() const;
+    QList<ThreadData> threads() const;
+    QAbstractItemModel *threadsModel() { return this; }
+
+    // Clear out all frame information
+    void notifyRunning();
 
 private:
-    // QAbstractTableModel
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    Q_SLOT void resetModel() { reset(); }
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-    QList<StackFrame> m_stackFrames;
+private:
+    QList<ThreadData> m_threads;
     int m_currentIndex;
-    const QVariant m_positionIcon;
-    const QVariant m_emptyIcon;
-    bool m_canExpand;
+    const QIcon m_positionIcon;
+    const QIcon m_emptyIcon;
 };
-
-
 
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::StackCookie)
-
-
-#endif // DEBUGGER_STACKHANDLER_H
+#endif // THREADSHANDLER_H

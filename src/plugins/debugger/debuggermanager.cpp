@@ -57,6 +57,7 @@
 #include "snapshothandler.h"
 #include "stackhandler.h"
 #include "stackframe.h"
+#include "threadshandler.h"
 #include "watchhandler.h"
 
 #include "debuggerdialogs.h"

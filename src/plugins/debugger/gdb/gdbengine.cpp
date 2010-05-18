@@ -56,6 +56,7 @@
 #include "registerhandler.h"
 #include "snapshothandler.h"
 #include "stackhandler.h"
+#include "threadshandler.h"
 #include "watchhandler.h"
 
 #include "sourcefileswindow.h"

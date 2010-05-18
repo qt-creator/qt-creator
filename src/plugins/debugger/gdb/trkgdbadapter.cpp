@@ -35,7 +35,7 @@
 #include "bluetoothlistener_gui.h"
 
 #include "registerhandler.h"
-#include "stackhandler.h"
+#include "threadshandler.h"
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"
 #include "watchutils.h"

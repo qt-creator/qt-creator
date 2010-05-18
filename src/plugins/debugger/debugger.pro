@@ -35,6 +35,7 @@ HEADERS += breakhandler.h \
     procinterrupt.h \
     registerhandler.h \
     registerwindow.h \
+    stackframe.h \
     stackhandler.h \
     stackwindow.h \
     snapshothandler.h \
@@ -46,7 +47,8 @@ HEADERS += breakhandler.h \
     watchwindow.h \
     name_demangler.h \
     debuggeruiswitcher.h \
-    debuggermainwindow.h
+    debuggermainwindow.h \
+    threadshandler.h
 SOURCES += breakhandler.cpp \
     breakwindow.cpp \
     breakwindow.h \
@@ -77,7 +79,9 @@ SOURCES += breakhandler.cpp \
     watchutils.cpp \
     name_demangler.cpp \
     debuggeruiswitcher.cpp \
-    debuggermainwindow.cpp
+    debuggermainwindow.cpp \
+    threadshandler.cpp \
+    stackframe.cpp
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
