@@ -54,6 +54,7 @@
 #include <QtGui/QListView>
 #include <QtGui/QApplication>
 #include <QtGui/QGroupBox>
+#include <QtGui/QStyledItemDelegate>
 
 static const char categoryKeyC[] = "General/LastPreferenceCategory";
 static const char pageKeyC[] = "General/LastPreferencePage";
@@ -200,6 +201,19 @@ bool CategoryFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
 
 // ----------- Category list view
 
+
+class CategoryListViewDelegate : public QStyledItemDelegate
+{
+public:
+    CategoryListViewDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        QSize size = QStyledItemDelegate::sizeHint(option, index);
+        size.setHeight(qMax(size.height(), 32));
+        return size;
+    }
+};
+
 /**
  * Special version of a QListView that has the width of the first column as
  * minimum size.
@@ -210,6 +224,7 @@ public:
     CategoryListView(QWidget *parent = 0) : QListView(parent)
     {
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+        setItemDelegate(new CategoryListViewDelegate(this));
     }
 
     virtual QSize sizeHint() const
