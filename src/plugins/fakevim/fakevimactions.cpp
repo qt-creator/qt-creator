@@ -209,11 +209,6 @@ FakeVimSettings *theFakeVimSettings()
     item->setSettingsKey(group, _("IsKeyword"));
     instance->insertItem(ConfigIsKeyword, item, _("iskeyword"), _("isk"));
 
-    item = new SavedAction(instance);
-    item->setText(QCoreApplication::translate("FakeVim::Internal",
-        "FakeVim properties..."));
-    instance->insertItem(SettingsDialog, item);
-
     // Invented here.
     item = new SavedAction(instance);
     item->setDefaultValue(false);

@@ -217,14 +217,6 @@ enum MoveType
                            all characters in the affected lines up to the end
                            of these lines.
 */
-enum RangeMode
-{
-    RangeCharMode,         // v
-    RangeLineMode,         // V
-    RangeLineModeExclusive,
-    RangeBlockMode,        // Ctrl-v
-    RangeBlockAndTailMode, // Ctrl-v for D and X
-};
 
 enum EventResult
 {
@@ -258,38 +250,36 @@ struct Register
     RangeMode rangemode;
 };
 
-struct Range
+
+
+Range::Range()
+    : beginPos(-1), endPos(-1), rangemode(RangeCharMode)
+{}
+
+Range::Range(int b, int e, RangeMode m)
+    : beginPos(qMin(b, e)), endPos(qMax(b, e)), rangemode(m)
+{}
+
+QString Range::toString() const
 {
-    Range()
-        : beginPos(-1), endPos(-1), rangemode(RangeCharMode)
-    {}
+    return QString("%1-%2 (mode: %3)").arg(beginPos).arg(endPos)
+        .arg(rangemode);
+}
 
-    Range(int b, int e, RangeMode m = RangeCharMode)
-        : beginPos(qMin(b, e)), endPos(qMax(b, e)), rangemode(m)
-    {}
-
-    QString toString() const
-    {
-        return QString("%1-%2 (mode: %3)").arg(beginPos).arg(endPos)
-            .arg(rangemode);
-    }
-
-    int beginPos;
-    int endPos;
-    RangeMode rangemode;
-};
-
-struct ExCommand
+QDebug operator<<(QDebug ts, const Range &range)
 {
-    ExCommand(const QString &c, int b = -1, int e = -1)
-        : line(c), range(b, e, RangeLineMode) {}
-    QString line;
-    Range range;
-};
+    return ts << '[' << range.beginPos << ',' << range.endPos << ']';
+}
+
+
+
+ExCommand::ExCommand(const QString &c, const QString &a, const Range &r)
+    : cmd(c), hasBang(false), args(a), range(r)
+{}
 
 QDebug operator<<(QDebug ts, const ExCommand &cmd)
 {
-    return ts << cmd.line << cmd.range.beginPos << cmd.range.endPos;
+    return ts << cmd.cmd << ' ' << cmd.args << ' ' << cmd.range;
 }
 
 QDebug operator<<(QDebug ts, const QList<QTextEdit::ExtraSelection> &sels)
@@ -650,13 +640,6 @@ public:
         { m_tc.beginEditBlock(); m_tc.insertText("x");
           m_tc.deletePreviousChar(); m_tc.endEditBlock(); }
 
-    // this asks the layer above (e.g. the fake vim plugin or the
-    // stand-alone test application to handle the command)
-    void passUnknownExCommand(const QString &cmd);
-    // this asks the layer above (e.g. the fake vim plugin or the
-    // stand-alone test application to handle the set command)
-    void passUnknownSetCommand(const QString &cmd);
-
     bool isVisualMode() const { return m_visualMode != NoVisualMode; }
     bool isNoVisualMode() const { return m_visualMode == NoVisualMode; }
     bool isVisualCharMode() const { return m_visualMode == VisualCharMode; }
@@ -806,6 +789,7 @@ public:
     QString m_oldNeedle;
 
     bool handleExCommandHelper(const ExCommand &cmd); // Returns success.
+    bool handleExPluginCommand(const ExCommand &cmd); // Handled by plugin?
     bool handleExBangCommand(const ExCommand &cmd);
     bool handleExDeleteCommand(const ExCommand &cmd);
     bool handleExGotoCommand(const ExCommand &cmd);
@@ -815,7 +799,7 @@ public:
     bool handleExReadCommand(const ExCommand &cmd);
     bool handleExRedoCommand(const ExCommand &cmd);
     bool handleExSetCommand(const ExCommand &cmd);
-    bool handleExShiftRightCommand(const ExCommand &cmd);
+    bool handleExShiftCommand(const ExCommand &cmd);
     bool handleExSourceCommand(const ExCommand &cmd);
     bool handleExSubstituteCommand(const ExCommand &cmd);
     bool handleExWriteCommand(const ExCommand &cmd);
@@ -2819,7 +2803,8 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
 bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     // :substitute
 {
-    QString line = cmd.line;
+    QString line = cmd.cmd + ' ' + cmd.args;
+    line = line.trimmed();
     if (line.startsWith(_("substitute")))
         line = line.mid(10);
     else if (line.startsWith('s') && line.size() > 1
@@ -2827,6 +2812,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
         line = line.mid(1);
     else
         return false;
+
     // we have /{pattern}/{string}/[flags]  now
     if (line.isEmpty())
         return false;
@@ -2899,12 +2885,10 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
 {
-    const int pos1 = cmd0.line.indexOf(QLatin1Char(' '));
-
     QByteArray modes;
     enum Type { Map, Noremap, Unmap } type;
 
-    QByteArray cmd = cmd0.line.left(pos1).toLatin1();
+    QByteArray cmd = cmd0.cmd.toLatin1();
 
     // Strange formatting. But everything else is even uglier.
     if (cmd == "map") { modes = "nvo"; type = Map; } else
@@ -2942,15 +2926,15 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     else
         return false;
 
-    const int pos2 = cmd0.line.indexOf(QLatin1Char(' '), pos1 + 1);
-    if (pos1 == -1 || pos2 == -1) {
+    const int pos = cmd0.args.indexOf(QLatin1Char(' '));
+    if (pos == -1) {
         // FIXME: Dump mappings here.
         //qDebug() << g.mappings;
         return true;;
     }
 
-    QString lhs = cmd0.line.mid(pos1 + 1, pos2 - pos1 - 1);
-    QString rhs = cmd0.line.mid(pos2 + 1);
+    QString lhs = cmd0.args.left(pos);
+    QString rhs = cmd0.args.mid(pos + 1);
     Inputs key;
     key.parseFrom(lhs);
     //qDebug() << "MAPPING: " << modes << lhs << rhs;
@@ -2973,14 +2957,13 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     return true;
 }
 
-bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd) // :history
+bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
 {
-    static QRegExp reHistory("^his(tory)?( (.*))?$");
-    if (reHistory.indexIn(cmd.line) == -1)
+    // :history
+    if (cmd.cmd != "his" && cmd.cmd != "history")
         return false;
 
-    QString arg = reHistory.cap(3);
-    if (arg.isEmpty()) {
+    if (cmd.args.isEmpty()) {
         QString info;
         info += "#  command history\n";
         int i = 0;
@@ -2996,67 +2979,65 @@ bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd) // :h
     return true;
 }
 
-bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd) // :set
+bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 {
-    static QRegExp reSet("^set?( (.*))?$");
-    if (reSet.indexIn(cmd.line) == -1)
+    // :set
+    if (cmd.cmd != "se" && cmd.cmd != "set")
         return false;
 
     showBlackMessage(QString());
-    QString arg = reSet.cap(2).trimmed();
-    SavedAction *act = theFakeVimSettings()->item(arg);
-    if (arg.isEmpty()) {
-        theFakeVimSetting(SettingsDialog)->trigger(QVariant());
-    } else if (act && act->value().type() == QVariant::Bool) {
-        // boolean config to be switched on
+    SavedAction *act = theFakeVimSettings()->item(cmd.args);
+    QTC_ASSERT(!cmd.args.isEmpty(), /**/); // Handled by plugin.
+    if (act && act->value().type() == QVariant::Bool) {
+        // Boolean config to be switched on.
         bool oldValue = act->value().toBool();
         if (oldValue == false)
             act->setValue(true);
         else if (oldValue == true)
             {} // nothing to do
     } else if (act) {
-        // non-boolean to show
-        showBlackMessage(arg + '=' + act->value().toString());
-    } else if (arg.startsWith(_("no"))
-            && (act = theFakeVimSettings()->item(arg.mid(2)))) {
-        // boolean config to be switched off
+        // Non-boolean to show.
+        showBlackMessage(cmd.args + '=' + act->value().toString());
+    } else if (cmd.args.startsWith(_("no"))
+            && (act = theFakeVimSettings()->item(cmd.args.mid(2)))) {
+        // Boolean config to be switched off.
         bool oldValue = act->value().toBool();
         if (oldValue == true)
             act->setValue(false);
         else if (oldValue == false)
             {} // nothing to do
-    } else if (arg.contains('=')) {
-        // non-boolean config to set
-        int p = arg.indexOf('=');
-        act = theFakeVimSettings()->item(arg.left(p));
+    } else if (cmd.args.contains('=')) {
+        // Non-boolean config to set.
+        int p = cmd.args.indexOf('=');
+        act = theFakeVimSettings()->item(cmd.args.left(p));
         if (act)
-            act->setValue(arg.mid(p + 1));
+            act->setValue(cmd.args.mid(p + 1));
     } else {
-        passUnknownSetCommand(arg);
+        showRedMessage(FakeVimHandler::tr("Unknown option: ") + cmd.args);
     }
     updateMiniBuffer();
     updateEditor();
     return true;
 }
 
-bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd) // :normal
+bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
 {
-    static QRegExp reNormal("^norm(al)?( (.*))?$");
-    if (reNormal.indexIn(cmd.line) == -1)
+    // :normal
+    if (cmd.cmd != "norm" && cmd.cmd != "normal") 
         return false;
     //qDebug() << "REPLAY NORMAL: " << quoteUnprintable(reNormal.cap(3));
-    replay(reNormal.cap(3), 1);
+    replay(cmd.args, 1);
     return true;
 }
 
-bool FakeVimHandler::Private::handleExDeleteCommand(const ExCommand &cmd) // :d
+bool FakeVimHandler::Private::handleExDeleteCommand(const ExCommand &cmd)
 {
-    static QRegExp reDelete("^d(elete)?( (.*))?$");
-    if (reDelete.indexIn(cmd.line) == -1)
+    // :delete
+    if (cmd.cmd != "d" && cmd.cmd != "delete")
         return false;
 
     setCurrentRange(cmd.range);
-    QString reg = reDelete.cap(3);
+    QString reg = cmd.args;
     QString text = selectText(cmd.range);
     removeText(currentRange());
     if (!reg.isEmpty()) {
@@ -3068,10 +3049,10 @@ bool FakeVimHandler::Private::handleExDeleteCommand(const ExCommand &cmd) // :d
 }
 
 bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
-    // :w, :x, :q, :wq, ...
 {
-    static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
-    if (reWrite.indexIn(cmd.line) == -1) // :w and :x
+    // :w, :x, :wq, ...
+    //static QRegExp reWrite("^[wx]q?a?!?( (.*))?$");
+    if (cmd.cmd != "w" && cmd.cmd != "x" && cmd.cmd != "wq")
         return false;
 
     int beginLine = lineForPosition(cmd.range.beginPos);
@@ -3082,16 +3063,11 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
     if (endLine == -1)
         endLine = linesInDocument();
     //qDebug() << "LINES: " << beginLine << endLine;
-    int indexOfSpace = cmd.line.indexOf(QChar(' '));
-    QString prefix;
-    if (indexOfSpace < 0)
-        prefix = cmd.line;
-    else
-        prefix = cmd.line.left(indexOfSpace);
-    const bool forced = prefix.contains(QChar('!'));
-    const bool quit = prefix.contains(QChar('q')) || prefix.contains(QChar('x'));
-    const bool quitAll = quit && prefix.contains(QChar('a'));
-    QString fileName = reWrite.cap(2);
+    QString prefix = cmd.args;
+    const bool forced = cmd.hasBang;
+    //const bool quit = prefix.contains(QChar('q')) || prefix.contains(QChar('x'));
+    //const bool quitAll = quit && prefix.contains(QChar('a'));
+    QString fileName = cmd.args;
     if (fileName.isEmpty())
         fileName = m_currentFileName;
     QFile file1(fileName);
@@ -3100,25 +3076,21 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
         showRedMessage(FakeVimHandler::tr
             ("File \"%1\" exists (add ! to override)").arg(fileName));
     } else if (file1.open(QIODevice::ReadWrite)) {
+        // Nobody cared, so act ourselves.
         file1.close();
         QTextCursor tc = m_tc;
         Range range(firstPositionInLine(beginLine),
             firstPositionInLine(endLine), RangeLineMode);
         QString contents = selectText(range);
         m_tc = tc;
-        bool handled = false;
-        emit q->writeFileRequested(&handled, fileName, contents);
-        // Nobody cared, so act ourselves.
-        if (!handled) {
-            QFile::remove(fileName);
-            QFile file2(fileName);
-            if (file2.open(QIODevice::ReadWrite)) {
-                QTextStream ts(&file2);
-                ts << contents;
-            } else {
-                showRedMessage(FakeVimHandler::tr
-                   ("Cannot open file \"%1\" for writing").arg(fileName));
-            }
+        QFile::remove(fileName);
+        QFile file2(fileName);
+        if (file2.open(QIODevice::ReadWrite)) {
+            QTextStream ts(&file2);
+            ts << contents;
+        } else {
+            showRedMessage(FakeVimHandler::tr
+               ("Cannot open file \"%1\" for writing").arg(fileName));
         }
         // Check result by reading back.
         QFile file3(fileName);
@@ -3127,10 +3099,10 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
         showBlackMessage(FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
             .arg(fileName).arg(exists ? " " : " [New] ")
             .arg(ba.count('\n')).arg(ba.size()));
-        if (quitAll)
-            passUnknownExCommand(forced ? "qa!" : "qa");
-        else if (quit)
-            passUnknownExCommand(forced ? "q!" : "q");
+        //if (quitAll)
+        //    passUnknownExCommand(forced ? "qa!" : "qa");
+        //else if (quit)
+        //    passUnknownExCommand(forced ? "q!" : "q");
     } else {
         showRedMessage(FakeVimHandler::tr
             ("Cannot open file \"%1\" for reading").arg(fileName));
@@ -3138,16 +3110,17 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
     return true;
 }
 
-bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd) // :r
+bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
 {
-    if (!cmd.line.startsWith(_("r ")))
+    // :read
+    if (cmd.cmd != "r" && cmd.cmd != "read")
         return false;
 
     beginEditBlock();
     moveToStartOfLine();
     setTargetColumn();
     moveDown();
-    m_currentFileName = cmd.line.mid(2).trimmed();
+    m_currentFileName = cmd.args;
     QFile file(m_currentFileName);
     file.open(QIODevice::ReadOnly);
     QTextStream ts(&file);
@@ -3161,12 +3134,12 @@ bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd) // :r
 
 bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
 {
-    if (!cmd.line.startsWith(QLatin1Char('!')))
+    if (!cmd.cmd.startsWith(QLatin1Char('!')))
         return false;
 
     setCurrentRange(cmd.range);
     int targetPosition = firstPositionInLine(lineForPosition(cmd.range.beginPos));
-    QString command = cmd.line.mid(1).trimmed();
+    QString command = QString(cmd.cmd.mid(1) + ' ' + cmd.args).trimmed();
     QString text = selectText(cmd.range);
     QProcess proc;
     proc.start(command);
@@ -3190,24 +3163,29 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
     return true;
 }
 
-bool FakeVimHandler::Private::handleExShiftRightCommand(const ExCommand &cmd) // :>
+bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
 {
-    if (!cmd.line.startsWith(QLatin1Char('>')))
+    if (cmd.cmd != "<" && cmd.cmd != ">")
         return false;
 
     setCurrentRange(cmd.range);
-    shiftRegionRight(1);
+    int count = qMin(1, cmd.args.toInt());
+    if (cmd.cmd == "<")
+        shiftRegionLeft(count);
+    else
+        shiftRegionRight(count);
     leaveVisualMode();
     const int beginLine = lineForPosition(cmd.range.beginPos);
     const int endLine = lineForPosition(cmd.range.endPos);
-    showBlackMessage(FakeVimHandler::tr("%n lines >ed %1 time", 0,
-        (endLine - beginLine + 1)).arg(1));
+    showBlackMessage(FakeVimHandler::tr("%n lines %1ed %2 time", 0,
+        (endLine - beginLine + 1)).arg(cmd.cmd).arg(count));
     return true;
 }
 
-bool FakeVimHandler::Private::handleExRedoCommand(const ExCommand &cmd) // :redo
+bool FakeVimHandler::Private::handleExRedoCommand(const ExCommand &cmd)
 {
-    if (cmd.line != "red" && cmd.line != "redo")
+    // :redo
+    if (cmd.cmd != "red" && cmd.cmd != "redo")
         return false;
 
     redo();
@@ -3215,10 +3193,10 @@ bool FakeVimHandler::Private::handleExRedoCommand(const ExCommand &cmd) // :redo
     return true;
 }
 
-bool FakeVimHandler::Private::handleExGotoCommand(const ExCommand &cmd) // :<nr>
+bool FakeVimHandler::Private::handleExGotoCommand(const ExCommand &cmd)
 {
-    // Only "range" given.
-    if (!cmd.line.isEmpty())
+    // :<nr>
+    if (!cmd.cmd.isEmpty())
         return false;
 
     const int beginLine = lineForPosition(cmd.range.beginPos);
@@ -3227,13 +3205,13 @@ bool FakeVimHandler::Private::handleExGotoCommand(const ExCommand &cmd) // :<nr>
     return true;
 }
 
-bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd) // :source
+bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
 {
-    const int pos = cmd.line.indexOf(' ');
-    if (cmd.line.leftRef(pos) != "so" && cmd.line.leftRef(pos) != "source")
+    // :source
+    if (cmd.cmd != "so" && cmd.cmd != "source")
         return false;
 
-    QString fileName = cmd.line.mid(pos + 1).trimmed();
+    QString fileName = cmd.args;
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
         showRedMessage(FakeVimHandler::tr("Can't open file %1").arg(fileName));
@@ -3266,8 +3244,6 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd) // :so
 void FakeVimHandler::Private::handleExCommand(const QString &line0)
 {
     QString line = line0; // Make sure we have a copy to prevent aliasing.
-    ExCommand cmd(line, -1, -1);
-
     // FIXME: that seems to be different for %w and %s
     if (line.startsWith(QLatin1Char('%')))
         line = "1,$" + line.mid(1);
@@ -3282,19 +3258,26 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
         endLine = beginLine;
     const int beginPos = firstPositionInLine(beginLine);
     const int endPos = lastPositionInLine(endLine);
+    ExCommand cmd;
+    const QString arg0 = line.section(' ', 0, 0);
+    cmd.cmd = arg0;
+    cmd.args = line.mid(arg0.size() + 1).trimmed();
     cmd.range = Range(beginPos, endPos, RangeLineMode);
-    cmd.line = line;
+    cmd.hasBang = arg0.endsWith('!');
+    if (cmd.hasBang)
+        cmd.cmd.chop(1);
     //qDebug() << "CMD: " << cmd;
 
     enterCommandMode();
     showBlackMessage(QString());
     if (!handleExCommandHelper(cmd))
-        passUnknownExCommand(cmd.line);
+        showRedMessage(tr("Not an editor command: %1").arg(cmd.cmd));
 }
 
 bool FakeVimHandler::Private::handleExCommandHelper(const ExCommand &cmd)
 {
-    return handleExGotoCommand(cmd)
+    return handleExPluginCommand(cmd)
+        || handleExGotoCommand(cmd)
         || handleExBangCommand(cmd)
         || handleExHistoryCommand(cmd)
         || handleExDeleteCommand(cmd)
@@ -3303,27 +3286,21 @@ bool FakeVimHandler::Private::handleExCommandHelper(const ExCommand &cmd)
         || handleExReadCommand(cmd)
         || handleExRedoCommand(cmd)
         || handleExSetCommand(cmd)
-        || handleExShiftRightCommand(cmd)
+        || handleExShiftCommand(cmd)
         || handleExSourceCommand(cmd)
         || handleExSubstituteCommand(cmd)
         || handleExWriteCommand(cmd);
 }
 
-void FakeVimHandler::Private::passUnknownExCommand(const QString &cmd)
+bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
 {
     EDITOR(setTextCursor(m_tc));
-    emit q->handleExCommandRequested(cmd);
+    bool handled = false;
+    emit q->handleExCommandRequested(&handled, cmd);
     if (m_plaintextedit || m_textedit)
         m_tc = EDITOR(textCursor());
-}
-
-void FakeVimHandler::Private::passUnknownSetCommand(const QString &arg)
-{
-    bool handled = false;
-    emit q->handleSetCommandRequested(&handled, arg);
-    if (!handled) {
-        showRedMessage(FakeVimHandler::tr("Unknown option: ") + arg);
-    }
+    //qDebug() << "HANDLER REQUEST: " << cmd.cmd << handled;
+    return handled;
 }
 
 static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *flags)
@@ -4583,6 +4560,11 @@ void FakeVimHandler::handleCommand(const QString &cmd)
 void FakeVimHandler::setCurrentFileName(const QString &fileName)
 {
    d->m_currentFileName = fileName;
+}
+
+QString FakeVimHandler::currentFileName() const
+{
+    return d->m_currentFileName;
 }
 
 void FakeVimHandler::showBlackMessage(const QString &msg)

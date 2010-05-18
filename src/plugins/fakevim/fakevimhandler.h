@@ -38,6 +38,38 @@
 namespace FakeVim {
 namespace Internal {
 
+enum RangeMode
+{
+    RangeCharMode,         // v
+    RangeLineMode,         // V
+    RangeLineModeExclusive,
+    RangeBlockMode,        // Ctrl-v
+    RangeBlockAndTailMode, // Ctrl-v for D and X
+};
+
+struct Range
+{
+    Range();
+    Range(int b, int e, RangeMode m = RangeCharMode);
+    QString toString() const;
+
+    int beginPos;
+    int endPos;
+    RangeMode rangemode;
+};
+
+struct ExCommand
+{
+    ExCommand() : hasBang(false) {}
+    ExCommand(const QString &cmd, const QString &args = QString(),
+        const Range &range = Range());
+
+    QString cmd;
+    bool hasBang;
+    QString args;
+    Range range;
+};
+
 class FakeVimHandler : public QObject
 {
     Q_OBJECT
@@ -53,6 +85,8 @@ public:
 
 public slots:
     void setCurrentFileName(const QString &fileName);
+    QString currentFileName() const;
+
     void showBlackMessage(const QString &msg);
     void showRedMessage(const QString &msg);
 
@@ -76,8 +110,6 @@ signals:
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
-    void writeFileRequested(bool *handled,
-        const QString &fileName, const QString &contents);
     void writeAllRequested(QString *error);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void checkForElectricCharacter(bool *result, QChar c);
@@ -86,8 +118,7 @@ signals:
     void windowCommandRequested(int key);
     void findRequested(bool reverse);
     void findNextRequested(bool reverse);
-    void handleExCommandRequested(const QString &cmd);
-    void handleSetCommandRequested(bool *handled, const QString &cmd);
+    void handleExCommandRequested(bool *handled, const ExCommand &cmd);
 
 public:
     class Private;
@@ -100,5 +131,8 @@ private:
 
 } // namespace Internal
 } // namespace FakeVim
+
+Q_DECLARE_METATYPE(FakeVim::Internal::ExCommand);
+
 
 #endif // FAKEVIM_HANDLER_H

@@ -64,7 +64,6 @@ enum FakeVimSettingsCode
     ConfigIsKeyword,
 
     // other actions
-    SettingsDialog,
     ConfigShowMarks,
 };
 
