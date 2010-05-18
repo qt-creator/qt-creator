@@ -94,7 +94,8 @@ void QmlProject::parseProject(RefreshOptions options)
                 if (component->isReady()
                     && qobject_cast<QmlProjectItem*>(component->create())) {
                     m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
-                    connect(m_projectItem.data(), SIGNAL(qmlFilesChanged()), this, SLOT(refreshFiles()));
+                    connect(m_projectItem.data(), SIGNAL(qmlFilesChanged(QSet<QString>, QSet<QString>)),
+                            this, SLOT(refreshFiles(QSet<QString>, QSet<QString>)));
                     connect(m_projectItem.data(), SIGNAL(importPathsChanged()), this, SLOT(refreshImportPaths()));
                     refreshImportPaths();
                 } else {
@@ -121,20 +122,10 @@ void QmlProject::parseProject(RefreshOptions options)
 
 void QmlProject::refresh(RefreshOptions options)
 {
-    const QSet<QString> oldFiles = m_files.toSet();
-
     parseProject(options);
 
     if (options & Files)
         m_rootNode->refresh();
-
-    const QSet<QString> newFiles = m_files.toSet();
-    QStringList removedPaths;
-    foreach (const QString &oldFile, oldFiles)
-        if (!newFiles.contains(oldFile))
-            removedPaths.append(oldFile);
-    if (!removedPaths.isEmpty())
-        emit filesRemovedFromProject(removedPaths);
 }
 
 QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
@@ -188,9 +179,11 @@ void QmlProject::refreshProjectFile()
     refresh(QmlProject::ProjectFile | Files);
 }
 
-void QmlProject::refreshFiles()
+void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString> &removed)
 {
     refresh(Files);
+    if (!removed.isEmpty())
+        m_modelManager->removeFiles(removed.toList());
 }
 
 void QmlProject::refreshImportPaths()

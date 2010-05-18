@@ -44,7 +44,7 @@ public:
     bool matchesFile(const QString &filePath) const;
 
 signals:
-    void qmlFilesChanged();
+    void qmlFilesChanged(const QSet<QString> &, const QSet<QString> &);
     void sourceDirectoryChanged();
     void importPathsChanged();
 

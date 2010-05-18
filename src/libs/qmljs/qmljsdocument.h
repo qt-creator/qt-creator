@@ -148,6 +148,7 @@ public:
 
     void insert(const Document::Ptr &document);
     void insertLibraryInfo(const QString &path, const LibraryInfo &info);
+    void remove(const QString &fileName);
 
     Document::Ptr document(const QString &fileName) const;
     QList<Document::Ptr> documentsInDirectory(const QString &path) const;

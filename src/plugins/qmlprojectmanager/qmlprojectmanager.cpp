@@ -79,14 +79,8 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName)
         }
     }
 
-    if (fileInfo.isFile()) {
-        QmlProject *project = new QmlProject(this, fileName);
-        QmlTaskManager *taskManager = QmlTaskManager::instance();
-        if (taskManager)
-            connect(project, SIGNAL(filesRemovedFromProject(QStringList)),
-                    taskManager, SLOT(documentsRemoved(const QStringList)));
-        return project;
-    }
+    if (fileInfo.isFile())
+        return new QmlProject(this, fileName);
 
     return 0;
 }

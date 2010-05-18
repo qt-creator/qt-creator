@@ -56,6 +56,7 @@ public:
     virtual void updateSourceFiles(const QStringList &files,
                                    bool emitDocumentOnDiskChanged) = 0;
     virtual void fileChangedOnDisk(const QString &path) = 0;
+    virtual void removeFiles(const QStringList &files) = 0;
 
     virtual void setProjectImportPaths(const QStringList &importPaths) = 0;
     virtual QStringList importPaths() const = 0;

@@ -103,6 +103,8 @@ void QmlProjectPlugin::extensionsInitialized()
     Q_ASSERT(modelManager);
     connect(modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
             m_qmlTaskManager, SLOT(documentChangedOnDisk(QmlJS::Document::Ptr)));
+    connect(modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
+            m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
 }
 
 } // namespace Internal

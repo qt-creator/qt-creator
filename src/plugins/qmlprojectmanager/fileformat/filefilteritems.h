@@ -45,7 +45,7 @@ signals:
     void directoryChanged();
     void recursiveChanged();
     void pathsChanged();
-    void filesChanged();
+    void filesChanged(const QSet<QString> &added, const QSet<QString> &removed);
     void filterChanged();
 
 private slots:

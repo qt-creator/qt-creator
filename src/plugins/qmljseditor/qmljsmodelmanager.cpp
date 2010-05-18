@@ -164,6 +164,16 @@ void ModelManager::fileChangedOnDisk(const QString &path)
                       this, true);
 }
 
+void ModelManager::removeFiles(const QStringList &files)
+{
+    emit aboutToRemoveFiles(files);
+
+    QMutexLocker locker(&m_mutex);
+
+    foreach (const QString &file, files)
+        _snapshot.remove(file);
+}
+
 void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)
 { emit documentChangedOnDisk(doc); }
 

@@ -57,6 +57,7 @@ public:
     virtual void updateSourceFiles(const QStringList &files,
                                    bool emitDocumentOnDiskChanged);
     virtual void fileChangedOnDisk(const QString &path);
+    virtual void removeFiles(const QStringList &files);
 
     void emitDocumentUpdated(QmlJS::Document::Ptr doc);
     void emitLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
@@ -68,7 +69,6 @@ public:
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
     void libraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
-
 
 private Q_SLOTS:
     // this should be executed in the GUI thread.

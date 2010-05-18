@@ -101,12 +101,9 @@ public:
 
     bool addFiles(const QStringList &filePaths);
 
-signals:
-    void filesRemovedFromProject(const QStringList removedPaths);
-
 private slots:
     void refreshProjectFile();
-    void refreshFiles();
+    void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
     void refreshImportPaths();
 
 protected:

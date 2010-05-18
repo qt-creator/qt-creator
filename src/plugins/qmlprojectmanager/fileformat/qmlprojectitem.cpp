@@ -72,7 +72,8 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
         FileFilterBaseItem *fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
         if (fileFilter) {
             fileFilter->setDefaultDirectory(directoryPath);
-            connect(fileFilter, SIGNAL(filesChanged()), this, SIGNAL(qmlFilesChanged()));
+            connect(fileFilter, SIGNAL(filesChanged(QSet<QString>, QSet<QString>)),
+                    this, SIGNAL(qmlFilesChanged(QSet<QString>, QSet<QString>)));
         }
     }
 
