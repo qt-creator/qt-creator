@@ -388,6 +388,9 @@
     \endlist
 
     Output panes are available in all \l{Qt Creator modes}{modes}.
+    Click the name of an output pane to open the pane. To maximize
+    an open output pane, click the \gui {Maximize Output Pane} button
+    or press \key {Alt+9}.
 
 
     \section2 Build Issues
