@@ -85,7 +85,11 @@ public:
     static void hide()
     { instance()->m_isVisible = false; }
     static void show()
-    { instance()->m_isVisible = true; }
+    {
+        instance()->m_isVisible = true;
+        instance()->m_widget->show();
+        instance()->m_widget->update();
+    }
     static bool isVisible()
     { return instance()->m_isVisible; }
 
