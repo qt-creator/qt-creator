@@ -65,7 +65,7 @@ MaemoManager::MaemoManager()
     , m_runConfigurationFactory(new MaemoRunConfigurationFactory(this))
     , m_packageCreationFactory(new MaemoPackageCreationFactory(this))
     , m_settingsPage(new MaemoSettingsPage(this))
-    , m_qemuCommand(0)
+    , m_qemuAction(0)
 {
     Q_ASSERT(!m_instance);
 
@@ -139,30 +139,28 @@ MaemoManager::addQemuSimulatorStarter(Project *project)
 {
     if (projects.contains(project))
         return;
-
     projects.insert(project);
 
-    if (m_qemuCommand) {
-        m_qemuCommand->action()->setVisible(true);
+    if (m_qemuAction) {
+        m_qemuAction->setVisible(true);
         return;
     }
 
+    m_qemuAction = new QAction("Maemo Emulator", this);
+    m_qemuAction->setEnabled(false);
+    m_qemuAction->setIcon(icon.pixmap(iconSize));
+    m_qemuAction->setToolTip(tr("Start Maemo Emulator"));
+    connect(m_qemuAction, SIGNAL(triggered()), this, SLOT(triggered()));
+
     Core::ICore *core = Core::ICore::instance();
-    Core::ModeManager *modeManager = core->modeManager();
     Core::ActionManager *actionManager = core->actionManager();
+    Core::Command *qemuCommand = actionManager->registerAction(m_qemuAction,
+        "MaemoEmulator", QList<int>() << Core::Constants::C_GLOBAL_ID);
+    qemuCommand->setAttribute(Core::Command::CA_UpdateText);
+    qemuCommand->setAttribute(Core::Command::CA_UpdateIcon);
 
-    QAction *action = new QAction("Maemo Emulator", this);
-    action->setIcon(icon.pixmap(iconSize));
-    action->setToolTip(tr("Start Maemo Emulator"));
-    m_qemuCommand = actionManager->registerAction(action, "MaemoEmulator",
-        QList<int>() << Core::Constants::C_GLOBAL_ID);
-    modeManager->addAction(m_qemuCommand, 1);
-    action->setEnabled(false);
-    m_qemuCommand->action()->setEnabled(false);
-    m_qemuCommand->setAttribute(Core::Command::CA_UpdateText);
-    m_qemuCommand->setAttribute(Core::Command::CA_UpdateIcon);
-
-    connect(m_qemuCommand->action(), SIGNAL(triggered()), this, SLOT(triggered()));
+    Core::ModeManager *modeManager = core->modeManager();
+    modeManager->addAction(qemuCommand, 1);
 }
 
 void
@@ -170,16 +168,16 @@ MaemoManager::removeQemuSimulatorStarter(Project *project)
 {
     if (projects.contains(project)) {
         projects.remove(project);
-        if (projects.isEmpty() && m_qemuCommand)
-            m_qemuCommand->action()->setVisible(false);
+        if (projects.isEmpty() && m_qemuAction)
+            m_qemuAction->setVisible(false);
     }
 }
 
 void
 MaemoManager::setQemuSimulatorStarterEnabled(bool enable)
 {
-    if (m_qemuCommand)
-        m_qemuCommand->action()->setEnabled(enable);
+    if (m_qemuAction)
+        m_qemuAction->setEnabled(enable);
 }
 
 void
@@ -191,7 +189,7 @@ MaemoManager::triggered()
 void
 MaemoManager::updateQemuSimulatorStarter(bool running)
 {
-    if (m_qemuCommand) {
+    if (m_qemuAction) {
         QIcon::State state = QIcon::Off;
         QString toolTip(tr("Start Maemo Emulator"));
         if (running) {
@@ -199,9 +197,8 @@ MaemoManager::updateQemuSimulatorStarter(bool running)
             toolTip = tr("Stop Maemo Emulator");
         }
 
-        QAction *action = m_qemuCommand->action();
-        action->setToolTip(toolTip);
-        action->setIcon(icon.pixmap(iconSize, QIcon::Normal, state));
+        m_qemuAction->setToolTip(toolTip);
+        m_qemuAction->setIcon(icon.pixmap(iconSize, QIcon::Normal, state));
     }
 }
 
