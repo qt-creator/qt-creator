@@ -3089,17 +3089,17 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
         prefix = cmd.line;
     else
         prefix = cmd.line.left(indexOfSpace);
-    bool forced = prefix.contains(QChar('!'));
-    bool quit = prefix.contains(QChar('q')) || prefix.contains(QChar('x'));
-    bool quitAll = quit && prefix.contains(QChar('a'));
+    const bool forced = prefix.contains(QChar('!'));
+    const bool quit = prefix.contains(QChar('q')) || prefix.contains(QChar('x'));
+    const bool quitAll = quit && prefix.contains(QChar('a'));
     QString fileName = reWrite.cap(2);
     if (fileName.isEmpty())
         fileName = m_currentFileName;
     QFile file1(fileName);
-    bool exists = file1.exists();
+    const bool exists = file1.exists();
     if (exists && !forced && !noArgs) {
         showRedMessage(FakeVimHandler::tr
-            ("File '%1' exists (add ! to override)").arg(fileName));
+            ("File \"%1\" exists (add ! to override)").arg(fileName));
     } else if (file1.open(QIODevice::ReadWrite)) {
         file1.close();
         QTextCursor tc = m_tc;
@@ -3107,12 +3107,10 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
             firstPositionInLine(endLine), RangeLineMode);
         QString contents = selectText(range);
         m_tc = tc;
-        //qDebug() << "LINES: " << beginLine << endLine;
         bool handled = false;
         emit q->writeFileRequested(&handled, fileName, contents);
-        // nobody cared, so act ourselves
+        // Nobody cared, so act ourselves.
         if (!handled) {
-            //qDebug() << "HANDLING MANUAL SAVE TO " << fileName;
             QFile::remove(fileName);
             QFile file2(fileName);
             if (file2.open(QIODevice::ReadWrite)) {
@@ -3120,10 +3118,10 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
                 ts << contents;
             } else {
                 showRedMessage(FakeVimHandler::tr
-                   ("Cannot open file '%1' for writing").arg(fileName));
+                   ("Cannot open file \"%1\" for writing").arg(fileName));
             }
         }
-        // check result by reading back
+        // Check result by reading back.
         QFile file3(fileName);
         file3.open(QIODevice::ReadOnly);
         QByteArray ba = file3.readAll();
@@ -3136,7 +3134,7 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
             passUnknownExCommand(forced ? "q!" : "q");
     } else {
         showRedMessage(FakeVimHandler::tr
-            ("Cannot open file '%1' for reading").arg(fileName));
+            ("Cannot open file \"%1\" for reading").arg(fileName));
     }
     return true;
 }
