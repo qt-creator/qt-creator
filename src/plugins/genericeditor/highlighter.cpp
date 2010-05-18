@@ -300,35 +300,36 @@ void Highlighter::applyFormat(int offset,
     try {
         itemData = definition->itemData(itemDataName);
     } catch (const HighlighterException &) {
-        // Although the formatting is skipped this case does not break the highlighter. In fact,
-        // currently there are broken xml definition files which Kate can cope with. For instance,
-        // the Printf context in java.xml points to an inexistent Printf item data.
+        // There are broken files which Kate can cope with. For instance the Printf context in
+        // java.xml points to an inexistent Printf item data. These are taken as normal text.
         return;
     }
 
-    QTextCharFormat format = m_genericFormats.value(itemData->style());
+    if (itemData->style() != ItemData::kDsNormal) {
+        QTextCharFormat format = m_genericFormats.value(itemData->style());
 
-    if (itemData->isCustomized()) {
-        // Please notice that the following are applied every time for item datas which have
-        // customizations. The configureFormats method could be used to provide a "one time"
-        // configuration, but it would probably require to traverse all item datas from all
-        // definitions available/loaded (either to set the values or for some "notifying"
-        // strategy). This is because the highlighter does not really know on which definition(s)
-        // it is working. Since not many item datas specify customizations I think this approach
-        // would fit better. If there are other ideas...
-        if (itemData->color().isValid())
-            format.setForeground(itemData->color());
-        if (itemData->isItalicSpecified())
-            format.setFontItalic(itemData->isItalic());
-        if (itemData->isBoldSpecified())
-            format.setFontWeight(toFontWeight(itemData->isBold()));
-        if (itemData->isUnderlinedSpecified())
-            format.setFontUnderline(itemData->isUnderlined());
-        if (itemData->isStrikedOutSpecified())
-            format.setFontStrikeOut(itemData->isStrikedOut());
+        if (itemData->isCustomized()) {
+            // Please notice that the following are applied every time for item datas which have
+            // customizations. The configureFormats method could be used to provide a "one time"
+            // configuration, but it would probably require to traverse all item datas from all
+            // definitions available/loaded (either to set the values or for some "notifying"
+            // strategy). This is because the highlighter does not really know on which
+            // definition(s) it is working. Since not many item datas specify customizations I
+            // think this approach would fit better. If there are other ideas...
+            if (itemData->color().isValid())
+                format.setForeground(itemData->color());
+            if (itemData->isItalicSpecified())
+                format.setFontItalic(itemData->isItalic());
+            if (itemData->isBoldSpecified())
+                format.setFontWeight(toFontWeight(itemData->isBold()));
+            if (itemData->isUnderlinedSpecified())
+                format.setFontUnderline(itemData->isUnderlined());
+            if (itemData->isStrikedOutSpecified())
+                format.setFontStrikeOut(itemData->isStrikedOut());
+        }
+
+        setFormat(offset, count, format);
     }
-
-    setFormat(offset, count, format);
 }
 
 void Highlighter::applyVisualWhitespaceFormat(const QString &text)
@@ -443,8 +444,6 @@ void Highlighter::configureFormats(const TextEditor::FontSettings & fs)
     m_visualWhitespaceFormat = fs.toTextCharFormat(
             QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE));
 
-    m_genericFormats[ItemData::kDsNormal] = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_TEXT));
     m_genericFormats[ItemData::kDsKeyword] = fs.toTextCharFormat(
             QLatin1String(TextEditor::Constants::C_KEYWORD));
     m_genericFormats[ItemData::kDsDataType] = fs.toTextCharFormat(
