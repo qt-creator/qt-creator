@@ -347,7 +347,7 @@ void FakeVimExCommandsPage::initialize()
         const QString name = uidm->stringForUniqueIdentifier(c->id());
         const int pos = name.indexOf(QLatin1Char('.'));
         const QString section = name.left(pos);
-        const QString subId = name.mid(pos+1);
+        const QString subId = name.mid(pos + 1);
 
         if (!sections.contains(section)) {
             QTreeWidgetItem *categoryItem =
@@ -549,8 +549,6 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
         QRegExp("^(N(ext)?|prev(ious)?)!?( (.*))?$");
     s_defaultExCommandMap[CppTools::Constants::SWITCH_HEADER_SOURCE] =
         QRegExp("^A$");
-    s_defaultExCommandMap[ProjectExplorer::Constants::BUILD] =
-        QRegExp("^make$");
     s_defaultExCommandMap["Coreplugin.OutputPane.previtem"] =
         QRegExp("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
     s_defaultExCommandMap["Coreplugin.OutputPane.nextitem"] =
@@ -937,13 +935,14 @@ void FakeVimPluginPrivate::writeFile(bool *handled,
 
 void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
 {
-    static QRegExp reWriteAll("^wa(ll)?!?$");
-    static QRegExp reQuit("^q!?$");
-    static QRegExp reQuitAll("^qa!?$");
-    static QRegExp reSplit("^sp(lit)?$");
-    static QRegExp reVSplit("^vs(plit)?$");
-
     using namespace Core;
+
+    QString cmd0 = cmd.section(QLatin1Char(' '), 0, 0);
+    bool hasBang = false;
+    if (cmd.endsWith('!')) {
+        hasBang = true;
+        cmd0.chop(1);
+    }
 
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
     if (!handler)
@@ -952,7 +951,7 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
     EditorManager *editorManager = EditorManager::instance();
     QTC_ASSERT(editorManager, return);
 
-    if (reWriteAll.indexIn(cmd) != -1) {
+    if (cmd0 == "wa" || cmd0 == "wall") {
         // :wa
         FileManager *fm = ICore::instance()->fileManager();
         QList<IFile *> toSave = fm->modifiedFiles();
@@ -961,20 +960,21 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
             handler->showBlackMessage(tr("Saving succeeded"));
         else
             handler->showRedMessage(tr("%n files not saved", 0, failed.size()));
-    } else if (reQuit.indexIn(cmd) != -1) {
-        // :q
-        bool forced = cmd.contains(QChar('!'));
-        emit delayedQuitRequested(forced, m_editorToHandler.key(handler));
-    } else if (reQuitAll.indexIn(cmd) != -1) {
+    } else if (cmd0 == "q" || cmd0 == "quit") {
+        // :q[uit]
+        emit delayedQuitRequested(hasBang, m_editorToHandler.key(handler));
+    } else if (cmd0 == "qa" || cmd0 == "qall") {
         // :qa
-        bool forced = cmd.contains(QChar('!'));
-        emit delayedQuitAllRequested(forced);
-    } else if (reSplit.indexIn(cmd) != -1) {
+        emit delayedQuitAllRequested(hasBang);
+    } else if (cmd0 == "sp" || cmd0 == "split") {
         // :sp[lit]
         triggerAction(Core::Constants::SPLIT);
-    } else if (reVSplit.indexIn(cmd) != -1) {
+    } else if (cmd0 == "vs" || cmd0 == "vsplit") {
         // :vs[plit]
         triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
+    } else if (cmd0 == "mak" || cmd0 == "make") {
+        // :mak[e][!] [arguments]
+        triggerAction(ProjectExplorer::Constants::BUILD);
     } else {
         typedef QMap<QString, QRegExp>::const_iterator Iterator;
         const Iterator end = s_exCommandMap.constEnd();
