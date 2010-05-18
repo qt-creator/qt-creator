@@ -2361,11 +2361,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
         TextEditorOverlay *overlay = new TextEditorOverlay(this);
         overlay->addOverlaySelection(d->m_findScopeStart.position(),
-                                     d->m_findScopeVerticalBlockSelection ?
-                                     d->m_findScopeEnd.block().position()
-                                     + d->m_findScopeVerticalBlockSelection
-                                     + d->m_findScopeStart.positionInBlock() + 1
-                                         : d->m_findScopeEnd.position(),
+                                     d->m_findScopeEnd.position(),
                                      d->m_searchScopeFormat.background().color().darker(120),
                                      d->m_searchScopeFormat.background().color(),
                                      TextEditorOverlay::ExpandBegin,
@@ -2470,8 +2466,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 const QAbstractTextDocumentLayout::Selection &range = context.selections.at(i);
                 const int selStart = range.cursor.selectionStart() - blpos;
                 const int selEnd = range.cursor.selectionEnd() - blpos;
-                if (selStart < bllen && selEnd > 0
-                    && selEnd > selStart) {
+                if (selStart <= bllen && selEnd >= 0
+                    && selEnd >= selStart
+                    && !range.format.hasProperty(QTextFormat::FullWidthSelection)) {
                     QTextLayout::FormatRange o;
                     o.start = selStart;
                     o.length = selEnd - selStart;
