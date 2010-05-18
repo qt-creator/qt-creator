@@ -746,11 +746,11 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     // save file
     save(lines);
 
-    // This is a hack
-    // We are savign twice in a very short timeframe, once the editor and once the ProFile
-    // So the modification time might not change between those two saves
-    // We manually tell each editor to reload it's file
-    // (The .pro files are notified by the file system watcher)
+    // This is a hack.
+    // We are saving twice in a very short timeframe, once the editor and once the ProFile.
+    // So the modification time might not change between those two saves.
+    // We manually tell each editor to reload it's file.
+    // (The .pro files are notified by the file system watcher.)
     foreach (Core::IEditor *editor, Core::ICore::instance()->editorManager()->editorsForFileName(m_projectFilePath)) {
         if (Core::IFile *editorFile = editor->file()) {
             editorFile->reload(Core::IFile::FlagReload, Core::IFile::TypeContents);
