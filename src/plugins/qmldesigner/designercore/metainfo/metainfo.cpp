@@ -68,6 +68,7 @@ public:
     void clear();
 
     void initialize();
+    void loadPlugins(QDeclarativeEngine *engine);
     void parseQmlTypes();
     void parseNonQmlTypes();
     void parseValueTypes();
@@ -112,6 +113,7 @@ void MetaInfoPrivate::initialize()
     QDeclarativeEngine engine;
     Q_UNUSED(engine);
 
+    loadPlugins(&engine);
     parseQmlTypes();
     parseNonQmlTypes();
     parseValueTypes();
@@ -120,7 +122,25 @@ void MetaInfoPrivate::initialize()
     m_isInitialized = true;
 }
 
+void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
+{
+    // hack to load plugins
+    QDeclarativeComponent pluginComponent(engine);
 
+    QStringList pluginList;
+    pluginList += "import Qt 4.7";
+    pluginList += "import org.webkit 1.0";
+
+    // load maybe useful plugins
+    pluginList += "import Qt.labs.folderlistmodel 1.0";
+    pluginList += "import Qt.labs.gestures 1.0";
+    pluginList += "import Qt.multimedia 4.7";
+    pluginList += "import Qt.labs.particles 1.0";
+
+    QString componentString = QString("%1\n Item {}\n").arg(pluginList.join("\n"));
+
+    pluginComponent.setData(componentString.toLatin1(), QUrl());
+}
 
 void MetaInfoPrivate::parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObject *qMetaObject) const
 {

@@ -3606,6 +3606,12 @@ void TestCore::testMetaInfo()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
+
+    // test whether default type is registered
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Item", 4, 7));
+
+    // test whether types from plugins are loaded
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("org.webkit/WebView", 1, 0));
 }
 
 void TestCore::testMetaInfoSimpleType()
