@@ -254,9 +254,7 @@ void Snapshot::insert(const Document::Ptr &document)
         const QString fileName = document->fileName();
         const QString path = document->path();
 
-        Document::Ptr old = _documents.value(fileName);
-        if (old)
-            _documentsByPath.remove(path, old);
+        remove(fileName);
         _documentsByPath.insert(path, document);
         _documents.insert(fileName, document);
     }
@@ -265,6 +263,15 @@ void Snapshot::insert(const Document::Ptr &document)
 void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
 {
     _libraries.insert(QDir::cleanPath(path), info);
+}
+
+void Snapshot::remove(const QString &fileName)
+{
+    Document::Ptr doc = _documents.value(fileName);
+    if (!doc.isNull()) {
+        _documentsByPath.remove(doc->path(), doc);
+        _documents.remove(fileName);
+    }
 }
 
 Document::Ptr Snapshot::documentFromSource(const QString &code,

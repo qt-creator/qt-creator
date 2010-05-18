@@ -169,8 +169,15 @@ void FileFilterBaseItem::updateFileList()
         newFiles += filesInSubTree(QDir(m_defaultDir), QDir(projectDir), &dirsToBeWatched);
 
     if (newFiles != m_files) {
+        QSet<QString> addedFiles = newFiles;
+        QSet<QString> removedFiles = m_files;
+        QSet<QString> unchanged = newFiles;
+        unchanged.intersect(m_files);
+        addedFiles.subtract(unchanged);
+        removedFiles.subtract(unchanged);
+
         m_files = newFiles;
-        emit filesChanged();
+        emit filesChanged(addedFiles, removedFiles);
     }
 
     // update watched directories
