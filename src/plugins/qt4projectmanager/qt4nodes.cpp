@@ -735,7 +735,9 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     QDir priFileDir = QDir(m_qt4ProFileNode->m_projectDir);
 
     if (change == AddToProFile) {
-        ProWriter::addFiles(includeFile, &lines, priFileDir, filePaths, vars);
+        // Use the first variable for adding.
+        // Yes, that's broken for adding objective c sources or other stuff.
+        ProWriter::addFiles(includeFile, &lines, priFileDir, filePaths, vars.first());
         notChanged->clear();
     } else { // RemoveFromProFile
         *notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir, filePaths, vars);
