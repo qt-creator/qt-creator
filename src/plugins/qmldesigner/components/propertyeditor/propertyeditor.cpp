@@ -88,6 +88,7 @@ PropertyEditor::NodeType::NodeType(PropertyEditor *propertyEditor) :
 
     m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     QDeclarativeContext *ctxt = m_view->rootContext();
+    m_view->engine()->setOutputWarningsToStandardError(debug);
     m_dummyPropertyEditorValue->setValue("#000000");
     ctxt->setContextProperty("dummyBackendValue", m_dummyPropertyEditorValue.data());
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
