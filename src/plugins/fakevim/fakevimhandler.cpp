@@ -806,7 +806,6 @@ public:
     QString m_oldNeedle;
 
     bool handleExCommandHelper(const ExCommand &cmd); // Returns success.
-    ExCommand extractExCommand(const QString &line);
     bool handleExBangCommand(const ExCommand &cmd);
     bool handleExDeleteCommand(const ExCommand &cmd);
     bool handleExGotoCommand(const ExCommand &cmd);
@@ -2794,7 +2793,7 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
             cmd = cmd.mid(1);
             n = n * 10 + (c.unicode() - '0');
         }
-        qDebug() << "N: " << n;
+        //qDebug() << "N: " << n;
         return n;
     }
     // Parsing failed.
@@ -3218,6 +3217,7 @@ bool FakeVimHandler::Private::handleExRedoCommand(const ExCommand &cmd) // :redo
 
 bool FakeVimHandler::Private::handleExGotoCommand(const ExCommand &cmd) // :<nr>
 {
+    // Only "range" given.
     if (!cmd.line.isEmpty())
         return false;
 
@@ -3278,6 +3278,8 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
         line = line.mid(1);
         endLine = readLineCode(line);
     }
+    if (beginLine != -1 && endLine == -1)
+        endLine = beginLine;
     const int beginPos = firstPositionInLine(beginLine);
     const int endPos = lastPositionInLine(endLine);
     cmd.range = Range(beginPos, endPos, RangeLineMode);
