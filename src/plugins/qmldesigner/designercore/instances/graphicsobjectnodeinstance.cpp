@@ -31,6 +31,8 @@
 
 #include "invalidnodeinstanceexception.h"
 #include <QGraphicsObject>
+#include "private/qgraphicsitem_p.h"
+#include <QStyleOptionGraphicsItem>
 #include "nodemetainfo.h"
 
 namespace QmlDesigner {
@@ -153,13 +155,21 @@ bool GraphicsObjectNodeInstance::equalGraphicsItem(QGraphicsItem *item) const
     return item == graphicsObject();
 }
 
+void initOption(QGraphicsItem *item, QStyleOptionGraphicsItem *option, const QTransform &transform)
+{
+    QGraphicsItemPrivate *privateItem = QGraphicsItemPrivate::get(item);
+    privateItem->initStyleOption(option, transform, QRegion());
+}
+
 void GraphicsObjectNodeInstance::paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const
 {
     if (graphicsItem->isVisible()) {
         painter->save();
         painter->setTransform(graphicsItem->itemTransform(graphicsItem->parentItem()), true);
         painter->setOpacity(graphicsItem->opacity() * painter->opacity());
-        graphicsItem->paint(painter, 0);
+        QStyleOptionGraphicsItem option;
+        initOption(graphicsItem, &option, painter->transform());
+        graphicsItem->paint(painter, &option);
         foreach(QGraphicsItem *childItem, graphicsItem->childItems()) {
             paintRecursively(childItem, painter);
         }
@@ -171,12 +181,16 @@ void GraphicsObjectNodeInstance::paint(QPainter *painter) const
 {
     painter->save();
     Q_ASSERT(graphicsObject());
-    if (hasContent())
-        graphicsObject()->paint(painter, 0);
+    if (hasContent()) {
+        QStyleOptionGraphicsItem option;
+        initOption(graphicsObject(), &option, painter->transform());
+        graphicsObject()->paint(painter, &option);
 
+    }
     foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems()) {
         QGraphicsObject *graphicsObject = qgraphicsitem_cast<QGraphicsObject*>(graphicsItem);
-        if (graphicsObject && !nodeInstanceView()->hasInstanceForObject(graphicsObject))
+        if (graphicsObject
+            && !nodeInstanceView()->hasInstanceForObject(graphicsObject))
             paintRecursively(graphicsItem, painter);
     }
 
