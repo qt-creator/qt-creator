@@ -300,10 +300,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const bool canSetWatchpoint = engineCapabilities & WatchpointCapability;
     if (canSetWatchpoint && !address.isEmpty()) {
         actSetWatchpoint =
-            new QAction(tr("Break on changing %1").arg(address), &menu);
+            new QAction(tr("Break on Changing Contents of %1").arg(address), &menu);
     } else {
         actSetWatchpoint =
-            new QAction(tr("Break on changing contents"), &menu);
+            new QAction(tr("Break on Changing Contents"), &menu);
         actSetWatchpoint->setEnabled(false);
     }
 
