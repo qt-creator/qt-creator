@@ -55,39 +55,6 @@
 
 using namespace CPlusPlus;
 
-class ForEachNode: protected ASTVisitor
-{
-    Document::Ptr doc;
-    AST *pattern;
-
-public:
-    ForEachNode(Document::Ptr doc)
-        : ASTVisitor(doc->translationUnit()),
-          matcher() {}
-
-    void operator()() { accept(doc->translationUnit()->ast()); }
-
-protected:
-    using ASTVisitor::visit;
-
-    virtual bool preVisit(AST *ast)
-    {
-        ir.reset();
-        IfStatementAST *pattern = ir.IfStatement(ir.SimpleName());
-
-        //CompoundStatementAST *pattern = ir.CompoundStatement();
-
-        if (ast->match(ast, pattern, &matcher))
-            translationUnit()->warning(ast->firstToken(), "matched");
-
-        return true;
-    }
-
-
-    ASTPatternBuilder ir;
-    ASTMatcher matcher;
-};
-
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
@@ -107,9 +74,6 @@ int main(int argc, char *argv[])
         doc->control()->setDiagnosticClient(0);
         doc->setSource(source);
         doc->parse();
-
-        ForEachNode forEachNode(doc);
-        forEachNode();
     }
 
     return EXIT_SUCCESS;

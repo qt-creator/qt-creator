@@ -85,21 +85,19 @@ void tst_Lookup::base_class_defined_1()
     Snapshot snapshot;
     snapshot.insert(doc);
 
-    Document::Ptr emptyDoc = Document::create("<empty>");
-
     Class *baseClass = doc->globalSymbolAt(0)->asClass();
     QVERIFY(baseClass);
 
     Class *derivedClass = doc->globalSymbolAt(1)->asClass();
     QVERIFY(derivedClass);
 
-    LookupContext ctx(derivedClass, emptyDoc, doc, snapshot);
+    const LookupContext ctx(doc, snapshot);
 
-    const QList<Symbol *> candidates =
-        ctx.resolveClass(derivedClass->baseClassAt(0)->name());
+    ClassOrNamespace *klass = ctx.lookupType(derivedClass->baseClassAt(0)->name(), derivedClass->scope());
+    QVERIFY(klass != 0);
 
-    QCOMPARE(candidates.size(), 1);
-    QCOMPARE(candidates.at(0), baseClass);
+    QCOMPARE(klass->symbols().size(), 1);
+    QCOMPARE(klass->symbols().first(), baseClass);
 
     TranslationUnit *unit = doc->translationUnit();
     QVERIFY(unit != 0);
@@ -136,8 +134,6 @@ void tst_Lookup::simple_class_1()
     Snapshot snapshot;
     snapshot.insert(doc);
 
-    Document::Ptr emptyDoc = Document::create("<empty>");
-
     ObjCClass *iface = doc->globalSymbolAt(0)->asObjCClass();
     QVERIFY(iface);
     QVERIFY(iface->isInterface());
@@ -158,30 +154,24 @@ void tst_Lookup::simple_class_1()
     QVERIFY(deallocMethod->name() && deallocMethod->name()->identifier());
     QCOMPARE(QLatin1String(deallocMethod->name()->identifier()->chars()), QLatin1String("dealloc"));
 
-    const LookupContext ctxt(impl, emptyDoc, doc, snapshot);
+    const LookupContext context(doc, snapshot);
 
     // check class resolving:
-    const QList<Symbol *> candidates = ctxt.resolveObjCClass(impl->name());
-    QCOMPARE(candidates.size(), 2);
-    QVERIFY(candidates.contains(iface));
-    QVERIFY(candidates.contains(impl));
-
-    // check scope expansion:
-    QList<Scope *> expandedScopes;
-    ctxt.expand(impl->members(), ctxt.visibleScopes(), &expandedScopes);
-    QCOMPARE(expandedScopes.size(), 2);
-
-    const ResolveExpression resolver(ctxt);
+    ClassOrNamespace *klass = context.lookupType(impl->name(), impl->scope());
+    QVERIFY(klass != 0);
+    QCOMPARE(klass->symbols().size(), 2);
+    QVERIFY(klass->symbols().contains(iface));
+    QVERIFY(klass->symbols().contains(impl));
 
     // check method resolving:
-    QList<LookupItem> results = resolver.resolveMember(allocMethod->name(), impl);
+    QList<Symbol *> results = context.lookup(allocMethod->name(), impl->scope());
     QCOMPARE(results.size(), 2);
-    QVERIFY(results.at(0).lastVisibleSymbol() == allocMethod || results.at(1).lastVisibleSymbol() == allocMethod);
-    QVERIFY(results.at(0).lastVisibleSymbol()->asDeclaration() || results.at(1).lastVisibleSymbol()->asDeclaration());
+    QCOMPARE(results.at(0), allocMethod);
+    QCOMPARE(results.at(1), allocMethod);
 
-    results = resolver.resolveMember(deallocMethod->name(), impl);
+    results = context.lookup(deallocMethod->name(), impl->scope());
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).lastVisibleSymbol(), deallocMethod);
+    QCOMPARE(results.at(0), deallocMethod);
 }
 
 void tst_Lookup::class_with_baseclass()
@@ -229,25 +219,19 @@ void tst_Lookup::class_with_baseclass()
     QVERIFY(baseMethod->name() && baseMethod->name()->identifier());
     QCOMPARE(QLatin1String(baseMethod->name()->identifier()->chars()), QLatin1String("baseMethod"));
 
-    const LookupContext ctxt(zooImpl, emptyDoc, doc, snapshot);
+    const LookupContext context(doc, snapshot);
 
-    const QList<Symbol *> candidates = ctxt.resolveObjCClass(baseZoo->name());
-    QCOMPARE(candidates.size(), 1);
-    QVERIFY(candidates.contains(baseZoo));
+    ClassOrNamespace *objClass = context.lookupType(baseZoo->name(), zooImpl->scope());
+    QVERIFY(objClass != 0);
+    QVERIFY(objClass->symbols().contains(baseZoo));
 
-    QList<Scope *> expandedScopes;
-    ctxt.expand(zooImpl->members(), ctxt.visibleScopes(), &expandedScopes);
-    QCOMPARE(expandedScopes.size(), 3);
-
-    const ResolveExpression resolver(ctxt);
-
-    QList<LookupItem> results = resolver.resolveMember(baseDecl->name(), zooImpl);
+    QList<Symbol *> results = context.lookup(baseDecl->name(), zooImpl->scope());
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).lastVisibleSymbol(), baseDecl);
+    QCOMPARE(results.at(0), baseDecl);
 
-    results = resolver.resolveMember(baseMethod->name(), zooImpl);
+    results = context.lookup(baseMethod->name(), zooImpl->scope());
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).lastVisibleSymbol(), baseMethod);
+    QCOMPARE(results.at(0), baseMethod);
 }
 
 void tst_Lookup::class_with_protocol_with_protocol()
@@ -269,8 +253,6 @@ void tst_Lookup::class_with_protocol_with_protocol()
     Snapshot snapshot;
     snapshot.insert(doc);
 
-    Document::Ptr emptyDoc = Document::create("<empty>");
-
     ObjCProtocol *P1 = doc->globalSymbolAt(0)->asObjCProtocol();
     QVERIFY(P1);
     QCOMPARE(P1->memberCount(), 1U);
@@ -289,29 +271,23 @@ void tst_Lookup::class_with_protocol_with_protocol()
     ObjCClass *zooImpl = doc->globalSymbolAt(3)->asObjCClass();
     QVERIFY(zooImpl);
 
-    const LookupContext ctxt(zooImpl, emptyDoc, doc, snapshot);
+    const LookupContext context(doc, snapshot);
 
     {
-        const QList<Symbol *> candidates = ctxt.resolveObjCProtocol(P1->name());
+        const QList<Symbol *> candidates = context.lookup(P1->name(), zooImpl->scope());
         QCOMPARE(candidates.size(), 1);
         QVERIFY(candidates.contains(P1));
     }
 
     {
-        const QList<Symbol *> candidates = ctxt.resolveObjCProtocol(P2->protocolAt(0)->name());
+        const QList<Symbol *> candidates = context.lookup(P2->protocolAt(0)->name(), zooImpl->scope());
         QCOMPARE(candidates.size(), 1);
         QVERIFY(candidates.contains(P1));
     }
 
-    QList<Scope *> expandedScopes;
-    ctxt.expand(zooImpl->members(), ctxt.visibleScopes(), &expandedScopes);
-    QCOMPARE(expandedScopes.size(), 4);
-
-    const ResolveExpression resolver(ctxt);
-
-    QList<LookupItem> results = resolver.resolveMember(p1method->name(), zooImpl);
+    QList<Symbol *> results = context.lookup(p1method->name(), zooImpl->scope());
     QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).lastVisibleSymbol(), p1method);
+    QCOMPARE(results.at(0), p1method);
 }
 
 void tst_Lookup::iface_impl_scoping()
@@ -331,7 +307,6 @@ void tst_Lookup::iface_impl_scoping()
     Snapshot snapshot;
     snapshot.insert(doc);
 
-    Document::Ptr emptyDoc = Document::create("<empty>");
     ObjCClass *iface = doc->globalSymbolAt(0)->asObjCClass();
     QVERIFY(iface);
     QVERIFY(iface->isInterface());
@@ -351,7 +326,7 @@ void tst_Lookup::iface_impl_scoping()
     Block *method1Body = method1Impl->memberAt(0)->asBlock();
     QVERIFY(method1Body);
 
-    const LookupContext ctxt(method1Body, emptyDoc, doc, snapshot);
+    const LookupContext context(doc, snapshot);
 
     { // verify if we can resolve "arg" in the body
         QCOMPARE(method1Impl->argumentCount(), 1U);
@@ -361,7 +336,7 @@ void tst_Lookup::iface_impl_scoping()
         QVERIFY(arg->name()->identifier());
         QCOMPARE(arg->name()->identifier()->chars(), "arg");
 
-        const QList<Symbol *> candidates = ctxt.resolve(arg->name());
+        const QList<Symbol *> candidates = context.lookup(arg->name(), method1Body->scope());
         QCOMPARE(candidates.size(), 1);
         QVERIFY(candidates.at(0)->type()->asIntegerType());
     }
@@ -371,18 +346,9 @@ void tst_Lookup::iface_impl_scoping()
     QCOMPARE(method2->identifier()->chars(), "method2");
 
     { // verify if we can resolve "method2" in the body
-        const QList<Symbol *> candidates = ctxt.resolve(method2->name());
+        const QList<Symbol *> candidates = context.lookup(method2->name(), method1Body->scope());
         QCOMPARE(candidates.size(), 1);
         QCOMPARE(candidates.at(0), method2);
-    }
-
-    { // now let's see if the resolver can do the same for method2
-        const ResolveExpression resolver(ctxt);
-
-        const QList<LookupItem> results = resolver.resolveMember(method2->name(),
-                                                                 impl);
-        QCOMPARE(results.size(), 1);
-        QCOMPARE(results.at(0).lastVisibleSymbol(), method2);
     }
 }
 

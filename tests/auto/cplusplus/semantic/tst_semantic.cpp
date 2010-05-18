@@ -426,26 +426,23 @@ void tst_Semantic::pointer_to_function_1()
 
 void tst_Semantic::template_instance_1()
 {
-    QSharedPointer<Document> doc = document("void append(const _Tp &value);");
+    QSharedPointer<Document> doc = document("template <typename _Tp> class QList { void append(const _Tp &value); };");
     QCOMPARE(doc->errorCount, 0U);
     QCOMPARE(doc->globals->symbolCount(), 1U);
 
-    Declaration *decl = doc->globals->symbolAt(0)->asDeclaration();
+    Declaration *decl = doc->globals->symbolAt(0)->asClass()->memberAt(0)->asDeclaration();
     QVERIFY(decl);
 
-    GenTemplateInstance::Substitution subst;
-    const Identifier *nameTp = control.findOrInsertIdentifier("_Tp");
-    FullySpecifiedType intTy(control.integerType(IntegerType::Int));
-    subst.append(qMakePair(nameTp, intTy));
+    FullySpecifiedType templArgs[] = { control.integerType(IntegerType::Int) };
+    const Name *templId = control.templateNameId(control.findOrInsertIdentifier("QList"), templArgs, 1);
 
-    GenTemplateInstance inst(&control, subst);
-    FullySpecifiedType genTy = inst(decl);
+    FullySpecifiedType genTy = GenTemplateInstance::instantiate(templId, decl, &control);
 
     Overview oo;
     oo.setShowReturnTypes(true);
 
     const QString genDecl = oo.prettyType(genTy);
-    QCOMPARE(genDecl, QString::fromLatin1("void(const int &)"));
+    QCOMPARE(genDecl, QString::fromLatin1("void (const int &)"));
 }
 
 void tst_Semantic::expression_under_cursor_1()
