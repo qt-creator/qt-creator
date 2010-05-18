@@ -576,9 +576,23 @@ bool Qt4PriFileNode::removeSubProjects(const QStringList &proFilePaths)
 bool Qt4PriFileNode::addFiles(const FileType fileType, const QStringList &filePaths,
                            QStringList *notAdded)
 {
-    QStringList failedFiles;
+    // If a file is already referenced in the .pro file then we don't add them.
+    // That ignores scopes and which variable was used to reference the file
+    // So it's obviously a bit limited, but in those cases you need to edit the
+    // project files manually anyway.
 
-    changeFiles(fileType, filePaths, &failedFiles, AddToProFile);
+    ProjectExplorer::FindAllFilesVisitor visitor;
+    accept(&visitor);
+    const QStringList &allFiles = visitor.filePaths();
+
+    QStringList uniqueFilePaths;
+    foreach (const QString &file, filePaths) {
+        if(!allFiles.contains(file))
+            uniqueFilePaths.append(file);
+    }
+
+    QStringList failedFiles;
+    changeFiles(fileType, uniqueFilePaths, &failedFiles, AddToProFile);
     if (notAdded)
         *notAdded = failedFiles;
     return failedFiles.isEmpty();
