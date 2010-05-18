@@ -690,6 +690,23 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     if (!saveModifiedEditors())
         return;
 
+    // Ensure that the file is not read only
+    QFileInfo fi(m_projectFilePath);
+    if (!fi.isWritable()) {
+        // Try via vcs manager
+        Core::VCSManager *vcsManager = Core::ICore::instance()->vcsManager();
+        Core::IVersionControl *versionControl = vcsManager->findVersionControlForDirectory(fi.absolutePath());
+        if (!versionControl || versionControl->vcsOpen(m_projectFilePath)) {
+            bool makeWritable = QFile::setPermissions(m_projectFilePath, fi.permissions() | QFile::WriteUser);
+            if (!makeWritable) {
+                QMessageBox::warning(Core::ICore::instance()->mainWindow(),
+                                     tr("Failed!"),
+                                     tr("Could not write project file %1.").arg(m_projectFilePath));
+                return;
+            }
+        }
+    }
+
     QStringList lines;
     ProFile *includeFile;
     {
