@@ -775,8 +775,7 @@ void MainWindow::registerDefaultActions()
 
 void MainWindow::newFile()
 {
-    showNewItemDialog(tr("New", "Title of dialog"), IWizard::allWizards(),
-                      QString(), m_coreImpl->newItemDialogPreferredWizardKinds());
+    showNewItemDialog(tr("New", "Title of dialog"), IWizard::allWizards(), QString());
 }
 
 void MainWindow::openFile()
@@ -863,8 +862,7 @@ void MainWindow::setFocusToEditor()
 
 QStringList MainWindow::showNewItemDialog(const QString &title,
                                           const QList<IWizard *> &wizards,
-                                          const QString &defaultLocation,
-                                          IWizard::WizardKinds preferredWizardKinds)
+                                          const QString &defaultLocation)
 {
     // Scan for wizards matching the filter and pick one. Don't show
     // dialog if there is only one.
@@ -879,7 +877,6 @@ QStringList MainWindow::showNewItemDialog(const QString &title,
         NewDialog dlg(this);
         dlg.setWizards(wizards);
         dlg.setWindowTitle(title);
-        dlg.setPreferredWizardKinds(preferredWizardKinds);
         wizard = dlg.showDialog();
     }
         break;

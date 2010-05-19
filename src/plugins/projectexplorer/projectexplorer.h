@@ -170,7 +170,6 @@ private slots:
     void updateRecentProjectMenu();
     void openRecentProject();
     void openTerminalHere();
-    void updatePreferredWizardKinds();
 
     void invalidateProject(ProjectExplorer::Project *project);
 

@@ -152,8 +152,7 @@ using namespace Core::Internal;
 NewDialog::NewDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Core::Internal::Ui::NewDialog),
-    m_okButton(0),
-    m_preferredWizardKinds(0)
+    m_okButton(0)
 {
     typedef QMap<QString, QStandardItem *> CategoryItemMap;
     m_ui->setupUi(this);
@@ -192,11 +191,6 @@ bool wizardLessThan(const IWizard *w1, const IWizard *w2)
     if (const int cc = w1->category().compare(w2->category()))
         return cc < 0;
     return w1->id().compare(w2->id()) < 0;
-}
-
-void NewDialog::setPreferredWizardKinds(IWizard::WizardKinds kinds)
-{
-    m_preferredWizardKinds = kinds;
 }
 
 void NewDialog::setWizards(QList<IWizard*> wizards)
@@ -243,9 +237,10 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
                 break;
             }
             kindItem->appendRow(categoryItem);
+            m_categoryItems.append(categoryItem);
             categoryItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             categoryItem->setText(wizard->displayCategory());
-            categoryItem->setData(QVariant::fromValue(0), Qt::UserRole);
+            categoryItem->setData(wizard->category(), Qt::UserRole);
             cit = categories.insert(categoryName, categoryItem);
         }
         // add item
@@ -277,8 +272,20 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
 
 Core::IWizard *NewDialog::showDialog()
 {
-    // Select first category, first item by default
-    m_ui->templateCategoryView->setCurrentIndex(m_proxyModel->index(0,0, m_proxyModel->index(0,0)));
+    static QString lastCategory;
+    QModelIndex idx;
+
+    if (!lastCategory.isEmpty())
+        foreach(QStandardItem* item, m_categoryItems) {
+            if (item->data(Qt::UserRole) == lastCategory) {
+                idx = m_proxyModel->mapToSource(m_model->indexFromItem(item));
+        }
+    }
+    if (!idx.isValid())
+        idx = m_proxyModel->index(0,0, m_proxyModel->index(0,0));
+
+    m_ui->templateCategoryView->setCurrentIndex(idx);
+
     // We need to set ensure that the category has default focus
     m_ui->templateCategoryView->setFocus(Qt::NoFocusReason);
 
@@ -289,8 +296,15 @@ Core::IWizard *NewDialog::showDialog()
     currentItemChanged(m_ui->templatesView->rootIndex().child(0,0));
 
     updateOkButton();
-    if (exec() != Accepted)
+
+    const int retVal = exec();
+
+    idx = m_ui->templateCategoryView->currentIndex();
+    lastCategory = m_model->itemFromIndex(m_proxyModel->mapToSource(idx))->data(Qt::UserRole).toString();
+
+    if (retVal != Accepted)
         return 0;
+
     return currentWizard();
 }
 

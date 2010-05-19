@@ -134,8 +134,7 @@ public slots:
 
     QStringList showNewItemDialog(const QString &title,
                                   const QList<IWizard *> &wizards,
-                                  const QString &defaultLocation = QString(),
-                                  IWizard::WizardKinds preferredWizardKinds = 0);
+                                  const QString &defaultLocation = QString());
 
     bool showOptionsDialog(const QString &category = QString(),
                            const QString &page = QString(),
