@@ -92,6 +92,8 @@ public:
     // add/remove from providesSpecs
     void addProvidesForPlugin(PluginSpec *dependent);
     void removeProvidesForPlugin(PluginSpec *dependent);
+    void disableIndirectlyIfDependencyDisabled();
+
 
 private:
     PluginSpec *q;

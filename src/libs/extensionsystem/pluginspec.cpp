@@ -500,6 +500,11 @@ void PluginSpec::setEnabled(bool value)
     d->enabled = value;
 }
 
+void PluginSpec::setDisabledIndirectly(bool value)
+{
+    d->disabledIndirectly = value;
+}
+
 /*!
     \fn bool PluginSpecPrivate::reportError(const QString &err)
     \internal
@@ -799,11 +804,7 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
         foreach (PluginSpec *spec, specs) {
             if (spec->provides(dependency.name, dependency.version)) {
                 found = spec;
-                if (!spec->isEnabled() || spec->isDisabledIndirectly())
-                    disabledIndirectly = true;
-
                 spec->d->addProvidesForPlugin(q);
-
                 break;
             }
         }
@@ -822,10 +823,24 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
 
     dependencySpecs = resolvedDependencies;
 
-    if (enabled && !disabledIndirectly)
-        state = PluginSpec::Resolved;
+    state = PluginSpec::Resolved;
 
     return true;
+}
+
+void PluginSpecPrivate::disableIndirectlyIfDependencyDisabled()
+{
+    disabledIndirectly = false;
+
+    if (!enabled)
+        return;
+
+    foreach (PluginSpec *dependencySpec, dependencySpecs) {
+        if (dependencySpec->isDisabledIndirectly() || !dependencySpec->isEnabled()) {
+            disabledIndirectly = true;
+            break;
+        }
+    }
 }
 
 /*!

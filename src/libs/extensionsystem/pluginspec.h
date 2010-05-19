@@ -92,6 +92,7 @@ public:
     QString filePath() const;
 
     void setEnabled(bool value);
+    void setDisabledIndirectly(bool value);
 
     QStringList arguments() const;
     void setArguments(const QStringList &arguments);

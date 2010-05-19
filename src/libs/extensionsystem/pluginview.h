@@ -77,7 +77,7 @@ private slots:
 private:
     enum ParsedState { ParsedNone = 1, ParsedPartial = 2, ParsedAll = 4, ParsedWithErrors = 8};
     QIcon iconForState(int state);
-    void toggleRelatedPlugins(PluginSpec *spec, bool isPluginEnabled = true);
+    void updatePluginDependencies();
     int parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins);
 
     Internal::Ui::PluginView *m_ui;

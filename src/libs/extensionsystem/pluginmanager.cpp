@@ -585,6 +585,17 @@ void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
     d->profilingReport(what, spec);
 }
 
+
+/*!
+    \fn void PluginManager::loadQueue()
+
+    Returns a list of plugins in load order.
+*/
+QList<PluginSpec *> PluginManager::loadQueue()
+{
+    return d->loadQueue();
+}
+
 //============PluginManagerPrivate===========
 
 /*!
@@ -786,13 +797,10 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
     circularityCheckQueue.append(spec);
     // check if we have the dependencies
     if (spec->state() == PluginSpec::Invalid || spec->state() == PluginSpec::Read) {
-        if (!spec->isDisabledIndirectly() && spec->isEnabled()) {
-            spec->d->hasError = true;
-            spec->d->errorString += "\n";
-            spec->d->errorString += PluginManager::tr("Cannot load plugin because dependencies are not resolved");
-        }
+        queue.append(spec);
         return false;
     }
+
     // add dependencies
     foreach (PluginSpec *depSpec, spec->dependencySpecs()) {
         if (!loadQueue(depSpec, queue, circularityCheckQueue)) {
@@ -814,7 +822,11 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
 */
 void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destState)
 {
-    if (spec->hasError() || spec->isDisabledIndirectly())
+    if (spec->hasError() || spec->state() != destState-1)
+        return;
+
+    // don't load disabled plugins.
+    if ((spec->isDisabledIndirectly() || !spec->isEnabled()) && destState == PluginSpec::Loaded)
         return;
 
     switch (destState) {
@@ -926,6 +938,9 @@ void PluginManagerPrivate::resolveDependencies()
 {
     foreach (PluginSpec *spec, pluginSpecs) {
         spec->d->resolveDependencies(pluginSpecs);
+    }
+    foreach (PluginSpec *spec, loadQueue()) {
+        spec->d->disableIndirectlyIfDependencyDisabled();
     }
 }
 

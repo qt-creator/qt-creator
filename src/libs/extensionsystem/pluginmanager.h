@@ -91,6 +91,7 @@ public:
     }
 
     // Plugin operations
+    QList<PluginSpec *> loadQueue();
     void loadPlugins();
     QStringList pluginPaths() const;
     void setPluginPaths(const QStringList &paths);
