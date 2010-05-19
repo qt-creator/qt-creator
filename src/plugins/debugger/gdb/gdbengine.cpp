@@ -1480,6 +1480,8 @@ void GdbEngine::handleStop1(const GdbMi &data)
         int currentId = data.findChild("thread-id").data().toInt();
         if (m_gdbAdapter->isTrkAdapter()) {
             m_gdbAdapter->trkReloadThreads();
+        } else if (m_isMacGdb) {
+            postCommand("-thread-list-ids", CB(handleThreadListIds), currentId);
         } else {
             // This is only available in gdb 7.1+.
             postCommand("-thread-info", CB(handleThreadInfo), currentId);
