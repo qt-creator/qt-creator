@@ -163,6 +163,12 @@ public:
     // For internal tests: Create actions driving IVersionControl's snapshot interface.
     QList<QAction*> createSnapShotTestActions();
 
+    // Convenience that searches for the repository specifically for version control
+    // systems that do not have directories like "CVS" in each managed subdirectory
+    // but have a directory at the top of the repository like ".git" containing
+    // a well known file. See implementation for gory details.
+    static QString findRepositoryForDirectory(const QString &dir, const QString &checkFile);
+
 public slots:
     // Convenience slot for "Delete current file" action. Prompts to
     // delete the file via VCSManager.

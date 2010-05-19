@@ -72,9 +72,6 @@ public:
     explicit GitClient(GitPlugin *plugin);
     ~GitClient();
 
-    bool managesDirectory(const QString &) const { return false; }
-    QString findTopLevelForDirectory(const QString &) const { return QString(); }
-
     static QString findRepositoryForDirectory(const QString &dir);
 
     void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
