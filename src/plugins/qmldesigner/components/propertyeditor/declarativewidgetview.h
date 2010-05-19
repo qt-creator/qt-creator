@@ -4,9 +4,11 @@
 #include <QWidget>
 #include <QUrl>
 
+QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;
 class QDeclarativeContext;
 class QDeclarativeError;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
