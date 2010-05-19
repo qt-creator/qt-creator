@@ -105,11 +105,11 @@ void OutputFormatter::initFormats()
 
     // NormalMessageFormat
     m_formats[NormalMessageFormat].setFont(boldFont);
-    m_formats[NormalMessageFormat].setForeground(QColor(Qt::black));
+    m_formats[NormalMessageFormat].setForeground(QColor(Qt::blue));
 
     // ErrorMessageFormat
     m_formats[ErrorMessageFormat].setFont(boldFont);
-    m_formats[ErrorMessageFormat].setForeground(QColor(Qt::red));
+    m_formats[ErrorMessageFormat].setForeground(QColor(200, 0, 0));
 
     // StdOutFormat
     m_formats[StdOutFormat].setFont(font);
@@ -117,7 +117,7 @@ void OutputFormatter::initFormats()
 
     // StdErrFormat
     m_formats[StdErrFormat].setFont(font);
-    m_formats[StdErrFormat].setForeground(QColor(Qt::red));
+    m_formats[StdErrFormat].setForeground(QColor(200, 0, 0));
 }
 
 void OutputFormatter::setFormat(Format theFormat) const
