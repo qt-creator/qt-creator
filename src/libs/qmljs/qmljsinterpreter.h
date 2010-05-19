@@ -60,7 +60,6 @@ class StringValue;
 class ObjectValue;
 class FunctionValue;
 class Reference;
-class EasingCurveNameValue;
 class ColorValue;
 class AnchorLineValue;
 
@@ -88,7 +87,6 @@ public:
     virtual void visit(const ObjectValue *);
     virtual void visit(const FunctionValue *);
     virtual void visit(const Reference *);
-    virtual void visit(const EasingCurveNameValue *);
     virtual void visit(const ColorValue *);
     virtual void visit(const AnchorLineValue *);
 };
@@ -113,7 +111,6 @@ public:
     virtual const ObjectValue *asObjectValue() const;
     virtual const FunctionValue *asFunctionValue() const;
     virtual const Reference *asReference() const;
-    virtual const EasingCurveNameValue *asEasingCurveNameValue() const;
     virtual const ColorValue *asColorValue() const;
     virtual const AnchorLineValue *asAnchorLineValue() const;
 
@@ -169,12 +166,6 @@ template <> Q_INLINE_TEMPLATE const FunctionValue *value_cast(const Value *v)
 template <> Q_INLINE_TEMPLATE const Reference *value_cast(const Value *v)
 {
     if (v) return v->asReference();
-    else   return 0;
-}
-
-template <> Q_INLINE_TEMPLATE const EasingCurveNameValue *value_cast(const Value *v)
-{
-    if (v) return v->asEasingCurveNameValue();
     else   return 0;
 }
 
@@ -340,18 +331,6 @@ public:
 
 private:
     Engine *_engine;
-};
-
-class QMLJS_EXPORT EasingCurveNameValue: public Value
-{
-    static QSet<QString> _curveNames;
-
-public:
-    static QSet<QString> curveNames();
-
-    // Value interface
-    virtual const EasingCurveNameValue *asEasingCurveNameValue() const;
-    virtual void accept(ValueVisitor *) const;
 };
 
 class QMLJS_EXPORT ColorValue: public Value
@@ -639,7 +618,6 @@ protected:
     virtual void visit(const StringValue *);
     virtual void visit(const ObjectValue *object);
     virtual void visit(const FunctionValue *object);
-    virtual void visit(const EasingCurveNameValue *);
     virtual void visit(const ColorValue *);
     virtual void visit(const AnchorLineValue *);
 };
@@ -658,7 +636,6 @@ public:
     const NumberValue *numberValue() const;
     const BooleanValue *booleanValue() const;
     const StringValue *stringValue() const;
-    const EasingCurveNameValue *easingCurveNameValue() const;
     const ColorValue *colorValue() const;
     const AnchorLineValue *anchorLineValue() const;
 
@@ -744,7 +721,6 @@ private:
     NumberValue _numberValue;
     BooleanValue _booleanValue;
     StringValue _stringValue;
-    EasingCurveNameValue _easingCurveNameValue;
     ColorValue _colorValue;
     AnchorLineValue _anchorLineValue;
     QList<Value *> _registeredValues;

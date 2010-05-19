@@ -268,6 +268,8 @@ int main(int argc, char *argv[])
     }
 
     cppToQml.insert("QString", "string");
+    cppToQml.insert("QEasingCurve", "Qt.Easing");
+    cppToQml.insert("QDeclarativeEasingValueType::Type", "Type");
 
     QSet<const QMetaObject *> metas;
 

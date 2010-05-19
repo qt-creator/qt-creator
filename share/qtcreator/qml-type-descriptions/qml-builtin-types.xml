@@ -1370,12 +1370,12 @@
     <type name="Qt.AnchorAnimation" version="4.7" extends="Qt.Animation">
         <property name="targets" type="Qt.Item" isList="true"/>
         <property name="duration" type="int"/>
-        <property name="easing" type="QEasingCurve"/>
+        <property name="easing" type="Qt.Easing"/>
         <signal name="durationChanged">
             <param type="int"/>
         </signal>
         <signal name="easingChanged">
-            <param type="QEasingCurve"/>
+            <param type="Qt.Easing"/>
         </signal>
     </type>
     <type name="Qt.AnchorChanges" version="4.7" extends="QDeclarativeStateOperation">
@@ -1457,10 +1457,6 @@
             <enumerator name="Loading" value="2"/>
             <enumerator name="Error" value="3"/>
         </enum>
-        <property name="isNull" type="bool"/>
-        <property name="isReady" type="bool"/>
-        <property name="isError" type="bool"/>
-        <property name="isLoading" type="bool"/>
         <property name="progress" type="qreal"/>
         <property name="status" type="Status"/>
         <property name="url" type="QUrl"/>
@@ -1474,6 +1470,7 @@
     </type>
     <type name="Qt.Connections" version="4.7" extends="Qt.QtObject">
         <property name="target" type="Qt.QtObject"/>
+        <property name="ignoreUnknownSignals" type="bool"/>
         <signal name="targetChanged"/>
     </type>
     <type name="Qt.DoubleValidator" version="4.7" extends="QValidator">
@@ -1555,7 +1552,7 @@
             <enumerator name="SineCurve" value="43"/>
             <enumerator name="CosineCurve" value="44"/>
         </enum>
-        <property name="type" type="QDeclarativeEasingValueType.Type"/>
+        <property name="type" type="Type"/>
         <property name="amplitude" type="qreal"/>
         <property name="overshoot" type="qreal"/>
         <property name="period" type="qreal"/>
@@ -1566,7 +1563,7 @@
             <enumerator name="DragOverBounds" value="1"/>
             <enumerator name="DragAndOvershootBounds" value="2"/>
         </enum>
-        <enum name="FlickDirection">
+        <enum name="FlickableDirection">
             <enumerator name="AutoFlickDirection" value="0"/>
             <enumerator name="HorizontalFlick" value="1"/>
             <enumerator name="VerticalFlick" value="2"/>
@@ -1583,8 +1580,13 @@
         <property name="maximumFlickVelocity" type="qreal"/>
         <property name="flickDeceleration" type="qreal"/>
         <property name="moving" type="bool"/>
+        <property name="movingHorizontally" type="bool"/>
+        <property name="movingVertically" type="bool"/>
         <property name="flicking" type="bool"/>
-        <property name="flickDirection" type="FlickDirection"/>
+        <property name="flickingHorizontally" type="bool"/>
+        <property name="flickingVertically" type="bool"/>
+        <property name="flickDirection" type="FlickableDirection"/>
+        <property name="flickableDirection" type="FlickableDirection"/>
         <property name="interactive" type="bool"/>
         <property name="pressDelay" type="int"/>
         <property name="atXEnd" type="bool"/>
@@ -1599,22 +1601,26 @@
         <signal name="contentXChanged"/>
         <signal name="contentYChanged"/>
         <signal name="movingChanged"/>
+        <signal name="movingHorizontallyChanged"/>
+        <signal name="movingVerticallyChanged"/>
         <signal name="flickingChanged"/>
-        <signal name="movementStarted"/>
-        <signal name="movementEnded"/>
-        <signal name="flickStarted"/>
-        <signal name="flickEnded"/>
+        <signal name="flickingHorizontallyChanged"/>
+        <signal name="flickingVerticallyChanged"/>
         <signal name="horizontalVelocityChanged"/>
         <signal name="verticalVelocityChanged"/>
         <signal name="isAtBoundaryChanged"/>
         <signal name="pageChanged"/>
-        <signal name="flickDirectionChanged"/>
+        <signal name="flickableDirectionChanged"/>
         <signal name="interactiveChanged"/>
         <signal name="overShootChanged"/>
         <signal name="boundsBehaviorChanged"/>
         <signal name="maximumFlickVelocityChanged"/>
         <signal name="flickDecelerationChanged"/>
         <signal name="pressDelayChanged"/>
+        <signal name="movementStarted"/>
+        <signal name="movementEnded"/>
+        <signal name="flickStarted"/>
+        <signal name="flickEnded"/>
     </type>
     <type name="Qt.Flipable" version="4.7" defaultProperty="data" extends="Qt.Item">
         <enum name="Side">
@@ -1865,18 +1871,30 @@
         <method name="forceFocus"/>
     </type>
     <type name="Qt.KeyNavigation" version="4.7" extends="Qt.QtObject">
+        <enum name="Priority">
+            <enumerator name="BeforeItem" value="0"/>
+            <enumerator name="AfterItem" value="1"/>
+        </enum>
         <property name="left" type="Qt.Item"/>
         <property name="right" type="Qt.Item"/>
         <property name="up" type="Qt.Item"/>
         <property name="down" type="Qt.Item"/>
         <property name="tab" type="Qt.Item"/>
         <property name="backtab" type="Qt.Item"/>
+        <property name="priority" type="Priority"/>
         <signal name="changed"/>
+        <signal name="priorityChanged"/>
     </type>
     <type name="Qt.Keys" version="4.7" extends="Qt.QtObject">
+        <enum name="Priority">
+            <enumerator name="BeforeItem" value="0"/>
+            <enumerator name="AfterItem" value="1"/>
+        </enum>
         <property name="enabled" type="bool"/>
         <property name="forwardTo" type="Qt.Item" isList="true"/>
+        <property name="priority" type="Priority"/>
         <signal name="enabledChanged"/>
+        <signal name="priorityChanged"/>
         <signal name="pressed">
             <param name="event" type="QDeclarativeKeyEvent"/>
         </signal>
@@ -2126,14 +2144,8 @@
             <enumerator name="Loading" value="2"/>
             <enumerator name="Error" value="3"/>
         </enum>
-        <enum name="ResizeMode">
-            <enumerator name="NoResize" value="0"/>
-            <enumerator name="SizeLoaderToItem" value="1"/>
-            <enumerator name="SizeItemToLoader" value="2"/>
-        </enum>
         <property name="source" type="QUrl"/>
         <property name="sourceComponent" type="Qt.Component"/>
-        <property name="resizeMode" type="ResizeMode"/>
         <property name="item" type="QGraphicsObject"/>
         <property name="status" type="Status"/>
         <property name="progress" type="qreal"/>
@@ -2141,7 +2153,7 @@
         <signal name="sourceChanged"/>
         <signal name="statusChanged"/>
         <signal name="progressChanged"/>
-        <signal name="resizeModeChanged"/>
+        <signal name="loaded"/>
     </type>
     <type name="Qt.MouseArea" version="4.7" defaultProperty="data" extends="Qt.Item">
         <property name="mouseX" type="qreal"/>
@@ -2157,6 +2169,7 @@
         <signal name="pressedChanged"/>
         <signal name="enabledChanged"/>
         <signal name="acceptedButtonsChanged"/>
+        <signal name="hoverEnabledChanged"/>
         <signal name="positionChanged">
             <param name="mouse" type="QDeclarativeMouseEvent"/>
         </signal>
@@ -2180,6 +2193,7 @@
         </signal>
         <signal name="entered"/>
         <signal name="exited"/>
+        <signal name="canceled"/>
     </type>
     <type name="Qt.NumberAnimation" version="4.7" extends="Qt.PropertyAnimation">
         <property name="from" type="qreal"/>
@@ -2274,6 +2288,8 @@
         <signal name="highlightChanged"/>
         <signal name="highlightItemChanged"/>
         <signal name="highlightMoveDurationChanged"/>
+        <method name="incrementCurrentIndex"/>
+        <method name="decrementCurrentIndex"/>
     </type>
     <type name="Qt.PauseAnimation" version="4.7" extends="Qt.Animation">
         <property name="duration" type="int"/>
@@ -2303,7 +2319,7 @@
         <property name="duration" type="int"/>
         <property name="from" type="QVariant"/>
         <property name="to" type="QVariant"/>
-        <property name="easing" type="QEasingCurve"/>
+        <property name="easing" type="Qt.Easing"/>
         <property name="target" type="Qt.QtObject"/>
         <property name="property" type="string"/>
         <property name="properties" type="string"/>
@@ -2319,7 +2335,7 @@
             <param type="QVariant"/>
         </signal>
         <signal name="easingChanged">
-            <param type="QEasingCurve"/>
+            <param type="Qt.Easing"/>
         </signal>
         <signal name="propertiesChanged">
             <param type="string"/>
@@ -3094,7 +3110,7 @@
         <property name="contentsMargin" type="qreal"/>
     </type>
     <type name="Qt.widgets.QGraphicsLinearLayoutStretchItem" version="4.7" extends="Qt.QtObject"/>
-    <type name="org.webkit.WebView" version="1.0" defaultProperty="data" extends="QDeclarativePaintedItem">
+    <type name="org.webkit.WebView" version="1.0" defaultProperty="data" extends="Qt.Item">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
             <enumerator name="Ready" value="1"/>
@@ -3121,6 +3137,8 @@
         <property name="newWindowComponent" type="Qt.Component"/>
         <property name="newWindowParent" type="Qt.Item"/>
         <property name="renderingEnabled" type="bool"/>
+        <property name="contentsSize" type="QSize"/>
+        <property name="contentsScale" type="qreal"/>
         <signal name="preferredWidthChanged"/>
         <signal name="preferredHeightChanged"/>
         <signal name="urlChanged"/>
@@ -3139,6 +3157,10 @@
         <signal name="newWindowComponentChanged"/>
         <signal name="newWindowParentChanged"/>
         <signal name="renderingEnabledChanged"/>
+        <signal name="contentsSizeChanged">
+            <param type="QSize"/>
+        </signal>
+        <signal name="contentsScaleChanged"/>
         <signal name="loadStarted"/>
         <signal name="loadFinished"/>
         <signal name="loadFailed"/>

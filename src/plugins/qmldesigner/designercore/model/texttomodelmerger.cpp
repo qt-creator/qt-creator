@@ -384,8 +384,6 @@ public:
             v.convert(QVariant::Double);
         } else if (property->asStringValue()) {
             // nothing to do
-        } else if (property->asEasingCurveNameValue()) {
-            // nothing to do
         }
         return v;
     }

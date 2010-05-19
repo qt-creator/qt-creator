@@ -64,13 +64,27 @@ public:
         return _message;
     }
 
-    virtual void visit(const NumberValue *)
+    virtual void visit(const NumberValue *value)
     {
-        // ### Consider enums: elide: "ElideLeft" is valid, but currently elide is a NumberValue.
-        if (/*cast<StringLiteral *>(_ast)
+        if (const QmlEnumValue *enumValue = dynamic_cast<const QmlEnumValue *>(value)) {
+            if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
+                const QString valueName = stringLiteral->value->asString();
+
+                if (!enumValue->keys().contains(valueName)) {
+                    _message.message = QCoreApplication::translate("QmlJS::Check", "unknown value for enum");
+                }
+            } else if (_rhsValue->asUndefinedValue()) {
+                _message.kind = DiagnosticMessage::Warning;
+                _message.message = QCoreApplication::translate("QmlJS::Check", "value might be 'undefined'");
+            } else if (! _rhsValue->asStringValue() && ! _rhsValue->asNumberValue()) {
+                _message.message = QCoreApplication::translate("QmlJS::Check", "enum value is not a string or number");
+            }
+        } else {
+            if (/*cast<StringLiteral *>(_ast)
                 ||*/ _ast->kind == Node::Kind_TrueLiteral
-                || _ast->kind == Node::Kind_FalseLiteral) {
-            _message.message = QCoreApplication::translate("QmlJS::Check", "numerical value expected");
+                     || _ast->kind == Node::Kind_FalseLiteral) {
+                _message.message = QCoreApplication::translate("QmlJS::Check", "numerical value expected");
+            }
         }
     }
 
@@ -94,22 +108,6 @@ public:
                 || _ast->kind == Node::Kind_TrueLiteral
                 || _ast->kind == Node::Kind_FalseLiteral) {
             _message.message = QCoreApplication::translate("QmlJS::Check", "string value expected");
-        }
-    }
-
-    virtual void visit(const EasingCurveNameValue *)
-    {
-        if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
-            const QString curveName = stringLiteral->value->asString();
-
-            if (!EasingCurveNameValue::curveNames().contains(curveName)) {
-                _message.message = QCoreApplication::translate("QmlJS::Check", "unknown easing-curve name");
-            }
-        } else if (_rhsValue->asUndefinedValue()) {
-            _message.kind = DiagnosticMessage::Warning;
-            _message.message = QCoreApplication::translate("QmlJS::Check", "value might be 'undefined'");
-        } else if (! _rhsValue->asStringValue() && ! _rhsValue->asNumberValue()) {
-            _message.message = QCoreApplication::translate("QmlJS::Check", "easing-curve name is not a string or number");
         }
     }
 

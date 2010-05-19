@@ -846,15 +846,6 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         value = engine()->colorValue();
     } else if (typeName == QLatin1String("QDeclarativeAnchorLine")) {
         value = engine()->anchorLineValue();
-    } else if (typeName == QLatin1String("QEasingCurve")) {
-        // ### cache
-        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-        object->setClassName(QLatin1String("EasingCurve"));
-        object->setProperty("type", engine()->easingCurveNameValue());
-        object->setProperty("period", engine()->numberValue());
-        object->setProperty("amplitude", engine()->numberValue());
-        object->setProperty("overshoot", engine()->numberValue());
-        value = object;
     }
 
     // might be an enum
@@ -1199,10 +1190,6 @@ void ValueVisitor::visit(const Reference *)
 {
 }
 
-void ValueVisitor::visit(const EasingCurveNameValue *)
-{
-}
-
 void ValueVisitor::visit(const ColorValue *)
 {
 }
@@ -1263,11 +1250,6 @@ const FunctionValue *Value::asFunctionValue() const
 }
 
 const Reference *Value::asReference() const
-{
-    return 0;
-}
-
-const EasingCurveNameValue *Value::asEasingCurveNameValue() const
 {
     return 0;
 }
@@ -1555,67 +1537,6 @@ void Reference::accept(ValueVisitor *visitor) const
 const Value *Reference::value(Context *) const
 {
     return _engine->undefinedValue();
-}
-
-void EasingCurveNameValue::accept(ValueVisitor *visitor) const
-{
-    visitor->visit(this);
-}
-
-QSet<QString> EasingCurveNameValue::_curveNames;
-QSet<QString> EasingCurveNameValue::curveNames()
-{
-    if (_curveNames.isEmpty()) {
-        _curveNames = QSet<QString>()
-                      << "Linear"
-                      << "InQuad"
-                      << "OutQuad"
-                      << "InOutQuad"
-                      << "OutInQuad"
-                      << "InCubic"
-                      << "OutCubic"
-                      << "InOutCubic"
-                      << "OutInCubic"
-                      << "InQuart"
-                      << "OutQuart"
-                      << "InOutQuart"
-                      << "OutInQuart"
-                      << "InQuint"
-                      << "OutQuint"
-                      << "InOutQuint"
-                      << "OutInQuint"
-                      << "InSine"
-                      << "OutSine"
-                      << "InOutSine"
-                      << "OutInSine"
-                      << "InExpo"
-                      << "OutExpo"
-                      << "InOutExpo"
-                      << "OutInExpo"
-                      << "InCirc"
-                      << "OutCirc"
-                      << "InOutCirc"
-                      << "OutInCirc"
-                      << "InElastic"
-                      << "OutElastic"
-                      << "InOutElastic"
-                      << "OutInElastic"
-                      << "InBack"
-                      << "OutBack"
-                      << "InOutBack"
-                      << "OutInBack"
-                      << "InBounce"
-                      << "OutBounce"
-                      << "InOutBounce"
-                      << "OutInBounce";
-    }
-
-    return _curveNames;
-}
-
-const EasingCurveNameValue *EasingCurveNameValue::asEasingCurveNameValue() const
-{
-    return this;
 }
 
 void ColorValue::accept(ValueVisitor *visitor) const
@@ -2337,11 +2258,6 @@ void TypeId::visit(const FunctionValue *object)
         _result = QLatin1String("Function");
 }
 
-void TypeId::visit(const EasingCurveNameValue *)
-{
-    _result = QLatin1String("string");
-}
-
 void TypeId::visit(const ColorValue *)
 {
     _result = QLatin1String("string");
@@ -2410,11 +2326,6 @@ const BooleanValue *Engine::booleanValue() const
 const StringValue *Engine::stringValue() const
 {
     return &_stringValue;
-}
-
-const EasingCurveNameValue *Engine::easingCurveNameValue() const
-{
-    return &_easingCurveNameValue;
 }
 
 const ColorValue *Engine::colorValue() const
