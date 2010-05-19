@@ -48,7 +48,7 @@ CheckoutWizard::CheckoutWizard(QObject *parent) :
 
 QIcon CheckoutWizard::icon() const
 {
-    return QIcon();
+    return QIcon(QLatin1String(":/subversion/images/subversion.png"));
 }
 
 QString CheckoutWizard::description() const
