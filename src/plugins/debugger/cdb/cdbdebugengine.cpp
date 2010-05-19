@@ -49,6 +49,7 @@
 #include "breakhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
+#include "threadshandler.h"
 #include "registerhandler.h"
 #include "moduleshandler.h"
 #include "watchutils.h"

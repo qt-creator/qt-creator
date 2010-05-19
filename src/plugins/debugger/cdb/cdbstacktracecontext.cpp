@@ -33,6 +33,7 @@
 #include "cdbdebugengine_p.h"
 #include "debuggeractions.h"
 #include "watchutils.h"
+#include "threadshandler.h"
 
 #include <utils/savedaction.h>
 

@@ -183,12 +183,12 @@ QProcessEnvironment RemoteGdbProcess::processEnvironment() const
     return QProcessEnvironment(); // TODO: Provide actual environment.
 }
 
-void RemoteGdbProcess::setProcessEnvironment(const QProcessEnvironment &env)
+void RemoteGdbProcess::setProcessEnvironment(const QProcessEnvironment & /* env */)
 {
     // TODO: Do something.
 }
 
-void RemoteGdbProcess::setEnvironment(const QStringList &env)
+void RemoteGdbProcess::setEnvironment(const QStringList & /* env */)
 {
     // TODO: Do something.
 }
