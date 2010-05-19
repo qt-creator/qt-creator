@@ -35,17 +35,22 @@
 #include "target.h"
 #include "toolchain.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/mainwindow.h>
 #include <coreplugin/ifile.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QCoreApplication>
+#include <QtGui/QApplication>
 #include <QtCore/QFile>
+#include <QtGui/QMessageBox>
+#include <QtNetwork/QHostInfo>
 
 using namespace ProjectExplorer;
 
 namespace {
-const char * const USER_FILE_VERSION("ProjectExplorer.Project.Updater.FileVersion");
-const char * const WAS_UPDATED("ProjectExplorer.Project.Updater.DidUpdate");
+const char * const USER_FILE_VERSION  = "ProjectExplorer.Project.Updater.FileVersion";
+const char * const USER_FILE_HOSTNAME = "ProjectExplorer.Project.Updater.Hostname";
+const char * const WAS_UPDATED        = "ProjectExplorer.Project.Updater.DidUpdate";
 const char * const PROJECT_FILE_POSTFIX(".user");
 
 // Version 0 is used in Qt Creator 1.3.x and
@@ -225,7 +230,7 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
     if (m_lastVersion < 0 || !project)
         return QVariantMap();
 
-    QString fileName(fileNameFor(project->file()->fileName()));
+    QString fileName = fileNameFor(project->file()->fileName());
     if (!QFile::exists(fileName))
         return QVariantMap();
 
@@ -235,10 +240,33 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
     QVariantMap map(reader.restoreValues());
 
     // Get and verify file version:
-    const int fileVersion(map.value(QLatin1String(USER_FILE_VERSION), 0).toInt());
+    const int fileVersion = map.value(QLatin1String(USER_FILE_VERSION), 0).toInt();
     if (fileVersion < m_firstVersion || fileVersion > m_lastVersion + 1) {
         qWarning() << "File version" << fileVersion << "is not supported.";
         return QVariantMap();
+    }
+
+    // Verify hostname
+    const QString hostname = map.value(QLatin1String(USER_FILE_HOSTNAME)).toString();
+    if (!hostname.isEmpty() && hostname != QHostInfo::localHostName()) {
+        // Ask the user
+        // TODO tr, casing check
+        QMessageBox msgBox(QMessageBox::Question,
+                           QApplication::translate("ProjectExplorer::UserFileAccessor",
+                                                   "Project Settings File from a different Host?"),
+                           QApplication::translate("ProjectExplorer::UserFileAccessor",
+                                                   "Qt Creator has found a .user settings file from a host %1. "
+                                                   "The hostname for this computer is %2. \n\n"
+                                                   "The .user settings files contain machine specific settings. "
+                                                   "They should not be copied to a different environment. \n\n"
+                                                   "Still load the settigns file?").arg(hostname, QHostInfo::localHostName()),
+                           QMessageBox::Yes | QMessageBox::No,
+                           Core::ICore::instance()->mainWindow());
+        msgBox.setDefaultButton(QMessageBox::No);
+        msgBox.setEscapeButton(QMessageBox::No);
+        int result = msgBox.exec();
+        if (result == QMessageBox::No)
+            return QVariantMap();
     }
 
     // Do we need to do a update?
@@ -269,6 +297,7 @@ bool UserFileAccessor::saveSettings(Project *project, const QVariantMap &map)
         writer.saveValue(i.key(), i.value());
 
     writer.saveValue(QLatin1String(USER_FILE_VERSION), m_lastVersion + 1);
+    writer.saveValue(QLatin1String(USER_FILE_HOSTNAME), QHostInfo::localHostName());
 
     return writer.save(fileNameFor(project->file()->fileName()), "QtCreatorProject");
 }
