@@ -217,7 +217,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const QStringList alternativeFormats =
         model()->data(mi0, TypeFormatListRole).toStringList();
     const int typeFormat =
-        qMax(int(DecimalFormat), model()->data(mi0, TypeFormatRole).toInt());
+        model()->data(mi0, TypeFormatRole).toInt();
     const int individualFormat =
         model()->data(mi0, IndividualFormatRole).toInt();
     const int effectiveIndividualFormat =
@@ -225,12 +225,18 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu typeFormatMenu;
     QList<QAction *> typeFormatActions;
+    QAction *clearTypeFormatAction = 0;
     if (idx.isValid()) {
         typeFormatMenu.setTitle(
             tr("Change Format for Type \"%1\"").arg(type));
         if (alternativeFormats.isEmpty()) {
             typeFormatMenu.setEnabled(false);
         } else {
+            clearTypeFormatAction = typeFormatMenu.addAction(tr("Clear"));
+            clearTypeFormatAction->setEnabled(typeFormat != -1);
+            clearTypeFormatAction->setCheckable(true);
+            clearTypeFormatAction->setChecked(typeFormat == -1);
+            typeFormatMenu.addSeparator();
             for (int i = 0; i != alternativeFormats.size(); ++i) {
                 const QString format = alternativeFormats.at(i);
                 QAction *act = new QAction(format, &typeFormatMenu);
@@ -257,6 +263,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         } else {
             clearIndividualFormatAction = individualFormatMenu.addAction(tr("Clear"));
             clearIndividualFormatAction->setEnabled(individualFormat != -1);
+            clearIndividualFormatAction->setCheckable(true);
+            clearIndividualFormatAction->setChecked(individualFormat == -1);
             individualFormatMenu.addSeparator();
             for (int i = 0; i != alternativeFormats.size(); ++i) {
                 const QString format = alternativeFormats.at(i);
@@ -379,6 +387,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         m_grabbing = true;
     } else if (act == actClearCodeModelSnapshot) {
         m_manager->clearCppCodeModelSnapshot();
+    } else if (clearTypeFormatAction && act == clearTypeFormatAction) {
+        model()->setData(mi1, -1, TypeFormatRole);
     } else if (clearIndividualFormatAction && act == clearIndividualFormatAction) {
         model()->setData(mi1, -1, IndividualFormatRole);
     } else {

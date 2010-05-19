@@ -1385,7 +1385,10 @@ QString WatchHandler::watcherEditPlaceHolder()
 
 void WatchHandler::setFormat(const QString &type, int format)
 {
-    m_typeFormats[type] = format;
+    if (format == -1)
+        m_typeFormats.remove(type);
+    else
+        m_typeFormats[type] = format;
     saveTypeFormats();
     m_return->emitDataChanged(1);
     m_locals->emitDataChanged(1);
