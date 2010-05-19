@@ -226,16 +226,24 @@ bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command
     perl = maddeRoot() + QLatin1String("/bin/perl.exe ");
 #endif
     proc.start(perl + maddeRoot() % QLatin1String("/madbin/") % command);
+    if (!proc.waitForStarted()) {
+        raiseError(tr("Packaging failed."),
+            tr("Packaging error: Could not start command '%1'. Reason: %2")
+            .arg(command).arg(proc.errorString()));
+        return false;
+    }
     proc.write("\n"); // For dh_make
-    if (!proc.waitForFinished(100000) && proc.error() == QProcess::Timedout) {
+    if (!proc.waitForFinished(60000) && proc.error() == QProcess::Timedout) {
         raiseError(tr("Packaging failed."),
                    tr("Packaging Error: Command '%1' timed out.").arg(command));
         return false;
     }
-    if (proc.exitCode() != 0) {
-        const QString mainMessage = tr("Packaging Error: Command '%1' failed.")
-                                    .arg(command);
-        raiseError(mainMessage, mainMessage + QLatin1Char(' ')
+    if (proc.error() != QProcess::UnknownError || proc.exitCode() != 0) {
+        QString mainMessage = tr("Packaging Error: Command '%1' failed.")
+            .arg(command);
+        if (proc.error() != QProcess::UnknownError)
+            mainMessage += tr(" Reason: %1").arg(proc.errorString());
+        raiseError(mainMessage, mainMessage + QLatin1Char('\n')
                    + tr("Output was: ") + proc.readAllStandardError()
                    + QLatin1Char('\n') + proc.readAllStandardOutput());
         return false;
