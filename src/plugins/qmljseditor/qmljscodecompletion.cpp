@@ -736,7 +736,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             if (qmlWords.isEmpty()) {
                 qmlWords << QLatin1String("property")
-                        << QLatin1String("readonly")
+                        //<< QLatin1String("readonly")
                         << QLatin1String("signal")
                         << QLatin1String("import");
             }
