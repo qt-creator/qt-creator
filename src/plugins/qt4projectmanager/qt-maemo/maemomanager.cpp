@@ -51,6 +51,7 @@
 #include <QtCore/QTextStream>
 
 #include <QtGui/QAction>
+#include <QtGui/QMessageBox>
 
 namespace Qt4ProjectManager {
     namespace Internal {
@@ -187,20 +188,55 @@ MaemoManager::triggered()
 }
 
 void
-MaemoManager::updateQemuSimulatorStarter(bool running)
+MaemoManager::qemuStatusChanged(QemuStatus status, const QString &error)
 {
-    if (m_qemuAction) {
-        QIcon::State state = QIcon::Off;
-        QString toolTip(tr("Start Maemo Emulator"));
-        if (running) {
-            state = QIcon::On;
-            toolTip = tr("Stop Maemo Emulator");
-        }
+    if (!m_qemuAction)
+        return;
 
-        m_qemuAction->setToolTip(toolTip);
-        m_qemuAction->setIcon(icon.pixmap(iconSize, QIcon::Normal, state));
+    bool running;
+    QString message;
+    switch (status) {
+    case QemuStarting:
+        running = true;
+        break;
+    case QemuFailedToStart:
+        running = false;
+        message = tr("Qemu failed to start: %1").arg(error);
+        break;
+    case QemuCrashed:
+        running = false;
+        message = tr("Qemu crashed");
+        break;
+    case QemuFinished:
+        running = false;
+        break;
+    default:
+        Q_ASSERT(!"Missing handling of Qemu status");
     }
+
+    if (!message.isEmpty())
+        QMessageBox::warning(0, tr("Qemu error"), message);
+    updateQemuIcon(running);
 }
 
-    } // namespace Internal
+void MaemoManager::updateQemuIcon(bool running)
+{
+    if (!m_qemuAction)
+        return;
+
+    QIcon::State state;
+    QString toolTip;
+    if (running) {
+        state = QIcon::On;
+        toolTip = tr("Stop Maemo Emulator");
+    } else {
+        state = QIcon::Off;
+        toolTip = tr("Start Maemo Emulator");
+    }
+
+    m_qemuAction->setToolTip(toolTip);
+    m_qemuAction->setIcon(icon.pixmap(iconSize, QIcon::Normal, state));
+}
+
+} // namespace Internal
 } // namespace Qt4ProjectManager

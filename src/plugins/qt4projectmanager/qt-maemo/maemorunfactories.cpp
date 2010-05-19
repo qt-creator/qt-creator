@@ -243,7 +243,7 @@ void MaemoRunConfigurationFactory::updateMaemoEmulatorStarter(Target *target) co
         }
     }
 
-    MaemoManager::instance().updateQemuSimulatorStarter(isRunning);
+    MaemoManager::instance().updateQemuIcon(isRunning);
     MaemoManager::instance().setQemuSimulatorStarterEnabled(enable);
 }
 
