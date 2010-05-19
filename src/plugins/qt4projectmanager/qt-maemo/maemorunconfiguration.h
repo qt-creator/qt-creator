@@ -30,11 +30,13 @@
 #ifndef MAEMORUNCONFIGURATION_H
 #define MAEMORUNCONFIGURATION_H
 
+#include "maemoconstants.h"
 #include "maemodeviceconfigurations.h"
 
 #include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QDateTime>
+#include <QtCore/QProcess>
 #include <QtCore/QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
@@ -108,7 +110,7 @@ signals:
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;
     void cachedSimulatorInformationChanged() const;
-    void qemuProcessStatus(bool running);
+    void qemuProcessStatus(QemuStatus, const QString &error = QString());
 
 protected:
     MaemoRunConfiguration(Qt4Target *parent, MaemoRunConfiguration *source);
@@ -120,6 +122,7 @@ private slots:
 
     void startStopQemu();
     void qemuProcessFinished();
+    void qemuProcessError(QProcess::ProcessError error);
 
 private:
     void init();

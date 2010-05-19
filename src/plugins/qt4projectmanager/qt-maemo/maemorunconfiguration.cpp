@@ -100,13 +100,16 @@ void MaemoRunConfiguration::init()
         this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 
     qemu = new QProcess(this);
+    connect(qemu, SIGNAL(error(QProcess::ProcessError)), this,
+        SLOT(qemuProcessError(QProcess::ProcessError)));
     connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), this,
         SLOT(qemuProcessFinished()));
 
     connect(&MaemoManager::instance(), SIGNAL(startStopQemu()), this,
         SLOT(startStopQemu()));
-    connect(this, SIGNAL(qemuProcessStatus(bool)), &MaemoManager::instance(),
-        SLOT(updateQemuSimulatorStarter(bool)));
+    connect(this, SIGNAL(qemuProcessStatus(QemuStatus, QString)),
+        &MaemoManager::instance(),
+        SLOT(qemuStatusChanged(QemuStatus,QString)));
 }
 
 MaemoRunConfiguration::~MaemoRunConfiguration()
@@ -475,7 +478,6 @@ void MaemoRunConfiguration::startStopQemu()
         if (qemu->state() == QProcess::Running) {
             qemu->terminate();
             qemu->kill();
-            emit qemuProcessStatus(false);
         }
         return;
     }
@@ -505,12 +507,20 @@ void MaemoRunConfiguration::startStopQemu()
     ;   // keep
 
     qemu->start(app % QLatin1Char(' ') % simulatorArgs(), QIODevice::ReadWrite);
-    emit qemuProcessStatus(qemu->waitForStarted());
+    emit qemuProcessStatus(QemuStarting);
 }
 
 void MaemoRunConfiguration::qemuProcessFinished()
 {
-    emit qemuProcessStatus(false);
+    const QemuStatus status
+        = qemu->exitStatus() == QProcess::CrashExit ? QemuCrashed : QemuFinished;
+    emit qemuProcessStatus(status);
+}
+
+void MaemoRunConfiguration::qemuProcessError(QProcess::ProcessError error)
+{
+    if (error == QProcess::FailedToStart)
+        emit qemuProcessStatus(QemuFailedToStart, qemu->errorString());
 }
 
 void MaemoRunConfiguration::updateDeviceConfigurations()

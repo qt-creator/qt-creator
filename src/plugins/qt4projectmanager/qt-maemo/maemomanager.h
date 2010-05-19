@@ -30,6 +30,8 @@
 #ifndef MAEMOMANAGER_H
 #define MAEMOMANAGER_H
 
+#include "maemoconstants.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QSet>
 
@@ -69,12 +71,13 @@ public:
     void removeQemuSimulatorStarter(Project *project);
 
     void setQemuSimulatorStarterEnabled(bool state);
+    void updateQemuIcon(bool running);
 
     MaemoSettingsPage *settingsPage() const { return m_settingsPage; }
 
 public slots:
     void triggered();
-    void updateQemuSimulatorStarter(bool running);
+    void qemuStatusChanged(QemuStatus status, const QString &error);
 
 signals:
     void startStopQemu();

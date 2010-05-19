@@ -34,8 +34,12 @@
 #ifndef MAEMOCONSTANTS_H
 #define MAEMOCONSTANTS_H
 
+#include <QLatin1String>
+
 namespace Qt4ProjectManager {
-    namespace Internal {
+namespace Internal {
+
+enum QemuStatus { QemuStarting, QemuFailedToStart, QemuFinished, QemuCrashed };
 
 #define PREFIX "Qt4ProjectManager.MaemoRunConfiguration"
 
@@ -49,7 +53,7 @@ static const QLatin1String LastDeployedKey(PREFIX ".LastDeployed");
 static const QLatin1String DebuggingHelpersLastDeployedKey(PREFIX ".DebuggingHelpersLastDeployed");
 static const QLatin1String ProFileKey(".ProFile");
 
-    } // namespace Internal
+} // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif  // MAEMOCONSTANTS_H
