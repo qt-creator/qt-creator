@@ -636,6 +636,16 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     const int pos = editor->position();
     if (startOfOperator(editor, pos, /*token =*/ 0, /*want function call=*/ true) != pos) {
+        if (m_completionOperator == T_POUND) {
+            if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget())) {
+                QTextCursor tc(edit->document());
+                tc.setPosition(pos);
+                return tc.columnNumber() == 1;
+            }
+
+            return false;
+        }
+
         return true;
     }
 
