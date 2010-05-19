@@ -37,7 +37,6 @@
 #include "debuggerdialogs.h"
 #include "debuggermanager.h"
 #include "idebuggerengine.h"
-#include "watchutils.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -300,12 +299,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const bool canShowMemory = engineCapabilities & ShowMemoryCapability;
     actWatchUnknownMemory->setEnabled(actionsEnabled && canShowMemory);
 
-    QString editAddress = address;
-    if (isPointerType(type))
-        editAddress = model()->data(mi1).toString();
-    if (canShowMemory && !editAddress.isEmpty())
+    if (canShowMemory && !address.isEmpty())
         actWatchKnownMemory =
-            new QAction(tr("Open Memory Editor at %1").arg(editAddress), &menu);
+            new QAction(tr("Open Memory Editor at %1").arg(address), &menu);
     menu.addSeparator();
 
     QAction *actSetWatchpoint = 0;

@@ -61,7 +61,7 @@ enum WatchRoles
     TypeFormatListRole,
     TypeFormatRole,  // Used to communicate alternative formats to the view.
     IndividualFormatRole,
-    AddressRole,     // Address of the object.
+    AddressRole,     // Some memory address related to the object.
 };
 
 enum IntegerFormat
