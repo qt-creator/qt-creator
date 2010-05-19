@@ -36,6 +36,8 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+#include <QtGui/QMessageBox>
 
 namespace Debugger {
 namespace Internal {
@@ -90,6 +92,33 @@ void LocalPlainGdbAdapter::startAdapter()
     }
 
     emit adapterStarted();
+    checkForReleaseBuild();
+}
+
+void LocalPlainGdbAdapter::checkForReleaseBuild()
+{
+    // Quick check for a "release" build
+    QProcess proc;
+    QStringList args;
+    args.append(_("-h"));
+    args.append(_("-j"));
+    args.append(_(".debug_info"));
+    args.append(startParameters().executable);
+    proc.start(_("objdump"), args);
+    proc.closeWriteChannel();
+    QTC_ASSERT(proc.waitForStarted(), qDebug() << "UNABLE TO RUN OBJDUMP");
+    proc.waitForFinished();
+    QByteArray ba = proc.readAllStandardOutput();
+    // This should yield something like
+    // "debuggertest:     file format elf32-i386\n\n"
+    // "Sections:\nIdx Name          Size      VMA       LMA       File off  Algn\n"
+    // "30 .debug_info   00087d36  00000000  00000000  0006bbd5  2**0\n"
+    // " CONTENTS, READONLY, DEBUGGING"
+    if (ba.contains("Sections:") && !ba.contains(".debug_info")) {
+        m_engine->showMessageBox(QMessageBox::Information, "Warning",
+           tr("This does not seem to be a \"Debug\" build.\n"
+              "Setting breakpoints by file name and line number may fail."));
+    }
 }
 
 void LocalPlainGdbAdapter::interruptInferior()

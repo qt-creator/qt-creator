@@ -64,6 +64,7 @@ private:
     virtual bool infoTargetNecessary() const;
     virtual QByteArray toLocalEncoding(const QString &s) const;
     virtual QString fromLocalEncoding(const QByteArray &b) const;
+    void checkForReleaseBuild();
 
     OutputCollector m_outputCollector;
     LocalGdbProcess m_gdbProc;
