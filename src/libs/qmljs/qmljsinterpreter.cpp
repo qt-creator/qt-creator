@@ -1395,13 +1395,6 @@ Context::~Context()
 {
 }
 
-void Context::build(const QList<Node *> &astPath, QmlJS::Document::Ptr doc,
-                    const QmlJS::Snapshot &snapshot, const QStringList &importPaths)
-{
-    Link link(this, doc, snapshot, importPaths);
-    ScopeBuilder(doc, this).push(astPath);
-}
-
 Engine *Context::engine() const
 {
     return _engine;

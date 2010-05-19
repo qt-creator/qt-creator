@@ -280,9 +280,6 @@ public:
     Context(Engine *engine);
     ~Context();
 
-    void build(const QList<AST::Node *> &astPath, const Document::Ptr doc,
-               const Snapshot &snapshot, const QStringList &importPaths);
-
     Engine *engine() const;
     const ScopeChain &scopeChain() const;
     ScopeChain &scopeChain();

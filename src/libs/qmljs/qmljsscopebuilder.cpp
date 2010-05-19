@@ -33,7 +33,8 @@ void ScopeBuilder::push(AST::Node *node)
     // JS scopes
     if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(node)) {
         ObjectValue *functionScope = _doc->bind()->findFunctionScope(fun);
-        _context->scopeChain().jsScopes += functionScope;
+        if (functionScope)
+            _context->scopeChain().jsScopes += functionScope;
     }
 
     _context->scopeChain().update();

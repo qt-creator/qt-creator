@@ -38,6 +38,7 @@
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljscompletioncontextfinder.h>
+#include <qmljs/qmljslink.h>
 #include <qmljs/qmljsscopebuilder.h>
 
 #include <texteditor/basetexteditor.h>
@@ -653,10 +654,11 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     Interpreter::Engine interp;
     Interpreter::Context context(&interp);
+    Link link(&context, document, snapshot, m_modelManager->importPaths());
 
     // Set up the current scope chain.
-    QList<AST::Node *> astPath = semanticInfo.astPath(editor->position());
-    context.build(astPath, document, snapshot, m_modelManager->importPaths());
+    ScopeBuilder scopeBuilder(document, &context);
+    scopeBuilder.push(semanticInfo.astPath(editor->position()));
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;

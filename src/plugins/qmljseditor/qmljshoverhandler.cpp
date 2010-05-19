@@ -39,6 +39,8 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljslink.h>
+#include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
@@ -172,7 +174,9 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
 
             Interpreter::Engine interp;
             Interpreter::Context context(&interp);
-            context.build(astPath, qmlDocument, snapshot, m_modelManager->importPaths());
+            Link link(&context, qmlDocument, snapshot, m_modelManager->importPaths());
+            ScopeBuilder scopeBuilder(qmlDocument, &context);
+            scopeBuilder.push(astPath);
 
             Evaluate check(&context);
             const Interpreter::Value *value = check(node);
