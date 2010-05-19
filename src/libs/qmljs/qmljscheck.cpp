@@ -108,8 +108,8 @@ public:
         } else if (_rhsValue->asUndefinedValue()) {
             _message.kind = DiagnosticMessage::Warning;
             _message.message = QCoreApplication::translate("QmlJS::Check", "value might be 'undefined'");
-        } else if (! _rhsValue->asStringValue()) {
-            _message.message = QCoreApplication::translate("QmlJS::Check", "easing-curve name is not a string");
+        } else if (! _rhsValue->asStringValue() && ! _rhsValue->asNumberValue()) {
+            _message.message = QCoreApplication::translate("QmlJS::Check", "easing-curve name is not a string or number");
         }
     }
 
