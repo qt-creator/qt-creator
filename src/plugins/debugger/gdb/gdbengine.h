@@ -170,6 +170,10 @@ private:
 
     AbstractGdbAdapter *m_gdbAdapter;
 
+    // Name of the convenience variable containing the last
+    // known function return value.
+    QByteArray m_resultVarName;
+
 private: ////////// Gdb Command Management //////////
 
     public: // Otherwise the Qt flag macros are unhappy.

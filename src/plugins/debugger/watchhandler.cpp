@@ -120,6 +120,10 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
     m_root->parent = 0;
 
     switch (m_type) {
+        case ReturnWatch:
+            m_root->iname = "return";
+            m_root->name = WatchHandler::tr("Return Value");
+            break;
         case LocalsWatch:
             m_root->iname = "local";
             m_root->name = WatchHandler::tr("Locals");
@@ -964,6 +968,7 @@ WatchHandler::WatchHandler(DebuggerManager *manager)
     m_expandPointers = true;
     m_inChange = false;
 
+    m_return = new WatchModel(this, ReturnWatch);
     m_locals = new WatchModel(this, LocalsWatch);
     m_watchers = new WatchModel(this, WatchersWatch);
     m_tooltips = new WatchModel(this, TooltipsWatch);
@@ -981,6 +986,7 @@ WatchHandler::WatchHandler(DebuggerManager *manager)
 void WatchHandler::beginCycle()
 {
     ++generationCounter;
+    m_return->beginCycle();
     m_locals->beginCycle();
     m_watchers->beginCycle();
     m_tooltips->beginCycle();
@@ -988,6 +994,7 @@ void WatchHandler::beginCycle()
 
 void WatchHandler::endCycle()
 {
+    m_return->endCycle();
     m_locals->endCycle();
     m_watchers->endCycle();
     m_tooltips->endCycle();
@@ -997,8 +1004,10 @@ void WatchHandler::endCycle()
 void WatchHandler::cleanup()
 {
     m_expandedINames.clear();
+    m_return->reinitialize();
     m_locals->reinitialize();
     m_tooltips->reinitialize();
+    m_return->m_fetchTriggered.clear();
     m_locals->m_fetchTriggered.clear();
     m_watchers->m_fetchTriggered.clear();
     m_tooltips->m_fetchTriggered.clear();
@@ -1014,6 +1023,7 @@ void WatchHandler::cleanup()
 
 void WatchHandler::emitAllChanged()
 {
+    m_return->emitAllChanged();
     m_locals->emitAllChanged();
     m_watchers->emitAllChanged();
     m_tooltips->emitAllChanged();
@@ -1337,6 +1347,7 @@ void WatchHandler::loadSessionData()
 WatchModel *WatchHandler::model(WatchType type) const
 {
     switch (type) {
+        case ReturnWatch: return m_return;
         case LocalsWatch: return m_locals;
         case WatchersWatch: return m_watchers;
         case TooltipsWatch: return m_tooltips;
@@ -1347,6 +1358,8 @@ WatchModel *WatchHandler::model(WatchType type) const
 
 WatchModel *WatchHandler::modelForIName(const QByteArray &iname) const
 {
+    if (iname.startsWith("return"))
+        return m_return;
     if (iname.startsWith("local"))
         return m_locals;
     if (iname.startsWith("tooltip"))
@@ -1374,6 +1387,7 @@ void WatchHandler::setFormat(const QString &type, int format)
 {
     m_typeFormats[type] = format;
     saveTypeFormats();
+    m_return->emitDataChanged(1);
     m_locals->emitDataChanged(1);
     m_watchers->emitDataChanged(1);
     m_tooltips->emitDataChanged(1);

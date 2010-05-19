@@ -48,7 +48,7 @@ class WatchWindow : public QTreeView
     Q_OBJECT
 
 public:
-    enum Type { LocalsType, TooltipType, WatchersType };
+    enum Type { ReturnType, LocalsType, TooltipType, WatchersType };
 
     WatchWindow(Type type, DebuggerManager *manager, QWidget *parent = 0);
     void setType(Type type) { m_type = type; }

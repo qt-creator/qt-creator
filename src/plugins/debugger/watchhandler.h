@@ -51,7 +51,7 @@ namespace Internal {
 
 class WatchItem;
 class WatchHandler;
-enum WatchType { LocalsWatch, WatchersWatch, TooltipsWatch };
+enum WatchType { ReturnWatch, LocalsWatch, WatchersWatch, TooltipsWatch };
 
 enum WatchRoles
 {
@@ -206,6 +206,7 @@ private:
     // Items expanded in the Locals & Watchers view.
     QSet<QByteArray> m_expandedINames; 
 
+    WatchModel *m_return;
     WatchModel *m_locals;
     WatchModel *m_watchers;
     WatchModel *m_tooltips;

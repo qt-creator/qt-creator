@@ -297,14 +297,15 @@ struct DebuggerManagerPrivate
     DebuggerManagerActions m_actions;
 
     QWidget *m_breakWindow;
+    QWidget *m_returnWindow;
     QWidget *m_localsWindow;
+    QWidget *m_watchersWindow;
     QWidget *m_registerWindow;
     QWidget *m_modulesWindow;
     QWidget *m_snapshotWindow;
     SourceFilesWindow *m_sourceFilesWindow;
     QWidget *m_stackWindow;
     QWidget *m_threadsWindow;
-    QWidget *m_watchersWindow;
     DebuggerOutputWindow *m_outputWindow;
 
     bool m_busy;
@@ -401,6 +402,8 @@ void DebuggerManager::init()
     d->m_sourceFilesWindow->setObjectName(QLatin1String("CppDebugSources"));
     d->m_threadsWindow = new ThreadsWindow;
     d->m_threadsWindow->setObjectName(QLatin1String("CppDebugThreads"));
+    d->m_returnWindow = new WatchWindow(WatchWindow::ReturnType, this);
+    d->m_returnWindow->setObjectName(QLatin1String("CppDebugReturn"));
     d->m_localsWindow = new WatchWindow(WatchWindow::LocalsType, this);
     d->m_localsWindow->setObjectName(QLatin1String("CppDebugLocals"));
     d->m_watchersWindow = new WatchWindow(WatchWindow::WatchersType, this);
@@ -484,8 +487,13 @@ void DebuggerManager::init()
     d->m_registerHandler = new RegisterHandler;
     registerView->setModel(d->m_registerHandler->model());
 
-    // Locals
+
+    // Return Value
     d->m_watchHandler = new WatchHandler(this);
+    QTreeView *returnView = qobject_cast<QTreeView *>(d->m_returnWindow);
+    returnView->setModel(d->m_watchHandler->model(ReturnWatch));
+
+    // Locals
     QTreeView *localsView = qobject_cast<QTreeView *>(d->m_localsWindow);
     localsView->setModel(d->m_watchHandler->model(LocalsWatch));
 
@@ -633,6 +641,7 @@ void DebuggerManager::init()
     localsAndWatchers->setObjectName(QLatin1String("CppDebugLocalsAndWatchers"));
     localsAndWatchers->setWindowTitle(d->m_localsWindow->windowTitle());
     localsAndWatchers->addWidget(d->m_localsWindow);
+    localsAndWatchers->addWidget(d->m_returnWindow);
     localsAndWatchers->addWidget(d->m_watchersWindow);
     //localsAndWatchers->addWidget(d->m_tooltipWindow);
     localsAndWatchers->setStretchFactor(0, 3);
@@ -1365,6 +1374,7 @@ void DebuggerManager::setBusyCursor(bool busy)
 
     QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
     d->m_breakWindow->setCursor(cursor);
+    d->m_returnWindow->setCursor(cursor);
     d->m_localsWindow->setCursor(cursor);
     d->m_modulesWindow->setCursor(cursor);
     d->m_outputWindow->setCursor(cursor);
@@ -1947,6 +1957,7 @@ static void changeFontSize(QWidget *widget, int size)
 void DebuggerManager::fontSettingsChanged(const TextEditor::FontSettings &settings)
 {
     int size = settings.fontZoom() * settings.fontSize() / 100;
+    changeFontSize(d->m_returnWindow, size);
     changeFontSize(d->m_localsWindow, size);
     changeFontSize(d->m_watchersWindow, size);
     changeFontSize(d->m_breakWindow, size);
@@ -1968,6 +1979,8 @@ void DebuggerManager::updateWatchersWindow()
 {
     d->m_watchersWindow->setVisible(
         d->m_watchHandler->model(WatchersWatch)->rowCount(QModelIndex()) > 0);
+    d->m_returnWindow->setVisible(
+        d->m_watchHandler->model(ReturnWatch)->rowCount(QModelIndex()) > 0);
 }
 
 void DebuggerManager::openTextEditor(const QString &titlePattern,

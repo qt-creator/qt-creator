@@ -318,18 +318,19 @@ void testAnonymous()
 #endif
 }
 
-void testFunctionPointer()
+typedef void (*func_t)();
+func_t testFunctionPointer()
 {
-    typedef void (*func_t)();
     func_t f1 = testAnonymous;
-    func_t f2 = testFunctionPointer;
-    func_t f3 = testFunctionPointer;
+    func_t f2 = testPeekAndPoke3;
+    func_t f3 = testPeekAndPoke3;
     Q_UNUSED(f1);
     Q_UNUSED(f2);
     Q_UNUSED(f3);
+    return f1;
 }
 
-void testQByteArray()
+QByteArray testQByteArray()
 {
     QByteArray ba = "Hello";
     ba += '"';
@@ -345,6 +346,7 @@ void testQByteArray()
     ba += char(0);
     ba += 1;
     ba += 2;
+    return ba;
 }
 
 static void throwit1()
@@ -368,7 +370,7 @@ int testCatchThrow()
     return gotit;
 }
 
-void testQDateTime()
+QDateTime testQDateTime()
 {
     QDateTime date;
     date = QDateTime::currentDateTime();
@@ -376,18 +378,20 @@ void testQDateTime()
     date = date.addSecs(5);
     date = date.addSecs(5);
     date = date.addSecs(5);
+    return date;
 }
 
-void testQFileInfo()
+QFileInfo testQFileInfo()
 {
     QFileInfo fi("/tmp/t");
     QString s = fi.absoluteFilePath();
     s = fi.bundleName();
     s = fi.bundleName();
     s = fi.bundleName();
+    return fi;
 }
 
-void testQHash()
+QHash<int, float> testQHash()
 {
 #if 1
     QHash<int, float> hgg0;
@@ -439,6 +443,7 @@ void testQHash()
     hash.insert("Welt", QPointer<QObject>(&ob));
     hash.insert(".", QPointer<QObject>(&ob));
 #endif
+    return hgg0;
 }
 
 void testQImage()
@@ -908,7 +913,7 @@ void testStdHashSet()
 #endif
 }
 
-void testStdList()
+std::list<int> testStdList()
 {
     std::list<int> big;
     for (int i = 0; i < 10000; ++i)
@@ -948,6 +953,7 @@ void testStdList()
     vec.push_back(true);
     vec.push_back(false);
 #endif
+    return big;
 }
 
 void testStdMap()
@@ -1008,7 +1014,7 @@ void testStdMap()
 #endif
 }
 
-void testStdSet()
+std::set<int> testStdSet()
 {
     std::set<int> hgg0;
     hgg0.insert(11);
@@ -1022,9 +1028,10 @@ void testStdSet()
     std::set<QPointer<QObject> > hash;
     QPointer<QObject> ptr(&ob);
 #endif
+    return hgg0;
 }
 
-void testStdStack()
+std::stack<int> testStdStack()
 {
     std::stack<int *> plist1;
     plist1.push(new int(1));
@@ -1045,9 +1052,11 @@ void testStdStack()
     std::stack<Foo> flist;
     flist.push(1);
     flist.push(2);
+
+    return flist2;
 }
 
-void testStdString()
+std::string testStdString()
 {
     QString foo;
     std::string str;
@@ -1083,9 +1092,11 @@ void testStdString()
     v.push_back(str);
     v.push_back(str);
     v.push_back(str);
+
+    return str;
 }
 
-void testStdVector()
+std::vector<int> testStdVector()
 {
     std::vector<int *> plist1;
     plist1.push_back(new int(1));
@@ -1119,6 +1130,8 @@ void testStdVector()
     std::vector<bool> vec;
     vec.push_back(true);
     vec.push_back(false);
+
+    return flist2;
 }
 
 void testQStandardItemModel()
@@ -1140,7 +1153,7 @@ void testQStandardItemModel()
     ++i;
 }
 
-void testQStack()
+QStack<int> testQStack()
 {
     QVector<int> bigv;
     for (int i = 0; i < 10; ++i)
@@ -1162,9 +1175,10 @@ void testQStack()
     QStack<bool> vec;
     vec.append(true);
     vec.append(false);
+    return big;
 }
 
-void testQString()
+QString testQString()
 {
     QUrl url(QString("http://www.nokia.com"));
 
@@ -1176,6 +1190,7 @@ void testQString()
     str += " World ";
     str += " World ";
     str += " World ";
+    return str;
 }
 
 void testQString3()
@@ -1194,7 +1209,7 @@ void testQString3()
     delete pstring;
 }
 
-void testQStringList()
+QStringList testQStringList()
 {
     QStringList l;
     l << "Hello ";
@@ -1202,14 +1217,16 @@ void testQStringList()
     l << " fat ";
     l.takeFirst();
     l << " World ";
+    return l;
 }
 
-void testStruct()
+Foo testStruct()
 {
     Foo f(2);
     f.doit();
     f.doit();
     f.doit();
+    return f;
 }
 
 class Thread : public QThread
@@ -1242,7 +1259,7 @@ void testQThread()
     thread2.wait();
 }
 
-void testQVariant1()
+QVariant testQVariant1()
 {
     QVariant v;
     v = 1;
@@ -1250,9 +1267,10 @@ void testQVariant1()
     v = "string";
     v = QRect(100, 200, 300, 400);
     v = 1;
+    return v;
 }
 
-void testQVariant2()
+QVariant testQVariant2()
 {
     QVariant value;
     QVariant::Type t = QVariant::String;
@@ -1295,18 +1313,20 @@ void testQVariant2()
     var.setValue(my);
     var.setValue(my);
 #endif
+    return value;
 }
 
-void testQVariant3()
+QVariant testQVariant3()
 {
     QList<int> list;
     list << 1 << 2 << 3;
     QVariant variant = qVariantFromValue(list);
     list.clear();
     list = qVariantValue<QList<int> >(variant);
+    return variant;
 }
 
-void testQVector()
+QVector<int> testQVector()
 {
     QVector<int> big(10000);
 
@@ -1326,15 +1346,18 @@ void testQVector()
     QVector<bool> vec;
     vec.append(true);
     vec.append(false);
+
+    return big;
 }
 
-void testQVectorOfQList()
+QVector<QList<int> > testQVectorOfQList()
 {
     QVector<QList<int> > v;
     QVector<QList<int> > *pv = &v;
     v.append(QList<int>() << 1);
     v.append(QList<int>() << 2 << 3);
     Q_UNUSED(pv);
+    return v;
 }
 
 
@@ -1600,10 +1623,16 @@ struct Color
     Color() { r = 1, g = 2, b = 3, a = 4; }
 };
 
-void testColor()
+Color testColor()
 {
     Color c;
     c.r = 5;
+    return c;
+}
+
+int fooii()
+{
+    return 3;
 }
 
 int main(int argc, char *argv[])

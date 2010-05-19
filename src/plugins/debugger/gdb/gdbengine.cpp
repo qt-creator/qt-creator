@@ -274,6 +274,7 @@ void GdbEngine::initializeVariables()
     m_pendingLogStreamOutput.clear();
 
     m_inbuffer.clear();
+    m_resultVarName.clear();
 
     m_commandTimer->stop();
 
@@ -1290,7 +1291,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     }
 #endif
 
-    // seen on XP after removing a breakpoint while running
+    // This was seen on XP after removing a breakpoint while running
     //  >945*stopped,reason="signal-received",signal-name="SIGTRAP",
     //  signal-meaning="Trace/breakpoint trap",thread-id="2",
     //  frame={addr="0x7c91120f",func="ntdll!DbgUiConnectToDbg",
@@ -1332,6 +1333,18 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             stepCounter = 0;
         }
     }
+
+    // Show return value if possible, usually with reason "function-finished".
+    // *stopped,reason="function-finished",frame={addr="0x080556da",
+    // func="testReturnValue",args=[],file="/../app.cpp",
+    // fullname="/../app.cpp",line="1611"},gdb-result-var="$1",
+    // return-value="{d = 0x808d998}",thread-id="1",stopped-threads="all",
+    // core="1"
+    GdbMi resultVar = data.findChild("gdb-result-var");
+    if (resultVar.isValid())
+        m_resultVarName = resultVar.data();
+    else
+        m_resultVarName.clear();
 
     bool initHelpers = m_debuggingHelperState == DebuggingHelperUninitialized
                        || m_debuggingHelperState == DebuggingHelperLoadTried;

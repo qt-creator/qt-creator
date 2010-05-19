@@ -385,6 +385,8 @@ def listOfLocals(varList):
     hasBlock = 'block' in __builtin__.dir(frame)
 
     items = []
+    #warn("HAS BLOCK: %s" % hasBlock);
+    #warn("IS GOOD GDB: %s" % isGoodGdb());
     if hasBlock and isGoodGdb():
         #warn("IS GOOD: %s " % varList)
         try:
@@ -780,6 +782,7 @@ class FrameCommand(gdb.Command):
         formats = {}
         watchers = ""
         expandedINames = ""
+        resultVarName = ""
         for arg in args.split(' '):
             pos = arg.find(":") + 1
             if arg.startswith("options:"):
@@ -787,6 +790,8 @@ class FrameCommand(gdb.Command):
             elif arg.startswith("vars:"):
                 if len(arg[pos:]) > 0:
                     varList = arg[pos:].split(",")
+            elif arg.startswith("resultvarname:"):
+                resultVarName = arg[pos:]
             elif arg.startswith("expanded:"):
                 expandedINames = set(arg[pos:].split(","))
             elif arg.startswith("typeformats:"):
@@ -847,7 +852,18 @@ class FrameCommand(gdb.Command):
         #
         # Locals
         #
-        for item in listOfLocals(varList):
+        locals = listOfLocals(varList);
+
+        # Take care of the return value of the last function call.
+        if len(resultVarName) > 0:
+            try:
+                value = parseAndEvaluate(resultVarName)
+                locals.append(Item(value, "return", resultVarName, "return"))
+            except:
+                # Don't bother. It's only supplementary information anyway.
+                pass
+
+        for item in locals:
           with OutputSafer(d, "", ""):
             d.anonNumber = -1
             #warn("ITEM NAME %s: " % item.name)

@@ -85,8 +85,12 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
         options += "defaults,";
     options.chop(1);
 
+    QByteArray resultVar;
+    if (!m_resultVarName.isEmpty())
+        resultVar = "resultvarname:" + m_resultVarName + ' ';
+
     postCommand("bb options:" + options + " vars:" + varList + ' '
-            + expanded + " watchers:" + watchers.toHex(),
+            + resultVar + expanded + " watchers:" + watchers.toHex(),
         WatchUpdate, CB(handleStackFramePython));
 }
 
