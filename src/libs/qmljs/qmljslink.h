@@ -8,6 +8,7 @@
 #include <QtCore/QList>
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
+#include <QtCore/QCoreApplication>
 
 namespace QmlJS {
 
@@ -25,6 +26,8 @@ public:
     ~Link();
 
     QList<DiagnosticMessage> diagnosticMessages() const;
+
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
 
 private:
     Interpreter::Engine *engine();

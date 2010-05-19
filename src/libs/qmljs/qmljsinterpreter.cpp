@@ -331,6 +331,8 @@ public:
         : _xml(dev)
     {}
 
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Interpreter::QmlXmlReader)
+
     bool operator()(QMap<QString, FakeMetaObject *> *objects) {
         Q_ASSERT(objects);
         _objects = objects;
@@ -339,7 +341,7 @@ public:
             if (_xml.name() == "module")
                 readModule();
             else
-                _xml.raiseError(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "The file is not module file."));
+                _xml.raiseError(tr("The file is not module file."));
         }
 
         return !_xml.error();
@@ -351,7 +353,7 @@ public:
 
 private:
     void unexpectedElement(const QStringRef &child, const QString &parent) {
-        _xml.raiseError(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "Unexpected element <%1> in <%2>").arg(child.toString(), parent));
+        _xml.raiseError(tr("Unexpected element <%1> in <%2>").arg(child.toString(), parent));
     }
 
     void ignoreAttr(const QXmlStreamAttribute &attr) {
@@ -360,11 +362,11 @@ private:
     }
 
     void invalidAttr(const QString &value, const QString &attrName, const QString &tag) {
-        _xml.raiseError(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "invalid value '%1' for attribute %2 in <%3>").arg(value, attrName, tag));
+        _xml.raiseError(tr("invalid value '%1' for attribute %2 in <%3>").arg(value, attrName, tag));
     }
 
     void noValidAttr(const QString &attrName, const QString &tag) {
-        _xml.raiseError(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "<%1> has no valid %2 attribute").arg(tag, attrName));
+        _xml.raiseError(tr("<%1> has no valid %2 attribute").arg(tag, attrName));
     }
 
     void readModule()
@@ -1920,8 +1922,8 @@ QStringList MetaTypeSystem::load(const QFileInfoList &xmlFiles)
             }
             file.close();
         } else {
-            errorMsgs.append(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "%1: %2").arg(xmlFile.absoluteFilePath(),
-                                                       file.errorString()));
+            errorMsgs.append(QmlXmlReader::tr("%1: %2").arg(xmlFile.absoluteFilePath(),
+                                                            file.errorString()));
         }
     }
 

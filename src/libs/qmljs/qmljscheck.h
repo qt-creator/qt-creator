@@ -36,6 +36,8 @@
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
+#include <QtCore/QCoreApplication>
+
 namespace QmlJS {
 
 class QMLJS_EXPORT Check: protected AST::Visitor
@@ -45,6 +47,8 @@ public:
     virtual ~Check();
 
     QList<DiagnosticMessage> operator()();
+
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Check)
 
 protected:
     virtual bool visit(AST::UiProgram *ast);

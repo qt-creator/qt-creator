@@ -34,7 +34,6 @@
 #include "parser/qmljsast_p.h"
 
 #include <QtCore/QDebug>
-#include <QtCore/QCoreApplication>
 #include <QtGui/QColor>
 #include <QtGui/QApplication>
 
@@ -71,19 +70,19 @@ public:
                 const QString valueName = stringLiteral->value->asString();
 
                 if (!enumValue->keys().contains(valueName)) {
-                    _message.message = QCoreApplication::translate("QmlJS::Check", "unknown value for enum");
+                    _message.message = Check::tr("unknown value for enum");
                 }
             } else if (_rhsValue->asUndefinedValue()) {
                 _message.kind = DiagnosticMessage::Warning;
-                _message.message = QCoreApplication::translate("QmlJS::Check", "value might be 'undefined'");
+                _message.message = Check::tr("value might be 'undefined'");
             } else if (! _rhsValue->asStringValue() && ! _rhsValue->asNumberValue()) {
-                _message.message = QCoreApplication::translate("QmlJS::Check", "enum value is not a string or number");
+                _message.message = Check::tr("enum value is not a string or number");
             }
         } else {
             if (/*cast<StringLiteral *>(_ast)
                 ||*/ _ast->kind == Node::Kind_TrueLiteral
                      || _ast->kind == Node::Kind_FalseLiteral) {
-                _message.message = QCoreApplication::translate("QmlJS::Check", "numerical value expected");
+                _message.message = Check::tr("numerical value expected");
             }
         }
     }
@@ -95,7 +94,7 @@ public:
         if (cast<StringLiteral *>(_ast)
                 || cast<NumericLiteral *>(_ast)
                 || (unaryMinus && cast<NumericLiteral *>(unaryMinus->expression))) {
-            _message.message = QCoreApplication::translate("QmlJS::Check", "boolean value expected");
+            _message.message = Check::tr("boolean value expected");
         }
     }
 
@@ -107,7 +106,7 @@ public:
                 || (unaryMinus && cast<NumericLiteral *>(unaryMinus->expression))
                 || _ast->kind == Node::Kind_TrueLiteral
                 || _ast->kind == Node::Kind_FalseLiteral) {
-            _message.message = QCoreApplication::translate("QmlJS::Check", "string value expected");
+            _message.message = Check::tr("string value expected");
         }
     }
 
@@ -132,7 +131,7 @@ public:
                 ok = QColor::isValidColor(colorString);
             }
             if (!ok)
-                _message.message = QCoreApplication::translate("QmlJS::Check", "not a valid color");
+                _message.message = Check::tr("not a valid color");
         } else {
             visit((StringValue *)0);
         }
@@ -141,7 +140,7 @@ public:
     virtual void visit(const AnchorLineValue *)
     {
         if (! (_rhsValue->asAnchorLineValue() || _rhsValue->asUndefinedValue()))
-            _message.message = QCoreApplication::translate("QmlJS::Check", "expected anchor line");
+            _message.message = Check::tr("expected anchor line");
     }
 
     DiagnosticMessage _message;
@@ -209,7 +208,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     if (! _context.lookupType(_doc.data(), typeId)) {
         if (! _ignoreTypeErrors)
             error(typeId->identifierToken,
-                  QCoreApplication::translate("QmlJS::Check", "unknown type"));
+                  Check::tr("unknown type"));
         // suppress subsequent errors about scope object lookup by clearing
         // the scope object list
         // ### todo: better way?
@@ -234,7 +233,7 @@ bool Check::visit(UiScriptBinding *ast)
 
         ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement);
         if (!expStmt) {
-            error(loc, QCoreApplication::translate("QmlJS::Check", "expected id"));
+            error(loc, Check::tr("expected id"));
             return false;
         }
 
@@ -243,14 +242,14 @@ bool Check::visit(UiScriptBinding *ast)
             id = idExp->name->asString();
         } else if (StringLiteral *strExp = cast<StringLiteral *>(expStmt->expression)) {
             id = strExp->value->asString();
-            warning(loc, QCoreApplication::translate("QmlJS::Check", "using string literals for ids is discouraged"));
+            warning(loc, Check::tr("using string literals for ids is discouraged"));
         } else {
-            error(loc, QCoreApplication::translate("QmlJS::Check", "expected id"));
+            error(loc, Check::tr("expected id"));
             return false;
         }
 
         if (id.isEmpty() || ! id[0].isLower()) {
-            error(loc, QCoreApplication::translate("QmlJS::Check", "ids must be lower case"));
+            error(loc, Check::tr("ids must be lower case"));
             return false;
         }
     }
@@ -323,7 +322,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     }
     if (!value) {
         error(id->identifierToken,
-              QCoreApplication::translate("QmlJS::Check", "'%1' is not a valid property name").arg(propertyName));
+              Check::tr("'%1' is not a valid property name").arg(propertyName));
     }
 
     // can't look up members for attached properties
@@ -336,7 +335,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         const ObjectValue *objectValue = value_cast<const ObjectValue *>(value);
         if (! objectValue) {
             error(idPart->identifierToken,
-                  QCoreApplication::translate("QmlJS::Check", "'%1' does not have members").arg(propertyName));
+                  Check::tr("'%1' does not have members").arg(propertyName));
             return 0;
         }
 
@@ -352,7 +351,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         value = objectValue->lookupMember(propertyName, &_context);
         if (! value) {
             error(idPart->identifierToken,
-                  QCoreApplication::translate("QmlJS::Check", "'%1' is not a member of '%2'").arg(
+                  Check::tr("'%1' is not a member of '%2'").arg(
                           propertyName, objectValue->className()));
             return 0;
         }
