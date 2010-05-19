@@ -2092,6 +2092,24 @@
     For more information on how to define capabilities for a project, see
     \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#capabilities}{Capabilities}.
 
+    \section3 Application UID
+
+    A UID is a globally unique identifier that is used to
+    uniquely identify, for example, an object or file type. In Symbian development,
+    objects are identified by compound identifiers that are constructed from three
+    UIDs, namely UID1, UID2, and UID3. UID1 and UID2 specify the category of an
+    object, whereas UID3 identifies a particular object, such as an application.
+
+    When you create a \gui {Mobile Qt Application}, Qt Creator adds a UID3 suitable for
+    development and debugging automatically to the application .pro file. However, to
+    distribute your application and get it Symbian signed, you must apply for a UID
+    from Symbian, who manages the allocation of UIDs. You can request UIDs either one
+    at a time or as preallocated blocks on the \l{https://www.symbiansigned.com/app/page}{Symbian Signed}
+    web site.
+
+    Replace the testing UID with the distribution UID in the .pro file before you
+    build the final installation package. For more information, see
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#unique-identifiers}{Unique Identifiers}.
 
     \section2 Building and Running for Symbian Emulator
 
