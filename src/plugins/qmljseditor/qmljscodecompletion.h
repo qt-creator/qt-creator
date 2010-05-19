@@ -39,6 +39,12 @@ namespace TextEditor {
 class ITextEditable;
 }
 
+namespace QmlJS {
+    namespace Interpreter {
+        class Value;
+    }
+}
+
 namespace QmlJSEditor {
 
 class ModelManagerInterface;
@@ -73,6 +79,11 @@ private:
 
     bool maybeTriggersCompletion(TextEditor::ITextEditable *editor);
     bool isDelimiter(const QChar &ch) const;
+
+    void addCompletions(const QHash<QString, const QmlJS::Interpreter::Value *> &newCompletions,
+                        const QIcon &icon);
+    void addCompletions(const QStringList &newCompletions,
+                        const QIcon &icon);
 
     ModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;
