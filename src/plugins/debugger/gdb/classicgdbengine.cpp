@@ -673,6 +673,15 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
         if (data.isValid())
             list.push_back(data);
     }
+
+    if (!m_resultVarName.isEmpty()) {
+        WatchData rd;
+        rd.iname = "return.0";
+        rd.name = "return";
+        rd.exp = m_resultVarName;
+        list.append(rd);
+    }
+
     manager()->watchHandler()->insertBulkData(list);
     manager()->watchHandler()->updateWatchers();
 }
