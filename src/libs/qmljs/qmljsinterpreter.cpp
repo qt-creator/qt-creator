@@ -331,8 +331,6 @@ public:
         : _xml(dev)
     {}
 
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::Interpreter::QmlXmlReader)
-
     bool operator()(QMap<QString, FakeMetaObject *> *objects) {
         Q_ASSERT(objects);
         _objects = objects;
@@ -350,6 +348,8 @@ public:
     QString errorMessage() const {
         return _xml.errorString();
     }
+
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Interpreter::QmlXmlReader)
 
 private:
     void unexpectedElement(const QStringRef &child, const QString &parent) {
