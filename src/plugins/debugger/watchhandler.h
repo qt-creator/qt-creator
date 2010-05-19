@@ -61,7 +61,9 @@ enum WatchRoles
     TypeFormatListRole,
     TypeFormatRole,  // Used to communicate alternative formats to the view.
     IndividualFormatRole,
-    AddressRole,     // Some memory address related to the object.
+    AddressRole,     // Memory address of variable as quint64.
+    RawValueRole,    // Unformatted value as string.
+    PointerValue     // Pointer value (address) as quint64.
 };
 
 enum IntegerFormat

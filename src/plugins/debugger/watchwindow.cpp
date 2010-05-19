@@ -204,13 +204,26 @@ void WatchWindow::dropEvent(QDropEvent *ev)
     //QTreeView::dropEvent(ev);
 }
 
+static inline void addWatchPoint(DebuggerManager *manager, quint64 address)
+{
+    const QByteArray addressBA = QByteArray("0x") + QByteArray::number(address, 16);
+    if (manager->breakHandler()->findWatchPointByAddress(addressBA))
+        return;
+    BreakpointData *data = new BreakpointData;
+    data->type = BreakpointData::WatchpointType;
+    data->address = addressBA;
+    manager->breakHandler()->appendBreakpoint(data);
+    manager->attemptBreakpointSynchronization();
+}
+
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     const QModelIndex idx = indexAt(ev->pos());
     const QModelIndex mi0 = idx.sibling(idx.row(), 0);
     const QModelIndex mi1 = idx.sibling(idx.row(), 1);
     const QModelIndex mi2 = idx.sibling(idx.row(), 2);
-    const QString addr = model()->data(mi0, AddressRole).toString();
+    const quint64 address = model()->data(mi0, AddressRole).toULongLong();
+    const quint64 pointerValue = model()->data(mi0, PointerValue).toULongLong();
     const QString exp = model()->data(mi0, ExpressionRole).toString();
     const QString type = model()->data(mi2).toString();
 
@@ -255,9 +268,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QMenu individualFormatMenu;
     QList<QAction *> individualFormatActions;
     QAction *clearIndividualFormatAction = 0;
-    if (idx.isValid() && !addr.isEmpty()) {
+    if (idx.isValid() && address) {
         individualFormatMenu.setTitle(
-            tr("Change Format for Object at %1").arg(addr));
+            tr("Change Format for Object at 0x%1").arg(address, 0, 16));
         if (alternativeFormats.isEmpty()) {
             individualFormatMenu.setEnabled(false);
         } else {
@@ -292,27 +305,39 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
     actSelectWidgetToWatch->setEnabled(canHandleWatches);
 
-    const QString address = model()->data(mi0, AddressRole).toString();
-    QAction *actWatchKnownMemory = 0;
-    QAction *actWatchUnknownMemory =
+    QAction *actOpenMemoryEditAtVariableAddress = 0;
+    QAction *actOpenMemoryEditAtPointerValue = 0;
+    QAction *actOpenMemoryEditor =
         new QAction(tr("Open Memory Editor..."), &menu);
     const bool canShowMemory = engineCapabilities & ShowMemoryCapability;
-    actWatchUnknownMemory->setEnabled(actionsEnabled && canShowMemory);
+    actOpenMemoryEditor->setEnabled(actionsEnabled && canShowMemory);
 
-    if (canShowMemory && !address.isEmpty())
-        actWatchKnownMemory =
-            new QAction(tr("Open Memory Editor at %1").arg(address), &menu);
+    // Offer to open address pointed to or variable address.
+    const bool createPointerActions = pointerValue &&  pointerValue != address;
+
+    const QString openMemoryEditorFormat = tr("Open Memory Editor at 0x%1");
+    if (canShowMemory && address)
+        actOpenMemoryEditAtVariableAddress =
+            new QAction(openMemoryEditorFormat.arg(address, 0, 16), &menu);
+    if (createPointerActions)
+        actOpenMemoryEditAtPointerValue =
+                new QAction(openMemoryEditorFormat.arg(pointerValue, 0, 16), &menu);
     menu.addSeparator();
 
-    QAction *actSetWatchpoint = 0;
+    QAction *actSetWatchPointAtVariableAddress = 0;
+    QAction *actSetWatchPointAtPointerValue= 0;
     const bool canSetWatchpoint = engineCapabilities & WatchpointCapability;
-    if (canSetWatchpoint && !address.isEmpty()) {
-        actSetWatchpoint =
-            new QAction(tr("Break on Changing Contents of %1").arg(address), &menu);
+    if (canSetWatchpoint && address) {
+        const QString watchPointFormat = tr("Break on Changing Contents of 0x%1");
+        actSetWatchPointAtVariableAddress =
+            new QAction(watchPointFormat.arg(address, 0, 16), &menu);
+        if (createPointerActions)
+            actSetWatchPointAtPointerValue =
+                    new QAction(watchPointFormat.arg(pointerValue, 0, 16), &menu);
     } else {
-        actSetWatchpoint =
+        actSetWatchPointAtVariableAddress =
             new QAction(tr("Break on Changing Contents"), &menu);
-        actSetWatchpoint->setEnabled(false);
+        actSetWatchPointAtVariableAddress->setEnabled(false);
     }
 
     QAction *actWatchOrRemove;
@@ -330,10 +355,14 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actSelectWidgetToWatch);
     menu.addMenu(&typeFormatMenu);
     menu.addMenu(&individualFormatMenu);
-    if (actWatchKnownMemory)
-        menu.addAction(actWatchKnownMemory);
-    menu.addAction(actWatchUnknownMemory);
-    menu.addAction(actSetWatchpoint);
+    if (actOpenMemoryEditAtVariableAddress)
+        menu.addAction(actOpenMemoryEditAtVariableAddress);
+    if (actOpenMemoryEditAtPointerValue)
+        menu.addAction(actOpenMemoryEditAtPointerValue);
+    menu.addAction(actOpenMemoryEditor);
+    menu.addAction(actSetWatchPointAtVariableAddress);
+    if (actSetWatchPointAtPointerValue)
+        menu.addAction(actSetWatchPointAtPointerValue);
     menu.addSeparator();
 
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
@@ -361,6 +390,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
+    if (act == 0)
+        return;
 
     if (act == actAdjustColumnWidths) {
         resizeColumnsToContents();
@@ -369,27 +400,29 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actInsertNewWatchItem) {
         theDebuggerAction(WatchExpression)
             ->trigger(WatchHandler::watcherEditPlaceHolder());
-    } else if (actWatchKnownMemory != 0 && act == actWatchKnownMemory) {
+    } else if (act == actOpenMemoryEditAtVariableAddress) {
         (void) new MemoryViewAgent(m_manager, address);
-    } else if (actWatchUnknownMemory != 0 && act == actWatchUnknownMemory) {
+    } else if (act == actOpenMemoryEditAtPointerValue) {
+        (void) new MemoryViewAgent(m_manager, pointerValue);
+    } else if (act == actOpenMemoryEditor) {
         AddressDialog dialog;
         if (dialog.exec() == QDialog::Accepted) {
             (void) new MemoryViewAgent(m_manager, dialog.address());
         }
-    } else if (act == actSetWatchpoint) {
-        BreakpointData *data = new BreakpointData;
-        data->type = BreakpointData::WatchpointType;
-        data->address = address.toLatin1();
-        m_manager->breakHandler()->appendBreakpoint(data);
-        m_manager->attemptBreakpointSynchronization();
+    } else if (act == actSetWatchPointAtVariableAddress) {
+        addWatchPoint(m_manager, address);
+    } else if (act == actSetWatchPointAtVariableAddress) {
+        addWatchPoint(m_manager, address);
+    } else if (act == actSetWatchPointAtPointerValue) {
+        addWatchPoint(m_manager, pointerValue);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
     } else if (act == actClearCodeModelSnapshot) {
         m_manager->clearCppCodeModelSnapshot();
-    } else if (clearTypeFormatAction && act == clearTypeFormatAction) {
+    } else if (act == clearTypeFormatAction) {
         model()->setData(mi1, -1, TypeFormatRole);
-    } else if (clearIndividualFormatAction && act == clearIndividualFormatAction) {
+    } else if (act == clearIndividualFormatAction) {
         model()->setData(mi1, -1, IndividualFormatRole);
     } else {
         for (int i = 0; i != typeFormatActions.size(); ++i) {

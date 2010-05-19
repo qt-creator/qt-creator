@@ -564,6 +564,23 @@ static inline QString truncateValue(QString v)
     return v;
 }
 
+// Get a pointer address from pointer values reported by the debugger.
+// Fix CDB formatting of pointers "0x00000000`000003fd class foo *",
+// check gdb formatting of characters.
+static inline quint64 pointerValue(QString data)
+{
+    if (data.isEmpty() || !data.startsWith(QLatin1String("0x")))
+        return 0;
+    data.remove(0, 2);
+    const int blankPos = data.indexOf(QLatin1Char(' '));
+    if (blankPos != -1)
+        data.truncate(blankPos);
+    data.remove(QLatin1Char('`'));
+    bool ok;
+    const quint64 address = data.toULongLong(&ok, 16);
+    return ok ? address : quint64(0);
+}
+
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
     const WatchItem *item = watchItem(idx);
@@ -636,16 +653,22 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case IndividualFormatRole:
             return m_handler->m_individualFormats.value(data.addr, -1);
 
-        case AddressRole: {
-            if (!data.addr.isEmpty())
-                return data.addr;
-            bool ok;
-            (void) data.value.toULongLong(&ok, 0);
-            if (ok)
-                return data.value;
-            return QVariant();
-        }
+        case AddressRole:
+            if (!data.addr.isEmpty()) {
+                bool ok;
+                const quint64 address = data.addr.toULongLong(&ok, 16);
+                if (ok)
+                    return QVariant(address);
+            }
+            return QVariant(quint64(0));
 
+        case RawValueRole:
+            return data.value;
+
+        case PointerValue:
+            if (isPointerType(data.type))
+                return pointerValue(data.value);
+            return QVariant(quint64(0));
         default:
             break;
     }
