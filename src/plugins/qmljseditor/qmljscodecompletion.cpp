@@ -38,6 +38,7 @@
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljscompletioncontextfinder.h>
+#include <qmljs/qmljsscopebuilder.h>
 
 #include <texteditor/basetexteditor.h>
 
@@ -687,6 +688,11 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             addCompletions(enumerateProperties(qmlScopeType), symbolIcon);
             addCompletions(enumerateProperties(context.scopeChain().qmlTypes), symbolIcon);
+
+            if (ScopeBuilder::isPropertyChangesObject(&context, qmlScopeType)
+                    && context.scopeChain().qmlScopeObjects.size() == 2) {
+                addCompletions(enumerateProperties(context.scopeChain().qmlScopeObjects.first()), symbolIcon);
+            }
         }
 
         if (contextFinder.isInRhsOfBinding() && qmlScopeType) {

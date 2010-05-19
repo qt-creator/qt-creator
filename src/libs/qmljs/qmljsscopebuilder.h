@@ -14,6 +14,7 @@ namespace AST {
 namespace Interpreter {
     class Context;
     class Value;
+    class ObjectValue;
 }
 
 class QMLJS_EXPORT ScopeBuilder
@@ -25,6 +26,8 @@ public:
     void push(AST::Node *node);
     void push(const QList<AST::Node *> &nodes);
     void pop();
+
+    static const Interpreter::ObjectValue *isPropertyChangesObject(Interpreter::Context *context, const Interpreter::ObjectValue *object);
 
 private:
     void setQmlScopeObject(AST::Node *node);
