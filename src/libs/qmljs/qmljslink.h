@@ -19,6 +19,8 @@ class NameId;
 */
 class QMLJS_EXPORT Link
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
+
 public:
     // Link all documents in snapshot
     Link(Interpreter::Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
@@ -26,8 +28,6 @@ public:
     ~Link();
 
     QList<DiagnosticMessage> diagnosticMessages() const;
-
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
 
 private:
     Interpreter::Engine *engine();

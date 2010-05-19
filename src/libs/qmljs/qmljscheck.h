@@ -42,13 +42,13 @@ namespace QmlJS {
 
 class QMLJS_EXPORT Check: protected AST::Visitor
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Check)
+
 public:
     Check(Document::Ptr doc, const Snapshot &snapshot, const QStringList &importPaths);
     virtual ~Check();
 
     QList<DiagnosticMessage> operator()();
-
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::Check)
 
 protected:
     virtual bool visit(AST::UiProgram *ast);

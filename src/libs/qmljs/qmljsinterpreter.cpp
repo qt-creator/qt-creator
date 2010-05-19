@@ -326,6 +326,8 @@ public:
 
 class QmlXmlReader
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Interpreter::QmlXmlReader)
+
 public:
     QmlXmlReader(QIODevice *dev)
         : _xml(dev)
@@ -348,8 +350,6 @@ public:
     QString errorMessage() const {
         return _xml.errorString();
     }
-
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::Interpreter::QmlXmlReader)
 
 private:
     void unexpectedElement(const QStringRef &child, const QString &parent) {
