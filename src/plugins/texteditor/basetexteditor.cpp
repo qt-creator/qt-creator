@@ -2467,8 +2467,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 const int selStart = range.cursor.selectionStart() - blpos;
                 const int selEnd = range.cursor.selectionEnd() - blpos;
                 if (selStart <= bllen && selEnd >= 0
-                    && selEnd >= selStart
-                    && !range.format.hasProperty(QTextFormat::FullWidthSelection)) {
+                    && selEnd >= selStart) {
                     QTextLayout::FormatRange o;
                     o.start = selStart;
                     o.length = selEnd - selStart;
