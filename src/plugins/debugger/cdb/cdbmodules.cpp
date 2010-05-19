@@ -63,6 +63,51 @@ bool getModuleNameList(CIDebugSymbols *syms, QStringList *modules, QString *erro
     return true;
 }
 
+// Get basic module parameters from struct (except name)
+static inline void getBasicModuleParameters(const DEBUG_MODULE_PARAMETERS &p,
+                                            Module *module)
+{
+    const QString hexPrefix = QLatin1String("0x");
+    module->symbolsRead = (p.Flags & DEBUG_MODULE_USER_MODE)
+                          && (p.SymbolType != DEBUG_SYMTYPE_NONE);
+    module->startAddress = hexPrefix + QString::number(p.Base, 16);
+    module->endAddress = hexPrefix + QString::number((p.Base + p.Size), 16);
+}
+
+// Get module name by index
+static inline bool getModuleName(CIDebugSymbols *syms, ULONG index, QString *n, QString *errorMessage)
+{
+    WCHAR wszBuf[MAX_PATH];
+    const HRESULT hr = syms->GetModuleNameStringWide(DEBUG_MODNAME_IMAGE, index, 0, wszBuf, MAX_PATH - 1, 0);
+    if (FAILED(hr) && hr != E_INVALIDARG) {
+        *errorMessage= CdbCore::msgComFailed("GetModuleNameStringWide", hr);
+        return false;
+    }
+    *n = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
+    return true;
+}
+
+bool getModuleByOffset(CIDebugSymbols *syms, quint64 offset,
+                       Module *module, QString *errorMessage)
+{
+    // Find by base address and set parameters
+    ULONG index;
+    HRESULT hr = syms->GetModuleByOffset(offset, 0, &index, 0);
+    if (FAILED(hr)) {
+        *errorMessage= CdbCore::msgComFailed("GetModuleByOffset", hr);
+        return false;
+    }
+    DEBUG_MODULE_PARAMETERS parameters;
+    memset(&parameters, 0, sizeof(DEBUG_MODULE_PARAMETERS));
+    hr = syms->GetModuleParameters(1, 0, 0u, &parameters);
+    if (FAILED(hr)) {
+        *errorMessage= CdbCore::msgComFailed("GetModuleParameters", hr);
+        return false;
+    }
+    getBasicModuleParameters(parameters, module);
+    return getModuleName(syms, index, &(module->moduleName), errorMessage);
+}
+
 bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage)
 {
     ULONG count;
@@ -79,22 +124,13 @@ bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorM
         return false;
     }
     // fill array
-    const QString hexPrefix = QLatin1String("0x");
-    WCHAR wszBuf[MAX_PATH];
     for (ULONG m = 0; m < count; m++) {
         const DEBUG_MODULE_PARAMETERS &p = parameters.at(m);
         if (p.Base != DEBUG_INVALID_OFFSET) { // Partial results?
             Module module;
-            module.symbolsRead = (p.Flags & DEBUG_MODULE_USER_MODE)
-                            && (p.SymbolType != DEBUG_SYMTYPE_NONE);
-            module.startAddress = hexPrefix + QString::number(p.Base, 16);
-            module.endAddress = hexPrefix + QString::number((p.Base + p.Size), 16);
-            hr = syms->GetModuleNameStringWide(DEBUG_MODNAME_IMAGE, m, 0, wszBuf, MAX_PATH - 1, 0);
-            if (FAILED(hr) && hr != E_INVALIDARG) {
-                *errorMessage= CdbCore::msgComFailed("GetModuleNameStringWide", hr);
+            getBasicModuleParameters(p, &module);
+            if (!getModuleName(syms, m, &(module.moduleName), errorMessage))
                 return false;
-            }
-            module.moduleName = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
             modules->push_back(module);
         }
     }

@@ -174,7 +174,7 @@ STDMETHODIMP CdbDebugEventCallback::LoadModule(
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << ModuleName;
     handleModuleLoad();
-    m_pEngine->m_d->handleModuleLoad(QString::fromUtf16(reinterpret_cast<const ushort *>(ModuleName)));
+    m_pEngine->m_d->handleModuleLoad(BaseOffset, QString::fromUtf16(reinterpret_cast<const ushort *>(ModuleName)));
     return S_OK;
 }
 
@@ -188,6 +188,7 @@ STDMETHODIMP CdbDebugEventCallback::UnloadModule(
     Q_UNUSED(BaseOffset)
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << ImageBaseName;
+    m_pEngine->m_d->handleModuleUnload(QString::fromUtf16(reinterpret_cast<const ushort *>(ImageBaseName)));
     handleModuleUnload();
     m_pEngine->m_d->updateModules();
     return S_OK;
