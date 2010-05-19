@@ -194,8 +194,12 @@ ProjectExplorer::Environment Qt4BuildConfiguration::baseEnvironment() const
 QString Qt4BuildConfiguration::buildDirectory() const
 {
     QString workingDirectory;
-    if (m_shadowBuild)
-        workingDirectory = m_buildDirectory;
+    if (m_shadowBuild) {
+        if (!m_buildDirectory.isEmpty())
+            workingDirectory = m_buildDirectory;
+        else
+            workingDirectory = qt4Target()->defaultBuildDirectory();
+    }
     if (workingDirectory.isEmpty())
         workingDirectory = target()->project()->projectDirectory();
     return workingDirectory;
@@ -233,6 +237,8 @@ bool Qt4BuildConfiguration::shadowBuild() const
 /// \note buildDirectory() is probably the function you want to call
 QString Qt4BuildConfiguration::shadowBuildDirectory() const
 {
+    if (m_buildDirectory.isEmpty())
+        return qt4Target()->defaultBuildDirectory();
     return m_buildDirectory;
 }
 
