@@ -54,7 +54,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMainWindow>
 
-enum { debug = 0 };
+enum { debug = 0, debugRepositorySearch = 0 };
 
 namespace VCSBase {
 
@@ -634,6 +634,40 @@ void VCSBasePlugin::slotTestRemoveSnapshot()
     qDebug() << msg;
     VCSBaseOutputWindow::instance()->append(msg);
     d->m_testLastSnapshot.clear();
+}
+
+// Find top level for version controls like git/Mercurial that have
+// a directory at the top of the repository.
+// Note that checking for the existence of files is preferred over directories
+// since checking for directories can cause them to be created when
+// AutoFS is used (due its automatically creating mountpoints when querying
+// a directory). In addition, bail out when reaching the home directory
+// of the user or root (generally avoid '/', where mountpoints are created).
+QString VCSBasePlugin::findRepositoryForDirectory(const QString &dirS,
+                                                  const QString &checkFile)
+{
+    if (debugRepositorySearch)
+        qDebug() << ">VCSBasePlugin::findRepositoryForDirectory" << dirS << checkFile;
+    QTC_ASSERT(!dirS.isEmpty() && !checkFile.isEmpty(), return QString());
+
+    const QString root = QDir::rootPath();
+    const QString home = QDir::homePath();
+
+    QDir directory(dirS);
+    do {
+        const QString absDirPath = directory.absolutePath();
+        if (absDirPath == root || absDirPath == home)
+            break;
+
+        if (QFileInfo(directory, checkFile).isFile()) {
+            if (debugRepositorySearch)
+                qDebug() << "<VCSBasePlugin::findRepositoryForDirectory> " << absDirPath;
+            return absDirPath;
+        }
+    } while (directory.cdUp());
+    if (debugRepositorySearch)
+        qDebug() << "<VCSBasePlugin::findRepositoryForDirectory bailing out at " << directory.absolutePath();
+    return QString();
 }
 
 } // namespace VCSBase

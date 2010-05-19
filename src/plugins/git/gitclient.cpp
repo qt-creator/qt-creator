@@ -52,6 +52,7 @@
 #include <utils/synchronousprocess.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsbaseplugin.h>
 
 #include <projectexplorer/environment.h>
 
@@ -155,13 +156,9 @@ const char *GitClient::noColorOption = "--no-color";
 
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
-    const QString gitDirectory = QLatin1String(kGitDirectoryC);
-    QDir directory(dir);
-    do {
-        if (QFileInfo(directory, gitDirectory).isDir())
-            return directory.absolutePath();
-    } while (directory.cdUp());
-    return QString();
+    // Check for ".git/config"
+    const QString checkFile = QLatin1String(kGitDirectoryC) + QLatin1String("/config");
+    return VCSBase::VCSBasePlugin::findRepositoryForDirectory(dir, checkFile);
 }
 
 /* Create an editor associated to VCS output of a source file/directory

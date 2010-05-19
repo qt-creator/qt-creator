@@ -548,15 +548,10 @@ void MercurialClient::commit(const QString &repositoryRoot, const QStringList &f
 
 QString MercurialClient::findTopLevelForFile(const QFileInfo &file)
 {
-    const QString repositoryTopDir = QLatin1String(Constants::MECURIALREPO);
-    QDir dir = file.isDir() ? QDir(file.absoluteFilePath()) : QDir(file.absolutePath());
-
-    do {
-        if (QFileInfo(dir, repositoryTopDir).exists())
-            return dir.absolutePath();
-    } while (dir.cdUp());
-
-    return QString();
+    const QString repositoryCheckFile = QLatin1String(Constants::MECURIALREPO) + QLatin1String("/requires");
+    return file.isDir() ?
+            VCSBase::VCSBasePlugin::findRepositoryForDirectory(file.absoluteFilePath(), repositoryCheckFile) :
+            VCSBase::VCSBasePlugin::findRepositoryForDirectory(file.absolutePath(), repositoryCheckFile);
 }
 
 void MercurialClient::settingsChanged()
