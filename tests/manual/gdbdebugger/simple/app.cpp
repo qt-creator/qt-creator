@@ -248,7 +248,7 @@ void testPeekAndPoke3()
             struct { int i; int b; };
             struct { float f; };
             double d;
-        } a = { 42, 43 };
+        } a = { { 42, 43 } };
         a.i = 1; // Break here. Expand a. Step.
         a.i = 2; // Change a.i in Locals view to 0. This changes f, d but expectedly not b. Step.
         a.i = 3; // Continue.
@@ -1550,6 +1550,7 @@ void testQHash1()
 void testPointer()
 {
     Foo *f = new Foo();
+    Q_UNUSED(f);
     int i = 0;
     ++i;
     ++i;
@@ -1635,10 +1636,17 @@ int fooii()
     return 3;
 }
 
+void testStuff()
+{
+    int i = 0;
+    int *p = &i;
+    ++*p;
+}
+
 int main(int argc, char *argv[])
 {
     testColor();
-
+    testStuff();
     testPeekAndPoke3();
     testFunctionPointer();
     testAnonymous();
@@ -1687,8 +1695,8 @@ int main(int argc, char *argv[])
     testPlugin();
     testQList();
     testQLinkedList();
-	char *s = "aöa";
-	wchar_t *w = L"aöa";
+    const char *s = "aöa";
+    const wchar_t *w = L"aöa";
     testNamespace();
     //return 0;
     testQHash();

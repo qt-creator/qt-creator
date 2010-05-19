@@ -1329,8 +1329,10 @@ class Dumper:
                 self.putNumChild(1)
                 if self.isExpanded(item):
                     with Children(self):
-                        self.putItem(
-                              Item(item.value.dereference(), item.iname, "*", "*"))
+                        with SubItem(self):
+                            self.putItemHelper(Item(item.value.dereference(),
+                                item.iname, "*", "*"))
+                            self.putAddress(item.value)
                 self.putPointerValue(value.address)
 
         elif str(type).startswith("<anon"):
