@@ -1516,12 +1516,26 @@ void CdbDebugEnginePrivate::updateModules()
 
 static const char *dumperPrefixC = "dumper";
 
-void CdbDebugEnginePrivate::handleModuleLoad(const QString &name)
+void CdbDebugEnginePrivate::handleModuleLoad(quint64 offset, const QString &name)
 {
     if (debugCDB>2)
-        qDebug() << Q_FUNC_INFO << "\n    " << name;
+        qDebug() << Q_FUNC_INFO << "\n    " << offset << name;
+    Module module;
+    // Determine module parameters by offset. The callback has almost all the
+    // parameters we need with the exception of 'symbolsRead'. Retrieve the
+    // parameters by offset as to avoid a hack like 'check last module'.
+    QString errorMessage;
+    if (getModuleByOffset(interfaces().debugSymbols, offset, &module, &errorMessage)) {
+        manager()->modulesHandler()->addModule(module);
+    } else {
+        m_engine->warning(errorMessage);
+    }
     m_dumper->moduleLoadHook(name, m_hDebuggeeProcess);
-    updateModules();
+}
+
+void CdbDebugEnginePrivate::handleModuleUnload(const QString &imageName)
+{
+    manager()->modulesHandler()->removeModule(imageName);
 }
 
 void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP)

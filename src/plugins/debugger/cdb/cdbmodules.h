@@ -42,6 +42,8 @@ class Symbol;
 
 bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage);
 bool getModuleNameList(CIDebugSymbols *syms, QStringList *modules, QString *errorMessage);
+bool getModuleByOffset(CIDebugSymbols *syms, quint64 offset, Module *module, QString *errorMessage);
+
 // Search symbols matching a pattern. Does not filter on module names.
 bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
                    QStringList *matches, QString *errorMessage);

@@ -100,6 +100,9 @@ public:
     QAbstractItemModel *model() const;
 
     void setModules(const QList<Module> &modules);
+    void addModule(const Module &module);
+    void removeModule(const QString &moduleName);
+
     QList<Module> modules() const;
     void removeAll();
 

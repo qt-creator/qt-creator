@@ -87,7 +87,8 @@ public:
     void handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP);
     void cleanStackTrace();
     void clearForRun();
-    void handleModuleLoad(const QString &);
+    void handleModuleLoad(quint64 offset, const QString &);
+    void handleModuleUnload(const QString &name);
     CdbSymbolGroupContext *getSymbolGroupContext(int frameIndex, QString *errorMessage) const;
     void clearDisplay();
 
