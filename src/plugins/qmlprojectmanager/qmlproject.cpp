@@ -101,7 +101,7 @@ void QmlProject::parseProject(RefreshOptions options)
                 } else {
                     Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
                     messageManager->printToOutputPane(tr("Error while loading project file!"));
-                    messageManager->printToOutputPane(component->errorsString(), true);
+                    messageManager->printToOutputPane(component->errorString(), true);
                 }
             }
         }
