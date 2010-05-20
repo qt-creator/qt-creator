@@ -1030,7 +1030,8 @@ static inline QString msgExecutionLogEntry(const QString &workingDir, const QStr
     const QString argsS = SubversionSettings::formatArguments(arguments);
     if (workingDir.isEmpty())
         return SubversionPlugin::tr("Executing: %1 %2\n").arg(executable, argsS);
-    return SubversionPlugin::tr("Executing in %1: %2 %3\n").arg(workingDir, executable, argsS);
+    return SubversionPlugin::tr("Executing in %1: %2 %3\n").
+            arg(QDir::toNativeSeparators(workingDir), executable, argsS);
 }
 
 SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
@@ -1252,7 +1253,7 @@ QString SubversionPlugin::findTopLevelForDirectoryI(const QString &directory) co
         return QString();
     for (QDir parentDir = lastDirectory; parentDir.cdUp() ; lastDirectory = parentDir) {
         if (!managesDirectory(parentDir))
-            return QDir::toNativeSeparators(lastDirectory.absolutePath());
+            return lastDirectory.absolutePath();
     }
     return QString();
 }

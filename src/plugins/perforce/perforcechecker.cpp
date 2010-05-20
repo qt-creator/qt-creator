@@ -155,8 +155,9 @@ static inline QString clientRootFromOutput(const QString &in)
     QRegExp regExp(QLatin1String("(\\n|\\r\\n|\\r)Root:\\s*(.*)(\\n|\\r\\n|\\r)"));
     QTC_ASSERT(regExp.isValid(), return QString());
     regExp.setMinimal(true);
+    // Normalize slashes and capitalization of Windows drive letters for caching.
     if (regExp.indexIn(in) != -1)
-        return regExp.cap(2).trimmed();
+        return QFileInfo(regExp.cap(2).trimmed()).absoluteFilePath();
     return QString();
 }
 
