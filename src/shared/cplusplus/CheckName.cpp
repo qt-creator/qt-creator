@@ -367,11 +367,15 @@ bool CheckName::visit(TemplateIdAST *ast)
 bool CheckName::visit(ObjCSelectorAST *ast)
 {
     std::vector<const Name *> names;
+    bool hasArgs = false;
     for (ObjCSelectorArgumentListAST *it = ast->selector_argument_list; it; it = it->next) {
         if (it->value->name_token) {
             const Identifier *id = control()->findOrInsertIdentifier(spell(it->value->name_token));
             const NameId *nameId = control()->nameId(id);
             names.push_back(nameId);
+
+            if (!hasArgs && it->value->colon_token)
+                hasArgs = true;
         } else {
             // we have an incomplete name due, probably due to error recovery. So, back out completely
             return false;
@@ -379,7 +383,7 @@ bool CheckName::visit(ObjCSelectorAST *ast)
     }
 
     if (!names.empty()) {
-        _name = control()->selectorNameId(&names[0], names.size(), true);
+        _name = control()->selectorNameId(&names[0], names.size(), hasArgs);
         ast->name = _name;
     }
 
