@@ -63,9 +63,11 @@ static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names
 
             } else if (symbol->name()->isNameId() || symbol->name()->isTemplateNameId()) {
                 names->append(symbol->name());
-
             }
-
+        } else if (symbol->isObjCClass() || symbol->isObjCBaseClass() || symbol->isObjCProtocol()
+                || symbol->isObjCForwardClassDeclaration() || symbol->isObjCForwardProtocolDeclaration()) {
+            if (symbol->name())
+                names->append(symbol->name());
         } else if (symbol->isFunction()) {
             if (const QualifiedNameId *q = symbol->name()->asQualifiedNameId()) {
                 for (unsigned i = 0; i < q->nameCount() - 1; ++i)
@@ -73,7 +75,6 @@ static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names
             }
         }
     }
-
 }
 
 bool ClassOrNamespace::CompareName::operator()(const Name *name, const Name *other) const

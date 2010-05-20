@@ -144,10 +144,15 @@ void tst_Lookup::simple_class_1()
     QVERIFY(!impl->isInterface());
     QCOMPARE(impl->memberCount(), 3U);
 
-    ObjCMethod *allocMethod = impl->memberAt(0)->asObjCMethod();
-    QVERIFY(allocMethod);
-    QVERIFY(allocMethod->name() && allocMethod->name()->identifier());
-    QCOMPARE(QLatin1String(allocMethod->name()->identifier()->chars()), QLatin1String("alloc"));
+    Declaration *allocMethodIface = iface->memberAt(0)->asDeclaration();
+    QVERIFY(allocMethodIface);
+    QVERIFY(allocMethodIface->name() && allocMethodIface->name()->identifier());
+    QCOMPARE(QLatin1String(allocMethodIface->name()->identifier()->chars()), QLatin1String("alloc"));
+
+    ObjCMethod *allocMethodImpl = impl->memberAt(0)->asObjCMethod();
+    QVERIFY(allocMethodImpl);
+    QVERIFY(allocMethodImpl->name() && allocMethodImpl->name()->identifier());
+    QCOMPARE(QLatin1String(allocMethodImpl->name()->identifier()->chars()), QLatin1String("alloc"));
 
     ObjCMethod *deallocMethod = impl->memberAt(2)->asObjCMethod();
     QVERIFY(deallocMethod);
@@ -164,12 +169,12 @@ void tst_Lookup::simple_class_1()
     QVERIFY(klass->symbols().contains(impl));
 
     // check method resolving:
-    QList<Symbol *> results = context.lookup(allocMethod->name(), impl->scope());
+    QList<Symbol *> results = context.lookup(allocMethodImpl->name(), impl->members());
     QCOMPARE(results.size(), 2);
-    QCOMPARE(results.at(0), allocMethod);
-    QCOMPARE(results.at(1), allocMethod);
+    QCOMPARE(results.at(0), allocMethodIface);
+    QCOMPARE(results.at(1), allocMethodImpl);
 
-    results = context.lookup(deallocMethod->name(), impl->scope());
+    results = context.lookup(deallocMethod->name(), impl->members());
     QCOMPARE(results.size(), 1);
     QCOMPARE(results.at(0), deallocMethod);
 }
@@ -225,11 +230,11 @@ void tst_Lookup::class_with_baseclass()
     QVERIFY(objClass != 0);
     QVERIFY(objClass->symbols().contains(baseZoo));
 
-    QList<Symbol *> results = context.lookup(baseDecl->name(), zooImpl->scope());
+    QList<Symbol *> results = context.lookup(baseDecl->name(), zooImpl->members());
     QCOMPARE(results.size(), 1);
     QCOMPARE(results.at(0), baseDecl);
 
-    results = context.lookup(baseMethod->name(), zooImpl->scope());
+    results = context.lookup(baseMethod->name(), zooImpl->members());
     QCOMPARE(results.size(), 1);
     QCOMPARE(results.at(0), baseMethod);
 }
@@ -285,7 +290,7 @@ void tst_Lookup::class_with_protocol_with_protocol()
         QVERIFY(candidates.contains(P1));
     }
 
-    QList<Symbol *> results = context.lookup(p1method->name(), zooImpl->scope());
+    QList<Symbol *> results = context.lookup(p1method->name(), zooImpl->members());
     QCOMPARE(results.size(), 1);
     QCOMPARE(results.at(0), p1method);
 }
