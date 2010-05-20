@@ -70,7 +70,7 @@ public:
     // Find a breakpoint matching approximately the data in needle.bp*,
     BreakpointData *findSimilarBreakpoint(const BreakpointData &needle) const;
     BreakpointData *findBreakpointByNumber(int bpNumber) const;
-    BreakpointData *findWatchPointByAddress(const QByteArray &a) const;
+    int findWatchPointIndexByAddress(const QByteArray &a) const;
     bool watchPointAt(quint64 address) const;
     void updateMarkers();
 

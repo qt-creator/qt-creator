@@ -204,15 +204,18 @@ void WatchWindow::dropEvent(QDropEvent *ev)
     //QTreeView::dropEvent(ev);
 }
 
-static inline void addWatchPoint(DebuggerManager *manager, quint64 address)
+static inline void toggleWatchPoint(DebuggerManager *manager, quint64 address)
 {
     const QByteArray addressBA = QByteArray("0x") + QByteArray::number(address, 16);
-    if (manager->breakHandler()->findWatchPointByAddress(addressBA))
-        return;
-    BreakpointData *data = new BreakpointData;
-    data->type = BreakpointData::WatchpointType;
-    data->address = addressBA;
-    manager->breakHandler()->appendBreakpoint(data);
+    const int index = manager->breakHandler()->findWatchPointIndexByAddress(addressBA);
+    if (index == -1) {
+        BreakpointData *data = new BreakpointData;
+        data->type = BreakpointData::WatchpointType;
+        data->address = addressBA;
+        manager->breakHandler()->appendBreakpoint(data);
+    } else {
+        manager->breakHandler()->removeBreakpoint(index);
+    }
     manager->attemptBreakpointSynchronization();
 }
 
@@ -415,9 +418,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             (void) new MemoryViewAgent(m_manager, dialog.address());
         }
     } else if (act == actSetWatchPointAtVariableAddress) {
-        addWatchPoint(m_manager, address);
+        toggleWatchPoint(m_manager, address);
     } else if (act == actSetWatchPointAtPointerValue) {
-        addWatchPoint(m_manager, pointerValue);
+        toggleWatchPoint(m_manager, pointerValue);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;

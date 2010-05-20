@@ -407,20 +407,20 @@ BreakpointData *BreakHandler::findBreakpointByNumber(int bpNumber) const
     return 0;
 }
 
-BreakpointData *BreakHandler::findWatchPointByAddress(const QByteArray &a) const
+int BreakHandler::findWatchPointIndexByAddress(const QByteArray &a) const
 {
     for (int index = size() - 1; index >= 0; --index) {
         BreakpointData *bd = at(index);
         if (bd->type == BreakpointData::WatchpointType && bd->address == a)
-            return bd;
+            return index;
     }
-    return 0;
+    return -1;
 }
 
 bool BreakHandler::watchPointAt(quint64 address) const
 {
     const QByteArray addressBA = QByteArray("0x") + QByteArray::number(address, 16);
-    return findWatchPointByAddress(addressBA);
+    return findWatchPointIndexByAddress(addressBA) != -1;
 }
 
 void BreakHandler::saveBreakpoints()
