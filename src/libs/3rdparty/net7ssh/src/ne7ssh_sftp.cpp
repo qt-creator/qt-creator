@@ -166,15 +166,14 @@ bool Ne7sshSftp::receiveUntil (short _cmd, uint32 timeSec)
   SecureVector<Botan::byte> packet;
   uint32 cutoff = timeSec * 1000000, timeout = 0;
   uint32 prevSize = 0;
-  bool status;
 
   this->sftpCmd = 0;
   commBuffer.clear();
 
   while (true)
   {
-    status = _transport->waitForPacket (0, false);
-    if (status)
+    const short status = _transport->waitForPacket (0, false);
+    if (status > 0)
     {
       _transport->getPacket (packet);
       if (!handleReceived (packet)) return false;
