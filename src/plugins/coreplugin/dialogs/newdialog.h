@@ -34,6 +34,7 @@
 
 #include <QtGui/QDialog>
 #include <QtCore/QList>
+#include <QtCore/QModelIndex>
 
 QT_BEGIN_NAMESPACE
 class QAbstractProxyModel;
@@ -41,7 +42,6 @@ class QPushButton;
 class QStandardItem;
 class QStandardItemModel;
 class QStringList;
-class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -61,7 +61,6 @@ public:
     virtual ~NewDialog();
 
     void setWizards(QList<IWizard*> wizards);
-    void setPreferredWizardKinds(IWizard::WizardKinds kinds);
 
     Core::IWizard *showDialog();
 
@@ -77,8 +76,8 @@ private:
     QStandardItemModel *m_model;
     QAbstractProxyModel *m_proxyModel;
     QPushButton *m_okButton;
-    IWizard::WizardKinds m_preferredWizardKinds;
     QPixmap m_dummyIcon;
+    QList<QStandardItem*> m_categoryItems;
 };
 
 } // namespace Internal

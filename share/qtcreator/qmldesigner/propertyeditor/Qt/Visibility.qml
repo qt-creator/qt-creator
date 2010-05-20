@@ -20,6 +20,13 @@ GroupBox {
                     backendValue: backendValues.visible;
                     baseStateFlag: isBaseState;
                     checkable: true;
+                }                
+            }
+        }
+        QWidget {
+            layout: HorizontalLayout {
+                Label {                    
+                    text: ""
                 }
                 CheckBox {
                     id: clipCheckBox;

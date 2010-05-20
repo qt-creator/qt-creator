@@ -63,6 +63,8 @@ const char * const QML_ITEMSPACING_KEY = "ItemSpacing";
 const char * const QML_SNAPMARGIN_KEY = "SnapMargin";
 enum { QML_OPENDESIGNMODE_DEFAULT = 0 }; // 0 for text mode, 1 for design mode
 
+const char * const SETTINGS_CATEGORY_QML_ICON = ":/core/images/category_qml.png";
+
 namespace Internal {
     enum { debug = 0 };
 }

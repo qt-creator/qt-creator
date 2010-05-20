@@ -1377,15 +1377,10 @@ void QtVersion::updateToolChainAndMkspec() const
         m_toolChains << ToolChainPtr(
                 ProjectExplorer::ToolChain::createMinGWToolChain(qmakeCXX, mingwDirectory()));
         m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
-    } else if (qmakeCXX.endsWith("g++")) { // All g++ variants are treated as desktop g++
+    } else if (qmakeCXX.contains("g++")) { // All g++ variants are treated as desktop g++
                                            // we should try to do a better job, but for now that's good enough
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
-        if (qmakeCXX.isEmpty()) {
-            // macx-xcode mkspec resets the value of QMAKE_CXX.
-            // Unfortunately, we need a valid QMAKE_CXX to configure the parser.
-            qmakeCXX = QLatin1String("cc");
-        }
         qmakeCXX = env.searchInPath(qmakeCXX);
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX));
         m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));

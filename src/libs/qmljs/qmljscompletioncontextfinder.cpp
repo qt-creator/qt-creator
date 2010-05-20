@@ -25,14 +25,19 @@ CompletionContextFinder::CompletionContextFinder(const QTextCursor &cursor)
     initialize(cursor.document()->begin(), lastBlock);
 
     m_startTokenIndex = yyLinizerState.tokens.size() - 1;
-    for (; m_startTokenIndex >= 0; --m_startTokenIndex) {
-        const Token &token = yyLinizerState.tokens.at(m_startTokenIndex);
-        if (token.end() <= cursor.positionInBlock())
-            break;
-    }
 
-    if (m_startTokenIndex == yyLinizerState.tokens.size() - 1 && yyLinizerState.insertedSemicolon)
-        --m_startTokenIndex;
+    // Initialize calls readLine - which skips empty lines. We should only adjust
+    // the start token index if the linizer still is in the same block as the cursor.
+    if (yyLinizerState.iter == cursor.block()) {
+        for (; m_startTokenIndex >= 0; --m_startTokenIndex) {
+            const Token &token = yyLinizerState.tokens.at(m_startTokenIndex);
+            if (token.end() <= cursor.positionInBlock())
+                break;
+        }
+
+        if (m_startTokenIndex == yyLinizerState.tokens.size() - 1 && yyLinizerState.insertedSemicolon)
+            --m_startTokenIndex;
+    }
 
     getQmlObjectTypeName(m_startTokenIndex);
     checkBinding();

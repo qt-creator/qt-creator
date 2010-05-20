@@ -97,14 +97,15 @@ using namespace ProjectExplorer;
 namespace FakeVim {
 namespace Constants {
 
-const char * const INSTALL_HANDLER        = "TextEditor.FakeVimHandler";
-const char * const MINI_BUFFER            = "TextEditor.FakeVimMiniBuffer";
-const char * const INSTALL_KEY            = "Alt+V,Alt+V";
-const char * const SETTINGS_CATEGORY      = "D.FakeVim";
-const char * const SETTINGS_ID            = "A.General";
-const char * const SETTINGS_EX_CMDS_ID    = "B.ExCommands";
-const char * const CMD_FILE_NEXT          = "FakeVim.SwitchFileNext";
-const char * const CMD_FILE_PREV          = "FakeVim.SwitchFilePrev";
+const char * const INSTALL_HANDLER                = "TextEditor.FakeVimHandler";
+const char * const MINI_BUFFER                    = "TextEditor.FakeVimMiniBuffer";
+const char * const INSTALL_KEY                    = "Alt+V,Alt+V";
+const char * const SETTINGS_CATEGORY              = "D.FakeVim";
+const char * const SETTINGS_CATEGORY_FAKEVIM_ICON = ":/core/images/category_fakevim.png";
+const char * const SETTINGS_ID                    = "A.General";
+const char * const SETTINGS_EX_CMDS_ID            = "B.ExCommands";
+const char * const CMD_FILE_NEXT                  = "FakeVim.SwitchFileNext";
+const char * const CMD_FILE_PREV                  = "FakeVim.SwitchFilePrev";
 
 } // namespace Constants
 } // namespace FakeVim
@@ -133,7 +134,7 @@ public:
     QString displayName() const { return tr("General"); }
     QString category() const { return QLatin1String(Constants::SETTINGS_CATEGORY); }
     QString displayCategory() const { return tr("FakeVim"); }
-    QIcon categoryIcon() const { return QIcon(); } // TODO: Add an icon or move into another category
+    QIcon categoryIcon() const { return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_FAKEVIM_ICON)); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(ICore::instance()->settings()); }

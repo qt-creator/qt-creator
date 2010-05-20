@@ -184,7 +184,15 @@ QObject *NodeMetaInfo::createInstance(QDeclarativeContext *context) const
         newContext->setParent(object);
     } else {
         // primitive
-        object = QDeclarativeMetaType::qmlType(typeName().toAscii(), majorVersion(), minorVersion())->create();
+        QDeclarativeType *type = QDeclarativeMetaType::qmlType(typeName().toAscii(), majorVersion(), minorVersion());
+        if (type)  {
+            object = type->create();
+        } else {
+            qWarning() << "QuickDesigner: Cannot create an object of type"
+                       << QString("%1 %2,%3").arg(typeName(), majorVersion(), minorVersion())
+                       << "- type isn't known to declarative meta type system";
+        }
+
         if (object && context)
             QDeclarativeEngine::setContextForObject(object, context);
     }

@@ -39,6 +39,8 @@
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljslink.h>
+#include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
@@ -1007,8 +1009,9 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
 
     Interpreter::Engine interp;
     Interpreter::Context context(&interp);
-    context.build(semanticInfo.astPath(cursorPosition), semanticInfo.document,
-                  semanticInfo.snapshot, m_modelManager->importPaths());
+    QmlJS::Link linkedSnapshot(&context, semanticInfo.document, semanticInfo.snapshot, m_modelManager->importPaths());
+    ScopeBuilder scopeBuilder(semanticInfo.document, &context);
+    scopeBuilder.push(semanticInfo.astPath(cursorPosition));
 
     Evaluate check(&context);
     const Interpreter::Value *value = check.reference(node);
@@ -1018,7 +1021,7 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
     if (! (value && value->getSourceLocation(&fileName, &line, &column)))
         return Link();
 
-    Link link;
+    BaseTextEditor::Link link;
     link.fileName = fileName;
     link.line = line;
     link.column = column - 1; // adjust the column

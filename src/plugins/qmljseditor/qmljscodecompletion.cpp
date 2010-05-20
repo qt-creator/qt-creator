@@ -38,6 +38,8 @@
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljscompletioncontextfinder.h>
+#include <qmljs/qmljslink.h>
+#include <qmljs/qmljsscopebuilder.h>
 
 #include <texteditor/basetexteditor.h>
 
@@ -595,6 +597,31 @@ static bool isLiteral(AST::Node *ast)
         return false;
 }
 
+void CodeCompletion::addCompletions(const QHash<QString, const Interpreter::Value *> &newCompletions,
+                                    const QIcon &icon)
+{
+    QHashIterator<QString, const Interpreter::Value *> it(newCompletions);
+    while (it.hasNext()) {
+        it.next();
+
+        TextEditor::CompletionItem item(this);
+        item.text = it.key();
+        item.icon = icon;
+        m_completions.append(item);
+    }
+}
+
+void CodeCompletion::addCompletions(const QStringList &newCompletions,
+                                    const QIcon &icon)
+{
+    foreach (const QString &text, newCompletions) {
+        TextEditor::CompletionItem item(this);
+        item.text = text;
+        item.icon = icon;
+        m_completions.append(item);
+    }
+}
+
 int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
@@ -627,10 +654,11 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     Interpreter::Engine interp;
     Interpreter::Context context(&interp);
+    Link link(&context, document, snapshot, m_modelManager->importPaths());
 
     // Set up the current scope chain.
-    QList<AST::Node *> astPath = semanticInfo.astPath(editor->position());
-    context.build(astPath, document, snapshot, m_modelManager->importPaths());
+    ScopeBuilder scopeBuilder(document, &context);
+    scopeBuilder.push(semanticInfo.astPath(editor->position()));
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -660,24 +688,12 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             enumerateProperties.setGlobalCompletion(true);
             enumerateProperties.setEnumerateGeneratedSlots(true);
 
-            QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(qmlScopeType));
-            while (it.hasNext()) {
-                it.next();
+            addCompletions(enumerateProperties(qmlScopeType), symbolIcon);
+            addCompletions(enumerateProperties(context.scopeChain().qmlTypes), symbolIcon);
 
-                TextEditor::CompletionItem item(this);
-                item.text = it.key();
-                item.icon = symbolIcon;
-                m_completions.append(item);
-            }
-
-            it = enumerateProperties(context.scopeChain().qmlTypes);
-            while (it.hasNext()) {
-                it.next();
-
-                TextEditor::CompletionItem item(this);
-                item.text = it.key();
-                item.icon = symbolIcon;
-                m_completions.append(item);
+            if (ScopeBuilder::isPropertyChangesObject(&context, qmlScopeType)
+                    && context.scopeChain().qmlScopeObjects.size() == 2) {
+                addCompletions(enumerateProperties(context.scopeChain().qmlScopeObjects.first()), symbolIcon);
             }
         }
 
@@ -713,60 +729,33 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             // It's a global completion.
             EnumerateProperties enumerateProperties(&context);
             enumerateProperties.setGlobalCompletion(true);
-            QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties());
-            while (it.hasNext()) {
-                it.next();
-
-                TextEditor::CompletionItem item(this);
-                item.text = it.key();
-                item.icon = symbolIcon;
-                m_completions.append(item);
-            }
+            addCompletions(enumerateProperties(), symbolIcon);
         }
 
         if (doJsKeywordCompletion) {
             // add js keywords
-            foreach (const QString &word, Scanner::keywords()) {
-                TextEditor::CompletionItem item(this);
-                item.text = word;
-                item.icon = keywordIcon;
-                m_completions.append(item);
-            }
+            addCompletions(Scanner::keywords(), keywordIcon);
         }
 
         // add qml extra words
         if (doQmlKeywordCompletion && isQmlFile) {
             static QStringList qmlWords;
+            static QStringList qmlWordsAlsoInJs;
 
             if (qmlWords.isEmpty()) {
                 qmlWords << QLatin1String("property")
-                        << QLatin1String("readonly")
+                        //<< QLatin1String("readonly")
                         << QLatin1String("signal")
                         << QLatin1String("import");
             }
-
-            foreach (const QString &word, qmlWords) {
-                TextEditor::CompletionItem item(this);
-                item.text = word;
-                item.icon = keywordIcon;
-                m_completions.append(item);
+            if (qmlWordsAlsoInJs.isEmpty()) {
+                qmlWordsAlsoInJs << QLatin1String("default")
+                        << QLatin1String("function");
             }
 
-            if (!doJsKeywordCompletion) {
-                {
-                    TextEditor::CompletionItem item(this);
-                    item.text = QLatin1String("default");
-                    item.icon = keywordIcon;
-                    m_completions.append(item);
-                }
-
-                {
-                    TextEditor::CompletionItem item(this);
-                    item.text = QLatin1String("function");
-                    item.icon = keywordIcon;
-                    m_completions.append(item);
-                }
-            }
+            addCompletions(qmlWords, keywordIcon);
+            if (!doJsKeywordCompletion)
+                addCompletions(qmlWordsAlsoInJs, keywordIcon);
         }
     }
 
@@ -787,15 +776,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 EnumerateProperties enumerateProperties(&context);
-                QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(value));
-                while (it.hasNext()) {
-                    it.next();
-
-                    TextEditor::CompletionItem item(this);
-                    item.text = it.key();
-                    item.icon = symbolIcon;
-                    m_completions.append(item);
-                }
+                addCompletions(enumerateProperties(value), symbolIcon);
             } else if (value && completionOperator == QLatin1Char('(') && m_startPosition == editor->position()) {
                 // function completion
                 if (const Interpreter::FunctionValue *f = value->asFunctionValue()) {

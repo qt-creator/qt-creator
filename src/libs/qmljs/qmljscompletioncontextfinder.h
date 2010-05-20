@@ -14,9 +14,6 @@ class QMLJS_EXPORT CompletionContextFinder : public LineInfo
 public:
     CompletionContextFinder(const QTextCursor &cursor);
 
-    //bool inQmlObjectDefinition();
-    bool inQmlBindingRhs();
-
     QStringList qmlObjectTypeName() const;
     bool isInQmlContext() const;
 

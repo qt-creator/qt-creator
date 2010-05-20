@@ -321,7 +321,7 @@ QString CppFileSettingsPage::displayCategory() const
 
 QIcon CppFileSettingsPage::categoryIcon() const
 {
-    return QIcon(); // TODO: Icon for C++ or move into category
+    return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
 QWidget *CppFileSettingsPage::createPage(QWidget *parent)

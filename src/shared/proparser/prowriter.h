@@ -47,7 +47,7 @@ class ProWriter
 public:
     static void addFiles(ProFile *profile, QStringList *lines,
                          const QDir &proFileDir, const QStringList &filePaths,
-                         const QStringList &vars);
+                         const QString &var);
     static QStringList removeFiles(ProFile *profile, QStringList *lines,
                                    const QDir &proFileDir, const QStringList &filePaths,
                                    const QStringList &vars);

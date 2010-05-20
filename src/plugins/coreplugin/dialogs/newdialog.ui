@@ -38,9 +38,15 @@
    </item>
    <item row="1" column="0" rowspan="3">
     <widget class="QTreeView" name="templateCategoryView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="maximumSize">
       <size>
-       <width>200</width>
+       <width>225</width>
        <height>16777215</height>
       </size>
      </property>
@@ -77,6 +83,12 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>180</height>
+      </size>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>
@@ -91,16 +103,10 @@
    <item row="3" column="1">
     <widget class="QTextBrowser" name="templateDescription">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>140</height>
-      </size>
      </property>
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>

@@ -40,6 +40,11 @@
 
 #include <QtGui/QIcon>
 
+#include <QtGui/QApplication>
+#include <QtGui/QStyle>
+#include <QtGui/QPainter>
+#include <QtGui/QPixmap>
+
 #include <QtCore/QDir>
 #include <QtCore/QtDebug>
 #include <QtCore/QCoreApplication>
@@ -100,7 +105,14 @@ QmlProjectImportWizard::~QmlProjectImportWizard()
 Core::BaseFileWizardParameters QmlProjectImportWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
+    // TODO do something about the ugliness of standard icons in sizes different than 16, 32, 64, 128
+    {
+        QPixmap icon(22, 22);
+        icon.fill(Qt::transparent);
+        QPainter p(&icon);
+        p.drawPixmap(3, 3, 16, 16, qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(16));
+        parameters.setIcon(icon);
+    }
     parameters.setDisplayName(tr("Import Existing Qt QML Directory"));
     parameters.setId(QLatin1String("QI.QML Import"));
     parameters.setDescription(tr("Creates a QML project from an existing directory of QML files."));

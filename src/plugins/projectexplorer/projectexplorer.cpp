@@ -256,10 +256,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             this, SIGNAL(fileListChanged()));
     connect(d->m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(startupProjectChanged()));
-    connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(updatePreferredWizardKinds()));
-    connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            this, SLOT(updatePreferredWizardKinds()));
     connect(d->m_session, SIGNAL(dependencyChanged(ProjectExplorer::Project*,ProjectExplorer::Project*)),
             this, SLOT(updateActions()));
 
@@ -1882,17 +1878,6 @@ void ProjectExplorerPlugin::openRecentProject()
     QString fileName = a->data().toString();
     if (!fileName.isEmpty())
         openProject(fileName);
-}
-
-void ProjectExplorerPlugin::updatePreferredWizardKinds()
-{
-    if (d->m_session->projects().count()) {
-        Core::ICore::instance()->setNewItemDialogPreferredWizardKinds(
-                Core::IWizard::FileWizard | Core::IWizard::ClassWizard);
-    } else {
-        Core::ICore::instance()->setNewItemDialogPreferredWizardKinds(
-                Core::IWizard::ProjectWizard);
-    }
 }
 
 void ProjectExplorerPlugin::invalidateProject(Project *project)

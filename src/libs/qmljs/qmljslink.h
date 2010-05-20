@@ -8,6 +8,7 @@
 #include <QtCore/QList>
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
+#include <QtCore/QCoreApplication>
 
 namespace QmlJS {
 
@@ -18,6 +19,8 @@ class NameId;
 */
 class QMLJS_EXPORT Link
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
+
 public:
     // Link all documents in snapshot
     Link(Interpreter::Context *context, const Document::Ptr &doc, const Snapshot &snapshot,

@@ -699,6 +699,88 @@ void TestCore::testRewriterPreserveOrder()
     }
 }
 
+void TestCore::testRewriterForGradientMagic()
+{
+    const QLatin1String qmlString("\n"
+                                  "import Qt 4.7\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "    id: root\n"
+                                  "    x: 10;\n"
+                                  "    y: 10;\n"
+                                  "    Rectangle {\n"
+                                  "        id: rectangle1\n"
+                                  "        x: 10;\n"
+                                  "        y: 10;\n"
+                                  "    }\n"
+                                  "    Rectangle {\n"
+                                  "        id: rectangle2\n"
+                                  "        x: 100;\n"
+                                  "        y: 100;\n"
+                                  "        anchors.fill: root\n"
+                                  "    }\n"
+                                  "    Rectangle {\n"
+                                  "        id: rectangle3\n"
+                                  "        x: 140;\n"
+                                  "        y: 180;\n"
+                                  "        gradient: Gradient {\n"
+                                  "             GradientStop {\n"
+                                  "                 position: 0\n"
+                                  "                 color: \"white\"\n"
+                                  "             }\n"
+                                  "             GradientStop {\n"
+                                  "                  position: 1\n"
+                                  "                  color: \"black\"\n"
+                                  "             }\n"
+                                  "        }\n"
+                                  "    }\n"
+                                  "}");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("Qt/Text"));
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode = testRewriterView->rootModelNode();
+    QVERIFY(rootModelNode.isValid());
+
+    ModelNode myRect = testRewriterView->modelNodeForId(QLatin1String("rectangle3"));
+    QVERIFY(myRect.isValid());
+    myRect.variantProperty("rotation") = QVariant(45);
+    QVERIFY(myRect.isValid());
+
+    QScopedPointer<Model> model1(Model::create("Qt/Item", 4, 7));
+    QVERIFY(model1.data());
+
+    QScopedPointer<TestView> view1(new TestView);
+    model1->attachView(view1.data());
+
+    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    QPlainTextEdit textEdit1;
+    textEdit1.setPlainText("import Qt 4.7; Item {}");
+    NotIndentingTextEditModifier modifier1(&textEdit1);
+
+    testRewriterView1->setTextModifier(&modifier1);
+    model1->attachView(testRewriterView1.data());
+
+    QVERIFY(testRewriterView1->errors().isEmpty());
+
+    RewriterTransaction transaction(view1->beginRewriterTransaction());
+
+    ModelMerger merger(view1.data());
+
+    QVERIFY(myRect.isValid());
+    merger.replaceModel(myRect);
+    transaction.commit();
+}
+
 void TestCore::loadSubItems()
 {
     QFile file(QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/topitem.qml");

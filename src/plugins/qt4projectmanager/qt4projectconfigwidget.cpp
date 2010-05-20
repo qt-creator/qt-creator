@@ -199,12 +199,11 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
 
     bool shadowBuild = m_buildConfiguration->shadowBuild();
     m_ui->shadowBuildCheckBox->setChecked(shadowBuild);
-    m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
-    m_browseButton->setEnabled(shadowBuild);
-    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->shadowBuildDirectory());
-
     m_ui->shadowBuildCheckBox->setEnabled(m_buildConfiguration->qtVersion()->supportsShadowBuilds());
-    m_ui->shadowBuildDirEdit->setEnabled(m_buildConfiguration->qtVersion()->supportsShadowBuilds());
+
+    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->shadowBuildDirectory());
+    m_ui->shadowBuildDirEdit->setEnabled(shadowBuild && m_buildConfiguration->qtVersion()->supportsShadowBuilds());
+    m_browseButton->setEnabled(shadowBuild && m_buildConfiguration->qtVersion()->supportsShadowBuilds());
 
     updateImportLabel();
     updateToolChainCombo();

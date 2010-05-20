@@ -177,8 +177,7 @@ void PluginView::updateList()
     defaultCollectionItem->setToolTip(C_LOAD, tr("Load on Startup"));
     defaultCollectionItem->setData(0, Qt::UserRole, qVariantFromValue(defaultCollection));
 
-    foreach (PluginSpec *spec, m_specToItem.keys())
-        toggleRelatedPlugins(spec, spec->isEnabled() && !spec->isDisabledIndirectly());
+    updatePluginDependencies();
 
     m_ui->categoryWidget->clear();
     if (!m_items.isEmpty()) {
@@ -301,7 +300,7 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
         if (column == C_LOAD) {
 
             spec->setEnabled(loadOnStartup);
-            toggleRelatedPlugins(spec, loadOnStartup);
+            updatePluginDependencies();
 
             if (item->parent()) {
                 PluginCollection *collection = item->parent()->data(0, Qt::UserRole).value<PluginCollection *>();
@@ -332,33 +331,36 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
                 spec->setEnabled(loadOnStartup);
                 Qt::CheckState state = (loadOnStartup ? Qt::Checked : Qt::Unchecked);
                 child->setData(C_LOAD, Qt::CheckStateRole, state);
-                toggleRelatedPlugins(spec, loadOnStartup);
             } else {
                 child->setData(C_LOAD, Qt::CheckStateRole, Qt::Checked);
                 child->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
             }
         }
+        updatePluginDependencies();
         emit pluginSettingsChanged(collection->plugins().first());
     }
 
     m_allowCheckStateUpdate = true;
 }
 
-void PluginView::toggleRelatedPlugins(PluginSpec *modifiedPlugin, bool isPluginEnabled)
+void PluginView::updatePluginDependencies()
 {
-
-    for(int i = 0; i < modifiedPlugin->providesForSpecs().length(); ++i) {
-        PluginSpec *spec = modifiedPlugin->providesForSpecs().at(i);
-        QTreeWidgetItem *childItem = m_specToItem.value(spec);
-
-        if (childItem->isDisabled() != !isPluginEnabled) {
-            childItem->setDisabled(!isPluginEnabled);
-            if (childItem->parent() && !childItem->parent()->isExpanded())
-                childItem->parent()->setExpanded(true);
-
-
-            toggleRelatedPlugins(spec, isPluginEnabled);
+    foreach (PluginSpec *spec, PluginManager::instance()->loadQueue()) {
+        bool disableIndirectly = false;
+        foreach(const PluginSpec *depSpec, spec->dependencySpecs()) {
+            if (!depSpec->isEnabled() || depSpec->isDisabledIndirectly()) {
+                disableIndirectly = true;
+                break;
+            }
         }
+        QTreeWidgetItem *childItem = m_specToItem.value(spec);
+        childItem->setDisabled(disableIndirectly);
+
+        if (disableIndirectly == spec->isDisabledIndirectly())
+            continue;
+        spec->setDisabledIndirectly(disableIndirectly);
+
+        if (childItem->parent() && !childItem->parent()->isExpanded())
+            childItem->parent()->setExpanded(true);
     }
 }
-

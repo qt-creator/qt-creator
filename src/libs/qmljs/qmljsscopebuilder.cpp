@@ -33,7 +33,8 @@ void ScopeBuilder::push(AST::Node *node)
     // JS scopes
     if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(node)) {
         ObjectValue *functionScope = _doc->bind()->findFunctionScope(fun);
-        _context->scopeChain().jsScopes += functionScope;
+        if (functionScope)
+            _context->scopeChain().jsScopes += functionScope;
     }
 
     _context->scopeChain().update();
@@ -106,14 +107,7 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
 
     // check if the object has a Qt.PropertyChanges ancestor
     prototype = scopeObject->prototype(_context);
-    while (prototype) {
-        if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
-            if (qmlMetaObject->className() == QLatin1String("PropertyChanges")
-                    && qmlMetaObject->packageName() == QLatin1String("Qt"))
-                break;
-        }
-        prototype = prototype->prototype(_context);
-    }
+    prototype = isPropertyChangesObject(_context, prototype);
     // find the target script binding
     if (prototype) {
         UiObjectInitializer *initializer = 0;
@@ -168,4 +162,20 @@ const Value *ScopeBuilder::scopeObjectLookup(AST::UiQualifiedId *id)
     }
 
     return result;
+}
+
+
+const ObjectValue *ScopeBuilder::isPropertyChangesObject(Context *context,
+                                                   const ObjectValue *object)
+{
+    const ObjectValue *prototype = object;
+    while (prototype) {
+        if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
+            if (qmlMetaObject->className() == QLatin1String("PropertyChanges")
+                    && qmlMetaObject->packageName() == QLatin1String("Qt"))
+                return prototype;
+        }
+        prototype = prototype->prototype(context);
+    }
+    return 0;
 }

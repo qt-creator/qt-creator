@@ -24,7 +24,8 @@ QLabel {
     padding: 0;
     background: none;
     color: #dedede;
-    font: bold
+    font: bold;
+    font-size: 11px;
 }
 
 QScrollArea {
@@ -38,7 +39,7 @@ QGroupBox
 	 background-color: #4f4f4f;
      border: 1px solid #4F4F4F;
      color: white;
-     font: bold 
+     font: bold ;
 }
 
 QLineEdit 

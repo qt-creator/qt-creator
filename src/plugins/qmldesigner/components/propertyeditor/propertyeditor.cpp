@@ -81,13 +81,13 @@ const int collapseButtonOffset = 114;
 namespace QmlDesigner {
 
 PropertyEditor::NodeType::NodeType(PropertyEditor *propertyEditor) :
-        m_view(new QDeclarativeView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
+        m_view(new DeclarativeWidgetView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
         m_contextObject(new PropertyEditorContextObject())
 {
     Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
 
-    m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     QDeclarativeContext *ctxt = m_view->rootContext();
+    m_view->engine()->setOutputWarningsToStandardError(debug);
     m_dummyPropertyEditorValue->setValue("#000000");
     ctxt->setContextProperty("dummyBackendValue", m_dummyPropertyEditorValue.data());
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);

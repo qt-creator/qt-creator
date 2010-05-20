@@ -8,7 +8,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
-#include <QtCore/QCoreApplication>
 
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
@@ -211,7 +210,7 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
         importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
     } else {
         error(doc, import->fileNameToken,
-              QCoreApplication::translate("QmlJS::Link", "could not find file or directory"));
+              tr("could not find file or directory"));
     }
 }
 
@@ -253,7 +252,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         const int dotIdx = versionString.indexOf(QLatin1Char('.'));
         if (dotIdx == -1) {
             error(doc, import->versionToken,
-                  QCoreApplication::translate("QmlJS::Link", "expected two numbers separated by a dot"));
+                  tr("expected two numbers separated by a dot"));
             return;
         } else {
             majorVersion = versionString.left(dotIdx).toInt();
@@ -261,7 +260,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         }
     } else {
         error(doc, locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
-              QCoreApplication::translate("QmlJS::Link", "package import requires a version number"));
+              tr("package import requires a version number"));
         return;
     }
 
@@ -307,7 +306,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
     }
 
     error(doc, locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
-          QCoreApplication::translate("QmlJS::Link", "package not found"));
+          tr("package not found"));
 }
 
 UiQualifiedId *Link::qualifiedTypeNameId(Node *node)

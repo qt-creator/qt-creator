@@ -135,8 +135,6 @@ void DragTool::beginWithPoint(const QPointF &beginPoint)
 
 void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlItemNode parentNode, QPointF scenePos)
 {
-    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
-
     MetaInfo metaInfo = MetaInfo::global();
 
     FormEditorItem *parentItem = scene()->itemForQmlItemNode(parentNode);
@@ -151,14 +149,14 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry, QmlIt
     nodeList.append(m_dragNode);
     view()->setSelectedQmlItemNodes(nodeList);
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
+
+    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 }
 
 void DragTool::createQmlItemNodeFromImage(const QString &imageName, QmlItemNode parentNode, QPointF scenePos)
 {
     if (!parentNode.isValid())
         return;
-
-    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 
     MetaInfo metaInfo = MetaInfo::global();
 
@@ -171,6 +169,8 @@ void DragTool::createQmlItemNodeFromImage(const QString &imageName, QmlItemNode 
     nodeList.append(m_dragNode);
     view()->setSelectedQmlItemNodes(nodeList);
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
+
+    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 }
 
 FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorItem * currentItem)
@@ -256,11 +256,11 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
         QPointF scenePos = event->scenePos();
         if  (m_dragNode.isValid()) {
 
-            FormEditorItem *parentItem = calculateContainer(event->scenePos() - QPoint(2, 2));
+            FormEditorItem *parentItem = calculateContainer(event->scenePos() + QPoint(2, 2));
             if (!parentItem) {      //if there is no parent any more - the use left the scene
                 end(event->scenePos());
-                m_dragNode.destroy(); //delete the node then
                 QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::show();
+                m_dragNode.destroy(); //delete the node then
                 return;
             }
             //move

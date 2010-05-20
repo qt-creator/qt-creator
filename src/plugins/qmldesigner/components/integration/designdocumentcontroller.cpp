@@ -461,6 +461,7 @@ void DesignDocumentController::copySelected()
 {
     QScopedPointer<Model> model(Model::create("import Qt 4.7; Qt/Rectangle"));
     model->setMetaInfo(m_d->model->metaInfo());
+    model->setFileUrl(m_d->model->fileUrl());
 
     Q_ASSERT(model);
 
@@ -573,6 +574,8 @@ void DesignDocumentController::paste()
 
     if (rootNode.id() == "designer__Selection") {
         QList<ModelNode> selectedNodes = rootNode.allDirectSubModelNodes();
+        qDebug() << rootNode;
+        qDebug() << selectedNodes;
         model->detachView(&view);
         m_d->model->attachView(&view);
 
@@ -635,7 +638,9 @@ void DesignDocumentController::paste()
         QString defaultProperty(targetNode.metaInfo().defaultProperty());
 
         scatterItem(pastedNode, targetNode);
-        targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+        if (targetNode.nodeListProperty(defaultProperty).isValid()) {
+            targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+        }
 
         view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
     }

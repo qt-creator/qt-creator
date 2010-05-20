@@ -95,7 +95,7 @@ QString SettingsPage::displayCategory() const
 
 QIcon SettingsPage::categoryIcon() const
 {
-    return QIcon(); // TODO: Icon for QML or move into other category (Designer?)
+    return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

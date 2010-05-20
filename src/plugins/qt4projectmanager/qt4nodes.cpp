@@ -588,9 +588,23 @@ bool Qt4PriFileNode::removeSubProjects(const QStringList &proFilePaths)
 bool Qt4PriFileNode::addFiles(const FileType fileType, const QStringList &filePaths,
                            QStringList *notAdded)
 {
-    QStringList failedFiles;
+    // If a file is already referenced in the .pro file then we don't add them.
+    // That ignores scopes and which variable was used to reference the file
+    // So it's obviously a bit limited, but in those cases you need to edit the
+    // project files manually anyway.
 
-    changeFiles(fileType, filePaths, &failedFiles, AddToProFile);
+    ProjectExplorer::FindAllFilesVisitor visitor;
+    accept(&visitor);
+    const QStringList &allFiles = visitor.filePaths();
+
+    QStringList uniqueFilePaths;
+    foreach (const QString &file, filePaths) {
+        if(!allFiles.contains(file))
+            uniqueFilePaths.append(file);
+    }
+
+    QStringList failedFiles;
+    changeFiles(fileType, uniqueFilePaths, &failedFiles, AddToProFile);
     if (notAdded)
         *notAdded = failedFiles;
     return failedFiles.isEmpty();
@@ -699,6 +713,23 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     if (!saveModifiedEditors())
         return;
 
+    // Ensure that the file is not read only
+    QFileInfo fi(m_projectFilePath);
+    if (!fi.isWritable()) {
+        // Try via vcs manager
+        Core::VCSManager *vcsManager = Core::ICore::instance()->vcsManager();
+        Core::IVersionControl *versionControl = vcsManager->findVersionControlForDirectory(fi.absolutePath());
+        if (!versionControl || versionControl->vcsOpen(m_projectFilePath)) {
+            bool makeWritable = QFile::setPermissions(m_projectFilePath, fi.permissions() | QFile::WriteUser);
+            if (!makeWritable) {
+                QMessageBox::warning(Core::ICore::instance()->mainWindow(),
+                                     tr("Failed!"),
+                                     tr("Could not write project file %1.").arg(m_projectFilePath));
+                return;
+            }
+        }
+    }
+
     QStringList lines;
     ProFile *includeFile;
     {
@@ -727,7 +758,9 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     QDir priFileDir = QDir(m_qt4ProFileNode->m_projectDir);
 
     if (change == AddToProFile) {
-        ProWriter::addFiles(includeFile, &lines, priFileDir, filePaths, vars);
+        // Use the first variable for adding.
+        // Yes, that's broken for adding objective c sources or other stuff.
+        ProWriter::addFiles(includeFile, &lines, priFileDir, filePaths, vars.first());
         notChanged->clear();
     } else { // RemoveFromProFile
         *notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir, filePaths, vars);
@@ -736,11 +769,11 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     // save file
     save(lines);
 
-    // This is a hack
-    // We are savign twice in a very short timeframe, once the editor and once the ProFile
-    // So the modification time might not change between those two saves
-    // We manually tell each editor to reload it's file
-    // (The .pro files are notified by the file system watcher)
+    // This is a hack.
+    // We are saving twice in a very short timeframe, once the editor and once the ProFile.
+    // So the modification time might not change between those two saves.
+    // We manually tell each editor to reload it's file.
+    // (The .pro files are notified by the file system watcher.)
     foreach (Core::IEditor *editor, Core::ICore::instance()->editorManager()->editorsForFileName(m_projectFilePath)) {
         if (Core::IFile *editorFile = editor->file()) {
             editorFile->reload(Core::IFile::FlagReload, Core::IFile::TypeContents);

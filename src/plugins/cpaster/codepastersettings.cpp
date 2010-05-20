@@ -79,7 +79,7 @@ QString CodePasterSettingsPage::displayCategory() const
 
 QIcon CodePasterSettingsPage::categoryIcon() const
 {
-    return QIcon(); // TODO: Add icon for code paster category
+    return QIcon();
 }
 
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)

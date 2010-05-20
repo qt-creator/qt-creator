@@ -14499,7 +14499,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location/>
         <source>Color Scheme</source>
-        <translation>Farbschema:</translation>
+        <translation>Farbschema</translation>
     </message>
     <message>
         <location/>

@@ -59,5 +59,11 @@
         <file>images/darkclose.png</file>
         <file>images/arrowdown.png</file>
         <file>images/arrowup.png</file>
+        <file>images/category_fakevim.png</file>
+        <file>images/category_locator.png</file>
+        <file>images/category_cpaster.png</file>
+        <file>images/category_cpp.png</file>
+        <file>images/category_vcs.png</file>
+        <file>images/category_qml.png</file>
     </qresource>
 </RCC>

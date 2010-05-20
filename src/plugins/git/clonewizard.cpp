@@ -47,7 +47,7 @@ CloneWizard::CloneWizard(QObject *parent) :
 
 QIcon CloneWizard::icon() const
 {
-    return QIcon();
+    return QIcon(QLatin1String(":/git/images/git.png"));
 }
 
 QString CloneWizard::description() const

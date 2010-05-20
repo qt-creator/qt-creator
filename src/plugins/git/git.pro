@@ -50,3 +50,6 @@ FORMS += changeselectiondialog.ui \
     stashdialog.ui
 OTHER_FILES += ScmGit.pluginspec
 include(gitorious/gitorious.pri)
+
+RESOURCES += \
+    git.qrc

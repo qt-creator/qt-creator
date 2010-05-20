@@ -38,6 +38,11 @@
 
 #include <QtGui/QIcon>
 
+#include <QtGui/QApplication>
+#include <QtGui/QStyle>
+#include <QtGui/QPainter>
+#include <QtGui/QPixmap>
+
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QtDebug>
@@ -93,7 +98,14 @@ GenericProjectWizard::~GenericProjectWizard()
 Core::BaseFileWizardParameters GenericProjectWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
+    // TODO do something about the ugliness of standard icons in sizes different than 16, 32, 64, 128
+    {
+        QPixmap icon(22, 22);
+        icon.fill(Qt::transparent);
+        QPainter p(&icon);
+        p.drawPixmap(3, 3, 16, 16, qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(16));
+        parameters.setIcon(icon);
+    }
     parameters.setDisplayName(tr("Import Existing Project"));
     parameters.setId(QLatin1String("Z.Makefile"));
     parameters.setDescription(tr("Imports existing projects that do not use qmake or CMake. "

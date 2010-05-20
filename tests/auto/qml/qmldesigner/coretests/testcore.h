@@ -46,6 +46,20 @@ private slots:
     void cleanupTestCase();
 
     //
+    // unit tests MetaInfo, NodeMetaInfo, PropertyMetaInfo
+    //
+    void testMetaInfo();
+    void testMetaInfoSimpleType();
+    void testMetaInfoUncreatableType();
+    void testMetaInfoExtendedType();
+    void testMetaInfoInterface();
+    void testMetaInfoCustomType();
+    void testMetaInfoEnums();
+    void testMetaInfoProperties();
+    void testMetaInfoDotProperties();
+    void testMetaInfoListProperties();
+
+    //
     // unit tests Model, ModelNode, NodeProperty, AbstractView
     //
     void testModelCreateCoreModel();
@@ -66,20 +80,6 @@ private slots:
     void testModelPropertyValueTypes();
     void testModelNodeInHierarchy();
     void testModelNodeIsAncestorOf();
-
-    //
-    // unit tests MetaInfo, NodeMetaInfo, PropertyMetaInfo
-    //
-    void testMetaInfo();
-    void testMetaInfoSimpleType();
-    void testMetaInfoUncreatableType();
-    void testMetaInfoExtendedType();
-    void testMetaInfoInterface();
-    void testMetaInfoCustomType();
-    void testMetaInfoEnums();
-    void testMetaInfoProperties();
-    void testMetaInfoDotProperties();
-    void testMetaInfoListProperties();
 
     //
     // unit tests Rewriter
@@ -169,6 +169,7 @@ private slots:
     //
 
     void reparentingNodeLikeDragAndDrop();
+    void testRewriterForGradientMagic();
 
     //
     // old tests

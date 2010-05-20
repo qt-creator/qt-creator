@@ -54,6 +54,10 @@
                 \o \l{Finding and Replacing}
                 \o \l{Refactoring}
                 \o \l{Searching With the Locator}
+                \o \l{Pasting and Fetching Code Snippets}
+                \o \l{Configuring the Editor}
+                \o \l{Using FakeVim Mode}
+                \o \l{Using an External Editor}
             \endlist
        \o \l{Managing Projects}
             \list
@@ -388,6 +392,9 @@
     \endlist
 
     Output panes are available in all \l{Qt Creator modes}{modes}.
+    Click the name of an output pane to open the pane. To maximize
+    an open output pane, click the \gui {Maximize Output Pane} button
+    or press \key {Alt+9}.
 
 
     \section2 Build Issues
@@ -620,28 +627,6 @@
     checking, code completion, context sensitive help and in-line error
     indicators while you are typing.
 
-
-    \section1 Configuring the Editor
-
-    Qt Creator allows you to configure the text editor to suit your specific
-    needs. To configure the editor, select  \gui Tools > \gui{Options...} >
-    \gui{Text Editor}
-
-    You can perform the following configuration actions:
-    \list
-        \o Set the font preferences and apply syntax highlighting in
-           \gui{Font & Colors}.
-        \o Set tabs, indentation, the handling of whitespace, and mouse operations in
-           \gui Behavior.
-        \o Set various display properties, for example,
-           \l{Highlighting and folding blocks}{highlighting and folding blocks},
-           text wrapping or \l{Moving to symbol definition or declaration}
-           {moving to symbol definition or declaration}
-           in \gui Display.
-        \o Configure \l{Completing Code}{code completion} in \gui Completion.
-    \endlist
-
-
     \section1 Using the Editor Toolbar
 
     The editor toolbar is located at the top of the editor view. The editor
@@ -716,6 +701,11 @@
     \gui{Text Editor} > \gui Display > \gui{Display folding markers}. This
     option is enabled by default.
 
+    When the cursor is on a brace, the matching brace is animated
+    by default. To turn off the animation and just highlight the block and
+    the braces, select \gui {Tools > Options... > Text Editor > Display} and
+    deselect \gui {Animate matching parentheses}.
+
 
     \section1 Checking Code Syntax
 
@@ -759,6 +749,10 @@
     several similarly named members. To disable this functionality, uncheck
     \gui{Autocomplete common prefix} in the code completion preferences.
     Select \gui Tools > \gui{Options...} > \gui{Text Editor} > \gui Completion.
+
+    By default, code completion considers only the first letter case-sensitive.
+    To apply full or no case-sensitivity, select the option in the
+    \gui {Case-sensitivity} field.
 
     The following table lists available types for code completion and icon
     used for each.
@@ -856,8 +850,16 @@
     \note In Qt Creator indexing updates the code automatically. Use
     \gui{Update code model} only as an emergency command.
 
+*/
 
-    \section1 Pasting and Fetching Code Snippets
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-locator.html
+    \page creator-editor-codepasting.html
+    \nextpage creator-editor-options.html
+
+    \title Pasting and Fetching Code Snippets
 
     In Qt Creator, you can paste snippets of code to a server or fetch
     snippets of code from the server. To paste and fetch snippets of code,
@@ -890,7 +892,16 @@
     If they have the project currently opened in Qt Creator, they can apply and test
     the change by choosing \gui{Tools} > \gui{Git} > \gui{Apply Patch}.
 
-    \section1 Using FakeVim Mode
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-options.html
+    \page creator-editor-fakevim.html
+    \nextpage creator-editor-external.html
+
+    \title Using FakeVim Mode
 
     In the \gui{FakeVim} mode, you can run the main editor in a manner similar
     to the Vim editor. To run the editor in the \gui{FakeVim} mode, select
@@ -906,14 +917,26 @@
     Qt Creator core, select \gui{Tools} > \gui{Options...} > \gui{FakeVim} >
     \gui{Ex Command Mapping}.
 
-    To make changes to the Vim style settings, select \gui{Tools} >
-    \gui{Options...} > \gui{General}.
+    To make changes to the Vim-style settings, select \gui{Tools} >
+    \gui{Options...} > \gui FakeVim > \gui{General}.
+
+    To use a Vim-style color scheme, select \gui {Tools > Options... >
+    Text Editor > Fonts & Color}. In the \gui {Color Scheme} list, select
+    \gui {Vim (dark)}.
 
     To quit the FakeVim mode, click \gui {Quit FakeVim} or press
     \key{Alt+V,Alt+V}.
 
+    */
 
-    \section1 Using an External Editor
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-fakevim.html
+    \page creator-editor-external.html
+    \nextpage creator-project-managing.html
+
+    \title Using an External Editor
 
     To open the file you are currently viewing in an external editor, select
     \gui Edit > \gui Advanced > \gui{Open in External Editor}.
@@ -944,6 +967,134 @@
 
            \note Not all variables work with all editors.
     \endlist
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-codepasting.html
+    \page creator-editor-options.html
+    \nextpage creator-editor-fakevim.html
+
+    \title Configuring the Editor
+
+    Qt Creator allows you to configure the text editor to suit your specific
+    needs. To configure the editor, select  \gui Tools > \gui{Options...} >
+    \gui{Text Editor}.
+
+    You can perform the following configuration actions:
+    \list
+        \o Set the font preferences and apply syntax highlighting in
+           \gui{Font & Colors}.
+        \o Set tabs, indentation, the handling of whitespace, and mouse operations in
+           \gui Behavior.
+        \o Set various display properties, for example,
+           \l{Highlighting and folding blocks}{highlighting and folding blocks},
+           text wrapping or \l{Moving to symbol definition or declaration}
+           {moving to symbol definition or declaration}
+           in \gui Display.
+        \o Configure \l{Completing Code}{code completion} in \gui Completion.
+    \endlist
+
+    \section2 Configuring Fonts
+
+    You can select the font family and size. You can specify a zoom setting in
+    percentage for viewing the text. You can also zoom in or out by pressing
+    \key {Ctrl++} or \key {Ctrl +-}, or by pressing \key Ctrl and rolling
+    the mouse button up or down. To disable the mouse wheel function, select
+    \gui {Tools > Options... > Text Editor > Behavior} and deselect the
+    \gui {Enable scroll wheel zooming} check box.
+
+    Antialiasing is used by default to make text look smoother and more
+    readable on the screen. Deselect the \gui Antialias check box to
+    turn off antialiasing.
+
+    \section2 Defining Color Schemes
+
+    You can select one of the predefined color schemes for syntax highlighting
+    or create customized color schemes. To create a color scheme:
+
+    \list 1
+
+        \o Select \gui {Tools > Options... > Text Editor > Fonts & Color > Copy}.
+
+        \o Enter a name for the color scheme and click \gui OK.
+
+        \o In the \gui Foreground field, specify the color of the selected
+        code element.
+
+        \o In the \gui Background field, select the background
+        color for the code element.
+
+        The backgound of the \gui Text element determines the background of the
+        code editor.
+
+    \endlist
+
+    When you copy code from Qt Creator, it is copied in both plain text and HTML
+    format. The latter makes sure that syntax highlighting is preserved when
+    pasting to a rich-text editor.
+
+    \section2 Indenting Code
+
+    When you type code, it is indented automatically according to the selected
+    options. Select a block to indent it when you press \key Tab.
+    Press \key {Shift+Tab} to decrease the indentation.
+
+    When you press \gui Backspace the indentation is decreased by one level,
+    instead of one space, by default.
+
+    By default, the tab-length in code editor is 8 spaces, but you can change
+    it. The code editor can also determine whether tabs or spaces are used
+    on the previous or next line and copy the style.
+
+    You can determine whether the block indent style includes braces,
+    or you can use the GNU indent style. The GNU style places braces on a separate
+    line, indented by 2 spaces, except when they open a function definition, where
+    they are not indented.
+
+    The following code snippet illustrates excluding braces from the indented block:
+
+    \code
+
+    void foobar(bool zoo)
+    {
+        if (zoo)
+        {
+            foo();
+        }
+    }
+
+    \endcode
+
+    The following code snippet illustrates including braces in the indented block:
+
+    \code
+
+    void foobar(bool zoo)
+    {
+        if (zoo)
+            {
+            foo();
+            }
+    }
+
+    \endcode
+
+    The following code snippet illustrates the GNU style:
+
+    \code
+
+    void foobar(bool zoo)
+    {
+      if (zoo)
+        {
+          foo();
+        }
+    }
+
+    \endcode
+
 */
 
 
@@ -1139,7 +1290,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-locator.html
+    \previouspage creator-editor-external.html
     \page creator-project-managing.html
     \nextpage creator-project-creating.html
 
@@ -1702,7 +1853,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-developing-symbian.html
+    \previouspage creator-project-managing-sessions.html
     \page creator-building-running.html
     \nextpage creator-building-targets.html
 
@@ -1941,6 +2092,24 @@
     For more information on how to define capabilities for a project, see
     \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#capabilities}{Capabilities}.
 
+    \section3 Application UID
+
+    A UID is a globally unique identifier that is used to
+    uniquely identify, for example, an object or file type. In Symbian development,
+    objects are identified by compound identifiers that are constructed from three
+    UIDs, namely UID1, UID2, and UID3. UID1 and UID2 specify the category of an
+    object, whereas UID3 identifies a particular object, such as an application.
+
+    When you create a \gui {Mobile Qt Application}, Qt Creator adds a UID3 suitable for
+    development and debugging automatically to the application .pro file. However, to
+    distribute your application and get it Symbian signed, you must apply for a UID
+    from Symbian, who manages the allocation of UIDs. You can request UIDs either one
+    at a time or as preallocated blocks on the \l{https://www.symbiansigned.com/app/page}{Symbian Signed}
+    web site.
+
+    Replace the testing UID with the distribution UID in the .pro file before you
+    build the final installation package. For more information, see
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-platform-notes.html#unique-identifiers}{Unique Identifiers}.
 
     \section2 Building and Running for Symbian Emulator
 
@@ -2145,7 +2314,7 @@
     \contentspage index.html
     \previouspage creator-editor-settings.html
     \page creator-build-dependencies.html
-    \nextpage creator-project-managing-sessions.html
+    \nextpage creator-visual-editor.html
 
     \title Specifying Dependencies
 
@@ -2890,7 +3059,7 @@
     \contentspage index.html
     \previouspage creator-editor-refactoring.html
     \page creator-editor-locator.html
-    \nextpage creator-project-managing.html
+    \nextpage creator-editor-codepasting.html
 
     \title Searching With the Locator
 
@@ -3064,9 +3233,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-build-dependencies.html
+    \previouspage creator-developing-symbian.html
     \page creator-project-managing-sessions.html
-    \nextpage creator-visual-editor.html
+    \nextpage creator-building-running.html
 
     \title Managing Sessions
 
@@ -4497,7 +4666,7 @@
 /*!
 
     \contentspage index.html
-    \previouspage creator-project-managing-sessions.html
+    \previouspage creator-build-dependencies.html
     \page creator-visual-editor.html
     \nextpage creator-usability.html
 
@@ -5527,7 +5696,7 @@
     \contentspage index.html
     \previouspage creator-developing-maemo.html
     \page creator-developing-symbian.html
-    \nextpage creator-building-running.html
+    \nextpage creator-project-managing-sessions.html
 
     \title Setting Up Development Environment for Symbian
 
@@ -6053,13 +6222,16 @@
             \o Cut line
             \o Shift+Del
         \row
+            \o Join lines
+            \o Ctrl+J
+        \row
             \o Decrease font size
             \o Ctrl+- (Ctrl+Roll mouse wheel down)
         \row
             \o Increase font size
             \o Ctrl++ (Ctrl+Roll mouse wheel up)
         \row
-            \o Toggle vim-style editing
+            \o Toggle Vim-style editing
             \o Alt+V, Alt+V
         \row
             \o Split

@@ -127,8 +127,8 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
 
         newNode.setId(id);
         if (!currentState().isBaseState()) {
-            newNode.modelNode().variantProperty("visible") = false;
-            newNode.setVariantProperty("visible", true);
+            newNode.modelNode().variantProperty("opacity") = 0;
+            newNode.setVariantProperty("opacity", 1);
         }
 
         Q_ASSERT(newNode.isValid());
@@ -180,8 +180,8 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
         }
 
         if (!currentState().isBaseState()) {
-            newNode.modelNode().variantProperty("visible") = false;
-            newNode.setVariantProperty("visible", true);
+            newNode.modelNode().variantProperty("opacity") = 0;
+            newNode.setVariantProperty("opacity", 1);
         }
 
         Q_ASSERT(newNode.isValid());

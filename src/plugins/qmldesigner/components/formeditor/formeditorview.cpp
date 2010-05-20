@@ -413,7 +413,7 @@ void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int
 void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)
 {
     QmlModelView::auxiliaryDataChanged(node, name, data);
-    if (name == "invisible") {
+    if (name == "invisible" && m_scene->hasItemForQmlItemNode(QmlItemNode(node))) {
         FormEditorItem *item(m_scene->itemForQmlItemNode(QmlItemNode(node)));
         bool isInvisible = data.toBool();
         item->setVisible(!isInvisible);

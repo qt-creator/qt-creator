@@ -326,6 +326,8 @@ public:
 
 class QmlXmlReader
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Interpreter::QmlXmlReader)
+
 public:
     QmlXmlReader(QIODevice *dev)
         : _xml(dev)
@@ -339,7 +341,7 @@ public:
             if (_xml.name() == "module")
                 readModule();
             else
-                _xml.raiseError(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "The file is not module file."));
+                _xml.raiseError(tr("The file is not module file."));
         }
 
         return !_xml.error();
@@ -351,7 +353,7 @@ public:
 
 private:
     void unexpectedElement(const QStringRef &child, const QString &parent) {
-        _xml.raiseError(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "Unexpected element <%1> in <%2>").arg(child.toString(), parent));
+        _xml.raiseError(tr("Unexpected element <%1> in <%2>").arg(child.toString(), parent));
     }
 
     void ignoreAttr(const QXmlStreamAttribute &attr) {
@@ -360,11 +362,11 @@ private:
     }
 
     void invalidAttr(const QString &value, const QString &attrName, const QString &tag) {
-        _xml.raiseError(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "invalid value '%1' for attribute %2 in <%3>").arg(value, attrName, tag));
+        _xml.raiseError(tr("invalid value '%1' for attribute %2 in <%3>").arg(value, attrName, tag));
     }
 
     void noValidAttr(const QString &attrName, const QString &tag) {
-        _xml.raiseError(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "<%1> has no valid %2 attribute").arg(tag, attrName));
+        _xml.raiseError(tr("<%1> has no valid %2 attribute").arg(tag, attrName));
     }
 
     void readModule()
@@ -846,15 +848,6 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         value = engine()->colorValue();
     } else if (typeName == QLatin1String("QDeclarativeAnchorLine")) {
         value = engine()->anchorLineValue();
-    } else if (typeName == QLatin1String("QEasingCurve")) {
-        // ### cache
-        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-        object->setClassName(QLatin1String("EasingCurve"));
-        object->setProperty("type", engine()->easingCurveNameValue());
-        object->setProperty("period", engine()->numberValue());
-        object->setProperty("amplitude", engine()->numberValue());
-        object->setProperty("overshoot", engine()->numberValue());
-        value = object;
     }
 
     // might be an enum
@@ -1199,10 +1192,6 @@ void ValueVisitor::visit(const Reference *)
 {
 }
 
-void ValueVisitor::visit(const EasingCurveNameValue *)
-{
-}
-
 void ValueVisitor::visit(const ColorValue *)
 {
 }
@@ -1263,11 +1252,6 @@ const FunctionValue *Value::asFunctionValue() const
 }
 
 const Reference *Value::asReference() const
-{
-    return 0;
-}
-
-const EasingCurveNameValue *Value::asEasingCurveNameValue() const
 {
     return 0;
 }
@@ -1411,13 +1395,6 @@ Context::~Context()
 {
 }
 
-void Context::build(const QList<Node *> &astPath, QmlJS::Document::Ptr doc,
-                    const QmlJS::Snapshot &snapshot, const QStringList &importPaths)
-{
-    Link link(this, doc, snapshot, importPaths);
-    ScopeBuilder(doc, this).push(astPath);
-}
-
 Engine *Context::engine() const
 {
     return _engine;
@@ -1555,67 +1532,6 @@ void Reference::accept(ValueVisitor *visitor) const
 const Value *Reference::value(Context *) const
 {
     return _engine->undefinedValue();
-}
-
-void EasingCurveNameValue::accept(ValueVisitor *visitor) const
-{
-    visitor->visit(this);
-}
-
-QSet<QString> EasingCurveNameValue::_curveNames;
-QSet<QString> EasingCurveNameValue::curveNames()
-{
-    if (_curveNames.isEmpty()) {
-        _curveNames = QSet<QString>()
-                      << "Linear"
-                      << "InQuad"
-                      << "OutQuad"
-                      << "InOutQuad"
-                      << "OutInQuad"
-                      << "InCubic"
-                      << "OutCubic"
-                      << "InOutCubic"
-                      << "OutInCubic"
-                      << "InQuart"
-                      << "OutQuart"
-                      << "InOutQuart"
-                      << "OutInQuart"
-                      << "InQuint"
-                      << "OutQuint"
-                      << "InOutQuint"
-                      << "OutInQuint"
-                      << "InSine"
-                      << "OutSine"
-                      << "InOutSine"
-                      << "OutInSine"
-                      << "InExpo"
-                      << "OutExpo"
-                      << "InOutExpo"
-                      << "OutInExpo"
-                      << "InCirc"
-                      << "OutCirc"
-                      << "InOutCirc"
-                      << "OutInCirc"
-                      << "InElastic"
-                      << "OutElastic"
-                      << "InOutElastic"
-                      << "OutInElastic"
-                      << "InBack"
-                      << "OutBack"
-                      << "InOutBack"
-                      << "OutInBack"
-                      << "InBounce"
-                      << "OutBounce"
-                      << "InOutBounce"
-                      << "OutInBounce";
-    }
-
-    return _curveNames;
-}
-
-const EasingCurveNameValue *EasingCurveNameValue::asEasingCurveNameValue() const
-{
-    return this;
 }
 
 void ColorValue::accept(ValueVisitor *visitor) const
@@ -1999,8 +1915,8 @@ QStringList MetaTypeSystem::load(const QFileInfoList &xmlFiles)
             }
             file.close();
         } else {
-            errorMsgs.append(QCoreApplication::translate("QmlJS::Interpreter::QmlXmlReader", "%1: %2").arg(xmlFile.absoluteFilePath(),
-                                                       file.errorString()));
+            errorMsgs.append(QmlXmlReader::tr("%1: %2").arg(xmlFile.absoluteFilePath(),
+                                                            file.errorString()));
         }
     }
 
@@ -2337,11 +2253,6 @@ void TypeId::visit(const FunctionValue *object)
         _result = QLatin1String("Function");
 }
 
-void TypeId::visit(const EasingCurveNameValue *)
-{
-    _result = QLatin1String("string");
-}
-
 void TypeId::visit(const ColorValue *)
 {
     _result = QLatin1String("string");
@@ -2410,11 +2321,6 @@ const BooleanValue *Engine::booleanValue() const
 const StringValue *Engine::stringValue() const
 {
     return &_stringValue;
-}
-
-const EasingCurveNameValue *Engine::easingCurveNameValue() const
-{
-    return &_easingCurveNameValue;
 }
 
 const ColorValue *Engine::colorValue() const

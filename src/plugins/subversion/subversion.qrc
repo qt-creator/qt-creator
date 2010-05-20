@@ -1,5 +1,8 @@
 <RCC>
-    <qresource prefix="/trolltech.subversion" >
+    <qresource prefix="/subversion">
+        <file>images/subversion.png</file>
+    </qresource>
+    <qresource prefix="/trolltech.subversion">
         <file>Subversion.mimetypes.xml</file>
     </qresource>
 </RCC>

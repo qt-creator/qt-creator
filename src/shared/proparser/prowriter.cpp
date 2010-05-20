@@ -37,13 +37,13 @@ using namespace Qt4ProjectManager::Internal;
 
 void ProWriter::addFiles(ProFile *profile, QStringList *lines,
                          const QDir &proFileDir, const QStringList &filePaths,
-                         const QStringList &vars)
+                         const QString &var)
 {
     // Check if variable item exists as child of root item
     for (ProItem *item = profile->items(); item; item = item->next()) {
         if (item->kind() == ProItem::VariableKind) {
             ProVariable *proVar = static_cast<ProVariable*>(item);
-            if (vars.contains(proVar->variable())
+            if (var == proVar->variable()
                 && proVar->variableOperator() != ProVariable::RemoveOperator
                 && proVar->variableOperator() != ProVariable::ReplaceOperator) {
 
@@ -78,7 +78,7 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
     }
 
     // Create & append new variable item
-    QString added = QLatin1Char('\n') + vars.first() + QLatin1String(" +=");
+    QString added = QLatin1Char('\n') + var + QLatin1String(" +=");
     foreach (const QString &filePath, filePaths)
         added += QLatin1String(" \\\n    ") + proFileDir.relativeFilePath(filePath);
     *lines << added;

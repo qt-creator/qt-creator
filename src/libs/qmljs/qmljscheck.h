@@ -36,10 +36,14 @@
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
+#include <QtCore/QCoreApplication>
+
 namespace QmlJS {
 
 class QMLJS_EXPORT Check: protected AST::Visitor
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlJS::Check)
+
 public:
     Check(Document::Ptr doc, const Snapshot &snapshot, const QStringList &importPaths);
     virtual ~Check();

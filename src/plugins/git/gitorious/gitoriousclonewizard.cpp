@@ -75,7 +75,7 @@ GitoriousCloneWizard::GitoriousCloneWizard(QObject *parent) :
 
 QIcon GitoriousCloneWizard::icon() const
 {
-    return QIcon();
+    return QIcon(QLatin1String(":/git/images/gitorious.png"));
 }
 
 QString GitoriousCloneWizard::description() const

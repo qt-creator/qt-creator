@@ -106,7 +106,7 @@ QString SettingsPage::displayCategory() const
 
 QIcon SettingsPage::categoryIcon() const
 {
-    return QIcon(); // TODO: Icon for CodePaster
+    return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPASTER_ICON));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

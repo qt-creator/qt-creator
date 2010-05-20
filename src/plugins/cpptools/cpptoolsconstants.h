@@ -54,6 +54,7 @@ const char * const CPP_SETTINGS_ID = "File Naming";
 const char * const CPP_SETTINGS_NAME = QT_TRANSLATE_NOOP("CppTools", "File Naming");
 const char * const CPP_SETTINGS_CATEGORY = "I.C++";
 const char * const CPP_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("CppTools", "C++");
+const char * const SETTINGS_CATEGORY_CPP_ICON = ":/core/images/category_cpp.png";
 
 } // namespace Constants
 } // namespace CppTools
