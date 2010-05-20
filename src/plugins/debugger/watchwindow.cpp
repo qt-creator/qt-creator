@@ -318,27 +318,25 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     // Offer to open address pointed to or variable address.
     const bool createPointerActions = pointerValue &&  pointerValue != address;
 
-    const QString openMemoryEditorFormat = tr("Open Memory Editor at 0x%1");
     if (canShowMemory && address)
         actOpenMemoryEditAtVariableAddress =
-            new QAction(openMemoryEditorFormat.arg(address, 0, 16), &menu);
+            new QAction(tr("Open Memory Editor at Object's Address (0x%1)").arg(address, 0, 16), &menu);
     if (createPointerActions)
         actOpenMemoryEditAtPointerValue =
-                new QAction(openMemoryEditorFormat.arg(pointerValue, 0, 16), &menu);
+                new QAction(tr("Open Memory Editor at Referenced Address (0x%1)").arg(pointerValue, 0, 16), &menu);
     menu.addSeparator();
 
     QAction *actSetWatchPointAtVariableAddress = 0;
     QAction *actSetWatchPointAtPointerValue= 0;
     const bool canSetWatchpoint = engineCapabilities & WatchpointCapability;
     if (canSetWatchpoint && address) {
-        const QString watchPointFormat = tr("Break on Changing Contents of 0x%1");
         actSetWatchPointAtVariableAddress =
-            new QAction(watchPointFormat.arg(address, 0, 16), &menu);
+            new QAction(tr("Break on Changes at Object's Address (0x%1)").arg(address, 0, 16), &menu);
         actSetWatchPointAtVariableAddress->setCheckable(true);
         actSetWatchPointAtVariableAddress->setChecked(m_manager->breakHandler()->watchPointAt(address));
         if (createPointerActions) {
             actSetWatchPointAtPointerValue =
-                    new QAction(watchPointFormat.arg(pointerValue, 0, 16), &menu);
+                    new QAction(tr("Break on Changes at Referenced Address (0x%1)").arg(pointerValue, 0, 16), &menu);
             actSetWatchPointAtPointerValue->setCheckable(true);
             actSetWatchPointAtPointerValue->setChecked(m_manager->breakHandler()->watchPointAt(pointerValue));
         }
