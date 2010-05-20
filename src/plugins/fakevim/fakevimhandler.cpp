@@ -250,6 +250,11 @@ struct Register
     RangeMode rangemode;
 };
 
+QDebug operator<<(QDebug ts, const Register &reg)
+{
+    return ts << reg.contents;
+}
+
 struct SearchData
 {
     SearchData() { init(); }
@@ -831,6 +836,7 @@ public:
     bool handleExDeleteCommand(const ExCommand &cmd);
     bool handleExGotoCommand(const ExCommand &cmd);
     bool handleExHistoryCommand(const ExCommand &cmd);
+    bool handleExRegisterCommand(const ExCommand &cmd);
     bool handleExMapCommand(const ExCommand &cmd);
     bool handleExNormalCommand(const ExCommand &cmd);
     bool handleExReadCommand(const ExCommand &cmd);
@@ -1691,7 +1697,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         emit q->windowCommandRequested(input.key());
         m_submode = NoSubMode;
     } else if (m_submode == RegisterSubMode) {
-        m_register = input.key();
+        m_register = input.asChar().unicode();
         m_submode = NoSubMode;
         m_rangemode = RangeLineMode;
     } else if (m_submode == ChangeSubMode && input.is('c')) { // tested
@@ -3031,6 +3037,34 @@ bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
     return true;
 }
 
+bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
+{
+    // :reg and :di[splay]
+    if (cmd.cmd != "reg" && cmd.cmd != "registers"
+            && cmd.cmd != "di" && cmd.cmd != "display")
+        return false;
+
+    QByteArray regs = cmd.args.toLatin1();
+    if (regs.isEmpty()) {
+        regs = "\"0123456789";
+        QHashIterator<int, Register> it(g.registers);
+        while (it.hasNext()) {
+            it.next();
+            if (it.key() > '9')
+                regs += char(it.key());
+        }
+    }
+    QString info;
+    info += "--- Registers ---\n";
+    foreach (char reg, regs) {
+        QString value = quoteUnprintable(g.registers[reg].contents);
+        info += QString("\"%1   %2\n").arg(reg).arg(value);
+    }
+    emit q->extraInformationChanged(info);
+    updateMiniBuffer();
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 {
     // :set
@@ -3332,6 +3366,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(const ExCommand &cmd)
         || handleExGotoCommand(cmd)
         || handleExBangCommand(cmd)
         || handleExHistoryCommand(cmd)
+        || handleExRegisterCommand(cmd)
         || handleExDeleteCommand(cmd)
         || handleExMapCommand(cmd)
         || handleExNormalCommand(cmd)
