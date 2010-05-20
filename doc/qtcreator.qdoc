@@ -3803,14 +3803,18 @@
                \l{http://msdn.microsoft.com/en-us/default.aspx}
                {Microsoft Developer Network}.
 
-               The pre-built \e{Qt SDK for Windows} makes use
-               of the library if it is present on the system. When building Qt
-               Creator using the Microsoft Visual C++ Compiler, the
-               \c{"%ProgramFiles%\Debugging Tools for Windows"} path is
-               checked to ensure that all required header files are there.
+               \note Visual Studio does not include the Debugging tools needed,
+               and therefore, you must install them separately.
 
-               You must also add the Symbol Server provided by Microsoft to the symbol
-               search path of the debugger. For more information, see
+               The pre-built \e{Qt SDK for Windows} makes use
+               of the library if it is present on the system. When manually building Qt
+               Creator using the Microsoft Visual C++ Compiler, the build process checks
+               for the required files in \c{"%ProgramFiles%\Debugging Tools for Windows"}.
+
+               It is highly recommended that you add the Symbol Server provided by Microsoft to the symbol
+               search path of the debugger. The Symbol Server provides you
+               with debugging informaton for the operating system libraries for debugging
+               Windows applications. For more information, see
                \l{Setting the Symbol Server in Windows}.
 
        \row
@@ -3845,9 +3849,22 @@
             and select \gui{Symbol Server...}.
         \o  Select a directory where you want to store the cached information
             and click \gui OK.
+
+            Use a subfolder in a temporary directory, such as
+            \c {C:\temp\symbolcache}.
     \endlist
 
+    \note Populating the cache might take a long time on a slow network
+    connection.
 
+
+    \omit In v2.1 and later:
+
+    \note The first time you start debugging by using the
+    Debugging tools for Windows, Qt Creator prompts you to add the Symbol
+    Server.
+
+    \endomit
 */
 
 /*!
