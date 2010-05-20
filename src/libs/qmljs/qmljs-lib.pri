@@ -20,7 +20,8 @@ HEADERS += \
     $$PWD/qmljscheck.h \
     $$PWD/qmljsscopebuilder.h \
     $$PWD/qmljslineinfo.h \
-    $$PWD/qmljscompletioncontextfinder.h
+    $$PWD/qmljscompletioncontextfinder.h \
+    $$PWD/qmljscomponentversion.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -32,7 +33,8 @@ SOURCES += \
     $$PWD/qmljscheck.cpp \
     $$PWD/qmljsscopebuilder.cpp \
     $$PWD/qmljslineinfo.cpp \
-    $$PWD/qmljscompletioncontextfinder.cpp
+    $$PWD/qmljscompletioncontextfinder.cpp \
+    $$PWD/qmljscomponentversion.cpp
 
 OTHER_FILES += \
     $$PWD/parser/qmljs.g

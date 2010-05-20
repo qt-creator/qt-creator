@@ -187,15 +187,12 @@ bool Bind::visit(UiImport *ast)
 {
     ImportInfo info;
 
-    info.majorVersion = QmlObjectValue::NoVersion;
-    info.minorVersion = QmlObjectValue::NoVersion;
-
     if (ast->versionToken.isValid()) {
         const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
         const int dotIdx = versionString.indexOf(QLatin1Char('.'));
         if (dotIdx != -1) {
-            info.majorVersion = versionString.left(dotIdx).toInt();
-            info.minorVersion = versionString.mid(dotIdx + 1).toInt();
+            info.version = ComponentVersion(versionString.left(dotIdx).toInt(),
+                                            versionString.mid(dotIdx + 1).toInt());
         }
     }
 

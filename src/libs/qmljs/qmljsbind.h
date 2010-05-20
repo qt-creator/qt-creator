@@ -32,6 +32,7 @@
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscomponentversion.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
@@ -52,8 +53,7 @@ public:
 
     struct ImportInfo {
         QString name;
-        int majorVersion;
-        int minorVersion;
+        ComponentVersion version;
     };
 
     QList<ImportInfo> fileImports() const;
