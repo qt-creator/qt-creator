@@ -403,7 +403,7 @@ static QString detect_SDK_installedQt(const QString &epocRoot)
     const QString coreLibDllFileName = epocRoot + QLatin1String("/epoc32/release/winscw/udeb/QtCore.dll");
     QFile coreLibDllFile(coreLibDllFileName);
     if (!coreLibDllFile.exists() || !coreLibDllFile.open(QIODevice::ReadOnly))
-        return false;
+        return QString();
 
     // Do not normalize these backslashes since they are in ARM binaries:
     const QByteArray indicator("\\src\\corelib\\kernel\\qobject.h");

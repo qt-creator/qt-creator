@@ -99,13 +99,20 @@ void QmlProjectRunConfiguration::ctor()
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
 
-    setDisplayName(tr("QML Runtime", "QMLRunConfiguration display name."));
+    setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 
     // prepend creator/bin dir to search path (only useful for special creator-qml package)
     const QString searchPath = QCoreApplication::applicationDirPath()
                                + Utils::SynchronousProcess::pathSeparator()
                                + QString(qgetenv("PATH"));
-    m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qml"));
+
+#ifdef Q_OS_MAC
+    const QString qmlViewerName = QLatin1String("QMLViewer");
+#else
+    const QString qmlViewerName = QLatin1String("qmlviewer");
+#endif
+
+    m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, qmlViewerName);
 }
 
 QmlProjectRunConfiguration::~QmlProjectRunConfiguration()
@@ -196,8 +203,8 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     debugPort->setValue(m_debugData.serverPort);
     connect(debugPort, SIGNAL(valueChanged(int)), this, SLOT(onDebugServerPortChanged()));
 
-    form->addRow(tr("QML Runtime"), qmlViewer);
-    form->addRow(tr("QML Runtime arguments:"), qmlViewerArgs);
+    form->addRow(tr("QML Viewer"), qmlViewer);
+    form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
     form->addRow(tr("Main QML File:"), m_fileListCombo.data());
     form->addRow(tr("Debugging Address:"), debugServer);
     form->addRow(tr("Debugging Port:"), debugPort);

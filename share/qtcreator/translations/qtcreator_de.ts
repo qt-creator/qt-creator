@@ -2102,7 +2102,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Neu</translation>
     </message>
     <message>
-        <location line="+516"/>
+        <location line="+513"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
     </message>
@@ -2172,12 +2172,12 @@ Sollen sie überschrieben werden?</translation>
         <translation>Vorlage:</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/coreplugin/dialogs/newdialog.cpp" line="+160"/>
+        <location filename="../../../src/plugins/coreplugin/dialogs/newdialog.cpp" line="+161"/>
         <source>&amp;Choose...</source>
         <translation>&amp;Auswählen...</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+45"/>
         <source>Projects</source>
         <translation>Projekte</translation>
     </message>
@@ -2267,12 +2267,12 @@ Sollen sie überschrieben werden?</translation>
         <translation>Ausgabepanel maximiert darstellen</translation>
     </message>
     <message>
-        <location line="-131"/>
+        <location line="-132"/>
         <source>Output &amp;Panes</source>
         <translation>Ausgabe&amp;panele</translation>
     </message>
     <message>
-        <location line="+130"/>
+        <location line="+131"/>
         <source>Minimize Output Pane</source>
         <translation>Ausgabepanel minimiert darstellen</translation>
     </message>
@@ -2350,7 +2350,7 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Core::Internal::SettingsDialog</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.cpp" line="+256"/>
+        <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.cpp" line="+271"/>
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
@@ -3403,7 +3403,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>Im Thread %1 angehalten (keine Debuginformation).</translation>
     </message>
     <message>
-        <location line="+98"/>
+        <location line="+112"/>
         <source>Breakpoint: %1</source>
         <translation>Haltepunkt: %1</translation>
     </message>
@@ -4512,7 +4512,17 @@ Möchten Sie den zu debuggenden Prozess anhalten und den gewählten Snapshot lad
 <context>
     <name>Debugger::Internal::ModulesModel</name>
     <message>
-        <location filename="../../../src/plugins/debugger/moduleshandler.cpp" line="+87"/>
+        <location filename="../../../src/plugins/debugger/moduleshandler.cpp" line="+90"/>
+        <source>yes</source>
+        <translation>ja</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>no</source>
+        <translation>nein</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Module name</source>
         <translation>Modulname</translation>
     </message>
@@ -5962,7 +5972,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
 <context>
     <name>ExtensionSystem::PluginManager</name>
     <message>
-        <location filename="../../../src/libs/extensionsystem/pluginmanager.cpp" line="+777"/>
+        <location filename="../../../src/libs/extensionsystem/pluginmanager.cpp" line="+788"/>
         <source>Circular dependency detected:
 </source>
         <translation>Zirkuläre Abhängigkeit festgestellt:
@@ -5981,13 +5991,12 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>%1(%2)</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Cannot load plugin because dependencies are not resolved</source>
-        <translation>Das Plugin kann nicht geladen werden, weil die Abhängigkeiten nicht bestimmt werden konnten</translation>
+        <translation type="obsolete">Das Plugin kann nicht geladen werden, weil die Abhängigkeiten nicht bestimmt werden konnten</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <location line="+35"/>
+        <location line="+15"/>
+        <location line="+39"/>
         <source>Cannot load plugin because dependency failed to load: %1(%2)
 Reason: %3</source>
         <translation>Das Plugin kann nicht geladen werden, weil eine Abhängigkeit nicht geladen werden konnte: %1(%2)
@@ -6116,7 +6125,7 @@ Grund: %3</translation>
 <context>
     <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimplugin.cpp" line="+131"/>
+        <location filename="../../../src/plugins/fakevim/fakevimplugin.cpp" line="+132"/>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
@@ -6772,7 +6781,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
-        <location filename="../../../src/plugins/genericprojectmanager/genericprojectwizard.cpp" line="+97"/>
+        <location filename="../../../src/plugins/genericprojectmanager/genericprojectwizard.cpp" line="+109"/>
         <source>Import Existing Project</source>
         <translation>Import eines existierenden Projekts</translation>
     </message>
@@ -6785,7 +6794,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
     <message>
-        <location line="-43"/>
+        <location line="-50"/>
         <source>Import Existing Project</source>
         <translation>Import eines existierenden Projekts</translation>
     </message>
@@ -6949,7 +6958,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::GitClient</name>
     <message>
-        <location filename="../../../src/plugins/git/gitclient.cpp" line="+74"/>
+        <location filename="../../../src/plugins/git/gitclient.cpp" line="+75"/>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translatorcomment>Not used.</translatorcomment>
         <translation type="unfinished"></translation>
@@ -6973,7 +6982,7 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Warte auf Daten...</translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+74"/>
         <source>Git Diff</source>
         <translation>Git Diff</translation>
     </message>
@@ -9622,7 +9631,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>PluginSpec</name>
     <message>
-        <location filename="../../../src/libs/extensionsystem/pluginspec.cpp" line="+27"/>
+        <location filename="../../../src/libs/extensionsystem/pluginspec.cpp" line="+32"/>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>Das Attribut &apos;%1&apos; fehlt bei &apos;%2&apos;</translation>
     </message>
@@ -9657,12 +9666,12 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Das Bestimmen der Abhängigkeiten schlug fehl, weil der Status != Gelesen ist</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+19"/>
         <source>Could not resolve dependency &apos;%1(%2)&apos;</source>
         <translation>Die Abhängigkeit &apos;%1 (%2)&apos; konnte nicht aufgelöst werden</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+42"/>
         <source>Loading the library failed because state != Resolved</source>
         <translation>Das Laden der Bibliothek schlug fehl, weil der Status != &apos;Abhängigkeiten bestimmt&apos; ist</translation>
     </message>
@@ -10748,7 +10757,7 @@ No project selected</extracomment>
 <context>
     <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+275"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+271"/>
         <source>Projects</source>
         <translation>Projekte</translation>
     </message>
@@ -10987,7 +10996,7 @@ No project selected</extracomment>
         <translation>Debuggen ohne Projekt nicht möglich.</translation>
     </message>
     <message>
-        <location line="+151"/>
+        <location line="+140"/>
         <source>New File</source>
         <comment>Title of dialog</comment>
         <translation>Neue Datei</translation>
@@ -11266,14 +11275,6 @@ unter Versionsverwaltung (%2) gestellt werden?</translation>
         <location line="+9"/>
         <source>Show Only:</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
-    <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectmanagerconstants.h" line="+36"/>
-        <source>QML Runtime</source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -11903,7 +11904,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <location line="+1"/>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
-        <translation type="unfinished">Erstellt qmake-basierte C++-Bibliotheken:&lt;ul&gt;&lt;li&gt;Dynamisch linkbare C++-Bibliothek zur Verwendung mit &lt;tt&gt;QPluginLoader&lt;/tt&gt; zur Laufzeit (Plugin)&lt;/li&gt;&lt;li&gt;Statisch oder dynamisch linkbare C++-Bibliothek zur Verwendung in einem anderen Projekt zur Linkzeit&lt;/li&gt;&lt;/ul&gt;.</translation>
+        <translation>Erstellt qmake-basierte C++-Bibliotheken:&lt;ul&gt;&lt;li&gt;Dynamisch linkbare C++-Bibliothek zur Verwendung mit &lt;tt&gt;QPluginLoader&lt;/tt&gt; zur Laufzeit (Plugin)&lt;/li&gt;&lt;li&gt;Statisch oder dynamisch linkbare C++-Bibliothek zur Verwendung in einem anderen Projekt zur Linkzeit&lt;/li&gt;&lt;/ul&gt;.</translation>
     </message>
 </context>
 <context>
@@ -12022,13 +12023,14 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Andere Dateien</translation>
     </message>
     <message>
-        <location line="+541"/>
+        <location line="+555"/>
         <location line="+7"/>
+        <location line="+62"/>
         <source>Failed!</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location line="-7"/>
+        <location line="-69"/>
         <source>Could not open the file for edit with SCC.</source>
         <translation>Die Datei konnte nicht mit Hilfe der Versionsverwaltung schreibbar gemacht werden.</translation>
     </message>
@@ -12043,7 +12045,12 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Die Projektdatei %1 hat noch nicht gespeicherte Änderungen.</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+35"/>
+        <source>Could not write project file %1.</source>
+        <translation>Die Projektdatei %1 konnte nicht geschrieben werden.</translation>
+    </message>
+    <message>
+        <location line="+19"/>
         <source>Error while reading PRO file %1: %2</source>
         <translation>Fehler beim Lesen der PRO-Datei %1: %2</translation>
     </message>
@@ -12051,7 +12058,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProFileNode</name>
     <message>
-        <location line="+227"/>
+        <location line="+229"/>
         <location line="+5"/>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Fehler beim Auswerten von %1. Abbruch.</translation>
@@ -12095,7 +12102,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Allgemein</translation>
     </message>
     <message>
-        <location line="+190"/>
+        <location line="+189"/>
         <source>Building in subdirectories of the source directory is not supported by qmake.</source>
         <translation>qmake unterstützt keine Build-Vorgänge in dem Quellverzeichnis untergeordneten Verzeichnissen.</translation>
     </message>
@@ -14085,7 +14092,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+4828"/>
+        <location line="+4824"/>
         <source>Line: %1, Col: %2</source>
         <translation>Zeile: %1, Spalte: %2</translation>
     </message>
@@ -15566,7 +15573,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Versionskontrolle</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Common</source>
         <translation>Allgemein</translation>
     </message>
@@ -17867,7 +17874,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>GitClient</name>
     <message>
-        <location filename="../../../src/plugins/git/gitclient.cpp" line="-1436"/>
+        <location filename="../../../src/plugins/git/gitclient.cpp" line="-1432"/>
         <source>Unable to determine the repository for %1.</source>
         <translation>Das Repository von %1 konnte nicht bestimmt werden.</translation>
     </message>
@@ -17966,7 +17973,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Hg ausgehend %1</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+75"/>
         <source>Working...</source>
         <translation>Warte...</translation>
     </message>
@@ -18627,10 +18634,15 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QmlProjectManager::QmlTarget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/userfileaccessor.cpp" line="+5"/>
         <source>QML Runtime</source>
         <comment>QML Runtime target display name</comment>
-        <translation>QML-Laufzeitumgebung</translation>
+        <translation type="obsolete">QML-Laufzeitumgebung</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/userfileaccessor.cpp" line="+5"/>
+        <source>QML Viewer</source>
+        <comment>QML Viewer target display name</comment>
+        <translation>QML-Betrachter</translation>
     </message>
 </context>
 <context>
@@ -18651,7 +18663,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Das übergeordnete Verzeichnis &quot;%1&quot; der Datei %2&quot; existiert nicht.</translation>
     </message>
     <message>
-        <location line="+307"/>
+        <location line="+312"/>
         <source>Cannot write file: &quot;%1&quot;.</source>
         <translation>Die Datei &quot;%1&quot; kann nicht geschrieben werden.</translation>
     </message>
@@ -18992,12 +19004,12 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QmlJSEditor::Internal::QmlJSTextEditor</name>
     <message>
-        <location filename="../../../src/plugins/qmljseditor/qmljseditor.cpp" line="+1264"/>
+        <location filename="../../../src/plugins/qmljseditor/qmljseditor.cpp" line="+1267"/>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Symbol auswählen&gt;</translation>
     </message>
     <message>
-        <location line="-399"/>
+        <location line="-400"/>
         <source>Rename...</source>
         <translation>Umbenennen...</translation>
     </message>
@@ -19012,7 +19024,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Unbenutzte Variable</translation>
     </message>
     <message>
-        <location line="+151"/>
+        <location line="+152"/>
         <source>Rename id &apos;%1&apos;...</source>
         <translation>Id &apos;%1&apos; Umbenennen</translation>
     </message>
@@ -19090,7 +19102,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Neue Maemo-Ausführungskonfiguration</translation>
     </message>
     <message>
-        <location line="+323"/>
+        <location line="+326"/>
         <source>&apos;%1&apos; does not contain a valid Maemo simulator image.</source>
         <translation>&apos;%1&apos; enthält kein gültiges Maemo-Simulator-Image.</translation>
     </message>
@@ -19157,7 +19169,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>Qt4ProjectManager::Internal::AbstractMaemoRunControl</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemoruncontrol.cpp" line="+162"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemoruncontrol.cpp" line="+163"/>
         <source>Files to deploy: %1.</source>
         <translation>Dateien für Deployment: %1:</translation>
     </message>
@@ -19336,7 +19348,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QtVersion</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+918"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+913"/>
         <source>No qmake path set</source>
         <translation>Es ist keine qmake-Pfad gesetzt</translation>
     </message>
@@ -19481,7 +19493,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
 <context>
     <name>QmlJS::Check</name>
     <message>
-        <location filename="../../../src/libs/qmljs/qmljscheck.cpp" line="+328"/>
+        <location filename="../../../src/libs/qmljs/qmljscheck.cpp" line="+325"/>
         <source>&apos;%1&apos; is not a valid property name</source>
         <translation>&apos; %1&apos; ist kein eindeutiger Name für Eigenschaften</translation>
     </message>
@@ -19491,7 +19503,12 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>unbekannter Typ</translation>
     </message>
     <message>
-        <location line="+127"/>
+        <location line="-138"/>
+        <source>unknown value for enum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+265"/>
         <source>&apos;%1&apos; does not have members</source>
         <translation>&apos;%1&apos; hat keine MItglieder</translation>
     </message>
@@ -19501,27 +19518,30 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>&apos;%1&apos; gehört nicht zu &apos;%2&apos;</translation>
     </message>
     <message>
-        <location line="-245"/>
         <source>easing-curve name is not a string</source>
-        <translation>Der Name der Easing-Kurve ist keine Zeichenkette</translation>
+        <translation type="obsolete">Der Name der Easing-Kurve ist keine Zeichenkette</translation>
     </message>
     <message>
-        <location line="-6"/>
         <source>unknown easing-curve name</source>
-        <translation>Ungültiger Name der Easing-Kurve</translation>
+        <translation type="obsolete">Ungültiger Name der Easing-Kurve</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="-277"/>
         <source>value might be &apos;undefined&apos;</source>
         <translation>Wert kann &apos;undefined&apos; sein</translation>
     </message>
     <message>
-        <location line="-37"/>
+        <location line="+2"/>
+        <source>enum value is not a string or number</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>numerical value expected</source>
         <translation>numerischer Wert erwartet</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
         <source>boolean value expected</source>
         <translation>boolescher Wert erwartet</translation>
     </message>
@@ -19531,7 +19551,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Zeichenkette erwartet</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+25"/>
         <source>not a valid color</source>
         <translation>keine gültige Farbe</translation>
     </message>
@@ -19853,7 +19873,7 @@ Please check your project settings.</source>
 <context>
     <name>QmlJSEditor::Internal::HoverHandler</name>
     <message>
-        <location filename="../../../src/plugins/qmljseditor/qmljshoverhandler.cpp" line="+78"/>
+        <location filename="../../../src/plugins/qmljseditor/qmljshoverhandler.cpp" line="+80"/>
         <source>Unfiltered</source>
         <translation>Ungefiltert</translation>
     </message>
@@ -19869,7 +19889,7 @@ Please check your project settings.</source>
 <context>
     <name>QmlProjectManager::QmlProject</name>
     <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+102"/>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+103"/>
         <source>Error while loading project file!</source>
         <translation>Fehler beim Laden der Projektdatei!</translation>
     </message>
@@ -19877,7 +19897,7 @@ Please check your project settings.</source>
 <context>
     <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
     <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectapplicationwizard.cpp" line="+47"/>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectapplicationwizard.cpp" line="+50"/>
         <source>New QML Project</source>
         <translation>Neues QML-Projekt</translation>
     </message>
@@ -19890,7 +19910,7 @@ Please check your project settings.</source>
 <context>
     <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
     <message>
-        <location line="+14"/>
+        <location line="+21"/>
         <source>Qt QML Application</source>
         <translation>Qt-QML-Anwendung</translation>
     </message>
@@ -19928,7 +19948,7 @@ QML-Anwendungen werden durch die QML-Laufzeitumgebung direkt ausgeführt und ben
 <context>
     <name>QmlProjectManager::Internal::QmlProjectImportWizardDialog</name>
     <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectimportwizard.cpp" line="+59"/>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectimportwizard.cpp" line="+64"/>
         <source>Import Existing Qt QML Directory</source>
         <translation>Importiere existierenden Qt-QML-Ordner</translation>
     </message>
@@ -19956,7 +19976,7 @@ QML-Anwendungen werden durch die QML-Laufzeitumgebung direkt ausgeführt und ben
 <context>
     <name>QmlProjectManager::Internal::QmlProjectImportWizard</name>
     <message>
-        <location line="+36"/>
+        <location line="+43"/>
         <source>Import Existing Qt QML Directory</source>
         <translation>Importiere existierenden Qt-QML-Ordner</translation>
     </message>
@@ -19990,20 +20010,33 @@ QML-Anwendungen werden durch die QML-Laufzeitumgebung direkt ausgeführt und ben
 <context>
     <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectrunconfiguration.cpp" line="+102"/>
         <source>QML Runtime</source>
         <comment>QMLRunConfiguration display name.</comment>
-        <translation>QML-Laufzeitumgebung</translation>
+        <translation type="obsolete">QML-Laufzeitumgebung</translation>
     </message>
     <message>
-        <location line="+97"/>
         <source>QML Runtime</source>
-        <translation>QML-Laufzeitumgebung</translation>
+        <translation type="obsolete">QML-Laufzeitumgebung</translation>
+    </message>
+    <message>
+        <source>QML Runtime arguments:</source>
+        <translation type="obsolete">Kommandozeilenargumente für QML-Laufzeitumgebung</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectrunconfiguration.cpp" line="+102"/>
+        <source>QML Viewer</source>
+        <comment>QMLRunConfiguration display name.</comment>
+        <translation>QML-Betrachter</translation>
+    </message>
+    <message>
+        <location line="+104"/>
+        <source>QML Viewer</source>
+        <translation>QML-Betrachter</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>QML Runtime arguments:</source>
-        <translation>Kommandozeilenargumente für QML-Laufzeitumgebung</translation>
+        <source>QML Viewer arguments:</source>
+        <translation>Kommandozeilenargumente des Betrachters:</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -20069,13 +20102,28 @@ QML-Anwendungen werden durch die QML-Laufzeitumgebung direkt ausgeführt und ben
 <context>
     <name>Qt4ProjectManager::Internal::MaemoManager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemomanager.cpp" line="+156"/>
-        <location line="+40"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemomanager.cpp" line="+153"/>
+        <location line="+81"/>
         <source>Start Maemo Emulator</source>
         <translation>Maemo-Emulator starten</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-30"/>
+        <source>Qemu failed to start: %1</source>
+        <translation>Qemu konnte nicht gestartet werden: %1</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Qemu crashed</source>
+        <translation>Qemu ist abgestürzt</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Qemu error</source>
+        <translation>Qemu-Fehler</translation>
+    </message>
+    <message>
+        <location line="+13"/>
         <source>Stop Maemo Emulator</source>
         <translation>Maemo-Emulator stoppen</translation>
     </message>
@@ -20412,12 +20460,12 @@ QML-Anwendungen werden durch die QML-Laufzeitumgebung direkt ausgeführt und ben
     <message>
         <location filename="../../../src/libs/extensionsystem/pluginview.cpp" line="+158"/>
         <location line="+19"/>
-        <location line="+58"/>
+        <location line="+57"/>
         <source>Load on Startup</source>
         <translation>Beim Start Laden</translation>
     </message>
     <message>
-        <location line="-70"/>
+        <location line="-69"/>
         <source>Utilities</source>
         <translation>Hilfsmittel</translation>
     </message>
@@ -20901,7 +20949,7 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>QmlJS::Interpreter::QmlXmlReader</name>
     <message>
-        <location filename="../../../src/libs/qmljs/qmljsinterpreter.cpp" line="+342"/>
+        <location filename="../../../src/libs/qmljs/qmljsinterpreter.cpp" line="+344"/>
         <source>The file is not module file.</source>
         <translation>Die Datei ist keine Moduldatei.</translation>
     </message>
@@ -20921,7 +20969,7 @@ Haben Sie Qemu gestartet?</translation>
         <translation>&lt;%1&gt; hat kein gültiges Attribut %2</translation>
     </message>
     <message>
-        <location line="+1635"/>
+        <location line="+1549"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
@@ -20952,7 +21000,7 @@ Haben Sie Qemu gestartet?</translation>
 <context>
     <name>QmlJS::Link</name>
     <message>
-        <location filename="../../../src/libs/qmljs/qmljslink.cpp" line="+214"/>
+        <location filename="../../../src/libs/qmljs/qmljslink.cpp" line="+213"/>
         <source>could not find file or directory</source>
         <translation>Datei oder Ordner konnte nicht gefunden werden</translation>
     </message>
@@ -21425,7 +21473,7 @@ Haben Sie Qemu gestartet?</translation>
         <translation>sichtbar</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+14"/>
         <source>Clip</source>
         <translation>Beschneiden</translation>
     </message>
@@ -22129,7 +22177,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoPackageCreationStep</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemopackagecreationstep.cpp" line="+105"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemopackagecreationstep.cpp" line="+117"/>
         <source>Creating package file ...</source>
         <translation>Erzeuge Paketdatei...</translation>
     </message>
@@ -22149,7 +22197,12 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
         <translation>Fehler bei Paketerstellung: Die Datei &apos;%1&apos; kann nicht geschrieben werden.</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+19"/>
+        <source>Packaging Error: Could not create directory &apos;%1&apos;.</source>
+        <translation>Fehler bei Paketerstellung: Der Ordner &apos;%1&apos; konnte nicht erstellt werden.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Packaging Error: Could not replace file &apos;%1&apos;.</source>
         <translation>Fehler bei Paketerstellung: Die Datei &apos;%1&apos; konnte nicht ersetzt werden.</translation>
     </message>
@@ -22159,7 +22212,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
         <translation>Fehler bei Paketerstellung: Die Datei &apos;%1&apos; konnte nicht nach &apos;%2&apos; kopiert werden.</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+16"/>
         <source>Package created.</source>
         <translation>Paketdatei erzeugt.</translation>
     </message>
@@ -22169,12 +22222,18 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
         <translation>Paketerstellung: Führe Kommando &apos;%1&apos; aus.</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+7"/>
+        <location line="+7"/>
         <source>Packaging failed.</source>
         <translation>Die Paketerstellung schlug fehl.</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-6"/>
+        <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
+        <translation>Fehler bei Paketerstellung: Das Kommando &apos;%1&apos; konnte nicht ausgeführt werden: %2</translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Packaging Error: Command &apos;%1&apos; timed out.</source>
         <translation>Fehler bei Paketerstellung: Zeitüberschreitung bei Kommando &apos;%1&apos;.</translation>
     </message>
@@ -22185,6 +22244,11 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
     </message>
     <message>
         <location line="+3"/>
+        <source> Reason: %1</source>
+        <translation>Ursache: %1</translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Output was: </source>
         <translation>Die Ausgabe war:</translation>
     </message>
@@ -22192,9 +22256,24 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoPackageCreationWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemopackagecreationwidget.cpp" line="+73"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemopackagecreationwidget.cpp" line="+87"/>
         <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
         <translation>&lt;b&gt;Erzeuge Paketdatei:&lt;/b&gt; </translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Choose a local file</source>
+        <translation>Lokale Datei</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>File already in package</source>
+        <translation>Die Datei ist bereits im Paket enthalten</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>You have already added this file.</source>
+        <translation>Diese Datei wurde bereits hinzugefügt.</translation>
     </message>
 </context>
 <context>
@@ -22310,6 +22389,16 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
         <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemopackagecreationwidget.ui"/>
         <source>Package contents:</source>
         <translation>Inhalt des Pakets:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Add File to Package</source>
+        <translation>Hinzuzufügende Datei</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Remove File from Package</source>
+        <translation>Datei aus Paket entfernen</translation>
     </message>
 </context>
 <context>
@@ -22494,7 +22583,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoPackageContents</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemopackagecontents.cpp" line="+78"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemopackagecontents.cpp" line="+144"/>
         <source>Local File Path</source>
         <translation>Lokaler Pfad</translation>
     </message>
@@ -22573,7 +22662,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
 <context>
     <name>Qt4ProjectManager::QtVersion</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="-1021"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="-1016"/>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
         <translation>Ungültige Qt-Version: %1</translation>
@@ -22735,6 +22824,77 @@ Ids müssen mit einem Kleinbuchstaben beginnen und dürfen nur alphanumerische Z
         <location filename="../../../src/plugins/qmldesigner/designercore/model/qmlmodelview.cpp" line="+179"/>
         <source>Invalid Id</source>
         <translation>Ungültige Id</translation>
+    </message>
+</context>
+<context>
+    <name>CppTools::QuickFix</name>
+    <message>
+        <location filename="../../../src/plugins/cppeditor/cppquickfix.cpp" line="+133"/>
+        <location line="+96"/>
+        <source>Rewrite Using %1</source>
+        <translation>Unter Verwendung von %1 umschreiben</translation>
+    </message>
+    <message>
+        <location line="-2"/>
+        <source>Swap Operands</source>
+        <translation>Operanden vertauschen</translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>Rewrite Condition Using ||</source>
+        <translation>Bedingung unter Verwendung des ||-Operators umschreiben</translation>
+    </message>
+    <message>
+        <location line="+61"/>
+        <source>Split Declaration</source>
+        <translation>Deklaration aufspalten</translation>
+    </message>
+    <message>
+        <location line="+106"/>
+        <source>Add Curly Braces</source>
+        <translation>Geschweifte Klammern hinzufügen</translation>
+    </message>
+    <message>
+        <location line="+60"/>
+        <location line="+63"/>
+        <source>Move Declaration out of Condition</source>
+        <translation>Deklaration aus Bedingung entfernen</translation>
+    </message>
+    <message>
+        <location line="+85"/>
+        <source>Split if Statement</source>
+        <translation>if-Anweisung aufspalten</translation>
+    </message>
+    <message>
+        <location line="+110"/>
+        <source>Enclose in QLatin1String(...)</source>
+        <translation>In QLatin1String(...) einschließen</translation>
+    </message>
+    <message>
+        <location line="+68"/>
+        <source>Convert to Objective-C String Literal</source>
+        <translation>In Objective-C-Zeichenkettenliteral wandeln</translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>Use Fast String Concatenation with %</source>
+        <translation>Effiziente Stringkonkatenation mittels Operator % verwenden</translation>
+    </message>
+</context>
+<context>
+    <name>GenericProjectManager::Internal::Manager</name>
+    <message>
+        <location filename="../../../src/plugins/genericprojectmanager/genericprojectmanager.cpp" line="+73"/>
+        <source>Failed opening project &apos;%1&apos;: Project already open</source>
+        <translation>Das Projekt %1 konnte nicht geöffnet werden da es bereits geladen ist</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectmanagerconstants.h" line="+36"/>
+        <source>QML Viewer</source>
+        <translation>QML-Betrachter</translation>
     </message>
 </context>
 </TS>

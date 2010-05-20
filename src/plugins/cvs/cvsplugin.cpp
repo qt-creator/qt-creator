@@ -980,7 +980,8 @@ static inline QString msgExecutionLogEntry(const QString &workingDir, const QStr
     const QString args = arguments.join(QString(QLatin1Char(' ')));
     if (workingDir.isEmpty())
         return CVSPlugin::tr("Executing: %1 %2\n").arg(executable, args);
-    return CVSPlugin::tr("Executing in %1: %2 %3\n").arg(workingDir, executable, args);
+    return CVSPlugin::tr("Executing in %1: %2 %3\n").
+            arg(QDir::toNativeSeparators(workingDir), executable, args);
 }
 
 // Run CVS. At this point, file arguments must be relative to
