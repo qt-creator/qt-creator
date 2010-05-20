@@ -77,7 +77,8 @@ void Link::initializeScopeChain()
 
         // ### TODO: Which type environment do scripts see?
 
-        scopeChain.jsScopes += bind->rootObjectValue();
+        if (bind->rootObjectValue())
+            scopeChain.jsScopes += bind->rootObjectValue();
     }
 
     scopeChain.update();
@@ -142,7 +143,7 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
     // implicit imports:
     // qml files in the same directory are available without explicit imports
     foreach (Document::Ptr otherDoc, _snapshot.documentsInDirectory(doc->path())) {
-        if (otherDoc == doc)
+        if (otherDoc == doc || !otherDoc->bind()->rootObjectValue())
             continue;
 
         typeEnv->setProperty(otherDoc->componentName(),
@@ -194,20 +195,24 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
         }
 
         foreach (Document::Ptr importedDoc, documentsInDirectory) {
-            const QString targetName = importedDoc->componentName();
-            importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
+            if (importedDoc->bind()->rootObjectValue()) {
+                const QString targetName = importedDoc->componentName();
+                importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
+            }
         }
     }
     // file import
     else if (Document::Ptr importedDoc = _snapshot.document(path)) {
-        QString targetName;
-        if (import->importId) {
-            targetName = import->importId->asString();
-        } else {
-            targetName = importedDoc->componentName();
-        }
+        if (importedDoc->bind()->rootObjectValue()) {
+            QString targetName;
+            if (import->importId) {
+                targetName = import->importId->asString();
+            } else {
+                targetName = importedDoc->componentName();
+            }
 
-        importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
+            importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
+        }
     } else {
         error(doc, import->fileNameToken,
               tr("could not find file or directory"));
@@ -297,7 +302,8 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
 
                 importedTypes.insert(component.typeName);
                 if (Document::Ptr importedDoc = _snapshot.document(dir.filePath(component.fileName))) {
-                    namespaceObject->setProperty(component.typeName, importedDoc->bind()->rootObjectValue());
+                    if (importedDoc->bind()->rootObjectValue())
+                        namespaceObject->setProperty(component.typeName, importedDoc->bind()->rootObjectValue());
                 }
             }
 
