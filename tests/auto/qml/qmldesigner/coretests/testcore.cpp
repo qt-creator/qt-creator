@@ -3610,8 +3610,12 @@ void TestCore::testMetaInfo()
     // test whether default type is registered
     QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Item", 4, 7));
 
-    // test whether types from plugins are loaded
+    // test whether types from plugins are registered
     QVERIFY(model->metaInfo().hasNodeMetaInfo("org.webkit/WebView", 1, 0));
+
+    // test whether non-qml type is registered
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("QGraphicsObject", 4, 7)); // Qt 4.7 namespace
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("QGraphicsObject", 1, 0)); // webkit 1.0 namespace
 }
 
 void TestCore::testMetaInfoSimpleType()
@@ -3625,11 +3629,11 @@ void TestCore::testMetaInfoSimpleType()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
 
-    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Item"));
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Item", 4, 7));
     QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Item", 4, 7));
 
     NodeMetaInfo itemMetaInfo = model->metaInfo().nodeMetaInfo("Qt/Item", 4, 7);
-    NodeMetaInfo itemMetaInfo2 = model->metaInfo().nodeMetaInfo("Qt/Item");
+    NodeMetaInfo itemMetaInfo2 = model->metaInfo().nodeMetaInfo("Qt/Item", 4, 7);
     QCOMPARE(itemMetaInfo, itemMetaInfo2);
 
     QVERIFY(itemMetaInfo.isValid());
@@ -3641,12 +3645,12 @@ void TestCore::testMetaInfoSimpleType()
     NodeMetaInfo graphicsObjectInfo = itemMetaInfo.directSuperClass();
     QVERIFY(graphicsObjectInfo.isValid());
     QCOMPARE(graphicsObjectInfo.typeName(), QLatin1String("QGraphicsObject"));
-    QCOMPARE(graphicsObjectInfo.majorVersion(), 4);
-    QCOMPARE(graphicsObjectInfo.minorVersion(), 7);
+    QCOMPARE(graphicsObjectInfo.majorVersion(), -1);
+    QCOMPARE(graphicsObjectInfo.minorVersion(), -1);
 
     QCOMPARE(itemMetaInfo.superClasses().size(), 2); // QGraphicsObject, Qt/QtObject
     QVERIFY(itemMetaInfo.isSubclassOf("QGraphicsObject", 4, 7));
-    QVERIFY(itemMetaInfo.isSubclassOf("Qt/QtObject", -1, -1));
+    QVERIFY(itemMetaInfo.isSubclassOf("Qt/QtObject", 4, 7));
 
     // availableInVersion
     QVERIFY(itemMetaInfo.availableInVersion(4, 7));
@@ -3704,8 +3708,8 @@ void TestCore::testMetaInfoExtendedType()
     NodeMetaInfo graphicsObjectTypeInfo = graphicsWidgetTypeInfo.directSuperClass();
     QVERIFY(graphicsObjectTypeInfo.isValid());
     QCOMPARE(graphicsObjectTypeInfo.typeName(), QLatin1String("QGraphicsObject"));
-    QCOMPARE(graphicsObjectTypeInfo.majorVersion(), 4);
-    QCOMPARE(graphicsObjectTypeInfo.minorVersion(), 7);
+    QCOMPARE(graphicsObjectTypeInfo.majorVersion(), -1);
+    QCOMPARE(graphicsObjectTypeInfo.minorVersion(), -1);
     QCOMPARE(graphicsWidgetTypeInfo.superClasses().size(), 2);
 }
 
@@ -3736,8 +3740,8 @@ void TestCore::testMetaInfoCustomType()
     NodeMetaInfo stateOperationInfo = propertyChangesInfo.directSuperClass();
     QVERIFY(stateOperationInfo.isValid());
     QCOMPARE(stateOperationInfo.typeName(), QLatin1String("QDeclarativeStateOperation"));
-    QCOMPARE(stateOperationInfo.majorVersion(), 4);
-    QCOMPARE(stateOperationInfo.minorVersion(), 7);
+    QCOMPARE(stateOperationInfo.majorVersion(), -1);
+    QCOMPARE(stateOperationInfo.minorVersion(), -1);
     QCOMPARE(propertyChangesInfo.superClasses().size(), 2);
 
     // DeclarativePropertyChanges just has 3 properties
