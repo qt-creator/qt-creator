@@ -649,41 +649,30 @@ bool ResolveExpression::visit(PostIncrDecrAST *)
     return false;
 }
 
-bool ResolveExpression::visit(ObjCMessageExpressionAST *)
+bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
 {
-    qWarning() << "TODO" << Q_FUNC_INFO;
-    return false;
-
-#if 0
     const QList<LookupItem> receiverResults = resolve(ast->receiver_expression);
 
-    if (!receiverResults.isEmpty()) {
-        LookupItem result = receiverResults.first();
+    foreach (const LookupItem &result, receiverResults) {
         FullySpecifiedType ty = result.type().simplified();
-        const Name *klassName = 0;
+        ClassOrNamespace *binding = 0;
 
-        if (const ObjCClass *classTy = ty->asObjCClassType()) {
+        if (ObjCClass *clazz = ty->asObjCClassType()) {
             // static access, e.g.:
-            // [NSObject description];
-            klassName = classTy->name();
-        } else if (const PointerType *ptrTy = ty->asPointerType()) {
-            const FullySpecifiedType pointeeTy = ptrTy->elementType();
-            if (pointeeTy && pointeeTy->isNamedType()) {
+            //   [NSObject description];
+            binding = _context.lookupType(clazz);
+        } else if (PointerType *ptrTy = ty->asPointerType()) {
+            if (NamedType *namedTy = ptrTy->asNamedType()) {
                 // dynamic access, e.g.:
-                // NSObject *obj = ...; [obj release];
-                klassName = pointeeTy->asNamedType()->name();
+                //   NSObject *obj = ...; [obj release];
+                binding = _context.lookupType(namedTy->name(), result.scope());
             }
         }
 
-        if (klassName&&ast->selector && ast->selector->name) {
-            const QList<Symbol *> resolvedSymbols = _context.lookup(klassName, result.scope());
-            foreach (Symbol *resolvedSymbol, resolvedSymbols)
-                if (ObjCClass *klass = resolvedSymbol->asObjCClass())
-                    _results.append(resolveMember(ast->selector->name, klass));
-        }
+        if (binding)
+            addResults(binding->lookup(ast->selector->name));
     }
 
     return false;
-#endif
 }
 
