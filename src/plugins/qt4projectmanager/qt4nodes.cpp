@@ -1177,16 +1177,31 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
             // newCumalativeIt and newExactIt are already incremented
 
         }
-        // If we found something to add do it
+        // If we found something to add, do it
         if (!nodeToAdd.isEmpty()) {
             ProFile *fileExact = includeFilesCumlative.value(nodeToAdd);
             ProFile *fileCumlative = includeFilesCumlative.value(nodeToAdd);
-            if (fileExact || fileCumlative) {
+
+            // Loop preventation, make sure that exact same node is not in our parent chain
+            bool loop = false;
+            ProjectExplorer::Node *n = this;
+            while ((n = n->parentFolderNode())) {
+                if (qobject_cast<Qt4PriFileNode *>(n) && n->path() == nodeToAdd) {
+                    loop = true;
+                    break;
+                }
+            }
+
+            if (loop) {
+                // Do nothing
+            } else if (fileExact || fileCumlative) {
                 Qt4PriFileNode *qt4PriFileNode = new Qt4PriFileNode(m_project, this, nodeToAdd);
+                qt4PriFileNode->setParentFolderNode(this); // Needed for loop detection
                 qt4PriFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative);
                 toAdd << qt4PriFileNode;
             } else {
                 Qt4ProFileNode *qt4ProFileNode = new Qt4ProFileNode(m_project, nodeToAdd);
+                qt4ProFileNode->setParentFolderNode(this); // Needed for loop detection
                 if (async)
                     qt4ProFileNode->asyncUpdate();
                 else
