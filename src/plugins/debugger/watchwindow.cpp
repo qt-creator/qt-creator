@@ -331,9 +331,14 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         const QString watchPointFormat = tr("Break on Changing Contents of 0x%1");
         actSetWatchPointAtVariableAddress =
             new QAction(watchPointFormat.arg(address, 0, 16), &menu);
-        if (createPointerActions)
+        actSetWatchPointAtVariableAddress->setCheckable(true);
+        actSetWatchPointAtVariableAddress->setChecked(m_manager->breakHandler()->watchPointAt(address));
+        if (createPointerActions) {
             actSetWatchPointAtPointerValue =
                     new QAction(watchPointFormat.arg(pointerValue, 0, 16), &menu);
+            actSetWatchPointAtPointerValue->setCheckable(true);
+            actSetWatchPointAtPointerValue->setChecked(m_manager->breakHandler()->watchPointAt(pointerValue));
+        }
     } else {
         actSetWatchPointAtVariableAddress =
             new QAction(tr("Break on Changing Contents"), &menu);

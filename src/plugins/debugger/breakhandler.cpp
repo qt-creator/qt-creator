@@ -37,6 +37,7 @@
 #include <texteditor/basetextmark.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QByteArray>
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
@@ -414,6 +415,12 @@ BreakpointData *BreakHandler::findWatchPointByAddress(const QByteArray &a) const
             return bd;
     }
     return 0;
+}
+
+bool BreakHandler::watchPointAt(quint64 address) const
+{
+    const QByteArray addressBA = QByteArray("0x") + QByteArray::number(address, 16);
+    return findWatchPointByAddress(addressBA);
 }
 
 void BreakHandler::saveBreakpoints()
