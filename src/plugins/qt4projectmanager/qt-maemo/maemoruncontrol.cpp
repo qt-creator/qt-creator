@@ -110,7 +110,7 @@ void AbstractMaemoRunControl::handleInitialCleanupFinished()
         emit appendMessage(this, tr("Initial cleanup canceled by user."), false);
         emit finished();
     } else if (m_initialCleaner->hasError()) {
-        handleError(tr("Error running initial cleanup: %1.")
+        handleError(tr("Error running initial cleanup: %1")
                     .arg(m_initialCleaner->error()));
         emit finished();
     } else {

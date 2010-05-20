@@ -81,6 +81,7 @@ public:
 
     bool start();
     void quit();
+    bool isConnected() const;
     bool sendInput(const QByteArray &input); // Should normally end in newline.
     QByteArray waitForRemoteOutput(int msecs = -1);
     bool hasError() const;
@@ -124,6 +125,7 @@ public:
     static Ptr create(const SshServerInfo &server);
     bool start();
     void quit();
+    bool isConnected() const;
     bool hasError() const;
     QString error() const;
     bool upload(const QString &localFilePath, const QByteArray &remoteFilePath);

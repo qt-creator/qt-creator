@@ -115,6 +115,7 @@ public:
         }
     }
 
+    bool isConnected() const { return channel() != -1; }
     bool hasError() const { return !m_error.isEmpty(); }
     QString error() const { return m_error; }
     int channel() const { return m_channel; }
@@ -255,6 +256,9 @@ InteractiveSshConnection::~InteractiveSshConnection()
 
 bool InteractiveSshConnection::start()
 {
+    if (isConnected())
+        return true;
+
     if (!d->conn.start(true, wakeupReader, d->outputReader))
         return false;
 
@@ -297,6 +301,11 @@ InteractiveSshConnection::Ptr InteractiveSshConnection::create(const SshServerIn
     return Ptr(new InteractiveSshConnection(server));
 }
 
+bool InteractiveSshConnection::isConnected() const
+{
+    return d->conn.isConnected();
+}
+
 bool InteractiveSshConnection::hasError() const
 {
     return d->conn.hasError();
@@ -335,11 +344,14 @@ SftpConnection::~SftpConnection()
 
 bool SftpConnection::start()
 {
+    if (isConnected())
+        return true;
     if (!d->conn.start(false, 0, 0))
         return false;
     if (!d->conn.ssh->initSftp(d->sftp, d->conn.channel())
         || !d->sftp.setTimeout(d->conn.server().timeout)) {
         d->conn.setError(tr("Error setting up SFTP subsystem"), true);
+        quit();
         return false;
     }
     return true;
@@ -454,6 +466,11 @@ bool SftpConnection::changeRemoteWorkingDir(const QByteArray &newRemoteDir)
 void SftpConnection::quit()
 {
     d->conn.quit();
+}
+
+bool SftpConnection::isConnected() const
+{
+    return d->conn.isConnected();
 }
 
 bool SftpConnection::hasError() const
