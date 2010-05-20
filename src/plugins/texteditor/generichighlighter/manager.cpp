@@ -63,6 +63,10 @@ using namespace Internal;
 Manager::Manager()
 {}
 
+Manager::~Manager()
+{
+}
+
 Manager *Manager::instance()
 {
     static Manager manager;

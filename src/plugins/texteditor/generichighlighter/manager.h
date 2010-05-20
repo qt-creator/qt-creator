@@ -53,7 +53,8 @@ class HighlightDefinition;
 class Manager : public QObject
 {
     Q_OBJECT
-public:    
+public:
+    virtual ~Manager();
     static Manager *instance();
 
     QString definitionIdByName(const QString &name) const;
