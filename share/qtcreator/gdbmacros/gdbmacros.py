@@ -397,9 +397,9 @@ def qdump__QList(d, item):
         # in the frontend.
         # So as first approximation only do the 'isLarge' check:
         isInternal = innerSize <= d_ptr.type.sizeof and d.isMovableType(innerType)
-        #warn("INTERNAL: %d" % int(isInternal))
-
-        p = gdb.Value(array).cast(innerType.pointer()) + begin
+        dummyType = gdb.lookup_type("void").pointer().pointer()
+        innerTypePointer = innerType.pointer()
+        p = gdb.Value(array).cast(dummyType) + begin
         if innerTypeIsPointer:
             inner = innerType.target()
         else:
@@ -408,10 +408,11 @@ def qdump__QList(d, item):
         with Children(d, [size, 2000], inner):
             for i in d.childRange():
                 if isInternal:
-                    d.putItem(Item(p.dereference(), item.iname, i))
+                    pp = p.cast(innerTypePointer).dereference();
+                    d.putItem(Item(pp, item.iname, i))
                 else:
-                    pp = p.cast(innerType.pointer().pointer()).dereference()
-                    d.putItem(Item(pp.dereference(), item.iname, i))
+                    pp = p.cast(innerTypePointer.pointer()).dereference()
+                    d.putItem(Item(pp, item.iname, i))
                 p += 1
 
 
