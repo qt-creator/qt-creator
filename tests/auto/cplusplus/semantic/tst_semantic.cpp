@@ -15,7 +15,7 @@
 #include <Names.h>
 #include <Literals.h>
 #include <DiagnosticClient.h>
-#include <GenTemplateInstance.h>
+#include <DeprecatedGenTemplateInstance.h>
 #include <Overview.h>
 #include <ExpressionUnderCursor.h>
 #include <Names.h>
@@ -436,7 +436,7 @@ void tst_Semantic::template_instance_1()
     FullySpecifiedType templArgs[] = { control.integerType(IntegerType::Int) };
     const Name *templId = control.templateNameId(control.findOrInsertIdentifier("QList"), templArgs, 1);
 
-    FullySpecifiedType genTy = GenTemplateInstance::instantiate(templId, decl, &control);
+    FullySpecifiedType genTy = DeprecatedGenTemplateInstance::instantiate(templId, decl, &control);
 
     Overview oo;
     oo.setShowReturnTypes(true);

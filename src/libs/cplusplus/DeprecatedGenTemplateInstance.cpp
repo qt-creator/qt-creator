@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "GenTemplateInstance.h"
+#include "DeprecatedGenTemplateInstance.h"
 #include "Overview.h"
 
 #include <Control.h>
@@ -47,7 +47,7 @@ namespace {
 class ApplySubstitution
 {
 public:
-    ApplySubstitution(Control *control, Symbol *symbol, const GenTemplateInstance::Substitution &substitution);
+    ApplySubstitution(Control *control, Symbol *symbol, const DeprecatedGenTemplateInstance::Substitution &substitution);
     ~ApplySubstitution();
 
     inline Control *control() const { return _control; }
@@ -311,13 +311,13 @@ private:
 public: // attributes
     Control *_control;
     Symbol *symbol;
-    GenTemplateInstance::Substitution substitution;
+    DeprecatedGenTemplateInstance::Substitution substitution;
     ApplyToType applyToType;
     ApplyToName applyToName;
 };
 
 ApplySubstitution::ApplySubstitution(Control *control, Symbol *symbol,
-                                     const GenTemplateInstance::Substitution &substitution)
+                                     const DeprecatedGenTemplateInstance::Substitution &substitution)
     : _control(control), symbol(symbol),
       substitution(substitution),
       applyToType(this), applyToName(this)
@@ -363,24 +363,24 @@ FullySpecifiedType ApplySubstitution::applySubstitution(int index) const
 
 } // end of anonymous namespace
 
-GenTemplateInstance::GenTemplateInstance(Control *control, const Substitution &substitution)
+DeprecatedGenTemplateInstance::DeprecatedGenTemplateInstance(Control *control, const Substitution &substitution)
     : _symbol(0),
       _control(control),
       _substitution(substitution)
 { }
 
-FullySpecifiedType GenTemplateInstance::gen(Symbol *symbol)
+FullySpecifiedType DeprecatedGenTemplateInstance::gen(Symbol *symbol)
 {
     ApplySubstitution o(_control, symbol, _substitution);
     return o.apply(symbol->type());
 }
 
-FullySpecifiedType GenTemplateInstance::instantiate(const Name *className, Symbol *candidate, Control *control)
+FullySpecifiedType DeprecatedGenTemplateInstance::instantiate(const Name *className, Symbol *candidate, Control *control)
 {
     if (className) {
         if (const TemplateNameId *templId = className->asTemplateNameId()) {
             if (Class *klass = candidate->enclosingSymbol()->asClass()) {
-                GenTemplateInstance::Substitution subst;
+                DeprecatedGenTemplateInstance::Substitution subst;
 
                 for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
                     FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
@@ -395,7 +395,7 @@ FullySpecifiedType GenTemplateInstance::instantiate(const Name *className, Symbo
                     }
                 }
 
-                GenTemplateInstance inst(control, subst);
+                DeprecatedGenTemplateInstance inst(control, subst);
                 return inst.gen(candidate);
             }
         }

@@ -31,7 +31,7 @@
 #include "ResolveExpression.h"
 #include "Overview.h"
 #include "CppBindings.h"
-#include "GenTemplateInstance.h"
+#include "DeprecatedGenTemplateInstance.h"
 
 #include <CoreTypes.h>
 #include <Symbols.h>

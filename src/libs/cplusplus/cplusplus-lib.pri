@@ -39,7 +39,7 @@ HEADERS += \
     $$PWD/DeprecatedLookupContext.h \
     $$PWD/CppBindings.h \
     $$PWD/ASTParent.h \
-    $$PWD/GenTemplateInstance.h \
+    $$PWD/DeprecatedGenTemplateInstance.h \
     $$PWD/FindUsages.h \
     $$PWD/CheckUndefinedSymbols.h \
     $$PWD/DependencyTable.h \
@@ -66,7 +66,7 @@ SOURCES += \
     $$PWD/DeprecatedLookupContext.cpp \
     $$PWD/CppBindings.cpp \
     $$PWD/ASTParent.cpp \
-    $$PWD/GenTemplateInstance.cpp \
+    $$PWD/DeprecatedGenTemplateInstance.cpp \
     $$PWD/FindUsages.cpp \
     $$PWD/CheckUndefinedSymbols.cpp \
     $$PWD/DependencyTable.cpp \

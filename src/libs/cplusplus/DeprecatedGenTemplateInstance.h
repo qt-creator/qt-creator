@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef GENTEMPLATEINSTANCE_H
-#define GENTEMPLATEINSTANCE_H
+#ifndef CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H
+#define CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H
 
 #include <TypeVisitor.h>
 #include <NameVisitor.h>
@@ -41,7 +41,7 @@
 
 namespace CPlusPlus {
 
-class CPLUSPLUS_EXPORT GenTemplateInstance
+class CPLUSPLUS_EXPORT DeprecatedGenTemplateInstance
 {
 public:
     typedef QList< QPair<const Identifier *, FullySpecifiedType> > Substitution;
@@ -50,7 +50,7 @@ public:
     static FullySpecifiedType instantiate(const Name *className, Symbol *candidate, Control *control);
 
 private:
-    GenTemplateInstance(Control *control, const Substitution &substitution);
+    DeprecatedGenTemplateInstance(Control *control, const Substitution &substitution);
     FullySpecifiedType gen(Symbol *symbol);
 
 private:
@@ -61,4 +61,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // GENTEMPLATEINSTANCE_H
+#endif // CPLUSPLUS_DEPRECATEDGENTEMPLATEINSTANCE_H

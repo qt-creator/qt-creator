@@ -30,7 +30,7 @@
 #include "ResolveExpression.h"
 #include "LookupContext.h"
 #include "Overview.h"
-#include "GenTemplateInstance.h"
+#include "DeprecatedGenTemplateInstance.h"
 
 #include <Control.h>
 #include <AST.h>
@@ -604,7 +604,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 
                 foreach (Symbol *overload, binding->find(arrowOp)) {
                     if (overload->type()->isFunctionType()) {
-                        FullySpecifiedType overloadTy = GenTemplateInstance::instantiate(binding->templateId(), overload, control());
+                        FullySpecifiedType overloadTy = DeprecatedGenTemplateInstance::instantiate(binding->templateId(), overload, control());
                         Function *instantiatedFunction = overloadTy->asFunctionType();
                         Q_ASSERT(instantiatedFunction != 0);
 
@@ -641,7 +641,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 
 FullySpecifiedType ResolveExpression::instantiate(const Name *className, Symbol *candidate) const
 {
-    return GenTemplateInstance::instantiate(className, candidate, _context.control());
+    return DeprecatedGenTemplateInstance::instantiate(className, candidate, _context.control());
 }
 
 bool ResolveExpression::visit(PostIncrDecrAST *)
