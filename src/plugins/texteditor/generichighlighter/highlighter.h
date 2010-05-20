@@ -30,6 +30,8 @@
 #ifndef HIGHLIGHTER_H
 #define HIGHLIGHTER_H
 
+#include "basetextdocumentlayout.h"
+
 #include <QtCore/QString>
 #include <QtCore/QVector>
 #include <QtCore/QSharedPointer>
@@ -37,13 +39,11 @@
 
 #include <QtGui/QSyntaxHighlighter>
 
-#include <texteditor/basetextdocumentlayout.h>
-
 namespace TextEditor {
 class FontSettings;
 }
 
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
 class Rule;
@@ -57,7 +57,7 @@ public:
     Highlighter(const QSharedPointer<Context> &defaultContext, QTextDocument *parent = 0);
     virtual ~Highlighter();
 
-    void configureFormats(const TextEditor::FontSettings & fs);
+    void configureFormats(const FontSettings & fs);
 
 protected:
     virtual void highlightBlock(const QString &text);
@@ -100,7 +100,7 @@ private:
     void createWillContinueBlock();
     void analyseConsistencyOfWillContinueBlock(const QString &text);
 
-    struct BlockData : TextEditor::TextBlockUserData
+    struct BlockData : TextBlockUserData
     {
         BlockData();
         virtual ~BlockData();
@@ -149,6 +149,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
 #endif // HIGHLIGHTER_H

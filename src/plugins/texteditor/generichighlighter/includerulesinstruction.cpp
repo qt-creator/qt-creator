@@ -30,7 +30,7 @@
 #include "includerulesinstruction.h"
 #include "reuse.h"
 
-using namespace GenericEditor;
+using namespace TextEditor;
 using namespace Internal;
 
 IncludeRulesInstruction::IncludeRulesInstruction(const QString &context,

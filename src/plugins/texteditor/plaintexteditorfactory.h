@@ -50,6 +50,7 @@ public:
     PlainTextEditorFactory(QObject *parent = 0);
     virtual ~PlainTextEditorFactory();
 
+    void addMimeType(const QString &type);
     virtual QStringList mimeTypes() const;
     //Core::IEditorFactory
     QString id() const;

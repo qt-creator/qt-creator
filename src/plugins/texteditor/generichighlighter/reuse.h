@@ -36,7 +36,7 @@
 #include <QtCore/QChar>
 #include <QtGui/QFont>
 
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
 inline bool toBool(const QString &s)
@@ -95,6 +95,6 @@ inline void setStartCharacter(QChar &c, const QString &character)
 }
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
 #endif // REUSE_H

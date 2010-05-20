@@ -3,15 +3,15 @@ QT += testlib
 PLUGINSDIR = ../../../../src/plugins
 
 SOURCES += tst_specificrules.cpp \
-    $$PLUGINSDIR/genericeditor/context.cpp \
-    $$PLUGINSDIR/genericeditor/dynamicrule.cpp \
-    $$PLUGINSDIR/genericeditor/rule.cpp \
-    $$PLUGINSDIR/genericeditor/specificrules.cpp \
-    $$PLUGINSDIR/genericeditor/progressdata.cpp \
-    $$PLUGINSDIR/genericeditor/highlightdefinition.cpp \
-    $$PLUGINSDIR/genericeditor/keywordlist.cpp \
-    $$PLUGINSDIR/genericeditor/itemdata.cpp
+    $$PLUGINSDIR/texteditor/generichighlighter/context.cpp \
+    $$PLUGINSDIR/texteditor/generichighlighter/dynamicrule.cpp \
+    $$PLUGINSDIR/texteditor/generichighlighter/rule.cpp \
+    $$PLUGINSDIR/texteditor/generichighlighter/specificrules.cpp \
+    $$PLUGINSDIR/texteditor/generichighlighter/progressdata.cpp \
+    $$PLUGINSDIR/texteditor/generichighlighter/highlightdefinition.cpp \
+    $$PLUGINSDIR/texteditor/generichighlighter/keywordlist.cpp \
+    $$PLUGINSDIR/texteditor/generichighlighter/itemdata.cpp
 
-INCLUDEPATH += $$PLUGINSDIR $$UTILSDIR
+INCLUDEPATH += $$PLUGINSDIR
 
 TARGET=tst_$$TARGET

@@ -31,9 +31,20 @@
 #include "tabsettings.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
+#include "texteditorsettings.h"
+#include "basetextdocument.h"
+#include "highlightdefinition.h"
+#include "highlighter.h"
+#include "highlighterexception.h"
+#include "manager.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
+
+#include <QtCore/QSharedPointer>
+#include <QtCore/QFileInfo>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
@@ -54,8 +65,11 @@ PlainTextEditor::PlainTextEditor(QWidget *parent)
     setRequestMarkEnabled(false);
     setLineSeparatorsAllowed(true);
 
-    setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
     setDisplayName(tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
+
+    m_commentDefinition.clearCommentStyles();
+
+    connect(file(), SIGNAL(changed()), this, SLOT(configure()));
 }
 
 QList<int> PlainTextEditorEditable::context() const
@@ -76,7 +90,56 @@ QString PlainTextEditorEditable::id() const
     return QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
+void PlainTextEditor::unCommentSelection()
+{
+    Utils::unCommentSelection(this, m_commentDefinition);
+}
+
+void PlainTextEditor::setFontSettings(const TextEditor::FontSettings & fs)
+{
+    TextEditor::BaseTextEditor::setFontSettings(fs);
+
+    Highlighter *highlighter = static_cast<Highlighter *>(baseTextDocument()->syntaxHighlighter());
+    if (!highlighter)
+        return;
+
+    highlighter->configureFormats(fs);
+    highlighter->rehighlight();
+}
+
+void PlainTextEditor::configure()
+{
+    const QString &mimeType = Core::ICore::instance()->mimeDatabase()->findByFile(
+            QFileInfo(file()->fileName())).type();
+    baseTextDocument()->setMimeType(mimeType);
+
+    const QString &definitionId = Manager::instance()->definitionIdByMimeType(mimeType);
+    if (!definitionId.isEmpty()) {
+        try {
+            const QSharedPointer<HighlightDefinition> &definition =
+                    Manager::instance()->definition(definitionId);
+
+            Highlighter *highlighter = new Highlighter(definition->initialContext());
+            highlighter->configureFormats(TextEditor::TextEditorSettings::instance()->fontSettings());
+
+            baseTextDocument()->setSyntaxHighlighter(highlighter);
+
+            m_commentDefinition.setAfterWhiteSpaces(definition->isCommentAfterWhiteSpaces());
+            m_commentDefinition.setSingleLine(definition->singleLineComment());
+            m_commentDefinition.setMultiLineStart(definition->multiLineCommentStart());
+            m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
+        } catch (const HighlighterException &) {
+        }
+    }
+
+    // @todo: Indentation specification through the definition files is not really being
+    // used because Kate recommends to configure indentation  through another feature.
+    // Maybe we should provide something similar in Creator? For now, only normal
+    // indentation is supported.
+    m_indenter.reset(new TextEditor::NormalIndenter);
+}
+
 void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
-    m_indenter.indentBlock(doc, block, typedChar, tabSettings());
+    m_indenter->indentBlock(doc, block, typedChar, tabSettings());
 }

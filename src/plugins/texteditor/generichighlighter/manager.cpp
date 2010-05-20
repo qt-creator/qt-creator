@@ -27,16 +27,15 @@
 **
 **************************************************************************/
 
-#include "genericeditorplugin.h"
+#include "manager.h"
 #include "highlightdefinition.h"
 #include "highlightdefinitionhandler.h"
 #include "highlighterexception.h"
-#include "genericeditorconstants.h"
-#include "editor.h"
-#include "editorfactory.h"
+#include "texteditorplugin.h"
+#include "texteditorsettings.h"
+#include "plaintexteditorfactory.h"
 
 #include <coreplugin/icore.h>
-#include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 #include <qtconcurrent/QtConcurrentTools>
 
@@ -58,64 +57,26 @@
 #include <QtXml/QXmlStreamReader>
 #include <QtXml/QXmlStreamAttributes>
 
-using namespace GenericEditor;
+using namespace TextEditor;
 using namespace Internal;
 
-GenericEditorPlugin *GenericEditorPlugin::m_instance = 0;
-
-GenericEditorPlugin::GenericEditorPlugin() :
-    m_actionHandler(0)
-{
-    QTC_ASSERT(!m_instance, return);
-    m_instance = this;
-
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()), this, SLOT(registerMimeTypes()));
-}
-
-GenericEditorPlugin::~GenericEditorPlugin()
-{
-    delete m_actionHandler;
-    m_instance = 0;
-}
-
-GenericEditorPlugin *GenericEditorPlugin::instance()
-{ return m_instance; }
-
-bool GenericEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
-    m_factory = new EditorFactory(this);
-    addAutoReleasedObject(m_factory);
-
-    m_actionHandler = new TextEditor::TextEditorActionHandler(
-        GenericEditor::Constants::GENERIC_EDITOR,
-        TextEditor::TextEditorActionHandler::Format |
-        TextEditor::TextEditorActionHandler::UnCommentSelection);
-    m_actionHandler->initializeActions();
-
-    return true;
-}
-
-void GenericEditorPlugin::extensionsInitialized()
+Manager::Manager()
 {}
 
-void GenericEditorPlugin::initializeEditor(Editor *editor)
+Manager *Manager::instance()
 {
-    m_actionHandler->setupActions(editor);
-
-    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
+    static Manager manager;
+    return &manager;
 }
 
-QString GenericEditorPlugin::definitionIdByName(const QString &name) const
+QString Manager::definitionIdByName(const QString &name) const
 { return m_idByName.value(name); }
 
-QString GenericEditorPlugin::definitionIdByMimeType(const QString &mimeType) const
+QString Manager::definitionIdByMimeType(const QString &mimeType) const
 {
-    Q_ASSERT(!mimeType.isEmpty() && m_idByMimeType.count(mimeType) > 0);
+    Q_ASSERT(!mimeType.isEmpty());
 
-    if (m_idByMimeType.count(mimeType) == 1) {
+    if (m_idByMimeType.count(mimeType) <= 1) {
         return m_idByMimeType.value(mimeType);
     } else {
         QStringList candidateIds;
@@ -129,7 +90,7 @@ QString GenericEditorPlugin::definitionIdByMimeType(const QString &mimeType) con
     }
 }
 
-const QSharedPointer<HighlightDefinition> &GenericEditorPlugin::definition(const QString &id)
+const QSharedPointer<HighlightDefinition> &Manager::definition(const QString &id)
 {
     if (!m_definitions.contains(id)) {
         m_isBuilding.insert(id);
@@ -154,19 +115,19 @@ const QSharedPointer<HighlightDefinition> &GenericEditorPlugin::definition(const
     return *m_definitions.constFind(id);
 }
 
-bool GenericEditorPlugin::isBuildingDefinition(const QString &id) const
+bool Manager::isBuildingDefinition(const QString &id) const
 { return m_isBuilding.contains(id); }
 
-void GenericEditorPlugin::registerMimeTypes()
+void Manager::registerMimeTypes()
 {
     QFuture<Core::MimeType> future =
-            QtConcurrent::run(&GenericEditorPlugin::gatherDefinitionsMimeTypes, this);
+            QtConcurrent::run(&Manager::gatherDefinitionsMimeTypes, this);
     m_watcher.setFuture(future);
 
     connect(&m_watcher, SIGNAL(resultReadyAt(int)), this, SLOT(registerMimeType(int)));
 }
 
-void GenericEditorPlugin::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future)
+void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future)
 {
     QDir definitionsDir(Core::ICore::instance()->resourcePath() +
                         QLatin1String("/generic-highlighter"));
@@ -208,14 +169,14 @@ void GenericEditorPlugin::gatherDefinitionsMimeTypes(QFutureInterface<Core::Mime
     }
 }
 
-void GenericEditorPlugin::registerMimeType(int index) const
+void Manager::registerMimeType(int index) const
 {
     const Core::MimeType &mimeType = m_watcher.resultAt(index);
     Core::ICore::instance()->mimeDatabase()->addMimeType(mimeType);
-    m_factory->m_mimeTypes.append(mimeType.type());
+    TextEditorPlugin::instance()->editorFactory()->addMimeType(mimeType.type());
 }
 
-void GenericEditorPlugin::parseDefinitionMetadata(const QFileInfo &fileInfo,
+void Manager::parseDefinitionMetadata(const QFileInfo &fileInfo,
                                                   QString *comment,
                                                   QStringList *mimeTypes,
                                                   QStringList *patterns)
@@ -273,5 +234,3 @@ void GenericEditorPlugin::parseDefinitionMetadata(const QFileInfo &fileInfo,
     reader.clear();
     definitionFile.close();
 }
-
-Q_EXPORT_PLUGIN(GenericEditorPlugin)

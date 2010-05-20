@@ -33,7 +33,7 @@
 #include <QtCore/QString>
 #include <QtGui/QColor>
 
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
 class ItemData
@@ -99,6 +99,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
 #endif // ITEMDATA_H

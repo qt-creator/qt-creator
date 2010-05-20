@@ -27,19 +27,38 @@
 **
 **************************************************************************/
 
-#ifndef GENERICEDITORCONSTANTS_H
-#define GENERICEDITORCONSTANTS_H
+#ifndef DYNAMICRULE_H
+#define DYNAMICRULE_H
 
-#include <QtCore/QtGlobal>
+#include "rule.h"
 
-namespace GenericEditor {
-namespace Constants {
+QT_BEGIN_NAMESPACE
+class QStringList;
+QT_END_NAMESPACE
 
-const char * const GENERIC_EDITOR = "GenericEditorPlugin.GenericEditor";
-const char * const GENERIC_EDITOR_DISPLAY_NAME =
-    QT_TRANSLATE_NOOP("OpenWith::Editors", "Generic Editor");
+namespace TextEditor {
+namespace Internal {
 
-} // namespace Constants
-} // namespace GenericEditor
+class DynamicRule : public Rule
+{
+public:
+    DynamicRule();
+    virtual ~DynamicRule();
 
-#endif // GENERICEDITORCONSTANTS_H
+    void setActive(const QString &active);
+    bool isActive() const;
+
+    virtual void replaceExpressions(const QStringList &captures);
+
+private:
+    virtual void doReplaceExpressions(const QStringList &captures) = 0;
+
+    bool m_active;    
+};
+
+void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QStringList &captures);
+
+} // namespace Internal
+} // namespace TextEditor
+
+#endif // DYNAMICRULE_H

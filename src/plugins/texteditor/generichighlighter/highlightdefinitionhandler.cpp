@@ -34,12 +34,12 @@
 #include "keywordlist.h"
 #include "context.h"
 #include "reuse.h"
-#include "genericeditorplugin.h"
+#include "manager.h"
 #include "highlighterexception.h"
 
 #include <QLatin1String>
 
-using namespace GenericEditor;
+using namespace TextEditor;
 using namespace Internal;
 
 namespace {
@@ -430,14 +430,14 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
             // definition they are from.
             QString externalName = QString::fromRawData(sourceName.unicode() + 2,
                                                         sourceName.length() - 2);
-            const QString &id = GenericEditorPlugin::instance()->definitionIdByName(externalName);
+            const QString &id = Manager::instance()->definitionIdByName(externalName);
 
             // If there is an incorrect circular dependency among definitions this is skipped.
-            if (GenericEditorPlugin::instance()->isBuildingDefinition(id))
+            if (Manager::instance()->isBuildingDefinition(id))
                 continue;
 
             const QSharedPointer<HighlightDefinition> &externalDefinition =
-                GenericEditorPlugin::instance()->definition(id);
+                Manager::instance()->definition(id);
             sourceContext = externalDefinition->initialContext();
         } else if (!sourceName.startsWith(kHash)) {
             sourceContext = m_definition->context(sourceName);

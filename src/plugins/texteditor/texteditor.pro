@@ -1,8 +1,11 @@
 TEMPLATE = lib
 TARGET = TextEditor
 DEFINES += TEXTEDITOR_LIBRARY
+QT += xml
 include(../../qtcreatorplugin.pri)
 include(texteditor_dependencies.pri)
+INCLUDEPATH += generichighlighter
+DEPENDPATH += generichighlighter
 SOURCES += texteditorplugin.cpp \
     textfilewizard.cpp \
     plaintexteditor.cpp \
@@ -37,7 +40,19 @@ SOURCES += texteditorplugin.cpp \
     basetextdocumentlayout.cpp \
     completionsettings.cpp \
     normalindenter.cpp \
-    indenter.cpp
+    indenter.cpp \
+    generichighlighter/itemdata.cpp \
+    generichighlighter/specificrules.cpp \
+    generichighlighter/rule.cpp \
+    generichighlighter/dynamicrule.cpp \
+    generichighlighter/context.cpp \
+    generichighlighter/includerulesinstruction.cpp \
+    generichighlighter/progressdata.cpp \
+    generichighlighter/keywordlist.cpp \
+    generichighlighter/highlightdefinition.cpp \
+    generichighlighter/highlighter.cpp \
+    generichighlighter/manager.cpp \
+    generichighlighter/highlightdefinitionhandler.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -77,7 +92,22 @@ HEADERS += texteditorplugin.h \
     basetextdocumentlayout.h \
     completionsettings.h \
     normalindenter.h \
-    indenter.h
+    indenter.h \
+    generichighlighter/reuse.h \
+    generichighlighter/itemdata.h \
+    generichighlighter/specificrules.h \
+    generichighlighter/rule.h \
+    generichighlighter/reuse.h \
+    generichighlighter/dynamicrule.h \
+    generichighlighter/context.h \
+    generichighlighter/includerulesinstruction.h \
+    generichighlighter/progressdata.h \
+    generichighlighter/keywordlist.h \
+    generichighlighter/highlighterexception.h \
+    generichighlighter/highlightdefinition.h \
+    generichighlighter/highlighter.h \
+    generichighlighter/manager.h \
+    generichighlighter/highlightdefinitionhandler.h
 
 
 FORMS += behaviorsettingspage.ui \

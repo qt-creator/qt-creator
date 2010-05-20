@@ -27,15 +27,46 @@
 **
 **************************************************************************/
 
-#ifndef HIGHLIGHTEREXCEPTION_H
-#define HIGHLIGHTEREXCEPTION_H
+#ifndef PROGRESSDATA_H
+#define PROGRESSDATA_H
 
-namespace GenericEditor {
+#include <QtCore/QStringList>
+
+namespace TextEditor {
 namespace Internal {
 
-class HighlighterException {};
+class ProgressData
+{
+public:
+    ProgressData();
+
+    void setOffset(const int offset);
+    int offset() const;
+
+    void incrementOffset();
+    void incrementOffset(const int increment);
+
+    void saveOffset();
+    void restoreOffset();
+
+    void setOnlySpacesSoFar(const bool onlySpaces);
+    bool onlySpacesSoFar() const;
+
+    void setWillContinueLine(const bool willContinue);
+    bool willContinueLine() const;
+
+    void setCaptures(const QStringList &captures);
+    const QStringList &captures() const;
+
+private:
+    int m_offset;
+    int m_savedOffset;
+    bool m_onlySpacesSoFar;
+    bool m_willContinueLine;
+    QStringList m_captures;
+};
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
-#endif // HIGHLIGHTEREXCEPTION_H
+#endif // PROGRESSDATA_H

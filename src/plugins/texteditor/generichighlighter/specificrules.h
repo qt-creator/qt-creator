@@ -38,7 +38,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QSharedPointer>
 
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
 class KeywordList;
@@ -283,6 +283,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
 #endif // SPECIFICRULES_H

@@ -27,27 +27,30 @@
 **
 **************************************************************************/
 
-#ifndef KEYWORDLIST_H
-#define KEYWORDLIST_H
+#ifndef INCLUDERULESINSTRUCTION_H
+#define INCLUDERULESINSTRUCTION_H
 
 #include <QtCore/QString>
-#include <QtCore/QSet>
 
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
-class KeywordList
+class IncludeRulesInstruction
 {
 public:
+    IncludeRulesInstruction(const QString &context, int hint, const QString &replaceItemData);
 
-    void addKeyword(const QString &keyword);
-    bool isKeyword(const QString &keyword, Qt::CaseSensitivity sensitivity) const;
+    const QString &sourceContext() const;
+    int indexHint() const;
+    bool replaceItemData() const;
 
 private:
-    QSet<QString> m_keywords;
+    QString m_sourceContext;
+    int m_indexHint;
+    bool m_replaceItemData;
 };
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
-#endif // KEYWORDLIST_H
+#endif // INCLUDERULESINSTRUCTION_H

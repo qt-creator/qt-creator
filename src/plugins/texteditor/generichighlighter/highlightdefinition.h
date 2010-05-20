@@ -34,7 +34,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QSharedPointer>
 
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
 class KeywordList;
@@ -112,6 +112,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
 #endif // HIGHLIGHTDEFINITION_H

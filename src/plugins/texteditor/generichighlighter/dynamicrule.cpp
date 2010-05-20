@@ -27,30 +27,41 @@
 **
 **************************************************************************/
 
-#ifndef INCLUDERULESINSTRUCTION_H
-#define INCLUDERULESINSTRUCTION_H
+#include "dynamicrule.h"
+#include "reuse.h"
 
-#include <QtCore/QString>
+using namespace TextEditor;
+using namespace Internal;
 
-namespace GenericEditor {
+DynamicRule::DynamicRule() : m_active(false)
+{}
+
+DynamicRule::~DynamicRule()
+{}
+
+void DynamicRule::setActive(const QString &active)
+{ m_active = toBool(active); }
+
+bool DynamicRule::isActive() const
+{ return m_active; }
+
+void DynamicRule::replaceExpressions(const QStringList &captures)
+{
+    doReplaceExpressions(captures);
+    updateDynamicRules(childs(), captures);
+}
+
+namespace TextEditor {
 namespace Internal {
 
-class IncludeRulesInstruction
+void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QStringList &captures)
 {
-public:
-    IncludeRulesInstruction(const QString &context, int hint, const QString &replaceItemData);
-
-    const QString &sourceContext() const;
-    int indexHint() const;
-    bool replaceItemData() const;
-
-private:
-    QString m_sourceContext;
-    int m_indexHint;
-    bool m_replaceItemData;
-};
+    foreach (QSharedPointer<Rule> rule, rules) {
+        DynamicRule *dynamicRule = dynamic_cast<DynamicRule *>(rule.data());
+        if (dynamicRule && dynamicRule->isActive())
+            dynamicRule->replaceExpressions(captures);
+    }
+}
 
 } // namespace Internal
-} // namespace GenericEditor
-
-#endif // INCLUDERULESINSTRUCTION_H
+} // namespace TextEditor

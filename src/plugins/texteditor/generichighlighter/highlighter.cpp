@@ -35,14 +35,13 @@
 #include "highlighterexception.h"
 #include "progressdata.h"
 #include "reuse.h"
-
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/fontsettings.h>
+#include "texteditorconstants.h"
+#include "fontsettings.h"
 
 #include <QtCore/QLatin1String>
 #include <QtCore/QLatin1Char>
 
-using namespace GenericEditor;
+using namespace TextEditor;
 using namespace Internal;
 
 namespace {
@@ -300,8 +299,8 @@ void Highlighter::applyFormat(int offset,
     try {
         itemData = definition->itemData(itemDataName);
     } catch (const HighlighterException &) {
-        // There are broken files which Kate can cope with. For instance the Printf context in
-        // java.xml points to an inexistent Printf item data. These are taken as normal text.
+        // There are some broken files. For instance, the Printf context in java.xml points to an
+        // inexistent Printf item data. These cases are considered to have normal text style.
         return;
     }
 
@@ -431,15 +430,15 @@ void Highlighter::pushDynamicContext(const QSharedPointer<Context> &baseContext)
 void Highlighter::setCurrentContext()
 {
     if (m_contexts.isEmpty()) {
-        // This is not supposed to happen. However, there might be broken files (for example, the
-        // php.xml) which will cause this behaviour. In such cases just pushing the default
-        // context is enough to keep highlighter working.
+        // This is not supposed to happen. However, there are broken files (for example, php.xml)
+        // which will cause this behaviour. In such cases pushing the default context is enough to
+        // keep highlighter working.
         m_contexts.push_back(m_defaultContext);
     }
     m_currentContext = m_contexts.back();
 }
 
-void Highlighter::configureFormats(const TextEditor::FontSettings & fs)
+void Highlighter::configureFormats(const FontSettings & fs)
 {
     m_visualWhitespaceFormat = fs.toTextCharFormat(
             QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE));

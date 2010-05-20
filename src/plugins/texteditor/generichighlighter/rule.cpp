@@ -37,7 +37,7 @@
 
 #include <functional>
 
-using namespace GenericEditor;
+using namespace TextEditor;
 using namespace Internal;
 
 const QLatin1Char Rule::kBackSlash('\\');

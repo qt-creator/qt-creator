@@ -85,6 +85,13 @@ bool CommentDefinition::hasSingleLineStyle() const
 bool CommentDefinition::hasMultiLineStyle() const
 { return !m_multiLineStart.isEmpty() && !m_multiLineEnd.isEmpty(); }
 
+void CommentDefinition::clearCommentStyles()
+{
+    m_singleLine.clear();
+    m_multiLineStart.clear();
+    m_multiLineEnd.clear();
+}
+
 namespace {
 
 bool isComment(const QString &text,

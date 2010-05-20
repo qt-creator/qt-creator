@@ -30,7 +30,7 @@
 #include "itemdata.h"
 #include "reuse.h"
 
-using namespace GenericEditor;
+using namespace TextEditor;
 using namespace Internal;
 
 const QLatin1String ItemData::kDsNormal("dsNormal");

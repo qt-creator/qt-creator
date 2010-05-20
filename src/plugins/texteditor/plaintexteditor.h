@@ -33,7 +33,10 @@
 #include "basetexteditor.h"
 #include "normalindenter.h"
 
+#include <utils/uncommentselection.h>
+
 #include <QtCore/QList>
+#include <QtCore/QScopedPointer>
 
 namespace TextEditor {
 
@@ -61,13 +64,20 @@ class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
 public:
     PlainTextEditor(QWidget *parent);
 
+public slots:
+    virtual void unCommentSelection();
+    virtual void setFontSettings(const TextEditor::FontSettings &);
+
+private slots:
+    void configure();
+
 protected:
     virtual BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }    
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
 private:
-    // Indent a text block based on previous line.
-    NormalIndenter m_indenter;
+    Utils::CommentDefinition m_commentDefinition;
+    QScopedPointer<TextEditor::Indenter> m_indenter;
 };
 
 } // namespace TextEditor

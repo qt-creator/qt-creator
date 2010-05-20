@@ -27,38 +27,15 @@
 **
 **************************************************************************/
 
-#ifndef DYNAMICRULE_H
-#define DYNAMICRULE_H
+#ifndef HIGHLIGHTEREXCEPTION_H
+#define HIGHLIGHTEREXCEPTION_H
 
-#include "rule.h"
-
-QT_BEGIN_NAMESPACE
-class QStringList;
-QT_END_NAMESPACE
-
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
-class DynamicRule : public Rule
-{
-public:
-    DynamicRule();
-    virtual ~DynamicRule();
-
-    void setActive(const QString &active);
-    bool isActive() const;
-
-    virtual void replaceExpressions(const QStringList &captures);
-
-private:
-    virtual void doReplaceExpressions(const QStringList &captures) = 0;
-
-    bool m_active;    
-};
-
-void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QStringList &captures);
+class HighlighterException {};
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
-#endif // DYNAMICRULE_H
+#endif // HIGHLIGHTEREXCEPTION_H

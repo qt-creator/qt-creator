@@ -27,35 +27,27 @@
 **
 **************************************************************************/
 
-#include "keywordlist.h"
+#ifndef KEYWORDLIST_H
+#define KEYWORDLIST_H
 
-using namespace GenericEditor;
-using namespace Internal;
+#include <QtCore/QString>
+#include <QtCore/QSet>
 
-void KeywordList::addKeyword(const QString &keyword)
+namespace TextEditor {
+namespace Internal {
+
+class KeywordList
 {
-    if (keyword.isEmpty())
-        return; 
+public:
 
-    m_keywords.insert(keyword);
-}
+    void addKeyword(const QString &keyword);
+    bool isKeyword(const QString &keyword, Qt::CaseSensitivity sensitivity) const;
 
-bool KeywordList::isKeyword(const QString &keyword, Qt::CaseSensitivity sensitivity) const
-{
-    if (keyword.isEmpty())
-        return false;
+private:
+    QSet<QString> m_keywords;
+};
 
-    // Case sensitivity could be implemented, for example, by converting all keywords to lower
-    // if the global sensitivity attribute is insensitive, then always checking for containment
-    // (with a conversion to lower in the necessary cases). But the code below is one alternative
-    // to support the existence of local sensitivity attributes (which override the global one -
-    // currently not documented).
-    if (sensitivity == Qt::CaseSensitive) {
-        return m_keywords.contains(keyword);
-    } else {
-        foreach (const QString &s, m_keywords)
-            if (keyword.compare(s, Qt::CaseInsensitive) == 0)
-                return true;
-        return false;
-    }
-}
+} // namespace Internal
+} // namespace TextEditor
+
+#endif // KEYWORDLIST_H

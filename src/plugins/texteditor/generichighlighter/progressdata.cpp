@@ -27,41 +27,56 @@
 **
 **************************************************************************/
 
-#include "dynamicrule.h"
-#include "reuse.h"
+#include "progressdata.h"
 
-using namespace GenericEditor;
+#include <QtCore/QtGlobal>
+
+using namespace TextEditor;
 using namespace Internal;
 
-DynamicRule::DynamicRule() : m_active(false)
+ProgressData::ProgressData() :
+    m_offset(0),
+    m_savedOffset(-1),
+    m_onlySpacesSoFar(true),
+    m_willContinueLine(false)
 {}
 
-DynamicRule::~DynamicRule()
-{}
+void ProgressData::setOffset(const int offset)
+{ m_offset = offset; }
 
-void DynamicRule::setActive(const QString &active)
-{ m_active = toBool(active); }
+int ProgressData::offset() const
+{ return m_offset; }
 
-bool DynamicRule::isActive() const
-{ return m_active; }
+void ProgressData::incrementOffset()
+{ ++m_offset; }
 
-void DynamicRule::replaceExpressions(const QStringList &captures)
+void ProgressData::incrementOffset(const int increment)
+{ m_offset += increment; }
+
+void ProgressData::saveOffset()
+{ m_savedOffset = m_offset; }
+
+void ProgressData::restoreOffset()
 {
-    doReplaceExpressions(captures);
-    updateDynamicRules(childs(), captures);
+    Q_ASSERT(m_savedOffset != -1);
+    m_offset = m_savedOffset;
+    m_savedOffset = -1;
 }
 
-namespace GenericEditor {
-namespace Internal {
+void ProgressData::setOnlySpacesSoFar(const bool onlySpaces)
+{ m_onlySpacesSoFar = onlySpaces; }
 
-void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QStringList &captures)
-{
-    foreach (QSharedPointer<Rule> rule, rules) {
-        DynamicRule *dynamicRule = dynamic_cast<DynamicRule *>(rule.data());
-        if (dynamicRule && dynamicRule->isActive())
-            dynamicRule->replaceExpressions(captures);
-    }
-}
+bool ProgressData::onlySpacesSoFar() const
+{ return m_onlySpacesSoFar; }
 
-} // namespace Internal
-} // namespace GenericEditor
+void ProgressData::setWillContinueLine(const bool willContinue)
+{ m_willContinueLine = willContinue; }
+
+bool ProgressData::willContinueLine() const
+{ return m_willContinueLine; }
+
+void ProgressData::setCaptures(const QStringList &captures)
+{ m_captures = captures; }
+
+const QStringList &ProgressData::captures() const
+{ return m_captures; }

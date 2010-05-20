@@ -64,6 +64,7 @@ public:
 
     void initializeEditor(PlainTextEditor *editor);
 
+    PlainTextEditorFactory *editorFactory() { return m_editorFactory; }
     LineNumberFilter *lineNumberFilter() { return m_lineNumberFilter; }
 
 private slots:

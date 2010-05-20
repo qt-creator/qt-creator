@@ -39,6 +39,7 @@
 #include "plaintexteditorfactory.h"
 #include "plaintexteditor.h"
 #include "storagesettings.h"
+#include "manager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -70,6 +71,9 @@ TextEditorPlugin::TextEditorPlugin()
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
+
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()),
+            Manager::instance(), SLOT(registerMimeTypes()));
 }
 
 TextEditorPlugin::~TextEditorPlugin()

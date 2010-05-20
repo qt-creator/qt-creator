@@ -34,7 +34,7 @@
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
 
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
 class ProgressData;
@@ -155,6 +155,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
 #endif // RULE_H

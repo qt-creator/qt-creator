@@ -27,14 +27,14 @@
 **
 **************************************************************************/
 
-#include <genericeditor/highlightdefinition.h>
-#include <genericeditor/keywordlist.h>
-#include <genericeditor/specificrules.h>
-#include <genericeditor/progressdata.h>
+#include <texteditor/generichighlighter/highlightdefinition.h>
+#include <texteditor/generichighlighter/keywordlist.h>
+#include <texteditor/generichighlighter/specificrules.h>
+#include <texteditor/generichighlighter/progressdata.h>
 
 #include <QtTest/QtTest>
 
-using namespace GenericEditor;
+using namespace TextEditor;
 using namespace Internal;
 
 class tst_SpecificRules : public QObject

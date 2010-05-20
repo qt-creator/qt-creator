@@ -36,7 +36,7 @@
 
 #include <QLatin1String>
 
-using namespace GenericEditor;
+using namespace TextEditor;
 using namespace Internal;
 
 HighlightDefinition::HighlightDefinition() :

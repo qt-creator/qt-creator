@@ -58,6 +58,8 @@ public:
     bool hasSingleLineStyle() const;
     bool hasMultiLineStyle() const;
 
+    void clearCommentStyles();
+
 private:
     bool m_afterWhiteSpaces;
     QString m_singleLine;

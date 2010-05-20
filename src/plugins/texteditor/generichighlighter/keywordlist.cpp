@@ -27,46 +27,35 @@
 **
 **************************************************************************/
 
-#ifndef PROGRESSDATA_H
-#define PROGRESSDATA_H
+#include "keywordlist.h"
 
-#include <QtCore/QStringList>
+using namespace TextEditor;
+using namespace Internal;
 
-namespace GenericEditor {
-namespace Internal {
-
-class ProgressData
+void KeywordList::addKeyword(const QString &keyword)
 {
-public:
-    ProgressData();
+    if (keyword.isEmpty())
+        return; 
 
-    void setOffset(const int offset);
-    int offset() const;
+    m_keywords.insert(keyword);
+}
 
-    void incrementOffset();
-    void incrementOffset(const int increment);
+bool KeywordList::isKeyword(const QString &keyword, Qt::CaseSensitivity sensitivity) const
+{
+    if (keyword.isEmpty())
+        return false;
 
-    void saveOffset();
-    void restoreOffset();
-
-    void setOnlySpacesSoFar(const bool onlySpaces);
-    bool onlySpacesSoFar() const;
-
-    void setWillContinueLine(const bool willContinue);
-    bool willContinueLine() const;
-
-    void setCaptures(const QStringList &captures);
-    const QStringList &captures() const;
-
-private:
-    int m_offset;
-    int m_savedOffset;
-    bool m_onlySpacesSoFar;
-    bool m_willContinueLine;
-    QStringList m_captures;
-};
-
-} // namespace Internal
-} // namespace GenericEditor
-
-#endif // PROGRESSDATA_H
+    // Case sensitivity could be implemented, for example, by converting all keywords to lower
+    // if the global sensitivity attribute is insensitive, then always checking for containment
+    // (with a conversion to lower in the necessary cases). But the code below is one alternative
+    // to support the existence of local sensitivity attributes (which override the global one -
+    // currently not documented).
+    if (sensitivity == Qt::CaseSensitive) {
+        return m_keywords.contains(keyword);
+    } else {
+        foreach (const QString &s, m_keywords)
+            if (keyword.compare(s, Qt::CaseInsensitive) == 0)
+                return true;
+        return false;
+    }
+}

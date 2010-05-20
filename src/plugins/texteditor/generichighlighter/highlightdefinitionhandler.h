@@ -37,7 +37,7 @@
 
 #include <QtXml/QXmlDefaultHandler>
 
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
 class KeywordList;
@@ -101,6 +101,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
 #endif // HIGHLIGHTDEFINITIONHANDLER_H

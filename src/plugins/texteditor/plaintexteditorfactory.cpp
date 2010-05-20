@@ -44,7 +44,8 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
 {
     m_actionHandler = new TextEditorActionHandler(
         QLatin1String(TextEditor::Constants::C_TEXTEDITOR),
-        TextEditorActionHandler::Format);
+        TextEditorActionHandler::Format |
+        TextEditorActionHandler::UnCommentSelection);
     m_mimeTypes << QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT);
 }
 
@@ -74,6 +75,11 @@ Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
     PlainTextEditor *rc = new PlainTextEditor(parent);
     TextEditorPlugin::instance()->initializeEditor(rc);
     return rc->editableInterface();
+}
+
+void PlainTextEditorFactory::addMimeType(const QString &type)
+{
+    m_mimeTypes.append(type);
 }
 
 QStringList PlainTextEditorFactory::mimeTypes() const

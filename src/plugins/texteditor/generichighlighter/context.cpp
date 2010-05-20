@@ -33,7 +33,7 @@
 #include "dynamicrule.h"
 #include "highlightdefinition.h"
 
-using namespace GenericEditor;
+using namespace TextEditor;
 using namespace Internal;
 
 Context::Context() : m_fallthrough(false), m_dynamic(false)
@@ -128,7 +128,7 @@ bool Context::isDynamic() const
 
 void Context::updateDynamicRules(const QStringList &captures) const
 {
-    GenericEditor::Internal::updateDynamicRules(m_rules, captures);
+    TextEditor::Internal::updateDynamicRules(m_rules, captures);
 }
 
 void Context::addRule(const QSharedPointer<Rule> &rule)

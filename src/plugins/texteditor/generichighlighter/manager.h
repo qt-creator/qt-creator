@@ -27,15 +27,12 @@
 **
 **************************************************************************/
 
-#ifndef GENERICEDITORPLUGIN_H
-#define GENERICEDITORPLUGIN_H
+#ifndef MANAGER_H
+#define MANAGER_H
 
 #include <coreplugin/mimedatabase.h>
-#include <extensionsystem/iplugin.h>
-#include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/QString>
-#include <QtCore/QStringList>
 #include <QtCore/QHash>
 #include <QtCore/QMultiHash>
 #include <QtCore/QSet>
@@ -48,27 +45,16 @@ class QStringList;
 template <class> class QFutureInterface;
 QT_END_NAMESPACE
 
-namespace GenericEditor {
+namespace TextEditor {
 namespace Internal {
 
 class HighlightDefinition;
-class Editor;
-class EditorFactory;
 
-class GenericEditorPlugin : public ExtensionSystem::IPlugin
+class Manager : public QObject
 {
     Q_OBJECT
-
-public:
-    GenericEditorPlugin();
-    virtual ~GenericEditorPlugin();
-
-    static GenericEditorPlugin *instance();
-
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
-
-    void initializeEditor(Editor *editor);
+public:    
+    static Manager *instance();
 
     QString definitionIdByName(const QString &name) const;
     QString definitionIdByMimeType(const QString &mimeType) const;
@@ -80,9 +66,8 @@ private slots:
     void registerMimeType(int index) const;
 
 private:
-    Q_DISABLE_COPY(GenericEditorPlugin)
-
-    static GenericEditorPlugin *m_instance;
+    Manager();
+    Q_DISABLE_COPY(Manager)
 
     void gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future);
     void parseDefinitionMetadata(const QFileInfo &fileInfo,
@@ -99,10 +84,6 @@ private:
     };
     PriorityCompare m_priorityComp;
 
-    TextEditor::TextEditorActionHandler *m_actionHandler;
-
-    EditorFactory *m_factory;
-
     QFutureWatcher<Core::MimeType> m_watcher;
 
     QHash<QString, QString> m_idByName;
@@ -112,6 +93,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace GenericEditor
+} // namespace TextEditor
 
-#endif // GENERICEDITORPLUGIN_H
+#endif // MANAGER_H
