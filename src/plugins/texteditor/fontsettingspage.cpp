@@ -277,8 +277,8 @@ QColor FormatDescription::background() const
         qreal smallRatio;
         qreal largeRatio;
         if (m_id == QLatin1String(Constants::C_CURRENT_LINE)) {
-            smallRatio = .15;
-            largeRatio = .3;
+            smallRatio = .3;
+            largeRatio = .6;
         } else {
             smallRatio = .05;
             largeRatio = .4;

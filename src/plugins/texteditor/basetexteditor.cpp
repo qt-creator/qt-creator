@@ -2344,14 +2344,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 for (int i = 0; i <= depth; ++i) {
                     int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
                     painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
-                    if (d->m_highlightCurrentLine && blockFP == textCursorBlock) {
-                        QRectF rrr = blockFP.layout()->lineForTextPosition(textCursor().positionInBlock()).rect();
-                        rrr.moveTop(rrr.top() + rr.top());
-                        rrr.setLeft(rr.left());
-                        rrr.setRight(rr.right());
-                        painter.fillRect(rrr.adjusted(vi, 0, -8*i, 0),
-                                         calcBlendColor(d->m_currentLineFormat.background().color(), i, count));
-                    }
                 }
 
             }
@@ -2523,26 +2515,10 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 rr.moveTop(rr.top() + r.top());
                 rr.setLeft(0);
                 rr.setRight(viewportRect.width() - offset.x());
-                if (lineX > 0) {
-                    if (lineX < rr.right()) {
-                        QRectF rrr = rr;
-                        rrr.setLeft(lineX);
-                        painter.fillRect(rrr,
-                                         blendColors(
-                                                 d->m_currentLineFormat.background().color(),
-                                                 d->m_ifdefedOutFormat.background().color(),
-                                                 50)
-                                         );
-                        const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
-                        const QPen pen = painter.pen();
-                        painter.setPen(blendColors(d->m_currentLineFormat.background().color(), col, 32));
-                        painter.drawLine(QPointF(lineX, rr.top()), QPointF(lineX, rr.bottom()));
-                        painter.setPen(pen);
-                    }
-                    rr.setRight(qMin(lineX, rr.right()));
-                }
-                if (d->m_highlightBlocksInfo.isEmpty() || BaseTextDocumentLayout::ifdefedOut(block))
-                    painter.fillRect(rr, d->m_currentLineFormat.background());
+                QColor color = d->m_currentLineFormat.background().color();
+                // set alpha, otherwise we cannot see block highlighting and find scope underneath
+                color.setAlpha(128);
+                painter.fillRect(rr, color);
             }
 
             bool drawCursor = ((editable || true) // we want the cursor in read-only mode
