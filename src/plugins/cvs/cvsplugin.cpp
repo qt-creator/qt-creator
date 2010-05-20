@@ -827,8 +827,10 @@ void CVSPlugin::slotDescribe(const QString &source, const QString &changeNr)
 
 bool CVSPlugin::describe(const QString &file, const QString &changeNr, QString *errorMessage)
 {
-    const QString toplevel = findTopLevelForDirectory(QFileInfo(file).absolutePath());
-    if (toplevel.isEmpty()) {
+
+    QString toplevel;
+    const bool manages = managesDirectory(QFileInfo(file).absolutePath(), &toplevel);
+    if (!manages || toplevel.isEmpty()) {
         *errorMessage = msgCannotFindTopLevel(file);
         return false;
     }
@@ -1122,43 +1124,42 @@ bool CVSPlugin::vcsDelete(const QString &workingDir, const QString &rawFileName)
 
 /* CVS has a "CVS" directory in each directory it manages. The top level
  * is the first directory under the directory that does not have it. */
-bool CVSPlugin::managesDirectory(const QString &directory) const
+bool CVSPlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
+    if (topLevel)
+        topLevel->clear();
+    bool manages = false;
     const QDir dir(directory);
-    const bool rc = dir.exists() && managesDirectory(dir);
-    if (CVS::Constants::debug)
-        qDebug() << "CVSPlugin::managesDirectory" << directory << rc;
-    return rc;
+    do {
+        if (!dir.exists() || !checkCVSDirectory(dir))
+            break;
+        manages = true;
+        if (!topLevel)
+            break;
+        /* Recursing up, the top level is a child of the first directory that does
+         * not have a  "CVS" directory. The starting directory must be a managed
+         * one. Go up and try to find the first unmanaged parent dir. */
+        QDir lastDirectory = dir;
+        for (QDir parentDir = lastDirectory; parentDir.cdUp() ; lastDirectory = parentDir) {
+            if (!checkCVSDirectory(parentDir)) {
+                *topLevel = lastDirectory.absolutePath();
+                break;
+            }
+        }
+    } while (false);
+    if (CVS::Constants::debug) {
+        QDebug nsp = qDebug().nospace();
+        nsp << "CVSPlugin::managesDirectory" << directory << manages;
+        if (topLevel)
+            nsp << *topLevel;
+    }
+    return manages;
 }
 
-bool CVSPlugin::managesDirectory(const QDir &directory) const
+bool CVSPlugin::checkCVSDirectory(const QDir &directory) const
 {
     const QString cvsDir = directory.absoluteFilePath(QLatin1String("CVS"));
     return QFileInfo(cvsDir).isDir();
-}
-
-QString CVSPlugin::findTopLevelForDirectory(const QString &directory) const
-{
-    // Debug wrapper
-    const QString rc = findTopLevelForDirectoryI(directory);
-    if (CVS::Constants::debug)
-        qDebug() << "CVSPlugin::findTopLevelForDirectory" << directory << rc;
-    return rc;
-}
-
-QString CVSPlugin::findTopLevelForDirectoryI(const QString &directory) const
-{
-    /* Recursing up, the top level is a child of the first directory that does
-     * not have a  "CVS" directory. The starting directory must be a managed
-     * one. Go up and try to find the first unmanaged parent dir. */
-    QDir lastDirectory = QDir(directory);
-    if (!lastDirectory.exists() || !managesDirectory(lastDirectory))
-        return QString();
-    for (QDir parentDir = lastDirectory; parentDir.cdUp() ; lastDirectory = parentDir) {
-        if (!managesDirectory(parentDir))
-            return lastDirectory.absolutePath();
-    }
-    return QString();
 }
 
 CVSControl *CVSPlugin::cvsVersionControl() const

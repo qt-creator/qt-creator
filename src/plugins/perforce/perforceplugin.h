@@ -84,8 +84,7 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
 
-    bool managesDirectory(const QString &directory);
-    QString findTopLevelForDirectory(const QString &directory);
+    bool managesDirectory(const QString &directory, QString *topLevel = 0);
     bool vcsOpen(const QString &workingDir, const QString &fileName);
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &filename);
@@ -194,6 +193,7 @@ private:
     void updateCheckout(const QString &workingDir = QString(),
                         const QStringList &dirs = QStringList());
     bool revertProject(const QString &workingDir, const QStringList &args, bool unchangedOnly);
+    bool managesDirectoryFstat(const QString &directory);
 
     inline PerforceVersionControl *perforceVersionControl() const;
 

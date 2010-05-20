@@ -95,8 +95,7 @@ public:
     bool vcsAdd15(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
-    bool managesDirectory(const QString &directory) const;
-    QString findTopLevelForDirectory(const QString &directory) const;
+    bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
 
     static SubversionPlugin *subversionPluginInstance();
 
@@ -145,8 +144,7 @@ private:
                  bool enableAnnotationContextMenu = false);
     void svnStatus(const QString &workingDir, const QStringList &relativePath = QStringList());
     void svnUpdate(const QString &workingDir, const QStringList &relativePaths = QStringList());
-    bool managesDirectory(const QDir &directory) const;
-    QString findTopLevelForDirectoryI(const QString &directory) const;
+    bool checkSVNSubDir(const QDir &directory) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();

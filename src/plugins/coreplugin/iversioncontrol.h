@@ -56,21 +56,12 @@ public:
     /*!
      * Returns whether files in this directory should be managed with this
      * version control.
+     * If \a topLevel is non-null, it should return the topmost directory,
+     * for which this IVersionControl should be used. The VCSManager assumes
+     * that all files in the returned directory are managed by the same IVersionControl.
      */
-    virtual bool managesDirectory(const QString &filename) const = 0;
 
-    /*!
-     * This function should return the topmost directory, for which this
-     * IVersionControl should be used. The VCSManager assumes that all files in
-     * the returned directory are managed by the same IVersionControl.
-     *
-     * Note that this is used as an optimization, so that the VCSManager
-     * doesn't need to call managesDirectory(..) for each directory.
-     *
-     * This function is called after finding out that the directory is managed
-     * by a specific version control.
-     */
-    virtual QString findTopLevelForDirectory(const QString &directory) const = 0;
+    virtual bool managesDirectory(const QString &filename, QString *topLevel = 0) const = 0;
 
     /*!
      * Called to query whether a VCS supports the respective operations.

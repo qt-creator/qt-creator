@@ -940,8 +940,9 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     // To describe a complete change, find the top level and then do
     //svn diff -r 472958:472959 <top level>
     const QFileInfo fi(source);
-    const QString topLevel = findTopLevelForDirectory(fi.isDir() ? source : fi.absolutePath());
-    if (topLevel.isEmpty())
+    QString topLevel;
+    const bool manages = managesDirectory(fi.isDir() ? source : fi.absolutePath(), &topLevel);
+    if (!manages || topLevel.isEmpty())
         return;
     if (Subversion::Constants::debug)
         qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
@@ -1184,7 +1185,7 @@ bool SubversionPlugin::vcsAdd14(const QString &workingDir, const QString &rawFil
             if (!path.isEmpty())
                 path += slash;
             path += relativePath.at(p);
-            if (!managesDirectory(QDir(path))) {
+            if (!checkSVNSubDir(QDir(path))) {
                 QStringList addDirArgs;
                 addDirArgs << QLatin1String("add") << QLatin1String("--non-recursive") << QDir::toNativeSeparators(path);
                 const SubversionResponse addDirResponse = runSvn(workingDir, addDirArgs, m_settings.timeOutMS(), true);
@@ -1224,16 +1225,40 @@ bool SubversionPlugin::vcsMove(const QString &workingDir, const QString &from, c
 /* Subversion has ".svn" directory in each directory
  * it manages. The top level is the first directory
  * under the directory that does not have a  ".svn". */
-bool SubversionPlugin::managesDirectory(const QString &directory) const
+bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
     const QDir dir(directory);
-    const bool rc = dir.exists() && managesDirectory(dir);
-    if (Subversion::Constants::debug)
-        qDebug() << "SubversionPlugin::managesDirectory" << directory << rc;
-    return rc;
+    if (topLevel)
+        topLevel->clear();
+    bool manages = false;
+    do {
+        if (!dir.exists() || !checkSVNSubDir(dir))
+            break;
+        manages = true;
+        if (!topLevel)
+            break;
+        /* Recursing up, the top level is a child of the first directory that does
+         * not have a  ".svn" directory. The starting directory must be a managed
+         * one. Go up and try to find the first unmanaged parent dir. */
+        QDir lastDirectory = dir;
+        for (QDir parentDir = lastDirectory; parentDir.cdUp() ; lastDirectory = parentDir) {
+            if (!checkSVNSubDir(parentDir)) {
+                *topLevel = lastDirectory.absolutePath();
+                break;
+            }
+        }
+    } while (false);
+    if (Subversion::Constants::debug) {
+        QDebug nsp = qDebug().nospace();
+        nsp << "SubversionPlugin::managesDirectory" << directory << manages;
+        if (topLevel)
+            nsp << *topLevel;
+    }
+    return manages;
 }
 
-bool SubversionPlugin::managesDirectory(const QDir &directory) const
+// Check whether SVN management subdirs exist.
+bool SubversionPlugin::checkSVNSubDir(const QDir &directory) const
 {
     const int dirCount = m_svnDirectories.size();
     for (int i = 0; i < dirCount; i++) {
@@ -1242,30 +1267,6 @@ bool SubversionPlugin::managesDirectory(const QDir &directory) const
             return true;
     }
     return false;
-}
-
-QString SubversionPlugin::findTopLevelForDirectory(const QString &directory) const
-{
-    // Debug wrapper
-    const QString rc = findTopLevelForDirectoryI(directory);
-    if (Subversion::Constants::debug)
-        qDebug() << "SubversionPlugin::findTopLevelForDirectory" << directory << rc;
-    return rc;
-}
-
-QString SubversionPlugin::findTopLevelForDirectoryI(const QString &directory) const
-{
-    /* Recursing up, the top level is a child of the first directory that does
-     * not have a  ".svn" directory. The starting directory must be a managed
-     * one. Go up and try to find the first unmanaged parent dir. */
-    QDir lastDirectory = QDir(directory);
-    if (!lastDirectory.exists() || !managesDirectory(lastDirectory))
-        return QString();
-    for (QDir parentDir = lastDirectory; parentDir.cdUp() ; lastDirectory = parentDir) {
-        if (!managesDirectory(parentDir))
-            return lastDirectory.absolutePath();
-    }
-    return QString();
 }
 
 SubversionControl *SubversionPlugin::subVersionControl() const

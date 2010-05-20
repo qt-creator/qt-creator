@@ -47,16 +47,13 @@ QString MercurialControl::displayName() const
     return tr("Mercurial");
 }
 
-bool MercurialControl::managesDirectory(const QString &directory) const
+bool MercurialControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
     QFileInfo dir(directory);
-    return !mercurialClient->findTopLevelForFile(dir).isEmpty();
-}
-
-QString MercurialControl::findTopLevelForDirectory(const QString &directory) const
-{
-    QFileInfo dir(directory);
-    return mercurialClient->findTopLevelForFile(dir);
+    const QString topLevelFound = mercurialClient->findTopLevelForFile(dir);
+    if (topLevel)
+        *topLevel = topLevelFound;
+    return !topLevelFound.isEmpty();
 }
 
 bool MercurialControl::supportsOperation(Operation operation) const
@@ -137,8 +134,9 @@ bool MercurialControl::vcsAnnotate(const QString &file, int line)
 bool MercurialControl::sccManaged(const QString &filename)
 {
     const QFileInfo fi(filename);
-    const QString topLevel = findTopLevelForDirectory(fi.absolutePath());
-    if (topLevel.isEmpty())
+    QString topLevel;
+    const bool managed = managesDirectory(fi.absolutePath(), &topLevel);
+    if (!managed || topLevel.isEmpty())
         return false;
     const QDir topLevelDir(topLevel);
     return mercurialClient->manifestSync(topLevel, topLevelDir.relativeFilePath(filename));

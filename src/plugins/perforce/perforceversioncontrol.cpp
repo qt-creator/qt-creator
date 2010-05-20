@@ -120,19 +120,15 @@ bool PerforceVersionControl::vcsAnnotate(const QString &file, int line)
     return true;
 }
 
-bool PerforceVersionControl::managesDirectory(const QString &directory) const
+bool PerforceVersionControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
-    const bool rc = m_plugin->managesDirectory(directory);
-    if (Perforce::Constants::debug)
-        qDebug() << "managesDirectory" << directory << rc;
-    return rc;
-}
-
-QString PerforceVersionControl::findTopLevelForDirectory(const QString &directory) const
-{
-    const QString rc = m_plugin->findTopLevelForDirectory(directory);
-    if (Perforce::Constants::debug)
-        qDebug() << "findTopLevelForDirectory" << directory << rc;
+    const bool rc = m_plugin->managesDirectory(directory, topLevel);
+    if (Perforce::Constants::debug) {
+        QDebug nsp = qDebug().nospace();
+        nsp << "managesDirectory" << directory << rc;
+        if (topLevel)
+            nsp << topLevel;
+    }
     return rc;
 }
 

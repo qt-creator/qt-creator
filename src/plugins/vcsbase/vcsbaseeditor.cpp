@@ -821,8 +821,8 @@ QString VCSBaseEditor::findDiffFile(const QString &f, Core::IVersionControl *con
     // Try to locate via repository.
     if (!control)
         return QString();
-    const QString topLevel = control->findTopLevelForDirectory(sourceDir);
-    if (topLevel.isEmpty())
+    QString topLevel;
+    if (!control->managesDirectory(sourceDir, &topLevel))
         return QString();
     const QFileInfo topLevelFileInfo(topLevel + slash + f);
     if (topLevelFileInfo.isFile())

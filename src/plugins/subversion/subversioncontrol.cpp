@@ -114,14 +114,9 @@ bool SubversionControl::vcsRemoveSnapshot(const QString &, const QString &)
     return false;
 }
 
-bool SubversionControl::managesDirectory(const QString &directory) const
+bool SubversionControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
-    return m_plugin->managesDirectory(directory);
-}
-
-QString SubversionControl::findTopLevelForDirectory(const QString &directory) const
-{
-    return m_plugin->findTopLevelForDirectory(directory);
+    return m_plugin->managesDirectory(directory, topLevel);
 }
 
 bool SubversionControl::vcsAnnotate(const QString &file, int line)

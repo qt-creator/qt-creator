@@ -120,14 +120,9 @@ bool CVSControl::vcsAnnotate(const QString &file, int line)
     return true;
 }
 
-bool CVSControl::managesDirectory(const QString &directory) const
+bool CVSControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
-    return m_plugin->managesDirectory(directory);
-}
-
-QString CVSControl::findTopLevelForDirectory(const QString &directory) const
-{
-    return m_plugin->findTopLevelForDirectory(directory);
+    return m_plugin->managesDirectory(directory, topLevel);
 }
 
 void CVSControl::emitRepositoryChanged(const QString &s)

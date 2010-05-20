@@ -45,8 +45,8 @@ public:
 
     virtual QString displayName() const;
 
-    bool managesDirectory(const QString &directory) const;
-    virtual QString findTopLevelForDirectory(const QString &directory) const;
+    virtual bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
+
 
     virtual bool supportsOperation(Operation operation) const;
     virtual bool vcsOpen(const QString &fileName);

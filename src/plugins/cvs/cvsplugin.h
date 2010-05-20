@@ -95,8 +95,7 @@ public:
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
-    bool managesDirectory(const QString &directory) const;
-    QString findTopLevelForDirectory(const QString &directory) const;
+    bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
 
     static CVSPlugin *cvsPluginInstance();
 
@@ -145,7 +144,7 @@ private:
     void filelog(const QString &workingDir,
                  const QStringList &files = QStringList(),
                  bool enableAnnotationContextMenu = false);
-    bool managesDirectory(const QDir &directory) const;
+    bool checkCVSDirectory(const QDir &directory) const;
     QString findTopLevelForDirectoryI(const QString &directory) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
     bool commit(const QString &messageFile, const QStringList &subVersionFileList);

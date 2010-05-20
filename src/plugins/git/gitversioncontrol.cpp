@@ -206,14 +206,12 @@ bool GitVersionControl::vcsRemoveSnapshot(const QString &topLevel, const QString
             && gitClient()->synchronousStashRemove(topLevel, stashName);
 }
 
-bool GitVersionControl::managesDirectory(const QString &directory) const
+bool GitVersionControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
-    return !GitClient::findRepositoryForDirectory(directory).isEmpty();
-}
-
-QString GitVersionControl::findTopLevelForDirectory(const QString &directory) const
-{
-    return GitClient::findRepositoryForDirectory(directory);
+    const QString topLevelFound = GitClient::findRepositoryForDirectory(directory);
+    if (topLevel)
+        *topLevel = topLevelFound;
+    return !topLevelFound.isEmpty();
 }
 
 bool GitVersionControl::vcsAnnotate(const QString &file, int line)

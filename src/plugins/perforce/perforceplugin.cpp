@@ -848,7 +848,20 @@ void PerforcePlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_updateAllAction->setEnabled(true);
 }
 
-bool PerforcePlugin::managesDirectory(const QString &directory)
+bool PerforcePlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */)
+{
+    const bool rc = managesDirectoryFstat(directory);
+    if (topLevel) {
+        if (rc) {
+            *topLevel = m_settings.topLevelSymLinkTarget();
+        } else {
+            topLevel->clear();
+        }
+    }
+    return rc;
+}
+
+bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
 {
     if (!m_settings.isValid())
         return false;
@@ -873,13 +886,6 @@ bool PerforcePlugin::managesDirectory(const QString &directory)
 
     m_managedDirectoryCache.insert(directory, managed);
     return managed;
-}
-
-QString PerforcePlugin::findTopLevelForDirectory(const QString &dir)
-{
-    if (!m_settings.isValid())
-        return QString();
-    return managesDirectory(dir) ? m_settings.topLevelSymLinkTarget() : QString();
 }
 
 bool PerforcePlugin::vcsOpen(const QString &workingDir, const QString &fileName)

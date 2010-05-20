@@ -90,6 +90,18 @@ IVersionControl* VCSManager::findVersionControlForDirectory(const QString &direc
                                                             QString *topLevelDirectory)
 {
     typedef VersionControlCache::const_iterator VersionControlCacheConstIterator;
+
+    if (debug) {
+        qDebug(">findVersionControlForDirectory %s topLevelPtr %d",
+               qPrintable(directory), (topLevelDirectory != 0));
+        if (debug > 1) {
+            const VersionControlCacheConstIterator cend = m_d->m_cachedMatches.constEnd();
+            for (VersionControlCacheConstIterator it = m_d->m_cachedMatches.constBegin(); it != cend; ++it)
+                qDebug("Cache %s -> '%s'", qPrintable(it.key()), qPrintable(it.value()->displayName()));
+        }
+    }
+    QTC_ASSERT(!directory.isEmpty(), return 0);
+
     const VersionControlCacheConstIterator cacheEnd = m_d->m_cachedMatches.constEnd();
 
     if (topLevelDirectory)
@@ -100,37 +112,51 @@ IVersionControl* VCSManager::findVersionControlForDirectory(const QString &direc
     if (fullPathIt != cacheEnd) {
         if (topLevelDirectory)
             *topLevelDirectory = directory;
+        if (debug)
+            qDebug("<findVersionControlForDirectory: full cache match for VCS '%s'", qPrintable(fullPathIt.value()->displayName()));
         return fullPathIt.value();
     }
 
-    // Split the path, starting from top, try to find the matching repository
-    int pos = 0;
+    // Split the path, trying to find the matching repository. We start from the reverse
+    // in order to detected nested repositories correctly (say, a git checkout under SVN).
+    // Note that detection of a nested version control will still fail if the
+    // above-located version control is detected and entered into the cache first.
+    // The nested one can then no longer be found due to the splitting of the paths.
+    int pos = directory.size() - 1;
     const QChar slash = QLatin1Char('/');
     while (true) {
-        const int index = directory.indexOf(slash, pos);
-        if (index == -1)
+        const int index = directory.lastIndexOf(slash, pos);
+        if (index <= 0) // Stop at '/' or not found
             break;
         const QString directoryPart = directory.left(index);
         const VersionControlCacheConstIterator it = m_d->m_cachedMatches.constFind(directoryPart);
         if (it != cacheEnd) {
             if (topLevelDirectory)
                 *topLevelDirectory = it.key();
+            if (debug)
+                qDebug("<findVersionControlForDirectory: cache match for VCS '%s', topLevel: %s",
+                       qPrintable(it.value()->displayName()), qPrintable(it.key()));
             return it.value();
         }
-        pos = index + 1;
+        pos = index - 1;
     }
 
     // Nothing: ask the IVersionControls directly, insert the toplevel into the cache.
     const VersionControlList versionControls = allVersionControls();
     foreach (IVersionControl * versionControl, versionControls) {
-        if (versionControl->managesDirectory(directory)) {
-            const QString topLevel = versionControl->findTopLevelForDirectory(directory);
+        QString topLevel;
+        if (versionControl->managesDirectory(directory, &topLevel)) {
             m_d->m_cachedMatches.insert(topLevel, versionControl);
             if (topLevelDirectory)
                 *topLevelDirectory = topLevel;
+            if (debug)
+                qDebug("<findVersionControlForDirectory: invocation of '%s' matches: %s",
+                       qPrintable(versionControl->displayName()), qPrintable(topLevel));
             return versionControl;
         }
     }
+    if (debug)
+        qDebug("<findVersionControlForDirectory: No match for %s", qPrintable(directory));
     return 0;
 }
 

@@ -50,8 +50,7 @@ public:
     explicit MercurialControl(MercurialClient *mercurialClient);
 
     QString displayName() const;
-    bool managesDirectory(const QString &filename) const;
-    QString findTopLevelForDirectory(const QString &directory) const;
+    bool managesDirectory(const QString &filename, QString *topLevel = 0) const;
     bool supportsOperation(Operation operation) const;
     bool vcsOpen(const QString &fileName);
     bool vcsAdd(const QString &filename);
