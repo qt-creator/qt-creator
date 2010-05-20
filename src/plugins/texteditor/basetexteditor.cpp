@@ -202,11 +202,10 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     viewport()->setMouseTracking(true);
     d->extraAreaSelectionAnchorBlockNumber
         = d->extraAreaToggleMarkBlockNumber
-        = d->extraAreaHighlightCollapseBlockNumber
-        = d->extraAreaHighlightCollapseColumn
+        = d->extraAreaHighlightFoldedBlockNumber
         = -1;
 
-    d->visibleCollapsedBlockNumber = d->suggestedVisibleCollapsedBlockNumber = -1;
+    d->visibleFoldedBlockNumber = d->suggestedVisibleFoldedBlockNumber = -1;
 
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(slotUpdateExtraAreaWidth()));
     connect(this, SIGNAL(modificationChanged(bool)), this, SLOT(slotModificationChanged(bool)));
@@ -280,7 +279,7 @@ void BaseTextEditor::print(QPrinter *printer)
     delete dlg;
 }
 
-static int collapseBoxWidth(const QFontMetrics &fm)
+static int foldBoxWidth(const QFontMetrics &fm)
 {
     const int lineSpacing = fm.lineSpacing();
     return lineSpacing + lineSpacing%2 + 1;
@@ -585,7 +584,7 @@ bool BaseTextEditor::open(const QString &fileName)
 /*
   Collapses the first comment in a file, if there is only whitespace above
   */
-void BaseTextEditorPrivate::collapseLicenseHeader()
+void BaseTextEditorPrivate::foldLicenseHeader()
 {
     QTextDocument *doc = q->document();
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
@@ -593,19 +592,16 @@ void BaseTextEditorPrivate::collapseLicenseHeader()
     QTextBlock block = doc->firstBlock();
     const TabSettings &ts = m_document->tabSettings();
     while (block.isValid() && block.isVisible()) {
-        TextBlockUserData *data = TextBlockUserData::canCollapse(block);
-        if (data && block.next().isVisible()) {
-            QChar character;
-            static_cast<TextBlockUserData*>(data)->collapseAtPos(&character);
-            if (character != QLatin1Char('+'))
-                break; // not a comment
-            TextBlockUserData::doCollapse(block, false);
-            moveCursorVisible();
-            documentLayout->requestUpdate();
-            documentLayout->emitDocumentSizeChanged();
-            break;
-        }
         QString text = block.text();
+        if (BaseTextDocumentLayout::canFold(block) && block.next().isVisible()) {
+            if (text.trimmed().startsWith(QLatin1String("/*"))) {
+                BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+                moveCursorVisible();
+                documentLayout->requestUpdate();
+                documentLayout->emitDocumentSizeChanged();
+                break;
+            }
+        }
         if (ts.firstNonSpace(text) < text.size())
             break;
         block = block.next();
@@ -1001,7 +997,7 @@ void BaseTextEditor::moveLineUpDown(bool up)
     QTextCursor cursor = textCursor();
     QTextCursor move = cursor;
 
-    move.setVisualNavigation(false); // this opens collapsed items instead of destroying them
+    move.setVisualNavigation(false); // this opens folded items instead of destroying them
 
     if (d->m_moveLineUndoHack)
         move.joinPreviousEditBlock();
@@ -1068,7 +1064,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
     QToolTip::hideText();
 
     d->m_moveLineUndoHack = false;
-    d->clearVisibleCollapsedBlock();
+    d->clearVisibleFoldedBlock();
 
     QKeyEvent *original_e = e;
     d->m_lastEventWasBlockSelectionEvent = false;
@@ -1629,19 +1625,16 @@ QByteArray BaseTextEditor::saveState() const
     stream << column;
 
     // store code folding state
-    QList<int> collapsedBlocks;
+    QList<int> foldedBlocks;
     QTextBlock block = document()->firstBlock();
     while (block.isValid()) {
-        if (block.userData() && static_cast<TextBlockUserData*>(block.userData())->collapsed()) {
+        if (block.userData() && static_cast<TextBlockUserData*>(block.userData())->folded()) {
             int number = block.blockNumber();
-            if (static_cast<TextBlockUserData*>(block.userData())->collapseMode()
-                == TextBlockUserData::CollapseThis)
-                number--;
-            collapsedBlocks += number;
+            foldedBlocks += number;
         }
         block = block.next();
     }
-    stream << collapsedBlocks;
+    stream << foldedBlocks;
 
     return state;
 }
@@ -1650,7 +1643,7 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
 {
     if (state.isEmpty()) {
         if (d->m_displaySettings.m_autoFoldFirstComment)
-            d->collapseLicenseHeader();
+            d->foldLicenseHeader();
         return false;
     }
     int version;
@@ -1672,11 +1665,11 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
         foreach(int blockNumber, collapsedBlocks) {
             QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
             if (block.isValid())
-                TextBlockUserData::doCollapse(block, false);
+                BaseTextDocumentLayout::doFoldOrUnfold(block, false);
         }
     } else {
         if (d->m_displaySettings.m_autoFoldFirstComment)
-            d->collapseLicenseHeader();
+            d->foldLicenseHeader();
     }
 
     d->m_lastCursorChangeWasInteresting = false; // avoid adding last position to history
@@ -1850,7 +1843,7 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_parenthesesMatchingEnabled(false),
     m_autoParenthesesEnabled(true),
     m_extraArea(0),
-    m_mouseOnCollapsedMarker(false),
+    m_mouseOnFoldedMarker(false),
     m_marksVisible(false),
     m_codeFoldingVisible(false),
     m_codeFoldingSupported(false),
@@ -1999,15 +1992,12 @@ void BaseTextEditor::resizeEvent(QResizeEvent *e)
                            QRect(cr.left(), cr.top(), extraAreaWidth(), cr.height())));
 }
 
-QRect BaseTextEditor::collapseBox()
+QRect BaseTextEditor::foldBox()
 {
-    if (d->m_highlightBlocksInfo.isEmpty() || d->extraAreaHighlightCollapseBlockNumber < 0)
+    if (d->m_highlightBlocksInfo.isEmpty() || d->extraAreaHighlightFoldedBlockNumber < 0)
         return QRect();
 
     QTextBlock begin = document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last());
-
-    if (TextBlockUserData::hasCollapseAfter(begin.previous()))
-        begin = begin.previous();
 
     QTextBlock end = document()->findBlockByNumber(d->m_highlightBlocksInfo.close.first());
     if (!begin.isValid() || !end.isValid())
@@ -2015,13 +2005,13 @@ QRect BaseTextEditor::collapseBox()
     QRectF br = blockBoundingGeometry(begin).translated(contentOffset());
     QRectF er = blockBoundingGeometry(end).translated(contentOffset());
 
-    return QRect(d->m_extraArea->width() - collapseBoxWidth(fontMetrics()),
+    return QRect(d->m_extraArea->width() - foldBoxWidth(fontMetrics()),
                  int(br.top()),
-                 collapseBoxWidth(fontMetrics()),
+                 foldBoxWidth(fontMetrics()),
                  er.bottom() - br.top());
 }
 
-QTextBlock BaseTextEditor::collapsedBlockAt(const QPoint &pos, QRect *box) const
+QTextBlock BaseTextEditor::foldedBlockAt(const QPoint &pos, QRect *box) const
 {
     QPointF offset(contentOffset());
     QTextBlock block = firstVisibleBlock();
@@ -2621,7 +2611,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         block = block.next();
 
         if (!block.isVisible()) {
-            if (block.blockNumber() == d->visibleCollapsedBlockNumber) {
+            if (block.blockNumber() == d->visibleFoldedBlockNumber) {
                 visibleCollapsedBlock = block;
                 visibleCollapsedBlockOffset = offset + QPointF(0,1);
             }
@@ -2725,34 +2715,29 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
                 QString replacement = QLatin1String("...");
 
-                QTextBlock info = block;
-                if (block.userData()
-                    && static_cast<TextBlockUserData*>(block.userData())->collapseMode() == TextBlockUserData::CollapseAfter)
-                    ;
-                else if (block.next().userData()
-                         && static_cast<TextBlockUserData*>(block.next().userData())->collapseMode()
-                         == TextBlockUserData::CollapseThis) {
-                    replacement.prepend(nextBlock.text().trimmed().left(1));
-                    info = nextBlock;
+                if (TextBlockUserData *nextBlockUserData = BaseTextDocumentLayout::testUserData(nextBlock)) {
+                    if (nextBlockUserData->foldingStartIncluded())
+                        replacement.prepend(nextBlock.text().trimmed().left(1));
                 }
-
 
                 block = nextVisibleBlock.previous();
                 if (!block.isValid())
                     block = doc->lastBlock();
 
-                if (info.userData()
-                    && static_cast<TextBlockUserData*>(info.userData())->collapseIncludesClosure()) {
-                    QString right = block.text().trimmed();
-                    if (right.endsWith(QLatin1Char(';'))) {
-                        right.chop(1);
-                        right = right.trimmed();
-                        replacement.append(right.right(right.endsWith(QLatin1Char('/')) ? 2 : 1));
-                        replacement.append(QLatin1Char(';'));
-                    } else {
-                        replacement.append(right.right(right.endsWith(QLatin1Char('/')) ? 2 : 1));
+                if (TextBlockUserData *blockUserData = BaseTextDocumentLayout::testUserData(block)) {
+                    if (blockUserData->foldingEndIncluded()) {
+                        QString right = block.text().trimmed();
+                        if (right.endsWith(QLatin1Char(';'))) {
+                            right.chop(1);
+                            right = right.trimmed();
+                            replacement.append(right.right(right.endsWith(QLatin1Char('/')) ? 2 : 1));
+                            replacement.append(QLatin1Char(';'));
+                        } else {
+                            replacement.append(right.right(right.endsWith(QLatin1Char('/')) ? 2 : 1));
+                        }
                     }
                 }
+
                 if (selectThis)
                     painter.setPen(palette().highlightedText().color());
                 painter.drawText(collapseRect, Qt::AlignCenter, replacement);
@@ -2888,7 +2873,7 @@ int BaseTextEditor::extraAreaWidth(int *markWidthPtr) const
     space += 4;
 
     if (d->m_codeFoldingVisible)
-        space += collapseBoxWidth(fm);
+        space += foldBoxWidth(fm);
     return space;
 }
 
@@ -2948,7 +2933,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     if (d->m_marksVisible)
         markWidth += fm.lineSpacing();
 
-    const int collapseColumnWidth = d->m_codeFoldingVisible ? collapseBoxWidth(fm): 0;
+    const int collapseColumnWidth = d->m_codeFoldingVisible ? foldBoxWidth(fm): 0;
     const int extraAreaWidth = d->m_extraArea->width() - collapseColumnWidth;
 
     painter.fillRect(e->rect(), pal.color(QPalette::Base));
@@ -3020,50 +3005,35 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
 
             if (d->m_codeFoldingVisible) {
 
-                bool collapseThis = false;
-                bool collapseAfter = false;
-                bool hasClosingCollapse = false;
-
-                if (TextBlockUserData *userData = static_cast<TextBlockUserData*>(block.userData())) {
-                    if (!userData->ifdefedOut()) {
-                        collapseAfter = (userData->collapseMode() == TextBlockUserData::CollapseAfter);
-                        collapseThis = (userData->collapseMode() == TextBlockUserData::CollapseThis);
-                        hasClosingCollapse = userData->hasClosingCollapse() && (previousBraceDepth > 0);
-                    }
-                }
-
-                int extraAreaHighlightCollapseBlockNumber = -1;
-                int extraAreaHighlightCollapseEndBlockNumber = -1;
+                int extraAreaHighlightFoldBlockNumber = -1;
+                int extraAreaHighlightFoldEndBlockNumber = -1;
                 bool endIsVisible = false;
                 if (!d->m_highlightBlocksInfo.isEmpty()) {
-                    extraAreaHighlightCollapseBlockNumber =  d->m_highlightBlocksInfo.open.last();
-                    extraAreaHighlightCollapseEndBlockNumber =  d->m_highlightBlocksInfo.close.first();
-                    endIsVisible = doc->findBlockByNumber(extraAreaHighlightCollapseEndBlockNumber).isVisible();
+                    extraAreaHighlightFoldBlockNumber =  d->m_highlightBlocksInfo.open.last();
+                    extraAreaHighlightFoldEndBlockNumber =  d->m_highlightBlocksInfo.close.first();
+                    endIsVisible = doc->findBlockByNumber(extraAreaHighlightFoldEndBlockNumber).isVisible();
 
-                    QTextBlock before = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1);
-                    if (TextBlockUserData::hasCollapseAfter(before)) {
-                        extraAreaHighlightCollapseBlockNumber--;
-                    }
+//                    QTextBlock before = doc->findBlockByNumber(extraAreaHighlightCollapseBlockNumber-1);
+//                    if (TextBlockUserData::hasCollapseAfter(before)) {
+//                        extraAreaHighlightCollapseBlockNumber--;
+//                    }
                 }
 
                 TextBlockUserData *nextBlockUserData = BaseTextDocumentLayout::testUserData(nextBlock);
 
-                bool collapseNext = nextBlockUserData
-                                    && nextBlockUserData->collapseMode() == TextBlockUserData::CollapseThis
-                                    && !nextBlockUserData->ifdefedOut();
+                bool drawBox = nextBlockUserData
+                               && BaseTextDocumentLayout::foldingIndent(block) < nextBlockUserData->foldingIndent();
 
-                bool nextHasClosingCollapse = nextBlockUserData
-                                              && nextBlockUserData->hasClosingCollapseInside()
-                                              && nextBlockUserData->ifdefedOut();
 
-                bool drawBox = ((collapseAfter || collapseNext) && !nextHasClosingCollapse);
-                bool active = blockNumber == extraAreaHighlightCollapseBlockNumber;
-                bool drawStart = drawBox && active;
-                bool drawEnd = blockNumber == extraAreaHighlightCollapseEndBlockNumber || (drawStart && !endIsVisible);
-                bool hovered = blockNumber >= extraAreaHighlightCollapseBlockNumber
-                               && blockNumber <= extraAreaHighlightCollapseEndBlockNumber;
 
-                int boxWidth = collapseBoxWidth(fm);
+                bool active = blockNumber == extraAreaHighlightFoldBlockNumber;
+
+                bool drawStart = active;
+                bool drawEnd = blockNumber == extraAreaHighlightFoldEndBlockNumber || (drawStart && !endIsVisible);
+                bool hovered = blockNumber >= extraAreaHighlightFoldBlockNumber
+                               && blockNumber <= extraAreaHighlightFoldEndBlockNumber;
+
+                int boxWidth = foldBoxWidth(fm);
                 if (hovered) {
                     int itop = qRound(top);
                     int ibottom = qRound(bottom);
@@ -3264,8 +3234,8 @@ void BaseTextEditor::slotCursorPositionChanged()
 {
 #if 0
     qDebug() << "block" << textCursor().blockNumber()+1
-            << "depth:" << BaseTextDocumentLayout::braceDepth(textCursor().block())
-            << '/' << BaseTextDocumentLayout::braceDepth(document()->lastBlock());
+            << "brace depth:" << BaseTextDocumentLayout::braceDepth(textCursor().block())
+            << "indent:" << BaseTextDocumentLayout::userData(textCursor().block())->foldingIndent();
 #endif
     if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
         Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(editableInterface(), d->m_tempNavigationState);
@@ -3294,8 +3264,7 @@ void BaseTextEditor::updateHighlights()
 
     if (d->m_displaySettings.m_highlightBlocks) {
         QTextCursor cursor = textCursor();
-        d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
-        d->extraAreaHighlightCollapseColumn = cursor.position() - cursor.block().position();
+        d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
         d->m_highlightBlocksTimer->start(100);
     }
 }
@@ -3315,7 +3284,7 @@ void BaseTextEditor::slotUpdateBlockNotify(const QTextBlock &block)
         /* The syntax highlighting state changes. This opens up for
            the possibility that the paragraph has braces that support
            code folding. In this case, do the save thing and also
-           update the previous block, which might contain a collapse
+           update the previous block, which might contain a fold
            box which now is invalid.*/
             emit requestBlockUpdate(block.previous());
         }
@@ -3350,24 +3319,24 @@ void BaseTextEditor::timerEvent(QTimerEvent *e)
         int timeout = 4900 / (delta * delta);
         d->autoScrollTimer.start(timeout, this);
 
-    } else if (e->timerId() == d->collapsedBlockTimer.timerId()) {
-        d->visibleCollapsedBlockNumber = d->suggestedVisibleCollapsedBlockNumber;
-        d->suggestedVisibleCollapsedBlockNumber = -1;
-        d->collapsedBlockTimer.stop();
+    } else if (e->timerId() == d->foldedBlockTimer.timerId()) {
+        d->visibleFoldedBlockNumber = d->suggestedVisibleFoldedBlockNumber;
+        d->suggestedVisibleFoldedBlockNumber = -1;
+        d->foldedBlockTimer.stop();
         viewport()->update();
     }
     QPlainTextEdit::timerEvent(e);
 }
 
 
-void BaseTextEditorPrivate::clearVisibleCollapsedBlock()
+void BaseTextEditorPrivate::clearVisibleFoldedBlock()
 {
-    if (suggestedVisibleCollapsedBlockNumber) {
-        suggestedVisibleCollapsedBlockNumber = -1;
-        collapsedBlockTimer.stop();
+    if (suggestedVisibleFoldedBlockNumber) {
+        suggestedVisibleFoldedBlockNumber = -1;
+        foldedBlockTimer.stop();
     }
-    if (visibleCollapsedBlockNumber >= 0) {
-        visibleCollapsedBlockNumber = -1;
+    if (visibleFoldedBlockNumber >= 0) {
+        visibleFoldedBlockNumber = -1;
         q->viewport()->update();
     }
 }
@@ -3379,21 +3348,21 @@ void BaseTextEditor::mouseMoveEvent(QMouseEvent *e)
     updateLink(e);
 
     if (e->buttons() == Qt::NoButton) {
-        const QTextBlock collapsedBlock = collapsedBlockAt(e->pos());
+        const QTextBlock collapsedBlock = foldedBlockAt(e->pos());
         const int blockNumber = collapsedBlock.next().blockNumber();
         if (blockNumber < 0) {
-            d->clearVisibleCollapsedBlock();
-        } else if (blockNumber != d->visibleCollapsedBlockNumber) {
-            d->suggestedVisibleCollapsedBlockNumber = blockNumber;
-            d->collapsedBlockTimer.start(40, this);
+            d->clearVisibleFoldedBlock();
+        } else if (blockNumber != d->visibleFoldedBlockNumber) {
+            d->suggestedVisibleFoldedBlockNumber = blockNumber;
+            d->foldedBlockTimer.start(40, this);
         }
 
         // Update the mouse cursor
-        if (collapsedBlock.isValid() && !d->m_mouseOnCollapsedMarker) {
-            d->m_mouseOnCollapsedMarker = true;
+        if (collapsedBlock.isValid() && !d->m_mouseOnFoldedMarker) {
+            d->m_mouseOnFoldedMarker = true;
             viewport()->setCursor(Qt::PointingHandCursor);
-        } else if (!collapsedBlock.isValid() && d->m_mouseOnCollapsedMarker) {
-            d->m_mouseOnCollapsedMarker = false;
+        } else if (!collapsedBlock.isValid() && d->m_mouseOnFoldedMarker) {
+            d->m_mouseOnFoldedMarker = false;
             viewport()->setCursor(Qt::IBeamCursor);
         }
     } else {
@@ -3429,9 +3398,9 @@ void BaseTextEditor::mousePressEvent(QMouseEvent *e)
     if (e->button() == Qt::LeftButton) {
         d->clearBlockSelection(); // just in case, otherwise we might get strange drag and drop
 
-        QTextBlock collapsedBlock = collapsedBlockAt(e->pos());
-        if (collapsedBlock.isValid()) {
-            toggleBlockVisible(collapsedBlock);
+        QTextBlock foldedBlock = foldedBlockAt(e->pos());
+        if (foldedBlock.isValid()) {
+            toggleBlockVisible(foldedBlock);
             viewport()->setCursor(Qt::IBeamCursor);
         }
 
@@ -3509,7 +3478,6 @@ void BaseTextEditor::extraAreaLeaveEvent(QEvent *)
 void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
-    cursor.setPosition(cursor.block().position());
 
     int markWidth;
     extraAreaWidth(&markWidth);
@@ -3517,34 +3485,19 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
     if (d->m_codeFoldingVisible
         && e->type() == QEvent::MouseMove && e->buttons() == 0) { // mouse tracking
         // Update which folder marker is highlighted
-        const int highlightBlockNumber = d->extraAreaHighlightCollapseBlockNumber;
-        const int highlightColumn = d->extraAreaHighlightCollapseColumn;
-        d->extraAreaHighlightCollapseBlockNumber = -1;
-        d->extraAreaHighlightCollapseColumn = -1;
+        const int highlightBlockNumber = d->extraAreaHighlightFoldedBlockNumber;
+        d->extraAreaHighlightFoldedBlockNumber = -1;
 
-        if (e->pos().x() > extraArea()->width() - collapseBoxWidth(fontMetrics())) {
-            d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
-            if (TextBlockUserData::canCollapse(cursor.block())
-                || !TextBlockUserData::hasClosingCollapse(cursor.block()))
-                d->extraAreaHighlightCollapseColumn = cursor.block().length()-1;
-            if (TextBlockUserData::hasCollapseAfter(cursor.block())) {
-                d->extraAreaHighlightCollapseBlockNumber++;
-                d->extraAreaHighlightCollapseColumn = -1;
-                if (TextBlockUserData::canCollapse(cursor.block().next())
-                    || !TextBlockUserData::hasClosingCollapse(cursor.block().next()))
-                    d->extraAreaHighlightCollapseColumn = cursor.block().next().length()-1;
-            }
+        if (e->pos().x() > extraArea()->width() - foldBoxWidth(fontMetrics())) {
+            d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
         } else if (d->m_displaySettings.m_highlightBlocks) {
             QTextCursor cursor = textCursor();
-            d->extraAreaHighlightCollapseBlockNumber = cursor.blockNumber();
-            d->extraAreaHighlightCollapseColumn = cursor.position() - cursor.block().position();
+            d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
         }
 
-        if (highlightBlockNumber != d->extraAreaHighlightCollapseBlockNumber
-            || highlightColumn != d->extraAreaHighlightCollapseColumn) {
+        if (highlightBlockNumber != d->extraAreaHighlightFoldedBlockNumber)
             d->m_highlightBlocksTimer->start(d->m_highlightBlocksInfo.isEmpty() ? 120 : 0);
         }
-    }
 
     // Set whether the mouse cursor is a hand or normal arrow
     if (e->type() == QEvent::MouseMove) {
@@ -3555,18 +3508,16 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
         if (e->button() == Qt::LeftButton) {
-            int boxWidth = collapseBoxWidth(fontMetrics());
+            int boxWidth = foldBoxWidth(fontMetrics());
             if (d->m_codeFoldingVisible && e->pos().x() > extraArea()->width() - boxWidth) {
                 if (!cursor.block().next().isVisible()) {
                     toggleBlockVisible(cursor.block());
                     d->moveCursorVisible(false);
-                } else if (collapseBox().contains(e->pos())) {
+                } else if (foldBox().contains(e->pos())) {
                     cursor.setPosition(
                             document()->findBlockByNumber(d->m_highlightBlocksInfo.open.last()).position()
                             );
                     QTextBlock c = cursor.block();
-                    if (TextBlockUserData::hasCollapseAfter(c.previous()))
-                        c = c.previous();
                     toggleBlockVisible(c);
                     d->moveCursorVisible(false);
                 }
@@ -3643,7 +3594,7 @@ void BaseTextEditor::toggleBlockVisible(const QTextBlock &block)
     QTC_ASSERT(documentLayout, return);
 
     bool visible = block.next().isVisible();
-    TextBlockUserData::doCollapse(block, !visible);
+    BaseTextDocumentLayout::doFoldOrUnfold(block, !visible);
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
 }
@@ -3790,7 +3741,7 @@ void BaseTextEditor::handleBackspaceKey()
 
 void BaseTextEditor::wheelEvent(QWheelEvent *e)
 {
-    d->clearVisibleCollapsedBlock();
+    d->clearVisibleFoldedBlock();
     if (scrollWheelZoomingEnabled() && e->modifiers() & Qt::ControlModifier) {
         const int delta = e->delta();
         if (delta < 0)
@@ -3804,7 +3755,7 @@ void BaseTextEditor::wheelEvent(QWheelEvent *e)
 
 void BaseTextEditor::zoomIn(int range)
 {
-    d->clearVisibleCollapsedBlock();
+    d->clearVisibleFoldedBlock();
     emit requestFontZoom(range*10);
 }
 
@@ -4457,30 +4408,56 @@ void BaseTextEditor::_q_highlightBlocks()
 {
     BaseTextEditorPrivateHighlightBlocks highlightBlocksInfo;
 
-    if (d->extraAreaHighlightCollapseBlockNumber >= 0) {
-        QTextBlock block = document()->findBlockByNumber(d->extraAreaHighlightCollapseBlockNumber);
-        if (block.isValid()) {
-            QTextCursor cursor(block);
-            if (d->extraAreaHighlightCollapseColumn >= 0)
-                cursor.setPosition(cursor.position() + qMin(d->extraAreaHighlightCollapseColumn,
-                                                            block.length()-1));
-            QTextCursor closeCursor;
-            bool firstRun = true;
-            while (TextBlockUserData::findPreviousBlockOpenParenthesis(&cursor, firstRun)) {
-                firstRun = false;
-                highlightBlocksInfo.open.prepend(cursor.blockNumber());
-                int visualIndent = d->visualIndent(cursor.block());
-                if (closeCursor.isNull())
-                    closeCursor = cursor;
-                if (TextBlockUserData::findNextBlockClosingParenthesis(&closeCursor)) {
-                    highlightBlocksInfo.close.append(closeCursor.blockNumber());
-                    visualIndent = qMin(visualIndent, d->visualIndent(closeCursor.block()));
-                }
-                highlightBlocksInfo.visualIndent.prepend(visualIndent);
-            }
-        }
+    QTextBlock block;
+    if (d->extraAreaHighlightFoldedBlockNumber >= 0) {
+        block = document()->findBlockByNumber(d->extraAreaHighlightFoldedBlockNumber);
+        if (block.isValid()
+            && block.next().isValid()
+            && BaseTextDocumentLayout::foldingIndent(block.next())
+            > BaseTextDocumentLayout::foldingIndent(block))
+            block = block.next();
     }
 
+    QTextBlock closeBlock = block;
+    while (block.isValid()) {
+        int foldingIndent = BaseTextDocumentLayout::foldingIndent(block);
+
+        while (block.previous().isValid() && BaseTextDocumentLayout::foldingIndent(block) >= foldingIndent)
+            block = block.previous();
+        int nextIndent = BaseTextDocumentLayout::foldingIndent(block);
+        if (nextIndent == foldingIndent)
+            break;
+        highlightBlocksInfo.open.prepend(block.blockNumber());
+        while (closeBlock.next().isValid()
+            && BaseTextDocumentLayout::foldingIndent(closeBlock.next()) >= foldingIndent )
+            closeBlock = closeBlock.next();
+        highlightBlocksInfo.close.append(closeBlock.blockNumber());
+        int visualIndent = qMin(d->visualIndent(block), d->visualIndent(closeBlock));
+        highlightBlocksInfo.visualIndent.prepend(visualIndent);
+    }
+
+#if 0
+    if (block.isValid()) {
+        QTextCursor cursor(block);
+        if (d->extraAreaHighlightCollapseColumn >= 0)
+            cursor.setPosition(cursor.position() + qMin(d->extraAreaHighlightCollapseColumn,
+                                                        block.length()-1));
+        QTextCursor closeCursor;
+        bool firstRun = true;
+        while (TextBlockUserData::findPreviousBlockOpenParenthesis(&cursor, firstRun)) {
+            firstRun = false;
+            highlightBlocksInfo.open.prepend(cursor.blockNumber());
+            int visualIndent = d->visualIndent(cursor.block());
+            if (closeCursor.isNull())
+                closeCursor = cursor;
+            if (TextBlockUserData::findNextBlockClosingParenthesis(&closeCursor)) {
+                highlightBlocksInfo.close.append(closeCursor.blockNumber());
+                visualIndent = qMin(visualIndent, d->visualIndent(closeCursor.block()));
+            }
+            highlightBlocksInfo.visualIndent.prepend(visualIndent);
+        }
+    }
+#endif
     if (d->m_highlightBlocksInfo != highlightBlocksInfo) {
         d->m_highlightBlocksInfo = highlightBlocksInfo;
         viewport()->update();
@@ -4651,8 +4628,10 @@ void BaseTextEditor::setIfdefedOutBlocks(const QList<BaseTextEditor::BlockRange>
                 braceDepthDelta -= delta;
         }
 
-        if (braceDepthDelta)
+        if (braceDepthDelta) {
             BaseTextDocumentLayout::changeBraceDepth(block,braceDepthDelta);
+            BaseTextDocumentLayout::changeFoldingIndent(block, braceDepthDelta); // ### C++ only, refactor!
+        }
 
         block = block.next();
     }
@@ -4903,7 +4882,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
 
     d->m_displaySettings = ds;
     if (!ds.m_highlightBlocks) {
-        d->extraAreaHighlightCollapseBlockNumber = d->extraAreaHighlightCollapseColumn = -1;
+        d->extraAreaHighlightFoldedBlockNumber = -1;
         d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
     }
 
@@ -4928,31 +4907,27 @@ void BaseTextEditor::setCompletionSettings(const TextEditor::CompletionSettings 
     setAutoParenthesesEnabled(completionSettings.m_autoInsertBrackets);
 }
 
-void BaseTextEditor::collapse()
+void BaseTextEditor::fold()
 {
     QTextDocument *doc = document();
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
     QTC_ASSERT(documentLayout, return);
     QTextBlock block = textCursor().block();
-    QTextBlock curBlock = block;
-    while (block.isValid()) {
-        if (TextBlockUserData::canCollapse(block) && block.next().isVisible()) {
-            if (block == curBlock || block.next() == curBlock)
-                break;
-            if ((block.next().userState()) >> 8 <= (curBlock.previous().userState() >> 8))
-                break;
-        }
-        block = block.previous();
+    if (!(BaseTextDocumentLayout::canFold(block) && block.next().isVisible())) {
+        // find the closest previous block which can fold
+        int indent = BaseTextDocumentLayout::foldingIndent(block);
+        while (block.isValid() && (BaseTextDocumentLayout::foldingIndent(block) >= indent || !block.isVisible()))
+            block = block.previous();
     }
     if (block.isValid()) {
-        TextBlockUserData::doCollapse(block, false);
+        BaseTextDocumentLayout::doFoldOrUnfold(block, false);
         d->moveCursorVisible();
         documentLayout->requestUpdate();
         documentLayout->emitDocumentSizeChanged();
     }
 }
 
-void BaseTextEditor::expand()
+void BaseTextEditor::unfold()
 {
     QTextDocument *doc = document();
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
@@ -4960,13 +4935,13 @@ void BaseTextEditor::expand()
     QTextBlock block = textCursor().block();
     while (block.isValid() && !block.isVisible())
         block = block.previous();
-    TextBlockUserData::doCollapse(block, true);
+    BaseTextDocumentLayout::doFoldOrUnfold(block, true);
     d->moveCursorVisible();
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
 }
 
-void BaseTextEditor::unCollapseAll()
+void BaseTextEditor::unfoldAll()
 {
     QTextDocument *doc = document();
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
@@ -4975,7 +4950,7 @@ void BaseTextEditor::unCollapseAll()
     QTextBlock block = doc->firstBlock();
     bool makeVisible = true;
     while (block.isValid()) {
-        if (block.isVisible() && TextBlockUserData::canCollapse(block) && block.next().isVisible()) {
+        if (block.isVisible() && BaseTextDocumentLayout::canFold(block) && block.next().isVisible()) {
             makeVisible = false;
             break;
         }
@@ -4985,8 +4960,8 @@ void BaseTextEditor::unCollapseAll()
     block = doc->firstBlock();
 
     while (block.isValid()) {
-        if (TextBlockUserData::canCollapse(block))
-            TextBlockUserData::doCollapse(block, makeVisible);
+        if (BaseTextDocumentLayout::canFold(block))
+            BaseTextDocumentLayout::doFoldOrUnfold(block, makeVisible);
         block = block.next();
     }
 

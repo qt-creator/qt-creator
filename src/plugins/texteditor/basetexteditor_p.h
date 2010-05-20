@@ -189,8 +189,7 @@ public:
 
     int extraAreaSelectionAnchorBlockNumber;
     int extraAreaToggleMarkBlockNumber;
-    int extraAreaHighlightCollapseBlockNumber;
-    int extraAreaHighlightCollapseColumn;
+    int extraAreaHighlightFoldedBlockNumber;
 
     TextEditorOverlay *m_overlay;
     TextEditorOverlay *m_snippetOverlay;
@@ -200,12 +199,12 @@ public:
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrenceRenameFormat;
 
-    QBasicTimer collapsedBlockTimer;
-    int visibleCollapsedBlockNumber;
-    int suggestedVisibleCollapsedBlockNumber;
-    void clearVisibleCollapsedBlock();
-    bool m_mouseOnCollapsedMarker;
-    void collapseLicenseHeader();
+    QBasicTimer foldedBlockTimer;
+    int visibleFoldedBlockNumber;
+    int suggestedVisibleFoldedBlockNumber;
+    void clearVisibleFoldedBlock();
+    bool m_mouseOnFoldedMarker;
+    void foldLicenseHeader();
 
     QBasicTimer autoScrollTimer;
     void updateMarksLineNumber();

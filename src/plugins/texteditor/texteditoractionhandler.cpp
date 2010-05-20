@@ -69,9 +69,9 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
     m_cleanWhitespaceAction(0),
     m_textWrappingAction(0),
     m_unCommentSelectionAction(0),
-    m_unCollapseAllAction(0),
-    m_collapseAction(0),
-    m_expandAction(0),
+    m_unfoldAllAction(0),
+    m_foldAction(0),
+    m_unfoldAction(0),
     m_cutLineAction(0),
     m_deleteLineAction(0),
     m_selectEncodingAction(0),
@@ -198,21 +198,21 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId);
     connect(m_deleteLineAction, SIGNAL(triggered()), this, SLOT(deleteLine()));
 
-    m_collapseAction = new QAction(tr("Collapse"), this);
-    command = am->registerAction(m_collapseAction, Constants::COLLAPSE, m_contextId);
+    m_foldAction = new QAction(tr("Fold"), this);
+    command = am->registerAction(m_foldAction, Constants::FOLD, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+<")));
-    connect(m_collapseAction, SIGNAL(triggered()), this, SLOT(collapse()));
+    connect(m_foldAction, SIGNAL(triggered()), this, SLOT(fold()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
-    m_expandAction = new QAction(tr("Expand"), this);
-    command = am->registerAction(m_expandAction, Constants::EXPAND, m_contextId);
+    m_unfoldAction = new QAction(tr("Unfold"), this);
+    command = am->registerAction(m_unfoldAction, Constants::UNFOLD, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+>")));
-    connect(m_expandAction, SIGNAL(triggered()), this, SLOT(expand()));
+    connect(m_unfoldAction, SIGNAL(triggered()), this, SLOT(unfold()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
-    m_unCollapseAllAction = new QAction(tr("(Un)&Collapse All"), this);
-    command = am->registerAction(m_unCollapseAllAction, Constants::UN_COLLAPSE_ALL, m_contextId);
-    connect(m_unCollapseAllAction, SIGNAL(triggered()), this, SLOT(unCollapseAll()));
+    m_unfoldAllAction = new QAction(tr("(Un)&Collapse All"), this);
+    command = am->registerAction(m_unfoldAllAction, Constants::UNFOLD_ALL, m_contextId);
+    connect(m_unfoldAllAction, SIGNAL(triggered()), this, SLOT(unfoldAll()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
     m_increaseFontSizeAction = new QAction(tr("Increase Font Size"), this);
@@ -406,7 +406,7 @@ void TextEditorActionHandler::updateActions(UpdateMode um)
     m_moveLineDownAction->setEnabled(um != ReadOnlyMode);
 
     m_formatAction->setEnabled((m_optionalActions & Format));
-    m_unCollapseAllAction->setEnabled((m_optionalActions & UnCollapseAll));
+    m_unfoldAllAction->setEnabled((m_optionalActions & UnCollapseAll));
     m_visualizeWhitespaceAction->setChecked(m_currentEditor->displaySettings().m_visualizeWhitespace);
     if (m_textWrappingAction) {
         m_textWrappingAction->setChecked(m_currentEditor->displaySettings().m_textWrapping);
@@ -498,9 +498,9 @@ FUNCTION(cleanWhitespace)
 FUNCTION(unCommentSelection)
 FUNCTION(cutLine)
 FUNCTION(deleteLine)
-FUNCTION(unCollapseAll)
-FUNCTION(collapse)
-FUNCTION(expand)
+FUNCTION(unfoldAll)
+FUNCTION(fold)
+FUNCTION(unfold)
 FUNCTION2(increaseFontSize, zoomIn)
 FUNCTION2(decreaseFontSize, zoomOut)
 FUNCTION2(resetFontSize, zoomReset)

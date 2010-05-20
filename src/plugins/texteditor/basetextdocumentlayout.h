@@ -52,9 +52,6 @@ struct TEXTEDITOR_EXPORT Parenthesis
     Type type;
     QChar chr;
     int pos;
-    static int collapseAtPos(const Parentheses &parentheses, QChar *character = 0);
-    static int closeCollapseAtPos(const Parentheses &parentheses);
-    static bool hasClosingCollapse(const Parentheses &parentheses);
 };
 
 
@@ -62,15 +59,12 @@ class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
 {
 public:
 
-    enum CollapseMode { NoCollapse , CollapseThis, CollapseAfter };
-    enum ClosingCollapseMode { NoClosingCollapse, ClosingCollapse, ClosingCollapseAtEnd };
-
     inline TextBlockUserData()
-        : m_collapseIncludesClosure(false),
-          m_collapseMode(NoCollapse),
-          m_closingCollapseMode(NoClosingCollapse),
-          m_collapsed(false),
-          m_ifdefedOut(false) {}
+        : m_folded(false),
+          m_ifdefedOut(false),
+          m_foldingIndent(0),
+          m_foldingStartIncluded(false),
+          m_foldingEndIncluded(false){}
     ~TextBlockUserData();
 
     inline TextMarks marks() const { return m_marks; }
@@ -80,21 +74,8 @@ public:
     inline void clearMarks() { m_marks.clear(); }
     inline void documentClosing() { Q_FOREACH(ITextMark *tm, m_marks) { tm->documentClosing(); } m_marks.clear();}
 
-    inline CollapseMode collapseMode() const { return (CollapseMode)m_collapseMode; }
-    inline void setCollapseMode(CollapseMode c) { m_collapseMode = c; }
-
-    inline void setClosingCollapseMode(ClosingCollapseMode c) { m_closingCollapseMode = c; }
-    inline ClosingCollapseMode closingCollapseMode() const { return (ClosingCollapseMode) m_closingCollapseMode; }
-
-    inline bool hasClosingCollapse() const { return closingCollapseMode() != NoClosingCollapse; }
-    inline bool hasClosingCollapseAtEnd() const { return closingCollapseMode() == ClosingCollapseAtEnd; }
-    inline bool hasClosingCollapseInside() const { return closingCollapseMode() == ClosingCollapse; }
-
-    inline void setCollapsed(bool b) { m_collapsed = b; }
-    inline bool collapsed() const { return m_collapsed; }
-
-    inline void setCollapseIncludesClosure(bool b) { m_collapseIncludesClosure = b; }
-    inline bool collapseIncludesClosure() const { return m_collapseIncludesClosure; }
+    inline void setFolded(bool b) { m_folded = b; }
+    inline bool folded() const { return m_folded; }
 
     inline void setParentheses(const Parentheses &parentheses) { m_parentheses = parentheses; }
     inline void clearParentheses() { m_parentheses.clear(); }
@@ -106,49 +87,6 @@ public:
     inline bool clearIfdefedOut() { bool result = m_ifdefedOut; m_ifdefedOut = false; return result;}
     inline bool ifdefedOut() const { return m_ifdefedOut; }
 
-    inline static TextBlockUserData *canCollapse(const QTextBlock &block) {
-        TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
-        if (!data || data->collapseMode() != CollapseAfter) {
-            data = static_cast<TextBlockUserData*>(block.next().userData());
-            if (!data || data->collapseMode() != TextBlockUserData::CollapseThis)
-                data = 0;
-        }
-        if (data && data->m_ifdefedOut)
-            data = 0;
-        return data;
-    }
-
-    inline static bool hasCollapseAfter(const QTextBlock & block)
-    {
-        if (!block.isValid()) {
-            return false;
-        } else if (block.next().isValid()) {
-            TextBlockUserData *data = static_cast<TextBlockUserData*>(block.next().userData());
-            if (data && data->collapseMode() == TextBlockUserData::CollapseThis &&  !data->m_ifdefedOut)
-                return true;
-        }
-        return false;
-    }
-
-    inline static bool hasClosingCollapse(const QTextBlock &block) {
-        TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
-        return (data && data->hasClosingCollapse());
-    }
-
-    inline static bool hasClosingCollapseAtEnd(const QTextBlock &block) {
-        TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
-        return (data && data->hasClosingCollapseAtEnd());
-    }
-
-    inline static bool hasClosingCollapseInside(const QTextBlock &block) {
-        TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
-        return (data && data->hasClosingCollapseInside());
-    }
-
-    static QTextBlock testCollapse(const QTextBlock& block);
-    static void doCollapse(const QTextBlock& block, bool visible);
-
-    int collapseAtPos(QChar *character = 0) const;
 
     enum MatchType { NoMatch, Match, Mismatch  };
     static MatchType checkOpenParenthesis(QTextCursor *cursor, QChar c);
@@ -161,14 +99,21 @@ public:
     static bool findPreviousBlockOpenParenthesis(QTextCursor *cursor, bool checkStartPosition = false);
     static bool findNextBlockClosingParenthesis(QTextCursor *cursor);
 
+    int foldingIndent() const { return m_foldingIndent; }
+    void setFoldingIndent(int indent) { m_foldingIndent = indent; }
+    void setFoldingStartIncluded(bool included) { m_foldingStartIncluded = included; }
+    bool foldingStartIncluded() const { return m_foldingStartIncluded; }
+    void setFoldingEndIncluded(bool included) { m_foldingEndIncluded = included; }
+    bool foldingEndIncluded() const { return m_foldingEndIncluded; }
+
 
 private:
     TextMarks m_marks;
-    uint m_collapseIncludesClosure : 1;
-    uint m_collapseMode : 4;
-    uint m_closingCollapseMode : 4;
-    uint m_collapsed : 1;
+    uint m_folded : 1;
     uint m_ifdefedOut : 1;
+    uint m_foldingIndent : 16;
+    uint m_foldingStartIncluded : 1;
+    uint m_foldingEndIncluded : 1;
     Parentheses m_parentheses;
 };
 
@@ -192,6 +137,13 @@ public:
     static int braceDepth(const QTextBlock &block);
     static void setBraceDepth(QTextBlock &block, int depth);
     static void changeBraceDepth(QTextBlock &block, int delta);
+    static void setFoldingIndent(const QTextBlock &block, int indent);
+    static int foldingIndent(const QTextBlock &block);
+    static void changeFoldingIndent(QTextBlock &block, int delta);
+    static bool canFold(const QTextBlock &block);
+    static void doFoldOrUnfold(const QTextBlock& block, bool unfold);
+    static bool isFolded(const QTextBlock &block);
+    static void setFolded(const QTextBlock &block, bool folded);
 
     static TextBlockUserData *testUserData(const QTextBlock &block) {
         return static_cast<TextBlockUserData*>(block.userData());

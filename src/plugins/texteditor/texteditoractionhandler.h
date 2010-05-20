@@ -96,9 +96,9 @@ private slots:
     void cleanWhitespace();
     void setTextWrapping(bool);
     void unCommentSelection();
-    void unCollapseAll();
-    void collapse();
-    void expand();
+    void unfoldAll();
+    void fold();
+    void unfold();
     void cutLine();
     void deleteLine();
     void selectEncoding();
@@ -153,9 +153,9 @@ private:
     QAction *m_cleanWhitespaceAction;
     QAction *m_textWrappingAction;
     QAction *m_unCommentSelectionAction;
-    QAction *m_unCollapseAllAction;
-    QAction *m_collapseAction;
-    QAction *m_expandAction;
+    QAction *m_unfoldAllAction;
+    QAction *m_foldAction;
+    QAction *m_unfoldAction;
     QAction *m_cutLineAction;
     QAction *m_deleteLineAction;
     QAction *m_selectEncodingAction;

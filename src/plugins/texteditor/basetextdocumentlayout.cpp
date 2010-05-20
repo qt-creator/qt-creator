@@ -31,60 +31,6 @@
 
 using namespace TextEditor;
 
-bool Parenthesis::hasClosingCollapse(const Parentheses &parentheses)
-{
-    return closeCollapseAtPos(parentheses) >= 0;
-}
-
-int Parenthesis::closeCollapseAtPos(const Parentheses &parentheses)
-{
-    int depth = 0;
-    for (int i = 0; i < parentheses.size(); ++i) {
-        const Parenthesis &p = parentheses.at(i);
-        if (p.chr == QLatin1Char('{')
-            || p.chr == QLatin1Char('+')
-            || p.chr == QLatin1Char('[')) {
-            ++depth;
-        } else if (p.chr == QLatin1Char('}')
-            || p.chr == QLatin1Char('-')
-            || p.chr == QLatin1Char(']')) {
-            if (--depth < 0)
-                return p.pos;
-        }
-    }
-    return -1;
-}
-
-int Parenthesis::collapseAtPos(const Parentheses &parentheses, QChar *character)
-{
-    int result = -1;
-    QChar c;
-
-    int depth = 0;
-    for (int i = 0; i < parentheses.size(); ++i) {
-        const Parenthesis &p = parentheses.at(i);
-        if (p.chr == QLatin1Char('{')
-            || p.chr == QLatin1Char('+')
-            || p.chr == QLatin1Char('[')) {
-            if (depth == 0) {
-                result = p.pos;
-                c = p.chr;
-            }
-            ++depth;
-        } else if (p.chr == QLatin1Char('}')
-            || p.chr == QLatin1Char('-')
-            || p.chr == QLatin1Char(']')) {
-            if (--depth < 0)
-                depth = 0;
-            result = -1;
-        }
-    }
-    if (result >= 0 && character)
-        *character = c;
-    return result;
-}
-
-
 TextBlockUserData::~TextBlockUserData()
 {
     TextMarks marks = m_marks;
@@ -92,11 +38,6 @@ TextBlockUserData::~TextBlockUserData()
     foreach (ITextMark *mrk, marks) {
         mrk->removedFromEditor();
     }
-}
-
-int TextBlockUserData::collapseAtPos(QChar *character) const
-{
-    return Parenthesis::collapseAtPos(m_parentheses, character);
 }
 
 int TextBlockUserData::braceDepthDelta() const
@@ -111,96 +52,6 @@ int TextBlockUserData::braceDepthDelta() const
     }
     return delta;
 }
-
-
-QTextBlock TextBlockUserData::testCollapse(const QTextBlock& block)
-{
-    QTextBlock info = block;
-    if (block.userData() && static_cast<TextBlockUserData*>(block.userData())->collapseMode() == CollapseAfter)
-        ;
-    else if (block.next().userData()
-             && static_cast<TextBlockUserData*>(block.next().userData())->collapseMode()
-             == TextBlockUserData::CollapseThis)
-        info = block.next();
-    else
-        return QTextBlock();
-    int pos = static_cast<TextBlockUserData*>(info.userData())->collapseAtPos();
-    if (pos < 0)
-        return QTextBlock();
-    QTextCursor cursor(info);
-    cursor.setPosition(cursor.position() + pos);
-    matchCursorForward(&cursor);
-    return cursor.block();
-}
-
-void TextBlockUserData::doCollapse(const QTextBlock& block, bool visible)
-{
-    QTextBlock info = block;
-    if (block.userData() && static_cast<TextBlockUserData*>(block.userData())->collapseMode() == CollapseAfter)
-        ;
-    else if (block.next().userData()
-             && static_cast<TextBlockUserData*>(block.next().userData())->collapseMode()
-             == TextBlockUserData::CollapseThis)
-        info = block.next();
-    else {
-        if (visible && !block.next().isVisible()) {
-            // no match, at least unfold!
-            QTextBlock b = block.next();
-            while (b.isValid() && !b.isVisible()) {
-                b.setVisible(true);
-                b.setLineCount(visible ? qMax(1, b.layout()->lineCount()) : 0);
-                b = b.next();
-            }
-        }
-        return;
-    }
-    int pos = static_cast<TextBlockUserData*>(info.userData())->collapseAtPos();
-    if (pos < 0)
-        return;
-    QTextCursor cursor(info);
-    cursor.setPosition(cursor.position() + pos);
-    if (matchCursorForward(&cursor) != Match) {
-        if (visible) {
-            // no match, at least unfold!
-            QTextBlock b = block.next();
-            while (b.isValid() && !b.isVisible()) {
-                b.setVisible(true);
-                b.setLineCount(visible ? qMax(1, b.layout()->lineCount()) : 0);
-                b = b.next();
-            }
-        }
-        return;
-    }
-
-    QTextBlock b = block.next();
-    while (b < cursor.block()) {
-        b.setVisible(visible);
-        b.setLineCount(visible ? qMax(1, b.layout()->lineCount()) : 0);
-        if (visible) {
-            TextBlockUserData *data = canCollapse(b);
-            if (data && data->collapsed()) {
-                QTextBlock end =  testCollapse(b);
-                if (data->collapseIncludesClosure())
-                    end = end.next();
-                if (end.isValid()) {
-                    b = end;
-                    continue;
-                }
-            }
-        }
-        b = b.next();
-    }
-
-    bool collapseIncludesClosure = hasClosingCollapseAtEnd(b);
-    if (collapseIncludesClosure) {
-        b.setVisible(visible);
-        b.setLineCount(visible ? qMax(1, b.layout()->lineCount()) : 0);
-    }
-    static_cast<TextBlockUserData*>(info.userData())->setCollapseIncludesClosure(collapseIncludesClosure);
-    static_cast<TextBlockUserData*>(info.userData())->setCollapsed(!block.next().isVisible());
-
-}
-
 
 TextBlockUserData::MatchType TextBlockUserData::checkOpenParenthesis(QTextCursor *cursor, QChar c)
 {
@@ -591,3 +442,76 @@ void BaseTextDocumentLayout::changeBraceDepth(QTextBlock &block, int delta)
     if (delta)
         setBraceDepth(block, braceDepth(block) + delta);
 }
+
+void BaseTextDocumentLayout::setFoldingIndent(const QTextBlock &block, int indent)
+{
+    if (indent == 0) {
+        if (TextBlockUserData *userData = testUserData(block))
+            userData->setFoldingIndent(0);
+    } else {
+        userData(block)->setFoldingIndent(qMax(0,indent));
+    }
+}
+
+int BaseTextDocumentLayout::foldingIndent(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = testUserData(block))
+        return userData->foldingIndent();
+    return 0;
+}
+
+void BaseTextDocumentLayout::changeFoldingIndent(QTextBlock &block, int delta)
+{
+    if (delta)
+        setFoldingIndent(block, foldingIndent(block) + delta);
+}
+
+bool BaseTextDocumentLayout::canFold(const QTextBlock &block)
+{
+    return (block.next().isValid() && foldingIndent(block.next()) > foldingIndent(block));
+}
+
+bool BaseTextDocumentLayout::isFolded(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = testUserData(block))
+        return userData->folded();
+    return false;
+}
+
+void BaseTextDocumentLayout::setFolded(const QTextBlock &block, bool folded)
+{
+    if (folded)
+        userData(block)->setFolded(true);
+    else {
+        if (TextBlockUserData *userData = testUserData(block))
+            return userData->setFolded(false);
+    }
+}
+
+void BaseTextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold)
+{
+    if (!canFold(block))
+        return;
+    QTextBlock b = block.next();
+    if (b.isVisible() == unfold)
+        return;
+
+    int indent = foldingIndent(block);
+    while (b.isValid() && foldingIndent(b) > indent && b.next().isValid()) {
+        b.setVisible(unfold);
+        b.setLineCount(unfold? qMax(1, b.layout()->lineCount()) : 0);
+        if (unfold) { // do not unfold folded sub-blocks
+            if (isFolded(b) && b.next().isValid()) {
+                int jndent = foldingIndent(b);
+                b = b.next();
+                while (b.isValid() && foldingIndent(b) > jndent)
+                    b = b.next();
+                continue;
+            }
+        }
+        b = b.next();
+    }
+    setFolded(block, !unfold);
+}
+
+

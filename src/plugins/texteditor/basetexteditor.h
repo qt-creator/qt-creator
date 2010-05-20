@@ -224,9 +224,9 @@ public slots:
 
     void cutLine();
     void deleteLine();
-    void unCollapseAll();
-    void collapse();
-    void expand();
+    void unfoldAll();
+    void fold();
+    void unfold();
     void selectEncoding();
 
     void gotoBlockStart();
@@ -491,9 +491,9 @@ private:
                            bool hovered) const;
 
     void toggleBlockVisible(const QTextBlock &block);
-    QRect collapseBox();
+    QRect foldBox();
 
-    QTextBlock collapsedBlockAt(const QPoint &pos, QRect *box = 0) const;
+    QTextBlock foldedBlockAt(const QPoint &pos, QRect *box = 0) const;
 
     void updateLink(QMouseEvent *e);
     void showLink(const Link &);

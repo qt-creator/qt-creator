@@ -78,12 +78,12 @@ protected:
     virtual void highlightBlock(const QString &text);
 
     int onBlockStart();
-    void onBlockEnd(int state, int firstNonSpace);
+    void onBlockEnd(int state);
 
     // The functions are notified whenever parentheses are encountered.
     // Custom behaviour can be added, for example storing info for indenting.
-    void onOpeningParenthesis(QChar parenthesis, int pos);
-    void onClosingParenthesis(QChar parenthesis, int pos);
+    void onOpeningParenthesis(QChar parenthesis, int pos, bool atStart);
+    void onClosingParenthesis(QChar parenthesis, int pos, bool atEnd);
 
     bool maybeQmlKeyword(const QStringRef &text) const;
     bool maybeQmlBuiltinType(const QStringRef &text) const;
@@ -94,6 +94,7 @@ private:
 
     bool m_qmlEnabled;
     int m_braceDepth;
+    int m_foldingIndent;
 
     QmlJS::Scanner m_scanner;
     Parentheses m_currentBlockParentheses;
