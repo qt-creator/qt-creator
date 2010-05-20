@@ -366,6 +366,15 @@ def qdump__QHashNode(d, item):
                 d.putItemHelper(Item(value, item.iname, "value"))
 
 
+def qdump__QHostAddress(d, item):
+    data = item.value["d"]["d"].dereference()
+    d.putStringValue(data["ipString"])
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        with Children(d):
+           d.putFields(Item(data, item.iname))
+
+
 def qdump__QList(d, item):
     d_ptr = item.value["d"]
     begin = d_ptr["begin"]
