@@ -28,11 +28,11 @@
 **************************************************************************/
 
 #include "maemotoolchain.h"
-#include "qtversionmanager.h"
+#include "maemoconstants.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QStringBuilder>
-#include <QtCore/QtDebug>
+#include <QtCore/QTextStream>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
@@ -41,7 +41,6 @@ MaemoToolChain::MaemoToolChain(const QString &targetRoot)
     : GccToolChain(targetRoot % QLatin1String("/bin/gcc"))
     , m_maddeInitialized(false)
     , m_sysrootInitialized(false)
-    , m_simulatorInitialized(false)
     , m_targetRoot(targetRoot)
 {
 }
@@ -77,7 +76,6 @@ bool MaemoToolChain::equals(ToolChain *other) const
     MaemoToolChain *toolChain = static_cast<MaemoToolChain*> (other);
     return other->type() == type()
         && toolChain->sysrootRoot() == sysrootRoot()
-        && toolChain->simulatorRoot() == simulatorRoot()
         && toolChain->targetRoot() == targetRoot();
 }
 
@@ -100,13 +98,6 @@ QString MaemoToolChain::sysrootRoot() const
     return m_sysrootRoot;
 }
 
-QString MaemoToolChain::simulatorRoot() const
-{
-    if (!m_simulatorInitialized)
-        setSimulatorRoot();
-    return m_simulatorRoot;
-}
-
 void MaemoToolChain::setMaddeRoot() const
 {
     QDir dir(targetRoot());
@@ -114,41 +105,6 @@ void MaemoToolChain::setMaddeRoot() const
 
     m_maddeInitialized = true;
     m_maddeRoot = dir.absolutePath();
-}
-
-void MaemoToolChain::setSimulatorRoot() const
-{
-    QString target = QDir::cleanPath(targetRoot());
-    target = target.mid(target.lastIndexOf(QLatin1Char('/')) + 1);
-
-    QFile file(maddeRoot() + QLatin1String("/cache/madde.conf"));
-    if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream stream(&file);
-        while (!stream.atEnd()) {
-            QString line = stream.readLine().trimmed();
-            if (!line.startsWith(QLatin1String("target")))
-                continue;
-
-            const QStringList &list = line.split(QLatin1Char(' '));
-            if (list.count() <= 1 || list.at(1) != target)
-                continue;
-
-            line = stream.readLine().trimmed();
-            while (!stream.atEnd() && line != QLatin1String("end")) {
-                if (line.startsWith(QLatin1String("runtime"))) {
-                    const QStringList &list = line.split(QLatin1Char(' '));
-                    if (list.count() > 1) {
-                        m_simulatorRoot = maddeRoot()
-                            + QLatin1String("/runtimes/") + list.at(1).trimmed();
-                    }
-                    break;
-                }
-                line = stream.readLine().trimmed();
-            }
-        }
-    }
-
-    m_simulatorInitialized = true;
 }
 
 void MaemoToolChain::setSysroot() const

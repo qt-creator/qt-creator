@@ -28,37 +28,26 @@
 **************************************************************************/
 
 #include "maemomanager.h"
-#include "qtversionmanager.h"
 
+#include "maemoconstants.h"
 #include "maemodeviceconfigurations.h"
 #include "maemopackagecreationfactory.h"
 #include "maemorunfactories.h"
 #include "maemosettingspage.h"
 #include "maemotoolchain.h"
-#include "maemorunconfiguration.h"
+#include "qemuruntimemanager.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
 #include <extensionsystem/pluginmanager.h>
-
-#include <coreplugin/actionmanager/command.h>
+#include <qt4projectmanager/qtversionmanager.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
-#include <QtCore/QList>
 #include <QtCore/QTextStream>
-
-#include <QtGui/QAction>
-#include <QtGui/QMessageBox>
 
 namespace Qt4ProjectManager {
     namespace Internal {
 
 MaemoManager *MaemoManager::m_instance = 0;
-
-const QSize iconSize = QSize(24, 20);
 
 MaemoManager::MaemoManager()
     : QObject(0)
@@ -66,16 +55,11 @@ MaemoManager::MaemoManager()
     , m_runConfigurationFactory(new MaemoRunConfigurationFactory(this))
     , m_packageCreationFactory(new MaemoPackageCreationFactory(this))
     , m_settingsPage(new MaemoSettingsPage(this))
-    , m_qemuAction(0)
 {
     Q_ASSERT(!m_instance);
 
     m_instance = this;
     MaemoDeviceConfigurations::instance(this);
-
-    icon.addFile(":/qt-maemo/images/qemu-run.png", iconSize);
-    icon.addFile(":/qt-maemo/images/qemu-stop.png", iconSize, QIcon::Normal,
-        QIcon::On);
 
     ExtensionSystem::PluginManager *pluginManager
         = ExtensionSystem::PluginManager::instance();
@@ -101,6 +85,11 @@ MaemoManager &MaemoManager::instance()
 {
     Q_ASSERT(m_instance);
     return *m_instance;
+}
+
+void MaemoManager::init()
+{
+    m_qemuRuntimeManager = new QemuRuntimeManager(this);
 }
 
 bool
@@ -135,108 +124,5 @@ MaemoManager::maemoToolChain(const QtVersion *version) const
     return new MaemoToolChain(targetRoot);
 }
 
-void
-MaemoManager::addQemuSimulatorStarter(Project *project)
-{
-    if (projects.contains(project))
-        return;
-    projects.insert(project);
-
-    if (m_qemuAction) {
-        m_qemuAction->setVisible(true);
-        return;
-    }
-
-    m_qemuAction = new QAction("Maemo Emulator", this);
-    m_qemuAction->setEnabled(false);
-    m_qemuAction->setIcon(icon.pixmap(iconSize));
-    m_qemuAction->setToolTip(tr("Start Maemo Emulator"));
-    connect(m_qemuAction, SIGNAL(triggered()), this, SLOT(triggered()));
-
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *actionManager = core->actionManager();
-    Core::Command *qemuCommand = actionManager->registerAction(m_qemuAction,
-        "MaemoEmulator", QList<int>() << Core::Constants::C_GLOBAL_ID);
-    qemuCommand->setAttribute(Core::Command::CA_UpdateText);
-    qemuCommand->setAttribute(Core::Command::CA_UpdateIcon);
-
-    Core::ModeManager *modeManager = core->modeManager();
-    modeManager->addAction(qemuCommand, 1);
-}
-
-void
-MaemoManager::removeQemuSimulatorStarter(Project *project)
-{
-    if (projects.contains(project)) {
-        projects.remove(project);
-        if (projects.isEmpty() && m_qemuAction)
-            m_qemuAction->setVisible(false);
-    }
-}
-
-void
-MaemoManager::setQemuSimulatorStarterEnabled(bool enable)
-{
-    if (m_qemuAction)
-        m_qemuAction->setEnabled(enable);
-}
-
-void
-MaemoManager::triggered()
-{
-    emit startStopQemu();
-}
-
-void
-MaemoManager::qemuStatusChanged(QemuStatus status, const QString &error)
-{
-    if (!m_qemuAction)
-        return;
-
-    bool running;
-    QString message;
-    switch (status) {
-    case QemuStarting:
-        running = true;
-        break;
-    case QemuFailedToStart:
-        running = false;
-        message = tr("Qemu failed to start: %1").arg(error);
-        break;
-    case QemuCrashed:
-        running = false;
-        message = tr("Qemu crashed");
-        break;
-    case QemuFinished:
-        running = false;
-        break;
-    default:
-        Q_ASSERT(!"Missing handling of Qemu status");
-    }
-
-    if (!message.isEmpty())
-        QMessageBox::warning(0, tr("Qemu error"), message);
-    updateQemuIcon(running);
-}
-
-void MaemoManager::updateQemuIcon(bool running)
-{
-    if (!m_qemuAction)
-        return;
-
-    QIcon::State state;
-    QString toolTip;
-    if (running) {
-        state = QIcon::On;
-        toolTip = tr("Stop Maemo Emulator");
-    } else {
-        state = QIcon::Off;
-        toolTip = tr("Start Maemo Emulator");
-    }
-
-    m_qemuAction->setToolTip(toolTip);
-    m_qemuAction->setIcon(icon.pixmap(iconSize, QIcon::Normal, state));
-}
-
-} // namespace Internal
+    } // namespace Internal
 } // namespace Qt4ProjectManager

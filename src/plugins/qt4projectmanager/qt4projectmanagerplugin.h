@@ -56,6 +56,7 @@ class QMakeStepFactory;
 class MakeStepFactory;
 class EmbeddedPropertiesPage;
 class GettingStartedWelcomePage;
+class MaemoManager;
 
 class Qt4ProjectManagerPlugin : public ExtensionSystem::IPlugin
 {
@@ -85,6 +86,7 @@ private:
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     ProFileEditorFactory *m_proFileEditorFactory;
     Qt4Manager *m_qt4ProjectManager;
+    MaemoManager *m_maemoManager;
 
     int m_projectContext;
 

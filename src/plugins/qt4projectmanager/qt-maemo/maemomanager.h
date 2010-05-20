@@ -30,20 +30,11 @@
 #ifndef MAEMOMANAGER_H
 #define MAEMOMANAGER_H
 
-#include "maemoconstants.h"
-
 #include <QtCore/QObject>
-#include <QtCore/QSet>
-
-#include <QtGui/QIcon>
-
-QT_FORWARD_DECLARE_CLASS(QAction);
 
 namespace ProjectExplorer {
-    class Project;
     class ToolChain;
 }
-using ProjectExplorer::Project;
 using ProjectExplorer::ToolChain;
 
 namespace Qt4ProjectManager {
@@ -54,33 +45,23 @@ class MaemoPackageCreationFactory;
 class MaemoRunControlFactory;
 class MaemoRunConfigurationFactory;
 class MaemoSettingsPage;
+class QemuRuntimeManager;
 
 class MaemoManager : public QObject
 {
     Q_OBJECT
+
 public:
     MaemoManager();
     ~MaemoManager();
     static MaemoManager &instance();
 
+    void init();
+
     bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version) const;
-    void addVersion(const Qt4ProjectManager::QtVersion *version) { Q_UNUSED(version); }
     ToolChain *maemoToolChain(const Qt4ProjectManager::QtVersion *version) const;
 
-    void addQemuSimulatorStarter(Project *project);
-    void removeQemuSimulatorStarter(Project *project);
-
-    void setQemuSimulatorStarterEnabled(bool state);
-    void updateQemuIcon(bool running);
-
     MaemoSettingsPage *settingsPage() const { return m_settingsPage; }
-
-public slots:
-    void triggered();
-    void qemuStatusChanged(QemuStatus status, const QString &error);
-
-signals:
-    void startStopQemu();
 
 private:
     static MaemoManager *m_instance;
@@ -89,11 +70,7 @@ private:
     MaemoRunConfigurationFactory *m_runConfigurationFactory;
     MaemoPackageCreationFactory *m_packageCreationFactory;
     MaemoSettingsPage *m_settingsPage;
-
-    QIcon icon;
-    int m_runCount;
-    QSet<Project*> projects;
-    QAction *m_qemuAction;
+    QemuRuntimeManager *m_qemuRuntimeManager;
 };
 
     } // namespace Internal

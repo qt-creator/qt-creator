@@ -460,8 +460,10 @@ QString MaemoDebugRunControl::gdbServerPort() const
 {
     return m_devConfig.type == MaemoDeviceConfig::Physical
         ? QString::number(m_devConfig.gdbServerPort)
-        : m_runConfig->simulatorGdbServerPort();
+        : m_runConfig->runtimeGdbServerPort();  // During configuration we don't
+        // know which port to use, so we display something in the config dialog,
+        // but we will make sure we use the right port from the information file.
 }
 
-} // namespace Internal
+    } // namespace Internal
 } // namespace Qt4ProjectManager

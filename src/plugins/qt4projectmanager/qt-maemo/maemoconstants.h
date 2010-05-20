@@ -39,9 +39,21 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-enum QemuStatus { QemuStarting, QemuFailedToStart, QemuFinished, QemuCrashed };
+enum QemuStatus {
+    QemuStarting,
+    QemuFailedToStart,
+    QemuFinished,
+    QemuCrashed,
+    QemuUserReason
+};
 
 #define PREFIX "Qt4ProjectManager.MaemoRunConfiguration"
+
+#ifdef Q_OS_WIN32
+#define EXEC_SUFFIX ".exe"
+#else
+#define EXEC_SUFFIX ""
+#endif
 
 static const QLatin1String MAEMO_RC_ID(PREFIX);
 static const QLatin1String MAEMO_RC_ID_PREFIX(PREFIX ".");

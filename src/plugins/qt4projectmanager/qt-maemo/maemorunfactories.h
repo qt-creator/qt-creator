@@ -50,8 +50,6 @@ using ProjectExplorer::Target;
 namespace Qt4ProjectManager {
     namespace Internal {
 
-class MaemoRunConfiguration;
-
 class MaemoRunConfigurationFactory : public IRunConfigurationFactory
 {
     Q_OBJECT
@@ -71,18 +69,6 @@ public:
 
     bool canClone(Target *parent, RunConfiguration *source) const;
     RunConfiguration *clone(Target *parent, RunConfiguration *source);
-
-private slots:
-    void projectAdded(ProjectExplorer::Project *project);
-    void projectRemoved(ProjectExplorer::Project *project);
-    void projectChanged(ProjectExplorer::Project *project);
-
-    void targetAdded(ProjectExplorer::Target *target);
-    void targetRemoved(ProjectExplorer::Target *target);
-    void targetChanged(ProjectExplorer::Target *target);
-
-private:
-    void updateMaemoEmulatorStarter(ProjectExplorer::Target *target) const;
 };
 
 class MaemoRunControlFactory : public IRunControlFactory

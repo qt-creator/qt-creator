@@ -88,14 +88,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments().join(" "));
     mainLayout->addRow(tr("Arguments:"), m_argsLineEdit);
 
-    mainLayout->addItem(new QSpacerItem(10, 10));
-    m_simNameLabel = new QLabel(tr("Simulator:"));
-    m_simValueLabel = new QLabel(m_runConfiguration->visibleSimulatorParameter());
-    mainLayout->addRow(m_simNameLabel, m_simValueLabel);
     resetDeviceConfigurations();
-
-    connect(m_runConfiguration, SIGNAL(cachedSimulatorInformationChanged()),
-        this, SLOT(updateSimulatorPath()));
     connect(m_runConfiguration, SIGNAL(deviceConfigurationsUpdated()),
             this, SLOT(resetDeviceConfigurations()));
 
@@ -128,25 +121,11 @@ void MaemoRunConfigurationWidget::updateTargetInformation()
     m_executableLabel->setText(m_runConfiguration->executable());
 }
 
-void MaemoRunConfigurationWidget::updateSimulatorPath()
-{
-    m_simValueLabel->setText(m_runConfiguration->visibleSimulatorParameter());
-}
-
 void MaemoRunConfigurationWidget::deviceConfigurationChanged(const QString &name)
 {
     const MaemoDeviceConfig &devConfig
         = MaemoDeviceConfigurations::instance().find(name);
-    setSimInfoVisible(devConfig);
     m_runConfiguration->setDeviceConfig(devConfig);
-}
-
-void MaemoRunConfigurationWidget::setSimInfoVisible(const MaemoDeviceConfig &devConf)
-{
-    const bool isSimulator
-        = devConf.isValid() && devConf.type == MaemoDeviceConfig::Simulator;
-    m_simNameLabel->setVisible(isSimulator);
-    m_simValueLabel->setVisible(isSimulator);
 }
 
 void MaemoRunConfigurationWidget::resetDeviceConfigurations()
@@ -159,7 +138,6 @@ void MaemoRunConfigurationWidget::resetDeviceConfigurations()
     m_devConfBox->addItem(MaemoDeviceConfig().name);
     const MaemoDeviceConfig &devConf = m_runConfiguration->deviceConfig();
     m_devConfBox->setCurrentIndex(m_devConfBox->findText(devConf.name));
-    setSimInfoVisible(devConf);
 }
 
 void MaemoRunConfigurationWidget::showSettingsDialog(const QString &link)

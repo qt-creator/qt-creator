@@ -36,10 +36,8 @@
 #include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QDateTime>
-#include <QtCore/QProcess>
 #include <QtCore/QStringList>
 
-QT_FORWARD_DECLARE_CLASS(QProcess)
 QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace Qt4ProjectManager {
@@ -88,20 +86,12 @@ public:
     void setArguments(const QStringList &args);
     void setDeviceConfig(const MaemoDeviceConfig &deviceConfig);
     MaemoDeviceConfig deviceConfig() const;
-
-    QString simulator() const;
-    QString simulatorArgs() const;
-    QString simulatorPath() const;
-    QString simulatorSshPort() const;
-    QString simulatorGdbServerPort() const;
-    QString visibleSimulatorParameter() const;
+    QString runtimeGdbServerPort() const;
 
     const QString sshCmd() const;
     const QString scpCmd() const;
     const QString gdbCmd() const;
     const QString dumperLib() const;
-
-    bool isQemuRunning() const;
 
     virtual QVariantMap toMap() const;
 
@@ -109,8 +99,6 @@ signals:
     void deviceConfigurationsUpdated();
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;
-    void cachedSimulatorInformationChanged() const;
-    void qemuProcessStatus(QemuStatus, const QString &error = QString());
 
 protected:
     MaemoRunConfiguration(Qt4Target *parent, MaemoRunConfiguration *source);
@@ -120,13 +108,8 @@ private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
     void updateDeviceConfigurations();
 
-    void startStopQemu();
-    void qemuProcessFinished();
-    void qemuProcessError(QProcess::ProcessError error);
-
 private:
     void init();
-    void updateSimulatorInformation() const;
     const QString cmd(const QString &cmdName) const;
     const MaemoToolChain *toolchain() const;
     bool fileNeedsDeployment(const QString &path, const QDateTime &lastDeployed) const;
@@ -138,16 +121,6 @@ private:
                                const QVariantMap &map);
 
     QString m_proFilePath;
-
-    mutable QString m_simulator;
-    mutable QString m_simulatorArgs;
-    mutable QString m_simulatorPath;
-    mutable QString m_visibleSimulatorParameter;
-    mutable QString m_simulatorLibPath;
-    mutable QString m_simulatorSshPort;
-    mutable QString m_simulatorGdbServerPort;
-    mutable bool m_cachedSimulatorInformationValid;
-
     mutable QString m_gdbPath;
 
     MaemoDeviceConfig m_devConfig;
@@ -156,8 +129,6 @@ private:
     // These map host names to deploy times.
     QMap<QString, QDateTime> m_lastDeployed;
     QMap<QString, QDateTime> m_debuggingHelpersLastDeployed;
-
-    QProcess *qemu;
 };
 
     } // namespace Internal
