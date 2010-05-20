@@ -222,26 +222,6 @@ MaemoDeviceConfig MaemoRunConfiguration::deviceConfig() const
     return m_devConfig;
 }
 
-const QString MaemoRunConfiguration::sshCmd() const
-{
-    return cmd(QString::fromLocal8Bit("ssh"));
-}
-
-const QString MaemoRunConfiguration::scpCmd() const
-{
-    return cmd(QString::fromLocal8Bit("scp"));
-}
-
-const QString MaemoRunConfiguration::cmd(const QString &cmdName) const
-{
-    QString command(cmdName);
-#ifdef Q_OS_WIN
-    command = maddeRoot() + QLatin1String("/bin/") + command
-          + QLatin1String(".exe");
-#endif
-    return command;
-}
-
 const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 {
     Qt4BuildConfiguration *qt4bc(activeQt4BuildConfiguration());

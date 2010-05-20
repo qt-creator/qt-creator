@@ -88,8 +88,6 @@ public:
     MaemoDeviceConfig deviceConfig() const;
     QString runtimeGdbServerPort() const;
 
-    const QString sshCmd() const;
-    const QString scpCmd() const;
     const QString gdbCmd() const;
     const QString dumperLib() const;
 
@@ -110,7 +108,6 @@ private slots:
 
 private:
     void init();
-    const QString cmd(const QString &cmdName) const;
     const MaemoToolChain *toolchain() const;
     bool fileNeedsDeployment(const QString &path, const QDateTime &lastDeployed) const;
     void addDeployTimesToMap(const QString &key,
