@@ -843,7 +843,7 @@ class FrameCommand(gdb.Command):
         d.typeformats = typeformats
         d.formats = formats
         d.useFancy = useFancy
-        d.passExceptions = "passexceptions" in options
+        d.passExceptions = "pe" in options
         d.autoDerefPointers = "autoderef" in options
         d.ns = qtNamespace()
         d.expandedINames = expandedINames

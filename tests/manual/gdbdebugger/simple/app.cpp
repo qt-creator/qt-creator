@@ -1259,15 +1259,16 @@ void testQThread()
     thread2.wait();
 }
 
-QVariant testQVariant1()
+void testQVariant1()
 {
     QVariant v;
     v = 1;
     v = 1.0;
     v = "string";
     v = QRect(100, 200, 300, 400);
+    v = QRectF(100, 200, 300, 400);
     v = 1;
-    return v;
+    //return v;
 }
 
 QVariant testQVariant2()
@@ -1313,7 +1314,7 @@ QVariant testQVariant2()
     var.setValue(my);
     var.setValue(my);
 #endif
-    return value;
+    return QVariant("sss");
 }
 
 QVariant testQVariant3()
@@ -1331,7 +1332,7 @@ QVariant testQVariant3()
     QVariant variant = qVariantFromValue(list);
     list.clear();
     list = qVariantValue<QList<int> >(variant);
-    return variant;
+    return QVariant("xxx");
 }
 
 QVector<int> testQVector()
