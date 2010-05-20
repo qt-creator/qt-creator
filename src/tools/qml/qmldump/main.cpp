@@ -14,6 +14,7 @@
 
 static QHash<QByteArray, const QDeclarativeType *> qmlTypeByCppName;
 static QHash<QByteArray, QByteArray> cppToQml;
+static QByteArray pluginPackage;
 
 QByteArray convertToQmlType(const QByteArray &cppName)
 {
@@ -178,10 +179,14 @@ public:
 
 void dump(const QMetaObject *meta, QXmlStreamWriter *xml)
 {
+    QByteArray qmlTypeName = convertToQmlType(meta->className());
+    if (!pluginPackage.isEmpty() && !qmlTypeName.startsWith(pluginPackage))
+        return;
+
     xml->writeStartElement("type");
 
     QXmlStreamAttributes attributes;
-    attributes.append(QXmlStreamAttribute("name", convertToQmlType(meta->className())));
+    attributes.append(QXmlStreamAttribute("name", qmlTypeName));
 
     if (const QDeclarativeType *qmlTy = qmlTypeByCppName.value(meta->className())) {
         attributes.append(QXmlStreamAttribute("version", QString("%1.%2").arg(qmlTy->majorVersion()).arg(qmlTy->minorVersion())));
@@ -234,20 +239,44 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    if (argc != 1 && argc != 2) {
+        qWarning() << "Usage: qmldump [path/to/plugin/directory]";
+        return 1;
+    }
+
+    QString pluginImportName;
+    QString pluginImportPath;
+    if (argc == 2) {
+        QFileInfo pluginPath(argv[1]);
+        if (pluginPath.exists() && pluginPath.isDir()) {
+            pluginImportPath = pluginPath.absolutePath();
+            pluginImportName = pluginPath.fileName();
+            pluginPackage = (pluginImportName + ".").toLatin1();
+        }
+    }
+
     QDeclarativeView view;
     QDeclarativeEngine *engine = view.engine();
+    if (!pluginImportPath.isEmpty())
+        engine->addImportPath(pluginImportPath);
+
+    QByteArray importCode;
+    importCode += "import Qt 4.7;\n";
+    importCode += "import Qt.labs.particles 4.7;\n";
+    importCode += "import Qt.labs.gestures 4.7;\n";
+    importCode += "import Qt.labs.folderlistmodel 4.7;\n";
+    importCode += "import org.webkit 1.0;\n";
+    if (!pluginImportName.isEmpty())
+        importCode += QString("import %0 1.0;\n").arg(pluginImportName);
 
     {
-        QByteArray code;
-        code += "import Qt 4.7;\n";
-        code += "import Qt.labs.particles 4.7;\n";
-        code += "import Qt.labs.gestures 4.7;\n";
-        code += "import Qt.labs.folderlistmodel 4.7;\n";
-        code += "import org.webkit 1.0;\n";
+        QByteArray code = importCode;
         code += "Item {}";
         QDeclarativeComponent c(engine);
         c.setData(code, QUrl("xxx"));
         c.create();
+        if (!c.errors().isEmpty())
+            qDebug() << c.errorString();
     }
 
     cppToQml.insert("QString", "string");
@@ -293,12 +322,7 @@ int main(int argc, char *argv[])
         QByteArray tyName = ty->qmlTypeName();
         tyName = tyName.mid(tyName.lastIndexOf('/') + 1);
 
-        QByteArray code;
-        code += "import Qt 4.7;\n";
-        code += "import Qt.labs.particles 4.7;\n";
-        code += "import Qt.labs.gestures 4.7;\n";
-        code += "import Qt.labs.folderlistmodel 4.7;\n";
-        code += "import org.webkit 1.0;\n";
+        QByteArray code = importCode;
         code += tyName;
         code += " {}\n";
 
