@@ -1318,6 +1318,14 @@ QVariant testQVariant2()
 
 QVariant testQVariant3()
 {
+    QVariantList vl;
+    vl.append(QVariant(1));
+    vl.append(QVariant(2));
+    vl.append(QVariant("Some String"));
+    vl.append(QVariant(21));
+    vl.append(QVariant(22));
+    vl.append(QVariant("2Some String"));
+
     QList<int> list;
     list << 1 << 2 << 3;
     QVariant variant = qVariantFromValue(list);
