@@ -411,8 +411,6 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         }
     } else if (act == actSetWatchPointAtVariableAddress) {
         addWatchPoint(m_manager, address);
-    } else if (act == actSetWatchPointAtVariableAddress) {
-        addWatchPoint(m_manager, address);
     } else if (act == actSetWatchPointAtPointerValue) {
         addWatchPoint(m_manager, pointerValue);
     } else if (act == actSelectWidgetToWatch) {
