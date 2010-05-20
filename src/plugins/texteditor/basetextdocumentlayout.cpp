@@ -493,8 +493,6 @@ void BaseTextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold
     if (!canFold(block))
         return;
     QTextBlock b = block.next();
-    if (b.isVisible() == unfold)
-        return;
 
     int indent = foldingIndent(block);
     while (b.isValid() && foldingIndent(b) > indent && b.next().isValid()) {
