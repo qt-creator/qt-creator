@@ -422,8 +422,9 @@ void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
     m_baseAddr = static_cast<quint64>(range/2) > startAddr
                 ? 0 : startAddr - range/2;
     m_baseAddr = (m_baseAddr / blockSize) * blockSize;
-    m_size = m_baseAddr != 0 && static_cast<quint64>(range) >= -m_baseAddr
-             ? -m_baseAddr : range;
+    const quint64 maxRange = Q_UINT64_C(0xffffffffffffffff) - m_baseAddr + 1;
+    m_size = m_baseAddr != 0 && static_cast<quint64>(range) >= maxRange
+             ? maxRange : range;
     m_addressBytes = (m_baseAddr + m_size < quint64(1) << 32
                       && m_baseAddr + m_size >= m_baseAddr) ? 4 : 8;
 
