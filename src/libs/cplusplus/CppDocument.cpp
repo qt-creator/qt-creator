@@ -134,12 +134,18 @@ protected:
     // Objective-C
     virtual bool visit(ObjCBaseClass *) { return false; }
     virtual bool visit(ObjCBaseProtocol *) { return false; }
-    virtual bool visit(ObjCClass *) { return false; }
     virtual bool visit(ObjCForwardClassDeclaration *) { return false; }
-    virtual bool visit(ObjCProtocol *) { return false; }
     virtual bool visit(ObjCForwardProtocolDeclaration *) { return false; }
-    virtual bool visit(ObjCMethod *) { return false; }
     virtual bool visit(ObjCPropertyDeclaration *) { return false; }
+
+    virtual bool visit(ObjCClass *symbol)
+    { return process(symbol); }
+
+    virtual bool visit(ObjCProtocol *symbol)
+    { return process(symbol); }
+
+    virtual bool visit(ObjCMethod *symbol)
+    { return process(symbol); }
 };
 
 class DocumentDiagnosticClient : public DiagnosticClient
