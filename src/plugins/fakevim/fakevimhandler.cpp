@@ -1338,6 +1338,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         if (m_movetype == MoveLineWise)
             insertAutomaticIndentation(true);
         endEditBlock();
+        setUndoPosition(position());
         enterInsertMode();
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
@@ -1940,12 +1941,16 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         finishMovement();
     } else if ((!isVisualMode() && input.is('a')) || (isVisualMode() && input.is('A'))) {
         leaveVisualMode();
+        setUndoPosition(position());
+        breakEditBlock();
         enterInsertMode();
         m_lastInsertion.clear();
         if (!atEndOfLine())
             moveRight();
         updateMiniBuffer();
     } else if (input.is('A')) {
+        setUndoPosition(position());
+        breakEditBlock();
         enterInsertMode();
         moveBehindEndOfLine();
         setDotCommand(QString(QLatin1Char('A')));
@@ -2107,6 +2112,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         finishMovement();
     } else if (!isVisualMode() && (input.is('i') || input.isKey(Key_Insert))) {
         setDotCommand(QString(QLatin1Char('i'))); // setDotCommand("%1i", count());
+        setUndoPosition(position());
+        breakEditBlock();
         enterInsertMode();
         updateMiniBuffer();
         if (atEndOfLine())
@@ -2126,6 +2133,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             m_gflag = false;
             m_tc.clearSelection();
         }
+        setUndoPosition(position());
+        breakEditBlock();
         enterInsertMode();
     } else if (input.isControl('i')) {
         if (!m_jumpListRedo.isEmpty()) {
@@ -2208,6 +2217,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         updateSelection();
     } else if (input.is('o')) {
         setDotCommand("%1o", count());
+        setUndoPosition(position());
+        breakEditBlock();
         enterInsertMode();
         beginEditBlock(position());
         moveToFirstNonBlankOnLine();
@@ -2217,6 +2228,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         endEditBlock();
     } else if (input.is('O')) {
         setDotCommand("%1O", count());
+        setUndoPosition(position());
+        breakEditBlock();
         enterInsertMode();
         beginEditBlock(position());
         moveToFirstNonBlankOnLine();
@@ -2240,6 +2253,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_submode = TransformSubMode;
         m_subsubmode = ReplaceSubSubMode;
     } else if (!isVisualMode() && input.is('R')) {
+        setUndoPosition(position());
+        breakEditBlock();
         enterReplaceMode();
         updateMiniBuffer();
     } else if (input.isControl('r')) {
@@ -2255,6 +2270,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         setDotCommand("%1s", count());
         m_opcount.clear();
         m_mvcount.clear();
+        setUndoPosition(position());
+        breakEditBlock();
         enterInsertMode();
     } else if (input.is('S')) {
         if (!isVisualMode()) {
@@ -2263,6 +2280,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             setPosition(lastPositionInLine(line + count() - 1));
         }
         setDotCommand("%1S", count());
+        setUndoPosition(position());
+        breakEditBlock();
         enterInsertMode();
         m_submode = ChangeSubMode;
         m_movetype = MoveLineWise;
@@ -4333,8 +4352,6 @@ void FakeVimHandler::Private::enterReplaceMode()
     m_commandPrefix.clear();
     m_lastInsertion.clear();
     m_lastDeletion.clear();
-    setUndoPosition(position());
-    breakEditBlock();
     updateCursor();
 }
 
@@ -4346,8 +4363,6 @@ void FakeVimHandler::Private::enterInsertMode()
     m_commandPrefix.clear();
     m_lastInsertion.clear();
     m_lastDeletion.clear();
-    setUndoPosition(position());
-    breakEditBlock();
     updateCursor();
 }
 
