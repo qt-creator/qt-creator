@@ -15,7 +15,8 @@ HEADERS += \
     $$PWD/maemopackagecreationstep.h \
     $$PWD/maemopackagecreationfactory.h \
     $$PWD/maemopackagecreationwidget.h \
-    $$PWD/maemopackagecontents.h
+    $$PWD/maemopackagecontents.h \
+    $$PWD/qemuruntimemanager.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -33,7 +34,8 @@ SOURCES += \
     $$PWD/maemopackagecreationstep.cpp \
     $$PWD/maemopackagecreationfactory.cpp \
     $$PWD/maemopackagecreationwidget.cpp \
-    $$PWD/maemopackagecontents.cpp
+    $$PWD/maemopackagecontents.cpp \
+    $$PWD/qemuruntimemanager.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \

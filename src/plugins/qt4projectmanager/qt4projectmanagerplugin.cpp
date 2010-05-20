@@ -153,7 +153,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new LinguistExternalEditor);
 
     addAutoReleasedObject(new S60Manager);
-    addAutoReleasedObject(new MaemoManager);
+    addAutoReleasedObject(m_maemoManager = new MaemoManager);
 
     new ProFileCacheManager(this);
 
@@ -228,6 +228,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 void Qt4ProjectManagerPlugin::extensionsInitialized()
 {
     m_qt4ProjectManager->init();
+    m_maemoManager->init(); // depends on the Qt4ProjectManager
 }
 
 void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,

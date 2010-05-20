@@ -26,13 +26,13 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #include "maemorunconfiguration.h"
 
-#include "maemoconstants.h"
-#include "maemomanager.h"
 #include "maemopackagecreationstep.h"
 #include "maemorunconfigurationwidget.h"
 #include "maemotoolchain.h"
+#include "qemuruntimemanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -45,9 +45,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
-#include <QtCore/QString>
 #include <QtCore/QStringBuilder>
 
 namespace Qt4ProjectManager {
@@ -59,8 +56,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
         const QString &proFilePath)
     : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID))
     , m_proFilePath(proFilePath)
-    , m_cachedSimulatorInformationValid(false)
-    , qemu(0)
 {
     init();
 }
@@ -69,20 +64,11 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
         MaemoRunConfiguration *source)
     : RunConfiguration(parent, source)
     , m_proFilePath(source->m_proFilePath)
-    , m_simulator(source->m_simulator)
-    , m_simulatorArgs(source->m_simulatorArgs)
-    , m_simulatorPath(source->m_simulatorPath)
-    , m_visibleSimulatorParameter(source->m_visibleSimulatorParameter)
-    , m_simulatorLibPath(source->m_simulatorLibPath)
-    , m_simulatorSshPort(source->m_simulatorSshPort)
-    , m_simulatorGdbServerPort(source->m_simulatorGdbServerPort)
-    , m_cachedSimulatorInformationValid(false)
     , m_gdbPath(source->m_gdbPath)
     , m_devConfig(source->m_devConfig)
     , m_arguments(source->m_arguments)
     , m_lastDeployed(source->m_lastDeployed)
     , m_debuggingHelpersLastDeployed(source->m_debuggingHelpersLastDeployed)
-    , qemu(0)
 {
     init();
 }
@@ -98,28 +84,10 @@ void MaemoRunConfiguration::init()
     connect(qt4Target()->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
         this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
-
-    qemu = new QProcess(this);
-    connect(qemu, SIGNAL(error(QProcess::ProcessError)), this,
-        SLOT(qemuProcessError(QProcess::ProcessError)));
-    connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), this,
-        SLOT(qemuProcessFinished()));
-
-    connect(&MaemoManager::instance(), SIGNAL(startStopQemu()), this,
-        SLOT(startStopQemu()));
-    connect(this, SIGNAL(qemuProcessStatus(QemuStatus, QString)),
-        &MaemoManager::instance(),
-        SLOT(qemuStatusChanged(QemuStatus,QString)));
 }
 
 MaemoRunConfiguration::~MaemoRunConfiguration()
 {
-    if (qemu && qemu->state() != QProcess::NotRunning) {
-        qemu->terminate();
-        qemu->kill();
-    }
-    delete qemu;
-    qemu = NULL;
 }
 
 Qt4Target *MaemoRunConfiguration::qt4Target() const
@@ -161,8 +129,6 @@ QVariantMap MaemoRunConfiguration::toMap() const
     addDeployTimesToMap(DebuggingHelpersLastDeployedKey,
                         m_debuggingHelpersLastDeployed, map);
 
-    map.insert(SimulatorPathKey, m_simulatorPath);
-
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
 
@@ -191,8 +157,6 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     getDeployTimesFromMap(LastDeployedKey, m_lastDeployed, map);
     getDeployTimesFromMap(DebuggingHelpersLastDeployedKey,
                           m_debuggingHelpersLastDeployed, map);
-
-    m_simulatorPath = map.value(SimulatorPathKey).toString();
 
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
@@ -351,176 +315,20 @@ QString MaemoRunConfiguration::executable() const
         + QLatin1Char('/') + ti.target));
 }
 
-QString MaemoRunConfiguration::simulatorSshPort() const
+QString MaemoRunConfiguration::runtimeGdbServerPort() const
 {
-    updateSimulatorInformation();
-    return m_simulatorSshPort;
-}
-
-QString MaemoRunConfiguration::simulatorGdbServerPort() const
-{
-    updateSimulatorInformation();;
-    return m_simulatorGdbServerPort;
-}
-
-QString MaemoRunConfiguration::simulatorPath() const
-{
-    updateSimulatorInformation();
-    return m_simulatorPath;
-}
-
-QString MaemoRunConfiguration::visibleSimulatorParameter() const
-{
-    updateSimulatorInformation();
-    return m_visibleSimulatorParameter;
-}
-
-QString MaemoRunConfiguration::simulator() const
-{
-    updateSimulatorInformation();
-    return m_simulator;
-}
-
-QString MaemoRunConfiguration::simulatorArgs() const
-{
-    updateSimulatorInformation();
-    return m_simulatorArgs;
+    if (Qt4BuildConfiguration *qt4bc = activeQt4BuildConfiguration()) {
+        Runtime rt;
+        const int id = qt4bc->qtVersion()->uniqueId();
+        if (QemuRuntimeManager::instance().runtimeForQtVersion(id, &rt))
+            return rt.m_gdbServerPort;
+    }
+    return QLatin1String("13219");
 }
 
 void MaemoRunConfiguration::setArguments(const QStringList &args)
 {
     m_arguments = args;
-}
-
-bool MaemoRunConfiguration::isQemuRunning() const
-{
-    return (qemu && qemu->state() != QProcess::NotRunning);
-}
-
-void MaemoRunConfiguration::updateSimulatorInformation() const
-{
-    if (m_cachedSimulatorInformationValid)
-        return;
-
-    m_simulator.clear();
-    m_simulatorPath.clear();
-    m_simulatorArgs.clear();
-    m_visibleSimulatorParameter.clear();
-    m_simulatorLibPath.clear();
-    m_simulatorSshPort.clear();
-    m_simulatorGdbServerPort.clear();
-    m_cachedSimulatorInformationValid = true;
-
-    if (const MaemoToolChain *tc = toolchain())
-        m_simulatorPath = QDir::toNativeSeparators(tc->simulatorRoot());
-
-    if (!m_simulatorPath.isEmpty()) {
-        m_visibleSimulatorParameter = tr("'%1' does not contain a valid Maemo "
-            "simulator image.").arg(m_simulatorPath);
-    }
-
-    QDir dir = QDir(m_simulatorPath);
-    if (!m_simulatorPath.isEmpty() && dir.exists(m_simulatorPath)) {
-        const QStringList &files = dir.entryList(QDir::Files | QDir::NoSymLinks
-            | QDir::NoDotAndDotDot);
-        if (files.count() >= 2) {
-            const QLatin1String info("information");
-            if (files.contains(info)) {
-                QFile file(m_simulatorPath + QLatin1Char('/') + info);
-                if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                    QMap<QString, QString> map;
-                    QTextStream stream(&file);
-                    while (!stream.atEnd()) {
-                        const QString &line = stream.readLine().trimmed();
-                        const int index = line.indexOf(QLatin1Char('='));
-                        map.insert(line.mid(0, index).remove(QLatin1Char('\'')),
-                            line.mid(index + 1).remove(QLatin1Char('\'')));
-                    }
-
-                    m_simulator = map.value(QLatin1String("qemu"));
-                    m_simulatorArgs = map.value(QLatin1String("qemu_args"));
-                    const QString &libPathSpec
-                        = map.value(QLatin1String("libpath"));
-                    m_simulatorLibPath
-                        = libPathSpec.mid(libPathSpec.indexOf(QLatin1Char('=')) + 1);
-                    m_simulatorSshPort = map.value(QLatin1String("sshport"));
-                    m_simulatorGdbServerPort
-                        = map.value(QLatin1String("redirport2"));
-
-                    m_visibleSimulatorParameter = m_simulator
-#ifdef Q_OS_WIN
-                        + QLatin1String(".exe")
-#endif
-                        + QLatin1Char(' ') + m_simulatorArgs;
-                }
-            }
-        }
-    } else {
-        m_visibleSimulatorParameter = tr("Simulator could not be found. Please "
-            "check the Qt Version you are using and that a simulator image is "
-            "already installed.");
-    }
-
-    emit cachedSimulatorInformationChanged();
-}
-
-void MaemoRunConfiguration::startStopQemu()
-{
-    ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance();
-    if (explorer->session()->startupProject() != target()->project())
-            return;
-
-    const MaemoDeviceConfig &config = deviceConfig();
-    if (!config.isValid()|| config.type != MaemoDeviceConfig::Simulator)
-        return;
-
-    if (qemu->state() != QProcess::NotRunning) {
-        if (qemu->state() == QProcess::Running) {
-            qemu->terminate();
-            qemu->kill();
-        }
-        return;
-    }
-
-    QString root = maddeRoot();
-    if (root.isEmpty() || simulator().isEmpty())
-        return;
-
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-#ifdef Q_OS_WIN
-    const QLatin1Char colon(';');
-    const QString path = QDir::toNativeSeparators(root + QLatin1Char('/'));
-    const QLatin1String key("PATH");
-    env.insert(key, env.value(key) % colon % path % QLatin1String("bin"));
-    env.insert(key, env.value(key) % colon % path % QLatin1String("madlib"));
-#elif defined(Q_OS_UNIX)
-    const QLatin1String key("LD_LIBRARY_PATH");
-    env.insert(key, env.value(key) % QLatin1Char(':') % m_simulatorLibPath);
-#endif
-    qemu->setProcessEnvironment(env);
-    qemu->setWorkingDirectory(simulatorPath());
-
-    const QString app = root % QLatin1String("/madlib/") % simulator()
-#ifdef Q_OS_WIN
-        % QLatin1String(".exe")
-#endif
-    ;   // keep
-
-    qemu->start(app % QLatin1Char(' ') % simulatorArgs(), QIODevice::ReadWrite);
-    emit qemuProcessStatus(QemuStarting);
-}
-
-void MaemoRunConfiguration::qemuProcessFinished()
-{
-    const QemuStatus status
-        = qemu->exitStatus() == QProcess::CrashExit ? QemuCrashed : QemuFinished;
-    emit qemuProcessStatus(status);
-}
-
-void MaemoRunConfiguration::qemuProcessError(QProcess::ProcessError error)
-{
-    if (error == QProcess::FailedToStart)
-        emit qemuProcessStatus(QemuFailedToStart, qemu->errorString());
 }
 
 void MaemoRunConfiguration::updateDeviceConfigurations()

@@ -54,7 +54,7 @@ class MaemoRunConfigurationWidget : public QWidget
     Q_OBJECT
 public:
     explicit MaemoRunConfigurationWidget(MaemoRunConfiguration *runConfiguration,
-                                         QWidget *parent = 0);
+        QWidget *parent = 0);
 
 private slots:
     void configNameEdited(const QString &text);
@@ -62,20 +62,14 @@ private slots:
     void deviceConfigurationChanged(const QString &name);
     void resetDeviceConfigurations();
     void showSettingsDialog(const QString &link);
-
-    void updateSimulatorPath();
     void updateTargetInformation();
 
 private:
-    void setSimInfoVisible(const MaemoDeviceConfig &devConf);
-
     QLineEdit *m_configNameLineEdit;
     QLineEdit *m_argsLineEdit;
     QLabel *m_executableLabel;
     QLabel *m_debuggerLabel;
     QComboBox *m_devConfBox;
-    QLabel *m_simNameLabel;
-    QLabel *m_simValueLabel;
     MaemoRunConfiguration *m_runConfiguration;
 };
 

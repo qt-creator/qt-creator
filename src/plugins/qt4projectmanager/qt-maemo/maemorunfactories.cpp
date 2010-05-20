@@ -31,18 +31,16 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+
 #include "maemorunfactories.h"
 
 #include "maemoconstants.h"
-#include "maemomanager.h"
 #include "maemorunconfiguration.h"
 #include "maemoruncontrol.h"
-#include "qt4projectmanagerconstants.h"
 
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
 #include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -63,14 +61,6 @@ QString targetFromId(const QString &id)
 MaemoRunConfigurationFactory::MaemoRunConfigurationFactory(QObject *parent)
     : IRunConfigurationFactory(parent)
 {
-    ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance();
-    connect(explorer->session(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
-        this, SLOT(projectAdded(ProjectExplorer::Project*)));
-    connect(explorer->session(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-        this, SLOT(projectRemoved(ProjectExplorer::Project*)));
-    connect(explorer->session(),
-        SIGNAL(startupProjectChanged(ProjectExplorer::Project*)), this,
-        SLOT(projectChanged(ProjectExplorer::Project*)));
 }
 
 MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
@@ -151,105 +141,7 @@ RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent,
     return new MaemoRunConfiguration(static_cast<Qt4Target *>(parent), old);
 }
 
-void MaemoRunConfigurationFactory::projectAdded(ProjectExplorer::Project *project)
-{
-    connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)), this,
-        SLOT(targetAdded(ProjectExplorer::Target*)));
-    connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)), this,
-        SLOT(targetRemoved(ProjectExplorer::Target*)));
-    connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-        this, SLOT(targetChanged(ProjectExplorer::Target*)));
-
-    foreach (Target *target, project->targets())
-        targetAdded(target);
-}
-
-void MaemoRunConfigurationFactory::projectRemoved(ProjectExplorer::Project *project)
-{
-    disconnect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)), this,
-        SLOT(targetAdded(ProjectExplorer::Target*)));
-    disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)), this,
-        SLOT(targetRemoved(ProjectExplorer::Target*)));
-    disconnect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-        this, SLOT(targetChanged(ProjectExplorer::Target*)));
-
-    foreach (Target *target, project->targets())
-        targetRemoved(target);
-}
-
-void MaemoRunConfigurationFactory::projectChanged(ProjectExplorer::Project *project)
-{
-    if (project)
-        updateMaemoEmulatorStarter(project->target(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID)));
-}
-
-void MaemoRunConfigurationFactory::targetAdded(ProjectExplorer::Target *target)
-{
-    if (!target || target->id() != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
-        return;
-
-    MaemoManager::instance().addQemuSimulatorStarter(target->project());
-    foreach (RunConfiguration *runConfig, target->runConfigurations()) {
-        if (MaemoRunConfiguration *mrc = qobject_cast<MaemoRunConfiguration *> (runConfig)) {
-            connect(mrc, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
-                this, SLOT(targetChanged(ProjectExplorer::Target*)));
-        }
-    }
-    updateMaemoEmulatorStarter(target);
-}
-
-void MaemoRunConfigurationFactory::targetRemoved(ProjectExplorer::Target *target)
-{
-    if (!target || target->id() != QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
-        return;
-
-    MaemoManager::instance().removeQemuSimulatorStarter(target->project());
-    foreach (RunConfiguration *runConfig, target->runConfigurations()) {
-        if (MaemoRunConfiguration *mrc = qobject_cast<MaemoRunConfiguration *> (runConfig)) {
-            disconnect(mrc, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
-                this, SLOT(targetChanged(ProjectExplorer::Target*)));
-        }
-    }
-    updateMaemoEmulatorStarter(target);
-}
-
-void MaemoRunConfigurationFactory::targetChanged(ProjectExplorer::Target *target)
-{
-    if (target)
-        updateMaemoEmulatorStarter(target);
-}
-
-void MaemoRunConfigurationFactory::updateMaemoEmulatorStarter(Target *target) const
-{
-    bool enable = false;
-    bool isRunning = false;
-
-    if (target) {
-        MaemoRunConfiguration *mrc = 0;
-        if (target->project()->activeTarget() == target)
-            mrc = qobject_cast<MaemoRunConfiguration *> (target->activeRunConfiguration());
-
-        if (mrc) {
-            isRunning = mrc->isQemuRunning();
-            const MaemoDeviceConfig &config = mrc ? mrc->deviceConfig() : MaemoDeviceConfig();
-
-            ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance();
-            if (config.isValid()
-                && !mrc->simulatorPath().isEmpty()
-                && config.type == MaemoDeviceConfig::Simulator
-                && explorer->startupProject() == target->project()) {
-                enable = true;
-            }
-        }
-    }
-
-    MaemoManager::instance().updateQemuIcon(isRunning);
-    MaemoManager::instance().setQemuSimulatorStarterEnabled(enable);
-}
-
-
 // #pragma mark -- MaemoRunControlFactory
-
 
 MaemoRunControlFactory::MaemoRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)

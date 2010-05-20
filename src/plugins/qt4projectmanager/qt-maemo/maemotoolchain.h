@@ -36,12 +36,6 @@ namespace Qt4ProjectManager {
     class QtVersion;
     namespace Internal {
 
-#ifdef Q_OS_WIN32
-#define EXEC_SUFFIX ".exe"
-#else
-#define EXEC_SUFFIX ""
-#endif
-
 class MaemoToolChain : public ProjectExplorer::GccToolChain
 {
 public:
@@ -55,14 +49,12 @@ public:
     QString maddeRoot() const;
     QString targetRoot() const;
     QString sysrootRoot() const;
-    QString simulatorRoot() const;
 
 protected:
     bool equals(ToolChain *other) const;
 
 private:
     void setMaddeRoot() const;
-    void setSimulatorRoot() const;
     void setSysroot() const;
 
 private:
@@ -71,9 +63,6 @@ private:
 
     mutable QString m_sysrootRoot;
     mutable bool m_sysrootInitialized;
-
-    mutable QString m_simulatorRoot;
-    mutable bool m_simulatorInitialized;
 
     const QString m_targetRoot;
 };
