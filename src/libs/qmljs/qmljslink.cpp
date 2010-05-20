@@ -65,8 +65,8 @@ void Link::initializeScopeChain()
     } else {
         // add scope chains for all components that import this file
         foreach (Document::Ptr otherDoc, _snapshot) {
-            foreach (const QString &fileImport, otherDoc->bind()->fileImports()) {
-                if (_doc->fileName() == fileImport) {
+            foreach (const Bind::ImportInfo &fileImport, otherDoc->bind()->fileImports()) {
+                if (_doc->fileName() == fileImport.name) {
                     ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
                     componentScopes.insert(otherDoc.data(), component);
                     scopeChain.qmlComponentScope.instantiatingComponents += component;

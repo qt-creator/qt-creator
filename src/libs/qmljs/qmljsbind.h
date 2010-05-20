@@ -50,9 +50,15 @@ public:
     Bind(Document *doc);
     virtual ~Bind();
 
-    QStringList fileImports() const;
-    QStringList directoryImports() const;
-    QStringList libraryImports() const;
+    struct ImportInfo {
+        QString name;
+        int majorVersion;
+        int minorVersion;
+    };
+
+    QList<ImportInfo> fileImports() const;
+    QList<ImportInfo> directoryImports() const;
+    QList<ImportInfo> libraryImports() const;
 
     Interpreter::ObjectValue *currentObjectValue() const;
     Interpreter::ObjectValue *idEnvironment() const;
@@ -105,9 +111,9 @@ private:
     QHash<AST::FunctionDeclaration *, Interpreter::ObjectValue *> _functionScopes;
     QStringList _includedScripts;
 
-    QStringList _fileImports;
-    QStringList _directoryImports;
-    QStringList _libraryImports;
+    QList<ImportInfo> _fileImports;
+    QList<ImportInfo> _directoryImports;
+    QList<ImportInfo> _libraryImports;
 };
 
 } // end of namespace Qml

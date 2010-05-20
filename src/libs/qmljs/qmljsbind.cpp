@@ -53,17 +53,17 @@ Bind::~Bind()
 {
 }
 
-QStringList Bind::fileImports() const
+QList<Bind::ImportInfo> Bind::fileImports() const
 {
     return _fileImports;
 }
 
-QStringList Bind::directoryImports() const
+QList<Bind::ImportInfo> Bind::directoryImports() const
 {
     return _directoryImports;
 }
 
-QStringList Bind::libraryImports() const
+QList<Bind::ImportInfo> Bind::libraryImports() const
 {
     return _libraryImports;
 }
@@ -185,14 +185,30 @@ bool Bind::visit(AST::Program *)
 
 bool Bind::visit(UiImport *ast)
 {
+    ImportInfo info;
+
+    info.majorVersion = QmlObjectValue::NoVersion;
+    info.minorVersion = QmlObjectValue::NoVersion;
+
+    if (ast->versionToken.isValid()) {
+        const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
+        const int dotIdx = versionString.indexOf(QLatin1Char('.'));
+        if (dotIdx != -1) {
+            info.majorVersion = versionString.left(dotIdx).toInt();
+            info.minorVersion = versionString.mid(dotIdx + 1).toInt();
+        }
+    }
+
     if (ast->importUri) {
-        _libraryImports += toString(ast->importUri, QLatin1Char('/'));
+        info.name = toString(ast->importUri, QLatin1Char('/'));
+        _libraryImports += info;
     } else if (ast->fileName) {
         const QFileInfo importFileInfo(_doc->path() + QLatin1Char('/') + ast->fileName->asString());
+        info.name = importFileInfo.absoluteFilePath();
         if (importFileInfo.isFile())
-            _fileImports += importFileInfo.absoluteFilePath();
+            _fileImports += info;
         else if (importFileInfo.isDir())
-            _directoryImports += importFileInfo.absoluteFilePath();
+            _directoryImports += info;
         //else
         //    error: file or directory does not exist
     }

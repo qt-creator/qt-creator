@@ -236,15 +236,15 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
                         QStringList *importedFiles, QSet<QString> *scannedPaths)
 {
     // scan files and directories that are explicitly imported
-    foreach (const QString &fileImport, doc->bind()->fileImports()) {
-        if (! snapshot.document(fileImport))
-            *importedFiles += fileImport;
+    foreach (const Bind::ImportInfo &fileImport, doc->bind()->fileImports()) {
+        if (! snapshot.document(fileImport.name))
+            *importedFiles += fileImport.name;
     }
-    foreach (const QString &directoryImport, doc->bind()->directoryImports()) {
-        if (snapshot.documentsInDirectory(directoryImport).isEmpty()) {
-            if (! scannedPaths->contains(directoryImport)) {
-                *importedFiles += qmlFilesInDirectory(directoryImport);
-                scannedPaths->insert(directoryImport);
+    foreach (const Bind::ImportInfo &directoryImport, doc->bind()->directoryImports()) {
+        if (snapshot.documentsInDirectory(directoryImport.name).isEmpty()) {
+            if (! scannedPaths->contains(directoryImport.name)) {
+                *importedFiles += qmlFilesInDirectory(directoryImport.name);
+                scannedPaths->insert(directoryImport.name);
             }
         }
     }
@@ -256,10 +256,10 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
 {
     // scan library imports
     const QStringList importPaths = modelManager->importPaths();
-    foreach (const QString &libraryImport, doc->bind()->libraryImports()) {
+    foreach (const Bind::ImportInfo &libraryImport, doc->bind()->libraryImports()) {
         foreach (const QString &importPath, importPaths) {
             QDir dir(importPath);
-            dir.cd(libraryImport);
+            dir.cd(libraryImport.name);
             const QString targetPath = dir.absolutePath();
 
             // if we know there is a library, done
