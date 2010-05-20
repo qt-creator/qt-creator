@@ -484,6 +484,7 @@ private: ////////// View & Data Stuff //////////
     void handleDebuggingHelperValue3Classic(const GdbResponse &response);
     void handleDebuggingHelperEditValue(const GdbResponse &response);
     void handleDebuggingHelperSetup(const GdbResponse &response);
+    void handleDebuggingHelperVersionCheckClassic(const GdbResponse &response);
 
     Q_SLOT void createFullBacktrace();
     void handleCreateFullBacktrace(const GdbResponse &response);

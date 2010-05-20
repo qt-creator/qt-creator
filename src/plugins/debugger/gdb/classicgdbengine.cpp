@@ -41,6 +41,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtGui/QMessageBox>
 
 #if !defined(Q_OS_WIN)
 #include <dlfcn.h>
@@ -727,6 +728,12 @@ void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)
         const QString successMsg = tr("Dumper version %1, %n custom dumpers found.",
             0, m_dumperHelper.typeCount()).arg(dumperVersion);
         showStatusMessage(successMsg);
+
+        // Sanity check for Qt version of dumpers and debuggee.
+        QByteArray ns = m_dumperHelper.qtNamespace().toLatin1();
+        postCommand("-var-create A@ * '" + ns + "qVersion'()",
+            CB(handleDebuggingHelperVersionCheckClassic));
+        postCommand("-var-delete A@");
     } else {
         // Retry if thread has not terminated yet.
         m_debuggingHelperState = DebuggingHelperUnavailable;
@@ -734,6 +741,28 @@ void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)
     }
     //qDebug() << m_dumperHelper.toString(true);
     //qDebug() << m_availableSimpleDebuggingHelpers << "DATA DUMPERS AVAILABLE";
+}
+
+void GdbEngine::handleDebuggingHelperVersionCheckClassic(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        QString value = _(response.data.findChild("value").data());
+        QString debuggeeQtVersion = value.section(QLatin1Char('"'), 1, 1);
+        QString dumperQtVersion = m_dumperHelper.qtVersionString();
+        if (dumperQtVersion != debuggeeQtVersion) {
+            manager()->showMessageBox(QMessageBox::Warning,
+                tr("Debugging helpers: Qt version mismatch"),
+                tr("The Qt version used to build the debugging helpers (%1) "
+                   "does not match the Qt version used to build the debugged "
+                   "application (%2).\nThis might yield incorrect results.")
+                    .arg(dumperQtVersion).arg(debuggeeQtVersion));
+        } else {
+            debugMessage(_("DUMPER VERSION CHECK SUCCESSFUL: ")
+                         + dumperQtVersion);
+        }
+    } else {
+        debugMessage("DUMPER VERSION CHECK NOT COMPLETED");
+    }
 }
 
 void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
