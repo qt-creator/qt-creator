@@ -31,16 +31,20 @@
 #define PLAINTEXTEDITOR_H
 
 #include "basetexteditor.h"
-#include "normalindenter.h"
 
 #include <utils/uncommentselection.h>
 
 #include <QtCore/QList>
 #include <QtCore/QScopedPointer>
 
+namespace Core {
+class MimeType;
+}
+
 namespace TextEditor {
 
 class PlainTextEditor;
+class Indenter;
 
 class TEXTEDITOR_EXPORT PlainTextEditorEditable : public BaseTextEditorEditable
 {
@@ -63,10 +67,13 @@ class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
 
 public:
     PlainTextEditor(QWidget *parent);
+    ~PlainTextEditor();
+
+    void configure(const Core::MimeType &mimeType);
 
 public slots:
     virtual void unCommentSelection();
-    virtual void setFontSettings(const TextEditor::FontSettings &);
+    virtual void setFontSettings(const FontSettings &fs);
 
 private slots:
     void configure();
@@ -76,8 +83,10 @@ protected:
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
 
 private:
+    QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents) const;
+
     Utils::CommentDefinition m_commentDefinition;
-    QScopedPointer<TextEditor::Indenter> m_indenter;
+    QScopedPointer<Indenter> m_indenter;
 };
 
 } // namespace TextEditor

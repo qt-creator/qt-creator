@@ -37,6 +37,7 @@
 #include "highlighter.h"
 #include "highlighterexception.h"
 #include "manager.h"
+#include "normalindenter.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -65,12 +66,16 @@ PlainTextEditor::PlainTextEditor(QWidget *parent)
     setRequestMarkEnabled(false);
     setLineSeparatorsAllowed(true);
 
+    setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
     setDisplayName(tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
 
     m_commentDefinition.clearCommentStyles();
 
     connect(file(), SIGNAL(changed()), this, SLOT(configure()));
 }
+
+PlainTextEditor::~PlainTextEditor()
+{}
 
 QList<int> PlainTextEditorEditable::context() const
 {
@@ -95,32 +100,42 @@ void PlainTextEditor::unCommentSelection()
     Utils::unCommentSelection(this, m_commentDefinition);
 }
 
-void PlainTextEditor::setFontSettings(const TextEditor::FontSettings & fs)
+void PlainTextEditor::setFontSettings(const FontSettings & fs)
 {
-    TextEditor::BaseTextEditor::setFontSettings(fs);
+    BaseTextEditor::setFontSettings(fs);
 
-    Highlighter *highlighter = static_cast<Highlighter *>(baseTextDocument()->syntaxHighlighter());
-    if (!highlighter)
-        return;
-
-    highlighter->configureFormats(fs);
-    highlighter->rehighlight();
+    if (baseTextDocument()->syntaxHighlighter()) {
+        Highlighter *highlighter =
+                static_cast<Highlighter *>(baseTextDocument()->syntaxHighlighter());
+        highlighter->configureFormats(fs);
+        highlighter->rehighlight();
+    }
 }
 
 void PlainTextEditor::configure()
 {
-    const QString &mimeType = Core::ICore::instance()->mimeDatabase()->findByFile(
-            QFileInfo(file()->fileName())).type();
-    baseTextDocument()->setMimeType(mimeType);
+    configure(Core::ICore::instance()->mimeDatabase()->findByFile(file()->fileName()));
+}
 
-    const QString &definitionId = Manager::instance()->definitionIdByMimeType(mimeType);
+void PlainTextEditor::configure(const Core::MimeType &mimeType)
+{
+    if (mimeType.isNull())
+        return;
+
+    const QString &type = mimeType.type();
+    setMimeType(type);
+
+    QString definitionId = Manager::instance()->definitionIdByMimeType(type);
+    if (definitionId.isEmpty())
+        definitionId = findDefinitionId(mimeType, true);
+
     if (!definitionId.isEmpty()) {
         try {
             const QSharedPointer<HighlightDefinition> &definition =
                     Manager::instance()->definition(definitionId);
 
             Highlighter *highlighter = new Highlighter(definition->initialContext());
-            highlighter->configureFormats(TextEditor::TextEditorSettings::instance()->fontSettings());
+            highlighter->configureFormats(TextEditorSettings::instance()->fontSettings());
 
             baseTextDocument()->setSyntaxHighlighter(highlighter);
 
@@ -132,11 +147,27 @@ void PlainTextEditor::configure()
         }
     }
 
-    // @todo: Indentation specification through the definition files is not really being
-    // used because Kate recommends to configure indentation  through another feature.
-    // Maybe we should provide something similar in Creator? For now, only normal
-    // indentation is supported.
-    m_indenter.reset(new TextEditor::NormalIndenter);
+    // @todo: Indentation specification through the definition files is not really being used
+    // because Kate recommends to configure indentation  through another feature. Maybe we should
+    // provide something similar in Creator? For now, only normal indentation is supported.
+    m_indenter.reset(new NormalIndenter);
+}
+
+QString PlainTextEditor::findDefinitionId(const Core::MimeType &mimeType,
+                                          bool considerParents) const
+{
+    QString definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.aliases());
+    if (definitionId.isEmpty() && considerParents) {
+        definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.subClassesOf());
+        if (definitionId.isEmpty()) {
+            foreach (const QString &parent, mimeType.subClassesOf()) {
+                const Core::MimeType &parentMimeType =
+                        Core::ICore::instance()->mimeDatabase()->findByType(parent);
+                definitionId = findDefinitionId(parentMimeType, considerParents);
+            }
+        }
+    }
+    return definitionId;
 }
 
 void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)

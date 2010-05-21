@@ -59,6 +59,7 @@ public:
 
     QString definitionIdByName(const QString &name) const;
     QString definitionIdByMimeType(const QString &mimeType) const;
+    QString definitionIdByAnyMimeType(const QStringList &mimeTypes) const;
     bool isBuildingDefinition(const QString &id) const;
     const QSharedPointer<HighlightDefinition> &definition(const QString &id);
 

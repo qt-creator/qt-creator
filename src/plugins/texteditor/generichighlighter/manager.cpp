@@ -78,8 +78,6 @@ QString Manager::definitionIdByName(const QString &name) const
 
 QString Manager::definitionIdByMimeType(const QString &mimeType) const
 {
-    Q_ASSERT(!mimeType.isEmpty());
-
     if (m_idByMimeType.count(mimeType) <= 1) {
         return m_idByMimeType.value(mimeType);
     } else {
@@ -92,6 +90,17 @@ QString Manager::definitionIdByMimeType(const QString &mimeType) const
         qSort(candidateIds.begin(), candidateIds.end(), m_priorityComp);
         return candidateIds.last();
     }
+}
+
+QString Manager::definitionIdByAnyMimeType(const QStringList &mimeTypes) const
+{
+    QString definitionId;
+    foreach (const QString &mimeType, mimeTypes) {
+        definitionId = definitionIdByMimeType(mimeType);
+        if (!definitionId.isEmpty())
+            break;
+    }
+    return definitionId;
 }
 
 const QSharedPointer<HighlightDefinition> &Manager::definition(const QString &id)
