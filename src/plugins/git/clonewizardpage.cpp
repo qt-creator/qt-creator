@@ -112,8 +112,9 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
      args << QLatin1String("clone") << repository() << checkoutDir;
      const QString binary = args.front();
      args.pop_front();
-     VCSBase::AbstractCheckoutJob *job = new VCSBase::ProcessCheckoutJob(binary, args, workingDirectory,
-                                                                         client->processEnvironment());
+     VCSBase::AbstractCheckoutJob *job =
+             new VCSBase::ProcessCheckoutJob(binary, args, workingDirectory,
+                                             client->processEnvironment().toStringList());
      return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
 }
 

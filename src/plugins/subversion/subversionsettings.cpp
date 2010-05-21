@@ -30,20 +30,19 @@
 #include "subversionsettings.h"
 
 #include <QtCore/QSettings>
-#include <QtCore/QTextStream>
 
-static const char *groupC = "Subversion";
-static const char *commandKeyC = "Command";
-static const char *userKeyC = "User";
-static const char *passwordKeyC = "Password";
-static const char *authenticationKeyC = "Authentication";
+static const char groupC[] = "Subversion";
+static const char commandKeyC[] = "Command";
+static const char userKeyC[] = "User";
+static const char passwordKeyC[] = "Password";
+static const char authenticationKeyC[] = "Authentication";
 
-static const char *userNameOptionC = "--username";
-static const char *passwordOptionC = "--password";
-static const char *promptToSubmitKeyC = "PromptForSubmit";
-static const char *timeOutKeyC = "TimeOut";
-static const char *spaceIgnorantAnnotationKeyC = "SpaceIgnorantAnnotation";
-static const char *logCountKeyC = "LogCount";
+static const char userNameOptionC[] = "--username";
+static const char passwordOptionC[] = "--password";
+static const char promptToSubmitKeyC[] = "PromptForSubmit";
+static const char timeOutKeyC[] = "TimeOut";
+static const char spaceIgnorantAnnotationKeyC[] = "SpaceIgnorantAnnotation";
+static const char logCountKeyC[] = "LogCount";
 
 enum { defaultTimeOutS = 30, defaultLogCount = 1000 };
 
@@ -126,25 +125,5 @@ QStringList SubversionSettings::addOptions(const QStringList &args) const
         rc.push_back(password);
     }
     rc.append(args);
-    return rc;
-}
-
-// Format arguments for log windows hiding passwords, etc.
-QString SubversionSettings::formatArguments(const QStringList &args)
-{
-    QString rc;
-    QTextStream str(&rc);
-    const int size = args.size();
-    // Skip authentication options
-    for (int i = 0; i < size; i++) {
-        const QString &arg = args.at(i);
-        if (i)
-            str << ' ';
-        str << arg;
-        if (arg == QLatin1String(userNameOptionC) || arg == QLatin1String(passwordOptionC)) {
-            str << " ********";
-            i++;
-        }
-    }
     return rc;
 }

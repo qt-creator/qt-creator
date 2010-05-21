@@ -32,20 +32,28 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
-static const char *settingsGroupC = "VCS";
-static const char *nickNameMailMapKeyC = "NickNameMailMap";
-static const char *nickNameFieldListFileKeyC = "NickNameFieldListFile";
-static const char *submitMessageCheckScriptKeyC = "SubmitMessageCheckScript";
-static const char *lineWrapKeyC = "LineWrap";
-static const char *lineWrapWidthKeyC = "LineWrapWidth";
+static const char settingsGroupC[] = "VCS";
+static const char nickNameMailMapKeyC[] = "NickNameMailMap";
+static const char nickNameFieldListFileKeyC[] = "NickNameFieldListFile";
+static const char submitMessageCheckScriptKeyC[] = "SubmitMessageCheckScript";
+static const char lineWrapKeyC[] = "LineWrap";
+static const char lineWrapWidthKeyC[] = "LineWrapWidth";
+static const char sshPasswordPromptKeyC[] = "SshPasswordPrompt";
 
 static const int lineWrapWidthDefault = 72;
 static const bool lineWrapDefault = true;
+
+#ifdef Q_OS_WIN
+static const char sshPasswordPromptDefaultC[] = "win-ssh-askpass";
+#else
+static const char sshPasswordPromptDefaultC[] = "ssh-askpass";
+#endif
 
 namespace VCSBase {
 namespace Internal {
 
 CommonVcsSettings::CommonVcsSettings() :
+    sshPasswordPrompt(QLatin1String(sshPasswordPromptDefaultC)),
     lineWrap(lineWrapDefault),
     lineWrapWidth(lineWrapWidthDefault)
 {
@@ -59,6 +67,7 @@ void CommonVcsSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(submitMessageCheckScriptKeyC), submitMessageCheckScript);
     s->setValue(QLatin1String(lineWrapKeyC), lineWrap);
     s->setValue(QLatin1String(lineWrapWidthKeyC), lineWrapWidth);
+    s->setValue(QLatin1String(sshPasswordPromptKeyC), sshPasswordPrompt);
     s->endGroup();
 }
 
@@ -70,6 +79,7 @@ void CommonVcsSettings::fromSettings(QSettings *s)
     submitMessageCheckScript = s->value(QLatin1String(submitMessageCheckScriptKeyC), QString()).toString();
     lineWrap = s->value(QLatin1String(lineWrapKeyC), lineWrapDefault).toBool();
     lineWrapWidth = s->value(QLatin1String(lineWrapWidthKeyC), lineWrapWidthDefault).toInt();
+    sshPasswordPrompt = s->value(QLatin1String(sshPasswordPromptKeyC), QLatin1String(sshPasswordPromptDefaultC)).toString();
     s->endGroup();
 }
 
@@ -79,7 +89,8 @@ bool CommonVcsSettings::equals(const CommonVcsSettings &rhs) const
            && lineWrapWidth == rhs.lineWrapWidth
            && nickNameMailMap == rhs.nickNameMailMap
            && nickNameFieldListFile == rhs.nickNameFieldListFile
-           && submitMessageCheckScript == rhs.submitMessageCheckScript;
+           && submitMessageCheckScript == rhs.submitMessageCheckScript
+           && sshPasswordPrompt == rhs.sshPasswordPrompt;
 }
 
 QDebug operator<<(QDebug d,const CommonVcsSettings& s)
@@ -88,7 +99,9 @@ QDebug operator<<(QDebug d,const CommonVcsSettings& s)
             << " lineWrapWidth=" <<  s.lineWrapWidth
             << " nickNameMailMap='" <<  s.nickNameMailMap
             << "' nickNameFieldListFile='" << s.nickNameFieldListFile
-            << "'submitMessageCheckScript='" << s.submitMessageCheckScript << "'\n";
+            << "'submitMessageCheckScript='" << s.submitMessageCheckScript
+            << "'sshPasswordPrompt='" << s.sshPasswordPrompt
+            << "'\n";
     return d;
 }
 

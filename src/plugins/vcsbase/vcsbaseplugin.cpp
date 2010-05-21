@@ -30,6 +30,7 @@
 #include "vcsbaseplugin.h"
 #include "vcsbasesubmiteditor.h"
 #include "vcsplugin.h"
+#include "commonvcssettings.h"
 #include "vcsbaseoutputwindow.h"
 #include "corelistener.h"
 
@@ -43,18 +44,22 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QSharedData>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QProcessEnvironment>
+#include <QtCore/QTextStream>
+#include <QtCore/QTextCodec>
 
 #include <QtGui/QAction>
 #include <QtGui/QMessageBox>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMainWindow>
 
-enum { debug = 0, debugRepositorySearch = 0 };
+enum { debug = 0, debugRepositorySearch = 0, debugExecution = 0 };
 
 namespace VCSBase {
 
@@ -670,6 +675,116 @@ QString VCSBasePlugin::findRepositoryForDirectory(const QString &dirS,
     return QString();
 }
 
+// Is SSH prompt configured?
+static inline QString sshPrompt()
+{
+    return VCSBase::Internal::VCSPlugin::instance()->settings().sshPasswordPrompt;
+}
+
+bool VCSBasePlugin::isSshPromptConfigured()
+{
+    return !sshPrompt().isEmpty();
+}
+
+void VCSBasePlugin::setProcessEnvironment(QProcessEnvironment *e)
+{
+    e->insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
+    const QString sshPromptBinary = sshPrompt();
+    if (!sshPromptBinary.isEmpty())
+        e->insert(QLatin1String("SSH_ASKPASS"), sshPromptBinary);
+}
+
+Utils::SynchronousProcessResponse
+        VCSBasePlugin::runVCS(const QString &workingDir,
+                              const QString &binary,
+                              const QStringList &arguments,
+                              int timeOutMS,
+                              unsigned flags,
+                              QTextCodec *outputCodec /* = 0 */)
+{
+    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    return runVCS(workingDir, binary, arguments, timeOutMS, env,
+                  flags, outputCodec);
+}
+
+Utils::SynchronousProcessResponse
+        VCSBasePlugin::runVCS(const QString &workingDir,
+                              const QString &binary,
+                              const QStringList &arguments,
+                              int timeOutMS,
+                              QProcessEnvironment env,
+                              unsigned flags,
+                              QTextCodec *outputCodec /* = 0 */)
+{
+    VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
+
+    if (!(flags & SuppressCommandLogging))
+        outputWindow->appendCommand(workingDir, binary, arguments);
+
+    const bool sshPromptConfigured = VCSBasePlugin::isSshPromptConfigured();
+    if (debugExecution) {
+        QDebug nsp = qDebug().nospace();
+        nsp << "VCSBasePlugin::runVCS" << workingDir << binary << arguments
+                << timeOutMS;
+        if (flags & ShowStdOutInLogWindow)
+            nsp << "stdout";
+        if (flags & SuppressStdErrInLogWindow)
+            nsp << "suppress_stderr";
+        if (flags & SuppressFailMessageInLogWindow)
+            nsp << "suppress_fail_msg";
+        if (flags & MergeOutputChannels)
+            nsp << "merge_channels";
+        if (flags & SshPasswordPrompt)
+            nsp << "ssh (" << sshPromptConfigured << ')';
+        if (flags & SuppressCommandLogging)
+            nsp << "suppress_log";
+        if (outputCodec)
+            nsp << " Codec: " << outputCodec->name();
+    }
+
+    // Run, connect stderr to the output window
+    Utils::SynchronousProcess process;
+    if (!workingDir.isEmpty())
+        process.setWorkingDirectory(workingDir);
+
+    VCSBase::VCSBasePlugin::setProcessEnvironment(&env);
+    process.setProcessEnvironment(env);
+    process.setTimeout(timeOutMS);
+    if (outputCodec)
+        process.setStdOutCodec(outputCodec);
+
+    // Suppress terminal on UNIX for ssh prompts if it is configured.
+    if (sshPromptConfigured && (flags & SshPasswordPrompt))
+        process.setFlags(Utils::SynchronousProcess::UnixTerminalDisabled);
+
+    // connect stderr to the output window if desired
+    if (flags & MergeOutputChannels) {
+        process.setProcessChannelMode(QProcess::MergedChannels);
+    } else {
+        if (!(flags & SuppressStdErrInLogWindow)) {
+            process.setStdErrBufferedSignalsEnabled(true);
+            connect(&process, SIGNAL(stdErrBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+        }
+    }
+
+    // connect stdout to the output window if desired
+    if (flags & ShowStdOutInLogWindow) {
+        process.setStdOutBufferedSignalsEnabled(true);
+        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+    }
+
+    process.setTimeOutMessageBoxEnabled(true);
+
+    // Run!
+    const Utils::SynchronousProcessResponse sp_resp = process.run(binary, arguments);
+
+    // Fail message?
+    if (sp_resp.result != Utils::SynchronousProcessResponse::Finished &&
+        (!(flags & SuppressFailMessageInLogWindow)))
+        outputWindow->appendError(sp_resp.exitMessage(binary, timeOutMS));
+
+    return sp_resp;
+}
 } // namespace VCSBase
 
 #include "vcsbaseplugin.moc"

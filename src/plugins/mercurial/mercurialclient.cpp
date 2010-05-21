@@ -136,7 +136,7 @@ bool MercurialClient::executeHgSynchronously(const QString  &workingDir,
     const QStringList arguments = settings.standardArguments() + args;
 
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
-    outputWindow->appendCommand(MercurialJobRunner::msgExecute(binary, arguments));
+    outputWindow->appendCommand(workingDir, binary, args);
 
     hgProcess.start(binary, arguments);
 
@@ -149,7 +149,7 @@ bool MercurialClient::executeHgSynchronously(const QString  &workingDir,
 
     QByteArray stdErr;
     if (!Utils::SynchronousProcess::readDataFromProcess(hgProcess, settings.timeoutMilliSeconds(),
-                                                        output, &stdErr)) {
+                                                        output, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(hgProcess);
         outputWindow->appendError(MercurialJobRunner::msgTimeout(settings.timeoutSeconds()));
         return false;
@@ -457,6 +457,8 @@ void MercurialClient::pull(const QString &repositoryRoot, const QString &reposit
     if (!repository.isEmpty())
         args.append(repository);
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false, QVariant(repositoryRoot)));
+    // Suppress SSH prompting
+    job->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
     connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(job);
 }
@@ -468,6 +470,8 @@ void MercurialClient::push(const QString &repositoryRoot, const QString &reposit
         args.append(repository);
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false));
+    // Suppress SSH prompting
+    job->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
     enqueueJob(job);
 }
 
@@ -491,6 +495,9 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
                                                      true, "incoming", id);
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, editor));
+    // Suppress SSH prompting.
+    if (!repository.isEmpty() && VCSBase::VCSBasePlugin::isSshPromptConfigured())
+            job->setUnixTerminalDisabled(true);
     enqueueJob(job);
 }
 
@@ -506,6 +513,8 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
                                                      "outgoing", repositoryRoot);
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, editor));
+    // Suppress SSH prompting
+    job->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
     enqueueJob(job);
 }
 
@@ -532,6 +541,8 @@ void MercurialClient::update(const QString &repositoryRoot, const QString &revis
         args << revision;
 
     QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false, QVariant(repositoryRoot)));
+    // Suppress SSH prompting
+    job->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
     connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(job);
 }

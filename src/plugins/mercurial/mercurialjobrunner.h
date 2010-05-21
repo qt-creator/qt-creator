@@ -69,6 +69,10 @@ public:
     QStringList args() { return arguments; }
     QString repositoryRoot() { return m_repositoryRoot; }
 
+    // Disable terminal to suppress SSH prompting.
+    bool unixTerminalDisabled() const     { return m_unixTerminalDisabled; }
+    void setUnixTerminalDisabled(bool v)  { m_unixTerminalDisabled = v; }
+
 signals:
     void succeeded(const QVariant &cookie); // Use a queued connection
     void rawData(const QByteArray &data);
@@ -82,6 +86,7 @@ private:
     const bool emitRaw;
     const QVariant m_cookie;
     VCSBase::VCSBaseEditor *editor;
+    bool m_unixTerminalDisabled;
 };
 
 /* A job queue running in a separate thread, executing commands
@@ -95,7 +100,6 @@ public:
     void enqueueJob(const QSharedPointer<HgTask> &job);
     void restart();
 
-    static QString msgExecute(const QString &binary, const QStringList &args);
     static QString msgStartFailed(const QString &binary, const QString &why);
     static QString msgTimeout(int timeoutSeconds);
 

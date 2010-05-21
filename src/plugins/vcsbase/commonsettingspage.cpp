@@ -53,6 +53,7 @@ CommonSettingsWidget::CommonSettingsWidget(QWidget *parent) :
     m_ui->submitMessageCheckScriptChooser->setExpectedKind(Utils::PathChooser::Command);
     m_ui->nickNameFieldsFileChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->nickNameMailMapChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui->sshPromptChooser->setExpectedKind(Utils::PathChooser::Command);
 }
 
 CommonSettingsWidget::~CommonSettingsWidget()
@@ -68,6 +69,7 @@ CommonVcsSettings CommonSettingsWidget::settings() const
     rc.submitMessageCheckScript = m_ui->submitMessageCheckScriptChooser->path();
     rc.lineWrap= m_ui->lineWrapCheckBox->isChecked();
     rc.lineWrapWidth = m_ui->lineWrapSpinBox->value();
+    rc.sshPasswordPrompt = m_ui->sshPromptChooser->path();
     return rc;
 }
 
@@ -78,6 +80,7 @@ void CommonSettingsWidget::setSettings(const CommonVcsSettings &s)
     m_ui->submitMessageCheckScriptChooser->setPath(s.submitMessageCheckScript);
     m_ui->lineWrapCheckBox->setChecked(s.lineWrap);
     m_ui->lineWrapSpinBox->setValue(s.lineWrapWidth);
+    m_ui->sshPromptChooser->setPath(s.sshPasswordPrompt);
 }
 
 QString CommonSettingsWidget::searchKeyWordMatchString() const

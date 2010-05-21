@@ -34,6 +34,7 @@
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseplugin.h>
 #include <utils/synchronousprocess.h>
 
 #include <QtCore/QProcess>
@@ -52,8 +53,8 @@ HgTask::HgTask(const QString &repositoryRoot,
     arguments(arguments),
     emitRaw(emitRaw),
     m_cookie(cookie),
-    editor(0)
-
+    editor(0),
+    m_unixTerminalDisabled(false)
 {
 }
 
@@ -65,7 +66,8 @@ HgTask::HgTask(const QString &repositoryRoot,
     arguments(arguments),
     emitRaw(false),
     m_cookie(cookie),
-    editor(editor)
+    editor(editor),
+    m_unixTerminalDisabled(false)
 {
 }
 
@@ -147,11 +149,6 @@ void MercurialJobRunner::run()
     }
 }
 
-QString MercurialJobRunner::msgExecute(const QString &binary, const QStringList &args)
-{
-    return tr("Executing: %1 %2\n").arg(binary, args.join(QString(QLatin1Char(' '))));
-}
-
 QString MercurialJobRunner::msgStartFailed(const QString &binary, const QString &why)
 {
     return tr("Unable to start mercurial process '%1': %2").arg(binary, why);
@@ -168,7 +165,7 @@ QString MercurialJobRunner::msgTimeout(int timeoutSeconds)
 void MercurialJobRunner::setProcessEnvironment(QProcess &p)
 {
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
+    VCSBase::VCSBasePlugin::setProcessEnvironment(&env);
     p.setProcessEnvironment(env);
 }
 
@@ -196,35 +193,41 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
     }
 
     const QStringList args = standardArguments + taskData->args();
-    emit commandStarted(msgExecute(binary, args));
+    emit commandStarted(VCSBase::VCSBaseOutputWindow::msgExecutionLogEntry(taskData->repositoryRoot(), binary, args));
     //infom the user of what we are going to try and perform
 
     if (Constants::debug)
-        qDebug() << Q_FUNC_INFO << "Repository root is " << taskData->repositoryRoot();
+        qDebug() << Q_FUNC_INFO << "Repository root is "
+                << taskData->repositoryRoot() << " terminal_disabled"
+                << taskData->unixTerminalDisabled();
 
-    QProcess hgProcess;
-    hgProcess.setWorkingDirectory(taskData->repositoryRoot());
-    MercurialJobRunner::setProcessEnvironment(hgProcess);
+    const unsigned processFlags = taskData->unixTerminalDisabled() ?
+                            unsigned(Utils::SynchronousProcess::UnixTerminalDisabled) :
+                            unsigned(0);
 
-    hgProcess.start(binary, args);
+    QSharedPointer<QProcess> hgProcess = Utils::SynchronousProcess::createProcess(processFlags);
+    hgProcess->setWorkingDirectory(taskData->repositoryRoot());
+    MercurialJobRunner::setProcessEnvironment(*hgProcess);
 
-    if (!hgProcess.waitForStarted()) {
-        emit error(msgStartFailed(binary, hgProcess.errorString()));
+    hgProcess->start(binary, args);
+
+    if (!hgProcess->waitForStarted()) {
+        emit error(msgStartFailed(binary, hgProcess->errorString()));
         return;
     }
 
-    hgProcess.closeWriteChannel();
+    hgProcess->closeWriteChannel();
 
     QByteArray stdOutput;
     QByteArray stdErr;
 
-    if (!Utils::SynchronousProcess::readDataFromProcess(hgProcess, m_timeoutMS, &stdOutput, &stdErr)) {
-        Utils::SynchronousProcess::stopProcess(hgProcess);
+    if (!Utils::SynchronousProcess::readDataFromProcess(*hgProcess, m_timeoutMS, &stdOutput, &stdErr, false)) {
+        Utils::SynchronousProcess::stopProcess(*hgProcess);
         emit error(msgTimeout(m_timeoutMS / 1000));
         return;
     }
 
-    if (hgProcess.exitStatus() == QProcess::NormalExit && hgProcess.exitCode() == 0) {
+    if (hgProcess->exitStatus() == QProcess::NormalExit && hgProcess->exitCode() == 0) {
         /*
           * sometimes success means output is actually on error channel (stderr)
           * e.g. "hg revert" outputs "no changes needed to 'file'" on stderr if file has not changed
@@ -238,7 +241,7 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
         emit error(QString::fromLocal8Bit(stdErr));
     }
 
-    hgProcess.close();
+    hgProcess->close();
     //the signal connection is to last only for the duration of a job/task.  next time a new
     //output signal connection must be made
     disconnect(this, SIGNAL(output(QByteArray)), 0, 0);

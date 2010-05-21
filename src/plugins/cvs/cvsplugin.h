@@ -133,8 +133,7 @@ private:
     CVSResponse runCVS(const QString &workingDirectory,
                        const QStringList &arguments,
                        int timeOut,
-                       bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0,
-                       bool mergeStderr = false);
+                       unsigned flags, QTextCodec *outputCodec = 0);
 
     void annotate(const QString &workingDir, const QString &file,
                   const QString &revision = QString(), int lineNumber= -1);

@@ -53,8 +53,6 @@ struct SubversionSettings
     // Add authentication and (maybe future) options to the
     // command line
     QStringList addOptions(const QStringList &args) const;
-    // Format arguments for log windows hiding passwords, etc.
-    static QString formatArguments(const QStringList &args);
 
     bool equals(const SubversionSettings &s) const;
 

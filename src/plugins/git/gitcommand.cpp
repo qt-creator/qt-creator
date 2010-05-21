@@ -70,13 +70,14 @@ GitCommand::Job::Job(const QStringList &a, int t) :
 
 GitCommand::GitCommand(const QStringList &binary,
                         const QString &workingDirectory,
-                        const QStringList &environment,
+                        const QProcessEnvironment&environment,
                         const QVariant &cookie)  :
     m_binaryPath(binary.front()),
     m_basicArguments(binary),
     m_workingDirectory(workingDirectory),
     m_environment(environment),
     m_cookie(cookie),
+    m_unixTerminalDisabled(false),
     m_reportTerminationMode(NoReport)
 {
     m_basicArguments.pop_front();
@@ -90,6 +91,16 @@ GitCommand::TerminationReportMode GitCommand::reportTerminationMode() const
 void GitCommand::setTerminationReportMode(TerminationReportMode m)
 {
     m_reportTerminationMode = m;
+}
+
+bool GitCommand::unixTerminalDisabled() const
+{
+    return m_unixTerminalDisabled;
+}
+
+void GitCommand::setUnixTerminalDisabled(bool e)
+{
+    m_unixTerminalDisabled = e;
 }
 
 void GitCommand::addJob(const QStringList &arguments, int timeout)
@@ -121,12 +132,18 @@ QString GitCommand::msgTimeout(int seconds)
 void GitCommand::run()
 {
     if (Git::Constants::debug)
-        qDebug() << "GitCommand::run" << m_workingDirectory << m_jobs.size();
-    QProcess process;
-    if (!m_workingDirectory.isEmpty())
-        process.setWorkingDirectory(m_workingDirectory);
+        qDebug() << "GitCommand::run" << m_workingDirectory << m_jobs.size()
+                 << "terminal_disabled" << m_unixTerminalDisabled;
 
-    process.setEnvironment(m_environment);
+    const unsigned processFlags = m_unixTerminalDisabled ?
+                            unsigned(Utils::SynchronousProcess::UnixTerminalDisabled) :
+                            unsigned(0);
+    const QSharedPointer<QProcess> process =
+            Utils::SynchronousProcess::createProcess(processFlags);
+    if (!m_workingDirectory.isEmpty())
+        process->setWorkingDirectory(m_workingDirectory);
+
+    process->setProcessEnvironment(m_environment);
 
     QByteArray stdOut;
     QByteArray stdErr;
@@ -139,25 +156,25 @@ void GitCommand::run()
         if (Git::Constants::debug)
             qDebug() << "GitCommand::run" << j << '/' << count << m_jobs.at(j).arguments;
 
-        process.start(m_binaryPath, m_basicArguments + m_jobs.at(j).arguments);
-        if(!process.waitForStarted()) {
+        process->start(m_binaryPath, m_basicArguments + m_jobs.at(j).arguments);
+        if(!process->waitForStarted()) {
             ok = false;
-            error += QString::fromLatin1("Error: \"%1\" could not be started: %2").arg(m_binaryPath, process.errorString());
+            error += QString::fromLatin1("Error: \"%1\" could not be started: %2").arg(m_binaryPath, process->errorString());
             break;
         }
 
-        process.closeWriteChannel();
+        process->closeWriteChannel();
         const int timeOutSeconds = m_jobs.at(j).timeout;
-        if (!Utils::SynchronousProcess::readDataFromProcess(process, timeOutSeconds * 1000,
-                                                            &stdOut, &stdErr)) {
-            Utils::SynchronousProcess::stopProcess(process);
+        if (!Utils::SynchronousProcess::readDataFromProcess(*process, timeOutSeconds * 1000,
+                                                            &stdOut, &stdErr, false)) {
+            Utils::SynchronousProcess::stopProcess(*process);
             ok = false;
             error += msgTimeout(timeOutSeconds);
             break;
         }
 
         error += QString::fromLocal8Bit(stdErr);
-        exitCode = process.exitCode();
+        exitCode = process->exitCode();
         switch (m_reportTerminationMode) {
         case NoReport:
             break;

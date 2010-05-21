@@ -232,7 +232,7 @@ static QList<ProcData> unixProcessListPS()
     if (!psProcess.waitForStarted())
         return rc;
     QByteArray output;
-    if (!Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output))
+    if (!Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, 0, false))
         return rc;
     // Split "457 S+   /Users/foo.app"
     const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));

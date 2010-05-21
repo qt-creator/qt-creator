@@ -39,7 +39,13 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QProcessEnvironment;
+class QTextCodec;
 QT_END_NAMESPACE
+
+namespace Utils {
+    struct SynchronousProcessResponse;
+}
 
 namespace Core {
     class IVersionControl;
@@ -168,6 +174,41 @@ public:
     // but have a directory at the top of the repository like ".git" containing
     // a well known file. See implementation for gory details.
     static QString findRepositoryForDirectory(const QString &dir, const QString &checkFile);
+
+    // Set up the environment for a version control command line call.
+    // Sets LANG to 'C' to force English (suppress LOCALE warnings)
+    // and sets up SSH graphical password prompting (note that the latter
+    // requires a terminal-less process).
+    static void setProcessEnvironment(QProcessEnvironment *e);
+    // Returns whether an SSH prompt is configured.
+    static bool isSshPromptConfigured();
+
+    // Convenience to synchronously run VCS commands
+    enum RunVCSFlags {
+        ShowStdOutInLogWindow = 0x1, // Append standard output to VCS output window.
+        MergeOutputChannels = 0x2,   // see QProcess: Merge stderr/stdout.
+        SshPasswordPrompt = 0x40,    // Disable terminal on UNIX to force graphical prompt.
+        SuppressStdErrInLogWindow = 0x8, // No standard error output to VCS output window.
+        SuppressFailMessageInLogWindow = 0x10, // No message VCS about failure in VCS output window.
+        SuppressCommandLogging = 0x20 // No command log entry in VCS output window.
+    };
+
+    static Utils::SynchronousProcessResponse
+            runVCS(const QString &workingDir,
+                   const QString &binary,
+                   const QStringList &arguments,
+                   int timeOutMS,
+                   QProcessEnvironment env,
+                   unsigned flags = 0,
+                   QTextCodec *outputCodec = 0);
+
+    static Utils::SynchronousProcessResponse
+            runVCS(const QString &workingDir,
+                   const QString &binary,
+                   const QStringList &arguments,
+                   int timeOutMS,
+                   unsigned flags = 0,
+                   QTextCodec *outputCodec = 0);
 
 public slots:
     // Convenience slot for "Delete current file" action. Prompts to

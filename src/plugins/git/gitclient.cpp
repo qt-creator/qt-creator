@@ -123,13 +123,6 @@ static inline QString msgParseFilesFailed()
     return  GitClient::tr("Unable to parse the file output.");
 }
 
-// Format a command for the status window
-static QString formatCommand(const QString &binary, const QStringList &args)
-{
-    //: Executing: <executable> <arguments>
-    return GitClient::tr("Executing: %1 %2\n").arg(binary, args.join(QString(QLatin1Char(' '))));
-}
-
 // ---------------- GitClient
 
 const char *GitClient::stashNamePrefix = "stash@{";
@@ -226,20 +219,20 @@ void GitClient::diff(const QString &workingDirectory,
     if (unstagedFileNames.empty() && stagedFileNames.empty()) {
        QStringList arguments(commonDiffArgs);
        arguments << diffArgs;
-       outputWindow()->appendCommand(formatCommand(binary, arguments));
+       outputWindow()->appendCommand(workingDirectory, binary, arguments);
        command->addJob(arguments, m_settings.timeoutSeconds);
     } else {
         // Files diff.
         if (!unstagedFileNames.empty()) {
            QStringList arguments(commonDiffArgs);
            arguments << QLatin1String("--") << unstagedFileNames;
-           outputWindow()->appendCommand(formatCommand(binary, arguments));
+           outputWindow()->appendCommand(workingDirectory, binary, arguments);
            command->addJob(arguments, m_settings.timeoutSeconds);
         }
         if (!stagedFileNames.empty()) {
            QStringList arguments(commonDiffArgs);
            arguments << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
-           outputWindow()->appendCommand(formatCommand(binary, arguments));
+           outputWindow()->appendCommand(workingDirectory, binary, arguments);
            command->addJob(arguments, m_settings.timeoutSeconds);
         }
     }
@@ -1061,12 +1054,14 @@ GitCommand *GitClient::executeGit(const QString &workingDirectory,
                                   VCSBase::VCSBaseEditor* editor,
                                   bool outputToWindow,
                                   GitCommand::TerminationReportMode tm,
-                                  int editorLineNumber)
+                                  int editorLineNumber,
+                                  bool unixTerminalDisabled)
 {
-    outputWindow()->appendCommand(formatCommand(QLatin1String(Constants::GIT_BINARY), arguments));
+    outputWindow()->appendCommand(workingDirectory, QLatin1String(Constants::GIT_BINARY), arguments);
     GitCommand *command = createCommand(workingDirectory, editor, outputToWindow, editorLineNumber);
     command->addJob(arguments, m_settings.timeoutSeconds);
     command->setTerminationReportMode(tm);
+    command->setUnixTerminalDisabled(unixTerminalDisabled);
     command->execute();
     return command;
 }
@@ -1083,14 +1078,14 @@ QStringList GitClient::binary() const
 #endif
 }
 
-QStringList GitClient::processEnvironment() const
+QProcessEnvironment GitClient::processEnvironment() const
 {
-    ProjectExplorer::Environment environment = ProjectExplorer::Environment::systemEnvironment();
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
     if (m_settings.adoptPath)
-        environment.set(QLatin1String("PATH"), m_settings.path);
-    // git svn runs perl which barfs at non-C locales.
-    environment.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
-    return environment.toStringList();
+        environment.insert(QLatin1String("PATH"), m_settings.path);
+    // Set up SSH and C locale (required by git using perl).
+    VCSBase::VCSBasePlugin::setProcessEnvironment(&environment);
+    return environment;
 }
 
 bool GitClient::synchronousGit(const QString &workingDirectory,
@@ -1103,11 +1098,11 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
         qDebug() << "synchronousGit" << workingDirectory << gitArguments;
 
     if (logCommandToWindow)
-        outputWindow()->appendCommand(formatCommand(m_binaryPath, gitArguments));
+        outputWindow()->appendCommand(workingDirectory, m_binaryPath, gitArguments);
 
     QProcess process;
     process.setWorkingDirectory(workingDirectory);
-    process.setEnvironment(processEnvironment());
+    process.setProcessEnvironment(processEnvironment());
 
     QStringList args = binary(); // "cmd /c git" on Windows
     const QString executable = args.front();
@@ -1125,7 +1120,7 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
     }
 
     if (!Utils::SynchronousProcess::readDataFromProcess(process, m_settings.timeoutSeconds * 1000,
-                                                        outputText, errorText)) {
+                                                        outputText, errorText, true)) {
         *errorText->append(GitCommand::msgTimeout(m_settings.timeoutSeconds).toLocal8Bit());
         Utils::SynchronousProcess::stopProcess(process);
         return false;
@@ -1506,7 +1501,10 @@ void GitClient::pull(const QString &workingDirectory, bool rebase)
     QStringList arguments(QLatin1String("pull"));
     if (rebase)
         arguments << QLatin1String("--rebase");
-    GitCommand *cmd = executeGit(workingDirectory, arguments, 0, true, GitCommand::ReportStderr);
+    // Disable UNIX terminals to suppress SSH prompting.
+    GitCommand *cmd = executeGit(workingDirectory, arguments, 0, true,
+                                 GitCommand::ReportStderr, -1,
+                                 VCSBase::VCSBasePlugin::isSshPromptConfigured());
     connectRepositoryChanged(workingDirectory, cmd);
     // Need to clean up if something goes wrong
     if (rebase) {
@@ -1539,7 +1537,11 @@ void GitClient::subversionFetch(const QString &workingDirectory)
 {
     QStringList args;
     args << QLatin1String("svn") << QLatin1String("fetch");
-    GitCommand *cmd = executeGit(workingDirectory, args, 0, true, GitCommand::ReportStderr);
+    // Disable UNIX terminals to suppress SSH prompting.
+    GitCommand *cmd = executeGit(workingDirectory, args, 0, true, GitCommand::ReportStderr,
+                                 -1, true);
+    // Enable SSH prompting
+    cmd->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
     connectRepositoryChanged(workingDirectory, cmd);
 }
 
@@ -1563,7 +1565,10 @@ void GitClient::subversionLog(const QString &workingDirectory)
 
 void GitClient::push(const QString &workingDirectory)
 {
-    executeGit(workingDirectory, QStringList(QLatin1String("push")), 0, true, GitCommand::ReportStderr);
+    // Disable UNIX terminals to suppress SSH prompting.
+    executeGit(workingDirectory, QStringList(QLatin1String("push")), 0,
+               true, GitCommand::ReportStderr,
+               VCSBase::VCSBasePlugin::isSshPromptConfigured());
 }
 
 QString GitClient::msgNoChangedFiles()

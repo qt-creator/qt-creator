@@ -6,11 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
-    <height>105</height>
+    <width>338</width>
+    <height>166</height>
    </rect>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
     <widget class="QCheckBox" name="lineWrapCheckBox">
      <property name="text">
@@ -37,7 +37,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="2">
+   <item row="1" column="1">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -50,7 +50,7 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="submitMessageCheckScriptLabel">
      <property name="toolTip">
       <string>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</string>
@@ -60,10 +60,10 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="2">
+   <item row="2" column="1">
     <widget class="Utils::PathChooser" name="submitMessageCheckScriptChooser" native="true"/>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QLabel" name="nickNameMailMapLabel">
      <property name="toolTip">
       <string>A file listing user names and email addresses in a 4-column mailmap format:
@@ -74,10 +74,10 @@ name &lt;email&gt; alias &lt;email&gt;</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1" colspan="2">
+   <item row="3" column="1">
     <widget class="Utils::PathChooser" name="nickNameMailMapChooser" native="true"/>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="nickNameFieldsFileLabel">
      <property name="toolTip">
       <string>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</string>
@@ -87,10 +87,10 @@ name &lt;email&gt; alias &lt;email&gt;</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1" colspan="2">
+   <item row="4" column="1">
     <widget class="Utils::PathChooser" name="nickNameFieldsFileChooser" native="true"/>
    </item>
-   <item row="4" column="0" colspan="3">
+   <item row="6" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -105,6 +105,20 @@ name &lt;email&gt; alias &lt;email&gt;</string>
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="sshPromptLabel">
+     <property name="toolTip">
+      <string>Specifies a command that is executed to graphically prompt for a password, 
+should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</string>
+     </property>
+     <property name="text">
+      <string>SSH prompt command:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="Utils::PathChooser" name="sshPromptChooser" native="true"/>
    </item>
   </layout>
  </widget>

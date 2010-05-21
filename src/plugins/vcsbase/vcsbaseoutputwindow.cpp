@@ -43,6 +43,8 @@
 
 #include <QtCore/QPointer>
 #include <QtCore/QTextCodec>
+#include <QtCore/QDir>
+#include <QtCore/QTextStream>
 #include <QtCore/QTime>
 #include <QtCore/QPoint>
 #include <QtCore/QFileInfo>
@@ -367,10 +369,52 @@ void VCSBaseOutputWindow::appendWarning(const QString &text)
         popup(false); // Pop up without focus
 }
 
+// Helper to format arguments for log windows hiding common password
+// options.
+static inline QString formatArguments(const QStringList &args)
+{
+    const char passwordOptionC[] = "--password";
+
+    QString rc;
+    QTextStream str(&rc);
+    const int size = args.size();
+    // Skip authentication options
+    for (int i = 0; i < size; i++) {
+        const QString &arg = args.at(i);
+        if (i)
+            str << ' ';
+        str << arg;
+        if (arg == QLatin1String(passwordOptionC)) {
+            str << " ********";
+            i++;
+        }
+    }
+    return rc;
+}
+
+QString VCSBaseOutputWindow::msgExecutionLogEntry(const QString &workingDir,
+                                                  const QString &executable,
+                                                  const QStringList &arguments)
+{
+    const QString args = formatArguments(arguments);
+    if (workingDir.isEmpty())
+        return tr("Executing: %1 %2\n").arg(executable, args);
+    return tr("Executing in %1: %2 %3\n").
+            arg(QDir::toNativeSeparators(workingDir), executable, args);
+}
+
 void VCSBaseOutputWindow::appendCommand(const QString &text)
 {
     d->plainTextEdit()->appendCommand(text);
 }
+
+void VCSBaseOutputWindow::appendCommand(const QString &workingDirectory,
+                                        const QString &binary,
+                                        const QStringList &args)
+{
+    appendCommand(msgExecutionLogEntry(workingDirectory, binary, args));
+}
+
 
 void VCSBaseOutputWindow::appendData(const QByteArray &data)
 {

@@ -51,6 +51,9 @@ struct CommonVcsSettings
 
     QString submitMessageCheckScript;
 
+    // Executable run to graphically prompt for a SSH-password.
+    QString sshPasswordPrompt;
+
     bool lineWrap;
     int lineWrapWidth;
 

@@ -33,6 +33,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
+#include <QtCore/QProcessEnvironment>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
@@ -55,7 +56,7 @@ public:
 
     explicit GitCommand(const QStringList &binary,
                         const QString &workingDirectory,
-                        const QStringList &environment,
+                        const QProcessEnvironment &environment,
                         const QVariant &cookie = QVariant());
 
 
@@ -69,6 +70,10 @@ public:
     // Report command termination with exit code
     TerminationReportMode reportTerminationMode() const;
     void setTerminationReportMode(TerminationReportMode m);
+
+    // Disable Terminal on UNIX (see VCS SSH handling).
+    bool unixTerminalDisabled() const;
+    void setUnixTerminalDisabled(bool);
 
     static QString msgTimeout(int seconds);
 
@@ -95,8 +100,9 @@ private:
     const QString m_binaryPath;
     QStringList m_basicArguments;
     const QString m_workingDirectory;
-    const QStringList m_environment;
+    const QProcessEnvironment m_environment;
     QVariant m_cookie;
+    bool m_unixTerminalDisabled;
 
     QList<Job> m_jobs;
     TerminationReportMode m_reportTerminationMode;

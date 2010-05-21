@@ -42,6 +42,7 @@ QT_BEGIN_NAMESPACE
 class QErrorMessage;
 class QSignalMapper;
 class QDebug;
+class QProcessEnvironment;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -202,7 +203,7 @@ public:
     void setSettings(const GitSettings &s);
 
     QStringList binary() const; // Executable + basic arguments
-    QStringList processEnvironment() const;
+    QProcessEnvironment processEnvironment() const;
 
     static QString msgNoChangedFiles();
 
@@ -233,7 +234,8 @@ private:
                            VCSBase::VCSBaseEditor* editor = 0,
                            bool outputToWindow = false,
                            GitCommand::TerminationReportMode tm = GitCommand::NoReport,
-                           int editorLineNumber = -1);
+                           int editorLineNumber = -1,
+                           bool unixTerminalDisabled = false);
 
     bool synchronousGit(const QString &workingDirectory,
                         const QStringList &arguments,

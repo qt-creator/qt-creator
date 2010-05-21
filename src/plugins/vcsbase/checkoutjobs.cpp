@@ -29,6 +29,8 @@
 
 #include "checkoutjobs.h"
 
+#include <vcsbaseplugin.h>
+
 #include <QtCore/QDebug>
 #include <utils/synchronousprocess.h>
 
@@ -46,22 +48,35 @@ struct ProcessCheckoutJobPrivate {
                               const QString &workingDirectory,
                               const QStringList &env);
 
-    QProcess process;
+    QSharedPointer<QProcess> process;
     const QString binary;
     const QStringList args;
 };
+
+// Use a terminal-less process to suppress SSH prompts.
+static inline QSharedPointer<QProcess> createProcess()
+{
+    unsigned flags = 0;
+    if (VCSBasePlugin::isSshPromptConfigured())
+        flags = Utils::SynchronousProcess::UnixTerminalDisabled;
+    return Utils::SynchronousProcess::createProcess(flags);
+}
 
 ProcessCheckoutJobPrivate::ProcessCheckoutJobPrivate(const QString &b,
                               const QStringList &a,
                               const QString &workingDirectory,
                               const QStringList &env) :
+    process(createProcess()),
     binary(b),
     args(a)
-{
+{    
     if (!workingDirectory.isEmpty())
-        process.setWorkingDirectory(workingDirectory);
+        process->setWorkingDirectory(workingDirectory);
     if (!env.empty())
-        process.setEnvironment(env);
+        process->setEnvironment(env);
+    QProcessEnvironment processEnv = process->processEnvironment();
+    VCSBasePlugin::setProcessEnvironment(&processEnv);
+    process->setProcessEnvironment(processEnv);
 }
 
 ProcessCheckoutJob::ProcessCheckoutJob(const QString &binary,
@@ -74,11 +89,11 @@ ProcessCheckoutJob::ProcessCheckoutJob(const QString &binary,
 {
     if (debug)
         qDebug() << "ProcessCheckoutJob" << binary << args << workingDirectory;
-    connect(&d->process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(slotError(QProcess::ProcessError)));
-    connect(&d->process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(slotFinished(int,QProcess::ExitStatus)));
-    connect(&d->process, SIGNAL(readyReadStandardOutput()), this, SLOT(slotOutput()));
-    d->process.setProcessChannelMode(QProcess::MergedChannels);
-    d->process.closeWriteChannel();
+    connect(d->process.data(), SIGNAL(error(QProcess::ProcessError)), this, SLOT(slotError(QProcess::ProcessError)));
+    connect(d->process.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(slotFinished(int,QProcess::ExitStatus)));
+    connect(d->process.data(), SIGNAL(readyReadStandardOutput()), this, SLOT(slotOutput()));
+    d->process->setProcessChannelMode(QProcess::MergedChannels);
+    d->process->closeWriteChannel();
 }
 
 ProcessCheckoutJob::~ProcessCheckoutJob()
@@ -88,7 +103,7 @@ ProcessCheckoutJob::~ProcessCheckoutJob()
 
 void ProcessCheckoutJob::slotOutput()
 {
-    const QByteArray data = d->process.readAllStandardOutput();
+    const QByteArray data = d->process->readAllStandardOutput();
     const QString s = QString::fromLocal8Bit(data, data.endsWith('\n') ? data.size() - 1: data.size());
     if (debug)
         qDebug() << s;
@@ -99,10 +114,10 @@ void ProcessCheckoutJob::slotError(QProcess::ProcessError error)
 {
     switch (error) {
     case QProcess::FailedToStart:
-        emit failed(tr("Unable to start %1: %2").arg(d->binary, d->process.errorString()));
+        emit failed(tr("Unable to start %1: %2").arg(d->binary, d->process->errorString()));
         break;
     default:
-        emit failed(d->process.errorString());
+        emit failed(d->process->errorString());
         break;
     }
 }
@@ -129,7 +144,7 @@ void ProcessCheckoutJob::slotFinished (int exitCode, QProcess::ExitStatus exitSt
 
 void ProcessCheckoutJob::start()
 {
-    d->process.start(d->binary, d->args);
+    d->process->start(d->binary, d->args);
 }
 
 void ProcessCheckoutJob::cancel()
@@ -138,7 +153,7 @@ void ProcessCheckoutJob::cancel()
         qDebug() << "ProcessCheckoutJob::start";
 
     emit output(tr("Stopping..."));
-    Utils::SynchronousProcess::stopProcess(d->process);
+    Utils::SynchronousProcess::stopProcess(*d->process);
 }
 
 } // namespace VCSBase

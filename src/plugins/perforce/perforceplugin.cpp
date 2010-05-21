@@ -947,15 +947,6 @@ bool PerforcePlugin::vcsMove(const QString &workingDir, const QString &from, con
     return !moveResult.error;
 }
 
-static QString formatCommand(const QString &cmd, const QStringList &args)
-{
-    const QChar blank = QLatin1Char(' ');
-    QString command = cmd;
-    command += blank;
-    command += args.join(QString(blank));
-    return PerforcePlugin::tr("Executing: %1\n").arg(command);
-}
-
 // Write extra args to temporary file
 QSharedPointer<QTemporaryFile>
         PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs) const
@@ -1041,6 +1032,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     }
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::run syncp actual args [" << process.workingDirectory() << ']' << args;
+    process.setTimeOutMessageBoxEnabled(true);
     const Utils::SynchronousProcessResponse sp_resp = process.run(m_settings.p4Command(), args);
     if (Perforce::Constants::debug)
         qDebug() << sp_resp;
@@ -1111,7 +1103,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
     QByteArray stdOut;
     QByteArray stdErr;
     const int timeOut = (flags & LongTimeOut) ? m_settings.longTimeOutMS() : m_settings.timeOutMS();
-    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeOut, &stdOut, &stdErr)) {
+    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeOut, &stdOut, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(process);
         response.error = true;
         response.message = msgTimeout(timeOut);
@@ -1164,7 +1156,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
-        outputWindow->appendCommand(formatCommand(m_settings.p4Command(), actualArgs));
+        outputWindow->appendCommand(workingDir, m_settings.p4Command(), actualArgs);
 
     if (flags & ShowBusyCursor)
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));

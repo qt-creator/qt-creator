@@ -138,7 +138,7 @@ private:
                                        QTextCodec *codec);
     SubversionResponse runSvn(const QString &workingDir,
                               const QStringList &arguments, int timeOut,
-                              bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0);
+                              unsigned flags, QTextCodec *outputCodec = 0);
     void filelog(const QString &workingDir,
                  const QStringList &file = QStringList(),
                  bool enableAnnotationContextMenu = false);

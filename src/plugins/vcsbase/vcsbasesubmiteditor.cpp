@@ -584,7 +584,7 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     }
     QByteArray stdOutData;
     QByteArray stdErrData;
-    if (!Utils::SynchronousProcess::readDataFromProcess(checkProcess, 30000, &stdOutData, &stdErrData)) {
+    if (!Utils::SynchronousProcess::readDataFromProcess(checkProcess, 30000, &stdOutData, &stdErrData, false)) {
         Utils::SynchronousProcess::stopProcess(checkProcess);
         *errorMessage = tr("The check script '%1' timed out.").arg(checkScript);
         return false;

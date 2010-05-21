@@ -77,6 +77,13 @@ public:
 
     QString repository() const;
 
+    // Helper to consistently format log entries for commands as
+    // 'Executing <dir>: <cmd> <args>'. Hides well-known password option
+    // arguments.
+    static QString msgExecutionLogEntry(const QString &workingDir,
+                                        const QString &executable,
+                                        const QStringList &arguments);
+
 public slots:
     void setRepository(const QString &);
     void clearRepository();
@@ -105,6 +112,11 @@ public slots:
     // Append a command, prepended by a log time stamp. "Executing: vcs -diff"
     // will result in "10:00 Executing: vcs -diff" in bold
     void appendCommand(const QString &text);
+    // Append a standard-formatted entry for command execution
+    // (see msgExecutionLogEntry).
+    void appendCommand(const QString &workingDirectory,
+                       const QString &binary,
+                       const QStringList &args);
 
 private:
     VCSBaseOutputWindow();
