@@ -75,7 +75,6 @@ ResourceEditorW::ResourceEditorW(const QList<int> &context,
         m_plugin(plugin)
 {
     m_resourceEditor->setResourceDragEnabled(true);
-    m_resourceEditor->layout()->setMargin(9);
 
     connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), this, SLOT(dirtyChanged(bool)));
     connect(m_resourceEditor, SIGNAL(undoStackChanged(bool, bool)),
