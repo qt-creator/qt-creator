@@ -79,15 +79,17 @@ public:
     typedef QHashIterator<CPlusPlus::Symbol *, QList<Use> > LocalUseIterator;
 
     SemanticInfo()
-        : revision(0), hasQ(false), hasD(false)
+        : revision(0), hasQ(false), hasD(false), forced(false)
     { }
 
     unsigned revision;
     bool hasQ: 1;
     bool hasD: 1;
+    bool forced: 1;
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
     LocalUseMap localUses;
+    QList<CPlusPlus::Document::DiagnosticMessage> diagnosticMessages;
 };
 
 class SemanticHighlighter: public QThread

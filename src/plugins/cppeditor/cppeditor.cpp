@@ -57,6 +57,7 @@
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/CppBindings.h>
+#include <cplusplus/CheckUndefinedSymbols.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
@@ -1839,7 +1840,8 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         return;
     }
 
-    m_lastSemanticInfo = semanticInfo;
+    const SemanticInfo previousSemanticInfo = m_lastSemanticInfo;
+    m_lastSemanticInfo = semanticInfo; // update the semantic info
 
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
@@ -1871,8 +1873,28 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
             highlightUses(uses, semanticInfo, &m_renameSelections);
     }
 
+    if (m_lastSemanticInfo.forced || previousSemanticInfo.revision != semanticInfo.revision) {
+        QList<QTextEdit::ExtraSelection> undefinedSymbolSelections;
+        foreach (const Document::DiagnosticMessage &m, semanticInfo.diagnosticMessages) {
+            QTextCursor cursor(document());
+            cursor.setPosition(document()->findBlockByNumber(m.line() - 1).position() + m.column() - 1);
+            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
+
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = cursor;
+            sel.format.setUnderlineColor(Qt::darkYellow); // ### hardcoded
+            sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline); // ### hardcoded
+            sel.format.setToolTip(m.text());
+            undefinedSymbolSelections.append(sel);
+        }
+
+        setExtraSelections(UndefinedSymbolSelection, undefinedSymbolSelections);
+    }
+
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
-    setExtraSelections(CodeSemanticsSelection, m_renameSelections);
+    setExtraSelections(CodeSemanticsSelection, m_renameSelections); // ###
+
+    m_lastSemanticInfo.forced = false; // clear the forced flag
 }
 
 SemanticHighlighter::Source CPPEditor::currentSource(bool force)
@@ -1964,11 +1986,13 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
 
     Snapshot snapshot;
     Document::Ptr doc;
+    QList<Document::DiagnosticMessage> diagnosticMessages;
 
     if (! source.force && revision == source.revision) {
         m_mutex.lock();
-        snapshot = m_lastSemanticInfo.snapshot;
+        snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
         doc = m_lastSemanticInfo.doc;
+        diagnosticMessages = m_lastSemanticInfo.diagnosticMessages;
         m_mutex.unlock();
     }
 
@@ -1978,6 +2002,10 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         snapshot = source.snapshot;
         doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
         doc->check();
+
+        // ### check undefined symbols.
+        CheckUndefinedSymbols checkUndefinedSymbols(doc, snapshot);
+        diagnosticMessages = checkUndefinedSymbols(doc->translationUnit()->ast());
     }
 
     TranslationUnit *translationUnit = doc->translationUnit();
@@ -1996,6 +2024,8 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.localUses = useTable.localUses;
     semanticInfo.hasQ = useTable.hasQ;
     semanticInfo.hasD = useTable.hasD;
+    semanticInfo.forced = source.force;
+    semanticInfo.diagnosticMessages = diagnosticMessages;
 
     return semanticInfo;
 }
