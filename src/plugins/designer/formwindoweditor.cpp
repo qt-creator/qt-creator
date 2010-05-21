@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/mimedatabase.h>
 #include <texteditor/basetextdocument.h>
 #include <texteditor/plaintexteditor.h>
 
@@ -82,6 +83,7 @@ FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditor *editor,
     // Force update of open editors model.
     connect(&(d->m_file), SIGNAL(saved()), this, SIGNAL(changed()));
     connect(&(d->m_file), SIGNAL(changed()), this, SIGNAL(changed()));
+    connect(this, SIGNAL(changed()), this, SLOT(configureXmlEditor()));
 }
 
 FormWindowEditor::~FormWindowEditor()
@@ -162,6 +164,15 @@ void FormWindowEditor::syncXmlEditor()
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowEditor::syncXmlEditor" << d->m_file.fileName();
     syncXmlEditor(contents());
+}
+
+void FormWindowEditor::configureXmlEditor() const
+{
+    TextEditor::PlainTextEditor *editor =
+            qobject_cast<TextEditor::PlainTextEditor *>(d->m_textEditable.editor());
+    if (editor)
+        editor->configure(Core::ICore::instance()->mimeDatabase()->findByFile(
+                d->m_file.fileName()));
 }
 
 void FormWindowEditor::syncXmlEditor(const QString &contents)

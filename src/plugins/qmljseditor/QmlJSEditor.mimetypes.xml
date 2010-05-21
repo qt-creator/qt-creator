@@ -8,6 +8,7 @@
     <mime-type type="application/javascript">
         <alias type="application/x-javascript"/>
         <alias type="text/javascript"/>
+        <alias type="text/x-javascript"/>
         <sub-class-of type="text/plain"/>
         <comment>Qt Script file</comment>
         <glob pattern="*.js"/>
