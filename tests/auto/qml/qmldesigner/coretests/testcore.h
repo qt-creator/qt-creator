@@ -163,6 +163,7 @@ private slots:
     void testRewriterTransactionRewriter();
     void testCopyModelRewriter1();
     void testCopyModelRewriter2();
+    void testSubComponentManager();
 
     //
     // regression tests

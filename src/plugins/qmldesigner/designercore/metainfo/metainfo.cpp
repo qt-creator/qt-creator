@@ -447,7 +447,8 @@ QString MetaInfo::fromQtTypes(const QString &type) const
 {
     if (m_p->m_QtTypesToQmlTypes.contains(type))
         return m_p->m_QtTypesToQmlTypes.value(type);
-
+    if (!isGlobal())
+        return global().fromQtTypes(type);
     return type;
 }
 

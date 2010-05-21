@@ -389,12 +389,17 @@
        \o  \gui{Search Results}
        \o  \gui{Application Output}
        \o  \gui{Compile Output}
+       \o  \gui{General Messages}
+       \o  \gui{Version Control}
     \endlist
 
     Output panes are available in all \l{Qt Creator modes}{modes}.
     Click the name of an output pane to open the pane. To maximize
     an open output pane, click the \gui {Maximize Output Pane} button
     or press \key {Alt+9}.
+
+    To open the \gui{General Messages} and \gui{Version Control}
+    panes, select \gui {Window > Output Panes}.
 
 
     \section2 Build Issues
@@ -884,7 +889,7 @@
     \gui{Pastebin.com}.
 
     For example, you might ask colleagues to review a change that you plan to
-    submit to a version control system. If you use the git version control system,
+    submit to a version control system. If you use the Git version control system,
     you can create a \e{diff} view by selecting \gui{Tools} > \gui{Git} >
     \gui{Diff Repository}. You can then upload its contents to the server by choosing
     \gui{Tools} > \gui{Code Pasting} > \gui{Paste Snippet...}. The reviewers can retrieve
@@ -2251,6 +2256,9 @@
     The settings to specify depend on the type of the project: qmake project
     or Qt Quick project.
 
+    Click \gui Add to add run settings for a project and \gui Remove to remove
+    the current settings.
+
     \section1 Specifying Run Settings for qmake Projects
 
     The run configurations for qmake projects derive their executable from the parsed .pro
@@ -2261,24 +2269,23 @@
 
     \section1 Specifying Run Settings for Qt Quick Projects
 
-    To run Qt Quick projects in the QML viewer, specify the connection to the
-    \gui {QML Runtime} in the \gui {Run configuration} field. The settings
+    Select run settings in the \gui {Run configuration} field. The settings
     are specified automatically and, usually, you do not need to change them:
 
     \list
 
-        \o \gui {QML runtime} is the path to QML viewer executable.
+        \o \gui {QML Viewer} is the path to the \QQV executable.
 
-        \o \gui {QML runtime arguments} sets arguments for running the QML viewer.
+        \o \gui {QML Viewer arguments} sets arguments for running \QQV.
         The \c{-I <directory>} argument searches for C++ or QML plugins from
         the project folder. For a list of available arguments, enter \c {qml --help}
         on the command line.
 
-        \o \gui {Main QML File} is the Qt Quick project file.
+        \o \gui {Main QML file} is the Qt Quick project file.
 
-        \o \gui {Debugging address} is the IP address to access the QML viewer.
+        \o \gui {Debugging address} is the IP address to access \QQV.
 
-        \o \gui {Debugging port} is the port to access the QML viewer. You can use any
+        \o \gui {Debugging port} is the port to access \QQV. You can use any
         free port in the registered port range.
 
     \endlist
@@ -2836,7 +2843,7 @@
             \i \bold{Address}
             \i \bold{Notes}
         \row
-            \i  \bold{git}
+            \i  \bold{Git}
             \i  \l{http://git-scm.com/}
             \i
         \row
@@ -2861,20 +2868,21 @@
     \section1 Setting Up Version Control Systems
 
     Qt Creator uses the version control system's command line clients to access
-    your repositories. To set up the version control system's command line
-    clients to access your repositories, make sure that the command line clients
+    your repositories. To allow access, make sure that the command line clients
     can be located using the \c{PATH} environment variable or specify the path to
-    the command line client executables, in the settings pages shown by
-    \gui{Tools} > \gui{Options...}.
+    the command line client executables in \gui{Tools} > \gui{Options...} >
+    \gui {Version Control}.
 
+    After you set up the version control system, use the command line to check
+    that everything works (for example, use the status command). If no issues arise,
+    you should be ready to use the system also from Qt Creator.
 
     \section1 Setting Up Common Options
 
     Select \gui{Tools} > \gui{Options...} > \gui{Version Control} > \gui{Common}
-    to view the common settings for version control systems. The following are
-    the options present in \gui{Common}:
+    to specify settings for submit messages:
     \list
-       \o   \gui{Submit message checking script} is a script or program that
+       \o   \gui{Submit message check script} is a script or program that
              can be used to perform checks on the submit message before
              submitting. The submit message is passed in as the script's first
              parameter. If there is an error, the script should output a
@@ -2913,20 +2921,20 @@
 
     Qt Creator allows for creating VCS repositories for version
     control systems that support local repository creation, such as
-    \bold{git} or \bold{hg}.
+    Git or Mercurial.
     When creating a new project by selecting \gui File >
     \gui{New File or Project...}, you can choose a version
     control system in the final wizard page.
 
     \section1 Using Version Control Systems
 
-    The version control sub-menus are in \gui{Tools} > \gui{Options...}.
-    The \gui{Version Control} page also displays the
-    version control system managing the current project
+    The \gui{Tools} menu contains a sub-menu for each supported version
+    control system.
 
-    Under \gui{Application Output} > \gui{Version Control}, there is an output
-    pane showing the commands that are executed, prepended by a
-    timestamp and the relevant output.
+    The \gui{Version Control} output pane displays the commands
+    that are executed, a timestamp, and the relevant output.
+    Select \gui {Window > Output Panes > Version Control} to open
+    the pane.
 
 
     \image qtcreator-vcs-pane.png
@@ -2938,10 +2946,10 @@
     asking whether the files should be added to a version control system.
     This happens when the parent directory or the project is already
     under version control and the system supports the concept of adding files,
-    for example, \bold{Perforce} and \bold{Subversion}. Alternatively, you can
+    for example, Perforce and Subversion. Alternatively, you can
     add files later by using the version control tool menus.
 
-    With \bold{git}, there is no concept of adding files. Instead, all modified
+    With Git, there is no concept of adding files. Instead, all modified
     files must be staged for a commit.
 
 
@@ -2960,15 +2968,14 @@
     \section2 Viewing Versioning History and Change Details
 
     Display the versioning history of a file by selecting \gui{Log}
-    (for \bold{git}) or \gui{Filelog}(for \bold{Perforce} and
-    \bold{Subversion}). Typically, the log output contains the date, the commit
+    (for Git and Mercurial) or \gui{Filelog} (for CVS, Perforce, and
+    Subversion). Typically, the log output contains the date, the commit
     message, and a change or revision identifier. Click on the identifier to
     display a description of the change including the diff.
     Right-clicking on an identifier brings up a context menu that lets you
     show annotation views of previous versions (see \l{Annotating Files}).
 
     \image qtcreator-vcs-log.png
-    \image qtcreator-vcs-describe.png
 
 
     \section2 Annotating Files
@@ -2982,7 +2989,7 @@
     version identifier at the beginning of a line and choose one of the
     revisions shown at the bottom of the context menu. This allows you to
     navigate through the history of the file and obtain previous versions of
-    it. It also works for \gui git/hg using SHA's.
+    it. It also works for Git and Mercurial using SHA's.
 
     The same context menu is available when right-clicking on a version
     identifier in the file log view of a single file.
@@ -2995,6 +3002,8 @@
     commit page containing a text editor where you can enter your commit
     message and a checkable list of modified files to be included.
 
+    \image qtcreator-vcs-commit.png
+
     When you have finished filling out the commit page information, click on
     \gui{Commit} to start committing.
 
@@ -3003,29 +3012,48 @@
     editor, you can go back to it by closing the diff view. You can also check
     a diff view from the editor combo box showing the \gui{Opened files}.
 
-    \image qtcreator-vcs-commit.png
 
+    \section2 Reverting Changes
 
+    To discard local changes to a file or project, use the \gui Revert
+    function or the \gui {Undo Changes/Undo Repository Changes} function
+    (for Git). The changes discarded depend on the version control system.
 
-    \section2 Using git-specific Menu Entries
+    For example, in Perforce, select \gui{Revert File/Revert Project}
+    to discard changes made to open files, reverting them to the
+    revisions last synchronized from the repository. Select
+    \gui{Revert Unchanged} to revert files if their contents or file
+    type have not changed after they were opened for editing.
 
-    The git sub-menu contains additional entries:
+    \section2 Using Additional Git Functions
+
+    The \gui Git sub-menu contains the following additional items:
 
     \table
+
         \row
-            \i  \gui{Stash snapshot...}
-            \i  Allows you to save a snapshot of your current
+            \i  \gui {Apply Patch/Apply Patch...}
+            \i  Apply changes to a file or project from a diff file. You can
+                either apply a patch file that is open in Qt Creator or select
+                the patch file to apply from the file system.
+        \row
+            \i  \gui{Stash Snapshot...}
+            \i  Save a snapshot of your current
                 work under a name for later reference. For example, if you
                 want to try out something and find out later that it does not work,
                 you can discard it and return to the state of the snapshot.
         \row
             \i  \gui{Stash}
-            \i  Stash local changes prior to executing a \bold{pull}.
+            \i  Stash local changes prior to executing a \gui{Pull}.
+        \row
+            \i  \gui{Stash Pop}
+            \i  Remove a single stashed state from the stash list and apply it on
+                top of the current working tree state.
         \row
             \i  \gui{Pull}
             \i  Pull changes from the remote repository. If there are locally
                 modified files, you are prompted to stash those changes.
-                The \bold{git} settings page contains an option to do
+                The \gui Git options page contains an option to do
                 a rebase operation while pulling.
 
         \row
@@ -3051,7 +3079,85 @@
             \i  Displays a dialog showing the stashes created by
                 \gui{Stash snapshots...} with options to restore,
                 display or delete them.
+        \row
+            \i  \gui {Stage File for Commit}
+            \i  Mark new or modified files for committing to the repository.
+                To undo this function, select \gui {Unstage File from Commit}.
+        \row
+            \i  \gui{Show Commit...}
+            \i  Select a commit to view. Enter the SHA of the commit
+                in the \gui Change field.
     \endtable
+
+    \section2 Using Additional Mercurial Functions
+
+    The \gui Mercurial sub-menu contains the following additional items:
+
+    \table
+        \row
+            \i  \gui{Import}
+            \i  Apply changes from a patch file.
+        \row
+            \i  \gui{Incoming}
+            \i  Monitor the status of a remote repository by listing
+                the changes that will be pulled.
+        \row
+            \i  \gui{Outgoing}
+            \i  Monitor the status of a remote repository by listing
+                the changes that will be pushed.
+        \row
+            \i  \gui{Pull}
+            \i  Pull changes from the remote repository.
+        \row
+            \i  \gui{Update}
+            \i  Look at an earlier version of the code.
+    \endtable
+
+    \section2 Using Additional Perforce Functions
+
+    When you start Qt Creator, it looks for the executable specified
+    in the \gui{P4 command} field in \gui{Tools > Options... > Version
+    Control > Perforce}. If you do not use Perforce and want to turn
+    off the check, clear this field.
+
+    The \gui Perforce sub-menu contains the following additional items:
+
+    \table
+        \row
+            \i  \gui{Describe...}
+            \i  View information about changelists and the files in them.
+        \row
+            \i  \gui{Edit File}
+            \i  Open a file for editing.
+        \row
+            \i  \gui{Opened}
+            \i  List files that are open for editing.
+        \row
+            \i  \gui{Pending Changes...}
+            \i  Group files for commit.
+        \row
+            \i  \gui{Update All/Update Current Project}
+            \i  Fetch the current version of the current project or all
+            projects from the repository.
+
+    \endtable
+
+
+    \section2 Using Additional Subversion Functions
+
+    The \gui Subversion sub-menu contains the following additional items:
+
+    \table
+        \row
+            \i  \gui{Describe...}
+            \i  Display commit log messages for a revision.
+        \row
+            \i  \gui{Update Project/Update Repository}
+            \i  Update your working copy.
+    \endtable
+
+
+
 */
 
 
@@ -3331,7 +3437,7 @@
 
 
     \note You can press \key {Ctr+Alt+R} or select \gui {Tools > Qt Quick > Preview}
-    to view QML files that do not belong to projects in the QML viewer. However,
+    to view QML files that do not belong to projects in \QQV. However,
     you can only debug QML files that belong to open projects, because the QML
     inspector plugin needs information about the project.
 
@@ -3340,13 +3446,13 @@
     \section1 Modes of Operation
 
     When a Qt Quick project is active and you select \gui {Debug > Start Debugging >
-    Start Debugging} the application is started in the QML viewer and inspected by
+    Start Debugging} the application is started in \QQV and inspected by
     the QML inspector.
 
     If the Qt Quick project includes C++ plugins, select
     \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
-    The QML runtime is started, debugged with the native debugger, and attached to
-    the QML viewer.
+    \QQV is started, the native debugger is attached to it, and
+    the application is inspected by the QML inspector.
 
     \note This command is available only if \gui QML is selected in
     \gui {Debug > Language (QML)}.
@@ -3354,7 +3460,7 @@
     To debug a Qt project that contains QML content, select
     \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
     The application is started under the control of the native debugger, attached
-    to the QML viewer, and inspected by the QML inspector.
+    to \QQV, and inspected by the QML inspector.
 
     You must use the native debugger to set breakpoints to C++ code and to examine
     the state of the interrupted Qt application. When a C++ program is interrupted,
@@ -3385,7 +3491,7 @@
     To start an active application under the control of the QML inspector, select
     \gui {Debug > Start Debugging > Start Debugging}, or press \key{F5}.
 
-    The application is run in the QML viewer. It behaves and performs as usual.
+    The application is run in \QQV. It behaves and performs as usual.
     You can view the status of the application when it is executed and the debug
     output in the \gui {Application Output} view.
 
@@ -3401,27 +3507,27 @@
 
     \image qmldesigner-debugging-simultaneous.png "Start Simultaneous QML and C++ Debugging view"
 
-    Usually, the settings for the QML viewer are specified automatically and you do
+    Usually, the settings for \QQV are specified automatically and you do
     not need to change them:
 
     \list
 
-        \o \gui {Debugging address} is the IP address to access the QML viewer.
+        \o \gui {Debugging address} is the IP address to access \QQV.
 
-        \o \gui {Debugging port} is the port to access the QML viewer. You can use any
+        \o \gui {Debugging port} is the port to access \QQV. You can use any
         free port in the registered port range.
 
-        \o \gui {Viewer path} is the path to QML viewer executable.
+        \o \gui {Viewer path} is the path to \QQV executable.
 
-        \o \gui {Viewer arguments} sets arguments for running the QML viewer.
+        \o \gui {Viewer arguments} sets arguments for running \QQV.
         The \c{-I <directory>} argument searches for C++ or QML plugins from
         the project folder. For a list of available arguments, enter \c {qml --help}
         on the command line.
 
     \endlist
 
-    The QML runtime is started, debugged with the native debugger, and attached to
-    the QML viewer.
+    \QQV is started, the native debugger is attached to it, and
+    the application is inspected by the QML inspector.
 
     \section1 Viewing and Modifying Values of Properties
 
@@ -3438,7 +3544,7 @@
 
     Double-click an item to move to the place in code where it is declared.
 
-    You can change the values of properties and see the results in the QML viewer.
+    You can change the values of properties and see the results in \QQV.
 
     If the QML inspector cannot retrieve the value for an item or a property for
     inspection, the item or property is grayed in the view. Right-click the item list
@@ -3474,17 +3580,17 @@
 
     You can also test the C++ code without rebuilding the whole application.
 
-    \section1 Viewing Connections to the QML Viewer
+    \section1 Viewing Connections to \QQV
 
     The \gui Output view displays the status of the connection between the QML
-    inspector and the QML viewer.
+    inspector and \QQV.
 
     You specify the connection in the \gui {Run Settings} in the \gui Projects mode.
     For more information, see \l{Specifying Run Settings for Qt Quick Projects}.
 
     If the connection does not work, check the values of the \gui {Debugging address}
     and \gui {Debugging port} fields. Check that the default port number is not reserved
-    by another application or another instance of the QML viewer that was not shut
+    by another application or another instance of \QQV that was not shut
     down properly. You can specify any free port number in the registered port range
     (1024-49151).
 
@@ -3804,14 +3910,18 @@
                \l{http://msdn.microsoft.com/en-us/default.aspx}
                {Microsoft Developer Network}.
 
-               The pre-built \e{Qt SDK for Windows} makes use
-               of the library if it is present on the system. When building Qt
-               Creator using the Microsoft Visual C++ Compiler, the
-               \c{"%ProgramFiles%\Debugging Tools for Windows"} path is
-               checked to ensure that all required header files are there.
+               \note Visual Studio does not include the Debugging tools needed,
+               and therefore, you must install them separately.
 
-               You must also add the Symbol Server provided by Microsoft to the symbol
-               search path of the debugger. For more information, see
+               The pre-built \e{Qt SDK for Windows} makes use
+               of the library if it is present on the system. When manually building Qt
+               Creator using the Microsoft Visual C++ Compiler, the build process checks
+               for the required files in \c{"%ProgramFiles%\Debugging Tools for Windows"}.
+
+               It is highly recommended that you add the Symbol Server provided by Microsoft to the symbol
+               search path of the debugger. The Symbol Server provides you
+               with debugging informaton for the operating system libraries for debugging
+               Windows applications. For more information, see
                \l{Setting the Symbol Server in Windows}.
 
        \row
@@ -3846,9 +3956,22 @@
             and select \gui{Symbol Server...}.
         \o  Select a directory where you want to store the cached information
             and click \gui OK.
+
+            Use a subfolder in a temporary directory, such as
+            \c {C:\temp\symbolcache}.
     \endlist
 
+    \note Populating the cache might take a long time on a slow network
+    connection.
 
+
+    \omit In v2.1 and later:
+
+    \note The first time you start debugging by using the
+    Debugging tools for Windows, Qt Creator prompts you to add the Symbol
+    Server.
+
+    \endomit
 */
 
 /*!
@@ -4624,7 +4747,7 @@
     is modified externally, you have to restart Qt Creator for the changes to
     take effect.
 
-    To update the \tt{.files} on the \gui git repository use the following
+    To update the \tt{.files} on the \gui Git repository use the following
     script:
     \code
     git ls-files *.cpp *.h > MyProject.files
@@ -4813,7 +4936,7 @@
 
         \image qmldesigner-button.png "Button component"
 
-        \o Click the \gui Run button to view the button in the QML viewer.
+        \o Click the \gui Run button to view the button in \QQV.
 
     \endlist
 
@@ -4968,7 +5091,7 @@
         a pointer to the \c clicked expression that you added earlier:
         \c {onClicked: parent.clicked()}.
 
-        \o Click the \gui Run button to view the button in the QML viewer.
+        \o Click the \gui Run button to view the button in \QQV.
 
         \endlist
 
@@ -5114,7 +5237,7 @@
 
         \endcode
 
-        \o Click the \gui Run button to view the list view in the QML viewer.
+        \o Click the \gui Run button to view the list view in \QQV.
 
     \endlist
 

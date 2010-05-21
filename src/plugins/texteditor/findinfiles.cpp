@@ -31,6 +31,7 @@
 
 #include <QtCore/QtDebug>
 #include <QtCore/QSettings>
+#include <QtCore/QDir>
 #include <QtCore/QDirIterator>
 #include <QtGui/QPushButton>
 #include <QtGui/QFileDialog>
@@ -124,8 +125,11 @@ void FindInFiles::openFileBrowser()
 {
     if (!m_directory)
         return;
+    QString oldDir = m_directory->currentText();
+    if (!QDir(oldDir).exists())
+        oldDir.clear();
     QString dir = QFileDialog::getExistingDirectory(m_configWidget,
-        tr("Directory to search"));
+        tr("Directory to search"), oldDir);
     if (!dir.isEmpty())
         m_directory->setEditText(dir);
 }

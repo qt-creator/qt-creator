@@ -879,7 +879,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         painter->drawText(22, 2 + opt.rect.top() + fm.ascent(), bottom);
         if (fm.width(bottom) > width) {
             // draw a gradient to mask the text
-            int gwidth = opt.rect.right() - width;
+            int gwidth = opt.rect.right() + 1 - width;
             QLinearGradient lg(QPoint(width, 0), QPoint(width+gwidth, 0));
             QColor c = backgroundColor;
             c.setAlpha(0);

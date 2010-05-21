@@ -56,6 +56,7 @@ QWidget {
 
     layout: HorizontalLayout {
         QFontComboBox {
+            editable: false
             id: fontSelector
 
             currentFont.family: backendValue.value

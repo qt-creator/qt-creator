@@ -70,7 +70,7 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
             id: label;
             font.bold: true;
             alignment: doubleSpinBox.alignRight  ? "Qt::AlignRight | Qt::AlignVCenter" : "Qt::AlignLeft | Qt::AlignVCenter";
-            fixedWidth: 76
+            fixedWidth: frame.labelWidth
             visible: doubleSpinBox.text != "";
 			toolTip: text
         }

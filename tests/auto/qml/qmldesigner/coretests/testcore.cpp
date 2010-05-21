@@ -43,6 +43,7 @@
 #include <rewritingexception.h>
 #include <nodeinstanceview.h>
 #include <nodeinstance.h>
+#include <subcomponentmanager.h>
 #include <QDebug>
 
 #include "../testview.h"
@@ -3244,6 +3245,38 @@ void TestCore::testCopyModelRewriter2()
     QCOMPARE(textEdit2.toPlainText(), qmlString1);
 }
 
+void TestCore::testSubComponentManager()
+{
+    QString fileName = QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/usingmybutton.qml";
+    QFile file(fileName);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(file.readAll());
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    model->setFileUrl(QUrl::fromLocalFile(fileName));
+    QScopedPointer<SubComponentManager> subComponentManager(new SubComponentManager(model->metaInfo(), 0));
+    subComponentManager->update(QUrl::fromLocalFile(fileName), modifier.text().toUtf8());
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    QVERIFY(testRewriterView->rootModelNode().isValid());
+
+
+    QVERIFY(model->metaInfo().nodeMetaInfo("Qt/Rectangle").properties(true).keys().contains("border.width"));
+
+    QVERIFY(model->metaInfo().hasNodeMetaInfo("Qt/Pen"));
+    NodeMetaInfo myButtonMetaInfo = model->metaInfo().nodeMetaInfo("MyButton");
+    QVERIFY(myButtonMetaInfo.isValid());
+    QVERIFY(myButtonMetaInfo.properties(true).keys().contains("border.width"));
+    QVERIFY(myButtonMetaInfo.property("border.width", true).isValid());
+}
 
 void TestCore::loadQml()
 {
@@ -3576,11 +3609,14 @@ void TestCore::testMetaInfoDotProperties()
     QVERIFY(!rectNode.metaInfo().properties().keys().contains("pos.x"));
     QVERIFY(rectNode.metaInfo().properties(true).keys().contains("pos.y"));
     QVERIFY(!rectNode.metaInfo().properties().keys().contains("pos.y"));
+    QVERIFY(!rectNode.metaInfo().properties().keys().contains("anchors.topMargin"));
     QVERIFY(rectNode.metaInfo().properties(true).keys().contains("border.width"));
     QVERIFY(rectNode.metaInfo().hasProperty("border"));
     QVERIFY(!rectNode.metaInfo().property("border").isValueType());
     QVERIFY(rectNode.metaInfo().hasProperty("border.width", true));
     QVERIFY(rectNode.metaInfo().property("border.width", true).isValid());
+    QVERIFY(rectNode.metaInfo().property("border.width", true).isValid());
+    QVERIFY(rectNode.metaInfo().property("anchors.topMargin", true).isValid());
 }
 
 void TestCore::testMetaInfoListProperties()
