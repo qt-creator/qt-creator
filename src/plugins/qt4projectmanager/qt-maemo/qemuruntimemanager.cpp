@@ -47,6 +47,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QList>
 #include <QtCore/QSet>
+#include <QtCore/QStringBuilder>
 #include <QtCore/QTextStream>
 
 #include <QtGui/QMessageBox>
