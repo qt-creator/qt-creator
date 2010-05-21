@@ -742,14 +742,17 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *symbol) const
 
             QList<Function *> viableFunctions;
 
+            ClassOrNamespace *enclosingType = context.lookupType(declaration);
+            if (! enclosingType)
+                continue; // nothing to do
+
             foreach (Function *fun, result) {
                 const QList<Symbol *> declarations = context.lookup(fun->name(), fun->scope());
+                if (declarations.isEmpty())
+                    continue;
 
-                if (declarations.contains(declaration))
+                else if (enclosingType == context.lookupType(declarations.first()))
                     viableFunctions.append(fun);
-
-                else if (false)
-                    qDebug() << "does not contain" << declaration->fileName() << declaration->line() << declaration->column();
             }
 
             if (viableFunctions.isEmpty())
