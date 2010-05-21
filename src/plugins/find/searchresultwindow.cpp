@@ -52,6 +52,25 @@ static const char SETTINGSKEYEXPANDRESULTS[] = "ExpandResults";
 
 namespace Find {
 
+    class WideEnoughLineEdit : public QLineEdit {
+        Q_OBJECT
+    public:
+        WideEnoughLineEdit(QWidget *parent):QLineEdit(parent){
+            connect(this, SIGNAL(textChanged(QString)),
+                    this, SLOT(updateGeometry()));
+        }
+        ~WideEnoughLineEdit(){}
+        QSize sizeHint() const {
+            QSize sh = QLineEdit::minimumSizeHint();
+            sh.rwidth() += qMax(25 * fontMetrics().width(QLatin1Char('x')),
+                                fontMetrics().width(text()));
+            return sh;
+        }
+    public slots:
+        void updateGeometry() { QLineEdit::updateGeometry(); }
+    };
+
+
 struct SearchResultWindowPrivate {
     SearchResultWindowPrivate();
 
@@ -97,7 +116,7 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
 
     d->m_replaceLabel = new QLabel(tr("Replace with:"), d->m_widget);
     d->m_replaceLabel->setContentsMargins(12, 0, 5, 0);
-    d->m_replaceTextEdit = new QLineEdit(d->m_widget);
+    d->m_replaceTextEdit = new WideEnoughLineEdit(d->m_widget);
     d->m_replaceButton = new QToolButton(d->m_widget);
     d->m_replaceButton->setToolTip(tr("Replace all occurrences"));
     d->m_replaceButton->setText(tr("Replace"));
@@ -371,3 +390,5 @@ bool SearchResultWindow::canNavigate()
 
 } // namespace Find
 
+
+#include "searchresultwindow.moc"
