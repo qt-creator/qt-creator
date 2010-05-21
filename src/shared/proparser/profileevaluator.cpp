@@ -1476,6 +1476,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProCondit
 
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
 {
+    m_lineNo = 0;
     m_profileStack.push(pro);
     if (m_profileStack.count() == 1) {
         // Do this only for the initial profile we visit, since
@@ -3267,12 +3268,15 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
             errorMessage(format("circular inclusion of %1").arg(fileName));
             return false;
         }
+    int lineNo = m_lineNo;
     if (ProFile *pro = parsedProFile(fileName, true)) {
         q->aboutToEval(pro);
         bool ok = (visitProFile(pro) == ReturnTrue);
         pro->deref();
+        m_lineNo = lineNo;
         return ok;
     } else {
+        m_lineNo = lineNo;
         return false;
     }
 }
@@ -3325,10 +3329,12 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
         // Don't use evaluateFile() here to avoid calling aboutToEval().
         // The path is fully normalized already.
         bool ok = false;
+        int lineNo = m_lineNo;
         if (ProFile *pro = parsedProFile(fn, true)) {
             ok = (visitProFile(pro) == ReturnTrue);
             pro->deref();
         }
+        m_lineNo = lineNo;
 
         m_cumulative = cumulative;
         return ok;
