@@ -138,12 +138,14 @@ public:
 
     public:
         DiagnosticMessage(int level, const QString &fileName,
-                          int line, int column,
-                          const QString &text)
+                          unsigned line, unsigned column,
+                          const QString &text,
+                          unsigned length = 0)
             : _level(level),
               _fileName(fileName),
               _line(line),
               _column(column),
+              _length(length),
               _text(text)
         { }
 
@@ -168,6 +170,9 @@ public:
         unsigned column() const
         { return _column; }
 
+        unsigned length() const
+        { return _length; }
+
         QString text() const
         { return _text; }
 
@@ -176,6 +181,7 @@ public:
         QString _fileName;
         unsigned _line;
         unsigned _column;
+        unsigned _length;
         QString _text;
     };
 
