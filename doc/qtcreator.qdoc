@@ -2255,6 +2255,9 @@
     The settings to specify depend on the type of the project: qmake project
     or Qt Quick project.
 
+    Click \gui Add to add run settings for a project and \gui Remove to remove
+    the current settings.
+
     \section1 Specifying Run Settings for qmake Projects
 
     The run configurations for qmake projects derive their executable from the parsed .pro
@@ -2265,24 +2268,23 @@
 
     \section1 Specifying Run Settings for Qt Quick Projects
 
-    To run Qt Quick projects in the QML viewer, specify the connection to the
-    \gui {QML Runtime} in the \gui {Run configuration} field. The settings
+    Select run settings in the \gui {Run configuration} field. The settings
     are specified automatically and, usually, you do not need to change them:
 
     \list
 
-        \o \gui {QML runtime} is the path to QML viewer executable.
+        \o \gui {QML Viewer} is the path to the \QQV executable.
 
-        \o \gui {QML runtime arguments} sets arguments for running the QML viewer.
+        \o \gui {QML Viewer arguments} sets arguments for running \QQV.
         The \c{-I <directory>} argument searches for C++ or QML plugins from
         the project folder. For a list of available arguments, enter \c {qml --help}
         on the command line.
 
-        \o \gui {Main QML File} is the Qt Quick project file.
+        \o \gui {Main QML file} is the Qt Quick project file.
 
-        \o \gui {Debugging address} is the IP address to access the QML viewer.
+        \o \gui {Debugging address} is the IP address to access \QQV.
 
-        \o \gui {Debugging port} is the port to access the QML viewer. You can use any
+        \o \gui {Debugging port} is the port to access \QQV. You can use any
         free port in the registered port range.
 
     \endlist
@@ -3434,7 +3436,7 @@
 
 
     \note You can press \key {Ctr+Alt+R} or select \gui {Tools > Qt Quick > Preview}
-    to view QML files that do not belong to projects in the QML viewer. However,
+    to view QML files that do not belong to projects in \QQV. However,
     you can only debug QML files that belong to open projects, because the QML
     inspector plugin needs information about the project.
 
@@ -3443,13 +3445,13 @@
     \section1 Modes of Operation
 
     When a Qt Quick project is active and you select \gui {Debug > Start Debugging >
-    Start Debugging} the application is started in the QML viewer and inspected by
+    Start Debugging} the application is started in \QQV and inspected by
     the QML inspector.
 
     If the Qt Quick project includes C++ plugins, select
     \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
-    The QML runtime is started, debugged with the native debugger, and attached to
-    the QML viewer.
+    \QQV is started, the native debugger is attached to it, and
+    the application is inspected by the QML inspector.
 
     \note This command is available only if \gui QML is selected in
     \gui {Debug > Language (QML)}.
@@ -3457,7 +3459,7 @@
     To debug a Qt project that contains QML content, select
     \gui {Debug > Start Debugging > Start Debugging C++ and QML Simultaneously}.
     The application is started under the control of the native debugger, attached
-    to the QML viewer, and inspected by the QML inspector.
+    to \QQV, and inspected by the QML inspector.
 
     You must use the native debugger to set breakpoints to C++ code and to examine
     the state of the interrupted Qt application. When a C++ program is interrupted,
@@ -3488,7 +3490,7 @@
     To start an active application under the control of the QML inspector, select
     \gui {Debug > Start Debugging > Start Debugging}, or press \key{F5}.
 
-    The application is run in the QML viewer. It behaves and performs as usual.
+    The application is run in \QQV. It behaves and performs as usual.
     You can view the status of the application when it is executed and the debug
     output in the \gui {Application Output} view.
 
@@ -3504,27 +3506,27 @@
 
     \image qmldesigner-debugging-simultaneous.png "Start Simultaneous QML and C++ Debugging view"
 
-    Usually, the settings for the QML viewer are specified automatically and you do
+    Usually, the settings for \QQV are specified automatically and you do
     not need to change them:
 
     \list
 
-        \o \gui {Debugging address} is the IP address to access the QML viewer.
+        \o \gui {Debugging address} is the IP address to access \QQV.
 
-        \o \gui {Debugging port} is the port to access the QML viewer. You can use any
+        \o \gui {Debugging port} is the port to access \QQV. You can use any
         free port in the registered port range.
 
-        \o \gui {Viewer path} is the path to QML viewer executable.
+        \o \gui {Viewer path} is the path to \QQV executable.
 
-        \o \gui {Viewer arguments} sets arguments for running the QML viewer.
+        \o \gui {Viewer arguments} sets arguments for running \QQV.
         The \c{-I <directory>} argument searches for C++ or QML plugins from
         the project folder. For a list of available arguments, enter \c {qml --help}
         on the command line.
 
     \endlist
 
-    The QML runtime is started, debugged with the native debugger, and attached to
-    the QML viewer.
+    \QQV is started, the native debugger is attached to it, and
+    the application is inspected by the QML inspector.
 
     \section1 Viewing and Modifying Values of Properties
 
@@ -3541,7 +3543,7 @@
 
     Double-click an item to move to the place in code where it is declared.
 
-    You can change the values of properties and see the results in the QML viewer.
+    You can change the values of properties and see the results in \QQV.
 
     If the QML inspector cannot retrieve the value for an item or a property for
     inspection, the item or property is grayed in the view. Right-click the item list
@@ -3577,17 +3579,17 @@
 
     You can also test the C++ code without rebuilding the whole application.
 
-    \section1 Viewing Connections to the QML Viewer
+    \section1 Viewing Connections to \QQV
 
     The \gui Output view displays the status of the connection between the QML
-    inspector and the QML viewer.
+    inspector and \QQV.
 
     You specify the connection in the \gui {Run Settings} in the \gui Projects mode.
     For more information, see \l{Specifying Run Settings for Qt Quick Projects}.
 
     If the connection does not work, check the values of the \gui {Debugging address}
     and \gui {Debugging port} fields. Check that the default port number is not reserved
-    by another application or another instance of the QML viewer that was not shut
+    by another application or another instance of \QQV that was not shut
     down properly. You can specify any free port number in the registered port range
     (1024-49151).
 
@@ -4933,7 +4935,7 @@
 
         \image qmldesigner-button.png "Button component"
 
-        \o Click the \gui Run button to view the button in the QML viewer.
+        \o Click the \gui Run button to view the button in \QQV.
 
     \endlist
 
@@ -5088,7 +5090,7 @@
         a pointer to the \c clicked expression that you added earlier:
         \c {onClicked: parent.clicked()}.
 
-        \o Click the \gui Run button to view the button in the QML viewer.
+        \o Click the \gui Run button to view the button in \QQV.
 
         \endlist
 
@@ -5234,7 +5236,7 @@
 
         \endcode
 
-        \o Click the \gui Run button to view the list view in the QML viewer.
+        \o Click the \gui Run button to view the list view in \QQV.
 
     \endlist
 
