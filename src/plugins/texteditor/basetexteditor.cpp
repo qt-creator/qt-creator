@@ -2471,7 +2471,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 const QAbstractTextDocumentLayout::Selection &range = context.selections.at(i);
                 const int selStart = range.cursor.selectionStart() - blpos;
                 const int selEnd = range.cursor.selectionEnd() - blpos;
-                if (selStart <= bllen && selEnd >= 0
+                if (selStart < bllen && selEnd >= 0
                     && selEnd >= selStart) {
                     QTextLayout::FormatRange o;
                     o.start = selStart;

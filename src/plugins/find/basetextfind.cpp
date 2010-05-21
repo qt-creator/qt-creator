@@ -325,10 +325,11 @@ void BaseTextFind::defineFindScope()
             verticalBlockSelection = m_plaineditor->property("verticalBlockSelection").toInt();
 
         if (verticalBlockSelection) {
-            int findScopeFromColumn = qMin(m_findScopeStart.positionInBlock()+1,
+            QTextCursor findScopeVisualStart(document()->docHandle(), cursor.selectionStart());
+            int findScopeFromColumn = qMin(findScopeVisualStart.positionInBlock(),
                                          m_findScopeEnd.positionInBlock());
             int findScopeToColumn = findScopeFromColumn + verticalBlockSelection;
-            m_findScopeStart.setPosition(m_findScopeStart.block().position() + findScopeFromColumn - 1);
+            m_findScopeStart.setPosition(findScopeVisualStart.block().position() + findScopeFromColumn - 1);
             m_findScopeEnd.setPosition(m_findScopeEnd.block().position()
                                        + qMin(m_findScopeEnd.block().length()-1, findScopeToColumn));
             m_findScopeVerticalBlockSelection = verticalBlockSelection;
