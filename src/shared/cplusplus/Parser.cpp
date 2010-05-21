@@ -2501,10 +2501,10 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
 {
     DEBUG_THIS_RULE();
 
+#ifdef CPLUSPLUS_WITH_CXXOX_INITIALIZER_LIST
     if (_cxx0xEnabled)
         return parseInitializerList0x(node);
-
-
+#endif
 
     // ### remove me
     ExpressionListAST **expression_list_ptr = &node;
