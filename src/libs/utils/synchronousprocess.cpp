@@ -36,10 +36,15 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtGui/QMessageBox>
 
 #include <QtGui/QApplication>
 
 #include <limits.h>
+
+#ifdef Q_OS_UNIX
+#    include <unistd.h>
+#endif
 
 enum { debug = 0 };
 enum { syncDebug = 0 };
@@ -47,6 +52,30 @@ enum { syncDebug = 0 };
 enum { defaultMaxHangTimerCount = 10 };
 
 namespace Utils {
+
+// A special QProcess derivative allowing for terminal control.
+class TerminalControllingProcess : public QProcess {
+public:
+    TerminalControllingProcess() : m_flags(0) {}
+
+    unsigned flags() const { return m_flags; }
+    void setFlags(unsigned tc) { m_flags = tc; }
+
+protected:
+    virtual void setupChildProcess();
+
+private:
+    unsigned m_flags;
+};
+
+void TerminalControllingProcess::setupChildProcess()
+{
+#ifdef Q_OS_UNIX
+    // Disable terminal by becoming a session leader.
+    if (m_flags & SynchronousProcess::UnixTerminalDisabled)
+        setsid();
+#endif
+}
 
 // ----------- SynchronousProcessResponse
 SynchronousProcessResponse::SynchronousProcessResponse() :
@@ -61,6 +90,25 @@ void SynchronousProcessResponse::clear()
     exitCode = -1;
     stdOut.clear();
     stdErr.clear();
+}
+
+QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeoutMS) const
+{
+    switch (result) {
+    case Finished:
+        return SynchronousProcess::tr("The command '%1' finished successfully.").arg(binary);
+    case FinishedError:
+        return SynchronousProcess::tr("The command '%1' terminated with exit code %2.").arg(binary).arg(exitCode);
+        break;
+    case TerminatedAbnormally:
+        return SynchronousProcess::tr("The command '%1' terminated abnormally.").arg(binary);
+    case StartFailed:
+        return SynchronousProcess::tr("The command '%1' could not be started.").arg(binary);
+    case Hang:
+        return SynchronousProcess::tr("The command '%1' did not respond within the timeout limit (%2 ms).").
+                arg(binary).arg(timeoutMS);
+    }
+    return QString();
 }
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse& r)
@@ -120,13 +168,15 @@ struct SynchronousProcessPrivate {
     void clearForRun();
 
     QTextCodec *m_stdOutCodec;
-    QProcess m_process;
+    TerminalControllingProcess m_process;
     QTimer m_timer;
     QEventLoop m_eventLoop;
     SynchronousProcessResponse m_result;
     int m_hangTimerCount;
     int m_maxHangTimerCount;
     bool m_startFailure;
+    bool m_timeOutMessageBoxEnabled;
+    QString m_binary;
 
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
@@ -136,7 +186,8 @@ SynchronousProcessPrivate::SynchronousProcessPrivate() :
     m_stdOutCodec(0),
     m_hangTimerCount(0),
     m_maxHangTimerCount(defaultMaxHangTimerCount),
-    m_startFailure(false)
+    m_startFailure(false),
+    m_timeOutMessageBoxEnabled(false)
 {
 }
 
@@ -147,6 +198,7 @@ void SynchronousProcessPrivate::clearForRun()
     m_stdErr.clearForRun();
     m_result.clear();
     m_startFailure = false;
+    m_binary.clear();
 }
 
 // ----------- SynchronousProcess
@@ -217,6 +269,16 @@ QStringList SynchronousProcess::environment() const
     return m_d->m_process.environment();
 }
 
+bool SynchronousProcess::timeOutMessageBoxEnabled() const
+{
+    return m_d->m_timeOutMessageBoxEnabled;
+}
+
+void SynchronousProcess::setTimeOutMessageBoxEnabled(bool v)
+{
+    m_d->m_timeOutMessageBoxEnabled = v;
+}
+
 void SynchronousProcess::setEnvironment(const QStringList &e)
 {
     m_d->m_process.setEnvironment(e);
@@ -230,6 +292,16 @@ void SynchronousProcess::setProcessEnvironment(const QProcessEnvironment &enviro
 QProcessEnvironment SynchronousProcess::processEnvironment() const
 {
     return m_d->m_process.processEnvironment();
+}
+
+unsigned SynchronousProcess::flags() const
+{
+    return m_d->m_process.flags();
+}
+
+void SynchronousProcess::setFlags(unsigned tc)
+{
+    m_d->m_process.setFlags(tc);
 }
 
 void SynchronousProcess::setWorkingDirectory(const QString &workingDirectory)
@@ -263,6 +335,7 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     // On Windows, start failure is triggered immediately if the
     // executable cannot be found in the path. Do not start the
     // event loop in that case.
+    m_d->m_binary = binary;
     m_d->m_process.start(binary, args, QIODevice::ReadOnly);
     if (!m_d->m_startFailure) {
         m_d->m_timer.start();
@@ -285,13 +358,36 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     return  m_d->m_result;
 }
 
+static inline bool askToKill(const QString &binary = QString())
+{
+    const QString title = SynchronousProcess::tr("Process not Responding");
+    QString msg = binary.isEmpty() ?
+                  SynchronousProcess::tr("The process is not responding.") :
+                  SynchronousProcess::tr("The process '%1' is not responding.").arg(binary);
+    msg += QLatin1Char(' ');
+    msg += SynchronousProcess::tr(" Would you like to terminate it?");
+    // Restore the cursor that is set to wait while running.
+    const bool hasOverrideCursor = QApplication::overrideCursor() != 0;
+    if (hasOverrideCursor)
+        QApplication::restoreOverrideCursor();
+    QMessageBox::StandardButton answer = QMessageBox::question(0, title, msg, QMessageBox::Yes|QMessageBox::No);
+    if (hasOverrideCursor)
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+    return answer == QMessageBox::Yes;
+}
+
 void SynchronousProcess::slotTimeout()
 {
     if (++m_d->m_hangTimerCount > m_d->m_maxHangTimerCount) {
         if (debug)
             qDebug() << Q_FUNC_INFO << "HANG detected, killing";
-        SynchronousProcess::stopProcess(m_d->m_process);
-        m_d->m_result.result = SynchronousProcessResponse::Hang;
+        const bool terminate = !m_d->m_timeOutMessageBoxEnabled || askToKill(m_d->m_binary);
+        if (terminate) {
+            SynchronousProcess::stopProcess(m_d->m_process);
+            m_d->m_result.result = SynchronousProcessResponse::Hang;
+        } else {
+            m_d->m_hangTimerCount = 0;
+        }
     } else {
         if (debug)
             qDebug() << Q_FUNC_INFO << m_d->m_hangTimerCount;
@@ -401,9 +497,17 @@ void SynchronousProcess::processStdErr(bool emitSignals)
     }
 }
 
+QSharedPointer<QProcess> SynchronousProcess::createProcess(unsigned flags)
+{
+    TerminalControllingProcess *process = new TerminalControllingProcess;
+    process->setFlags(flags);
+    return QSharedPointer<QProcess>(process);
+}
+
 // Static utilities: Keep running as long as it gets data.
 bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
-                                             QByteArray *stdOut, QByteArray *stdErr)
+                                             QByteArray *stdOut, QByteArray *stdErr,
+                                             bool showTimeOutMessageBox)
 {
     if (syncDebug)
         qDebug() << ">readDataFromProcess" << timeOutMS;
@@ -434,6 +538,12 @@ bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
             hasData = true;
             if (stdErr)
                 stdErr->append(newStdErr);
+        }
+        // Prompt user, pretend we have data if says 'No'.
+        const bool hang = !hasData && !finished;
+        if (hang && showTimeOutMessageBox) {
+            if (!askToKill())
+                hasData = true;
         }
     } while (hasData && !finished);
     if (syncDebug)

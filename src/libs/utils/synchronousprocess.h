@@ -35,6 +35,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QTextCodec;
@@ -64,6 +65,9 @@ struct QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
     SynchronousProcessResponse();
     void clear();
 
+    // Helper to format an exit message.
+    QString exitMessage(const QString &binary, int timeoutMS) const;
+
     Result result;
     int exitCode;
     QString stdOut;
@@ -87,12 +91,20 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessRes
  * There is a timeout handling that takes effect after the last data have been
  * read from stdout/stdin (as opposed to waitForFinished(), which measures time
  * since it was invoked). It is thus also suitable for slow processes that continously
- * output data (like version system operations).  */
+ * output data (like version system operations).
+ *
+ * The property timeOutMessageBoxEnabled influences whether a message box is
+ * shown asking the user if they want to kill the process on timeout (default: false). */
 
 class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QObject
 {
     Q_OBJECT
 public:
+    enum Flags {
+        // Unix: Do not give the child process a terminal for input prompting.
+        UnixTerminalDisabled = 0x1
+    };
+
     SynchronousProcess();
     virtual ~SynchronousProcess();
 
@@ -113,6 +125,9 @@ public:
     bool stdErrBufferedSignalsEnabled() const;
     void setStdErrBufferedSignalsEnabled(bool);
 
+    bool timeOutMessageBoxEnabled() const;
+    void setTimeOutMessageBoxEnabled(bool);
+
     QStringList environment() const;
     void setEnvironment(const QStringList &);
 
@@ -122,14 +137,21 @@ public:
     void setWorkingDirectory(const QString &workingDirectory);
     QString workingDirectory() const;
 
+    unsigned flags() const;
+    void setFlags(unsigned);
+
     SynchronousProcessResponse run(const QString &binary, const QStringList &args);
+
+    // Create a (derived) processes with flags applied.
+    static QSharedPointer<QProcess> createProcess(unsigned flags);
 
     // Static helper for running a process synchronously in the foreground with timeout
     // detection similar SynchronousProcess' handling (taking effect after no more output
     // occurs on stderr/stdout as opposed to waitForFinished()). Returns false if a timeout
     // occurs. Checking of the process' exit state/code still has to be done.
     static bool readDataFromProcess(QProcess &p, int timeOutMS,
-                                    QByteArray *stdOut = 0, QByteArray *stdErr = 0);
+                                    QByteArray *stdOut = 0, QByteArray *stdErr = 0,
+                                    bool timeOutMessageBox = false);
     // Stop a process by first calling terminate() (allowing for signal handling) and
     // then kill().
     static bool stopProcess(QProcess &p);
