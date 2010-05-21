@@ -161,14 +161,15 @@ void S60CreatePackageStep::setCustomKeyPath(const QString &path)
     m_customKeyPath = path;
 }
 
-bool S60CreatePackageStep::createSmartInstaller() const
+bool S60CreatePackageStep::createsSmartInstaller() const
 {
     return m_createSmartInstaller;
 }
 
-void S60CreatePackageStep::setCreateSmartInstaller(bool value)
+void S60CreatePackageStep::setCreatesSmartInstaller(bool value)
 {
     m_createSmartInstaller = value;
+    static_cast<Qt4BuildConfiguration *>(buildConfiguration())->emitS60CreatesSmartInstallerChanged();
 }
 
 // #pragma mark -- S60SignBuildStepFactory
@@ -273,7 +274,7 @@ void S60CreatePackageStepConfigWidget::updateUi()
     m_ui.keyFilePath->setEnabled(!selfSigned);
     m_ui.signaturePath->setPath(m_signStep->customSignaturePath());
     m_ui.keyFilePath->setPath(m_signStep->customKeyPath());
-    m_ui.smartInstaller->setChecked(m_signStep->createSmartInstaller());
+    m_ui.smartInstaller->setChecked(m_signStep->createsSmartInstaller());
     emit updateSummary();
 }
 
@@ -284,7 +285,7 @@ void S60CreatePackageStepConfigWidget::updateFromUi()
         : S60CreatePackageStep::SignCustom);
     m_signStep->setCustomSignaturePath(m_ui.signaturePath->path());
     m_signStep->setCustomKeyPath(m_ui.keyFilePath->path());
-    m_signStep->setCreateSmartInstaller(m_ui.smartInstaller->isChecked());
+    m_signStep->setCreatesSmartInstaller(m_ui.smartInstaller->isChecked());
     updateUi();
 }
 
@@ -298,7 +299,7 @@ QString S60CreatePackageStepConfigWidget::summaryText() const
                .arg(m_signStep->customSignaturePath())
                .arg(m_signStep->customKeyPath());
     }
-    if (m_signStep->createSmartInstaller())
+    if (m_signStep->createsSmartInstaller())
         return tr("<b>Create SIS Package:</b> %1, using Smart Installer").arg(text);
     return tr("<b>Create SIS Package:</b> %1").arg(text);
 }

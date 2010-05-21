@@ -83,8 +83,8 @@ public:
     void setCustomSignaturePath(const QString &path);
     QString customKeyPath() const;
     void setCustomKeyPath(const QString &path);
-    bool createSmartInstaller() const;
-    void setCreateSmartInstaller(bool value);
+    bool createsSmartInstaller() const;
+    void setCreatesSmartInstaller(bool value);
 
 protected:
     S60CreatePackageStep(ProjectExplorer::BuildConfiguration *bc, S60CreatePackageStep *bs);

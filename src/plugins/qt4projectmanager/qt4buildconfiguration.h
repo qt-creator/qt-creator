@@ -83,6 +83,10 @@ public:
     // used by qmake step to notify that the build directory was initialized
     // not really nice
     void emitBuildDirectoryInitialized();
+    // used by S60CreatePackageStep to notify that the smart installer property changed
+    // not really nice
+    void emitS60CreatesSmartInstallerChanged();
+
     void getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const;
 
     // Those functions are used in a few places.
@@ -112,6 +116,8 @@ signals:
     /// emitted for setQMakeBuildConfig, not emitted for qt version changes, even
     /// if those change the qmakebuildconfig
     void qmakeBuildConfigurationChanged();
+    /// emitted when smart installer property of S60 create package step changes
+    void s60CreatesSmartInstallerChanged();
 
     /// emitted if the build configuration changed in a way that
     /// should trigger a reevaluation of all .pro files

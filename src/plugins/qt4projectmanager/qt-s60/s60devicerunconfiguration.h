@@ -100,6 +100,7 @@ signals:
 
 private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
+    void updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration);
 
 protected:
     S60DeviceRunConfiguration(ProjectExplorer::Target *parent, S60DeviceRunConfiguration *source);
@@ -109,7 +110,10 @@ private:
     ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
     void ctor();
 
+    bool runSmartInstaller() const;
+
     QString m_proFilePath;
+    ProjectExplorer::BuildConfiguration *m_activeBuildConfiguration;
     QString m_serialPortName;
     QStringList m_commandLineArguments;
 };

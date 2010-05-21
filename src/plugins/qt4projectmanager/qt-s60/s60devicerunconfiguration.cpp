@@ -40,6 +40,7 @@
 #include "symbiandevicemanager.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
+#include "s60createpackagestep.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -109,6 +110,7 @@ QString pathToId(const QString &path)
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QString &proFilePath) :
     RunConfiguration(parent,  QLatin1String(S60_DEVICE_RC_ID)),
     m_proFilePath(proFilePath),
+    m_activeBuildConfiguration(0),
 #ifdef Q_OS_WIN
     m_serialPortName(QLatin1String("COM5"))
 #else
@@ -121,6 +123,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QStri
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *target, S60DeviceRunConfiguration *source) :
     RunConfiguration(target, source),
     m_proFilePath(source->m_proFilePath),
+    m_activeBuildConfiguration(0),
     m_serialPortName(source->m_serialPortName)
 {
     ctor();
@@ -135,12 +138,26 @@ void S60DeviceRunConfiguration::ctor()
 
     connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+    connect(qt4Target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    updateActiveBuildConfiguration(qt4Target()->activeBuildConfiguration());
 }
 
 void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
 {
     if (m_proFilePath == pro->path())
         emit targetInformationChanged();
+}
+
+void S60DeviceRunConfiguration::updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration)
+{
+    if (m_activeBuildConfiguration)
+        disconnect(m_activeBuildConfiguration, SIGNAL(s60CreatesSmartInstallerChanged()),
+                   this, SIGNAL(targetInformationChanged()));
+    m_activeBuildConfiguration = buildConfiguration;
+    if (m_activeBuildConfiguration)
+        connect(m_activeBuildConfiguration, SIGNAL(s60CreatesSmartInstallerChanged()),
+                this, SIGNAL(targetInformationChanged()));
 }
 
 S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
@@ -346,12 +363,27 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
     return QDir::toNativeSeparators(localExecutable);
 }
 
+bool S60DeviceRunConfiguration::runSmartInstaller() const
+{
+    BuildConfiguration *bc = target()->activeBuildConfiguration();
+    QTC_ASSERT(bc, return false);
+    QList<BuildStep *> steps = bc->steps(Build);
+    foreach (const BuildStep *step, steps) {
+        if (const S60CreatePackageStep *packageStep = qobject_cast<const S60CreatePackageStep *>(step)) {
+            return packageStep->createsSmartInstaller();
+        }
+    }
+    return false;
+}
+
 QString S60DeviceRunConfiguration::signedPackage() const
 {
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();
-    return ti.buildDir + QLatin1Char('/') + ti.target + QLatin1String(".sis");
+    return ti.buildDir + QLatin1Char('/') + ti.target
+            + (runSmartInstaller() ? QLatin1String("_installer") : QLatin1String(""))
+            + QLatin1String(".sis");
 }
 
 QStringList S60DeviceRunConfiguration::commandLineArguments() const
