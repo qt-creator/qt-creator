@@ -214,8 +214,7 @@ bool Rule::matchEscapeSequence(const QString &text,
         if (progress->offset() < length) {
             const QChar &c = text.at(progress->offset());
             if (c == kA || c == kB || c == kE || c == kF || c == kN || c == kR || c == kT ||
-                c == kV || c == kV || c == kQuestion || c == kSingleQuote || c == kQuote ||
-                c == kBackSlash) {
+                c == kV || c == kQuestion || c == kSingleQuote || c == kQuote || c == kBackSlash) {
                 progress->incrementOffset();
                 return true;
             } else if (saveRestoreOffset) {

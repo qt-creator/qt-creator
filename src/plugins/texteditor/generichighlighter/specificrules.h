@@ -67,7 +67,7 @@ public:
     virtual ~Detect2CharsRule() {}
 
     void setChar(const QString &character);
-    void setChar1(const QString &character);    
+    void setChar1(const QString &character);
 
 private:
     virtual bool doMatchSucceed(const QString &text,

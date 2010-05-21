@@ -53,7 +53,7 @@ public:
 private:
     virtual void doReplaceExpressions(const QStringList &captures) = 0;
 
-    bool m_active;    
+    bool m_active;
 };
 
 void updateDynamicRules(const QList<QSharedPointer<Rule> > &rules, const QStringList &captures);
