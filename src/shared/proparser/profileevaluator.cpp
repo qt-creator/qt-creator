@@ -284,6 +284,8 @@ public:
 
     QList<ProStringList> prepareFunctionArgs(const ProString &arguments);
     ProStringList evaluateFunction(const FunctionDef &func, const QList<ProStringList> &argumentsList, bool *ok);
+    VisitReturn evaluateBoolFunction(const FunctionDef &func, const QList<ProStringList> &argumentsList,
+                                     const ProString &function);
 
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
@@ -2307,6 +2309,32 @@ ProStringList ProFileEvaluator::Private::evaluateFunction(
     return ProStringList();
 }
 
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateBoolFunction(
+        const FunctionDef &func, const QList<ProStringList> &argumentsList,
+        const ProString &function)
+{
+    bool ok;
+    ProStringList ret = evaluateFunction(func, argumentsList, &ok);
+    if (ok) {
+        if (ret.isEmpty())
+            return ReturnTrue;
+        if (ret.at(0) != statics.strfalse) {
+            if (ret.at(0) == statics.strtrue)
+                return ReturnTrue;
+            int val = ret.at(0).toQString(m_tmp1).toInt(&ok);
+            if (ok) {
+                if (val)
+                    return ReturnTrue;
+            } else {
+                logMessage(format("Unexpected return value from test '%1': %2")
+                              .arg(function.toQString(m_tmp1))
+                              .arg(ret.join(QLatin1String(" :: "))));
+            }
+        }
+    }
+    return ReturnFalse;
+}
+
 ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         const ProString &func, const ProString &arguments)
 {
@@ -2701,33 +2729,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
 {
     QHash<ProString, FunctionDef>::ConstIterator it =
             m_functionDefs.testFunctions.constFind(function);
-    if (it != m_functionDefs.testFunctions.constEnd()) {
-        bool ok;
-        ProStringList ret = evaluateFunction(*it, prepareFunctionArgs(arguments), &ok);
-        if (ok) {
-            if (ret.isEmpty()) {
-                return ReturnTrue;
-            } else {
-                if (ret.at(0) != statics.strfalse) {
-                    if (ret.at(0) == statics.strtrue) {
-                        return ReturnTrue;
-                    } else {
-                        bool ok;
-                        int val = ret.at(0).toQString(m_tmp1).toInt(&ok);
-                        if (ok) {
-                            if (val)
-                                return ReturnTrue;
-                        } else {
-                            logMessage(format("Unexpected return value from test '%1': %2")
-                                          .arg(function.toQString(m_tmp1))
-                                          .arg(ret.join(QLatin1String(" :: "))));
-                        }
-                    }
-                }
-            }
-        }
-        return ReturnFalse;
-    }
+    if (it != m_functionDefs.testFunctions.constEnd())
+        return evaluateBoolFunction(*it, prepareFunctionArgs(arguments), function);
 
     //why don't the builtin functions just use args_list? --Sam
     int pos = 0;
