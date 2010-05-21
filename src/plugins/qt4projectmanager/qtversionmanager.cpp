@@ -1657,8 +1657,11 @@ QString QtVersion::buildDebuggingHelperLibrary()
     tc->addToEnvironment(env);
     QString output;
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);
-    if (!directory.isEmpty())
-        output += DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(), qmakeCommand(), mkspec(), env);
+    if (!directory.isEmpty()) {
+        output += DebuggingHelperLibrary::buildDebuggingHelperLibrary(directory, tc->makeCommand(),
+            qmakeCommand(), mkspec(), env,
+            (tc->type() == ToolChain::GCC_MAEMO ? QLatin1String("-unix") : QLatin1String("")));
+    }
     m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
     return output;
 }
