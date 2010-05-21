@@ -6,6 +6,7 @@
         <glob pattern="*.txt"/>
     </mime-type>
     <mime-type type="application/xml">
+        <alias type="text/xml"/>
         <sub-class-of type="text/plain"/>
         <comment>XML document</comment>
         <glob pattern="*.xml"/>
