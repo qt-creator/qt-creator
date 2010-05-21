@@ -47,9 +47,9 @@ namespace Utils {
     // in the following way:
     //
     // +------------+-------------------------+---------------+
-    // + toolWidget | summaryLabel            | detailsButton |
+    // +summaryLabel|              toolwidget | detailsButton |
     // +------------+-------------------------+---------------+
-    // |            | widget                                  |
+    // |                  widget                              |
     // +------------+-------------------------+---------------+
 
     struct DetailsWidgetPrivate {
@@ -89,7 +89,7 @@ namespace Utils {
 
         d->m_grid->setContentsMargins(0, 0, 0, 0);
         d->m_grid->setSpacing(0);
-        d->m_grid->addWidget(d->m_summaryLabel, 0, 1);
+        d->m_grid->addWidget(d->m_summaryLabel, 0, 0);
         d->m_grid->addWidget(d->m_detailsButton, 0, 2);
         setLayout(d->m_grid);
 
@@ -206,7 +206,7 @@ namespace Utils {
 
         if (d->m_widget) {
             d->m_widget->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
-            d->m_grid->addWidget(d->m_widget, 1, 1, 1, 2);
+            d->m_grid->addWidget(d->m_widget, 1, 0, 1, 3);
         }
         updateControls();
     }
@@ -223,9 +223,6 @@ namespace Utils {
 
         d->m_toolWidget->adjustSize();
         d->m_grid->addWidget(d->m_toolWidget, 0, 1, 1, 1, Qt::AlignRight);
-
-        d->m_grid->setColumnMinimumWidth(0, d->m_toolWidget->width());
-        d->m_grid->setRowMinimumHeight(0, d->m_toolWidget->height());
 
         changeHoverState(d->m_hovered);
     }

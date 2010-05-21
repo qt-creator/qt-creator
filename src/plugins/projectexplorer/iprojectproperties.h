@@ -45,12 +45,6 @@ namespace Constants {
 class PROJECTEXPLORER_EXPORT IPropertiesPanel
 {
 public:
-    enum PanelFlag {
-        NoFlag = 0x00,
-        NoLeftMargin = 0x01
-    };
-    Q_DECLARE_FLAGS(PanelFlags, PanelFlag)
-
     IPropertiesPanel()
     { }
     virtual ~IPropertiesPanel()
@@ -59,7 +53,6 @@ public:
     virtual QString displayName() const = 0;
     virtual QIcon icon() const = 0;
     virtual QWidget *widget() const = 0;
-    virtual PanelFlags flags() const { return NoFlag; }
 };
 
 class PROJECTEXPLORER_EXPORT IPanelFactory : public QObject

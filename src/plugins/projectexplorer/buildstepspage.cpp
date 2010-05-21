@@ -53,10 +53,10 @@ using namespace ProjectExplorer::Internal;
 BuildStepsPage::BuildStepsPage(Target *target, StepType type) :
     BuildConfigWidget(),
     m_type(type),
-    m_addButton(0),
-    m_leftMargin(-1)
+    m_addButton(0)
 {
     Q_UNUSED(target);
+    setStyleSheet("background: red");
 }
 
 BuildStepsPage::~BuildStepsPage()
@@ -200,8 +200,7 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
 
     s.detailsWidget->setToolWidget(toolWidget);
 
-    const int leftMargin(qMax(m_leftMargin - toolWidget->width(), 0));
-    s.detailsWidget->setContentsMargins(leftMargin, 0, 0, 1);
+    s.detailsWidget->setContentsMargins(0, 0, 0, 1);
 
     m_buildSteps.insert(pos, s);
 
@@ -276,11 +275,6 @@ void BuildStepsPage::setupUi()
     if (0 != m_addButton)
         return;
 
-    QMargins margins(contentsMargins());
-    m_leftMargin = margins.left();
-    margins.setLeft(0);
-    setContentsMargins(margins);
-
     m_upMapper = new QSignalMapper(this);
     connect(m_upMapper, SIGNAL(mapped(int)),
             this, SLOT(stepMoveUp(int)));
@@ -296,11 +290,11 @@ void BuildStepsPage::setupUi()
     m_vbox->setSpacing(0);
 
     m_noStepsLabel = new QLabel(tr("No Build Steps"), this);
-    m_noStepsLabel->setContentsMargins(m_leftMargin, 0, 0, 0);
+    m_noStepsLabel->setContentsMargins(0, 0, 0, 0);
     m_vbox->addWidget(m_noStepsLabel);
 
     QHBoxLayout *hboxLayout = new QHBoxLayout();
-    hboxLayout->setContentsMargins(m_leftMargin, 4, 0, 0);
+    hboxLayout->setContentsMargins(0, 4, 0, 0);
     m_addButton = new QPushButton(this);
     m_addButton->setText(m_type == Clean ? tr("Add Clean Step") :  tr("Add Build Step"));
     m_addButton->setMenu(new QMenu(this));
