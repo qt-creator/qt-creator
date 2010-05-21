@@ -956,7 +956,7 @@ bool CVSPlugin::describe(const QString &repositoryPath,
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
         Core::IEditor *newEditor = showOutputInEditor(title, output, VCSBase::DiffOutput, entries.front().file, codec);
         newEditor->setProperty("describeChange", commitId);
-        setDiffBaseDirectory(editor, repositoryPath);
+        setDiffBaseDirectory(newEditor, repositoryPath);
     }
     return true;
 }
