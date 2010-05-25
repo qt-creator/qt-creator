@@ -48,6 +48,10 @@ namespace VCSBase{
 class VCSBaseEditor;
 }
 
+namespace Utils {
+    struct SynchronousProcessResponse;
+}
+
 namespace Mercurial {
 namespace Internal {
 
@@ -81,8 +85,8 @@ public:
     void log(const QString &workingDir, const QStringList &files = QStringList(),
              bool enableAnnotationContextMenu = false);
     void import(const QString &repositoryRoot, const QStringList &files);
-    void pull(const QString &repositoryRoot, const QString &repository = QString());
-    void push(const QString &repositoryRoot, const QString &repository = QString());
+    bool pullSync(const QString &repositoryRoot, const QString &repository = QString());
+    bool pushSync(const QString &repositoryRoot, const QString &repository = QString());
     void incoming(const QString &repositoryRoot, const QString &repository = QString());
     void outgoing(const QString &repositoryRoot);
     void status(const QString &workingDir, const QString &file = QString());
@@ -113,9 +117,16 @@ private slots:
     void slotAnnotateRevisionRequested(const QString &source, QString change, int lineNumber);
 
 private:
-    bool executeHgSynchronously(const QString  &workingDir,
-                                const QStringList &args,
-                                QByteArray *output) const;
+    // Fully synchronous git execution (QProcess-based).
+    bool executeHgFullySynchronously(const QString  &workingDir,
+                                     const QStringList &args,
+                                    QByteArray *output) const;
+    // Synchronous hg execution using Utils::SynchronousProcess, with
+    // log windows updating (using VCSBasePlugin::runVCS with flags).
+    inline Utils::SynchronousProcessResponse
+        executeHgSynchronously(const QString  &workingDir, const QStringList &args,
+                               unsigned flags = 0, QTextCodec *outputCodec = 0);
+
     void enqueueJob(const QSharedPointer<HgTask> &);
     void revert(const QString &workingDir, const QString &argument,
                 const QString &revision, const QVariant &cookie);
