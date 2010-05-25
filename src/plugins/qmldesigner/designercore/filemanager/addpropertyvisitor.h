@@ -58,7 +58,7 @@ private:
     quint32 m_parentLocation;
     QString m_name;
     QString m_value;
-    QmlDesigner::QmlRefactoring::PropertyType m_propertyType;
+    QmlRefactoring::PropertyType m_propertyType;
     QStringList m_propertyOrder;
 };
 
