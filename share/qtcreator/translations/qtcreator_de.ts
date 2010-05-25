@@ -2053,7 +2053,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+5"/>
         <source>&amp;Options...</source>
-        <translation>&amp;Einstellungen</translation>
+        <translation>&amp;Einstellungen...</translation>
     </message>
     <message>
         <location line="+11"/>
