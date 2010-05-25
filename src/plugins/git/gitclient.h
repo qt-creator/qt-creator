@@ -53,6 +53,10 @@ namespace VCSBase {
     class VCSBaseEditor;
 }
 
+namespace Utils {
+    struct SynchronousProcessResponse;
+}
+
 namespace Git {
 namespace Internal {
 
@@ -152,11 +156,11 @@ public:
     unsigned gitVersion(bool silent, QString *errorMessage = 0);
     QString gitVersionString(bool silent, QString *errorMessage = 0);
 
-    void pull(const QString &workingDirectory);
-    void push(const QString &workingDirectory);
+    bool synchronousPull(const QString &workingDirectory);
+    bool synchronousPush(const QString &workingDirectory);
 
     // git svn support (asynchronous).
-    void subversionFetch(const QString &workingDirectory);
+    void synchronousSubversionFetch(const QString &workingDirectory);
     void subversionLog(const QString &workingDirectory);
 
     void stashPop(const QString &workingDirectory);
@@ -214,7 +218,6 @@ public slots:
 
 private slots:
     void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
-    void slotPullRebaseFinished(bool ok, int exitCode, const QVariant &cookie);
 
 private:
     VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind,
@@ -237,18 +240,27 @@ private:
                            int editorLineNumber = -1,
                            bool unixTerminalDisabled = false);
 
-    bool synchronousGit(const QString &workingDirectory,
+    // Fully synchronous git execution (QProcess-based).
+    bool fullySynchronousGit(const QString &workingDirectory,
                         const QStringList &arguments,
                         QByteArray* outputText,
                         QByteArray* errorText,
                         bool logCommandToWindow = true);
+
+    // Synchronous git execution using Utils::SynchronousProcess, with
+    // log windows updating.
+    inline Utils::SynchronousProcessResponse
+            synchronousGit(const QString &workingDirectory, const QStringList &arguments,
+                           unsigned flags = 0, QTextCodec *outputCodec = 0);
+
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
     unsigned synchronousGitVersion(bool silent, QString *errorMessage = 0);
 
     enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
     RevertResult revertI(QStringList files, bool *isDirectory, QString *errorMessage);
     void connectRepositoryChanged(const QString & repository, GitCommand *cmd);
-    void pull(const QString &workingDirectory, bool rebase);
+    bool synchronousPull(const QString &workingDirectory, bool rebase);
+    void syncAbortPullRebase(const QString &workingDir);
 
     const QString m_msgWait;
     GitPlugin     *m_plugin;

@@ -778,10 +778,14 @@ Utils::SynchronousProcessResponse
     // Run!
     const Utils::SynchronousProcessResponse sp_resp = process.run(binary, arguments);
 
-    // Fail message?
-    if (sp_resp.result != Utils::SynchronousProcessResponse::Finished &&
-        (!(flags & SuppressFailMessageInLogWindow)))
-        outputWindow->appendError(sp_resp.exitMessage(binary, timeOutMS));
+    // Success/Fail message in appropriate window?
+    if (sp_resp.result == Utils::SynchronousProcessResponse::Finished) {
+        if (flags & ShowSuccessMessage)
+            outputWindow->append(sp_resp.exitMessage(binary, timeOutMS));
+    } else {
+        if (!(flags & SuppressFailMessageInLogWindow))
+            outputWindow->appendError(sp_resp.exitMessage(binary, timeOutMS));
+    }
 
     return sp_resp;
 }

@@ -474,7 +474,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     createRepositoryAction(actionManager, subversionMenu,
                            tr("Fetch"), QLatin1String("Git.Subversion.Fetch"),
-                           globalcontext, false, &GitClient::subversionFetch);
+                           globalcontext, false, &GitClient::synchronousSubversionFetch);
 
     if (0) {
         const QList<QAction*> snapShotActions = createSnapShotTestActions();
@@ -735,7 +735,7 @@ void GitPlugin::pull()
         case GitClient::StashUnchanged:
         case GitClient::Stashed:
         case GitClient::NotStashed:
-            m_gitClient->pull(state.topLevel());
+            m_gitClient->synchronousPull(state.topLevel());
         default:
         break;
     }
@@ -745,7 +745,7 @@ void GitPlugin::push()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
-    m_gitClient->push(state.topLevel());
+    m_gitClient->synchronousPush(state.topLevel());
 }
 
 // Retrieve member function of git client stored as user data of action

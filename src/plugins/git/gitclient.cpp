@@ -420,7 +420,7 @@ bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
     QByteArray errorText;
     QStringList arguments;
     arguments << QLatin1String("checkout") << branch;
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     const QString output = commandOutputFromLocal8Bit(outputText);
     outputWindow()->append(output);
     if (!rc) {
@@ -484,7 +484,7 @@ bool GitClient::synchronousAdd(const QString &workingDirectory,
     if (intendToAdd)
         arguments << QLatin1String("--intent-to-add");
     arguments.append(files);
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString errorMessage = tr("Unable to add %n file(s) to %1: %2", 0, files.size()).
                                      arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
@@ -506,7 +506,7 @@ bool GitClient::synchronousDelete(const QString &workingDirectory,
     if (force)
         arguments << QLatin1String("--force");
     arguments.append(files);
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString errorMessage = tr("Unable to remove %n file(s) from %1: %2", 0, files.size()).
                                      arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
@@ -527,7 +527,7 @@ bool GitClient::synchronousMove(const QString &workingDirectory,
     arguments << QLatin1String("mv");
     arguments << (from);
     arguments << (to);
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString errorMessage = tr("Unable to move from %1 to %2: %3").
                                      arg(from, to, commandOutputFromLocal8Bit(errorText));
@@ -551,7 +551,7 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
     } else {
         arguments << QLatin1String("HEAD") << QLatin1String("--") << files;
     }
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     const QString output = commandOutputFromLocal8Bit(outputText);
     outputWindow()->append(output);
     // Note that git exits with 1 even if the operation is successful
@@ -579,7 +579,7 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
     QByteArray outputText;
     QByteArray errorText;
     const QStringList arguments(QLatin1String("init"));
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     // '[Re]Initialized...'
     outputWindow()->append(commandOutputFromLocal8Bit(outputText));
     if (!rc)
@@ -606,7 +606,7 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
     QByteArray errorText;
     QStringList arguments;
     arguments << QLatin1String("checkout") << revision << QLatin1String("--") << files;
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString fileArg = files.join(QLatin1String(", "));
         //: Meaning of the arguments: %1: revision, %2: files, %3: repository,
@@ -675,7 +675,7 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
         arguments.append(QLatin1String("--"));
         arguments.append(files);
     }
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
     if (!rc) {
         *errorMessage = msgParentRevisionFailed(workingDirectory, revision, commandOutputFromLocal8Bit(errorText));
         return false;
@@ -744,7 +744,7 @@ bool GitClient::synchronousTopRevision(const QString &workingDirectory,
             revision->clear();
             arguments << QLatin1String("log") << QLatin1String(noColorOption)
                     <<  QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%H");
-            if (!synchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
+            if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
                 errorMessage =  tr("Unable to retrieve top revision of %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
                 break;
             }
@@ -756,7 +756,7 @@ bool GitClient::synchronousTopRevision(const QString &workingDirectory,
             branch->clear();
             arguments.clear();
             arguments << QLatin1String("branch") << QLatin1String(noColorOption);
-            if (!synchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
+            if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
                 errorMessage = msgCannotDetermineBranch(workingDirectory, commandOutputFromLocal8Bit(errorText));
                 break;
             }
@@ -805,7 +805,7 @@ bool GitClient::synchronousShortDescription(const QString &workingDirectory,
     arguments << QLatin1String("log") << QLatin1String(GitClient::noColorOption)
               << (QLatin1String("--pretty=format:") + format)
               << QLatin1String("--max-count=1") << revision;
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
     if (!rc) {
         *errorMessage = tr("Unable to describe revision %1 in %2: %3").arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
@@ -893,7 +893,7 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
     arguments << QLatin1String("stash");
     if (!message.isEmpty())
         arguments << QLatin1String("save") << message;
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString msg = tr("Unable stash in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
@@ -944,7 +944,7 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     branchArgs.push_front(QLatin1String("branch"));
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
     if (!rc) {
         *errorMessage = tr("Unable to run a 'git branch' command in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
@@ -966,7 +966,7 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     args << QLatin1String(noColorOption) << id;
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
         *errorMessage = tr("Unable to run 'git show' in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
@@ -986,7 +986,7 @@ bool GitClient::synchronousCleanList(const QString &workingDirectory,
     args << QLatin1String("clean") << QLatin1String("--dry-run") << QLatin1String("-dxf");
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
         *errorMessage = tr("Unable to run 'git clean' in %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
@@ -1008,7 +1008,7 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
     args << QLatin1String("apply") << QLatin1String("--whitespace=fix") << file;
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (rc) {
         if (!errorText.isEmpty())
             *errorMessage = tr("There were warnings while applying %1 to %2:\n%3").arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
@@ -1088,14 +1088,33 @@ QProcessEnvironment GitClient::processEnvironment() const
     return environment;
 }
 
-bool GitClient::synchronousGit(const QString &workingDirectory,
+// Synchronous git execution using Utils::SynchronousProcess, with
+// log windows updating.
+Utils::SynchronousProcessResponse
+        GitClient::synchronousGit(const QString &workingDirectory,
+                                  const QStringList &gitArguments,
+                                  unsigned flags,
+                                  QTextCodec *stdOutCodec)
+{
+    if (Git::Constants::debug)
+        qDebug() << "synchronousGit" << workingDirectory << gitArguments;
+    QStringList args = binary(); // "cmd /c git" on Windows
+    const QString executable = args.front();
+    args.pop_front();
+    args.append(gitArguments);
+    return VCSBase::VCSBasePlugin::runVCS(workingDirectory, executable, args,
+                                          m_settings.timeoutSeconds * 1000,
+                                          flags, stdOutCodec);
+}
+
+bool GitClient::fullySynchronousGit(const QString &workingDirectory,
                                const QStringList &gitArguments,
                                QByteArray* outputText,
                                QByteArray* errorText,
                                bool logCommandToWindow)
 {
     if (Git::Constants::debug)
-        qDebug() << "synchronousGit" << workingDirectory << gitArguments;
+        qDebug() << "fullySynchronousGit" << workingDirectory << gitArguments;
 
     if (logCommandToWindow)
         outputWindow()->appendCommand(workingDirectory, m_binaryPath, gitArguments);
@@ -1212,7 +1231,7 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     QStringList statusArgs(QLatin1String("status"));
     if (untracked)
         statusArgs << QLatin1String("-u");
-    const bool statusRc = synchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
+    const bool statusRc = fullySynchronousGit(workingDirectory, statusArgs, &outputText, &errorText);
     GitCommand::removeColorCodes(&outputText);
     if (output)
         *output = commandOutputFromLocal8Bit(outputText);
@@ -1371,7 +1390,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
 
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(repositoryDirectory, args, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(repositoryDirectory, args, &outputText, &errorText);
     if (rc) {
         outputWindow()->append(tr("Committed %n file(s).\n", 0, checkedFiles.size()));
     } else {
@@ -1491,58 +1510,58 @@ void GitClient::revert(const QStringList &files)
     }
 }
 
-void GitClient::pull(const QString &workingDirectory)
+bool GitClient::synchronousPull(const QString &workingDirectory)
 {
-    pull(workingDirectory, m_settings.pullRebase);
+    return synchronousPull(workingDirectory, m_settings.pullRebase);
 }
 
-void GitClient::pull(const QString &workingDirectory, bool rebase)
+bool GitClient::synchronousPull(const QString &workingDirectory, bool rebase)
 {
     QStringList arguments(QLatin1String("pull"));
     if (rebase)
         arguments << QLatin1String("--rebase");
     // Disable UNIX terminals to suppress SSH prompting.
-    GitCommand *cmd = executeGit(workingDirectory, arguments, 0, true,
-                                 GitCommand::ReportStderr, -1,
-                                 VCSBase::VCSBasePlugin::isSshPromptConfigured());
-    connectRepositoryChanged(workingDirectory, cmd);
-    // Need to clean up if something goes wrong
-    if (rebase) {
-        cmd->setCookie(QVariant(workingDirectory));
-        connect(cmd, SIGNAL(finished(bool,int,QVariant)), this, SLOT(slotPullRebaseFinished(bool,int,QVariant)),
-                Qt::QueuedConnection);
+    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
+                           |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+    const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, arguments, flags);
+    // Notify about changed files or abort the rebase.
+    const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
+    if (ok) {
+        GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
+    } else {
+        if (rebase)
+            syncAbortPullRebase(workingDirectory);
     }
+    return ok;
 }
 
-void GitClient::slotPullRebaseFinished(bool ok, int exitCode, const QVariant &cookie)
+void GitClient::syncAbortPullRebase(const QString &workingDir)
 {
-    if (ok && exitCode == 0)
-        return;
     // Abort rebase to clean if something goes wrong
     VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
     outwin->appendError(tr("The command 'git pull --rebase' failed, aborting rebase."));
-    const QString workingDir = cookie.toString();
     QStringList arguments;
     arguments << QLatin1String("rebase") << QLatin1String("--abort");
     QByteArray stdOut;
     QByteArray stdErr;
-    const bool rc = synchronousGit(workingDir, arguments, &stdOut, &stdErr, true);
+    const bool rc = fullySynchronousGit(workingDir, arguments, &stdOut, &stdErr, true);
     outwin->append(commandOutputFromLocal8Bit(stdOut));
     if (!rc)
         outwin->appendError(commandOutputFromLocal8Bit(stdErr));
 }
 
 // Subversion: git svn
-void GitClient::subversionFetch(const QString &workingDirectory)
+void GitClient::synchronousSubversionFetch(const QString &workingDirectory)
 {
     QStringList args;
     args << QLatin1String("svn") << QLatin1String("fetch");
     // Disable UNIX terminals to suppress SSH prompting.
-    GitCommand *cmd = executeGit(workingDirectory, args, 0, true, GitCommand::ReportStderr,
-                                 -1, true);
-    // Enable SSH prompting
-    cmd->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
-    connectRepositoryChanged(workingDirectory, cmd);
+    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
+                           |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+    const Utils::SynchronousProcessResponse resp = synchronousGit(workingDirectory, args, flags);
+    // Notify about changes.
+    if (resp.result == Utils::SynchronousProcessResponse::Finished)
+        GitPlugin::instance()->gitVersionControl()->emitRepositoryChanged(workingDirectory);
 }
 
 void GitClient::subversionLog(const QString &workingDirectory)
@@ -1563,12 +1582,14 @@ void GitClient::subversionLog(const QString &workingDirectory)
     executeGit(workingDirectory, arguments, editor);
 }
 
-void GitClient::push(const QString &workingDirectory)
+bool GitClient::synchronousPush(const QString &workingDirectory)
 {
     // Disable UNIX terminals to suppress SSH prompting.
-    executeGit(workingDirectory, QStringList(QLatin1String("push")), 0,
-               true, GitCommand::ReportStderr,
-               VCSBase::VCSBasePlugin::isSshPromptConfigured());
+    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
+                           |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+    const Utils::SynchronousProcessResponse resp =
+            synchronousGit(workingDirectory, QStringList(QLatin1String("push")), flags);
+    return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
 QString GitClient::msgNoChangedFiles()
@@ -1597,7 +1618,7 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
     }
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         const QString msg = branch.isEmpty() ?
@@ -1629,7 +1650,7 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
     }
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         const QString msg = stash.isEmpty() ?
@@ -1671,7 +1692,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     arguments << QLatin1String("list") << QLatin1String(noColorOption);
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString msg = tr("Unable retrieve stash list of %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
@@ -1697,7 +1718,7 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
 
     QByteArray outputText;
     QByteArray errorText;
-    if (synchronousGit(workingDirectory, arguments, &outputText, &errorText, false))
+    if (fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText, false))
         return commandOutputFromLocal8Bit(outputText);
     return QString();
 }
@@ -1768,7 +1789,7 @@ unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage /* 
     // run git --version
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = synchronousGit(QString(), QStringList("--version"), &outputText, &errorText);
+    const bool rc = fullySynchronousGit(QString(), QStringList("--version"), &outputText, &errorText);
     if (!rc) {
         const QString msg = tr("Unable to determine git version: %1").arg(commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {

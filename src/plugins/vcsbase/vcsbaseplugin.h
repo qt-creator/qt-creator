@@ -190,7 +190,8 @@ public:
         SshPasswordPrompt = 0x40,    // Disable terminal on UNIX to force graphical prompt.
         SuppressStdErrInLogWindow = 0x8, // No standard error output to VCS output window.
         SuppressFailMessageInLogWindow = 0x10, // No message VCS about failure in VCS output window.
-        SuppressCommandLogging = 0x20 // No command log entry in VCS output window.
+        SuppressCommandLogging = 0x20, // No command log entry in VCS output window.
+        ShowSuccessMessage = 0x40      // Show message about successful completion in VCS output window.
     };
 
     static Utils::SynchronousProcessResponse
