@@ -58,6 +58,7 @@ private slots:
     void slotNextTip();
     void slotPrevTip();
     void slotCreateNewProject();
+    void slotSetPrivateQmlExamples();
 
 private:
     QStringList tipsOfTheDay();
@@ -66,7 +67,6 @@ private:
                            const QString &demoXml);
     void updateQmlExamples(const QString &examplePath,
                            const QString &sourcePath);
-
     Ui::GettingStartedWelcomePageWidget *ui;
     int m_currentTip;
 };
