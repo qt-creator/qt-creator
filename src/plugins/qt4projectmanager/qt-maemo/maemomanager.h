@@ -56,8 +56,6 @@ public:
     ~MaemoManager();
     static MaemoManager &instance();
 
-    void init();
-
     bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version) const;
     ToolChain *maemoToolChain(const Qt4ProjectManager::QtVersion *version) const;
 

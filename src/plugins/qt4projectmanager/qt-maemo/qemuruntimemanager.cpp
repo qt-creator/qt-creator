@@ -69,9 +69,6 @@ QemuRuntimeManager::QemuRuntimeManager(QObject *parent)
     , m_needsSetup(true)
     , m_userTerminated(false)
 {
-    Q_ASSERT(!m_instance);
-    m_instance = this;
-
     m_qemuStarterIcon.addFile(":/qt-maemo/images/qemu-run.png", iconSize);
     m_qemuStarterIcon.addFile(":/qt-maemo/images/qemu-stop.png", iconSize,
         QIcon::Normal, QIcon::On);
@@ -117,11 +114,13 @@ QemuRuntimeManager::QemuRuntimeManager(QObject *parent)
 QemuRuntimeManager::~QemuRuntimeManager()
 {
     terminateRuntime();
+    m_instance = 0;
 }
 
-QemuRuntimeManager &QemuRuntimeManager::instance()
+QemuRuntimeManager &QemuRuntimeManager::instance(QObject *parent)
 {
-    Q_ASSERT(m_instance);
+    if (m_instance == 0)
+        m_instance = new QemuRuntimeManager(parent);
     return *m_instance;
 }
 
