@@ -804,8 +804,6 @@ void TestCore::testRewriterForGradientMagic()
                                   "    }\n"
                                   "}");
 
-    QSKIP("See BAUHAUS-674", SkipAll);
-
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier modifier(&textEdit);
