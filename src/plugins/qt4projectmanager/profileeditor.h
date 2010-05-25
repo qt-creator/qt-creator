@@ -32,6 +32,7 @@
 
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
+#include <utils/uncommentselection.h>
 
 namespace TextEditor {
 class FontSettings;
@@ -78,8 +79,12 @@ public:
 
     ProFileEditorFactory *factory() { return m_factory; }
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
+
+    void unCommentSelection();
+
 protected:
     TextEditor::BaseTextEditorEditable *createEditableInterface();
+    void contextMenuEvent(QContextMenuEvent *);
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -87,6 +92,7 @@ public slots:
 private:
     ProFileEditorFactory *m_factory;
     TextEditor::TextEditorActionHandler *m_ah;
+    Utils::CommentDefinition m_commentDefinition;
 };
 
 class ProFileDocument : public TextEditor::BaseTextDocument

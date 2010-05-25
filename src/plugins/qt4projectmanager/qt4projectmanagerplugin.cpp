@@ -66,6 +66,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorconstants.h>
 
 #ifdef WITH_TESTS
 #    include <QTest>
@@ -117,7 +118,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addObject(m_qt4ProjectManager);
 
     TextEditor::TextEditorActionHandler *editorHandler
-            = new TextEditor::TextEditorActionHandler(Constants::C_PROFILEEDITOR);
+            = new TextEditor::TextEditorActionHandler(Constants::C_PROFILEEDITOR,
+                  TextEditor::TextEditorActionHandler::UnCommentSelection);
 
     m_proFileEditorFactory = new ProFileEditorFactory(m_qt4ProjectManager, editorHandler);
     addObject(m_proFileEditorFactory);
@@ -221,6 +223,13 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, SLOT(buildStateChanged(ProjectExplorer::Project *)));
     connect(m_projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(currentProjectChanged()));
+
+    Core::ActionContainer *contextMenu= am->createMenu(Qt4ProjectManager::Constants::M_CONTEXT);
+
+    Core::Command *cmd;
+
+    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    contextMenu->addAction(cmd);
 
     return true;
 }

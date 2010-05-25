@@ -39,6 +39,9 @@ namespace Constants {
 const char * const C_PROFILEEDITOR  = ".pro File Editor";
 const char * const C_PROFILEEDITOR_PANEL  = ".pro File Editor (embedded)";
 
+// menus
+const char * const M_CONTEXT = "ProFileEditor.ContextMenu";
+
 // kinds
 const char * const PROJECT_ID      = "Qt4.Qt4Project";
 const char * const PROFILE_EDITOR_ID = "Qt4.proFileEditor";
