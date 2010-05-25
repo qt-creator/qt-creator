@@ -127,7 +127,7 @@ private slots:
     void testRewriterDynamicProperties();
     void testRewriterGroupedProperties();
     void testRewriterPreserveOrder();
-
+    void testRewriterActionCompression();
 
     //
     // unit tests QmlModelNodeFacade/QmlModelState

@@ -57,7 +57,8 @@ static bool nodeOrParentInSet(const ModelNode &node, const QSet<ModelNode> &node
 void RewriteActionCompressor::operator()(QList<RewriteAction *> &actions) const
 {
     compressImports(actions);
-    compressReparentActions(actions);
+    compressRereparentActions(actions);
+    compressReparentIntoSameParentActions(actions);
     compressPropertyActions(actions);
     compressAddEditRemoveNodeActions(actions);
     compressAddEditActions(actions);
@@ -74,7 +75,7 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
     while (iter.hasPrevious()) {
         RewriteAction *action = iter.previous();
 
-        if (RemoveImportRewriteAction const *removeImportAction = action->asRemoveImportRewriteAction()) {
+        if (RemoveImportRewriteAction *removeImportAction = action->asRemoveImportRewriteAction()) {
             const Import import = removeImportAction->import();
             if (removedImports.contains(import)) {
                 remove(iter);
@@ -86,7 +87,7 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
             } else {
                 removedImports.insert(import, action);
             }
-        } else if (AddImportRewriteAction const *addImportAction = action->asAddImportRewriteAction()) {
+        } else if (AddImportRewriteAction *addImportAction = action->asAddImportRewriteAction()) {
             const Import import = addImportAction->import();
             if (RewriteAction *duplicateAction = addedImports.value(import, 0)) {
                 actions.removeOne(duplicateAction);
@@ -105,23 +106,40 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
     }
 }
 
-void RewriteActionCompressor::compressReparentActions(QList<RewriteAction *> &actions) const
+void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &actions) const
 {
-    QSet<ModelNode> reparentedNodes;
+    QMap<ModelNode, ReparentNodeRewriteAction *> reparentedNodes;
 
     QMutableListIterator<RewriteAction*> iter(actions);
     iter.toBack();
     while (iter.hasPrevious()) {
         RewriteAction *action = iter.previous();
 
-        if (ReparentNodeRewriteAction const *reparentAction = action->asReparentNodeRewriteAction()) {
+        if (ReparentNodeRewriteAction *reparentAction = action->asReparentNodeRewriteAction()) {
             const ModelNode reparentedNode = reparentAction->reparentedNode();
 
-            if (reparentedNodes.contains(reparentedNode)) {
+            if (ReparentNodeRewriteAction *otherAction = reparentedNodes.value(reparentedNode, 0)) {
+                otherAction->setOldParent(reparentAction->oldParent());
                 remove(iter);
             } else {
-                reparentedNodes.insert(reparentedNode);
+                reparentedNodes.insert(reparentedNode, reparentAction);
             }
+        }
+    }
+}
+
+void RewriteActionCompressor::compressReparentIntoSameParentActions(QList<RewriteAction *> &actions) const
+{
+    QMutableListIterator<RewriteAction *> iter(actions);
+    iter.toBack();
+    while (iter.hasPrevious()) {
+        RewriteAction *action = iter.previous();
+
+        if (ReparentNodeRewriteAction *reparentAction = action->asReparentNodeRewriteAction()) {
+            const ModelNode targetNode = reparentAction->targetProperty().parentModelNode();
+            const ModelNode oldParent = reparentAction->oldParent();
+            if (targetNode == oldParent)
+                remove(iter);
         }
     }
 }
@@ -136,7 +154,7 @@ void RewriteActionCompressor::compressAddEditRemoveNodeActions(QList<RewriteActi
     while (iter.hasPrevious()) {
         RewriteAction *action = iter.previous();
 
-        if (RemoveNodeRewriteAction const *removeNodeAction = action->asRemoveNodeRewriteAction()) {
+        if (RemoveNodeRewriteAction *removeNodeAction = action->asRemoveNodeRewriteAction()) {
             const ModelNode modelNode = removeNodeAction->node();
 
             if (removedNodes.contains(modelNode))
@@ -160,18 +178,18 @@ void RewriteActionCompressor::compressAddEditRemoveNodeActions(QList<RewriteActi
                 remove(iter);
                 removeActionsToRemove.insert(removedNodes[containedModelNode]);
             }
-        } else if (RemovePropertyRewriteAction const *removePropertyAction = action->asRemovePropertyRewriteAction()) {
+        } else if (RemovePropertyRewriteAction *removePropertyAction = action->asRemovePropertyRewriteAction()) {
             const AbstractProperty property = removePropertyAction->property();
 
             if (removedNodes.contains(property.parentModelNode()))
                 remove(iter);
-        } else if (ChangeIdRewriteAction const *changeIdAction = action->asChangeIdRewriteAction()) {
+        } else if (ChangeIdRewriteAction *changeIdAction = action->asChangeIdRewriteAction()) {
             if (removedNodes.contains(changeIdAction->node()))
                 remove(iter);
-        } else if (ChangeTypeRewriteAction const *changeTypeAction = action->asChangeTypeRewriteAction()) {
+        } else if (ChangeTypeRewriteAction *changeTypeAction = action->asChangeTypeRewriteAction()) {
             if (removedNodes.contains(changeTypeAction->node()))
                 remove(iter);
-        } else if (ReparentNodeRewriteAction const *reparentAction = action->asReparentNodeRewriteAction()) {
+        } else if (ReparentNodeRewriteAction *reparentAction = action->asReparentNodeRewriteAction()) {
             if (removedNodes.contains(reparentAction->reparentedNode()))
                 remove(iter);
         }
@@ -186,7 +204,7 @@ void RewriteActionCompressor::compressAddEditRemoveNodeActions(QList<RewriteActi
 void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &actions) const
 {
     QHash<AbstractProperty, RewriteAction *> removedProperties;
-    QHash<AbstractProperty, ChangePropertyRewriteAction const*> changedProperties;
+    QHash<AbstractProperty, ChangePropertyRewriteAction *> changedProperties;
     QSet<AbstractProperty> addedProperties;
 
     QMutableListIterator<RewriteAction*> iter(actions);
@@ -194,9 +212,9 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
     while (iter.hasPrevious()) {
         RewriteAction *action = iter.previous();
 
-        if (RemovePropertyRewriteAction const *removeAction = action->asRemovePropertyRewriteAction()) {
+        if (RemovePropertyRewriteAction *removeAction = action->asRemovePropertyRewriteAction()) {
             removedProperties.insert(removeAction->property(), action);
-        } else if (ChangePropertyRewriteAction const *changeAction = action->asChangePropertyRewriteAction()) {
+        } else if (ChangePropertyRewriteAction *changeAction = action->asChangePropertyRewriteAction()) {
             const AbstractProperty property = changeAction->property();
 
             if (removedProperties.contains(property)) {
@@ -207,7 +225,7 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
             } else {
                 changedProperties.insert(property, changeAction);
             }
-        } else if (AddPropertyRewriteAction const *addAction = action->asAddPropertyRewriteAction()) {
+        } else if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction()) {
             const AbstractProperty property = addAction->property();
 
             if (RewriteAction *removeAction = removedProperties.value(property, 0)) {
@@ -238,10 +256,10 @@ void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &act
             AbstractProperty property;
             ModelNode containedNode;
 
-            if (AddPropertyRewriteAction const *addAction = action->asAddPropertyRewriteAction()) {
+            if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction()) {
                 property = addAction->property();
                 containedNode = addAction->containedModelNode();
-            } else if (ChangePropertyRewriteAction const *changeAction = action->asChangePropertyRewriteAction()) {
+            } else if (ChangePropertyRewriteAction *changeAction = action->asChangePropertyRewriteAction()) {
                 property = changeAction->property();
                 containedNode = changeAction->containedModelNode();
             }
@@ -260,11 +278,11 @@ void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &act
                 addedNodes.insert(containedNode);
                 dirtyActions.insert(action);
             }
-        } else if (ChangeIdRewriteAction const *changeIdAction = action->asChangeIdRewriteAction()) {
+        } else if (ChangeIdRewriteAction *changeIdAction = action->asChangeIdRewriteAction()) {
             if (nodeOrParentInSet(changeIdAction->node(), addedNodes)) {
                 remove(iter);
             }
-        } else if (ChangeTypeRewriteAction const *changeTypeAction = action->asChangeTypeRewriteAction()) {
+        } else if (ChangeTypeRewriteAction *changeTypeAction = action->asChangeTypeRewriteAction()) {
             if (nodeOrParentInSet(changeTypeAction->node(), addedNodes)) {
                 remove(iter);
             }
@@ -274,12 +292,12 @@ void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &act
     QmlTextGenerator gen(m_propertyOrder);
     foreach (RewriteAction *action, dirtyActions) {
         RewriteAction *newAction = 0;
-        if (AddPropertyRewriteAction const *addAction = action->asAddPropertyRewriteAction()) {
+        if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction()) {
             newAction = new AddPropertyRewriteAction(addAction->property(),
                                                      gen(addAction->containedModelNode()),
                                                      addAction->propertyType(),
                                                      addAction->containedModelNode());
-        } else if (ChangePropertyRewriteAction const *changeAction = action->asChangePropertyRewriteAction()) {
+        } else if (ChangePropertyRewriteAction *changeAction = action->asChangePropertyRewriteAction()) {
             newAction = new ChangePropertyRewriteAction(changeAction->property(),
                                                         gen(changeAction->containedModelNode()),
                                                         changeAction->propertyType(),
@@ -304,9 +322,9 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
         if (action->asAddPropertyRewriteAction() || action->asChangePropertyRewriteAction()) {
             ModelNode containedNode;
 
-            if (AddPropertyRewriteAction const *addAction = action->asAddPropertyRewriteAction()) {
+            if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction()) {
                 containedNode = addAction->containedModelNode();
-            } else if (ChangePropertyRewriteAction const *changeAction = action->asChangePropertyRewriteAction()) {
+            } else if (ChangePropertyRewriteAction *changeAction = action->asChangePropertyRewriteAction()) {
                 containedNode = changeAction->containedModelNode();
             }
 
@@ -314,18 +332,18 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
                 continue;
 
             addedNodes.insert(containedNode, action);
-        } else if (ReparentNodeRewriteAction const *reparentAction = action->asReparentNodeRewriteAction()) {
+        } else if (ReparentNodeRewriteAction *reparentAction = action->asReparentNodeRewriteAction()) {
             if (addedNodes.contains(reparentAction->reparentedNode())) {
                 RewriteAction *previousAction = addedNodes[reparentAction->reparentedNode()];
                 actions.removeOne(previousAction);
 
                 RewriteAction *replacementAction = 0;
-                if (AddPropertyRewriteAction const *addAction = previousAction->asAddPropertyRewriteAction()) {
+                if (AddPropertyRewriteAction *addAction = previousAction->asAddPropertyRewriteAction()) {
                     replacementAction = new AddPropertyRewriteAction(reparentAction->targetProperty(),
                                                                      addAction->valueText(),
                                                                      reparentAction->propertyType(),
                                                                      addAction->containedModelNode());
-                } else if (ChangePropertyRewriteAction const *changeAction = previousAction->asChangePropertyRewriteAction()) {
+                } else if (ChangePropertyRewriteAction *changeAction = previousAction->asChangePropertyRewriteAction()) {
                     replacementAction = new AddPropertyRewriteAction(reparentAction->targetProperty(),
                                                                      changeAction->valueText(),
                                                                      reparentAction->propertyType(),
