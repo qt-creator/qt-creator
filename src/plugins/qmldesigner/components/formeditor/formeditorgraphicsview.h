@@ -67,6 +67,7 @@ private:
     bool m_beginWidthHasExpression;
     bool m_beginHeightHasExpression;
     QPoint m_feedbackOriginPoint;
+    QPixmap m_bubblePixmap;
 };
 
 } // namespace QmlDesigner
