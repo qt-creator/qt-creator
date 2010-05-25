@@ -166,8 +166,8 @@ void MaemoSshRunner::handleRemoteOutput()
                 charsToEmitCount = -1;
             }
         } else {
-            firstCharToEmit = 0;
-            charsToEmitCount = endMarkerPos;
+            firstCharToEmit = m_potentialEndMarkerPrefix.count();
+            charsToEmitCount = endMarkerPos - firstCharToEmit;
         }
     } else {
         if (m_endMarkerCount == 0) {
