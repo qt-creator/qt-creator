@@ -228,23 +228,30 @@ void QtVersionManager::updateDocumentation()
 
 void QtVersionManager::updateExamples()
 {
-    QList<QtVersion *> versions;
-    versions.append(m_versions);
-
-    QString examplesPath;
-    QString demosPath;
     QtVersion *version = 0;
+    QList<QtVersion*> candidates;
+
     // try to find a version which has both, demos and examples
-    foreach (version, versions) {
-        if (version->hasExamples())
-            examplesPath = version->examplesPath();
-        if (version->hasDemos())
-            demosPath = version->demosPath();
-        if (!examplesPath.isEmpty() && !demosPath.isEmpty()) {
-            emit updateExamples(examplesPath, demosPath, version->sourcePath());
+    foreach (version, m_versions) {
+        if (version->hasExamples() && version->hasDemos())
+        candidates.append(version);
+    }
+
+    // prefer versions with declarative examples
+    foreach (version, candidates) {
+        if (QDir(version->examplesPath()+"/declarative").exists()) {
+            emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath());
             return;
         }
     }
+
+    if (!candidates.isEmpty()) {
+        version = candidates.first();
+        emit updateExamples(version->examplesPath(), version->demosPath(), version->sourcePath());
+        return;
+    }
+    return;
+
 }
 
 int QtVersionManager::getUniqueId()
