@@ -130,6 +130,52 @@ bool QmlAnchors::isValid() const
     return m_qmlItemNode.isValid();
 }
 
+void QmlAnchors::beautify()
+{
+
+    if ((instanceHasAnchor(AnchorLine::Left) &&
+         instanceHasAnchor(AnchorLine::Right) &&
+         instanceHasAnchor(AnchorLine::Top) &&
+         instanceHasAnchor(AnchorLine::Bottom)) &&
+
+        (instanceAnchor(AnchorLine::Left).type() == AnchorLine::Left &&
+         instanceAnchor(AnchorLine::Right).type() == AnchorLine::Right &&
+         instanceAnchor(AnchorLine::Top).type() == AnchorLine::Top &&
+         instanceAnchor(AnchorLine::Bottom).type() == AnchorLine::Bottom) &&
+
+        (instanceAnchor(AnchorLine::Left).qmlItemNode() ==
+         instanceAnchor(AnchorLine::Right).qmlItemNode() &&
+         instanceAnchor(AnchorLine::Top).qmlItemNode() ==
+         instanceAnchor(AnchorLine::Bottom).qmlItemNode()) &&
+        (instanceAnchor(AnchorLine::Left).qmlItemNode() ==
+         instanceAnchor(AnchorLine::Bottom).qmlItemNode())) {
+
+        if (instanceHasAnchor(AnchorLine::Fill))
+            return; //avoid recursion
+
+        QmlItemNode targetNode(instanceAnchor(AnchorLine::Left).qmlItemNode());
+        removeAnchors();
+        setAnchor(AnchorLine::Fill, targetNode, AnchorLine::Fill);
+    }
+
+    if ((instanceHasAnchor(AnchorLine::VerticalCenter) &&
+         instanceHasAnchor(AnchorLine::HorizontalCenter)) &&
+
+        (instanceAnchor(AnchorLine::VerticalCenter).type() == AnchorLine::VerticalCenter &&
+         instanceAnchor(AnchorLine::HorizontalCenter).type() == AnchorLine::HorizontalCenter) &&
+
+        (instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode() ==
+         instanceAnchor(AnchorLine::HorizontalCenter).qmlItemNode())) {
+
+        if (instanceHasAnchor(AnchorLine::Center))
+            return; //avoid recursion
+
+        QmlItemNode targetNode(instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode());
+        removeAnchors();
+        setAnchor(AnchorLine::Center, targetNode, AnchorLine::Center);
+    }
+}
+
 void QmlAnchors::setAnchor(AnchorLine::Type sourceAnchorLine,
                           const QmlItemNode &targetQmlItemNode,
                           AnchorLine::Type targetAnchorLine)
@@ -145,9 +191,11 @@ void QmlAnchors::setAnchor(AnchorLine::Type sourceAnchorLine,
         QString targetExpression = targetQmlItemNode.modelNode().validId();
         if (targetQmlItemNode.modelNode() == qmlItemNode().modelNode().parentProperty().parentModelNode())
             targetExpression = "parent";
-        targetExpression = targetExpression + QLatin1Char('.') + lineTypeToString(targetAnchorLine);
+        if (sourceAnchorLine != AnchorLine::Center && sourceAnchorLine != AnchorLine::Fill)
+            targetExpression = targetExpression + QLatin1Char('.') + lineTypeToString(targetAnchorLine);
         qmlItemNode().modelNode().bindingProperty(propertyName).setExpression(targetExpression);
     }
+    beautify();
 }
 
 bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)

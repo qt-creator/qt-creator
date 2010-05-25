@@ -103,6 +103,7 @@ public:
 
 protected:
     QmlItemNode qmlItemNode() const;
+    void beautify();
 
 private:
     QmlItemNode m_qmlItemNode;
