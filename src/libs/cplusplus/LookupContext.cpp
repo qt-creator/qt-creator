@@ -482,11 +482,15 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                 return e;
 
             else if (_templateId) {
-                Q_ASSERT(_usings.size() == 1);
-                ClassOrNamespace *delegate = _usings.first();
+                if (_usings.size() == 1) {
+                    ClassOrNamespace *delegate = _usings.first();
 
-                if (ClassOrNamespace *r = delegate->lookupType_helper(name, processed, /*searchInEnclosingScope = */ true))
-                    return r;
+                    if (ClassOrNamespace *r = delegate->lookupType_helper(name, processed, /*searchInEnclosingScope = */ true))
+                        return r;
+                } else {
+                    if (debug)
+                        qWarning() << "expected one using declaration. Number of using declarations is:" << _usings.size();
+                }
             }
 
             foreach (ClassOrNamespace *u, usings()) {
