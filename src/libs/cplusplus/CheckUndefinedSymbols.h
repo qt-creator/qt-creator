@@ -39,7 +39,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT CheckUndefinedSymbols: protected ASTVisitor
 {
 public:
-    CheckUndefinedSymbols(Document::Ptr doc, const Snapshot &snapshot);
+    CheckUndefinedSymbols(TranslationUnit *unit, const LookupContext &context);
     virtual ~CheckUndefinedSymbols();
 
     QList<Document::DiagnosticMessage> operator()(AST *ast);

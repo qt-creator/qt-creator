@@ -42,10 +42,10 @@
 
 using namespace CPlusPlus;
 
-CheckUndefinedSymbols::CheckUndefinedSymbols(Document::Ptr doc, const Snapshot &snapshot)
-    : ASTVisitor(doc->translationUnit()), _context(doc, snapshot)
+CheckUndefinedSymbols::CheckUndefinedSymbols(TranslationUnit *unit, const LookupContext &context)
+    : ASTVisitor(unit), _context(context)
 {
-    _fileName = doc->fileName();
+    _fileName = context.thisDocument()->fileName();
 }
 
 CheckUndefinedSymbols::~CheckUndefinedSymbols()

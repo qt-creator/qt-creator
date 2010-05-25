@@ -1997,15 +1997,24 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     }
 
     if (! doc) {
-        const QByteArray preprocessedCode = source.snapshot.preprocessedCode(source.code, source.fileName);
-
         snapshot = source.snapshot;
-        doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
+        const QByteArray preprocessedCode = snapshot.preprocessedCode(source.code, source.fileName);
+
+        doc = snapshot.documentFromSource(preprocessedCode, source.fileName);
         doc->check();
 
-        // ### check undefined symbols.
-        CheckUndefinedSymbols checkUndefinedSymbols(doc, snapshot);
-        diagnosticMessages = checkUndefinedSymbols(doc->translationUnit()->ast());
+        Document::Ptr documentInSnapshot = snapshot.document(source.fileName);
+        if (! documentInSnapshot) {
+            // use the newly parsed document.
+            documentInSnapshot = doc;
+        }
+
+        LookupContext context(doc, snapshot);
+
+        if (TranslationUnit *unit = doc->translationUnit()) {
+            CheckUndefinedSymbols checkUndefinedSymbols(unit, context);
+            diagnosticMessages = checkUndefinedSymbols(unit->ast());
+        }
     }
 
     TranslationUnit *translationUnit = doc->translationUnit();
