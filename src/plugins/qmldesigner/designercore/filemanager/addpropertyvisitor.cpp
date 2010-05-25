@@ -112,12 +112,12 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     if (isOneLiner) {
         if (insertAfter == 0) { // we're inserting after an lbrace
             if (initializer->members) { // we're inserting before a member (and not the rbrace)
-                needsTrailingSemicolon = true;
+                needsTrailingSemicolon = m_propertyType == QmlRefactoring::ScriptBinding;
             }
         } else { // we're inserting after a member, not after the lbrace
             if (endOfPreviousMember.isValid()) { // there already is a semicolon after the previous member
                 if (insertAfter->next && insertAfter->next->member) { // and the after us there is a member, not an rbrace, so:
-                    needsTrailingSemicolon = true;
+                    needsTrailingSemicolon = m_propertyType == QmlRefactoring::ScriptBinding;
                 }
             } else { // there is no semicolon after the previous member (probably because there is an rbrace after us/it, so:
                 needsPreceedingSemicolon = true;

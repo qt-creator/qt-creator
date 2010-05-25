@@ -108,7 +108,7 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
 
 void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &actions) const
 {
-    QMap<ModelNode, ReparentNodeRewriteAction *> reparentedNodes;
+    QHash<ModelNode, ReparentNodeRewriteAction *> reparentedNodes;
 
     QMutableListIterator<RewriteAction*> iter(actions);
     iter.toBack();
