@@ -700,6 +700,73 @@ void TestCore::testRewriterPreserveOrder()
     }
 }
 
+void TestCore::testRewriterActionCompression()
+{
+    const QLatin1String qmlString("\n"
+                                  "import Qt 4.7\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "  id: root\n"
+                                  "  Rectangle {\n"
+                                  "    id: rect1\n"
+                                  "    x: 10\n"
+                                  "    y: 10\n"
+                                  "  }\n"
+                                  "  Rectangle {\n"
+                                  "    id: rect2\n"
+                                  "    x: 10\n"
+                                  "    y: 10\n"
+                                  "  }\n"
+                                  "}\n");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier1(&textEdit);
+
+    QScopedPointer<Model> model1(Model::create("Qt/Rectangle"));
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&modifier1);
+    model1->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode = testRewriterView->rootModelNode();
+    ModelNode rect1 = rootModelNode.property(QLatin1String("data")).toNodeListProperty().toModelNodeList().at(0);
+    ModelNode rect2 = rootModelNode.property(QLatin1String("data")).toNodeListProperty().toModelNodeList().at(1);
+
+    QVERIFY(rect1.isValid());
+    QVERIFY(rect2.isValid());
+
+    RewriterTransaction transaction = testRewriterView->beginRewriterTransaction();
+    rect1.nodeListProperty(QLatin1String("data")).reparentHere(rect2);
+    rect2.variantProperty(QLatin1String("x")).setValue(1.0);
+    rect2.variantProperty(QLatin1String("y")).setValue(1.0);
+
+    rootModelNode.nodeListProperty(QLatin1String("data")).reparentHere(rect2);
+    rect2.variantProperty(QLatin1String("x")).setValue(9.0);
+    rect2.variantProperty(QLatin1String("y")).setValue(9.0);
+    transaction.commit();
+
+    const QLatin1String expected("\n"
+                                 "import Qt 4.7\n"
+                                 "\n"
+                                 "Rectangle {\n"
+                                 "  id: root\n"
+                                 "  Rectangle {\n"
+                                 "    id: rect1\n"
+                                 "    x: 10\n"
+                                 "    y: 10\n"
+                                 "  }\n"
+                                 "  Rectangle {\n"
+                                 "    id: rect2\n"
+                                 "    x: 9\n"
+                                 "    y: 9\n"
+                                 "  }\n"
+                                 "}\n");
+    QCOMPARE(textEdit.toPlainText(), expected);
+}
+
 void TestCore::testRewriterForGradientMagic()
 {
     const QLatin1String qmlString("\n"
@@ -736,8 +803,6 @@ void TestCore::testRewriterForGradientMagic()
                                   "        }\n"
                                   "    }\n"
                                   "}");
-
-    QSKIP("See BAUHAUS-674", SkipAll);
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);

@@ -71,10 +71,7 @@ class QemuRuntimeManager : public QObject
     Q_OBJECT
 
 public:
-    QemuRuntimeManager(QObject *parent = 0);
-    ~QemuRuntimeManager();
-
-    static QemuRuntimeManager& instance();
+    static QemuRuntimeManager& instance(QObject *parent = 0);
 
     bool runtimeForQtVersion(int uniqueId, Runtime *rt) const;
 
@@ -111,6 +108,9 @@ private slots:
     void qemuStatusChanged(QemuStatus status, const QString &error);
 
 private:
+    QemuRuntimeManager(QObject *parent);
+    ~QemuRuntimeManager();
+
     void setupRuntimes();
     bool sessionHasMaemoTarget() const;
 

@@ -84,7 +84,7 @@ bool MercurialClient::add(const QString &workingDir, const QString &filename)
     QStringList args;
     args << QLatin1String("add") << filename;
     QByteArray stdOut;
-    return executeHgSynchronously(workingDir, args, &stdOut);
+    return executeHgFullySynchronously(workingDir, args, &stdOut);
 }
 
 bool MercurialClient::remove(const QString &workingDir, const QString &filename)
@@ -92,7 +92,7 @@ bool MercurialClient::remove(const QString &workingDir, const QString &filename)
     QStringList args;
     args << QLatin1String("remove") << filename;
     QByteArray stdOut;
-    return executeHgSynchronously(workingDir, args, &stdOut);
+    return executeHgFullySynchronously(workingDir, args, &stdOut);
 }
 
 bool MercurialClient::move(const QString &workingDir, const QString &from, const QString &to)
@@ -100,7 +100,7 @@ bool MercurialClient::move(const QString &workingDir, const QString &from, const
     QStringList args;
     args << QLatin1String("rename") << from << to;
     QByteArray stdOut;
-    return executeHgSynchronously(workingDir, args, &stdOut);
+    return executeHgFullySynchronously(workingDir, args, &stdOut);
 }
 
 bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)
@@ -109,7 +109,7 @@ bool MercurialClient::manifestSync(const QString &repository, const QString &rel
     const QStringList args(QLatin1String("manifest"));
 
     QByteArray output;
-    executeHgSynchronously(repository, args, &output);
+    executeHgFullySynchronously(repository, args, &output);
     const QDir repositoryDir(repository);
     const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
 
@@ -122,7 +122,21 @@ bool MercurialClient::manifestSync(const QString &repository, const QString &rel
     return false;
 }
 
-bool MercurialClient::executeHgSynchronously(const QString  &workingDir,
+Utils::SynchronousProcessResponse
+        MercurialClient::executeHgSynchronously(const QString &workingDirectory,
+                                                const QStringList &hgArgs,
+                                                unsigned flags,
+                                                QTextCodec *outputCodec)
+{
+    const MercurialSettings &settings = MercurialPlugin::instance()->settings();
+    const QString binary = settings.binary();
+    const QStringList arguments = settings.standardArguments() + hgArgs;
+    return VCSBase::VCSBasePlugin::runVCS(workingDirectory, binary, arguments,
+                                          settings.timeoutMilliSeconds(),
+                                          flags, outputCodec);
+}
+
+bool MercurialClient::executeHgFullySynchronously(const QString  &workingDir,
                                              const QStringList &args,
                                              QByteArray *output) const
 {
@@ -163,7 +177,7 @@ bool MercurialClient::executeHgSynchronously(const QString  &workingDir,
 QString MercurialClient::branchQuerySync(const QString &repositoryRoot)
 {
     QByteArray output;
-    if (executeHgSynchronously(repositoryRoot, QStringList(QLatin1String("branch")), &output))
+    if (executeHgFullySynchronously(repositoryRoot, QStringList(QLatin1String("branch")), &output))
         return QTextCodec::codecForLocale()->toUnicode(output).trimmed();
 
     return QLatin1String("Unknown Branch");
@@ -192,7 +206,7 @@ bool MercurialClient::parentRevisionsSync(const QString &workingDirectory,
     if (!file.isEmpty())
         args << file;
     QByteArray outputData;
-    if (!executeHgSynchronously(workingDirectory, args, &outputData))
+    if (!executeHgFullySynchronously(workingDirectory, args, &outputData))
         return false;
     QString output = QString::fromLocal8Bit(outputData);
     output.remove(QLatin1Char('\r'));
@@ -236,7 +250,7 @@ bool MercurialClient::shortDescriptionSync(const QString &workingDirectory,
     if (!format.isEmpty())
         args << QLatin1String("--template") << format;
     QByteArray outputData;
-    if (!executeHgSynchronously(workingDirectory, args, &outputData))
+    if (!executeHgFullySynchronously(workingDirectory, args, &outputData))
         return false;
     *description = QString::fromLocal8Bit(outputData);
     description->remove(QLatin1Char('\r'));
@@ -380,7 +394,7 @@ bool MercurialClient::createRepositorySync(const QString &workingDirectory)
 {
     const QStringList args(QLatin1String("init"));
     QByteArray outputData;
-    if (!executeHgSynchronously(workingDirectory, args, &outputData))
+    if (!executeHgFullySynchronously(workingDirectory, args, &outputData))
         return false;
     QString output = QString::fromLocal8Bit(outputData);
     output.remove(QLatin1Char('\r'));
@@ -451,28 +465,33 @@ void MercurialClient::import(const QString &repositoryRoot, const QStringList &f
     enqueueJob(job);
 }
 
-void MercurialClient::pull(const QString &repositoryRoot, const QString &repository)
+bool MercurialClient::pullSync(const QString &repositoryRoot, const QString &repository)
 {
     QStringList args(QLatin1String("pull"));
     if (!repository.isEmpty())
         args.append(repository);
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false, QVariant(repositoryRoot)));
-    // Suppress SSH prompting
-    job->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
-    connect(job.data(), SIGNAL(succeeded(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
-    enqueueJob(job);
+    // Disable UNIX terminals to suppress SSH prompting.
+    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
+                           |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+    const Utils::SynchronousProcessResponse resp =
+            executeHgSynchronously(repositoryRoot, args, flags);
+    const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
+    if (ok)
+        emit changed(QVariant(repositoryRoot));
+    return ok;
 }
 
-void MercurialClient::push(const QString &repositoryRoot, const QString &repository)
+bool MercurialClient::pushSync(const QString &repositoryRoot, const QString &repository)
 {
     QStringList args(QLatin1String("push"));
     if (!repository.isEmpty())
         args.append(repository);
-
-    QSharedPointer<HgTask> job(new HgTask(repositoryRoot, args, false));
-    // Suppress SSH prompting
-    job->setUnixTerminalDisabled(VCSBase::VCSBasePlugin::isSshPromptConfigured());
-    enqueueJob(job);
+    // Disable UNIX terminals to suppress SSH prompting.
+    const unsigned flags = VCSBase::VCSBasePlugin::SshPasswordPrompt|VCSBase::VCSBasePlugin::ShowStdOutInLogWindow
+                           |VCSBase::VCSBasePlugin::ShowSuccessMessage;
+    const Utils::SynchronousProcessResponse resp =
+            executeHgSynchronously(repositoryRoot, args, flags);
+    return resp.result == Utils::SynchronousProcessResponse::Finished;
 }
 
 void MercurialClient::incoming(const QString &repositoryRoot, const QString &repository)

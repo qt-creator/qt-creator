@@ -104,8 +104,7 @@ bool MaemoSshRunner::runInternal()
     createConnection();
     connect(m_connection.data(), SIGNAL(remoteOutputAvailable()),
             this, SLOT(handleRemoteOutput()));
-    m_endMarkerCount = 0;
-    m_promptEncountered = false;
+    initState();
     if (!m_connection->start())
         return false;
     if (stopRequested())
@@ -113,6 +112,13 @@ bool MaemoSshRunner::runInternal()
 
     waitForStop();
     return !m_connection->hasError();
+}
+
+void MaemoSshRunner::initState()
+{
+    m_endMarkerCount = 0;
+    m_promptEncountered = false;
+    m_potentialEndMarkerPrefix.clear();
 }
 
 void MaemoSshRunner::handleRemoteOutput()
@@ -160,8 +166,8 @@ void MaemoSshRunner::handleRemoteOutput()
                 charsToEmitCount = -1;
             }
         } else {
-            firstCharToEmit = 0;
-            charsToEmitCount = endMarkerPos;
+            firstCharToEmit = m_potentialEndMarkerPrefix.count();
+            charsToEmitCount = endMarkerPos - firstCharToEmit;
         }
     } else {
         if (m_endMarkerCount == 0) {

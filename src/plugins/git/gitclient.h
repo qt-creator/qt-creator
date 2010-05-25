@@ -248,7 +248,7 @@ private:
                         bool logCommandToWindow = true);
 
     // Synchronous git execution using Utils::SynchronousProcess, with
-    // log windows updating.
+    // log windows updating (using VCSBasePlugin::runVCS with flags).
     inline Utils::SynchronousProcessResponse
             synchronousGit(const QString &workingDirectory, const QStringList &arguments,
                            unsigned flags = 0, QTextCodec *outputCodec = 0);

@@ -986,7 +986,18 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
             match(T_GREATER, &ast->greater_token);
     }
 
-    parseDeclaration(ast->declaration);
+    do {
+        unsigned start_declaration = cursor();
+
+        ast->declaration = 0;
+        if (parseDeclaration(ast->declaration))
+            break;
+
+        _translationUnit->error(start_declaration, "expected a declaration");
+        rewind(start_declaration + 1);
+        skipUntilDeclaration();
+    } while (LA());
+
     node = ast;
     return true;
 }

@@ -71,7 +71,6 @@ public:
     QString displayName() const;
     QWidget *widget() const;
     QIcon icon() const;
-    PanelFlags flags() const { return IPropertiesPanel::NoLeftMargin; }
 
 private:
     BuildSettingsWidget *m_widget;
@@ -119,8 +118,6 @@ private:
 
     QList<BuildConfigWidget *> m_subWidgets;
     QList<QLabel *> m_labels;
-
-    int m_leftMargin;
 };
 
 } // namespace Internal

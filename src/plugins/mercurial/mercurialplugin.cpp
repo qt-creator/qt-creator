@@ -470,7 +470,7 @@ void MercurialPlugin::pull()
     dialog.setWindowTitle(tr("Pull Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    m_client->pull(state.topLevel(), dialog.getRepositoryString());
+    m_client->pullSync(state.topLevel(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::push()
@@ -482,7 +482,7 @@ void MercurialPlugin::push()
     dialog.setWindowTitle(tr("Push Destination"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    m_client->push(state.topLevel(), dialog.getRepositoryString());
+    m_client->pushSync(state.topLevel(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::update()

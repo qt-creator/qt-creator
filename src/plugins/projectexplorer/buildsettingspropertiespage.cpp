@@ -118,8 +118,7 @@ BuildSettingsWidget::~BuildSettingsWidget()
 
 BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     m_target(target),
-    m_buildConfiguration(0),
-    m_leftMargin(0)
+    m_buildConfiguration(0)
 {
     Q_ASSERT(m_target);
     setupUi();
@@ -127,7 +126,6 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
 
 void BuildSettingsWidget::setupUi()
 {
-    m_leftMargin = Constants::PANEL_LEFT_MARGIN;
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 
@@ -145,7 +143,7 @@ void BuildSettingsWidget::setupUi()
 
     { // Edit Build Configuration row
         QHBoxLayout *hbox = new QHBoxLayout();
-        hbox->setContentsMargins(m_leftMargin, 0, 0, 0);
+        hbox->setContentsMargins(0, 0, 0, 0);
         hbox->addWidget(new QLabel(tr("Edit build configuration:"), this));
         m_buildConfigurationComboBox = new QComboBox(this);
         m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -191,7 +189,7 @@ void BuildSettingsWidget::setupUi()
 
 void BuildSettingsWidget::addSubWidget(const QString &name, BuildConfigWidget *widget)
 {
-    widget->setContentsMargins(m_leftMargin, 10, 0, 0);
+    widget->setContentsMargins(0, 10, 0, 0);
 
     QLabel *label = new QLabel(this);
     label->setText(name);
@@ -200,7 +198,7 @@ void BuildSettingsWidget::addSubWidget(const QString &name, BuildConfigWidget *w
     f.setPointSizeF(f.pointSizeF() * 1.2);
     label->setFont(f);
 
-    label->setContentsMargins(m_leftMargin, 10, 0, 0);
+    label->setContentsMargins(0, 10, 0, 0);
 
     layout()->addWidget(label);
     layout()->addWidget(widget);

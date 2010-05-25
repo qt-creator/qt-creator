@@ -44,6 +44,9 @@
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 
+using namespace ExtensionSystem;
+using namespace ProjectExplorer;
+
 namespace Qt4ProjectManager {
     namespace Internal {
 
@@ -59,10 +62,10 @@ MaemoManager::MaemoManager()
     Q_ASSERT(!m_instance);
 
     m_instance = this;
+    QemuRuntimeManager::instance(this);
     MaemoDeviceConfigurations::instance(this);
 
-    ExtensionSystem::PluginManager *pluginManager
-        = ExtensionSystem::PluginManager::instance();
+    PluginManager *pluginManager = PluginManager::instance();
     pluginManager->addObject(m_runControlFactory);
     pluginManager->addObject(m_runConfigurationFactory);
     pluginManager->addObject(m_packageCreationFactory);
@@ -71,8 +74,7 @@ MaemoManager::MaemoManager()
 
 MaemoManager::~MaemoManager()
 {
-    ExtensionSystem::PluginManager *pluginManager
-        = ExtensionSystem::PluginManager::instance();
+    PluginManager *pluginManager = PluginManager::instance();
     pluginManager->removeObject(m_runControlFactory);
     pluginManager->removeObject(m_runConfigurationFactory);
     pluginManager->removeObject(m_packageCreationFactory);
@@ -87,13 +89,7 @@ MaemoManager &MaemoManager::instance()
     return *m_instance;
 }
 
-void MaemoManager::init()
-{
-    m_qemuRuntimeManager = new QemuRuntimeManager(this);
-}
-
-bool
-MaemoManager::isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version) const
+bool MaemoManager::isValidMaemoQtVersion(const QtVersion *version) const
 {
     QString path = QDir::cleanPath(version->qmakeCommand());
     path = path.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
@@ -116,8 +112,7 @@ MaemoManager::isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version)
     return false;
 }
 
-ProjectExplorer::ToolChain*
-MaemoManager::maemoToolChain(const QtVersion *version) const
+ToolChain* MaemoManager::maemoToolChain(const QtVersion *version) const
 {
     QString targetRoot = QDir::cleanPath(version->qmakeCommand());
     targetRoot.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));

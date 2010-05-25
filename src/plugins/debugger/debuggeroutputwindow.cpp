@@ -32,6 +32,7 @@
 #include "debuggermanager.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QFile>
 
 #include <QtGui/QAction>
 #include <QtGui/QHBoxLayout>
@@ -45,6 +46,8 @@
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextBlock>
 #include <QtGui/QPlainTextEdit>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
@@ -190,13 +193,14 @@ public:
         m_saveContentsAction = new QAction(this);
         m_saveContentsAction->setText(tr("Save Contents"));
         m_saveContentsAction->setEnabled(true);
+        connect(m_saveContentsAction, SIGNAL(triggered()), this, SLOT(saveContents()));
     }
 
     void contextMenuEvent(QContextMenuEvent *ev)
     {
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
-        //menu->addAction(m_saveContentsAction);
+        menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
         addContextActions(menu);
         theDebuggerAction(ExecuteCommand)->setData(textCursor().block().text());
         menu->addAction(theDebuggerAction(ExecuteCommand));
@@ -210,10 +214,32 @@ public:
 
     virtual void addContextActions(QMenu *) {}
 
-public:
+private slots:
+    void saveContents();
+
+private:
     QAction *m_clearContentsAction;
     QAction *m_saveContentsAction;
 };
+
+void DebuggerPane::saveContents()
+{
+    while (true) {
+        const QString fileName = QFileDialog::getSaveFileName(this, tr("Log File"));
+        if (fileName.isEmpty())
+            break;
+        QFile file(fileName);
+        if (file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate)) {
+            file.write(toPlainText().toUtf8());
+            file.close();
+            break;
+        } else {
+            QMessageBox::warning(this, tr("Write Failure"),
+                                 tr("Unable to write log contents to '%1': %2").
+                                 arg(fileName, file.errorString()));
+        }
+    }
+}
 
 
 /////////////////////////////////////////////////////////////////////

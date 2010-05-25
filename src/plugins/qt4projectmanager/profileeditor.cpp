@@ -34,6 +34,9 @@
 #include "qt4projectmanagerconstants.h"
 #include "profileeditorfactory.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -41,6 +44,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QtCore/QFileInfo>
+#include <QtGui/QMenu>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -91,15 +95,39 @@ ProFileEditor::ProFileEditor(QWidget *parent, ProFileEditorFactory *factory, Tex
     ah->setupActions(this);
 
     baseTextDocument()->setSyntaxHighlighter(new ProFileHighlighter);
+    m_commentDefinition.clearCommentStyles();
+    m_commentDefinition.setSingleLine(QString(QLatin1Char('#')));
 }
 
 ProFileEditor::~ProFileEditor()
 {
 }
 
+void ProFileEditor::unCommentSelection()
+{
+    Utils::unCommentSelection(this, m_commentDefinition);
+}
+
 TextEditor::BaseTextEditorEditable *ProFileEditor::createEditableInterface()
 {
     return new ProFileEditorEditable(this);
+}
+
+void ProFileEditor::contextMenuEvent(QContextMenuEvent *e)
+{
+    QMenu *menu = new QMenu();
+
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    Core::ActionContainer *mcontext = am->actionContainer(Qt4ProjectManager::Constants::M_CONTEXT);
+    QMenu *contextMenu = mcontext->menu();
+
+    foreach (QAction *action, contextMenu->actions())
+        menu->addAction(action);
+
+    appendStandardContextMenuActions(menu);
+
+    menu->exec(e->globalPos());
+    delete menu;
 }
 
 void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)

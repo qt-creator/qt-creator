@@ -106,10 +106,7 @@ void CppEditorSupport::updateDocument()
 {
     _revision = editorRevision();
 
-    if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor*>(_textEditor->widget())) {
-        const QList<QTextEdit::ExtraSelection> selections =
-                edit->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection);
-
+    if (qobject_cast<TextEditor::BaseTextEditor*>(_textEditor->widget()) != 0) {
         _modelManager->stopEditorSelectionsUpdate();
     }
 

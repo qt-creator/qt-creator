@@ -210,9 +210,7 @@ void PanelsWidget::addPropertiesPanel(IPropertiesPanel *panel)
 void PanelsWidget::addPanelWidget(IPropertiesPanel *panel, int row)
 {
     QWidget *widget = panel->widget();
-    int leftMargin = (panel->flags() & IPropertiesPanel::NoLeftMargin)
-                     ? 0 : Constants::PANEL_LEFT_MARGIN;
-    widget->setContentsMargins(leftMargin,
+    widget->setContentsMargins(Constants::PANEL_LEFT_MARGIN,
                                ABOVE_CONTENTS_MARGIN, 0,
                                BELOW_CONTENTS_MARGIN);
     widget->setParent(m_root);

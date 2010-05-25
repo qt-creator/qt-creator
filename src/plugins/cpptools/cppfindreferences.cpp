@@ -51,7 +51,6 @@
 #include <Scope.h>
 
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/CppBindings.h>
 #include <cplusplus/Overview.h>
 
 #include <QtCore/QTime>
@@ -120,8 +119,6 @@ public:
             doc->check();
 
             FindUsages process(doc, snapshot);
-            process.setGlobalNamespaceBinding(bind(doc, snapshot));
-
             process(symbol);
             usages = process.usages();
         }
@@ -177,7 +174,6 @@ QList<int> CppFindReferences::references(Symbol *symbol,
     QList<int> references;
 
     FindUsages findUsages(doc, snapshot);
-    findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
     findUsages(symbol);
     references = findUsages.references();
 

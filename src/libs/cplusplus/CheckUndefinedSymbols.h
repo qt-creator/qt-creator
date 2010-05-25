@@ -31,88 +31,59 @@
 #define CHECKUNDEFINEDSYMBOLS_H
 
 #include "CppDocument.h"
-#include "CppBindings.h"
-
+#include "LookupContext.h"
 #include <ASTVisitor.h>
 #include <QtCore/QSet>
-#include <QtCore/QByteArray>
 
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT CheckUndefinedSymbols: protected ASTVisitor
 {
 public:
-    CheckUndefinedSymbols(Document::Ptr doc);
+    CheckUndefinedSymbols(TranslationUnit *unit, const LookupContext &context);
     virtual ~CheckUndefinedSymbols();
 
-    void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding);
+    QList<Document::DiagnosticMessage> operator()(AST *ast);
 
-    void operator()(AST *ast);
+    struct Use { // ### remove me
+        unsigned line;
+        unsigned column;
+        unsigned length;
+
+        Use(unsigned line = 0, unsigned column = 0, unsigned length = 0)
+            : line(line), column(column), length(length) {}
+    };
+
+    QList<Use> typeUsages() const;
 
 protected:
     using ASTVisitor::visit;
 
-    bool isType(const Identifier *id) const;
-    bool isType(const QByteArray &name) const;
+    bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
+    bool warning(AST *ast, const QString &text);
 
-    void addType(const Name *name);
-    void buildTypeMap(Class *klass);
-    void buildMemberTypeMap(Symbol *member);
-    void buildTypeMap(NamespaceBinding *binding, QSet<NamespaceBinding *> *processed);
-    void addProtocol(const Name *name);
-    bool isProtocol(const QByteArray &name) const;
+    void checkName(NameAST *ast);
+    void checkNamespace(NameAST *name);
+    void addTypeUsage(ClassOrNamespace *b, NameAST *ast);
+    void addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast);
 
-    FunctionDeclaratorAST *currentFunctionDeclarator() const;
-    CompoundStatementAST *compoundStatement() const;
-    bool qobjectCheck() const;
+    virtual bool visit(NamespaceAST *);
+    virtual bool visit(UsingDirectiveAST *);
+    virtual bool visit(SimpleDeclarationAST *);
+    virtual bool visit(NamedTypeSpecifierAST *);
 
-    QByteArray templateParameterName(NameAST *ast) const;
-    QByteArray templateParameterName(DeclarationAST *ast) const;
-
-    virtual bool visit(FunctionDeclaratorAST *ast);
-    virtual void endVisit(FunctionDeclaratorAST *ast);
-
-    virtual bool visit(TypeofSpecifierAST *ast);
-    virtual bool visit(NamedTypeSpecifierAST *ast);
-
-    virtual bool visit(TemplateDeclarationAST *ast);
-    virtual void endVisit(TemplateDeclarationAST *);
-
-    virtual bool visit(ClassSpecifierAST *ast);
-    virtual void endVisit(ClassSpecifierAST *);
-
-    virtual bool visit(FunctionDefinitionAST *ast);
-    virtual void endVisit(FunctionDefinitionAST *ast);
-
-    virtual bool visit(CompoundStatementAST *ast);
-    virtual void endVisit(CompoundStatementAST *ast);
-
-    virtual bool visit(SimpleDeclarationAST *ast);
-    virtual bool visit(BaseSpecifierAST *base);
-    virtual bool visit(UsingDirectiveAST *ast);
+    virtual bool visit(SimpleNameAST *ast);
+    virtual bool visit(DestructorNameAST *ast);
     virtual bool visit(QualifiedNameAST *ast);
-    virtual bool visit(CastExpressionAST *ast);
-    virtual bool visit(SizeofExpressionAST *ast);
-    virtual bool visit(NamespaceAliasDefinitionAST *ast);
-
-    virtual bool visit(ObjCClassDeclarationAST *ast);
-    virtual bool visit(ObjCProtocolRefsAST *ast);
-    virtual bool visit(ObjCPropertyDeclarationAST *ast);
-
-    virtual bool visit(QtEnumDeclarationAST *ast);
-    virtual bool visit(QtFlagsDeclarationAST *ast);
-    virtual bool visit(QtPropertyDeclarationAST *ast);
+    virtual bool visit(TemplateIdAST *ast);
 
 private:
-    Document::Ptr _doc;
-    NamespaceBindingPtr _globalNamespaceBinding;
-    QList<bool> _qobjectStack;
-    QList<FunctionDeclaratorAST *> _functionDeclaratorStack;
-    QList<TemplateDeclarationAST *> _templateDeclarationStack;
-    QList<CompoundStatementAST *> _compoundStatementStack;
-    QSet<QByteArray> _types;
-    QSet<QByteArray> _protocols;
-    QSet<QByteArray> _namespaceNames;
+    LookupContext _context;
+    QString _fileName;
+    QList<Document::DiagnosticMessage> _diagnosticMessages;
+    QSet<QByteArray> _potentialTypes;
+    QList<ScopedSymbol *> _scopes;
+    QList<Use> _typeUsages;
 };
 
 } // end of namespace CPlusPlus

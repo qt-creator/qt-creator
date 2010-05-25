@@ -39,6 +39,7 @@
 #include <TranslationUnit.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QDebug>
 
 using namespace CPlusPlus;
 
@@ -54,11 +55,6 @@ FindUsages::FindUsages(Document::Ptr doc, const Snapshot &snapshot)
 {
     _snapshot.insert(_doc);
     typeofExpression.init(_doc, _snapshot, _context.bindings());
-}
-
-void FindUsages::setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding)
-{
-    _globalNamespaceBinding = globalNamespaceBinding;
 }
 
 QList<Usage> FindUsages::usages() const
@@ -128,12 +124,14 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<Symbol *> &candid
 
 void FindUsages::reportResult(unsigned tokenIndex)
 {
-    if (_processed.contains(tokenIndex))
+    const Token &tk = tokenAt(tokenIndex);
+    if (tk.generated())
+        return;
+    else if (_processed.contains(tokenIndex))
         return;
 
     _processed.insert(tokenIndex);
 
-    const Token &tk = tokenAt(tokenIndex);
     const QString lineText = matchingLine(tk);
 
     unsigned line, col;
@@ -151,61 +149,12 @@ void FindUsages::reportResult(unsigned tokenIndex)
 
 bool FindUsages::checkCandidates(const QList<Symbol *> &candidates) const
 {
-    if (Symbol *canonicalSymbol = DeprecatedLookupContext::canonicalSymbol(candidates, _globalNamespaceBinding.data())) {
-
-#if 0
-        Symbol *c = candidates.first();
-        qDebug() << "*** canonical symbol:" << canonicalSymbol->fileName()
-                << canonicalSymbol->line() << canonicalSymbol->column()
-                << "candidates:" << candidates.size()
-                << c->fileName() << c->line() << c->column();
-#endif
-
-        return checkSymbol(canonicalSymbol);
-    }
-
-    return false;
-}
-
-bool FindUsages::checkScope(Symbol *symbol, Symbol *otherSymbol) const
-{
-    if (! (symbol && otherSymbol))
-        return false;
-
-    else if (symbol->scope() == otherSymbol->scope())
-        return true;
-
-    else if (symbol->name() && otherSymbol->name()) {
-
-        if (! symbol->name()->isEqualTo(otherSymbol->name()))
-            return false;
-
-    } else if (symbol->name() != otherSymbol->name()) {
-        return false;
-    }
-
-    return checkScope(symbol->enclosingSymbol(), otherSymbol->enclosingSymbol());
-}
-
-bool FindUsages::checkSymbol(Symbol *symbol) const
-{
-    if (! symbol) {
-        return false;
-
-    } else if (symbol == _declSymbol) {
-        return true;
-
-    } else if (symbol->line() == _declSymbol->line() && symbol->column() == _declSymbol->column()) {
-        if (! qstrcmp(symbol->fileName(), _declSymbol->fileName()))
-            return true;
-
-    } else if (symbol->isForwardClassDeclaration() && (_declSymbol->isClass() ||
-                                                       _declSymbol->isForwardClassDeclaration())) {
-        return checkScope(symbol, _declSymbol);
-
-    } else if (_declSymbol->isForwardClassDeclaration() && (symbol->isClass() ||
-                                                            symbol->isForwardClassDeclaration())) {
-        return checkScope(symbol, _declSymbol);
+    if (ClassOrNamespace *c = _context.lookupType(_declSymbol)) {
+        for (int i = candidates.size() - 1; i != -1; --i) {
+            Symbol *s = candidates.at(i);
+            if (_context.lookupType(s) == c)
+                return true;
+        }
     }
 
     return false;

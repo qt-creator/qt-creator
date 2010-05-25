@@ -55,16 +55,16 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore) = 0;
     virtual QString info() const = 0;
 
-    virtual AddImportRewriteAction const *asAddImportRewriteAction() const { return 0; }
-    virtual AddPropertyRewriteAction const *asAddPropertyRewriteAction() const { return 0; }
-    virtual ChangeIdRewriteAction const *asChangeIdRewriteAction() const { return 0; }
-    virtual ChangePropertyRewriteAction const *asChangePropertyRewriteAction() const { return 0; }
-    virtual ChangeTypeRewriteAction const *asChangeTypeRewriteAction() const { return 0; }
-    virtual RemoveImportRewriteAction const * asRemoveImportRewriteAction() const { return 0; }
-    virtual RemoveNodeRewriteAction const *asRemoveNodeRewriteAction() const { return 0; }
-    virtual RemovePropertyRewriteAction const *asRemovePropertyRewriteAction() const { return 0; }
-    virtual ReparentNodeRewriteAction const *asReparentNodeRewriteAction() const { return 0; }
-    virtual MoveNodeRewriteAction const *asMoveNodeRewriteAction() const { return 0; }
+    virtual AddImportRewriteAction *asAddImportRewriteAction() { return 0; }
+    virtual AddPropertyRewriteAction *asAddPropertyRewriteAction() { return 0; }
+    virtual ChangeIdRewriteAction *asChangeIdRewriteAction() { return 0; }
+    virtual ChangePropertyRewriteAction *asChangePropertyRewriteAction() { return 0; }
+    virtual ChangeTypeRewriteAction *asChangeTypeRewriteAction() { return 0; }
+    virtual RemoveImportRewriteAction * asRemoveImportRewriteAction() { return 0; }
+    virtual RemoveNodeRewriteAction *asRemoveNodeRewriteAction() { return 0; }
+    virtual RemovePropertyRewriteAction *asRemovePropertyRewriteAction() { return 0; }
+    virtual ReparentNodeRewriteAction *asReparentNodeRewriteAction() { return 0; }
+    virtual MoveNodeRewriteAction *asMoveNodeRewriteAction() { return 0; }
 
 protected:
     RewriteAction()
@@ -85,7 +85,7 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual AddPropertyRewriteAction const *asAddPropertyRewriteAction() const { return this; }
+    virtual AddPropertyRewriteAction *asAddPropertyRewriteAction() { return this; }
 
     AbstractProperty property() const
     { return m_property; }
@@ -116,7 +116,7 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual ChangeIdRewriteAction const *asChangeIdRewriteAction() const { return this; }
+    virtual ChangeIdRewriteAction *asChangeIdRewriteAction() { return this; }
 
     ModelNode node() const
     { return m_node; }
@@ -137,7 +137,7 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual ChangePropertyRewriteAction const *asChangePropertyRewriteAction() const { return this; }
+    virtual ChangePropertyRewriteAction *asChangePropertyRewriteAction() { return this; }
 
     AbstractProperty property() const
     { return m_property; }
@@ -168,7 +168,7 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual ChangeTypeRewriteAction const *asChangeTypeRewriteAction() const { return this; }
+    virtual ChangeTypeRewriteAction *asChangeTypeRewriteAction() { return this; }
 
     ModelNode node() const
     { return m_node; }
@@ -187,7 +187,7 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual RemoveNodeRewriteAction const *asRemoveNodeRewriteAction() const { return this; }
+    virtual RemoveNodeRewriteAction *asRemoveNodeRewriteAction() { return this; }
 
     ModelNode node() const
     { return m_node; }
@@ -206,7 +206,7 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual RemovePropertyRewriteAction const *asRemovePropertyRewriteAction() const { return this; }
+    virtual RemovePropertyRewriteAction *asRemovePropertyRewriteAction() { return this; }
 
     AbstractProperty property() const
     { return m_property; }
@@ -218,17 +218,23 @@ private:
 class ReparentNodeRewriteAction: public RewriteAction
 {
 public:
-    ReparentNodeRewriteAction(const ModelNode &node, const AbstractProperty &targetProperty, QmlDesigner::QmlRefactoring::PropertyType propertyType):
-            m_node(node), m_targetProperty(targetProperty), m_propertyType(propertyType)
+    ReparentNodeRewriteAction(const ModelNode &node, const ModelNode &oldParent, const AbstractProperty &targetProperty, QmlDesigner::QmlRefactoring::PropertyType propertyType):
+            m_node(node), m_oldParent(oldParent), m_targetProperty(targetProperty), m_propertyType(propertyType)
     {}
 
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual ReparentNodeRewriteAction const *asReparentNodeRewriteAction() const { return this; }
+    virtual ReparentNodeRewriteAction *asReparentNodeRewriteAction() { return this; }
 
     ModelNode reparentedNode() const
     { return m_node; }
+
+    ModelNode oldParent() const
+    { return m_oldParent; }
+
+    void setOldParent(const ModelNode &oldParent)
+    { m_oldParent = oldParent; }
 
     AbstractProperty targetProperty() const
     { return m_targetProperty; }
@@ -238,6 +244,7 @@ public:
 
 private:
     ModelNode m_node;
+    ModelNode m_oldParent;
     AbstractProperty m_targetProperty;
     QmlDesigner::QmlRefactoring::PropertyType m_propertyType;
 };
@@ -252,7 +259,7 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual MoveNodeRewriteAction const *asMoveNodeRewriteAction() const { return this; }
+    virtual MoveNodeRewriteAction *asMoveNodeRewriteAction() { return this; }
 
 private:
     ModelNode m_movingNode;
@@ -269,7 +276,7 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual AddImportRewriteAction const *asAddImportRewriteAction() const { return this; }
+    virtual AddImportRewriteAction *asAddImportRewriteAction() { return this; }
 
     Import import() const { return m_import; }
 
@@ -287,7 +294,7 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
     virtual QString info() const;
 
-    virtual RemoveImportRewriteAction const *asRemoveImportRewriteAction() const { return this; }
+    virtual RemoveImportRewriteAction *asRemoveImportRewriteAction() { return this; }
 
     Import import() const { return m_import; }
 

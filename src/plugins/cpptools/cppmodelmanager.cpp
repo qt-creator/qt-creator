@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include <cplusplus/pp.h>
-#include <cplusplus/CppBindings.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/CheckUndefinedSymbols.h>
 
@@ -291,18 +290,6 @@ public:
     void operator()()
     {
         _doc->check(_mode);
-
-        if (_mode == Document::FullCheck) {
-            // run the binding pass
-            NamespaceBindingPtr ns = bind(_doc, _snapshot);
-
-            // check for undefined symbols.
-            CheckUndefinedSymbols checkUndefinedSymbols(_doc);
-            checkUndefinedSymbols.setGlobalNamespaceBinding(ns);
-
-            checkUndefinedSymbols(_doc->translationUnit()->ast()); // ### FIXME
-        }
-
         _doc->releaseTranslationUnit();
 
         if (_modelManager)
@@ -804,8 +791,7 @@ QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol,
                                        CPlusPlus::Document::Ptr doc,
                                        const CPlusPlus::Snapshot &snapshot)
 {
-    NamespaceBindingPtr glo = bind(doc, snapshot);
-    return m_findReferences->references(DeprecatedLookupContext::canonicalSymbol(symbol, glo.data()), doc, snapshot);
+    return m_findReferences->references(symbol, doc, snapshot);
 }
 
 void CppModelManager::findUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol)

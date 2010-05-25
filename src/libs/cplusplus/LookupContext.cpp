@@ -30,7 +30,6 @@
 #include "LookupContext.h"
 #include "ResolveExpression.h"
 #include "Overview.h"
-#include "CppBindings.h"
 #include "DeprecatedGenTemplateInstance.h"
 
 #include <CoreTypes.h>
@@ -186,10 +185,8 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
     if (! name)
         return candidates;
 
-    const Identifier *id = name->identifier();
-
     for (; scope; scope = scope->enclosingScope()) {
-        if (id && scope->isBlockScope()) {
+        if ((name->isNameId() || name->isTemplateNameId()) && scope->isBlockScope()) {
             bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0);
 
             if (! candidates.isEmpty())
@@ -215,22 +212,48 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
         } else if (scope->isFunctionScope()) {
             Function *fun = scope->owner()->asFunction();
             bindings()->lookupInScope(name, fun->arguments(), &candidates, /*templateId = */ 0);
+
+            for (TemplateParameters *it = fun->templateParameters(); it && candidates.isEmpty(); it = it->previous())
+                bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0);
+
             if (! candidates.isEmpty())
-                break; // it's a formal argument.
+                break; // it's an argument or a template parameter.
 
             if (fun->name() && fun->name()->isQualifiedNameId()) {
-                if (ClassOrNamespace *binding = bindings()->lookupType(fun))
-                    return binding->lookup(name);
+                if (ClassOrNamespace *binding = bindings()->lookupType(fun)) {
+                    candidates = binding->lookup(name);
+
+                    if (! candidates.isEmpty())
+                        return candidates;
+                }
             }
+
+            // contunue, and look at the enclosing scope.
 
         } else if (scope->isObjCMethodScope()) {
             ObjCMethod *method = scope->owner()->asObjCMethod();
             bindings()->lookupInScope(name, method->arguments(), &candidates, /*templateId = */ 0);
+
             if (! candidates.isEmpty())
                 break; // it's a formal argument.
 
-        } else if (scope->isClassScope() || scope->isNamespaceScope()
-                    || scope->isObjCClassScope() || scope->isObjCProtocolScope()) {
+        } else if (scope->isClassScope()) {
+            Class *klass = scope->owner()->asClass();
+
+            for (TemplateParameters *it = klass->templateParameters(); it && candidates.isEmpty(); it = it->previous())
+                bindings()->lookupInScope(name, it->scope(), &candidates, /* templateId = */ 0);
+
+            if (! candidates.isEmpty())
+                break; // it's an argument or a template parameter.
+
+            if (ClassOrNamespace *binding = bindings()->lookupType(klass)) {
+                candidates = binding->lookup(name);
+
+                if (! candidates.isEmpty())
+                    return candidates;
+            }
+
+        } else if (scope->isNamespaceScope() || scope->isObjCClassScope() || scope->isObjCProtocolScope()) {
             if (ClassOrNamespace *binding = bindings()->lookupType(scope->owner()))
                 return binding->lookup(name);
 
@@ -457,6 +480,18 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
 
             if (ClassOrNamespace *e = nestedType(name))
                 return e;
+
+            else if (_templateId) {
+                if (_usings.size() == 1) {
+                    ClassOrNamespace *delegate = _usings.first();
+
+                    if (ClassOrNamespace *r = delegate->lookupType_helper(name, processed, /*searchInEnclosingScope = */ true))
+                        return r;
+                } else {
+                    if (debug)
+                        qWarning() << "expected one using declaration. Number of using declarations is:" << _usings.size();
+                }
+            }
 
             foreach (ClassOrNamespace *u, usings()) {
                 if (ClassOrNamespace *r = u->lookupType_helper(name, processed, /*searchInEnclosingScope =*/ false))

@@ -48,7 +48,6 @@
 #include <TranslationUnit.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cplusplus/DeprecatedLookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/OverviewModel.h>
 #include <cplusplus/SimpleLexer.h>
@@ -56,7 +55,7 @@
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
-#include <cplusplus/CppBindings.h>
+#include <cplusplus/CheckUndefinedSymbols.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
@@ -264,6 +263,10 @@ protected:
 
     bool findMemberForToken(unsigned tokenIdx, NameAST *ast)
     {
+        const Token &tok = tokenAt(tokenIdx);
+        if (tok.generated())
+            return false;
+
         unsigned line, column;
         getTokenStartPosition(tokenIdx, &line, &column);
 
@@ -301,6 +304,10 @@ protected:
     {
         for (TemplateArgumentListAST *arg = ast->template_argument_list; arg; arg = arg->next)
             accept(arg->value);
+
+        const Token &tok = tokenAt(ast->identifier_token);
+        if (tok.generated())
+            return false;
 
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);
@@ -837,13 +844,17 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
 
-    const QList<LookupItem> results = typeOfExpression(code, doc->scopeAt(line, col),
-                                                       TypeOfExpression::Preprocess);
+    Scope *scope = doc->scopeAt(line, col);
 
-    NamespaceBindingPtr glo = bind(doc, snapshot);
-    Symbol *canonicalSymbol = DeprecatedLookupContext::canonicalSymbol(results, glo.data());
+    const QList<LookupItem> results = typeOfExpression(code, scope, TypeOfExpression::Preprocess);
+    for (int i = results.size() - 1; i != -1; --i) { // ### TODO virtual methods and classes.
+        const LookupItem &r = results.at(i);
 
-    return canonicalSymbol;
+        if (r.declaration())
+            return r.declaration();
+    }
+
+    return 0;
 }
 
 const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor,
@@ -925,13 +936,13 @@ void CPPEditor::renameUsagesNow()
 
 Symbol *CPPEditor::markSymbols()
 {
-    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+    //updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
     abortRename();
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    SemanticInfo info = m_lastSemanticInfo;
+    const SemanticInfo info = m_lastSemanticInfo;
 
     Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot);
     if (canonicalSymbol) {
@@ -1780,6 +1791,7 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     m_occurrencesUnusedFormat.clearForeground();
     m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
     m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
+    m_typeFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TYPE));
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
@@ -1839,7 +1851,8 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         return;
     }
 
-    m_lastSemanticInfo = semanticInfo;
+    const SemanticInfo previousSemanticInfo = m_lastSemanticInfo;
+    m_lastSemanticInfo = semanticInfo; // update the semantic info
 
     int line = 0, column = 0;
     convertPosition(position(), &line, &column);
@@ -1871,8 +1884,47 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
             highlightUses(uses, semanticInfo, &m_renameSelections);
     }
 
+    if (m_lastSemanticInfo.forced || previousSemanticInfo.revision != semanticInfo.revision) {
+        QList<QTextEdit::ExtraSelection> undefinedSymbolSelections;
+        foreach (const Document::DiagnosticMessage &m, semanticInfo.diagnosticMessages) {
+            QTextCursor cursor(document());
+            cursor.setPosition(document()->findBlockByNumber(m.line() - 1).position() + m.column() - 1);
+            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
+
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = cursor;
+            sel.format.setUnderlineColor(Qt::darkYellow); // ### hardcoded
+            sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline); // ### hardcoded
+            sel.format.setToolTip(m.text());
+            undefinedSymbolSelections.append(sel);
+        }
+
+        setExtraSelections(UndefinedSymbolSelection, undefinedSymbolSelections);
+
+        QList<QTextEdit::ExtraSelection> typeSelections;
+        foreach (const SemanticInfo::Use &use, semanticInfo.typeUsages) {
+            QTextCursor cursor(document());
+            cursor.setPosition(document()->findBlockByNumber(use.line - 1).position() + use.column - 1);
+            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
+
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = cursor;
+            sel.format = m_typeFormat;
+            typeSelections.append(sel);
+        }
+
+        setExtraSelections(TypeSelection, typeSelections);
+
+    }
+
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
-    setExtraSelections(CodeSemanticsSelection, m_renameSelections);
+
+    if (! m_renameSelections.isEmpty())
+        setExtraSelections(CodeSemanticsSelection, m_renameSelections); // ###
+    else
+        markSymbols();
+
+    m_lastSemanticInfo.forced = false; // clear the forced flag
 }
 
 SemanticHighlighter::Source CPPEditor::currentSource(bool force)
@@ -1964,20 +2016,34 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
 
     Snapshot snapshot;
     Document::Ptr doc;
+    QList<Document::DiagnosticMessage> diagnosticMessages;
+    QList<SemanticInfo::Use> typeUsages;
 
     if (! source.force && revision == source.revision) {
         m_mutex.lock();
-        snapshot = m_lastSemanticInfo.snapshot;
+        snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
         doc = m_lastSemanticInfo.doc;
+        diagnosticMessages = m_lastSemanticInfo.diagnosticMessages;
+        typeUsages = m_lastSemanticInfo.typeUsages;
         m_mutex.unlock();
     }
 
     if (! doc) {
-        const QByteArray preprocessedCode = source.snapshot.preprocessedCode(source.code, source.fileName);
-
         snapshot = source.snapshot;
-        doc = source.snapshot.documentFromSource(preprocessedCode, source.fileName);
+        const QByteArray preprocessedCode = snapshot.preprocessedCode(source.code, source.fileName);
+
+        doc = snapshot.documentFromSource(preprocessedCode, source.fileName);
         doc->check();
+
+        LookupContext context(doc, snapshot);
+
+        if (TranslationUnit *unit = doc->translationUnit()) {
+            CheckUndefinedSymbols checkUndefinedSymbols(unit, context);
+            diagnosticMessages = checkUndefinedSymbols(unit->ast());
+            typeUsages.clear();
+            foreach (const CheckUndefinedSymbols::Use &use, checkUndefinedSymbols.typeUsages()) // ### remove me
+                typeUsages.append(SemanticInfo::Use(use.line, use.column, use.length));
+        }
     }
 
     TranslationUnit *translationUnit = doc->translationUnit();
@@ -1996,6 +2062,9 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.localUses = useTable.localUses;
     semanticInfo.hasQ = useTable.hasQ;
     semanticInfo.hasD = useTable.hasD;
+    semanticInfo.forced = source.force;
+    semanticInfo.diagnosticMessages = diagnosticMessages;
+    semanticInfo.typeUsages = typeUsages;
 
     return semanticInfo;
 }

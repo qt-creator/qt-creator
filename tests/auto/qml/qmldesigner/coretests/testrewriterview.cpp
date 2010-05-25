@@ -37,8 +37,8 @@ using namespace QmlDesigner::Internal;
 
 bool TestModelToTextMerger::isNodeScheduledForRemoval(const ModelNode &node) const
 {
-    foreach (const RewriteAction *action, scheduledRewriteActions()) {
-        if (RemoveNodeRewriteAction const *removeAction = action->asRemoveNodeRewriteAction()) {
+    foreach (RewriteAction *action, scheduledRewriteActions()) {
+        if (RemoveNodeRewriteAction *removeAction = action->asRemoveNodeRewriteAction()) {
             if (removeAction->node() == node)
                 return true;
         }
@@ -49,14 +49,14 @@ bool TestModelToTextMerger::isNodeScheduledForRemoval(const ModelNode &node) con
 
 bool TestModelToTextMerger::isNodeScheduledForAddition(const ModelNode &node) const
 {
-    foreach (const RewriteAction *action, scheduledRewriteActions()) {
-        if (AddPropertyRewriteAction const *addPropertyAction = action->asAddPropertyRewriteAction()) {
+    foreach (RewriteAction *action, scheduledRewriteActions()) {
+        if (AddPropertyRewriteAction *addPropertyAction = action->asAddPropertyRewriteAction()) {
             const AbstractProperty property = addPropertyAction->property();
             if (property.isNodeProperty() && property.toNodeProperty().modelNode() == node)
                 return true;
             else if (property.isNodeListProperty() && property.toNodeListProperty().toModelNodeList().contains(node))
                 return true;
-        } else if (ChangePropertyRewriteAction const *changePropertyAction = action->asChangePropertyRewriteAction()) {
+        } else if (ChangePropertyRewriteAction *changePropertyAction = action->asChangePropertyRewriteAction()) {
             const AbstractProperty property = changePropertyAction->property();
             if (property.isNodeProperty() && property.toNodeProperty().modelNode() == node)
                 return true;
@@ -71,8 +71,8 @@ bool TestModelToTextMerger::isNodeScheduledForAddition(const ModelNode &node) co
 
 VariantProperty TestModelToTextMerger::findAddedVariantProperty(const VariantProperty &property) const
 {
-    foreach (const RewriteAction *action, scheduledRewriteActions()) {
-        if (AddPropertyRewriteAction const * addPropertyAction = action->asAddPropertyRewriteAction()) {
+    foreach (RewriteAction *action, scheduledRewriteActions()) {
+        if (AddPropertyRewriteAction *addPropertyAction = action->asAddPropertyRewriteAction()) {
             const AbstractProperty candidate = addPropertyAction->property();
 
             if (property.isVariantProperty() && property.toVariantProperty() == property)
