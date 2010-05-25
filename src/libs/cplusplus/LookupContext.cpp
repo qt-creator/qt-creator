@@ -30,7 +30,6 @@
 #include "LookupContext.h"
 #include "ResolveExpression.h"
 #include "Overview.h"
-#include "CppBindings.h"
 #include "DeprecatedGenTemplateInstance.h"
 
 #include <CoreTypes.h>
@@ -186,10 +185,8 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
     if (! name)
         return candidates;
 
-    const Identifier *id = name->identifier();
-
     for (; scope; scope = scope->enclosingScope()) {
-        if (id && scope->isBlockScope()) {
+        if ((name->isNameId() || name->isTemplateNameId()) && scope->isBlockScope()) {
             bindings()->lookupInScope(name, scope, &candidates, /*templateId = */ 0);
 
             if (! candidates.isEmpty())

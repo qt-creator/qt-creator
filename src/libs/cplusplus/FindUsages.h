@@ -32,7 +32,6 @@
 
 #include "LookupContext.h"
 #include "CppDocument.h"
-#include "CppBindings.h"
 #include "Semantic.h"
 #include "TypeOfExpression.h"
 #include <ASTVisitor.h>
@@ -62,8 +61,6 @@ class CPLUSPLUS_EXPORT FindUsages: protected ASTVisitor
 public:
     FindUsages(Document::Ptr doc, const Snapshot &snapshot);
 
-    void setGlobalNamespaceBinding(NamespaceBindingPtr globalNamespaceBinding);
-
     void operator()(Symbol *symbol);
 
     QList<Usage> usages() const;
@@ -79,9 +76,7 @@ protected:
     void reportResult(unsigned tokenIndex, const QList<Symbol *> &candidates);
     void reportResult(unsigned tokenIndex);
 
-    bool checkSymbol(Symbol *symbol) const;
     bool checkCandidates(const QList<Symbol *> &candidates) const;
-    bool checkScope(Symbol *symbol, Symbol *otherSymbol) const;
     void checkExpression(unsigned startToken, unsigned endToken);
 
     void ensureNameIsValid(NameAST *ast);
@@ -112,7 +107,6 @@ private:
     QByteArray _source;
     Document::Ptr _exprDoc;
     Semantic _sem;
-    NamespaceBindingPtr _globalNamespaceBinding;
     QList<PostfixExpressionAST *> _postfixExpressionStack;
     QList<QualifiedNameAST *> _qualifiedNameStack;
     QList<int> _references;

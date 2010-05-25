@@ -37,7 +37,6 @@ HEADERS += \
     $$PWD/LookupItem.h \
     $$PWD/LookupContext.h \
     $$PWD/DeprecatedLookupContext.h \
-    $$PWD/CppBindings.h \
     $$PWD/ASTParent.h \
     $$PWD/DeprecatedGenTemplateInstance.h \
     $$PWD/FindUsages.h \
@@ -64,7 +63,6 @@ SOURCES += \
     $$PWD/LookupItem.cpp \
     $$PWD/LookupContext.cpp \
     $$PWD/DeprecatedLookupContext.cpp \
-    $$PWD/CppBindings.cpp \
     $$PWD/ASTParent.cpp \
     $$PWD/DeprecatedGenTemplateInstance.cpp \
     $$PWD/FindUsages.cpp \

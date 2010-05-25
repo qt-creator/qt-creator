@@ -791,8 +791,7 @@ QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol,
                                        CPlusPlus::Document::Ptr doc,
                                        const CPlusPlus::Snapshot &snapshot)
 {
-    NamespaceBindingPtr glo = bind(doc, snapshot);
-    return m_findReferences->references(DeprecatedLookupContext::canonicalSymbol(symbol, glo.data()), doc, snapshot);
+    return m_findReferences->references(symbol, doc, snapshot);
 }
 
 void CppModelManager::findUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol)

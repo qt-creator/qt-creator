@@ -48,7 +48,6 @@
 #include <TranslationUnit.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/TypeOfExpression.h>
-#include <cplusplus/DeprecatedLookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/OverviewModel.h>
 #include <cplusplus/SimpleLexer.h>
@@ -56,7 +55,6 @@
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
-#include <cplusplus/CppBindings.h>
 #include <cplusplus/CheckUndefinedSymbols.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -846,13 +844,17 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     TypeOfExpression typeOfExpression;
     typeOfExpression.init(doc, snapshot);
 
-    const QList<LookupItem> results = typeOfExpression(code, doc->scopeAt(line, col),
-                                                       TypeOfExpression::Preprocess);
+    Scope *scope = doc->scopeAt(line, col);
 
-    NamespaceBindingPtr glo = bind(doc, snapshot);
-    Symbol *canonicalSymbol = DeprecatedLookupContext::canonicalSymbol(results, glo.data());
+    const QList<LookupItem> results = typeOfExpression(code, scope, TypeOfExpression::Preprocess);
+    for (int i = results.size() - 1; i != -1; --i) { // ### TODO virtual methods and classes.
+        const LookupItem &r = results.at(i);
 
-    return canonicalSymbol;
+        if (r.declaration())
+            return r.declaration();
+    }
+
+    return 0;
 }
 
 const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor,
@@ -934,13 +936,13 @@ void CPPEditor::renameUsagesNow()
 
 Symbol *CPPEditor::markSymbols()
 {
-    updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+    //updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
     abortRename();
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    SemanticInfo info = m_lastSemanticInfo;
+    const SemanticInfo info = m_lastSemanticInfo;
 
     Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot);
     if (canonicalSymbol) {
@@ -1916,7 +1918,11 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
     }
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
-    setExtraSelections(CodeSemanticsSelection, m_renameSelections); // ###
+
+    if (! m_renameSelections.isEmpty())
+        setExtraSelections(CodeSemanticsSelection, m_renameSelections); // ###
+    else
+        markSymbols();
 
     m_lastSemanticInfo.forced = false; // clear the forced flag
 }
