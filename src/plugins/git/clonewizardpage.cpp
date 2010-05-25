@@ -114,7 +114,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CloneWizardPage::createCheckoutJob(
      args.pop_front();
      VCSBase::AbstractCheckoutJob *job =
              new VCSBase::ProcessCheckoutJob(binary, args, workingDirectory,
-                                             client->processEnvironment().toStringList());
+                                             client->processEnvironment());
      return QSharedPointer<VCSBase::AbstractCheckoutJob>(job);
 }
 

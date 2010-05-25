@@ -46,7 +46,7 @@ struct ProcessCheckoutJobPrivate {
     ProcessCheckoutJobPrivate(const QString &binary,
                               const QStringList &args,
                               const QString &workingDirectory,
-                              const QStringList &env);
+                              QProcessEnvironment env);
 
     QSharedPointer<QProcess> process;
     const QString binary;
@@ -65,16 +65,13 @@ static inline QSharedPointer<QProcess> createProcess()
 ProcessCheckoutJobPrivate::ProcessCheckoutJobPrivate(const QString &b,
                               const QStringList &a,
                               const QString &workingDirectory,
-                              const QStringList &env) :
+                              QProcessEnvironment processEnv) :
     process(createProcess()),
     binary(b),
     args(a)
 {    
     if (!workingDirectory.isEmpty())
         process->setWorkingDirectory(workingDirectory);
-    if (!env.empty())
-        process->setEnvironment(env);
-    QProcessEnvironment processEnv = process->processEnvironment();
     VCSBasePlugin::setProcessEnvironment(&processEnv);
     process->setProcessEnvironment(processEnv);
 }
@@ -82,7 +79,7 @@ ProcessCheckoutJobPrivate::ProcessCheckoutJobPrivate(const QString &b,
 ProcessCheckoutJob::ProcessCheckoutJob(const QString &binary,
                                        const QStringList &args,
                                        const QString &workingDirectory,
-                                       const QStringList &env,
+                                       const QProcessEnvironment &env,
                                        QObject *parent) :
     AbstractCheckoutJob(parent),
     d(new ProcessCheckoutJobPrivate(binary, args, workingDirectory, env))

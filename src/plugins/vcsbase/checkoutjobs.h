@@ -35,6 +35,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 #include <QtCore/QProcess>
+#include <QtCore/QProcessEnvironment>
 
 QT_BEGIN_NAMESPACE
 class QStringList;
@@ -74,7 +75,7 @@ public:
     explicit ProcessCheckoutJob(const QString &binary,
                                 const QStringList &args,
                                 const QString &workingDirectory = QString(),
-                                const QStringList &env = QStringList(),
+                                const QProcessEnvironment &env = QProcessEnvironment::systemEnvironment(),
                                 QObject *parent = 0);
     virtual ~ProcessCheckoutJob();
 

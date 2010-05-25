@@ -43,17 +43,24 @@ static const char sshPasswordPromptKeyC[] = "SshPasswordPrompt";
 static const int lineWrapWidthDefault = 72;
 static const bool lineWrapDefault = true;
 
+// Return default for the ssh-askpass command (default to environment)
+static inline QString sshPasswordPromptDefault()
+{
+    const QByteArray envSetting = qgetenv("SSH_ASKPASS");
+    if (!envSetting.isEmpty())
+        return QString::fromLocal8Bit(envSetting);
 #ifdef Q_OS_WIN
-static const char sshPasswordPromptDefaultC[] = "win-ssh-askpass";
+    return QLatin1String("win-ssh-askpass");
 #else
-static const char sshPasswordPromptDefaultC[] = "ssh-askpass";
+    return QLatin1String("ssh-askpass");
 #endif
+}
 
 namespace VCSBase {
 namespace Internal {
 
 CommonVcsSettings::CommonVcsSettings() :
-    sshPasswordPrompt(QLatin1String(sshPasswordPromptDefaultC)),
+    sshPasswordPrompt(sshPasswordPromptDefault()),
     lineWrap(lineWrapDefault),
     lineWrapWidth(lineWrapWidthDefault)
 {
@@ -67,7 +74,12 @@ void CommonVcsSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(submitMessageCheckScriptKeyC), submitMessageCheckScript);
     s->setValue(QLatin1String(lineWrapKeyC), lineWrap);
     s->setValue(QLatin1String(lineWrapWidthKeyC), lineWrapWidth);
-    s->setValue(QLatin1String(sshPasswordPromptKeyC), sshPasswordPrompt);
+    // Do not store the default setting to avoid clobbering the environment.
+    if (sshPasswordPrompt != sshPasswordPromptDefault()) {
+        s->setValue(QLatin1String(sshPasswordPromptKeyC), sshPasswordPrompt);
+    } else {
+        s->remove(QLatin1String(sshPasswordPromptKeyC));
+    }
     s->endGroup();
 }
 
@@ -79,7 +91,7 @@ void CommonVcsSettings::fromSettings(QSettings *s)
     submitMessageCheckScript = s->value(QLatin1String(submitMessageCheckScriptKeyC), QString()).toString();
     lineWrap = s->value(QLatin1String(lineWrapKeyC), lineWrapDefault).toBool();
     lineWrapWidth = s->value(QLatin1String(lineWrapWidthKeyC), lineWrapWidthDefault).toInt();
-    sshPasswordPrompt = s->value(QLatin1String(sshPasswordPromptKeyC), QLatin1String(sshPasswordPromptDefaultC)).toString();
+    sshPasswordPrompt = s->value(QLatin1String(sshPasswordPromptKeyC), sshPasswordPromptDefault()).toString();
     s->endGroup();
 }
 
