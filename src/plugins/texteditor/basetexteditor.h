@@ -340,6 +340,7 @@ public:
         FakeVimSelection,
         OtherSelection,
         SnippetPlaceholderSelection,
+        TypeSelection,
         NExtraSelectionKinds
     };
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);

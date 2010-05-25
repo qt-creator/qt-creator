@@ -88,7 +88,8 @@ public:
     bool forced: 1;
     CPlusPlus::Snapshot snapshot;
     CPlusPlus::Document::Ptr doc;
-    LocalUseMap localUses;
+    LocalUseMap localUses; // ### rename
+    QList<Use> typeUsages;
     QList<CPlusPlus::Document::DiagnosticMessage> diagnosticMessages;
 };
 
@@ -299,6 +300,7 @@ private:
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;
+    QTextCharFormat m_typeFormat;
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;

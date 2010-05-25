@@ -153,12 +153,10 @@ bool CheckStatement::visit(ExpressionOrDeclarationStatementAST *ast)
 {
 //    translationUnit()->warning(ast->firstToken(),
 //                               "ambiguous expression or declaration statement");
-    if (ast->declaration) {
-        semantic()->check(ast->declaration, _scope);
-        _exprType = FullySpecifiedType();
-    } else {
-        _exprType = semantic()->check(ast->expression, _scope);
-    }
+
+    semantic()->check(ast->declaration, _scope);
+    _exprType = semantic()->check(ast->expression, _scope);
+
     return false;
 }
 

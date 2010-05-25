@@ -779,12 +779,9 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                     if (! env->isBuiltinMacro(spell)) {
                         Macro *m = env->resolve(spell);
                         if (m && ! m->isFunctionLike()) {
-                            QByteArray expandedDefinition;
-                            expandObjectLikeMacro(identifierToken, spell, m, &expandedDefinition);
-                            if (expandedDefinition.trimmed().isEmpty()) {
-                                out(QByteArray(spell.length(), ' '));
-                                continue;
-                            }
+                            // expand object-like macros.
+                            processObjectLikeMacro(identifierToken, spell, m);
+                            continue;
                         }
                     }
                     out(spell);

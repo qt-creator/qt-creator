@@ -128,12 +128,14 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<Symbol *> &candid
 
 void FindUsages::reportResult(unsigned tokenIndex)
 {
-    if (_processed.contains(tokenIndex))
+    const Token &tk = tokenAt(tokenIndex);
+    if (tk.generated())
+        return;
+    else if (_processed.contains(tokenIndex))
         return;
 
     _processed.insert(tokenIndex);
 
-    const Token &tk = tokenAt(tokenIndex);
     const QString lineText = matchingLine(tk);
 
     unsigned line, col;

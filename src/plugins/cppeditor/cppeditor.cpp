@@ -265,6 +265,10 @@ protected:
 
     bool findMemberForToken(unsigned tokenIdx, NameAST *ast)
     {
+        const Token &tok = tokenAt(tokenIdx);
+        if (tok.generated())
+            return false;
+
         unsigned line, column;
         getTokenStartPosition(tokenIdx, &line, &column);
 
@@ -302,6 +306,10 @@ protected:
     {
         for (TemplateArgumentListAST *arg = ast->template_argument_list; arg; arg = arg->next)
             accept(arg->value);
+
+        const Token &tok = tokenAt(ast->identifier_token);
+        if (tok.generated())
+            return false;
 
         unsigned line, column;
         getTokenStartPosition(ast->firstToken(), &line, &column);
@@ -1781,6 +1789,7 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     m_occurrencesUnusedFormat.clearForeground();
     m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
     m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
+    m_typeFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TYPE));
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
@@ -1889,6 +1898,21 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         }
 
         setExtraSelections(UndefinedSymbolSelection, undefinedSymbolSelections);
+
+        QList<QTextEdit::ExtraSelection> typeSelections;
+        foreach (const SemanticInfo::Use &use, semanticInfo.typeUsages) {
+            QTextCursor cursor(document());
+            cursor.setPosition(document()->findBlockByNumber(use.line - 1).position() + use.column - 1);
+            cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
+
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = cursor;
+            sel.format = m_typeFormat;
+            typeSelections.append(sel);
+        }
+
+        setExtraSelections(TypeSelection, typeSelections);
+
     }
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
@@ -1987,12 +2011,14 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     Snapshot snapshot;
     Document::Ptr doc;
     QList<Document::DiagnosticMessage> diagnosticMessages;
+    QList<SemanticInfo::Use> typeUsages;
 
     if (! source.force && revision == source.revision) {
         m_mutex.lock();
         snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
         doc = m_lastSemanticInfo.doc;
         diagnosticMessages = m_lastSemanticInfo.diagnosticMessages;
+        typeUsages = m_lastSemanticInfo.typeUsages;
         m_mutex.unlock();
     }
 
@@ -2003,17 +2029,14 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc = snapshot.documentFromSource(preprocessedCode, source.fileName);
         doc->check();
 
-        Document::Ptr documentInSnapshot = snapshot.document(source.fileName);
-        if (! documentInSnapshot) {
-            // use the newly parsed document.
-            documentInSnapshot = doc;
-        }
-
         LookupContext context(doc, snapshot);
 
         if (TranslationUnit *unit = doc->translationUnit()) {
             CheckUndefinedSymbols checkUndefinedSymbols(unit, context);
             diagnosticMessages = checkUndefinedSymbols(unit->ast());
+            typeUsages.clear();
+            foreach (const CheckUndefinedSymbols::Use &use, checkUndefinedSymbols.typeUsages()) // ### remove me
+                typeUsages.append(SemanticInfo::Use(use.line, use.column, use.length));
         }
     }
 
@@ -2035,6 +2058,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.hasD = useTable.hasD;
     semanticInfo.forced = source.force;
     semanticInfo.diagnosticMessages = diagnosticMessages;
+    semanticInfo.typeUsages = typeUsages;
 
     return semanticInfo;
 }

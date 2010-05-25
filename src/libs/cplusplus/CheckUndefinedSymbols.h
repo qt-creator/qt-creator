@@ -33,6 +33,7 @@
 #include "CppDocument.h"
 #include "LookupContext.h"
 #include <ASTVisitor.h>
+#include <QtCore/QSet>
 
 namespace CPlusPlus {
 
@@ -44,6 +45,17 @@ public:
 
     QList<Document::DiagnosticMessage> operator()(AST *ast);
 
+    struct Use { // ### remove me
+        unsigned line;
+        unsigned column;
+        unsigned length;
+
+        Use(unsigned line = 0, unsigned column = 0, unsigned length = 0)
+            : line(line), column(column), length(length) {}
+    };
+
+    QList<Use> typeUsages() const;
+
 protected:
     using ASTVisitor::visit;
 
@@ -51,15 +63,25 @@ protected:
     bool warning(AST *ast, const QString &text);
 
     void checkNamespace(NameAST *name);
+    void addTypeUsage(ClassOrNamespace *b, NameAST *ast);
+    void addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast);
 
     virtual bool visit(UsingDirectiveAST *);
     virtual bool visit(SimpleDeclarationAST *);
     virtual bool visit(NamedTypeSpecifierAST *);
 
+    virtual bool visit(SimpleNameAST *ast);
+    virtual bool visit(DestructorNameAST *ast);
+    virtual bool visit(QualifiedNameAST *ast);
+    virtual bool visit(TemplateIdAST *ast);
+
 private:
     LookupContext _context;
     QString _fileName;
     QList<Document::DiagnosticMessage> _diagnosticMessages;
+    QSet<QByteArray> _potentialTypes;
+    QList<ScopedSymbol *> _scopes;
+    QList<Use> _typeUsages;
 };
 
 } // end of namespace CPlusPlus
