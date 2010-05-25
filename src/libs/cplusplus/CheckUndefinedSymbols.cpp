@@ -273,10 +273,24 @@ bool CheckUndefinedSymbols::warning(AST *ast, const QString &text)
     return false;
 }
 
-bool CheckUndefinedSymbols::visit(UsingDirectiveAST *ast)
+bool CheckUndefinedSymbols::visit(NamespaceAST *ast)
 {
-    checkNamespace(ast->name);
-    return false;
+    if (ast->identifier_token) {
+        const Token &tok = tokenAt(ast->identifier_token);
+        if (! tok.generated()) {
+            unsigned line, column;
+            getTokenStartPosition(ast->identifier_token, &line, &column);
+            Use use(line, column, tok.length());
+            _typeUsages.append(use);
+        }
+    }
+
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(UsingDirectiveAST *)
+{
+    return true;
 }
 
 bool CheckUndefinedSymbols::visit(SimpleDeclarationAST *)
@@ -284,29 +298,8 @@ bool CheckUndefinedSymbols::visit(SimpleDeclarationAST *)
     return true;
 }
 
-bool CheckUndefinedSymbols::visit(NamedTypeSpecifierAST *ast)
+bool CheckUndefinedSymbols::visit(NamedTypeSpecifierAST *)
 {
-#if 0
-    if (ast->name) {
-        unsigned line, column;
-        getTokenStartPosition(ast->name->firstToken(), &line, &column);
-
-        // ### use the potential types.
-        Scope *enclosingScope = _context.thisDocument()->scopeAt(line, column);
-        const QList<Symbol *> candidates = _context.lookup(ast->name->name, enclosingScope);
-
-        Symbol *ty = 0;
-        foreach (Symbol *c, candidates) {
-            if (c->isTypedef() || c->isClass() || c->isEnum()
-                    || c->isForwardClassDeclaration() || c->isTypenameArgument())
-                ty = c;
-        }
-
-        if (! ty)
-            warning(ast->name, QCoreApplication::translate("CheckUndefinedSymbols", "Expected a type-name"));
-    }
-#endif
-
     return true;
 }
 
@@ -330,7 +323,7 @@ void CheckUndefinedSymbols::checkNamespace(NameAST *name)
     warning(line, column, QCoreApplication::translate("CheckUndefinedSymbols", "Expected a namespace-name"), length);
 }
 
-bool CheckUndefinedSymbols::visit(SimpleNameAST *ast)
+void CheckUndefinedSymbols::checkName(NameAST *ast)
 {
     if (ast->name) {
         const QByteArray id = QByteArray::fromRawData(ast->name->identifier()->chars(), // ### move
@@ -345,25 +338,17 @@ bool CheckUndefinedSymbols::visit(SimpleNameAST *ast)
             addTypeUsage(candidates, ast);
         }
     }
+}
 
+bool CheckUndefinedSymbols::visit(SimpleNameAST *ast)
+{
+    checkName(ast);
     return true;
 }
 
 bool CheckUndefinedSymbols::visit(TemplateIdAST *ast)
 {
-    if (ast->name) {
-        const QByteArray id = QByteArray::fromRawData(ast->name->identifier()->chars(), // ### move
-                                                      ast->name->identifier()->size());
-        if (_potentialTypes.contains(id)) {
-            Scope *scope = CollectTypes::findScope(tokenAt(ast->firstToken()).offset, _scopes); // ### move
-            if (! scope)
-                scope = _context.thisDocument()->globalSymbols();
-
-            ClassOrNamespace *b = _context.lookupType(ast->name, scope);
-            addTypeUsage(b, ast);
-        }
-    }
-
+    checkName(ast);
     return true;
 }
 
@@ -446,7 +431,13 @@ void CheckUndefinedSymbols::addTypeUsage(const QList<Symbol *> &candidates, Name
     const unsigned length = tok.length();
 
     foreach (Symbol *c, candidates) {
-        if (c->isTypedef() || c->isClass() || c->isEnum() || c->isForwardClassDeclaration() || c->isTypenameArgument()) {
+        if (c->isUsingDeclaration()) // skip using declarations...
+            continue;
+        else if (c->isUsingNamespaceDirective()) // ... and using namespace directives.
+            continue;
+        else if (c->isTypedef() || c->isNamespace() ||
+                 c->isClass() || c->isEnum() ||
+                 c->isForwardClassDeclaration() || c->isTypenameArgument()) {
             Use use(line, column, length);
             _typeUsages.append(use);
             //qDebug() << "added use" << oo(ast->name) << line << column << length;

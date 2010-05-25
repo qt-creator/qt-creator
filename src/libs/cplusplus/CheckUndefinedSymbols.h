@@ -62,10 +62,12 @@ protected:
     bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
     bool warning(AST *ast, const QString &text);
 
+    void checkName(NameAST *ast);
     void checkNamespace(NameAST *name);
     void addTypeUsage(ClassOrNamespace *b, NameAST *ast);
     void addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast);
 
+    virtual bool visit(NamespaceAST *);
     virtual bool visit(UsingDirectiveAST *);
     virtual bool visit(SimpleDeclarationAST *);
     virtual bool visit(NamedTypeSpecifierAST *);
