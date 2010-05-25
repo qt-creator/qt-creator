@@ -94,7 +94,10 @@ void FormEditorGraphicsView::mouseMoveEvent(QMouseEvent *event)
         delete mouseEvent;
     }
 
-    m_feedbackOriginPoint = event->pos() + QPoint(50, -80);
+    // Keeps the feedback bubble within screen boundraries
+    int tx = qMin(width() - 114,  qMax(16, event->pos().x() + 50));
+    int ty = qMin(height() - 45, qMax(10, event->pos().y() - 70));
+    m_feedbackOriginPoint = QPoint(tx, ty);
 }
 
 void FormEditorGraphicsView::keyPressEvent(QKeyEvent *event)
@@ -127,6 +130,30 @@ void FormEditorGraphicsView::leaveEvent(QEvent *event)
 {
      m_feedbackOriginPoint = QPoint();
      QGraphicsView::leaveEvent(event);
+ }
+
+static QPixmap createBubblePixmap()
+{
+    QPixmap pixmap(124, 48);
+    pixmap.fill(Qt::transparent);
+    QPainter pmPainter(&pixmap);
+    pmPainter.setRenderHint(QPainter::Antialiasing);
+    pmPainter.setOpacity(0.85);
+    pmPainter.translate(0.5, 0.5);
+    pmPainter.setPen(Qt::NoPen);
+    pmPainter.setBrush(QColor(0, 0, 0, 40));
+    pmPainter.drawRoundedRect(QRect(0, 0, 124, 48), 8, 8);
+    QLinearGradient gradient(QPoint(0, 0), QPoint(0, 44));
+    gradient.setColorAt(0.0, QColor(70, 70, 70));
+    gradient.setColorAt(1.0, QColor(10, 10, 10));
+    pmPainter.setBrush(gradient);
+    pmPainter.setPen(QColor(60, 60, 60));
+    pmPainter.drawRoundedRect(QRect(2, 1, 120, 45), 5, 5);
+    pmPainter.setBrush(Qt::NoBrush);
+    pmPainter.setPen(QColor(255, 255, 255, 140));
+    pmPainter.drawRoundedRect(QRect(3, 2, 118, 43), 5, 5);
+    pmPainter.end();
+    return pixmap;
 }
 
 void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*rect*/ )
@@ -138,7 +165,6 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
         return;
 
     painter->save();
-
     painter->resetTransform();
     painter->translate(m_feedbackOriginPoint);
 
@@ -150,18 +176,9 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     font.setPixelSize(12);
     painter->setFont(font);
 
-    painter->save();
-    painter->setOpacity(0.85);
-
-    QLinearGradient gradient(QPoint(0, 0), QPoint(120, 45));
-    gradient.setColorAt(0.0, Qt::black);
-    gradient.setColorAt(1.0, Qt::darkGray);
-    painter->setBrush(gradient);
-
-    painter->setPen(Qt::black);
-    painter->drawRoundedRect(QRect(-1, -1, 120, 45), 5, 5);
-    painter->restore();
-
+    if (m_bubblePixmap.isNull())
+        m_bubblePixmap = createBubblePixmap();
+    painter->drawPixmap(-13, -7, m_bubblePixmap);
 
     if (m_beginXHasExpression) {
         if(m_feedbackNode.hasBindingProperty("x"))
@@ -175,8 +192,8 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
             painter->setPen(defaultColor);
     }
 
-    painter->drawText(QPoint(2.0, 13.0), QString("x:"));
-    painter->drawText(QPoint(14.0, 13.0), m_feedbackNode.instanceValue("x").toString());
+    painter->drawText(QPoint(8.0, 13.0), QString("x:"));
+    painter->drawText(QPoint(22.0, 13.0), m_feedbackNode.instanceValue("x").toString());
 
 
     if (m_beginYHasExpression) {
@@ -192,7 +209,7 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     }
 
     painter->drawText(QPoint(60.0, 13.0), QString("y:"));
-    painter->drawText(QPoint(70.0, 13.0), m_feedbackNode.instanceValue("y").toString());
+    painter->drawText(QPoint(72.0, 13.0), m_feedbackNode.instanceValue("y").toString());
 
 
     if (m_beginWidthHasExpression) {
@@ -207,8 +224,8 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
             painter->setPen(defaultColor);
     }
 
-    painter->drawText(QPoint(2.0, 26.0), QString("w:"));
-    painter->drawText(QPoint(14.0, 26.0), m_feedbackNode.instanceValue("width").toString());
+    painter->drawText(QPoint(8.0, 29.0), QString("w:"));
+    painter->drawText(QPoint(22.0, 29.0), m_feedbackNode.instanceValue("width").toString());
 
 
     if (m_beginHeightHasExpression) {
@@ -223,8 +240,8 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
             painter->setPen(defaultColor);
     }
 
-    painter->drawText(QPoint(60.0, 26.0), QString("h:"));
-    painter->drawText(QPoint(70.0, 26.0), m_feedbackNode.instanceValue("height").toString());
+    painter->drawText(QPoint(60.0, 29.0), QString("h:"));
+    painter->drawText(QPoint(72.0, 29.0), m_feedbackNode.instanceValue("height").toString());
 
     if (m_parentNode != m_feedbackNode.instanceParent()) {
         painter->setPen(changeColor);
