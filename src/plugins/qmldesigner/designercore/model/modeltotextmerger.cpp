@@ -149,7 +149,7 @@ void ModelToTextMerger::removeImport(const Import &import)
 void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
 {
     if (isInHierarchy(oldPropertyParent) && isInHierarchy(newPropertyParent)) { // the node is moved
-        schedule(new ReparentNodeRewriteAction(node, newPropertyParent, propertyType(newPropertyParent)));
+        schedule(new ReparentNodeRewriteAction(node, oldPropertyParent.parentModelNode(), newPropertyParent, propertyType(newPropertyParent)));
     } else if (isInHierarchy(oldPropertyParent) && !isInHierarchy(newPropertyParent)) { // the node is removed from hierarchy
         if (oldPropertyParent.isNodeProperty()) {
             // ignore, the subsequent remove property will take care of all
