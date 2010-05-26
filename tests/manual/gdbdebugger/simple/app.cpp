@@ -1591,6 +1591,17 @@ int testReference()
     return a.size() + b.size() + c.size();
 }
 
+void testPassByReferenceHelper(Foo &f)
+{
+    ++f.a;
+}
+
+void testPassByReference()
+{
+    Foo f(12);
+    testPassByReferenceHelper(f);
+}
+
 int main(int argc, char *argv[])
 {
     testPeekAndPoke3();
@@ -1638,6 +1649,7 @@ int main(int argc, char *argv[])
     testStdString();
     testStdVector();
 
+    testPassByReference();
     testPlugin();
     testQList();
     testQLinkedList();
