@@ -81,6 +81,8 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
         options += "fancy,";
     if (theDebuggerBoolSetting(AutoDerefPointers))
         options += "autoderef,";
+    if (!qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty())
+        options += "pe,";
     if (options.isEmpty())
         options += "defaults,";
     options.chop(1);
