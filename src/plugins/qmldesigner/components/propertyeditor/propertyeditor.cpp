@@ -53,8 +53,6 @@
 #include "propertyeditortransaction.h"
 #include "originwidget.h"
 
-#include <coreplugin/sidebar.h>
-
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileSystemWatcher>
