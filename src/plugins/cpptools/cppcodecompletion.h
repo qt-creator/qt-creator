@@ -147,6 +147,7 @@ private:
     QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
 
     QList<TextEditor::CompletionItem> m_completions;
+    bool m_sorted;
 };
 
 } // namespace Internal
