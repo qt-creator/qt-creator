@@ -148,7 +148,7 @@ FormEditorItem* ItemCreatorTool::calculateContainer(const QPointF &point)
     QList<QGraphicsItem *> list = scene()->items(point);
     foreach (QGraphicsItem *item, list) {
          FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-         if (formEditorItem && formEditorItem->isContainer())
+         if (formEditorItem)
              return formEditorItem;
     }
     return 0;
