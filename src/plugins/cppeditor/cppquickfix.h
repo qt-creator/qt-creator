@@ -129,8 +129,6 @@ protected:
     Range createRange(CPlusPlus::AST *ast) const; // ### rename me
     void reindent(const Range &range);
 
-    const QList<CPlusPlus::LookupItem> typeOf(CPlusPlus::ExpressionAST *ast);
-
 private:
     CPlusPlus::Document::Ptr _document;
     CPlusPlus::Snapshot _snapshot;
