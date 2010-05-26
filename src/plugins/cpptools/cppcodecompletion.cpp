@@ -661,6 +661,8 @@ static QList<TextEditor::CompletionItem> sortCompletionItems(QList<TextEditor::C
 
 int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
+    m_completions.clear();
+
     int index = startCompletionHelper(editor);
     if (index != -1) {
         m_sortedCompletions = QtConcurrent::run(sortCompletionItems, m_completions);
