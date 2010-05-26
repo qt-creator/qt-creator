@@ -45,7 +45,6 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/Control.h>
 #include <cplusplus/TranslationUnit.h>
-#include <cplusplus/DeprecatedLookupContext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>

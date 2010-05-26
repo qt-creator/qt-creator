@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "FindUsages.h"
-#include "DeprecatedLookupContext.h"
 
 #include <Control.h>
 #include <Literals.h>

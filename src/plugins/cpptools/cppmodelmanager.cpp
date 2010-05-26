@@ -76,8 +76,6 @@
 #include <Parser.h>
 #include <Control.h>
 
-#include <cplusplus/DeprecatedLookupContext.h>
-
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QMutexLocker>

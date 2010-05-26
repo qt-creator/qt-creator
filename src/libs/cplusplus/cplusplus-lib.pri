@@ -36,7 +36,6 @@ HEADERS += \
     $$PWD/ResolveExpression.h \
     $$PWD/LookupItem.h \
     $$PWD/LookupContext.h \
-    $$PWD/DeprecatedLookupContext.h \
     $$PWD/ASTParent.h \
     $$PWD/DeprecatedGenTemplateInstance.h \
     $$PWD/FindUsages.h \
@@ -62,7 +61,6 @@ SOURCES += \
     $$PWD/ResolveExpression.cpp \
     $$PWD/LookupItem.cpp \
     $$PWD/LookupContext.cpp \
-    $$PWD/DeprecatedLookupContext.cpp \
     $$PWD/ASTParent.cpp \
     $$PWD/DeprecatedGenTemplateInstance.cpp \
     $$PWD/FindUsages.cpp \

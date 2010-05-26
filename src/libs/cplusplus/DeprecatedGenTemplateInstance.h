@@ -34,8 +34,6 @@
 #include <NameVisitor.h>
 #include <FullySpecifiedType.h>
 
-#include "DeprecatedLookupContext.h"
-
 #include <QtCore/QList>
 #include <QtCore/QPair>
 
