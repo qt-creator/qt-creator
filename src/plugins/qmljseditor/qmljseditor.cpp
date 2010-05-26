@@ -1225,9 +1225,33 @@ QString QmlJSTextEditor::insertMatchingBrace(const QTextCursor &tc, const QStrin
     return QString();
 }
 
-QString QmlJSTextEditor::insertParagraphSeparator(const QTextCursor &) const
+static bool shouldInsertNewline(const QTextCursor &tc)
 {
-    return QLatin1String("}\n");
+    QTextDocument *doc = tc.document();
+    int pos = tc.selectionEnd();
+
+    // count the number of empty lines.
+    int newlines = 0;
+    for (int e = doc->characterCount(); pos != e; ++pos) {
+        const QChar ch = doc->characterAt(pos);
+
+        if (! ch.isSpace())
+            break;
+        else if (ch == QChar::ParagraphSeparator)
+            ++newlines;
+    }
+
+    if (newlines <= 1 && doc->characterAt(pos) != QLatin1Char('}'))
+        return true;
+
+    return false;
+}
+
+QString QmlJSTextEditor::insertParagraphSeparator(const QTextCursor &tc) const
+{
+    if (shouldInsertNewline(tc))
+        return QLatin1String("}\n");
+    return QLatin1String("}");
 }
 
 void QmlJSTextEditor::forceSemanticRehighlight()
