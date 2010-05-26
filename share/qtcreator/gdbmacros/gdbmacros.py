@@ -1453,9 +1453,9 @@ def qdump__QUrl(d, item):
 
 
 def qdumpHelper__QVariant(d, value):
-    #warn("VARIANT TYPE: %s : " % variantType)
     data = value["d"]["data"]
     variantType = int(value["d"]["type"])
+    #warn("VARIANT TYPE: %s : " % variantType)
     val = None
     inner = ""
     innert = ""
@@ -1597,15 +1597,18 @@ def qdumpHelper__QVariant(d, value):
 
 def qdump__QVariant(d, item):
     val, inner, innert = qdumpHelper__QVariant(d, item.value)
+    #warn("VARIANT DATA: '%s' '%s' '%s': " % (val, inner, innert))
 
-    if len(inner):
-        # Build-in types.
-        #d.putValue("(%s)" % innert)
-        d.putType("%sQVariant (%s)" % (d.ns, innert))
-        d.putNumChild(1)
-        if d.isExpanded(item):
-            with Children(d):
-                d.putItem(Item(val, item.iname, "data", "data"))
+    if len(inner): 
+        innerType = gdb.lookup_type(inner)
+        # FIXME: Why "shared"?
+        if innerType.sizeof > item.value["d"]["data"].type.sizeof:
+            v = item.value["d"]["data"]["shared"]["ptr"] \
+                .cast(innerType.pointer()).dereference()
+        else:
+            v = item.value["d"]["data"].cast(innerType)
+        d.putItemHelper(Item(v, item.iname))
+        d.putType("%sQVariant (%s)" % (d.ns, innert), d.currentTypePriority + 1)
     else:
         # User types.
         d_member = item.value["d"]
