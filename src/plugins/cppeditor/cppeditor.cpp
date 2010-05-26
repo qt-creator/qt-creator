@@ -1901,10 +1901,28 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
         setExtraSelections(UndefinedSymbolSelection, undefinedSymbolSelections);
 
+        QTextBlock currentBlock = document()->firstBlock();
+        unsigned currentLine = 1;
+
         QList<QTextEdit::ExtraSelection> typeSelections;
+
         foreach (const SemanticInfo::Use &use, semanticInfo.typeUsages) {
             QTextCursor cursor(document());
-            cursor.setPosition(document()->findBlockByNumber(use.line - 1).position() + use.column - 1);
+
+            if (currentLine != use.line) {
+                int delta = use.line - currentLine;
+
+                if (delta >= 0) {
+                    while (delta--)
+                        currentBlock = currentBlock.next();
+                } else {
+                    currentBlock = document()->findBlockByNumber(use.line - 1);
+                }
+
+                currentLine = use.line;
+            }
+
+            cursor.setPosition(currentBlock.position() + use.column - 1);
             cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
 
             QTextEdit::ExtraSelection sel;
@@ -1914,7 +1932,6 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         }
 
         setExtraSelections(TypeSelection, typeSelections);
-
     }
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
