@@ -69,7 +69,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QMap>
 #include <QtCore/QFile>
-#include <QtCore/QtConcurrentRun>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
@@ -653,22 +652,11 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
     return false;
 }
 
-static QList<TextEditor::CompletionItem> sortCompletionItems(QList<TextEditor::CompletionItem> items)
-{
-    qStableSort(items.begin(), items.end(), CppCodeCompletion::completionItemLessThan);
-    return items;
-}
-
 int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     int index = startCompletionHelper(editor);
-    if (index != -1) {
-        m_sortedCompletions = QtConcurrent::run(sortCompletionItems, m_completions);
-
-        if (m_completions.size() < 1000)
-            m_completions = m_sortedCompletions;
-    }
-
+    if (index != -1)
+        qStableSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
     return index;
 }
 
@@ -1580,14 +1568,8 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
 
     const QString key = m_editor->textAt(m_startPosition, length);
 
-    QList<TextEditor::CompletionItem> currentCompletion;
-    if (m_sortedCompletions.isFinished())
-        currentCompletion = m_sortedCompletions;
-    else
-        currentCompletion = m_completions;
-
     if (length == 0)
-        *completions = currentCompletion;
+        *completions = m_completions;
     else if (length > 0) {
         /* Close on the trailing slash for include completion, to enable the slash to
          * trigger a new completion list. */
@@ -1596,12 +1578,12 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
             return;
 
         if (m_completionOperator != T_LPAREN) {
-            filter(currentCompletion, completions, key);
+            filter(m_completions, completions, key);
 
         } else if (m_completionOperator == T_LPAREN ||
                    m_completionOperator == T_SIGNAL ||
                    m_completionOperator == T_SLOT) {
-            foreach (const TextEditor::CompletionItem &item, currentCompletion) {
+            foreach (const TextEditor::CompletionItem &item, m_completions) {
                 if (item.text.startsWith(key, Qt::CaseInsensitive)) {
                     completions->append(item);
                 }
@@ -1760,7 +1742,6 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
 
 void CppCodeCompletion::cleanup()
 {
-    m_sortedCompletions.cancel();
     m_completions.clear();
 
     // Set empty map in order to avoid referencing old versions of the documents
