@@ -3364,8 +3364,6 @@ void TestCore::testAnchorsAndRewriting()
                             "    }\n"
                             "}");
 
-    QSKIP("See BAUHAUS-729", SkipAll);
-
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
@@ -3426,8 +3424,6 @@ void TestCore::testAnchorsAndRewritingCenter()
                             "        }\n"
                             "    }\n"
                             "}");
-
-    //QSKIP("See BAUHAUS-729", SkipAll);
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);

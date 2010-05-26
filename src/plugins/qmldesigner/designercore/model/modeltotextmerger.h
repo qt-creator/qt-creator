@@ -89,7 +89,7 @@ protected:
     QList<RewriteAction *> scheduledRewriteActions() const
     { return m_rewriteActions; }
 
-    static QmlDesigner::QmlRefactoring::PropertyType propertyType(const AbstractProperty &property);
+    static QmlDesigner::QmlRefactoring::PropertyType propertyType(const AbstractProperty &property, const QString &textValue = QString());
     static QStringList getPropertyOrder();
 
     static bool isInHierarchy(const AbstractProperty &property);
