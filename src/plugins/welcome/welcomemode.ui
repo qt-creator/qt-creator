@@ -75,12 +75,6 @@ QToolButton:pressed, QPushButton:pressed{
    </property>
    <item>
     <widget class="QWidget" name="gradientWidget" native="true">
-     <property name="styleSheet">
-      <string notr="true">#gradientWidget {
-    border-image: url(:/welcome/images/welcomebg.png) 0;
-}
-</string>
-     </property>
      <layout class="QGridLayout" name="gridLayout">
       <property name="leftMargin">
        <number>0</number>
