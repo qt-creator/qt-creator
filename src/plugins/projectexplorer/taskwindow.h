@@ -86,9 +86,6 @@ struct PROJECTEXPLORER_EXPORT Task {
     // doesn't work if you split it up, nor are our parsers
     // anywhere near being that good
     QList<QTextLayout::FormatRange> formats;
-
-    /// Get the icon used to represent this task
-    QIcon icon() const;
 };
 
 class PROJECTEXPLORER_EXPORT TaskWindow : public Core::IOutputPane
@@ -127,6 +124,8 @@ public:
     bool canPrevious();
     void goToNext();
     void goToPrev();
+
+    QIcon taskTypeIcon(Task::TaskType t) const;
 
 signals:
     void tasksChanged();
