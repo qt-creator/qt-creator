@@ -177,6 +177,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
             if (ty.isDeprecated())
                 symbol->setDeprecated(true);
+            if (ty.isUnavailable())
+                symbol->setUnavailable(true);
 
             if (ty.isFriend())
                 symbol->setStorage(Symbol::Friend);
@@ -213,6 +215,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
             fun->setVirtual(ty.isVirtual());
             if (ty.isDeprecated())
                 fun->setDeprecated(true);
+            if (ty.isUnavailable())
+                fun->setUnavailable(true);
             if (isQ_SIGNAL)
                 fun->setMethodKey(Function::SignalMethod);
             else if (isQ_SLOT)
@@ -232,6 +236,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
         symbol->setType(declTy);
         if (declTy.isDeprecated())
             symbol->setDeprecated(true);
+        if (declTy.isUnavailable())
+            symbol->setUnavailable(true);
 
         if (_templateParameters && it == ast->declarator_list) {
             symbol->setTemplateParameters(_templateParameters);
@@ -257,6 +263,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
         if (ty.isDeprecated())
             symbol->setDeprecated(true);
+        if (ty.isUnavailable())
+            symbol->setUnavailable(true);
 
         if (it->value && it->value->initializer) {
             FullySpecifiedType initTy = semantic()->check(it->value->initializer, _scope);
@@ -338,6 +346,8 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     fun->setVirtual(ty.isVirtual());
     if (ty.isDeprecated())
         fun->setDeprecated(true);
+    if (ty.isUnavailable())
+        fun->setUnavailable(true);
     fun->setStartOffset(tokenAt(ast->firstToken()).offset);
     fun->setEndOffset(tokenAt(ast->lastToken()).offset);
     if (ast->declarator)
@@ -727,6 +737,8 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
     symbol->setVisibility(semantic()->currentObjCVisibility());
     if (ty.isDeprecated())
         symbol->setDeprecated(true);
+    if (ty.isUnavailable())
+        symbol->setUnavailable(true);
 
     _scope->enterSymbol(symbol);
 

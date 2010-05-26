@@ -346,6 +346,8 @@ bool CheckSpecifier::visit(ClassSpecifierAST *ast)
 
     if (_fullySpecifiedType.isDeprecated())
         klass->setDeprecated(true);
+    if (_fullySpecifiedType.isUnavailable())
+        klass->setUnavailable(true);
 
     for (BaseSpecifierListAST *it = ast->base_clause_list; it; it = it->next) {
         BaseSpecifierAST *base = it->value;

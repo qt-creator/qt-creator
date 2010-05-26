@@ -287,6 +287,9 @@ public:
     bool isDeprecated() const;
     void setDeprecated(bool isDeprecated);
 
+    bool isUnavailable() const;
+    void setUnavailable(bool isUnavailable);
+
     Symbol *enclosingSymbol() const;
 
     /// Returns the eclosing namespace scope.
@@ -332,6 +335,7 @@ private:
 
     bool _isGenerated: 1;
     bool _isDeprecated: 1;
+    bool _isUnavailable: 1;
 
     class IdentityForName;
     class HashCode;

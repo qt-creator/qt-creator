@@ -170,7 +170,9 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const 
       _scope(0),
       _index(0),
       _next(0),
-      _isGenerated(false)
+      _isGenerated(false),
+      _isDeprecated(false),
+      _isUnavailable(false)
 {
     setSourceLocation(sourceLocation, translationUnit);
     setName(name);
@@ -205,6 +207,12 @@ bool Symbol::isDeprecated() const
 
 void Symbol::setDeprecated(bool isDeprecated)
 { _isDeprecated = isDeprecated; }
+
+bool Symbol::isUnavailable() const
+{ return _isUnavailable; }
+
+void Symbol::setUnavailable(bool isUnavailable)
+{ _isUnavailable = isUnavailable; }
 
 void Symbol::setSourceLocation(unsigned sourceLocation, TranslationUnit *translationUnit)
 {
