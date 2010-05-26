@@ -40,6 +40,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QFuture>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;
@@ -149,6 +150,7 @@ private:
     QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
 
     QList<TextEditor::CompletionItem> m_completions;
+    QFuture<QList<TextEditor::CompletionItem> > m_sortedCompletions;
 };
 
 } // namespace Internal

@@ -131,13 +131,14 @@ public:
                 QList<TextEditor::CompletionItem> *filteredItems,
                 const QString &key);
 
+    static bool completionItemLessThan(const CompletionItem &item, const CompletionItem &other);
+
 public slots:
     void setCompletionSettings(const TextEditor::CompletionSettings &);
 
 protected:
     static bool compareChar(const QChar &item, const QChar &other);
     static bool lessThan(const QString &item, const QString &other);
-    static bool completionItemLessThan(const CompletionItem &item, const CompletionItem &other);
 
 private:
     Internal::ICompletionCollectorPrivate *m_d;
