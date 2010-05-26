@@ -755,7 +755,7 @@ bool CreateBindings::visit(Enum *e)
 bool CreateBindings::visit(Declaration *decl)
 {
     if (decl->isTypedef()) {
-        const FullySpecifiedType ty = decl->type();
+        FullySpecifiedType ty = decl->type();
         const Identifier *typedefId = decl->identifier();
 
         if (typedefId && ! (ty.isConst() || ty.isVolatile())) {
@@ -765,6 +765,11 @@ bool CreateBindings::visit(Declaration *decl)
                 } else if (false) {
                     Overview oo;
                     qDebug() << "found entity not found for" << oo(namedTy->name());
+                }
+            } else if (Class *klass = ty->asClassType()) {
+                if (const NameId *nameId = decl->name()->asNameId()) {
+                    ClassOrNamespace *binding = _currentClassOrNamespace->findOrCreateType(nameId);
+                    binding->addSymbol(klass);
                 }
             }
         }
