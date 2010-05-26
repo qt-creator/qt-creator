@@ -439,8 +439,12 @@ bool CheckSpecifier::visit(TypeofSpecifierAST *ast)
 bool CheckSpecifier::visit(AttributeAST *ast)
 {
     if (ast->identifier_token) {
-        if (identifier(ast->identifier_token) == control()->deprecatedId())
+        const Identifier *id = identifier(ast->identifier_token);
+
+        if (id == control()->deprecatedId())
             _fullySpecifiedType.setDeprecated(true);
+        else if (id == control()->unavailableId())
+            _fullySpecifiedType.setUnavailable(true);
     }
     return false;
 }

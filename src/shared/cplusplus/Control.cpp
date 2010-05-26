@@ -516,6 +516,7 @@ public:
     std::vector<Symbol *> symbols;
 
     const Identifier *deprecatedId;
+    const Identifier *unavailableId;
     // ObjC context keywords:
     const Identifier *objcGetterId;
     const Identifier *objcSetterId;
@@ -532,6 +533,7 @@ Control::Control()
     d = new Data(this);
 
     d->deprecatedId = findOrInsertIdentifier("deprecated");
+    d->unavailableId = findOrInsertIdentifier("unavailable");
 
     d->objcGetterId = findOrInsertIdentifier("getter");
     d->objcSetterId = findOrInsertIdentifier("setter");
@@ -735,6 +737,9 @@ ObjCPropertyDeclaration *Control::newObjCPropertyDeclaration(unsigned sourceLoca
 
 const Identifier *Control::deprecatedId() const
 { return d->deprecatedId; }
+
+const Identifier *Control::unavailableId() const
+{ return d->unavailableId; }
 
 const Identifier *Control::objcGetterId() const
 { return d->objcGetterId; }

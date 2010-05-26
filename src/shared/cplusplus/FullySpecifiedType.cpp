@@ -87,6 +87,7 @@ FullySpecifiedType FullySpecifiedType::qualifiedType() const
     ty.setExplicit(false);
 
     ty.setDeprecated(false);
+    ty.setUnavailable(false);
     return ty;
 }
 
@@ -179,6 +180,12 @@ bool FullySpecifiedType::isDeprecated() const
 
 void FullySpecifiedType::setDeprecated(bool isDeprecated)
 { f._isDeprecated = isDeprecated; }
+
+bool FullySpecifiedType::isUnavailable() const
+{ return f._isUnavailable; }
+
+void FullySpecifiedType::setUnavailable(bool isUnavailable)
+{ f._isUnavailable = isUnavailable; }
 
 bool FullySpecifiedType::isEqualTo(const FullySpecifiedType &other) const
 {

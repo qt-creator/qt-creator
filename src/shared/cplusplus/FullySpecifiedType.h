@@ -113,6 +113,9 @@ public:
     bool isDeprecated() const;
     void setDeprecated(bool isDeprecated);
 
+    bool isUnavailable() const;
+    void setUnavailable(bool isUnavailable);
+
     bool isEqualTo(const FullySpecifiedType &other) const;
 
     Type &operator*();
@@ -158,6 +161,7 @@ private:
 
         // speficiers from attributes
         unsigned _isDeprecated: 1;
+        unsigned _isUnavailable: 1;
     };
     union {
         unsigned _flags;

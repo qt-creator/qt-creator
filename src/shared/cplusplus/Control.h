@@ -177,6 +177,7 @@ public:
     ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, const Name *name);
 
     const Identifier *deprecatedId() const;
+    const Identifier *unavailableId() const;
     // Objective-C specific context keywords.
     const Identifier *objcGetterId() const;
     const Identifier *objcSetterId() const;
