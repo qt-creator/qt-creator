@@ -14,8 +14,8 @@ LRELEASE = $$targetPath($$[QT_INSTALL_BINS]/lrelease)
 
 TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
-MIME_TR_H = $$IDE_DATA_PATH/translations/mime_tr.h
-CUSTOMWIZARD_TR_H = $$IDE_DATA_PATH/translations/customwizard_tr.h
+MIME_TR_H = $$OUT_PWD/mime_tr.h
+CUSTOMWIZARD_TR_H = $$OUT_PWD/customwizard_tr.h
 
 contains(QT_VERSION, ^4\.[0-6]\..*) {
     ts.commands = @echo This Qt version is too old for the ts target. Need Qt 4.7+.
