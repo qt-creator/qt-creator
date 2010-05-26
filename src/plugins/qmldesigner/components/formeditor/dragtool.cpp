@@ -314,7 +314,7 @@ void  DragTool::move(QPointF scenePos)
    /* if (event->modifiers().testFlag(Qt::ControlModifier) != view()->isSnapButtonChecked())
         useSnapping = MoveManipulator::UseSnapping;*/
 
-    m_moveManipulator.update(scenePos, useSnapping);
+    m_moveManipulator.update(scenePos, useSnapping, MoveManipulator::UseBaseState);
 }
 
 

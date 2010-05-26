@@ -57,13 +57,18 @@ public:
         NoSnapping
     };
 
+    enum State {
+        UseActualState,
+        UseBaseState
+    };
+
     MoveManipulator(LayerItem *layerItem, FormEditorView *view);
     ~MoveManipulator();
     void setItems(const QList<FormEditorItem*> &itemList);
     void setItem(FormEditorItem* item);
 
     void begin(const QPointF& beginPoint);
-    void update(const QPointF& updatePoint, Snapping useSnapping);
+    void update(const QPointF& updatePoint, Snapping useSnapping, State stateToBeManipulated = UseActualState);
     void reparentTo(FormEditorItem *newParent);
     void end(const QPointF& endPoint);
 
