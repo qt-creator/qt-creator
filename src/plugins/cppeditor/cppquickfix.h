@@ -33,7 +33,6 @@
 #include <texteditor/icompletioncollector.h>
 
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/DeprecatedLookupContext.h>
 #include <ASTfwd.h>
 
 #include <utils/changeset.h>
@@ -136,7 +135,6 @@ private:
     Utils::ChangeSet _changeSet;
     CPPEditor *_editor;
     CPlusPlus::AST *_topLevelNode;
-    CPlusPlus::DeprecatedLookupContext _lookupContext;
 };
 
 class CPPQuickFixCollector: public TextEditor::IQuickFixCollector
