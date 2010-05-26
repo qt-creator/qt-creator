@@ -46,7 +46,6 @@
 #include <TranslationUnit.h>
 
 #include <cplusplus/ResolveExpression.h>
-#include <cplusplus/DeprecatedLookupContext.h>
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/ExpressionUnderCursor.h>
@@ -1459,11 +1458,6 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
 
     const LookupContext &context = typeOfExpression.context();
 
-    DeprecatedLookupContext depContext(typeOfExpression.scope()->owner(),
-                                       context.expressionDocument(),
-                                       context.thisDocument(),
-                                       context.snapshot());
-
     ConvertToCompletionItem toCompletionItem(this);
     Overview o;
     o.setShowReturnTypes(false);
@@ -1487,26 +1481,24 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
         if (! b)
             continue;
 
-        const QList<Symbol *> classObjects = b->symbols();
+        QList<ClassOrNamespace *>todo;
+        QSet<ClassOrNamespace *> processed;
+        QList<Scope *> scopes;
+        todo.append(b);
+        while (!todo.isEmpty()) {
+            ClassOrNamespace *binding = todo.takeLast();
+            if (!processed.contains(binding)) {
+                processed.insert(binding);
 
-        if (classObjects.isEmpty())
-            continue;
+                foreach (Symbol *s, binding->symbols())
+                    if (Class *clazz = s->asClass())
+                        scopes.append(clazz->members());
 
-        Class *klass = 0;
-        foreach (Symbol *c, classObjects) {
-            klass = c->asClass();
-            if (klass != 0)
-                break;
+                todo.append(binding->usings());
+            }
         }
 
-        if (! klass)
-            continue;
-
-        QList<Scope *> todo;
-        const QList<Scope *> visibleScopes = depContext.visibleScopes(p);
-        depContext.expand(klass->members(), visibleScopes, &todo);
-
-        foreach (Scope *scope, todo) {
+        foreach (Scope *scope, scopes) {
             if (! scope->isClassScope())
                 continue;
 
