@@ -43,7 +43,7 @@ NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
     : QStandardItemModel(parent),
       m_blockItemChangedSignal(false)
 {
-    invisibleRootItem()->setFlags(Qt::NoItemFlags);
+    invisibleRootItem()->setFlags(Qt::ItemIsDropEnabled);
 
     #ifdef _LOCK_ITEMS_
     setColumnCount(3);
