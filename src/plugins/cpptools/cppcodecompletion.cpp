@@ -445,7 +445,6 @@ CppCodeCompletion::CppCodeCompletion(CppModelManager *manager)
       m_completionOperator(T_EOF_SYMBOL),
       m_objcEnabled(true)
 {
-    m_sorted = false;
 }
 
 QIcon CppCodeCompletion::iconForSymbol(Symbol *symbol) const
@@ -655,7 +654,14 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 
 int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
-    m_sorted = false;
+    int index = startCompletionHelper(editor);
+    if (index != -1)
+        qStableSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
+    return index;
+}
+
+int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
+{
     TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
     if (! edit)
         return -1;
@@ -1592,11 +1598,6 @@ QList<TextEditor::CompletionItem> CppCodeCompletion::getCompletions()
 
     completions(&completionItems);
 
-    if (! m_sorted) {
-        qStableSort(completionItems.begin(), completionItems.end(), completionItemLessThan);
-        m_sorted = true;
-    }
-
     // Remove duplicates
     QString lastKey;
     QList<TextEditor::CompletionItem> uniquelist;
@@ -1741,7 +1742,6 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
 
 void CppCodeCompletion::cleanup()
 {
-    m_sorted = false;
     m_completions.clear();
 
     // Set empty map in order to avoid referencing old versions of the documents

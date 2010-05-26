@@ -122,6 +122,8 @@ private:
 
     int findStartOfName(int pos = -1) const;
 
+    int startCompletionHelper(TextEditor::ITextEditable *editor);
+
     int startCompletionInternal(TextEditor::BaseTextEditor *edit,
                                 const QString fileName,
                                 unsigned line, unsigned column,
@@ -147,7 +149,6 @@ private:
     QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
 
     QList<TextEditor::CompletionItem> m_completions;
-    bool m_sorted;
 };
 
 } // namespace Internal
