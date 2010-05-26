@@ -40,6 +40,7 @@
 #include <bytearraymodifier.h>
 #include <invalididexception.h>
 #include <invalidmodelnodeexception.h>
+#include <nodeproperty.h>
 #include <propertyeditor.h>
 #include <QDebug>
 #include <QDir>
@@ -51,6 +52,7 @@
 
 using namespace QmlDesigner;
 
+#include <cstdio>
 #include "../common/statichelpers.cpp"
 
 
@@ -173,7 +175,9 @@ TestPropertyEditor::TestPropertyEditor()
 
 void TestPropertyEditor::initTestCase()
 {
+#ifndef QDEBUG_IN_TESTS
     qInstallMsgHandler(testMessageOutput);
+#endif
     Exception::setShouldAssert(false);
 }
 
@@ -197,7 +201,7 @@ void TestPropertyEditor::createCoreModel()
         int numberOfProperties = view->rootModelNode().propertyNames().count();
         selectThrough(view->rootModelNode());
         QCOMPARE(view->rootModelNode().propertyNames().count(), numberOfProperties);
-    } catch (Exception &exception) {
+    } catch (Exception &) {
         QFAIL("Exception thrown");
     }
 }
@@ -307,7 +311,7 @@ void TestPropertyEditor::createRect()
         QCOMPARE(childNode.propertyNames().count(), 4);
         QCOMPARE(childNode.variantProperty("scale").value(), QVariant());
 
-    } catch (Exception &exception) {
+    } catch (Exception &) {
         QFAIL("Exception thrown");
     }
 }
