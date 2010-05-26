@@ -40,6 +40,7 @@
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "texteditorplugin.h"
+#include "highlightersettingspage.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
@@ -60,6 +61,7 @@ public:
     FontSettingsPage *m_fontSettingsPage;
     BehaviorSettingsPage *m_behaviorSettingsPage;
     DisplaySettingsPage *m_displaySettingsPage;
+    HighlighterSettingsPage *m_highlighterSettingsPage;
 
     CompletionSettings m_completionSettings;
 
@@ -160,6 +162,10 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     m_d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
     pm->addObject(m_d->m_displaySettingsPage);
 
+    m_d->m_highlighterSettingsPage =
+        new HighlighterSettingsPage(QLatin1String("E.HighlighterSettings"), this);
+    pm->addObject(m_d->m_highlighterSettingsPage);
+
     connect(m_d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
             this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
     connect(m_d->m_behaviorSettingsPage, SIGNAL(tabSettingsChanged(TextEditor::TabSettings)),
@@ -182,6 +188,7 @@ TextEditorSettings::~TextEditorSettings()
     pm->removeObject(m_d->m_fontSettingsPage);
     pm->removeObject(m_d->m_behaviorSettingsPage);
     pm->removeObject(m_d->m_displaySettingsPage);
+    pm->removeObject(m_d->m_highlighterSettingsPage);
 
     delete m_d;
 
@@ -256,6 +263,11 @@ const DisplaySettings &TextEditorSettings::displaySettings() const
 const CompletionSettings &TextEditorSettings::completionSettings() const
 {
     return m_d->m_completionSettings;
+}
+
+const HighlighterSettings &TextEditorSettings::highlighterSettings() const
+{
+    return m_d->m_highlighterSettingsPage->highlighterSettings();
 }
 
 void TextEditorSettings::setCompletionSettings(const TextEditor::CompletionSettings &settings)

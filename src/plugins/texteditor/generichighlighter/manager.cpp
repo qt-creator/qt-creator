@@ -34,6 +34,7 @@
 #include "texteditorplugin.h"
 #include "texteditorsettings.h"
 #include "plaintexteditorfactory.h"
+#include "highlightersettings.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -133,6 +134,7 @@ bool Manager::isBuildingDefinition(const QString &id) const
 
 void Manager::registerMimeTypes()
 {
+    clear();
     QFuture<Core::MimeType> future =
             QtConcurrent::run(&Manager::gatherDefinitionsMimeTypes, this);
     m_watcher.setFuture(future);
@@ -142,8 +144,8 @@ void Manager::registerMimeTypes()
 
 void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future)
 {
-    QDir definitionsDir(Core::ICore::instance()->resourcePath() +
-                        QLatin1String("/generic-highlighter"));
+    const HighlighterSettings &settings = TextEditorSettings::instance()->highlighterSettings();
+    QDir definitionsDir(settings.m_definitionFilesPath);
 
     QStringList filter(QLatin1String("*.xml"));
     definitionsDir.setNameFilters(filter);
@@ -246,4 +248,12 @@ void Manager::parseDefinitionMetadata(const QFileInfo &fileInfo,
     }
     reader.clear();
     definitionFile.close();
+}
+
+void Manager::clear()
+{
+    m_priorityComp.m_priorityById.clear();
+    m_idByName.clear();
+    m_idByMimeType.clear();
+    m_definitions.clear();
 }

@@ -37,15 +37,13 @@
 namespace TextEditor {
 
 class BaseTextEditor;
-class BehaviorSettingsPage;
-class DisplaySettingsPage;
-class FontSettingsPage;
 class FontSettings;
 struct TabSettings;
 struct StorageSettings;
 struct BehaviorSettings;
 struct DisplaySettings;
 struct CompletionSettings;
+struct HighlighterSettings;
 
 namespace Internal {
 class TextEditorSettingsPrivate;
@@ -74,6 +72,7 @@ public:
     const BehaviorSettings &behaviorSettings() const;
     const DisplaySettings &displaySettings() const;
     const CompletionSettings &completionSettings() const;
+    const HighlighterSettings &highlighterSettings() const;
 
     void setCompletionSettings(const TextEditor::CompletionSettings &);
 

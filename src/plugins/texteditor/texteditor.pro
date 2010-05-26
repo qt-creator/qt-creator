@@ -52,7 +52,9 @@ SOURCES += texteditorplugin.cpp \
     generichighlighter/highlightdefinition.cpp \
     generichighlighter/highlighter.cpp \
     generichighlighter/manager.cpp \
-    generichighlighter/highlightdefinitionhandler.cpp
+    generichighlighter/highlightdefinitionhandler.cpp \
+    generichighlighter/highlightersettingspage.cpp \
+    generichighlighter/highlightersettings.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -107,12 +109,15 @@ HEADERS += texteditorplugin.h \
     generichighlighter/highlightdefinition.h \
     generichighlighter/highlighter.h \
     generichighlighter/manager.h \
-    generichighlighter/highlightdefinitionhandler.h
+    generichighlighter/highlightdefinitionhandler.h \
+    generichighlighter/highlightersettingspage.h \
+    generichighlighter/highlightersettings.h
 
 
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \
     fontsettingspage.ui \
-    colorschemeedit.ui
+    colorschemeedit.ui \
+    generichighlighter/highlightersettingspage.ui
 RESOURCES += texteditor.qrc
 OTHER_FILES += TextEditor.pluginspec TextEditor.mimetypes.xml

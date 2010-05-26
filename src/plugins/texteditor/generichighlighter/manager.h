@@ -42,6 +42,7 @@
 QT_BEGIN_NAMESPACE
 class QFileInfo;
 class QStringList;
+class QDir;
 template <class> class QFutureInterface;
 QT_END_NAMESPACE
 
@@ -63,14 +64,17 @@ public:
     bool isBuildingDefinition(const QString &id) const;
     const QSharedPointer<HighlightDefinition> &definition(const QString &id);
 
-private slots:
+public slots:
     void registerMimeTypes();
+
+private slots:
     void registerMimeType(int index) const;
 
 private:
     Manager();
     Q_DISABLE_COPY(Manager)
 
+    void clear();
     void gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future);
     void parseDefinitionMetadata(const QFileInfo &fileInfo,
                                  QString *comment,

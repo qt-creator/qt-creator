@@ -71,9 +71,6 @@ TextEditorPlugin::TextEditorPlugin()
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
-
-    connect(Core::ICore::instance(), SIGNAL(coreOpened()),
-            Manager::instance(), SLOT(registerMimeTypes()));
 }
 
 TextEditorPlugin::~TextEditorPlugin()
@@ -144,6 +141,10 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     Core::Command *quickFixCommand = am->registerShortcut(quickFixShortcut, Constants::QUICKFIX_THIS, context);
     quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
     connect(quickFixShortcut, SIGNAL(activated()), this, SLOT(invokeQuickFix()));
+
+    // Generic highlighter.
+    connect(Core::ICore::instance(), SIGNAL(coreOpened()),
+            Manager::instance(), SLOT(registerMimeTypes()));
 
     return true;
 }
