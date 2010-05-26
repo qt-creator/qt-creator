@@ -188,12 +188,12 @@ void PropertyEditorValue::setIsValid(bool valid)
     m_isValid = valid;
 }
 
-ModelNode PropertyEditorValue::modelNode() const
+QmlDesigner::ModelNode PropertyEditorValue::modelNode() const
 {
     return m_modelNode;
 }
 
-void PropertyEditorValue::setModelNode(const ModelNode &modelNode)
+void PropertyEditorValue::setModelNode(const QmlDesigner::ModelNode &modelNode)
 {
     if (modelNode != m_modelNode) {
         m_modelNode = modelNode;
@@ -250,7 +250,7 @@ QString PropertyEditorNodeWrapper::type()
 
 }
 
-ModelNode PropertyEditorNodeWrapper::parentModelNode() const
+QmlDesigner::ModelNode PropertyEditorNodeWrapper::parentModelNode() const
 {
     return  m_editorValue->modelNode();
 }
