@@ -767,20 +767,24 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
         return -1;
 
     typeOfExpression.init(thisDocument, snapshot);
-    Symbol *lastVisibleSymbol = thisDocument->lastVisibleSymbolAt(line, column);
+
+    Scope *scope = thisDocument->scopeAt(line, column);
+    Q_ASSERT(scope != 0);
 
     if (expression.isEmpty()) {
-        if (m_completionOperator == T_EOF_SYMBOL || m_completionOperator == T_COLON_COLON)
-            return globalCompletion(lastVisibleSymbol, thisDocument, snapshot);
+        if (m_completionOperator == T_EOF_SYMBOL || m_completionOperator == T_COLON_COLON) {
+            (void) typeOfExpression(expression, scope);
+            globalCompletion(scope);
+            if (m_completions.isEmpty())
+                return -1;
+            return m_startPosition;
+        }
 
         else if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
             // Apply signal/slot completion on 'this'
             expression = QLatin1String("this");
         }
     }
-
-    Scope *scope = thisDocument->scopeAt(line, column);
-    Q_ASSERT(scope != 0);
 
     if (debug)
         qDebug() << "scope:" << scope->owner()->fileName() << scope->owner()->line() << scope->owner()->column();
@@ -871,26 +875,69 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
     return -1;
 }
 
-int CppCodeCompletion::globalCompletion(Symbol *lastVisibleSymbol,
-                                        Document::Ptr thisDocument,
-                                        const Snapshot &snapshot)
+void CppCodeCompletion::globalCompletion(Scope *currentScope)
 {
-    if (m_completionOperator == T_EOF_SYMBOL) {
-        addKeywords();
-        addMacros(thisDocument->fileName(), snapshot);
+    const LookupContext &context = typeOfExpression.context();
+
+    if (m_completionOperator == T_COLON_COLON) {
+        completeNamespace(context.globalNamespace());
+        return;
     }
 
-    Document::Ptr exprDoc = Document::create(QLatin1String("<expression>"));
-    const DeprecatedLookupContext context(lastVisibleSymbol, exprDoc, thisDocument, snapshot);
-    const QList<Scope *> scopes = context.expand(context.visibleScopes());
+    addKeywords();
+    addMacros(context.thisDocument()->fileName(), context.snapshot());
 
-    foreach (Scope *scope, scopes) {
-        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-            addCompletionItem(scope->symbolAt(i));
+    QList<ClassOrNamespace *> usingBindings;
+    ClassOrNamespace *currentBinding = 0;
+
+    for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
+        if (scope->isBlockScope()) {
+            if (ClassOrNamespace *binding = context.lookupType(scope->owner())) {
+                for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+                    Symbol *member = scope->symbolAt(i);
+                    if (! member->name())
+                        continue;
+                    else if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
+                        if (ClassOrNamespace *b = binding->lookupType(u->name()))
+                            usingBindings.append(b);
+                    }
+                }
+            }
+        } else if (scope->isFunctionScope() || scope->isClassScope() || scope->isNamespaceScope()) {
+            currentBinding = context.lookupType(scope->owner());
+            break;
         }
     }
 
-    return m_startPosition;
+    for (; currentBinding; currentBinding = currentBinding->parent()) {
+        const QList<Symbol *> symbols = currentBinding->symbols();
+
+        if (! symbols.isEmpty()) {
+            if (symbols.first()->isNamespace())
+                completeNamespace(currentBinding);
+            else
+                completeClass(currentBinding, false);
+        }
+    }
+
+    foreach (ClassOrNamespace *b, usingBindings)
+        completeNamespace(b);
+
+    for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
+        if (scope->isBlockScope()) {
+            for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+                addCompletionItem(scope->symbolAt(i));
+            }
+        } else if (scope->isFunctionScope()) {
+            Scope *arguments = scope->owner()->asFunction()->arguments();
+            for (unsigned i = 0; i < arguments->symbolCount(); ++i) {
+                addCompletionItem(arguments->symbolAt(i));
+            }
+            break;
+        } else {
+            break;
+        }
+    }
 }
 
 bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &results,
@@ -1508,6 +1555,9 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
 void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completions)
 {
     const int length = m_editor->position() - m_startPosition;
+    if (length < 0)
+        return;
+
     const QString key = m_editor->textAt(m_startPosition, length);
 
     if (length == 0)

@@ -96,9 +96,7 @@ private:
     bool completeInclude(const QTextCursor &cursor);
     void completePreprocessor();
 
-    int globalCompletion(CPlusPlus::Symbol *lastVisibleSymbol,
-                         CPlusPlus::Document::Ptr thisDocument,
-                         const CPlusPlus::Snapshot &snapshot);
+    void globalCompletion(CPlusPlus::Scope *scope);
 
     bool completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &results,
                                        int endOfExpression, bool toolTipOnly);
