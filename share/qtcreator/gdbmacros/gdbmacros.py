@@ -1816,7 +1816,7 @@ def qdump__std__string(d, item):
     rep = (data.cast(repType) - 1).dereference()
     size = rep['_M_length']
     alloc = rep['_M_capacity']
-    check(rep['_M_refcount'] >= 0)
+    check(rep['_M_refcount'] >= -1) # Can be -1 accoring to docs.
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     p = gdb.Value(data.cast(charType.pointer()))
     s = ""
