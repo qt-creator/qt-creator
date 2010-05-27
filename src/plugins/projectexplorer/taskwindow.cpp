@@ -51,6 +51,7 @@
 #include <QtGui/QStyledItemDelegate>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QMenu>
+#include <QtGui/QToolButton>
 
 namespace {
 const int TASK_ICON_SIZE = 16;
@@ -167,18 +168,6 @@ private:
     bool m_includeErrors;
     QStringList m_categoryIds;
 };
-
-} // Internal
-} // ProjectExplorer
-
-
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
-
-
-////
-//  TaskView
-////
 
 TaskView::TaskView(QWidget *parent)
     : QListView(parent)
@@ -432,9 +421,23 @@ bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
     return accept;
 }
 
+} // namespace Internal
+
 /////
 // TaskWindow
 /////
+
+struct TaskWindowPrivate {
+    Internal::TaskModel *m_model;
+    Internal::TaskFilterModel *m_filter;
+    Internal::TaskView *m_listview;
+    Internal::TaskWindowContext *m_taskWindowContext;
+    QAction *m_copyAction;
+    QAction *m_vcsAnnotateAction;
+    QToolButton *m_filterWarningsButton;
+    QToolButton *m_categoriesButton;
+    QMenu *m_categoriesMenu;
+};
 
 static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
                                        QObject *receiver, const char *slot)
@@ -450,65 +453,65 @@ static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
     return button;
 }
 
-TaskWindow::TaskWindow()
+TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 {
     Core::ICore *core = Core::ICore::instance();
 
-    m_model = new TaskModel;
-    m_filter = new TaskFilterModel(m_model);
-    m_listview = new TaskView;
+    d->m_model = new Internal::TaskModel;
+    d->m_filter = new Internal::TaskFilterModel(d->m_model);
+    d->m_listview = new Internal::TaskView;
 
-    m_listview->setModel(m_filter);
-    m_listview->setFrameStyle(QFrame::NoFrame);
-    m_listview->setWindowTitle(tr("Build Issues"));
-    m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
-    TaskDelegate *tld = new TaskDelegate(this);
-    m_listview->setItemDelegate(tld);
-    m_listview->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
-    m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
-    m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
+    d->m_listview->setModel(d->m_filter);
+    d->m_listview->setFrameStyle(QFrame::NoFrame);
+    d->m_listview->setWindowTitle(tr("Build Issues"));
+    d->m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
+    Internal::TaskDelegate *tld = new Internal::TaskDelegate(this);
+    d->m_listview->setItemDelegate(tld);
+    d->m_listview->setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
+    d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
+    d->m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-    m_taskWindowContext = new TaskWindowContext(m_listview);
-    core->addContextObject(m_taskWindowContext);
+    d->m_taskWindowContext = new Internal::TaskWindowContext(d->m_listview);
+    core->addContextObject(d->m_taskWindowContext);
 
-    m_copyAction = new QAction(QIcon(Core::Constants::ICON_COPY), tr("&Copy"), this);
+    d->m_copyAction = new QAction(QIcon(Core::Constants::ICON_COPY), tr("&Copy"), this);
     Core::Command *command = core->actionManager()->
-            registerAction(m_copyAction, Core::Constants::COPY, m_taskWindowContext->context());
-    m_listview->addAction(command->action());
-    connect(m_copyAction, SIGNAL(triggered()), SLOT(copy()));
+            registerAction(d->m_copyAction, Core::Constants::COPY, d->m_taskWindowContext->context());
+    d->m_listview->addAction(command->action());
+    connect(d->m_copyAction, SIGNAL(triggered()), SLOT(copy()));
 
     // Annotate using VCS: Make visible in all contexts
-    m_vcsAnnotateAction = new QAction(tr("&Annotate"), this);
-    m_vcsAnnotateAction->setToolTip("Annotate using version control system");
-    QList<int> annotateContext = m_taskWindowContext->context();
+    d->m_vcsAnnotateAction = new QAction(tr("&Annotate"), this);
+    d->m_vcsAnnotateAction->setToolTip("Annotate using version control system");
+    QList<int> annotateContext = d->m_taskWindowContext->context();
     annotateContext << Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(QLatin1String(Core::Constants::C_GLOBAL));
     command = core->actionManager()->
-            registerAction(m_vcsAnnotateAction, QLatin1String("ProjectExplorer.Task.VCS_Annotate"), annotateContext);
-    m_listview->addAction(command->action());
-    connect(m_vcsAnnotateAction, SIGNAL(triggered()), SLOT(vcsAnnotate()));
+            registerAction(d->m_vcsAnnotateAction, QLatin1String("ProjectExplorer.Task.VCS_Annotate"), annotateContext);
+    d->m_listview->addAction(command->action());
+    connect(d->m_vcsAnnotateAction, SIGNAL(triggered()), SLOT(vcsAnnotate()));
 
-    connect(m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+    connect(d->m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             tld, SLOT(currentChanged(QModelIndex,QModelIndex)));
 
-    connect(m_listview, SIGNAL(activated(QModelIndex)),
+    connect(d->m_listview, SIGNAL(activated(QModelIndex)),
             this, SLOT(showTaskInFile(QModelIndex)));
-    connect(m_listview, SIGNAL(clicked(QModelIndex)),
+    connect(d->m_listview, SIGNAL(clicked(QModelIndex)),
             this, SLOT(showTaskInFile(QModelIndex)));
 
-    m_filterWarningsButton = createFilterButton(taskTypeIcon(Task::Warning),
+    d->m_filterWarningsButton = createFilterButton(taskTypeIcon(Task::Warning),
                                                 tr("Show Warnings"),
                                                 this, SLOT(setShowWarnings(bool)));
 
-    m_categoriesMenu = new QMenu;
-    connect(m_categoriesMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
-    connect(m_categoriesMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterCategoryTriggered(QAction*)));
+    d->m_categoriesMenu = new QMenu;
+    connect(d->m_categoriesMenu, SIGNAL(aboutToShow()), this, SLOT(updateCategoriesMenu()));
+    connect(d->m_categoriesMenu, SIGNAL(triggered(QAction*)), this, SLOT(filterCategoryTriggered(QAction*)));
 
-    m_categoriesButton = new QToolButton;
-    m_categoriesButton->setIcon(QIcon(":/projectexplorer/images/filtericon.png"));
-    m_categoriesButton->setToolTip(tr("Filter by categories"));
-    m_categoriesButton->setAutoRaise(true);
-    m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
-    m_categoriesButton->setMenu(m_categoriesMenu);
+    d->m_categoriesButton = new QToolButton;
+    d->m_categoriesButton->setIcon(QIcon(":/projectexplorer/images/filtericon.png"));
+    d->m_categoriesButton->setToolTip(tr("Filter by categories"));
+    d->m_categoriesButton->setAutoRaise(true);
+    d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
+    d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
     qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
@@ -518,26 +521,27 @@ TaskWindow::TaskWindow()
 
 TaskWindow::~TaskWindow()
 {
-    Core::ICore::instance()->removeContextObject(m_taskWindowContext);
-    delete m_filterWarningsButton;
-    delete m_listview;
-    delete m_filter;
-    delete m_model;
+    Core::ICore::instance()->removeContextObject(d->m_taskWindowContext);
+    delete d->m_filterWarningsButton;
+    delete d->m_listview;
+    delete d->m_filter;
+    delete d->m_model;
+    delete d;
 }
 
 QList<QWidget*> TaskWindow::toolBarWidgets() const
 {
-    return QList<QWidget*>() << m_filterWarningsButton << m_categoriesButton;
+    return QList<QWidget*>() << d->m_filterWarningsButton << d->m_categoriesButton;
 }
 
 QWidget *TaskWindow::outputWidget(QWidget *)
 {
-    return m_listview;
+    return d->m_listview;
 }
 
 void TaskWindow::clearTasks(const QString &categoryId)
 {
-    m_model->clearTasks(categoryId);
+    d->m_model->clearTasks(categoryId);
 
     updateActions();
     emit tasksChanged();
@@ -551,12 +555,12 @@ void TaskWindow::visibilityChanged(bool /* b */)
 void TaskWindow::addCategory(const QString &categoryId, const QString &displayName)
 {
     Q_ASSERT(!categoryId.isEmpty());
-    m_model->addCategory(categoryId, displayName);
+    d->m_model->addCategory(categoryId, displayName);
 }
 
 void TaskWindow::addTask(const Task &task)
 {
-    m_model->addTask(task);
+    d->m_model->addTask(task);
 
     updateActions();
     emit tasksChanged();
@@ -565,7 +569,7 @@ void TaskWindow::addTask(const Task &task)
 
 void TaskWindow::removeTask(const Task &task)
 {
-    m_model->removeTask(task);
+    d->m_model->removeTask(task);
 
     updateActions();
     emit tasksChanged();
@@ -576,8 +580,8 @@ void TaskWindow::showTaskInFile(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
-    QString file = index.data(TaskModel::File).toString();
-    int line = index.data(TaskModel::Line).toInt();
+    QString file = index.data(Internal::TaskModel::File).toString();
+    int line = index.data(Internal::TaskModel::Line).toInt();
     if (file.isEmpty() || line == -1)
         return;
 
@@ -587,19 +591,19 @@ void TaskWindow::showTaskInFile(const QModelIndex &index)
         Core::EditorManager::instance()->ensureEditorManagerVisible();
     }
     else
-        m_model->setFileNotFound(index, true);
-    m_listview->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
-    m_listview->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+        d->m_model->setFileNotFound(index, true);
+    d->m_listview->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
+    d->m_listview->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
 
 // Right-click VCS annotate: Find version control and point it to line
 void TaskWindow::vcsAnnotate()
 {
-    const QModelIndex index = m_listview->selectionModel()->currentIndex();
+    const QModelIndex index = d->m_listview->selectionModel()->currentIndex();
     if (!index.isValid())
         return;
-    const QString file = index.data(TaskModel::File).toString();
-    const int line = index.data(TaskModel::Line).toInt();
+    const QString file = index.data(Internal::TaskModel::File).toString();
+    const int line = index.data(Internal::TaskModel::Line).toInt();
     const QFileInfo fi(file);
     if (fi.exists())
         if (Core::IVersionControl *vc = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(fi.absolutePath()))
@@ -609,14 +613,14 @@ void TaskWindow::vcsAnnotate()
 
 void TaskWindow::copy()
 {
-    const QModelIndex index = m_listview->selectionModel()->currentIndex();
+    const QModelIndex index = d->m_listview->selectionModel()->currentIndex();
     if (!index.isValid())
         return;
-    const QString file = index.data(TaskModel::File).toString();
-    const QString line = index.data(TaskModel::Line).toString();
-    const QString description = index.data(TaskModel::Description).toString();
+    const QString file = index.data(Internal::TaskModel::File).toString();
+    const QString line = index.data(Internal::TaskModel::Line).toString();
+    const QString description = index.data(Internal::TaskModel::Description).toString();
     QString type;
-    switch (index.data(TaskModel::Type).toInt()) {
+    switch (index.data(Internal::TaskModel::Type).toInt()) {
     case Task::Error:
         type = "error: ";
         break;
@@ -630,26 +634,26 @@ void TaskWindow::copy()
 
 void TaskWindow::setShowWarnings(bool show)
 {
-    m_filter->setFilterIncludesWarnings(show);
-    m_filter->setFilterIncludesUnknowns(show); // "Unknowns" are often associated with warnings
+    d->m_filter->setFilterIncludesWarnings(show);
+    d->m_filter->setFilterIncludesUnknowns(show); // "Unknowns" are often associated with warnings
 }
 
 void TaskWindow::updateCategoriesMenu()
 {
-    m_categoriesMenu->clear();
+    d->m_categoriesMenu->clear();
 
-    const QStringList filteredCategories = m_filter->filteredCategories();
+    const QStringList filteredCategories = d->m_filter->filteredCategories();
 
-    foreach (const QString &categoryId, m_model->categoryIds()) {
-        const QString categoryName = m_model->categoryDisplayName(categoryId);
+    foreach (const QString &categoryId, d->m_model->categoryIds()) {
+        const QString categoryName = d->m_model->categoryDisplayName(categoryId);
 
-        QAction *action = new QAction(m_categoriesMenu);
+        QAction *action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
         action->setText(categoryName);
         action->setData(categoryId);
         action->setChecked(!filteredCategories.contains(categoryId));
 
-        m_categoriesMenu->addAction(action);
+        d->m_categoriesMenu->addAction(action);
     }
 }
 
@@ -658,8 +662,8 @@ void TaskWindow::filterCategoryTriggered(QAction *action)
     QString categoryId = action->data().toString();
     Q_ASSERT(!categoryId.isEmpty());
 
-    QStringList categories = m_filter->filteredCategories();
-    Q_ASSERT(m_filter->filteredCategories().contains(categoryId) == action->isChecked());
+    QStringList categories = d->m_filter->filteredCategories();
+    Q_ASSERT(d->m_filter->filteredCategories().contains(categoryId) == action->isChecked());
 
     if (action->isChecked()) {
         categories.removeOne(categoryId);
@@ -667,19 +671,19 @@ void TaskWindow::filterCategoryTriggered(QAction *action)
         categories.append(categoryId);
     }
 
-    m_filter->setFilteredCategories(categories);
+    d->m_filter->setFilteredCategories(categories);
 }
 
 int TaskWindow::taskCount(const QString &categoryId) const
 {
-    return m_model->tasks(categoryId).count();
+    return d->m_model->tasks(categoryId).count();
 }
 
 int TaskWindow::errorTaskCount(const QString &categoryId) const
 {
     int errorTaskCount = 0;
 
-    foreach (const Task &task, m_model->tasks(categoryId)) {
+    foreach (const Task &task, d->m_model->tasks(categoryId)) {
         if (task.type == Task::Error)
             ++ errorTaskCount;
     }
@@ -699,65 +703,65 @@ void TaskWindow::clearContents()
 
 bool TaskWindow::hasFocus()
 {
-    return m_listview->hasFocus();
+    return d->m_listview->hasFocus();
 }
 
 bool TaskWindow::canFocus()
 {
-    return m_filter->rowCount();
+    return d->m_filter->rowCount();
 }
 
 void TaskWindow::setFocus()
 {
-    if (m_filter->rowCount()) {
-        m_listview->setFocus();
-        if (m_listview->currentIndex() == QModelIndex()) {
-            m_listview->setCurrentIndex(m_filter->index(0,0, QModelIndex()));
+    if (d->m_filter->rowCount()) {
+        d->m_listview->setFocus();
+        if (d->m_listview->currentIndex() == QModelIndex()) {
+            d->m_listview->setCurrentIndex(d->m_filter->index(0,0, QModelIndex()));
         }
     }
 }
 
 bool TaskWindow::canNext()
 {
-    return m_filter->rowCount();
+    return d->m_filter->rowCount();
 }
 
 bool TaskWindow::canPrevious()
 {
-    return m_filter->rowCount();
+    return d->m_filter->rowCount();
 }
 
 void TaskWindow::goToNext()
 {
-    if (!m_filter->rowCount())
+    if (!d->m_filter->rowCount())
         return;
-    QModelIndex currentIndex = m_listview->currentIndex();
+    QModelIndex currentIndex = d->m_listview->currentIndex();
     if (currentIndex.isValid()) {
         int row = currentIndex.row() + 1;
-        if (row == m_filter->rowCount())
+        if (row == d->m_filter->rowCount())
             row = 0;
-        currentIndex = m_filter->index(row, 0);
+        currentIndex = d->m_filter->index(row, 0);
     } else {
-        currentIndex = m_filter->index(0, 0);
+        currentIndex = d->m_filter->index(0, 0);
     }
-    m_listview->setCurrentIndex(currentIndex);
+    d->m_listview->setCurrentIndex(currentIndex);
     showTaskInFile(currentIndex);
 }
 
 void TaskWindow::goToPrev()
 {
-    if (!m_filter->rowCount())
+    if (!d->m_filter->rowCount())
         return;
-    QModelIndex currentIndex = m_listview->currentIndex();
+    QModelIndex currentIndex = d->m_listview->currentIndex();
     if (currentIndex.isValid()) {
         int row = currentIndex.row() -1;
         if (row < 0)
-            row = m_filter->rowCount() - 1;
-        currentIndex = m_filter->index(row, 0);
+            row = d->m_filter->rowCount() - 1;
+        currentIndex = d->m_filter->index(row, 0);
     } else {
-        currentIndex = m_filter->index(m_filter->rowCount()-1, 0);
+        currentIndex = d->m_filter->index(d->m_filter->rowCount()-1, 0);
     }
-    m_listview->setCurrentIndex(currentIndex);
+    d->m_listview->setCurrentIndex(currentIndex);
     showTaskInFile(currentIndex);
 }
 
@@ -768,14 +772,15 @@ bool TaskWindow::canNavigate()
 
 void TaskWindow::updateActions()
 {
-    m_copyAction->setEnabled(m_model->tasks().count() > 0);
+    d->m_copyAction->setEnabled(d->m_model->tasks().count() > 0);
 }
 
 QIcon TaskWindow::taskTypeIcon(Task::TaskType t) const
 {
-    return m_model->taskTypeIcon(t);
+    return d->m_model->taskTypeIcon(t);
 }
 
+namespace Internal {
 /////
 // Delegate
 /////
@@ -966,11 +971,12 @@ QWidget *TaskWindowContext::widget()
     return m_taskList;
 }
 
+} // namespace Internal
 
 //
 // functions
 //
-bool ProjectExplorer::operator==(const Task &t1, const Task &t2)
+bool operator==(const Task &t1, const Task &t2)
 {
     return t1.type == t2.type
             && t1.line == t2.line
@@ -979,9 +985,11 @@ bool ProjectExplorer::operator==(const Task &t1, const Task &t2)
             && t1.category == t2.category;
 }
 
-uint ProjectExplorer::qHash(const Task &task)
+uint qHash(const Task &task)
 {
     return qHash(task.file) + task.line;
 }
+
+} // namespace ProjectExplorer
 
 #include "taskwindow.moc"

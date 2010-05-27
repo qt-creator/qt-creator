@@ -32,25 +32,18 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/icontext.h>
 #include <coreplugin/ioutputpane.h>
 
-#include <QtCore/QModelIndex>
-#include <QtGui/QAction>
-#include <QtGui/QToolButton>
 #include <QtGui/QTextLayout>
 
+QT_BEGIN_NAMESPACE
+class QModelIndex;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
+struct TaskWindowPrivate;
 
-namespace Internal {
-
-class TaskModel;
-class TaskFilterModel;
-class TaskView;
-class TaskWindowContext;
-
-} // namespace Internal
-
+// Build issue (warning or error).
 struct PROJECTEXPLORER_EXPORT Task {
     enum TaskType {
         Unknown,
@@ -76,25 +69,25 @@ struct PROJECTEXPLORER_EXPORT Task {
     QString file;
     int line;
     QString category;
-    // Having a QList<QTextLayout> in Task
-    // isn't that great
-    // It would be cleaner to split up the text into
-    // the logical hunks and then assemble them again
-    // (That is diffrent consumers of tasks could show them in
-    // different ways!)
-    // But then again, the wording of the text most likely
-    // doesn't work if you split it up, nor are our parsers
-    // anywhere near being that good
+    // Having a QList<QTextLayout> in Task isn't that great. It would be
+    // cleaner to split up the text into the logical hunks and then assemble
+    // them again (That is diffrent consumers of tasks could show them in
+    // different ways!). But then again, the wording of the text most likely
+    // doesn't work if you split it up, nor are our parsers anywhere near being
+    // that good.
     QList<QTextLayout::FormatRange> formats;
 };
 
+struct TaskWindowPrivate;
+
+// Show build issues (warnings or errors) and open the editor on click.
 class PROJECTEXPLORER_EXPORT TaskWindow : public Core::IOutputPane
 {
     Q_OBJECT
 
 public:
     TaskWindow();
-    ~TaskWindow();
+    virtual ~TaskWindow();
 
     void addCategory(const QString &categoryId, const QString &displayName);
 
@@ -142,15 +135,7 @@ private:
     void updateActions();
     int sizeHintForColumn(int column) const;
 
-    Internal::TaskModel *m_model;
-    Internal::TaskFilterModel *m_filter;
-    Internal::TaskView *m_listview;
-    Internal::TaskWindowContext *m_taskWindowContext;
-    QAction *m_copyAction;
-    QAction *m_vcsAnnotateAction;
-    QToolButton *m_filterWarningsButton;
-    QToolButton *m_categoriesButton;
-    QMenu *m_categoriesMenu;
+    TaskWindowPrivate *d;
 };
 
 bool operator==(const Task &t1, const Task &t2);

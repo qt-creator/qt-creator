@@ -54,6 +54,7 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QPainter>
+#include <QtGui/QAction>
 #include <QtGui/QItemDelegate>
 
 #include <QtGui/QApplication>

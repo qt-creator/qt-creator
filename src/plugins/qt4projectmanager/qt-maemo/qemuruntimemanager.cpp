@@ -51,6 +51,7 @@
 #include <QtCore/QTextStream>
 
 #include <QtGui/QMessageBox>
+#include <QtGui/QAction>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
