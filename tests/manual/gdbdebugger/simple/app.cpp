@@ -43,6 +43,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QSettings>
 #include <QtCore/QStack>
 #include <QtCore/QThread>
 #include <QtCore/QVariant>
@@ -1663,8 +1664,61 @@ void testPassByReference()
     testPassByReferenceHelper(f);
 }
 
+void testWCout()
+{
+    using namespace std;
+    wstring x = L"xxxxx";
+    wstring::iterator i = x.begin();
+    while (i != x.end()) {
+        wcout << *i;
+        i++;
+    }
+    wcout.flush();
+    string y = "yyyyy";
+    string::iterator j = y.begin();
+    while (j != y.end()) {
+        cout << *j;
+        j++;
+    }
+    cout.flush();
+};
+
+void testWCout0()
+{
+    // Mixing cout and wcout does not work with gcc.
+    // See http://gcc.gnu.org/ml/gcc-bugs/2006-05/msg01193.html
+    // which also says "you can obtain something close to your
+    // expectations by calling std::ios::sync_with_stdio(false);
+    // at the beginning of your program."
+
+    using namespace std;
+    //std::ios::sync_with_stdio(false);
+    wcout << L"WWWWWW" << endl;
+    wcerr << L"YYYYYY" << endl;
+    cout << "CCCCCC" << endl;
+    cerr << "EEEEEE" << endl;
+    wcout << L"WWWWWW" << endl;
+    wcerr << L"YYYYYY" << endl;
+    cout << "CCCCCC" << endl;
+    cerr << "EEEEEE" << endl;
+    wcout << L"WWWWWW" << endl;
+    wcerr << L"YYYYYY" << endl;
+    cout << "CCCCCC" << endl;
+    cerr << "EEEEEE" << endl;
+}
+
+void testQSettings()
+{
+    QSettings settings("/tmp/test.ini", QSettings::IniFormat);
+    QVariant value = settings.value("item1","").toString();
+    int x = 1;
+}
+
 int main(int argc, char *argv[])
 {
+    testQSettings();
+    //testWCout0();
+    //testWCout();
     testColor();
     testStuff();
     testPeekAndPoke3();
