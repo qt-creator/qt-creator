@@ -3633,10 +3633,14 @@ bool Parser::maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq
         if (it) {
             SpecifierAST *spec = it->value;
 
-            if (! it->next && (spec->asElaboratedTypeSpecifier() ||
-                               spec->asEnumSpecifier() ||
-                               spec->asClassSpecifier()))
+            if (spec->asElaboratedTypeSpecifier() ||
+                    spec->asEnumSpecifier() ||
+                    spec->asClassSpecifier()) {
+                for (it = it->next; it; it = it->next)
+                    if (it->value->asAttributeSpecifier() == 0)
+                        return false;
                 return true;
+            }
         }
     }
 
