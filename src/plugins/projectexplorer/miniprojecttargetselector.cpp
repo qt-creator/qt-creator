@@ -320,14 +320,8 @@ void MiniTargetWidget::setActiveRunConfiguration()
 
 void MiniTargetWidget::addRunConfiguration(ProjectExplorer::RunConfiguration* rc)
 {
-    connect(rc, SIGNAL(displayNameChanged()), SLOT(updateDisplayName()));
-    m_runComboBox->addItem(rc->displayName(), QVariant::fromValue(rc));
-    m_runComboBox->setItemData(m_runComboBox->findText(rc->displayName()),
-                               rc->displayName(), Qt::ToolTipRole);
-    if (m_target->activeRunConfiguration() == rc)
-        m_runComboBox->setCurrentIndex(m_runComboBox->count()-1);
-
-    m_runComboBox->setEnabled(m_runComboBox->count()>1);
+    Q_UNUSED(rc);
+    m_runComboBox->setEnabled(m_target->runConfigurations().count()>1);
 }
 
 void MiniTargetWidget::removeRunConfiguration(ProjectExplorer::RunConfiguration* rc)
@@ -339,15 +333,8 @@ void MiniTargetWidget::removeRunConfiguration(ProjectExplorer::RunConfiguration*
 void MiniTargetWidget::addBuildConfiguration(ProjectExplorer::BuildConfiguration* bc)
 {
     Q_UNUSED(bc);
-    QTC_ASSERT(m_buildComboBox, return);
-    connect(bc, SIGNAL(displayNameChanged()), SLOT(updateDisplayName()));
-    m_buildComboBox->addItem(bc->displayName(), QVariant::fromValue(bc));
-    m_buildComboBox->setItemData(m_buildComboBox->findText(bc->displayName()),
-                                 bc->displayName(), Qt::ToolTipRole);
-    if (m_target->activeBuildConfiguration() == bc)
-        m_buildComboBox->setCurrentIndex(m_buildComboBox->count()-1);
-
-    m_buildComboBox->setEnabled(m_buildComboBox->count() > 1);
+    connect(bc, SIGNAL(displayNameChanged()), SIGNAL(changed()), Qt::UniqueConnection);
+    m_buildComboBox->setEnabled(m_target->buildConfigurations().count() > 1);
 }
 
 void MiniTargetWidget::removeBuildConfiguration(ProjectExplorer::BuildConfiguration* bc)
