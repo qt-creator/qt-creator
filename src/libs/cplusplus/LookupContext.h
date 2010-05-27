@@ -170,6 +170,7 @@ protected:
     virtual bool visit(Function *);
     virtual bool visit(BaseClass *b);
     virtual bool visit(UsingNamespaceDirective *u);
+    virtual bool visit(UsingDeclaration *u);
     virtual bool visit(NamespaceAlias *a);
 
     virtual bool visit(ObjCClass *klass);

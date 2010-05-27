@@ -794,6 +794,21 @@ bool CreateBindings::visit(BaseClass *b)
     return false;
 }
 
+bool CreateBindings::visit(UsingDeclaration *u)
+{
+    if (u->name()) {
+        if (const QualifiedNameId *q = u->name()->asQualifiedNameId()) {
+            if (const NameId *unqualifiedId = q->unqualifiedNameId()->asNameId()) {
+                if (ClassOrNamespace *delegate = _currentClassOrNamespace->lookupType(q)) {
+                    ClassOrNamespace *b = _currentClassOrNamespace->findOrCreateType(unqualifiedId);
+                    b->addUsing(delegate);
+                }
+            }
+        }
+    }
+    return false;
+}
+
 bool CreateBindings::visit(UsingNamespaceDirective *u)
 {
     if (ClassOrNamespace *e = _currentClassOrNamespace->lookupType(u->name())) {
