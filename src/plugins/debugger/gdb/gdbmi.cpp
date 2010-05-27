@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QByteArray>
+#include <QtCore/QRegExp>
 #include <QtCore/QTextStream>
 
 #include <ctype.h>
@@ -398,6 +399,51 @@ QByteArray GdbResponse::toString() const
         result += ',' + data.toString();
     result += '\n';
     return result;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+// GdbResponse
+//
+//////////////////////////////////////////////////////////////////////////////////
+
+void extractGdbVersion(const QString &msg,
+    int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb)
+{
+    const QChar dot(QLatin1Char('.'));
+
+    QString cleaned;
+    QString build;
+    bool inClean = true;
+    foreach (QChar c, msg) {
+        if (inClean && !cleaned.isEmpty() && c != dot && (c.isPunct() || c.isSpace()))
+            inClean = false;
+        if (inClean) {
+            if (c.isDigit())
+                cleaned.append(c);
+            else if (!cleaned.isEmpty() && !cleaned.endsWith(dot))
+                cleaned.append(dot);
+        } else {
+            if (c.isDigit())
+                build.append(c);
+            else if (!build.isEmpty() && !build.endsWith(dot))
+                build.append(dot);
+        }
+    }
+
+    *isMacGdb = msg.contains(QLatin1String("Apple version"));
+
+    *gdbVersion = 10000 * cleaned.section(dot, 0, 0).toInt()
+                  + 100 * cleaned.section(dot, 1, 1).toInt()
+                    + 1 * cleaned.section(dot, 2, 2).toInt();
+    if (cleaned.count(dot) >= 3)
+        *gdbBuildVersion = cleaned.section(dot, 3, 3).toInt();
+    else
+        *gdbBuildVersion = build.section(dot, 0, 0).toInt();
+
+    if (*isMacGdb)
+        *gdbBuildVersion = build.section(dot, 1, 1).toInt();
 }
 
 } // namespace Internal
