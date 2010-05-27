@@ -87,7 +87,7 @@ QString TypePrettyPrinter::operator()(const FullySpecifiedType &ty)
     bool previousNeedsParens = switchNeedsParens(false);
     acceptType(ty);
     switchNeedsParens(previousNeedsParens);
-    return switchText(previousName).trimmed();
+    return switchText(previousName);
 }
 
 QString TypePrettyPrinter::operator()(const FullySpecifiedType &type, const QString &name)
@@ -317,8 +317,11 @@ void TypePrettyPrinter::visit(Function *type)
     }
 
     if (_overview->showReturnTypes()) {
-        _text.prepend(QLatin1Char(' '));
-        _text.prepend(_overview->prettyType(type->returnType()));
+        const QString returnType = _overview->prettyType(type->returnType());
+        if (!returnType.isEmpty()) {
+            _text.prepend(QLatin1Char(' '));
+            _text.prepend(returnType);
+        }
     }
 
     if (_overview->showFunctionSignatures()) {
