@@ -237,7 +237,7 @@ void GeneralSettings::finish()
 
 void GeneralSettings::resetInterfaceColor()
 {
-    m_page->colorButton->setColor(0x666666);
+    m_page->colorButton->setColor(StyleHelper::DEFAULT_BASE_COLOR);
 }
 
 void GeneralSettings::resetExternalEditor()
