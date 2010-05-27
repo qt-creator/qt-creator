@@ -95,6 +95,7 @@ private:
     bool m_qmlEnabled;
     int m_braceDepth;
     int m_foldingIndent;
+    bool m_inMultilineComment;
 
     QmlJS::Scanner m_scanner;
     Parentheses m_currentBlockParentheses;

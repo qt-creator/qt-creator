@@ -40,7 +40,8 @@ using namespace QmlJS;
 
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent),
-      m_qmlEnabled(true)
+      m_qmlEnabled(true),
+      m_inMultilineComment(false)
 {
     m_currentBlockParentheses.reserve(20);
     m_braceDepth = 0;
@@ -99,6 +100,15 @@ void Highlighter::highlightBlock(const QString &text)
                 break;
 
             case Token::Comment:
+                if (m_inMultilineComment && text.midRef(token.end() - 2, 2) == QLatin1String("*/")) {
+                    onClosingParenthesis('-', token.end() - 1, index == tokens.size()-1);
+                    m_inMultilineComment = false;
+                } else if (!m_inMultilineComment
+                           && m_scanner.state() == Scanner::MultiLineComment
+                           && index == tokens.size() - 1) {
+                    onOpeningParenthesis('+', token.offset, index == 0);
+                    m_inMultilineComment = true;
+                }
                 setFormat(token.offset, token.length, m_formats[CommentFormat]);
                 break;
 
@@ -327,7 +337,7 @@ void Highlighter::onBlockEnd(int state)
 
 void Highlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atStart)
 {
-    if (parenthesis == QLatin1Char('{') || parenthesis == QLatin1Char('[')) {
+    if (parenthesis == QLatin1Char('{') || parenthesis == QLatin1Char('[') || parenthesis == QLatin1Char('+')) {
         ++m_braceDepth;
         // if a folding block opens at the beginning of a line, treat the entire line
         // as if it were inside the folding block
@@ -339,7 +349,7 @@ void Highlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atStart)
 
 void Highlighter::onClosingParenthesis(QChar parenthesis, int pos, bool atEnd)
 {
-    if (parenthesis == QLatin1Char('}') || parenthesis == QLatin1Char(']')) {
+    if (parenthesis == QLatin1Char('}') || parenthesis == QLatin1Char(']') || parenthesis == QLatin1Char('-')) {
         --m_braceDepth;
         if (atEnd)
             TextEditor::BaseTextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);

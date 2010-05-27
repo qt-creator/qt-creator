@@ -77,7 +77,7 @@ const _Tp *end(const _Tp (&a)[N])
 }
 
 Scanner::Scanner()
-    : _state(0),
+    : _state(Normal),
       _scanComments(true)
 {
 }
@@ -122,11 +122,6 @@ static bool isNumberChar(QChar ch)
 
 QList<Token> Scanner::operator()(const QString &text, int startState)
 {
-    enum {
-        Normal = 0,
-        MultiLineComment = 1
-    };
-
     _state = startState;
     QList<Token> tokens;
 
