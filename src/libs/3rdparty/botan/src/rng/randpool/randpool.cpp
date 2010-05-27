@@ -186,10 +186,11 @@ Randpool::Randpool(BlockCipher* cipher_in,
       !cipher->valid_keylength(OUTPUT_LENGTH) ||
       !mac->valid_keylength(OUTPUT_LENGTH))
       {
+      std::string ciphername = cipher->name(), macname = mac->name();
       delete cipher;
       delete mac;
       throw Internal_Error("Randpool: Invalid algorithm combination " +
-                           cipher->name() + "/" + mac->name());
+                           ciphername + "/" + macname);
       }
 
    buffer.create(BLOCK_SIZE);

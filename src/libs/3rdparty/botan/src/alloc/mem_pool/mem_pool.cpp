@@ -180,7 +180,7 @@ void Pooling_Allocator::deallocate(void* ptr, u32bit n)
    const u32bit BITMAP_SIZE = Memory_Block::bitmap_size();
    const u32bit BLOCK_SIZE = Memory_Block::block_size();
 
-   if(ptr == 0 && n == 0)
+   if(ptr == 0 || n == 0)
       return;
 
    Mutex_Holder lock(mutex);

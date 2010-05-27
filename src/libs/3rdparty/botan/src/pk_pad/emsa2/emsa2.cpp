@@ -103,8 +103,9 @@ EMSA2::EMSA2(HashFunction* hash_in) : hash(hash_in)
 
    if(hash_id == 0)
       {
+      std::string hashname = hash->name();
       delete hash;
-      throw Encoding_Error("EMSA2 cannot be used with " + hash->name());
+      throw Encoding_Error("EMSA2 cannot be used with " + hashname);
       }
    }
 
