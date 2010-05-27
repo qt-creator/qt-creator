@@ -1238,10 +1238,17 @@ ProStringList ProFileEvaluator::Private::split_value_list(const QString &vals)
     return ret;
 }
 
+static void zipEmpty(ProStringList *value)
+{
+    for (int i = value->size(); --i >= 0;)
+        if (value->at(i).isEmpty())
+            value->remove(i);
+}
+
 static void insertUnique(ProStringList *varlist, const ProStringList &value)
 {
     foreach (const ProString &str, value)
-        if (!varlist->contains(str))
+        if (!str.isEmpty() && !varlist->contains(str))
             varlist->append(str);
 }
 
@@ -1255,7 +1262,8 @@ static void removeAll(ProStringList *varlist, const ProString &value)
 static void removeEach(ProStringList *varlist, const ProStringList &value)
 {
     foreach (const ProString &str, value)
-        removeAll(varlist, str);
+        if (!str.isEmpty())
+            removeAll(varlist, str);
 }
 
 static void replaceInList(ProStringList *varlist,
@@ -1571,17 +1579,19 @@ void ProFileEvaluator::Private::visitProVariable(
             replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global, m_tmp2);
         }
     } else {
-        const ProStringList &varVal = expandVariableReferences(value);
+        ProStringList varVal = expandVariableReferences(value);
         switch (tok) {
         default: // whatever - cannot happen
         case TokAssign:          // =
             if (!m_cumulative) {
                 if (!m_skipLevel) {
+                    zipEmpty(&varVal);
                     m_valuemapStack.top()[varName] = varVal;
                     m_filevaluemap[currentProFile()][varName] = varVal;
                 }
             } else {
                 // We are greedy for values.
+                zipEmpty(&varVal);
                 valuesRef(varName) += varVal;
                 m_filevaluemap[currentProFile()][varName] += varVal;
             }
@@ -1594,6 +1604,7 @@ void ProFileEvaluator::Private::visitProVariable(
             break;
         case TokAppend:          // +=
             if (!m_skipLevel || m_cumulative) {
+                zipEmpty(&varVal);
                 valuesRef(varName) += varVal;
                 m_filevaluemap[currentProFile()][varName] += varVal;
             }
