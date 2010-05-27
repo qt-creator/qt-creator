@@ -82,6 +82,10 @@ namespace {
     const bool debug = ! qgetenv("CPLUSPLUS_DEBUG").isEmpty();
 }
 
+enum {
+    MAX_COMPLETION_ITEM = 1000
+};
+
 using namespace CPlusPlus;
 
 namespace CppTools {
@@ -654,8 +658,10 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     int index = startCompletionHelper(editor);
-    if (index != -1)
-        qStableSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
+    if (index != -1) {
+        if (m_completionOperator != T_EOF_SYMBOL)
+            qStableSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
+    }
     return index;
 }
 
@@ -891,9 +897,6 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
         return;
     }
 
-    addKeywords();
-    addMacros(context.thisDocument()->fileName(), context.snapshot());
-
     QList<ClassOrNamespace *> usingBindings;
     ClassOrNamespace *currentBinding = 0;
 
@@ -916,20 +919,6 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
         }
     }
 
-    for (; currentBinding; currentBinding = currentBinding->parent()) {
-        const QList<Symbol *> symbols = currentBinding->symbols();
-
-        if (! symbols.isEmpty()) {
-            if (symbols.first()->isNamespace())
-                completeNamespace(currentBinding);
-            else
-                completeClass(currentBinding, false);
-        }
-    }
-
-    foreach (ClassOrNamespace *b, usingBindings)
-        completeNamespace(b);
-
     for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
         if (scope->isBlockScope()) {
             for (unsigned i = 0; i < scope->symbolCount(); ++i) {
@@ -945,6 +934,23 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
             break;
         }
     }
+
+    for (; currentBinding; currentBinding = currentBinding->parent()) {
+        const QList<Symbol *> symbols = currentBinding->symbols();
+
+        if (! symbols.isEmpty()) {
+            if (symbols.first()->isNamespace())
+                completeNamespace(currentBinding);
+            else
+                completeClass(currentBinding, false);
+        }
+    }
+
+    foreach (ClassOrNamespace *b, usingBindings)
+        completeNamespace(b);
+
+    addKeywords();
+    addMacros(context.thisDocument()->fileName(), context.snapshot());
 }
 
 bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &results,
@@ -1589,6 +1595,10 @@ QList<TextEditor::CompletionItem> CppCodeCompletion::getCompletions()
     QList<TextEditor::CompletionItem> completionItems;
 
     completions(&completionItems);
+
+    if (m_completionOperator == T_EOF_SYMBOL && completionItems.size() < MAX_COMPLETION_ITEM) {
+        qStableSort(completionItems.begin(), completionItems.end(), completionItemLessThan);
+    }
 
     // Remove duplicates
     QString lastKey;
