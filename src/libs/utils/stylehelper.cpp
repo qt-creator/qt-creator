@@ -94,8 +94,9 @@ QColor StyleHelper::panelTextColor(bool lightColored)
         return Qt::black;
 }
 
-QColor StyleHelper::m_baseColor(0x666666);
-QColor StyleHelper::m_requestedBaseColor(0x666666);
+// Invalid by default, setBaseColor needs to be called at least once
+QColor StyleHelper::m_baseColor;
+QColor StyleHelper::m_requestedBaseColor;
 
 QColor StyleHelper::baseColor(bool lightColored)
 {
