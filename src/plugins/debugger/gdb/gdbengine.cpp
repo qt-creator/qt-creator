@@ -1470,70 +1470,22 @@ void GdbEngine::handleInfoProc(const GdbResponse &response)
 
 void GdbEngine::handleShowVersion(const GdbResponse &response)
 {
-    //qDebug () << "VERSION 2:" << response.data.findChild("consolestreamoutput").data();
-    //qDebug () << "VERSION:" << response.toString();
-    debugMessage(_("VERSION: " + response.toString()));
+    debugMessage(_("PARSING VERSION: " + response.toString()));
     if (response.resultClass == GdbResultDone) {
         m_gdbVersion = 100;
         m_gdbBuildVersion = -1;
         m_isMacGdb = false;
         GdbMi version = response.data.findChild("consolestreamoutput");
         QString msg = QString::fromLocal8Bit(version.data());
-
-        bool foundIt = false;
-
-        QRegExp supported(_("GNU gdb(.*) (\\d+)\\.(\\d+)(\\.(\\d+))?(-(\\d+))?"));
-        if (supported.indexIn(msg) >= 0) {
+        extractGdbVersion(msg,
+              &m_gdbVersion, &m_gdbBuildVersion, &m_isMacGdb);
+        if (m_gdbVersion > 60500 && m_gdbVersion < 200000)
             debugMessage(_("SUPPORTED GDB VERSION ") + msg);
-            m_gdbVersion = 10000 * supported.cap(2).toInt()
-                         +   100 * supported.cap(3).toInt()
-                         +     1 * supported.cap(5).toInt();
-            m_gdbBuildVersion = supported.cap(7).toInt();
-            m_isMacGdb = msg.contains(__("Apple version"));
-            foundIt = true;
-        }
-
-        // OpenSUSE managed to ship "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4).
-        if (!foundIt && msg.startsWith(_("GNU gdb (GDB) SUSE "))) {
-            supported.setPattern(_("[^\\d]*(\\d+).(\\d+).(\\d+).*"));
-            if (supported.indexIn(msg) >= 0) {
-                debugMessage(_("SUSE PATCHED GDB VERSION ") + msg);
-                m_gdbVersion = 10000 * supported.cap(1).toInt()
-                             +   100 * supported.cap(2).toInt()
-                             +     1 * supported.cap(3).toInt();
-                m_gdbBuildVersion = -1;
-                m_isMacGdb = false;
-                foundIt = true;
-            } else {
-                debugMessage(_("UNPARSABLE SUSE PATCHED GDB VERSION ") + msg);
-            }
-        }
-
-        if (!foundIt) {
+        else
             debugMessage(_("UNSUPPORTED GDB VERSION ") + msg);
-#if 0
-            QStringList list = msg.split(_c('\n'));
-            while (list.size() > 2)
-                list.removeLast();
-            msg = tr("The debugger you are using identifies itself as:")
-                + _("<p><p>") + list.join(_("<br>")) + _("<p><p>")
-                + tr("This version is not officially supported by Qt Creator.\n"
-                     "Debugging will most likely not work well.\n"
-                     "Using gdb 7.1 or later is strongly recommended.");
-#if 0
-            // ugly, but 'Show again' check box...
-            static QErrorMessage *err = new QErrorMessage(mainWindow());
-            err->setMinimumSize(400, 300);
-            err->showMessage(msg);
-#else
-            //showMessageBox(QMessageBox::Information, tr("Warning"), msg);
-#endif
-#endif
-        }
 
         debugMessage(_("USING GDB VERSION: %1, BUILD: %2%3").arg(m_gdbVersion)
             .arg(m_gdbBuildVersion).arg(_(m_isMacGdb ? " (APPLE)" : "")));
-        //qDebug () << "VERSION 3:" << m_gdbVersion << m_gdbBuildVersion;
     }
 }
 
