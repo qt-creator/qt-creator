@@ -1335,7 +1335,7 @@ void QtVersion::updateToolChainAndMkspec() const
     reader->setCumulative(false);
     reader->setParsePreAndPostFiles(false);
     reader->readProFile(m_mkspecFullPath + "/qmake.conf");
-    QString qmakeCXX = reader->value("QMAKE_CXX");
+    QString qmakeCXX = reader->values("QMAKE_CXX").join(" ");
     QString makefileGenerator = reader->value("MAKEFILE_GENERATOR");
     QString ce_sdk = reader->values("CE_SDK").join(QLatin1String(" "));
     QString ce_arch = reader->value("CE_ARCH");
