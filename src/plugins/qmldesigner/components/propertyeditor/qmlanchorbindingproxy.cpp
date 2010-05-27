@@ -39,6 +39,8 @@ namespace QmlDesigner {
 class ModelNode;
 class NodeState;
 
+const QString auxDataString = QLatin1String("anchors_");
+
 namespace Internal {
 
 QmlAnchorBindingProxy::QmlAnchorBindingProxy(QObject *parent) :
@@ -269,6 +271,15 @@ void QmlAnchorBindingProxy::resetLayout() {
         m_fxItemNode.anchors().removeAnchors();
         m_fxItemNode.anchors().removeMargins();
 
+        if (qFuzzyCompare(m_fxItemNode.instancePosition().x(), 0.0))
+            m_fxItemNode.setVariantProperty("x", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "x"));
+        if (qFuzzyCompare(m_fxItemNode.instancePosition().y(), 0.0))
+            m_fxItemNode.setVariantProperty("y", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "y"));
+        if (qFuzzyCompare(m_fxItemNode.instanceSize().width(), 0.0))
+            m_fxItemNode.setVariantProperty("width", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "width"));
+        if (qFuzzyCompare(m_fxItemNode.instanceSize().height(), 0.0))
+            m_fxItemNode.setVariantProperty("height", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "height"));
+
         emit topAnchorChanged();
         emit bottomAnchorChanged();
         emit leftAnchorChanged();
@@ -290,6 +301,7 @@ void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
         removeBottomAnchor();
     } else {
         calcBottomMargin();
+        m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "height", m_fxItemNode.instanceSize().height());
         m_fxItemNode.removeVariantProperty("height");
     }
     emit bottomAnchorChanged();
@@ -312,7 +324,8 @@ void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
         removeLeftAnchor();
     } else {
         calcLeftMargin();
-        m_fxItemNode.removeVariantProperty("width");
+        m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "x", m_fxItemNode.instancePosition().x());
+        m_fxItemNode.removeVariantProperty("x");
     }
     emit leftAnchorChanged();
     if (hasAnchors() != anchor)
@@ -333,7 +346,8 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
         removeRightAnchor();
     } else {
         calcRightMargin();
-        m_fxItemNode.removeVariantProperty("x");
+        m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "width", m_fxItemNode.instanceSize().width());
+        m_fxItemNode.removeVariantProperty("width");
     }
     emit rightAnchorChanged();
     if (hasAnchors() != anchor)
@@ -364,13 +378,11 @@ void QmlAnchorBindingProxy::calcTopMargin()
 {
     m_locked = true;
 
-    if (m_topTarget == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
+    if (m_topTarget.modelNode() == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal topMargin = transformedBoundingBox().top() - parentBoundingBox().top();
         m_fxItemNode.anchors().setMargin( AnchorLine::Top, topMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Top, m_topTarget, AnchorLine::Top);
     } else {
-        qDebug() << boundingBox(m_fxItemNode).top();
-        qDebug() << boundingBox(m_topTarget).bottom();
         qreal topMargin = boundingBox(m_fxItemNode).top() - boundingBox(m_topTarget).bottom();
         m_fxItemNode.anchors().setMargin( AnchorLine::Top, topMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Top, m_topTarget, AnchorLine::Bottom);
@@ -383,7 +395,7 @@ void QmlAnchorBindingProxy::calcBottomMargin()
 {
     m_locked = true;
 
-    if (m_bottomTarget == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
+    if (m_bottomTarget.modelNode() == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal bottomMargin =  parentBoundingBox().bottom() - transformedBoundingBox().bottom();
         m_fxItemNode.anchors().setMargin( AnchorLine::Bottom, bottomMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Bottom, m_bottomTarget, AnchorLine::Bottom);
@@ -400,7 +412,7 @@ void QmlAnchorBindingProxy::calcLeftMargin()
 {
     m_locked = true;
 
-    if (m_leftTarget == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
+    if (m_leftTarget.modelNode() == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal leftMargin = transformedBoundingBox().left() - parentBoundingBox().left();
         m_fxItemNode.anchors().setMargin(AnchorLine::Left, leftMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Left, m_leftTarget, AnchorLine::Left);
@@ -417,7 +429,7 @@ void QmlAnchorBindingProxy::calcRightMargin()
 {
     m_locked = true;
 
-    if (m_rightTarget == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
+    if (m_rightTarget.modelNode() == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
         qreal rightMargin = parentBoundingBox().right() - transformedBoundingBox().right();
         m_fxItemNode.anchors().setMargin( AnchorLine::Right, rightMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Right, m_rightTarget, AnchorLine::Right);
@@ -444,6 +456,7 @@ void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
         removeTopAnchor();
     } else {
         calcTopMargin();
+        m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "y", m_fxItemNode.instancePosition().y());
         m_fxItemNode.removeVariantProperty("y");
     }
     emit topAnchorChanged();
@@ -456,6 +469,10 @@ void QmlAnchorBindingProxy::removeTopAnchor() {
 
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Top);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Top);
+
+    if (qFuzzyCompare(m_fxItemNode.instancePosition().y(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "y"))
+        m_fxItemNode.setVariantProperty("y", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "y"));
+
 }
 
 void QmlAnchorBindingProxy::removeBottomAnchor() {
@@ -463,6 +480,9 @@ void QmlAnchorBindingProxy::removeBottomAnchor() {
 
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Bottom);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Bottom);
+
+    if (qFuzzyCompare(m_fxItemNode.instanceSize().height(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "height"))
+        m_fxItemNode.setVariantProperty("height", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "height"));
 }
 
 void QmlAnchorBindingProxy::removeLeftAnchor() {
@@ -470,6 +490,9 @@ void QmlAnchorBindingProxy::removeLeftAnchor() {
 
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Left);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Left);
+
+    if (qFuzzyCompare(m_fxItemNode.instancePosition().x(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "x"))
+        m_fxItemNode.setVariantProperty("x", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "x"));
 }
 
 void QmlAnchorBindingProxy::removeRightAnchor() {
@@ -477,6 +500,9 @@ void QmlAnchorBindingProxy::removeRightAnchor() {
 
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Right);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Right);
+
+    if (qFuzzyCompare(m_fxItemNode.instanceSize().width(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "width"))
+        m_fxItemNode.setVariantProperty("width", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "width"));
 }
 
 void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
@@ -487,6 +513,8 @@ void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
     if (verticalCentered() == centered)
         return;
 
+    m_locked = true;
+
     RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
 
     if (!centered) {
@@ -495,6 +523,9 @@ void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
     } else {
         m_fxItemNode.anchors().setAnchor(AnchorLine::VerticalCenter, m_fxItemNode.modelNode().parentProperty().parentModelNode(), AnchorLine::VerticalCenter);
     }
+
+    m_locked = false;
+
     emit centeredVChanged();
 }
 
@@ -506,6 +537,8 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
     if (horizontalCentered() == centered)
         return;
 
+    m_locked = true;
+
     RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
 
     if (!centered) {
@@ -514,6 +547,9 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
     } else {
         m_fxItemNode.anchors().setAnchor(AnchorLine::HorizontalCenter, m_fxItemNode.modelNode().parentProperty().parentModelNode(), AnchorLine::HorizontalCenter);
     }
+
+    m_locked = false;
+
     emit centeredHChanged();
 }
 
@@ -532,6 +568,15 @@ void QmlAnchorBindingProxy::fill()
 
     RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
 
+    m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "x", m_fxItemNode.instancePosition().x());
+    m_fxItemNode.removeVariantProperty("x");
+    m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "y", m_fxItemNode.instancePosition().y());
+    m_fxItemNode.removeVariantProperty("y");
+    m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "width", m_fxItemNode.instanceSize().width());
+    m_fxItemNode.removeVariantProperty("width");
+    m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "height", m_fxItemNode.instanceSize().height());
+    m_fxItemNode.removeVariantProperty("height");
+
     m_fxItemNode.anchors().fill();
 
     setHorizontalCentered(false);
@@ -541,11 +586,6 @@ void QmlAnchorBindingProxy::fill()
     m_fxItemNode.anchors().removeMargin(AnchorLine::Left);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Top);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Bottom);
-
-    m_fxItemNode.removeVariantProperty("x");
-    m_fxItemNode.removeVariantProperty("y");
-    m_fxItemNode.removeVariantProperty("width");
-    m_fxItemNode.removeVariantProperty("height");
 
     emit topAnchorChanged();
     emit bottomAnchorChanged();

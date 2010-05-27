@@ -1652,6 +1652,17 @@ void testStuff()
     ++*p;
 }
 
+void testPassByReferenceHelper(Foo &f)
+{
+    ++f.a;
+}
+
+void testPassByReference()
+{
+    Foo f(12);
+    testPassByReferenceHelper(f);
+}
+
 int main(int argc, char *argv[])
 {
     testColor();
@@ -1701,6 +1712,7 @@ int main(int argc, char *argv[])
     testStdString();
     testStdVector();
 
+    testPassByReference();
     testPlugin();
     testQList();
     testQLinkedList();

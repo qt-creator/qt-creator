@@ -425,7 +425,7 @@ void VCSBaseOutputWindow::appendData(const QByteArray &data)
 
 void VCSBaseOutputWindow::appendDataSilently(const QByteArray &data)
 {
-    append(QTextCodec::codecForLocale()->toUnicode(data));
+    appendSilently(QTextCodec::codecForLocale()->toUnicode(data));
 }
 
 VCSBaseOutputWindow *VCSBaseOutputWindow::instance()

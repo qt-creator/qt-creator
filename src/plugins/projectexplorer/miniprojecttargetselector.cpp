@@ -260,15 +260,19 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
     QFormLayout *formLayout = new QFormLayout;
     formLayout->setLabelAlignment(Qt::AlignRight);
     QLabel *lbl;
+    int indent = 10;
     if (hasBuildConfiguration()) {
         lbl = new QLabel(tr("Build:"));
         lbl->setObjectName(QString::fromUtf8("buildLabel"));
-        lbl->setIndent(10);
+        lbl->setMinimumWidth(lbl->fontMetrics().width(lbl->text()) + indent + 4);
+        lbl->setIndent(indent);
+
         formLayout->addRow(lbl, buildHelperLayout);
     }
     lbl = new QLabel(tr("Run:"));
     lbl->setObjectName(QString::fromUtf8("runLabel"));
-    lbl->setIndent(10);
+    lbl->setMinimumWidth(lbl->fontMetrics().width(lbl->text()) + indent + 4);
+    lbl->setIndent(indent);
     formLayout->addRow(lbl, runHelperLayout);
 
     gridLayout->addWidget(m_targetName, 0, 0);
@@ -316,8 +320,14 @@ void MiniTargetWidget::setActiveRunConfiguration()
 
 void MiniTargetWidget::addRunConfiguration(ProjectExplorer::RunConfiguration* rc)
 {
-    Q_UNUSED(rc);
-    m_runComboBox->setEnabled(m_target->runConfigurations().count()>1);
+    connect(rc, SIGNAL(displayNameChanged()), SLOT(updateDisplayName()));
+    m_runComboBox->addItem(rc->displayName(), QVariant::fromValue(rc));
+    m_runComboBox->setItemData(m_runComboBox->findText(rc->displayName()),
+                               rc->displayName(), Qt::ToolTipRole);
+    if (m_target->activeRunConfiguration() == rc)
+        m_runComboBox->setCurrentIndex(m_runComboBox->count()-1);
+
+    m_runComboBox->setEnabled(m_runComboBox->count()>1);
 }
 
 void MiniTargetWidget::removeRunConfiguration(ProjectExplorer::RunConfiguration* rc)
@@ -330,8 +340,14 @@ void MiniTargetWidget::addBuildConfiguration(ProjectExplorer::BuildConfiguration
 {
     Q_UNUSED(bc);
     QTC_ASSERT(m_buildComboBox, return);
-    connect(bc, SIGNAL(displayNameChanged()), SIGNAL(changed()), Qt::UniqueConnection);
-    m_buildComboBox->setEnabled(m_target->buildConfigurations().count() > 1);
+    connect(bc, SIGNAL(displayNameChanged()), SLOT(updateDisplayName()));
+    m_buildComboBox->addItem(bc->displayName(), QVariant::fromValue(bc));
+    m_buildComboBox->setItemData(m_buildComboBox->findText(bc->displayName()),
+                                 bc->displayName(), Qt::ToolTipRole);
+    if (m_target->activeBuildConfiguration() == bc)
+        m_buildComboBox->setCurrentIndex(m_buildComboBox->count()-1);
+
+    m_buildComboBox->setEnabled(m_buildComboBox->count() > 1);
 }
 
 void MiniTargetWidget::removeBuildConfiguration(ProjectExplorer::BuildConfiguration* bc)
@@ -387,7 +403,6 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_projectsBox->setProperty("hideborder", true);
     m_projectsBox->setObjectName(QString::fromUtf8("ProjectsBox"));
     m_projectsBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-    m_projectsBox->setMaximumWidth(200);
 
     toolLayout->addWidget(lbl);
     toolLayout->addWidget(new Utils::StyledSeparator);
@@ -562,6 +577,10 @@ void MiniProjectTargetSelector::updateAction()
     QString runConfig;
     QIcon targetIcon = style()->standardIcon(QStyle::SP_ComputerIcon);
 
+    const int extrawidth = 110; // Size of margins + icon width
+    // Some fudge numbers to ensure the menu doesnt grow unbounded
+    int maxLength = fontMetrics().averageCharWidth() * 140;
+
     if (project) {
         projectName = project->displayName();
 
@@ -571,10 +590,14 @@ void MiniProjectTargetSelector::updateAction()
             }
             if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
                 buildConfig = bc->displayName();
+                int minimumWidth = fontMetrics().width(bc->displayName() + tr("Build:")) + extrawidth;
+                m_widgetStack->setMinimumWidth(qMin(maxLength, qMax(minimumWidth, m_widgetStack->minimumWidth())));
             }
 
             if (RunConfiguration *rc = target->activeRunConfiguration()) {
                 runConfig = rc->displayName();
+                int minimumWidth = fontMetrics().width(rc->displayName() + tr("Run:")) + extrawidth;
+                m_widgetStack->setMinimumWidth(qMin(maxLength, qMax(minimumWidth, m_widgetStack->minimumWidth())));
             }
             targetToolTipText = target->toolTip();
             targetIcon = createCenteredIcon(target->icon(), target->overlayIcon());

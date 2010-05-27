@@ -43,6 +43,7 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QToolButton>
+#include <QtGui/QPainter>
 
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
@@ -56,6 +57,24 @@ static const char currentPageSettingsKeyC[] = "General/WelcomeTab";
 
 namespace Welcome {
 
+// Helper class introduced to cache the scaled background image
+// so we avoid re-scaling for every repaint.
+class ImageWidget : public QWidget
+{
+public:
+    ImageWidget(const QPixmap &bg, QWidget *parent) : QWidget(parent), m_bg(bg) {}
+    void paintEvent(QPaintEvent *e) {
+        QPainter painter(this);
+        if (m_stretch.size() != size())
+            m_stretch = m_bg.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        painter.drawPixmap(rect(), m_stretch);
+        QWidget::paintEvent(e);
+    }
+private:
+    QPixmap m_bg;
+    QPixmap m_stretch;
+};
+
 struct WelcomeModePrivate
 {
     typedef QMap<QToolButton*, QWidget*> ToolButtonWidgetMap;
@@ -64,7 +83,7 @@ struct WelcomeModePrivate
 
     QScrollArea *m_scrollArea;
     QWidget *m_widget;
-    QWidget *m_welcomePage;
+    ImageWidget *m_welcomePage;
     ToolButtonWidgetMap buttonMap;
     QHBoxLayout * buttonLayout;
     Ui::WelcomeMode ui;
@@ -79,7 +98,7 @@ WelcomeMode::WelcomeMode() :
     l->setMargin(0);
     l->setSpacing(0);
     l->addWidget(new Utils::StyledBar(m_d->m_widget));
-    m_d->m_welcomePage = new QWidget(m_d->m_widget);
+    m_d->m_welcomePage = new ImageWidget(QPixmap(":/welcome/images/welcomebg.png"), m_d->m_widget);
     m_d->ui.setupUi(m_d->m_welcomePage);
     m_d->ui.helpUsLabel->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     m_d->ui.feedbackButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);

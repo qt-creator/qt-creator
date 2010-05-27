@@ -96,7 +96,7 @@ signals:
 
 private:
     virtual bool runInternal();
-    Q_SLOT void handleRemoteOutput();
+    Q_SLOT void handleRemoteOutput(const QByteArray &output);
     void initState();
 
     static const QByteArray EndMarker;

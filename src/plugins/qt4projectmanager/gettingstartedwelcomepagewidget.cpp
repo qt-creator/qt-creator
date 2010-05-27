@@ -46,6 +46,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QStringBuilder>
 #include <QtCore/QUrl>
+#include <QtCore/QTimer>
 #include <QtCore/QSettings>
 #include <QtCore/QXmlStreamReader>
 #include <QtGui/QDialogButtonBox>
@@ -94,12 +95,21 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
             QIcon::fromTheme("document-new", ui->createNewProjectButton->icon()));
     ui->openProjectButton->setIcon(
             QIcon::fromTheme("document-open", ui->openProjectButton->icon()));
+    QTimer::singleShot(0, this, SLOT(slotSetPrivateQmlExamples()));
 }
 
 GettingStartedWelcomePageWidget::~GettingStartedWelcomePageWidget()
 {
     delete ui;
 }
+
+void GettingStartedWelcomePageWidget::slotSetPrivateQmlExamples()
+{
+    if (!ui->qmlExamplesButton->menu()) {
+        const QString resPath = Core::ICore::instance()->resourcePath();
+        updateQmlExamples(resPath, resPath);
+    }
+ }
 
 void GettingStartedWelcomePageWidget::updateCppExamples(const QString &examplePath,
                                                         const QString &sourcePath,

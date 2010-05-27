@@ -54,8 +54,6 @@ private:
     void compressAddEditActions(QList<RewriteAction *> &actions) const;
     void compressAddReparentActions(QList<RewriteAction *> &actions) const;
 
-    void remove(QMutableListIterator<RewriteAction*> &iter) const;
-
 private:
     QStringList m_propertyOrder;
 };

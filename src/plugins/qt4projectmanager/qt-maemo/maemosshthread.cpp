@@ -102,8 +102,8 @@ MaemoSshRunner::MaemoSshRunner(const Core::SshServerInfo &server,
 bool MaemoSshRunner::runInternal()
 {
     createConnection();
-    connect(m_connection.data(), SIGNAL(remoteOutputAvailable()),
-            this, SLOT(handleRemoteOutput()));
+    connect(m_connection.data(), SIGNAL(remoteOutput(QByteArray)),
+            this, SLOT(handleRemoteOutput(QByteArray)));
     initState();
     if (!m_connection->start())
         return false;
@@ -121,7 +121,7 @@ void MaemoSshRunner::initState()
     m_potentialEndMarkerPrefix.clear();
 }
 
-void MaemoSshRunner::handleRemoteOutput()
+void MaemoSshRunner::handleRemoteOutput(const QByteArray &curOutput)
 {
     const QByteArray output
         = m_potentialEndMarkerPrefix + m_connection->waitForRemoteOutput(0);

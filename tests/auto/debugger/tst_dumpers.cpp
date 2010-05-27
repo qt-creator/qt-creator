@@ -1,3 +1,7 @@
+#define private public // Give us access to private 'backward' member of QMapNode.
+#    include <QtCore/QMap>
+#undef private
+
 #include "gdb/gdbmi.h"
 #include "tcf/json.h"
 #include "gdbmacros.h"
@@ -1256,9 +1260,8 @@ template <typename T>
             const QString typeStr = stripPtrType(typeToString<T>());
             const QByteArray addrStr = valToString(curElem);
             if (curElem != 0) {
-                expected.append("addr='").append(addrStr).append("',saddr='").
-                        append(addrStr).append("',type='").append(typeStr).
-                        append("',value='").
+                expected.append("addr='").append(addrStr).append("',type='").
+                        append(typeStr).append("',value='").
                         append(derefValToString(curElem)).append("'");
             } else {
                 expected.append("addr='").append(ptrToBa(&curElem)).append("',type='").
@@ -1426,9 +1429,9 @@ void tst_Debugger::dumpQList_int_star()
     ilist.append(0);
     testDumper("value='<2 items>',valueeditable='false',numchild='2',"
         "internal='1',childtype='int*',childnumchild='1',children=["
-        "{saddr='" + str(&ilist.at(0)) + "',addr='" + str(deref(&ilist.at(0))) +
+        "{addr='" + str(deref(&ilist.at(0))) +
             "',type='int',value='1'},"
-        "{saddr='" + str(&ilist.at(1)) + "',value='<null>',numchild='0'}]",
+        "{value='<null>',numchild='0'}]",
         &ilist, NS"QList", true, "int*");
 }
 
@@ -2327,15 +2330,13 @@ void tst_Debugger::dumpStdVector()
     vector.push_back(new std::list<int>(list));
     testDumper("value='<1 items>',valueeditable='false',numchild='1',"
         "childtype='" + inner + "',childnumchild='1',"
-        "children=[{addr='" + str(deref(&vector[0])) + "',"
-            "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'}]",
+        "children=[{addr='" + str(deref(&vector[0])) + "',type='" + innerp + "'}]",
         &vector, "std::vector", true, inner, "", sizeof(std::list<int> *));
     vector.push_back(0);
     list.push_back(45);
     testDumper("value='<2 items>',valueeditable='false',numchild='2',"
         "childtype='" + inner + "',childnumchild='1',"
-        "children=[{addr='" + str(deref(&vector[0])) + "',"
-            "saddr='" + str(deref(&vector[0])) + "',type='" + innerp + "'},"
+        "children=[{addr='" + str(deref(&vector[0])) + "',type='" + innerp + "'},"
           "{addr='" + str(&vector[1]) + "',"
             "type='" + innerp + "',value='<null>',numchild='0'}]",
         &vector, "std::vector", true, inner, "", sizeof(std::list<int> *));

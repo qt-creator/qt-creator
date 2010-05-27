@@ -101,7 +101,7 @@ void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propert
 
             schedule(new AddPropertyRewriteAction(property,
                                                   propertyTextValue,
-                                                  propertyType(property),
+                                                  propertyType(property, propertyTextValue),
                                                   containedModelNode));
             break;
 
@@ -111,7 +111,7 @@ void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propert
 
             schedule(new ChangePropertyRewriteAction(property,
                                                      propertyTextValue,
-                                                     propertyType(property),
+                                                     propertyType(property, propertyTextValue),
                                                      containedModelNode));
             break;
 
@@ -149,7 +149,10 @@ void ModelToTextMerger::removeImport(const Import &import)
 void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
 {
     if (isInHierarchy(oldPropertyParent) && isInHierarchy(newPropertyParent)) { // the node is moved
-        schedule(new ReparentNodeRewriteAction(node, oldPropertyParent.parentModelNode(), newPropertyParent, propertyType(newPropertyParent)));
+        schedule(new ReparentNodeRewriteAction(node,
+                                               oldPropertyParent.parentModelNode(),
+                                               newPropertyParent,
+                                               propertyType(newPropertyParent)));
     } else if (isInHierarchy(oldPropertyParent) && !isInHierarchy(newPropertyParent)) { // the node is removed from hierarchy
         if (oldPropertyParent.isNodeProperty()) {
             // ignore, the subsequent remove property will take care of all
@@ -165,11 +168,17 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
     } else if (!isInHierarchy(oldPropertyParent) && isInHierarchy(newPropertyParent)) { // the node is inserted into to hierarchy
         switch (propertyChange) {
         case AbstractView::PropertiesAdded:
-            schedule(new AddPropertyRewriteAction(newPropertyParent, QmlTextGenerator(getPropertyOrder())(node), propertyType(newPropertyParent), node));
+            schedule(new AddPropertyRewriteAction(newPropertyParent,
+                                                  QmlTextGenerator(getPropertyOrder())(node),
+                                                  propertyType(newPropertyParent),
+                                                  node));
             break;
 
         case AbstractView::NoAdditionalChanges:
-            schedule(new ChangePropertyRewriteAction(newPropertyParent, QmlTextGenerator(getPropertyOrder())(node), propertyType(newPropertyParent), node));
+            schedule(new ChangePropertyRewriteAction(newPropertyParent,
+                                                     QmlTextGenerator(getPropertyOrder())(node),
+                                                     propertyType(newPropertyParent),
+                                                     node));
             break;
 
         case AbstractView::EmptyPropertiesRemoved:
@@ -307,11 +316,18 @@ void ModelToTextMerger::schedule(RewriteAction *action)
     m_rewriteActions.append(action);
 }
 
-QmlDesigner::QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property)
+QmlDesigner::QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property, const QString &textValue)
 {
-    if (property.isBindingProperty())
-        return QmlDesigner::QmlRefactoring::ObjectBinding;
-    else if (property.isNodeListProperty())
+    if (property.isBindingProperty()) {
+        QString val = textValue.trimmed();
+        if (val.isEmpty())
+            return QmlDesigner::QmlRefactoring::ObjectBinding;
+        const QChar lastChar = val.at(val.size() - 1);
+        if (lastChar == '}' || lastChar == ';')
+            return QmlDesigner::QmlRefactoring::ObjectBinding;
+        else
+            return QmlDesigner::QmlRefactoring::ScriptBinding;
+    } else if (property.isNodeListProperty())
         return QmlDesigner::QmlRefactoring::ArrayBinding;
     else if (property.isNodeProperty())
         return QmlDesigner::QmlRefactoring::ObjectBinding;

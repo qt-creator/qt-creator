@@ -7,8 +7,8 @@ equals(QMAKE_DIR_SEP, /) {   # unix, mingw+msys
     # The lack of spaces in front of the && is necessary!
     QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& $$QDOC_BIN
 } else {   # nmake
-    QDOC = set SRCDIR=$$PWD $$escape_expand(\n\t) \
-           set OUTDIR=$$OUT_PWD/doc/html $$escape_expand(\n\t) \
+    QDOC = set SRCDIR=$$PWD $$escape_expand(\\n\\t) \
+           set OUTDIR=$$OUT_PWD/doc/html $$escape_expand(\\n\\t) \
            $$QDOC_BIN
 }
 

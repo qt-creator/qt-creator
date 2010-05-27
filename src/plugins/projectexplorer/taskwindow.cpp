@@ -53,26 +53,11 @@
 #include <QtGui/QMenu>
 
 namespace {
-
 const int TASK_ICON_SIZE = 16;
 const int TASK_ICON_MARGIN = 2;
-
-const QIcon ERROR_ICON(":/projectexplorer/images/compile_error.png");
-const QIcon WARNING_ICON(":/projectexplorer/images/compile_warning.png");
-
 }
 
 namespace ProjectExplorer {
-
-QIcon Task::icon() const
-{
-    if (type == ProjectExplorer::Task::Error)
-        return ERROR_ICON;
-    else if (type == ProjectExplorer::Task::Warning)
-        return WARNING_ICON;
-    else
-        return QIcon();
-}
 
 namespace Internal {
 
@@ -141,6 +126,8 @@ public:
 
     enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category, Icon, Task_t };
 
+    QIcon taskTypeIcon(Task::TaskType t) const;
+
 private:
     QHash<QString,QString> m_categories; // category id -> display name
     QList<Task> m_tasks;   // all tasks (in order of insertion)
@@ -148,8 +135,8 @@ private:
 
     QHash<QString,bool> m_fileNotFound;
     int m_maxSizeOfFileName;
-    QIcon m_errorIcon;
-    QIcon m_warningIcon;
+    const QIcon m_errorIcon;
+    const QIcon m_warningIcon;
 };
 
 class TaskFilterModel : public QSortFilterProxyModel
@@ -224,11 +211,24 @@ void TaskView::keyPressEvent(QKeyEvent *e)
 // TaskModel
 /////
 
-TaskModel::TaskModel()
+TaskModel::TaskModel() :
+    m_maxSizeOfFileName(0),
+    m_errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png")),
+    m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"))
 {
-    m_maxSizeOfFileName = 0;
-    m_errorIcon = QIcon(":/projectexplorer/images/compile_error.png");
-    m_warningIcon = QIcon(":/projectexplorer/images/compile_warning.png");
+}
+
+QIcon TaskModel::taskTypeIcon(Task::TaskType t) const
+{
+    switch (t) {
+    case Task::Warning:
+        return m_warningIcon;
+    case Task::Error:
+        return m_errorIcon;
+    case Task::Unknown:
+        break;
+    }
+    return QIcon();
 }
 
 void TaskModel::addCategory(const QString &categoryId, const QString &categoryName)
@@ -353,7 +353,7 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
     } else if (role == TaskModel::Category) {
         return m_tasks.at(index.row()).category;
     } else if (role == TaskModel::Icon) {
-        return m_tasks.at(index.row()).icon();
+        return taskTypeIcon(m_tasks.at(index.row()).type);
     } else if (role == TaskModel::Task_t) {
         return QVariant::fromValue(m_tasks.at(index.row()));
     }
@@ -495,7 +495,7 @@ TaskWindow::TaskWindow()
     connect(m_listview, SIGNAL(clicked(QModelIndex)),
             this, SLOT(showTaskInFile(QModelIndex)));
 
-    m_filterWarningsButton = createFilterButton(WARNING_ICON,
+    m_filterWarningsButton = createFilterButton(taskTypeIcon(Task::Warning),
                                                 tr("Show Warnings"),
                                                 this, SLOT(setShowWarnings(bool)));
 
@@ -769,6 +769,11 @@ bool TaskWindow::canNavigate()
 void TaskWindow::updateActions()
 {
     m_copyAction->setEnabled(m_model->tasks().count() > 0);
+}
+
+QIcon TaskWindow::taskTypeIcon(Task::TaskType t) const
+{
+    return m_model->taskTypeIcon(t);
 }
 
 /////

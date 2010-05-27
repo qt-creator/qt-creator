@@ -1384,7 +1384,8 @@ class Dumper:
                 if len(fields) == 1 and fields[0].name is None:
                     innerType = value.type.target()
                 with Children(self, 1, innerType):
-                    self.putFields(item)
+                    child = Item(value, item.iname, None, item.name)
+                    self.putFields(child)
 
     def putFields(self, item, innerType = None):
             value = item.value
