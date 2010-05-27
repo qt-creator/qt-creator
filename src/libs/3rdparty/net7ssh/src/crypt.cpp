@@ -387,7 +387,7 @@ bool ne7ssh_crypt::verifySig (Botan::SecureVector<Botan::byte> &hostKey, Botan::
   result = verifier->verify_message (H, sigData);
   delete verifier;
   if (dsaKey) delete dsaKey;
-  if (rsaKey) delete dsaKey;
+  if (rsaKey) delete rsaKey;
 
   if (!result)
   {
