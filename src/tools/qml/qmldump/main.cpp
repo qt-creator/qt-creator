@@ -257,9 +257,9 @@ int main(int argc, char *argv[])
     {
         QByteArray code;
         code += "import Qt 4.7;\n";
-        code += "import Qt.widgets 4.7;\n";
-        code += "import Qt.multimedia 1.0;\n";
         code += "import Qt.labs.particles 4.7;\n";
+        code += "import Qt.labs.gestures 4.7;\n";
+        code += "import Qt.labs.folderlistmodel 4.7;\n";
         code += "import org.webkit 1.0;\n";
         code += "Item {}";
         QDeclarativeComponent c(engine);
@@ -295,9 +295,9 @@ int main(int argc, char *argv[])
 
         QByteArray code;
         code += "import Qt 4.7;\n";
-        code += "import Qt.widgets 4.7;\n";
-        code += "import Qt.multimedia 1.0;\n";
         code += "import Qt.labs.particles 4.7;\n";
+        code += "import Qt.labs.gestures 4.7;\n";
+        code += "import Qt.labs.folderlistmodel 4.7;\n";
         code += "import org.webkit 1.0;\n";
         code += tyName;
         code += " {}\n";
