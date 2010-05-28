@@ -94,6 +94,14 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, F
     setSlotNavigationEnabled(true);
     connect(this, SIGNAL(navigateToSlot(QString, QString, QStringList)),
             this, SLOT(slotNavigateToSlot(QString, QString, QStringList)));
+    connect(this, SIGNAL(helpRequested(QString,QString)),
+            this, SLOT(slotDesignerHelpRequested(QString,QString)));
+}
+
+void QtCreatorIntegration::slotDesignerHelpRequested(const QString &manual, const QString &document)
+{
+    // Pass on as URL.
+    emit creatorHelpRequested(QString::fromLatin1("qthelp://com.trolltech.%1/qdoc/%2").arg(manual, document));
 }
 
 void QtCreatorIntegration::updateSelection()

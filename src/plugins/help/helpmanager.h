@@ -57,8 +57,6 @@ public:
     void setupGuiHelpEngine();
     bool guiEngineNeedsUpdate() const;
 
-    void handleHelpRequest(const QString &url);
-
     void verifyDocumenation();
     void registerDocumentation(const QStringList &fileNames);
     void unregisterDocumentation(const QStringList &nameSpaces);
@@ -68,6 +66,9 @@ public:
     static QHelpEngineCore& helpEngineCore();
 
     static BookmarkManager& bookmarkManager();
+
+public slots:
+    void handleHelpRequest(const QString &url);
 
 signals:
     void helpRequested(const QUrl &url);

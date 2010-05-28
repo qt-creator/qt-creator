@@ -46,12 +46,18 @@ public:
 
     QWidget *containerWindow(QWidget *widget) const;
 
-    bool supportsToSlotNavigation() { return true; };
+    bool supportsToSlotNavigation() { return true; }
+
+signals:
+    void creatorHelpRequested(const QString &url);
 
 public slots:
     void updateSelection();
+
 private slots:
     void slotNavigateToSlot(const QString &objectName, const QString &signalSignature, const QStringList &parameterNames);
+    void slotDesignerHelpRequested(const QString &manual, const QString &document);
+
 private:
     bool navigateToSlot(const QString &objectName,
                         const QString &signalSignature,
