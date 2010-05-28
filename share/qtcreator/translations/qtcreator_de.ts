@@ -10006,7 +10006,7 @@ Fehler: %2</translation>
     <message>
         <location line="+52"/>
         <source>File &amp;pattern:</source>
-        <translation>Such&amp;muster für Dateinamen</translation>
+        <translation>Such&amp;muster für Dateinamen:</translation>
     </message>
 </context>
 <context>
@@ -10165,7 +10165,7 @@ Fehler: %2</translation>
     <message>
         <location line="+47"/>
         <source>File &amp;pattern:</source>
-        <translation>Such&amp;muster für Dateinamen</translation>
+        <translation>Such&amp;muster für Dateinamen:</translation>
     </message>
 </context>
 <context>
@@ -14470,7 +14470,7 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <location line="+4"/>
         <source>File &amp;pattern:</source>
-        <translation>Such&amp;muster für Dateinamen</translation>
+        <translation>Such&amp;muster für Dateinamen:</translation>
     </message>
     <message>
         <location line="+18"/>
