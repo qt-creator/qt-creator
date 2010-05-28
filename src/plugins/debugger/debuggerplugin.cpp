@@ -1543,29 +1543,6 @@ void DebuggerPlugin::enableReverseDebuggingTriggered(const QVariant &value)
         m_manager->debuggerManagerActions().reverseDirectionAction->setChecked(false);
 }
 
-static BreakpointData *createBreakpointByFileAndLine
-    (const QString &fileName, int lineNumber)
-{
-    BreakpointData *data = new BreakpointData;
-    if (lineNumber > 0) {
-        data->fileName = fileName;
-        data->lineNumber = QByteArray::number(lineNumber);
-        data->pending = true;
-        data->setMarkerFileName(fileName);
-        data->setMarkerLineNumber(lineNumber);
-    } else {
-        data->funcName = fileName;
-        data->lineNumber = 0;
-        data->pending = true;
-        // FIXME: Figure out in which disassembler view the Marker sits.
-        // Might be better to let the user code create the BreakpointData
-        // structure and insert it here.
-        data->setMarkerFileName(QString());
-        data->setMarkerLineNumber(0);
-    }
-    return data;
-}
-
 void DebuggerPlugin::toggleBreakpoint()
 {
     ITextEditor *textEditor = currentTextEditor();
