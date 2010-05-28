@@ -133,7 +133,9 @@ void FormWindowFile::reload(ReloadFlag flag, ChangeType type)
     if (type == TypePermissions) {
         emit changed();
     } else {
+        emit aboutToReload();
         emit reload(m_fileName);
+        emit reloaded();
     }
 }
 
