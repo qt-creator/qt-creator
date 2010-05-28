@@ -41,7 +41,6 @@ using namespace CPlusPlus;
 
 QList<AST *> ASTPath::operator()(int line, int column)
 {
-    qDebug()<<"path @" << line << column;
     _nodes.clear();
     _line = line + 1;
     _column = column + 1;
