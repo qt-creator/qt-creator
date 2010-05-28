@@ -66,6 +66,8 @@ public:
 
 public slots:
     void registerMimeTypes();
+    void showGenericHighlighterOptions() const;
+    void openDefinitionsUrl(const QString &location) const;
 
 private slots:
     void registerMimeType(int index) const;

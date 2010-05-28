@@ -47,6 +47,7 @@ struct HighlighterSettings
 
     bool equals(const HighlighterSettings &highlighterSettings) const;
 
+    bool m_alertWhenNoDefinition;
     QString m_definitionFilesPath;
 };
 
@@ -57,7 +58,7 @@ inline bool operator!=(const HighlighterSettings &a, const HighlighterSettings &
 { return !a.equals(b); }
 
 namespace Internal {
-void applyDefaults(HighlighterSettings *settings);
+QString findDefinitionsLocation();
 }
 
 } // namespace TextEditor

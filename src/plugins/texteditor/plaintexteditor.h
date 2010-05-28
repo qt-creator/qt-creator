@@ -48,6 +48,7 @@ class Indenter;
 
 class TEXTEDITOR_EXPORT PlainTextEditorEditable : public BaseTextEditorEditable
 {
+    Q_OBJECT
 public:
     PlainTextEditorEditable(PlainTextEditor *);
     QList<int> context() const;
@@ -70,13 +71,14 @@ public:
     ~PlainTextEditor();
 
     void configure(const Core::MimeType &mimeType);
+    bool isMissingSyntaxDefinition() const;
 
 public slots:
     virtual void unCommentSelection();
     virtual void setFontSettings(const FontSettings &fs);
 
 private slots:
-    void configure();
+    void fileChanged();
 
 protected:
     virtual BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }    
@@ -85,6 +87,7 @@ protected:
 private:
     QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents) const;
 
+    bool m_isMissingSyntaxDefinition;
     Utils::CommentDefinition m_commentDefinition;
     QScopedPointer<Indenter> m_indenter;
 };

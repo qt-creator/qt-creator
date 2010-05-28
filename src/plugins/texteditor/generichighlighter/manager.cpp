@@ -35,6 +35,7 @@
 #include "texteditorsettings.h"
 #include "plaintexteditorfactory.h"
 #include "highlightersettings.h"
+#include "texteditorconstants.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -53,6 +54,8 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QFuture>
 #include <QtCore/QtConcurrentRun>
+#include <QtCore/QUrl>
+#include <QtGui/QDesktopServices>
 #include <QtXml/QXmlSimpleReader>
 #include <QtXml/QXmlInputSource>
 #include <QtXml/QXmlStreamReader>
@@ -65,8 +68,7 @@ Manager::Manager()
 {}
 
 Manager::~Manager()
-{
-}
+{}
 
 Manager *Manager::instance()
 {
@@ -79,9 +81,7 @@ QString Manager::definitionIdByName(const QString &name) const
 
 QString Manager::definitionIdByMimeType(const QString &mimeType) const
 {
-    if (m_idByMimeType.count(mimeType) <= 1) {
-        return m_idByMimeType.value(mimeType);
-    } else {
+    if (m_idByMimeType.count(mimeType) > 1) {
         QStringList candidateIds;
         QMultiHash<QString, QString>::const_iterator it = m_idByMimeType.find(mimeType);
         QMultiHash<QString, QString>::const_iterator endIt = m_idByMimeType.end();
@@ -91,6 +91,7 @@ QString Manager::definitionIdByMimeType(const QString &mimeType) const
         qSort(candidateIds.begin(), candidateIds.end(), m_priorityComp);
         return candidateIds.last();
     }
+    return m_idByMimeType.value(mimeType);
 }
 
 QString Manager::definitionIdByAnyMimeType(const QStringList &mimeTypes) const
@@ -192,9 +193,9 @@ void Manager::registerMimeType(int index) const
 }
 
 void Manager::parseDefinitionMetadata(const QFileInfo &fileInfo,
-                                                  QString *comment,
-                                                  QStringList *mimeTypes,
-                                                  QStringList *patterns)
+                                      QString *comment,
+                                      QStringList *mimeTypes,
+                                      QStringList *patterns)
 {
     static const QLatin1Char kSemiColon(';');
     static const QLatin1Char kSlash('/');
@@ -256,4 +257,15 @@ void Manager::clear()
     m_idByName.clear();
     m_idByMimeType.clear();
     m_definitions.clear();
+}
+
+void Manager::showGenericHighlighterOptions() const
+{
+    Core::ICore::instance()->showOptionsDialog(Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
+                                               Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS);
+}
+
+void Manager::openDefinitionsUrl(const QString &location) const
+{
+    QDesktopServices::openUrl(QUrl(location));
 }

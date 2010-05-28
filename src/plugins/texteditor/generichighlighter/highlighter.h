@@ -57,7 +57,7 @@ public:
     Highlighter(const QSharedPointer<Context> &defaultContext, QTextDocument *parent = 0);
     virtual ~Highlighter();
 
-    void configureFormats(const FontSettings & fs);
+    void configureFormats(const FontSettings &fs);
 
 protected:
     virtual void highlightBlock(const QString &text);

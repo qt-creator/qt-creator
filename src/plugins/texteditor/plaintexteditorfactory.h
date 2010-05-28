@@ -61,6 +61,9 @@ public:
 
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_actionHandler; }
 
+private slots:
+    void updateEditorInfoBar(Core::IEditor *editor);
+
 private:
     QStringList m_mimeTypes;
     TextEditor::TextEditorActionHandler *m_actionHandler;

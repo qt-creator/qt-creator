@@ -33,6 +33,7 @@
 #include "ui_highlightersettingspage.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -89,15 +90,19 @@ QWidget *HighlighterSettingsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_d->m_page.setupUi(w);
+    m_d->m_page.definitionFilesPath->setExpectedKind(Utils::PathChooser::Directory);
 
     settingsToUI();
 
     if (m_d->m_searchKeywords.isEmpty()) {
         QTextStream(&m_d->m_searchKeywords) << m_d->m_page.definitionFilesGroupBox->title()
-            << m_d->m_page.locationLabel->text();
+            << m_d->m_page.locationLabel->text()
+            << m_d->m_page.alertWhenNoDefinition->text();
     }
 
-    connect(m_d->m_page.resetButton, SIGNAL(clicked()), this, SLOT(reset()));
+    connect(m_d->m_page.resetButton, SIGNAL(clicked()), this, SLOT(resetDefinitionsLocation()));
+    connect(m_d->m_page.downloadNoteLabel, SIGNAL(linkActivated(QString)),
+            Manager::instance(), SLOT(openDefinitionsUrl(QString)));
 
     return w;
 }
@@ -125,6 +130,7 @@ void HighlighterSettingsPage::settingsFromUI()
         locationChanged = true;
 
     m_d->m_settings.m_definitionFilesPath = m_d->m_page.definitionFilesPath->path();
+    m_d->m_settings.m_alertWhenNoDefinition = m_d->m_page.alertWhenNoDefinition->isChecked();
     if (QSettings *s = Core::ICore::instance()->settings())
         m_d->m_settings.toSettings(m_d->m_settingsPrefix, s);
 
@@ -132,25 +138,22 @@ void HighlighterSettingsPage::settingsFromUI()
         emit definitionsLocationChanged();
 }
 
-void HighlighterSettingsPage::settingsToUI(const HighlighterSettings *settings)
+void HighlighterSettingsPage::settingsToUI()
 {
-    if (settings) {
-        m_d->m_page.definitionFilesPath->setPath(settings->m_definitionFilesPath);
-    } else {
-        m_d->m_page.definitionFilesPath->setPath(m_d->m_settings.m_definitionFilesPath);
-    }
+    m_d->m_page.definitionFilesPath->setPath(m_d->m_settings.m_definitionFilesPath);
+    m_d->m_page.alertWhenNoDefinition->setChecked(m_d->m_settings.m_alertWhenNoDefinition);
 }
 
-void HighlighterSettingsPage::reset()
+void HighlighterSettingsPage::resetDefinitionsLocation()
 {
-    HighlighterSettings defaultSettings;
-    applyDefaults(&defaultSettings);
-    settingsToUI(&defaultSettings);
+    m_d->m_page.definitionFilesPath->setPath(findDefinitionsLocation());
 }
 
 bool HighlighterSettingsPage::settingsChanged() const
 {    
     if (m_d->m_settings.m_definitionFilesPath != m_d->m_page.definitionFilesPath->path())
+        return true;
+    if (m_d->m_settings.m_alertWhenNoDefinition != m_d->m_page.alertWhenNoDefinition->isChecked())
         return true;
     return false;
 }

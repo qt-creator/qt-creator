@@ -47,6 +47,8 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFileInfo>
 
+#include <QDebug>
+
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
@@ -59,7 +61,8 @@ PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
 }
 
 PlainTextEditor::PlainTextEditor(QWidget *parent)
-  : BaseTextEditor(parent)
+  : BaseTextEditor(parent),
+  m_isMissingSyntaxDefinition(true)
 {
     setRevisionsVisible(true);
     setMarksVisible(true);
@@ -71,7 +74,7 @@ PlainTextEditor::PlainTextEditor(QWidget *parent)
 
     m_commentDefinition.clearCommentStyles();
 
-    connect(file(), SIGNAL(changed()), this, SLOT(configure()));
+    connect(file(), SIGNAL(changed()), this, SLOT(fileChanged()));
 }
 
 PlainTextEditor::~PlainTextEditor()
@@ -112,13 +115,15 @@ void PlainTextEditor::setFontSettings(const FontSettings & fs)
     }
 }
 
-void PlainTextEditor::configure()
+void PlainTextEditor::fileChanged()
 {
     configure(Core::ICore::instance()->mimeDatabase()->findByFile(file()->fileName()));
 }
 
 void PlainTextEditor::configure(const Core::MimeType &mimeType)
 {
+    m_isMissingSyntaxDefinition = true;
+
     if (mimeType.isNull())
         return;
 
@@ -143,14 +148,23 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
             m_commentDefinition.setSingleLine(definition->singleLineComment());
             m_commentDefinition.setMultiLineStart(definition->multiLineCommentStart());
             m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
+
+            m_isMissingSyntaxDefinition = false;
         } catch (const HighlighterException &) {
         }
+    } else if (file() && file()->fileName().endsWith(QLatin1String(".txt"))) {
+        m_isMissingSyntaxDefinition = false;
     }
 
     // @todo: Indentation specification through the definition files is not really being used
     // because Kate recommends to configure indentation  through another feature. Maybe we should
     // provide something similar in Creator? For now, only normal indentation is supported.
     m_indenter.reset(new NormalIndenter);
+}
+
+bool PlainTextEditor::isMissingSyntaxDefinition() const
+{
+    return m_isMissingSyntaxDefinition;
 }
 
 QString PlainTextEditor::findDefinitionId(const Core::MimeType &mimeType,
@@ -162,7 +176,7 @@ QString PlainTextEditor::findDefinitionId(const Core::MimeType &mimeType,
         if (definitionId.isEmpty()) {
             foreach (const QString &parent, mimeType.subClassesOf()) {
                 const Core::MimeType &parentMimeType =
-                        Core::ICore::instance()->mimeDatabase()->findByType(parent);
+                    Core::ICore::instance()->mimeDatabase()->findByType(parent);
                 definitionId = findDefinitionId(parentMimeType, considerParents);
             }
         }

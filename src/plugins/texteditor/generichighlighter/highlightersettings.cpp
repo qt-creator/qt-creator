@@ -33,9 +33,10 @@
 
 #include <QtCore/QSettings>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QLatin1String>
 
-#ifdef Q_OS_LINUX
+#ifdef Q_OS_UNIX
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
 #endif
@@ -43,18 +44,28 @@
 namespace TextEditor {
 namespace Internal {
 
-void applyDefaults(HighlighterSettings *settings)
+QString findDefinitionsLocation()
 {
-    settings->m_definitionFilesPath.clear();
+    QString definitionsLocation;
 
-#ifdef Q_OS_LINUX
+#ifdef Q_OS_UNIX
     static const QLatin1String kateSyntax("/share/apps/katepart/syntax");
 
-    // Wild guess.
-    QDir dir(QLatin1String("/usr") + kateSyntax);
-    if (dir.exists()) {
-        settings->m_definitionFilesPath = dir.path();
-    } else {
+    // Some wild guesses.
+    QDir dir;
+    QStringList paths;
+    paths << QLatin1String("/usr") + kateSyntax
+          << QLatin1String("/usr/local") + kateSyntax
+          << QLatin1String("/opt") + kateSyntax;
+    foreach (const QString &path, paths) {
+        dir.setPath(path);
+        if (dir.exists()) {
+            definitionsLocation = path;
+            break;
+        }
+    }
+
+    if (definitionsLocation.isEmpty()) {
         // Try kde-config.
         QProcess process;
         process.start(QLatin1String("kde-config"), QStringList(QLatin1String("--prefix")));
@@ -64,14 +75,16 @@ void applyDefaults(HighlighterSettings *settings)
             output.remove(QLatin1Char('\n'));
             dir.setPath(output + kateSyntax);
             if (dir.exists())
-                settings->m_definitionFilesPath = dir.path();
+                definitionsLocation = dir.path();
         }
     }
 #endif
 
-    if (settings->m_definitionFilesPath.isEmpty())
-        settings->m_definitionFilesPath = Core::ICore::instance()->resourcePath() +
-                                          QLatin1String("/generic-highlighter");
+    if (definitionsLocation.isEmpty())
+        definitionsLocation = Core::ICore::instance()->resourcePath() +
+                              QLatin1String("/generic-highlighter");
+
+    return definitionsLocation;
 }
 
 } // namespace Internal
@@ -80,6 +93,7 @@ void applyDefaults(HighlighterSettings *settings)
 namespace {
 
 static const QLatin1String kDefinitionFilesPath("DefinitionFilesPath");
+static const QLatin1String kAlertWhenDefinitionIsNotFound("AlertWhenDefinitionsIsNotFound");
 static const QLatin1String kGroupPostfix("HighlighterSettings");
 
 QString groupSpecifier(const QString &postFix, const QString &category)
@@ -94,7 +108,7 @@ QString groupSpecifier(const QString &postFix, const QString &category)
 using namespace TextEditor;
 using namespace Internal;
 
-HighlighterSettings::HighlighterSettings()
+HighlighterSettings::HighlighterSettings() : m_alertWhenNoDefinition(true)
 {}
 
 void HighlighterSettings::toSettings(const QString &category, QSettings *s) const
@@ -102,6 +116,7 @@ void HighlighterSettings::toSettings(const QString &category, QSettings *s) cons
     const QString &group = groupSpecifier(kGroupPostfix, category);
     s->beginGroup(group);
     s->setValue(kDefinitionFilesPath, m_definitionFilesPath);
+    s->setValue(kAlertWhenDefinitionIsNotFound, m_alertWhenNoDefinition);
     s->endGroup();
 }
 
@@ -109,16 +124,16 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
 {
     const QString &group = groupSpecifier(kGroupPostfix, category);
     s->beginGroup(group);
-
     if (!s->contains(kDefinitionFilesPath))
-        applyDefaults(this);
+        m_definitionFilesPath = findDefinitionsLocation();
     else
         m_definitionFilesPath = s->value(kDefinitionFilesPath, QString()).toString();
-
+    m_alertWhenNoDefinition = s->value(kAlertWhenDefinitionIsNotFound, true).toBool();
     s->endGroup();
 }
 
 bool HighlighterSettings::equals(const HighlighterSettings &highlighterSettings) const
 {
-    return m_definitionFilesPath == highlighterSettings.m_definitionFilesPath;
+    return m_definitionFilesPath == highlighterSettings.m_definitionFilesPath &&
+           m_alertWhenNoDefinition == highlighterSettings.m_alertWhenNoDefinition;
 }

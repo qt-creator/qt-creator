@@ -87,6 +87,7 @@ const char * const GOTO_NEXT_CHARACTER_WITH_SELECTION = "TextEditor.GotoNextChar
 const char * const GOTO_PREVIOUS_WORD_WITH_SELECTION = "TextEditor.GotoPreviousWordWithSelection";
 const char * const GOTO_NEXT_WORD_WITH_SELECTION = "TextEditor.GotoNextWordWithSelection";
 const char * const C_TEXTEDITOR_MIMETYPE_TEXT = "text/plain";
+const char * const INFO_SYNTAX_DEFINITION = "TextEditor.InfoSyntaxDefinition";
 
 
 // Text color and style categories
@@ -126,6 +127,10 @@ const char * const C_DIFF_LOCATION       = "DiffLocation";
 const char * const TEXT_EDITOR_SETTINGS_CATEGORY = "C.TextEditor";
 const char * const TEXT_EDITOR_SETTINGS_CATEGORY_ICON = ":/core/images/category_texteditor.png";
 const char * const TEXT_EDITOR_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("TextEditor", "Text Editor");
+const char * const TEXT_EDITOR_FONT_SETTINGS = "A.FontSettings";
+const char * const TEXT_EDITOR_BEHAVIOR_SETTINGS = "B.BehaviourSettings";
+const char * const TEXT_EDITOR_DISPLAY_SETTINGS = "D.DisplaySettings";
+const char * const TEXT_EDITOR_HIGHLIGHTER_SETTINGS = "E.HighlighterSettings";
 
 } // namespace Constants
 } // namespace TextEditor

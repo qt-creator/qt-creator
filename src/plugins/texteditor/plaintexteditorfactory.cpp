@@ -32,9 +32,14 @@
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 #include "texteditoractionhandler.h"
+#include "texteditorsettings.h"
+#include "manager.h"
+#include "highlightersettings.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <QDebug>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
@@ -47,6 +52,9 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
         TextEditorActionHandler::Format |
         TextEditorActionHandler::UnCommentSelection);
     m_mimeTypes << QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT);
+
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(updateEditorInfoBar(Core::IEditor*)));
 }
 
 PlainTextEditorFactory::~PlainTextEditorFactory()
@@ -75,6 +83,25 @@ Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
     PlainTextEditor *rc = new PlainTextEditor(parent);
     TextEditorPlugin::instance()->initializeEditor(rc);
     return rc->editableInterface();
+}
+
+void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
+{
+    PlainTextEditorEditable *editorEditable = qobject_cast<PlainTextEditorEditable *>(editor);
+    if (editorEditable) {
+        PlainTextEditor *textEditor = static_cast<PlainTextEditor *>(editorEditable->editor());
+        if (textEditor->isMissingSyntaxDefinition() &&
+            TextEditorSettings::instance()->highlighterSettings().m_alertWhenNoDefinition) {
+            Core::EditorManager::instance()->showEditorInfoBar(
+                Constants::INFO_SYNTAX_DEFINITION,
+                tr("A highlight definition was not found for this file. Would you like to try to find one?"),
+                tr("Show highlighter options"),
+                Manager::instance(),
+                SLOT(showGenericHighlighterOptions()));
+        }
+    } else {
+        Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_SYNTAX_DEFINITION);
+    }
 }
 
 void PlainTextEditorFactory::addMimeType(const QString &type)

@@ -143,27 +143,27 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.append(FormatDescription(QLatin1String(C_DIFF_LOCATION), tr("Diff Location"), Qt::blue));
 
     m_d->m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
-                                                   QLatin1String("A.FontSettings"),
+                                                   QLatin1String(Constants::TEXT_EDITOR_FONT_SETTINGS),
                                                    this);
     pm->addObject(m_d->m_fontSettingsPage);
 
     // Add the GUI used to configure the tab, storage and interaction settings
     TextEditor::BehaviorSettingsPageParameters behaviorSettingsPageParameters;
-    behaviorSettingsPageParameters.id = QLatin1String("B.BehaviourSettings");
+    behaviorSettingsPageParameters.id = QLatin1String(Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS);
     behaviorSettingsPageParameters.displayName = tr("Behavior");
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
     pm->addObject(m_d->m_behaviorSettingsPage);
 
     TextEditor::DisplaySettingsPageParameters displaySettingsPageParameters;
-    displaySettingsPageParameters.id = QLatin1String("D.DisplaySettings"),
+    displaySettingsPageParameters.id = QLatin1String(Constants::TEXT_EDITOR_DISPLAY_SETTINGS),
     displaySettingsPageParameters.displayName = tr("Display");
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
     pm->addObject(m_d->m_displaySettingsPage);
 
     m_d->m_highlighterSettingsPage =
-        new HighlighterSettingsPage(QLatin1String("E.HighlighterSettings"), this);
+        new HighlighterSettingsPage(QLatin1String(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS), this);
     pm->addObject(m_d->m_highlighterSettingsPage);
 
     connect(m_d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),

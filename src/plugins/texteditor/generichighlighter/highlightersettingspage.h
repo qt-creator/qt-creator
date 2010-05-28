@@ -57,11 +57,11 @@ signals:
     void definitionsLocationChanged();
 
 private slots:
-    void reset();
+    void resetDefinitionsLocation();
 
 private:
     void settingsFromUI();
-    void settingsToUI(const HighlighterSettings *settings = 0);
+    void settingsToUI();
 
     bool settingsChanged() const;
 
