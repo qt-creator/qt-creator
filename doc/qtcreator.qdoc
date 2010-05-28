@@ -5639,7 +5639,8 @@
 
     To build and run Qt applications for Maemo, you need the following:
     \list
-       \o  Nokia N900 device with PR1.2 or later installed.
+       \o  Nokia N900 device with software update release 1.2 (V10.2010.19-1)
+       or later installed.
        \o  MADDE cross-platform Maemo development
            tool (installed as part of the Nokia Qt SDK).
 
@@ -6029,7 +6030,9 @@
     \section1 Starting the Maemo Emulator
 
     The \gui {Start Maemo Emulator} button is visible if you have a project
-    open in Qt Creator for which you have added the Maemo build target.
+    open in Qt Creator for which you have added the Maemo build target
+    and if you have configured a connection between Qt Creator and the Maemo
+    Emulator.
 
     To start the Maemo emulator:
 
