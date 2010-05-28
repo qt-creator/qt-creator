@@ -45,8 +45,8 @@ class TEXTEDITOR_EXPORT BaseTextMark : public QObject
 {
     friend class Internal::InternalMark;
     Q_OBJECT
+
 public:
-    BaseTextMark();
     BaseTextMark(const QString &filename, int line);
     ~BaseTextMark();
 
@@ -69,12 +69,16 @@ public:
     int lineNumber() const { return m_line; }
 
     void moveMark(const QString &filename, int line);
+
 private slots:
-    void editorOpened(Core::IEditor *editor);
     void init();
+    void editorOpened(Core::IEditor *editor);
+    void documentReloaded();
+
 private:
     void childRemovedFromEditor(Internal::InternalMark *mark);
     void documentClosingFor(Internal::InternalMark *mark);
+    void removeInternalMark();
 
     ITextMarkable *m_markableInterface;
     Internal::InternalMark *m_internalMark;

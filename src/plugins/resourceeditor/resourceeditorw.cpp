@@ -203,7 +203,9 @@ void ResourceEditorFile::reload(ReloadFlag flag, ChangeType type)
     if (type == TypePermissions) {
         emit changed();
     } else {
-        m_parent->open(m_parent->m_resourceEditor->fileName());
+        emit aboutToReload();
+        if (m_parent->open(m_parent->m_resourceEditor->fileName()))
+            emit reloaded();
     }
 }
 
