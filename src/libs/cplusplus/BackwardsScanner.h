@@ -26,8 +26,8 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef BACKWARDSSCANNER_H
-#define BACKWARDSSCANNER_H
+#ifndef CPLUSPLUS_BACKWARDSSCANNER_H
+#define CPLUSPLUS_BACKWARDSSCANNER_H
 
 #include "SimpleLexer.h"
 
@@ -87,4 +87,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // BACKWARDSSCANNER_H
+#endif // CPLUSPLUS_BACKWARDSSCANNER_H

@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef FINDUSAGES_H
-#define FINDUSAGES_H
+#ifndef CPLUSPLUS_FINDUSAGES_H
+#define CPLUSPLUS_FINDUSAGES_H
 
 #include "LookupContext.h"
 #include "CppDocument.h"
@@ -119,4 +119,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // FINDUSAGES_H
+#endif // CPLUSPLUS_FINDUSAGES_H

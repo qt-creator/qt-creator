@@ -26,8 +26,8 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef SIMPLELEXER_H
-#define SIMPLELEXER_H
+#ifndef CPLUSPLUS_SIMPLELEXER_H
+#define CPLUSPLUS_SIMPLELEXER_H
 
 #include <CPlusPlusForwardDeclarations.h>
 
@@ -143,4 +143,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // SIMPLELEXER_H
+#endif // CPLUSPLUS_SIMPLELEXER_H

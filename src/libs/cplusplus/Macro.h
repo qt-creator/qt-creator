@@ -46,8 +46,8 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_MACRO_H
-#define PP_MACRO_H
+#ifndef CPLUSPLUS_PP_MACRO_H
+#define CPLUSPLUS_PP_MACRO_H
 
 #include <CPlusPlusForwardDeclarations.h>
 
@@ -153,4 +153,4 @@ private:
 
 } // namespace CPlusPlus
 
-#endif // PP_MACRO_H
+#endif // CPLUSPLUS_PP_MACRO_H

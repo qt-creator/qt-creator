@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef CHECKUNDEFINEDSYMBOLS_H
-#define CHECKUNDEFINEDSYMBOLS_H
+#ifndef CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
+#define CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H
 
 #include "CppDocument.h"
 #include "LookupContext.h"
@@ -88,4 +88,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // CHECKUNDEFINEDSYMBOLS_H
+#endif // CPLUSPLUS_CHECKUNDEFINEDSYMBOLS_H

@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef EXPRESSIONUNDERCURSOR_H
-#define EXPRESSIONUNDERCURSOR_H
+#ifndef CPLUSPLUS_EXPRESSIONUNDERCURSOR_H
+#define CPLUSPLUS_EXPRESSIONUNDERCURSOR_H
 
 #include "CPlusPlusForwardDeclarations.h"
 #include <QList>
@@ -64,4 +64,4 @@ private:
 
 } // namespace CPlusPlus
 
-#endif // EXPRESSIONUNDERCURSOR_H
+#endif // CPLUSPLUS_EXPRESSIONUNDERCURSOR_H

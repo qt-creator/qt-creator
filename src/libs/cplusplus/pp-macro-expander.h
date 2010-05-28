@@ -46,8 +46,8 @@
   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PP_MACRO_EXPANDER_H
-#define PP_MACRO_EXPANDER_H
+#ifndef CPLUSPLUS_PP_MACRO_EXPANDER_H
+#define CPLUSPLUS_PP_MACRO_EXPANDER_H
 
 #include "Macro.h"
 #include "pp-scanner.h"
@@ -102,5 +102,5 @@ public: // attributes
 
 } // namespace CPlusPlus
 
-#endif // PP_MACRO_EXPANDER_H
+#endif // CPLUSPLUS_PP_MACRO_EXPANDER_H
 

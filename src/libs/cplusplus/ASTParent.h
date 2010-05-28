@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef ASTPARENT_H
-#define ASTPARENT_H
+#ifndef CPLUSPLUS_ASTPARENT_H
+#define CPLUSPLUS_ASTPARENT_H
 
 #include <ASTVisitor.h>
 #include <QtCore/QHash>
@@ -60,4 +60,4 @@ private:
 
 } // namespace CPlusPlus
 
-#endif // ASTPARENT_H
+#endif // CPLUSPLUS_ASTPARENT_H

@@ -26,8 +26,8 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef TYPEPRETTYPRINTER_H
-#define TYPEPRETTYPRINTER_H
+#ifndef CPLUSPLUS_TYPEPRETTYPRINTER_H
+#define CPLUSPLUS_TYPEPRETTYPRINTER_H
 
 #include <TypeVisitor.h>
 #include <FullySpecifiedType.h>
@@ -86,4 +86,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // TYPEPRETTYPRINTER_H
+#endif // CPLUSPLUS_TYPEPRETTYPRINTER_H

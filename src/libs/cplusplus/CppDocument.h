@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef CPPDOCUMENT_H
-#define CPPDOCUMENT_H
+#ifndef CPLUSPLUS_CPPDOCUMENT_H
+#define CPLUSPLUS_CPPDOCUMENT_H
 
 #include <CPlusPlusForwardDeclarations.h>
 #include "Macro.h"
@@ -382,4 +382,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // CPPDOCUMENT_H
+#endif // CPLUSPLUS_CPPDOCUMENT_H

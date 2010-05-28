@@ -27,13 +27,13 @@
 **
 **************************************************************************/
 
-#ifndef ASTPATH_H
-#define ASTPATH_H
+#ifndef CPLUSPLUS_ASTPATH_H
+#define CPLUSPLUS_ASTPATH_H
 
 #include <ASTfwd.h>
 #include <ASTVisitor.h>
 
-#include <cplusplus/CppDocument.h>
+#include "CppDocument.h"
 
 #include <QtCore/QList>
 #include <QtGui/QTextCursor>
@@ -72,4 +72,4 @@ private:
 
 } // namespace CppTools
 
-#endif // ASTPATH_H
+#endif // CPLUSPLUS_ASTPATH_H

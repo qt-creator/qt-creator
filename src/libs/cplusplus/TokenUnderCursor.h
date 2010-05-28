@@ -26,8 +26,8 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef TOKENUNDERCURSOR_H
-#define TOKENUNDERCURSOR_H
+#ifndef CPLUSPLUS_TOKENUNDERCURSOR_H
+#define CPLUSPLUS_TOKENUNDERCURSOR_H
 
 #include "SimpleLexer.h"
 #include <QList>
@@ -58,4 +58,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // TOKENUNDERCURSOR_H
+#endif // CPLUSPLUS_TOKENUNDERCURSOR_H

@@ -26,8 +26,8 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef MATCHINGTEXT_H
-#define MATCHINGTEXT_H
+#ifndef CPLUSPLUS_MATCHINGTEXT_H
+#define CPLUSPLUS_MATCHINGTEXT_H
 
 #include <CPlusPlusForwardDeclarations.h>
 #include <QtGui/QTextCursor>

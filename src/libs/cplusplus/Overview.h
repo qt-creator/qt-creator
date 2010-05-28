@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef OVERVIEW_H
-#define OVERVIEW_H
+#ifndef CPLUSPLUS_OVERVIEW_H
+#define CPLUSPLUS_OVERVIEW_H
 
 #include <CPlusPlusForwardDeclarations.h>
 #include <QString>
@@ -92,4 +92,4 @@ private:
 
 } // end of namespace CPlusPlus
 
-#endif // OVERVIEW_H
+#endif // CPLUSPLUS_OVERVIEW_H
