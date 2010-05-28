@@ -715,6 +715,7 @@ public:
 void testQObject(int &argc, char *argv[])
 {
     QApplication app(argc, argv);
+    QPixmap pm;
 #if 1
     Names::Bar::TestObject test;
 
@@ -1716,6 +1717,8 @@ void testQSettings()
 
 int main(int argc, char *argv[])
 {
+    QSize size(100, 100);
+    QSizeF sizef(100, 100);
     testQSettings();
     //testWCout0();
     //testWCout();

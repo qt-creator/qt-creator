@@ -1584,7 +1584,8 @@ static void qDumpQImage(QDumper &d)
         d.put("(").put(im.width()).put("x").put(im.height()).put(")");
     d.endItem();
     d.putItem("type", NS"QImage");
-    d.putItem("numchild", "1");
+    d.putItem("numchild", "0");
+#if 0
     if (d.dumpChildren) {
         d.beginChildren();
         d.beginHash();
@@ -1594,6 +1595,7 @@ static void qDumpQImage(QDumper &d)
         d.endHash();
         d.endChildren();
     }
+#endif
     d.disarm();
 }
 #endif
@@ -2844,6 +2846,40 @@ static void qDumpQSharedPointer(QDumper &d)
 #endif // QT_VERSION >= 0x040500
 #endif // QT_BOOTSTRAPPED
 
+static void qDumpQSize(QDumper &d)
+{
+    const QSize s = *reinterpret_cast<const QSize *>(d.data);
+    d.beginItem("value");
+        d.put("(").put(s.width()).put("x").put(s.height()).put(")");
+    d.endItem();
+    d.putItem("type", NS"QSize");
+    d.putItem("numchild", "2");
+    if (d.dumpChildren) {
+        d.beginChildren();
+        d.putHash("w", s.width());
+        d.putHash("h", s.height());
+        d.endChildren();
+    }
+    d.disarm();
+}
+
+static void qDumpQSizeF(QDumper &d)
+{
+    const QSizeF s = *reinterpret_cast<const QSizeF *>(d.data);
+    d.beginItem("value");
+        d.put("(").put(s.width()).put("x").put(s.height()).put(")");
+    d.endItem();
+    d.putItem("type", NS"QSizeF");
+    d.putItem("numchild", "2");
+    if (d.dumpChildren) {
+        d.beginChildren();
+        d.putHash("w", s.width());
+        d.putHash("h", s.height());
+        d.endChildren();
+    }
+    d.disarm();
+}
+
 static void qDumpQString(QDumper &d)
 {
     //qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
@@ -3572,6 +3608,10 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpQSharedPointer(d);
             #endif
             #endif // QT_BOOTSTRAPPED
+            else if (isEqual(type, "QSize"))
+                qDumpQSize(d);
+            else if (isEqual(type, "QSizeF"))
+                qDumpQSizeF(d);
             break;
         case 's':
             if (isEqual(type, "wstring"))
@@ -3794,7 +3834,7 @@ void *qDumpObjectData440(
             "\""NS"QFileInfo\","
             "\""NS"QHash\","
             "\""NS"QHashNode\","
-            //"\""NS"QImage\","
+            "\""NS"QImage\","
             //"\""NS"QImageData\","
             "\""NS"QLinkedList\","
             "\""NS"QList\","
@@ -3817,6 +3857,8 @@ void *qDumpObjectData440(
             "\""NS"QRectF\","
             //"\""NS"QRegion\","
             "\""NS"QSet\","
+            "\""NS"QSize\","
+            "\""NS"QSizeF\","
             "\""NS"QStack\","
             "\""NS"QString\","
             "\""NS"QStringList\","
@@ -3830,6 +3872,7 @@ void *qDumpObjectData440(
             "\""NS"QWeakPointer\","
 #endif
 #if USE_QT_GUI
+            "\""NS"QPixmap\","
             "\""NS"QWidget\","
 #endif
 #ifdef Q_OS_WIN
