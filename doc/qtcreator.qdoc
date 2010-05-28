@@ -2261,10 +2261,57 @@
     \section1 Specifying Run Settings for qmake Projects
 
     The run configurations for qmake projects derive their executable from the parsed .pro
-    files. You can also create custom executable run configurations where you
-    can set the executable to be run.
+    files.
+
+    \section2 Specifying Run Settings for Desktop Targets
+
+    You can specify command line arguments to be passed to the executable
+    and the working directory to use. The working directory defaults to
+    the directory of the build result.
+
+    For console applications, check the \gui{Run in Terminal} check box.
+    If you need to run with special environment variables set up, you
+    also do it in the run configuration settings.
 
     \image qtcreator-pprunsettings.png
+
+    You can also create custom executable run configurations where you
+    can set the executable to be run. For more information, see
+    \l{Specifying a Custom Executable to Run}.
+
+    \section2 Specifying Run Settings for Symbian Devices
+
+    Qt Creator automatically detects Symbian devices that are connected to
+    the development PC with an USB cable.
+    If only one device is detected, the application is deployed
+    and run on it. If multiple devices are connected to the PC,
+    make sure that the correct device is selected in the
+    \gui {Symbian Device} run settings for your project.
+
+    You can also pass command line arguments to your application on the device.
+    Press the \gui{Device info button} to get more information about the selected
+    device, such as the CPU type and the running TRK version.
+
+    \image qtcreator-symbian-run-settings.png "Run settings for Symbian devices"
+
+    \section2 Specifying Run Settings for Maemo Devices
+
+    To run an application on a Maemo device, create and select
+    a device configuration in the Maemo run settings for your project.
+    You can also pass command line arguments to your application.
+
+    \image qtcreator-screenshot-run-settings.png "Run settings for Maemo devices"
+
+    \section1 Specifying a Custom Executable to Run
+
+    If you use cmake or the generic project type in Qt Creator, or want
+    to run a custom desktop executable, create a \gui {Custom Executable}
+    run configuration for your project.
+
+    Specify the executable to run, command line arguments, working directory,
+    and environment variables to use.
+
+    \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
     \section1 Specifying Run Settings for Qt Quick Projects
 
@@ -2290,11 +2337,6 @@
     \endlist
 
     \image qmldesigner-run-settings.png "Run settings for Qt Quick projects"
-
-    To set the executable to run, select \gui {Custom Executable} in the
-    \gui {Run configuration} field.
-
-    \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
 */
 
