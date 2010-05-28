@@ -69,6 +69,10 @@ void tst_Version::version_data()
     QTest::newRow("Apple")
         << "GNU gdb 6.3.50-20050815 (Apple version gdb-1461.2)"
         << 60350 << 1461 << true;
+
+    QTest::newRow("Apple")
+        << "GNU gdb 6.3.50-20050815 (Apple version gdb-960)"
+        << 60350 << 960 << true;
 }
 
 
