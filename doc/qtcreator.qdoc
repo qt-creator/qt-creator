@@ -46,7 +46,9 @@
        \o \l{Quick Tour}
        \o \l{Getting Started}
            \list
+               \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
+               \o \l{Creating a Mobile Application}
                \o \l{Creating a Qt Quick Application}
            \endlist
        \o \l{Using the Editor}
@@ -2389,15 +2391,18 @@
     \contentspage index.html
     \previouspage creator-quick-tour.html
     \page creator-getting-started.html
-    \nextpage creator-writing-program.html
+    \nextpage creator-build-example-application.html
 
     \title Getting Started
 
     This section contains examples that illustrate how to use Qt Creator and the
-    integrated design tools, \QD and \QMLD, to create simple applications:
+    integrated design tools, \QD and \QMLD, to create, build, and run simple
+    applications:
 
     \list
+        \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
+        \o \l{Creating a Mobile Application}
         \o \l{Creating a Qt Quick Application}
     \endlist
 
@@ -2407,12 +2412,288 @@
 /*!
     \contentspage index.html
     \previouspage creator-writing-program.html
+    \page creator-mobile-example.html
+    \nextpage creator-qml-application.html
+
+    \title Creating a Mobile Application
+
+    \note This tutorial assumes that you have experience in writing basic Qt
+    applications, using \QD to design user interfaces and using the Qt
+    Resource System.
+
+    This tutorial describes how to use Qt Creator to create a small Qt
+    application, Battery Indicator, that uses the System Information
+    Mobility API to fetch battery information from the device.
+
+    \image qtcreator-batteryindicator-screenshot.png
+
+    \section1 Creating the Battery Indicator Project
+
+    \note Create the project with the \gui{Help} mode active so that you can follow
+    these instructions while you work.
+
+    \list 1
+
+        \o Select \gui{File > New File or Project > Qt Application Project > Mobile Qt
+        Application > Choose}.
+
+        \image qtcreator-new-mobile-project.png "New File or Project dialog"
+
+        The \gui{Introduction and Project Location} dialog opens.
+
+        \image qtcreator-mobile-intro-and-location.png "Introduction and Project Location dialog"
+
+        \o In the \gui{Name} field, type \bold {BatteryIndicator}.
+
+        \o In the \gui {Create in} field, enter the path for the project files. For example,
+        \c {C:\Qt\examples}, and then click \gui{Next}.
+
+        The \gui{Select Required Qt Versions} dialog opens.
+
+        \image qtcreator-mobile-project-qt-versions.png "Select Required Qt Versions dialog"
+
+        \o Select \gui Maemo, \gui {Qt Simulator}, and \gui {Symbian Device} targets,
+        and click \gui{Next}.
+
+        \note Targets are listed if you installed the appropriate development
+        environment, for example, as part of the Nokia Qt SDK.
+
+        The \gui{Class Information} dialog opens.
+
+        \image qtcreator-mobile-class-info.png "Class Information dialog"
+
+        \o In the \gui{Class Name} field, type \bold {BatteryIndicator} as the class name.
+
+        \o In the \gui{Base Class} list, select \bold {QDialog} as the base class type.
+
+        \note The \gui{Header File}, \gui{Source File} and \gui{Form File} fields are
+        automatically updated to match the name of the class.
+
+        \o Click \gui{Next}.
+
+        The \gui{Project Management} dialog opens.
+
+        \image qtcreator-mobile-project-summary.png "Project Management dialog"
+
+        \o Review the project settings, and click \gui{Finish} to create the project.
+
+    \endlist
+
+    The BatteryIndicator project now contains the following files:
+
+    \list
+
+        \o batteryindicator.h
+        \o batteryindicator.cpp
+        \o main.cpp
+        \o batteryindicator.ui
+        \o BatteryIndicator.pro
+
+    \endlist
+
+    \image qtcreator-mobile-project-contents.png "Project contents"
+
+    The files come with the necessary boiler plate code that you must
+    modify, as described in the following sections. You do not need
+    to change the main.cpp file.
+
+    \section1 Declaring the Qt Mobility API
+
+    The \gui New wizard automatically adds information to the .pro file
+    that you need when you use the Qt Mobility APIs or develop applications
+    for Symbian devices. You must modify the information to declare the
+    Qt Mobility APIs that you use.
+
+    This example uses the System Info API, so you must declare it, as
+    illustrated by the following code snippet:
+
+    \code
+
+    CONFIG += mobility
+    MOBILITY = systeminfo
+
+    \endcode
+
+    Each Mobility API has its corresponding value that you have to add
+    as a value of MOBILITY to use the API. For a list of the APIs and the
+    corresponding values that you can assign to MOBILITY, see the
+    \l {http://doc.qt.nokia.com/qtmobility-1.0/quickstart.html}{Quickstart Example}.
+
+    The following code snippet shows information that is needed for
+    applications developed for Symbian device. Qt Creator generated
+    the UID for testing the application on a device. You only need
+    to change the UID and capabilities if you deliver the application
+    for public use and need to have it Symbian Signed.
+
+    \code
+
+    symbian {
+        TARGET.UID3 = 0xecbd72d7
+        # TARGET.CAPABILITY +=
+        TARGET.EPOCSTACKSIZE = 0x14000
+        TARGET.EPOCHEAPSIZE = 0x020000 0x800000
+    }
+
+    \endcode
+
+    \section1 Designing the User Interface
+
+    \list 1
+
+        \o In the \gui{Editor} mode, double-click the batteryindicator.ui
+        file in the \gui{Projects} view to launch the integrated \QD.
+
+        \o Drag and drop a \gui{Progress Bar} (\l{http://doc.qt.nokia.com/4.7-snapshot/qprogressbar.html}{QProgressBar})
+        widget to the form.
+
+        \image qtcreator-mobile-project-widgets.png "Adding widgets to the UI"
+
+        \o In the \gui Properties pane, change the \gui objectName to
+        \bold batteryLevelBar.
+
+    \endlist
+
+    \section1 Completing the Header File
+
+    The batteryindicator.h file contains some of the necessary #includes, a
+    constructor, a destructor, and the \c{Ui} object. You must include
+    the System Info header file, add a shortcut to the mobility name
+    space, and add a private function to update the battery level value in
+    the indicator when the battery power level changes.
+
+    \list 1
+
+        \o In the \gui{Projects} view, double-click the \c{batteryindicator.h} file
+        to open it for editing.
+
+        \o Include the System Info header file, as illustrated by the following
+        code snippet:
+
+        \snippet examples/batteryindicator/batteryindicator.h 1
+
+        \o Add a shortcut to the mobility name space, as illustrated by the
+        following code snippet:
+
+        \snippet examples/batteryindicator/batteryindicator.h 2
+
+        \o Declare a private function in the \c{private} section, after the
+        \c{Ui::BatteryIndicator} function, as illustrated by the following code
+        snippet:
+
+        \snippet examples/batteryindicator/batteryindicator.h 3
+
+    \endlist
+
+    \section1 Completing the Source File
+
+    Now that the header file is complete, move on to the source file,
+    batteryindicator.cpp.
+
+    \list 1
+
+        \o In the \gui{Projects} view, double-click the batteryindicator.cpp file
+        to open it for editing.
+
+        \o Create a QSystemDeviceInfo object and set its value. Then connect the signal
+        that indicates that battery level changed to the \c setValue
+        slot of the progress bar. This is illustrated by the following code snippet:
+
+        \snippet examples/batteryindicator/batteryindicator.cpp 1
+
+        \o Use the constructor to set initial values and make sure that the
+         created object is in a defined state, as illustrated by the following
+         code snippet:
+
+         \snippet examples/batteryindicator/batteryindicator.cpp 2
+
+    \endlist
+
+    \section1 Compiling and Running Your Program
+
+    Now that you have all the necessary code, select \gui {Qt Simulator}
+    as the target and click the
+    \inlineimage qtcreator-run.png
+    button to build your program and run it in the Qt Simulator.
+
+    In Qt Simulator, run the runOutOfBattery.qs example script
+    to see the value change in the Battery Indicator application.
+    Select \gui {Scripting > examples > runOutOfBattery.qs > Run}.
+
+    \image qtcreator-mobile-simulated.png "Mobile example in Qt Simulator"
+
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-getting-started.html
+    \page creator-build-example-application.html
+    \nextpage creator-writing-program.html
+
+    \title Building and Running an Example Application
+
+    You can test that your installation is successful by opening an existing
+    example application project.
+
+    \list 1
+
+        \o On the \gui Welcome page, select \gui {Choose an example... >
+        Animation Framework > Animated Tiles}.
+
+        \image qtcreator-gs-build-example-open.png "Selecting an example"
+
+        \o Select targets for the project. Select at least Qt Simulator
+        and one of the mobile targets, Maemo or Symbian Device, depending on
+        the device you develop for.
+
+        \image qtcreator-gs-build-example-targets.png "Selecting targets"
+
+        \note You can add targets later in the \gui Projects mode.
+
+        \o To test the application in Qt Simulator, click the \gui {Target
+        Selector} and select \gui {Qt Simulator}.
+
+        \image {qtcreator-gs-build-example-select-qs.png} "Selecting Qt Simulator as target"
+
+        \o Click
+        \inlineimage{qtcreator-run.png}
+        to build the application for Qt Simulator.
+
+        \o To see the compilation progress, press \key{Alt+4} to open the
+        \gui Compile Output pane.
+
+        The gui Build progress bar on the toolbar turns green when the project
+        is successfully built. The application opens in Qt Simulator.
+
+        \image {qt-simulator.png} "Qt Simulator"
+
+        \o Change the settings in the
+        \gui View pane, for example, to toggle the orientation by clicking
+        \gui {Rotate Device}, or choose from the various Symbian and Maemo
+        configurations by clicking \gui {Device}. You can also simulate various
+        mobile functions and create your own scripts.
+
+        \o To test the application on a Symbian device install Qt 4.6.2
+        and the TRK debugging application on the device. For more information,
+        see \l{Setting Up Development Environment for Symbian}.
+
+        \o Click the \gui {Target Selector} and select \gui {Symbian Device}.
+
+        \o Click \gui Run to build the application for the Symbian device.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-mobile-example.html
     \page creator-qml-application.html
     \nextpage creator-editor-using.html
 
     \title Creating a Qt Quick Application
 
-    \note This tutorial assumes that you are familiar with the \l {http://qt.nokia.com/doc/4.7-snapshot/declarativeui.html}
+    \note This tutorial assumes that you are familiar with the \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}
     {QML declarative language}.
 
     This tutorial describes how to use Qt Creator to create a small animated
@@ -5876,11 +6157,36 @@
         \o The \l{http://tools.ext.nokia.com/trk/}{App TRK} application for
            your device
         \o The \e{qt_installer.sis} package installed on the device, that is
-         bundled with the binary Qt distribution
+         delivered with the Qt SDK.
     \endlist
 
     To run your applications in the Symbian emulator, you also need
     to install Carbide.c++ v2.0.0 or higher.
+
+    \section1 Installing Required Applications on Devices
+
+    The Nokia Qt SDK installation program creates shortcuts for installing
+    the required applications on Symbian devices (you can also use any of
+    the standard methods for installing applications on devices):
+
+    \list 1
+
+        \o Connect the device to the development PC with an USB cable in
+        PC Suite Mode. If you have not previously used the device with Ovi Suite
+        or PC Suite, all the necessary drivers are installed automatically.
+        This takes approximately one minute.
+
+        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install Qt to Symbian
+        device} and follow the instructions on the screen to install Qt 4.6.2
+        libraries on the device.
+
+        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install TRK to Symbian
+        device} and follow the instructions on the screen to install the TRK
+        debugging application for S60 5th Edition devices on the device.
+
+        \o Start TRK on the device.
+
+    \endlist
 
     \section1 Adding Symbian Platform SDKs
 
