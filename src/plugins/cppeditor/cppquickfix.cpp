@@ -30,6 +30,7 @@
 #include "cppquickfix.h"
 #include "cppeditor.h"
 
+#include <cplusplus/ASTPath.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ResolveExpression.h>
 
@@ -56,64 +57,6 @@ using namespace CppEditor::Internal;
 using namespace CPlusPlus;
 
 namespace {
-
-class ASTPath: public ASTVisitor
-{
-    Document::Ptr _doc;
-    unsigned _line;
-    unsigned _column;
-    QList<AST *> _nodes;
-
-public:
-    ASTPath(Document::Ptr doc)
-        : ASTVisitor(doc->translationUnit()),
-          _doc(doc), _line(0), _column(0)
-    {}
-
-    QList<AST *> operator()(const QTextCursor &cursor)
-    {
-        _nodes.clear();
-        _line = cursor.blockNumber() + 1;
-        _column = cursor.columnNumber() + 1;
-        accept(_doc->translationUnit()->ast());
-        return _nodes;
-    }
-
-#if 0
-    // Useful for debugging:
-    static void dump(const QList<AST *> nodes)
-    {
-        qDebug() << "ASTPath dump," << nodes.size() << "nodes:";
-        for (int i = 0; i < nodes.size(); ++i)
-            qDebug() << qPrintable(QString(i + 1, QLatin1Char('-'))) << typeid(*nodes.at(i)).name();
-    }
-#endif
-
-protected:
-    virtual bool preVisit(AST *ast)
-    {
-        unsigned firstToken = ast->firstToken();
-        unsigned lastToken = ast->lastToken();
-
-        if (firstToken > 0 && lastToken > firstToken) {
-            unsigned startLine, startColumn;
-            getTokenStartPosition(firstToken, &startLine, &startColumn);
-
-            if (_line > startLine || (_line == startLine && _column >= startColumn)) {
-
-                unsigned endLine, endColumn;
-                getTokenEndPosition(lastToken - 1, &endLine, &endColumn);
-
-                if (_line < endLine || (_line == endLine && _column <= endColumn)) {
-                    _nodes.append(ast);
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-};
 
 /*
     Rewrite

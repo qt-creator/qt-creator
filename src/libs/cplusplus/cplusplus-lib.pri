@@ -37,6 +37,7 @@ HEADERS += \
     $$PWD/LookupItem.h \
     $$PWD/LookupContext.h \
     $$PWD/ASTParent.h \
+    $$PWD/ASTPath.h \
     $$PWD/DeprecatedGenTemplateInstance.h \
     $$PWD/FindUsages.h \
     $$PWD/CheckUndefinedSymbols.h \
@@ -62,6 +63,7 @@ SOURCES += \
     $$PWD/LookupItem.cpp \
     $$PWD/LookupContext.cpp \
     $$PWD/ASTParent.cpp \
+    $$PWD/ASTPath.cpp \
     $$PWD/DeprecatedGenTemplateInstance.cpp \
     $$PWD/FindUsages.cpp \
     $$PWD/CheckUndefinedSymbols.cpp \
