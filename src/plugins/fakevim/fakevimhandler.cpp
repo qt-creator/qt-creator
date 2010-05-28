@@ -160,7 +160,8 @@ enum SubMode
     WindowSubMode,     // Used for Ctrl-w
     YankSubMode,       // Used for y
     ZSubMode,          // Used for z
-    CapitalZSubMode    // Used for Z
+    CapitalZSubMode,   // Used for Z
+    ReplaceSubMode,    // Used for r
 };
 
 /*! A \e SubSubMode is used for things that require one more data item
@@ -176,7 +177,6 @@ enum SubSubMode
     InvertCaseSubSubMode, // Used for ~.
     DownCaseSubSubMode,   // Used for gu.
     UpCaseSubSubMode,     // Used for gU.
-    ReplaceSubSubMode,    // Used for r after visual mode.
     TextObjectSubSubMode, // Used for thing like iw, aW, as etc.
     SearchSubSubMode,
 };
@@ -765,7 +765,6 @@ public:
     void downCase(const Range &range);
     void downCaseTransform(TransformationData *td);
 
-    QString m_replacement;
     void replaceText(const Range &range, const QString &str);
     void replaceTransform(TransformationData *td);
 
@@ -1379,10 +1378,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             downCase(currentRange());
             if (!dotCommand.isEmpty())
                 setDotCommand("gu" + dotCommand);
-        } else if (m_subsubmode == ReplaceSubSubMode) {
-            replaceText(currentRange(), m_replacement);
-            if (!dotCommand.isEmpty())
-                setDotCommand("r" + dotCommand);
         }
         m_submode = NoSubMode;
         m_subsubmode = NoSubSubMode;
@@ -1635,26 +1630,6 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             selectQuotedStringTextObject(m_subsubdata.is('i'), input.key());
         m_subsubmode = NoSubSubMode;
         finishMovement();
-    } else if (m_submode == TransformSubMode && m_subsubmode == ReplaceSubSubMode) {
-        if (isVisualLineMode())
-            m_rangemode = RangeLineMode;
-        else if (isVisualBlockMode())
-            m_rangemode = RangeBlockMode;
-        // FIXME: Consolidate.
-        if (isVisualMode()) {
-            leaveVisualMode();
-            m_replacement = input.text();
-            finishMovement();
-        } else {
-            Range range(position(), position() + count(), RangeCharMode);
-            m_replacement = input.text();
-            Transformation tr = &FakeVimHandler::Private::replaceTransform;
-            transformText(range, tr);
-            m_subsubmode = NoSubSubMode;
-            m_submode = NoSubMode;
-            setDotCommand("%1r" + input.text(), count());
-            finishMovement();
-        }
     } else if (m_subsubmode == MarkSubSubMode) {
         setMark(input.asChar().unicode(), m_tc.position());
         m_subsubmode = NoSubSubMode;
@@ -1701,6 +1676,28 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_register = input.asChar().unicode();
         m_submode = NoSubMode;
         m_rangemode = RangeLineMode;
+    } else if (m_submode == ReplaceSubMode) {
+        if (isVisualMode()) {
+            if (isVisualLineMode())
+                m_rangemode = RangeLineMode;
+            else if (isVisualBlockMode())
+                m_rangemode = RangeBlockMode;
+            else
+                m_rangemode = RangeCharMode;
+            leaveVisualMode();
+            Range range = currentRange();
+            Transformation tr = &FakeVimHandler::Private::replaceTransform;
+            transformText(range, tr, input.asChar());
+            setPosition(range.beginPos);
+        } else if (count() <= rightDist()) {
+            setAnchor();
+            moveRight(count());
+            replaceText(currentRange(), QString(count(), input.asChar()));
+            moveLeft();
+            setDotCommand("%1r" + input.text(), count());
+        }
+        m_submode = NoSubMode;
+        finishMovement();
     } else if (m_submode == ChangeSubMode && input.is('c')) { // tested
         moveToStartOfLine();
         setAnchor();
@@ -2250,8 +2247,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         setDotCommand("%1p", count());
         finishMovement();
     } else if (input.is('r')) {
-        m_submode = TransformSubMode;
-        m_subsubmode = ReplaceSubSubMode;
+        m_submode = ReplaceSubMode;
     } else if (!isVisualMode() && input.is('R')) {
         setUndoPosition(position());
         breakEditBlock();
@@ -3983,6 +3979,8 @@ void FakeVimHandler::Private::transformText(const Range &range,
     QTextCursor tc = m_tc;
     switch (range.rangemode) {
         case RangeCharMode: {
+            // This can span multiple lines.
+            beginEditBlock();
             tc.setPosition(range.beginPos, MoveAnchor);
             tc.setPosition(range.endPos, KeepAnchor);
             TransformationData td(tc.selectedText(), extra);
@@ -3990,10 +3988,12 @@ void FakeVimHandler::Private::transformText(const Range &range,
             tc.removeSelectedText();
             fixMarks(range.beginPos, td.to.size() - td.from.size());
             tc.insertText(td.to);
+            endEditBlock();
             return;
         }
         case RangeLineMode:
         case RangeLineModeExclusive: {
+            beginEditBlock(range.beginPos);
             tc.setPosition(range.beginPos, MoveAnchor);
             tc.movePosition(StartOfLine, MoveAnchor);
             tc.setPosition(range.endPos, KeepAnchor);
@@ -4020,6 +4020,7 @@ void FakeVimHandler::Private::transformText(const Range &range,
             tc.removeSelectedText();
             fixMarks(range.beginPos, td.to.size() - td.from.size());
             tc.insertText(td.to);
+            endEditBlock();
             return;
         }
         case RangeBlockAndTailMode:
@@ -4107,13 +4108,7 @@ void FakeVimHandler::Private::replaceText(const Range &range, const QString &str
 
 void FakeVimHandler::Private::replaceTransform(TransformationData *td)
 {
-    for (int i = td->from.size(); --i >= 0; ) {
-        QChar c = td->from.at(i);
-        if (c.unicode() == '\n' || c.unicode() == '\0')
-            td->to += QLatin1Char('\n');
-        else
-            td->to += td->extraData.toString();
-    }
+    td->to = QString(td->from.size(), td->extraData.toChar());
 }
 
 void FakeVimHandler::Private::pasteText(bool afterCursor)
