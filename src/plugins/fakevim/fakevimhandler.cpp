@@ -766,7 +766,8 @@ public:
     void downCaseTransform(TransformationData *td);
 
     void replaceText(const Range &range, const QString &str);
-    void replaceTransform(TransformationData *td);
+    void replaceByStringTransform(TransformationData *td);
+    void replaceByCharTransform(TransformationData *td);
 
     QString selectText(const Range &range) const;
     void setCurrentRange(const Range &range);
@@ -1686,7 +1687,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
                 m_rangemode = RangeCharMode;
             leaveVisualMode();
             Range range = currentRange();
-            Transformation tr = &FakeVimHandler::Private::replaceTransform;
+            Transformation tr =
+                &FakeVimHandler::Private::replaceByCharTransform;
             transformText(range, tr, input.asChar());
             setPosition(range.beginPos);
         } else if (count() <= rightDist()) {
@@ -1694,6 +1696,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             moveRight(count());
             replaceText(currentRange(), QString(count(), input.asChar()));
             moveLeft();
+            setTargetColumn();
             setDotCommand("%1r" + input.text(), count());
         }
         m_submode = NoSubMode;
@@ -4103,10 +4106,16 @@ void FakeVimHandler::Private::invertCaseTransform(TransformationData *td)
 
 void FakeVimHandler::Private::replaceText(const Range &range, const QString &str)
 {
-    transformText(range, &FakeVimHandler::Private::replaceTransform, str);
+    Transformation tr = &FakeVimHandler::Private::replaceByStringTransform;
+    transformText(range, tr, str);
 }
 
-void FakeVimHandler::Private::replaceTransform(TransformationData *td)
+void FakeVimHandler::Private::replaceByStringTransform(TransformationData *td)
+{
+    td->to = td->extraData.toString();
+}
+
+void FakeVimHandler::Private::replaceByCharTransform(TransformationData *td)
 {
     td->to = QString(td->from.size(), td->extraData.toChar());
 }
