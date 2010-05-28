@@ -138,7 +138,7 @@
   phones, media players, set-top boxes, and netbooks.
 
   \QMLD allows you to easily develop animations by using a declarative programming
-  language called \l {http://qt.nokia.com/doc/4.7-snapshot/declarativeui.html}{QML}.
+  language called \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}{QML}.
   In QML, a user interface is specified as a tree of objects with properties.
 
   You use a visual editor to create items, screens, and applications, as well as define changes
@@ -573,7 +573,7 @@
     \endlist
 
     For more information on \QD, see
-    \l{http://doc.trolltech.com/designer-manual.html}{Qt Designer Manual}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
 
     \section1 Using Qt Quick Designer
 
@@ -1846,7 +1846,7 @@
     To add an external library:
     \list 1
         \o Open your project file (.pro) using the \gui Projects pane.
-        \o Follow the instructions at \l{http://doc.trolltech.com/latest/qmake-project-files.html#declaring-other-libraries}
+        \o Follow the instructions at \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-project-files.html#declaring-other-libraries}
            {Declaring other Libraries}.
     \endlist
 
@@ -2552,9 +2552,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-getting-started.html
+    \previouspage creator-build-example-application.html
     \page creator-writing-program.html
-    \nextpage creator-qml-application.html
+    \nextpage creator-mobile-example.html
 
     \title Creating a Qt C++ Application
 
@@ -2564,7 +2564,7 @@
 
     This tutorial describes how to use Qt Creator
     to create a small Qt application, Text Finder. It is a simplified version of the
-    QtUiTools \l{http://doc.trolltech.com/uitools-textfinder.html}{Text Finder}
+    QtUiTools \l{http://doc.qt.nokia.com/4.7-snapshot/uitools-textfinder.html}{Text Finder}
     example.
 
     \image qtcreator-textfinder-screenshot.png
@@ -2660,9 +2660,9 @@
     \o Drag and drop the following widgets to the form:
 
     \list
-    \o \gui{Label} (\l{http://doc.trolltech.com/qlabel.html}{QLabel})
-    \o \gui{Line Edit} (\l{http://doc.trolltech.com/qlineedit.html}{QLineEdit})
-    \o \gui{Push Button} (\l{http://doc.trolltech.com/qpushbutton.html}{QPushButton})
+    \o \gui{Label} (\l{http://doc.qt.nokia.com/4.7-snapshot/qlabel.html}{QLabel})
+    \o \gui{Line Edit} (\l{http://doc.qt.nokia.com/4.7-snapshot/qlineedit.html}{QLineEdit})
+    \o \gui{Push Button} (\l{http://doc.qt.nokia.com/4.7-snapshot/qpushbutton.html}{QPushButton})
 
     \endlist
 
@@ -2678,15 +2678,15 @@
 
     \o Press \key {Ctrl+A} to select the widgets and click \gui{Lay out Horizontally}
     (or press \gui{Ctrl+H}) to apply a horizontal layout
-    (\l{http://doc.trolltech.com/qhboxlayout.html}{QHBoxLayout}).
+    (\l{http://doc.qt.nokia.com/4.7-snapshot/qhboxlayout.html}{QHBoxLayout}).
 
     \image qtcreator-texfinder-ui-horizontal-layout.png "Applying horizontal layout"
 
-    \o Drag and drop a \gui{Text Edit} widget (\l{http://doc.trolltech.com/qtextedit.html}{QTextEdit})
+    \o Drag and drop a \gui{Text Edit} widget (\l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html}{QTextEdit})
     to the form.
 
     \o Select the screen area and click \gui{Lay out Vertically} (or press \gui{Ctr+V})
-    to apply a vertical layout (\l{http://doc.trolltech.com/qvboxlayout.html}{QVBoxLayout}).
+    to apply a vertical layout (\l{http://doc.qt.nokia.com/4.7-snapshot/qvboxlayout.html}{QVBoxLayout}).
 
     \image qtcreator-textfinder-ui.png "Text Finder UI"
 
@@ -2714,7 +2714,7 @@
     \endlist
 
     For more information about designing forms with \QD, see the
-    \l{http://doc.trolltech.com/designer-manual.html}{Qt Designer Manual}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
 
     \section2 Completing the Header File
 
@@ -2722,7 +2722,7 @@
     constructor, a destructor, and the \c{Ui} object. You need to add a private
     function, \c{loadTextFile()}, to read and display the
     contents of the input text file in the
-    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html}{QTextEdit}.
 
     \list 1
 
@@ -2748,22 +2748,22 @@
     to open it for editing.
 
     \o Add code to load a text file using
-    \l{http://doc.trolltech.com/qfile.html}{QFile}, read it with
-    \l{http://doc.trolltech.com/qtextstream.html}{QTextStream}, and
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qfile.html}{QFile}, read it with
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextstream.html}{QTextStream}, and
     then display it on \c{textEdit} with
-    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html#plainText-prop}{setPlainText()}.
     This is illustrated by the following code snippet:
 
     \snippet examples/textfinder/textfinder.cpp 0
 
-    \o To use \l{http://doc.trolltech.com/qfile.html}{QFile} and
-    \l{http://doc.trolltech.com/qtextstream.html}{QTextStream}, add the
+    \o To use \l{http://doc.qt.nokia.com/4.7-snapshot/qfile.html}{QFile} and
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextstream.html}{QTextStream}, add the
     following #includes to textfinder.cpp:
 
     \snippet examples/textfinder/textfinder.cpp 1
 
     \o For the \c{on_findButton_clicked()} slot, add code to extract the search string and
-    use the \l{http://doc.trolltech.com/qtextedit.html#find}{find()} function
+    use the \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html#find}{find()} function
     to look for the search string within the text file. This is illustrated by
     the following code snippet:
 
@@ -3219,7 +3219,7 @@
     \key Space. The prefix is usually a single character.
 
     For example, to locate symbols matching
-    \l{http://doc.trolltech.com/qdatastream.html}{QDataStream:}
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qdatastream.html}{QDataStream:}
     \list 1
         \o Activate the locator.
         \o Enter \tt{\bold{: QDataStream}} (: (colon) followed by a
@@ -4222,7 +4222,7 @@
 
     \list 1
         \o Click in between the line number and the window border on the line
-        where we invoke \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
+        where we invoke \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html#plainText-prop}{setPlainText()}
         to set a breakpoint.
 
         \image qtcreator-setting-breakpoint1.png
@@ -4796,7 +4796,7 @@
 
     You can either create Qt Quick projects from scratch or import them to
     Qt Creator. For example, you can import and run the
-    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativeexamples.html} {QML examples and demos}
+    \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativeexamples.html} {QML examples and demos}
     to learn how to use various aspects of QML.
 
     You can use the code editor (\gui Edit mode) or the visual editor
@@ -4828,7 +4828,7 @@
     \endlist
 
     The \c import statement in the beginning of the .qml file specifies the
-    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativemodules.html} {Qt modules}
+    \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativemodules.html} {Qt modules}
     to import to \QMLD. Each Qt module contains a set of default elements.
     Specify a version to get the features you want.
 
@@ -4854,22 +4854,22 @@
 
     \list
 
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
         uses an image as a border or background.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-image.html}{Image}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-image.html}{Image}
         adds a bitmap to the scene. You can stretch and tile images.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-item.html}{Item}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-item.html}{Item}
         is the most basic of all visual items in QML. Even though it has no visual appearance,
         it defines all the properties that are common across visual items, such as the x and
         y position, width and height, anchoring, and key handling.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-rectangle.html}{Rectangle}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-rectangle.html}{Rectangle}
         adds a rectangle that is painted with a solid fill color and an optional border.
         You can also use the radius property to create rounded rectangles.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-text.html}{Text}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-text.html}{Text}
         adds formatted read-only text.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-textedit.html}{Text Edit}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-textedit.html}{Text Edit}
         adds a single line of editable formatted text that can be validated.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-textinput.html}{Text Input}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-textinput.html}{Text Input}
         adds a single line of editable plain text that can be validated.
 
     \endlist
@@ -4940,12 +4940,12 @@
     \endlist
 
     To create a graphical button that scales beautifully without using vector graphics,
-    use the \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
+    use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
     element.
 
     \section3 Creating Scalable Buttons and Borders
 
-    You can use the \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
+    You can use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
     element to display an image, such as a PNG file, as a border and a background.
 
     Use two Border Image elements and suitable graphics to make it look like the button
@@ -5099,13 +5099,13 @@
     You can use the \gui Library items and your own components to create screens.
 
     You can create the following types of views to organize items provided by
-    \l{http://qt.nokia.com/doc/4.7-snapshot/qdeclarativemodels.html}{data models}:
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativemodels.html}{data models}:
 
     \list
 
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-gridview.html}{Grid View}
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-listview.html}{List View}
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-pathview.html}{Path View}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-gridview.html}{Grid View}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-listview.html}{List View}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-pathview.html}{Path View}
 
     \endlist
 
@@ -5246,7 +5246,7 @@
     You can use different types of animated transitions. For example, you can animate changes
     to property values and colors. You can use rotation animation to control the direction of
     rotation. For more information, see
-    \l{http://doc.trolltech.com/4.7-snapshot/qdeclarativeanimation.html}{QML Animation}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativeanimation.html}{QML Animation}.
 
     You can use the \c ParallelAnimation element to start several animations at the same time.
     Or use the \c SequentialAnimation element to run them one after another.
@@ -5259,14 +5259,14 @@
 
     \list
 
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-flickable.html}{Flickable}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flickable.html}{Flickable}
         items can be flicked horizontally or vertically.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-flipable.html}{Flipable}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flipable.html}{Flipable}
         items can be flipped between their front and back sides by using rotation,
         state, and transition.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-focusscope.html}{Focus Scope}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-focusscope.html}{Focus Scope}
         assists in keyboard focus handling when building reusable QML components.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-mousearea.html}{Mouse Area}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-mousearea.html}{Mouse Area}
         enables simple mouse handling.
 
     \endlist
@@ -5282,10 +5282,10 @@
     A user interface is only a part of an application, and not really useful by itself.
     You can use Qt or JavaScript to implement the application logic. For more information on
     using JavaScript, see
-    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativejavascript.html} {Integrating JavaScript}.
+    \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativejavascript.html} {Integrating JavaScript}.
 
     For an example of how to use JavaScript to develop a game, see the
-    \l {http://qt.nokia.com/doc/4.7-snapshot/qml-advtutorial.html} {QML Advanced Tutorial}.
+    \l {http://doc.qt.nokia.com/4.7-snapshot/qml-advtutorial.html} {QML Advanced Tutorial}.
 
  */
 
@@ -5903,7 +5903,7 @@
      change the default plugin path, see \l{How to Create Qt Plugins}.
 
      For more information about how to create plugins for \QD, see
-     \l{http://doc.trolltech.com/4.6/designer-using-custom-widgets.html}{Creating and Using Components for Qt Designer}.
+     \l{http://doc.qt.nokia.com/4.7-snapshot/designer-using-custom-widgets.html}{Creating and Using Components for Qt Designer}.
 
     \section1 Locating Qt Designer Plugins
 
