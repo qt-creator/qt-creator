@@ -1,5 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
+    <type name="QAbstractItemModel" extends="Qt.QtObject">
+        <signal name="dataChanged">
+            <param name="topLeft" type="QModelIndex"/>
+            <param name="bottomRight" type="QModelIndex"/>
+        </signal>
+        <signal name="headerDataChanged">
+            <param name="orientation" type="Qt.Orientation"/>
+            <param name="first" type="int"/>
+            <param name="last" type="int"/>
+        </signal>
+        <signal name="layoutChanged"/>
+        <signal name="layoutAboutToBeChanged"/>
+        <signal name="rowsAboutToBeInserted">
+            <param name="parent" type="QModelIndex"/>
+            <param name="first" type="int"/>
+            <param name="last" type="int"/>
+        </signal>
+        <signal name="rowsInserted">
+            <param name="parent" type="QModelIndex"/>
+            <param name="first" type="int"/>
+            <param name="last" type="int"/>
+        </signal>
+        <signal name="rowsAboutToBeRemoved">
+            <param name="parent" type="QModelIndex"/>
+            <param name="first" type="int"/>
+            <param name="last" type="int"/>
+        </signal>
+        <signal name="rowsRemoved">
+            <param name="parent" type="QModelIndex"/>
+            <param name="first" type="int"/>
+            <param name="last" type="int"/>
+        </signal>
+        <signal name="columnsAboutToBeInserted">
+            <param name="parent" type="QModelIndex"/>
+            <param name="first" type="int"/>
+            <param name="last" type="int"/>
+        </signal>
+        <signal name="columnsInserted">
+            <param name="parent" type="QModelIndex"/>
+            <param name="first" type="int"/>
+            <param name="last" type="int"/>
+        </signal>
+        <signal name="columnsAboutToBeRemoved">
+            <param name="parent" type="QModelIndex"/>
+            <param name="first" type="int"/>
+            <param name="last" type="int"/>
+        </signal>
+        <signal name="columnsRemoved">
+            <param name="parent" type="QModelIndex"/>
+            <param name="first" type="int"/>
+            <param name="last" type="int"/>
+        </signal>
+        <signal name="modelAboutToBeReset"/>
+        <signal name="modelReset"/>
+        <signal name="rowsAboutToBeMoved">
+            <param name="sourceParent" type="QModelIndex"/>
+            <param name="sourceStart" type="int"/>
+            <param name="sourceEnd" type="int"/>
+            <param name="destinationParent" type="QModelIndex"/>
+            <param name="destinationRow" type="int"/>
+        </signal>
+        <signal name="rowsMoved">
+            <param name="parent" type="QModelIndex"/>
+            <param name="start" type="int"/>
+            <param name="end" type="int"/>
+            <param name="destination" type="QModelIndex"/>
+            <param name="row" type="int"/>
+        </signal>
+        <signal name="columnsAboutToBeMoved">
+            <param name="sourceParent" type="QModelIndex"/>
+            <param name="sourceStart" type="int"/>
+            <param name="sourceEnd" type="int"/>
+            <param name="destinationParent" type="QModelIndex"/>
+            <param name="destinationColumn" type="int"/>
+        </signal>
+        <signal name="columnsMoved">
+            <param name="parent" type="QModelIndex"/>
+            <param name="start" type="int"/>
+            <param name="end" type="int"/>
+            <param name="destination" type="QModelIndex"/>
+            <param name="column" type="int"/>
+        </signal>
+        <method name="submit" type="bool"/>
+        <method name="revert"/>
+    </type>
+    <type name="QAbstractListModel" extends="QAbstractItemModel"/>
     <type name="QAction" extends="Qt.QtObject">
         <enum name="MenuRole">
             <enumerator name="NoRole" value="0"/>
@@ -1466,7 +1552,7 @@
         <signal name="progressChanged">
             <param type="qreal"/>
         </signal>
-        <method name="errorsString" type="string"/>
+        <method name="errorString" type="string"/>
     </type>
     <type name="Qt.Connections" version="4.7" extends="Qt.QtObject">
         <property name="target" type="Qt.QtObject"/>
@@ -2214,12 +2300,12 @@
     <type name="Qt.ParentChange" version="4.7" extends="QDeclarativeStateOperation">
         <property name="target" type="Qt.Item"/>
         <property name="parent" type="Qt.Item"/>
-        <property name="x" type="qreal"/>
-        <property name="y" type="qreal"/>
-        <property name="width" type="qreal"/>
-        <property name="height" type="qreal"/>
-        <property name="scale" type="qreal"/>
-        <property name="rotation" type="qreal"/>
+        <property name="x" type="QDeclarativeScriptString"/>
+        <property name="y" type="QDeclarativeScriptString"/>
+        <property name="width" type="QDeclarativeScriptString"/>
+        <property name="height" type="QDeclarativeScriptString"/>
+        <property name="scale" type="QDeclarativeScriptString"/>
+        <property name="rotation" type="QDeclarativeScriptString"/>
     </type>
     <type name="Qt.Path" version="4.7" defaultProperty="pathElements" extends="Qt.QtObject">
         <property name="pathElements" type="QDeclarativePathElement" isList="true"/>
@@ -2555,6 +2641,7 @@
             <enumerator name="WordWrap" value="1"/>
             <enumerator name="WrapAnywhere" value="3"/>
             <enumerator name="WrapAtWordBoundaryOrAnywhere" value="4"/>
+            <enumerator name="Wrap" value="4"/>
         </enum>
         <property name="text" type="string"/>
         <property name="font" type="QFont"/>
@@ -2566,6 +2653,8 @@
         <property name="wrapMode" type="WrapMode"/>
         <property name="textFormat" type="TextFormat"/>
         <property name="elide" type="TextElideMode"/>
+        <property name="paintedWidth" type="qreal"/>
+        <property name="paintedHeight" type="qreal"/>
         <signal name="textChanged">
             <param name="text" type="string"/>
         </signal>
@@ -2597,6 +2686,7 @@
         <signal name="elideModeChanged">
             <param name="mode" type="TextElideMode"/>
         </signal>
+        <signal name="paintedSizeChanged"/>
     </type>
     <type name="Qt.TextEdit" version="4.7" defaultProperty="data" extends="QDeclarativePaintedItem">
         <enum name="HAlignment">
@@ -2619,6 +2709,7 @@
             <enumerator name="WordWrap" value="1"/>
             <enumerator name="WrapAnywhere" value="3"/>
             <enumerator name="WrapAtWordBoundaryOrAnywhere" value="4"/>
+            <enumerator name="Wrap" value="4"/>
         </enum>
         <property name="text" type="string"/>
         <property name="color" type="QColor"/>
@@ -2628,22 +2719,29 @@
         <property name="horizontalAlignment" type="HAlignment"/>
         <property name="verticalAlignment" type="VAlignment"/>
         <property name="wrapMode" type="WrapMode"/>
+        <property name="paintedWidth" type="qreal"/>
+        <property name="paintedHeight" type="qreal"/>
         <property name="textFormat" type="TextFormat"/>
         <property name="readOnly" type="bool"/>
         <property name="cursorVisible" type="bool"/>
         <property name="cursorPosition" type="int"/>
+        <property name="cursorRectangle" type="QRect"/>
         <property name="cursorDelegate" type="Qt.Component"/>
         <property name="selectionStart" type="int"/>
         <property name="selectionEnd" type="int"/>
         <property name="selectedText" type="string"/>
         <property name="focusOnPress" type="bool"/>
+        <property name="showInputPanelOnFocus" type="bool"/>
         <property name="persistentSelection" type="bool"/>
         <property name="textMargin" type="qreal"/>
         <property name="inputMethodHints" type="Qt.InputMethodHints"/>
+        <property name="selectByMouse" type="bool"/>
         <signal name="textChanged">
             <param type="string"/>
         </signal>
+        <signal name="paintedSizeChanged"/>
         <signal name="cursorPositionChanged"/>
+        <signal name="cursorRectangleChanged"/>
         <signal name="selectionStartChanged"/>
         <signal name="selectionEndChanged"/>
         <signal name="selectionChanged"/>
@@ -2685,7 +2783,15 @@
         <signal name="textMarginChanged">
             <param name="textMargin" type="qreal"/>
         </signal>
+        <signal name="selectByMouseChanged">
+            <param name="selectByMouse" type="bool"/>
+        </signal>
+        <signal name="showInputPanelOnFocusChanged">
+            <param name="showOnFocus" type="bool"/>
+        </signal>
         <method name="selectAll"/>
+        <method name="openSoftwareInputPanel"/>
+        <method name="closeSoftwareInputPanel"/>
     </type>
     <type name="Qt.TextInput" version="4.7" defaultProperty="data" extends="QDeclarativePaintedItem">
         <enum name="EchoMode">
@@ -2720,9 +2826,11 @@
         <property name="acceptableInput" type="bool"/>
         <property name="echoMode" type="EchoMode"/>
         <property name="focusOnPress" type="bool"/>
+        <property name="showInputPanelOnFocus" type="bool"/>
         <property name="passwordCharacter" type="string"/>
         <property name="displayText" type="string"/>
         <property name="autoScroll" type="bool"/>
+        <property name="selectByMouse" type="bool"/>
         <signal name="textChanged"/>
         <signal name="cursorPositionChanged"/>
         <signal name="selectionStartChanged"/>
@@ -2772,6 +2880,12 @@
         <signal name="autoScrollChanged">
             <param name="autoScroll" type="bool"/>
         </signal>
+        <signal name="selectByMouseChanged">
+            <param name="selectByMouse" type="bool"/>
+        </signal>
+        <signal name="showInputPanelOnFocusChanged">
+            <param name="showOnFocus" type="bool"/>
+        </signal>
         <method name="selectAll"/>
         <method name="xToPosition" type="int">
             <param name="x" type="int"/>
@@ -2779,6 +2893,8 @@
         <method name="moveCursorSelection">
             <param name="pos" type="int"/>
         </method>
+        <method name="openSoftwareInputPanel"/>
+        <method name="closeSoftwareInputPanel"/>
     </type>
     <type name="Qt.Timer" version="4.7" extends="Qt.QtObject">
         <property name="interval" type="int"/>
@@ -2884,6 +3000,10 @@
         <signal name="queryChanged"/>
         <signal name="namespaceDeclarationsChanged"/>
         <method name="reload"/>
+        <method name="get" type="QScriptValue">
+            <param name="index" type="int"/>
+        </method>
+        <method name="errorString" type="string"/>
     </type>
     <type name="Qt.XmlRole" version="4.7" extends="Qt.QtObject">
         <property name="name" type="string"/>
@@ -2892,6 +3012,31 @@
         <signal name="nameChanged"/>
         <signal name="queryChanged"/>
         <signal name="isKeyChanged"/>
+    </type>
+    <type name="Qt.labs.folderlistmodel.FolderListModel" version="1.0" extends="QAbstractListModel">
+        <enum name="SortField">
+            <enumerator name="Unsorted" value="0"/>
+            <enumerator name="Name" value="1"/>
+            <enumerator name="Time" value="2"/>
+            <enumerator name="Size" value="3"/>
+            <enumerator name="Type" value="4"/>
+        </enum>
+        <property name="folder" type="QUrl"/>
+        <property name="parentFolder" type="QUrl"/>
+        <property name="nameFilters" type="QStringList"/>
+        <property name="sortField" type="SortField"/>
+        <property name="sortReversed" type="bool"/>
+        <property name="showDirs" type="bool"/>
+        <property name="showDotAndDotDot" type="bool"/>
+        <property name="showOnlyReadable" type="bool"/>
+        <property name="count" type="int"/>
+        <signal name="folderChanged"/>
+        <method name="isFolder" type="bool">
+            <param name="index" type="int"/>
+        </method>
+    </type>
+    <type name="Qt.labs.gestures.GestureArea" version="1.0" defaultProperty="data" extends="Qt.Item">
+        <property name="gesture" type="QGesture"/>
     </type>
     <type name="Qt.labs.particles.ParticleMotion" version="1.0" extends="Qt.QtObject"/>
     <type name="Qt.labs.particles.ParticleMotionGravity" version="1.0" extends="Qt.labs.particles.ParticleMotion">
@@ -2947,169 +3092,6 @@
             <param name="count" type="int"/>
         </method>
     </type>
-    <type name="Qt.multimedia.Audio" version="4.7" extends="Qt.QtObject">
-        <enum name="Status">
-            <enumerator name="UnknownStatus" value="0"/>
-            <enumerator name="NoMedia" value="1"/>
-            <enumerator name="Loading" value="2"/>
-            <enumerator name="Loaded" value="3"/>
-            <enumerator name="Stalled" value="4"/>
-            <enumerator name="Buffering" value="5"/>
-            <enumerator name="Buffered" value="6"/>
-            <enumerator name="EndOfMedia" value="7"/>
-            <enumerator name="InvalidMedia" value="8"/>
-        </enum>
-        <enum name="Error">
-            <enumerator name="NoError" value="0"/>
-            <enumerator name="ResourceError" value="1"/>
-            <enumerator name="FormatError" value="2"/>
-            <enumerator name="NetworkError" value="3"/>
-            <enumerator name="AccessDenied" value="4"/>
-            <enumerator name="ServiceMissing" value="5"/>
-        </enum>
-        <property name="source" type="QUrl"/>
-        <property name="autoLoad" type="bool"/>
-        <property name="playing" type="bool"/>
-        <property name="paused" type="bool"/>
-        <property name="status" type="Status"/>
-        <property name="duration" type="int"/>
-        <property name="position" type="int"/>
-        <property name="volume" type="qreal"/>
-        <property name="muted" type="bool"/>
-        <property name="bufferProgress" type="int"/>
-        <property name="seekable" type="bool"/>
-        <property name="playbackRate" type="qreal"/>
-        <property name="error" type="Error"/>
-        <property name="errorString" type="string"/>
-        <signal name="sourceChanged"/>
-        <signal name="autoLoadChanged"/>
-        <signal name="playingChanged"/>
-        <signal name="pausedChanged"/>
-        <signal name="started"/>
-        <signal name="resumed"/>
-        <signal name="paused"/>
-        <signal name="stopped"/>
-        <signal name="statusChanged"/>
-        <signal name="loaded"/>
-        <signal name="buffering"/>
-        <signal name="stalled"/>
-        <signal name="buffered"/>
-        <signal name="endOfMedia"/>
-        <signal name="durationChanged"/>
-        <signal name="positionChanged"/>
-        <signal name="volumeChanged"/>
-        <signal name="mutedChanged"/>
-        <signal name="bufferProgressChanged"/>
-        <signal name="seekableChanged"/>
-        <signal name="playbackRateChanged"/>
-        <signal name="errorChanged"/>
-        <signal name="error">
-            <param name="error" type="QDeclarativeAudio.Error"/>
-            <param name="errorString" type="string"/>
-        </signal>
-        <method name="play"/>
-        <method name="pause"/>
-        <method name="stop"/>
-    </type>
-    <type name="Qt.multimedia.SoundEffect" version="4.7" extends="Qt.QtObject">
-        <property name="source" type="QUrl"/>
-        <property name="loops" type="int"/>
-        <property name="volume" type="int"/>
-        <property name="muted" type="bool"/>
-        <signal name="sourceChanged"/>
-        <signal name="loopsChanged"/>
-        <signal name="volumeChanged"/>
-        <signal name="mutedChanged"/>
-        <method name="play"/>
-    </type>
-    <type name="Qt.multimedia.Video" version="4.7" defaultProperty="data" extends="Qt.Item">
-        <enum name="FillMode">
-            <enumerator name="Stretch" value="0"/>
-            <enumerator name="PreserveAspectFit" value="1"/>
-            <enumerator name="PreserveAspectCrop" value="2"/>
-        </enum>
-        <enum name="Status">
-            <enumerator name="UnknownStatus" value="0"/>
-            <enumerator name="NoMedia" value="1"/>
-            <enumerator name="Loading" value="2"/>
-            <enumerator name="Loaded" value="3"/>
-            <enumerator name="Stalled" value="4"/>
-            <enumerator name="Buffering" value="5"/>
-            <enumerator name="Buffered" value="6"/>
-            <enumerator name="EndOfMedia" value="7"/>
-            <enumerator name="InvalidMedia" value="8"/>
-        </enum>
-        <enum name="Error">
-            <enumerator name="NoError" value="0"/>
-            <enumerator name="ResourceError" value="1"/>
-            <enumerator name="FormatError" value="2"/>
-            <enumerator name="NetworkError" value="3"/>
-            <enumerator name="AccessDenied" value="4"/>
-            <enumerator name="ServiceMissing" value="5"/>
-        </enum>
-        <property name="source" type="QUrl"/>
-        <property name="autoLoad" type="bool"/>
-        <property name="playing" type="bool"/>
-        <property name="paused" type="bool"/>
-        <property name="status" type="Status"/>
-        <property name="duration" type="int"/>
-        <property name="position" type="int"/>
-        <property name="volume" type="qreal"/>
-        <property name="muted" type="bool"/>
-        <property name="hasAudio" type="bool"/>
-        <property name="hasVideo" type="bool"/>
-        <property name="bufferProgress" type="int"/>
-        <property name="seekable" type="bool"/>
-        <property name="playbackRate" type="qreal"/>
-        <property name="error" type="Error"/>
-        <property name="errorString" type="string"/>
-        <property name="fillMode" type="FillMode"/>
-        <signal name="sourceChanged"/>
-        <signal name="autoLoadChanged"/>
-        <signal name="playingChanged"/>
-        <signal name="pausedChanged"/>
-        <signal name="started"/>
-        <signal name="resumed"/>
-        <signal name="paused"/>
-        <signal name="stopped"/>
-        <signal name="statusChanged"/>
-        <signal name="loaded"/>
-        <signal name="buffering"/>
-        <signal name="stalled"/>
-        <signal name="buffered"/>
-        <signal name="endOfMedia"/>
-        <signal name="durationChanged"/>
-        <signal name="positionChanged"/>
-        <signal name="volumeChanged"/>
-        <signal name="mutedChanged"/>
-        <signal name="hasAudioChanged"/>
-        <signal name="hasVideoChanged"/>
-        <signal name="bufferProgressChanged"/>
-        <signal name="seekableChanged"/>
-        <signal name="playbackRateChanged"/>
-        <signal name="errorChanged"/>
-        <signal name="error">
-            <param name="error" type="QDeclarativeVideo.Error"/>
-            <param name="errorString" type="string"/>
-        </signal>
-        <method name="play"/>
-        <method name="pause"/>
-        <method name="stop"/>
-    </type>
-    <type name="Qt.widgets.QGraphicsGridLayout" version="4.7" defaultProperty="children" extends="Qt.QtObject">
-        <property name="children" type="QGraphicsLayoutItem" isList="true"/>
-        <property name="spacing" type="qreal"/>
-        <property name="contentsMargin" type="qreal"/>
-        <property name="verticalSpacing" type="qreal"/>
-        <property name="horizontalSpacing" type="qreal"/>
-    </type>
-    <type name="Qt.widgets.QGraphicsLinearLayout" version="4.7" defaultProperty="children" extends="Qt.QtObject">
-        <property name="children" type="QGraphicsLayoutItem" isList="true"/>
-        <property name="orientation" type="Qt.Orientation"/>
-        <property name="spacing" type="qreal"/>
-        <property name="contentsMargin" type="qreal"/>
-    </type>
-    <type name="Qt.widgets.QGraphicsLinearLayoutStretchItem" version="4.7" extends="Qt.QtObject"/>
     <type name="org.webkit.WebView" version="1.0" defaultProperty="data" extends="Qt.Item">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
