@@ -231,7 +231,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
         Declaration *symbol = control()->newDeclaration(location, name);
         symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
-        symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
+        symbol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
         symbol->setType(declTy);
         if (declTy.isDeprecated())
@@ -322,7 +322,7 @@ bool CheckDeclaration::visit(ExceptionDeclarationAST *ast)
 
     Declaration *symbol = control()->newDeclaration(location, name);
     symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
-    symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
+    symbol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     symbol->setType(declTy);
     _scope->enterSymbol(symbol);
 
@@ -349,7 +349,7 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
     if (ty.isUnavailable())
         fun->setUnavailable(true);
     fun->setStartOffset(tokenAt(ast->firstToken()).offset);
-    fun->setEndOffset(tokenAt(ast->lastToken()).offset);
+    fun->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     if (ast->declarator)
         fun->setSourceLocation(ast->declarator->firstToken(), translationUnit());
     fun->setName(name);
@@ -415,7 +415,7 @@ bool CheckDeclaration::visit(NamespaceAST *ast)
 
     Namespace *ns = control()->newNamespace(sourceLocation, namespaceName);
     ns->setStartOffset(tokenAt(ast->firstToken()).offset);
-    ns->setEndOffset(tokenAt(ast->lastToken()).offset);
+    ns->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = ns;
     _scope->enterSymbol(ns);
     semantic()->check(ast->linkage_body, ns->members()); // ### we'll do the merge later.
@@ -440,7 +440,7 @@ bool CheckDeclaration::visit(NamespaceAliasDefinitionAST *ast)
     NamespaceAlias *namespaceAlias = control()->newNamespaceAlias(sourceLocation, name);
     namespaceAlias->setNamespaceName(namespaceName);
     namespaceAlias->setStartOffset(tokenAt(ast->firstToken()).offset);
-    namespaceAlias->setEndOffset(tokenAt(ast->lastToken()).offset);
+    namespaceAlias->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     //ast->symbol = namespaceAlias;
     _scope->enterSymbol(namespaceAlias);
 
@@ -574,7 +574,7 @@ bool CheckDeclaration::visit(ObjCProtocolForwardDeclarationAST *ast)
         const Name *protocolName = semantic()->check(it->value, _scope);
         ObjCForwardProtocolDeclaration *fwdProtocol = control()->newObjCForwardProtocolDeclaration(sourceLocation, protocolName);
         fwdProtocol->setStartOffset(tokenAt(ast->firstToken()).offset);
-        fwdProtocol->setEndOffset(tokenAt(ast->lastToken()).offset);
+        fwdProtocol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
         _scope->enterSymbol(fwdProtocol);
 
@@ -597,7 +597,7 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
     const Name *protocolName = semantic()->check(ast->name, _scope);
     ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, protocolName);
     protocol->setStartOffset(tokenAt(ast->firstToken()).offset);
-    protocol->setEndOffset(tokenAt(ast->lastToken()).offset);
+    protocol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
     if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
         for (NameListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
@@ -635,7 +635,7 @@ bool CheckDeclaration::visit(ObjCClassForwardDeclarationAST *ast)
         const Name *className = semantic()->check(it->value, _scope);
         ObjCForwardClassDeclaration *fwdClass = control()->newObjCForwardClassDeclaration(sourceLocation, className);
         fwdClass->setStartOffset(tokenAt(ast->firstToken()).offset);
-        fwdClass->setEndOffset(tokenAt(ast->lastToken()).offset);
+        fwdClass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
 
         _scope->enterSymbol(fwdClass);
 
@@ -658,7 +658,7 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
     const Name *className = semantic()->check(ast->class_name, _scope);
     ObjCClass *klass = control()->newObjCClass(sourceLocation, className);
     klass->setStartOffset(tokenAt(ast->firstToken()).offset);
-    klass->setEndOffset(tokenAt(ast->lastToken()).offset);
+    klass->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     ast->symbol = klass;
 
     klass->setInterface(ast->interface_token != 0);
@@ -733,7 +733,7 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
     }
 
     symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
-    symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
+    symbol->setEndOffset(tokenAt(ast->lastToken() - 1).end());
     symbol->setVisibility(semantic()->currentObjCVisibility());
     if (ty.isDeprecated())
         symbol->setDeprecated(true);
