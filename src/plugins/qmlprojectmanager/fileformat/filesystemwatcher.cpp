@@ -72,6 +72,19 @@ void FileSystemWatcher::addFile(const QString &file)
     addFiles(QStringList(file));
 }
 
+
+#ifdef Q_OS_MAC
+
+// Returns upper limit of file handles that can be opened by this process at once. Exceeding it will probably result in crashes!
+static rlim_t getFileLimit()
+{
+    struct rlimit rl;
+    getrlimit(RLIMIT_NOFILE, &rl);
+    return rl.rlim_cur;
+}
+
+#endif
+
 void FileSystemWatcher::addFiles(const QStringList &files)
 {
     QStringList toAdd;
@@ -84,6 +97,17 @@ void FileSystemWatcher::addFiles(const QStringList &files)
             qWarning() << "FileSystemWatcher: File" << file << "is already being watched";
             continue;
         }
+
+#ifdef Q_OS_MAC
+        static rlim_t maxFileOpen = getFileLimit();
+        // We're potentially watching a _lot_ of directories. This might crash qtcreator when we hit the upper limit.
+        // Heuristic is therefore: Don't use more than half of the file handles available in this watcher
+        if ((rlim_t)m_directories.size() + (rlim_t)m_files.size() > maxFileOpen / 2) {
+            qWarning() << "File" << file << "is not watched: Too many file handles are already open (max is" << maxFileOpen;
+            break;
+        }
+#endif
+
         m_files.append(file);
 
         const int count = ++m_fileCount[file];
@@ -149,6 +173,17 @@ void FileSystemWatcher::addDirectories(const QStringList &directories)
             qWarning() << "Directory" << directory << "is already being watched";
             continue;
         }
+
+#ifdef Q_OS_MAC
+        static rlim_t maxFileOpen = getFileLimit();
+        // We're potentially watching a _lot_ of directories. This might crash qtcreator when we hit the upper limit.
+        // Heuristic is therefore: Don't use more than half of the file handles available in this watcher
+        if ((rlim_t)m_directories.size() + (rlim_t)m_files.size() > maxFileOpen / 2) {
+            qWarning() << "Directory" << directory << "is not watched: Too many file handles are already open (max is" << maxFileOpen;
+            break;
+        }
+#endif
+
         m_directories.append(directory);
 
         const int count = ++m_directoryCount[directory];
