@@ -522,7 +522,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name) const
 
     if (const TemplateNameId *templId = name->asTemplateNameId()) {
         foreach (ClassOrNamespace *i, c->_instantiations) {
-            if (templId->isEqualTo(i->_templateId))
+            if (i->_templateId && templId->isEqualTo(i->_templateId))
                 return i;
         }
 

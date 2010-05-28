@@ -170,6 +170,8 @@ const FullySpecifiedType &TemplateNameId::templateArgumentAt(unsigned index) con
 
 bool TemplateNameId::isEqualTo(const Name *other) const
 {
+    if (! other)
+        return false;
     const TemplateNameId *t = other->asTemplateNameId();
     if (! t)
         return false;
