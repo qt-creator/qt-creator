@@ -3343,6 +3343,117 @@ void TestCore::testSubComponentManager()
     QVERIFY(myButtonMetaInfo.property("border.width", true).isValid());
 }
 
+void TestCore::testAnchorsAndRewriting()
+{
+        const QString qmlString("import Qt 4.7\n"
+                            "Rectangle {\n"
+                            "    id: root\n"
+                            "    x: 10;\n"
+                            "    y: 10;\n"
+                            "    Rectangle {\n"
+                            "        id: rectangle1\n"
+                            "        x: 10;\n"
+                            "        y: 10;\n"
+                            "    }\n"
+                            "    Component {\n"
+                            "        id: rectangleComponent\n"
+                            "        Rectangle {\n"
+                            "            x: 100;\n"
+                            "            y: 100;\n"
+                            "        }\n"
+                            "    }\n"
+                            "}");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestView> view(new TestView);
+    model->attachView(view.data());
+
+    // read in
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+    model->attachView(testRewriterView.data());
+
+    ModelNode rootNode = view->rootModelNode();
+    QVERIFY(rootNode.isValid());
+    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+
+    QmlItemNode rootItemNode = view->rootQmlItemNode();
+    QVERIFY(rootItemNode.isValid());
+
+    QmlItemNode childNode = rootItemNode.allDirectSubModelNodes().first();
+    QVERIFY(childNode.isValid());
+
+    childNode.anchors().setMargin(AnchorLine::Left, 280);
+    childNode.anchors().setAnchor(AnchorLine::Left, rootItemNode, AnchorLine::Left);
+    childNode.anchors().setMargin(AnchorLine::Right, 200);
+    childNode.anchors().setAnchor(AnchorLine::Right, rootItemNode, AnchorLine::Right);
+    childNode.anchors().setMargin(AnchorLine::Bottom, 50);
+    childNode.anchors().setAnchor(AnchorLine::Bottom, rootItemNode, AnchorLine::Bottom);
+
+    {
+        RewriterTransaction transaction = view->beginRewriterTransaction();
+        
+        childNode.anchors().setMargin(AnchorLine::Top, 100);
+        childNode.anchors().setAnchor(AnchorLine::Top, rootItemNode, AnchorLine::Top);
+    }
+}
+
+void TestCore::testAnchorsAndRewritingCenter()
+{
+      const QString qmlString("import Qt 4.7\n"
+                            "Rectangle {\n"
+                            "    id: root\n"
+                            "    x: 10;\n"
+                            "    y: 10;\n"
+                            "    Rectangle {\n"
+                            "        id: rectangle1\n"
+                            "        x: 10;\n"
+                            "        y: 10;\n"
+                            "    }\n"
+                            "    Component {\n"
+                            "        id: rectangleComponent\n"
+                            "        Rectangle {\n"
+                            "            x: 100;\n"
+                            "            y: 100;\n"
+                            "        }\n"
+                            "    }\n"
+                            "}");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestView> view(new TestView);
+    model->attachView(view.data());
+
+    // read in
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+    model->attachView(testRewriterView.data());
+
+    ModelNode rootNode = view->rootModelNode();
+    QVERIFY(rootNode.isValid());
+    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+
+    QmlItemNode rootItemNode = view->rootQmlItemNode();
+    QVERIFY(rootItemNode.isValid());
+
+    QmlItemNode childNode = rootItemNode.allDirectSubModelNodes().first();
+    QVERIFY(childNode.isValid());
+
+    childNode.anchors().setAnchor(AnchorLine::VerticalCenter, rootItemNode, AnchorLine::VerticalCenter);
+    childNode.anchors().setAnchor(AnchorLine::HorizontalCenter, rootItemNode, AnchorLine::HorizontalCenter);
+}
+
 void TestCore::loadQml()
 {
 char qmlString[] = "import Qt 4.7\n"
