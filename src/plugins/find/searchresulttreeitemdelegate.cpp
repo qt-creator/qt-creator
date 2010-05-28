@@ -106,10 +106,16 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     painter->fillRect(lineNumberAreaRect, QBrush(isSelected ?
         option.palette.brush(cg, QPalette::Highlight) :
         option.palette.color(cg, QPalette::Base).darker(111)));
-    painter->setPen(isSelected ?
-        option.palette.color(cg, QPalette::HighlightedText) : Qt::darkGray);
-    painter->drawText(lineNumberAreaRect.adjusted(0, 0, -lineNumberAreaHorizontalPadding, 0),
-        Qt::AlignRight | Qt::AlignVCenter, QString::number(lineNumber));
+
+    QStyleOptionViewItemV3 opt = option;
+    opt.displayAlignment = Qt::AlignRight | Qt::AlignVCenter;
+    opt.palette.setColor(cg, QPalette::Text, Qt::darkGray);
+
+    const QStyle *style = QApplication::style();
+    const int textMargin = style->pixelMetric(QStyle::PM_FocusFrameHMargin, 0, 0) + 1;
+
+    const QRect rowRect = lineNumberAreaRect.adjusted(-textMargin, 0, textMargin-lineNumberAreaHorizontalPadding, 0);
+    QItemDelegate::drawDisplay(painter, opt, rowRect, QString::number(lineNumber));
 
     return lineNumberAreaWidth;
 }

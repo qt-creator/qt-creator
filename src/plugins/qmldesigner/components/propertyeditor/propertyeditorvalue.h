@@ -39,9 +39,6 @@
 
 class PropertyEditorValue;
 
-typedef QmlDesigner::ModelNode ModelNode;
-
-
 class PropertyEditorNodeWrapper : public QObject {
     Q_OBJECT
 
@@ -55,7 +52,7 @@ public:
     bool exists();
     QString type();
     QDeclarativePropertyMap* properties();
-    ModelNode parentModelNode() const;
+    QmlDesigner::ModelNode parentModelNode() const;
     QString propertyName() const;
 
 public slots:
@@ -112,8 +109,8 @@ public:
     QString name() const;
     void setName(const QString &name);
 
-    ModelNode modelNode() const;
-    void setModelNode(const ModelNode &modelNode);
+    QmlDesigner::ModelNode modelNode() const;
+    void setModelNode(const QmlDesigner::ModelNode &modelNode);
 
     PropertyEditorNodeWrapper* complexNode();
 
@@ -135,7 +132,7 @@ signals:
     void isValidChanged();
 
 private: //variables
-    ModelNode m_modelNode;
+    QmlDesigner::ModelNode m_modelNode;
     QVariant m_value;
     QString m_expression;
     QString m_name;

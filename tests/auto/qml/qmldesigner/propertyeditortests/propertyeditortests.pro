@@ -5,7 +5,7 @@ QT += testlib \
     script \
     declarative
 DESTDIR = $$DESIGNER_BINARY_DIRECTORY
-include(../../../../../src/plugins/qmldesigner/core/core.pri)
+include(../../../../../src/plugins/qmldesigner/designercore/designercore.pri)
 include(../../../../../src/libs/qmljs/qmljs-lib.pri)
 HEADERS+=../../../../../src/libs/utils/changeset.h
 SOURCES+=../../../../../src/libs/utils/changeset.cpp

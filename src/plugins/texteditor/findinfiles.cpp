@@ -75,10 +75,10 @@ QStringList FindInFiles::files()
                     fileNameFilters(),
                     QDir::Files|QDir::Readable,
                     QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        it.next();
-        fileList << it.filePath();
-    }
+
+    while (it.hasNext())
+        fileList << it.next();
+
     return fileList;
 }
 

@@ -1130,7 +1130,9 @@ void MainWindow::readSettings()
         // Get adapted base color.
         m_overrideColor = Utils::StyleHelper::baseColor();
     } else {
-        Utils::StyleHelper::setBaseColor(m_settings->value(QLatin1String(colorKey)).value<QColor>());
+        Utils::StyleHelper::setBaseColor(
+                m_settings->value(QLatin1String(colorKey),
+                                  QColor(Utils::StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
     }
 
     const QVariant geom = m_settings->value(QLatin1String(geometryKey));

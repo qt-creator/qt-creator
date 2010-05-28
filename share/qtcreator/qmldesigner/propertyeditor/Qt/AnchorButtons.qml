@@ -125,8 +125,15 @@ QWidget {
 		height: fixedHeight
 
         styleSheetFile: "anchorfill.css";
+        checkable: true
 
-        onReleased: fill();
+        onReleased: {              
+            if (checked) {
+                anchorBackend.fill();
+            } else {
+                anchorBackend.resetLayout();
+            }         
+        }
     }
 
     QPushButton {

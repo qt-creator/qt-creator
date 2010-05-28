@@ -168,6 +168,9 @@ public:
     QVariant       cookie;
 };
 
+void extractGdbVersion(const QString &msg,
+    int *gdbVersion, int *gdbBuildVersion, bool *isMacGdb);
+
 } // namespace Internal
 } // namespace Debugger
 

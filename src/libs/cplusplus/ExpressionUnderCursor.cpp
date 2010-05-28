@@ -130,6 +130,7 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
             // which we handle immediately:
             return index - 3;
         } else {
+#if 0 // see QTCREATORBUG-1501
             // See if we are handling an Objective-C messaging expression in the form of:
             //     [receiver messageParam1:expression messageParam2
             // or:
@@ -154,6 +155,7 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
                 if (tk[j].is(T_IDENTIFIER) && tk[j + 1].is(T_IDENTIFIER))
                     return i;
             }
+#endif
         }
         return index - 1;
     } else if (tk[index - 1].is(T_RPAREN)) {

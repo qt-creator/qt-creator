@@ -50,6 +50,8 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT StyleHelper
 {
 public:
+    static const unsigned int DEFAULT_BASE_COLOR = 0x666666;
+
     // Height of the project explorer navigation bar
     static int navigationWidgetHeight() { return 24; }
     static qreal sidebarFontSize();
