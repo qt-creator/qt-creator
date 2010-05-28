@@ -130,6 +130,8 @@ private:
                                 const QString &expression,
                                 int endOfExpression);
 
+    QList<TextEditor::CompletionItem> removeDuplicates(const QList<TextEditor::CompletionItem> &items);
+
 private:
     bool objcKeywordsWanted() const;
 

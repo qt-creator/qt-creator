@@ -82,10 +82,6 @@ namespace {
     const bool debug = ! qgetenv("CPLUSPLUS_DEBUG").isEmpty();
 }
 
-enum {
-    MAX_COMPLETION_ITEM = 1000
-};
-
 using namespace CPlusPlus;
 
 namespace CppTools {
@@ -660,7 +656,10 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     int index = startCompletionHelper(editor);
     if (index != -1) {
         if (m_completionOperator != T_EOF_SYMBOL)
-            qStableSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
+            qSort(m_completions.begin(), m_completions.end(), completionItemLessThan);
+
+        // always remove duplicates
+        m_completions = removeDuplicates(m_completions);
     }
     return index;
 }
@@ -1590,43 +1589,34 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
     }
 }
 
-QList<TextEditor::CompletionItem> CppCodeCompletion::getCompletions()
+QList<TextEditor::CompletionItem> CppCodeCompletion::removeDuplicates(const QList<TextEditor::CompletionItem> &items)
 {
-    QList<TextEditor::CompletionItem> completionItems;
-
-    completions(&completionItems);
-
-    if (m_completionOperator == T_EOF_SYMBOL && completionItems.size() < MAX_COMPLETION_ITEM) {
-        qStableSort(completionItems.begin(), completionItems.end(), completionItemLessThan);
-    }
-
     // Remove duplicates
-    QString lastKey;
     QList<TextEditor::CompletionItem> uniquelist;
+    QSet<QString> processed;
 
-    foreach (const TextEditor::CompletionItem &item, completionItems) {
-        if (item.text != lastKey) {
+    foreach (const TextEditor::CompletionItem &item, items) {
+        if (! processed.contains(item.text)) {
+            processed.insert(item.text);
             uniquelist.append(item);
-            lastKey = item.text;
-        } else {
-            TextEditor::CompletionItem &lastItem = uniquelist.last();
-            Symbol *symbol = qvariant_cast<Symbol *>(item.data);
-            Symbol *lastSymbol = qvariant_cast<Symbol *>(lastItem.data);
-
-            if (symbol && lastSymbol) {
-                Function *funTy = symbol->type()->asFunctionType();
-                Function *lastFunTy = lastSymbol->type()->asFunctionType();
-                if (funTy && lastFunTy) {
-                    if (funTy->argumentCount() == lastFunTy->argumentCount())
-                        continue;
+            if (Symbol *symbol = qvariant_cast<Symbol *>(item.data)) {
+                if (Function *funTy = symbol->type()->asFunctionType()) {
+                    if (funTy->hasArguments())
+                        ++uniquelist.back().duplicateCount;
                 }
             }
-
-            ++lastItem.duplicateCount;
         }
     }
 
     return uniquelist;
+}
+
+QList<TextEditor::CompletionItem> CppCodeCompletion::getCompletions()
+{
+    QList<TextEditor::CompletionItem> completionItems;
+    completions(&completionItems);
+
+    return completionItems;
 }
 
 void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
