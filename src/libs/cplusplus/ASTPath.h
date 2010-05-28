@@ -38,7 +38,7 @@
 #include <QtCore/QList>
 #include <QtGui/QTextCursor>
 
-#define DEBUG_AST_PATH
+#undef DEBUG_AST_PATH
 
 namespace CPlusPlus {
 

@@ -34,6 +34,7 @@
 
 #ifdef DEBUG_AST_PATH
 #  include <QtCore/QDebug>
+#  include <typeinfo>
 #endif // DEBUG_AST_PATH
 
 using namespace CPlusPlus;
