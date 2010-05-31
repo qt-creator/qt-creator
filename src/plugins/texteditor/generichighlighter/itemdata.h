@@ -68,21 +68,6 @@ public:
 
     bool isCustomized() const;
 
-    static const QLatin1String kDsNormal;
-    static const QLatin1String kDsKeyword;
-    static const QLatin1String kDsDataType;
-    static const QLatin1String kDsDecVal;
-    static const QLatin1String kDsBaseN;
-    static const QLatin1String kDsFloat;
-    static const QLatin1String kDsChar;
-    static const QLatin1String kDsString;
-    static const QLatin1String kDsComment;
-    static const QLatin1String kDsOthers;
-    static const QLatin1String kDsAlert;
-    static const QLatin1String kDsFunction;
-    static const QLatin1String kDsRegionMarker;
-    static const QLatin1String kDsError;
-
 private:
     QString m_style;
     QColor m_color;

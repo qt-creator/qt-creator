@@ -38,6 +38,7 @@
 #include "highlighterexception.h"
 #include "manager.h"
 #include "normalindenter.h"
+#include "fontsettings.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -103,14 +104,49 @@ void PlainTextEditor::unCommentSelection()
     Utils::unCommentSelection(this, m_commentDefinition);
 }
 
-void PlainTextEditor::setFontSettings(const FontSettings & fs)
+void PlainTextEditor::setFontSettings(const FontSettings &fs)
 {
     BaseTextEditor::setFontSettings(fs);
 
     if (baseTextDocument()->syntaxHighlighter()) {
         Highlighter *highlighter =
-                static_cast<Highlighter *>(baseTextDocument()->syntaxHighlighter());
-        highlighter->configureFormats(fs);
+            static_cast<Highlighter *>(baseTextDocument()->syntaxHighlighter());
+
+        highlighter->configureFormat(Highlighter::VisualWhitespace, fs.toTextCharFormat(
+            QLatin1String(Constants::C_VISUAL_WHITESPACE)));
+        highlighter->configureFormat(Highlighter::Keyword, fs.toTextCharFormat(
+            QLatin1String(Constants::C_KEYWORD)));
+        highlighter->configureFormat(Highlighter::DataType, fs.toTextCharFormat(
+            QLatin1String(Constants::C_TYPE)));
+        highlighter->configureFormat(Highlighter::Comment, fs.toTextCharFormat(
+            QLatin1String(Constants::C_COMMENT)));
+        // Using C_NUMBER for all kinds of numbers.
+        highlighter->configureFormat(Highlighter::Decimal, fs.toTextCharFormat(
+            QLatin1String(Constants::C_NUMBER)));
+        highlighter->configureFormat(Highlighter::BaseN, fs.toTextCharFormat(
+            QLatin1String(Constants::C_NUMBER)));
+        highlighter->configureFormat(Highlighter::Float, fs.toTextCharFormat(
+            QLatin1String(Constants::C_NUMBER)));
+        // Using C_STRING for strings and chars.
+        highlighter->configureFormat(Highlighter::Char, fs.toTextCharFormat(
+            QLatin1String(Constants::C_STRING)));
+        highlighter->configureFormat(Highlighter::String, fs.toTextCharFormat(
+            QLatin1String(Constants::C_STRING)));
+
+        // Creator does not have corresponding formats for the following ones. Implement them?
+        // For now I will leave hardcoded values.
+        QTextCharFormat format;
+        format.setForeground(Qt::blue);
+        highlighter->configureFormat(Highlighter::Others, format);
+        format.setForeground(Qt::red);
+        highlighter->configureFormat(Highlighter::Alert, format);
+        format.setForeground(Qt::darkBlue);
+        highlighter->configureFormat(Highlighter::Function, format);
+        format.setForeground(Qt::darkGray);
+        highlighter->configureFormat(Highlighter::RegionMarker, format);
+        format.setForeground(Qt::darkRed);
+        highlighter->configureFormat(Highlighter::Error, format);
+
         highlighter->rehighlight();
     }
 }
@@ -140,14 +176,14 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
                     Manager::instance()->definition(definitionId);
 
             Highlighter *highlighter = new Highlighter(definition->initialContext());
-            highlighter->configureFormats(TextEditorSettings::instance()->fontSettings());
-
             baseTextDocument()->setSyntaxHighlighter(highlighter);
 
             m_commentDefinition.setAfterWhiteSpaces(definition->isCommentAfterWhiteSpaces());
             m_commentDefinition.setSingleLine(definition->singleLineComment());
             m_commentDefinition.setMultiLineStart(definition->multiLineCommentStart());
             m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
+
+            setFontSettings(TextEditorSettings::instance()->fontSettings());
 
             m_isMissingSyntaxDefinition = false;
         } catch (const HighlighterException &) {

@@ -33,21 +33,6 @@
 using namespace TextEditor;
 using namespace Internal;
 
-const QLatin1String ItemData::kDsNormal("dsNormal");
-const QLatin1String ItemData::kDsKeyword("dsKeyword");
-const QLatin1String ItemData::kDsDataType("dsDataType");
-const QLatin1String ItemData::kDsDecVal("dsDecVal");
-const QLatin1String ItemData::kDsBaseN("dsBaseN");
-const QLatin1String ItemData::kDsFloat("dsFloat");
-const QLatin1String ItemData::kDsChar("dsChar");
-const QLatin1String ItemData::kDsString("dsString");
-const QLatin1String ItemData::kDsComment("dsComment");
-const QLatin1String ItemData::kDsOthers("dsOthers");
-const QLatin1String ItemData::kDsAlert("dsAlert");
-const QLatin1String ItemData::kDsFunction("dsFunction");
-const QLatin1String ItemData::kDsRegionMarker("dsRegionMarker");
-const QLatin1String ItemData::kDsError("dsError");
-
 ItemData::ItemData() :
     m_italicSpecified(false),
     m_boldSpecified(false),

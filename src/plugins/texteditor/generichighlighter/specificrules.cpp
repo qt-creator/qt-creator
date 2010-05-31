@@ -185,8 +185,7 @@ bool RegExprRule::doMatchSucceed(const QString &text,
     Q_UNUSED(length)
 
     // This is not documented but a regular expression match is considered valid if it starts
-    // at the current position and if the match length is not zero. Checked in Kate's source code
-    // after some unexpected problems.
+    // at the current position and if the match length is not zero.
     const int offset = progress->offset();
     if (m_expression.indexIn(text, offset, QRegExp::CaretAtZero) == offset) {
         if (m_expression.matchedLength() == 0)

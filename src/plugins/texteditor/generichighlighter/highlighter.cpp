@@ -35,8 +35,6 @@
 #include "highlighterexception.h"
 #include "progressdata.h"
 #include "reuse.h"
-#include "texteditorconstants.h"
-#include "fontsettings.h"
 
 #include <QtCore/QLatin1String>
 #include <QtCore/QLatin1Char>
@@ -50,6 +48,8 @@ namespace {
     static const QLatin1Char kBackSlash('\\');
     static const QLatin1Char kHash('#');
 }
+
+const Highlighter::KateFormatMap Highlighter::m_kateFormats;
 
 Highlighter::Highlighter(const QSharedPointer<Context> &defaultContext,QTextDocument *parent) :
     QSyntaxHighlighter(parent),
@@ -69,6 +69,24 @@ Highlighter::BlockData::BlockData()
 
 Highlighter::BlockData::~BlockData()
 {}
+
+Highlighter::KateFormatMap::KateFormatMap()
+{
+    m_ids.insert(QLatin1String("dsNormal"), Highlighter::Normal);
+    m_ids.insert(QLatin1String("dsKeyword"), Highlighter::Keyword);
+    m_ids.insert(QLatin1String("dsDataType"), Highlighter::DataType);
+    m_ids.insert(QLatin1String("dsDecVal"), Highlighter::Decimal);
+    m_ids.insert(QLatin1String("dsBaseN"), Highlighter::BaseN);
+    m_ids.insert(QLatin1String("dsFloat"), Highlighter::Float);
+    m_ids.insert(QLatin1String("dsChar"), Highlighter::Char);
+    m_ids.insert(QLatin1String("dsString"), Highlighter::String);
+    m_ids.insert(QLatin1String("dsComment"), Highlighter::Comment);
+    m_ids.insert(QLatin1String("dsOthers"), Highlighter::Others);
+    m_ids.insert(QLatin1String("dsAlert"), Highlighter::Alert);
+    m_ids.insert(QLatin1String("dsFunction"), Highlighter::Function);
+    m_ids.insert(QLatin1String("dsRegionMarker"), Highlighter::RegionMarker);
+    m_ids.insert(QLatin1String("dsError"), Highlighter::Error);
+}
 
 void Highlighter::highlightBlock(const QString &text)
 {
@@ -304,8 +322,9 @@ void Highlighter::applyFormat(int offset,
         return;
     }
 
-    if (itemData->style() != ItemData::kDsNormal) {
-        QTextCharFormat format = m_genericFormats.value(itemData->style());
+    TextFormatId formatId = m_kateFormats.m_ids.value(itemData->style());
+    if (formatId != Normal) {
+        QTextCharFormat format = m_creatorFormats.value(formatId);
 
         if (itemData->isCustomized()) {
             // Please notice that the following are applied every time for item datas which have
@@ -340,7 +359,7 @@ void Highlighter::applyVisualWhitespaceFormat(const QString &text)
             int start = offset++;
             while (offset < length && text.at(offset).isSpace())
                 ++offset;
-            setFormat(start, offset - start, m_visualWhitespaceFormat);
+            setFormat(start, offset - start, m_creatorFormats.value(VisualWhitespace));
         } else {
             ++offset;
         }
@@ -438,41 +457,7 @@ void Highlighter::setCurrentContext()
     m_currentContext = m_contexts.back();
 }
 
-void Highlighter::configureFormats(const FontSettings & fs)
+void Highlighter::configureFormat(TextFormatId id, const QTextCharFormat &format)
 {
-    m_visualWhitespaceFormat = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE));
-
-    m_genericFormats[ItemData::kDsKeyword] = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_KEYWORD));
-    m_genericFormats[ItemData::kDsDataType] = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_TYPE));
-    // Currenlty using C_NUMBER for all kinds of numbers.
-    m_genericFormats[ItemData::kDsDecVal] = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_NUMBER));
-    m_genericFormats[ItemData::kDsBaseN] = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_NUMBER));
-    m_genericFormats[ItemData::kDsFloat] = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_NUMBER));
-    // Currently using C_STRING for strings and chars.
-    m_genericFormats[ItemData::kDsChar] = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_STRING));
-    m_genericFormats[ItemData::kDsString] = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_STRING));
-    m_genericFormats[ItemData::kDsComment] = fs.toTextCharFormat(
-            QLatin1String(TextEditor::Constants::C_COMMENT));
-
-    // Currently Creator does not have corresponding formats for the following items. We can
-    // implement them... Just for now I will leave hardcoded colors.
-    QTextCharFormat format;
-    format.setForeground(Qt::blue);
-    m_genericFormats[ItemData::kDsOthers] = format;
-    format.setForeground(Qt::red);
-    m_genericFormats[ItemData::kDsAlert] = format;
-    format.setForeground(Qt::darkBlue);
-    m_genericFormats[ItemData::kDsFunction] = format;
-    format.setForeground(Qt::darkGray);
-    m_genericFormats[ItemData::kDsRegionMarker] = format;
-    format.setForeground(Qt::darkRed);
-    m_genericFormats[ItemData::kDsError] = format;
+    m_creatorFormats[id] = format;
 }

@@ -38,10 +38,7 @@
 #include <QtCore/QStringList>
 
 #include <QtGui/QSyntaxHighlighter>
-
-namespace TextEditor {
-class FontSettings;
-}
+#include <QtGui/QTextCharFormat>
 
 namespace TextEditor {
 namespace Internal {
@@ -57,7 +54,24 @@ public:
     Highlighter(const QSharedPointer<Context> &defaultContext, QTextDocument *parent = 0);
     virtual ~Highlighter();
 
-    void configureFormats(const FontSettings &fs);
+    enum TextFormatId {
+        Normal,
+        VisualWhitespace,
+        Keyword,
+        DataType,
+        Decimal,
+        BaseN,
+        Float,
+        Char,
+        String,
+        Comment,
+        Alert,
+        Error,
+        Function,
+        RegionMarker,
+        Others
+    };
+    void configureFormat(TextFormatId id, const QTextCharFormat &format);
 
 protected:
     virtual void highlightBlock(const QString &text);
@@ -76,6 +90,7 @@ private:
                              const bool childRule,
                              const QList<QSharedPointer<Rule> > &rules);
 
+    void setCurrentContext();
     bool contextChangeRequired(const QString &contextName) const;
     void handleContextChange(const QString &contextName,
                              const QSharedPointer<HighlightDefinition> &definition,
@@ -84,21 +99,28 @@ private:
                        const QSharedPointer<HighlightDefinition> &definition,
                        const bool setCurrent = true);
 
+    QString currentContextSequence() const;
+    void mapContextSequence(const QString &contextSequence);
+    void pushContextSequence(int state);
+    void pushDynamicContext(const QSharedPointer<Context> &baseContext);
+
+    void createWillContinueBlock();
+    void analyseConsistencyOfWillContinueBlock(const QString &text);
+
     void applyFormat(int offset,
                      int count,
                      const QString &itemDataName,
                      const QSharedPointer<HighlightDefinition> &definition);
     void applyVisualWhitespaceFormat(const QString &text);
 
-    QString currentContextSequence() const;
-    void mapContextSequence(const QString &contextSequence);
-    void pushContextSequence(int state);
-    void pushDynamicContext(const QSharedPointer<Context> &baseContext);
-
-    void setCurrentContext();
-
-    void createWillContinueBlock();
-    void analyseConsistencyOfWillContinueBlock(const QString &text);
+    // Mapping from Kate format strings to format ids.
+    struct KateFormatMap
+    {
+        KateFormatMap();
+        QHash<QString, TextFormatId> m_ids;
+    };
+    static const KateFormatMap m_kateFormats;
+    QHash<TextFormatId, QTextCharFormat> m_creatorFormats;
 
     struct BlockData : TextBlockUserData
     {
@@ -143,9 +165,6 @@ private:
 
     // Captures used in dynamic rules.
     QStringList m_currentCaptures;
-
-    QTextCharFormat m_visualWhitespaceFormat;
-    QHash<QString, QTextCharFormat> m_genericFormats;
 };
 
 } // namespace Internal
