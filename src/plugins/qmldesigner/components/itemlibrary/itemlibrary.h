@@ -61,8 +61,12 @@ public Q_SLOTS:
     void startDragAndDrop(int itemLibId);
     void showItemInfo(int itemLibId);
 
+protected:
+    void wheelEvent(QWheelEvent *event);
+
 signals:
     void itemActivated(const QString& itemName);
+    void scrollItemsView(QVariant delta);
     void resetItemsView();
 
 private:

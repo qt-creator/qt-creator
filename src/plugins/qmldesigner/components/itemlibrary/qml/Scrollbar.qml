@@ -38,6 +38,10 @@ Item {
 
     property variant flickable
 
+    function scroll(delta) {
+        handle.y = Math.max(0, Math.min(scrollHeight, handle.y + delta))
+    }
+
     function reset() {
         handle.y = 0
     }
@@ -100,7 +104,7 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: handle.top
-        onClicked: handle.y = Math.max(0, handle.y - style.scrollbarClickScrollAmount)
+        onClicked: scroll(-style.scrollbarClickScrollAmount)
     }
 
     Item {
@@ -151,6 +155,6 @@ Item {
         anchors.right: parent.right
         anchors.top: handle.bottom
         anchors.bottom: parent.bottom
-        onClicked: handle.y = Math.min(scrollHeight, handle.y + style.scrollbarClickScrollAmount)
+        onClicked: scroll(style.scrollbarClickScrollAmount)
     }
 }
