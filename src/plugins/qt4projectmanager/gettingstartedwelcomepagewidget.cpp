@@ -72,8 +72,12 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
 
     ui->tutorialTreeWidget->addItem(tr("The Qt Creator User Interface"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html"));
+    ui->tutorialTreeWidget->addItem(tr("Building and Running an Example"),
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-build-example-application.html?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt C++ Application"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-writing-program.html?view=split"));
+    ui->tutorialTreeWidget->addItem(tr("Creating a Mobile Application"),
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-mobile-example?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt Quick Application"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-qml-application.html?view=split"));
 
