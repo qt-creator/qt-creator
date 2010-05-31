@@ -84,10 +84,11 @@ using namespace Core::Constants;
 using namespace Help;
 using namespace Help::Internal;
 
-const char * const SB_INDEX = "Index";
-const char * const SB_CONTENTS = "Contents";
-const char * const SB_BOOKMARKS = "Bookmarks";
-const char * const SB_SEARCH = "Search";
+const char * const SB_INDEX = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Index");
+const char * const SB_CONTENTS = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Contents");
+const char * const SB_BOOKMARKS = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Bookmarks");
+const char * const SB_SEARCH = QT_TRANSLATE_NOOP("Help::Internal::HelpPlugin", "Search");
+
 const char * const SB_OPENPAGES = "OpenPages";
 
 #define IMAGEPATH ":/help/images/"
@@ -197,12 +198,12 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     connect(action, SIGNAL(triggered()), this, SLOT(addBookmark()));
 
     // Add Contents, Index, and Context menu items and a separator to the Help menu
-    action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")), tr("Contents"), this);
+    action = new QAction(QIcon::fromTheme(QLatin1String("help-contents")), tr(SB_CONTENTS), this);
     cmd = am->registerAction(action, QLatin1String("Help.Contents"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateContents()));
 
-    action = new QAction(tr("Index"), this);
+    action = new QAction(tr(SB_INDEX), this);
     cmd = am->registerAction(action, QLatin1String("Help.Index"), globalcontext);
     am->actionContainer(M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(activateIndex()));
@@ -378,7 +379,7 @@ void HelpPlugin::setupUi()
     modecontext << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_MODE_HELP);
 
     IndexWindow *indexWindow = new IndexWindow();
-    indexWindow->setWindowTitle(tr("Index"));
+    indexWindow->setWindowTitle(tr(SB_INDEX));
     m_indexItem = new Core::SideBarItem(indexWindow, QLatin1String(SB_INDEX));
 
     connect(indexWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
@@ -396,7 +397,7 @@ void HelpPlugin::setupUi()
     shortcutMap.insert(QLatin1String(SB_INDEX), cmd);
 
     ContentWindow *contentWindow = new ContentWindow();
-    contentWindow->setWindowTitle(tr("Contents"));
+    contentWindow->setWindowTitle(tr(SB_CONTENTS));
     m_contentItem = new Core::SideBarItem(contentWindow, QLatin1String(SB_CONTENTS));
     connect(contentWindow, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
@@ -410,8 +411,8 @@ void HelpPlugin::setupUi()
     shortcutMap.insert(QLatin1String(SB_CONTENTS), cmd);
 
     SearchWidget *searchWidget = new SearchWidget();
-    searchWidget->setWindowTitle(tr("Search"));
-    m_searchItem = new Core::SideBarItem(searchWidget, "Search");
+    searchWidget->setWindowTitle(tr(SB_SEARCH));
+    m_searchItem = new Core::SideBarItem(searchWidget, QLatin1String(SB_SEARCH));
     connect(searchWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSourceFromSearch(QUrl)));
 
@@ -422,11 +423,11 @@ void HelpPlugin::setupUi()
     //     modecontext);
     // cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_S));
     // connect(shortcut, SIGNAL(activated()), this, SLOT(activateSearch()));
-    // shortcutMap.insert("Search", cmd);
+    // shortcutMap.insert(QLatin1String(SB_SEARCH), cmd);
 
     BookmarkManager *manager = &HelpManager::bookmarkManager();
     BookmarkWidget *bookmarkWidget = new BookmarkWidget(manager, 0, false);
-    bookmarkWidget->setWindowTitle(tr("Bookmarks"));
+    bookmarkWidget->setWindowTitle(tr(SB_BOOKMARKS));
     m_bookmarkItem = new Core::SideBarItem(bookmarkWidget, QLatin1String(SB_BOOKMARKS));
     connect(bookmarkWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
@@ -438,7 +439,7 @@ void HelpPlugin::setupUi()
     //     modecontext);
     // cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_B));
     // connect(shortcut, SIGNAL(activated()), this, SLOT(activateBookmarks()));
-    // shortcutMap.insert("Bookmarks", cmd);
+    // shortcutMap.insert(QLatin1String(SB_BOOKMARKS), cmd);
 
     QWidget *openPagesWidget = OpenPagesManager::instance().openPagesWidget();
     openPagesWidget->setWindowTitle(tr("Open Pages"));
