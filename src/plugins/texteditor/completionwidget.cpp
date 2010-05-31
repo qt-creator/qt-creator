@@ -334,7 +334,8 @@ bool CompletionListView::event(QEvent *e)
         }
 #endif
         m_completionWidget->closeList(index);
-        m_infoFrame->close();
+        if (m_infoFrame)
+            m_infoFrame->close();
         return true;
     } else if (e->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
