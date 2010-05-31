@@ -199,6 +199,8 @@ public:
     struct ParseCtx {
         int parens; // Nesting of non-functional parentheses
         int argc; // Number of arguments in current function call
+        int litCount; // Number of literals in current expression
+        int expCount; // Number of expansions in current expression
         Context context;
         ushort quote; // Enclosing quote type
         ushort terminator; // '}' if replace function call is braced, ':' if test function
@@ -266,7 +268,7 @@ public:
     static ProStringList split_value_list(const QString &vals);
     bool isActiveConfig(const QString &config, bool regex = false);
     ProStringList expandVariableReferences(const ProString &value, int *pos = 0, bool joined = false);
-    ProStringList expandVariableReferences(const ushort *&tokPtr, bool joined = false);
+    ProStringList expandVariableReferences(const ushort *&tokPtr, int sizeHint = 0, bool joined = false);
     ProStringList evaluateExpandFunction(const ProString &function, const ProString &arguments);
     ProStringList evaluateExpandFunction(const ProString &function, const ushort *&tokPtr);
     ProStringList evaluateExpandFunction(const ProString &function, const ProStringList &args);
@@ -681,6 +683,8 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
     Context context = CtxTest;
     int parens = 0;
     int argc = 0;
+    int litCount = 0;
+    int expCount = 0;
     bool inError = false;
     bool putSpace = false; // Only ever true inside quoted string
     bool lineMarked = true; // For in-expression markers
@@ -714,6 +718,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
             xprPtr[-1] = tlen; \
             if (setSep) \
                 needSep = TokNewStr; \
+            litCount++; \
         } else { \
             ptr -= 2; \
             if (setSep && ptr != ((context == CtxValue) ? tokPtr : buf)) \
@@ -822,6 +827,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                                 xprPtr[-2] = TokLiteral | needSep;
                                 xprPtr[-1] = tlen;
                                 needSep = 0;
+                                litCount++;
                             } else {
                                 ptr -= 2;
                             }
@@ -871,6 +877,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                             tok |= TokQuoted;
                         tok |= needSep;
                         needSep = 0;
+                        expCount++;
                         tlen = ptr - xprPtr;
                         if (rtok == TokVariable) {
                             xprPtr[-4] = tok;
@@ -892,6 +899,8 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                                 top.terminator = term;
                                 top.context = context;
                                 top.argc = argc;
+                                top.litCount = litCount;
+                                top.expCount = expCount;
                             }
                             parens = 0;
                             quote = 0;
@@ -962,6 +971,8 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                                 term = top.terminator;
                                 context = top.context;
                                 argc = top.argc;
+                                litCount = top.litCount;
+                                expCount = top.expCount;
                                 xprStack.resize(xprStack.size() - 1);
                             }
                             if (term == ':') {
@@ -1070,7 +1081,8 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                         putBlock(tokPtr, buf, tlen);
                         putTok(tokPtr, tok);
                         context = CtxValue;
-                        ptr = tokPtr;
+                        ptr = ++tokPtr;
+                        litCount = expCount = 0;
                         needSep = 0;
                         goto nextToken;
                     }
@@ -1109,6 +1121,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                     return false;
                 }
                 if (context == CtxValue) {
+                    tokPtr[-1] = litCount ? litCount + expCount : 0;
                     tokPtr = ptr;
                     putTok(tokPtr, TokValueTerminator);
                 } else {
@@ -1837,7 +1850,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
     int index = 0;
     ProString variable;
     ProStringList oldVarVal;
-    ProString it_list = expandVariableReferences(exprPtr, true).at(0);
+    ProString it_list = expandVariableReferences(exprPtr, 0, true).at(0);
     if (_variable.isEmpty()) {
         if (it_list != statics.strever) {
             logMessage(format("Invalid loop expression."));
@@ -1919,6 +1932,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
 void ProFileEvaluator::Private::visitProVariable(
         ushort tok, const ProStringList &curr, const ushort *&tokPtr)
 {
+    int sizeHint = *tokPtr++;
+
     if (curr.size() != 1) {
         skipExpression(tokPtr);
         logMessage(format("Left hand side of assignment must expand to exactly one word."));
@@ -1929,7 +1944,7 @@ void ProFileEvaluator::Private::visitProVariable(
     if (tok == TokReplace) {      // ~=
         // DEFINES ~= s/a/b/?[gqi]
 
-        const ProStringList &varVal = expandVariableReferences(tokPtr, true);
+        const ProStringList &varVal = expandVariableReferences(tokPtr, sizeHint, true);
         const QString &val = varVal.at(0).toQString(m_tmp1);
         if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
             logMessage(format("the ~= operator can handle only the s/// function."));
@@ -1962,7 +1977,7 @@ void ProFileEvaluator::Private::visitProVariable(
             replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global, m_tmp2);
         }
     } else {
-        ProStringList varVal = expandVariableReferences(tokPtr);
+        ProStringList varVal = expandVariableReferences(tokPtr, sizeHint);
         switch (tok) {
         default: // whatever - cannot happen
         case TokAssign:          // =
@@ -2641,9 +2656,10 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
 }
 
 ProStringList ProFileEvaluator::Private::expandVariableReferences(
-        const ushort *&tokPtr, bool joined)
+        const ushort *&tokPtr, int sizeHint, bool joined)
 {
     ProStringList ret;
+    ret.reserve(sizeHint);
     forever {
         evaluateExpression(tokPtr, &ret, joined);
         switch (*tokPtr) {
@@ -2761,7 +2777,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         return evaluateFunction(*it, prepareFunctionArgs(tokPtr), 0);
 
     //why don't the builtin functions just use args_list? --Sam
-    return evaluateExpandFunction(func, expandVariableReferences(tokPtr, true));
+    return evaluateExpandFunction(func, expandVariableReferences(tokPtr, 5, true));
 }
 
 ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
@@ -3179,7 +3195,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         return evaluateBoolFunction(*it, prepareFunctionArgs(tokPtr), function);
 
     //why don't the builtin functions just use args_list? --Sam
-    return evaluateConditionalFunction(function, expandVariableReferences(tokPtr, true));
+    return evaluateConditionalFunction(function, expandVariableReferences(tokPtr, 5, true));
 }
 
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(

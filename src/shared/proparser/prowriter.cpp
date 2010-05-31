@@ -137,6 +137,8 @@ static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
     case TokAppendUnique:
     case TokRemove:
     case TokReplace:
+        tokPtr++;
+        // fallthrough
     case TokTestCall:
         skipExpression(tokPtr, lineNo);
         break;
@@ -206,7 +208,7 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
                 lines->insert(lineNo, added);
                 return;
             }
-            skipExpression(tokPtr, lineNo);
+            skipExpression(++tokPtr, lineNo);
         } else {
             lastXpr = skipToken(tok, tokPtr, lineNo);
         }
@@ -236,7 +238,7 @@ static void findProVariables(const ushort *tokPtr, const QStringList &vars,
         } else if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
             if (getLiteral(lastXpr, tokPtr - 1, tmp) && vars.contains(tmp))
                 *proVars << lineNo;
-            skipExpression(tokPtr, lineNo);
+            skipExpression(++tokPtr, lineNo);
         } else {
             lastXpr = skipToken(tok, tokPtr, lineNo);
         }
