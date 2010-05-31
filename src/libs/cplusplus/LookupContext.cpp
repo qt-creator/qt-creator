@@ -410,7 +410,7 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
 #if 0
             if (templateId && (s->isDeclaration() || s->isFunction())) {
 
-                FullySpecifiedType ty = GenTemplateInstance::instantiate(templateId, s, _control);
+                FullySpecifiedType ty = DeprecatedGenTemplateInstance::instantiate(templateId, s, _control);
 
                 if (debug) {
                     Overview oo;
