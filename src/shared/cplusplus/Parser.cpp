@@ -986,7 +986,7 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
             match(T_GREATER, &ast->greater_token);
     }
 
-    do {
+    while (LA()) {
         unsigned start_declaration = cursor();
 
         ast->declaration = 0;
@@ -996,7 +996,7 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
         _translationUnit->error(start_declaration, "expected a declaration");
         rewind(start_declaration + 1);
         skipUntilDeclaration();
-    } while (LA());
+    }
 
     node = ast;
     return true;
@@ -5824,4 +5824,12 @@ bool Parser::parseTrailingTypeSpecifierSeq(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     return parseSimpleTypeSpecifier(node);
+}
+
+void Parser::rewind(unsigned cursor)
+{
+    if (cursor < _translationUnit->tokenCount())
+        _tokenIndex = cursor;
+    else
+        _tokenIndex = _translationUnit->tokenCount() - 1;
 }

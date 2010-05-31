@@ -310,8 +310,7 @@ public:
     inline unsigned cursor() const
     { return _tokenIndex; }
 
-    inline void rewind(unsigned cursor)
-    { _tokenIndex = cursor; }
+    void rewind(unsigned cursor);
 
     struct TemplateArgumentListEntry {
         unsigned index;
