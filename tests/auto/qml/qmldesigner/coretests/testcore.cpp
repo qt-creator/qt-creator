@@ -3346,7 +3346,7 @@ void TestCore::testSubComponentManager()
 void TestCore::testComponentLoadingTabWidget()
 {
 
-    QSKIP("TODO: fails", SkipAll);
+//    QSKIP("TODO: fails", SkipAll);
 
     QString fileName = QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/tabs.qml";
     QFile file(fileName);
