@@ -565,6 +565,59 @@ protected:
     }
 };
 
+
+struct FindCanonicalSymbol
+{
+    CPPEditor *editor;
+    QString code;
+    TypeOfExpression typeOfExpression;
+    ExpressionUnderCursor expressionUnderCursor;
+    SemanticInfo info;
+
+    FindCanonicalSymbol(CPPEditor *editor, const SemanticInfo &info)
+        : editor(editor), info(info)
+    {
+        typeOfExpression.init(info.doc, info.snapshot);
+    }
+
+    const LookupContext &context() const
+    {
+        return typeOfExpression.context();
+    }
+
+    Symbol *operator()(const QTextCursor &cursor)
+    {
+        if (! info.doc)
+            return 0;
+
+        QTextCursor tc = cursor;
+        int line, col;
+        editor->convertPosition(tc.position(), &line, &col);
+        ++col; // 1-based line and 1-based column
+
+        QTextDocument *document = editor->document();
+
+        int pos = tc.position();
+        while (document->characterAt(pos).isLetterOrNumber() ||
+               document->characterAt(pos) == QLatin1Char('_'))
+            ++pos;
+        tc.setPosition(pos);
+
+        code = expressionUnderCursor(tc);
+        Scope *scope = info.doc->scopeAt(line, col);
+
+        const QList<LookupItem> results = typeOfExpression(code, scope, TypeOfExpression::Preprocess);
+        for (int i = results.size() - 1; i != -1; --i) { // ### TODO virtual methods and classes.
+            const LookupItem &r = results.at(i);
+
+            if (r.declaration())
+                return r.declaration();
+        }
+
+        return 0;
+    }
+};
+
 } // end of anonymous namespace
 
 CPPEditorEditable::CPPEditorEditable(CPPEditor *editor)
@@ -819,46 +872,7 @@ void CPPEditor::onDocumentUpdated(Document::Ptr doc)
     updateMethodBoxIndexNow();
 }
 
-CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
-                                                  Document::Ptr doc,
-                                                  const Snapshot &snapshot) const
-{
-    if (! doc)
-        return 0;
-
-    QTextCursor tc = cursor;
-    int line, col;
-    convertPosition(tc.position(), &line, &col);
-    ++col; // 1-based line and 1-based column
-
-    int pos = tc.position();
-    while (document()->characterAt(pos).isLetterOrNumber() ||
-           document()->characterAt(pos) == QLatin1Char('_'))
-        ++pos;
-    tc.setPosition(pos);
-
-    ExpressionUnderCursor expressionUnderCursor;
-    const QString code = expressionUnderCursor(tc);
-    // qDebug() << "code:" << code;
-
-    TypeOfExpression typeOfExpression;
-    typeOfExpression.init(doc, snapshot);
-
-    Scope *scope = doc->scopeAt(line, col);
-
-    const QList<LookupItem> results = typeOfExpression(code, scope, TypeOfExpression::Preprocess);
-    for (int i = results.size() - 1; i != -1; --i) { // ### TODO virtual methods and classes.
-        const LookupItem &r = results.at(i);
-
-        if (r.declaration())
-            return r.declaration();
-    }
-
-    return 0;
-}
-
-const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor,
-                                                  Document::Ptr doc) const
+const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor, Document::Ptr doc) const
 {
     if (! doc)
         return 0;
@@ -877,9 +891,13 @@ const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor,
 
 void CPPEditor::findUsages()
 {
-    if (Symbol *canonicalSymbol = markSymbols()) {
-        m_modelManager->findUsages(m_lastSemanticInfo.doc, canonicalSymbol);
-    } else if (const Macro *macro = findCanonicalMacro(textCursor(), m_lastSemanticInfo.doc)) {
+    const SemanticInfo info = m_lastSemanticInfo;
+
+    FindCanonicalSymbol cs(this, info);
+    Symbol *canonicalSymbol = cs(textCursor());
+    if (canonicalSymbol) {
+        m_modelManager->findUsages(canonicalSymbol, cs.context());
+    } else if (const Macro *macro = findCanonicalMacro(textCursor(), info.doc)) {
         m_modelManager->findMacroUsages(*macro);
     }
 }
@@ -920,7 +938,10 @@ void CPPEditor::hideRenameNotification()
 
 void CPPEditor::renameUsagesNow()
 {
-    if (Symbol *canonicalSymbol = markSymbols()) {
+    const SemanticInfo info = m_lastSemanticInfo;
+
+    FindCanonicalSymbol cs(this, info);
+    if (Symbol *canonicalSymbol = cs(textCursor())) {
         if (canonicalSymbol->identifier() != 0) {
             if (showWarningMessage()) {
                 Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
@@ -929,12 +950,12 @@ void CPPEditor::renameUsagesNow()
                                                                    this, SLOT(hideRenameNotification()));
             }
 
-            m_modelManager->renameUsages(m_lastSemanticInfo.doc, canonicalSymbol);
+            m_modelManager->renameUsages(canonicalSymbol, cs.context());
         }
     }
 }
 
-Symbol *CPPEditor::markSymbols()
+void CPPEditor::markSymbols(Symbol *canonicalSymbol, const SemanticInfo &info)
 {
     //updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
@@ -942,13 +963,11 @@ Symbol *CPPEditor::markSymbols()
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    const SemanticInfo info = m_lastSemanticInfo;
-
-    Symbol *canonicalSymbol = findCanonicalSymbol(textCursor(), info.doc, info.snapshot);
     if (canonicalSymbol) {
         TranslationUnit *unit = info.doc->translationUnit();
 
-        const QList<int> references = m_modelManager->references(canonicalSymbol, info.doc, info.snapshot);
+        LookupContext context(info.doc, info.snapshot); // ### remove me
+        const QList<int> references = m_modelManager->references(canonicalSymbol, context);
         foreach (int index, references) {
             unsigned line, column;
             unit->getTokenPosition(index, &line, &column);
@@ -970,7 +989,6 @@ Symbol *CPPEditor::markSymbols()
     }
 
     setExtraSelections(CodeSemanticsSelection, selections);
-    return canonicalSymbol;
 }
 
 void CPPEditor::renameSymbolUnderCursor()
@@ -1938,8 +1956,10 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
     if (! m_renameSelections.isEmpty())
         setExtraSelections(CodeSemanticsSelection, m_renameSelections); // ###
-    else
-        markSymbols();
+    else {
+        FindCanonicalSymbol cs(this, semanticInfo);
+        markSymbols(cs(textCursor()), semanticInfo);
+    }
 
     m_lastSemanticInfo.forced = false; // clear the forced flag
 }

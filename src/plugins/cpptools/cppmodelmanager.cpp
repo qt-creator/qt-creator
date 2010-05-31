@@ -785,23 +785,21 @@ void CppModelManager::removeEditorSupport(AbstractEditorSupport *editorSupport)
     m_addtionalEditorSupport.remove(editorSupport);
 }
 
-QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol,
-                                       CPlusPlus::Document::Ptr doc,
-                                       const CPlusPlus::Snapshot &snapshot)
+QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol, const LookupContext &context)
 {
-    return m_findReferences->references(symbol, doc, snapshot);
+    return m_findReferences->references(symbol, context);
 }
 
-void CppModelManager::findUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol)
+void CppModelManager::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
 {
     if (symbol->identifier())
-        m_findReferences->findUsages(symbolDocument, symbol);
+        m_findReferences->findUsages(symbol, context);
 }
 
-void CppModelManager::renameUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol)
+void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
 {
     if (symbol->identifier())
-        m_findReferences->renameUsages(symbolDocument, symbol);
+        m_findReferences->renameUsages(symbol, context);
 }
 
 void CppModelManager::findMacroUsages(const CPlusPlus::Macro &macro)

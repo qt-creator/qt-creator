@@ -56,6 +56,19 @@ FindUsages::FindUsages(Document::Ptr doc, const Snapshot &snapshot)
     typeofExpression.init(_doc, _snapshot, _context.bindings());
 }
 
+FindUsages::FindUsages(const LookupContext &context)
+    : ASTVisitor(context.thisDocument()->translationUnit()),
+      _doc(context.thisDocument()),
+      _snapshot(context.snapshot()),
+      _context(context),
+      _source(_doc->source()),
+      _sem(_doc->translationUnit()),
+      _inSimpleDeclaration(0),
+      _inQProperty(false)
+{
+    typeofExpression.init(_doc, _snapshot, _context.bindings());
+}
+
 QList<Usage> FindUsages::usages() const
 { return _usages; }
 

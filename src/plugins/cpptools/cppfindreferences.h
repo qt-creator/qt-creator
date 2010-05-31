@@ -59,16 +59,14 @@ public:
     CppFindReferences(CppModelManagerInterface *modelManager);
     virtual ~CppFindReferences();
 
-    QList<int> references(CPlusPlus::Symbol *symbol,
-                          CPlusPlus::Document::Ptr doc,
-                          const CPlusPlus::Snapshot& snapshot) const;
+    QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) const;
 
 Q_SIGNALS:
     void changed();
 
 public:
-    void findUsages(CPlusPlus::Document::Ptr symbolDocument,CPlusPlus::Symbol *symbol);
-    void renameUsages(CPlusPlus::Document::Ptr symbolDocument,CPlusPlus::Symbol *symbol);
+    void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
     void findMacroUses(const CPlusPlus::Macro &macro);
 
@@ -80,7 +78,7 @@ private Q_SLOTS:
     void updateDependencyTable();
 
 private:
-    void findAll_helper(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol);
+    void findAll_helper(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
 private:
     QPointer<CppModelManagerInterface> _modelManager;

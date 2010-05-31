@@ -116,12 +116,10 @@ public:
     virtual void addEditorSupport(AbstractEditorSupport *editorSupport);
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport);
 
-    virtual QList<int> references(CPlusPlus::Symbol *symbol,
-                                  CPlusPlus::Document::Ptr doc,
-                                  const CPlusPlus::Snapshot &snapshot);
+    virtual QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
-    virtual void findUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol);
-    virtual void renameUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol);
+    virtual void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
 

@@ -60,6 +60,7 @@ class CPLUSPLUS_EXPORT FindUsages: protected ASTVisitor
 {
 public:
     FindUsages(Document::Ptr doc, const Snapshot &snapshot);
+    FindUsages(const LookupContext &context);
 
     void operator()(Symbol *symbol);
 

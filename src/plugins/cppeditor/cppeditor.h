@@ -227,9 +227,6 @@ protected:
 
     virtual bool isInComment(const QTextCursor &cursor) const;
 
-    CPlusPlus::Symbol *findCanonicalSymbol(const QTextCursor &cursor,
-                                           CPlusPlus::Document::Ptr doc,
-                                           const CPlusPlus::Snapshot &snapshot) const;
     const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
                                                CPlusPlus::Document::Ptr doc) const;
 
@@ -253,7 +250,7 @@ private:
     bool showWarningMessage() const;
     void setShowWarningMessage(bool showWarningMessage);
 
-    CPlusPlus::Symbol *markSymbols();
+    void markSymbols(CPlusPlus::Symbol *canonicalSymbol, const SemanticInfo &info);
     bool sortedMethodOverview() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot);
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);

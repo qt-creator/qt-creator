@@ -167,13 +167,11 @@ CppFindReferences::~CppFindReferences()
 {
 }
 
-QList<int> CppFindReferences::references(Symbol *symbol,
-                                         Document::Ptr doc,
-                                         const Snapshot& snapshot) const
+QList<int> CppFindReferences::references(Symbol *symbol, const LookupContext &context) const
 {
     QList<int> references;
 
-    FindUsages findUsages(doc, snapshot);
+    FindUsages findUsages(context);
     findUsages(symbol);
     references = findUsages.references();
 
@@ -182,9 +180,8 @@ QList<int> CppFindReferences::references(Symbol *symbol,
 
 static void find_helper(QFutureInterface<Usage> &future,
                         const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
-                        Snapshot snapshot,
-                        Document::Ptr symbolDocument,
-                        DependencyTable dependencyTable,
+                        const LookupContext context,
+                        const DependencyTable dependencyTable,
                         Symbol *symbol)
 {
     QTime tm;
@@ -197,7 +194,7 @@ static void find_helper(QFutureInterface<Usage> &future,
     QStringList files(sourceFile);
 
     if (symbol->isClass() || symbol->isForwardClassDeclaration()) {
-        foreach (const Document::Ptr &doc, snapshot) {
+        foreach (const Document::Ptr &doc, context.snapshot()) {
             if (doc->fileName() == sourceFile)
                 continue;
 
@@ -214,7 +211,7 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     future.setProgressRange(0, files.size());
 
-    ProcessFile process(workingCopy, snapshot, symbolDocument, symbol);
+    ProcessFile process(workingCopy, context.snapshot(), context.thisDocument(), symbol);
     UpdateUI reduce(&future);
 
     QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
@@ -238,17 +235,17 @@ void CppFindReferences::updateDependencyTable()
     m_depsFuture = QtConcurrent::run(&dependencyTable, m_deps, _modelManager->snapshot());
 }
 
-void CppFindReferences::findUsages(Document::Ptr symbolDocument, Symbol *symbol)
+void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
 {
     Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
 
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
 
-    findAll_helper(symbolDocument, symbol);
+    findAll_helper(symbol, context);
 }
 
-void CppFindReferences::renameUsages(Document::Ptr symbolDocument, Symbol *symbol)
+void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context)
 {
     if (const Identifier *id = symbol->identifier()) {
         const QString textToReplace = QString::fromUtf8(id->chars(), id->size());
@@ -262,11 +259,11 @@ void CppFindReferences::renameUsages(Document::Ptr symbolDocument, Symbol *symbo
         connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
                 SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
 
-        findAll_helper(symbolDocument, symbol);
+        findAll_helper(symbol, context);
     }
 }
 
-void CppFindReferences::findAll_helper(Document::Ptr symbolDocument, Symbol *symbol)
+void CppFindReferences::findAll_helper(Symbol *symbol, const LookupContext &context)
 {
     if (! (symbol && symbol->identifier()))
         return;
@@ -283,7 +280,7 @@ void CppFindReferences::findAll_helper(Document::Ptr symbolDocument, Symbol *sym
 
     QFuture<Usage> result;
 
-    result = QtConcurrent::run(&find_helper, workingCopy, snapshot, symbolDocument, m_deps, symbol);
+    result = QtConcurrent::run(&find_helper, workingCopy, context, m_deps, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),

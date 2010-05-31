@@ -38,6 +38,10 @@
 #include <QtCore/QStringList>
 #include <QtCore/QFuture>
 
+namespace CPlusPlus {
+    class LookupContext;
+}
+
 namespace ProjectExplorer {
     class Project;
 }
@@ -119,11 +123,10 @@ public:
     virtual void removeEditorSupport(AbstractEditorSupport *editorSupport) = 0;
 
     virtual QList<int> references(CPlusPlus::Symbol *symbol,
-                                  CPlusPlus::Document::Ptr doc,
-                                  const CPlusPlus::Snapshot &snapshot) = 0;
+                                  const CPlusPlus::LookupContext &context) = 0;
 
-    virtual void renameUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol) = 0;
-    virtual void findUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol) = 0;
+    virtual void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) = 0;
+    virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) = 0;
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
 
