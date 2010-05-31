@@ -297,6 +297,8 @@ public:
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);
 
+    QString defaultPropertyName(const ObjectValue *object);
+
     bool documentImportsPlugins(const Document *doc) const;
     void setDocumentImportsPlugins(const Document *doc);
 
@@ -817,6 +819,7 @@ class QMLJS_EXPORT ASTObjectValue: public ObjectValue
     const Document *_doc;
     QList<ASTPropertyReference *> _properties;
     QList<ASTSignalReference *> _signals;
+    ASTPropertyReference *_defaultPropertyRef;
 
 public:
     ASTObjectValue(AST::UiQualifiedId *typeName,
@@ -827,6 +830,8 @@ public:
 
     bool getSourceLocation(QString *fileName, int *line, int *column) const;
     virtual void processMembers(MemberProcessor *processor) const;
+
+    QString defaultPropertyName() const;
 };
 
 } } // end of namespace QmlJS::Interpreter

@@ -1494,6 +1494,20 @@ void Context::setProperty(const ObjectValue *object, const QString &name, const 
     _properties[object].insert(name, value);
 }
 
+QString Context::defaultPropertyName(const ObjectValue *object)
+{
+    for (const ObjectValue *o = object; o; o = o->prototype(this)) {
+        if (const ASTObjectValue *astObjValue = dynamic_cast<const ASTObjectValue *>(o)) {
+            QString defaultProperty = astObjValue->defaultPropertyName();
+            if (!defaultProperty.isEmpty())
+                return defaultProperty;
+        } else if (const QmlObjectValue *qmlValue = dynamic_cast<const QmlObjectValue *>(o)) {
+            return qmlValue->defaultPropertyName();
+        }
+    }
+    return QString();
+}
+
 bool Context::documentImportsPlugins(const QmlJS::Document *doc) const
 {
     return _documentsImportingPlugins.contains(doc->fileName());
@@ -2800,7 +2814,7 @@ ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
                                UiObjectInitializer *initializer,
                                const QmlJS::Document *doc,
                                Engine *engine)
-    : ObjectValue(engine), _typeName(typeName), _initializer(initializer), _doc(doc)
+    : ObjectValue(engine), _typeName(typeName), _initializer(initializer), _doc(doc), _defaultPropertyRef(0)
 {
     if (_initializer) {
         for (UiObjectMemberList *it = _initializer->members; it; it = it->next) {
@@ -2809,6 +2823,8 @@ ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
                 if (def->type == UiPublicMember::Property && def->name && def->memberType) {
                     ASTPropertyReference *ref = new ASTPropertyReference(def, _doc, engine);
                     _properties.append(ref);
+                    if (def->defaultToken.isValid())
+                        _defaultPropertyRef = ref;
                 } else if (def->type == UiPublicMember::Signal && def->name) {
                     ASTSignalReference *ref = new ASTSignalReference(def, _doc, engine);
                     _signals.append(ref);
@@ -2844,6 +2860,16 @@ void ASTObjectValue::processMembers(MemberProcessor *processor) const
     }
 
     ObjectValue::processMembers(processor);
+}
+
+QString ASTObjectValue::defaultPropertyName() const
+{
+    if (_defaultPropertyRef) {
+        UiPublicMember *prop = _defaultPropertyRef->ast();
+        if (prop && prop->name)
+            return prop->name->asString();
+    }
+    return QString();
 }
 
 ASTVariableReference::ASTVariableReference(VariableDeclaration *ast, Engine *engine)

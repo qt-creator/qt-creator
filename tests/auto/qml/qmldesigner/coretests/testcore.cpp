@@ -3343,35 +3343,6 @@ void TestCore::testSubComponentManager()
     QVERIFY(myButtonMetaInfo.property("border.width", true).isValid());
 }
 
-void TestCore::testComponentLoadingTabWidget()
-{
-
-//    QSKIP("TODO: fails", SkipAll);
-
-    QString fileName = QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/tabs.qml";
-    QFile file(fileName);
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-
-    QPlainTextEdit textEdit;
-    textEdit.setPlainText(file.readAll());
-    NotIndentingTextEditModifier modifier(&textEdit);
-
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
-    model->setFileUrl(QUrl::fromLocalFile(fileName));
-    QScopedPointer<SubComponentManager> subComponentManager(new SubComponentManager(model->metaInfo(), 0));
-    subComponentManager->update(QUrl::fromLocalFile(fileName), modifier.text().toUtf8());
-
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
-    testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
-
-    QVERIFY(testRewriterView->errors().isEmpty());
-    QVERIFY(testRewriterView->rootModelNode().isValid());
-
-    ModelNode rootModelNode = testRewriterView->rootModelNode();
-    QCOMPARE(rootModelNode.type(), QLatin1String("TabWidget"));
-}
-
 void TestCore::testAnchorsAndRewriting()
 {
         const QString qmlString("import Qt 4.7\n"
