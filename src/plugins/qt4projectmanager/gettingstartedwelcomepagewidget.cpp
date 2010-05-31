@@ -175,8 +175,6 @@ void GettingStartedWelcomePageWidget::updateQmlExamples(const QString &examplePa
                                                         const QString &sourcePath)
 {
     ui->qmlExamplesButton->setText(tr("Choose an example..."));
-    QMenu *menu = new QMenu(ui->qmlExamplesButton);
-    ui->qmlExamplesButton->setMenu(menu);
 
     QStringList roots;
     roots << (examplePath + QLatin1String("/declarative"))
@@ -197,14 +195,20 @@ void GettingStartedWelcomePageWidget::updateQmlExamples(const QString &examplePa
             exampleProjects.insert(fileName, exampleProject);
         }
     }
-    QMapIterator<QString, QString> it(exampleProjects);
-    while (it.hasNext()) {
-        it.next();
-        QAction *exampleAction = menu->addAction(it.key());
-        connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
-        exampleAction->setProperty(ExamplePathPropertyName, it.value());
-        // FIXME once we have help for QML examples
-        // exampleAction->setProperty(HelpPathPropertyName, helpPath);
+
+    if (!exampleProjects.isEmpty()) {
+        QMenu *menu = new QMenu(ui->qmlExamplesButton);
+        ui->qmlExamplesButton->setMenu(menu);
+
+        QMapIterator<QString, QString> it(exampleProjects);
+        while (it.hasNext()) {
+            it.next();
+            QAction *exampleAction = menu->addAction(it.key());
+            connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
+            exampleAction->setProperty(ExamplePathPropertyName, it.value());
+            // FIXME once we have help for QML examples
+            // exampleAction->setProperty(HelpPathPropertyName, helpPath);
+        }
     }
 
     ui->qmlExamplesButton->setEnabled(!exampleProjects.isEmpty());
