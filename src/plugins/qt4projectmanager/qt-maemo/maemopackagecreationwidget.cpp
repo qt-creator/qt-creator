@@ -64,6 +64,7 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
       m_ui(new Ui::MaemoPackageCreationWidget)
 {
     m_ui->setupUi(this);
+    m_ui->packageContentsView->setWordWrap(false);
     m_ui->packageContentsView->setModel(step->packageContents());
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     connect(step->packageContents(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -103,7 +104,8 @@ void MaemoPackageCreationWidget::addFile()
     if (localFile.isEmpty())
         return;
     const MaemoPackageContents::Deployable
-        deployable(QFileInfo(localFile).absoluteFilePath(), "/");
+        deployable(QDir::toNativeSeparators(QFileInfo(localFile).absoluteFilePath()),
+        "/");
     MaemoPackageContents * const contents = m_step->packageContents();
     if (!contents->addDeployable(deployable)) {
         QMessageBox::information(this, tr("File already in package"),

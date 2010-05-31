@@ -151,10 +151,12 @@ QVariantMap MaemoPackageContents::toMap() const
     QVariantMap map;
     map.insert(MODIFIED_KEY, m_modified);
     map.insert(REMOTE_EXE_KEY, m_remoteExecutableFilePath);
+
+    QDir dir;
     QStringList localFiles;
     QStringList remoteFiles;
     foreach (const Deployable &p, m_deployables) {
-        localFiles << p.localFilePath;
+        localFiles << dir.fromNativeSeparators(p.localFilePath);
         remoteFiles << p.remoteFilePath;
     }
     map.insert(LOCAL_FILES_KEY, localFiles);
@@ -170,9 +172,13 @@ void MaemoPackageContents::fromMap(const QVariantMap &map)
     const QStringList remoteFiles = map.value(REMOTE_FILES_KEY).toStringList();
     if (localFiles.count() != remoteFiles.count())
         qWarning("%s: serialized data inconsistent", Q_FUNC_INFO);
+
+    QDir dir;
     const int count = qMin(localFiles.count(), remoteFiles.count());
-    for (int i = 0; i < count; ++i)
-        m_deployables << Deployable(localFiles.at(i), remoteFiles.at(i));
+    for (int i = 0; i < count; ++i) {
+        m_deployables << Deployable(dir.toNativeSeparators(localFiles.at(i)),
+            remoteFiles.at(i));
+    }
 }
 
 QString MaemoPackageContents::remoteExecutableFilePath() const
