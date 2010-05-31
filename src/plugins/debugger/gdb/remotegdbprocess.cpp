@@ -31,6 +31,8 @@
 
 #include "remoteplaingdbadapter.h"
 
+#include <ctype.h>
+
 namespace Debugger {
 namespace Internal {
 
