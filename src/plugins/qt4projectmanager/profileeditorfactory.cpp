@@ -47,7 +47,8 @@ using namespace Qt4ProjectManager::Internal;
 
 ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::TextEditorActionHandler *handler) :
     m_mimeTypes(QStringList() << QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)
-                << QLatin1String(Qt4ProjectManager::Constants::PROINCLUDEFILE_MIMETYPE)),
+                << QLatin1String(Qt4ProjectManager::Constants::PROINCLUDEFILE_MIMETYPE)
+                << QLatin1String(Qt4ProjectManager::Constants::PROFEATUREFILE_MIMETYPE)),
     m_manager(manager),
     m_actionHandler(handler)
 {
@@ -56,6 +57,8 @@ ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::Text
                                         QLatin1String("pro"));
     iconProvider->registerIconOverlayForSuffix(QIcon(":/qt4projectmanager/images/qt_project.png"),
                                         QLatin1String("pri"));
+    iconProvider->registerIconOverlayForSuffix(QIcon(":/qt4projectmanager/images/qt_project.png"),
+                                        QLatin1String("prf"));
 }
 
 ProFileEditorFactory::~ProFileEditorFactory()
