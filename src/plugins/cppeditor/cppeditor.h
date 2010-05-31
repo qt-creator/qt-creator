@@ -33,6 +33,7 @@
 #include "cppeditorenums.h"
 #include "cppquickfix.h"
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QtCore/QThread>
@@ -86,8 +87,9 @@ public:
     bool hasQ: 1;
     bool hasD: 1;
     bool forced: 1;
-    CPlusPlus::Snapshot snapshot;
-    CPlusPlus::Document::Ptr doc;
+    CPlusPlus::Snapshot snapshot; // ### remove
+    CPlusPlus::Document::Ptr doc; // ### remove
+    CPlusPlus::LookupContext context;
     LocalUseMap localUses; // ### rename
     QList<Use> typeUsages;
     QList<CPlusPlus::Document::DiagnosticMessage> diagnosticMessages;

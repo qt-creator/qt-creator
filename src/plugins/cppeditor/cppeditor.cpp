@@ -966,8 +966,7 @@ void CPPEditor::markSymbols(Symbol *canonicalSymbol, const SemanticInfo &info)
     if (canonicalSymbol) {
         TranslationUnit *unit = info.doc->translationUnit();
 
-        LookupContext context(info.doc, info.snapshot); // ### remove me
-        const QList<int> references = m_modelManager->references(canonicalSymbol, context);
+        const QList<int> references = m_modelManager->references(canonicalSymbol, info.context);
         foreach (int index, references) {
             unsigned line, column;
             unit->getTokenPosition(index, &line, &column);
@@ -2055,6 +2054,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     Document::Ptr doc;
     QList<Document::DiagnosticMessage> diagnosticMessages;
     QList<SemanticInfo::Use> typeUsages;
+    LookupContext context;
 
     if (! source.force && revision == source.revision) {
         m_mutex.lock();
@@ -2062,6 +2062,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc = m_lastSemanticInfo.doc;
         diagnosticMessages = m_lastSemanticInfo.diagnosticMessages;
         typeUsages = m_lastSemanticInfo.typeUsages;
+        context = m_lastSemanticInfo.context;
         m_mutex.unlock();
     }
 
@@ -2072,7 +2073,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc = snapshot.documentFromSource(preprocessedCode, source.fileName);
         doc->check();
 
-        LookupContext context(doc, snapshot);
+        context = LookupContext(doc, snapshot);
 
         if (TranslationUnit *unit = doc->translationUnit()) {
             CheckUndefinedSymbols checkUndefinedSymbols(unit, context);
@@ -2102,6 +2103,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.forced = source.force;
     semanticInfo.diagnosticMessages = diagnosticMessages;
     semanticInfo.typeUsages = typeUsages;
+    semanticInfo.context = context;
 
     return semanticInfo;
 }
