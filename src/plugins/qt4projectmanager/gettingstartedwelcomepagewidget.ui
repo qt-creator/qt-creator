@@ -61,9 +61,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="Utils::WelcomeModeTreeWidget" name="tutorialTreeWidget" native="true">
-           <zorder></zorder>
-          </widget>
+          <widget class="Utils::WelcomeModeTreeWidget" name="tutorialTreeWidget" native="true"/>
          </item>
         </layout>
        </widget>
@@ -139,7 +137,7 @@
          <item>
           <widget class="Utils::WelcomeModeLabel" name="demoTitleLabel_2">
            <property name="text">
-            <string>Explore Qt Quick Examples</string>
+            <string>Explore Qt Quick (Preview) Examples</string>
            </property>
           </widget>
          </item>
