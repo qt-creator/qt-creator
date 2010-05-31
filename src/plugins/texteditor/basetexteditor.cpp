@@ -2270,8 +2270,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QRect er = e->rect();
     QRect viewportRect = viewport()->rect();
 
-    const QColor baseColor = palette().base().color();
-
     qreal lineX = 0;
 
     if (d->m_visibleWrapColumn > 0) {
@@ -2305,6 +2303,8 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
 
     if (!d->m_highlightBlocksInfo.isEmpty()) {
+        const QColor baseColor = palette().base().color();
+
         // extra pass for the block highlight
 
         const int margin = 5;
@@ -2340,7 +2340,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                                          calcBlendColor(d->m_currentLineFormat.background().color(), i, count));
                     }
                 }
-
             }
             offsetFP.ry() += r.height();
 
@@ -2743,54 +2742,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         bottom = top + (int)blockBoundingRect(block).height();
     }
 
-    if (visibleCollapsedBlock.isValid() ) {
-        int margin = doc->documentMargin();
-        qreal maxWidth = 0;
-        qreal blockHeight = 0;
-        QTextBlock b = visibleCollapsedBlock;
-
-        while (!b.isVisible()) {
-            b.setVisible(true); // make sure block bounding rect works
-            QRectF r = blockBoundingRect(b).translated(visibleCollapsedBlockOffset);
-
-            QTextLayout *layout = b.layout();
-            for (int i = layout->lineCount()-1; i >= 0; --i)
-                maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + 2*margin);
-
-            blockHeight += r.height();
-
-            b.setVisible(false); // restore previous state
-            b.setLineCount(0); // restore 0 line count for invisible block
-            b = b.next();
-        }
-
-        painter.save();
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.translate(.5, .5);
-        QBrush brush = baseColor;
-        if (d->m_ifdefedOutFormat.hasProperty(QTextFormat::BackgroundBrush))
-            brush = d->m_ifdefedOutFormat.background();
-        painter.setBrush(brush);
-        painter.drawRoundedRect(QRectF(visibleCollapsedBlockOffset.x(),
-                                       visibleCollapsedBlockOffset.y(),
-                                       maxWidth, blockHeight).adjusted(0, 0, 0, 0), 3, 3);
-        painter.restore();
-
-        QTextBlock end = b;
-        b = visibleCollapsedBlock;
-        while (b != end) {
-            b.setVisible(true); // make sure block bounding rect works
-            QRectF r = blockBoundingRect(b).translated(visibleCollapsedBlockOffset);
-            QTextLayout *layout = b.layout();
-            QVector<QTextLayout::FormatRange> selections;
-            layout->draw(&painter, visibleCollapsedBlockOffset, selections, er);
-
-            b.setVisible(false); // restore previous state
-            visibleCollapsedBlockOffset.ry() += r.height();
-            b = b.next();
-        }
-    }
-
     if (d->m_animator && d->m_animator->isRunning()) {
         QTextCursor cursor = textCursor();
         cursor.setPosition(d->m_animator->position());
@@ -2814,6 +2765,64 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         cursor_layout->drawCursor(&painter, cursor_offset, cursor_cpos, cursorWidth());
     }
 
+    if (visibleCollapsedBlock.isValid()) {
+        drawCollapsedBlockPopup(painter,
+                                visibleCollapsedBlock,
+                                visibleCollapsedBlockOffset,
+                                er);
+    }
+}
+
+void BaseTextEditor::drawCollapsedBlockPopup(QPainter &painter,
+                                             const QTextBlock &block,
+                                             QPointF offset,
+                                             const QRect &clip)
+{
+    int margin = block.document()->documentMargin();
+    qreal maxWidth = 0;
+    qreal blockHeight = 0;
+    QTextBlock b = block;
+
+    while (!b.isVisible()) {
+        b.setVisible(true); // make sure block bounding rect works
+        QRectF r = blockBoundingRect(b).translated(offset);
+
+        QTextLayout *layout = b.layout();
+        for (int i = layout->lineCount()-1; i >= 0; --i)
+            maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + 2*margin);
+
+        blockHeight += r.height();
+
+        b.setVisible(false); // restore previous state
+        b.setLineCount(0); // restore 0 line count for invisible block
+        b = b.next();
+    }
+
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.translate(.5, .5);
+    QBrush brush = palette().base();
+    if (d->m_ifdefedOutFormat.hasProperty(QTextFormat::BackgroundBrush))
+        brush = d->m_ifdefedOutFormat.background();
+    painter.setBrush(brush);
+    painter.drawRoundedRect(QRectF(offset.x(),
+                                   offset.y(),
+                                   maxWidth, blockHeight).adjusted(0, 0, 0, 0), 3, 3);
+    painter.restore();
+
+    QTextBlock end = b;
+    b = block;
+    while (b != end) {
+        b.setVisible(true); // make sure block bounding rect works
+        QRectF r = blockBoundingRect(b).translated(offset);
+        QTextLayout *layout = b.layout();
+        QVector<QTextLayout::FormatRange> selections;
+        layout->draw(&painter, offset, selections, clip);
+
+        b.setVisible(false); // restore previous state
+        offset.ry() += r.height();
+        b = b.next();
+    }
 }
 
 QWidget *BaseTextEditor::extraArea() const
