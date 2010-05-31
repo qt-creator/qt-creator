@@ -521,11 +521,6 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name) const
     ClassOrNamespace *c = it->second;
 
     if (const TemplateNameId *templId = name->asTemplateNameId()) {
-        foreach (ClassOrNamespace *i, c->_instantiations) {
-            if (i->_templateId && templId->isEqualTo(i->_templateId))
-                return i;
-        }
-
         ClassOrNamespace *i = _factory->allocClassOrNamespace(c);
         i->_templateId = templId;
         i->_usings.append(c);
