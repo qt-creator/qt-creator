@@ -108,10 +108,11 @@ bool Ne7sshSftp::handleData (Botan::SecureVector<Botan::byte>& packet)
   commBuffer.addVector (sftpBuffer);
   mainBuffer.addVector (sftpBuffer);
 
-  len = mainBuffer.getInt();
+  if (mainBuffer.length() < sizeof(uint32)
+      || mainBuffer.getInt() > mainBuffer.length())
+      return true;
 
-  if (len > mainBuffer.length()) return true;
-  else commBuffer.clear();
+  commBuffer.clear();
 
   _cmd = mainBuffer.getByte();
 
