@@ -2002,8 +2002,8 @@ QTextBlock BaseTextEditor::collapsedBlockAt(const QPoint &pos, QRect *box) const
 {
     QPointF offset(contentOffset());
     QTextBlock block = firstVisibleBlock();
-    int top = (int)blockBoundingGeometry(block).translated(offset).top();
-    int bottom = top + (int)blockBoundingRect(block).height();
+    qreal top = blockBoundingGeometry(block).translated(offset).top();
+    qreal bottom = top + blockBoundingRect(block).height();
 
     int viewportHeight = viewport()->height();
 
@@ -2037,7 +2037,7 @@ QTextBlock BaseTextEditor::collapsedBlockAt(const QPoint &pos, QRect *box) const
 
         block = nextBlock;
         top = bottom;
-        bottom = top + (int)blockBoundingRect(block).height();
+        bottom = top + blockBoundingRect(block).height();
     }
     return QTextBlock();
 }
@@ -2621,8 +2621,8 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     offset = contentOffset();
     block = firstVisibleBlock();
 
-    int top = (int)blockBoundingGeometry(block).translated(offset).top();
-    int bottom = top + (int)blockBoundingRect(block).height();
+    qreal top = blockBoundingGeometry(block).translated(offset).top();
+    qreal bottom = top + blockBoundingRect(block).height();
 
     QTextCursor cursor = textCursor();
     bool hasSelection = cursor.hasSelection();
@@ -2653,8 +2653,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                         QTextLine line = layout->lineAt(i);
                         QRectF lineRect = line.naturalTextRect().translated(offset.x(), top);
                         QChar visualArrow((ushort)0x21b5);
-                        painter.drawText(static_cast<int>(lineRect.right()),
-                                         static_cast<int>(lineRect.top() + line.ascent()), visualArrow);
+                        painter.drawText(QPointF(lineRect.right(),
+                                                 lineRect.top() + line.ascent()),
+                                         visualArrow);
                     }
                     if (!nextBlock.isValid()) { // paint EOF symbol
                         QTextLine line = layout->lineAt(lineCount-1);
@@ -2740,7 +2741,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
         block = nextVisibleBlock;
         top = bottom;
-        bottom = top + (int)blockBoundingRect(block).height();
+        bottom = top + blockBoundingRect(block).height();
     }
 
     if (visibleCollapsedBlock.isValid() ) {
@@ -2914,7 +2915,6 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     int selStart = textCursor().selectionStart();
     int selEnd = textCursor().selectionEnd();
 
-    const QColor baseColor = palette().base().color();
     QPalette pal = d->m_extraArea->palette();
     pal.setCurrentColorGroup(QPalette::Active);
     QPainter painter(d->m_extraArea);
@@ -2940,7 +2940,8 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
     while (block.isValid() && top <= e->rect().bottom()) {
 
         top = bottom;
-        bottom = top + blockBoundingRect(block).height();
+        const qreal height = blockBoundingRect(block).height();
+        bottom = top + height;
         QTextBlock nextBlock = block.next();
 
         QTextBlock nextVisibleBlock = nextBlock;
@@ -3087,7 +3088,7 @@ void BaseTextEditor::extraAreaPaintEvent(QPaintEvent *e)
                 painter.setFont(f);
                 painter.setPen(d->m_currentLineNumberFormat.foreground().color());
             }
-            painter.drawText(markWidth, top, extraAreaWidth - markWidth - 4, fm.height(), Qt::AlignRight, number);
+            painter.drawText(QRectF(markWidth, top, extraAreaWidth - markWidth - 4, height), Qt::AlignRight, number);
             if (selected)
                 painter.restore();
         }
