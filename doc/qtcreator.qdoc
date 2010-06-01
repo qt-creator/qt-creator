@@ -1946,8 +1946,6 @@
 
         \o Build and run the application for \l{Using the Maemo Emulator}{Maemo Emulator}.
 
-        \note The Maemo emulator support requires the Nokia Nokia N900 PR1.2 update.
-
         \o If no problems are found, build and run the application for a device:
 
         \list 1
@@ -6040,10 +6038,9 @@
 
     The Maemo emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
-    on a Nokia N900 device. You can test user interaction by using the keypad and
+    on a Nokia N900 device with software update release 1.2 (V10.2010.19-1).
+    You can test user interaction by using the keypad and
     touch emulation.
-
-    \note The Maemo emulator support requires the Nokia N900 PR1.2 update.
 
     To test the application UI, user interaction with the application, and
     functionality that uses the mobility APIs, use the Qt Simulator,
