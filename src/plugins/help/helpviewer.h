@@ -108,6 +108,7 @@ signals:
     void sourceChanged(const QUrl &);
     void forwardAvailable(bool enabled);
     void backwardAvailable(bool enabled);
+    void printRequested();
 #else
     void loadFinished(bool finished);
 #endif

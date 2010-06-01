@@ -234,16 +234,15 @@ void CentralWidget::print()
     if (HelpViewer* viewer = currentHelpViewer()) {
         initPrinter();
 
-        QPrintDialog *dlg = new QPrintDialog(printer, this);
-        dlg->setWindowTitle(tr("Print Document"));
+        QPrintDialog dlg(printer, this);
+        dlg.setWindowTitle(tr("Print Document"));
         if (!viewer->selectedText().isEmpty())
-            dlg->addEnabledOption(QAbstractPrintDialog::PrintSelection);
-        dlg->addEnabledOption(QAbstractPrintDialog::PrintPageRange);
-        dlg->addEnabledOption(QAbstractPrintDialog::PrintCollateCopies);
-    
-        if (dlg->exec() == QDialog::Accepted)
+            dlg.addEnabledOption(QAbstractPrintDialog::PrintSelection);
+        dlg.addEnabledOption(QAbstractPrintDialog::PrintPageRange);
+        dlg.addEnabledOption(QAbstractPrintDialog::PrintCollateCopies);
+
+        if (dlg.exec() == QDialog::Accepted)
             viewer->print(printer);
-        delete dlg;
     }
 #endif
 }
@@ -370,6 +369,7 @@ void CentralWidget::connectSignals(HelpViewer *page)
     connect(page, SIGNAL(sourceChanged(QUrl)), this, SLOT(handleSourceChanged(QUrl)));
     connect(page, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
     connect(page, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
+    connect(page, SIGNAL(printRequested()), this, SLOT(print()));
 }
 
 bool CentralWidget::eventFilter(QObject *object, QEvent *e)
