@@ -1113,8 +1113,11 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     const unsigned engineCapabilities = d->m_engine->debuggerCapabilities();
     theDebuggerAction(OperateByInstruction)
         ->setEnabled(engineCapabilities & DisassemblerCapability);
-    d->m_actions.reverseDirectionAction
-        ->setEnabled(engineCapabilities & ReverseSteppingCapability);
+
+    const bool canReverse = (engineCapabilities & ReverseSteppingCapability)
+                && theDebuggerBoolSetting(EnableReverseDebugging);
+    d->m_actions.reverseDirectionAction->setChecked(false);
+    d->m_actions.reverseDirectionAction->setEnabled(canReverse);
 }
 
 void DebuggerManager::startFailed()
@@ -1136,6 +1139,7 @@ void DebuggerManager::cleanupViews()
     d->m_sourceFilesWindow->removeAll();
     d->m_disassemblerViewAgent.cleanup();
     d->m_actions.reverseDirectionAction->setChecked(false);
+    d->m_actions.reverseDirectionAction->setEnabled(false);
 
     // FIXME: Move to plugin?
     using namespace Core;
