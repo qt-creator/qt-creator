@@ -199,7 +199,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
                     if (Namespace *enclosingNamespace = u->enclosingNamespaceScope()->owner()->asNamespace()) {
                         if (ClassOrNamespace *b = bindings()->lookupType(enclosingNamespace)) {
                             if (ClassOrNamespace *uu = b->lookupType(u->name())) {
-                                candidates = uu->lookup(name);
+                                candidates = uu->find(name);
 
                                 if (! candidates.isEmpty())
                                     return candidates;
@@ -221,7 +221,7 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
 
             if (fun->name() && fun->name()->isQualifiedNameId()) {
                 if (ClassOrNamespace *binding = bindings()->lookupType(fun)) {
-                    candidates = binding->lookup(name);
+                    candidates = binding->find(name);
 
                     if (! candidates.isEmpty())
                         return candidates;
@@ -247,17 +247,25 @@ QList<Symbol *> LookupContext::lookup(const Name *name, Scope *scope) const
                 break; // it's an argument or a template parameter.
 
             if (ClassOrNamespace *binding = bindings()->lookupType(klass)) {
-                candidates = binding->lookup(name);
+                candidates = binding->find(name);
 
                 if (! candidates.isEmpty())
                     return candidates;
             }
 
-        } else if (scope->isNamespaceScope() || scope->isObjCClassScope() || scope->isObjCProtocolScope()) {
+        } else if (scope->isNamespaceScope()) {
             if (ClassOrNamespace *binding = bindings()->lookupType(scope->owner()))
-                return binding->lookup(name);
+                candidates = binding->find(name);
 
-            break;
+                if (! candidates.isEmpty())
+                    return candidates;
+
+        } else if (scope->isObjCClassScope() || scope->isObjCProtocolScope()) {
+            if (ClassOrNamespace *binding = bindings()->lookupType(scope->owner()))
+                candidates = binding->find(name);
+
+                if (! candidates.isEmpty())
+                    return candidates;
         }
     }
 
