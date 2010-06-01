@@ -215,14 +215,14 @@ public:
         const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(value);
         if (qmlValue) {
             typeName = qmlValue->packageName() + QLatin1String("/") + qmlValue->className();
-            majorVersion = qmlValue->majorVersion();
-            minorVersion = qmlValue->minorVersion();
+            majorVersion = qmlValue->version().major();
+            minorVersion = qmlValue->version().minor();
         } else if (value) {
             for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->next && iter->name)
                     typeName = iter->name->asString();
-            majorVersion = Interpreter::QmlObjectValue::NoVersion;
-            minorVersion = Interpreter::QmlObjectValue::NoVersion;
+            majorVersion = ComponentVersion::NoVersion;
+            minorVersion = ComponentVersion::NoVersion;
         }
     }
 

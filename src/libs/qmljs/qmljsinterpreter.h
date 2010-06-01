@@ -32,6 +32,7 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljs_global.h>
+#include <qmljs/qmljscomponentversion.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
 #include <QtCore/QFileInfoList>
@@ -387,9 +388,6 @@ private:
 class QMLJS_EXPORT QmlObjectValue: public ObjectValue
 {
 public:
-    static const int NoVersion;
-
-public:
     QmlObjectValue(const FakeMetaObject *metaObject, Engine *engine);
     virtual ~QmlObjectValue();
 
@@ -397,8 +395,7 @@ public:
     const Value *propertyValue(const FakeMetaProperty &prop) const;
 
     QString packageName() const;
-    int majorVersion() const;
-    int minorVersion() const;
+    ComponentVersion version() const;
     QString defaultPropertyName() const;
     QString propertyType(const QString &propertyName) const;
     bool isListProperty(const QString &name) const;
@@ -540,7 +537,7 @@ class QMLJS_EXPORT CppQmlTypes
 public:
     void reload(Interpreter::Engine *interpreter);
 
-    QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, int majorVersion, int minorVersion) const;
+    QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, ComponentVersion version) const;
     Interpreter::QmlObjectValue *typeForImport(const QString &qualifiedName) const;
 
     bool hasPackage(const QString &package) const;

@@ -249,8 +249,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
     }
 
     const QString packageName = Bind::toString(import->importUri, '.');
-    int majorVersion = QmlObjectValue::NoVersion;
-    int minorVersion = QmlObjectValue::NoVersion;
+    ComponentVersion version;
 
     if (import->versionToken.isValid()) {
         const QString versionString = doc->source().mid(import->versionToken.offset, import->versionToken.length);
@@ -260,8 +259,9 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
                   tr("expected two numbers separated by a dot"));
             return;
         } else {
-            majorVersion = versionString.left(dotIdx).toInt();
-            minorVersion = versionString.mid(dotIdx + 1).toInt();
+            const int majorVersion = versionString.left(dotIdx).toInt();
+            const int minorVersion = versionString.mid(dotIdx + 1).toInt();
+            version = ComponentVersion(majorVersion, minorVersion);
         }
     } else {
         error(doc, locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
@@ -271,7 +271,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
 
     // if the package is in the meta type system, use it
     if (engine()->cppQmlTypes().hasPackage(packageName)) {
-        foreach (QmlObjectValue *object, engine()->cppQmlTypes().typesForImport(packageName, majorVersion, minorVersion)) {
+        foreach (QmlObjectValue *object, engine()->cppQmlTypes().typesForImport(packageName, version)) {
             namespaceObject->setProperty(object->className(), object);
         }
         return;
@@ -295,9 +295,8 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
                 if (importedTypes.contains(component.typeName))
                     continue;
 
-                if (component.majorVersion > majorVersion
-                    || (component.majorVersion == majorVersion
-                        && component.minorVersion > minorVersion))
+                ComponentVersion componentVersion(component.majorVersion, component.minorVersion);
+                if (version < componentVersion)
                     continue;
 
                 importedTypes.insert(component.typeName);

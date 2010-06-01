@@ -31,6 +31,7 @@
 #include "qmljsevaluate.h"
 #include "qmljslink.h"
 #include "qmljsscopebuilder.h"
+#include "qmljscomponentversion.h"
 #include "parser/qmljsast_p.h"
 
 #include <QtCore/QFile>
@@ -204,8 +205,7 @@ class FakeMetaObject {
 
     QString m_name;
     QString m_package;
-    int m_major;
-    int m_minor;
+    ComponentVersion m_version;
     const FakeMetaObject *m_super;
     QString m_superName;
     QList<FakeMetaEnum> m_enums;
@@ -216,8 +216,8 @@ class FakeMetaObject {
     QString m_defaultPropertyName;
 
 public:
-    FakeMetaObject(const QString &name, const QString &package, int majorVersion, int minorVersion)
-        : m_name(name), m_package(package), m_major(majorVersion), m_minor(minorVersion), m_super(0)
+    FakeMetaObject(const QString &name, const QString &package, ComponentVersion version)
+        : m_name(name), m_package(package), m_version(version), m_super(0)
     {}
 
     void setSuperclassName(const QString &superclass)
@@ -265,10 +265,8 @@ public:
     FakeMetaMethod method(int index) const
     { return m_methods.at(index); }
 
-    int majorVersion() const
-    { return m_major; }
-    int minorVersion() const
-    { return m_minor; }
+    ComponentVersion version() const
+    { return m_version; }
 
     QString defaultPropertyName() const
     { return m_defaultPropertyName; }
@@ -398,7 +396,7 @@ private:
 
         bool doInsert = true;
         QString name, defaultPropertyName;
-        int major = -1, minor = -1;
+        QmlJS::ComponentVersion version;
         QString extends;
         foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
             if (attr.name() == QLatin1String("name")) {
@@ -408,28 +406,29 @@ private:
                     return;
                 }
             } else if (attr.name() == QLatin1String("version")) {
-                QString version = attr.value().toString();
-                int dotIdx = version.indexOf('.');
+                QString versionStr = attr.value().toString();
+                int dotIdx = versionStr.indexOf('.');
                 if (dotIdx == -1) {
                     bool ok = false;
-                    major = version.toInt(&ok);
+                    const int major = versionStr.toInt(&ok);
                     if (!ok) {
-                        invalidAttr(version, QLatin1String("version"), tag);
+                        invalidAttr(versionStr, QLatin1String("version"), tag);
                         return;
                     }
-                    minor = -1;
+                    version = QmlJS::ComponentVersion(major, QmlJS::ComponentVersion::NoVersion);
                 } else {
                     bool ok = false;
-                    major = version.left(dotIdx).toInt(&ok);
+                    const int major = versionStr.left(dotIdx).toInt(&ok);
                     if (!ok) {
-                        invalidAttr(version, QLatin1String("version"), tag);
+                        invalidAttr(versionStr, QLatin1String("version"), tag);
                         return;
                     }
-                    minor = version.mid(dotIdx + 1).toInt(&ok);
+                    const int minor = versionStr.mid(dotIdx + 1).toInt(&ok);
                     if (!ok) {
-                        invalidAttr(version, QLatin1String("version"), tag);
+                        invalidAttr(versionStr, QLatin1String("version"), tag);
                         return;
                     }
+                    version = QmlJS::ComponentVersion(major, minor);
                 }
             } else if (attr.name() == QLatin1String("defaultProperty")) {
                 defaultPropertyName = attr.value().toString();
@@ -448,8 +447,7 @@ private:
 
         QString className, packageName;
         split(name, &packageName, &className);
-        FakeMetaObject *metaObject = new FakeMetaObject(className, packageName,
-                                                        major, minor);
+        FakeMetaObject *metaObject = new FakeMetaObject(className, packageName, version);
         if (! extends.isEmpty())
             metaObject->setSuperclassName(extends);
         if (! defaultPropertyName.isEmpty())
@@ -708,8 +706,6 @@ private:
 
 } // end of anonymous namespace
 
-const int QmlObjectValue::NoVersion = -1;
-
 QmlObjectValue::QmlObjectValue(const FakeMetaObject *metaObject, Engine *engine)
     : ObjectValue(engine),
       _metaObject(metaObject)
@@ -870,11 +866,8 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
 QString QmlObjectValue::packageName() const
 { return _metaObject->packageName(); }
 
-int QmlObjectValue::majorVersion() const
-{ return _metaObject->majorVersion(); }
-
-int QmlObjectValue::minorVersion() const
-{ return _metaObject->minorVersion(); }
+QmlJS::ComponentVersion QmlObjectValue::version() const
+{ return _metaObject->version(); }
 
 QString QmlObjectValue::defaultPropertyName() const
 { return _metaObject->defaultPropertyName(); }
@@ -2036,20 +2029,18 @@ void CppQmlTypes::reload(Engine *interpreter)
     }
 }
 
-QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, int majorVersion, int minorVersion) const
+QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, ComponentVersion version) const
 {
     QMap<QString, QmlObjectValue *> objectValuesByName;
 
     foreach (QmlObjectValue *qmlObjectValue, _importedTypes.value(packageName)) {
-        if (qmlObjectValue->majorVersion() < majorVersion ||
-            (qmlObjectValue->majorVersion() == majorVersion && qmlObjectValue->minorVersion() <= minorVersion)) {
+        if (qmlObjectValue->version() <= version) {
             // we got a candidate.
             const QString typeName = qmlObjectValue->className();
             QmlObjectValue *previousCandidate = objectValuesByName.value(typeName, 0);
             if (previousCandidate) {
                 // check if our new candidate is newer than the one we found previously
-                if (qmlObjectValue->majorVersion() > previousCandidate->majorVersion() ||
-                    (qmlObjectValue->majorVersion() == previousCandidate->majorVersion() && qmlObjectValue->minorVersion() > previousCandidate->minorVersion())) {
+                if (previousCandidate->version() < qmlObjectValue->version()) {
                     // the new candidate has a higher version no. than the one we found previously, so replace it
                     objectValuesByName.insert(typeName, qmlObjectValue);
                 }
@@ -2080,8 +2071,7 @@ QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName) const
 
         if (previousCandidate) {
             // check if our new candidate is newer than the one we found previously
-            if (qmlObjectValue->majorVersion() > previousCandidate->majorVersion() ||
-                (qmlObjectValue->majorVersion() == previousCandidate->majorVersion() && qmlObjectValue->minorVersion() > previousCandidate->minorVersion())) {
+            if (previousCandidate->version() < qmlObjectValue->version()) {
                 // the new candidate has a higher version no. than the one we found previously, so replace it
                 previousCandidate = qmlObjectValue;
             }
