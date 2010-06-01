@@ -157,6 +157,89 @@ bool ProString::operator==(const QLatin1String &other) const
     return (uc == e);
 }
 
+QChar *ProString::prepareAppend(int extraLen)
+{
+    if (m_string.isDetached() && m_length + extraLen <= m_string.capacity()) {
+        m_string.reserve(0); // Prevent the resize() below from reallocating
+        QChar *ptr = (QChar *)m_string.constData();
+        if (m_offset)
+            memmove(ptr, ptr + m_offset, m_length * 2);
+        ptr += m_length;
+        m_offset = 0;
+        m_length += extraLen;
+        m_string.resize(m_length);
+        m_hash = 0x80000000;
+        return ptr;
+    } else {
+        QString neu(m_length + extraLen, Qt::Uninitialized);
+        QChar *ptr = (QChar *)neu.constData();
+        memcpy(ptr, m_string.constData() + m_offset, m_length * 2);
+        ptr += m_length;
+        *this = ProString(neu, NoHash);
+        return ptr;
+    }
+}
+
+// If pending != 0, prefix with space if appending to non-empty non-pending
+ProString &ProString::append(const ProString &other, bool *pending)
+{
+    if (other.m_length) {
+        if (!m_length) {
+            *this = other;
+        } else {
+            QChar *ptr;
+            if (pending && !*pending) {
+                ptr = prepareAppend(1 + other.m_length);
+                *ptr++ = 32;
+            } else {
+                ptr = prepareAppend(other.m_length);
+            }
+            memcpy(ptr, other.m_string.constData() + other.m_offset, other.m_length * 2);
+        }
+        if (pending)
+            *pending = true;
+    }
+    return *this;
+}
+
+ProString &ProString::append(const ProStringList &other, bool *pending, bool skipEmpty1st)
+{
+    if (const int sz = other.size()) {
+        int startIdx = 0;
+        if (pending && !*pending && skipEmpty1st && other.at(0).isEmpty()) {
+            if (sz == 1)
+                return *this;
+            startIdx = 1;
+        }
+        if (!m_length && sz == startIdx + 1) {
+            *this = other.at(startIdx);
+        } else {
+            int totalLength = sz - startIdx;
+            for (int i = startIdx; i < sz; ++i)
+                totalLength += other.at(i).size();
+            bool putSpace = false;
+            if (pending && !*pending && m_length)
+                putSpace = true;
+            else
+                totalLength--;
+
+            QChar *ptr = prepareAppend(totalLength);
+            for (int i = startIdx; i < sz; ++i) {
+                if (putSpace)
+                    *ptr++ = 32;
+                else
+                    putSpace = true;
+                const ProString &str = other.at(i);
+                memcpy(ptr, str.m_string.constData() + str.m_offset, str.m_length * 2);
+                ptr += str.m_length;
+            }
+        }
+        if (pending)
+            *pending = true;
+    }
+    return *this;
+}
+
 QString operator+(const ProString &one, const ProString &two)
 {
     if (two.m_length) {

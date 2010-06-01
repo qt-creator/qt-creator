@@ -42,13 +42,29 @@ static uint getBlockLen(const ushort *&tokPtr)
     return len;
 }
 
-static QString &getHashStr(const ushort *&tokPtr, QString &tmp)
+static bool getLiteral(const ushort *tokPtr, const ushort *tokEnd, QString &tmp)
 {
-    tokPtr += 2; // ignore hash
-    uint len = *tokPtr++;
-    tmp.setRawData((const QChar *)tokPtr, len);
-    tokPtr += len;
-    return tmp;
+    int count = 0;
+    while (tokPtr != tokEnd) {
+        ushort tok = *tokPtr++;
+        switch (tok & TokMask) {
+        case TokLine:
+            tokPtr++;
+            break;
+        case TokHashLiteral:
+            tokPtr += 2;
+            // fallthrough
+        case TokLiteral: {
+            uint len = *tokPtr++;
+            tmp.setRawData((const QChar *)tokPtr, len);
+            count++;
+            tokPtr += len;
+            break; }
+        default:
+            return false;
+        }
+    }
+    return count == 1;
 }
 
 static void skipStr(const ushort *&tokPtr)
@@ -64,19 +80,53 @@ static void skipHashStr(const ushort *&tokPtr)
     tokPtr += len;
 }
 
-static void skipLongStr(const ushort *&tokPtr)
-{
-    uint len = getBlockLen(tokPtr);
-    tokPtr += len;
-}
-
 static void skipBlock(const ushort *&tokPtr)
 {
     uint len = getBlockLen(tokPtr);
     tokPtr += len;
 }
 
-static void skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
+static void skipExpression(const ushort *&pTokPtr, int &lineNo)
+{
+    const ushort *tokPtr = pTokPtr;
+    forever {
+        ushort tok = *tokPtr++;
+        switch (tok) {
+        case TokLine:
+            lineNo = *tokPtr++;
+            break;
+        case TokValueTerminator:
+        case TokFuncTerminator:
+            pTokPtr = tokPtr;
+            return;
+        case TokArgSeparator:
+            break;
+        default:
+            switch (tok & TokMask) {
+            case TokLiteral:
+            case TokProperty:
+            case TokEnvVar:
+                skipStr(tokPtr);
+                break;
+            case TokHashLiteral:
+            case TokVariable:
+                skipHashStr(tokPtr);
+                break;
+            case TokFuncName:
+                skipHashStr(tokPtr);
+                pTokPtr = tokPtr;
+                skipExpression(pTokPtr, lineNo);
+                tokPtr = pTokPtr;
+                break;
+            default:
+                pTokPtr = tokPtr - 1;
+                return;
+            }
+        }
+    }
+}
+
+static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
 {
     switch (tok) {
     case TokLine:
@@ -87,16 +137,14 @@ static void skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
     case TokAppendUnique:
     case TokRemove:
     case TokReplace:
-        skipHashStr(tokPtr);
-        skipLongStr(tokPtr);
-        break;
-    case TokBranch:
-        skipBlock(tokPtr);
-        skipBlock(tokPtr);
+    case TokTestCall:
+        skipExpression(tokPtr, lineNo);
         break;
     case TokForLoop:
         skipHashStr(tokPtr);
-        skipLongStr(tokPtr);
+        // fallthrough
+    case TokBranch:
+        skipBlock(tokPtr);
         skipBlock(tokPtr);
         break;
     case TokTestDef:
@@ -107,12 +155,17 @@ static void skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
     case TokNot:
     case TokAnd:
     case TokOr:
-        break;
     case TokCondition:
-        skipStr(tokPtr);
         break;
-    default: Q_ASSERT_X(false, "skipToken", "unexpected item type");
+    default: {
+            const ushort *oTokPtr = --tokPtr;
+            skipExpression(tokPtr, lineNo);
+            if (tokPtr != oTokPtr)
+                return oTokPtr;
+        }
+        Q_ASSERT_X(false, "skipToken", "unexpected item type");
     }
+    return 0;
 }
 
 void ProWriter::addFiles(ProFile *profile, QStringList *lines,
@@ -123,9 +176,10 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
     const ushort *tokPtr = (const ushort *)profile->items().constData();
     int lineNo = 0;
     QString tmp;
+    const ushort *lastXpr = 0;
     while (ushort tok = *tokPtr++) {
         if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
-            if (var == getHashStr(tokPtr, tmp)) {
+            if (getLiteral(lastXpr, tokPtr - 1, tmp) && var == tmp) {
                 for (--lineNo; lineNo < lines->count(); lineNo++) {
                     QString line = lines->at(lineNo);
                     int idx = line.indexOf(QLatin1Char('#'));
@@ -152,9 +206,9 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
                 lines->insert(lineNo, added);
                 return;
             }
-            skipLongStr(tokPtr);
+            skipExpression(tokPtr, lineNo);
         } else {
-            skipToken(tok, tokPtr, lineNo);
+            lastXpr = skipToken(tok, tokPtr, lineNo);
         }
     }
 
@@ -170,6 +224,7 @@ static void findProVariables(const ushort *tokPtr, const QStringList &vars,
 {
     int lineNo = 0;
     QString tmp;
+    const ushort *lastXpr = 0;
     while (ushort tok = *tokPtr++) {
         if (tok == TokBranch) {
             uint blockLen = getBlockLen(tokPtr);
@@ -179,11 +234,11 @@ static void findProVariables(const ushort *tokPtr, const QStringList &vars,
             findProVariables(tokPtr, vars, proVars);
             tokPtr += blockLen;
         } else if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
-            if (vars.contains(getHashStr(tokPtr, tmp)))
+            if (getLiteral(lastXpr, tokPtr - 1, tmp) && vars.contains(tmp))
                 *proVars << lineNo;
-            skipLongStr(tokPtr);
+            skipExpression(tokPtr, lineNo);
         } else {
-            skipToken(tok, tokPtr, lineNo);
+            lastXpr = skipToken(tok, tokPtr, lineNo);
         }
     }
 }

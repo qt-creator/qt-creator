@@ -53,6 +53,8 @@ namespace ProStringConstants {
 enum OmitPreHashing { NoHash };
 }
 
+class ProStringList;
+
 class ProString {
 public:
     ProString();
@@ -67,6 +69,9 @@ public:
     ProString(const QString &str, int offset, int length, ProStringConstants::OmitPreHashing);
     QString toQString() const;
     QString &toQString(QString &tmp) const;
+    ProString &operator+=(const ProString &other);
+    ProString &append(const ProString &other, bool *pending = 0);
+    ProString &append(const ProStringList &other, bool *pending = 0, bool skipEmpty1st = false);
     bool operator==(const ProString &other) const;
     bool operator==(const QString &other) const;
     bool operator==(const QLatin1String &other) const;
@@ -88,6 +93,7 @@ private:
     QString m_string;
     int m_offset, m_length;
     mutable uint m_hash;
+    QChar *prepareAppend(int extraLen);
     uint updatedHash() const;
     friend uint qHash(const ProString &str);
     friend QString operator+(const ProString &one, const ProString &two);
@@ -112,35 +118,66 @@ public:
 // These token definitions affect both ProFileEvaluator and ProWriter
 enum ProToken {
     TokTerminator = 0,  // end of stream (possibly not included in length; must be zero)
-    TokLine,            // line marker: // +1 (2-nl) to 1st token of each line
+    TokLine,            // line marker:
                         // - line (1)
-    TokAssign,          // variable =   // "A=":2 => 1+4+2=7 (8)
-    TokAppend,          // variable +=  // "A+=":3 => 1+4+2=7 (8)
-    TokAppendUnique,    // variable *=  // "A*=":3 => 1+4+2=7 (8)
-    TokRemove,          // variable -=  // "A-=":3 => 1+4+2=7 (8)
-    TokReplace,         // variable ~=  // "A~=":3 => 1+4+2=7 (8)
-                        // - variable name: hash (2), length (1), chars (length)
-                        // - expression: length (2), chars (length)
-    TokCondition,       // CONFIG test:   // "A":1 => 1+2=3 (4)
-                        // - test name: lenght (1), chars (length)
+    TokAssign,          // variable =
+    TokAppend,          // variable +=
+    TokAppendUnique,    // variable *=
+    TokRemove,          // variable -=
+    TokReplace,         // variable ~=
+                        // previous literal/expansion is a variable manipulation
+                        // - value expression + TokValueTerminator
+    TokValueTerminator, // assignment value terminator
+    TokLiteral,         // literal string (fully dequoted)
+                        // - length (1)
+                        // - string data (length; unterminated)
+    TokHashLiteral,     // literal string with hash (fully dequoted)
+                        // - hash (2)
+                        // - length (1)
+                        // - string data (length; unterminated)
+    TokVariable,        // qmake variable expansion
+                        // - hash (2)
+                        // - name length (1)
+                        // - name (name length; unterminated)
+    TokProperty,        // qmake property expansion
+                        // - name length (1)
+                        // - name (name length; unterminated)
+    TokEnvVar,          // environment variable expansion
+                        // - name length (1)
+                        // - name (name length; unterminated)
+    TokFuncName,        // replace function expansion
+                        // - hash (2)
+                        // - name length (1)
+                        // - name (name length; unterminated)
+                        // - ((nested expansion + TokArgSeparator)* + nested expansion)?
+                        // - TokFuncTerminator
+    TokArgSeparator,    // function argument separator
+    TokFuncTerminator,  // function argument list terminator
+    TokCondition,       // previous literal/expansion is a conditional
+    TokTestCall,        // previous literal/expansion is a test function call
+                        // - ((nested expansion + TokArgSeparator)* + nested expansion)?
+                        // - TokFuncTerminator
     TokNot,             // '!' operator
     TokAnd,             // ':' operator
     TokOr,              // '|' operator
-    TokBranch,          // branch point:   // "X:A=":4 => [5]+1+4+1+1+[7]=19 (20)
+    TokBranch,          // branch point:
                         // - then block length (2)
                         // - then block + TokTerminator (then block length)
                         // - else block length (2)
                         // - else block + TokTerminator (else block length)
-    TokForLoop,         // for loop:   // "for(A,B)":8 => 1+4+3+2+1=11 (12)
+    TokForLoop,         // for loop:
                         // - variable name: hash (2), length (1), chars (length)
-                        // - expression: length (2), chars (length)
+                        // - expression: length (2), bytes + TokValueTerminator (length)
                         // - body length (2)
                         // - body + TokTerminator (body length)
-    TokTestDef,         // test function definition:     // "defineTest(A):":14 => 1+4+2+1=8 (9)
-    TokReplaceDef,      // replace function definition:  // "defineReplace(A):":17 => 1+4+2+1=8 (9)
+    TokTestDef,         // test function definition:
+    TokReplaceDef,      // replace function definition:
                         // - function name: hash (2), length (1), chars (length)
                         // - body length (2)
                         // - body + TokTerminator (body length)
+    TokMask = 0xff,
+    TokQuoted = 0x100,  // The expression is quoted => join expanded stringlist
+    TokNewStr = 0x200   // Next stringlist element
 };
 
 class ProFile
