@@ -3547,7 +3547,7 @@ void BaseTextEditor::extraAreaMouseEvent(QMouseEvent *e)
                     toggleBlockVisible(c);
                     d->moveCursorVisible(false);
                 }
-            } else if (d->m_marksVisible && e->pos().x() > markWidth) {
+            } else if (e->pos().x() > markWidth) {
                 QTextCursor selection = cursor;
                 selection.setVisualNavigation(true);
                 d->extraAreaSelectionAnchorBlockNumber = selection.blockNumber();
