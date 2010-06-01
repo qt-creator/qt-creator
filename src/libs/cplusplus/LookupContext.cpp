@@ -376,9 +376,18 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
     if (binding && ! processed->contains(binding)) {
         processed->insert(binding);
 
+        const Identifier *nameId = name->identifier();
+
         foreach (Symbol *s, binding->symbols()) {
-            if (ScopedSymbol *scoped = s->asScopedSymbol())
+            if (ScopedSymbol *scoped = s->asScopedSymbol()) {
+                if (Class *klass = scoped->asClass()) {
+                    if (const Identifier *id = klass->identifier()) {
+                        if (nameId && nameId->isEqualTo(id))
+                            result->append(klass);
+                    }
+                }
                 _factory->lookupInScope(name, scoped->members(), result, templateId);
+            }
         }
 
         foreach (Enum *e, binding->enums())
@@ -485,6 +494,13 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
 
         if (name->isNameId() || name->isTemplateNameId()) {
             flush();
+
+            foreach (Symbol *s, symbols()) {
+                if (Class *klass = s->asClass()) {
+                    if (klass->identifier() && klass->identifier()->isEqualTo(name->identifier()))
+                        return this;
+                }
+            }
 
             if (ClassOrNamespace *e = nestedType(name))
                 return e;
