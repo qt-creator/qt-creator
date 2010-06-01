@@ -58,6 +58,7 @@ public:
 
 protected:
     using ASTVisitor::visit;
+    using ASTVisitor::endVisit;
 
     bool warning(unsigned line, unsigned column, const QString &text, unsigned length = 0);
     bool warning(AST *ast, const QString &text);
@@ -77,6 +78,15 @@ protected:
     virtual bool visit(QualifiedNameAST *ast);
     virtual bool visit(TemplateIdAST *ast);
 
+    virtual bool visit(TemplateDeclarationAST *ast);
+    virtual void endVisit(TemplateDeclarationAST *ast);
+
+    virtual bool visit(TypenameTypeParameterAST *ast);
+    virtual bool visit(TemplateTypeParameterAST *ast);
+
+    unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
+    Scope *findScope(AST *ast) const;
+
 private:
     LookupContext _context;
     QString _fileName;
@@ -84,6 +94,7 @@ private:
     QSet<QByteArray> _potentialTypes;
     QList<ScopedSymbol *> _scopes;
     QList<Use> _typeUsages;
+    QList<TemplateDeclarationAST *> _templateDeclarationStack;
 };
 
 } // end of namespace CPlusPlus

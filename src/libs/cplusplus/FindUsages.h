@@ -99,6 +99,14 @@ protected:
     virtual bool visit(QtPropertyDeclarationAST *);
     virtual void endVisit(QtPropertyDeclarationAST *);
 
+    virtual bool visit(TemplateDeclarationAST *ast);
+    virtual void endVisit(TemplateDeclarationAST *ast);
+
+    virtual bool visit(TypenameTypeParameterAST *ast);
+    virtual bool visit(TemplateTypeParameterAST *ast);
+
+    unsigned startOfTemplateDeclaration(TemplateDeclarationAST *ast) const;
+
 private:
     const Identifier *_id;
     Symbol *_declSymbol;
@@ -110,6 +118,7 @@ private:
     Semantic _sem;
     QList<PostfixExpressionAST *> _postfixExpressionStack;
     QList<QualifiedNameAST *> _qualifiedNameStack;
+    QList<TemplateDeclarationAST *> _templateDeclarationStack;
     QList<int> _references;
     QList<Usage> _usages;
     int _inSimpleDeclaration;

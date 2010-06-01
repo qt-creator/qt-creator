@@ -137,6 +137,12 @@ protected:
 
     virtual bool visit(Function *symbol)
     {
+        for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
+            Scope *scope = p->scope();
+            for (unsigned i = 0; i < scope->symbolCount(); ++i)
+                accept(scope->symbolAt(i));
+        }
+
         addScope(symbol);
         return true;
     }
@@ -183,6 +189,12 @@ protected:
 
     virtual bool visit(Class *symbol)
     {
+        for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
+            Scope *scope = p->scope();
+            for (unsigned i = 0; i < scope->symbolCount(); ++i)
+                accept(scope->symbolAt(i));
+        }
+
         addScope(symbol);
         addType(symbol->name());
         return true;
@@ -190,6 +202,12 @@ protected:
 
     virtual bool visit(ForwardClassDeclaration *symbol)
     {
+        for (TemplateParameters *p = symbol->templateParameters(); p; p = p->previous()) {
+            Scope *scope = p->scope();
+            for (unsigned i = 0; i < scope->symbolCount(); ++i)
+                accept(scope->symbolAt(i));
+        }
+
         addType(symbol->name());
         return true;
     }
@@ -326,16 +344,13 @@ void CheckUndefinedSymbols::checkNamespace(NameAST *name)
 void CheckUndefinedSymbols::checkName(NameAST *ast)
 {
     if (ast->name) {
-        const QByteArray id = QByteArray::fromRawData(ast->name->identifier()->chars(), // ### move
-                                                      ast->name->identifier()->size());
-        if (_potentialTypes.contains(id)) {
-            const unsigned tokenOffset = tokenAt(ast->firstToken()).offset;
-            Scope *scope = CollectTypes::findScope(tokenOffset, _scopes); // ### move
-            if (! scope)
-                scope = _context.thisDocument()->globalSymbols();
-
-            const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
-            addTypeUsage(candidates, ast);
+        if (const Identifier *ident = ast->name->identifier()) {
+            const QByteArray id = QByteArray::fromRawData(ident->chars(), ident->size());
+            if (_potentialTypes.contains(id)) {
+                Scope *scope = findScope(ast);
+                const QList<Symbol *> candidates = _context.lookup(ast->name, scope);
+                addTypeUsage(candidates, ast);
+            }
         }
     }
 }
@@ -354,33 +369,23 @@ bool CheckUndefinedSymbols::visit(TemplateIdAST *ast)
 
 bool CheckUndefinedSymbols::visit(DestructorNameAST *ast)
 {
-    if (ast->name) {
-        const QByteArray id = QByteArray::fromRawData(ast->name->identifier()->chars(), // ### move
-                                                      ast->name->identifier()->size());
-        if (_potentialTypes.contains(id)) {
-            Scope *scope = CollectTypes::findScope(tokenAt(ast->firstToken()).offset, _scopes); // ### move
-            if (! scope)
-                scope = _context.thisDocument()->globalSymbols();
-
-            ClassOrNamespace *b = _context.lookupType(ast->name, scope);
-            addTypeUsage(b, ast);
-        }
-    }
-
+    checkName(ast);
     return true;
 }
 
 bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
 {
     if (ast->name) {
-        Scope *scope = CollectTypes::findScope(tokenAt(ast->firstToken()).offset, _scopes); // ### move
-        if (! scope)
-            scope = _context.thisDocument()->globalSymbols();
+        Scope *scope = findScope(ast);
 
         ClassOrNamespace *b = 0;
         if (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list) {
             NestedNameSpecifierAST *nested_name_specifier = it->value;
             NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name; // ### remove shadowing
+
+            if (class_or_namespace_name)
+                if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId())
+                    accept(template_id->template_argument_list);
 
             const Name *name = class_or_namespace_name->name;
             b = _context.lookupType(name, scope);
@@ -390,6 +395,9 @@ bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
                 NestedNameSpecifierAST *nested_name_specifier = it->value;
 
                 if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) {
+                    if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId())
+                        accept(template_id->template_argument_list);
+
                     b = b->findType(class_or_namespace_name->name);
                     addTypeUsage(b, class_or_namespace_name);
                 }
@@ -403,17 +411,53 @@ bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
     return false;
 }
 
+bool CheckUndefinedSymbols::visit(TypenameTypeParameterAST *ast)
+{
+    if (ast->name) {
+        if (const Identifier *templId = ast->name->name->identifier()) {
+            const QByteArray id = QByteArray::fromRawData(templId->chars(), templId->size());
+            if (_potentialTypes.contains(id)) {
+                Scope *scope = findScope(_templateDeclarationStack.back());
+                const QList<Symbol *> candidates = _context.lookup(ast->name->name, scope);
+                addTypeUsage(candidates, ast->name);
+            }
+        }
+    }
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(TemplateTypeParameterAST *ast)
+{
+    checkName(ast->name);
+    return true;
+}
+
+bool CheckUndefinedSymbols::visit(TemplateDeclarationAST *ast)
+{
+    _templateDeclarationStack.append(ast);
+    return true;
+}
+
+void CheckUndefinedSymbols::endVisit(TemplateDeclarationAST *)
+{
+    _templateDeclarationStack.takeFirst();
+}
+
 void CheckUndefinedSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
 {
     if (! b)
         return;
 
-    const Token &tok = tokenAt(ast->firstToken());
+    unsigned startToken = ast->firstToken();
+    if (DestructorNameAST *dtor = ast->asDestructorName())
+        startToken = dtor->identifier_token;
+
+    const Token &tok = tokenAt(startToken);
     if (tok.generated())
         return;
 
     unsigned line, column;
-    getTokenStartPosition(ast->firstToken(), &line, &column);
+    getTokenStartPosition(startToken, &line, &column);
     const unsigned length = tok.length();
     Use use(line, column, length);
     _typeUsages.append(use);
@@ -422,12 +466,16 @@ void CheckUndefinedSymbols::addTypeUsage(ClassOrNamespace *b, NameAST *ast)
 
 void CheckUndefinedSymbols::addTypeUsage(const QList<Symbol *> &candidates, NameAST *ast)
 {
-    const Token &tok = tokenAt(ast->firstToken());
+    unsigned startToken = ast->firstToken();
+    if (DestructorNameAST *dtor = ast->asDestructorName())
+        startToken = dtor->identifier_token;
+
+    const Token &tok = tokenAt(startToken);
     if (tok.generated())
         return;
 
     unsigned line, column;
-    getTokenStartPosition(ast->firstToken(), &line, &column);
+    getTokenStartPosition(startToken, &line, &column);
     const unsigned length = tok.length();
 
     foreach (Symbol *c, candidates) {
@@ -449,4 +497,35 @@ void CheckUndefinedSymbols::addTypeUsage(const QList<Symbol *> &candidates, Name
 QList<CheckUndefinedSymbols::Use> CheckUndefinedSymbols::typeUsages() const
 {
     return _typeUsages;
+}
+
+unsigned CheckUndefinedSymbols::startOfTemplateDeclaration(TemplateDeclarationAST *ast) const
+{
+    if (ast->declaration) {
+        if (TemplateDeclarationAST *templ = ast->declaration->asTemplateDeclaration())
+            return startOfTemplateDeclaration(templ);
+
+        return ast->declaration->firstToken();
+    }
+
+    return ast->firstToken();
+}
+
+Scope *CheckUndefinedSymbols::findScope(AST *ast) const
+{
+    Scope *scope = 0;
+
+    if (ast) {
+        unsigned startToken = ast->firstToken();
+        if (TemplateDeclarationAST *templ = ast->asTemplateDeclaration())
+            startToken = startOfTemplateDeclaration(templ);
+
+        const unsigned tokenOffset = tokenAt(startToken).offset;
+        scope = CollectTypes::findScope(tokenOffset, _scopes);
+    }
+
+    if (! scope)
+        scope = _context.thisDocument()->globalSymbols();
+
+    return scope;
 }

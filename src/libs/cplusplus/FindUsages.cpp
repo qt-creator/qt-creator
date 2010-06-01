@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "FindUsages.h"
+#include "Overview.h"
 
 #include <Control.h>
 #include <Literals.h>
@@ -436,3 +437,54 @@ bool FindUsages::visit(QtPropertyDeclarationAST *)
 
 void FindUsages::endVisit(QtPropertyDeclarationAST *)
 { _inQProperty = false; }
+
+bool FindUsages::visit(TemplateDeclarationAST *ast)
+{
+    _templateDeclarationStack.append(ast);
+    return true;
+}
+
+void FindUsages::endVisit(TemplateDeclarationAST *)
+{
+    _templateDeclarationStack.takeFirst();
+}
+
+bool FindUsages::visit(TypenameTypeParameterAST *ast)
+{
+    if (NameAST *name = ast->name) {
+        const Identifier *id = name->name->identifier();
+        if (id == _id) {
+            unsigned start = startOfTemplateDeclaration(_templateDeclarationStack.back());
+            const QList<Symbol *> candidates = _context.lookup(name->name, scopeAt(start));
+            reportResult(ast->name->firstToken(), candidates);
+        }
+    }
+    accept(ast->type_id);
+    return false;
+}
+
+bool FindUsages::visit(TemplateTypeParameterAST *ast)
+{
+    if (NameAST *name = ast->name) {
+        const Identifier *id = name->name->identifier();
+        if (id == _id) {
+            unsigned start = startOfTemplateDeclaration(_templateDeclarationStack.back());
+            const QList<Symbol *> candidates = _context.lookup(name->name, scopeAt(start));
+            reportResult(ast->name->firstToken(), candidates);
+        }
+    }
+    accept(ast->type_id);
+    return false;
+}
+
+unsigned FindUsages::startOfTemplateDeclaration(TemplateDeclarationAST *ast) const
+{
+    if (ast->declaration) {
+        if (TemplateDeclarationAST *templ = ast->declaration->asTemplateDeclaration())
+            return startOfTemplateDeclaration(templ);
+
+        return ast->declaration->firstToken();
+    }
+
+    return ast->firstToken();
+}
