@@ -585,6 +585,11 @@ struct FindCanonicalSymbol
         return typeOfExpression.context();
     }
 
+    inline bool isIdentifierChar(const QChar &ch) const
+    {
+        return ch.isLetterOrNumber() || ch == QLatin1Char('_');
+    }
+
     Symbol *operator()(const QTextCursor &cursor)
     {
         if (! info.doc)
@@ -598,8 +603,12 @@ struct FindCanonicalSymbol
         QTextDocument *document = editor->document();
 
         int pos = tc.position();
-        while (document->characterAt(pos).isLetterOrNumber() ||
-               document->characterAt(pos) == QLatin1Char('_'))
+
+        if (! isIdentifierChar(document->characterAt(pos)))
+            if (! (pos > 0 && isIdentifierChar(document->characterAt(pos - 1))))
+                return 0;
+
+        while (isIdentifierChar(document->characterAt(pos)))
             ++pos;
         tc.setPosition(pos);
 
