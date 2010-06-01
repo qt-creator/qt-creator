@@ -1851,6 +1851,7 @@ void GdbEngine::executeStepI()
 void GdbEngine::executeStepOut()
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    postCommand("-stack-select-frame 0");
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Finish function requested..."), 5000);
