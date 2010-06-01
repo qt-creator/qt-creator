@@ -48,7 +48,7 @@
            \list
                \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
-               \o \l{Creating a Mobile Application}
+               \o \l{Creating a Mobile Application with Nokia Qt SDK}
                \o \l{Creating a Qt Quick Application}
            \endlist
        \o \l{Using the Editor}
@@ -2402,7 +2402,7 @@
     \list
         \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
-        \o \l{Creating a Mobile Application}
+        \o \l{Creating a Mobile Application with Nokia Qt SDK}
         \o \l{Creating a Qt Quick Application}
     \endlist
 
@@ -2415,11 +2415,11 @@
     \page creator-mobile-example.html
     \nextpage creator-qml-application.html
 
-    \title Creating a Mobile Application
+    \title Creating a Mobile Application with Nokia Qt SDK
 
-    \note This tutorial assumes that you have experience in writing basic Qt
-    applications, using \QD to design user interfaces and using the Qt
-    Resource System.
+    \note To complete this tutorial, you must install Nokia Qt SDK.
+    The installation program installs and configures the necessary tool chains
+    for mobile application development.
 
     This tutorial describes how to use Qt Creator to create a small Qt
     application, Battery Indicator, that uses the System Information
@@ -2620,6 +2620,34 @@
     Select \gui {Scripting > examples > runOutOfBattery.qs > Run}.
 
     \image qtcreator-mobile-simulated.png "Mobile example in Qt Simulator"
+
+    \section1 Testing on a Symbian Device
+
+    You also need to test the application on real devices. Before you can
+    start testing on Symbian devices, you must connect them to the development
+    PC by using an USB cable and install the necessary software on them.
+
+    \list 1
+
+        \o Install Qt 4.6.2 libraries, the Qt mobile libraries, and the TRK
+        debugging application on the device. For more information,
+        see \l{Setting Up Development Environment for Symbian}.
+
+        \o Start TRK on the device.
+
+        \o Click the \gui {Target Selector} and select \gui {Symbian Device}.
+
+        \o Click \gui Run to build the application for the Symbian device.
+
+    \endlist
+
+    \section1 Testing on the Maemo Emulator
+
+    The Maemo emulator emulates the Nokia N900 device environment. You can test
+    applications in conditions practically identical to running the application
+    on a Nokia N900 device with the software update release 1.2 (V10.2010.19-1).
+
+    For more information, see \l{Using the Maemo Emulator}.
 
 */
 
@@ -6182,6 +6210,10 @@
         \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install Qt to Symbian
         device} and follow the instructions on the screen to install Qt 4.6.2
         libraries on the device.
+
+        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install QtMobility to Symbian
+        device} and follow the instructions on the screen to install Qt
+        mobility libraries on the device.
 
         \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install TRK to Symbian
         device} and follow the instructions on the screen to install the TRK
