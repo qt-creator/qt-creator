@@ -389,7 +389,7 @@ short ne7ssh_transport::waitForPacket (Botan::byte cmd, bool bufferOnly)
     }*/
   }
 
-   if (rSeq == MAX_SEQUENCE) seq = 0;
+   if (rSeq == MAX_SEQUENCE) rSeq = 0;
    else rSeq++;
   _cmd = *(decrypted.begin() + 5);
 
