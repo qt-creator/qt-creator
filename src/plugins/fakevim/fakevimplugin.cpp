@@ -1070,8 +1070,7 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
     const QTextDocument *doc = bt->document();
     const TextEditor::TextBlockIterator docStart(doc->begin());
     QTextBlock cur = doc->findBlockByNumber(beginLine);
-    for(int i = beginLine; i<= endLine; ++i)
-    {
+    for (int i = beginLine; i <= endLine; ++i) {
         if (typedChar == 0 && cur.text().simplified().isEmpty()) {
             // clear empty lines
             *amount = 0;
