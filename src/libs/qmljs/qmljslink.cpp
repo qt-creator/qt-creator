@@ -136,7 +136,7 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
         return;
 
     // Add the implicitly available Script type
-    const ObjectValue *scriptValue = engine()->metaTypeSystem().staticTypeForImport("Script");
+    const ObjectValue *scriptValue = engine()->cppQmlTypes().typeForImport("Script");
     if (scriptValue)
         typeEnv->setProperty("Script", scriptValue);
 
@@ -270,8 +270,8 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
     }
 
     // if the package is in the meta type system, use it
-    if (engine()->metaTypeSystem().hasPackage(packageName)) {
-        foreach (QmlObjectValue *object, engine()->metaTypeSystem().staticTypesForImport(packageName, majorVersion, minorVersion)) {
+    if (engine()->cppQmlTypes().hasPackage(packageName)) {
+        foreach (QmlObjectValue *object, engine()->cppQmlTypes().typesForImport(packageName, majorVersion, minorVersion)) {
             namespaceObject->setProperty(object->className(), object);
         }
         return;

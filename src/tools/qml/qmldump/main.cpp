@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
     importCode += "import Qt.labs.folderlistmodel 4.7;\n";
     importCode += "import org.webkit 1.0;\n";
     if (!pluginImportName.isEmpty())
-        importCode += QString("import %0 1.0;\n").arg(pluginImportName);
+        importCode += QString("import %0 1.0;\n").arg(pluginImportName).toAscii();
 
     {
         QByteArray code = importCode;

@@ -34,12 +34,14 @@
 #include "parser/qmljsast_p.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QDir>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QProcess>
 #include <QtCore/QDebug>
 
 using namespace QmlJS::Interpreter;
@@ -332,6 +334,10 @@ public:
     QmlXmlReader(QIODevice *dev)
         : _xml(dev)
         , _objects(0)
+    {}
+
+    QmlXmlReader(const QByteArray &data)
+        : _xml(data)
     {}
 
     bool operator()(QMap<QString, FakeMetaObject *> *objects) {
@@ -774,7 +780,7 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
     const QString typeName = prop.typeName();
 
     // ### Verify type resolving.
-    QmlObjectValue *objectValue = engine()->metaTypeSystem().staticTypeForImport(typeName);
+    QmlObjectValue *objectValue = engine()->cppQmlTypes().typeForImport(typeName);
     if (objectValue)
         return objectValue;
 
@@ -917,7 +923,10 @@ bool QmlObjectValue::hasChildInPackage() const
 {
     if (!packageName().isEmpty())
         return true;
-    foreach (const FakeMetaObject *other, MetaTypeSystem::_metaObjects) {
+    QHashIterator<QString, FakeMetaObject *> it(CppQmlTypesLoader::instance()->objects);
+    while (it.hasNext()) {
+        it.next();
+        const FakeMetaObject *other = it.value();
         if (other->packageName().isEmpty())
             continue;
         for (const FakeMetaObject *iter = other; iter; iter = iter->superClass()) {
@@ -1931,19 +1940,22 @@ const Value *Function::invoke(const Activation *activation) const
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
 
-QList<const FakeMetaObject *> MetaTypeSystem::_metaObjects;
-
-QStringList MetaTypeSystem::load(const QFileInfoList &xmlFiles)
+CppQmlTypesLoader *CppQmlTypesLoader::instance()
 {
-    QMap<QString, FakeMetaObject *> objects;
+    static CppQmlTypesLoader _instance;
+    return &_instance;
+}
 
+QStringList CppQmlTypesLoader::load(const QFileInfoList &xmlFiles)
+{
+    QMap<QString, FakeMetaObject *> newObjects;
     QStringList errorMsgs;
 
     foreach (const QFileInfo &xmlFile, xmlFiles) {
         QFile file(xmlFile.absoluteFilePath());
         if (file.open(QIODevice::ReadOnly)) {
             QmlXmlReader read(&file);
-            if (!read(&objects)) {
+            if (!read(&newObjects)) {
                 errorMsgs.append(read.errorMessage());
             }
             file.close();
@@ -1953,34 +1965,70 @@ QStringList MetaTypeSystem::load(const QFileInfoList &xmlFiles)
         }
     }
 
-    if (errorMsgs.isEmpty()) {
-        qDeleteAll(_metaObjects);
-        _metaObjects.clear();
-
-        foreach (FakeMetaObject *obj, objects.values()) {
-            const QString superName = obj->superclassName();
-            if (! superName.isEmpty()) {
-                obj->setSuperclass(objects.value(superName, 0));
-            }
-            _metaObjects.append(obj);
-        }
-    }
+    if (errorMsgs.isEmpty())
+        addObjects(newObjects);
 
     return errorMsgs;
 }
 
-void MetaTypeSystem::reload(Engine *interpreter)
+void CppQmlTypesLoader::loadPluginTypes(const QString &pluginPath)
+{
+    QProcess *process = new QProcess(this);
+    connect(process, SIGNAL(finished(int)), SLOT(processDone(int)));
+    QDir qmldumpExecutable(QCoreApplication::applicationDirPath());
+    process->start(qmldumpExecutable.filePath("qmldump"), QStringList(pluginPath));
+}
+
+void CppQmlTypesLoader::processDone(int exitCode)
+{
+    QMap<QString, FakeMetaObject *> newObjects;
+
+    QProcess *process = qobject_cast<QProcess *>(sender());
+    if (process && exitCode == 0) {
+        const QByteArray output = process->readAllStandardOutput();
+        QmlXmlReader read(output);
+        if (read(&newObjects))
+            addObjects(newObjects);
+    }
+    process->deleteLater();
+}
+
+void CppQmlTypesLoader::addObjects(QMap<QString, FakeMetaObject *> &newObjects)
+{
+    QMapIterator<QString, FakeMetaObject *> it(newObjects);
+    while (it.hasNext()) {
+        it.next();
+        FakeMetaObject *obj = it.value();
+        //if (objects.contains(it.key()))
+        //    qWarning() << "QmlJS::Interpreter::MetaTypeSystem: Found duplicate type" << it.key();
+
+        const QString superName = obj->superclassName();
+        if (! superName.isEmpty()) {
+            FakeMetaObject *superClass = objects.value(superName);
+            if (!superClass)
+                superClass = newObjects.value(superName);
+            if (superClass)
+                obj->setSuperclass(superClass);
+            //else
+            //    qWarning() << "QmlJS::Interpreter::MetaTypeSystem: Can't find superclass" << superName << "for" << it.key();
+        }
+
+        objects.insert(it.key(), obj);
+    }
+}
+
+void CppQmlTypes::reload(Engine *interpreter)
 {
     QHash<const FakeMetaObject *, QmlObjectValue *> qmlObjects;
     _importedTypes.clear();
 
-    foreach (const FakeMetaObject *metaObject, _metaObjects) {
+    foreach (const FakeMetaObject *metaObject, CppQmlTypesLoader::instance()->objects) {
         QmlObjectValue *objectValue = new QmlObjectValue(metaObject, interpreter);
         qmlObjects.insert(metaObject, objectValue);
         _importedTypes[metaObject->packageName()].append(objectValue);
     }
 
-    foreach (const FakeMetaObject *metaObject, _metaObjects) {
+    foreach (const FakeMetaObject *metaObject, CppQmlTypesLoader::instance()->objects) {
         QmlObjectValue *objectValue = qmlObjects.value(metaObject);
         if (!objectValue)
             continue;
@@ -1988,7 +2036,7 @@ void MetaTypeSystem::reload(Engine *interpreter)
     }
 }
 
-QList<QmlObjectValue *> MetaTypeSystem::staticTypesForImport(const QString &packageName, int majorVersion, int minorVersion) const
+QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, int majorVersion, int minorVersion) const
 {
     QMap<QString, QmlObjectValue *> objectValuesByName;
 
@@ -2014,7 +2062,7 @@ QList<QmlObjectValue *> MetaTypeSystem::staticTypesForImport(const QString &pack
     return objectValuesByName.values();
 }
 
-QmlObjectValue *MetaTypeSystem::staticTypeForImport(const QString &qualifiedName) const
+QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName) const
 {
     QString name = qualifiedName;
     QString packageName;
@@ -2045,7 +2093,7 @@ QmlObjectValue *MetaTypeSystem::staticTypeForImport(const QString &qualifiedName
     return previousCandidate;
 }
 
-bool MetaTypeSystem::hasPackage(const QString &package) const
+bool CppQmlTypes::hasPackage(const QString &package) const
 {
     return _importedTypes.contains(package);
 }
@@ -2323,7 +2371,7 @@ Engine::Engine()
 {
     initializePrototypes();
 
-    _metaTypeSystem.reload(this);
+    _cppQmlTypes.reload(this);
 }
 
 Engine::~Engine()

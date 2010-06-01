@@ -85,7 +85,7 @@ void ModelManager::loadQmlTypeDescriptions()
                                                              QDir::Files,
                                                              QDir::Name);
 
-    const QStringList errors = Interpreter::MetaTypeSystem::load(xmlFiles);
+    const QStringList errors = Interpreter::CppQmlTypesLoader::instance()->load(xmlFiles);
     foreach (const QString &error, errors)
         qWarning() << qPrintable(error);
 }
@@ -193,6 +193,9 @@ void ModelManager::emitLibraryInfoUpdated(const QString &path, const LibraryInfo
 void ModelManager::onLibraryInfoUpdated(const QString &path, const LibraryInfo &info)
 {
     QMutexLocker locker(&m_mutex);
+
+    if (!_snapshot.libraryInfo(path).isValid())
+        QmlJS::Interpreter::CppQmlTypesLoader::instance()->loadPluginTypes(path);
 
     _snapshot.insertLibraryInfo(path, info);
 }

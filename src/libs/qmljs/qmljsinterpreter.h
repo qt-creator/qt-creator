@@ -515,25 +515,38 @@ private:
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
 
-class QMLJS_EXPORT MetaTypeSystem
+class QMLJS_EXPORT CppQmlTypesLoader : public QObject
 {
-    static QList<const FakeMetaObject *> _metaObjects;
-
+    Q_OBJECT
 public:
-    /** \return an empty list when successful, error messages otherwise. */
-    static QStringList load(const QFileInfoList &xmlFiles);
+    static CppQmlTypesLoader *instance();
 
+    QHash<QString, FakeMetaObject *> objects;
+
+    /** \return an empty list when successful, error messages otherwise. */
+    QStringList load(const QFileInfoList &xmlFiles);
+
+    void loadPluginTypes(const QString &pluginPath);
+
+private slots:
+    void processDone(int exitCode);
+
+private:
+    void addObjects(QMap<QString, FakeMetaObject *> &newObjects);
+};
+
+class QMLJS_EXPORT CppQmlTypes
+{
+public:
     void reload(Interpreter::Engine *interpreter);
 
-    QList<Interpreter::QmlObjectValue *> staticTypesForImport(const QString &prefix, int majorVersion, int minorVersion) const;
-    Interpreter::QmlObjectValue *staticTypeForImport(const QString &qualifiedName) const;
+    QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, int majorVersion, int minorVersion) const;
+    Interpreter::QmlObjectValue *typeForImport(const QString &qualifiedName) const;
 
     bool hasPackage(const QString &package) const;
 
 private:
     QHash<QString, QList<QmlObjectValue *> > _importedTypes;
-
-    friend class QmlObjectValue;
 };
 
 class ConvertToNumber: protected ValueVisitor // ECMAScript ToInt()
@@ -683,8 +696,8 @@ public:
     QString typeId(const Value *value);
 
     // typing:
-    const MetaTypeSystem &metaTypeSystem() const
-    { return _metaTypeSystem; }
+    const CppQmlTypes &cppQmlTypes() const
+    { return _cppQmlTypes; }
 
     void registerValue(Value *value); // internal
 
@@ -732,7 +745,7 @@ private:
     ConvertToObject _convertToObject;
     TypeId _typeId;
 
-    MetaTypeSystem _metaTypeSystem;
+    CppQmlTypes _cppQmlTypes;
 };
 
 

@@ -12,3 +12,7 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp
+
+include(../../../../qtcreator.pri)
+DESTDIR = $$IDE_APP_PATH
+include(../../../rpath.pri)
