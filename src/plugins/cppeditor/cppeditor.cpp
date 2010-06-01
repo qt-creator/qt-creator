@@ -486,47 +486,6 @@ private:
     }
 };
 
-class ProcessDeclarators: protected ASTVisitor
-{
-    QList<DeclaratorIdAST *> _declarators;
-    bool _visitFunctionDeclarator;
-
-public:
-    ProcessDeclarators(TranslationUnit *translationUnit)
-        : ASTVisitor(translationUnit),
-          _visitFunctionDeclarator(true)
-    { }
-
-    QList<DeclaratorIdAST *> operator()(FunctionDefinitionAST *ast)
-    {
-        _declarators.clear();
-
-        if (ast) {
-            if (ast->declarator) {
-                _visitFunctionDeclarator = true;
-                accept(ast->declarator->postfix_declarator_list);
-            }
-
-            _visitFunctionDeclarator = false;
-            accept(ast->function_body);
-        }
-
-        return _declarators;
-    }
-
-protected:
-    using ASTVisitor::visit;
-
-    virtual bool visit(FunctionDeclaratorAST *)
-    { return _visitFunctionDeclarator; }
-
-    virtual bool visit(DeclaratorIdAST *ast)
-    {
-        _declarators.append(ast);
-        return true;
-    }
-};
-
 class FindFunctionDefinitions: protected SymbolVisitor
 {
     const Name *_declarationName;
