@@ -429,7 +429,7 @@
     <message>
         <location line="+4"/>
         <source>The directory %1 contains an outdated .cbp file. Qt Creator needs to update this file by running cmake. If you want to add additional command line arguments, add them below. Note that cmake remembers command line arguments from the previous runs.</source>
-        <translation>Das Verzeichnis %1 enthält eine veraltetet cbp-Datei. Qt Creator muss die Datei durch einen cmake-Aufruf erneuern. Zusätzliche Für Kommandozeilenargumente können unten angegeben werden. Beachten Sie, dass cmake die Argumente vorangegangener Aufrufe speichert.</translation>
+        <translation>Das Verzeichnis %1 enthält eine veraltete cbp-Datei. Qt Creator muss die Datei durch einen cmake-Aufruf erneuern. Zusätzliche Kommandozeilenargumente können unten angegeben werden. Beachten Sie, dass cmake die Argumente vorangegangener Aufrufe speichert.</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -5481,7 +5481,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <message>
         <location filename="../../../src/plugins/designer/cpp/formclasswizarddialog.cpp" line="+52"/>
         <source>Qt Designer Form Class</source>
-        <translation>Qt Designer-Formular-Klasse</translation>
+        <translation>Qt-Designer-Formularklasse</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5522,22 +5522,22 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <message>
         <location filename="../../../src/plugins/designer/formeditorplugin.cpp" line="+130"/>
         <source>Qt Designer Form</source>
-        <translation>Qt Designer-Formular</translation>
+        <translation>Qt-Designer-Formular</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt C++ Project.</source>
-        <translation>Erstellt eine Qt Designer-Formular-Datei mit zugehörigem Klassenrumpf (bestehend aus C++-Header- und Quelldatei) für ein existierendes C++-Projekt.</translation>
+        <translation>Erstellt ein Qt-Designer-Formular mit zugehörigem Klassenrumpf (bestehend aus C++-Header- und -Quelldatei) für ein existierendes C++-Projekt.</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Creates a Qt Designer form that you can add to a Qt C++ project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Erstellt eine Qt Designer-Formular-Datei für ein C++-Projekt. Verwenden Sie diese Vorlage, wenn bereits Geschäftslogik existiert.</translation>
+        <translation>Erstellt ein Qt-Designer-Formular für ein C++-Projekt. Verwenden Sie diese Vorlage, wenn bereits eine Klasse für den Programmablauf existiert.</translation>
     </message>
     <message>
         <location line="-2"/>
         <source>Qt Designer Form Class</source>
-        <translation>Qt Designer-Formular-Klasse</translation>
+        <translation>Qt-Designer-Formularklasse</translation>
     </message>
 </context>
 <context>
@@ -5713,7 +5713,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <message>
         <location filename="../../../src/plugins/designer/formwizarddialog.cpp" line="+60"/>
         <source>Qt Designer Form</source>
-        <translation>Qt Designer-Formular</translation>
+        <translation>Qt-Designer-Formular</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -8559,7 +8559,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+1"/>
         <source>Qt Designer file</source>
-        <translation>Qt Designer-Datei</translation>
+        <translation>Qt-Designer-Datei</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -8569,7 +8569,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="-5"/>
         <source>Generic Qt Creator Project file</source>
-        <translation>Generische Qt Creator Projektdatei</translation>
+        <translation>Allgemeine Qt-Creator-Projektdatei</translation>
     </message>
     <message>
         <location line="-23"/>
@@ -8639,17 +8639,17 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+12"/>
         <source>Generic Project Files</source>
-        <translation>Generische Projektdateien</translation>
+        <translation>Allgemeine Projektdateien</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Generic Project Include Paths</source>
-        <translation>Include-Pfade für generisches Projekt</translation>
+        <translation>Include-Pfade für allgemeines Projekt</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Generic Project Configuration File</source>
-        <translation>Projekt-Konfigurationsdatei für generische Projekte</translation>
+        <translation>Projekt-Konfigurationsdatei für allgemeine Projekte</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11871,7 +11871,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Erstellt eine Qt-Anwendung für den Desktop mit einem Qt Designer-basierten Hauptfenster.
+        <translation>Erstellt eine Qt-Anwendung für den Desktop mit einem Qt-Designer-basierten Hauptfenster.
 
 Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfügbar ist.</translation>
     </message>
@@ -12010,7 +12010,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <location line="+3"/>
         <source>Forms</source>
-        <translation>Formular-Dateien</translation>
+        <translation>Formulardateien</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -21579,7 +21579,7 @@ Haben Sie Qemu gestartet?</translation>
         <source>Creates a Qt application optimized for mobile devices with a Qt Designer-based main window.
 
 Preselects Qt for Simulator and mobile targets if available</source>
-        <translation>Erstellt eine Qt-Anwendung für mobile Geräte mit einem Qt Designer-basierten Hauptfenster.
+        <translation>Erstellt eine Qt-Anwendung für mobile Geräte mit einem Qt-Designer-basierten Hauptfenster.
 
 Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar sind.</translation>
     </message>
