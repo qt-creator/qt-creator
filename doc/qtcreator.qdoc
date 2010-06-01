@@ -1946,7 +1946,7 @@
 
         \o Build and run the application for \l{Using the Maemo Emulator}{Maemo Emulator}.
 
-        \o If no problems are found, build and run the application for a device:
+        \o Alternatively, you can build and run the application for a device:
 
         \list 1
 
@@ -1971,6 +1971,22 @@
         output is visible in the Qt Creator \gui {Application Output} view.
 
         Debugging also works transparently.
+
+        \section2 Creating Installation Packages
+
+        When you build the application for the \gui{Maemo} target, Qt
+        Creator automatically generates a debian installation package
+        in the project folder. You can deliver the installation package to
+        users for installation on Maemo devices.
+
+        You can add other files to the installation package in the
+        \gui {Create package} step in the build configuration. Add files
+        to the \gui {Package contents} field. In \gui {Local File Path},
+        specify the location of the file on the development PC. In
+        \gui {Remote File Path}, specify the folder to install the file on
+        the device.
+
+        \image qtcreator-maemo-deb-package.png "Create installation package"
 
 
     \section1 Building for Symbian
@@ -5692,7 +5708,6 @@
        PC_Connectivity_<version>.exe (at the time of writing,
        PC_Connectivity_0.9.4.exe).
 
-       \o Qt installed on the device. Recent images should have Qt pre-installed.
     \endlist
 
      The Qt Creator/MADDE integration is supported on the following platforms:
@@ -5727,38 +5742,13 @@
 
     \section2 Installing and Configuring Mad Developer
 
-    To install Mad Developer on your device, you need to add an application
-    catalogue to the list of catalogues your device checks for
-    installable software, and install the actual Mad Developer software
-    package. After the installation, you must start Mad Developer and configure
+    Install Mad Developer on a device and configure
     a connection between the development PC and the device.
 
     To install and configure Mad Developer:
 
      \list 1
-         \o On the Nokia N900, select \gui {Application manager > Application catalogs
-         > New}.
-
-         \o Specify the following settings:
-
-         \image qtcreator-app-manager-extras-devel-screenshot.png
-
-            \list a
-
-            \o \gui {Catalogue name}: \bold devel
-
-            \o \gui {Web address}:
-            \l http://repository.maemo.org/extras-devel
-
-            \o \gui Distribution: \bold fremantle
-
-            \o \gui Components: \bold {free non-free}
-
-            \endlist
-
-         \o Click \gui Save to add the catalogue.
-
-         \o Select \gui{Download} > \gui{Development} > \gui{mad-developer}
+         \o On the Nokia N900, select \gui{Download} > \gui{Development} > \gui{mad-developer}
          to install the Mad Developer software package.
          \o Click \gui {Mad Developer} to start the Mad Developer application.
 
@@ -5894,7 +5884,8 @@
     must generate it in Mad Developer and enter it in Qt Creator every time
     you connect to the Maemo emulator or to a device.
 
-    If you do not have an SSH key, you can create it in Qt Creator. For more
+    If you do not have an SSH key, you can create it in Qt Creator.
+    Encrypted keys are not supported. For more
     information, see \l{Generating SSH Keys}.
 
     To configure connections between Qt Creator and the Maemo emulator or
