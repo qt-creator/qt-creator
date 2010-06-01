@@ -1647,11 +1647,22 @@ int fooii()
     return 3;
 }
 
+typedef QVector<Foo> FooVector;
+
+FooVector fooVector()
+{
+    FooVector f;
+    f.append(Foo(2));
+    fprintf(stderr, "xxx\n");
+    f.append(Foo(3));
+    f.append(Foo(4));
+    return f;
+}
+
 void testStuff()
 {
-    int i = 0;
-    int *p = &i;
-    ++*p;
+    FooVector const &f = fooVector();
+    int i = f.size();
 }
 
 void testPassByReferenceHelper(Foo &f)
@@ -1710,6 +1721,7 @@ void testWCout0()
 
 void testQSettings()
 {
+    // Note: Construct a QCoreApplication first.
     QSettings settings("/tmp/test.ini", QSettings::IniFormat);
     QVariant value = settings.value("item1","").toString();
     int x = 1;
@@ -1717,9 +1729,7 @@ void testQSettings()
 
 int main(int argc, char *argv[])
 {
-    QSize size(100, 100);
-    QSizeF sizef(100, 100);
-    testQSettings();
+    //testQSettings();
     //testWCout0();
     //testWCout();
     testColor();
