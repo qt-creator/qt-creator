@@ -2722,6 +2722,10 @@
     \note This tutorial assumes that you are familiar with the \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}
     {QML declarative language}.
 
+    \note The Qt Quick specific features and the QDeclarative help are based on a
+    preview version of the QtDeclarative package. Update Qt Creator when Qt 4.7 is
+    released.
+
     This tutorial describes how to use Qt Creator to create a small animated
     Qt Quick application, Hello World.
 
@@ -5147,6 +5151,10 @@
     Qt Creator. For example, you can import and run the
     \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativeexamples.html} {QML examples and demos}
     to learn how to use various aspects of QML.
+
+    \note The Qt Quick specific features and the QDeclarative help are based on a
+    preview version of the QtDeclarative package. Update Qt Creator when Qt 4.7 is
+    released.
 
     You can use the code editor (\gui Edit mode) or the visual editor
     (\gui Design mode) to develop Qt Quick applications.
