@@ -73,13 +73,6 @@ Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
     parameters.setId(QLatin1String("QA.QML Application"));
     parameters.setDescription(tr("Creates a Qt QML application project with a single QML file containing the main view.\n\n"
                                  "QML application projects are executed through the QML runtime and do not need to be built."));
-
-    // TODO: Remove me when Qt 4.7 is out
-    parameters.setDescription(parameters.description() +
-                              tr("\n\nNote: The Qt Quick specific features are based on a preview version "
-                                 "of the Qt 4.7 package. Please update to a more recent version of Qt "
-                                 "Creator as soon as Qt 4.7 has been released."));
-
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
                                                               Constants::QML_WIZARD_TR_CATEGORY));
