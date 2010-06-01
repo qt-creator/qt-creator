@@ -38,9 +38,7 @@ leave room for the Qt 4 target page.
         class="qt4project" firstpage="10"
         id="QmlRuntimePlugin" category="F.Projects">
     <icon>lib.png</icon>
-    <description>Creates a C++ plugin to extend the funtionality of the QML runtime.
-
-Note: The Qt Quick specific features are based on a preview version of the Qt 4.7 package. Please update to a more recent version of Qt Creator as soon as Qt 4.7 has been released.</description>
+    <description>Creates a C++ plugin to extend the funtionality of the QML runtime.</description>
     <displayname>QML Runtime Plug-in</displayname>
     <displaycategory>QML Runtime Plug-in</displaycategory>
     <files>
