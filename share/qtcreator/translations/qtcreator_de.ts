@@ -11691,7 +11691,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <location line="+2"/>
         <source>Creating a Qt Quick Application</source>
-        <translation>Erstellen einer Qt-Quick-Anwendung</translation>
+        <translation>Erstellen einer Qt Quick-Anwendung</translation>
     </message>
     <message>
         <location line="+38"/>
@@ -17419,7 +17419,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmldesigner/settingspage.cpp" line="+83"/>
         <source>Qt Quick Designer</source>
-        <translation>Qt Quick Designer</translation>
+        <translation>Qt Quick-Designer</translation>
     </message>
 </context>
 <context>
@@ -19083,7 +19083,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectconstants.h" line="+8"/>
         <source>Qt Quick Project</source>
-        <translation>Qt-Quick-Projekt</translation>
+        <translation>Qt Quick-Projekt</translation>
     </message>
 </context>
 <context>
@@ -20133,7 +20133,7 @@ QML-Anwendungen werden durch die QML-Laufzeitumgebung direkt ausgeführt und ben
     <message>
         <location filename="../../../src/plugins/qmldesigner/qmldesignerplugin.cpp" line="+130"/>
         <source>Switch Text/Design</source>
-        <translation>Text/Entwurf umschalten</translation>
+        <translation>Text/Design umschalten</translation>
     </message>
     <message>
         <location line="+200"/>
@@ -20171,7 +20171,7 @@ QML-Anwendungen werden durch die QML-Laufzeitumgebung direkt ausgeführt und ben
     <message>
         <location filename="../../../src/plugins/coreplugin/designmode.cpp" line="+151"/>
         <source>Design</source>
-        <translation>Entwurf</translation>
+        <translation>Design</translation>
     </message>
 </context>
 <context>
@@ -21509,7 +21509,7 @@ Haben Sie Qemu gestartet?</translation>
     <message>
         <location filename="../../../src/plugins/designer/formeditorfactory.cpp" line="+93"/>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
-        <translation>Datei kann nur im &lt;b&gt;Entwurfsmodus&lt;/b&gt; bearbeitet werden.</translation>
+        <translation>Datei kann nur im &lt;b&gt;Designmodus&lt;/b&gt; bearbeitet werden.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -21678,23 +21678,23 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
     <message>
         <location line="-15"/>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
-        <translation>Möchten Sie den experimentellen Quick-Designer aktivieren?</translation>
+        <translation>Möchten Sie den experimentellen Qt Quick-Designer aktivieren?</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+23"/>
         <source>Enable Qt Quick Designer</source>
-        <translation>Quick Designer aktivieren</translation>
+        <translation>Qt Quick-Designer aktivieren</translation>
     </message>
     <message>
         <location line="-6"/>
         <source>Enable experimental Qt Quick Designer?</source>
-        <translation>Möchten Sie den experimentellen Quick-Designer aktivieren?</translation>
+        <translation>Möchten Sie den experimentellen Qt Quick-Designer aktivieren?</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Do you want to enable the experimental Qt Quick Designer? After enabling it, you can access the visual design capabilities by switching to Design Mode. This can affect the overall stability of Qt Creator. To disable Qt Quick Designer again, visit the menu &apos;%1&apos; and disable &apos;QmlDesigner&apos;.</source>
-        <translation>Möchten Sie den experimentellen Quick-Designer aktivieren? Nach der Aktivierung haben Sie Zugriff auf die graphische Entwurfsfunktionalität, wenn Sie in den Entwurfsmodus schalten. Das kann allerdings die Stabilität von Qt Creator beeinträchtigen. Um Quick-Designer zu deaktivieren, wählen Sie &apos;%1&apos; und deaktivieren &apos;QmlDesigner&apos; in dem gezeigten Fenster.</translation>
+        <translation>Möchten Sie den experimentellen Qt Quick-Designer aktivieren? Dadurch bekommen Sie Zugriff auf die grafische Designfunktion, wenn Sie in den Designmodus schalten. Dies kann allerdings die Stabilität von Qt Creator beeinträchtigen. Um den Qt Quick-Designer wieder zu deaktivieren, wählen Sie &apos;%1&apos; und deaktivieren &apos;QmlDesigner&apos; in dem gezeigten Fenster.</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -22570,13 +22570,13 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
     <message>
         <location filename="../../../src/plugins/qmljseditor/qmljspreviewrunner.cpp" line="+40"/>
         <source>Failed to preview Qt Quick file</source>
-        <translation>Die Qt-Quick-Datei konnte nicht angezeigt werden</translation>
+        <translation>Die Qt Quick-Datei konnte nicht angezeigt werden</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Could not preview Qt Quick (QML) file. Reason: 
 %1</source>
-        <translation>Die Qt-Quick-Datei (QML) konnte angezeigt werden:
+        <translation>Die Qt Quick-Datei (QML) konnte nicht angezeigt werden:
 %1</translation>
     </message>
 </context>
