@@ -1999,14 +1999,12 @@
         \l{Setting Up Development Environment for Symbian}.
 
         \o Connect the device to the development PC through a USB cable.
-        Qt Creator shows the current connection state
-        of a device in its main toolbar, showing a red cross when no device is
-        connected, or a green check mark when a device is connected.
+        The target selector displays a green check mark when a
+        device is connected.
 
-        \image qtcreator-qt4-symbian-device-notconnected.png
         \image qtcreator-qt4-symbian-device-connected.png
 
-        The tool tip of the target button shows more details about the actual
+        The tool tip of the target selector shows more details about the actual
         device that will be used when you run your application.
 
         \o Start the \gui{App TRK} application on your device.
