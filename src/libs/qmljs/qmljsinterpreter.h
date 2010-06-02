@@ -516,6 +516,7 @@ class QMLJS_EXPORT CppQmlTypesLoader : public QObject
 {
     Q_OBJECT
 public:
+    CppQmlTypesLoader();
     static CppQmlTypesLoader *instance();
 
     QHash<QString, FakeMetaObject *> objects;
@@ -530,6 +531,7 @@ private slots:
 
 private:
     void addObjects(QMap<QString, FakeMetaObject *> &newObjects);
+    QString m_qmldumpPath;
 };
 
 class QMLJS_EXPORT CppQmlTypes

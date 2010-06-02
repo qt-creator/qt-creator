@@ -1933,6 +1933,24 @@ const Value *Function::invoke(const Activation *activation) const
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
 
+CppQmlTypesLoader::CppQmlTypesLoader()
+{
+    QDir qmldumpExecutable(QCoreApplication::applicationDirPath());
+#ifndef Q_OS_WIN
+    m_qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump"));
+#else
+    m_qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump.exe"));
+#endif
+    QFileInfo qmldumpFileInfo(m_qmldumpPath);
+    if (!qmldumpFileInfo.exists()) {
+        qWarning() << "QmlJS::Interpreter::CppQmlTypesLoader: qmldump executable does not exist at" << m_qmldumpPath;
+        m_qmldumpPath.clear();
+    } else if (!qmldumpFileInfo.isFile()) {
+        qWarning() << "QmlJS::Interpreter::CppQmlTypesLoader: " << m_qmldumpPath << " is not a file";
+        m_qmldumpPath.clear();
+    }
+}
+
 CppQmlTypesLoader *CppQmlTypesLoader::instance()
 {
     static CppQmlTypesLoader _instance;
@@ -1966,10 +1984,12 @@ QStringList CppQmlTypesLoader::load(const QFileInfoList &xmlFiles)
 
 void CppQmlTypesLoader::loadPluginTypes(const QString &pluginPath)
 {
+    if (m_qmldumpPath.isEmpty())
+        return;
+
     QProcess *process = new QProcess(this);
     connect(process, SIGNAL(finished(int)), SLOT(processDone(int)));
-    QDir qmldumpExecutable(QCoreApplication::applicationDirPath());
-    process->start(qmldumpExecutable.filePath("qmldump"), QStringList(pluginPath));
+    process->start(m_qmldumpPath, QStringList(pluginPath));
 }
 
 void CppQmlTypesLoader::processDone(int exitCode)
