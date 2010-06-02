@@ -630,7 +630,7 @@ public:
     // Helper functions for indenting/
     bool isElectricCharacter(QChar c) const;
     void indentSelectedText(QChar lastTyped = QChar());
-    int indentText(const Range &range, QChar lastTyped = QChar());
+    void indentText(const Range &range, QChar lastTyped = QChar());
     void shiftRegionLeft(int repeat = 1);
     void shiftRegionRight(int repeat = 1);
 
@@ -3540,20 +3540,17 @@ void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
     setDotCommand("%1==", endLine - beginLine + 1);
 }
 
-int FakeVimHandler::Private::indentText(const Range &range, QChar typedChar)
+void FakeVimHandler::Private::indentText(const Range &range, QChar typedChar)
 {
     int beginLine = lineForPosition(range.beginPos);
     int endLine = lineForPosition(range.endPos);
     if (beginLine > endLine)
         qSwap(beginLine, endLine);
 
-    int amount = 0;
-    // lineForPosition has returned 1-based line numbers
-    emit q->indentRegion(&amount, beginLine - 1, endLine - 1, typedChar);
-    fixMarks(firstPositionInLine(beginLine), amount);
+    // LineForPosition has returned 1-based line numbers.
+    emit q->indentRegion(beginLine - 1, endLine - 1, typedChar);
     if (beginLine != endLine)
         showBlackMessage("MARKS ARE OFF NOW");
-    return amount;
 }
 
 bool FakeVimHandler::Private::isElectricCharacter(QChar c) const
@@ -4432,7 +4429,9 @@ void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown)
 
     if (hasConfig(ConfigSmartIndent)) {
         Range range(m_tc.block().position(), m_tc.block().position());
-        m_justAutoIndented = indentText(range, QLatin1Char('\n'));
+        const int oldSize = m_tc.block().text().size();
+        indentText(range, QLatin1Char('\n'));
+        m_justAutoIndented = m_tc.block().text().size() - oldSize;
     } else {
         QTextBlock block = goingDown ? m_tc.block().previous() : m_tc.block().next();
         QString text = block.text();
@@ -4702,6 +4701,10 @@ QString FakeVimHandler::tabExpand(int n) const
     return d->tabExpand(n);
 }
 
+void FakeVimHandler::fixMarks(int positionAction, int positionChange)
+{
+    d->fixMarks(positionAction, positionChange);
+}
 
 } // namespace Internal
 } // namespace FakeVim

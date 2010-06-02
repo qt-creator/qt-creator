@@ -104,6 +104,7 @@ public slots:
     int physicalIndentation(const QString &line) const;
     int logicalIndentation(const QString &line) const;
     QString tabExpand(int n) const;
+    void fixMarks(int positionAction, int positionChange);
 
 signals:
     void commandBufferChanged(const QString &msg);
@@ -113,7 +114,7 @@ signals:
     void writeAllRequested(QString *error);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void checkForElectricCharacter(bool *result, QChar c);
-    void indentRegion(int *amount, int beginLine, int endLine, QChar typedChar);
+    void indentRegion(int beginLine, int endLine, QChar typedChar);
     void completionRequested();
     void windowCommandRequested(int key);
     void findRequested(bool reverse);

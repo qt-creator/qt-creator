@@ -70,8 +70,6 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
-#include <indenter.h>
-
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QtPlugin>
@@ -508,7 +506,7 @@ private slots:
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void checkForElectricCharacter(bool *result, QChar c);
-    void indentRegion(int *amount, int beginLine, int endLine,  QChar typedChar);
+    void indentRegion(int beginLine, int endLine, QChar typedChar);
     void handleExCommand(bool *handled, const ExCommand &cmd);
 
     void handleDelayedQuitAll(bool forced);
@@ -837,8 +835,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
     connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
         this, SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
-    connect(handler, SIGNAL(indentRegion(int*,int,int,QChar)),
-        this, SLOT(indentRegion(int*,int,int,QChar)));
+    connect(handler, SIGNAL(indentRegion(int,int,QChar)),
+        this, SLOT(indentRegion(int,int,QChar)));
     connect(handler, SIGNAL(checkForElectricCharacter(bool*,QChar)),
         this, SLOT(checkForElectricCharacter(bool*,QChar)));
     connect(handler, SIGNAL(completionRequested()),
@@ -1047,7 +1045,7 @@ void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
     }
 }
 
-void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
+void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
       QChar typedChar)
 {
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
@@ -1058,33 +1056,43 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
     if (!bt)
         return;
 
-    TextEditor::TabSettings tabSettings;
+    const TextEditor::TabSettings oldTabSettings = bt->tabSettings();
+
+    TabSettings tabSettings;
     tabSettings.m_indentSize = theFakeVimSetting(ConfigShiftWidth)->value().toInt();
     tabSettings.m_tabSize = theFakeVimSetting(ConfigTabStop)->value().toInt();
     tabSettings.m_spacesForTabs = theFakeVimSetting(ConfigExpandTab)->value().toBool();
-    typedef SharedTools::Indenter<TextEditor::TextBlockIterator> Indenter;
-    Indenter &indenter = Indenter::instance();
-    indenter.setIndentSize(tabSettings.m_indentSize);
-    indenter.setTabSize(tabSettings.m_tabSize);
+    bt->setTabSettings(tabSettings);
 
-    const QTextDocument *doc = bt->document();
-    const TextEditor::TextBlockIterator docStart(doc->begin());
-    QTextBlock cur = doc->findBlockByNumber(beginLine);
+    QTextDocument *doc = bt->document();
+    QTextBlock startBlock = doc->findBlockByNumber(beginLine);
+
+    // Record line lenghts for mark adjustments
+    QVector<int> lineLengths(endLine - beginLine + 1);
+    QTextBlock block = startBlock;
+
     for (int i = beginLine; i <= endLine; ++i) {
-        if (typedChar == 0 && cur.text().simplified().isEmpty()) {
+        lineLengths[i - beginLine] = block.text().length();
+        if (typedChar == 0 && block.text().simplified().isEmpty()) {
             // clear empty lines
-            *amount = 0;
-            QTextCursor cursor(cur);
+            QTextCursor cursor(block);
             while (!cursor.atBlockEnd())
                 cursor.deleteChar();
         } else {
-            const TextEditor::TextBlockIterator current(cur);
-            const TextEditor::TextBlockIterator next(cur.next());
-            *amount = indenter.indentForBottomLine(current, docStart, next, typedChar);
-            tabSettings.indentLine(cur, *amount);
+            bt->indentBlock(doc, block, typedChar);
         }
-        cur = cur.next();
+        block = block.next();
     }
+
+    // Adjust marks.
+    block = startBlock;
+    for (int i = beginLine; i <= endLine; ++i) {
+        const int amount = block.text().length() - lineLengths[i - beginLine];
+        handler->fixMarks(block.position(), amount);
+        block = block.next();
+    }
+
+    bt->setTabSettings(oldTabSettings);
 }
 
 void FakeVimPluginPrivate::quitFakeVim()
