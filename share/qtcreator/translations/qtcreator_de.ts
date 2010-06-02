@@ -21578,7 +21578,7 @@ Haben Sie Qemu gestartet?</translation>
         <location line="+1"/>
         <source>Creates a Qt application optimized for mobile devices with a Qt Designer-based main window.
 
-Preselects Qt for Simulator and mobile targets if available</source>
+Preselects Qt for Simulator and mobile targets if available.</source>
         <translation>Erstellt eine Qt-Anwendung für mobile Geräte mit einem Qt-Designer-basierten Hauptfenster.
 
 Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar sind.</translation>
