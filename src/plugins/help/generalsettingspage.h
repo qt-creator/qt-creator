@@ -76,8 +76,6 @@ private:
     QFont m_font;
     QFontDatabase m_fontDatabase;
 
-    int m_helpOption;
-    int m_startOption;
     QString m_homePage;
 
     QString m_searchKeywords;

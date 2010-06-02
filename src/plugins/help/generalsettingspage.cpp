@@ -108,18 +108,18 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     }
     m_ui.homePageLineEdit->setText(m_homePage);
 
-    m_startOption = engine.customValue(QLatin1String("StartOption"), 2).toInt();
-    m_ui.helpStartComboBox->setCurrentIndex(m_startOption);
+    int startOption = engine.customValue(QLatin1String("StartOption"), 2).toInt();
+    m_ui.helpStartComboBox->setCurrentIndex(startOption);
 
-    m_helpOption = engine.customValue(QLatin1String("ContextHelpOption"), 0).toInt();
-    m_ui.contextHelpComboBox->setCurrentIndex(m_helpOption);
+    int helpOption = engine.customValue(QLatin1String("ContextHelpOption"), 0).toInt();
+    m_ui.contextHelpComboBox->setCurrentIndex(helpOption);
 
     connect(m_ui.currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
     connect(m_ui.blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
     connect(m_ui.defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
 
     HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
-    if (viewer == 0)
+    if (!viewer)
         m_ui.currentPageButton->setEnabled(false);
 
     m_ui.errorLabel->setVisible(false);
