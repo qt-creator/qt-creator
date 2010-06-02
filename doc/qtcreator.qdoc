@@ -1830,17 +1830,7 @@
            \gui{Qt Versions}.
         \o Qt Creator automatically sets the correct environment variables for
            compilation. Select the internal version number of the installed
-           Microsoft Visual C++ tool chains using the \gui MSVC drop-down
-           box:
-           \list
-               \o \bold 7.1 for Visual Studio 2003
-               \o \bold 8.0 for Visual Studio 2005
-               \o \bold 9.0 for Visual Studio 2008
-           \endlist
-
-           \note If you are using the
-           \bold{Windows SDK for Windows Server 2008}, Qt Creator identifies
-           it as version 9.0.
+           Microsoft Visual C++ tool chain in the \gui Toolchain list.
 
            \image qtcreator-qt4-qtversions-win-msvc.png
     \endlist
