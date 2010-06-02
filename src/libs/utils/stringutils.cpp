@@ -92,8 +92,6 @@ QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
         lastSeparatorPos = common.lastIndexOf(QLatin1Char('\\'));
     if (lastSeparatorPos == -1)
         return QString();
-    if (lastSeparatorPos == -1)
-        return QString();
 #ifdef Q_OS_UNIX
     if (lastSeparatorPos == 0) // Unix: "/a", "/b" -> '/'
         lastSeparatorPos = 1;
