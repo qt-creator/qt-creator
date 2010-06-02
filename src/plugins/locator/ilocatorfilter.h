@@ -43,14 +43,18 @@ class ILocatorFilter;
 
 struct FilterEntry
 {
-    FilterEntry() {}
+    FilterEntry()
+        : filter(0)
+        , resolveFileIcon(false)
+    {}
+
     FilterEntry(ILocatorFilter *fromFilter, const QString &name, const QVariant &data,
                 const QIcon &icon = QIcon())
-    : filter(fromFilter)
-    , displayName(name)
-    , internalData(data)
-    , displayIcon(icon)
-    , resolveFileIcon(false)
+        : filter(fromFilter)
+        , displayName(name)
+        , internalData(data)
+        , displayIcon(icon)
+        , resolveFileIcon(false)
     {}
 
     bool operator==(const FilterEntry &other) const {
