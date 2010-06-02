@@ -941,7 +941,7 @@ void CppCodeCompletion::globalCompletion(Scope *currentScope)
             if (symbols.first()->isNamespace())
                 completeNamespace(currentBinding);
             else
-                completeClass(currentBinding, false);
+                completeClass(currentBinding);
         }
     }
 
@@ -1439,6 +1439,8 @@ void CppCodeCompletion::completeClass(ClassOrNamespace *b, bool staticLookup)
                 continue;
 
             scopesVisited.insert(scope);
+
+            addCompletionItem(scope->owner()); // add a completion item for the injected class name.
 
             for (Scope::iterator it = scope->firstSymbol(); it != scope->lastSymbol(); ++it) {
                 Symbol *member = *it;
