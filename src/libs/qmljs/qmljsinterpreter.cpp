@@ -2049,7 +2049,7 @@ void CppQmlTypes::reload(Engine *interpreter)
     }
 }
 
-QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, ComponentVersion version) const
+QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, QmlJS::ComponentVersion version) const
 {
     QMap<QString, QmlObjectValue *> objectValuesByName;
 
