@@ -60,7 +60,8 @@ void MaemoToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         .arg(maddeRoot())));
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
         .arg(targetRoot())));
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+
+    // put this into environment to make pkg-config stuff work
     env.prependOrSet(QLatin1String("SYSROOT_DIR"), sysrootRoot());
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madbin")
         .arg(maddeRoot())));
@@ -68,7 +69,6 @@ void MaemoToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         .arg(maddeRoot())));
     env.prependOrSet(QLatin1String("PERL5LIB"),
         QDir::toNativeSeparators(QString("%1/madlib/perl5").arg(maddeRoot())));
-#endif
 }
 
 QString MaemoToolChain::makeCommand() const
