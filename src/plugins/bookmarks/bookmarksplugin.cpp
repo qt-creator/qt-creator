@@ -55,7 +55,8 @@ using namespace TextEditor;
 BookmarksPlugin *BookmarksPlugin::m_instance = 0;
 
 BookmarksPlugin::BookmarksPlugin()
-    : m_bookmarkManager(0)
+    : m_bookmarkManager(0),
+      m_bookmarkMarginActionLineNumber(0)
 {
     m_instance = this;
 }
