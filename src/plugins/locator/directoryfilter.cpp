@@ -43,7 +43,8 @@ using namespace Locator::Internal;
 DirectoryFilter::DirectoryFilter()
   : m_name(tr("Generic Directory Filter")),
     m_filters(QStringList() << QLatin1String("*.h") << QLatin1String("*.cpp")
-                            << QLatin1String("*.ui") << QLatin1String("*.qrc"))
+                            << QLatin1String("*.ui") << QLatin1String("*.qrc")),
+    m_dialog(0)
 {
     setIncludedByDefault(true);
 }
