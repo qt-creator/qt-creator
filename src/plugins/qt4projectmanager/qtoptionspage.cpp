@@ -83,6 +83,7 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
 ///
 
 QtOptionsPage::QtOptionsPage()
+    : m_widget(0)
 {
 }
 
