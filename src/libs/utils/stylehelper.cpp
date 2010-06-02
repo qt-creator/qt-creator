@@ -225,10 +225,7 @@ QRect &rect, bool lightColored)
     QLinearGradient shadowGradient(spanRect.topLeft(), spanRect.topRight());
         shadowGradient.setColorAt(0, QColor(0, 0, 0, 30));
     QColor lighterHighlight;
-    if (!lightColored)
-        lighterHighlight = highlight.lighter(130);
-    else
-        lighterHighlight = highlight.lighter(90);
+    lighterHighlight = highlight.lighter(130);
     lighterHighlight.setAlpha(100);
     shadowGradient.setColorAt(0.7, lighterHighlight);
         shadowGradient.setColorAt(1, QColor(0, 0, 0, 40));
