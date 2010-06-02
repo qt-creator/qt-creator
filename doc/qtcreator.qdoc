@@ -18,8 +18,12 @@
     and developers to create applications for multiple desktop and mobile device
     platforms.
 
-    For application designers, Qt Creator provides two integrated
-    visual editors, \QD and \QMLD, that you can use to design and develop
+    For application designers, Qt Creator provides an integrated
+    visual editor, \QD,
+    \if defined(qtquick)
+    and \QMLD
+    \endif
+    that you can use to design and develop
     application user interfaces.
 
     For application developers,
@@ -49,7 +53,9 @@
                \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
                \o \l{Creating a Mobile Application with Nokia Qt SDK}
+               \if defined(qtquick)
                \o \l{Creating a Qt Quick Application}
+               \endif
            \endlist
        \o \l{Using the Editor}
             \list
@@ -79,7 +85,9 @@
                 \o \l{Specifying Editor Settings}
                 \o \l{Specifying Dependencies}
             \endlist
+       \if defined(qtquick)
        \o \l{Developing Qt Quick Applications}
+       \endif
        \o \l{Optimizing Applications for Mobile Devices}
        \o \l{Using the Maemo Emulator}
        \o \l{Debugging}
@@ -91,10 +99,14 @@
                 \o \l{Setting Up Debugger}
                 \o \l{Using Debugging Helpers}
             \endlist
+            \if defined(qtquick)
             \o \l{Debugging Qt Quick Applications}
+            \endif
+            \if defined(qtquick)
                 \list
                     \o \l{Using the QML Inspector}
                 \endlist
+            \endif
             \endlist
        \o \l{Using Version Control Systems}
        \o \l{Adding Qt Designer Plugins}
@@ -121,7 +133,11 @@
 
   \section1 Designing User Interfaces
 
+  \if defined(qtquick)
+
   Qt Creator provides two integrated visual editors, \QD and \QMLD.
+
+  \endif
 
   \QD is a tool for designing and building graphical user interfaces (GUIs) from
   Qt widgets. You can compose and customize your widgets or dialogs and test
@@ -132,6 +148,8 @@
   graphical elements. All properties set in \QD can be changed dynamically within the code.
   Furthermore, features like widget promotion and custom plugins allow you to use your
   own widgets with \QD.
+
+    \if defined(qtquick)
 
   UIs that use widgets are clearly structured and enforce a platform look and feel,
   which makes them useful for traditional applications. However, they are static, and
@@ -153,6 +171,8 @@
   You can edit the code in the code editor to add transitions from one state to another,
   and interaction to specify user actions that change the states. You
   can use Qt or JavaScript to implement the application logic.
+
+  \endif
 
   \section1 Coding Applications
 
@@ -190,8 +210,12 @@
       interface (GUI) application, Qt Creator generates an empty .ui file
       that you can modify with the integrated \QD.
 
+      \if defined(qtquick)
+
       If you choose to create a Qt Quick application, Qt Creator generates a .qml file
       that you can modify with the \QMLD visual editor and the code editor.
+
+      \endif
 */
 
 /*!
@@ -315,8 +339,13 @@
     \list
         \o \gui Welcome mode for opening recent sessions and projects.
         \o \gui{\l{Using the Editor}{Edit}} mode for editing project and source files.
+        \if defined(qtquick)
         \o \gui{\l{Developing Application UI}{Design}} mode for designing and developing
            application user interfaces.
+        \else
+        \o \gui{\l{Using Qt Designer}{Design}} mode for designing and developing
+           application user interfaces.
+        \endif
         \o \gui{\l{Debugging}{Debug}} mode for inspecting the state of your program while
            debugging.
         \o \gui{\l{Managing Projects}{Projects}} mode for configuring project building and
@@ -528,6 +557,8 @@
     \l{Searching With the Locator}{navigation} shortcuts are available to help
     speed up the process of developing your application.
 
+    \if defined(qtquick)
+
     \section1 Developing Application UI
 
     To help you design the user interface of your application, two visual
@@ -539,6 +570,8 @@
     \endlist
 
     The integration includes project management and code completion.
+
+    \endif
 
     \section1 Using Qt Designer
 
@@ -576,6 +609,8 @@
 
     For more information on \QD, see
     \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
+
+    \if defined(qtquick)
 
     \section1 Using Qt Quick Designer
 
@@ -617,6 +652,8 @@
     the base state.
 
     \endlist
+
+    \endif
 
 */
 
@@ -738,10 +775,16 @@
 
     Qt Creator understands the code as code, not just as plain text. This
     allows it to help you to write well formatted code and to anticipate
-    what you are going to write and complete the code. The code completion
-    differs somewhat depending on whether you write Qt code or QML code.
+    what you are going to write and complete the code.
+    \if defined(qtquick)
+    The code completion differs somewhat depending on whether you write Qt code or QML code.
+    \endif
+
+    \if defined(qtquick)
 
     \section2 Completing Qt Code
+
+    \endif
 
     As you write code, Qt Creator provides a list of context-sensitive
     suggestions to the statement currently under your cursor.
@@ -818,6 +861,8 @@
             \i  A namespace
     \endtable
 
+    \if defined(qtquick)
+
     \section2 Completing QML Code
 
     As you write QML code, Qt Creator suggests properties, IDs, and code
@@ -827,6 +872,8 @@
     move between the fields and specify values for them.
 
     \image qmldesigner-code-completion.png "Completing QML code"
+
+    \endif
 
     \section1 Using Bookmarks
 
@@ -1256,8 +1303,12 @@
 
     \section1 Renaming Symbols
 
+    \if defined(qtquick)
+
     The functions used to rename symbols depends on whether you are
     writing C++ or QML code. For QML, you can only rename IDs.
+
+    \endif
 
     To rename a specific symbol in a Qt project:
     \list 1
@@ -1283,6 +1334,8 @@
     The instances of the symbol are highlighted in code and you can edit the
     symbol. All instances of the local symbol are changed as you type.
 
+    \if defined(qtquick)
+
     To rename an ID in a Qt Quick project:
 
     \list 1
@@ -1293,6 +1346,8 @@
         \o In the \gui {Rename id} field, enter the new ID.
 
    \endlist
+
+   \endif
 */
 
 /*!
@@ -1400,7 +1455,11 @@
     \title Creating a Project
 
     You use wizards to create and import several types of projects and files, such
-    as Qt GUI or console applications and Qt Quick applications. You can also use
+    as Qt GUI or console applications.
+    \if defined(qtquick)
+    and Qt Quick applications
+    \endif
+    You can also use
     wizards to add individual files to your projects. For example, you can create
     the following types of files:
 
@@ -1409,8 +1468,12 @@
         \o Qt resource files, which allow you to store binary files in the
         application executable
 
+        \if defined(qtquick)
+
         \o \QD forms and Qt QML files, which specify parts of application user
         interfaces
+
+        \endif
 
         \o C++ class, source, or header files
 
@@ -2266,8 +2329,11 @@
 
     Qt Creator automatically creates run configurations for your project.
     To view and modify the settings, select \gui {Projects > Run}.
+
+    \if defined(qtquick)
     The settings to specify depend on the type of the project: qmake project
     or Qt Quick project.
+    \endif
 
     Click \gui Add to add run settings for a project and \gui Remove to remove
     the current settings.
@@ -2327,6 +2393,8 @@
 
     \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
+    \if defined(qtquick)
+
     \section1 Specifying Run Settings for Qt Quick Projects
 
     Select run settings in the \gui {Run configuration} field. The settings
@@ -2351,6 +2419,8 @@
     \endlist
 
     \image qmldesigner-run-settings.png "Run settings for Qt Quick projects"
+
+    \endif
 
 */
 
@@ -2407,15 +2477,20 @@
 
     \title Getting Started
 
-    This section contains examples that illustrate how to use Qt Creator and the
-    integrated design tools, \QD and \QMLD, to create, build, and run simple
+    This section contains examples that illustrate how to use Qt Creator
+    \if defined(qtquick)
+    and the integrated design tools, \QD and \QMLD,
+    \endif
+    to create, build, and run simple
     applications:
 
     \list
         \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
         \o \l{Creating a Mobile Application with Nokia Qt SDK}
+        \if defined(qtquick)
         \o \l{Creating a Qt Quick Application}
+        \endif
     \endlist
 
 */
@@ -2726,6 +2801,7 @@
 
 
 /*!
+    \if defined(qtquick)
     \contentspage index.html
     \previouspage creator-mobile-example.html
     \page creator-qml-application.html
@@ -2914,6 +2990,7 @@
     \note In the \gui {QML Viewer}, select \gui {Skin} and select a mobile device
     type to view the application as on a mobile device.
 
+    \endif
 */
 
 
@@ -3745,7 +3822,11 @@
     \title Debugging
 
     You can use the Qt Creator \gui Debug mode to inspect the state of your
-    Qt and Qt Quick projects while debugging.
+    Qt
+    \if defined(qtquick)
+    and Qt Quick
+    \endif
+    projects while debugging.
 
     Qt Creator does not include a debugger. It provides a debugger plugin that acts
     as an interface between the Qt Creator core and external native debuggers
@@ -3754,6 +3835,8 @@
     debug the C++ language.
 
     \image qtcreator-debugger-views.png "Native debugger views"
+
+    \if defined(qtquick)
 
     Qt Creator includes a QML inspector plugin that you can use to debug QML.
 
@@ -3777,9 +3860,12 @@
     \gui QML. You can also press \key {Ctrl+L, 1} to switch to the native debugger and
     \key {Ctrl+L, 2} to switch to the QML inspector.
 
+    \endif
+
 */
 
 /*!
+    \if defined(qtquick)
     \contentspage index.html
     \previouspage creator-debugging-helpers.html
     \page creator-debugging-qml.html
@@ -3831,11 +3917,13 @@
     You must use the native debugger to set breakpoints to C++ code and to examine
     the state of the interrupted Qt application. When a C++ program is interrupted,
     for example when a breakpoint is hit, you cannot use the QML inspector.
+    \endif
 
 */
 
 
 /*!
+    \if defined(qtquick)
     \contentspage index.html
     \previouspage creator-debugging-qml.html
     \page creator-qml-inspector.html
@@ -3959,6 +4047,7 @@
     by another application or another instance of \QQV that was not shut
     down properly. You can specify any free port number in the registered port range
     (1024-49151).
+    \endif
 
 */
 
@@ -7108,8 +7197,12 @@
 
         \o Debugging Helper does not work while performing On-Device Debugging.
 
+        \if defined(qtquick)
+
         \o QML Preview (Run Project) only works if built against Qt with
            Declarative UI.
+
+        \endif
 
         \o Setting breakpoints in code that is compiled into the binary more
            than once does not work.
