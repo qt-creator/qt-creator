@@ -393,7 +393,6 @@ public:
 
     void indentInsertedText(const QTextCursor &tc);
 
-protected:
     // Returns the text to complete at the cursor position, or an empty string
     virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
     // Handles backspace. When returning true, backspace processing is stopped
@@ -417,6 +416,7 @@ protected:
     // Returns the text that needs to be inserted
     virtual QString insertParagraphSeparator(const QTextCursor &tc) const;
 
+protected:
     static void countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen);
 
     static void countBrackets(QTextCursor cursor, int from, int end, QChar open, QChar close,
