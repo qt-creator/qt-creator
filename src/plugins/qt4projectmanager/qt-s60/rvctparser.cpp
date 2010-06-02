@@ -36,7 +36,8 @@ using namespace ProjectExplorer::Constants;
 using namespace Qt4ProjectManager;
 
 RvctParser::RvctParser() :
-    m_additionalInfo(false)
+    m_additionalInfo(false),
+    m_lastLine(0)
 {
     // Start of a error or warning:
     m_warningOrError.setPattern("^\"([^\\(\\)]+[^\\d])\", line (\\d+):(\\s(Warning|Error):)\\s(.+)$");
