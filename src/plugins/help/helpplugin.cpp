@@ -852,8 +852,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
                 // local help not installed, resort to external web help
                 QString urlPrefix = QLatin1String("http://doc.trolltech.com/");
                 if (url.authority() == QLatin1String("com.nokia.qtcreator")) {
-                    urlPrefix.append(QString::fromLatin1("qtcreator-%1.%2")
-                        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
+                    urlPrefix.append(QString::fromLatin1("qtcreator"));
                 } else {
                     urlPrefix.append(QLatin1String("latest"));
                 }

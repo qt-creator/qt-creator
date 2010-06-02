@@ -46,7 +46,9 @@
        \o \l{Quick Tour}
        \o \l{Getting Started}
            \list
+               \o \l{Building and Running an Example Application}
                \o \l{Creating a Qt C++ Application}
+               \o \l{Creating a Mobile Application with Nokia Qt SDK}
                \o \l{Creating a Qt Quick Application}
            \endlist
        \o \l{Using the Editor}
@@ -138,7 +140,7 @@
   phones, media players, set-top boxes, and netbooks.
 
   \QMLD allows you to easily develop animations by using a declarative programming
-  language called \l {http://qt.nokia.com/doc/4.7-snapshot/declarativeui.html}{QML}.
+  language called \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}{QML}.
   In QML, a user interface is specified as a tree of objects with properties.
 
   You use a visual editor to create items, screens, and applications, as well as define changes
@@ -573,7 +575,7 @@
     \endlist
 
     For more information on \QD, see
-    \l{http://doc.trolltech.com/designer-manual.html}{Qt Designer Manual}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
 
     \section1 Using Qt Quick Designer
 
@@ -1846,7 +1848,7 @@
     To add an external library:
     \list 1
         \o Open your project file (.pro) using the \gui Projects pane.
-        \o Follow the instructions at \l{http://doc.trolltech.com/latest/qmake-project-files.html#declaring-other-libraries}
+        \o Follow the instructions at \l{http://doc.qt.nokia.com/4.7-snapshot/qmake-project-files.html#declaring-other-libraries}
            {Declaring other Libraries}.
     \endlist
 
@@ -1875,7 +1877,7 @@
      \section1 Setting Up a Project
 
     To view and modify the settings for currently open projects, switch to the
-    \gui Projects mode by pressing \key Ctrl+4.
+    \gui Projects mode by pressing \key Ctrl+5.
 
     \image qtcreator-projectpane.png
 
@@ -1944,9 +1946,7 @@
 
         \o Build and run the application for \l{Using the Maemo Emulator}{Maemo Emulator}.
 
-        \note The Maemo emulator support requires the Nokia Nokia N900 PR1.2 update.
-
-        \o If no problems are found, build and run the application for a device:
+        \o Alternatively, you can build and run the application for a device:
 
         \list 1
 
@@ -1971,6 +1971,22 @@
         output is visible in the Qt Creator \gui {Application Output} view.
 
         Debugging also works transparently.
+
+        \section2 Creating Installation Packages
+
+        When you build the application for the \gui{Maemo} target, Qt
+        Creator automatically generates a debian installation package
+        in the project folder. You can deliver the installation package to
+        users for installation on Maemo devices.
+
+        You can add other files to the installation package in the
+        \gui {Create package} step in the build configuration. Add files
+        to the \gui {Package contents} field. In \gui {Local File Path},
+        specify the location of the file on the development PC. In
+        \gui {Remote File Path}, specify the folder to install the file on
+        the device.
+
+        \image qtcreator-maemo-deb-package.png "Create installation package"
 
 
     \section1 Building for Symbian
@@ -1999,14 +2015,12 @@
         \l{Setting Up Development Environment for Symbian}.
 
         \o Connect the device to the development PC through a USB cable.
-        Qt Creator shows the current connection state
-        of a device in its main toolbar, showing a red cross when no device is
-        connected, or a green check mark when a device is connected.
+        The target selector displays a green check mark when a
+        device is connected.
 
-        \image qtcreator-qt4-symbian-device-notconnected.png
         \image qtcreator-qt4-symbian-device-connected.png
 
-        The tool tip of the target button shows more details about the actual
+        The tool tip of the target selector shows more details about the actual
         device that will be used when you run your application.
 
         \o Start the \gui{App TRK} application on your device.
@@ -2262,10 +2276,57 @@
     \section1 Specifying Run Settings for qmake Projects
 
     The run configurations for qmake projects derive their executable from the parsed .pro
-    files. You can also create custom executable run configurations where you
-    can set the executable to be run.
+    files.
+
+    \section2 Specifying Run Settings for Desktop Targets
+
+    You can specify command line arguments to be passed to the executable
+    and the working directory to use. The working directory defaults to
+    the directory of the build result.
+
+    For console applications, check the \gui{Run in Terminal} check box.
+    If you need to run with special environment variables set up, you
+    also do it in the run configuration settings.
 
     \image qtcreator-pprunsettings.png
+
+    You can also create custom executable run configurations where you
+    can set the executable to be run. For more information, see
+    \l{Specifying a Custom Executable to Run}.
+
+    \section2 Specifying Run Settings for Symbian Devices
+
+    Qt Creator automatically detects Symbian devices that are connected to
+    the development PC with an USB cable.
+    If only one device is detected, the application is deployed
+    and run on it. If multiple devices are connected to the PC,
+    make sure that the correct device is selected in the
+    \gui {Symbian Device} run settings for your project.
+
+    You can also pass command line arguments to your application on the device.
+    Press the \gui{Device info button} to get more information about the selected
+    device, such as the CPU type and the running TRK version.
+
+    \image qtcreator-symbian-run-settings.png "Run settings for Symbian devices"
+
+    \section2 Specifying Run Settings for Maemo Devices
+
+    To run an application on a Maemo device, create and select
+    a device configuration in the Maemo run settings for your project.
+    You can also pass command line arguments to your application.
+
+    \image qtcreator-screenshot-run-settings.png "Run settings for Maemo devices"
+
+    \section1 Specifying a Custom Executable to Run
+
+    If you use cmake or the generic project type in Qt Creator, or want
+    to run a custom desktop executable, create a \gui {Custom Executable}
+    run configuration for your project.
+
+    Specify the executable to run, command line arguments, working directory,
+    and environment variables to use.
+
+    \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
     \section1 Specifying Run Settings for Qt Quick Projects
 
@@ -2291,11 +2352,6 @@
     \endlist
 
     \image qmldesigner-run-settings.png "Run settings for Qt Quick projects"
-
-    To set the executable to run, select \gui {Custom Executable} in the
-    \gui {Run configuration} field.
-
-    \image qmldesigner-run-custom-exe.png "Run settings for custom executables"
 
 */
 
@@ -2348,15 +2404,18 @@
     \contentspage index.html
     \previouspage creator-quick-tour.html
     \page creator-getting-started.html
-    \nextpage creator-writing-program.html
+    \nextpage creator-build-example-application.html
 
     \title Getting Started
 
     This section contains examples that illustrate how to use Qt Creator and the
-    integrated design tools, \QD and \QMLD, to create simple applications:
+    integrated design tools, \QD and \QMLD, to create, build, and run simple
+    applications:
 
     \list
+        \o \l{Building and Running an Example Application}
         \o \l{Creating a Qt C++ Application}
+        \o \l{Creating a Mobile Application with Nokia Qt SDK}
         \o \l{Creating a Qt Quick Application}
     \endlist
 
@@ -2366,13 +2425,321 @@
 /*!
     \contentspage index.html
     \previouspage creator-writing-program.html
+    \page creator-mobile-example.html
+    \nextpage creator-qml-application.html
+
+    \title Creating a Mobile Application with Nokia Qt SDK
+
+    \note To complete this tutorial, you must install Nokia Qt SDK.
+    The installation program installs and configures the necessary tool chains
+    for mobile application development.
+
+    This tutorial describes how to use Qt Creator to create a small Qt
+    application, Battery Indicator, that uses the System Information
+    Mobility API to fetch battery information from the device.
+
+    \image qtcreator-batteryindicator-screenshot.png
+
+    \section1 Creating the Battery Indicator Project
+
+    \note Create the project with the \gui{Help} mode active so that you can follow
+    these instructions while you work.
+
+    \list 1
+
+        \o Select \gui{File > New File or Project > Qt Application Project > Mobile Qt
+        Application > Choose}.
+
+        \image qtcreator-new-mobile-project.png "New File or Project dialog"
+
+        The \gui{Introduction and Project Location} dialog opens.
+
+        \image qtcreator-mobile-intro-and-location.png "Introduction and Project Location dialog"
+
+        \o In the \gui{Name} field, type \bold {BatteryIndicator}.
+
+        \o In the \gui {Create in} field, enter the path for the project files. For example,
+        \c {C:\Qt\examples}, and then click \gui{Next}.
+
+        The \gui{Select Required Qt Versions} dialog opens.
+
+        \image qtcreator-mobile-project-qt-versions.png "Select Required Qt Versions dialog"
+
+        \o Select \gui Maemo, \gui {Qt Simulator}, and \gui {Symbian Device} targets,
+        and click \gui{Next}.
+
+        \note Targets are listed if you installed the appropriate development
+        environment, for example, as part of the Nokia Qt SDK.
+
+        The \gui{Class Information} dialog opens.
+
+        \image qtcreator-mobile-class-info.png "Class Information dialog"
+
+        \o In the \gui{Class Name} field, type \bold {BatteryIndicator} as the class name.
+
+        \o In the \gui{Base Class} list, select \bold {QDialog} as the base class type.
+
+        \note The \gui{Header File}, \gui{Source File} and \gui{Form File} fields are
+        automatically updated to match the name of the class.
+
+        \o Click \gui{Next}.
+
+        The \gui{Project Management} dialog opens.
+
+        \image qtcreator-mobile-project-summary.png "Project Management dialog"
+
+        \o Review the project settings, and click \gui{Finish} to create the project.
+
+    \endlist
+
+    The BatteryIndicator project now contains the following files:
+
+    \list
+
+        \o batteryindicator.h
+        \o batteryindicator.cpp
+        \o main.cpp
+        \o batteryindicator.ui
+        \o BatteryIndicator.pro
+
+    \endlist
+
+    \image qtcreator-mobile-project-contents.png "Project contents"
+
+    The files come with the necessary boiler plate code that you must
+    modify, as described in the following sections. You do not need
+    to change the main.cpp file.
+
+    \section1 Declaring the Qt Mobility API
+
+    The \gui New wizard automatically adds information to the .pro file
+    that you need when you use the Qt Mobility APIs or develop applications
+    for Symbian devices. You must modify the information to declare the
+    Qt Mobility APIs that you use.
+
+    This example uses the System Info API, so you must declare it, as
+    illustrated by the following code snippet:
+
+    \code
+
+    CONFIG += mobility
+    MOBILITY = systeminfo
+
+    \endcode
+
+    Each Mobility API has its corresponding value that you have to add
+    as a value of MOBILITY to use the API. For a list of the APIs and the
+    corresponding values that you can assign to MOBILITY, see the
+    \l {http://doc.qt.nokia.com/qtmobility-1.0/quickstart.html}{Quickstart Example}.
+
+    The following code snippet shows information that is needed for
+    applications developed for Symbian device. Qt Creator generated
+    the UID for testing the application on a device. You only need
+    to change the UID and capabilities if you deliver the application
+    for public use and need to have it Symbian Signed.
+
+    \code
+
+    symbian {
+        TARGET.UID3 = 0xecbd72d7
+        # TARGET.CAPABILITY +=
+        TARGET.EPOCSTACKSIZE = 0x14000
+        TARGET.EPOCHEAPSIZE = 0x020000 0x800000
+    }
+
+    \endcode
+
+    \section1 Designing the User Interface
+
+    \list 1
+
+        \o In the \gui{Editor} mode, double-click the batteryindicator.ui
+        file in the \gui{Projects} view to launch the integrated \QD.
+
+        \o Drag and drop a \gui{Progress Bar} (\l{http://doc.qt.nokia.com/4.7-snapshot/qprogressbar.html}{QProgressBar})
+        widget to the form.
+
+        \image qtcreator-mobile-project-widgets.png "Adding widgets to the UI"
+
+        \o In the \gui Properties pane, change the \gui objectName to
+        \bold batteryLevelBar.
+
+    \endlist
+
+    \section1 Completing the Header File
+
+    The batteryindicator.h file contains some of the necessary #includes, a
+    constructor, a destructor, and the \c{Ui} object. You must include
+    the System Info header file, add a shortcut to the mobility name
+    space, and add a private function to update the battery level value in
+    the indicator when the battery power level changes.
+
+    \list 1
+
+        \o In the \gui{Projects} view, double-click the \c{batteryindicator.h} file
+        to open it for editing.
+
+        \o Include the System Info header file, as illustrated by the following
+        code snippet:
+
+        \snippet examples/batteryindicator/batteryindicator.h 1
+
+        \o Add a shortcut to the mobility name space, as illustrated by the
+        following code snippet:
+
+        \snippet examples/batteryindicator/batteryindicator.h 2
+
+        \o Declare a private function in the \c{private} section, after the
+        \c{Ui::BatteryIndicator} function, as illustrated by the following code
+        snippet:
+
+        \snippet examples/batteryindicator/batteryindicator.h 3
+
+    \endlist
+
+    \section1 Completing the Source File
+
+    Now that the header file is complete, move on to the source file,
+    batteryindicator.cpp.
+
+    \list 1
+
+        \o In the \gui{Projects} view, double-click the batteryindicator.cpp file
+        to open it for editing.
+
+        \o Create a QSystemDeviceInfo object and set its value. Then connect the signal
+        that indicates that battery level changed to the \c setValue
+        slot of the progress bar. This is illustrated by the following code snippet:
+
+        \snippet examples/batteryindicator/batteryindicator.cpp 1
+
+        \o Use the constructor to set initial values and make sure that the
+         created object is in a defined state, as illustrated by the following
+         code snippet:
+
+         \snippet examples/batteryindicator/batteryindicator.cpp 2
+
+    \endlist
+
+    \section1 Compiling and Running Your Program
+
+    Now that you have all the necessary code, select \gui {Qt Simulator}
+    as the target and click the
+    \inlineimage qtcreator-run.png
+    button to build your program and run it in the Qt Simulator.
+
+    In Qt Simulator, run the runOutOfBattery.qs example script
+    to see the value change in the Battery Indicator application.
+    Select \gui {Scripting > examples > runOutOfBattery.qs > Run}.
+
+    \image qtcreator-mobile-simulated.png "Mobile example in Qt Simulator"
+
+    \section1 Testing on a Symbian Device
+
+    You also need to test the application on real devices. Before you can
+    start testing on Symbian devices, you must connect them to the development
+    PC by using an USB cable and install the necessary software on them.
+
+    \list 1
+
+        \o Install Qt 4.6.2 libraries, the Qt mobile libraries, and the TRK
+        debugging application on the device. For more information,
+        see \l{Setting Up Development Environment for Symbian}.
+
+        \o Start TRK on the device.
+
+        \o Click the \gui {Target Selector} and select \gui {Symbian Device}.
+
+        \o Click \gui Run to build the application for the Symbian device.
+
+    \endlist
+
+    \section1 Testing on the Maemo Emulator
+
+    The Maemo emulator emulates the Nokia N900 device environment. You can test
+    applications in conditions practically identical to running the application
+    on a Nokia N900 device with the software update release 1.2 (V10.2010.19-1).
+
+    For more information, see \l{Using the Maemo Emulator}.
+
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-getting-started.html
+    \page creator-build-example-application.html
+    \nextpage creator-writing-program.html
+
+    \title Building and Running an Example Application
+
+    You can test that your installation is successful by opening an existing
+    example application project.
+
+    \list 1
+
+        \o On the \gui Welcome page, select \gui {Choose an example... >
+        Animation Framework > Animated Tiles}.
+
+        \image qtcreator-gs-build-example-open.png "Selecting an example"
+
+        \o Select targets for the project. Select at least Qt Simulator
+        and one of the mobile targets, Maemo or Symbian Device, depending on
+        the device you develop for.
+
+        \image qtcreator-gs-build-example-targets.png "Selecting targets"
+
+        \note You can add targets later in the \gui Projects mode.
+
+        \o To test the application in Qt Simulator, click the \gui {Target
+        Selector} and select \gui {Qt Simulator}.
+
+        \image {qtcreator-gs-build-example-select-qs.png} "Selecting Qt Simulator as target"
+
+        \o Click
+        \inlineimage{qtcreator-run.png}
+        to build the application for Qt Simulator.
+
+        \o To see the compilation progress, press \key{Alt+4} to open the
+        \gui Compile Output pane.
+
+        The gui Build progress bar on the toolbar turns green when the project
+        is successfully built. The application opens in Qt Simulator.
+
+        \image {qt-simulator.png} "Qt Simulator"
+
+        \o Change the settings in the
+        \gui View pane, for example, to toggle the orientation by clicking
+        \gui {Rotate Device}, or choose from the various Symbian and Maemo
+        configurations by clicking \gui {Device}. You can also simulate various
+        mobile functions and create your own scripts.
+
+        \o To test the application on a Symbian device install Qt 4.6.2
+        and the TRK debugging application on the device. For more information,
+        see \l{Setting Up Development Environment for Symbian}.
+
+        \o Click the \gui {Target Selector} and select \gui {Symbian Device}.
+
+        \o Click \gui Run to build the application for the Symbian device.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-mobile-example.html
     \page creator-qml-application.html
     \nextpage creator-editor-using.html
 
     \title Creating a Qt Quick Application
 
-    \note This tutorial assumes that you are familiar with the \l {http://qt.nokia.com/doc/4.7-snapshot/declarativeui.html}
+    \note This tutorial assumes that you are familiar with the \l {http://doc.qt.nokia.com/4.7-snapshot/declarativeui.html}
     {QML declarative language}.
+
+    \note The Qt Quick specific features and the QDeclarative help are based on a
+    preview version of the QtDeclarative package. Update Qt Creator when Qt 4.7 is
+    released.
 
     This tutorial describes how to use Qt Creator to create a small animated
     Qt Quick application, Hello World.
@@ -2386,7 +2753,7 @@
 
     \list 1
 
-        \o Select \gui{File > New File or Project > Qt Quick Project > Qt QML Application > OK}.
+        \o Select \gui{File > New File or Project > Qt Quick Project > Qt QML Application > Choose}.
 
         \image qmldesigner-new-project.png "New File or Project dialog"
 
@@ -2553,9 +2920,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-getting-started.html
+    \previouspage creator-build-example-application.html
     \page creator-writing-program.html
-    \nextpage creator-qml-application.html
+    \nextpage creator-mobile-example.html
 
     \title Creating a Qt C++ Application
 
@@ -2565,7 +2932,7 @@
 
     This tutorial describes how to use Qt Creator
     to create a small Qt application, Text Finder. It is a simplified version of the
-    QtUiTools \l{http://doc.trolltech.com/uitools-textfinder.html}{Text Finder}
+    QtUiTools \l{http://doc.qt.nokia.com/4.7-snapshot/uitools-textfinder.html}{Text Finder}
     example.
 
     \image qtcreator-textfinder-screenshot.png
@@ -2584,7 +2951,7 @@
     \list 1
 
         \o Select \gui{File > New File or Project > Qt Application Project > Qt Gui
-        Application > OK}.
+        Application > Choose}.
 
            \image qtcreator-new-project.png "New File or Project dialog"
 
@@ -2661,9 +3028,9 @@
     \o Drag and drop the following widgets to the form:
 
     \list
-    \o \gui{Label} (\l{http://doc.trolltech.com/qlabel.html}{QLabel})
-    \o \gui{Line Edit} (\l{http://doc.trolltech.com/qlineedit.html}{QLineEdit})
-    \o \gui{Push Button} (\l{http://doc.trolltech.com/qpushbutton.html}{QPushButton})
+    \o \gui{Label} (\l{http://doc.qt.nokia.com/4.7-snapshot/qlabel.html}{QLabel})
+    \o \gui{Line Edit} (\l{http://doc.qt.nokia.com/4.7-snapshot/qlineedit.html}{QLineEdit})
+    \o \gui{Push Button} (\l{http://doc.qt.nokia.com/4.7-snapshot/qpushbutton.html}{QPushButton})
 
     \endlist
 
@@ -2679,15 +3046,15 @@
 
     \o Press \key {Ctrl+A} to select the widgets and click \gui{Lay out Horizontally}
     (or press \gui{Ctrl+H}) to apply a horizontal layout
-    (\l{http://doc.trolltech.com/qhboxlayout.html}{QHBoxLayout}).
+    (\l{http://doc.qt.nokia.com/4.7-snapshot/qhboxlayout.html}{QHBoxLayout}).
 
     \image qtcreator-texfinder-ui-horizontal-layout.png "Applying horizontal layout"
 
-    \o Drag and drop a \gui{Text Edit} widget (\l{http://doc.trolltech.com/qtextedit.html}{QTextEdit})
+    \o Drag and drop a \gui{Text Edit} widget (\l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html}{QTextEdit})
     to the form.
 
     \o Select the screen area and click \gui{Lay out Vertically} (or press \gui{Ctr+V})
-    to apply a vertical layout (\l{http://doc.trolltech.com/qvboxlayout.html}{QVBoxLayout}).
+    to apply a vertical layout (\l{http://doc.qt.nokia.com/4.7-snapshot/qvboxlayout.html}{QVBoxLayout}).
 
     \image qtcreator-textfinder-ui.png "Text Finder UI"
 
@@ -2715,7 +3082,7 @@
     \endlist
 
     For more information about designing forms with \QD, see the
-    \l{http://doc.trolltech.com/designer-manual.html}{Qt Designer Manual}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/designer-manual.html}{Qt Designer Manual}.
 
     \section2 Completing the Header File
 
@@ -2723,7 +3090,7 @@
     constructor, a destructor, and the \c{Ui} object. You need to add a private
     function, \c{loadTextFile()}, to read and display the
     contents of the input text file in the
-    \l{http://doc.trolltech.com/qtextedit.html}{QTextEdit}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html}{QTextEdit}.
 
     \list 1
 
@@ -2749,22 +3116,22 @@
     to open it for editing.
 
     \o Add code to load a text file using
-    \l{http://doc.trolltech.com/qfile.html}{QFile}, read it with
-    \l{http://doc.trolltech.com/qtextstream.html}{QTextStream}, and
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qfile.html}{QFile}, read it with
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextstream.html}{QTextStream}, and
     then display it on \c{textEdit} with
-    \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html#plainText-prop}{setPlainText()}.
     This is illustrated by the following code snippet:
 
     \snippet examples/textfinder/textfinder.cpp 0
 
-    \o To use \l{http://doc.trolltech.com/qfile.html}{QFile} and
-    \l{http://doc.trolltech.com/qtextstream.html}{QTextStream}, add the
+    \o To use \l{http://doc.qt.nokia.com/4.7-snapshot/qfile.html}{QFile} and
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qtextstream.html}{QTextStream}, add the
     following #includes to textfinder.cpp:
 
     \snippet examples/textfinder/textfinder.cpp 1
 
     \o For the \c{on_findButton_clicked()} slot, add code to extract the search string and
-    use the \l{http://doc.trolltech.com/qtextedit.html#find}{find()} function
+    use the \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html#find}{find()} function
     to look for the search string within the text file. This is illustrated by
     the following code snippet:
 
@@ -2793,7 +3160,7 @@
 
     To add a resource file:
     \list 1
-        \o Select \gui{File > New File or Project > Qt > Qt Resource File > OK}.
+        \o Select \gui{File > New File or Project > Qt > Qt Resource File > Choose}.
     \image qtcreator-add-resource-wizard.png "New File or Project dialog"
 
     The \gui {Choose the Location} dialog opens.
@@ -3220,7 +3587,7 @@
     \key Space. The prefix is usually a single character.
 
     For example, to locate symbols matching
-    \l{http://doc.trolltech.com/qdatastream.html}{QDataStream:}
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qdatastream.html}{QDataStream:}
     \list 1
         \o Activate the locator.
         \o Enter \tt{\bold{: QDataStream}} (: (colon) followed by a
@@ -4223,7 +4590,7 @@
 
     \list 1
         \o Click in between the line number and the window border on the line
-        where we invoke \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
+        where we invoke \l{http://doc.qt.nokia.com/4.7-snapshot/qtextedit.html#plainText-prop}{setPlainText()}
         to set a breakpoint.
 
         \image qtcreator-setting-breakpoint1.png
@@ -4797,8 +5164,12 @@
 
     You can either create Qt Quick projects from scratch or import them to
     Qt Creator. For example, you can import and run the
-    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativeexamples.html} {QML examples and demos}
+    \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativeexamples.html} {QML examples and demos}
     to learn how to use various aspects of QML.
+
+    \note The Qt Quick specific features and the QDeclarative help are based on a
+    preview version of the QtDeclarative package. Update Qt Creator when Qt 4.7 is
+    released.
 
     You can use the code editor (\gui Edit mode) or the visual editor
     (\gui Design mode) to develop Qt Quick applications.
@@ -4829,7 +5200,7 @@
     \endlist
 
     The \c import statement in the beginning of the .qml file specifies the
-    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativemodules.html} {Qt modules}
+    \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativemodules.html} {Qt modules}
     to import to \QMLD. Each Qt module contains a set of default elements.
     Specify a version to get the features you want.
 
@@ -4855,22 +5226,22 @@
 
     \list
 
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
         uses an image as a border or background.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-image.html}{Image}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-image.html}{Image}
         adds a bitmap to the scene. You can stretch and tile images.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-item.html}{Item}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-item.html}{Item}
         is the most basic of all visual items in QML. Even though it has no visual appearance,
         it defines all the properties that are common across visual items, such as the x and
         y position, width and height, anchoring, and key handling.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-rectangle.html}{Rectangle}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-rectangle.html}{Rectangle}
         adds a rectangle that is painted with a solid fill color and an optional border.
         You can also use the radius property to create rounded rectangles.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-text.html}{Text}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-text.html}{Text}
         adds formatted read-only text.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-textedit.html}{Text Edit}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-textedit.html}{Text Edit}
         adds a single line of editable formatted text that can be validated.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-textinput.html}{Text Input}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-textinput.html}{Text Input}
         adds a single line of editable plain text that can be validated.
 
     \endlist
@@ -4941,12 +5312,12 @@
     \endlist
 
     To create a graphical button that scales beautifully without using vector graphics,
-    use the \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
+    use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
     element.
 
     \section3 Creating Scalable Buttons and Borders
 
-    You can use the \l{http://qt.nokia.com/doc/4.7-snapshot/qml-borderimage.html}{Border Image}
+    You can use the \l{http://doc.qt.nokia.com/4.7-snapshot/qml-borderimage.html}{Border Image}
     element to display an image, such as a PNG file, as a border and a background.
 
     Use two Border Image elements and suitable graphics to make it look like the button
@@ -5100,13 +5471,13 @@
     You can use the \gui Library items and your own components to create screens.
 
     You can create the following types of views to organize items provided by
-    \l{http://qt.nokia.com/doc/4.7-snapshot/qdeclarativemodels.html}{data models}:
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativemodels.html}{data models}:
 
     \list
 
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-gridview.html}{Grid View}
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-listview.html}{List View}
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-pathview.html}{Path View}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-gridview.html}{Grid View}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-listview.html}{List View}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-pathview.html}{Path View}
 
     \endlist
 
@@ -5247,7 +5618,7 @@
     You can use different types of animated transitions. For example, you can animate changes
     to property values and colors. You can use rotation animation to control the direction of
     rotation. For more information, see
-    \l{http://doc.trolltech.com/4.7-snapshot/qdeclarativeanimation.html}{QML Animation}.
+    \l{http://doc.qt.nokia.com/4.7-snapshot/qdeclarativeanimation.html}{QML Animation}.
 
     You can use the \c ParallelAnimation element to start several animations at the same time.
     Or use the \c SequentialAnimation element to run them one after another.
@@ -5260,14 +5631,14 @@
 
     \list
 
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-flickable.html}{Flickable}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flickable.html}{Flickable}
         items can be flicked horizontally or vertically.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-flipable.html}{Flipable}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flipable.html}{Flipable}
         items can be flipped between their front and back sides by using rotation,
         state, and transition.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-focusscope.html}{Focus Scope}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-focusscope.html}{Focus Scope}
         assists in keyboard focus handling when building reusable QML components.
-        \o \l{http://qt.nokia.com/doc/4.7-snapshot/qml-mousearea.html}{Mouse Area}
+        \o \l{http://doc.qt.nokia.com/4.7-snapshot/qml-mousearea.html}{Mouse Area}
         enables simple mouse handling.
 
     \endlist
@@ -5283,10 +5654,10 @@
     A user interface is only a part of an application, and not really useful by itself.
     You can use Qt or JavaScript to implement the application logic. For more information on
     using JavaScript, see
-    \l {http://qt.nokia.com/doc/4.7-snapshot/qdeclarativejavascript.html} {Integrating JavaScript}.
+    \l {http://doc.qt.nokia.com/4.7-snapshot/qdeclarativejavascript.html} {Integrating JavaScript}.
 
     For an example of how to use JavaScript to develop a game, see the
-    \l {http://qt.nokia.com/doc/4.7-snapshot/qml-advtutorial.html} {QML Advanced Tutorial}.
+    \l {http://doc.qt.nokia.com/4.7-snapshot/qml-advtutorial.html} {QML Advanced Tutorial}.
 
  */
 
@@ -5317,7 +5688,8 @@
 
     To build and run Qt applications for Maemo, you need the following:
     \list
-       \o  Nokia N900 device with PR1.2 or later installed.
+       \o  Nokia N900 device with software update release 1.2 (V10.2010.19-1)
+       or later installed.
        \o  MADDE cross-platform Maemo development
            tool (installed as part of the Nokia Qt SDK).
 
@@ -5335,7 +5707,6 @@
        PC_Connectivity_<version>.exe (at the time of writing,
        PC_Connectivity_0.9.4.exe).
 
-       \o Qt installed on the device. Recent images should have Qt pre-installed.
     \endlist
 
      The Qt Creator/MADDE integration is supported on the following platforms:
@@ -5370,38 +5741,13 @@
 
     \section2 Installing and Configuring Mad Developer
 
-    To install Mad Developer on your device, you need to add an application
-    catalogue to the list of catalogues your device checks for
-    installable software, and install the actual Mad Developer software
-    package. After the installation, you must start Mad Developer and configure
+    Install Mad Developer on a device and configure
     a connection between the development PC and the device.
 
     To install and configure Mad Developer:
 
      \list 1
-         \o On the Nokia N900, select \gui {Application manager > Application catalogs
-         > New}.
-
-         \o Specify the following settings:
-
-         \image qtcreator-app-manager-extras-devel-screenshot.png
-
-            \list a
-
-            \o \gui {Catalogue name}: \bold devel
-
-            \o \gui {Web address}:
-            \l http://repository.maemo.org/extras-devel
-
-            \o \gui Distribution: \bold fremantle
-
-            \o \gui Components: \bold {free non-free}
-
-            \endlist
-
-         \o Click \gui Save to add the catalogue.
-
-         \o Select \gui{Download} > \gui{Development} > \gui{mad-developer}
+         \o On the Nokia N900, select \gui{Download} > \gui{Development} > \gui{mad-developer}
          to install the Mad Developer software package.
          \o Click \gui {Mad Developer} to start the Mad Developer application.
 
@@ -5537,7 +5883,8 @@
     must generate it in Mad Developer and enter it in Qt Creator every time
     you connect to the Maemo emulator or to a device.
 
-    If you do not have an SSH key, you can create it in Qt Creator. For more
+    If you do not have an SSH key, you can create it in Qt Creator.
+    Encrypted keys are not supported. For more
     information, see \l{Generating SSH Keys}.
 
     To configure connections between Qt Creator and the Maemo emulator or
@@ -5689,10 +6036,9 @@
 
     The Maemo emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
-    on a Nokia N900 device. You can test user interaction by using the keypad and
+    on a Nokia N900 device with software update release 1.2 (V10.2010.19-1).
+    You can test user interaction by using the keypad and
     touch emulation.
-
-    \note The Maemo emulator support requires the Nokia N900 PR1.2 update.
 
     To test the application UI, user interaction with the application, and
     functionality that uses the mobility APIs, use the Qt Simulator,
@@ -5707,7 +6053,9 @@
     \section1 Starting the Maemo Emulator
 
     The \gui {Start Maemo Emulator} button is visible if you have a project
-    open in Qt Creator for which you have added the Maemo build target.
+    open in Qt Creator for which you have added the Maemo build target
+    and if you have configured a connection between Qt Creator and the Maemo
+    Emulator.
 
     To start the Maemo emulator:
 
@@ -5835,11 +6183,40 @@
         \o The \l{http://tools.ext.nokia.com/trk/}{App TRK} application for
            your device
         \o The \e{qt_installer.sis} package installed on the device, that is
-         bundled with the binary Qt distribution
+         delivered with the Qt SDK.
     \endlist
 
     To run your applications in the Symbian emulator, you also need
     to install Carbide.c++ v2.0.0 or higher.
+
+    \section1 Installing Required Applications on Devices
+
+    The Nokia Qt SDK installation program creates shortcuts for installing
+    the required applications on Symbian devices (you can also use any of
+    the standard methods for installing applications on devices):
+
+    \list 1
+
+        \o Connect the device to the development PC with an USB cable in
+        PC Suite Mode. If you have not previously used the device with Ovi Suite
+        or PC Suite, all the necessary drivers are installed automatically.
+        This takes approximately one minute.
+
+        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install Qt to Symbian
+        device} and follow the instructions on the screen to install Qt 4.6.2
+        libraries on the device.
+
+        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install QtMobility to Symbian
+        device} and follow the instructions on the screen to install Qt
+        mobility libraries on the device.
+
+        \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install TRK to Symbian
+        device} and follow the instructions on the screen to install the TRK
+        debugging application for S60 5th Edition devices on the device.
+
+        \o Start TRK on the device.
+
+    \endlist
 
     \section1 Adding Symbian Platform SDKs
 
@@ -5904,7 +6281,7 @@
      change the default plugin path, see \l{How to Create Qt Plugins}.
 
      For more information about how to create plugins for \QD, see
-     \l{http://doc.trolltech.com/4.6/designer-using-custom-widgets.html}{Creating and Using Components for Qt Designer}.
+     \l{http://doc.qt.nokia.com/4.7-snapshot/designer-using-custom-widgets.html}{Creating and Using Components for Qt Designer}.
 
     \section1 Locating Qt Designer Plugins
 

@@ -93,6 +93,9 @@ public:
 
 signals:
     void changed();
+
+    void aboutToReload();
+    void reloaded();
 };
 
 } // namespace Core

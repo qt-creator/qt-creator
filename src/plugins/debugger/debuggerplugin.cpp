@@ -1539,8 +1539,8 @@ void DebuggerPlugin::enableReverseDebuggingTriggered(const QVariant &value)
 {
     QTC_ASSERT(m_reverseToolButton, return);
     m_reverseToolButton->setVisible(value.toBool());
-    if (!value.toBool())
-        m_manager->debuggerManagerActions().reverseDirectionAction->setChecked(false);
+    m_manager->debuggerManagerActions().reverseDirectionAction->setChecked(false);
+    m_manager->debuggerManagerActions().reverseDirectionAction->setEnabled(value.toBool());
 }
 
 void DebuggerPlugin::toggleBreakpoint()

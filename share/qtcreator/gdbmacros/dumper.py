@@ -1214,8 +1214,15 @@ class Dumper:
         type = value.type
 
         if type.code == gdb.TYPE_CODE_REF:
-            type = type.target()
-            value = value.cast(type)
+            try:
+                # This throws "RuntimeError: Attempt to dereference a
+                # generic pointer." with MinGW's gcc 4.5 when it "identifies"
+                # a "QWidget &" as "void &".
+                type = type.target()
+                value = value.cast(type)
+            except RuntimeError:
+                value = item.value
+                type = value.type
 
         if type.code == gdb.TYPE_CODE_TYPEDEF:
             type = type.target()

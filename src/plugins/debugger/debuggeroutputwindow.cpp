@@ -335,6 +335,9 @@ public slots:
         QString needle2 = QLatin1Char('>') + needle;
         QTextCursor cursor(document());
         do {
+            cursor = document()->find(needle, cursor);
+            if (cursor.isNull())
+                break; // Not found.
             const QString line = cursor.block().text();
             if (line.startsWith(needle) || line.startsWith(needle2)) {
                 setFocus();

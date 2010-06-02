@@ -66,16 +66,27 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     ui(new Ui::GettingStartedWelcomePageWidget)
 {
     ui->setupUi(this);
+
+#ifndef QTCREATOR_WITH_QML
+    ui->demosExamplesFrameQml->hide();
+#endif
+
     ui->didYouKnowTextBrowser->viewport()->setAutoFillBackground(false);
 
     connect(ui->tutorialTreeWidget, SIGNAL(activated(QString)), SLOT(slotOpenHelpPage(const QString&)));
 
     ui->tutorialTreeWidget->addItem(tr("The Qt Creator User Interface"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html"));
+    ui->tutorialTreeWidget->addItem(tr("Building and Running an Example"),
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-build-example-application.html?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt C++ Application"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-writing-program.html?view=split"));
+    ui->tutorialTreeWidget->addItem(tr("Creating a Mobile Application"),
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-mobile-example?view=split"));
+#ifdef QTCREATOR_WITH_QML
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt Quick Application"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-qml-application.html?view=split"));
+#endif
 
     srand(QDateTime::currentDateTime().toTime_t());
     QStringList tips = tipsOfTheDay();
@@ -175,8 +186,6 @@ void GettingStartedWelcomePageWidget::updateQmlExamples(const QString &examplePa
                                                         const QString &sourcePath)
 {
     ui->qmlExamplesButton->setText(tr("Choose an example..."));
-    QMenu *menu = new QMenu(ui->qmlExamplesButton);
-    ui->qmlExamplesButton->setMenu(menu);
 
     QStringList roots;
     roots << (examplePath + QLatin1String("/declarative"))
@@ -197,14 +206,20 @@ void GettingStartedWelcomePageWidget::updateQmlExamples(const QString &examplePa
             exampleProjects.insert(fileName, exampleProject);
         }
     }
-    QMapIterator<QString, QString> it(exampleProjects);
-    while (it.hasNext()) {
-        it.next();
-        QAction *exampleAction = menu->addAction(it.key());
-        connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
-        exampleAction->setProperty(ExamplePathPropertyName, it.value());
-        // FIXME once we have help for QML examples
-        // exampleAction->setProperty(HelpPathPropertyName, helpPath);
+
+    if (!exampleProjects.isEmpty()) {
+        QMenu *menu = new QMenu(ui->qmlExamplesButton);
+        ui->qmlExamplesButton->setMenu(menu);
+
+        QMapIterator<QString, QString> it(exampleProjects);
+        while (it.hasNext()) {
+            it.next();
+            QAction *exampleAction = menu->addAction(it.key());
+            connect(exampleAction, SIGNAL(triggered()), SLOT(slotOpenExample()));
+            exampleAction->setProperty(ExamplePathPropertyName, it.value());
+            // FIXME once we have help for QML examples
+            // exampleAction->setProperty(HelpPathPropertyName, helpPath);
+        }
     }
 
     ui->qmlExamplesButton->setEnabled(!exampleProjects.isEmpty());
@@ -380,15 +395,11 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
             tr("Ctrl", "Shortcut key");
 #endif
 
-
-        tips.append(tr("You can switch between Qt Creator's modes using <tt>Ctrl+number</tt>:<ul>"
-                       "<li>1 - Welcome</li><li>2 - Edit</li><li>3 - Debug</li><li>4 - Projects</li><li>5 - Help</li></ul>"));
         //:%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)
         tips.append(tr("You can show and hide the side bar using <tt>%1+0<tt>.").arg(altShortcut));
         tips.append(tr("You can fine tune the <tt>Find</tt> function by selecting &quot;Whole Words&quot; "
                        "or &quot;Case Sensitive&quot;. Simply click on the icons on the right end of the line edit."));
-        tips.append(tr("If you add <a href=\"qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html\""
-                       ">external libraries</a>, Qt Creator will automatically offer syntax highlighting "
+        tips.append(tr("If you add external libraries to your project, Qt Creator will automatically offer syntax highlighting "
                         "and code completion."));
         tips.append(tr("The code completion is CamelCase-aware. For example, to complete <tt>namespaceUri</tt> "
                        "you can just type <tt>nU</tt> and hit <tt>Ctrl+Space</tt>."));
@@ -403,9 +414,9 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
         tips.append(tr("You can quickly search methods, classes, help and more using the "
                        "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-navigation.html\">Locator bar</a> (<tt>%1+K</tt>).").arg(ctrlShortcut));
         tips.append(tr("You can add custom build steps in the "
-                       "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#build-settings\">build settings</a>."));
+                       "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-build-settings.html\">build settings</a>."));
         tips.append(tr("Within a session, you can add "
-                       "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies\">dependencies</a> between projects."));
+                       "<a href=\"qthelp://com.nokia.qtcreator/doc/creator-build-dependencies.html\">dependencies</a> between projects."));
         tips.append(tr("You can set the preferred editor encoding for every project in <tt>Projects -> Editor Settings -> Default Encoding</tt>."));
         tips.append(tr("You can use Qt Creator with a number of <a href=\"qthelp://com.nokia.qtcreator/doc/creator-version-control.html\">"
                        "revision control systems</a> such as Subversion, Perforce, CVS and Git."));

@@ -48,6 +48,7 @@ const char * const PROFILE_EDITOR_ID = "Qt4.proFileEditor";
 const char * const PROFILE_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", ".pro File Editor");
 const char * const PROFILE_MIMETYPE  = "application/vnd.nokia.qt.qmakeprofile";
 const char * const PROINCLUDEFILE_MIMETYPE  = "application/vnd.nokia.qt.qmakeproincludefile";
+const char * const PROFEATUREFILE_MIMETYPE  = "application/vnd.nokia.qt.qmakeprofeaturefile";
 const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
 const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
 const char * const FORM_MIMETYPE = "application/x-designer";

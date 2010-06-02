@@ -221,23 +221,24 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         }
     }
 
-    if (m_toolTip.isEmpty()) {
-        foreach (const Document::Include &incl, doc->includes()) {
-            if (incl.line() == lineNumber) {
-                m_toolTip = QDir::toNativeSeparators(incl.fileName());
-                m_helpId = QFileInfo(incl.fileName()).fileName();
-                break;
-            }
-        }
-    }
-
     if (m_helpEngineNeedsSetup
         && m_helpEngine->registeredDocumentations().count() > 0) {
         m_helpEngine->setupData();
         m_helpEngineNeedsSetup = false;
     }
-
     QMap<QString, QUrl> helpLinks;
+
+    if (m_toolTip.isEmpty()) {
+        foreach (const Document::Include &incl, doc->includes()) {
+            if (incl.line() == lineNumber) {
+                m_toolTip = QDir::toNativeSeparators(incl.fileName());
+                m_helpId = QFileInfo(incl.fileName()).fileName();
+                helpLinks = m_helpEngine->linksForIdentifier(m_helpId);
+                break;
+            }
+        }
+    }
+
     if (m_helpId.isEmpty()) {
         // Move to the end of a qualified name
         bool stop = false;

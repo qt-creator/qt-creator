@@ -90,12 +90,12 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
     m_resizeIndicator.hide();
 
     FormEditorItem *containerItem = containerFormEditorItem(itemList, m_movingItems);
-    if (containerItem &&
-       containerItem != m_movingItems.first()->parentItem() &&
-       view()->currentState().isBaseState() &&
-       !event->modifiers().testFlag(Qt::ShiftModifier)) {
-
-        m_moveManipulator.reparentTo(containerItem);
+    if (containerItem
+        && view()->currentState().isBaseState()) {
+        if (containerItem != m_movingItems.first()->parentItem()
+            && event->modifiers().testFlag(Qt::ShiftModifier)) {
+            m_moveManipulator.reparentTo(containerItem);
+        }
     }
 
     bool shouldSnapping = view()->widget()->snappingAction()->isChecked();
@@ -313,9 +313,7 @@ FormEditorItem* MoveTool::containerFormEditorItem(const QList<QGraphicsItem*> &i
         if (formEditorItem
            && !selectedItemList.contains(formEditorItem)
            && isNotAncestorOfItemInList(formEditorItem, selectedItemList))
-            if (formEditorItem->isContainer()) {
                 return formEditorItem;
-        }
 
     }
 

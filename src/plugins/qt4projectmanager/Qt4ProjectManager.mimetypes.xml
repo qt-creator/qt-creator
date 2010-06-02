@@ -10,6 +10,11 @@
     <comment>Qt Project include file</comment>
     <glob pattern="*.pri"/>
   </mime-type>
+  <mime-type type="application/vnd.nokia.qt.qmakeprofeaturefile">
+    <sub-class-of type="text/plain"/>
+    <comment>Qt Project feature file</comment>
+    <glob pattern="*.prf"/>
+  </mime-type>
   <mime-type type="application/x-linguist">
     <sub-class-of type="application/xml"/>
     <comment>message catalog</comment>

@@ -200,7 +200,7 @@ QList<QRectF> MoveManipulator::tanslatedBoundingRects(const QList<QRectF> &bound
 /*
   /brief updates the position of the items.
 */
-void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
+void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping, State stateToBeManipulated)
 {
     deleteSnapLines(); //Since they position is changed and the item is moved the snapping lines are
                        //are obsolete. The new updated snapping lines (color and visibility) will be
@@ -226,36 +226,41 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
 
         foreach (FormEditorItem* item, m_itemList) {
             QPointF positionInContainerSpace(m_beginPositionHash.value(item) + offsetVector);
-            QmlAnchors anchors(item->qmlItemNode().anchors());
 
-            if (anchors.instanceHasAnchor(AnchorLine::Top)) {
-               anchors.setMargin(AnchorLine::Top, m_beginTopMarginHash.value(item) + offsetVector.y());
+            // don't support anchors for base state because it is not needed by the droptool
+            if (stateToBeManipulated == UseActualState) {
+                QmlAnchors anchors(item->qmlItemNode().anchors());
+
+                if (anchors.instanceHasAnchor(AnchorLine::Top)) {
+                    anchors.setMargin(AnchorLine::Top, m_beginTopMarginHash.value(item) + offsetVector.y());
+                }
+
+                if (anchors.instanceHasAnchor(AnchorLine::Left)) {
+                    anchors.setMargin(AnchorLine::Left, m_beginLeftMarginHash.value(item) + offsetVector.x());
+                }
+
+                if (anchors.instanceHasAnchor(AnchorLine::Bottom)) {
+                    anchors.setMargin(AnchorLine::Bottom, m_beginBottomMarginHash.value(item) - offsetVector.y());
+                }
+
+                if (anchors.instanceHasAnchor(AnchorLine::Right)) {
+                    anchors.setMargin(AnchorLine::Right, m_beginRightMarginHash.value(item) - offsetVector.x());
+                }
+
+                if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
+                    anchors.setMargin(AnchorLine::HorizontalCenter, m_beginHorizontalCenterHash.value(item) + offsetVector.x());
+                }
+
+                if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
+                    anchors.setMargin(AnchorLine::VerticalCenter, m_beginVerticalCenterHash.value(item) + offsetVector.y());
+                }
+
+                item->qmlItemNode().setPosition(positionInContainerSpace);
+            } else {
+                item->qmlItemNode().modelNode().variantProperty("x").setValue(qRound(positionInContainerSpace.x()));
+                item->qmlItemNode().modelNode().variantProperty("y").setValue(qRound(positionInContainerSpace.y()));
             }
-
-            if (anchors.instanceHasAnchor(AnchorLine::Left)) {
-               anchors.setMargin(AnchorLine::Left, m_beginLeftMarginHash.value(item) + offsetVector.x());
-            }
-
-            if (anchors.instanceHasAnchor(AnchorLine::Bottom)) {
-               anchors.setMargin(AnchorLine::Bottom, m_beginBottomMarginHash.value(item) - offsetVector.y());
-            }
-
-            if (anchors.instanceHasAnchor(AnchorLine::Right)) {
-               anchors.setMargin(AnchorLine::Right, m_beginRightMarginHash.value(item) - offsetVector.x());
-            }
-
-            if (anchors.instanceHasAnchor(AnchorLine::HorizontalCenter)) {
-               anchors.setMargin(AnchorLine::HorizontalCenter, m_beginHorizontalCenterHash.value(item) + offsetVector.x());
-            }
-
-            if (anchors.instanceHasAnchor(AnchorLine::VerticalCenter)) {
-               anchors.setMargin(AnchorLine::VerticalCenter, m_beginVerticalCenterHash.value(item) + offsetVector.y());
-            }
-
-            item->qmlItemNode().setPosition(positionInContainerSpace);
         }
-
-
     }
 }
 

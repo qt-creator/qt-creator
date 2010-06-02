@@ -492,6 +492,11 @@ private:
                            bool active,
                            bool hovered) const;
 
+    void drawCollapsedBlockPopup(QPainter &painter,
+                                 const QTextBlock &block,
+                                 QPointF offset,
+                                 const QRect &clip);
+
     void toggleBlockVisible(const QTextBlock &block);
     QRect foldBox();
 

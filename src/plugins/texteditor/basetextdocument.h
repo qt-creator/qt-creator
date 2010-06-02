@@ -76,7 +76,7 @@ public:
     inline const StorageSettings &storageSettings() const { return m_storageSettings; }
     inline const TabSettings &tabSettings() const { return m_tabSettings; }
 
-    DocumentMarker *documentMarker() const {return m_documentMarker; }
+    DocumentMarker *documentMarker() const { return m_documentMarker; }
 
     //IFile
     virtual bool save(const QString &fileName = QString());
@@ -117,8 +117,6 @@ public:
 
 signals:
     void titleChanged(QString title);
-    void aboutToReload();
-    void reloaded();
 
 private:
     QString m_fileName;
@@ -151,6 +149,7 @@ private:
 
     void cleanWhitespace(QTextCursor& cursor, bool cleanIndentation, bool inEntireDocument);
     void ensureFinalNewLine(QTextCursor& cursor);
+    void documentClosing();
 };
 
 } // namespace TextEditor

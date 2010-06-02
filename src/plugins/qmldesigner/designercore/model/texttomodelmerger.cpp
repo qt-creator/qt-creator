@@ -210,12 +210,13 @@ public:
                 int &minorVersion, QString &defaultPropertyName)
     {
         const Interpreter::ObjectValue *value = m_context->lookupType(m_doc.data(), astTypeNode);
+        defaultPropertyName = m_context->defaultPropertyName(value);
+
         const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(value);
         if (qmlValue) {
             typeName = qmlValue->packageName() + QLatin1String("/") + qmlValue->className();
             majorVersion = qmlValue->majorVersion();
             minorVersion = qmlValue->minorVersion();
-            defaultPropertyName = qmlValue->defaultPropertyName();
         } else if (value) {
             for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->next && iter->name)

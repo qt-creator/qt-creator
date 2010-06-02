@@ -173,7 +173,8 @@ int main(int argc, char **argv)
     // increase the number of file that can be opened in Qt Creator.
     struct rlimit rl;
     getrlimit(RLIMIT_NOFILE, &rl);
-    rl.rlim_cur = rl.rlim_max;
+
+    rl.rlim_cur = qMin((rlim_t)OPEN_MAX, rl.rlim_max);
     setrlimit(RLIMIT_NOFILE, &rl);
 #endif
 

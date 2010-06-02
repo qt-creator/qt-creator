@@ -29,6 +29,8 @@
 
 #include "basetextmark.h"
 
+#include "basetextdocument.h"
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -37,16 +39,23 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-BaseTextMark::BaseTextMark()
-    : m_markableInterface(0), m_internalMark(0), m_init(false)
-{
-}
-
 BaseTextMark::BaseTextMark(const QString &filename, int line)
-    : m_markableInterface(0), m_internalMark(0), m_fileName(filename), m_line(line), m_init(false)
+    : m_markableInterface(0)
+    , m_internalMark(0)
+    , m_fileName(filename)
+    , m_line(line)
+    , m_init(false)
 {
     // Why is this?
     QTimer::singleShot(0, this, SLOT(init()));
+}
+
+BaseTextMark::~BaseTextMark()
+{
+    // oha we are deleted
+    if (m_markableInterface)
+        m_markableInterface->removeMark(m_internalMark);
+    removeInternalMark();
 }
 
 void BaseTextMark::init()
@@ -73,39 +82,49 @@ void BaseTextMark::editorOpened(Core::IEditor *editor)
             m_markableInterface = textEditor->markableInterface();
             m_internalMark = new InternalMark(this);
 
-            if (!m_markableInterface->addMark(m_internalMark, m_line)) {
-                delete m_internalMark;
-                m_internalMark = 0;
-                m_markableInterface = 0;
+            if (m_markableInterface->addMark(m_internalMark, m_line)) {
+                // Handle reload of text documents, readding the mark as necessary
+                connect(textEditor->file(), SIGNAL(reloaded()),
+                        this, SLOT(documentReloaded()), Qt::UniqueConnection);
+            } else {
+                removeInternalMark();
             }
         }
     }
+}
+
+void BaseTextMark::documentReloaded()
+{
+    if (m_markableInterface)
+        return;
+
+    BaseTextDocument *doc = qobject_cast<BaseTextDocument*>(sender());
+    if (!doc)
+        return;
+
+    m_markableInterface = doc->documentMarker();
+    m_internalMark = new InternalMark(this);
+
+    if (!m_markableInterface->addMark(m_internalMark, m_line))
+        removeInternalMark();
 }
 
 void BaseTextMark::childRemovedFromEditor(InternalMark *mark)
 {
     Q_UNUSED(mark)
     // m_internalMark was removed from the editor
-    delete m_internalMark;
-    m_markableInterface = 0;
-    m_internalMark = 0;
+    removeInternalMark();
     removedFromEditor();
 }
 
 void BaseTextMark::documentClosingFor(InternalMark *mark)
 {
     Q_UNUSED(mark)
-    // the document is closing
-    delete m_internalMark;
-    m_markableInterface = 0;
-    m_internalMark = 0;
+    removeInternalMark();
 }
 
-BaseTextMark::~BaseTextMark()
+void BaseTextMark::removeInternalMark()
 {
-    // oha we are deleted
-    if (m_markableInterface)
-        m_markableInterface->removeMark(m_internalMark);
     delete m_internalMark;
     m_internalMark = 0;
     m_markableInterface = 0;
@@ -128,13 +147,10 @@ void BaseTextMark::moveMark(const QString & /* filename */, int /* line */)
         m_init = true;
     }
 
-
     if (m_markableInterface)
         m_markableInterface->removeMark(m_internalMark);
-    m_markableInterface = 0;
-    // This is only necessary since m_internalMark is created in ediorOpened
-    delete m_internalMark;
-    m_internalMark = 0;
+    // This is only necessary since m_internalMark is created in editorOpened
+    removeInternalMark();
 
     foreach (Core::IEditor *editor, em->openedEditors())
         editorOpened(editor);

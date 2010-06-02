@@ -132,7 +132,7 @@ BaseTextDocument::BaseTextDocument()
     m_fileIsReadOnly = false;
     m_isBinaryData = false;
     m_codec = QTextCodec::codecForLocale();
-    QSettings* settings = Core::ICore::instance()->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     if (QTextCodec *candidate = QTextCodec::codecForName(
             settings->value(QLatin1String("General/DefaultFileEncoding")).toByteArray()))
         m_codec = candidate;
@@ -142,12 +142,8 @@ BaseTextDocument::BaseTextDocument()
 
 BaseTextDocument::~BaseTextDocument()
 {
-    QTextBlock block = m_document->begin();
-    while (block.isValid()) {
-        if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData()))
-            data->documentClosing();
-        block = block.next();
-    }
+    documentClosing();
+
     delete m_document;
     m_document = 0;
 }
@@ -332,6 +328,8 @@ void BaseTextDocument::reload(QTextCodec *codec)
 void BaseTextDocument::reload()
 {
     emit aboutToReload();
+    documentClosing(); // removes text marks non-permanently
+
     if (open(m_fileName))
         emit reloaded();
 }
@@ -381,9 +379,8 @@ void BaseTextDocument::cleanWhitespace(const QTextCursor &cursor)
     copyCursor.endEditBlock();
 }
 
-void BaseTextDocument::cleanWhitespace(QTextCursor& cursor, bool cleanIndentation, bool inEntireDocument)
+void BaseTextDocument::cleanWhitespace(QTextCursor &cursor, bool cleanIndentation, bool inEntireDocument)
 {
-
     BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(m_document->documentLayout());
 
     QTextBlock block = m_document->findBlock(cursor.selectionStart());
@@ -429,5 +426,15 @@ void BaseTextDocument::ensureFinalNewLine(QTextCursor& cursor)
     {
         cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
         cursor.insertText(QLatin1String("\n"));
+    }
+}
+
+void BaseTextDocument::documentClosing()
+{
+    QTextBlock block = m_document->begin();
+    while (block.isValid()) {
+        if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData()))
+            data->documentClosing();
+        block = block.next();
     }
 }

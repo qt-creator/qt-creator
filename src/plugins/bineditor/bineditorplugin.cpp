@@ -275,7 +275,9 @@ public:
         if (type == TypePermissions) {
             emit changed();
         } else {
-            open(m_fileName);
+            emit aboutToReload();
+            if (open(m_fileName))
+                emit reloaded();
         }
     }
 

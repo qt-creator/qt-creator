@@ -68,14 +68,16 @@ public:
     void clear();
 
     void initialize();
+    void loadPlugins(QDeclarativeEngine *engine);
     void parseQmlTypes();
     void parseNonQmlTypes();
     void parseValueTypes();
-    void parseNonQmlClassRecursively(const QMetaObject *qMetaObject, int majorVersion, int minorVersion);
+    void parseNonQmlClassRecursively(const QMetaObject *qMetaObject);
     void parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObject *qMetaObject) const;
     void parseClassInfo(NodeMetaInfo &nodeMetaInfo, const QMetaObject *qMetaObject) const;
 
-    QString typeName(const QMetaObject *qMetaObject) const;
+    QList<QDeclarativeType*> qmlTypes();
+    void typeInfo(const QMetaObject *qMetaObject, QString *typeName, int *majorVersion = 0, int *minorVersion = 0) const;
 
     void parseXmlFiles();
 
@@ -112,6 +114,7 @@ void MetaInfoPrivate::initialize()
     QDeclarativeEngine engine;
     Q_UNUSED(engine);
 
+    loadPlugins(&engine);
     parseQmlTypes();
     parseNonQmlTypes();
     parseXmlFiles();
@@ -120,7 +123,26 @@ void MetaInfoPrivate::initialize()
     m_isInitialized = true;
 }
 
+void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
+{
+    // hack to load plugins
+    QDeclarativeComponent pluginComponent(engine, 0);
 
+    QStringList pluginList;
+    pluginList += "import Qt 4.7";
+    pluginList += "import org.webkit 1.0";
+
+    // load maybe useful plugins
+    pluginList += "import Qt.labs.folderlistmodel 1.0";
+    pluginList += "import Qt.labs.gestures 1.0";
+    pluginList += "import Qt.multimedia 4.7";
+    pluginList += "import Qt.labs.particles 1.0";
+
+    QString componentString = QString("%1\n Item {}\n").arg(pluginList.join("\n"));
+
+
+    pluginComponent.setData(componentString.toLatin1(), QUrl());
+}
 
 void MetaInfoPrivate::parseProperties(NodeMetaInfo &nodeMetaInfo, const QMetaObject *qMetaObject) const
 {
@@ -187,48 +209,83 @@ void MetaInfoPrivate::parseClassInfo(NodeMetaInfo &nodeMetaInfo, const QMetaObje
     }
 }
 
-void MetaInfoPrivate::parseNonQmlClassRecursively(const QMetaObject *qMetaObject, int majorVersion, int minorVersion)
+void MetaInfoPrivate::parseNonQmlClassRecursively(const QMetaObject *qMetaObject)
 {
     Q_ASSERT_X(qMetaObject, Q_FUNC_INFO, "invalid QMetaObject");
-    const QString className = qMetaObject->className();
 
-    if (className.isEmpty()) {
+    QString typeName;
+    int majorVersion = -1;
+    int minorVersion = -1;
+    typeInfo(qMetaObject, &typeName, &majorVersion, &minorVersion);
+
+    if (typeName.isEmpty()) {
         qWarning() << "Meta type system: Registered class has no name.";
         return;
     }
 
-    if (!m_q->hasNodeMetaInfo(typeName(qMetaObject), majorVersion, minorVersion)) {
-        NodeMetaInfo nodeMetaInfo(*m_q);
-        nodeMetaInfo.setType(typeName(qMetaObject), majorVersion, minorVersion);
-        parseProperties(nodeMetaInfo, qMetaObject);
-        parseClassInfo(nodeMetaInfo, qMetaObject);
-
-        if (debug)
-            qDebug() << "adding non qml type" << nodeMetaInfo.typeName() << nodeMetaInfo.majorVersion() << nodeMetaInfo.minorVersion() << ", parent type" << typeName(qMetaObject->superClass());
-        if (qMetaObject->superClass())
-            nodeMetaInfo.setSuperClass(typeName(qMetaObject->superClass()));
-
-        m_q->addNodeInfo(nodeMetaInfo);
+    NodeMetaInfo existingInfo = m_q->nodeMetaInfo(typeName, majorVersion, minorVersion);
+    if (existingInfo.isValid()
+        && existingInfo.majorVersion() == majorVersion
+        && existingInfo.minorVersion() == minorVersion) {
+        return;
     }
 
-    if (const QMetaObject *superClass = qMetaObject->superClass()) {
-        parseNonQmlClassRecursively(superClass, majorVersion, minorVersion);
+    NodeMetaInfo nodeMetaInfo(*m_q);
+    nodeMetaInfo.setType(typeName, majorVersion, minorVersion);
+    parseProperties(nodeMetaInfo, qMetaObject);
+    parseClassInfo(nodeMetaInfo, qMetaObject);
+
+    QString superTypeName;
+    int superTypeMajorVersion = -1;
+    int superTypeMinorVersion = -1;
+
+    if (qMetaObject->superClass()) {
+        typeInfo(qMetaObject->superClass(), &superTypeName, &superTypeMajorVersion, &superTypeMinorVersion);
+        nodeMetaInfo.setSuperClass(superTypeName, superTypeMajorVersion, superTypeMinorVersion);
     }
+    if (debug)
+        qDebug() << "adding non qml type" << nodeMetaInfo.typeName() << nodeMetaInfo.majorVersion() << nodeMetaInfo.minorVersion()
+                 << ", parent type" << superTypeName << superTypeMajorVersion << superTypeMinorVersion;
+
+    m_q->addNodeInfo(nodeMetaInfo);
+
+    if (const QMetaObject *superClass = qMetaObject->superClass())
+        parseNonQmlClassRecursively(superClass);
 }
 
-
-QString MetaInfoPrivate::typeName(const QMetaObject *qMetaObject) const
+QList<QDeclarativeType*> MetaInfoPrivate::qmlTypes()
 {
-    if (!qMetaObject)
-        return QString();
-    QString className = qMetaObject->className();
-    if (QDeclarativeType *qmlType = QDeclarativeMetaType::qmlType(qMetaObject)) {
-        QString qmlClassName(qmlType->qmlTypeName());
-        if (!qmlClassName.isEmpty())
-            className = qmlType->qmlTypeName(); // Ensure that we always use the qml name,
-                                            // if available.
+    QList<QDeclarativeType*> list;
+    foreach (QDeclarativeType *type, QDeclarativeMetaType::qmlTypes()) {
+        if (!type->qmlTypeName().startsWith("Bauhaus/")
+            && !type->qmlTypeName().startsWith("QmlProject/"))
+            list += type;
     }
-    return className;
+    return list;
+}
+
+void MetaInfoPrivate::typeInfo(const QMetaObject *qMetaObject, QString *typeName, int *majorVersion, int *minorVersion) const
+{
+    Q_ASSERT(typeName);
+
+    if (!qMetaObject)
+        return;
+
+    *typeName = qMetaObject->className();
+    int majVersion = -1;
+    int minVersion = -1;
+    QDeclarativeType *qmlType = QDeclarativeMetaType::qmlType(qMetaObject);
+    if (qmlType) {
+        if (!qmlType->qmlTypeName().isEmpty()) {
+            *typeName = qmlType->qmlTypeName();
+            majVersion = qmlType->majorVersion();
+            minVersion = qmlType->minorVersion();
+        }
+    }
+    if (majorVersion)
+        *majorVersion = majVersion;
+    if (minorVersion)
+        *minorVersion = minVersion;
 }
 
 void MetaInfoPrivate::parseValueTypes()
@@ -291,12 +348,12 @@ void MetaInfoPrivate::parseValueTypes()
 
 void MetaInfoPrivate::parseQmlTypes()
 {
-    foreach (QDeclarativeType *qmlType, QDeclarativeMetaType::qmlTypes()) {
+    foreach (QDeclarativeType *qmlType, qmlTypes()) {
         const QString qtTypeName(qmlType->typeName());
         const QString qmlTypeName(qmlType->qmlTypeName());
         m_QtTypesToQmlTypes.insert(qtTypeName, qmlTypeName);
     }
-    foreach (QDeclarativeType *qmlType, QDeclarativeMetaType::qmlTypes()) {
+    foreach (QDeclarativeType *qmlType, qmlTypes()) {
         const QMetaObject *qMetaObject = qmlType->metaObject();
 
         // parseQmlTypes is called iteratively e.g. when plugins are loaded
@@ -307,32 +364,42 @@ void MetaInfoPrivate::parseQmlTypes()
         nodeMetaInfo.setType(qmlType->qmlTypeName(), qmlType->majorVersion(), qmlType->minorVersion());
 
         parseProperties(nodeMetaInfo, qMetaObject);
-        parseClassInfo(nodeMetaInfo, qMetaObject);
-
-        QString superTypeName = typeName(qMetaObject->superClass());
         if (qmlType->baseMetaObject() != qMetaObject) {
             // type is declared with Q_DECLARE_EXTENDED_TYPE
-            // also parse properties of original type
             parseProperties(nodeMetaInfo, qmlType->baseMetaObject());
-            superTypeName = typeName(qmlType->baseMetaObject()->superClass());
         }
 
-        nodeMetaInfo.setSuperClass(superTypeName);
+        parseClassInfo(nodeMetaInfo, qMetaObject);
 
-        if (debug)
-            qDebug() << "adding qml type" << nodeMetaInfo.typeName() << nodeMetaInfo.majorVersion() << nodeMetaInfo.minorVersion() << "super class" << superTypeName;
+        QString superTypeName;
+        int superTypeMajorVersion = -1;
+        int superTypeMinorVersion = -1;
+        if (const QMetaObject *superClassObject = qmlType->baseMetaObject()->superClass())
+            typeInfo(superClassObject, &superTypeName, &superTypeMajorVersion, &superTypeMinorVersion);
+
+        if (!superTypeName.isEmpty())
+            nodeMetaInfo.setSuperClass(superTypeName, superTypeMajorVersion, superTypeMinorVersion);
+
+        if (debug) {
+            qDebug() << "adding qml type" << nodeMetaInfo.typeName() << nodeMetaInfo.majorVersion() << nodeMetaInfo.minorVersion()
+                     << ", super class" << superTypeName << superTypeMajorVersion << superTypeMinorVersion;
+        }
+
         m_q->addNodeInfo(nodeMetaInfo);
     }
 }
 
 void MetaInfoPrivate::parseNonQmlTypes()
 {
-    foreach (QDeclarativeType *qmlType, QDeclarativeMetaType::qmlTypes()) {
-        if (!qmlType->qmlTypeName().contains("Bauhaus"))
-            parseNonQmlClassRecursively(qmlType->metaObject(), qmlType->majorVersion(), qmlType->minorVersion());
+    foreach (QDeclarativeType *qmlType, qmlTypes()) {
+        if (qmlType->qmlTypeName().startsWith("Bauhaus/")
+             || qmlType->qmlTypeName().startsWith("QmlProject/"))
+            continue;
+        if (qmlType->metaObject()->superClass())
+            parseNonQmlClassRecursively(qmlType->metaObject()->superClass());
     }
 
-    parseNonQmlClassRecursively(&QDeclarativeAnchors::staticMetaObject, -1, -1);
+    parseNonQmlClassRecursively(&QDeclarativeAnchors::staticMetaObject);
 }
 
 
@@ -417,12 +484,14 @@ MetaInfo& MetaInfo::operator=(const MetaInfo &other)
 bool MetaInfo::hasNodeMetaInfo(const QString &typeName, int majorVersion, int minorVersion) const
 {
     foreach (const NodeMetaInfo &info, m_p->m_nodeMetaInfoHash.values(typeName)) {
-        if (info.availableInVersion(majorVersion, minorVersion)) {
+        if (info.availableInVersion(majorVersion, minorVersion)) { {
             return true;
+        }
         }
     }
     if (!isGlobal())
         return global().hasNodeMetaInfo(typeName);
+
     return false;
 }
 
@@ -431,16 +500,21 @@ bool MetaInfo::hasNodeMetaInfo(const QString &typeName, int majorVersion, int mi
   */
 NodeMetaInfo MetaInfo::nodeMetaInfo(const QString &typeName, int majorVersion, int minorVersion) const
 {
+    NodeMetaInfo returnInfo;
     foreach (const NodeMetaInfo &info, m_p->m_nodeMetaInfoHash.values(typeName)) {
-        // todo: The order for different types for different versions is random here.
         if (info.availableInVersion(majorVersion, minorVersion)) {
-            return info;
+            if (!returnInfo.isValid()
+                || returnInfo.majorVersion() < info.majorVersion()
+                || (returnInfo.majorVersion() == info.minorVersion()
+                    && returnInfo.minorVersion() < info.minorVersion()))
+            returnInfo = info;
         }
     }
-    if (!isGlobal())
+    if (!returnInfo.isValid()
+        && !isGlobal())
         return global().nodeMetaInfo(typeName);
 
-    return NodeMetaInfo();
+    return returnInfo;
 }
 
 QString MetaInfo::fromQtTypes(const QString &type) const
