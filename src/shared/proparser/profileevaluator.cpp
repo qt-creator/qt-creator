@@ -2128,11 +2128,11 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
                         // We can't resolve symlinks as they do on Unix, so configure.exe puts
                         // the source of the qmake.conf at the end of the default/qmake.conf in
                         // the QMAKESPEC_ORG variable.
-                        const QStringList &spec_org =
-                                m_option->base_valuemap.value(QLatin1String("QMAKESPEC_ORIGINAL"));
+                        const ProStringList &spec_org =
+                                m_option->base_valuemap.value(ProString("QMAKESPEC_ORIGINAL"));
                         if (!spec_org.isEmpty())
                             m_option->qmakespec_name =
-                                    IoUtils::fileName(spec_org.first()).toString();
+                                    IoUtils::fileName(spec_org.first().toQString()).toString();
 #endif
                     }
                 }
