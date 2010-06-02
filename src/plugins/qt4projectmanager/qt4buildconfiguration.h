@@ -168,9 +168,12 @@ private slots:
 
 private:
     struct VersionInfo {
-        VersionInfo() {}
+        VersionInfo()
+            : versionId(-1)
+            {}
         VersionInfo(const QString &d, int v)
-            : displayName(d), versionId(v) { }
+            : displayName(d), versionId(v)
+            {}
         QString displayName;
         int versionId;
     };
