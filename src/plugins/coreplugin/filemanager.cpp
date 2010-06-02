@@ -273,13 +273,18 @@ void FileManager::removeFileInfo(IFile *file)
 void FileManager::removeFileInfo(const QString &fileName, IFile *file)
 {
     const QString &fixedName = fixFileName(fileName);
-    d->m_states[fixedName].lastUpdatedState.remove(file);
+    if (d->m_states[fixedName].lastUpdatedState.contains(file)) {
+        d->m_states[fixedName].lastUpdatedState.remove(file);
 
-    if (d->m_states.value(fixedName).lastUpdatedState.isEmpty()) {
-        d->m_states.remove(fixedName);
-        if (!fixedName.isEmpty()) {
-            d->m_fileWatcher->removePath(fixedName);
+        if (d->m_states.value(fixedName).lastUpdatedState.isEmpty()) {
+            d->m_states.remove(fixedName);
+            if (!fixedName.isEmpty()) {
+                d->m_fileWatcher->removePath(fixedName);
+            }
         }
+    } else {
+        // We could not find the fileinfo, try harder to remove it
+        removeFileInfo(file);
     }
 }
 
