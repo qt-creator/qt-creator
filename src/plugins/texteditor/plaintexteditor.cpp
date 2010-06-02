@@ -37,6 +37,7 @@
 #include "highlighter.h"
 #include "highlighterexception.h"
 #include "manager.h"
+#include "context.h"
 #include "normalindenter.h"
 #include "fontsettings.h"
 

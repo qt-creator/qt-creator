@@ -224,7 +224,6 @@ void HighlightDefinitionHandler::contextElementStarted(const QXmlAttributes &att
 {
     m_currentContext = m_definition->createContext(atts.value(kName), m_initialContext);
     m_currentContext->setDefinition(m_definition);
-    m_currentContext->setName(atts.value(kName));
     m_currentContext->setItemData(atts.value(kAttribute));
     m_currentContext->setDynamic(atts.value(kDynamic));
     m_currentContext->setFallthrough(atts.value(kFallthrough));

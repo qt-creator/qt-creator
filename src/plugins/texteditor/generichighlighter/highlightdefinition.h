@@ -47,16 +47,16 @@ public:
     HighlightDefinition();
     ~HighlightDefinition();
 
-    const QSharedPointer<KeywordList> &createKeywordList(const QString &list);
-    const QSharedPointer<KeywordList> &keywordList(const QString &list);
+    QSharedPointer<KeywordList> createKeywordList(const QString &list);
+    QSharedPointer<KeywordList> keywordList(const QString &list);
 
-    const QSharedPointer<Context> &createContext(const QString &context, bool initial);
-    const QSharedPointer<Context> &initialContext() const;
-    const QSharedPointer<Context> &context(const QString &context) const;
+    QSharedPointer<Context> createContext(const QString &context, bool initial);
+    QSharedPointer<Context> initialContext() const;
+    QSharedPointer<Context> context(const QString &context) const;
     const QHash<QString, QSharedPointer<Context> > &contexts() const;
 
-    const QSharedPointer<ItemData> &createItemData(const QString &itemData);
-    const QSharedPointer<ItemData> &itemData(const QString &itemData) const;
+    QSharedPointer<ItemData> createItemData(const QString &itemData);
+    QSharedPointer<ItemData> itemData(const QString &itemData) const;
 
     void setKeywordsSensitive(const QString &sensitivity);
     Qt::CaseSensitivity keywordsSensitive() const;
@@ -86,10 +86,10 @@ private:
     struct GenericHelper
     {
         template <class Element, class Container>
-        const QSharedPointer<Element> &create(const QString &name, Container &container);
+        QSharedPointer<Element> create(const QString &name, Container &container);
 
         template <class Element, class Container>
-        const QSharedPointer<Element> &find(const QString &name, const Container &container) const;
+        QSharedPointer<Element> find(const QString &name, const Container &container) const;
     };
     GenericHelper m_helper;
 

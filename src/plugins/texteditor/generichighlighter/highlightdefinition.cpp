@@ -49,7 +49,7 @@ HighlightDefinition::~HighlightDefinition()
 {}
 
 template <class Element, class Container>
-const QSharedPointer<Element> &HighlightDefinition::
+QSharedPointer<Element> HighlightDefinition::
 GenericHelper::create(const QString &name, Container &container)
 {
     if (name.isEmpty())
@@ -58,12 +58,11 @@ GenericHelper::create(const QString &name, Container &container)
     if (container.contains(name))
         throw HighlighterException();
 
-    container.insert(name, QSharedPointer<Element>(new Element));
-    return *container.constFind(name);
+    return container.insert(name, QSharedPointer<Element>(new Element)).value();
 }
 
 template <class Element, class Container>
-const QSharedPointer<Element> &HighlightDefinition::
+QSharedPointer<Element> HighlightDefinition::
 GenericHelper::find(const QString &name, const Container &container) const
 {
     typename Container::const_iterator it = container.find(name);
@@ -73,34 +72,35 @@ GenericHelper::find(const QString &name, const Container &container) const
     return it.value();
 }
 
-const QSharedPointer<KeywordList> &HighlightDefinition::createKeywordList(const QString &list)
+QSharedPointer<KeywordList> HighlightDefinition::createKeywordList(const QString &list)
 { return m_helper.create<KeywordList>(list, m_lists); }
 
-const QSharedPointer<KeywordList> &HighlightDefinition::keywordList(const QString &list)
+QSharedPointer<KeywordList> HighlightDefinition::keywordList(const QString &list)
 { return m_helper.find<KeywordList>(list, m_lists); }
 
-const QSharedPointer<Context> &HighlightDefinition::createContext(const QString &context,
-                                                                  bool initial)
+QSharedPointer<Context> HighlightDefinition::createContext(const QString &context, bool initial)
 {
     if (initial)
         m_initialContext = context;
 
-    return m_helper.create<Context>(context, m_contexts);
+    QSharedPointer<Context> newContext = m_helper.create<Context>(context, m_contexts);
+    newContext->setName(context);
+    return newContext;
 }
 
-const QSharedPointer<Context> &HighlightDefinition::initialContext() const
+QSharedPointer<Context> HighlightDefinition::initialContext() const
 { return m_helper.find<Context>(m_initialContext, m_contexts); }
 
-const QSharedPointer<Context> &HighlightDefinition::context(const QString &context) const
+QSharedPointer<Context> HighlightDefinition::context(const QString &context) const
 { return m_helper.find<Context>(context, m_contexts); }
 
 const QHash<QString, QSharedPointer<Context> > &HighlightDefinition::contexts() const
 { return m_contexts; }
 
-const QSharedPointer<ItemData> &HighlightDefinition::createItemData(const QString &itemData)
+QSharedPointer<ItemData> HighlightDefinition::createItemData(const QString &itemData)
 { return m_helper.create<ItemData>(itemData, m_itemsData); }
 
-const QSharedPointer<ItemData> &HighlightDefinition::itemData(const QString &itemData) const
+QSharedPointer<ItemData> HighlightDefinition::itemData(const QString &itemData) const
 { return m_helper.find<ItemData>(itemData, m_itemsData); }
 
 void HighlightDefinition::setSingleLineComment(const QString &start)
