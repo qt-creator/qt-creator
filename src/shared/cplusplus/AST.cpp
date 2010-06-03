@@ -2053,26 +2053,52 @@ unsigned ObjCClassDeclarationAST::firstToken() const
 
 unsigned ObjCClassDeclarationAST::lastToken() const
 {
-    if (end_token)                   return end_token + 1;
-    if (member_declaration_list)         return member_declaration_list->lastToken();
-    if (inst_vars_decl)              return inst_vars_decl->lastToken();
-    if (protocol_refs)
-        return protocol_refs->lastToken();
-    if (superclass)
-        return superclass->lastToken();
-    if (colon_token)                 return colon_token + 1;
+    if (end_token)
+        return end_token + 1;
+
+    if (member_declaration_list) {
+        if (unsigned token = member_declaration_list->lastToken())
+            return token;
+    }
+
+    if (inst_vars_decl) {
+        if (unsigned token = inst_vars_decl->lastToken())
+            return token;
+    }
+
+    if (protocol_refs) {
+        if (unsigned token = protocol_refs->lastToken())
+            return token;
+    }
+
+    if (superclass) {
+        if (unsigned token = superclass->lastToken())
+            return token;
+    }
+
+    if (colon_token)
+        return colon_token + 1;
+
     if (rparen_token)
         return rparen_token + 1;
-    if (category_name)
-        return category_name->lastToken();
+
+    if (category_name) {
+        if (unsigned token = category_name->lastToken())
+            return token;
+    }
+
     if (lparen_token)
         return lparen_token + 1;
-    if (class_name)                  return class_name->lastToken();
+
+    if (class_name) {
+        if (unsigned token = class_name->lastToken())
+            return token;
+    }
 
     if (interface_token)
         return interface_token + 1;
-    else
-        return implementation_token + 1;
+
+    return implementation_token + 1;
 }
 
 unsigned ObjCProtocolDeclarationAST::firstToken() const
@@ -2087,17 +2113,25 @@ unsigned ObjCProtocolDeclarationAST::lastToken() const
     if (end_token)
         return end_token + 1;
 
-    else if (member_declaration_list)
-        return member_declaration_list->lastToken();
+    if (member_declaration_list) {
+        if (unsigned token = member_declaration_list->lastToken())
+            return token;
+    }
 
-    else if (protocol_refs)
-        return protocol_refs->lastToken();
+    if (protocol_refs) {
+        if (unsigned token = protocol_refs->lastToken())
+            return token;
+    }
 
-    else if (name)
-        return name->lastToken();
+    if (name) {
+        if (unsigned token = name->lastToken())
+            return token;
+    }
 
-    else if (attribute_list)
-        return attribute_list->lastToken();
+    if (attribute_list) {
+        if (unsigned token = attribute_list->lastToken())
+            return token;
+    }
 
     return protocol_token + 1;
 }
