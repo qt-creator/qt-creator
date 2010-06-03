@@ -63,10 +63,7 @@ public:
     virtual int match(const QList<CPlusPlus::AST *> &path) = 0;
 
     CPlusPlus::Document::Ptr document() const;
-    void setDocument(CPlusPlus::Document::Ptr document);
-
-    CPlusPlus::Snapshot snapshot() const;
-    void setSnapshot(const CPlusPlus::Snapshot &snapshot);
+    const CPlusPlus::Snapshot &snapshot() const;
 
     virtual Range topLevelRange() const;
     virtual int match(TextEditor::QuickFixState *state);
@@ -123,7 +120,7 @@ public:
     CppQuickFixCollector();
     virtual ~CppQuickFixCollector();
 
-    QList<CppQuickFixOperationPtr> quickFixes() const { return _quickFixes; }
+    QList<TextEditor::QuickFixOperation::Ptr> quickFixes() const { return _quickFixes; }
 
     virtual TextEditor::ITextEditable *editor() const;
     virtual int startPosition() const;
@@ -134,14 +131,11 @@ public:
     virtual void complete(const TextEditor::CompletionItem &item);
     virtual void cleanup();
 
-public Q_SLOTS:
-    void perform(CppQuickFixOperationPtr op);
-
 private:
     CppTools::CppModelManagerInterface *_modelManager;
     TextEditor::ITextEditable *_editable;
     CPPEditor *_editor;
-    QList<CppQuickFixOperationPtr> _quickFixes;
+    QList<TextEditor::QuickFixOperation::Ptr> _quickFixes;
 };
 
 } // end of namespace Internal

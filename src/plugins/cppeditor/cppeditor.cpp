@@ -1586,11 +1586,8 @@ bool CPPEditor::event(QEvent *e)
 
 void CPPEditor::performQuickFix(int index)
 {
-    CppQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
-    CppQuickFixOperationPtr op = m_quickFixes.at(index);
-    quickFixCollector->perform(op);
-    //op->createChangeSet();
-    //setChangeSet(op->changeSet());
+    TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
+    op->perform();
 }
 
 void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
@@ -1614,7 +1611,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
             m_quickFixes = quickFixCollector->quickFixes();
 
             for (int index = 0; index < m_quickFixes.size(); ++index) {
-                CppQuickFixOperationPtr op = m_quickFixes.at(index);
+                TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
                 QAction *action = menu->addAction(op->description());
                 mapper.setMapping(action, index);
                 connect(action, SIGNAL(triggered()), &mapper, SLOT(map()));

@@ -160,3 +160,9 @@ QString QuickFixOperation::textOf(int start, int end) const
     tc.setPosition(end, QTextCursor::KeepAnchor);
     return tc.selectedText();
 }
+
+void QuickFixOperation::perform()
+{
+    createChangeSet();
+    apply();
+}

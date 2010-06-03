@@ -77,6 +77,7 @@ public:
 
     virtual int match(QuickFixState *state) = 0;
 
+    void perform();
     void apply();
 
     TextEditor::BaseTextEditor *editor() const;

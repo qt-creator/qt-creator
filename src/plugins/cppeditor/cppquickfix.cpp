@@ -62,6 +62,7 @@ class CppQuickFixState: public TextEditor::QuickFixState
 {
 public:
     QList<CPlusPlus::AST *> path;
+    SemanticInfo info;
 };
 
 /*
@@ -880,6 +881,8 @@ CppQuickFixOperation::Range CppQuickFixOperation::topLevelRange() const
 int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
 {
     CppQuickFixState *s = static_cast<CppQuickFixState *>(state);
+    _document = s->info.doc;
+    _snapshot = s->info.snapshot;
     return match(s->path);
 }
 
@@ -892,14 +895,8 @@ void CppQuickFixOperation::setTopLevelNode(CPlusPlus::AST *topLevelNode)
 Document::Ptr CppQuickFixOperation::document() const
 { return _document; }
 
-void CppQuickFixOperation::setDocument(CPlusPlus::Document::Ptr document)
-{ _document = document; }
-
-Snapshot CppQuickFixOperation::snapshot() const
+const Snapshot &CppQuickFixOperation::snapshot() const
 { return _snapshot; }
-
-void CppQuickFixOperation::setSnapshot(const CPlusPlus::Snapshot &snapshot)
-{ _snapshot = snapshot; }
 
 const CPlusPlus::Token &CppQuickFixOperation::tokenAt(unsigned index) const
 { return _document->translationUnit()->tokenAt(index); }
@@ -1081,7 +1078,7 @@ int CppQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral(_editor));
         QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString(_editor));
 
-        QList<CppQuickFixOperationPtr> candidates;
+        QList<TextEditor::QuickFixOperation::Ptr> candidates;
         candidates.append(rewriteLogicalAndOp);
         candidates.append(splitIfStatementOp);
         candidates.append(moveDeclarationOutOfIfOp);
@@ -1094,21 +1091,20 @@ int CppQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         if (_editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
             candidates.append(wrapCString);
 
-        QMap<int, QList<CppQuickFixOperationPtr> > matchedOps;
+        QMap<int, QList<TextEditor::QuickFixOperation::Ptr> > matchedOps;
 
         CppQuickFixState state;
         state.path = path;
+        state.info = info;
 
-        foreach (CppQuickFixOperationPtr op, candidates) {
-            op->setSnapshot(info.snapshot);
-            op->setDocument(info.doc);
+        foreach (TextEditor::QuickFixOperation::Ptr op, candidates) {
             op->setTextCursor(_editor->textCursor());
             int priority = op->match(&state);
             if (priority != -1)
                 matchedOps[priority].append(op);
         }
 
-        QMapIterator<int, QList<CppQuickFixOperationPtr> > it(matchedOps);
+        QMapIterator<int, QList<TextEditor::QuickFixOperation::Ptr> > it(matchedOps);
         it.toBack();
         if (it.hasPrevious()) {
             it.previous();
@@ -1126,7 +1122,7 @@ int CppQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 void CppQuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickFixItems)
 {
     for (int i = 0; i < _quickFixes.size(); ++i) {
-        CppQuickFixOperationPtr op = _quickFixes.at(i);
+        TextEditor::QuickFixOperation::Ptr op = _quickFixes.at(i);
 
         TextEditor::CompletionItem item(this);
         item.text = op->description();
@@ -1140,16 +1136,9 @@ void CppQuickFixCollector::complete(const TextEditor::CompletionItem &item)
     const int index = item.data.toInt();
 
     if (index < _quickFixes.size()) {
-        CppQuickFixOperationPtr quickFix = _quickFixes.at(index);
-        perform(quickFix);
+        TextEditor::QuickFixOperation::Ptr quickFix = _quickFixes.at(index);
+        quickFix->perform();
     }
-}
-
-void CppQuickFixCollector::perform(CppQuickFixOperationPtr op)
-{
-    op->setTextCursor(_editor->textCursor());
-    op->createChangeSet();
-    op->apply();
 }
 
 void CppQuickFixCollector::cleanup()
