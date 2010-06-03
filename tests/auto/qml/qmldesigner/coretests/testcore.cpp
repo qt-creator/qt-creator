@@ -1106,8 +1106,10 @@ void TestCore::testBasicStates()
     // state2 -> state1
     view->setCurrentState(state1);
     QCOMPARE(view->currentState(), state1);
-    QCOMPARE(view->methodCalls().size(), ++expectedViewMethodCount);
-    QCOMPARE(view->methodCalls().last(), TestView::MethodCall("stateChanged", QStringList() << "state1" << "state2"));
+    expectedViewMethodCount += 2; // Since commit fa640f66db we're always going through the base state
+    QCOMPARE(view->methodCalls().size(), expectedViewMethodCount);
+    QCOMPARE(view->methodCalls().at(view->methodCalls().size()-2), TestView::MethodCall("stateChanged", QStringList() << QString() << "state2"));
+    QCOMPARE(view->methodCalls().at(view->methodCalls().size()-1), TestView::MethodCall("stateChanged", QStringList() << "state1" << QString()));
     QCOMPARE(rect2Instance.property("x").toInt(), 0);
 
     // state1 -> baseState
