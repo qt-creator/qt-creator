@@ -1026,122 +1026,66 @@ QString CppQuickFixOperation::textOf(const AST *ast) const
 }
 
 CppQuickFixCollector::CppQuickFixCollector()
-    : _modelManager(CppTools::CppModelManagerInterface::instance()), _editable(0), _editor(0)
-{ }
+{
+}
 
 CppQuickFixCollector::~CppQuickFixCollector()
-{ }
-
-TextEditor::ITextEditable *CppQuickFixCollector::editor() const
-{ return _editable; }
-
-int CppQuickFixCollector::startPosition() const
-{ return _editable->position(); }
-
-bool CppQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor)
-{ return qobject_cast<CPPEditorEditable *>(editor) != 0; }
-
-bool CppQuickFixCollector::triggersCompletion(TextEditor::ITextEditable *)
-{ return false; }
-
-int CppQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 {
-    Q_ASSERT(editable != 0);
+}
 
-    _editable = editable;
-    _editor = qobject_cast<CPPEditor *>(editable->widget());
-    Q_ASSERT(_editor != 0);
+TextEditor::QuickFixState *CppQuickFixCollector::initializeCompletion(TextEditor::ITextEditable *editable)
+{
+    if (CPPEditor *editor = qobject_cast<CPPEditor *>(editable->widget())) {
+        const SemanticInfo info = editor->semanticInfo();
 
-    const SemanticInfo info = _editor->semanticInfo();
-
-    if (info.revision != _editor->editorRevision()) {
-        // outdated
-        qWarning() << "TODO: outdated semantic info, force a reparse.";
-        return -1;
-    }
-
-    if (info.doc) {
-        ASTPath astPath(info.doc);
-
-        const QList<AST *> path = astPath(_editor->textCursor());
-        if (path.isEmpty())
-            return -1;
-
-        QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(_editor));
-        QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(_editor));
-        QSharedPointer<MoveDeclarationOutOfIfOp> moveDeclarationOutOfIfOp(new MoveDeclarationOutOfIfOp(_editor));
-        QSharedPointer<MoveDeclarationOutOfWhileOp> moveDeclarationOutOfWhileOp(new MoveDeclarationOutOfWhileOp(_editor));
-        QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp(_editor));
-        QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp(_editor));
-        QSharedPointer<UseInverseOp> useInverseOp(new UseInverseOp(_editor));
-        QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp(_editor));
-        QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral(_editor));
-        QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString(_editor));
-
-        QList<TextEditor::QuickFixOperation::Ptr> candidates;
-        candidates.append(rewriteLogicalAndOp);
-        candidates.append(splitIfStatementOp);
-        candidates.append(moveDeclarationOutOfIfOp);
-        candidates.append(moveDeclarationOutOfWhileOp);
-        candidates.append(splitSimpleDeclarationOp);
-        candidates.append(addBracesToIfOp);
-        candidates.append(useInverseOp);
-        candidates.append(flipBinaryOp);
-        candidates.append(wrapStringLiteral);
-        if (_editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
-            candidates.append(wrapCString);
-
-        QMap<int, QList<TextEditor::QuickFixOperation::Ptr> > matchedOps;
-
-        CppQuickFixState state;
-        state.path = path;
-        state.info = info;
-
-        foreach (TextEditor::QuickFixOperation::Ptr op, candidates) {
-            op->setTextCursor(_editor->textCursor());
-            int priority = op->match(&state);
-            if (priority != -1)
-                matchedOps[priority].append(op);
+        if (info.revision != editor->editorRevision()) {
+            // outdated
+            qWarning() << "TODO: outdated semantic info, force a reparse.";
+            return 0;
         }
 
-        QMapIterator<int, QList<TextEditor::QuickFixOperation::Ptr> > it(matchedOps);
-        it.toBack();
-        if (it.hasPrevious()) {
-            it.previous();
+        if (info.doc) {
+            ASTPath astPath(info.doc);
 
-            _quickFixes = it.value();
+            const QList<AST *> path = astPath(editor->textCursor());
+            if (! path.isEmpty()) {
+                CppQuickFixState *state = new CppQuickFixState;
+                state->path = path;
+                state->info = info;
+                return state;
+            }
         }
-
-        if (! _quickFixes.isEmpty())
-            return editable->position();
     }
 
-    return -1;
+    return 0;
 }
 
-void CppQuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickFixItems)
+QList<TextEditor::QuickFixOperation::Ptr> CppQuickFixCollector::quickFixOperations(TextEditor::BaseTextEditor *editor) const
 {
-    for (int i = 0; i < _quickFixes.size(); ++i) {
-        TextEditor::QuickFixOperation::Ptr op = _quickFixes.at(i);
+    QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(editor));
+    QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(editor));
+    QSharedPointer<MoveDeclarationOutOfIfOp> moveDeclarationOutOfIfOp(new MoveDeclarationOutOfIfOp(editor));
+    QSharedPointer<MoveDeclarationOutOfWhileOp> moveDeclarationOutOfWhileOp(new MoveDeclarationOutOfWhileOp(editor));
+    QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp(editor));
+    QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp(editor));
+    QSharedPointer<UseInverseOp> useInverseOp(new UseInverseOp(editor));
+    QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp(editor));
+    QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral(editor));
+    QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString(editor));
 
-        TextEditor::CompletionItem item(this);
-        item.text = op->description();
-        item.data = QVariant::fromValue(i);
-        quickFixItems->append(item);
-    }
-}
+    QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations;
+    quickFixOperations.append(rewriteLogicalAndOp);
+    quickFixOperations.append(splitIfStatementOp);
+    quickFixOperations.append(moveDeclarationOutOfIfOp);
+    quickFixOperations.append(moveDeclarationOutOfWhileOp);
+    quickFixOperations.append(splitSimpleDeclarationOp);
+    quickFixOperations.append(addBracesToIfOp);
+    quickFixOperations.append(useInverseOp);
+    quickFixOperations.append(flipBinaryOp);
+    quickFixOperations.append(wrapStringLiteral);
 
-void CppQuickFixCollector::complete(const TextEditor::CompletionItem &item)
-{
-    const int index = item.data.toInt();
+    if (editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+        quickFixOperations.append(wrapCString);
 
-    if (index < _quickFixes.size()) {
-        TextEditor::QuickFixOperation::Ptr quickFix = _quickFixes.at(index);
-        quickFix->perform();
-    }
-}
-
-void CppQuickFixCollector::cleanup()
-{
-    _quickFixes.clear();
+    return quickFixOperations;
 }

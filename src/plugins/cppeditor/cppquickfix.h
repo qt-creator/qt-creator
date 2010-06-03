@@ -48,10 +48,6 @@ namespace CppTools {
 namespace CppEditor {
 namespace Internal {
 
-class CPPEditor;
-class CppQuickFixOperation;
-typedef QSharedPointer<CppQuickFixOperation> CppQuickFixOperationPtr;
-
 class CppQuickFixOperation: public TextEditor::QuickFixOperation
 {
     Q_DISABLE_COPY(CppQuickFixOperation)
@@ -112,7 +108,7 @@ private:
     CPlusPlus::AST *_topLevelNode;
 };
 
-class CppQuickFixCollector: public TextEditor::IQuickFixCollector
+class CppQuickFixCollector: public TextEditor::QuickFixCollector
 {
     Q_OBJECT
 
@@ -120,22 +116,8 @@ public:
     CppQuickFixCollector();
     virtual ~CppQuickFixCollector();
 
-    QList<TextEditor::QuickFixOperation::Ptr> quickFixes() const { return _quickFixes; }
-
-    virtual TextEditor::ITextEditable *editor() const;
-    virtual int startPosition() const;
-    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
-    virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
-    virtual int startCompletion(TextEditor::ITextEditable *editor);
-    virtual void completions(QList<TextEditor::CompletionItem> *completions);
-    virtual void complete(const TextEditor::CompletionItem &item);
-    virtual void cleanup();
-
-private:
-    CppTools::CppModelManagerInterface *_modelManager;
-    TextEditor::ITextEditable *_editable;
-    CPPEditor *_editor;
-    QList<TextEditor::QuickFixOperation::Ptr> _quickFixes;
+    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable);
+    virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) const;
 };
 
 } // end of namespace Internal

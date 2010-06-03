@@ -36,6 +36,7 @@
 #include <QtCore/QDebug>
 
 using TextEditor::QuickFixOperation;
+using TextEditor::QuickFixCollector;
 
 QuickFixOperation::QuickFixOperation(TextEditor::BaseTextEditor *editor)
     : _editor(editor)
@@ -165,4 +166,86 @@ void QuickFixOperation::perform()
 {
     createChangeSet();
     apply();
+}
+
+QuickFixCollector::QuickFixCollector()
+    : _editable(0)
+{ }
+
+QuickFixCollector::~QuickFixCollector()
+{ }
+
+TextEditor::ITextEditable *QuickFixCollector::editor() const
+{ return _editable; }
+
+int QuickFixCollector::startPosition() const
+{ return _editable->position(); }
+
+bool QuickFixCollector::supportsEditor(TextEditor::ITextEditable *)
+{ return true; }
+
+bool QuickFixCollector::triggersCompletion(TextEditor::ITextEditable *)
+{ return false; }
+
+int QuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
+{
+    Q_ASSERT(editable != 0);
+
+    _editable = editable;
+
+    if (TextEditor::QuickFixState *state = initializeCompletion(editable)) {
+        TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(editable->widget());
+        Q_ASSERT(editor != 0);
+
+        const QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations = this->quickFixOperations(editor);
+        QMap<int, QList<TextEditor::QuickFixOperation::Ptr> > matchedOps;
+
+        foreach (TextEditor::QuickFixOperation::Ptr op, quickFixOperations) {
+            op->setTextCursor(editor->textCursor());
+            int priority = op->match(state);
+            if (priority != -1)
+                matchedOps[priority].append(op);
+        }
+
+        QMapIterator<int, QList<TextEditor::QuickFixOperation::Ptr> > it(matchedOps);
+        it.toBack();
+        if (it.hasPrevious()) {
+            it.previous();
+            _quickFixes = it.value();
+        }
+
+        delete state;
+
+        if (! _quickFixes.isEmpty())
+            return editable->position();
+    }
+
+    return -1;
+}
+
+void QuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickFixItems)
+{
+    for (int i = 0; i < _quickFixes.size(); ++i) {
+        TextEditor::QuickFixOperation::Ptr op = _quickFixes.at(i);
+
+        TextEditor::CompletionItem item(this);
+        item.text = op->description();
+        item.data = QVariant::fromValue(i);
+        quickFixItems->append(item);
+    }
+}
+
+void QuickFixCollector::complete(const TextEditor::CompletionItem &item)
+{
+    const int index = item.data.toInt();
+
+    if (index < _quickFixes.size()) {
+        TextEditor::QuickFixOperation::Ptr quickFix = _quickFixes.at(index);
+        quickFix->perform();
+    }
+}
+
+void QuickFixCollector::cleanup()
+{
+    _quickFixes.clear();
 }

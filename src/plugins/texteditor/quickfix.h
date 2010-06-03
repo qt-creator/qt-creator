@@ -31,6 +31,7 @@
 #define TEXTEDITORQUICKFIX_H
 
 #include "texteditor_global.h"
+#include "icompletioncollector.h"
 #include <utils/changeset.h>
 
 #include <QtCore/QSharedPointer>
@@ -109,6 +110,34 @@ private:
     TextEditor::BaseTextEditor *_editor;
     QTextCursor _textCursor;
     Utils::ChangeSet _changeSet;
+};
+
+
+class TEXTEDITOR_EXPORT QuickFixCollector: public TextEditor::IQuickFixCollector
+{
+    Q_OBJECT
+
+public:
+    QuickFixCollector();
+    virtual ~QuickFixCollector();
+
+    QList<TextEditor::QuickFixOperation::Ptr> quickFixes() const { return _quickFixes; }
+
+    virtual TextEditor::ITextEditable *editor() const;
+    virtual int startPosition() const;
+    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
+    virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
+    virtual int startCompletion(TextEditor::ITextEditable *editor);
+    virtual void completions(QList<TextEditor::CompletionItem> *completions);
+    virtual void complete(const TextEditor::CompletionItem &item);
+    virtual void cleanup();
+
+    virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable) = 0;
+    virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) const = 0;
+
+private:
+    TextEditor::ITextEditable *_editable;
+    QList<TextEditor::QuickFixOperation::Ptr> _quickFixes;
 };
 
 } // end of namespace TextEditor
