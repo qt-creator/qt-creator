@@ -685,6 +685,14 @@ int QmlJSTextEditor::documentRevision() const
     return document()->revision();
 }
 
+bool QmlJSTextEditor::isOutdated() const
+{
+    if (m_semanticInfo.revision() != documentRevision())
+        return true;
+
+    return false;
+}
+
 Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
 {
     QmlJSTextEditor *newEditor = new QmlJSTextEditor(parent);

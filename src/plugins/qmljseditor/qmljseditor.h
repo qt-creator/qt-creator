@@ -211,6 +211,7 @@ public:
 
     SemanticInfo semanticInfo() const;
     int documentRevision() const;
+    bool isOutdated() const;
 
 public slots:
     void followSymbolUnderCursor();

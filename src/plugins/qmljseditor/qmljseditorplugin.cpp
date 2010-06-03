@@ -37,6 +37,7 @@
 #include "qmljsmodelmanager.h"
 #include "qmlfilewizard.h"
 #include "qmljspreviewrunner.h"
+#include "qmljsquickfix.h"
 
 #include <qmldesigner/qmldesignerconstants.h>
 
@@ -64,12 +65,17 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QTimer>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJSEditor::Constants;
+
+enum {
+    QUICKFIX_INTERVAL = 20
+};
 
 QmlJSEditorPlugin *QmlJSEditorPlugin::m_instance = 0;
 
@@ -80,6 +86,12 @@ QmlJSEditorPlugin::QmlJSEditorPlugin() :
     m_actionHandler(0)
 {
     m_instance = this;
+
+    m_quickFixCollector = 0;
+    m_quickFixTimer = new QTimer(this);
+    m_quickFixTimer->setInterval(20);
+    m_quickFixTimer->setSingleShot(true);
+    connect(m_quickFixTimer, SIGNAL(timeout()), this, SLOT(quickFixNow()));
 }
 
 QmlJSEditorPlugin::~QmlJSEditorPlugin()
@@ -163,6 +175,9 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(":/qmljseditor/images/qmlfile.png"), "qml");
 
+    m_quickFixCollector = new QmlJSQuickFixCollector;
+    addAutoReleasedObject(m_quickFixCollector);
+
     return true;
 }
 
@@ -190,6 +205,10 @@ void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::Internal::QmlJSTextEditor 
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
             TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
+
+    // quick fix
+    connect(editor, SIGNAL(requestQuickFix(TextEditor::ITextEditable*)),
+            this, SLOT(quickFix(TextEditor::ITextEditable*)));
 }
 
 void QmlJSEditorPlugin::followSymbolUnderCursor()
@@ -211,5 +230,33 @@ Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a, Core::ActionManager 
     return command;
 }
 
+QmlJSQuickFixCollector *QmlJSEditorPlugin::quickFixCollector() const
+{ return m_quickFixCollector; }
+
+void QmlJSEditorPlugin::quickFix(TextEditor::ITextEditable *editable)
+{
+    m_currentTextEditable = editable;
+    quickFixNow();
+}
+
+void QmlJSEditorPlugin::quickFixNow()
+{
+    if (! m_currentTextEditable)
+        return;
+
+    Core::EditorManager *em = Core::EditorManager::instance();
+    QmlJSTextEditor *currentEditor = qobject_cast<QmlJSTextEditor*>(em->currentEditor()->widget());
+
+    if (QmlJSTextEditor *editor = qobject_cast<QmlJSTextEditor*>(m_currentTextEditable->widget())) {
+        if (currentEditor == editor) {
+            if (editor->isOutdated()) {
+                // qDebug() << "TODO: outdated document" << editor->documentRevision() << editor->semanticInfo().revision();
+                // ### FIXME: m_quickFixTimer->start(QUICKFIX_INTERVAL);
+                m_quickFixTimer->stop();
+            }else
+                TextEditor::Internal::CompletionSupport::instance()->quickFix(m_currentTextEditable);
+        }
+    }
+}
 
 Q_EXPORT_PLUGIN(QmlJSEditorPlugin)

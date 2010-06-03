@@ -31,8 +31,10 @@
 #define QMLJSEDITORPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
+#include <QtCore/QPointer>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
+QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace TextEditor {
 class TextEditorActionHandler;
@@ -42,6 +44,10 @@ namespace Core {
 class Command;
 class ActionContainer;
 class ActionManager;
+}
+
+namespace TextEditor {
+class ITextEditable;
 }
 
 namespace QmlJSEditor {
@@ -54,6 +60,7 @@ namespace Internal {
 class QmlJSEditorFactory;
 class QmlJSTextEditor;
 class QmlJSPreviewRunner;
+class QmlJSQuickFixCollector;
 
 class QmlJSEditorPlugin : public ExtensionSystem::IPlugin
 {
@@ -70,6 +77,8 @@ public:
     static QmlJSEditorPlugin *instance()
     { return m_instance; }
 
+    QmlJSQuickFixCollector *quickFixCollector() const;
+
     void initializeEditor(QmlJSTextEditor *editor);
 
 public Q_SLOTS:
@@ -77,6 +86,8 @@ public Q_SLOTS:
 
 private Q_SLOTS:
     void openPreview();
+    void quickFix(TextEditor::ITextEditable *editable);
+    void quickFixNow();
 
 private:
     Core::Command *addToolAction(QAction *a, Core::ActionManager *am, const QList<int> &context, const QString &name,
@@ -91,6 +102,11 @@ private:
     QmlFileWizard *m_wizard;
     QmlJSEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;
+
+    QmlJSQuickFixCollector *m_quickFixCollector;
+
+    QTimer *m_quickFixTimer;
+    QPointer<TextEditor::ITextEditable> m_currentTextEditable;
 };
 
 } // namespace Internal
