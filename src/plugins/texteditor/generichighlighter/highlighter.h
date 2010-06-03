@@ -100,8 +100,10 @@ private:
                        const bool setCurrent = true);
 
     QString currentContextSequence() const;
-    void mapContextSequence(const QString &contextSequence);
+    void mapPersistentSequence(const QString &contextSequence);
+    void mapLeadingSequence(const QString &contextSequence);
     void pushContextSequence(int state);
+
     void pushDynamicContext(const QSharedPointer<Context> &baseContext);
 
     void createWillContinueBlock();

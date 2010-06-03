@@ -273,9 +273,9 @@ void Highlighter::changeContext(const QString &contextName,
             // One or more persistent contexts were popped.
             const QString &currentSequence = currentContextSequence();
             if (m_persistentStates.contains(currentSequence))
-                setCurrentBlockState(m_persistentStates.value(currentContextSequence()));
+                setCurrentBlockState(m_persistentStates.value(currentSequence));
             else
-                setCurrentBlockState(m_leadingStates.value(currentContextSequence()));
+                setCurrentBlockState(m_leadingStates.value(currentSequence));
         }
     } else {
         const QSharedPointer<Context> &context = definition->context(contextName);
@@ -285,11 +285,15 @@ void Highlighter::changeContext(const QString &contextName,
         else
             m_contexts.push_back(context);
 
-        if (m_contexts.back()->lineEndContext() == kStay) {
-            // A persistent context was pushed.
+        if (m_contexts.back()->lineEndContext() == kStay ||
+            currentBlockState() >= PersistentsStart) {
             const QString &currentSequence = currentContextSequence();
-            mapContextSequence(currentSequence);
-            setCurrentBlockState(m_persistentStates.value(currentSequence));
+            mapLeadingSequence(currentSequence);
+            if (m_contexts.back()->lineEndContext() == kStay) {
+                // A persistent context was pushed.
+                mapPersistentSequence(currentSequence);
+                setCurrentBlockState(m_persistentStates.value(currentSequence));
+            }
         }
     }
 
@@ -398,17 +402,20 @@ void Highlighter::analyseConsistencyOfWillContinueBlock(const QString &text)
     }
 }
 
-void Highlighter::mapContextSequence(const QString &contextSequence)
+void Highlighter::mapPersistentSequence(const QString &contextSequence)
 {
-    if (currentBlockState() < PersistentsStart && !m_leadingStates.contains(contextSequence))
-        m_leadingStates.insert(contextSequence, currentBlockState());
-
     if (!m_persistentStates.contains(contextSequence)) {
         int newState = m_persistentStatesCounter;
         m_persistentStates.insert(contextSequence, newState);
         m_persistentContexts.insert(newState, m_contexts);
         ++m_persistentStatesCounter;
     }
+}
+
+void Highlighter::mapLeadingSequence(const QString &contextSequence)
+{
+    if (!m_leadingStates.contains(contextSequence))
+        m_leadingStates.insert(contextSequence, currentBlockState());
 }
 
 void Highlighter::pushContextSequence(int state)
