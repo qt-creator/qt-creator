@@ -1591,7 +1591,10 @@ static bool subModeCanUseTextObjects(int submode)
 {
     return submode == DeleteSubMode
         || submode == YankSubMode
-        || submode == ChangeSubMode;
+        || submode == ChangeSubMode
+        || submode == IndentSubMode
+        || submode == ShiftLeftSubMode
+        || submode == ShiftRightSubMode;
 }
 
 EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
@@ -1627,6 +1630,8 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             selectBlockTextObject(m_subsubdata.is('i'), '(', ')');
         else if (input.is('<') || input.is('>'))
             selectBlockTextObject(m_subsubdata.is('i'), '<', '>');
+        else if (input.is('{') || input.is('}') || input.is('B'))
+            selectBlockTextObject(m_subsubdata.is('i'), '{', '}');
         else if (input.is('"') || input.is('\'') || input.is('`'))
             selectQuotedStringTextObject(m_subsubdata.is('i'), input.key());
         m_subsubmode = NoSubSubMode;
@@ -4515,9 +4520,22 @@ void FakeVimHandler::Private::selectParagraphTextObject(bool inner)
 
 void FakeVimHandler::Private::selectBlockTextObject(bool inner, char left, char right)
 {
-    Q_UNUSED(inner);
-    Q_UNUSED(left);
-    Q_UNUSED(right);
+    QTextDocument *doc = m_tc.document();
+    QString sleft = QString(QLatin1Char(left));
+    QString sright = QString(QLatin1Char(right));
+    QTextCursor tc2 = doc->find(sright, m_tc);
+    if (tc2.isNull())
+        return;
+    QTextCursor tc1 = doc->find(sleft, m_tc, QTextDocument::FindBackward);
+    if (tc1.isNull())
+        return;
+    const int p1 = tc1.position() + inner - sleft.size();
+    const int p2 = tc2.position() - inner - sright.size();
+    setMark('>', p1);
+    m_anchor = p2;
+    setMark('<', p2);
+    setPosition(p1);
+    m_movetype = MoveInclusive;
 }
 
 void FakeVimHandler::Private::selectQuotedStringTextObject(bool inner, int type)
