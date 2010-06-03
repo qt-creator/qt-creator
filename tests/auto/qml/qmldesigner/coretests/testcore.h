@@ -164,7 +164,6 @@ private slots:
     void testCopyModelRewriter1();
     void testCopyModelRewriter2();
     void testSubComponentManager();
-    void testComponentLoadingTabWidget();
     void testAnchorsAndRewriting();
     void testAnchorsAndRewritingCenter();
 
