@@ -105,6 +105,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_editor = new QmlJSEditorFactory(this);
     addObject(m_editor);
 
+#ifdef QTCREATOR_WITH_QML
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
     wizardParameters.setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
@@ -112,6 +113,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     wizardParameters.setDisplayName(tr("Qt QML File"));
     wizardParameters.setId(QLatin1String("Q.Qml"));
     addAutoReleasedObject(new QmlFileWizard(wizardParameters, core));
+#endif
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(QmlJSEditor::Constants::C_QMLJSEDITOR_ID,
           TextEditor::TextEditorActionHandler::Format

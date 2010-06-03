@@ -37,13 +37,11 @@ SUBDIRS   = plugin_coreplugin \
 
 SUPPORT_QT_QML = $$(QTCREATOR_WITH_QML)
 
-!isEmpty(SUPPORT_QT_QML) {
-    message("Adding support for Qt/QML projects.")
-    DEFINES += QTCREATOR_WITH_QML
+contains(QT_CONFIG, declarative) {
+    SUBDIRS += plugin_qmlprojectmanager
 
-    contains(QT_CONFIG, declarative) {
-
-        SUBDIRS += plugin_qmlprojectmanager
+    !isEmpty(SUPPORT_QT_QML) {
+        message("Adding support for QmlDesigner, QmlInspector and Qml wizards.")
 
         include(private_headers.pri)
         exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
@@ -55,8 +53,8 @@ SUPPORT_QT_QML = $$(QTCREATOR_WITH_QML)
             warning("The plugins depend on on private headers from QtDeclarative module.")
             warning("To enable them, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
             warning()
-       }
-   }
+        }
+    }
 }
 
 plugin_coreplugin.subdir = coreplugin
