@@ -413,7 +413,7 @@ bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
 
 bool CheckUndefinedSymbols::visit(TypenameTypeParameterAST *ast)
 {
-    if (ast->name) {
+    if (ast->name && ast->name->name) {
         if (const Identifier *templId = ast->name->name->identifier()) {
             const QByteArray id = QByteArray::fromRawData(templId->chars(), templId->size());
             if (_potentialTypes.contains(id)) {
