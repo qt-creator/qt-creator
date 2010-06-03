@@ -1586,8 +1586,8 @@ bool CPPEditor::event(QEvent *e)
 
 void CPPEditor::performQuickFix(int index)
 {
-    CPPQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
-    QuickFixOperationPtr op = m_quickFixes.at(index);
+    CppQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
+    CppQuickFixOperationPtr op = m_quickFixes.at(index);
     quickFixCollector->perform(op);
     //op->createChangeSet();
     //setChangeSet(op->changeSet());
@@ -1604,7 +1604,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     Core::ActionContainer *mcontext = am->actionContainer(CppEditor::Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
-    CPPQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
+    CppQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
 
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
@@ -1614,7 +1614,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
             m_quickFixes = quickFixCollector->quickFixes();
 
             for (int index = 0; index < m_quickFixes.size(); ++index) {
-                QuickFixOperationPtr op = m_quickFixes.at(index);
+                CppQuickFixOperationPtr op = m_quickFixes.at(index);
                 QAction *action = menu->addAction(op->description());
                 mapper.setMapping(action, index);
                 connect(action, SIGNAL(triggered()), &mapper, SLOT(map()));

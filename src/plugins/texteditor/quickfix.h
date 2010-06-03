@@ -61,6 +61,8 @@ public:
         Range() {}
         Range(const QTextCursor &tc): begin(tc), end(tc) {}
 
+        bool isNull() const { return begin.isNull() || end.isNull(); }
+
         QTextCursor begin;
         QTextCursor end;
     };

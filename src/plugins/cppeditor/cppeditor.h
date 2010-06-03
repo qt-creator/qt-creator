@@ -309,7 +309,7 @@ private:
 
     SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_lastSemanticInfo;
-    QList<QuickFixOperationPtr> m_quickFixes;
+    QList<CppQuickFixOperationPtr> m_quickFixes;
     bool m_initialized;
 };
 

@@ -110,9 +110,11 @@ int QuickFixOperation::position(int line, int column) const
 
 void QuickFixOperation::reindent(const Range &range)
 {
-    QTextCursor tc = range.begin;
-    tc.setPosition(range.end.position(), QTextCursor::KeepAnchor);
-    editor()->indentInsertedText(tc);
+    if (! range.isNull()) {
+        QTextCursor tc = range.begin;
+        tc.setPosition(range.end.position(), QTextCursor::KeepAnchor);
+        editor()->indentInsertedText(tc);
+    }
 }
 
 void QuickFixOperation::move(int start, int end, int to)

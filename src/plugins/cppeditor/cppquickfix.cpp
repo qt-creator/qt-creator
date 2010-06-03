@@ -58,17 +58,23 @@ using namespace CPlusPlus;
 
 namespace {
 
+class CppQuickFixState: public TextEditor::QuickFixState
+{
+public:
+    QList<CPlusPlus::AST *> path;
+};
+
 /*
     Rewrite
     a op b -> !(a invop b)
     (a op b) -> !(a invop b)
     !(a op b) -> (a invob b)
 */
-class UseInverseOp: public QuickFixOperation
+class UseInverseOp: public CppQuickFixOperation
 {
 public:
-    UseInverseOp()
-        : binary(0), nested(0), negation(0)
+    UseInverseOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), binary(0), nested(0), negation(0)
     {}
 
     virtual QString description() const
@@ -156,11 +162,11 @@ private:
     As
     b flipop a
 */
-class FlipBinaryOp: public QuickFixOperation
+class FlipBinaryOp: public CppQuickFixOperation
 {
 public:
-    FlipBinaryOp()
-        : binary(0)
+    FlipBinaryOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), binary(0)
     {}
 
 
@@ -232,11 +238,11 @@ private:
     As
     !(a || b)
 */
-class RewriteLogicalAndOp: public QuickFixOperation
+class RewriteLogicalAndOp: public CppQuickFixOperation
 {
 public:
-    RewriteLogicalAndOp()
-        : left(0), right(0), pattern(0)
+    RewriteLogicalAndOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), left(0), right(0), pattern(0)
     {}
 
     virtual QString description() const
@@ -293,11 +299,11 @@ private:
     BinaryExpressionAST *pattern;
 };
 
-class SplitSimpleDeclarationOp: public QuickFixOperation
+class SplitSimpleDeclarationOp: public CppQuickFixOperation
 {
 public:
-    SplitSimpleDeclarationOp()
-        : declaration(0)
+    SplitSimpleDeclarationOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), declaration(0)
     {}
 
     virtual QString description() const
@@ -399,11 +405,11 @@ private:
     Add curly braces to a if statement that doesn't already contain a
     compound statement.
 */
-class AddBracesToIfOp: public QuickFixOperation
+class AddBracesToIfOp: public CppQuickFixOperation
 {
 public:
-    AddBracesToIfOp()
-        : _statement(0)
+    AddBracesToIfOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), _statement(0)
     {}
 
     virtual QString description() const
@@ -459,11 +465,11 @@ private:
     Type name = foo;
     if (name) {...}
 */
-class MoveDeclarationOutOfIfOp: public QuickFixOperation
+class MoveDeclarationOutOfIfOp: public CppQuickFixOperation
 {
 public:
-    MoveDeclarationOutOfIfOp()
-        : condition(0), pattern(0), core(0)
+    MoveDeclarationOutOfIfOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), condition(0), pattern(0), core(0)
     {}
 
     virtual QString description() const
@@ -522,11 +528,11 @@ private:
     Type name;
     while ((name = foo()) != 0) {...}
 */
-class MoveDeclarationOutOfWhileOp: public QuickFixOperation
+class MoveDeclarationOutOfWhileOp: public CppQuickFixOperation
 {
 public:
-    MoveDeclarationOutOfWhileOp()
-        : condition(0), pattern(0), core(0)
+    MoveDeclarationOutOfWhileOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), condition(0), pattern(0), core(0)
     {}
 
     virtual QString description() const
@@ -607,11 +613,11 @@ private:
     else if (something_else)
       x;
 */
-class SplitIfStatementOp: public QuickFixOperation
+class SplitIfStatementOp: public CppQuickFixOperation
 {
 public:
-    SplitIfStatementOp()
-        : condition(0), pattern(0)
+    SplitIfStatementOp(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), condition(0), pattern(0)
     {}
 
     virtual QString description() const
@@ -717,11 +723,11 @@ private:
   With
     QLatin1String("abcd")
 */
-class WrapStringLiteral: public QuickFixOperation
+class WrapStringLiteral: public CppQuickFixOperation
 {
 public:
-    WrapStringLiteral()
-        : stringLiteral(0), isObjCStringLiteral(false)
+    WrapStringLiteral(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), stringLiteral(0), isObjCStringLiteral(false)
     {}
 
     virtual QString description() const
@@ -785,11 +791,11 @@ private:
     bool isObjCStringLiteral;
 };
 
-class CStringToNSString: public QuickFixOperation
+class CStringToNSString: public CppQuickFixOperation
 {
 public:
-    CStringToNSString()
-        : stringLiteral(0), qlatin1Call(0)
+    CStringToNSString(TextEditor::BaseTextEditor *editor)
+        : CppQuickFixOperation(editor), stringLiteral(0), qlatin1Call(0)
     {}
 
     virtual QString description() const
@@ -856,91 +862,82 @@ private:
 } // end of anonymous namespace
 
 
-QuickFixOperation::QuickFixOperation()
-    : _editor(0), _topLevelNode(0)
+CppQuickFixOperation::CppQuickFixOperation(TextEditor::BaseTextEditor *editor)
+    : TextEditor::QuickFixOperation(editor), _topLevelNode(0)
 { }
 
-QuickFixOperation::~QuickFixOperation()
+CppQuickFixOperation::~CppQuickFixOperation()
 { }
 
-CPlusPlus::AST *QuickFixOperation::topLevelNode() const
-{ return _topLevelNode; }
-
-void QuickFixOperation::setTopLevelNode(CPlusPlus::AST *topLevelNode)
-{ _topLevelNode = topLevelNode; }
-
-const Utils::ChangeSet &QuickFixOperation::changeSet() const
-{ return _changeSet; }
-
-Document::Ptr QuickFixOperation::document() const
-{ return _document; }
-
-void QuickFixOperation::setDocument(CPlusPlus::Document::Ptr document)
-{ _document = document; }
-
-Snapshot QuickFixOperation::snapshot() const
-{ return _snapshot; }
-
-void QuickFixOperation::setSnapshot(const CPlusPlus::Snapshot &snapshot)
+CppQuickFixOperation::Range CppQuickFixOperation::topLevelRange() const
 {
-    _snapshot = snapshot;
+    if (topLevelNode())
+        return createRange(topLevelNode());
+
+    return Range();
 }
 
-CPPEditor *QuickFixOperation::editor() const
-{ return _editor; }
+int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
+{
+    CppQuickFixState *s = static_cast<CppQuickFixState *>(state);
+    return match(s->path);
+}
 
-void QuickFixOperation::setEditor(CPPEditor *editor)
-{ _editor = editor; }
+CPlusPlus::AST *CppQuickFixOperation::topLevelNode() const
+{ return _topLevelNode; }
 
-QTextCursor QuickFixOperation::textCursor() const
-{ return _textCursor; }
+void CppQuickFixOperation::setTopLevelNode(CPlusPlus::AST *topLevelNode)
+{ _topLevelNode = topLevelNode; }
 
-void QuickFixOperation::setTextCursor(const QTextCursor &cursor)
-{ _textCursor = cursor; }
+Document::Ptr CppQuickFixOperation::document() const
+{ return _document; }
 
-int QuickFixOperation::selectionStart() const
-{ return _textCursor.selectionStart(); }
+void CppQuickFixOperation::setDocument(CPlusPlus::Document::Ptr document)
+{ _document = document; }
 
-int QuickFixOperation::selectionEnd() const
-{ return _textCursor.selectionEnd(); }
+Snapshot CppQuickFixOperation::snapshot() const
+{ return _snapshot; }
 
-const CPlusPlus::Token &QuickFixOperation::tokenAt(unsigned index) const
+void CppQuickFixOperation::setSnapshot(const CPlusPlus::Snapshot &snapshot)
+{ _snapshot = snapshot; }
+
+const CPlusPlus::Token &CppQuickFixOperation::tokenAt(unsigned index) const
 { return _document->translationUnit()->tokenAt(index); }
 
-int QuickFixOperation::startOf(unsigned index) const
+int CppQuickFixOperation::startOf(unsigned index) const
 {
     unsigned line, column;
     _document->translationUnit()->getPosition(tokenAt(index).begin(), &line, &column);
-    return _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
+    return editor()->document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
-int QuickFixOperation::startOf(const CPlusPlus::AST *ast) const
+int CppQuickFixOperation::startOf(const CPlusPlus::AST *ast) const
 {
     return startOf(ast->firstToken());
 }
 
-int QuickFixOperation::endOf(unsigned index) const
+int CppQuickFixOperation::endOf(unsigned index) const
 {
     unsigned line, column;
     _document->translationUnit()->getPosition(tokenAt(index).end(), &line, &column);
-    return _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
+    return editor()->document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
-int QuickFixOperation::endOf(const CPlusPlus::AST *ast) const
+int CppQuickFixOperation::endOf(const CPlusPlus::AST *ast) const
 {
     return endOf(ast->lastToken() - 1);
 }
 
-void QuickFixOperation::startAndEndOf(unsigned index, int *start, int *end) const
+void CppQuickFixOperation::startAndEndOf(unsigned index, int *start, int *end) const
 {
     unsigned line, column;
     CPlusPlus::Token token(tokenAt(index));
     _document->translationUnit()->getPosition(token.begin(), &line, &column);
-    *start = _textCursor.document()->findBlockByNumber(line - 1).position() + column - 1;
+    *start = editor()->document()->findBlockByNumber(line - 1).position() + column - 1;
     *end = *start + token.length();
 }
 
-bool QuickFixOperation::isCursorOn(unsigned tokenIndex) const
+bool CppQuickFixOperation::isCursorOn(unsigned tokenIndex) const
 {
     QTextCursor tc = textCursor();
     int cursorBegin = tc.selectionStart();
@@ -954,7 +951,7 @@ bool QuickFixOperation::isCursorOn(unsigned tokenIndex) const
     return false;
 }
 
-bool QuickFixOperation::isCursorOn(const CPlusPlus::AST *ast) const
+bool CppQuickFixOperation::isCursorOn(const CPlusPlus::AST *ast) const
 {
     QTextCursor tc = textCursor();
     int cursorBegin = tc.selectionStart();
@@ -968,160 +965,89 @@ bool QuickFixOperation::isCursorOn(const CPlusPlus::AST *ast) const
     return false;
 }
 
-QuickFixOperation::Range QuickFixOperation::createRange(AST *ast) const
+CppQuickFixOperation::Range CppQuickFixOperation::createRange(AST *ast) const
 {
-    QTextCursor tc = _textCursor;
-    Range r(tc);
-    r.begin.setPosition(startOf(ast));
-    r.end.setPosition(endOf(ast));
-    return r;
+    return range(startOf(ast), endOf(ast));
 }
 
-void QuickFixOperation::reindent(const Range &range)
-{
-    QTextCursor tc = range.begin;
-    tc.setPosition(range.end.position(), QTextCursor::KeepAnchor);
-    _editor->indentInsertedText(tc);
-}
-
-void QuickFixOperation::move(int start, int end, int to)
-{
-    _changeSet.move(start, end-start, to);
-}
-
-void QuickFixOperation::move(unsigned tokenIndex, int to)
+void CppQuickFixOperation::move(unsigned tokenIndex, int to)
 {
     int start, end;
     startAndEndOf(tokenIndex, &start, &end);
     move(start, end, to);
 }
 
-void QuickFixOperation::move(const CPlusPlus::AST *ast, int to)
+void CppQuickFixOperation::move(const CPlusPlus::AST *ast, int to)
 {
     move(startOf(ast), endOf(ast), to);
 }
 
-void QuickFixOperation::replace(int start, int end, const QString &replacement)
-{
-    _changeSet.replace(start, end-start, replacement);
-}
-
-void QuickFixOperation::replace(unsigned tokenIndex, const QString &replacement)
+void CppQuickFixOperation::replace(unsigned tokenIndex, const QString &replacement)
 {
     int start, end;
     startAndEndOf(tokenIndex, &start, &end);
     replace(start, end, replacement);
 }
 
-void QuickFixOperation::replace(const CPlusPlus::AST *ast, const QString &replacement)
+void CppQuickFixOperation::replace(const CPlusPlus::AST *ast, const QString &replacement)
 {
     replace(startOf(ast), endOf(ast), replacement);
 }
 
-void QuickFixOperation::insert(int at, const QString &text)
-{
-    _changeSet.insert(at, text);
-}
-
-void QuickFixOperation::remove(int start, int end)
-{
-    _changeSet.remove(start, end-start);
-}
-
-void QuickFixOperation::remove(unsigned tokenIndex)
+void CppQuickFixOperation::remove(unsigned tokenIndex)
 {
     int start, end;
     startAndEndOf(tokenIndex, &start, &end);
     remove(start, end);
 }
 
-void QuickFixOperation::remove(const CPlusPlus::AST *ast)
+void CppQuickFixOperation::remove(const CPlusPlus::AST *ast)
 {
     remove(startOf(ast), endOf(ast));
 }
 
-void QuickFixOperation::flip(int start1, int end1, int start2, int end2)
-{
-    _changeSet.flip(start1, end1-start1, start2, end2-start2);
-}
-
-void QuickFixOperation::flip(const CPlusPlus::AST *ast1, const CPlusPlus::AST *ast2)
+void CppQuickFixOperation::flip(const CPlusPlus::AST *ast1, const CPlusPlus::AST *ast2)
 {
     flip(startOf(ast1), endOf(ast1), startOf(ast2), endOf(ast2));
 }
 
-void QuickFixOperation::copy(int start, int end, int to)
-{
-    _changeSet.copy(start, end-start, to);
-}
-
-void QuickFixOperation::copy(unsigned tokenIndex, int to)
+void CppQuickFixOperation::copy(unsigned tokenIndex, int to)
 {
     int start, end;
     startAndEndOf(tokenIndex, &start, &end);
     copy(start, end, to);
 }
 
-void QuickFixOperation::copy(const CPlusPlus::AST *ast, int to)
+void CppQuickFixOperation::copy(const CPlusPlus::AST *ast, int to)
 {
     copy(startOf(ast), endOf(ast), to);
 }
 
-QString QuickFixOperation::textOf(int firstOffset, int lastOffset) const
-{
-    QTextCursor tc = _textCursor;
-    tc.setPosition(firstOffset);
-    tc.setPosition(lastOffset, QTextCursor::KeepAnchor);
-    return tc.selectedText();
-}
-
-QString QuickFixOperation::textOf(const AST *ast) const
+QString CppQuickFixOperation::textOf(const AST *ast) const
 {
     return textOf(startOf(ast), endOf(ast));
 }
 
-QChar QuickFixOperation::charAt(int offset) const
-{
-    return textOf(offset, offset + 1).at(0);
-}
-
-void QuickFixOperation::apply()
-{
-    Range range;
-
-    if (_topLevelNode)
-        range = createRange(_topLevelNode);
-
-    _textCursor.beginEditBlock();
-
-    _changeSet.apply(&_textCursor);
-
-    if (_topLevelNode)
-        reindent(range);
-
-    _textCursor.endEditBlock();
-}
-
-CPPQuickFixCollector::CPPQuickFixCollector()
+CppQuickFixCollector::CppQuickFixCollector()
     : _modelManager(CppTools::CppModelManagerInterface::instance()), _editable(0), _editor(0)
 { }
 
-CPPQuickFixCollector::~CPPQuickFixCollector()
+CppQuickFixCollector::~CppQuickFixCollector()
 { }
 
-TextEditor::ITextEditable *CPPQuickFixCollector::editor() const
+TextEditor::ITextEditable *CppQuickFixCollector::editor() const
 { return _editable; }
 
-int CPPQuickFixCollector::startPosition() const
+int CppQuickFixCollector::startPosition() const
 { return _editable->position(); }
 
-bool CPPQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor)
+bool CppQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor)
 { return qobject_cast<CPPEditorEditable *>(editor) != 0; }
 
-bool CPPQuickFixCollector::triggersCompletion(TextEditor::ITextEditable *)
+bool CppQuickFixCollector::triggersCompletion(TextEditor::ITextEditable *)
 { return false; }
 
-int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
+int CppQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 {
     Q_ASSERT(editable != 0);
 
@@ -1144,18 +1070,18 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         if (path.isEmpty())
             return -1;
 
-        QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp());
-        QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp());
-        QSharedPointer<MoveDeclarationOutOfIfOp> moveDeclarationOutOfIfOp(new MoveDeclarationOutOfIfOp());
-        QSharedPointer<MoveDeclarationOutOfWhileOp> moveDeclarationOutOfWhileOp(new MoveDeclarationOutOfWhileOp());
-        QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp());
-        QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp());
-        QSharedPointer<UseInverseOp> useInverseOp(new UseInverseOp());
-        QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp());
-        QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral());
-        QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString());
+        QSharedPointer<RewriteLogicalAndOp> rewriteLogicalAndOp(new RewriteLogicalAndOp(_editor));
+        QSharedPointer<SplitIfStatementOp> splitIfStatementOp(new SplitIfStatementOp(_editor));
+        QSharedPointer<MoveDeclarationOutOfIfOp> moveDeclarationOutOfIfOp(new MoveDeclarationOutOfIfOp(_editor));
+        QSharedPointer<MoveDeclarationOutOfWhileOp> moveDeclarationOutOfWhileOp(new MoveDeclarationOutOfWhileOp(_editor));
+        QSharedPointer<SplitSimpleDeclarationOp> splitSimpleDeclarationOp(new SplitSimpleDeclarationOp(_editor));
+        QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp(_editor));
+        QSharedPointer<UseInverseOp> useInverseOp(new UseInverseOp(_editor));
+        QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp(_editor));
+        QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral(_editor));
+        QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString(_editor));
 
-        QList<QuickFixOperationPtr> candidates;
+        QList<CppQuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
         candidates.append(splitIfStatementOp);
         candidates.append(moveDeclarationOutOfIfOp);
@@ -1168,19 +1094,21 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         if (_editor->mimeType() == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
             candidates.append(wrapCString);
 
-        QMap<int, QList<QuickFixOperationPtr> > matchedOps;
+        QMap<int, QList<CppQuickFixOperationPtr> > matchedOps;
 
-        foreach (QuickFixOperationPtr op, candidates) {
+        CppQuickFixState state;
+        state.path = path;
+
+        foreach (CppQuickFixOperationPtr op, candidates) {
             op->setSnapshot(info.snapshot);
             op->setDocument(info.doc);
-            op->setEditor(_editor);
             op->setTextCursor(_editor->textCursor());
-            int priority = op->match(path);
+            int priority = op->match(&state);
             if (priority != -1)
                 matchedOps[priority].append(op);
         }
 
-        QMapIterator<int, QList<QuickFixOperationPtr> > it(matchedOps);
+        QMapIterator<int, QList<CppQuickFixOperationPtr> > it(matchedOps);
         it.toBack();
         if (it.hasPrevious()) {
             it.previous();
@@ -1195,10 +1123,10 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
     return -1;
 }
 
-void CPPQuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickFixItems)
+void CppQuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickFixItems)
 {
     for (int i = 0; i < _quickFixes.size(); ++i) {
-        QuickFixOperationPtr op = _quickFixes.at(i);
+        CppQuickFixOperationPtr op = _quickFixes.at(i);
 
         TextEditor::CompletionItem item(this);
         item.text = op->description();
@@ -1207,24 +1135,24 @@ void CPPQuickFixCollector::completions(QList<TextEditor::CompletionItem> *quickF
     }
 }
 
-void CPPQuickFixCollector::complete(const TextEditor::CompletionItem &item)
+void CppQuickFixCollector::complete(const TextEditor::CompletionItem &item)
 {
     const int index = item.data.toInt();
 
     if (index < _quickFixes.size()) {
-        QuickFixOperationPtr quickFix = _quickFixes.at(index);
+        CppQuickFixOperationPtr quickFix = _quickFixes.at(index);
         perform(quickFix);
     }
 }
 
-void CPPQuickFixCollector::perform(QuickFixOperationPtr op)
+void CppQuickFixCollector::perform(CppQuickFixOperationPtr op)
 {
     op->setTextCursor(_editor->textCursor());
     op->createChangeSet();
     op->apply();
 }
 
-void CPPQuickFixCollector::cleanup()
+void CppQuickFixCollector::cleanup()
 {
     _quickFixes.clear();
 }

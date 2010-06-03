@@ -191,7 +191,7 @@ bool CppPlugin::sortedMethodOverview() const
     return m_sortedMethodOverview;
 }
 
-CPPQuickFixCollector *CppPlugin::quickFixCollector() const
+CppQuickFixCollector *CppPlugin::quickFixCollector() const
 { return m_quickFixCollector; }
 
 bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
@@ -204,7 +204,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     addAutoReleasedObject(new CppEditorFactory(this));
     addAutoReleasedObject(new CppHoverHandler);
 
-    m_quickFixCollector = new CPPQuickFixCollector;
+    m_quickFixCollector = new CppQuickFixCollector;
     addAutoReleasedObject(m_quickFixCollector);
 
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);

@@ -31,6 +31,7 @@
 #define CPPQUICKFIX_H
 
 #include <texteditor/icompletioncollector.h>
+#include <texteditor/quickfix.h>
 
 #include <cplusplus/CppDocument.h>
 #include <ASTfwd.h>
@@ -48,22 +49,18 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditor;
-class QuickFixOperation;
-typedef QSharedPointer<QuickFixOperation> QuickFixOperationPtr;
+class CppQuickFixOperation;
+typedef QSharedPointer<CppQuickFixOperation> CppQuickFixOperationPtr;
 
-class QuickFixOperation
+class CppQuickFixOperation: public TextEditor::QuickFixOperation
 {
-    Q_DISABLE_COPY(QuickFixOperation)
+    Q_DISABLE_COPY(CppQuickFixOperation)
 
 public:
-    QuickFixOperation();
-    virtual ~QuickFixOperation();
+    CppQuickFixOperation(TextEditor::BaseTextEditor *editor);
+    virtual ~CppQuickFixOperation();
 
-    virtual QString description() const = 0;
     virtual int match(const QList<CPlusPlus::AST *> &path) = 0;
-    virtual void createChangeSet() = 0;
-
-    void apply();
 
     CPlusPlus::Document::Ptr document() const;
     void setDocument(CPlusPlus::Document::Ptr document);
@@ -71,16 +68,8 @@ public:
     CPlusPlus::Snapshot snapshot() const;
     void setSnapshot(const CPlusPlus::Snapshot &snapshot);
 
-    CPPEditor *editor() const;
-    void setEditor(CPPEditor *editor);
-
-    QTextCursor textCursor() const;
-    void setTextCursor(const QTextCursor &cursor);
-
-    int selectionStart() const;
-    int selectionEnd() const;
-
-    const Utils::ChangeSet &changeSet() const;
+    virtual Range topLevelRange() const;
+    virtual int match(TextEditor::QuickFixState *state);
 
 protected:
     CPlusPlus::AST *topLevelNode() const;
@@ -97,55 +86,44 @@ protected:
     bool isCursorOn(unsigned tokenIndex) const;
     bool isCursorOn(const CPlusPlus::AST *ast) const;
 
-    void move(int start, int end, int to);
+    using TextEditor::QuickFixOperation::move;
+    using TextEditor::QuickFixOperation::replace;
+    using TextEditor::QuickFixOperation::insert;
+    using TextEditor::QuickFixOperation::remove;
+    using TextEditor::QuickFixOperation::flip;
+    using TextEditor::QuickFixOperation::copy;
+
+    using TextEditor::QuickFixOperation::textOf;
+    using TextEditor::QuickFixOperation::charAt;
+
     void move(unsigned tokenIndex, int to);
     void move(const CPlusPlus::AST *ast, int to);
-    void replace(int start, int end, const QString &replacement);
     void replace(unsigned tokenIndex, const QString &replacement);
     void replace(const CPlusPlus::AST *ast, const QString &replacement);
-    void insert(int at, const QString &text);
-    void remove(int start, int end);
     void remove(unsigned tokenIndex);
     void remove(const CPlusPlus::AST *ast);
-    void flip(int start1, int end1, int start2, int end2);
     void flip(const CPlusPlus::AST *ast1, const CPlusPlus::AST *ast2);
-    void copy(int start, int end, int to);
     void copy(unsigned tokenIndex, int to);
     void copy(const CPlusPlus::AST *ast, int to);
 
-    QString textOf(int firstOffset, int lastOffset) const;
     QString textOf(const CPlusPlus::AST *ast) const;
-    QChar charAt(int offset) const;
-
-    struct Range {
-        Range() {}
-        Range(const QTextCursor &tc): begin(tc), end(tc) {}
-
-        QTextCursor begin;
-        QTextCursor end;
-    };
-
     Range createRange(CPlusPlus::AST *ast) const; // ### rename me
-    void reindent(const Range &range);
 
 private:
     CPlusPlus::Document::Ptr _document;
     CPlusPlus::Snapshot _snapshot;
-    QTextCursor _textCursor;
-    Utils::ChangeSet _changeSet;
-    CPPEditor *_editor;
     CPlusPlus::AST *_topLevelNode;
 };
 
-class CPPQuickFixCollector: public TextEditor::IQuickFixCollector
+class CppQuickFixCollector: public TextEditor::IQuickFixCollector
 {
     Q_OBJECT
 
 public:
-    CPPQuickFixCollector();
-    virtual ~CPPQuickFixCollector();
+    CppQuickFixCollector();
+    virtual ~CppQuickFixCollector();
 
-    QList<QuickFixOperationPtr> quickFixes() const { return _quickFixes; }
+    QList<CppQuickFixOperationPtr> quickFixes() const { return _quickFixes; }
 
     virtual TextEditor::ITextEditable *editor() const;
     virtual int startPosition() const;
@@ -157,13 +135,13 @@ public:
     virtual void cleanup();
 
 public Q_SLOTS:
-    void perform(QuickFixOperationPtr op);
+    void perform(CppQuickFixOperationPtr op);
 
 private:
     CppTools::CppModelManagerInterface *_modelManager;
     TextEditor::ITextEditable *_editable;
     CPPEditor *_editor;
-    QList<QuickFixOperationPtr> _quickFixes;
+    QList<CppQuickFixOperationPtr> _quickFixes;
 };
 
 } // end of namespace Internal
