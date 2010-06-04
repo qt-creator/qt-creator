@@ -134,7 +134,7 @@ void Indenter::setIndentSize(int size)
     ppContinuationIndentSize = 2 * size;
 }
 
-void Indenter::setTabSize(int size )
+void Indenter::setTabSize(int size)
 {
     ppHardwareTabSize = size;
 }
@@ -153,12 +153,12 @@ void Indenter::setDoubleIndentBlocks(bool indent)
   Returns the first non-space character in the string t, or
   QChar::null if the string is made only of white space.
 */
-QChar Indenter::firstNonWhiteSpace( const QString& t )
+QChar Indenter::firstNonWhiteSpace(const QString &t)
 {
     if (const int len = t.length())
-	for ( int i = 0; i < len; i++)
-	    if ( !t[i].isSpace() )
-		return t[i];
+        for (int i = 0; i < len; i++)
+            if (!t[i].isSpace())
+                return t[i];
     return QChar::Null;
 }
 
@@ -166,9 +166,9 @@ QChar Indenter::firstNonWhiteSpace( const QString& t )
   Returns true if string t is made only of white space; otherwise
   returns false.
 */
-bool Indenter::isOnlyWhiteSpace( const QString& t )
+bool Indenter::isOnlyWhiteSpace(const QString &t)
 {
-    return t.isEmpty() || firstNonWhiteSpace( t ).isNull();
+    return t.isEmpty() || firstNonWhiteSpace(t).isNull();
 }
 
 /*
@@ -176,20 +176,20 @@ bool Indenter::isOnlyWhiteSpace( const QString& t )
   index. Column numbers and index are identical for strings that don't
   contain '\t's.
 */
-int Indenter::columnForIndex( const QString& t, int index ) const
+int Indenter::columnForIndex(const QString &t, int index) const
 {
     int col = 0;
-    if ( index > t.length() )
-	index = t.length();
+    if (index > t.length())
+        index = t.length();
 
     const  QChar tab = QLatin1Char('\t');
 
-    for ( int i = 0; i < index; i++ ) {
-	if ( t[i] == tab ) {
-	    col = ( (col / ppHardwareTabSize) + 1 ) * ppHardwareTabSize;
-	} else {
-	    col++;
-	}
+    for (int i = 0; i < index; i++) {
+        if (t[i] == tab) {
+            col = ((col / ppHardwareTabSize) + 1) * ppHardwareTabSize;
+        } else {
+            col++;
+        }
     }
     return col;
 }
@@ -197,9 +197,9 @@ int Indenter::columnForIndex( const QString& t, int index ) const
 /*
   Returns the indentation size of string t.
 */
-int Indenter::indentOfLine( const QString& t ) const
+int Indenter::indentOfLine(const QString &t) const
 {
-    return columnForIndex( t, t.indexOf(firstNonWhiteSpace(t)) );
+    return columnForIndex(t, t.indexOf(firstNonWhiteSpace(t)));
 }
 
 /*
@@ -208,17 +208,17 @@ int Indenter::indentOfLine( const QString& t ) const
   provisions are taken against '\n' or '\r', which shouldn't occur in
   t anyway.
 */
-static inline void eraseChar( QString& t, int k, QChar ch )
+static inline void eraseChar(QString &t, int k, QChar ch)
 {
-    if ( t[k] != QLatin1Char('\t') )
-	t[k] = ch;
+    if (t[k] != QLatin1Char('\t'))
+        t[k] = ch;
 }
 
 /*
   Removes some nefast constructs from a code line and returns the
   resulting line.
 */
-QString Indenter::trimmedCodeLine( const QString& t )
+QString Indenter::trimmedCodeLine(const QString &t)
 {
     QString trimmed = t;
     int k;
@@ -235,11 +235,11 @@ QString Indenter::trimmedCodeLine( const QString& t )
       continuation lines.
     */
     k = 0;
-    while ( (k = m_constants.m_literal.indexIn(trimmed), k) != -1 ) {
-	const int matchedLength =  m_constants.m_literal.matchedLength();
-	for ( int i = 0; i < matchedLength ; i++ )
-	    eraseChar( trimmed, k + i, capitalX );
-	k += matchedLength;
+    while ((k = m_constants.m_literal.indexIn(trimmed), k) != -1) {
+        const int matchedLength =  m_constants.m_literal.matchedLength();
+        for (int i = 0; i < matchedLength ; i++)
+            eraseChar(trimmed, k + i, capitalX);
+        k += matchedLength;
     }
 
     /*
@@ -247,45 +247,45 @@ QString Indenter::trimmedCodeLine( const QString& t )
       handled elsewhere.
     */
     k = 0;
-    while ( (k = m_constants.m_inlineCComment.indexIn(trimmed, k)) != -1 ) {
-	const int matchedLength = m_constants.m_inlineCComment.matchedLength();
-	for ( int i = 0; i < matchedLength; i++ )
-	    eraseChar( trimmed, k + i, blank );
-	k += matchedLength;
+    while ((k = m_constants.m_inlineCComment.indexIn(trimmed, k)) != -1) {
+        const int matchedLength = m_constants.m_inlineCComment.matchedLength();
+        for (int i = 0; i < matchedLength; i++)
+            eraseChar(trimmed, k + i, blank);
+        k += matchedLength;
     }
 
     /*
       Replace goto and switch labels by whitespace, but be careful
       with this case:
 
-	  foo1: bar1;
-	      bar2;
+          foo1: bar1;
+              bar2;
     */
-    while ( trimmed.lastIndexOf(colon ) != -1 && m_constants.m_label.indexIn(trimmed) != -1 ) {
-	const QString cap1 = m_constants.m_label.cap( 1 );
-	const int pos1 = m_constants.m_label.pos( 1 );
-	int stop = cap1.length();
+    while (trimmed.lastIndexOf(colon) != -1 && m_constants.m_label.indexIn(trimmed) != -1) {
+        const QString cap1 = m_constants.m_label.cap(1);
+        const int pos1 = m_constants.m_label.pos(1);
+        int stop = cap1.length();
 
-	if ( pos1 + stop < trimmed.length() && ppIndentSize < stop )
-	    stop = ppIndentSize;
+        if (pos1 + stop < trimmed.length() && ppIndentSize < stop)
+            stop = ppIndentSize;
 
-	int i = 0;
-	while ( i < stop ) {
-	    eraseChar( trimmed, pos1 + i, blank  );
-	    i++;
-	}
-	while ( i <  cap1.length() ) {
-	    eraseChar( trimmed, pos1 + i,semicolon );
-	    i++;
-	}
+        int i = 0;
+        while (i < stop) {
+            eraseChar(trimmed, pos1 + i, blank );
+            i++;
+        }
+        while (i <  cap1.length()) {
+            eraseChar(trimmed, pos1 + i,semicolon);
+            i++;
+        }
     }
 
     /*
       Remove C++-style comments.
     */
-    k = trimmed.indexOf(m_constants.m_slashSlash );
-    if ( k != -1 )
-	trimmed.truncate( k );
+    k = trimmed.indexOf(m_constants.m_slashSlash);
+    if (k != -1)
+        trimmed.truncate(k);
 
     return trimmed;
 }
@@ -294,7 +294,7 @@ QString Indenter::trimmedCodeLine( const QString& t )
   Returns '(' if the last parenthesis is opening, ')' if it is
   closing, and QChar::null if there are no parentheses in t.
 */
-static inline QChar lastParen( const QString& t )
+static inline QChar lastParen(const QString &t)
 {
 
     const QChar opening = QLatin1Char('(');
@@ -302,11 +302,11 @@ static inline QChar lastParen( const QString& t )
 
 
     int i = t.length();
-    while ( i > 0 ) {
-	i--;
-	const QChar c = t[i];
-	if (c ==  opening || c == closing )
-	    return c;
+    while (i > 0) {
+        i--;
+        const QChar c = t[i];
+        if (c ==  opening || c == closing)
+            return c;
     }
     return QChar::Null;
 }
@@ -315,7 +315,7 @@ static inline QChar lastParen( const QString& t )
   Returns true if typedIn the same as okayCh or is null; otherwise
   returns false.
 */
-static inline bool okay( QChar typedIn, QChar okayCh )
+static inline bool okay(QChar typedIn, QChar okayCh)
 {
     return typedIn == QChar::Null || typedIn == okayCh;
 }
@@ -326,17 +326,17 @@ static inline bool okay( QChar typedIn, QChar okayCh )
   backtracking.
 */
 #define YY_SAVE() \
-	LinizerState savedState = *yyLinizerState
+LinizerState savedState = *yyLinizerState
 #define YY_RESTORE() \
-	*yyLinizerState = savedState
+                          *yyLinizerState = savedState
 
-/*
+                                            /*
   Advances to the previous line in yyProgram and update yyLine
   accordingly. yyLine is cleaned from comments and other damageable
   constructs. Empty lines are skipped.
 */
-bool Indenter::readLine()
-{
+                                            bool Indenter::readLine()
+                                            {
     int k;
 
     const QChar openingBrace = QLatin1Char('{');
@@ -345,96 +345,96 @@ bool Indenter::readLine()
     const QChar hash = QLatin1Char('#');
 
     yyLinizerState->leftBraceFollows =
-	    ( firstNonWhiteSpace(yyLinizerState->line) == openingBrace  );
+            (firstNonWhiteSpace(yyLinizerState->line) == openingBrace );
 
     do {
-	if ( yyLinizerState->iter == yyProgramBegin ) {
-	    yyLinizerState->line = QString::null;
-	    return false;
-	}
+        if (yyLinizerState->iter == yyProgramBegin) {
+            yyLinizerState->line = QString::null;
+            return false;
+        }
 
-	--yyLinizerState->iter;
-	yyLinizerState->line = *yyLinizerState->iter;
+        --yyLinizerState->iter;
+        yyLinizerState->line = *yyLinizerState->iter;
 
-	yyLinizerState->line = trimmedCodeLine( yyLinizerState->line );
+        yyLinizerState->line = trimmedCodeLine(yyLinizerState->line);
 
-	/*
-	  Remove C-style comments that span multiple lines. If the
-	  bottom line starts in a C-style comment, we are not aware
-	  of that and eventually yyLine will contain a slash-aster.
+        /*
+          Remove C-style comments that span multiple lines. If the
+          bottom line starts in a C-style comment, we are not aware
+          of that and eventually yyLine will contain a slash-aster.
 
-	  Notice that both if's can be executed, since
-	  yyLinizerState->inCComment is potentially set to false in
-	  the first if. The order of the if's is also important.
-	*/
+          Notice that both if's can be executed, since
+          yyLinizerState->inCComment is potentially set to false in
+          the first if. The order of the if's is also important.
+        */
 
-	if ( yyLinizerState->inCComment ) {
+        if (yyLinizerState->inCComment) {
 
-	    k = yyLinizerState->line.indexOf( m_constants.m_slashAster );
-	    if ( k == -1 ) {
-		yyLinizerState->line = QString::null;
-	    } else {
-		yyLinizerState->line.truncate( k );
-		yyLinizerState->inCComment = false;
-	    }
-	}
+            k = yyLinizerState->line.indexOf(m_constants.m_slashAster);
+            if (k == -1) {
+                yyLinizerState->line = QString::null;
+            } else {
+                yyLinizerState->line.truncate(k);
+                yyLinizerState->inCComment = false;
+            }
+        }
 
-	if ( !yyLinizerState->inCComment ) {
-	    k = yyLinizerState->line.indexOf( m_constants.m_asterSlash );
-	    if ( k != -1 ) {
-		for ( int i = 0; i < k + 2; i++ )
-		    eraseChar( yyLinizerState->line, i, blank );
-		yyLinizerState->inCComment = true;
-	    }
-	}
+        if (!yyLinizerState->inCComment) {
+            k = yyLinizerState->line.indexOf(m_constants.m_asterSlash);
+            if (k != -1) {
+                for (int i = 0; i < k + 2; i++)
+                    eraseChar(yyLinizerState->line, i, blank);
+                yyLinizerState->inCComment = true;
+            }
+        }
 
-	/*
-	  Remove preprocessor directives.
-	*/
-	k = 0;
-	while ( k <  yyLinizerState->line.length() ) {
-	    QChar ch = yyLinizerState->line[k];
-	    if ( ch == hash ) {
-		yyLinizerState->line = QString::null;
-	    } else if ( !ch.isSpace() ) {
-		break;
-	    }
-	    k++;
-	}
+        /*
+          Remove preprocessor directives.
+        */
+        k = 0;
+        while (k <  yyLinizerState->line.length()) {
+            QChar ch = yyLinizerState->line[k];
+            if (ch == hash) {
+                yyLinizerState->line = QString::null;
+            } else if (!ch.isSpace()) {
+                break;
+            }
+            k++;
+        }
 
-	/*
-	  Remove trailing spaces.
-	*/
-	k = yyLinizerState->line.length();
-	while ( k > 0 && yyLinizerState->line[k - 1].isSpace() )
-	    k--;
-	yyLinizerState->line.truncate( k );
+        /*
+          Remove trailing spaces.
+        */
+        k = yyLinizerState->line.length();
+        while (k > 0 && yyLinizerState->line[k - 1].isSpace())
+            k--;
+        yyLinizerState->line.truncate(k);
 
-	/*
-	  '}' increment the brace depth and '{' decrements it and not
-	  the other way around, as we are parsing backwards.
-	*/
-	yyLinizerState->braceDepth +=
-            yyLinizerState->line.count( closingBrace  ) - yyLinizerState->line.count( openingBrace  );
+        /*
+          '}' increment the brace depth and '{' decrements it and not
+          the other way around, as we are parsing backwards.
+        */
+        yyLinizerState->braceDepth +=
+                yyLinizerState->line.count(closingBrace ) - yyLinizerState->line.count(openingBrace );
 
-	/*
-	  We use a dirty trick for
+        /*
+          We use a dirty trick for
 
-	      } else ...
+              } else ...
 
-	  We don't count the '}' yet, so that it's more or less
-	  equivalent to the friendly construct
+          We don't count the '}' yet, so that it's more or less
+          equivalent to the friendly construct
 
-	      }
-	      else ...
-	*/
-	if ( yyLinizerState->pendingRightBrace )
-	    yyLinizerState->braceDepth++;
-	yyLinizerState->pendingRightBrace =
-		( m_constants.m_braceX.indexIn(yyLinizerState->line) == 0 );
-	if ( yyLinizerState->pendingRightBrace )
-	    yyLinizerState->braceDepth--;
-    } while ( yyLinizerState->line.isEmpty() );
+              }
+              else ...
+        */
+        if (yyLinizerState->pendingRightBrace)
+            yyLinizerState->braceDepth++;
+        yyLinizerState->pendingRightBrace =
+                (m_constants.m_braceX.indexIn(yyLinizerState->line) == 0);
+        if (yyLinizerState->pendingRightBrace)
+            yyLinizerState->braceDepth--;
+    } while (yyLinizerState->line.isEmpty());
 
     return true;
 }
@@ -473,20 +473,20 @@ bool Indenter::bottomLineStartsInCComment()
     Iterator p = yyProgramEnd;
     --p; // skip bottom line
 
-    for ( int i = 0; i < BigRoof; i++ ) {
-	if ( p == yyProgramBegin )
-	    return false;
-	--p;
+    for (int i = 0; i < BigRoof; i++) {
+        if (p == yyProgramBegin)
+            return false;
+        --p;
 
-	if ( (*p).contains(m_constants.m_slashAster) || (*p).contains(m_constants.m_asterSlash) ) {
-	    QString trimmed = trimmedCodeLine( *p );
+        if ((*p).contains(m_constants.m_slashAster) || (*p).contains(m_constants.m_asterSlash)) {
+            QString trimmed = trimmedCodeLine(*p);
 
-	    if ( trimmed.contains(m_constants.m_slashAster) ) {
-		return true;
-	    } else if ( trimmed.contains(m_constants.m_asterSlash) ) {
-		return false;
-	    }
-	}
+            if (trimmed.contains(m_constants.m_slashAster)) {
+                return true;
+            } else if (trimmed.contains(m_constants.m_asterSlash)) {
+                return false;
+            }
+        }
     }
     return false;
 }
@@ -501,27 +501,27 @@ bool Indenter::bottomLineStartsInCComment()
 */
 int Indenter::indentWhenBottomLineStartsInCComment() const
 {
-    int k = yyLine->lastIndexOf(m_constants.m_slashAster );
-    if ( k == -1 ) {
-	/*
-	  We found a normal text line in a comment. Align the
-	  bottom line with the text on this line.
-	*/
-	return indentOfLine( *yyLine );
+    int k = yyLine->lastIndexOf(m_constants.m_slashAster);
+    if (k == -1) {
+        /*
+          We found a normal text line in a comment. Align the
+          bottom line with the text on this line.
+        */
+        return indentOfLine(*yyLine);
     } else {
-	/*
-	  The C-style comment starts on this line. If there is
-	  text on the same line, align with it. Otherwise, align
-	  with the slash-aster plus a given offset.
-	*/
-	const int indent = columnForIndex( *yyLine, k );
-	k += 2;
-	while ( k < yyLine->length() ) {
-	    if ( !(*yyLine)[k].isSpace() )
-		return columnForIndex( *yyLine, k );
-	    k++;
-	}
-	return indent + ppCommentOffset;
+        /*
+          The C-style comment starts on this line. If there is
+          text on the same line, align with it. Otherwise, align
+          with the slash-aster plus a given offset.
+        */
+        const int indent = columnForIndex(*yyLine, k);
+        k += 2;
+        while (k < yyLine->length()) {
+            if (!(*yyLine)[k].isSpace())
+                return columnForIndex(*yyLine, k);
+            k++;
+        }
+        return indent + ppCommentOffset;
     }
 }
 
@@ -540,8 +540,8 @@ int Indenter::indentWhenBottomLineStartsInCComment() const
   The first line of the following example is a "braceless control
   statement":
 
-      if ( x )
-	  y;
+      if (x)
+          y;
 */
 bool Indenter::matchBracelessControlStatement()
 {
@@ -550,69 +550,69 @@ bool Indenter::matchBracelessControlStatement()
     const QChar semicolon = QLatin1Char(';');
 
 
-    if ( yyLine->endsWith(m_constants.m_else))
-	return true;
+    if (yyLine->endsWith(m_constants.m_else))
+        return true;
 
-    if ( !yyLine->endsWith(QLatin1Char(')')))
-	return false;
+    if (!yyLine->endsWith(QLatin1Char(')')))
+        return false;
 
-    for ( int i = 0; i < SmallRoof; i++ ) {
-	int j = yyLine->length();
-	while ( j > 0 ) {
-	    j--;
-	    QChar ch = (*yyLine)[j];
+    for (int i = 0; i < SmallRoof; i++) {
+        int j = yyLine->length();
+        while (j > 0) {
+            j--;
+            QChar ch = (*yyLine)[j];
 
-	    switch ( ch.unicode() ) {
-	    case ')':
-		delimDepth++;
-		break;
-	    case '(':
-		delimDepth--;
-		if ( delimDepth == 0 ) {
-		    if ( yyLine->contains(m_constants.m_iflikeKeyword) ) {
-			/*
-			  We have
+            switch (ch.unicode()) {
+            case ')':
+                delimDepth++;
+                break;
+            case '(':
+                delimDepth--;
+                if (delimDepth == 0) {
+                    if (yyLine->contains(m_constants.m_iflikeKeyword)) {
+                        /*
+                          We have
 
-			      if ( x )
-				  y
+                              if (x)
+                                  y
 
-			  "if ( x )" is not part of the statement
-			  "y".
-			*/
-			return true;
-		    }
-		}
-		if ( delimDepth == -1 ) {
-		    /*
-		      We have
+                          "if (x)" is not part of the statement
+                          "y".
+                        */
+                        return true;
+                    }
+                }
+                if (delimDepth == -1) {
+                    /*
+                      We have
 
-			  if ( (1 +
-				2)
+                          if ((1 +
+                                2)
 
-		      and not
+                      and not
 
-			  if ( 1 +
-			       2 )
-		    */
-		    return false;
-		}
-		break;
-	    case '{':
-	    case '}':
-	    case ';':
-		/*
-		  We met a statement separator, but not where we
-		  expected it. What follows is probably a weird
-		  continuation line. Be careful with ';' in for,
-		  though.
-		*/
-		if ( ch != semicolon  || delimDepth == 0 )
-		    return false;
-	    }
-	}
+                          if (1 +
+                               2)
+                    */
+                    return false;
+                }
+                break;
+            case '{':
+            case '}':
+            case ';':
+                /*
+                  We met a statement separator, but not where we
+                  expected it. What follows is probably a weird
+                  continuation line. Be careful with ';' in for,
+                  though.
+                */
+                if (ch != semicolon  || delimDepth == 0)
+                    return false;
+            }
+        }
 
-	if ( !readLine() )
-	    break;
+        if (!readLine())
+            break;
     }
     return false;
 }
@@ -627,9 +627,9 @@ bool Indenter::matchBracelessControlStatement()
 
       a = b;    // standalone line
       c = d +   // unfinished line
-	  e +   // unfinished continuation line
-	  f +   // unfinished continuation line
-	  g;    // continuation line
+          e +   // unfinished continuation line
+          f +   // unfinished continuation line
+          g;    // continuation line
 */
 bool  Indenter::isUnfinishedLine()
 {
@@ -640,36 +640,36 @@ bool  Indenter::isUnfinishedLine()
     const QChar openingParenthesis = QLatin1Char('(');
     const QChar semicolon = QLatin1Char(';');
 
-    if ( yyLine->isEmpty() )
-	return false;
+    if (yyLine->isEmpty())
+        return false;
 
     const QChar lastCh = (*yyLine)[ yyLine->length() - 1];
-    if ( ! m_constants.m_bracesSemicolon.contains(lastCh) && !yyLine->endsWith(m_constants.m_3dots) ) {
-	/*
-	  It doesn't end with ';' or similar. If it's neither
-      "Q_OBJECT" nor "if ( x )" nor is a template function, it must be an unfinished line.
-	*/
-    unf = ( !yyLine->contains(m_constants.m_qobject) &&
-            !matchBracelessControlStatement() &&
-            !yyLine->contains(m_constants.m_templateFunc) );
-    } else if ( lastCh == semicolon ) {
-	if ( lastParen(*yyLine) == openingParenthesis ) {
-	    /*
-	      Exception:
+    if (! m_constants.m_bracesSemicolon.contains(lastCh) && !yyLine->endsWith(m_constants.m_3dots)) {
+        /*
+          It doesn't end with ';' or similar. If it's neither
+      "Q_OBJECT" nor "if (x)" nor is a template function, it must be an unfinished line.
+        */
+        unf = (!yyLine->contains(m_constants.m_qobject) &&
+                !matchBracelessControlStatement() &&
+                !yyLine->contains(m_constants.m_templateFunc));
+    } else if (lastCh == semicolon) {
+        if (lastParen(*yyLine) == openingParenthesis) {
+            /*
+              Exception:
 
-		  for ( int i = 1; i < 10;
-	    */
-	    unf = true;
-	} else if ( readLine() && yyLine->endsWith(semicolon) &&
-		    lastParen(*yyLine) == openingParenthesis ) {
-	    /*
-	      Exception:
+                  for (int i = 1; i < 10;
+            */
+            unf = true;
+        } else if (readLine() && yyLine->endsWith(semicolon) &&
+                    lastParen(*yyLine) == openingParenthesis) {
+            /*
+              Exception:
 
-		  for ( int i = 1;
-			i < 10;
-	    */
-	    unf = true;
-	}
+                  for (int i = 1;
+                        i < 10;
+            */
+            unf = true;
+        }
     }
 
     YY_RESTORE();
@@ -708,175 +708,175 @@ int Indenter::indentForContinuationLine()
     const QChar openingParenthesis = QLatin1Char('(');
     const QChar closingParenthesis = QLatin1Char(')');
 
-    for ( int i = 0; i < SmallRoof; i++ ) {
-	int hook = -1;
+    for (int i = 0; i < SmallRoof; i++) {
+        int hook = -1;
 
-	int j = yyLine->length();
-	while ( j > 0 && hook < 0 ) {
-	    j--;
-	    QChar ch = (*yyLine)[j];
+        int j = yyLine->length();
+        while (j > 0 && hook < 0) {
+            j--;
+            QChar ch = (*yyLine)[j];
 
-	    switch ( ch.unicode() ) {
-	    case ')':
-	    case ']':
-		delimDepth++;
-		break;
-	    case '}':
-		braceDepth++;
-		break;
-	    case '(':
-	    case '[':
-		delimDepth--;
-		/*
-		  An unclosed delimiter is a good place to align at,
-		  at least for some styles (including Trolltech's).
-		*/
-		if ( delimDepth == -1 )
-		    hook = j;
-		break;
-	    case '{':
-		braceDepth--;
-		/*
-		  A left brace followed by other stuff on the same
-		  line is typically for an enum or an initializer.
-		  Such a brace must be treated just like the other
-		  delimiters.
-		*/
-		if ( braceDepth == -1 ) {
-		    if ( j <  yyLine->length() - 1 ) {
-			hook = j;
-		    } else {
-			return 0; // shouldn't happen
-		    }
-		}
-		break;
-	    case '=':
-		/*
-		  An equal sign is a very natural alignment hook
-		  because it's usually the operator with the lowest
-		  precedence in statements it appears in. Case in
-		  point:
+            switch (ch.unicode()) {
+            case ')':
+            case ']':
+                delimDepth++;
+                break;
+            case '}':
+                braceDepth++;
+                break;
+            case '(':
+            case '[':
+                delimDepth--;
+                /*
+                  An unclosed delimiter is a good place to align at,
+                  at least for some styles (including Trolltech's).
+                */
+                if (delimDepth == -1)
+                    hook = j;
+                break;
+            case '{':
+                braceDepth--;
+                /*
+                  A left brace followed by other stuff on the same
+                  line is typically for an enum or an initializer.
+                  Such a brace must be treated just like the other
+                  delimiters.
+                */
+                if (braceDepth == -1) {
+                    if (j <  yyLine->length() - 1) {
+                        hook = j;
+                    } else {
+                        return 0; // shouldn't happen
+                    }
+                }
+                break;
+            case '=':
+                /*
+                  An equal sign is a very natural alignment hook
+                  because it's usually the operator with the lowest
+                  precedence in statements it appears in. Case in
+                  point:
 
-		      int x = 1 +
-			      2;
+                      int x = 1 +
+                              2;
 
-		  However, we have to beware of constructs such as
-		  default arguments and explicit enum constant
-		  values:
+                  However, we have to beware of constructs such as
+                  default arguments and explicit enum constant
+                  values:
 
-		      void foo( int x = 0,
-				int y = 0 );
+                      void foo(int x = 0,
+                                int y = 0);
 
-		  And not
+                  And not
 
-		      void foo( int x = 0,
-				      int y = 0 );
+                      void foo(int x = 0,
+                                      int y = 0);
 
-		  These constructs are caracterized by a ',' at the
-		  end of the unfinished lines or by unbalanced
-		  parentheses.
-		*/
-		if ( j > 0 && j < yyLine->length() - 1
+                  These constructs are caracterized by a ',' at the
+                  end of the unfinished lines or by unbalanced
+                  parentheses.
+                */
+                if (j > 0 && j < yyLine->length() - 1
                      && !m_constants.m_operators.contains((*yyLine)[j - 1])
-		     && (*yyLine)[j + 1] != equals ) {
-		    if ( braceDepth == 0 && delimDepth == 0 &&
-			 !yyLine->endsWith(comma) &&
-			 (yyLine->contains(openingParenthesis) == yyLine->contains(closingParenthesis)) )
-			hook = j;
-		}
-	    }
-	}
+                    && (*yyLine)[j + 1] != equals) {
+                    if (braceDepth == 0 && delimDepth == 0 &&
+                         !yyLine->endsWith(comma) &&
+                         (yyLine->contains(openingParenthesis) == yyLine->contains(closingParenthesis)))
+                        hook = j;
+                }
+            }
+        }
 
-	if ( hook >= 0 ) {
-	    /*
-	      Yes, we have a delimiter or an operator to align
-	      against! We don't really align against it, but rather
-	      against the following token, if any. In this example,
-	      the following token is "11":
+        if (hook >= 0) {
+            /*
+              Yes, we have a delimiter or an operator to align
+              against! We don't really align against it, but rather
+              against the following token, if any. In this example,
+              the following token is "11":
 
-		  int x = ( 11 +
-			    2 );
+                  int x = (11 +
+                            2);
 
-	      If there is no such token, we use a continuation indent:
+              If there is no such token, we use a continuation indent:
 
-		  static QRegExp foo( QString(
-			  "foo foo foo foo foo foo foo foo foo") );
-	    */
-	    hook++;
-	    while ( hook <  yyLine->length() ) {
-		if ( !(*yyLine)[hook].isSpace() )
-		    return columnForIndex( *yyLine, hook );
-		hook++;
-	    }
-	    return indentOfLine( *yyLine ) + ppContinuationIndentSize;
-	}
+                  static QRegExp foo(QString(
+                          "foo foo foo foo foo foo foo foo foo"));
+            */
+            hook++;
+            while (hook <  yyLine->length()) {
+                if (!(*yyLine)[hook].isSpace())
+                    return columnForIndex(*yyLine, hook);
+                hook++;
+            }
+            return indentOfLine(*yyLine) + ppContinuationIndentSize;
+        }
 
-	if ( braceDepth != 0 )
-	    break;
+        if (braceDepth != 0)
+            break;
 
-	/*
-	  The line's delimiters are balanced. It looks like a
-	  continuation line or something.
-	*/
-	if ( delimDepth == 0 ) {
-	    if ( leftBraceFollowed ) {
-		/*
-		  We have
+        /*
+          The line's delimiters are balanced. It looks like a
+          continuation line or something.
+        */
+        if (delimDepth == 0) {
+            if (leftBraceFollowed) {
+                /*
+                  We have
 
-		      int main()
-		      {
+                      int main()
+                      {
 
-		  or
+                  or
 
-		      Bar::Bar()
-			  : Foo( x )
-		      {
+                      Bar::Bar()
+                          : Foo(x)
+                      {
 
-		  The "{" should be flush left.
-		*/
-		if ( !isContinuationLine() )
-                    return indentOfLine( *yyLine );
-            } else if ( isContinuationLine() || yyLine->endsWith(comma)) {
-		/*
-		  We have
+                  The "{" should be flush left.
+                */
+                if (!isContinuationLine())
+                    return indentOfLine(*yyLine);
+            } else if (isContinuationLine() || yyLine->endsWith(comma)) {
+                /*
+                  We have
 
-		      x = a +
-			  b +
-			  c;
+                      x = a +
+                          b +
+                          c;
 
-		  or
+                  or
 
-		      int t[] = {
-			  1, 2, 3,
-			  4, 5, 6
+                      int t[] = {
+                          1, 2, 3,
+                          4, 5, 6
 
-		  The "c;" should fall right under the "b +", and the
-		  "4, 5, 6" right under the "1, 2, 3,".
-		*/
-		return indentOfLine( *yyLine );
-	    } else {
-		/*
-		  We have
+                  The "c;" should fall right under the "b +", and the
+                  "4, 5, 6" right under the "1, 2, 3,".
+                */
+                return indentOfLine(*yyLine);
+            } else {
+                /*
+                  We have
 
-		      stream << 1 +
-			      2;
+                      stream << 1 +
+                              2;
 
-		  We could, but we don't, try to analyze which
-		  operator has precedence over which and so on, to
-		  obtain the excellent result
+                  We could, but we don't, try to analyze which
+                  operator has precedence over which and so on, to
+                  obtain the excellent result
 
-		      stream << 1 +
-				2;
+                      stream << 1 +
+                                2;
 
-		  We do have a special trick above for the assignment
-		  operator above, though.
-		*/
-		return indentOfLine( *yyLine ) + ppContinuationIndentSize;
-	    }
-	}
+                  We do have a special trick above for the assignment
+                  operator above, though.
+                */
+                return indentOfLine(*yyLine) + ppContinuationIndentSize;
+            }
+        }
 
-	if ( !readLine() )
-	    break;
+        if (!readLine())
+            break;
     }
     return 0;
 }
@@ -904,29 +904,29 @@ int Indenter::indentForContinuationLine()
 
   Example 2:
 
-      if ( x ) {
-	  y;
+      if (x) {
+          y;
 
-  The hook line is "if ( x ) {". No matter what precedes it, "y;" has
+  The hook line is "if (x) {". No matter what precedes it, "y;" has
   to be indented one level deeper than the hook line, since we met one
   opening brace along the way.
 
   Example 3:
 
-      if ( a )
-	  while ( b ) {
-	      c;
-	  }
+      if (a)
+          while (b) {
+              c;
+          }
       d;
 
-  To indent "d;" correctly, we have to go as far as the "if ( a )".
+  To indent "d;" correctly, we have to go as far as the "if (a)".
   Compare with
 
-      if ( a ) {
-	  while ( b ) {
-	      c;
-	  }
-	  d;
+      if (a) {
+          while (b) {
+              c;
+          }
+          d;
 
   Still, we are striving to go back as little as possible to accommodate
   people with irregular indentation schemes. A hook line near at hand
@@ -937,82 +937,82 @@ int  Indenter::indentForStandaloneLine()
     const QChar semicolon = QLatin1Char(';');
     const QChar openingBrace = QLatin1Char('{');
 
-    for ( int i = 0; i < SmallRoof; i++ ) {
-	if ( !*yyLeftBraceFollows ) {
-	    YY_SAVE();
+    for (int i = 0; i < SmallRoof; i++) {
+        if (!*yyLeftBraceFollows) {
+            YY_SAVE();
 
-	    if ( matchBracelessControlStatement() ) {
-		/*
-		  The situation is this, and we want to indent "z;":
+            if (matchBracelessControlStatement()) {
+                /*
+                  The situation is this, and we want to indent "z;":
 
-		      if ( x &&
-			   y )
-			  z;
+                      if (x &&
+                           y)
+                          z;
 
-		  yyLine is "if ( x &&".
-		*/
-		return indentOfLine( *yyLine ) + ppIndentSize;
-	    }
-	    YY_RESTORE();
-	}
-
-	if ( yyLine->endsWith(semicolon) || yyLine->count(openingBrace) > 0 ) {
-	    /*
-	      The situation is possibly this, and we want to indent
-	      "z;":
-
-		  while ( x )
-		      y;
-		  z;
-
-	      We return the indent of "while ( x )". In place of "y;",
-	      any arbitrarily complex compound statement can appear.
-	    */
-
-	    if ( *yyBraceDepth > 0 ) {
-		do {
-		    if ( !readLine() )
-			break;
-		} while ( *yyBraceDepth > 0 );
-	    }
-
-	    LinizerState hookState;
-
-	    while ( isContinuationLine() )
-		readLine();
-	    hookState = *yyLinizerState;
-
-	    readLine();
-	    if ( *yyBraceDepth <= 0 ) {
-		do {
-		    if ( !matchBracelessControlStatement() )
-			break;
-		    hookState = *yyLinizerState;
-		} while ( readLine() );
-	    }
-
-	    *yyLinizerState = hookState;
-
-	    while ( isContinuationLine() )
-		readLine();
-
-	    /*
-	      Never trust lines containing only '{' or '}', as some
-	      people (Richard M. Stallman) format them weirdly.
-	    */
-            if ( yyLine->trimmed().length() > 1 ) {
-		if (!ppDoubleIndentBlocks)
-		    return indentOfLine( *yyLine ) - *yyBraceDepth * ppIndentSize;
-		else {
-		    if (*yyBraceDepth == -1 && indentOfLine( *yyLine ) == 0)
-			return ppIndentSize;  // don't do double indent for upper level blocks
-		    return indentOfLine( *yyLine ) - *yyBraceDepth * ppIndentSize * 2;
-		}
+                  yyLine is "if (x &&".
+                */
+                return indentOfLine(*yyLine) + ppIndentSize;
             }
-	}
+            YY_RESTORE();
+        }
 
-	if ( !readLine() )
-	    return -*yyBraceDepth * ppIndentSize;
+        if (yyLine->endsWith(semicolon) || yyLine->count(openingBrace) > 0) {
+            /*
+              The situation is possibly this, and we want to indent
+              "z;":
+
+                  while (x)
+                      y;
+                  z;
+
+              We return the indent of "while (x)". In place of "y;",
+              any arbitrarily complex compound statement can appear.
+            */
+
+            if (*yyBraceDepth > 0) {
+                do {
+                    if (!readLine())
+                        break;
+                } while (*yyBraceDepth > 0);
+            }
+
+            LinizerState hookState;
+
+            while (isContinuationLine())
+                readLine();
+            hookState = *yyLinizerState;
+
+            readLine();
+            if (*yyBraceDepth <= 0) {
+                do {
+                    if (!matchBracelessControlStatement())
+                        break;
+                    hookState = *yyLinizerState;
+                } while (readLine());
+            }
+
+            *yyLinizerState = hookState;
+
+            while (isContinuationLine())
+                readLine();
+
+            /*
+              Never trust lines containing only '{' or '}', as some
+              people (Richard M. Stallman) format them weirdly.
+            */
+            if (yyLine->trimmed().length() > 1) {
+                if (!ppDoubleIndentBlocks)
+                    return indentOfLine(*yyLine) - *yyBraceDepth * ppIndentSize;
+                else {
+                    if (*yyBraceDepth == -1 && indentOfLine(*yyLine) == 0)
+                        return ppIndentSize;  // don't do double indent for upper level blocks
+                    return indentOfLine(*yyLine) - *yyBraceDepth * ppIndentSize * 2;
+                }
+            }
+        }
+
+        if (!readLine())
+            return -*yyBraceDepth * ppIndentSize;
     }
     return 0;
 }
@@ -1028,12 +1028,12 @@ int  Indenter::indentForStandaloneLine()
   annoyed by the liberal behavior.
 */
 int Indenter::indentForBottomLine(const Iterator &current,
-                                            const Iterator &programBegin,
-                                            const Iterator &programEnd,
-                                            QChar typedIn )
+                                  const Iterator &programBegin,
+                                  const Iterator &programEnd,
+                                  QChar typedIn)
 {
-    if ( programBegin == programEnd )
-	return 0;
+    if (programBegin == programEnd)
+        return 0;
 
     yyProgramBegin = programBegin;
     yyProgramEnd = programEnd;
@@ -1043,7 +1043,7 @@ int Indenter::indentForBottomLine(const Iterator &current,
     Iterator lastIt = current;
 
     QString bottomLine = *lastIt;
-    QChar firstCh = firstNonWhiteSpace( bottomLine );
+    QChar firstCh = firstNonWhiteSpace(bottomLine);
     int indent;
 
     const QChar hash = QLatin1Char('#');
@@ -1051,75 +1051,75 @@ int Indenter::indentForBottomLine(const Iterator &current,
     const QChar closingBrace = QLatin1Char('}');
     const QChar colon =  QLatin1Char(':');
 
-    if ( bottomLineStartsInCComment() ) {
-	/*
-	  The bottom line starts in a C-style comment. Indent it
-	  smartly, unless the user has already played around with it,
-	  in which case it's better to leave her stuff alone.
-	*/
-	if ( isOnlyWhiteSpace(bottomLine) ) {
-	    indent = indentWhenBottomLineStartsInCComment();
-	} else {
-	    indent = indentOfLine( bottomLine );
-	}
-    } else if ( okay(typedIn, hash) && firstCh == hash ) {
-	/*
-	  Preprocessor directives go flush left.
-	*/
-	indent = 0;
+    if (bottomLineStartsInCComment()) {
+        /*
+          The bottom line starts in a C-style comment. Indent it
+          smartly, unless the user has already played around with it,
+          in which case it's better to leave her stuff alone.
+        */
+        if (isOnlyWhiteSpace(bottomLine)) {
+            indent = indentWhenBottomLineStartsInCComment();
+        } else {
+            indent = indentOfLine(bottomLine);
+        }
+    } else if (okay(typedIn, hash) && firstCh == hash) {
+        /*
+          Preprocessor directives go flush left.
+        */
+        indent = 0;
     } else {
-	if ( isUnfinishedLine() ) {
-	    indent = indentForContinuationLine();
-	} else {
-	    indent = indentForStandaloneLine();
-	}
+        if (isUnfinishedLine()) {
+            indent = indentForContinuationLine();
+        } else {
+            indent = indentForStandaloneLine();
+        }
 
-        if ( ppIndentBraces && firstCh == openingBrace ) {
+        if (ppIndentBraces && firstCh == openingBrace) {
             indent += ppIndentSize;
-	} else if ( firstCh == closingBrace ) {
-	    /*
-	      A closing brace is one level more to the left than the
-	      code it follows.
-	    */	    
-	    indent -= ppIndentSize;
-	    /*
-	      But if braces indenting is enabled the shift exists
-	    */
-	    if (ppIndentBraces)
-		indent += ppIndentSize;
-	    /*
-	      Double indenting of code blocks makes block righter, so move our brace back
-	    */
-	    if (ppDoubleIndentBlocks)
-		indent -= ppIndentSize;
+        } else if (firstCh == closingBrace) {
+            /*
+              A closing brace is one level more to the left than the
+              code it follows.
+            */
+            indent -= ppIndentSize;
+            /*
+              But if braces indenting is enabled the shift exists
+            */
+            if (ppIndentBraces)
+                indent += ppIndentSize;
+            /*
+              Double indenting of code blocks makes block righter, so move our brace back
+            */
+            if (ppDoubleIndentBlocks)
+                indent -= ppIndentSize;
 
-	} else if ( okay(typedIn, colon) ) {
-	    if ( m_constants.m_caseLabel.indexIn(bottomLine) != -1 ) {
-		/*
-		  Move a case label (or the ':' in front of a
-		  constructor initialization list) one level to the
-		  left, but only if the user did not play around with
-		  it yet. Some users have exotic tastes in the
-		  matter, and most users probably are not patient
-		  enough to wait for the final ':' to format their
-		  code properly.
+        } else if (okay(typedIn, colon)) {
+            if (m_constants.m_caseLabel.indexIn(bottomLine) != -1) {
+                /*
+                  Move a case label (or the ':' in front of a
+                  constructor initialization list) one level to the
+                  left, but only if the user did not play around with
+                  it yet. Some users have exotic tastes in the
+                  matter, and most users probably are not patient
+                  enough to wait for the final ':' to format their
+                  code properly.
 
-		  We don't attempt the same for goto labels, as the
-		  user is probably the middle of "foo::bar". (Who
-		  uses goto, anyway?)
-		*/
-		if ( indentOfLine(bottomLine) <= indent )
-		    indent -= ppIndentSize;
-		else
-		    indent = indentOfLine( bottomLine );
-	    }
-	}
+                  We don't attempt the same for goto labels, as the
+                  user is probably the middle of "foo::bar". (Who
+                  uses goto, anyway?)
+                */
+                if (indentOfLine(bottomLine) <= indent)
+                    indent -= ppIndentSize;
+                else
+                    indent = indentOfLine(bottomLine);
+            }
+        }
     }
-    if ( ppIndentBraces && indent == ppIndentSize &&
-         (firstCh == openingBrace || firstCh == closingBrace ) ) {
+    if (ppIndentBraces && indent == ppIndentSize &&
+         (firstCh == openingBrace || firstCh == closingBrace) ) {
         indent = 0;
     }
-    return qMax( 0, indent );
+    return qMax(0, indent);
 }
 
 } // namespace SharedTools
