@@ -35,6 +35,7 @@
 #include <FullySpecifiedType.h>
 #include <Type.h>
 #include <SymbolVisitor.h>
+#include <Control.h>
 #include <QtCore/QSet>
 #include <map>
 #include <functional>
@@ -116,7 +117,7 @@ class CPLUSPLUS_EXPORT CreateBindings: protected SymbolVisitor
     Q_DISABLE_COPY(CreateBindings)
 
 public:
-    CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot);
+    CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot, QSharedPointer<Control> control);
     virtual ~CreateBindings();
 
     /// Returns the binding for the global namespace.
@@ -127,7 +128,7 @@ public:
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
-    Control *control() const;
+    QSharedPointer<Control> control() const;
 
     /// Searches in \a scope for symbols with the given \a name.
     /// Store the result in \a results.
@@ -182,8 +183,8 @@ protected:
     virtual bool visit(ObjCMethod *);
 
 private:
-    Control *_control;
     Snapshot _snapshot;
+    QSharedPointer<Control> _control;
     QSet<Namespace *> _processed;
     QList<ClassOrNamespace *> _entities;
     ClassOrNamespace *_globalNamespace;
@@ -222,7 +223,7 @@ public:
     /// \internal
     void setBindings(QSharedPointer<CreateBindings> bindings);
 
-    Control *control() const; // ### deprecate
+    QSharedPointer<Control> control() const; // ### deprecate
 
     static QList<const Name *> fullyQualifiedName(Symbol *symbol);
 
@@ -238,6 +239,8 @@ private:
 
     // Bindings
     mutable QSharedPointer<CreateBindings> _bindings;
+
+    QSharedPointer<Control> _control;
 };
 
 } // end of namespace CPlusPlus

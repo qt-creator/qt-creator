@@ -604,7 +604,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 
                 foreach (Symbol *overload, binding->find(arrowOp)) {
                     if (overload->type()->isFunctionType()) {
-                        FullySpecifiedType overloadTy = DeprecatedGenTemplateInstance::instantiate(binding->templateId(), overload, control());
+                        FullySpecifiedType overloadTy = instantiate(binding->templateId(), overload);
                         Function *instantiatedFunction = overloadTy->asFunctionType();
                         Q_ASSERT(instantiatedFunction != 0);
 

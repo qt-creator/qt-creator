@@ -90,13 +90,15 @@ bool ClassOrNamespace::CompareName::operator()(const Name *name, const Name *oth
 // LookupContext
 /////////////////////////////////////////////////////////////////////
 LookupContext::LookupContext()
+    : _control(new Control())
 { }
 
 LookupContext::LookupContext(Document::Ptr thisDocument,
                              const Snapshot &snapshot)
     : _expressionDocument(Document::create("<LookupContext>")),
       _thisDocument(thisDocument),
-      _snapshot(snapshot)
+      _snapshot(snapshot),
+      _control(new Control())
 {
 }
 
@@ -105,7 +107,8 @@ LookupContext::LookupContext(Document::Ptr expressionDocument,
                              const Snapshot &snapshot)
     : _expressionDocument(expressionDocument),
       _thisDocument(thisDocument),
-      _snapshot(snapshot)
+      _snapshot(snapshot),
+      _control(new Control())
 {
 }
 
@@ -113,7 +116,8 @@ LookupContext::LookupContext(const LookupContext &other)
     : _expressionDocument(other._expressionDocument),
       _thisDocument(other._thisDocument),
       _snapshot(other._snapshot),
-      _bindings(other._bindings)
+      _bindings(other._bindings),
+      _control(other._control)
 { }
 
 LookupContext &LookupContext::operator = (const LookupContext &other)
@@ -122,6 +126,7 @@ LookupContext &LookupContext::operator = (const LookupContext &other)
     _thisDocument = other._thisDocument;
     _snapshot = other._snapshot;
     _bindings = other._bindings;
+    _control = other._control;
     return *this;
 }
 
@@ -135,7 +140,7 @@ QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol)
 QSharedPointer<CreateBindings> LookupContext::bindings() const
 {
     if (! _bindings)
-        _bindings = QSharedPointer<CreateBindings>(new CreateBindings(_thisDocument, _snapshot));
+        _bindings = QSharedPointer<CreateBindings>(new CreateBindings(_thisDocument, _snapshot, control()));
 
     return _bindings;
 }
@@ -145,8 +150,10 @@ void LookupContext::setBindings(QSharedPointer<CreateBindings> bindings)
     _bindings = bindings;
 }
 
-Control *LookupContext::control() const
-{ return bindings()->control(); }
+QSharedPointer<Control> LookupContext::control() const
+{
+    return _control;
+}
 
 Document::Ptr LookupContext::expressionDocument() const
 { return _expressionDocument; }
@@ -618,10 +625,9 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name)
     return 0;
 }
 
-CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot)
-    : _snapshot(snapshot)
+CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot, QSharedPointer<Control> control)
+    : _snapshot(snapshot), _control(control)
 {
-    _control = new Control();
     _globalNamespace = allocClassOrNamespace(/*parent = */ 0);
     _currentClassOrNamespace = _globalNamespace;
 
@@ -631,7 +637,6 @@ CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snaps
 CreateBindings::~CreateBindings()
 {
     qDeleteAll(_entities);
-    delete _control;
 }
 
 ClassOrNamespace *CreateBindings::switchCurrentClassOrNamespace(ClassOrNamespace *classOrNamespace)
@@ -673,7 +678,7 @@ void CreateBindings::process(Symbol *symbol)
     _currentClassOrNamespace->addTodo(symbol);
 }
 
-Control *CreateBindings::control() const
+QSharedPointer<Control> CreateBindings::control() const
 {
     return _control;
 }

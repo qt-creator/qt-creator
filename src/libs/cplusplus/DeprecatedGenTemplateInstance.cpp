@@ -363,7 +363,7 @@ FullySpecifiedType ApplySubstitution::applySubstitution(int index) const
 
 } // end of anonymous namespace
 
-DeprecatedGenTemplateInstance::DeprecatedGenTemplateInstance(Control *control, const Substitution &substitution)
+DeprecatedGenTemplateInstance::DeprecatedGenTemplateInstance(QSharedPointer<Control> control, const Substitution &substitution)
     : _symbol(0),
       _control(control),
       _substitution(substitution)
@@ -371,11 +371,12 @@ DeprecatedGenTemplateInstance::DeprecatedGenTemplateInstance(Control *control, c
 
 FullySpecifiedType DeprecatedGenTemplateInstance::gen(Symbol *symbol)
 {
-    ApplySubstitution o(_control, symbol, _substitution);
+    ApplySubstitution o(_control.data(), symbol, _substitution);
     return o.apply(symbol->type());
 }
 
-FullySpecifiedType DeprecatedGenTemplateInstance::instantiate(const Name *className, Symbol *candidate, Control *control)
+FullySpecifiedType DeprecatedGenTemplateInstance::instantiate(const Name *className, Symbol *candidate,
+                                                              QSharedPointer<Control> control)
 {
     if (className) {
         if (const TemplateNameId *templId = className->asTemplateNameId()) {

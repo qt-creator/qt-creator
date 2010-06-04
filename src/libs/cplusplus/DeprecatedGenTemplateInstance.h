@@ -36,6 +36,7 @@
 
 #include <QtCore/QList>
 #include <QtCore/QPair>
+#include <QtCore/QSharedPointer>
 
 namespace CPlusPlus {
 
@@ -45,15 +46,15 @@ public:
     typedef QList< QPair<const Identifier *, FullySpecifiedType> > Substitution;
 
 public:
-    static FullySpecifiedType instantiate(const Name *className, Symbol *candidate, Control *control);
+    static FullySpecifiedType instantiate(const Name *className, Symbol *candidate, QSharedPointer<Control> control);
 
 private:
-    DeprecatedGenTemplateInstance(Control *control, const Substitution &substitution);
+    DeprecatedGenTemplateInstance(QSharedPointer<Control> control, const Substitution &substitution);
     FullySpecifiedType gen(Symbol *symbol);
 
 private:
     Symbol *_symbol;
-    Control *_control;
+    QSharedPointer<Control> _control;
     const Substitution _substitution;
 };
 
