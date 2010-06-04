@@ -1171,7 +1171,6 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 break;
             pos = cpos;
         }
-        setTextCursor(textCursor()); // make cursor visible
         return;
     } else switch (e->key()) {
 
@@ -1215,7 +1214,6 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                                | Qt::MetaModifier)) == Qt::NoModifier
             && !textCursor().hasSelection()) {
             handleBackspaceKey();
-            setTextCursor(textCursor()); // make cursor visible
             e->accept();
             return;
         }
@@ -3723,6 +3721,8 @@ void BaseTextEditor::handleHomeKey(bool anchor)
     setTextCursor(cursor);
 }
 
+
+#define SET_AND_RETURN(cursor) setTextCursor(cursor); return  // make cursor visible and reset vertical x movement
 void BaseTextEditor::handleBackspaceKey()
 {
     QTextCursor cursor = textCursor();
@@ -3742,7 +3742,7 @@ void BaseTextEditor::handleBackspaceKey()
 
     if (!tabSettings.m_smartBackspace) {
         cursor.deletePreviousChar();
-        return;
+        SET_AND_RETURN(cursor);
     }
 
     QTextBlock currentBlock = cursor.block();
@@ -3750,7 +3750,7 @@ void BaseTextEditor::handleBackspaceKey()
     const QString blockText = currentBlock.text();
     if (cursor.atBlockStart() || tabSettings.firstNonSpace(blockText) < positionInBlock) {
         cursor.deletePreviousChar();
-        return;
+        SET_AND_RETURN(cursor);
     }
 
     int previousIndent = 0;
@@ -3769,10 +3769,11 @@ void BaseTextEditor::handleBackspaceKey()
             cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);
             cursor.insertText(tabSettings.indentationString(previousNonEmptyBlockText));
             cursor.endEditBlock();
-            return;
+            SET_AND_RETURN(cursor);
         }
     }
     cursor.deletePreviousChar();
+    SET_AND_RETURN(cursor);
 }
 
 void BaseTextEditor::wheelEvent(QWheelEvent *e)
