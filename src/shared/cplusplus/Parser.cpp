@@ -2125,7 +2125,7 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
             match(T_RPAREN, &ast->dptr_rparen_token);
         }
         match(T_COMMA, &ast->comma_token);
-        parseTypeSpecifier(ast->type_specifiers);
+        (void) parseTypeSpecifier(ast->type_specifiers);
         parseDeclarator(ast->declarator);
         match(T_RPAREN, &ast->rparen_token);
         node = ast;
@@ -4399,7 +4399,7 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
 
         UnaryExpressionAST *ast = new (_pool) UnaryExpressionAST;
         ast->unary_op_token = consumeToken();
-        parseCastExpression(ast->expression);
+        (void) parseCastExpression(ast->expression);
         node = ast;
         return true;
     }
@@ -4606,7 +4606,7 @@ bool Parser::parseDeleteExpression(ExpressionAST *&node)
             match(T_RBRACKET, &ast->rbracket_token);
         }
 
-        parseCastExpression(ast->expression);
+        (void) parseCastExpression(ast->expression);
         node = ast;
         return true;
     }
