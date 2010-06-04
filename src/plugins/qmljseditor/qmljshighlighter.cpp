@@ -82,6 +82,12 @@ static bool checkStartOfBinding(const Token &token)
     } // end of switch
 }
 
+void Highlighter::setFormats(const QVector<QTextCharFormat> &formats)
+{
+    QTC_ASSERT(formats.size() == NumFormats, return);
+    qCopy(formats.begin(), formats.end(), m_formats);
+}
+
 void Highlighter::highlightBlock(const QString &text)
 {
     const QList<Token> tokens = m_scanner(text, onBlockStart());

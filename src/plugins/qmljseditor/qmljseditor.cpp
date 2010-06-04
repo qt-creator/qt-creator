@@ -915,8 +915,7 @@ void QmlJSTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
                 << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
 
-    const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
-    highlighter->setFormats(formats.constBegin(), formats.constEnd());
+    highlighter->setFormats(fs.toTextCharFormats(categories));
     highlighter->rehighlight();
 
     m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));

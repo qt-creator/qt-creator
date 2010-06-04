@@ -63,14 +63,7 @@ public:
 
     bool isQmlEnabled() const;
     void setQmlEnabled(bool duiEnabled);
-
-    // MS VC 6 compatible, still.
-    // Set formats from a sequence of type QTextCharFormat
-    template <class InputIterator>
-    void setFormats(InputIterator begin, InputIterator end)
-    {
-        qCopy(begin, end, m_formats);
-    }
+    void setFormats(const QVector<QTextCharFormat> &formats);
 
     QTextCharFormat labelTextCharFormat() const;
 
