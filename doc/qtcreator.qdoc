@@ -5761,6 +5761,10 @@
     information about the Maemo platform, see
     \l{http://maemo.org/intro/platform/}{Software Platform} on the Maemo web site.
 
+    For more information about developing applications for the Maemo 5
+    platform, select \gui {Help > Index} and look for \gui {Platform Notes},
+    or see
+    \l{http://doc.qt.nokia.com/qt-maemo-4.6/platform-notes.html}{Platform Notes - Maemo 5}.
 
     \section1 Hardware and Software Requirements
 
@@ -6248,6 +6252,11 @@
     \nextpage creator-project-managing-sessions.html
 
     \title Setting Up Development Environment for Symbian
+
+    For more information about developing applications for the Symbian
+    platform, select \gui {Help > Index} and look for \gui {Platform Notes},
+    or see
+    \l{http://doc.qt.nokia.com/4.6/platform-notes-symbian.html}{Platform Notes - Symbian}.
 
     \section1 Hardware and Software Requirements
 
