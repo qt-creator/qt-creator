@@ -6284,9 +6284,10 @@
 
         \o Choose \gui {Start > Nokia Qt SDK > Symbian > Install TRK to Symbian
         device} and follow the instructions on the screen to install the TRK
-        debugging application for S60 5th Edition devices on the device.
+        debugging application on the device.
 
-        \o Start TRK on the device.
+        \note To check the Symbian platform version of your device, see
+        \l{http://www.forum.nokia.com/devices}{Device Details}.
 
     \endlist
 
