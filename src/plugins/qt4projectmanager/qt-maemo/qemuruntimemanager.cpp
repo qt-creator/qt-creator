@@ -379,7 +379,9 @@ void QemuRuntimeManager::startRuntime()
         m_qemuProcess->setProcessEnvironment(env);
         m_qemuProcess->setWorkingDirectory(rt.m_root);
 
-        const QString app = root % QLatin1String("madlib/") % rt.m_bin
+        const QString app =(QFileInfo(rt.m_bin).isRelative()
+            ? root % QLatin1String("madlib/") % rt.m_bin // Fremantle.
+            : rt.m_bin)                                  // Haramattan.
 #ifdef Q_OS_WIN
             % QLatin1String(".exe")
 #endif
