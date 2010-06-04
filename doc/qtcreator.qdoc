@@ -1925,7 +1925,8 @@
     set up automatically.
 
     You can select the targets and click the \gui Run button to build and
-    run the applications on the targets.
+    run the applications on the targets. You can click the \gui {Build All}
+    button to build all open projects, one after another.
 
      \section1 Setting Up a Project
 
@@ -3778,7 +3779,9 @@
 
     \title Managing Sessions
 
-    In Qt Creator, a session is a collection of:
+    When you exit Qt Creator, a snapshot of your current workspace is stored
+    as a session.
+    A session is a collection of:
 
     \list
         \o Open projects with their dependencies
@@ -3787,19 +3790,25 @@
         \o Bookmarks
     \endlist
 
-    When you launch Qt Creator, a list of existing sessions is displayed on the
-    \gui{Welcome screen}.
-
-    \image qtcreator-welcome-session.png
-
-    To switch between sessions, select the session from sessions listed in
-    \gui File > \gui Session. If you do not create or select a session,
-    Qt Creator always uses the default session.
+    If you work on a project and need to switch to another project for a
+    while, you can save your workspace as a session. This makes it easier
+    to return to working on the first project later.
 
     To create a new session or remove existing sessions, select \gui File >
     \gui Sessions > \gui{Session Manager}.
 
     \image qtcreator-session-manager.png
+
+    To switch between sessions, choose
+    \gui File > \gui Session. If you do not create or select a session,
+    Qt Creator always uses the default session, which was created the
+    last time you exited Qt Creator.
+
+    When you launch Qt Creator, a list of existing sessions is displayed on the
+    \gui{Welcome screen}.
+
+    \image qtcreator-welcome-session.png
+
 */
 
 
