@@ -31,12 +31,38 @@
 #define QMLJSQUICKFIX_H
 
 #include <texteditor/quickfix.h>
+#include <qmljs/parser/qmljsastfwd_p.h>
 
 namespace QmlJSEditor {
 
 class ModelManagerInterface;
 
 namespace Internal {
+
+class QmlJSQuickFixOperation: public TextEditor::QuickFixOperation
+{
+    Q_DISABLE_COPY(QmlJSQuickFixOperation)
+
+public:
+    QmlJSQuickFixOperation(TextEditor::BaseTextEditor *editor);
+    virtual ~QmlJSQuickFixOperation();
+
+protected:
+    using TextEditor::QuickFixOperation::move;
+    using TextEditor::QuickFixOperation::replace;
+    using TextEditor::QuickFixOperation::insert;
+    using TextEditor::QuickFixOperation::remove;
+    using TextEditor::QuickFixOperation::flip;
+    using TextEditor::QuickFixOperation::copy;
+    using TextEditor::QuickFixOperation::textOf;
+    using TextEditor::QuickFixOperation::charAt;
+
+    // token based operations
+    void move(const QmlJS::AST::SourceLocation &loc, int to);
+    void replace(const QmlJS::AST::SourceLocation &loc, const QString &replacement);
+    void remove(const QmlJS::AST::SourceLocation &loc);
+    void copy(const QmlJS::AST::SourceLocation &loc, int to);
+};
 
 class QmlJSQuickFixCollector: public TextEditor::QuickFixCollector
 {

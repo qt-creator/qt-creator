@@ -33,6 +33,35 @@
 
 using namespace QmlJSEditor::Internal;
 
+QmlJSQuickFixOperation::QmlJSQuickFixOperation(TextEditor::BaseTextEditor *editor)
+    : TextEditor::QuickFixOperation(editor)
+{
+}
+
+QmlJSQuickFixOperation::~QmlJSQuickFixOperation()
+{
+}
+
+void QmlJSQuickFixOperation::move(const QmlJS::AST::SourceLocation &loc, int to)
+{
+    move(position(loc.startColumn, loc.startColumn), to);
+}
+
+void QmlJSQuickFixOperation::replace(const QmlJS::AST::SourceLocation &loc, const QString &replacement)
+{
+    replace(position(loc.startLine, loc.startColumn), replacement);
+}
+
+void QmlJSQuickFixOperation::remove(const QmlJS::AST::SourceLocation &loc)
+{
+    remove(position(loc.startLine, loc.startColumn));
+}
+
+void QmlJSQuickFixOperation::copy(const QmlJS::AST::SourceLocation &loc, int to)
+{
+    copy(position(loc.startLine, loc.startColumn), to);
+}
+
 QmlJSQuickFixCollector::QmlJSQuickFixCollector()
 {
 }
