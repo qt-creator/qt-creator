@@ -36,7 +36,6 @@
 #include <QSharedPointer>
 #include <QTextCursor>
 #include <cplusplus/CppDocument.h>
-#include <cplusplus/TokenCache.h>
 
 QT_BEGIN_NAMESPACE
 class QTimer;
@@ -73,8 +72,6 @@ public:
     QString contents();
     unsigned editorRevision() const;
 
-    CPlusPlus::TokenCache *tokenCache();
-
 Q_SIGNALS:
     void contentsChanged();
 
@@ -92,7 +89,6 @@ private:
     QFuture<void> _documentParser;
     QString _cachedContents;
     unsigned _revision;
-    CPlusPlus::TokenCache _tokenCache;
 };
 
 } // namespace Internal

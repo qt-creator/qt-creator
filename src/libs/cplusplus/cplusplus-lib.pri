@@ -15,8 +15,7 @@ HEADERS += \
     $$PWD/TokenUnderCursor.h \
     $$PWD/BackwardsScanner.h \
     $$PWD/MatchingText.h \
-    $$PWD/OverviewModel.h \
-    $$PWD/TokenCache.h
+    $$PWD/OverviewModel.h
 
 SOURCES += \
     $$PWD/Icons.cpp \
@@ -24,8 +23,7 @@ SOURCES += \
     $$PWD/TokenUnderCursor.cpp \
     $$PWD/BackwardsScanner.cpp \
     $$PWD/MatchingText.cpp \
-    $$PWD/OverviewModel.cpp \
-    $$PWD/TokenCache.cpp
+    $$PWD/OverviewModel.cpp
 }
 
 HEADERS += \

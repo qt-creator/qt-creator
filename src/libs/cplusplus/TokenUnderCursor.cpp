@@ -28,14 +28,12 @@
 **************************************************************************/
 
 #include "TokenUnderCursor.h"
-#include "TokenCache.h"
-#include "TokenCache.h"
+#include "BackwardsScanner.h"
 #include <Token.h>
 
 #include <QTextCursor>
 #include <QTextBlock>
 #include <climits>
-#include <QTextDocument>
 
 using namespace CPlusPlus;
 
@@ -45,13 +43,17 @@ TokenUnderCursor::TokenUnderCursor()
 TokenUnderCursor::~TokenUnderCursor()
 { }
 
-SimpleToken TokenUnderCursor::operator()(TokenCache *cache, const QTextCursor &cursor, QTextBlock *b)
+SimpleToken TokenUnderCursor::operator()(const QTextCursor &cursor, QTextBlock *b)
 {
+    SimpleLexer tokenize;
+    tokenize.setObjCEnabled(true);
+    tokenize.setSkipComments(false);
+
     QTextBlock block = cursor.block();
     int column = cursor.position() - cursor.block().position();
 
     _text = block.text();
-    _tokens = cache->tokensForBlock(block);
+    _tokens = tokenize(_text, BackwardsScanner::previousBlockState(block));
     for (int index = _tokens.size() - 1; index != -1; --index) {
         const SimpleToken &tk = _tokens.at(index);
         if (tk.position() < column) {

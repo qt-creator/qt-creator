@@ -56,7 +56,6 @@
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/CheckUndefinedSymbols.h>
-#include <cplusplus/TokenCache.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
@@ -535,7 +534,7 @@ struct FindCanonicalSymbol
     SemanticInfo info;
 
     FindCanonicalSymbol(CPPEditor *editor, const SemanticInfo &info)
-        : editor(editor), expressionUnderCursor(editor->tokenCache()), info(info)
+        : editor(editor), info(info)
     {
         typeOfExpression.init(info.doc, info.snapshot);
     }
@@ -771,11 +770,6 @@ void CPPEditor::cut()
     startRename();
     BaseTextEditor::cut();
     finishRename();
-}
-
-TokenCache *CPPEditor::tokenCache() const
-{
-    return m_modelManager->tokenCache(editableInterface());
 }
 
 void CPPEditor::startRename()
@@ -1257,7 +1251,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     SimpleLexer tokenize;
     tokenize.setQtMocRunEnabled(true);
     const QString blockText = cursor.block().text();
-    const QList<SimpleToken> tokens = tokenize(blockText, TokenCache::previousBlockState(cursor.block()));
+    const QList<SimpleToken> tokens = tokenize(blockText, BackwardsScanner::previousBlockState(cursor.block()));
 
     bool recognizedQtMethod = false;
 
@@ -1307,7 +1301,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         static TokenUnderCursor tokenUnderCursor;
 
         QTextBlock block;
-        const SimpleToken tk = tokenUnderCursor(tokenCache(), tc, &block);
+        const SimpleToken tk = tokenUnderCursor(tc, &block);
 
         beginOfToken = block.position() + tk.begin();
         endOfToken = block.position() + tk.end();
@@ -1337,7 +1331,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         return link;
 
     // Evaluate the type of the expression under the cursor
-    ExpressionUnderCursor expressionUnderCursor(tokenCache());
+    ExpressionUnderCursor expressionUnderCursor;
     const QString expression = expressionUnderCursor(tc);
 
     TypeOfExpression typeOfExpression;
@@ -1436,13 +1430,13 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
 QString CPPEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text,
                                        const QChar &la, int *skippedChars) const
 {
-    MatchingText m(tokenCache());
+    MatchingText m;
     return m.insertMatchingBrace(tc, text, la, skippedChars);
 }
 
 QString CPPEditor::insertParagraphSeparator(const QTextCursor &tc) const
 {
-    MatchingText m(tokenCache());
+    MatchingText m;
     return m.insertParagraphSeparator(tc);
 }
 
@@ -1466,7 +1460,7 @@ bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
 bool CPPEditor::isInComment(const QTextCursor &cursor) const
 {
     CPlusPlus::TokenUnderCursor tokenUnderCursor;
-    const SimpleToken tk = tokenUnderCursor(tokenCache(), cursor);
+    const SimpleToken tk = tokenUnderCursor(cursor);
 
     if (tk.isComment()) {
         const int pos = cursor.selectionEnd() - cursor.block().position();
@@ -1521,7 +1515,7 @@ void CPPEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedCha
 
     const TabSettings &ts = tabSettings();
 
-    BackwardsScanner tk(tokenCache(), tc, 400);
+    BackwardsScanner tk(tc, QString(), 400);
     const int tokenCount = tk.startToken();
 
     if (tokenCount != 0) {

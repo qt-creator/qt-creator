@@ -736,8 +736,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
         return QString();
 
     QString expr = plaintext->textCursor().selectedText();
-    CppTools::CppModelManagerInterface *modelManager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
-    if (expr.isEmpty() && modelManager) {
+    if (expr.isEmpty()) {
         QTextCursor tc(plaintext->document());
         tc.setPosition(pos);
 
@@ -746,7 +745,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
             tc.movePosition(QTextCursor::EndOfWord);
 
         // Fetch the expression's code.
-        CPlusPlus::ExpressionUnderCursor expressionUnderCursor(modelManager->tokenCache(editor));
+        CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
         expr = expressionUnderCursor(tc);
         *column = tc.columnNumber();
         *line = tc.blockNumber();
@@ -758,7 +757,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
 
     if (function && !expr.isEmpty())
         if (const Core::IFile *file = editor->file())
-            if (modelManager)
+            if (CppTools::CppModelManagerInterface *modelManager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>())
                 *function = CppTools::AbstractEditorSupport::functionAt(modelManager, file->fileName(), *line, *column);
 
     return expr;

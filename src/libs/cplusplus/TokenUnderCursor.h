@@ -40,15 +40,13 @@ QT_END_NAMESPACE
 
 namespace CPlusPlus {
 
-class TokenCache;
-
 class CPLUSPLUS_EXPORT TokenUnderCursor
 {
 public:
     TokenUnderCursor();
     ~TokenUnderCursor();
 
-    SimpleToken operator()(TokenCache *cache, const QTextCursor &cursor, QTextBlock *block = 0);
+    SimpleToken operator()(const QTextCursor &cursor, QTextBlock *block = 0);
 
     const QList<SimpleToken> &tokens() const
     { return _tokens; }

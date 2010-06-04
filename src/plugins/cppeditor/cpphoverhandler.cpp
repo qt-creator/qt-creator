@@ -254,7 +254,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         }
 
         // Fetch the expression's code
-        ExpressionUnderCursor expressionUnderCursor(m_modelManager->tokenCache(editor));
+        ExpressionUnderCursor expressionUnderCursor;
         const QString expression = expressionUnderCursor(tc);
 
         const QList<LookupItem> types = typeOfExpression(expression, scope);

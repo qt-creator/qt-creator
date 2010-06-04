@@ -35,12 +35,11 @@
 namespace CPlusPlus {
 
 class BackwardsScanner;
-class TokenCache;
 
 class CPLUSPLUS_EXPORT MatchingText
 {
 public:
-    MatchingText(TokenCache *tokenCache);
+    MatchingText();
 
     static bool shouldInsertMatchingText(const QTextCursor &tc);
     static bool shouldInsertMatchingText(const QChar &lookAhead);
@@ -51,8 +50,6 @@ public:
 
 private:
     bool shouldInsertNewline(const QTextCursor &tc) const;
-
-    TokenCache *_tokenCache;
 };
 
 } // end of namespace CPlusPlus
