@@ -929,7 +929,8 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
         if (m_subsubmode == SearchSubSubMode)
             return true;
         // Not sure this feels good. People often hit Esc several times
-        if (isNoVisualMode() && m_mode == CommandMode)
+        if (isNoVisualMode() && m_mode == CommandMode
+               && m_opcount.isEmpty() && m_mvcount.isEmpty())
             return false;
         return true;
     }
