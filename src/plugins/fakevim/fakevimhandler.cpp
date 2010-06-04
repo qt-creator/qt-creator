@@ -351,6 +351,12 @@ public:
     Input(int k, int m, const QString &t)
         : m_key(k), m_modifiers(m), m_text(t)
     {
+        // On Mac, QKeyEvent::text() returns non-empty strings for
+        // cursor keys. This breaks some of the logic later on
+        // relying on text() being empty for "special" keys.
+        // FIXME: Check the real conditions.
+        if (m_text.size() == 1 && m_text.at(0).unicode() < ' ')
+            m_text.clear();
         // m_xkey is only a cache.
         m_xkey = (m_text.size() == 1 ? m_text.at(0).unicode() : m_key);
     }
