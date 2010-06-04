@@ -1860,7 +1860,23 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_lastEventWasBlockSelectionEvent(false),
     m_blockSelectionExtraX(0),
     m_moveLineUndoHack(false),
-    m_cursorBlockNumber(-1)
+    m_cursorBlockNumber(-1),
+    extraAreaHighlightFoldedBlockNumber(-1),
+    extraAreaSelectionAnchorBlockNumber(-1),
+    extraAreaToggleMarkBlockNumber(-1),
+    m_delayedUpdateTimer(0),
+    m_findScopeVerticalBlockSelection(0),
+    m_formatRange(0),
+    m_highlightBlocksTimer(0),
+    m_inKeyPressEvent(false),
+    m_lastScrollPos(-1),
+    m_overlay(0),
+    m_parenthesesMatchingTimer(0),
+    m_searchResultOverlay(0),
+    m_snippetOverlay(0),
+    q(0),
+    suggestedVisibleFoldedBlockNumber(-1),
+    visibleFoldedBlockNumber(-1)
 {
 }
 
