@@ -32,10 +32,9 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
 #include <QtCore/QLatin1String>
-
+#include <QtCore/QLatin1Char>
+#include <QtCore/QDebug>
 #ifdef Q_OS_UNIX
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
@@ -94,6 +93,7 @@ namespace {
 
 static const QLatin1String kDefinitionFilesPath("DefinitionFilesPath");
 static const QLatin1String kAlertWhenDefinitionIsNotFound("AlertWhenDefinitionsIsNotFound");
+static const QLatin1String kIgnoredFilesPatterns("IgnoredFilesPatterns");
 static const QLatin1String kGroupPostfix("HighlighterSettings");
 
 QString groupSpecifier(const QString &postFix, const QString &category)
@@ -117,6 +117,7 @@ void HighlighterSettings::toSettings(const QString &category, QSettings *s) cons
     s->beginGroup(group);
     s->setValue(kDefinitionFilesPath, m_definitionFilesPath);
     s->setValue(kAlertWhenDefinitionIsNotFound, m_alertWhenNoDefinition);
+    s->setValue(kIgnoredFilesPatterns, ignoredFilesPatterns());
     s->endGroup();
 }
 
@@ -129,11 +130,67 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
     else
         m_definitionFilesPath = s->value(kDefinitionFilesPath, QString()).toString();
     m_alertWhenNoDefinition = s->value(kAlertWhenDefinitionIsNotFound, true).toBool();
+    if (!s->contains(kIgnoredFilesPatterns))
+        assignInitialIgnoredPatterns();
+    else
+        setIgnoredFilesPatterns(s->value(kIgnoredFilesPatterns, QString()).toString());
     s->endGroup();
+}
+
+void HighlighterSettings::setIgnoredFilesPatterns(const QString &patterns)
+{
+    setExpressionsFromList(patterns.split(QLatin1Char(','), QString::SkipEmptyParts));
+}
+
+QString HighlighterSettings::ignoredFilesPatterns() const
+{
+    return listFromExpressions().join(QLatin1String(","));
+}
+
+void HighlighterSettings::assignInitialIgnoredPatterns()
+{
+    QStringList patterns;
+    patterns << QLatin1String("*.txt")
+        << QLatin1String("LICENSE*")
+        << QLatin1String("README")
+        << QLatin1String("INSTALL")
+        << QLatin1String("COPYING")
+        << QLatin1String("NEWS");
+    setExpressionsFromList(patterns);
+}
+
+bool HighlighterSettings::isIgnoredFilePattern(const QString &fileName) const
+{
+    foreach (const QRegExp &regExp, m_ignoredFiles)
+        if (regExp.indexIn(fileName) != -1)
+            return true;
+
+    return false;
 }
 
 bool HighlighterSettings::equals(const HighlighterSettings &highlighterSettings) const
 {
     return m_definitionFilesPath == highlighterSettings.m_definitionFilesPath &&
-           m_alertWhenNoDefinition == highlighterSettings.m_alertWhenNoDefinition;
+           m_alertWhenNoDefinition == highlighterSettings.m_alertWhenNoDefinition &&
+           m_ignoredFiles == highlighterSettings.m_ignoredFiles;
+}
+
+void HighlighterSettings::setExpressionsFromList(const QStringList &patterns)
+{
+    m_ignoredFiles.clear();
+    QRegExp regExp;
+    regExp.setCaseSensitivity(Qt::CaseInsensitive);
+    regExp.setPatternSyntax(QRegExp::Wildcard);
+    foreach (const QString &s, patterns) {
+        regExp.setPattern(s);
+        m_ignoredFiles.append(regExp);
+    }
+}
+
+QStringList HighlighterSettings::listFromExpressions() const
+{
+    QStringList patterns;
+    foreach (const QRegExp &regExp, m_ignoredFiles)
+        patterns.append(regExp.pattern());
+    return patterns;
 }

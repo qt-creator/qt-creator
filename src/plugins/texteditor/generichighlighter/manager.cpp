@@ -146,7 +146,7 @@ void Manager::registerMimeTypes()
 void Manager::gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future)
 {
     const HighlighterSettings &settings = TextEditorSettings::instance()->highlighterSettings();
-    QDir definitionsDir(settings.m_definitionFilesPath);
+    QDir definitionsDir(settings.definitionFilesPath());
 
     QStringList filter(QLatin1String("*.xml"));
     definitionsDir.setNameFilters(filter);

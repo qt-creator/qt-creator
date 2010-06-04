@@ -34,7 +34,7 @@
 
 namespace TextEditor {
 
-struct HighlighterSettings;
+class HighlighterSettings;
 
 class HighlighterSettingsPage : public TextEditorOptionsPage
 {

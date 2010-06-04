@@ -97,7 +97,8 @@ QWidget *HighlighterSettingsPage::createPage(QWidget *parent)
     if (m_d->m_searchKeywords.isEmpty()) {
         QTextStream(&m_d->m_searchKeywords) << m_d->m_page.definitionFilesGroupBox->title()
             << m_d->m_page.locationLabel->text()
-            << m_d->m_page.alertWhenNoDefinition->text();
+            << m_d->m_page.alertWhenNoDefinition->text()
+            << m_d->m_page.ignoreLabel->text();
     }
 
     connect(m_d->m_page.resetButton, SIGNAL(clicked()), this, SLOT(resetDefinitionsLocation()));
@@ -126,11 +127,12 @@ const HighlighterSettings &HighlighterSettingsPage::highlighterSettings() const
 void HighlighterSettingsPage::settingsFromUI()
 {    
     bool locationChanged = false;
-    if (m_d->m_settings.m_definitionFilesPath != m_d->m_page.definitionFilesPath->path())
+    if (m_d->m_settings.definitionFilesPath() != m_d->m_page.definitionFilesPath->path())
         locationChanged = true;
 
-    m_d->m_settings.m_definitionFilesPath = m_d->m_page.definitionFilesPath->path();
-    m_d->m_settings.m_alertWhenNoDefinition = m_d->m_page.alertWhenNoDefinition->isChecked();
+    m_d->m_settings.setDefinitionFilesPath(m_d->m_page.definitionFilesPath->path());
+    m_d->m_settings.setAlertWhenNoDefinition(m_d->m_page.alertWhenNoDefinition->isChecked());
+    m_d->m_settings.setIgnoredFilesPatterns(m_d->m_page.ignoreEdit->text());
     if (QSettings *s = Core::ICore::instance()->settings())
         m_d->m_settings.toSettings(m_d->m_settingsPrefix, s);
 
@@ -140,8 +142,9 @@ void HighlighterSettingsPage::settingsFromUI()
 
 void HighlighterSettingsPage::settingsToUI()
 {
-    m_d->m_page.definitionFilesPath->setPath(m_d->m_settings.m_definitionFilesPath);
-    m_d->m_page.alertWhenNoDefinition->setChecked(m_d->m_settings.m_alertWhenNoDefinition);
+    m_d->m_page.definitionFilesPath->setPath(m_d->m_settings.definitionFilesPath());
+    m_d->m_page.alertWhenNoDefinition->setChecked(m_d->m_settings.alertWhenNoDefinition());
+    m_d->m_page.ignoreEdit->setText(m_d->m_settings.ignoredFilesPatterns());
 }
 
 void HighlighterSettingsPage::resetDefinitionsLocation()
@@ -151,9 +154,11 @@ void HighlighterSettingsPage::resetDefinitionsLocation()
 
 bool HighlighterSettingsPage::settingsChanged() const
 {    
-    if (m_d->m_settings.m_definitionFilesPath != m_d->m_page.definitionFilesPath->path())
+    if (m_d->m_settings.definitionFilesPath() != m_d->m_page.definitionFilesPath->path())
         return true;
-    if (m_d->m_settings.m_alertWhenNoDefinition != m_d->m_page.alertWhenNoDefinition->isChecked())
+    if (m_d->m_settings.alertWhenNoDefinition() != m_d->m_page.alertWhenNoDefinition->isChecked())
+        return true;
+    if (m_d->m_settings.ignoredFilesPatterns() != m_d->m_page.ignoreEdit->text())
         return true;
     return false;
 }

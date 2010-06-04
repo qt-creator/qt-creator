@@ -43,7 +43,7 @@ struct StorageSettings;
 struct BehaviorSettings;
 struct DisplaySettings;
 struct CompletionSettings;
-struct HighlighterSettings;
+class HighlighterSettings;
 
 namespace Internal {
 class TextEditorSettingsPrivate;

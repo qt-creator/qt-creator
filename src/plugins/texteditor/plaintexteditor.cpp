@@ -36,6 +36,7 @@
 #include "highlightdefinition.h"
 #include "highlighter.h"
 #include "highlighterexception.h"
+#include "highlightersettings.h"
 #include "manager.h"
 #include "context.h"
 #include "normalindenter.h"
@@ -189,8 +190,10 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
             m_isMissingSyntaxDefinition = false;
         } catch (const HighlighterException &) {
         }
-    } else if (file() && file()->fileName().endsWith(QLatin1String(".txt"))) {
-        m_isMissingSyntaxDefinition = false;
+    } else if (file()) {
+        const QString &fileName = file()->fileName();
+        if (TextEditorSettings::instance()->highlighterSettings().isIgnoredFilePattern(fileName))
+            m_isMissingSyntaxDefinition = false;
     }
 
     // @todo: Indentation specification through the definition files is not really being used

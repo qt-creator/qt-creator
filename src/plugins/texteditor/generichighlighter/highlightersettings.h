@@ -31,6 +31,9 @@
 #define HIGHLIGHTERSETTINGS_H
 
 #include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtCore/QList>
+#include <QtCore/QRegExp>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -38,17 +41,35 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-struct HighlighterSettings
+class HighlighterSettings
 {
+public:
     HighlighterSettings();
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, QSettings *s);
 
+    void setDefinitionFilesPath(const QString &path) { m_definitionFilesPath = path; }
+    const QString &definitionFilesPath() const { return m_definitionFilesPath; }
+
+    void setAlertWhenNoDefinition(const bool alert) { m_alertWhenNoDefinition = alert; }
+    bool alertWhenNoDefinition() const { return m_alertWhenNoDefinition; }
+
+    void setIgnoredFilesPatterns(const QString &patterns);
+    QString ignoredFilesPatterns() const;
+    bool isIgnoredFilePattern(const QString &fileName) const;
+
     bool equals(const HighlighterSettings &highlighterSettings) const;
+
+private:
+    void assignInitialIgnoredPatterns();
+
+    void setExpressionsFromList(const QStringList &patterns);
+    QStringList listFromExpressions() const;
 
     bool m_alertWhenNoDefinition;
     QString m_definitionFilesPath;
+    QList<QRegExp> m_ignoredFiles;
 };
 
 inline bool operator==(const HighlighterSettings &a, const HighlighterSettings &b)
