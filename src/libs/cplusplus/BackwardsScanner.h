@@ -72,7 +72,7 @@ public:
     int size() const;
 
 private:
-    const SimpleToken &fetchToken(int i);
+    const SimpleToken &fetchToken(int tokenIndex);
 
 private:
     TokenCache *_tokenCache;

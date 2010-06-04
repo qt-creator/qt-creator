@@ -75,9 +75,9 @@ SimpleToken BackwardsScanner::LA(int index) const
 SimpleToken BackwardsScanner::operator[](int index) const
 { return const_cast<BackwardsScanner *>(this)->fetchToken(index); }
 
-const SimpleToken &BackwardsScanner::fetchToken(int i)
+const SimpleToken &BackwardsScanner::fetchToken(int tokenIndex)
 {
-    while (_offset + i < 0) {
+    while (_offset + tokenIndex < 0) {
         _block = _block.previous();
         if (_blocksTokenized == _maxBlockCount || !_block.isValid()) {
             ++_offset;
@@ -104,7 +104,7 @@ const SimpleToken &BackwardsScanner::fetchToken(int i)
         }
     }
 
-    return _tokens.at(_offset + i);
+    return _tokens.at(_offset + tokenIndex);
 }
 
 int BackwardsScanner::startToken() const

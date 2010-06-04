@@ -138,16 +138,16 @@ void CppHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     }
 }
 
-static QString buildHelpId(Symbol *symbol, const Name *name)
+static QString buildHelpId(Symbol *symbol, const Name *declarationName)
 {
     Scope *scope = 0;
 
     if (symbol) {
         scope = symbol->scope();
-        name = symbol->name();
+        declarationName = symbol->name();
     }
 
-    if (! name)
+    if (! declarationName)
         return QString();
 
     Overview overview;
@@ -155,7 +155,7 @@ static QString buildHelpId(Symbol *symbol, const Name *name)
     overview.setShowReturnTypes(false);
 
     QStringList qualifiedNames;
-    qualifiedNames.prepend(overview.prettyName(name));
+    qualifiedNames.prepend(overview.prettyName(declarationName));
 
     for (; scope; scope = scope->enclosingScope()) {
         Symbol *owner = scope->owner();
