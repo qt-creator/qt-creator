@@ -491,8 +491,8 @@ bool ResolveExpression::visit(CallAST *ast)
                 foreach (Symbol *overload, b->find(functionCallOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
                         if (maybeValidPrototype(funTy, actualArgumentCount)) {
-                            Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType();
-                            addResult(proto->returnType().simplified(), scope);
+                            if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
+                                addResult(proto->returnType().simplified(), scope);
                         }
                     }
                 }
@@ -535,9 +535,9 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
             if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), scope)) {
                 foreach (Symbol *overload, b->find(arrayAccessOp)) {
                     if (Function *funTy = overload->type()->asFunctionType()) {
-                        Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType();
-                        // ### TODO: check the actual arguments
-                        addResult(proto->returnType().simplified(), scope);
+                        if (Function *proto = instantiate(namedTy->name(), funTy)->asFunctionType())
+                            // ### TODO: check the actual arguments
+                            addResult(proto->returnType().simplified(), scope);
                     }
                 }
 
