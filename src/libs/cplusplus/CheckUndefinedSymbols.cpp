@@ -381,25 +381,25 @@ bool CheckUndefinedSymbols::visit(QualifiedNameAST *ast)
         ClassOrNamespace *b = 0;
         if (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list) {
             NestedNameSpecifierAST *nested_name_specifier = it->value;
-            NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name; // ### remove shadowing
+            if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) { // ### remove shadowing
 
-            if (class_or_namespace_name)
                 if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId())
                     accept(template_id->template_argument_list);
 
-            const Name *name = class_or_namespace_name->name;
-            b = _context.lookupType(name, scope);
-            addTypeUsage(b, class_or_namespace_name);
+                const Name *name = class_or_namespace_name->name;
+                b = _context.lookupType(name, scope);
+                addTypeUsage(b, class_or_namespace_name);
 
-            for (it = it->next; b && it; it = it->next) {
-                NestedNameSpecifierAST *nested_name_specifier = it->value;
+                for (it = it->next; b && it; it = it->next) {
+                    NestedNameSpecifierAST *nested_name_specifier = it->value;
 
-                if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) {
-                    if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId())
-                        accept(template_id->template_argument_list);
+                    if (NameAST *class_or_namespace_name = nested_name_specifier->class_or_namespace_name) {
+                        if (TemplateIdAST *template_id = class_or_namespace_name->asTemplateId())
+                            accept(template_id->template_argument_list);
 
-                    b = b->findType(class_or_namespace_name->name);
-                    addTypeUsage(b, class_or_namespace_name);
+                        b = b->findType(class_or_namespace_name->name);
+                        addTypeUsage(b, class_or_namespace_name);
+                    }
                 }
             }
         }
