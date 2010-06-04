@@ -3728,12 +3728,12 @@
     To create a locator filter:
     \list 1
         \o In the locator, click \inlineimage qtcreator-locator-magnify.png
-           and select \gui Configure....
+           and select \gui Configure.... to open the \gui Locator options.
 
            \image qtcreator-locator-customize.png
 
-        \o In the \gui{Options...} window click \gui Add.
-        \o In the \gui{Filters} dialog:
+        \o Click \gui Add.
+        \o In the \gui{Filter Configuration} dialog:
         \list
             \o Name your filter.
             \o Select at least one directory. The locator searches directories
@@ -3754,8 +3754,8 @@
 
     The locator searches the files matching your file pattern in the
     directories you have selected and caches that information. The cache for
-    all default filters is updated as you write your code. The filters you have
-    created Qt Creator by default updates once an hour.
+    all default filters is updated as you write your code. By default,
+    Qt Creator updates the filters created by you once an hour.
 
     To update the cached information manually, click
     \inlineimage qtcreator-locator-magnify.png
@@ -3764,7 +3764,7 @@
     To set a new cache update time:
     \list 1
         \o Select \gui Tools > \gui Options... > \gui Locator.
-        \o In \gui{Refresh interval} define new time in minutes.
+        \o In \gui{Refresh interval}, define new time in minutes.
     \endlist
 
 */
