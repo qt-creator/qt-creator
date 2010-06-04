@@ -182,6 +182,11 @@ struct ProFileOption
     ProFileEvaluator::FunctionDefs base_functions;
     QStringList feature_roots;
     QString qmakespec_name;
+#ifdef PROEVALUATOR_THREAD_SAFE
+    QMutex mutex;
+    QWaitCondition cond;
+    bool base_inProgress;
+#endif
 };
 
 QT_END_NAMESPACE
