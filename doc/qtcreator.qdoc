@@ -19,7 +19,10 @@
     platforms.
 
     For application designers, Qt Creator provides an integrated
-    visual editor, \QD, \if defined(qtquick) and \QMLD \endif
+    visual editor, \QD,
+    \if defined(qtquick)
+    and \QMLD
+    \endif
     that you can use to design and develop
     application user interfaces.
 
@@ -339,10 +342,9 @@
         \if defined(qtquick)
         \o \gui{\l{Developing Application UI}{Design}} mode for designing and developing
            application user interfaces.
-           \else
-            \o \gui{\l{Using Qt Designer}{Design}} mode for designing and developing
+        \else
+        \o \gui{\l{Using Qt Designer}{Design}} mode for designing and developing
            application user interfaces.
-           \endif
         \endif
         \o \gui{\l{Debugging}{Debug}} mode for inspecting the state of your program while
            debugging.
@@ -774,7 +776,8 @@
     Qt Creator understands the code as code, not just as plain text. This
     allows it to help you to write well formatted code and to anticipate
     what you are going to write and complete the code.
-    \if defined(qtquick) The code completion differs somewhat depending on whether you write Qt code or QML code.
+    \if defined(qtquick)
+    The code completion differs somewhat depending on whether you write Qt code or QML code.
     \endif
 
     \if defined(qtquick)
@@ -1453,7 +1456,9 @@
 
     You use wizards to create and import several types of projects and files, such
     as Qt GUI or console applications.
-    \if defined(qtquick) and Qt Quick applications \endif
+    \if defined(qtquick)
+    and Qt Quick applications
+    \endif
     You can also use
     wizards to add individual files to your projects. For example, you can create
     the following types of files:
@@ -2464,7 +2469,8 @@
     \title Getting Started
 
     This section contains examples that illustrate how to use Qt Creator
-    \if defined(qtquick) and the integrated design tools, \QD and \QMLD,
+    \if defined(qtquick)
+    and the integrated design tools, \QD and \QMLD,
     \endif
     to create, build, and run simple
     applications:
@@ -2786,6 +2792,7 @@
 
 
 /*!
+    \if defined(qtquick)
     \contentspage index.html
     \previouspage creator-mobile-example.html
     \page creator-qml-application.html
@@ -2974,6 +2981,7 @@
     \note In the \gui {QML Viewer}, select \gui {Skin} and select a mobile device
     type to view the application as on a mobile device.
 
+    \endif
 */
 
 
@@ -3813,7 +3821,10 @@
     \title Debugging
 
     You can use the Qt Creator \gui Debug mode to inspect the state of your
-    Qt \if defined(qtquick) and Qt Quick \endif
+    Qt
+    \if defined(qtquick)
+    and Qt Quick
+    \endif
     projects while debugging.
 
     Qt Creator does not include a debugger. It provides a debugger plugin that acts
@@ -3853,6 +3864,7 @@
 */
 
 /*!
+    \if defined(qtquick)
     \contentspage index.html
     \previouspage creator-debugging-helpers.html
     \page creator-debugging-qml.html
@@ -3904,11 +3916,13 @@
     You must use the native debugger to set breakpoints to C++ code and to examine
     the state of the interrupted Qt application. When a C++ program is interrupted,
     for example when a breakpoint is hit, you cannot use the QML inspector.
+    \endif
 
 */
 
 
 /*!
+    \if defined(qtquick)
     \contentspage index.html
     \previouspage creator-debugging-qml.html
     \page creator-qml-inspector.html
@@ -4032,6 +4046,7 @@
     by another application or another instance of \QQV that was not shut
     down properly. You can specify any free port number in the registered port range
     (1024-49151).
+    \endif
 
 */
 
