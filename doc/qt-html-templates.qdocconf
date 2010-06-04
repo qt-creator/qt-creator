@@ -1,8 +1,19 @@
-HTML.stylesheets        = style/style.css
+HTML.stylesheets        =  style/style.css \
+			style/OfflineStyle.css \
+			style/style_ie7.css \
+			style/style_ie8.css \
+			style/style_ie6.css
+
 HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
+			  "    <div class=\"content\"> \n" \
 			  "    <div id=\"nav-logo\">\n" \
 			  "      <a href=\"index.html\">Home</a></div>\n" \
 			  "    <a href=\"index.html\" class=\"qtref\"><span>Qt Creator Documentation</span></a>\n" \
+			  "		<div id=\"narrowsearch\"><form onsubmit=\"return false;\" action=\"\" id=\"qtdocsearch\">\n" \
+			  "		<fieldset>\n" \
+              "		<input type=\"text\" value=\"\" id=\"pageType\" name=\"searchstring\">\n" \
+			  "		 </fieldset>\n" \
+			  "		</form></div>\n" \
 			  "    <div id=\"nav-topright\">\n" \
 			  "      <ul>\n" \
 			  "        <li class=\"nav-topright-home\"><a href=\"http://qt.nokia.com/\">Qt HOME</a></li>\n" \
@@ -17,9 +28,10 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "    <div id=\"shortCut\">\n" \
 			  "      <ul>\n" \
 			  "        <li class=\"shortCut-topleft-inactive\"><span><a href=\"index.html\">Qt Creator 1.3.84 </a></span></li>\n" \
-			  "        <li class=\"shortCut-topleft-active\"><a href=\"http://qt.nokia.com/doc/\">ALL Versions" \
+			  "        <li class=\"shortCut-topleft-active\"><a href=\"http://qt.nokia.com/doc/\">ALL VERSIONS" \
 			  "        </a></li>\n" \
 			  "      </ul>\n" \
+			  "     </div>\n" \
 			  "    </div>\n" \
 			  "  </div>\n" \
 			  "  <div class=\"wrapper\">\n" \
@@ -31,55 +43,49 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "        <div class=\"searchlabel\">\n" \
 			  "          Search index:</div>\n" \
 			  "        <div class=\"search\">\n" \
-			  "          <form id=\"qtdocsearch\" action=\"#\">\n" \
+			  "          <form id=\"qtdocsearch\" action=\"\" onsubmit=\"return false;\">\n" \
 			  "            <fieldset>\n" \
-			  "              <input type=\"text\" name=\"searchstring\" id=\"searchstring\" value=\"\" onkeyup=\"doSearch(this.value);\" />\n" \
+			  "              <input type=\"text\" name=\"searchstring\" id=\"pageType\" value=\"\" />\n" \
 			  "            </fieldset>\n" \
 			  "          </form>\n" \
 			  "        </div>\n" \
 			  "        <div class=\"box first bottombar\" id=\"lookup\">\n" \
-			  "          <h2>\n" \
+			  "          <h2 title=\"API Lookup\"><span></span>\n" \
 			  "            API Lookup</h2>\n" \
-			  "          <div class=\"list\">\n" \
-			  "            <ul>\n" \
-			  "              <li><a href=\"modules.html\">All modules</a></li>\n" \
-			  "              <li><a href=\"classes.html\">All classes</a></li>\n" \
-			  "              <li><a href=\"functions.html\">All functions</a></li>\n" \
-			  "              <li><a href=\"namespaces.html\">All namespaces</a></li>\n" \
-			  "              <li><a href=\"platform-specific.html\">Platform specifics</a></li>\n" \
-			  "            </ul>\n" \
-			  "          </div>\n" \
-			  "          <div class=\"live\">\n" \
+			  "          <div  id=\"list001\" class=\"list\">\n" \
+			  "          <ul id=\"ul001\" >\n" \
+			  "              <li class=\"defaultLink\"><a href=\"classes.html\">Class index</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"functions.html\">Function index</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"modules.html\">Modules</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"namespaces.html\">Namespaces</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"qtglobal.html\">Global stuff</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"qdeclarativeelements.html\">QML elements</a></li>\n" \
+			  "            </ul> \n" \
 			  "          </div>\n" \
 			  "        </div>\n" \
 			  "        <div class=\"box bottombar\" id=\"topics\">\n" \
-			  "          <h2>\n" \
-			  "            API Topics</h2>\n" \
-			  "          <div class=\"list\">\n" \
-			  "            <ul>\n" \
-			  "              <li><a href=\"object.html\">QObject model</a></li>\n" \
-			  "              <li><a href=\"eventsandfilters.html\">Events, signals &amp; slots</a></li>\n" \
-			  "              <li><a href=\"paintsystem.html\">Graphics &amp; Paint system</a></li>\n" \
-			  "              <li><a href=\"declarativeui.html\">Qt Quick</a></li>\n" \
-			  "              <li><a href=\"widgets-and-layouts.html\">Widget style &amp; layout</a></li>\n" \
-			  "            </ul>\n" \
-			  "          </div>\n" \
-			  "          <div class=\"live\">\n" \
+			  "          <h2 title=\"Qt Topics\"><span></span>\n" \
+			  "            Qt Topics</h2>\n" \
+			  "          <div id=\"list002\" class=\"list\">\n" \
+			  "            <ul id=\"ul002\" >\n" \
+			  "              <li class=\"defaultLink\"><a href=\"qt-basic-concepts.html\">Basic Qt architecture</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"declarativeui.html\">Device UI's &amp; Qt Quick</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"qt-gui-concepts.html\">Desktop UI components</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"platform-specific.html\">Platform-specific info</a></li>\n" \
+			  "            </ul>  \n" \
 			  "          </div>\n" \
 			  "        </div>\n" \
 			  "        <div class=\"box\" id=\"examples\">\n" \
-			  "          <h2>\n" \
-			  "            API Examples</h2>\n" \
-			  "          <div class=\"list\">\n" \
-			  "            <ul>\n" \
-			  "              <li><a href=\"examples.html\">All examples</a></li>\n" \
-			  "              <li><a href=\"tutorials.html\">All tutorials</a></li>\n" \
-			  "              <li><a href=\"examples.html\">Qt Quick examples</a></li>\n" \
-			  "              <li><a href=\"examples.html\">Desktop examples</a></li>\n" \
-			  "              <li><a href=\"examples.html\">Device examples</a></li>\n" \
-			  "            </ul>\n" \
-			  "          </div>\n" \
-			  "          <div class=\"live\">\n" \
+			  "          <h2 title=\"Examples\"><span></span>\n" \
+			  "            Examples</h2>\n" \
+			  "          <div id=\"list003\" class=\"list\">\n" \
+			  "        <ul id=\"ul003\">\n" \
+			  "              <li class=\"defaultLink\"><a href=\"all-examples.html\">Examples</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"tutorials.html\">Tutorials</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"demos.html\">Demos</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"qdeclarativeexamples.html\">QML Examples</a></li>\n" \
+			  "              <li class=\"defaultLink\"><a href=\"qdeclarativeexamples.html#Demos\">QML Demos</a></li>\n" \
+			  "            </ul> \n" \
 			  "          </div>\n" \
 			  "        </div>\n" \
 			  "      </div>\n" \
@@ -98,20 +104,21 @@ HTML.postpostheader     = "            </ul>\n" \
 			  "              <li id=\"medA\" class=\"t_button active\">A</li>\n" \
 			  "              <li id=\"bigA\" class=\"t_button\">A</li>\n" \
 			  "              <li id=\"print\" class=\"t_button\"><a href=\"javascript:this.print();\">\n" \
-			  "                <img src=\"images/sep.png\" alt=\"\" /><img id=\"printIcon\" src=\"images/print.png\" alt=\"Print this page\" /></a></li>\n" \
+			  "                <span>Print</span></a></li>\n" \
 			  "            </ul>\n" \
 			  "          </div>\n" \
 			  "        </div>\n" \
 			  "        <div class=\"content\">\n"
 
-HTML.footer             = "        </div>\n" \
-			  "        <div class=\"feedback t_button\" onclick=\"\$(\'#feedbackBox\').show();\$(\'#blurpage\').show()\">\n" \
+HTML.footer             = "        <!-- /div -->\n" \
+			  "        <div class=\"feedback t_button\">\n" \
 			  "          [+] Documentation Feedback</div>\n" \
 			  "      </div>\n" \
 			  "    </div>\n" \
 			  "    <div class=\"ft\">\n" \
 			  "      <span></span>\n" \
 			  "    </div>\n" \
+			  "  </div> \n" \
 			  "  <div class=\"footer\">\n" \
 			  "    <p>\n" \
 			  "      <acronym title=\"Copyright\">&copy;</acronym> 2008-2010 Nokia Corporation and/or its\n" \
@@ -122,13 +129,10 @@ HTML.footer             = "        </div>\n" \
 			  "        href=\"http://qt.nokia.com/about/privacy-policy\">Privacy Policy</a></p>\n" \
 			  "  </div>\n" \
 			  "  <div id=\"feedbackBox\">\n" \
-			  "      <div id=\"feedcloseX\">\n" \
-			  "        <a href=\"#\" onclick=\"\$(\'#feedbackBox\').hide();\$(\'#blurpage\').hide()\">X</a>\n" \
-			  "      </div>\n" \
-			  "    <form action=\"#\">\n" \
-			  "      <textarea id=\"feedbox\" rows=\"5\" cols=\"40\">Please submit you feedback...</textarea>\n" \
-			  "      <input id=\"feedsubmit\" type=\"submit\" onclick=\"\$(\'#feedbackBox\').hide();\$(\'#blurpage\').hide()\"\n" \
-			  "        name=\"feedback\" />\n" \
+			  "      <div id=\"feedcloseX\" class=\"feedclose t_button\">X</div>\n" \
+			  "    <form id=\"feedform\" action=\"http://doc.qt.nokia.com/docFeedbck/feedback.php\" method=\"get\">\n" \
+			  "      <p><textarea id=\"feedbox\" name=\"feedText\" rows=\"5\" cols=\"40\">Please submit you feedback...</textarea></p>\n" \
+			  "      <p><input id=\"feedsubmit\" class=\"feedclose\" type=\"submit\" name=\"feedback\" /></p>\n" \
 			  "    </form>\n" \
 			  "  </div>\n" \
 			  "  <div id=\"blurpage\">\n" \
