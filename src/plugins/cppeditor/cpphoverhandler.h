@@ -37,6 +37,10 @@ class QHelpEngineCore;
 class QPoint;
 QT_END_NAMESPACE
 
+namespace CPlusPlus {
+class TokenCache;
+}
+
 namespace Core {
 class IEditor;
 }

@@ -962,6 +962,9 @@ bool CppModelManager::isCppEditor(Core::IEditor *editor) const
     return editor->context().contains(uid);
 }
 
+TokenCache *CppModelManager::tokenCache(TextEditor::ITextEditor *editor) const
+{ return editorSupport(editor)->tokenCache(); }
+
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
 { emit documentUpdated(doc); }
 

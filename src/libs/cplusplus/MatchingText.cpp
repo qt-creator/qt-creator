@@ -28,6 +28,7 @@
 **************************************************************************/
 #include "MatchingText.h"
 #include "BackwardsScanner.h"
+#include "TokenCache.h"
 
 #include <Token.h>
 
@@ -75,7 +76,8 @@ static bool isCompleteCharLiteral(const BackwardsScanner &tk, int index)
     return false;
 }
 
-MatchingText::MatchingText()
+MatchingText::MatchingText(TokenCache *tokenCache)
+    : _tokenCache(tokenCache)
 { }
 
 bool MatchingText::shouldInsertMatchingText(const QTextCursor &tc)
@@ -151,7 +153,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     if (text.isEmpty() || !shouldInsertMatchingText(la))
         return QString();
 
-    BackwardsScanner tk(tc, textToProcess.left(*skippedChars), MAX_NUM_LINES);
+    BackwardsScanner tk(_tokenCache, tc, MAX_NUM_LINES, textToProcess.left(*skippedChars));
     const int startToken = tk.startToken();
     int index = startToken;
 
@@ -211,7 +213,7 @@ bool MatchingText::shouldInsertNewline(const QTextCursor &tc) const
 
 QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
 {
-    BackwardsScanner tk(tc, QString(), MAX_NUM_LINES);
+    BackwardsScanner tk(_tokenCache, tc, MAX_NUM_LINES);
     int index = tk.startToken();
 
     if (tk[index - 1].isNot(T_LBRACE))

@@ -62,6 +62,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     tokenize.setObjCEnabled(false);
 
     int initialState = state;
+//    qDebug() << currentBlock().document()->revision()<<"CppHighlighter::highlightBlock for block#" << currentBlock().blockNumber();
     const QList<SimpleToken> tokens = tokenize(text, initialState);
     state = tokenize.state(); // refresh the state
 

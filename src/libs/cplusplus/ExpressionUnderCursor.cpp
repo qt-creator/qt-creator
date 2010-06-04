@@ -30,6 +30,7 @@
 #include "ExpressionUnderCursor.h"
 #include "SimpleLexer.h"
 #include "BackwardsScanner.h"
+#include "TokenCache.h"
 #include <Token.h>
 
 #include <QTextCursor>
@@ -37,8 +38,8 @@
 
 using namespace CPlusPlus;
 
-ExpressionUnderCursor::ExpressionUnderCursor()
-    : _jumpedComma(false)
+ExpressionUnderCursor::ExpressionUnderCursor(TokenCache *tokenCache)
+    : _tokenCache(tokenCache), _jumpedComma(false)
 { }
 
 ExpressionUnderCursor::~ExpressionUnderCursor()
@@ -218,7 +219,7 @@ bool ExpressionUnderCursor::isAccessToken(const SimpleToken &tk)
 
 QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
 {
-    BackwardsScanner scanner(cursor);
+    BackwardsScanner scanner(_tokenCache, cursor);
 
     _jumpedComma = false;
 
@@ -232,7 +233,7 @@ QString ExpressionUnderCursor::operator()(const QTextCursor &cursor)
 
 int ExpressionUnderCursor::startOfFunctionCall(const QTextCursor &cursor) const
 {
-    BackwardsScanner scanner(cursor);
+    BackwardsScanner scanner(_tokenCache, cursor);
 
     int index = scanner.startToken();
 

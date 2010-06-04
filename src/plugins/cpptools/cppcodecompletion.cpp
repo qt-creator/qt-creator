@@ -65,7 +65,6 @@
 #include <utils/faketooltip.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
 #include <QtCore/QMap>
 #include <QtCore/QFile>
 #include <QtGui/QAction>
@@ -454,7 +453,8 @@ QIcon CppCodeCompletion::iconForSymbol(Symbol *symbol) const
 /*
   Searches backwards for an access operator.
 */
-static int startOfOperator(TextEditor::ITextEditable *editor,
+static int startOfOperator(TokenCache *tokenCache,
+                           TextEditor::ITextEditable *editor,
                            int pos, unsigned *kind,
                            bool wantFunctionCall)
 {
@@ -547,7 +547,7 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     }
 
     if (completionKind == T_COMMA) {
-        ExpressionUnderCursor expressionUnderCursor;
+        ExpressionUnderCursor expressionUnderCursor(tokenCache);
         if (expressionUnderCursor.startOfFunctionCall(tc) == -1) {
             completionKind = T_EOF_SYMBOL;
             start = pos;
@@ -555,7 +555,7 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
     }
 
     static CPlusPlus::TokenUnderCursor tokenUnderCursor;
-    const SimpleToken tk = tokenUnderCursor(tc);
+    const SimpleToken tk = tokenUnderCursor(tokenCache, tc);
 
     if (completionKind == T_DOXY_COMMENT && !(tk.is(T_DOXY_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))) {
         completionKind = T_EOF_SYMBOL;
@@ -634,9 +634,10 @@ int CppCodeCompletion::startPosition() const
 bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     const int pos = editor->position();
+    TokenCache *tokenCache = m_manager->tokenCache(editor);
     unsigned token = T_EOF_SYMBOL;
 
-    if (startOfOperator(editor, pos, &token, /*want function call=*/ true) != pos) {
+    if (startOfOperator(tokenCache, editor, pos, &token, /*want function call=*/ true) != pos) {
         if (token == T_POUND) {
             if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget())) {
                 QTextCursor tc(edit->document());
@@ -684,7 +685,8 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
     while (editor->characterAt(endOfOperator - 1).isSpace())
         --endOfOperator;
 
-    int endOfExpression = startOfOperator(editor, endOfOperator,
+    TokenCache *tokenCache = m_manager->tokenCache(editor);
+    int endOfExpression = startOfOperator(tokenCache, editor, endOfOperator,
                                           &m_completionOperator,
                                           /*want function call =*/ true);
 
@@ -725,7 +727,7 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
         return m_startPosition;
     }
 
-    ExpressionUnderCursor expressionUnderCursor;
+    ExpressionUnderCursor expressionUnderCursor(m_manager->tokenCache(editor));
     QTextCursor tc(edit->document());
 
     if (m_completionOperator == T_COMMA) {
@@ -800,13 +802,13 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
         }
     }
 
-    if (debug)
-        qDebug() << "scope:" << scope->owner()->fileName() << scope->owner()->line() << scope->owner()->column();
+//    if (debug)
+//        qDebug() << "scope:" << scope->owner()->fileName() << scope->owner()->line() << scope->owner()->column();
 
     QList<LookupItem> results = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
 
-    if (debug)
-        qDebug() << "got:" << results.size() << "results";
+//    if (debug)
+//        qDebug() << "got:" << results.size() << "results";
 
     if (results.isEmpty()) {
         if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
@@ -828,7 +830,8 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
             QTextCursor tc(edit->document());
             tc.setPosition(index);
 
-            ExpressionUnderCursor expressionUnderCursor;
+            TokenCache *tokenCache = m_manager->tokenCache(edit->editableInterface());
+            ExpressionUnderCursor expressionUnderCursor(tokenCache);
             const QString baseExpression = expressionUnderCursor(tc);
 
             // Resolve the type of this expression
@@ -1084,7 +1087,8 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
 
             QTextCursor tc(edit->document());
             tc.setPosition(endOfExpression);
-            BackwardsScanner bs(tc);
+            TokenCache *tokenCache = m_manager->tokenCache(m_editor);
+            BackwardsScanner bs(tokenCache, tc);
             const int startToken = bs.startToken();
             const int lineStartToken = bs.startOfLine(startToken);
             // make sure the required tokens are actually available
@@ -1143,8 +1147,8 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults)
 {
     const LookupContext &context = typeOfExpression.context();
 
-    if (debug)
-        qDebug() << Q_FUNC_INFO << __LINE__;
+//    if (debug)
+//        qDebug() << Q_FUNC_INFO << __LINE__;
 
     if (baseResults.isEmpty())
         return false;
@@ -1156,8 +1160,8 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults)
     if (ClassOrNamespace *binding = resolveExpression.baseExpression(baseResults,
                                                                      m_completionOperator,
                                                                      &replacedDotOperator)) {
-        if (debug)
-            qDebug() << "cool we got a binding for the base expression";
+//        if (debug)
+//            qDebug() << "cool we got a binding for the base expression";
 
         if (replacedDotOperator && binding) {
             // Replace . with ->
@@ -1173,10 +1177,10 @@ bool CppCodeCompletion::completeMember(const QList<LookupItem> &baseResults)
         return ! m_completions.isEmpty();
     }
 
-    if (debug) {
-        Overview oo;
-        qDebug() << "hmm, got:" << oo(baseResults.first().type());
-    }
+//    if (debug) {
+//        Overview oo;
+//        qDebug() << "hmm, got:" << oo(baseResults.first().type());
+//    }
 
     return false;
 }
