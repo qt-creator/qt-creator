@@ -331,6 +331,7 @@ class QmlXmlReader
 public:
     QmlXmlReader(QIODevice *dev)
         : _xml(dev)
+        , _objects(0)
     {}
 
     bool operator()(QMap<QString, FakeMetaObject *> *objects) {

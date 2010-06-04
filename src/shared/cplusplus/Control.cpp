@@ -235,9 +235,19 @@ class Control::Data
 {
 public:
     Data(Control *control)
-        : control(control),
-          translationUnit(0),
-          diagnosticClient(0)
+        : control(control)
+        , translationUnit(0)
+        , diagnosticClient(0)
+        , deprecatedId(0)
+        , unavailableId(0)
+        , objcGetterId(0)
+        , objcSetterId(0)
+        , objcReadwriteId(0)
+        , objcReadonlyId(0)
+        , objcAssignId(0)
+        , objcRetainId(0)
+        , objcCopyId(0)
+        , objcNonatomicId(0)
     {}
 
     ~Data()
