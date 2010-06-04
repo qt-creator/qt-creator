@@ -669,8 +669,11 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
             }
         }
 
-        if (binding)
-            addResults(binding->lookup(ast->selector->name));
+        if (binding) {
+            foreach (Symbol *s, binding->lookup(ast->selector->name))
+                if (ObjCMethod *m = s->asObjCMethod())
+                    addResult(m->returnType(), result.scope());
+        }
     }
 
     return false;
