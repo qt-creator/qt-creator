@@ -922,7 +922,10 @@ int CppQuickFixOperation::endOf(unsigned index) const
 
 int CppQuickFixOperation::endOf(const CPlusPlus::AST *ast) const
 {
-    return endOf(ast->lastToken() - 1);
+    if (unsigned end = ast->lastToken())
+        return endOf(end - 1);
+    else
+        return 0;
 }
 
 void CppQuickFixOperation::startAndEndOf(unsigned index, int *start, int *end) const
