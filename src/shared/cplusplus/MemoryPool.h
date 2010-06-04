@@ -88,7 +88,6 @@ private:
     int _blockCount;
     char *_ptr;
     char *_end;
-    int _ccc;
 
     enum
     {
