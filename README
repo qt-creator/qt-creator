@@ -26,6 +26,12 @@ cd $BUILD_DIRECTORY
 qmake $SOURCE_DIRECTORY/qtcreator.pro
 make (or mingw32-make or nmake or jom, depending on your platform)
 
+Qml Support
+-----------
+
+Define the QTCREATOR_WITH_QML environment variable to enable Qml support
+(before running qmake).
+
 QmlDesigner, QmlInspector require private headers
 -------------------------------------------------
 
