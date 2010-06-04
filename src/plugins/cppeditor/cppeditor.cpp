@@ -1482,14 +1482,13 @@ bool CPPEditor::isInComment(const QTextCursor &cursor) const
 }
 
 // Indent a code line based on previous
-template <class Iterator>
 static void indentCPPBlock(const CPPEditor::TabSettings &ts,
-                           const QTextBlock &block,
-                           const Iterator &programBegin,
-                           const Iterator &programEnd,
-                           QChar typedChar)
+    const QTextBlock &block,
+    const TextEditor::TextBlockIterator &programBegin,
+    const TextEditor::TextBlockIterator &programEnd,
+    QChar typedChar)
 {
-    typedef typename SharedTools::Indenter<Iterator> Indenter;
+    typedef SharedTools::Indenter Indenter;
     Indenter &indenter = Indenter::instance();
     indenter.setIndentSize(ts.m_indentSize);
     indenter.setTabSize(ts.m_tabSize);

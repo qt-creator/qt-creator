@@ -1,5 +1,4 @@
 INCLUDEPATH *= $$PWD
 
-SOURCES += $$PWD/constants.cpp
-HEADERS += $$PWD/indenter.h  \
-           $$PWD/indenter_impl.h
+SOURCES += $$PWD/constants.cpp $$PWD/indenter.cpp
+HEADERS += $$PWD/indenter.h

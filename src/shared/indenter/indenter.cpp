@@ -27,9 +27,6 @@
 **
 **************************************************************************/
 
-#ifndef INDENTER_C
-#define INDENTER_C
-
 /*
   This file is a self-contained interactive indenter for C++ and Qt
   Script.
@@ -69,6 +66,8 @@
   string literals are removed beforehand.
 */
 
+#include "indenter.h"
+
 namespace SharedTools {
 
 /* qmake ignore Q_OBJECT */
@@ -105,8 +104,7 @@ namespace {
     enum { ppCommentOffset = 1 };
 }
 
-template <class Iterator>
-Indenter<Iterator>::Indenter() :
+Indenter::Indenter() :
     ppHardwareTabSize(8),
     ppIndentSize(4),
     ppIndentBraces(false),
@@ -119,40 +117,34 @@ Indenter<Iterator>::Indenter() :
 {
 }
 
-template <class Iterator>
-Indenter<Iterator>::~Indenter()
+Indenter::~Indenter()
 {
     delete yyLinizerState;
 }
 
-template <class Iterator>
-Indenter<Iterator> &Indenter<Iterator>::instance()
+Indenter &Indenter::instance()
 {
     static Indenter rc;
     return rc;
 }
 
-template <class Iterator>
-void Indenter<Iterator>::setIndentSize(int size)
+void Indenter::setIndentSize(int size)
 {
     ppIndentSize = size;
     ppContinuationIndentSize = 2 * size;
 }
 
-template <class Iterator>
-void Indenter<Iterator>::setTabSize(int size )
+void Indenter::setTabSize(int size )
 {
     ppHardwareTabSize = size;
 }
 
-template <class Iterator>
-void Indenter<Iterator>::setIndentBraces(bool indent)
+void Indenter::setIndentBraces(bool indent)
 {
     ppIndentBraces = indent;
 }
 
-template <class Iterator>
-void Indenter<Iterator>::setDoubleIndentBlocks(bool indent)
+void Indenter::setDoubleIndentBlocks(bool indent)
 {
     ppDoubleIndentBlocks = indent;
 }
@@ -161,8 +153,7 @@ void Indenter<Iterator>::setDoubleIndentBlocks(bool indent)
   Returns the first non-space character in the string t, or
   QChar::null if the string is made only of white space.
 */
-template <class Iterator>
-QChar Indenter<Iterator>::firstNonWhiteSpace( const QString& t )
+QChar Indenter::firstNonWhiteSpace( const QString& t )
 {
     if (const int len = t.length())
 	for ( int i = 0; i < len; i++)
@@ -175,8 +166,7 @@ QChar Indenter<Iterator>::firstNonWhiteSpace( const QString& t )
   Returns true if string t is made only of white space; otherwise
   returns false.
 */
-template <class Iterator>
-bool Indenter<Iterator>::isOnlyWhiteSpace( const QString& t )
+bool Indenter::isOnlyWhiteSpace( const QString& t )
 {
     return t.isEmpty() || firstNonWhiteSpace( t ).isNull();
 }
@@ -186,8 +176,7 @@ bool Indenter<Iterator>::isOnlyWhiteSpace( const QString& t )
   index. Column numbers and index are identical for strings that don't
   contain '\t's.
 */
-template <class Iterator>
-int Indenter<Iterator>::columnForIndex( const QString& t, int index ) const
+int Indenter::columnForIndex( const QString& t, int index ) const
 {
     int col = 0;
     if ( index > t.length() )
@@ -208,8 +197,7 @@ int Indenter<Iterator>::columnForIndex( const QString& t, int index ) const
 /*
   Returns the indentation size of string t.
 */
-template <class Iterator>
-int Indenter<Iterator>::indentOfLine( const QString& t ) const
+int Indenter::indentOfLine( const QString& t ) const
 {
     return columnForIndex( t, t.indexOf(firstNonWhiteSpace(t)) );
 }
@@ -230,8 +218,7 @@ static inline void eraseChar( QString& t, int k, QChar ch )
   Removes some nefast constructs from a code line and returns the
   resulting line.
 */
-template <class Iterator>
-QString Indenter<Iterator>::trimmedCodeLine( const QString& t )
+QString Indenter::trimmedCodeLine( const QString& t )
 {
     QString trimmed = t;
     int k;
@@ -348,8 +335,7 @@ static inline bool okay( QChar typedIn, QChar okayCh )
   accordingly. yyLine is cleaned from comments and other damageable
   constructs. Empty lines are skipped.
 */
-template <class Iterator>
-bool Indenter<Iterator>::readLine()
+bool Indenter::readLine()
 {
     int k;
 
@@ -457,8 +443,7 @@ bool Indenter<Iterator>::readLine()
   Resets the linizer to its initial state, with yyLine containing the
   line above the bottom line of the program.
 */
-template <class Iterator>
-void Indenter<Iterator>::startLinizer()
+void Indenter::startLinizer()
 {
     yyLinizerState->braceDepth = 0;
     yyLinizerState->inCComment = false;
@@ -479,8 +464,7 @@ void Indenter<Iterator>::startLinizer()
   potentially the whole line) is part of a C-style comment; otherwise
   returns false.
 */
-template <class Iterator>
-bool Indenter<Iterator>::bottomLineStartsInCComment()
+bool Indenter::bottomLineStartsInCComment()
 {
     /*
       We could use the linizer here, but that would slow us down
@@ -515,8 +499,7 @@ bool Indenter<Iterator>::bottomLineStartsInCComment()
   Essentially, we're trying to align against some text on the previous
   line.
 */
-template <class Iterator>
-int Indenter<Iterator>::indentWhenBottomLineStartsInCComment() const
+int Indenter::indentWhenBottomLineStartsInCComment() const
 {
     int k = yyLine->lastIndexOf(m_constants.m_slashAster );
     if ( k == -1 ) {
@@ -560,8 +543,7 @@ int Indenter<Iterator>::indentWhenBottomLineStartsInCComment() const
       if ( x )
 	  y;
 */
-template <class Iterator>
-bool Indenter<Iterator>::matchBracelessControlStatement()
+bool Indenter::matchBracelessControlStatement()
 {
     int delimDepth = 0;
 
@@ -649,8 +631,7 @@ bool Indenter<Iterator>::matchBracelessControlStatement()
 	  f +   // unfinished continuation line
 	  g;    // continuation line
 */
-template <class Iterator>
-bool  Indenter<Iterator>::isUnfinishedLine()
+bool  Indenter::isUnfinishedLine()
 {
     bool unf = false;
 
@@ -699,8 +680,7 @@ bool  Indenter<Iterator>::isUnfinishedLine()
   Returns true if yyLine is a continuation line; otherwise returns
   false.
 */
-template <class Iterator>
-bool Indenter<Iterator>::isContinuationLine()
+bool Indenter::isContinuationLine()
 {
     YY_SAVE();
     const bool cont = readLine() && isUnfinishedLine();
@@ -716,8 +696,7 @@ bool Indenter<Iterator>::isContinuationLine()
   or other bracked left opened on a previous line, or some interesting
   operator such as '='.
 */
-template <class Iterator>
-int Indenter<Iterator>::indentForContinuationLine()
+int Indenter::indentForContinuationLine()
 {
     int braceDepth = 0;
     int delimDepth = 0;
@@ -953,8 +932,7 @@ int Indenter<Iterator>::indentForContinuationLine()
   people with irregular indentation schemes. A hook line near at hand
   is much more reliable than a remote one.
 */
-template <class Iterator>
-int  Indenter<Iterator>::indentForStandaloneLine()
+int  Indenter::indentForStandaloneLine()
 {
     const QChar semicolon = QLatin1Char(';');
     const QChar openingBrace = QLatin1Char('{');
@@ -1049,8 +1027,7 @@ int  Indenter<Iterator>::indentForStandaloneLine()
   slighly more liberal if typedIn is always null. The user might be
   annoyed by the liberal behavior.
 */
-template <class Iterator>
-int Indenter<Iterator>::indentForBottomLine(const Iterator &current,
+int Indenter::indentForBottomLine(const Iterator &current,
                                             const Iterator &programBegin,
                                             const Iterator &programEnd,
                                             QChar typedIn )
@@ -1146,8 +1123,3 @@ int Indenter<Iterator>::indentForBottomLine(const Iterator &current,
 }
 
 } // namespace SharedTools
-
-#undef YY_SAVE
-#undef YY_RESTORE
-
-#endif // INDENTER_C

@@ -30,6 +30,9 @@
 #ifndef INDENTER_H
 #define INDENTER_H
 
+#include "texteditor/basetexteditor.h"
+#include "texteditor/textblockiterator.h"
+
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
@@ -62,14 +65,13 @@ struct Constants {
  * given as a list of strings, with the bottom line being the line to
  * indent. The actual program might contain extra lines, but those are
  * uninteresting and not passed over to us. */
-template <class Iterator>
 struct LinizerState {
 
     QString line;
     int braceDepth;
     bool leftBraceFollows;
 
-    Iterator iter;
+    TextEditor::TextBlockIterator iter;
     bool inCComment;
     bool pendingRightBrace;
 };
@@ -79,8 +81,8 @@ struct LinizerState {
  * of a sequence of code lines represented as QString.
  * When setting the parameters, be careful to
  * specify the correct template parameters (best use a typedef). */
-template <class Iterator>
 class Indenter {
+    typedef TextEditor::TextBlockIterator Iterator;
     Indenter(const Indenter&);
     Indenter &operator=(const Indenter&);
     Indenter();
@@ -131,7 +133,7 @@ private:
     Iterator yyProgramBegin;
     Iterator yyProgramEnd;
 
-    typedef typename IndenterInternal::LinizerState<Iterator> LinizerState;
+    typedef IndenterInternal::LinizerState LinizerState;
 
     LinizerState *yyLinizerState ;
 
@@ -141,7 +143,5 @@ private:
     const bool *yyLeftBraceFollows;
 };
 }
-
-#include "indenter_impl.h"
 
 #endif // INDENTER_H
