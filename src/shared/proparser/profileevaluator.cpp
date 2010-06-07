@@ -260,6 +260,7 @@ public:
     ProItem::ProItemReturn evaluateConditionalFunction(const QString &function, const QString &arguments);
     ProFile *parsedProFile(const QString &fileName, bool cache,
                            const QString &contents = QString());
+    bool evaluateFileDirect(const QString &fileName, ProFileEvaluator::EvalFileType type);
     bool evaluateFile(const QString &fileName);
     bool evaluateFeatureFile(const QString &fileName,
                              QHash<QString, QStringList> *values = 0, FunctionDefs *defs = 0);
@@ -3120,6 +3121,20 @@ ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool 
     return pro;
 }
 
+bool ProFileEvaluator::Private::evaluateFileDirect(
+        const QString &fileName, ProFileEvaluator::EvalFileType type)
+{
+    if (ProFile *pro = parsedProFile(fileName, true)) {
+        q->aboutToEval(currentProFile(), pro, type);
+        bool ok = (visitProFile(pro) == ProItem::ReturnTrue);
+        q->doneWithEval(currentProFile());
+        pro->deref();
+        return ok;
+    } else {
+        return false;
+    }
+}
+
 bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
 {
     if (fileName.isEmpty())
@@ -3129,14 +3144,7 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
             errorMessage(format("circular inclusion of %1").arg(fileName));
             return false;
         }
-    if (ProFile *pro = parsedProFile(fileName, true)) {
-        q->aboutToEval(pro);
-        bool ok = (visitProFile(pro) == ProItem::ReturnTrue);
-        pro->deref();
-        return ok;
-    } else {
-        return false;
-    }
+    return evaluateFileDirect(fileName, ProFileEvaluator::EvalIncludeFile);
 }
 
 bool ProFileEvaluator::Private::evaluateFeatureFile(
@@ -3183,13 +3191,8 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
         bool cumulative = m_cumulative;
         m_cumulative = false;
 
-        // Don't use evaluateFile() here to avoid calling aboutToEval().
         // The path is fully normalized already.
-        bool ok = false;
-        if (ProFile *pro = parsedProFile(fn, true)) {
-            ok = (visitProFile(pro) == ProItem::ReturnTrue);
-            pro->deref();
-        }
+        bool ok = evaluateFileDirect(fn, ProFileEvaluator::EvalFeatureFile);
 
         m_cumulative = cumulative;
         return ok;
@@ -3371,7 +3374,11 @@ QString ProFileEvaluator::propertyValue(const QString &name) const
     return d->propertyValue(name);
 }
 
-void ProFileEvaluator::aboutToEval(ProFile *)
+void ProFileEvaluator::aboutToEval(ProFile *, ProFile *, EvalFileType)
+{
+}
+
+void ProFileEvaluator::doneWithEval(ProFile *)
 {
 }
 

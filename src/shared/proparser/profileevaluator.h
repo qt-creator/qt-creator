@@ -94,7 +94,9 @@ public:
     QString propertyValue(const QString &val) const;
 
     // for our descendents
-    virtual void aboutToEval(ProFile *proFile); // only .pri, but not .prf. or .pro
+    enum EvalFileType { EvalFeatureFile, EvalIncludeFile };
+    virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type);
+    virtual void doneWithEval(ProFile *parent);
     virtual void logMessage(const QString &msg);
     virtual void errorMessage(const QString &msg); // .pro parse errors
     virtual void fileMessage(const QString &msg); // error() and message() from .pro file
