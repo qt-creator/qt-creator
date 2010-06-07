@@ -110,14 +110,14 @@ void GnuMakeParser::stdError(const QString &line)
 
 void GnuMakeParser::addDirectory(const QString &dir)
 {
-    if (dir.isEmpty() || m_directories.contains(dir))
+    if (dir.isEmpty())
         return;
     m_directories.append(dir);
 }
 
 void GnuMakeParser::removeDirectory(const QString &dir)
 {
-    m_directories.removeAll(dir);
+    m_directories.removeOne(dir);
 }
 
 void GnuMakeParser::taskAdded(const Task &task)
