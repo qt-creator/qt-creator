@@ -27,32 +27,51 @@
 **
 **************************************************************************/
 #include "BackwardsScanner.h"
+#include "TokenCache.h"
 #include <Token.h>
 #include <QtGui/QTextCursor>
+#include <QTextDocument>
 
 using namespace CPlusPlus;
 
-BackwardsScanner::BackwardsScanner(const QTextCursor &cursor, const QString &suffix, int maxBlockCount)
-    : _offset(0)
+BackwardsScanner::BackwardsScanner(TokenCache *tokenCache, const QTextCursor &cursor, int maxBlockCount, const QString &suffix)
+    : _tokenCache(tokenCache)
+    , _offset(0)
     , _blocksTokenized(0)
     , _block(cursor.block())
     , _maxBlockCount(maxBlockCount)
 {
-    _tokenize.setQtMocRunEnabled(true);
-    _tokenize.setSkipComments(true);
-    _tokenize.setObjCEnabled(true);
-    _text = _block.text().left(cursor.position() - cursor.block().position());
+    int pos = cursor.position() - cursor.block().position();
+    _text = _block.text().left(pos);
+    _text += suffix;
 
-    if (! suffix.isEmpty())
-        _text += suffix;
+    _tokens.append(tokenCache->tokensForBlock(_block));
 
-    _tokens.append(_tokenize(_text, previousBlockState(_block)));
+    for (int i = _tokens.size() - 1; i >= 0; --i) {
+        const int tokenEnd = _tokens.at(i).end();
+
+        if ((tokenEnd < pos) ||
+                (tokenEnd == pos && suffix.isEmpty())) {
+            break;
+        } else {
+            _tokens.removeAt(i);
+        }
+    }
+
+    QString remainingText;
+    if (!_tokens.isEmpty())
+        remainingText = _text.mid(_tokens.last().end());
+    if (!remainingText.isEmpty()) {
+        SimpleLexer tokenize;
+        tokenize.setQtMocRunEnabled(true);
+        tokenize.setSkipComments(true);
+        tokenize.setObjCEnabled(true);
+
+        _tokens.append(tokenize(remainingText, TokenCache::previousBlockState(_block)));
+    }
 
     _startToken = _tokens.size();
 }
-
-int BackwardsScanner::state() const
-{ return _tokenize.state(); }
 
 SimpleToken BackwardsScanner::LA(int index) const
 { return const_cast<BackwardsScanner *>(this)->fetchToken(_startToken - index); }
@@ -71,6 +90,7 @@ const SimpleToken &BackwardsScanner::fetchToken(int tokenIndex)
         } else {
             ++_blocksTokenized;
 
+            QList<SimpleToken> newTokens = _tokenCache->tokensForBlock(_block);
             QString blockText = _block.text();
             _text.prepend(QLatin1Char('\n'));
             _text.prepend(blockText);
@@ -79,12 +99,11 @@ const SimpleToken &BackwardsScanner::fetchToken(int tokenIndex)
             for (int i = 0; i < _tokens.size(); ++i) {
                 SimpleToken t = _tokens.at(i);
                 t.setPosition(t.position() + blockText.length() + 1);
-                t.setText(_text.midRef(t.position(), t.length()));
                 adaptedTokens.append(t);
             }
 
-            _tokens = _tokenize(blockText, previousBlockState(_block));
-            _offset += _tokens.size();
+            _tokens = newTokens;
+            _offset += newTokens.size();
             _tokens += adaptedTokens;
         }
     }
@@ -117,20 +136,6 @@ QStringRef BackwardsScanner::textRef(int index) const
 {
     const SimpleToken &firstToken = _tokens.at(index + _offset);
     return _text.midRef(firstToken.begin(), firstToken.length());
-}
-
-int BackwardsScanner::previousBlockState(const QTextBlock &block)
-{
-    const QTextBlock prevBlock = block.previous();
-
-    if (prevBlock.isValid()) {
-        int state = prevBlock.userState();
-
-        if (state != -1)
-            return state;
-    }
-
-    return 0;
 }
 
 int BackwardsScanner::size() const

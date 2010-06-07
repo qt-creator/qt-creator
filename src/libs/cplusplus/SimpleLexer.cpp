@@ -37,12 +37,11 @@
 
 using namespace CPlusPlus;
 
-SimpleToken::SimpleToken(const Token &token, const QStringRef &text)
+SimpleToken::SimpleToken(const Token &token)
     : _kind(token.f.kind)
     , _flags(0)
     , _position(token.begin())
     , _length(token.f.length)
-    , _text(text)
 {
     f._whitespace = token.f.whitespace;
     f._newline = token.f.newline;
@@ -148,17 +147,17 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
             break;
 
         QStringRef spell = text.midRef(lex.tokenOffset(), lex.tokenLength());
-        SimpleToken simpleTk(tk, spell);
+        SimpleToken simpleTk(tk);
         lex.setScanAngleStringLiteralTokens(false);
 
         if (tk.f.newline && tk.is(T_POUND))
             inPreproc = true;
         else if (inPreproc && tokens.size() == 1 && simpleTk.is(T_IDENTIFIER) &&
-                 simpleTk.text() == QLatin1String("include"))
+                 spell == QLatin1String("include"))
             lex.setScanAngleStringLiteralTokens(true);
         else if (_objCEnabled
                  && inPreproc && tokens.size() == 1 && simpleTk.is(T_IDENTIFIER) &&
-                 simpleTk.text() == QLatin1String("import"))
+                 spell == QLatin1String("import"))
             lex.setScanAngleStringLiteralTokens(true);
 
         if (_objCEnabled && tk.is(T_IDENTIFIER))

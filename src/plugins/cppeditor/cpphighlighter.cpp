@@ -104,7 +104,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
 
         if (tk.is(T_LPAREN) || tk.is(T_LBRACE) || tk.is(T_LBRACKET)) {
-            const QChar c(tk.text().at(0));
+            const QChar c = text.at(tk.position());
             parentheses.append(Parenthesis(Parenthesis::Opened, c, tk.position()));
             if (tk.is(T_LBRACE)) {
                 ++braceDepth;
@@ -117,7 +117,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 }
             }
         } else if (tk.is(T_RPAREN) || tk.is(T_RBRACE) || tk.is(T_RBRACKET)) {
-            const QChar c(tk.text().at(0));
+            const QChar c = text.at(tk.position());
             parentheses.append(Parenthesis(Parenthesis::Closed, c, tk.position()));
             if (tk.is(T_RBRACE)) {
                 --braceDepth;
@@ -141,7 +141,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             highlightAsPreprocessor = true;
 
         } else if (highlightCurrentWordAsPreprocessor &&
-                   (tk.isKeyword() || tk.is(T_IDENTIFIER)) && isPPKeyword(tk.text()))
+                   (tk.isKeyword() || tk.is(T_IDENTIFIER)) && isPPKeyword(text.midRef(tk.position(), tk.length())))
             setFormat(tk.position(), tk.length(), m_formats[CppPreprocessorFormat]);
 
         else if (tk.is(T_NUMERIC_LITERAL))
@@ -180,7 +180,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 initialState = 0;
             }
 
-        } else if (tk.isKeyword() || isQtKeyword(tk.text()) || tk.isObjCAtKeyword() || tk.isObjCTypeQualifier())
+        } else if (tk.isKeyword() || isQtKeyword(text.midRef(tk.position(), tk.length())) || tk.isObjCAtKeyword() || tk.isObjCTypeQualifier())
             setFormat(tk.position(), tk.length(), m_formats[CppKeywordFormat]);
 
         else if (tk.isOperator())
@@ -190,7 +190,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             setFormat(tk.position(), tk.length(), m_formats[CppLabelFormat]);
 
         else if (tk.is(T_IDENTIFIER))
-            highlightWord(tk.text(), tk.position(), tk.length());
+            highlightWord(text.midRef(tk.position(), tk.length()), tk.position(), tk.length());
 
     }
 

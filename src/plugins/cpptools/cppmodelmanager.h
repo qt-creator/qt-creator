@@ -108,6 +108,8 @@ public:
     CppEditorSupport *editorSupport(TextEditor::ITextEditor *editor) const
     { return m_editorSupport.value(editor); }
 
+    virtual CPlusPlus::TokenCache *tokenCache(TextEditor::ITextEditor *editor) const;
+
     void emitDocumentUpdated(CPlusPlus::Document::Ptr doc);
 
     void stopEditorSelectionsUpdate()

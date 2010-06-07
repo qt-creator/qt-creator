@@ -44,15 +44,24 @@ namespace Core {
 
 namespace CPlusPlus {
     class LookupContext;
+    class TokenCache;
 }
 
 namespace ProjectExplorer {
     class Project;
 }
 
+namespace TextEditor {
+    class ITextEditor;
+}
+
 namespace CppTools {
 
 class AbstractEditorSupport;
+
+namespace Internal {
+class CppEditorSupport;
+}
 
 class CPPTOOLS_EXPORT CppModelManagerInterface : public QObject
 {
@@ -135,6 +144,8 @@ public:
     virtual void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context) = 0;
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
+
+    virtual CPlusPlus::TokenCache *tokenCache(TextEditor::ITextEditor *editor) const = 0;
 
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);

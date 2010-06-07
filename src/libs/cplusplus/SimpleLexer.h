@@ -42,7 +42,7 @@ class Token;
 class CPLUSPLUS_EXPORT SimpleToken
 {
 public:
-    SimpleToken(const Token &token, const QStringRef &text);
+    SimpleToken(const Token &token);
 
     SimpleToken()
         : _kind(0)
@@ -66,9 +66,6 @@ public:
     inline int end() const
     { return _position + _length; }
 
-    inline QStringRef text() const
-    { return _text; }
-
     inline bool followsNewline() const
     { return f._newline; }
 
@@ -91,10 +88,6 @@ public:
     inline void setPosition(int position)
     { _position = position; }
 
-    // internal
-    inline void setText(const QStringRef &text)
-    { _text = text; }
-
 public:
     short _kind;
     union {
@@ -109,7 +102,6 @@ public:
 
     int _position;
     int _length;
-    QStringRef _text;
 
     friend class SimpleLexer;
 };
