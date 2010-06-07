@@ -169,6 +169,11 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager, const DebuggerS
     m_startParameters->useTerminal = false;
 }
 
+QString DebuggerRunControl::displayName() const
+{
+    return tr("Core file: \"%1\"").arg(m_startParameters->coreFile);
+}
+
 void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
 {
     m_startParameters->environment = env.toStringList();

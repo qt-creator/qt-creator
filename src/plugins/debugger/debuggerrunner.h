@@ -79,6 +79,7 @@ public:
     virtual void start();
     virtual void stop();
     virtual bool isRunning() const;
+    QString displayName() const;
 
     Q_SLOT void debuggingFinished();
     DebuggerStartParametersPtr startParameters() { return m_startParameters; }
