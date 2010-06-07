@@ -4800,14 +4800,13 @@
         d.putNumChild(size)
         if d.isExpanded(item):
             p = gdb.Value(p_ptr["array"]).cast(innerType.pointer())
-            d.beginChildren([size, 2000], innerType)
-            for i in d.childRange():
-                d.safePutItem(Item(p.dereference(), item.iname, i))
-                p += 1
-            d.endChildren()
+            with Children(d, [size, 2000], innerType)
+                for i in d.childRange():
+                    d.putItem(Item(p.dereference(), item.iname, i))
+                    p += 1
     \endcode
 
-    \section2 Item Python Class
+    \section2 Item Class
 
     The Item Python class is a thin wrapper around values corresponding to one
     line in the \gui{Locals and Watchers} view. The Item members are as follows :
@@ -4833,7 +4832,7 @@
     \endlist
 
 
-    \section2 Dumper Python Class
+    \section2 Dumper Class
 
     For each line in the \gui{Locals and Watchers} view, a string like the
     following needs to be created and channeled to the debugger plugin.
@@ -4878,26 +4877,14 @@
     \o \gui{putField(self, name, value)} - Appends a comma if needed, and a
          name='value' field.
 
-    \o \gui{beginHash(self)} - Appends a comma if needed and a '{', marking
-        the begin of a set of fields.
-
-    \o \gui{endHash(self)} - Appends a '}', marking the end of a set of
-        fields.
-
     \o \gui{beginItem(self, name)} - Starts writing a field by writing \c {name='}.
 
     \o \gui{endItem(self)} - Ends writing a field by writing \c {'}.
 
-    \o \gui{beginChildren(self, numChild_ = 1, childType_ = None, childNumChild_ = None)}
-        - Starts writing a list of \c numChild children, with type
-        \c childType_ and \c childNumChild_ grandchildren each. If \c numChild_
-        is a list of two integers, the first one specifies the actual number
-        of children and the second the maximum number of children to print.
-
     \o \gui{endChildren(self)} - Ends writing a list of children.
 
-    \o \gui{childRange(self)} - Return the range of children specified in
-        \c beginChildren.
+    \o \gui{childRange(self)} - Returns the range of children specified in
+        the current \c Children scope.
 
     \o \gui{putItemCount(self, count)} - Appends a field  \c {value='<%d items'}
         to the output.
@@ -4994,35 +4981,50 @@
         over base classes and class members of compound types and calls
         \c qdump__* functions whenever appropriate.
 
-        \o \gui{putItem(self, item)} - Equivalent to:
+    \o \gui{putItem(self, item)} - Equivalent to:
         \code
-        self.beginHash()
-        self.putItemHelper(item)
-        self.endHash()
+        with SubItem(self):
+            self.putItemHelper(item)
         \endcode
-
-    \o \gui{safePutItemHelper(self, item)} - Calls \c putItemHelper(self, item).
-        If an exception is raised, catches it, and replaces all output produced by
-        \c putItemHelper with the output of:
+        Exceptions raised by nested function calls are caught and all
+        output produced by \c putItemHelper is replaced by the output of:
         \code
-        self.putName(item.name)
-        self.putValue("<invalid>")
-        self.putType(str(item.value.type))
-        self.putNumChild(0)
-        self.beginChildren()
-        self.endChildren()
-        \endcode
-
-
-    \o \gui{safePutItem(self, item)} - Equivalent to:
-        \code
-        self.beginHash()
-        self.safePutItemHelper(item)
-        self.endHash()
+            ...
+        except RuntimeError:
+            d.put('value="<invalid>",type="<unknown>",numchild="0",')
         \endcode
 
     \endlist
 
+
+    \section2 Children and SubItem Class
+
+    The attempt to create child items might lead to errors if data is
+    uninitialized or corrupted. To gracefully recover in such situations,
+    use \c Children and \c SubItem \e{Context Managers} to create the nested items.
+
+    The \c Children constructor \gui{__init__(self, dumper, numChild = 1,
+    childType = None, childNumChild = None)} uses one mandatory argument and three
+    optional arguments.  The mandatory argument refers to the current \c Dumper
+    object.  The optional arguments can be used to specify the number \c numChild
+    of children, with type \c childType_ and \c childNumChild_ grandchildren each.
+    If \c numChild_ is a list of two integers, the first one specifies the actual
+    number of children and the second the maximum number of children to print.
+
+    Similarly, using the \SubItem class helps to protect individual items.
+
+    Example:
+    \code
+    d.putNumChild(2)
+    if d.isExpanded(item):
+        with Children(d):
+            with SubItem(d):
+                d.putName("key")
+                d.putItemHelper(Item(key, item.iname, "key"))
+            with SubItem(d):
+                d.putName("value")
+                d.putItemHelper(Item(value, item.iname, "value"))
+    \endcode
 */
 
 
