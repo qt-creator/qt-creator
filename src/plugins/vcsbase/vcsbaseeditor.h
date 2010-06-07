@@ -105,6 +105,13 @@ public:
 
     virtual ~VCSBaseEditor();
 
+    /* Force read-only: Make it a read-only, temporary file.
+     * Should be set to true by version control views. It is not on
+     * by default since it should not  trigger when patches are opened as
+     * files. */
+    void setForceReadOnly(bool b);
+    bool isForceReadOnly() const;
+
     QString source() const;
     void setSource(const  QString &source);
 

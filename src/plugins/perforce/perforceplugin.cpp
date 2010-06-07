@@ -1180,6 +1180,7 @@ Core::IEditor * PerforcePlugin::showOutputInEditor(const QString& title, const Q
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
     if (!e)
         return 0;
+    e->setForceReadOnly(true);
     e->setSource(source);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
     e->setSuggestedFileName(s);

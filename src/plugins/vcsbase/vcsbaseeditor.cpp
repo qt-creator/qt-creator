@@ -82,7 +82,8 @@ public:
     Core::IEditor *duplicate(QWidget * /*parent*/) { return 0; }
     QString id() const { return m_id; }
 
-    bool isTemporary() const { return true; }
+    bool isTemporary() const { return m_temporary; }
+    void setTemporary(bool t) { m_temporary = t; }
 
 signals:
     void describeRequested(const QString &source, const QString &change);
@@ -91,12 +92,14 @@ signals:
 private:
     QString m_id;
     QList<int> m_context;
+    bool m_temporary;
 };
 
 VCSBaseEditorEditable::VCSBaseEditorEditable(VCSBaseEditor *editor,
                                              const VCSBaseEditorParameters *type)  :
     BaseTextEditorEditable(editor),
-    m_id(type->id)
+    m_id(type->id),
+    m_temporary(false)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(QLatin1String(type->context))
@@ -117,8 +120,6 @@ public:
 
     virtual QWidget *toolBar()                { return m_toolBar; }
     QComboBox *diffFileBrowseComboBox() const  { return m_diffFileBrowseComboBox; }
-
-    bool isTemporary() const { return true; }
 
 private:
     QToolBar *m_toolBar;
@@ -181,7 +182,6 @@ VCSBaseEditor::VCSBaseEditor(const VCSBaseEditorParameters *type, QWidget *paren
     if (VCSBase::Constants::Internal::debug)
         qDebug() << "VCSBaseEditor::VCSBaseEditor" << type->type << type->id;
 
-    setReadOnly(true);
     viewport()->setMouseTracking(true);
     setBaseTextDocument(new Internal::VCSBaseTextDocument);
     setMimeType(QLatin1String(d->m_parameters->mimeType));
@@ -210,6 +210,23 @@ void VCSBaseEditor::init()
 VCSBaseEditor::~VCSBaseEditor()
 {
     delete d;
+}
+
+void VCSBaseEditor::setForceReadOnly(bool b)
+{
+    Internal::VCSBaseTextDocument *vbd = qobject_cast<Internal::VCSBaseTextDocument*>(baseTextDocument());
+    VCSBaseEditorEditable *eda = qobject_cast<VCSBaseEditorEditable *>(editableInterface());
+    QTC_ASSERT(vbd != 0 && eda != 0, return);
+    setReadOnly(b);
+    vbd->setForceReadOnly(b);
+    eda->setTemporary(b);
+}
+
+bool VCSBaseEditor::isForceReadOnly() const
+{
+    const Internal::VCSBaseTextDocument *vbd = qobject_cast<const Internal::VCSBaseTextDocument*>(baseTextDocument());
+    QTC_ASSERT(vbd, return false);
+    return vbd->isForceReadOnly();
 }
 
 QString VCSBaseEditor::source() const
@@ -502,7 +519,9 @@ void VCSBaseEditor::mouseDoubleClickEvent(QMouseEvent *e)
 
 void VCSBaseEditor::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) {
+    // Do not intercept return in editable patches.
+    if (d->m_parameters->type == DiffOutput && isReadOnly()
+        && (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return)) {
         jumpToChangeFromDiff(textCursor());
         return;
     }
