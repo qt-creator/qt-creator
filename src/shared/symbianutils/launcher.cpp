@@ -363,7 +363,7 @@ void Launcher::handleResult(const TrkResult &result)
             logMessage("TEXT TRACE: " + msg);
             }
         } else {
-            logMessage("APPLICATION OUTPUT: " + result.data);
+            logMessage("APPLICATION OUTPUT: " + stringFromArray(result.data));
             msg = result.data;
         }
         msg.replace("\r\n", "\n");

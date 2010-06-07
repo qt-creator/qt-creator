@@ -287,16 +287,26 @@ ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame, ushort& mux)
     return firstDelimiterPos != -1 ? firstDelimiterPos : buffer.size();
 }
 
-bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, QByteArray *rawData)
+bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, bool &linkEstablishmentMode, QByteArray *rawData)
 {
     result->clear();
     if(rawData)
         rawData->clear();
-    const ushort len = isValidTrkResult(*buffer, serialFrame, result->multiplex);
-    if (!len)
-        return false;
+    ushort len = isValidTrkResult(*buffer, serialFrame, result->multiplex);
     // handle receiving application output, which is not a regular command
     const int delimiterPos = serialFrame ? 4 : 0;
+    if (linkEstablishmentMode) {
+        //when "hot connecting" a device, we can receive partial frames.
+        //this code resyncs by discarding data until a TRK frame is found
+        while (buffer->length() > delimiterPos
+               && result->multiplex != MuxTextTrace
+               && !(result->multiplex == MuxTrk && buffer->at(delimiterPos) == 0x7e)) {
+            buffer->remove(0,1);
+            len = isValidTrkResult(*buffer, serialFrame, result->multiplex);
+        }
+    }
+    if (!len)
+        return false;
     if (buffer->at(delimiterPos) != 0x7e) {
         result->isDebugOutput = true;
         result->data = buffer->mid(delimiterPos, len);
@@ -323,6 +333,7 @@ bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, QByt
     //logMessage("   CURR DATA: " << stringFromArray(data));
     //QByteArray prefix = "READ BUF:                                       ";
     //logMessage((prefix + "HEADER: " + stringFromArray(header).toLatin1()).data());
+    linkEstablishmentMode = false; //have received a good TRK packet, therefore in sync
     return true;
 }
 

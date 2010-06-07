@@ -624,10 +624,11 @@ private:
     void readMessages();
 
     QByteArray m_trkReadBuffer;
+    bool linkEstablishmentMode;
 };
 
 ReaderThreadBase::ReaderThreadBase(const QSharedPointer<DeviceContext> &context) :
-    m_context(context)
+    m_context(context), linkEstablishmentMode(true)
 {
     static const int trkResultMetaId = qRegisterMetaType<trk::TrkResult>();
     Q_UNUSED(trkResultMetaId)
@@ -650,7 +651,7 @@ void ReaderThreadBase::readMessages()
 {
     TrkResult r;
     QByteArray rawData;
-    while (extractResult(&m_trkReadBuffer, m_context->serialFrame, &r, &rawData)) {
+    while (extractResult(&m_trkReadBuffer, m_context->serialFrame, &r, linkEstablishmentMode, &rawData)) {
         emit messageReceived(r, rawData);
     }
 }
