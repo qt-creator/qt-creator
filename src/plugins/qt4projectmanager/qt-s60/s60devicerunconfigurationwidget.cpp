@@ -109,6 +109,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(updated()),
             this, SLOT(updateSerialDevices()));
     // Serial devices control
+    m_serialPortsCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     connect(m_serialPortsCombo, SIGNAL(activated(int)), this, SLOT(setSerialPort(int)));
     QHBoxLayout *serialPortHBoxLayout = new QHBoxLayout;
     serialPortHBoxLayout->addWidget(m_serialPortsCombo);
