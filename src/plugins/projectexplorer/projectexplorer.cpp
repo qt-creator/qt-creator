@@ -275,6 +275,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectsMode->setWidget(d->m_proWindow);
     d->m_projectsMode->setContext(QList<int>() << pecontext);
     d->m_projectsMode->setEnabled(session()->startupProject());
+    d->m_projectsMode->setContextHelpId(QLatin1String("Managing Projects"));
     addAutoReleasedObject(d->m_projectsMode);
     d->m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(d->m_proWindow));
 
