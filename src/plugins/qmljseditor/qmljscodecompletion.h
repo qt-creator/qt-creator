@@ -96,6 +96,7 @@ private:
     QList<TextEditor::CompletionItem> m_snippets;
     QDateTime m_snippetFileLastModified;
     QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
+    bool m_restartCompletion;
 };
 
 

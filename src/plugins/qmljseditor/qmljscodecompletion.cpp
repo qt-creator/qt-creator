@@ -479,7 +479,8 @@ CodeCompletion::CodeCompletion(ModelManagerInterface *modelManager, QObject *par
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
       m_editor(0),
-      m_startPosition(0)
+      m_startPosition(0),
+      m_restartCompletion(false)
 {
     Q_ASSERT(modelManager);
 }
@@ -494,7 +495,7 @@ int CodeCompletion::startPosition() const
 { return m_startPosition; }
 
 bool CodeCompletion::shouldRestartCompletion()
-{ return false; }
+{ return m_restartCompletion; }
 
 bool CodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 {
@@ -649,6 +650,8 @@ void CodeCompletion::addCompletionsPropertyLhs(
 
 int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
+    m_restartCompletion = false;
+
     m_editor = editor;
 
     QmlJSTextEditor *edit = qobject_cast<QmlJSTextEditor *>(m_editor->widget());
@@ -882,6 +885,9 @@ void CodeCompletion::complete(const TextEditor::CompletionItem &item)
     const int length = m_editor->position() - m_startPosition;
     m_editor->setCurPos(m_startPosition);
     m_editor->replace(length, toInsert);
+
+    if (toInsert.endsWith(QLatin1Char('.')))
+        m_restartCompletion = true;
 }
 
 bool CodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)
