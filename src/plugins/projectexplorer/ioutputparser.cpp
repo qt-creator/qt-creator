@@ -59,6 +59,10 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
 IOutputParser *IOutputParser::takeOutputParserChain()
 {
     IOutputParser *parser = m_parser;
+    disconnect(parser, SIGNAL(addOutput(QString)),
+            this, SLOT(outputAdded(QString)));
+    disconnect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
+            this, SLOT(taskAdded(ProjectExplorer::Task)));
     m_parser = 0;
     return parser;
 }
