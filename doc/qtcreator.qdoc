@@ -6345,6 +6345,10 @@
 
     \endlist
 
+    \note If errors occur during the installation, copy the .sis files from
+    \c {<NokiaQtSDK_install_path>\Symbian\sis} to the device using USB storage
+    mode. Then install them from the file manager on the device.
+
     \section1 Adding Symbian Platform SDKs
 
     Nokia Qt SDK contains all the tools you need for developing Qt applications for
