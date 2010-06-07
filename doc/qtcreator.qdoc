@@ -5872,6 +5872,32 @@
           \image qtcreator-mad-developer-screenshot.png
     \endlist
 
+    \section1 Installing Qt Mobility APIs
+
+    To develop applications that use the Qt Mobility APIs, you must install the
+    APIs on the devices. The APIs are not available in the Nokia N900 package
+    manager, and therefore, you must install them from the command line as the
+    root user. To become the root user you must first install \c rootsh from the
+    application manager.
+
+    \list 1
+
+        \o On the device, install \c rootsh from the \gui {Application Manager}.
+
+        \o In \gui Programs, select \c {X Terminal} to open a terminal window
+
+        \o To switch to the root user, enter the following command:
+        \c{sudo gainroot}
+
+        \o To install Qt Mobility libraries, enter the following command:
+        \c{apt-get install libqtm-*}
+
+        \o To confirm the installation, enter: \c Y.
+
+        \o Close the terminal.
+
+    \endlist
+
     \section1 Setting Up Network Connectivity on Development PC
 
     Use the network configuration tools on your platform to specify the
@@ -6282,6 +6308,8 @@
            your device
         \o The \e{qt_installer.sis} package installed on the device, that is
          delivered with the Qt SDK.
+         \o Qt Mobility APIs installed on the device, if you use them in
+         applications.
     \endlist
 
     To run your applications in the Symbian emulator, you also need
