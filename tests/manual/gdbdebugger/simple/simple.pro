@@ -1,4 +1,4 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS += app plugin
+SUBDIRS += app.pro plugin.pro

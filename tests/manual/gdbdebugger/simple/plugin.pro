@@ -1,9 +1,9 @@
 TEMPLATE = lib
 TARGET = plugin
-DESTDIR = ..
+DESTDIR = .
 CONFIG += shared
 
-SOURCES += ../plugin.cpp
+SOURCES += plugin.cpp
 
 macx {
    QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../PlugIns/$${PROVIDER}/
