@@ -51,9 +51,9 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
 
     m_parser = parser;
     connect(parser, SIGNAL(addOutput(QString)),
-            this, SLOT(outputAdded(QString)));
+            this, SLOT(outputAdded(QString)), Qt::DirectConnection);
     connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
-            this, SLOT(taskAdded(ProjectExplorer::Task)));
+            this, SLOT(taskAdded(ProjectExplorer::Task)), Qt::DirectConnection);
 }
 
 IOutputParser *IOutputParser::takeOutputParserChain()
