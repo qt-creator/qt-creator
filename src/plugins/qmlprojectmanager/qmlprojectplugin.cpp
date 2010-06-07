@@ -82,10 +82,8 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlRunControlFactory);
-#ifdef QTCREATOR_WITH_QML
     addAutoReleasedObject(new QmlProjectApplicationWizard);
     addAutoReleasedObject(new QmlProjectImportWizard);
-#endif
 
     QmlProjectFileFormat::registerDeclarativeTypes();
 

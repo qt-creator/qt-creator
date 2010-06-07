@@ -119,7 +119,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QFrame" name="demosExamplesFrameQml">
+       <widget class="QFrame" name="demosExamplesFrame_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
           <horstretch>0</horstretch>
@@ -137,7 +137,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="Utils::WelcomeModeLabel" name="demoTitleLabeldemosExamplesFrameQml">
+          <widget class="Utils::WelcomeModeLabel" name="demoTitleLabel_2">
            <property name="text">
             <string>Explore Qt Quick Examples</string>
            </property>

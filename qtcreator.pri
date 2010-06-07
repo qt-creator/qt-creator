@@ -117,9 +117,3 @@ win32-msvc* {
 # Handle S60 support: default on Windows, conditionally built on other platforms.
 macx:SUPPORT_QT_S60 = $$(QTCREATOR_WITH_S60)
 else:SUPPORT_QT_S60=1
-
-# Define QTCREATOR_WITH_QML if building with Qml support
-SUPPORT_QT_QML = $$(QTCREATOR_WITH_QML)
-!isEmpty(SUPPORT_QT_QML) {
-    DEFINES += QTCREATOR_WITH_QML
-}
