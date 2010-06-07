@@ -125,8 +125,8 @@ Qt::ItemFlags RegisterHandler::flags(const QModelIndex &idx) const
 
     static const ItemFlags notEditable =
           ItemIsSelectable
-        | ItemIsDragEnabled
-        | ItemIsDropEnabled
+        // | ItemIsDragEnabled
+        // | ItemIsDropEnabled
         | ItemIsEnabled;
 
     static const ItemFlags editable = notEditable | ItemIsEditable;

@@ -714,8 +714,8 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
 
     static const ItemFlags notEditable =
           ItemIsSelectable
-        | ItemIsDragEnabled
-        | ItemIsDropEnabled
+        // | ItemIsDragEnabled
+        // | ItemIsDropEnabled
         // | ItemIsUserCheckable
         // | ItemIsTristate
         | ItemIsEnabled;
