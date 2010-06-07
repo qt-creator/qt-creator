@@ -266,15 +266,6 @@ private:
 
     void createToolBar(CPPEditorEditable *editable);
 
-    enum EditOperation {
-        DeleteChar,
-        DeletePreviousChar,
-        InsertText
-    };
-    void inAllRenameSelections(EditOperation operation,
-                               const QTextEdit::ExtraSelection &currentRenameSelection,
-                               QTextCursor cursor,
-                               const QString &text = QString());
     void startRename();
     void finishRename();
     void abortRename();
