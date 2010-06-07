@@ -196,6 +196,7 @@ void ChangePropertyVisitor::insertIntoArray(QmlJS::AST::UiArrayBinding *ast)
 
     UiObjectMember *lastMember = 0;
     for (UiArrayMemberList *iter = ast->members; iter; iter = iter->next) {
+        lastMember = iter->member;
     }
 
     if (!lastMember)
