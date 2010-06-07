@@ -84,6 +84,9 @@ private:
                         const QIcon &icon);
     void addCompletions(const QStringList &newCompletions,
                         const QIcon &icon);
+    void addCompletionsPropertyLhs(
+            const QHash<QString, const QmlJS::Interpreter::Value *> &newCompletions,
+            const QIcon &icon);
 
     ModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;

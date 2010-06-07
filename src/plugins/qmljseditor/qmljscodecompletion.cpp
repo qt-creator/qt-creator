@@ -622,6 +622,31 @@ void CodeCompletion::addCompletions(const QStringList &newCompletions,
     }
 }
 
+void CodeCompletion::addCompletionsPropertyLhs(
+        const QHash<QString, const Interpreter::Value *> &newCompletions,
+        const QIcon &icon)
+{
+    QHashIterator<QString, const Interpreter::Value *> it(newCompletions);
+    while (it.hasNext()) {
+        it.next();
+
+        TextEditor::CompletionItem item(this);
+        item.text = it.key();
+        if (const Interpreter::QmlObjectValue *qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(it.value())) {
+            // to distinguish "anchors." from "gradient:" we check if the right hand side
+            // type is instantiatable or is the prototype of an instantiatable object
+            if (qmlValue->hasChildInPackage())
+                item.text.append(QLatin1String(": "));
+            else
+                item.text.append(QLatin1Char('.'));
+        } else {
+            item.text.append(QLatin1String(": "));
+        }
+        item.icon = icon;
+        m_completions.append(item);
+    }
+}
+
 int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
@@ -665,20 +690,20 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (m_startPosition > 0)
         completionOperator = editor->characterAt(m_startPosition - 1);
 
+    QTextCursor startPositionCursor(edit->document());
+    startPositionCursor.setPosition(m_startPosition);
+    CompletionContextFinder contextFinder(startPositionCursor);
+
+    const Interpreter::ObjectValue *qmlScopeType = 0;
+    if (contextFinder.isInQmlContext())
+         qmlScopeType = context.lookupType(document.data(), contextFinder.qmlObjectTypeName());
+
     if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
             (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
 
         bool doGlobalCompletion = true;
         bool doQmlKeywordCompletion = true;
         bool doJsKeywordCompletion = true;
-
-        QTextCursor startPositionCursor(edit->document());
-        startPositionCursor.setPosition(m_startPosition);
-        CompletionContextFinder contextFinder(startPositionCursor);
-
-        const Interpreter::ObjectValue *qmlScopeType = 0;
-        if (contextFinder.isInQmlContext())
-             qmlScopeType = context.lookupType(document.data(), contextFinder.qmlObjectTypeName());
 
         if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
             doGlobalCompletion = false;
@@ -688,7 +713,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             enumerateProperties.setGlobalCompletion(true);
             enumerateProperties.setEnumerateGeneratedSlots(true);
 
-            addCompletions(enumerateProperties(qmlScopeType), symbolIcon);
+            addCompletionsPropertyLhs(enumerateProperties(qmlScopeType), symbolIcon);
             addCompletions(enumerateProperties(context.scopeChain().qmlTypes), symbolIcon);
 
             if (ScopeBuilder::isPropertyChangesObject(&context, qmlScopeType)
@@ -776,7 +801,10 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 EnumerateProperties enumerateProperties(&context);
-                addCompletions(enumerateProperties(value), symbolIcon);
+                if (contextFinder.isInLhsOfBinding() && qmlScopeType)
+                    addCompletionsPropertyLhs(enumerateProperties(value), symbolIcon);
+                else
+                    addCompletions(enumerateProperties(value), symbolIcon);
             } else if (value && completionOperator == QLatin1Char('(') && m_startPosition == editor->position()) {
                 // function completion
                 if (const Interpreter::FunctionValue *f = value->asFunctionValue()) {

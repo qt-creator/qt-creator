@@ -217,32 +217,15 @@ void dump(const QMetaObject *meta, QXmlStreamWriter *xml)
     xml->writeEndElement();
 }
 
-void writeScriptElement(QXmlStreamWriter *xml)
+void writeEasingCurve(QXmlStreamWriter *xml)
 {
     xml->writeStartElement("type");
     {
         QXmlStreamAttributes attributes;
-        attributes.append(QXmlStreamAttribute("name", "Script"));
+        attributes.append(QXmlStreamAttribute("name", "QEasingCurve"));
+        attributes.append(QXmlStreamAttribute("extends", "Qt.Easing"));
         xml->writeAttributes(attributes);
     }
-
-    xml->writeStartElement("property");
-    {
-        QXmlStreamAttributes attributes;
-        attributes.append(QXmlStreamAttribute("name", "script"));
-        attributes.append(QXmlStreamAttribute("type", "string"));
-        xml->writeAttributes(attributes);
-    }
-    xml->writeEndElement();
-
-    xml->writeStartElement("property");
-    {
-        QXmlStreamAttributes attributes;
-        attributes.append(QXmlStreamAttribute("name", "source"));
-        attributes.append(QXmlStreamAttribute("type", "QUrl"));
-        xml->writeAttributes(attributes);
-    }
-    xml->writeEndElement();
 
     xml->writeEndElement();
 }
@@ -268,7 +251,6 @@ int main(int argc, char *argv[])
     }
 
     cppToQml.insert("QString", "string");
-    cppToQml.insert("QEasingCurve", "Qt.Easing");
     cppToQml.insert("QDeclarativeEasingValueType::Type", "Type");
 
     QSet<const QMetaObject *> metas;
@@ -340,7 +322,8 @@ int main(int argc, char *argv[])
         dump(meta, &xml);
     }
 
-    writeScriptElement(&xml);
+    // define QEasingCurve as an extension of Qt.Easing
+    writeEasingCurve(&xml);
 
     xml.writeEndElement();
     xml.writeEndDocument();

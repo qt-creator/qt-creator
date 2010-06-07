@@ -404,6 +404,7 @@ public:
     bool isListProperty(const QString &name) const;
     bool isEnum(const QString &typeName) const;
     bool enumContainsKey(const QString &enumName, const QString &enumKeyName) const;
+    bool hasChildInPackage() const;
 
 protected:
     const Value *findOrCreateSignature(int index, const FakeMetaMethod &method, QString *methodName) const;
@@ -531,6 +532,8 @@ public:
 
 private:
     QHash<QString, QList<QmlObjectValue *> > _importedTypes;
+
+    friend class QmlObjectValue;
 };
 
 class ConvertToNumber: protected ValueVisitor // ECMAScript ToInt()

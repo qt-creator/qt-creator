@@ -911,6 +911,23 @@ bool QmlObjectValue::enumContainsKey(const QString &enumName, const QString &enu
     return false;
 }
 
+// Returns true if this object is in a package or if there is an object that
+// has this one in its prototype chain and is itself in a package.
+bool QmlObjectValue::hasChildInPackage() const
+{
+    if (!packageName().isEmpty())
+        return true;
+    foreach (const FakeMetaObject *other, MetaTypeSystem::_metaObjects) {
+        if (other->packageName().isEmpty())
+            continue;
+        for (const FakeMetaObject *iter = other; iter; iter = iter->superClass()) {
+            if (iter == _metaObject) // this object is a parent of other
+                return true;
+        }
+    }
+    return false;
+}
+
 bool QmlObjectValue::isDerivedFrom(const FakeMetaObject *base) const
 {
     for (const FakeMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
