@@ -139,6 +139,8 @@ const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
 const char * const ADD_TO_WATCH1        = "Debugger.AddToWatch1";
 const char * const ADD_TO_WATCH2        = "Debugger.AddToWatch2";
 const char * const OPERATE_BY_INSTRUCTION  = "Debugger.OperateByInstruction";
+const char * const FRAME_UP             = "Debugger.FrameUp";
+const char * const FRAME_DOWN           = "Debugger.FrameDown";
 
 #ifdef Q_WS_MAC
 const char * const INTERRUPT_KEY            = "Shift+F5";
@@ -893,6 +895,11 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
     cmd->setAttribute(Command::CA_Hide);
     m_uiSwitcher->addMenuAction(cmd, Constants::LANG_CPP);
+
+    cmd = am->registerAction(actions.frameDownAction,
+        Constants::FRAME_DOWN, cppDebuggercontext);
+    cmd = am->registerAction(actions.frameUpAction,
+        Constants::FRAME_UP, cppDebuggercontext);
 
 
     cmd = am->registerAction(theDebuggerAction(OperateByInstruction),

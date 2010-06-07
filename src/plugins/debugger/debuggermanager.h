@@ -241,6 +241,8 @@ public slots:
     void executeReturn();
     void detachDebugger();
     void makeSnapshot();
+    void frameUp();
+    void frameDown();
 
     void addToWatchWindow();
     void updateWatchData(const Debugger::Internal::WatchData &data);

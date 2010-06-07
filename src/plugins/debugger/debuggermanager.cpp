@@ -569,6 +569,12 @@ void DebuggerManager::init()
     d->m_actions.reverseDirectionAction->setIcon(
         QIcon(":/debugger/images/debugger_reversemode_16.png"));
 
+    d->m_actions.frameDownAction =
+        new QAction(tr("Move to Called Frame"), this);
+    d->m_actions.frameUpAction =
+        new QAction(tr("Move to Calling Frame"), this);
+
+    d->m_actions.reverseDirectionAction->setCheckable(false);
     connect(d->m_actions.continueAction, SIGNAL(triggered()),
         this, SLOT(executeContinue()));
     connect(d->m_actions.stopAction, SIGNAL(triggered()),
@@ -599,6 +605,10 @@ void DebuggerManager::init()
         this, SLOT(addToWatchWindow()));
     connect(d->m_actions.snapshotAction, SIGNAL(triggered()),
         this, SLOT(makeSnapshot()));
+    connect(d->m_actions.frameDownAction, SIGNAL(triggered()),
+        this, SLOT(frameDown()));
+    connect(d->m_actions.frameUpAction, SIGNAL(triggered()),
+        this, SLOT(frameUp()));
 
     connect(d->m_statusTimer, SIGNAL(timeout()),
         this, SLOT(clearStatusMessage()));
@@ -875,6 +885,20 @@ void DebuggerManager::aboutToShutdown()
     if (d->m_engine)
         d->m_engine->shutdown();
     d->m_engine = 0;
+}
+
+void DebuggerManager::frameUp()
+{
+    QTC_ASSERT(d->m_engine, return);
+    int currentIndex = stackHandler()->currentIndex();
+    activateFrame(qMin(currentIndex + 1, stackHandler()->stackSize() - 1));
+}
+
+void DebuggerManager::frameDown()
+{
+    QTC_ASSERT(d->m_engine, return);
+    int currentIndex = stackHandler()->currentIndex();
+    activateFrame(qMax(currentIndex - 1, 0));
 }
 
 void DebuggerManager::makeSnapshot()

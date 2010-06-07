@@ -180,6 +180,8 @@ struct DebuggerManagerActions
     QAction *breakAction;
     QAction *sepAction;
     QAction *reverseDirectionAction;
+    QAction *frameUpAction;
+    QAction *frameDownAction;
 };
 
 } // namespace Internal
