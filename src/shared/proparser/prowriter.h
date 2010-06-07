@@ -46,11 +46,40 @@ class ProWriter
 {
 public:
     static void addFiles(ProFile *profile, QStringList *lines,
-                         const QDir &proFileDir, const QStringList &filePaths,
-                         const QString &var);
+         const QDir &proFileDir, const QStringList &filePaths, const QString &var)
+    {
+        addVarValues(profile, lines, proFileDir, filePaths, var, true);
+    }
+
     static QStringList removeFiles(ProFile *profile, QStringList *lines,
-                                   const QDir &proFileDir, const QStringList &filePaths,
-                                   const QStringList &vars);
+        const QDir &proFileDir, const QStringList &filePaths,
+        const QStringList &vars)
+    {
+        return removeVarValues(profile, lines, proFileDir, filePaths, vars, true);
+    }
+
+    static void addVarValues(ProFile *profile, QStringList *lines,
+        const QDir &proFileDir, const QStringList &values, const QString &var)
+    {
+        addVarValues(profile, lines, proFileDir, values, var, false);
+    }
+
+    static QStringList removeVarValues(ProFile *profile, QStringList *lines,
+        const QDir &proFileDir, const QStringList &values,
+        const QStringList &vars)
+    {
+        return removeVarValues(profile, lines, proFileDir, values, vars, false);
+    }
+
+private:
+
+    static void addVarValues(ProFile *profile, QStringList *lines,
+        const QDir &proFileDir, const QStringList &values, const QString &var,
+        bool valuesAreFiles);
+
+    static QStringList removeVarValues(ProFile *profile, QStringList *lines,
+        const QDir &proFileDir, const QStringList &values,
+        const QStringList &vars, bool valuesAreFiles);
 };
 
 } // namespace Internal

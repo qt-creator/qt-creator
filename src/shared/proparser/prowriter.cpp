@@ -170,10 +170,18 @@ static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
     return 0;
 }
 
-void ProWriter::addFiles(ProFile *profile, QStringList *lines,
-                         const QDir &proFileDir, const QStringList &filePaths,
-                         const QString &var)
+void ProWriter::addVarValues(ProFile *profile, QStringList *lines,
+    const QDir &proFileDir, const QStringList &values, const QString &var,
+    bool valuesAreFiles)
 {
+    QStringList valuesToWrite;
+    if (valuesAreFiles) {
+        foreach (const QString &v, values)
+            valuesToWrite << proFileDir.relativeFilePath(v);
+    } else {
+        valuesToWrite = values;
+    }
+
     // Check if variable item exists as child of root item
     const ushort *tokPtr = (const ushort *)profile->items().constData();
     int lineNo = 0;
@@ -201,9 +209,8 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
                     }
                 }
                 QString added;
-                foreach (const QString &filePath, filePaths)
-                    added += QLatin1String("    ") + proFileDir.relativeFilePath(filePath)
-                             + QLatin1String(" \\\n");
+                foreach (const QString &v, valuesToWrite)
+                    added += QLatin1String("    ") + v + QLatin1String(" \\\n");
                 added.chop(3);
                 lines->insert(lineNo, added);
                 return;
@@ -216,8 +223,8 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
 
     // Create & append new variable item
     QString added = QLatin1Char('\n') + var + QLatin1String(" +=");
-    foreach (const QString &filePath, filePaths)
-        added += QLatin1String(" \\\n    ") + proFileDir.relativeFilePath(filePath);
+    foreach (const QString &v, valuesToWrite)
+        added += QLatin1String(" \\\n    ") + v;
     *lines << added;
 }
 
@@ -245,20 +252,24 @@ static void findProVariables(const ushort *tokPtr, const QStringList &vars,
     }
 }
 
-QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
-                                   const QDir &proFileDir, const QStringList &filePaths,
-                                   const QStringList &vars)
+QStringList ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
+    const QDir &proFileDir, const QStringList &values, const QStringList &vars,
+    bool valuesAreFiles)
 {
-    QStringList notChanged = filePaths;
+    QStringList notChanged = values;
 
     QList<int> varLines;
     findProVariables((const ushort *)profile->items().constData(), vars, &varLines);
 
-    // This is a tad stupid - basically, it can remove only entries which
-    // the above code added.
-    QStringList relativeFilePaths;
-    foreach (const QString &absoluteFilePath, filePaths)
-        relativeFilePaths << proFileDir.relativeFilePath(absoluteFilePath);
+    QStringList valuesToFind;
+    if (valuesAreFiles) {
+        // This is a tad stupid - basically, it can remove only entries which
+        // the above code added.
+        foreach (const QString &absoluteFilePath, values)
+            valuesToFind << proFileDir.relativeFilePath(absoluteFilePath);
+    } else {
+        valuesToFind = values;
+    }
 
     // This code expects proVars to be sorted by the variables' appearance in the file.
     int delta = 1;
@@ -310,9 +321,10 @@ QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
                            break;
                        colNo++;
                    }
-                   QString fn = line.mid(varCol, colNo - varCol);
-                   if (relativeFilePaths.contains(fn)) {
-                       notChanged.removeOne(QDir::cleanPath(proFileDir.absoluteFilePath(fn)));
+                   const QString fn = line.mid(varCol, colNo - varCol);
+                   const int pos = valuesToFind.indexOf(fn);
+                   if (pos != -1) {
+                       notChanged.removeOne(values.at(pos));
                        if (colNo < lineLen)
                            colNo++;
                        else if (varCol)
