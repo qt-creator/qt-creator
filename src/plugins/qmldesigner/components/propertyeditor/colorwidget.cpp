@@ -112,24 +112,21 @@ void ColorButton::paintEvent(QPaintEvent *event)
 
     QPainter p(this);
 
-    QRect r(0, 0, width(), height());
+
+    QRect r(0, 0, width() - 2, height() - 2);
     if (isEnabled())
         p.setBrush(color);
     else
         p.setBrush(Qt::transparent);
-    p.setPen(Qt::black);
 
-    if (!m_noColor) {
-        p.drawRect(r);
-    } else {
-        p.fillRect(r, Qt::white);
-        p.fillRect(0, 0, width() /2, height() /2, QColor(Qt::gray));
-        p.fillRect(width() /2, height() /2, width() /2, height() /2, QColor(Qt::gray));
-        p.setBrush(Qt::transparent);
-        p.drawRect(r);
-    }
+    p.setPen(QColor(0x444444));
+    p.drawRect(r.translated(1, 1));
+    p.setPen(QColor(0x101010));
+    p.drawRect(r);
+    p.setPen(QColor(255, 255, 255, 40));
+    p.drawRect(r.adjusted(1, 1, -1, -1));
 
-
+    p.setRenderHint(QPainter::Antialiasing, true);
     QVector<QPointF> points;
     if (isChecked()) {
         points.append(QPointF(2, 3));
@@ -140,8 +137,9 @@ void ColorButton::paintEvent(QPaintEvent *event)
         points.append(QPointF(2, 9));
         points.append(QPointF(2, 3));
     }
-    p.setPen("#707070");
-    p.setBrush(Qt::white);
+    p.translate(0.5, 0.5);
+    p.setBrush(QColor(0xaaaaaa));
+    p.setPen(QColor(0x444444));
     p.drawPolygon(points);
 }
 
@@ -186,6 +184,9 @@ void HueControl::paintEvent(QPaintEvent *event)
         }
     }
 
+    p.setPen(QColor(0x404040));
+    p.drawRect(QRect(1, 1, width() - 1, height() - 1).adjusted(10, 5, -20, -5));
+
     p.drawPixmap(10, 5, m_cache);
 
     QVector<QPointF> points;
@@ -196,12 +197,19 @@ void HueControl::paintEvent(QPaintEvent *event)
     points.append(QPointF(25, y + 5));
     points.append(QPointF(25, y - 5));
 
-    p.setPen(Qt::black);
     p.setBrush(Qt::NoBrush);
+    p.setPen(QColor(0x101010));
     p.drawRect(QRect(0, 0, width() - 1, height() - 1).adjusted(10, 5, -20, -5));
+    p.setPen(QColor(255, 255, 255, 60));
+    p.drawRect(QRect(1, 1, width() - 3, height() - 3).adjusted(10, 5, -20, -5));
 
-    p.setPen(Qt::black);
-    p.setBrush(QColor("#707070"));
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.translate(0.5, 1.5);
+    p.setPen(QColor(0, 0, 0, 120));
+    p.drawPolygon(points);
+    p.translate(0, -1);
+    p.setPen(0x222222);
+    p.setBrush(QColor(0x707070));
     p.drawPolygon(points);
 }
 
@@ -286,7 +294,6 @@ void ColorBox::setColor(const QColor &color)
     if (oldsaturation != saturation()) emit saturationChanged();
     if (oldvalue != value()) emit valueChanged();
     if (oldAlpha != alpha()) emit alphaChanged();
-    emit colorChanged();
 }
 
 void ColorBox::setSaturation(int newsaturation)
@@ -347,22 +354,33 @@ void ColorBox::paintEvent(QPaintEvent *event)
             for (int x = 0; x < width; x++)
             {
                 QColor c;
-                c.setHsv(fixedHue, (x*255) / 120, 255 - (y*255) / 120);
+                c.setHsv(fixedHue, (x*255) / width, 255 - (y*255) / height);
                 chacheP.setPen(c);
                 chacheP.drawPoint(x ,y);
             }
     }
 
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QColor(0x505050));
+    QRect r(0, 0, width() -1, height() - 1);
+    p.drawRect(r.adjusted(6, 6, -2, -2));
+    p.setPen(QColor(0x404040));
+    p.drawRect(r.adjusted(5, 5, -3, -3));
+    p.setPen(QColor(0x101010));
+    p.drawRect(r.adjusted(4, 4, -4, -4));
     p.drawPixmap(5, 5, m_cache);
 
-    int x = clamp(m_color.hsvSaturationF() * 120, 0, 120) + 5; 
-    int y = clamp(120 - m_color.valueF() * 120, 0, 120) + 5; 
+    int x = clamp(m_color.hsvSaturationF() * 120, 0, 119) + 5;
+    int y = clamp(120 - m_color.valueF() * 120, 0, 119) + 5;
 
-    p.setPen(Qt::white);
-    p.drawEllipse(x - 2, y - 2, 4, 4);
+    p.setPen(QColor(255, 255, 255, 50));
+    p.drawLine(5, y, x-1, y);
+    p.drawLine(x+1, y, width()-7, y);
+    p.drawLine(x, 5, x, y-1);
+    p.drawLine(x, y+1, x, height()-7);
 
-    p.setPen(Qt::black);
-    p.drawRect(QRect(0, 0, width() - 1, height() -1).adjusted(4, 4, -4, -4));
+    p.setPen(QColor(255, 255, 255, 60));
+    p.drawRect(r.adjusted(5, 5, -5, -5));
 }
 
 void ColorBox::mousePressEvent(QMouseEvent *e)
@@ -375,6 +393,8 @@ void ColorBox::mousePressEvent(QMouseEvent *e)
 
 void ColorBox::mouseReleaseEvent(QMouseEvent * /* event */)
 {
+    if (m_mousePressed)
+        emit colorChanged();
     m_mousePressed = false;
 }
 
@@ -525,43 +545,54 @@ void GradientLine::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     QPainter p(this);
-    p.setRenderHint(QPainter::Antialiasing, true);
 
-    QPen pen(Qt::black);
-    pen.setWidth(1);
-    p.setPen(pen);
 
-    QLinearGradient linearGradient(QPointF(2, 0), QPointF(width() -2, 0));
+    QLinearGradient linearGradient(QPointF(0, 0), QPointF(width(), 0));
 
     for (int i =0; i < m_stops.size(); i++)
          linearGradient.setColorAt(m_stops.at(i), m_colorList.at(i));
 
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QColor(0x444444));
+    p.drawRect(9, 31, width() - 14, height() - 32);
+
     p.setBrush(linearGradient);
-    p.drawRoundedRect(8, 30, width() - 16, height() - 32, 5, 5);
+    p.setPen(QColor(0x222222));
+    p.drawRect(8, 30, width() - 14, height() - 32);
+    p.setPen(QColor(255, 255, 255, 40));
+    p.drawRect(9, 31, width() - 16, height() - 34);
+
+    p.setPen(Qt::black);
 
     for (int i =0; i < m_colorList.size(); i++) {
         int localYOffset = 0;
         QColor arrowColor(Qt::black);
         if (i == currentColorIndex()) {
             localYOffset = m_yOffset;
-            arrowColor = QColor("#cdcdcd");
+            arrowColor = QColor(0xeeeeee);
         }
         p.setPen(arrowColor);
         if (i == 0 || i == (m_colorList.size() - 1))
             localYOffset = 0;
 
-        int pos = qreal((width() - 20)) * m_stops.at(i) + 10;
+        int pos = qreal((width() - 16)) * m_stops.at(i) + 9;
         p.setBrush(arrowColor);
         QVector<QPointF> points;
-        points.append(QPointF(pos + 0.5, 28 + localYOffset)); //triangle
-        points.append(QPointF(pos - 3.5, 22 + localYOffset));
-        points.append(QPointF(pos + 4.5, 22 + localYOffset));
+        points.append(QPointF(pos + 0.5, 28.5 + localYOffset)); //triangle
+        points.append(QPointF(pos - 3.5, 22.5 + localYOffset));
+        points.append(QPointF(pos + 4.5, 22.5 + localYOffset));
+        p.setRenderHint(QPainter::Antialiasing, true);
         p.drawPolygon(points);
-
-        if (i == currentColorIndex())
-            p.fillRect(pos - 6, 9 + localYOffset, 13, 13, invertColor(m_colorList.at(i)));
-
-        p.fillRect(pos - 4, 11 + localYOffset, 9, 9, m_colorList.at(i));
+        p.setRenderHint(QPainter::Antialiasing, false);
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QColor(0x424242));
+        p.drawRect(pos - 4, 9 + localYOffset, 10, 11);
+        p.setPen(QColor(0x141414));
+        p.setBrush(m_colorList.at(i));
+        p.drawRect(pos - 5, 8 + localYOffset, 10, 11);
+        p.setBrush(Qt::NoBrush);
+        p.setPen(QColor(255, 255, 255, 30));
+        p.drawRect(pos - 4, 9 + localYOffset, 8, 9);
     }
 }
 
@@ -576,7 +607,7 @@ void GradientLine::mousePressEvent(QMouseEvent *event)
         m_dragActive = false;
         if ((yPos > 10) && (yPos < 30))
             for (int i =0; i < m_stops.size(); i++) {
-            int pos = qreal((width() - 20)) * m_stops.at(i) + 10;
+            int pos = qreal((width() - 16)) * m_stops.at(i) + 9;
             if (((xPos + 5) > pos) && ((xPos - 5) < pos)) {
                 draggedIndex = i;
                 m_dragActive = true;
@@ -596,7 +627,7 @@ void GradientLine::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         if (m_dragActive == false && m_create) {
-            qreal stopPos = qreal(event->pos().x() - 10) / qreal((width() - 20));
+            qreal stopPos = qreal(event->pos().x() - 9) / qreal((width() - 15));
             int index = -1;
             for (int i =0; i < m_stops.size() - 1; i++) {
                 if ((stopPos > m_stops.at(i)) && (index == -1))
@@ -621,11 +652,10 @@ void GradientLine::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_dragActive) {
         int xPos = event->pos().x();
-        int pos = qreal((width() - 20)) * m_stops.at(currentColorIndex()) + 10;
+        int pos = qreal((width() - 20)) * m_stops.at(currentColorIndex()) + 8;
         int offset = m_dragOff ? 2 : 20;
         if (xPos < pos + offset && xPos > pos - offset) {
             m_dragOff = false;
-            qDebug() << xPos;
             int xDistance = event->pos().x() - m_dragStart.x();
             qreal distance = qreal(xDistance) / qreal((width() - 20));
             qreal newStop  = m_stops.at(currentColorIndex()) + distance;
