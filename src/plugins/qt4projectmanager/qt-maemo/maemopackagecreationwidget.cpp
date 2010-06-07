@@ -100,7 +100,7 @@ void MaemoPackageCreationWidget::addFile()
     QTC_ASSERT(bc, return);
     const QString title = tr("Choose a local file");
     const QString baseDir = bc->target()->project()->projectDirectory();
-    const QString localFile = QFileDialog::getOpenFileName(this, title, baseDir);
+    const QString localFile = QFileDialog::getOpenFileName(this, title, baseDir); // TODO: Support directories?
     if (localFile.isEmpty())
         return;
     const MaemoPackageContents::Deployable

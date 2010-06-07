@@ -181,8 +181,9 @@ bool MaemoPackageCreationStep::createPackage()
     for (int i = 0; i < m_packageContents->rowCount(); ++i) {
         const MaemoPackageContents::Deployable &d
             = m_packageContents->deployableAt(i);
-        const QString targetFile = debianRoot.path() + '/' + d.remoteFilePath;
-        const QString absTargetDir = QFileInfo(targetFile).dir().path();
+        const QString absTargetDir = debianRoot.path() + '/' + d.remoteDir;
+        const QString targetFile
+            = absTargetDir + '/' + QFileInfo(d.localFilePath).fileName();
         const QString relTargetDir = debianRoot.relativeFilePath(absTargetDir);
         if (!debianRoot.exists(relTargetDir)
             && !debianRoot.mkpath(relTargetDir)) {

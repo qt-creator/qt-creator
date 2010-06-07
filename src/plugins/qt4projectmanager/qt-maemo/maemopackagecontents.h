@@ -46,17 +46,17 @@ class MaemoPackageContents : public QAbstractTableModel
 public:
     struct Deployable
     {
-        Deployable(const QString &localFilePath, const QString &remoteFilePath)
-            : localFilePath(localFilePath), remoteFilePath(remoteFilePath) {}
+        Deployable(const QString &localFilePath, const QString &remoteDir)
+            : localFilePath(localFilePath), remoteDir(remoteDir) {}
 
         bool operator==(const Deployable &other) const
         {
             return localFilePath == other.localFilePath
-                    && remoteFilePath == other.remoteFilePath;
+                    && remoteDir == other.remoteDir;
         }
 
         QString localFilePath;
-        QString remoteFilePath;
+        QString remoteDir;
     };
 
     MaemoPackageContents(MaemoPackageCreationStep *packageStep);
@@ -83,11 +83,13 @@ private:
     virtual bool setData(const QModelIndex &index, const QVariant &value,
                          int role = Qt::EditRole);
 
+    QString remoteExecutableDir() const;
+
 private:
     const MaemoPackageCreationStep * const m_packageStep;
     QList<Deployable> m_deployables;
     bool m_modified;
-    mutable QString m_remoteExecutableFilePath;
+    mutable QString m_remoteExecutableDir;
 };
 
 } // namespace Qt4ProjectManager

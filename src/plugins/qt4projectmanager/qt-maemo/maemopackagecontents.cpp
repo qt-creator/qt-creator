@@ -42,12 +42,12 @@
 namespace {
     const char * const MODIFIED_KEY
         = "Qt4ProjectManager.BuildStep.MaemoPackage.Modified";
-    const char * const REMOTE_EXE_KEY
-        = "Qt4ProjectManager.BuildStep.MaemoPackage.RemoteExe";
+    const char * const REMOTE_EXE_DIR_KEY
+        = "Qt4ProjectManager.BuildStep.MaemoPackage.RemoteExeDir";
     const char * const LOCAL_FILES_KEY
         = "Qt4ProjectManager.BuildStep.MaemoPackage.LocalFiles";
-    const char * const REMOTE_FILES_KEY
-        = "Qt4ProjectManager.BuildStep.MaemoPackage.RemoteFiles";
+    const char * const REMOTE_DIRS_KEY
+        = "Qt4ProjectManager.BuildStep.MaemoPackage.RemoteDirs";
 }
 
 namespace Qt4ProjectManager {
@@ -65,7 +65,7 @@ MaemoPackageContents::Deployable MaemoPackageContents::deployableAt(int row) con
     Q_ASSERT(row >= 0 && row < rowCount());
     return row == 0
         ? Deployable(m_packageStep->localExecutableFilePath(),
-                     remoteExecutableFilePath())
+                     remoteExecutableDir())
         : m_deployables.at(row - 1);
 }
 
@@ -109,7 +109,7 @@ QVariant MaemoPackageContents::data(const QModelIndex &index, int role) const
     if (index.column() == 0 && role == Qt::DisplayRole)
         return d.localFilePath;
     if (role == Qt::DisplayRole || role == Qt::EditRole)
-        return d.remoteFilePath;
+        return d.remoteDir;
     return QVariant();
 }
 
@@ -128,11 +128,11 @@ bool MaemoPackageContents::setData(const QModelIndex &index,
         || role != Qt::EditRole)
         return false;
 
-    const QString &remoteFilePath = value.toString();
+    const QString &remoteDir = value.toString();
     if (index.row() == 0)
-        m_remoteExecutableFilePath = remoteFilePath;
+        m_remoteExecutableDir = remoteDir;
     else
-        m_deployables[index.row() - 1].remoteFilePath = remoteFilePath;
+        m_deployables[index.row() - 1].remoteDir = remoteDir;
     m_modified = true;
     emit dataChanged(index, index);
     return true;
@@ -143,57 +143,60 @@ QVariant MaemoPackageContents::headerData(int section,
 {
     if (orientation == Qt::Vertical || role != Qt::DisplayRole)
         return QVariant();
-    return section == 0 ? tr("Local File Path") : tr("Remote File Path");
+    return section == 0 ? tr("Local File Path") : tr("Remote Directory");
 }
 
 QVariantMap MaemoPackageContents::toMap() const
 {
     QVariantMap map;
     map.insert(MODIFIED_KEY, m_modified);
-    map.insert(REMOTE_EXE_KEY, m_remoteExecutableFilePath);
+    map.insert(REMOTE_EXE_DIR_KEY, m_remoteExecutableDir);
 
     QDir dir;
     QStringList localFiles;
-    QStringList remoteFiles;
+    QStringList remoteDirs;
     foreach (const Deployable &p, m_deployables) {
         localFiles << dir.fromNativeSeparators(p.localFilePath);
-        remoteFiles << p.remoteFilePath;
+        remoteDirs << p.remoteDir;
     }
     map.insert(LOCAL_FILES_KEY, localFiles);
-    map.insert(REMOTE_FILES_KEY, remoteFiles);
+    map.insert(REMOTE_DIRS_KEY, remoteDirs);
     return map;
 }
 
 void MaemoPackageContents::fromMap(const QVariantMap &map)
 {
     m_modified = map.value(MODIFIED_KEY).toBool();
-    m_remoteExecutableFilePath = map.value(REMOTE_EXE_KEY).toString();
+    m_remoteExecutableDir = map.value(REMOTE_EXE_DIR_KEY).toString();
     const QStringList localFiles = map.value(LOCAL_FILES_KEY).toStringList();
-    const QStringList remoteFiles = map.value(REMOTE_FILES_KEY).toStringList();
-    if (localFiles.count() != remoteFiles.count())
+    const QStringList remoteDirs = map.value(REMOTE_DIRS_KEY).toStringList();
+    if (localFiles.count() != remoteDirs.count())
         qWarning("%s: serialized data inconsistent", Q_FUNC_INFO);
 
     QDir dir;
-    const int count = qMin(localFiles.count(), remoteFiles.count());
+    const int count = qMin(localFiles.count(), remoteDirs.count());
     for (int i = 0; i < count; ++i) {
         m_deployables << Deployable(dir.toNativeSeparators(localFiles.at(i)),
-            remoteFiles.at(i));
+            remoteDirs.at(i));
     }
+}
+
+QString MaemoPackageContents::remoteExecutableDir() const
+{
+    if (m_remoteExecutableDir.isEmpty()) {
+        const Qt4ProjectType projectType
+            = m_packageStep->qt4BuildConfiguration()->qt4Target()->qt4Project()
+              ->rootProjectNode()->projectType();
+        m_remoteExecutableDir = projectType == LibraryTemplate
+            ? QLatin1String("/usr/local/lib")
+            : QLatin1String("/usr/local/bin");
+    }
+    return m_remoteExecutableDir;
 }
 
 QString MaemoPackageContents::remoteExecutableFilePath() const
 {
-    if (m_remoteExecutableFilePath.isEmpty()) {
-        const Qt4ProjectType projectType
-            = m_packageStep->qt4BuildConfiguration()->qt4Target()->qt4Project()
-              ->rootProjectNode()->projectType();
-        const QString remoteDir = projectType == LibraryTemplate
-            ? QLatin1String("/usr/local/lib/")
-            : QLatin1String("/usr/local/bin/");
-        m_remoteExecutableFilePath
-            = remoteDir + m_packageStep->executableFileName();
-    }
-    return m_remoteExecutableFilePath;
+    return remoteExecutableDir() + '/' + m_packageStep->executableFileName();
 }
 
 } // namespace Qt4ProjectManager
