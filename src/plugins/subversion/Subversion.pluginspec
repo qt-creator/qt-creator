@@ -1,4 +1,4 @@
-<plugin name="Subversion" version="1.3.84" compatVersion="1.3.84">
+<plugin name="Subversion" version="1.3.86" compatVersion="1.3.86">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,9 +14,9 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Subversion integration.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.3.84"/>
-        <dependency name="ProjectExplorer" version="1.3.84"/>
-        <dependency name="Core" version="1.3.84"/>
-        <dependency name="VCSBase" version="1.3.84"/>
+        <dependency name="TextEditor" version="1.3.86"/>
+        <dependency name="ProjectExplorer" version="1.3.86"/>
+        <dependency name="Core" version="1.3.86"/>
+        <dependency name="VCSBase" version="1.3.86"/>
     </dependencyList>
 </plugin>
