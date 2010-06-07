@@ -300,7 +300,7 @@ bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, QByt
     if (buffer->at(delimiterPos) != 0x7e) {
         result->isDebugOutput = true;
         result->data = buffer->mid(delimiterPos, len);
-        *buffer->remove(0, delimiterPos + len);
+        buffer->remove(0, delimiterPos + len);
         return true;
     }
     // FIXME: what happens if the length contains 0xfe?
@@ -308,7 +308,7 @@ bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, QByt
     const QByteArray data = decode7d(buffer->mid(delimiterPos + 1, len - 2));
     if(rawData)
         *rawData = data;
-    *buffer->remove(0, delimiterPos + len);
+    buffer->remove(0, delimiterPos + len);
 
     byte sum = 0;
     for (int i = 0; i < data.size(); ++i) // 3 = 2 * 0xfe + sum
