@@ -116,6 +116,7 @@ public:
     CppQuickFixCollector();
     virtual ~CppQuickFixCollector();
 
+    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
     virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable);
     virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) const;
 };

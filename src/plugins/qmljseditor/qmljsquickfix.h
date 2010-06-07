@@ -30,8 +30,10 @@
 #ifndef QMLJSQUICKFIX_H
 #define QMLJSQUICKFIX_H
 
+#include "qmljseditor.h"
 #include <texteditor/quickfix.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
+#include <qmljs/qmljsdocument.h>
 
 namespace QmlJSEditor {
 
@@ -47,6 +49,13 @@ public:
     QmlJSQuickFixOperation(TextEditor::BaseTextEditor *editor);
     virtual ~QmlJSQuickFixOperation();
 
+    QmlJS::Document::Ptr document() const;
+    const QmlJS::Snapshot &snapshot() const;
+    const SemanticInfo &semanticInfo() const;
+
+    virtual int check() = 0;
+    virtual int match(TextEditor::QuickFixState *state);
+
 protected:
     using TextEditor::QuickFixOperation::move;
     using TextEditor::QuickFixOperation::replace;
@@ -56,12 +65,18 @@ protected:
     using TextEditor::QuickFixOperation::copy;
     using TextEditor::QuickFixOperation::textOf;
     using TextEditor::QuickFixOperation::charAt;
+    using TextEditor::QuickFixOperation::position;
+
+    unsigned position(const QmlJS::AST::SourceLocation &loc) const;
 
     // token based operations
     void move(const QmlJS::AST::SourceLocation &loc, int to);
     void replace(const QmlJS::AST::SourceLocation &loc, const QString &replacement);
     void remove(const QmlJS::AST::SourceLocation &loc);
     void copy(const QmlJS::AST::SourceLocation &loc, int to);
+
+private:
+    SemanticInfo _semanticInfo;
 };
 
 class QmlJSQuickFixCollector: public TextEditor::QuickFixCollector
@@ -72,6 +87,7 @@ public:
     QmlJSQuickFixCollector();
     virtual ~QmlJSQuickFixCollector();
 
+    virtual bool supportsEditor(TextEditor::ITextEditable *editor);
     virtual TextEditor::QuickFixState *initializeCompletion(TextEditor::ITextEditable *editable);
     virtual QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations(TextEditor::BaseTextEditor *editor) const;
 };

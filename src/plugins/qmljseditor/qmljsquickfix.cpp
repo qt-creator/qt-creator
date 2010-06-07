@@ -29,9 +29,19 @@
 
 #include "qmljsquickfix.h"
 #include "qmljseditor.h"
+#include "qmljs/parser/qmljsast_p.h"
+#include <QtGui/QApplication>
 #include <QtCore/QDebug>
 
 using namespace QmlJSEditor::Internal;
+
+class QmlJSQuickFixState: public TextEditor::QuickFixState
+{
+public:
+    SemanticInfo semanticInfo;
+};
+
+
 
 QmlJSQuickFixOperation::QmlJSQuickFixOperation(TextEditor::BaseTextEditor *editor)
     : TextEditor::QuickFixOperation(editor)
@@ -40,6 +50,33 @@ QmlJSQuickFixOperation::QmlJSQuickFixOperation(TextEditor::BaseTextEditor *edito
 
 QmlJSQuickFixOperation::~QmlJSQuickFixOperation()
 {
+}
+
+QmlJS::Document::Ptr QmlJSQuickFixOperation::document() const
+{
+    return _semanticInfo.document;
+}
+
+const QmlJS::Snapshot &QmlJSQuickFixOperation::snapshot() const
+{
+    return _semanticInfo.snapshot;
+}
+
+const SemanticInfo &QmlJSQuickFixOperation::semanticInfo() const
+{
+    return _semanticInfo;
+}
+
+int QmlJSQuickFixOperation::match(TextEditor::QuickFixState *state)
+{
+    QmlJSQuickFixState *s = static_cast<QmlJSQuickFixState *>(state);
+    _semanticInfo = s->semanticInfo;
+    return check();
+}
+
+unsigned QmlJSQuickFixOperation::position(const QmlJS::AST::SourceLocation &loc) const
+{
+    return position(loc.startLine, loc.startColumn);
 }
 
 void QmlJSQuickFixOperation::move(const QmlJS::AST::SourceLocation &loc, int to)
@@ -70,6 +107,14 @@ QmlJSQuickFixCollector::~QmlJSQuickFixCollector()
 {
 }
 
+bool QmlJSQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editable)
+{
+    if (qobject_cast<QmlJSTextEditor *>(editable->widget()) != 0)
+        return true;
+
+    return false;
+}
+
 TextEditor::QuickFixState *QmlJSQuickFixCollector::initializeCompletion(TextEditor::ITextEditable *editable)
 {
     if (QmlJSTextEditor *editor = qobject_cast<QmlJSTextEditor *>(editable->widget())) {
@@ -81,16 +126,16 @@ TextEditor::QuickFixState *QmlJSQuickFixCollector::initializeCompletion(TextEdit
             return 0;
         }
 
-        // ### TODO create the quickfix state
-        return 0;
+        QmlJSQuickFixState *state = new QmlJSQuickFixState;
+        state->semanticInfo = info;
+        return state;
     }
 
     return 0;
 }
 
-QList<TextEditor::QuickFixOperation::Ptr> QmlJSQuickFixCollector::quickFixOperations(TextEditor::BaseTextEditor *) const
+QList<TextEditor::QuickFixOperation::Ptr> QmlJSQuickFixCollector::quickFixOperations(TextEditor::BaseTextEditor *editor) const
 {
     QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations;
-
     return quickFixOperations;
 }

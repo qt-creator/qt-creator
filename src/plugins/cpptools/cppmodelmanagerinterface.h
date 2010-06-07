@@ -38,6 +38,10 @@
 #include <QtCore/QStringList>
 #include <QtCore/QFuture>
 
+namespace Core {
+    class IEditor;
+}
+
 namespace CPlusPlus {
     class LookupContext;
 }
@@ -109,6 +113,8 @@ public:
     virtual ~CppModelManagerInterface() {}
 
     static CppModelManagerInterface *instance();
+
+    virtual bool isCppEditor(Core::IEditor *editor) const = 0;
 
     virtual WorkingCopy workingCopy() const = 0;
     virtual CPlusPlus::Snapshot snapshot() const = 0;

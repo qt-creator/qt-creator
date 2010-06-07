@@ -181,9 +181,6 @@ TextEditor::ITextEditable *QuickFixCollector::editor() const
 int QuickFixCollector::startPosition() const
 { return _editable->position(); }
 
-bool QuickFixCollector::supportsEditor(TextEditor::ITextEditable *)
-{ return true; }
-
 bool QuickFixCollector::triggersCompletion(TextEditor::ITextEditable *)
 { return false; }
 

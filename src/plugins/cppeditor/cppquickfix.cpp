@@ -1036,6 +1036,11 @@ CppQuickFixCollector::~CppQuickFixCollector()
 {
 }
 
+bool CppQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor)
+{
+    return CppTools::CppModelManagerInterface::instance()->isCppEditor(editor);
+}
+
 TextEditor::QuickFixState *CppQuickFixCollector::initializeCompletion(TextEditor::ITextEditable *editable)
 {
     if (CPPEditor *editor = qobject_cast<CPPEditor *>(editable->widget())) {

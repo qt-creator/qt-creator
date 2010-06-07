@@ -103,7 +103,7 @@ public:
 
     inline Core::ICore *core() const { return m_core; }
 
-    bool isCppEditor(Core::IEditor *editor) const; // ### private
+    virtual bool isCppEditor(Core::IEditor *editor) const;
 
     CppEditorSupport *editorSupport(TextEditor::ITextEditor *editor) const
     { return m_editorSupport.value(editor); }

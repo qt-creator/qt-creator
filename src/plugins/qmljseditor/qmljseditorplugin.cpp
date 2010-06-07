@@ -253,8 +253,9 @@ void QmlJSEditorPlugin::quickFixNow()
                 // qDebug() << "TODO: outdated document" << editor->documentRevision() << editor->semanticInfo().revision();
                 // ### FIXME: m_quickFixTimer->start(QUICKFIX_INTERVAL);
                 m_quickFixTimer->stop();
-            }else
+            } else {
                 TextEditor::Internal::CompletionSupport::instance()->quickFix(m_currentTextEditable);
+            }
         }
     }
 }
