@@ -148,7 +148,7 @@ ProFileOption::ProFileOption()
     dirlist_sep = QLatin1Char(':');
     dir_sep = QLatin1Char('/');
 #endif
-    qmakespec = QString::fromLatin1(qgetenv("QMAKESPEC").data());
+    qmakespec = QString::fromLocal8Bit(qgetenv("QMAKESPEC").data());
 
 #if defined(Q_OS_WIN32)
     target_mode = TARG_WIN_MODE;
@@ -557,7 +557,7 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
         return false;
     }
 
-    QString content(QString::fromLatin1(file.readAll())); // yes, really latin1
+    QString content(QString::fromLocal8Bit(file.readAll()));
     file.close();
     m_lineNo = 1;
     m_profileStack.push(pro);
@@ -1377,10 +1377,10 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
                     if (m_option->qmakespec_name == QLatin1String("default")) {
 #ifdef Q_OS_UNIX
                         char buffer[1024];
-                        int l = ::readlink(m_option->qmakespec.toLatin1().constData(), buffer, 1024);
+                        int l = ::readlink(m_option->qmakespec.toLocal8Bit().constData(), buffer, 1024);
                         if (l != -1)
                             m_option->qmakespec_name =
-                                    IoUtils::fileName(QString::fromLatin1(buffer, l)).toString();
+                                    IoUtils::fileName(QString::fromLocal8Bit(buffer, l)).toString();
 #else
                         // We can't resolve symlinks as they do on Unix, so configure.exe puts
                         // the source of the qmake.conf at the end of the default/qmake.conf in
@@ -1815,7 +1815,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
 
                 QStringList replacement;
                 if (var_type == ENVIRON) {
-                    replacement = split_value_list(QString::fromLocal8Bit(qgetenv(var.toLatin1().constData())));
+                    replacement = split_value_list(QString::fromLocal8Bit(qgetenv(var.toLocal8Bit().constData())));
                 } else if (var_type == PROPERTY) {
                     replacement << propertyValue(var);
                 } else if (var_type == FUNCTION) {
@@ -2199,9 +2199,9 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                     logMessage(format("system(execute) requires one or two arguments."));
                 } else {
                     char buff[256];
-                    FILE *proc = QT_POPEN((QLatin1String("cd ")
+                    FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
                                            + IoUtils::shellQuote(currentDirectory())
-                                           + QLatin1String(" && ") + args[0]).toLatin1(), "r");
+                                           + QLatin1String(" && ") + args[0]).toLocal8Bit(), "r");
                     bool singleLine = true;
                     if (args.count() > 1)
                         singleLine = (!args[1].compare(QLatin1String("true"), Qt::CaseInsensitive));
@@ -2215,7 +2215,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                                 buff[i] = ' ';
                         }
                         buff[read_in] = '\0';
-                        output += QLatin1String(buff);
+                        output += QString::fromLocal8Bit(buff);
                     }
                     ret += split_value_list(output);
                     if (proc)
@@ -2843,7 +2843,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             }
             return returnBool(system((QLatin1String("cd ")
                                       + IoUtils::shellQuote(currentDirectory())
-                                      + QLatin1String(" && ") + args.first()).toLatin1().constData()) == 0);
+                                      + QLatin1String(" && ") + args.first()).toLocal8Bit().constData()) == 0);
         }
 #endif
         case T_ISEMPTY: {
@@ -3040,7 +3040,7 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName) const
                     case V_QMAKE_HOST_version_string: what = name.version; break;
                     case V_QMAKE_HOST_arch: what = name.machine; break;
                     }
-                    ret = QString::fromLatin1(what);
+                    ret = QString::fromLocal8Bit(what);
                 }
             }
 #endif
