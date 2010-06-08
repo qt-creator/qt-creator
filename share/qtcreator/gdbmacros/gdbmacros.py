@@ -631,18 +631,12 @@ def qdump__QObject(d, item):
         d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
         d.putItem(Item(d_ptr["children"], item.iname, "children", "children"))
 
-        # User properties.
+        # Properties.
         with SubItem(d):
-            d.putName("userprops")
-            d.putType(" ")
+            # Prolog
             extraData = d_ptr["extraData"]   # Capitalization!
             if isNull(extraData):
-                #warn("EXTRADATA Z: %s " % extraData)
-                d.putItemCount(0)
-                d.putNumChild(0)
-                if d.isExpandedIName(item.iname + ".userprops"):
-                    with Children(d):
-                        pass
+                dynamicPropertyCount = 0
             else:
                 extraDataType = gdb.lookup_type(
                     d.ns + "QObjectPrivate::ExtraData").pointer()
@@ -654,10 +648,22 @@ def qdump__QObject(d, item):
                 namesBegin = names["d"]["begin"]
                 namesEnd = names["d"]["end"]
                 namesArray = names["d"]["array"]
-                userPropertyCount = namesEnd - namesBegin
-                d.putItemCount(userPropertyCount)
-                d.putNumChild(userPropertyCount)
-                if d.isExpandedIName(item.iname + ".userprops"):
+                dynamicPropertyCount = namesEnd - namesBegin
+
+            #staticPropertyCount = metaData[6]
+            # FIXME: Replace with plain memory accesses.
+            staticPropertyCount = call(mo, "propertyCount()")
+            #warn("PROPERTY COUNT: %s" % staticPropertyCount)
+            propertyCount = staticPropertyCount + dynamicPropertyCount
+
+            d.putName("properties")
+            d.putType(" ")
+            d.putItemCount(propertyCount)
+            d.putNumChild(propertyCount)
+
+            if d.isExpandedIName(item.iname + ".properties"):
+                with Children(d, [propertyCount, 500]):
+                    # Dynamic properties.
                     dummyType = gdb.lookup_type("void").pointer().pointer()
                     namesType = gdb.lookup_type(d.ns + "QByteArray")
                     valuesBegin = values["d"]["begin"]
@@ -666,44 +672,28 @@ def qdump__QObject(d, item):
                     valuesType = gdb.lookup_type(d.ns + "QVariant")
                     p = namesArray.cast(dummyType) + namesBegin
                     q = valuesArray.cast(dummyType) + valuesBegin
-                    with Children(d, [userPropertyCount, 100]):
-                        for i in xrange(userPropertyCount):
-                            with SubItem(d):
-                                warn("Q: %s" % q)
-                                pp = p.cast(namesType.pointer()).dereference();
-                                d.putField("key", encodeByteArray(pp))
-                                d.putField("keyencoded", Hex2EncodedLatin1)
-                                qq = q.cast(valuesType.pointer().pointer())
-                                warn("QQ: %s" % qq)
-                                qq = qq.dereference();
-                                warn("QQ: %s" % q)
-                                d.putField("addr", cleanAddress(qq))
-                                d.putField("exp", "*('%sQVariant'*)%s"
-                                     % (d.ns, cleanAddress(qq)))
-                                name = "%s.userprops.%d" % (item.iname, i)
-                                t = qdump__QVariant(d, Item(qq, name))
-                                # Override the "QVariant (foo)" output
-                                d.putType(t, d.currentTypePriority + 1)
-                            p += 1
-                            q += 1
-
-
-        # Properties.
-        with SubItem(d):
-            #propertyCount = metaData[6]
-            # FIXME: Replace with plain memory accesses.
-            propertyCount = call(mo, "propertyCount()")
-            #warn("PROPERTY COUNT: %s" % propertyCount)
-            propertyData = metaData[7]
-            d.putName("properties")
-            d.putItemCount(propertyCount)
-            d.putType(" ")
-            d.putNumChild(propertyCount)
-            if d.isExpandedIName(item.iname + ".properties"):
-                with Children(d):
-                    for property in xrange(propertyCount):
+                    for i in xrange(dynamicPropertyCount):
                         with SubItem(d):
-                            offset = propertyData + 3 * property
+                            pp = p.cast(namesType.pointer()).dereference();
+                            d.putField("key", encodeByteArray(pp))
+                            d.putField("keyencoded", Hex2EncodedLatin1)
+                            qq = q.cast(valuesType.pointer().pointer())
+                            qq = qq.dereference();
+                            d.putField("addr", cleanAddress(qq))
+                            d.putField("exp", "*('%sQVariant'*)%s"
+                                 % (d.ns, cleanAddress(qq)))
+                            name = "%s.properties.%d" % (item.iname, i)
+                            t = qdump__QVariant(d, Item(qq, name))
+                            # Override the "QVariant (foo)" output
+                            d.putType(t, d.currentTypePriority + 1)
+                        p += 1
+                        q += 1
+
+                    # Static properties.
+                    propertyData = metaData[7]
+                    for i in xrange(staticPropertyCount):
+                        with SubItem(d):
+                            offset = propertyData + 3 * i
                             propertyName = extractCString(metaStringData, metaData[offset])
                             propertyType = extractCString(metaStringData, metaData[offset + 1])
                             d.putName(propertyName)
@@ -719,6 +709,7 @@ def qdump__QObject(d, item):
                             if len(inner):
                                 # Build-in types.
                                 d.putType(inner)
+                                name = "%s.properties.%d" % (item.iname, i + dynamicPropertyCount)
                                 d.putItemHelper(Item(val, item.iname + ".properties",
                                                     propertyName, propertyName))
 
@@ -742,8 +733,7 @@ def qdump__QObject(d, item):
                                 d.putValue("...")
                                 d.putNumChild(0)
 
-
-            # connections
+            # Connections.
             with SubItem(d):
                 connectionCount = 0
                 d.putName("connections")
