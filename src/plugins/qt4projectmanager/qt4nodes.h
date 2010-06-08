@@ -173,6 +173,7 @@ private:
     void save(const QStringList &lines);
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors();
+    QStringList formResources(const QString &formFile) const;
     QStringList baseVPaths(ProFileReader *reader, const QString &projectDir);
     QStringList fullVPaths(const QStringList &baseVPaths, ProFileReader *reader, FileType type, const QString &qmakeVariable, const QString &projectDir);
 

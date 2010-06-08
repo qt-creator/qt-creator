@@ -59,6 +59,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QXmlStreamReader>
 
 #include <QtGui/QPainter>
 #include <QtGui/QMainWindow>
@@ -597,9 +598,25 @@ bool Qt4PriFileNode::addFiles(const FileType fileType, const QStringList &filePa
     accept(&visitor);
     const QStringList &allFiles = visitor.filePaths();
 
+    QStringList qrcFiles; // the list of qrc files referenced from ui files
+    if (fileType == ProjectExplorer::FormType) {
+        foreach (const QString &formFile, filePaths) {
+            QStringList resourceFiles = formResources(formFile);
+            foreach (const QString &resourceFile, resourceFiles)
+                if (!qrcFiles.contains(resourceFile))
+                    qrcFiles.append(resourceFile);
+        }
+    }
+
+    QStringList uniqueQrcFiles;
+    foreach (const QString &file, qrcFiles) {
+        if (!allFiles.contains(file))
+            uniqueQrcFiles.append(file);
+    }
+
     QStringList uniqueFilePaths;
     foreach (const QString &file, filePaths) {
-        if(!allFiles.contains(file))
+        if (!allFiles.contains(file))
             uniqueFilePaths.append(file);
     }
 
@@ -607,6 +624,9 @@ bool Qt4PriFileNode::addFiles(const FileType fileType, const QStringList &filePa
     changeFiles(fileType, uniqueFilePaths, &failedFiles, AddToProFile);
     if (notAdded)
         *notAdded = failedFiles;
+    changeFiles(ProjectExplorer::ResourceType, uniqueQrcFiles, &failedFiles, AddToProFile);
+    if (notAdded)
+        *notAdded += failedFiles;
     return failedFiles.isEmpty();
 }
 
@@ -697,6 +717,39 @@ bool Qt4PriFileNode::saveModifiedEditors()
         m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
     }
     return true;
+}
+
+QStringList Qt4PriFileNode::formResources(const QString &formFile) const
+{
+    QStringList resourceFiles;
+    QFile file(formFile);
+    file.open(QIODevice::ReadOnly);
+    QXmlStreamReader reader(&file);
+
+    QFileInfo fi(formFile);
+    QDir formDir = fi.absoluteDir();
+    while (!reader.atEnd()) {
+        reader.readNext();
+        if (reader.isStartElement()) {
+            if (reader.name() == QLatin1String("iconset")) {
+                const QXmlStreamAttributes attributes = reader.attributes();
+                if (attributes.hasAttribute(QLatin1String("resource")))
+                    resourceFiles.append(QDir::cleanPath(formDir.absoluteFilePath(
+                                  attributes.value(QLatin1String("resource")).toString())));
+            } else if (reader.name() == QLatin1String("include")) {
+                const QXmlStreamAttributes attributes = reader.attributes();
+                if (attributes.hasAttribute(QLatin1String("location")))
+                    resourceFiles.append(QDir::cleanPath(formDir.absoluteFilePath(
+                                  attributes.value(QLatin1String("location")).toString())));
+
+            }
+        }
+    }
+
+    if (reader.hasError())
+        qWarning() << "Could not read form file:" << formFile;
+
+    return resourceFiles;
 }
 
 void Qt4PriFileNode::changeFiles(const FileType fileType,
