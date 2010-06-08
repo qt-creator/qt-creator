@@ -129,6 +129,7 @@ public:
 
     // The directory that holds the project file. This includes the absolute path.
     QString projectDirectory() const;
+    static QString projectDirectory(const QString &proFile);
 
 signals:
     void fileListChanged();

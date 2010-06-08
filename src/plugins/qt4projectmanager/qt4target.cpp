@@ -366,23 +366,28 @@ QString Qt4Target::defaultBuildDirectory() const
         )
         return project()->projectDirectory();
 
+    return defaultShadowBuildDirectory(qt4Project()->defaultTopLevelBuildDirectory(), id());
+}
+
+QString Qt4Target::defaultShadowBuildDirectory(const QString &projectLocation, const QString &id)
+{
     QString shortName = QLatin1String("unknown");
-    if (id() == QLatin1String(Constants::DESKTOP_TARGET_ID))
+    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
         shortName = QLatin1String("desktop");
-    else if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
+    else if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         shortName = QLatin1String("symbian_emulator");
-    else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
+    else if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         shortName = QLatin1String("symbian");
-    else if (id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
+    else if (id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
         shortName = QLatin1String("maemo");
-    else if (id() == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+    else if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
         shortName = QLatin1String("simulator");
 
     // currently we can't have the build directory to be deeper then the source directory
     // since that is broken in qmake
     // Once qmake is fixed we can change that to have a top directory and
     // subdirectories per build. (Replacing "QChar('-')" with "QChar('/') )
-    return qt4Project()->defaultTopLevelBuildDirectory() + QChar('-') + shortName;
+    return projectLocation + QChar('-') + shortName;
 }
 
 bool Qt4Target::fromMap(const QVariantMap &map)
