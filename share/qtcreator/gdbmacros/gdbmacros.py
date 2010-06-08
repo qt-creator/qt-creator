@@ -615,6 +615,7 @@ def qdump__QObject(d, item):
     #warn("MO.D: %s " % mo["d"])
     metaData = mo["d"]["data"]
     metaStringData = mo["d"]["stringdata"]
+    #extradata = mo["d"]["extradata"]   # Capitalization!
     #warn("METADATA: %s " % metaData)
     #warn("STRINGDATA: %s " % metaStringData)
     #warn("TYPE: %s " % item.value.type)
@@ -629,6 +630,63 @@ def qdump__QObject(d, item):
         # Parent and children.
         d.putItem(Item(d_ptr["parent"], item.iname, "parent", "parent"))
         d.putItem(Item(d_ptr["children"], item.iname, "children", "children"))
+
+        # User properties.
+        with SubItem(d):
+            d.putName("userprops")
+            d.putType(" ")
+            extraData = d_ptr["extraData"]   # Capitalization!
+            if isNull(extraData):
+                #warn("EXTRADATA Z: %s " % extraData)
+                d.putItemCount(0)
+                d.putNumChild(0)
+                if d.isExpandedIName(item.iname + ".userprops"):
+                    with Children(d):
+                        pass
+            else:
+                extraDataType = gdb.lookup_type(
+                    d.ns + "QObjectPrivate::ExtraData").pointer()
+                extraData = extraData.cast(extraDataType)
+                ed = extraData.dereference()
+                names = ed["propertyNames"]
+                values = ed["propertyValues"]
+                #userData = ed["userData"]
+                namesBegin = names["d"]["begin"]
+                namesEnd = names["d"]["end"]
+                namesArray = names["d"]["array"]
+                userPropertyCount = namesEnd - namesBegin
+                d.putItemCount(userPropertyCount)
+                d.putNumChild(userPropertyCount)
+                if d.isExpandedIName(item.iname + ".userprops"):
+                    dummyType = gdb.lookup_type("void").pointer().pointer()
+                    namesType = gdb.lookup_type(d.ns + "QByteArray")
+                    valuesBegin = values["d"]["begin"]
+                    valuesEnd = values["d"]["end"]
+                    valuesArray = values["d"]["array"]
+                    valuesType = gdb.lookup_type(d.ns + "QVariant")
+                    p = namesArray.cast(dummyType) + namesBegin
+                    q = valuesArray.cast(dummyType) + valuesBegin
+                    with Children(d, [userPropertyCount, 100]):
+                        for i in xrange(userPropertyCount):
+                            with SubItem(d):
+                                warn("Q: %s" % q)
+                                pp = p.cast(namesType.pointer()).dereference();
+                                d.putField("key", encodeByteArray(pp))
+                                d.putField("keyencoded", Hex2EncodedLatin1)
+                                qq = q.cast(valuesType.pointer().pointer())
+                                warn("QQ: %s" % qq)
+                                qq = qq.dereference();
+                                warn("QQ: %s" % q)
+                                d.putField("addr", cleanAddress(qq))
+                                d.putField("exp", "*('%sQVariant'*)%s"
+                                     % (d.ns, cleanAddress(qq)))
+                                name = "%s.userprops.%d" % (item.iname, i)
+                                t = qdump__QVariant(d, Item(qq, name))
+                                # Override the "QVariant (foo)" output
+                                d.putType(t, d.currentTypePriority + 1)
+                            p += 1
+                            q += 1
+
 
         # Properties.
         with SubItem(d):
@@ -1626,6 +1684,7 @@ def qdump__QVariant(d, item):
             v = item.value["d"]["data"].cast(innerType)
         d.putItemHelper(Item(v, item.iname))
         d.putType("%sQVariant (%s)" % (d.ns, innert), d.currentTypePriority + 1)
+        return innert
     else:
         # User types.
         d_member = item.value["d"]
@@ -1640,6 +1699,7 @@ def qdump__QVariant(d, item):
         if d.isExpanded(item):
             with Children(d):
                 d.putItem(Item(tdata, item.iname, "data", "data"))
+        return tdata.type
 
 
 def qdump__QVector(d, item):
