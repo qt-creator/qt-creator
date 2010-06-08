@@ -522,9 +522,9 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
                 newFilePaths += readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative);
 
         }
-        newFilePaths.removeDuplicates();
 
         if (!newFilePaths.isEmpty()) {
+            newFilePaths.removeDuplicates();
             InternalNode *subfolder = new InternalNode;
             subfolder->type = type;
             subfolder->icon = fileTypes.at(i).icon;
@@ -1444,14 +1444,14 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
         }
 
         if (QFile::exists(realFile)) {
-            if (!subProjectPaths.contains(realFile))
-                subProjectPaths << realFile;
+            subProjectPaths << realFile;
         } else {
             m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
                                          .arg(subDirVar).arg(realDir));
         }
     }
 
+    subProjectPaths.removeDuplicates();
     return subProjectPaths;
 }
 

@@ -2468,7 +2468,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
 #endif
         case T_EVAL: {
                 ProBlock *pro = new ProBlock();
-                QString buf = args.join(QLatin1String(" "));
+                QString buf = args.join(statics.field_sep);
                 if (!readInternal(pro, buf, (ushort*)buf.data())) {
                     delete pro;
                     return ProItem::ReturnFalse;
