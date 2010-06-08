@@ -1035,11 +1035,46 @@ void SubversionPlugin::submitCurrentLog()
         << Core::EditorManager::instance()->currentEditor());
 }
 
+SubversionResponse
+        SubversionPlugin::runSvn(const QString &workingDir,
+                                 const QStringList &arguments,
+                                 int timeOut,
+                                 unsigned flags,
+                                 QTextCodec *outputCodec)
+{
+
+    return m_settings.hasAuthentication() ?
+            runSvn(workingDir, m_settings.user, m_settings.password,
+                   arguments, timeOut, flags, outputCodec) :
+            runSvn(workingDir, QString(), QString(),
+                   arguments, timeOut, flags, outputCodec);
+}
+
+// Add authorization options to the command line arguments.
+// SVN pre 1.5 does not accept "--userName" for "add", which is most likely
+// an oversight. As no password is needed for the option, generally omit it.
+QStringList SubversionPlugin::addAuthenticationOptions(const QStringList &args,
+                                                      const QString &userName, const QString &password)
+{
+    if (userName.isEmpty())
+        return args;
+    if (!args.empty() && args.front() == QLatin1String("add"))
+        return args;
+    QStringList rc;
+    rc.push_back(QLatin1String("--username"));
+    rc.push_back(userName);
+    if (!password.isEmpty()) {
+        rc.push_back(QLatin1String("--password"));
+        rc.push_back(password);
+    }
+    rc.append(args);
+    return rc;
+}
+
 SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
-                                            const QStringList &arguments,
-                                            int timeOut,
-                                            unsigned flags,
-                                            QTextCodec *outputCodec)
+                          const QString &userName, const QString &password,
+                          const QStringList &arguments, int timeOut,
+                          unsigned flags, QTextCodec *outputCodec)
 {
     const QString executable = m_settings.svnCommand;
     SubversionResponse response;
@@ -1049,10 +1084,10 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
         return response;
     }
 
+    const QStringList completeArguments = SubversionPlugin::addAuthenticationOptions(arguments, userName, password);
     const Utils::SynchronousProcessResponse sp_resp =
             VCSBase::VCSBasePlugin::runVCS(workingDir, executable,
-                                           m_settings.addOptions(arguments),
-                                           timeOut, flags, outputCodec);
+                                           completeArguments, timeOut, flags, outputCodec);
 
     response.error = sp_resp.result != Utils::SynchronousProcessResponse::Finished;
     if (response.error)

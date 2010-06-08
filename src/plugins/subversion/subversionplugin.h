@@ -99,6 +99,11 @@ public:
 
     static SubversionPlugin *subversionPluginInstance();
 
+    // Add authorization options to the command line arguments.
+    static QStringList addAuthenticationOptions(const QStringList &args,
+                                                const QString &userName = QString(),
+                                                const QString &password = QString());
+
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
@@ -136,9 +141,16 @@ private:
     Core::IEditor * showOutputInEditor(const QString& title, const QString &output,
                                        int editorType, const QString &source,
                                        QTextCodec *codec);
+    // Run using the settings' authentication options.
     SubversionResponse runSvn(const QString &workingDir,
                               const QStringList &arguments, int timeOut,
                               unsigned flags, QTextCodec *outputCodec = 0);
+    // Run using custom authentication options.
+    SubversionResponse runSvn(const QString &workingDir,
+                              const QString &userName, const QString &password,
+                              const QStringList &arguments, int timeOut,
+                              unsigned flags, QTextCodec *outputCodec = 0);
+
     void filelog(const QString &workingDir,
                  const QStringList &file = QStringList(),
                  bool enableAnnotationContextMenu = false);

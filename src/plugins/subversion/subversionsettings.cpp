@@ -37,8 +37,6 @@ static const char userKeyC[] = "User";
 static const char passwordKeyC[] = "Password";
 static const char authenticationKeyC[] = "Authentication";
 
-static const char userNameOptionC[] = "--username";
-static const char passwordOptionC[] = "--password";
 static const char promptToSubmitKeyC[] = "PromptForSubmit";
 static const char timeOutKeyC[] = "TimeOut";
 static const char spaceIgnorantAnnotationKeyC[] = "SpaceIgnorantAnnotation";
@@ -106,24 +104,4 @@ bool SubversionSettings::equals(const SubversionSettings &s) const
         && timeOutS          == s.timeOutS
         && promptToSubmit    == s.promptToSubmit
         && spaceIgnorantAnnotation == s.spaceIgnorantAnnotation;
-}
-
-QStringList SubversionSettings::addOptions(const QStringList &args) const
-{
-    if (!useAuthentication || user.isEmpty())
-        return args;
-    // SVN pre 1.5 does not accept "--userName" for "add", which is most likely
-    // an oversight. As no password is needed for the option, generally omit it.
-    if (!args.empty() && args.front() == QLatin1String("add"))
-        return args;
-
-    QStringList rc;
-    rc.push_back(QLatin1String(userNameOptionC));
-    rc.push_back(user);
-    if (!password.isEmpty()) {
-        rc.push_back(QLatin1String(passwordOptionC));
-        rc.push_back(password);
-    }
-    rc.append(args);
-    return rc;
 }

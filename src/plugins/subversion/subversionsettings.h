@@ -39,7 +39,6 @@ QT_END_NAMESPACE
 namespace Subversion {
 namespace Internal {
 
-// Todo: Add user name and password?
 struct SubversionSettings
 {
     SubversionSettings();
@@ -50,9 +49,7 @@ struct SubversionSettings
     inline int timeOutMS() const     { return timeOutS * 1000;  }
     inline int longTimeOutMS() const { return timeOutS * 10000; }
 
-    // Add authentication and (maybe future) options to the
-    // command line
-    QStringList addOptions(const QStringList &args) const;
+    inline bool hasAuthentication() const { return useAuthentication && !user.isEmpty(); }
 
     bool equals(const SubversionSettings &s) const;
 
