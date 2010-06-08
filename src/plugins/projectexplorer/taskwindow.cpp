@@ -250,9 +250,13 @@ void TaskModel::addTask(const Task &task)
 {
     Q_ASSERT(m_categories.keys().contains(task.category));
 
-    QList<Task> tasksInCategory = m_tasksInCategory.value(task.category);
-    tasksInCategory.append(task);
-    m_tasksInCategory.insert(task.category, tasksInCategory);
+    if (m_tasksInCategory.contains(task.category)) {
+        m_tasksInCategory[task.category].append(task);
+    } else {
+        QList<Task> temp;
+        temp.append(task);
+        m_tasksInCategory.insert(task.category, temp);
+    }
 
     beginInsertRows(QModelIndex(), m_tasks.size(), m_tasks.size());
     m_tasks.append(task);
