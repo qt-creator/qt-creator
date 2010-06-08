@@ -153,6 +153,10 @@ ProFileOption::ProFileOption()
 #endif
 
     cache = 0;
+
+#ifdef PROEVALUATOR_THREAD_SAFE
+    base_inProgress = false;
+#endif
 }
 
 ProFileOption::~ProFileOption()
@@ -2032,7 +2036,21 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
 
         if (m_parsePreAndPostFiles) {
 
+#ifdef PROEVALUATOR_THREAD_SAFE
+          {
+            QMutexLocker locker(&m_option->mutex);
+            if (m_option->base_inProgress) {
+                QThreadPool::globalInstance()->releaseThread();
+                m_option->cond.wait(&m_option->mutex);
+                QThreadPool::globalInstance()->reserveThread();
+            } else
+#endif
             if (m_option->base_valuemap.isEmpty()) {
+#ifdef PROEVALUATOR_THREAD_SAFE
+                m_option->base_inProgress = true;
+                locker.unlock();
+#endif
+
                 // ### init QMAKE_QMAKE, QMAKE_SH
                 // ### init QMAKE_EXT_{C,H,CPP,OBJ}
                 // ### init TEMPLATE_PREFIX
@@ -2139,7 +2157,16 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
 
                 evaluateFeatureFile(QLatin1String("default_pre.prf"),
                                     &m_option->base_valuemap, &m_option->base_functions);
+
+#ifdef PROEVALUATOR_THREAD_SAFE
+                locker.relock();
+                m_option->base_inProgress = false;
+                m_option->cond.wakeAll();
+#endif
             }
+#ifdef PROEVALUATOR_THREAD_SAFE
+          }
+#endif
 
             m_valuemapStack.top() = m_option->base_valuemap;
             m_functionDefs = m_option->base_functions;

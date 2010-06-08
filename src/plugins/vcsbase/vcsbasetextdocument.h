@@ -44,6 +44,12 @@ public:
 
     bool isReadOnly() const;
     bool isModified() const;
+
+    void setForceReadOnly(bool b);
+    bool isForceReadOnly() const;
+
+private:
+    bool m_forceReadOnly;
 };
 
 } // namespace Internal

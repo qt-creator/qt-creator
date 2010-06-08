@@ -43,7 +43,7 @@ void appendDateTime(QByteArray *ba, QDateTime dateTime, Endianness = TargetByteO
 // returns a QByteArray containing optionally
 // the serial frame [0x01 0x90 <len>] and 0x7e encoded7d(ba) 0x7e
 QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool serialFrame);
-bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *r, QByteArray *rawData = 0);
+bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *r, bool& linkEstablishmentMode, QByteArray *rawData = 0);
 
 } // namespace trk
 

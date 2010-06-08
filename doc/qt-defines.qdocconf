@@ -65,7 +65,8 @@ styledirs               = $SRCDIR/templates/style
 scripts.HTML		= functions.js \
 			  jquery.js
 
-styles.HTML		= style.css \
-			  style_ie6.css \
-			  style_ie7.css \
-			  style_ie8.css
+styles.HTML		= OfflineStyle.css \
+			style.css \
+			style_ie6.css \
+			style_ie7.css \
+			style_ie8.css

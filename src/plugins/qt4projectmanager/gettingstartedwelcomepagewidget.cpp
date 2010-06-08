@@ -67,10 +67,6 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
 {
     ui->setupUi(this);
 
-#ifndef QTCREATOR_WITH_QML
-    ui->demosExamplesFrameQml->hide();
-#endif
-
     ui->didYouKnowTextBrowser->viewport()->setAutoFillBackground(false);
 
     connect(ui->tutorialTreeWidget, SIGNAL(activated(QString)), SLOT(slotOpenHelpPage(const QString&)));
@@ -82,11 +78,9 @@ GettingStartedWelcomePageWidget::GettingStartedWelcomePageWidget(QWidget *parent
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt C++ Application"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-writing-program.html?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Creating a Mobile Application"),
-                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-mobile-example?view=split"));
-#ifdef QTCREATOR_WITH_QML
+                                        QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-mobile-example.html?view=split"));
     ui->tutorialTreeWidget->addItem(tr("Creating a Qt Quick Application"),
                                         QLatin1String("qthelp://com.nokia.qtcreator/doc/creator-qml-application.html?view=split"));
-#endif
 
     srand(QDateTime::currentDateTime().toTime_t());
     QStringList tips = tipsOfTheDay();

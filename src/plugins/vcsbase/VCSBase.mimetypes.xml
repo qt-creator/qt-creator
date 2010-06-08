@@ -11,7 +11,7 @@
 	     at a C++ patch.
 	  -->
         <magic priority="10">
-           <match value="+++ " type="string" offset="0:10000"/>
+           <match value="&#x0a;+++ " type="string" offset="0:10000"/>
         </magic>
     </mime-type>
 </mime-info>

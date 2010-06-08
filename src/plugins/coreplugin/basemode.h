@@ -59,12 +59,14 @@ public:
     QWidget *widget() { return m_widget; }
     QString id() const { return m_id; }
     QList<int> context() const { return m_context; }
+    QString contextHelpId() const { return m_helpId; }
 
     void setDisplayName(const QString &name) { m_displayName = name; }
     void setIcon(const QIcon &icon) { m_icon = icon; }
     void setPriority(int priority) { m_priority = priority; }
     void setWidget(QWidget *widget) { m_widget = widget; }
     void setId(const QString &id) { m_id = id; }
+    void setContextHelpId(const QString &helpId) { m_helpId = helpId; }
     void setContext(const QList<int> &context) { m_context = context; }
 
 private:
@@ -73,6 +75,7 @@ private:
     int m_priority;
     QWidget *m_widget;
     QString m_id;
+    QString m_helpId;
     QList<int> m_context;
 };
 

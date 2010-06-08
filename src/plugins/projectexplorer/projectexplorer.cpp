@@ -275,6 +275,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectsMode->setWidget(d->m_proWindow);
     d->m_projectsMode->setContext(QList<int>() << pecontext);
     d->m_projectsMode->setEnabled(session()->startupProject());
+    d->m_projectsMode->setContextHelpId(QLatin1String("Managing Projects"));
     addAutoReleasedObject(d->m_projectsMode);
     d->m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(d->m_proWindow));
 
@@ -1015,53 +1016,36 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<IProjectManager*> projectManagers = pm->getObjects<IProjectManager>();
 
-    //QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-   // bool blocked = blockSignals(true);
     QList<Project*> openedPro;
     foreach (const QString &fileName, fileNames) {
         if (const Core::MimeType mt = Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName))) {
-            foreach (IProjectManager *manager, projectManagers)
+            foreach (IProjectManager *manager, projectManagers) {
                 if (manager->mimeType() == mt.type()) {
-                    if (Project *pro = manager->openProject(fileName))
-                        openedPro += pro;
+                    if (Project *pro = manager->openProject(fileName)) {
+                        if (pro->restoreSettings()) {
+                            connect(pro, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
+                            d->m_session->addProject(pro);
+                            // Make sure we always have a current project / node
+                            if (!d->m_currentProject && !openedPro.isEmpty())
+                                setCurrentNode(pro->rootProjectNode());
+                            openedPro += pro;
+                        } else {
+                            delete pro;
+                        }
+                    }
                     d->m_session->reportProjectLoadingProgress();
                     break;
                 }
+            }
         }
     }
-    //blockSignals(blocked);
-
-    if (openedPro.isEmpty()) {
-        if (debug)
-            qDebug() << "ProjectExplorerPlugin - Could not open any projects!";
-        QApplication::restoreOverrideCursor();
-        return QList<Project *>();
-    }
-
-    QList<Project *>::iterator it, end;
-    end = openedPro.end();
-    for (it = openedPro.begin(); it != end; ) {
-        if (debug)
-            qDebug()<<"restoring settings for "<<(*it)->file()->fileName();
-        if ((*it)->restoreSettings()) {
-            connect(*it, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
-            ++it;
-        } else {
-            delete  *it;
-            it = openedPro.erase(it);
-        }
-    }
-
-    d->m_session->addProjects(openedPro);
-
-    // Make sure we always have a current project / node
-    if (!d->m_currentProject && !openedPro.isEmpty())
-        setCurrentNode(openedPro.first()->rootProjectNode());
-
     updateActions();
 
-    Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
-    QApplication::restoreOverrideCursor();
+    if (openedPro.isEmpty()) {
+        qDebug() << "ProjectExplorerPlugin - Could not open any projects!";
+    } else {
+        Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
+    }
 
     return openedPro;
 }

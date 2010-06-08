@@ -56,6 +56,7 @@ SearchWidget::SearchWidget()
     : zoomCount(0)
     , m_progress(0)
     , searchEngine(0)
+    , resultWidget(0)
 {
 }
 

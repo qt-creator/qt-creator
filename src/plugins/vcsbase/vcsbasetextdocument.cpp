@@ -31,16 +31,31 @@
 
 using namespace VCSBase::Internal;
 
-VCSBaseTextDocument::VCSBaseTextDocument()
+VCSBaseTextDocument::VCSBaseTextDocument() :
+    m_forceReadOnly(false)
 {
 }
 
 bool VCSBaseTextDocument::isReadOnly() const
 {
-    return true;
+    return m_forceReadOnly ?
+            true :
+            TextEditor::BaseTextDocument::isReadOnly();
 }
 
 bool VCSBaseTextDocument::isModified() const
 {
-    return false;
+    return m_forceReadOnly ?
+            false :
+            TextEditor::BaseTextDocument::isModified();
+}
+
+void VCSBaseTextDocument::setForceReadOnly(bool b)
+{
+    m_forceReadOnly = b;
+}
+
+bool VCSBaseTextDocument::isForceReadOnly() const
+{
+    return m_forceReadOnly;
 }

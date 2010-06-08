@@ -363,7 +363,7 @@ void Launcher::handleResult(const TrkResult &result)
             logMessage("TEXT TRACE: " + msg);
             }
         } else {
-            logMessage("APPLICATION OUTPUT: " + result.data);
+            logMessage("APPLICATION OUTPUT: " + stringFromArray(result.data));
             msg = result.data;
         }
         msg.replace("\r\n", "\n");
@@ -446,7 +446,10 @@ void Launcher::handleResult(const TrkResult &result)
             if (itemType == 0 // process
                 && result.data.size() >= 10
                 && d->m_session.pid == extractInt(result.data.data() + 6)) {
-                    copyFileFromRemote();
+                    if (d->m_startupActions & ActionDownload)
+                        copyFileFromRemote();
+                    else
+                        disconnectTrk();
             }
             break;
         }

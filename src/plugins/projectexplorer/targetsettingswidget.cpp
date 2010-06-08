@@ -21,6 +21,19 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
             this, SIGNAL(removeButtonClicked()));
     connect(m_targetSelector, SIGNAL(currentChanged(int,int)),
             this, SIGNAL(currentChanged(int,int)));
+
+    m_shadow = new QWidget(this);
+
+    // Create shadow below targetselector
+    m_targetSelector->raise();
+    QPalette shadowPal = palette();
+    QLinearGradient grad(0, 0, 0, 2);
+    grad.setColorAt(0, QColor(0, 0, 0, 60));
+    grad.setColorAt(1, Qt::transparent);
+    shadowPal.setBrush(QPalette::All, QPalette::Window, grad);
+    m_shadow->setPalette(shadowPal);
+    m_shadow->setAutoFillBackground(true);
+
     updateTargetSelector();
 }
 
@@ -102,9 +115,15 @@ bool TargetSettingsWidget::isRemoveButtonEnabled() const
     return m_targetSelector->isRemoveButtonEnabled();
 }
 
+void TargetSettingsWidget::resizeEvent(QResizeEvent *e)
+{
+    QWidget::resizeEvent(e);
+    m_shadow->setGeometry(0, m_targetSelector->height() + 3, width(), 2);
+}
+
 void TargetSettingsWidget::updateTargetSelector()
 {
-    m_targetSelector->setGeometry((WIDTH-m_targetSelector->minimumSizeHint().width())/2, 12,
+    m_targetSelector->setGeometry((WIDTH-m_targetSelector->minimumSizeHint().width())/2, 13,
         m_targetSelector->minimumSizeHint().width(),
         m_targetSelector->minimumSizeHint().height());
 }

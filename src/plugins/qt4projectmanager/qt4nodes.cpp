@@ -995,7 +995,7 @@ void Qt4ProFileNode::applyAsyncEvaluate()
     m_project->decrementPendingEvaluateFutures();
 }
 
-Qt4ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
+static Qt4ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
 {
     switch (type) {
     case ProFileEvaluator::TT_Unknown:

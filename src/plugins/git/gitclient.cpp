@@ -188,6 +188,7 @@ VCSBase::VCSBaseEditor
             rc->setCodec(VCSBase::VCSBaseEditor::getCodec(source));
     }
     m_core->editorManager()->activateEditor(outputEditor);
+    rc->setForceReadOnly(true);
     return rc;
 }
 

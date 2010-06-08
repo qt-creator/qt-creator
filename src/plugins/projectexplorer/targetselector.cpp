@@ -137,7 +137,7 @@ int TargetSelector::targetWidth() const
 
 QSize TargetSelector::minimumSizeHint() const
 {
-    return QSize((targetWidth() + 1) * m_targets.size() + (ADDBUTTON_WIDTH + 1) * 2 + 1, TARGET_HEIGHT + 2);
+    return QSize((targetWidth() + 1) * m_targets.size() + (ADDBUTTON_WIDTH + 1) * 2 + 3, TARGET_HEIGHT + 4);
 }
 
 void TargetSelector::mousePressEvent(QMouseEvent *event)
@@ -191,11 +191,20 @@ void TargetSelector::paintEvent(QPaintEvent *event)
     QSize size = minimumSizeHint();
     //draw frame
     p.drawLine(1, 0, size.width() - 2, 0);
+    p.drawLine(1, size.height() - 3, size.width() - 2, size.height() - 3);
+    p.drawLine(1, 1, 1, size.height() - 4);
+    p.drawLine(size.width() - 2, 1, size.width() - 2, size.height() - 4);
+
+    //draw shadow
+    p.setPen(QColor(0, 0, 0, 50));
+    p.drawLine(1, size.height() - 2, size.width() - 2, size.height() - 2);
+    p.setPen(QColor(0, 0, 0, 20));
+    p.drawLine(0, size.height() - 2, 0, size.height() - 9);
+    p.drawLine(size.width()-1, size.height() - 2, size.width()-1, size.height() - 9);
     p.drawLine(1, size.height() - 1, size.width() - 2, size.height() - 1);
-    p.drawLine(0, 1, 0, size.height() - 2);
-    p.drawLine(size.width() - 1, 1, size.width() - 1, size.height() - 2);
+
     //draw targets
-    int x = 1;
+    int x = 2;
     int index = 0;
     QFontMetrics fm(font());
     if (m_removeButtonEnabled)
@@ -231,7 +240,7 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         // Build
         int margin = 2; // position centered within the rounded buttons
         QFontMetrics fm = fontMetrics();
-        QRect textRect(x + margin, size.height() - fm.height() - 5, targetWidth()/2, fm.height());
+        QRect textRect(x + margin, size.height() - fm.height() - 7, targetWidth()/2, fm.height());
         p.setPen(buildSelected ? Qt::black : Qt::white);
         if (index!=m_currentTargetIndex)
             p.setPen(QColor(0x555555));

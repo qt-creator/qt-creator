@@ -221,16 +221,13 @@ int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &gr
             ++loadCount;
         }
 
-        if (!m_whitelist.contains(spec->name()))
+        if (!m_whitelist.contains(spec->name())) {
             pluginItem->setData(C_LOAD, Qt::CheckStateRole, state);
-        else {
-            QColor disabledColor = palette().color(QPalette::Disabled,QPalette::WindowText).lighter(120);
+        } else {
             pluginItem->setData(C_LOAD, Qt::CheckStateRole, Qt::Checked);
-            pluginItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-            pluginItem->setSizeHint(C_LOAD, QSize(1,1));
-            pluginItem->setForeground(C_LOAD, QBrush(disabledColor)); // QBrush(Qt::white, Qt::NoBrush));
-            //pluginItem->setBackground(C_LOAD, QBrush(Qt::white, Qt::NoBrush));
+            pluginItem->setFlags(Qt::ItemIsSelectable);
         }
+
         pluginItem->setToolTip(C_LOAD, tr("Load on Startup"));
 
         m_specToItem.insert(spec, pluginItem);
@@ -333,7 +330,7 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
                 child->setData(C_LOAD, Qt::CheckStateRole, state);
             } else {
                 child->setData(C_LOAD, Qt::CheckStateRole, Qt::Checked);
-                child->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+                child->setFlags(Qt::ItemIsSelectable);
             }
         }
         updatePluginDependencies();
@@ -347,6 +344,9 @@ void PluginView::updatePluginDependencies()
 {
     foreach (PluginSpec *spec, PluginManager::instance()->loadQueue()) {
         bool disableIndirectly = false;
+        if (m_whitelist.contains(spec->name()))
+            continue;
+
         foreach(const PluginSpec *depSpec, spec->dependencySpecs()) {
             if (!depSpec->isEnabled() || depSpec->isDisabledIndirectly()) {
                 disableIndirectly = true;
