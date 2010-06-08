@@ -804,7 +804,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 EnumerateProperties enumerateProperties(&context);
-                if (contextFinder.isInLhsOfBinding() && qmlScopeType)
+                if (contextFinder.isInLhsOfBinding() && qmlScopeType && expressionUnderCursor.text().at(0).isLower())
                     addCompletionsPropertyLhs(enumerateProperties(value), symbolIcon);
                 else
                     addCompletions(enumerateProperties(value), symbolIcon);
