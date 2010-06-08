@@ -236,7 +236,7 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool m
     connect(this, SIGNAL(projectLocationChanged(QString)),
             m_targetSetupPage, SLOT(setProFilePath(QString)));
 
-    QList<TargetSetupPage::ImportInfo> infos = TargetSetupPage::importInfosForKnownQtVersions(0);
+    QList<TargetSetupPage::ImportInfo> infos = TargetSetupPage::importInfosForKnownQtVersions();
     if (!targets.isEmpty())
         infos = TargetSetupPage::filterImportInfos(targets, infos);
     m_targetSetupPage->setImportDirectoryBrowsingEnabled(false);

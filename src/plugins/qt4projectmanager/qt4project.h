@@ -160,6 +160,7 @@ public:
     bool wasEvaluateCanceled();
 
     QString defaultTopLevelBuildDirectory() const;
+    static QString defaultTopLevelBuildDirectory(const QString &profilePath);
 
 signals:
     /// emitted after parse

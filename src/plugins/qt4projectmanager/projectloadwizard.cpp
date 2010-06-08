@@ -99,7 +99,7 @@ void ProjectLoadWizard::setupTargetPage()
                                                                m_project->file()->fileName());
     importVersions.append(TargetSetupPage::recursivelyCheckDirectoryForBuild(m_project->defaultTopLevelBuildDirectory(),
                                                                              m_project->file()->fileName()));
-    importVersions.append(TargetSetupPage::importInfosForKnownQtVersions(m_project));
+    importVersions.append(TargetSetupPage::importInfosForKnownQtVersions());
 
     m_targetSetupPage = new TargetSetupPage(this);
     m_targetSetupPage->setProFilePath(m_project->file()->fileName());

@@ -81,6 +81,7 @@ public:
     ProjectExplorer::ToolChain::ToolChainType preferredToolChainType(const QList<ProjectExplorer::ToolChain::ToolChainType> &candidates) const;
 
     QString defaultBuildDirectory() const;
+    static QString defaultShadowBuildDirectory(const QString &projectLocation, const QString &id);
 
 signals:
     void buildDirectoryInitialized();
