@@ -41,7 +41,7 @@ using namespace TextEditor::Internal;
 namespace TextEditor {
 namespace Internal {
 
-struct ICompletionCollectorPrivate
+class ICompletionCollectorPrivate
 {
 public:
     CompletionSettings m_completionSettings;
