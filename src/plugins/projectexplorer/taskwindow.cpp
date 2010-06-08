@@ -293,21 +293,30 @@ void TaskModel::clearTasks(const QString &categoryId)
         endRemoveRows();
         m_maxSizeOfFileName = 0;
     } else {
-        // TODO: Optimize this for consecutive rows
-        foreach (const Task &task, m_tasksInCategory.value(categoryId)) {
-            int index = m_tasks.indexOf(task);
-            Q_ASSERT(index >= 0);
-            beginRemoveRows(QModelIndex(), index, index);
+        int index = 0;
+        int start = 0;
+        while (index < m_tasks.size()) {
+            while (index < m_tasks.size() && m_tasks.at(index).category != categoryId) {
+                ++start;
+                ++index;
+            }
+            if (index == m_tasks.size())
+                break;
+            while (index < m_tasks.size() && m_tasks.at(index).category == categoryId) {
+                ++index;
+            }
+            // Index is now on the first non category
+            beginRemoveRows(QModelIndex(), start, index - 1);
 
-            m_tasks.removeAt(index);
+            for (int i = start; i < index; ++i) {
+                m_tasksInCategory[categoryId].removeOne(m_tasks.at(i));
+            }
 
-            QList<Task> tasksInCategory = m_tasksInCategory.value(categoryId);
-            tasksInCategory.removeOne(task);
-            m_tasksInCategory.insert(categoryId, tasksInCategory);
+            m_tasks.erase(m_tasks.begin() + start, m_tasks.begin() + index);
 
             endRemoveRows();
+            index = start;
         }
-
         // what to do with m_maxSizeOfFileName ?
     }
 }
