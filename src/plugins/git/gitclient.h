@@ -203,6 +203,8 @@ public:
                            QString *errorMessage = 0,
                            bool *onBranch = 0);
 
+    void launchGitK(const QString &workingDirectory);
+
     GitSettings  settings() const;
     void setSettings(const GitSettings &s);
 

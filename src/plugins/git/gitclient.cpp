@@ -1141,7 +1141,7 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
 
     if (!Utils::SynchronousProcess::readDataFromProcess(process, m_settings.timeoutSeconds * 1000,
                                                         outputText, errorText, true)) {
-        *errorText->append(GitCommand::msgTimeout(m_settings.timeoutSeconds).toLocal8Bit());
+        errorText->append(GitCommand::msgTimeout(m_settings.timeoutSeconds).toLocal8Bit());
         Utils::SynchronousProcess::stopProcess(process);
         return false;
     }
@@ -1252,6 +1252,45 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
         || outputText.contains("nothing added to commit but untracked files present"))
         return StatusUnchanged;
     return StatusChanged;
+}
+
+void GitClient::launchGitK(const QString &workingDirectory)
+{
+    VCSBase::VCSBaseOutputWindow *outwin = VCSBase::VCSBaseOutputWindow::instance();
+    // Locate git in (potentially) custom path. m_binaryPath can be absolute,
+    // which will be handled correctly.
+    QTC_ASSERT(!m_binaryPath.isEmpty(), return);
+    const QString gitBinary = QLatin1String(Constants::GIT_BINARY);
+    const QProcessEnvironment env = processEnvironment();
+    const QString path = env.value(QLatin1String("PATH"));
+    const QString fullGitBinary = Utils::SynchronousProcess::locateBinary(path, m_binaryPath);
+    if (fullGitBinary.isEmpty()) {
+        outwin->appendError(tr("Cannot locate %1.").arg(gitBinary));
+        return;
+    }
+    const QString gitBinDirectory = QFileInfo(fullGitBinary).absolutePath();
+#ifdef Q_OS_WIN
+    // Launch 'wish' shell from git binary directory with the gitk located there
+    const QString binary = gitBinDirectory + QLatin1String("/wish");
+    const QStringList arguments(gitBinDirectory + QLatin1String("/gitk"));
+#else
+    // Simple: Run gitk from binary path
+    const QString binary = gitBinDirectory + QLatin1String("/gitk");
+    const QStringList arguments;
+#endif
+    outwin->appendCommand(workingDirectory, binary, arguments);
+    // This should use QProcess::startDetached ideally, but that does not have
+    // an environment parameter.
+    QProcess *process = new QProcess(this);
+    process->setWorkingDirectory(workingDirectory);
+    process->setProcessEnvironment(env);
+    process->start(binary, arguments);
+    if (!process->waitForStarted()) {
+        outwin->appendError(tr("Unable to launch %1.").arg(binary));
+        delete process;
+        return;
+    }
+    connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,

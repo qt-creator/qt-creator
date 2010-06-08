@@ -416,6 +416,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Clean Repository..."), QLatin1String("Git.CleanRepository"),
                            globalcontext, true, SLOT(cleanRepository()));
 
+    createRepositoryAction(actionManager, gitContainer,
+                           tr("Launch gitk"), QLatin1String("Git.LaunchGitK"),
+                           globalcontext, false, &GitClient::launchGitK);
+
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Global"), this));
 
     ActionCommandPair actionCommand =
