@@ -1279,18 +1279,25 @@ void GitClient::launchGitK(const QString &workingDirectory)
     const QStringList arguments;
 #endif
     outwin->appendCommand(workingDirectory, binary, arguments);
-    // This should use QProcess::startDetached ideally, but that does not have
-    // an environment parameter.
-    QProcess *process = new QProcess(this);
-    process->setWorkingDirectory(workingDirectory);
-    process->setProcessEnvironment(env);
-    process->start(binary, arguments);
-    if (!process->waitForStarted()) {
-        outwin->appendError(tr("Unable to launch %1.").arg(binary));
-        delete process;
-        return;
+    // This should always use QProcess::startDetached (as not to kill
+    // the child), but that does not have an environment parameter.
+    bool success = false;
+    if (m_settings.adoptPath) {
+        QProcess *process = new QProcess(this);
+        process->setWorkingDirectory(workingDirectory);
+        process->setProcessEnvironment(env);
+        process->start(binary, arguments);
+        success = process->waitForStarted();
+        if (success) {
+            connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
+        } else {
+            delete process;
+        }
+    } else {
+        success = QProcess::startDetached(binary, arguments, workingDirectory);
     }
-    connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
+    if (!success)
+        outwin->appendError(tr("Unable to launch %1.").arg(binary));
 }
 
 bool GitClient::getCommitData(const QString &workingDirectory,
