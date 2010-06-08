@@ -1483,6 +1483,18 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QString
     return objectValue;
 }
 
+const Value *Context::lookupReference(const Reference *reference)
+{
+    if (_referenceStack.contains(reference))
+        return 0;
+
+    _referenceStack.append(reference);
+    const Value *v = reference->value(this);
+    _referenceStack.removeLast();
+
+    return v;
+}
+
 const Value *Context::property(const ObjectValue *object, const QString &name) const
 {
     const Properties properties = _properties.value(object);
@@ -1632,7 +1644,7 @@ const ObjectValue *ObjectValue::prototype(Context *context) const
     const ObjectValue *prototypeObject = value_cast<const ObjectValue *>(_prototype);
     if (! prototypeObject) {
         if (const Reference *prototypeReference = value_cast<const Reference *>(_prototype)) {
-            prototypeObject = value_cast<const ObjectValue *>(prototypeReference->value(context));
+            prototypeObject = value_cast<const ObjectValue *>(context->lookupReference(prototypeReference));
         }
     }
     return prototypeObject;

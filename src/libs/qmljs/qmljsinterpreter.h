@@ -293,6 +293,7 @@ public:
     const Value *lookup(const QString &name);
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName);
     const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName);
+    const Value *lookupReference(const Reference *reference);
 
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);
@@ -313,6 +314,7 @@ private:
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;
     bool _qmlScopeObjectSet;
+    QList<const Reference *> _referenceStack;
 };
 
 class QMLJS_EXPORT Reference: public Value
@@ -322,14 +324,16 @@ public:
     virtual ~Reference();
 
     Engine *engine() const;
-    virtual const Value *value(Context *context) const;
 
     // Value interface
     virtual const Reference *asReference() const;
     virtual void accept(ValueVisitor *) const;
 
 private:
+    virtual const Value *value(Context *context) const;
+
     Engine *_engine;
+    friend class Context;
 };
 
 class QMLJS_EXPORT ColorValue: public Value
@@ -742,9 +746,9 @@ public:
 
     AST::UiQualifiedId *qmlTypeName() const;
 
+private:    
     virtual const Value *value(Context *context) const;
 
-private:
     AST::UiQualifiedId *_qmlTypeName;
     const Document *_doc;
 };
@@ -757,6 +761,7 @@ public:
     ASTVariableReference(AST::VariableDeclaration *ast, Engine *engine);
     virtual ~ASTVariableReference();
 
+private:
     virtual const Value *value(Context *context) const;
 };
 
@@ -792,6 +797,8 @@ public:
     QString onChangedSlotName() const { return _onChangedSlotName; }
 
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
+
+private:
     virtual const Value *value(Context *context) const;
 };
 
@@ -809,6 +816,8 @@ public:
     QString slotName() const { return _slotName; }
 
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
+
+private:
     virtual const Value *value(Context *context) const;
 };
 
