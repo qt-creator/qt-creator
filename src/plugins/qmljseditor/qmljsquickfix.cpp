@@ -87,22 +87,19 @@ public:
 
         if (QmlJS::AST::Node *member = semanticInfo().declaringMember(pos)) {
             if (QmlJS::AST::UiObjectBinding *b = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member)) {
-                if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine) {
+                if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                     _objectInitializer = b->initializer;
-                    return 0; // very high priority
-                }
 
             } else if (QmlJS::AST::UiObjectDefinition *b = QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(member)) {
-                if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine) {
+                if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                     _objectInitializer = b->initializer;
-                    return 0; // very high priority
-                }
             }
-
-            return false;
         }
 
-        return -1;
+        if (! _objectInitializer)
+            return -1;
+
+        return 0; // very high priority
     }
 
 private:
