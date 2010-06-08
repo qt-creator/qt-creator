@@ -38,6 +38,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filewizarddialog.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -540,7 +541,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     foreach (const GeneratedFile &generatedFile, files)
         result.push_back(generatedFile.path());
 
-    switch (promptOverwrite(path, result, &errorMessage)) {
+    switch (promptOverwrite(result, &errorMessage)) {
     case OverwriteCanceled:
         return QStringList();
     case OverwriteError:
@@ -615,29 +616,34 @@ bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *e
     return true;
 }
 
-BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QString &location,
-                                                                const QStringList &files,
+BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QStringList &files,
                                                                 QString *errorMessage) const
 {
     if (debugWizard)
-        qDebug() << Q_FUNC_INFO  << location << files;
+        qDebug() << Q_FUNC_INFO << files;
 
-    bool existingFilesFound = false;
+    QStringList existingFiles;
     bool oddStuffFound = false;
 
     static const QString readOnlyMsg = tr(" [read only]");
     static const QString directoryMsg = tr(" [directory]");
     static const QString symLinkMsg = tr(" [symbolic link]");
 
-    // Format a file list message as ( "<file1> [readonly], <file2> [directory]").
-    QString fileNamesMsgPart;
     foreach (const QString &fileName, files) {
         const QFileInfo fi(fileName);
+        if (fi.exists())
+            existingFiles.append(fileName);
+    }
+    // Note: Generated files are using native separators, no need to convert.
+    const QString commonExistingPath = Utils::commonPath(existingFiles);
+    // Format a file list message as ( "<file1> [readonly], <file2> [directory]").
+    QString fileNamesMsgPart;
+    foreach (const QString &fileName, existingFiles) {
+        const QFileInfo fi(fileName);
         if (fi.exists()) {
-            existingFilesFound = true;
             if (!fileNamesMsgPart.isEmpty())
                 fileNamesMsgPart += QLatin1String(", ");
-            fileNamesMsgPart += fi.fileName();
+            fileNamesMsgPart += fileName.mid(commonExistingPath.size() + 1);
             do {
                 if (fi.isDir()) {
                     oddStuffFound = true;
@@ -657,17 +663,17 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QString &l
         }
     }
 
-    if (!existingFilesFound)
+    if (existingFiles.isEmpty())
         return OverwriteOk;
 
     if (oddStuffFound) {
-        *errorMessage = tr("The project directory %1 contains files which cannot be overwritten:\n%2.").arg(location).arg(fileNamesMsgPart);
+        *errorMessage = tr("The project directory %1 contains files which cannot be overwritten:\n%2.").arg(commonExistingPath).arg(fileNamesMsgPart);
         return OverwriteError;
     }
 
     const QString messageFormat = tr("The following files already exist in the directory %1:\n"
                                      "%2.\nWould you like to overwrite them?");
-    const QString message = messageFormat.arg(location).arg(fileNamesMsgPart);
+    const QString message = messageFormat.arg(commonExistingPath).arg(fileNamesMsgPart);
     const bool yes = (QMessageBox::question(Core::ICore::instance()->mainWindow(),
                                             tr("Existing files"), message,
                                             QMessageBox::Yes | QMessageBox::No,
