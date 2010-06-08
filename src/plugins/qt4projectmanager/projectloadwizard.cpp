@@ -43,6 +43,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWizardPage>
+#include <QtGui/QApplication>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -63,10 +64,13 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
 // We used to simply call ::exec() on the dialog
 void ProjectLoadWizard::execDialog()
 {
-    if (!pageIds().isEmpty())
+    if (!pageIds().isEmpty()) {
+        QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
         exec();
-    else
+        QApplication::restoreOverrideCursor();
+    } else {
         done(QDialog::Accepted);
+    }
 }
 
 ProjectLoadWizard::~ProjectLoadWizard()
