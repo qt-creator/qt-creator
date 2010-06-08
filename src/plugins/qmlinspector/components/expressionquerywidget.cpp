@@ -137,7 +137,7 @@ void ExpressionQueryWidget::setFontSettings()
     }
 
     const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
-    m_highlighter->setFormats(formats.constBegin(), formats.constEnd());
+    m_highlighter->setFormats(formats);
     m_highlighter->rehighlight();
     m_textEdit->setFont(fs.font());
     if (m_mode == SeparateEntryMode)
