@@ -1425,16 +1425,15 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
         const QString subDirKey = subDirVar + QLatin1String(".subdir");
         const QString subDirFileKey = subDirVar + QLatin1String(".file");
         if (reader->contains(subDirKey))
-            realDir = QFileInfo(reader->value(subDirKey)).filePath();
+            realDir = reader->value(subDirKey);
         else if (reader->contains(subDirFileKey))
-            realDir = QFileInfo(reader->value(subDirFileKey)).filePath();
+            realDir = reader->value(subDirFileKey);
         else
             realDir = subDirVar;
         QFileInfo info(realDir);
-        if (!info.isAbsolute()) {
+        if (!info.isAbsolute())
             info.setFile(m_projectDir + QLatin1Char('/') + realDir);
-            realDir = m_projectDir + QLatin1Char('/') + realDir;
-        }
+        realDir = info.filePath();
 
         QString realFile;
         if (info.isDir()) {
