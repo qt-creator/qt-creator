@@ -135,7 +135,10 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
             QTreeWidgetItem *versionItem = new QTreeWidgetItem(targetItem);
             QPair<QIcon, QString> issues = reportIssues(i.version);
 
-            QString toolTip = i.version->displayName();
+            QString toolTip = QLatin1String("<nobr>");
+            toolTip = toolTip.append(i.version->displayName());
+            toolTip.append(tr("<br>using %1", "%1: qmake used (incl. full path)").
+                    arg(QDir::toNativeSeparators(i.version->qmakeCommand())));
             if (!issues.second.isEmpty())
                 toolTip.append(QString::fromLatin1("<br><br>%1").arg(issues.second));
 
