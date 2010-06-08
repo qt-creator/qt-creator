@@ -54,6 +54,7 @@ public:
     void enter();
     void leave();
     void startDrag();
+    void grabMouseSafely();
 
 public slots:
     void animateDrag(int frame);
