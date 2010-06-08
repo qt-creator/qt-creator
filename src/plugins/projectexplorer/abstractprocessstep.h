@@ -147,8 +147,8 @@ private slots:
     void checkForCancel();
 
     void taskAdded(const ProjectExplorer::Task &task);
-    void outputAdded(const QString &string);
 
+    void outputAdded(const QString &string, const QTextCharFormat &format);
 private:
     QTimer *m_timer;
     QFutureInterface<bool> *m_futureInterface;

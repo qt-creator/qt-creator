@@ -105,8 +105,8 @@ signals:
     void addTask(const ProjectExplorer::Task &task);
     // The string is added to the generated output, usually in the output
     // window.
-    // It should be in html format, that is properly escaped
-    void addOutput(const QString &string);
+    // It should be in plain text, with the format in the parameter
+    void addOutput(const QString &string, const QTextCharFormat &textCharFormat);
 
 private:
     BuildConfiguration *m_buildConfiguration;

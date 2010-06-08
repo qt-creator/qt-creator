@@ -82,8 +82,8 @@ void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser
     m_outputParserChain = parser;
 
     if (m_outputParserChain) {
-        connect(parser, SIGNAL(addOutput(QString)),
-                this, SLOT(outputAdded(QString)));
+        connect(parser, SIGNAL(addOutput(QString, QTextCharFormat)),
+                this, SLOT(outputAdded(QString, QTextCharFormat)));
         connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
                 this, SLOT(taskAdded(ProjectExplorer::Task)));
     }
@@ -199,22 +199,34 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 
 void AbstractProcessStep::processStarted()
 {
-    emit addOutput(tr("<font color=\"#0000ff\">Starting: \"%1\" %2</font>\n").arg(m_command, Qt::escape(m_arguments.join(" "))));
+    QTextCharFormat textCharFormat;
+    textCharFormat.setForeground(Qt::blue);
+    emit addOutput(tr("Starting: \"%1\" %2\n").arg(m_command, m_arguments.join(" ")), textCharFormat);
 }
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-    if (status == QProcess::NormalExit && exitCode == 0)
-        emit addOutput(tr("<font color=\"#0000ff\">The process \"%1\" exited normally.</font>").arg(m_command));
-    else if (status == QProcess::NormalExit)
-        emit addOutput(tr("<font color=\"#ff0000\"><b>The process \"%1\" exited with code %2.</b></font>").arg(m_command, m_process->exitCode()));
-    else
-        emit addOutput(tr("<font color=\"#ff0000\"><b>The process \"%1\" crashed.</b></font>").arg(m_command));
+    QTextCharFormat textCharFormat;
+    if (status == QProcess::NormalExit && exitCode == 0) {
+        textCharFormat.setForeground(Qt::blue);
+        emit addOutput(tr("The process \"%1\" exited normally.").arg(m_command), textCharFormat);
+    } else if (status == QProcess::NormalExit) {
+        textCharFormat.setForeground(Qt::red);
+        textCharFormat.setFontWeight(QFont::Bold);
+        emit addOutput(tr("The process \"%1\" exited with code %2.").arg(m_command, m_process->exitCode()), textCharFormat);
+    } else {
+        textCharFormat.setForeground(Qt::red);
+        textCharFormat.setFontWeight(QFont::Bold);
+        emit addOutput(tr("The process \"%1\" crashed.").arg(m_command), textCharFormat);
+    }
 }
 
 void AbstractProcessStep::processStartupFailed()
 {
-   emit addOutput(tr("<font color=\"#ff0000\"><b>Could not start process \"%1\"</b></font>").arg(m_command));
+    QTextCharFormat textCharFormat;
+    textCharFormat.setForeground(Qt::red);
+    textCharFormat.setFontWeight(QFont::Bold);
+    emit addOutput(tr("Could not start process \"%1\"").arg(m_command), textCharFormat);
 }
 
 bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
@@ -235,7 +247,8 @@ void AbstractProcessStep::stdOutput(const QString &line)
 {
     if (m_outputParserChain)
         m_outputParserChain->stdOutput(line);
-    emit addOutput(Qt::escape(line));
+    QTextCharFormat textCharFormat;
+    emit addOutput(Qt::escape(line), textCharFormat);
 }
 
 void AbstractProcessStep::processReadyReadStdError()
@@ -251,7 +264,9 @@ void AbstractProcessStep::stdError(const QString &line)
 {
     if (m_outputParserChain)
         m_outputParserChain->stdError(line);
-    emit addOutput(QLatin1String("<font color=\"#ff0000\">") + Qt::escape(line) + QLatin1String("</font>"));
+    QTextCharFormat textCharFormat;
+    textCharFormat.setForeground(Qt::red);
+    emit addOutput(line, textCharFormat);
 }
 
 void AbstractProcessStep::checkForCancel()
@@ -312,9 +327,9 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
     emit addTask(editable);
 }
 
-void AbstractProcessStep::outputAdded(const QString &string)
+void AbstractProcessStep::outputAdded(const QString &string, const QTextCharFormat &textCharFormat)
 {
-    emit addOutput(string);
+    emit addOutput(string, textCharFormat);
 }
 
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)
