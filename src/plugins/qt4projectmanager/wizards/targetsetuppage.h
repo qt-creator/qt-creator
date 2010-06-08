@@ -99,7 +99,7 @@ public:
     void setShowLocationInformation(bool location);
     void setPreferMobile(bool mobile);
 
-    static QList<ImportInfo> importInfosForKnownQtVersions(Qt4ProjectManager::Qt4Project *project);
+    static QList<ImportInfo> importInfosForKnownQtVersions();
     static QList<ImportInfo> filterImportInfos(const QSet<QString> &validTargets,
                                                const QList<ImportInfo> &infos);
 

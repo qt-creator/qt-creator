@@ -168,7 +168,15 @@ void TargetSetupPage::setImportInfos(const QList<ImportInfo> &infos)
             versionItem->setToolTip(1, status);
 
             // Column 2 (directory):
-            const QString dir = QDir::toNativeSeparators(i.directory);
+            QString dir;
+            if (i.directory.isEmpty()) {
+                if (i.version->supportsShadowBuilds())
+                    dir = QDir::toNativeSeparators(Qt4Target::defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(m_proFilePath), t));
+                else
+                    dir = QDir::toNativeSeparators(Qt4Project::projectDirectory(m_proFilePath));
+            } else {
+                dir = QDir::toNativeSeparators(i.directory);
+            }
             versionItem->setText(2, dir);
             versionItem->setToolTip(2, dir);
         }
@@ -308,8 +316,7 @@ void TargetSetupPage::setProFilePath(const QString &path)
     setImportInfos(tmp);
 }
 
-QList<TargetSetupPage::ImportInfo>
-TargetSetupPage::importInfosForKnownQtVersions(Qt4ProjectManager::Qt4Project *project)
+QList<TargetSetupPage::ImportInfo> TargetSetupPage::importInfosForKnownQtVersions()
 {
     QList<ImportInfo> results;
     QtVersionManager * vm = QtVersionManager::instance();
@@ -319,12 +326,6 @@ TargetSetupPage::importInfosForKnownQtVersions(Qt4ProjectManager::Qt4Project *pr
         validVersions.append(vm->versions().at(0)); // there is always one!
     foreach (QtVersion *v, validVersions) {
         ImportInfo info;
-        if (project) {
-            if (v->supportsShadowBuilds())
-                info.directory = project->defaultTopLevelBuildDirectory();
-            else
-                info.directory = project->projectDirectory();
-        }
         info.isExistingBuild = false;
         info.isTemporary = false;
         info.version = v;

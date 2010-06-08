@@ -229,9 +229,15 @@ QVariantMap Project::toMap() const
 
 QString Project::projectDirectory() const
 {
-    QFileInfo info(file()->fileName());
+    return projectDirectory(file()->fileName());
+}
+
+QString Project::projectDirectory(const QString &proFile)
+{
+    QFileInfo info(proFile);
     return info.absoluteDir().path();
 }
+
 
 bool Project::fromMap(const QVariantMap &map)
 {
