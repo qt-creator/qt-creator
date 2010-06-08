@@ -73,7 +73,7 @@
 #include <string>
 #include <vector>
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__llvm__)
 #    define USE_GCC_EXT 1
 #    include <hash_set>
 #endif
