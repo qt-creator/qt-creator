@@ -142,6 +142,7 @@ private:
     const QIcon m_warningIcon;
     int m_taskCount;
     int m_errorTaskCount;
+    int m_sizeOfLineNumber;
 };
 
 class TaskFilterModel : public QSortFilterProxyModel
@@ -221,7 +222,8 @@ TaskModel::TaskModel() :
     m_errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png")),
     m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png")),
     m_taskCount(0),
-    m_errorTaskCount(0)
+    m_errorTaskCount(0),
+    m_sizeOfLineNumber(0)
 {
 
 }
@@ -422,9 +424,12 @@ int TaskModel::sizeOfFile()
 
 int TaskModel::sizeOfLineNumber()
 {
-    QFont font;
-    QFontMetrics fm(font);
-    return fm.width("8888");
+    if (m_sizeOfLineNumber == 0) {
+        QFont font;
+        QFontMetrics fm(font);
+        m_sizeOfLineNumber = fm.width("8888");
+    }
+    return m_sizeOfLineNumber;
 }
 
 void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
