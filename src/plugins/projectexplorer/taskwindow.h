@@ -102,8 +102,8 @@ public:
     void removeTask(const Task &task);
     void clearTasks(const QString &categoryId = QString());
 
-    int taskCount(const QString &categoryId = QString()) const;
-    int errorTaskCount(const QString &categoryId = QString()) const;
+    int taskCount() const;
+    int errorTaskCount() const;
 
 
     // IOutputPane
