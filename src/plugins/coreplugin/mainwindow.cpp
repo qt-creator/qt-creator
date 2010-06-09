@@ -827,37 +827,47 @@ void MainWindow::openFiles(const QStringList &fileNames)
 
 void MainWindow::setFocusToEditor()
 {
-    QWidget *focusWidget = qApp->focusWidget();
-    if (!EditorManager::instance()->isVisible())
-    {
-        m_coreImpl->modeManager()->activateMode(QLatin1String(Constants::MODE_EDIT));
-    }
+    bool focusWasMovedToEditor = false;
 
-    if (IEditor *editor = m_editorManager->currentEditor())
+    // give focus to the editor if we have one
+    if (IEditor *editor = m_editorManager->currentEditor()) {
+        if (qApp->focusWidget() != editor->widget()) {
             editor->widget()->setFocus();
-
-    bool focusWasAlreadyInEditor = (focusWidget && focusWidget == qApp->focusWidget());
-    if (!focusWasAlreadyInEditor) {
-        if (OutputPanePlaceHolder::getCurrent() &&
-            OutputPanePlaceHolder::getCurrent()->isVisible())
-            OutputPanePlaceHolder::getCurrent()->unmaximize();
-    } else {
-        bool stuffVisible =
-                (FindToolBarPlaceHolder::getCurrent() &&
-                 FindToolBarPlaceHolder::getCurrent()->isVisible())
-             || (OutputPanePlaceHolder::getCurrent() &&
-                 OutputPanePlaceHolder::getCurrent()->isVisible())
-             || (RightPanePlaceHolder::current() &&
-                 RightPanePlaceHolder::current()->isVisible());
-        if (stuffVisible) {
-            if (FindToolBarPlaceHolder::getCurrent())
-                FindToolBarPlaceHolder::getCurrent()->hide();
-            OutputPaneManager::instance()->slotHide();
-            RightPaneWidget::instance()->setShown(false);
-        } else {
-            m_coreImpl->modeManager()->activateMode(QLatin1String(Constants::MODE_EDIT));
+            focusWasMovedToEditor = true;
         }
     }
+
+    // check for some maximized pane which we want to unmaximize
+    if (OutputPanePlaceHolder::getCurrent()
+        && OutputPanePlaceHolder::getCurrent()->isVisible()
+        && OutputPanePlaceHolder::getCurrent()->isMaximized()) {
+        OutputPanePlaceHolder::getCurrent()->unmaximize();
+        return;
+    }
+
+    if (focusWasMovedToEditor)
+        return;
+
+
+    // check for some visible bar which we want to hide
+    bool stuffVisible =
+            (FindToolBarPlaceHolder::getCurrent() &&
+             FindToolBarPlaceHolder::getCurrent()->isVisible())
+            || (OutputPanePlaceHolder::getCurrent() &&
+                OutputPanePlaceHolder::getCurrent()->isVisible())
+            || (RightPanePlaceHolder::current() &&
+                RightPanePlaceHolder::current()->isVisible());
+    if (stuffVisible) {
+        if (FindToolBarPlaceHolder::getCurrent())
+            FindToolBarPlaceHolder::getCurrent()->hide();
+        OutputPaneManager::instance()->slotHide();
+        RightPaneWidget::instance()->setShown(false);
+        return;
+    }
+
+    // switch to edit mode if necessary
+    m_coreImpl->modeManager()->activateMode(QLatin1String(Constants::MODE_EDIT));
+
 }
 
 QStringList MainWindow::showNewItemDialog(const QString &title,
