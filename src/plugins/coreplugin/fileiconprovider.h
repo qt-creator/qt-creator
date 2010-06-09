@@ -56,9 +56,8 @@ public:
     virtual ~FileIconProvider();
 
     // Implement QFileIconProvider
-    virtual QIcon icon(IconType type) const;
     virtual QIcon icon(const QFileInfo &info) const;
-    virtual QString type(const QFileInfo &info) const;
+    using QFileIconProvider::icon;
 
     // Register additional overlay icons
     static QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size);

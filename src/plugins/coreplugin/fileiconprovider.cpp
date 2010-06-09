@@ -148,16 +148,6 @@ QIcon FileIconProvider::icon(const QFileInfo &fileInfo) const
 #endif
 }
 
-QIcon FileIconProvider::icon(IconType type) const
-{
-    return QFileIconProvider::icon(type);
-}
-
-QString FileIconProvider::type(const QFileInfo &info) const
-{
-    return QFileIconProvider::type(info);
-}
-
 /*!
   Creates a pixmap with baseicon at size and overlays overlayIcon over it.
   See platform note in class documentation about recommended usage.
