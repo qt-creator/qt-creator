@@ -715,8 +715,8 @@ public:
 void testQObject(int &argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QPixmap pm;
 #if 1
+    QPixmap pm;
     Names::Bar::TestObject test;
 
     QAction act("xxx", &app);
@@ -729,16 +729,18 @@ void testQObject(int &argc, char *argv[])
 #endif
 
 #if 1
-    QObject ob(&app);
+    QWidget ob;
     ob.setObjectName("An Object");
+    ob.setProperty("USER DEFINED 1", 44);
+    ob.setProperty("USER DEFINED 2", QStringList() << "FOO" << "BAR");
     QObject ob1;
     ob1.setObjectName("Another Object");
 
     QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
-    QObject::connect(&app, SIGNAL(lastWindowClosed()), &ob, SLOT(deleteLater()));
+    //QObject::connect(&app, SIGNAL(lastWindowClosed()), &ob, SLOT(deleteLater()));
 #endif
 
-#if 1
+#if 0
     QList<QObject *> obs;
     obs.append(&ob);
     obs.append(&ob1);
@@ -747,13 +749,13 @@ void testQObject(int &argc, char *argv[])
     ob1.setObjectName("A Subobject");
 #endif
 
-#if 1
+#if 0
     QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
     QLabel l(str);
     l.setObjectName("Some Label");
     l.show();
-#endif
     app.exec();
+#endif
 }
 
 void testQPixmap()
@@ -1146,6 +1148,7 @@ void testQStandardItemModel()
     QStandardItem *i1, *i2, *i11;
     m.appendRow(QList<QStandardItem *>()
          << (i1 = new QStandardItem("1")) << (new QStandardItem("a")) << (new QStandardItem("a2")));
+    QModelIndex mi = i1->index();
     m.appendRow(QList<QStandardItem *>()
          << (i2 = new QStandardItem("2")) << (new QStandardItem("b")));
     i1->appendRow(QList<QStandardItem *>()
@@ -1180,10 +1183,12 @@ QStack<int> testQStack()
     return big;
 }
 
-QString testQString()
+void testQString()
 {
     QUrl url(QString("http://www.nokia.com"));
+    QImage im;
 
+    // Could be broken due to Return Value Optimzation
     QString str = "Hello ";
     str += " big, ";
     str += " fat ";
@@ -1192,7 +1197,6 @@ QString testQString()
     str += " World ";
     str += " World ";
     str += " World ";
-    return str;
 }
 
 void testQString3()
