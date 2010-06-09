@@ -9,7 +9,10 @@
 #include <QDebug>
 #include <iostream>
 #include <QtDeclarative>
+#include <QtCore/private/qobject_p.h>
+#include <QtCore/private/qmetaobject_p.h>
 #include <QtDeclarative/private/qdeclarativemetatype_p.h>
+#include <QtDeclarative/private/qdeclarativeopenmetaobject_p.h>
 #include <QtDeclarative/QDeclarativeView>
 
 static QHash<QByteArray, const QDeclarativeType *> qmlTypeByCppName;
@@ -47,7 +50,11 @@ void processMetaObject(const QMetaObject *meta, QSet<const QMetaObject *> *metas
     if (! meta || metas->contains(meta))
         return;
 
-    metas->insert(meta);
+    // dynamic meta objects break things badly
+    const QMetaObjectPrivate *mop = reinterpret_cast<const QMetaObjectPrivate *>(meta->d.data);
+    if (!(mop->flags & DynamicMetaObject))
+        metas->insert(meta);
+
     processMetaObject(meta->superClass(), metas);
 }
 
