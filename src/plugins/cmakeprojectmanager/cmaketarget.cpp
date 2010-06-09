@@ -120,6 +120,7 @@ void CMakeTarget::updateRunConfigurations()
             foreach (CMakeRunConfiguration *rc, list) {
                 rc->setExecutable(ct.executable);
                 rc->setWorkingDirectory(ct.workingDirectory);
+                rc->setEnabled(true);
             }
             existingRunConfigurations.remove(ct.title);
         } else {
@@ -131,7 +132,10 @@ void CMakeTarget::updateRunConfigurations()
             existingRunConfigurations.constBegin();
     for( ; it != existingRunConfigurations.constEnd(); ++it) {
         CMakeRunConfiguration *rc = it.value();
-        removeRunConfiguration(rc);
+        // The executables for those runconfigurations aren't build by the current buildconfiguration
+        // We just set a disable flag and show that in the display name
+        rc->setEnabled(false);
+        // removeRunConfiguration(rc);
     }
     if (runConfigurations().isEmpty()) {
         // Oh no, no run configuration,

@@ -81,6 +81,11 @@ public:
 
     QVariantMap toMap() const;
 
+    void setEnabled(bool b);
+
+    bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
+    using LocalApplicationRunConfiguration::isEnabled;
+
 signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
@@ -115,6 +120,7 @@ private:
     QString m_arguments;
     QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
     BaseEnvironmentBase m_baseEnvironmentBase;
+    bool m_enabled;
 };
 
 class CMakeRunConfigurationWidget : public QWidget
