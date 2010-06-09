@@ -48,6 +48,7 @@
 namespace Debugger {
 namespace Internal {
 
+using ProjectExplorer::BuildConfiguration;
 using ProjectExplorer::RunConfiguration;
 using ProjectExplorer::RunControl;
 using ProjectExplorer::LocalApplicationRunConfiguration;
@@ -65,6 +66,7 @@ DebuggerRunControlFactory::DebuggerRunControlFactory(DebuggerManager *manager)
 
 bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
+//    return mode == ProjectExplorer::Constants::DEBUGMODE;
     return mode == ProjectExplorer::Constants::DEBUGMODE
             && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
@@ -130,8 +132,9 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
         break;
     }
     if (runConfiguration->target()->project()) {
-        m_startParameters->buildDirectory =
-            runConfiguration->target()->activeBuildConfiguration()->buildDirectory();
+        BuildConfiguration *bc = runConfiguration->target()->activeBuildConfiguration();
+        if (bc)
+            m_startParameters->buildDirectory = bc->buildDirectory();
     }
     m_startParameters->useTerminal =
         runConfiguration->runMode() == LocalApplicationRunConfiguration::Console;
