@@ -123,7 +123,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_selectOnlyContentItemsAction->setShortcut(Qt::Key_S);
     m_selectOnlyContentItemsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_selectOnlyContentItemsAction->setCheckable(true);
-    m_selectOnlyContentItemsAction->setChecked(true);
+    m_selectOnlyContentItemsAction->setChecked(false);
     m_selectOnlyContentItemsAction->setIcon(QPixmap(":/icon/selection/selectonlycontentitems.png"));
 
     addAction(m_selectOnlyContentItemsAction.data());
