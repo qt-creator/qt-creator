@@ -269,49 +269,55 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         return;
     }
 
-    // if the package is in the meta type system, use it
+    bool importFound = false;
+
+    // check the filesystem
+    const QString packagePath = Bind::toString(import->importUri, QDir::separator());
+    foreach (const QString &importPath, _importPaths) {
+        QDir dir(importPath);
+        if (!dir.cd(packagePath))
+            continue;
+
+        const LibraryInfo libraryInfo = _snapshot.libraryInfo(dir.path());
+        if (!libraryInfo.isValid())
+            continue;
+
+        importFound = true;
+
+        if (!libraryInfo.plugins().isEmpty())
+            engine()->cppQmlTypes().load(engine(), libraryInfo.metaObjects());
+
+        QSet<QString> importedTypes;
+        foreach (const QmlDirParser::Component &component, libraryInfo.components()) {
+            if (importedTypes.contains(component.typeName))
+                continue;
+
+            ComponentVersion componentVersion(component.majorVersion, component.minorVersion);
+            if (version < componentVersion)
+                continue;
+
+            importedTypes.insert(component.typeName);
+            if (Document::Ptr importedDoc = _snapshot.document(dir.filePath(component.fileName))) {
+                if (importedDoc->bind()->rootObjectValue())
+                    namespaceObject->setProperty(component.typeName, importedDoc->bind()->rootObjectValue());
+            }
+        }
+
+        break;
+    }
+
+    // if there are cpp-based types for this package, use them too
     if (engine()->cppQmlTypes().hasPackage(packageName)) {
+        importFound = true;
         foreach (QmlObjectValue *object, engine()->cppQmlTypes().typesForImport(packageName, version)) {
             namespaceObject->setProperty(object->className(), object);
         }
-        return;
-    } else {
-        // check the filesystem
-        const QString packagePath = Bind::toString(import->importUri, QDir::separator());
-        foreach (const QString &importPath, _importPaths) {
-            QDir dir(importPath);
-            if (!dir.cd(packagePath))
-                continue;
-
-            const LibraryInfo libraryInfo = _snapshot.libraryInfo(dir.path());
-            if (!libraryInfo.isValid())
-                continue;
-
-            if (!libraryInfo.plugins().isEmpty())
-                _context->setDocumentImportsPlugins(doc.data());
-
-            QSet<QString> importedTypes;
-            foreach (const QmlDirParser::Component &component, libraryInfo.components()) {
-                if (importedTypes.contains(component.typeName))
-                    continue;
-
-                ComponentVersion componentVersion(component.majorVersion, component.minorVersion);
-                if (version < componentVersion)
-                    continue;
-
-                importedTypes.insert(component.typeName);
-                if (Document::Ptr importedDoc = _snapshot.document(dir.filePath(component.fileName))) {
-                    if (importedDoc->bind()->rootObjectValue())
-                        namespaceObject->setProperty(component.typeName, importedDoc->bind()->rootObjectValue());
-                }
-            }
-
-            return;
-        }
     }
 
-    error(doc, locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
-          tr("package not found"));
+    if (!importFound) {
+        error(doc, locationFromRange(import->firstSourceLocation(), import->lastSourceLocation()),
+              tr("package not found"));
+    }
 }
 
 UiQualifiedId *Link::qualifiedTypeNameId(Node *node)

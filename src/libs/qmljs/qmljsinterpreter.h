@@ -512,40 +512,35 @@ private:
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
 
-class QMLJS_EXPORT CppQmlTypesLoader : public QObject
+class QMLJS_EXPORT CppQmlTypesLoader
 {
-    Q_OBJECT
 public:
-    CppQmlTypesLoader();
-    static CppQmlTypesLoader *instance();
-
-    QHash<QString, FakeMetaObject *> objects;
-
     /** \return an empty list when successful, error messages otherwise. */
-    QStringList load(const QFileInfoList &xmlFiles);
+    static QStringList load(const QFileInfoList &xmlFiles);
+    static QList<const FakeMetaObject *> objectsFromXml;
 
-    void loadPluginTypes(const QString &pluginPath);
-
-private slots:
-    void processDone(int exitCode);
-
+    // parses the xml string and fills the newObjects map
+    static QString parseQmlTypeXml(const QByteArray &xml, QMap<QString, FakeMetaObject *> *newObjects);
 private:
-    void addObjects(QMap<QString, FakeMetaObject *> &newObjects);
-    QString m_qmldumpPath;
+    static void setSuperClasses(QMap<QString, FakeMetaObject *> *newObjects);
 };
 
 class QMLJS_EXPORT CppQmlTypes
 {
 public:
-    void reload(Interpreter::Engine *interpreter);
+    void load(Interpreter::Engine *interpreter, const QList<const FakeMetaObject *> &objects);
 
     QList<Interpreter::QmlObjectValue *> typesForImport(const QString &prefix, ComponentVersion version) const;
     Interpreter::QmlObjectValue *typeForImport(const QString &qualifiedName) const;
 
     bool hasPackage(const QString &package) const;
 
+    QHash<QString, QmlObjectValue *> types() const
+    { return _typesByFullyQualifiedName; }
+
 private:
-    QHash<QString, QList<QmlObjectValue *> > _importedTypes;
+    QHash<QString, QList<QmlObjectValue *> > _typesByPackage;
+    QHash<QString, QmlObjectValue *> _typesByFullyQualifiedName;
 };
 
 class ConvertToNumber: protected ValueVisitor // ECMAScript ToInt()
@@ -695,6 +690,8 @@ public:
     QString typeId(const Value *value);
 
     // typing:
+    CppQmlTypes &cppQmlTypes()
+    { return _cppQmlTypes; }
     const CppQmlTypes &cppQmlTypes() const
     { return _cppQmlTypes; }
 

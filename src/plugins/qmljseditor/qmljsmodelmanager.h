@@ -37,6 +37,7 @@
 #include <QFuture>
 #include <QFutureSynchronizer>
 #include <QMutex>
+#include <QProcess>
 
 namespace Core {
 class ICore;
@@ -74,6 +75,7 @@ private Q_SLOTS:
     // this should be executed in the GUI thread.
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
     void onLibraryInfoUpdated(const QString &path, const QmlJS::LibraryInfo &info);
+    void qmlPluginTypeDumpDone(int exitCode);
 
 protected:
     struct WorkingCopy
@@ -94,6 +96,7 @@ protected:
                       bool emitDocChangedOnDisk);
 
     void loadQmlTypeDescriptions();
+    void loadQmlPluginTypes(const QString &pluginPath);
 
 private:
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
@@ -103,6 +106,7 @@ private:
     QmlJS::Snapshot _snapshot;
     QStringList m_projectImportPaths;
     QStringList m_defaultImportPaths;
+    QHash<QProcess *, QString> m_runningQmldumps;
 
     QFutureSynchronizer<void> m_synchronizer;
 };

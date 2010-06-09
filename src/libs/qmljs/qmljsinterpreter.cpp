@@ -41,7 +41,6 @@
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
 #include <QtCore/QXmlStreamReader>
-#include <QtCore/QCoreApplication>
 #include <QtCore/QProcess>
 #include <QtCore/QDebug>
 
@@ -205,6 +204,7 @@ class FakeMetaObject {
 
     QString m_name;
     QString m_package;
+    QString m_packageNameVersion;
     ComponentVersion m_version;
     const FakeMetaObject *m_super;
     QString m_superName;
@@ -218,7 +218,11 @@ class FakeMetaObject {
 public:
     FakeMetaObject(const QString &name, const QString &package, ComponentVersion version)
         : m_name(name), m_package(package), m_version(version), m_super(0)
-    {}
+    {
+        m_packageNameVersion = QString::fromLatin1("%1.%2 %3.%4").arg(
+                package, name,
+                QString::number(version.majorVersion()), QString::number(version.minorVersion()));
+    }
 
     void setSuperclassName(const QString &superclass)
     { m_superName = superclass; }
@@ -233,6 +237,8 @@ public:
     { return m_name; }
     QString packageName() const
     { return m_package; }
+    QString packageClassVersionString() const
+    { return m_packageNameVersion; }
 
     void addEnum(const FakeMetaEnum &fakeEnum)
     { m_enumNameToIndex.insert(fakeEnum.name(), m_enums.size()); m_enums.append(fakeEnum); }
@@ -916,10 +922,10 @@ bool QmlObjectValue::hasChildInPackage() const
 {
     if (!packageName().isEmpty())
         return true;
-    QHashIterator<QString, FakeMetaObject *> it(CppQmlTypesLoader::instance()->objects);
+    QHashIterator<QString, QmlObjectValue *> it(engine()->cppQmlTypes().types());
     while (it.hasNext()) {
         it.next();
-        const FakeMetaObject *other = it.value();
+        const FakeMetaObject *other = it.value()->_metaObject;
         if (other->packageName().isEmpty())
             continue;
         for (const FakeMetaObject *iter = other; iter; iter = iter->superClass()) {
@@ -1933,29 +1939,7 @@ const Value *Function::invoke(const Activation *activation) const
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
 
-CppQmlTypesLoader::CppQmlTypesLoader()
-{
-    QDir qmldumpExecutable(QCoreApplication::applicationDirPath());
-#ifndef Q_OS_WIN
-    m_qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump"));
-#else
-    m_qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump.exe"));
-#endif
-    QFileInfo qmldumpFileInfo(m_qmldumpPath);
-    if (!qmldumpFileInfo.exists()) {
-        qWarning() << "QmlJS::Interpreter::CppQmlTypesLoader: qmldump executable does not exist at" << m_qmldumpPath;
-        m_qmldumpPath.clear();
-    } else if (!qmldumpFileInfo.isFile()) {
-        qWarning() << "QmlJS::Interpreter::CppQmlTypesLoader: " << m_qmldumpPath << " is not a file";
-        m_qmldumpPath.clear();
-    }
-}
-
-CppQmlTypesLoader *CppQmlTypesLoader::instance()
-{
-    static CppQmlTypesLoader _instance;
-    return &_instance;
-}
+QList<const FakeMetaObject *> CppQmlTypesLoader::objectsFromXml;
 
 QStringList CppQmlTypesLoader::load(const QFileInfoList &xmlFiles)
 {
@@ -1976,76 +1960,70 @@ QStringList CppQmlTypesLoader::load(const QFileInfoList &xmlFiles)
         }
     }
 
-    if (errorMsgs.isEmpty())
-        addObjects(newObjects);
+    if (errorMsgs.isEmpty()) {
+        setSuperClasses(&newObjects);
+
+        // we need to go from QList<T *> of newObjects.values() to QList<const T *>
+        // and there seems to be no better way
+        QMapIterator<QString, FakeMetaObject *> it(newObjects);
+        while (it.hasNext()) {
+            it.next();
+            objectsFromXml.append(it.value());
+        }
+    }
 
     return errorMsgs;
 }
 
-void CppQmlTypesLoader::loadPluginTypes(const QString &pluginPath)
+QString CppQmlTypesLoader::parseQmlTypeXml(const QByteArray &xml, QMap<QString, FakeMetaObject *> *newObjects)
 {
-    if (m_qmldumpPath.isEmpty())
-        return;
-
-    QProcess *process = new QProcess(this);
-    connect(process, SIGNAL(finished(int)), SLOT(processDone(int)));
-    process->start(m_qmldumpPath, QStringList(pluginPath));
-}
-
-void CppQmlTypesLoader::processDone(int exitCode)
-{
-    QMap<QString, FakeMetaObject *> newObjects;
-
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    if (process && exitCode == 0) {
-        const QByteArray output = process->readAllStandardOutput();
-        QmlXmlReader read(output);
-        if (read(&newObjects))
-            addObjects(newObjects);
+    QmlXmlReader reader(xml);
+    if (!reader(newObjects)) {
+        if (reader.errorMessage().isEmpty())
+            return QLatin1String("unknown error");
+        return reader.errorMessage();
     }
-    process->deleteLater();
+    setSuperClasses(newObjects);
+    return QString();
 }
 
-void CppQmlTypesLoader::addObjects(QMap<QString, FakeMetaObject *> &newObjects)
+void CppQmlTypesLoader::setSuperClasses(QMap<QString, FakeMetaObject *> *newObjects)
 {
-    QMapIterator<QString, FakeMetaObject *> it(newObjects);
+    QMapIterator<QString, FakeMetaObject *> it(*newObjects);
     while (it.hasNext()) {
         it.next();
         FakeMetaObject *obj = it.value();
-        //if (objects.contains(it.key()))
-        //    qWarning() << "QmlJS::Interpreter::MetaTypeSystem: Found duplicate type" << it.key();
 
         const QString superName = obj->superclassName();
         if (! superName.isEmpty()) {
-            FakeMetaObject *superClass = objects.value(superName);
-            if (!superClass)
-                superClass = newObjects.value(superName);
+            FakeMetaObject *superClass = newObjects->value(superName);
             if (superClass)
                 obj->setSuperclass(superClass);
-            //else
-            //    qWarning() << "QmlJS::Interpreter::MetaTypeSystem: Can't find superclass" << superName << "for" << it.key();
+            else
+                qWarning() << "QmlJS::Interpreter::MetaTypeSystem: Can't find superclass" << superName << "for" << it.key();
         }
-
-        objects.insert(it.key(), obj);
     }
 }
 
-void CppQmlTypes::reload(Engine *interpreter)
+void CppQmlTypes::load(Interpreter::Engine *engine, const QList<const FakeMetaObject *> &objects)
 {
-    QHash<const FakeMetaObject *, QmlObjectValue *> qmlObjects;
-    _importedTypes.clear();
+    // load
+    foreach (const FakeMetaObject *metaObject, objects) {
+        // make sure we're not loading duplicate objects
+        if (_typesByFullyQualifiedName.contains(metaObject->packageClassVersionString()))
+            continue;
 
-    foreach (const FakeMetaObject *metaObject, CppQmlTypesLoader::instance()->objects) {
-        QmlObjectValue *objectValue = new QmlObjectValue(metaObject, interpreter);
-        qmlObjects.insert(metaObject, objectValue);
-        _importedTypes[metaObject->packageName()].append(objectValue);
+        QmlObjectValue *objectValue = new QmlObjectValue(metaObject, engine);
+        _typesByPackage[metaObject->packageName()].append(objectValue);
+        _typesByFullyQualifiedName[metaObject->packageClassVersionString()] = objectValue;
     }
 
-    foreach (const FakeMetaObject *metaObject, CppQmlTypesLoader::instance()->objects) {
-        QmlObjectValue *objectValue = qmlObjects.value(metaObject);
-        if (!objectValue)
+    // set prototype correctly
+    foreach (const FakeMetaObject *metaObject, objects) {
+        QmlObjectValue *objectValue = _typesByFullyQualifiedName.value(metaObject->packageClassVersionString());
+        if (!objectValue || !metaObject->superClass())
             continue;
-        objectValue->setPrototype(qmlObjects.value(metaObject->superClass(), 0));
+        objectValue->setPrototype(_typesByFullyQualifiedName.value(metaObject->superClass()->packageClassVersionString()));
     }
 }
 
@@ -2053,7 +2031,7 @@ QList<QmlObjectValue *> CppQmlTypes::typesForImport(const QString &packageName, 
 {
     QMap<QString, QmlObjectValue *> objectValuesByName;
 
-    foreach (QmlObjectValue *qmlObjectValue, _importedTypes.value(packageName)) {
+    foreach (QmlObjectValue *qmlObjectValue, _typesByPackage.value(packageName)) {
         if (qmlObjectValue->version() <= version) {
             // we got a candidate.
             const QString typeName = qmlObjectValue->className();
@@ -2084,7 +2062,7 @@ QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName) const
     }
 
     QmlObjectValue *previousCandidate = 0;
-    foreach (QmlObjectValue *qmlObjectValue, _importedTypes.value(packageName)) {
+    foreach (QmlObjectValue *qmlObjectValue, _typesByPackage.value(packageName)) {
         const QString typeName = qmlObjectValue->className();
         if (typeName != name)
             continue;
@@ -2105,7 +2083,7 @@ QmlObjectValue *CppQmlTypes::typeForImport(const QString &qualifiedName) const
 
 bool CppQmlTypes::hasPackage(const QString &package) const
 {
-    return _importedTypes.contains(package);
+    return _typesByPackage.contains(package);
 }
 
 ConvertToNumber::ConvertToNumber(Engine *engine)
@@ -2381,7 +2359,7 @@ Engine::Engine()
 {
     initializePrototypes();
 
-    _cppQmlTypes.reload(this);
+    _cppQmlTypes.load(this, CppQmlTypesLoader::objectsFromXml);
 }
 
 Engine::~Engine()

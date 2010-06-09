@@ -47,6 +47,7 @@
 #include <QtConcurrentRun>
 #include <qtconcurrent/runextensions.h>
 #include <QTextStream>
+#include <QCoreApplication>
 
 #include <QDebug>
 
@@ -85,7 +86,7 @@ void ModelManager::loadQmlTypeDescriptions()
                                                              QDir::Files,
                                                              QDir::Name);
 
-    const QStringList errors = Interpreter::CppQmlTypesLoader::instance()->load(xmlFiles);
+    const QStringList errors = Interpreter::CppQmlTypesLoader::load(xmlFiles);
     foreach (const QString &error, errors)
         qWarning() << qPrintable(error);
 }
@@ -195,7 +196,7 @@ void ModelManager::onLibraryInfoUpdated(const QString &path, const LibraryInfo &
     QMutexLocker locker(&m_mutex);
 
     if (!_snapshot.libraryInfo(path).isValid())
-        QmlJS::Interpreter::CppQmlTypesLoader::instance()->loadPluginTypes(path);
+        loadQmlPluginTypes(path);
 
     _snapshot.insertLibraryInfo(path, info);
 }
@@ -434,4 +435,65 @@ static QStringList environmentImportPaths()
     }
 
     return paths;
+}
+
+void ModelManager::loadQmlPluginTypes(const QString &pluginPath)
+{
+    static QString qmldumpPath;
+    if (qmldumpPath.isNull()) {
+        QDir qmldumpExecutable(QCoreApplication::applicationDirPath());
+#ifndef Q_OS_WIN
+        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump"));
+#else
+        qmldumpPath = qmldumpExecutable.absoluteFilePath(QLatin1String("qmldump.exe"));
+#endif
+        QFileInfo qmldumpFileInfo(qmldumpPath);
+        if (!qmldumpFileInfo.exists()) {
+            qWarning() << "ModelManager::loadQmlPluginTypes: qmldump executable does not exist at" << qmldumpPath;
+            qmldumpPath.clear();
+        } else if (!qmldumpFileInfo.isFile()) {
+            qWarning() << "ModelManager::loadQmlPluginTypes: " << qmldumpPath << " is not a file";
+            qmldumpPath.clear();
+        }
+
+    }
+    if (qmldumpPath.isEmpty())
+        return;
+
+    QProcess *process = new QProcess(this);
+    connect(process, SIGNAL(finished(int)), SLOT(qmlPluginTypeDumpDone(int)));
+    process->start(qmldumpPath, QStringList(pluginPath));
+    m_runningQmldumps.insert(process, pluginPath);
+}
+
+void ModelManager::qmlPluginTypeDumpDone(int exitCode)
+{
+    QProcess *process = qobject_cast<QProcess *>(sender());
+    if (!process)
+        return;
+    process->deleteLater();
+    if (exitCode != 0)
+        return;
+
+    const QByteArray output = process->readAllStandardOutput();
+    QMap<QString, Interpreter::FakeMetaObject *> newObjects;
+    const QString error = Interpreter::CppQmlTypesLoader::parseQmlTypeXml(output, &newObjects);
+    if (!error.isEmpty())
+        return;
+
+    // convert from QList<T *> to QList<const T *>
+    QList<const Interpreter::FakeMetaObject *> objectsList;
+    QMapIterator<QString, Interpreter::FakeMetaObject *> it(newObjects);
+    while (it.hasNext()) {
+        it.next();
+        objectsList.append(it.value());
+    }
+
+    const QString libraryPath = m_runningQmldumps.take(process);
+
+    QMutexLocker locker(&m_mutex);
+
+    LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
+    libraryInfo.setMetaObjects(objectsList);
+    _snapshot.insertLibraryInfo(libraryPath, libraryInfo);
 }

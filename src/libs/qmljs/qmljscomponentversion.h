@@ -22,6 +22,13 @@ public:
     int minor() const
     { return _minor; }
 
+    // something in the GNU headers introduces the major() and minor() defines,
+    // use these two to disambiguate when necessary
+    int majorVersion() const
+    { return _major; }
+    int minorVersion() const
+    { return _minor; }
+
     bool isValid() const;
 };
 

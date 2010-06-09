@@ -44,6 +44,10 @@ namespace QmlJS {
 class Bind;
 class Snapshot;
 
+namespace Interpreter {
+    class FakeMetaObject;
+}
+
 class QMLJS_EXPORT Document
 {
 public:
@@ -113,6 +117,8 @@ class QMLJS_EXPORT LibraryInfo
     bool _valid;
     QList<QmlDirParser::Component> _components;
     QList<QmlDirParser::Plugin> _plugins;
+    typedef QList<const Interpreter::FakeMetaObject *> FakeMetaObjectList;
+    FakeMetaObjectList _metaObjects;
 
 public:
     LibraryInfo();
@@ -124,6 +130,12 @@ public:
 
     QList<QmlDirParser::Plugin> plugins() const
     { return _plugins; }
+
+    FakeMetaObjectList metaObjects() const
+    { return _metaObjects; }
+
+    void setMetaObjects(const FakeMetaObjectList &objects)
+    { _metaObjects = objects; }
 
     bool isValid() const
     { return _valid; }

@@ -17,7 +17,6 @@
 
 static QHash<QByteArray, const QDeclarativeType *> qmlTypeByCppName;
 static QHash<QByteArray, QByteArray> cppToQml;
-static QByteArray pluginPackage;
 
 QByteArray convertToQmlType(const QByteArray &cppName)
 {
@@ -187,8 +186,6 @@ public:
 void dump(const QMetaObject *meta, QXmlStreamWriter *xml)
 {
     QByteArray qmlTypeName = convertToQmlType(meta->className());
-    if (!pluginPackage.isEmpty() && !qmlTypeName.startsWith(pluginPackage))
-        return;
 
     xml->writeStartElement("type");
 
@@ -258,7 +255,6 @@ int main(int argc, char *argv[])
         if (pluginPath.exists() && pluginPath.isDir()) {
             pluginImportPath = pluginPath.absolutePath();
             pluginImportName = pluginPath.fileName();
-            pluginPackage = (pluginImportName + ".").toLatin1();
         }
     }
 
@@ -280,6 +276,7 @@ int main(int argc, char *argv[])
         QByteArray code = importCode;
         code += "Item {}";
         QDeclarativeComponent c(engine);
+
         c.setData(code, QUrl("xxx"));
         c.create();
         if (!c.errors().isEmpty())
@@ -335,7 +332,12 @@ int main(int argc, char *argv[])
 
         QDeclarativeComponent c(engine);
         c.setData(code, QUrl("xxx"));
-        processObject(c.create(), &metas);
+
+        QObject *object = c.create();
+        if (object)
+            processObject(object, &metas);
+        else
+            qDebug() << "Could not create" << tyName << ":" << c.errorString();
     }
 
     QByteArray bytes;
