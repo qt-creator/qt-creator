@@ -47,9 +47,11 @@ namespace Core {
 class ICore;
 }
 
-namespace QmlJSEditor {
+namespace QmlJS {
+    class ModelManagerInterface;
+}
 
-class ModelManagerInterface;
+namespace QmlJSEditor {
 class Highlighter;
 
 namespace Internal {
@@ -176,7 +178,7 @@ public:
     };
 
     void rehighlight(const Source &source);
-    void setModelManager(ModelManagerInterface *modelManager);
+    void setModelManager(QmlJS::ModelManagerInterface *modelManager);
 
 Q_SIGNALS:
     void changed(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
@@ -194,7 +196,7 @@ private:
     bool m_done;
     Source m_source;
     SemanticInfo m_lastSemanticInfo;
-    ModelManagerInterface *m_modelManager;
+    QmlJS::ModelManagerInterface *m_modelManager;
 };
 
 class QmlJSTextEditor : public TextEditor::BaseTextEditor
@@ -265,7 +267,7 @@ private:
     QTimer *m_updateUsesTimer;
     QTimer *m_semanticRehighlightTimer;
     QComboBox *m_methodCombo;
-    ModelManagerInterface *m_modelManager;
+    QmlJS::ModelManagerInterface *m_modelManager;
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;

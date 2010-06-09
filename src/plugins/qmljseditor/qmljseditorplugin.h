@@ -50,9 +50,12 @@ namespace TextEditor {
 class ITextEditable;
 }
 
+namespace QmlJS {
+    class ModelManagerInterface;
+}
+
 namespace QmlJSEditor {
 
-class ModelManagerInterface;
 class QmlFileWizard;
 
 namespace Internal {
@@ -98,7 +101,7 @@ private:
     QAction *m_actionPreview;
     QmlJSPreviewRunner *m_previewRunner;
 
-    ModelManagerInterface *m_modelManager;
+    QmlJS::ModelManagerInterface *m_modelManager;
     QmlFileWizard *m_wizard;
     QmlJSEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;

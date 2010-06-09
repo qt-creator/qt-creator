@@ -34,7 +34,7 @@
 #include "propertytypefinder.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <qmljseditor/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
 
 #include <QtGui/QApplication>
@@ -224,7 +224,7 @@ void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVar
 QString ObjectPropertiesView::propertyBaseClass(const QDeclarativeDebugObjectReference &object, const QDeclarativeDebugPropertyReference &property, int &depth)
 {
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    QmlJSEditor::ModelManagerInterface *modelManager = pluginManager->getObject<QmlJSEditor::ModelManagerInterface>();
+    QmlJS::ModelManagerInterface *modelManager = pluginManager->getObject<QmlJS::ModelManagerInterface>();
     QmlJS::Snapshot snapshot = modelManager->snapshot();
 
     QmlJS::Document::Ptr document = snapshot.document(object.source().url().path());

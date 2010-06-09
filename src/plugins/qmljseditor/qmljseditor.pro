@@ -21,7 +21,6 @@ HEADERS += \
     qmljshighlighter.h \
     qmljshoverhandler.h \
     qmljsmodelmanager.h \
-    qmljsmodelmanagerinterface.h \
     qmljspreviewrunner.h \
     qmljsquickfix.h
 
@@ -36,7 +35,6 @@ SOURCES += \
     qmljshighlighter.cpp \
     qmljshoverhandler.cpp \
     qmljsmodelmanager.cpp \
-    qmljsmodelmanagerinterface.cpp \
     qmljspreviewrunner.cpp \
     qmljsquickfix.cpp
 

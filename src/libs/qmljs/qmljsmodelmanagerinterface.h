@@ -30,21 +30,18 @@
 #ifndef QMLJSMODELMANAGERINTERFACE_H
 #define QMLJSMODELMANAGERINTERFACE_H
 
-#include "qmljseditor_global.h"
-
-#include <qmljs/qmljsdocument.h>
+#include "qmljs_global.h"
+#include "qmljsdocument.h"
 
 #include <QObject>
 #include <QStringList>
 #include <QSharedPointer>
 
 namespace QmlJS {
+
 class Snapshot;
-}
 
-namespace QmlJSEditor {
-
-class QMLJSEDITOR_EXPORT ModelManagerInterface: public QObject
+class QMLJS_EXPORT ModelManagerInterface: public QObject
 {
     Q_OBJECT
 
@@ -67,6 +64,6 @@ signals:
     void aboutToRemoveFiles(const QStringList &files);
 };
 
-} // namespace QmlJSEditor
+} // namespace QmlJS
 
 #endif // QMLJSMODELMANAGERINTERFACE_H

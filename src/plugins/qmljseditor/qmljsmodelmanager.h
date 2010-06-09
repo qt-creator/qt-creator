@@ -30,8 +30,7 @@
 #ifndef QMLJSMODELMANAGER_H
 #define QMLJSMODELMANAGER_H
 
-#include "qmljsmodelmanagerinterface.h"
-
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
 
 #include <QFuture>
@@ -47,7 +46,7 @@ class MimeType;
 namespace QmlJSEditor {
 namespace Internal {
 
-class ModelManager: public ModelManagerInterface
+class ModelManager: public QmlJS::ModelManagerInterface
 {
     Q_OBJECT
 

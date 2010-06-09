@@ -37,7 +37,7 @@
 #include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/filewatcher.h>
-#include <qmljseditor/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QTextStream>
 #include <QDeclarativeComponent>
@@ -48,7 +48,7 @@ namespace QmlProjectManager {
 QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJSEditor::ModelManagerInterface>()),
+      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>()),
       m_fileWatcher(new ProjectExplorer::FileWatcher(this)),
       m_targetFactory(new Internal::QmlProjectTargetFactory(this))
 {

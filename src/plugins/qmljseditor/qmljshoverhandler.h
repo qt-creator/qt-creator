@@ -30,8 +30,7 @@
 #ifndef QMLJSHOVERHANDLER_H
 #define QMLJSHOVERHANDLER_H
 
-#include "qmljsmodelmanagerinterface.h"
-
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
@@ -79,7 +78,7 @@ private:
                         QStringList *baseClasses) const;
 
 private:
-    ModelManagerInterface *m_modelManager;
+    QmlJS::ModelManagerInterface *m_modelManager;
     QHelpEngineCore *m_helpEngine;
     QString m_helpId;
     QString m_toolTip;

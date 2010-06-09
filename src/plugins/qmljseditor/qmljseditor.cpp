@@ -1430,7 +1430,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     return semanticInfo;
 }
 
-void SemanticHighlighter::setModelManager(QmlJSEditor::ModelManagerInterface *modelManager)
+void SemanticHighlighter::setModelManager(QmlJS::ModelManagerInterface *modelManager)
 {
     m_modelManager = modelManager;
 }

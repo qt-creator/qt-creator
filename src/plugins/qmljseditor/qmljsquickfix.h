@@ -35,9 +35,11 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
 
-namespace QmlJSEditor {
+namespace QmlJS {
+    class ModelManagerInterface;
+}
 
-class ModelManagerInterface;
+namespace QmlJSEditor {
 
 namespace Internal {
 

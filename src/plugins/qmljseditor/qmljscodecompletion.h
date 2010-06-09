@@ -40,14 +40,14 @@ class ITextEditable;
 }
 
 namespace QmlJS {
+    class ModelManagerInterface;
+
     namespace Interpreter {
         class Value;
     }
 }
 
 namespace QmlJSEditor {
-
-class ModelManagerInterface;
 
 namespace Internal {
 
@@ -58,7 +58,7 @@ class CodeCompletion: public TextEditor::ICompletionCollector
     Q_OBJECT
 
 public:
-    CodeCompletion(ModelManagerInterface *modelManager, QObject *parent = 0);
+    CodeCompletion(QmlJS::ModelManagerInterface *modelManager, QObject *parent = 0);
     virtual ~CodeCompletion();
 
     virtual TextEditor::ITextEditable *editor() const;
@@ -88,7 +88,7 @@ private:
             const QHash<QString, const QmlJS::Interpreter::Value *> &newCompletions,
             const QIcon &icon, int relevance);
 
-    ModelManagerInterface *m_modelManager;
+    QmlJS::ModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
     QList<TextEditor::CompletionItem> m_completions;

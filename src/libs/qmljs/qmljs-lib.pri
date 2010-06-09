@@ -21,7 +21,8 @@ HEADERS += \
     $$PWD/qmljsscopebuilder.h \
     $$PWD/qmljslineinfo.h \
     $$PWD/qmljscompletioncontextfinder.h \
-    $$PWD/qmljscomponentversion.h
+    $$PWD/qmljscomponentversion.h \
+    $$PWD/qmljsmodelmanagerinterface.h \
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -34,7 +35,8 @@ SOURCES += \
     $$PWD/qmljsscopebuilder.cpp \
     $$PWD/qmljslineinfo.cpp \
     $$PWD/qmljscompletioncontextfinder.cpp \
-    $$PWD/qmljscomponentversion.cpp
+    $$PWD/qmljscomponentversion.cpp \
+    $$PWD/qmljsmodelmanagerinterface.cpp
 
 OTHER_FILES += \
     $$PWD/parser/qmljs.g
