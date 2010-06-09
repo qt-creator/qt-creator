@@ -157,49 +157,6 @@ MetaInfo NodeMetaInfo::metaInfo() const
 }
 
 /*!
-  \brief Creates an instance of the qml type in the given qml context.
-
-  \throws InvalidArgumentException when the context argument is a null pointer
-  \throws InvalidMetaInfoException if the object is not valid
-  */
-QObject *NodeMetaInfo::createInstance(QDeclarativeContext *context) const
-{
-    if (!context) {
-        Q_ASSERT_X(0, Q_FUNC_INFO, "Context cannot be null");
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "context");
-    }
-
-    if (!isValid()) {
-        qWarning() << "NodeMetaInfo is invalid";
-        return 0; // maybe we should return a new QObject?
-    }
-
-    QObject *object = 0;
-    if (isComponent()) {
-        // qml component
-        // TODO: This is maybe expensive ...
-        QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(m_data->qmlFile));
-        QDeclarativeContext *newContext =  new QDeclarativeContext(context);
-        object = component.create(newContext);
-        newContext->setParent(object);
-    } else {
-        // primitive
-        QDeclarativeType *type = QDeclarativeMetaType::qmlType(typeName().toAscii(), majorVersion(), minorVersion());
-        if (type)  {
-            object = type->create();
-        } else {
-            qWarning() << "QuickDesigner: Cannot create an object of type"
-                       << QString("%1 %2,%3").arg(typeName(), majorVersion(), minorVersion())
-                       << "- type isn't known to declarative meta type system";
-        }
-
-        if (object && context)
-            QDeclarativeEngine::setContextForObject(object, context);
-    }
-    return object;
-}
-
-/*!
   \brief Returns all (direct and indirect) ancestor types.
 
   \throws InvalidMetaInfoException if the object is not valid
@@ -590,6 +547,15 @@ void NodeMetaInfo::setIsContainer(bool isContainer)
         return;
     }
     m_data->isContainer = isContainer;
+}
+
+QString NodeMetaInfo::componentString() const
+{
+    if (!isValid()) {
+        qWarning() << "NodeMetaInfo is invalid";
+        return QString();
+    }
+    return m_data->qmlFile;
 }
 
 QIcon NodeMetaInfo::icon() const

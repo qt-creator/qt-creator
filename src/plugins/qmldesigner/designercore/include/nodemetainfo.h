@@ -77,8 +77,6 @@ public:
     bool isValid() const;
     MetaInfo metaInfo() const;
 
-    QObject *createInstance(QDeclarativeContext *parentContext) const;
-
     PropertyMetaInfo property(const QString &propertyName, bool resolveDotSyntax = false) const;
 
     QList<NodeMetaInfo> superClasses() const;
@@ -99,6 +97,7 @@ public:
     bool isComponent() const;
     bool isSubclassOf(const QString& type, int majorVersion, int minorVersio) const;
 
+    QString componentString() const;
     QIcon icon() const;
 
 private:

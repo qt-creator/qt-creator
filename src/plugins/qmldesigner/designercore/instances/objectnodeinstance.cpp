@@ -66,6 +66,9 @@
 #include <private/qdeclarativevaluetype_p.h>
 #include <private/qdeclarativetext_p.h>
 #include <private/qdeclarativetext_p_p.h>
+#include <private/qdeclarativetransition_p.h>
+#include <private/qdeclarativeanimation_p.h>
+#include <private/qdeclarativetimer_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -661,12 +664,134 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(const NodeMetaInfo &nodeM
     return instance;
 }
 
+static void stopAnimation(QObject *object, QObjectList &inspectedObjectList)
+{
+    if (object == 0)
+        return;
+
+    QDeclarativeTransition *transition = qobject_cast<QDeclarativeTransition*>(object);
+    QDeclarativeAbstractAnimation *animation = qobject_cast<QDeclarativeAbstractAnimation*>(object);
+    QDeclarativeScriptAction *scriptAimation = qobject_cast<QDeclarativeScriptAction*>(object);
+    QDeclarativeTimer *timer = qobject_cast<QDeclarativeTimer*>(object);
+    if(transition) {
+       transition->setFromState("");
+       transition->setToState("");
+    } else if (animation) {
+        if (scriptAimation) {
+            scriptAimation->setScript(QDeclarativeScriptString());
+        animation->setLoops(1);
+        animation->complete();
+        animation->setDisableUserControl();
+        }
+    } else if (timer) {
+        timer->blockSignals(true);
+    }
+
+    ObjectNodeInstance::removeAnimationsFromComponents(object, inspectedObjectList);
+}
+
+void ObjectNodeInstance::removeAnimationsFromComponents(QObject *object, QObjectList &inspectedObjectList)
+{
+    if (inspectedObjectList.contains(object)) // prevent cycles
+        return;
+
+    inspectedObjectList.append(object);
+    for (int index = QObject::staticMetaObject.propertyOffset();
+         index < object->metaObject()->propertyCount();
+         index++) {
+             QMetaProperty metaProperty = object->metaObject()->property(index);
+
+             // search recursive in objects
+             if (metaProperty.isReadable()
+                 && metaProperty.isWritable()
+                 && QDeclarativeMetaType::isQObject(metaProperty.userType())) {
+                 QObject *propertyObject = QDeclarativeMetaType::toQObject(metaProperty.read(object));
+                 if (propertyObject) {
+                    stopAnimation(object, inspectedObjectList);
+                 }
+             }
+
+             // search recursive in objects list
+             if (metaProperty.isReadable()
+                 && QDeclarativeMetaType::isList(metaProperty.userType())) {
+                 QDeclarativeListReference list(object, metaProperty.name());
+                 if (list.canCount() && list.canAt()) {
+                     for (int i = 0; i < list.count(); i++) {
+                         QObject *propertyObject = list.at(i);
+                         if (propertyObject) {
+                             stopAnimation(object, inspectedObjectList);
+                         }
+                     }
+                 }
+             }
+         }
+
+
+         foreach(QObject *object, object->children()) {
+             stopAnimation(object, inspectedObjectList);
+         }
+
+         QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
+         if (graphicsObject) {
+             foreach(QGraphicsItem *item, graphicsObject->childItems()) {
+                 stopAnimation(item->toGraphicsObject(), inspectedObjectList);
+             }
+         }
+}
+
+/*!
+  \brief Creates an instance of the qml type in the given qml context.
+
+  \throws InvalidArgumentException when the context argument is a null pointer
+  \throws InvalidMetaInfoException if the object is not valid
+  */
+QObject *ObjectNodeInstance::createInstance(const NodeMetaInfo &metaInfo, QDeclarativeContext *context)
+{
+    if (!metaInfo.isValid()) {
+        qWarning() << "NodeMetaInfo is invalid";
+        return 0; // maybe we should return a new QObject?
+    }
+
+    QObject *object = 0;
+    if (metaInfo.isComponent()) {
+        // qml component
+        // TODO: This is maybe expensive ...
+        QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(metaInfo.componentString()));
+        QDeclarativeContext *newContext =  new QDeclarativeContext(context);
+        object = component.beginCreate(newContext);
+        QObjectList inspectedObjectList;
+        removeAnimationsFromComponents(object, inspectedObjectList);
+        component.completeCreate();
+        newContext->setParent(object);
+    } else {
+        // primitive
+        QDeclarativeType *type = QDeclarativeMetaType::qmlType(metaInfo.typeName().toAscii(), metaInfo.majorVersion(), metaInfo.minorVersion());
+        if (type)  {
+            object = type->create();
+        } else {
+            qWarning() << "QuickDesigner: Cannot create an object of type"
+                       << QString("%1 %2,%3").arg(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion())
+                       << "- type isn't known to declarative meta type system";
+        }
+
+        if (object && context)
+            QDeclarativeEngine::setContextForObject(object, context);
+    }
+
+    return object;
+}
+
 QObject* ObjectNodeInstance::createObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context)
 {
-    QObject *object = metaInfo.createInstance(context);
+    QObject *object = createInstance(metaInfo, context);
 
     if (object == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (metaInfo.isComponent()) {
+        QObjectList inspectedObjectList;
+        removeAnimationsFromComponents(object, inspectedObjectList);
+    }
 
     return object;
 }
