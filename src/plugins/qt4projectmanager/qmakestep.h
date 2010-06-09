@@ -110,6 +110,8 @@ private:
     bool m_forced;
     bool m_needToRunQMake; // set in init(), read in run()
     QStringList m_userArgs;
+    bool m_scriptTemplate;
+    QList<ProjectExplorer::Task> m_tasks;
 };
 
 
