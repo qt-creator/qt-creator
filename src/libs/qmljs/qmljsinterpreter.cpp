@@ -2005,7 +2005,7 @@ void CppQmlTypesLoader::setSuperClasses(QMap<QString, FakeMetaObject *> *newObje
     }
 }
 
-void CppQmlTypes::load(Interpreter::Engine *engine, const QList<const FakeMetaObject *> &objects)
+void CppQmlTypes::load(Engine *engine, const QList<const FakeMetaObject *> &objects)
 {
     // load
     foreach (const FakeMetaObject *metaObject, objects) {
