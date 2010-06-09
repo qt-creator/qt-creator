@@ -198,6 +198,7 @@ void BuildManager::clearBuildQueue()
     m_buildQueue.clear();
     m_running = false;
     m_previousBuildStepProject = 0;
+    m_currentBuildStep = 0;
 
     m_progressFutureInterface->reportCanceled();
     m_progressFutureInterface->reportFinished();
@@ -353,6 +354,7 @@ void BuildManager::nextStep()
         m_previousBuildStepProject = 0;
         m_progressFutureInterface->reportFinished();
         m_progressWatcher.setFuture(QFuture<void>());
+        m_currentBuildStep = 0;
         delete m_progressFutureInterface;
         m_progressFutureInterface = 0;
         m_maxProgress = 0;
