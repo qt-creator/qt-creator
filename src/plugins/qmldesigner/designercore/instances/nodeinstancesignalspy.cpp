@@ -26,10 +26,16 @@ void NodeInstanceSignalSpy::setObjectNodeInstance(const ObjectNodeInstance::Poin
 
 void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &prefix)
 {
+    if (registeredObjectList.contains(spiedObject)) // prevent cycles
+        return;
+
+    registeredObjectList.append(spiedObject);
     for (int index = QObject::staticMetaObject.propertyOffset();
          index < spiedObject->metaObject()->propertyCount();
          index++) {
              QMetaProperty metaProperty = spiedObject->metaObject()->property(index);
+
+             // handle dot properties and connect the signals to the object
              if (metaProperty.isReadable()
                  && !metaProperty.isWritable()
                  && QDeclarativeMetaType::isQObject(metaProperty.userType())) {
@@ -42,6 +48,28 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &
                  Q_ASSERT(isConnecting);
                  m_indexPropertyHash.insert(methodeOffset, prefix + metaProperty.name());
                  methodeOffset++;
+             }
+
+             // search recursive in objects
+             if (metaProperty.isReadable()
+                 && metaProperty.isWritable()
+                 && QDeclarativeMetaType::isQObject(metaProperty.userType())) {
+                 QObject *propertyObject = QDeclarativeMetaType::toQObject(metaProperty.read(spiedObject));
+                 if (propertyObject)
+                     registerObject(propertyObject, prefix + metaProperty.name() + "/");
+             }
+
+             // search recursive in objects list
+             if (metaProperty.isReadable()
+                 && QDeclarativeMetaType::isList(metaProperty.userType())) {
+                 QDeclarativeListReference list(spiedObject, metaProperty.name());
+                 if (list.canCount() && list.canAt()) {
+                     for (int i = 0; i < list.count(); i++) {
+                         QObject *propertyObject = list.at(i);
+                         if (propertyObject)
+                             registerObject(propertyObject, prefix + metaProperty.name() + "/");
+                     }
+                 }
              }
          }
 }
