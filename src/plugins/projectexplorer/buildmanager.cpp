@@ -344,7 +344,7 @@ void BuildManager::nextStep()
             const QString projectName = m_currentBuildStep->buildConfiguration()->target()->project()->displayName();
             QTextCharFormat textCharFormat;
             textCharFormat.setFontWeight(QFont::Bold);
-            addToOutputWindow(tr("Running build steps for project %2...")
+            addToOutputWindow(tr("Running build steps for project %1...")
                               .arg(projectName), textCharFormat);
             m_previousBuildStepProject = m_currentBuildStep->buildConfiguration()->target()->project();
         }
