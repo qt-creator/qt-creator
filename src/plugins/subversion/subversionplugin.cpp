@@ -1062,7 +1062,7 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
     Utils::SynchronousProcess process;
     if (!workingDir.isEmpty())
         process.setWorkingDirectory(workingDir);
-    QProcessEnvironment env = process.processEnvironment();
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
     process.setProcessEnvironment(env);
     process.setTimeout(timeOut);
