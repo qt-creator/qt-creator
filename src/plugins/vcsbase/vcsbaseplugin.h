@@ -187,7 +187,7 @@ public:
     enum RunVCSFlags {
         ShowStdOutInLogWindow = 0x1, // Append standard output to VCS output window.
         MergeOutputChannels = 0x2,   // see QProcess: Merge stderr/stdout.
-        SshPasswordPrompt = 0x40,    // Disable terminal on UNIX to force graphical prompt.
+        SshPasswordPrompt = 0x4,    // Disable terminal on UNIX to force graphical prompt.
         SuppressStdErrInLogWindow = 0x8, // No standard error output to VCS output window.
         SuppressFailMessageInLogWindow = 0x10, // No message VCS about failure in VCS output window.
         SuppressCommandLogging = 0x20, // No command log entry in VCS output window.
