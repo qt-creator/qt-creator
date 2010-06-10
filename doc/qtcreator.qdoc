@@ -2762,12 +2762,12 @@
 
         \o Click
         \inlineimage{qtcreator-run.png}
-        to build the application for Qt Simulator.
+        to build the application and run it in Qt Simulator.
 
         \o To see the compilation progress, press \key{Alt+4} to open the
         \gui Compile Output pane.
 
-        The gui Build progress bar on the toolbar turns green when the project
+        The \gui Build progress bar on the toolbar turns green when the project
         is successfully built. The application opens in Qt Simulator.
 
         \image {qt-simulator.png} "Qt Simulator"
@@ -5884,7 +5884,7 @@
 
         \o On the device, install \c rootsh from the \gui {Application Manager}.
 
-        \o In \gui Programs, select \c {X Terminal} to open a terminal window
+        \o In \gui Programs, select \c {X Terminal} to open a terminal window.
 
         \o To switch to the root user, enter the following command:
         \c{sudo gainroot}
@@ -5892,7 +5892,7 @@
         \o To install Qt Mobility libraries, enter the following command:
         \c{apt-get install libqtm-*}
 
-        \o To confirm the installation, enter: \c Y.
+        \o To confirm the installation, enter: \c Y
 
         \o Close the terminal.
 
@@ -6338,9 +6338,9 @@
         \o The \l{http://tools.ext.nokia.com/trk/}{App TRK} application for
            your device
         \o The \e{qt_installer.sis} package installed on the device, that is
-         delivered with the Qt SDK.
-         \o Qt Mobility APIs installed on the device, if you use them in
-         applications.
+         delivered with the Qt SDK
+         \o \e {Qt Mobility APIs} installed on the device, if you use them in
+         applications
     \endlist
 
     To run your applications in the Symbian emulator, you also need
