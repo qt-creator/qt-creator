@@ -1939,7 +1939,7 @@ const Value *Function::invoke(const Activation *activation) const
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
 
-QList<const FakeMetaObject *> CppQmlTypesLoader::objectsFromXml;
+QList<const FakeMetaObject *> CppQmlTypesLoader::builtinObjects;
 
 QStringList CppQmlTypesLoader::load(const QFileInfoList &xmlFiles)
 {
@@ -1968,7 +1968,7 @@ QStringList CppQmlTypesLoader::load(const QFileInfoList &xmlFiles)
         QMapIterator<QString, FakeMetaObject *> it(newObjects);
         while (it.hasNext()) {
             it.next();
-            objectsFromXml.append(it.value());
+            builtinObjects.append(it.value());
         }
     }
 
@@ -2359,7 +2359,7 @@ Engine::Engine()
 {
     initializePrototypes();
 
-    _cppQmlTypes.load(this, CppQmlTypesLoader::objectsFromXml);
+    _cppQmlTypes.load(this, CppQmlTypesLoader::builtinObjects);
 }
 
 Engine::~Engine()

@@ -89,6 +89,9 @@ void ModelManager::loadQmlTypeDescriptions()
     const QStringList errors = Interpreter::CppQmlTypesLoader::load(xmlFiles);
     foreach (const QString &error, errors)
         qWarning() << qPrintable(error);
+
+    // loads the builtin types
+    loadQmlPluginTypes(QString());
 }
 
 Snapshot ModelManager::snapshot() const
@@ -493,7 +496,11 @@ void ModelManager::qmlPluginTypeDumpDone(int exitCode)
 
     QMutexLocker locker(&m_mutex);
 
-    LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
-    libraryInfo.setMetaObjects(objectsList);
-    _snapshot.insertLibraryInfo(libraryPath, libraryInfo);
+    if (!libraryPath.isEmpty()) {
+        LibraryInfo libraryInfo = _snapshot.libraryInfo(libraryPath);
+        libraryInfo.setMetaObjects(objectsList);
+        _snapshot.insertLibraryInfo(libraryPath, libraryInfo);
+    } else {
+        Interpreter::CppQmlTypesLoader::builtinObjects.append(objectsList);
+    }
 }
