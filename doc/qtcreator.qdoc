@@ -1857,7 +1857,7 @@
            the \c{PATH} environment variable.
         \o To build an application for the emulator (WINSCW toolchain), enter
            the path to your Carbide C++ installation directory in
-           \gui{Carbide Directory}.
+           \gui{Carbide directory}.
 
            \note You need to have Carbide C++ version 2.0 or later installed.
     \endlist
