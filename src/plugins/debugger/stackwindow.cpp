@@ -172,9 +172,9 @@ void StackWindow::copyContentsToClipboard()
         str += '\n';
     }
     QClipboard *clipboard = QApplication::clipboard();
-    #ifdef Q_WS_X11
+#    ifdef Q_WS_X11
     clipboard->setText(str, QClipboard::Selection);
-    #endif
+#    endif
     clipboard->setText(str, QClipboard::Clipboard);
 }
 

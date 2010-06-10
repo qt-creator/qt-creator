@@ -160,6 +160,7 @@ IDebuggerEngine *createGdbEngine(DebuggerManager *parent);
 IDebuggerEngine *createScriptEngine(DebuggerManager *parent);
 IDebuggerEngine *createPdbEngine(DebuggerManager *parent);
 IDebuggerEngine *createTcfEngine(DebuggerManager *parent);
+IDebuggerEngine *createQmlEngine(DebuggerManager *parent);
 
 // The createCdbEngine function takes a list of options pages it can add to.
 // This allows for having a "enabled" toggle on the page independently
@@ -198,7 +199,7 @@ using namespace TextEditor;
 
 const char *DebuggerManager::stateName(int s)
 {
-    #define SN(x) case x: return #x;
+#    define SN(x) case x: return #x;
     switch (s) {
         SN(DebuggerNotReady)
         SN(EngineStarting)
@@ -221,7 +222,7 @@ const char *DebuggerManager::stateName(int s)
         SN(EngineShuttingDown)
     }
     return "<unknown>";
-    #undef SN
+#    undef SN
 }
 
 
@@ -254,6 +255,7 @@ static Debugger::Internal::IDebuggerEngine *gdbEngine = 0;
 static Debugger::Internal::IDebuggerEngine *scriptEngine = 0;
 static Debugger::Internal::IDebuggerEngine *cdbEngine = 0;
 static Debugger::Internal::IDebuggerEngine *pdbEngine = 0;
+static Debugger::Internal::IDebuggerEngine *qmlEngine = 0;
 static Debugger::Internal::IDebuggerEngine *tcfEngine = 0;
 
 struct DebuggerManagerPrivate
@@ -345,12 +347,13 @@ DebuggerManager::DebuggerManager(DebuggerPlugin *plugin)
 
 DebuggerManager::~DebuggerManager()
 {
-    #define doDelete(ptr) delete ptr; ptr = 0
+#    define doDelete(ptr) delete ptr; ptr = 0
     doDelete(scriptEngine);
     doDelete(pdbEngine);
     doDelete(gdbEngine);
     doDelete(cdbEngine);
     doDelete(tcfEngine);
+    doDelete(qmlEngine);
 
     doDelete(d->m_breakHandler);
     doDelete(d->m_threadsHandler);
@@ -359,12 +362,7 @@ DebuggerManager::~DebuggerManager()
     doDelete(d->m_snapshotHandler);
     doDelete(d->m_stackHandler);
     doDelete(d->m_watchHandler);
-
-    doDelete(gdbEngine);
-    doDelete(scriptEngine);
-    doDelete(cdbEngine);
-    doDelete(tcfEngine);
-    #undef doDelete
+#    undef doDelete
     DebuggerManagerPrivate::instance = 0;
     delete d;
 }
@@ -692,6 +690,11 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
         tcfEngine->addOptionPages(&rc);
     }
 
+    if (enabledTypeFlags & QmlEngineType) {
+        qmlEngine = createQmlEngine(this);
+        //qmlEngine->addOptionPages(&rc);
+    }
+
     d->m_engine = 0;
     STATE_DEBUG(gdbEngine << cdbEngine << scriptEngine
         << pdbEngine << rc.size());
@@ -976,6 +979,15 @@ static IDebuggerEngine *debuggerEngineForExecutable(const QString &executable,
                                                     QString *errorMessage,
                                                     QString *settingsIdHint)
 {
+    if (executable.endsWith(_("qmlviewer"))) {
+        qDebug() << "HERE";
+        if (!qmlEngine) {
+            *errorMessage = msgEngineNotAvailable("Qml Engine");
+            return 0;
+        }
+        return qmlEngine;
+    }
+
     if (executable.endsWith(_(".js"))) {
         if (!scriptEngine) {
             *errorMessage = msgEngineNotAvailable("Script Engine");
@@ -1016,7 +1028,8 @@ static IDebuggerEngine *debuggerEngineForExecutable(const QString &executable,
 
     // We need the CDB debugger in order to be able to debug VS
     // executables
-    if (!DebuggerManager::instance()->checkDebugConfiguration(ProjectExplorer::ToolChain::MSVC, errorMessage, 0 , settingsIdHint))
+    if (!DebuggerManager::instance()->checkDebugConfiguration(
+            ProjectExplorer::ToolChain::MSVC, errorMessage, 0, settingsIdHint))
         return 0;
     return cdbEngine;
 #endif
@@ -1049,6 +1062,7 @@ static IDebuggerEngine *debuggerEngineForMode(DebuggerStartMode startMode, QStri
 
 void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 {
+    qDebug() << "TARGET: " << sp->executable;
     if (d->m_state != DebuggerNotReady)
         return;
     d->m_startParameters = sp;
@@ -1067,7 +1081,9 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     // Figure out engine: toolchain, executable, attach or default
     const DebuggerStartMode startMode = sp->startMode;
 
-    if (sp->executable.endsWith(_(".js")))
+    if (sp->executable.endsWith(_("qmlviewer")))
+        d->m_engine = qmlEngine;
+    else if (sp->executable.endsWith(_(".js")))
         d->m_engine = scriptEngine;
     else if (sp->executable.endsWith(_(".py")))
         d->m_engine = pdbEngine;

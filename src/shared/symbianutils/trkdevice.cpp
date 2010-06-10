@@ -58,9 +58,9 @@
 /* Required headers for select() according to POSIX.1-2001 */
 #  include <sys/select.h>
 /* Required headers for select() according to earlier standards:
-       #include <sys/time.h>
-       #include <sys/types.h>
-       #include <unistd.h>
+#  include <sys/time.h>
+#  include <sys/types.h>
+#  include <unistd.h>
 */
 #endif
 

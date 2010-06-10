@@ -733,7 +733,7 @@ void FakeVimPluginPrivate::setActionChecked(const QString &code, bool check)
 
 void FakeVimPluginPrivate::windowCommand(int key)
 {
-    #define control(n) (256 + n)
+#    define control(n) (256 + n)
     QString code;
     switch (key) {
         case 'c': case 'C': case control('c'):
@@ -756,7 +756,7 @@ void FakeVimPluginPrivate::windowCommand(int key)
             code = Core::Constants::GOTO_OTHER_SPLIT;
             break;
     }
-    #undef control
+#    undef control
     //qDebug() << "RUNNING WINDOW COMMAND: " << key << code;
     if (code.isEmpty()) {
         //qDebug() << "UNKNOWN WINDOWS COMMAND: " << key;

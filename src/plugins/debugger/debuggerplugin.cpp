@@ -637,11 +637,15 @@ static bool parseArgument(QStringList::const_iterator &it,
         *enabledEngines &= ~Debugger::GdbEngineType;
         return true;
     }
+    if (option == _("-disable-qmldb")) {
+        *enabledEngines &= ~Debugger::QmlEngineType;
+        return true;
+    }
     if (option == _("-disable-sdb")) {
         *enabledEngines &= ~Debugger::ScriptEngineType;
         return true;
     }
-    if (option == QLatin1String("-disable-tcf")) {
+    if (option == _("-disable-tcf")) {
         *enabledEngines &= ~TcfEngineType;
         return true;
     }
@@ -1358,7 +1362,6 @@ void DebuggerPlugin::languageChanged(const QString &language)
     m_attachCoreAction->setVisible(debuggerIsCPP);
     m_startRemoteAction->setVisible(debuggerIsCPP);
     m_detachAction->setVisible(debuggerIsCPP);
-
 }
 
 void DebuggerPlugin::writeSettings() const
@@ -1398,11 +1401,8 @@ void DebuggerPlugin::onModeChanged(IMode *mode)
 
         if (isCurrentProjectCppBased())
             m_uiSwitcher->setActiveLanguage(LANG_CPP);
-
     }
 }
-
-
 
 void DebuggerPlugin::showSettingsDialog()
 {

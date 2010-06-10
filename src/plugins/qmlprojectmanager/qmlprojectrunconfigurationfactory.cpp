@@ -72,13 +72,13 @@ ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::create(Pro
 {
     if (!canCreate(parent, id))
         return 0;
-    QmlProjectTarget *qmlparent(static_cast<QmlProjectTarget *>(parent));
+    QmlProjectTarget *qmlparent = static_cast<QmlProjectTarget *>(parent);
     return new QmlProjectRunConfiguration(qmlparent);
 }
 
 bool QmlProjectRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
-    QString id(ProjectExplorer::idFromMap(map));
+    QString id = ProjectExplorer::idFromMap(map);
     return canCreate(parent, id);
 }
 
@@ -86,8 +86,8 @@ ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::restore(Pr
 {
     if (!canRestore(parent, map))
         return 0;
-    QmlProjectTarget *qmlparent(static_cast<QmlProjectTarget *>(parent));
-    QmlProjectRunConfiguration *rc(new QmlProjectRunConfiguration(qmlparent));
+    QmlProjectTarget *qmlparent = static_cast<QmlProjectTarget *>(parent);
+    QmlProjectRunConfiguration *rc = new QmlProjectRunConfiguration(qmlparent);
     if (rc->fromMap(map))
         return rc;
     delete rc;
@@ -104,7 +104,7 @@ ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::clone(Proj
 {
     if (!canClone(parent, source))
         return 0;
-    QmlProjectTarget *qmlparent(static_cast<QmlProjectTarget *>(parent));
+    QmlProjectTarget *qmlparent = static_cast<QmlProjectTarget *>(parent);
     return new QmlProjectRunConfiguration(qmlparent, qobject_cast<QmlProjectRunConfiguration *>(source));
 }
 

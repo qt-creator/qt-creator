@@ -45,11 +45,11 @@ NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
 {
     invisibleRootItem()->setFlags(Qt::ItemIsDropEnabled);
 
-    #ifdef _LOCK_ITEMS_
+#    ifdef _LOCK_ITEMS_
     setColumnCount(3);
-    #else
+#    else
     setColumnCount(2);
-    #endif
+#    endif
 
     setSupportedDragActions(Qt::LinkAction);
 
@@ -194,14 +194,14 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     idItem->setEditable(true);
     idItem->setData(hash, Qt::UserRole);
 
-    #ifdef _LOCK_ITEMS_
+#    ifdef _LOCK_ITEMS_
     QStandardItem *lockItem = new QStandardItem;
     lockItem->setDragEnabled(true);
     lockItem->setDropEnabled(dropEnabled);
     lockItem->setEditable(false);
     lockItem->setCheckable(true);
     lockItem->setData(hash, Qt::UserRole);
-    #endif
+#    endif
 
     QStandardItem *visibilityItem = new QStandardItem;
     visibilityItem->setDropEnabled(dropEnabled);
@@ -212,11 +212,11 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
         visibilityItem->setCheckable(false);
     }
 
-    #ifdef _LOCK_ITEMS_
+#    ifdef _LOCK_ITEMS_
     return ItemRow(idItem, lockItem, visibilityItem);
-    #else
+#    else
     return ItemRow(idItem, visibilityItem);
-    #endif
+#    endif
 }
 
 void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)

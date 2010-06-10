@@ -1323,7 +1323,7 @@ void tst_Debugger::dumpQLinkedList()
     dumpQLinkedListHelper(l3);
 }
 
-    #if 0
+#    if 0
     void tst_Debugger::dumpQLinkedList()
     {
         // Case 1: Simple element type.
@@ -1402,7 +1402,7 @@ void tst_Debugger::dumpQLinkedList()
         //dumpQLinkedListHelper(l3);
         testDumper("", &l, NS"QLinkedList", true, NS"QString");
     }
-    #endif
+#    endif
 
 void tst_Debugger::dumpQList_int()
 {

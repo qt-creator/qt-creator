@@ -32,17 +32,17 @@
 namespace QmlProjectManager {
 namespace Constants {
 
-const char * const QML_RC_ID("QmlProjectManager.QmlRunConfiguration");
-const char * const QML_RC_DISPLAY_NAME(QT_TRANSLATE_NOOP("QmlProjectManager::Internal::QmlRunConfiguration", "QML Viewer"));
-const char * const QML_VIEWER_KEY("QmlProjectManager.QmlRunConfiguration.QDeclarativeViewer");
-const char * const QML_VIEWER_ARGUMENTS_KEY("QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments");
-const char * const QML_VIEWER_TARGET_ID("QmlProjectManager.QmlTarget");
-const char * const QML_VIEWER_TARGET_DISPLAY_NAME("QML Viewer");
-const char * const QML_MAINSCRIPT_KEY("QmlProjectManager.QmlRunConfiguration.MainScript");
-const char * const QML_DEBUG_SERVER_ADDRESS_KEY("QmlProjectManager.QmlRunConfiguration.DebugServerAddress");
-const char * const QML_DEBUG_SERVER_PORT_KEY("QmlProjectManager.QmlRunConfiguration.DebugServerPort");
+const char * const QML_RC_ID = "QmlProjectManager.QmlRunConfiguration";
+const char * const QML_RC_DISPLAY_NAME = QT_TRANSLATE_NOOP("QmlProjectManager::Internal::QmlRunConfiguration", "QML Viewer");
+const char * const QML_VIEWER_KEY = "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewer";
+const char * const QML_VIEWER_ARGUMENTS_KEY = "QmlProjectManager.QmlRunConfiguration.QDeclarativeViewerArguments";
+const char * const QML_VIEWER_TARGET_ID = "QmlProjectManager.QmlTarget";
+const char * const QML_VIEWER_TARGET_DISPLAY_NAME = "QML Viewer";
+const char * const QML_MAINSCRIPT_KEY = "QmlProjectManager.QmlRunConfiguration.MainScript";
+const char * const QML_DEBUG_SERVER_ADDRESS_KEY = "QmlProjectManager.QmlRunConfiguration.DebugServerAddress";
+const char * const QML_DEBUG_SERVER_PORT_KEY = "QmlProjectManager.QmlRunConfiguration.DebugServerPort";
 
-const int QML_DEFAULT_DEBUG_SERVER_PORT(3768);
+const int QML_DEFAULT_DEBUG_SERVER_PORT = 3768;
 
 } // namespace Constants
 } // namespace QmlProjectManager

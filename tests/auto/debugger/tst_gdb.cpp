@@ -768,11 +768,11 @@ void dump_misc()
     vec.push_back("Hallo2");
     std::set<std::string> stdSet;
     stdSet.insert("s1");
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     QWidget *ww = 0; //this;
     QWidget &wwr = *ww;
     Q_UNUSED(wwr);
-    #endif
+#    endif
 
     QSharedPointer<QString> sps(new QString("hallo"));
     QList<QSharedPointer<QString> > spsl;
@@ -790,10 +790,10 @@ void dump_misc()
 
     QLinkedList<QString> lls;
     lls << "link1" << "link2";
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     QStandardItemModel *model = new QStandardItemModel;
     model->appendRow(new QStandardItem("i1"));
-    #endif
+#    endif
 
     QList <QList<int> > nestedIntList;
     nestedIntList << QList<int>();
@@ -1055,7 +1055,7 @@ QByteArray dump_QAbstractItemModelHelper(QAbstractItemModel &m)
 
 void dump_QAbstractItemModel()
 {
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     /* A */ QStringList strList;
             strList << "String 1";
             QStringListModel model1(strList);
@@ -1066,12 +1066,12 @@ void dump_QAbstractItemModel()
     /* E */ model2.appendRow(QList<QStandardItem *>() << (new QStandardItem("Item (0,0)")) << (new QStandardItem("Item (0,1)")));
     /* F */ model2.appendRow(QList<QStandardItem *>() << (new QStandardItem("Item (1,0)")) << (new QStandardItem("Item (1,1)")));
     /* G */ (void) (model1.rowCount() + model2.rowCount() + strList.size());
-    #endif
+#    endif
 }
 
 void tst_Gdb::dump_QAbstractItemModel()
 {
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     /* A */ QStringList strList;
     QString template_ =
         "{iname='local.strList',name='strList',type='"NS"QStringList',"
@@ -1086,7 +1086,7 @@ void tst_Gdb::dump_QAbstractItemModel()
         check("A", template_.arg("1").toAscii());
     next(4);
     check("B", template_.arg("1").toAscii());
-    #endif
+#    endif
 }
 
 
@@ -1184,16 +1184,16 @@ void tst_Gdb::dump_QChar()
 
 void dump_QDateTime()
 {
-    #ifndef QT_NO_DATESTRING
+#    ifndef QT_NO_DATESTRING
     /* A */ QDateTime d;
     /* B */ d = QDateTime::fromString("M5d21y7110:31:02", "'M'M'd'd'y'yyhh:mm:ss");
     /* C */ (void) d.isNull();
-    #endif
+#    endif
 }
 
 void tst_Gdb::dump_QDateTime()
 {
-    #ifndef QT_NO_DATESTRING
+#    ifndef QT_NO_DATESTRING
     prepare("dump_QDateTime");
     if (checkUninitialized)
         check("A","{iname='local.d',name='d',"
@@ -1238,7 +1238,7 @@ void tst_Gdb::dump_QDateTime()
                 "value='-',numchild='3'}"
             "]}",
           "local.d");
-    #endif
+#    endif
 }
 
 
@@ -1387,18 +1387,18 @@ void tst_Gdb::dump_QImageDataHelper(QImage &img)
 
 void dump_QImage()
 {
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     /* A */ QImage image; // Null image.
     /* B */ image = QImage(30, 700, QImage::Format_RGB555); // Normal image.
     /* C */ image = QImage(100, 0, QImage::Format_Invalid); // Invalid image.
     /* D */ (void) image.size();
     /* E */ (void) image.size();
-    #endif
+#    endif
 }
 
 void tst_Gdb::dump_QImage()
 {
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     prepare("dump_QImage");
     next();
     check("B", "{iname='local.image',name='image',type='"NS"QImage',"
@@ -1410,7 +1410,7 @@ void tst_Gdb::dump_QImage()
     // FIXME:
     //check("E", "{iname='local.image',name='image',type='"NS"QImage',"
     //    "value='(100x0)',numchild='0'}");
-    #endif
+#    endif
 }
 
 #if 0
@@ -2411,17 +2411,17 @@ const char * const pixmap[] = {
 
 void dump_QPixmap()
 {
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     /* A */ QPixmap p; // Case 1: Null Pixmap.
     /* B */ p = QPixmap(20, 100); // Case 2: Uninitialized non-null pixmap.
     /* C */ p = QPixmap(pixmap); // Case 3: Initialized non-null pixmap.
     /* D */ (void) p.size();
-    #endif
+#    endif
 }
 
 void tst_Gdb::dump_QPixmap()
 {
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     prepare("dump_QPixmap");
     next();
     check("B", "{iname='local.p',name='p',type='"NS"QPixmap',"
@@ -2432,7 +2432,7 @@ void tst_Gdb::dump_QPixmap()
     next();
     check("D", "{iname='local.p',name='p',type='"NS"QPixmap',"
         "value='(2x24)',numchild='0'}");
-    #endif
+#    endif
 }
 
 
@@ -2915,7 +2915,7 @@ void dump_QVariant()
 
 void tst_Gdb::dump_QVariant()
 {
-    #define PRE "iname='local.v',name='v',type='"NS"QVariant',"
+#    define PRE "iname='local.v',name='v',type='"NS"QVariant',"
     prepare("dump_QVariant");
     if (checkUninitialized) /*<invalid>*/
         check("A","{"PRE"'value=<invalid>',numchild='0'}");
@@ -3257,15 +3257,15 @@ void tst_Gdb::dump_QWeakPointer_2() {}
 
 void dump_QWidget()
 {
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     /* A */ QWidget w;
     /* B */ (void) w.size();
-    #endif
+#    endif
 }
 
 void tst_Gdb::dump_QWidget()
 {
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     prepare("dump_QWidget");
     if (checkUninitialized)
         check("A","{iname='local.w',name='w',"
@@ -3290,7 +3290,7 @@ void tst_Gdb::dump_QWidget()
       "{name='data',type='"NS"QWidgetData *',"
         "value='-',numchild='1'}]}",
       "local.w,local.w."NS"QObject");
-    #endif
+#    endif
 }
 
 
@@ -3620,11 +3620,11 @@ void breaker() {}
 
 int main(int argc, char *argv[])
 {
-    #ifdef QT_GUI_LIB
+#    ifdef QT_GUI_LIB
     QApplication app(argc, argv);
-    #else
+#    else
     QCoreApplication app(argc, argv);
-    #endif
+#    endif
     breaker();
 
     if (argc == 2 && QByteArray(argv[1]) == "run") {
