@@ -90,7 +90,6 @@ struct FileIconProviderPrivate {
     // Mapping of file suffix to icon.
     StringIconPairList m_cache;
 
-    QFileIconProvider m_systemIconProvider;
     QIcon m_unknownFileIcon;
 
     // singleton pattern
@@ -140,23 +139,13 @@ QIcon FileIconProvider::icon(const QFileInfo &fileInfo) const
     }
     // Get icon from OS.
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-    return d->m_systemIconProvider.icon(fileInfo);
+    return QFileIconProvider::icon(fileInfo);
 #else
     // File icons are unknown on linux systems.
     return (fileInfo.isDir()) ?
-           d->m_systemIconProvider.icon(fileInfo) :
+           QFileIconProvider::icon(fileInfo) :
            d->m_unknownFileIcon;
 #endif
-}
-
-QIcon FileIconProvider::icon(IconType type) const
-{
-    return d->m_systemIconProvider.icon(type);
-}
-
-QString FileIconProvider::type(const QFileInfo &info) const
-{
-    return d->m_systemIconProvider.type(info);
 }
 
 /*!

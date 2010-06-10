@@ -61,6 +61,11 @@ CoreImpl::CoreImpl(MainWindow *mainwindow)
     m_mainwindow = mainwindow;
 }
 
+CoreImpl::~CoreImpl()
+{
+    m_instance = 0;
+}
+
 QStringList CoreImpl::showNewItemDialog(const QString &title,
                                         const QList<IWizard *> &wizards,
                                         const QString &defaultLocation)

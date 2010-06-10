@@ -53,7 +53,7 @@ const Interpreter::Value *Evaluate::operator()(AST::Node *ast)
     const Value *result = reference(ast);
 
     if (const Reference *ref = value_cast<const Reference *>(result))
-        result = ref->value(_context);
+        result = _context->lookupReference(ref);
 
     if (! result)
         result = _engine->undefinedValue();

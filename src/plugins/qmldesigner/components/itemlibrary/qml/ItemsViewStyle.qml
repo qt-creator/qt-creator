@@ -41,6 +41,7 @@ Item {
     property string scrollbarGradientMiddleColor: "#656565"
     property string scrollbarGradientEndColor: "#888888"
     property int scrollbarClickScrollAmount: 40
+    property int scrollbarWheelDeltaFactor: 4
 
     property string itemNameTextColor: "#FFFFFF"
 

@@ -129,6 +129,9 @@ public:
 
     QIcon taskTypeIcon(Task::TaskType t) const;
 
+    int taskCount();
+    int errorTaskCount();
+
 private:
     QHash<QString,QString> m_categories; // category id -> display name
     QList<Task> m_tasks;   // all tasks (in order of insertion)
@@ -138,6 +141,9 @@ private:
     int m_maxSizeOfFileName;
     const QIcon m_errorIcon;
     const QIcon m_warningIcon;
+    int m_taskCount;
+    int m_errorTaskCount;
+    int m_sizeOfLineNumber;
 };
 
 class TaskFilterModel : public QSortFilterProxyModel
@@ -203,8 +209,22 @@ void TaskView::keyPressEvent(QKeyEvent *e)
 TaskModel::TaskModel() :
     m_maxSizeOfFileName(0),
     m_errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png")),
-    m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"))
+    m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png")),
+    m_taskCount(0),
+    m_errorTaskCount(0),
+    m_sizeOfLineNumber(0)
 {
+
+}
+
+int TaskModel::taskCount()
+{
+    return m_taskCount;
+}
+
+int TaskModel::errorTaskCount()
+{
+    return m_errorTaskCount;
 }
 
 QIcon TaskModel::taskTypeIcon(Task::TaskType t) const
@@ -239,9 +259,13 @@ void TaskModel::addTask(const Task &task)
 {
     Q_ASSERT(m_categories.keys().contains(task.category));
 
-    QList<Task> tasksInCategory = m_tasksInCategory.value(task.category);
-    tasksInCategory.append(task);
-    m_tasksInCategory.insert(task.category, tasksInCategory);
+    if (m_tasksInCategory.contains(task.category)) {
+        m_tasksInCategory[task.category].append(task);
+    } else {
+        QList<Task> temp;
+        temp.append(task);
+        m_tasksInCategory.insert(task.category, temp);
+    }
 
     beginInsertRows(QModelIndex(), m_tasks.size(), m_tasks.size());
     m_tasks.append(task);
@@ -255,6 +279,9 @@ void TaskModel::addTask(const Task &task)
         filename = task.file.mid(pos +1);
 
     m_maxSizeOfFileName = qMax(m_maxSizeOfFileName, fm.width(filename));
+    ++m_taskCount;
+    if (task.type == Task::Error)
+        ++m_errorTaskCount;
 }
 
 void TaskModel::removeTask(const Task &task)
@@ -263,6 +290,9 @@ void TaskModel::removeTask(const Task &task)
         int index = m_tasks.indexOf(task);
         beginRemoveRows(QModelIndex(), index, index);
         m_tasks.removeAt(index);
+        --m_taskCount;
+        if (task.type == Task::Error)
+            --m_errorTaskCount;
         endRemoveRows();
     }
 }
@@ -275,24 +305,41 @@ void TaskModel::clearTasks(const QString &categoryId)
         beginRemoveRows(QModelIndex(), 0, m_tasks.size() -1);
         m_tasks.clear();
         m_tasksInCategory.clear();
+        m_taskCount = 0;
+        m_errorTaskCount = 0;
         endRemoveRows();
         m_maxSizeOfFileName = 0;
     } else {
-        // TODO: Optimize this for consecutive rows
-        foreach (const Task &task, m_tasksInCategory.value(categoryId)) {
-            int index = m_tasks.indexOf(task);
-            Q_ASSERT(index >= 0);
-            beginRemoveRows(QModelIndex(), index, index);
+        int index = 0;
+        int start = 0;
+        int subErrorTaskCount = 0;
+        while (index < m_tasks.size()) {
+            while (index < m_tasks.size() && m_tasks.at(index).category != categoryId) {
+                ++start;
+                ++index;
+            }
+            if (index == m_tasks.size())
+                break;
+            while (index < m_tasks.size() && m_tasks.at(index).category == categoryId) {
+                if (m_tasks.at(index).type == Task::Error)
+                    ++subErrorTaskCount;
+                ++index;
+            }
+            // Index is now on the first non category
+            beginRemoveRows(QModelIndex(), start, index - 1);
 
-            m_tasks.removeAt(index);
+            for (int i = start; i < index; ++i) {
+                m_tasksInCategory[categoryId].removeOne(m_tasks.at(i));
+            }
 
-            QList<Task> tasksInCategory = m_tasksInCategory.value(categoryId);
-            tasksInCategory.removeOne(task);
-            m_tasksInCategory.insert(categoryId, tasksInCategory);
+            m_tasks.erase(m_tasks.begin() + start, m_tasks.begin() + index);
+
+            m_taskCount -= index - start;
+            m_errorTaskCount -= subErrorTaskCount;
 
             endRemoveRows();
+            index = start;
         }
-
         // what to do with m_maxSizeOfFileName ?
     }
 }
@@ -366,9 +413,12 @@ int TaskModel::sizeOfFile()
 
 int TaskModel::sizeOfLineNumber()
 {
-    QFont font;
-    QFontMetrics fm(font);
-    return fm.width("8888");
+    if (m_sizeOfLineNumber == 0) {
+        QFont font;
+        QFontMetrics fm(font);
+        m_sizeOfLineNumber = fm.width("8888");
+    }
+    return m_sizeOfLineNumber;
 }
 
 void TaskModel::setFileNotFound(const QModelIndex &idx, bool b)
@@ -674,21 +724,14 @@ void TaskWindow::filterCategoryTriggered(QAction *action)
     d->m_filter->setFilteredCategories(categories);
 }
 
-int TaskWindow::taskCount(const QString &categoryId) const
+int TaskWindow::taskCount() const
 {
-    return d->m_model->tasks(categoryId).count();
+    return d->m_model->taskCount();
 }
 
-int TaskWindow::errorTaskCount(const QString &categoryId) const
+int TaskWindow::errorTaskCount() const
 {
-    int errorTaskCount = 0;
-
-    foreach (const Task &task, d->m_model->tasks(categoryId)) {
-        if (task.type == Task::Error)
-            ++ errorTaskCount;
-    }
-
-    return errorTaskCount;
+    return d->m_model->errorTaskCount();
 }
 
 int TaskWindow::priorityInStatusBar() const

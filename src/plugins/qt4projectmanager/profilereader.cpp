@@ -48,7 +48,8 @@ ProFileReader::~ProFileReader()
 bool ProFileReader::readProFile(const QString &fileName)
 {
     if (ProFile *pro = parsedProFile(fileName)) {
-        aboutToEval(pro);
+        m_ignoreLevel = 0;
+        aboutToEval(0, pro, EvalIncludeFile);
         bool ok = accept(pro);
         pro->deref();
         return ok;
@@ -56,13 +57,21 @@ bool ProFileReader::readProFile(const QString &fileName)
     return false;
 }
 
-void ProFileReader::aboutToEval(ProFile *pro)
+void ProFileReader::aboutToEval(ProFile *, ProFile *pro, EvalFileType type)
 {
-    if (!m_includeFiles.contains(pro->fileName())) {
+    if (m_ignoreLevel || type == EvalFeatureFile) {
+        m_ignoreLevel++;
+    } else if (!m_includeFiles.contains(pro->fileName())) {
         m_includeFiles.insert(pro->fileName(), pro);
         m_proFiles.append(pro);
         pro->ref();
     }
+}
+
+void ProFileReader::doneWithEval(ProFile *)
+{
+    if (m_ignoreLevel)
+        m_ignoreLevel--;
 }
 
 QList<ProFile*> ProFileReader::includeFiles() const

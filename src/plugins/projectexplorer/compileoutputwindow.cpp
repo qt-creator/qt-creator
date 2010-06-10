@@ -52,6 +52,8 @@ CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_textEdit);
     agg->add(new Find::BaseTextFind(m_textEdit));
+
+    qRegisterMetaType<QTextCharFormat>("QTextCharFormat");
 }
 
 bool CompileOutputWindow::hasFocus()
@@ -74,9 +76,16 @@ QWidget *CompileOutputWindow::outputWidget(QWidget *)
     return m_textEdit;
 }
 
-void CompileOutputWindow::appendText(const QString &text)
+void CompileOutputWindow::appendText(const QString &text, const QTextCharFormat &textCharFormat)
 {
-    m_textEdit->appendHtml(text);
+    QString textWithNewline = text;
+    if (!textWithNewline.endsWith("\n"))
+        textWithNewline.append("\n");
+    QTextCursor cursor = QTextCursor(m_textEdit->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.beginEditBlock();
+    cursor.insertText(textWithNewline, textCharFormat);
+    cursor.endEditBlock();
 }
 
 void CompileOutputWindow::clearContents()

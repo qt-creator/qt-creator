@@ -104,7 +104,8 @@ void OutputParserTester::testOutputMangling(const QString &input,
 {
     reset();
 
-    childParser()->outputAdded(input);
+    QTextCharFormat textCharFormat;
+    childParser()->outputAdded(input, textCharFormat);
 
     QCOMPARE(m_receivedOutput, output);
     QVERIFY(m_receivedStdErrChildLine.isNull());
@@ -139,8 +140,9 @@ void OutputParserTester::appendOutputParser(IOutputParser *parser)
     parser->appendOutputParser(this);
 }
 
-void OutputParserTester::outputAdded(const QString &line)
+void OutputParserTester::outputAdded(const QString &line, const QTextCharFormat &textCharFormat)
 {
+    Q_UNUSED(textCharFormat);
     if (!m_receivedOutput.isEmpty())
         m_receivedOutput.append(QChar('\n'));
     m_receivedOutput.append(line);

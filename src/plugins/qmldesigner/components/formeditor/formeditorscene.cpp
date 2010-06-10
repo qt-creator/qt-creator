@@ -223,10 +223,6 @@ void FormEditorScene::dragLeaveEvent(QGraphicsSceneDragDropEvent * event)
     currentTool()->dragLeaveEvent(event);
 
     return;
-
-     if  (m_dragNode.isValid()) {
-         m_dragNode.destroy();
-     }
 }
 
 void FormEditorScene::dragMoveEvent(QGraphicsSceneDragDropEvent * event)

@@ -704,50 +704,6 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     static_cast<QHBoxLayout*>(w->layout())->insertWidget(0, m_methodCombo, 1);
 }
 
-void CPPEditor::inAllRenameSelections(EditOperation operation,
-                                      const QTextEdit::ExtraSelection &currentRenameSelection,
-                                      QTextCursor cursor,
-                                      const QString &text)
-{
-    cursor.beginEditBlock();
-
-    const int startOffset = cursor.selectionStart() - currentRenameSelection.cursor.anchor();
-    const int endOffset = cursor.selectionEnd() - currentRenameSelection.cursor.anchor();
-    const int length = endOffset - startOffset;
-
-    for (int i = 0; i < m_renameSelections.size(); ++i) {
-        QTextEdit::ExtraSelection &s = m_renameSelections[i];
-        int pos = s.cursor.anchor();
-        int endPos = s.cursor.position();
-
-        s.cursor.setPosition(pos + startOffset);
-        s.cursor.setPosition(pos + endOffset, QTextCursor::KeepAnchor);
-
-        switch (operation) {
-        case DeletePreviousChar:
-            s.cursor.deletePreviousChar();
-            endPos -= qMax(1, length);
-            break;
-        case DeleteChar:
-            s.cursor.deleteChar();
-            endPos -= qMax(1, length);
-            break;
-        case InsertText:
-            s.cursor.insertText(text);
-            endPos += text.length() - length;
-            break;
-        }
-
-        s.cursor.setPosition(pos);
-        s.cursor.setPosition(endPos, QTextCursor::KeepAnchor);
-    }
-
-    cursor.endEditBlock();
-
-    setExtraSelections(CodeSemanticsSelection, m_renameSelections);
-    setTextCursor(cursor);
-}
-
 void CPPEditor::paste()
 {
     if (m_currentRenameSelection == -1) {

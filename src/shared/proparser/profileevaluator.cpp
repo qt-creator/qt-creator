@@ -140,7 +140,7 @@ ProFileOption::ProFileOption()
     dirlist_sep = QLatin1Char(':');
     dir_sep = QLatin1Char('/');
 #endif
-    qmakespec = QString::fromLatin1(qgetenv("QMAKESPEC").data());
+    qmakespec = QString::fromLocal8Bit(qgetenv("QMAKESPEC").data());
 
 #if defined(Q_OS_WIN32)
     target_mode = TARG_WIN_MODE;
@@ -292,6 +292,7 @@ public:
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
     ProFile *parsedProFile(const QString &fileName, bool cache,
                            const QString &contents = QString());
+    bool evaluateFileDirect(const QString &fileName, ProFileEvaluator::EvalFileType type);
     bool evaluateFile(const QString &fileName);
     bool evaluateFeatureFile(const QString &fileName,
                              QHash<ProString, ProStringList> *values = 0, FunctionDefs *defs = 0);
@@ -572,7 +573,7 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
         return false;
     }
 
-    QString content(QString::fromLatin1(file.readAll())); // yes, really latin1
+    QString content(QString::fromLocal8Bit(file.readAll()));
     file.close();
     m_lineNo = 1;
     m_profileStack.push(pro);
@@ -2138,10 +2139,10 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
                     if (m_option->qmakespec_name == QLatin1String("default")) {
 #ifdef Q_OS_UNIX
                         char buffer[1024];
-                        int l = ::readlink(m_option->qmakespec.toLatin1().constData(), buffer, 1024);
+                        int l = ::readlink(m_option->qmakespec.toLocal8Bit().constData(), buffer, 1024);
                         if (l != -1)
                             m_option->qmakespec_name =
-                                    IoUtils::fileName(QString::fromLatin1(buffer, l)).toString();
+                                    IoUtils::fileName(QString::fromLocal8Bit(buffer, l)).toString();
 #else
                         // We can't resolve symlinks as they do on Unix, so configure.exe puts
                         // the source of the qmake.conf at the end of the default/qmake.conf in
@@ -2542,7 +2543,7 @@ ProStringList ProFileEvaluator::Private::expandVariableReferences(
                 ProStringList replacement;
                 if (var_type == ENVIRON) {
                     replacement = split_value_list(QString::fromLocal8Bit(qgetenv(
-                            var.toQString(m_tmp1).toLatin1().constData())));
+                            var.toQString(m_tmp1).toLocal8Bit().constData())));
                 } else if (var_type == PROPERTY) {
                     replacement << ProString(propertyValue(var.toQString(m_tmp1)), NoHash);
                 } else if (var_type == FUNCTION) {
@@ -3050,9 +3051,9 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                     logMessage(format("system(execute) requires one or two arguments."));
                 } else {
                     char buff[256];
-                    FILE *proc = QT_POPEN((QLatin1String("cd ")
+                    FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
                                            + IoUtils::shellQuote(currentDirectory())
-                                           + QLatin1String(" && ") + args[0]).toLatin1(), "r");
+                                           + QLatin1String(" && ") + args[0]).toLocal8Bit(), "r");
                     bool singleLine = true;
                     if (args.count() > 1)
                         singleLine = isTrue(args.at(1), m_tmp2);
@@ -3066,7 +3067,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                                 buff[i] = ' ';
                         }
                         buff[read_in] = '\0';
-                        output += QLatin1String(buff);
+                        output += QString::fromLocal8Bit(buff);
                     }
                     ret += split_value_list(output);
                     if (proc)
@@ -3634,7 +3635,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             }
             return returnBool(system((QLatin1String("cd ")
                                       + IoUtils::shellQuote(currentDirectory())
-                                      + QLatin1String(" && ") + args.at(0)).toLatin1().constData()) == 0);
+                                      + QLatin1String(" && ") + args.at(0)).toLocal8Bit().constData()) == 0);
         }
 #endif
         case T_ISEMPTY: {
@@ -3832,7 +3833,7 @@ ProStringList ProFileEvaluator::Private::values(const ProString &variableName) c
                     case V_QMAKE_HOST_version_string: what = name.version; break;
                     case V_QMAKE_HOST_arch: what = name.machine; break;
                     }
-                    ret = QString::fromLatin1(what);
+                    ret = QString::fromLocal8Bit(what);
                 }
             }
 #endif
@@ -3913,6 +3914,23 @@ ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool 
     return pro;
 }
 
+bool ProFileEvaluator::Private::evaluateFileDirect(
+        const QString &fileName, ProFileEvaluator::EvalFileType type)
+{
+    int lineNo = m_lineNo;
+    if (ProFile *pro = parsedProFile(fileName, true)) {
+        q->aboutToEval(currentProFile(), pro, type);
+        bool ok = (visitProFile(pro) == ReturnTrue);
+        q->doneWithEval(currentProFile());
+        pro->deref();
+        m_lineNo = lineNo;
+        return ok;
+    } else {
+        m_lineNo = lineNo;
+        return false;
+    }
+}
+
 bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
 {
     if (fileName.isEmpty())
@@ -3922,17 +3940,7 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
             errorMessage(format("circular inclusion of %1").arg(fileName));
             return false;
         }
-    int lineNo = m_lineNo;
-    if (ProFile *pro = parsedProFile(fileName, true)) {
-        q->aboutToEval(pro);
-        bool ok = (visitProFile(pro) == ReturnTrue);
-        pro->deref();
-        m_lineNo = lineNo;
-        return ok;
-    } else {
-        m_lineNo = lineNo;
-        return false;
-    }
+    return evaluateFileDirect(fileName, ProFileEvaluator::EvalIncludeFile);
 }
 
 bool ProFileEvaluator::Private::evaluateFeatureFile(
@@ -3980,15 +3988,8 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
         bool cumulative = m_cumulative;
         m_cumulative = false;
 
-        // Don't use evaluateFile() here to avoid calling aboutToEval().
         // The path is fully normalized already.
-        bool ok = false;
-        int lineNo = m_lineNo;
-        if (ProFile *pro = parsedProFile(fn, true)) {
-            ok = (visitProFile(pro) == ReturnTrue);
-            pro->deref();
-        }
-        m_lineNo = lineNo;
+        bool ok = evaluateFileDirect(fn, ProFileEvaluator::EvalFeatureFile);
 
         m_cumulative = cumulative;
         return ok;
@@ -4174,7 +4175,11 @@ QString ProFileEvaluator::propertyValue(const QString &name) const
     return d->propertyValue(name);
 }
 
-void ProFileEvaluator::aboutToEval(ProFile *)
+void ProFileEvaluator::aboutToEval(ProFile *, ProFile *, EvalFileType)
+{
+}
+
+void ProFileEvaluator::doneWithEval(ProFile *)
 {
 }
 

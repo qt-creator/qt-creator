@@ -58,7 +58,8 @@ signals:
     void errorFound(const QString &error);
 
 private:
-    virtual void aboutToEval(ProFile *proFile);
+    virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type);
+    virtual void doneWithEval(ProFile *parent);
     virtual void logMessage(const QString &msg);
     virtual void fileMessage(const QString &msg);
     virtual void errorMessage(const QString &msg);
@@ -66,6 +67,7 @@ private:
 private:
     QMap<QString, ProFile *> m_includeFiles;
     QList<ProFile *> m_proFiles;
+    int m_ignoreLevel;
 };
 
 class ProFileCacheManager : public QObject

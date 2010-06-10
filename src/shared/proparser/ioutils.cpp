@@ -52,7 +52,7 @@ IoUtils::FileType IoUtils::fileType(const QString &fileName)
     return (attr & FILE_ATTRIBUTE_DIRECTORY) ? FileIsDir : FileIsRegular;
 #else
     struct ::stat st;
-    if (::stat(fileName.toLatin1().constData(), &st)) // latin1 symmetric to the file reader
+    if (::stat(fileName.toLocal8Bit().constData(), &st))
         return FileNotFound;
     return S_ISDIR(st.st_mode) ? FileIsDir : FileIsRegular;
 #endif

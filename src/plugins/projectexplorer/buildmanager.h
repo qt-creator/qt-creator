@@ -95,7 +95,7 @@ signals:
 
 private slots:
     void addToTaskWindow(const ProjectExplorer::Task &task);
-    void addToOutputWindow(const QString &string);
+    void addToOutputWindow(const QString &string, const QTextCharFormat &textCharFormat);
 
     void nextBuildQueue();
     void progressChanged();

@@ -31,6 +31,8 @@
 #define COMPILEOUTPUTWINDOW_H
 
 #include <coreplugin/ioutputpane.h>
+#include <QtGui/QColor>
+#include <QtGui/QTextCharFormat>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -54,7 +56,7 @@ public:
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
-    void appendText(const QString &text);
+    void appendText(const QString &text, const QTextCharFormat &textCharFormat);
     bool canFocus();
     bool hasFocus();
     void setFocus();

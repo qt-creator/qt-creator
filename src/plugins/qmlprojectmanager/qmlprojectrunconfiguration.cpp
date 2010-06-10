@@ -85,12 +85,7 @@ bool QmlProjectRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *
 {
     Q_UNUSED(bc);
 
-    if (!QFile::exists(mainScript())
-        || !Core::ICore::instance()->mimeDatabase()->findByFile(mainScript()).matchesType(QLatin1String("application/x-qml")))
-    {
-        return false;
-    }
-    return true;
+    return m_isEnabled;
 }
 
 void QmlProjectRunConfiguration::ctor()
@@ -326,15 +321,17 @@ void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor *editor)
         bool enable = false;
         if (editor) {
             m_currentFileFilename = editor->file()->fileName();
-            if (Core::ICore::instance()->mimeDatabase()->findByFile(mainScript()).matchesType(QLatin1String("application/x-qml")))
+            if (Core::ICore::instance()->mimeDatabase()->findByFile(mainScript()).type() == QLatin1String("application/x-qml"))
                 enable = true;
-        } else {
+        }
+        if (!editor
+            || Core::ICore::instance()->mimeDatabase()->findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
             // find a qml file with lowercase filename. This is slow but only done in initialization/other border cases.
             foreach(const QString& filename, m_projectTarget->qmlProject()->files()) {
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()
-                    && Core::ICore::instance()->mimeDatabase()->findByFile(fi).matchesType(QLatin1String("application/x-qml")))
+                    && Core::ICore::instance()->mimeDatabase()->findByFile(fi).type() == QLatin1String("application/x-qml"))
                 {
                     m_currentFileFilename = filename;
                     enable = true;

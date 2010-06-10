@@ -210,8 +210,7 @@ protected:
     // Utility that performs an overwrite check on a set of files. It checks if
     // the file exists, can be overwritten at all and prompts the user.
     enum OverwriteResult { OverwriteOk,  OverwriteError,  OverwriteCanceled };
-    OverwriteResult promptOverwrite(const QString &location,
-                                    const QStringList &files,
+    OverwriteResult promptOverwrite(const QStringList &files,
                                     QString *errorMessage) const;
 
     // Utility to open the editors for the files whose attribute is set accordingly.

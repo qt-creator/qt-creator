@@ -38,6 +38,10 @@
 #include <QDebug>
 #include <QPainter>
 
+#ifdef Q_OS_WIN
+#include <private/qwidget_p.h>
+#endif
+
 namespace QmlDesigner {
 
 namespace QmlDesignerItemLibraryDragAndDrop {
@@ -54,7 +58,20 @@ void CustomDragAndDropIcon::startDrag()
     raise();
     show();
 
+    grabMouseSafely();
+}
+
+void CustomDragAndDropIcon::grabMouseSafely()
+{
+#ifdef Q_OS_WIN
+    // grabMouse calls SetWindowsHookEx() - this function causes a system-wide
+    // freeze if any other app on the system installs a hook and fails to
+    // process events.
+    QWidgetPrivate *p = qt_widget_private(this);
+    p->grabMouseWhileInWindow();
+#else
     grabMouse();
+#endif
 }
 
 void CustomDragAndDropIcon::mouseReleaseEvent(QMouseEvent *event)
@@ -108,7 +125,8 @@ void CustomDragAndDropIcon::mouseMoveEvent(QMouseEvent *event)
               leave();                     // trigger animation if we leave a widget that accepted
                                            // the drag enter event
       }
-      grabMouse(); //enable the mouse grabber again - after the curser is set
+      //enable the mouse grabber again - after the curser is set
+      grabMouseSafely();
     } else {
         if (CustomDragAndDrop::isAccepted()) // create DragMoveEvents if the current widget
                                              // accepted the DragEnter event
@@ -231,7 +249,6 @@ void CustomDragAndDrop::startCustomDrag(const QPixmap icon, const QPixmap previe
     instance()->m_widget->setIcon(icon);
     instance()->m_widget->setPreview(preview);
     instance()->m_widget->startDrag();
-
 }
 
 bool CustomDragAndDrop::customDragActive()

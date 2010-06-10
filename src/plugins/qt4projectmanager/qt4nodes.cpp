@@ -530,9 +530,9 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExac
                 newFilePaths += readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative);
 
         }
-        newFilePaths.removeDuplicates();
 
         if (!newFilePaths.isEmpty()) {
+            newFilePaths.removeDuplicates();
             InternalNode *subfolder = new InternalNode;
             subfolder->type = type;
             subfolder->icon = fileTypes.at(i).icon;
@@ -1502,16 +1502,15 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
         const QString subDirKey = subDirVar + QLatin1String(".subdir");
         const QString subDirFileKey = subDirVar + QLatin1String(".file");
         if (reader->contains(subDirKey))
-            realDir = QFileInfo(reader->value(subDirKey)).filePath();
+            realDir = reader->value(subDirKey);
         else if (reader->contains(subDirFileKey))
-            realDir = QFileInfo(reader->value(subDirFileKey)).filePath();
+            realDir = reader->value(subDirFileKey);
         else
             realDir = subDirVar;
         QFileInfo info(realDir);
-        if (!info.isAbsolute()) {
+        if (!info.isAbsolute())
             info.setFile(m_projectDir + QLatin1Char('/') + realDir);
-            realDir = m_projectDir + QLatin1Char('/') + realDir;
-        }
+        realDir = info.filePath();
 
         QString realFile;
         if (info.isDir()) {
@@ -1521,14 +1520,14 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
         }
 
         if (QFile::exists(realFile)) {
-            if (!subProjectPaths.contains(realFile))
-                subProjectPaths << realFile;
+            subProjectPaths << realFile;
         } else {
             m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
                                          .arg(subDirVar).arg(realDir));
         }
     }
 
+    subProjectPaths.removeDuplicates();
     return subProjectPaths;
 }
 

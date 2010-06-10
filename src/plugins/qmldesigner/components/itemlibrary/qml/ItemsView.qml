@@ -60,6 +60,10 @@ Rectangle {
 
     // public
 
+    function scrollView(delta) {
+        scrollbar.scroll(-delta / style.scrollbarWheelDeltaFactor)
+    }
+
     function resetView() {
         expandAllEntries()
         scrollbar.reset()

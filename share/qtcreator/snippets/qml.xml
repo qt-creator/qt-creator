@@ -76,7 +76,7 @@
 </snippet>
 <snippet description="with targets">PropertyAction { targets: [<tab>name</tab>]; properties: "<tab>name</tab>" }
 </snippet>
-<snippet description="with target">PropertyAction { target: "<tab>name</tab>"; property: "<tab>name</tab>"; value: <tab>value</tab> }
+<snippet description="with target">PropertyAction { target: <tab>name</tab>; property: "<tab>name</tab>"; value: <tab>value</tab> }
 </snippet>
 <snippet>PauseAnimation { duration: <tab>200</tab> }
 </snippet>

@@ -67,14 +67,14 @@ signals:
     /// added to the output.
     /// Note: This is additional information. There is no need to add each
     /// line!
-    void addOutput(const QString &string);
+    void addOutput(const QString &string, const QTextCharFormat &format);
     /// Should be emitted for each task seen in the output.
     void addTask(const ProjectExplorer::Task &task);
 
 public slots:
     /// Subparsers have their addOutput signal connected to this slot.
     /// This method can be overwritten to change the string.
-    virtual void outputAdded(const QString &string);
+    virtual void outputAdded(const QString &string, const QTextCharFormat &color);
     /// Subparsers have their addTask signal connected to this slot.
     /// This method can be overwritten to change the task.
     virtual void taskAdded(const ProjectExplorer::Task &task);

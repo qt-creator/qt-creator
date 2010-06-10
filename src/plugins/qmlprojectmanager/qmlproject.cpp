@@ -258,7 +258,7 @@ bool QmlProject::fromMap(const QVariantMap &map)
 
     refresh(Everything);
     // FIXME workaround to guarantee that run/debug actions are enabled if a valid file exists
-    QmlProjectRunConfiguration *runConfig = static_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
+    QmlProjectRunConfiguration *runConfig = qobject_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
     if (runConfig)
         runConfig->changeCurrentFile(0);
 

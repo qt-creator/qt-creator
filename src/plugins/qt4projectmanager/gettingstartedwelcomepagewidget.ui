@@ -62,7 +62,6 @@
          </item>
          <item row="1" column="0">
           <widget class="Utils::WelcomeModeTreeWidget" name="tutorialTreeWidget" native="true">
-           <zorder></zorder>
           </widget>
          </item>
         </layout>

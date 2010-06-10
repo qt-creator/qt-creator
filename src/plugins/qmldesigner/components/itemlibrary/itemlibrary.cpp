@@ -153,6 +153,7 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_d->m_itemsView->rootObject());
     connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
     connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));
+    connect(this, SIGNAL(scrollItemsView(QVariant)), rootItem, SLOT(scrollView(QVariant)));
     connect(this, SIGNAL(resetItemsView()), rootItem, SLOT(resetView()));
 
     /* create Resources view and its model */
@@ -316,6 +317,16 @@ void ItemLibrary::startDragAndDrop(int itemLibId)
 void ItemLibrary::showItemInfo(int /*itemLibId*/)
 {
 //    qDebug() << "showing item info about id" << itemLibId;
+}
+
+void ItemLibrary::wheelEvent(QWheelEvent *event)
+{
+    if (m_d->m_stackedWidget->currentIndex() == 0 &&
+        m_d->m_itemsView->rect().contains(event->pos())) {
+        emit scrollItemsView(event->delta());
+        event->accept();
+    } else
+        QFrame::wheelEvent(event);
 }
 
 }

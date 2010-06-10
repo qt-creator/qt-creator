@@ -42,7 +42,7 @@ class CoreImpl : public ICore
 
 public:
     CoreImpl(MainWindow *mainwindow);
-    ~CoreImpl() {}
+    ~CoreImpl();
 
     QStringList showNewItemDialog(const QString &title,
                                   const QList<IWizard *> &wizards,

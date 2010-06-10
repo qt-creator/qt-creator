@@ -80,7 +80,8 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeTarget *parent, const QString 
     m_buildTarget(target),
     m_workingDirectory(workingDirectory),
     m_title(title),
-    m_baseEnvironmentBase(CMakeRunConfiguration::BuildEnvironmentBase)
+    m_baseEnvironmentBase(CMakeRunConfiguration::BuildEnvironmentBase),
+    m_enabled(true)
 {
     ctor();
 }
@@ -94,7 +95,8 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeTarget *parent, CMakeRunConfig
     m_title(source->m_title),
     m_arguments(source->m_arguments),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_baseEnvironmentBase(source->m_baseEnvironmentBase)
+    m_baseEnvironmentBase(source->m_baseEnvironmentBase),
+    m_enabled(source->m_enabled)
 {
     ctor();
 }
@@ -293,9 +295,21 @@ ProjectExplorer::ToolChain::ToolChainType CMakeRunConfiguration::toolChainType()
     return bc->toolChainType();
 }
 
+void CMakeRunConfiguration::setEnabled(bool b)
+{
+    if (m_enabled == b)
+        return;
+    m_enabled = b;
+    emit isEnabledChanged(isEnabled());
+    setDisplayName(m_title + (m_enabled ? "" : tr(" (disabled)")));
+}
+
+bool CMakeRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *bc) const
+{
+    return m_enabled && LocalApplicationRunConfiguration::isEnabled(bc);
+}
+
 // Configuration widget
-
-
 CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent)
     : QWidget(parent), m_ignoreChange(false), m_cmakeRunConfiguration(cmakeRunConfiguration)
 {

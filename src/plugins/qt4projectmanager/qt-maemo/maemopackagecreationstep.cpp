@@ -114,7 +114,8 @@ bool MaemoPackageCreationStep::createPackage()
     if (!packagingNeeded())
         return true;
 
-    emit addOutput(tr("Creating package file ..."));
+    QTextCharFormat textCharFormat;
+    emit addOutput(tr("Creating package file ..."), textCharFormat);
     QFile configFile(targetRoot() % QLatin1String("/config.sh"));
     if (!configFile.open(QIODevice::ReadOnly)) {
         raiseError(tr("Cannot open MADDE config file '%1'.")
@@ -214,14 +215,15 @@ bool MaemoPackageCreationStep::createPackage()
             return false;
     }
 
-    emit addOutput(tr("Package created."));
+    emit addOutput(tr("Package created."), textCharFormat);
     m_packageContents->setUnModified();
     return true;
 }
 
 bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command)
 {
-    emit addOutput(tr("Package Creation: Running command '%1'.").arg(command));
+    QTextCharFormat textCharFormat;
+    emit addOutput(tr("Package Creation: Running command '%1'.").arg(command), textCharFormat);
     QString perl;
 #ifdef Q_OS_WIN
     perl = maddeRoot() + QLatin1String("/bin/perl.exe ");
@@ -332,7 +334,8 @@ QString MaemoPackageCreationStep::nativePath(const QFile &file) const
 void MaemoPackageCreationStep::raiseError(const QString &shortMsg,
                                           const QString &detailedMsg)
 {
-    emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg);
+    QTextCharFormat textCharFormat;
+    emit addOutput(detailedMsg.isNull() ? shortMsg : detailedMsg, textCharFormat);
     emit addTask(Task(Task::Error, shortMsg, QString(), -1,
                       TASK_CATEGORY_BUILDSYSTEM));
 }

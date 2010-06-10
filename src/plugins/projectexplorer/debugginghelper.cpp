@@ -113,6 +113,8 @@ QStringList DebuggingHelperLibrary::debuggingHelperLibraryLocationsByInstallData
 
 QString DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(const QString &qtInstallData)
 {
+    if (!Core::ICore::instance())
+        return QString();
     const QString dumperSourcePath = Core::ICore::instance()->resourcePath() + QLatin1String("/gdbmacros/");
     QDateTime lastModified = QFileInfo(dumperSourcePath + "gdbmacros.cpp").lastModified();
     // We pretend that the lastmodified of gdbmacros.cpp is 5 minutes before what the file system says
