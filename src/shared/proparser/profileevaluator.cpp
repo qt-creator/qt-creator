@@ -4126,9 +4126,9 @@ QStringList ProFileEvaluator::absoluteFileValues(
         {
             absEl = QDir::cleanPath(absEl);
             int nameOff = absEl.lastIndexOf(QLatin1Char('/'));
-            QString absDir = QString::fromRawData(absEl.constData(), nameOff);
+            QString absDir = d->m_tmp1.setRawData(absEl.constData(), nameOff);
             if (IoUtils::exists(absDir)) {
-                QString wildcard = QString::fromRawData(absEl.constData() + nameOff + 1,
+                QString wildcard = d->m_tmp2.setRawData(absEl.constData() + nameOff + 1,
                                                         absEl.length() - nameOff - 1);
                 if (wildcard.contains(QLatin1Char('*')) || wildcard.contains(QLatin1Char('?'))) {
                     QDir theDir(absDir);
