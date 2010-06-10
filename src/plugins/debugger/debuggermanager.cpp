@@ -1062,7 +1062,6 @@ static IDebuggerEngine *debuggerEngineForMode(DebuggerStartMode startMode, QStri
 
 void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 {
-    qDebug() << "TARGET: " << sp->executable;
     if (d->m_state != DebuggerNotReady)
         return;
     d->m_startParameters = sp;
