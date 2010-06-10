@@ -46,7 +46,7 @@ IoUtils::FileType IoUtils::fileType(const QString &fileName)
 {
     Q_ASSERT(fileName.isEmpty() || isAbsolutePath(fileName));
 #ifdef Q_OS_WIN
-    DWORD attr = GetFileAttributesW((WCHAR*)fileName.constData());
+    DWORD attr = GetFileAttributesW((WCHAR*)fileName.utf16());
     if (attr == INVALID_FILE_ATTRIBUTES)
         return FileNotFound;
     return (attr & FILE_ATTRIBUTE_DIRECTORY) ? FileIsDir : FileIsRegular;
