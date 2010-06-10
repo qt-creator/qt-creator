@@ -87,6 +87,7 @@ private slots:
     void testRewriterView();
     void testRewriterErrors();
     void testRewriterChangeId();
+    void testRewriterRemoveId();
     void testRewriterChangeValueProperty();
     void testRewriterRemoveValueProperty();
     void testRewriterSignalProperty();

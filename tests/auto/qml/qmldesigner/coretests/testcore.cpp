@@ -5426,6 +5426,39 @@ void TestCore::testRewriterChangeId()
     node.setId("myId");
 }
 
+void TestCore::testRewriterRemoveId()
+{
+    const char* qmlString = "import Qt 4.7\nRectangle { id: rect }";
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestView> view(new TestView);
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+    model->attachView(testRewriterView.data());
+
+    ModelNode rootModelNode(view->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+    QCOMPARE(rootModelNode.id(), QString("rect"));
+
+    QSKIP("Fix me!!!! Task BAUHAUS-780", SkipAll);
+    //
+    // remove id in text
+    //
+    const char* qmlString2 = "import Qt 4.7\nRectangle { }";
+    textEdit.setPlainText(qmlString2);
+
+    QCOMPARE(rootModelNode.id(), QString());
+}
+
 void TestCore::testRewriterChangeValueProperty()
 {
     const char* qmlString = "import Qt 4.7\nRectangle { x: 10; y: 10 }";
