@@ -902,7 +902,25 @@ void CodeCompletion::complete(const TextEditor::CompletionItem &item)
         }
     }
 
-    const int length = m_editor->position() - m_startPosition;
+    QString replacableChars;
+    if (toInsert.endsWith(QLatin1String(": ")))
+        replacableChars = QLatin1String(": ");
+    else if (toInsert.endsWith(QLatin1String(".")))
+        replacableChars = QLatin1String(".");
+
+    int replacedLength = 0;
+
+    // Avoid inserting characters that are already there
+    for (int i = 0; i < replacableChars.length(); ++i) {
+        const QChar a = replacableChars.at(i);
+        const QChar b = m_editor->characterAt(m_editor->position() + i);
+        if (a == b)
+            ++replacedLength;
+        else
+            break;
+    }
+
+    const int length = m_editor->position() - m_startPosition + replacedLength;
     m_editor->setCurPos(m_startPosition);
     m_editor->replace(length, toInsert);
 
