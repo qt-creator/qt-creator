@@ -459,7 +459,7 @@ void DesignDocumentController::deleteSelected()
 
 void DesignDocumentController::copySelected()
 {
-    QScopedPointer<Model> model(Model::create("import Qt 4.7; Qt/Rectangle"));
+    QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
     model->setMetaInfo(m_d->model->metaInfo());
     model->setFileUrl(m_d->model->fileUrl());
 
