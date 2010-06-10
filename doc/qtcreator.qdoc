@@ -1840,7 +1840,7 @@
            \image qtcreator-qt4-qtversions-win-msvc.png
     \endlist
 
-    If you are using \bold{Qt for Symbian} and your S60 SDK is registered
+    If you are using \bold{Qt for Symbian} and your Symbian SDK is registered
     with devices.exe, Qt Creator automatically detects the Qt version. To add a
     Qt for Symbian version:
     \list 1
@@ -2196,7 +2196,7 @@
      \list
         \o You selected the Symbian Device target for building the application.
         \o The settings for the Qt version you use to build your project are
-           correct. The path to the S60 SDK must point to the S60 SDK
+           correct. The path to the Symbian SDK must point to the Symbian SDK
            installation directory.  Select \gui Tools > \gui Options...
            > \gui Debugger > \gui{Symbian TRK} and check if it points to the
            debugger toolchain.
@@ -6358,33 +6358,33 @@
     \list
         \o \l{http://www.forum.nokia.com/main/resources/tools_and_sdks/S60SDK/}
            {S60 Platform SDK 3rd Edition FP1 or higher}.
-        \o Either the GCCE ARM Toolchain that is included in the S60 Platform
+        \o Either the GCCE ARM Toolchain that is included in the Symbian
            SDKs, or RVCT 2.2 [build 686] or later (which is not available free
            of charge)(Your environment needs to find the compiler in the PATH).
-        \o Qt for Symbian 4.6.2 or later, installed into the S60 SDKs you want
+        \o Qt for Symbian 4.6.2 or later, installed into the Symbian SDKs you want
            to use.
 
     \endlist
 
     \section2 Setting Up Qt Creator
 
-    When you run Qt Creator after installing the S60 Platform SDK and Qt for
+    When you run Qt Creator after installing the Symbian SDK and Qt for
     Symbian, the installed SDKs and their corresponding Qt versions are
-    automatically detected. For each detected S60 SDK with Qt, a special entry
+    automatically detected. For each detected Symbian SDK with Qt, a special entry
     is made in the Qt version management settings in \gui{Tools} >
     \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}.
 
     \note If you manually add a Qt version for Symbian, you must
-    also manually specify the S60 SDK to use for this version.
+    also manually specify the Symbian SDK to use for this version.
 
     \image qtcreator-qt4-qtversions-win-symbian.png
 
     If you want to run your applications in the Symbian emulator, you need to
     point Qt Creator to the Metrowerks Compiler that you want to use, by
-    setting the \gui{Carbide Directory} of the Qt version to the corresponding
+    setting the \gui{Carbide directory} of the Qt version to the corresponding
     Carbide.c++ installation directory.
 
-    You can check what S60 SDKs and corresponding Qt versions are found in the
+    You can check which Symbian SDKs and corresponding Qt versions are found in the
     \gui{Tools} > \gui{Options...} > \gui{Qt4} > \gui{S60 SDKs} preference
     page.
 
