@@ -118,20 +118,20 @@ public:
 // These token definitions affect both ProFileEvaluator and ProWriter
 enum ProToken {
     TokTerminator = 0,  // end of stream (possibly not included in length; must be zero)
-    TokLine,            // line marker:
+    TokLine = 1,            // line marker:
                         // - line (1)
-    TokAssign,          // variable =
-    TokAppend,          // variable +=
+    TokAssign = 2,          // variable =
+    TokAppend = 3,          // variable +=
     TokAppendUnique,    // variable *=
     TokRemove,          // variable -=
     TokReplace,         // variable ~=
                         // previous literal/expansion is a variable manipulation
                         // - value expression + TokValueTerminator
-    TokValueTerminator, // assignment value terminator
-    TokLiteral,         // literal string (fully dequoted)
+    TokValueTerminator = 7, // assignment value terminator
+    TokLiteral = 8,         // literal string (fully dequoted)
                         // - length (1)
                         // - string data (length; unterminated)
-    TokHashLiteral,     // literal string with hash (fully dequoted)
+    TokHashLiteral = 9,     // literal string with hash (fully dequoted)
                         // - hash (2)
                         // - length (1)
                         // - string data (length; unterminated)
@@ -139,28 +139,28 @@ enum ProToken {
                         // - hash (2)
                         // - name length (1)
                         // - name (name length; unterminated)
-    TokProperty,        // qmake property expansion
+    TokProperty = 11,        // qmake property expansion
                         // - name length (1)
                         // - name (name length; unterminated)
     TokEnvVar,          // environment variable expansion
                         // - name length (1)
                         // - name (name length; unterminated)
-    TokFuncName,        // replace function expansion
+    TokFuncName = 13,        // replace function expansion
                         // - hash (2)
                         // - name length (1)
                         // - name (name length; unterminated)
                         // - ((nested expansion + TokArgSeparator)* + nested expansion)?
                         // - TokFuncTerminator
-    TokArgSeparator,    // function argument separator
-    TokFuncTerminator,  // function argument list terminator
-    TokCondition,       // previous literal/expansion is a conditional
-    TokTestCall,        // previous literal/expansion is a test function call
+    TokArgSeparator = 14,    // function argument separator
+    TokFuncTerminator = 15,  // function argument list terminator
+    TokCondition = 16,       // previous literal/expansion is a conditional
+    TokTestCall = 17,        // previous literal/expansion is a test function call
                         // - ((nested expansion + TokArgSeparator)* + nested expansion)?
                         // - TokFuncTerminator
-    TokNot,             // '!' operator
+    TokNot = 18,             // '!' operator
     TokAnd,             // ':' operator
     TokOr,              // '|' operator
-    TokBranch,          // branch point:
+    TokBranch = 21,          // branch point:
                         // - then block length (2)
                         // - then block + TokTerminator (then block length)
                         // - else block length (2)
@@ -170,7 +170,7 @@ enum ProToken {
                         // - expression: length (2), bytes + TokValueTerminator (length)
                         // - body length (2)
                         // - body + TokTerminator (body length)
-    TokTestDef,         // test function definition:
+    TokTestDef = 23,         // test function definition:
     TokReplaceDef,      // replace function definition:
                         // - function name: hash (2), length (1), chars (length)
                         // - body length (2)

@@ -599,23 +599,27 @@ bool ProFileEvaluator::Private::read(QString *out, const QString &content)
 
 void ProFileEvaluator::Private::putTok(ushort *&tokPtr, ushort tok)
 {
+    qDebug() << currentFileName() << m_lineNo << "put token" << tok << tokPtr;
     *tokPtr++ = tok;
 }
 
 void ProFileEvaluator::Private::putBlockLen(ushort *&tokPtr, uint len)
 {
+    qDebug() << currentFileName() << m_lineNo << "put block length" << len << tokPtr;
     *tokPtr++ = (ushort)len;
     *tokPtr++ = (ushort)(len >> 16);
 }
 
 void ProFileEvaluator::Private::putBlock(ushort *&tokPtr, const ushort *buf, uint len)
 {
+    qDebug() << currentFileName() << m_lineNo << "put block" << len << tokPtr;
     memcpy(tokPtr, buf, len * 2);
     tokPtr += len;
 }
 
 void ProFileEvaluator::Private::putHashStr(ushort *&pTokPtr, const ushort *buf, uint len)
 {
+    qDebug() << currentFileName() << m_lineNo << "put hash string" << QString((QChar *)buf, len) << pTokPtr;
     uint hash = ProString::hash((const QChar *)buf, len);
     ushort *tokPtr = pTokPtr;
     *tokPtr++ = (ushort)hash;
@@ -627,6 +631,7 @@ void ProFileEvaluator::Private::putHashStr(ushort *&pTokPtr, const ushort *buf, 
 
 void ProFileEvaluator::Private::finalizeHashStr(ushort *buf, uint len)
 {
+//    qDebug() << currentFileName() << m_lineNo << "finalized hash string" << QString((QChar *)buf, len) << (buf-4);
     buf[-4] = TokHashLiteral;
     buf[-1] = len;
     uint hash = ProString::hash((const QChar *)buf, len);
@@ -696,6 +701,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
     ushort needSep = 0; // Complementary to putSpace: separator outside quotes
     ushort quote = 0;
     ushort term = 0;
+qDebug() << "starting fresh line" << currentFileName() << m_lineNo;
 
     ushort *ptr = buf;
     ptr += 4;
@@ -704,30 +710,38 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
 #define FLUSH_LHS_LITERAL(setSep) \
     do { \
         if ((tlen = ptr - xprPtr)) { \
+            qDebug() << "flushing lhs literal" << QString((const QChar *)xprPtr, tlen); \
             if (needSep) \
                 goto extraChars; \
             finalizeHashStr(xprPtr, tlen); \
             if (setSep) \
-                needSep = TokNewStr; \
+                { qDebug() << "need separator"; needSep = TokNewStr; } \
         } else { \
+            qDebug() << "no lhs literal to flush"; \
             ptr -= 4; \
             if (setSep && ptr != buf) \
+            { qDebug() << "need separator"; \
                 needSep = TokNewStr; \
+            } \
         } \
     } while (0)
 
 #define FLUSH_RHS_LITERAL(setSep) \
     do { \
         if ((tlen = ptr - xprPtr)) { \
+            qDebug() << "flushing rhs literal" << QString((const QChar *)xprPtr, tlen) << !!needSep; \
             xprPtr[-2] = TokLiteral | needSep; \
             xprPtr[-1] = tlen; \
             if (setSep) \
-                needSep = TokNewStr; \
+                 { qDebug() << "need separator"; needSep = TokNewStr; } \
             litCount++; \
         } else { \
+            qDebug() << "no rhs literal to flush"; \
             ptr -= 2; \
             if (setSep && ptr != ((context == CtxValue) ? tokPtr : buf)) \
+            { qDebug() << "need separator"; \
                 needSep = TokNewStr; \
+            } \
         } \
     } while (0)
 
@@ -823,22 +837,28 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                         if (context == CtxTest) {
                             if (needSep)
                                 goto extraChars;
-                            if (tlen)
+                            if (tlen) {
+                                qDebug() << "pre-expand: flushing lhs literal" << QString((const QChar *)xprPtr, tlen);
                                 finalizeHashStr(xprPtr, tlen);
-                            else
+                            } else {
+                                qDebug() << "pre-expand: no lhs literal to flush";
                                 ptr -= 4;
+                            }
                         } else {
                             if (tlen) {
+                                qDebug() << "pre-expand: flushing rhs literal" << QString((const QChar *)xprPtr, tlen) << !!needSep;
                                 xprPtr[-2] = TokLiteral | needSep;
                                 xprPtr[-1] = tlen;
                                 needSep = 0;
                                 litCount++;
                             } else {
+                                qDebug() << "pre-expand: no rhs literal to flush";
                                 ptr -= 2;
                             }
                         }
                         if (!lineMarked) {
                             lineMarked = true;
+                            qDebug() << currentFileName() << m_lineNo << "putting in-expression line marker";
                             *ptr++ = TokLine;
                             *ptr++ = (ushort)m_lineNo;
                         }
@@ -884,6 +904,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                         needSep = 0;
                         expCount++;
                         tlen = ptr - xprPtr;
+                        qDebug() << "putting expand" << tok << QString((const QChar *)xprPtr, tlen);
                         if (rtok == TokVariable) {
                             xprPtr[-4] = tok;
                             uint hash = ProString::hash((const QChar *)xprPtr, tlen);
@@ -1127,6 +1148,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                 }
                 if (context == CtxValue) {
                     tokPtr[-1] = litCount ? litCount + expCount : 0;
+                    qDebug() << currentFileName() << m_lineNo << "advancing pointer by" << (ptr - tokPtr) << "now" << ptr;
                     tokPtr = ptr;
                     putTok(tokPtr, TokValueTerminator);
                 } else {
@@ -1152,6 +1174,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
             ++m_lineNo;
             goto freshLine;
         }
+        qDebug() << "reached line end" << currentFileName() << m_lineNo;
         lineMarked = false;
       ignore:
         cur = cptr;
@@ -1170,6 +1193,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
 void ProFileEvaluator::Private::putLineMarker(ushort *&tokPtr)
 {
     if (m_markLine) {
+        qDebug() << currentFileName() << m_lineNo << "putting line marker for" << m_markLine;
         *tokPtr++ = TokLine;
         *tokPtr++ = (ushort)m_markLine;
         m_markLine = 0;
@@ -1181,6 +1205,7 @@ void ProFileEvaluator::Private::enterScope(ushort *&tokPtr, bool special, ScopeS
     m_blockstack.resize(m_blockstack.size() + 1);
     m_blockstack.top().special = special;
     m_blockstack.top().start = tokPtr;
+    qDebug() << currentFileName() << m_lineNo << "entering scope at" << tokPtr;
     tokPtr += 2;
     m_state = state;
     m_canElse = false;
@@ -1190,13 +1215,16 @@ void ProFileEvaluator::Private::enterScope(ushort *&tokPtr, bool special, ScopeS
 
 void ProFileEvaluator::Private::leaveScope(ushort *&tokPtr)
 {
+    qDebug() << currentFileName() << m_lineNo << "leaving scope";
     if (m_blockstack.top().inBranch) {
         // Put empty else block
+        qDebug() << "closing pending else";
         putBlockLen(tokPtr, 0);
     }
     if (ushort *start = m_blockstack.top().start) {
         putTok(tokPtr, TokTerminator);
         uint len = tokPtr - start - 2;
+        qDebug() << "storing block length" << len << "at" << start;
         start[0] = (ushort)len;
         start[1] = (ushort)(len >> 16);
     }
@@ -1206,11 +1234,13 @@ void ProFileEvaluator::Private::leaveScope(ushort *&tokPtr)
 void ProFileEvaluator::Private::flushScopes(ushort *&tokPtr)
 {
     if (m_state == StNew) {
+        qDebug() << currentFileName() << m_lineNo << "flushing scopes";
         while (!m_blockstack.top().braceLevel && m_blockstack.size() > 1)
             leaveScope(tokPtr);
         if (m_blockstack.top().inBranch) {
             m_blockstack.top().inBranch = false;
             // Put empty else block
+            qDebug() << "closing pending else";
             putBlockLen(tokPtr, 0);
         }
         m_canElse = false;
@@ -1219,6 +1249,7 @@ void ProFileEvaluator::Private::flushScopes(ushort *&tokPtr)
 
 void ProFileEvaluator::Private::flushCond(ushort *&tokPtr)
 {
+    qDebug() << currentFileName() << m_lineNo << "flushing condition";
     if (m_state == StCond) {
         putTok(tokPtr, TokBranch);
         m_blockstack.top().inBranch = true;
@@ -1264,6 +1295,7 @@ void ProFileEvaluator::Private::finalizeCond(ushort *&tokPtr, ushort *uc, ushort
                 if (m_canElse && (!top.special || top.braceLevel)) {
                     putTok(tokPtr, TokBranch);
                     // Put empty then block
+qDebug() << currentFileName() << m_lineNo << "putting empty then";
                     putBlockLen(tokPtr, 0);
                     enterScope(tokPtr, false, StCtrl);
                     return;
@@ -1292,16 +1324,20 @@ void ProFileEvaluator::Private::finalizeCond(ushort *&tokPtr, ushort *uc, ushort
 
 void ProFileEvaluator::Private::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc)
 {
+    qDebug() << currentFileName() << m_lineNo << "finalizing call";
     // Check for magic tokens
     if (*uc == TokHashLiteral) {
+        qDebug() << "... is literal";
         uint nlen = uc[3];
         ushort *uce = uc + 4 + nlen;
         if (*uce == TokTestCall) {
+            qDebug() << "... directly followed by call token";
             uce++;
             m_tmp1.setRawData((QChar *)uc + 4, nlen);
             const QString *defName;
             ushort defType;
             if (m_tmp1 == statics.strfor) {
+                qDebug() << "... is for";
                 flushCond(tokPtr);
                 putLineMarker(tokPtr);
                 if (m_invert || m_operator == OrOperator) {
@@ -1344,10 +1380,12 @@ void ProFileEvaluator::Private::finalizeCall(ushort *&tokPtr, ushort *uc, ushort
                 logMessage(format("Syntax is for(var, list), for(var, forever) or for(ever)."));
                 return;
             } else if (m_tmp1 == statics.strdefineReplace) {
+                qDebug() << "... is defineReplace";
                 defName = &statics.strdefineReplace;
                 defType = TokReplaceDef;
                 goto deffunc;
             } else if (m_tmp1 == statics.strdefineTest) {
+                qDebug() << "... is defineTest";
                 defName = &statics.strdefineTest;
                 defType = TokTestDef;
               deffunc:
@@ -1374,7 +1412,8 @@ void ProFileEvaluator::Private::finalizeCall(ushort *&tokPtr, ushort *uc, ushort
                 logMessage(format("%1(function) requires one literal argument.").arg(*defName));
                 return;
             }
-        }
+        } else qDebug() << "... directly followed by token" << *uce;
+
     }
 
     finalizeTest(tokPtr);
@@ -1387,6 +1426,7 @@ uint ProFileEvaluator::Private::getBlockLen(const ushort *&tokPtr)
 {
     uint len = *tokPtr++;
     len |= (uint)*tokPtr++ << 16;
+//qDebug() << "got uint" << len;
     return len;
 }
 
@@ -1394,6 +1434,7 @@ ProString ProFileEvaluator::Private::getStr(const ushort *&tokPtr)
 {
     const QString &str(m_stringStack.top());
     uint len = *tokPtr++;
+//    qDebug() << "getting string" << len << QString((const QChar *)tokPtr, len);
     ProString ret(str, tokPtr - (const ushort *)str.constData(), len, NoHash);
     tokPtr += len;
     return ret;
@@ -1404,6 +1445,7 @@ ProString ProFileEvaluator::Private::getHashStr(const ushort *&tokPtr)
     uint hash = getBlockLen(tokPtr);
     uint len = *tokPtr++;
     const QString &str(m_stringStack.top());
+//    qDebug() << "getting hashed string" << len << QString((const QChar *)tokPtr, len) << hash;
     ProString ret(str, tokPtr - (const ushort *)str.constData(), len, hash);
     tokPtr += len;
     return ret;
@@ -1609,6 +1651,7 @@ void ProFileEvaluator::Private::evaluateExpression(
     bool pending = false;
     forever {
         ushort tok = *tokPtr++;
+        qDebug() << currentFileName() << m_lineNo << "read expression token" << tok << "at" << (tokPtr-1);
         if (tok & TokNewStr)
             pending = false;
         ushort maskedTok = tok & TokMask;
@@ -1691,7 +1734,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
     bool okey = true, or_op = false, invert = false;
     uint blockLen;
     VisitReturn ret = ReturnTrue;
+    qDebug() << "entering block at" << tokPtr;
     while (ushort tok = *tokPtr++) {
+        qDebug() << currentFileName() << m_lineNo << "read token" << tok << "at" << (tokPtr-1);
         switch (tok) {
         case TokLine:
             m_lineNo = *tokPtr++;
@@ -1702,6 +1747,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
         case TokRemove:
         case TokReplace:
             visitProVariable(tok, curr, tokPtr);
+            qDebug() << "visited variable" << curr.first().toQString() << "now at" << tokPtr;
             curr.clear();
             continue;
         case TokBranch:
@@ -1830,6 +1876,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
         if (ret != ReturnTrue && ret != ReturnFalse)
             break;
     }
+qDebug() << "leaving block at" << (tokPtr-1);
     return ret;
 }
 
@@ -1982,7 +2029,9 @@ void ProFileEvaluator::Private::visitProVariable(
             replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global, m_tmp2);
         }
     } else {
+        qDebug() << "expanding at" << tokPtr << "for" << varName.toQString();
         ProStringList varVal = expandVariableReferences(tokPtr, sizeHint);
+        qDebug() << "expanded, now at" << tokPtr;
         switch (tok) {
         default: // whatever - cannot happen
         case TokAssign:          // =
@@ -2430,6 +2479,8 @@ static inline void flushFinal(ProStringList *ret,
 ProStringList ProFileEvaluator::Private::expandVariableReferences(
     const ProString &str, int *pos, bool joined)
 {
+//qDebug() << currentFileName() << m_lineNo << str.toQString();
+
     ProStringList ret;
 //    if (ok)
 //        *ok = true;
@@ -2689,7 +2740,9 @@ ProStringList ProFileEvaluator::Private::expandVariableReferences(
     ProStringList ret;
     ret.reserve(sizeHint);
     forever {
+        qDebug() << "expandVariableReferences, tokPtr now" << tokPtr << "ret size" << ret.size();
         evaluateExpression(tokPtr, &ret, joined);
+        qDebug() << "left evaluateExpression, tokPtr now" << tokPtr << "ret size" << ret.size();
         switch (*tokPtr) {
         case TokValueTerminator:
         case TokFuncTerminator:
