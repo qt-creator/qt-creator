@@ -154,7 +154,7 @@ public:
 
 
     // Imports:
-    QSet<Import> imports() const { return m_imports; }
+    QList<Import> imports() const { return m_imports; }
     void addImport(const Import &import);
     void removeImport(const Import &import);
     void notifyImportAdded(const Import &import) const;
@@ -197,7 +197,7 @@ private:
     Model *m_q;
     MetaInfo m_metaInfo;
 
-    QSet<Import> m_imports;
+    QList<Import> m_imports;
     QList<QWeakPointer<AbstractView> > m_viewList;
     QList<InternalNodePointer> m_selectedNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;

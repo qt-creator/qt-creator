@@ -122,13 +122,13 @@ void ModelPrivate::addImport(const Import &import)
     if (m_imports.contains(import))
         return;
 
-    m_imports.insert(import);
+    m_imports.append(import);
     notifyImportAdded(import);
 }
 
 void ModelPrivate::removeImport(const Import &import)
 {
-    if (!m_imports.remove(import))
+    if (!m_imports.removeOne(import))
         return;
 
     notifyImportRemoved(import);
@@ -1004,7 +1004,7 @@ Model *Model::create(QString type, int major, int minor)
 //    return subModel;
 //}
 
-QSet<Import> Model::imports() const
+QList<Import> Model::imports() const
 {
     return m_d->imports();
 }

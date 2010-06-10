@@ -96,7 +96,7 @@ public:
     // Editing sub-components:
 
     // Imports:
-    QSet<Import> imports() const;
+    QList<Import> imports() const;
     void addImport(const Import &import);
     void removeImport(const Import &import);
 
