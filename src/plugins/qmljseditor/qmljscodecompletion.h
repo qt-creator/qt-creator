@@ -81,12 +81,12 @@ private:
     bool isDelimiter(const QChar &ch) const;
 
     void addCompletions(const QHash<QString, const QmlJS::Interpreter::Value *> &newCompletions,
-                        const QIcon &icon);
+                        const QIcon &icon, int relevance);
     void addCompletions(const QStringList &newCompletions,
-                        const QIcon &icon);
+                        const QIcon &icon, int relevance);
     void addCompletionsPropertyLhs(
             const QHash<QString, const QmlJS::Interpreter::Value *> &newCompletions,
-            const QIcon &icon);
+            const QIcon &icon, int relevance);
 
     ModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;

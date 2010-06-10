@@ -69,6 +69,15 @@ using namespace QmlJS;
 
 namespace {
 
+enum CompletionRelevance {
+    EnumValueRelevance = -5,
+    SnippetRelevance = -10,
+    PropertyRelevance = -15,
+    SymbolRelevance = -20,
+    KeywordRelevance = -25,
+    TypeRelevance = -30
+};
+
 // Temporary workaround until we have proper icons for QML completion items
 QIcon iconForColor(const QColor &color)
 {
@@ -599,7 +608,7 @@ static bool isLiteral(AST::Node *ast)
 }
 
 void CodeCompletion::addCompletions(const QHash<QString, const Interpreter::Value *> &newCompletions,
-                                    const QIcon &icon)
+                                    const QIcon &icon, int relevance)
 {
     QHashIterator<QString, const Interpreter::Value *> it(newCompletions);
     while (it.hasNext()) {
@@ -608,24 +617,26 @@ void CodeCompletion::addCompletions(const QHash<QString, const Interpreter::Valu
         TextEditor::CompletionItem item(this);
         item.text = it.key();
         item.icon = icon;
+        item.relevance = relevance;
         m_completions.append(item);
     }
 }
 
 void CodeCompletion::addCompletions(const QStringList &newCompletions,
-                                    const QIcon &icon)
+                                    const QIcon &icon, int relevance)
 {
     foreach (const QString &text, newCompletions) {
         TextEditor::CompletionItem item(this);
         item.text = text;
         item.icon = icon;
+        item.relevance = relevance;
         m_completions.append(item);
     }
 }
 
 void CodeCompletion::addCompletionsPropertyLhs(
         const QHash<QString, const Interpreter::Value *> &newCompletions,
-        const QIcon &icon)
+        const QIcon &icon, int relevance)
 {
     QHashIterator<QString, const Interpreter::Value *> it(newCompletions);
     while (it.hasNext()) {
@@ -644,6 +655,7 @@ void CodeCompletion::addCompletionsPropertyLhs(
             item.text.append(QLatin1String(": "));
         }
         item.icon = icon;
+        item.relevance = relevance;
         m_completions.append(item);
     }
 }
@@ -720,14 +732,15 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             TextEditor::CompletionItem idPropertyCompletion(this);
             idPropertyCompletion.text = QLatin1String("id: ");
             idPropertyCompletion.icon = symbolIcon;
+            idPropertyCompletion.relevance = PropertyRelevance;
             m_completions.append(idPropertyCompletion);
 
-            addCompletionsPropertyLhs(enumerateProperties(qmlScopeType), symbolIcon);
-            addCompletions(enumerateProperties(context.scopeChain().qmlTypes), symbolIcon);
+            addCompletionsPropertyLhs(enumerateProperties(qmlScopeType), symbolIcon, PropertyRelevance);
+            addCompletions(enumerateProperties(context.scopeChain().qmlTypes), symbolIcon, TypeRelevance);
 
             if (ScopeBuilder::isPropertyChangesObject(&context, qmlScopeType)
                     && context.scopeChain().qmlScopeObjects.size() == 2) {
-                addCompletions(enumerateProperties(context.scopeChain().qmlScopeObjects.first()), symbolIcon);
+                addCompletions(enumerateProperties(context.scopeChain().qmlScopeObjects.first()), symbolIcon, SymbolRelevance);
             }
         }
 
@@ -753,6 +766,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                         item.text = key;
                         item.data = QString("\"%1\"").arg(key);
                         item.icon = symbolIcon;
+                        item.relevance = EnumValueRelevance;
                         m_completions.append(item);
                     }
                 }
@@ -763,12 +777,12 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             // It's a global completion.
             EnumerateProperties enumerateProperties(&context);
             enumerateProperties.setGlobalCompletion(true);
-            addCompletions(enumerateProperties(), symbolIcon);
+            addCompletions(enumerateProperties(), symbolIcon, SymbolRelevance);
         }
 
         if (doJsKeywordCompletion) {
             // add js keywords
-            addCompletions(Scanner::keywords(), keywordIcon);
+            addCompletions(Scanner::keywords(), keywordIcon, KeywordRelevance);
         }
 
         // add qml extra words
@@ -787,9 +801,9 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                         << QLatin1String("function");
             }
 
-            addCompletions(qmlWords, keywordIcon);
+            addCompletions(qmlWords, keywordIcon, KeywordRelevance);
             if (!doJsKeywordCompletion)
-                addCompletions(qmlWordsAlsoInJs, keywordIcon);
+                addCompletions(qmlWordsAlsoInJs, keywordIcon, KeywordRelevance);
         }
     }
 
@@ -811,9 +825,9 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 EnumerateProperties enumerateProperties(&context);
                 if (contextFinder.isInLhsOfBinding() && qmlScopeType && expressionUnderCursor.text().at(0).isLower())
-                    addCompletionsPropertyLhs(enumerateProperties(value), symbolIcon);
+                    addCompletionsPropertyLhs(enumerateProperties(value), symbolIcon, PropertyRelevance);
                 else
-                    addCompletions(enumerateProperties(value), symbolIcon);
+                    addCompletions(enumerateProperties(value), symbolIcon, SymbolRelevance);
             } else if (value && completionOperator == QLatin1Char('(') && m_startPosition == editor->position()) {
                 // function completion
                 if (const Interpreter::FunctionValue *f = value->asFunctionValue()) {
@@ -984,6 +998,7 @@ void CodeCompletion::updateSnippets()
                             item.details = infotip;
 
                             item.icon = icon;
+                            item.relevance = SnippetRelevance;
                             m_snippets.append(item);
                             break;
                         }
@@ -1015,7 +1030,9 @@ void CodeCompletion::updateSnippets()
 
 static bool qmlCompletionItemLessThan(const TextEditor::CompletionItem &l, const TextEditor::CompletionItem &r)
 {
-    if (l.text.isEmpty())
+    if (l.relevance != r.relevance)
+        return l.relevance > r.relevance;
+    else if (l.text.isEmpty())
         return true;
     else if (r.text.isEmpty())
         return false;
