@@ -5441,7 +5441,7 @@ void TestCore::testRewriterRemoveId()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(0, TestRewriterView::Amend));
     testRewriterView->setTextModifier(&textModifier);
     model->attachView(testRewriterView.data());
 
@@ -5449,7 +5449,6 @@ void TestCore::testRewriterRemoveId()
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.id(), QString("rect"));
 
-    QSKIP("Fix me!!!! Task BAUHAUS-780", SkipAll);
     //
     // remove id in text
     //

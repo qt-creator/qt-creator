@@ -83,7 +83,9 @@ VariantProperty TestModelToTextMerger::findAddedVariantProperty(const VariantPro
     return VariantProperty();
 }
 
-TestRewriterView::TestRewriterView(QObject *parent) : RewriterView(RewriterView::Validate, parent)
+TestRewriterView::TestRewriterView(QObject *parent,
+                                   DifferenceHandling differenceHandling)
+    : RewriterView(differenceHandling, parent)
 {
 }
 

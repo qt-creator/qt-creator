@@ -636,6 +636,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     context->enterScope(astNode);
 
     QSet<QString> modelPropertyNames = QSet<QString>::fromList(modelNode.propertyNames());
+    if (!modelNode.id().isEmpty())
+        modelPropertyNames.insert(QLatin1String("id"));
     QList<UiObjectMember *> defaultPropertyItems;
 
     for (UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
@@ -744,7 +746,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         AbstractProperty modelProperty = modelNode.property(modelPropertyName);
 
         // property deleted.
-        differenceHandler.propertyAbsentFromQml(modelProperty);
+        if (modelPropertyName == QLatin1String("id"))
+            differenceHandler.idsDiffer(modelNode, QString());
+        else
+            differenceHandler.propertyAbsentFromQml(modelProperty);
     }
 
     context->leaveScope();
