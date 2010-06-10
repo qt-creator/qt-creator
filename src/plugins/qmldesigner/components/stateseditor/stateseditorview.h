@@ -57,7 +57,6 @@ public:
 
     void nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName);
 
-protected:
     // AbstractView
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
@@ -76,6 +75,7 @@ protected:
     void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
 
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
 
 protected:

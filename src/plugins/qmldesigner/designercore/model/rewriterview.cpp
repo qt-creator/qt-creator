@@ -352,6 +352,10 @@ void RewriterView::customNotification(const AbstractView * /*view*/, const QStri
     }
 }
 
+void RewriterView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
+{
+}
+
 void RewriterView::selectedNodesChanged(const QList<ModelNode> & /* selectedNodeList, */, const QList<ModelNode> & /*lastSelectedNodeList */)
 {
 }

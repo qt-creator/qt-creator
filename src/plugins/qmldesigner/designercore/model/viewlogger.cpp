@@ -194,6 +194,12 @@ void ViewLogger::customNotification(const AbstractView *view, const QString &ide
         m_output << time() << indent("data: ") << variant.toString() << endl;
 }
 
+void ViewLogger::scriptFunctionsChanged(const ModelNode &node, const QStringList &/*scriptFunctionList*/)
+{
+    m_output << time() << indent("function scripts changed:") << node << endl;
+
+}
+
 
 } // namespace Internal
 } // namespace QmlDesigner

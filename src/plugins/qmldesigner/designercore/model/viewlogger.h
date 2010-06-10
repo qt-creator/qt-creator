@@ -70,6 +70,7 @@ public:
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
 protected:
     QString time() const;

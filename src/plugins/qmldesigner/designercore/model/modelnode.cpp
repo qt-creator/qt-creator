@@ -908,4 +908,14 @@ bool ModelNode::hasAuxiliaryData(const QString &name) const
     return internalNode()->hasAuxiliaryData(name);
 }
 
+void  ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)
+{
+    model()->m_d->setScriptFunctions(internalNode(), scriptFunctionList);
+}
+
+QStringList  ModelNode::scriptFunctions() const
+{
+    return internalNode()->scriptFunctions();
+}
+
 }

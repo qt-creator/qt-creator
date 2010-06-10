@@ -76,6 +76,7 @@ public:
 
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
 protected:
     void appendView(ViewType *view);
@@ -243,6 +244,13 @@ void ForwardView<ViewType>::auxiliaryDataChanged(const ModelNode &node, const QS
 
     foreach (const ViewTypePointer &view, m_targetViewList)
         view->auxiliaryDataChanged(ModelNode(node, view.data()), name, data);
+}
+
+template <class ViewType>
+        void ForwardView<ViewType>::scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList)
+{
+    foreach (const ViewTypePointer &view, m_targetViewList)
+        view->scriptFunctionsChanged(node, scriptFunctionList);
 }
 
 template <class ViewType>

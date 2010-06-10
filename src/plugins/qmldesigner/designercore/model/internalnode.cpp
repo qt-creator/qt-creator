@@ -311,5 +311,15 @@ bool operator <(const InternalNode::Pointer &firstNode, const InternalNode::Poin
     return firstNode.data() < secondNode.data();
 }
 
+void InternalNode::setScriptFunctions(const QStringList &scriptFunctionList)
+{
+    m_scriptFunctionList = scriptFunctionList;
+}
+
+QStringList InternalNode::scriptFunctions() const
+{
+    return m_scriptFunctionList;
+}
+
 }
 }

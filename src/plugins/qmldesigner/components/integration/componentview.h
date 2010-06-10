@@ -66,7 +66,7 @@ public:
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
-
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

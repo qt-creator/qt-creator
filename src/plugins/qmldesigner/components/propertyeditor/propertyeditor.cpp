@@ -798,6 +798,11 @@ void PropertyEditor::nodeIdChanged(const ModelNode& node, const QString& newId, 
     }
 }
 
+void PropertyEditor::scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList)
+{
+    QmlModelView::scriptFunctionsChanged(node, scriptFunctionList);
+}
+
 void PropertyEditor::select(const ModelNode &node)
 {
     if (QmlItemNode(node).isValid())

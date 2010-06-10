@@ -531,6 +531,29 @@ void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingPro
     }
 }
 
+void ModelPrivate::notifyScriptFunctionsChanged(const InternalNodePointer &internalNodePointer, const QStringList &scriptFunctionList)
+{
+    bool resetModel = false;
+    QString description;
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+
+
+        ModelNode node(internalNodePointer, model(), view.data());
+        try {
+            view->scriptFunctionsChanged(node, scriptFunctionList);
+        } catch (RewritingException &e) {
+            description = e.description();
+            resetModel = true;
+        }
+    }
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
+
 void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &internalNodePointer, const QStringList& propertyNameList, AbstractView::PropertyChangeFlags propertyChange)
 {
     bool resetModel = false;
@@ -838,6 +861,13 @@ void ModelPrivate::changeRootNodeType(const QString &type, int majorVersion, int
     rootNode()->setMajorVersion(majorVersion);
     rootNode()->setMinorVersion(minorVersion);
     notifyRootNodeTypeChanged(type, majorVersion, minorVersion);
+}
+
+void ModelPrivate::setScriptFunctions(const InternalNode::Pointer &internalNode, const QStringList &scriptFunctionList)
+{
+    internalNode->setScriptFunctions(scriptFunctionList);
+
+    notifyScriptFunctionsChanged(internalNode, scriptFunctionList);
 }
 
 void ModelPrivate::changeNodeOrder(const InternalNode::Pointer &internalParentNode, const QString &listPropertyName, int from, int to)

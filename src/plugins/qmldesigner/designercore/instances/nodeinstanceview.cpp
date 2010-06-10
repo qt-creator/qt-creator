@@ -374,6 +374,10 @@ void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &/*selectedNo
 {
 }
 
+void NodeInstanceView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
+{
+
+}
 
 //\}
 

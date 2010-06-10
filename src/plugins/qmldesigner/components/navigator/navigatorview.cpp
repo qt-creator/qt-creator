@@ -186,6 +186,11 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString & 
     }
 }
 
+void NavigatorView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
+{
+}
+
+
 void NavigatorView::nodeOrderChanged(const NodeListProperty &/*listProperty*/, const ModelNode &node, int /*oldIndex*/)
 {
     if (m_treeModel->isInTree(node))
