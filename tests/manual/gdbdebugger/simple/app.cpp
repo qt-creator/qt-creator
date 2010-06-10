@@ -1660,6 +1660,8 @@ FooVector fooVector()
     fprintf(stderr, "xxx\n");
     f.append(Foo(3));
     f.append(Foo(4));
+    for (int i = 0; i < 1000; ++i)
+        f.append(Foo(i));
     return f;
 }
 

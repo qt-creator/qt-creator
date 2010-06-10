@@ -1,14 +1,10 @@
 from __future__ import with_statement
-#Note: Keep name-type-value-numchild-extra order
-
-#return
 
 import sys
 import gdb
 import base64
 import __builtin__
 import os
-import cProfile
 
 
 # Fails on Windows.
@@ -778,235 +774,16 @@ class FrameCommand(gdb.Command):
         super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
 
     def invoke(self, args, from_tty):
-        #if args.startswith('options:pp'):
-        #    cProfile.run('bb("%s")' % args, '/tmp/fooprof')
-        #else:
-        bb(args)
+        if True:
+            bb(args)
+        else:
+            import cProfile
+            cProfile.run('bb("%s")' % args, "/tmp/bbprof")
 
 FrameCommand()
 
-
 def bb(args):
-    options = []
-    varList = []
-    typeformats = {}
-    formats = {}
-    watchers = ""
-    expandedINames = ""
-    resultVarName = ""
-    for arg in args.split(' '):
-        pos = arg.find(":") + 1
-        if arg.startswith("options:"):
-            options = arg[pos:].split(",")
-        elif arg.startswith("vars:"):
-            if len(arg[pos:]) > 0:
-                varList = arg[pos:].split(",")
-        elif arg.startswith("resultvarname:"):
-            resultVarName = arg[pos:]
-        elif arg.startswith("expanded:"):
-            expandedINames = set(arg[pos:].split(","))
-        elif arg.startswith("typeformats:"):
-            for f in arg[pos:].split(","):
-                pos = f.find("=")
-                if pos != -1:
-                    type = base64.b16decode(f[0:pos], True)
-                    typeformats[type] = int(f[pos+1:])
-        elif arg.startswith("formats:"):
-            for f in arg[pos:].split(","):
-                pos = f.find("=")
-                if pos != -1:
-                    formats[f[0:pos]] = int(f[pos+1:])
-        elif arg.startswith("watchers:"):
-            watchers = base64.b16decode(arg[pos:], True)
-
-    useFancy = "fancy" in options
-
-    #warn("VARIABLES: %s" % varList)
-    #warn("EXPANDED INAMES: %s" % expandedINames)
-    module = sys.modules[__name__]
-    dumpers = {}
-
-    if False:
-        dumpers = ""
-        typeformats = ""
-        for key, value in module.__dict__.items():
-            if key.startswith("qdump__"):
-                dumpers += '"' + key[7:] + '",'
-        output = "dumpers=[%s]," % dumpers
-        #output += "qtversion=[%d,%d,%d]"
-        #output += "qtversion=[4,6,0],"
-        output += "namespace=\"%s\"," % qtNamespace()
-        output += "dumperversion=\"2.0\","
-        output += "sizes=[],"
-        output += "expressions=[]"
-        output += "]"
-        print output
-        return
-
-
-    if useFancy:
-        for key, value in module.__dict__.items():
-            if key.startswith("qdump__"):
-                dumpers[key[7:]] = value
-
-    d = Dumper()
-    d.dumpers = dumpers
-    d.typeformats = typeformats
-    d.formats = formats
-    d.useFancy = useFancy
-    d.passExceptions = "pe" in options
-    d.autoDerefPointers = "autoderef" in options
-    d.ns = qtNamespace()
-    d.expandedINames = expandedINames
-    #warn(" NAMESPACE IS: '%s'" % d.ns)
-
-    #
-    # Locals
-    #
-    locals = listOfLocals(varList);
-
-    # Take care of the return value of the last function call.
-    if len(resultVarName) > 0:
-        try:
-            value = parseAndEvaluate(resultVarName)
-            locals.append(Item(value, "return", resultVarName, "return"))
-        except:
-            # Don't bother. It's only supplementary information anyway.
-            pass
-
-    for item in locals:
-      with OutputSafer(d, "", ""):
-        d.anonNumber = -1
-        #warn("ITEM NAME %s: " % item.name)
-        try:
-            #warn("ITEM VALUE %s: " % item.value)
-            # Throw on funny stuff, catch below.
-            # Unfortunately, this fails also with a "Unicode encoding error"
-            # in testArray().
-            #dummy = str(item.value)
-            pass
-        except:
-            # Locals with failing memory access.
-            with SubItem(d):
-                d.put('iname="%s",' % item.iname)
-                d.put('name="%s",' % item.name)
-                d.put('addr="<not accessible>",')
-                d.put('value="<not accessible>",')
-                d.put('type="%s",' % item.value.type)
-                d.put('numchild="0"');
-            continue
-
-        type = item.value.type
-        if type.code == gdb.TYPE_CODE_PTR \
-                and item.name == "argv" and str(type) == "char **":
-            # Special handling for char** argv.
-            n = 0
-            p = item.value
-            # p is 0 for "optimized out" cases.
-            if not isNull(p):
-                while not isNull(p.dereference()) and n <= 100:
-                    p += 1
-                    n += 1
-
-            with SubItem(d):
-                d.put('iname="%s",' % item.iname)
-                d.putName(item.name)
-                d.putItemCount(select(n <= 100, n, "> 100"))
-                d.putType(type)
-                d.putNumChild(n)
-                if d.isExpanded(item):
-                    p = item.value
-                    with Children(d, n):
-                        for i in xrange(n):
-                            value = p.dereference()
-                            d.putItem(Item(value, item.iname, i, None))
-                            p += 1
-                        if n > 100:
-                            d.putEllipsis()
-
-        else:
-            # A "normal" local variable or parameter.
-            try:
-               addr = cleanAddress(item.value.address)
-               with SubItem(d):
-                   d.put('iname="%s",' % item.iname)
-                   d.put('addr="%s",' % addr)
-                   d.putItemHelper(item)
-            except AttributeError:
-                # Thrown by cleanAddress with message "'NoneType' object
-                # has no attribute 'cast'" for optimized-out values.
-                with SubItem(d):
-                    d.put('iname="%s",' % item.iname)
-                    d.put('name="%s",' % item.name)
-                    d.put('addr="<optimized out>",')
-                    d.put('value="<optimized out>",')
-                    d.put('type="%s"' % item.value.type)
-
-    #
-    # Watchers
-    #
-    with OutputSafer(d, ",", ""):
-        if len(watchers) > 0:
-            for watcher in watchers.split("##"):
-                (exp, iname) = watcher.split("#")
-                handleWatch(d, exp, iname)
-
-    #
-    # Breakpoints
-    #
-    #listOfBreakpoints(d)
-
-    #print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
-    print('data=[' + d.output + ']')
-
-
-def handleWatch(d, exp, iname):
-    exp = str(exp)
-    escapedExp = exp.replace('"', '\\"');
-    #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
-    if exp.startswith("[") and exp.endswith("]"):
-        #warn("EVAL: EXP: %s" % exp)
-        with SubItem(d):
-            d.putField("iname", iname)
-            d.putField("name", escapedExp)
-            d.putField("exp", escapedExp)
-            try:
-                list = eval(exp)
-                d.putValue("")
-                d.putType(" ")
-                d.putNumChild(len(list))
-                # This is a list of expressions to evaluate
-                with Children(d, len(list)):
-                    itemNumber = 0
-                    for item in list:
-                        handleWatch(d, item, "%s.%d" % (iname, itemNumber))
-                        itemNumber += 1
-            except RuntimeError, error:
-                warn("EVAL: ERROR CAUGHT %s" % error)
-                d.putValue("<syntax error>")
-                d.putType(" ")
-                d.putNumChild(0)
-                with Children(d, 0):
-                    pass
-        return
-
-    with SubItem(d):
-        d.putField("iname", iname)
-        d.putField("name", escapedExp)
-        d.putField("exp", escapedExp)
-        handled = False
-        if exp == "<Edit>" or len(exp) == 0:
-            d.put('value=" ",type=" ",numchild="0",')
-        else:
-            try:
-                value = parseAndEvaluate(exp)
-                item = Item(value, iname, None, None)
-                if not value is None:
-                    d.putAddress(value.address)
-                d.putItemHelper(item)
-            except RuntimeError:
-                d.put('value="<invalid>",type="<unknown>",numchild="0",')
-
+    Dumper(args)
 
 
 #######################################################################
@@ -1048,7 +825,7 @@ SalCommand()
 
 
 class Dumper:
-    def __init__(self):
+    def __init__(self, args):
         self.output = ""
         self.currentChildType = ""
         self.currentChildNumChild = -1
@@ -1059,6 +836,220 @@ class Dumper:
         self.currentValueEncoding = None
         self.currentType = None
         self.currentTypePriority = -100
+        self.dumpers = ""
+        self.typeformats = {}
+        self.formats = {}
+        self.expandedINames = ""
+
+        options = []
+        varList = []
+        watchers = ""
+        resultVarName = ""
+
+        for arg in args.split(' '):
+            pos = arg.find(":") + 1
+            if arg.startswith("options:"):
+                options = arg[pos:].split(",")
+            elif arg.startswith("vars:"):
+                if len(arg[pos:]) > 0:
+                    varList = arg[pos:].split(",")
+            elif arg.startswith("resultvarname:"):
+                resultVarName = arg[pos:]
+            elif arg.startswith("expanded:"):
+                self.expandedINames = set(arg[pos:].split(","))
+            elif arg.startswith("typeformats:"):
+                for f in arg[pos:].split(","):
+                    pos = f.find("=")
+                    if pos != -1:
+                        type = base64.b16decode(f[0:pos], True)
+                        self.typeformats[type] = int(f[pos+1:])
+            elif arg.startswith("formats:"):
+                for f in arg[pos:].split(","):
+                    pos = f.find("=")
+                    if pos != -1:
+                        self.formats[f[0:pos]] = int(f[pos+1:])
+            elif arg.startswith("watchers:"):
+                watchers = base64.b16decode(arg[pos:], True)
+
+        self.useFancy = "fancy" in options
+        self.passExceptions = "pe" in options
+        self.autoDerefPointers = "autoderef" in options
+        self.ns = qtNamespace()
+
+        #warn("NAMESPACE: '%s'" % self.ns)
+        #warn("VARIABLES: %s" % varList)
+        #warn("EXPANDED INAMES: %s" % self.expandedINames)
+        module = sys.modules[__name__]
+        self.dumpers = {}
+
+        if False:
+            for key, value in module.__dict__.items():
+                if key.startswith("qdump__"):
+                    self.dumpers += '"' + key[7:] + '",'
+            output = "dumpers=[%s]," % self.dumpers
+            #output += "qtversion=[%d,%d,%d]"
+            #output += "qtversion=[4,6,0],"
+            output += "namespace=\"%s\"," % qtNamespace()
+            output += "dumperversion=\"2.0\","
+            output += "sizes=[],"
+            output += "expressions=[]"
+            output += "]"
+            print output
+            return
+
+
+        if self.useFancy:
+            for key, value in module.__dict__.items():
+                if key.startswith("qdump__"):
+                    self.dumpers[key[7:]] = value
+
+        #
+        # Locals
+        #
+        locals = listOfLocals(varList);
+
+        # Take care of the return value of the last function call.
+        if len(resultVarName) > 0:
+            try:
+                value = parseAndEvaluate(resultVarName)
+                locals.append(Item(value, "return", resultVarName, "return"))
+            except:
+                # Don't bother. It's only supplementary information anyway.
+                pass
+
+        for item in locals:
+          with OutputSafer(self, "", ""):
+            self.anonNumber = -1
+            #warn("ITEM NAME %s: " % item.name)
+            try:
+                #warn("ITEM VALUE %s: " % item.value)
+                # Throw on funny stuff, catch below.
+                # Unfortunately, this fails also with a "Unicode encoding error"
+                # in testArray().
+                #dummy = str(item.value)
+                pass
+            except:
+                # Locals with failing memory access.
+                with SubItem(d):
+                    self.put('iname="%s",' % item.iname)
+                    self.put('name="%s",' % item.name)
+                    self.put('addr="<not accessible>",')
+                    self.put('value="<not accessible>",')
+                    self.put('type="%s",' % item.value.type)
+                    self.put('numchild="0"');
+                continue
+
+            type = item.value.type
+            if type.code == gdb.TYPE_CODE_PTR \
+                    and item.name == "argv" and str(type) == "char **":
+                # Special handling for char** argv.
+                n = 0
+                p = item.value
+                # p is 0 for "optimized out" cases.
+                if not isNull(p):
+                    while not isNull(p.dereference()) and n <= 100:
+                        p += 1
+                        n += 1
+
+                with SubItem(d):
+                    self.put('iname="%s",' % item.iname)
+                    self.putName(item.name)
+                    self.putItemCount(select(n <= 100, n, "> 100"))
+                    self.putType(type)
+                    self.putNumChild(n)
+                    if self.isExpanded(item):
+                        p = item.value
+                        with Children(self, n):
+                            for i in xrange(n):
+                                value = p.dereference()
+                                self.putItem(Item(value, item.iname, i, None))
+                                p += 1
+                            if n > 100:
+                                self.putEllipsis()
+
+            else:
+                # A "normal" local variable or parameter.
+                try:
+                   addr = cleanAddress(item.value.address)
+                   with SubItem(self):
+                       self.put('iname="%s",' % item.iname)
+                       self.put('addr="%s",' % addr)
+                       self.putItemHelper(item)
+                except AttributeError:
+                    # Thrown by cleanAddress with message "'NoneType' object
+                    # has no attribute 'cast'" for optimized-out values.
+                    with SubItem(d):
+                        self.put('iname="%s",' % item.iname)
+                        self.put('name="%s",' % item.name)
+                        self.put('addr="<optimized out>",')
+                        self.put('value="<optimized out>",')
+                        self.put('type="%s"' % item.value.type)
+
+        #
+        # Watchers
+        #
+        with OutputSafer(self, ",", ""):
+            if len(watchers) > 0:
+                for watcher in watchers.split("##"):
+                    (exp, iname) = watcher.split("#")
+                    handleWatch(self, exp, iname)
+
+        #
+        # Breakpoints
+        #
+        #listOfBreakpoints(d)
+
+        #print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
+        print('data=[' + self.output + ']')
+
+
+    def handleWatch(self, exp, iname):
+        exp = str(exp)
+        escapedExp = exp.replace('"', '\\"');
+        #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
+        if exp.startswith("[") and exp.endswith("]"):
+            #warn("EVAL: EXP: %s" % exp)
+            with SubItem(d):
+                self.putField("iname", iname)
+                self.putField("name", escapedExp)
+                self.putField("exp", escapedExp)
+                try:
+                    list = eval(exp)
+                    self.putValue("")
+                    self.putType(" ")
+                    self.putNumChild(len(list))
+                    # This is a list of expressions to evaluate
+                    with Children(self, len(list)):
+                        itemNumber = 0
+                        for item in list:
+                            handleWatch(self, item, "%s.%d" % (iname, itemNumber))
+                            itemNumber += 1
+                except RuntimeError, error:
+                    warn("EVAL: ERROR CAUGHT %s" % error)
+                    self.putValue("<syntax error>")
+                    self.putType(" ")
+                    self.putNumChild(0)
+                    with Children(self, 0):
+                        pass
+            return
+
+        with SubItem(d):
+            self.putField("iname", iname)
+            self.putField("name", escapedExp)
+            self.putField("exp", escapedExp)
+            handled = False
+            if exp == "<Edit>" or len(exp) == 0:
+                self.put('value=" ",type=" ",numchild="0",')
+            else:
+                try:
+                    value = parseAndEvaluate(exp)
+                    item = Item(value, iname, None, None)
+                    if not value is None:
+                        self.putAddress(value.address)
+                    self.putItemHelper(item)
+                except RuntimeError:
+                    self.put('value="<invalid>",type="<unknown>",numchild="0",')
+
 
     def put(self, value):
         self.output += value
