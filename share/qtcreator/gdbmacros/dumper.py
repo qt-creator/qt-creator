@@ -784,7 +784,7 @@ class FrameCommand(gdb.Command):
         super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
 
     def invoke(self, args, from_tty):
-        if False:
+        if True:
             bb(args)
         else:
             import cProfile
