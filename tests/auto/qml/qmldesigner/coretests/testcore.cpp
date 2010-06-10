@@ -767,6 +767,131 @@ void TestCore::testRewriterActionCompression()
     QCOMPARE(textEdit.toPlainText(), expected);
 }
 
+void TestCore::testRewriterImports()
+{
+    QString fileName = QString(QTCREATORDIR) + "/tests/auto/qml/qmldesigner/data/fx/imports.qml";
+    QFile file(fileName);
+    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(file.readAll());
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    model->setFileUrl(QUrl::fromLocalFile(fileName));
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    QVERIFY(model->imports().size() == 3);
+
+    // import Qt 4.7
+    Import import = model->imports().at(0);
+    QVERIFY(import.isLibraryImport());
+    QCOMPARE(import.url(), QString("Qt"));
+    QVERIFY(import.hasVersion());
+    QCOMPARE(import.version(), QString("4.7"));
+    QVERIFY(!import.hasAlias());
+
+    // import "subitems"
+    import = model->imports().at(1);
+    QVERIFY(import.isFileImport());
+    QCOMPARE(import.file(), QString("subitems"));
+    QVERIFY(!import.hasVersion());
+    QVERIFY(!import.hasAlias());
+
+    // import org.webkit 1.0 as Web
+    import = model->imports().at(2);
+    QVERIFY(import.isLibraryImport());
+    QCOMPARE(import.url(), QString("org.webkit"));
+    QVERIFY(import.hasVersion());
+    QCOMPARE(import.version(), QString("1.0"));
+    QVERIFY(import.hasAlias());
+    QCOMPARE(import.alias(), QString("Web"));
+}
+
+void TestCore::testRewriterChangeImports()
+{
+    const QLatin1String qmlString("\n"
+                                  "import Qt 4.7\n"
+                                  "\n"
+                                  "Rectangle {}\n");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(0, RewriterView::Amend));
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    //
+    // Add / Remove an import in the model
+    //
+    Import webkitImport = Import::createLibraryImport("org.webkit", "1.0");
+    model->addImport(webkitImport);
+
+    const QLatin1String qmlWithImport("\n"
+                                 "import Qt 4.7\n"
+                                 "import org.webkit 1.0\n"
+                                 "\n"
+                                 "Rectangle {}\n");
+    QCOMPARE(textEdit.toPlainText(), qmlWithImport);
+
+    model->removeImport(webkitImport);
+
+    QCOMPARE(model->imports().size(), 1);
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+
+    QCOMPARE(textEdit.toPlainText(), qmlString);
+
+
+    //
+    // Add / Remove an import in the model (with alias)
+    //
+    webkitImport = Import::createLibraryImport("org.webkit", "1.0", "Web");
+    model->addImport(webkitImport);
+
+    const QLatin1String qmlWithAliasImport("\n"
+                                 "import Qt 4.7\n"
+                                 "import org.webkit 1.0 as Web\n"
+                                 "\n"
+                                 "Rectangle {}\n");
+    QCOMPARE(textEdit.toPlainText(), qmlWithAliasImport);
+
+    model->removeImport(webkitImport);
+
+    QCOMPARE(model->imports().size(), 1);
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+
+    QCOMPARE(textEdit.toPlainText(), qmlString);
+
+
+    //
+    // Add / Remove an import in text
+    //
+    textEdit.setPlainText(qmlWithImport);
+    QCOMPARE(model->imports().size(), 2);
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+    QCOMPARE(model->imports().last(), Import::createLibraryImport("org.webkit", "1.0"));
+
+    textEdit.setPlainText(qmlWithAliasImport);
+    QCOMPARE(model->imports().size(), 2);
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+    QCOMPARE(model->imports().last(), Import::createLibraryImport("org.webkit", "1.0", "Web"));
+
+    textEdit.setPlainText(qmlString);
+    QCOMPARE(model->imports().size(), 1);
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+}
+
 void TestCore::testRewriterForGradientMagic()
 {
     const QLatin1String qmlString("\n"

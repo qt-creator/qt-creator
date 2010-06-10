@@ -369,7 +369,7 @@ QString AddImportRewriteAction::info() const
 bool RemoveImportRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring,
                                         ModelNodePositionStorage &/*positionStore*/)
 {
-    const bool result = refactoring.addImport(m_import);
+    const bool result = refactoring.removeImport(m_import);
 
     if (!result)
         qDebug() << "*** RemoveImportRewriteAction::execute failed in changeImports ("

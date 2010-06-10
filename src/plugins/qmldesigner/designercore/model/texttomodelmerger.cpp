@@ -514,7 +514,7 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
                 differenceHandler.modelMissesImport(newImport);
         } else {
             const Import newImport =
-                    Import::createLibraryImport(flatten(import->importUri), as, version);
+                    Import::createLibraryImport(flatten(import->importUri), version, as);
 
             if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
