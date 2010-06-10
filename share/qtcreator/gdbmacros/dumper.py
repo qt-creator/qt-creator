@@ -88,12 +88,22 @@ def isGoodGdb():
     #   and gdb.VERSION != "6.8.50.20090630-cvs"
     return 'parse_and_eval' in __builtin__.dir(gdb)
 
+typeCache = {}
+
+def lookupType(typestring):
+    type = typeCache.get(typestring)
+    #warn("LOOKUP: %s -> %s" % (typestring, type))
+    if type is None:
+        type = gdb.lookup_type(typestring)
+        typeCache[typestring] = type
+    return type
+
 def cleanAddress(addr):
     if addr is None:
         return "<no address>"
     # We cannot use str(addr) as it yields rubbish for char pointers
     # that might trigger Unicode encoding errors.
-    return addr.cast(gdb.lookup_type("void").pointer())
+    return addr.cast(lookupType("void").pointer())
 
 # Workaround for gdb < 7.1
 def numericTemplateArgument(type, position):
@@ -535,7 +545,7 @@ def checkRef(ref):
     check(count < 1000000) # assume there aren't a million references to any object
 
 #def couldBePointer(p, align):
-#    type = gdb.lookup_type("unsigned int")
+#    type = lookupType("unsigned int")
 #    ptr = gdb.Value(p).cast(type)
 #    d = int(str(ptr))
 #    warn("CHECKING : %s %d " % (p, ((d & 3) == 0 and (d > 1000 or d == 0))))
@@ -559,7 +569,7 @@ def isNull(p):
     # for invalid char *, as their "contents" is being examined
     #s = str(p)
     #return s == "0x0" or s.startswith("0x0 ")
-    return p.cast(gdb.lookup_type("void").pointer()) == 0
+    return p.cast(lookupType("void").pointer()) == 0
 
 movableTypes = set([
     "QBrush", "QBitArray", "QByteArray",
@@ -648,7 +658,7 @@ def findFirstZero(p, max):
 
 
 def extractCharArray(p, maxsize):
-    t = gdb.lookup_type("unsigned char").pointer()
+    t = lookupType("unsigned char").pointer()
     p = p.cast(t)
     i = findFirstZero(p, maxsize)
     limit = select(i < 0, maxsize, i)
@@ -673,7 +683,7 @@ def extractByteArray(value):
     return extractCharArray(data, 100)
 
 def encodeCharArray(p, maxsize, size = -1):
-    t = gdb.lookup_type("unsigned char").pointer()
+    t = lookupType("unsigned char").pointer()
     p = p.cast(t)
     if size == -1:
         i = findFirstZero(p, maxsize)
@@ -689,7 +699,7 @@ def encodeCharArray(p, maxsize, size = -1):
     return s
 
 def encodeChar2Array(p, maxsize):
-    t = gdb.lookup_type("unsigned short").pointer()
+    t = lookupType("unsigned short").pointer()
     p = p.cast(t)
     i = findFirstZero(p, maxsize)
     limit = select(i < 0, maxsize, i)
@@ -702,7 +712,7 @@ def encodeChar2Array(p, maxsize):
     return s
 
 def encodeChar4Array(p, maxsize):
-    t = gdb.lookup_type("unsigned int").pointer()
+    t = lookupType("unsigned int").pointer()
     p = p.cast(t)
     i = findFirstZero(p, maxsize)
     limit = select(i < 0, maxsize, i)
@@ -774,7 +784,7 @@ class FrameCommand(gdb.Command):
         super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
 
     def invoke(self, args, from_tty):
-        if True:
+        if False:
             bb(args)
         else:
             import cProfile
@@ -1097,7 +1107,7 @@ class Dumper:
     def putPointerValue(self, value):
         # Use a lower priority
         self.putValue("0x%x" % value.dereference().cast(
-            gdb.lookup_type("unsigned long")), None, -1)
+            lookupType("unsigned long")), None, -1)
 
     def putStringValue(self, value):
         if value is None:
@@ -1381,7 +1391,7 @@ class Dumper:
             if self.isExpanded(item):
                 if value.type.code == gdb.TYPE_CODE_ARRAY:
                     baseptr = value.cast(value.type.target().pointer())
-                    charptr = gdb.lookup_type("unsigned char").pointer()
+                    charptr = lookupType("unsigned char").pointer()
                     addr1 = (baseptr+1).cast(charptr)
                     addr0 = baseptr.cast(charptr)
                     self.putField("addrbase", cleanAddress(addr0))
