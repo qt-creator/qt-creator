@@ -76,7 +76,7 @@ struct PROJECTEXPLORER_EXPORT Task {
     QString file;
     int line;
     QString category;
-    // Having a QList<QTextLayout> in Task
+    // Having a QList<QTextLayout::FormatRange> in Task
     // isn't that great
     // It would be cleaner to split up the text into
     // the logical hunks and then assemble them again
