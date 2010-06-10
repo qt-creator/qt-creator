@@ -248,7 +248,7 @@ void AbstractProcessStep::stdOutput(const QString &line)
     if (m_outputParserChain)
         m_outputParserChain->stdOutput(line);
     QTextCharFormat textCharFormat;
-    emit addOutput(Qt::escape(line), textCharFormat);
+    emit addOutput(line, textCharFormat);
 }
 
 void AbstractProcessStep::processReadyReadStdError()
