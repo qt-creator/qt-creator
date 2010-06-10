@@ -151,8 +151,8 @@ void BuildManager::cancel()
 
         disconnect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::Task)),
                    this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-        disconnect(m_currentBuildStep, SIGNAL(addOutput(QString)),
-                   this, SLOT(addToOutputWindow(QString)));
+        disconnect(m_currentBuildStep, SIGNAL(addOutput(QString, QTextCharFormat)),
+                   this, SLOT(addToOutputWindow(QString, QTextCharFormat)));
         decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->target()->project());
 
         m_progressFutureInterface->setProgressValueAndText(m_progress*100, "Build canceled"); //TODO NBS fix in qtconcurrent
@@ -191,8 +191,8 @@ void BuildManager::clearBuildQueue()
         decrementActiveBuildSteps(bs->buildConfiguration()->target()->project());
         disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
                    this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-        disconnect(bs, SIGNAL(addOutput(QString)),
-                   this, SLOT(addToOutputWindow(QString)));
+        disconnect(bs, SIGNAL(addOutput(QString, QTextCharFormat)),
+                   this, SLOT(addToOutputWindow(QString, QTextCharFormat)));
     }
 
     m_buildQueue.clear();
