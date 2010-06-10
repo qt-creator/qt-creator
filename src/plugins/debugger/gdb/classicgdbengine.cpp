@@ -813,7 +813,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
             data.type = tr("<anonymous union>");
         } else {
             // A structure. Hope there's nothing else...
-            data.exp = parent.exp + '.' + data.name.toLatin1();
+            data.exp = '(' + parent.exp + ")." + data.name.toLatin1();
         }
 
         if (hasDebuggingHelperForType(data.type)) {
