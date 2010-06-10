@@ -716,6 +716,12 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             enumerateProperties.setGlobalCompletion(true);
             enumerateProperties.setEnumerateGeneratedSlots(true);
 
+            // id: is special
+            TextEditor::CompletionItem idPropertyCompletion(this);
+            idPropertyCompletion.text = QLatin1String("id: ");
+            idPropertyCompletion.icon = symbolIcon;
+            m_completions.append(idPropertyCompletion);
+
             addCompletionsPropertyLhs(enumerateProperties(qmlScopeType), symbolIcon);
             addCompletions(enumerateProperties(context.scopeChain().qmlTypes), symbolIcon);
 
