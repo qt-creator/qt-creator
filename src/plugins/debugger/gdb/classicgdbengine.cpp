@@ -224,9 +224,9 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 {
     PRECONDITION;
     WatchData data = data0;
-    #if DEBUG_SUBITEM
+#    if DEBUG_SUBITEM
     qDebug() << "UPDATE SUBITEM:" << data.toString();
-    #endif
+#    endif
     QTC_ASSERT(data.isValid(), return);
 
     // in any case we need the type first
@@ -235,16 +235,16 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         // Let's play safe, though.
         if (!data.variable.isEmpty()) {
             // Update: It does so for out-of-scope watchers.
-            #if 1
+#            if 1
             qDebug() << "FIXME: GdbEngine::updateSubItem:"
                  << data.toString() << "should not happen";
-            #else
+#            else
             data.setType(WatchData::msgNotInScope());
             data.setValue(WatchData::msgNotInScope());
             data.setHasChildren(false);
             insertData(data);
             return;
-            #endif
+#            endif
         }
         // The WatchVarCreate handler will receive type information
         // and re-insert a WatchData item with correct type, so
@@ -261,9 +261,9 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     if (data.isChildrenNeeded() && isPointerType(data.type)
         && !hasDebuggingHelperForType(data.type)) {
         // We sometimes know what kind of children pointers have
-        #if DEBUG_SUBITEM
+#        if DEBUG_SUBITEM
         qDebug() << "IT'S A POINTER";
-        #endif
+#        endif
 
         if (theDebuggerBoolSetting(AutoDerefPointers)) {
             // Try automatic dereferentiation
@@ -286,9 +286,9 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     }
 
     if (data.isValueNeeded() && hasDebuggingHelperForType(data.type)) {
-        #if DEBUG_SUBITEM
+#        if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: CUSTOMVALUE";
-        #endif
+#        endif
         runDebuggingHelperClassic(data,
             manager()->watchHandler()->isExpandedIName(data.iname));
         return;
@@ -296,9 +296,9 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 
 /*
     if (data.isValueNeeded() && data.exp.isEmpty()) {
-        #if DEBUG_SUBITEM
+#        if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: NO EXPRESSION?";
-        #endif
+#        endif
         data.setError("<no expression given>");
         insertData(data);
         return;
@@ -306,9 +306,9 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 */
 
     if (data.isValueNeeded() && data.variable.isEmpty()) {
-        #if DEBUG_SUBITEM
+#        if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR VALUE";
-        #endif
+#        endif
         createGdbVariableClassic(data);
         // the WatchVarCreate handler will re-insert a WatchData
         // item, with valueNeeded() set.
@@ -317,9 +317,9 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 
     if (data.isValueNeeded()) {
         QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
-        #if DEBUG_SUBITEM
+#        if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: VALUE";
-        #endif
+#        endif
         QByteArray cmd = "-var-evaluate-expression \"" + data.iname + '"';
         postCommand(cmd, WatchUpdate,
             CB(handleEvaluateExpressionClassic), QVariant::fromValue(data));
@@ -327,17 +327,17 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     }
 
     if (data.isChildrenNeeded() && hasDebuggingHelperForType(data.type)) {
-        #if DEBUG_SUBITEM
+#        if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
-        #endif
+#        endif
         runDebuggingHelperClassic(data, true);
         return;
     }
 
     if (data.isChildrenNeeded() && data.variable.isEmpty()) {
-        #if DEBUG_SUBITEM
+#        if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR CHILDREN";
-        #endif
+#        endif
         createGdbVariableClassic(data);
         // the WatchVarCreate handler will re-insert a WatchData
         // item, with childrenNeeded() set.
@@ -353,9 +353,9 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     }
 
     if (data.isHasChildrenNeeded() && hasDebuggingHelperForType(data.type)) {
-        #if DEBUG_SUBITEM
+#        if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
-        #endif
+#        endif
         runDebuggingHelperClassic(data,
             manager()->watchHandler()->isExpandedIName(data.iname));
         return;
@@ -363,9 +363,9 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 
 //#if !X
     if (data.isHasChildrenNeeded() && data.variable.isEmpty()) {
-        #if DEBUG_SUBITEM
+#        if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR CHILDCOUNT";
-        #endif
+#        endif
         createGdbVariableClassic(data);
         // the WatchVarCreate handler will re-insert a WatchData
         // item, with childrenNeeded() set.

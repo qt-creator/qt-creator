@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-    #ifndef PROPERTYPARSER_H
+#ifndef PROPERTYPARSER_H
 #define PROPERTYPARSER_H
 
 #include <QtCore/QVariant>

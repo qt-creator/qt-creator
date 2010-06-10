@@ -198,7 +198,7 @@ using namespace TextEditor;
 
 const char *DebuggerManager::stateName(int s)
 {
-    #define SN(x) case x: return #x;
+#    define SN(x) case x: return #x;
     switch (s) {
         SN(DebuggerNotReady)
         SN(EngineStarting)
@@ -221,7 +221,7 @@ const char *DebuggerManager::stateName(int s)
         SN(EngineShuttingDown)
     }
     return "<unknown>";
-    #undef SN
+#    undef SN
 }
 
 
@@ -345,7 +345,7 @@ DebuggerManager::DebuggerManager(DebuggerPlugin *plugin)
 
 DebuggerManager::~DebuggerManager()
 {
-    #define doDelete(ptr) delete ptr; ptr = 0
+#    define doDelete(ptr) delete ptr; ptr = 0
     doDelete(scriptEngine);
     doDelete(pdbEngine);
     doDelete(gdbEngine);
@@ -364,7 +364,7 @@ DebuggerManager::~DebuggerManager()
     doDelete(scriptEngine);
     doDelete(cdbEngine);
     doDelete(tcfEngine);
-    #undef doDelete
+#    undef doDelete
     DebuggerManagerPrivate::instance = 0;
     delete d;
 }

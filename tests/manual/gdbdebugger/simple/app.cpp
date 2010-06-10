@@ -1797,9 +1797,9 @@ int main(int argc, char *argv[])
     testQMultiMap();
     testQString();
     testQSet();
-    #if QT_VERSION >= 0x040500
+#    if QT_VERSION >= 0x040500
     testQSharedPointer();
-    #endif
+#    endif
     testQStringList();
     testStruct();
     testQThread();

@@ -101,15 +101,15 @@ bool patchBinariesWithQtPathes(const char *baseQtPath)
     bool result = true;
 
     static const char *filesToPatch[] = {
-    #ifdef Q_OS_WIN
+#    ifdef Q_OS_WIN
         "/bin/qmake.exe",
         "/bin/QtCore4.dll",
         "/bin/QtCored4.dll",
         "/lib/QtCored4.dll"
-    #else
+#    else
         "/bin/qmake",
         "/lib/libQtCore.so",
-    #endif
+#    endif
     };
 
     for (int i = 0; i < (int)(sizeof(filesToPatch) / sizeof(filesToPatch[0])); i++) {

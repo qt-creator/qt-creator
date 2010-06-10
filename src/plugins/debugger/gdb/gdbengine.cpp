@@ -657,13 +657,13 @@ void GdbEngine::readGdbStandardOutput()
         scan = newstart;
         if (end == start)
             continue;
-        #if defined(Q_OS_WIN)
+#        if defined(Q_OS_WIN)
         if (m_inbuffer.at(end - 1) == '\r') {
             --end;
             if (end == start)
                 continue;
         }
-        #endif
+#        endif
         m_busy = true;
         handleResponse(QByteArray::fromRawData(m_inbuffer.constData() + start, end - start));
         m_busy = false;
@@ -1149,7 +1149,7 @@ void GdbEngine::handleAqcuiredInferior()
 
     tryLoadDebuggingHelpers();
 
-    #ifndef Q_OS_MAC
+#    ifndef Q_OS_MAC
     // intentionally after tryLoadDebuggingHelpers(),
     // otherwise we'd interrupt solib loading.
     if (theDebuggerBoolSetting(AllPluginBreakpoints)) {
@@ -1166,7 +1166,7 @@ void GdbEngine::handleAqcuiredInferior()
         postCommand("set auto-solib-add off");
         postCommand("set stop-on-solib-events 0");
     }
-    #endif
+#    endif
 
     // It's nicer to see a bit of the world we live in.
     reloadModulesInternal();
@@ -2847,7 +2847,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         stackFrames.append(parseStackFrame(stack.childAt(i), i));
         const StackFrame &frame = stackFrames.back();
 
-        #if defined(Q_OS_WIN)
+#        if defined(Q_OS_WIN)
         const bool isBogus =
             // Assume this is wrong and points to some strange stl_algobase
             // implementation. Happens on Karsten's XP system with Gdb 5.50
@@ -2863,7 +2863,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
             showStatusMessage(tr("Jumping out of bogus frame..."), 1000);
             return;
         }
-        #endif
+#        endif
 
         // Initialize top frame to the first valid frame.
         const bool isValid = frame.isUsable() && !frame.function.isEmpty();
@@ -3401,11 +3401,11 @@ void GdbEngine::updateWatchDataHelper(const WatchData &data)
 {
     //m_pendingRequests = 0;
     PENDING_DEBUG("UPDATE WATCH DATA");
-    #if DEBUG_PENDING
+#    if DEBUG_PENDING
     //qDebug() << "##############################################";
     qDebug() << "UPDATE MODEL, FOUND INCOMPLETE:";
     //qDebug() << data.toString();
-    #endif
+#    endif
 
     updateSubItemClassic(data);
     //PENDING_DEBUG("INTERNAL TRIGGERING UPDATE WATCH MODEL");

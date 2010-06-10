@@ -1151,26 +1151,26 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
                 logMessage(QLatin1String("Ignoring stop at 0"));
             }
 
-            #if 1
+#            if 1
             // We almost always need register values, so get them
             // now before informing gdb about the stop.s
             //qDebug() << "Auto-fetching registers";
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegistersAfterStop),
                 trkReadRegistersMessage());
-            #else
+#            else
             // As a source-line step typically consists of
             // several instruction steps, better avoid the multiple
             // roundtrips through TRK in favour of an additional
             // roundtrip through gdb. But gdb will ask for all registers.
-                #if 1
+#                if 1
                 sendGdbServerMessage("S05", "Target stopped");
-                #else
+#                else
                 QByteArray ba = "T05";
                 appendRegister(&ba, RegisterPSGdb, addr);
                 sendGdbServerMessage(ba, "Registers");
-                #endif
-            #endif
+#                endif
+#            endif
             break;
         }
         case TrkNotifyException: { // 0x91 Notify Exception (obsolete)
@@ -1522,14 +1522,14 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         // Happens when chunks are not combined
         QTC_ASSERT(false, /**/);
         debugMessage("CHUNKS NOT COMBINED");
-        #ifdef MEMORY_DEBUG
+#        ifdef MEMORY_DEBUG
         qDebug() << "CHUNKS NOT COMBINED";
         it = m_snapshot.memory.begin();
         et = m_snapshot.memory.end();
         for ( ; it != et; ++it)
             qDebug() << hexNumber(it.key().from) << hexNumber(it.key().to);
         qDebug() << "WANTED" << wanted.from << wanted.to;
-        #endif
+#        endif
         sendGdbServerMessage("E22", "");
         return;
     }

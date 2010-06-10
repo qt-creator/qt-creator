@@ -195,13 +195,13 @@ QT_END_NAMESPACE
 #ifdef MACROSDEBUG
     Q_DECL_EXPORT char xDumpInBuffer[10000];
     Q_DECL_EXPORT char xDumpOutBuffer[1000000];
-    #define inBuffer xDumpInBuffer
-    #define outBuffer xDumpOutBuffer
+#    define inBuffer xDumpInBuffer
+#    define outBuffer xDumpOutBuffer
 #else
     Q_DECL_EXPORT char qDumpInBuffer[10000];
     Q_DECL_EXPORT char qDumpOutBuffer[1000000];
-    #define inBuffer qDumpInBuffer
-    #define outBuffer qDumpOutBuffer
+#    define inBuffer qDumpInBuffer
+#    define outBuffer qDumpOutBuffer
 #endif
 
 namespace {
@@ -994,7 +994,7 @@ void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
             }
             break;
         case 'O':
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QObject *")) {
                 if (addr) {
                     const QObject *ob = reinterpret_cast<const QObject *>(addr);
@@ -1010,7 +1010,7 @@ void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
                     d.putItem("numchild", 0);
                 }
             }
-            #endif
+#            endif
             break;
         case 'S':
             if (isEqual(type, "QString")) {
@@ -1246,13 +1246,13 @@ static void qDumpQDateTime(QDumper &d)
         d.putHash("isNull", date.isNull());
         d.putHash("toTime_t", (long)date.toTime_t());
         d.putHash("toString", date.toString());
-        #if QT_VERSION >= 0x040500
+#        if QT_VERSION >= 0x040500
         d.putHash("toString_(ISO)", date.toString(Qt::ISODate));
         d.putHash("toString_(SystemLocale)", date.toString(Qt::SystemLocaleDate));
         d.putHash("toString_(Locale)", date.toString(Qt::LocaleDate));
-        #endif
+#        endif
 
-        #if 0
+#        if 0
         d.beginHash();
         d.putItem("name", "toUTC");
         d.putItem("exp", "(("NSX"QDateTime"NSY"*)").put(d.data).put(")"
@@ -1260,9 +1260,9 @@ static void qDumpQDateTime(QDumper &d)
         d.putItem("type", NS"QDateTime");
         d.putItem("numchild", "1");
         d.endHash();
-        #endif
+#        endif
 
-        #if 0
+#        if 0
         d.beginHash();
         d.putItem("name", "toLocalTime");
         d.putItem("exp", "(("NSX"QDateTime"NSY"*)").put(d.data).put(")"
@@ -1270,7 +1270,7 @@ static void qDumpQDateTime(QDumper &d)
         d.putItem("type", NS"QDateTime");
         d.putItem("numchild", "1");
         d.endHash();
-        #endif
+#        endif
 
         d.endChildren();
     }
@@ -2079,13 +2079,13 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         *value = QLatin1Char('"') + v->toString() + QLatin1Char('"');
         *numchild = 0;
         break;
-    #if QT_VERSION >= 0x040500
+#    if QT_VERSION >= 0x040500
     case QVariant::StringList:
         *exp = QString(QLatin1String("(*('"NS"QStringList'*)%1)"))
                     .arg((quintptr)v);
         *numchild = v->toStringList().size();
         break;
-    #endif
+#    endif
     case QVariant::Int:
         *value = QString::number(v->toInt());
         *numchild= 0;
@@ -2094,7 +2094,7 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         *value = QString::number(v->toDouble());
         *numchild = 0;
         break;
-    #ifndef QT_BOOTSTRAPPED
+#    ifndef QT_BOOTSTRAPPED
     case QVariant::Point: {
             const QPoint p = v->toPoint();
             *value = QString::fromLatin1("%1, %2").arg(p.x()).arg(p.y());
@@ -2138,8 +2138,8 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         }
         *numchild = 0;
         break;
-    #endif // QT_BOOTSTRAPPED
-    #if USE_QT_GUI
+#    endif // QT_BOOTSTRAPPED
+#    if USE_QT_GUI
     case QVariant::Font:
         *value = qvariant_cast<QFont>(*v).toString();
         break;
@@ -2147,16 +2147,16 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
         *value = qvariant_cast<QColor>(*v).name();
         break;
     case QVariant::KeySequence:
-        #ifndef QT_NO_SHORTCUT
+#        ifndef QT_NO_SHORTCUT
         *value = qvariant_cast<QKeySequence>(*v).toString();
-        #else
+#        else
         *value = QString::fromLatin1("Disabled by QT_NO_SHORTCUT");
-        #endif
+#        endif
         break;
     case QVariant::SizePolicy:
         *value = sizePolicyValue(qvariant_cast<QSizePolicy>(*v));
         break;
-    #endif
+#    endif
     default: {
         static const char *qTypeFormat = sizeof(void *) == sizeof(long)
             ? "'"NS"%s "NS"qVariantValue<"NS"%s >'(*('"NS"QVariant'*)0x%lx)"
@@ -3476,12 +3476,12 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpStdMap(d);
             break;
         case 'A':
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QAbstractItemModel"))
                 qDumpQAbstractItemModel(d);
             else if (isEqual(type, "QAbstractItem"))
                 qDumpQAbstractItem(d);
-            #endif
+#            endif
             break;
         case 'B':
             if (isEqual(type, "QByteArray"))
@@ -3504,12 +3504,12 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpStdSet(d);
             break;
         case 'F':
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QFile"))
                 qDumpQFile(d);
             else if (isEqual(type, "QFileInfo"))
                 qDumpQFileInfo(d);
-            #endif
+#            endif
             break;
         case 'H':
             if (isEqual(type, "QHash"))
@@ -3522,25 +3522,25 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpStdList(d);
             break;
         case 'I':
-            #if USE_QT_GUI
+#            if USE_QT_GUI
             if (isEqual(type, "QImage"))
                 qDumpQImage(d);
             else if (isEqual(type, "QImageData"))
                 qDumpQImageData(d);
-            #endif
+#            endif
             break;
         case 'L':
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QList"))
                 qDumpQList(d);
             else if (isEqual(type, "QLinkedList"))
                 qDumpQLinkedList(d);
             else if (isEqual(type, "QLocale"))
                 qDumpQLocale(d);
-            #endif
+#            endif
             break;
         case 'M':
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QMap"))
                 qDumpQMap(d);
             else if (isEqual(type, "QMapNode"))
@@ -3549,10 +3549,10 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpQModelIndex(d);
             else if (isEqual(type, "QMultiMap"))
                 qDumpQMultiMap(d);
-            #endif
+#            endif
             break;
         case 'O':
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QObject"))
                 qDumpQObject(d);
             else if (isEqual(type, "QObjectPropertyList"))
@@ -3571,43 +3571,43 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpQObjectSlotList(d);
             else if (isEqual(type, "QObjectChildList"))
                 qDumpQObjectChildList(d);
-            #endif
+#            endif
             break;
         case 'P':
-            #if USE_QT_GUI
+#            if USE_QT_GUI
             if (isEqual(type, "QPixmap"))
                 qDumpQPixmap(d);
-            #endif
-            #ifndef QT_BOOTSTRAPPED
+#            endif
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QPoint"))
                 qDumpQPoint(d);
             else if (isEqual(type, "QPointF"))
                 qDumpQPointF(d);
-            #endif
+#            endif
             break;
         case 'R':
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QRect"))
                 qDumpQRect(d);
             else if (isEqual(type, "QRectF"))
                 qDumpQRectF(d);
-            #endif
+#            endif
             break;
         case 'S':
             if (isEqual(type, "QString"))
                 qDumpQString(d);
             else if (isEqual(type, "QStringList"))
                 qDumpQStringList(d);
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             else if (isEqual(type, "QSet"))
                 qDumpQSet(d);
             else if (isEqual(type, "QStack"))
                 qDumpQVector(d);
-            #if QT_VERSION >= 0x040500
+#            if QT_VERSION >= 0x040500
             else if (isEqual(type, "QSharedPointer"))
                 qDumpQSharedPointer(d);
-            #endif
-            #endif // QT_BOOTSTRAPPED
+#            endif
+#            endif // QT_BOOTSTRAPPED
             else if (isEqual(type, "QSize"))
                 qDumpQSize(d);
             else if (isEqual(type, "QSizeF"))
@@ -3634,13 +3634,13 @@ static void handleProtocolVersion2and3(QDumper &d)
                 qDumpStdWString(d);
             break;
         case 'T':
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QTextCodec"))
                 qDumpQTextCodec(d);
-            #endif
+#            endif
             break;
         case 'V':
-            #ifndef QT_BOOTSTRAPPED
+#            ifndef QT_BOOTSTRAPPED
             if (isEqual(type, "QVariantList")) { // resolve typedef
                 d.outerType = "QList";
                 d.innerType = "QVariant";
@@ -3651,15 +3651,15 @@ static void handleProtocolVersion2and3(QDumper &d)
             } else if (isEqual(type, "QVector")) {
                 qDumpQVector(d);
             }
-            #endif
+#            endif
             break;
         case 'W':
-            #ifndef QT_BOOTSTRAPPED
-            #if QT_VERSION >= 0x040500
+#            ifndef QT_BOOTSTRAPPED
+#            if QT_VERSION >= 0x040500
             if (isEqual(type, "QWeakPointer"))
                 qDumpQWeakPointer(d);
-            #endif
-            #endif
+#            endif
+#            endif
             break;
     }
 
@@ -3954,9 +3954,9 @@ void *qDumpObjectData440(
     }
 
     else {
-        #ifndef QT_BOOTSTRAPPED
+#        ifndef QT_BOOTSTRAPPED
         qDebug() << "Unsupported protocol version" << protocolVersion;
-        #endif
+#        endif
     }
     return outBuffer;
 }
