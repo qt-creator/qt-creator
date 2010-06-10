@@ -5995,6 +5995,13 @@
     necessary software is installed and configured automatically and you
     only need to configure a connection to the device.
 
+    By default, you create the connection as the \e developer user. This
+    protects real user data on the device from getting corrupted during
+    testing. If you write applications that use Mobility APIs, you might want
+    to test them with real user data. To create a connection as a user, specify
+    the \gui Username and \gui Password in Qt Creator. For more information, see
+    \l{Testing with User Data}.
+
     You can protect the connections between Qt Creator and the Maemo emulator
     or a device by using either a password or an SSH key. You must always
     use a password for the initial connection, but can then deploy an SSH
@@ -6115,6 +6122,30 @@
              \endlist
 
          \endlist
+
+    \section2 Testing with User Data
+
+    To run your application as the default user, you must first assign a password
+    for the user account and then create the connection to the device as the
+    user:
+
+    \list 1
+
+        \o On the device, in \gui Programs, select \c {X Terminal} to open a
+        terminal window.
+
+        \o To switch to the root user, enter the following command:
+        \c{sudo gainroot}
+
+        \o To specify the password, enter the following command:
+        \c {passwd user}
+
+        \o In Qt Creator, Select \gui Tools > \gui Options... > \gui Projects >
+        \gui{Maemo Device Configurations}.
+
+        \o Specify the username \c user and the password in the device configuration.
+
+    \endlist
 
          \section2 Generating SSH Keys
 
