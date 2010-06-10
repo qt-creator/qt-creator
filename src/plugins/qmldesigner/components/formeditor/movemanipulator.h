@@ -86,18 +86,20 @@ public:
 protected:
     void setOpacityForAllElements(qreal opacity);
 
-    QPointF findSnappingOffset(const QList<QRectF> &boundingRectList);
+    QPointF findSnappingOffset(const QHash<FormEditorItem*, QRectF> &boundingRectHash);
 
     void deleteSnapLines();
 
-    QList<QRectF> tanslatedBoundingRects(const QList<QRectF> &boundingRectList, const QPointF& offset);
+    QHash<FormEditorItem*, QRectF> tanslatedBoundingRects(const QHash<FormEditorItem*, QRectF> &boundingRectHash, const QPointF& offset);
     QPointF calculateBoundingRectMovementOffset(const QPointF& updatePoint);
     QRectF boundingRect(FormEditorItem* item, const QPointF& updatePoint);
 
-    void generateSnappingLines(const QList<QRectF> &boundingRectList);
+    void generateSnappingLines(const QHash<FormEditorItem*, QRectF> &boundingRectHash);
     void updateHashes();
 
     bool itemsCanReparented() const;
+
+    void setPosition(QmlItemNode itemNode, const QPointF &position);
 
 private:
     Snapper m_snapper;

@@ -191,32 +191,15 @@ QSizeF QmlItemNode::instanceSize() const
     return nodeInstance().size();
 }
 
+int QmlItemNode::instancePenWidth() const
+{
+    return nodeInstance().penWidth();
+}
+
 void QmlItemNode::paintInstance(QPainter *painter) const
 {
     if (nodeInstance().isValid())
         nodeInstance().paint(painter);
-}
-
-void QmlItemNode::setSize(const QSizeF &size)
-{
-    int penWidth = (nodeInstance().penWidth() / 2) * 2;
-    RewriterTransaction transaction = qmlModelView()->beginRewriterTransaction();
-    setVariantProperty("width", qRound(size.width()) - penWidth);
-    setVariantProperty("height", qRound(size.height()) - penWidth);
-}
-
-void QmlItemNode::setPosition(const QPointF &position)
-{
-    RewriterTransaction transaction = qmlModelView()->beginRewriterTransaction();
-    setVariantProperty("x", qRound(position.x()));
-    setVariantProperty("y", qRound(position.y()));
-}
-
-void QmlItemNode::setPositionWithBorder(const QPointF &position)
-{
-    RewriterTransaction transaction = qmlModelView()->beginRewriterTransaction();
-    setVariantProperty("x", qRound(position.x()) + (nodeInstance().penWidth() / 2));
-    setVariantProperty("y", qRound(position.y()) + (nodeInstance().penWidth() / 2));
 }
 
 void QmlItemNode::selectNode()

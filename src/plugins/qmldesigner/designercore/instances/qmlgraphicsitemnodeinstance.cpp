@@ -196,6 +196,9 @@ QRectF QmlGraphicsItemNodeInstance::boundingRect() const
 
 void QmlGraphicsItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
+    if (name == "state")
+        return; // states are only set by us
+
     if (name == "height") {
        if (value.isValid())
            m_hasHeight = true;
@@ -215,6 +218,9 @@ void QmlGraphicsItemNodeInstance::setPropertyVariant(const QString &name, const 
 
 void QmlGraphicsItemNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
 {
+    if (name == "state")
+        return; // states are only set by us
+
     GraphicsObjectNodeInstance::setPropertyBinding(name, expression);
 }
 
