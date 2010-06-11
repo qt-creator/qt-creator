@@ -27,6 +27,7 @@ protected:
 private:
     int methodeOffset;
     QHash<int, QString> m_indexPropertyHash;
+    QObjectList registeredObjectList;
     ObjectNodeInstanceWeakPointer m_objectNodeInstance;
 };
 

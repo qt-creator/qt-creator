@@ -566,6 +566,7 @@ void DebuggerManager::init()
     d->m_actions.reverseDirectionAction->setChecked(false);
     d->m_actions.reverseDirectionAction->setIcon(
         QIcon(":/debugger/images/debugger_reversemode_16.png"));
+    d->m_actions.reverseDirectionAction->setIconVisibleInMenu(false);
 
     d->m_actions.frameDownAction =
         new QAction(tr("Move to Called Frame"), this);

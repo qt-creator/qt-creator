@@ -67,6 +67,7 @@ public:
     VCSManager *vcsManager() const;
     ModeManager *modeManager() const;
     MimeDatabase *mimeDatabase() const;
+    HelpManager *helpManager() const;
 
     QSettings *settings(QSettings::Scope scope = QSettings::UserScope) const;
     SettingsDatabase *settingsDatabase() const;

@@ -32,6 +32,7 @@
 #include "qmljshoverhandler.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <debugger/debuggerconstants.h>
@@ -52,7 +53,6 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
-#include <QtHelp/QHelpEngineCore>
 
 using namespace Core;
 using namespace QmlJS;
@@ -61,27 +61,11 @@ using namespace QmlJSEditor::Internal;
 
 HoverHandler::HoverHandler(QObject *parent)
     : QObject(parent)
-    , m_helpEngineNeedsSetup(false)
 {
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
 
-    ICore *core = ICore::instance();
-    QFileInfo fi(core->settings()->fileName());
-    // FIXME shouldn't the help engine create the directory if it doesn't exist?
-    QDir directory(fi.absolutePath()+"/qtcreator");
-    if (!directory.exists())
-        directory.mkpath(directory.absolutePath());
-
-    m_helpEngine = new QHelpEngineCore(directory.absolutePath()
-                                       + QLatin1String("/helpcollection.qhc"), this);
-    if (!m_helpEngine->setupData())
-        qWarning() << "Could not initialize help engine:" << m_helpEngine->error();
-    m_helpEngine->setAutoSaveFilter(false);
-    m_helpEngine->setCurrentFilter(tr("Unfiltered"));
-    m_helpEngineNeedsSetup = m_helpEngine->registeredDocumentations().count() == 0;
-
     // Listen for editor opened events in order to connect to tooltip/helpid requests
-    connect(core->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+    connect(ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
             this, SLOT(editorOpened(Core::IEditor *)));
 }
 
@@ -151,11 +135,6 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
     const Snapshot snapshot = semanticInfo.snapshot;
     const Document::Ptr qmlDocument = semanticInfo.document;
 
-    if (m_helpEngineNeedsSetup && m_helpEngine->registeredDocumentations().count() > 0) {
-        m_helpEngine->setupData();
-        m_helpEngineNeedsSetup = false;
-    }
-
     // We only want to show F1 if the tooltip matches the help id
     bool showF1 = true;
 
@@ -188,7 +167,7 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
                 QString helpId = QLatin1String("QML.");
                 helpId += baseClass;
 
-                if (! m_helpEngine->linksForIdentifier(helpId).isEmpty()) {
+                if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty()) {
                     m_helpId = helpId;
                     break;
                 }

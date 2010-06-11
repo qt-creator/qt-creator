@@ -235,7 +235,7 @@ FormEditorWidget *FormEditorView::widget() const
 
 void FormEditorView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
 {
-    nodeInstanceView()->nodeIdChanged(node, newId, oldId);
+    QmlModelView::nodeIdChanged(node, newId, oldId);
 }
 
 void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
@@ -257,6 +257,12 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
 
     m_scene->update();
 }
+
+void FormEditorView::scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList)
+{
+    QmlModelView::scriptFunctionsChanged(node, scriptFunctionList);
+}
+
 
 AbstractFormEditorTool* FormEditorView::currentTool() const
 {

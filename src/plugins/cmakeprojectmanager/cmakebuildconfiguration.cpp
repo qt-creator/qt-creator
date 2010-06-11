@@ -62,7 +62,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuild
     m_msvcVersion(source->m_msvcVersion)
 {
     cloneSteps(source);
-    m_buildDirectory = cmakeTarget()->defaultBuildDirectory();
 }
 
 QVariantMap CMakeBuildConfiguration::toMap() const

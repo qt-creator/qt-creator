@@ -176,23 +176,26 @@ bool QMakeStep::init()
     setEnvironment(qt4bc->environment());
 
     setOutputParser(new QMakeParser);
+
+    Qt4Project *pro = qt4BuildConfiguration()->qt4Target()->qt4Project();
+    QString proFile = pro->file()->fileName();
+    m_tasks = qt4BuildConfiguration()->qtVersion()->reportIssues(proFile);
+    m_scriptTemplate = pro->rootProjectNode()->projectType() == ScriptTemplate;
+
     return AbstractProcessStep::init();
 }
 
 void QMakeStep::run(QFutureInterface<bool> &fi)
 {
-    Qt4Project *pro = qt4BuildConfiguration()->qt4Target()->qt4Project();
-    if (pro->rootProjectNode()->projectType() == ScriptTemplate) {
+    if (m_scriptTemplate) {
         fi.reportResult(true);
         return;
     }
 
     // Warn on common error conditions:
-    QList<ProjectExplorer::Task> issues =
-            qt4BuildConfiguration()->qtVersion()->reportIssues(qt4BuildConfiguration()->qt4Target()->
-                                                               qt4Project()->file()->fileName());
+
     bool canContinue = true;
-    foreach (const ProjectExplorer::Task &t, issues) {
+    foreach (const ProjectExplorer::Task &t, m_tasks) {
         addTask(t);
         if (t.type == Task::Error)
             canContinue = false;

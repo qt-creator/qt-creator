@@ -3,7 +3,6 @@ TARGET = QmlJSEditor
 include(../../qtcreatorplugin.pri)
 include(qmljseditor_dependencies.pri)
 
-CONFIG += help
 DEFINES += \
     QMLJSEDITOR_LIBRARY \
     QT_CREATOR

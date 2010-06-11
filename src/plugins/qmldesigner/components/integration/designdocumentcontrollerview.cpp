@@ -56,6 +56,11 @@ void DesignDocumentControllerView::selectedNodesChanged(const QList<ModelNode> &
 
 void DesignDocumentControllerView::nodeOrderChanged(const NodeListProperty & /*listProperty*/, const ModelNode & /*movedNode*/, int /*oldIndex*/) {};
 
+void DesignDocumentControllerView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
+{
+}
+
+
 static QStringList arrayToStringList(const QByteArray &byteArray)
 {
     QString str(QString::fromLatin1(byteArray));

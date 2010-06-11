@@ -34,6 +34,7 @@
 #include <QHash>
 #include <QSharedPointer>
 #include <QWeakPointer>
+#include <QStringList>
 #include "internalproperty.h"
 #include "internalvariantproperty.h"
 #include "internalbindingproperty.h"
@@ -112,6 +113,9 @@ public:
     QList<InternalNode::Pointer> allSubNodes() const;
     QList<InternalNode::Pointer> allDirectSubNodes() const;
 
+    void setScriptFunctions(const QStringList &scriptFunctionList);
+    QStringList scriptFunctions() const;
+
 protected:
     Pointer internalPointer() const;
     void setInternalWeakPointer(const Pointer &pointer);
@@ -133,6 +137,7 @@ private:
     bool m_valid;
 
     QHash<QString, InternalPropertyPointer> m_namePropertyHash;
+    QStringList m_scriptFunctionList;
 };
 
 uint qHash(const InternalNodePointer& node);

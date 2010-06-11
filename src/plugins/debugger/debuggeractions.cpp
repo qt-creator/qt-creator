@@ -227,6 +227,7 @@ DebuggerSettings *DebuggerSettings::instance()
         "operation mode. In this mode, stepping operates on single "
         "instructions and the source location view also shows the "
         "disassembled instructions."));
+    item->setIconVisibleInMenu(false);
     instance->insertItem(OperateByInstruction, item);
 
     item = new SavedAction(instance);

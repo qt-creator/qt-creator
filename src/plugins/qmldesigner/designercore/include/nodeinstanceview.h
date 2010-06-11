@@ -84,6 +84,8 @@ public:
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
+
 
     QList<NodeInstance> instances() const;
     NodeInstance instanceForNode(const ModelNode &node);

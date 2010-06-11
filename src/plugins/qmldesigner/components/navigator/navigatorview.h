@@ -80,6 +80,7 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
 
 private slots:

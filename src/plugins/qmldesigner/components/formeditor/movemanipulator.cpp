@@ -145,29 +145,34 @@ void MoveManipulator::begin(const QPointF &beginPoint)
 
 
 
-QPointF MoveManipulator::findSnappingOffset(const QList<QRectF> &boundingRectList)
+QPointF MoveManipulator::findSnappingOffset(const QHash<FormEditorItem*, QRectF> &boundingRectHash)
 {
     QPointF offset;
 
     QMap<double, double> verticalOffsetMap;
-    foreach (const QRectF &boundingRect, boundingRectList) {
-        double verticalOffset = m_snapper.snappedVerticalOffset(boundingRect);
-        if (verticalOffset < std::numeric_limits<double>::max())
-            verticalOffsetMap.insert(qAbs(verticalOffset), verticalOffset);
+    QMap<double, double> horizontalOffsetMap;
+
+    QHashIterator<FormEditorItem*, QRectF> hashIterator(boundingRectHash);
+    while(hashIterator.hasNext()) {
+        hashIterator.next();
+        FormEditorItem *formEditorItem = hashIterator.key();
+        QRectF boundingRect = hashIterator.value();
+        if (!formEditorItem->qmlItemNode().hasBindingProperty("x")) {
+            double verticalOffset = m_snapper.snappedVerticalOffset(boundingRect);
+            if (verticalOffset < std::numeric_limits<double>::max())
+                verticalOffsetMap.insert(qAbs(verticalOffset), verticalOffset);
+        }
+
+        if (!formEditorItem->qmlItemNode().hasBindingProperty("y")) {
+            double horizontalOffset = m_snapper.snappedHorizontalOffset(boundingRect);
+            if (horizontalOffset < std::numeric_limits<double>::max())
+                horizontalOffsetMap.insert(qAbs(horizontalOffset), horizontalOffset);
+        }
     }
 
 
     if (!verticalOffsetMap.isEmpty())
         offset.rx() = verticalOffsetMap.begin().value();
-
-
-
-    QMap<double, double> horizontalOffsetMap;
-    foreach (const QRectF &boundingRect, boundingRectList) {
-        double horizontalOffset = m_snapper.snappedHorizontalOffset(boundingRect);
-        if (horizontalOffset < std::numeric_limits<double>::max())
-            horizontalOffsetMap.insert(qAbs(horizontalOffset), horizontalOffset);
-    }
 
 
     if (!horizontalOffsetMap.isEmpty())
@@ -177,22 +182,33 @@ QPointF MoveManipulator::findSnappingOffset(const QList<QRectF> &boundingRectLis
 }
 
 
-void MoveManipulator::generateSnappingLines(const QList<QRectF> &boundingRectList)
+void MoveManipulator::generateSnappingLines(const QHash<FormEditorItem*, QRectF> &boundingRectHash)
 {
-    m_graphicsLineList = m_snapper.generateSnappingLines(boundingRectList,
+    m_graphicsLineList = m_snapper.generateSnappingLines(boundingRectHash.values(),
                                                          m_layerItem.data(),
                                                          m_snapper.transformtionSpaceFormEditorItem()->sceneTransform());
 }
 
 
 
-QList<QRectF> MoveManipulator::tanslatedBoundingRects(const QList<QRectF> &boundingRectList, const QPointF& offsetVector)
+QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHash<FormEditorItem*, QRectF> &boundingRectHash, const QPointF& offsetVector)
 {
-    QList<QRectF> translatedBoundingRectList;
-    foreach (const QRectF &boundingRect, boundingRectList)
-        translatedBoundingRectList.append(boundingRect.translated(offsetVector));
+    QHash<FormEditorItem*, QRectF> translatedBoundingRectHash;
 
-    return translatedBoundingRectList;
+    QHashIterator<FormEditorItem*, QRectF> hashIterator(boundingRectHash);
+    while(hashIterator.hasNext()) {
+        QPointF alignedOffset(offsetVector);
+        hashIterator.next();
+        FormEditorItem *formEditorItem = hashIterator.key();
+        QRectF boundingRect = hashIterator.value();
+        if (formEditorItem->qmlItemNode().hasBindingProperty("x"))
+            alignedOffset.setX(0);
+        if (formEditorItem->qmlItemNode().hasBindingProperty("y"))
+            alignedOffset.setY(0);
+        translatedBoundingRectHash.insert(formEditorItem, boundingRect.translated(offsetVector));
+    }
+
+    return translatedBoundingRectHash;
 }
 
 
@@ -220,8 +236,8 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping, S
         }
 
         if (useSnapping == UseSnapping || useSnapping == UseSnappingAndAnchoring) {
-            offsetVector -= findSnappingOffset(tanslatedBoundingRects(m_beginItemRectHash.values(), offsetVector));
-            generateSnappingLines(tanslatedBoundingRects(m_beginItemRectHash.values(), offsetVector));
+            offsetVector -= findSnappingOffset(tanslatedBoundingRects(m_beginItemRectHash, offsetVector));
+            generateSnappingLines(tanslatedBoundingRects(m_beginItemRectHash, offsetVector));
         }
 
         foreach (FormEditorItem* item, m_itemList) {
@@ -255,7 +271,7 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping, S
                     anchors.setMargin(AnchorLine::VerticalCenter, m_beginVerticalCenterHash.value(item) + offsetVector.y());
                 }
 
-                item->qmlItemNode().setPosition(positionInContainerSpace);
+            setPosition(item->qmlItemNode(), positionInContainerSpace);
             } else {
                 item->qmlItemNode().modelNode().variantProperty("x").setValue(qRound(positionInContainerSpace.x()));
                 item->qmlItemNode().modelNode().variantProperty("y").setValue(qRound(positionInContainerSpace.y()));
@@ -345,8 +361,8 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
             anchors.setMargin(AnchorLine::VerticalCenter, anchors.instanceMargin(AnchorLine::VerticalCenter) + deltaY);
         }
 
-        item->qmlItemNode().setPosition(QPointF(item->qmlItemNode().instanceValue("x").toDouble() + deltaX,
-                                      item->qmlItemNode().instanceValue("y").toDouble() + deltaY));
+        setPosition(item->qmlItemNode(), QPointF(item->qmlItemNode().instanceValue("x").toDouble() + deltaX,
+                                                  item->qmlItemNode().instanceValue("y").toDouble() + deltaY));
     }
 }
 
@@ -379,6 +395,15 @@ void MoveManipulator::deleteSnapLines()
 bool MoveManipulator::isActive() const
 {
     return m_isActive;
+}
+
+void MoveManipulator::setPosition(QmlItemNode itemNode, const QPointF &position)
+{
+    if (!itemNode.hasBindingProperty("x"))
+        itemNode.setVariantProperty("x", qRound(position.x()));
+
+    if (!itemNode.hasBindingProperty("y"))
+        itemNode.setVariantProperty("y", qRound(position.y()));
 }
 
 }

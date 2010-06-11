@@ -399,6 +399,15 @@ void StatesEditorView::customNotification(const AbstractView * view, const QStri
     QmlModelView::customNotification(view, identifier, nodeList, data);
 }
 
+void StatesEditorView::scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList)
+{
+    if (debug)
+        qDebug() << __FUNCTION__;
+
+    QmlModelView::scriptFunctionsChanged(node, scriptFunctionList);
+}
+
+
 QPixmap StatesEditorView::renderState(int i)
 {
     if (debug)

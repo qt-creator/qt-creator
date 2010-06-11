@@ -34,7 +34,6 @@
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
-class QHelpEngineCore;
 class QPoint;
 class QStringList;
 QT_END_NAMESPACE
@@ -79,10 +78,8 @@ private:
 
 private:
     QmlJS::ModelManagerInterface *m_modelManager;
-    QHelpEngineCore *m_helpEngine;
     QString m_helpId;
     QString m_toolTip;
-    bool m_helpEngineNeedsSetup;
 };
 
 } // namespace Internal

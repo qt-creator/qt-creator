@@ -50,7 +50,7 @@ SelectionTool::SelectionTool(FormEditorView *editorView)
     m_singleSelectionManipulator(editorView),
     m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
     m_resizeIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_selectOnlyContentItems(true)
+    m_selectOnlyContentItems(false)
 {
 //    view()->setCursor(Qt::CrossCursor);
 }

@@ -30,38 +30,29 @@
 #include "helpmanager.h"
 #include "bookmarkmanager.h"
 
-#include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/helpmanager.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
 #include <QtCore/QMutexLocker>
 
 #include <QtHelp/QHelpEngine>
-#include <QtHelp/QHelpEngineCore>
 
-using namespace Help;
+using namespace Help::Internal;
 
-bool HelpManager::m_guiNeedsSetup = true;
-bool HelpManager::m_needsCollectionFile = true;
+QMutex LocalHelpManager::m_guiMutex;
+QHelpEngine* LocalHelpManager::m_guiEngine = 0;
 
-QMutex HelpManager::m_guiMutex;
-QHelpEngine* HelpManager::m_guiEngine = 0;
+QMutex LocalHelpManager::m_bkmarkMutex;
+BookmarkManager* LocalHelpManager::m_bookmarkManager = 0;
 
-QMutex HelpManager::m_coreMutex;
-QHelpEngineCore* HelpManager::m_coreEngine = 0;
-
-HelpManager* HelpManager::m_helpManager = 0;
-BookmarkManager* HelpManager::m_bookmarkManager = 0;
-
-HelpManager::HelpManager(QObject *parent)
+LocalHelpManager::LocalHelpManager(QObject *parent)
     : QObject(parent)
+    , m_guiNeedsSetup(true)
+    , m_needsCollectionFile(true)
 {
-    Q_ASSERT(!m_helpManager);
-    m_helpManager = this;
 }
 
-HelpManager::~HelpManager()
+LocalHelpManager::~LocalHelpManager()
 {
     if (m_bookmarkManager) {
         m_bookmarkManager->saveBookmarks();
@@ -71,88 +62,27 @@ HelpManager::~HelpManager()
 
     delete m_guiEngine;
     m_guiEngine = 0;
-
-    delete m_coreEngine;
-    m_coreEngine = 0;
 }
 
-HelpManager& HelpManager::instance()
-{
-    Q_ASSERT(m_helpManager);
-    return *m_helpManager;
-}
-
-void HelpManager::setupGuiHelpEngine()
+void LocalHelpManager::setupGuiHelpEngine()
 {
     if (m_needsCollectionFile) {
         m_needsCollectionFile = false;
-        (&helpEngine())->setCollectionFile(collectionFilePath());
+        helpEngine().setCollectionFile(Core::HelpManager::collectionFilePath());
     }
 
     if (m_guiNeedsSetup) {
         m_guiNeedsSetup = false;
-        (&helpEngine())->setupData();
+        helpEngine().setupData();
     }
 }
 
-bool HelpManager::guiEngineNeedsUpdate() const
+void LocalHelpManager::setEngineNeedsUpdate()
 {
-    return m_guiNeedsSetup;
+    m_guiNeedsSetup = true;
 }
 
-void HelpManager::handleHelpRequest(const QString &url)
-{
-    emit helpRequested(QUrl(url));
-}
-
-void HelpManager::verifyDocumenation()
-{
-    QStringList nameSpacesToUnregister;
-    QHelpEngineCore *engine = &helpEngineCore();
-    const QStringList &registeredDocs = engine->registeredDocumentations();
-    foreach (const QString &nameSpace, registeredDocs) {
-        const QString &file = engine->documentationFileName(nameSpace);
-        if (!QFileInfo(file).exists())
-            nameSpacesToUnregister.append(nameSpace);
-    }
-
-    if (!nameSpacesToUnregister.isEmpty())
-        unregisterDocumentation(nameSpacesToUnregister);
-}
-
-void HelpManager::registerDocumentation(const QStringList &files)
-{
-    QHelpEngineCore *engine = &helpEngineCore();
-    foreach (const QString &file, files) {
-        const QString &nameSpace = engine->namespaceName(file);
-        if (nameSpace.isEmpty())
-            continue;
-        if (!engine->registeredDocumentations().contains(nameSpace)) {
-            if (engine->registerDocumentation(file)) {
-                m_guiNeedsSetup = true;
-            } else {
-                qWarning() << "Error registering namespace '" << nameSpace
-                    << "' from file '" << file << "':" << engine->error();
-            }
-        }
-    }
-}
-
-void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
-{
-    QHelpEngineCore *engine = &helpEngineCore();
-    foreach (const QString &nameSpace, nameSpaces) {
-        const QString &file = engine->documentationFileName(nameSpace);
-        if (engine->unregisterDocumentation(nameSpace)) {
-            m_guiNeedsSetup = true;
-        } else {
-            qWarning() << "Error unregistering namespace '" << nameSpace
-                << "' from file '" << file << "': " << engine->error();
-        }
-    }
-}
-
-QHelpEngine &HelpManager::helpEngine()
+QHelpEngine &LocalHelpManager::helpEngine()
 {
     if (!m_guiEngine) {
         QMutexLocker _(&m_guiMutex);
@@ -164,34 +94,18 @@ QHelpEngine &HelpManager::helpEngine()
     return *m_guiEngine;
 }
 
-QString HelpManager::collectionFilePath()
-{
-    const QFileInfo fi(Core::ICore::instance()->settings()->fileName());
-    const QDir directory(fi.absolutePath() + QLatin1String("/qtcreator"));
-    if (!directory.exists())
-        directory.mkpath(directory.absolutePath());
-    return QDir::cleanPath(directory.absolutePath() + QLatin1String("/helpcollection.qhc"));
-}
-
-QHelpEngineCore& HelpManager::helpEngineCore()
-{
-    if (!m_coreEngine) {
-        QMutexLocker _(&m_coreMutex);
-        if (!m_coreEngine) {
-            m_coreEngine = new QHelpEngineCore(collectionFilePath());
-            m_coreEngine->setAutoSaveFilter(false);
-            m_coreEngine->setCurrentFilter(tr("Unfiltered"));
-            m_coreEngine->setupData();
-        }
-    }
-    return *m_coreEngine;
-}
-
-BookmarkManager& HelpManager::bookmarkManager()
+BookmarkManager& LocalHelpManager::bookmarkManager()
 {
     if (!m_bookmarkManager) {
-        m_bookmarkManager = new BookmarkManager;
-        m_bookmarkManager->setupBookmarkModels();
+        QMutexLocker _(&m_bkmarkMutex);
+        if (!m_bookmarkManager) {
+            m_bookmarkManager = new BookmarkManager;
+            m_bookmarkManager->setupBookmarkModels();
+            const QString &url = QString::fromLatin1("qthelp://com.nokia.qtcreator."
+                "%1%2%3/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
+                .arg(IDE_VERSION_RELEASE);
+            helpEngine().setCustomValue(QLatin1String("DefaultHomePage"), url);
+        }
     }
     return *m_bookmarkManager;
 }

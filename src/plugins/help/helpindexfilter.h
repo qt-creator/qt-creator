@@ -32,6 +32,8 @@
 
 #include <locator/ilocatorfilter.h>
 
+#include <QtGui/QIcon>
+
 namespace Help {
 namespace Internal {
 
@@ -40,7 +42,6 @@ class HelpPlugin;
 class HelpIndexFilter : public Locator::ILocatorFilter
 {
     Q_OBJECT
-    class HelpFileReader;
 
 public:
     HelpIndexFilter();
@@ -58,11 +59,8 @@ signals:
     void linkActivated(const QUrl &link) const;
     void linksActivated(const QMap<QString, QUrl> &urls, const QString &keyword) const;
 
-private slots:
-    void updateHelpFiles();
-
 private:
-    HelpFileReader *m_fileReader;
+    QIcon m_icon;
 };
 
 } // namespace Internal

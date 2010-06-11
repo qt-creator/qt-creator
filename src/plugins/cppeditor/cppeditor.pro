@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = CppEditor
 DEFINES += CPPEDITOR_LIBRARY
-CONFIG += help
 include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../shared/indenter/indenter.pri)

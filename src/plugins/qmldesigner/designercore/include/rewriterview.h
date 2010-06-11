@@ -124,6 +124,7 @@ public:
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
     void importAdded(const Import &import);
     void importRemoved(const Import &import);

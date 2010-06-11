@@ -320,6 +320,7 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     updateFileList();
     // This might be incorrect, need a full update
     updateCodeModel();
+
     createApplicationProjects();
 
     foreach (Target *t, targets())
@@ -1005,10 +1006,26 @@ void Qt4Project::createApplicationProjects()
                 target->removeRunConfiguration(rc);
         }
 
+        // We use the list twice
+        QList<Qt4ProFileNode *> profiles = applicationProFiles();
+        QStringList paths;
+        foreach (Qt4ProFileNode *pro, profiles)
+            paths << pro->path();
+
+        foreach (RunConfiguration *rc, target->runConfigurations()) {
+            if (Qt4RunConfiguration *qt4rc = qobject_cast<Qt4RunConfiguration *>(rc)) {
+                if (!paths.contains(qt4rc->proFilePath())) {
+                    // A deleted .pro file? or a change template
+                    // We do remove those though
+                    target->removeRunConfiguration(rc);
+                }
+            }
+        }
+
         // Only add new runconfigurations if there are none.
         if (target->runConfigurations().isEmpty()) {
             Qt4Target *qt4Target = static_cast<Qt4Target *>(target);
-            foreach (Qt4ProFileNode *qt4proFile, applicationProFiles()) {
+            foreach (Qt4ProFileNode *qt4proFile, profiles) {
                 qt4Target->addRunConfigurationForPath(qt4proFile->path());
             }
         }

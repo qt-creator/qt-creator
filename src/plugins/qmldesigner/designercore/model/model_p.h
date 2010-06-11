@@ -132,6 +132,7 @@ public:
     void notifyPropertiesAboutToBeRemoved(const QList<InternalPropertyPointer> &propertyList);
     void notifyBindingPropertiesChanged(const QList<InternalBindingPropertyPointer> &propertyList, AbstractView::PropertyChangeFlags propertyChange);
     void notifyVariantPropertiesChanged(const InternalNodePointer &internalNodePointer, const QStringList& propertyNameList, AbstractView::PropertyChangeFlags propertyChange);
+    void notifyScriptFunctionsChanged(const InternalNodePointer &internalNodePointer, const QStringList &scriptFunctionList);
 
     void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListPropertyPointer, const InternalNodePointer &internalNodePointer, int oldIndex);
     void notifyAuxiliaryDataChanged(const InternalNodePointer &internalNode, const QString &name, const QVariant &data);
@@ -139,6 +140,8 @@ public:
     void notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
     void notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
+
+
 
     void setSelectedNodes(const QList<InternalNodePointer> &selectedNodeList);
     void clearSelectedNodes();
@@ -154,7 +157,7 @@ public:
 
 
     // Imports:
-    QSet<Import> imports() const { return m_imports; }
+    QList<Import> imports() const { return m_imports; }
     void addImport(const Import &import);
     void removeImport(const Import &import);
     void notifyImportAdded(const Import &import) const;
@@ -176,6 +179,7 @@ public:
     void checkPropertyName(const QString &propertyName);
     void clearParent(const InternalNodePointer &internalNode);
     void changeRootNodeType(const QString &type, int majorVersion, int minorVersion);
+    void setScriptFunctions(const InternalNodePointer &internalNode, const QStringList &scriptFunctionList);
 
     InternalNodePointer nodeForId(const QString &id) const;
     bool hasId(const QString &id) const;
@@ -197,7 +201,7 @@ private:
     Model *m_q;
     MetaInfo m_metaInfo;
 
-    QSet<Import> m_imports;
+    QList<Import> m_imports;
     QList<QWeakPointer<AbstractView> > m_viewList;
     QList<InternalNodePointer> m_selectedNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;

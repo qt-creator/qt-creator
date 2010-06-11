@@ -98,6 +98,24 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
     QmlItemNode newNode;
     RewriterTransaction transaction = beginRewriterTransaction();
     {
+        const QString newImportUrl = QLatin1String("Qt");
+        const QString newImportVersion = QLatin1String("4.7");
+        Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
+
+        foreach (const Import &import, model()->imports()) {
+            if (import.isLibraryImport()
+                && import.url() == newImport.url()
+                && import.version() == newImport.version()) {
+                // reuse this import
+                newImport = import;
+                break;
+            }
+        }
+
+        if (!model()->imports().contains(newImport)) {
+            model()->addImport(newImport);
+        }
+
         QList<QPair<QString, QVariant> > propertyPairList;
         propertyPairList.append(qMakePair(QString("x"), QVariant( round(position.x(), 4))));
         propertyPairList.append(qMakePair(QString("y"), QVariant( round(position.y(), 4))));
@@ -111,7 +129,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         }
 
         propertyPairList.append(qMakePair(QString("source"), QVariant(relativeImageName)));
-        newNode = createQmlItemNode("Qt/Image",4, 7, propertyPairList);
+        newNode = createQmlItemNode("Qt/Image", 4, 7, propertyPairList);
         parentNode.nodeAbstractProperty("data").reparentHere(newNode);
 
         Q_ASSERT(newNode.isValid());
@@ -146,10 +164,29 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
 
     Q_ASSERT(parentNode.isValid());
 
-
     QmlItemNode newNode;
     RewriterTransaction transaction = beginRewriterTransaction();
     {
+        if (itemLibraryEntry.typeName().contains('.')) {
+            const QString newImportUrl = itemLibraryEntry.typeName().split('/').first();
+            const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
+            Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
+
+            foreach (const Import &import, model()->imports()) {
+                if (import.isLibraryImport()
+                    && import.url() == newImport.url()
+                    && import.version() == newImport.version()) {
+                    // reuse this import
+                    newImport = import;
+                    break;
+                }
+            }
+
+            if (!model()->imports().contains(newImport)) {
+                model()->addImport(newImport);
+            }
+        }
+
         QList<QPair<QString, QVariant> > propertyPairList;
         propertyPairList.append(qMakePair(QString("x"), QVariant(round(position.x(), 4))));
         propertyPairList.append(qMakePair(QString("y"), QVariant(round(position.y(), 4))));

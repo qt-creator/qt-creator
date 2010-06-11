@@ -101,6 +101,7 @@ public:
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
 
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
+    void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
 protected:
     void timerEvent(QTimerEvent *event);

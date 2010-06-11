@@ -52,6 +52,7 @@ class ActionManager;
 class StatusBarWidget;
 class EditorManager;
 class FileManager;
+class HelpManager;
 class IContext;
 class IWizard;
 class MessageManager;
@@ -107,6 +108,7 @@ public:
     Core::VariableManager *variableManager() const;
     Core::ModeManager *modeManager() const;
     Core::MimeDatabase *mimeDatabase() const;
+    Core::HelpManager *helpManager() const;
 
     VCSManager *vcsManager() const;
     QSettings *settings(QSettings::Scope scope) const;
@@ -193,6 +195,7 @@ private:
     StatusBarManager *m_statusBarManager;
     ModeManager *m_modeManager;
     MimeDatabase *m_mimeDatabase;
+    HelpManager *m_helpManager;
     FancyTabWidget *m_modeStack;
     NavigationWidget *m_navigationWidget;
     RightPaneWidget *m_rightPaneWidget;

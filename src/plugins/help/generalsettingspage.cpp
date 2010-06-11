@@ -44,7 +44,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
 
-#include <QtHelp/QHelpEngineCore>
+#include <QtHelp/QHelpEngine>
 
 #if !defined(QT_NO_WEBKIT)
 #include <QtWebKit/QWebSettings>
@@ -94,7 +94,7 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     m_ui.sizeComboBox->setEditable(false);
     m_ui.styleComboBox->setEditable(false);
 
-    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     m_font = qVariantValue<QFont>(engine.customValue(QLatin1String("font"), m_font));
 
     updateFontSize();
@@ -163,7 +163,7 @@ void GeneralSettingsPage::apply()
     if (weight >= 0)    // Weight < 0 asserts...
         newFont.setWeight(weight);
 
-    QHelpEngineCore *engine = &HelpManager::helpEngineCore();
+    QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
     engine->setCustomValue(QLatin1String("font"), newFont);
 
     if (newFont != m_font)
@@ -197,7 +197,7 @@ void GeneralSettingsPage::setBlankPage()
 
 void GeneralSettingsPage::setDefaultPage()
 {
-    const QString &defaultHomePage = HelpManager::helpEngineCore()
+    const QString &defaultHomePage = LocalHelpManager::helpEngine()
         .customValue(QLatin1String("DefaultHomePage"), QString()).toString();
     m_ui.homePageLineEdit->setText(defaultHomePage);
 }
@@ -214,7 +214,7 @@ void GeneralSettingsPage::importBookmarks()
 
     QFile file(fileName);
     if (file.open(QIODevice::ReadOnly)) {
-        const BookmarkManager &manager = HelpManager::bookmarkManager();
+        const BookmarkManager &manager = LocalHelpManager::bookmarkManager();
         XbelReader reader(manager.treeBookmarkModel(), manager.listBookmarkModel());
         if (reader.readFromFile(&file))
             return;
@@ -237,7 +237,7 @@ void GeneralSettingsPage::exportBookmarks()
 
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly)) {
-        XbelWriter writer(HelpManager::bookmarkManager().treeBookmarkModel());
+        XbelWriter writer(LocalHelpManager::bookmarkManager().treeBookmarkModel());
         writer.writeToFile(&file);
     }
 }

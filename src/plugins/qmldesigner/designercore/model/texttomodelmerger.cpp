@@ -491,7 +491,7 @@ bool TextToModelMerger::isActive() const
 void TextToModelMerger::setupImports(const Document::Ptr &doc,
                                      DifferenceHandler &differenceHandler)
 {
-    QSet<Import> existingImports = m_rewriterView->model()->imports();
+    QList<Import> existingImports = m_rewriterView->model()->imports();
 
     for (UiImportList *iter = doc->qmlProgram()->imports; iter; iter = iter->next) {
         UiImport *import = iter->import;
@@ -510,13 +510,13 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
             const Import newImport = Import::createFileImport(strippedFileName,
                                                               version, as);
 
-            if (!existingImports.remove(newImport))
+            if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
         } else {
             const Import newImport =
-                    Import::createLibraryImport(flatten(import->importUri), as, version);
+                    Import::createLibraryImport(flatten(import->importUri), version, as);
 
-            if (!existingImports.remove(newImport))
+            if (!existingImports.removeOne(newImport))
                 differenceHandler.modelMissesImport(newImport);
         }
     }

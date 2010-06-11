@@ -129,6 +129,8 @@ public:
 
     virtual void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
+    virtual void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList) = 0;
+
     QmlModelView *toQmlModelView();
 
     void changeRootNodeType(const QString &type, int majorVersion, int minorVersion);

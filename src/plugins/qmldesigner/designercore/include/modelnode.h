@@ -135,6 +135,10 @@ public:
     bool hasNodeProperty(const QString &name) const;
     bool hasNodeListProperty(const QString &name) const;
 
+
+    void setScriptFunctions(const QStringList &scriptFunctionList);
+    QStringList scriptFunctions() const;
+
     //###
     void destroy();
 

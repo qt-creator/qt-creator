@@ -34,6 +34,8 @@
 
 #include "qt_private/qdesigner_integration_p.h"
 
+QT_FORWARD_DECLARE_CLASS(QUrl)
+
 namespace Designer {
 namespace Internal {
 
@@ -49,7 +51,7 @@ public:
     bool supportsToSlotNavigation() { return true; }
 
 signals:
-    void creatorHelpRequested(const QString &url);
+    void creatorHelpRequested(const QUrl &url);
 
 public slots:
     void updateSelection();

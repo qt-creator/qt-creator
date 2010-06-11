@@ -35,6 +35,7 @@
 #include "nodelistproperty.h"
 #include "qmltextgenerator.h"
 #include "variantproperty.h"
+#include "model.h"
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
@@ -122,11 +123,31 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
 QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
 {
     QString type = node.type();
-    int lastSlashIndex = type.lastIndexOf('/');
-    if (lastSlashIndex != -1)
-        type = type.mid(lastSlashIndex + 1);
+    QString url;
+    if (type.contains('/')) {
+        QStringList nameComponents = type.split("/");
+        url = nameComponents.first();
+        type = nameComponents.last();
+    }
 
-    QString result = type;
+    QString alias;
+    if (!url.isEmpty()) {
+        const QString &versionUrl = QString("%1.%2").arg(QString::number(node.majorVersion()), QString::number(node.minorVersion()));
+        foreach (const Import &import, node.model()->imports()) {
+            if (import.url() == url
+                && import.version() == versionUrl) {
+                alias = import.alias();
+                break;
+            }
+        }
+    }
+
+    QString result;
+
+    if (!alias.isEmpty())
+        result = alias + ".";
+
+    result += type;
     result += QLatin1String(" {\n");
 
     const int propertyIndentDepth = indentDepth + 4;

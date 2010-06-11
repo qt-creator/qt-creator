@@ -6,6 +6,7 @@ QT += xml \
     script \
     svg \
     sql
+CONFIG += help
 include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
@@ -86,7 +87,8 @@ SOURCES += mainwindow.cpp \
     editortoolbar.cpp \
     ssh/ne7sshobject.cpp \
     ssh/sshconnection.cpp \
-    ssh/sshkeygenerator.cpp
+    ssh/sshkeygenerator.cpp \
+    helpmanager.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -171,7 +173,8 @@ HEADERS += mainwindow.h \
     editortoolbar.h \
     ssh/ne7sshobject.h \
     ssh/sshconnection.h \
-    ssh/sshkeygenerator.h
+    ssh/sshkeygenerator.h \
+    helpmanager.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

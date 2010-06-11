@@ -61,6 +61,7 @@
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+#include <QtCore/QUrl>
 
 enum { indentation = 4 };
 
@@ -101,7 +102,8 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, F
 void QtCreatorIntegration::slotDesignerHelpRequested(const QString &manual, const QString &document)
 {
     // Pass on as URL.
-    emit creatorHelpRequested(QString::fromLatin1("qthelp://com.trolltech.%1/qdoc/%2").arg(manual, document));
+    emit creatorHelpRequested(QUrl(QString::fromLatin1("qthelp://com.trolltech.%1/qdoc/%2")
+        .arg(manual, document)));
 }
 
 void QtCreatorIntegration::updateSelection()

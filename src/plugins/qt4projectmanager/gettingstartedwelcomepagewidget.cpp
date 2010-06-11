@@ -31,14 +31,13 @@
 #include "ui_gettingstartedwelcomepagewidget.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mainwindow.h>
 
 #include <utils/pathchooser.h>
 
 #include <extensionsystem/pluginmanager.h>
-
-#include <help/helpmanager.h>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
@@ -338,15 +337,13 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
 
 void GettingStartedWelcomePageWidget::slotOpenHelpPage(const QString& url)
 {
-    Help::HelpManager *helpManager
-            = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
+    Core::HelpManager *helpManager = Core::HelpManager::instance();
     Q_ASSERT(helpManager);
     helpManager->handleHelpRequest(url);
 }
 void GettingStartedWelcomePageWidget::slotOpenContextHelpPage(const QString& url)
 {
-    Help::HelpManager *helpManager
-        = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
+    Core::HelpManager *helpManager = Core::HelpManager::instance();
     Q_ASSERT(helpManager);
     helpManager->handleHelpRequest(url % QLatin1String("?view=split"));
 }

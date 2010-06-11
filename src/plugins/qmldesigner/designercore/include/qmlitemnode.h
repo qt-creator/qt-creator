@@ -71,12 +71,10 @@ public:
     QTransform instanceSceneTransform() const;
     QPointF instancePosition() const;
     QSizeF instanceSize() const;
+    int instancePenWidth() const;
+
 
     void paintInstance(QPainter *painter) const;
-
-    void setSize(const QSizeF &size);
-    void setPosition(const QPointF &position);
-    void setPositionWithBorder(const QPointF &position);
 
     void selectNode();
     void deselectNode();

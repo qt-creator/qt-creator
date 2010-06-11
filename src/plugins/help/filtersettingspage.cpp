@@ -33,16 +33,19 @@
 #include "helpconstants.h"
 #include "helpmanager.h"
 
+#include <coreplugin/helpmanager.h>
+
 #include <QtCore/QCoreApplication>
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-#include <QtHelp/QHelpEngineCore>
+#include <QtHelp/QHelpEngine>
 
 using namespace Help::Internal;
 
 FilterSettingsPage::FilterSettingsPage()
+    : m_helpManager(0)
 {
 }
 
@@ -76,6 +79,7 @@ QWidget *FilterSettingsPage::createPage(QWidget *parent)
     QWidget *widget = new QWidget(parent);
     m_ui.setupUi(widget);
 
+    m_helpManager->setupGuiHelpEngine();
     updateFilterPage(); // does call setupData on the engine
 
     connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
@@ -86,6 +90,8 @@ QWidget *FilterSettingsPage::createPage(QWidget *parent)
     connect(m_ui.filterAddButton, SIGNAL(clicked()), this, SLOT(addFilter()));
     connect(m_ui.filterRemoveButton, SIGNAL(clicked()), this,
         SLOT(removeFilter()));
+    connect(Core::HelpManager::instance(), SIGNAL(documentationChanged()),
+        this, SLOT(updateFilterPage()));
 
     if (m_searchKeywords.isEmpty()) {
         m_searchKeywords = m_ui.filterGroupBox->title() + QLatin1Char(' ')
@@ -100,7 +106,7 @@ void FilterSettingsPage::updateFilterPage()
     m_ui.attributeWidget->clear();
 
     m_filterMapBackup.clear();
-    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     const QStringList &filters = engine.customFilters();
     foreach (const QString &filter, filters) {
         const QStringList &attributes = engine.filterAttributes(filter);
@@ -114,8 +120,10 @@ void FilterSettingsPage::updateFilterPage()
     foreach (const QString &attribute, attributes)
         new QTreeWidgetItem(m_ui.attributeWidget, QStringList(attribute));
 
-    if (m_filterMap.keys().count())
+    if (m_filterMap.keys().isEmpty()) {
         m_ui.filterWidget->setCurrentRow(0);
+        updateAttributes(m_ui.filterWidget->currentItem());
+    }
 }
 
 void FilterSettingsPage::updateAttributes(QListWidgetItem *item)
@@ -208,7 +216,7 @@ void FilterSettingsPage::apply()
     }
 
     if (changed) {
-        QHelpEngineCore *engine = &HelpManager::helpEngineCore();
+        QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
         foreach (const QString &filter, m_removedFilters)
            engine->removeCustomFilter(filter);
 
@@ -225,4 +233,9 @@ void FilterSettingsPage::apply()
 bool FilterSettingsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+}
+
+void FilterSettingsPage::setHelpManager(LocalHelpManager *manager)
+{
+    m_helpManager = manager;
 }
