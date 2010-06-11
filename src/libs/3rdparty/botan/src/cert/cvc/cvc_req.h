@@ -12,7 +12,6 @@
 #include <botan/x509_key.h>
 #include <botan/pubkey_enums.h>
 #include <botan/cvc_gen_cert.h>
-#include <botan/cvc_req.h>
 
 namespace Botan {
 
