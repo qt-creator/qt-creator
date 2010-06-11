@@ -43,8 +43,15 @@ class QTCREATOR_UTILS_EXPORT FileSearchResult
 {
 public:
     FileSearchResult() {}
-    FileSearchResult(QString fileName, int lineNumber, QString matchingLine, int matchStart, int matchLength)
-            : fileName(fileName), lineNumber(lineNumber), matchingLine(matchingLine), matchStart(matchStart), matchLength(matchLength)
+    FileSearchResult(QString fileName, int lineNumber, QString matchingLine,
+                     int matchStart, int matchLength,
+                     QStringList regexpCapturedTexts)
+            : fileName(fileName),
+            lineNumber(lineNumber),
+            matchingLine(matchingLine),
+            matchStart(matchStart),
+            matchLength(matchLength),
+            regexpCapturedTexts(regexpCapturedTexts)
     {
     }
     QString fileName;
@@ -52,6 +59,7 @@ public:
     QString matchingLine;
     int matchStart;
     int matchLength;
+    QStringList regexpCapturedTexts;
 };
 
 QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFiles(const QString &searchTerm, const QStringList &files,
@@ -59,6 +67,8 @@ QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFiles(const QString &sear
 
 QTCREATOR_UTILS_EXPORT QFuture<FileSearchResult> findInFilesRegExp(const QString &searchTerm, const QStringList &files,
     QTextDocument::FindFlags flags, QMap<QString, QString> fileToContentsMap = QMap<QString, QString>());
+
+QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts);
 
 } // namespace Utils
 

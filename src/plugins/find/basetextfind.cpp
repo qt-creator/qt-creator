@@ -30,6 +30,7 @@
 #include "basetextfind.h"
 
 #include <utils/qtcassert.h>
+#include <utils/filesearch.h>
 
 #include <QtGui/QTextBlock>
 #include <QtGui/QPlainTextEdit>
@@ -152,40 +153,6 @@ IFindSupport::Result BaseTextFind::findStep(const QString &txt, IFindSupport::Fi
     return found ? Found : NotFound;
 }
 
-namespace {
-    QString expandRegExpReplacement(const QString &replaceText, const QRegExp &regexp)
-    {
-        QString result;
-        for (int i = 0; i < replaceText.length(); ++i) {
-            QChar c = replaceText.at(i);
-            if (c == QLatin1Char('\\') && i < replaceText.length() - 1) {
-                c = replaceText.at(++i);
-                if (c == QLatin1Char('\\')) {
-                    result += QLatin1Char('\\');
-                } else if (c == QLatin1Char('&')) {
-                    result += QLatin1Char('&');
-                } else if (c.isDigit()) {
-                    int index = c.unicode()-'1';
-                    if (index < regexp.numCaptures()) {
-                        result += regexp.cap(index+1);
-                    } else {
-                        result += QLatin1Char('\\');
-                        result += c;
-                    }
-                } else {
-                    result += QLatin1Char('\\');
-                    result += c;
-                }
-            } else if (c == QLatin1Char('&')) {
-                result += regexp.cap(0);
-            } else {
-                result += c;
-            }
-        }
-        return result;
-    }
-}
-
 bool BaseTextFind::replaceStep(const QString &before, const QString &after,
     IFindSupport::FindFlags findFlags)
 {
@@ -196,7 +163,7 @@ bool BaseTextFind::replaceStep(const QString &before, const QString &after,
                    usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
 
     if (regexp.exactMatch(cursor.selectedText())) {
-        QString realAfter = usesRegExp ? expandRegExpReplacement(after, regexp) : after;
+        QString realAfter = usesRegExp ? Utils::expandRegExpReplacement(after, regexp.capturedTexts()) : after;
         int start = cursor.selectionStart();
         cursor.insertText(realAfter);
         if ((findFlags&IFindSupport::FindBackward) != 0)
@@ -226,7 +193,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
         editCursor.setPosition(found.selectionStart());
         editCursor.setPosition(found.selectionEnd(), QTextCursor::KeepAnchor);
         regexp.exactMatch(found.selectedText());
-        QString realAfter = usesRegExp ? expandRegExpReplacement(after, regexp) : after;
+        QString realAfter = usesRegExp ? Utils::expandRegExpReplacement(after, regexp.capturedTexts()) : after;
         editCursor.insertText(realAfter);
         found = findOne(regexp, editCursor, IFindSupport::textDocumentFlagsForFindFlags(findFlags));
     }

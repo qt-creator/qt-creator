@@ -170,7 +170,8 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
                             while (startOfLastLine[i] != '\n' && startOfLastLine[i] != '\r' && i < textLength && n++ < 256)
                                 res.append(startOfLastLine[i++]);
                             future.reportResult(FileSearchResult(s, lineNr, QString(res),
-                                                          regionPtr - startOfLastLine, sa.length()));
+                                                          regionPtr - startOfLastLine, sa.length(),
+                                                          QStringList()));
                             ++numMatches;
                         }
                     }
@@ -229,7 +230,8 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResult> &future,
             int pos = 0;
             while ((pos = expression.indexIn(line, pos)) != -1) {
                 future.reportResult(FileSearchResult(s, lineNr, line,
-                                              pos, expression.matchedLength()));
+                                              pos, expression.matchedLength(),
+                                              expression.capturedTexts()));
                 pos += expression.matchedLength();
             }
             ++lineNr;
@@ -258,4 +260,37 @@ QFuture<FileSearchResult> Utils::findInFilesRegExp(const QString &searchTerm, co
 {
     return QtConcurrent::run<FileSearchResult, QString, QStringList, QTextDocument::FindFlags, QMap<QString, QString> >
             (runFileSearchRegExp, searchTerm, files, flags, fileToContentsMap);
+}
+
+QString Utils::expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts)
+{
+    QString result;
+    int numCaptures = capturedTexts.size() - 1;
+    for (int i = 0; i < replaceText.length(); ++i) {
+        QChar c = replaceText.at(i);
+        if (c == QLatin1Char('\\') && i < replaceText.length() - 1) {
+            c = replaceText.at(++i);
+            if (c == QLatin1Char('\\')) {
+                result += QLatin1Char('\\');
+            } else if (c == QLatin1Char('&')) {
+                result += QLatin1Char('&');
+            } else if (c.isDigit()) {
+                int index = c.unicode()-'1';
+                if (index < numCaptures) {
+                    result += capturedTexts.at(index+1);
+                } else {
+                    result += QLatin1Char('\\');
+                    result += c;
+                }
+            } else {
+                result += QLatin1Char('\\');
+                result += c;
+            }
+        } else if (c == QLatin1Char('&')) {
+            result += capturedTexts.at(0);
+        } else {
+            result += c;
+        }
+    }
+    return result;
 }

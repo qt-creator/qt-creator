@@ -150,7 +150,8 @@ void BaseFileFind::displayResult(int index) {
                               result.lineNumber,
                               result.matchingLine,
                               result.matchStart,
-                              result.matchLength);
+                              result.matchLength,
+                              result.regexpCapturedTexts);
     if (m_resultLabel)
         m_resultLabel->setText(tr("%1 found").arg(m_resultWindow->numberOfResults()));
 }
@@ -280,7 +281,7 @@ void BaseFileFind::openEditor(const Find::SearchResultItem &item)
 
 static void applyChanges(QTextDocument *doc, const QString &text, const QList<Find::SearchResultItem> &items)
 {
-    QList<QTextCursor> cursors;
+    QList<QPair<QTextCursor, QString> > changes;
 
     foreach (const Find::SearchResultItem &item, items) {
         const int blockNumber = item.lineNumber - 1;
@@ -289,24 +290,31 @@ static void applyChanges(QTextDocument *doc, const QString &text, const QList<Fi
         const int cursorPosition = tc.position() + item.searchTermStart;
 
         int cursorIndex = 0;
-        for (; cursorIndex < cursors.size(); ++cursorIndex) {
-            const QTextCursor &tc = cursors.at(cursorIndex);
+        for (; cursorIndex < changes.size(); ++cursorIndex) {
+            const QTextCursor &otherTc = changes.at(cursorIndex).first;
 
-            if (tc.position() == cursorPosition)
+            if (otherTc.position() == cursorPosition)
                 break;
         }
 
-        if (cursorIndex != cursors.size())
+        if (cursorIndex != changes.size())
             continue; // skip this change.
 
         tc.setPosition(cursorPosition);
         tc.setPosition(tc.position() + item.searchTermLength,
                        QTextCursor::KeepAnchor);
-        cursors.append(tc);
+        QString substitutionText;
+        if (item.userData.canConvert<QStringList>() && !item.userData.toStringList().isEmpty())
+            substitutionText = Utils::expandRegExpReplacement(text, item.userData.toStringList());
+        else
+            substitutionText = text;
+        changes.append(QPair<QTextCursor, QString>(tc, substitutionText));
     }
 
-    foreach (QTextCursor tc, cursors)
-        tc.insertText(text);
+    for (int i = 0; i < changes.size(); ++i) {
+        QPair<QTextCursor, QString> &cursor = changes[i];
+        cursor.first.insertText(cursor.second);
+    }
 }
 
 QStringList BaseFileFind::replaceAll(const QString &text,
