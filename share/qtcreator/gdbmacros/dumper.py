@@ -1002,7 +1002,7 @@ class Dumper:
             if len(watchers) > 0:
                 for watcher in watchers.split("##"):
                     (exp, iname) = watcher.split("#")
-                    handleWatch(self, exp, iname)
+                    self.handleWatch(exp, iname)
 
         #
         # Breakpoints
@@ -1032,7 +1032,7 @@ class Dumper:
                     with Children(self, len(list)):
                         itemNumber = 0
                         for item in list:
-                            handleWatch(self, item, "%s.%d" % (iname, itemNumber))
+                            self.handleWatch(item, "%s.%d" % (iname, itemNumber))
                             itemNumber += 1
                 except RuntimeError, error:
                     warn("EVAL: ERROR CAUGHT %s" % error)
@@ -1043,7 +1043,7 @@ class Dumper:
                         pass
             return
 
-        with SubItem(d):
+        with SubItem(self):
             self.putField("iname", iname)
             self.putField("name", escapedExp)
             self.putField("exp", escapedExp)
