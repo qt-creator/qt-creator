@@ -50,8 +50,6 @@ static QString serialize(AbstractView::PropertyChangeFlags change)
         tokenList.append(QLatin1String("EmptyPropertiesRemoved"));
 
     return tokenList.join(" ");
-
-    return QString();
 }
 
 static QString indent(const QString &name = QString()) {

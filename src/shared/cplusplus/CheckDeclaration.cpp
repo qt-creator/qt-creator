@@ -874,8 +874,6 @@ void CheckDeclaration::checkQEnumsQFlagsNames(NameListAST *nameListAst,
                                               const char *declName)
 {
     for (NameListAST *iter = nameListAst; iter; iter = iter->next) {
-        if (!iter)
-            continue;
 
         const Name *name = semantic()->check(iter->value, _scope);
         if (!name)

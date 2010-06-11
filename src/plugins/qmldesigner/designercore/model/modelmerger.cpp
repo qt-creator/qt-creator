@@ -170,9 +170,9 @@ void ModelMerger::replaceModel(const ModelNode &modelNode)
 {
      RewriterTransaction transaction(view()->beginRewriterTransaction());
 
-     foreach (const Import &import, modelNode.model()->imports()) {
+//     foreach (const Import &import, modelNode.model()->imports()) {
         //view()->model()->addImport(import); //### 
-     }
+//     }
     view()->model()->setFileUrl(modelNode.model()->fileUrl());
 
     ModelNode rootNode(view()->rootModelNode());
