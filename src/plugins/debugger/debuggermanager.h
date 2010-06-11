@@ -113,7 +113,6 @@ public:
     QStringList processArgs;
     QStringList environment;
     QString workingDirectory;
-    QString buildDirectory;
     qint64 attachPID;
     bool useTerminal;
     QString crashParameter; // for AttachCrashedExternal

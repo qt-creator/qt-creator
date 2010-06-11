@@ -183,7 +183,7 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
     nospace << "executable=" << p.executable << " coreFile=" << p.coreFile
             << " processArgs=" << p.processArgs.join(sep)
             << " environment=<" << p.environment.size() << " variables>"
-            << " workingDir=" << p.workingDirectory << " buildDir=" << p.buildDirectory
+            << " workingDir=" << p.workingDirectory
             << " attachPID=" << p.attachPID << " useTerminal=" << p.useTerminal
             << " remoteChannel=" << p.remoteChannel
             << " remoteArchitecture=" << p.remoteArchitecture

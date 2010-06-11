@@ -45,13 +45,10 @@
 
 #include <QtGui/QTextDocument>
 
+using namespace ProjectExplorer;
+
 namespace Debugger {
 namespace Internal {
-
-using ProjectExplorer::BuildConfiguration;
-using ProjectExplorer::RunConfiguration;
-using ProjectExplorer::RunControl;
-using ProjectExplorer::LocalApplicationRunConfiguration;
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -89,26 +86,13 @@ static DebuggerStartParametersPtr localStartParameters(RunConfiguration *runConf
     sp->environment = rc->environment().toStringList();
     sp->workingDirectory = rc->workingDirectory();
     sp->processArgs = rc->commandLineArguments();
-
-    switch (sp->toolChainType) {
-    case ProjectExplorer::ToolChain::UNKNOWN:
-    case ProjectExplorer::ToolChain::INVALID:
-        sp->toolChainType = rc->toolChainType();
-        break;
-    default:
-        break;
-    }
-    if (rc->target()->project()) {
-        BuildConfiguration *bc = rc->target()->activeBuildConfiguration();
-        if (bc)
-            sp->buildDirectory = bc->buildDirectory();
-    }
+    sp->toolChainType = rc->toolChainType();
     sp->useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp->dumperLibrary = rc->dumperLibrary();
     sp->dumperLibraryLocations = rc->dumperLibraryLocations();
 
-    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(
-            rc->environment());
+    // Find qtInstallPath.
+    QString qmakePath = DebuggingHelperLibrary::findSystemQt(rc->environment());
     if (!qmakePath.isEmpty()) {
         QProcess proc;
         QStringList args;
@@ -153,7 +137,7 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
         const DebuggerStartParametersPtr &startParameters,
-        ProjectExplorer::RunConfiguration *runConfiguration)
+        RunConfiguration *runConfiguration)
     : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
       m_startParameters(startParameters),
       m_manager(manager),
@@ -162,7 +146,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
     init();
 
     if (m_startParameters->environment.empty())
-     m_startParameters->environment = ProjectExplorer::Environment().toStringList();
+        m_startParameters->environment = ProjectExplorer::Environment().toStringList();
     m_startParameters->useTerminal = false;
 }
 
