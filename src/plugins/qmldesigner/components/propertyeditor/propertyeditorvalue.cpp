@@ -229,7 +229,7 @@ PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent
     connect(m_editorValue, SIGNAL(modelNodeChanged()), this, SLOT(update()));
 }
 
-PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(QObject *parent) : QObject(parent)
+PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(QObject *parent) : QObject(parent), m_editorValue(NULL)
 {
 }
 

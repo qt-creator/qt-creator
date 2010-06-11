@@ -35,8 +35,11 @@
 using namespace QmlDesigner;
 
 DesignerSettings::DesignerSettings()
-    : openDesignMode(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT)
+    : openDesignMode(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT),
+    itemSpacing(0),
+    snapMargin(0)
 {}
+
 void DesignerSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP));
