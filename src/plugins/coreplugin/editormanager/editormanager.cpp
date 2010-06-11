@@ -880,19 +880,21 @@ void EditorManager::closeDuplicate(Core::IEditor *editor)
 
     emit editorAboutToClose(editor);
 
-    EditorView *view = m_d->m_splitter->findView(editor)->view();
-    removeEditor(editor);
-    view->removeEditor(editor);
+    if(m_d->m_splitter->findView(editor)) {
+        EditorView *view = m_d->m_splitter->findView(editor)->view();
+        removeEditor(editor);
+        view->removeEditor(editor);
 
-    IEditor *newCurrent = view->currentEditor();
-    if (!newCurrent)
-        newCurrent = pickUnusedEditor();
-    if (newCurrent) {
-        activateEditor(view, newCurrent, NoActivate);
-    } else {
-        QModelIndex idx = m_d->m_editorModel->firstRestoredEditor();
-        if (idx.isValid())
-            activateEditor(idx, view, NoActivate);
+        IEditor *newCurrent = view->currentEditor();
+        if (!newCurrent)
+            newCurrent = pickUnusedEditor();
+        if (newCurrent) {
+            activateEditor(view, newCurrent, NoActivate);
+        } else {
+            QModelIndex idx = m_d->m_editorModel->firstRestoredEditor();
+            if (idx.isValid())
+                activateEditor(idx, view, NoActivate);
+        }
     }
 
     emit editorsClosed(QList<IEditor*>() << editor);

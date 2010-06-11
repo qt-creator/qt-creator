@@ -1118,9 +1118,10 @@ void MyGroupBox::paintEvent(QPaintEvent * event)
     QGroupBox::paintEvent(event);
     if (m_animated) {
         QPainter p(this);
-        p.setOpacity(m_alpha);
-        if (!m_pixmap.isNull() && !m_firstExpand)
+        if (!m_pixmap.isNull() && !m_firstExpand) {
+            p.setOpacity(m_alpha);
             p.drawPixmap(5, 5,  m_pixmap.width(), m_pixmap.height(), m_pixmap);
+        }
     }
 }
 

@@ -223,16 +223,17 @@ QList<BuildConfigWidget *> BuildSettingsWidget::subWidgets() const
 void BuildSettingsWidget::updateAddButtonMenu()
 {
     m_addButtonMenu->clear();
-    if (m_target &&
-        m_target->activeBuildConfiguration()) {
-        m_addButtonMenu->addAction(tr("&Clone Selected"),
-                                   this, SLOT(cloneConfiguration()));
-    }
-    IBuildConfigurationFactory *factory = m_target->buildConfigurationFactory();
-    if (factory) {
-        foreach (const QString &id, factory->availableCreationIds(m_target)) {
-            QAction *action = m_addButtonMenu->addAction(factory->displayNameForId(id), this, SLOT(createConfiguration()));
-            action->setData(id);
+    if (m_target) {
+        if (m_target->activeBuildConfiguration()) {
+            m_addButtonMenu->addAction(tr("&Clone Selected"),
+                                       this, SLOT(cloneConfiguration()));
+        }
+        IBuildConfigurationFactory *factory = m_target->buildConfigurationFactory();
+        if (factory) {
+            foreach (const QString &id, factory->availableCreationIds(m_target)) {
+                QAction *action = m_addButtonMenu->addAction(factory->displayNameForId(id), this, SLOT(createConfiguration()));
+                action->setData(id);
+            }
         }
     }
 }
