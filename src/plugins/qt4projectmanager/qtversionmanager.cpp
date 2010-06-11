@@ -43,6 +43,7 @@
 #include <projectexplorer/cesdkhandler.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <help/helpmanager.h>
 #include <utils/qtcassert.h>
@@ -211,8 +212,7 @@ QSet<QString> QtVersionManager::supportedTargetIds() const
 
 void QtVersionManager::updateDocumentation()
 {
-    Help::HelpManager *helpManager
-        = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
+    Core::HelpManager *helpManager = Core::HelpManager::instance();
     Q_ASSERT(helpManager);
     QStringList files;
     foreach (QtVersion *version, m_versions) {

@@ -144,6 +144,11 @@ MimeDatabase *CoreImpl::mimeDatabase() const
     return m_mainwindow->mimeDatabase();
 }
 
+HelpManager *CoreImpl::helpManager() const
+{
+    return m_mainwindow->helpManager();
+}
+
 QSettings *CoreImpl::settings(QSettings::Scope scope) const
 {
     return m_mainwindow->settings(scope);

@@ -18,7 +18,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
         <dependency name="ProjectExplorer" version="1.3.86"/>
         <dependency name="CppTools" version="1.3.86"/>
         <dependency name="CppEditor" version="1.3.86"/>
-        <dependency name="Help" version="1.3.86"/>
         <dependency name="Designer" version="1.3.86"/>
         <dependency name="Debugger" version="1.3.86"/>
     </dependencyList>

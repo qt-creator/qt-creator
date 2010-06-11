@@ -50,6 +50,7 @@ namespace Core {
 class ActionManager;
 class EditorManager;
 class FileManager;
+class HelpManager;
 class IContext;
 class MessageManager;
 class MimeDatabase;
@@ -96,6 +97,7 @@ public:
     virtual VCSManager *vcsManager() const = 0;
     virtual ModeManager *modeManager() const = 0;
     virtual MimeDatabase *mimeDatabase() const = 0;
+    virtual HelpManager *helpManager() const = 0;
 
     virtual QSettings *settings(QSettings::Scope scope = QSettings::UserScope) const = 0;
     virtual SettingsDatabase *settingsDatabase() const = 0;

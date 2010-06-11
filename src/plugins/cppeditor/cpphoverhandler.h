@@ -33,7 +33,6 @@
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
-class QHelpEngineCore;
 class QPoint;
 QT_END_NAMESPACE
 
@@ -70,10 +69,8 @@ private:
     void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos);
 
     CppTools::CppModelManagerInterface *m_modelManager;
-    QHelpEngineCore *m_helpEngine;
     QString m_helpId;
     QString m_toolTip;
-    bool m_helpEngineNeedsSetup;
 };
 
 } // namespace Internal

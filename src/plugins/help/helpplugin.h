@@ -49,8 +49,6 @@ class SideBarItem;
 }   // Core
 
 namespace Help {
-class HelpManager;
-
 namespace Internal {
 class CentralWidget;
 class DocSettingsPage;
@@ -58,6 +56,7 @@ class FilterSettingsPage;
 class GeneralSettingsPage;
 class HelpMode;
 class HelpViewer;
+class LocalHelpManager;
 class OpenPagesManager;
 class SearchWidget;
 
@@ -129,7 +128,7 @@ private:
     Core::SideBar *m_sideBar;
 
     bool m_firstModeChange;
-    HelpManager *m_helpManager;
+    LocalHelpManager *m_helpManager;
     OpenPagesManager *m_openPagesManager;
     Core::MiniSplitter *m_splitter;
 

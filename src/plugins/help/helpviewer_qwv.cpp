@@ -44,7 +44,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QWheelEvent>
 
-#include <QtHelp/QHelpEngineCore>
+#include <QtHelp/QHelpEngine>
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
@@ -125,7 +125,7 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation /*op*/,
     const QNetworkRequest &request, QIODevice* /*outgoingData*/)
 {
     QString url = request.url().toString();
-    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     // TODO: For some reason the url to load is already wrong (passed from webkit)
     // though the css file and the references inside should work that way. One 
     // possible problem might be that the css is loaded at the same level as the
@@ -265,7 +265,7 @@ QFont HelpViewer::viewerFont() const
     QWebSettings* webSettings = QWebSettings::globalSettings();
     QFont font(QApplication::font().family(),
         webSettings->fontSize(QWebSettings::DefaultFontSize));
-    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     return qVariantValue<QFont>(engine.customValue(QLatin1String("font"),
         font));
 }

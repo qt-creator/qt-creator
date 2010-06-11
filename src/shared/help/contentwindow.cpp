@@ -45,7 +45,7 @@ ContentWindow::ContentWindow()
     : m_contentWidget(0)
     , m_expandDepth(-2)
 {
-    m_contentWidget = (&Help::HelpManager::helpEngine())->contentWidget();
+    m_contentWidget = (&LocalHelpManager::helpEngine())->contentWidget();
     m_contentWidget->installEventFilter(this);
     m_contentWidget->viewport()->installEventFilter(this);
     m_contentWidget->setContextMenuPolicy(Qt::CustomContextMenu);

@@ -41,7 +41,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QTreeView>
 
-#include <QtHelp/QHelpEngineCore>
+#include <QtHelp/QHelpEngine>
 
 using namespace Help::Internal;
 
@@ -118,7 +118,7 @@ QStringList splitString(const QVariant &value)
 
 void OpenPagesManager::setupInitialPages()
 {
-    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     const int option = engine.customValue(QLatin1String("StartOption"),
         Help::Constants::ShowLastPages).toInt();
     QString homePage = engine.customValue(QLatin1String("DefaultHomePage"),

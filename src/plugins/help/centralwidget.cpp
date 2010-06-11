@@ -45,7 +45,6 @@
 #include <QtGui/QStackedWidget>
 
 #include <QtHelp/QHelpEngine>
-#include <QtHelp/QHelpEngineCore>
 #include <QtHelp/QHelpSearchEngine>
 
 using namespace Help::Internal;
@@ -85,7 +84,7 @@ CentralWidget::~CentralWidget()
         }
     }
 
-    QHelpEngineCore *engine = &HelpManager::helpEngineCore();
+    QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
     engine->setCustomValue(QLatin1String("LastShownPages"), currentPages);
     engine->setCustomValue(QLatin1String("LastShownPagesZoom"), zoomFactors);
     engine->setCustomValue(QLatin1String("LastTabPage"), currentIndex());
@@ -314,7 +313,7 @@ void CentralWidget::highlightSearchTerms()
 {
     if (HelpViewer *viewer = currentHelpViewer()) {
         QHelpSearchEngine *searchEngine = 
-            HelpManager::instance().helpEngine().searchEngine();
+            LocalHelpManager::helpEngine().searchEngine();
         QList<QHelpSearchQuery> queryList = searchEngine->query();
 
         QStringList terms;

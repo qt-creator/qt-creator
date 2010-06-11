@@ -37,6 +37,7 @@
 #include "fancytabwidget.h"
 #include "filemanager.h"
 #include "generalsettings.h"
+#include "helpmanager.h"
 #include "ifilefactory.h"
 #include "messagemanager.h"
 #include "modemanager.h"
@@ -132,6 +133,7 @@ MainWindow::MainWindow() :
     m_statusBarManager(0),
     m_modeManager(0),
     m_mimeDatabase(new MimeDatabase),
+    m_helpManager(new HelpManager),
     m_navigationWidget(0),
     m_rightPaneWidget(0),
     m_versionDialog(0),
@@ -288,6 +290,9 @@ MainWindow::~MainWindow()
     m_modeManager = 0;
     delete m_mimeDatabase;
     m_mimeDatabase = 0;
+
+    delete m_helpManager;
+    m_helpManager = 0;
 }
 
 bool MainWindow::init(QString *errorMessage)
@@ -1009,6 +1014,11 @@ ModeManager *MainWindow::modeManager() const
 MimeDatabase *MainWindow::mimeDatabase() const
 {
     return m_mimeDatabase;
+}
+
+HelpManager *MainWindow::helpManager() const
+{
+    return m_helpManager;
 }
 
 IContext *MainWindow::contextObject(QWidget *widget)

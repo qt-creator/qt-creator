@@ -32,6 +32,7 @@
 #include "cppplugin.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -60,7 +61,6 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextBlock>
-#include <QtHelp/QHelpEngineCore>
 
 using namespace CppEditor::Internal;
 using namespace CPlusPlus;
@@ -68,27 +68,11 @@ using namespace Core;
 
 CppHoverHandler::CppHoverHandler(QObject *parent)
     : QObject(parent)
-    , m_helpEngineNeedsSetup(false)
 {
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<CppTools::CppModelManagerInterface>();
 
-    ICore *core = ICore::instance();
-    QFileInfo fi(core->settings()->fileName());
-    // FIXME shouldn't the help engine create the directory if it doesn't exist?
-    QDir directory(fi.absolutePath()+"/qtcreator");
-    if (!directory.exists())
-        directory.mkpath(directory.absolutePath());
-
-    m_helpEngine = new QHelpEngineCore(directory.absolutePath()
-                                       + QLatin1String("/helpcollection.qhc"), this);
-    if (!m_helpEngine->setupData())
-        qWarning() << "Could not initialize help engine:" << m_helpEngine->error();
-    m_helpEngine->setAutoSaveFilter(false);
-    m_helpEngine->setCurrentFilter(tr("Unfiltered"));
-    m_helpEngineNeedsSetup = m_helpEngine->registeredDocumentations().count() == 0;
-
     // Listen for editor opened events in order to connect to tooltip/helpid requests
-    connect(core->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
+    connect(ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor *)),
             this, SLOT(editorOpened(Core::IEditor *)));
 }
 
@@ -297,19 +281,13 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         }
     }
 
-    if (m_helpEngineNeedsSetup
-        && m_helpEngine->registeredDocumentations().count() > 0) {
-        m_helpEngine->setupData();
-        m_helpEngineNeedsSetup = false;
-    }
     QMap<QString, QUrl> helpLinks;
-
     if (m_toolTip.isEmpty()) {
         foreach (const Document::Include &incl, doc->includes()) {
             if (incl.line() == lineNumber) {
                 m_toolTip = QDir::toNativeSeparators(incl.fileName());
                 m_helpId = QFileInfo(incl.fileName()).fileName();
-                helpLinks = m_helpEngine->linksForIdentifier(m_helpId);
+                helpLinks = Core::HelpManager::instance()->linksForIdentifier(m_helpId);
                 break;
             }
         }
@@ -388,7 +366,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             // To show their help anyway, try stripping scopes until we find something.
             const QString startHelpId = m_helpId;
             while (!m_helpId.isEmpty()) {
-                helpLinks = m_helpEngine->linksForIdentifier(m_helpId);
+                helpLinks = Core::HelpManager::instance()->linksForIdentifier(m_helpId);
                 if (!helpLinks.isEmpty())
                     break;
 

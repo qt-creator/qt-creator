@@ -50,9 +50,10 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QPushButton>
 #include <QtGui/QApplication>
-#include <QtHelp/QHelpEngineCore>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QSortFilterProxyModel>
+
+#include <QtHelp/QHelpEngine>
 
 using namespace Help::Internal;
 
@@ -646,7 +647,7 @@ void BookmarkManager::saveBookmarks()
     QDataStream stream(&bookmarks, QIODevice::WriteOnly);
 
     readBookmarksRecursive(treeModel->invisibleRootItem(), stream, 0);
-    (&Help::HelpManager::helpEngineCore())->setCustomValue(QLatin1String("Bookmarks"),
+    (&LocalHelpManager::helpEngine())->setCustomValue(QLatin1String("Bookmarks"),
         bookmarks);
 }
 
@@ -765,7 +766,7 @@ void BookmarkManager::setupBookmarkModels()
     QList<int> lastDepths;
     QList<QStandardItem*> parents;
 
-    QByteArray ba = Help::HelpManager::helpEngineCore()
+    QByteArray ba = LocalHelpManager::helpEngine()
         .customValue(QLatin1String("Bookmarks")).toByteArray();
     QDataStream stream(ba);
     while (!stream.atEnd()) {

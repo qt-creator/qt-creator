@@ -40,7 +40,7 @@
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMouseEvent>
 
-#include <QtHelp/QHelpEngineCore>
+#include <QtHelp/QHelpEngine>
 
 using namespace Help::Internal;
 
@@ -126,7 +126,7 @@ QString HelpViewer::mimeFromUrl(const QUrl &url)
 bool HelpViewer::launchWithExternalApp(const QUrl &url)
 {
     if (isLocalUrl(url)) {
-        const QHelpEngineCore &helpEngine = Help::HelpManager::helpEngineCore();
+        const QHelpEngineCore &helpEngine = LocalHelpManager::helpEngine();
         const QUrl &resolvedUrl = helpEngine.findFile(url);
         if (!resolvedUrl.isValid())
             return false;
@@ -155,7 +155,7 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
 
 void HelpViewer::home()
 {
-    const QHelpEngineCore &engine = Help::HelpManager::helpEngineCore();
+    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     QString homepage = engine.customValue(QLatin1String("HomePage"),
         QLatin1String("")).toString();
 

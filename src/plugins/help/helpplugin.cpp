@@ -54,6 +54,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
@@ -78,10 +79,8 @@
 #include <QtGui/QToolBar>
 
 #include <QtHelp/QHelpEngine>
-#include <QtHelp/QHelpEngineCore>
 
 using namespace Core::Constants;
-using namespace Help;
 using namespace Help::Internal;
 
 const char * const SB_INDEX = "Index";
@@ -140,22 +139,20 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
             qApp->installTranslator(qhelptr);
     }
 
-    addAutoReleasedObject(m_helpManager = new HelpManager(this));
+    addAutoReleasedObject(m_helpManager = new LocalHelpManager(this));
     addAutoReleasedObject(m_openPagesManager = new OpenPagesManager(this));
-
     addAutoReleasedObject(m_docSettingsPage = new DocSettingsPage());
     addAutoReleasedObject(m_filterSettingsPage = new FilterSettingsPage());
     addAutoReleasedObject(m_generalSettingsPage = new GeneralSettingsPage());
 
-    connect(m_docSettingsPage, SIGNAL(documentationChanged()), m_filterSettingsPage,
-        SLOT(updateFilterPage()));
     connect(m_generalSettingsPage, SIGNAL(fontChanged()), this,
         SLOT(fontChanged()));
-    connect(m_helpManager, SIGNAL(helpRequested(QUrl)), this,
+    connect(Core::HelpManager::instance(), SIGNAL(helpRequested(QUrl)), this,
         SLOT(handleHelpRequest(QUrl)));
+    m_filterSettingsPage->setHelpManager(m_helpManager);
     connect(m_filterSettingsPage, SIGNAL(filtersChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
-    connect(m_docSettingsPage, SIGNAL(documentationChanged()), this,
+    connect(Core::HelpManager::instance(), SIGNAL(documentationChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
 
     m_splitter = new Core::MiniSplitter;
@@ -313,30 +310,20 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
 void HelpPlugin::extensionsInitialized()
 {
-    const QString &filterInternal = QString::fromLatin1("Qt Creator %1.%2.%3")
-        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-    const QRegExp filterRegExp(QLatin1String("Qt Creator \\d*\\.\\d*\\.\\d*"));
-
-    QHelpEngineCore *engine = &m_helpManager->helpEngineCore();
-    const QStringList &filters = engine->customFilters();
-    foreach (const QString &filter, filters) {
-        if (filterRegExp.exactMatch(filter) && filter != filterInternal)
-            engine->removeCustomFilter(filter);
-    }
-
-    const QString &docInternal = QString::fromLatin1("com.nokia.qtcreator.%1%2%3")
+    const QString &nsInternal = QString::fromLatin1("com.nokia.qtcreator.%1%2%3")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
 
-    foreach (const QString &ns, engine->registeredDocumentations()) {
+    Core::HelpManager *helpManager = Core::HelpManager::instance();
+    foreach (const QString &ns, helpManager->registeredNamespaces()) {
         if (ns.startsWith(QLatin1String("com.nokia.qtcreator."))
-            && ns != docInternal)
-            m_helpManager->unregisterDocumentation(QStringList() << ns);
+            && ns != nsInternal)
+            helpManager->unregisterDocumentation(QStringList() << ns);
     }
 
     QStringList filesToRegister;
     // Explicitly register qml.qch if located in creator directory. This is only
     // needed for the creator-qml package, were we want to ship the documentation
-    // without a qt development version.
+    // without a qt development version. TODO: is this still really needed, remove
     const QString &appPath = QCoreApplication::applicationDirPath();
     filesToRegister.append(QDir::cleanPath(QDir::cleanPath(appPath
         + QLatin1String(DOCPATH "qml.qch"))));
@@ -344,24 +331,6 @@ void HelpPlugin::extensionsInitialized()
     // we might need to register creators inbuild help
     filesToRegister.append(QDir::cleanPath(appPath
         + QLatin1String(DOCPATH "qtcreator.qch")));
-
-    // this comes from the installer
-    const QLatin1String key("AddedDocs");
-    const QString &addedDocs = engine->customValue(key).toString();
-    if (!addedDocs.isEmpty()) {
-        engine->removeCustomValue(key);
-        filesToRegister += addedDocs.split(QLatin1Char(';'));
-    }
-
-    updateFilterComboBox();
-    m_helpManager->verifyDocumenation();
-    m_helpManager->registerDocumentation(filesToRegister);
-
-    const QString &url = QString::fromLatin1("qthelp://com.nokia.qtcreator."
-        "%1%2%3/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
-        .arg(IDE_VERSION_RELEASE);
-    engine->setCustomValue(QLatin1String("DefaultHomePage"), url);
-    connect(engine, SIGNAL(setupFinished()), this, SLOT(updateFilterComboBox()));
 }
 
 void HelpPlugin::aboutToShutdown()
@@ -424,7 +393,7 @@ void HelpPlugin::setupUi()
     // connect(shortcut, SIGNAL(activated()), this, SLOT(activateSearch()));
     // shortcutMap.insert("Search", cmd);
 
-    BookmarkManager *manager = &HelpManager::bookmarkManager();
+    BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
     BookmarkWidget *bookmarkWidget = new BookmarkWidget(manager, 0, false);
     bookmarkWidget->setWindowTitle(tr("Bookmarks"));
     m_bookmarkItem = new Core::SideBarItem(bookmarkWidget, QLatin1String(SB_BOOKMARKS));
@@ -469,24 +438,36 @@ void HelpPlugin::setupUi()
 
 void HelpPlugin::resetFilter()
 {
+    const QString &filterInternal = QString::fromLatin1("Qt Creator %1.%2.%3")
+        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
+    const QRegExp filterRegExp(QLatin1String("Qt Creator \\d*\\.\\d*\\.\\d*"));
+
+    QHelpEngineCore *engine = &LocalHelpManager::helpEngine();
+    const QStringList &filters = engine->customFilters();
+    foreach (const QString &filter, filters) {
+        if (filterRegExp.exactMatch(filter) && filter != filterInternal)
+            engine->removeCustomFilter(filter);
+    }
+
     const QLatin1String weAddedFilterKey("UnfilteredFilterInserted");
     const QLatin1String previousFilterNameKey("UnfilteredFilterName");
-
-    QHelpEngineCore *core = &m_helpManager->helpEngineCore();
-    if (core->customValue(weAddedFilterKey).toInt() == 1) {
+    if (engine->customValue(weAddedFilterKey).toInt() == 1) {
         // we added a filter at some point, remove previously added filter
-        const QString &filter = core->customValue(previousFilterNameKey).toString();
+        const QString &filter = engine->customValue(previousFilterNameKey).toString();
         if (!filter.isEmpty())
-            core->removeCustomFilter(filter);
+            engine->removeCustomFilter(filter);
     }
 
     // potentially remove a filter with new name
     const QString filterName = tr("Unfiltered");
-    core->removeCustomFilter(filterName);
-    core->addCustomFilter(filterName, QStringList());
-    core->setCustomValue(weAddedFilterKey, 1);
-    core->setCustomValue(previousFilterNameKey, filterName);
-    (&m_helpManager->helpEngine())->setCurrentFilter(filterName);
+    engine->removeCustomFilter(filterName);
+    engine->addCustomFilter(filterName, QStringList());
+    engine->setCustomValue(weAddedFilterKey, 1);
+    engine->setCustomValue(previousFilterNameKey, filterName);
+    engine->setCurrentFilter(filterName);
+
+    updateFilterComboBox();
+    connect(engine, SIGNAL(setupFinished()), this, SLOT(updateFilterComboBox()));
 }
 
 void HelpPlugin::createRightPaneContextViewer()
@@ -594,9 +575,9 @@ void HelpPlugin::modeChanged(Core::IMode *mode)
         qApp->processEvents();
         qApp->setOverrideCursor(Qt::WaitCursor);
 
+        m_helpManager->setupGuiHelpEngine();
         setupUi();
         resetFilter();
-        m_helpManager->setupGuiHelpEngine();
         OpenPagesManager::instance().setupInitialPages();
 
         qApp->restoreOverrideCursor();
@@ -632,7 +613,7 @@ void HelpPlugin::fontChanged()
     if (!m_helpViewerForSideBar)
         createRightPaneContextViewer();
 
-    const QHelpEngineCore &engine = m_helpManager->helpEngineCore();
+    const QHelpEngine &engine = LocalHelpManager::helpEngine();
     QFont font = qVariantValue<QFont>(engine.customValue(QLatin1String("font"),
         m_helpViewerForSideBar->viewerFont()));
 
@@ -646,7 +627,8 @@ void HelpPlugin::fontChanged()
 
 void HelpPlugin::setupHelpEngineIfNeeded()
 {
-    if (Core::ICore::instance()->modeManager()->currentMode() == m_mode)
+    m_helpManager->setEngineNeedsUpdate();
+    if (Core::ModeManager::instance()->currentMode() == m_mode)
         m_helpManager->setupGuiHelpEngine();
 }
 
@@ -655,7 +637,7 @@ HelpViewer* HelpPlugin::viewerForContextMode()
     using namespace Core;
 
     bool showSideBySide = false;
-    const QHelpEngineCore &engine = m_helpManager->helpEngineCore();
+    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
     switch (engine.customValue(QLatin1String("ContextHelpOption"), 0).toInt()) {
         case 0: {
@@ -712,7 +694,7 @@ void HelpPlugin::activateContext()
     // Find out what to show
     if (IContext *context = m_core->currentContextObject()) {
         id = context->contextHelpId();
-        links = m_helpManager->helpEngineCore().linksForIdentifier(id);
+        links = Core::HelpManager::instance()->linksForIdentifier(id);
     }
 
     if (HelpViewer* viewer = viewerForContextMode()) {
@@ -802,7 +784,7 @@ QToolBar *HelpPlugin::createToolBar()
 
 void HelpPlugin::updateFilterComboBox()
 {
-    const QHelpEngine &engine = m_helpManager->helpEngine();
+    const QHelpEngine &engine = LocalHelpManager::helpEngine();
     QString curFilter = m_filterComboBox->currentText();
     if (curFilter.isEmpty())
         curFilter = engine.currentFilter();
@@ -816,7 +798,7 @@ void HelpPlugin::updateFilterComboBox()
 
 void HelpPlugin::filterDocumentation(const QString &customFilter)
 {
-    (&m_helpManager->helpEngine())->setCurrentFilter(customFilter);
+    LocalHelpManager::helpEngine().setCurrentFilter(customFilter);
 }
 
 void HelpPlugin::addBookmark()
@@ -827,7 +809,7 @@ void HelpPlugin::addBookmark()
     if (url.isEmpty() || url == Help::Constants::AboutBlank)
         return;
 
-    BookmarkManager *manager = &HelpManager::bookmarkManager();
+    BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
     manager->showBookmarkDialog(m_centralWidget, viewer->title(), url);
 }
 
@@ -836,7 +818,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
     if (HelpViewer::launchWithExternalApp(url))
         return;
 
-    if (m_helpManager->helpEngineCore().findFile(url).isValid()) {
+    if (Core::HelpManager::instance()->findFile(url).isValid()) {
         if (url.queryItemValue(QLatin1String("view")) == QLatin1String("split")) {
             if (HelpViewer* viewer = viewerForContextMode())
                 viewer->setSource(url);

@@ -100,7 +100,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         QVBoxLayout *vLayout = new QVBoxLayout(this);
         vLayout->setMargin(4);
 
-        searchEngine = (&HelpManager::helpEngine())->searchEngine();
+        searchEngine = (&LocalHelpManager::helpEngine())->searchEngine();
         resultWidget = searchEngine->resultWidget();
         QHelpSearchQueryWidget *queryWidget = searchEngine->queryWidget();
 
@@ -126,7 +126,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         connect(searchEngine, SIGNAL(indexingFinished()), this,
             SLOT(indexingFinished()));
 
-        QMetaObject::invokeMethod(&HelpManager::helpEngine(), "setupFinished",
+        QMetaObject::invokeMethod(&LocalHelpManager::helpEngine(), "setupFinished",
             Qt::QueuedConnection);
     }
 }

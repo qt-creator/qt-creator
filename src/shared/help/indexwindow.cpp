@@ -80,7 +80,7 @@ IndexWindow::IndexWindow()
     toolbar->setLayout(tbLayout);
     layout->addWidget(toolbar);
 
-    QHelpEngine *engine = &Help::HelpManager::helpEngine();
+    QHelpEngine *engine = &LocalHelpManager::helpEngine();
     m_indexWidget = engine->indexWidget();
     m_indexWidget->installEventFilter(this);
     connect(engine->indexModel(), SIGNAL(indexCreationStarted()), this,

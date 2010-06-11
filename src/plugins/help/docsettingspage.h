@@ -55,9 +55,6 @@ public:
     void finish() {}
     virtual bool matches(const QString &s) const;
 
-signals:
-    void documentationChanged();
-
 private slots:
     void addDocumentation();
     void removeDocumentation();

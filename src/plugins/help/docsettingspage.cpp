@@ -29,15 +29,14 @@
 
 #include "docsettingspage.h"
 #include "helpconstants.h"
-#include "helpmanager.h"
+
+#include <coreplugin/helpmanager.h>
 
 #include <QtCore/QCoreApplication>
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMessageBox>
-
-#include <QtHelp/QHelpEngineCore>
 
 using namespace Help::Internal;
 
@@ -80,10 +79,10 @@ QWidget *DocSettingsPage::createPage(QWidget *parent)
 
     m_ui.docsListWidget->installEventFilter(this);
 
-    QHelpEngineCore *engine = &HelpManager::helpEngineCore();
-    const QStringList &nameSpaces = engine->registeredDocumentations();
+    Core::HelpManager *manager = Core::HelpManager::instance();
+    const QStringList &nameSpaces = manager->registeredNamespaces();
     foreach (const QString &nameSpace, nameSpaces)
-        addItem(nameSpace, engine->documentationFileName(nameSpace));
+        addItem(nameSpace, manager->fileFromNamespace(nameSpace));
 
     m_filesToRegister.clear();
     m_filesToUnregister.clear();
@@ -103,11 +102,11 @@ void DocSettingsPage::addDocumentation()
         return;
     m_recentDialogPath = QFileInfo(files.first()).canonicalPath();
 
-    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
-    const QStringList &nameSpaces = engine.registeredDocumentations();
+    Core::HelpManager *manager = Core::HelpManager::instance();
+    const QStringList &nameSpaces = manager->registeredNamespaces();
 
     foreach (const QString &file, files) {
-        const QString &nameSpace = engine.namespaceName(file);
+        const QString &nameSpace = manager->namespaceFromFile(file);
         if (nameSpace.isEmpty())
             continue;
 
@@ -130,14 +129,10 @@ void DocSettingsPage::removeDocumentation()
 
 void DocSettingsPage::apply()
 {
-    HelpManager* manager = &HelpManager::instance();
+    Core::HelpManager *manager = Core::HelpManager::instance();
+
     manager->unregisterDocumentation(m_filesToUnregister.keys());
     manager->registerDocumentation(m_filesToRegister.values());
-    if (manager->guiEngineNeedsUpdate()) {
-        // emit this signal to the help plugin, since we don't want
-        // to force gui help engine setup if we are not in help mode
-        emit documentationChanged();
-    }
 
     m_filesToRegister.clear();
     m_filesToUnregister.clear();
@@ -172,10 +167,10 @@ void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> items)
         return;
 
     int row = 0;
-    QHelpEngineCore *engine = &HelpManager::helpEngineCore();
+    Core::HelpManager *manager = Core::HelpManager::instance();
     foreach (QListWidgetItem* item, items) {
         const QString &nameSpace = item->text();
-        const QString &docPath = engine->documentationFileName(nameSpace);
+        const QString &docPath = manager->fileFromNamespace(nameSpace);
 
         if (m_filesToRegister.value(nameSpace) != docPath) {
             if (!m_filesToUnregister.contains(nameSpace))
