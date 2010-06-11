@@ -500,10 +500,10 @@ int BinEditor::posAt(const QPoint &pos) const
     if (x > 16 * m_columnWidth + m_charWidth/2) {
         x -= 16 * m_columnWidth + m_charWidth;
         for (column = 0; column < 15; ++column) {
-            int pos = (topLine + line) * 16 + column;
-            if (pos < 0 || pos >= m_size)
+            int dataPos = (topLine + line) * 16 + column;
+            if (dataPos < 0 || dataPos >= m_size)
                 break;
-            QChar qc(QLatin1Char(dataAt(pos)));
+            QChar qc(QLatin1Char(dataAt(dataPos)));
             if (!qc.isPrint())
                 qc = 0xB7;
             x -= fontMetrics().width(qc);

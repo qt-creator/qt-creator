@@ -190,22 +190,22 @@ FontSettingsPagePrivate::FontSettingsPagePrivate(const TextEditor::FormatDescrip
 
     if (!settingsFound) { // Apply defaults
         foreach (const FormatDescription &f, m_descriptions) {
-            const QString id = f.id();
+            const QString fid = f.id();
 
-            m_value.formatFor(id).setForeground(f.foreground());
-            m_value.formatFor(id).setBackground(f.background());
-            m_value.formatFor(id).setBold(f.format().bold());
-            m_value.formatFor(id).setItalic(f.format().italic());
+            m_value.formatFor(fid).setForeground(f.foreground());
+            m_value.formatFor(fid).setBackground(f.background());
+            m_value.formatFor(fid).setBold(f.format().bold());
+            m_value.formatFor(fid).setItalic(f.format().italic());
         }
     } else if (m_value.colorSchemeFileName().isEmpty()) {
         // No color scheme was loaded, but one might be imported from the ini file
         ColorScheme defaultScheme;
         foreach (const FormatDescription &f, m_descriptions) {
-            const QString id = f.id();
-            defaultScheme.formatFor(id).setForeground(f.foreground());
-            defaultScheme.formatFor(id).setBackground(f.background());
-            defaultScheme.formatFor(id).setBold(f.format().bold());
-            defaultScheme.formatFor(id).setItalic(f.format().italic());
+            const QString fid = f.id();
+            defaultScheme.formatFor(fid).setForeground(f.foreground());
+            defaultScheme.formatFor(fid).setBackground(f.background());
+            defaultScheme.formatFor(fid).setBold(f.format().bold());
+            defaultScheme.formatFor(fid).setItalic(f.format().italic());
         }
         if (m_value.colorScheme() != defaultScheme) {
             // Save it as a color scheme file

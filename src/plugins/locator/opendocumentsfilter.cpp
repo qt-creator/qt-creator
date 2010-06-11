@@ -59,19 +59,19 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(const QString &entry)
     const QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return value;
-    foreach (const OpenEditorsModel::Entry &entry, m_editors) {
-        QString fileName = entry.fileName();
-        QString displayName = entry.displayName();
+    foreach (const OpenEditorsModel::Entry &editorEntry, m_editors) {
+        QString fileName = editorEntry.fileName();
+        QString displayName = editorEntry.displayName();
         if (regexp.exactMatch(displayName)) {
             if (fileName.isEmpty()) {
-                if (entry.editor)
-                    value.append(FilterEntry(this, displayName, qVariantFromValue(entry.editor)));
+                if (editorEntry.editor)
+                    value.append(FilterEntry(this, displayName, qVariantFromValue(editorEntry.editor)));
             } else {
                 QFileInfo fi(fileName);
-                FilterEntry entry(this, fi.fileName(), fileName);
-                entry.extraInfo = QDir::toNativeSeparators(fi.path());
-                entry.resolveFileIcon = true;
-                value.append(entry);
+                FilterEntry fiEntry(this, fi.fileName(), fileName);
+                fiEntry.extraInfo = QDir::toNativeSeparators(fi.path());
+                fiEntry.resolveFileIcon = true;
+                value.append(fiEntry);
             }
         }
     }

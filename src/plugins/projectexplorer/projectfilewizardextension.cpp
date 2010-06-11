@@ -328,10 +328,10 @@ bool ProjectFileWizardExtension::processProject(const QList<Core::GeneratedFile>
         typeFileMap.insert(typeForFileName(mdb, path), path);
     }
     foreach (FileType type, typeFileMap.uniqueKeys()) {
-        const QStringList files = typeFileMap.values(type);
-        if (!project->addFiles(type, files)) {
+        const QStringList typeFiles = typeFileMap.values(type);
+        if (!project->addFiles(type, typeFiles)) {
             *errorMessage = tr("Failed to add one or more files to project\n'%1' (%2).").
-                            arg(project->path(), files.join(QString(QLatin1Char(','))));
+                            arg(project->path(), typeFiles.join(QString(QLatin1Char(','))));
             return false;
         }
     }

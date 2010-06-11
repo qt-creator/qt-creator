@@ -327,7 +327,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
         it.next();
 
         const QString fileName = it.key();
-        const QList<Find::SearchResultItem> items = it.value();
+        const QList<Find::SearchResultItem> changeItems = it.value();
 
         const QList<Core::IEditor *> editors = editorManager->editorsForFileName(fileName);
         TextEditor::BaseTextEditor *textEditor = 0;
@@ -340,7 +340,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
         if (textEditor != 0) {
             QTextCursor tc = textEditor->textCursor();
             tc.beginEditBlock();
-            applyChanges(textEditor->document(), text, items);
+            applyChanges(textEditor->document(), text, changeItems);
             tc.endEditBlock();
         } else {
             QFile file(fileName);
@@ -354,7 +354,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
                 QTextDocument doc;
                 doc.setPlainText(plainText);
 
-                applyChanges(&doc, text, items);
+                applyChanges(&doc, text, changeItems);
 
                 QFile newFile(fileName);
                 if (newFile.open(QFile::WriteOnly)) {

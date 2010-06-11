@@ -3351,8 +3351,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             int parens = 0;
             QString test;
             test.reserve(20);
-            QString args;
-            args.reserve(50);
+            QString argsString;
+            argsString.reserve(50);
             const QChar *d = cond.constData();
             const QChar *ed = d + cond.size();
             while (d < ed) {
@@ -3368,12 +3368,12 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 } else if (c == '(') {
                     isFunc = true;
                     if (parens)
-                        args += c;
+                        argsString += c;
                     ++parens;
                 } else if (c == ')') {
                     --parens;
                     if (parens)
-                        args += c;
+                        argsString += c;
                 } else if (!parens) {
                     if (c == '"')
                         quoted = true;
@@ -3384,12 +3384,12 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                     else
                         test += c;
                 } else {
-                    args += c;
+                    argsString += c;
                 }
                 if (!quoted && !parens && (isOp || d == ed)) {
                     if (m_cumulative || (orOp != ret)) {
                         if (isFunc)
-                            ret = evaluateConditionalFunction(ProString(test), ProString(args, NoHash));
+                            ret = evaluateConditionalFunction(ProString(test), ProString(argsString, NoHash));
                         else
                             ret = isActiveConfig(test, true);
                         ret ^= invert;
@@ -3398,7 +3398,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                     invert = false;
                     isFunc = false;
                     test.clear();
-                    args.clear();
+                    argsString.clear();
                 }
             }
             return returnBool(ret);

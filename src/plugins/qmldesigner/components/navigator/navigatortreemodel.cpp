@@ -421,8 +421,8 @@ void NavigatorTreeModel::removeSubTree(const ModelNode &node)
         rowList = itemRow.idItem->parent()->takeRow(itemRow.idItem->row());
     }
 
-    foreach (const ModelNode &node, modelNodeChildren(node)) {
-        removeSubTree(node);
+    foreach (const ModelNode &childNode, modelNodeChildren(node)) {
+        removeSubTree(childNode);
     }
 
     qDeleteAll(rowList);

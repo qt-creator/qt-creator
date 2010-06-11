@@ -1785,8 +1785,8 @@ void GitClient::setSettings(const GitSettings &s)
 {
     if (s != m_settings) {
         m_settings = s;
-        if (QSettings *s = m_core->settings())
-            m_settings.toSettings(s);
+        if (QSettings *coreSettings = m_core->settings())
+            m_settings.toSettings(coreSettings);
         m_binaryPath = m_settings.gitBinaryPath();
         m_cachedGitVersion = 0u;
         m_hasCachedGitVersion = false;

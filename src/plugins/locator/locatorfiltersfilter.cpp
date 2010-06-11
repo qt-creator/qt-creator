@@ -69,12 +69,12 @@ QList<FilterEntry> LocatorFiltersFilter::matchesFor(const QString &entry)
     if (entry.isEmpty()) {
         foreach (ILocatorFilter *filter, m_plugin->filters()) {
             if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
-                FilterEntry entry(this,
+                FilterEntry filterEntry(this,
                                   filter->shortcutString(),
                                   QVariant::fromValue(filter),
                                   m_icon);
-                entry.extraInfo = filter->displayName();
-                entries.append(entry);
+                filterEntry.extraInfo = filter->displayName();
+                entries.append(filterEntry);
             }
         }
     }

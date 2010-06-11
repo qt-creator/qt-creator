@@ -109,8 +109,8 @@ QString ProcessListFilterModel::processIdAt(const QModelIndex &index) const
 {
     if (index.isValid()) {
         const QModelIndex index0 = mapToSource(index);
-        QModelIndex index = index0.sibling(index0.row(), 0);
-        if (const QStandardItem *item = m_model->itemFromIndex(index))
+        QModelIndex siblingIndex = index0.sibling(index0.row(), 0);
+        if (const QStandardItem *item = m_model->itemFromIndex(siblingIndex))
             return item->text();
     }
     return QString();

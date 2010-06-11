@@ -1624,8 +1624,8 @@ void ProjectExplorerPlugin::runProjectContextMenu()
 bool ProjectExplorerPlugin::hasBuildSettings(Project *pro)
 {
     const QList<Project *> & projects = d->m_session->projectOrder(pro);
-    foreach(Project *pro, projects)
-        if (pro->activeTarget()->activeBuildConfiguration())
+    foreach(Project *project, projects)
+        if (project->activeTarget()->activeBuildConfiguration())
             return true;
     return false;
 }
@@ -1646,9 +1646,9 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
 
             const QList<Project *> & projects = d->m_session->projectOrder(pro);
             QList<BuildConfiguration *> configurations;
-            foreach(Project *pro, projects)
-                if (pro->activeTarget()->activeBuildConfiguration())
-                    configurations << pro->activeTarget()->activeBuildConfiguration();
+            foreach(Project *project, projects)
+                if (project->activeTarget()->activeBuildConfiguration())
+                    configurations << project->activeTarget()->activeBuildConfiguration();
             d->m_buildManager->buildProjects(configurations);
 
             updateRunActions();
