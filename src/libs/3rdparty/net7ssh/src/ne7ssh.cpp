@@ -656,8 +656,9 @@ char *ne7ssh::readAndReset(int channel, char *(*alloc)(size_t))
       data = connections[i]->getReceived();
       if (data.size())
       {
-        buffer = alloc(connections[i]->getReceived().size());
-        strcpy(buffer, reinterpret_cast<char*>(connections[i]->getReceived().begin()));
+        Botan::SecureVector<Botan::byte>& received=connections[i]->getReceived();
+        buffer = alloc(received.size());
+        strncpy(buffer, reinterpret_cast<char*>(received.begin()), received.size());
         connections[i]->resetReceiveBuffer();
       }
       break;

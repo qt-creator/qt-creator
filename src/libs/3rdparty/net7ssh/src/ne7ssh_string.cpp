@@ -69,14 +69,18 @@ bool ne7ssh_string::addFile (const char* filename)
 
   fseek (FI, 0L, SEEK_END);
   size = ftell (FI);
-  rewind (FI);
+  if(size > 0) {
+      rewind (FI);
 
-  data = (Botan::byte*) malloc (size);
-  fread (data, size, 1, FI);
-  fclose (FI);
-  buffer.append (data, (u32bit) size);
-  free (data);
-  return true;
+      data = (Botan::byte*) malloc (size);
+      fread (data, size, 1, FI);
+      fclose (FI);
+      buffer.append (data, (u32bit) size);
+      free (data);
+      return true;
+  }
+  fclose(FI);
+  return false;
 }
 
 void ne7ssh_string::addBigInt (const Botan::BigInt& bn)
