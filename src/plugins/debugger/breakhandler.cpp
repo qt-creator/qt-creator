@@ -171,6 +171,7 @@ BreakpointData::BreakpointData()
     marker = 0;
     m_markerLineNumber = 0;
     bpMultiple = false;
+    bpEnabled = true;
     useFullPath = false;
 }
 
