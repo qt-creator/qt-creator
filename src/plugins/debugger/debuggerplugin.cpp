@@ -52,6 +52,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icorelistener.h>
+#include <coreplugin/manhattanstyle.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
@@ -66,11 +67,11 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <coreplugin/manhattanstyle.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/project.h>
+#include <projectexplorer/toolchain.h>
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
@@ -1520,6 +1521,7 @@ void DebuggerPlugin::attachCore(const QString &core, const QString &exe)
     const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     sp->executable = exe;
     sp->coreFile = core;
+    sp->displayName = tr("Core file: \"%1\"").arg(core);
     sp->startMode = AttachCore;
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()->
@@ -1560,6 +1562,7 @@ void DebuggerPlugin::startRemoteApplication()
     sp->remoteChannel = dlg.remoteChannel();
     sp->remoteArchitecture = dlg.remoteArchitecture();
     sp->executable = dlg.localExecutable();
+    sp->displayName = dlg.localExecutable();
     sp->debuggerCommand = dlg.debugger(); // Override toolchain-detection.
     if (!sp->debuggerCommand.isEmpty())
         sp->toolChainType = ProjectExplorer::ToolChain::INVALID;

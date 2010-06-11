@@ -109,6 +109,7 @@ public:
     void clear();
 
     QString executable;
+    QString displayName;
     QString coreFile;
     QStringList processArgs;
     QStringList environment;

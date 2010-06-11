@@ -33,7 +33,10 @@
 #include "debuggermanager.h"
 #include "debugger_global.h"
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/applicationrunconfiguration.h>
+
+namespace ProjectExplorer {
+    class Environment;
+}
 
 namespace Debugger {
 namespace Internal {
@@ -59,7 +62,6 @@ public:
     ProjectExplorer::RunControl *create(const DebuggerStartParametersPtr &sp);
 
 private:
-    DebuggerStartParametersPtr m_startParameters;
     DebuggerManager *m_manager;
 };
 
@@ -70,11 +72,8 @@ class DEBUGGER_EXPORT DebuggerRunControl
     Q_OBJECT
 
 public:
-    // startParameters are primary. If the user code has a RunConfiguration
-    // (like the 'standard' LocalRunConfiguration), it should pass it so
-    // we can pass it down to the ProjectExplorer::RunControl constructor.
-    DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters,
-                       ProjectExplorer::RunConfiguration *runConfiguration =  0);
+    DebuggerRunControl(DebuggerManager *manager,
+                       const DebuggerStartParametersPtr &startParameters);
 
     void setCustomEnvironment(ProjectExplorer::Environment env);
 

@@ -35,6 +35,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/applicationrunconfiguration.h> // For LocalApplication*
 
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
@@ -90,6 +91,7 @@ static DebuggerStartParametersPtr localStartParameters(RunConfiguration *runConf
     sp->useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp->dumperLibrary = rc->dumperLibrary();
     sp->dumperLibraryLocations = rc->dumperLibraryLocations();
+    sp->displayName = rc->displayName();
 
     // Find qtInstallPath.
     QString qmakePath = DebuggingHelperLibrary::findSystemQt(rc->environment());
@@ -112,12 +114,12 @@ RunControl *DebuggerRunControlFactory::create(RunConfiguration *runConfiguration
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     DebuggerStartParametersPtr sp = localStartParameters(runConfiguration);
-    return new DebuggerRunControl(m_manager, sp, runConfiguration);
+    return new DebuggerRunControl(m_manager, sp);
 }
 
 RunControl *DebuggerRunControlFactory::create(const DebuggerStartParametersPtr &sp)
 {
-    return new DebuggerRunControl(m_manager, sp, 0);
+    return new DebuggerRunControl(m_manager, sp);
 }
 
 QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
@@ -136,31 +138,11 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 ////////////////////////////////////////////////////////////////////////
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
-        const DebuggerStartParametersPtr &startParameters,
-        RunConfiguration *runConfiguration)
-    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
+        const DebuggerStartParametersPtr &startParameters)
+    : RunControl(0, ProjectExplorer::Constants::DEBUGMODE),
       m_startParameters(startParameters),
       m_manager(manager),
       m_running(false)
-{
-    init();
-
-    if (m_startParameters->environment.empty())
-        m_startParameters->environment = ProjectExplorer::Environment().toStringList();
-    m_startParameters->useTerminal = false;
-}
-
-QString DebuggerRunControl::displayName() const
-{
-    return tr("Core file: \"%1\"").arg(m_startParameters->coreFile);
-}
-
-void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
-{
-    m_startParameters->environment = env.toStringList();
-}
-
-void DebuggerRunControl::init()
 {
     connect(m_manager, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()),
@@ -175,6 +157,24 @@ void DebuggerRunControl::init()
             Qt::QueuedConnection);
     connect(this, SIGNAL(stopRequested()),
             m_manager, SLOT(exitDebugger()));
+
+    if (m_startParameters->environment.empty())
+        m_startParameters->environment = ProjectExplorer::Environment().toStringList();
+    m_startParameters->useTerminal = false;
+}
+
+QString DebuggerRunControl::displayName() const
+{
+    return m_startParameters->displayName;
+}
+
+void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
+{
+    m_startParameters->environment = env.toStringList();
+}
+
+void DebuggerRunControl::init()
+{
 }
 
 void DebuggerRunControl::start()

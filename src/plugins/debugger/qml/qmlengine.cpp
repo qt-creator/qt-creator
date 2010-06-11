@@ -378,6 +378,9 @@ void QmlEngine::startDebugging()
 void QmlEngine::postCommand(const QByteArray &cmd,
     QmlCommandCallback callback, const char *callbackName)
 {
+    Q_UNUSED(cmd);
+    Q_UNUSED(callback);
+    Q_UNUSED(callbackName);
 /*
     static int token = 20;
     ++token;
@@ -411,6 +414,7 @@ void QmlEngine::postCommand(const QByteArray &cmd,
 // already too late when we get a flow control packet
 void QmlEngine::enqueueCommand(const QmlCommand &cmd)
 {
+    Q_UNUSED(cmd);
 /*
 #ifdef USE_CONGESTION_CONTROL
     // congestion controled
