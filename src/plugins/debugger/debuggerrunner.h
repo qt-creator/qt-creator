@@ -55,6 +55,7 @@ public:
     virtual QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 
 
+    // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
     ProjectExplorer::RunControl *create(const DebuggerStartParametersPtr &sp);
 
 private:
@@ -69,9 +70,11 @@ class DEBUGGER_EXPORT DebuggerRunControl
     Q_OBJECT
 
 public:
-    DebuggerRunControl(DebuggerManager *manager,
-                       ProjectExplorer::LocalApplicationRunConfiguration *runConfiguration);
-    DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters);
+    // startParameters are primary. If the user code has a RunConfiguration
+    // (like the 'standard' LocalRunConfiguration), it should pass it so
+    // we can pass it down to the ProjectExplorer::RunControl constructor.
+    DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters,
+                       ProjectExplorer::RunConfiguration *runConfiguration =  0);
 
     void setCustomEnvironment(ProjectExplorer::Environment env);
 

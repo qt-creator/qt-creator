@@ -76,18 +76,64 @@ QString DebuggerRunControlFactory::displayName() const
     return tr("Debug");
 }
 
-RunControl *DebuggerRunControlFactory::create(const DebuggerStartParametersPtr &sp)
+static DebuggerStartParametersPtr localStartParameters(RunConfiguration *runConfiguration)
 {
-    return new DebuggerRunControl(m_manager, sp);
+    DebuggerStartParametersPtr sp(new DebuggerStartParameters());
+    QTC_ASSERT(runConfiguration, return sp);
+    LocalApplicationRunConfiguration *rc =
+            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    QTC_ASSERT(rc, return sp);
+
+    sp->startMode = StartInternal;
+    sp->executable = rc->executable();
+    sp->environment = rc->environment().toStringList();
+    sp->workingDirectory = rc->workingDirectory();
+    sp->processArgs = rc->commandLineArguments();
+
+    switch (sp->toolChainType) {
+    case ProjectExplorer::ToolChain::UNKNOWN:
+    case ProjectExplorer::ToolChain::INVALID:
+        sp->toolChainType = rc->toolChainType();
+        break;
+    default:
+        break;
+    }
+    if (rc->target()->project()) {
+        BuildConfiguration *bc = rc->target()->activeBuildConfiguration();
+        if (bc)
+            sp->buildDirectory = bc->buildDirectory();
+    }
+    sp->useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
+    sp->dumperLibrary = rc->dumperLibrary();
+    sp->dumperLibraryLocations = rc->dumperLibraryLocations();
+
+    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(
+            rc->environment());
+    if (!qmakePath.isEmpty()) {
+        QProcess proc;
+        QStringList args;
+        args.append(QLatin1String("-query"));
+        args.append(QLatin1String("QT_INSTALL_HEADERS"));
+        proc.start(qmakePath, args);
+        proc.waitForFinished();
+        QByteArray ba = proc.readAllStandardOutput().trimmed();
+        QFileInfo fi(QString::fromLocal8Bit(ba) + "/..");
+        sp->qtInstallPath = fi.absoluteFilePath();
+    }
+    return sp;
 }
 
 RunControl *DebuggerRunControlFactory::create(RunConfiguration *runConfiguration,
                                               const QString &mode)
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
-    LocalApplicationRunConfiguration *rc = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return 0);
-    return new DebuggerRunControl(m_manager, rc);
+    DebuggerStartParametersPtr sp = localStartParameters(runConfiguration);
+    return new DebuggerRunControl(m_manager, sp, runConfiguration);
+}
+
+RunControl *DebuggerRunControlFactory::create(const DebuggerStartParametersPtr &sp)
+{
+    return new DebuggerRunControl(m_manager, sp, 0);
 }
 
 QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
@@ -105,62 +151,10 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 //
 ////////////////////////////////////////////////////////////////////////
 
-
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
-       LocalApplicationRunConfiguration *runConfiguration)
-  : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
-    m_startParameters(new DebuggerStartParameters()),
-    m_manager(manager),
-    m_running(false)
-{
-    init();
-    if (!runConfiguration)
-        return;
-
-    m_startParameters->startMode = StartInternal;
-    m_startParameters->executable = runConfiguration->executable();
-    m_startParameters->environment = runConfiguration->environment().toStringList();
-    m_startParameters->workingDirectory = runConfiguration->workingDirectory();
-    m_startParameters->processArgs = runConfiguration->commandLineArguments();
-
-    switch (m_startParameters->toolChainType) {
-    case ProjectExplorer::ToolChain::UNKNOWN:
-    case ProjectExplorer::ToolChain::INVALID:
-        m_startParameters->toolChainType = runConfiguration->toolChainType();
-        break;
-    default:
-        break;
-    }
-    if (runConfiguration->target()->project()) {
-        BuildConfiguration *bc = runConfiguration->target()->activeBuildConfiguration();
-        if (bc)
-            m_startParameters->buildDirectory = bc->buildDirectory();
-    }
-    m_startParameters->useTerminal =
-        runConfiguration->runMode() == LocalApplicationRunConfiguration::Console;
-    m_startParameters->dumperLibrary =
-        runConfiguration->dumperLibrary();
-    m_startParameters->dumperLibraryLocations =
-        runConfiguration->dumperLibraryLocations();
-
-    QString qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(
-            runConfiguration->environment());
-    if (!qmakePath.isEmpty()) {
-        QProcess proc;
-        QStringList args;
-        args.append(QLatin1String("-query"));
-        args.append(QLatin1String("QT_INSTALL_HEADERS"));
-        proc.start(qmakePath, args);
-        proc.waitForFinished();
-        QByteArray ba = proc.readAllStandardOutput().trimmed();
-        QFileInfo fi(QString::fromLocal8Bit(ba) + "/..");
-        m_startParameters->qtInstallPath = fi.absoluteFilePath();
-    }
-
-}
-
-DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager, const DebuggerStartParametersPtr &startParameters)
-    : RunControl(0, ProjectExplorer::Constants::DEBUGMODE),
+        const DebuggerStartParametersPtr &startParameters,
+        ProjectExplorer::RunConfiguration *runConfiguration)
+    : RunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE),
       m_startParameters(startParameters),
       m_manager(manager),
       m_running(false)
