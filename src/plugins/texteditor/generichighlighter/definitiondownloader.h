@@ -27,60 +27,49 @@
 **
 **************************************************************************/
 
-#ifndef HIGHLIGHTERSETTINGSPAGE_H
-#define HIGHLIGHTERSETTINGSPAGE_H
+#ifndef DEFINITIONDOWNLOADER_H
+#define DEFINITIONDOWNLOADER_H
 
-#include "texteditoroptionspage.h"
+#include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtCore/QUrl>
 
 QT_BEGIN_NAMESPACE
-template <class> class QList;
+class QNetworkReply;
+class QNetworkAccessManager;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-
 namespace Internal {
-class HighlightDefinitionMetaData;
-}
 
-class HighlighterSettings;
-
-class HighlighterSettingsPage : public TextEditorOptionsPage
+class DefinitionDownloader : public QObject
 {
     Q_OBJECT
 public:
-    HighlighterSettingsPage(const QString &id, QObject *parent);
-    virtual ~HighlighterSettingsPage();
+    DefinitionDownloader(const QUrl &url, const QString &localPath);
 
-    QString id() const;
-    QString displayName() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() {}
-    bool matches(const QString &s) const;
-
-    const HighlighterSettings &highlighterSettings() const;
-
-signals:
-    void definitionsLocationChanged();
-
-private slots:
-    void resetDefinitionsLocation();
-    void requestAvailableDefinitionsMetaData();
-    void manageDefinitions(const QList<Internal::HighlightDefinitionMetaData> &metaData);
-    void showError();
-    void ignoreDownloadReply();
+    void start();
 
 private:
-    void settingsFromUI();
-    void settingsToUI();
+    QNetworkReply *getData(QNetworkAccessManager *manager) const;
+    void saveData(QNetworkReply *reply) const;
 
-    bool settingsChanged() const;
-
-    struct HighlighterSettingsPagePrivate;
-    HighlighterSettingsPagePrivate *m_d;
+    QUrl m_url;
+    QString m_localPath;
 };
 
+// Currently QtConcurrent::map does not support passing member functions for sequence of pointers
+// (only works for operator.*) which is the case for the downloaders held by the manager. Then the
+// reason for the following functor. If something is implemented (for example a type traits) to
+// handle operator->* in QtConcurrent::map this functor will not be necessary since it would be
+// possible to directly pass DefinitionDownloader::start.
+struct DownloaderStarter
+{
+    void operator()(DefinitionDownloader *downloader)
+    { downloader->start(); }
+};
+
+} // namespace Internal
 } // namespace TextEditor
 
-#endif // HIGHLIGHTERSETTINGSPAGE_H
+#endif // DEFINITIONDOWNLOADER_H

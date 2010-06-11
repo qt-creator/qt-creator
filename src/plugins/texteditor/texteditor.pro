@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = TextEditor
 DEFINES += TEXTEDITOR_LIBRARY
-QT += xml
+QT += xml network
 include(../../qtcreatorplugin.pri)
 include(texteditor_dependencies.pri)
 INCLUDEPATH += generichighlighter
@@ -55,7 +55,10 @@ SOURCES += texteditorplugin.cpp \
     generichighlighter/manager.cpp \
     generichighlighter/highlightdefinitionhandler.cpp \
     generichighlighter/highlightersettingspage.cpp \
-    generichighlighter/highlightersettings.cpp
+    generichighlighter/highlightersettings.cpp \
+    generichighlighter/managedefinitionsdialog.cpp \
+    generichighlighter/highlightdefinitionmetadata.cpp \
+    generichighlighter/definitiondownloader.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -113,13 +116,17 @@ HEADERS += texteditorplugin.h \
     generichighlighter/manager.h \
     generichighlighter/highlightdefinitionhandler.h \
     generichighlighter/highlightersettingspage.h \
-    generichighlighter/highlightersettings.h
+    generichighlighter/highlightersettings.h \
+    generichighlighter/managedefinitionsdialog.h \
+    generichighlighter/highlightdefinitionmetadata.h \
+    generichighlighter/definitiondownloader.h
 
 
 FORMS += behaviorsettingspage.ui \
     displaysettingspage.ui \
     fontsettingspage.ui \
     colorschemeedit.ui \
-    generichighlighter/highlightersettingspage.ui
+    generichighlighter/highlightersettingspage.ui \
+    generichighlighter/managedefinitionsdialog.ui
 RESOURCES += texteditor.qrc
 OTHER_FILES += TextEditor.pluginspec TextEditor.mimetypes.xml

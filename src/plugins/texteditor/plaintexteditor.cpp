@@ -173,10 +173,9 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
         definitionId = findDefinitionId(mimeType, true);
 
     if (!definitionId.isEmpty()) {
-        try {
-            const QSharedPointer<HighlightDefinition> &definition =
-                    Manager::instance()->definition(definitionId);
-
+        const QSharedPointer<HighlightDefinition> &definition =
+            Manager::instance()->definition(definitionId);
+        if (!definition.isNull()) {
             Highlighter *highlighter = new Highlighter(definition->initialContext());
             baseTextDocument()->setSyntaxHighlighter(highlighter);
 
@@ -188,7 +187,6 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
             setFontSettings(TextEditorSettings::instance()->fontSettings());
 
             m_isMissingSyntaxDefinition = false;
-        } catch (const HighlighterException &) {
         }
     } else if (file()) {
         const QString &fileName = file()->fileName();

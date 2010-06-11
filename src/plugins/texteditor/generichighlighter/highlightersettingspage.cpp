@@ -30,10 +30,13 @@
 #include "highlightersettingspage.h"
 #include "highlightersettings.h"
 #include "manager.h"
+#include "managedefinitionsdialog.h"
 #include "ui_highlightersettingspage.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+
+#include <QtGui/QMessageBox>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -102,8 +105,9 @@ QWidget *HighlighterSettingsPage::createPage(QWidget *parent)
     }
 
     connect(m_d->m_page.resetButton, SIGNAL(clicked()), this, SLOT(resetDefinitionsLocation()));
-    connect(m_d->m_page.downloadNoteLabel, SIGNAL(linkActivated(QString)),
-            Manager::instance(), SLOT(openDefinitionsUrl(QString)));
+    connect(m_d->m_page.manageDefinitionsButton, SIGNAL(clicked()),
+            this, SLOT(requestAvailableDefinitionsMetaData()));
+    connect(w, SIGNAL(destroyed()), this, SLOT(ignoreDownloadReply()));
 
     return w;
 }
@@ -150,6 +154,45 @@ void HighlighterSettingsPage::settingsToUI()
 void HighlighterSettingsPage::resetDefinitionsLocation()
 {
     m_d->m_page.definitionFilesPath->setPath(findDefinitionsLocation());
+}
+
+void HighlighterSettingsPage::requestAvailableDefinitionsMetaData()
+{
+    m_d->m_page.manageDefinitionsButton->setEnabled(false);
+
+    Manager::instance()->downloadAvailableDefinitionsMetaData();
+    connect(Manager::instance(),
+            SIGNAL(definitionsMetaDataReady(QList<Internal::HighlightDefinitionMetaData>)),
+            this,
+            SLOT(manageDefinitions(QList<Internal::HighlightDefinitionMetaData>)),
+            Qt::UniqueConnection);
+    connect(Manager::instance(), SIGNAL(errorDownloadingDefinitionsMetaData()),
+            this, SLOT(showError()), Qt::UniqueConnection);
+}
+
+void HighlighterSettingsPage::ignoreDownloadReply()
+{
+    disconnect(Manager::instance(),
+               SIGNAL(definitionsMetaDataReady(QList<Internal::HighlightDefinitionMetaData>)),
+               this,
+               SLOT(manageDefinitions(QList<Internal::HighlightDefinitionMetaData>)));
+    disconnect(Manager::instance(), SIGNAL(errorDownloadingDefinitionsMetaData()),
+               this, SLOT(showError()));
+}
+
+void HighlighterSettingsPage::manageDefinitions(const QList<HighlightDefinitionMetaData> &metaData)
+{
+    ManageDefinitionsDialog dialog(metaData, m_d->m_page.manageDefinitionsButton->window());
+    dialog.exec();
+    m_d->m_page.manageDefinitionsButton->setEnabled(true);
+}
+
+void HighlighterSettingsPage::showError()
+{
+    QMessageBox::critical(m_d->m_page.manageDefinitionsButton->window(),
+                          tr("Error connecting to server."),
+                          tr("Not possible to retrieve data."));
+    m_d->m_page.manageDefinitionsButton->setEnabled(true);
 }
 
 bool HighlighterSettingsPage::settingsChanged() const

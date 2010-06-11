@@ -27,60 +27,38 @@
 **
 **************************************************************************/
 
-#ifndef HIGHLIGHTERSETTINGSPAGE_H
-#define HIGHLIGHTERSETTINGSPAGE_H
+#ifndef MANAGEDEFINITIONSDIALOG_H
+#define MANAGEDEFINITIONSDIALOG_H
 
-#include "texteditoroptionspage.h"
+#include "ui_managedefinitionsdialog.h"
+#include "highlightdefinitionmetadata.h"
 
-QT_BEGIN_NAMESPACE
-template <class> class QList;
-QT_END_NAMESPACE
+#include <QtCore/QList>
 
 namespace TextEditor {
-
 namespace Internal {
-class HighlightDefinitionMetaData;
-}
 
-class HighlighterSettings;
-
-class HighlighterSettingsPage : public TextEditorOptionsPage
+class ManageDefinitionsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    HighlighterSettingsPage(const QString &id, QObject *parent);
-    virtual ~HighlighterSettingsPage();
+    explicit ManageDefinitionsDialog(const QList<HighlightDefinitionMetaData> &metaDataList,
+                                     QWidget *parent = 0);
 
-    QString id() const;
-    QString displayName() const;
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() {}
-    bool matches(const QString &s) const;
-
-    const HighlighterSettings &highlighterSettings() const;
-
-signals:
-    void definitionsLocationChanged();
+protected:
+    void changeEvent(QEvent *e);
 
 private slots:
-    void resetDefinitionsLocation();
-    void requestAvailableDefinitionsMetaData();
-    void manageDefinitions(const QList<Internal::HighlightDefinitionMetaData> &metaData);
-    void showError();
-    void ignoreDownloadReply();
+    void downloadDefinitions();
 
 private:
-    void settingsFromUI();
-    void settingsToUI();
+    void populateDefinitionsWidget();
 
-    bool settingsChanged() const;
-
-    struct HighlighterSettingsPagePrivate;
-    HighlighterSettingsPagePrivate *m_d;
+    QList<HighlightDefinitionMetaData> m_definitionsMetaData;
+    Ui::ManageDefinitionsDialog ui;
 };
 
+} // namespace Internal
 } // namespace TextEditor
 
-#endif // HIGHLIGHTERSETTINGSPAGE_H
+#endif // MANAGEDEFINITIONSDIALOG_H

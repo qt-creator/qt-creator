@@ -27,60 +27,52 @@
 **
 **************************************************************************/
 
-#ifndef HIGHLIGHTERSETTINGSPAGE_H
-#define HIGHLIGHTERSETTINGSPAGE_H
+#ifndef HIGHLIGHTDEFINITIONMETADATA_H
+#define HIGHLIGHTDEFINITIONMETADATA_H
 
-#include "texteditoroptionspage.h"
-
-QT_BEGIN_NAMESPACE
-template <class> class QList;
-QT_END_NAMESPACE
+#include <QtCore/QString>
+#include <QtCore/QLatin1String>
+#include <QtCore/QStringList>
+#include <QtCore/QUrl>
 
 namespace TextEditor {
-
 namespace Internal {
-class HighlightDefinitionMetaData;
-}
 
-class HighlighterSettings;
-
-class HighlighterSettingsPage : public TextEditorOptionsPage
+class HighlightDefinitionMetaData
 {
-    Q_OBJECT
 public:
-    HighlighterSettingsPage(const QString &id, QObject *parent);
-    virtual ~HighlighterSettingsPage();
+    HighlightDefinitionMetaData();
 
-    QString id() const;
-    QString displayName() const;
+    void setName(const QString &name);
+    const QString &name() const;
 
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish() {}
-    bool matches(const QString &s) const;
+    void setVersion(const QString &version);
+    const QString &version() const;
 
-    const HighlighterSettings &highlighterSettings() const;
+    void setPatterns(const QStringList &patterns);
+    const QStringList &patterns() const;
 
-signals:
-    void definitionsLocationChanged();
+    void setMimeTypes(const QStringList &mimeTypes);
+    const QStringList &mimeTypes() const;
 
-private slots:
-    void resetDefinitionsLocation();
-    void requestAvailableDefinitionsMetaData();
-    void manageDefinitions(const QList<Internal::HighlightDefinitionMetaData> &metaData);
-    void showError();
-    void ignoreDownloadReply();
+    void setUrl(const QUrl &url);
+    const QUrl &url() const;
+
+    static const QLatin1String kName;
+    static const QLatin1String kExtensions;
+    static const QLatin1String kMimeType;
+    static const QLatin1String kVersion;
+    static const QLatin1String kUrl;
 
 private:
-    void settingsFromUI();
-    void settingsToUI();
-
-    bool settingsChanged() const;
-
-    struct HighlighterSettingsPagePrivate;
-    HighlighterSettingsPagePrivate *m_d;
+    QString m_name;
+    QString m_version;
+    QStringList m_patterns;
+    QStringList m_mimeTypes;
+    QUrl m_url;
 };
 
+} // namespace Internal
 } // namespace TextEditor
 
-#endif // HIGHLIGHTERSETTINGSPAGE_H
+#endif // HIGHLIGHTDEFINITIONMETADATA_H

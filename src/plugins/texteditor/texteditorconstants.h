@@ -88,7 +88,7 @@ const char * const GOTO_PREVIOUS_WORD_WITH_SELECTION = "TextEditor.GotoPreviousW
 const char * const GOTO_NEXT_WORD_WITH_SELECTION = "TextEditor.GotoNextWordWithSelection";
 const char * const C_TEXTEDITOR_MIMETYPE_TEXT = "text/plain";
 const char * const INFO_SYNTAX_DEFINITION = "TextEditor.InfoSyntaxDefinition";
-
+const char * const TASK_DOWNLOAD = "TextEditor.Task.Download";
 
 // Text color and style categories
 const char * const C_TEXT                = "Text";

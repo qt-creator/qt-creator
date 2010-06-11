@@ -437,6 +437,9 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
 
             const QSharedPointer<HighlightDefinition> &externalDefinition =
                 Manager::instance()->definition(id);
+            if (externalDefinition.isNull())
+                continue;
+
             sourceContext = externalDefinition->initialContext();
         } else if (!sourceName.startsWith(kHash)) {
             sourceContext = m_definition->context(sourceName);
@@ -444,6 +447,8 @@ void HighlightDefinitionHandler::processIncludeRules(const QSharedPointer<Contex
             // Recursion is done only for context direct rules. Child rules are not processed
             // because they cannot be include rules.
             processIncludeRules(sourceContext);
+        } else {
+            continue;
         }
 
         if (instruction.replaceItemData()) {
