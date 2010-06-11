@@ -36,8 +36,25 @@ InvalidIdException::InvalidIdException(int line,
                                        const QString &function,
                                        const QString &file,
                                        const QString &id,
-                                       bool duplicate) :
-    InvalidArgumentException(line, function, file, "id"), m_id(id), m_duplicate(duplicate)
+                                       Reason reason) :
+    InvalidArgumentException(line, function, file, "id"),
+    m_id(id)
+{
+    if (reason == InvalidCharacters) {
+        m_description = QCoreApplication::translate("InvalidIdException", "Only alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter.");
+    } else {
+        m_description = QCoreApplication::translate("InvalidIdException", "Ids have to be unique.");
+    }
+}
+
+InvalidIdException::InvalidIdException(int line,
+                                       const QString &function,
+                                       const QString &file,
+                                       const QString &id,
+                                       const QString &description) :
+    InvalidArgumentException(line, function, file, "id"),
+    m_id(id),
+    m_description(description)
 {
 }
 
@@ -48,22 +65,7 @@ QString InvalidIdException::type() const
 
 QString InvalidIdException::description() const
 {
-    if (m_duplicate)
-        return duplicateErrorMessage(m_id);
-
-    return invalidErrorMessage(m_id);
-}
-
-QString InvalidIdException::duplicateErrorMessage(const QString &id)
-{
-     return QCoreApplication::translate("InvalidIdException", "Ids have to be unique: ") + id;
-}
-
-QString InvalidIdException::invalidErrorMessage(const QString &id)
-{
-    return QCoreApplication::translate("InvalidIdException", "Invalid Id: ") + 
-      id + QCoreApplication::translate("InvalidIdException", 
-      "\nOnly alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter.");
+    return QCoreApplication::translate("InvalidIdException", "Invalid Id: %1\n%2").arg(m_id, m_description);
 }
 
 }
