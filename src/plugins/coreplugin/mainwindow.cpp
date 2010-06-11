@@ -1078,8 +1078,8 @@ void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old)
 
-    // Prevent changing the context object just because the menu is activated
-    if (qobject_cast<QMenuBar*>(now))
+    // Prevent changing the context object just because the menu or a menu item is activated
+    if (qobject_cast<QMenuBar*>(now) || qobject_cast<QMenu*>(now))
         return;
 
     IContext *newContext = 0;
