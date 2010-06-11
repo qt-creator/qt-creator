@@ -30,15 +30,58 @@
 #ifndef DEBUGGERRUNNER_H
 #define DEBUGGERRUNNER_H
 
-#include "debuggermanager.h"
 #include "debugger_global.h"
+#include "debuggerconstants.h"
+
+#include <coreplugin/ssh/sshconnection.h>
 #include <projectexplorer/runconfiguration.h>
+
+#include <QtCore/QStringList>
 
 namespace ProjectExplorer {
     class Environment;
 }
 
 namespace Debugger {
+
+class DebuggerManager;
+
+class DEBUGGER_EXPORT DebuggerStartParameters
+{
+public:
+    DebuggerStartParameters();
+    void clear();
+
+    QString executable;
+    QString displayName;
+    QString coreFile;
+    QStringList processArgs;
+    QStringList environment;
+    QString workingDirectory;
+    qint64 attachPID;
+    bool useTerminal;
+    QString crashParameter; // for AttachCrashedExternal
+    // for remote debugging
+    QString remoteChannel;
+    QString remoteArchitecture;
+    QString symbolFileName;
+    QString serverStartScript;
+    QString sysRoot;
+    QString debuggerCommand;
+    int toolChainType;
+    QByteArray remoteDumperLib;
+    QString qtInstallPath;
+
+    QString dumperLibrary;
+    QStringList dumperLibraryLocations;
+    Core::SshServerInfo sshserver;
+    DebuggerStartMode startMode;
+};
+
+typedef QSharedPointer<DebuggerStartParameters> DebuggerStartParametersPtr;
+
+//DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
+
 namespace Internal {
 
 class DEBUGGER_EXPORT DebuggerRunControlFactory
@@ -84,7 +127,6 @@ public:
     QString displayName() const;
 
     Q_SLOT void debuggingFinished();
-    DebuggerStartParametersPtr startParameters() { return m_startParameters; }
 
 signals:
     void stopRequested();

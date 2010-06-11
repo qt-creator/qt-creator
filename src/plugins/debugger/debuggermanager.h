@@ -32,8 +32,7 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
-
-#include <coreplugin/ssh/sshconnection.h>
+#include "debuggerrunner.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
@@ -101,42 +100,6 @@ class CdbDebugEnginePrivate;
 class TrkGdbAdapter;
 class BreakpointMarker;
 } // namespace Internal
-
-class DEBUGGER_EXPORT DebuggerStartParameters
-{
-public:
-    DebuggerStartParameters();
-    void clear();
-
-    QString executable;
-    QString displayName;
-    QString coreFile;
-    QStringList processArgs;
-    QStringList environment;
-    QString workingDirectory;
-    qint64 attachPID;
-    bool useTerminal;
-    QString crashParameter; // for AttachCrashedExternal
-    // for remote debugging
-    QString remoteChannel;
-    QString remoteArchitecture;
-    QString symbolFileName;
-    QString serverStartScript;
-    QString sysRoot;
-    QString debuggerCommand;
-    int toolChainType;
-    QByteArray remoteDumperLib;
-    QString qtInstallPath;
-
-    QString dumperLibrary;
-    QStringList dumperLibraryLocations;
-    Core::SshServerInfo sshserver;
-    DebuggerStartMode startMode;
-};
-
-typedef QSharedPointer<DebuggerStartParameters> DebuggerStartParametersPtr;
-
-DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 
 // Flags for initialization
 enum DebuggerEngineTypeFlags

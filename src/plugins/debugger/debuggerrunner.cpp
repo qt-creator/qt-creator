@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "debuggerrunner.h"
+#include "debuggermanager.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
@@ -183,7 +184,7 @@ void DebuggerRunControl::start()
     QString errorMessage;
     QString settingsCategory;
     QString settingsPage;
-    if (m_manager->checkDebugConfiguration(startParameters()->toolChainType, &errorMessage,
+    if (m_manager->checkDebugConfiguration(m_startParameters->toolChainType, &errorMessage,
                                            &settingsCategory, &settingsPage)) {
         m_manager->startNewDebugger(m_startParameters);
         emit started();
