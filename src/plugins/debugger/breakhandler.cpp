@@ -626,6 +626,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 return tr("Breakpoint will only be hit after being ignored so many times.");
             if (role == Qt::UserRole + 1)
                 return data->ignoreCount;
+            break;
         case 6:
             if (role == Qt::DisplayRole) {
                 if (data->pending)
@@ -637,6 +638,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 return tr("Breakpoint will only be hit in the specified thread(s).");
             if (role == Qt::UserRole + 1)
                 return data->threadSpec;
+            break;
         case 7:
             if (role == Qt::DisplayRole) {
                 if (data->type == BreakpointData::WatchpointType)

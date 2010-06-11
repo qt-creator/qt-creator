@@ -1219,6 +1219,7 @@ void QtDumperHelper::evaluationParameters(const WatchData &data,
         break;
     case StdDequeType:
         extraArgs[1] = zero;
+        break;
     case StdStackType:
         // remove 'std::allocator<...>':
         extraArgs[1] = zero;

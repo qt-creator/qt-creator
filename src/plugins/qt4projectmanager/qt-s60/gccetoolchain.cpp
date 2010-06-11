@@ -129,6 +129,7 @@ void GCCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
     switch (m_type) {
     case ProjectExplorer::ToolChain::GCCE:
         m_mixin.addEpocToEnvironment(&env);
+        break;
     case ProjectExplorer::ToolChain::GCCE_GNUPOC:
         m_mixin.addGnuPocToEnvironment(&env);
         break;

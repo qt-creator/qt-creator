@@ -107,6 +107,8 @@ public:
             QColor background = m_scheme->formatFor(description.id()).background();
             if (background.isValid())
                 return background;
+            else
+                break;
         }
         case Qt::FontRole: {
             QFont font = m_baseFont;
