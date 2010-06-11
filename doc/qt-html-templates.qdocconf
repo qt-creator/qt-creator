@@ -27,7 +27,7 @@ HTML.postheader         = " <div class=\"header\" id=\"qtdocheader\">\n" \
 			  "    </div>\n" \
 			  "    <div id=\"shortCut\">\n" \
 			  "      <ul>\n" \
-			  "        <li class=\"shortCut-topleft-inactive\"><span><a href=\"index.html\">Qt Creator 1.3.86 </a></span></li>\n" \
+			  "        <li class=\"shortCut-topleft-inactive\"><span><a href=\"index.html\">Qt Creator 2.0.80 </a></span></li>\n" \
 			  "        <li class=\"shortCut-topleft-active\"><a href=\"http://qt.nokia.com/doc/\">ALL VERSIONS" \
 			  "        </a></li>\n" \
 			  "      </ul>\n" \

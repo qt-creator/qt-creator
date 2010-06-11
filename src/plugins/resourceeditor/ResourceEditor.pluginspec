@@ -1,4 +1,4 @@
-<plugin name="ResourceEditor" version="1.3.86" compatVersion="1.3.86">
+<plugin name="ResourceEditor" version="2.0.80" compatVersion="2.0.80">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,6 +14,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Editor for qrc files.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.3.86"/>
+        <dependency name="Core" version="2.0.80"/>
     </dependencyList>
 </plugin>

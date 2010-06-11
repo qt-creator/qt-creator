@@ -1,4 +1,4 @@
-<plugin name="Mercurial" version="1.3.86" compatVersion="1.3.86">
+<plugin name="Mercurial" version="2.0.80" compatVersion="2.0.80">
     <vendor>Brian McGillion</vendor>
     <copyright>(C) 2008-2009 Brian McGillion</copyright>
     <license>
@@ -14,9 +14,9 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Mercurial integration.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.3.86"/>
-        <dependency name="ProjectExplorer" version="1.3.86"/>
-        <dependency name="Core" version="1.3.86"/>
-        <dependency name="VCSBase" version="1.3.86"/>
+        <dependency name="TextEditor" version="2.0.80"/>
+        <dependency name="ProjectExplorer" version="2.0.80"/>
+        <dependency name="Core" version="2.0.80"/>
+        <dependency name="VCSBase" version="2.0.80"/>
     </dependencyList>
 </plugin>
