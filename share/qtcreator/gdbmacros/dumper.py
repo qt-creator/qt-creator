@@ -917,6 +917,8 @@ class Dumper:
         # Locals
         #
         locals = listOfLocals(varList);
+        if "nolocals" in options:
+            locals = []
 
         # Take care of the return value of the last function call.
         if len(resultVarName) > 0:

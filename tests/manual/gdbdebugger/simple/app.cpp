@@ -856,7 +856,7 @@ void testQSharedPointer()
 {
     //Employee e1(1, "Herbert");
     //Employee e2 = e1;
-
+#if 0
     QSharedPointer<int> iptr(new int(43));
     QSharedPointer<int> iptr2 = iptr;
     QSharedPointer<int> iptr3 = iptr;
@@ -872,6 +872,12 @@ void testQSharedPointer()
     QWeakPointer<QString> wptr(ptr);
     QWeakPointer<QString> wptr2 = wptr;
     QWeakPointer<QString> wptr3 = wptr;
+#endif
+
+    QSharedPointer<Foo> fptr(new Foo(1));
+    QWeakPointer<Foo> wfptr(fptr);
+    QWeakPointer<Foo> wfptr2 = wfptr;
+    QWeakPointer<Foo> wfptr3 = wfptr;
 }
 #endif
 
@@ -1669,6 +1675,7 @@ void testStuff()
 {
     FooVector const &f = fooVector();
     int i = f.size();
+    Q_UNUSED(i);
 }
 
 void testPassByReferenceHelper(Foo &f)
@@ -1731,6 +1738,7 @@ void testQSettings()
     QSettings settings("/tmp/test.ini", QSettings::IniFormat);
     QVariant value = settings.value("item1","").toString();
     int x = 1;
+    Q_UNUSED(x);
 }
 
 int main(int argc, char *argv[])
