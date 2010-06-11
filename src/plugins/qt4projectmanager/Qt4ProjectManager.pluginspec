@@ -1,4 +1,4 @@
-<plugin name="Qt4ProjectManager" version="2.0.80" compatVersion="2.0.80">
+<plugin name="Qt4ProjectManager" version="2.1.80" compatVersion="2.1.80">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,11 +14,11 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Provides project type for Qt 4 pro files and tools.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="2.0.80"/>
-        <dependency name="ProjectExplorer" version="2.0.80"/>
-        <dependency name="CppTools" version="2.0.80"/>
-        <dependency name="CppEditor" version="2.0.80"/>
-        <dependency name="Designer" version="2.0.80"/>
-        <dependency name="Debugger" version="2.0.80"/>
+        <dependency name="TextEditor" version="2.1.80"/>
+        <dependency name="ProjectExplorer" version="2.1.80"/>
+        <dependency name="CppTools" version="2.1.80"/>
+        <dependency name="CppEditor" version="2.1.80"/>
+        <dependency name="Designer" version="2.1.80"/>
+        <dependency name="Debugger" version="2.1.80"/>
     </dependencyList>
 </plugin>

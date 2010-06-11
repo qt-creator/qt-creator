@@ -5,6 +5,6 @@
     <description>%Description%</description>
     <url>%URL%</url>
     <dependencyList>
-        <dependency name="Core" version="2.0.80"/>
+        <dependency name="Core" version="2.1.80"/>
     </dependencyList>
 </plugin>
