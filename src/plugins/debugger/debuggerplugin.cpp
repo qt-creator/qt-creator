@@ -1215,7 +1215,7 @@ void DebuggerPlugin::breakpointSetRemoveMarginActionTriggered()
     QTC_ASSERT(handler, return);
     QString str = act->data().toString();
     int pos = str.lastIndexOf(':');
-    toggleBreakpoint(str, pos);
+    toggleBreakpoint(str.left(pos), str.mid(pos + 1).toInt());
 }
 
 void DebuggerPlugin::breakpointEnableDisableMarginActionTriggered()
