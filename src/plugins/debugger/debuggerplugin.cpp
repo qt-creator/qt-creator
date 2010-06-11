@@ -1207,6 +1207,37 @@ void DebuggerPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
     }
 }
 
+void DebuggerPlugin::toggleBreakpoint()
+{
+    ITextEditor *textEditor = currentTextEditor();
+    QTC_ASSERT(textEditor, return);
+    int lineNumber = textEditor->currentLine();
+    if (lineNumber >= 0)
+        toggleBreakpoint(textEditor->file()->fileName(), lineNumber);
+}
+
+void DebuggerPlugin::toggleBreakpoint(const QString &fileName, int lineNumber)
+{
+    BreakHandler *handler = m_manager->breakHandler();
+    QTC_ASSERT(handler, return);
+    BreakpointData needle;
+    needle.bpFileName = fileName;
+    needle.bpLineNumber.setNum(lineNumber);
+    BreakpointData *data = handler->findSimilarBreakpoint(needle);
+    if (data) {
+        handler->removeBreakpoint(data);
+    } else {
+        data = new BreakpointData;
+        data->fileName = fileName;
+        data->lineNumber = QByteArray::number(lineNumber);
+        data->pending = true;
+        data->setMarkerFileName(fileName);
+        data->setMarkerLineNumber(lineNumber);
+        handler->appendBreakpoint(data);
+    }
+    m_manager->attemptBreakpointSynchronization();
+}
+
 void DebuggerPlugin::breakpointSetRemoveMarginActionTriggered()
 {
     QAction *act = qobject_cast<QAction *>(sender());
@@ -1548,37 +1579,6 @@ void DebuggerPlugin::enableReverseDebuggingTriggered(const QVariant &value)
     m_reverseToolButton->setVisible(value.toBool());
     m_manager->debuggerManagerActions().reverseDirectionAction->setChecked(false);
     m_manager->debuggerManagerActions().reverseDirectionAction->setEnabled(value.toBool());
-}
-
-void DebuggerPlugin::toggleBreakpoint()
-{
-    ITextEditor *textEditor = currentTextEditor();
-    QTC_ASSERT(textEditor, return);
-    int lineNumber = textEditor->currentLine();
-    if (lineNumber >= 0)
-        toggleBreakpoint(textEditor->file()->fileName(), lineNumber);
-}
-
-void DebuggerPlugin::toggleBreakpoint(const QString &fileName, int lineNumber)
-{
-    BreakHandler *handler = m_manager->breakHandler();
-    QTC_ASSERT(handler, return);
-    BreakpointData needle;
-    needle.bpFileName = fileName;
-    needle.bpLineNumber.setNum(lineNumber);
-    BreakpointData *data = handler->findSimilarBreakpoint(needle);
-    if (data) {
-        handler->removeBreakpoint(data);
-    } else {
-        data = new BreakpointData;
-        data->fileName = fileName;
-        data->lineNumber = QByteArray::number(lineNumber);
-        data->pending = true;
-        data->setMarkerFileName(fileName);
-        data->setMarkerLineNumber(lineNumber);
-        handler->appendBreakpoint(data);
-    }
-    m_manager->attemptBreakpointSynchronization();
 }
 
 void DebuggerPlugin::attachRemoteTcf()
