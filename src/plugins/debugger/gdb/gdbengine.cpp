@@ -3432,14 +3432,14 @@ void GdbEngine::rebuildWatchModel()
 
 static QByteArray arrayFillCommand(const char *array, const QByteArray &params)
 {
-    char buf[50];
-    sprintf(buf, "set {char[%d]} &%s = {", params.size(), array);
+    QString buf;
+    buf.sprintf("set {char[%d]} &%s = {", params.size(), array);
     QByteArray encoded;
-    encoded.append(buf);
+    encoded.append(buf.toLocal8Bit());
     const int size = params.size();
     for (int i = 0; i != size; ++i) {
-        sprintf(buf, "%d,", int(params[i]));
-        encoded.append(buf);
+        buf.sprintf("%d,", int(params[i]));
+        encoded.append(buf.toLocal8Bit());
     }
     encoded[encoded.size() - 1] = '}';
     return encoded;
