@@ -110,8 +110,9 @@ int main(int argc, char *argv[])
         perror("Cannot create creator comm socket");
         doExit(3);
     }
+    memset(&sau, 0, sizeof(sau));
     sau.sun_family = AF_UNIX;
-    strcpy(sau.sun_path, argv[ArgSocket]);
+    strncpy(sau.sun_path, argv[ArgSocket], sizeof(sau.sun_path) - 1);
     if (connect(qtcFd, (struct sockaddr *)&sau, sizeof(sau))) {
         fprintf(stderr, "Cannot connect creator comm socket %s: %s\n", sau.sun_path, strerror(errno));
         doExit(1);
@@ -136,7 +137,8 @@ int main(int argc, char *argv[])
         fseek(envFd, 0, SEEK_END);
         size = ftell(envFd);
         rewind(envFd);
-        envdata = malloc(size);
+        envdata = malloc(size + sizeof(char *));
+        envdata[size] = 0;
         if (fread(envdata, 1, size, envFd) != (size_t)size) {
             perror("Failed to read env file");
             doExit(1);

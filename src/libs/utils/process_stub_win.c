@@ -148,7 +148,8 @@ int main()
         fseek(envFd, 0, SEEK_END);
         size = ftell(envFd);
         rewind(envFd);
-        env = malloc(size);
+        env = malloc(size + sizeof(wchar_t));
+        env[size] = 0;
         if (fread(env, 1, size, envFd) != size) {
             perror("Failed to read env file");
             doExit(1);
