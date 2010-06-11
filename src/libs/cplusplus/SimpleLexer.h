@@ -101,9 +101,9 @@ public:
         short _flags;
 
         struct {
-            short _newline: 1;
-            short _whitespace: 1;
-            short _objcTypeQualifier: 1;
+            unsigned _newline: 1;
+            unsigned _whitespace: 1;
+            unsigned _objcTypeQualifier: 1;
         } f;
     };
 
