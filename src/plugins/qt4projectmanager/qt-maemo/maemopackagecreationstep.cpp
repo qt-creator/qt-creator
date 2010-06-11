@@ -59,6 +59,8 @@
 #include <QtCore/QStringBuilder>
 #include <QtGui/QWidget>
 
+namespace { const QLatin1String PackagingEnabledKey("Packaging Enabled"); }
+
 using namespace ProjectExplorer::Constants;
 using ProjectExplorer::BuildConfiguration;
 using ProjectExplorer::BuildStepConfigWidget;
@@ -69,14 +71,16 @@ namespace Internal {
 
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig)
     : ProjectExplorer::BuildStep(buildConfig, CreatePackageId),
-      m_packageContents(new MaemoPackageContents(this))
+      m_packageContents(new MaemoPackageContents(this)),
+      m_packagingEnabled(true)
 {
 }
 
 MaemoPackageCreationStep::MaemoPackageCreationStep(BuildConfiguration *buildConfig,
     MaemoPackageCreationStep *other)
     : BuildStep(buildConfig, other),
-      m_packageContents(new MaemoPackageContents(this))
+      m_packageContents(new MaemoPackageContents(this)),
+      m_packagingEnabled(other->m_packagingEnabled)
 
 {
 
@@ -90,18 +94,20 @@ bool MaemoPackageCreationStep::init()
 QVariantMap MaemoPackageCreationStep::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildStep::toMap());
+    map.insert(PackagingEnabledKey, m_packagingEnabled);
     return map.unite(m_packageContents->toMap());
 }
 
 bool MaemoPackageCreationStep::fromMap(const QVariantMap &map)
 {
     m_packageContents->fromMap(map);
+    m_packagingEnabled = map.value(PackagingEnabledKey, true).toBool();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
 
 void MaemoPackageCreationStep::run(QFutureInterface<bool> &fi)
 {
-    fi.reportResult(createPackage());
+    fi.reportResult(m_packagingEnabled ? createPackage() : true);
 }
 
 BuildStepConfigWidget *MaemoPackageCreationStep::createConfigWidget()

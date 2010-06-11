@@ -68,6 +68,9 @@ public:
     QString executableFileName() const;
     MaemoPackageContents *packageContents() const { return m_packageContents; }
 
+    bool isPackagingEnabled() const { return m_packagingEnabled; }
+    void setPackagingEnabled(bool enabled) { m_packagingEnabled = enabled; }
+
 private:
     MaemoPackageCreationStep(ProjectExplorer::BuildConfiguration *buildConfig,
                              MaemoPackageCreationStep *other);
@@ -94,6 +97,7 @@ private:
     static const QLatin1String CreatePackageId;
 
     MaemoPackageContents *const m_packageContents;
+    bool m_packagingEnabled;
 };
 
 } // namespace Internal

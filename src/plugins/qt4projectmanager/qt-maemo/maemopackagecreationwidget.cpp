@@ -64,6 +64,8 @@ MaemoPackageCreationWidget::MaemoPackageCreationWidget(MaemoPackageCreationStep 
       m_ui(new Ui::MaemoPackageCreationWidget)
 {
     m_ui->setupUi(this);
+    m_ui->skipCheckBox->setChecked(!m_step->isPackagingEnabled());
+    m_ui->packageContentsView->setEnabled(m_step->isPackagingEnabled());
     m_ui->packageContentsView->setModel(step->packageContents());
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     connect(step->packageContents(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -134,6 +136,12 @@ void MaemoPackageCreationWidget::enableOrDisableRemoveButton()
         = m_ui->packageContentsView->selectionModel()->selectedRows();
     m_ui->removeFileButton->setEnabled(!selectedRows.isEmpty()
                                        && selectedRows.first().row() != 0);
+}
+
+void MaemoPackageCreationWidget::handleSkipButtonToggled(bool checked)
+{
+    m_step->setPackagingEnabled(!checked);
+    m_ui->packageContentsView->setEnabled(m_step->isPackagingEnabled());
 }
 
 } // namespace Internal

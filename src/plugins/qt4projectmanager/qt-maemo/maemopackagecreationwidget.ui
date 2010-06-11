@@ -17,6 +17,20 @@
    </sizepolicy>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="spacing">
+    <number>6</number>
+   </property>
+   <item>
+    <widget class="QCheckBox" name="skipCheckBox">
+     <property name="toolTip">
+      <string>Check this if you build the package externally. It still needs to be at the location listed above 
+and the remote executable is assumed to be in the directory mentioned below.</string>
+     </property>
+     <property name="text">
+      <string>Skip Packaging Step</string>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QLabel" name="contentsLabel">
      <property name="font">
@@ -126,8 +140,8 @@
    <slot>addFile()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>712</x>
-     <y>44</y>
+     <x>729</x>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
      <x>732</x>
@@ -142,8 +156,8 @@
    <slot>removeFile()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>723</x>
-     <y>77</y>
+     <x>729</x>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>735</x>
@@ -151,9 +165,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>skipCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MaemoPackageCreationWidget</receiver>
+   <slot>handleSkipButtonToggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>129</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>240</x>
+     <y>31</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>addFile()</slot>
   <slot>removeFile()</slot>
+  <slot>handleSkipButtonToggled(bool)</slot>
  </slots>
 </ui>
