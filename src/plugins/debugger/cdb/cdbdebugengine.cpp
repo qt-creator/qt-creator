@@ -151,11 +151,6 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
         return false;
     CdbDebugOutput *output = new CdbDebugOutput(m_engine);
     setDebugOutput(DebugOutputBasePtr(output));
-    connect(output, SIGNAL(debuggerOutput(int,QString)),
-            manager(), SLOT(showDebuggerOutput(int,QString)));
-    connect(output, SIGNAL(debuggerInputPrompt(int,QString)),
-            manager(), SLOT(showDebuggerInput(int,QString)));
-
     setDebugEventCallback(DebugEventCallbackBasePtr(new CdbDebugEventCallback(m_engine)));
     updateCodeLevel();
 
