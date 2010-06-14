@@ -65,7 +65,7 @@ public:
     virtual ~QuickFixOperation();
 
     virtual QString description() const = 0;
-    virtual void createChangeSet() = 0;
+    virtual void createChanges() = 0;
 
     virtual int match(QuickFixState *state) = 0;
 
@@ -76,19 +76,10 @@ public:
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor &cursor);
 
-    void reindent(const TextEditor::RefactoringChanges::Range &range);
-
     int selectionStart() const;
     int selectionEnd() const;
 
     int position(int line, int column) const;
-
-    void move(int start, int end, int to);
-    void replace(int start, int end, const QString &replacement);
-    void insert(int at, const QString &text);
-    void remove(int start, int end);
-    void flip(int start1, int end1, int start2, int end2);
-    void copy(int start, int end, int to);
 
     QChar charAt(int offset) const;
     QString textOf(int start, int end) const;
@@ -102,7 +93,6 @@ protected:
 private:
     TextEditor::BaseTextEditor *_editor;
     QTextCursor _textCursor;
-    Utils::ChangeSet _changeSet;
 };
 
 

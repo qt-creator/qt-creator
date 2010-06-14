@@ -41,7 +41,7 @@ public:
     ComponentFromObjectDef(TextEditor::BaseTextEditor *editor);
 
     virtual QString description() const;
-    virtual void createChangeSet();
+    virtual void createChanges();
     virtual int check();
 
 private:

@@ -56,6 +56,7 @@
 
 using namespace CppEditor::Internal;
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace {
 
@@ -135,18 +136,20 @@ public:
         return index;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
+        ChangeSet changes;
         if (negation) {
             // can't remove parentheses since that might break precedence
-            remove(negation->unary_op_token);
+            remove(&changes, negation->unary_op_token);
         } else if (nested) {
-            insert(startOf(nested), "!");
+            changes.insert(startOf(nested), "!");
         } else {
-            insert(startOf(binary), "!(");
-            insert(endOf(binary), ")");
+            changes.insert(startOf(binary), "!(");
+            changes.insert(endOf(binary), ")");
         }
-        replace(binary->binary_op_token, replacement);
+        replace(&changes, binary->binary_op_token, replacement);
+        cppRefactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
@@ -221,11 +224,15 @@ public:
         return index;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
-        flip(binary->left_expression, binary->right_expression);
+        ChangeSet changes;
+
+        flip(&changes, binary->left_expression, binary->right_expression);
         if (! replacement.isEmpty())
-            replace(binary->binary_op_token, replacement);
+            replace(&changes, binary->binary_op_token, replacement);
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
@@ -283,14 +290,19 @@ public:
         return -1;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
-        setTopLevelNode(pattern);
-        replace(pattern->binary_op_token, QLatin1String("||"));
-        remove(left->unary_op_token);
-        remove(right->unary_op_token);
-        insert(startOf(pattern), QLatin1String("!("));
-        insert(endOf(pattern), QLatin1String(")"));
+        ChangeSet changes;
+        replace(&changes, pattern->binary_op_token, QLatin1String("||"));
+        remove(&changes, left->unary_op_token);
+        remove(&changes, right->unary_op_token);
+        const int start = startOf(pattern);
+        const int end = endOf(pattern);
+        changes.insert(start, QLatin1String("!("));
+        changes.insert(end, QLatin1String(")"));
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
+        cppRefactoringChanges()->reindent(fileName(), range(start, end));
     }
 
 private:
@@ -374,9 +386,10 @@ public:
         return -1;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
-        setTopLevelNode(declaration);
+        ChangeSet changes;
+
         SpecifierListAST *specifiers = declaration->decl_specifier_list;
         int declSpecifiersStart = startOf(specifiers->firstToken());
         int declSpecifiersEnd = endOf(specifiers->lastToken() - 1);
@@ -387,16 +400,21 @@ public:
         for (DeclaratorListAST *it = declaration->declarator_list->next; it; it = it->next) {
             DeclaratorAST *declarator = it->value;
 
-            insert(insertPos, QLatin1String("\n"));
-            copy(declSpecifiersStart, declSpecifiersEnd, insertPos);
-            insert(insertPos, QLatin1String(" "));
-            move(declarator, insertPos);
-            insert(insertPos, QLatin1String(";"));
+            changes.insert(insertPos, QLatin1String("\n"));
+            changes.copy(declSpecifiersStart, declSpecifiersEnd - declSpecifiersStart, insertPos);
+            changes.insert(insertPos, QLatin1String(" "));
+            move(&changes, declarator, insertPos);
+            changes.insert(insertPos, QLatin1String(";"));
 
-            remove(endOf(prevDeclarator), startOf(declarator));
+            const int prevDeclEnd = endOf(prevDeclarator);
+            changes.remove(prevDeclEnd, startOf(declarator) - prevDeclEnd);
 
             prevDeclarator = declarator;
         }
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
+        cppRefactoringChanges()->reindent(fileName(), range(startOf(declaration->firstToken()),
+                                                            endOf(declaration->lastToken() - 1)));
     }
 
 private:
@@ -448,11 +466,18 @@ public:
         return -1;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
-        setTopLevelNode(_statement);
-        insert(endOf(_statement->firstToken() - 1), QLatin1String(" {"));
-        insert(endOf(_statement->lastToken() - 1), "\n}");
+        ChangeSet changes;
+
+        const int start = endOf(_statement->firstToken() - 1);
+        changes.insert(start, QLatin1String(" {"));
+
+        const int end = endOf(_statement->lastToken() - 1);
+        changes.insert(end, "\n}");
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
+        cppRefactoringChanges()->reindent(fileName(), range(start, end));
     }
 
 private:
@@ -502,15 +527,19 @@ public:
         return -1;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
-        setTopLevelNode(pattern);
+        ChangeSet changes;
 
-        copy(core, startOf(condition));
+        copy(&changes, core, startOf(condition));
 
         int insertPos = startOf(pattern);
-        move(condition, insertPos);
-        insert(insertPos, QLatin1String(";\n"));
+        move(&changes, condition, insertPos);
+        changes.insert(insertPos, QLatin1String(";\n"));
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
+        cppRefactoringChanges()->reindent(fileName(), range(startOf(pattern),
+                                                            endOf(pattern)));
     }
 
 private:
@@ -572,17 +601,22 @@ public:
         return -1;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
-        setTopLevelNode(pattern);
+        ChangeSet changes;
 
-        insert(startOf(condition), QLatin1String("("));
-        insert(endOf(condition), QLatin1String(") != 0"));
+        changes.insert(startOf(condition), QLatin1String("("));
+        changes.insert(endOf(condition), QLatin1String(") != 0"));
 
         int insertPos = startOf(pattern);
-        move(startOf(condition), startOf(core), insertPos);
-        copy(core, insertPos);
-        insert(insertPos, QLatin1String(";\n"));
+        const int conditionStart = startOf(condition);
+        changes.move(conditionStart, startOf(core) - conditionStart, insertPos);
+        copy(&changes, core, insertPos);
+        changes.insert(insertPos, QLatin1String(";\n"));
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
+        cppRefactoringChanges()->reindent(fileName(), range(startOf(pattern),
+                                                            endOf(pattern)));
     }
 
 private:
@@ -671,7 +705,7 @@ public:
         return -1;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
         Token binaryToken = tokenAt(condition->binary_op_token);
 
@@ -683,35 +717,51 @@ public:
 
     void splitAndCondition()
     {
-        setTopLevelNode(pattern);
+        ChangeSet changes;
 
         int startPos = startOf(pattern);
-        insert(startPos, QLatin1String("if ("));
-        move(condition->left_expression, startPos);
-        insert(startPos, QLatin1String(") {\n"));
+        changes.insert(startPos, QLatin1String("if ("));
+        move(&changes, condition->left_expression, startPos);
+        changes.insert(startPos, QLatin1String(") {\n"));
 
-        remove(endOf(condition->left_expression), startOf(condition->right_expression));
-        insert(endOf(pattern), QLatin1String("\n}"));
+        const int lExprEnd = endOf(condition->left_expression);
+        changes.remove(lExprEnd,
+                       startOf(condition->right_expression) - lExprEnd);
+        changes.insert(endOf(pattern), QLatin1String("\n}"));
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
+        cppRefactoringChanges()->reindent(fileName(), range(startOf(pattern),
+                                                            endOf(pattern)));
     }
 
     void splitOrCondition()
     {
+        ChangeSet changes;
+
         StatementAST *ifTrueStatement = pattern->statement;
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
-        setTopLevelNode(pattern);
-
         int insertPos = endOf(ifTrueStatement);
         if (compoundStatement)
-            insert(insertPos, QLatin1String(" "));
+            changes.insert(insertPos, QLatin1String(" "));
         else
-            insert(insertPos, QLatin1String("\n"));
-        insert(insertPos, QLatin1String("else if ("));
-        move(startOf(condition->right_expression), startOf(pattern->rparen_token), insertPos);
-        insert(insertPos, QLatin1String(")"));
-        copy(endOf(pattern->rparen_token), endOf(pattern->statement), insertPos);
+            changes.insert(insertPos, QLatin1String("\n"));
+        changes.insert(insertPos, QLatin1String("else if ("));
 
-        remove(endOf(condition->left_expression), startOf(condition->right_expression));
+        const int rExprStart = startOf(condition->right_expression);
+        changes.move(rExprStart, startOf(pattern->rparen_token) - rExprStart,
+                     insertPos);
+        changes.insert(insertPos, QLatin1String(")"));
+
+        const int rParenEnd = endOf(pattern->rparen_token);
+        changes.copy(rParenEnd, endOf(pattern->statement) - rParenEnd, insertPos);
+
+        const int lExprEnd = endOf(condition->left_expression);
+        changes.remove(lExprEnd, startOf(condition->right_expression) - lExprEnd);
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
+        cppRefactoringChanges()->reindent(fileName(), range(startOf(pattern),
+                                                            endOf(pattern)));
     }
 
 private:
@@ -775,17 +825,21 @@ public:
         return index;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
+        ChangeSet changes;
+
         const int startPos = startOf(stringLiteral);
         const QLatin1String replacement("QLatin1String(");
 
         if (isObjCStringLiteral)
-            replace(startPos, startPos + 1, replacement);
+            changes.replace(startPos, 1, replacement);
         else
-            insert(startPos, replacement);
+            changes.insert(startPos, replacement);
 
-        insert(endOf(stringLiteral), ")");
+        changes.insert(endOf(stringLiteral), ")");
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
@@ -846,14 +900,21 @@ public:
         return index;
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
+        ChangeSet changes;
+
         if (qlatin1Call) {
-            replace(startOf(qlatin1Call), startOf(stringLiteral), QLatin1String("@"));
-            remove(endOf(stringLiteral), endOf(qlatin1Call));
+            changes.replace(startOf(qlatin1Call),
+                            startOf(stringLiteral) - startOf(qlatin1Call),
+                            QLatin1String("@"));
+            changes.remove(endOf(stringLiteral),
+                           endOf(qlatin1Call) - endOf(stringLiteral));
         } else {
-            insert(startOf(stringLiteral), "@");
+            changes.insert(startOf(stringLiteral), "@");
         }
+
+        cppRefactoringChanges()->changeFile(fileName(), changes);
     }
 
 private:
@@ -887,6 +948,9 @@ int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
     return match(s->path);
 }
 
+QString CppQuickFixOperation::fileName() const
+{ return document()->fileName(); }
+
 void CppQuickFixOperation::apply()
 {
     cppRefactoringChanges()->apply();
@@ -897,12 +961,6 @@ CppTools::CppRefactoringChanges *CppQuickFixOperation::cppRefactoringChanges() c
 
 TextEditor::RefactoringChanges *CppQuickFixOperation::refactoringChanges() const
 { return cppRefactoringChanges(); }
-
-CPlusPlus::AST *CppQuickFixOperation::topLevelNode() const
-{ return _topLevelNode; }
-
-void CppQuickFixOperation::setTopLevelNode(CPlusPlus::AST *topLevelNode)
-{ _topLevelNode = topLevelNode; }
 
 Document::Ptr CppQuickFixOperation::document() const
 { return _document; }
@@ -979,57 +1037,91 @@ bool CppQuickFixOperation::isCursorOn(const CPlusPlus::AST *ast) const
     return false;
 }
 
-void CppQuickFixOperation::move(unsigned tokenIndex, int to)
+void CppQuickFixOperation::move(ChangeSet *changeSet, unsigned tokenIndex,
+                                int to)
 {
+    Q_ASSERT(changeSet);
+
     int start, end;
     startAndEndOf(tokenIndex, &start, &end);
-    move(start, end, to);
+    changeSet->move(start, end - start, to);
 }
 
-void CppQuickFixOperation::move(const CPlusPlus::AST *ast, int to)
+void CppQuickFixOperation::move(ChangeSet *changeSet, const CPlusPlus::AST *ast,
+                                int to)
 {
-    move(startOf(ast), endOf(ast), to);
+    Q_ASSERT(changeSet);
+
+    const int start = startOf(ast);
+    changeSet->move(start, endOf(ast) - start, to);
 }
 
-void CppQuickFixOperation::replace(unsigned tokenIndex, const QString &replacement)
+void CppQuickFixOperation::replace(ChangeSet *changeSet, unsigned tokenIndex,
+                                   const QString &replacement)
 {
+    Q_ASSERT(changeSet);
+
     int start, end;
     startAndEndOf(tokenIndex, &start, &end);
-    replace(start, end, replacement);
+    changeSet->replace(start, end - start, replacement);
 }
 
-void CppQuickFixOperation::replace(const CPlusPlus::AST *ast, const QString &replacement)
+void CppQuickFixOperation::replace(ChangeSet *changeSet,
+                                   const CPlusPlus::AST *ast,
+                                   const QString &replacement)
 {
-    replace(startOf(ast), endOf(ast), replacement);
+    Q_ASSERT(changeSet);
+
+    const int start = startOf(ast);
+    changeSet->replace(start, endOf(ast) - start, replacement);
 }
 
-void CppQuickFixOperation::remove(unsigned tokenIndex)
+void CppQuickFixOperation::remove(ChangeSet *changeSet, unsigned tokenIndex)
 {
+    Q_ASSERT(changeSet);
+
     int start, end;
     startAndEndOf(tokenIndex, &start, &end);
-    remove(start, end);
+    changeSet->remove(start, end - start);
 }
 
-void CppQuickFixOperation::remove(const CPlusPlus::AST *ast)
+void CppQuickFixOperation::remove(ChangeSet *changeSet, const CPlusPlus::AST *ast)
 {
-    remove(startOf(ast), endOf(ast));
+    Q_ASSERT(changeSet);
+
+    const int start = startOf(ast);
+    changeSet->remove(start, endOf(ast) - start);
 }
 
-void CppQuickFixOperation::flip(const CPlusPlus::AST *ast1, const CPlusPlus::AST *ast2)
+void CppQuickFixOperation::flip(ChangeSet *changeSet,
+                                const CPlusPlus::AST *ast1,
+                                const CPlusPlus::AST *ast2)
 {
-    flip(startOf(ast1), endOf(ast1), startOf(ast2), endOf(ast2));
+    Q_ASSERT(changeSet);
+
+    const int start1 = startOf(ast1);
+    const int start2 = startOf(ast2);
+    changeSet->flip(start1, endOf(ast1) - start1,
+                    start2, endOf(ast2) - start2);
 }
 
-void CppQuickFixOperation::copy(unsigned tokenIndex, int to)
+void CppQuickFixOperation::copy(ChangeSet *changeSet, unsigned tokenIndex,
+                                int to)
 {
+    Q_ASSERT(changeSet);
+
     int start, end;
     startAndEndOf(tokenIndex, &start, &end);
-    copy(start, end, to);
+    changeSet->copy(start, end - start, to);
 }
 
-void CppQuickFixOperation::copy(const CPlusPlus::AST *ast, int to)
+void CppQuickFixOperation::copy(ChangeSet *changeSet, const CPlusPlus::AST *ast,
+                                int to)
 {
-    copy(startOf(ast), endOf(ast), to);
+    Q_ASSERT(changeSet);
+
+    const int start = startOf(ast);
+    changeSet->copy(start, endOf(ast) - start, to);
 }
 
 QString CppQuickFixOperation::textOf(const AST *ast) const

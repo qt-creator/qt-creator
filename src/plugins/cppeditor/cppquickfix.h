@@ -65,12 +65,11 @@ public:
     virtual int match(TextEditor::QuickFixState *state);
 
 protected:
+    QString fileName() const;
+
     virtual void apply();
     virtual CppTools::CppRefactoringChanges *cppRefactoringChanges() const;
     virtual TextEditor::RefactoringChanges *refactoringChanges() const;
-
-    CPlusPlus::AST *topLevelNode() const;
-    void setTopLevelNode(CPlusPlus::AST *topLevelNode);
 
     const CPlusPlus::Token &tokenAt(unsigned index) const;
 
@@ -83,25 +82,21 @@ protected:
     bool isCursorOn(unsigned tokenIndex) const;
     bool isCursorOn(const CPlusPlus::AST *ast) const;
 
-    using TextEditor::QuickFixOperation::move;
-    using TextEditor::QuickFixOperation::replace;
-    using TextEditor::QuickFixOperation::insert;
-    using TextEditor::QuickFixOperation::remove;
-    using TextEditor::QuickFixOperation::flip;
-    using TextEditor::QuickFixOperation::copy;
-
     using TextEditor::QuickFixOperation::textOf;
     using TextEditor::QuickFixOperation::charAt;
 
-    void move(unsigned tokenIndex, int to);
-    void move(const CPlusPlus::AST *ast, int to);
-    void replace(unsigned tokenIndex, const QString &replacement);
-    void replace(const CPlusPlus::AST *ast, const QString &replacement);
-    void remove(unsigned tokenIndex);
-    void remove(const CPlusPlus::AST *ast);
-    void flip(const CPlusPlus::AST *ast1, const CPlusPlus::AST *ast2);
-    void copy(unsigned tokenIndex, int to);
-    void copy(const CPlusPlus::AST *ast, int to);
+    void move(Utils::ChangeSet *changeSet, unsigned tokenIndex, int to);
+    void move(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast, int to);
+    void replace(Utils::ChangeSet *changeSet, unsigned tokenIndex,
+                 const QString &replacement);
+    void replace(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast,
+                 const QString &replacement);
+    void remove(Utils::ChangeSet *changeSet, unsigned tokenIndex);
+    void remove(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast);
+    void flip(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast1,
+              const CPlusPlus::AST *ast2);
+    void copy(Utils::ChangeSet *changeSet, unsigned tokenIndex, int to);
+    void copy(Utils::ChangeSet *changeSet, const CPlusPlus::AST *ast, int to);
 
     QString textOf(const CPlusPlus::AST *ast) const;
 

@@ -61,15 +61,11 @@ public:
     virtual int match(TextEditor::QuickFixState *state);
 
 protected:
-    using TextEditor::QuickFixOperation::move;
-    using TextEditor::QuickFixOperation::replace;
-    using TextEditor::QuickFixOperation::insert;
-    using TextEditor::QuickFixOperation::remove;
-    using TextEditor::QuickFixOperation::flip;
-    using TextEditor::QuickFixOperation::copy;
     using TextEditor::QuickFixOperation::textOf;
     using TextEditor::QuickFixOperation::charAt;
     using TextEditor::QuickFixOperation::position;
+
+    QString fileName() const;
 
     virtual void apply();
     QmlJSRefactoringChanges *qmljsRefactoringChanges() const;

@@ -81,43 +81,6 @@ int QuickFixOperation::position(int line, int column) const
     return doc->findBlockByNumber(line - 1).position() + column - 1;
 }
 
-void QuickFixOperation::reindent(const RefactoringChanges::Range &range)
-{
-    if (! range.isNull()) {
-        refactoringChanges()->reindent(editor()->file()->fileName(), range);
-    }
-}
-
-void QuickFixOperation::move(int start, int end, int to)
-{
-    _changeSet.move(start, end-start, to);
-}
-
-void QuickFixOperation::replace(int start, int end, const QString &replacement)
-{
-    _changeSet.replace(start, end-start, replacement);
-}
-
-void QuickFixOperation::insert(int at, const QString &text)
-{
-    _changeSet.insert(at, text);
-}
-
-void QuickFixOperation::remove(int start, int end)
-{
-    _changeSet.remove(start, end-start);
-}
-
-void QuickFixOperation::flip(int start1, int end1, int start2, int end2)
-{
-    _changeSet.flip(start1, end1-start1, start2, end2-start2);
-}
-
-void QuickFixOperation::copy(int start, int end, int to)
-{
-    _changeSet.copy(start, end-start, to);
-}
-
 QChar QuickFixOperation::charAt(int offset) const
 {
     QTextDocument *doc = _textCursor.document();
@@ -139,11 +102,7 @@ TextEditor::RefactoringChanges::Range QuickFixOperation::range(int start, int en
 
 void QuickFixOperation::perform()
 {
-    createChangeSet();
-
-    if (!_changeSet.isEmpty())
-        refactoringChanges()->changeFile(editor()->file()->fileName(), _changeSet);
-
+    createChanges();
     apply();
 }
 

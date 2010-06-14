@@ -63,24 +63,27 @@ public:
         return QApplication::translate("QmlJSEditor::QuickFix", "Split initializer");
     }
 
-    virtual void createChangeSet()
+    virtual void createChanges()
     {
         Q_ASSERT(_objectInitializer != 0);
+
+        Utils::ChangeSet changes;
 
         for (QmlJS::AST::UiObjectMemberList *it = _objectInitializer->members; it; it = it->next) {
             if (QmlJS::AST::UiObjectMember *member = it->member) {
                 const QmlJS::AST::SourceLocation loc = member->firstSourceLocation();
 
                 // insert a newline at the beginning of this binding
-                insert(position(loc), QLatin1String("\n"));
+                changes.insert(position(loc), QLatin1String("\n"));
             }
         }
 
         // insert a newline before the closing brace
-        insert(position(_objectInitializer->rbraceToken), QLatin1String("\n"));
+        changes.insert(position(_objectInitializer->rbraceToken), QLatin1String("\n"));
 
-        reindent(RefactoringChanges::Range(position(_objectInitializer->lbraceToken),
-                       position(_objectInitializer->rbraceToken)));
+        refactoringChanges()->changeFile(fileName(), changes);
+        refactoringChanges()->reindent(fileName(), range(position(_objectInitializer->lbraceToken),
+                                                         position(_objectInitializer->rbraceToken)));
 
     }
 
@@ -152,6 +155,11 @@ int QmlJSQuickFixOperation::match(TextEditor::QuickFixState *state)
     }
     _refactoringChanges = new QmlJSRefactoringChanges(modelManager, _semanticInfo.snapshot);
     return check();
+}
+
+QString QmlJSQuickFixOperation::fileName() const
+{
+    return document()->fileName();
 }
 
 void QmlJSQuickFixOperation::apply()

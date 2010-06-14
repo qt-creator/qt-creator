@@ -82,7 +82,7 @@ QString ComponentFromObjectDef::description() const
                                        "Extract Component");
 }
 
-void ComponentFromObjectDef::createChangeSet()
+void ComponentFromObjectDef::createChanges()
 {
     Q_ASSERT(_objDef != 0);
 
@@ -90,7 +90,7 @@ void ComponentFromObjectDef::createChangeSet()
     componentName[0] = componentName.at(0).toUpper();
 
     const QString path = editor()->file()->fileName();
-    const QString fileName = QFileInfo(path).path() + QDir::separator() + componentName + QLatin1String(".qml");
+    const QString newFileName = QFileInfo(path).path() + QDir::separator() + componentName + QLatin1String(".qml");
 
     QString imports;
     UiProgram *prog = semanticInfo().document->qmlProgram();
@@ -104,11 +104,13 @@ void ComponentFromObjectDef::createChangeSet()
     const int end = position(_objDef->lastSourceLocation());
     const QString txt = imports + textOf(start, end) + QLatin1String("}\n");
 
-    replace(start, end, componentName + QLatin1String(" {\n"));
-    reindent(range(start, end + 1));
+    Utils::ChangeSet changes;
+    changes.replace(start, end - start, componentName + QLatin1String(" {\n"));
+    qmljsRefactoringChanges()->changeFile(fileName(), changes);
+    qmljsRefactoringChanges()->reindent(fileName(), range(start, end + 1));
 
-    qmljsRefactoringChanges()->createFile(fileName, txt);
-    qmljsRefactoringChanges()->reindent(fileName, range(0, txt.length() - 1));
+    qmljsRefactoringChanges()->createFile(newFileName, txt);
+    qmljsRefactoringChanges()->reindent(newFileName, range(0, txt.length() - 1));
 }
 
 int ComponentFromObjectDef::check()
