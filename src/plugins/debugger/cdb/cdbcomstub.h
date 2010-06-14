@@ -32,6 +32,9 @@
 
 // Stubs to make it partially compile for test purposes on non-Windows.
 
+// FIXME: Make everything more Windows-like instead of choosing arbitrary
+// values to make it compile.
+
 typedef unsigned long ULONG;
 typedef unsigned long long ULONG64;
 typedef void *PVOID;
@@ -40,6 +43,9 @@ typedef void *HANDLE;
 typedef int HRESULT;
 typedef int DEBUG_VALUE;
 typedef int PDEBUG_BREAKPOINT2;
+const int MAX_PATH = 1024;
+
+inline bool FAILED(HRESULT) { return false; }
 
 enum
 {
@@ -58,7 +64,7 @@ enum
 #define THIS_
 #define REFIID void *
 #define THIS_
-#define STDMETHOD(x) void x
+#define STDMETHOD(x) HRESULT x
 #define STDMETHOD_(x, y) x y
 
 struct IUnknown
@@ -72,36 +78,56 @@ struct IDebugOutputCallbacksWide : IUnknown
 {
 };
 
-struct CIDebugClient
+struct CIDebugClient : IUnknown
 {
 };
 
-struct CIDebugControl
+struct CIDebugControl : IUnknown
 {
 };
 
-struct CIDebugSystemObjects
+struct CIDebugSystemObjects : IUnknown
 {
 };
 
-struct CIDebugSymbols
+struct CIDebugSymbols : IUnknown
 {
 };
 
-struct CIDebugRegisters
+struct CIDebugRegisters : IUnknown
+{
+    HRESULT GetNumberRegisters(ULONG *) const { return 0; }
+    HRESULT GetDescription(ULONG, char *, int, int, int) const { return 0; }
+    HRESULT GetValues(ULONG, int, int, DEBUG_VALUE *) const { return 0; }
+};
+
+struct CIDebugDataSpaces : IUnknown
 {
 };
 
-struct CIDebugDataSpaces
+struct CIDebugSymbolGroup : IUnknown
 {
 };
 
-struct CIDebugSymbolGroup
+struct CIDebugBreakpoint : IUnknown
 {
 };
 
-struct CIDebugBreakpoint
+enum DebugSymbolFlags
+{
+    DEBUG_SYMBOL_IS_LOCAL = 1,
+    DEBUG_SYMBOL_IS_ARGUMENT = 2,
+    DEBUG_SYMBOL_READ_ONLY = 4
+};
+
+struct DEBUG_SYMBOL_PARAMETERS
+{
+    DebugSymbolFlags Flags;
+    unsigned long ParentSymbol;
+};
+
+struct DEBUG_STACK_FRAME
 {
 };
 
-#endif // Q_OS_WINDOWS
+#endif // Q_OS_WIN

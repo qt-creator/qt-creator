@@ -206,7 +206,7 @@ bool BreakPoint::add(CIDebugControl* debugControl,
                         unsigned long *id,
                         quint64 *address) const
 {
-    IDebugBreakpoint2* ibp = 0;
+    CIDebugBreakpoint* ibp = 0;
     if (address)
         *address = 0;
     if (id)
@@ -473,8 +473,8 @@ bool BreakPoint::getBreakPoints(CIDebugControl* debugControl, QList<BreakPoint> 
     if (!getBreakPointCount(debugControl, &count, errorMessage))
         return false;
     // retrieve one by one and parse
-    for (ULONG b= 0; b < count; b++) {
-        IDebugBreakpoint2 *ibp = 0;
+    for (ULONG b = 0; b < count; b++) {
+        CIDebugBreakpoint *ibp = 0;
         const HRESULT hr = debugControl->GetBreakpointByIndex2(b, &ibp);
         if (FAILED(hr)) {
             *errorMessage = QString::fromLatin1("Cannot retrieve breakpoint %1: %2").
@@ -495,7 +495,7 @@ static inline QString msgNoBreakPointWithId(unsigned long id, const QString &why
     return QString::fromLatin1("Unable to find breakpoint with id %1: %2").arg(id).arg(why);
 }
 
-IDebugBreakpoint2 *BreakPoint::breakPointById(CIDebugControl *ctl, unsigned long id, QString *errorMessage)
+CIDebugBreakpoint *BreakPoint::breakPointById(CIDebugControl *ctl, unsigned long id, QString *errorMessage)
 {
     CIDebugBreakpoint *ibp = 0;
     const HRESULT hr = ctl->GetBreakpointById2(id, &ibp);

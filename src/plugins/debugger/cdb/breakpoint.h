@@ -62,7 +62,7 @@ struct BreakPoint
 
     // Apply parameters (with the exception of type, which is
     // passed as a parameter to IDebugControl within add().
-    bool apply(IDebugBreakpoint2 *ibp, QString *errorMessage) const;
+    bool apply(CIDebugBreakpoint *ibp, QString *errorMessage) const;
     // Convenience to add to a IDebugControl4.
     bool add(CIDebugControl* debugControl,
              QString *errorMessage,
@@ -70,13 +70,13 @@ struct BreakPoint
              quint64 *address = 0) const;
 
     // Retrieve/parse breakpoints from the interfaces
-    bool retrieve(IDebugBreakpoint2 *ibp, QString *errorMessage);
+    bool retrieve(CIDebugBreakpoint *ibp, QString *errorMessage);
     bool parseExpression(const QString &expr);
     // Retrieve all breakpoints from the engine
     static bool getBreakPointCount(CIDebugControl* debugControl, ULONG *count, QString *errorMessage = 0);
     static bool getBreakPoints(CIDebugControl* debugControl, QList<BreakPoint> *bps, QString *errorMessage);
     // Control helpers
-    static IDebugBreakpoint2 *breakPointById(CIDebugControl *ctl, unsigned long id, QString *errorMessage);
+    static CIDebugBreakpoint *breakPointById(CIDebugControl *ctl, unsigned long id, QString *errorMessage);
     static bool removeBreakPointById(CIDebugControl *ctl, unsigned long id, QString *errorMessage);
     static bool setBreakPointEnabledById(CIDebugControl *ctl, unsigned long id, bool enabled, QString *errorMessage);
     static bool setBreakPointThreadById(CIDebugControl *ctl, unsigned long id, int threadId, QString *errorMessage);

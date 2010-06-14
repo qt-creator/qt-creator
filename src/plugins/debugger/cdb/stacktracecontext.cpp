@@ -41,7 +41,7 @@ enum { debug = 0 };
 namespace CdbCore {
 
 StackFrame::StackFrame() :
-    line(0),address(0)
+    line(0), address(0)
 {
 }
 
