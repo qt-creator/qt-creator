@@ -47,7 +47,7 @@ using namespace Internal;
 
 ManageDefinitionsDialog::ManageDefinitionsDialog(
     const QList<HighlightDefinitionMetaData> &metaDataList, QWidget *parent) :
-    m_definitionsMetaData(metaDataList), QDialog(parent)
+    QDialog(parent), m_definitionsMetaData(metaDataList)
 {
     ui.setupUi(this);    
     ui.definitionsTable->setHorizontalHeaderLabels(
