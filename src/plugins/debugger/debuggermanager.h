@@ -321,7 +321,7 @@ signals:
 
 private:
     void init();
-    void runTest(const QString &fileName);
+    // void runTest(const QString &fileName);
     Q_SLOT void createNewDock(QWidget *widget);
 
     void aboutToShutdown();

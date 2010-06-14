@@ -388,9 +388,9 @@ void CdbDebugEngine::startupChecks()
 
 void CdbDebugEngine::startDebugger(const DebuggerRunControl *runControl)
 {
-    DebuggerStartParameters *sp = &runControl->sp();
+    const DebuggerStartParameters &sp = runControl->sp();
     if (debugCDBExecution)
-        qDebug() << "startDebugger" << *sp;
+        qDebug() << "startDebugger";
     CdbCore::BreakPoint::clearNormalizeFileNameCache();
     startupChecks();
     setState(AdapterStarting, Q_FUNC_INFO, __LINE__);
@@ -401,7 +401,7 @@ void CdbDebugEngine::startDebugger(const DebuggerRunControl *runControl)
         emit startFailed();
         return;
     }
-    switch (sp->startMode) {
+    switch (sp.startMode) {
     case AttachCore:
     case AttachToRemote:
         warning(QLatin1String("Internal error: Mode not supported."));
@@ -411,7 +411,7 @@ void CdbDebugEngine::startDebugger(const DebuggerRunControl *runControl)
     default:
         break;
     }
-    m_d->m_mode = sp->startMode;
+    m_d->m_mode = sp.startMode;
     m_d->clearDisplay();
     m_d->m_inferiorStartupComplete = false;
     setState(AdapterStarted, Q_FUNC_INFO, __LINE__);
@@ -448,28 +448,28 @@ void CdbDebugEngine::startDebugger(const DebuggerRunControl *runControl)
     switch (m_d->m_mode) {
     case AttachExternal:
     case AttachCrashedExternal:
-        rc = startAttachDebugger(sp->attachPID, m_d->m_mode, &errorMessage);
+        rc = startAttachDebugger(sp.attachPID, m_d->m_mode, &errorMessage);
         needWatchTimer = true; // Fetch away module load, etc. even if crashed
         break;
     case StartInternal:
     case StartExternal:
-        if (sp->useTerminal) {
+        if (sp.useTerminal) {
             // Attaching to console processes triggers an initial breakpoint, which we do not want
             m_d->m_ignoreInitialBreakPoint = true;
             // Launch console stub and wait for its startup
             m_d->m_consoleStubProc.stop(); // We leave the console open, so recycle it now.
-            m_d->m_consoleStubProc.setWorkingDirectory(sp->workingDirectory);
-            m_d->m_consoleStubProc.setEnvironment(sp->environment);
-            rc = m_d->m_consoleStubProc.start(sp->executable, sp->processArgs);
+            m_d->m_consoleStubProc.setWorkingDirectory(sp.workingDirectory);
+            m_d->m_consoleStubProc.setEnvironment(sp.environment);
+            rc = m_d->m_consoleStubProc.start(sp.executable, sp.processArgs);
             if (!rc)
-                errorMessage = tr("The console stub process was unable to start '%1'.").arg(sp->executable);
+                errorMessage = tr("The console stub process was unable to start '%1'.").arg(sp.executable);
             // continues in slotConsoleStubStarted()...
         } else {
             needWatchTimer = true;
-            rc = m_d->startDebuggerWithExecutable(sp->workingDirectory,
-                                                  sp->executable,
-                                                  sp->processArgs,
-                                                  sp->environment,
+            rc = m_d->startDebuggerWithExecutable(sp.workingDirectory,
+                                                  sp.executable,
+                                                  sp.processArgs,
+                                                  sp.environment,
                                                   &errorMessage);
         }
         break;
@@ -525,7 +525,7 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
     // the exception to be delivered to the debugger
     // Also, see special handling in slotModulesLoaded().
     if (m_mode == AttachCrashedExternal) {
-        const QString crashParameter = manager()->startParameters()->crashParameter;
+        const QString crashParameter = manager()->runControl()->sp().crashParameter;
         if (!crashParameter.isEmpty()) {
             ULONG64 evtNr = crashParameter.toULongLong();
             const HRESULT hr = interfaces().debugControl->SetNotifyEventHandle(evtNr);

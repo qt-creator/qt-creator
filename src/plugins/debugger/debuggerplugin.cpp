@@ -1060,8 +1060,8 @@ void DebuggerPlugin::extensionsInitialized()
     // time gdb -i mi -ex 'debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
     const QByteArray env = qgetenv("QTC_DEBUGGER_TEST");
     //qDebug() << "EXTENSIONS INITIALIZED:" << env;
-    if (!env.isEmpty())
-        m_manager->runTest(QString::fromLocal8Bit(env));
+    // if (!env.isEmpty())
+    //    m_manager->runTest(QString::fromLocal8Bit(env));
     if (m_attachRemoteParameters.attachPid || !m_attachRemoteParameters.attachCore.isEmpty())
         QTimer::singleShot(0, this, SLOT(attachCmdLine()));
 

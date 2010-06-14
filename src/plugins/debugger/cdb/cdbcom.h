@@ -30,7 +30,9 @@
 #ifndef CDBCOM_H
 #define CDBCOM_H
 
-#ifdef Q_OS_WINDOWS
+#include <QtCore/QtGlobal>
+
+#ifdef Q_OS_WIN
 
 #include <windows.h>
 #include <inc/dbgeng.h>
@@ -50,6 +52,6 @@ typedef IDebugBreakpoint2      CIDebugBreakpoint;
 
 #include "cdbcomstub.h"
 
-#endif // Q_OS_WINDOWS
+#endif // Q_OS_WIN
 
 #endif // CDBCOM_H

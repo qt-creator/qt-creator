@@ -976,7 +976,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                                   GdbResultDone)) {
 #ifdef Q_OS_WIN
         // Ignore spurious 'running' responses to 'attach'
-        const bool warning = !(m_startParameters->startMode == AttachExternal
+        const bool warning = !(manager()->runControl()->sp().startMode == AttachExternal
                                && cmd.command.startsWith("attach"));
 #else
         const bool warning = true;
