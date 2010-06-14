@@ -53,6 +53,8 @@ StatesEditorView::StatesEditorView(StatesEditorModel *editorModel, QObject *pare
         m_attachedToModel(false), m_settingSilentState(false)
 {
     Q_ASSERT(m_editorModel);
+    // base state
+    m_thumbnailsToUpdate.append(false);
 }
 
 void StatesEditorView::setCurrentStateSilent(int index)
@@ -118,8 +120,10 @@ void StatesEditorView::removeState(int index)
 
     setCurrentState(0);
 
+    m_thumbnailsToUpdate.removeAt(index);
     m_modelStates.removeAll(state);
     state.destroy();
+
     m_editorModel->removeState(index);
 
     int newIndex = (index < m_modelStates.count()) ? index : m_modelStates.count() - 1;
@@ -184,6 +188,7 @@ void StatesEditorView::modelAttached(Model *model)
         return;
 
     m_modelStates.insert(0, baseState());
+    m_thumbnailsToUpdate.insert(0, false);
     m_attachedToModel = true;
     m_editorModel->insertState(0, baseState().name());
 
@@ -340,12 +345,14 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
 void StatesEditorView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
 {
     if (!m_settingSilentState) {
-        if (QmlModelState(node).isValid()) {
-            startUpdateTimer(modelStateIndex(node) + 1, 0);
-        } else { //a change to the base state update all
-            for (int i = 0; i < m_modelStates.count(); ++i)
-                startUpdateTimer(i, 0);
-        }
+        QmlModelState state = QmlModelState(node);
+        if (state.isValid())
+        {
+            if (m_modelStates.contains(state))
+                m_thumbnailsToUpdate[m_modelStates.indexOf(state)] = true;
+        } else //a change to the base state update all
+            m_thumbnailsToUpdate[0] = true;
+
     }
 
     QmlModelView::nodeInstancePropertyChanged(node, propertyName);
@@ -395,6 +402,22 @@ void StatesEditorView::customNotification(const AbstractView * view, const QStri
 {
     if (debug)
         qDebug() << __FUNCTION__;
+
+    if (identifier == "__end rewriter transaction__")
+    {
+        if (m_thumbnailsToUpdate[0])
+        {
+            for (int i = 0; i < m_modelStates.count(); ++i) {
+                m_thumbnailsToUpdate[i] = false;
+                startUpdateTimer(i, 0);
+            }
+        } else
+            for (int i = 1; i< m_thumbnailsToUpdate.count(); i++)
+                if (m_thumbnailsToUpdate[i]) {
+                    m_thumbnailsToUpdate[i] = false;
+                    startUpdateTimer(i,0);
+                }
+    }
 
     QmlModelView::customNotification(view, identifier, nodeList, data);
 }
@@ -504,6 +527,7 @@ void StatesEditorView::insertModelState(int i, const QmlModelState &state)
     // For m_modelStates / m_editorModel, i=0 is base state
     m_modelStates.insert(i+1, state);
     m_editorModel->insertState(i+1, state.name());
+    m_thumbnailsToUpdate.append(false);
 }
 
 void StatesEditorView::removeModelState(const QmlModelState &state)
@@ -516,6 +540,7 @@ void StatesEditorView::removeModelState(const QmlModelState &state)
     int index = m_modelStates.indexOf(state);
     if (index != -1) {
         m_modelStates.removeOne(state);
+        m_thumbnailsToUpdate.removeAt(index);
 
         if (m_updateTimerIdList.contains(index)) {
             killTimer(m_updateTimerIdList[index]);
@@ -535,6 +560,7 @@ void StatesEditorView::clearModelStates()
     const int modelStateCount = m_modelStates.size();
     for (int i=modelStateCount-1; i>=0; --i) {
         m_modelStates.removeAt(i);
+        m_thumbnailsToUpdate.removeAt(i);
         m_editorModel->removeState(i);
     }
 }

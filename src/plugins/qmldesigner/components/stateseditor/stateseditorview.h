@@ -100,6 +100,8 @@ private:
     QmlModelState m_oldRewriterAmendState;
     bool m_attachedToModel;
     bool m_settingSilentState;
+
+    QList<bool> m_thumbnailsToUpdate;
 };
 
 } // namespace Internal
