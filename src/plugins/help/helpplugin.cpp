@@ -818,16 +818,8 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
     if (HelpViewer::launchWithExternalApp(url))
         return;
 
-    if (Core::HelpManager::instance()->findFile(url).isValid()) {
-        if (url.queryItemValue(QLatin1String("view")) == QLatin1String("split")) {
-            if (HelpViewer* viewer = viewerForContextMode())
-                viewer->setSource(url);
-        } else {
-            activateHelpMode();
-            m_centralWidget->setSource(url);
-        }
-    } else {
-        QString address = url.toString();
+    QString address = url.toString();
+    if (!Core::HelpManager::instance()->findFile(url).isValid()) {
         if (address.startsWith(HelpViewer::NsNokia)
             || address.startsWith(HelpViewer::NsTrolltech)) {
                 // local help not installed, resort to external web help
@@ -839,7 +831,15 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
                 }
             address = urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')));
         }
-        QDesktopServices::openUrl(address);
+    }
+
+    const QUrl newUrl(address);
+    if (newUrl.queryItemValue(QLatin1String("view")) == QLatin1String("split")) {
+        if (HelpViewer* viewer = viewerForContextMode())
+            viewer->setSource(newUrl);
+    } else {
+        activateHelpMode();
+        m_centralWidget->setSource(newUrl);
     }
 }
 

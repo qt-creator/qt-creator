@@ -147,8 +147,6 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
             actualTmpFile.close();
             return QDesktopServices::openUrl(QUrl(actualTmpFile.fileName()));
         }
-    } else if (url.scheme() == QLatin1String("http")) {
-        return QDesktopServices::openUrl(url);
     }
     return false;
 }

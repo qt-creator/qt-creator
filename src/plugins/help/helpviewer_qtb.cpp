@@ -144,6 +144,13 @@ QUrl HelpViewer::source() const
 
 void HelpViewer::setSource(const QUrl &url)
 {
+    const QString &scheme = url.scheme();
+    if (scheme != QLatin1String("qthelp") && scheme != QLatin1String("about")) {
+        QTextBrowser::setSource(resolvedUrl);
+        emit loadFinished(true);
+        return;
+    }
+
     const QString &string = url.toString();
     if (url.isValid() && string != QLatin1String("help")) {
         if (launchWithExternalApp(url))
