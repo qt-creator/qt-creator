@@ -141,7 +141,6 @@ private:
     void postCommand(const QByteArray &cmd,
         QmlCommandCallback callback = 0, const char *callbackName = 0);
     void sendCommandNow(const QmlCommand &command);
-    void debugMessage(const QString &msg);
 
     QHash<int, QmlCommand> m_cookieForToken;
 

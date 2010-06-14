@@ -343,7 +343,7 @@ void GdbEngine::readDebugeeOutput(const QByteArray &data)
 
 void GdbEngine::debugMessage(const QString &msg)
 {
-    showDebuggerOutput(LogDebug, msg);
+    showDebuggerOutput(msg, LogDebug);
 }
 
 void GdbEngine::handleResponse(const QByteArray &buff)
@@ -351,8 +351,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     static QTime lastTime;
 
     if (theDebuggerBoolSetting(LogTimeStamps))
-        showDebuggerOutput(LogTime, currentTime());
-    showDebuggerOutput(LogOutput, QString::fromLocal8Bit(buff, buff.length()));
+        showDebuggerOutput(currentTime(), LogTime);
+    showDebuggerOutput(QString::fromLocal8Bit(buff, buff.length()), LogOutput);
 
 #if 0
     qDebug() // << "#### start response handling #### "
@@ -824,7 +824,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 {
     GdbCommand cmd = cmd0;
     if (state() == DebuggerNotReady) {
-        showDebuggerInput(LogInput, _(cmd.command));
+        showDebuggerInput(_(cmd.command), LogInput);
         debugMessage(_("GDB PROCESS NOT RUNNING, PLAIN CMD IGNORED: " + cmd.command));
         return;
     }
@@ -833,7 +833,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
     cmd.postTime = QTime::currentTime();
     m_cookieForToken[currentToken()] = cmd;
     cmd.command = QByteArray::number(currentToken()) + cmd.command;
-    showDebuggerInput(LogInput, _(cmd.command));
+    showDebuggerInput(_(cmd.command), LogInput);
 
     m_gdbAdapter->write(cmd.command + "\r\n");
 
@@ -958,9 +958,10 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
 
     GdbCommand cmd = m_cookieForToken.take(token);
     if (theDebuggerBoolSetting(LogTimeStamps)) {
-        showDebuggerOutput(LogTime, _("Response time: %1: %2 s")
+        showDebuggerOutput(_("Response time: %1: %2 s")
             .arg(_(cmd.command))
-            .arg(cmd.postTime.msecsTo(QTime::currentTime()) / 1000.));
+            .arg(cmd.postTime.msecsTo(QTime::currentTime()) / 1000.),
+            LogTime);
     }
 
     if (response->token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
@@ -2049,9 +2050,9 @@ void GdbEngine::setTokenBarrier()
         );
     }
     PENDING_DEBUG("\n--- token barrier ---\n");
-    showDebuggerInput(LogMisc, _("--- token barrier ---"));
+    showDebuggerInput(_("--- token barrier ---"), LogMisc);
     if (theDebuggerBoolSetting(LogTimeStamps))
-        showDebuggerInput(LogMisc, currentTime());
+        showDebuggerInput(currentTime(), LogMisc);
     m_oldestAcceptableToken = currentToken();
 }
 
@@ -3375,8 +3376,8 @@ void GdbEngine::updateWatchData(const WatchData &data)
         //qDebug() << "PROCESSED NAMES: " << processedName << m_processedNames;
         if (m_processedNames.contains(processedName)) {
             WatchData data1 = data;
-            showDebuggerInput(LogStatus,
-                _("<Breaking endless loop for " + data.iname + '>'));
+            showDebuggerInput(_("<Breaking endless loop for " + data.iname + '>'),
+                LogStatus);
             data1.setAllUnneeded();
             data1.setValue(_("<unavailable>"));
             data1.setHasChildren(false);
@@ -3427,8 +3428,8 @@ void GdbEngine::rebuildWatchModel()
         m_processedNames.clear();
     PENDING_DEBUG("REBUILDING MODEL" << count);
     if (theDebuggerBoolSetting(LogTimeStamps))
-        showDebuggerInput(LogMisc, currentTime());
-    showDebuggerInput(LogStatus, _("<Rebuild Watchmodel %1>").arg(count));
+        showDebuggerInput(currentTime(), LogMisc);
+    showDebuggerInput(_("<Rebuild Watchmodel %1>").arg(count), LogStatus);
     showStatusMessage(tr("Finished retrieving data"), 400);
     manager()->watchHandler()->endCycle();
     showToolTip();
@@ -3456,7 +3457,7 @@ void GdbEngine::sendWatchParameters(const QByteArray &params0)
     const QByteArray inBufferCmd = arrayFillCommand("qDumpInBuffer", params);
 
     params.replace('\0','!');
-    showDebuggerInput(LogMisc, QString::fromUtf8(params));
+    showDebuggerInput(QString::fromUtf8(params), LogMisc);
 
     params.clear();
     params.append('\0');
@@ -4033,14 +4034,13 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
             // Check for existing values.
             if (environment.contains(pythonPathVariable)) {
                 const QString oldPythonPath = environment.value(pythonPathVariable);
-                manager()->showDebuggerOutput(LogMisc,
-                    _("Using existing python path: %1").arg(oldPythonPath));
+                showDebuggerOutput(_("Using existing python path: %1")
+                    .arg(oldPythonPath), LogMisc);
             } else {
                 const QString pythonPath =
                     QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
                 environment.insert(pythonPathVariable, pythonPath);
-                manager()->showDebuggerOutput(LogMisc,
-                    _("Python path: %1").arg(pythonPath));
+                showDebuggerOutput(_("Python path: %1").arg(pythonPath), LogMisc);
                 gdbProc()->setProcessEnvironment(environment);
             }
             foundPython = true;

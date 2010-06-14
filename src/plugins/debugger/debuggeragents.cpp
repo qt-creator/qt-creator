@@ -261,7 +261,9 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame, bool tryMixed)
         if (it != d->cache.end()) {
             QString msg = _("Use cache disassembler for '%1' in '%2'")
                 .arg(frame.function).arg(frame.file);
-            d->manager->showDebuggerOutput(msg);
+            QTC_ASSERT(d->manager->runControl(), /**/);
+            if (d->manager->runControl())
+                d->manager->runControl()->showDebuggerOutput(msg);
             setContents(*it);
             return;
         }

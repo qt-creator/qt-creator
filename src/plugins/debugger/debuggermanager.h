@@ -235,18 +235,12 @@ public slots:
     static const char *stateName(int s);
 
 public slots: // FIXME
-    void showDebuggerOutput(const QString &msg)
-        { showDebuggerOutput(LogDebug, msg); }
     void ensureLogVisible();
     void updateWatchersWindow();
     void updateWatchersHeader(int section, int oldSize, int newSize);
     void activateBreakpoint(int index);
 
 //private slots:  // FIXME
-    void showDebuggerOutput(int channel, const QString &msg);
-    void showDebuggerInput(int channel, const QString &msg);
-    void showApplicationOutput(const QString &data, bool onStdErr);
-
     void reloadSourceFiles();
     void sourceFilesDockToggled(bool on);
 
@@ -271,6 +265,7 @@ public:
     Internal::ThreadsHandler *threadsHandler() const;
     Internal::WatchHandler *watchHandler() const;
     Internal::SnapshotHandler *snapshotHandler() const;
+    Internal::DebuggerOutputWindow *debuggerOutputWindow() const;
 
 private:
     Internal::SourceFilesWindow *sourceFileWindow() const;
@@ -316,12 +311,11 @@ signals:
     void statusMessageRequested(const QString &msg, int timeout); // -1 for 'forever'
     void applicationOutputAvailable(const QString &output, bool onStdErr);
     void messageAvailable(const QString &output, bool isError);
-    void emitShowOutput(int channel, const QString &output);
-    void emitShowInput(int channel, const QString &input);
 
 private:
     void init();
     // void runTest(const QString &fileName);
+    void showDebuggerOutput(const QString &msg, int channel);
     Q_SLOT void createNewDock(QWidget *widget);
 
     void aboutToShutdown();

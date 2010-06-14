@@ -121,7 +121,7 @@ static QString msgFunctionFailed(const char *func, const QString &why)
 
 CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
                                              const QSharedPointer<CdbOptions> &options,
-                                             CdbDebugEngine* engine) :
+                                             CdbDebugEngine *engine) :
     m_options(options),
     m_hDebuggeeProcess(0),
     m_hDebuggeeThread(0),
@@ -149,16 +149,12 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
 
     if (!CdbCore::CoreEngine::init(m_options->path, errorMessage))
         return false;
-    CdbDebugOutput *output = new CdbDebugOutput;
+    CdbDebugOutput *output = new CdbDebugOutput(m_engine);
     setDebugOutput(DebugOutputBasePtr(output));
     connect(output, SIGNAL(debuggerOutput(int,QString)),
             manager(), SLOT(showDebuggerOutput(int,QString)));
     connect(output, SIGNAL(debuggerInputPrompt(int,QString)),
             manager(), SLOT(showDebuggerInput(int,QString)));
-    connect(output, SIGNAL(debuggeeOutput(QString,bool)),
-            manager(), SLOT(showApplicationOutput(QString,bool)));
-    connect(output, SIGNAL(debuggeeInputPrompt(QString,bool)),
-            manager(), SLOT(showApplicationOutput(QString,bool)));
 
     setDebugEventCallback(DebugEventCallbackBasePtr(new CdbDebugEventCallback(m_engine)));
     updateCodeLevel();

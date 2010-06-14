@@ -107,7 +107,7 @@
 // use  Q_FUNC_INFO?
 #   define STATE_DEBUG(s) \
     do { QString msg; QTextStream ts(&msg); ts << s; \
-      showDebuggerOutput(LogDebug, msg); } while (0)
+      showDebuggerOutput(msg, LogDebug); } while (0)
 #else
 #   define STATE_DEBUG(s)
 #endif
@@ -504,12 +504,6 @@ void DebuggerManager::init()
     connect(localsView->header(), SIGNAL(sectionResized(int,int,int)),
         this, SLOT(updateWatchersHeader(int,int,int)), Qt::QueuedConnection);
 
-    // Log
-    connect(this, SIGNAL(emitShowInput(int, QString)),
-            d->m_outputWindow, SLOT(showInput(int, QString)), Qt::QueuedConnection);
-    connect(this, SIGNAL(emitShowOutput(int, QString)),
-            d->m_outputWindow, SLOT(showOutput(int, QString)), Qt::QueuedConnection);
-
     // Tooltip
     qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<StackCookie>("StackCookie");
@@ -836,7 +830,7 @@ void DebuggerManager::clearStatusMessage()
 void DebuggerManager::showStatusMessage(const QString &msg0, int timeout)
 {
     Q_UNUSED(timeout)
-    showDebuggerOutput(LogStatus, msg0);
+    showDebuggerOutput(msg0, LogStatus);
     QString msg = msg0;
     msg.replace(QLatin1Char('\n'), QString());
     d->m_statusLabel->setText(msg);
@@ -875,11 +869,6 @@ void DebuggerManager::notifyInferiorPidChanged(qint64 pid)
         d->m_inferiorPid = pid;
         emit inferiorPidChanged(pid);
     }
-}
-
-void DebuggerManager::showApplicationOutput(const QString &str, bool onStdErr)
-{
-     emit applicationOutputAvailable(str, onStdErr);
 }
 
 void DebuggerManager::aboutToShutdown()
@@ -1071,9 +1060,8 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         ProjectExplorer::ToolChain::ToolChainType(sp->toolChainType));
 
     d->m_plugin->activateDebugMode();
-    showDebuggerOutput(LogStatus,
-        tr("Starting debugger for tool chain '%1'...").arg(toolChainName));
-    showDebuggerOutput(LogDebug, DebuggerSettings::instance()->dump());
+    showDebuggerOutput(tr("Starting debugger for tool chain '%1'...").arg(toolChainName), LogStatus);
+    showDebuggerOutput(DebuggerSettings::instance()->dump(), LogDebug);
 
     QString errorMessage;
     QString settingsIdHint;
@@ -1583,31 +1571,12 @@ void DebuggerManager::modulesDockToggled(bool on)
         reloadModules();
 }
 
-
-//////////////////////////////////////////////////////////////////////
-//
-// Output specific stuff
-//
-//////////////////////////////////////////////////////////////////////
-
-void DebuggerManager::showDebuggerOutput(int channel, const QString &msg)
+void DebuggerManager::showDebuggerOutput(const QString &msg, int channel)
 {
-    if (d->m_outputWindow) {
-        emit emitShowOutput(channel, msg);
-        if (channel == LogError)
-            ensureLogVisible();
-    } else  {
+    if (runControl())
+        runControl()->showDebuggerOutput(msg, channel);
+    else 
         qDebug() << "OUTPUT: " << channel << msg;
-
-    }
-}
-
-void DebuggerManager::showDebuggerInput(int channel, const QString &msg)
-{
-    if (d->m_outputWindow)
-        emit emitShowInput(channel, msg);
-    else
-        qDebug() << "INPUT: " << channel << msg;
 }
 
 
@@ -1807,7 +1776,7 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     if (!forced && !isAllowedTransition(d->m_state, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 
-    showDebuggerOutput(LogDebug, msg);
+    showDebuggerOutput(msg, LogDebug);
 
     //resetLocation();
     if (state == d->m_state)
@@ -2034,6 +2003,12 @@ DebuggerRunControl *DebuggerManager::runControl() const
     return const_cast<DebuggerRunControl *>(d->m_runControl);
 }
 
+DebuggerOutputWindow *DebuggerManager::debuggerOutputWindow() const
+{
+    return d->m_outputWindow;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 //
 // AbstractDebuggerEngine
@@ -2054,6 +2029,7 @@ void IDebuggerEngine::setState(DebuggerState state, bool forced)
 {
     m_manager->setState(state, forced);
 }
+
 
 //////////////////////////////////////////////////////////////////////
 //

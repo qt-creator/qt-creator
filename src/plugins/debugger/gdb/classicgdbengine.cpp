@@ -160,8 +160,8 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
     // Avoid endless loops created by faulty dumpers.
     QByteArray processedName = QByteArray::number(dumpChildren) + '-' + data.iname;
     if (m_processedNames.contains(processedName)) {
-        showDebuggerInput(LogStatus,
-            _("<Breaking endless loop for " + data.iname + '>'));
+        showDebuggerInput(
+            _("<Breaking endless loop for " + data.iname + '>'), LogStatus);
         data.setAllUnneeded();
         data.setValue(_("<unavailable>"));
         data.setHasChildren(false);

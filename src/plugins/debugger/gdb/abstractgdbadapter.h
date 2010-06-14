@@ -107,7 +107,7 @@ protected:
         { m_engine->setState(state); }
     const DebuggerStartParameters &startParameters() const
         { return m_engine->startParameters(); }
-    const DebuggerRunControl *runControl() const
+    DebuggerRunControl *runControl() const
         { return m_engine->runControl(); }
     void debugMessage(const QString &msg) const
         { m_engine->debugMessage(msg); }

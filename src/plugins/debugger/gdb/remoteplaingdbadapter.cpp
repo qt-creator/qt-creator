@@ -86,7 +86,8 @@ QString RemotePlainGdbAdapter::fromLocalEncoding(const QByteArray &b) const
 
 void RemotePlainGdbAdapter::handleApplicationOutput(const QByteArray &output)
 {
-    m_engine->manager()->showApplicationOutput(output, false);
+    QTC_ASSERT(m_engine->runControl(), return);
+    m_engine->runControl()->showApplicationOutput(output, false);
 }
 
 } // namespace Internal

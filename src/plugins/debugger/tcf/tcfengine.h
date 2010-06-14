@@ -141,7 +141,6 @@ private:
     void postCommand(const QByteArray &cmd,
         TcfCommandCallback callback = 0, const char *callbackName = 0);
     void sendCommandNow(const TcfCommand &command);
-    void debugMessage(const QString &msg);
 
     QHash<int, TcfCommand> m_cookieForToken;
 

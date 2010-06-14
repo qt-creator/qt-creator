@@ -104,8 +104,6 @@ private:
     void updateLocals();
     void updateSubItem(const WatchData &data);
 
-    Q_SLOT void showDebuggerOutput(int channel, const QString &m);
-
 private:
     friend class ScriptAgent;
 

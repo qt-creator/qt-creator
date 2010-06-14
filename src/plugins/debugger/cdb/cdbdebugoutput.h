@@ -38,20 +38,16 @@ namespace Debugger {
 namespace Internal {
 
 // Standard CDB output handler
-class CdbDebugOutput : public QObject, public CdbCore::DebugOutputBase
+class CdbDebugOutput : public CdbCore::DebugOutputBase
 {
-    Q_OBJECT
 public:
-    CdbDebugOutput();
+    explicit CdbDebugOutput(CdbDebugEngine *engine);
 
 protected:
     virtual void output(ULONG mask, const QString &message);
 
-signals:
-    void debuggerOutput(int channel, const QString &message);
-    void debuggerInputPrompt(int channel, const QString &message);
-    void debuggeeOutput(const QString &message, bool onStderr);
-    void debuggeeInputPrompt(const QString &message, bool onStderr);
+private:
+    CdbDebugEngine *m_engine;
 };
 
 } // namespace Internal

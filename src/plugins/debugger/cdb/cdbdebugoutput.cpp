@@ -31,6 +31,7 @@
 #include "cdbdebugengine.h"
 #include "cdbdebugengine_p.h"
 #include "cdbcom.h"
+#include "debuggerrunner.h"
 
 namespace Debugger {
 namespace Internal {
@@ -62,27 +63,30 @@ static inline OutputKind outputKind(ULONG mask)
     return DebuggerOutput;
 }
 
-CdbDebugOutput::CdbDebugOutput()
+CdbDebugOutput::CdbDebugOutput(CdbDebugEngine *engine)
+  : m_engine(engine)
 {
 }
 
 void CdbDebugOutput::output(ULONG mask, const QString &msg)
 {
+    DebuggerRunControl *runControl = m_engine->runControl();
+    QTC_ASSER(runControl, return);
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << "\n    " << msg;
 
     switch (outputKind(mask)) {
     case DebuggerOutput:
-        debuggerOutput(logChannel(mask), msg);
+        runControl->showDebuggerOutput(msg, logChannel(mask));
         break;
     case DebuggerPromptOutput:
-        emit debuggerInputPrompt(logChannel(mask), msg);
+        runControl->showDebuggerInput(msg, logChannel(mask));
         break;
     case DebuggeeOutput:
-        emit debuggeeOutput(msg, true);
+        runControl->showApplicationOutput(msg, true);
         break;
     case DebuggeePromptOutput:
-        emit debuggeeInputPrompt(msg, false);
+        runControl->showApplicationOutput(msg, false);
         break;
     }
 }

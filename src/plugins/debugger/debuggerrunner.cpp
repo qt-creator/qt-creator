@@ -29,6 +29,7 @@
 
 #include "debuggerrunner.h"
 #include "debuggermanager.h"
+#include "debuggeroutputwindow.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
@@ -48,6 +49,8 @@
 #include <QtGui/QTextDocument>
 
 using namespace ProjectExplorer;
+using namespace Debugger::Internal;
+
 
 namespace Debugger {
 
@@ -147,9 +150,6 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
     connect(m_manager, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()),
             Qt::QueuedConnection);
-    connect(m_manager, SIGNAL(applicationOutputAvailable(QString, bool)),
-            this, SLOT(slotAddToOutputWindowInline(QString, bool)),
-            Qt::QueuedConnection);
     connect(m_manager, SIGNAL(messageAvailable(QString, bool)),
             this, SLOT(slotMessageAvailable(QString, bool)));
     connect(m_manager, SIGNAL(inferiorPidChanged(qint64)),
@@ -161,6 +161,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
     if (m_startParameters.environment.empty())
         m_startParameters.environment = ProjectExplorer::Environment().toStringList();
     m_startParameters.useTerminal = false;
+
 }
 
 QString DebuggerRunControl::displayName() const
@@ -183,21 +184,19 @@ void DebuggerRunControl::start()
     QString errorMessage;
     QString settingsCategory;
     QString settingsPage;
-    if (m_manager->checkDebugConfiguration(m_startParameters.toolChainType, &errorMessage,
-                                           &settingsCategory, &settingsPage)) {
+    if (m_manager->checkDebugConfiguration(m_startParameters.toolChainType,
+            &errorMessage, &settingsCategory, &settingsPage)) {
         m_manager->startNewDebugger(this);
         emit started();
     } else {
         appendMessage(this, errorMessage, true);
         emit finished();
-        Core::ICore::instance()->showWarningWithOptions(tr("Debugger"), errorMessage,
-                                                        QString(),
-                                                        settingsCategory, settingsPage);
+        Core::ICore::instance()->showWarningWithOptions(tr("Debugger"),
+            errorMessage, QString(), settingsCategory, settingsPage);
     }
 }
 
-void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data,
-                                                     bool onStdErr)
+void DebuggerRunControl::showApplicationOutput(const QString &data, bool onStdErr)
 {
     emit addToOutputWindowInline(this, data, onStdErr);
 }
@@ -205,6 +204,20 @@ void DebuggerRunControl::slotAddToOutputWindowInline(const QString &data,
 void DebuggerRunControl::slotMessageAvailable(const QString &data, bool isError)
 {
     emit appendMessage(this, data, isError);
+}
+
+void DebuggerRunControl::showDebuggerOutput(const QString &output, int channel)
+{
+    DebuggerOutputWindow *ow = m_manager->debuggerOutputWindow();
+    QTC_ASSERT(ow, return);
+    ow->showOutput(channel, output);
+}
+
+void DebuggerRunControl::showDebuggerInput(const QString &input, int channel)
+{
+    DebuggerOutputWindow *ow = m_manager->debuggerOutputWindow();
+    QTC_ASSERT(ow, return);
+    ow->showInput(channel, input);
 }
 
 void DebuggerRunControl::stop()

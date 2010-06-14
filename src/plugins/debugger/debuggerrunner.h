@@ -129,14 +129,20 @@ public:
 signals:
     void stopRequested();
 
+public slots:
+    void showDebuggerOutput(const QString &msg)
+        { showDebuggerOutput(msg, LogDebug); }
+    void showApplicationOutput(const QString &output, bool onStdErr);
+    void showDebuggerOutput(const QString &output, int channel);
+    void showDebuggerInput(const QString &input, int channel);
+
 private slots:
-    void slotAddToOutputWindowInline(const QString &output, bool onStdErr);
     void slotMessageAvailable(const QString &data, bool isError);
 
 private:
     void init();
-    DebuggerManager *m_manager;
     DebuggerStartParameters m_startParameters;
+    DebuggerManager *m_manager;
     bool m_running;
 };
 

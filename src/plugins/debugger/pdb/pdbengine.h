@@ -105,7 +105,6 @@ private:
     void updateWatchData(const WatchData &data);
 
 private:
-    void debugMessage(const QString &msg);
     QString errorMessage(QProcess::ProcessError error) const;
     unsigned debuggerCapabilities() const;
 

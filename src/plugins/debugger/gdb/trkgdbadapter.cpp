@@ -1139,7 +1139,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             trk::Launcher::parseNotifyStopped(result.data, &pid, &tid, &addr, &reason);
             const QString msg = trk::Launcher::msgStopped(pid, tid, addr, reason);
             logMessage(prefix + msg);
-            m_engine->manager()->showDebuggerOutput(LogMisc, msg);
+            runControl()->showDebuggerOutput(msg, LogMisc);
             sendTrkAck(result.token);
             if (addr) {
                 // Todo: Do not send off GdbMessages if a synced gdb

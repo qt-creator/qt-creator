@@ -142,13 +142,13 @@ void RemoteGdbServerAdapter::uploadProcError(QProcess::ProcessError error)
 void RemoteGdbServerAdapter::readUploadStandardOutput()
 {
     QByteArray ba = m_uploadProc.readAllStandardOutput();
-    m_engine->showDebuggerOutput(LogOutput, QString::fromLocal8Bit(ba, ba.length()));
+    runControl()->showDebuggerOutput(QString::fromLocal8Bit(ba, ba.length()), LogOutput);
 }
 
 void RemoteGdbServerAdapter::readUploadStandardError()
 {
     QByteArray ba = m_uploadProc.readAllStandardError();
-    m_engine->showDebuggerOutput(LogError, QString::fromLocal8Bit(ba, ba.length()));
+    runControl()->showDebuggerOutput(QString::fromLocal8Bit(ba, ba.length()), LogError);
 }
 
 void RemoteGdbServerAdapter::startInferior()

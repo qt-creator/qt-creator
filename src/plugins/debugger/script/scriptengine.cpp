@@ -128,7 +128,7 @@ void ScriptAgent::exceptionCatch(qint64 scriptId, const QScriptValue & exception
     const QString msg = QString::fromLatin1("An exception was caught on %1: '%2'").
                         arg(scriptId).arg(exception.toString());
     SDEBUG(msg);
-    q->showDebuggerOutput(LogMisc, msg);
+    q->showDebuggerOutput(msg, LogMisc);
 }
 
 void ScriptAgent::exceptionThrow(qint64 scriptId, const QScriptValue &exception,
@@ -140,13 +140,13 @@ void ScriptAgent::exceptionThrow(qint64 scriptId, const QScriptValue &exception,
     const QString msg = QString::fromLatin1("An exception occurred on %1: '%2'").
                         arg(scriptId).arg(exception.toString());
     SDEBUG(msg);
-    q->showDebuggerOutput(LogMisc, msg);
+    q->showDebuggerOutput(msg, LogMisc);
 }
 
 void ScriptAgent::functionEntry(qint64 scriptId)
 {
     Q_UNUSED(scriptId)
-    q->showDebuggerOutput(LogMisc, QString::fromLatin1("Function entry occurred on %1").arg(scriptId));
+    q->showDebuggerOutput(QString::fromLatin1("Function entry occurred on %1").arg(scriptId), LogMisc);
     q->checkForBreakCondition(true);
 }
 
@@ -156,7 +156,7 @@ void ScriptAgent::functionExit(qint64 scriptId, const QScriptValue &returnValue)
     Q_UNUSED(returnValue)
     const QString msg = QString::fromLatin1("Function exit occurred on %1: '%2'").arg(scriptId).arg(returnValue.toString());
     SDEBUG(msg);
-    q->showDebuggerOutput(LogMisc, msg);
+    q->showDebuggerOutput(msg, LogMisc);
 }
 
 void ScriptAgent::positionChange(qint64 scriptId, int lineNumber, int columnNumber)
@@ -175,7 +175,8 @@ void ScriptAgent::scriptLoad(qint64 scriptId, const QString &program,
     Q_UNUSED(program)
     Q_UNUSED(fileName)
     Q_UNUSED(baseLineNumber)
-    q->showDebuggerOutput(LogMisc, QString::fromLatin1("Loaded: %1 id: %2").arg(fileName).arg(scriptId));
+    q->showDebuggerOutput(QString::fromLatin1("Loaded: %1 id: %2")
+        .arg(fileName).arg(scriptId), LogMisc);
 }
 
 void ScriptAgent::scriptUnload(qint64 scriptId)
@@ -251,8 +252,8 @@ void ScriptEngine::startDebugger()
     m_scriptFileName = QFileInfo(runControl()->sp().executable).absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        manager()->showDebuggerOutput(LogError, QString::fromLatin1("Cannot open %1: %2").
-                                      arg(m_scriptFileName, scriptFile.errorString()));
+        showDebuggerOutput(QString::fromLatin1("Cannot open %1: %2").
+          arg(m_scriptFileName, scriptFile.errorString()), LogError);
         emit startFailed();
         return;
     }
@@ -262,7 +263,7 @@ void ScriptEngine::startDebugger()
     attemptBreakpointSynchronization();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Running requested..."), 5000);
-    manager()->showDebuggerOutput(LogMisc, QLatin1String("Running: ") + m_scriptFileName);
+    showDebuggerOutput(QLatin1String("Running: ") + m_scriptFileName, LogMisc);
     QTimer::singleShot(0, this, SLOT(runInferior()));
     emit startSuccessful();
 }
@@ -329,14 +330,18 @@ void ScriptEngine::runInferior()
     const QScriptValue result = m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);
     setState(InferiorStopping);
     setState(InferiorStopped);
+    QString msg;
     if (m_scriptEngine->hasUncaughtException()) {
-        QString msg = QString::fromLatin1("An exception occurred during execution at line: %1\n%2\n").
-                      arg(m_scriptEngine->uncaughtExceptionLineNumber()).arg(m_scriptEngine->uncaughtException().toString());
-        msg += m_scriptEngine->uncaughtExceptionBacktrace().join(QString(QLatin1Char('\n')));
-        showDebuggerOutput(LogMisc, msg);
+        msg = QString::fromLatin1("An exception occurred during execution at line: %1\n%2\n")
+            .arg(m_scriptEngine->uncaughtExceptionLineNumber())
+            .arg(m_scriptEngine->uncaughtException().toString());
+        msg += m_scriptEngine->uncaughtExceptionBacktrace()
+            .join(QString(QLatin1Char('\n')));
     } else {
-        showDebuggerOutput(LogMisc, QString::fromLatin1("Evaluation returns '%1'").arg(result.toString()));
+        msg = QString::fromLatin1("Evaluation returns '%1'")
+            .arg(result.toString());
     }
+    showDebuggerOutput(msg, LogMisc);
     exitDebugger();
 }
 
@@ -787,11 +792,6 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     manager()->watchHandler()->insertData(data);
     if (!children.isEmpty())
         manager()->watchHandler()->insertBulkData(children);
-}
-
-void ScriptEngine::showDebuggerOutput(int channel, const QString &m)
-{
-    manager()->showDebuggerOutput(channel, m);
 }
 
 IDebuggerEngine *createScriptEngine(DebuggerManager *manager)

@@ -460,7 +460,7 @@ void QmlEngine::sendCommandNow(const QmlCommand &cmd)
     int result = m_socket->write(cmd.command);
     Q_UNUSED(result)
     m_socket->flush();
-    showDebuggerInput(LogInput, QString::number(cmd.token) + " " + cmd.toString());
+    showDebuggerInput(QString::number(cmd.token) + " " + cmd.toString(), LogInput);
     SDEBUG("SEND " <<  cmd.toString()); //<< " " << QString::number(result));
 }
 
@@ -534,11 +534,6 @@ void QmlEngine::updateSubItem(const WatchData &data0)
 {
     Q_UNUSED(data0)
     QTC_ASSERT(false, return);
-}
-
-void QmlEngine::debugMessage(const QString &msg)
-{
-    showDebuggerOutput(LogDebug, msg);
 }
 
 IDebuggerEngine *createQmlEngine(DebuggerManager *manager)

@@ -133,8 +133,8 @@ public:
     virtual QString qtNamespace() const { return QString(); }
 
     // Convenience
-    void showDebuggerInput(int channel, const QString &msg);
-    void showDebuggerOutput(int channel, const QString &msg);
+    void showDebuggerInput(const QString &msg, int channel = LogDebug) const;
+    void showDebuggerOutput(const QString &msg, int channel = LogDebug) const;
 
 protected:
     void showStatusMessage(const QString &msg, int timeout = -1);

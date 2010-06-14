@@ -30,6 +30,8 @@
 #include "idebuggerengine.h"
 #include "debuggermanager.h"
 
+#include <utils/qtcassert.h>
+
 
 namespace Debugger {
 namespace Internal {
@@ -56,14 +58,16 @@ bool IDebuggerEngine::checkConfiguration(int toolChain,
     return true;
 }
 
-void IDebuggerEngine::showDebuggerInput(int channel, const QString &msg)
+void IDebuggerEngine::showDebuggerInput(const QString &msg, int channel) const
 {
-    m_manager->showDebuggerInput(channel, msg);
+    QTC_ASSERT(runControl(), return);
+    runControl()->showDebuggerInput(msg, channel);
 }
 
-void IDebuggerEngine::showDebuggerOutput(int channel, const QString &msg)
+void IDebuggerEngine::showDebuggerOutput(const QString &msg, int channel) const
 {
-    m_manager->showDebuggerOutput(channel, msg);
+    QTC_ASSERT(runControl(), return);
+    runControl()->showDebuggerOutput(msg, channel);
 }
 
 } // namespace Internal
