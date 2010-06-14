@@ -725,7 +725,7 @@ void tst_SpecificRules::testLineContinue_data()
 {
     addCommonColumns();
 
-    QTest::newRow("\\") << "\\" << true << 0 << false << true;
+    QTest::newRow("\\") << "\\" << true << 1 << false << true;
     QTest::newRow("\\\\") << "\\\\" << false << 0 << true << false;
     QTest::newRow("\\x") << "\\x" << false << 0 << true << false;
     QTest::newRow("x\\") << "x\\" << false << 0 << true << false;

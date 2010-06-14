@@ -88,10 +88,10 @@ inline bool isHexDigit(const QChar &c)
     return false;
 }
 
-inline void setStartCharacter(QChar &c, const QString &character)
+inline void setStartCharacter(QChar *c, const QString &character)
 {
     if (!character.isEmpty())
-        c = character.at(0);
+        *c = character.at(0);
 }
 
 } // namespace Internal

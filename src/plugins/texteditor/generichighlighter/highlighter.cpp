@@ -205,7 +205,6 @@ void Highlighter::iterateThroughRules(const QString &text,
             if (progress->willContinueLine()) {
                 createWillContinueBlock();
                 progress->setWillContinueLine(false);
-                progress->setOffset(length);
             } else {
                 if (rule->hasChild())
                     iterateThroughRules(text, length, progress, true, rule->childs());
@@ -270,7 +269,7 @@ void Highlighter::changeContext(const QString &contextName,
             m_contexts.pop_back();
 
         if (currentBlockState() >= PersistentsStart) {
-            // One or more persistent contexts were popped.
+            // One or more contexts were popped during during a persistent state.
             const QString &currentSequence = currentContextSequence();
             if (m_persistentStates.contains(currentSequence))
                 setCurrentBlockState(m_persistentStates.value(currentSequence));

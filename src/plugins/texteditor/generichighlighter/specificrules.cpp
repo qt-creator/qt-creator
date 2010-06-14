@@ -45,7 +45,8 @@ void replaceByCaptures(QChar *c, const QStringList &captures)
     int index = c->digitValue();
     if (index > 0) {
         const QString &capture = captures.at(index);
-        *c = capture.at(0);
+        if (!capture.isEmpty())
+            *c = capture.at(0);
     }
 }
 
@@ -76,7 +77,7 @@ void replaceByCaptures(QString *s, const QStringList &captures)
 
 // DetectChar
 void DetectCharRule::setChar(const QString &character)
-{ setStartCharacter(m_char, character); }
+{ setStartCharacter(&m_char, character); }
 
 void DetectCharRule::doReplaceExpressions(const QStringList &captures)
 { replaceByCaptures(&m_char, captures); }
@@ -90,10 +91,10 @@ bool DetectCharRule::doMatchSucceed(const QString &text,
 
 // Detect2Chars
 void Detect2CharsRule::setChar(const QString &character)
-{ setStartCharacter(m_char, character); }
+{ setStartCharacter(&m_char, character); }
 
 void Detect2CharsRule::setChar1(const QString &character)
-{ setStartCharacter(m_char1, character); }
+{ setStartCharacter(&m_char1, character); }
 
 void Detect2CharsRule::doReplaceExpressions(const QStringList &captures)
 {
@@ -399,10 +400,10 @@ bool HlCCharRule::doMatchSucceed(const QString &text,
 
 // RangeDetect
 void RangeDetectRule::setChar(const QString &character)
-{ setStartCharacter(m_char, character); }
+{ setStartCharacter(&m_char, character); }
 
 void RangeDetectRule::setChar1(const QString &character)
-{ setStartCharacter(m_char1, character); }
+{ setStartCharacter(&m_char1, character); }
 
 bool RangeDetectRule::doMatchSucceed(const QString &text,
                                      const int length,
@@ -429,6 +430,7 @@ bool LineContinueRule::doMatchSucceed(const QString &text,
         return false;
 
     if (text.at(progress->offset()) == kBackSlash) {
+        progress->incrementOffset();
         progress->setWillContinueLine(true);
         return true;
     }
