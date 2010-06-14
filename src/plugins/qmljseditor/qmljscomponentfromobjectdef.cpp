@@ -39,8 +39,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
-#include <QDebug>
-
 using namespace QmlJS::AST;
 using namespace QmlJSEditor::Internal;
 
@@ -121,7 +119,6 @@ int ComponentFromObjectDef::check()
     QList<Node *> path = semanticInfo().astPath(pos);
     for (int i = path.size() - 1; i >= 0; --i) {
         Node *node = path.at(i);
-        qDebug() << "path component" << i << typeid(*node).name();
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) { // node is not the root node
                 if (!getId(objDef).isEmpty()) {
