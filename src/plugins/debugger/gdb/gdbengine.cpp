@@ -1737,10 +1737,11 @@ bool GdbEngine::checkConfiguration(int toolChain, QString *errorMessage, QString
     return true;
 }
 
-AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerRunControl *runControl)
+AbstractGdbAdapter *GdbEngine::createAdapter()
 {
-    const DebuggerStartParameters *sp = &runControl->sp();
-    switch (sp->toolChainType) {
+    QTC_ASSERT(runControl(), return 0);
+    const DebuggerStartParameters &sp = runControl()->sp();
+    switch (sp.toolChainType) {
     case ProjectExplorer::ToolChain::WINSCW: // S60
     case ProjectExplorer::ToolChain::GCCE:
     case ProjectExplorer::ToolChain::RVCT_ARMV5:
@@ -1752,26 +1753,27 @@ AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerRunControl *runContro
         break;
     }
     // @todo: remove testing hack
-    if (sp->processArgs.size() == 3 && sp->processArgs.at(0) == _("@sym@"))
+    if (sp.processArgs.size() == 3 && sp.processArgs.at(0) == _("@sym@"))
         return new TrkGdbAdapter(this);
-    switch (sp->startMode) {
+    switch (sp.startMode) {
     case AttachCore:
         return new CoreGdbAdapter(this);
     case AttachToRemote:
-        return new RemoteGdbServerAdapter(this, sp->toolChainType);
+        return new RemoteGdbServerAdapter(this, sp.toolChainType);
     case StartRemoteGdb:
         return new RemotePlainGdbAdapter(this);
     case AttachExternal:
         return new AttachGdbAdapter(this);
     default:
-        if (sp->useTerminal)
+        if (sp.useTerminal)
             return new TermGdbAdapter(this);
         return new LocalPlainGdbAdapter(this);
     }
 }
 
-void GdbEngine::startDebugger(const DebuggerRunControl *runControl)
+void GdbEngine::startDebugger()
 {
+    QTC_ASSERT(runControl(), return);
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     // This should be set by the constructor or in exitDebugger()
     // via initializeVariables()
@@ -1788,10 +1790,8 @@ void GdbEngine::startDebugger(const DebuggerRunControl *runControl)
     fp->setKeepOnFinish(false); 
     m_progress->reportStarted();
 
-    m_runControl = runControl;
-
     delete m_gdbAdapter;
-    m_gdbAdapter = createAdapter(m_runControl);
+    m_gdbAdapter = createAdapter();
     connectAdapter();
 
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable)
@@ -3036,9 +3036,10 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
 
 void GdbEngine::activateSnapshot(int index)
 {
+    QTC_ASSERT(runControl(), return);
     SnapshotData snapshot = m_manager->snapshotHandler()->setCurrentIndex(index);
 
-    DebuggerStartParameters &sp = const_cast<DebuggerStartParameters &>(m_runControl->sp());
+    DebuggerStartParameters &sp = const_cast<DebuggerStartParameters &>(runControl()->sp());
     sp.startMode = AttachCore;
     sp.coreFile = snapshot.location();
 
@@ -3058,7 +3059,7 @@ void GdbEngine::activateSnapshot(int index)
             return;
         debugMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
         delete m_gdbAdapter;
-        m_gdbAdapter = createAdapter(m_runControl);
+        m_gdbAdapter = createAdapter();
         postCommand("kill", NeedsStop, CB(handleActivateSnapshot));
     } else {
         activateSnapshot2();

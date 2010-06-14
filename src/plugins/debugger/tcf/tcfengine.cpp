@@ -203,13 +203,15 @@ void TcfEngine::exitDebugger()
     manager()->notifyInferiorExited();
 }
 
-void TcfEngine::startDebugger(const DebuggerRunControl *runControl)
+void TcfEngine::startDebugger()
 {
+    QTC_ASSERT(runControl(), return);
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Running requested..."), 5000);
-    const int pos = runControl->sp().remoteChannel.indexOf(QLatin1Char(':'));
-    const QString host = runControl->sp().remoteChannel.left(pos);
-    const quint16 port = runControl->sp().remoteChannel.mid(pos + 1).toInt();
+    const DebuggerStartParameters &sp = runControl()->sp();
+    const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
+    const QString host = sp.remoteChannel.left(pos);
+    const quint16 port = sp.remoteChannel.mid(pos + 1).toInt();
     //QTimer::singleShot(0, this, SLOT(runInferior()));
     m_socket->connectToHost(host, port);
     emit startSuccessful();

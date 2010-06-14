@@ -1060,7 +1060,7 @@ static IDebuggerEngine *debuggerEngineForMode(DebuggerStartMode startMode, QStri
 #endif
 }
 
-void DebuggerManager::startNewDebugger(const DebuggerRunControl *runControl)
+void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
 {
     if (d->m_state != DebuggerNotReady)
         return;
@@ -1113,7 +1113,8 @@ void DebuggerManager::startNewDebugger(const DebuggerRunControl *runControl)
     setBusyCursor(false);
     setState(EngineStarting);
     connect(d->m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
-    d->m_engine->startDebugger(runControl);
+    d->m_engine->setRunControl(runControl);
+    d->m_engine->startDebugger();
 
     const unsigned engineCapabilities = d->m_engine->debuggerCapabilities();
     theDebuggerAction(OperateByInstruction)

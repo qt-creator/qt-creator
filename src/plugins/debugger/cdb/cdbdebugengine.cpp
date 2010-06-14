@@ -386,9 +386,10 @@ void CdbDebugEngine::startupChecks()
     syncDebuggerPaths();
 }
 
-void CdbDebugEngine::startDebugger(const DebuggerRunControl *runControl)
+void CdbDebugEngine::startDebugger()
 {
-    const DebuggerStartParameters &sp = runControl->sp();
+    QTC_ASSERT(runControl(), return);
+    const DebuggerStartParameters &sp = runControl()->sp();
     if (debugCDBExecution)
         qDebug() << "startDebugger";
     CdbCore::BreakPoint::clearNormalizeFileNameCache();

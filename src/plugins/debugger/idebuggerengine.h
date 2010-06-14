@@ -67,12 +67,18 @@ class IDebuggerEngine : public QObject
 
 public:
     IDebuggerEngine(DebuggerManager *manager, QObject *parent = 0)
-        : QObject(parent), m_manager(manager)
+        : QObject(parent), m_manager(manager), m_runControl()
     {}
+
+    // FIXME: Move this to DebuggerEngineFactory::create(); ?
+    void setRunControl(DebuggerRunControl *runControl)
+        { m_runControl = runControl; }
+    DebuggerRunControl *runControl() const
+        { return m_runControl; }
 
     virtual void shutdown() = 0;
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos) = 0;
-    virtual void startDebugger(const DebuggerRunControl *runControl) = 0;
+    virtual void startDebugger() = 0;
     virtual void exitDebugger() = 0;
     virtual void abortDebugger() { exitDebugger(); }
     virtual void detachDebugger() {}
@@ -136,6 +142,7 @@ protected:
     void setState(DebuggerState state, bool forced = false);
     DebuggerManager *manager() const { return m_manager; }
     DebuggerManager *m_manager;
+    DebuggerRunControl *m_runControl;
 
 signals:
     void startSuccessful();

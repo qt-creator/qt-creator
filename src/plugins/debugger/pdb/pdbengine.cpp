@@ -136,11 +136,12 @@ void PdbEngine::exitDebugger()
     setState(DebuggerNotReady);
 }
 
-void PdbEngine::startDebugger(const DebuggerRunControl *runControl)
+void PdbEngine::startDebugger()
 {
+    QTC_ASSERT(runControl(), return);
     setState(AdapterStarting);
 
-    m_scriptFileName = QFileInfo(runControl->sp().executable).absoluteFilePath();
+    m_scriptFileName = QFileInfo(runControl()->sp().executable).absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         //debugMessage("STARTING " +m_scriptFileName + "FAILED");

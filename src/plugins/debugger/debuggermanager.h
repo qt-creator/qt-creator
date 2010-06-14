@@ -176,8 +176,8 @@ public:
 
     static DebuggerManager *instance();
 
+    void startNewDebugger(DebuggerRunControl *runControl);
 public slots:
-    void startNewDebugger(const DebuggerRunControl *runControl);
     void exitDebugger();
     void abortDebugger();
 
