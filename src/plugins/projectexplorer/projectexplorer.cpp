@@ -2058,7 +2058,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
     Core::ICore *core = Core::ICore::instance();
     Core::IVersionControl *vc = core->vcsManager()->findVersionControlForDirectory(dir);
     bool result = false;
-    if (vc->supportsOperation(Core::IVersionControl::MoveOperation))
+    if (vc && vc->supportsOperation(Core::IVersionControl::MoveOperation))
         result = vc->vcsMove(orgFilePath, newFilePath);
     if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
         result = QFile::rename(orgFilePath, newFilePath);
