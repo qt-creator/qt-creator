@@ -86,13 +86,13 @@ void RemoteGdbServerAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
-    debugMessage(_("TRYING TO START ADAPTER"));
+    showMessage(_("TRYING TO START ADAPTER"));
 
     // FIXME: make asynchroneous
     // Start the remote server
     if (startParameters().serverStartScript.isEmpty()) {
-        m_engine->showStatusMessage(_("No server start script given. "
-            "Assuming server runs already."));
+        showMessage(_("No server start script given. "
+            "Assuming server runs already."), StatusBar);
     } else {
         m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
         m_uploadProc.waitForStarted();
@@ -135,20 +135,24 @@ void RemoteGdbServerAdapter::uploadProcError(QProcess::ProcessError error)
                 "This is the default return value of error().");
     }
 
-    m_engine->showStatusMessage(msg);
+    showMessage(msg, StatusBar);
     showMessageBox(QMessageBox::Critical, tr("Error"), msg);
 }
 
 void RemoteGdbServerAdapter::readUploadStandardOutput()
 {
-    QByteArray ba = m_uploadProc.readAllStandardOutput();
-    runControl()->showDebuggerOutput(QString::fromLocal8Bit(ba, ba.length()), LogOutput);
+    const QByteArray ba = m_uploadProc.readAllStandardOutput();
+    const QString msg = QString::fromLocal8Bit(ba, ba.length());
+    showMessage(msg, LogOutput);
+    showMessage(msg, AppOutput);
 }
 
 void RemoteGdbServerAdapter::readUploadStandardError()
 {
-    QByteArray ba = m_uploadProc.readAllStandardError();
-    runControl()->showDebuggerOutput(QString::fromLocal8Bit(ba, ba.length()), LogError);
+    const QByteArray ba = m_uploadProc.readAllStandardError();
+    const QString msg = QString::fromLocal8Bit(ba, ba.length());
+    showMessage(msg, LogOutput);
+    showMessage(msg, AppError);
 }
 
 void RemoteGdbServerAdapter::startInferior()
@@ -209,8 +213,8 @@ void RemoteGdbServerAdapter::handleTargetRemote(const GdbResponse &record)
     if (record.resultClass == GdbResultDone) {
         setState(InferiorStopped);
         // gdb server will stop the remote application itself.
-        debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(msgAttachedToStoppedInferior());
+        showMessage(_("INFERIOR STARTED"));
+        showMessage(msgAttachedToStoppedInferior(), StatusBar);
         emit inferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."

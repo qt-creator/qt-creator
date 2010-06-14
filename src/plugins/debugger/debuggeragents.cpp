@@ -263,7 +263,7 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame, bool tryMixed)
                 .arg(frame.function).arg(frame.file);
             QTC_ASSERT(d->manager->runControl(), /**/);
             if (d->manager->runControl())
-                d->manager->runControl()->showDebuggerOutput(msg);
+                d->manager->runControl()->showMessage(msg);
             setContents(*it);
             return;
         }

@@ -33,6 +33,8 @@
 #include "cdbcom.h"
 #include "debuggerrunner.h"
 
+#include <utils/qtcassert.h>
+
 namespace Debugger {
 namespace Internal {
 
@@ -47,20 +49,16 @@ static int logChannel(ULONG mask)
         return LogWarning;
     if (mask & (DEBUG_OUTPUT_ERROR))
         return LogError;
-    return LogMisc;
-}
-
-enum OutputKind { DebuggerOutput, DebuggerPromptOutput, DebuggeeOutput, DebuggeePromptOutput };
-
-static inline OutputKind outputKind(ULONG mask)
-{
     if (mask & DEBUG_OUTPUT_DEBUGGEE)
-        return DebuggeeOutput;
+        //return DebuggeeOutput;
+        return AppOut;
     if (mask & DEBUG_OUTPUT_DEBUGGEE_PROMPT)
-        return DebuggeePromptOutput;
+        //return DebuggeePromptOutput;
+        return AppErr;
     if (mask & DEBUG_OUTPUT_PROMPT)
-        return DebuggerPromptOutput;
-    return DebuggerOutput;
+        //return DebuggerPromptOutput;
+        return AppErr;
+    return LogMisc;
 }
 
 CdbDebugOutput::CdbDebugOutput(CdbDebugEngine *engine)
@@ -71,24 +69,10 @@ CdbDebugOutput::CdbDebugOutput(CdbDebugEngine *engine)
 void CdbDebugOutput::output(ULONG mask, const QString &msg)
 {
     DebuggerRunControl *runControl = m_engine->runControl();
-    QTC_ASSER(runControl, return);
+    QTC_ASSERT(runControl, return);
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << "\n    " << msg;
-
-    switch (outputKind(mask)) {
-    case DebuggerOutput:
-        runControl->showDebuggerOutput(msg, logChannel(mask));
-        break;
-    case DebuggerPromptOutput:
-        runControl->showDebuggerInput(msg, logChannel(mask));
-        break;
-    case DebuggeeOutput:
-        runControl->showApplicationOutput(msg, true);
-        break;
-    case DebuggeePromptOutput:
-        runControl->showApplicationOutput(msg, false);
-        break;
-    }
+    runControl->showMessage(msg, logChannel(mask));
 }
 
 } // namespace Internal

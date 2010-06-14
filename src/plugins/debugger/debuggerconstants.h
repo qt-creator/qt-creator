@@ -139,13 +139,17 @@ enum DebuggerCapabilities
 enum LogChannel
 {
     LogInput,               // Used for user input
+    LogMiscInput,           // Used for misc stuff in the input pane
     LogOutput,
     LogWarning,
     LogError,
     LogStatus,              // Used for status changed messages
     LogTime,                // Used for time stamp messages
     LogDebug,
-    LogMisc
+    LogMisc,
+    AppOutput,
+    AppError,
+    StatusBar               // LogStatus and also put to the status bar
 };
 
 } // namespace Debugger

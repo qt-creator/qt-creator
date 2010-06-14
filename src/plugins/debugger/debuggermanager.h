@@ -315,7 +315,7 @@ signals:
 private:
     void init();
     // void runTest(const QString &fileName);
-    void showDebuggerOutput(const QString &msg, int channel);
+    void showMessage(const QString &msg, int channel);
     Q_SLOT void createNewDock(QWidget *widget);
 
     void aboutToShutdown();

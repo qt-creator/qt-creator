@@ -91,8 +91,8 @@ void AbstractPlainGdbAdapter::handleExecRun(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
         QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
-        debugMessage(_("INFERIOR STARTED"));
-        showStatusMessage(msgInferiorStarted());
+        showMessage(_("INFERIOR STARTED"));
+        showMessage(msgInferiorStarted(), StatusBar);
         // FIXME: That's the wrong place for it.
         if (theDebuggerBoolSetting(EnableReverseDebugging))
             m_engine->postCommand("target record");

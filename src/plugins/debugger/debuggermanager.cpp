@@ -107,7 +107,7 @@
 // use  Q_FUNC_INFO?
 #   define STATE_DEBUG(s) \
     do { QString msg; QTextStream ts(&msg); ts << s; \
-      showDebuggerOutput(msg, LogDebug); } while (0)
+      showMessage(msg, LogDebug); } while (0)
 #else
 #   define STATE_DEBUG(s)
 #endif
@@ -830,7 +830,7 @@ void DebuggerManager::clearStatusMessage()
 void DebuggerManager::showStatusMessage(const QString &msg0, int timeout)
 {
     Q_UNUSED(timeout)
-    showDebuggerOutput(msg0, LogStatus);
+    showMessage(msg0, LogStatus);
     QString msg = msg0;
     msg.replace(QLatin1Char('\n'), QString());
     d->m_statusLabel->setText(msg);
@@ -1060,8 +1060,9 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         ProjectExplorer::ToolChain::ToolChainType(sp->toolChainType));
 
     d->m_plugin->activateDebugMode();
-    showDebuggerOutput(tr("Starting debugger for tool chain '%1'...").arg(toolChainName), LogStatus);
-    showDebuggerOutput(DebuggerSettings::instance()->dump(), LogDebug);
+    showMessage(tr("Starting debugger for tool chain '%1'...").arg(toolChainName),
+        LogStatus);
+    showMessage(DebuggerSettings::instance()->dump(), LogDebug);
 
     QString errorMessage;
     QString settingsIdHint;
@@ -1571,10 +1572,10 @@ void DebuggerManager::modulesDockToggled(bool on)
         reloadModules();
 }
 
-void DebuggerManager::showDebuggerOutput(const QString &msg, int channel)
+void DebuggerManager::showMessage(const QString &msg, int channel)
 {
     if (runControl())
-        runControl()->showDebuggerOutput(msg, channel);
+        runControl()->showMessage(msg, channel);
     else 
         qDebug() << "OUTPUT: " << channel << msg;
 }
@@ -1776,7 +1777,7 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     if (!forced && !isAllowedTransition(d->m_state, state))
         qDebug() << "UNEXPECTED STATE TRANSITION: " << msg;
 
-    showDebuggerOutput(msg, LogDebug);
+    showMessage(msg, LogDebug);
 
     //resetLocation();
     if (state == d->m_state)
@@ -2015,10 +2016,12 @@ DebuggerOutputWindow *DebuggerManager::debuggerOutputWindow() const
 //
 //////////////////////////////////////////////////////////////////////
 
+/*
 void IDebuggerEngine::showStatusMessage(const QString &msg, int timeout)
 {
     m_manager->showStatusMessage(msg, timeout);
 }
+*/
 
 DebuggerState IDebuggerEngine::state() const
 {

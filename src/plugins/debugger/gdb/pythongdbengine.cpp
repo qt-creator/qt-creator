@@ -120,7 +120,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         //qDebug() << "SECOND CHUNK: " << out;
         int pos = out.indexOf("data=");
         if (pos != 0) {
-            debugMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
+            showMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
                 + out.left(pos)));
             out = out.mid(pos);
         }
@@ -186,7 +186,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
             rebuildWatchModel();
         }
     } else {
-        debugMessage(_("DUMPER FAILED: " + response.toString()));
+        showMessage(_("DUMPER FAILED: " + response.toString()));
     }
 }
 

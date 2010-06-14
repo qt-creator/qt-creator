@@ -48,7 +48,7 @@ void RemotePlainGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
-    debugMessage(QLatin1String("TRYING TO START ADAPTER"));
+    showMessage(QLatin1String("TRYING TO START ADAPTER"));
 
     if (!startParameters().workingDirectory.isEmpty())
         m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
@@ -86,8 +86,8 @@ QString RemotePlainGdbAdapter::fromLocalEncoding(const QByteArray &b) const
 
 void RemotePlainGdbAdapter::handleApplicationOutput(const QByteArray &output)
 {
-    QTC_ASSERT(m_engine->runControl(), return);
-    m_engine->runControl()->showApplicationOutput(output, false);
+    // FIXME: Remote encoding?
+    showMessage(QString::fromLatin1(output), AppOutput);
 }
 
 } // namespace Internal

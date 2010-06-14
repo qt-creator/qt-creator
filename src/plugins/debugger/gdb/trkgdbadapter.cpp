@@ -379,7 +379,7 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage()
     if (from <= pc && pc <= to) {
         //to = qMax(to - 4, from);
         //to = qMax(to - 4, from);
-        debugMessage("STEP IN " + hexxNumber(from) + " " + hexxNumber(to)
+        showMessage("STEP IN " + hexxNumber(from) + " " + hexxNumber(to)
             + " INSTEAD OF " + hexxNumber(pc));
     } else {
         from = pc;
@@ -434,7 +434,7 @@ void TrkGdbAdapter::slotEmitDelayedInferiorStartFailed()
 void TrkGdbAdapter::logMessage(const QString &msg)
 {
     if (m_verbose)
-        debugMessage("TRK LOG: " + msg);
+        showMessage("TRK LOG: " + msg);
 }
 
 //
@@ -1130,7 +1130,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         }
         case TrkNotifyStopped: {  // 0x90 Notified Stopped
             // 90 01   78 6a 40 40   00 00 07 23   00 00 07 24  00 00
-            debugMessage(_("RESET SNAPSHOT (NOTIFY STOPPED)"));
+            showMessage(_("RESET SNAPSHOT (NOTIFY STOPPED)"));
             m_snapshot.reset();
             QString reason;
             uint addr;
@@ -1139,7 +1139,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             trk::Launcher::parseNotifyStopped(result.data, &pid, &tid, &addr, &reason);
             const QString msg = trk::Launcher::msgStopped(pid, tid, addr, reason);
             logMessage(prefix + msg);
-            runControl()->showDebuggerOutput(msg, LogMisc);
+            showMessage(msg, LogMisc);
             sendTrkAck(result.token);
             if (addr) {
                 // Todo: Do not send off GdbMessages if a synced gdb
@@ -1174,14 +1174,14 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             break;
         }
         case TrkNotifyException: { // 0x91 Notify Exception (obsolete)
-            debugMessage(_("RESET SNAPSHOT (NOTIFY EXCEPTION)"));
+            showMessage(_("RESET SNAPSHOT (NOTIFY EXCEPTION)"));
             m_snapshot.reset();
             logMessage(prefix + "NOTE: EXCEPTION  " + str);
             sendTrkAck(result.token);
             break;
         }
         case 0x92: { //
-            debugMessage(_("RESET SNAPSHOT (NOTIFY INTERNAL ERROR)"));
+            showMessage(_("RESET SNAPSHOT (NOTIFY INTERNAL ERROR)"));
             m_snapshot.reset();
             logMessage(prefix + "NOTE: INTERNAL ERROR: " + str);
             sendTrkAck(result.token);
@@ -1192,7 +1192,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         case 0xa0: { // Notify Created
             // Sending this ACK does not seem to make a difference. Why?
             //sendTrkAck(result.token);
-            debugMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
+            showMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
             m_snapshot.fullReset();
             const char *data = result.data.data();
             const trk::byte error = result.data.at(0);
@@ -1521,7 +1521,7 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         }
         // Happens when chunks are not combined
         QTC_ASSERT(false, /**/);
-        debugMessage("CHUNKS NOT COMBINED");
+        showMessage("CHUNKS NOT COMBINED");
 #        ifdef MEMORY_DEBUG
         qDebug() << "CHUNKS NOT COMBINED";
         it = m_snapshot.memory.begin();
@@ -1590,7 +1590,7 @@ void TrkGdbAdapter::handleStep(const TrkResult &result)
         logMessage("ERROR: " + result.errorString() + " in handleStep");
 
         // Try fallback with Continue.
-        debugMessage("FALLBACK TO 'CONTINUE'");
+        showMessage("FALLBACK TO 'CONTINUE'");
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
         //sendGdbServerMessage("S05", "Stepping finished");
 
@@ -1775,7 +1775,7 @@ void TrkGdbAdapter::startAdapter()
     // Start
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
-    debugMessage(_("TRYING TO START ADAPTER"));
+    showMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
 
     // Prompt the user to start communication

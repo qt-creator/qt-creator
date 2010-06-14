@@ -133,11 +133,11 @@ public:
     virtual QString qtNamespace() const { return QString(); }
 
     // Convenience
-    void showDebuggerInput(const QString &msg, int channel = LogDebug) const;
-    void showDebuggerOutput(const QString &msg, int channel = LogDebug) const;
+    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
+    void showStatusMessage(const QString &msg, int timeout = -1) const
+        { showMessage(msg, StatusBar, timeout); }
 
 protected:
-    void showStatusMessage(const QString &msg, int timeout = -1);
     DebuggerState state() const;
     void setState(DebuggerState state, bool forced = false);
     DebuggerManager *manager() const { return m_manager; }

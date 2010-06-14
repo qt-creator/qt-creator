@@ -70,7 +70,7 @@ void LocalPlainGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
-    debugMessage(_("TRYING TO START ADAPTER"));
+    showMessage(_("TRYING TO START ADAPTER"));
 
     QStringList gdbArgs;
 
@@ -125,17 +125,17 @@ void LocalPlainGdbAdapter::interruptInferior()
 {
     const qint64 attachedPID = m_engine->inferiorPid();
     if (attachedPID <= 0) {
-        debugMessage(_("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"));
+        showMessage(_("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"));
         return;
     }
 
     if (!interruptProcess(attachedPID))
-        debugMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
+        showMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
 }
 
 void LocalPlainGdbAdapter::shutdown()
 {
-    debugMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
+    showMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
     m_outputCollector.shutdown();
 }
 

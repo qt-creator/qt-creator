@@ -196,9 +196,34 @@ void DebuggerRunControl::start()
     }
 }
 
-void DebuggerRunControl::showApplicationOutput(const QString &data, bool onStdErr)
+void DebuggerRunControl::showMessage(const QString &msg, int channel,
+    int timeout)
 {
-    emit addToOutputWindowInline(this, data, onStdErr);
+    DebuggerOutputWindow *ow = m_manager->debuggerOutputWindow();
+    QTC_ASSERT(ow, return);
+    switch (channel) {
+        case StatusBar:
+            m_manager->showStatusMessage(msg, timeout);
+            ow->showOutput(LogStatus, msg);
+            break;
+        case AppOutput:
+            emit addToOutputWindowInline(this, msg, false);
+            break;
+        case AppError:
+            emit addToOutputWindowInline(this, msg, true);
+            break;
+        case LogMiscInput:
+            ow->showInput(LogMisc, msg);
+            ow->showOutput(LogMisc, msg);
+            break;
+        case LogInput:
+            ow->showInput(channel, msg);
+            ow->showOutput(channel, msg);
+            break;
+        default:
+            ow->showOutput(channel, msg);
+            break;
+    }
 }
 
 void DebuggerRunControl::slotMessageAvailable(const QString &data, bool isError)
@@ -206,19 +231,6 @@ void DebuggerRunControl::slotMessageAvailable(const QString &data, bool isError)
     emit appendMessage(this, data, isError);
 }
 
-void DebuggerRunControl::showDebuggerOutput(const QString &output, int channel)
-{
-    DebuggerOutputWindow *ow = m_manager->debuggerOutputWindow();
-    QTC_ASSERT(ow, return);
-    ow->showOutput(channel, output);
-}
-
-void DebuggerRunControl::showDebuggerInput(const QString &input, int channel)
-{
-    DebuggerOutputWindow *ow = m_manager->debuggerOutputWindow();
-    QTC_ASSERT(ow, return);
-    ow->showInput(channel, input);
-}
 
 void DebuggerRunControl::stop()
 {

@@ -61,7 +61,7 @@ void CoreGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
-    debugMessage(_("TRYING TO START ADAPTER"));
+    showMessage(_("TRYING TO START ADAPTER"));
 
     if (!m_engine->startGdb())
         return;
@@ -106,7 +106,7 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        showStatusMessage(tr("Symbols found."));
+        showMessage(tr("Symbols found."), StatusBar);
     } else {
         QString msg = tr("Loading symbols from \"%1\" failed:\n").arg(m_executable)
             + QString::fromLocal8Bit(response.data.findChild("msg").data());
@@ -144,7 +144,7 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
                                    .absoluteFilePath(m_executable);
                     if (QFile::exists(m_executable)) {
                         // Finish extra round ...
-                        showStatusMessage(tr("Attached to core temporarily."));
+                        showMessage(tr("Attached to core temporarily."), StatusBar);
                         m_engine->postCommand("detach");
                         // ... and retry.
                         loadExeAndSyms();
@@ -156,7 +156,7 @@ void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
                            tr("Unable to determine executable from core file."));
         }
 #endif
-        showStatusMessage(tr("Attached to core."));
+        showMessage(tr("Attached to core."), StatusBar);
         setState(InferiorUnrunnable);
         m_engine->updateAll();
     } else {

@@ -83,7 +83,7 @@ void TermGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
-    debugMessage(_("TRYING TO START ADAPTER"));
+    showMessage(_("TRYING TO START ADAPTER"));
 
 // Currently, adapters are not re-used
 //    // We leave the console open, so recycle it now.
@@ -130,7 +130,7 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         setState(InferiorStopped);
-        debugMessage(_("INFERIOR ATTACHED"));
+        showMessage(_("INFERIOR ATTACHED"));
         emit inferiorPrepared();
 #ifdef Q_OS_LINUX
         m_engine->postCommand("-stack-list-frames 0 0", CB(handleEntryPoint));
@@ -162,7 +162,7 @@ void TermGdbAdapter::interruptInferior()
     const qint64 attachedPID = m_engine->inferiorPid();
     QTC_ASSERT(attachedPID > 0, return);
     if (!interruptProcess(attachedPID))
-        debugMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
+        showMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));
 }
 
 void TermGdbAdapter::stubMessage(const QString &msg, bool)
@@ -172,7 +172,7 @@ void TermGdbAdapter::stubMessage(const QString &msg, bool)
 
 void TermGdbAdapter::stubExited()
 {
-    debugMessage(_("STUB EXITED"));
+    showMessage(_("STUB EXITED"));
     if (state() != AdapterStarting // From previous instance
         && state() != EngineShuttingDown && state() != DebuggerNotReady)
         emit adapterCrashed(QString());

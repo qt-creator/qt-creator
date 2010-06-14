@@ -109,10 +109,8 @@ protected:
         { return m_engine->startParameters(); }
     DebuggerRunControl *runControl() const
         { return m_engine->runControl(); }
-    void debugMessage(const QString &msg) const
-        { m_engine->debugMessage(msg); }
-    void showStatusMessage(const QString &msg) const
-        { m_engine->showStatusMessage(msg); }
+    void showMessage(const QString &msg, int channel = LogDebug, int timeout = 1)
+        { runControl()->showMessage(msg, channel, timeout); }
     void showMessageBox(int icon, const QString &title, const QString &text) const
         { m_engine->showMessageBox(icon, title, text); }
 

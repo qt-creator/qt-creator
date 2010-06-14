@@ -37,6 +37,8 @@
 namespace Debugger {
 namespace Internal {
 
+class CdbDebugEngine;
+
 // Standard CDB output handler
 class CdbDebugOutput : public CdbCore::DebugOutputBase
 {

@@ -130,11 +130,7 @@ signals:
     void stopRequested();
 
 public slots:
-    void showDebuggerOutput(const QString &msg)
-        { showDebuggerOutput(msg, LogDebug); }
-    void showApplicationOutput(const QString &output, bool onStdErr);
-    void showDebuggerOutput(const QString &output, int channel);
-    void showDebuggerInput(const QString &input, int channel);
+    void showMessage(const QString &output, int channel = LogDebug, int timeout = -1);
 
 private slots:
     void slotMessageAvailable(const QString &data, bool isError);

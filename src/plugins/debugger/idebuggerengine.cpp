@@ -58,16 +58,10 @@ bool IDebuggerEngine::checkConfiguration(int toolChain,
     return true;
 }
 
-void IDebuggerEngine::showDebuggerInput(const QString &msg, int channel) const
+void IDebuggerEngine::showMessage(const QString &msg, int channel, int timeout) const
 {
     QTC_ASSERT(runControl(), return);
-    runControl()->showDebuggerInput(msg, channel);
-}
-
-void IDebuggerEngine::showDebuggerOutput(const QString &msg, int channel) const
-{
-    QTC_ASSERT(runControl(), return);
-    runControl()->showDebuggerOutput(msg, channel);
+    runControl()->showMessage(msg, channel, timeout);
 }
 
 } // namespace Internal

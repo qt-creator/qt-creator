@@ -314,7 +314,7 @@ void QmlEngine::handleResponse(const QByteArray &response)
 /*
     static QTime lastTime;
 
-    //debugMessage(_("            "), currentTime());
+    //showMessage(_("            "), currentTime(), LogTime);
     QList<QByteArray> parts = response.split('\0');
     if (parts.size() < 2 || !parts.last().isEmpty()) {
         SDEBUG("WRONG RESPONSE PACKET LAYOUT" << parts);
@@ -460,7 +460,7 @@ void QmlEngine::sendCommandNow(const QmlCommand &cmd)
     int result = m_socket->write(cmd.command);
     Q_UNUSED(result)
     m_socket->flush();
-    showDebuggerInput(QString::number(cmd.token) + " " + cmd.toString(), LogInput);
+    showMessage(QString::number(cmd.token) + " " + cmd.toString(), LogInput);
     SDEBUG("SEND " <<  cmd.toString()); //<< " " << QString::number(result));
 }
 

@@ -160,8 +160,8 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
     // Avoid endless loops created by faulty dumpers.
     QByteArray processedName = QByteArray::number(dumpChildren) + '-' + data.iname;
     if (m_processedNames.contains(processedName)) {
-        showDebuggerInput(
-            _("<Breaking endless loop for " + data.iname + '>'), LogStatus);
+        showMessage(
+            _("<Breaking endless loop for " + data.iname + '>'), LogMiscInput);
         data.setAllUnneeded();
         data.setValue(_("<unavailable>"));
         data.setHasChildren(false);
@@ -395,7 +395,7 @@ void GdbEngine::handleDebuggingHelperValue2Classic(const GdbResponse &response)
     // Remove traces of the question, too.
     if (m_cookieForToken.contains(response.token - 1)) {
         m_cookieForToken.remove(response.token - 1);
-        debugMessage(_("DETECTING LOST COMMAND %1").arg(response.token - 1));
+        showMessage(_("DETECTING LOST COMMAND %1").arg(response.token - 1));
         --m_pendingWatchRequests;
         data.setError(WatchData::msgNotInScope());
         insertData(data);
@@ -591,12 +591,12 @@ void GdbEngine::setDebugDebuggingHelpersClassic(const QVariant &on)
 {
     PRECONDITION;
     if (on.toBool()) {
-        debugMessage(_("SWITCHING ON DUMPER DEBUGGING"));
+        showMessage(_("SWITCHING ON DUMPER DEBUGGING"));
         postCommand("set unwindonsignal off");
         m_manager->breakByFunction(_("qDumpObjectData440"));
         //updateLocals();
     } else {
-        debugMessage(_("SWITCHING OFF DUMPER DEBUGGING"));
+        showMessage(_("SWITCHING OFF DUMPER DEBUGGING"));
         postCommand("set unwindonsignal on");
     }
 }
@@ -641,7 +641,7 @@ void GdbEngine::handleStackListArgumentsClassic(const GdbResponse &response)
     } else {
         // Seems to occur on "RedHat 4 based Linux" gdb 7.0.1:
         // ^error,msg="Cannot access memory at address 0x0"
-        debugMessage(_("UNEXPECTED RESPONSE: ") + response.toString());
+        showMessage(_("UNEXPECTED RESPONSE: ") + response.toString());
     }
 }
 
@@ -698,7 +698,7 @@ bool GdbEngine::checkDebuggingHelpersClassic()
         const QStringList &locations = manager()->qtDumperLibraryLocations();
         const QString loc = locations.join(QLatin1String(", "));
         const QString msg = tr("The debugging helper library was not found at %1.").arg(loc);
-        debugMessage(msg);
+        showMessage(msg);
         manager()->showQtDumperLibraryWarning(msg);
         return false;
     }
@@ -757,11 +757,11 @@ void GdbEngine::handleDebuggingHelperVersionCheckClassic(const GdbResponse &resp
                    "application (%2).\nThis might yield incorrect results.")
                     .arg(dumperQtVersion).arg(debuggeeQtVersion));
         } else {
-            debugMessage(_("DUMPER VERSION CHECK SUCCESSFUL: ")
+            showMessage(_("DUMPER VERSION CHECK SUCCESSFUL: ")
                          + dumperQtVersion);
         }
     } else {
-        debugMessage("DUMPER VERSION CHECK NOT COMPLETED");
+        showMessage("DUMPER VERSION CHECK NOT COMPLETED");
     }
 }
 

@@ -313,7 +313,7 @@ void TcfEngine::handleResponse(const QByteArray &response)
 {
     static QTime lastTime;
 
-    //debugMessage(_("            "), currentTime());
+    //showMessage(_("            "), currentTime(), LogTime);
     QList<QByteArray> parts = response.split('\0');
     if (parts.size() < 2 || !parts.last().isEmpty()) {
         SDEBUG("WRONG RESPONSE PACKET LAYOUT" << parts);
@@ -328,7 +328,7 @@ void TcfEngine::handleResponse(const QByteArray &response)
         int token = parts.at(1).toInt();
         TcfCommand tcf = m_cookieForToken[token];
         SDEBUG("COMMAND NOT RECOGNIZED FOR TOKEN" << token << tcf.toString());
-        showDebuggerOutput(QString::number(token) + "^"
+        showMessage(QString::number(token) + "^"
                + "NOT RECOQNIZED: " + quoteUnprintableLatin1(response),
                 LogOutput);
         acknowledgeResult();
@@ -340,7 +340,7 @@ void TcfEngine::handleResponse(const QByteArray &response)
         int token = parts.at(1).toInt();
         QByteArray message = parts.at(2);
         JsonValue data(parts.at(3));
-        showDebuggerOutput(QString("%1^%2%3").arg(token)
+        showMessage(QString("%1^%2%3").arg(token)
             .arg(quoteUnprintableLatin1(response))
             .arg(QString::fromUtf8(data.toString())), LogOutput);
         TcfCommand tcf = m_cookieForToken[token];
@@ -482,7 +482,7 @@ void TcfEngine::sendCommandNow(const TcfCommand &cmd)
     int result = m_socket->write(cmd.command);
     Q_UNUSED(result)
     m_socket->flush();
-    showDebuggerInput(QString::number(cmd.token) + " " + cmd.toString(), LogInput);
+    showMessage(QString::number(cmd.token) + " " + cmd.toString(), LogInput);
     SDEBUG("SEND " <<  cmd.toString()); //<< " " << QString::number(result));
 }
 

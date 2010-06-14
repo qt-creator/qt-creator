@@ -58,7 +58,7 @@ void AttachGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     setState(AdapterStarting);
-    debugMessage(_("TRYING TO START ADAPTER"));
+    showMessage(_("TRYING TO START ADAPTER"));
 
     if (!m_engine->startGdb())
         return;
@@ -80,8 +80,8 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         setState(InferiorStopped);
-        debugMessage(_("INFERIOR ATTACHED"));
-        showStatusMessage(msgAttachedToStoppedInferior());
+        showMessage(_("INFERIOR ATTACHED"));
+        showMessage(msgAttachedToStoppedInferior(), StatusBar);
         emit inferiorPrepared();
         m_engine->updateAll();
     } else {
@@ -95,7 +95,7 @@ void AttachGdbAdapter::interruptInferior()
     const qint64 pid = startParameters().attachPID;
     QTC_ASSERT(pid > 0, return);
     if (!interruptProcess(pid))
-        debugMessage(_("CANNOT INTERRUPT %1").arg(pid));
+        showMessage(_("CANNOT INTERRUPT %1").arg(pid));
 }
 
 } // namespace Internal
