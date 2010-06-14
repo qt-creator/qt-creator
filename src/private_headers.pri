@@ -2,9 +2,16 @@
 isEmpty(QT_PRIVATE_HEADERS) {
     QT_PRIVATE_HEADERS = $$[QT_INSTALL_HEADERS]
 } else {
-    INCLUDEPATH += $$quote($${QT_PRIVATE_HEADERS}) \
-                   $$quote($${QT_PRIVATE_HEADERS}/QtDeclarative) \
-                   $$quote($${QT_PRIVATE_HEADERS}/QtCore) \
-                   $$quote($${QT_PRIVATE_HEADERS}/QtScript) \
-                   $$quote($${QT_PRIVATE_HEADERS}/QtGui)
+    INCLUDEPATH += \
+        $${QT_PRIVATE_HEADERS} \
+        $${QT_PRIVATE_HEADERS}/QtCore \
+        $${QT_PRIVATE_HEADERS}/QtGui \
+        $${QT_PRIVATE_HEADERS}/QtScript \
+        $${QT_PRIVATE_HEADERS}/QtDeclarative
+    DEPENDPATH += \
+        $${QT_PRIVATE_HEADERS} \
+        $${QT_PRIVATE_HEADERS}/QtCore \
+        $${QT_PRIVATE_HEADERS}/QtGui \
+        $${QT_PRIVATE_HEADERS}/QtScript \
+        $${QT_PRIVATE_HEADERS}/QtDeclarative
 }
