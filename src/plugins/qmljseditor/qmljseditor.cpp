@@ -82,9 +82,7 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSEditor::Internal;
 
-namespace {
-
-int blockBraceDepth(const QTextBlock &block)
+static int blockBraceDepth(const QTextBlock &block)
 {
     int state = block.userState();
     if (state == -1)
@@ -93,7 +91,7 @@ int blockBraceDepth(const QTextBlock &block)
     return (state >> 8) & 0xFF;
 }
 
-int blockStartState(const QTextBlock &block)
+static int blockStartState(const QTextBlock &block)
 {
     int state = block.userState();
 
@@ -103,7 +101,7 @@ int blockStartState(const QTextBlock &block)
         return state & 0xff;
 }
 
-bool shouldInsertMatchingText(const QChar &lookAhead)
+static bool shouldInsertMatchingText(QChar lookAhead)
 {
     switch (lookAhead.unicode()) {
     case '{': case '}':
@@ -120,11 +118,13 @@ bool shouldInsertMatchingText(const QChar &lookAhead)
     } // switch
 }
 
-bool shouldInsertMatchingText(const QTextCursor &tc)
+static bool shouldInsertMatchingText(const QTextCursor &tc)
 {
     QTextDocument *doc = tc.document();
     return shouldInsertMatchingText(doc->characterAt(tc.selectionEnd()));
 }
+
+namespace {
 
 class FindIdDeclarations: protected Visitor
 {
@@ -938,7 +938,7 @@ QString QmlJSTextEditor::wordUnderCursor() const
     return word;
 }
 
-bool QmlJSTextEditor::isElectricCharacter(const QChar &ch) const
+bool QmlJSTextEditor::isElectricCharacter(QChar ch) const
 {
     if (ch == QLatin1Char('}')
             || ch == QLatin1Char(']')
@@ -1177,7 +1177,7 @@ bool QmlJSTextEditor::isInComment(const QTextCursor &) const
     return false;
 }
 
-QString QmlJSTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text, const QChar &, int *skippedChars) const
+QString QmlJSTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text, QChar, int *skippedChars) const
 {
     if (text.length() != 1)
         return QString();

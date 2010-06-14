@@ -3806,7 +3806,7 @@ void BaseTextEditor::zoomReset()
     emit requestZoomReset();
 }
 
-bool BaseTextEditor::isElectricCharacter(const QChar &) const
+bool BaseTextEditor::isElectricCharacter(QChar) const
 {
     return false;
 }
@@ -3863,7 +3863,7 @@ bool BaseTextEditor::isInComment(const QTextCursor &cursor) const
 }
 
 QString BaseTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text,
-                                            const QChar &la, int *skippedChars) const
+                                            QChar la, int *skippedChars) const
 {
     Q_UNUSED(tc);
     Q_UNUSED(text);

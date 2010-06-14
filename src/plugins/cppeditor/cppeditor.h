@@ -212,10 +212,10 @@ protected:
     TextEditor::BaseTextEditorEditable *createEditableInterface();
 
     // These override BaseTextEditor
-    virtual bool isElectricCharacter(const QChar &ch) const;
+    virtual bool isElectricCharacter(QChar ch) const;
 
     virtual QString insertMatchingBrace(const QTextCursor &tc, const QString &text,
-                                        const QChar &la, int *skippedChars) const;
+                                        QChar la, int *skippedChars) const;
 
     virtual QString insertParagraphSeparator(const QTextCursor &tc) const;
 

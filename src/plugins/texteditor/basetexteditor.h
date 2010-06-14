@@ -384,7 +384,7 @@ protected:
 
 public:
     // Returns true if key triggers an indent.
-    virtual bool isElectricCharacter(const QChar &ch) const;
+    virtual bool isElectricCharacter(QChar ch) const;
 
     void indentInsertedText(const QTextCursor &tc);
 
@@ -407,7 +407,7 @@ protected:
     // Returns true if the cursor is inside a comment.
     virtual bool isInComment(const QTextCursor &cursor) const;
 
-    virtual QString insertMatchingBrace(const QTextCursor &tc, const QString &text, const QChar &la, int *skippedChars) const;
+    virtual QString insertMatchingBrace(const QTextCursor &tc, const QString &text, QChar la, int *skippedChars) const;
 
     // Returns the text that needs to be inserted
     virtual QString insertParagraphSeparator(const QTextCursor &tc) const;
