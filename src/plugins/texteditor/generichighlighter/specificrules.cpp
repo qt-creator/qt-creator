@@ -144,7 +144,10 @@ void StringDetectRule::setInsensitive(const QString &insensitive)
 { m_caseSensitivity = toCaseSensitivity(!toBool(insensitive)); }
 
 void StringDetectRule::doReplaceExpressions(const QStringList &captures)
-{ replaceByCaptures(&m_string, captures); }
+{
+    replaceByCaptures(&m_string, captures);
+    m_length = m_string.length();
+}
 
 bool StringDetectRule::doMatchSucceed(const QString &text,
                                       const int length,
