@@ -124,9 +124,10 @@ HelpNetworkAccessManager::HelpNetworkAccessManager(QObject *parent)
 QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
     const QNetworkRequest &request, QIODevice* outgoingData)
 {
-    const QString &scheme = request.url().scheme();
-    if (scheme != QLatin1String("qthelp") && scheme != QLatin1String("about"))
+    if (!HelpViewer::isLocalUrl(request.url())
+        && request.url().scheme() == QLatin1String("http")) {
         return QNetworkAccessManager::createRequest(op, request, outgoingData);
+    }
 
     QString url = request.url().toString();
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();

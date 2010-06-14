@@ -144,20 +144,20 @@ QUrl HelpViewer::source() const
 
 void HelpViewer::setSource(const QUrl &url)
 {
-    const QString &scheme = url.scheme();
-    if (scheme != QLatin1String("qthelp") && scheme != QLatin1String("about")) {
-        QTextBrowser::setSource(resolvedUrl);
-        emit loadFinished(true);
-        return;
-    }
-
     const QString &string = url.toString();
     if (url.isValid() && string != QLatin1String("help")) {
         if (launchWithExternalApp(url))
             return;
 
-        const QHelpEngineCore &engine = HelpManager::instance().helpEngineCore();
-        const QUrl &resolvedUrl = engine.findFile(url);
+        QUrl resolvedUrl;
+        if (url.scheme() == QLatin1String("http"))
+            resolvedUrl = url;
+
+        if (!resolvedUrl.isValid()) {
+            const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
+            resolvedUrl = engine.findFile(url);
+        }
+
         if (resolvedUrl.isValid()) {
             QTextBrowser::setSource(resolvedUrl);
             emit loadFinished(true);
