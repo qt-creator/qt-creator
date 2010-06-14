@@ -38,8 +38,9 @@
 #include "components/expressionquerywidget.h"
 #include "components/objectpropertiesview.h"
 
-#include <debugger/debuggerrunner.h>
+#include <debugger/debuggermanager.h>
 #include <debugger/debuggermainwindow.h>
+#include <debugger/debuggerrunner.h>
 #include <debugger/debuggeruiswitcher.h>
 #include <debugger/debuggerconstants.h>
 
@@ -539,8 +540,8 @@ QString QmlInspector::attachToQmlViewerAsExternalApp(ProjectExplorer::Project *p
     ProjectExplorer::Environment customEnv = ProjectExplorer::Environment::systemEnvironment(); // empty env by default
     customEnv.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(m_settings.externalPort()));
 
-    Debugger::Internal::DebuggerRunControl *debuggableRunControl = createDebuggerRunControl(runConfig,
-                                                                                            dlg.qmlViewerPath(), dlg.qmlViewerArguments());
+    Debugger::DebuggerRunControl *debuggableRunControl =
+            createDebuggerRunControl(runConfig, dlg.qmlViewerPath(), dlg.qmlViewerArguments());
 
     return executeDebuggerRunControl(debuggableRunControl, &customEnv);
 }
@@ -575,11 +576,11 @@ QString QmlInspector::attachToExternalCppAppWithQml(ProjectExplorer::Project *pr
 
     ProjectExplorer::Environment customEnv = runConfig->environment();
     customEnv.set(QmlProjectManager::Constants::E_QML_DEBUG_SERVER_PORT, QString::number(m_settings.externalPort()));
-    Debugger::Internal::DebuggerRunControl *debuggableRunControl = createDebuggerRunControl(runConfig);
+    Debugger::DebuggerRunControl *debuggableRunControl = createDebuggerRunControl(runConfig);
     return executeDebuggerRunControl(debuggableRunControl, &customEnv);
 }
 
-QString QmlInspector::executeDebuggerRunControl(Debugger::Internal::DebuggerRunControl *debuggableRunControl, ProjectExplorer::Environment *environment)
+QString QmlInspector::executeDebuggerRunControl(Debugger::DebuggerRunControl *debuggableRunControl, ProjectExplorer::Environment *environment)
 {
     ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
 
@@ -597,26 +598,26 @@ QString QmlInspector::executeDebuggerRunControl(Debugger::Internal::DebuggerRunC
     return QString(tr("A valid run control was not registered in Qt Creator for this project run configuration."));;
 }
 
-Debugger::Internal::DebuggerRunControl *QmlInspector::createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
-                                                                               const QString &executableFile, const QString &executableArguments)
+Debugger::DebuggerRunControl *QmlInspector::createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
+                                                                     const QString &executableFile, const QString &executableArguments)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    const QList<Debugger::Internal::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::Internal::DebuggerRunControlFactory>();
+    const QList<Debugger::DebuggerRunControlFactory *> factories = pm->getObjects<Debugger::DebuggerRunControlFactory>();
     ProjectExplorer::RunControl *runControl = 0;
+
     if (m_debugMode == QmlProjectWithCppPlugins) {
-
-        const Debugger::DebuggerStartParametersPtr sp(new Debugger::DebuggerStartParameters);
-        sp->startMode = Debugger::StartExternal;
-        sp->executable = executableFile;
-        sp->processArgs = executableArguments.split(QLatin1Char(' '));
-
+        Debugger::DebuggerStartParameters sp;
+        sp.startMode = Debugger::StartExternal;
+        sp.executable = executableFile;
+        sp.processArgs = executableArguments.split(QLatin1Char(' '));
         runControl = factories.first()->create(sp);
-        return qobject_cast<Debugger::Internal::DebuggerRunControl *>(runControl);
+        return qobject_cast<Debugger::DebuggerRunControl *>(runControl);
+    }
 
-    } else if (m_debugMode == CppProjectWithQmlEngines) {
+    if (m_debugMode == CppProjectWithQmlEngines) {
         if (factories.length() && factories.first()->canRun(runConfig, ProjectExplorer::Constants::DEBUGMODE)) {
             runControl = factories.first()->create(runConfig, ProjectExplorer::Constants::DEBUGMODE);
-            return qobject_cast<Debugger::Internal::DebuggerRunControl *>(runControl);
+            return qobject_cast<Debugger::DebuggerRunControl *>(runControl);
         }
     }
 

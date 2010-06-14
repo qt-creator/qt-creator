@@ -42,6 +42,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <debugger/debuggermanager.h>
+#include <debugger/debuggerrunner.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/qtcassert.h>
@@ -459,7 +460,9 @@ void MaemoDebugRunControl::handleRemoteOutput(const QString &output)
 
 void MaemoDebugRunControl::startDebugging()
 {
-    m_debuggerManager->startNewDebugger(m_startParams);
+    Debugger::DebuggerRunControl *runControl =
+        new Debugger::DebuggerRunControl(m_debuggerManager, *m_startParams.data());
+    m_debuggerManager->startNewDebugger(runControl);
 }
 
 void MaemoDebugRunControl::stopInternal()

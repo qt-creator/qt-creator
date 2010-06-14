@@ -57,11 +57,11 @@ namespace Debugger {
 
 class DebuggerManager;
 class DebuggerUISwitcher;
+class DebuggerRunControlFactory;
 
 namespace Internal {
 
 class BreakpointData;
-class DebuggerRunControlFactory;
 class DebugMode;
 
 class DebuggerPlugin : public ExtensionSystem::IPlugin

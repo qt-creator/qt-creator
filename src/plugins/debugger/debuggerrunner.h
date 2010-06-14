@@ -78,11 +78,7 @@ public:
     DebuggerStartMode startMode;
 };
 
-typedef QSharedPointer<DebuggerStartParameters> DebuggerStartParametersPtr;
-
 //DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
-
-namespace Internal {
 
 class DEBUGGER_EXPORT DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory
@@ -102,7 +98,7 @@ public:
 
 
     // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
-    ProjectExplorer::RunControl *create(const DebuggerStartParametersPtr &sp);
+    ProjectExplorer::RunControl *create(const DebuggerStartParameters &sp);
 
 private:
     DebuggerManager *m_manager;
@@ -116,7 +112,7 @@ class DEBUGGER_EXPORT DebuggerRunControl
 
 public:
     DebuggerRunControl(DebuggerManager *manager,
-                       const DebuggerStartParametersPtr &startParameters);
+                       const DebuggerStartParameters &startParameters);
 
     void setCustomEnvironment(ProjectExplorer::Environment env);
 
@@ -128,6 +124,8 @@ public:
 
     Q_SLOT void debuggingFinished();
 
+    const DebuggerStartParameters &sp() const { return m_startParameters; }
+
 signals:
     void stopRequested();
 
@@ -137,12 +135,11 @@ private slots:
 
 private:
     void init();
-    DebuggerStartParametersPtr m_startParameters;
     DebuggerManager *m_manager;
+    DebuggerStartParameters m_startParameters;
     bool m_running;
 };
 
-} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGERRUNNER_H

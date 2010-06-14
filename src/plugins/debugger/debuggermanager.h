@@ -156,7 +156,7 @@ public:
     QLabel *statusLabel() const;
     Internal::IDebuggerEngine *currentEngine() const;
 
-    DebuggerStartParametersPtr startParameters() const;
+    DebuggerRunControl *runControl() const;
     qint64 inferiorPid() const;
 
     QMessageBox *showMessageBox(int icon, const QString &title, const QString &text,
@@ -177,7 +177,7 @@ public:
     static DebuggerManager *instance();
 
 public slots:
-    void startNewDebugger(const DebuggerStartParametersPtr &sp);
+    void startNewDebugger(const DebuggerRunControl *runControl);
     void exitDebugger();
     void abortDebugger();
 

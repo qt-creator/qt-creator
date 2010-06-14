@@ -514,9 +514,9 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
 
     m_debuggingHelperState = DebuggingHelperLoadTried;
     QByteArray dlopenLib;
-    if (startParameters().startMode == AttachToRemote
-        || startParameters().startMode == StartRemoteGdb)
-        dlopenLib = startParameters().remoteDumperLib;
+    if (runControl()->sp().startMode == AttachToRemote
+        || runControl()->sp().startMode == StartRemoteGdb)
+        dlopenLib = runControl()->sp().remoteDumperLib;
     else
         dlopenLib = manager()->qtDumperLibraryName().toLocal8Bit();
 

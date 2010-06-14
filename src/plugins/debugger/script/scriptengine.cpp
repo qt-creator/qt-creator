@@ -228,7 +228,7 @@ void ScriptEngine::exitDebugger()
     setState(DebuggerNotReady);
 }
 
-void ScriptEngine::startDebugger(const DebuggerStartParametersPtr &sp)
+void ScriptEngine::startDebugger(const DebuggerRunControl *runControl)
 {
     setState(AdapterStarting);
     if (m_scriptEngine.isNull())
@@ -247,7 +247,7 @@ void ScriptEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     setState(AdapterStarted);
     setState(InferiorStarting);
 
-    m_scriptFileName = QFileInfo (sp->executable).absoluteFilePath();
+    m_scriptFileName = QFileInfo(runControl->sp().executable).absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         manager()->showDebuggerOutput(LogError, QString::fromLatin1("Cannot open %1: %2").

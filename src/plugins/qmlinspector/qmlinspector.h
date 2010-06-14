@@ -62,11 +62,10 @@ namespace ProjectExplorer {
 namespace Core {
     class IContext;
 }
+
 namespace Debugger {
-namespace Internal {
     class DebuggerRunControl;
-} // Internal
-} // Debugger
+}
 
 namespace Qml {
 
@@ -136,10 +135,10 @@ private slots:
 
 private:
     void updateMenuActions();
-    Debugger::Internal::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
-                                                                     const QString &executableFile = QString(),
-                                                                     const QString &executableArguments = QString());
-    QString executeDebuggerRunControl(Debugger::Internal::DebuggerRunControl *debuggableRunControl, ProjectExplorer::Environment *environment);
+    Debugger::DebuggerRunControl *createDebuggerRunControl(ProjectExplorer::RunConfiguration *runConfig,
+                                                           const QString &executableFile = QString(),
+                                                           const QString &executableArguments = QString());
+    QString executeDebuggerRunControl(Debugger::DebuggerRunControl *debuggableRunControl, ProjectExplorer::Environment *environment);
     QString attachToQmlViewerAsExternalApp(ProjectExplorer::Project *project);
     QString attachToExternalCppAppWithQml(ProjectExplorer::Project *project);
 

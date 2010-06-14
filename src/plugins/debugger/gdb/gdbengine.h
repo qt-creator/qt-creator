@@ -111,7 +111,7 @@ private: ////////// General Interface //////////
 
     virtual bool checkConfiguration(int toolChain, QString *errorMessage,
         QString *settingsPage = 0) const;
-    virtual void startDebugger(const DebuggerStartParametersPtr &sp);
+    virtual void startDebugger(const DebuggerRunControl *runControl);
     virtual unsigned debuggerCapabilities() const;
     virtual void exitDebugger();
     virtual void abortDebugger();
@@ -125,16 +125,16 @@ private: ////////// General State //////////
 
     void initializeVariables();
     DebuggerStartMode startMode() const;
-    const DebuggerStartParameters &startParameters() const
-        { return *m_startParameters; }
+    const DebuggerRunControl *runControl() const { return m_runControl; }
+    const DebuggerStartParameters &startParameters() const { return m_runControl->sp(); }
     Q_SLOT void setAutoDerefPointers(const QVariant &on);
 
-    DebuggerStartParametersPtr m_startParameters;
+    const DebuggerRunControl *m_runControl;
     bool m_registerNamesListed;
 
 private: ////////// Gdb Process Management //////////
 
-    AbstractGdbAdapter *createAdapter(const DebuggerStartParametersPtr &dp);
+    AbstractGdbAdapter *createAdapter(const DebuggerRunControl *runControl);
     void connectAdapter();
     bool startGdb(const QStringList &args = QStringList(),
                   const QString &gdb = QString(),

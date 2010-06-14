@@ -50,8 +50,10 @@ class IOptionsPage;
 }
 
 namespace Debugger {
+
 class DebuggerManager;
-class DebuggerStartParameters;
+class DebuggerRunControl;
+
 namespace Internal {
 
 class DisassemblerViewAgent;
@@ -64,15 +66,13 @@ class IDebuggerEngine : public QObject
     Q_OBJECT
 
 public:
-    typedef QSharedPointer<DebuggerStartParameters> DebuggerStartParametersPtr;
-
     IDebuggerEngine(DebuggerManager *manager, QObject *parent = 0)
         : QObject(parent), m_manager(manager)
     {}
 
     virtual void shutdown() = 0;
     virtual void setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos) = 0;
-    virtual void startDebugger(const DebuggerStartParametersPtr &startParameters) = 0;
+    virtual void startDebugger(const DebuggerRunControl *runControl) = 0;
     virtual void exitDebugger() = 0;
     virtual void abortDebugger() { exitDebugger(); }
     virtual void detachDebugger() {}

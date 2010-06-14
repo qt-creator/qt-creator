@@ -52,6 +52,7 @@
 #include <projectexplorer/buildconfiguration.h>
 
 #include <debugger/debuggermanager.h>
+#include <debugger/debuggerrunner.h>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
@@ -944,7 +945,10 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
 void S60DeviceDebugRunControl::handleLauncherFinished()
 {
     emit appendMessage(this, tr("Launching debugger..."), false);
-    Debugger::DebuggerManager::instance()->startNewDebugger(m_startParams);
+    Debugger::DebuggerManager *dm = Debugger::DebuggerManager::instance();
+    Debugger::DebuggerRunControl *runControl =
+        new Debugger::DebuggerRunControl(dm, *m_startParams.data());
+    dm->startNewDebugger(runControl);
 }
 
 void S60DeviceDebugRunControl::debuggingFinished()

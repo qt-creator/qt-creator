@@ -1369,7 +1369,7 @@ void DebuggerPlugin::handleStateChanged(int state)
     //const bool running = state == InferiorRunning;
 
     const bool detachable = state == InferiorStopped
-        && m_manager->startParameters()->startMode != AttachCore;
+        && m_manager->runControl()->sp().startMode != AttachCore;
 
     m_startExternalAction->setEnabled(!started && !starting);
     m_attachExternalAction->setEnabled(!started && !starting);
@@ -1445,7 +1445,7 @@ void DebuggerPlugin::showSettingsDialog()
 
 void DebuggerPlugin::startExternalApplication()
 {
-    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
+    DebuggerStartParameters sp;
     StartExternalDialog dlg(m_uiSwitcher->mainWindow());
     dlg.setExecutableFile(
             configValue(_("LastExternalExecutableFile")).toString());
@@ -1462,11 +1462,11 @@ void DebuggerPlugin::startExternalApplication()
                    dlg.executableArguments());
     setConfigValue(_("LastExternalWorkingDirectory"),
                    dlg.workingDirectory());
-    sp->executable = dlg.executableFile();
-    sp->startMode = StartExternal;
-    sp->workingDirectory = dlg.workingDirectory();
+    sp.executable = dlg.executableFile();
+    sp.startMode = StartExternal;
+    sp.workingDirectory = dlg.workingDirectory();
     if (!dlg.executableArguments().isEmpty())
-        sp->processArgs = dlg.executableArguments().split(QLatin1Char(' '));
+        sp.processArgs = dlg.executableArguments().split(QLatin1Char(' '));
 
     if (dlg.breakAtMain())
         m_manager->breakByFunctionMain();
@@ -1491,11 +1491,11 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid,
             tr("Cannot attach to PID 0"));
         return;
     }
-    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
-    sp->attachPID = pid;
-    sp->executable = binary;
-    sp->crashParameter = crashParameter;
-    sp->startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
+    DebuggerStartParameters sp;
+    sp.attachPID = pid;
+    sp.executable = binary;
+    sp.crashParameter = crashParameter;
+    sp.startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()->startRunControl(runControl, PE::DEBUGMODE);
 }
@@ -1518,11 +1518,11 @@ void DebuggerPlugin::attachCore()
 
 void DebuggerPlugin::attachCore(const QString &core, const QString &exe)
 {
-    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
-    sp->executable = exe;
-    sp->coreFile = core;
-    sp->displayName = tr("Core file: \"%1\"").arg(core);
-    sp->startMode = AttachCore;
+    DebuggerStartParameters sp;
+    sp.executable = exe;
+    sp.coreFile = core;
+    sp.displayName = tr("Core file: \"%1\"").arg(core);
+    sp.startMode = AttachCore;
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()->
             startRunControl(runControl, PE::DEBUGMODE);
@@ -1530,7 +1530,7 @@ void DebuggerPlugin::attachCore(const QString &core, const QString &exe)
 
 void DebuggerPlugin::startRemoteApplication()
 {
-    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
+    DebuggerStartParameters sp;
     StartRemoteDialog dlg(m_uiSwitcher->mainWindow());
     QStringList arches;
     arches.append(_("i386:x86-64:intel"));
@@ -1559,17 +1559,17 @@ void DebuggerPlugin::startRemoteApplication()
     setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
     setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
     setConfigValue(_("LastSysroot"), dlg.sysRoot());
-    sp->remoteChannel = dlg.remoteChannel();
-    sp->remoteArchitecture = dlg.remoteArchitecture();
-    sp->executable = dlg.localExecutable();
-    sp->displayName = dlg.localExecutable();
-    sp->debuggerCommand = dlg.debugger(); // Override toolchain-detection.
-    if (!sp->debuggerCommand.isEmpty())
-        sp->toolChainType = ProjectExplorer::ToolChain::INVALID;
-    sp->startMode = AttachToRemote;
+    sp.remoteChannel = dlg.remoteChannel();
+    sp.remoteArchitecture = dlg.remoteArchitecture();
+    sp.executable = dlg.localExecutable();
+    sp.displayName = dlg.localExecutable();
+    sp.debuggerCommand = dlg.debugger(); // Override toolchain-detection.
+    if (!sp.debuggerCommand.isEmpty())
+        sp.toolChainType = ProjectExplorer::ToolChain::INVALID;
+    sp.startMode = AttachToRemote;
     if (dlg.useServerStartScript())
-        sp->serverStartScript = dlg.serverStartScript();
-    sp->sysRoot = dlg.sysRoot();
+        sp.serverStartScript = dlg.serverStartScript();
+    sp.sysRoot = dlg.sysRoot();
 
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()
@@ -1586,7 +1586,7 @@ void DebuggerPlugin::enableReverseDebuggingTriggered(const QVariant &value)
 
 void DebuggerPlugin::attachRemoteTcf()
 {
-    const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
+    DebuggerStartParameters sp;
     AttachTcfDialog dlg(m_uiSwitcher->mainWindow());
     QStringList arches;
     arches.append(_("i386:x86-64:intel"));
@@ -1605,12 +1605,12 @@ void DebuggerPlugin::attachRemoteTcf()
     setConfigValue(_("LastTcfRemoteArchitecture"), dlg.remoteArchitecture());
     setConfigValue(_("LastTcfServerStartScript"), dlg.serverStartScript());
     setConfigValue(_("LastTcfUseServerStartScript"), dlg.useServerStartScript());
-    sp->remoteChannel = dlg.remoteChannel();
-    sp->remoteArchitecture = dlg.remoteArchitecture();
-    sp->serverStartScript = dlg.serverStartScript();
-    sp->startMode = AttachTcf;
+    sp.remoteChannel = dlg.remoteChannel();
+    sp.remoteArchitecture = dlg.remoteArchitecture();
+    sp.serverStartScript = dlg.serverStartScript();
+    sp.startMode = AttachTcf;
     if (dlg.useServerStartScript())
-        sp->serverStartScript = dlg.serverStartScript();
+        sp.serverStartScript = dlg.serverStartScript();
 
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()

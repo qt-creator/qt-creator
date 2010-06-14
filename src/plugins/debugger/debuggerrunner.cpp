@@ -50,7 +50,6 @@
 using namespace ProjectExplorer;
 
 namespace Debugger {
-namespace Internal {
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -75,24 +74,24 @@ QString DebuggerRunControlFactory::displayName() const
     return tr("Debug");
 }
 
-static DebuggerStartParametersPtr localStartParameters(RunConfiguration *runConfiguration)
+static DebuggerStartParameters localStartParameters(RunConfiguration *runConfiguration)
 {
-    DebuggerStartParametersPtr sp(new DebuggerStartParameters());
+    DebuggerStartParameters sp;
     QTC_ASSERT(runConfiguration, return sp);
     LocalApplicationRunConfiguration *rc =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return sp);
 
-    sp->startMode = StartInternal;
-    sp->executable = rc->executable();
-    sp->environment = rc->environment().toStringList();
-    sp->workingDirectory = rc->workingDirectory();
-    sp->processArgs = rc->commandLineArguments();
-    sp->toolChainType = rc->toolChainType();
-    sp->useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
-    sp->dumperLibrary = rc->dumperLibrary();
-    sp->dumperLibraryLocations = rc->dumperLibraryLocations();
-    sp->displayName = rc->displayName();
+    sp.startMode = StartInternal;
+    sp.executable = rc->executable();
+    sp.environment = rc->environment().toStringList();
+    sp.workingDirectory = rc->workingDirectory();
+    sp.processArgs = rc->commandLineArguments();
+    sp.toolChainType = rc->toolChainType();
+    sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
+    sp.dumperLibrary = rc->dumperLibrary();
+    sp.dumperLibraryLocations = rc->dumperLibraryLocations();
+    sp.displayName = rc->displayName();
 
     // Find qtInstallPath.
     QString qmakePath = DebuggingHelperLibrary::findSystemQt(rc->environment());
@@ -105,7 +104,7 @@ static DebuggerStartParametersPtr localStartParameters(RunConfiguration *runConf
         proc.waitForFinished();
         QByteArray ba = proc.readAllStandardOutput().trimmed();
         QFileInfo fi(QString::fromLocal8Bit(ba) + "/..");
-        sp->qtInstallPath = fi.absoluteFilePath();
+        sp.qtInstallPath = fi.absoluteFilePath();
     }
     return sp;
 }
@@ -114,11 +113,11 @@ RunControl *DebuggerRunControlFactory::create(RunConfiguration *runConfiguration
                                               const QString &mode)
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
-    DebuggerStartParametersPtr sp = localStartParameters(runConfiguration);
+    DebuggerStartParameters sp = localStartParameters(runConfiguration);
     return new DebuggerRunControl(m_manager, sp);
 }
 
-RunControl *DebuggerRunControlFactory::create(const DebuggerStartParametersPtr &sp)
+RunControl *DebuggerRunControlFactory::create(const DebuggerStartParameters &sp)
 {
     return new DebuggerRunControl(m_manager, sp);
 }
@@ -139,7 +138,7 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 ////////////////////////////////////////////////////////////////////////
 
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
-        const DebuggerStartParametersPtr &startParameters)
+        const DebuggerStartParameters &startParameters)
     : RunControl(0, ProjectExplorer::Constants::DEBUGMODE),
       m_startParameters(startParameters),
       m_manager(manager),
@@ -159,19 +158,19 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
     connect(this, SIGNAL(stopRequested()),
             m_manager, SLOT(exitDebugger()));
 
-    if (m_startParameters->environment.empty())
-        m_startParameters->environment = ProjectExplorer::Environment().toStringList();
-    m_startParameters->useTerminal = false;
+    if (m_startParameters.environment.empty())
+        m_startParameters.environment = ProjectExplorer::Environment().toStringList();
+    m_startParameters.useTerminal = false;
 }
 
 QString DebuggerRunControl::displayName() const
 {
-    return m_startParameters->displayName;
+    return m_startParameters.displayName;
 }
 
 void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
 {
-    m_startParameters->environment = env.toStringList();
+    m_startParameters.environment = env.toStringList();
 }
 
 void DebuggerRunControl::init()
@@ -184,9 +183,9 @@ void DebuggerRunControl::start()
     QString errorMessage;
     QString settingsCategory;
     QString settingsPage;
-    if (m_manager->checkDebugConfiguration(m_startParameters->toolChainType, &errorMessage,
+    if (m_manager->checkDebugConfiguration(m_startParameters.toolChainType, &errorMessage,
                                            &settingsCategory, &settingsPage)) {
-        m_manager->startNewDebugger(m_startParameters);
+        m_manager->startNewDebugger(this);
         emit started();
     } else {
         appendMessage(this, errorMessage, true);
@@ -225,5 +224,4 @@ bool DebuggerRunControl::isRunning() const
     return m_running;
 }
 
-} // namespace Internal
 } // namespace Debugger

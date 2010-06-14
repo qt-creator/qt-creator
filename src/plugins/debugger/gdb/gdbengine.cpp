@@ -211,8 +211,8 @@ void GdbEngine::disconnectDebuggingHelperActions()
 
 DebuggerStartMode GdbEngine::startMode() const
 {
-    QTC_ASSERT(!m_startParameters.isNull(), return NoStartMode);
-    return m_startParameters->startMode;
+    QTC_ASSERT(m_runControl, return NoStartMode);
+    return startParameters().startMode;
 }
 
 QMainWindow *GdbEngine::mainWindow() const
@@ -1355,7 +1355,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             && reason == "signal-received") {
         QByteArray name = data.findChild("signal-name").data();
         if (name != STOP_SIGNAL
-            && (startParameters().startMode != AttachToRemote
+            && (runControl()->sp().startMode != AttachToRemote
                 || name != CROSS_STOP_SIGNAL))
             initHelpers = false;
     }
@@ -1434,7 +1434,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             // Ignore these as they are showing up regularly when
             // stopping debugging.
             if (name != STOP_SIGNAL
-                && (startParameters().startMode != AttachToRemote
+                && (runControl()->sp().startMode != AttachToRemote
                     || name != CROSS_STOP_SIGNAL)) {
                 QString msg = tr("<p>The inferior stopped because it received a "
                     "signal from the Operating System.<p>"
@@ -1536,8 +1536,8 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
             QByteArray cmd = "set environment ";
             cmd += Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR;
             cmd += ' ';
-            cmd += startParameters().startMode == StartRemoteGdb
-               ? startParameters().remoteDumperLib
+            cmd += runControl()->sp().startMode == StartRemoteGdb
+               ? runControl()->sp().remoteDumperLib
                : cmd += manager()->qtDumperLibraryName().toLocal8Bit();
             postCommand(cmd);
             m_debuggingHelperState = DebuggingHelperLoadTried;
@@ -1737,8 +1737,9 @@ bool GdbEngine::checkConfiguration(int toolChain, QString *errorMessage, QString
     return true;
 }
 
-AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &sp)
+AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerRunControl *runControl)
 {
+    const DebuggerStartParameters *sp = &runControl->sp();
     switch (sp->toolChainType) {
     case ProjectExplorer::ToolChain::WINSCW: // S60
     case ProjectExplorer::ToolChain::GCCE:
@@ -1769,7 +1770,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &s
     }
 }
 
-void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
+void GdbEngine::startDebugger(const DebuggerRunControl *runControl)
 {
     QTC_ASSERT(state() == EngineStarting, qDebug() << state());
     // This should be set by the constructor or in exitDebugger()
@@ -1787,10 +1788,10 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     fp->setKeepOnFinish(false); 
     m_progress->reportStarted();
 
-    m_startParameters = sp;
+    m_runControl = runControl;
 
     delete m_gdbAdapter;
-    m_gdbAdapter = createAdapter(sp);
+    m_gdbAdapter = createAdapter(m_runControl);
     connectAdapter();
 
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable)
@@ -3036,8 +3037,10 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
 void GdbEngine::activateSnapshot(int index)
 {
     SnapshotData snapshot = m_manager->snapshotHandler()->setCurrentIndex(index);
-    m_startParameters->startMode = AttachCore;
-    m_startParameters->coreFile = snapshot.location();
+
+    DebuggerStartParameters &sp = const_cast<DebuggerStartParameters &>(m_runControl->sp());
+    sp.startMode = AttachCore;
+    sp.coreFile = snapshot.location();
 
     if (state() == InferiorUnrunnable) {
         // All is well. We are looking at another core file.
@@ -3055,7 +3058,7 @@ void GdbEngine::activateSnapshot(int index)
             return;
         debugMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
         delete m_gdbAdapter;
-        m_gdbAdapter = createAdapter(m_startParameters);
+        m_gdbAdapter = createAdapter(m_runControl);
         postCommand("kill", NeedsStop, CB(handleActivateSnapshot));
     } else {
         activateSnapshot2();
@@ -4002,11 +4005,11 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 
     m_gdb = QString::fromLatin1(qgetenv("QTC_DEBUGGER_PATH"));
     if (m_gdb.isEmpty())
-        m_gdb = m_gdbBinaryToolChainMap->key(m_startParameters->toolChainType);
+        m_gdb = m_gdbBinaryToolChainMap->key(m_runControl->sp().toolChainType);
     if (m_gdb.isEmpty())
         m_gdb = gdb;
     if (m_gdb.isEmpty()) {
-        handleAdapterStartFailed(msgNoBinaryForToolChain(m_startParameters->toolChainType),
+        handleAdapterStartFailed(msgNoBinaryForToolChain(m_runControl->sp().toolChainType),
                                  GdbOptionsPage::settingsId());
         return false;
     }
@@ -4241,7 +4244,7 @@ void GdbEngine::handleAdapterStarted()
 
 void GdbEngine::handleInferiorPrepared()
 {
-    const QByteArray qtInstallPath = m_startParameters->qtInstallPath.toLocal8Bit();
+    const QByteArray qtInstallPath = m_runControl->sp().qtInstallPath.toLocal8Bit();
     if (!qtInstallPath.isEmpty()) {
         QByteArray qtBuildPath;
 #if defined(Q_OS_WIN)

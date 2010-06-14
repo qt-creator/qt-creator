@@ -269,7 +269,7 @@ struct DebuggerManagerPrivate
     const QIcon m_locationMarkIcon;
 
     // FIXME: Remove engine-specific state
-    DebuggerStartParametersPtr m_startParameters;
+    const DebuggerRunControl *m_runControl;
     qint64 m_inferiorPid;
 
     /// Views
@@ -328,7 +328,6 @@ DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager) :
    m_stopIcon(QLatin1String(":/debugger/images/debugger_stop_small.png")),
    m_interruptIcon(QLatin1String(":/debugger/images/debugger_interrupt_small.png")),
    m_locationMarkIcon(QLatin1String(":/debugger/images/location_16.png")),
-   m_startParameters(new DebuggerStartParameters),
    m_inferiorPid(0),
    m_disassemblerViewAgent(manager),
    m_engine(0)
@@ -1061,11 +1060,12 @@ static IDebuggerEngine *debuggerEngineForMode(DebuggerStartMode startMode, QStri
 #endif
 }
 
-void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
+void DebuggerManager::startNewDebugger(const DebuggerRunControl *runControl)
 {
     if (d->m_state != DebuggerNotReady)
         return;
-    d->m_startParameters = sp;
+    d->m_runControl = runControl;
+    const DebuggerStartParameters *sp = &runControl->sp();
     d->m_inferiorPid = sp->attachPID > 0 ? sp->attachPID : 0;
     const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(
         ProjectExplorer::ToolChain::ToolChainType(sp->toolChainType));
@@ -1113,7 +1113,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     setBusyCursor(false);
     setState(EngineStarting);
     connect(d->m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
-    d->m_engine->startDebugger(sp);
+    d->m_engine->startDebugger(runControl);
 
     const unsigned engineCapabilities = d->m_engine->debuggerCapabilities();
     theDebuggerAction(OperateByInstruction)
@@ -1172,11 +1172,6 @@ void DebuggerManager::abortDebugger()
     if (d->m_engine && state() != DebuggerNotReady)
         d->m_engine->abortDebugger();
     d->m_codeModelSnapshot = CPlusPlus::Snapshot();
-}
-
-DebuggerStartParametersPtr DebuggerManager::startParameters() const
-{
-    return d->m_startParameters;
 }
 
 qint64 DebuggerManager::inferiorPid() const
@@ -1316,7 +1311,7 @@ void DebuggerManager::aboutToUnloadSession()
     // Note that at startup, session switches may occur, which interfer
     // with command-line debugging startup.
     if (d->m_engine && state() != DebuggerNotReady
-        && d->m_startParameters->startMode == StartInternal)
+        && runControl()->sp().startMode == StartInternal)
             d->m_engine->shutdown();
 }
 
@@ -1651,7 +1646,7 @@ QString DebuggerManager::qtDumperLibraryName() const
 {
     if (theDebuggerAction(UseCustomDebuggingHelperLocation)->value().toBool())
         return theDebuggerAction(CustomDebuggingHelperLocation)->value().toString();
-    return d->m_startParameters->dumperLibrary;
+    return runControl()->sp().dumperLibrary;
 }
 
 QStringList DebuggerManager::qtDumperLibraryLocations() const
@@ -1663,7 +1658,7 @@ QStringList DebuggerManager::qtDumperLibraryLocations() const
             tr("%1 (explicitly set in the Debugger Options)").arg(customLocation);
         return QStringList(location);
     }
-    return d->m_startParameters->dumperLibraryLocations;
+    return runControl()->sp().dumperLibraryLocations;
 }
 
 void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
@@ -2033,6 +2028,11 @@ void DebuggerManager::openTextEditor(const QString &titlePattern,
     d->m_plugin->openTextEditor(titlePattern, contents);
 }
 
+DebuggerRunControl *DebuggerManager::runControl() const
+{
+    return const_cast<DebuggerRunControl *>(d->m_runControl);
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // AbstractDebuggerEngine
@@ -2060,6 +2060,7 @@ void IDebuggerEngine::setState(DebuggerState state, bool forced)
 //
 //////////////////////////////////////////////////////////////////////
 
+/*
 void DebuggerManager::runTest(const QString &fileName)
 {
     d->m_startParameters->executable = fileName;
@@ -2067,6 +2068,7 @@ void DebuggerManager::runTest(const QString &fileName)
     d->m_startParameters->workingDirectory.clear();
     //startNewDebugger(StartInternal);
 }
+*/
 
 } // namespace Debugger
 
