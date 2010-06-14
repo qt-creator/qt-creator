@@ -22,7 +22,8 @@ HEADERS += \
     qmljsmodelmanager.h \
     qmljspreviewrunner.h \
     qmljsquickfix.h \
-    qmljsrefactoringchanges.h
+    qmljsrefactoringchanges.h \
+    qmljscomponentfromobjectdef.h
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -37,7 +38,8 @@ SOURCES += \
     qmljsmodelmanager.cpp \
     qmljspreviewrunner.cpp \
     qmljsquickfix.cpp \
-    qmljsrefactoringchanges.cpp
+    qmljsrefactoringchanges.cpp \
+    qmljscomponentfromobjectdef.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml

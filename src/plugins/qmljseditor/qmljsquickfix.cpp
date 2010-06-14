@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmljsquickfix.h"
+#include "qmljscomponentfromobjectdef.h"
 #include "qmljseditor.h"
 #include "qmljsrefactoringchanges.h"
 #include "qmljs/parser/qmljsast_p.h"
@@ -228,5 +229,6 @@ QList<TextEditor::QuickFixOperation::Ptr> QmlJSQuickFixCollector::quickFixOperat
 {
     QList<TextEditor::QuickFixOperation::Ptr> quickFixOperations;
     quickFixOperations.append(TextEditor::QuickFixOperation::Ptr(new SplitInitializerOp(editor)));
+    quickFixOperations.append(TextEditor::QuickFixOperation::Ptr(new ComponentFromObjectDef(editor)));
     return quickFixOperations;
 }
