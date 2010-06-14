@@ -39,7 +39,7 @@ contains(QT_CONFIG, declarative) {
 
     SUBDIRS += plugin_qmlprojectmanager
 
-    include(private_headers.pri)
+    include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
         SUBDIRS += plugin_qmldesigner \
                    plugin_qmlinspector

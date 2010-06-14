@@ -14,5 +14,6 @@ TEMPLATE = app
 SOURCES += main.cpp
 
 include(../../../../qtcreator.pri)
+include(../../../private_headers.pri)
 DESTDIR = $$IDE_BIN_PATH
 include(../../../rpath.pri)
