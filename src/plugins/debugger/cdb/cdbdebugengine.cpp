@@ -126,7 +126,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
     m_hDebuggeeProcess(0),
     m_hDebuggeeThread(0),
     m_breakEventMode(BreakEventHandle),
-    m_dumper(new CdbDumperHelper(manager, this)),
+    m_dumper(new CdbDumperHelper(engine, this)),
     m_currentThreadId(-1),
     m_eventThreadId(-1),
     m_interruptArticifialThreadId(-1),
@@ -328,7 +328,7 @@ void CdbDebugEnginePrivate::checkVersion()
         }
         // Compare
         const double minVersion = 6.11;
-        showMessage(CdbDebugEngine::tr("Version: %1").arg(version));
+        m_engine->showMessage(CdbDebugEngine::tr("Version: %1").arg(version));
         if (version.toDouble() <  minVersion) {
             const QString msg = CdbDebugEngine::tr(
                     "<html>The installed version of the <i>Debugging Tools for Windows</i> (%1) "
@@ -612,7 +612,7 @@ void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
         // Need a stopped debuggee to act
         if (!endInferior(action, &errorMessage)) {
             errorMessage = QString::fromLatin1("Unable to detach from/end the debuggee: %1").arg(errorMessage);
-            showMessage(errorMessage, LogError);
+            m_engine->showMessage(errorMessage, LogError);
         }
         errorMessage.clear();
     }
@@ -623,7 +623,7 @@ void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
     m_engine->setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
     if (!endedCleanly) {
         errorMessage = QString::fromLatin1("There were errors trying to end debugging:\n%1").arg(errorMessage);
-        showMessage(errorMessage, LogError);
+        m_engine->showMessage(errorMessage, LogError);
     }
 }
 
@@ -713,7 +713,7 @@ bool CdbDebugEnginePrivate::executeContinueCommand(const QString &command)
     clearForRun();
     updateCodeLevel(); // Step by instruction
     m_engine->setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
-    showMessage(CdbDebugEngine::tr("Continuing with '%1'...").arg(command));
+    m_engine->showMessage(CdbDebugEngine::tr("Continuing with '%1'...").arg(command));
     QString errorMessage;
     const bool success = executeDebuggerCommand(command, &errorMessage);
     if (success) {
@@ -1296,7 +1296,7 @@ void CdbDebugEnginePrivate::notifyException(long code, bool fatal, const QString
         break;
     case EXCEPTION_BREAKPOINT:
         if (m_ignoreInitialBreakPoint && !m_inferiorStartupComplete && m_breakEventMode == BreakEventHandle) {
-            showMessage(CdbDebugEngine::tr("Ignoring initial breakpoint..."));
+            m_engine->showMessage(CdbDebugEngine::tr("Ignoring initial breakpoint..."));
             m_breakEventMode = BreakEventIgnoreOnce;
         }
         break;
@@ -1356,7 +1356,7 @@ void CdbDebugEnginePrivate::handleDebugEvent()
         const QString msg = m_interrupted ?
                             CdbDebugEngine::tr("Interrupted in thread %1, current thread: %2").arg(m_interruptArticifialThreadId).arg(m_currentThreadId) :
                             CdbDebugEngine::tr("Stopped, current thread: %1").arg(m_currentThreadId);
-        showMessage(msg);
+        m_engine->showMessage(msg);
         const int threadIndex = threadIndexById(threadsHandler, m_currentThreadId);
         if (threadIndex != -1)
             threadsHandler->setCurrentThread(threadIndex);

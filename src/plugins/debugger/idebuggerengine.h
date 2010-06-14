@@ -136,11 +136,11 @@ public:
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
     void showStatusMessage(const QString &msg, int timeout = -1) const
         { showMessage(msg, StatusBar, timeout); }
+    DebuggerManager *manager() const { return m_manager; }
 
 protected:
     DebuggerState state() const;
     void setState(DebuggerState state, bool forced = false);
-    DebuggerManager *manager() const { return m_manager; }
     DebuggerManager *m_manager;
     DebuggerRunControl *m_runControl;
 

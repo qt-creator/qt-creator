@@ -46,6 +46,7 @@ class DebuggerManager;
 
 namespace Internal {
 class CdbDumperInitThread;
+class CdbDebugEngine;
 
 /* For code clarity, all the stuff related to custom dumpers goes here.
  * "Custom dumper" is a library compiled against the current

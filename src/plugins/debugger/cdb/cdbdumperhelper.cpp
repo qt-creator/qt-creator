@@ -29,6 +29,7 @@
 
 #include "cdbdumperhelper.h"
 #include "cdbmodules.h"
+#include "cdbdebugengine.h"
 #include "cdbdebugengine_p.h"
 #include "cdbdebugoutput.h"
 #include "cdbdebugeventcallback.h"
@@ -196,7 +197,7 @@ public:
     virtual void run();
 
 signals:
-    void logMessage(int channel, const QString &m);
+    void logMessage(const QString &m, int channel);
     void statusMessage(const QString &m, int timeOut);
 
 private:
@@ -233,8 +234,8 @@ bool CdbDumperInitThread::ensureDumperInitialized(CdbDumperHelper &h, QString *e
     connect(&thread, SIGNAL(statusMessage(QString,int)),
             h.m_engine, SLOT(showStatusMessage(QString,int)),
             Qt::QueuedConnection);
-    connect(&thread, SIGNAL(logMessage(int,QString)),
-            h.m_engine, SLOT(showMessage(int,QString)),
+    connect(&thread, SIGNAL(logMessage(QString,int)),
+            h.m_engine, SLOT(showMessage(QString,int)),
             Qt::QueuedConnection);
     QEventLoop eventLoop;
     connect(&thread, SIGNAL(finished()), &eventLoop, SLOT(quit()), Qt::QueuedConnection);
@@ -250,7 +251,7 @@ bool CdbDumperInitThread::ensureDumperInitialized(CdbDumperHelper &h, QString *e
         h.m_state = CdbDumperHelper::Disabled; // No message here
         *errorMessage = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The custom dumper library could not be initialized: %1").arg(*errorMessage);
         h.m_engine->showStatusMessage(*errorMessage, messageTimeOut);
-        h.m_engine->showQtDumperLibraryWarning(*errorMessage);
+        h.m_engine->manager()->showQtDumperLibraryWarning(*errorMessage);
     }
     if (loadDebug)
         qDebug() << Q_FUNC_INFO << '\n' << thread.m_ok;
@@ -269,7 +270,7 @@ void CdbDumperInitThread ::run()
         switch (m_helper.initCallLoad(m_errorMessage)) {
         case CdbDumperHelper::CallLoadOk:
         case CdbDumperHelper::CallLoadAlreadyLoaded:
-            emit logMessage(LogMisc, msgLoadSucceeded(m_helper.m_library, false));
+            emit logMessage(msgLoadSucceeded(m_helper.m_library, false), LogMisc);
             m_helper.m_state = CdbDumperHelper::Loaded;
             break;
         case CdbDumperHelper::CallLoadError:
@@ -277,7 +278,7 @@ void CdbDumperInitThread ::run()
             m_ok = false;
             return;
         case CdbDumperHelper::CallLoadNoQtApp:
-            emit logMessage(LogMisc, QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The debuggee does not appear to be Qt application."));
+            emit logMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The debuggee does not appear to be Qt application."), LogMisc);
             m_helper.m_state = CdbDumperHelper::Disabled; // No message here
             m_ok = true;
             return;

@@ -51,13 +51,13 @@ static int logChannel(ULONG mask)
         return LogError;
     if (mask & DEBUG_OUTPUT_DEBUGGEE)
         //return DebuggeeOutput;
-        return AppOut;
+        return AppOutput;
     if (mask & DEBUG_OUTPUT_DEBUGGEE_PROMPT)
         //return DebuggeePromptOutput;
-        return AppErr;
+        return AppError;
     if (mask & DEBUG_OUTPUT_PROMPT)
         //return DebuggerPromptOutput;
-        return AppErr;
+        return AppError;
     return LogMisc;
 }
 

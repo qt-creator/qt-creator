@@ -199,6 +199,8 @@ void DebuggerRunControl::start()
 void DebuggerRunControl::showMessage(const QString &msg, int channel,
     int timeout)
 {
+    if (!m_manager)
+        return;
     DebuggerOutputWindow *ow = m_manager->debuggerOutputWindow();
     QTC_ASSERT(ow, return);
     switch (channel) {

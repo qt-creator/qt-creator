@@ -332,6 +332,7 @@ DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager) :
    m_disassemblerViewAgent(manager),
    m_engine(0)
 {
+    m_runControl = 0;
     m_interruptIcon.addFile(":/debugger/images/debugger_interrupt.png");
     m_stopIcon.addFile(":/debugger/images/debugger_stop.png");
 }
