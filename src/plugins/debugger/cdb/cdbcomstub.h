@@ -27,29 +27,81 @@
 **
 **************************************************************************/
 
-#ifndef CDBCOM_H
-#define CDBCOM_H
+#ifndef CDBCOMSTUB_H
+#define CDBCOMSTUB_H
 
-#ifdef Q_OS_WINDOWS
+// Stubs to make it partially compile for test purposes on non-Windows.
 
-#include <windows.h>
-#include <inc/dbgeng.h>
+typedef unsigned long ULONG;
+typedef unsigned long long ULONG64;
+typedef void *PVOID;
+typedef unsigned short *PCWSTR;
+typedef void *HANDLE;
+typedef int HRESULT;
+typedef int DEBUG_VALUE;
+typedef int PDEBUG_BREAKPOINT2;
 
-// typedef out the version numbers
-typedef IDebugClient5          CIDebugClient;
-typedef IDebugControl4         CIDebugControl;
-typedef IDebugSystemObjects4   CIDebugSystemObjects;
-typedef IDebugSymbols3         CIDebugSymbols;
-typedef IDebugRegisters2       CIDebugRegisters;
-typedef IDebugDataSpaces4      CIDebugDataSpaces;
+enum
+{
+    DEBUG_OUTPUT_PROMPT_REGISTERS = 1,
+    DEBUG_OUTPUT_EXTENSION_WARNING = 2,
+    DEBUG_OUTPUT_WARNING = 4,
+    DEBUG_OUTPUT_ERROR = 8,
+    DEBUG_OUTPUT_DEBUGGEE = 16,
+    DEBUG_OUTPUT_DEBUGGEE_PROMPT = 32,
+    DEBUG_OUTPUT_PROMPT = 64,
+};
 
-typedef IDebugSymbolGroup2     CIDebugSymbolGroup;
-typedef IDebugBreakpoint2      CIDebugBreakpoint;
+#define IN
+#define OUT
+#define THIS
+#define THIS_
+#define REFIID void *
+#define THIS_
+#define STDMETHOD(x) void x
+#define STDMETHOD_(x, y) x y
 
-#else
+struct IUnknown
+{
+    virtual ~IUnknown();
+    virtual STDMETHOD_(ULONG, AddRef)(THIS) { return 1; }
+    virtual STDMETHOD_(ULONG, Release)(THIS) { return 1; }
+};
 
-#include "cdbcomstub.h"
+struct IDebugOutputCallbacksWide : IUnknown
+{
+};
+
+struct CIDebugClient
+{
+};
+
+struct CIDebugControl
+{
+};
+
+struct CIDebugSystemObjects
+{
+};
+
+struct CIDebugSymbols
+{
+};
+
+struct CIDebugRegisters
+{
+};
+
+struct CIDebugDataSpaces
+{
+};
+
+struct CIDebugSymbolGroup
+{
+};
+
+struct CIDebugBreakpoint
+{
+};
 
 #endif // Q_OS_WINDOWS
-
-#endif // CDBCOM_H

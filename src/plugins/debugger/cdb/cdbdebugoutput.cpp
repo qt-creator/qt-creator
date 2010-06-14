@@ -30,9 +30,7 @@
 #include "cdbdebugoutput.h"
 #include "cdbdebugengine.h"
 #include "cdbdebugengine_p.h"
-
-#include <windows.h>
-#include <inc/dbgeng.h>
+#include "cdbcom.h"
 
 namespace Debugger {
 namespace Internal {
