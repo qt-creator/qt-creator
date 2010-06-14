@@ -120,7 +120,7 @@ void FilterSettingsPage::updateFilterPage()
     foreach (const QString &attribute, attributes)
         new QTreeWidgetItem(m_ui.attributeWidget, QStringList(attribute));
 
-    if (m_filterMap.keys().isEmpty()) {
+    if (!m_filterMap.keys().isEmpty()) {
         m_ui.filterWidget->setCurrentRow(0);
         updateAttributes(m_ui.filterWidget->currentItem());
     }
