@@ -64,7 +64,6 @@ private slots:
 
     void testLineContinue();
     void testLineContinue_data();
-
     void testEditingLineContinue0();
     void testEditingLineContinue1();
     void testEditingLineContinue2();
@@ -74,6 +73,12 @@ private slots:
 
     void testPersistentStates();
     void testPersistentStates_data();
+    void testEditingPersistentStates0();
+    void testEditingPersistentStates1();
+    void testEditingPersistentStates2();
+
+    void testDynamicContexts();
+    void testDynamicContexts_data();
 
 private:
     void createKeywords();
@@ -197,7 +202,39 @@ void tst_HighlighterEngine::createContexts()
     dummy->setLineEndContext("#pop");
     dummy->setDefinition(m_definition);
 
+    // AfterPlus context
+    QSharedPointer<Context> afterPlus = m_definition->createContext("AfterPlus", false);
+    afterPlus->setItemData("Char");
+    afterPlus->setLineEndContext("#pop");
+    afterPlus->setDefinition(m_definition);
+
+    // AfterMinus context
+    QSharedPointer<Context> afterMinus = m_definition->createContext("AfterMinus", false);
+    afterMinus->setItemData("String");
+    afterMinus->setLineEndContext("#pop#pop");
+    afterMinus->setDefinition(m_definition);
+
+    // AfterEqual context
+    QSharedPointer<Context> afterEqual = m_definition->createContext("AfterEqual", false);
+    afterEqual->setItemData("Float");
+    afterEqual->setLineEndContext("#pop#pop#pop");
+    afterEqual->setDefinition(m_definition);
+
+    // Dynamic context
+    QSharedPointer<Context> dynamic = m_definition->createContext("Dynamic", false);
+    dynamic->setItemData("Marker");
+    dynamic->setLineEndContext("#pop");
+    dynamic->setDynamic("true");
+    dynamic->setDefinition(m_definition);
+
     // Rules
+    DetectCharRule *r = new DetectCharRule;
+    r->setChar("?");
+    r->setContext("#stay");
+    r->setItemData("Decimal");
+    r->setDefinition(m_definition);
+    normal->addRule(QSharedPointer<Rule>(r)); // Needs to be the first one added.
+
     DetectCharRule *r0 = new DetectCharRule;
     r0->setChar("#");
     r0->setContext("AfterHash");
@@ -307,6 +344,10 @@ void tst_HighlighterEngine::createContexts()
     r14->setDefinition(m_definition);
     QSharedPointer<Rule> sr14(r14);
     multiComment->addRule(sr14);
+    dummy->addRule(sr14);
+    afterEqual->addRule(sr14);
+    afterMinus->addRule(sr14);
+    afterPlus->addRule(sr14);
 
     Detect2CharsRule *r15 = new Detect2CharsRule;
     r15->setChar("#");
@@ -330,7 +371,70 @@ void tst_HighlighterEngine::createContexts()
     r17->setDefinition(m_definition);
     dummy->addRule(QSharedPointer<Rule>(r17));
 
-    dummy->addRule(sr14);
+    DetectCharRule *r18 = new DetectCharRule;
+    r18->setChar("+");
+    r18->setContext("AfterPlus");
+    r18->setDefinition(m_definition);
+    QSharedPointer<Rule> sr18(r18);
+    multiComment->addRule(sr18);
+    nestedComment->addRule(sr18);
+    afterMinus->addRule(sr18);
+    afterEqual->addRule(sr18);
+
+    DetectCharRule *r19 = new DetectCharRule;
+    r19->setChar("-");
+    r19->setContext("AfterMinus");
+    r19->setDefinition(m_definition);
+    QSharedPointer<Rule> sr19(r19);
+    multiComment->addRule(sr19);
+    nestedComment->addRule(sr19);
+    afterPlus->addRule(sr19);
+    afterEqual->addRule(sr19);
+
+    DetectCharRule *r20 = new DetectCharRule;
+    r20->setChar("=");
+    r20->setContext("AfterEqual");
+    r20->setDefinition(m_definition);
+    QSharedPointer<Rule> sr20(r20);
+    multiComment->addRule(sr20);
+    nestedComment->addRule(sr20);
+    afterPlus->addRule(sr20);
+    afterMinus->addRule(sr20);
+
+    DetectCharRule *r22 = new DetectCharRule;
+    r22->setChar("$");
+    r22->setContext("#stay");
+    r22->setDefinition(m_definition);
+    normal->addRule(QSharedPointer<Rule>(r22));
+
+    DetectCharRule *r23 = new DetectCharRule;
+    r23->setChar("?");
+    r23->setContext("#stay");
+    r23->setItemData("Comment");
+    r23->setDefinition(m_definition);
+    normal->addRule(QSharedPointer<Rule>(r23));
+
+    RegExprRule *r24 = new RegExprRule;
+    r24->setInsensitive("true");
+    r24->setPattern("---([a-c]*)([d-f]*)");
+    r24->setDefinition(m_definition);
+    r24->setItemData("Dummy");
+    r24->setContext("Dynamic");
+    normal->addRule(QSharedPointer<Rule>(r24));
+
+    DetectCharRule *r25 = new DetectCharRule;
+    r25->setChar("1");
+    r25->setItemData("Preprocessor");
+    r25->setActive("true");
+    r25->setDefinition(m_definition);
+    dynamic->addRule(QSharedPointer<Rule>(r25));
+
+    StringDetectRule *r26 = new StringDetectRule;
+    r26->setString("begin%2end");
+    r26->setItemData("Error");
+    r26->setActive("true");
+    r26->setDefinition(m_definition);
+    dynamic->addRule(QSharedPointer<Rule>(r26));
 }
 
 void tst_HighlighterEngine::createItemDatas()
@@ -355,6 +459,12 @@ void tst_HighlighterEngine::createItemDatas()
     marker->setStyle("dsRegionMarker");
     QSharedPointer<ItemData> dummy = m_definition->createItemData("Dummy");
     dummy->setStyle("dsDataType");
+    QSharedPointer<ItemData> charStyle = m_definition->createItemData("Char");
+    charStyle->setStyle("dsChar");
+    QSharedPointer<ItemData> stringStyle = m_definition->createItemData("String");
+    stringStyle->setStyle("dsString");
+    QSharedPointer<ItemData> floatStyle = m_definition->createItemData("Float");
+    floatStyle->setStyle("dsFloat");
 }
 
 void tst_HighlighterEngine::setExpectedData(int state, const HighlightSequence &seq)
@@ -487,6 +597,8 @@ void tst_HighlighterEngine::testSimpleLine_data()
     HighlightSequence seql(0, 3, Formats::instance().keywordFormat());
     HighlightSequence seqm(0, 2);
     HighlightSequence seqn(0, 8, Formats::instance().commentFormat());
+    HighlightSequence seqo(0, 1);
+    seqo.add(1, 2, Formats::instance().decimalFormat());
 
     states << 0;
     sequences << seqa;
@@ -558,6 +670,13 @@ void tst_HighlighterEngine::testSimpleLine_data()
     sequences << seqn << seqm;
     text = "//int i;\ni;";
     QTest::newRow("case 14") << createlDefaultStatesList(2) << sequences << text;
+
+    // Even when a matching rule does not take to another context, iteration over the rules
+    // should start over from the first rule in the current context.
+    sequences.clear();
+    sequences << seqo;
+    text = "$?";
+    QTest::newRow("case 15") << createlDefaultStatesList(2) << sequences << text;
 }
 
 void tst_HighlighterEngine::testLineContinue()
@@ -604,88 +723,6 @@ void tst_HighlighterEngine::testLineContinue_data()
     sequences << seqa << seqc << seqd << seqe;
     lines = "#define max\\\n    100\\\n000\nint i = 0;";
     QTest::newRow("case 3") << states << sequences << lines;
-}
-
-void tst_HighlighterEngine::testPersistentStates()
-{
-    test();
-}
-
-void tst_HighlighterEngine::testPersistentStates_data()
-{
-    createColumns();
-
-    QList<int> states;
-    QList<HighlightSequence> sequences;
-    QString text;
-
-    HighlightSequence seqa(0, 3, Formats::instance().keywordFormat());
-    seqa.add(3, 6);
-    seqa.add(6, 15, Formats::instance().commentFormat());
-    seqa.add(15, 16);
-    HighlightSequence seqb(0, 8, Formats::instance().commentFormat());
-    HighlightSequence seqc(0, 2, Formats::instance().commentFormat());
-    HighlightSequence seqd(0, 9, Formats::instance().commentFormat());
-    seqd.add(9, 18, Formats::instance().errorFormat());
-    HighlightSequence seqe(0, 5, Formats::instance().errorFormat());
-    seqe.add(5, 8, Formats::instance().commentFormat());
-    HighlightSequence seqf(0, 2, Formats::instance().commentFormat());
-    seqf.add(2, 6);
-    HighlightSequence seqg(0, 1);
-    seqg.add(1, 7, Formats::instance().commentFormat());
-    seqg.add(7, 8, Formats::instance().regionMarketFormat());
-    seqg.add(8, 15, Formats::instance().errorFormat());
-    seqg.add(15, 16, Formats::instance().regionMarketFormat());
-    seqg.add(16, 21, Formats::instance().dataTypeFormat());
-    seqg.add(21, 22, Formats::instance().regionMarketFormat());
-    HighlightSequence seqh(0, 2);
-
-    states << 0;
-    sequences << seqa;
-    text = "int i /* = 0 */;";
-    QTest::newRow("case 0") << states << sequences << text;
-
-    clear(&states, &sequences);
-    states << 3 << 3;
-    sequences << seqb << seqc;
-    text = "/*int i;\ni;";
-    QTest::newRow("case 1") << states << sequences << text;
-
-    clear(&states, &sequences);
-    states << 3 << 3 << 3;
-    sequences << seqb << seqc << seqb;
-    text = "/*int i;\ni;\nint abc;";
-    QTest::newRow("case 2") << states << sequences << text;
-
-    clear(&states, &sequences);
-    states << 3 << 3 << 0;
-    sequences << seqb << seqc << seqc;
-    text = "/*int i;\ni;\n*/";
-    QTest::newRow("case 3") << states << sequences << text;
-
-    clear(&states, &sequences);
-    states << 4 << 3 << 0;
-    sequences << seqd << seqe << seqf;
-    text = "/*int i; /# int j;\nfoo#/bar\n*/f();";
-    QTest::newRow("case 4") << states << sequences << text;
-
-    clear(&states, &sequences);
-    states << 3;
-    sequences << seqg;
-    text = "i/*bla @/#foo#/ dummy ";
-    QTest::newRow("case 5") << states << sequences << text;
-
-    clear(&states, &sequences);
-    states << 3 << 3;
-    sequences << seqg << seqc;
-    text = "i/*bla @/#foo#/ dummy \ni;";
-    QTest::newRow("case 6") << states << sequences << text;
-
-    clear(&states, &sequences);
-    states << 3 << 3 << 0;
-    sequences << seqg << seqc << seqh;
-    text = "i/*bla @/#foo#/ dummy \ni;\n*/";
-    QTest::newRow("case 7") << states << sequences << text;
 }
 
 void tst_HighlighterEngine::setupForEditingLineContinue()
@@ -773,6 +810,224 @@ void tst_HighlighterEngine::testEditingLineContinue5()
     setExpectedData(states, sequences);
 
     addCharactersToEnd(m_text.document()->firstBlock().next(), "x");
+}
+
+void tst_HighlighterEngine::testPersistentStates()
+{
+    test();
+}
+
+void tst_HighlighterEngine::testPersistentStates_data()
+{
+    createColumns();
+
+    QList<int> states;
+    QList<HighlightSequence> sequences;
+    QString text;
+
+    HighlightSequence seqa(0, 3, Formats::instance().keywordFormat());
+    seqa.add(3, 6);
+    seqa.add(6, 15, Formats::instance().commentFormat());
+    seqa.add(15, 16);
+    HighlightSequence seqb(0, 8, Formats::instance().commentFormat());
+    HighlightSequence seqc(0, 2, Formats::instance().commentFormat());
+    HighlightSequence seqd(0, 9, Formats::instance().commentFormat());
+    seqd.add(9, 18, Formats::instance().errorFormat());
+    HighlightSequence seqe(0, 5, Formats::instance().errorFormat());
+    seqe.add(5, 8, Formats::instance().commentFormat());
+    HighlightSequence seqf(0, 2, Formats::instance().commentFormat());
+    seqf.add(2, 6);
+    HighlightSequence seqg(0, 1);
+    seqg.add(1, 7, Formats::instance().commentFormat());
+    seqg.add(7, 8, Formats::instance().regionMarketFormat());
+    seqg.add(8, 15, Formats::instance().errorFormat());
+    seqg.add(15, 16, Formats::instance().regionMarketFormat());
+    seqg.add(16, 21, Formats::instance().dataTypeFormat());
+    seqg.add(21, 22, Formats::instance().regionMarketFormat());
+    HighlightSequence seqh(seqc);
+    seqh.add(2, 3);
+    HighlightSequence seqi(seqc);
+    seqi.add(2, 3, Formats::instance().charFormat());
+    seqi.add(3, 4, Formats::instance().stringFormat());
+    HighlightSequence seqj(seqc);
+    seqj.add(2, 3, Formats::instance().charFormat());
+    seqj.add(3, 4, Formats::instance().floatFormat());
+    HighlightSequence seqk(seqc);
+    seqk.add(2, 3, Formats::instance().charFormat());
+    seqk.add(3, 5, Formats::instance().errorFormat());
+    seqk.add(5, 6, Formats::instance().floatFormat());
+    HighlightSequence seql(seqk);
+    seql.add(6, 7, Formats::instance().stringFormat());
+
+    states << 0;
+    sequences << seqa;
+    text = "int i /* 000 */;";
+    QTest::newRow("case 0") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 3 << 3;
+    sequences << seqb << seqc;
+    text = "/*int i;\ni;";
+    QTest::newRow("case 1") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 3 << 3 << 3;
+    sequences << seqb << seqc << seqb;
+    text = "/*int i;\ni;\nint abc;";
+    QTest::newRow("case 2") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 3 << 3 << 0;
+    sequences << seqb << seqc << seqc;
+    text = "/*int i;\ni;\n*/";
+    QTest::newRow("case 3") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 4 << 3 << 0;
+    sequences << seqd << seqe << seqf;
+    text = "/*int i; /# int j;\nfoo#/bar\n*/f();";
+    QTest::newRow("case 4") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 3;
+    sequences << seqg;
+    text = "i/*bla @/#foo#/ dummy ";
+    QTest::newRow("case 5") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 3 << 3;
+    sequences << seqg << seqc;
+    text = "i/*bla @/#foo#/ dummy \ni;";
+    QTest::newRow("case 6") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 3 << 3 << 0;
+    sequences << seqg << seqc << seqc;
+    text = "i/*bla @/#foo#/ dummy \ni;\n*/";
+    QTest::newRow("case 7") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 3 << 3 << 0;
+    sequences << seqg << seqc << seqh;
+    text = "i/*bla @/#foo#/ dummy \ni;\n*/a";
+    QTest::newRow("case 8") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 3;
+    sequences << seqi;
+    text = "/*+-";
+    QTest::newRow("case 9") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 0;
+    sequences << seqj;
+    text = "/*+=";
+    QTest::newRow("case 10") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 3;
+    sequences << seqk;
+    text = "/*+/#=";
+    QTest::newRow("case 11") << states << sequences << text;
+
+    clear(&states, &sequences);
+    states << 6;
+    sequences << seql;
+    text = "/*+/#=-";
+    QTest::newRow("case 12") << states << sequences << text;
+}
+
+void tst_HighlighterEngine::testEditingPersistentStates0()
+{
+    m_highlighterMock->startNoTestCalls();
+    m_text.setPlainText("a b c /\ninside\n*/\na b c");
+    m_highlighterMock->endNoTestCalls();
+
+    QList<int> states;
+    states << 3 << 3 << 0 << 0;
+    QList<HighlightSequence> sequences;
+    HighlightSequence seqa(0, 6);
+    seqa.add(6, 8, Formats::instance().commentFormat());
+    HighlightSequence seqb(0, 6, Formats::instance().commentFormat());
+    HighlightSequence seqc(0, 2, Formats::instance().commentFormat());
+    HighlightSequence seqd(0, 5);
+    sequences << seqa << seqb << seqc << seqd;
+    setExpectedData(states, sequences);
+
+    addCharactersToEnd(m_text.document()->firstBlock(), "*");
+}
+
+void tst_HighlighterEngine::testEditingPersistentStates1()
+{
+    m_highlighterMock->startNoTestCalls();
+    m_text.setPlainText("/*abc\n/\nnesting\nnesting\n#/\n*/xyz");
+    m_highlighterMock->endNoTestCalls();
+
+    QList<int> states;
+    states << 4 << 4 << 4 << 3 << 0;
+    QList<HighlightSequence> sequences;
+    HighlightSequence seqa(0, 2, Formats::instance().errorFormat());
+    HighlightSequence seqb(0, 7, Formats::instance().errorFormat());
+    HighlightSequence seqc(seqb);
+    HighlightSequence seqd(0, 2, Formats::instance().errorFormat());
+    HighlightSequence seqe(0, 2, Formats::instance().commentFormat());
+    seqe.add(2, 5);
+    sequences << seqa << seqb << seqc << seqd << seqe;
+    setExpectedData(states, sequences);
+
+    addCharactersToEnd(m_text.document()->firstBlock().next(), "#");
+}
+
+void tst_HighlighterEngine::testEditingPersistentStates2()
+{
+    m_highlighterMock->startNoTestCalls();
+    m_text.setPlainText("/*abc\n/\nnesting\nnesting\n*/\n#/xyz");
+    m_highlighterMock->endNoTestCalls();
+
+    QList<int> states;
+    states << 4 << 4 << 4 << 4 << 3;
+    QList<HighlightSequence> sequences;
+    HighlightSequence seqa(0, 2, Formats::instance().errorFormat());
+    HighlightSequence seqb(0, 7, Formats::instance().errorFormat());
+    HighlightSequence seqc(seqb);
+    HighlightSequence seqd(0, 2, Formats::instance().errorFormat());
+    HighlightSequence seqe(seqd);
+    seqe.add(2, 5, Formats::instance().commentFormat());
+    sequences << seqa << seqb << seqc << seqd << seqe;
+    setExpectedData(states, sequences);
+
+    addCharactersToEnd(m_text.document()->firstBlock().next(), "#");
+}
+
+void tst_HighlighterEngine::testDynamicContexts()
+{
+    test();
+}
+
+void tst_HighlighterEngine::testDynamicContexts_data()
+{
+    createColumns();
+
+    QList<int> states;
+    QList<HighlightSequence> sequences;
+    QString text;
+
+    HighlightSequence seqa(0, 2);
+    seqa.add(2, 15, Formats::instance().dataTypeFormat());
+    seqa.add(15, 16, Formats::instance().othersFormat());
+    seqa.add(16, 17, Formats::instance().regionMarketFormat());
+    HighlightSequence seqb(seqa);
+    seqb.add(17, 31, Formats::instance().errorFormat());
+
+    states << 0;
+    sequences << seqa;
+    text = "a ---abcddeeff a ";
+    QTest::newRow("case 0") << states << sequences << text;
+
+    sequences.clear();
+    sequences << seqb;
+    text = "a ---abcddeeff a beginddeeffend";
+    QTest::newRow("case 1") << states << sequences << text;
 }
 
 QTEST_MAIN(tst_HighlighterEngine)
