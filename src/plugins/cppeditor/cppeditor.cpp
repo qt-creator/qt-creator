@@ -733,6 +733,11 @@ TokenCache *CPPEditor::tokenCache() const
     return m_modelManager->tokenCache(editableInterface());
 }
 
+CppTools::CppModelManagerInterface *CPPEditor::modelManager() const
+{
+    return m_modelManager;
+}
+
 void CPPEditor::startRename()
 {
     m_inRenameChanged = false;

@@ -31,6 +31,7 @@
 #define QMLJSQUICKFIX_H
 
 #include "qmljseditor.h"
+
 #include <texteditor/quickfix.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
@@ -40,6 +41,7 @@ namespace QmlJS {
 }
 
 namespace QmlJSEditor {
+class QmlJSRefactoringChanges;
 
 namespace Internal {
 
@@ -69,6 +71,10 @@ protected:
     using TextEditor::QuickFixOperation::charAt;
     using TextEditor::QuickFixOperation::position;
 
+    virtual void apply();
+    QmlJSRefactoringChanges *qmljsRefactoringChanges() const;
+    virtual TextEditor::RefactoringChanges *refactoringChanges() const;
+
     unsigned position(const QmlJS::AST::SourceLocation &loc) const;
 
     // token based operations
@@ -79,6 +85,7 @@ protected:
 
 private:
     SemanticInfo _semanticInfo;
+    QmlJSRefactoringChanges *_refactoringChanges;
 };
 
 class QmlJSQuickFixCollector: public TextEditor::QuickFixCollector

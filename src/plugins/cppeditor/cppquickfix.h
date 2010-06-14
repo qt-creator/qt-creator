@@ -43,6 +43,7 @@
 
 namespace CppTools {
     class CppModelManagerInterface;
+    class CppRefactoringChanges;
 } // end of namespace CppTools
 
 namespace CppEditor {
@@ -61,10 +62,13 @@ public:
     CPlusPlus::Document::Ptr document() const;
     const CPlusPlus::Snapshot &snapshot() const;
 
-    virtual Range topLevelRange() const;
     virtual int match(TextEditor::QuickFixState *state);
 
 protected:
+    virtual void apply();
+    virtual CppTools::CppRefactoringChanges *cppRefactoringChanges() const;
+    virtual TextEditor::RefactoringChanges *refactoringChanges() const;
+
     CPlusPlus::AST *topLevelNode() const;
     void setTopLevelNode(CPlusPlus::AST *topLevelNode);
 
@@ -100,11 +104,10 @@ protected:
     void copy(const CPlusPlus::AST *ast, int to);
 
     QString textOf(const CPlusPlus::AST *ast) const;
-    Range createRange(CPlusPlus::AST *ast) const; // ### rename me
 
 private:
+    CppTools::CppRefactoringChanges *_refactoringChanges;
     CPlusPlus::Document::Ptr _document;
-    CPlusPlus::Snapshot _snapshot;
     CPlusPlus::AST *_topLevelNode;
 };
 

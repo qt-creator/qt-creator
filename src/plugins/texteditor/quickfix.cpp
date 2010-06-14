@@ -30,11 +30,14 @@
 #include "quickfix.h"
 #include "basetexteditor.h"
 
+#include <coreplugin/ifile.h>
+
 #include <QtGui/QApplication>
 #include <QtGui/QTextBlock>
 
 #include <QtCore/QDebug>
 
+using TextEditor::RefactoringChanges;
 using TextEditor::QuickFixOperation;
 using TextEditor::QuickFixCollector;
 
@@ -72,49 +75,16 @@ int QuickFixOperation::selectionEnd() const
     return _textCursor.selectionEnd();
 }
 
-const Utils::ChangeSet &QuickFixOperation::changeSet() const
-{
-    return _changeSet;
-}
-
-void QuickFixOperation::apply()
-{
-    const Range r = topLevelRange();
-
-    _textCursor.beginEditBlock();
-    _changeSet.apply(&_textCursor);
-    reindent(r);
-    _textCursor.endEditBlock();
-}
-
-QuickFixOperation::Range QuickFixOperation::range(int from, int to) const
-{
-    QTextDocument *doc = editor()->document();
-
-    QTextCursor begin(doc);
-    begin.setPosition(from);
-
-    QTextCursor end(doc);
-    end.setPosition(to);
-
-    Range range;
-    range.begin = begin;
-    range.end = end;
-    return range;
-}
-
 int QuickFixOperation::position(int line, int column) const
 {
     QTextDocument *doc = editor()->document();
     return doc->findBlockByNumber(line - 1).position() + column - 1;
 }
 
-void QuickFixOperation::reindent(const Range &range)
+void QuickFixOperation::reindent(const RefactoringChanges::Range &range)
 {
     if (! range.isNull()) {
-        QTextCursor tc = range.begin;
-        tc.setPosition(range.end.position(), QTextCursor::KeepAnchor);
-        editor()->indentInsertedText(tc);
+        refactoringChanges()->reindent(editor()->file()->fileName(), range);
     }
 }
 
@@ -162,9 +132,18 @@ QString QuickFixOperation::textOf(int start, int end) const
     return tc.selectedText();
 }
 
+TextEditor::RefactoringChanges::Range QuickFixOperation::range(int start, int end)
+{
+    return TextEditor::RefactoringChanges::Range(start, end);
+}
+
 void QuickFixOperation::perform()
 {
     createChangeSet();
+
+    if (!_changeSet.isEmpty())
+        refactoringChanges()->changeFile(editor()->file()->fileName(), _changeSet);
+
     apply();
 }
 

@@ -32,6 +32,8 @@
 
 #include "texteditor_global.h"
 #include "icompletioncollector.h"
+
+#include <texteditor/refactoringchanges.h>
 #include <utils/changeset.h>
 
 #include <QtCore/QSharedPointer>
@@ -58,41 +60,28 @@ class TEXTEDITOR_EXPORT QuickFixOperation
 public:
     typedef QSharedPointer<QuickFixOperation> Ptr;
 
-    struct Range {
-        Range() {}
-        Range(const QTextCursor &tc): begin(tc), end(tc) {}
-
-        bool isNull() const { return begin.isNull() || end.isNull(); }
-
-        QTextCursor begin;
-        QTextCursor end;
-    };
-
 public:
     QuickFixOperation(TextEditor::BaseTextEditor *editor);
     virtual ~QuickFixOperation();
 
     virtual QString description() const = 0;
     virtual void createChangeSet() = 0;
-    virtual Range topLevelRange() const = 0;
 
     virtual int match(QuickFixState *state) = 0;
 
     void perform();
-    void apply();
 
     TextEditor::BaseTextEditor *editor() const;
 
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor &cursor);
 
-    void reindent(const Range &range);
+    void reindent(const TextEditor::RefactoringChanges::Range &range);
 
     int selectionStart() const;
     int selectionEnd() const;
 
     int position(int line, int column) const;
-    Range range(int from, int to) const;
 
     void move(int start, int end, int to);
     void replace(int start, int end, const QString &replacement);
@@ -104,7 +93,11 @@ public:
     QChar charAt(int offset) const;
     QString textOf(int start, int end) const;
 
-    const Utils::ChangeSet &changeSet() const;
+    static TextEditor::RefactoringChanges::Range range(int start, int end);
+
+protected:
+    virtual void apply() = 0;
+    virtual TextEditor::RefactoringChanges *refactoringChanges() const = 0;
 
 private:
     TextEditor::BaseTextEditor *_editor;

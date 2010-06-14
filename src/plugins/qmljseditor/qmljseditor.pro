@@ -21,7 +21,8 @@ HEADERS += \
     qmljshoverhandler.h \
     qmljsmodelmanager.h \
     qmljspreviewrunner.h \
-    qmljsquickfix.h
+    qmljsquickfix.h \
+    qmljsrefactoringchanges.h
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -35,7 +36,8 @@ SOURCES += \
     qmljshoverhandler.cpp \
     qmljsmodelmanager.cpp \
     qmljspreviewrunner.cpp \
-    qmljsquickfix.cpp
+    qmljsquickfix.cpp \
+    qmljsrefactoringchanges.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml

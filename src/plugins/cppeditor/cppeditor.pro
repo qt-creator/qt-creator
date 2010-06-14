@@ -15,6 +15,7 @@ HEADERS += cppplugin.h \
     cppeditor_global.h \
     cppclasswizard.h \
     cppquickfix.h
+
 SOURCES += cppplugin.cpp \
     cppeditor.cpp \
     cpphighlighter.cpp \
@@ -22,6 +23,7 @@ SOURCES += cppplugin.cpp \
     cppfilewizard.cpp \
     cppclasswizard.cpp \
     cppquickfix.cpp
+
 RESOURCES += cppeditor.qrc
 
 OTHER_FILES += CppEditor.pluginspec CppEditor.mimetypes.xml

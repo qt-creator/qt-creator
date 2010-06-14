@@ -29,11 +29,19 @@
 
 #include "qmljsquickfix.h"
 #include "qmljseditor.h"
+#include "qmljsrefactoringchanges.h"
 #include "qmljs/parser/qmljsast_p.h"
+
+#include <extensionsystem/pluginmanager.h>
+
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <QtGui/QApplication>
 #include <QtCore/QDebug>
 
+using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
+using TextEditor::RefactoringChanges;
 
 class QmlJSQuickFixState: public TextEditor::QuickFixState
 {
@@ -54,14 +62,6 @@ public:
         return QApplication::translate("QmlJSEditor::QuickFix", "Split initializer");
     }
 
-    virtual Range topLevelRange() const
-    {
-        Q_ASSERT(_objectInitializer);
-
-        return range(position(_objectInitializer->lbraceToken),
-                     position(_objectInitializer->rbraceToken));
-    }
-
     virtual void createChangeSet()
     {
         Q_ASSERT(_objectInitializer != 0);
@@ -77,6 +77,10 @@ public:
 
         // insert a newline before the closing brace
         insert(position(_objectInitializer->rbraceToken), QLatin1String("\n"));
+
+        reindent(RefactoringChanges::Range(position(_objectInitializer->lbraceToken),
+                       position(_objectInitializer->rbraceToken)));
+
     }
 
     virtual int check()
@@ -112,11 +116,14 @@ private:
 
 QmlJSQuickFixOperation::QmlJSQuickFixOperation(TextEditor::BaseTextEditor *editor)
     : TextEditor::QuickFixOperation(editor)
+    , _refactoringChanges(0)
 {
 }
 
 QmlJSQuickFixOperation::~QmlJSQuickFixOperation()
 {
+    if (_refactoringChanges)
+        delete _refactoringChanges;
 }
 
 QmlJS::Document::Ptr QmlJSQuickFixOperation::document() const
@@ -136,10 +143,26 @@ const SemanticInfo &QmlJSQuickFixOperation::semanticInfo() const
 
 int QmlJSQuickFixOperation::match(TextEditor::QuickFixState *state)
 {
+    QmlJS::ModelManagerInterface *modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>();
     QmlJSQuickFixState *s = static_cast<QmlJSQuickFixState *>(state);
     _semanticInfo = s->semanticInfo;
+    if (_refactoringChanges) {
+        delete _refactoringChanges;
+    }
+    _refactoringChanges = new QmlJSRefactoringChanges(modelManager, _semanticInfo.snapshot);
     return check();
 }
+
+void QmlJSQuickFixOperation::apply()
+{
+    _refactoringChanges->apply();
+}
+
+QmlJSRefactoringChanges *QmlJSQuickFixOperation::qmljsRefactoringChanges() const
+{ return _refactoringChanges; }
+
+RefactoringChanges *QmlJSQuickFixOperation::refactoringChanges() const
+{ return qmljsRefactoringChanges(); }
 
 unsigned QmlJSQuickFixOperation::position(const QmlJS::AST::SourceLocation &loc) const
 {

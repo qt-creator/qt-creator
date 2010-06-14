@@ -436,7 +436,7 @@ protected:
         range.ast = member;
 
         range.begin = QTextCursor(_textDocument);
-        range.begin.setPosition(ast->lbraceToken.begin());
+        range.begin.setPosition(member->firstSourceLocation().begin());
 
         range.end = QTextCursor(_textDocument);
         range.end.setPosition(ast->rbraceToken.end());

@@ -47,6 +47,7 @@
 #include <Name.h>
 #include <Literals.h>
 
+#include <cpptools/cpprefactoringchanges.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 
@@ -864,27 +865,38 @@ private:
 
 
 CppQuickFixOperation::CppQuickFixOperation(TextEditor::BaseTextEditor *editor)
-    : TextEditor::QuickFixOperation(editor), _topLevelNode(0)
+    : TextEditor::QuickFixOperation(editor)
+    , _refactoringChanges(0)
+    , _topLevelNode(0)
 { }
 
 CppQuickFixOperation::~CppQuickFixOperation()
-{ }
-
-CppQuickFixOperation::Range CppQuickFixOperation::topLevelRange() const
 {
-    if (topLevelNode())
-        return createRange(topLevelNode());
-
-    return Range();
+    if (_refactoringChanges)
+        delete _refactoringChanges;
 }
 
 int CppQuickFixOperation::match(TextEditor::QuickFixState *state)
 {
     CppQuickFixState *s = static_cast<CppQuickFixState *>(state);
     _document = s->info.doc;
-    _snapshot = s->info.snapshot;
+    if (_refactoringChanges)
+        delete _refactoringChanges;
+    CPPEditor *cppEditor = qobject_cast<CPPEditor*>(editor());
+    _refactoringChanges = new CppTools::CppRefactoringChanges(s->info.snapshot, cppEditor->modelManager());
     return match(s->path);
 }
+
+void CppQuickFixOperation::apply()
+{
+    cppRefactoringChanges()->apply();
+}
+
+CppTools::CppRefactoringChanges *CppQuickFixOperation::cppRefactoringChanges() const
+{ return _refactoringChanges; }
+
+TextEditor::RefactoringChanges *CppQuickFixOperation::refactoringChanges() const
+{ return cppRefactoringChanges(); }
 
 CPlusPlus::AST *CppQuickFixOperation::topLevelNode() const
 { return _topLevelNode; }
@@ -896,7 +908,9 @@ Document::Ptr CppQuickFixOperation::document() const
 { return _document; }
 
 const Snapshot &CppQuickFixOperation::snapshot() const
-{ return _snapshot; }
+{
+    return _refactoringChanges->snapshot();
+}
 
 const CPlusPlus::Token &CppQuickFixOperation::tokenAt(unsigned index) const
 { return _document->translationUnit()->tokenAt(index); }
@@ -963,11 +977,6 @@ bool CppQuickFixOperation::isCursorOn(const CPlusPlus::AST *ast) const
         return true;
 
     return false;
-}
-
-CppQuickFixOperation::Range CppQuickFixOperation::createRange(AST *ast) const
-{
-    return range(startOf(ast), endOf(ast));
 }
 
 void CppQuickFixOperation::move(unsigned tokenIndex, int to)

@@ -69,6 +69,7 @@ public:
     /* returns the list of unique files that were passed in items */
     static QStringList replaceAll(const QString &txt,
                                   const QList<Find::SearchResultItem> &items);
+
 protected:
     virtual QStringList files() = 0;
     void writeCommonSettings(QSettings *settings);

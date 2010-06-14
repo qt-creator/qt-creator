@@ -201,6 +201,8 @@ public:
 
     CPlusPlus::TokenCache *tokenCache() const;
 
+    CppTools::CppModelManagerInterface *modelManager() const;
+
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
     void setSortedMethodOverview(bool sort);
