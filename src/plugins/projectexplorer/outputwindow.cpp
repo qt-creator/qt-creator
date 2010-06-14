@@ -315,7 +315,7 @@ void OutputPane::tabChanged(int i)
         RunControl *rc = runControlForTab(i);
         m_stopAction->setEnabled(rc->isRunning());
         m_reRunButton->setEnabled(!rc->isRunning());
-        m_reRunButton->setIcon( rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
+        m_reRunButton->setIcon(rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
     }
 }
 
@@ -325,7 +325,7 @@ void OutputPane::runControlStarted()
     if (rc == qobject_cast<RunControl *>(sender())) {
         m_reRunButton->setEnabled(false);
         m_stopAction->setEnabled(true);
-        m_reRunButton->setIcon( rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
+        m_reRunButton->setIcon(rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
     }
 }
 
@@ -335,7 +335,7 @@ void OutputPane::runControlFinished()
     if (rc == qobject_cast<RunControl *>(sender())) {
         m_reRunButton->setEnabled(rc);
         m_stopAction->setEnabled(false);
-        m_reRunButton->setIcon( rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
+        m_reRunButton->setIcon(rc->runMode() == Constants::DEBUGMODE ? m_debugIcon : m_runIcon);
     }
 }
 

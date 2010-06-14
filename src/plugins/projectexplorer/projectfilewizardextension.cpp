@@ -284,7 +284,7 @@ void ProjectFileWizardExtension::initProjectChoices(bool enabled)
     // duplicate base names in differing directories).
     //: No project selected
     QStringList projectChoices(tr("<None>"));
-    QStringList projectToolTips( QString::null ); // Do not use QString() - gcc-bug.
+    QStringList projectToolTips((QString()));
     if (enabled) {
         typedef QMap<ProjectEntry, bool> ProjectEntryMap;
         // Sort by base name and purge duplicated entries (resulting from dependencies)
