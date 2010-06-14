@@ -79,8 +79,8 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
     const bool fatal = isFatalException(Exception->ExceptionCode);
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << "\nex=" << Exception->ExceptionCode << " fatal=" << fatal << msg;
-    m_pEngine->manager()->showApplicationOutput(msg, true);
-    m_pEngine->manager()->showDebuggerOutput(LogMisc, msg);
+    m_pEngine->showMessage(msg, AppError);
+    m_pEngine->showMessage(msg, LogMisc);
     m_pEngine->m_d->notifyException(Exception->ExceptionCode, fatal, msg);
     return S_OK;
 }
@@ -207,11 +207,10 @@ STDMETHODIMP CdbDebugEventCallback::SystemError(
 
 // -----------ExceptionLoggerEventCallback
 CdbExceptionLoggerEventCallback::CdbExceptionLoggerEventCallback(int logChannel,
-                                                                 bool skipNonFatalExceptions,
-                                                                 DebuggerManager *manager) :
+         bool skipNonFatalExceptions, CdbDebugEngine *engine) :
     m_logChannel(logChannel),
     m_skipNonFatalExceptions(skipNonFatalExceptions),
-    m_manager(manager)
+    m_engine(engine)
 {
 }
 
@@ -228,15 +227,15 @@ STDMETHODIMP CdbExceptionLoggerEventCallback::Exception(
     )
 {
     const bool recordException = !m_skipNonFatalExceptions || isFatalException(Exception->ExceptionCode);
-    QString message;
-    formatException(Exception, QTextStream(&message));
+    QString msg;
+    formatException(Exception, QTextStream(&msg));
     if (recordException) {
         m_exceptionCodes.push_back(Exception->ExceptionCode);
-        m_exceptionMessages.push_back(message);
+        m_exceptionMessages.push_back(msg);
     }
     if (debugCDB)
-        qDebug() << Q_FUNC_INFO << '\n' << message;
-    m_manager->showDebuggerOutput(m_logChannel, message);
+        qDebug() << Q_FUNC_INFO << '\n' << msg;
+    m_engine->showMessage(msg, m_logChannel);
     if (recordException)
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     return S_OK;

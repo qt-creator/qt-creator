@@ -85,7 +85,7 @@ public:
         Initialized, // List of types, etc. retrieved
     };
 
-    explicit CdbDumperHelper(DebuggerManager *manager,
+    explicit CdbDumperHelper(CdbDebugEngine *engine,
                              CdbCore::CoreEngine *coreEngine);
     ~CdbDumperHelper();
 
@@ -139,7 +139,7 @@ private:
     const QString m_msgDisabled;
     const QString m_msgNotInScope;
     State m_state;
-    DebuggerManager *m_manager;
+    CdbDebugEngine *m_engine;
     CdbCore::CoreEngine *m_coreEngine;
 
     QString m_library;

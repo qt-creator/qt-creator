@@ -328,7 +328,7 @@ void CdbDebugEnginePrivate::checkVersion()
         }
         // Compare
         const double minVersion = 6.11;
-        manager()->showDebuggerOutput(LogMisc, CdbDebugEngine::tr("Version: %1").arg(version));
+        showMessage(CdbDebugEngine::tr("Version: %1").arg(version));
         if (version.toDouble() <  minVersion) {
             const QString msg = CdbDebugEngine::tr(
                     "<html>The installed version of the <i>Debugging Tools for Windows</i> (%1) "
@@ -410,7 +410,7 @@ void CdbDebugEngine::startDebugger()
     // Options
     QString errorMessage;
     if (!m_d->setBreakOnThrow(theDebuggerBoolSetting(BreakOnThrow), &errorMessage))
-      manager()->showDebuggerOutput(LogWarning, errorMessage);
+        showMessage(errorMessage, LogWarning);
     m_d->setVerboseSymbolLoading(m_d->m_options->verboseSymbolLoading);
     // Figure out dumper. @TODO: same in gdb...
     const QString dumperLibName = QDir::toNativeSeparators(manager()->qtDumperLibraryName());
@@ -532,7 +532,7 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
 
 void CdbDebugEngine::processTerminated(unsigned long exitCode)
 {
-    manager()->showDebuggerOutput(LogMisc, tr("The process exited with exit code %1.").arg(exitCode));
+    showMessage(tr("The process exited with exit code %1.").arg(exitCode));
     if (state() != InferiorStopping)
         setState(InferiorStopping, Q_FUNC_INFO, __LINE__);
     setState(InferiorStopped, Q_FUNC_INFO, __LINE__);
@@ -612,7 +612,7 @@ void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
         // Need a stopped debuggee to act
         if (!endInferior(action, &errorMessage)) {
             errorMessage = QString::fromLatin1("Unable to detach from/end the debuggee: %1").arg(errorMessage);
-            manager()->showDebuggerOutput(LogError, errorMessage);
+            showMessage(errorMessage, LogError);
         }
         errorMessage.clear();
     }
@@ -623,7 +623,7 @@ void CdbDebugEnginePrivate::endDebugging(EndDebuggingMode em)
     m_engine->setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
     if (!endedCleanly) {
         errorMessage = QString::fromLatin1("There were errors trying to end debugging:\n%1").arg(errorMessage);
-        manager()->showDebuggerOutput(LogError, errorMessage);
+        showMessage(errorMessage, LogError);
     }
 }
 
@@ -713,7 +713,7 @@ bool CdbDebugEnginePrivate::executeContinueCommand(const QString &command)
     clearForRun();
     updateCodeLevel(); // Step by instruction
     m_engine->setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
-    manager()->showDebuggerOutput(LogMisc, CdbDebugEngine::tr("Continuing with '%1'...").arg(command));
+    showMessage(CdbDebugEngine::tr("Continuing with '%1'...").arg(command));
     QString errorMessage;
     const bool success = executeDebuggerCommand(command, &errorMessage);
     if (success) {
@@ -795,7 +795,7 @@ bool CdbDebugEngine::step(unsigned long executionStatus)
             str << "gu";
             break;
         }
-        manager()->showDebuggerOutput(tr("Stepping %1").arg(command));
+        showMessage(tr("Stepping %1").arg(command));
         const HRESULT hr = m_d->interfaces().debugControl->Execute(DEBUG_OUTCTL_THIS_CLIENT, command.toLatin1().constData(), DEBUG_EXECUTE_ECHO);
         success = SUCCEEDED(hr);
         if (!success)
@@ -931,7 +931,7 @@ void CdbDebugEngine::slotBreakAttachToCrashed()
     // Force a break when attaching to crashed process (if Creator was not spawned
     // from handler).
     if (state() != InferiorStopped) {
-        manager()->showDebuggerOutput(LogMisc, QLatin1String("Forcing break..."));
+        showMessage(QLatin1String("Forcing break..."));
         m_d->m_dumper->disable();
         interruptInferior();
     }
@@ -952,7 +952,7 @@ void CdbDebugEngine::interruptInferior()
 
 void CdbDebugEngine::executeRunToLine(const QString &fileName, int lineNumber)
 {
-    manager()->showDebuggerOutput(LogMisc, tr("Running up to %1:%2...").arg(fileName).arg(lineNumber));
+    showMessage(tr("Running up to %1:%2...").arg(fileName).arg(lineNumber));
     QString errorMessage;
     CdbCore::BreakPoint tempBreakPoint;
     tempBreakPoint.fileName = fileName;
@@ -966,7 +966,7 @@ void CdbDebugEngine::executeRunToLine(const QString &fileName, int lineNumber)
 
 void CdbDebugEngine::executeRunToFunction(const QString &functionName)
 {
-    manager()->showDebuggerOutput(LogMisc, tr("Running up to function '%1()'...").arg(functionName));
+    showMessage(tr("Running up to function '%1()'...").arg(functionName));
     QString errorMessage;
     CdbCore::BreakPoint tempBreakPoint;
     tempBreakPoint.funcName = functionName;
@@ -1277,10 +1277,10 @@ void CdbDebugEngine::slotConsoleStubTerminated()
     exitDebugger();
 }
 
-void CdbDebugEngine::warning(const QString &w)
+void CdbDebugEngine::warning(const QString &msg)
 {
-    manager()->showDebuggerOutput(LogWarning, w);
-    qWarning("%s\n", qPrintable(w));
+    showMessage(msg, LogWarning);
+    qWarning("%s\n", qPrintable(msg));
 }
 
 void CdbDebugEnginePrivate::notifyException(long code, bool fatal, const QString &message)
@@ -1296,7 +1296,7 @@ void CdbDebugEnginePrivate::notifyException(long code, bool fatal, const QString
         break;
     case EXCEPTION_BREAKPOINT:
         if (m_ignoreInitialBreakPoint && !m_inferiorStartupComplete && m_breakEventMode == BreakEventHandle) {
-            manager()->showDebuggerOutput(LogMisc, CdbDebugEngine::tr("Ignoring initial breakpoint..."));
+            showMessage(CdbDebugEngine::tr("Ignoring initial breakpoint..."));
             m_breakEventMode = BreakEventIgnoreOnce;
         }
         break;
@@ -1356,7 +1356,7 @@ void CdbDebugEnginePrivate::handleDebugEvent()
         const QString msg = m_interrupted ?
                             CdbDebugEngine::tr("Interrupted in thread %1, current thread: %2").arg(m_interruptArticifialThreadId).arg(m_currentThreadId) :
                             CdbDebugEngine::tr("Stopped, current thread: %1").arg(m_currentThreadId);
-        manager()->showDebuggerOutput(LogMisc, msg);
+        showMessage(msg);
         const int threadIndex = threadIndexById(threadsHandler, m_currentThreadId);
         if (threadIndex != -1)
             threadsHandler->setCurrentThread(threadIndex);

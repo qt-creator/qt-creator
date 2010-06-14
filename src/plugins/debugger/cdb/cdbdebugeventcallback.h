@@ -35,8 +35,6 @@
 #include <QtCore/QStringList>
 
 namespace Debugger {
-class DebuggerManager;
-
 namespace Internal {
 
 class CdbDebugEngine;
@@ -129,7 +127,7 @@ class CdbExceptionLoggerEventCallback : public CdbCore::DebugEventCallbackBase
 public:
     CdbExceptionLoggerEventCallback(int logChannel,
                                     bool skipNonFatalExceptions,
-                                    DebuggerManager *access);
+                                    CdbDebugEngine *engine);
 
     STDMETHOD(GetInterestMask)(
         THIS_
@@ -149,7 +147,7 @@ public:
 private:
     const int m_logChannel;
     const bool m_skipNonFatalExceptions;
-    DebuggerManager *m_manager;
+    CdbDebugEngine *m_engine;
     QList<ULONG> m_exceptionCodes;
     QStringList m_exceptionMessages;
 };
