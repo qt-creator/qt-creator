@@ -74,7 +74,7 @@ public:
     ProFileEvaluator(ProFileOption *option);
     virtual ~ProFileEvaluator();
 
-    ProFileEvaluator::TemplateType templateType();
+    ProFileEvaluator::TemplateType templateType() const;
     void setVerbose(bool on); // Default is false
     void setCumulative(bool on); // Default is true!
     void setOutputDir(const QString &dir); // Default is empty

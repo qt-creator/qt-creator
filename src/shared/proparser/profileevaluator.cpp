@@ -3574,7 +3574,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 logMessage(format("include(file, into, silent) requires one, two or three arguments."));
                 return ReturnFalse;
             }
-            QString fn = resolvePath(expandEnvVars(args.at(0).toQString()));
+            QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
+            fn.detach();
             bool ok;
             if (parseInto.isEmpty()) {
                 ok = evaluateFile(fn);
@@ -4147,7 +4148,7 @@ QStringList ProFileEvaluator::absoluteFileValues(
     return result;
 }
 
-ProFileEvaluator::TemplateType ProFileEvaluator::templateType()
+ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
 {
     const ProStringList &templ = d->values(statics.strTEMPLATE);
     if (templ.count() >= 1) {

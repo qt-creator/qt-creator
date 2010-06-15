@@ -40,7 +40,6 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
-class ProFileReader;
 class Qt4ProFileNode;
 class Qt4TargetFactory;
 class Qt4BuildConfigurationFactory;

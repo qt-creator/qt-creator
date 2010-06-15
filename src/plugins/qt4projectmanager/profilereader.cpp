@@ -89,7 +89,7 @@ QList<ProFile*> ProFileReader::includeFiles() const
 
 QString ProFileReader::value(const QString &variable) const
 {
-    QStringList vals = values(variable);
+    const QStringList &vals = values(variable);
     if (!vals.isEmpty())
         return vals.first();
 

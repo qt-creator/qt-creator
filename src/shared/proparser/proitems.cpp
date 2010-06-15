@@ -335,9 +335,8 @@ ProFile::ProFile(const QString &fileName)
       m_fileName(fileName)
 {
     int nameOff = fileName.lastIndexOf(QLatin1Char('/'));
-    m_displayFileName = QString(fileName.constData() + nameOff + 1,
-                                fileName.length() - nameOff - 1);
-    m_directoryName = QString(fileName.constData(), nameOff);
+    m_displayFileName = fileName.mid(nameOff + 1);
+    m_directoryName = fileName.left(nameOff);
 }
 
 ProFile::~ProFile()
