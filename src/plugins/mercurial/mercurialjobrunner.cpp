@@ -193,6 +193,8 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
         qDebug() << Q_FUNC_INFO << "Repository root is " << taskData->repositoryRoot();
 
     QProcess hgProcess;
+    if (!taskData->repositoryRoot().isEmpty())
+        hgProcess.setWorkingDirectory(taskData->repositoryRoot());
     hgProcess.start(binary, args);
 
     if (!hgProcess.waitForStarted()) {
