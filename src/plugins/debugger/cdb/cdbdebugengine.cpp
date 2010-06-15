@@ -119,8 +119,7 @@ static QString msgFunctionFailed(const char *func, const QString &why)
 
 // --- CdbDebugEnginePrivate
 
-CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
-                                             const QSharedPointer<CdbOptions> &options,
+CdbDebugEnginePrivate::CdbDebugEnginePrivate(const QSharedPointer<CdbOptions> &options,
                                              CdbDebugEngine *engine) :
     m_options(options),
     m_hDebuggeeProcess(0),
@@ -149,7 +148,10 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
 
     if (!CdbCore::CoreEngine::init(m_options->path, errorMessage))
         return false;
-    CdbDebugOutput *output = new CdbDebugOutput(m_engine);
+    CdbDebugOutput *output = new CdbDebugOutput;
+    connect(output, SIGNAL(showMessage(QString,int,int)),
+            m_engine, SLOT(showMessage(QString,int,int)),
+            Qt::QueuedConnection); // Multithread invocation when loading dumpers.
     setDebugOutput(DebugOutputBasePtr(output));
     setDebugEventCallback(DebugEventCallbackBasePtr(new CdbDebugEventCallback(m_engine)));
     updateCodeLevel();
@@ -212,7 +214,7 @@ void CdbDebugEnginePrivate::cleanStackTrace()
 
 CdbDebugEngine::CdbDebugEngine(DebuggerManager *manager, const QSharedPointer<CdbOptions> &options) :
     IDebuggerEngine(manager),
-    m_d(new CdbDebugEnginePrivate(manager, options, this))
+    m_d(new CdbDebugEnginePrivate(options, this))
 {
     m_d->m_consoleStubProc.setMode(Utils::ConsoleProcess::Suspend);
     connect(&m_d->m_consoleStubProc, SIGNAL(processMessage(QString,bool)),

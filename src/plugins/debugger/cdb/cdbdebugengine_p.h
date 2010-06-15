@@ -68,8 +68,7 @@ public:
         StoppedOther
     };
 
-    explicit CdbDebugEnginePrivate(DebuggerManager *parent,
-                                   const QSharedPointer<CdbOptions> &options,
+    explicit CdbDebugEnginePrivate(const QSharedPointer<CdbOptions> &options,
                                    CdbDebugEngine* engine);
     ~CdbDebugEnginePrivate();
     bool init(QString *errorMessage);

@@ -132,6 +132,7 @@ public:
     virtual bool isSynchroneous() const { return false; }
     virtual QString qtNamespace() const { return QString(); }
 
+public slots:
     // Convenience
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
     void showStatusMessage(const QString &msg, int timeout = -1) const

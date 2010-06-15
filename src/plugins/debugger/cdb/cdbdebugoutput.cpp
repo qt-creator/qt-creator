@@ -28,12 +28,9 @@
 **************************************************************************/
 
 #include "cdbdebugoutput.h"
-#include "cdbdebugengine.h"
+#include "debuggerrunner.h"
 #include "cdbdebugengine_p.h"
 #include "cdbcom.h"
-#include "debuggerrunner.h"
-
-#include <utils/qtcassert.h>
 
 namespace Debugger {
 namespace Internal {
@@ -61,18 +58,15 @@ static int logChannel(ULONG mask)
     return LogMisc;
 }
 
-CdbDebugOutput::CdbDebugOutput(CdbDebugEngine *engine)
-  : m_engine(engine)
+CdbDebugOutput::CdbDebugOutput()
 {
 }
 
 void CdbDebugOutput::output(ULONG mask, const QString &msg)
 {
-    DebuggerRunControl *runControl = m_engine->runControl();
-    QTC_ASSERT(runControl, return);
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << "\n    " << msg;
-    runControl->showMessage(msg, logChannel(mask));
+    emit showMessage(msg, logChannel(mask), -1);
 }
 
 } // namespace Internal

@@ -874,7 +874,7 @@ void DebuggerManager::notifyInferiorPidChanged(qint64 pid)
 
 void DebuggerManager::aboutToShutdown()
 {
-    STATE_DEBUG(d->m_engine);
+    // TODO: STATE_DEBUG(d->m_engine);
     if (d->m_engine)
         d->m_engine->shutdown();
     d->m_engine = 0;
