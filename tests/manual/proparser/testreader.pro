@@ -1,5 +1,6 @@
 VPATH += ../../../src/shared/proparser
 INCLUDEPATH += ../../../src/shared/proparser
+DEPENDPATH += ../../../src/shared/proparser
 
 TEMPLATE        = app
 TARGET          = testreader
