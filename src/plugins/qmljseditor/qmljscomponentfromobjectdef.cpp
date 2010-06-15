@@ -93,13 +93,13 @@ void ComponentFromObjectDef::createChanges()
     QString imports;
     UiProgram *prog = semanticInfo().document->qmlProgram();
     if (prog && prog->imports) {
-        const int start = position(prog->imports->firstSourceLocation());
-        const int end = position(prog->members->member->firstSourceLocation());
+        const int start = startPosition(prog->imports->firstSourceLocation());
+        const int end = startPosition(prog->members->member->firstSourceLocation());
         imports = textOf(start, end);
     }
 
-    const int start = position(_objDef->firstSourceLocation());
-    const int end = position(_objDef->lastSourceLocation());
+    const int start = startPosition(_objDef->firstSourceLocation());
+    const int end = startPosition(_objDef->lastSourceLocation());
     const QString txt = imports + textOf(start, end) + QLatin1String("}\n");
 
     Utils::ChangeSet changes;

@@ -74,16 +74,18 @@ public:
                 const QmlJS::AST::SourceLocation loc = member->firstSourceLocation();
 
                 // insert a newline at the beginning of this binding
-                changes.insert(position(loc), QLatin1String("\n"));
+                changes.insert(startPosition(loc), QLatin1String("\n"));
             }
         }
 
         // insert a newline before the closing brace
-        changes.insert(position(_objectInitializer->rbraceToken), QLatin1String("\n"));
+        changes.insert(startPosition(_objectInitializer->rbraceToken),
+                       QLatin1String("\n"));
 
         refactoringChanges()->changeFile(fileName(), changes);
-        refactoringChanges()->reindent(fileName(), range(position(_objectInitializer->lbraceToken),
-                                                         position(_objectInitializer->rbraceToken)));
+        refactoringChanges()->reindent(fileName(),
+                                       range(startPosition(_objectInitializer->lbraceToken),
+                                             startPosition(_objectInitializer->rbraceToken)));
 
     }
 
@@ -173,29 +175,9 @@ QmlJSRefactoringChanges *QmlJSQuickFixOperation::qmljsRefactoringChanges() const
 RefactoringChanges *QmlJSQuickFixOperation::refactoringChanges() const
 { return qmljsRefactoringChanges(); }
 
-unsigned QmlJSQuickFixOperation::position(const QmlJS::AST::SourceLocation &loc) const
+unsigned QmlJSQuickFixOperation::startPosition(const QmlJS::AST::SourceLocation &loc) const
 {
     return position(loc.startLine, loc.startColumn);
-}
-
-void QmlJSQuickFixOperation::move(const QmlJS::AST::SourceLocation &loc, int to)
-{
-    move(position(loc.startColumn, loc.startColumn), to);
-}
-
-void QmlJSQuickFixOperation::replace(const QmlJS::AST::SourceLocation &loc, const QString &replacement)
-{
-    replace(position(loc.startLine, loc.startColumn), replacement);
-}
-
-void QmlJSQuickFixOperation::remove(const QmlJS::AST::SourceLocation &loc)
-{
-    remove(position(loc.startLine, loc.startColumn));
-}
-
-void QmlJSQuickFixOperation::copy(const QmlJS::AST::SourceLocation &loc, int to)
-{
-    copy(position(loc.startLine, loc.startColumn), to);
 }
 
 QmlJSQuickFixCollector::QmlJSQuickFixCollector()

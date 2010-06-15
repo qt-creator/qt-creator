@@ -71,13 +71,7 @@ protected:
     QmlJSRefactoringChanges *qmljsRefactoringChanges() const;
     virtual TextEditor::RefactoringChanges *refactoringChanges() const;
 
-    unsigned position(const QmlJS::AST::SourceLocation &loc) const;
-
-    // token based operations
-    void move(const QmlJS::AST::SourceLocation &loc, int to);
-    void replace(const QmlJS::AST::SourceLocation &loc, const QString &replacement);
-    void remove(const QmlJS::AST::SourceLocation &loc);
-    void copy(const QmlJS::AST::SourceLocation &loc, int to);
+    unsigned startPosition(const QmlJS::AST::SourceLocation &loc) const;
 
 private:
     SemanticInfo _semanticInfo;
