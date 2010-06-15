@@ -46,6 +46,10 @@
 #include <Overview.h>
 #include <Names.h>
 #include <Scope.h>
+#include <BackwardsScanner.h>
+#include <TokenCache.h>
+
+#include <utils/changeset.h>
 
 #include <iostream>
 #include <cstdlib>
@@ -792,7 +796,7 @@ static QList<QTextCursor> removeConstructors(ClassSpecifierAST *classAST,
     return cursors;
 }
 
-static QStringList collectFields(ClassSpecifierAST *classAST)
+static QStringList collectFieldNames(ClassSpecifierAST *classAST, bool onlyTokensAndASTNodes)
 {
     QStringList fields;
     Overview oo;
@@ -800,11 +804,20 @@ static QStringList collectFields(ClassSpecifierAST *classAST)
     for (unsigned i = 0; i < clazz->memberCount(); ++i) {
         Symbol *s = clazz->memberAt(i);
         if (Declaration *decl = s->asDeclaration()) {
-            FullySpecifiedType ty = decl->type();
-            if (ty->isPointerType())
-                fields.append(oo(decl->name()));
-            else if (ty.isUnsigned())
-                fields.append(oo(decl->name()));
+            const QString declName = oo(decl->name());
+            const FullySpecifiedType ty = decl->type();
+            if (const PointerType *ptrTy = ty->asPointerType()) {
+                if (onlyTokensAndASTNodes) {
+                    if (const NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
+                        if (oo(namedTy->name()).endsWith(QLatin1String("AST")))
+                            fields.append(declName);
+                    }
+                } else {
+                    fields.append(declName);
+                }
+            } else if (ty.isUnsigned()) {
+                fields.append(declName);
+            }
         }
     }
     return fields;
@@ -819,7 +832,7 @@ static QString createConstructor(ClassSpecifierAST *classAST)
     result.append(oo(clazz->name()));
     result.append(QLatin1String("()\n"));
 
-    QStringList classFields = collectFields(classAST);
+    QStringList classFields = collectFieldNames(classAST, false);
     for (int i = 0; i < classFields.size(); ++i) {
         if (i == 0) {
             result.append(QLatin1String("        : "));
@@ -834,6 +847,253 @@ static QString createConstructor(ClassSpecifierAST *classAST)
 
     result.append(QLatin1String("    {}\n"));
     return result;
+}
+
+bool checkGenerated(TokenCache *tokenCache, const QTextCursor &cursor, int *doxyStart)
+{
+    BackwardsScanner tokens(tokenCache, cursor);
+    SimpleToken prevToken = tokens.LA(1);
+    if (prevToken.kind() != T_DOXY_COMMENT && prevToken.kind() != T_CPP_DOXY_COMMENT)
+        return false;
+
+    *doxyStart = tokens.startPosition() + prevToken.position();
+
+    return tokens.text(tokens.startToken() - 1).contains(QLatin1String("\\generated"));
+}
+
+struct GenInfo {
+    GenInfo()
+        : classAST(0)
+        , start(0)
+        , end(0)
+        , firstToken(false)
+        , lastToken(false)
+        , remove(false)
+    {}
+
+    ClassSpecifierAST *classAST;
+    int start;
+    int end;
+    bool firstToken;
+    bool lastToken;
+    bool remove;
+};
+
+void generateFirstToken(QTextStream &os, const QString &className, const QStringList &fields)
+{
+    os << "unsigned "<< className << "::firstToken() const" << endl
+            << "{" << endl;
+
+    foreach (const QString &field, fields) {
+        os << "    if (" << field << ")" << endl;
+
+        if (field.endsWith(QLatin1String("_token"))) {
+            os << "        return " << field << ";" << endl;
+        } else {
+            os << "        if (unsigned candidate = " << field << "->firstToken())" << endl;
+            os << "            return candidate;" << endl;
+        }
+    }
+
+    os << "    return 0;" << endl;
+    os << "}" << endl << endl;
+}
+
+void generateLastToken(QTextStream &os, const QString &className, const QStringList &fields)
+{
+    os << "unsigned "<< className << "::lastToken() const" << endl
+            << "{" << endl;
+
+    for (int i = fields.size() - 1; i >= 0; --i) {
+        const QString field = fields.at(i);
+
+        os << "    if (" << field << ")" << endl;
+
+        if (field.endsWith(QLatin1String("_token"))) {
+            os << "        return " << field << " + 1;" << endl;
+        } else {
+            os << "        if (unsigned candidate = " << field << "->lastToken())" << endl;
+            os << "            return candidate;" << endl;
+        }
+    }
+
+    os << "    return 0;" << endl;
+    os << "}" << endl << endl;
+}
+
+void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
+{
+    QFileInfo fileAST_cpp(cplusplusDir, QLatin1String("AST.cpp"));
+    Q_ASSERT(fileAST_cpp.exists());
+
+    const QString fileName = fileAST_cpp.absoluteFilePath();
+
+    QFile file(fileName);
+    if (! file.open(QFile::ReadOnly)) {
+        std::cerr << "Cannot open " << fileName.toLatin1().data() << std::endl;
+        return;
+    }
+
+    const QString source = QTextStream(&file).readAll();
+    file.close();
+
+    QTextDocument cpp_document;
+    cpp_document.setPlainText(source);
+
+    Document::Ptr AST_cpp_document = Document::create(fileName);
+    const QByteArray preprocessedCode = snapshot.preprocessedCode(source, fileName);
+    AST_cpp_document->setSource(preprocessedCode);
+    AST_cpp_document->check();
+
+    Overview oo;
+    QMap<QString, ClassSpecifierAST *> classesNeedingFirstToken;
+    QMap<QString, ClassSpecifierAST *> classesNeedingLastToken;
+
+    // find all classes with method declarations for firstToken/lastToken
+    foreach (ClassSpecifierAST *classAST, astNodes.deriveds) {
+        const QString className = oo(classAST->symbol->name());
+        if (className.isEmpty())
+            continue;
+
+        for (DeclarationListAST *declIter = classAST->member_specifier_list; declIter; declIter = declIter->next) {
+            if (SimpleDeclarationAST *decl = declIter->value->asSimpleDeclaration()) {
+                if (decl->symbols && decl->symbols->value) {
+                    if (decl->symbols->next)
+                        std::cerr << "Found simple declaration with multiple symbols in " << className.toLatin1().data() << std::endl;
+
+                    Symbol *s = decl->symbols->value;
+                    const QString funName = oo(s->name());
+                    if (funName == QLatin1String("firstToken")) {
+                        // found it:
+                        classesNeedingFirstToken.insert(className, classAST);
+                    } else if (funName == QLatin1String("lastToken")) {
+                        // found it:
+                        classesNeedingLastToken.insert(className, classAST);
+                    }
+                }
+            }
+        }
+    }
+
+    QList<GenInfo> todo;
+
+    TokenCache tokenCache;
+    tokenCache.setDocument(&cpp_document);
+    TranslationUnitAST *xUnit = AST_cpp_document->translationUnit()->ast()->asTranslationUnit();
+    for (DeclarationListAST *iter = xUnit->declaration_list; iter; iter = iter->next) {
+        if (FunctionDefinitionAST *funDef = iter->value->asFunctionDefinition()) {
+            if (const QualifiedNameId *qName = funDef->symbol->name()->asQualifiedNameId()) {
+                if (qName->nameCount() != 2)
+                    continue;
+                const QString className = oo(qName->nameAt(0));
+                const QString methodName = oo(qName->nameAt(1));
+
+                QTextCursor cursor(&cpp_document);
+
+                unsigned line = 0, column = 0;
+                AST_cpp_document->translationUnit()->getTokenStartPosition(funDef->firstToken(), &line, &column);
+                const int start = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
+                cursor.setPosition(start);
+                int doxyStart = start;
+                const bool isGenerated = checkGenerated(&tokenCache, cursor, &doxyStart);
+
+                AST_cpp_document->translationUnit()->getTokenEndPosition(funDef->lastToken() - 1, &line, &column);
+                int end = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
+                while (cpp_document.characterAt(end).isSpace())
+                    ++end;
+
+                if (methodName == QLatin1String("firstToken")) {
+                    ClassSpecifierAST *classAST = classesNeedingFirstToken.value(className, 0);
+                    GenInfo info;
+                    info.end = end;
+                    if (classAST) {
+                        info.classAST = classAST;
+                        info.firstToken = true;
+                        info.start = start;
+                        classesNeedingFirstToken.remove(className);
+                    } else {
+                        info.start = doxyStart;
+                        info.remove = true;
+                    }
+                    if (isGenerated)
+                        todo.append(info);
+                } else if (methodName == QLatin1String("lastToken")) {
+                    ClassSpecifierAST *classAST = classesNeedingLastToken.value(className, 0);
+                    GenInfo info;
+                    info.end = end;
+                    if (classAST) {
+                        info.classAST = classAST;
+                        info.start = start;
+                        info.lastToken = true;
+                        classesNeedingLastToken.remove(className);
+                    } else {
+                        info.start = doxyStart;
+                        info.remove = true;
+                    }
+                    if (isGenerated)
+                        todo.append(info);
+                }
+            }
+        }
+    }
+
+    const int documentEnd = cpp_document.lastBlock().position() + cpp_document.lastBlock().length() - 1;
+
+    Utils::ChangeSet changes;
+    foreach (GenInfo info, todo) {
+        if (info.end > documentEnd)
+            info.end = documentEnd;
+
+        if (info.remove) {
+            changes.remove(info.start, info.end - info.start);
+            return;
+        }
+
+        Overview oo;
+
+        const QString className = oo(info.classAST->symbol->name());
+
+        QString method;
+        QTextStream os(&method);
+        const QStringList fields = collectFieldNames(info.classAST, true);
+
+        if (info.firstToken) {
+            generateFirstToken(os, className, fields);
+        } else if (info.lastToken) {
+            generateLastToken(os, className, fields);
+        }
+
+        changes.replace(info.start, info.end - info.start, method);
+    }
+
+    QTextCursor tc(&cpp_document);
+    changes.apply(&tc);
+
+    QString newMethods;
+    QTextStream os(&newMethods);
+    foreach (const QString &className, classesNeedingFirstToken.keys()) {
+        const QStringList fields = collectFieldNames(classesNeedingFirstToken.value(className), true);
+        os << "/** \\generated */" << endl;
+        generateFirstToken(os, className, fields);
+        if (ClassSpecifierAST *classAST = classesNeedingLastToken.value(className, 0)) {
+            const QStringList fields = collectFieldNames(classAST, true);
+            os << "/** \\generated */" << endl;
+            generateLastToken(os, className, fields);
+            classesNeedingLastToken.remove(className);
+        }
+    }
+    foreach (const QString &className, classesNeedingLastToken.keys()) {
+        const QStringList fields = collectFieldNames(classesNeedingLastToken.value(className), true);
+        os << "/** \\generated */" << endl;
+        generateLastToken(os, className, fields);
+    }
+    tc.setPosition(documentEnd);
+    tc.insertText(newMethods);
+
+    if (file.open(QFile::WriteOnly)) {
+        QTextStream out(&file);
+        out << cpp_document.toPlainText();
+    }
 }
 
 QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
@@ -933,6 +1193,8 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir)
 
     CloneCPPCG cg4(cplusplusDir, AST_h_document->translationUnit());
     cg4(AST_h_document->translationUnit()->ast());
+
+    generateAST_cpp(snapshot, cplusplusDir);
 
     return astDerivedClasses;
 }
