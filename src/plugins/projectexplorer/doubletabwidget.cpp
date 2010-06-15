@@ -86,6 +86,13 @@ void DoubleTabWidget::setCurrentIndex(int index)
     update();
 }
 
+int DoubleTabWidget::currentSubIndex() const
+{
+    if (m_currentIndex >= 0 && m_currentIndex < m_tabs.size())
+        return m_tabs.at(m_currentIndex).currentSubTab;
+    return -1;
+}
+
 void DoubleTabWidget::setTitle(const QString &title)
 {
     m_title = title;
@@ -104,10 +111,6 @@ void DoubleTabWidget::addTab(const QString &name, const QStringList &subTabs)
     tab.subTabs = subTabs;
     tab.currentSubTab = tab.subTabs.isEmpty() ? -1 : 0;
     m_tabs.append(tab);
-    if (m_currentIndex == -1) {
-        m_currentIndex = m_tabs.size()-1;
-        emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
-    }
     update();
 }
 
@@ -118,10 +121,7 @@ void DoubleTabWidget::insertTab(int index, const QString &name, const QStringLis
     tab.subTabs = subTabs;
     tab.currentSubTab = tab.subTabs.isEmpty() ? -1 : 0;
     m_tabs.insert(index, tab);
-    if (m_currentIndex == -1) {
-        m_currentIndex = index;
-        emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
-    } else if (m_currentIndex >= index) {
+    if (m_currentIndex >= index) {
         ++m_currentIndex;
         emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
     }

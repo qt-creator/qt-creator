@@ -46,9 +46,7 @@ void TargetSelector::insertTarget(int index, const QString &name)
 
     m_targets.insert(index, target);
 
-    if (m_currentTargetIndex == -1)
-        setCurrentIndex(index);
-    else if (m_currentTargetIndex >= index)
+    if (m_currentTargetIndex >= index)
         setCurrentIndex(m_currentTargetIndex + 1);
     update();
 }
@@ -59,12 +57,13 @@ void TargetSelector::removeTarget(int index)
 
     m_targets.removeAt(index);
 
-    if (m_currentTargetIndex >= m_targets.count())
-        setCurrentIndex(m_targets.count() - 1);
-    else if (m_currentTargetIndex >= index)
-        // force a signal since the target pointed to has changed:
+    if (m_currentTargetIndex >= m_targets.count()) {
+        setCurrentIndex(-1);
+    } else if (m_currentTargetIndex >= index) {
+        --m_currentTargetIndex;
+        // force a signal since the index has changed
         emit currentChanged(m_currentTargetIndex, m_targets.at(m_currentTargetIndex).currentSubIndex);
-
+    }
     update();
 }
 

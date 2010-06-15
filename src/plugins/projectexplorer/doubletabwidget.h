@@ -30,6 +30,8 @@ public:
     int currentIndex() const;
     void setCurrentIndex(int index);
 
+    int currentSubIndex() const;
+
 signals:
     void currentIndexChanged(int index, int subIndex);
 
