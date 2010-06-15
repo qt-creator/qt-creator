@@ -99,9 +99,6 @@ public:
     static QString msgStartFailed(const QString &binary, const QString &why);
     static QString msgTimeout(int timeoutSeconds);
 
-    // Set environment for a hg process to run in locale "C"
-    static void setProcessEnvironment(QProcess &p);
-
 protected:
     void run();
 
