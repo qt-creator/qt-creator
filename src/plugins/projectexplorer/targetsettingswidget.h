@@ -12,7 +12,8 @@ namespace Ui {
     class TargetSettingsWidget;
 }
 
-class TargetSettingsWidget : public QWidget {
+class TargetSettingsWidget : public QWidget
+{
     Q_OBJECT
 public:
     explicit TargetSettingsWidget(QWidget *parent = 0);
