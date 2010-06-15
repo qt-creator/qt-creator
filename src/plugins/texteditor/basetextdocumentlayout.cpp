@@ -36,7 +36,7 @@ bool Parenthesis::hasClosingCollapse(const Parentheses &parentheses)
     return closeCollapseAtPos(parentheses) >= 0;
 }
 
-int Parenthesis::closeCollapseAtPos(const Parentheses &parentheses)
+int Parenthesis::closeCollapseAtPos(const Parentheses &parentheses, QChar *character)
 {
     int depth = 0;
     for (int i = 0; i < parentheses.size(); ++i) {
@@ -48,8 +48,11 @@ int Parenthesis::closeCollapseAtPos(const Parentheses &parentheses)
         } else if (p.chr == QLatin1Char('}')
             || p.chr == QLatin1Char('-')
             || p.chr == QLatin1Char(']')) {
-            if (--depth < 0)
+            if (--depth < 0) {
+                if (character)
+                    *character = p.chr;
                 return p.pos;
+            }
         }
     }
     return -1;

@@ -77,13 +77,18 @@ public:
 class QMLJS_EXPORT Scanner
 {
 public:
+    enum {
+        Normal = 0,
+        MultiLineComment = 1
+    };
+
     Scanner();
     virtual ~Scanner();
 
     bool scanComments() const;
     void setScanComments(bool scanComments);
 
-    QList<Token> operator()(const QString &text, int startState = 0);
+    QList<Token> operator()(const QString &text, int startState = Normal);
     int state() const;
 
     bool isKeyword(const QString &text) const;

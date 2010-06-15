@@ -40,7 +40,8 @@ using namespace QmlJS;
 
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent),
-      m_qmlEnabled(true)
+      m_qmlEnabled(true),
+      m_inMultilineComment(false)
 {
     m_currentBlockParentheses.reserve(20);
     m_braceDepth = 0;
@@ -98,6 +99,13 @@ void Highlighter::highlightBlock(const QString &text)
                 break;
 
             case Token::Comment:
+                if (m_inMultilineComment && text.midRef(token.end() - 2) == QLatin1String("*/")) {
+                    onClosingParenthesis('-', token.end() - 1);
+                    m_inMultilineComment = false;
+                } else if (!m_inMultilineComment && m_scanner.state() == Scanner::MultiLineComment) {
+                    onOpeningParenthesis('+', token.offset);
+                    m_inMultilineComment = true;
+                }
                 setFormat(token.offset, token.length, m_formats[CommentFormat]);
                 break;
 
@@ -305,8 +313,9 @@ int Highlighter::onBlockStart()
     int state = 0;
     int previousState = previousBlockState();
     if (previousState != -1) {
-        state = previousState & 0xff;
-        m_braceDepth = previousState >> 8;
+        m_inMultilineComment = previousState & 0x1;
+        state = (previousState >> 1) & 0xff;
+        m_braceDepth = (previousState >> 9);
     }
 
     return state;
@@ -316,7 +325,7 @@ void Highlighter::onBlockEnd(int state, int firstNonSpace)
 {
     typedef TextEditor::TextBlockUserData TextEditorBlockData;
 
-    setCurrentBlockState((m_braceDepth << 8) | state);
+    setCurrentBlockState((m_braceDepth << 9) | (state << 1) | m_inMultilineComment);
 
     // Set block data parentheses. Force creation of block data unless empty
     TextEditorBlockData *blockData = 0;
@@ -335,15 +344,22 @@ void Highlighter::onBlockEnd(int state, int firstNonSpace)
     }
     if (!m_currentBlockParentheses.isEmpty()) {
         QTC_ASSERT(blockData, return);
-        int collapse = Parenthesis::collapseAtPos(m_currentBlockParentheses);
+        blockData->setParentheses(m_currentBlockParentheses);
+        QChar c;
+        int collapse = Parenthesis::collapseAtPos(m_currentBlockParentheses, &c);
         if (collapse >= 0) {
-            if (collapse == firstNonSpace)
+            if (collapse == firstNonSpace && c != '+')
                 blockData->setCollapseMode(TextEditor::TextBlockUserData::CollapseThis);
             else
                 blockData->setCollapseMode(TextEditor::TextBlockUserData::CollapseAfter);
         }
-        if (Parenthesis::hasClosingCollapse(m_currentBlockParentheses))
-            blockData->setClosingCollapseMode(TextEditor::TextBlockUserData::NoClosingCollapse);
+        collapse = Parenthesis::closeCollapseAtPos(m_currentBlockParentheses, &c);
+        if (collapse >= 0) {
+            if (c != '-')
+                blockData->setClosingCollapseMode(TextEditor::TextBlockUserData::NoClosingCollapse);
+            else
+                blockData->setClosingCollapseMode(TextEditor::TextBlockUserData::ClosingCollapseAtEnd);
+        }
     }
 }
 

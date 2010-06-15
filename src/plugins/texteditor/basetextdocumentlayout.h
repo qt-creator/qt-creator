@@ -53,7 +53,7 @@ struct TEXTEDITOR_EXPORT Parenthesis
     QChar chr;
     int pos;
     static int collapseAtPos(const Parentheses &parentheses, QChar *character = 0);
-    static int closeCollapseAtPos(const Parentheses &parentheses);
+    static int closeCollapseAtPos(const Parentheses &parentheses, QChar *character = 0);
     static bool hasClosingCollapse(const Parentheses &parentheses);
 };
 
