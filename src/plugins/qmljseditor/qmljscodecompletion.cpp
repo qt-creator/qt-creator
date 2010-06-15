@@ -67,10 +67,8 @@ using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
 
-namespace {
-
 // Temporary workaround until we have proper icons for QML completion items
-QIcon iconForColor(const QColor &color)
+static QIcon iconForColor(const QColor &color)
 {
     QPixmap pix(6, 6);
 
@@ -100,7 +98,7 @@ QIcon iconForColor(const QColor &color)
     return pix;
 }
 
-bool checkStartOfIdentifier(const QString &word)
+static bool checkStartOfIdentifier(const QString &word)
 {
     if (word.isEmpty())
         return false;
@@ -116,7 +114,7 @@ bool checkStartOfIdentifier(const QString &word)
     }
 }
 
-bool isIdentifierChar(QChar ch)
+static bool isIdentifierChar(QChar ch)
 {
     switch (ch.unicode()) {
     case '_': case '$':
@@ -126,6 +124,8 @@ bool isIdentifierChar(QChar ch)
         return ch.isLetterOrNumber();
     }
 }
+
+namespace {
 
 class SearchPropertyDefinitions: protected AST::Visitor
 {
