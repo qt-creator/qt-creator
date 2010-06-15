@@ -165,7 +165,7 @@ QString MercurialJobRunner::msgTimeout(int timeoutSeconds)
 void MercurialJobRunner::setProcessEnvironment(QProcess &p)
 {
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    VCSBase::VCSBasePlugin::setProcessEnvironment(&env);
+    VCSBase::VCSBasePlugin::setProcessEnvironment(&env, false);
     p.setProcessEnvironment(env);
 }
 
