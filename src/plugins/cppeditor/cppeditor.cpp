@@ -1588,6 +1588,38 @@ bool CPPEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
     return true;
 }
 
+bool CPPEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
+{
+    CPlusPlus::TokenUnderCursor tokenUnderCursor;
+    const SimpleToken tk = tokenUnderCursor(cursor);
+
+    // XXX Duplicated from CPPEditor::isInComment to avoid tokenizing twice
+    if (tk.isComment()) {
+        const int pos = cursor.selectionEnd() - cursor.block().position();
+
+        if (pos == tk.end()) {
+            if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
+                return false;
+
+            const int state = cursor.block().userState() & 0xFF;
+            if (state > 0)
+                return false;
+        }
+
+        if (pos < tk.end())
+            return false;
+    }
+    else if (tk.is(T_STRING_LITERAL) || tk.is(T_WIDE_STRING_LITERAL)
+        || tk.is(T_CHAR_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL)) {
+
+        const int pos = cursor.selectionEnd() - cursor.block().position();
+        if (pos <= tk.end())
+            return false;
+    }
+
+    return true;
+}
+
 bool CPPEditor::isInComment(const QTextCursor &cursor) const
 {
     CPlusPlus::TokenUnderCursor tokenUnderCursor;
@@ -1729,7 +1761,7 @@ void CPPEditor::contextMenuEvent(QContextMenuEvent *e)
     // ### enable
     // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
-    QMenu *menu = new QMenu();
+    QMenu *menu = new QMenu;
 
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::ActionContainer *mcontext = am->actionContainer(CppEditor::Constants::M_CONTEXT);

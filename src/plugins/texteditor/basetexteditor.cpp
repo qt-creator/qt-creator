@@ -1332,7 +1332,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
             cursor.insertText(autoText);
             cursor.setPosition(pos);
         }
-        if (!electricChar.isNull())
+        if (!electricChar.isNull() && contextAllowsElectricCharacters(cursor))
             indent(document(), cursor, electricChar);
 
         if (doEditBlock)
@@ -3854,6 +3854,11 @@ bool BaseTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor,
     Q_UNUSED(cursor);
     Q_UNUSED(textToInsert);
     return false;
+}
+
+bool BaseTextEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
+{
+    return contextAllowsAutoParentheses(cursor);
 }
 
 bool BaseTextEditor::isInComment(const QTextCursor &cursor) const
