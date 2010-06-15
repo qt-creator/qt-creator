@@ -52,13 +52,13 @@ using namespace ProjectExplorer;
 using namespace Debugger::Internal;
 
 
-namespace Debugger {
-
 ////////////////////////////////////////////////////////////////////////
 //
 // DebuggerRunControlFactory
 //
 ////////////////////////////////////////////////////////////////////////
+
+namespace Debugger {
 
 // A factory to create DebuggerRunControls
 DebuggerRunControlFactory::DebuggerRunControlFactory(DebuggerManager *manager)
@@ -112,8 +112,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     return sp;
 }
 
-RunControl *DebuggerRunControlFactory::create(RunConfiguration *runConfiguration,
-                                              const QString &mode)
+RunControl *DebuggerRunControlFactory::create
+    (RunConfiguration *runConfiguration, const QString &mode)
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration);
@@ -133,6 +133,41 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 }
 
 
+////////////////////////////////////////////////////////////////////////
+//
+// DebuggerRunControl::Private
+//
+////////////////////////////////////////////////////////////////////////
+
+class DebuggerRunControl::Private
+{
+public:
+    Private(DebuggerRunControl *parent);
+
+public:
+    DebuggerRunControl *q;
+
+    DebuggerStartParameters m_startParameters;
+    DebuggerManager *m_manager;
+    bool m_running;
+
+/*
+    // FIXME: Move from DebuggerManager
+    BreakHandler *m_breakHandler;
+    ModulesHandler *m_modulesHandler;
+    RegisterHandler *m_registerHandler;
+    SnapshotHandler *m_snapshotHandler;
+    StackHandler *m_stackHandler;
+    ThreadsHandler *m_threadsHandler;
+    WatchHandler *m_watchHandler;
+*/
+};
+
+DebuggerRunControl::Private::Private(DebuggerRunControl *parent)
+  : q(parent)
+{
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -143,35 +178,41 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
         const DebuggerStartParameters &startParameters)
     : RunControl(0, ProjectExplorer::Constants::DEBUGMODE),
-      m_startParameters(startParameters),
-      m_manager(manager),
-      m_running(false)
+      d(new Private(this))
 {
-    connect(m_manager, SIGNAL(debuggingFinished()),
+    d->m_startParameters = startParameters;
+    d->m_manager = manager;
+    d->m_running = false;
+    connect(d->m_manager, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()),
             Qt::QueuedConnection);
-    connect(m_manager, SIGNAL(messageAvailable(QString, bool)),
+    connect(d->m_manager, SIGNAL(messageAvailable(QString, bool)),
             this, SLOT(slotMessageAvailable(QString, bool)));
-    connect(m_manager, SIGNAL(inferiorPidChanged(qint64)),
+    connect(d->m_manager, SIGNAL(inferiorPidChanged(qint64)),
             this, SLOT(bringApplicationToForeground(qint64)),
             Qt::QueuedConnection);
     connect(this, SIGNAL(stopRequested()),
-            m_manager, SLOT(exitDebugger()));
+            d->m_manager, SLOT(exitDebugger()));
 
-    if (m_startParameters.environment.empty())
-        m_startParameters.environment = ProjectExplorer::Environment().toStringList();
-    m_startParameters.useTerminal = false;
+    if (d->m_startParameters.environment.empty())
+        d->m_startParameters.environment = ProjectExplorer::Environment().toStringList();
+    d->m_startParameters.useTerminal = false;
 
+}
+
+DebuggerRunControl::~DebuggerRunControl()
+{
+    delete d;
 }
 
 QString DebuggerRunControl::displayName() const
 {
-    return m_startParameters.displayName;
+    return d->m_startParameters.displayName;
 }
 
 void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
 {
-    m_startParameters.environment = env.toStringList();
+    d->m_startParameters.environment = env.toStringList();
 }
 
 void DebuggerRunControl::init()
@@ -180,13 +221,13 @@ void DebuggerRunControl::init()
 
 void DebuggerRunControl::start()
 {
-    m_running = true;
+    d->m_running = true;
     QString errorMessage;
     QString settingsCategory;
     QString settingsPage;
-    if (m_manager->checkDebugConfiguration(m_startParameters.toolChainType,
+    if (d->m_manager->checkDebugConfiguration(d->m_startParameters.toolChainType,
             &errorMessage, &settingsCategory, &settingsPage)) {
-        m_manager->startNewDebugger(this);
+        d->m_manager->startNewDebugger(this);
         emit started();
     } else {
         appendMessage(this, errorMessage, true);
@@ -199,13 +240,13 @@ void DebuggerRunControl::start()
 void DebuggerRunControl::showMessage(const QString &msg, int channel,
     int timeout)
 {
-    if (!m_manager)
+    if (!d->m_manager)
         return;
-    DebuggerOutputWindow *ow = m_manager->debuggerOutputWindow();
+    DebuggerOutputWindow *ow = d->m_manager->debuggerOutputWindow();
     QTC_ASSERT(ow, return);
     switch (channel) {
         case StatusBar:
-            m_manager->showStatusMessage(msg, timeout);
+            d->m_manager->showStatusMessage(msg, timeout);
             ow->showOutput(LogStatus, msg);
             break;
         case AppOutput:
@@ -233,22 +274,61 @@ void DebuggerRunControl::slotMessageAvailable(const QString &data, bool isError)
     emit appendMessage(this, data, isError);
 }
 
-
 void DebuggerRunControl::stop()
 {
-    m_running = false;
+    d->m_running = false;
     emit stopRequested();
 }
 
 void DebuggerRunControl::debuggingFinished()
 {
-    m_running = false;
+    d->m_running = false;
     emit finished();
 }
 
 bool DebuggerRunControl::isRunning() const
 {
-    return m_running;
+    return d->m_running;
+}
+
+const DebuggerStartParameters &DebuggerRunControl::sp() const
+{
+    return d->m_startParameters;
+}
+
+ModulesHandler *DebuggerRunControl::modulesHandler() const
+{
+    return d->m_manager->modulesHandler();
+}
+
+BreakHandler *DebuggerRunControl::breakHandler() const
+{
+    return d->m_manager->breakHandler();
+}
+
+RegisterHandler *DebuggerRunControl::registerHandler() const
+{
+    return d->m_manager->registerHandler();
+}
+
+StackHandler *DebuggerRunControl::stackHandler() const
+{
+    return d->m_manager->stackHandler();
+}
+
+ThreadsHandler *DebuggerRunControl::threadsHandler() const
+{
+    return d->m_manager->threadsHandler();
+}
+
+WatchHandler *DebuggerRunControl::watchHandler() const
+{
+    return d->m_manager->watchHandler();
+}
+
+SnapshotHandler *DebuggerRunControl::snapshotHandler() const
+{
+    return d->m_manager->snapshotHandler();
 }
 
 } // namespace Debugger

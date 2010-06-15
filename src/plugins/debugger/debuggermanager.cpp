@@ -277,6 +277,15 @@ struct DebuggerManagerPrivate
 
     QLabel *m_statusLabel;
 
+    // FIXME: Move to DebuggerRunControl
+    BreakHandler *m_breakHandler;
+    ModulesHandler *m_modulesHandler;
+    RegisterHandler *m_registerHandler;
+    SnapshotHandler *m_snapshotHandler;
+    StackHandler *m_stackHandler;
+    ThreadsHandler *m_threadsHandler;
+    WatchHandler *m_watchHandler;
+
     QDockWidget *m_breakDock;
     QDockWidget *m_modulesDock;
     QDockWidget *m_outputDock;
@@ -287,14 +296,6 @@ struct DebuggerManagerPrivate
     QDockWidget *m_threadsDock;
     QDockWidget *m_watchDock;
     QList<QDockWidget *> m_dockWidgets;
-
-    BreakHandler *m_breakHandler;
-    ModulesHandler *m_modulesHandler;
-    RegisterHandler *m_registerHandler;
-    SnapshotHandler *m_snapshotHandler;
-    StackHandler *m_stackHandler;
-    ThreadsHandler *m_threadsHandler;
-    WatchHandler *m_watchHandler;
 
     DebuggerManagerActions m_actions;
 
@@ -709,41 +710,6 @@ QLabel *DebuggerManager::statusLabel() const
 IDebuggerEngine *DebuggerManager::currentEngine() const
 {
     return d->m_engine;
-}
-
-ModulesHandler *DebuggerManager::modulesHandler() const
-{
-    return d->m_modulesHandler;
-}
-
-BreakHandler *DebuggerManager::breakHandler() const
-{
-    return d->m_breakHandler;
-}
-
-RegisterHandler *DebuggerManager::registerHandler() const
-{
-    return d->m_registerHandler;
-}
-
-StackHandler *DebuggerManager::stackHandler() const
-{
-    return d->m_stackHandler;
-}
-
-ThreadsHandler *DebuggerManager::threadsHandler() const
-{
-    return d->m_threadsHandler;
-}
-
-WatchHandler *DebuggerManager::watchHandler() const
-{
-    return d->m_watchHandler;
-}
-
-SnapshotHandler *DebuggerManager::snapshotHandler() const
-{
-    return d->m_snapshotHandler;
 }
 
 const CPlusPlus::Snapshot &DebuggerManager::cppCodeModelSnapshot() const
@@ -2010,6 +1976,40 @@ DebuggerOutputWindow *DebuggerManager::debuggerOutputWindow() const
     return d->m_outputWindow;
 }
 
+ModulesHandler *DebuggerManager::modulesHandler() const
+{
+    return d->m_modulesHandler;
+}
+
+BreakHandler *DebuggerManager::breakHandler() const
+{
+    return d->m_breakHandler;
+}
+
+RegisterHandler *DebuggerManager::registerHandler() const
+{
+    return d->m_registerHandler;
+}
+
+StackHandler *DebuggerManager::stackHandler() const
+{
+    return d->m_stackHandler;
+}
+
+ThreadsHandler *DebuggerManager::threadsHandler() const
+{
+    return d->m_threadsHandler;
+}
+
+WatchHandler *DebuggerManager::watchHandler() const
+{
+    return d->m_watchHandler;
+}
+
+SnapshotHandler *DebuggerManager::snapshotHandler() const
+{
+    return d->m_snapshotHandler;
+}
 
 //////////////////////////////////////////////////////////////////////
 //

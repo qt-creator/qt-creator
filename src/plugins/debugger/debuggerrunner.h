@@ -39,12 +39,23 @@
 #include <QtCore/QStringList>
 
 namespace ProjectExplorer {
-    class Environment;
+class Environment;
 }
+
 
 namespace Debugger {
 
 class DebuggerManager;
+
+namespace Internal {
+class BreakHandler;
+class ModulesHandler;
+class RegisterHandler;
+class StackHandler;
+class SnapshotHandler;
+class ThreadsHandler;
+class WatchHandler;
+}
 
 class DEBUGGER_EXPORT DebuggerStartParameters
 {
@@ -104,7 +115,8 @@ private:
     DebuggerManager *m_manager;
 };
 
-// This is a job description
+// This is a job description containing all data "local" to the jobs, including
+// the models of the individual debugger views.
 class DEBUGGER_EXPORT DebuggerRunControl
     : public ProjectExplorer::RunControl
 {
@@ -113,6 +125,7 @@ class DEBUGGER_EXPORT DebuggerRunControl
 public:
     DebuggerRunControl(DebuggerManager *manager,
                        const DebuggerStartParameters &startParameters);
+    ~DebuggerRunControl();
 
     void setCustomEnvironment(ProjectExplorer::Environment env);
 
@@ -124,7 +137,15 @@ public:
 
     Q_SLOT void debuggingFinished();
 
-    const DebuggerStartParameters &sp() const { return m_startParameters; }
+    const DebuggerStartParameters &sp() const;
+
+    Internal::ModulesHandler *modulesHandler() const;
+    Internal::BreakHandler *breakHandler() const;
+    Internal::RegisterHandler *registerHandler() const;
+    Internal::StackHandler *stackHandler() const;
+    Internal::ThreadsHandler *threadsHandler() const;
+    Internal::WatchHandler *watchHandler() const;
+    Internal::SnapshotHandler *snapshotHandler() const;
 
 signals:
     void stopRequested();
@@ -137,9 +158,8 @@ private slots:
 
 private:
     void init();
-    DebuggerStartParameters m_startParameters;
-    DebuggerManager *m_manager;
-    bool m_running;
+    class Private;
+    Private *d;
 };
 
 } // namespace Debugger

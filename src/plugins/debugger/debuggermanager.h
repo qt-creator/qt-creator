@@ -69,16 +69,10 @@ namespace Internal {
 class DebuggerOutputWindow;
 class DebuggerPlugin;
 
-class BreakHandler;
 class BreakpointData;
-class ModulesHandler;
-class RegisterHandler;
 class SourceFilesWindow;
 struct StackFrame;
-class StackHandler;
 class Symbol;
-class SnapshotHandler;
-class ThreadsHandler;
 class WatchData;
 class WatchHandler;
 class IDebuggerEngine;
@@ -257,8 +251,9 @@ public slots: // FIXME
     void operateByInstructionTriggered();
     void startFailed();
 
-public:
+    friend class DebuggerRunControl;
     Internal::ModulesHandler *modulesHandler() const;
+public:
     Internal::BreakHandler *breakHandler() const;
     Internal::RegisterHandler *registerHandler() const;
     Internal::StackHandler *stackHandler() const;
