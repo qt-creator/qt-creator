@@ -30,25 +30,12 @@
 #ifndef STATUSBARMANAGER_H
 #define STATUSBARMANAGER_H
 
-#include <QtCore/QMap>
 #include <QtGui/QWidget>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-class QSettings;
-class QMainWindow;
-class QComboBox;
-class QStackedWidget;
-QT_END_NAMESPACE
-
 namespace Core {
-
-class StatusBarWidget;
-
 namespace Internal {
 
 class MainWindow;
-class NavigationWidget;
 
 class StatusBarManager : public QObject
 {
