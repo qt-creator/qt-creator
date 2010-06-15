@@ -686,9 +686,10 @@ bool VCSBasePlugin::isSshPromptConfigured()
     return !sshPrompt().isEmpty();
 }
 
-void VCSBasePlugin::setProcessEnvironment(QProcessEnvironment *e)
+void VCSBasePlugin::setProcessEnvironment(QProcessEnvironment *e, bool forceCLocale)
 {
-    e->insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
+    if (forceCLocale)
+        e->insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
     const QString sshPromptBinary = sshPrompt();
     if (!sshPromptBinary.isEmpty())
         e->insert(QLatin1String("SSH_ASKPASS"), sshPromptBinary);
@@ -738,6 +739,8 @@ Utils::SynchronousProcessResponse
             nsp << "ssh (" << sshPromptConfigured << ')';
         if (flags & SuppressCommandLogging)
             nsp << "suppress_log";
+        if (flags & ForceCLocale)
+            nsp << "c_locale";
         if (outputCodec)
             nsp << " Codec: " << outputCodec->name();
     }
@@ -747,7 +750,7 @@ Utils::SynchronousProcessResponse
     if (!workingDir.isEmpty())
         process.setWorkingDirectory(workingDir);
 
-    VCSBase::VCSBasePlugin::setProcessEnvironment(&env);
+    VCSBase::VCSBasePlugin::setProcessEnvironment(&env, (flags & ForceCLocale));
     process.setProcessEnvironment(env);
     process.setTimeout(timeOutMS);
     if (outputCodec)

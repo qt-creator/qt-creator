@@ -1085,7 +1085,7 @@ QProcessEnvironment GitClient::processEnvironment() const
     if (m_settings.adoptPath)
         environment.insert(QLatin1String("PATH"), m_settings.path);
     // Set up SSH and C locale (required by git using perl).
-    VCSBase::VCSBasePlugin::setProcessEnvironment(&environment);
+    VCSBase::VCSBasePlugin::setProcessEnvironment(&environment, false);
     return environment;
 }
 

@@ -72,7 +72,7 @@ ProcessCheckoutJobPrivate::ProcessCheckoutJobPrivate(const QString &b,
 {    
     if (!workingDirectory.isEmpty())
         process->setWorkingDirectory(workingDirectory);
-    VCSBasePlugin::setProcessEnvironment(&processEnv);
+    VCSBasePlugin::setProcessEnvironment(&processEnv, false);
     process->setProcessEnvironment(processEnv);
 }
 

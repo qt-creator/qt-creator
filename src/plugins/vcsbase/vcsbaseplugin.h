@@ -176,10 +176,10 @@ public:
     static QString findRepositoryForDirectory(const QString &dir, const QString &checkFile);
 
     // Set up the environment for a version control command line call.
-    // Sets LANG to 'C' to force English (suppress LOCALE warnings)
-    // and sets up SSH graphical password prompting (note that the latter
-    // requires a terminal-less process).
-    static void setProcessEnvironment(QProcessEnvironment *e);
+    // Sets up SSH graphical password prompting (note that the latter
+    // requires a terminal-less process) and sets LANG to 'C' to force English
+    // (suppress LOCALE warnings/parse commands output) if desired.
+    static void setProcessEnvironment(QProcessEnvironment *e, bool forceCLocale);
     // Returns whether an SSH prompt is configured.
     static bool isSshPromptConfigured();
 
@@ -191,7 +191,8 @@ public:
         SuppressStdErrInLogWindow = 0x8, // No standard error output to VCS output window.
         SuppressFailMessageInLogWindow = 0x10, // No message VCS about failure in VCS output window.
         SuppressCommandLogging = 0x20, // No command log entry in VCS output window.
-        ShowSuccessMessage = 0x40      // Show message about successful completion in VCS output window.
+        ShowSuccessMessage = 0x40,      // Show message about successful completion in VCS output window.
+        ForceCLocale = 0x80             // Force C-locale for commands whose output is parsed.
     };
 
     static Utils::SynchronousProcessResponse
