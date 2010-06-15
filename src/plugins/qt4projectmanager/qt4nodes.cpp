@@ -962,15 +962,10 @@ void Qt4ProFileNode::setupReader()
 bool Qt4ProFileNode::evaluate()
 {
     bool parserError = false;
-    if (!m_readerExact->readProFile(m_projectFilePath)) {
-        m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
+    if (!m_readerExact->readProFile(m_projectFilePath))
         parserError = true;
-    }
-
-    if (!m_readerCumulative->readProFile(m_projectFilePath)) {
-        m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
+    if (!m_readerCumulative->readProFile(m_projectFilePath))
         parserError = true;
-    }
     return parserError;
 }
 
@@ -1012,8 +1007,10 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
         if (m_readerCumulative)
             m_project->destroyProFileReader(m_readerCumulative);
         m_readerExact = m_readerCumulative = 0;
-        if (!parseResult) // Invalidate
+        if (!parseResult) {
+            m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
             invalidate();
+        }
         return;
     }
 
