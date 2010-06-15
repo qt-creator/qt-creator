@@ -326,7 +326,7 @@ int Highlighter::onBlockStart()
     int previousState = previousBlockState();
     if (previousState != -1) {
         state = previousState & 0xff;
-        m_braceDepth = previousState >> 8;
+        m_braceDepth = (previousState >> 8);
         m_inMultilineComment = (state == Scanner::MultiLineComment);
     }
     m_foldingIndent = m_braceDepth;
