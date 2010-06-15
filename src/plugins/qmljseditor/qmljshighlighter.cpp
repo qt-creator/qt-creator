@@ -313,9 +313,9 @@ int Highlighter::onBlockStart()
     int state = 0;
     int previousState = previousBlockState();
     if (previousState != -1) {
-        m_inMultilineComment = previousState & 0x1;
-        state = (previousState >> 1) & 0xff;
-        m_braceDepth = (previousState >> 9);
+        state = previousState & 0xff;
+        m_braceDepth = (previousState >> 8);
+        m_inMultilineComment = (state == Scanner::MultiLineComment);
     }
 
     return state;
@@ -325,7 +325,7 @@ void Highlighter::onBlockEnd(int state, int firstNonSpace)
 {
     typedef TextEditor::TextBlockUserData TextEditorBlockData;
 
-    setCurrentBlockState((m_braceDepth << 9) | (state << 1) | m_inMultilineComment);
+    setCurrentBlockState((m_braceDepth << 8) | state);
 
     // Set block data parentheses. Force creation of block data unless empty
     TextEditorBlockData *blockData = 0;
