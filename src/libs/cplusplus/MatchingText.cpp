@@ -109,7 +109,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
     QTextDocument *doc = tc.document();
     QString text = textToProcess;
 
-    const QString blockText = tc.block().text().mid(tc.columnNumber());
+    const QString blockText = tc.block().text().mid(tc.positionInBlock());
     const int length = qMin(blockText.length(), textToProcess.length());
 
     const QChar previousChar = doc->characterAt(tc.selectionEnd() - 1);
@@ -219,7 +219,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
     if (tk[index - 1].isNot(T_LBRACE))
         return QString(); // nothing to do.
 
-    const QString textBlock = tc.block().text().mid(tc.columnNumber()).trimmed();
+    const QString textBlock = tc.block().text().mid(tc.positionInBlock()).trimmed();
     if (! textBlock.isEmpty())
         return QString();
 

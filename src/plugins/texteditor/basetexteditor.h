@@ -407,6 +407,7 @@ public:
     virtual void reindent(QTextDocument *doc, const QTextCursor &cursor);
 
     virtual bool contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert = QString()) const;
+    virtual bool contextAllowsElectricCharacters(const QTextCursor &cursor) const;
 
     // Returns true if the cursor is inside a comment.
     virtual bool isInComment(const QTextCursor &cursor) const;

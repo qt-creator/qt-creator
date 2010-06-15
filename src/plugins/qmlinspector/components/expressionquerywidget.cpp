@@ -283,7 +283,7 @@ bool ExpressionQueryWidget::eventFilter(QObject *obj, QEvent *event)
                     bool atLastLine = !(cursor.block().next().isValid());
                     if (!atLastLine)
                         return true;
-                    if (cursor.columnNumber() <= m_prompt.count())
+                    if (cursor.positionInBlock() <= m_prompt.count())
                         return true;
                     cursor.deletePreviousChar();
                     m_expr = cursor.block().text().mid(m_prompt.count());

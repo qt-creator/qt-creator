@@ -1103,6 +1103,34 @@ static bool isCompleteStringLiteral(const QStringRef &text)
     return false;
 }
 
+static Token tokenUnderCursor(const QTextCursor &cursor)
+{
+    const QString blockText = cursor.block().text();
+    const int blockState = blockStartState(cursor.block());
+
+    Scanner tokenize;
+    const QList<Token> tokens = tokenize(blockText, blockState);
+    const int pos = cursor.positionInBlock();
+
+    int tokenIndex = 0;
+    for (; tokenIndex < tokens.size(); ++tokenIndex) {
+        const Token &token = tokens.at(tokenIndex);
+
+        if (token.is(Token::Comment) || token.is(Token::String)) {
+            if (pos > token.begin() && pos <= token.end())
+                break;
+        } else {
+            if (pos >= token.begin() && pos < token.end())
+                break;
+        }
+    }
+
+    if (tokenIndex != tokens.size())
+        return tokens.at(tokenIndex);
+
+    return Token();
+}
+
 bool QmlJSTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert) const
 {
     QChar ch;
@@ -1132,56 +1160,45 @@ bool QmlJSTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, co
         return false;
     } // end of switch
 
-    const QString blockText = cursor.block().text();
-    const int blockState = blockStartState(cursor.block());
+    const Token token = tokenUnderCursor(cursor);
+    switch (token.kind) {
+    case Token::Comment:
+        return false;
 
-    Scanner tokenize;
-    const QList<Token> tokens = tokenize(blockText, blockState);
-    const int pos = cursor.columnNumber();
+    case Token::String: {
+        const QString blockText = cursor.block().text();
+        const QStringRef tokenText = blockText.midRef(token.offset, token.length);
+        const QChar quote = tokenText.at(0);
 
-    int tokenIndex = 0;
-    for (; tokenIndex < tokens.size(); ++tokenIndex) {
-        const Token &token = tokens.at(tokenIndex);
-
-        if (pos >= token.begin()) {
-            if (pos < token.end())
-                break;
-
-            else if (pos == token.end() && (token.is(Token::Comment) ||
-                                            token.is(Token::String)))
-                break;
-        }
-    }
-
-    if (tokenIndex != tokens.size()) {
-        const Token &token = tokens.at(tokenIndex);
-
-        switch (token.kind) {
-        case Token::Comment:
-            return false;
-
-        case Token::String: {
-            const QStringRef tokenText = blockText.midRef(token.offset, token.length);
-            const QChar quote = tokenText.at(0);
-
-            if (ch != quote || isCompleteStringLiteral(tokenText))
-                break;
-
-            return false;
-        }
-
-        default:
+        if (ch != quote || isCompleteStringLiteral(tokenText))
             break;
-        } // end of switch
+
+        return false;
     }
+
+    default:
+        break;
+    } // end of switch
 
     return true;
 }
 
-bool QmlJSTextEditor::isInComment(const QTextCursor &) const
+bool QmlJSTextEditor::contextAllowsElectricCharacters(const QTextCursor &cursor) const
 {
-    // ### implement me
-    return false;
+    Token token = tokenUnderCursor(cursor);
+    qDebug() << cursor.positionInBlock() << token.begin() << token.end();
+    switch (token.kind) {
+    case Token::Comment:
+    case Token::String:
+        return false;
+    default:
+        return true;
+    }
+}
+
+bool QmlJSTextEditor::isInComment(const QTextCursor &cursor) const
+{
+    return tokenUnderCursor(cursor).is(Token::Comment);
 }
 
 QString QmlJSTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text, QChar, int *skippedChars) const

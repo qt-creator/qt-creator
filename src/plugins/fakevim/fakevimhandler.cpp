@@ -1464,8 +1464,8 @@ void FakeVimHandler::Private::updateSelection()
         } else if (isVisualBlockMode()) {
             QTextCursor tc = m_tc;
             tc.setPosition(anchorPos);
-            int anchorColumn = tc.columnNumber();
-            int cursorColumn = m_tc.columnNumber();
+            int anchorColumn = tc.positionInBlock();
+            int cursorColumn = m_tc.positionInBlock();
             int anchorRow    = tc.blockNumber();
             int cursorRow    = m_tc.blockNumber();
             int startColumn  = qMin(anchorColumn, cursorColumn);

@@ -102,7 +102,7 @@ public:
         _cursor = cursor;
 
         QTextBlock block = _cursor.block();
-        const QString blockText = block.text().left(cursor.columnNumber());
+        const QString blockText = block.text().left(cursor.positionInBlock());
 
         scanner.setScanComments(false);
         const QList<Token> tokens = scanner(blockText, startState(block));
