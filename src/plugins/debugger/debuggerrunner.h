@@ -150,6 +150,9 @@ public:
 
     void cleanup();
     void startDebugger(Internal::IDebuggerEngine *engine);
+    void notifyInferiorPid(qint64 pid);
+    qint64 inferiorPid() const;
+
     Internal::IDebuggerEngine *engine();
 
 signals:
@@ -160,6 +163,7 @@ public slots:
 
 private slots:
     void slotMessageAvailable(const QString &data, bool isError);
+    void raiseApplication();
 
 private:
     void init();

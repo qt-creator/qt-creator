@@ -1259,11 +1259,11 @@ void CdbDebugEngine::slotConsoleStubStarted()
     const qint64 appPid = m_d->m_consoleStubProc.applicationPID();
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << appPid;
-    // Attach to console process
+    // Attach to console process.
     QString errorMessage;
     if (startAttachDebugger(appPid, AttachExternal, &errorMessage)) {
         m_d->startWatchTimer();
-        manager()->notifyInferiorPidChanged(appPid);
+        runControl()->notifyInferiorPid(appPid);
     } else {
         QMessageBox::critical(DebuggerUISwitcher::instance()->mainWindow(), tr("Debugger Error"), errorMessage);
     }

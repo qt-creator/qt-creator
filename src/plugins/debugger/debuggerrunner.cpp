@@ -56,6 +56,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QTimer>
 
 #include <QtGui/QAbstractItemView>
 #include <QtGui/QTextDocument>
@@ -166,6 +167,7 @@ public:
     DebuggerManager *m_manager;
     Internal::IDebuggerEngine *m_engine;
     bool m_running;
+    qint64 m_inferiorPid;
 
     ModulesHandler *m_modulesHandler;
     RegisterHandler *m_registerHandler;
@@ -188,6 +190,7 @@ DebuggerRunControl::Private::Private(DebuggerRunControl *parent,
     m_engine(0)
 {
     m_running = false;
+    m_inferiorPid = m_startParameters.attachPID > 0 ? m_startParameters.attachPID : 0;
     m_modulesHandler = new ModulesHandler(q);
     m_registerHandler = new RegisterHandler();
     m_snapshotHandler = new SnapshotHandler(q);
@@ -219,9 +222,6 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
             Qt::QueuedConnection);
     connect(d->m_manager, SIGNAL(messageAvailable(QString, bool)),
             this, SLOT(slotMessageAvailable(QString, bool)));
-    connect(d->m_manager, SIGNAL(inferiorPidChanged(qint64)),
-            this, SLOT(bringApplicationToForeground(qint64)),
-            Qt::QueuedConnection);
     connect(this, SIGNAL(stopRequested()),
             d->m_manager, SLOT(exitDebugger()));
 
@@ -383,6 +383,24 @@ void DebuggerRunControl::startDebugger(IDebuggerEngine *engine)
     d->m_engine->startDebugger();
 }
 
+void DebuggerRunControl::notifyInferiorPid(qint64 pid)
+{
+    //STATE_DEBUG(d->m_inferiorPid << pid);
+    if (d->m_inferiorPid == pid)
+        return;
+    d->m_inferiorPid = pid;
+    QTimer::singleShot(0, this, SLOT(raiseApplication()));
+}
+
+qint64 DebuggerRunControl::inferiorPid() const
+{
+    return d->m_inferiorPid;
+}
+
+void DebuggerRunControl::raiseApplication()
+{
+    bringApplicationToForeground(d->m_inferiorPid);
+}
 
 //////////////////////////////////////////////////////////////////////
 //

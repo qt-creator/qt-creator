@@ -152,7 +152,6 @@ public:
     Internal::IDebuggerEngine *currentEngine() const;
 
     DebuggerRunControl *runControl() const;
-    qint64 inferiorPid() const;
 
     QMessageBox *showMessageBox(int icon, const QString &title, const QString &text,
         int buttons = 0);
@@ -273,7 +272,6 @@ private:
     void notifyInferiorStopped();
     void notifyInferiorRunning();
     void notifyInferiorExited();
-    void notifyInferiorPidChanged(qint64);
 
     void cleanupViews();
 
@@ -296,7 +294,6 @@ private:
 
 signals:
     void debuggingFinished();
-    void inferiorPidChanged(qint64 pid);
     void stateChanged(int newstatus);
     void statusMessageRequested(const QString &msg, int timeout); // -1 for 'forever'
     void applicationOutputAvailable(const QString &output, bool onStdErr);

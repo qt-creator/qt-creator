@@ -120,7 +120,7 @@ void TermGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
-    m_engine->handleInferiorPidChanged(attachedPID);
+    runControl()->notifyInferiorPid(attachedPID);
     m_engine->postCommand("attach " + QByteArray::number(attachedPID),
         CB(handleStubAttached));
 }
@@ -159,7 +159,7 @@ void TermGdbAdapter::handleEntryPoint(const GdbResponse &response)
 
 void TermGdbAdapter::interruptInferior()
 {
-    const qint64 attachedPID = m_engine->inferiorPid();
+    const qint64 attachedPID = runControl()->inferiorPid();
     QTC_ASSERT(attachedPID > 0, return);
     if (!interruptProcess(attachedPID))
         showMessage(_("CANNOT INTERRUPT %1").arg(attachedPID));

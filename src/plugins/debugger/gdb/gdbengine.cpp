@@ -444,13 +444,12 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // Archer had only "{id="28902"}" at some point of 6.8.x.
                 // *-started seems to be standard in 7.1, but in early
                 // 7.0.x, there was a *-created instead.
-                int progress = m_progress->progressValue();
+                const int progress = m_progress->progressValue();
                 m_progress->setProgressValue(qMin(70, progress + 1));
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread group %1 created").arg(_(id)), 1000);
-                int pid = id.toInt();
-                if (pid != inferiorPid())
-                    handleInferiorPidChanged(pid);
+                const int pid = id.toInt();
+                runControl()->notifyInferiorPid(pid);
             } else if (asyncClass == "thread-created") {
                 //"{id="1",group-id="28902"}"
                 QByteArray id = result.findChild("id").data();
@@ -503,7 +502,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             m_pendingConsoleStreamOutput += data;
 
             // Parse pid from noise.
-            if (!inferiorPid()) {
+            if (!runControl()->inferiorPid()) {
                 // Linux/Mac gdb: [New [Tt]hread 0x545 (LWP 4554)]
                 static QRegExp re1(_("New .hread 0x[0-9a-f]+ \\(LWP ([0-9]*)\\)"));
                 // MinGW 6.8: [New thread 2437.0x435345]
@@ -693,11 +692,11 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
         showMessage(_("Cannot parse PID from %1").arg(pid0));
         return;
     }
-    if (pid == inferiorPid())
+    if (pid == runControl()->inferiorPid())
         return;
     showMessage(_("FOUND PID %1").arg(pid));
 
-    handleInferiorPidChanged(pid);
+    runControl()->notifyInferiorPid(pid);
 }
 
 void GdbEngine::postCommand(const QByteArray &command, AdapterCallback callback,
@@ -1276,7 +1275,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             //    Gdb <= 6.8 reports a frame but no reason, 6.8.50+ reports everything.
             // The case of the user really setting a breakpoint at _start is simply
             // unsupported.
-            if (!inferiorPid()) // For programs without -pthread under gdb <= 6.8.
+            if (!runControl()->inferiorPid()) // For programs without -pthread under gdb <= 6.8.
                 postCommand("info proc", CB(handleInfoProc));
             continueInferiorInternal();
             return;

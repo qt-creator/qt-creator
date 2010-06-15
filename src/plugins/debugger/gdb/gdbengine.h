@@ -321,8 +321,6 @@ private: ////////// Inferior Management //////////
     void handleExecuteNext(const GdbResponse &response);
     void handleExecuteReturn(const GdbResponse &response);
 
-    qint64 inferiorPid() const { return m_manager->inferiorPid(); }
-    void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }
     void maybeHandleInferiorPidChanged(const QString &pid);
     void handleInfoProc(const GdbResponse &response);
 

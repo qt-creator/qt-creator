@@ -268,7 +268,6 @@ struct DebuggerManagerPrivate
 
     // FIXME: Remove engine-specific state
     DebuggerRunControl *m_runControl;
-    qint64 m_inferiorPid;
 
     /// Views
     DebuggerMainWindow *m_mainWindow;
@@ -324,7 +323,6 @@ DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager) :
    m_stopIcon(QLatin1String(":/debugger/images/debugger_stop_small.png")),
    m_interruptIcon(QLatin1String(":/debugger/images/debugger_interrupt_small.png")),
    m_locationMarkIcon(QLatin1String(":/debugger/images/location_16.png")),
-   m_inferiorPid(0),
    m_disassemblerViewAgent(manager),
    m_engine(0)
 {
@@ -809,16 +807,6 @@ void DebuggerManager::notifyInferiorExited()
     showStatusMessage(tr("Exited"), 5000);
 }
 
-void DebuggerManager::notifyInferiorPidChanged(qint64 pid)
-{
-    STATE_DEBUG(d->m_inferiorPid << pid);
-
-    if (d->m_inferiorPid != pid) {
-        d->m_inferiorPid = pid;
-        emit inferiorPidChanged(pid);
-    }
-}
-
 void DebuggerManager::aboutToShutdown()
 {
     STATE_DEBUG(d->m_engine);
@@ -985,7 +973,6 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
         return;
     d->m_runControl = runControl;
     const DebuggerStartParameters *sp = &runControl->sp();
-    d->m_inferiorPid = sp->attachPID > 0 ? sp->attachPID : 0;
     const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(
         ProjectExplorer::ToolChain::ToolChainType(sp->toolChainType));
 
@@ -1093,11 +1080,6 @@ void DebuggerManager::abortDebugger()
     if (d->m_engine && state() != DebuggerNotReady)
         d->m_engine->abortDebugger();
     d->m_codeModelSnapshot = CPlusPlus::Snapshot();
-}
-
-qint64 DebuggerManager::inferiorPid() const
-{
-    return d->m_inferiorPid;
 }
 
 void DebuggerManager::assignValueInDebugger()
