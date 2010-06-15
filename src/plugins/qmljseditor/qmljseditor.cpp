@@ -1130,7 +1130,7 @@ bool QmlJSTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, co
 
     Scanner tokenize;
     const QList<Token> tokens = tokenize(blockText, blockState);
-    const int pos = cursor.columnNumber();
+    const int pos = cursor.positionInBlock();
 
     int tokenIndex = 0;
     for (; tokenIndex < tokens.size(); ++tokenIndex) {

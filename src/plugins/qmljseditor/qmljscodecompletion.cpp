@@ -513,7 +513,7 @@ bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 
             QTextCursor tc = ed->textCursor();
             QTextBlock block = tc.block();
-            const int column = tc.columnNumber();
+            const int column = tc.positionInBlock();
             const int blockState = qMax(0, block.previous().userState()) & 0xff;
             const QString blockText = block.text();
 

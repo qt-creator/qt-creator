@@ -747,11 +747,11 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
         // Fetch the expression's code.
         CPlusPlus::ExpressionUnderCursor expressionUnderCursor;
         expr = expressionUnderCursor(tc);
-        *column = tc.columnNumber();
+        *column = tc.positionInBlock();
         *line = tc.blockNumber();
     } else {
         const QTextCursor tc = plaintext->textCursor();
-        *column = tc.columnNumber();
+        *column = tc.positionInBlock();
         *line = tc.blockNumber();
     }
 

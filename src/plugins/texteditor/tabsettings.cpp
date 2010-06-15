@@ -192,7 +192,7 @@ bool TabSettings::tabShouldIndent(const QTextDocument *document, QTextCursor cur
         return true;
     if (document->characterAt(tc.position()).isSpace()) {
         tc.movePosition(QTextCursor::WordRight);
-        if (tc.columnNumber() >= cursor.columnNumber()) {
+        if (tc.positionInBlock() >= cursor.positionInBlock()) {
             if (suggestedPosition)
                 *suggestedPosition = tc.position(); // Suggest position after whitespace
             if (m_tabKeyBehavior == TabLeadingWhitespaceIndents)

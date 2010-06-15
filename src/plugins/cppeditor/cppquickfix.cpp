@@ -74,7 +74,7 @@ public:
     {
         _nodes.clear();
         _line = cursor.blockNumber() + 1;
-        _column = cursor.columnNumber() + 1;
+        _column = cursor.positionInBlock() + 1;
         accept(_doc->translationUnit()->ast());
         return _nodes;
     }
