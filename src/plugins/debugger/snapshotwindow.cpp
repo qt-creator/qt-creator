@@ -30,8 +30,7 @@
 #include "snapshotwindow.h"
 
 #include "debuggeractions.h"
-#include "debuggeragents.h"
-#include "debuggermanager.h"
+#include "debuggerconstants.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -39,14 +38,10 @@
 #include <QtCore/QDebug>
 
 #include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtGui/QComboBox>
 #include <QtGui/QHeaderView>
+#include <QtGui/QKeyEvent>
 #include <QtGui/QMenu>
-#include <QtGui/QResizeEvent>
 #include <QtGui/QTreeView>
-#include <QtGui/QVBoxLayout>
 
 static QModelIndexList normalizeIndexes(const QModelIndexList &list)
 {
@@ -67,11 +62,9 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-SnapshotWindow::SnapshotWindow(DebuggerManager *manager, QWidget *parent)
-    : QTreeView(parent), m_manager(manager), m_alwaysResizeColumnsToContents(false)
+SnapshotWindow::SnapshotWindow(QWidget *parent)
+    : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
-    m_disassemblerAgent = new DisassemblerViewAgent(manager);
-
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Snapshots"));
     setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -90,12 +83,11 @@ SnapshotWindow::SnapshotWindow(DebuggerManager *manager, QWidget *parent)
 
 SnapshotWindow::~SnapshotWindow()
 {
-    delete m_disassemblerAgent;
 }
 
 void SnapshotWindow::rowActivated(const QModelIndex &index)
 {
-    m_manager->activateSnapshot(index.row());
+    model()->setData(index, index.row(), RequestActivateSnapshotRole);
 }
 
 void SnapshotWindow::removeSnapshots(const QModelIndexList &indexes)
@@ -114,7 +106,7 @@ void SnapshotWindow::removeSnapshots(QList<int> list)
     const int firstRow = list.front();
     qSort(list.begin(), list.end());
     for (int i = list.size(); --i >= 0; )
-        m_manager->removeSnapshot(list.at(i));
+        model()->setData(QModelIndex(), list.at(i), RequestRemoveSnapshotRole);
 
     const int row = qMin(firstRow, model()->rowCount() - 1);
     if (row >= 0)

@@ -30,6 +30,9 @@
 #include "snapshothandler.h"
 
 #include "debuggeractions.h"
+#include "debuggerconstants.h"
+#include "debuggerrunner.h"
+#include "idebuggerengine.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -109,8 +112,9 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 //
 ////////////////////////////////////////////////////////////////////////
 
-SnapshotHandler::SnapshotHandler(QObject *parent)
+SnapshotHandler::SnapshotHandler(DebuggerRunControl *runControl, QObject *parent)
   : QAbstractTableModel(parent),
+    m_runControl(runControl),
     m_positionIcon(QIcon(":/debugger/images/location_16.png")),
     m_emptyIcon(QIcon(":/debugger/images/debugger_empty_14.png"))
 {
@@ -201,6 +205,24 @@ Qt::ItemFlags SnapshotHandler::flags(const QModelIndex &index) const
         return QAbstractTableModel::flags(index);
     //const SnapshotData &snapshot = m_snapshots.at(index.row());
     return true ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
+}
+
+bool SnapshotHandler::setData
+    (const QModelIndex &index, const QVariant &value, int role)
+{
+    if (role == RequestMakeSnapshotRole) {
+        m_runControl->engine()->makeSnapshot();
+        return true;
+    }
+    if (role == RequestActivateSnapshotRole) {
+        m_runControl->engine()->activateSnapshot(value.toInt());
+        return true;
+    }
+    if (role == RequestRemoveSnapshotRole) {
+        removeSnapshot(value.toInt());
+        return true;
+    }
+    return QAbstractTableModel::setData(index, value, role);
 }
 
 void SnapshotHandler::removeAll()

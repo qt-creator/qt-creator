@@ -36,6 +36,9 @@
 #include <QtCore/QDateTime>
 
 namespace Debugger {
+
+class DebuggerRunControl;
+
 namespace Internal {
 
 ////////////////////////////////////////////////////////////////////////
@@ -67,10 +70,12 @@ public:
     QString function() const; // Topmost entry.
 
 private:
-    QString m_location;         // Name of the core file.
-    QDateTime m_date;           // Date of the snapshot
-    QList<StackFrame> m_frames; // Stack frames.
+    QString m_location;       // Name of the core file.
+    QDateTime m_date;         // Date of the snapshot
+    StackFrames m_frames;     // Stack frames.
 };
+
+typedef QList<SnapshotData> Snapshots;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -85,11 +90,11 @@ class SnapshotHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    SnapshotHandler(QObject *parent = 0);
+    SnapshotHandler(DebuggerRunControl *runControl, QObject *parent = 0);
     ~SnapshotHandler();
 
-    void setFrames(const QList<SnapshotData> &snapshots, bool canExpand = false);
-    QList<SnapshotData> snapshots() const;
+    void setFrames(const Snapshots &snapshots, bool canExpand = false);
+    Snapshots snapshots() const;
 
     // Called from SnapshotHandler after a new snapshot has been added
     void removeAll();
@@ -104,12 +109,14 @@ private:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     Q_SLOT void resetModel() { reset(); }
 
+    DebuggerRunControl *m_runControl;
     int m_currentIndex;
-    QList<SnapshotData> m_snapshots;
+    Snapshots m_snapshots;
     const QVariant m_positionIcon;
     const QVariant m_emptyIcon;
 };

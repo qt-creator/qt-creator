@@ -169,10 +169,10 @@ public:
 
     ModulesHandler *m_modulesHandler;
     RegisterHandler *m_registerHandler;
+    SnapshotHandler *m_snapshotHandler;
 /*
     // FIXME: Move from DebuggerManager
     BreakHandler *m_breakHandler;
-    SnapshotHandler *m_snapshotHandler;
     StackHandler *m_stackHandler;
     ThreadsHandler *m_threadsHandler;
     WatchHandler *m_watchHandler;
@@ -190,6 +190,7 @@ DebuggerRunControl::Private::Private(DebuggerRunControl *parent,
     m_running = false;
     m_modulesHandler = new ModulesHandler(q);
     m_registerHandler = new RegisterHandler();
+    m_snapshotHandler = new SnapshotHandler(q);
 }
 
 DebuggerRunControl::Private::~Private()
@@ -197,6 +198,7 @@ DebuggerRunControl::Private::~Private()
 #define doDelete(ptr) delete ptr; ptr = 0
     doDelete(m_modulesHandler);
     doDelete(m_registerHandler);
+    doDelete(m_snapshotHandler);
 #undef doDelete
 }
 
@@ -357,7 +359,7 @@ WatchHandler *DebuggerRunControl::watchHandler() const
 
 SnapshotHandler *DebuggerRunControl::snapshotHandler() const
 {
-    return d->m_manager->snapshotHandler();
+    return d->m_snapshotHandler;
 }
 
 void DebuggerRunControl::cleanup()
@@ -377,6 +379,7 @@ void DebuggerRunControl::startDebugger(IDebuggerEngine *engine)
     d->m_engine->setRunControl(this);
     d->m_manager->modulesWindow()->setModel(d->m_modulesHandler->model());
     d->m_manager->registerWindow()->setModel(d->m_registerHandler->model());
+    d->m_manager->snapshotWindow()->setModel(d->m_snapshotHandler->model());
     d->m_engine->startDebugger();
 }
 

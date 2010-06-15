@@ -38,17 +38,14 @@ class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Debugger {
-class DebuggerManager;
-
 namespace Internal {
-class DisassemblerViewAgent;
 
 class SnapshotWindow : public QTreeView
 {
     Q_OBJECT
 
 public:
-    SnapshotWindow(DebuggerManager *manager, QWidget *parent = 0);
+    SnapshotWindow(QWidget *parent = 0);
     ~SnapshotWindow();
 
 public slots:
@@ -65,8 +62,6 @@ private:
     void removeSnapshots(const QModelIndexList &list);
     void removeSnapshots(QList<int> rows);
 
-    DebuggerManager *m_manager;
-    DisassemblerViewAgent *m_disassemblerAgent;
     bool m_alwaysResizeColumnsToContents;
 };
 

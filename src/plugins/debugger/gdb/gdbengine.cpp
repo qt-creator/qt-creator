@@ -3019,7 +3019,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
 void GdbEngine::activateSnapshot(int index)
 {
     QTC_ASSERT(runControl(), return);
-    SnapshotData snapshot = m_manager->snapshotHandler()->setCurrentIndex(index);
+    SnapshotData snapshot = snapshotHandler()->setCurrentIndex(index);
 
     DebuggerStartParameters &sp = const_cast<DebuggerStartParameters &>(runControl()->sp());
     sp.startMode = AttachCore;
@@ -3574,7 +3574,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         }
     }
 
-    if (!m_manager->watchHandler()->isExpandedIName(data.iname))
+    if (!watchHandler()->isExpandedIName(data.iname))
         data.setChildrenUnneeded();
 
     GdbMi t = item.findChild("numchild");

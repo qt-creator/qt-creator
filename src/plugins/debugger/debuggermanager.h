@@ -193,8 +193,6 @@ public slots:
     void breakByFunctionMain();
     void activateFrame(int index);
     void selectThread(int index);
-    void activateSnapshot(int index);
-    void removeSnapshot(int index);
 
     void executeStep();
     void executeStepOut();
@@ -202,7 +200,6 @@ public slots:
     void executeContinue();
     void executeReturn();
     void detachDebugger();
-    void makeSnapshot();
     void frameUp();
     void frameDown();
 
@@ -252,13 +249,15 @@ public slots: // FIXME
     void operateByInstructionTriggered();
     void startFailed();
 
+    // Called from global action.
+    void makeSnapshot();
+
     friend class DebuggerRunControl;
 public:
     Internal::BreakHandler *breakHandler() const;
     Internal::StackHandler *stackHandler() const;
     Internal::ThreadsHandler *threadsHandler() const;
     Internal::WatchHandler *watchHandler() const;
-    Internal::SnapshotHandler *snapshotHandler() const;
 
     Internal::DebuggerOutputWindow *debuggerOutputWindow() const;
 
@@ -266,6 +265,7 @@ private:
     Internal::SourceFilesWindow *sourceFileWindow() const;
     QAbstractItemView *modulesWindow() const;
     QAbstractItemView *registerWindow() const;
+    QAbstractItemView *snapshotWindow() const;
     QWidget *threadsWindow() const;
 
     Internal::DebuggerManagerActions debuggerManagerActions() const;

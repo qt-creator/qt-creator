@@ -162,7 +162,12 @@ enum ModelRoles
     // Modules
     RequestReloadModulesRole,
     RequestModuleSymbolsRole,
-    RequestAllSymbolsRole
+    RequestAllSymbolsRole,
+
+    // Snapshots
+    RequestMakeSnapshotRole,
+    RequestActivateSnapshotRole,
+    RequestRemoveSnapshotRole,
 };
 
 } // namespace Debugger

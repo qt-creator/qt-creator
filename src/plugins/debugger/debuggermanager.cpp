@@ -277,7 +277,6 @@ struct DebuggerManagerPrivate
 
     // FIXME: Move to DebuggerRunControl
     BreakHandler *m_breakHandler;
-    SnapshotHandler *m_snapshotHandler;
     StackHandler *m_stackHandler;
     ThreadsHandler *m_threadsHandler;
     WatchHandler *m_watchHandler;
@@ -301,7 +300,7 @@ struct DebuggerManagerPrivate
     QWidget *m_watchersWindow;
     QAbstractItemView *m_registerWindow;
     QAbstractItemView *m_modulesWindow;
-    QWidget *m_snapshotWindow;
+    QAbstractItemView *m_snapshotWindow;
     SourceFilesWindow *m_sourceFilesWindow;
     QWidget *m_stackWindow;
     QWidget *m_threadsWindow;
@@ -354,7 +353,6 @@ DebuggerManager::~DebuggerManager()
 
     doDelete(d->m_breakHandler);
     doDelete(d->m_threadsHandler);
-    doDelete(d->m_snapshotHandler);
     doDelete(d->m_stackHandler);
     doDelete(d->m_watchHandler);
 #    undef doDelete
@@ -384,7 +382,7 @@ void DebuggerManager::init()
 
     d->m_registerWindow = new RegisterWindow(this);
     d->m_registerWindow->setObjectName(QLatin1String("CppDebugRegisters"));
-    d->m_snapshotWindow = new SnapshotWindow(this);
+    d->m_snapshotWindow = new SnapshotWindow();
     d->m_snapshotWindow->setObjectName(QLatin1String("CppDebugSnapshots"));
     d->m_stackWindow = new StackWindow(this);
     d->m_stackWindow->setObjectName(QLatin1String("CppDebugStack"));
@@ -403,12 +401,6 @@ void DebuggerManager::init()
     d->m_mainWindow =
         qobject_cast<DebuggerMainWindow*>(DebuggerUISwitcher::instance()->mainWindow());
     QTC_ASSERT(d->m_mainWindow, return)
-
-    // Snapshots
-    d->m_snapshotHandler = new SnapshotHandler;
-    QAbstractItemView *snapshotView =
-        qobject_cast<QAbstractItemView *>(d->m_snapshotWindow);
-    snapshotView->setModel(d->m_snapshotHandler);
 
     // Stack
     d->m_stackHandler = new StackHandler;
@@ -698,14 +690,19 @@ void DebuggerManager::clearCppCodeModelSnapshot()
     d->m_codeModelSnapshot = CPlusPlus::Snapshot();
 }
 
+QAbstractItemView *DebuggerManager::modulesWindow() const
+{
+    return d->m_modulesWindow;
+}
+
 QAbstractItemView *DebuggerManager::registerWindow() const
 {
     return d->m_registerWindow;
 }
 
-QAbstractItemView *DebuggerManager::modulesWindow() const
+QAbstractItemView *DebuggerManager::snapshotWindow() const
 {
-    return d->m_modulesWindow;
+    return d->m_snapshotWindow;
 }
 
 SourceFilesWindow *DebuggerManager::sourceFileWindow() const
@@ -842,24 +839,6 @@ void DebuggerManager::frameDown()
     QTC_ASSERT(d->m_engine, return);
     int currentIndex = stackHandler()->currentIndex();
     activateFrame(qMax(currentIndex - 1, 0));
-}
-
-void DebuggerManager::makeSnapshot()
-{
-    QTC_ASSERT(d->m_engine, return);
-    d->m_engine->makeSnapshot();
-}
-
-void DebuggerManager::activateSnapshot(int index)
-{
-    QTC_ASSERT(d->m_engine, return);
-    d->m_engine->activateSnapshot(index);
-}
-
-void DebuggerManager::removeSnapshot(int index)
-{
-    QTC_ASSERT(d->m_engine, return);
-    d->m_snapshotHandler->removeSnapshot(index);
 }
 
 void DebuggerManager::attemptBreakpointSynchronization()
@@ -1954,10 +1933,12 @@ WatchHandler *DebuggerManager::watchHandler() const
     return d->m_watchHandler;
 }
 
-SnapshotHandler *DebuggerManager::snapshotHandler() const
+void DebuggerManager::makeSnapshot()
 {
-    return d->m_snapshotHandler;
+    QTC_ASSERT(d->m_engine, return);
+    d->m_engine->makeSnapshot();
 }
+
 
 //////////////////////////////////////////////////////////////////////
 //
