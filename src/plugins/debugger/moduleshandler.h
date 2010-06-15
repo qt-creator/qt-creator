@@ -40,16 +40,12 @@ QT_END_NAMESPACE
 
 
 namespace Debugger {
+
+class DebuggerRunControl;
+
 namespace Internal {
 
 class ModulesModel;
-
-enum ModulesModelRoles
-{
-    DisplaySourceRole = Qt::UserRole,
-    LoadSymbolsRole,
-    LoadAllSymbolsRole
-};
 
 //////////////////////////////////////////////////////////////////
 //
@@ -93,10 +89,8 @@ public:
 
 class ModulesHandler : public QObject
 {
-    Q_OBJECT
-
 public:
-    ModulesHandler();
+    explicit ModulesHandler(DebuggerRunControl *runControl);
 
     QAbstractItemModel *model() const;
 

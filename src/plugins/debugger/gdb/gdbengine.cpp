@@ -2709,7 +2709,7 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
             }
         }
     }
-    manager()->modulesHandler()->setModules(modules);
+    runControl()->modulesHandler()->setModules(modules);
 }
 
 

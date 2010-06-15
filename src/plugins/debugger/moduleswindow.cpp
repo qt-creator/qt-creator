@@ -29,23 +29,19 @@
 
 #include "moduleswindow.h"
 
-#include "moduleshandler.h" // for model roles
+#include "debuggerconstants.h"
 #include "debuggeractions.h"
-#include "debuggermanager.h"
 
+#include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QProcess>
-#include <QtCore/QRegExp>
 
 #include <QtGui/QAction>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QToolButton>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QApplication>
+
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -56,11 +52,8 @@
 namespace Debugger {
 namespace Internal {
 
-ModulesWindow::ModulesWindow(DebuggerManager *debuggerManager,
-                             QWidget *parent)  :
-    QTreeView(parent),
-    m_alwaysResizeColumnsToContents(false),
-    m_debuggerManager(debuggerManager)
+ModulesWindow::ModulesWindow(QWidget *parent)
+  : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Modules"));
@@ -106,12 +99,14 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (index.isValid())
         index = index.sibling(index.row(), 0);
     if (index.isValid())
-        name = model()->data(index).toString();
+        name = index.data().toString();
 
+    const bool enabled =
+        model() && model()->data(index, EngineActionsEnabledRole).toBool();
+    const unsigned capabilities =
+        model()->data(index, EngineCapabilityRole).toInt();
 
     QMenu menu;
-    const bool enabled = Debugger::DebuggerManager::instance()->debuggerActionsEnabled();
-    const unsigned capabilities = Debugger::DebuggerManager::instance()->debuggerCapabilities();
     QAction *act0 = new QAction(tr("Update Module List"), &menu);
     act0->setEnabled(enabled && (capabilities & ReloadModuleCapability));
     QAction *act3 = new QAction(tr("Show Source Files for Module \"%1\"").arg(name), &menu);
@@ -136,10 +131,11 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     menu.addAction(act0);
+    //menu.addAction(act3); // FIXME
     menu.addAction(act4);
     menu.addAction(act5);
     menu.addAction(act6);
-    menu.addAction(act7);
+    //menu.addAction(act7); // FIXME
     menu.addSeparator();
     QAction *actAdjustColumnWidths =
         menu.addAction(tr("Adjust Column Widths to Contents"));
@@ -152,22 +148,27 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *act = menu.exec(ev->globalPos());
 
-    if (act == act0)
-        emit reloadModulesRequested();
-    else if (act == actAdjustColumnWidths)
+    if (act == act0) {
+        QTC_ASSERT(model(), return);
+        model()->setData(QModelIndex(), QVariant(), RequestReloadModulesRole);
+    } else if (act == actAdjustColumnWidths) {
         resizeColumnsToContents();
-    else if (act == actAlwaysAdjustColumnWidth)
+    } else if (act == actAlwaysAdjustColumnWidth) {
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
-    else if (act == act3)
-        emit displaySourceRequested(name);
-    else if (act == act4)
-        emit loadAllSymbolsRequested();
-    else if (act == act5)
-        emit loadSymbolsRequested(name);
-    else if (act == act6)
+    //} else if (act == act3) {
+    //    emit displaySourceRequested(name);
+    } else if (act == act4) {
+        QTC_ASSERT(model(), return);
+        model()->setData(QModelIndex(), QVariant(), RequestAllSymbolsRole);
+    } else if (act == act5) {
+        QTC_ASSERT(model(), return);
+        model()->setData(QModelIndex(), name, RequestModuleSymbolsRole);
+    } else if (act == act6) {
         emit fileOpenRequested(name);
-    else if (act == act7)
-        showSymbols(name);
+    } else if (act == act7) {
+        QTC_ASSERT(model(), return);
+        model()->setData(QModelIndex(), name, RequestModuleSymbolsRole);
+    }
 }
 
 void ModulesWindow::resizeColumnsToContents()
@@ -195,12 +196,6 @@ void ModulesWindow::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
     setAlwaysResizeColumnsToContents(true);
-}
-
-void ModulesWindow::showSymbols(const QString &name)
-{
-    if (!name.isEmpty())
-        m_debuggerManager->requestModuleSymbols(name);
 }
 
 } // namespace Internal

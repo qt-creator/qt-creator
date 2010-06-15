@@ -419,7 +419,7 @@ void PdbEngine::handleListModules(const PdbResponse &response)
         module.modulePath = path;
         modules.append(module);
     }
-    manager()->modulesHandler()->setModules(modules);
+    runControl()->modulesHandler()->setModules(modules);
 }
 
 void PdbEngine::requestModuleSymbols(const QString &moduleName)

@@ -41,6 +41,7 @@
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
+class QAbstractItemView;
 class QAction;
 class QDebug;
 class QDockWidget;
@@ -252,7 +253,6 @@ public slots: // FIXME
     void startFailed();
 
     friend class DebuggerRunControl;
-    Internal::ModulesHandler *modulesHandler() const;
 public:
     Internal::BreakHandler *breakHandler() const;
     Internal::RegisterHandler *registerHandler() const;
@@ -264,6 +264,7 @@ public:
 
 private:
     Internal::SourceFilesWindow *sourceFileWindow() const;
+    QAbstractItemView *modulesWindow() const;
     QWidget *threadsWindow() const;
 
     Internal::DebuggerManagerActions debuggerManagerActions() const;

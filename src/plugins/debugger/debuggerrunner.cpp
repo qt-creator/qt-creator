@@ -31,6 +31,9 @@
 #include "debuggermanager.h"
 #include "debuggeroutputwindow.h"
 
+#include "idebuggerengine.h"
+#include "moduleshandler.h"
+
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
 #include <projectexplorer/project.h>
@@ -46,6 +49,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+#include <QtGui/QAbstractItemView>
 #include <QtGui/QTextDocument>
 
 using namespace ProjectExplorer;
@@ -142,19 +146,22 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 class DebuggerRunControl::Private
 {
 public:
-    Private(DebuggerRunControl *parent);
+    Private(DebuggerRunControl *parent, DebuggerManager *manager,
+        const DebuggerStartParameters &startParameters);
+    ~Private();
 
 public:
     DebuggerRunControl *q;
 
     DebuggerStartParameters m_startParameters;
     DebuggerManager *m_manager;
+    Internal::IDebuggerEngine *m_engine;
     bool m_running;
 
+    ModulesHandler *m_modulesHandler;
 /*
     // FIXME: Move from DebuggerManager
     BreakHandler *m_breakHandler;
-    ModulesHandler *m_modulesHandler;
     RegisterHandler *m_registerHandler;
     SnapshotHandler *m_snapshotHandler;
     StackHandler *m_stackHandler;
@@ -163,9 +170,23 @@ public:
 */
 };
 
-DebuggerRunControl::Private::Private(DebuggerRunControl *parent)
-  : q(parent)
+DebuggerRunControl::Private::Private(DebuggerRunControl *parent,
+        DebuggerManager *manager,
+        const DebuggerStartParameters &startParameters)
+  : q(parent),
+    m_startParameters(startParameters),
+    m_manager(manager),
+    m_engine(0)
 {
+    m_running = false;
+    m_modulesHandler = new ModulesHandler(q);
+}
+
+DebuggerRunControl::Private::~Private()
+{
+#define doDelete(ptr) delete ptr; ptr = 0
+    doDelete(m_modulesHandler);
+#undef doDelete
 }
 
 
@@ -178,11 +199,8 @@ DebuggerRunControl::Private::Private(DebuggerRunControl *parent)
 DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
         const DebuggerStartParameters &startParameters)
     : RunControl(0, ProjectExplorer::Constants::DEBUGMODE),
-      d(new Private(this))
+      d(new Private(this, manager, startParameters))
 {
-    d->m_startParameters = startParameters;
-    d->m_manager = manager;
-    d->m_running = false;
     connect(d->m_manager, SIGNAL(debuggingFinished()),
             this, SLOT(debuggingFinished()),
             Qt::QueuedConnection);
@@ -298,7 +316,7 @@ const DebuggerStartParameters &DebuggerRunControl::sp() const
 
 ModulesHandler *DebuggerRunControl::modulesHandler() const
 {
-    return d->m_manager->modulesHandler();
+    return d->m_modulesHandler;
 }
 
 BreakHandler *DebuggerRunControl::breakHandler() const
@@ -329,6 +347,25 @@ WatchHandler *DebuggerRunControl::watchHandler() const
 SnapshotHandler *DebuggerRunControl::snapshotHandler() const
 {
     return d->m_manager->snapshotHandler();
+}
+
+void DebuggerRunControl::cleanup()
+{
+    modulesHandler()->removeAll();
+}
+
+Internal::IDebuggerEngine *DebuggerRunControl::engine()
+{
+    QTC_ASSERT(d->m_engine, /**/);
+    return d->m_engine;
+}
+
+void DebuggerRunControl::startDebugger(IDebuggerEngine *engine)
+{
+    d->m_engine = engine;
+    d->m_engine->setRunControl(this);
+    d->m_manager->modulesWindow()->setModel(d->m_modulesHandler->model());
+    d->m_engine->startDebugger();
 }
 
 } // namespace Debugger

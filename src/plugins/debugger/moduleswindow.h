@@ -33,8 +33,6 @@
 #include <QTreeView>
 
 namespace Debugger {
-class DebuggerManager;
-
 namespace Internal {
 
 class ModulesWindow : public QTreeView
@@ -42,21 +40,15 @@ class ModulesWindow : public QTreeView
     Q_OBJECT
 
 public:
-    explicit ModulesWindow(DebuggerManager *debuggerManager, QWidget *parent = 0);
+    explicit ModulesWindow(QWidget *parent = 0);
 
 signals:
-    void reloadModulesRequested();
-    void displaySourceRequested(const QString &modulesName);
-    void loadSymbolsRequested(const QString &modulesName);
-    void loadAllSymbolsRequested();
     void fileOpenRequested(QString);
-    void newDockRequested(QWidget *w);
 
-public slots:
+private slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
-    void moduleActivated(const QModelIndex &);
-    void showSymbols(const QString &name);
+    void moduleActivated(const QModelIndex &index);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
@@ -65,7 +57,6 @@ private:
     void setModel(QAbstractItemModel *model);
 
     bool m_alwaysResizeColumnsToContents;
-    DebuggerManager *m_debuggerManager;
 };
 
 } // namespace Internal

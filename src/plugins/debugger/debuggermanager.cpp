@@ -85,6 +85,7 @@
 #include <QtCore/QTimer>
 
 #include <QtGui/QApplication>
+#include <QtGui/QAbstractItemView>
 #include <QtGui/QAction>
 #include <QtGui/QComboBox>
 #include <QtGui/QDockWidget>
@@ -269,7 +270,7 @@ struct DebuggerManagerPrivate
     const QIcon m_locationMarkIcon;
 
     // FIXME: Remove engine-specific state
-    const DebuggerRunControl *m_runControl;
+    DebuggerRunControl *m_runControl;
     qint64 m_inferiorPid;
 
     /// Views
@@ -279,7 +280,6 @@ struct DebuggerManagerPrivate
 
     // FIXME: Move to DebuggerRunControl
     BreakHandler *m_breakHandler;
-    ModulesHandler *m_modulesHandler;
     RegisterHandler *m_registerHandler;
     SnapshotHandler *m_snapshotHandler;
     StackHandler *m_stackHandler;
@@ -304,7 +304,7 @@ struct DebuggerManagerPrivate
     QWidget *m_localsWindow;
     QWidget *m_watchersWindow;
     QWidget *m_registerWindow;
-    QWidget *m_modulesWindow;
+    QAbstractItemView *m_modulesWindow;
     QWidget *m_snapshotWindow;
     SourceFilesWindow *m_sourceFilesWindow;
     QWidget *m_stackWindow;
@@ -358,7 +358,6 @@ DebuggerManager::~DebuggerManager()
 
     doDelete(d->m_breakHandler);
     doDelete(d->m_threadsHandler);
-    doDelete(d->m_modulesHandler);
     doDelete(d->m_registerHandler);
     doDelete(d->m_snapshotHandler);
     doDelete(d->m_stackHandler);
@@ -378,7 +377,6 @@ void DebuggerManager::init()
     d->m_state = DebuggerState(-1);
     d->m_busy = false;
 
-    d->m_modulesHandler = 0;
     d->m_registerHandler = 0;
 
     d->m_statusLabel = new QLabel;
@@ -386,7 +384,7 @@ void DebuggerManager::init()
 
     d->m_breakWindow = new BreakWindow(this);
     d->m_breakWindow->setObjectName(QLatin1String("CppDebugBreakpoints"));
-    d->m_modulesWindow = new ModulesWindow(this);
+    d->m_modulesWindow = new ModulesWindow();
     d->m_modulesWindow->setObjectName(QLatin1String("CppDebugModules"));
     d->m_outputWindow = new DebuggerOutputWindow;
     d->m_outputWindow->setObjectName(QLatin1String("CppDebugOutput"));
@@ -457,17 +455,7 @@ void DebuggerManager::init()
         this, SLOT(breakByFunctionMain()), Qt::QueuedConnection);
 
     // Modules
-    QAbstractItemView *modulesView =
-        qobject_cast<QAbstractItemView *>(d->m_modulesWindow);
-    d->m_modulesHandler = new ModulesHandler;
-    modulesView->setModel(d->m_modulesHandler->model());
-    connect(modulesView, SIGNAL(reloadModulesRequested()),
-        this, SLOT(reloadModules()));
-    connect(modulesView, SIGNAL(loadSymbolsRequested(QString)),
-        this, SLOT(loadSymbols(QString)));
-    connect(modulesView, SIGNAL(loadAllSymbolsRequested()),
-        this, SLOT(loadAllSymbols()));
-    connect(modulesView, SIGNAL(fileOpenRequested(QString)),
+    connect(d->m_modulesWindow, SIGNAL(fileOpenRequested(QString)),
         this, SLOT(fileOpen(QString)));
 
     // Source Files
@@ -722,6 +710,11 @@ const CPlusPlus::Snapshot &DebuggerManager::cppCodeModelSnapshot() const
 void DebuggerManager::clearCppCodeModelSnapshot()
 {
     d->m_codeModelSnapshot = CPlusPlus::Snapshot();
+}
+
+QAbstractItemView *DebuggerManager::modulesWindow() const
+{
+    return d->m_modulesWindow;
 }
 
 SourceFilesWindow *DebuggerManager::sourceFileWindow() const
@@ -1069,8 +1062,7 @@ void DebuggerManager::startNewDebugger(DebuggerRunControl *runControl)
     setBusyCursor(false);
     setState(EngineStarting);
     connect(d->m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
-    d->m_engine->setRunControl(runControl);
-    d->m_engine->startDebugger();
+    runControl->startDebugger(d->m_engine);
 
     const unsigned engineCapabilities = d->m_engine->debuggerCapabilities();
     theDebuggerAction(OperateByInstruction)
@@ -1095,7 +1087,6 @@ void DebuggerManager::cleanupViews()
     breakHandler()->setAllPending();
     stackHandler()->removeAll();
     threadsHandler()->removeAll();
-    modulesHandler()->removeAll();
     watchHandler()->cleanup();
     registerHandler()->removeAll();
     d->m_sourceFilesWindow->removeAll();
@@ -1103,6 +1094,10 @@ void DebuggerManager::cleanupViews()
     d->m_actions.reverseDirectionAction->setChecked(false);
     d->m_actions.reverseDirectionAction->setEnabled(false);
     hideDebuggerToolTip();
+
+    // FIXME: Delete run control?
+    if (d->m_runControl)
+        d->m_runControl->cleanup();
 
     // FIXME: Move to plugin?
     using namespace Core;
@@ -1543,8 +1538,8 @@ void DebuggerManager::showMessage(const QString &msg, int channel)
 {
     if (runControl())
         runControl()->showMessage(msg, channel);
-    else 
-        qDebug() << "OUTPUT: " << channel << msg;
+    //else 
+    //    qDebug() << "OUTPUT: " << channel << msg;
 }
 
 
@@ -1976,11 +1971,6 @@ DebuggerOutputWindow *DebuggerManager::debuggerOutputWindow() const
     return d->m_outputWindow;
 }
 
-ModulesHandler *DebuggerManager::modulesHandler() const
-{
-    return d->m_modulesHandler;
-}
-
 BreakHandler *DebuggerManager::breakHandler() const
 {
     return d->m_breakHandler;
@@ -2034,6 +2024,10 @@ void IDebuggerEngine::setState(DebuggerState state, bool forced)
     m_manager->setState(state, forced);
 }
 
+bool IDebuggerEngine::debuggerActionsEnabled() const
+{
+    return m_manager->debuggerActionsEnabled();
+}
 
 //////////////////////////////////////////////////////////////////////
 //

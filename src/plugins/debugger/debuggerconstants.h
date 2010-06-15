@@ -152,6 +152,19 @@ enum LogChannel
     StatusBar               // LogStatus and also put to the status bar
 };
 
+enum ModelRoles
+{
+    DisplaySourceRole = 32, // Qt::UserRole,
+
+    EngineCapabilityRole,
+    EngineActionsEnabledRole,
+
+    // Modules
+    RequestReloadModulesRole,
+    RequestModuleSymbolsRole,
+    RequestAllSymbolsRole
+};
+
 } // namespace Debugger
 
 #endif // DEBUGGERCONSTANTS_H

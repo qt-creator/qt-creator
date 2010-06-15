@@ -138,6 +138,7 @@ public slots:
     void showStatusMessage(const QString &msg, int timeout = -1) const
         { showMessage(msg, StatusBar, timeout); }
     DebuggerManager *manager() const { return m_manager; }
+    bool debuggerActionsEnabled() const;
 
 protected:
     DebuggerState state() const;

@@ -48,6 +48,7 @@ namespace Debugger {
 class DebuggerManager;
 
 namespace Internal {
+class IDebuggerEngine;
 class BreakHandler;
 class ModulesHandler;
 class RegisterHandler;
@@ -146,6 +147,10 @@ public:
     Internal::ThreadsHandler *threadsHandler() const;
     Internal::WatchHandler *watchHandler() const;
     Internal::SnapshotHandler *snapshotHandler() const;
+
+    void cleanup();
+    void startDebugger(Internal::IDebuggerEngine *engine);
+    Internal::IDebuggerEngine *engine();
 
 signals:
     void stopRequested();

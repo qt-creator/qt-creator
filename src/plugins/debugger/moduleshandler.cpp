@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "moduleshandler.h"
+#include "idebuggerengine.h"
+#include "debuggerrunner.h"
 
 #include <utils/qtcassert.h>
 
@@ -41,9 +43,6 @@
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QSortFilterProxyModel>
 
-using namespace Debugger;
-using namespace Debugger::Internal;
-
 
 //////////////////////////////////////////////////////////////////
 //
@@ -51,12 +50,13 @@ using namespace Debugger::Internal;
 //
 //////////////////////////////////////////////////////////////////
 
-class Debugger::Internal::ModulesModel : public QAbstractItemModel
-{
-    Q_OBJECT
+namespace Debugger {
+namespace Internal {
 
+class ModulesModel : public QAbstractItemModel
+{
 public:
-    explicit ModulesModel(ModulesHandler *parent);
+    explicit ModulesModel(ModulesHandler *parent, DebuggerRunControl *runControl);
 
     // QAbstractItemModel
     int columnCount(const QModelIndex &parent) const
@@ -76,20 +76,22 @@ public:
     void setModules(const QList<Module> &m);
 
     const QList<Module> &modules() const { return m_modules; }
+    IDebuggerEngine *engine() { return m_runControl->engine(); }
+    const IDebuggerEngine *engine() const { return m_runControl->engine(); }
 
 private:
     int indexOfModule(const QString &name) const;
 
+    DebuggerRunControl *m_runControl;
     const QVariant m_yes;
     const QVariant m_no;
     QList<Module> m_modules;
 };
 
-ModulesModel::ModulesModel(ModulesHandler *parent)  :
-    QAbstractItemModel(parent),
-    m_yes(tr("yes")), m_no(tr("no"))
-{
-}
+ModulesModel::ModulesModel(ModulesHandler *parent, DebuggerRunControl *runControl)
+  : QAbstractItemModel(parent),
+    m_runControl(runControl), m_yes(tr("yes")), m_no(tr("no"))
+{}
 
 QVariant ModulesModel::headerData(int section,
     Qt::Orientation orientation, int role) const
@@ -109,6 +111,12 @@ QVariant ModulesModel::headerData(int section,
 
 QVariant ModulesModel::data(const QModelIndex &index, int role) const
 {
+    if (role == EngineCapabilityRole)
+        return engine()->debuggerCapabilities();
+
+    if (role == EngineActionsEnabledRole)
+        return engine()->debuggerActionsEnabled();
+
     int row = index.row();
     if (row < 0 || row >= m_modules.size())
         return QVariant();
@@ -145,6 +153,18 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
 
 bool ModulesModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    if (role == RequestReloadModulesRole) {
+        engine()->reloadModules();
+        return true;
+    }
+    if (role == RequestModuleSymbolsRole) {
+        engine()->loadSymbols(value.toString());
+        return true;
+    }
+    if (role == RequestAllSymbolsRole) {
+        engine()->loadAllSymbols();
+        return true;
+    }
     return QAbstractItemModel::setData(index, value, role);
 }
 
@@ -194,9 +214,9 @@ void ModulesModel::removeModule(const QString &moduleName)
 //
 //////////////////////////////////////////////////////////////////
 
-ModulesHandler::ModulesHandler()
+ModulesHandler::ModulesHandler(DebuggerRunControl *runControl)
 {
-    m_model = new ModulesModel(this);
+    m_model = new ModulesModel(this, runControl);
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setSourceModel(m_model);
 }
@@ -230,5 +250,8 @@ QList<Module> ModulesHandler::modules() const
 {
     return m_model->modules();
 }
+
+} // namespace Internal
+} // namespace Debugger
 
 #include "moduleshandler.moc"
