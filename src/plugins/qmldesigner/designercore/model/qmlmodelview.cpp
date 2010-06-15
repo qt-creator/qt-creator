@@ -43,9 +43,6 @@ enum {
     debug = false
 };
 
-enum {
-    debug = false
-};
 
 namespace QmlDesigner {
 
