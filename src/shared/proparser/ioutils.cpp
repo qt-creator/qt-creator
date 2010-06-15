@@ -176,7 +176,7 @@ QString IoUtils::shellQuote(const QString &arg)
 
 #else // Q_OS_WIN
 
-inline static bool isSpecial(const QChar &cUnicode)
+inline static bool isSpecial(QChar cUnicode)
 {
     static const uchar iqm[] = {
         0xff, 0xff, 0xff, 0xff, 0xdf, 0x07, 0x00, 0xd8,

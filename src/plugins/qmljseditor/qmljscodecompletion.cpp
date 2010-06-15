@@ -577,7 +577,7 @@ bool CodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *editor)
     return false;
 }
 
-bool CodeCompletion::isDelimiter(const QChar &ch) const
+bool CodeCompletion::isDelimiter(QChar ch) const
 {
     switch (ch.unicode()) {
     case '{':

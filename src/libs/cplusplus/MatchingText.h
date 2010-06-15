@@ -43,10 +43,10 @@ public:
     MatchingText(TokenCache *tokenCache);
 
     static bool shouldInsertMatchingText(const QTextCursor &tc);
-    static bool shouldInsertMatchingText(const QChar &lookAhead);
+    static bool shouldInsertMatchingText(QChar lookAhead);
 
     QString insertMatchingBrace(const QTextCursor &tc, const QString &text,
-                                const QChar &la, int *skippedChars) const;
+                                QChar la, int *skippedChars) const;
     QString insertParagraphSeparator(const QTextCursor &tc) const;
 
 private:

@@ -1380,7 +1380,7 @@ SemanticInfo CPPEditor::semanticInfo() const
     return m_lastSemanticInfo;
 }
 
-bool CPPEditor::isElectricCharacter(const QChar &ch) const
+bool CPPEditor::isElectricCharacter(QChar ch) const
 {
     if (ch == QLatin1Char('{') ||
         ch == QLatin1Char('}') ||
@@ -1392,7 +1392,7 @@ bool CPPEditor::isElectricCharacter(const QChar &ch) const
 }
 
 QString CPPEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text,
-                                       const QChar &la, int *skippedChars) const
+                                       QChar la, int *skippedChars) const
 {
     MatchingText m(tokenCache());
     return m.insertMatchingBrace(tc, text, la, skippedChars);

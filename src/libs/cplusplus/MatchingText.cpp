@@ -39,7 +39,7 @@ using namespace CPlusPlus;
 
 enum { MAX_NUM_LINES = 20 };
 
-static bool shouldOverrideChar(const QChar &ch)
+static bool shouldOverrideChar(QChar ch)
 {
     switch (ch.unicode()) {
     case ')': case ']': case ';': case '"': case '\'':
@@ -86,7 +86,7 @@ bool MatchingText::shouldInsertMatchingText(const QTextCursor &tc)
     return shouldInsertMatchingText(doc->characterAt(tc.selectionEnd()));
 }
 
-bool MatchingText::shouldInsertMatchingText(const QChar &lookAhead)
+bool MatchingText::shouldInsertMatchingText(QChar lookAhead)
 {
     switch (lookAhead.unicode()) {
     case '{': case '}':
@@ -103,7 +103,7 @@ bool MatchingText::shouldInsertMatchingText(const QChar &lookAhead)
 }
 
 QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QString &textToProcess,
-                                          const QChar &la, int *skippedChars) const
+                                          QChar la, int *skippedChars) const
 {
     QTextCursor tc = cursor;
     QTextDocument *doc = tc.document();

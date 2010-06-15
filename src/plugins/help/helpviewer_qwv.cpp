@@ -121,9 +121,14 @@ HelpNetworkAccessManager::HelpNetworkAccessManager(QObject *parent)
 {
 }
 
-QNetworkReply *HelpNetworkAccessManager::createRequest(Operation /*op*/,
-    const QNetworkRequest &request, QIODevice* /*outgoingData*/)
+QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
+    const QNetworkRequest &request, QIODevice* outgoingData)
 {
+    if (!HelpViewer::isLocalUrl(request.url())
+        && request.url().scheme() == QLatin1String("http")) {
+        return QNetworkAccessManager::createRequest(op, request, outgoingData);
+    }
+
     QString url = request.url().toString();
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     // TODO: For some reason the url to load is already wrong (passed from webkit)

@@ -65,6 +65,7 @@
 #include "rewritertransaction.h"
 #include "rewriterview.h"
 #include "rewritingexception.h"
+#include "invalididexception.h"
 
 /*!
 \defgroup CoreModel
@@ -259,7 +260,12 @@ void ModelPrivate::changeNodeId(const InternalNode::Pointer& internalNodePointer
         m_idNodeHash.remove(oldId);
     if (!id.isEmpty())
         m_idNodeHash.insert(id, internalNodePointer);
-    notifyNodeIdChanged(internalNodePointer, id, oldId);
+
+    try {
+        notifyNodeIdChanged(internalNodePointer, id, oldId);
+    } catch (RewritingException &e) {
+        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id, e.description());
+    }
 }
 
 void ModelPrivate::checkPropertyName(const QString &propertyName)

@@ -41,7 +41,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMenu>
 
-#include <QtHelp/QHelpEngineCore>
+#include <QtHelp/QHelpEngine>
 
 using namespace Find;
 using namespace Help;
@@ -78,7 +78,7 @@ HelpViewer::~HelpViewer()
 
 QFont HelpViewer::viewerFont() const
 {
-    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
     return qVariantValue<QFont>(engine.customValue(QLatin1String("font"),
         qApp->font()));
 }
@@ -149,8 +149,15 @@ void HelpViewer::setSource(const QUrl &url)
         if (launchWithExternalApp(url))
             return;
 
-        const QHelpEngineCore &engine = HelpManager::instance().helpEngineCore();
-        const QUrl &resolvedUrl = engine.findFile(url);
+        QUrl resolvedUrl;
+        if (url.scheme() == QLatin1String("http"))
+            resolvedUrl = url;
+
+        if (!resolvedUrl.isValid()) {
+            const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
+            resolvedUrl = engine.findFile(url);
+        }
+
         if (resolvedUrl.isValid()) {
             QTextBrowser::setSource(resolvedUrl);
             emit loadFinished(true);
@@ -345,7 +352,7 @@ QVariant HelpViewer::loadResource(int type, const QUrl &name)
 {
     QByteArray ba;
     if (type < 4) {
-        const QHelpEngineCore &engine = HelpManager::instance().helpEngineCore();
+        const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
         ba = engine.fileData(name);
         if (name.toString().endsWith(QLatin1String(".svg"), Qt::CaseInsensitive)) {
             QImage image;

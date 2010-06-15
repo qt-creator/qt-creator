@@ -78,7 +78,7 @@ private:
     void updateSnippets();
 
     bool maybeTriggersCompletion(TextEditor::ITextEditable *editor);
-    bool isDelimiter(const QChar &ch) const;
+    bool isDelimiter(QChar ch) const;
 
     void addCompletions(const QHash<QString, const QmlJS::Interpreter::Value *> &newCompletions,
                         const QIcon &icon, int relevance);
