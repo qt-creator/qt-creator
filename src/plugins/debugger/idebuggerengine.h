@@ -61,6 +61,14 @@ class DisassemblerViewAgent;
 class MemoryViewAgent;
 class Symbol;
 class WatchData;
+class BreakHandler;
+class ModulesHandler;
+class RegisterHandler;
+class StackHandler;
+class SnapshotHandler;
+class ThreadsHandler;
+class WatchHandler;
+
 
 class IDebuggerEngine : public QObject
 {
@@ -138,9 +146,18 @@ public slots:
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
     void showStatusMessage(const QString &msg, int timeout = -1) const
         { showMessage(msg, StatusBar, timeout); }
+
+public:
     DebuggerManager *manager() const { return m_manager; }
     bool debuggerActionsEnabled() const;
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
+    ModulesHandler *modulesHandler() const;
+    BreakHandler *breakHandler() const;
+    RegisterHandler *registerHandler() const;
+    StackHandler *stackHandler() const;
+    ThreadsHandler *threadsHandler() const;
+    WatchHandler *watchHandler() const;
+    SnapshotHandler *snapshotHandler() const;
 
 protected:
     DebuggerState state() const;

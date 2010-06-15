@@ -2140,7 +2140,7 @@ void TrkGdbAdapter::trkReloadRegisters()
 {
     // Take advantage of direct access to cached register values.
     QTC_ASSERT(m_snapshot.registerValid, /**/);
-    RegisterHandler *handler = m_engine->manager()->registerHandler();
+    RegisterHandler *handler = m_engine->runControl()->registerHandler();
     Registers registers = handler->registers();
 
     QTC_ASSERT(registers.size() >= 26,

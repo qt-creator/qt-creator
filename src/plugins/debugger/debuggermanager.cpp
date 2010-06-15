@@ -52,11 +52,8 @@
 #include "watchwindow.h"
 
 #include "breakhandler.h"
-#include "moduleshandler.h"
-#include "registerhandler.h"
 #include "snapshothandler.h"
 #include "stackhandler.h"
-#include "stackframe.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
 
@@ -280,7 +277,6 @@ struct DebuggerManagerPrivate
 
     // FIXME: Move to DebuggerRunControl
     BreakHandler *m_breakHandler;
-    RegisterHandler *m_registerHandler;
     SnapshotHandler *m_snapshotHandler;
     StackHandler *m_stackHandler;
     ThreadsHandler *m_threadsHandler;
@@ -303,7 +299,7 @@ struct DebuggerManagerPrivate
     QWidget *m_returnWindow;
     QWidget *m_localsWindow;
     QWidget *m_watchersWindow;
-    QWidget *m_registerWindow;
+    QAbstractItemView *m_registerWindow;
     QAbstractItemView *m_modulesWindow;
     QWidget *m_snapshotWindow;
     SourceFilesWindow *m_sourceFilesWindow;
@@ -358,7 +354,6 @@ DebuggerManager::~DebuggerManager()
 
     doDelete(d->m_breakHandler);
     doDelete(d->m_threadsHandler);
-    doDelete(d->m_registerHandler);
     doDelete(d->m_snapshotHandler);
     doDelete(d->m_stackHandler);
     doDelete(d->m_watchHandler);
@@ -376,8 +371,6 @@ void DebuggerManager::init()
 {
     d->m_state = DebuggerState(-1);
     d->m_busy = false;
-
-    d->m_registerHandler = 0;
 
     d->m_statusLabel = new QLabel;
     d->m_statusLabel->setMinimumSize(QSize(30, 10));
@@ -467,13 +460,6 @@ void DebuggerManager::init()
         this, SLOT(reloadSourceFiles()));
     connect(sourceFilesView, SIGNAL(fileOpenRequested(QString)),
         this, SLOT(fileOpen(QString)));
-
-    // Registers
-    QAbstractItemView *registerView =
-        qobject_cast<QAbstractItemView *>(d->m_registerWindow);
-    d->m_registerHandler = new RegisterHandler;
-    registerView->setModel(d->m_registerHandler->model());
-
 
     // Return Value
     d->m_watchHandler = new WatchHandler(this);
@@ -712,6 +698,11 @@ void DebuggerManager::clearCppCodeModelSnapshot()
     d->m_codeModelSnapshot = CPlusPlus::Snapshot();
 }
 
+QAbstractItemView *DebuggerManager::registerWindow() const
+{
+    return d->m_registerWindow;
+}
+
 QAbstractItemView *DebuggerManager::modulesWindow() const
 {
     return d->m_modulesWindow;
@@ -833,7 +824,7 @@ void DebuggerManager::notifyInferiorPidChanged(qint64 pid)
 
 void DebuggerManager::aboutToShutdown()
 {
-    // TODO: STATE_DEBUG(d->m_engine);
+    STATE_DEBUG(d->m_engine);
     if (d->m_engine)
         d->m_engine->shutdown();
     d->m_engine = 0;
@@ -1088,7 +1079,6 @@ void DebuggerManager::cleanupViews()
     stackHandler()->removeAll();
     threadsHandler()->removeAll();
     watchHandler()->cleanup();
-    registerHandler()->removeAll();
     d->m_sourceFilesWindow->removeAll();
     d->m_disassemblerViewAgent.cleanup();
     d->m_actions.reverseDirectionAction->setChecked(false);
@@ -1936,7 +1926,7 @@ void DebuggerManager::openTextEditor(const QString &titlePattern,
 
 DebuggerRunControl *DebuggerManager::runControl() const
 {
-    return const_cast<DebuggerRunControl *>(d->m_runControl);
+    return d->m_runControl;
 }
 
 DebuggerOutputWindow *DebuggerManager::debuggerOutputWindow() const
@@ -1947,11 +1937,6 @@ DebuggerOutputWindow *DebuggerManager::debuggerOutputWindow() const
 BreakHandler *DebuggerManager::breakHandler() const
 {
     return d->m_breakHandler;
-}
-
-RegisterHandler *DebuggerManager::registerHandler() const
-{
-    return d->m_registerHandler;
 }
 
 StackHandler *DebuggerManager::stackHandler() const
@@ -1974,53 +1959,6 @@ SnapshotHandler *DebuggerManager::snapshotHandler() const
     return d->m_snapshotHandler;
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// AbstractDebuggerEngine
-//
-//////////////////////////////////////////////////////////////////////
-
-/*
-void IDebuggerEngine::showStatusMessage(const QString &msg, int timeout)
-{
-    m_manager->showStatusMessage(msg, timeout);
-}
-*/
-
-DebuggerState IDebuggerEngine::state() const
-{
-    return m_manager->state();
-}
-
-void IDebuggerEngine::setState(DebuggerState state, bool forced)
-{
-    m_manager->setState(state, forced);
-}
-
-bool IDebuggerEngine::debuggerActionsEnabled() const
-{
-    return m_manager->debuggerActionsEnabled();
-}
-
-void IDebuggerEngine::showModuleSymbols
-    (const QString &moduleName, const Symbols &symbols)
-{
-    QTreeWidget *w = new QTreeWidget;
-    w->setColumnCount(3);
-    w->setRootIsDecorated(false);
-    w->setAlternatingRowColors(true);
-    w->setSortingEnabled(true);
-    w->setHeaderLabels(QStringList() << tr("Symbol") << tr("Address") << tr("Code"));
-    w->setWindowTitle(tr("Symbols in \"%1\"").arg(moduleName));
-    foreach (const Symbol &s, symbols) {
-        QTreeWidgetItem *it = new QTreeWidgetItem;
-        it->setData(0, Qt::DisplayRole, s.name);
-        it->setData(1, Qt::DisplayRole, s.address);
-        it->setData(2, Qt::DisplayRole, s.state);
-        w->addTopLevelItem(it);
-    }
-    manager()->createNewDock(w);
-}
 //////////////////////////////////////////////////////////////////////
 //
 // Testing

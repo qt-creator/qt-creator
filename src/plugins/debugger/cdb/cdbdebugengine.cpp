@@ -310,9 +310,9 @@ void CdbDebugEngine::setToolTipExpression(const QPoint &mousePos, TextEditor::IT
 
 void CdbDebugEnginePrivate::clearDisplay()
 {
-    manager()->threadsHandler()->removeAll();
-    manager()->modulesHandler()->removeAll();
-    manager()->registerHandler()->removeAll();
+    m_engine->threadsHandler()->removeAll();
+    m_engine->modulesHandler()->removeAll();
+    m_engine->registerHandler()->removeAll();
 }
 
 void CdbDebugEnginePrivate::checkVersion()
@@ -510,7 +510,7 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
     }
     // Clear any saved breakpoints and set initial breakpoints
     m_engine->executeDebuggerCommand(QLatin1String("bc"));
-    if (manager()->breakHandler()->hasPendingBreakpoints()) {
+    if (m_engine->breakHandler()->hasPendingBreakpoints()) {
         if (debugCDBExecution)
             qDebug() << "processCreatedAttached: Syncing breakpoints";
         m_engine->attemptBreakpointSynchronization();
@@ -519,7 +519,7 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
     // the exception to be delivered to the debugger
     // Also, see special handling in slotModulesLoaded().
     if (m_mode == AttachCrashedExternal) {
-        const QString crashParameter = manager()->runControl()->sp().crashParameter;
+        const QString crashParameter = m_engine->runControl()->sp().crashParameter;
         if (!crashParameter.isEmpty()) {
             ULONG64 evtNr = crashParameter.toULongLong();
             const HRESULT hr = interfaces().debugControl->SetNotifyEventHandle(evtNr);
@@ -1251,7 +1251,7 @@ void CdbDebugEngine::reloadRegisters()
     const Registers registers = getRegisters(m_d->interfaces().debugControl, m_d->interfaces().debugRegisters, &errorMessage, intBase);
     if (registers.isEmpty() && !errorMessage.isEmpty())
         warning(msgFunctionFailed("reloadRegisters" , errorMessage));
-    manager()->registerHandler()->setRegisters(registers);
+    registerHandler()->setRegisters(registers);
 }
 
 void CdbDebugEngine::slotConsoleStubStarted()

@@ -32,7 +32,15 @@
 #include "debuggeroutputwindow.h"
 
 #include "idebuggerengine.h"
+
+#include "breakhandler.h"
 #include "moduleshandler.h"
+#include "registerhandler.h"
+#include "snapshothandler.h"
+#include "stackhandler.h"
+#include "stackframe.h"
+#include "threadshandler.h"
+#include "watchhandler.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
@@ -51,6 +59,7 @@
 
 #include <QtGui/QAbstractItemView>
 #include <QtGui/QTextDocument>
+#include <QtGui/QTreeWidget>
 
 using namespace ProjectExplorer;
 using namespace Debugger::Internal;
@@ -159,10 +168,10 @@ public:
     bool m_running;
 
     ModulesHandler *m_modulesHandler;
+    RegisterHandler *m_registerHandler;
 /*
     // FIXME: Move from DebuggerManager
     BreakHandler *m_breakHandler;
-    RegisterHandler *m_registerHandler;
     SnapshotHandler *m_snapshotHandler;
     StackHandler *m_stackHandler;
     ThreadsHandler *m_threadsHandler;
@@ -180,12 +189,14 @@ DebuggerRunControl::Private::Private(DebuggerRunControl *parent,
 {
     m_running = false;
     m_modulesHandler = new ModulesHandler(q);
+    m_registerHandler = new RegisterHandler();
 }
 
 DebuggerRunControl::Private::~Private()
 {
 #define doDelete(ptr) delete ptr; ptr = 0
     doDelete(m_modulesHandler);
+    doDelete(m_registerHandler);
 #undef doDelete
 }
 
@@ -326,7 +337,7 @@ BreakHandler *DebuggerRunControl::breakHandler() const
 
 RegisterHandler *DebuggerRunControl::registerHandler() const
 {
-    return d->m_manager->registerHandler();
+    return d->m_registerHandler;
 }
 
 StackHandler *DebuggerRunControl::stackHandler() const
@@ -365,7 +376,92 @@ void DebuggerRunControl::startDebugger(IDebuggerEngine *engine)
     d->m_engine = engine;
     d->m_engine->setRunControl(this);
     d->m_manager->modulesWindow()->setModel(d->m_modulesHandler->model());
+    d->m_manager->registerWindow()->setModel(d->m_registerHandler->model());
     d->m_engine->startDebugger();
+}
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// AbstractDebuggerEngine
+//
+//////////////////////////////////////////////////////////////////////
+
+/*
+void IDebuggerEngine::showStatusMessage(const QString &msg, int timeout)
+{
+    m_manager->showStatusMessage(msg, timeout);
+}
+*/
+
+DebuggerState IDebuggerEngine::state() const
+{
+    return m_manager->state();
+}
+
+void IDebuggerEngine::setState(DebuggerState state, bool forced)
+{
+    m_manager->setState(state, forced);
+}
+
+bool IDebuggerEngine::debuggerActionsEnabled() const
+{
+    return m_manager->debuggerActionsEnabled();
+}
+
+void IDebuggerEngine::showModuleSymbols
+    (const QString &moduleName, const Symbols &symbols)
+{
+    QTreeWidget *w = new QTreeWidget;
+    w->setColumnCount(3);
+    w->setRootIsDecorated(false);
+    w->setAlternatingRowColors(true);
+    w->setSortingEnabled(true);
+    w->setHeaderLabels(QStringList() << tr("Symbol") << tr("Address") << tr("Code"));
+    w->setWindowTitle(tr("Symbols in \"%1\"").arg(moduleName));
+    foreach (const Symbol &s, symbols) {
+        QTreeWidgetItem *it = new QTreeWidgetItem;
+        it->setData(0, Qt::DisplayRole, s.name);
+        it->setData(1, Qt::DisplayRole, s.address);
+        it->setData(2, Qt::DisplayRole, s.state);
+        w->addTopLevelItem(it);
+    }
+    manager()->createNewDock(w);
+}
+
+ModulesHandler *IDebuggerEngine::modulesHandler() const
+{
+    return runControl()->modulesHandler();
+}
+
+BreakHandler *IDebuggerEngine::breakHandler() const
+{
+    return runControl()->breakHandler();
+}
+
+RegisterHandler *IDebuggerEngine::registerHandler() const
+{
+    return runControl()->registerHandler();
+}
+
+StackHandler *IDebuggerEngine::stackHandler() const
+{
+    return runControl()->stackHandler();
+}
+
+ThreadsHandler *IDebuggerEngine::threadsHandler() const
+{
+    return runControl()->threadsHandler();
+}
+
+WatchHandler *IDebuggerEngine::watchHandler() const
+{
+    return runControl()->watchHandler();
+}
+
+SnapshotHandler *IDebuggerEngine::snapshotHandler() const
+{
+    return runControl()->snapshotHandler();
 }
 
 } // namespace Debugger

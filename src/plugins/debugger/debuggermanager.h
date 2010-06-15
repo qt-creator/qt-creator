@@ -255,16 +255,17 @@ public slots: // FIXME
     friend class DebuggerRunControl;
 public:
     Internal::BreakHandler *breakHandler() const;
-    Internal::RegisterHandler *registerHandler() const;
     Internal::StackHandler *stackHandler() const;
     Internal::ThreadsHandler *threadsHandler() const;
     Internal::WatchHandler *watchHandler() const;
     Internal::SnapshotHandler *snapshotHandler() const;
+
     Internal::DebuggerOutputWindow *debuggerOutputWindow() const;
 
 private:
     Internal::SourceFilesWindow *sourceFileWindow() const;
     QAbstractItemView *modulesWindow() const;
+    QAbstractItemView *registerWindow() const;
     QWidget *threadsWindow() const;
 
     Internal::DebuggerManagerActions debuggerManagerActions() const;
