@@ -4080,6 +4080,15 @@ static QStringList expandEnvVars(const ProStringList &x)
     return ret;
 }
 
+QString ProFileEvaluator::value(const QString &variable) const
+{
+    const QStringList &vals = values(variable);
+    if (!vals.isEmpty())
+        return vals.first();
+
+    return QString();
+}
+
 QStringList ProFileEvaluator::values(const QString &variableName) const
 {
     return expandEnvVars(d->values(ProString(variableName)));

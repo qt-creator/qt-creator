@@ -87,16 +87,6 @@ QList<ProFile*> ProFileReader::includeFiles() const
     return list;
 }
 
-QString ProFileReader::value(const QString &variable) const
-{
-    const QStringList &vals = values(variable);
-    if (!vals.isEmpty())
-        return vals.first();
-
-    return QString();
-}
-
-
 void ProFileReader::fileMessage(const QString &message)
 {
     Q_UNUSED(message)

@@ -90,6 +90,7 @@ public:
     bool accept(ProFile *pro);
 
     bool contains(const QString &variableName) const;
+    QString value(const QString &variableName) const;
     QStringList values(const QString &variableName) const;
     QStringList values(const QString &variableName, const ProFile *pro) const;
     QStringList absolutePathValues(const QString &variable, const QString &baseDirectory) const;

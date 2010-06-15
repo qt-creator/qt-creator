@@ -51,8 +51,6 @@ public:
     bool readProFile(const QString &fileName);
     QList<ProFile*> includeFiles() const;
 
-    QString value(const QString &variable) const;
-
     ProFile *proFileFor(const QString &name);
 signals:
     void errorFound(const QString &error);
