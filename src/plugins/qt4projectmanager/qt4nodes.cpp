@@ -728,7 +728,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
         {
             QFile qfile(m_projectFilePath);
             if (qfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                contents = QString::fromLatin1(qfile.readAll()); // yes, really latin1
+                contents = QString::fromLocal8Bit(qfile.readAll());
                 qfile.close();
                 lines = contents.split(QLatin1Char('\n'));
                 while (!lines.isEmpty() && lines.last().isEmpty())
@@ -779,7 +779,7 @@ void Qt4PriFileNode::save(const QStringList &lines)
     QFile qfile(m_projectFilePath);
     if (qfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         foreach (const QString &str, lines) {
-            qfile.write(str.toLatin1()); // yes, really latin1
+            qfile.write(str.toLocal8Bit());
             qfile.write("\n");
         }
         qfile.close();
