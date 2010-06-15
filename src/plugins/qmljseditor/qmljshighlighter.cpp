@@ -326,8 +326,8 @@ int Highlighter::onBlockStart()
     int previousState = previousBlockState();
     if (previousState != -1) {
         state = previousState & 0xff;
-        m_inMultilineComment = (previousState >> 8) & 0xff;
-        m_braceDepth = previousState >> 16;
+        m_braceDepth = previousState >> 8;
+        m_inMultilineComment = (state == Scanner::MultiLineComment);
     }
     m_foldingIndent = m_braceDepth;
 
@@ -338,7 +338,7 @@ void Highlighter::onBlockEnd(int state)
 {
     typedef TextEditor::TextBlockUserData TextEditorBlockData;
 
-    setCurrentBlockState((m_braceDepth << 16) | (m_inMultilineComment << 8) | state);
+    setCurrentBlockState((m_braceDepth << 8) | state);
     TextEditor::BaseTextDocumentLayout::setParentheses(currentBlock(), m_currentBlockParentheses);
     TextEditor::BaseTextDocumentLayout::setFoldingIndent(currentBlock(), m_foldingIndent);
 }
