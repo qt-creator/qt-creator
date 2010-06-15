@@ -3012,7 +3012,9 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 logMessage(format("fromfile(file, variable) requires two arguments."));
             } else {
                 QHash<ProString, ProStringList> vars;
-                if (evaluateFileInto(resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1))), &vars, 0))
+                QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
+                fn.detach();
+                if (evaluateFileInto(fn, &vars, 0))
                     ret = vars.value(map(args.at(1)));
             }
             break;
@@ -3290,7 +3292,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 logMessage(format("infile(file, var, [values]) requires two or three arguments."));
             } else {
                 QHash<ProString, ProStringList> vars;
-                if (!evaluateFileInto(resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1))), &vars, 0))
+                QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
+                fn.detach();
+                if (!evaluateFileInto(fn, &vars, 0))
                     return ReturnFalse;
                 if (args.count() == 2)
                     return returnBool(vars.contains(args.at(1)));
