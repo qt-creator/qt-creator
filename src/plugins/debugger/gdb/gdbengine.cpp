@@ -485,7 +485,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // new_bp="1",pended_bp="1",new_expr="\"gdbengine.cpp\":1584",
                 // bkpt={number="1",type="breakpoint",disp="keep",enabled="y",
                 // addr="0x0000000115cc3ddf",func="foo()",file="../foo.cpp",
-                // line="1584",shlib="/../libFoo_debug.dylib",times="0"} 
+                // line="1584",shlib="/../libFoo_debug.dylib",times="0"}
                 const GdbMi bkpt = result.findChild("bkpt");
                 const int number = bkpt.findChild("number").data().toInt();
                 BreakHandler *handler = manager()->breakHandler();
@@ -1409,7 +1409,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
         // value={old="1",new="0"},frame={addr="0x00451e1b",
         // func="QScopedPointer",args=[{name="this",value="0xbfffed40"},
         // {name="p",value="0x0"}],file="x.h",fullname="/home/.../x.h",line="95"},
-        // thread-id="1",stopped-threads="all",core="2" 
+        // thread-id="1",stopped-threads="all",core="2"
         GdbMi wpt = data.findChild("wpt");
         QByteArray bpNumber = wpt.findChild("number").data();
         QByteArray bpAddress = wpt.findChild("exp").data();
@@ -1783,7 +1783,7 @@ void GdbEngine::startDebugger()
     m_progress->setProgressRange(0, 100);
     Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
         ->addTask(m_progress->future(), tr("Launching"), _("Debugger.Launcher"));
-    fp->setKeepOnFinish(false); 
+    fp->setKeepOnFinish(false);
     m_progress->reportStarted();
 
     delete m_gdbAdapter;
@@ -1804,7 +1804,7 @@ unsigned GdbEngine::debuggerCapabilities() const
         | RegisterCapability | ShowMemoryCapability
         | JumpToLineCapability | ReloadModuleCapability
         | ReloadModuleSymbolsCapability | BreakOnThrowAndCatchCapability
-        | ReturnFromFunctionCapability 
+        | ReturnFromFunctionCapability
         | CreateFullBacktraceCapability
         | WatchpointCapability
         | AddWatcherCapability;
@@ -2219,7 +2219,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         setBreakpointDataFromOutput(data, bkpt);
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
-        // know how to do pending breakpoints using CLI but not MI. So try 
+        // know how to do pending breakpoints using CLI but not MI. So try
         // again with MI.
         QByteArray cmd = "break " + breakpointLocation(data);
         postCommand(cmd, NeedsStop | RebuildBreakpointModel,
@@ -2647,7 +2647,7 @@ void GdbEngine::requestModuleSymbols(const QString &moduleName)
     } while (false);
     if (!success)
         qWarning("moduleSymbols: %s\n", qPrintable(errorMessage));
-    manager()->showModuleSymbols(moduleName, rc);
+    showModuleSymbols(moduleName, rc);
 }
 
 void GdbEngine::reloadModules()

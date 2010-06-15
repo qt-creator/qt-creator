@@ -1171,33 +1171,6 @@ void DebuggerManager::loadSymbols(const QString &module)
     d->m_engine->loadSymbols(module);
 }
 
-void DebuggerManager::requestModuleSymbols(const QString &moduleName)
-{
-    QTC_ASSERT(d->m_engine, return);
-    d->m_engine->requestModuleSymbols(moduleName);
-}
-
-void DebuggerManager::showModuleSymbols(const QString &moduleName,
-    const QList<Symbol> &symbols)
-{ 
-    QTC_ASSERT(d->m_engine, return);
-    QTreeWidget *w = new QTreeWidget;
-    w->setColumnCount(3);
-    w->setRootIsDecorated(false);
-    w->setAlternatingRowColors(true);
-    w->setSortingEnabled(true);
-    w->setHeaderLabels(QStringList() << tr("Symbol") << tr("Address") << tr("Code"));
-    w->setWindowTitle(tr("Symbols in \"%1\"").arg(moduleName));
-    foreach (const Symbol &s, symbols) {
-        QTreeWidgetItem *it = new QTreeWidgetItem;
-        it->setData(0, Qt::DisplayRole, s.name);
-        it->setData(1, Qt::DisplayRole, s.address);
-        it->setData(2, Qt::DisplayRole, s.state);
-        w->addTopLevelItem(it);
-    }
-    createNewDock(w);
-}
-
 void DebuggerManager::executeStep()
 {
     QTC_ASSERT(d->m_engine, return);
@@ -1538,7 +1511,7 @@ void DebuggerManager::showMessage(const QString &msg, int channel)
 {
     if (runControl())
         runControl()->showMessage(msg, channel);
-    //else 
+    //else
     //    qDebug() << "OUTPUT: " << channel << msg;
 }
 
@@ -2029,6 +2002,25 @@ bool IDebuggerEngine::debuggerActionsEnabled() const
     return m_manager->debuggerActionsEnabled();
 }
 
+void IDebuggerEngine::showModuleSymbols
+    (const QString &moduleName, const Symbols &symbols)
+{
+    QTreeWidget *w = new QTreeWidget;
+    w->setColumnCount(3);
+    w->setRootIsDecorated(false);
+    w->setAlternatingRowColors(true);
+    w->setSortingEnabled(true);
+    w->setHeaderLabels(QStringList() << tr("Symbol") << tr("Address") << tr("Code"));
+    w->setWindowTitle(tr("Symbols in \"%1\"").arg(moduleName));
+    foreach (const Symbol &s, symbols) {
+        QTreeWidgetItem *it = new QTreeWidgetItem;
+        it->setData(0, Qt::DisplayRole, s.name);
+        it->setData(1, Qt::DisplayRole, s.address);
+        it->setData(2, Qt::DisplayRole, s.state);
+        w->addTopLevelItem(it);
+    }
+    manager()->createNewDock(w);
+}
 //////////////////////////////////////////////////////////////////////
 //
 // Testing

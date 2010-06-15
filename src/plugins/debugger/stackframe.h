@@ -31,6 +31,7 @@
 #define DEBUGGER_STACKFRAME_H
 
 #include <QtCore/QString>
+#include <QtCore/QList>
 #include <QtCore/QMetaType>
 
 QT_BEGIN_NAMESPACE
@@ -57,7 +58,9 @@ struct StackFrame
     QString address;
 };
 
-QDebug operator<<(QDebug d, const  StackFrame &);
+QDebug operator<<(QDebug d, const StackFrame &frame);
+
+typedef QList<StackFrame> StackFrames;
 
 } // namespace Internal
 } // namespace Debugger

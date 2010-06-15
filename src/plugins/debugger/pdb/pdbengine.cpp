@@ -402,7 +402,7 @@ void PdbEngine::handleListModules(const PdbResponse &response)
 {
     GdbMi out;
     out.fromString(response.data.trimmed());
-    QList<Module> modules;
+    Modules modules;
     foreach (const GdbMi &item, out.children()) {
         Module module;
         module.moduleName = _(item.findChild("name").data());
@@ -432,14 +432,14 @@ void PdbEngine::handleListSymbols(const PdbResponse &response)
 {
     GdbMi out;
     out.fromString(response.data.trimmed());
-    QList<Symbol> symbols;
+    Symbols symbols;
     QString moduleName = response.cookie.toString();
     foreach (const GdbMi &item, out.children()) {
         Symbol symbol;
         symbol.name = _(item.findChild("name").data());
         symbols.append(symbol);
     }
-    manager()->showModuleSymbols(moduleName, symbols);
+    showModuleSymbols(moduleName, symbols);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -737,7 +737,7 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
     // "-> def square(a):"
 
     // Populate stack view.
-    QList<StackFrame> stackFrames;
+    StackFrames stackFrames;
     int level = 0;
     int currentIndex = -1;
     foreach (const QByteArray &line, response.data.split('\n')) {

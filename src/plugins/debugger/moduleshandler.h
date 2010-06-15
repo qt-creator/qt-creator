@@ -61,6 +61,8 @@ public:
     QString name;
 };
 
+typedef QList<Symbol> Symbols;
+
 //////////////////////////////////////////////////////////////////
 //
 // Module
@@ -80,6 +82,8 @@ public:
     QString endAddress;
 };
 
+typedef QList<Module> Modules;
+
 
 //////////////////////////////////////////////////////////////////
 //
@@ -94,11 +98,11 @@ public:
 
     QAbstractItemModel *model() const;
 
-    void setModules(const QList<Module> &modules);
+    void setModules(const Modules &modules);
     void addModule(const Module &module);
     void removeModule(const QString &moduleName);
 
-    QList<Module> modules() const;
+    Modules modules() const;
     void removeAll();
 
 private:

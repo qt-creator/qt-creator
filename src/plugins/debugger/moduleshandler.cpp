@@ -35,7 +35,6 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
-#include <QtCore/QList>
 #include <QtCore/QTextStream>
 
 #include <QtGui/QAction>
@@ -73,9 +72,9 @@ public:
     void clearModel();
     void addModule(const Module &m);
     void removeModule(const QString &moduleName);
-    void setModules(const QList<Module> &m);
+    void setModules(const Modules &m);
 
-    const QList<Module> &modules() const { return m_modules; }
+    const Modules &modules() const { return m_modules; }
     IDebuggerEngine *engine() { return m_runControl->engine(); }
     const IDebuggerEngine *engine() const { return m_runControl->engine(); }
 
@@ -85,7 +84,7 @@ private:
     DebuggerRunControl *m_runControl;
     const QVariant m_yes;
     const QVariant m_no;
-    QList<Module> m_modules;
+    Modules m_modules;
 };
 
 ModulesModel::ModulesModel(ModulesHandler *parent, DebuggerRunControl *runControl)
@@ -175,7 +174,7 @@ void ModulesModel::addModule(const Module &m)
     endInsertRows();
 }
 
-void ModulesModel::setModules(const QList<Module> &m)
+void ModulesModel::setModules(const Modules &m)
 {
     m_modules = m;
     reset();
@@ -241,12 +240,12 @@ void ModulesHandler::removeModule(const QString &moduleName)
     m_model->removeModule(moduleName);
 }
 
-void ModulesHandler::setModules(const QList<Module> &modules)
+void ModulesHandler::setModules(const Modules &modules)
 {
     m_model->setModules(modules);
 }
 
-QList<Module> ModulesHandler::modules() const
+Modules ModulesHandler::modules() const
 {
     return m_model->modules();
 }

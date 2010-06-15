@@ -293,13 +293,6 @@ private:
     Q_SLOT void dumpLog();
     Q_SLOT void fontSettingsChanged(const TextEditor::FontSettings &settings);
 
-public:
-    // stuff in this block should be made private by moving it to
-    // one of the interfaces
-    void requestModuleSymbols(const QString &moduleName);
-    void showModuleSymbols(const QString &moduleName,
-        const QList<Internal::Symbol> &symbols);
-
 signals:
     void debuggingFinished();
     void inferiorPidChanged(qint64 pid);

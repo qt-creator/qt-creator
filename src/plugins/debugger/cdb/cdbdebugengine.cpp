@@ -1236,7 +1236,7 @@ void CdbDebugEngine::requestModuleSymbols(const QString &moduleName)
     } while (false);
     if (!success)
         warning(errorMessage);
-    manager()->showModuleSymbols(moduleName, rc);
+    m_engine->showModuleSymbols(moduleName, rc);
 }
 
 void CdbDebugEngine::reloadRegisters()

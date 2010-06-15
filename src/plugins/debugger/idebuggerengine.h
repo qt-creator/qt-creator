@@ -31,6 +31,7 @@
 #define DEBUGGER_IDEBUGGERENGINE_H
 
 #include "debuggerconstants.h"
+#include "moduleshandler.h" // For 'Symbols'.
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -139,6 +140,7 @@ public slots:
         { showMessage(msg, StatusBar, timeout); }
     DebuggerManager *manager() const { return m_manager; }
     bool debuggerActionsEnabled() const;
+    void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
 
 protected:
     DebuggerState state() const;
