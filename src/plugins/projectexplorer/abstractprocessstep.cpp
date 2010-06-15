@@ -213,7 +213,7 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
     } else if (status == QProcess::NormalExit) {
         textCharFormat.setForeground(Qt::red);
         textCharFormat.setFontWeight(QFont::Bold);
-        emit addOutput(tr("The process \"%1\" exited with code %2.").arg(m_command, m_process->exitCode()), textCharFormat);
+        emit addOutput(tr("The process \"%1\" exited with code %2.").arg(m_command, QString::number(m_process->exitCode())), textCharFormat);
     } else {
         textCharFormat.setForeground(Qt::red);
         textCharFormat.setFontWeight(QFont::Bold);
