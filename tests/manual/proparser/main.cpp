@@ -65,7 +65,7 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
     if (!(pro = visitor.parsedProFile(fileName)))
         return 2;
     if (!visitor.accept(pro)) {
-        delete pro;
+        pro->deref();
         return 2;
     }
 
@@ -108,7 +108,7 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
         }
     }
 
-    delete pro;
+    pro->deref();
     return 0;
 }
 
