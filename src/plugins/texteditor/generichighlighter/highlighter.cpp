@@ -51,15 +51,12 @@ namespace {
 
 const Highlighter::KateFormatMap Highlighter::m_kateFormats;
 
-Highlighter::Highlighter(const QSharedPointer<Context> &defaultContext,QTextDocument *parent) :
+Highlighter::Highlighter(QTextDocument *parent) :
     QSyntaxHighlighter(parent),
     m_persistentStatesCounter(PersistentsStart),
     m_dynamicContextsCounter(0),
-    m_isBroken(false),
-    m_defaultContext(defaultContext)
-{
-    m_persistentStates.insert(m_defaultContext->name(), Default);
-}
+    m_isBroken(false)
+{}
 
 Highlighter::~Highlighter()
 {}
@@ -88,37 +85,47 @@ Highlighter::KateFormatMap::KateFormatMap()
     m_ids.insert(QLatin1String("dsError"), Highlighter::Error);
 }
 
+void Highlighter::configureFormat(TextFormatId id, const QTextCharFormat &format)
+{
+    m_creatorFormats[id] = format;
+}
+
+void  Highlighter::setDefaultContext(const QSharedPointer<Context> &defaultContext)
+{
+    m_defaultContext = defaultContext;
+    m_persistentStates.insert(m_defaultContext->name(), Default);
+}
+
 void Highlighter::highlightBlock(const QString &text)
 {
-    if (m_isBroken)
-        return;
+    if (!m_defaultContext.isNull() && !m_isBroken) {
+        try {
+            setupDataForBlock(text);
 
-    try {
-        setupDataForBlock(text);
+            handleContextChange(m_currentContext->lineBeginContext(),
+                                m_currentContext->definition());
 
-        handleContextChange(m_currentContext->lineBeginContext(), m_currentContext->definition());
+            ProgressData progress;
+            const int length = text.length();
+            while (progress.offset() < length) {
+                if (progress.offset() > 0 &&
+                    progress.onlySpacesSoFar() &&
+                    !text.at(progress.offset()).isSpace()) {
+                    progress.setOnlySpacesSoFar(false);
+                }
 
-        ProgressData progress;
-        const int length = text.length();
-        while (progress.offset() < length) {
-
-            if (progress.offset() > 0 &&
-                progress.onlySpacesSoFar() &&
-                !text.at(progress.offset()).isSpace()) {
-                progress.setOnlySpacesSoFar(false);
+                iterateThroughRules(text, length, &progress, false, m_currentContext->rules());
             }
 
-            iterateThroughRules(text, length, &progress, false, m_currentContext->rules());
+            handleContextChange(m_currentContext->lineEndContext(),
+                                m_currentContext->definition(),
+                                false);
+            m_contexts.clear();
+        } catch (const HighlighterException &) {
+            m_isBroken = true;
         }
-
-        handleContextChange(m_currentContext->lineEndContext(), m_currentContext->definition(),
-                            false);
-    } catch (const HighlighterException &) {
-        m_isBroken = true;
-        return;
     }
 
-    m_contexts.clear();
     applyVisualWhitespaceFormat(text);
 }
 
@@ -461,9 +468,4 @@ void Highlighter::setCurrentContext()
         m_contexts.push_back(m_defaultContext);
     }
     m_currentContext = m_contexts.back();
-}
-
-void Highlighter::configureFormat(TextFormatId id, const QTextCharFormat &format)
-{
-    m_creatorFormats[id] = format;
 }

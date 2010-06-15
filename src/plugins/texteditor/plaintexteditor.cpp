@@ -160,31 +160,30 @@ void PlainTextEditor::fileChanged()
 
 void PlainTextEditor::configure(const Core::MimeType &mimeType)
 {
+    Highlighter *highlighter = new Highlighter();
+    baseTextDocument()->setSyntaxHighlighter(highlighter);
     m_isMissingSyntaxDefinition = true;
 
-    if (mimeType.isNull())
-        return;
+    QString definitionId;
+    if (!mimeType.isNull()) {
+        const QString &type = mimeType.type();
+        setMimeType(type);
 
-    const QString &type = mimeType.type();
-    setMimeType(type);
-
-    QString definitionId = Manager::instance()->definitionIdByMimeType(type);
-    if (definitionId.isEmpty())
-        definitionId = findDefinitionId(mimeType, true);
+        definitionId = Manager::instance()->definitionIdByMimeType(type);
+        if (definitionId.isEmpty())
+            definitionId = findDefinitionId(mimeType, true);
+    }
 
     if (!definitionId.isEmpty()) {
         const QSharedPointer<HighlightDefinition> &definition =
             Manager::instance()->definition(definitionId);
         if (!definition.isNull()) {
-            Highlighter *highlighter = new Highlighter(definition->initialContext());
-            baseTextDocument()->setSyntaxHighlighter(highlighter);
+            highlighter->setDefaultContext(definition->initialContext());
 
             m_commentDefinition.setAfterWhiteSpaces(definition->isCommentAfterWhiteSpaces());
             m_commentDefinition.setSingleLine(definition->singleLineComment());
             m_commentDefinition.setMultiLineStart(definition->multiLineCommentStart());
             m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
-
-            setFontSettings(TextEditorSettings::instance()->fontSettings());
 
             m_isMissingSyntaxDefinition = false;
         }
@@ -193,6 +192,8 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
         if (TextEditorSettings::instance()->highlighterSettings().isIgnoredFilePattern(fileName))
             m_isMissingSyntaxDefinition = false;
     }
+
+    setFontSettings(TextEditorSettings::instance()->fontSettings());
 
     // @todo: Indentation specification through the definition files is not really being used
     // because Kate recommends to configure indentation  through another feature. Maybe we should

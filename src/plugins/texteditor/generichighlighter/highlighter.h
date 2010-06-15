@@ -51,7 +51,7 @@ class ProgressData;
 class Highlighter : public QSyntaxHighlighter
 {
 public:
-    Highlighter(const QSharedPointer<Context> &defaultContext, QTextDocument *parent = 0);
+    Highlighter(QTextDocument *parent = 0);
     virtual ~Highlighter();
 
     enum TextFormatId {
@@ -72,6 +72,8 @@ public:
         Others
     };
     void configureFormat(TextFormatId id, const QTextCharFormat &format);
+
+    void setDefaultContext(const QSharedPointer<Context> &defaultContext);
 
 protected:
     virtual void highlightBlock(const QString &text);
