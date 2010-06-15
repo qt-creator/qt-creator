@@ -38,30 +38,23 @@ qhp.QtCreator.extraFiles       = \
                           scripts/jquery.js \
                           images/api_examples.png \
                           images/api_lookup.png \
-                          images/api_topics.png \
+                          images/arrow_down.png \
                           images/bg_ll.png \
-                          images/bg_l_blank.png \
                           images/bg_l.png \
                           images/bg_lr.png \
                           images/bg_r.png \
                           images/bg_ul_blank.png \
-                          images/bg_ul.png \
-                          images/bg_ur_blank.png \
-                          images/bg_ur.png \
+                          images/bg_ll_blank.png \
+                          images/bg_l_blank.png \
                           images/breadcrumb.png \
                           images/bullet_dn.png \
                           images/bullet_gt.png \
+                          images/bullet_sq.png \
+                          images/box_bg.png \
                           images/feedbackground.png \
-                          images/form_bg.png \
                           images/horBar.png \
                           images/page_bg.png \
-                          images/print.png \
-                          images/qt_guide.png \
                           images/qt-logo.png \
-                          images/qt_ref_doc.png \
-                          images/qt_tools.png \
-                          images/sep.png \
-                          images/header.png \
                           images/sprites-combined.png
 
 # macros.qdocconf
