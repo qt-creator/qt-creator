@@ -252,5 +252,3 @@ Modules ModulesHandler::modules() const
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "moduleshandler.moc"
