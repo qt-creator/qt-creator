@@ -1236,7 +1236,7 @@ void CdbDebugEngine::requestModuleSymbols(const QString &moduleName)
     } while (false);
     if (!success)
         warning(errorMessage);
-    m_engine->showModuleSymbols(moduleName, rc);
+    showModuleSymbols(moduleName, rc);
 }
 
 void CdbDebugEngine::reloadRegisters()
@@ -1548,7 +1548,7 @@ void CdbDebugEnginePrivate::updateModules()
     QString errorMessage;
     if (!getModuleList(interfaces().debugSymbols, &modules, &errorMessage))
         m_engine->warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
-    manager()->modulesHandler()->setModules(modules);
+    m_engine->modulesHandler()->setModules(modules);
 }
 
 static const char *dumperPrefixC = "dumper";
@@ -1563,7 +1563,7 @@ void CdbDebugEnginePrivate::handleModuleLoad(quint64 offset, const QString &name
     // parameters by offset as to avoid a hack like 'check last module'.
     QString errorMessage;
     if (getModuleByOffset(interfaces().debugSymbols, offset, &module, &errorMessage)) {
-        manager()->modulesHandler()->addModule(module);
+        m_engine->modulesHandler()->addModule(module);
     } else {
         m_engine->warning(errorMessage);
     }
@@ -1572,7 +1572,7 @@ void CdbDebugEnginePrivate::handleModuleLoad(quint64 offset, const QString &name
 
 void CdbDebugEnginePrivate::handleModuleUnload(const QString &imageName)
 {
-    manager()->modulesHandler()->removeModule(imageName);
+    m_engine->modulesHandler()->removeModule(imageName);
 }
 
 void CdbDebugEnginePrivate::handleBreakpointEvent(PDEBUG_BREAKPOINT2 pBP)
