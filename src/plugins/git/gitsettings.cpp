@@ -46,6 +46,7 @@ static const char promptToSubmitKeyC[] = "PromptForSubmit";
 static const char omitAnnotationDateKeyC[] = "OmitAnnotationDate";
 static const char spaceIgnorantBlameKeyC[] = "SpaceIgnorantBlame";
 static const char diffPatienceKeyC[] = "DiffPatience";
+static const char gitkOptionsKeyC[] = "GitKOptions";
 
 enum {
     defaultPullRebase = 0,
@@ -84,6 +85,7 @@ void GitSettings::fromSettings(QSettings *settings)
     omitAnnotationDate = settings->value(QLatin1String(omitAnnotationDateKeyC), false).toBool();
     spaceIgnorantBlame = settings->value(QLatin1String(spaceIgnorantBlameKeyC), true).toBool();
     diffPatience =  settings->value(QLatin1String(diffPatienceKeyC), true).toBool();
+    gitkOptions = settings->value(QLatin1String(gitkOptionsKeyC)).toString();
     settings->endGroup();
 }
 
@@ -99,6 +101,7 @@ void GitSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(omitAnnotationDateKeyC), omitAnnotationDate);
     settings->setValue(QLatin1String(spaceIgnorantBlameKeyC), spaceIgnorantBlame);
     settings->setValue(QLatin1String(diffPatienceKeyC), diffPatience);
+    settings->setValue(QLatin1String(gitkOptionsKeyC), gitkOptions);
     settings->endGroup();
 }
 
@@ -108,7 +111,8 @@ bool GitSettings::equals(const GitSettings &s) const
            && timeoutSeconds == s.timeoutSeconds && promptToSubmit == s.promptToSubmit
            && pullRebase == s.pullRebase
            && omitAnnotationDate == s.omitAnnotationDate && spaceIgnorantBlame == s.spaceIgnorantBlame
-           && diffPatience == s.diffPatience;
+           && diffPatience == s.diffPatience
+           && gitkOptions == s.gitkOptions;
 }
 
 QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const

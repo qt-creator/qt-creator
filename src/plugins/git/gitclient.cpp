@@ -1272,12 +1272,14 @@ void GitClient::launchGitK(const QString &workingDirectory)
 #ifdef Q_OS_WIN
     // Launch 'wish' shell from git binary directory with the gitk located there
     const QString binary = gitBinDirectory + QLatin1String("/wish");
-    const QStringList arguments(gitBinDirectory + QLatin1String("/gitk"));
+    QStringList arguments(gitBinDirectory + QLatin1String("/gitk"));
 #else
     // Simple: Run gitk from binary path
     const QString binary = gitBinDirectory + QLatin1String("/gitk");
-    const QStringList arguments;
+    QStringList arguments;
 #endif
+    if (!m_settings.gitkOptions.isEmpty())
+        arguments.append(m_settings.gitkOptions.split(QLatin1Char(' ')));
     outwin->appendCommand(workingDirectory, binary, arguments);
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.

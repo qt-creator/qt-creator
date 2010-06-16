@@ -60,6 +60,7 @@ struct GitSettings
     bool omitAnnotationDate;
     bool spaceIgnorantBlame;
     bool diffPatience;
+    QString gitkOptions;
 };
 
 inline bool operator==(const GitSettings &p1, const GitSettings &p2)

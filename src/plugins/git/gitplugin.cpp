@@ -418,7 +418,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     createRepositoryAction(actionManager, gitContainer,
                            tr("Launch gitk"), QLatin1String("Git.LaunchGitK"),
-                           globalcontext, false, &GitClient::launchGitK);
+                           globalcontext, true, &GitClient::launchGitK);
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Global"), this));
 
