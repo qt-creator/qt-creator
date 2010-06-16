@@ -51,7 +51,7 @@ public:
     {}
 
     QList<AST *> operator()(const QTextCursor &cursor)
-    { return this->operator()(cursor.blockNumber(), cursor.columnNumber()); }
+    { return this->operator()(cursor.blockNumber(), cursor.positionInBlock()); }
 
     /// line and column are 0-based!
     QList<AST *> operator()(int line, int column);

@@ -640,7 +640,7 @@ bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
             if (TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget())) {
                 QTextCursor tc(edit->document());
                 tc.setPosition(pos);
-                return tc.columnNumber() == 1;
+                return tc.positionInBlock() == 1;
             }
 
             return false;
