@@ -838,7 +838,7 @@ void MainWindow::setFocusToEditor()
     if (IEditor *editor = m_editorManager->currentEditor()) {
         if (qApp->focusWidget() != editor->widget()) {
             editor->widget()->setFocus();
-            focusWasMovedToEditor = true;
+            focusWasMovedToEditor = editor->widget()->hasFocus();
         }
     }
 
