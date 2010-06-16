@@ -52,7 +52,7 @@ public:
     CompileOutputWindow(BuildManager *bm);
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
-    QString name() const { return tr("Compile Output"); }
+    QString displayName() const { return tr("Compile Output"); }
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);

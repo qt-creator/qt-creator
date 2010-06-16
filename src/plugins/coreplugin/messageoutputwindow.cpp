@@ -71,7 +71,7 @@ QWidget *MessageOutputWindow::outputWidget(QWidget *parent)
     return m_widget;
 }
 
-QString MessageOutputWindow::name() const
+QString MessageOutputWindow::displayName() const
 {
     return tr("General Messages");
 }

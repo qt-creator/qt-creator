@@ -71,7 +71,7 @@ public:
 
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets() const;
-    QString name() const;
+    QString displayName() const;
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool);

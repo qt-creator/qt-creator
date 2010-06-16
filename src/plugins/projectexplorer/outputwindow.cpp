@@ -155,7 +155,7 @@ QList<QWidget*> OutputPane::toolBarWidgets() const
     return QList<QWidget*>() << m_reRunButton << m_stopButton;
 }
 
-QString OutputPane::name() const
+QString OutputPane::displayName() const
 {
     return tr("Application Output");
 }

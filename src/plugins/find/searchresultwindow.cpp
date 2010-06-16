@@ -96,7 +96,7 @@ SearchResultWindowPrivate::SearchResultWindowPrivate()
 SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
 {
     d->m_widget = new QStackedWidget;
-    d->m_widget->setWindowTitle(name());
+    d->m_widget->setWindowTitle(displayName());
 
     d->m_searchResultTreeView = new Internal::SearchResultTreeView(d->m_widget);
     d->m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);

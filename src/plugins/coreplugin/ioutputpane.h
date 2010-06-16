@@ -51,7 +51,7 @@ public:
 
     virtual QWidget *outputWidget(QWidget *parent) = 0;
     virtual QList<QWidget*> toolBarWidgets() const = 0;
-    virtual QString name() const = 0;
+    virtual QString displayName() const = 0;
 
     // -1 don't show in statusBar
     // 100...0 show at front...end

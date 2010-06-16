@@ -56,7 +56,7 @@ public:
 
     virtual QWidget *outputWidget(QWidget *parent);
     virtual QList<QWidget*> toolBarWidgets() const;
-    virtual QString name() const;
+    virtual QString displayName() const;
 
     virtual int priorityInStatusBar() const;
 

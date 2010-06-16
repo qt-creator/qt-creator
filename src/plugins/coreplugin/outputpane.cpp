@@ -353,9 +353,9 @@ void OutputPaneManager::init()
 
         m_opToolBarWidgets->addWidget(toolButtonsContainer);
 
-        QString actionId = QString("QtCreator.Pane.%1").arg(outPane->name().simplified());
+        QString actionId = QString("QtCreator.Pane.%1").arg(outPane->displayName().simplified());
         actionId.remove(QLatin1Char(' '));
-        QAction *action = new QAction(outPane->name(), this);
+        QAction *action = new QAction(outPane->displayName(), this);
 
         Command *cmd = am->registerAction(action, actionId, QList<int>() << Constants::C_GLOBAL_ID);
 
@@ -364,7 +364,7 @@ void OutputPaneManager::init()
 
         if (outPane->priorityInStatusBar() != -1) {
             cmd->setDefaultKeySequence(QKeySequence(paneShortCut(shortcutNumber)));
-            QPushButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->name(),
+            QPushButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->displayName(),
                                                              cmd->action());
             ++shortcutNumber;
             m_buttonsWidget->layout()->addWidget(button);
@@ -373,7 +373,7 @@ void OutputPaneManager::init()
         }
 
         // Now add the entry to the combobox, since the first item we add sets the currentIndex, thus we need to be set up for that
-        m_widgetComboBox->addItem(outPane->name(), idx);
+        m_widgetComboBox->addItem(outPane->displayName(), idx);
 
         connect(cmd->action(), SIGNAL(triggered()), this, SLOT(shortcutTriggered()));
     } while (it != begin);

@@ -50,7 +50,7 @@ public:
     QWidget *outputWidget(QWidget *parent);
     QList<QWidget*> toolBarWidgets() const { return QList<QWidget *>(); }
 
-    QString name() const;
+    QString displayName() const;
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);

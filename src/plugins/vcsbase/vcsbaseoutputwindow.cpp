@@ -273,7 +273,7 @@ QWidgetList VCSBaseOutputWindow::toolBarWidgets() const
     return QWidgetList();
 }
 
-QString VCSBaseOutputWindow::name() const
+QString VCSBaseOutputWindow::displayName() const
 {
     return tr("Version Control");
 }

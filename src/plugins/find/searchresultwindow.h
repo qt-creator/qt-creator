@@ -86,7 +86,7 @@ public:
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets() const;
 
-    QString name() const { return tr("Search Results"); }
+    QString displayName() const { return tr("Search Results"); }
     int priorityInStatusBar() const;
     void visibilityChanged(bool visible);
     bool isEmpty() const;

@@ -100,12 +100,11 @@ public:
     int taskCount() const;
     int errorTaskCount() const;
 
-
     // IOutputPane
     QWidget *outputWidget(QWidget *);
     QList<QWidget*> toolBarWidgets() const;
 
-    QString name() const { return tr("Build Issues"); }
+    QString displayName() const { return tr("Build Issues"); }
     int priorityInStatusBar() const;
     void clearContents();
     void visibilityChanged(bool visible);
