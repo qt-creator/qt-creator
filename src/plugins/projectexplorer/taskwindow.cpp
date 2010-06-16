@@ -478,7 +478,9 @@ bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
 // TaskWindow
 /////
 
-struct TaskWindowPrivate {
+class TaskWindowPrivate
+{
+public:
     Internal::TaskModel *m_model;
     Internal::TaskFilterModel *m_filter;
     Internal::TaskView *m_listview;

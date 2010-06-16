@@ -39,7 +39,9 @@
 namespace ProjectExplorer {
 
 // Build issue (warning or error).
-struct PROJECTEXPLORER_EXPORT Task {
+class PROJECTEXPLORER_EXPORT Task
+{
+public:
     enum TaskType {
         Unknown,
         Error,

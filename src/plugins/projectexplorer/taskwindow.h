@@ -42,10 +42,8 @@ class QModelIndex;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-struct Task;
-struct TaskWindowPrivate;
-
-struct TaskWindowPrivate;
+class Task;
+class TaskWindowPrivate;
 
 // Show build issues (warnings or errors) and open the editor on click.
 class PROJECTEXPLORER_EXPORT TaskWindow : public Core::IOutputPane
