@@ -64,7 +64,7 @@ namespace Internal {
 //////////////////////////////////////////////////////////////////////////
 
 DebuggerSettings::DebuggerSettings(QObject *parent)
-    : QObject(parent), m_gdbBinaryToolChainMap(new GdbBinaryToolChainMap)
+    : QObject(parent)
 {}
 
 DebuggerSettings::~DebuggerSettings()
@@ -87,7 +87,7 @@ void DebuggerSettings::readSettings(QSettings *settings)
         item->readSettings(settings);
     // Convert gdb binaries from flat settings list (see writeSettings)
     // into map ("binary1=gdb,1,2", "binary2=symbian_gdb,3,4").
-    m_gdbBinaryToolChainMap->clear();
+    m_gdbBinaryToolChainMap.clear();
     const QChar separator = QLatin1Char(',');
     const QString keyRoot = QLatin1String(gdbBinariesSettingsGroupC) + QLatin1Char('/') +
                             QLatin1String(debugModeGdbBinaryKeyC);
@@ -102,15 +102,15 @@ void DebuggerSettings::readSettings(QSettings *settings)
         const QString binary = tokens.front();
         tokens.pop_front();
         foreach(const QString &t, tokens)
-            m_gdbBinaryToolChainMap->insert(binary, t.toInt());
+            m_gdbBinaryToolChainMap.insert(binary, t.toInt());
     }
     // Linux defaults
 #ifdef Q_OS_UNIX
-    if (m_gdbBinaryToolChainMap->isEmpty()) {
+    if (m_gdbBinaryToolChainMap.isEmpty()) {
         const QString gdb = QLatin1String("gdb");
-        m_gdbBinaryToolChainMap->insert(gdb, ProjectExplorer::ToolChain::GCC);
-        m_gdbBinaryToolChainMap->insert(gdb, ProjectExplorer::ToolChain::OTHER);
-        m_gdbBinaryToolChainMap->insert(gdb, ProjectExplorer::ToolChain::UNKNOWN);
+        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::GCC);
+        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::OTHER);
+        m_gdbBinaryToolChainMap.insert(gdb, ProjectExplorer::ToolChain::UNKNOWN);
     }
 #endif
 }
@@ -124,8 +124,8 @@ void DebuggerSettings::writeSettings(QSettings *settings) const
     QString lastBinary;
     QStringList settingsList;
     const QChar separator = QLatin1Char(',');
-    const GdbBinaryToolChainMap::const_iterator cend = m_gdbBinaryToolChainMap->constEnd();
-    for (GdbBinaryToolChainMap::const_iterator it = m_gdbBinaryToolChainMap->constBegin(); it != cend; ++it) {
+    const GdbBinaryToolChainMap::const_iterator cend = m_gdbBinaryToolChainMap.constEnd();
+    for (GdbBinaryToolChainMap::const_iterator it = m_gdbBinaryToolChainMap.constBegin(); it != cend; ++it) {
         if (it.key() != lastBinary) {
             lastBinary = it.key(); // Start new entry with first toolchain
             settingsList.push_back(lastBinary);
@@ -254,12 +254,6 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
     item->setTextPattern(tr("Watch Expression \"%1\" in Separate Window"));
     instance->insertItem(WatchExpressionInWindow, item);
-
-    item = new SavedAction(instance);
-    instance->insertItem(AssignValue, item);
-
-    item = new SavedAction(instance);
-    instance->insertItem(AssignType, item);
 
     item = new SavedAction(instance);
     instance->insertItem(WatchPoint, item);

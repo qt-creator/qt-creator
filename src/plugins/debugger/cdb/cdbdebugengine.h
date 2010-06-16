@@ -30,14 +30,11 @@
 #ifndef DEBUGGER_CDBENGINE_H
 #define DEBUGGER_CDBENGINE_H
 
-#include "idebuggerengine.h"
-#include "debuggermanager.h"
+#include "debuggerengine.h"
 
 #include <QtCore/QSharedPointer>
 
 namespace Debugger {
-class DebuggerManager;
-
 namespace Internal {
 
 class DisassemblerViewAgent;
@@ -46,19 +43,17 @@ class CdbDebugOutput;
 class CdbDebugEnginePrivate;
 struct CdbOptions;
 
-class CdbDebugEngine : public IDebuggerEngine
+class CdbDebugEngine : public DebuggerEngine
 {
     Q_DISABLE_COPY(CdbDebugEngine)
     Q_OBJECT
-    explicit CdbDebugEngine(DebuggerManager *parent,
-                            const QSharedPointer<CdbOptions> &options);
+    explicit CdbDebugEngine(const DebuggerStartParameters &sp);
 
 public:
     ~CdbDebugEngine();
 
     // Factory function that returns 0 if the debug engine library cannot be found.
-    static IDebuggerEngine *create(DebuggerManager *parent,
-                                   const QSharedPointer<CdbOptions> &options,
+    static DebuggerEngine *create(const DebuggerStartParameters &sp,
                                    QString *errorMessage);
 
     virtual void shutdown();

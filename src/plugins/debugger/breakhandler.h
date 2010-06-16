@@ -39,6 +39,8 @@
 namespace Debugger {
 namespace Internal {
 
+class DebuggerEngine;
+
 //////////////////////////////////////////////////////////////////
 //
 // BreakHandler
@@ -50,7 +52,7 @@ class BreakHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit BreakHandler(DebuggerManager *manager, QObject *parent = 0);
+    explicit BreakHandler(DebuggerEngine *engine);
     ~BreakHandler();
 
     void removeAllBreakpoints();
@@ -67,22 +69,24 @@ public:
     void removeAt(int index); // This also deletes the marker.
     void clear(); // This also deletes all the marker.
     int indexOf(BreakpointData *data) { return m_bp.indexOf(data); }
-    // Find a breakpoint matching approximately the data in needle.bp*,
-    BreakpointData *findSimilarBreakpoint(const BreakpointData &needle) const;
+    // Find a breakpoint matching approximately the data in needle.
+    BreakpointData *findSimilarBreakpoint(const BreakpointData *needle) const;
     BreakpointData *findBreakpointByNumber(int bpNumber) const;
     int findWatchPointIndexByAddress(const QByteArray &a) const;
     bool watchPointAt(quint64 address) const;
     void updateMarkers();
 
-    QList<BreakpointData *> insertedBreakpoints() const;
+    Breakpoints insertedBreakpoints() const;
     void takeInsertedBreakPoint(BreakpointData *);
-    QList<BreakpointData *> takeRemovedBreakpoints(); // Owned.
-    QList<BreakpointData *> takeEnabledBreakpoints(); // Not owned.
-    QList<BreakpointData *> takeDisabledBreakpoints(); // Not owned.
+    Breakpoints takeRemovedBreakpoints(); // Owned.
+    Breakpoints takeEnabledBreakpoints(); // Not owned.
+    Breakpoints takeDisabledBreakpoints(); // Not owned.
 
     QIcon breakpointIcon() const         { return m_breakpointIcon; }
     QIcon disabledBreakpointIcon() const { return m_disabledBreakpointIcon; }
     QIcon pendingBreakPointIcon() const  { return m_pendingBreakPointIcon; }
+
+    void initializeFromTemplate(BreakHandler *other);
 
 public slots:
     void appendBreakpoint(BreakpointData *data);
@@ -98,7 +102,7 @@ private:
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &, int role);
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
@@ -113,12 +117,16 @@ private:
     const QIcon m_pendingBreakPointIcon;
     const QIcon m_watchpointIcon;
 
-    DebuggerManager *m_manager; // Not owned.
-    QList<BreakpointData *> m_bp;
-    QList<BreakpointData *> m_inserted; // Lately inserted breakpoints.
-    QList<BreakpointData *> m_removed; // Lately removed breakpoints.
-    QList<BreakpointData *> m_enabled; // Lately enabled breakpoints.
-    QList<BreakpointData *> m_disabled; // Lately disabled breakpoints.
+    DebuggerEngine *m_engine; // Not owned.
+    Breakpoints m_bp;
+    Breakpoints m_inserted; // Lately inserted breakpoints.
+    Breakpoints m_removed; // Lately removed breakpoints.
+    Breakpoints m_enabled; // Lately enabled breakpoints.
+    Breakpoints m_disabled; // Lately disabled breakpoints.
+
+    // Hack for BreakWindow::findSimilarBreakpoint
+    mutable BreakpointData *m_lastFound;
+    mutable bool m_lastFoundQueried;
 };
 
 } // namespace Internal

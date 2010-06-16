@@ -1,6 +1,10 @@
 # Detect presence of "Debugging Tools For Windows"
 # in case VS compilers are used.
 
+# FIXME
+CDB_PATH=""
+false {
+
 win32 {
 contains(QMAKE_CXX, cl) {
 
@@ -50,3 +54,5 @@ LIBS+=-lpsapi
 } # exists($$CDB_PATH)
 } # (QMAKE_CXX, cl)
 } # win32
+
+} # false

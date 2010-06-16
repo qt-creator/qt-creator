@@ -100,7 +100,7 @@ namespace Internal {
 // the QtCored4.pdb file to be present as we need "qstrdup"
 // as dummy symbol. This is ok ATM since dumpers only
 // make sense for Qt apps.
-static bool debuggeeLoadLibrary(CdbDebugEngine *manager,
+static bool debuggeeLoadLibrary(CdbDebugEngine *cdbEngine,
                                 CdbCore::CoreEngine *engine,
                                 unsigned long threadId,
                                 const QString &moduleName,
@@ -109,7 +109,8 @@ static bool debuggeeLoadLibrary(CdbDebugEngine *manager,
     if (loadDebug > 1)
         qDebug() << Q_FUNC_INFO << moduleName;
     // Try to ignore the breakpoints, skip stray startup-complete trap exceptions
-    QSharedPointer<CdbExceptionLoggerEventCallback> exLogger(new CdbExceptionLoggerEventCallback(LogWarning, true, manager));
+    QSharedPointer<CdbExceptionLoggerEventCallback>
+        exLogger(new CdbExceptionLoggerEventCallback(LogWarning, true, cdbEngine));
     CdbCore::EventCallbackRedirector eventRedir(engine, exLogger);
     Q_UNUSED(eventRedir)
     // Make a call to LoadLibraryA. First, reserve memory in debugger
@@ -251,7 +252,7 @@ bool CdbDumperInitThread::ensureDumperInitialized(CdbDumperHelper &h, QString *e
         h.m_state = CdbDumperHelper::Disabled; // No message here
         *errorMessage = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "The custom dumper library could not be initialized: %1").arg(*errorMessage);
         h.m_engine->showStatusMessage(*errorMessage, messageTimeOut);
-        h.m_engine->manager()->showQtDumperLibraryWarning(*errorMessage);
+        h.m_engine->showQtDumperLibraryWarning(*errorMessage);
     }
     if (loadDebug)
         qDebug() << Q_FUNC_INFO << '\n' << thread.m_ok;

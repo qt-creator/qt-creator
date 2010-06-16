@@ -51,9 +51,9 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
     PRECONDITION;
     m_processedNames.clear();
 
-    manager()->watchHandler()->beginCycle();
+    watchHandler()->beginCycle();
     //m_toolTipExpression.clear();
-    WatchHandler *handler = m_manager->watchHandler();
+    WatchHandler *handler = watchHandler();
 
     QByteArray expanded = "expanded:" + handler->expansionRequests() + ' ';
     expanded += "typeformats:" + handler->typeFormatRequests() + ' ';
@@ -130,22 +130,21 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
 
         GdbMi data = all.findChild("data");
         QList<WatchData> list;
-        WatchHandler *watchHandler = manager()->watchHandler();
         foreach (const GdbMi &child, data.children()) {
             WatchData dummy;
             dummy.iname = child.findChild("iname").data();
             dummy.name = _(child.findChild("name").data());
             //qDebug() << "CHILD: " << child.toString();
-            parseWatchData(watchHandler->expandedINames(), dummy, child, &list);
+            parseWatchData(watchHandler()->expandedINames(), dummy, child, &list);
         }
-        watchHandler->insertBulkData(list);
+        watchHandler()->insertBulkData(list);
         //for (int i = 0; i != list.size(); ++i)
         //    qDebug() << "LOCAL: " << list.at(i).toString();
 
 #if 0
         data = all.findChild("bkpts");
         if (data.isValid()) {
-            BreakHandler *handler = manager()->breakHandler();
+            BreakHandler *handler = breakHandler();
             foreach (const GdbMi &child, data.children()) {
                 int bpNumber = child.findChild("number").data().toInt();
                 int found = handler->findBreakpoint(bpNumber);
@@ -199,12 +198,12 @@ void GdbEngine::updateAllPython()
     reloadModulesInternal();
     postCommand("-stack-list-frames", CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
-    manager()->stackHandler()->setCurrentIndex(0);
+    stackHandler()->setCurrentIndex(0);
     if (m_gdbAdapter->isTrkAdapter())
         m_gdbAdapter->trkReloadThreads();
     else
         postCommand("-thread-list-ids", CB(handleThreadListIds), 0);
-    manager()->reloadRegisters();
+    reloadRegisters();
     updateLocals();
 }
 

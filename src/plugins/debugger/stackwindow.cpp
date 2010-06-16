@@ -31,8 +31,7 @@
 #include "stackframe.h"
 
 #include "debuggeractions.h"
-#include "debuggeragents.h"
-#include "debuggermanager.h"
+#include "debuggerconstants.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -53,12 +52,11 @@
 namespace Debugger {
 namespace Internal {
 
-StackWindow::StackWindow(DebuggerManager *manager, QWidget *parent)
-    : QTreeView(parent), m_manager(manager), m_alwaysResizeColumnsToContents(false)
+StackWindow::StackWindow(QWidget *parent)
+    : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
 {
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
-    m_disassemblerAgent = new DisassemblerViewAgent(manager);
 
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Stack"));
@@ -68,6 +66,8 @@ StackWindow::StackWindow(DebuggerManager *manager, QWidget *parent)
     setIconSize(QSize(10, 10));
 
     header()->setDefaultAlignment(Qt::AlignLeft);
+    header()->resizeSection(0, 60);
+    header()->resizeSection(3, 60);
 
     connect(this, SIGNAL(activated(QModelIndex)),
         this, SLOT(rowActivated(QModelIndex)));
@@ -75,11 +75,14 @@ StackWindow::StackWindow(DebuggerManager *manager, QWidget *parent)
         this, SLOT(setAlternatingRowColorsHelper(bool)));
     connect(theDebuggerAction(UseAddressInStackView), SIGNAL(toggled(bool)),
         this, SLOT(showAddressColumn(bool)));
+    connect(theDebuggerAction(ExpandStack), SIGNAL(triggered()),
+        this, SLOT(reloadFullStack()));
+    connect(theDebuggerAction(MaximalStackDepth), SIGNAL(triggered()),
+        this, SLOT(reloadFullStack()));
 }
 
 StackWindow::~StackWindow()
 {
-    delete m_disassemblerAgent;
 }
 
 void StackWindow::showAddressColumn(bool on)
@@ -89,18 +92,16 @@ void StackWindow::showAddressColumn(bool on)
 
 void StackWindow::rowActivated(const QModelIndex &index)
 {
-    m_manager->activateFrame(index.row());
+    setModelData(RequestActivateFrameRole, index.row());
 }
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QModelIndex idx = indexAt(ev->pos());
-    StackFrame frame = model()->data(idx, Qt::UserRole).value<StackFrame>();
-    QString address = frame.address;
+    const QModelIndex index = indexAt(ev->pos());
+    const QString address = modelData(StackFrameAddressRole, index).toString();
+    const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
 
     QMenu menu;
-
-    const unsigned engineCapabilities = m_manager->debuggerCapabilities();
     menu.addAction(theDebuggerAction(ExpandStack));
 
     QAction *actCopyContents = menu.addAction(tr("Copy Contents to Clipboard"));
@@ -153,9 +154,9 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == actShowMemory)
-        (void) new MemoryViewAgent(m_manager, address);
+        setModelData(RequestShowMemoryRole, address);
     else if (act == actShowDisassembler)
-        m_disassemblerAgent->setFrame(frame);
+        setModelData(RequestShowDisassemblerRole, index.row());
 }
 
 void StackWindow::copyContentsToClipboard()
@@ -178,6 +179,11 @@ void StackWindow::copyContentsToClipboard()
     clipboard->setText(str, QClipboard::Clipboard);
 }
 
+void StackWindow::reloadFullStack()
+{
+    setModelData(RequestReloadFullStackRole);
+}
+
 void StackWindow::resizeColumnsToContents()
 {
     for (int i = model()->columnCount(); --i >= 0; )
@@ -192,6 +198,20 @@ void StackWindow::setAlwaysResizeColumnsToContents(bool on)
     for (int i = model()->columnCount(); --i >= 0; )
         header()->setResizeMode(i, mode);
 }
+
+void StackWindow::setModelData
+    (int role, const QVariant &value, const QModelIndex &index)
+{
+    QTC_ASSERT(model(), return);
+    model()->setData(index, value, role);
+}
+
+QVariant StackWindow::modelData(int role, const QModelIndex &index)
+{
+    QTC_ASSERT(model(), return QVariant());
+    return model()->data(index, role);
+}
+
 
 } // namespace Internal
 } // namespace Debugger

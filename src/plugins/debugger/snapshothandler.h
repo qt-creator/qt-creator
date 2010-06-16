@@ -36,10 +36,9 @@
 #include <QtCore/QDateTime>
 
 namespace Debugger {
-
-class DebuggerRunControl;
-
 namespace Internal {
+
+class DebuggerEngine;
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -64,8 +63,8 @@ public:
     void setLocation(const QString &location) { m_location = location; }
     QString location() const { return m_location; }
 
-    void setFrames(const QList<StackFrame> &frames) { m_frames = frames; }
-    QList<StackFrame> frames() const { return m_frames; }
+    void setFrames(const StackFrames &frames) { m_frames = frames; }
+    StackFrames frames() const { return m_frames; }
 
     QString function() const; // Topmost entry.
 
@@ -90,7 +89,7 @@ class SnapshotHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    SnapshotHandler(DebuggerRunControl *runControl, QObject *parent = 0);
+    explicit SnapshotHandler(DebuggerEngine *engine);
     ~SnapshotHandler();
 
     void setFrames(const Snapshots &snapshots, bool canExpand = false);
@@ -114,7 +113,7 @@ private:
     Qt::ItemFlags flags(const QModelIndex &index) const;
     Q_SLOT void resetModel() { reset(); }
 
-    DebuggerRunControl *m_runControl;
+    DebuggerEngine *m_engine;
     int m_currentIndex;
     Snapshots m_snapshots;
     const QVariant m_positionIcon;

@@ -27,62 +27,54 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_REGISTERHANDLER_H
-#define DEBUGGER_REGISTERHANDLER_H
+#ifndef DEBUGGER_SOURCEFILESHANDLER_H
+#define DEBUGGER_SOURCEFILESHANDLER_H
 
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QVector>
+#include <QtCore/QAbstractItemModel>
+#include <QtCore/QMap>
+#include <QtCore/QStringList>
+
 
 namespace Debugger {
 namespace Internal {
 
 class DebuggerEngine;
 
-class Register
-{
-public:
-    Register() : changed(true) {}
-    Register(QByteArray const &name_) : name(name_), changed(true) {}
-
-public:
-    QByteArray name;
-    QString value;
-    bool changed;
-};
-
-typedef QVector<Register> Registers;
-
-class RegisterHandler : public QAbstractTableModel
+class SourceFilesHandler : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit RegisterHandler(DebuggerEngine *engine);
+    explicit SourceFilesHandler(DebuggerEngine *engine);
 
-    QAbstractItemModel *model() { return this; }
+    int columnCount(const QModelIndex &parent) const
+        { return parent.isValid() ? 0 : 2; }
+    int rowCount(const QModelIndex &parent) const
+        { return parent.isValid() ? 0 : m_shortNames.size(); }
+    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
+    QModelIndex index(int row, int column, const QModelIndex &) const
+        { return createIndex(row, column); }
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
-    bool isEmpty() const; // nothing known so far?
-    void setRegisters(const Registers &registers);
-    Registers registers() const;
+    void clearModel();
+    void update() { reset(); }
+
+    void setSourceFiles(const QMap<QString, QString> &sourceFiles);
     void removeAll();
-    Q_SLOT void setNumberBase(int base);
+
+    QAbstractItemModel *model() { return m_proxyModel; }
 
 private:
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &, int role);
-    QVariant headerData(int section, Qt::Orientation orientation,
-        int role = Qt::DisplayRole) const;
-    Qt::ItemFlags flags(const QModelIndex &idx) const;
-
-    DebuggerEngine *m_engine; // Not owned.
-    Registers m_registers;
-    int m_base;
-    int m_strlen; // approximate width of a value in chars.
+    DebuggerEngine *m_engine;
+    QStringList m_shortNames;
+    QStringList m_fullNames;
+    QAbstractItemModel *m_proxyModel;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_REGISTERHANDLER_H
+#endif // DEBUGGER_SOURCEFILESHANDLER_H

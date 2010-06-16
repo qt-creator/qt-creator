@@ -138,36 +138,132 @@ enum DebuggerCapabilities
 
 enum LogChannel
 {
-    LogInput,               // Used for user input
-    LogMiscInput,           // Used for misc stuff in the input pane
-    LogOutput,
-    LogWarning,
-    LogError,
-    LogStatus,              // Used for status changed messages
-    LogTime,                // Used for time stamp messages
-    LogDebug,
-    LogMisc,
-    AppOutput,
-    AppError,
-    StatusBar               // LogStatus and also put to the status bar
-};
+    LogInput,                // Used for user input
+    LogMiscInput,            // Used for misc stuff in the input pane
+    LogOutput,               
+    LogWarning,              
+    LogError,                
+    LogStatus,               // Used for status changed messages
+    LogTime,                 // Used for time stamp messages
+    LogDebug,                
+    LogMisc,                 
+    AppOutput,               
+    AppError,                
+    AppStuff,
+    StatusBar                // LogStatus and also put to the status bar
+};                           
+                             
+enum ModelRoles              
+{                            
+    DisplaySourceRole = 32,  // Qt::UserRole
 
-enum ModelRoles
-{
-    DisplaySourceRole = 32, // Qt::UserRole,
-
-    EngineCapabilityRole,
+    EngineStateRole,
+    EngineCapabilitiesRole,
     EngineActionsEnabledRole,
+
+    // Running
+    RequestExecContinueRole,
+    RequestExecInterruptRole,
+    RequestExecResetRole,
+    RequestExecStepRole,
+    RequestExecStepOutRole,
+    RequestExecNextRole,
+    RequestExecRunToLineRole,
+    RequestExecRunToFunctionRole,
+    RequestExecReturnFromFunctionRole,
+    RequestExecJumpToLineRole,
+    RequestExecWatchRole,
+    RequestExecSnapshotRole,
+    RequestExecFrameDownRole,
+    RequestExecFrameUpRole,
+    RequestExecDetachRole,
+    RequestExecExitRole,
+    RequestLoadSessionDataRole,
+    RequestSaveSessionDataRole,
+
+    // Breakpoints
+    BreakpointEnabledRole,
+    BreakpointUseFullPathRole,
+    BreakpointFunctionNameRole,
+    BreakpointFileNameRole,
+    BreakpointConditionRole,
+    BreakpointIgnoreCountRole,
+    BreakpointThreadSpecRole,
+    RequestActivateBreakpointRole,
+    RequestRemoveBreakpointRole,
+    RequestRemoveBreakpointByIndexRole,
+    RequestSynchronizeBreakpointsRole,
+    RequestBreakByFunctionRole,
+    RequestBreakByFunctionMainRole,
+    RequestFindSimilarBreakpointRole,
+    RequestAppendBreakpointRole,
+    RequestUpdateBreakpointRole,
+
+    // Locals and Watchers
+    LocalsINameRole,
+    LocalsExpressionRole,
+    LocalsExpandedRole,     // The preferred expanded state to the view
+    LocalsTypeFormatListRole,
+    LocalsTypeFormatRole,   // Used to communicate alternative formats to the view
+    LocalsIndividualFormatRole,
+    LocalsAddressRole,      // Memory address of variable as quint64
+    LocalsRawValueRole,     // Unformatted value as string
+    LocalsPointerValueRole, // Pointer value (address) as quint64
+    LocalsIsWatchpointAtAddressRole,
+    LocalsIsWatchpointAtPointerValueRole,
+    RequestToggleWatchRole,
+    RequestClearCppCodeModelSnapshotRole,
+    RequestAssignValueRole,
+    RequestAssignTypeRole,
+
+    // Stack
+    StackFrameAddressRole,
+    RequestActivateFrameRole,
+    RequestReloadFullStackRole,
+    RequestShowMemoryRole,
+    RequestShowDisassemblerRole,
+
+    // Threads
+    CurrentThreadIdRole,
+    RequestSelectThreadRole,
 
     // Modules
     RequestReloadModulesRole,
     RequestModuleSymbolsRole,
     RequestAllSymbolsRole,
+    RequestOpenFileRole,
+
+    // Registers
+    RegisterNumberBaseRole,  // Currently used number base
+    RegisterAddressRole,     // Start value for opening memory view
+    RegisterChangedRole,     // Used for painting changed values
+    RequestSetRegisterRole,
+    RequestReloadRegistersRole,
 
     // Snapshots
     RequestMakeSnapshotRole,
     RequestActivateSnapshotRole,
     RequestRemoveSnapshotRole,
+
+    // Sources
+    RequestReloadSourceFilesRole,
+};
+
+enum DebuggerEngineType
+{
+    NoEngineType      = 0,
+    GdbEngineType     = 0x01,
+    ScriptEngineType  = 0x02,
+    CdbEngineType     = 0x04,
+    PdbEngineType     = 0x08,
+    TcfEngineType     = 0x10,
+    QmlEngineType     = 0x20,
+    AllEngineTypes = GdbEngineType
+        | ScriptEngineType
+        | CdbEngineType
+        | PdbEngineType
+        | TcfEngineType
+        | QmlEngineType
 };
 
 } // namespace Debugger

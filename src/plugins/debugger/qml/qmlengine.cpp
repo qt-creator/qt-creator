@@ -29,17 +29,16 @@
 
 #include "qmlengine.h"
 
-#include "debuggerstringutils.h"
-#include "debuggerdialogs.h"
-#include "breakhandler.h"
 #include "debuggerconstants.h"
-#include "debuggermanager.h"
+#include "debuggerdialogs.h"
+#include "debuggerstringutils.h"
+
+#include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
-#include "moduleshandler.h"
 
 #include <utils/qtcassert.h>
 
@@ -104,8 +103,8 @@ QString QmlEngine::QmlCommand::toString() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlEngine::QmlEngine(DebuggerManager *manager)
-    : IDebuggerEngine(manager)
+QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
+    : DebuggerEngine(startParameters)
 {
     m_congestion = 0;
     m_inAir = 0;
@@ -169,7 +168,7 @@ void QmlEngine::socketError(QAbstractSocket::SocketError)
     QString msg = tr("%1.").arg(m_socket->errorString());
     //QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
     showStatusMessage(msg);
-    manager()->notifyInferiorExited();
+    exitDebugger();
 }
 
 void QmlEngine::executeDebuggerCommand(const QString &command)
@@ -198,22 +197,20 @@ void QmlEngine::shutdown()
 void QmlEngine::exitDebugger()
 {
     SDEBUG("QmlEngine::exitDebugger()");
-    manager()->notifyInferiorExited();
 }
 
 void QmlEngine::startDebugger()
 {
-    QTC_ASSERT(runControl(), return);
     qDebug() << "STARTING QML ENGINE";
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Running requested..."), 5000);
-    const DebuggerStartParameters &sp = runControl()->sp();
+    const DebuggerStartParameters &sp = startParameters();
     const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp.remoteChannel.left(pos);
     const quint16 port = sp.remoteChannel.mid(pos + 1).toInt();
     //QTimer::singleShot(0, this, SLOT(runInferior()));
     m_socket->connectToHost(host, port);
-    emit startSuccessful();
+    startSuccessful();
 }
 
 void QmlEngine::continueInferior()
@@ -526,7 +523,7 @@ void QmlEngine::updateLocals()
 
 void QmlEngine::updateWatchData(const WatchData &)
 {
-    //qq->watchHandler()->rebuildModel();
+    //watchHandler()->rebuildModel();
     showStatusMessage(tr("Stopped."), 5000);
 }
 
@@ -536,9 +533,9 @@ void QmlEngine::updateSubItem(const WatchData &data0)
     QTC_ASSERT(false, return);
 }
 
-IDebuggerEngine *createQmlEngine(DebuggerManager *manager)
+DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
 {
-    return new QmlEngine(manager);
+    return new QmlEngine(sp);
 }
 
 } // namespace Internal

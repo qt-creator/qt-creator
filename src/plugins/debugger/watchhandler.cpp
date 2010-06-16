@@ -28,10 +28,14 @@
 **************************************************************************/
 
 #include "watchhandler.h"
-#include "watchutils.h"
+
+#include "breakhandler.h"
+#include "breakpoint.h"
 #include "debuggeractions.h"
-#include "debuggermanager.h"
-#include "idebuggerengine.h"
+#include "debuggeragents.h"
+#include "debuggerengine.h"
+#include "debuggerplugin.h"
+#include "watchutils.h"
 
 #if USE_MODEL_TEST
 #include "modeltest.h"
@@ -75,6 +79,8 @@ static const QString strNotInScope =
 
 static int watcherCounter = 0;
 static int generationCounter = 0;
+
+static DebuggerPlugin *plugin() { return DebuggerPlugin::instance(); }
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -177,6 +183,11 @@ void WatchModel::endCycle()
     removeOutdated();
     m_fetchTriggered.clear();
     emit enableUpdates(true);
+}
+ 
+DebuggerEngine *WatchModel::engine() const
+{
+    return m_handler->m_engine;
 }
 
 void WatchModel::dump()
@@ -375,9 +386,8 @@ QString WatchModel::niceType(const QString &typeIn) const
     QString type = niceTypeHelper(typeIn);
     if (!theDebuggerBoolSetting(ShowStdNamespace))
         type = type.remove("std::");
-    IDebuggerEngine *engine = m_handler->m_manager->currentEngine();
-    if (engine && !theDebuggerBoolSetting(ShowQtNamespace))
-        type = type.remove(engine->qtNamespace());
+    if (!theDebuggerBoolSetting(ShowQtNamespace))
+        type = type.remove(engine()->qtNamespace());
     return type;
 }
 
@@ -459,7 +469,7 @@ void WatchModel::fetchMore(const QModelIndex &index)
     if (item->children.isEmpty()) {
         WatchData data = *item;
         data.setChildrenNeeded();
-        m_handler->m_manager->updateWatchData(data);
+        engine()->updateWatchData(data);
     }
 }
 
@@ -583,6 +593,14 @@ static inline quint64 pointerValue(QString data)
 
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
+    switch (role) {
+        case EngineCapabilitiesRole:
+            return engine()->debuggerCapabilities();
+
+        case EngineActionsEnabledRole:
+            return engine()->debuggerActionsEnabled();
+    }
+
     const WatchItem *item = watchItem(idx);
     const WatchItem &data = *item;
 
@@ -623,16 +641,16 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             break;
         }
 
-        case ExpressionRole:
+        case LocalsExpressionRole:
             return data.exp;
 
-        case INameRole:
+        case LocalsINameRole:
             return data.iname;
 
-        case ExpandedRole:
+        case LocalsExpandedRole:
             return m_handler->m_expandedINames.contains(data.iname);
 
-        case TypeFormatListRole:
+        case LocalsTypeFormatListRole:
             if (!data.typeFormats.isEmpty())
                 return data.typeFormats.split(',');
             if (isIntType(data.type))
@@ -647,28 +665,33 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     << tr("UCS4 string");
             break;
 
-        case TypeFormatRole:
+        case LocalsTypeFormatRole:
             return m_handler->m_typeFormats.value(data.type, -1);
 
-        case IndividualFormatRole:
+        case LocalsIndividualFormatRole:
             return m_handler->m_individualFormats.value(data.addr, -1);
 
-        case AddressRole:
-            if (!data.addr.isEmpty()) {
-                bool ok;
-                const quint64 address = data.addr.toULongLong(&ok, 16);
-                if (ok)
-                    return QVariant(address);
-            }
-            return QVariant(quint64(0));
-
-        case RawValueRole:
+        case LocalsRawValueRole:
             return data.value;
 
-        case PointerValue:
+        case LocalsPointerValueRole:
             if (isPointerType(data.type))
                 return pointerValue(data.value);
             return QVariant(quint64(0));
+
+        case LocalsIsWatchpointAtAddressRole:
+            return engine()->breakHandler()
+                ->watchPointAt(data.coreAddress());
+
+        case LocalsAddressRole:
+            return data.coreAddress();
+
+        case LocalsIsWatchpointAtPointerValueRole:
+            if (isPointerType(data.type))
+                return engine()->breakHandler()
+                    ->watchPointAt(pointerValue(data.addr));
+            return false;
+
         default:
             break;
     }
@@ -677,8 +700,54 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
 bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    switch (role) {
+        case RequestAssignValueRole: {
+            QString str = value.toString();
+            int i = str.indexOf('=');
+            if (i != -1)
+                engine()->assignValueInDebugger(str.left(i), str.mid(i + 1));
+            return true;
+        }
+
+        case RequestAssignTypeRole: {
+            QString str = value.toString();
+            int i = str.indexOf('=');
+            if (i != -1)
+                engine()->assignValueInDebugger(str.left(i), str.mid(i + 1));
+            return true;
+        }
+
+        case RequestToggleWatchRole: {
+            BreakHandler *handler = engine()->breakHandler();
+            const quint64 address = value.toULongLong();
+            const QByteArray addressBA =
+                QByteArray("0x") + QByteArray::number(address, 16);
+            const int index = handler->findWatchPointIndexByAddress(addressBA);
+            if (index == -1) {
+                BreakpointData *data = new BreakpointData;
+                data->type = BreakpointData::WatchpointType;
+                data->address = addressBA;
+                handler->appendBreakpoint(data);
+            } else {
+                handler->removeBreakpoint(index);
+            }
+            engine()->attemptBreakpointSynchronization();
+            return true;
+        }
+
+        case RequestShowMemoryRole: {
+            (void) new MemoryViewAgent(engine(), value.toULongLong());
+            return true;
+        }
+
+        case RequestClearCppCodeModelSnapshotRole: {
+            plugin()->clearCppCodeModelSnapshot();
+            return true;
+        }
+    }
+
     WatchItem &data = *watchItem(index);
-    if (role == ExpandedRole) {
+    if (role == LocalsExpandedRole) {
         if (value.toBool()) {
             // Should already have been triggered by fetchMore()
             //QTC_ASSERT(m_handler->m_expandedINames.contains(data.iname), /**/);
@@ -686,17 +755,17 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         } else {
             m_handler->m_expandedINames.remove(data.iname);
         }
-    } else if (role == TypeFormatRole) {
+    } else if (role == LocalsTypeFormatRole) {
         m_handler->setFormat(data.type, value.toInt());
-        m_handler->m_manager->updateWatchData(data);
-    } else if (role == IndividualFormatRole) {
+        engine()->updateWatchData(data);
+    } else if (role == LocalsIndividualFormatRole) {
         const int format = value.toInt();
         if (format == -1) {
             m_handler->m_individualFormats.remove(data.addr);
         } else {
             m_handler->m_individualFormats[data.addr] = format;
         }
-        m_handler->m_manager->updateWatchData(data);
+        engine()->updateWatchData(data);
     }
     emit dataChanged(index, index);
     return true;
@@ -985,9 +1054,9 @@ void WatchModel::formatRequests(QByteArray *out, const WatchItem *item) const
 //
 ///////////////////////////////////////////////////////////////////////
 
-WatchHandler::WatchHandler(DebuggerManager *manager)
+WatchHandler::WatchHandler(DebuggerEngine *engine)
 {
-    m_manager = manager;
+    m_engine = engine;
     m_expandPointers = true;
     m_inChange = false;
 
@@ -1021,7 +1090,7 @@ void WatchHandler::endCycle()
     m_locals->endCycle();
     m_watchers->endCycle();
     m_tooltips->endCycle();
-    m_manager->updateWatchersWindow();
+    updateWatchersWindow();
 }
 
 void WatchHandler::cleanup()
@@ -1063,9 +1132,8 @@ void WatchHandler::insertData(const WatchData &data)
 
     if (data.isSomethingNeeded() && data.iname.contains('.')) {
         MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
-        IDebuggerEngine *engine = m_manager->currentEngine();
-        if (engine && !engine->isSynchroneous()) {
-            m_manager->updateWatchData(data);
+        if (!m_engine->isSynchroneous()) {
+            m_engine->updateWatchData(data);
         } else {
             qDebug() << "ENDLESS LOOP: SOMETHING NEEDED: " << data.toString();
             WatchData data1 = data;
@@ -1116,7 +1184,7 @@ void WatchHandler::insertBulkData(const QList<WatchData> &list)
 
     foreach (const WatchData &data, list) {
         if (data.isSomethingNeeded())
-            m_manager->updateWatchData(data);
+            m_engine->updateWatchData(data);
     }
 }
 
@@ -1151,13 +1219,12 @@ void WatchHandler::watchExpression(const QString &exp)
     if (exp.isEmpty() || exp == watcherEditPlaceHolder())
         data.setAllUnneeded();
     data.iname = watcherName(data.exp);
-    IDebuggerEngine *engine = m_manager->currentEngine();
-    if (engine && engine->isSynchroneous())
-        m_manager->updateWatchData(data);
+    if (m_engine && m_engine->isSynchroneous())
+        m_engine->updateWatchData(data);
     else
         insertData(data);
-    m_manager->updateWatchData(data);
-    m_manager->updateWatchersWindow();
+    m_engine->updateWatchData(data);
+    updateWatchersWindow();
     saveWatchers();
 }
 
@@ -1275,6 +1342,13 @@ void WatchHandler::removeWatchExpression(const QString &exp0)
     }
 }
 
+void WatchHandler::updateWatchersWindow()
+{
+    const bool showWatchers = m_watchers->rowCount(QModelIndex()) > 0;
+    const bool showReturn = m_return->rowCount(QModelIndex()) > 0;
+    plugin()->updateWatchersWindow(showWatchers, showReturn);
+}
+
 void WatchHandler::updateWatchers()
 {
     //qDebug() << "UPDATE WATCHERS";
@@ -1291,7 +1365,7 @@ void WatchHandler::updateWatchers()
 
 void WatchHandler::loadWatchers()
 {
-    QVariant value = m_manager->sessionValue("Watchers");
+    QVariant value = plugin()->sessionValue("Watchers");
     foreach (const QString &exp, value.toStringList())
         m_watcherNames[exp.toLatin1()] = watcherCounter++;
 
@@ -1316,12 +1390,12 @@ QStringList WatchHandler::watchedExpressions() const
 void WatchHandler::saveWatchers()
 {
     //qDebug() << "SAVE WATCHERS: " << m_watchers;
-    m_manager->setSessionValue("Watchers", QVariant(watchedExpressions()));
+    plugin()->setSessionValue("Watchers", QVariant(watchedExpressions()));
 }
 
 void WatchHandler::loadTypeFormats()
 {
-    QVariant value = m_manager->sessionValue("DefaultFormats");
+    QVariant value = plugin()->sessionValue("DefaultFormats");
     QMap<QString, QVariant> typeFormats = value.toMap();
     QMapIterator<QString, QVariant> it(typeFormats);
     while (it.hasNext()) {
@@ -1344,7 +1418,7 @@ void WatchHandler::saveTypeFormats()
                 typeFormats.insert(key, format);
         }
     }
-    m_manager->setSessionValue("DefaultFormats", QVariant(typeFormats));
+    plugin()->setSessionValue("DefaultFormats", QVariant(typeFormats));
 }
 
 void WatchHandler::saveSessionData()

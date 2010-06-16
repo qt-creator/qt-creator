@@ -28,132 +28,22 @@
 **************************************************************************/
 
 #include "sourcefileswindow.h"
+
 #include "debuggeractions.h"
-#include "debuggermanager.h"
+#include "debuggerconstants.h"
+
+#include <utils/qtcassert.h>
+#include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 
-#include <utils/savedaction.h>
-
 #include <QtGui/QAction>
-#include <QtGui/QComboBox>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 #include <QtGui/QResizeEvent>
-#include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QTreeView>
-#include <QtGui/QVBoxLayout>
 
-using Debugger::Internal::SourceFilesWindow;
-using Debugger::Internal::SourceFilesModel;
-
-//////////////////////////////////////////////////////////////////
-//
-// SourceFilesModel
-//
-//////////////////////////////////////////////////////////////////
-
-class Debugger::Internal::SourceFilesModel : public QAbstractItemModel
-{
-    Q_OBJECT
-
-public:
-    SourceFilesModel(QObject *parent = 0) : QAbstractItemModel(parent) {}
-
-    // QAbstractItemModel
-    int columnCount(const QModelIndex &parent) const
-        { return parent.isValid() ? 0 : 2; }
-    int rowCount(const QModelIndex &parent) const
-        { return parent.isValid() ? 0 : m_shortNames.size(); }
-    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
-    QModelIndex index(int row, int column, const QModelIndex &) const
-        { return createIndex(row, column); }
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-
-    void clearModel();
-    void update() { reset(); }
-    void setSourceFiles(const QMap<QString, QString> &sourceFiles);
-
-public:
-    QStringList m_shortNames;
-    QStringList m_fullNames;
-};
-
-void SourceFilesModel::clearModel()
-{
-    if (m_shortNames.isEmpty())
-        return;
-    m_shortNames.clear();
-    m_fullNames.clear();
-    reset();
-}
-
-QVariant SourceFilesModel::headerData(int section,
-    Qt::Orientation orientation, int role) const
-{
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        static QString headers[] = {
-            tr("Internal name") + "        ",
-            tr("Full name") + "        ",
-        };
-        return headers[section];
-    }
-    return QVariant();
-}
-
-Qt::ItemFlags SourceFilesModel::flags(const QModelIndex &index) const
-{
-    if (index.row() >= m_fullNames.size())
-        return 0;
-    QFileInfo fi(m_fullNames.at(index.row()));
-    return fi.isReadable() ? QAbstractItemModel::flags(index) : Qt::ItemFlags(0);
-}
-
-QVariant SourceFilesModel::data(const QModelIndex &index, int role) const
-{
-    int row = index.row();
-    if (row < 0 || row >= m_shortNames.size())
-        return QVariant();
-
-    switch (index.column()) {
-        case 0:
-            if (role == Qt::DisplayRole)
-                return m_shortNames.at(row);
-            // FIXME: add icons
-            //if (role == Qt::DecorationRole)
-            //    return module.symbolsRead ? icon2 : icon;
-            break;
-        case 1:
-            if (role == Qt::DisplayRole)
-                return m_fullNames.at(row);
-            //if (role == Qt::DecorationRole)
-            //    return module.symbolsRead ? icon2 : icon;
-            break;
-    }
-    return QVariant();
-}
-
-bool SourceFilesModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    return QAbstractItemModel::setData(index, value, role);
-}
-
-void SourceFilesModel::setSourceFiles(const QMap<QString, QString> &sourceFiles)
-{
-    m_shortNames.clear();
-    m_fullNames.clear();
-    QMap<QString, QString>::ConstIterator it = sourceFiles.begin();
-    QMap<QString, QString>::ConstIterator et = sourceFiles.end();
-    for (; it != et; ++it) {
-        m_shortNames.append(it.key());
-        m_fullNames.append(it.value());
-    }
-    reset();
-}
 
 //////////////////////////////////////////////////////////////////
 //
@@ -161,15 +51,13 @@ void SourceFilesModel::setSourceFiles(const QMap<QString, QString> &sourceFiles)
 //
 //////////////////////////////////////////////////////////////////
 
+namespace Debugger {
+namespace Internal {
+
 SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     : QTreeView(parent)
 {
-    m_model = new SourceFilesModel(this);
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
-
-    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
-    proxyModel->setSourceModel(m_model);
-    setModel(proxyModel);
 
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(QFrame::NoFrame);
@@ -188,20 +76,20 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
 
 void SourceFilesWindow::sourceFileActivated(const QModelIndex &index)
 {
-    qDebug() << "ACTIVATED: " << index.row() << index.column()
-        << model()->data(index);
-    emit fileOpenRequested(model()->data(index).toString());
+    setModelData(RequestOpenFileRole, index.data());
 }
 
 void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QModelIndex index = indexAt(ev->pos());
     index = index.sibling(index.row(), 0);
-    QString name = model()->data(index).toString();
+    QString name = index.data().toString();
+    bool engineActionsEnabled = index.data(EngineActionsEnabledRole).toBool();
 
     QMenu menu;
     QAction *act1 = new QAction(tr("Reload Data"), &menu);
-    act1->setEnabled(Debugger::DebuggerManager::instance()->debuggerActionsEnabled());
+
+    act1->setEnabled(engineActionsEnabled);
     //act1->setCheckable(true);
     QAction *act2 = 0;
     if (name.isEmpty()) {
@@ -220,21 +108,18 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == act1)
-        emit reloadSourceFilesRequested();
+        setModelData(RequestReloadSourceFilesRole);
     else if (act == act2)
-        emit fileOpenRequested(name);
+        setModelData(RequestOpenFileRole, name);
 }
 
-void SourceFilesWindow::setSourceFiles(const QMap<QString, QString> &sourceFiles)
+void SourceFilesWindow::setModelData
+    (int role, const QVariant &value, const QModelIndex &index)
 {
-    m_model->setSourceFiles(sourceFiles);
-    header()->setResizeMode(0, QHeaderView::ResizeToContents);
+    QTC_ASSERT(model(), return);
+    model()->setData(index, value, role);
 }
 
-void SourceFilesWindow::removeAll()
-{
-    m_model->setSourceFiles(QMap<QString, QString>());
-    header()->setResizeMode(0, QHeaderView::ResizeToContents);
-}
+} // namespace Internal
+} // namespace Debugger
 
-#include "sourcefileswindow.moc"

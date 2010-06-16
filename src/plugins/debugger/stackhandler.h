@@ -37,8 +37,12 @@
 
 #include <QtGui/QIcon>
 
+
 namespace Debugger {
 namespace Internal {
+
+class DebuggerEngine;
+class DisassemblerViewAgent;
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -54,6 +58,7 @@ struct StackCookie
     bool gotoLocation;
 };
 
+
 ////////////////////////////////////////////////////////////////////////
 //
 // StackModel
@@ -66,10 +71,11 @@ class StackHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    StackHandler(QObject *parent = 0);
+    explicit StackHandler(DebuggerEngine *engine);
+    ~StackHandler();
 
-    void setFrames(const QList<StackFrame> &frames, bool canExpand = false);
-    QList<StackFrame> frames() const;
+    void setFrames(const StackFrames &frames, bool canExpand = false);
+    StackFrames frames() const;
     void setCurrentIndex(int index);
     int currentIndex() const { return m_currentIndex; }
     StackFrame currentFrame() const;
@@ -78,7 +84,7 @@ public:
 
     // Called from StackHandler after a new stack list has been received
     void removeAll();
-    QAbstractItemModel *stackModel() { return this; }
+    QAbstractItemModel *model() { return this; }
     bool isDebuggingDebuggingHelpers() const;
 
 private:
@@ -86,18 +92,19 @@ private:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QVariant &, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     Q_SLOT void resetModel() { reset(); }
 
-    QList<StackFrame> m_stackFrames;
+    DebuggerEngine *m_engine;
+    DisassemblerViewAgent *m_disassemblerViewAgent;
+    StackFrames m_stackFrames;
     int m_currentIndex;
     const QVariant m_positionIcon;
     const QVariant m_emptyIcon;
     bool m_canExpand;
 };
-
-
 
 } // namespace Internal
 } // namespace Debugger

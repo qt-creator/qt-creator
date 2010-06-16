@@ -33,10 +33,7 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
-#include <coreplugin/ssh/sshconnection.h>
 #include <projectexplorer/runconfiguration.h>
-
-#include <QtCore/QStringList>
 
 namespace ProjectExplorer {
 class Environment;
@@ -45,50 +42,11 @@ class Environment;
 
 namespace Debugger {
 
-class DebuggerManager;
+class DebuggerStartParameters;
 
 namespace Internal {
-class IDebuggerEngine;
-class BreakHandler;
-class ModulesHandler;
-class RegisterHandler;
-class StackHandler;
-class SnapshotHandler;
-class ThreadsHandler;
-class WatchHandler;
+class DebuggerEngine;
 }
-
-class DEBUGGER_EXPORT DebuggerStartParameters
-{
-public:
-    DebuggerStartParameters();
-    void clear();
-
-    QString executable;
-    QString displayName;
-    QString coreFile;
-    QStringList processArgs;
-    QStringList environment;
-    QString workingDirectory;
-    qint64 attachPID;
-    bool useTerminal;
-    QString crashParameter; // for AttachCrashedExternal
-    // for remote debugging
-    QString remoteChannel;
-    QString remoteArchitecture;
-    QString symbolFileName;
-    QString serverStartScript;
-    QString sysRoot;
-    QString debuggerCommand;
-    int toolChainType;
-    QByteArray remoteDumperLib;
-    QString qtInstallPath;
-
-    QString dumperLibrary;
-    QStringList dumperLibraryLocations;
-    Core::SshServerInfo sshserver;
-    DebuggerStartMode startMode;
-};
 
 //DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &);
 
@@ -98,23 +56,24 @@ class DEBUGGER_EXPORT DebuggerRunControlFactory
     Q_OBJECT
 
 public:
-    explicit DebuggerRunControlFactory(DebuggerManager *manager);
+    DebuggerRunControlFactory(QObject *parent, DebuggerEngineType enabledEngines);
 
     // ProjectExplorer::IRunControlFactory
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
-    virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                const QString &mode);
-    virtual QString displayName() const;
-
-    virtual QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
-
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+        const QString &mode) const;
+    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration
+        *runConfiguration, const QString &mode);
+    QString displayName() const;
+    QWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration
+        *runConfiguration);
 
     // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
     ProjectExplorer::RunControl *create(const DebuggerStartParameters &sp);
 
 private:
-    DebuggerManager *m_manager;
+    DebuggerEngineType m_enabledEngines;
 };
+
 
 // This is a job description containing all data "local" to the jobs, including
 // the models of the individual debugger views.
@@ -124,11 +83,8 @@ class DEBUGGER_EXPORT DebuggerRunControl
     Q_OBJECT
 
 public:
-    DebuggerRunControl(DebuggerManager *manager,
-                       const DebuggerStartParameters &startParameters);
+    DebuggerRunControl(QObject *parent = 0);
     ~DebuggerRunControl();
-
-    void setCustomEnvironment(ProjectExplorer::Environment env);
 
     // ProjectExplorer::RunControl
     virtual void start();
@@ -136,39 +92,39 @@ public:
     virtual bool isRunning() const;
     QString displayName() const;
 
-    Q_SLOT void debuggingFinished();
+    void createEngine(const DebuggerStartParameters &startParameters);
 
-    const DebuggerStartParameters &sp() const;
+    void setCustomEnvironment(ProjectExplorer::Environment env);
+    void setEnabledEngines(DebuggerEngineType enabledEngines);
 
-    Internal::ModulesHandler *modulesHandler() const;
-    Internal::BreakHandler *breakHandler() const;
-    Internal::RegisterHandler *registerHandler() const;
-    Internal::StackHandler *stackHandler() const;
-    Internal::ThreadsHandler *threadsHandler() const;
-    Internal::WatchHandler *watchHandler() const;
-    Internal::SnapshotHandler *snapshotHandler() const;
+    void startFailed();
+    void startSuccessful();
+    void debuggingFinished();
 
-    void cleanup();
-    void startDebugger(Internal::IDebuggerEngine *engine);
-    void notifyInferiorPid(qint64 pid);
-    qint64 inferiorPid() const;
+    Internal::DebuggerEngine *engine();
 
-    Internal::IDebuggerEngine *engine();
+    void showMessage(const QString &msg, int channel);
 
-signals:
-    void stopRequested();
-
-public slots:
-    void showMessage(const QString &output, int channel = LogDebug, int timeout = -1);
+    static bool checkDebugConfiguration(int toolChain,
+                                 QString *errorMessage,
+                                 QString *settingsCategory = 0,
+                                 QString *settingsPage = 0);
 
 private slots:
-    void slotMessageAvailable(const QString &data, bool isError);
-    void raiseApplication();
+    void handleStarted();
+    void handleFinished();
 
 private:
     void init();
-    class Private;
-    Private *d;
+
+    DebuggerEngineType engineForExecutable(const QString &executable);
+    DebuggerEngineType engineForMode(DebuggerStartMode mode);
+
+    Internal::DebuggerEngine *m_engine;
+    bool m_running;
+    DebuggerEngineType m_enabledEngines;
+    QString m_errorMessage;
+    QString m_settingsIdHint;
 };
 
 } // namespace Debugger

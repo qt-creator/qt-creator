@@ -31,8 +31,7 @@
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
-#include "debuggerrunner.h"
-#include "idebuggerengine.h"
+#include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -112,9 +111,8 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 //
 ////////////////////////////////////////////////////////////////////////
 
-SnapshotHandler::SnapshotHandler(DebuggerRunControl *runControl, QObject *parent)
-  : QAbstractTableModel(parent),
-    m_runControl(runControl),
+SnapshotHandler::SnapshotHandler(DebuggerEngine *engine)
+  : m_engine(engine),
     m_positionIcon(QIcon(":/debugger/images/location_16.png")),
     m_emptyIcon(QIcon(":/debugger/images/debugger_empty_14.png"))
 {
@@ -211,11 +209,11 @@ bool SnapshotHandler::setData
     (const QModelIndex &index, const QVariant &value, int role)
 {
     if (role == RequestMakeSnapshotRole) {
-        m_runControl->engine()->makeSnapshot();
+        m_engine->makeSnapshot();
         return true;
     }
     if (role == RequestActivateSnapshotRole) {
-        m_runControl->engine()->activateSnapshot(value.toInt());
+        m_engine->activateSnapshot(value.toInt());
         return true;
     }
     if (role == RequestRemoveSnapshotRole) {

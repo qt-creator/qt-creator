@@ -32,9 +32,8 @@
 
 #include <QtGui/QTreeView>
 
-namespace Debugger {
-class DebuggerManager;
 
+namespace Debugger {
 namespace Internal {
 
 /////////////////////////////////////////////////////////////////////
@@ -50,8 +49,7 @@ class WatchWindow : public QTreeView
 public:
     enum Type { ReturnType, LocalsType, TooltipType, WatchersType };
 
-    WatchWindow(Type type, DebuggerManager *manager, QWidget *parent = 0);
-    void setType(Type type) { m_type = type; }
+    WatchWindow(Type type, QWidget *parent = 0);
     Type type() const { return m_type; }
 
 public slots:
@@ -76,9 +74,12 @@ private:
     void editItem(const QModelIndex &idx);
     void resetHelper(const QModelIndex &idx);
 
+    void setModelData(int role, const QVariant &value = QVariant(),
+        const QModelIndex &index = QModelIndex());
+    QVariant modelData(int role, const QModelIndex &index = QModelIndex());
+
     bool m_alwaysResizeColumnsToContents;
     Type m_type;
-    DebuggerManager *m_manager;
     bool m_grabbing;
 };
 

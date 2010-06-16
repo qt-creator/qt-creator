@@ -21,14 +21,13 @@ HEADERS += breakhandler.h \
     debuggeractions.h \
     debuggerconstants.h \
     debuggerdialogs.h \
-    debuggermanager.h \
+    debuggerengine.h \
     debugger_global.h \
     debuggeroutputwindow.h \
     debuggerplugin.h \
     debuggerrunner.h \
     debuggertooltip.h \
     debuggerstringutils.h \
-    idebuggerengine.h \
     moduleshandler.h \
     moduleswindow.h \
     outputcollector.h \
@@ -40,6 +39,7 @@ HEADERS += breakhandler.h \
     stackwindow.h \
     snapshothandler.h \
     snapshotwindow.h \
+    sourcefileshandler.h \
     sourcefileswindow.h \
     threadswindow.h \
     watchhandler.h \
@@ -55,12 +55,11 @@ SOURCES += breakhandler.cpp \
     debuggeragents.cpp \
     debuggeractions.cpp \
     debuggerdialogs.cpp \
-    debuggermanager.cpp \
+    debuggerengine.cpp \
     debuggeroutputwindow.cpp \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
     debuggertooltip.cpp \
-    idebuggerengine.cpp \
     moduleshandler.cpp \
     moduleswindow.cpp \
     outputcollector.cpp \
@@ -71,6 +70,7 @@ SOURCES += breakhandler.cpp \
     snapshotwindow.cpp \
     stackhandler.cpp \
     stackwindow.cpp \
+    sourcefileshandler.cpp \
     sourcefileswindow.cpp \
     threadswindow.cpp \
     watchdata.cpp \

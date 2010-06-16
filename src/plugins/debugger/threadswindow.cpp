@@ -30,6 +30,7 @@
 #include "threadswindow.h"
 
 #include "debuggeractions.h"
+#include "debuggerconstants.h"
 
 #include <utils/savedaction.h>
 
@@ -38,7 +39,9 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 
-using Debugger::Internal::ThreadsWindow;
+
+namespace Debugger {
+namespace Internal {
 
 ThreadsWindow::ThreadsWindow(QWidget *parent)
     : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
@@ -62,7 +65,7 @@ ThreadsWindow::ThreadsWindow(QWidget *parent)
 
 void ThreadsWindow::rowActivated(const QModelIndex &index)
 {
-    emit threadSelected(index.row());
+    selectThread(index.row());
 }
 
 void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -79,7 +82,7 @@ void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
-    if(!act)
+    if (!act)
         return;
 
     if (act == adjustColumnAction) {
@@ -103,3 +106,11 @@ void ThreadsWindow::setAlwaysResizeColumnsToContents(bool on)
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
 }
+
+void ThreadsWindow::selectThread(int index)
+{
+    model()->setData(QModelIndex(), index, RequestSelectThreadRole); 
+}
+
+} // namespace Internal
+} // namespace Debugger

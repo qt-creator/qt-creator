@@ -123,7 +123,7 @@ void LocalPlainGdbAdapter::checkForReleaseBuild()
 
 void LocalPlainGdbAdapter::interruptInferior()
 {
-    const qint64 attachedPID = runControl()->inferiorPid();
+    const qint64 attachedPID = m_engine->inferiorPid();
     if (attachedPID <= 0) {
         showMessage(_("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"));
         return;

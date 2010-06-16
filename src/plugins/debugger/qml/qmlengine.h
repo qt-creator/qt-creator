@@ -47,8 +47,8 @@ QT_BEGIN_NAMESPACE
 class QTcpSocket;
 QT_END_NAMESPACE
 
-#include "idebuggerengine.h"
-#include "debuggermanager.h"
+#include "debuggerengine.h"
+
 
 namespace Debugger {
 namespace Internal {
@@ -57,16 +57,16 @@ class ScriptAgent;
 class WatchData;
 class QmlResponse;
 
-class QmlEngine : public IDebuggerEngine
+class QmlEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
-    explicit QmlEngine(DebuggerManager *parent);
+    explicit QmlEngine(const DebuggerStartParameters &startParameters);
     ~QmlEngine();
 
 private:
-    // IDebuggerEngine implementation
+    // DebuggerEngine implementation
     void executeStep();
     void executeStepOut();
     void executeNext();

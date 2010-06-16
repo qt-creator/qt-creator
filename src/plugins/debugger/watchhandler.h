@@ -44,26 +44,18 @@ class QDebug;
 QT_END_NAMESPACE
 
 namespace Debugger {
-
-class DebuggerManager;
-
 namespace Internal {
 
+class DebuggerEngine;
 class WatchItem;
 class WatchHandler;
-enum WatchType { ReturnWatch, LocalsWatch, WatchersWatch, TooltipsWatch };
 
-enum WatchRoles
+enum WatchType
 {
-    INameRole = Qt::UserRole,
-    ExpressionRole,
-    ExpandedRole,    // Used to communicate preferred expanded state to the view.
-    TypeFormatListRole,
-    TypeFormatRole,  // Used to communicate alternative formats to the view.
-    IndividualFormatRole,
-    AddressRole,     // Memory address of variable as quint64.
-    RawValueRole,    // Unformatted value as string.
-    PointerValue     // Pointer value (address) as quint64.
+    ReturnWatch,
+    LocalsWatch,
+    WatchersWatch,
+    TooltipsWatch
 };
 
 enum IntegerFormat
@@ -132,6 +124,7 @@ signals:
 private:
     QString niceType(const QString &typeIn) const;
     void formatRequests(QByteArray *out, const WatchItem *item) const;
+    DebuggerEngine *engine() const;
 
     WatchHandler *m_handler;
     WatchType m_type;
@@ -144,7 +137,7 @@ class WatchHandler : public QObject
     Q_OBJECT
 
 public:
-    explicit WatchHandler(DebuggerManager *manager);
+    explicit WatchHandler(DebuggerEngine *engine);
     WatchModel *model(WatchType type) const;
     WatchModel *modelForIName(const QByteArray &iname) const;
 
@@ -192,6 +185,7 @@ private:
     void loadTypeFormats();
     void saveTypeFormats();
     void setFormat(const QString &type, int format);
+    void updateWatchersWindow();
 
     bool m_expandPointers;
     bool m_inChange;
@@ -212,7 +206,7 @@ private:
     WatchModel *m_locals;
     WatchModel *m_watchers;
     WatchModel *m_tooltips;
-    DebuggerManager *m_manager;
+    DebuggerEngine *m_engine;
 };
 
 } // namespace Internal

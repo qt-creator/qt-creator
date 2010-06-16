@@ -47,6 +47,8 @@ namespace CdbCore {
  * When/How many times it triggers can be influenced by
  * condition/ignorecount and 'oneshot'-flag. */
 
+// FIXME: Merge with/derive from Debugger::Internal::Breakpoint
+
 struct BreakPoint
 {
     enum Type { Code, // Stop in code.

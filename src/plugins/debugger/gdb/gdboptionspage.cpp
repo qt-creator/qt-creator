@@ -38,8 +38,7 @@
 namespace Debugger {
 namespace Internal {
 
-GdbOptionsPage::GdbOptionsPage(const GdbBinaryToolChainMapPtr &binaryToolChainMap) :
-    m_binaryToolChainMap(binaryToolChainMap)
+GdbOptionsPage::GdbOptionsPage()
 {
 }
 
@@ -72,7 +71,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
-    m_ui.gdbChooserWidget->setGdbBinaries(*m_binaryToolChainMap);
+    m_ui.gdbChooserWidget
+        ->setGdbBinaries(DebuggerSettings::instance()->gdbBinaryToolChainMap());
     m_ui.scriptFileChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui.scriptFileChooser->setPromptDialogTitle(tr("Choose Location of Startup Script File"));
 
@@ -131,7 +131,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
 void GdbOptionsPage::apply()
 {
     m_group.apply(Core::ICore::instance()->settings());
-    *m_binaryToolChainMap = m_ui.gdbChooserWidget->gdbBinaries();
+    DebuggerSettings::instance()
+        ->setGdbBinaryToolChainMap(m_ui.gdbChooserWidget->gdbBinaries());
 }
 
 void GdbOptionsPage::finish()

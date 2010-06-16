@@ -38,11 +38,12 @@
 #include "components/expressionquerywidget.h"
 #include "components/objectpropertiesview.h"
 
-#include <debugger/debuggermanager.h>
+#include <debugger/debuggerconstants.h>
+#include <debugger/debuggerengine.h>
 #include <debugger/debuggermainwindow.h>
+#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggeruiswitcher.h>
-#include <debugger/debuggerconstants.h>
 
 #include <utils/styledbar.h>
 #include <utils/fancymainwindow.h>
@@ -176,8 +177,8 @@ QmlInspector::QmlInspector(QObject *parent)
 //    m_frameRateWidget = new Internal::CanvasFrameRate;
 //    m_frameRateWidget->setObjectName(QLatin1String("QmlDebugFrameRate"));
 
-    Debugger::DebuggerManager *debugManager = Debugger::DebuggerManager::instance();
-    connect(debugManager, SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
+    connect(Debugger::DebuggerPlugin::instance(),
+        SIGNAL(stateChanged(int)), this, SLOT(debuggerStateChanged(int)));
 
     m_editablePropertyTypes = QStringList() << "qreal" << "bool" << "QString"
                                             << "int" << "QVariant" << "QUrl" << "QColor";

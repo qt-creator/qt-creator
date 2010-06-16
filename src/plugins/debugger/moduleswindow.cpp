@@ -72,8 +72,8 @@ ModulesWindow::ModulesWindow(QWidget *parent)
 void ModulesWindow::moduleActivated(const QModelIndex &index)
 {
     qDebug() << "ACTIVATED: " << index.row() << index.column()
-        << model()->data(index);
-    emit fileOpenRequested(model()->data(index).toString());
+        << index.data().toString();
+    setModelData(RequestOpenFileRole, index.data().toString());
 }
 
 void ModulesWindow::resizeEvent(QResizeEvent *event)
@@ -104,7 +104,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     const bool enabled =
         model() && model()->data(index, EngineActionsEnabledRole).toBool();
     const unsigned capabilities =
-        model()->data(index, EngineCapabilityRole).toInt();
+        model()->data(index, EngineCapabilitiesRole).toInt();
 
     QMenu menu;
     QAction *act0 = new QAction(tr("Update Module List"), &menu);
@@ -149,8 +149,7 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *act = menu.exec(ev->globalPos());
 
     if (act == act0) {
-        QTC_ASSERT(model(), return);
-        model()->setData(QModelIndex(), QVariant(), RequestReloadModulesRole);
+        setModelData(RequestReloadModulesRole);
     } else if (act == actAdjustColumnWidths) {
         resizeColumnsToContents();
     } else if (act == actAlwaysAdjustColumnWidth) {
@@ -158,16 +157,13 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     //} else if (act == act3) {
     //    emit displaySourceRequested(name);
     } else if (act == act4) {
-        QTC_ASSERT(model(), return);
-        model()->setData(QModelIndex(), QVariant(), RequestAllSymbolsRole);
+        setModelData(RequestAllSymbolsRole);
     } else if (act == act5) {
-        QTC_ASSERT(model(), return);
-        model()->setData(QModelIndex(), name, RequestModuleSymbolsRole);
+        setModelData(RequestModuleSymbolsRole, name);
     } else if (act == act6) {
-        emit fileOpenRequested(name);
+        setModelData(RequestOpenFileRole, name);
     } else if (act == act7) {
-        QTC_ASSERT(model(), return);
-        model()->setData(QModelIndex(), name, RequestModuleSymbolsRole);
+        setModelData(RequestModuleSymbolsRole, name);
     }
 }
 
@@ -196,6 +192,13 @@ void ModulesWindow::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
     setAlwaysResizeColumnsToContents(true);
+}
+
+void ModulesWindow::setModelData
+    (int role, const QVariant &value, const QModelIndex &index)
+{
+    QTC_ASSERT(model(), return);
+    model()->setData(index, value, role);
 }
 
 } // namespace Internal

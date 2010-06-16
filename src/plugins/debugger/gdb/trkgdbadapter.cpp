@@ -1724,7 +1724,8 @@ bool TrkGdbAdapter::initializeDevice(const QString &remoteChannel, QString *erro
         return false;
     }
     // Run config: Acquire from device manager.
-    m_trkDevice = SymbianUtils::SymbianDeviceManager::instance()->acquireDevice(remoteChannel);
+    m_trkDevice = SymbianUtils::SymbianDeviceManager::instance()
+        ->acquireDevice(remoteChannel);
     if (m_trkDevice.isNull()) {
         *errorMessage = tr("Unable to acquire a device on '%1'. It appears to be in use.").arg(remoteChannel);
         return false;
@@ -2140,7 +2141,7 @@ void TrkGdbAdapter::trkReloadRegisters()
 {
     // Take advantage of direct access to cached register values.
     QTC_ASSERT(m_snapshot.registerValid, /**/);
-    RegisterHandler *handler = m_engine->runControl()->registerHandler();
+    RegisterHandler *handler = m_engine->registerHandler();
     Registers registers = handler->registers();
 
     QTC_ASSERT(registers.size() >= 26,
@@ -2164,12 +2165,10 @@ void TrkGdbAdapter::trkReloadThreads()
 {
     // Take advantage of direct access to cached register values.
     QTC_ASSERT(m_snapshot.registerValid, /**/);
-    QList<ThreadData> threads;
-    foreach (const Session::Thread &thread, m_session.threads) {
+    Threads threads;
+    foreach (const Session::Thread &thread, m_session.threads)
         threads.append(thread);
-    }
-    ThreadsHandler *handler = m_engine->manager()->threadsHandler();
-    handler->setThreads(threads);
+    m_engine->threadsHandler()->setThreads(threads);
 }
 
 } // namespace Internal

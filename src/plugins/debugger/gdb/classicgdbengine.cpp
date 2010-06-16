@@ -32,6 +32,7 @@
 #include "abstractgdbadapter.h"
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"
+#include "debuggerplugin.h"
 
 #include "stackhandler.h"
 #include "watchhandler.h"
@@ -113,7 +114,7 @@ void GdbEngine::updateLocalsClassic(const QVariant &cookie)
     //PENDING_DEBUG("\nRESET PENDING");
     //m_toolTipCache.clear();
     m_toolTipExpression.clear();
-    manager()->watchHandler()->beginCycle();
+    watchHandler()->beginCycle();
 
     QByteArray level = QByteArray::number(currentFrame());
     // '2' is 'list with type and value'
@@ -290,7 +291,7 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         qDebug() << "UPDATE SUBITEM: CUSTOMVALUE";
 #        endif
         runDebuggingHelperClassic(data,
-            manager()->watchHandler()->isExpandedIName(data.iname));
+            watchHandler()->isExpandedIName(data.iname));
         return;
     }
 
@@ -356,8 +357,7 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 #        if DEBUG_SUBITEM
         qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
 #        endif
-        runDebuggingHelperClassic(data,
-            manager()->watchHandler()->isExpandedIName(data.iname));
+        runDebuggingHelperClassic(data, watchHandler()->isExpandedIName(data.iname));
         return;
     }
 
@@ -419,11 +419,11 @@ void GdbEngine::handleDebuggingHelperValue2Classic(const GdbResponse &response)
     setWatchDataType(data, response.data.findChild("type"));
     setWatchDataDisplayedType(data, response.data.findChild("displaytype"));
     QList<WatchData> list;
-    parseWatchData(manager()->watchHandler()->expandedINames(),
+    parseWatchData(watchHandler()->expandedINames(),
         data, contents, &list);
     //for (int i = 0; i != list.size(); ++i)
     //    qDebug() << "READ: " << list.at(i).toString();
-    manager()->watchHandler()->insertBulkData(list);
+    watchHandler()->insertBulkData(list);
 }
 
 void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
@@ -514,11 +514,11 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
 
     m_debuggingHelperState = DebuggingHelperLoadTried;
     QByteArray dlopenLib;
-    if (runControl()->sp().startMode == AttachToRemote
-        || runControl()->sp().startMode == StartRemoteGdb)
-        dlopenLib = runControl()->sp().remoteDumperLib;
+    const DebuggerStartMode startMode = startParameters().startMode;
+    if (startMode == AttachToRemote || startMode == StartRemoteGdb)
+        dlopenLib = startParameters().remoteDumperLib;
     else
-        dlopenLib = manager()->qtDumperLibraryName().toLocal8Bit();
+        dlopenLib = qtDumperLibraryName().toLocal8Bit();
 
     // Do not use STRINGIFY for RTLD_NOW as we really want to expand that to a number.
 #if defined(Q_OS_WIN) || defined(Q_OS_SYMBIAN)
@@ -580,10 +580,10 @@ void GdbEngine::updateAllClassic()
     postCommand("-stack-list-frames", WatchUpdate,
         CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
-    manager()->stackHandler()->setCurrentIndex(0);
+    stackHandler()->setCurrentIndex(0);
     if (supportsThreads())
         postCommand("-thread-list-ids", WatchUpdate, CB(handleThreadListIds), 0);
-    manager()->reloadRegisters();
+    reloadRegisters();
     updateLocals();
 }
 
@@ -593,7 +593,7 @@ void GdbEngine::setDebugDebuggingHelpersClassic(const QVariant &on)
     if (on.toBool()) {
         showMessage(_("SWITCHING ON DUMPER DEBUGGING"));
         postCommand("set unwindonsignal off");
-        m_manager->breakByFunction(_("qDumpObjectData440"));
+        breakByFunction(_("qDumpObjectData440"));
         //updateLocals();
     } else {
         showMessage(_("SWITCHING OFF DUMPER DEBUGGING"));
@@ -660,11 +660,12 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
     // is not known at this point.
     QStringList uninitializedVariables;
     if (theDebuggerAction(UseCodeModel)->isChecked()) {
-        const StackFrame frame = qVariantCanConvert<Debugger::Internal::StackFrame>(response.cookie) ?
-                                 qVariantValue<Debugger::Internal::StackFrame>(response.cookie) :
-                                 m_manager->stackHandler()->currentFrame();
+        const StackFrame frame =
+            qVariantCanConvert<Debugger::Internal::StackFrame>(response.cookie)
+                ? qVariantValue<Debugger::Internal::StackFrame>(response.cookie)
+                : stackHandler()->currentFrame();
         if (frame.isUsable())
-            getUninitializedVariables(m_manager->cppCodeModelSnapshot(),
+            getUninitializedVariables(plugin()->cppCodeModelSnapshot(),
                                       frame.function, frame.file, frame.line,
                                       &uninitializedVariables);
     }
@@ -683,23 +684,23 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
         list.append(rd);
     }
 
-    manager()->watchHandler()->insertBulkData(list);
-    manager()->watchHandler()->updateWatchers();
+    watchHandler()->insertBulkData(list);
+    watchHandler()->updateWatchers();
 }
 
 bool GdbEngine::checkDebuggingHelpersClassic()
 {
     PRECONDITION;
-    if (!manager()->qtDumperLibraryEnabled())
+    if (!qtDumperLibraryEnabled())
         return false;
     const QString lib = qtDumperLibraryName();
     const QFileInfo fi(lib);
     if (!fi.exists()) {
-        const QStringList &locations = manager()->qtDumperLibraryLocations();
+        const QStringList &locations = qtDumperLibraryLocations();
         const QString loc = locations.join(QLatin1String(", "));
         const QString msg = tr("The debugging helper library was not found at %1.").arg(loc);
         showMessage(msg);
-        manager()->showQtDumperLibraryWarning(msg);
+        showQtDumperLibraryWarning(msg);
         return false;
     }
     return true;
@@ -719,7 +720,7 @@ void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)
         // currently causes errors.
         const double dumperVersion = getDumperVersion(contents);
         if (dumperVersion < dumperVersionRequired) {
-            manager()->showQtDumperLibraryWarning(
+            showQtDumperLibraryWarning(
                 QtDumperHelper::msgDumperOutdated(dumperVersionRequired, dumperVersion));
             m_debuggingHelperState = DebuggingHelperUnavailable;
             return;
@@ -750,7 +751,7 @@ void GdbEngine::handleDebuggingHelperVersionCheckClassic(const GdbResponse &resp
         QString debuggeeQtVersion = value.section(QLatin1Char('"'), 1, 1);
         QString dumperQtVersion = m_dumperHelper.qtVersionString();
         if (dumperQtVersion != debuggeeQtVersion) {
-            manager()->showMessageBox(QMessageBox::Warning,
+            showMessageBox(QMessageBox::Warning,
                 tr("Debugging helpers: Qt version mismatch"),
                 tr("The Qt version used to build the debugging helpers (%1) "
                    "does not match the Qt version used to build the debugged "
@@ -821,7 +822,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         setWatchDataValue(data, item);
         setWatchDataAddress(data, item.findChild("addr"));
         setWatchDataChildCount(data, item.findChild("numchild"));
-        if (!manager()->watchHandler()->isExpandedIName(data.iname))
+        if (!watchHandler()->isExpandedIName(data.iname))
             data.setChildrenUnneeded();
 
         data.name = _(exp);

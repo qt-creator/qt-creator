@@ -30,6 +30,8 @@
 #include "stackhandler.h"
 
 #include "debuggeractions.h"
+#include "debuggeragents.h"
+#include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -37,11 +39,10 @@
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDir>
+
 
 namespace Debugger {
 namespace Internal {
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -49,15 +50,21 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////
 
-StackHandler::StackHandler(QObject *parent)
-  : QAbstractTableModel(parent),
-    m_positionIcon(QIcon(":/debugger/images/location_16.png")),
+StackHandler::StackHandler(DebuggerEngine *engine)
+  : m_positionIcon(QIcon(":/debugger/images/location_16.png")),
     m_emptyIcon(QIcon(":/debugger/images/debugger_empty_14.png"))
 {
+    m_engine = engine;
+    m_disassemblerViewAgent = new DisassemblerViewAgent(engine);
     m_currentIndex = 0;
     m_canExpand = false;
     connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
         this, SLOT(resetModel()));
+}
+
+StackHandler::~StackHandler()
+{
+    //delete m_disassemblerViewAgent;
 }
 
 int StackHandler::rowCount(const QModelIndex &parent) const
@@ -73,6 +80,17 @@ int StackHandler::columnCount(const QModelIndex &parent) const
 
 QVariant StackHandler::data(const QModelIndex &index, int role) const
 {
+    switch (role) {
+        case EngineStateRole:
+            return m_engine->state();
+
+        case EngineCapabilitiesRole:
+            return m_engine->debuggerCapabilities();
+
+        case EngineActionsEnabledRole:
+            return m_engine->debuggerActionsEnabled();
+    }
+
     if (!index.isValid() || index.row() >= m_stackFrames.size() + m_canExpand)
         return QVariant();
 
@@ -104,25 +122,51 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (role == Qt::ToolTipRole) {
-        //: Tooltip for variable
-        return frame.toToolTip();
-    }
-
     if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
     }
 
-    if (role == Qt::UserRole)
-        return QVariant::fromValue(frame);
+    if (role == StackFrameAddressRole)
+        return frame.address;
+
+    //: Tooltip for variable
+    if (role == Qt::ToolTipRole)
+        return frame.toToolTip();
 
     return QVariant();
 }
 
-QVariant StackHandler::headerData(int section, Qt::Orientation orientation, int role) const
+
+bool StackHandler::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+    switch (role) {
+        case RequestActivateFrameRole:
+            m_engine->activateFrame(value.toInt());
+            return true;
+
+        case RequestShowMemoryRole:
+            (void) new MemoryViewAgent(m_engine, value.toString());
+            return true;
+    
+        case RequestShowDisassemblerRole: {
+            const StackFrame &frame = m_stackFrames.at(value.toInt());
+            m_disassemblerViewAgent->setFrame(frame);
+            return true;
+        }
+    
+        case RequestReloadFullStackRole:
+            m_engine->reloadFullStack();
+            return true;
+    
+        default:
+            return QAbstractTableModel::setData(index, value, role);
+    }
+}
+
+QVariant StackHandler::headerData(int section, Qt::Orientation orient, int role) const
+{
+    if (orient == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
             case 0: return tr("Level");
             case 1: return tr("Function");
@@ -176,7 +220,7 @@ void StackHandler::removeAll()
     reset();
 }
 
-void StackHandler::setFrames(const QList<StackFrame> &frames, bool canExpand)
+void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
 {
     m_canExpand = canExpand;
     m_stackFrames = frames;
@@ -185,7 +229,7 @@ void StackHandler::setFrames(const QList<StackFrame> &frames, bool canExpand)
     reset();
 }
 
-QList<StackFrame> StackHandler::frames() const
+StackFrames StackHandler::frames() const
 {
     return m_stackFrames;
 }
@@ -197,7 +241,6 @@ bool StackHandler::isDebuggingDebuggingHelpers() const
             return true;
     return false;
 }
-
 
 } // namespace Internal
 } // namespace Debugger

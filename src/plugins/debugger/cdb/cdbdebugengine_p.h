@@ -31,18 +31,17 @@
 #define DEBUGGER_CDBENGINEPRIVATE_H
 
 #include "coreengine.h"
+#include "debuggerconstants.h"
 #include "cdboptions.h"
 #include "cdbdumperhelper.h"
 #include "stackhandler.h"
-#include "debuggermanager.h"
 
 #include <utils/consoleprocess.h>
+
 #include <QtCore/QSharedPointer>
 #include <QtCore/QMap>
 
 namespace Debugger {
-class DebuggerManager;
-
 namespace Internal {
 
 class WatchHandler;
@@ -68,8 +67,7 @@ public:
         StoppedOther
     };
 
-    explicit CdbDebugEnginePrivate(const QSharedPointer<CdbOptions> &options,
-                                   CdbDebugEngine* engine);
+    explicit CdbDebugEnginePrivate(CdbDebugEngine* engine);
     ~CdbDebugEnginePrivate();
     bool init(QString *errorMessage);
 
@@ -128,7 +126,6 @@ public:
     QSharedPointer<CdbDumperHelper> m_dumper;
 
     CdbDebugEngine *m_engine;
-    inline DebuggerManager *manager() const;
     CdbStackTraceContext *m_currentStackTrace;
     EditorToolTipCache m_editorToolTipCache;
 

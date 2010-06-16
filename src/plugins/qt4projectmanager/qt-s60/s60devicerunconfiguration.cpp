@@ -51,7 +51,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
 
-#include <debugger/debuggermanager.h>
+#include <debugger/debuggerengine.h>
+#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 
 #include <QtGui/QMessageBox>
@@ -890,7 +891,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *ru
     m_startParams(new Debugger::DebuggerStartParameters)
 {
     setReleaseDeviceAfterLauncherFinish(true); // Debugger controls device after install
-    Debugger::DebuggerManager *dm = Debugger::DebuggerManager::instance();
+    Debugger::DebuggerPlugin *dm = Debugger::DebuggerPlugin::instance();
     S60DeviceRunConfiguration *rc = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     QTC_ASSERT(dm && rc, return);
 
@@ -915,8 +916,10 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *ru
 void S60DeviceDebugRunControl::stop()
 {
     S60DeviceRunControlBase::stop();
-    Debugger::DebuggerManager *dm = Debugger::DebuggerManager::instance();
+    Debugger::DebuggerPlugin *dm = Debugger::DebuggerPlugin::instance();
     QTC_ASSERT(dm, return)
+    // FIXME: ABC: that should use the RunControl present in
+    // handleLauncherFinished
     if (dm->state() == Debugger::DebuggerNotReady)
         dm->exitDebugger();
 }
@@ -944,11 +947,11 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
 
 void S60DeviceDebugRunControl::handleLauncherFinished()
 {
+    using namespace Debugger;
     emit appendMessage(this, tr("Launching debugger..."), false);
-    Debugger::DebuggerManager *dm = Debugger::DebuggerManager::instance();
-    Debugger::DebuggerRunControl *runControl =
-        new Debugger::DebuggerRunControl(dm, *m_startParams.data());
-    dm->startNewDebugger(runControl);
+    ProjectExplorer::RunControl *rc
+        = DebuggerPlugin::createDebugger(*m_startParams.data());
+    DebuggerPlugin::startDebugger(rc);
 }
 
 void S60DeviceDebugRunControl::debuggingFinished()
@@ -961,8 +964,9 @@ bool S60DeviceDebugRunControl::checkConfiguration(QString *errorMessage,
                                                   QString *settingsCategory,
                                                   QString *settingsPage) const
 {
-    return Debugger::DebuggerManager::instance()->checkDebugConfiguration(m_startParams->toolChainType,
-                                                                          errorMessage,
-                                                                          settingsCategory,
-                                                                          settingsPage);
+    return Debugger::DebuggerRunControl::checkDebugConfiguration(
+                                                m_startParams->toolChainType,
+                                                errorMessage,
+                                                settingsCategory,
+                                                settingsPage);
 }

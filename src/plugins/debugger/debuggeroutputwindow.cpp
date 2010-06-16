@@ -28,8 +28,9 @@
 **************************************************************************/
 
 #include "debuggeroutputwindow.h"
+
 #include "debuggeractions.h"
-#include "debuggermanager.h"
+#include "debuggerconstants.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>

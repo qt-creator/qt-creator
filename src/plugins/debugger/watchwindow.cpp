@@ -28,15 +28,12 @@
 **************************************************************************/
 
 #include "watchwindow.h"
-#include "watchhandler.h"
 
-#include "breakpoint.h"
-#include "breakhandler.h"
 #include "debuggeractions.h"
-#include "debuggeragents.h"
+#include "debuggerconstants.h"
+#include "debuggerengine.h"
 #include "debuggerdialogs.h"
-#include "debuggermanager.h"
-#include "idebuggerengine.h"
+#include "watchhandler.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -80,9 +77,9 @@ public:
         QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
         QTC_ASSERT(lineEdit, return);
         if (index.column() == 1)
-            lineEdit->setText(index.model()->data(index, Qt::DisplayRole).toString());
+            lineEdit->setText(index.data(Qt::DisplayRole).toString());
         else
-            lineEdit->setText(index.model()->data(index, ExpressionRole).toString());
+            lineEdit->setText(index.data(LocalsExpressionRole).toString());
     }
 
     void setModelData(QWidget *editor, QAbstractItemModel *model,
@@ -91,15 +88,15 @@ public:
         //qDebug() << "SET MODEL DATA";
         QLineEdit *lineEdit = qobject_cast<QLineEdit*>(editor);
         QTC_ASSERT(lineEdit, return);
-        QString value = lineEdit->text();
-        QString exp = model->data(index, ExpressionRole).toString();
+        const QString value = lineEdit->text();
+        const QString exp = index.data(LocalsExpressionRole).toString();
         model->setData(index, value, Qt::EditRole);
         if (index.column() == 1) {
             // The value column.
-            theDebuggerAction(AssignValue)->trigger(QString(exp + '=' + value));
+            model->setData(index, QString(exp + '=' + value), RequestAssignValueRole);
         } else if (index.column() == 2) {
             // The type column.
-            theDebuggerAction(AssignType)->trigger(QString(exp + '=' + value));
+            model->setData(index, QString(exp + '=' + value), RequestAssignTypeRole);
         } else if (index.column() == 0) {
             // The watcher name column.
             theDebuggerAction(RemoveWatchExpression)->trigger(exp);
@@ -121,9 +118,10 @@ public:
 //
 /////////////////////////////////////////////////////////////////////
 
-WatchWindow::WatchWindow(Type type, DebuggerManager *manager, QWidget *parent)
-    : QTreeView(parent), m_alwaysResizeColumnsToContents(true), m_type(type),
-        m_manager(manager)
+WatchWindow::WatchWindow(Type type, QWidget *parent)
+  : QTreeView(parent),
+    m_alwaysResizeColumnsToContents(true),
+    m_type(type)
 {
     m_grabbing = false;
 
@@ -149,12 +147,12 @@ WatchWindow::WatchWindow(Type type, DebuggerManager *manager, QWidget *parent)
 
 void WatchWindow::expandNode(const QModelIndex &idx)
 {
-    model()->setData(idx, true, ExpandedRole);
+    setModelData(LocalsExpandedRole, true, idx);
 }
 
 void WatchWindow::collapseNode(const QModelIndex &idx)
 {
-    model()->setData(idx, false, ExpandedRole);
+    setModelData(LocalsExpandedRole, false, idx);
 }
 
 void WatchWindow::keyPressEvent(QKeyEvent *ev)
@@ -162,7 +160,7 @@ void WatchWindow::keyPressEvent(QKeyEvent *ev)
     if (ev->key() == Qt::Key_Delete && m_type == WatchersType) {
         QModelIndex idx = currentIndex();
         QModelIndex idx1 = idx.sibling(idx.row(), 0);
-        QString exp = model()->data(idx1).toString();
+        QString exp = idx1.data().toString();
         theDebuggerAction(RemoveWatchExpression)->trigger(exp);
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
@@ -204,38 +202,23 @@ void WatchWindow::dropEvent(QDropEvent *ev)
     //QTreeView::dropEvent(ev);
 }
 
-static inline void toggleWatchPoint(DebuggerManager *manager, quint64 address)
-{
-    const QByteArray addressBA = QByteArray("0x") + QByteArray::number(address, 16);
-    const int index = manager->breakHandler()->findWatchPointIndexByAddress(addressBA);
-    if (index == -1) {
-        BreakpointData *data = new BreakpointData;
-        data->type = BreakpointData::WatchpointType;
-        data->address = addressBA;
-        manager->breakHandler()->appendBreakpoint(data);
-    } else {
-        manager->breakHandler()->removeBreakpoint(index);
-    }
-    manager->attemptBreakpointSynchronization();
-}
-
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     const QModelIndex idx = indexAt(ev->pos());
     const QModelIndex mi0 = idx.sibling(idx.row(), 0);
     const QModelIndex mi1 = idx.sibling(idx.row(), 1);
     const QModelIndex mi2 = idx.sibling(idx.row(), 2);
-    const quint64 address = model()->data(mi0, AddressRole).toULongLong();
-    const quint64 pointerValue = model()->data(mi0, PointerValue).toULongLong();
-    const QString exp = model()->data(mi0, ExpressionRole).toString();
-    const QString type = model()->data(mi2).toString();
+    const quint64 address = mi0.data(LocalsAddressRole).toULongLong();
+    const quint64 pointerValue = mi0.data(LocalsPointerValueRole).toULongLong();
+    const QString exp = mi0.data(LocalsExpressionRole).toString();
+    const QString type = mi2.data().toString();
 
     const QStringList alternativeFormats =
-        model()->data(mi0, TypeFormatListRole).toStringList();
+        mi0.data(LocalsTypeFormatListRole).toStringList();
     const int typeFormat =
-        model()->data(mi0, TypeFormatRole).toInt();
+        mi0.data(LocalsTypeFormatRole).toInt();
     const int individualFormat =
-        model()->data(mi0, IndividualFormatRole).toInt();
+        mi0.data(LocalsIndividualFormatRole).toInt();
     const int effectiveIndividualFormat =
         individualFormat == -1 ? typeFormat : individualFormat;
 
@@ -297,12 +280,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         individualFormatMenu.setEnabled(false);
     }
 
-    QMenu menu;
-
-    const bool actionsEnabled = m_manager->debuggerActionsEnabled();
-    const unsigned engineCapabilities = m_manager->debuggerCapabilities();
+    const bool actionsEnabled = modelData(EngineActionsEnabledRole).toBool();
+    const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
     const bool canHandleWatches = actionsEnabled && (engineCapabilities & AddWatcherCapability);
 
+    QMenu menu;
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
     actInsertNewWatchItem->setEnabled(canHandleWatches);
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
@@ -316,29 +298,31 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     actOpenMemoryEditor->setEnabled(actionsEnabled && canShowMemory);
 
     // Offer to open address pointed to or variable address.
-    const bool createPointerActions = pointerValue &&  pointerValue != address;
+    const bool createPointerActions = pointerValue && pointerValue != address;
 
     if (canShowMemory && address)
         actOpenMemoryEditAtVariableAddress =
             new QAction(tr("Open Memory Editor at Object's Address (0x%1)").arg(address, 0, 16), &menu);
     if (createPointerActions)
         actOpenMemoryEditAtPointerValue =
-                new QAction(tr("Open Memory Editor at Referenced Address (0x%1)").arg(pointerValue, 0, 16), &menu);
+            new QAction(tr("Open Memory Editor at Referenced Address (0x%1)").arg(pointerValue, 0, 16), &menu);
     menu.addSeparator();
 
     QAction *actSetWatchPointAtVariableAddress = 0;
-    QAction *actSetWatchPointAtPointerValue= 0;
+    QAction *actSetWatchPointAtPointerValue = 0;
     const bool canSetWatchpoint = engineCapabilities & WatchpointCapability;
     if (canSetWatchpoint && address) {
         actSetWatchPointAtVariableAddress =
             new QAction(tr("Break on Changes at Object's Address (0x%1)").arg(address, 0, 16), &menu);
         actSetWatchPointAtVariableAddress->setCheckable(true);
-        actSetWatchPointAtVariableAddress->setChecked(m_manager->breakHandler()->watchPointAt(address));
+        actSetWatchPointAtVariableAddress->
+            setChecked(mi0.data(LocalsIsWatchpointAtAddressRole).toBool());
         if (createPointerActions) {
             actSetWatchPointAtPointerValue =
-                    new QAction(tr("Break on Changes at Referenced Address (0x%1)").arg(pointerValue, 0, 16), &menu);
+                new QAction(tr("Break on Changes at Referenced Address (0x%1)").arg(pointerValue, 0, 16), &menu);
             actSetWatchPointAtPointerValue->setCheckable(true);
-            actSetWatchPointAtPointerValue->setChecked(m_manager->breakHandler()->watchPointAt(pointerValue));
+            actSetWatchPointAtPointerValue->
+                setChecked(mi0.data(LocalsIsWatchpointAtPointerValueRole).toBool());
         }
     } else {
         actSetWatchPointAtVariableAddress =
@@ -407,35 +391,34 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         theDebuggerAction(WatchExpression)
             ->trigger(WatchHandler::watcherEditPlaceHolder());
     } else if (act == actOpenMemoryEditAtVariableAddress) {
-        (void) new MemoryViewAgent(m_manager, address);
+        setModelData(RequestShowMemoryRole, address);
     } else if (act == actOpenMemoryEditAtPointerValue) {
-        (void) new MemoryViewAgent(m_manager, pointerValue);
+        setModelData(RequestShowMemoryRole, pointerValue);
     } else if (act == actOpenMemoryEditor) {
         AddressDialog dialog;
-        if (dialog.exec() == QDialog::Accepted) {
-            (void) new MemoryViewAgent(m_manager, dialog.address());
-        }
+        if (dialog.exec() == QDialog::Accepted)
+            setModelData(RequestShowMemoryRole, dialog.address());
     } else if (act == actSetWatchPointAtVariableAddress) {
-        toggleWatchPoint(m_manager, address);
+        setModelData(RequestToggleWatchRole, address);
     } else if (act == actSetWatchPointAtPointerValue) {
-        toggleWatchPoint(m_manager, pointerValue);
+        setModelData(RequestToggleWatchRole, pointerValue);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
     } else if (act == actClearCodeModelSnapshot) {
-        m_manager->clearCppCodeModelSnapshot();
+        setModelData(RequestClearCppCodeModelSnapshotRole);
     } else if (act == clearTypeFormatAction) {
-        model()->setData(mi1, -1, TypeFormatRole);
+        setModelData(LocalsTypeFormatRole, -1, mi1);
     } else if (act == clearIndividualFormatAction) {
-        model()->setData(mi1, -1, IndividualFormatRole);
+        setModelData(LocalsIndividualFormatRole, -1, mi1);
     } else {
         for (int i = 0; i != typeFormatActions.size(); ++i) {
             if (act == typeFormatActions.at(i))
-                model()->setData(mi1, i, TypeFormatRole);
+                setModelData(LocalsTypeFormatRole, 1, mi1);
         }
         for (int i = 0; i != individualFormatActions.size(); ++i) {
             if (act == individualFormatActions.at(i))
-                model()->setData(mi1, i, IndividualFormatRole);
+                setModelData(LocalsIndividualFormatRole, 1, mi1);
         }
     }
 }
@@ -502,7 +485,7 @@ void WatchWindow::resetHelper()
 
 void WatchWindow::resetHelper(const QModelIndex &idx)
 {
-    if (model()->data(idx, ExpandedRole).toBool()) {
+    if (idx.data(LocalsExpandedRole).toBool()) {
         //qDebug() << "EXPANDING " << model()->data(idx, INameRole);
         expand(idx);
         for (int i = 0, n = model()->rowCount(idx); i != n; ++i) {
@@ -514,3 +497,17 @@ void WatchWindow::resetHelper(const QModelIndex &idx)
         collapse(idx);
     }
 }
+
+void WatchWindow::setModelData
+    (int role, const QVariant &value, const QModelIndex &index)
+{
+    QTC_ASSERT(model(), return);
+    model()->setData(index, value, role);
+}
+
+QVariant WatchWindow::modelData(int role, const QModelIndex &index)
+{
+    QTC_ASSERT(model(), return QVariant());
+    return model()->data(index, role);
+}
+

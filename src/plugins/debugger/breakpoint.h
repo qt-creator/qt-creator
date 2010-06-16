@@ -30,6 +30,8 @@
 #ifndef DEBUGGER_BREAKPOINT_H
 #define DEBUGGER_BREAKPOINT_H
 
+#include <QtCore/QMetaType>
+#include <QtCore/QList>
 #include <QtCore/QString>
 
 namespace Debugger {
@@ -58,13 +60,17 @@ public:
     BreakHandler *handler() { return m_handler; }
 
     bool isLocatedAt(const QString &fileName, int lineNumber) const;
+    bool isSimilarTo(const BreakpointData *needle) const;
     bool conditionsMatch() const;
+
+protected:
+    // This copies only the static data.
+    BreakpointData(const BreakpointData &);
 
 private:
     // Intentionally unimplemented.
     // Making it copyable is tricky because of the markers.
     void operator=(const BreakpointData &);
-    BreakpointData(const BreakpointData &);
 
     // Our owner
     BreakHandler *m_handler; // Not owned.
@@ -116,8 +122,11 @@ private:
     BreakpointMarker *marker;
 };
 
+typedef QList<BreakpointData *> Breakpoints;
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::BreakpointData *);
 
 #endif // DEBUGGER_BREAKPOINT_H

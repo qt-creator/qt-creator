@@ -101,6 +101,7 @@ public:
     bool isValid() const { return !iname.isEmpty(); }
 
     bool isEqual(const WatchData &other) const;
+    quint64 coreAddress() const;
 
     static QString msgNotInScope();
     static QString shadowedName(const QString &name, int seen);

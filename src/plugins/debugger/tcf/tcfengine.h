@@ -47,8 +47,7 @@ QT_BEGIN_NAMESPACE
 class QTcpSocket;
 QT_END_NAMESPACE
 
-#include "idebuggerengine.h"
-#include "debuggermanager.h"
+#include "debuggerengine.h"
 #include "json.h"
 
 namespace Debugger {
@@ -57,16 +56,16 @@ namespace Internal {
 class ScriptAgent;
 class WatchData;
 
-class TcfEngine : public IDebuggerEngine
+class TcfEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
-    explicit TcfEngine(DebuggerManager *parent);
+    explicit TcfEngine(const DebuggerStartParameters &startParameters);
     ~TcfEngine();
 
 private:
-    // IDebuggerEngine implementation
+    // DebuggerEngine implementation
     void executeStep();
     void executeStepOut();
     void executeNext();

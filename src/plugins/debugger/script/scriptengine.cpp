@@ -31,10 +31,9 @@
 
 #include "scriptengine.h"
 
-#include "debuggerdialogs.h"
 #include "breakhandler.h"
 #include "debuggerconstants.h"
-#include "debuggermanager.h"
+#include "debuggerdialogs.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
@@ -192,8 +191,8 @@ void ScriptAgent::scriptUnload(qint64 scriptId)
 //
 ///////////////////////////////////////////////////////////////////////
 
-ScriptEngine::ScriptEngine(DebuggerManager *manager)
-    : IDebuggerEngine(manager)
+ScriptEngine::ScriptEngine(const DebuggerStartParameters &startParameters)
+    : DebuggerEngine(startParameters)
 {
 }
 
@@ -231,6 +230,9 @@ void ScriptEngine::exitDebugger()
 
 void ScriptEngine::startDebugger()
 {
+    qDebug() << "STARTING SCRIPT DEBUGGER";
+    QTC_ASSERT(state() == DebuggerNotReady, setState(DebuggerNotReady));
+    setState(EngineStarting);
     setState(AdapterStarting);
     if (m_scriptEngine.isNull())
         m_scriptEngine = Core::ICore::instance()->scriptManager()->scriptEngine();
@@ -248,13 +250,13 @@ void ScriptEngine::startDebugger()
     setState(AdapterStarted);
     setState(InferiorStarting);
 
-    QTC_ASSERT(runControl(), return);
-    m_scriptFileName = QFileInfo(runControl()->sp().executable).absoluteFilePath();
+    m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
+    qDebug() << "SCRIPT FILE: " << m_scriptFileName;
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         showMessage(QString::fromLatin1("Cannot open %1: %2").
           arg(m_scriptFileName, scriptFile.errorString()), LogError);
-        emit startFailed();
+        startFailed();
         return;
     }
     QTextStream stream(&scriptFile);
@@ -265,7 +267,7 @@ void ScriptEngine::startDebugger()
     showStatusMessage(tr("Running requested..."), 5000);
     showMessage(QLatin1String("Running: ") + m_scriptFileName, LogMisc);
     QTimer::singleShot(0, this, SLOT(runInferior()));
-    emit startSuccessful();
+    startSuccessful();
 }
 
 void ScriptEngine::continueInferior()
@@ -419,7 +421,7 @@ void ScriptEngine::selectThread(int index)
 
 void ScriptEngine::attemptBreakpointSynchronization()
 {
-    BreakHandler *handler = manager()->breakHandler();
+    BreakHandler *handler = breakHandler();
     bool updateNeeded = false;
     for (int index = 0; index != handler->size(); ++index) {
         BreakpointData *data = handler->at(index);
@@ -602,8 +604,8 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         if (byFunction && functionName.isEmpty())
             return false;
         BreakpointData *data = byFunction ?
-           findBreakPointByFunction(manager()->breakHandler(), functionName) :
-           findBreakPointByFileName(manager()->breakHandler(), lineNumber, fileName);
+           findBreakPointByFunction(breakHandler(), functionName) :
+           findBreakPointByFileName(breakHandler(), lineNumber, fileName);
         if (!data)
             return false;
 
@@ -625,7 +627,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
     StackFrame frame;
     frame.file = fileName;
     frame.line = lineNumber;
-    manager()->gotoLocation(frame, true);
+    gotoLocation(frame, true);
     updateLocals();
     return true;
 }
@@ -633,7 +635,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
 void ScriptEngine::updateLocals()
 {
     QScriptContext *context = m_scriptEngine->currentContext();
-    manager()->watchHandler()->beginCycle();
+    watchHandler()->beginCycle();
     //SDEBUG("UPDATE LOCALS");
 
     //
@@ -655,7 +657,7 @@ void ScriptEngine::updateLocals()
         //frame.address = ...;
         stackFrames.append(frame);
     }
-    manager()->stackHandler()->setFrames(stackFrames);
+    stackHandler()->setFrames(stackFrames);
 
     //
     // Build locals, deactivate agent meanwhile.
@@ -666,9 +668,9 @@ void ScriptEngine::updateLocals()
     data.iname = "local";
     data.name = QString::fromLatin1(data.iname);
     data.scriptValue = context->activationObject();
-    manager()->watchHandler()->beginCycle();
+    watchHandler()->beginCycle();
     updateSubItem(data);
-    manager()->watchHandler()->endCycle();
+    watchHandler()->endCycle();
     // FIXME: Use an extra thread. This here is evil
     m_stopped = true;
     showStatusMessage(tr("Stopped."), 5000);
@@ -772,7 +774,7 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
             data1.exp = it.name().toLatin1();
             data1.name = it.name();
             data1.scriptValue = it.value();
-            if (manager()->watchHandler()->isExpandedIName(data1.iname)) {
+            if (watchHandler()->isExpandedIName(data1.iname)) {
                 data1.setChildrenNeeded();
             } else {
                 data1.setChildrenUnneeded();
@@ -789,14 +791,14 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     }
 
     SDEBUG(msgDebugInsert(data, children));
-    manager()->watchHandler()->insertData(data);
+    watchHandler()->insertData(data);
     if (!children.isEmpty())
-        manager()->watchHandler()->insertBulkData(children);
+        watchHandler()->insertBulkData(children);
 }
 
-IDebuggerEngine *createScriptEngine(DebuggerManager *manager)
+DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp)
 {
-    return new ScriptEngine(manager);
+    return new ScriptEngine(sp);
 }
 
 } // namespace Internal

@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_PDBENGINE_H
 #define DEBUGGER_PDBENGINE_H
 
-#include "idebuggerengine.h"
+#include "debuggerengine.h"
 
 #include <QtCore/QProcess>
 #include <QtCore/QQueue>
@@ -53,16 +53,16 @@ public:
     QVariant cookie;
 };
 
-class PdbEngine : public IDebuggerEngine
+class PdbEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
-    PdbEngine(DebuggerManager *manager);
+    explicit PdbEngine(const DebuggerStartParameters &startParameters);
     ~PdbEngine();
 
 private:
-    // IDebuggerEngine implementation
+    // DebuggerEngine implementation
     void executeStep();
     void executeStepOut();
     void executeNext();

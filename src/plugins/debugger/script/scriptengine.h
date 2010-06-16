@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_SCRIPTENGINE_H
 #define DEBUGGER_SCRIPTENGINE_H
 
-#include "idebuggerengine.h"
+#include "debuggerengine.h"
 
 #include <QtCore/QSharedPointer>
 #include <QtCore/QScopedPointer>
@@ -52,16 +52,16 @@ class WatchData;
  * processEvents() triggered by QScriptEngine::setProcessEventsInterval().
  * Stopping is emulated by manually calling processEvents() from the debugger engine. */
 
-class ScriptEngine : public IDebuggerEngine
+class ScriptEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
-    ScriptEngine(DebuggerManager *manager);
+    ScriptEngine(const DebuggerStartParameters &startParameters);
     ~ScriptEngine();
 
 private:
-    // IDebuggerEngine implementation
+    // DebuggerEngine implementation
     void executeStep();
     void executeStepOut();
     void executeNext();

@@ -153,8 +153,8 @@ DebuggerUISwitcher::~DebuggerUISwitcher()
     delete d;
 }
 
-void DebuggerUISwitcher::addMenuAction(Core::Command *command, const QString &langName,
-                                       const QString &group)
+void DebuggerUISwitcher::addMenuAction(Core::Command *command,
+    const QString &langName, const QString &group)
 {
     d->m_debugMenu->addAction(command, group);
     d->m_menuCommands.insert(d->m_languages.indexOf(langName), command);
@@ -162,6 +162,9 @@ void DebuggerUISwitcher::addMenuAction(Core::Command *command, const QString &la
 
 void DebuggerUISwitcher::setActiveLanguage(const QString &langName)
 {
+    //qDebug() << "SET ACTIVE LANGUAGE: " << langName
+    //    << theDebuggerAction(SwitchLanguageAutomatically)->isChecked()
+    //    << d->m_languages;
     if (theDebuggerAction(SwitchLanguageAutomatically)->isChecked()
         && d->m_languages.contains(langName))
     {
@@ -173,6 +176,7 @@ int DebuggerUISwitcher::activeLanguageId() const
 {
     return d->m_activeLanguage;
 }
+
 void DebuggerUISwitcher::modeChanged(Core::IMode *mode)
 {
     d->m_isActiveMode = (mode->id() == Debugger::Constants::MODE_DEBUG);
@@ -235,6 +239,7 @@ DebuggerUISwitcher *DebuggerUISwitcher::instance()
 
 void DebuggerUISwitcher::addLanguage(const QString &langName, const QList<int> &context)
 {
+    //qDebug() << "ADD UI LANGUAGE: " << langName;
     d->m_toolBars.insert(langName, 0);
     d->m_contextsForLanguage.insert(d->m_languages.count(), context);
     d->m_languages.append(langName);
@@ -250,7 +255,8 @@ void DebuggerUISwitcher::addLanguage(const QString &langName, const QList<int> &
     connect(langChange, SIGNAL(triggered()), SLOT(langChangeTriggered()));
     Core::Command *cmd = am->registerAction(langChange,
                          "Debugger.Language." + langName, d->m_globalContext);
-    cmd->setDefaultKeySequence(QKeySequence(QString("%1,%2").arg(prefix, QString::number(d->m_languages.count()))));
+    cmd->setDefaultKeySequence(QKeySequence(
+        QString("%1,%2").arg(prefix).arg(d->m_languages.count())));
 
     d->m_languageMenu->addAction(cmd);
 }
@@ -264,6 +270,7 @@ void DebuggerUISwitcher::langChangeTriggered()
 
 void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
 {
+    //qDebug() << "CHANGE DEBUGGER UI: " << langName << d->m_changingUI;
     if (d->m_changingUI)
         return;
     d->m_changingUI = true;
@@ -271,9 +278,13 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
     int langId = d->m_languages.indexOf(langName);
     if (langId != d->m_activeLanguage) {
         d->m_languageActionGroup->actions()[langId]->setChecked(true);
-        d->m_toolbarStack->setCurrentWidget(d->m_toolBars.value(langName));
+        if ((d->m_toolBars.value(langName)))
+            d->m_toolbarStack->setCurrentWidget(d->m_toolBars.value(langName));
 
         foreach (DebugToolWindow *window, d->m_dockWidgets) {
+            //qDebug() << "  WINDOW " << window->m_dockWidget->objectName()
+            //    << window->m_visible;
+
             if (window->m_languageId != langId) {
                 // visibleTo must be used because during init, debugger is not visible,
                 // although visibility is explicitly set through both default layout and
@@ -373,9 +384,11 @@ QWidget *DebuggerUISwitcher::createMainWindow(Core::BaseMode *mode)
 /*!
     Keep track of dock widgets so they can be shown/hidden for different languages
 */
-QDockWidget *DebuggerUISwitcher::createDockWidget(const QString &langName, QWidget *widget,
-                                               Qt::DockWidgetArea area, bool visibleByDefault)
+QDockWidget *DebuggerUISwitcher::createDockWidget(const QString &langName,
+    QWidget *widget, Qt::DockWidgetArea area, bool visibleByDefault)
 {
+    //qDebug() << "CREATE DOCK" << widget->objectName() << langName
+    //    << d->m_activeLanguage << "VISIBLE BY DEFAULT: " << visibleByDefault;
     QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
     d->m_mainWindow->addDockWidget(area, dockWidget);
     DebugToolWindow *window = new DebugToolWindow;
@@ -446,20 +459,23 @@ void DebuggerUISwitcher::writeSettings() const
 
 void DebuggerUISwitcher::readSettings()
 {
+    //qDebug() << "\n SWITCHER READ SETTINGS \n";
     QSettings *s = Core::ICore::instance()->settings();
     s->beginGroup(QLatin1String("DebugMode"));
     d->m_mainWindow->restoreSettings(s);
     s->endGroup();
-
+/*
     foreach(Internal::DebugToolWindow *toolWindow, d->m_dockWidgets) {
         toolWindow->m_visible = toolWindow->m_dockWidget->isVisibleTo(d->m_mainWindow);
     }
+*/
 }
 
 void DebuggerUISwitcher::initialize()
 {
     createViewsMenuItems();
 
+    //qDebug() << "UI SWITCHER INITIALIZE";
     emit dockArranged(QString());
     readSettings();
 
@@ -472,6 +488,7 @@ void DebuggerUISwitcher::initialize()
 
 void DebuggerUISwitcher::resetDebuggerLayout()
 {
+    //qDebug() << "RESET DEBUGGER LAYOUT" << d->m_languages.at(d->m_activeLanguage);
     emit dockArranged(d->m_languages.at(d->m_activeLanguage));
 }
 

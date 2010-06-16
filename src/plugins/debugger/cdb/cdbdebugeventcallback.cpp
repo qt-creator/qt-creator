@@ -31,7 +31,6 @@
 #include "cdbdebugengine.h"
 #include "cdbexceptionutils.h"
 #include "cdbdebugengine_p.h"
-#include "debuggermanager.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -42,7 +41,7 @@ namespace Internal {
 
 // ---------- CdbDebugEventCallback
 
-CdbDebugEventCallback::CdbDebugEventCallback(CdbDebugEngine* dbg) :
+CdbDebugEventCallback::CdbDebugEventCallback(CdbDebugEngine *dbg) :
     m_pEngine(dbg)
 {
 }

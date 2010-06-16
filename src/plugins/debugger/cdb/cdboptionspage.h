@@ -68,7 +68,7 @@ class CdbOptionsPage : public Core::IOptionsPage
     Q_DISABLE_COPY(CdbOptionsPage)
     Q_OBJECT
 public:
-    explicit CdbOptionsPage(const QSharedPointer<CdbOptions> &options);
+    explicit CdbOptionsPage();
     virtual ~CdbOptionsPage();
 
     // IOptionsPage
@@ -87,6 +87,7 @@ public:
 
     // Load  failure messages can be displayed here
     void setFailureMessage(const QString &msg) { m_failureMessage = msg; }
+    QSharedPointer<CdbOptions> options() const { return m_options; }
 
 signals:
     void debuggerPathsChanged();

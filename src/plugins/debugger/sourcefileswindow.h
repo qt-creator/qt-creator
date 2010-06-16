@@ -30,12 +30,12 @@
 #ifndef DEBUGGER_SOURCEFILEWINDOW_H
 #define DEBUGGER_SOURCEFILEWINDOW_H
 
+#include <QtCore/QMap>
 #include <QtGui/QTreeView>
+
 
 namespace Debugger {
 namespace Internal {
-
-class SourceFilesModel;
 
 class SourceFilesWindow : public QTreeView
 {
@@ -44,20 +44,14 @@ class SourceFilesWindow : public QTreeView
 public:
     SourceFilesWindow(QWidget *parent = 0);
 
-    void setSourceFiles(const QMap<QString, QString> &sourceFiles);
-    void removeAll();
-
-signals:
-    void reloadSourceFilesRequested();
-    void fileOpenRequested(QString file);
-
 private slots:
     void sourceFileActivated(const QModelIndex &index);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
 
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
-    SourceFilesModel *m_model;
+    void setModelData(int role, const QVariant &value = QVariant(),
+        const QModelIndex &index = QModelIndex());
 };
 
 } // namespace Internal

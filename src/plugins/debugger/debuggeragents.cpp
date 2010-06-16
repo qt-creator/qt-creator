@@ -28,10 +28,11 @@
 **************************************************************************/
 
 #include "debuggeragents.h"
-#include "debuggermanager.h"
-#include "stackframe.h"
+
+#include "debuggerengine.h"
+#include "debuggerplugin.h"
 #include "debuggerstringutils.h"
-#include "idebuggerengine.h"
+#include "stackframe.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -71,15 +72,17 @@ namespace Internal {
     it handles communication between the engine and the bineditor.
 */
 
-MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, quint64 addr)
-    : QObject(manager), m_engine(manager->currentEngine()), m_manager(manager)
+MemoryViewAgent::MemoryViewAgent(DebuggerEngine *engine, quint64 addr)
+    : QObject(engine), m_engine(engine)
 {
+    QTC_ASSERT(engine, /**/);
     createBinEditor(addr);
 }
 
-MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, const QString &addr)
-    : QObject(manager), m_engine(manager->currentEngine()), m_manager(manager)
+MemoryViewAgent::MemoryViewAgent(DebuggerEngine *engine, const QString &addr)
+    : QObject(engine), m_engine(engine)
 {
+    QTC_ASSERT(engine, /**/);
     bool ok = true;
     createBinEditor(addr.toULongLong(&ok, 0));
     //qDebug() <<  " ADDRESS: " << addr <<  addr.toUInt(&ok, 0);
@@ -111,7 +114,7 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
         QMetaObject::invokeMethod(editor->widget(), "setLazyData",
             Q_ARG(quint64, addr), Q_ARG(int, 1024 * 1024), Q_ARG(int, BinBlockSize));
     } else {
-        m_manager->showMessageBox(QMessageBox::Warning,
+        DebuggerPlugin::instance()->showMessageBox(QMessageBox::Warning,
             tr("No memory viewer available"),
             tr("The memory contents cannot be shown as no viewer plugin "
                "for binary data has been loaded."));
@@ -122,8 +125,7 @@ void MemoryViewAgent::createBinEditor(quint64 addr)
 void MemoryViewAgent::fetchLazyData(Core::IEditor *editor, quint64 block, bool sync)
 {
     Q_UNUSED(sync); // FIXME: needed support for incremental searching
-    if (m_engine)
-        m_engine->fetchMemory(this, editor, BinBlockSize * block, BinBlockSize);
+    m_engine->fetchMemory(this, editor, BinBlockSize * block, BinBlockSize);
 }
 
 void MemoryViewAgent::addLazyData(QObject *editorToken, quint64 addr,
@@ -150,7 +152,7 @@ class LocationMark2 : public TextEditor::ITextMark
 public:
     LocationMark2() {}
 
-    QIcon icon() const { return DebuggerManager::instance()->locationMarkIcon(); }
+    QIcon icon() const { return DebuggerPlugin::instance()->locationMarkIcon(); }
     void updateLineNumber(int /*lineNumber*/) {}
     void updateBlock(const QTextBlock & /*block*/) {}
     void removedFromEditor() {}
@@ -164,7 +166,7 @@ struct DisassemblerViewAgentPrivate
     QPointer<TextEditor::ITextEditor> editor;
     StackFrame frame;
     bool tryMixed;
-    QPointer<DebuggerManager> manager;
+    QPointer<DebuggerEngine> engine;
     LocationMark2 *locationMark;
     QHash<QString, QString> cache;
 };
@@ -201,12 +203,12 @@ private:
      it handles communication between the engine and the editor.
 */
 
-DisassemblerViewAgent::DisassemblerViewAgent(DebuggerManager *manager)
+DisassemblerViewAgent::DisassemblerViewAgent(DebuggerEngine *engine)
     : QObject(0), d(new DisassemblerViewAgentPrivate)
 {
     d->editor = 0;
     d->locationMark = new LocationMark2();
-    d->manager = manager;
+    d->engine = engine;
 }
 
 DisassemblerViewAgent::~DisassemblerViewAgent()
@@ -261,16 +263,12 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame, bool tryMixed)
         if (it != d->cache.end()) {
             QString msg = _("Use cache disassembler for '%1' in '%2'")
                 .arg(frame.function).arg(frame.file);
-            QTC_ASSERT(d->manager->runControl(), /**/);
-            if (d->manager->runControl())
-                d->manager->runControl()->showMessage(msg);
+            d->engine->showMessage(msg);
             setContents(*it);
             return;
         }
     }
-    IDebuggerEngine *engine = d->manager->currentEngine();
-    QTC_ASSERT(engine, return);
-    engine->fetchDisassembler(this);
+    d->engine->fetchDisassembler(this);
 }
 
 void DisassemblerViewAgent::setContents(const QString &contents)

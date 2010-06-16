@@ -32,6 +32,7 @@
 
 #include "stackhandler.h"
 #include "stacktracecontext.h"
+#include "threadshandler.h"
 
 #include "cdbcom.h"
 
@@ -74,7 +75,7 @@ public:
 
     // get threads in stopped state
     static bool getThreads(const CdbCore::ComInterfaces &cif,
-                           QList<ThreadData> *threads,
+                           Threads *threads,
                            ULONG *currentThreadId,
                            QString *errorMessage);
 

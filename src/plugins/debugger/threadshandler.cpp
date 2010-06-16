@@ -29,6 +29,10 @@
 
 #include "threadshandler.h"
 
+#include "debuggerconstants.h"
+#include "debuggerengine.h"
+
+
 namespace Debugger {
 namespace Internal {
 
@@ -60,8 +64,8 @@ void ThreadData::notifyRunning()
 //
 ///////////////////////////////////////////////////////////////////////
 
-ThreadsHandler::ThreadsHandler(QObject *parent)  :
-    QAbstractTableModel(parent),
+ThreadsHandler::ThreadsHandler(DebuggerEngine *engine)
+  : m_engine(engine),
     m_currentIndex(0),
     m_positionIcon(QLatin1String(":/debugger/images/location_16.png")),
     m_emptyIcon(QLatin1String(":/debugger/images/debugger_empty_14.png"))
@@ -97,9 +101,12 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
         case ThreadData::FileColumn:
             return thread.fileName;
         case ThreadData::LineColumn:
-            return thread.lineNumber >= 0 ? QString::number(thread.lineNumber) : QString();
+            return thread.lineNumber >= 0
+                ? QString::number(thread.lineNumber) : QString();
         case ThreadData::AddressColumn:
-            return thread.address > 0 ? QLatin1String("0x") + QString::number(thread.address, 16) : QString();
+            return thread.address > 0
+                ? QLatin1String("0x") + QString::number(thread.address, 16)
+                : QString();
         case ThreadData::CoreColumn:
             return thread.core;
         case ThreadData::StateColumn:
@@ -110,9 +117,11 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
             return tr("Thread: %1").arg(thread.id);
         // Stopped
         if (thread.fileName.isEmpty())
-            return tr("Thread: %1 at %2 (0x%3)").arg(thread.id).arg(thread.function).arg(thread.address, 0, 16);
+            return tr("Thread: %1 at %2 (0x%3)").arg(thread.id)
+                .arg(thread.function).arg(thread.address, 0, 16);
         return tr("Thread: %1 at %2, %3:%4 (0x%5)").
-                arg(thread.id).arg(thread.function, thread.fileName).arg(thread.lineNumber).arg(thread.address, 0, 16);
+                arg(thread.id).arg(thread.function, thread.fileName)
+                .arg(thread.lineNumber).arg(thread.address, 0, 16);
     } else if (role == Qt::DecorationRole && index.column() == 0) {
         // Return icon that indicates whether this is the active stack frame
         return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
@@ -121,7 +130,8 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant ThreadsHandler::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ThreadsHandler::headerData
+    (int section, Qt::Orientation orientation, int role) const
 {
     if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
         return QVariant();
@@ -142,6 +152,16 @@ QVariant ThreadsHandler::headerData(int section, Qt::Orientation orientation, in
         return tr("State");
     }
     return QVariant();
+}
+
+bool ThreadsHandler::setData
+    (const QModelIndex &index, const QVariant &value, int role)
+{
+    if (role == RequestSelectThreadRole) {
+        m_engine->selectThread(value.toInt());
+        return true;
+    }
+    return QAbstractTableModel::setData(index, value, role);
 }
 
 int ThreadsHandler::currentThreadId() const
@@ -167,7 +187,7 @@ void ThreadsHandler::setCurrentThread(int index)
     emit dataChanged(i, i);
 }
 
-void ThreadsHandler::setThreads(const QList<ThreadData> &threads)
+void ThreadsHandler::setThreads(const Threads &threads)
 {
     m_threads = threads;
     if (m_currentIndex >= m_threads.size())
@@ -175,7 +195,7 @@ void ThreadsHandler::setThreads(const QList<ThreadData> &threads)
     reset();
 }
 
-QList<ThreadData> ThreadsHandler::threads() const
+Threads ThreadsHandler::threads() const
 {
     return m_threads;
 }
@@ -194,8 +214,8 @@ void ThreadsHandler::notifyRunning()
         return;
     if (m_threads.front().address == 0)
         return;
-    const QList<ThreadData>::iterator end = m_threads.end();
-    for (QList<ThreadData>::iterator it = m_threads.begin(); it != end; ++it)
+    const Threads::iterator end = m_threads.end();
+    for (Threads::iterator it = m_threads.begin(); it != end; ++it)
         it->notifyRunning();
     emit dataChanged(index(0, 1),
         index(m_threads.size() - 1, ThreadData::ColumnCount - 1));

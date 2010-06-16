@@ -43,7 +43,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
-#include <debugger/debuggermanager.h>
+#include <debugger/debuggerplugin.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMainWindow>
@@ -121,7 +121,7 @@ S60Manager::S60Manager(QObject *parent)
                                                  tr("Run on Device"), parent));
     addAutoReleasedObject(new S60CreatePackageStepFactory);
 
-    if (Debugger::DebuggerManager::instance())
+    if (Debugger::DebuggerPlugin::instance())
         addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl,
                                                 S60DeviceRunConfiguration>
                                                 (QLatin1String(ProjectExplorer::Constants::DEBUGMODE),

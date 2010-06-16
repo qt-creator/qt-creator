@@ -41,7 +41,8 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <debugger/debuggermanager.h>
+#include <debugger/debuggerengine.h>
+#include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/toolchain.h>
@@ -381,11 +382,9 @@ void MaemoRunControl::handleRemoteOutput(const QString &output)
 
 MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     : AbstractMaemoRunControl(runConfiguration, ProjectExplorer::Constants::DEBUGMODE)
-    , m_debuggerManager(ExtensionSystem::PluginManager::instance()
-                      ->getObject<Debugger::DebuggerManager>())
+    , m_debuggerRunControl(0)
     , m_startParams(new Debugger::DebuggerStartParameters)
 {
-    QTC_ASSERT(m_debuggerManager != 0, return);
 #ifdef USE_GDBSERVER
     m_startParams->startMode = Debugger::AttachToRemote;
     m_startParams->executable = executableOnHost();
@@ -406,8 +405,14 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     m_startParams->remoteDumperLib = remoteDir().toUtf8() + '/'
         + QFileInfo(m_runConfig->dumperLib()).fileName().toUtf8();
 
-    connect(m_debuggerManager, SIGNAL(debuggingFinished()), this,
+    m_debuggerRunControl = qobject_cast<Debugger::DebuggerRunControl *>
+        (Debugger::DebuggerPlugin::createDebugger(*m_startParams.data()));
+    connect(m_debuggerRunControl, SIGNAL(debuggingFinished()), this,
         SLOT(debuggingFinished()), Qt::QueuedConnection);
+
+/*
+    FIXME:
+
     connect(m_debuggerManager, SIGNAL(applicationOutputAvailable(QString, bool)),
             this,
 #ifdef USE_GDBSERVER
@@ -416,6 +421,7 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
             SLOT(handleRemoteOutput(QString))
 #endif
             , Qt::QueuedConnection);
+*/
 }
 
 MaemoDebugRunControl::~MaemoDebugRunControl()
@@ -460,20 +466,18 @@ void MaemoDebugRunControl::handleRemoteOutput(const QString &output)
 
 void MaemoDebugRunControl::startDebugging()
 {
-    Debugger::DebuggerRunControl *runControl =
-        new Debugger::DebuggerRunControl(m_debuggerManager, *m_startParams.data());
-    m_debuggerManager->startNewDebugger(runControl);
+    Debugger::DebuggerPlugin::startDebugger(m_debuggerRunControl);
 }
 
 void MaemoDebugRunControl::stopInternal()
 {
-    m_debuggerManager->exitDebugger();
+    m_debuggerRunControl->engine()->quitDebugger();
 }
 
 bool MaemoDebugRunControl::isRunning() const
 {
     return AbstractMaemoRunControl::isRunning()
-        || m_debuggerManager->state() != Debugger::DebuggerNotReady;
+        || m_debuggerRunControl->engine()->state() != Debugger::DebuggerNotReady;
 }
 
 void MaemoDebugRunControl::debuggingFinished()
@@ -499,5 +503,5 @@ QString MaemoDebugRunControl::gdbServerPort() const
         // but we will make sure we use the right port from the information file.
 }
 
-    } // namespace Internal
+} // namespace Internal
 } // namespace Qt4ProjectManager

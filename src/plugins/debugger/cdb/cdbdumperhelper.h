@@ -42,9 +42,8 @@ namespace CdbCore {
 }
 
 namespace Debugger {
-class DebuggerManager;
-
 namespace Internal {
+
 class CdbDumperInitThread;
 class CdbDebugEngine;
 

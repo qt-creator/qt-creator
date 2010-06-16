@@ -32,16 +32,18 @@
 #include "pdbengine.h"
 
 #include "debuggeractions.h"
-#include "debuggerdialogs.h"
-#include "breakhandler.h"
 #include "debuggerconstants.h"
-#include "debuggermanager.h"
+#include "debuggerdialogs.h"
+#include "debuggerplugin.h"
+#include "debuggerstringutils.h"
+
+#include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
-#include "debuggerstringutils.h"
+
 #include "../gdb/gdbmi.h"
 
 #include <utils/qtcassert.h>
@@ -83,8 +85,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-PdbEngine::PdbEngine(DebuggerManager *manager)
-    : IDebuggerEngine(manager)
+PdbEngine::PdbEngine(const DebuggerStartParameters &startParameters)
+    : DebuggerEngine(startParameters)
 {}
 
 PdbEngine::~PdbEngine()
@@ -138,16 +140,15 @@ void PdbEngine::exitDebugger()
 
 void PdbEngine::startDebugger()
 {
-    QTC_ASSERT(runControl(), return);
     setState(AdapterStarting);
 
-    m_scriptFileName = QFileInfo(runControl()->sp().executable).absoluteFilePath();
+    m_scriptFileName = QFileInfo(startParameters().executable).absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
     if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
         //showMessage("STARTING " +m_scriptFileName + "FAILED");
         showMessage(QString::fromLatin1("Cannot open %1: %2").
                    arg(m_scriptFileName, scriptFile.errorString()), LogError);
-        emit startFailed();
+        startFailed();
         return;
     }
     setState(AdapterStarted);
@@ -192,7 +193,7 @@ void PdbEngine::startDebugger()
             Core::ICore::instance()->showWarningWithOptions(title, msg);
         }
         shutdown();
-        emit startFailed();
+        startFailed();
         return;
     }
 
@@ -220,7 +221,7 @@ void PdbEngine::interruptInferior()
 
 void PdbEngine::executeStep()
 {
-    m_manager->resetLocation();
+    resetLocation();
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
     postCommand("step", CB(handleUpdateAll));
@@ -228,7 +229,7 @@ void PdbEngine::executeStep()
 
 void PdbEngine::executeStepI()
 {
-    m_manager->resetLocation();
+    resetLocation();
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
     postCommand("step", CB(handleUpdateAll));
@@ -236,7 +237,7 @@ void PdbEngine::executeStepI()
 
 void PdbEngine::executeStepOut()
 {
-    m_manager->resetLocation();
+    resetLocation();
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
     postCommand("finish", CB(handleUpdateAll));
@@ -244,7 +245,7 @@ void PdbEngine::executeStepOut()
 
 void PdbEngine::executeNext()
 {
-    m_manager->resetLocation();
+    resetLocation();
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
     postCommand("next", CB(handleUpdateAll));
@@ -252,7 +253,7 @@ void PdbEngine::executeNext()
 
 void PdbEngine::executeNextI()
 {
-    m_manager->resetLocation();
+    resetLocation();
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
     postCommand("next", CB(handleUpdateAll));
@@ -260,7 +261,7 @@ void PdbEngine::executeNextI()
 
 void PdbEngine::continueInferior()
 {
-    m_manager->resetLocation();
+    resetLocation();
     setState(InferiorRunningRequested);
     setState(InferiorRunning);
     // Callback will be triggered e.g. when breakpoint is hit.
@@ -289,29 +290,29 @@ void PdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 
 void PdbEngine::activateFrame(int frameIndex)
 {
-    manager()->resetLocation();
+    resetLocation();
     if (state() != InferiorStopped && state() != InferiorUnrunnable)
         return;
 
-    StackHandler *stackHandler = manager()->stackHandler();
-    int oldIndex = stackHandler->currentIndex();
+    StackHandler *handler = stackHandler();
+    int oldIndex = handler->currentIndex();
 
-    //if (frameIndex == stackHandler->stackSize()) {
+    //if (frameIndex == handler->stackSize()) {
     //    reloadFullStack();
     //    return;
     //}
 
-    QTC_ASSERT(frameIndex < stackHandler->stackSize(), return);
+    QTC_ASSERT(frameIndex < handler->stackSize(), return);
 
     if (oldIndex != frameIndex) {
         // Assuming the command always succeeds this saves a roundtrip.
         // Otherwise the lines below would need to get triggered
         // after a response to this -stack-select-frame here.
-        stackHandler->setCurrentIndex(frameIndex);
+        handler->setCurrentIndex(frameIndex);
         //postCommand("-stack-select-frame " + QByteArray::number(frameIndex),
         //    CB(handleStackSelectFrame));
     }
-    manager()->gotoLocation(stackHandler->currentFrame(), true);
+    gotoLocation(handler->currentFrame(), true);
 }
 
 void PdbEngine::selectThread(int index)
@@ -336,7 +337,7 @@ static QByteArray breakpointLocation(const BreakpointData *data)
 
 void PdbEngine::attemptBreakpointSynchronization()
 {
-    BreakHandler *handler = manager()->breakHandler();
+    BreakHandler *handler = breakHandler();
     //qDebug() << "ATTEMPT BP SYNC";
     bool updateNeeded = false;
     for (int index = 0; index != handler->size(); ++index) {
@@ -368,7 +369,7 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
     //qDebug() << "BP RESPONSE: " << response.data;
     // "Breakpoint 1 at /pdb/math.py:10"
     int index = response.cookie.toInt();
-    BreakHandler *handler = manager()->breakHandler();
+    BreakHandler *handler = breakHandler();
     BreakpointData *data = handler->at(index);
     QTC_ASSERT(data, return);
     QTC_ASSERT(response.data.startsWith("Breakpoint "), return);
@@ -419,7 +420,7 @@ void PdbEngine::handleListModules(const PdbResponse &response)
         module.modulePath = path;
         modules.append(module);
     }
-    runControl()->modulesHandler()->setModules(modules);
+    modulesHandler()->setModules(modules);
 }
 
 void PdbEngine::requestModuleSymbols(const QString &moduleName)
@@ -516,7 +517,7 @@ void PdbEngine::setToolTipExpression(const QPoint &mousePos,
     }
 
 #if 0
-    //if (m_manager->status() != InferiorStopped)
+    //if (status() != InferiorStopped)
     //    return;
 
     // FIXME: 'exp' can contain illegal characters
@@ -567,7 +568,7 @@ void PdbEngine::handlePdbError(QProcess::ProcessError error)
     default:
         m_pdbProc.kill();
         setState(EngineShuttingDown, true);
-        m_manager->showMessageBox(QMessageBox::Critical, tr("Pdb I/O Error"),
+        plugin()->showMessageBox(QMessageBox::Critical, tr("Pdb I/O Error"),
                        errorMessage(error));
         break;
     }
@@ -664,7 +665,7 @@ void PdbEngine::handleResponse(const QByteArray &response0)
             frame.file = _(fileName);
             frame.line = lineNumber;
             if (frame.line > 0 && QFileInfo(frame.file).exists()) {
-                manager()->gotoLocation(frame, true);
+                gotoLocation(frame, true);
                 setState(InferiorStopping);
                 setState(InferiorStopped);
                 return;
@@ -685,7 +686,7 @@ void PdbEngine::updateAll()
     setState(InferiorStopping);
     setState(InferiorStopped);
 
-    WatchHandler *handler = m_manager->watchHandler();
+    WatchHandler *handler = watchHandler();
 
     QByteArray watchers;
     //if (!m_toolTipExpression.isEmpty())
@@ -767,13 +768,13 @@ void PdbEngine::handleBacktrace(const PdbResponse &response)
     const int frameCount = stackFrames.size();
     for (int i = 0; i != frameCount; ++i) 
         stackFrames[i].level = frameCount - stackFrames[i].level - 1; 
-    manager()->stackHandler()->setFrames(stackFrames);
+    stackHandler()->setFrames(stackFrames);
 
     // Select current frame.
     if (currentIndex != -1) {
         currentIndex = frameCount - currentIndex - 1;
-        manager()->stackHandler()->setCurrentIndex(currentIndex);
-        manager()->gotoLocation(stackFrames.at(currentIndex), true);
+        stackHandler()->setCurrentIndex(currentIndex);
+        gotoLocation(stackFrames.at(currentIndex), true);
     }
 }
 
@@ -788,15 +789,15 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
 
     //GdbMi data = all.findChild("data");
     QList<WatchData> list;
-    WatchHandler *watchHandler = manager()->watchHandler();
+    WatchHandler *handler = watchHandler();
     foreach (const GdbMi &child, all.children()) {
         WatchData dummy;
         dummy.iname = child.findChild("iname").data();
         dummy.name = _(child.findChild("name").data());
         //qDebug() << "CHILD: " << child.toString();
-        parseWatchData(watchHandler->expandedINames(), dummy, child, &list);
+        parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
-    watchHandler->insertBulkData(list);
+    handler->insertBulkData(list);
 }
 
 void PdbEngine::handleLoadDumper(const PdbResponse &response)
@@ -811,9 +812,9 @@ unsigned PdbEngine::debuggerCapabilities() const
     return ReloadModuleCapability;
 }
 
-IDebuggerEngine *createPdbEngine(DebuggerManager *manager)
+DebuggerEngine *createPdbEngine(const DebuggerStartParameters &startParameters)
 {
-    return new PdbEngine(manager);
+    return new PdbEngine(startParameters);
 }
 
 

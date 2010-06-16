@@ -42,9 +42,6 @@ class ModulesWindow : public QTreeView
 public:
     explicit ModulesWindow(QWidget *parent = 0);
 
-signals:
-    void fileOpenRequested(QString);
-
 private slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
@@ -55,6 +52,8 @@ private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void setModel(QAbstractItemModel *model);
+    void setModelData(int role, const QVariant &value = QVariant(),
+        const QModelIndex &index = QModelIndex());
 
     bool m_alwaysResizeColumnsToContents;
 };

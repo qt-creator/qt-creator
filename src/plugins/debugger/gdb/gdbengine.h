@@ -30,8 +30,7 @@
 #ifndef DEBUGGER_GDBENGINE_H
 #define DEBUGGER_GDBENGINE_H
 
-#include "idebuggerengine.h"
-#include "debuggermanager.h" // only for StartParameters
+#include "debuggerengine.h"
 #include "gdbmi.h"
 #include "localgdbprocess.h"
 #include "watchutils.h"
@@ -56,7 +55,6 @@ class QTimer;
 QT_END_NAMESPACE
 
 namespace Debugger {
-class DebuggerManager;
 namespace Internal {
 
 class AbstractGdbAdapter;
@@ -83,15 +81,12 @@ enum DebuggingHelperState
 };
 
 
-class GdbEngine : public IDebuggerEngine
+class GdbEngine : public DebuggerEngine
 {
     Q_OBJECT
 
 public:
-    typedef QMultiMap<QString, int> GdbBinaryToolChainMap;
-    typedef QSharedPointer<GdbBinaryToolChainMap> GdbBinaryToolChainMapPtr;
-
-    explicit GdbEngine(DebuggerManager *manager);
+    explicit GdbEngine(const DebuggerStartParameters &startParameters);
     ~GdbEngine();
 
 private:
@@ -107,10 +102,6 @@ private:
 
 private: ////////// General Interface //////////
 
-    virtual void addOptionPages(QList<Core::IOptionsPage*> *opts) const;
-
-    virtual bool checkConfiguration(int toolChain, QString *errorMessage,
-        QString *settingsPage = 0) const;
     virtual void startDebugger();
     virtual unsigned debuggerCapabilities() const;
     virtual void exitDebugger();
@@ -125,8 +116,6 @@ private: ////////// General State //////////
 
     void initializeVariables();
     DebuggerStartMode startMode() const;
-    const DebuggerStartParameters &startParameters() const
-        { return m_runControl->sp(); }
     Q_SLOT void setAutoDerefPointers(const QVariant &on);
 
     bool m_registerNamesListed;
@@ -332,8 +321,6 @@ private: ////////// View & Data Stuff //////////
     virtual void selectThread(int index);
     virtual void activateFrame(int index);
 
-    void gotoLocation(const StackFrame &frame, bool setLocationMarker);
-
     //
     // Breakpoint specific stuff
     //
@@ -502,8 +489,9 @@ private: ////////// View & Data Stuff //////////
 
     QSet<QByteArray> m_processedNames;
 
-private: ////////// Dumper Management //////////
-    QString qtDumperLibraryName() const;
+    //
+    // Dumper Management
+    //
     bool checkDebuggingHelpers();
         bool checkDebuggingHelpersClassic();
     void setDebuggingHelperStateClassic(DebuggingHelperState);
@@ -515,13 +503,13 @@ private: ////////// Dumper Management //////////
     Q_SLOT void setDebugDebuggingHelpersClassic(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 
-    const GdbBinaryToolChainMapPtr m_gdbBinaryToolChainMap;
     DebuggingHelperState m_debuggingHelperState;
     QtDumperHelper m_dumperHelper;
     QString m_gdb;
 
-private: ////////// Convenience Functions //////////
-
+    // 
+    // Convenience Functions
+    //
     QString errorMessage(QProcess::ProcessError error);
     QMessageBox *showMessageBox(int icon, const QString &title, const QString &text,
         int buttons = 0);

@@ -40,11 +40,9 @@ QT_END_NAMESPACE
 
 
 namespace Debugger {
-
-class DebuggerRunControl;
-
 namespace Internal {
 
+class DebuggerEngine;
 class ModulesModel;
 
 //////////////////////////////////////////////////////////////////
@@ -94,7 +92,7 @@ typedef QList<Module> Modules;
 class ModulesHandler : public QObject
 {
 public:
-    explicit ModulesHandler(DebuggerRunControl *runControl);
+    explicit ModulesHandler(DebuggerEngine *engine);
 
     QAbstractItemModel *model() const;
 

@@ -32,7 +32,6 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QMap>
-#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -41,7 +40,7 @@ class QSettings;
 QT_END_NAMESPACE
 
 namespace Utils {
-    class SavedAction;
+class SavedAction;
 }
 
 namespace Debugger {
@@ -52,12 +51,14 @@ class DebuggerSettings : public QObject
     Q_OBJECT
 public:
     typedef QMultiMap<QString, int> GdbBinaryToolChainMap;
-    typedef QSharedPointer<GdbBinaryToolChainMap> GdbBinaryToolChainMapPtr;
 
     explicit DebuggerSettings(QObject *parent = 0);
     ~DebuggerSettings();
 
-    GdbBinaryToolChainMapPtr gdbBinaryToolChainMap() const { return m_gdbBinaryToolChainMap; }
+    GdbBinaryToolChainMap gdbBinaryToolChainMap() const
+        { return m_gdbBinaryToolChainMap; }
+    void setGdbBinaryToolChainMap(const GdbBinaryToolChainMap &map)
+        { m_gdbBinaryToolChainMap = map; }
 
     void insertItem(int code, Utils::SavedAction *item);
     Utils::SavedAction *item(int code) const;
@@ -72,8 +73,7 @@ public slots:
 
 private:
     QHash<int, Utils::SavedAction *> m_items;
-
-    const GdbBinaryToolChainMapPtr m_gdbBinaryToolChainMap;
+    GdbBinaryToolChainMap m_gdbBinaryToolChainMap;
 };
 
 
@@ -127,8 +127,6 @@ enum DebuggerActionCode
     WatchExpressionInWindow,
     RemoveWatchExpression,
     WatchPoint,
-    AssignValue,
-    AssignType,
     ShowStdNamespace,
     ShowQtNamespace,
 
@@ -159,30 +157,6 @@ Utils::SavedAction *theDebuggerAction(int code);
 // convenience
 bool theDebuggerBoolSetting(int code);
 QString theDebuggerStringSetting(int code);
-
-struct DebuggerManagerActions
-{
-    QAction *continueAction;
-    QAction *stopAction;
-    QAction *resetAction; // FIXME: Should not be needed in a stable release
-    QAction *stepAction;
-    QAction *stepOutAction;
-    QAction *runToLineAction1; // in the Debug menu
-    QAction *runToLineAction2; // in the text editor context menu
-    QAction *runToFunctionAction;
-    QAction *jumpToLineAction1; // in the Debug menu
-    QAction *jumpToLineAction2; // in the text editor context menu
-    QAction *returnFromFunctionAction;
-    QAction *nextAction;
-    QAction *snapshotAction;
-    QAction *watchAction1; // in the Debug menu
-    QAction *watchAction2; // in the text editor context menu
-    QAction *breakAction;
-    QAction *sepAction;
-    QAction *reverseDirectionAction;
-    QAction *frameUpAction;
-    QAction *frameDownAction;
-};
 
 } // namespace Internal
 } // namespace Debugger

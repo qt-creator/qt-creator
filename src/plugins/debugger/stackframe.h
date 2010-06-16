@@ -30,9 +30,9 @@
 #ifndef DEBUGGER_STACKFRAME_H
 #define DEBUGGER_STACKFRAME_H
 
-#include <QtCore/QString>
 #include <QtCore/QList>
 #include <QtCore/QMetaType>
+#include <QtCore/QString>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -41,14 +41,16 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
-struct StackFrame
+class StackFrame
 {
+public:
     StackFrame();
     void clear();
     bool isUsable() const;
     QString toToolTip() const;
     QString toString() const;
 
+public:
     int level;
     QString function;
     QString file;  // We try to put an absolute file name in there.

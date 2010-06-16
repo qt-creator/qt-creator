@@ -29,7 +29,10 @@
 
 #include "registerhandler.h"
 
+#include "debuggeractions.h"
+#include "debuggeragents.h"
 #include "debuggerconstants.h"
+#include "debuggerengine.h"
 
 #include <utils/qtcassert.h>
 
@@ -49,8 +52,8 @@ using namespace Debugger::Constants;
 //
 //////////////////////////////////////////////////////////////////
 
-RegisterHandler::RegisterHandler(QObject *parent)
-    : QAbstractTableModel(parent)
+RegisterHandler::RegisterHandler(DebuggerEngine *engine)
+  : m_engine(engine)
 {
     setNumberBase(16);
 }
@@ -67,8 +70,19 @@ int RegisterHandler::columnCount(const QModelIndex &parent) const
 
 QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 {
-    if (role == RegisterNumberBaseRole)
-        return m_base;
+    switch (role) {
+        case EngineStateRole:
+            return m_engine->state();
+
+        case EngineCapabilitiesRole:
+            return m_engine->debuggerCapabilities();
+
+        case EngineActionsEnabledRole:
+            return m_engine->debuggerActionsEnabled();
+
+        case RegisterNumberBaseRole:
+            return m_base;
+    }
 
     if (!index.isValid() || index.row() >= m_registers.size())
         return QVariant();
@@ -134,6 +148,26 @@ Qt::ItemFlags RegisterHandler::flags(const QModelIndex &idx) const
     if (idx.column() == 1)
         return editable; // locals and watcher values are editable
     return  notEditable;
+}
+
+bool RegisterHandler::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    switch (role) {
+        case RequestSetRegisterRole:
+            m_engine->setRegisterValue(index.row(), value.toString());
+            return true;
+
+        case RequestReloadRegistersRole:
+            m_engine->reloadRegisters();
+            return true;
+
+        case RequestShowMemoryRole:
+            (void) new MemoryViewAgent(m_engine, value.toString());
+            return true;
+
+        default:
+            return QAbstractTableModel::setData(index, value, role);
+    }
 }
 
 void RegisterHandler::removeAll()

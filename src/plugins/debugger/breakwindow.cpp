@@ -29,11 +29,8 @@
 
 #include "breakwindow.h"
 
-#include "breakhandler.h"
-#include "threadshandler.h"
 #include "debuggeractions.h"
-#include "debuggermanager.h"
-#include "stackhandler.h"
+#include "debuggerconstants.h"
 #include "ui_breakcondition.h"
 #include "ui_breakbyfunction.h"
 
@@ -41,9 +38,6 @@
 #include <utils/savedaction.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFileInfoList>
 
 #include <QtGui/QAction>
 #include <QtGui/QHeaderView>
@@ -54,8 +48,9 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QTreeView>
 
-using Debugger::Internal::BreakWindow;
 
+namespace Debugger {
+namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -83,9 +78,11 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-BreakWindow::BreakWindow(Debugger::DebuggerManager *manager)
-  : m_manager(manager), m_alwaysResizeColumnsToContents(false)
+BreakWindow::BreakWindow(QWidget *parent)
+  : QTreeView(parent)
 {
+    m_alwaysResizeColumnsToContents = false;
+
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setFrameStyle(QFrame::NoFrame);
     setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -104,6 +101,10 @@ BreakWindow::BreakWindow(Debugger::DebuggerManager *manager)
         this, SLOT(showAddressColumn(bool)));
 }
 
+BreakWindow::~BreakWindow()
+{
+}
+
 void BreakWindow::showAddressColumn(bool on)
 {
     setColumnHidden(7, !on);
@@ -112,9 +113,9 @@ void BreakWindow::showAddressColumn(bool on)
 static QModelIndexList normalizeIndexes(const QModelIndexList &list)
 {
     QModelIndexList res;
-    foreach (const QModelIndex &idx, list)
-        if (idx.column() == 0)
-            res.append(idx);
+    foreach (const QModelIndex &index, list)
+        if (index.column() == 0)
+            res.append(index);
     return res;
 }
 
@@ -147,7 +148,6 @@ void BreakWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
-    const QAbstractItemModel *itemModel = model();
     QItemSelectionModel *sm = selectionModel();
     QTC_ASSERT(sm, return);
     QModelIndexList si = sm->selectedIndexes();
@@ -156,8 +156,9 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         si.append(indexUnderMouse.sibling(indexUnderMouse.row(), 0));
     si = normalizeIndexes(si);
 
-    const int rowCount = itemModel->rowCount();
-    const unsigned engineCapabilities = m_manager->debuggerCapabilities();
+    const int rowCount = model()->rowCount();
+    const unsigned engineCapabilities =
+        model()->data(QModelIndex(), EngineCapabilitiesRole).toUInt();
 
     QAction *deleteAction = new QAction(tr("Delete Breakpoint"), &menu);
     deleteAction->setEnabled(si.size() > 0);
@@ -170,10 +171,10 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QList<int> breakPointsOfFile;
     if (indexUnderMouse.isValid()) {
         const QModelIndex index = indexUnderMouse.sibling(indexUnderMouse.row(), 2);
-        const QString file = itemModel->data(index).toString();
+        const QString file = model()->data(index).toString();
         if (!file.isEmpty()) {
             for (int i = 0; i < rowCount; i++)
-                if (itemModel->data(itemModel->index(i, 2)).toString() == file)
+                if (model()->data(model()->index(i, 2)).toString() == file)
                     breakPointsOfFile.push_back(i);
             if (breakPointsOfFile.size() > 1) {
                 deleteByFileAction =
@@ -200,7 +201,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         new QAction(tr("Edit Breakpoint..."), &menu);
     editBreakpointAction->setEnabled(si.size() > 0);
 
-    int threadId = m_manager->threadsHandler()->currentThreadId();
+    int threadId = model()->data(QModelIndex(), CurrentThreadIdRole).toInt();
     QString associateTitle = threadId == -1
         ?  tr("Associate Breakpoint With All Threads")
         :  tr("Associate Breakpoint With Thread %1").arg(threadId);
@@ -210,11 +211,12 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *synchronizeAction =
         new QAction(tr("Synchronize Breakpoints"), &menu);
     synchronizeAction->setEnabled(
-        Debugger::DebuggerManager::instance()->debuggerActionsEnabled());
+        model()->data(QModelIndex(), EngineActionsEnabledRole).toBool());
 
     QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
     QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
-    bool enabled = si.isEmpty() || itemModel->data(idx0, Qt::UserRole).toBool();
+    bool enabled = si.isEmpty()
+        || idx0.data(BreakpointEnabledRole).toBool();
 
     const QString str5 = si.size() > 1
         ? enabled
@@ -226,7 +228,8 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *toggleEnabledAction = new QAction(str5, &menu);
     toggleEnabledAction->setEnabled(si.size() > 0);
 
-    const bool fullpath = si.isEmpty() || itemModel->data(idx2, Qt::UserRole).toBool();
+    const bool fullpath = si.isEmpty()
+        || idx2.data(BreakpointEnabledRole).toBool();
     const QString str6 = fullpath ? tr("Use Short Path") : tr("Use Full Path");
     QAction *pathAction = new QAction(str6, &menu);
     pathAction->setEnabled(si.size() > 0);
@@ -285,7 +288,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == associateBreakpointAction)
         associateBreakpoint(si, threadId);
     else if (act == synchronizeAction)
-        emit breakpointSynchronizationRequested();
+        setModelData(RequestSynchronizeBreakpointsRole);
     else if (act == toggleEnabledAction)
         setBreakpointsEnabled(si, !enabled);
     else if (act == pathAction)
@@ -293,37 +296,35 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == breakAtFunctionAction) {
         BreakByFunctionDialog dlg(this);
         if (dlg.exec())
-            emit breakByFunctionRequested(dlg.functionName());
+            setModelData(RequestBreakByFunctionRole, dlg.functionName());
     } else if (act == breakAtMainAction)
-        emit breakByFunctionMainRequested();
+        setModelData(RequestBreakByFunctionMainRole);
      else if (act == breakAtThrowAction)
-        emit breakByFunctionRequested("__cxa_throw");
+        setModelData(RequestBreakByFunctionRole, "__cxa_throw");
      else if (act == breakAtCatchAction)
-        emit breakByFunctionRequested("__cxa_begin_catch");
+        setModelData(RequestBreakByFunctionRole, "__cxa_begin_catch");
 }
 
 void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)
 {
-    foreach (const QModelIndex &idx, list)
-        model()->setData(idx, enabled, Qt::UserRole + 1);
-    emit breakpointSynchronizationRequested();
+    foreach (const QModelIndex &index, list)
+        setModelData(BreakpointEnabledRole, enabled, index);
+    setModelData(RequestSynchronizeBreakpointsRole);
 }
 
 void BreakWindow::setBreakpointsFullPath(const QModelIndexList &list, bool fullpath)
 {
-    foreach (const QModelIndex &idx, list) {
-        QModelIndex idx2 = idx.sibling(idx.row(), 2);
-        model()->setData(idx2, fullpath, Qt::UserRole + 2);
-    }
-    emit breakpointSynchronizationRequested();
+    foreach (const QModelIndex &index, list)
+        setModelData(BreakpointUseFullPathRole, fullpath, index);
+    setModelData(RequestSynchronizeBreakpointsRole);
 }
 
 void BreakWindow::deleteBreakpoints(const QModelIndexList &indexes)
 {
     QTC_ASSERT(!indexes.isEmpty(), return);
     QList<int> list;
-    foreach (const QModelIndex &idx, indexes)
-        list.append(idx.row());
+    foreach (const QModelIndex &index, indexes)
+        list.append(index.row());
     deleteBreakpoints(list);
 }
 
@@ -334,12 +335,12 @@ void BreakWindow::deleteBreakpoints(QList<int> list)
     const int firstRow = list.front();
     qSort(list.begin(), list.end());
     for (int i = list.size(); --i >= 0; )
-        emit breakpointDeleted(list.at(i));
+        setModelData(RequestRemoveBreakpointByIndexRole, list.at(i));
 
     const int row = qMin(firstRow, model()->rowCount() - 1);
     if (row >= 0)
         setCurrentIndex(model()->index(row, 0));
-    emit breakpointSynchronizationRequested();
+    setModelData(RequestSynchronizeBreakpointsRole);
 }
 
 void BreakWindow::editBreakpoint(const QModelIndexList &list)
@@ -350,9 +351,8 @@ void BreakWindow::editBreakpoint(const QModelIndexList &list)
 
     QTC_ASSERT(!list.isEmpty(), return);
     QModelIndex idx = list.front();
-    int row = idx.row();
+    const int row = idx.row();
     dlg.setWindowTitle(tr("Conditions on Breakpoint %1").arg(row));
-    int role = Qt::UserRole + 1;
     ui.lineEditFunction->hide();
     ui.labelFunction->hide();
     ui.lineEditFileName->hide();
@@ -360,18 +360,12 @@ void BreakWindow::editBreakpoint(const QModelIndexList &list)
     ui.lineEditLineNumber->hide();
     ui.labelLineNumber->hide();
     QAbstractItemModel *m = model();
-    //ui.lineEditFunction->setText(
-    //    m->data(idx.sibling(row, 1), role).toString());
-    //ui.lineEditFileName->setText(
-    //    m->data(idx.sibling(row, 2), role).toString());
-    //ui.lineEditLineNumber->setText(
-    //    m->data(idx.sibling(row, 3), role).toString());
     ui.lineEditCondition->setText(
-        m->data(idx.sibling(row, 4), role).toString());
+        m->data(idx, BreakpointConditionRole).toString());
     ui.lineEditIgnoreCount->setText(
-        m->data(idx.sibling(row, 5), role).toString());
+        m->data(idx, BreakpointIgnoreCountRole).toString());
     ui.lineEditThreadSpec->setText(
-        m->data(idx.sibling(row, 6), role).toString());
+        m->data(idx, BreakpointThreadSpecRole).toString());
 
     if (dlg.exec() == QDialog::Rejected)
         return;
@@ -380,11 +374,11 @@ void BreakWindow::editBreakpoint(const QModelIndexList &list)
         //m->setData(idx.sibling(idx.row(), 1), ui.lineEditFunction->text());
         //m->setData(idx.sibling(idx.row(), 2), ui.lineEditFileName->text());
         //m->setData(idx.sibling(idx.row(), 3), ui.lineEditLineNumber->text());
-        m->setData(idx.sibling(idx.row(), 4), ui.lineEditCondition->text());
-        m->setData(idx.sibling(idx.row(), 5), ui.lineEditIgnoreCount->text());
-        m->setData(idx.sibling(idx.row(), 6), ui.lineEditThreadSpec->text());
+        m->setData(idx, ui.lineEditCondition->text(), BreakpointConditionRole);
+        m->setData(idx, ui.lineEditIgnoreCount->text(), BreakpointIgnoreCountRole);
+        m->setData(idx, ui.lineEditThreadSpec->text(), BreakpointThreadSpecRole);
     }
-    emit breakpointSynchronizationRequested();
+    setModelData(RequestSynchronizeBreakpointsRole);
 }
 
 void BreakWindow::associateBreakpoint(const QModelIndexList &list, int threadId)
@@ -392,9 +386,9 @@ void BreakWindow::associateBreakpoint(const QModelIndexList &list, int threadId)
     QString str;
     if (threadId != -1)
         str = QString::number(threadId);
-    foreach (const QModelIndex &idx, list)
-        model()->setData(idx.sibling(idx.row(), 6), str);
-    emit breakpointSynchronizationRequested();
+    foreach (const QModelIndex &index, list)
+        setModelData(BreakpointThreadSpecRole, str, index);
+    setModelData(RequestSynchronizeBreakpointsRole);
 }
 
 void BreakWindow::resizeColumnsToContents()
@@ -412,8 +406,46 @@ void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
         header()->setResizeMode(i, mode);
 }
 
-void BreakWindow::rowActivated(const QModelIndex &idx)
+void BreakWindow::rowActivated(const QModelIndex &index)
 {
-    emit breakpointActivated(idx.row());
+    setModelData(RequestActivateBreakpointRole, index.row());
 }
 
+BreakpointData *BreakWindow::findSimilarBreakpoint(const BreakpointData *needle0)
+{
+    BreakpointData *needle = const_cast<BreakpointData *>(needle0);
+    QVariant v = QVariant::fromValue<BreakpointData *>(needle);
+    setModelData(RequestFindSimilarBreakpointRole, v);
+    QTC_ASSERT(model(), return false);
+    v = model()->data(QModelIndex(), RequestFindSimilarBreakpointRole);
+    return v.value<BreakpointData *>();
+}
+
+void BreakWindow::appendBreakpoint(BreakpointData *data)
+{
+    QVariant v = QVariant::fromValue<BreakpointData *>(data);
+    setModelData(RequestAppendBreakpointRole, v);
+}
+
+void BreakWindow::removeBreakpoint(BreakpointData *data)
+{
+    QVariant v = QVariant::fromValue<BreakpointData *>(data);
+    setModelData(RequestRemoveBreakpointRole, v);
+}
+
+void BreakWindow::updateBreakpoint(BreakpointData *data)
+{
+    QVariant v = QVariant::fromValue<BreakpointData *>(data);
+    setModelData(RequestUpdateBreakpointRole, v);
+}
+
+void BreakWindow::setModelData
+    (int role, const QVariant &value, const QModelIndex &index)
+{
+    QTC_ASSERT(model(), return);
+    model()->setData(index, value, role);
+}
+
+
+} // namespace Internal
+} // namespace Debugger

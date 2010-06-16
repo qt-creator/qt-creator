@@ -50,10 +50,13 @@ class AbstractGdbAdapter : public QObject
     Q_OBJECT
 
 public:
-    enum  DumperHandling { DumperNotAvailable,
-                           DumperLoadedByAdapter,
-                           DumperLoadedByGdbPreload,
-                           DumperLoadedByGdb };
+    enum DumperHandling
+    {
+        DumperNotAvailable,
+        DumperLoadedByAdapter,
+        DumperLoadedByGdbPreload,
+        DumperLoadedByGdb
+    };
 
     AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0);
     virtual ~AbstractGdbAdapter();
@@ -107,10 +110,8 @@ protected:
         { m_engine->setState(state); }
     const DebuggerStartParameters &startParameters() const
         { return m_engine->startParameters(); }
-    DebuggerRunControl *runControl() const
-        { return m_engine->runControl(); }
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = 1)
-        { runControl()->showMessage(msg, channel, timeout); }
+        { m_engine->showMessage(msg, channel, timeout); }
     void showMessageBox(int icon, const QString &title, const QString &text) const
         { m_engine->showMessageBox(icon, title, text); }
 

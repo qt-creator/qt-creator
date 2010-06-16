@@ -28,19 +28,12 @@
 **************************************************************************/
 
 #include "debuggerrunner.h"
-#include "debuggermanager.h"
-#include "debuggeroutputwindow.h"
 
-#include "idebuggerengine.h"
-
-#include "breakhandler.h"
-#include "moduleshandler.h"
-#include "registerhandler.h"
-#include "snapshothandler.h"
-#include "stackhandler.h"
-#include "stackframe.h"
-#include "threadshandler.h"
-#include "watchhandler.h"
+#include "debuggeractions.h"
+#include "debuggerconstants.h"
+#include "debuggerengine.h"
+#include "debuggerplugin.h"
+#include "debuggerstringutils.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/environment.h>
@@ -65,6 +58,38 @@
 using namespace ProjectExplorer;
 using namespace Debugger::Internal;
 
+namespace Debugger {
+namespace Internal {
+
+DebuggerEngine *createGdbEngine(const DebuggerStartParameters &);
+DebuggerEngine *createScriptEngine(const DebuggerStartParameters &);
+DebuggerEngine *createPdbEngine(const DebuggerStartParameters &);
+DebuggerEngine *createTcfEngine(const DebuggerStartParameters &);
+DebuggerEngine *createQmlEngine(const DebuggerStartParameters &);
+
+#ifdef CDB_ENABLED
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &);
+#else
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &) { return 0; }
+#endif
+
+// FIXME: Outdated?
+// The createCdbEngine function takes a list of options pages it can add to.
+// This allows for having a "enabled" toggle on the page independently
+// of the engine. That's good for not enabling the related ActiveX control
+// unnecessarily.
+
+bool checkGdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
+bool checkCdbConfiguration(int toolChain, QString *errorMsg, QString *settingsPage);
+
+}
+
+
+static QString toolChainName(int toolChainType)
+{
+    return ToolChain::toolChainName(ToolChain::ToolChainType(toolChainType));
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -72,11 +97,18 @@ using namespace Debugger::Internal;
 //
 ////////////////////////////////////////////////////////////////////////
 
-namespace Debugger {
+static QString msgEngineNotAvailable(const char *engine)
+{
+    return DebuggerPlugin::tr("The application requires the debugger engine '%1', "
+        "which is disabled.").arg(QLatin1String(engine));
+}
+
+static DebuggerPlugin *plugin() { return DebuggerPlugin::instance(); }
 
 // A factory to create DebuggerRunControls
-DebuggerRunControlFactory::DebuggerRunControlFactory(DebuggerManager *manager)
-    : m_manager(manager)
+DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent,
+        DebuggerEngineType enabledEngines)
+    : IRunControlFactory(parent), m_enabledEngines(enabledEngines)
 {}
 
 bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
@@ -131,12 +163,22 @@ RunControl *DebuggerRunControlFactory::create
 {
     QTC_ASSERT(mode == ProjectExplorer::Constants::DEBUGMODE, return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration);
-    return new DebuggerRunControl(m_manager, sp);
+    return create(sp);
 }
 
 RunControl *DebuggerRunControlFactory::create(const DebuggerStartParameters &sp)
 {
-    return new DebuggerRunControl(m_manager, sp);
+    DebuggerRunControl *runControl = new DebuggerRunControl;
+    runControl->setEnabledEngines(m_enabledEngines);
+    runControl->createEngine(sp);
+    if (!runControl->engine()) {
+        qDebug() << "FAILED TO CREATE ENGINE";
+        delete runControl;
+        return 0;
+    }
+    connect(runControl, SIGNAL(started()), runControl, SLOT(handleStarted()));
+    connect(runControl, SIGNAL(finished()), runControl, SLOT(handleFinished()));
+    return runControl;
 }
 
 QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
@@ -149,340 +191,333 @@ QWidget *DebuggerRunControlFactory::createConfigurationWidget(RunConfiguration *
 
 ////////////////////////////////////////////////////////////////////////
 //
-// DebuggerRunControl::Private
-//
-////////////////////////////////////////////////////////////////////////
-
-class DebuggerRunControl::Private
-{
-public:
-    Private(DebuggerRunControl *parent, DebuggerManager *manager,
-        const DebuggerStartParameters &startParameters);
-    ~Private();
-
-public:
-    DebuggerRunControl *q;
-
-    DebuggerStartParameters m_startParameters;
-    DebuggerManager *m_manager;
-    Internal::IDebuggerEngine *m_engine;
-    bool m_running;
-    qint64 m_inferiorPid;
-
-    ModulesHandler *m_modulesHandler;
-    RegisterHandler *m_registerHandler;
-    SnapshotHandler *m_snapshotHandler;
-/*
-    // FIXME: Move from DebuggerManager
-    BreakHandler *m_breakHandler;
-    StackHandler *m_stackHandler;
-    ThreadsHandler *m_threadsHandler;
-    WatchHandler *m_watchHandler;
-*/
-};
-
-DebuggerRunControl::Private::Private(DebuggerRunControl *parent,
-        DebuggerManager *manager,
-        const DebuggerStartParameters &startParameters)
-  : q(parent),
-    m_startParameters(startParameters),
-    m_manager(manager),
-    m_engine(0)
-{
-    m_running = false;
-    m_inferiorPid = m_startParameters.attachPID > 0 ? m_startParameters.attachPID : 0;
-    m_modulesHandler = new ModulesHandler(q);
-    m_registerHandler = new RegisterHandler();
-    m_snapshotHandler = new SnapshotHandler(q);
-}
-
-DebuggerRunControl::Private::~Private()
-{
-#define doDelete(ptr) delete ptr; ptr = 0
-    doDelete(m_modulesHandler);
-    doDelete(m_registerHandler);
-    doDelete(m_snapshotHandler);
-#undef doDelete
-}
-
-
-////////////////////////////////////////////////////////////////////////
-//
 // DebuggerRunControl
 //
 ////////////////////////////////////////////////////////////////////////
 
-DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
-        const DebuggerStartParameters &startParameters)
-    : RunControl(0, ProjectExplorer::Constants::DEBUGMODE),
-      d(new Private(this, manager, startParameters))
+DebuggerRunControl::DebuggerRunControl(QObject *parent)
+    : RunControl(0, ProjectExplorer::Constants::DEBUGMODE)
 {
-    connect(d->m_manager, SIGNAL(debuggingFinished()),
-            this, SLOT(debuggingFinished()),
-            Qt::QueuedConnection);
-    connect(d->m_manager, SIGNAL(messageAvailable(QString, bool)),
-            this, SLOT(slotMessageAvailable(QString, bool)));
-    connect(this, SIGNAL(stopRequested()),
-            d->m_manager, SLOT(exitDebugger()));
+    Q_UNUSED(parent);
+    m_running = false;
+    m_engine = 0;
+    m_enabledEngines = AllEngineTypes;
+}
 
-    if (d->m_startParameters.environment.empty())
-        d->m_startParameters.environment = ProjectExplorer::Environment().toStringList();
-    d->m_startParameters.useTerminal = false;
+static DebuggerEngineType engineForToolChain(int toolChainType)
+{
+    switch (toolChainType) {
+        case ProjectExplorer::ToolChain::LINUX_ICC:
+        case ProjectExplorer::ToolChain::MinGW:
+        case ProjectExplorer::ToolChain::GCC:
+        case ProjectExplorer::ToolChain::WINSCW: // S60
+        case ProjectExplorer::ToolChain::GCCE:
+        case ProjectExplorer::ToolChain::RVCT_ARMV5:
+        case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
+        case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+            return GdbEngineType;
 
+        case ProjectExplorer::ToolChain::MSVC:
+        case ProjectExplorer::ToolChain::WINCE:
+            return CdbEngineType;
+
+        case ProjectExplorer::ToolChain::OTHER:
+        case ProjectExplorer::ToolChain::UNKNOWN:
+        case ProjectExplorer::ToolChain::INVALID:
+        default:
+            break;
+    }
+    return NoEngineType;
+}
+
+
+// Figure out the debugger type of an executable. Analyze executable
+// unless the toolchain provides a hint.
+DebuggerEngineType DebuggerRunControl::engineForExecutable(const QString &executable)
+{
+    if (executable.endsWith(_("qmlviewer"))) {
+        if (m_enabledEngines & QmlEngineType)
+            return QmlEngineType;
+        m_errorMessage = msgEngineNotAvailable("Qml Engine");
+    }
+
+    if (executable.endsWith(_(".js"))) {
+        if (m_enabledEngines & ScriptEngineType)
+            return ScriptEngineType;
+        m_errorMessage = msgEngineNotAvailable("Script Engine");
+    }
+
+    if (executable.endsWith(_(".py"))) {
+        if (m_enabledEngines & PdbEngineType)
+            return PdbEngineType;
+        m_errorMessage = msgEngineNotAvailable("Pdb Engine");
+    }
+
+#ifdef Q_OS_WIN
+    // A remote executable?
+    if (!executable.endsWith(_(".exe")))
+        return GdbEngineType
+
+    // If a file has PDB files, it has been compiled by VS.
+    QStringList pdbFiles;
+    if (!getPDBFiles(executable, &pdbFiles, errorMessage)) {
+        qWarning("Cannot determine type of executable %s: %s",
+                 qPrintable(executable), qPrintable(m_errorMessage));
+        return 0;
+    }
+    if (pdbFiles.empty())
+        return GdbEngineType;
+
+    // We need the CDB debugger in order to be able to debug VS
+    // executables
+    if (checkDebugConfiguration(ToolChain::MSVC, errorMessage, 0, &m_settingsIdHint))
+        return CdbEngineType;
+#else
+    if (m_enabledEngines & GdbEngineType)
+        return GdbEngineType;
+    m_errorMessage = msgEngineNotAvailable("Gdb Engine");
+#endif
+
+    return NoEngineType;
+}
+
+// Debugger type for mode.
+DebuggerEngineType DebuggerRunControl::engineForMode(DebuggerStartMode startMode)
+{
+    if (startMode == AttachTcf)
+        return TcfEngineType;
+
+#ifdef Q_OS_WIN
+    // Preferably Windows debugger for attaching locally.
+    if (startMode != AttachToRemote && cdbEngine)
+        return CdbEngineType;
+    if (gdbEngine)
+        return GdbEngineType;
+    m_errorMessage = msgEngineNotAvailable("Gdb Engine");
+    return NoEngineType;
+#else
+    Q_UNUSED(startMode)
+    //  m_errorMessage = msgEngineNotAvailable("Gdb Engine");
+    return GdbEngineType;
+#endif
+}
+
+void DebuggerRunControl::setEnabledEngines(DebuggerEngineType enabledEngines)
+{
+    m_enabledEngines = enabledEngines;
+}
+
+void DebuggerRunControl::createEngine(const DebuggerStartParameters &sp)
+{
+    // Figure out engine according to toolchain, executable, attach or default.
+
+    DebuggerEngineType engineType = NoEngineType;
+    QString errorMessage;
+    QString settingsIdHint;
+
+    if (sp.executable.endsWith(_("qmlviewer")))
+        engineType = QmlEngineType;
+    else if (sp.executable.endsWith(_(".js")))
+        engineType = ScriptEngineType;
+    else if (sp.executable.endsWith(_(".py")))
+        engineType = PdbEngineType;
+    else
+        engineType = engineForToolChain(sp.toolChainType);
+
+    if (engineType == NoEngineType
+            && sp.startMode != AttachToRemote
+            && !sp.executable.isEmpty())
+        engineType = engineForExecutable(sp.executable);
+
+    if (!engineType)
+        engineType = engineForMode(sp.startMode);
+
+    //qDebug() << "USING ENGINE : " << engineType;
+
+    switch (engineType) {
+        case GdbEngineType:
+            m_engine = createGdbEngine(sp);
+            break;
+        case ScriptEngineType:
+            m_engine = createScriptEngine(sp);
+            break;
+        case CdbEngineType:
+            m_engine = createCdbEngine(sp);
+            break;
+        case PdbEngineType:
+            m_engine = createPdbEngine(sp);
+            break;
+        case TcfEngineType:
+            m_engine = createTcfEngine(sp);
+            break;
+        case QmlEngineType:
+            m_engine = createQmlEngine(sp);
+            break;
+        default: {
+            // Could not find anything suitable.
+            emit debuggingFinished();
+            // Create Message box with possibility to go to settings
+            const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3")
+                .arg(sp.executable, toolChainName(sp.toolChainType), m_errorMessage);
+            Core::ICore::instance()->showWarningWithOptions(tr("Warning"),
+                msg, QString(), QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY),
+                m_settingsIdHint);
+            break;
+        }
+    }
 }
 
 DebuggerRunControl::~DebuggerRunControl()
 {
-    delete d;
+    delete m_engine;
 }
 
 QString DebuggerRunControl::displayName() const
 {
-    return d->m_startParameters.displayName;
+    QTC_ASSERT(m_engine, return QString());
+    return m_engine->startParameters().displayName;
 }
 
 void DebuggerRunControl::setCustomEnvironment(ProjectExplorer::Environment env)
 {
-    d->m_startParameters.environment = env.toStringList();
+    m_engine->startParameters().environment = env.toStringList();
 }
 
 void DebuggerRunControl::init()
 {
 }
 
+bool DebuggerRunControl::checkDebugConfiguration(int toolChain,
+                                              QString *errorMessage,
+                                              QString *settingsCategory /* = 0 */,
+                                              QString *settingsPage /* = 0 */)
+{
+    errorMessage->clear();
+    if (settingsCategory)
+        settingsCategory->clear();
+    if (settingsPage)
+        settingsPage->clear();
+
+    bool success = true;
+
+    switch(toolChain) {
+    case ProjectExplorer::ToolChain::GCC:
+    case ProjectExplorer::ToolChain::LINUX_ICC:
+    case ProjectExplorer::ToolChain::MinGW:
+    case ProjectExplorer::ToolChain::WINCE: // S60
+    case ProjectExplorer::ToolChain::WINSCW:
+    case ProjectExplorer::ToolChain::GCCE:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5:
+    case ProjectExplorer::ToolChain::RVCT_ARMV6:
+        success = checkGdbConfiguration(toolChain, errorMessage, settingsPage);
+        if (!success)
+            *errorMessage = msgEngineNotAvailable("Gdb");
+        break;
+    case ProjectExplorer::ToolChain::MSVC:
+        success = checkCdbConfiguration(toolChain, errorMessage, settingsPage);
+        if (!success) {
+            *errorMessage = msgEngineNotAvailable("Cdb");
+            if (settingsPage)
+                *settingsPage = QLatin1String("Cdb");
+        }
+        break;
+    }
+    if (!success && settingsCategory && settingsPage && !settingsPage->isEmpty())
+        *settingsCategory = QLatin1String(Constants::DEBUGGER_SETTINGS_CATEGORY);
+
+    return success;
+}
+
 void DebuggerRunControl::start()
 {
-    d->m_running = true;
+    QTC_ASSERT(m_engine, return);
+    const DebuggerStartParameters &sp = m_engine->startParameters();
+
     QString errorMessage;
     QString settingsCategory;
     QString settingsPage;
-    if (d->m_manager->checkDebugConfiguration(d->m_startParameters.toolChainType,
+    QString settingsIdHint;
+
+    if (!checkDebugConfiguration(sp.toolChainType,
             &errorMessage, &settingsCategory, &settingsPage)) {
-        d->m_manager->startNewDebugger(this);
-        emit started();
-    } else {
-        appendMessage(this, errorMessage, true);
+        emit appendMessage(this, errorMessage, true);
         emit finished();
         Core::ICore::instance()->showWarningWithOptions(tr("Debugger"),
             errorMessage, QString(), settingsCategory, settingsPage);
+        return;
     }
+
+    plugin()->activateDebugMode();
+
+    showMessage(tr("Starting debugger for tool chain '%1'...")
+        .arg(toolChainName(sp.toolChainType)), LogStatus);
+    showMessage(DebuggerSettings::instance()->dump(), LogDebug);
+
+    plugin()->setBusyCursor(false);
+    engine()->startDebugger(this);
 }
 
-void DebuggerRunControl::showMessage(const QString &msg, int channel,
-    int timeout)
+void DebuggerRunControl::startSuccessful()
 {
-    if (!d->m_manager)
-        return;
-    DebuggerOutputWindow *ow = d->m_manager->debuggerOutputWindow();
-    QTC_ASSERT(ow, return);
+    m_running = true;
+    emit started();
+}
+
+void DebuggerRunControl::startFailed()
+{
+    m_running = false;
+    emit finished();
+}
+
+void DebuggerRunControl::handleStarted()
+{
+    plugin()->runControlStarted(this);
+}
+
+void DebuggerRunControl::handleFinished()
+{
+    plugin()->runControlFinished(this);
+}
+
+void DebuggerRunControl::showMessage(const QString &msg, int channel)
+{
     switch (channel) {
-        case StatusBar:
-            d->m_manager->showStatusMessage(msg, timeout);
-            ow->showOutput(LogStatus, msg);
-            break;
         case AppOutput:
             emit addToOutputWindowInline(this, msg, false);
             break;
         case AppError:
             emit addToOutputWindowInline(this, msg, true);
             break;
-        case LogMiscInput:
-            ow->showInput(LogMisc, msg);
-            ow->showOutput(LogMisc, msg);
-            break;
-        case LogInput:
-            ow->showInput(channel, msg);
-            ow->showOutput(channel, msg);
-            break;
-        default:
-            ow->showOutput(channel, msg);
+        case AppStuff:
+            emit appendMessage(this, msg, true);
             break;
     }
 }
 
-void DebuggerRunControl::slotMessageAvailable(const QString &data, bool isError)
-{
-    emit appendMessage(this, data, isError);
-}
-
 void DebuggerRunControl::stop()
 {
-    d->m_running = false;
-    emit stopRequested();
+    m_running = false;
+    QTC_ASSERT(m_engine, return);
+    m_engine->exitDebugger();
 }
 
 void DebuggerRunControl::debuggingFinished()
 {
-    d->m_running = false;
+    m_running = false;
     emit finished();
 }
 
 bool DebuggerRunControl::isRunning() const
 {
-    return d->m_running;
+    return m_running;
 }
 
-const DebuggerStartParameters &DebuggerRunControl::sp() const
+Internal::DebuggerEngine *DebuggerRunControl::engine()
 {
-    return d->m_startParameters;
+    QTC_ASSERT(m_engine, /**/);
+    return m_engine;
 }
 
-ModulesHandler *DebuggerRunControl::modulesHandler() const
-{
-    return d->m_modulesHandler;
-}
-
-BreakHandler *DebuggerRunControl::breakHandler() const
-{
-    return d->m_manager->breakHandler();
-}
-
-RegisterHandler *DebuggerRunControl::registerHandler() const
-{
-    return d->m_registerHandler;
-}
-
-StackHandler *DebuggerRunControl::stackHandler() const
-{
-    return d->m_manager->stackHandler();
-}
-
-ThreadsHandler *DebuggerRunControl::threadsHandler() const
-{
-    return d->m_manager->threadsHandler();
-}
-
-WatchHandler *DebuggerRunControl::watchHandler() const
-{
-    return d->m_manager->watchHandler();
-}
-
-SnapshotHandler *DebuggerRunControl::snapshotHandler() const
-{
-    return d->m_snapshotHandler;
-}
-
-void DebuggerRunControl::cleanup()
-{
-    modulesHandler()->removeAll();
-}
-
-Internal::IDebuggerEngine *DebuggerRunControl::engine()
-{
-    QTC_ASSERT(d->m_engine, /**/);
-    return d->m_engine;
-}
-
-void DebuggerRunControl::startDebugger(IDebuggerEngine *engine)
-{
-    d->m_engine = engine;
-    d->m_engine->setRunControl(this);
-    d->m_manager->modulesWindow()->setModel(d->m_modulesHandler->model());
-    d->m_manager->registerWindow()->setModel(d->m_registerHandler->model());
-    d->m_manager->snapshotWindow()->setModel(d->m_snapshotHandler->model());
-    d->m_engine->startDebugger();
-}
-
-void DebuggerRunControl::notifyInferiorPid(qint64 pid)
-{
-    //STATE_DEBUG(d->m_inferiorPid << pid);
-    if (d->m_inferiorPid == pid)
-        return;
-    d->m_inferiorPid = pid;
-    QTimer::singleShot(0, this, SLOT(raiseApplication()));
-}
-
-qint64 DebuggerRunControl::inferiorPid() const
-{
-    return d->m_inferiorPid;
-}
-
-void DebuggerRunControl::raiseApplication()
-{
-    bringApplicationToForeground(d->m_inferiorPid);
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// AbstractDebuggerEngine
-//
-//////////////////////////////////////////////////////////////////////
-
-/*
-void IDebuggerEngine::showStatusMessage(const QString &msg, int timeout)
-{
-    m_manager->showStatusMessage(msg, timeout);
-}
-*/
-
-DebuggerState IDebuggerEngine::state() const
-{
-    return m_manager->state();
-}
-
-void IDebuggerEngine::setState(DebuggerState state, bool forced)
-{
-    m_manager->setState(state, forced);
-}
-
-bool IDebuggerEngine::debuggerActionsEnabled() const
-{
-    return m_manager->debuggerActionsEnabled();
-}
-
-void IDebuggerEngine::showModuleSymbols
-    (const QString &moduleName, const Symbols &symbols)
-{
-    QTreeWidget *w = new QTreeWidget;
-    w->setColumnCount(3);
-    w->setRootIsDecorated(false);
-    w->setAlternatingRowColors(true);
-    w->setSortingEnabled(true);
-    w->setHeaderLabels(QStringList() << tr("Symbol") << tr("Address") << tr("Code"));
-    w->setWindowTitle(tr("Symbols in \"%1\"").arg(moduleName));
-    foreach (const Symbol &s, symbols) {
-        QTreeWidgetItem *it = new QTreeWidgetItem;
-        it->setData(0, Qt::DisplayRole, s.name);
-        it->setData(1, Qt::DisplayRole, s.address);
-        it->setData(2, Qt::DisplayRole, s.state);
-        w->addTopLevelItem(it);
-    }
-    manager()->createNewDock(w);
-}
-
-ModulesHandler *IDebuggerEngine::modulesHandler() const
-{
-    return runControl()->modulesHandler();
-}
-
-BreakHandler *IDebuggerEngine::breakHandler() const
-{
-    return runControl()->breakHandler();
-}
-
-RegisterHandler *IDebuggerEngine::registerHandler() const
-{
-    return runControl()->registerHandler();
-}
-
-StackHandler *IDebuggerEngine::stackHandler() const
-{
-    return runControl()->stackHandler();
-}
-
-ThreadsHandler *IDebuggerEngine::threadsHandler() const
-{
-    return runControl()->threadsHandler();
-}
-
-WatchHandler *IDebuggerEngine::watchHandler() const
-{
-    return runControl()->watchHandler();
-}
-
-SnapshotHandler *IDebuggerEngine::snapshotHandler() const
-{
-    return runControl()->snapshotHandler();
-}
 
 } // namespace Debugger

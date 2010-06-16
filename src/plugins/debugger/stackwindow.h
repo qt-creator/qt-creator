@@ -33,17 +33,14 @@
 #include <QtGui/QTreeView>
 
 namespace Debugger {
-class DebuggerManager;
-
 namespace Internal {
-class DisassemblerViewAgent;
 
 class StackWindow : public QTreeView
 {
     Q_OBJECT
 
 public:
-    StackWindow(DebuggerManager *manager, QWidget *parent = 0);
+    explicit StackWindow(QWidget *parent = 0);
     ~StackWindow();
 
 public slots:
@@ -54,13 +51,16 @@ private slots:
     void rowActivated(const QModelIndex &index);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void showAddressColumn(bool on);
+    void reloadFullStack();
 
 private:
     void contextMenuEvent(QContextMenuEvent *ev);
     void copyContentsToClipboard();
 
-    DebuggerManager *m_manager;
-    DisassemblerViewAgent *m_disassemblerAgent;
+    void setModelData(int role, const QVariant &value = QVariant(),
+        const QModelIndex &index = QModelIndex());
+    QVariant modelData(int role, const QModelIndex &index = QModelIndex());
+
     bool m_alwaysResizeColumnsToContents;
 };
 

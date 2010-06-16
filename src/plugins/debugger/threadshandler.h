@@ -39,6 +39,8 @@
 namespace Debugger {
 namespace Internal {
 
+class DebuggerEngine;
+
 ////////////////////////////////////////////////////////////////////////
 //
 // ThreadData
@@ -77,6 +79,8 @@ struct ThreadData
     int lineNumber;
 };
 
+typedef QVector<ThreadData> Threads;
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -90,15 +94,15 @@ class ThreadsHandler : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    ThreadsHandler(QObject *parent = 0);
+    explicit ThreadsHandler(DebuggerEngine *engine);
 
     int currentThreadId() const;
     void setCurrentThread(int index);
     void selectThread(int index);
-    void setThreads(const QList<ThreadData> &threads);
+    void setThreads(const Threads &threads);
     void removeAll();
-    QList<ThreadData> threads() const;
-    QAbstractItemModel *threadsModel() { return this; }
+    Threads threads() const;
+    QAbstractItemModel *model() { return this; }
 
     // Clear out all frame information
     void notifyRunning();
@@ -107,10 +111,13 @@ private:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QVariant headerData(int section, Qt::Orientation orientation,
+        int role = Qt::DisplayRole) const;
 
 private:
-    QList<ThreadData> m_threads;
+    DebuggerEngine *m_engine;
+    Threads m_threads;
     int m_currentIndex;
     const QIcon m_positionIcon;
     const QIcon m_emptyIcon;

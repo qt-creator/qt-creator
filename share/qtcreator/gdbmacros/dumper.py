@@ -942,7 +942,7 @@ class Dumper:
                 pass
             except:
                 # Locals with failing memory access.
-                with SubItem(d):
+                with SubItem(self):
                     self.put('iname="%s",' % item.iname)
                     self.put('name="%s",' % item.name)
                     self.put('addr="<not accessible>",')
@@ -963,7 +963,7 @@ class Dumper:
                         p += 1
                         n += 1
 
-                with SubItem(d):
+                with SubItem(self):
                     self.put('iname="%s",' % item.iname)
                     self.putName(item.name)
                     self.putItemCount(select(n <= 100, n, "> 100"))

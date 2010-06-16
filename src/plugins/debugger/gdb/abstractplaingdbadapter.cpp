@@ -47,7 +47,6 @@ AbstractPlainGdbAdapter::AbstractPlainGdbAdapter(GdbEngine *engine,
 {
 }
 
-
 void AbstractPlainGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());

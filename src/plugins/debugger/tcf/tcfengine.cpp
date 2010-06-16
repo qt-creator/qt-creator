@@ -29,19 +29,17 @@
 
 #include "tcfengine.h"
 
-#include "debuggerstringutils.h"
-#include "debuggerdialogs.h"
-#include "breakhandler.h"
 #include "debuggerconstants.h"
-#include "debuggermanager.h"
+#include "debuggerdialogs.h"
+#include "debuggerstringutils.h"
+#include "json.h"
+
+#include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
-#include "moduleshandler.h"
-#include "json.h"
-
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDateTime>
@@ -106,8 +104,8 @@ QString TcfEngine::TcfCommand::toString() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-TcfEngine::TcfEngine(DebuggerManager *manager)
-    : IDebuggerEngine(manager)
+TcfEngine::TcfEngine(const DebuggerStartParameters &startParameters)
+    : DebuggerEngine(startParameters)
 {
     m_congestion = 0;
     m_inAir = 0;
@@ -171,7 +169,7 @@ void TcfEngine::socketError(QAbstractSocket::SocketError)
     QString msg = tr("%1.").arg(m_socket->errorString());
     //QMessageBox::critical(q->mainWindow(), tr("Error"), msg);
     showStatusMessage(msg);
-    manager()->notifyInferiorExited();
+    exitDebugger();
 }
 
 void TcfEngine::executeDebuggerCommand(const QString &command)
@@ -200,15 +198,13 @@ void TcfEngine::shutdown()
 void TcfEngine::exitDebugger()
 {
     SDEBUG("TcfEngine::exitDebugger()");
-    manager()->notifyInferiorExited();
 }
 
 void TcfEngine::startDebugger()
 {
-    QTC_ASSERT(runControl(), return);
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Running requested..."), 5000);
-    const DebuggerStartParameters &sp = runControl()->sp();
+    const DebuggerStartParameters &sp = startParameters();
     const int pos = sp.remoteChannel.indexOf(QLatin1Char(':'));
     const QString host = sp.remoteChannel.left(pos);
     const quint16 port = sp.remoteChannel.mid(pos + 1).toInt();
@@ -558,9 +554,9 @@ void TcfEngine::updateSubItem(const WatchData &data0)
     QTC_ASSERT(false, return);
 }
 
-IDebuggerEngine *createTcfEngine(DebuggerManager *manager)
+DebuggerEngine *createTcfEngine(const DebuggerStartParameters &sp)
 {
-    return new TcfEngine(manager);
+    return new TcfEngine(sp);
 }
 
 } // namespace Internal

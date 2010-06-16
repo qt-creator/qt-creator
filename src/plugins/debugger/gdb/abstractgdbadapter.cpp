@@ -54,6 +54,7 @@ void AbstractGdbAdapter::shutdown()
 
 void AbstractGdbAdapter::startInferiorPhase2()
 {
+    qDebug() << "START INFERIOR PHASE 2";
 }
 
 const char *AbstractGdbAdapter::inferiorShutdownCommand() const

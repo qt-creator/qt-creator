@@ -30,138 +30,121 @@
 #ifndef DEBUGGERPLUGIN_H
 #define DEBUGGERPLUGIN_H
 
+#include "debugger_global.h"
+
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QObject>
-
 QT_BEGIN_NAMESPACE
-class QAction;
-class QComboBox;
-class QMenu;
-class QPoint;
-class QToolButton;
+class QAbstractItemView;
+class QIcon;
+class QMessageBox;
 QT_END_NAMESPACE
 
-namespace Core {
-class IEditor;
-class IMode;
+namespace CPlusPlus {
+class Snapshot;
 }
 
-namespace TextEditor {
-class ITextEditor;
-class ITextMark;
-class BaseTextMark;
+namespace ProjectExplorer {
+class RunControl;
 }
 
 namespace Debugger {
 
-class DebuggerManager;
-class DebuggerUISwitcher;
-class DebuggerRunControlFactory;
+class DebuggerPluginPrivate;
+class DebuggerRunControl;
+class DebuggerStartParameters;
 
 namespace Internal {
+class DebuggerEngine;
+class DebuggerListener;
+}
 
-class BreakpointData;
-class DebugMode;
-
-class DebuggerPlugin : public ExtensionSystem::IPlugin
+class DEBUGGER_EXPORT DebuggerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
 public:
-    struct AttachRemoteParameters {
-        AttachRemoteParameters();
-
-        quint64 attachPid;
-        QString attachCore;
-        // Event handle for attaching to crashed Windows processes.
-        quint64 winCrashEvent;
-    };
-
     DebuggerPlugin();
     ~DebuggerPlugin();
 
-private:
-    bool initialize(const QStringList &arguments, QString *error_message);
-    void aboutToShutdown();
-    void extensionsInitialized();
-    void remoteCommand(const QStringList &options, const QStringList &arguments);
+    static DebuggerPlugin *instance();
 
     QVariant configValue(const QString &name) const;
-    TextEditor::ITextEditor *currentTextEditor();
     QVariant sessionValue(const QString &name);
     void setSessionValue(const QString &name, const QVariant &value);
     void setConfigValue(const QString &name, const QVariant &value);
 
-private slots:
-    void activatePreviousMode();
-    void activateDebugMode();
-    void editorOpened(Core::IEditor *editor);
-    void editorAboutToClose(Core::IEditor *editor);
-    void handleStateChanged(int state);
-    void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
-    void showToolTip(TextEditor::ITextEditor *editor, const QPoint &pnt, int pos);
-    void requestContextMenu(TextEditor::ITextEditor *editor,
-        int lineNumber, QMenu *menu);
-
     void resetLocation();
     void gotoLocation(const QString &fileName, int lineNumber, bool setMarker);
-
+    void activatePreviousMode();
+    void activateDebugMode();
     void openTextEditor(const QString &titlePattern, const QString &contents);
 
-    void toggleBreakpoint();
-    void toggleBreakpoint(const QString &fileName, int lineNumber);
-    void breakpointSetRemoveMarginActionTriggered();
-    void breakpointEnableDisableMarginActionTriggered();
-    void onModeChanged(Core::IMode *mode);
-    void showSettingsDialog();
-
-    void startExternalApplication();
-    void startRemoteApplication();
-    void attachExternalApplication();
-    void attachCore();
-    void attachCmdLine();
-    void attachRemoteTcf();
-
-    void enableReverseDebuggingTriggered(const QVariant &value);
-    void languageChanged(const QString &debuggerLanguage);
-
-private:
     void readSettings();
     void writeSettings() const;
-    void attachExternalApplication(qint64 pid,
-                                   const QString &binary,
-                                   const QString &crashParameter);
-    void attachCore(const QString &core, const QString &exeFileName);
 
-    friend class Debugger::DebuggerManager;
-    friend class GdbOptionPage;
-    friend class DebuggingHelperOptionPage;
-    // FIXME: Just a hack now so that it can access the views.
-    friend class Debugger::Internal::DebugMode;
+    static ProjectExplorer::RunControl *createDebugger
+        (const DebuggerStartParameters &sp);
+    static void startDebugger(ProjectExplorer::RunControl *runControl);
 
-    DebuggerUISwitcher *m_uiSwitcher;
-    DebuggerManager *m_manager;
-    DebugMode *m_debugMode;
-    DebuggerRunControlFactory *m_debuggerRunControlFactory;
+    QMessageBox *showMessageBox(int icon, const QString &title,
+        const QString &text, int buttons = 0);
 
-    QString m_previousMode;
-    TextEditor::BaseTextMark *m_locationMark;
-    int m_gdbRunningContext;
-    AttachRemoteParameters m_attachRemoteParameters;
-    unsigned m_cmdLineEnabledEngines;
+    const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
 
-    QAction *m_startExternalAction;
-    QAction *m_startRemoteAction;
-    QAction *m_attachExternalAction;
-    QAction *m_attachCoreAction;
-    QAction *m_attachTcfAction;
-    QAction *m_detachAction;
-    QComboBox *m_langBox;
-    QToolButton *m_reverseToolButton;
+    QIcon locationMarkIcon() const;
+    int state() const;  // Last reported state of last active engine.
+    bool isReverseDebugging() const;
+    void createNewDock(QWidget *widget);
+    void runControlStarted(DebuggerRunControl *runControl);
+    void runControlFinished(DebuggerRunControl *runControl);
+
+    // This contains per-session data like breakpoints and watched
+    // expression. It serves as a template for new engine instantiations.
+    Internal::DebuggerEngine *sessionTemplate();
+
+public slots:
+    void exitDebugger();  // FIXME: remove
+    void setBusyCursor(bool on);
+    void interruptDebuggingRequest();
+    void detachDebugger();
+    void addToWatchWindow();
+
+    void executeDebuggerCommand();
+    void executeDebuggerCommand(const QString &command);
+
+    void watchPoint();
+
+    void clearCppCodeModelSnapshot();
+
+    void ensureLogVisible();
+    void updateWatchersWindow(bool showWatchers, bool showReturn);
+
+    // void runTest(const QString &fileName);
+    void showMessage(const QString &msg, int channel, int timeout = -1);
+
+signals:
+    void stateChanged(int);
+
+private:
+    friend class Internal::DebuggerEngine;
+    friend class Internal::DebuggerListener
+;
+    bool initialize(const QStringList &arguments, QString *errorMessage);
+    void aboutToShutdown();
+    void extensionsInitialized();
+    void remoteCommand(const QStringList &options, const QStringList &arguments);
+
+    void updateState(Internal::DebuggerEngine *engine);
+    void showStatusMessage(const QString &msg, int timeout = -1); // -1 forever
+
+    QWidget *mainWindow() const;
+
+private:
+    friend class DebuggerPluginPrivate;
+    DebuggerPluginPrivate *d;
 };
 
-} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGERPLUGIN_H

@@ -1,5 +1,4 @@
 /**************************************************************************
-QT_END_NAMESPACE
 **
 ** This file is part of Qt Creator
 **
@@ -31,12 +30,11 @@ QT_END_NAMESPACE
 #ifndef DEBUGGER_BREAKWINDOW_H
 #define DEBUGGER_BREAKWINDOW_H
 
+#include "breakpoint.h"
+
 #include <QtGui/QTreeView>
 
 namespace Debugger {
-
-class DebuggerManager;
-
 namespace Internal {
 
 class BreakWindow : public QTreeView
@@ -44,31 +42,30 @@ class BreakWindow : public QTreeView
     Q_OBJECT
 
 public:
-    explicit BreakWindow(DebuggerManager *manager);
+    explicit BreakWindow(QWidget *parent = 0);
+    ~BreakWindow();
+
+    BreakpointData *findSimilarBreakpoint(const BreakpointData *needle);
+    void updateBreakpoint(BreakpointData *data);
+    void appendBreakpoint(BreakpointData *data);
+    void removeBreakpoint(BreakpointData *data);
+    QVariant modelData(int role, int index);
 
 public slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
-
-signals:
-    void breakpointDeleted(int index);
-    void breakpointActivated(int index);
-    void breakpointSynchronizationRequested();
-    void breakByFunctionRequested(const QString &functionName);
-    void breakByFunctionMainRequested();
 
 private slots:
     void rowActivated(const QModelIndex &index);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
     void showAddressColumn(bool on);
 
-protected:
+private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
     void keyPressEvent(QKeyEvent *ev);
     void mouseDoubleClickEvent(QMouseEvent *ev);
 
-private:
     void deleteBreakpoints(const QModelIndexList &list);
     void deleteBreakpoints(QList<int> rows);
     void editBreakpoint(const QModelIndexList &list);
@@ -76,10 +73,11 @@ private:
     void setBreakpointsEnabled(const QModelIndexList &list, bool enabled);
     void setBreakpointsFullPath(const QModelIndexList &list, bool fullpath);
 
-    DebuggerManager *m_manager;
+    void setModelData(int role, const QVariant &value = QVariant(),
+        const QModelIndex &index = QModelIndex());
+
     bool m_alwaysResizeColumnsToContents;
 };
-
 
 } // namespace Internal
 } // namespace Debugger

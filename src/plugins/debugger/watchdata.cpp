@@ -260,6 +260,17 @@ QString WatchData::shadowedName(const QString &name, int seen)
     return shadowedNameFormat().arg(name, seen);
 }
 
+quint64 WatchData::coreAddress() const
+{
+    if (!addr.isEmpty()) {
+        bool ok;
+        const quint64 address = addr.toULongLong(&ok, 16);
+        if (ok)
+            return address;
+    }
+    return quint64(0);
+}
+
 } // namespace Internal
 } // namespace Debugger
 

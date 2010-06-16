@@ -749,7 +749,7 @@ void testQObject(int &argc, char *argv[])
     ob1.setObjectName("A Subobject");
 #endif
 
-#if 0
+#if 1
     QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
     QLabel l(str);
     l.setObjectName("Some Label");

@@ -33,9 +33,6 @@
 #include <QtGui/QTreeView>
 
 namespace Debugger {
-
-class DebuggerManager;
-
 namespace Internal {
 
 class RegisterWindow : public QTreeView
@@ -43,19 +40,22 @@ class RegisterWindow : public QTreeView
     Q_OBJECT
 
 public:
-    explicit RegisterWindow(DebuggerManager *manager);
+    explicit RegisterWindow(QWidget *parent = 0);
     void setModel(QAbstractItemModel *model);
 
 public slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
+    void reloadRegisters();
 
 private:
     void resizeEvent(QResizeEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
 
-    DebuggerManager *m_manager;
+    void setModelData(int role, const QVariant &value = QVariant(),
+        const QModelIndex &index = QModelIndex());
+    QVariant modelData(int role, const QModelIndex &index = QModelIndex());
 
     bool m_alwaysResizeColumnsToContents;
 };

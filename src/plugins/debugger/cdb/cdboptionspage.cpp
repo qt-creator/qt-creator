@@ -138,9 +138,10 @@ QString CdbOptionsPageWidget::searchKeywords() const
 }
 
 // ---------- CdbOptionsPage
-CdbOptionsPage::CdbOptionsPage(const QSharedPointer<CdbOptions> &options) :
-        m_options(options)
+CdbOptionsPage::CdbOptionsPage() :
+        m_options(new CdbOptions)
 {
+    m_options->fromSettings(Core::ICore::instance()->settings());
 }
 
 CdbOptionsPage::~CdbOptionsPage()

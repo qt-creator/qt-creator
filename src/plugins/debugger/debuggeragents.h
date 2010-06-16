@@ -34,15 +34,14 @@
 #include <QtCore/QPointer>
 
 namespace Core {
-    class IEditor;
+class IEditor;
 }
-namespace Debugger {
-class DebuggerManager;
 
+namespace Debugger {
 namespace Internal {
-struct StackFrame;
-class IDebuggerEngine;
-struct DisassemblerViewAgentPrivate;
+
+class DebuggerEngine;
+class StackFrame;
 
 class MemoryViewAgent : public QObject
 {
@@ -50,8 +49,8 @@ class MemoryViewAgent : public QObject
 
 public:
     // Called from Gui
-    explicit MemoryViewAgent(DebuggerManager *manager, quint64 startaddr);
-    explicit MemoryViewAgent(DebuggerManager *manager, const QString &startaddr);
+    explicit MemoryViewAgent(DebuggerEngine *engine, quint64 startaddr);
+    explicit MemoryViewAgent(DebuggerEngine *engine, const QString &startaddr);
     ~MemoryViewAgent();
 
     enum { BinBlockSize = 1024 };
@@ -65,11 +64,12 @@ public slots:
 private:
     Q_SLOT void createBinEditor(quint64 startAddr);
 
-    QPointer<IDebuggerEngine> m_engine;
     QList<QPointer<Core::IEditor> > m_editors;
-    QPointer<DebuggerManager> m_manager;
+    QPointer<DebuggerEngine> m_engine;
 };
 
+
+class DisassemblerViewAgentPrivate;
 
 class DisassemblerViewAgent : public QObject
 {
@@ -77,7 +77,7 @@ class DisassemblerViewAgent : public QObject
 
 public:
     // Called from Gui
-    explicit DisassemblerViewAgent(DebuggerManager *manager);
+    explicit DisassemblerViewAgent(DebuggerEngine *engine);
     ~DisassemblerViewAgent();
 
     void setFrame(const StackFrame &frame, bool tryMixed = true);

@@ -28,25 +28,27 @@
 **************************************************************************/
 
 #include "s60debuggerbluetoothstarter.h"
+
 #include "bluetoothlistener.h"
-#include "debuggermanager.h"
+#include "debuggerengine.h"
 #include "trkdevice.h"
 
 namespace Debugger {
 namespace Internal {
 
-S60DebuggerBluetoothStarter::S60DebuggerBluetoothStarter(const  TrkDevicePtr& trkDevice, QObject *parent) :
-    trk::AbstractBluetoothStarter(trkDevice, parent)
+S60DebuggerBluetoothStarter::S60DebuggerBluetoothStarter
+        (const TrkDevicePtr& trkDevice, QObject *parent)
+  : trk::AbstractBluetoothStarter(trkDevice, parent)
 {
 }
 
 trk::BluetoothListener *S60DebuggerBluetoothStarter::createListener()
 {
-    DebuggerManager *dm = DebuggerManager::instance();
-    trk::BluetoothListener *rc = new trk::BluetoothListener(dm);
+    DebuggerEngine *engine = 0; // FIXME: ABC
+    trk::BluetoothListener *rc = new trk::BluetoothListener(engine);
     rc->setMode(trk::BluetoothListener::Listen);
-    connect(rc, SIGNAL(message(QString)), dm, SLOT(showDebuggerOutput(QString)));
-    connect(rc, SIGNAL(terminated()), dm, SLOT(startFailed()));
+    connect(rc, SIGNAL(message(QString)), engine, SLOT(showDebuggerOutput(QString)));
+    connect(rc, SIGNAL(terminated()), engine, SLOT(startFailed()));
     return rc;
 }
 

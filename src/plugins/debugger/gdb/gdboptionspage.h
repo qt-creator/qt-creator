@@ -35,8 +35,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
 
-#include <QtCore/QSharedPointer>
-#include <QtCore/QMultiMap>
 
 namespace Debugger {
 namespace Internal {
@@ -45,10 +43,7 @@ class GdbOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 public:
-    typedef QMultiMap<QString, int> GdbBinaryToolChainMap;
-    typedef QSharedPointer<GdbBinaryToolChainMap> GdbBinaryToolChainMapPtr;
-
-    explicit GdbOptionsPage(const GdbBinaryToolChainMapPtr &binaryToolChainMap);
+    explicit GdbOptionsPage();
 
     virtual QString id() const { return settingsId(); }
     virtual QString displayName() const;
@@ -64,8 +59,6 @@ public:
     static QString settingsId();
 
 private:
-    const GdbBinaryToolChainMapPtr m_binaryToolChainMap;
-
     Ui::GdbOptionsPage m_ui;
     Utils::SavedActionSet m_group;
     QString m_searchKeywords;

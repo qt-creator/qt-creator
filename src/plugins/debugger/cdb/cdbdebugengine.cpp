@@ -45,7 +45,6 @@
 #include "debuggermainwindow.h"
 
 #include "debuggeractions.h"
-#include "debuggermanager.h"
 #include "breakhandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
@@ -83,6 +82,7 @@ static const char *localSymbolRootC = "local";
 namespace Debugger {
 namespace Internal {
 
+CdbOptionsPage *theOptionsPage = 0;
 typedef QList<WatchData> WatchList;
 
 // ----- Message helpers
@@ -119,9 +119,8 @@ static QString msgFunctionFailed(const char *func, const QString &why)
 
 // --- CdbDebugEnginePrivate
 
-CdbDebugEnginePrivate::CdbDebugEnginePrivate(const QSharedPointer<CdbOptions> &options,
-                                             CdbDebugEngine *engine) :
-    m_options(options),
+CdbDebugEnginePrivate::CdbDebugEnginePrivate(CdbDebugEngine *engine) :
+    m_options(theOptionsPage->options()),
     m_hDebuggeeProcess(0),
     m_hDebuggeeThread(0),
     m_breakEventMode(BreakEventHandle),
@@ -159,11 +158,10 @@ bool CdbDebugEnginePrivate::init(QString *errorMessage)
     return true;
 }
 
-IDebuggerEngine *CdbDebugEngine::create(Debugger::DebuggerManager *manager,
-                                        const QSharedPointer<CdbOptions> &options,
-                                        QString *errorMessage)
+DebuggerEngine *CdbDebugEngine::create(const DebuggerStartParameters &sp,
+                                       QString *errorMessage)
 {
-    CdbDebugEngine *rc = new CdbDebugEngine(manager, options);
+    CdbDebugEngine *rc = new CdbDebugEngine(sp);
     if (rc->m_d->init(errorMessage)) {
         rc->syncDebuggerPaths();
         return rc;
@@ -182,11 +180,6 @@ void  CdbDebugEnginePrivate::updateCodeLevel()
 CdbDebugEnginePrivate::~CdbDebugEnginePrivate()
 {
     cleanStackTrace();
-}
-
-DebuggerManager *CdbDebugEnginePrivate::manager() const
-{
-    return m_engine->manager();
 }
 
 void CdbDebugEnginePrivate::clearForRun()
@@ -212,9 +205,9 @@ void CdbDebugEnginePrivate::cleanStackTrace()
     m_editorToolTipCache.clear();
 }
 
-CdbDebugEngine::CdbDebugEngine(DebuggerManager *manager, const QSharedPointer<CdbOptions> &options) :
-    IDebuggerEngine(manager),
-    m_d(new CdbDebugEnginePrivate(options, this))
+CdbDebugEngine::CdbDebugEngine(const DebuggerStartParameters &startParameters) :
+    DebuggerEngine(startParamters),
+    m_d(new CdbDebugEnginePrivate(this))
 {
     m_d->m_consoleStubProc.setMode(Utils::ConsoleProcess::Suspend);
     connect(&m_d->m_consoleStubProc, SIGNAL(processMessage(QString,bool)),
@@ -234,7 +227,7 @@ void CdbDebugEngine::setState(DebuggerState state, const char *func, int line)
 {
     if (debugCDB)
         qDebug() << "setState(" << state << ") at " << func << ':' << line;
-    IDebuggerEngine::setState(state);
+    DebuggerEngine::setState(state);
 }
 
 void CdbDebugEngine::shutdown()
@@ -392,6 +385,7 @@ void CdbDebugEngine::startDebugger()
     if (m_d->m_hDebuggeeProcess) {
         warning(QLatin1String("Internal error: Attempt to start debugger while another process is being debugged."));
         setState(AdapterStartFailed, Q_FUNC_INFO, __LINE__);
+        setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
         emit startFailed();
         return;
     }
@@ -400,6 +394,7 @@ void CdbDebugEngine::startDebugger()
     case AttachToRemote:
         warning(QLatin1String("Internal error: Mode not supported."));
         setState(AdapterStartFailed, Q_FUNC_INFO, __LINE__);
+        setState(DebuggerNotReady, Q_FUNC_INFO, __LINE__);
         emit startFailed();
         break;
     default:
@@ -415,24 +410,24 @@ void CdbDebugEngine::startDebugger()
         showMessage(errorMessage, LogWarning);
     m_d->setVerboseSymbolLoading(m_d->m_options->verboseSymbolLoading);
     // Figure out dumper. @TODO: same in gdb...
-    const QString dumperLibName = QDir::toNativeSeparators(manager()->qtDumperLibraryName());
+    const QString dumperLibName = QDir::toNativeSeparators(qtDumperLibraryName());
     bool dumperEnabled = m_d->m_mode != AttachCore
                          && m_d->m_mode != AttachCrashedExternal
-                         && manager()->qtDumperLibraryEnabled();
+                         && qtDumperLibraryEnabled();
     if (dumperEnabled) {
         const QFileInfo fi(dumperLibName);
         if (!fi.isFile()) {
-            const QStringList &locations = manager()->qtDumperLibraryLocations();
+            const QStringList &locations = qtDumperLibraryLocations();
             const QString loc = locations.join(QLatin1String(", "));
             const QString msg = tr("The dumper library was not found at %1.").arg(loc);
-            manager()->showQtDumperLibraryWarning(msg);
+            showQtDumperLibraryWarning(msg);
             dumperEnabled = false;
         }
     }
     m_d->m_dumper->reset(dumperLibName, dumperEnabled);
 
     setState(InferiorStarting, Q_FUNC_INFO, __LINE__);
-    manager()->showStatusMessage("Starting Debugger", messageTimeOut);
+    showStatusMessage("Starting Debugger", messageTimeOut);
 
     bool rc = false;
     bool needWatchTimer = false;
@@ -474,11 +469,11 @@ void CdbDebugEngine::startDebugger()
     if (rc) {
         if (needWatchTimer)
             m_d->startWatchTimer();
-            emit startSuccessful();
+        startSuccessful();
     } else {
         warning(errorMessage);
         setState(InferiorStartFailed, Q_FUNC_INFO, __LINE__);
-        emit startFailed();
+        startFailed();
     }
 }
 
@@ -543,7 +538,7 @@ void CdbDebugEngine::processTerminated(unsigned long exitCode)
     m_d->clearForRun();
     setState(InferiorShutDown, Q_FUNC_INFO, __LINE__);
     // Avoid calls from event handler.
-    QTimer::singleShot(0, manager(), SLOT(exitDebugger()));
+    QTimer::singleShot(0, this, SLOT(quitDebugger()));
 }
 
 bool CdbDebugEnginePrivate::endInferior(EndInferiorAction action, QString *errorMessage)
@@ -680,15 +675,14 @@ void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
     if (debugCDBWatchHandling)
         qDebug() << Q_FUNC_INFO << "\n    " << incomplete.toString();
 
-    WatchHandler *watchHandler = manager()->watchHandler();
     if (incomplete.iname.startsWith("watch.")) {
         WatchData watchData = incomplete;
         evaluateWatcher(&watchData);
-        watchHandler->insertData(watchData);
+        watchHandler()->insertData(watchData);
         return;
     }
 
-    const int frameIndex = manager()->stackHandler()->currentIndex();
+    const int frameIndex = stackHandler()->currentIndex();
 
     bool success = false;
     QString errorMessage;
@@ -696,14 +690,14 @@ void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
         CdbSymbolGroupContext *sg = m_d->m_currentStackTrace->cdbSymbolGroupContextAt(frameIndex, &errorMessage);
         if (!sg)
             break;
-        if (!sg->completeData(incomplete, watchHandler, &errorMessage))
+        if (!sg->completeData(incomplete, watchHandler(), &errorMessage))
             break;
         success = true;
     } while (false);
     if (!success)
         warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
     if (debugCDBWatchHandling > 1)
-        qDebug() << *manager()->watchHandler()->model(LocalsWatch);
+        qDebug() << *watchHandler()->model(LocalsWatch);
 }
 
 // Continue inferior with a debugger command, such as "p", "pt"
@@ -771,7 +765,7 @@ bool CdbDebugEngine::step(unsigned long executionStatus)
     const int triggeringEventThread = m_d->m_eventThreadId;
     const bool sameThread = triggeringEventThread == -1
                             || m_d->m_currentThreadId == triggeringEventThread
-                            || manager()->threadsHandler()->threads().size() == 1;
+                            || threadsHandler()->threads().size() == 1;
     m_d->clearForRun(); // clears thread ids
     m_d->updateCodeLevel(); // Step by instruction or source line
     setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
@@ -819,12 +813,12 @@ bool CdbDebugEngine::step(unsigned long executionStatus)
 
 void CdbDebugEngine::executeStep()
 {
-    step(manager()->isReverseDebugging() ? DEBUG_STATUS_REVERSE_STEP_INTO : DEBUG_STATUS_STEP_INTO);
+    step(isReverseDebugging() ? DEBUG_STATUS_REVERSE_STEP_INTO : DEBUG_STATUS_STEP_INTO);
 }
 
 void CdbDebugEngine::executeNext()
 {
-    step(manager()->isReverseDebugging() ? DEBUG_STATUS_REVERSE_STEP_OVER : DEBUG_STATUS_STEP_OVER);
+    step(isReverseDebugging() ? DEBUG_STATUS_REVERSE_STEP_OVER : DEBUG_STATUS_STEP_OVER);
 }
 
 void CdbDebugEngine::executeStepI()
@@ -839,7 +833,7 @@ void CdbDebugEngine::executeNextI()
 
 void CdbDebugEngine::executeStepOut()
 {
-    if (!manager()->isReverseDebugging())
+    if (!isReverseDebugging())
         step(CdbExtendedExecutionStatusStepOut);
 }
 
@@ -887,8 +881,8 @@ bool CdbDebugEnginePrivate::continueInferior(QString *errorMessage)
         clearForRun();
         updateCodeLevel();
         killWatchTimer();
-        manager()->resetLocation();
-        manager()->showStatusMessage(CdbDebugEngine::tr("Running requested..."), messageTimeOut);
+        m_engine->resetLocation();
+        m_engine->showStatusMessage(CdbDebugEngine::tr("Running requested..."), messageTimeOut);
 
         if (!continueInferiorProcess(errorMessage))
             break;
@@ -988,7 +982,7 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << expr << value;
-    const int frameIndex = manager()->stackHandler()->currentIndex();
+    const int frameIndex = stackHandler()->currentIndex();
     QString errorMessage;
     bool success = false;
     do {
@@ -999,11 +993,10 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
         if (!sg->assignValue(expr, value, &newValue, &errorMessage))
             break;
         // Update view
-        WatchHandler *watchHandler = manager()->watchHandler();
-        if (WatchData *fwd = watchHandler->findItem(expr.toLatin1())) {
+        if (WatchData *fwd = watchHandler()->findItem(expr.toLatin1())) {
             fwd->setValue(newValue);
-            watchHandler->insertData(*fwd);
-            watchHandler->updateWatchers();
+            watchHandler()->insertData(*fwd);
+            watchHandler()->updateWatchers();
         }
         success = true;
     } while (false);
@@ -1032,24 +1025,22 @@ void CdbDebugEngine::activateFrame(int frameIndex)
 
     QString errorMessage;
     bool success = false;
-    StackHandler *stackHandler = manager()->stackHandler();
     do {
-        WatchHandler *watchHandler = manager()->watchHandler();
-        const int oldIndex = stackHandler->currentIndex();
-        if (frameIndex >= stackHandler->stackSize()) {
-            errorMessage = msgStackIndexOutOfRange(frameIndex, stackHandler->stackSize());
+        const int oldIndex = stackHandler()->currentIndex();
+        if (frameIndex >= stackHandler()->stackSize()) {
+            errorMessage = msgStackIndexOutOfRange(frameIndex, stackHandler()->stackSize());
             break;
         }
 
         if (oldIndex != frameIndex)
-            stackHandler->setCurrentIndex(frameIndex);
+            stackHandler()->setCurrentIndex(frameIndex);
 
-        const StackFrame &frame = stackHandler->currentFrame();
+        const StackFrame &frame = stackHandler()->currentFrame();
 
         const bool showAssembler = !frame.isUsable();
         if (showAssembler) { // Assembly code: Clean out model and force instruction mode.
-            watchHandler->beginCycle();
-            watchHandler->endCycle();
+            watchHandler()->beginCycle();
+            watchHandler()->endCycle();
             QAction *assemblerAction = theDebuggerAction(OperateByInstruction);
             if (!assemblerAction->isChecked())
                 assemblerAction->trigger();
@@ -1057,20 +1048,22 @@ void CdbDebugEngine::activateFrame(int frameIndex)
             break;
         }
 
-        manager()->gotoLocation(frame, true);
+        gotoLocation(frame, true);
 
         if (oldIndex != frameIndex || m_d->m_firstActivatedFrame) {
-            watchHandler->beginCycle();
+            watchHandler()->beginCycle();
             if (CdbSymbolGroupContext *sgc = m_d->getSymbolGroupContext(frameIndex, &errorMessage))
-                success = sgc->populateModelInitially(watchHandler, &errorMessage);
-            watchHandler->endCycle();
+                success = sgc->populateModelInitially(watchHandler(), &errorMessage);
+            watchHandler()->endCycle();
         } else {
             success = true;
         }
     } while (false);
+
     if (!success) {
         const QString msg = QString::fromLatin1("Internal error: activateFrame() failed for frame #%1 of %2, thread %3: %4").
-                            arg(frameIndex).arg(stackHandler->stackSize()).arg(m_d->m_currentThreadId).arg(errorMessage);
+                            arg(frameIndex).arg(stackHandler()->stackSize()).
+                            arg(m_d->m_currentThreadId).arg(errorMessage);
         warning(msg);
     }
     m_d->m_firstActivatedFrame = false;
@@ -1081,14 +1074,13 @@ void CdbDebugEngine::selectThread(int index)
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << index;
 
-    //reset location arrow
-    manager()->resetLocation();
+    // Reset location arrow.
+    resetLocation();
 
-    ThreadsHandler *threadsHandler = manager()->threadsHandler();
-    threadsHandler->setCurrentThread(index);
-    const int newThreadId = threadsHandler->threads().at(index).id;
+    threadsHandler()->setCurrentThread(index);
+    const int newThreadId = threadsHandler()->threads().at(index).id;
     if (newThreadId != m_d->m_currentThreadId) {
-        m_d->m_currentThreadId = threadsHandler->threads().at(index).id;
+        m_d->m_currentThreadId = threadsHandler()->threads().at(index).id;
         m_d->updateStackTrace();
     }
 }
@@ -1133,7 +1125,7 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
     QStringList warnings;
     const bool ok = synchronizeBreakPoints(interfaces().debugControl,
                                            interfaces().debugSymbols,
-                                           manager()->breakHandler(),
+                                           breakHandler(),
                                            errorMessage, &warnings);
     if (const int warningsCount = warnings.size())
         for (int w = 0; w < warningsCount; w++)
@@ -1313,7 +1305,7 @@ void CdbDebugEnginePrivate::notifyException(long code, bool fatal, const QString
 
 static int threadIndexById(const ThreadsHandler *threadsHandler, int id)
 {
-    const QList<ThreadData> threads = threadsHandler->threads();
+    const Threads threads = threadsHandler->threads();
     const int count = threads.count();
     for (int i = 0; i < count; i++)
         if (threads.at(i).id == id)
@@ -1343,7 +1335,7 @@ void CdbDebugEnginePrivate::handleDebugEvent()
         // Get thread to stop and its index. If avoidable, do not use
         // the artifical thread that is created when interrupting,
         // use the oldest thread 0 instead.
-        ThreadsHandler *threadsHandler = manager()->threadsHandler();
+        ThreadsHandler *threadsHandler = m_engine->threadsHandler();
         m_currentThreadId = m_interrupted ? 0 : m_eventThreadId;
         int currentThreadIndex = -1;
         m_currentThreadId = -1;
@@ -1418,13 +1410,13 @@ ULONG CdbDebugEnginePrivate::updateThreadList()
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << m_hDebuggeeProcess;
 
-    QList<ThreadData> threads;
+    Threads threads;
     ULONG currentThreadId;
     QString errorMessage;
     // When interrupting, an artifical thread with a breakpoint is created.
     if (!CdbStackTraceContext::getThreads(interfaces(), &threads, &currentThreadId, &errorMessage))
         m_engine->warning(errorMessage);
-    manager()->threadsHandler()->setThreads(threads);
+    m_engine->threadsHandler()->setThreads(threads);
     return currentThreadId;
 }
 
@@ -1527,19 +1519,19 @@ void CdbDebugEnginePrivate::updateStackTrace()
         qDebug() << "updateStackTrace() current: " << m_currentThreadId << " dumper=" << dumperThread;
     m_dumper->setDumperCallThread(dumperThread);
     // Display frames
-    manager()->stackHandler()->setFrames(stackFrames);
+    m_engine->stackHandler()->setFrames(stackFrames);
     m_firstActivatedFrame = true;
     if (current >= 0) {
-        manager()->stackHandler()->setCurrentIndex(current);
+        m_engine->stackHandler()->setCurrentIndex(current);
         m_engine->activateFrame(current);
     } else {
         // Clean out variables
-        manager()->watchHandler()->beginCycle();
-        manager()->watchHandler()->endCycle();
+        m_engine->watchHandler()->beginCycle();
+        m_engine->watchHandler()->endCycle();
     }
-    manager()->watchHandler()->updateWatchers();
+    m_engine->watchHandler()->updateWatchers();
     // Show message after a lengthy dumper initialization
-    manager()->showStatusMessage(stopMessage, 15000);
+    m_engine->showMessage(stopMessage, StatusBar, 15000);
 }
 
 void CdbDebugEnginePrivate::updateModules()
@@ -1618,28 +1610,26 @@ unsigned CdbDebugEngine::debuggerCapabilities() const
            |BreakOnThrowAndCatchCapability; // Sort-of: Can break on throw().
 }
 
-// Accessed by DebuggerManager
-IDebuggerEngine *createCdbEngine(DebuggerManager *parent,
-                                 bool cmdLineEnabled,
-                                 QList<Core::IOptionsPage*> *opts)
+// Accessed by RunControlFactory
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp)
 {
-    // Create options page
-    QSharedPointer<CdbOptions> options(new CdbOptions);
-    options->fromSettings(Core::ICore::instance()->settings());
-    CdbOptionsPage *optionsPage = new CdbOptionsPage(options);
-    opts->push_back(optionsPage);
-    if (!cmdLineEnabled || !options->enabled)
-        return 0;
     // Create engine
     QString errorMessage;
-    IDebuggerEngine *engine = CdbDebugEngine::create(parent, options, &errorMessage);
+    DebuggerEngine *engine = CdbDebugEngine::create(sp, &errorMessage);
     if (engine) {
-        QObject::connect(optionsPage, SIGNAL(debuggerPathsChanged()), engine, SLOT(syncDebuggerPaths()));
+        QObject::connect(theOptionsPage, SIGNAL(debuggerPathsChanged()), engine, SLOT(syncDebuggerPaths()));
     } else {
-        optionsPage->setFailureMessage(errorMessage);
+        theOptionsPage->setFailureMessage(errorMessage);
         qWarning("%s\n" ,qPrintable(errorMessage));
     }
     return engine;
+}
+
+void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
+{
+    // FIXME: HACK (global variable)
+    theOptionsPage = new CdbOptionsPage;
+    opts->push_back(theOptionsPage);
 }
 
 } // namespace Internal

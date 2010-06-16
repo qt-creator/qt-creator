@@ -28,10 +28,12 @@
 **************************************************************************/
 
 #include "cdbstacktracecontext.h"
+
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdumperhelper.h"
 #include "cdbdebugengine_p.h"
 #include "debuggeractions.h"
+#include "debuggerplugin.h"
 #include "watchutils.h"
 #include "threadshandler.h"
 
@@ -61,18 +63,18 @@ CdbStackTraceContext *CdbStackTraceContext::create(const QSharedPointer<CdbDumpe
     return ctx;
 }
 
-CdbCore::SymbolGroupContext
-        *CdbStackTraceContext::createSymbolGroup(const CdbCore::ComInterfaces & /* cif */,
-                                                 int index,
-                                                 const QString &prefix,
-                                                 CIDebugSymbolGroup *comSymbolGroup,
-                                                 QString *errorMessage)
+CdbCore::SymbolGroupContext *
+CdbStackTraceContext::createSymbolGroup(const CdbCore::ComInterfaces & /* cif */,
+                                        int index,
+                                        const QString &prefix,
+                                        CIDebugSymbolGroup *comSymbolGroup,
+                                        QString *errorMessage)
 {
     // Exclude uninitialized variables if desired
     QStringList uninitializedVariables;
     const CdbCore::StackFrame &frame = stackFrameAt(index);
     if (theDebuggerAction(UseCodeModel)->isChecked())
-        getUninitializedVariables(DebuggerManager::instance()->cppCodeModelSnapshot(), frame.function, frame.fileName, frame.line, &uninitializedVariables);
+        getUninitializedVariables(DebuggerPlugin::instance()->cppCodeModelSnapshot(), frame.function, frame.fileName, frame.line, &uninitializedVariables);
     if (debug)
         qDebug() << frame << uninitializedVariables;
     CdbSymbolGroupContext *sc = CdbSymbolGroupContext::create(prefix,
@@ -113,7 +115,7 @@ QList<StackFrame> CdbStackTraceContext::stackFrames() const
 }
 
 bool CdbStackTraceContext::getThreads(const CdbCore::ComInterfaces &cif,
-                                      QList<ThreadData> *threads,
+                                      Threads *threads,
                                       ULONG *currentThreadId,
                                       QString *errorMessage)
 {

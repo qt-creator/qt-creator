@@ -28,11 +28,8 @@
 **************************************************************************/
 
 #include "registerwindow.h"
-#include "registerhandler.h"
 
 #include "debuggeractions.h"
-#include "debuggeragents.h"
-#include "debuggermanager.h"
 #include "debuggerconstants.h"
 
 #include <utils/qtcassert.h>
@@ -64,8 +61,8 @@ namespace Internal {
 class RegisterDelegate : public QItemDelegate
 {
 public:
-    RegisterDelegate(DebuggerManager *manager, QObject *parent)
-        : QItemDelegate(parent), m_manager(manager)
+    RegisterDelegate(RegisterWindow *owner, QObject *parent)
+        : QItemDelegate(parent), m_owner(owner)
     {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
@@ -80,7 +77,7 @@ public:
     {
         QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
         QTC_ASSERT(lineEdit, return);
-        lineEdit->setText(index.model()->data(index, Qt::DisplayRole).toString());
+        lineEdit->setText(index.data(Qt::DisplayRole).toString());
     }
 
     void setModelData(QWidget *editor, QAbstractItemModel *model,
@@ -93,7 +90,7 @@ public:
         QString value = lineEdit->text();
         //model->setData(index, value, Qt::EditRole);
         if (index.column() == 1)
-            m_manager->setRegisterValue(index.row(), value);
+            m_owner->model()->setData(index, value, RequestSetRegisterRole);
     }
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
@@ -134,7 +131,7 @@ public:
     }
 
 private:
-    DebuggerManager *m_manager;
+    RegisterWindow *m_owner;
 };
 
 
@@ -144,15 +141,15 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-RegisterWindow::RegisterWindow(DebuggerManager *manager)
-  : m_manager(manager), m_alwaysResizeColumnsToContents(true)
+RegisterWindow::RegisterWindow(QWidget *parent)
+  : QTreeView(parent), m_alwaysResizeColumnsToContents(true)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Registers"));
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
-    setItemDelegate(new RegisterDelegate(m_manager, this));
+    setItemDelegate(new RegisterDelegate(this, this));
 
     connect(act, SIGNAL(toggled(bool)),
         this, SLOT(setAlternatingRowColorsHelper(bool)));
@@ -167,18 +164,18 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
 
-    const unsigned engineCapabilities = m_manager->debuggerCapabilities();
-    const bool actionsEnabled = m_manager->debuggerActionsEnabled();
+    const unsigned engineCapabilities = modelData(EngineCapabilitiesRole).toUInt();
+    const bool actionsEnabled = modelData(EngineActionsEnabledRole).toInt();
+    const int state = modelData(EngineStateRole).toInt();
 
     QAction *actReload = menu.addAction(tr("Reload Register Listing"));
     actReload->setEnabled((engineCapabilities & RegisterCapability)
-        && (m_manager->state() == InferiorStopped 
-            || m_manager->state() == InferiorUnrunnable));
+        && (state == InferiorStopped || state == InferiorUnrunnable));
 
     menu.addSeparator();
 
     QModelIndex idx = indexAt(ev->pos());
-    QString address = model()->data(idx, RegisterAddressRole).toString();
+    QString address = modelData(RegisterAddressRole, idx).toString();
     QAction *actShowMemory = menu.addAction(QString());
     if (address.isEmpty()) {
         actShowMemory->setText(tr("Open Memory Editor"));
@@ -190,7 +187,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
     menu.addSeparator();
 
-    int base = model()->data(QModelIndex(), RegisterNumberBaseRole).toInt();
+    int base = modelData(RegisterNumberBaseRole).toInt();
     QAction *act16 = menu.addAction(tr("Hexadecimal"));
     act16->setCheckable(true);
     act16->setChecked(base == 16);
@@ -221,9 +218,9 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == actAlwaysAdjust)
         setAlwaysResizeColumnsToContents(!m_alwaysResizeColumnsToContents);
     else if (act == actReload)
-        m_manager->reloadRegisters();
+        setModelData(RequestReloadRegistersRole);
     else if (act == actShowMemory)
-        (void) new MemoryViewAgent(m_manager, address);
+        setModelData(RequestShowMemoryRole, address);
     else if (act) {
         base = (act == act10 ? 10 : act == act8 ? 8 : act == act2 ? 2 : 16);
         QMetaObject::invokeMethod(model(), "setNumberBase", Q_ARG(int, base));
@@ -245,11 +242,29 @@ void RegisterWindow::setAlwaysResizeColumnsToContents(bool on)
     header()->setResizeMode(1, mode);
 }
 
-
 void RegisterWindow::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
     setAlwaysResizeColumnsToContents(true);
+}
+
+void RegisterWindow::reloadRegisters()
+{
+    // FIXME: Only trigger when becoming visible?
+    setModelData(RequestReloadRegistersRole);
+}
+
+void RegisterWindow::setModelData
+    (int role, const QVariant &value, const QModelIndex &index)
+{
+    QTC_ASSERT(model(), return);
+    model()->setData(index, value, role);
+}
+
+QVariant RegisterWindow::modelData(int role, const QModelIndex &index)
+{
+    QTC_ASSERT(model(), return QVariant());
+    return model()->data(index, role);
 }
 
 } // namespace Internal

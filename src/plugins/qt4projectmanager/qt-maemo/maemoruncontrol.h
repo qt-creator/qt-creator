@@ -48,7 +48,7 @@ class QProcess;
 QT_END_NAMESPACE
 
 namespace Debugger {
-    class DebuggerManager;
+    class DebuggerRunControl;
     class DebuggerStartParameters;
 } // namespace Debugger
 
@@ -168,7 +168,7 @@ private:
     QString gdbServerPort() const;
     void startDebugging();
 
-    Debugger::DebuggerManager *m_debuggerManager;
+    Debugger::DebuggerRunControl *m_debuggerRunControl;
     QSharedPointer<Debugger::DebuggerStartParameters> m_startParams;
 
     bool m_debuggingStarted;

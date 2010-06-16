@@ -42,12 +42,10 @@ class ThreadsWindow : public QTreeView
 public:
     ThreadsWindow(QWidget *parent = 0);
 
-signals:
-    void threadSelected(int);
-
 public slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on);
+    void selectThread(int index);
 
 private slots:
     void rowActivated(const QModelIndex &index);
