@@ -36,6 +36,7 @@
 #include <coreplugin/filemanager.h>
 
 #include <QtGui/QLabel>
+#include <QtCore/QCoreApplication>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -136,7 +137,8 @@ QString ProjectExplorerSettingsPage::category() const
 
 QString ProjectExplorerSettingsPage::displayCategory() const
 {
-    return tr(Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
+    return QCoreApplication::translate("ProjectExplorer",
+                                       Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
 }
 
 QIcon ProjectExplorerSettingsPage::categoryIcon() const
