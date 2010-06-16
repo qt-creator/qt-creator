@@ -109,9 +109,9 @@ void MaemoPackageCreationWidget::addFile()
         deployable(QDir::toNativeSeparators(QFileInfo(localFile).absoluteFilePath()),
         "/");
     MaemoPackageContents * const contents = m_step->packageContents();
-    if (!contents->addDeployable(deployable)) {
-        QMessageBox::information(this, tr("File already in package"),
-                                 tr("You have already added this file."));
+    QString errorString;
+    if (!contents->addDeployable(deployable, &errorString)) {
+        QMessageBox::information(this, tr("Error adding file"), errorString);
     } else {
         const QModelIndex newIndex
             = contents->index(contents->rowCount() - 1, 1);
@@ -128,8 +128,13 @@ void MaemoPackageCreationWidget::removeFile()
     if (selectedRows.isEmpty())
         return;
     const int row = selectedRows.first().row();
-    if (row != 0)
-        m_step->packageContents()->removeDeployableAt(row);
+    if (row != 0) {
+        QString errorString;
+        if (!m_step->packageContents()->removeDeployableAt(row, &errorString)) {
+            QMessageBox::information(this, tr("Error removing file"),
+                errorString);
+        }
+    }
 }
 
 void MaemoPackageCreationWidget::enableOrDisableRemoveButton()

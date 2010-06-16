@@ -31,14 +31,21 @@
 #define MAEMOPACKAGECONTENTS_H
 
 #include <QtCore/QAbstractTableModel>
+#include <QtCore/QDir>
 #include <QtCore/QList>
+#include <QtCore/QScopedPointer>
 #include <QtCore/QString>
-#include <QtCore/QVariantMap>
+#include <QtCore/QStringList>
+
+QT_BEGIN_NAMESPACE
+class ProFile;
+class ProFileOption;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
-
 class MaemoPackageCreationStep;
+class ProFileReader;
 
 class MaemoPackageContents : public QAbstractTableModel
 {
@@ -60,15 +67,15 @@ public:
     };
 
     MaemoPackageContents(MaemoPackageCreationStep *packageStep);
+    ~MaemoPackageContents();
+
+    bool init();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
-
     Deployable deployableAt(int row) const;
-    bool addDeployable(const Deployable &deployable);
-    void removeDeployableAt(int row);
+    bool addDeployable(const Deployable &deployable, QString *error);
+    bool removeDeployableAt(int row, QString *error);
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
     QString remoteExecutableFilePath() const;
@@ -83,13 +90,31 @@ private:
     virtual bool setData(const QModelIndex &index, const QVariant &value,
                          int role = Qt::EditRole);
 
-    QString remoteExecutableDir() const;
+    bool buildModel() const;
+    void resetProFileContents() const;
+    bool readProFileContents(QString *error) const;
+    bool writeProFileContents(QString *error) const;
 
-private:
+    QString cleanPath(const QString &relFileName) const;
+
+    QString findInstallsElem(const Deployable &deployable) const;
+    void addFileToProFile(const QString &var, const QString &absFilePath);
+    void addValueToProFile(const QString &var, const QString &value) const;
+    bool removeFileFromProFile(const QString &var, const QString &absFilePath);
+    bool removeValueFromProFile(const QString &var, const QString &value);
+
+    enum ParseType { ParseFromFile, ParseFromLines };
+    void parseProFile(ParseType type) const;
+
     const MaemoPackageCreationStep * const m_packageStep;
-    QList<Deployable> m_deployables;
-    bool m_modified;
-    mutable QString m_remoteExecutableDir;
+    QScopedPointer<ProFileOption> m_proFileOption;
+    QScopedPointer<ProFileReader> m_proFileReader;
+    mutable QList<Deployable> m_deployables;
+    mutable bool m_modified;
+    mutable ProFile *m_proFile;
+    mutable QStringList m_proFileLines; // TODO: FS watcher
+    mutable QString m_proFileName;
+    mutable QDir m_proDir;
 };
 
 } // namespace Qt4ProjectManager

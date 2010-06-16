@@ -95,12 +95,11 @@ QVariantMap MaemoPackageCreationStep::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildStep::toMap());
     map.insert(PackagingEnabledKey, m_packagingEnabled);
-    return map.unite(m_packageContents->toMap());
+    return map;
 }
 
 bool MaemoPackageCreationStep::fromMap(const QVariantMap &map)
 {
-    m_packageContents->fromMap(map);
     m_packagingEnabled = map.value(PackagingEnabledKey, true).toBool();
     return ProjectExplorer::BuildStep::fromMap(map);
 }
