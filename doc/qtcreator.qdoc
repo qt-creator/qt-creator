@@ -1399,7 +1399,7 @@
 
     Qt Creator provides support for \l{Building and Running Applications}{building and running} Qt applications for
     desktop environment and mobile devices. When you install the Nokia Qt SDK,
-    the build and run settings for the desktop, Maemo, and Symbian targets are set up
+    the build and run settings for the Maemo and Symbian targets are set up
     automatically. However, you need to install and configure some additional software
     on the devices:
 
@@ -1921,8 +1921,16 @@
 
     Qt Creator provides support for building and running Qt applications for
     desktop environment and mobile devices. When you install the Nokia Qt SDK,
-    the build and run settings for the desktop, Maemo, and Symbian targets are
+    the build and run settings for the Maemo and Symbian targets are
     set up automatically.
+
+    You can add a target if the necessary tool chain is installed on the
+    development PC and the Qt version is configured. Click
+    \inlineimage qtcreator-qt4-addbutton.png "Add Target button"
+    and select from a list of available
+    targets. To remove a target, select it and click
+    \inlineimage qtcreator-target-remove.png "Remove Target button"
+    .
 
     You can select the targets and click the \gui Run button to build and
     run the applications on the targets. You can click the \gui {Build All}
@@ -1938,6 +1946,8 @@
     The project pane consists of the following tabs:
     \list
        \o \l{Building for Multiple Targets}{Targets}
+       \note If you have installed only one tool chain, the \gui Targets
+       tab is replaced by a \gui {Build and Run} tab.
        \o \l{Specifying Editor Settings}{Editor Settings}
        \o \l{Specifying Dependencies}{Dependencies}
     \endlist
@@ -2213,15 +2223,70 @@
     If you cannot run the application in the emulator, check if:
      \list
         \o You selected the \gui{Symbian Emulator} target for your application.
+
+        \o If you cannot select \gui {Symbian Emulator} as target, check that
+        Carbide.c++ is installed correctly and that the path to the Carbide.c++
+        installation directory is specified in the \gui{Carbide directory} field
+        in the build settings.
+
         \o If the emulator process cannot be started, try closing Qt Creator and
            starting the application directly from your file manager. Having
            done this, Qt Creator should be able to run your projects in the
            emulator.
+
      \endlist
+
+     \note Qt Creator does not create release configurations for the
+     \gui {Symbian Emulator} target, because Symbian Emulator supports only debug
+     builds.
 
     If this does not help to solve your problem, search the qt-creator@trolltech.com
     mailing list archives or provide feedback to us via the methods described on the
     \l{http://qt.gitorious.org/qt-creator/pages/Home}{Qt Creator Development Wiki}.
+
+
+    \section1 Building with Remote Compiler
+
+    The \gui {Remote Compiler} target is an interface to a compilation service at
+    Forum Nokia. It provides a simple, standardized environment for building Qt
+    applications and creating installation packages for Symbian and Maemo devices
+    when you do not have the necessary tool chains and SDKs installed or they are
+    not supported on the development PC. You can choose from a set of supported
+    devices, such as S60 3rd Edition or S60 5th Edition devices.
+
+    \note Remote Compiler is an experimental component that you must install
+    separately from the package that is included in the Nokia Qt SDK.
+
+    \list 1
+
+        \o In the Nokia Qt SDK installation directory, double-click
+        SDKMaintenanceTool.exe to install \gui {Experimental APIs}.
+
+        \o In Qt Creator, choose \gui {Tools > Options > Projects > Remote Compiler}
+        to log on to Forum Nokia.
+
+        \image remotecompiler-fn-logon.png "Remote Compiler options"
+
+        \o Choose \gui {Projects}.
+
+        \o Click
+        \inlineimage qtcreator-qt4-addbutton.png "Add Target button"
+        and select \gui {Remote Compiler} to add Remote Compiler as a target.
+
+        \o Click \gui Add to add mobile device platforms as build configurations.
+
+        \o Click the \gui {Target Selector} and select a build configuration.
+
+        \o Choose \gui {Build > Build All}.
+
+    \endlist
+
+    The installation package is generated in the \gui {Build directory} on
+    the development PC.
+
+    For more information about Remote Compiler, choose \gui {Help > Contents >
+    Remote Compiler}. The document is added during the installation of experimental
+    APIs.
 
 */
 
