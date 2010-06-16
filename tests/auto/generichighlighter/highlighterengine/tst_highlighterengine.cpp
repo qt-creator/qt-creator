@@ -122,7 +122,8 @@ void tst_HighlighterEngine::initTestCase()
     createContexts();
     createItemDatas();
 
-    m_highlighterMock.reset(new HighlighterMock(m_definition->initialContext()));
+    m_highlighterMock.reset(new HighlighterMock());
+    m_highlighterMock->setDefaultContext(m_definition->initialContext());
     m_highlighterMock->setDocument(m_text.document());
     m_highlighterMock->configureFormat(Highlighter::Keyword, Formats::instance().keywordFormat());
     m_highlighterMock->configureFormat(Highlighter::DataType, Formats::instance().dataTypeFormat());

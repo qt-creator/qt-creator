@@ -61,8 +61,7 @@ struct HighlightSequence
 class HighlighterMock : public TextEditor::Internal::Highlighter
 {
 public:
-    HighlighterMock(const QSharedPointer<TextEditor::Internal::Context> &defaultContext,
-                    QTextDocument *parent = 0);
+    HighlighterMock(QTextDocument *parent = 0);
 
     void reset();
     void showDebugDetails();

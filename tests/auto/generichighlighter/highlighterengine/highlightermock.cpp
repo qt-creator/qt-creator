@@ -47,9 +47,8 @@ char *toString(const QTextCharFormat &format)
 using namespace TextEditor;
 using namespace Internal;
 
-HighlighterMock::HighlighterMock(const QSharedPointer<Context> &defaultContext,
-                                 QTextDocument *parent) :
-    Highlighter(defaultContext, parent),
+HighlighterMock::HighlighterMock(QTextDocument *parent) :
+    Highlighter(parent),
     m_debugDetails(false),
     m_statesCounter(0),
     m_formatsCounter(0),
