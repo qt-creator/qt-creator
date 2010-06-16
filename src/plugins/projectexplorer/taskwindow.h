@@ -34,51 +34,16 @@
 
 #include <coreplugin/ioutputpane.h>
 
-#include <QtGui/QTextLayout>
+#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QModelIndex;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+struct Task;
 struct TaskWindowPrivate;
-
-// Build issue (warning or error).
-struct PROJECTEXPLORER_EXPORT Task {
-    enum TaskType {
-        Unknown,
-        Error,
-        Warning
-    };
-
-    Task() : type(Unknown), line(-1)
-    { }
-    Task(TaskType type_, const QString &description_,
-         const QString &file_, int line_, const QString &category_) :
-        type(type_), description(description_), file(file_), line(line_), category(category_)
-    { }
-    Task(const Task &source) :
-        type(source.type), description(source.description), file(source.file),
-        line(source.line), category(source.category), formats(source.formats)
-    { }
-    ~Task()
-    { }
-
-    TaskType type;
-    QString description;
-    QString file;
-    int line;
-    QString category;
-    // Having a QList<QTextLayout::FormatRange> in Task isn't that great
-    // It would be cleaner to split up the text into
-    // the logical hunks and then assemble them again
-    // (That is different consumers of tasks could show them in
-    // different ways!)
-    // But then again, the wording of the text most likely
-    // doesn't work if you split it up, nor are our parsers
-    // anywhere near being that good
-    QList<QTextLayout::FormatRange> formats;
-};
 
 struct TaskWindowPrivate;
 
@@ -119,7 +84,7 @@ public:
     void goToNext();
     void goToPrev();
 
-    QIcon taskTypeIcon(Task::TaskType t) const;
+    QIcon taskTypeIcon(int t) const;
 
 signals:
     void tasksChanged();
@@ -139,12 +104,6 @@ private:
     TaskWindowPrivate *d;
 };
 
-bool operator==(const Task &t1, const Task &t2);
-uint qHash(const Task &task);
-
 } //namespace ProjectExplorer
-
-Q_DECLARE_METATYPE(ProjectExplorer::Task)
-Q_DECLARE_METATYPE(QList<ProjectExplorer::Task>)
 
 #endif // TASKWINDOW_H

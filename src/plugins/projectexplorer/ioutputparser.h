@@ -31,7 +31,7 @@
 #define IOUTPUTPARSER_H
 
 #include "projectexplorer_export.h"
-#include "taskwindow.h"
+#include "task.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QString>

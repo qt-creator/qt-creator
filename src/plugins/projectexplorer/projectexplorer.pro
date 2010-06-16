@@ -16,6 +16,7 @@ HEADERS += projectexplorer.h \
     compileoutputwindow.h \
     target.h \
     targetsettingspanel.h \
+    task.h \
     taskwindow.h \
     outputwindow.h \
     persistentsettings.h \
@@ -93,6 +94,7 @@ SOURCES += projectexplorer.cpp \
     ioutputparser.cpp \
     projectconfiguration.cpp \
     gnumakeparser.cpp \
+    task.cpp \
     taskwindow.cpp \
     outputwindow.cpp \
     persistentsettings.cpp \

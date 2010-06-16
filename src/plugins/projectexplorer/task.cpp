@@ -27,48 +27,26 @@
 **
 **************************************************************************/
 
-#ifndef QMLTASKMANAGER_H
-#define QMLTASKMANAGER_H
+#include "task.h"
 
-#include <projectexplorer/task.h>
-#include <qmljs/qmljsdocument.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QString>
-
-namespace ProjectExplorer {
-class TaskWindow;
-} // namespace ProjectExplorer
-
-namespace QmlProjectManager {
-namespace Internal {
-
-class QmlTaskManager : public QObject
+namespace ProjectExplorer
 {
-    Q_OBJECT
-public:
-    QmlTaskManager(QObject *parent = 0);
 
-    void setTaskWindow(ProjectExplorer::TaskWindow *taskWindow);
+//
+// functions
+//
+bool operator==(const Task &t1, const Task &t2)
+{
+    return t1.type == t2.type
+            && t1.line == t2.line
+            && t1.description == t2.description
+            && t1.file == t2.file
+            && t1.category == t2.category;
+}
 
-    static QmlTaskManager *instance();
+uint qHash(const Task &task)
+{
+    return qHash(task.file) + task.line;
+}
 
-public slots:
-    void documentChangedOnDisk(QmlJS::Document::Ptr doc);
-    void documentsRemoved(const QStringList path);
-
-private:
-    void insertTask(const QString &fileName, const ProjectExplorer::Task &task);
-    void removeTasksForFile(const QString &fileName);
-
-private:
-    ProjectExplorer::TaskWindow *m_taskWindow;
-    QMap<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
-};
-
-} // Internal
-} // QmlProjectManager
-
-#endif // QMLTASKMANAGER_H
+} // namespace ProjectExplorer

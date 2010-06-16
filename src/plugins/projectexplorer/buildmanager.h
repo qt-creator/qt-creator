@@ -31,7 +31,7 @@
 #define BUILDMANAGER_H
 
 #include "projectexplorer_export.h"
-#include "taskwindow.h"
+#include "task.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
@@ -50,6 +50,7 @@ class BuildStep;
 class Project;
 class ProjectExplorerPlugin;
 class BuildConfiguration;
+class TaskWindow;
 
 class PROJECTEXPLORER_EXPORT BuildManager
   : public QObject

@@ -31,6 +31,7 @@
 #include "qmlprojectconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/taskwindow.h>
 
 #include <QDebug>
 

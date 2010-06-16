@@ -32,7 +32,7 @@
 
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
-#include "taskwindow.h"
+#include "task.h"
 
 #include <QtCore/QFutureInterface>
 #include <QtGui/QWidget>

@@ -29,6 +29,8 @@
 
 #include "taskwindow.h"
 
+#include "task.h"
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/vcsmanager.h>
@@ -59,7 +61,6 @@ const int TASK_ICON_MARGIN = 2;
 }
 
 namespace ProjectExplorer {
-
 namespace Internal {
 
 class TaskView : public QListView
@@ -818,9 +819,9 @@ void TaskWindow::updateActions()
     d->m_copyAction->setEnabled(d->m_model->tasks().count() > 0);
 }
 
-QIcon TaskWindow::taskTypeIcon(Task::TaskType t) const
+QIcon TaskWindow::taskTypeIcon(int t) const
 {
-    return d->m_model->taskTypeIcon(t);
+    return d->m_model->taskTypeIcon(static_cast<Task::TaskType>(t));
 }
 
 namespace Internal {
@@ -1015,23 +1016,6 @@ QWidget *TaskWindowContext::widget()
 }
 
 } // namespace Internal
-
-//
-// functions
-//
-bool operator==(const Task &t1, const Task &t2)
-{
-    return t1.type == t2.type
-            && t1.line == t2.line
-            && t1.description == t2.description
-            && t1.file == t2.file
-            && t1.category == t2.category;
-}
-
-uint qHash(const Task &task)
-{
-    return qHash(task.file) + task.line;
-}
 
 } // namespace ProjectExplorer
 

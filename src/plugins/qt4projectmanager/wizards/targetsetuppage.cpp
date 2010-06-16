@@ -35,8 +35,9 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 
-#include <utils/qtcassert.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/task.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QFileDialog>
 #include <QtGui/QHeaderView>
