@@ -46,7 +46,10 @@ bool operator==(const Task &t1, const Task &t2)
 
 uint qHash(const Task &task)
 {
-    return qHash(task.file) + task.line;
+    return static_cast<int>(task.type) +
+           task.line +
+           qHash(task.file) +
+           qHash(task.category);
 }
 
 } // namespace ProjectExplorer
