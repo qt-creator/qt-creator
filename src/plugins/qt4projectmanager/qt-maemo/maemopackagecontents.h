@@ -39,7 +39,7 @@
 
 QT_BEGIN_NAMESPACE
 class ProFile;
-class ProFileOption;
+struct ProFileOption;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
