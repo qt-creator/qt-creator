@@ -204,7 +204,9 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString() << QString()
             << QList<Task>()
             << QString()
-            << (QStringList() << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber") << QString::fromLatin1("/test/dir"));
+            << (QStringList() << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber")
+                              << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber")
+                              << QString::fromLatin1("/test/dir"));
     QTest::newRow("leaving directory")
             << (QStringList()  << QString::fromLatin1("/home/code/build/qt/examples/opengl/grabber") << QString::fromLatin1("/test/dir"))
             << QString::fromLatin1("make[4]: Leaving directory `/home/code/build/qt/examples/opengl/grabber'")
