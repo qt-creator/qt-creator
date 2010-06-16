@@ -1,4 +1,4 @@
-<plugin name="ProjectExplorer" version="1.3.85" compatVersion="1.3.85">
+<plugin name="ProjectExplorer" version="2.0.0" compatVersion="2.0.0">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
@@ -14,10 +14,10 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>ProjectExplorer framework that can be extended with different kind of project types.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.3.85"/>
-        <dependency name="Find" version="1.3.85"/>
-        <dependency name="Locator" version="1.3.85"/>
-        <dependency name="TextEditor" version="1.3.85"/>
+        <dependency name="Core" version="2.0.0"/>
+        <dependency name="Find" version="2.0.0"/>
+        <dependency name="Locator" version="2.0.0"/>
+        <dependency name="TextEditor" version="2.0.0"/>
     </dependencyList>
     <argumentList>
         <argument name="-customwizard-verbose">Verbose loading of custom wizards</argument>
