@@ -37,7 +37,6 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4target.h>
 
-#include <profile.h>
 #include <prowriter.h>
 
 #include <QtCore/QCryptographicHash>
@@ -257,7 +256,7 @@ bool MaemoPackageContents::setData(const QModelIndex &index,
 
     QString error;
     if (!readProFileContents(&error)) {
-        qWarning(qPrintable(error));
+        qWarning("%s", qPrintable(error));
         return false;
     }
 
@@ -277,7 +276,7 @@ bool MaemoPackageContents::setData(const QModelIndex &index,
     addValueToProFile(pathElem, newRemoteDir);
 
     if (!writeProFileContents(&error)) {
-        qWarning(qPrintable(error));
+        qWarning("%s", qPrintable(error));
         return false;
     }
 
