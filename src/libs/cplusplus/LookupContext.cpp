@@ -64,7 +64,8 @@ static void fullyQualifiedName_helper(Symbol *symbol, QList<const Name *> *names
                 names->append(symbol->name());
             }
         } else if (symbol->isObjCClass() || symbol->isObjCBaseClass() || symbol->isObjCProtocol()
-                || symbol->isObjCForwardClassDeclaration() || symbol->isObjCForwardProtocolDeclaration()) {
+                || symbol->isObjCForwardClassDeclaration() || symbol->isObjCForwardProtocolDeclaration()
+                || symbol->isForwardClassDeclaration()) {
             if (symbol->name())
                 names->append(symbol->name());
         } else if (symbol->isFunction()) {

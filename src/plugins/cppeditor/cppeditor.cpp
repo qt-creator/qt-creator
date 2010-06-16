@@ -1315,6 +1315,10 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
                     def = 0; // jump to declaration then.
             }
 
+            if (symbol->isForwardClassDeclaration()) {
+                def = snapshot.findMatchingClassDeclaration(symbol);
+            }
+
             link = linkToSymbol(def ? def : symbol);
             link.begin = beginOfToken;
             link.end = endOfToken;

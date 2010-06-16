@@ -793,3 +793,26 @@ Symbol *Snapshot::findMatchingDefinition(Symbol *symbol) const
 
     return 0;
 }
+
+Class *Snapshot::findMatchingClassDeclaration(Symbol *declaration) const
+{
+    if (! declaration->identifier())
+        return 0;
+
+    foreach (Document::Ptr doc, *this) {
+        if (! doc->control()->findIdentifier(declaration->identifier()->chars(),
+                                             declaration->identifier()->size()))
+            continue;
+
+        LookupContext context(doc, *this);
+
+        ClassOrNamespace *type = context.lookupType(declaration);
+        if (!type || type->symbols().count() != 1)
+            continue;
+
+        if (Class *c = type->symbols().first()->asClass())
+            return c;
+    }
+
+    return 0;
+}
