@@ -17,7 +17,7 @@ General
      of Qt creator
    * Added option to set interface language explicitly, overriding the locale
      setting
-   * New "Design" mode for visual editors (.ui & .qml files)
+   * New "Design" mode for visual editors
    * Fixed crash when working with empty pro-file
    * Ask for close, save, or save as when file is removed while open in Qt Creator
    * Use shadowbuilding by default in new projects whenever possible
@@ -93,11 +93,6 @@ QML/JS Support
   * Added initial semantic checks
 
   * New qml based .qmlproject file format (replaces old format)
-
-  * New QmlDesigner
-     * Allows visual manipulation of .qml files
-     * Supports changing top-level states
-     * Integrates tighly with text editor, e.g. shared history, navigation facilities ...
 
 Platform Specific
 
