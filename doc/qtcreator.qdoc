@@ -6240,9 +6240,9 @@
 
     \section1 Troubleshooting
 
-    In complicated networks, the network configuration might block the connection
-    between Qt Creator and a device described in this section. If you cannot
-    establish a connection, try the following optional configurations:
+    The addresses used in this example might be reserved by some other application
+    in your network. If you cannot establish a connection, try the following optional
+    configurations:
 
     \table
 
