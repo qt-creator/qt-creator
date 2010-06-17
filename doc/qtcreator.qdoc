@@ -7403,6 +7403,11 @@
 
         \o Creating new \c CMake projects with Qt Creator is not supported.
 
+        \o Building and packaging sub-projects is not supported for Maemo devices.
+
+        \o You must create projects for Maemo targets on the same partition where
+        you installed Nokia Qt SDK, Qt Creator, and MADDE.
+
     \endlist
 
     \section1 Debugging
