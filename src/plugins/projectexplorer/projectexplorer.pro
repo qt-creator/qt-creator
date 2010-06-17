@@ -17,6 +17,7 @@ HEADERS += projectexplorer.h \
     target.h \
     targetsettingspanel.h \
     task.h \
+    itaskhandler.h \
     taskwindow.h \
     outputwindow.h \
     persistentsettings.h \
