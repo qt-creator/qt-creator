@@ -202,7 +202,7 @@ void Highlighter::iterateThroughRules(const QString &text,
         if (rule->matchSucceed(text, length, progress)) {
             atLeastOneMatch = true;
 
-            if (progress->willContinueLine()) {
+            if (progress->isWillContinueLine()) {
                 createWillContinueBlock();
                 progress->setWillContinueLine(false);
             } else {
@@ -247,7 +247,7 @@ void Highlighter::iterateThroughRules(const QString &text,
         } else {
             applyFormat(progress->offset(), 1, m_currentContext->itemData(),
                         m_currentContext->definition());
-            if (progress->onlySpacesSoFar() && !text.at(progress->offset()).isSpace())
+            if (progress->isOnlySpacesSoFar() && !text.at(progress->offset()).isSpace())
                 progress->setOnlySpacesSoFar(false);
             progress->incrementOffset();
         }

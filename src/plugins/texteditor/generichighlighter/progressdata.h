@@ -50,10 +50,10 @@ public:
     void restoreOffset();
 
     void setOnlySpacesSoFar(const bool onlySpaces);
-    bool onlySpacesSoFar() const;
+    bool isOnlySpacesSoFar() const;
 
     void setWillContinueLine(const bool willContinue);
-    bool willContinueLine() const;
+    bool isWillContinueLine() const;
 
     void setCaptures(const QStringList &captures);
     const QStringList &captures() const;

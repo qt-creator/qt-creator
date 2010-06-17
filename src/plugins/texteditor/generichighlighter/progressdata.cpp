@@ -66,13 +66,13 @@ void ProgressData::restoreOffset()
 void ProgressData::setOnlySpacesSoFar(const bool onlySpaces)
 { m_onlySpacesSoFar = onlySpaces; }
 
-bool ProgressData::onlySpacesSoFar() const
+bool ProgressData::isOnlySpacesSoFar() const
 { return m_onlySpacesSoFar; }
 
 void ProgressData::setWillContinueLine(const bool willContinue)
 { m_willContinueLine = willContinue; }
 
-bool ProgressData::willContinueLine() const
+bool ProgressData::isWillContinueLine() const
 { return m_willContinueLine; }
 
 void ProgressData::setCaptures(const QStringList &captures)

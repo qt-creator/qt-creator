@@ -149,8 +149,8 @@ void tst_SpecificRules::testMatch(const Rule &rule, ProgressData *progress) cons
 
     QTEST(rule.matchSucceed(s, s.length(), progress), "match");
     QTEST(progress->offset(), "offset");
-    QTEST(progress->onlySpacesSoFar(), "only spaces");
-    QTEST(progress->willContinueLine(), "will continue");
+    QTEST(progress->isOnlySpacesSoFar(), "only spaces");
+    QTEST(progress->isWillContinueLine(), "will continue");
 }
 
 void tst_SpecificRules::testDetectChar()
