@@ -107,15 +107,8 @@ void Highlighter::highlightBlock(const QString &text)
 
             ProgressData progress;
             const int length = text.length();
-            while (progress.offset() < length) {
-                if (progress.offset() > 0 &&
-                    progress.onlySpacesSoFar() &&
-                    !text.at(progress.offset()).isSpace()) {
-                    progress.setOnlySpacesSoFar(false);
-                }
-
+            while (progress.offset() < length)
                 iterateThroughRules(text, length, &progress, false, m_currentContext->rules());
-            }
 
             handleContextChange(m_currentContext->lineEndContext(),
                                 m_currentContext->definition(),
@@ -254,6 +247,8 @@ void Highlighter::iterateThroughRules(const QString &text,
         } else {
             applyFormat(progress->offset(), 1, m_currentContext->itemData(),
                         m_currentContext->definition());
+            if (progress->onlySpacesSoFar() && !text.at(progress->offset()).isSpace())
+                progress->setOnlySpacesSoFar(false);
             progress->incrementOffset();
         }
     }

@@ -80,6 +80,9 @@ private slots:
     void testDynamicContexts();
     void testDynamicContexts_data();
 
+    void testFirstNonSpace();
+    void testFirstNonSpace_data();
+
 private:
     void createKeywords();
     void createContexts();
@@ -436,6 +439,13 @@ void tst_HighlighterEngine::createContexts()
     r26->setActive("true");
     r26->setDefinition(m_definition);
     dynamic->addRule(QSharedPointer<Rule>(r26));
+
+    DetectCharRule *r27 = new DetectCharRule;
+    r27->setChar("|");
+    r27->setItemData("Error");
+    r27->setFirstNonSpace("true");
+    r27->setDefinition(m_definition);
+    normal->addRule(QSharedPointer<Rule>(r27));
 }
 
 void tst_HighlighterEngine::createItemDatas()
@@ -1029,6 +1039,47 @@ void tst_HighlighterEngine::testDynamicContexts_data()
     sequences << seqb;
     text = "a ---abcddeeff a beginddeeffend";
     QTest::newRow("case 1") << states << sequences << text;
+}
+
+void tst_HighlighterEngine::testFirstNonSpace()
+{
+    test();
+}
+
+void tst_HighlighterEngine::testFirstNonSpace_data()
+{
+    createColumns();
+
+    QList<int> states;
+    QList<HighlightSequence> sequences;
+    QString text;
+
+    HighlightSequence seqa(0, 1, Formats::instance().errorFormat());
+    HighlightSequence seqb(0, 3);
+    seqb.add(3, 4, Formats::instance().errorFormat());
+    HighlightSequence seqc(0, 1);
+    seqc.add(1, 2, Formats::instance().errorFormat());
+    HighlightSequence seqd(0, 2);
+
+    states << 0;
+    sequences << seqa;
+    text = "|";
+    QTest::newRow("case 0") << states << sequences << text;
+
+    sequences.clear();
+    sequences << seqb;
+    text = "   |";
+    QTest::newRow("case 1") << states << sequences << text;
+
+    sequences.clear();
+    sequences << seqc;
+    text = "\t|";
+    QTest::newRow("case 2") << states << sequences << text;
+
+    sequences.clear();
+    sequences << seqd;
+    text = "a|";
+    QTest::newRow("case 3") << states << sequences << text;
 }
 
 QTEST_MAIN(tst_HighlighterEngine)
