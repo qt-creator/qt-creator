@@ -293,10 +293,10 @@ public:
     ProFile *parsedProFile(const QString &fileName, bool cache,
                            const QString &contents = QString());
     bool evaluateFileDirect(const QString &fileName, ProFileEvaluator::EvalFileType type);
-    bool evaluateFile(const QString &fileName);
+    bool evaluateFile(const QString &fileName, ProFileEvaluator::EvalFileType type);
     bool evaluateFeatureFile(const QString &fileName,
                              QHash<ProString, ProStringList> *values = 0, FunctionDefs *defs = 0);
-    bool evaluateFileInto(const QString &fileName,
+    bool evaluateFileInto(const QString &fileName, ProFileEvaluator::EvalFileType type,
                           QHash<ProString, ProStringList> *values, FunctionDefs *defs);
 
     static ALWAYS_INLINE VisitReturn returnBool(bool b)
@@ -2072,7 +2072,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
                 if (!qmake_cache.isEmpty()) {
                     qmake_cache = resolvePath(qmake_cache);
                     QHash<ProString, ProStringList> cache_valuemap;
-                    if (evaluateFileInto(qmake_cache, &cache_valuemap, 0)) {
+                    if (evaluateFileInto(qmake_cache, ProFileEvaluator::EvalFeatureFile,
+                                         &cache_valuemap, 0)) {
                         if (m_option->qmakespec.isEmpty()) {
                             const ProStringList &vals = cache_valuemap.value(ProString("QMAKESPEC"));
                             if (!vals.isEmpty())
@@ -2128,11 +2129,11 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
                     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
                     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileInto(spec,
+                    if (!evaluateFileInto(spec, ProFileEvaluator::EvalFeatureFile,
                                           &m_option->base_valuemap, &m_option->base_functions)) {
                         errorMessage(format("Could not read qmake configuration file %1").arg(spec));
                     } else if (!m_option->cachefile.isEmpty()) {
-                        evaluateFileInto(m_option->cachefile,
+                        evaluateFileInto(m_option->cachefile, ProFileEvaluator::EvalFeatureFile,
                                          &m_option->base_valuemap, &m_option->base_functions);
                     }
                     m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
@@ -3014,7 +3015,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (evaluateFileInto(fn, &vars, 0))
+                if (evaluateFileInto(fn, ProFileEvaluator::EvalIncludeFile, &vars, 0))
                     ret = vars.value(map(args.at(1)));
             }
             break;
@@ -3294,7 +3295,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (!evaluateFileInto(fn, &vars, 0))
+                if (!evaluateFileInto(fn, ProFileEvaluator::EvalIncludeFile, &vars, 0))
                     return ReturnFalse;
                 if (args.count() == 2)
                     return returnBool(vars.contains(args.at(1)));
@@ -3578,10 +3579,10 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             fn.detach();
             bool ok;
             if (parseInto.isEmpty()) {
-                ok = evaluateFile(fn);
+                ok = evaluateFile(fn, ProFileEvaluator::EvalIncludeFile);
             } else {
                 QHash<ProString, ProStringList> symbols;
-                if ((ok = evaluateFileInto(fn, &symbols, 0))) {
+                if ((ok = evaluateFileInto(fn, ProFileEvaluator::EvalIncludeFile, &symbols, 0))) {
                     QHash<ProString, ProStringList> newMap;
                     for (QHash<ProString, ProStringList>::ConstIterator
                             it = m_valuemapStack.top().constBegin(),
@@ -3936,7 +3937,8 @@ bool ProFileEvaluator::Private::evaluateFileDirect(
     }
 }
 
-bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
+bool ProFileEvaluator::Private::evaluateFile(
+        const QString &fileName, ProFileEvaluator::EvalFileType type)
 {
     if (fileName.isEmpty())
         return false;
@@ -3945,7 +3947,7 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
             errorMessage(format("circular inclusion of %1").arg(fileName));
             return false;
         }
-    return evaluateFileDirect(fileName, ProFileEvaluator::EvalIncludeFile);
+    return evaluateFileDirect(fileName, type);
 }
 
 bool ProFileEvaluator::Private::evaluateFeatureFile(
@@ -3988,7 +3990,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
     }
 
     if (values) {
-        return evaluateFileInto(fn, values, funcs);
+        return evaluateFileInto(fn, ProFileEvaluator::EvalFeatureFile, values, funcs);
     } else {
         bool cumulative = m_cumulative;
         m_cumulative = false;
@@ -4002,7 +4004,8 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
 }
 
 bool ProFileEvaluator::Private::evaluateFileInto(
-        const QString &fileName, QHash<ProString, ProStringList> *values, FunctionDefs *funcs)
+        const QString &fileName, ProFileEvaluator::EvalFileType type,
+        QHash<ProString, ProStringList> *values, FunctionDefs *funcs)
 {
     ProFileEvaluator visitor(m_option);
     visitor.d->m_cumulative = false;
@@ -4011,7 +4014,7 @@ bool ProFileEvaluator::Private::evaluateFileInto(
     visitor.d->m_valuemapStack.top() = *values;
     if (funcs)
         visitor.d->m_functionDefs = *funcs;
-    if (!visitor.d->evaluateFile(fileName))
+    if (!visitor.d->evaluateFile(fileName, type))
         return false;
     *values = visitor.d->m_valuemapStack.top();
     if (funcs)
