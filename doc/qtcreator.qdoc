@@ -6238,6 +6238,40 @@
 
          \endlist
 
+    \section1 Troubleshooting
+
+    In complicated networks, the network configuration might block the connection
+    between Qt Creator and a device described in this section. If you cannot
+    establish a connection, try the following optional configurations:
+
+    \table
+
+        \header
+            \o usb0 in Mad Developer on Device
+            \o USB Network on Development PC
+            \o Host Name in Qt Creator Build Settings
+
+        \row
+            \o 172.30.7.15 255.255.255.0
+            \o 172.30.7.14 255.255.255.0
+            \o 172.30.7.15
+
+        \row
+            \o 10.133.133.15
+            \o 10.133.133.14
+            \o 10.133.133.15
+
+        \row
+            \o 192.168.133.15
+            \o 192.168.133.14
+            \o 192.168.133.15
+
+            \note You cannot use the value localhost for connections to a device.
+
+        \endtable
+
+    \note VPN connections might block the device connection.
+
 */
 
 
