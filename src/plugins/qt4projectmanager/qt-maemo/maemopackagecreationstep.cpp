@@ -233,11 +233,7 @@ bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command
         return false;
     }
     proc.write("\n"); // For dh_make
-    if (!proc.waitForFinished(60000) && proc.error() == QProcess::Timedout) {
-        raiseError(tr("Packaging failed."),
-                   tr("Packaging Error: Command '%1' timed out.").arg(command));
-        return false;
-    }
+    proc.waitForFinished(-1);
     if (proc.error() != QProcess::UnknownError || proc.exitCode() != 0) {
         QString mainMessage = tr("Packaging Error: Command '%1' failed.")
             .arg(command);
