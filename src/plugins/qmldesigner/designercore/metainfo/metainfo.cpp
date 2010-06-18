@@ -130,7 +130,7 @@ void MetaInfoPrivate::loadPlugins(QDeclarativeEngine *engine)
 
     QStringList pluginList;
     pluginList += "import Qt 4.7";
-    pluginList += "import org.webkit 1.0";
+    pluginList += "import QtWebKit 1.0";
 
     // load maybe useful plugins
     pluginList += "import Qt.labs.folderlistmodel 1.0";
