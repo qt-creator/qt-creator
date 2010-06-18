@@ -77,6 +77,7 @@ const char * const REMOVEFILE           = "ProjectExplorer.RemoveFile";
 const char * const RENAMEFILE           = "ProjectExplorer.RenameFile";
 
 const char * const SHOW_TASK_IN_EDITOR  = "ProjectExplorer.ShowTaskInEditor";
+const char * const VCS_ANNOTATE_TASK    = "ProjectExplorer.VcsAnnotateTask";
 
 // Run modes
 const char * const RUNMODE              = "ProjectExplorer.RunMode";

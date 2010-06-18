@@ -35,6 +35,7 @@
 #include "targetsettingspanel.h"
 #include "copytaskhandler.h"
 #include "showineditortaskhandler.h"
+#include "vcsannotatetaskhandler.h"
 #include "applicationrunconfiguration.h"
 #include "allprojectsfilter.h"
 #include "allprojectsfind.h"
@@ -283,6 +284,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new CopyTaskHandler);
     addAutoReleasedObject(new ShowInEditorTaskHandler);
+    addAutoReleasedObject(new VcsAnnotateTaskHandler);
 
     d->m_buildManager = new BuildManager(this);
     connect(d->m_buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project *)),

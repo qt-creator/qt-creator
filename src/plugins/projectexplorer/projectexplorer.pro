@@ -20,6 +20,7 @@ HEADERS += projectexplorer.h \
     itaskhandler.h \
     copytaskhandler.h \
     showineditortaskhandler.h \
+    vcsannotatetaskhandler.h \
     taskwindow.h \
     outputwindow.h \
     persistentsettings.h \
@@ -100,6 +101,7 @@ SOURCES += projectexplorer.cpp \
     task.cpp \
     copytaskhandler.cpp \
     showineditortaskhandler.cpp \
+    vcsannotatetaskhandler.cpp \
     taskwindow.cpp \
     outputwindow.cpp \
     persistentsettings.cpp \
