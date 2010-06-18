@@ -46,7 +46,7 @@ class ProMessageHandler : public QObject,
     Q_OBJECT
 
 public:
-    ProMessageHandler(bool verbose = false) : m_verbose(verbose) {}
+    ProMessageHandler(bool verbose = false);
     virtual ~ProMessageHandler() {}
 
     virtual void aboutToEval(ProFile *, ProFile *, EvalFileType) {}

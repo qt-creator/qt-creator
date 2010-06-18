@@ -937,9 +937,6 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode)
     ++m_proFileOptionRefCnt;
 
     ProFileReader *reader = new ProFileReader(m_proFileOption);
-    connect(reader, SIGNAL(errorFound(QString)),
-            this, SLOT(proFileParseError(QString)),
-            Qt::QueuedConnection);
 
     reader->setOutputDir(qt4ProFileNode->buildDir());
 

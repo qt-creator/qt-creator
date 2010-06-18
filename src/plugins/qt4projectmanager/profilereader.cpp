@@ -29,6 +29,9 @@
 
 #include "profilereader.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
+
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
@@ -41,6 +44,14 @@ static QString format(const QString &fileName, int lineNo, const QString &msg)
         return QString::fromLatin1("%1(%2): %3").arg(fileName, QString::number(lineNo), msg);
     else
         return msg;
+}
+
+ProMessageHandler::ProMessageHandler(bool verbose)
+    : m_verbose(verbose)
+{
+    QObject::connect(this, SIGNAL(errorFound(QString)),
+                     Core::ICore::instance()->messageManager(), SLOT(printToOutputPane(QString)),
+                     Qt::QueuedConnection);
 }
 
 void ProMessageHandler::parseError(const QString &fileName, int lineNo, const QString &msg)
