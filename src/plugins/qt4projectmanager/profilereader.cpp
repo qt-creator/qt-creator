@@ -66,7 +66,8 @@ void ProMessageHandler::fileMessage(const QString &)
 
 
 ProFileReader::ProFileReader(ProFileOption *option)
-    : ProFileEvaluator(option, this)
+    : ProFileParser(ProFileCacheManager::instance()->cache(), this)
+    , ProFileEvaluator(option, this, this)
     , m_ignoreLevel(0)
 {
 }

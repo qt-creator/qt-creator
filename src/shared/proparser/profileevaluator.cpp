@@ -28,7 +28,8 @@
 **************************************************************************/
 
 #include "profileevaluator.h"
-#include "proitems.h"
+
+#include "profileparser.h"
 #include "ioutils.h"
 
 #include <QtCore/QByteArray>
@@ -44,7 +45,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
-#ifdef PROPARSER_THREAD_SAFE
+#ifdef PROEVALUATOR_THREAD_SAFE
 # include <QtCore/QThreadPool>
 #endif
 
@@ -65,65 +66,12 @@
 #define QT_PCLOSE pclose
 #endif
 
-// Be fast even for debug builds
-#ifdef __GNUC__
-# define ALWAYS_INLINE inline __attribute__((always_inline))
-#elif defined(_MSC_VER)
-# define ALWAYS_INLINE __forceinline
-#else
-# define ALWAYS_INLINE inline
-#endif
-
 using namespace ProFileEvaluatorInternal;
 
 QT_BEGIN_NAMESPACE
 
 using namespace ProStringConstants;
 
-
-///////////////////////////////////////////////////////////////////////
-//
-// ProFileCache
-//
-///////////////////////////////////////////////////////////////////////
-
-ProFileCache::~ProFileCache()
-{
-    foreach (const Entry &ent, parsed_files)
-        if (ent.pro)
-            ent.pro->deref();
-}
-
-void ProFileCache::discardFile(const QString &fileName)
-{
-#ifdef PROPARSER_THREAD_SAFE
-    QMutexLocker lck(&mutex);
-#endif
-    QHash<QString, Entry>::Iterator it = parsed_files.find(fileName);
-    if (it != parsed_files.end()) {
-        if (it->pro)
-            it->pro->deref();
-        parsed_files.erase(it);
-    }
-}
-
-void ProFileCache::discardFiles(const QString &prefix)
-{
-#ifdef PROPARSER_THREAD_SAFE
-    QMutexLocker lck(&mutex);
-#endif
-    QHash<QString, Entry>::Iterator
-            it = parsed_files.begin(),
-            end = parsed_files.end();
-    while (it != end)
-        if (it.key().startsWith(prefix)) {
-            if (it->pro)
-                it->pro->deref();
-            it = parsed_files.erase(it);
-        } else {
-            ++it;
-        }
-}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -152,8 +100,6 @@ ProFileOption::ProFileOption()
     target_mode = TARG_UNIX_MODE;
 #endif
 
-    cache = 0;
-
 #ifdef PROEVALUATOR_THREAD_SAFE
     base_inProgress = false;
 #endif
@@ -175,70 +121,12 @@ class ProFileEvaluator::Private
 {
 public:
     static void initStatics();
-    Private(ProFileEvaluator *q_, ProFileOption *option,
+    Private(ProFileEvaluator *q_, ProFileOption *option, ProFileParser *parser,
             ProFileEvaluatorHandler *handler);
     ~Private();
 
     ProFileEvaluator *q;
     int m_lineNo;                                   // Error reporting
-
-    /////////////// Reading pro file
-
-    struct BlockScope {
-        BlockScope() : start(0), braceLevel(0), special(false), inBranch(false) {}
-        BlockScope(BlockScope &other) :
-                start(other.start), braceLevel(other.braceLevel),
-                special(other.special), inBranch(other.inBranch) {}
-        ushort *start; // Where this block started; store length here
-        int braceLevel; // Nesting of braces in scope
-        bool special; // Single-line conditionals cannot have else branches
-        bool inBranch; // The 'else' branch of the previous TokBranch is still open
-    };
-
-    enum ScopeState {
-        StNew,  // Fresh scope
-        StCtrl, // Control statement (for or else) met on current line
-        StCond  // Conditionals met on current line
-    };
-
-    enum Context { CtxTest, CtxValue, CtxArgs };
-    struct ParseCtx {
-        int parens; // Nesting of non-functional parentheses
-        int argc; // Number of arguments in current function call
-        int litCount; // Number of literals in current expression
-        int expCount; // Number of expansions in current expression
-        Context context;
-        ushort quote; // Enclosing quote type
-        ushort terminator; // '}' if replace function call is braced, ':' if test function
-    };
-
-    bool read(ProFile *pro);
-    bool read(ProFile *pro, const QString &content);
-    bool read(QString *out, const QString &content);
-    bool readInternal(QString *out, const QString &content);
-
-    ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
-    ALWAYS_INLINE void putBlockLen(ushort *&tokPtr, uint len);
-    ALWAYS_INLINE void putBlock(ushort *&tokPtr, const ushort *buf, uint len);
-    void putHashStr(ushort *&pTokPtr, const ushort *buf, uint len);
-    void finalizeHashStr(ushort *buf, uint len);
-    void putLineMarker(ushort *&tokPtr);
-    void finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr);
-    void finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc);
-    void finalizeTest(ushort *&tokPtr);
-    void enterScope(ushort *&tokPtr, bool special, ScopeState state);
-    void leaveScope(ushort *&tokPtr);
-    void flushCond(ushort *&tokPtr);
-    void flushScopes(ushort *&tokPtr);
-
-    QStack<BlockScope> m_blockstack;
-    ScopeState m_state;
-    int m_markLine; // Put marker for this line
-    bool m_canElse; // Conditionals met on previous line, but no scope was opened
-    bool m_invert; // Pending conditional is negated
-    enum { NoOperator, AndOperator, OrOperator } m_operator; // Pending conditional is ORed/ANDed
-
-    /////////////// Evaluating pro file contents
 
     enum VisitReturn {
         ReturnFalse,
@@ -278,7 +166,6 @@ public:
     ProStringList evaluateExpandFunction(const ProString &function, const ProString &arguments);
     ProStringList evaluateExpandFunction(const ProString &function, const ushort *&tokPtr);
     ProStringList evaluateExpandFunction(const ProString &function, const ProStringList &args);
-    void parseError(const QString &msg) const;
     void evalError(const QString &msg) const;
 
     QString currentFileName() const;
@@ -290,8 +177,6 @@ public:
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProString &arguments);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ushort *&tokPtr);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
-    ProFile *parsedProFile(const QString &fileName, bool cache,
-                           const QString &contents = QString());
     bool evaluateFileDirect(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
     bool evaluateFile(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
     bool evaluateFeatureFile(const QString &fileName,
@@ -331,6 +216,7 @@ public:
     bool m_parsePreAndPostFiles;
 
     ProFileOption *m_option;
+    ProFileParser *m_parser;
     ProFileEvaluatorHandler *m_handler;
 
     enum ExpandFunc {
@@ -359,14 +245,8 @@ public:
     };
 };
 
-#if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
-Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::BlockScope, Q_MOVABLE_TYPE);
-Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::Context, Q_PRIMITIVE_TYPE);
-#endif
-
 static struct {
     QString field_sep;
-    QString strelse;
     QString strtrue;
     QString strfalse;
     QString strunix;
@@ -379,11 +259,8 @@ static struct {
     ProString strARGS;
     QString strDot;
     QString strDotDot;
-    QString strfor;
     QString strever;
     QString strforever;
-    QString strdefineTest;
-    QString strdefineReplace;
     ProString strTEMPLATE;
     ProString strQMAKE_DIR_SEP;
     QHash<QString, int> expands;
@@ -400,7 +277,6 @@ void ProFileEvaluator::Private::initStatics()
         return;
 
     statics.field_sep = QLatin1String(" ");
-    statics.strelse = QLatin1String("else");
     statics.strtrue = QLatin1String("true");
     statics.strfalse = QLatin1String("false");
     statics.strunix = QLatin1String("unix");
@@ -413,11 +289,8 @@ void ProFileEvaluator::Private::initStatics()
     statics.strARGS = ProString("ARGS");
     statics.strDot = QLatin1String(".");
     statics.strDotDot = QLatin1String("..");
-    statics.strfor = QLatin1String("for");
     statics.strever = QLatin1String("ever");
     statics.strforever = QLatin1String("forever");
-    statics.strdefineTest = QLatin1String("defineTest");
-    statics.strdefineReplace = QLatin1String("defineReplace");
     statics.strTEMPLATE = ProString("TEMPLATE");
     statics.strQMAKE_DIR_SEP = ProString("QMAKE_DIR_SEP");
 
@@ -542,8 +415,8 @@ ProString ProFileEvaluator::Private::map(const ProString &var)
 
 
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option,
-                                   ProFileEvaluatorHandler *handler)
-  : q(q_), m_option(option), m_handler(handler)
+                                   ProFileParser *parser, ProFileEvaluatorHandler *handler)
+  : q(q_), m_option(option), m_parser(parser), m_handler(handler)
 {
     // So that single-threaded apps don't have to call initialize() for now.
     initStatics();
@@ -561,825 +434,6 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option,
 
 ProFileEvaluator::Private::~Private()
 {
-}
-
-////////// Parser ///////////
-
-bool ProFileEvaluator::Private::read(ProFile *pro)
-{
-    QFile file(pro->fileName());
-    if (!file.open(QIODevice::ReadOnly)) {
-        if (IoUtils::exists(pro->fileName()))
-            parseError(fL1S("%1 not readable.").arg(pro->fileName()));
-        return false;
-    }
-
-    QString content(QString::fromLocal8Bit(file.readAll()));
-    file.close();
-    m_lineNo = 1;
-    m_profileStack.push(pro);
-    bool ret = readInternal(pro->itemsRef(), content);
-    m_profileStack.pop();
-    return ret;
-}
-
-bool ProFileEvaluator::Private::read(ProFile *pro, const QString &content)
-{
-    m_lineNo = 1;
-    m_profileStack.push(pro);
-    bool ret = readInternal(pro->itemsRef(), content);
-    m_profileStack.pop();
-    return ret;
-}
-
-bool ProFileEvaluator::Private::read(QString *out, const QString &content)
-{
-    m_lineNo = 0;
-    return readInternal(out, content);
-}
-
-void ProFileEvaluator::Private::putTok(ushort *&tokPtr, ushort tok)
-{
-    *tokPtr++ = tok;
-}
-
-void ProFileEvaluator::Private::putBlockLen(ushort *&tokPtr, uint len)
-{
-    *tokPtr++ = (ushort)len;
-    *tokPtr++ = (ushort)(len >> 16);
-}
-
-void ProFileEvaluator::Private::putBlock(ushort *&tokPtr, const ushort *buf, uint len)
-{
-    memcpy(tokPtr, buf, len * 2);
-    tokPtr += len;
-}
-
-void ProFileEvaluator::Private::putHashStr(ushort *&pTokPtr, const ushort *buf, uint len)
-{
-    uint hash = ProString::hash((const QChar *)buf, len);
-    ushort *tokPtr = pTokPtr;
-    *tokPtr++ = (ushort)hash;
-    *tokPtr++ = (ushort)(hash >> 16);
-    *tokPtr++ = (ushort)len;
-    memcpy(tokPtr, buf, len * 2);
-    pTokPtr = tokPtr + len;
-}
-
-void ProFileEvaluator::Private::finalizeHashStr(ushort *buf, uint len)
-{
-    buf[-4] = TokHashLiteral;
-    buf[-1] = len;
-    uint hash = ProString::hash((const QChar *)buf, len);
-    buf[-3] = (ushort)hash;
-    buf[-2] = (ushort)(hash >> 16);
-}
-
-// We know that the buffer cannot grow larger than the input string,
-// and the read() functions rely on it.
-bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
-{
-    // Final precompiled token stream buffer
-    QString tokBuff;
-    // Worst-case size calculations:
-    // - line marker adds 1 (2-nl) to 1st token of each line
-    // - empty assignment "A=":2 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) +
-    //   TokValueTerminator(1) == 7 (8)
-    // - non-empty assignment "A=B C":5 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) +
-    //   TokLiteral(1) + len(1) + "B"(1) +
-    //   TokLiteral(1) + len(1) + "C"(1) + TokValueTerminator(1) == 13 (14)
-    // - variable expansion: "$$f":3 =>
-    //   TokVariable(1) + hash(2) + len(1) + "f"(1) = 5
-    // - function expansion: "$$f()":5 =>
-    //   TokFuncName(1) + hash(2) + len(1) + "f"(1) + TokFuncTerminator(1) = 6
-    // - scope: "X:":2 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokCondition(1) +
-    //   TokBranch(1) + len(2) + ... + len(2) + ... == 10
-    // - test: "X():":4 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokTestCall(1) + TokFuncTerminator(1) +
-    //   TokBranch(1) + len(2) + ... + len(2) + ... == 11
-    // - "for(A,B):":9 =>
-    //   TokForLoop(1) + hash(2) + len(1) + "A"(1) +
-    //   len(2) + TokLiteral(1) + len(1) + "B"(1) + TokValueTerminator(1) +
-    //   len(2) + ... + TokTerminator(1) == 14 (15)
-    tokBuff.reserve((in.size() + 1) * 5);
-    ushort *tokPtr = (ushort *)tokBuff.constData(); // Current writing position
-
-    // Expression precompiler buffer.
-    QString xprBuff;
-    xprBuff.reserve(tokBuff.capacity()); // Excessive, but simple
-    ushort *buf = (ushort *)xprBuff.constData();
-
-    // Parser state
-    m_blockstack.resize(m_blockstack.size() + 1);
-
-    QStack<ParseCtx> xprStack;
-    xprStack.reserve(10);
-
-    // We rely on QStrings being null-terminated, so don't maintain a global end pointer.
-    const ushort *cur = (const ushort *)in.unicode();
-    m_canElse = false;
-  freshLine:
-    m_state = StNew;
-    m_invert = false;
-    m_operator = NoOperator;
-    m_markLine = m_lineNo;
-    Context context = CtxTest;
-    int parens = 0;
-    int argc = 0;
-    int litCount = 0;
-    int expCount = 0;
-    bool inError = false;
-    bool putSpace = false; // Only ever true inside quoted string
-    bool lineMarked = true; // For in-expression markers
-    ushort needSep = 0; // Complementary to putSpace: separator outside quotes
-    ushort quote = 0;
-    ushort term = 0;
-
-    ushort *ptr = buf;
-    ptr += 4;
-    ushort *xprPtr = ptr;
-
-#define FLUSH_LHS_LITERAL(setSep) \
-    do { \
-        if ((tlen = ptr - xprPtr)) { \
-            if (needSep) \
-                goto extraChars; \
-            finalizeHashStr(xprPtr, tlen); \
-            if (setSep) \
-                needSep = TokNewStr; \
-        } else { \
-            ptr -= 4; \
-            if (setSep && ptr != buf) \
-                needSep = TokNewStr; \
-        } \
-    } while (0)
-
-#define FLUSH_RHS_LITERAL(setSep) \
-    do { \
-        if ((tlen = ptr - xprPtr)) { \
-            xprPtr[-2] = TokLiteral | needSep; \
-            xprPtr[-1] = tlen; \
-            if (setSep) \
-                needSep = TokNewStr; \
-            litCount++; \
-        } else { \
-            ptr -= 2; \
-            if (setSep && ptr != ((context == CtxValue) ? tokPtr : buf)) \
-                needSep = TokNewStr; \
-        } \
-    } while (0)
-
-#define FLUSH_LITERAL(setSep) \
-    do { \
-        if (context == CtxTest) \
-            FLUSH_LHS_LITERAL(setSep); \
-        else \
-            FLUSH_RHS_LITERAL(setSep); \
-    } while (0)
-
-    forever {
-        ushort c;
-
-        // First, skip leading whitespace
-        for (;; ++cur) {
-            c = *cur;
-            if (c == '\n') {
-                ++cur;
-                goto flushLine;
-            } else if (!c) {
-                goto flushLine;
-            } else if (c != ' ' && c != '\t' && c != '\r') {
-                break;
-            }
-        }
-
-        // Then strip comments. Yep - no escaping is possible.
-        const ushort *end; // End of this line
-        const ushort *cptr; // Start of next line
-        for (cptr = cur;; ++cptr) {
-            c = *cptr;
-            if (c == '#') {
-                for (end = cptr; (c = *++cptr);) {
-                    if (c == '\n') {
-                        ++cptr;
-                        break;
-                    }
-                }
-                if (end == cur) { // Line with only a comment (sans whitespace)
-                    // Qmake bizarreness: such lines do not affect line continuations
-                    goto ignore;
-                }
-                break;
-            }
-            if (!c) {
-                end = cptr;
-                break;
-            }
-            if (c == '\n') {
-                end = cptr++;
-                break;
-            }
-        }
-
-        // Then look for line continuations. Yep - no escaping here as well.
-        bool lineCont;
-        forever {
-            // We don't have to check for underrun here, as we already determined
-            // that the line is non-empty.
-            ushort ec = *(end - 1);
-            if (ec == '\\') {
-                --end;
-                lineCont = true;
-                break;
-            }
-            if (ec != ' ' && ec != '\t' && ec != '\r') {
-                lineCont = false;
-                break;
-            }
-            --end;
-        }
-
-        if (!inError) {
-            // Finally, do the tokenization
-            ushort tok, rtok;
-            int tlen;
-          newToken:
-            do {
-                if (cur == end)
-                    goto lineEnd;
-                c = *cur++;
-            } while (c == ' ' || c == '\t');
-            forever {
-                if (c == '$') {
-                    if (*cur == '$') { // may be EOF, EOL, WS or '#' if past end
-                        cur++;
-                        if (putSpace) {
-                            putSpace = false;
-                            *ptr++ = ' ';
-                        }
-                        tlen = ptr - xprPtr;
-                        if (context == CtxTest) {
-                            if (needSep)
-                                goto extraChars;
-                            if (tlen)
-                                finalizeHashStr(xprPtr, tlen);
-                            else
-                                ptr -= 4;
-                        } else {
-                            if (tlen) {
-                                xprPtr[-2] = TokLiteral | needSep;
-                                xprPtr[-1] = tlen;
-                                needSep = 0;
-                                litCount++;
-                            } else {
-                                ptr -= 2;
-                            }
-                        }
-                        if (!lineMarked) {
-                            lineMarked = true;
-                            *ptr++ = TokLine;
-                            *ptr++ = (ushort)m_lineNo;
-                        }
-                        term = 0;
-                        tok = TokVariable;
-                        c = *cur;
-                        if (c == '[') {
-                            ptr += 2;
-                            tok = TokProperty;
-                            term = ']';
-                            c = *++cur;
-                        } else if (c == '{') {
-                            ptr += 4;
-                            term = '}';
-                            c = *++cur;
-                        } else if (c == '(') {
-                            // FIXME: could/should expand this immediately
-                            ptr += 2;
-                            tok = TokEnvVar;
-                            term = ')';
-                            c = *++cur;
-                        } else {
-                            ptr += 4;
-                        }
-                        xprPtr = ptr;
-                        rtok = tok;
-                        while ((c & 0xFF00) || c == '.' || c == '_' ||
-                               (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-                               (c >= '0' && c <= '9')) {
-                            *ptr++ = c;
-                            if (++cur == end) {
-                                c = 0;
-                                goto notfunc;
-                            }
-                            c = *cur;
-                        }
-                        if (tok == TokVariable && c == '(')
-                            tok = TokFuncName;
-                      notfunc:
-                        if (quote)
-                            tok |= TokQuoted;
-                        tok |= needSep;
-                        needSep = 0;
-                        expCount++;
-                        tlen = ptr - xprPtr;
-                        if (rtok == TokVariable) {
-                            xprPtr[-4] = tok;
-                            uint hash = ProString::hash((const QChar *)xprPtr, tlen);
-                            xprPtr[-3] = (ushort)hash;
-                            xprPtr[-2] = (ushort)(hash >> 16);
-                        } else {
-                            xprPtr[-2] = tok;
-                        }
-                        xprPtr[-1] = tlen;
-                        if ((tok & TokMask) == TokFuncName) {
-                            cur++;
-                          funcCall:
-                            {
-                                xprStack.resize(xprStack.size() + 1);
-                                ParseCtx &top = xprStack.top();
-                                top.parens = parens;
-                                top.quote = quote;
-                                top.terminator = term;
-                                top.context = context;
-                                top.argc = argc;
-                                top.litCount = litCount;
-                                top.expCount = expCount;
-                            }
-                            parens = 0;
-                            quote = 0;
-                            term = 0;
-                            argc = 1;
-                            context = CtxArgs;
-                          nextToken:
-                            ptr += (context == CtxTest) ? 4 : 2;
-                            xprPtr = ptr;
-                            goto newToken;
-                        }
-                        if (term) {
-                            cur++;
-                          checkTerm:
-                            if (c != term) {
-                                parseError(fL1S("Missing %1 terminator [found %2]")
-                                    .arg(QChar(term))
-                                    .arg(c ? QString(c) : QString::fromLatin1("end-of-line")));
-                                return false;
-                            }
-                        }
-                      joinToken:
-                        ptr += (context == CtxTest) ? 4 : 2;
-                        xprPtr = ptr;
-                        goto nextChr;
-                    }
-                } else if (c == '\\') {
-                    static const char symbols[] = "[]{}()$\\'\"";
-                    ushort c2 = *cur;
-                    if (!(c2 & 0xff00) && strchr(symbols, c2)) {
-                        c = c2;
-                        cur++;
-                    }
-                } else if (quote) {
-                    if (c == quote) {
-                        quote = 0;
-                        if (putSpace) {
-                            putSpace = false;
-                            *ptr++ = ' ';
-                        }
-                        goto nextChr;
-                    } else if (c == ' ' || c == '\t') {
-                        putSpace = true;
-                        goto nextChr;
-                    } else if (c == '!' && ptr == xprPtr && context == CtxTest) {
-                        m_invert ^= true;
-                        goto nextChr;
-                    }
-                } else if (c == '\'' || c == '"') {
-                    quote = c;
-                    goto nextChr;
-                } else if (c == ' ' || c == '\t') {
-                    FLUSH_LITERAL(true);
-                    goto nextToken;
-                } else if (context == CtxArgs) {
-                    // Function arg context
-                    if (c == '(') {
-                        ++parens;
-                    } else if (c == ')') {
-                        if (--parens < 0) {
-                            FLUSH_RHS_LITERAL(false);
-                            *ptr++ = TokFuncTerminator;
-                            int theargc = argc;
-                            {
-                                ParseCtx &top = xprStack.top();
-                                parens = top.parens;
-                                quote = top.quote;
-                                term = top.terminator;
-                                context = top.context;
-                                argc = top.argc;
-                                litCount = top.litCount;
-                                expCount = top.expCount;
-                                xprStack.resize(xprStack.size() - 1);
-                            }
-                            if (term == ':') {
-                                finalizeCall(tokPtr, buf, ptr, theargc);
-                                needSep = TokNewStr;
-                                goto nextItem;
-                            } else if (term == '}') {
-                                c = (cur == end) ? 0 : *cur++;
-                                needSep = 0;
-                                goto checkTerm;
-                            } else {
-                                Q_ASSERT(!term);
-                                needSep = 0;
-                                goto joinToken;
-                            }
-                        }
-                    } else if (!parens && c == ',') {
-                        FLUSH_RHS_LITERAL(false);
-                        *ptr++ = TokArgSeparator;
-                        argc++;
-                        needSep = 0;
-                        goto nextToken;
-                    }
-                } else if (context == CtxTest) {
-                    // Test or LHS context
-                    if (c == '(') {
-                        FLUSH_LHS_LITERAL(false);
-                        if (ptr == buf) {
-                            parseError(fL1S("Opening parenthesis without prior test name."));
-                            inError = true;
-                            goto skip;
-                        }
-                        *ptr++ = TokTestCall;
-                        term = ':';
-                        needSep = 0;
-                        goto funcCall;
-                    } else if (c == '!' && ptr == xprPtr) {
-                        m_invert ^= true;
-                        goto nextChr;
-                    } else if (c == ':') {
-                        FLUSH_LHS_LITERAL(false);
-                        finalizeCond(tokPtr, buf, ptr);
-                        if (m_state == StNew)
-                            parseError(fL1S("And operator without prior condition."));
-                        else
-                            m_operator = AndOperator;
-                      nextItem:
-                        ptr = buf;
-                        needSep = 0;
-                        goto nextToken;
-                    } else if (c == '|') {
-                        FLUSH_LHS_LITERAL(false);
-                        finalizeCond(tokPtr, buf, ptr);
-                        if (m_state != StCond)
-                            parseError(fL1S("Or operator without prior condition."));
-                        else
-                            m_operator = OrOperator;
-                        goto nextItem;
-                    } else if (c == '{') {
-                        FLUSH_LHS_LITERAL(false);
-                        finalizeCond(tokPtr, buf, ptr);
-                        flushCond(tokPtr);
-                        ++m_blockstack.top().braceLevel;
-                        goto nextItem;
-                    } else if (c == '}') {
-                        FLUSH_LHS_LITERAL(false);
-                        finalizeCond(tokPtr, buf, ptr);
-                        flushScopes(tokPtr);
-                        if (!m_blockstack.top().braceLevel) {
-                            parseError(fL1S("Excess closing brace."));
-                        } else if (!--m_blockstack.top().braceLevel
-                                   && m_blockstack.count() != 1) {
-                            leaveScope(tokPtr);
-                            m_state = StNew;
-                            m_canElse = false;
-                            m_markLine = m_lineNo;
-                        }
-                        goto nextItem;
-                    } else if (c == '+') {
-                        tok = TokAppend;
-                        goto do2Op;
-                    } else if (c == '-') {
-                        tok = TokRemove;
-                        goto do2Op;
-                    } else if (c == '*') {
-                        tok = TokAppendUnique;
-                        goto do2Op;
-                    } else if (c == '~') {
-                        tok = TokReplace;
-                      do2Op:
-                        if (*cur == '=') {
-                            cur++;
-                            goto doOp;
-                        }
-                    } else if (c == '=') {
-                        tok = TokAssign;
-                      doOp:
-                        FLUSH_LHS_LITERAL(false);
-                        flushCond(tokPtr);
-                        putLineMarker(tokPtr);
-                        if (!(tlen = ptr - buf)) {
-                            parseError(fL1S("Assignment operator without prior variable name."));
-                            inError = true;
-                            goto skip;
-                        }
-                        putBlock(tokPtr, buf, tlen);
-                        putTok(tokPtr, tok);
-                        context = CtxValue;
-                        ptr = ++tokPtr;
-                        litCount = expCount = 0;
-                        needSep = 0;
-                        goto nextToken;
-                    }
-                }
-                if (putSpace) {
-                    putSpace = false;
-                    *ptr++ = ' ';
-                }
-                *ptr++ = c;
-              nextChr:
-                if (cur == end)
-                    goto lineEnd;
-                c = *cur++;
-            }
-
-          lineEnd:
-            if (lineCont) {
-                if (quote) {
-                    putSpace = true;
-                } else {
-                    FLUSH_LITERAL(true);
-                    ptr += (context == CtxTest) ? 4 : 2;
-                    xprPtr = ptr;
-                }
-            } else {
-                c = '\n';
-                cur = cptr;
-              flushLine:
-                FLUSH_LITERAL(false);
-                if (quote) {
-                    parseError(fL1S("Missing closing %1 quote").arg(QChar(quote)));
-                    return false;
-                }
-                if (!xprStack.isEmpty()) {
-                    parseError(fL1S("Missing closing parenthesis in function call"));
-                    return false;
-                }
-                if (context == CtxValue) {
-                    tokPtr[-1] = litCount ? litCount + expCount : 0;
-                    tokPtr = ptr;
-                    putTok(tokPtr, TokValueTerminator);
-                } else {
-                    finalizeCond(tokPtr, buf, ptr);
-                }
-                if (!c) {
-                    flushScopes(tokPtr);
-                    if (m_blockstack.size() > 1)
-                        parseError(fL1S("Missing closing brace(s)."));
-                    while (m_blockstack.size())
-                        leaveScope(tokPtr);
-                    xprBuff.clear();
-                    *out = QString(tokBuff.constData(), tokPtr - (ushort *)tokBuff.constData());
-                    return true;
-                }
-                ++m_lineNo;
-                goto freshLine;
-            }
-        } // !inError
-      skip:
-        if (!lineCont) {
-            cur = cptr;
-            ++m_lineNo;
-            goto freshLine;
-        }
-        lineMarked = false;
-      ignore:
-        cur = cptr;
-        ++m_lineNo;
-    }
-
-#undef FLUSH_LITERAL
-#undef FLUSH_LHS_LITERAL
-#undef FLUSH_RHS_LITERAL
-
-  extraChars:
-    parseError(fL1S("Extra characters after test expression."));
-    return false;
-}
-
-void ProFileEvaluator::Private::putLineMarker(ushort *&tokPtr)
-{
-    if (m_markLine) {
-        *tokPtr++ = TokLine;
-        *tokPtr++ = (ushort)m_markLine;
-        m_markLine = 0;
-    }
-}
-
-void ProFileEvaluator::Private::enterScope(ushort *&tokPtr, bool special, ScopeState state)
-{
-    m_blockstack.resize(m_blockstack.size() + 1);
-    m_blockstack.top().special = special;
-    m_blockstack.top().start = tokPtr;
-    tokPtr += 2;
-    m_state = state;
-    m_canElse = false;
-    if (special)
-        m_markLine = m_lineNo;
-}
-
-void ProFileEvaluator::Private::leaveScope(ushort *&tokPtr)
-{
-    if (m_blockstack.top().inBranch) {
-        // Put empty else block
-        putBlockLen(tokPtr, 0);
-    }
-    if (ushort *start = m_blockstack.top().start) {
-        putTok(tokPtr, TokTerminator);
-        uint len = tokPtr - start - 2;
-        start[0] = (ushort)len;
-        start[1] = (ushort)(len >> 16);
-    }
-    m_blockstack.resize(m_blockstack.size() - 1);
-}
-
-void ProFileEvaluator::Private::flushScopes(ushort *&tokPtr)
-{
-    if (m_state == StNew) {
-        while (!m_blockstack.top().braceLevel && m_blockstack.size() > 1)
-            leaveScope(tokPtr);
-        if (m_blockstack.top().inBranch) {
-            m_blockstack.top().inBranch = false;
-            // Put empty else block
-            putBlockLen(tokPtr, 0);
-        }
-        m_canElse = false;
-    }
-}
-
-void ProFileEvaluator::Private::flushCond(ushort *&tokPtr)
-{
-    if (m_state == StCond) {
-        putTok(tokPtr, TokBranch);
-        m_blockstack.top().inBranch = true;
-        enterScope(tokPtr, false, StNew);
-    } else {
-        flushScopes(tokPtr);
-    }
-}
-
-void ProFileEvaluator::Private::finalizeTest(ushort *&tokPtr)
-{
-    flushScopes(tokPtr);
-    putLineMarker(tokPtr);
-    if (m_operator != NoOperator) {
-        putTok(tokPtr, (m_operator == AndOperator) ? TokAnd : TokOr);
-        m_operator = NoOperator;
-    }
-    if (m_invert) {
-        putTok(tokPtr, TokNot);
-        m_invert = false;
-    }
-    m_state = StCond;
-    m_canElse = true;
-}
-
-void ProFileEvaluator::Private::finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr)
-{
-    if (ptr == uc)
-        return;
-
-    // Check for magic tokens
-    if (*uc == TokHashLiteral) {
-        uint nlen = uc[3];
-        ushort *uce = uc + 4 + nlen;
-        if (uce == ptr) {
-            m_tmp1.setRawData((QChar *)uc + 4, nlen);
-            if (!m_tmp1.compare(statics.strelse, Qt::CaseInsensitive)) {
-                if (m_invert || m_operator != NoOperator) {
-                    parseError(fL1S("Unexpected operator in front of else."));
-                    return;
-                }
-                BlockScope &top = m_blockstack.top();
-                if (m_canElse && (!top.special || top.braceLevel)) {
-                    putTok(tokPtr, TokBranch);
-                    // Put empty then block
-                    putBlockLen(tokPtr, 0);
-                    enterScope(tokPtr, false, StCtrl);
-                    return;
-                }
-                forever {
-                    BlockScope &top = m_blockstack.top();
-                    if (top.inBranch && (!top.special || top.braceLevel)) {
-                        top.inBranch = false;
-                        enterScope(tokPtr, false, StCtrl);
-                        return;
-                    }
-                    if (top.braceLevel || m_blockstack.size() == 1)
-                        break;
-                    leaveScope(tokPtr);
-                }
-                parseError(fL1S("Unexpected 'else'."));
-                return;
-            }
-        }
-    }
-
-    finalizeTest(tokPtr);
-    putBlock(tokPtr, uc, ptr - uc);
-    putTok(tokPtr, TokCondition);
-}
-
-void ProFileEvaluator::Private::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc)
-{
-    // Check for magic tokens
-    if (*uc == TokHashLiteral) {
-        uint nlen = uc[3];
-        ushort *uce = uc + 4 + nlen;
-        if (*uce == TokTestCall) {
-            uce++;
-            m_tmp1.setRawData((QChar *)uc + 4, nlen);
-            const QString *defName;
-            ushort defType;
-            if (m_tmp1 == statics.strfor) {
-                flushCond(tokPtr);
-                putLineMarker(tokPtr);
-                if (m_invert || m_operator == OrOperator) {
-                    // '|' could actually work reasonably, but qmake does nonsense here.
-                    parseError(fL1S("Unexpected operator in front of for()."));
-                    return;
-                }
-                if (*uce == TokLiteral) {
-                    nlen = uce[1];
-                    uc = uce + 2 + nlen;
-                    if (*uc == TokFuncTerminator) {
-                        // for(literal) (only "ever" would be legal if qmake was sane)
-                        putTok(tokPtr, TokForLoop);
-                        putHashStr(tokPtr, (ushort *)0, (uint)0);
-                        putBlockLen(tokPtr, 1 + 3 + nlen + 1);
-                        putTok(tokPtr, TokHashLiteral);
-                        putHashStr(tokPtr, uce + 2, nlen);
-                      didFor:
-                        putTok(tokPtr, TokValueTerminator);
-                        enterScope(tokPtr, true, StCtrl);
-                        return;
-                    } else if (*uc == TokArgSeparator && argc == 2) {
-                        // for(var, something)
-                        uc++;
-                        putTok(tokPtr, TokForLoop);
-                        putHashStr(tokPtr, uce + 2, nlen);
-                      doFor:
-                        nlen = ptr - uc;
-                        putBlockLen(tokPtr, nlen + 1);
-                        putBlock(tokPtr, uc, nlen);
-                        goto didFor;
-                    }
-                } else if (argc == 1) {
-                    // for(non-literal) (this wouldn't be here if qmake was sane)
-                    putTok(tokPtr, TokForLoop);
-                    putHashStr(tokPtr, (ushort *)0, (uint)0);
-                    uc = uce;
-                    goto doFor;
-                }
-                parseError(fL1S("Syntax is for(var, list), for(var, forever) or for(ever)."));
-                return;
-            } else if (m_tmp1 == statics.strdefineReplace) {
-                defName = &statics.strdefineReplace;
-                defType = TokReplaceDef;
-                goto deffunc;
-            } else if (m_tmp1 == statics.strdefineTest) {
-                defName = &statics.strdefineTest;
-                defType = TokTestDef;
-              deffunc:
-                flushScopes(tokPtr);
-                putLineMarker(tokPtr);
-                if (m_invert) {
-                    parseError(fL1S("Unexpected operator in front of function definition."));
-                    return;
-                }
-                if (*uce == TokLiteral) {
-                    uint nlen = uce[1];
-                    if (uce[nlen + 2] == TokFuncTerminator) {
-                        if (m_operator != NoOperator) {
-                            putTok(tokPtr, (m_operator == AndOperator) ? TokAnd : TokOr);
-                            m_operator = NoOperator;
-                        }
-                        putTok(tokPtr, defType);
-                        putHashStr(tokPtr, uce + 2, nlen);
-                        uc = uce + 2 + nlen + 1;
-                        enterScope(tokPtr, true, StCtrl);
-                        return;
-                    }
-                }
-                parseError(fL1S("%1(function) requires one literal argument.").arg(*defName));
-                return;
-            }
-        }
-    }
-
-    finalizeTest(tokPtr);
-    putBlock(tokPtr, uc, ptr - uc);
 }
 
 //////// Evaluator tools /////////
@@ -3322,12 +2376,14 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         case T_REQUIRES:
 #endif
         case T_EVAL: {
-                QString pro;
-                if (!readInternal(&pro, args.join(statics.field_sep)))
+                ProFile *pro = m_parser->parsedProFile(fL1S("(eval)"), false,
+                                                       args.join(statics.field_sep));
+                if (!pro)
                     return ReturnFalse;
-                m_stringStack.push(pro);
-                VisitReturn ret = visitProBlock((const ushort *)pro.constData());
+                m_stringStack.push(pro->items());
+                VisitReturn ret = visitProBlock((const ushort *)pro->items().constData());
                 m_stringStack.pop();
+                pro->deref();
                 return ret;
             }
         case T_BREAK:
@@ -3862,73 +2918,11 @@ ProStringList ProFileEvaluator::Private::values(const ProString &variableName) c
     return result;
 }
 
-ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool cache,
-                                                  const QString &contents)
-{
-    ProFile *pro;
-    if (cache && m_option->cache) {
-        ProFileCache::Entry *ent;
-#ifdef PROPARSER_THREAD_SAFE
-        QMutexLocker locker(&m_option->cache->mutex);
-#endif
-        QHash<QString, ProFileCache::Entry>::Iterator it =
-                m_option->cache->parsed_files.find(fileName);
-        if (it != m_option->cache->parsed_files.end()) {
-            ent = &*it;
-#ifdef PROPARSER_THREAD_SAFE
-            if (ent->locker && !ent->locker->done) {
-                ++ent->locker->waiters;
-                QThreadPool::globalInstance()->releaseThread();
-                ent->locker->cond.wait(locker.mutex());
-                QThreadPool::globalInstance()->reserveThread();
-                if (!--ent->locker->waiters) {
-                    delete ent->locker;
-                    ent->locker = 0;
-                }
-            }
-#endif
-            if ((pro = ent->pro))
-                pro->ref();
-        } else {
-            ent = &m_option->cache->parsed_files[fileName];
-#ifdef PROPARSER_THREAD_SAFE
-            ent->locker = new ProFileCache::Entry::Locker;
-            locker.unlock();
-#endif
-            pro = new ProFile(fileName);
-            if (!(contents.isNull() ? read(pro) : read(pro, contents))) {
-                delete pro;
-                pro = 0;
-            } else {
-                pro->ref();
-            }
-            ent->pro = pro;
-#ifdef PROPARSER_THREAD_SAFE
-            locker.relock();
-            if (ent->locker->waiters) {
-                ent->locker->done = true;
-                ent->locker->cond.wakeAll();
-            } else {
-                delete ent->locker;
-                ent->locker = 0;
-            }
-#endif
-        }
-    } else {
-        pro = new ProFile(fileName);
-        if (!(contents.isNull() ? read(pro) : read(pro, contents))) {
-            delete pro;
-            pro = 0;
-        }
-    }
-    return pro;
-}
-
 bool ProFileEvaluator::Private::evaluateFileDirect(
         const QString &fileName, ProFileEvaluatorHandler::EvalFileType type)
 {
     int lineNo = m_lineNo;
-    if (ProFile *pro = parsedProFile(fileName, true)) {
+    if (ProFile *pro = m_parser->parsedProFile(fileName, true)) {
         bool ok = (visitProFile(pro, type) == ReturnTrue);
         pro->deref();
         m_lineNo = lineNo;
@@ -4009,7 +3003,7 @@ bool ProFileEvaluator::Private::evaluateFileInto(
         const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
         QHash<ProString, ProStringList> *values, FunctionDefs *funcs)
 {
-    ProFileEvaluator visitor(m_option, m_handler);
+    ProFileEvaluator visitor(m_option, m_parser, m_handler);
     visitor.d->m_cumulative = false;
     visitor.d->m_parsePreAndPostFiles = false;
     visitor.d->m_valuemapStack.top() = *values;
@@ -4021,11 +3015,6 @@ bool ProFileEvaluator::Private::evaluateFileInto(
     if (funcs)
         *funcs = visitor.d->m_functionDefs;
     return true;
-}
-
-void ProFileEvaluator::Private::parseError(const QString &message) const
-{
-    m_handler->parseError(currentFileName(), m_lineNo, message);
 }
 
 void ProFileEvaluator::Private::evalError(const QString &message) const
@@ -4046,9 +3035,9 @@ void ProFileEvaluator::initialize()
     Private::initStatics();
 }
 
-ProFileEvaluator::ProFileEvaluator(ProFileOption *option,
+ProFileEvaluator::ProFileEvaluator(ProFileOption *option, ProFileParser *parser,
                                    ProFileEvaluatorHandler *handler)
-  : d(new Private(this, option, handler))
+  : d(new Private(this, option, parser, handler))
 {
 }
 
@@ -4162,11 +3151,6 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
             return TT_Subdirs;
     }
     return TT_Unknown;
-}
-
-ProFile *ProFileEvaluator::parsedProFile(const QString &fileName, const QString &contents)
-{
-    return d->parsedProFile(fileName, false, contents);
 }
 
 bool ProFileEvaluator::accept(ProFile *pro)

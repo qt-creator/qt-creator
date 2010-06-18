@@ -6,6 +6,7 @@ DEPENDPATH *= $$PWD $$PWD/..
 
 # Input
 HEADERS += \
+        profileparser.h \
         profileevaluator.h \
         proitems.h \
         prowriter.h \
@@ -13,6 +14,7 @@ HEADERS += \
         $$PWD/../namespace_global.h
 
 SOURCES += \
+        profileparser.cpp \
         profileevaluator.cpp \
         proitems.cpp \
         prowriter.cpp \

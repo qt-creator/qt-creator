@@ -933,7 +933,6 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode)
         }
 
         ProFileCacheManager::instance()->incRefCount();
-        m_proFileOption->cache = ProFileCacheManager::instance()->cache();
     }
     ++m_proFileOptionRefCnt;
 
@@ -954,11 +953,11 @@ void Qt4Project::destroyProFileReader(ProFileReader *reader)
         QString dir = QFileInfo(m_fileInfo->fileName()).absolutePath();
         if (!dir.endsWith(QLatin1Char('/')))
             dir += QLatin1Char('/');
-        m_proFileOption->cache->discardFiles(dir);
+        ProFileCacheManager::instance()->discardFiles(dir);
+        ProFileCacheManager::instance()->decRefCount();
 
         delete m_proFileOption;
         m_proFileOption = 0;
-        ProFileCacheManager::instance()->decRefCount();
     }
 }
 

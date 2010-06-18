@@ -27,6 +27,7 @@
 **
 **************************************************************************/
 
+#include "profileparser.h"
 #include "profileevaluator.h"
 
 #include <QtCore/QCoreApplication>
@@ -47,10 +48,14 @@ static void print(const QString &fileName, int lineNo, const QString &msg)
         qWarning("%s", qPrintable(msg));
 }
 
-class EvalHandler : public ProFileEvaluatorHandler {
+class ParseHandler : public ProFileParserHandler {
 public:
     virtual void parseError(const QString &fileName, int lineNo, const QString &msg)
         { print(fileName, lineNo, msg); }
+};
+
+class EvalHandler : public ProFileEvaluatorHandler {
+public:
     virtual void configError(const QString &msg)
         { qWarning("%s", qPrintable(msg)); }
     virtual void evalError(const QString &fileName, int lineNo, const QString &msg)
@@ -62,6 +67,7 @@ public:
     virtual void doneWithEval(ProFile *) {}
 };
 
+static ParseHandler parseHandler;
 static EvalHandler evalHandler;
 
 static QString value(ProFileEvaluator &reader, const QString &variable)
@@ -74,19 +80,19 @@ static QString value(ProFileEvaluator &reader, const QString &variable)
 }
 
 static int evaluate(const QString &fileName, const QString &in_pwd, const QString &out_pwd,
-                    bool cumulative, ProFileOption *option, int level)
+                    bool cumulative, ProFileOption *option, ProFileParser *parser, int level)
 {
     static QSet<QString> visited;
     if (visited.contains(fileName))
         return 0;
     visited.insert(fileName);
 
-    ProFileEvaluator visitor(option, &evalHandler);
+    ProFileEvaluator visitor(option, parser, &evalHandler);
     visitor.setCumulative(cumulative);
     visitor.setOutputDir(out_pwd);
 
     ProFile *pro;
-    if (!(pro = visitor.parsedProFile(fileName)))
+    if (!(pro = parser->parsedProFile(fileName)))
         return 2;
     if (!visitor.accept(pro)) {
         pro->deref();
@@ -128,7 +134,7 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
                 fflush(stdout);
                 nlevel++;
             }
-            evaluate(inFile, inPwd, outPwd, cumulative, option, nlevel);
+            evaluate(inFile, inPwd, outPwd, cumulative, option, parser, nlevel);
         }
     }
 
@@ -149,6 +155,7 @@ int main(int argc, char **argv)
         qFatal("need at least two arguments: [-v] <cumulative?> <filenme> [<out_pwd>]");
 
     ProFileOption option;
+    ProFileParser parser(0, &parseHandler);
 
     static const struct {
         const char * const name;
@@ -178,5 +185,5 @@ int main(int argc, char **argv)
     QString in_pwd = infi.absolutePath();
     QString out_pwd = (args.count() > 2) ? QFileInfo(args[2]).absoluteFilePath() : in_pwd;
 
-    return evaluate(file, in_pwd, out_pwd, cumulative, &option, level);
+    return evaluate(file, in_pwd, out_pwd, cumulative, &option, &parser, level);
 }

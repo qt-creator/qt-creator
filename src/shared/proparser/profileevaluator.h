@@ -32,11 +32,9 @@
 
 #include "proitems.h"
 
-#include <QtCore/QIODevice>
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
-#include <QtCore/QStack>
-#ifdef PROPARSER_THREAD_SAFE
+#ifdef PROEVALUATOR_THREAD_SAFE
 # include <QtCore/QMutex>
 # include <QtCore/QWaitCondition>
 #endif
@@ -44,12 +42,11 @@
 QT_BEGIN_NAMESPACE
 
 struct ProFileOption;
+class ProFileParser;
 
 class ProFileEvaluatorHandler
 {
 public:
-    // Some error during parsing
-    virtual void parseError(const QString &filename, int lineNo, const QString &msg) = 0;
     // qmake/project configuration error
     virtual void configError(const QString &msg) = 0;
     // Some error during evaluation
@@ -89,7 +86,7 @@ public:
     // Call this from a concurrency-free context
     static void initialize();
 
-    ProFileEvaluator(ProFileOption *option, ProFileEvaluatorHandler *handler);
+    ProFileEvaluator(ProFileOption *option, ProFileParser *parser, ProFileEvaluatorHandler *handler);
     ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType() const;
@@ -101,9 +98,6 @@ public:
     void setConfigCommandLineArguments(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs);
     void setParsePreAndPostFiles(bool on); // Default is true
 
-    // fileName is expected to be absolute and cleanPath()ed.
-    // If contents is non-null, it will be used instead of the file's actual content
-    ProFile *parsedProFile(const QString &fileName, const QString &contents = QString());
     bool accept(ProFile *pro);
 
     bool contains(const QString &variableName) const;
@@ -119,45 +113,10 @@ public:
 private:
     Private *d;
 
-    // This doesn't help gcc 3.3 ...
-    template<typename T> friend class QTypeInfo;
-
     friend struct ProFileOption;
-    friend class ProFileCache;
 };
 
 Q_DECLARE_TYPEINFO(ProFileEvaluator::FunctionDef, Q_MOVABLE_TYPE);
-
-class ProFileCache
-{
-public:
-    ProFileCache() {}
-    ~ProFileCache();
-
-    void discardFile(const QString &fileName);
-    void discardFiles(const QString &prefix);
-
-private:
-    struct Entry {
-        ProFile *pro;
-#ifdef PROPARSER_THREAD_SAFE
-        struct Locker {
-            Locker() : waiters(0), done(false) {}
-            QWaitCondition cond;
-            int waiters;
-            bool done;
-        };
-        Locker *locker;
-#endif
-    };
-
-    QHash<QString, Entry> parsed_files;
-#ifdef PROPARSER_THREAD_SAFE
-    QMutex mutex;
-#endif
-
-    friend class ProFileEvaluator::Private;
-};
 
 // This struct is from qmake, but we are not using everything.
 struct ProFileOption
@@ -187,7 +146,6 @@ struct ProFileOption
     QString qmakespec;
     QString cachefile;
     QHash<QString, QString> properties;
-    ProFileCache *cache;
 
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
     TARG_MODE target_mode;

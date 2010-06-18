@@ -30,6 +30,7 @@
 #ifndef PROFILEREADER_H
 #define PROFILEREADER_H
 
+#include "profileparser.h"
 #include "profileevaluator.h"
 
 #include <QtCore/QObject>
@@ -40,7 +41,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 class ProMessageHandler : public QObject,
-                          public ProFileEvaluatorHandler
+                          public ProFileParserHandler, public ProFileEvaluatorHandler
 {
     Q_OBJECT
 
@@ -62,7 +63,7 @@ private:
     bool m_verbose;
 };
 
-class ProFileReader : public ProMessageHandler, public ProFileEvaluator
+class ProFileReader : public ProMessageHandler, public ProFileParser, public ProFileEvaluator
 {
     Q_OBJECT
 

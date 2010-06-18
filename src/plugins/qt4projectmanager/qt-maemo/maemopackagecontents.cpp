@@ -418,7 +418,7 @@ bool MaemoPackageContents::removeValueFromProFile(const QString &var,
 void MaemoPackageContents::parseProFile(ParseType type) const
 {
     if (type == ParseFromLines) {
-        m_proFile = m_proFileReader->parsedProFile(m_proFileName,
+        m_proFile = m_proFileReader->parsedProFile(m_proFileName, false,
             m_proFileLines.join("\n"));
     } else {
         m_proFile = m_proFileReader->readProFile(m_proFileName)
