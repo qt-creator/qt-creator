@@ -1329,11 +1329,17 @@ void QtVersion::updateToolChainAndMkspec() const
 
     ProFileOption option;
     option.properties = versionInfo();
+    ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
-    ProFileReader *reader = new ProFileReader(&option);
-    reader->setCumulative(false);
-    reader->setParsePreAndPostFiles(false);
-    reader->readProFile(m_mkspecFullPath + "/qmake.conf");
+    ProFileParser parser(ProFileCacheManager::instance()->cache(), &msgHandler);
+    ProFileEvaluator *reader = new ProFileEvaluator(&option, &parser, &msgHandler);
+    if (ProFile *pro = parser.parsedProFile(m_mkspecFullPath + "/qmake.conf")) {
+        reader->setCumulative(false);
+        reader->setParsePreAndPostFiles(false);
+        reader->accept(pro);
+        pro->deref();
+    }
+
     QString qmakeCXX = reader->values("QMAKE_CXX").join(" ");
     QString makefileGenerator = reader->value("MAKEFILE_GENERATOR");
     QString ce_sdk = reader->values("CE_SDK").join(QLatin1String(" "));
