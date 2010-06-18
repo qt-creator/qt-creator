@@ -141,7 +141,7 @@ bool ImageView::openFile(QString fileName)
 
     // outline
     d_ptr->outlineItem = new QGraphicsRectItem(d_ptr->imageItem->boundingRect());
-    QPen outline(Qt::black, 2, Qt::DashLine);
+    QPen outline(Qt::black, 1, Qt::DashLine);
     outline.setCosmetic(true);
     d_ptr->outlineItem->setPen(outline);
     d_ptr->outlineItem->setBrush(Qt::NoBrush);
