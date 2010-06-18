@@ -10,6 +10,6 @@ HEADERS += bineditorplugin.h \
 SOURCES += bineditorplugin.cpp \
         bineditor.cpp
 
-RESOURCES += bineditor.qrc
+RESOURCES +=
 
 OTHER_FILES += BinEditor.pluginspec
