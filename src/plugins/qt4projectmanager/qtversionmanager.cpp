@@ -1332,19 +1332,19 @@ void QtVersion::updateToolChainAndMkspec() const
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
     ProFileParser parser(ProFileCacheManager::instance()->cache(), &msgHandler);
-    ProFileEvaluator *reader = new ProFileEvaluator(&option, &parser, &msgHandler);
+    ProFileEvaluator evaluator(&option, &parser, &msgHandler);
     if (ProFile *pro = parser.parsedProFile(m_mkspecFullPath + "/qmake.conf")) {
-        reader->setCumulative(false);
-        reader->setParsePreAndPostFiles(false);
-        reader->accept(pro);
+        evaluator.setCumulative(false);
+        evaluator.setParsePreAndPostFiles(false);
+        evaluator.accept(pro);
         pro->deref();
     }
 
-    QString qmakeCXX = reader->values("QMAKE_CXX").join(" ");
-    QString makefileGenerator = reader->value("MAKEFILE_GENERATOR");
-    QString ce_sdk = reader->values("CE_SDK").join(QLatin1String(" "));
-    QString ce_arch = reader->value("CE_ARCH");
-    QString qt_arch = reader->value("QT_ARCH");
+    QString qmakeCXX = evaluator.values("QMAKE_CXX").join(" ");
+    QString makefileGenerator = evaluator.value("MAKEFILE_GENERATOR");
+    QString ce_sdk = evaluator.values("CE_SDK").join(QLatin1String(" "));
+    QString ce_arch = evaluator.value("CE_ARCH");
+    QString qt_arch = evaluator.value("QT_ARCH");
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
         QString wincePlatformName = ce_sdk + " (" + ce_arch + QLatin1Char(')');
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName));
@@ -1405,7 +1405,7 @@ void QtVersion::updateToolChainAndMkspec() const
         qDebug()<<"Qt Creator doesn't know about the system includes, nor the systems defines.";
     }
 
-    QStringList configValues = reader->values("CONFIG");
+    QStringList configValues = evaluator.values("CONFIG");
     m_defaultConfigIsDebugAndRelease = false;
     foreach(const QString &value, configValues) {
         if (value == "debug")
@@ -1421,7 +1421,6 @@ void QtVersion::updateToolChainAndMkspec() const
         m_targetIds.insert(QLatin1String(Constants::QT_SIMULATOR_TARGET_ID));
     }
 
-    delete reader;
     ProFileCacheManager::instance()->decRefCount();
     m_toolChainUpToDate = true;
 }
