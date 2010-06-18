@@ -802,9 +802,9 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
             }
         }
 
-        ProFileReader *reader = m_project->createProFileReader(m_qt4ProFileNode);
-        includeFile = reader->parsedProFile(m_projectFilePath, false, contents);
-        m_project->destroyProFileReader(reader);
+        ProMessageHandler handler;
+        ProFileParser parser(0, &handler);
+        includeFile = parser.parsedProFile(m_projectFilePath, false, contents);
     }
 
     const QStringList vars = varNames(fileType);
