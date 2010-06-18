@@ -64,8 +64,6 @@ public:
 
     FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope,
                              const FullySpecifiedType &ty = FullySpecifiedType());
-    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope,
-                             const FullySpecifiedType &ty = FullySpecifiedType());
 
 protected:
     SpecifierListAST *switchSpecifier(SpecifierListAST *specifier);

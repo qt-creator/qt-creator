@@ -394,8 +394,8 @@ bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
 {
     FullySpecifiedType type;
 
-    if (ast->type_name)
-        type = semantic()->check(ast->type_name, _scope);
+    if (ast->type_name && ast->type_name->type_id)
+        type = semantic()->check(ast->type_name->type_id, _scope);
 
     if (ast->param_name) {
         accept(ast->param_name);

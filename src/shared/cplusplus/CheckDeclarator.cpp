@@ -260,7 +260,9 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
         return false;
     }
 
-    FullySpecifiedType returnType = semantic()->check(ast->type_name, _scope);
+    FullySpecifiedType returnType;
+    if (ast->type_name && ast->type_name->type_id)
+        returnType = semantic()->check(ast->type_name->type_id, _scope);
 
     unsigned location = ast->selector->firstToken();
 

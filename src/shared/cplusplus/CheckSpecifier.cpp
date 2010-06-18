@@ -82,19 +82,6 @@ FullySpecifiedType CheckSpecifier::check(SpecifierListAST *specifier,
     return switchFullySpecifiedType(previousType);
 }
 
-FullySpecifiedType CheckSpecifier::check(ObjCTypeNameAST *typeName,
-                                         Scope *scope,
-                                         const FullySpecifiedType &ty)
-{
-    FullySpecifiedType previousType = switchFullySpecifiedType(ty);
-    Scope *previousScope = switchScope(scope);
-
-    accept(typeName);
-
-    (void) switchScope(previousScope);
-    return switchFullySpecifiedType(previousType);
-}
-
 SpecifierListAST *CheckSpecifier::switchSpecifier(SpecifierListAST *specifier)
 {
     SpecifierListAST *previousSpecifier = _specifier;

@@ -107,9 +107,6 @@ public:
 
     const Name *check(NestedNameSpecifierListAST *name, Scope *scope);
 
-    FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope,
-                             const FullySpecifiedType &type = FullySpecifiedType());
-
     void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
 
     void checkFunctionDefinition(FunctionDefinitionAST *ast);

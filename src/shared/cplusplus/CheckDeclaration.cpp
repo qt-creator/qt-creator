@@ -720,10 +720,6 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
 
     Symbol *symbol;
     if (ast->function_body) {
-        if (!semantic()->skipFunctionBodies()) {
-            semantic()->check(ast->function_body, methodTy->members());
-        }
-
         symbol = methodTy;
     } else {
         Declaration *decl = control()->newDeclaration(selector->firstToken(), methodTy->name());
@@ -741,6 +737,10 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
         symbol->setUnavailable(true);
 
     _scope->enterSymbol(symbol);
+
+    if (ast->function_body && !semantic()->skipFunctionBodies()) {
+        semantic()->check(ast->function_body, methodTy->members());
+    }
 
     return false;
 }
