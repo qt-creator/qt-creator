@@ -666,6 +666,119 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     return index;
 }
 
+void CppCodeCompletion::completeObjCMsgSend(ClassOrNamespace *binding,
+                                            bool staticClassAccess)
+{
+    QList<Scope*> memberScopes;
+    foreach (Symbol *s, binding->symbols()) {
+        if (ObjCClass *c = s->asObjCClass())
+            memberScopes.append(c->members());
+    }
+
+    foreach (Scope *scope, memberScopes) {
+        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+            Symbol *symbol = scope->symbolAt(i);
+
+            if (ObjCMethod *method = symbol->type()->asObjCMethodType()) {
+                if (method->isStatic() == staticClassAccess) {
+                    Overview oo;
+                    const SelectorNameId *selectorName =
+                            method->name()->asSelectorNameId();
+                    QString text;
+                    QString data;
+                    if (selectorName->hasArguments()) {
+                        for (unsigned i = 0; i < selectorName->nameCount(); ++i) {
+                            if (i > 0)
+                                text += QLatin1Char(' ');
+                            Symbol *arg = method->argumentAt(i);
+                            text += selectorName->nameAt(i)->identifier()->chars();
+                            text += QLatin1Char(':');
+                            text += QChar::ObjectReplacementCharacter;
+                            text += QLatin1Char('(');
+                            text += oo(arg->type());
+                            text += QLatin1Char(')');
+                            text += oo(arg->name());
+                            text += QChar::ObjectReplacementCharacter;
+                        }
+                    } else {
+                        text = selectorName->identifier()->chars();
+                    }
+                    data = text;
+
+                    if (!text.isEmpty()) {
+                        TextEditor::CompletionItem item(this);
+                        item.text = text;
+                        item.data = QVariant::fromValue(data);
+                        m_completions.append(item);
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool CppCodeCompletion::tryObjCCompletion(TextEditor::BaseTextEditor *edit)
+{
+    Q_ASSERT(edit);
+
+    int end = m_editor->position();
+    while (m_editor->characterAt(end).isSpace())
+        ++end;
+    if (m_editor->characterAt(end) != QLatin1Char(']'))
+        return false;
+
+    QTextCursor tc(edit->document());
+    tc.setPosition(end);
+    BackwardsScanner tokens(tc);
+    if (tokens[tokens.startToken() - 1].isNot(T_RBRACKET))
+        return false;
+
+    const int start = tokens.startOfMatchingBrace(tokens.startToken());
+    if (start == tokens.startToken())
+        return false;
+
+    const int startPos = tokens[start].begin() + tokens.startPosition();
+    const QString expr = m_editor->textAt(startPos, m_editor->position() - startPos);
+
+    const Snapshot snapshot = m_manager->snapshot();
+    Document::Ptr thisDocument = snapshot.document(m_editor->file()->fileName());
+    if (! thisDocument)
+        return false;
+
+    typeOfExpression.init(thisDocument, snapshot);
+    int line = 0, column = 0;
+    edit->convertPosition(m_editor->position(), &line, &column);
+    Scope *scope = thisDocument->scopeAt(line, column);
+    if (!scope)
+        return false;
+
+    const QList<LookupItem> items = typeOfExpression(expr, scope);
+    LookupContext lookupContext(thisDocument, snapshot);
+
+    foreach (const LookupItem &item, items) {
+        FullySpecifiedType ty = item.type().simplified();
+        if (ty->isPointerType()) {
+            ty = ty->asPointerType()->elementType().simplified();
+
+            if (NamedType *namedTy = ty->asNamedType()) {
+                ClassOrNamespace *binding = lookupContext.lookupType(namedTy->name(), item.scope());
+                completeObjCMsgSend(binding, false);
+            }
+        } else {
+            if (ObjCClass *clazz = ty->asObjCClassType()) {
+                ClassOrNamespace *binding = lookupContext.lookupType(clazz->name(), item.scope());
+                completeObjCMsgSend(binding, true);
+            }
+        }
+    }
+
+    if (m_completions.isEmpty())
+        return false;
+
+    m_startPosition = m_editor->position();
+    return true;
+}
+
 int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
 {
     TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(editor->widget());
@@ -673,6 +786,11 @@ int CppCodeCompletion::startCompletionHelper(TextEditor::ITextEditable *editor)
         return -1;
 
     m_editor = editor;
+
+    if (m_objcEnabled) {
+        if (tryObjCCompletion(edit))
+            return m_startPosition;
+    }
 
     const int startOfName = findStartOfName();
     m_startPosition = startOfName;
