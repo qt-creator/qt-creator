@@ -421,8 +421,12 @@ void MaemoPackageContents::parseProFile(ParseType type) const
         m_proFile = m_proFileReader->parsedProFile(m_proFileName, false,
             m_proFileLines.join("\n"));
     } else {
-        m_proFile = m_proFileReader->readProFile(m_proFileName)
-            ? m_proFileReader->proFileFor(m_proFileName) : 0;
+        m_proFile = 0;
+        if (ProFile *pro = m_proFileReader->parsedProFile(m_proFileName)) {
+            if (m_proFileReader->accept(pro))
+                m_proFile = pro;
+            pro->deref();
+        }
     }
 }
 

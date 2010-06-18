@@ -89,16 +89,6 @@ ProFileReader::~ProFileReader()
         pf->deref();
 }
 
-bool ProFileReader::readProFile(const QString &fileName)
-{
-    if (ProFile *pro = parsedProFile(fileName)) {
-        bool ok = accept(pro);
-        pro->deref();
-        return ok;
-    }
-    return false;
-}
-
 void ProFileReader::aboutToEval(ProFile *, ProFile *pro, EvalFileType type)
 {
     if (m_ignoreLevel || (type != EvalProjectFile && type != EvalIncludeFile)) {

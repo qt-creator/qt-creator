@@ -71,8 +71,6 @@ public:
     ProFileReader(ProFileOption *option);
     ~ProFileReader();
 
-    // fileName is expected to be absolute and cleanPath()ed.
-    bool readProFile(const QString &fileName);
     QList<ProFile*> includeFiles() const;
 
     ProFile *proFileFor(const QString &name);
