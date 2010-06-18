@@ -355,7 +355,8 @@ void MaemoSettingsWidget::deployKey()
     }
 
     m_ui->deployKeyButton->disconnect();
-    const QString command = QLatin1String("test -d .ssh || mkdir .ssh && echo '")
+    const QString command = QLatin1String("test -d .ssh "
+        "|| mkdir .ssh && chmod 0700 .ssh && echo '")
         + key + QLatin1String("' >> .ssh/authorized_keys");
     m_keyDeployer = new MaemoSshRunner(currentConfig().server, command);
     connect(m_keyDeployer, SIGNAL(finished()),
