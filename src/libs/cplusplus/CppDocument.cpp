@@ -807,11 +807,13 @@ Class *Snapshot::findMatchingClassDeclaration(Symbol *declaration) const
         LookupContext context(doc, *this);
 
         ClassOrNamespace *type = context.lookupType(declaration);
-        if (!type || type->symbols().count() != 1)
+        if (!type)
             continue;
 
-        if (Class *c = type->symbols().first()->asClass())
-            return c;
+        foreach (Symbol *s, type->symbols()) {
+            if (Class *c = s->asClass())
+                return c;
+        }
     }
 
     return 0;
