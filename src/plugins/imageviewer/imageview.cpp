@@ -75,6 +75,7 @@ ImageView::ImageView(QWidget *parent)
     setDragMode(ScrollHandDrag);
     setViewportUpdateMode(FullViewportUpdate);
     setFrameShape(QFrame::NoFrame);
+    setRenderHint(QPainter::SmoothPixmapTransform);
 
     // Prepare background check-board pattern
     QPixmap tilePixmap(64, 64);
@@ -126,7 +127,9 @@ bool ImageView::openFile(QString fileName)
         d_ptr->imageItem = new QGraphicsSvgItem(fileName);
     } else {
         QPixmap pixmap(fileName);
-        d_ptr->imageItem = new QGraphicsPixmapItem(pixmap);
+        QGraphicsPixmapItem *pixmapItem = new QGraphicsPixmapItem(pixmap);
+        pixmapItem->setTransformationMode(Qt::SmoothTransformation);
+        d_ptr->imageItem = pixmapItem;
     }
     d_ptr->imageItem->setFlags(QGraphicsItem::ItemClipsToShape);
     d_ptr->imageItem->setCacheMode(QGraphicsItem::NoCache);
