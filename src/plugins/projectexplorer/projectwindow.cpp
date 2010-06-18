@@ -409,7 +409,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
     if (fac) {
         removeCurrentWidget();
 
-        IPropertiesPanel *panel;
+        IPropertiesPanel *panel = 0;
         if (ITargetPanelFactory *ipf = qobject_cast<ITargetPanelFactory *>(fac))
             panel = ipf->createPanel(project->activeTarget());
         else if (IProjectPanelFactory *ipf = qobject_cast<IProjectPanelFactory *>(fac))
