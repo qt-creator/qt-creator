@@ -38,6 +38,7 @@
 #include <QtCore/QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QAbstractButton)
+QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace ImageViewer {
 namespace Internal {
@@ -77,9 +78,16 @@ public:
 public slots:
     void scaleFactorUpdate(qreal factor);
 
+    void switchViewBackground();
+    void switchViewOutline();
+    void zoomIn();
+    void zoomOut();
+    void resetToOriginalSize();
+    void fitToScreen();
+
 private:
     /*!
-      \brief Try to change button's icon to the one from the current theme
+      \brief Try to change button's icon to the one from the current theme.
       \param button Button where an icon should be changed
       \param name Icon name in the in the current icon theme
       \return true if icon is updated, false otherwise

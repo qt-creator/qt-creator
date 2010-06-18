@@ -9,14 +9,16 @@ HEADERS += \
     imageviewerfile.h \
     imageviewer.h \
     imageview.h \
-    imageviewerconstants.h
+    imageviewerconstants.h \
+    imagevieweractionhandler.h
 
 SOURCES += \
     imageviewerplugin.cpp \
     imageviewerfactory.cpp \
     imageviewerfile.cpp \
     imageviewer.cpp \
-    imageview.cpp
+    imageview.cpp \
+    imagevieweractionhandler.cpp
 
 RESOURCES += \
     imageviewer.qrc

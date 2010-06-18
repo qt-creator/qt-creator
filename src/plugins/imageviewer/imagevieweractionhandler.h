@@ -28,35 +28,51 @@
 **
 **************************************************************************/
 
-#ifndef IMAGEVIEWERPLUGIN_H
-#define IMAGEVIEWERPLUGIN_H
+#ifndef IMAGEVIEWERACTIONHANDLER_H
+#define IMAGEVIEWERACTIONHANDLER_H
 
-#include <extensionsystem/iplugin.h>
-
-#include <QtCore/QtPlugin>
+#include <QObject>
 #include <QtCore/QScopedPointer>
 
+QT_FORWARD_DECLARE_CLASS(QAction)
+QT_FORWARD_DECLARE_CLASS(QKeySequence)
+
 namespace ImageViewer {
-
 namespace Internal {
-class ImageViewerFactory;
 
-class ImageViewerPlugin : public ExtensionSystem::IPlugin
+class ImageViewerActionHandler : public QObject
 {
     Q_OBJECT
-
 public:
-    ImageViewerPlugin();
-    ~ImageViewerPlugin();
+    explicit ImageViewerActionHandler(QObject *parent = 0);
+    ~ImageViewerActionHandler();
 
-    bool initialize(const QStringList &arguments, QString *error_message = 0);
-    void extensionsInitialized();
+    void createActions();
+
+signals:
+
+public slots:
+    void actionTriggered(int supportedAction);
+
+protected:
+    /*!
+      \brief Create a new action and register this action in the action manager.
+      \param actionId Action's internal id
+      \param id Command id
+      \param title Action's title
+      \param context Current context
+      \param key Key sequence for the command
+      \return Created and registered action, 0 if something goes wrong
+     */
+    QAction *registerNewAction(int actionId, const QString &id, const QString &title,
+                               const QList<int> &context, const QKeySequence &key);
 
 private:
-    QScopedPointer<struct ImageViewerPluginPrivate> d_ptr;
+    QScopedPointer<struct ImageViewerActionHandlerPrivate> d_ptr;
 };
 
 } // namespace Internal
 } // namespace ImageViewer
 
-#endif // IMAGEVIEWERPLUGIN_H
+
+#endif // IMAGEVIEWERACTIONHANDLER_H

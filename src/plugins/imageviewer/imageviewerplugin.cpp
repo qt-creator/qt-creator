@@ -42,9 +42,16 @@
 namespace ImageViewer {
 namespace Internal {
 
+///////////////////////////////// ImageViewerPluginPrivate //////////////////////////////////
+struct ImageViewerPluginPrivate
+{
+    QPointer<ImageViewerFactory> factory;
+};
+
 ///////////////////////////////// ImageViewerPlugin //////////////////////////////////
 
 ImageViewerPlugin::ImageViewerPlugin()
+    : d_ptr(new ImageViewerPluginPrivate)
 {
 }
 
@@ -60,16 +67,17 @@ bool ImageViewerPlugin::initialize(const QStringList &arguments, QString *errorM
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/imageviewer/ImageViewer.mimetypes.xml"), errorMessage))
         return false;
 
-    ImageViewerFactory *factory = new ImageViewerFactory(this);
+    d_ptr->factory = new ImageViewerFactory(this);
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
-    aggregate->add(factory);
+    aggregate->add(d_ptr->factory);
 
-    addAutoReleasedObject(factory);
+    addAutoReleasedObject(d_ptr->factory);
     return true;
 }
 
 void ImageViewerPlugin::extensionsInitialized()
 {
+    d_ptr->factory->extensionsInitialized();
 }
 
 } // namespace Internal

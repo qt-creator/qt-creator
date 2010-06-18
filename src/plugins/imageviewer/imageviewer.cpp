@@ -30,12 +30,15 @@
 
 #include "imageviewer.h"
 #include "imageviewerfile.h"
+#include "imagevieweractionhandler.h"
 #include "imageviewerconstants.h"
 #include "imageview.h"
 #include "ui_imageviewertoolbar.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QMap>
@@ -213,6 +216,36 @@ bool ImageViewer::updateButtonIconByTheme(QAbstractButton *button, const QString
     }
 
     return false;
+}
+
+void ImageViewer::switchViewBackground()
+{
+    d_ptr->ui_toolbar.toolButtonBackground->click();
+}
+
+void ImageViewer::switchViewOutline()
+{
+    d_ptr->ui_toolbar.toolButtonOutline->click();
+}
+
+void ImageViewer::zoomIn()
+{
+    d_ptr->ui_toolbar.toolButtonZoomIn->click();
+}
+
+void ImageViewer::zoomOut()
+{
+    d_ptr->ui_toolbar.toolButtonZoomOut->click();
+}
+
+void ImageViewer::resetToOriginalSize()
+{
+    d_ptr->ui_toolbar.toolButtonOriginalSize->click();
+}
+
+void ImageViewer::fitToScreen()
+{
+    d_ptr->ui_toolbar.toolButtonFitToScreen->click();
 }
 
 } // namespace Internal

@@ -37,6 +37,14 @@ namespace Constants {
 const char * const IMAGEVIEWER_ID = "Editors.ImageViewer";
 const char * const IMAGEVIEWER_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "Image Viewer");
 
+// actions
+const char * const ACTION_ZOOM_IN = "ImageViewer.ZoomIn";
+const char * const ACTION_ZOOM_OUT = "ImageViewer.ZoomOut";
+const char * const ACTION_ORIGINAL_SIZE = "ImageViewer.OriginalSize";
+const char * const ACTION_FIT_TO_SCREEN = "ImageViewer.FitToScreen";
+const char * const ACTION_BACKGROUND = "ImageViewer.Background";
+const char * const ACTION_OUTLINE = "ImageViewer.Outline";
+
 } // namespace Constants
 } // namespace ImageViewer
 

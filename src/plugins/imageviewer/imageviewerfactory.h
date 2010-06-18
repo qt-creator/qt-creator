@@ -35,7 +35,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/ifile.h>
 
-#include <QtCore/QStringList>
+#include <QtCore/QScopedPointer>
 
 namespace ImageViewer {
 namespace Internal {
@@ -45,6 +45,7 @@ class ImageViewerFactory : public Core::IEditorFactory
     Q_OBJECT
 public:
     explicit ImageViewerFactory(QObject *parent = 0);
+    ~ImageViewerFactory();
 
     Core::IEditor *createEditor(QWidget *parent);
 
@@ -55,8 +56,10 @@ public:
 
     Core::IFile *open(const QString &fileName);
 
+    void extensionsInitialized();
+
 private:
-    QStringList m_mimeTypes;
+    QScopedPointer<struct ImageViewerFactoryPrivate> d_ptr;
 };
 
 } // namespace Internal

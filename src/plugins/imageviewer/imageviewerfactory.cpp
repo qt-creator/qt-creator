@@ -29,6 +29,7 @@
 **************************************************************************/
 
 #include "imageviewerfactory.h"
+#include "imagevieweractionhandler.h"
 #include "imageviewerconstants.h"
 #include "imageviewer.h"
 
@@ -39,9 +40,18 @@
 namespace ImageViewer {
 namespace Internal {
 
-ImageViewerFactory::ImageViewerFactory(QObject *parent) :
-    Core::IEditorFactory(parent)
+struct ImageViewerFactoryPrivate
 {
+    QStringList mimeTypes;
+    QPointer<ImageViewerActionHandler> actionHandler;
+};
+
+ImageViewerFactory::ImageViewerFactory(QObject *parent) :
+    Core::IEditorFactory(parent),
+    d_ptr(new ImageViewerFactoryPrivate)
+{
+    d_ptr->actionHandler = new ImageViewerActionHandler(this);
+
     QMap<QByteArray, QString> possibleMimeTypes;
     possibleMimeTypes.insert("bmp", QLatin1String("image/bmp"));
     possibleMimeTypes.insert("gif", QLatin1String("image/gif"));
@@ -63,8 +73,12 @@ ImageViewerFactory::ImageViewerFactory(QObject *parent) :
     foreach (const QByteArray &format, supportedFormats) {
         const QString &value = possibleMimeTypes.value(format);
         if (!value.isEmpty())
-            m_mimeTypes.append(value);
+            d_ptr->mimeTypes.append(value);
     }
+}
+
+ImageViewerFactory::~ImageViewerFactory()
+{
 }
 
 Core::IEditor *ImageViewerFactory::createEditor(QWidget *parent)
@@ -74,7 +88,7 @@ Core::IEditor *ImageViewerFactory::createEditor(QWidget *parent)
 
 QStringList ImageViewerFactory::mimeTypes() const
 {
-    return m_mimeTypes;
+    return d_ptr->mimeTypes;
 }
 
 QString ImageViewerFactory::id() const
@@ -90,6 +104,11 @@ QString ImageViewerFactory::displayName() const
 Core::IFile *ImageViewerFactory::open(const QString & /*fileName*/)
 {
     return 0;
+}
+
+void ImageViewerFactory::extensionsInitialized()
+{
+    d_ptr->actionHandler->createActions();
 }
 
 } // namespace Internal
