@@ -33,6 +33,7 @@
 #include "projectexplorersettings.h"
 #include "target.h"
 #include "targetsettingspanel.h"
+#include "showineditortaskhandler.h"
 #include "applicationrunconfiguration.h"
 #include "allprojectsfilter.h"
 #include "allprojectsfind.h"
@@ -278,6 +279,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectsMode->setContextHelpId(QLatin1String("Managing Projects"));
     addAutoReleasedObject(d->m_projectsMode);
     d->m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(d->m_proWindow));
+
+    addAutoReleasedObject(new ShowInEditorTaskHandler);
 
     d->m_buildManager = new BuildManager(this);
     connect(d->m_buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project *)),

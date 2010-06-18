@@ -76,6 +76,8 @@ const char * const OPENTERMIANLHERE     = "ProjectExplorer.OpenTerminalHere";
 const char * const REMOVEFILE           = "ProjectExplorer.RemoveFile";
 const char * const RENAMEFILE           = "ProjectExplorer.RenameFile";
 
+const char * const SHOW_TASK_IN_EDITOR  = "ProjectExplorer.ShowTaskInEditor";
+
 // Run modes
 const char * const RUNMODE              = "ProjectExplorer.RunMode";
 const char * const DEBUGMODE            = "ProjectExplorer.DebugMode";

@@ -18,6 +18,7 @@ HEADERS += projectexplorer.h \
     targetsettingspanel.h \
     task.h \
     itaskhandler.h \
+    showineditortaskhandler.h \
     taskwindow.h \
     outputwindow.h \
     persistentsettings.h \
@@ -96,6 +97,7 @@ SOURCES += projectexplorer.cpp \
     projectconfiguration.cpp \
     gnumakeparser.cpp \
     task.cpp \
+    showineditortaskhandler.cpp \
     taskwindow.cpp \
     outputwindow.cpp \
     persistentsettings.cpp \
