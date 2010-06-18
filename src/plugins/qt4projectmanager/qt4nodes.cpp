@@ -1024,10 +1024,15 @@ void Qt4ProFileNode::setupReader()
 bool Qt4ProFileNode::evaluate()
 {
     bool parserError = false;
-    if (!m_readerExact->readProFile(m_projectFilePath))
+    if (ProFile *pro = m_readerExact->parsedProFile(m_projectFilePath)) {
+        if (!m_readerExact->accept(pro))
+            parserError = true;
+        if (!m_readerCumulative->accept(pro))
+            parserError = true;
+        pro->deref();
+    } else {
         parserError = true;
-    if (!m_readerCumulative->readProFile(m_projectFilePath))
-        parserError = true;
+    }
     return parserError;
 }
 
