@@ -131,7 +131,6 @@ bool ImageView::openFile(QString fileName)
         pixmapItem->setTransformationMode(Qt::SmoothTransformation);
         d_ptr->imageItem = pixmapItem;
     }
-    d_ptr->imageItem->setFlags(QGraphicsItem::ItemClipsToShape);
     d_ptr->imageItem->setCacheMode(QGraphicsItem::NoCache);
     d_ptr->imageItem->setZValue(0);
 
