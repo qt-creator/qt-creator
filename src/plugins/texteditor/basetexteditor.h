@@ -151,7 +151,7 @@ public:
 
     void setSuggestedFileName(const QString &suggestedFileName);
     QString mimeType() const;
-    void setMimeType(const QString &mt);
+    virtual void setMimeType(const QString &mt);
 
 
     void appendStandardContextMenuActions(QMenu *menu);
@@ -341,6 +341,7 @@ public:
         OtherSelection,
         SnippetPlaceholderSelection,
         TypeSelection,
+        ObjCSelection,
         NExtraSelectionKinds
     };
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
