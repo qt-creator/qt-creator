@@ -35,7 +35,9 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-ProFileReader::ProFileReader(ProFileOption *option) : ProFileEvaluator(option)
+ProFileReader::ProFileReader(ProFileOption *option)
+    : ProFileEvaluator(option)
+    , m_ignoreLevel(0)
 {
 }
 
@@ -48,8 +50,6 @@ ProFileReader::~ProFileReader()
 bool ProFileReader::readProFile(const QString &fileName)
 {
     if (ProFile *pro = parsedProFile(fileName)) {
-        m_ignoreLevel = 0;
-        aboutToEval(0, pro, EvalIncludeFile);
         bool ok = accept(pro);
         pro->deref();
         return ok;
@@ -59,7 +59,7 @@ bool ProFileReader::readProFile(const QString &fileName)
 
 void ProFileReader::aboutToEval(ProFile *, ProFile *pro, EvalFileType type)
 {
-    if (m_ignoreLevel || type == EvalFeatureFile) {
+    if (m_ignoreLevel || (type != EvalProjectFile && type != EvalIncludeFile)) {
         m_ignoreLevel++;
     } else if (!m_includeFiles.contains(pro->fileName())) {
         m_includeFiles.insert(pro->fileName(), pro);

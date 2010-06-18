@@ -100,7 +100,7 @@ public:
     QString propertyValue(const QString &val) const;
 
     // for our descendents
-    enum EvalFileType { EvalFeatureFile, EvalIncludeFile };
+    enum EvalFileType { EvalProjectFile, EvalIncludeFile, EvalConfigFile, EvalFeatureFile, EvalAuxFile };
     virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type);
     virtual void doneWithEval(ProFile *parent);
     virtual void logMessage(const QString &msg);

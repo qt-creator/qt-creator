@@ -254,7 +254,7 @@ public:
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
     void skipExpression(const ushort *&tokPtr);
 
-    VisitReturn visitProFile(ProFile *pro);
+    VisitReturn visitProFile(ProFile *pro, ProFileEvaluator::EvalFileType type);
     VisitReturn visitProBlock(const ushort *tokPtr);
     VisitReturn visitProLoop(const ProString &variable, const ushort *exprPtr,
                              const ushort *tokPtr);
@@ -2026,8 +2026,10 @@ void ProFileEvaluator::Private::visitProVariable(
     }
 }
 
-ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
+ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
+        ProFile *pro, ProFileEvaluator::EvalFileType type)
 {
+    q->aboutToEval(currentProFile(), pro, type);
     m_lineNo = 0;
     m_profileStack.push(pro);
     if (m_profileStack.count() == 1) {
@@ -2072,7 +2074,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
                 if (!qmake_cache.isEmpty()) {
                     qmake_cache = resolvePath(qmake_cache);
                     QHash<ProString, ProStringList> cache_valuemap;
-                    if (evaluateFileInto(qmake_cache, ProFileEvaluator::EvalFeatureFile,
+                    if (evaluateFileInto(qmake_cache, ProFileEvaluator::EvalConfigFile,
                                          &cache_valuemap, 0)) {
                         if (m_option->qmakespec.isEmpty()) {
                             const ProStringList &vals = cache_valuemap.value(ProString("QMAKESPEC"));
@@ -2129,11 +2131,11 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
                     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
                     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileInto(spec, ProFileEvaluator::EvalFeatureFile,
+                    if (!evaluateFileInto(spec, ProFileEvaluator::EvalConfigFile,
                                           &m_option->base_valuemap, &m_option->base_functions)) {
                         errorMessage(format("Could not read qmake configuration file %1").arg(spec));
                     } else if (!m_option->cachefile.isEmpty()) {
-                        evaluateFileInto(m_option->cachefile, ProFileEvaluator::EvalFeatureFile,
+                        evaluateFileInto(m_option->cachefile, ProFileEvaluator::EvalConfigFile,
                                          &m_option->base_valuemap, &m_option->base_functions);
                     }
                     m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
@@ -2214,6 +2216,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(P
         }
     }
     m_profileStack.pop();
+    q->doneWithEval(currentProFile());
 
     return ReturnTrue;
 }
@@ -3015,7 +3018,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (evaluateFileInto(fn, ProFileEvaluator::EvalIncludeFile, &vars, 0))
+                if (evaluateFileInto(fn, ProFileEvaluator::EvalAuxFile, &vars, 0))
                     ret = vars.value(map(args.at(1)));
             }
             break;
@@ -3295,7 +3298,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (!evaluateFileInto(fn, ProFileEvaluator::EvalIncludeFile, &vars, 0))
+                if (!evaluateFileInto(fn, ProFileEvaluator::EvalAuxFile, &vars, 0))
                     return ReturnFalse;
                 if (args.count() == 2)
                     return returnBool(vars.contains(args.at(1)));
@@ -3925,9 +3928,7 @@ bool ProFileEvaluator::Private::evaluateFileDirect(
 {
     int lineNo = m_lineNo;
     if (ProFile *pro = parsedProFile(fileName, true)) {
-        q->aboutToEval(currentProFile(), pro, type);
-        bool ok = (visitProFile(pro) == ReturnTrue);
-        q->doneWithEval(currentProFile());
+        bool ok = (visitProFile(pro, type) == ReturnTrue);
         pro->deref();
         m_lineNo = lineNo;
         return ok;
@@ -4184,7 +4185,7 @@ ProFile *ProFileEvaluator::parsedProFile(const QString &fileName, const QString 
 
 bool ProFileEvaluator::accept(ProFile *pro)
 {
-    return d->visitProFile(pro);
+    return d->visitProFile(pro, ProFileEvaluator::EvalProjectFile);
 }
 
 QString ProFileEvaluator::propertyValue(const QString &name) const
