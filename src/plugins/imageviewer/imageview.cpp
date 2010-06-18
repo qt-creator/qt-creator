@@ -74,6 +74,7 @@ ImageView::ImageView(QWidget *parent)
     setTransformationAnchor(AnchorUnderMouse);
     setDragMode(ScrollHandDrag);
     setViewportUpdateMode(FullViewportUpdate);
+    setFrameShape(QFrame::NoFrame);
 
     // Prepare background check-board pattern
     QPixmap tilePixmap(64, 64);
