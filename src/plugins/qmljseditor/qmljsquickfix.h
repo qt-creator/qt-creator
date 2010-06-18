@@ -61,10 +61,6 @@ public:
     virtual int match(TextEditor::QuickFixState *state);
 
 protected:
-    using TextEditor::QuickFixOperation::textOf;
-    using TextEditor::QuickFixOperation::charAt;
-    using TextEditor::QuickFixOperation::position;
-
     QString fileName() const;
 
     virtual void apply();
