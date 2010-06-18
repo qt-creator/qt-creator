@@ -790,7 +790,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
         {
             QFile qfile(m_projectFilePath);
             if (qfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                contents = QString::fromLatin1(qfile.readAll()); // yes, really latin1
+                contents = QString::fromLocal8Bit(qfile.readAll());
                 qfile.close();
                 lines = contents.split(QLatin1Char('\n'));
                 while (!lines.isEmpty() && lines.last().isEmpty())
@@ -841,7 +841,7 @@ void Qt4PriFileNode::save(const QStringList &lines)
     QFile qfile(m_projectFilePath);
     if (qfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         foreach (const QString &str, lines) {
-            qfile.write(str.toLatin1()); // yes, really latin1
+            qfile.write(str.toLocal8Bit());
             qfile.write("\n");
         }
         qfile.close();
@@ -1024,15 +1024,10 @@ void Qt4ProFileNode::setupReader()
 bool Qt4ProFileNode::evaluate()
 {
     bool parserError = false;
-    if (!m_readerExact->readProFile(m_projectFilePath)) {
-        m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
+    if (!m_readerExact->readProFile(m_projectFilePath))
         parserError = true;
-    }
-
-    if (!m_readerCumulative->readProFile(m_projectFilePath)) {
-        m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
+    if (!m_readerCumulative->readProFile(m_projectFilePath))
         parserError = true;
-    }
     return parserError;
 }
 
@@ -1074,8 +1069,10 @@ void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
         if (m_readerCumulative)
             m_project->destroyProFileReader(m_readerCumulative);
         m_readerExact = m_readerCumulative = 0;
-        if (!parseResult) // Invalidate
+        if (!parseResult) {
+            m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
             invalidate();
+        }
         return;
     }
 

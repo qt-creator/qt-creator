@@ -15,9 +15,19 @@ equals(QMAKE_DIR_SEP, /) {   # unix, mingw+msys
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
 QCH_FILE = $$IDE_DOC_PATH/qtcreator.qch
 
+HELP_DEP_FILES = $$PWD/qtcreator.qdoc \
+                 $$PWD/addressbook-sdk.qdoc \
+                 $$PWD/qt-defines.qdocconf \
+                 $$PWD/qt-html-templates.qdocconf \
+                 $$PWD/qtcreator.qdocconf \
+                 $$PWD/qtcreator-online.qdocconf
+
 html_docs.commands = $$QDOC $$PWD/qtcreator.qdocconf
-html_docs.depends += $$PWD/qtcreator.qdoc $$PWD/qtcreator.qdocconf
+html_docs.depends += $$HELP_DEP_FILES
 html_docs.files = $$QHP_FILE
+
+html_docs_online.commands = $$QDOC $$PWD/qtcreator-online.qdocconf
+html_docs_online.depends += $$HELP_DEP_FILES
 
 qch_docs.commands = $$HELPGENERATOR -o \"$$QCH_FILE\" $$QHP_FILE
 qch_docs.depends += html_docs
@@ -29,10 +39,10 @@ unix:!macx {
     INSTALLS += qch_docs
 }
 
+docs_online.depends = html_docs_online
 docs.depends = qch_docs
-QMAKE_EXTRA_TARGETS += html_docs qch_docs docs
+QMAKE_EXTRA_TARGETS += html_docs html_docs_online qch_docs docs docs_online
 
-OTHER_FILES = $$PWD/qtcreator.qdoc \
-              $$PWD/qtcreator.qdocconf
-OTHER_FILES += $$PWD/api/qtcreator-api.qdoc \
-               $$PWD/api/qtcreator-api.qdocconf
+OTHER_FILES = $$HELP_DEP_FILES \
+              $$PWD/api/qtcreator-api.qdoc \
+              $$PWD/api/qtcreator-api.qdocconf

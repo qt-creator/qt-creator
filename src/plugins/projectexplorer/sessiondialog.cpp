@@ -74,23 +74,27 @@ void SessionValidator::fixup(QString &input) const
     input = copy;
 }
 
+
 class SessionNameInputDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SessionNameInputDialog(const QStringList& sessions, const QString &initialValue = QString());
+    SessionNameInputDialog(const QStringList &sessions, QWidget *parent = 0);
+
+    void setValue(const QString &value);
     QString value() const;
+
 private:
     QLineEdit *m_newSessionLineEdit;
 };
 
-SessionNameInputDialog::SessionNameInputDialog(const QStringList& sessions, const QString &initialValue)
+SessionNameInputDialog::SessionNameInputDialog(const QStringList &sessions, QWidget *parent)
+    : QDialog(parent)
 {
     QVBoxLayout *hlayout = new QVBoxLayout(this);
     QLabel *label = new QLabel(tr("Enter the name of the session:"), this);
     hlayout->addWidget(label);
     m_newSessionLineEdit = new QLineEdit(this);
-    m_newSessionLineEdit->setText(initialValue);
     m_newSessionLineEdit->setValidator(new SessionValidator(this, sessions));
     hlayout->addWidget(m_newSessionLineEdit);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
@@ -100,10 +104,16 @@ SessionNameInputDialog::SessionNameInputDialog(const QStringList& sessions, cons
     setLayout(hlayout);
 }
 
+void SessionNameInputDialog::setValue(const QString &value)
+{
+    m_newSessionLineEdit->setText(value);
+}
+
 QString SessionNameInputDialog::value() const
 {
     return m_newSessionLineEdit->text();
 }
+
 
 SessionDialog::SessionDialog(SessionManager *sessionManager)
     : m_sessionManager(sessionManager)
@@ -174,7 +184,7 @@ void SessionDialog::updateActions()
 
 void SessionDialog::createNew()
 {
-    SessionNameInputDialog newSessionInputDialog(m_sessionManager->sessions());
+    SessionNameInputDialog newSessionInputDialog(m_sessionManager->sessions(), this);
     newSessionInputDialog.setWindowTitle(tr("New session name"));
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
@@ -192,8 +202,10 @@ void SessionDialog::createNew()
 
 void SessionDialog::clone()
 {
-    SessionNameInputDialog newSessionInputDialog(m_sessionManager->sessions(), m_ui.sessionList->currentItem()->text());
+    SessionNameInputDialog newSessionInputDialog(m_sessionManager->sessions(), this);
+    newSessionInputDialog.setValue(m_ui.sessionList->currentItem()->text());
     newSessionInputDialog.setWindowTitle(tr("New session name"));
+
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString newSession = newSessionInputDialog.value();
         if (m_sessionManager->cloneSession(m_ui.sessionList->currentItem()->text(), newSession)) {
@@ -213,11 +225,12 @@ void SessionDialog::remove()
     markItems();
 }
 
-
 void SessionDialog::rename()
 {
-    SessionNameInputDialog newSessionInputDialog(m_sessionManager->sessions(), m_ui.sessionList->currentItem()->text());
+    SessionNameInputDialog newSessionInputDialog(m_sessionManager->sessions(), this);
+    newSessionInputDialog.setValue(m_ui.sessionList->currentItem()->text());
     newSessionInputDialog.setWindowTitle(tr("Rename session"));
+
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         m_sessionManager->renameSession(m_ui.sessionList->currentItem()->text(), newSessionInputDialog.value());
         m_ui.sessionList->clear();
@@ -225,7 +238,6 @@ void SessionDialog::rename()
         markItems();
     }
 }
-
 
 void SessionDialog::switchToSession()
 {

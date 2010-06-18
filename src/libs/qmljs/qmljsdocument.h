@@ -93,6 +93,7 @@ public:
 
 private:
     bool parse_helper(int kind);
+    static void extractPragmas(QString *source);
 
 private:
     QmlJS::Engine *_engine;

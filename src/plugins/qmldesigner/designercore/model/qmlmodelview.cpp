@@ -43,6 +43,7 @@ enum {
     debug = false
 };
 
+
 namespace QmlDesigner {
 
 QmlModelView::QmlModelView(QObject *parent)

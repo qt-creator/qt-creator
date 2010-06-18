@@ -172,7 +172,11 @@ bool Document::parse_helper(int startToken)
     Lexer lexer(_engine);
     Parser parser(_engine);
 
-    lexer.setCode(_source, /*line = */ 1);
+    QString source = _source;
+    if (startToken == QmlJSGrammar::T_FEED_JS_PROGRAM)
+        extractPragmas(&source);
+
+    lexer.setCode(source, /*line = */ 1);
 
     switch (startToken) {
     case QmlJSGrammar::T_FEED_UI_PROGRAM:
@@ -222,6 +226,86 @@ bool Document::parseExpression()
 Bind *Document::bind() const
 {
     return _bind;
+}
+
+// this is essentially a copy of QDeclarativeScriptParser::extractPragmas
+void Document::extractPragmas(QString *source)
+{
+    const QChar forwardSlash(QLatin1Char('/'));
+    const QChar star(QLatin1Char('*'));
+    const QChar newline(QLatin1Char('\n'));
+    const QChar dot(QLatin1Char('.'));
+    const QChar semicolon(QLatin1Char(';'));
+    const QChar space(QLatin1Char(' '));
+    const QString pragma(QLatin1String(".pragma "));
+
+    const QChar *pragmaData = pragma.constData();
+
+    QString &script = *source;
+    const QChar *data = script.constData();
+    const int length = script.count();
+    for (int ii = 0; ii < length; ++ii) {
+        const QChar &c = data[ii];
+
+        if (c.isSpace())
+            continue;
+
+        if (c == forwardSlash) {
+            ++ii;
+            if (ii >= length)
+                return;
+
+            const QChar &c = data[ii];
+            if (c == forwardSlash) {
+                // Find next newline
+                while (ii < length && data[++ii] != newline) {};
+            } else if (c == star) {
+                // Find next star
+                while (true) {
+                    while (ii < length && data[++ii] != star) {};
+                    if (ii + 1 >= length)
+                        return;
+
+                    if (data[ii + 1] == forwardSlash) {
+                        ++ii;
+                        break;
+                    }
+                }
+            } else {
+                return;
+            }
+        } else if (c == dot) {
+            // Could be a pragma!
+            if (ii + pragma.length() >= length ||
+                0 != ::memcmp(data + ii, pragmaData, sizeof(QChar) * pragma.length()))
+                return;
+
+            int pragmaStatementIdx = ii;
+
+            ii += pragma.length();
+
+            while (ii < length && data[ii].isSpace()) { ++ii; }
+
+            int startIdx = ii;
+
+            while (ii < length && data[ii].isLetter()) { ++ii; }
+
+            int endIdx = ii;
+
+            if (ii != length && data[ii] != forwardSlash && !data[ii].isSpace() && data[ii] != semicolon)
+                return;
+
+            QString p(data + startIdx, endIdx - startIdx);
+
+            if (p != QLatin1String("library"))
+                return;
+
+            for (int jj = pragmaStatementIdx; jj < endIdx; ++jj) script[jj] = space;
+
+        } else {
+            return;
+        }
+    }
 }
 
 LibraryInfo::LibraryInfo()

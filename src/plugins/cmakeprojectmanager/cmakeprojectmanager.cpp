@@ -37,6 +37,7 @@
 #include <projectexplorer/environment.h>
 #include <qtconcurrent/QtConcurrentTools>
 #include <QtCore/QtConcurrentRun>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QSettings>
 #include <QtGui/QFormLayout>
 #include <QtGui/QBoxLayout>
@@ -255,7 +256,8 @@ QString CMakeSettingsPage::category() const
 
 QString CMakeSettingsPage::displayCategory() const
 {
-    return tr(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
+    return QCoreApplication::translate("ProjectExplorer",
+                                       ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
 }
 
 QIcon CMakeSettingsPage::categoryIcon() const
