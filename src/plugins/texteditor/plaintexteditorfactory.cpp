@@ -50,7 +50,8 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
     m_actionHandler = new TextEditorActionHandler(
         QLatin1String(TextEditor::Constants::C_TEXTEDITOR),
         TextEditorActionHandler::Format |
-        TextEditorActionHandler::UnCommentSelection);
+        TextEditorActionHandler::UnCommentSelection |
+        TextEditorActionHandler::UnCollapseAll);
     m_mimeTypes << QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT);
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),

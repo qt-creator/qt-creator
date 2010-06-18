@@ -124,6 +124,8 @@ protected:
     static const QLatin1Char kR;
     static const QLatin1Char kT;
     static const QLatin1Char kV;
+    static const QLatin1Char kOpeningBrace;
+    static const QLatin1Char kClosingBrace;
 
 private:
     virtual bool doMatchSucceed(const QString &text,

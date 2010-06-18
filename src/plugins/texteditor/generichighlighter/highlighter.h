@@ -34,6 +34,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QVector>
+#include <QtCore/QStack>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
 
@@ -92,14 +93,14 @@ private:
                              const bool childRule,
                              const QList<QSharedPointer<Rule> > &rules);
 
-    void setCurrentContext();
+    void assignCurrentContext();
     bool contextChangeRequired(const QString &contextName) const;
     void handleContextChange(const QString &contextName,
                              const QSharedPointer<HighlightDefinition> &definition,
                              const bool setCurrent = true);
     void changeContext(const QString &contextName,
                        const QSharedPointer<HighlightDefinition> &definition,
-                       const bool setCurrent = true);
+                       const bool assignCurrent = true);
 
     QString currentContextSequence() const;
     void mapPersistentSequence(const QString &contextSequence);
@@ -117,6 +118,8 @@ private:
                      const QSharedPointer<HighlightDefinition> &definition);
     void applyVisualWhitespaceFormat(const QString &text);
 
+    void applyFolding() const;
+
     // Mapping from Kate format strings to format ids.
     struct KateFormatMap
     {
@@ -131,27 +134,40 @@ private:
         BlockData();
         virtual ~BlockData();
 
-        int m_originalState;
+        int m_foldingIndentDelta;
+        int m_originalObservableState;
+        QStack<QString> m_foldingRegions;
         QSharedPointer<Context> m_contextToContinue;
     };
     BlockData *initializeBlockData();
+    static BlockData *blockData(QTextBlockUserData *userData);
 
-    // Block states
+    // Block states are composed by the region depth (used for code folding) and what I call
+    // observable states. Observable states occupy the 12 least significant bits. They might have
+    // the following values:
     // - Default [0]: Nothing special.
     // - WillContinue [1]: When there is match of the LineContinue rule (backslash as the last
     //   character).
-    // - Continued [2]: Blocks that happen after a WillContinue block and continued from their
+    // - Continued [2]: Blocks that happen after a WillContinue block and continue from their
     //   context until the next line end.
     // - Persistent(s) [Anything >= 3]: Correspond to persistent contexts which last until a pop
     //   occurs due to a matching rule. Every sequence of persistent contexts seen so far is
     //   associated with a number (incremented by a unit each time).
-    enum BlockState {
+    // Region depths occupy the remaining bits.
+    enum ObservableBlockState {
         Default = 0,
         WillContinue,
         Continued,
         PersistentsStart
     };
-    int m_persistentStatesCounter;
+    int computeState(const int observableState) const;
+
+    static int extractRegionDepth(const int state);
+    static int extractObservableState(const int state);
+
+    int m_regionDepth;
+
+    int m_persistentObservableStatesCounter;
     int m_dynamicContextsCounter;
 
     bool m_isBroken;
@@ -160,11 +176,11 @@ private:
     QSharedPointer<Context> m_currentContext;
     QVector<QSharedPointer<Context> > m_contexts;
 
-    // Mapping from context sequences to the persistent state they represent.
-    QHash<QString, int> m_persistentStates;
-    // Mapping from context sequences to the non-persistent state that led to them.
-    QHash<QString, int> m_leadingStates;
-    // Mapping from persistent states to context sequences (the actual "stack").
+    // Mapping from context sequences to the observable persistent state they represent.
+    QHash<QString, int> m_persistentObservableStates;
+    // Mapping from context sequences to the non-persistent observable state that led to them.
+    QHash<QString, int> m_leadingObservableStates;
+    // Mapping from observable persistent states to context sequences (the actual "stack").
     QHash<int, QVector<QSharedPointer<Context> > > m_persistentContexts;
 
     // Captures used in dynamic rules.

@@ -38,7 +38,9 @@ ProgressData::ProgressData() :
     m_offset(0),
     m_savedOffset(-1),
     m_onlySpacesSoFar(true),
-    m_willContinueLine(false)
+    m_willContinueLine(false),
+    m_openingBraceMatchAtFirstNonSpace(false),
+    m_closingBraceMatchAtNonEnd(false)
 {}
 
 void ProgressData::setOffset(const int offset)
@@ -68,6 +70,26 @@ void ProgressData::setOnlySpacesSoFar(const bool onlySpaces)
 
 bool ProgressData::isOnlySpacesSoFar() const
 { return m_onlySpacesSoFar; }
+
+void ProgressData::setOpeningBraceMatchAtFirstNonSpace(const bool match)
+{ m_openingBraceMatchAtFirstNonSpace = match; }
+
+bool ProgressData::isOpeningBraceMatchAtFirstNonSpace() const
+{ return m_openingBraceMatchAtFirstNonSpace; }
+
+void ProgressData::setClosingBraceMatchAtNonEnd(const bool match)
+{ m_closingBraceMatchAtNonEnd = match; }
+
+bool ProgressData::isClosingBraceMatchAtNonEnd() const
+{ return m_closingBraceMatchAtNonEnd; }
+
+void ProgressData::clearBracesMatches()
+{
+    if (m_openingBraceMatchAtFirstNonSpace)
+        m_openingBraceMatchAtFirstNonSpace = false;
+    if (m_closingBraceMatchAtNonEnd)
+        m_closingBraceMatchAtNonEnd = false;
+}
 
 void ProgressData::setWillContinueLine(const bool willContinue)
 { m_willContinueLine = willContinue; }

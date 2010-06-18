@@ -53,7 +53,8 @@ const Highlighter::KateFormatMap Highlighter::m_kateFormats;
 
 Highlighter::Highlighter(QTextDocument *parent) :
     QSyntaxHighlighter(parent),
-    m_persistentStatesCounter(PersistentsStart),
+    m_regionDepth(0),
+    m_persistentObservableStatesCounter(PersistentsStart),
     m_dynamicContextsCounter(0),
     m_isBroken(false)
 {}
@@ -61,7 +62,7 @@ Highlighter::Highlighter(QTextDocument *parent) :
 Highlighter::~Highlighter()
 {}
 
-Highlighter::BlockData::BlockData()
+Highlighter::BlockData::BlockData() : m_foldingIndentDelta(0)
 {}
 
 Highlighter::BlockData::~BlockData()
@@ -93,13 +94,15 @@ void Highlighter::configureFormat(TextFormatId id, const QTextCharFormat &format
 void  Highlighter::setDefaultContext(const QSharedPointer<Context> &defaultContext)
 {
     m_defaultContext = defaultContext;
-    m_persistentStates.insert(m_defaultContext->name(), Default);
+    m_persistentObservableStates.insert(m_defaultContext->name(), Default);
 }
 
 void Highlighter::highlightBlock(const QString &text)
 {
     if (!m_defaultContext.isNull() && !m_isBroken) {
         try {
+            if (!currentBlockUserData())
+                initializeBlockData();
             setupDataForBlock(text);
 
             handleContextChange(m_currentContext->lineBeginContext(),
@@ -114,6 +117,12 @@ void Highlighter::highlightBlock(const QString &text)
                                 m_currentContext->definition(),
                                 false);
             m_contexts.clear();
+
+            applyFolding();
+
+            // Takes into the account any change that might have affected the region depth since
+            // the last time the state was set.
+            setCurrentBlockState(computeState(extractObservableState(currentBlockState())));
         } catch (const HighlighterException &) {
             m_isBroken = true;
         }
@@ -124,60 +133,70 @@ void Highlighter::highlightBlock(const QString &text)
 
 void Highlighter::setupDataForBlock(const QString &text)
 {
-    if (currentBlockState() == WillContinue)
+    if (extractObservableState(currentBlockState()) == WillContinue)
         analyseConsistencyOfWillContinueBlock(text);
 
-    if (previousBlockState() == Default || previousBlockState() == -1)
+    if (previousBlockState() == -1) {
+        m_regionDepth = 0;
         setupDefault();
-    else if (previousBlockState() == WillContinue)
-        setupFromWillContinue();
-    else if (previousBlockState() == Continued)
-        setupFromContinued();
-    else
-        setupFromPersistent();
+    } else {
+        m_regionDepth = extractRegionDepth(previousBlockState());
+        const int observablePreviousState = extractObservableState(previousBlockState());
+        if (observablePreviousState == Default)
+            setupDefault();
+        else if (observablePreviousState == WillContinue)
+            setupFromWillContinue();
+        else if (observablePreviousState == Continued)
+            setupFromContinued();
+        else
+            setupFromPersistent();
 
-    setCurrentContext();
+        blockData(currentBlockUserData())->m_foldingRegions =
+            blockData(currentBlock().previous().userData())->m_foldingRegions;
+    }
+
+    assignCurrentContext();
 }
 
 void Highlighter::setupDefault()
 {
     m_contexts.push_back(m_defaultContext);
 
-    setCurrentBlockState(Default);
+    setCurrentBlockState(computeState(Default));
 }
 
 void Highlighter::setupFromWillContinue()
 {
-    BlockData *previousData = static_cast<BlockData *>(currentBlock().previous().userData());
+    BlockData *previousData = blockData(currentBlock().previous().userData());
     m_contexts.push_back(previousData->m_contextToContinue);
 
-    if (!currentBlockUserData()) {
-        BlockData *data = initializeBlockData();
-        data->m_originalState = previousData->m_originalState;
-    }
+    BlockData *data = blockData(currentBlock().userData());
+    data->m_originalObservableState = previousData->m_originalObservableState;
 
-    if (currentBlockState() == Default || currentBlockState() == -1)
-        setCurrentBlockState(Continued);
+    if (currentBlockState() == -1 || extractObservableState(currentBlockState()) == Default)
+        setCurrentBlockState(computeState(Continued));
 }
 
 void Highlighter::setupFromContinued()
 {
-    BlockData *previousData = static_cast<BlockData *>(currentBlock().previous().userData());
+    BlockData *previousData = blockData(currentBlock().previous().userData());
 
-    Q_ASSERT(previousData->m_originalState != WillContinue &&
-             previousData->m_originalState != Continued);
+    Q_ASSERT(previousData->m_originalObservableState != WillContinue &&
+             previousData->m_originalObservableState != Continued);
 
-    if (previousData->m_originalState == Default || previousData->m_originalState == -1)
+    if (previousData->m_originalObservableState == Default ||
+        previousData->m_originalObservableState == -1) {
         m_contexts.push_back(m_defaultContext);
-    else
-        pushContextSequence(previousData->m_originalState);
+    } else {
+        pushContextSequence(previousData->m_originalObservableState);
+    }
 
-    setCurrentBlockState(previousData->m_originalState);
+    setCurrentBlockState(computeState(previousData->m_originalObservableState));
 }
 
 void Highlighter::setupFromPersistent()
 {
-    pushContextSequence(previousBlockState());
+    pushContextSequence(extractObservableState(previousBlockState()));
 
     setCurrentBlockState(previousBlockState());
 }
@@ -197,10 +216,28 @@ void Highlighter::iterateThroughRules(const QString &text,
     RuleIterator endIt = rules.end();
     while (it != endIt && progress->offset() < length) {
         int startOffset = progress->offset();
-
         const QSharedPointer<Rule> &rule = *it;
         if (rule->matchSucceed(text, length, progress)) {
             atLeastOneMatch = true;
+
+            // Code folding.
+            if (!rule->beginRegion().isEmpty()) {
+                blockData(currentBlockUserData())->m_foldingRegions.push(rule->beginRegion());
+                ++m_regionDepth;
+                if (progress->isOpeningBraceMatchAtFirstNonSpace())
+                    ++blockData(currentBlockUserData())->m_foldingIndentDelta;
+            }
+            if (!rule->endRegion().isEmpty()) {
+                QStack<QString> *currentRegions =
+                    &blockData(currentBlockUserData())->m_foldingRegions;
+                if (!currentRegions->isEmpty() && rule->endRegion() == currentRegions->top()) {
+                    currentRegions->pop();
+                    --m_regionDepth;
+                    if (progress->isClosingBraceMatchAtNonEnd())
+                        --blockData(currentBlockUserData())->m_foldingIndentDelta;
+                }
+            }
+            progress->clearBracesMatches();
 
             if (progress->isWillContinueLine()) {
                 createWillContinueBlock();
@@ -263,20 +300,22 @@ bool Highlighter::contextChangeRequired(const QString &contextName) const
 
 void Highlighter::changeContext(const QString &contextName,
                                 const QSharedPointer<HighlightDefinition> &definition,
-                                const bool setCurrent)
+                                const bool assignCurrent)
 {
     if (contextName.startsWith(kPop)) {
         QStringList list = contextName.split(kHash, QString::SkipEmptyParts);
         for (int i = 0; i < list.size(); ++i)
             m_contexts.pop_back();
 
-        if (currentBlockState() >= PersistentsStart) {
+        if (extractObservableState(currentBlockState()) >= PersistentsStart) {
             // One or more contexts were popped during during a persistent state.
             const QString &currentSequence = currentContextSequence();
-            if (m_persistentStates.contains(currentSequence))
-                setCurrentBlockState(m_persistentStates.value(currentSequence));
+            if (m_persistentObservableStates.contains(currentSequence))
+                setCurrentBlockState(
+                    computeState(m_persistentObservableStates.value(currentSequence)));
             else
-                setCurrentBlockState(m_leadingStates.value(currentSequence));
+                setCurrentBlockState(
+                    computeState(m_leadingObservableStates.value(currentSequence)));
         }
     } else {
         const QSharedPointer<Context> &context = definition->context(contextName);
@@ -287,19 +326,20 @@ void Highlighter::changeContext(const QString &contextName,
             m_contexts.push_back(context);
 
         if (m_contexts.back()->lineEndContext() == kStay ||
-            currentBlockState() >= PersistentsStart) {
+            extractObservableState(currentBlockState()) >= PersistentsStart) {
             const QString &currentSequence = currentContextSequence();
             mapLeadingSequence(currentSequence);
             if (m_contexts.back()->lineEndContext() == kStay) {
                 // A persistent context was pushed.
                 mapPersistentSequence(currentSequence);
-                setCurrentBlockState(m_persistentStates.value(currentSequence));
+                setCurrentBlockState(
+                    computeState(m_persistentObservableStates.value(currentSequence)));
             }
         }
     }
 
-    if (setCurrent)
-        setCurrentContext();
+    if (assignCurrent)
+        assignCurrentContext();
 }
 
 void Highlighter::handleContextChange(const QString &contextName,
@@ -373,50 +413,49 @@ void Highlighter::applyVisualWhitespaceFormat(const QString &text)
 
 void Highlighter::createWillContinueBlock()
 {
-    if (!currentBlockUserData())
-        initializeBlockData();
-
-    BlockData *data = static_cast<BlockData *>(currentBlockUserData());
-    if (currentBlockState() == Continued) {
-        BlockData *previousData = static_cast<BlockData *>(currentBlock().previous().userData());
-        data->m_originalState = previousData->m_originalState;
-    } else if (currentBlockState() != WillContinue) {
-        data->m_originalState = currentBlockState();
+    BlockData *data = blockData(currentBlockUserData());
+    const int currentObservableState = extractObservableState(currentBlockState());
+    if (currentObservableState == Continued) {
+        BlockData *previousData = blockData(currentBlock().previous().userData());
+        data->m_originalObservableState = previousData->m_originalObservableState;
+    } else if (currentObservableState != WillContinue) {
+        data->m_originalObservableState = currentObservableState;
     }
     data->m_contextToContinue = m_currentContext;
 
-    setCurrentBlockState(WillContinue);
+    setCurrentBlockState(computeState(WillContinue));
 }
 
 void Highlighter::analyseConsistencyOfWillContinueBlock(const QString &text)
 {
     if (currentBlock().next().isValid() && (
         text.length() == 0 || text.at(text.length() - 1) != kBackSlash) &&
-        currentBlock().next().userState() != Continued) {
-        currentBlock().next().setUserState(Continued);
+        extractObservableState(currentBlock().next().userState()) != Continued) {
+        currentBlock().next().setUserState(computeState(Continued));
     }
 
     if (text.length() == 0 || text.at(text.length() - 1) != kBackSlash) {
-        BlockData *data = static_cast<BlockData *>(currentBlockUserData());
+        BlockData *data = blockData(currentBlockUserData());
         data->m_contextToContinue.clear();
-        setCurrentBlockState(data->m_originalState);
+        setCurrentBlockState(computeState(data->m_originalObservableState));
     }
 }
 
 void Highlighter::mapPersistentSequence(const QString &contextSequence)
 {
-    if (!m_persistentStates.contains(contextSequence)) {
-        int newState = m_persistentStatesCounter;
-        m_persistentStates.insert(contextSequence, newState);
+    if (!m_persistentObservableStates.contains(contextSequence)) {
+        int newState = m_persistentObservableStatesCounter;
+        m_persistentObservableStates.insert(contextSequence, newState);
         m_persistentContexts.insert(newState, m_contexts);
-        ++m_persistentStatesCounter;
+        ++m_persistentObservableStatesCounter;
     }
 }
 
 void Highlighter::mapLeadingSequence(const QString &contextSequence)
 {
-    if (!m_leadingStates.contains(contextSequence))
-        m_leadingStates.insert(contextSequence, currentBlockState());
+    if (!m_leadingObservableStates.contains(contextSequence))
+        m_leadingObservableStates.insert(contextSequence,
+                                         extractObservableState(currentBlockState()));
 }
 
 void Highlighter::pushContextSequence(int state)
@@ -442,6 +481,11 @@ Highlighter::BlockData *Highlighter::initializeBlockData()
     return data;
 }
 
+Highlighter::BlockData *Highlighter::blockData(QTextBlockUserData *userData)
+{
+    return static_cast<BlockData *>(userData);
+}
+
 void Highlighter::pushDynamicContext(const QSharedPointer<Context> &baseContext)
 {
     // A dynamic context is created from another context which serves as its basis. Then,
@@ -454,7 +498,7 @@ void Highlighter::pushDynamicContext(const QSharedPointer<Context> &baseContext)
     ++m_dynamicContextsCounter;
 }
 
-void Highlighter::setCurrentContext()
+void Highlighter::assignCurrentContext()
 {
     if (m_contexts.isEmpty()) {
         // This is not supposed to happen. However, there are broken files (for example, php.xml)
@@ -463,4 +507,39 @@ void Highlighter::setCurrentContext()
         m_contexts.push_back(m_defaultContext);
     }
     m_currentContext = m_contexts.back();
+}
+
+int Highlighter::extractRegionDepth(const int state)
+{
+    return state >> 12;
+}
+
+int Highlighter::extractObservableState(const int state)
+{
+    return state & 0xFFF;
+}
+
+int Highlighter::computeState(const int observableState) const
+{
+    return m_regionDepth << 12 | observableState;
+}
+
+void Highlighter::applyFolding() const
+{
+    int folding = 0;
+    BlockData *data = blockData(currentBlockUserData());
+    BlockData *previousData = blockData(currentBlock().previous().userData());
+    if (previousData) {
+        folding = extractRegionDepth(previousBlockState());
+        if (data->m_foldingIndentDelta != 0) {
+            folding += data->m_foldingIndentDelta;
+            if (data->m_foldingIndentDelta > 0)
+                data->setFoldingStartIncluded(true);
+            else
+                previousData->setFoldingEndIncluded(false);
+            data->m_foldingIndentDelta = 0;
+        }
+    }
+    data->setFoldingEndIncluded(true);
+    data->setFoldingIndent(folding);
 }

@@ -58,6 +58,8 @@ const QLatin1Char Rule::kN('n');
 const QLatin1Char Rule::kR('r');
 const QLatin1Char Rule::kT('t');
 const QLatin1Char Rule::kV('v');
+const QLatin1Char Rule::kOpeningBrace('{');
+const QLatin1Char Rule::kClosingBrace('}');
 
 Rule::Rule(bool consumesNonSpace) :
     m_lookAhead(false), m_firstNonSpace(false), m_column(-1), m_consumesNonSpace(consumesNonSpace)
