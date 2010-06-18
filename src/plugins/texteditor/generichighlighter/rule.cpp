@@ -58,6 +58,8 @@ const QLatin1Char Rule::kN('n');
 const QLatin1Char Rule::kR('r');
 const QLatin1Char Rule::kT('t');
 const QLatin1Char Rule::kV('v');
+const QLatin1Char Rule::kOpeningBrace('{');
+const QLatin1Char Rule::kClosingBrace('}');
 
 Rule::Rule(bool consumesNonSpace) :
     m_lookAhead(false), m_firstNonSpace(false), m_column(-1), m_consumesNonSpace(consumesNonSpace)
@@ -162,7 +164,7 @@ bool Rule::charPredicateMatchSucceed(const QString &text,
 
 bool Rule::matchSucceed(const QString &text, const int length, ProgressData *progress) const
 { 
-    if (m_firstNonSpace && !progress->onlySpacesSoFar())
+    if (m_firstNonSpace && !progress->isOnlySpacesSoFar())
         return false;
 
     if (m_column != -1 && m_column != progress->offset())
@@ -170,7 +172,7 @@ bool Rule::matchSucceed(const QString &text, const int length, ProgressData *pro
 
     int original = progress->offset();
     if (doMatchSucceed(text, length, progress)) {
-        if (progress->onlySpacesSoFar() && !m_lookAhead && m_consumesNonSpace)
+        if (progress->isOnlySpacesSoFar() && !m_lookAhead && m_consumesNonSpace)
             progress->setOnlySpacesSoFar(false);
 
         if (m_lookAhead)

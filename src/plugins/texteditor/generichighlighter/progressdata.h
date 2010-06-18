@@ -50,10 +50,18 @@ public:
     void restoreOffset();
 
     void setOnlySpacesSoFar(const bool onlySpaces);
-    bool onlySpacesSoFar() const;
+    bool isOnlySpacesSoFar() const;
+
+    void setOpeningBraceMatchAtFirstNonSpace(const bool match);
+    bool isOpeningBraceMatchAtFirstNonSpace() const;
+
+    void setClosingBraceMatchAtNonEnd(const bool match);
+    bool isClosingBraceMatchAtNonEnd() const;
+
+    void clearBracesMatches();
 
     void setWillContinueLine(const bool willContinue);
-    bool willContinueLine() const;
+    bool isWillContinueLine() const;
 
     void setCaptures(const QStringList &captures);
     const QStringList &captures() const;
@@ -62,6 +70,8 @@ private:
     int m_offset;
     int m_savedOffset;
     bool m_onlySpacesSoFar;
+    bool m_openingBraceMatchAtFirstNonSpace;
+    bool m_closingBraceMatchAtNonEnd;
     bool m_willContinueLine;
     QStringList m_captures;
 };

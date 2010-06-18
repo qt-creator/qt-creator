@@ -32,13 +32,19 @@
 
 /*
  Since the text editor plugin directory is not included in the search list of the pro file, this
- file replaces the "real" basetextdocumentlayout.h file. The objective is to simply use
- QTextBlockUserData instead of TextEditor::TextBlockUserData to avoid "external"
- dependencies or intrusive defines.
+ file replaces the "real" basetextdocumentlayout.h file. The objective is to provide a simple
+ TextBlockUserData and avoid "external" dependencies or intrusive defines.
  */
 
 #include <QtGui/QTextBlockUserData>
 
-typedef QTextBlockUserData TextBlockUserData;
+struct TextBlockUserData : QTextBlockUserData
+{
+    virtual ~TextBlockUserData(){}
+
+    void setFoldingStartIncluded(const bool) {}
+    void setFoldingEndIncluded(const bool) {}
+    void setFoldingIndent(const int) {}
+};
 
 #endif // BASETEXTDOCUMENTLAYOUT_H

@@ -109,7 +109,8 @@ void HighlighterMock::highlightBlock(const QString &text)
 
     if (m_states.size() <= m_statesCounter)
         QFAIL("Expected state for current block not set.");
-    QCOMPARE(currentBlockState(), m_states.at(m_statesCounter++));
+    const int observableState = currentBlockState() & 0xFFF;
+    QCOMPARE(observableState, m_states.at(m_statesCounter++));
 
     if (m_formatSequence.size() <= m_formatsCounter)
         QFAIL("Expected highlight sequence for current block not set.");

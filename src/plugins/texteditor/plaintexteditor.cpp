@@ -162,7 +162,10 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
 {
     Highlighter *highlighter = new Highlighter();
     baseTextDocument()->setSyntaxHighlighter(highlighter);
+
     m_isMissingSyntaxDefinition = true;
+    setCodeFoldingSupported(false);
+    setCodeFoldingVisible(false);
 
     QString definitionId;
     if (!mimeType.isNull()) {
@@ -184,6 +187,9 @@ void PlainTextEditor::configure(const Core::MimeType &mimeType)
             m_commentDefinition.setSingleLine(definition->singleLineComment());
             m_commentDefinition.setMultiLineStart(definition->multiLineCommentStart());
             m_commentDefinition.setMultiLineEnd(definition->multiLineCommentEnd());
+
+            setCodeFoldingSupported(true);
+            setCodeFoldingVisible(true);
 
             m_isMissingSyntaxDefinition = false;
         }
