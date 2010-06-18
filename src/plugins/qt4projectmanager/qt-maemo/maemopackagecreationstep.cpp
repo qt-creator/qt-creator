@@ -135,9 +135,9 @@ bool MaemoPackageCreationStep::createPackage()
     QString colon = QLatin1String(":");
 #ifdef Q_OS_WIN
     colon = QLatin1String(";");
-    env.insert(key, targetRoot() % "/bin" % colon % env.value(key));
     env.insert(key, path % QLatin1String("bin") % colon % env.value(key));
 #endif
+    env.insert(key, targetRoot() % "/bin" % colon % env.value(key));
     env.insert(key, path % QLatin1String("madbin") % colon % env.value(key));
     env.insert(QLatin1String("PERL5LIB"), path % QLatin1String("madlib/perl5"));
 
@@ -155,6 +155,8 @@ bool MaemoPackageCreationStep::createPackage()
     QProcess buildProc;
     buildProc.setProcessEnvironment(env);
     buildProc.setWorkingDirectory(buildDir);
+    buildProc.start("cd " + buildDir);
+    buildProc.waitForFinished();
 
     if (!QFileInfo(buildDir + QLatin1String("/debian")).exists()) {
         const QString command = QLatin1String("dh_make -s -n -p ")
@@ -170,6 +172,11 @@ bool MaemoPackageCreationStep::createPackage()
 
         QByteArray rulesContents = rulesFile.readAll();
         rulesContents.replace("DESTDIR", "INSTALL_ROOT");
+
+        // Would be the right solution, but does not work (on Windows),
+        // because dpkg-genchanges doesn't know about it (and can't be told).
+        // rulesContents.replace("dh_builddeb", "dh_builddeb --destdir=.");
+
         rulesFile.resize(0);
         rulesFile.write(rulesContents);
         if (rulesFile.error() != QFile::NoError) {
@@ -179,45 +186,30 @@ bool MaemoPackageCreationStep::createPackage()
         }
     }
 
-    if (!runCommand(buildProc, QLatin1String("dh_installdirs")))
+    if (!runCommand(buildProc, "dpkg-buildpackage -nc -uc -us"))
         return false;
-    
-    const QDir debianRoot = QDir(buildDir % QLatin1String("/debian/")
-                                 % executableFileName().toLower());
-    for (int i = 0; i < m_packageContents->rowCount(); ++i) {
-        const MaemoPackageContents::Deployable &d
-            = m_packageContents->deployableAt(i);
-        const QString absTargetDir = debianRoot.path() + '/' + d.remoteDir;
-        const QString targetFile
-            = absTargetDir + '/' + QFileInfo(d.localFilePath).fileName();
-        const QString relTargetDir = debianRoot.relativeFilePath(absTargetDir);
-        if (!debianRoot.exists(relTargetDir)
-            && !debianRoot.mkpath(relTargetDir)) {
-            raiseError(tr("Packaging Error: Could not create directory '%1'.")
-                       .arg(QDir::toNativeSeparators(absTargetDir)));
-            return false;
-        }
-        if (QFile::exists(targetFile) && !QFile::remove(targetFile)) {
-            raiseError(tr("Packaging Error: Could not replace file '%1'.")
-                       .arg(QDir::toNativeSeparators(targetFile)));
-            return false;
-        }
 
-        if (!QFile::copy(d.localFilePath, targetFile)) {
-            raiseError(tr("Packaging Error: Could not copy '%1' to '%2'.")
-                       .arg(QDir::toNativeSeparators(d.localFilePath))
-                       .arg(QDir::toNativeSeparators(targetFile)));
+    // Workaround for non-working dh_builddeb --destdir=.
+    if (!QDir(buildDir).isRoot()) {
+        const QString packageFileName = QFileInfo(packageFilePath()).fileName();
+        const QString changesFileName = QFileInfo(packageFileName)
+            .completeBaseName() + QLatin1String(".changes");
+        const QString packageSourceDir = buildDir + QLatin1String("/../");
+        const QString packageSourceFilePath
+            = packageSourceDir + packageFileName;
+        const QString changesSourceFilePath
+            = packageSourceDir + changesFileName;
+        const QString changesTargetFilePath
+            = buildDir + QLatin1Char('/') + changesFileName;
+        QFile::remove(packageFilePath());
+        QFile::remove(changesTargetFilePath);
+        if (!QFile::rename(packageSourceFilePath, packageFilePath())
+            || !QFile::rename(changesSourceFilePath, changesTargetFilePath)) {
+            raiseError(tr("Packaging failed."),
+                tr("Could not move package files from %1 to %2.")
+                .arg(packageSourceDir, buildDir));
             return false;
         }
-    }
-
-    const QStringList commands = QStringList() << QLatin1String("dh_link")
-        << QLatin1String("dh_fixperms") << QLatin1String("dh_installdeb")
-        << QLatin1String("dh_shlibdeps") << QLatin1String("dh_gencontrol")
-        << QLatin1String("dh_md5sums") << QLatin1String("dh_builddeb --destdir=.");
-    foreach (const QString &command, commands) {
-        if (!runCommand(buildProc, command))
-            return false;
     }
 
     emit addOutput(tr("Package created."), textCharFormat);
@@ -247,6 +239,8 @@ bool MaemoPackageCreationStep::runCommand(QProcess &proc, const QString &command
             .arg(command);
         if (proc.error() != QProcess::UnknownError)
             mainMessage += tr(" Reason: %1").arg(proc.errorString());
+        else
+            mainMessage += tr("Exit code: %1").arg(proc.exitCode());
         raiseError(mainMessage, mainMessage + QLatin1Char('\n')
                    + tr("Output was: ") + proc.readAllStandardError()
                    + QLatin1Char('\n') + proc.readAllStandardOutput());
