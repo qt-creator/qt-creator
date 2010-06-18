@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="image/bmp">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>BMP image</comment>
+        <glob pattern="*.bmp"/>
+    </mime-type>
+    <mime-type type="image/gif">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>GIF image</comment>
+        <glob pattern="*.gif"/>
+    </mime-type>
+    <mime-type type="image/x-icon">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>ICO image</comment>
+        <glob pattern="*.ico"/>
+    </mime-type>
+    <mime-type type="image/jpeg">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>JPEG image</comment>
+        <glob pattern="*.jpg"/>
+        <glob pattern="*.jpeg"/>
+    </mime-type>
+    <mime-type type="video/x-mng">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>MNG video</comment>
+        <glob pattern="*.mng"/>
+    </mime-type>
+    <mime-type type="image/x-portable-bitmap">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>PBM image</comment>
+        <glob pattern="*.pbm"/>
+    </mime-type>
+    <mime-type type="image/x-portable-graymap">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>PGM image</comment>
+        <glob pattern="*.pgm"/>
+    </mime-type>
+    <mime-type type="image/png">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>PNG image</comment>
+        <glob pattern="*.png"/>
+    </mime-type>
+    <mime-type type="image/x-portable-pixmap">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>PPM image</comment>
+        <glob pattern="*.ppm"/>
+    </mime-type>
+    <mime-type type="image/svg+xml">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>SVG image</comment>
+        <glob pattern="*.svg"/>
+    </mime-type>
+    <mime-type type="image/tiff">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>TIFF image</comment>
+        <glob pattern="*.tif"/>
+        <glob pattern="*.tiff"/>
+    </mime-type>
+    <mime-type type="image/xbm">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>XBM image</comment>
+        <glob pattern="*.xbm"/>
+    </mime-type>
+    <mime-type type="image/xpm">
+        <sub-class-of type="application/octet-stream"/>
+        <comment>XPM image</comment>
+        <glob pattern="*.xpm"/>
+    </mime-type>
+</mime-info>

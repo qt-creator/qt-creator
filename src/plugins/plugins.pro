@@ -9,6 +9,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_texteditor \
             plugin_cppeditor \
             plugin_bineditor \
+            plugin_imageviewer \
             plugin_bookmarks \
             plugin_projectexplorer \
             plugin_vcsbase \
@@ -73,6 +74,9 @@ plugin_cppeditor.depends += plugin_cpptools
 plugin_bineditor.subdir = bineditor
 plugin_bineditor.depends = plugin_texteditor
 plugin_bineditor.depends += plugin_coreplugin
+
+plugin_imageviewer.subdir = imageviewer
+plugin_imageviewer.depends = plugin_coreplugin
 
 plugin_designer.subdir = designer
 plugin_designer.depends = plugin_coreplugin plugin_cppeditor plugin_projectexplorer

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImageViewer::Internal::ImageViewerToolbar</class>
+ <widget class="QWidget" name="ImageViewer::Internal::ImageViewerToolbar">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>482</width>
+    <height>28</height>
+   </rect>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QToolButton" name="toolButtonBackground">
+     <property name="toolTip">
+      <string>Show background</string>
+     </property>
+     <property name="icon">
+      <iconset resource="imageviewer.qrc">
+       <normaloff>:/imageviewer/images/background.png</normaloff>:/imageviewer/images/background.png</iconset>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="toolButtonOutline">
+     <property name="toolTip">
+      <string>Show outline</string>
+     </property>
+     <property name="icon">
+      <iconset resource="imageviewer.qrc">
+       <normaloff>:/imageviewer/images/outline.png</normaloff>:/imageviewer/images/outline.png</iconset>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="toolButtonFitToScreen">
+     <property name="toolTip">
+      <string>Fit image in the screen</string>
+     </property>
+     <property name="icon">
+      <iconset resource="imageviewer.qrc">
+       <normaloff>:/imageviewer/images/fitinscreen.png</normaloff>:/imageviewer/images/fitinscreen.png</iconset>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="toolButtonOriginalSize">
+     <property name="toolTip">
+      <string>Original size</string>
+     </property>
+     <property name="icon">
+      <iconset resource="imageviewer.qrc">
+       <normaloff>:/imageviewer/images/originalsize.png</normaloff>:/imageviewer/images/originalsize.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="toolButtonZoomIn">
+     <property name="toolTip">
+      <string>Zoom In</string>
+     </property>
+     <property name="icon">
+      <iconset resource="imageviewer.qrc">
+       <normaloff>:/imageviewer/images/zoomin.png</normaloff>:/imageviewer/images/zoomin.png</iconset>
+     </property>
+     <property name="autoRepeat">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="toolButtonZoomOut">
+     <property name="toolTip">
+      <string>Zoom Out</string>
+     </property>
+     <property name="icon">
+      <iconset resource="imageviewer.qrc">
+       <normaloff>:/imageviewer/images/zoomout.png</normaloff>:/imageviewer/images/zoomout.png</iconset>
+     </property>
+     <property name="autoRepeat">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="Utils::StyledSeparator" name="widgetToolbarSeparator" native="true"/>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>315</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="Utils::StyledSeparator" name="widgetInfoSeparator" native="true"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelInfo"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::StyledSeparator</class>
+   <extends>QWidget</extends>
+   <header>utils/styledbar.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="imageviewer.qrc"/>
+ </resources>
+ <connections/>
+</ui>
