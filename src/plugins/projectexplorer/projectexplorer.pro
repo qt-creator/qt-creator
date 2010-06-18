@@ -18,6 +18,7 @@ HEADERS += projectexplorer.h \
     targetsettingspanel.h \
     task.h \
     itaskhandler.h \
+    copytaskhandler.h \
     showineditortaskhandler.h \
     taskwindow.h \
     outputwindow.h \
@@ -97,6 +98,7 @@ SOURCES += projectexplorer.cpp \
     projectconfiguration.cpp \
     gnumakeparser.cpp \
     task.cpp \
+    copytaskhandler.cpp \
     showineditortaskhandler.cpp \
     taskwindow.cpp \
     outputwindow.cpp \
