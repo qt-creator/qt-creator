@@ -1623,8 +1623,17 @@ void CppCodeCompletion::complete(const TextEditor::CompletionItem &item)
 {
     Symbol *symbol = 0;
 
-    if (item.data.isValid())
-        symbol = item.data.value<Symbol *>();
+    if (item.data.isValid()) {
+        if (item.data.canConvert<QString>()) {
+            TextEditor::BaseTextEditor *edit = qobject_cast<TextEditor::BaseTextEditor *>(m_editor->widget());
+            QTextCursor tc = edit->textCursor();
+            tc.setPosition(m_startPosition, QTextCursor::KeepAnchor);
+            edit->insertCodeSnippet(tc, item.data.toString());
+            return;
+        } else {
+            symbol = item.data.value<Symbol *>();
+        }
+    }
 
     QString toInsert;
     QString extraChars;
