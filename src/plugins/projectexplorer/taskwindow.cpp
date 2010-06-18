@@ -29,18 +29,17 @@
 
 #include "taskwindow.h"
 
+#include "itaskhandler.h"
+#include "projectexplorerconstants.h"
 #include "task.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/vcsmanager.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <texteditor/basetexteditor.h>
-#include <texteditor/itexteditor.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -485,8 +484,9 @@ public:
     Internal::TaskFilterModel *m_filter;
     Internal::TaskView *m_listview;
     Internal::TaskWindowContext *m_taskWindowContext;
-    QAction *m_copyAction;
-    QAction *m_vcsAnnotateAction;
+    QMenu *m_contextMenu;
+    QModelIndex m_contextMenuIndex;
+    ITaskHandler *m_defaultHandler;
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;
     QMenu *m_categoriesMenu;
@@ -508,7 +508,7 @@ static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
 
 TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 {
-    Core::ICore *core = Core::ICore::instance();
+    d->m_defaultHandler = 0;
 
     d->m_model = new Internal::TaskModel;
     d->m_filter = new Internal::TaskFilterModel(d->m_model);
@@ -525,31 +525,24 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
     d->m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     d->m_taskWindowContext = new Internal::TaskWindowContext(d->m_listview);
-    core->addContextObject(d->m_taskWindowContext);
-
-    d->m_copyAction = new QAction(QIcon(Core::Constants::ICON_COPY), tr("&Copy"), this);
-    Core::Command *command = core->actionManager()->
-            registerAction(d->m_copyAction, Core::Constants::COPY, d->m_taskWindowContext->context());
-    d->m_listview->addAction(command->action());
-    connect(d->m_copyAction, SIGNAL(triggered()), SLOT(copy()));
-
-    // Annotate using VCS: Make visible in all contexts
-    d->m_vcsAnnotateAction = new QAction(tr("&Annotate"), this);
-    d->m_vcsAnnotateAction->setToolTip("Annotate using version control system");
-    QList<int> annotateContext = d->m_taskWindowContext->context();
-    annotateContext << Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(QLatin1String(Core::Constants::C_GLOBAL));
-    command = core->actionManager()->
-            registerAction(d->m_vcsAnnotateAction, QLatin1String("ProjectExplorer.Task.VCS_Annotate"), annotateContext);
-    d->m_listview->addAction(command->action());
-    connect(d->m_vcsAnnotateAction, SIGNAL(triggered()), SLOT(vcsAnnotate()));
+    Core::ICore::instance()->addContextObject(d->m_taskWindowContext);
 
     connect(d->m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             tld, SLOT(currentChanged(QModelIndex,QModelIndex)));
 
     connect(d->m_listview, SIGNAL(activated(QModelIndex)),
-            this, SLOT(showTaskInFile(QModelIndex)));
+            this, SLOT(triggerDefaultHandler(QModelIndex)));
     connect(d->m_listview, SIGNAL(clicked(QModelIndex)),
-            this, SLOT(showTaskInFile(QModelIndex)));
+            this, SLOT(triggerDefaultHandler(QModelIndex)));
+
+    d->m_contextMenu = new QMenu(d->m_listview);
+    connect(d->m_contextMenu, SIGNAL(triggered(QAction*)),
+            this, SLOT(contextMenuEntryTriggered(QAction*)));
+
+    d->m_listview->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(d->m_listview, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(showContextMenu(QPoint)));
 
     d->m_filterWarningsButton = createFilterButton(taskTypeIcon(Task::Warning),
                                                 tr("Show Warnings"),
@@ -568,13 +561,12 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
     qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
-
-    updateActions();
 }
 
 TaskWindow::~TaskWindow()
 {
     Core::ICore::instance()->removeContextObject(d->m_taskWindowContext);
+    cleanContextMenu();
     delete d->m_filterWarningsButton;
     delete d->m_listview;
     delete d->m_filter;
@@ -596,7 +588,6 @@ void TaskWindow::clearTasks(const QString &categoryId)
 {
     d->m_model->clearTasks(categoryId);
 
-    updateActions();
     emit tasksChanged();
     navigateStateChanged();
 }
@@ -615,7 +606,6 @@ void TaskWindow::addTask(const Task &task)
 {
     d->m_model->addTask(task);
 
-    updateActions();
     emit tasksChanged();
     navigateStateChanged();
 }
@@ -624,65 +614,73 @@ void TaskWindow::removeTask(const Task &task)
 {
     d->m_model->removeTask(task);
 
-    updateActions();
     emit tasksChanged();
     navigateStateChanged();
 }
 
-void TaskWindow::showTaskInFile(const QModelIndex &index)
+void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
-    QString file = index.data(Internal::TaskModel::File).toString();
-    int line = index.data(Internal::TaskModel::Line).toInt();
-    if (file.isEmpty() || line == -1)
-        return;
 
-    QFileInfo fi(file);
-    if (fi.exists()) {
-        TextEditor::BaseTextEditor::openEditorAt(fi.canonicalFilePath(), line);
-        Core::EditorManager::instance()->ensureEditorManagerVisible();
+    // Find a default handler to use:
+    if (!d->m_defaultHandler) {
+        QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::instance()->getObjects<ITaskHandler>();
+        foreach(ITaskHandler *handler, handlers) {
+            if (handler->id() == QLatin1String(Constants::SHOW_TASK_IN_EDITOR)) {
+                d->m_defaultHandler = handler;
+                break;
+            }
+        }
     }
-    else
-        d->m_model->setFileNotFound(index, true);
-    d->m_listview->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select);
-    d->m_listview->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    Q_ASSERT(d->m_defaultHandler);
+    Task task(index.data(Internal::TaskModel::Task_t).value<Task>());
+    if (d->m_defaultHandler->canHandle(task)) {
+        d->m_defaultHandler->handle(task);
+    } else {
+        if (!QFileInfo(task.file).exists())
+            d->m_model->setFileNotFound(index, true);
+    }
 }
 
-// Right-click VCS annotate: Find version control and point it to line
-void TaskWindow::vcsAnnotate()
+void TaskWindow::showContextMenu(const QPoint &position)
 {
-    const QModelIndex index = d->m_listview->selectionModel()->currentIndex();
+    QModelIndex index = d->m_listview->indexAt(position);
     if (!index.isValid())
         return;
-    const QString file = index.data(Internal::TaskModel::File).toString();
-    const int line = index.data(Internal::TaskModel::Line).toInt();
-    const QFileInfo fi(file);
-    if (fi.exists())
-        if (Core::IVersionControl *vc = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(fi.absolutePath()))
-            if (vc->supportsOperation(Core::IVersionControl::AnnotateOperation))
-                vc->vcsAnnotate(fi.absoluteFilePath(), line);
+    d->m_contextMenuIndex = index;
+    cleanContextMenu();
+
+    Task task = index.data(Internal::TaskModel::Task_t).value<Task>();
+
+    QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::instance()->getObjects<ITaskHandler>();
+    foreach(ITaskHandler *handler, handlers) {
+        if (handler == d->m_defaultHandler)
+            continue;
+        QAction * action = handler->createAction(d->m_contextMenu);
+        action->setEnabled(handler->canHandle(task));
+        action->setData(qVariantFromValue(qobject_cast<QObject*>(handler)));
+        d->m_contextMenu->addAction(action);
+    }
+    d->m_contextMenu->popup(d->m_listview->mapToGlobal(position));
 }
 
-void TaskWindow::copy()
+void TaskWindow::contextMenuEntryTriggered(QAction *action)
 {
-    const QModelIndex index = d->m_listview->selectionModel()->currentIndex();
-    if (!index.isValid())
-        return;
-    const QString file = index.data(Internal::TaskModel::File).toString();
-    const QString line = index.data(Internal::TaskModel::Line).toString();
-    const QString description = index.data(Internal::TaskModel::Description).toString();
-    QString type;
-    switch (index.data(Internal::TaskModel::Type).toInt()) {
-    case Task::Error:
-        type = "error: ";
-        break;
-    case Task::Warning:
-        type = "warning: ";
-        break;
+    if (action->isEnabled()) {
+        Task task = d->m_contextMenuIndex.data(Internal::TaskModel::Task_t).value<Task>();
+        ITaskHandler *handler = qobject_cast<ITaskHandler*>(action->data().value<QObject*>());
+        if (!handler)
+            return;
+        handler->handle(task);
     }
+}
 
-    QApplication::clipboard()->setText(file + ':' + line + ": " + type + description);
+void TaskWindow::cleanContextMenu()
+{
+    QList<QAction *> actions = d->m_contextMenu->actions();
+    qDeleteAll(actions);
+    d->m_contextMenu->clear();
 }
 
 void TaskWindow::setShowWarnings(bool show)
@@ -791,7 +789,7 @@ void TaskWindow::goToNext()
         currentIndex = d->m_filter->index(0, 0);
     }
     d->m_listview->setCurrentIndex(currentIndex);
-    showTaskInFile(currentIndex);
+    triggerDefaultHandler(currentIndex);
 }
 
 void TaskWindow::goToPrev()
@@ -808,17 +806,12 @@ void TaskWindow::goToPrev()
         currentIndex = d->m_filter->index(d->m_filter->rowCount()-1, 0);
     }
     d->m_listview->setCurrentIndex(currentIndex);
-    showTaskInFile(currentIndex);
+    triggerDefaultHandler(currentIndex);
 }
 
 bool TaskWindow::canNavigate()
 {
     return true;
-}
-
-void TaskWindow::updateActions()
-{
-    d->m_copyAction->setEnabled(d->m_model->tasks().count() > 0);
 }
 
 QIcon TaskWindow::taskTypeIcon(int t) const

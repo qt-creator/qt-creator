@@ -88,15 +88,15 @@ signals:
     void tasksChanged();
 
 private slots:
-    void showTaskInFile(const QModelIndex &index);
-    void copy();
-    void vcsAnnotate();
+    void triggerDefaultHandler(const QModelIndex &index);
+    void showContextMenu(const QPoint &position);
+    void contextMenuEntryTriggered(QAction *);
     void setShowWarnings(bool);
     void updateCategoriesMenu();
     void filterCategoryTriggered(QAction *action);
 
 private:
-    void updateActions();
+    void cleanContextMenu();
     int sizeHintForColumn(int column) const;
 
     TaskWindowPrivate *d;
