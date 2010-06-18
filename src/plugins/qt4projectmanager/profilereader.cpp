@@ -35,8 +35,38 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
+static QString format(const QString &fileName, int lineNo, const QString &msg)
+{
+    if (lineNo)
+        return QString::fromLatin1("%1(%2): %3").arg(fileName, QString::number(lineNo), msg);
+    else
+        return msg;
+}
+
+void ProMessageHandler::parseError(const QString &fileName, int lineNo, const QString &msg)
+{
+    emit errorFound(format(fileName, lineNo, msg));
+}
+
+void ProMessageHandler::configError(const QString &msg)
+{
+    emit errorFound(msg);
+}
+
+void ProMessageHandler::evalError(const QString &fileName, int lineNo, const QString &msg)
+{
+    if (m_verbose)
+        emit errorFound(format(fileName, lineNo, msg));
+}
+
+void ProMessageHandler::fileMessage(const QString &)
+{
+    // we ignore these...
+}
+
+
 ProFileReader::ProFileReader(ProFileOption *option)
-    : ProFileEvaluator(option)
+    : ProFileEvaluator(option, this)
     , m_ignoreLevel(0)
 {
 }
@@ -77,23 +107,6 @@ void ProFileReader::doneWithEval(ProFile *)
 QList<ProFile*> ProFileReader::includeFiles() const
 {
     return m_includeFiles.values();
-}
-
-void ProFileReader::fileMessage(const QString &message)
-{
-    Q_UNUSED(message)
-    // we ignore these...
-}
-
-void ProFileReader::logMessage(const QString &message)
-{
-    Q_UNUSED(message)
-    // we ignore these...
-}
-
-void ProFileReader::errorMessage(const QString &message)
-{
-    emit errorFound(message);
 }
 
 ProFile *ProFileReader::proFileFor(const QString &name)

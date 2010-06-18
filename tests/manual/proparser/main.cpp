@@ -39,6 +39,31 @@
 #include <QtCore/QStringList>
 #include <QtCore/QTextCodec>
 
+static void print(const QString &fileName, int lineNo, const QString &msg)
+{
+    if (lineNo)
+        qWarning("%s(%d): %s", qPrintable(fileName), lineNo, qPrintable(msg));
+    else
+        qWarning("%s", qPrintable(msg));
+}
+
+class EvalHandler : public ProFileEvaluatorHandler {
+public:
+    virtual void parseError(const QString &fileName, int lineNo, const QString &msg)
+        { print(fileName, lineNo, msg); }
+    virtual void configError(const QString &msg)
+        { qWarning("%s", qPrintable(msg)); }
+    virtual void evalError(const QString &fileName, int lineNo, const QString &msg)
+        { print(fileName, lineNo, msg); }
+    virtual void fileMessage(const QString &msg)
+        { qWarning("%s", qPrintable(msg)); }
+
+    virtual void aboutToEval(ProFile *, ProFile *, EvalFileType) {}
+    virtual void doneWithEval(ProFile *) {}
+};
+
+static EvalHandler evalHandler;
+
 static QString value(ProFileEvaluator &reader, const QString &variable)
 {
     QStringList vals = reader.values(variable);
@@ -56,8 +81,7 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
         return 0;
     visited.insert(fileName);
 
-    ProFileEvaluator visitor(option);
-    visitor.setVerbose(true);
+    ProFileEvaluator visitor(option, &evalHandler);
     visitor.setCumulative(cumulative);
     visitor.setOutputDir(out_pwd);
 

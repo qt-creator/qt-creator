@@ -39,7 +39,30 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class ProFileReader : public QObject, public ProFileEvaluator
+class ProMessageHandler : public QObject,
+                          public ProFileEvaluatorHandler
+{
+    Q_OBJECT
+
+public:
+    ProMessageHandler(bool verbose = false) : m_verbose(verbose) {}
+    virtual ~ProMessageHandler() {}
+
+    virtual void aboutToEval(ProFile *, ProFile *, EvalFileType) {}
+    virtual void doneWithEval(ProFile *) {}
+    virtual void parseError(const QString &filename, int lineNo, const QString &msg);
+    virtual void configError(const QString &msg);
+    virtual void evalError(const QString &filename, int lineNo, const QString &msg);
+    virtual void fileMessage(const QString &msg);
+
+signals:
+    void errorFound(const QString &error);
+
+private:
+    bool m_verbose;
+};
+
+class ProFileReader : public ProMessageHandler, public ProFileEvaluator
 {
     Q_OBJECT
 
@@ -52,15 +75,9 @@ public:
     QList<ProFile*> includeFiles() const;
 
     ProFile *proFileFor(const QString &name);
-signals:
-    void errorFound(const QString &error);
 
-private:
     virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type);
     virtual void doneWithEval(ProFile *parent);
-    virtual void logMessage(const QString &msg);
-    virtual void fileMessage(const QString &msg);
-    virtual void errorMessage(const QString &msg);
 
 private:
     QMap<QString, ProFile *> m_includeFiles;

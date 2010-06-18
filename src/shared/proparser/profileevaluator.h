@@ -45,6 +45,24 @@ QT_BEGIN_NAMESPACE
 
 struct ProFileOption;
 
+class ProFileEvaluatorHandler
+{
+public:
+    // Some error during parsing
+    virtual void parseError(const QString &filename, int lineNo, const QString &msg) = 0;
+    // qmake/project configuration error
+    virtual void configError(const QString &msg) = 0;
+    // Some error during evaluation
+    virtual void evalError(const QString &filename, int lineNo, const QString &msg) = 0;
+    // error() and message() from .pro file
+    virtual void fileMessage(const QString &msg) = 0;
+
+    enum EvalFileType { EvalProjectFile, EvalIncludeFile, EvalConfigFile, EvalFeatureFile, EvalAuxFile };
+    virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type) = 0;
+    virtual void doneWithEval(ProFile *parent) = 0;
+};
+
+
 class ProFileEvaluator
 {
     class Private;
@@ -71,11 +89,10 @@ public:
     // Call this from a concurrency-free context
     static void initialize();
 
-    ProFileEvaluator(ProFileOption *option);
-    virtual ~ProFileEvaluator();
+    ProFileEvaluator(ProFileOption *option, ProFileEvaluatorHandler *handler);
+    ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType() const;
-    void setVerbose(bool on); // Default is false
     void setCumulative(bool on); // Default is true!
     void setOutputDir(const QString &dir); // Default is empty
 
@@ -98,14 +115,6 @@ public:
             const QString &variable, const QString &baseDirectory, const QStringList &searchDirs,
             const ProFile *pro) const;
     QString propertyValue(const QString &val) const;
-
-    // for our descendents
-    enum EvalFileType { EvalProjectFile, EvalIncludeFile, EvalConfigFile, EvalFeatureFile, EvalAuxFile };
-    virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type);
-    virtual void doneWithEval(ProFile *parent);
-    virtual void logMessage(const QString &msg);
-    virtual void errorMessage(const QString &msg); // .pro parse errors
-    virtual void fileMessage(const QString &msg); // error() and message() from .pro file
 
 private:
     Private *d;

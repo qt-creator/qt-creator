@@ -169,16 +169,18 @@ ProFileOption::~ProFileOption()
 //
 ///////////////////////////////////////////////////////////////////////
 
+#define fL1S(s) QString::fromLatin1(s)
+
 class ProFileEvaluator::Private
 {
 public:
     static void initStatics();
-    Private(ProFileEvaluator *q_, ProFileOption *option);
+    Private(ProFileEvaluator *q_, ProFileOption *option,
+            ProFileEvaluatorHandler *handler);
     ~Private();
 
     ProFileEvaluator *q;
     int m_lineNo;                                   // Error reporting
-    bool m_verbose;
 
     /////////////// Reading pro file
 
@@ -254,7 +256,7 @@ public:
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
     void skipExpression(const ushort *&tokPtr);
 
-    VisitReturn visitProFile(ProFile *pro, ProFileEvaluator::EvalFileType type);
+    VisitReturn visitProFile(ProFile *pro, ProFileEvaluatorHandler::EvalFileType type);
     VisitReturn visitProBlock(const ushort *tokPtr);
     VisitReturn visitProLoop(const ProString &variable, const ushort *exprPtr,
                              const ushort *tokPtr);
@@ -276,10 +278,8 @@ public:
     ProStringList evaluateExpandFunction(const ProString &function, const ProString &arguments);
     ProStringList evaluateExpandFunction(const ProString &function, const ushort *&tokPtr);
     ProStringList evaluateExpandFunction(const ProString &function, const ProStringList &args);
-    QString format(const char *format) const;
-    void logMessage(const QString &msg) const;
-    void errorMessage(const QString &msg) const;
-    void fileMessage(const QString &msg) const;
+    void parseError(const QString &msg) const;
+    void evalError(const QString &msg) const;
 
     QString currentFileName() const;
     QString currentDirectory() const;
@@ -292,11 +292,11 @@ public:
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
     ProFile *parsedProFile(const QString &fileName, bool cache,
                            const QString &contents = QString());
-    bool evaluateFileDirect(const QString &fileName, ProFileEvaluator::EvalFileType type);
-    bool evaluateFile(const QString &fileName, ProFileEvaluator::EvalFileType type);
+    bool evaluateFileDirect(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
+    bool evaluateFile(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type);
     bool evaluateFeatureFile(const QString &fileName,
                              QHash<ProString, ProStringList> *values = 0, FunctionDefs *defs = 0);
-    bool evaluateFileInto(const QString &fileName, ProFileEvaluator::EvalFileType type,
+    bool evaluateFileInto(const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
                           QHash<ProString, ProStringList> *values, FunctionDefs *defs);
 
     static ALWAYS_INLINE VisitReturn returnBool(bool b)
@@ -331,6 +331,7 @@ public:
     bool m_parsePreAndPostFiles;
 
     ProFileOption *m_option;
+    ProFileEvaluatorHandler *m_handler;
 
     enum ExpandFunc {
         E_MEMBER=1, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
@@ -540,14 +541,14 @@ ProString ProFileEvaluator::Private::map(const ProString &var)
 }
 
 
-ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option)
-  : q(q_), m_option(option)
+ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option,
+                                   ProFileEvaluatorHandler *handler)
+  : q(q_), m_option(option), m_handler(handler)
 {
     // So that single-threaded apps don't have to call initialize() for now.
     initStatics();
 
     // Configuration, more or less
-    m_verbose = true;
     m_cumulative = true;
     m_parsePreAndPostFiles = true;
 
@@ -569,7 +570,7 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
     QFile file(pro->fileName());
     if (!file.open(QIODevice::ReadOnly)) {
         if (IoUtils::exists(pro->fileName()))
-            errorMessage(format("%1 not readable.").arg(pro->fileName()));
+            parseError(fL1S("%1 not readable.").arg(pro->fileName()));
         return false;
     }
 
@@ -921,7 +922,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                             cur++;
                           checkTerm:
                             if (c != term) {
-                                logMessage(format("Missing %1 terminator [found %2]")
+                                parseError(fL1S("Missing %1 terminator [found %2]")
                                     .arg(QChar(term))
                                     .arg(c ? QString(c) : QString::fromLatin1("end-of-line")));
                                 return false;
@@ -1006,7 +1007,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                     if (c == '(') {
                         FLUSH_LHS_LITERAL(false);
                         if (ptr == buf) {
-                            logMessage(format("Opening parenthesis without prior test name."));
+                            parseError(fL1S("Opening parenthesis without prior test name."));
                             inError = true;
                             goto skip;
                         }
@@ -1021,7 +1022,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                         FLUSH_LHS_LITERAL(false);
                         finalizeCond(tokPtr, buf, ptr);
                         if (m_state == StNew)
-                            logMessage(format("And operator without prior condition."));
+                            parseError(fL1S("And operator without prior condition."));
                         else
                             m_operator = AndOperator;
                       nextItem:
@@ -1032,7 +1033,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                         FLUSH_LHS_LITERAL(false);
                         finalizeCond(tokPtr, buf, ptr);
                         if (m_state != StCond)
-                            logMessage(format("Or operator without prior condition."));
+                            parseError(fL1S("Or operator without prior condition."));
                         else
                             m_operator = OrOperator;
                         goto nextItem;
@@ -1047,7 +1048,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                         finalizeCond(tokPtr, buf, ptr);
                         flushScopes(tokPtr);
                         if (!m_blockstack.top().braceLevel) {
-                            logMessage(format("Excess closing brace."));
+                            parseError(fL1S("Excess closing brace."));
                         } else if (!--m_blockstack.top().braceLevel
                                    && m_blockstack.count() != 1) {
                             leaveScope(tokPtr);
@@ -1079,7 +1080,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                         flushCond(tokPtr);
                         putLineMarker(tokPtr);
                         if (!(tlen = ptr - buf)) {
-                            logMessage(format("Assignment operator without prior variable name."));
+                            parseError(fL1S("Assignment operator without prior variable name."));
                             inError = true;
                             goto skip;
                         }
@@ -1118,11 +1119,11 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
               flushLine:
                 FLUSH_LITERAL(false);
                 if (quote) {
-                    logMessage(format("Missing closing %1 quote").arg(QChar(quote)));
+                    parseError(fL1S("Missing closing %1 quote").arg(QChar(quote)));
                     return false;
                 }
                 if (!xprStack.isEmpty()) {
-                    logMessage(format("Missing closing parenthesis in function call"));
+                    parseError(fL1S("Missing closing parenthesis in function call"));
                     return false;
                 }
                 if (context == CtxValue) {
@@ -1135,7 +1136,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
                 if (!c) {
                     flushScopes(tokPtr);
                     if (m_blockstack.size() > 1)
-                        logMessage(format("Missing closing brace(s)."));
+                        parseError(fL1S("Missing closing brace(s)."));
                     while (m_blockstack.size())
                         leaveScope(tokPtr);
                     xprBuff.clear();
@@ -1163,7 +1164,7 @@ bool ProFileEvaluator::Private::readInternal(QString *out, const QString &in)
 #undef FLUSH_RHS_LITERAL
 
   extraChars:
-    logMessage(format("Extra characters after test expression."));
+    parseError(fL1S("Extra characters after test expression."));
     return false;
 }
 
@@ -1257,7 +1258,7 @@ void ProFileEvaluator::Private::finalizeCond(ushort *&tokPtr, ushort *uc, ushort
             m_tmp1.setRawData((QChar *)uc + 4, nlen);
             if (!m_tmp1.compare(statics.strelse, Qt::CaseInsensitive)) {
                 if (m_invert || m_operator != NoOperator) {
-                    logMessage(format("Unexpected operator in front of else."));
+                    parseError(fL1S("Unexpected operator in front of else."));
                     return;
                 }
                 BlockScope &top = m_blockstack.top();
@@ -1279,7 +1280,7 @@ void ProFileEvaluator::Private::finalizeCond(ushort *&tokPtr, ushort *uc, ushort
                         break;
                     leaveScope(tokPtr);
                 }
-                errorMessage(format("Unexpected 'else'."));
+                parseError(fL1S("Unexpected 'else'."));
                 return;
             }
         }
@@ -1306,7 +1307,7 @@ void ProFileEvaluator::Private::finalizeCall(ushort *&tokPtr, ushort *uc, ushort
                 putLineMarker(tokPtr);
                 if (m_invert || m_operator == OrOperator) {
                     // '|' could actually work reasonably, but qmake does nonsense here.
-                    logMessage(format("Unexpected operator in front of for()."));
+                    parseError(fL1S("Unexpected operator in front of for()."));
                     return;
                 }
                 if (*uce == TokLiteral) {
@@ -1341,7 +1342,7 @@ void ProFileEvaluator::Private::finalizeCall(ushort *&tokPtr, ushort *uc, ushort
                     uc = uce;
                     goto doFor;
                 }
-                logMessage(format("Syntax is for(var, list), for(var, forever) or for(ever)."));
+                parseError(fL1S("Syntax is for(var, list), for(var, forever) or for(ever)."));
                 return;
             } else if (m_tmp1 == statics.strdefineReplace) {
                 defName = &statics.strdefineReplace;
@@ -1354,7 +1355,7 @@ void ProFileEvaluator::Private::finalizeCall(ushort *&tokPtr, ushort *uc, ushort
                 flushScopes(tokPtr);
                 putLineMarker(tokPtr);
                 if (m_invert) {
-                    logMessage(format("Unexpected operator in front of function definition."));
+                    parseError(fL1S("Unexpected operator in front of function definition."));
                     return;
                 }
                 if (*uce == TokLiteral) {
@@ -1371,7 +1372,7 @@ void ProFileEvaluator::Private::finalizeCall(ushort *&tokPtr, ushort *uc, ushort
                         return;
                     }
                 }
-                logMessage(format("%1(function) requires one literal argument.").arg(*defName));
+                parseError(fL1S("%1(function) requires one literal argument.").arg(*defName));
                 return;
             }
         }
@@ -1780,7 +1781,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
         case TokCondition:
             if (!m_skipLevel && okey != or_op) {
                 if (curr.size() != 1) {
-                    logMessage(format("Conditional must expand to exactly one word."));
+                    evalError(fL1S("Conditional must expand to exactly one word."));
                     okey = false;
                 } else {
                     okey = isActiveConfig(curr.at(0).toQString(m_tmp2), true) ^ invert;
@@ -1793,7 +1794,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
         case TokTestCall:
             if (!m_skipLevel && okey != or_op) {
                 if (curr.size() != 1) {
-                    logMessage(format("Test name must expand to exactly one word."));
+                    evalError(fL1S("Test name must expand to exactly one word."));
                     skipExpression(tokPtr);
                     okey = false;
                 } else {
@@ -1858,7 +1859,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
     ProString it_list = expandVariableReferences(exprPtr, 0, true).at(0);
     if (_variable.isEmpty()) {
         if (it_list != statics.strever) {
-            logMessage(format("Invalid loop expression."));
+            evalError(fL1S("Invalid loop expression."));
             return ReturnFalse;
         }
         it_list = ProString(statics.strforever);
@@ -1898,7 +1899,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProLoop(
             if (!variable.isEmpty())
                 m_valuemapStack.top()[variable] = ProStringList(ProString(QString::number(index++), NoHash));
             if (index > 1000) {
-                errorMessage(format("ran into infinite loop (> 1000 iterations)."));
+                evalError(fL1S("ran into infinite loop (> 1000 iterations)."));
                 break;
             }
         } else {
@@ -1941,7 +1942,7 @@ void ProFileEvaluator::Private::visitProVariable(
 
     if (curr.size() != 1) {
         skipExpression(tokPtr);
-        logMessage(format("Left hand side of assignment must expand to exactly one word."));
+        evalError(fL1S("Left hand side of assignment must expand to exactly one word."));
         return;
     }
     const ProString &varName = map(curr.first());
@@ -1952,13 +1953,13 @@ void ProFileEvaluator::Private::visitProVariable(
         const ProStringList &varVal = expandVariableReferences(tokPtr, sizeHint, true);
         const QString &val = varVal.at(0).toQString(m_tmp1);
         if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
-            logMessage(format("the ~= operator can handle only the s/// function."));
+            evalError(fL1S("the ~= operator can handle only the s/// function."));
             return;
         }
         QChar sep = val.at(1);
         QStringList func = val.split(sep);
         if (func.count() < 3 || func.count() > 4) {
-            logMessage(format("the s/// function expects 3 or 4 arguments."));
+            evalError(fL1S("the s/// function expects 3 or 4 arguments."));
             return;
         }
 
@@ -2027,9 +2028,9 @@ void ProFileEvaluator::Private::visitProVariable(
 }
 
 ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
-        ProFile *pro, ProFileEvaluator::EvalFileType type)
+        ProFile *pro, ProFileEvaluatorHandler::EvalFileType type)
 {
-    q->aboutToEval(currentProFile(), pro, type);
+    m_handler->aboutToEval(currentProFile(), pro, type);
     m_lineNo = 0;
     m_profileStack.push(pro);
     if (m_profileStack.count() == 1) {
@@ -2074,7 +2075,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                 if (!qmake_cache.isEmpty()) {
                     qmake_cache = resolvePath(qmake_cache);
                     QHash<ProString, ProStringList> cache_valuemap;
-                    if (evaluateFileInto(qmake_cache, ProFileEvaluator::EvalConfigFile,
+                    if (evaluateFileInto(qmake_cache, ProFileEvaluatorHandler::EvalConfigFile,
                                          &cache_valuemap, 0)) {
                         if (m_option->qmakespec.isEmpty()) {
                             const ProStringList &vals = cache_valuemap.value(ProString("QMAKESPEC"));
@@ -2099,7 +2100,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                         }
                     }
                     if (qmakespec.isEmpty()) {
-                        errorMessage(format("Could not find qmake configuration directory"));
+                        m_handler->configError(fL1S("Could not find qmake configuration directory"));
                         // Unlike in qmake, not finding the spec is not critical ...
                     }
                 }
@@ -2120,7 +2121,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                                 goto cool;
                             }
                         }
-                        errorMessage(format("Could not find qmake configuration file"));
+                        m_handler->configError(fL1S("Could not find qmake configuration file"));
                         // Unlike in qmake, a missing config is not critical ...
                         qmakespec.clear();
                       cool: ;
@@ -2131,11 +2132,12 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
                     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileInto(spec, ProFileEvaluator::EvalConfigFile,
+                    if (!evaluateFileInto(spec, ProFileEvaluatorHandler::EvalConfigFile,
                                           &m_option->base_valuemap, &m_option->base_functions)) {
-                        errorMessage(format("Could not read qmake configuration file %1").arg(spec));
+                        m_handler->configError(
+                                fL1S("Could not read qmake configuration file %1").arg(spec));
                     } else if (!m_option->cachefile.isEmpty()) {
-                        evaluateFileInto(m_option->cachefile, ProFileEvaluator::EvalConfigFile,
+                        evaluateFileInto(m_option->cachefile, ProFileEvaluatorHandler::EvalConfigFile,
                                          &m_option->base_valuemap, &m_option->base_functions);
                     }
                     m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
@@ -2216,7 +2218,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
         }
     }
     m_profileStack.pop();
-    q->doneWithEval(currentProFile());
+    m_handler->doneWithEval(currentProFile());
 
     return ReturnTrue;
 }
@@ -2334,7 +2336,7 @@ QString ProFileEvaluator::Private::propertyValue(const QString &name, bool compl
     if (name == QLatin1String("QMAKE_VERSION"))
         return QLatin1String("1.0");        //### FIXME
     if (complain)
-        logMessage(format("Querying unknown property %1").arg(name));
+        evalError(fL1S("Querying unknown property %1").arg(name));
     return QString();
 }
 
@@ -2530,9 +2532,9 @@ ProStringList ProFileEvaluator::Private::expandVariableReferences(
                 }
                 if (term) {
                     if (unicode != term) {
-                        logMessage(format("Missing %1 terminator [found %2]")
-                            .arg(QChar(term))
-                            .arg(unicode ? QString(unicode) : QString::fromLatin1(("end-of-line"))));
+                        evalError(fL1S("Missing %1 terminator [found %2]")
+                                  .arg(QChar(term))
+                                  .arg(unicode ? QString(unicode) : fL1S("end-of-line")));
 //                        if (ok)
 //                            *ok = false;
                         if (pos)
@@ -2745,7 +2747,7 @@ ProStringList ProFileEvaluator::Private::evaluateFunction(
 
     const ushort *tokPtr = (const ushort *)func.string.constData() + func.offset;
     if (m_valuemapStack.count() >= 100) {
-        errorMessage(format("ran into infinite recursion (depth > 100)."));
+        evalError(fL1S("ran into infinite recursion (depth > 100)."));
         oki = false;
     } else {
         m_valuemapStack.push(QHash<ProString, ProStringList>());
@@ -2791,9 +2793,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateBoolFu
                 if (val)
                     return ReturnTrue;
             } else {
-                logMessage(format("Unexpected return value from test '%1': %2")
-                              .arg(function.toQString(m_tmp1))
-                              .arg(ret.join(QLatin1String(" :: "))));
+                evalError(fL1S("Unexpected return value from test '%1': %2")
+                          .arg(function.toQString(m_tmp1))
+                          .arg(ret.join(QLatin1String(" :: "))));
             }
         }
     }
@@ -2843,8 +2845,8 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             int end = -1;
             if (func_t == E_SECTION) {
                 if (args.count() != 3 && args.count() != 4) {
-                    logMessage(format("%1(var) section(var, sep, begin, end) "
-                        "requires three or four arguments.").arg(func.toQString(m_tmp1)));
+                    evalError(fL1S("%1(var) section(var, sep, begin, end) requires"
+                                   " three or four arguments.").arg(func.toQString(m_tmp1)));
                 } else {
                     var = args[0];
                     sep = args.at(1).toQString();
@@ -2854,8 +2856,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 }
             } else {
                 if (args.count() != 1) {
-                    logMessage(format("%1(var) requires one argument.")
-                               .arg(func.toQString(m_tmp1)));
+                    evalError(fL1S("%1(var) requires one argument.").arg(func.toQString(m_tmp1)));
                 } else {
                     var = args[0];
                     regexp = true;
@@ -2884,7 +2885,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         }
         case E_SPRINTF:
             if(args.count() < 1) {
-                logMessage(format("sprintf(format, ...) requires at least one argument"));
+                evalError(fL1S("sprintf(format, ...) requires at least one argument"));
             } else {
                 QString tmp = args.at(0).toQString(m_tmp1);
                 for (int i = 1; i < args.count(); ++i)
@@ -2895,7 +2896,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             break;
         case E_JOIN: {
             if (args.count() < 1 || args.count() > 4) {
-                logMessage(format("join(var, glue, before, after) requires one to four arguments."));
+                evalError(fL1S("join(var, glue, before, after) requires one to four arguments."));
             } else {
                 QString glue;
                 ProString before, after;
@@ -2913,7 +2914,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         }
         case E_SPLIT:
             if (args.count() != 2) {
-                logMessage(format("split(var, sep) requires one or two arguments"));
+                evalError(fL1S("split(var, sep) requires one or two arguments"));
             } else {
                 const QString &sep = (args.count() == 2) ? args.at(1).toQString(m_tmp1) : statics.field_sep;
                 foreach (const ProString &var, values(map(args.at(0))))
@@ -2923,7 +2924,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             break;
         case E_MEMBER:
             if (args.count() < 1 || args.count() > 3) {
-                logMessage(format("member(var, start, end) requires one to three arguments."));
+                evalError(fL1S("member(var, start, end) requires one to three arguments."));
             } else {
                 bool ok = true;
                 const ProStringList &var = values(map(args.at(0)));
@@ -2941,15 +2942,15 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                             }
                         }
                         if (!ok)
-                            logMessage(format("member() argument 2 (start) '%2' invalid.")
-                                .arg(start_str));
+                            evalError(fL1S("member() argument 2 (start) '%2' invalid.")
+                                      .arg(start_str));
                     } else {
                         end = start;
                         if (args.count() == 3)
                             end = args.at(2).toQString(m_tmp1).toInt(&ok);
                         if (!ok)
-                            logMessage(format("member() argument 3 (end) '%2' invalid.\n")
-                                .arg(args.at(2).toQString(m_tmp1)));
+                            evalError(fL1S("member() argument 3 (end) '%2' invalid.\n")
+                                      .arg(args.at(2).toQString(m_tmp1)));
                     }
                 }
                 if (ok) {
@@ -2972,7 +2973,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         case E_FIRST:
         case E_LAST:
             if (args.count() != 1) {
-                logMessage(format("%1(var) requires one argument.").arg(func.toQString(m_tmp1)));
+                evalError(fL1S("%1(var) requires one argument.").arg(func.toQString(m_tmp1)));
             } else {
                 const ProStringList &var = values(map(args.at(0)));
                 if (!var.isEmpty()) {
@@ -2985,13 +2986,13 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             break;
         case E_SIZE:
             if(args.count() != 1)
-                logMessage(format("size(var) requires one argument."));
+                evalError(fL1S("size(var) requires one argument."));
             else
                 ret.append(ProString(QString::number(values(map(args.at(0))).size()), NoHash));
             break;
         case E_CAT:
             if (args.count() < 1 || args.count() > 2) {
-                logMessage(format("cat(file, singleline=true) requires one or two arguments."));
+                evalError(fL1S("cat(file, singleline=true) requires one or two arguments."));
             } else {
                 const QString &file = args.at(0).toQString(m_tmp1);
 
@@ -3013,18 +3014,18 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             break;
         case E_FROMFILE:
             if (args.count() != 2) {
-                logMessage(format("fromfile(file, variable) requires two arguments."));
+                evalError(fL1S("fromfile(file, variable) requires two arguments."));
             } else {
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (evaluateFileInto(fn, ProFileEvaluator::EvalAuxFile, &vars, 0))
+                if (evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile, &vars, 0))
                     ret = vars.value(map(args.at(1)));
             }
             break;
         case E_EVAL:
             if (args.count() != 1) {
-                logMessage(format("eval(variable) requires one argument"));
+                evalError(fL1S("eval(variable) requires one argument"));
             } else {
                 ret += values(map(args.at(0)));
             }
@@ -3040,7 +3041,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             break; }
         case E_FIND:
             if (args.count() != 2) {
-                logMessage(format("find(var, str) requires two arguments."));
+                evalError(fL1S("find(var, str) requires two arguments."));
             } else {
                 QRegExp regx(args.at(1).toQString());
                 int t = 0;
@@ -3054,7 +3055,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
         case E_SYSTEM:
             if (!m_skipLevel) {
                 if (args.count() < 1 || args.count() > 2) {
-                    logMessage(format("system(execute) requires one or two arguments."));
+                    evalError(fL1S("system(execute) requires one or two arguments."));
                 } else {
                     char buff[256];
                     FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
@@ -3083,7 +3084,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             break;
         case E_UNIQUE:
             if(args.count() != 1) {
-                logMessage(format("unique(var) requires one argument."));
+                evalError(fL1S("unique(var) requires one argument."));
             } else {
                 ret = values(map(args.at(0)));
                 ret.removeDuplicates();
@@ -3141,7 +3142,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             break;
         case E_FILES:
             if (args.count() != 1 && args.count() != 2) {
-                logMessage(format("files(pattern, recursive=false) requires one or two arguments"));
+                evalError(fL1S("files(pattern, recursive=false) requires one or two arguments"));
             } else {
                 bool recursive = false;
                 if (args.count() == 2)
@@ -3183,7 +3184,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             break;
         case E_REPLACE:
             if(args.count() != 3 ) {
-                logMessage(format("replace(var, before, after) requires three arguments"));
+                evalError(fL1S("replace(var, before, after) requires three arguments"));
             } else {
                 const QRegExp before(args.at(1).toQString());
                 const QString &after(args.at(2).toQString(m_tmp2));
@@ -3196,11 +3197,11 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             }
             break;
         case 0:
-            logMessage(format("'%1' is not a recognized replace function")
-                       .arg(func.toQString(m_tmp1)));
+            evalError(fL1S("'%1' is not a recognized replace function")
+                      .arg(func.toQString(m_tmp1)));
             break;
         default:
-            logMessage(format("Function '%1' is not implemented").arg(func.toQString(m_tmp1)));
+            evalError(fL1S("Function '%1' is not implemented").arg(func.toQString(m_tmp1)));
             break;
     }
 
@@ -3240,8 +3241,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
     switch (func_t) {
         case T_DEFINED:
             if (args.count() < 1 || args.count() > 2) {
-                logMessage(format("defined(function, [\"test\"|\"replace\"])"
-                                     " requires one or two arguments."));
+                evalError(fL1S("defined(function, [\"test\"|\"replace\"])"
+                               " requires one or two arguments."));
                 return ReturnFalse;
             }
             if (args.count() > 1) {
@@ -3249,8 +3250,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                     return returnBool(m_functionDefs.testFunctions.contains(args[0]));
                 else if (args[1] == QLatin1String("replace"))
                     return returnBool(m_functionDefs.replaceFunctions.contains(args[0]));
-                logMessage(format("defined(function, type):"
-                                  " unexpected type [%1].\n").arg(args.at(1).toQString(m_tmp1)));
+                evalError(fL1S("defined(function, type): unexpected type [%1].\n")
+                          .arg(args.at(1).toQString(m_tmp1)));
                 return ReturnFalse;
             }
             return returnBool(m_functionDefs.replaceFunctions.contains(args[0])
@@ -3262,7 +3263,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             if (m_skipLevel || m_cumulative)
                 return ReturnTrue;
             if (m_valuemapStack.isEmpty()) {
-                logMessage(format("unexpected return()."));
+                evalError(fL1S("unexpected return()."));
                 return ReturnFalse;
             }
             return ReturnReturn;
@@ -3270,7 +3271,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             if (m_skipLevel && !m_cumulative)
                 return ReturnTrue;
             if (args.count() != 1) {
-                logMessage(format("export(variable) requires one argument."));
+                evalError(fL1S("export(variable) requires one argument."));
                 return ReturnFalse;
             }
             const ProString &var = map(args.at(0));
@@ -3293,12 +3294,12 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         }
         case T_INFILE:
             if (args.count() < 2 || args.count() > 3) {
-                logMessage(format("infile(file, var, [values]) requires two or three arguments."));
+                evalError(fL1S("infile(file, var, [values]) requires two or three arguments."));
             } else {
                 QHash<ProString, ProStringList> vars;
                 QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
                 fn.detach();
-                if (!evaluateFileInto(fn, ProFileEvaluator::EvalAuxFile, &vars, 0))
+                if (!evaluateFileInto(fn, ProFileEvaluatorHandler::EvalAuxFile, &vars, 0))
                     return ReturnFalse;
                 if (args.count() == 2)
                     return returnBool(vars.contains(args.at(1)));
@@ -3334,20 +3335,20 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 return ReturnFalse;
             if (m_loopLevel)
                 return ReturnBreak;
-            logMessage(format("unexpected break()."));
+            evalError(fL1S("unexpected break()."));
             return ReturnFalse;
         case T_NEXT:
             if (m_skipLevel)
                 return ReturnFalse;
             if (m_loopLevel)
                 return ReturnNext;
-            logMessage(format("unexpected next()."));
+            evalError(fL1S("unexpected next()."));
             return ReturnFalse;
         case T_IF: {
             if (m_skipLevel && !m_cumulative)
                 return ReturnFalse;
             if (args.count() != 1) {
-                logMessage(format("if(condition) requires one argument."));
+                evalError(fL1S("if(condition) requires one argument."));
                 return ReturnFalse;
             }
             const ProString &cond = args.at(0);
@@ -3413,7 +3414,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         }
         case T_CONFIG: {
             if (args.count() < 1 || args.count() > 2) {
-                logMessage(format("CONFIG(config) requires one or two arguments."));
+                evalError(fL1S("CONFIG(config) requires one or two arguments."));
                 return ReturnFalse;
             }
             if (args.count() == 1)
@@ -3432,7 +3433,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         }
         case T_CONTAINS: {
             if (args.count() < 2 || args.count() > 3) {
-                logMessage(format("contains(var, val) requires two or three arguments."));
+                evalError(fL1S("contains(var, val) requires two or three arguments."));
                 return ReturnFalse;
             }
 
@@ -3469,7 +3470,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         }
         case T_COUNT: {
             if (args.count() != 2 && args.count() != 3) {
-                logMessage(format("count(var, count, op=\"equals\") requires two or three arguments."));
+                evalError(fL1S("count(var, count, op=\"equals\") requires two or three arguments."));
                 return ReturnFalse;
             }
             int cnt = values(map(args.at(0))).count();
@@ -3488,8 +3489,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                            || comp == QLatin1String("=") || comp == QLatin1String("==")) {
                     return returnBool(cnt == val);
                 } else {
-                    logMessage(format("unexpected modifier to count(%2)")
-                               .arg(comp.toQString(m_tmp1)));
+                    evalError(fL1S("unexpected modifier to count(%2)").arg(comp.toQString(m_tmp1)));
                     return ReturnFalse;
                 }
             }
@@ -3498,8 +3498,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         case T_GREATERTHAN:
         case T_LESSTHAN: {
             if (args.count() != 2) {
-                logMessage(format("%1(variable, value) requires two arguments.")
-                           .arg(function.toQString(m_tmp1)));
+                evalError(fL1S("%1(variable, value) requires two arguments.")
+                          .arg(function.toQString(m_tmp1)));
                 return ReturnFalse;
             }
             const QString &rhs(args.at(1).toQString(m_tmp1)),
@@ -3520,8 +3520,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         }
         case T_EQUALS:
             if (args.count() != 2) {
-                logMessage(format("%1(variable, value) requires two arguments.")
-                           .arg(function.toQString(m_tmp1)));
+                evalError(fL1S("%1(variable, value) requires two arguments.")
+                          .arg(function.toQString(m_tmp1)));
                 return ReturnFalse;
             }
             return returnBool(values(map(args.at(0))).join(statics.field_sep)
@@ -3530,8 +3530,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             if (m_skipLevel && !m_cumulative)
                 return ReturnFalse;
             if (args.count() != 1) {
-                logMessage(format("%1(variable) requires one argument.")
-                           .arg(function.toQString(m_tmp1)));
+                evalError(fL1S("%1(variable) requires one argument.")
+                          .arg(function.toQString(m_tmp1)));
                 return ReturnFalse;
             }
             QHash<ProString, ProStringList> *hsh;
@@ -3549,8 +3549,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             if (m_skipLevel && !m_cumulative)
                 return ReturnFalse;
             if (args.count() != 1) {
-                logMessage(format("%1(variable) requires one argument.")
-                           .arg(function.toQString(m_tmp1)));
+                evalError(fL1S("%1(variable) requires one argument.")
+                          .arg(function.toQString(m_tmp1)));
                 return ReturnFalse;
             }
             QHash<ProString, ProStringList> *hsh;
@@ -3575,17 +3575,17 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             if ((args.count() == 2) || (args.count() == 3) ) {
                 parseInto = args.at(1).toQString(m_tmp2);
             } else if (args.count() != 1) {
-                logMessage(format("include(file, into, silent) requires one, two or three arguments."));
+                evalError(fL1S("include(file, into, silent) requires one, two or three arguments."));
                 return ReturnFalse;
             }
             QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
             bool ok;
             if (parseInto.isEmpty()) {
-                ok = evaluateFile(fn, ProFileEvaluator::EvalIncludeFile);
+                ok = evaluateFile(fn, ProFileEvaluatorHandler::EvalIncludeFile);
             } else {
                 QHash<ProString, ProStringList> symbols;
-                if ((ok = evaluateFileInto(fn, ProFileEvaluator::EvalIncludeFile, &symbols, 0))) {
+                if ((ok = evaluateFileInto(fn, ProFileEvaluatorHandler::EvalIncludeFile, &symbols, 0))) {
                     QHash<ProString, ProStringList> newMap;
                     for (QHash<ProString, ProStringList>::ConstIterator
                             it = m_valuemapStack.top().constBegin(),
@@ -3615,7 +3615,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             if (args.count() == 2) {
                 ignore_error = isTrue(args.at(1), m_tmp2);
             } else if (args.count() != 1) {
-                logMessage(format("load(feature) requires one or two arguments."));
+                evalError(fL1S("load(feature) requires one or two arguments."));
                 return ReturnFalse;
             }
             // XXX ignore_error unused
@@ -3626,20 +3626,21 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             return ReturnFalse;
         case T_MESSAGE: {
             if (args.count() != 1) {
-                logMessage(format("%1(message) requires one argument.")
-                           .arg(function.toQString(m_tmp1)));
+                evalError(fL1S("%1(message) requires one argument.")
+                          .arg(function.toQString(m_tmp1)));
                 return ReturnFalse;
             }
             const QString &msg = expandEnvVars(args.at(0).toQString(m_tmp2));
-            fileMessage(QString::fromLatin1("Project %1: %2")
-                        .arg(function.toQString(m_tmp1).toUpper(), msg));
+            if (!m_skipLevel)
+                m_handler->fileMessage(fL1S("Project %1: %2")
+                                       .arg(function.toQString(m_tmp1).toUpper(), msg));
             // ### Consider real termination in non-cumulative mode
             return returnBool(function != QLatin1String("error"));
         }
 #if 0 // Way too dangerous to enable.
         case T_SYSTEM: {
             if (args.count() != 1) {
-                logMessage(format("system(exec) requires one argument."));
+                evalError(fL1S("system(exec) requires one argument."));
                 ReturnFalse;
             }
             return returnBool(system((QLatin1String("cd ")
@@ -3649,7 +3650,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
 #endif
         case T_ISEMPTY: {
             if (args.count() != 1) {
-                logMessage(format("isEmpty(var) requires one argument."));
+                evalError(fL1S("isEmpty(var) requires one argument."));
                 return ReturnFalse;
             }
             const ProStringList &sl = values(map(args.at(0)));
@@ -3664,7 +3665,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         }
         case T_EXISTS: {
             if (args.count() != 1) {
-                logMessage(format("exists(file) requires one argument."));
+                evalError(fL1S("exists(file) requires one argument."));
                 return ReturnFalse;
             }
             const QString &file = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
@@ -3683,11 +3684,11 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
             return ReturnFalse;
         }
         case 0:
-            logMessage(format("'%1' is not a recognized test function")
-                       .arg(function.toQString(m_tmp1)));
+            evalError(fL1S("'%1' is not a recognized test function")
+                      .arg(function.toQString(m_tmp1)));
             return ReturnFalse;
         default:
-            logMessage(format("Function '%1' is not implemented").arg(function.toQString(m_tmp1)));
+            evalError(fL1S("Function '%1' is not implemented").arg(function.toQString(m_tmp1)));
             return ReturnFalse;
     }
 }
@@ -3924,7 +3925,7 @@ ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool 
 }
 
 bool ProFileEvaluator::Private::evaluateFileDirect(
-        const QString &fileName, ProFileEvaluator::EvalFileType type)
+        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type)
 {
     int lineNo = m_lineNo;
     if (ProFile *pro = parsedProFile(fileName, true)) {
@@ -3939,13 +3940,13 @@ bool ProFileEvaluator::Private::evaluateFileDirect(
 }
 
 bool ProFileEvaluator::Private::evaluateFile(
-        const QString &fileName, ProFileEvaluator::EvalFileType type)
+        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type)
 {
     if (fileName.isEmpty())
         return false;
     foreach (const ProFile *pf, m_profileStack)
         if (pf->fileName() == fileName) {
-            errorMessage(format("circular inclusion of %1").arg(fileName));
+            evalError(fL1S("circular inclusion of %1").arg(fileName));
             return false;
         }
     return evaluateFileDirect(fileName, type);
@@ -3991,13 +3992,13 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
     }
 
     if (values) {
-        return evaluateFileInto(fn, ProFileEvaluator::EvalFeatureFile, values, funcs);
+        return evaluateFileInto(fn, ProFileEvaluatorHandler::EvalFeatureFile, values, funcs);
     } else {
         bool cumulative = m_cumulative;
         m_cumulative = false;
 
         // The path is fully normalized already.
-        bool ok = evaluateFileDirect(fn, ProFileEvaluator::EvalFeatureFile);
+        bool ok = evaluateFileDirect(fn, ProFileEvaluatorHandler::EvalFeatureFile);
 
         m_cumulative = cumulative;
         return ok;
@@ -4005,13 +4006,12 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
 }
 
 bool ProFileEvaluator::Private::evaluateFileInto(
-        const QString &fileName, ProFileEvaluator::EvalFileType type,
+        const QString &fileName, ProFileEvaluatorHandler::EvalFileType type,
         QHash<ProString, ProStringList> *values, FunctionDefs *funcs)
 {
-    ProFileEvaluator visitor(m_option);
+    ProFileEvaluator visitor(m_option, m_handler);
     visitor.d->m_cumulative = false;
     visitor.d->m_parsePreAndPostFiles = false;
-    visitor.d->m_verbose = m_verbose;
     visitor.d->m_valuemapStack.top() = *values;
     if (funcs)
         visitor.d->m_functionDefs = *funcs;
@@ -4023,30 +4023,15 @@ bool ProFileEvaluator::Private::evaluateFileInto(
     return true;
 }
 
-QString ProFileEvaluator::Private::format(const char *fmt) const
+void ProFileEvaluator::Private::parseError(const QString &message) const
 {
-    ProFile *pro = currentProFile();
-    QString fileName = pro ? pro->fileName() : QLatin1String("Not a file");
-    int lineNumber = pro ? m_lineNo : 0;
-    return QString::fromLatin1("%1(%2):").arg(fileName).arg(lineNumber) + QString::fromAscii(fmt);
+    m_handler->parseError(currentFileName(), m_lineNo, message);
 }
 
-void ProFileEvaluator::Private::logMessage(const QString &message) const
-{
-    if (m_verbose && !m_skipLevel)
-        q->logMessage(message);
-}
-
-void ProFileEvaluator::Private::fileMessage(const QString &message) const
+void ProFileEvaluator::Private::evalError(const QString &message) const
 {
     if (!m_skipLevel)
-        q->fileMessage(message);
-}
-
-void ProFileEvaluator::Private::errorMessage(const QString &message) const
-{
-    if (!m_skipLevel)
-        q->errorMessage(message);
+        m_handler->evalError(currentFileName(), m_lineNo, message);
 }
 
 
@@ -4061,8 +4046,9 @@ void ProFileEvaluator::initialize()
     Private::initStatics();
 }
 
-ProFileEvaluator::ProFileEvaluator(ProFileOption *option)
-  : d(new Private(this, option))
+ProFileEvaluator::ProFileEvaluator(ProFileOption *option,
+                                   ProFileEvaluatorHandler *handler)
+  : d(new Private(this, option, handler))
 {
 }
 
@@ -4185,40 +4171,12 @@ ProFile *ProFileEvaluator::parsedProFile(const QString &fileName, const QString 
 
 bool ProFileEvaluator::accept(ProFile *pro)
 {
-    return d->visitProFile(pro, ProFileEvaluator::EvalProjectFile);
+    return d->visitProFile(pro, ProFileEvaluatorHandler::EvalProjectFile);
 }
 
 QString ProFileEvaluator::propertyValue(const QString &name) const
 {
     return d->propertyValue(name);
-}
-
-void ProFileEvaluator::aboutToEval(ProFile *, ProFile *, EvalFileType)
-{
-}
-
-void ProFileEvaluator::doneWithEval(ProFile *)
-{
-}
-
-void ProFileEvaluator::logMessage(const QString &message)
-{
-    qWarning("%s", qPrintable(message));
-}
-
-void ProFileEvaluator::fileMessage(const QString &message)
-{
-    qWarning("%s", qPrintable(message));
-}
-
-void ProFileEvaluator::errorMessage(const QString &message)
-{
-    qWarning("%s", qPrintable(message));
-}
-
-void ProFileEvaluator::setVerbose(bool on)
-{
-    d->m_verbose = on;
 }
 
 void ProFileEvaluator::setCumulative(bool on)
