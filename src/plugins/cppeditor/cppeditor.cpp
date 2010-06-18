@@ -58,6 +58,7 @@
 #include <cplusplus/TokenCache.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cpptoolsconstants.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -603,6 +604,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     , m_inRename(false)
     , m_inRenameChanged(false)
     , m_firstRenameChange(false)
+    , m_objcEnabled(false)
 {
     m_initialized = false;
     qRegisterMetaType<CppEditor::Internal::SemanticInfo>("CppEditor::Internal::SemanticInfo");
@@ -737,6 +739,20 @@ CppTools::CppModelManagerInterface *CPPEditor::modelManager() const
 {
     return m_modelManager;
 }
+
+void CPPEditor::setMimeType(const QString &mt)
+{
+    BaseTextEditor::setMimeType(mt);
+    setObjCEnabled(mt == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
+}
+
+void CPPEditor::setObjCEnabled(bool onoff)
+{
+    m_objcEnabled = onoff;
+}
+
+bool CPPEditor::isObjCEnabled() const
+{ return m_objcEnabled; }
 
 void CPPEditor::startRename()
 {
@@ -1771,6 +1787,7 @@ void CPPEditor::setFontSettings(const TextEditor::FontSettings &fs)
     m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
     m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
     m_typeFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_TYPE));
+    m_keywordFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_KEYWORD));
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
     m_occurrencesFormat.clearForeground();
@@ -1911,6 +1928,36 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
         }
 
         setExtraSelections(TypeSelection, typeSelections);
+
+        // ### extract common parts from the previous loop and the next one
+        QList<QTextEdit::ExtraSelection> objcKeywords;
+        if (isObjCEnabled()) {
+            foreach (const SemanticInfo::Use &use, semanticInfo.objcKeywords) {
+                QTextCursor cursor(document());
+
+                if (currentLine != use.line) {
+                    int delta = use.line - currentLine;
+
+                    if (delta >= 0) {
+                        while (delta--)
+                            currentBlock = currentBlock.next();
+                    } else {
+                        currentBlock = document()->findBlockByNumber(use.line - 1);
+                    }
+
+                    currentLine = use.line;
+                }
+
+                cursor.setPosition(currentBlock.position() + use.column - 1);
+                cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, use.length);
+
+                QTextEdit::ExtraSelection sel;
+                sel.cursor = cursor;
+                sel.format = m_keywordFormat;
+                objcKeywords.append(sel);
+            }
+        }
+        setExtraSelections(ObjCSelection, objcKeywords);
     }
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
@@ -1924,6 +1971,100 @@ void CPPEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
     m_lastSemanticInfo.forced = false; // clear the forced flag
 }
+
+namespace {
+
+class FindObjCKeywords: public ASTVisitor
+{
+public:
+    FindObjCKeywords(TranslationUnit *unit)
+        : ASTVisitor(unit)
+    {}
+
+    QList<SemanticInfo::Use> operator()()
+    {
+        _keywords.clear();
+        accept(translationUnit()->ast());
+        return _keywords;
+    }
+
+    virtual bool visit(ObjCClassDeclarationAST *ast)
+    {
+        addToken(ast->interface_token);
+        addToken(ast->implementation_token);
+        addToken(ast->end_token);
+        return true;
+    }
+
+    virtual bool visit(ObjCClassForwardDeclarationAST *ast)
+    { addToken(ast->class_token); return true; }
+
+    virtual bool visit(ObjCProtocolDeclarationAST *ast)
+    { addToken(ast->protocol_token); addToken(ast->end_token); return true; }
+
+    virtual bool visit(ObjCProtocolForwardDeclarationAST *ast)
+    { addToken(ast->protocol_token); return true; }
+
+    virtual bool visit(ObjCProtocolExpressionAST *ast)
+    { addToken(ast->protocol_token); return true; }
+
+    virtual bool visit(ObjCTypeNameAST *) { return true; }
+
+    virtual bool visit(ObjCEncodeExpressionAST *ast)
+    { addToken(ast->encode_token); return true; }
+
+    virtual bool visit(ObjCSelectorExpressionAST *ast)
+    { addToken(ast->selector_token); return true; }
+
+    virtual bool visit(ObjCVisibilityDeclarationAST *ast)
+    { addToken(ast->visibility_token); return true; }
+
+    virtual bool visit(ObjCPropertyAttributeAST *ast)
+    {
+        const Identifier *attrId = identifier(ast->attribute_identifier_token);
+        if (attrId == control()->objcAssignId()
+                || attrId == control()->objcCopyId()
+                || attrId == control()->objcGetterId()
+                || attrId == control()->objcNonatomicId()
+                || attrId == control()->objcReadonlyId()
+                || attrId == control()->objcReadwriteId()
+                || attrId == control()->objcRetainId()
+                || attrId == control()->objcSetterId())
+            addToken(ast->attribute_identifier_token);
+        return true;
+    }
+
+    virtual bool visit(ObjCPropertyDeclarationAST *ast)
+    { addToken(ast->property_token); return true; }
+
+    virtual bool visit(ObjCSynthesizedPropertiesDeclarationAST *ast)
+    { addToken(ast->synthesized_token); return true; }
+
+    virtual bool visit(ObjCDynamicPropertiesDeclarationAST *ast)
+    { addToken(ast->dynamic_token); return true; }
+
+    virtual bool visit(ObjCFastEnumerationAST *ast)
+    { addToken(ast->for_token); addToken(ast->in_token); return true; }
+
+    virtual bool visit(ObjCSynchronizedStatementAST *ast)
+    { addToken(ast->synchronized_token); return true; }
+
+protected:
+    void addToken(unsigned token)
+    {
+        if (token) {
+            SemanticInfo::Use use;
+            getTokenStartPosition(token, &use.line, &use.column);
+            use.length = tokenAt(token).length();
+            _keywords.append(use);
+        }
+    }
+
+private:
+    QList<SemanticInfo::Use> _keywords;
+};
+
+} // anonymous namespace
 
 SemanticHighlighter::Source CPPEditor::currentSource(bool force)
 {
@@ -2015,7 +2156,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     Snapshot snapshot;
     Document::Ptr doc;
     QList<Document::DiagnosticMessage> diagnosticMessages;
-    QList<SemanticInfo::Use> typeUsages;
+    QList<SemanticInfo::Use> typeUsages, objcKeywords;
     LookupContext context;
 
     if (! source.force && revision == source.revision) {
@@ -2024,6 +2165,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
         doc = m_lastSemanticInfo.doc;
         diagnosticMessages = m_lastSemanticInfo.diagnosticMessages;
         typeUsages = m_lastSemanticInfo.typeUsages;
+        objcKeywords = m_lastSemanticInfo.objcKeywords;
         context = m_lastSemanticInfo.context;
         m_mutex.unlock();
     }
@@ -2043,6 +2185,9 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
             typeUsages.clear();
             foreach (const CheckUndefinedSymbols::Use &use, checkUndefinedSymbols.typeUsages()) // ### remove me
                 typeUsages.append(SemanticInfo::Use(use.line, use.column, use.length));
+
+            FindObjCKeywords findObjCKeywords(unit);
+            objcKeywords = findObjCKeywords();
         }
     }
 
@@ -2065,6 +2210,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.forced = source.force;
     semanticInfo.diagnosticMessages = diagnosticMessages;
     semanticInfo.typeUsages = typeUsages;
+    semanticInfo.objcKeywords = objcKeywords;
     semanticInfo.context = context;
 
     return semanticInfo;

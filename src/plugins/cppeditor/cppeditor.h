@@ -93,6 +93,7 @@ public:
     CPlusPlus::LookupContext context;
     LocalUseMap localUses; // ### rename
     QList<Use> typeUsages;
+    QList<Use> objcKeywords;
     QList<CPlusPlus::Document::DiagnosticMessage> diagnosticMessages;
 };
 
@@ -203,6 +204,11 @@ public:
 
     CppTools::CppModelManagerInterface *modelManager() const;
 
+    virtual void setMimeType(const QString &mt);
+
+    void setObjCEnabled(bool onoff);
+    bool isObjCEnabled() const;
+
 public Q_SLOTS:
     virtual void setFontSettings(const TextEditor::FontSettings &);
     void setSortedMethodOverview(bool sort);
@@ -297,6 +303,7 @@ private:
     QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;
     QTextCharFormat m_typeFormat;
+    QTextCharFormat m_keywordFormat;
 
     QList<QTextEdit::ExtraSelection> m_renameSelections;
     int m_currentRenameSelection;
@@ -307,6 +314,7 @@ private:
     SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_lastSemanticInfo;
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
+    bool m_objcEnabled;
     bool m_initialized;
 };
 
