@@ -36,6 +36,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QMap>
 #include <QtCore/QFileInfo>
@@ -68,6 +69,17 @@ ImageViewer::ImageViewer(QWidget *parent)
     // toolbar
     d_ptr->toolbar = new QWidget();
     d_ptr->ui_toolbar.setupUi(d_ptr->toolbar);
+
+    // icons update - try to use system theme
+    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonZoomIn, "zoom-in");
+    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonZoomOut, "zoom-out");
+    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonOriginalSize, "zoom-original");
+    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonFitToScreen, "zoom-fit-best");
+    // a display - something is on the background
+    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonBackground, "video-display");
+    // "emblem to specify the directory where the user stores photographs"
+    // (photograph has outline - piece of paper)
+    updateButtonIconByTheme(d_ptr->ui_toolbar.toolButtonOutline, "emblem-photos");
 
     // connections
     connect(d_ptr->file, SIGNAL(changed()), this, SIGNAL(changed()));
@@ -188,6 +200,19 @@ void ImageViewer::scaleFactorUpdate(qreal factor)
 {
     QString info = tr("%1%").arg(QString::number(factor * 100, 'f', 2));
     d_ptr->ui_toolbar.labelInfo->setText(info);
+}
+
+bool ImageViewer::updateButtonIconByTheme(QAbstractButton *button, const QString &name)
+{
+    QTC_ASSERT(button, return false);
+    QTC_ASSERT(!name.isEmpty(), return false);
+
+    if (QIcon::hasThemeIcon(name)) {
+        button->setIcon(QIcon::fromTheme(name));
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace Internal

@@ -37,6 +37,8 @@
 #include <QtCore/QScopedPointer>
 #include <QtCore/QStringList>
 
+QT_FORWARD_DECLARE_CLASS(QAbstractButton)
+
 namespace ImageViewer {
 namespace Internal {
 class ImageViewerFile;
@@ -74,6 +76,15 @@ public:
 
 public slots:
     void scaleFactorUpdate(qreal factor);
+
+private:
+    /*!
+      \brief Try to change button's icon to the one from the current theme
+      \param button Button where an icon should be changed
+      \param name Icon name in the in the current icon theme
+      \return true if icon is updated, false otherwise
+     */
+    bool updateButtonIconByTheme(QAbstractButton *button, const QString &name);
 
 private:
     QScopedPointer<struct ImageViewerPrivate> d_ptr;
