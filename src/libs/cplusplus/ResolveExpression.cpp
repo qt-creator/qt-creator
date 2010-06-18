@@ -662,7 +662,7 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
             //   [NSObject description];
             binding = _context.lookupType(clazz);
         } else if (PointerType *ptrTy = ty->asPointerType()) {
-            if (NamedType *namedTy = ptrTy->asNamedType()) {
+            if (NamedType *namedTy = ptrTy->elementType()->asNamedType()) {
                 // dynamic access, e.g.:
                 //   NSObject *obj = ...; [obj release];
                 binding = _context.lookupType(namedTy->name(), result.scope());
