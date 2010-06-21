@@ -95,6 +95,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 {
     Q_UNUSED(arguments)
 
+    ProFileParser::initialize();
     ProFileEvaluator::initialize();
 
     Core::ICore *core = Core::ICore::instance();
