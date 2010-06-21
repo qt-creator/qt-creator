@@ -384,14 +384,13 @@ void HelpPlugin::setupUi()
     connect(searchWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSourceFromSearch(QUrl)));
 
-    // TODO: enable and find a proper keysequence as this is ambiguous
-    // shortcut = new QShortcut(m_splitter);
-    // shortcut->setWhatsThis(tr("Activate Search in Help mode"));
-    // cmd = am->registerShortcut(shortcut, QLatin1String("Help.SearchShortcut"),
-    //     modecontext);
-    // cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_S));
-    // connect(shortcut, SIGNAL(activated()), this, SLOT(activateSearch()));
-    // shortcutMap.insert("Search", cmd);
+     shortcut = new QShortcut(m_splitter);
+     shortcut->setWhatsThis(tr("Activate Search in Help mode"));
+     cmd = am->registerShortcut(shortcut, QLatin1String("Help.SearchShortcut"),
+         modecontext);
+     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Slash));
+     connect(shortcut, SIGNAL(activated()), this, SLOT(activateSearch()));
+     shortcutMap.insert(SB_SEARCH, cmd);
 
     BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
     BookmarkWidget *bookmarkWidget = new BookmarkWidget(manager, 0, false);
@@ -400,14 +399,13 @@ void HelpPlugin::setupUi()
     connect(bookmarkWidget, SIGNAL(linkActivated(QUrl)), m_centralWidget,
         SLOT(setSource(QUrl)));
 
-    // TODO: enable and find a proper keysequence as this is ambiguous
-    // shortcut = new QShortcut(m_splitter);
-    // shortcut->setWhatsThis(tr("Activate Bookmarks in Help mode"));
-    // cmd = am->registerShortcut(shortcut, QLatin1String("Help.BookmarkShortcut"),
-    //     modecontext);
-    // cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_B));
-    // connect(shortcut, SIGNAL(activated()), this, SLOT(activateBookmarks()));
-    // shortcutMap.insert("Bookmarks", cmd);
+     shortcut = new QShortcut(m_splitter);
+     shortcut->setWhatsThis(tr("Activate Bookmarks in Help mode"));
+     cmd = am->registerShortcut(shortcut, QLatin1String("Help.BookmarkShortcut"),
+         modecontext);
+     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_B));
+     connect(shortcut, SIGNAL(activated()), this, SLOT(activateBookmarks()));
+     shortcutMap.insert(SB_BOOKMARKS, cmd);
 
     QWidget *openPagesWidget = OpenPagesManager::instance().openPagesWidget();
     openPagesWidget->setWindowTitle(tr("Open Pages"));
@@ -737,6 +735,12 @@ void HelpPlugin::activateOpenPages()
 {
     activateHelpMode();
     m_sideBar->activateItem(m_openPagesItem);
+}
+
+void HelpPlugin::activateBookmarks()
+{
+    activateHelpMode();
+    m_sideBar->activateItem(m_bookmarkItem);
 }
 
 QToolBar *HelpPlugin::createToolBar()

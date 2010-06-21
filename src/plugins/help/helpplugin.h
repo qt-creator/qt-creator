@@ -80,6 +80,7 @@ private slots:
     void activateContents();
     void activateSearch();
     void activateOpenPages();
+    void activateBookmarks();
 
     void addBookmark();
     void updateFilterComboBox();
