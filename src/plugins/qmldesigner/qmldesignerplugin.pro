@@ -4,7 +4,6 @@ TARGET = QmlDesigner
 include(../../qtcreatorplugin.pri)
 include(../../private_headers.pri)
 include(qmldesigner_dependencies.pri)
-include(../qmljseditor/qmljseditor.pri)
 
 include(designercore/designercore.pri)
 include(components/integration/integration.pri)
