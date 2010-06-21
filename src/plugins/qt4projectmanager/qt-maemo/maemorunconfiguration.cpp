@@ -68,7 +68,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
     , m_devConfig(source->m_devConfig)
     , m_arguments(source->m_arguments)
     , m_lastDeployed(source->m_lastDeployed)
-    , m_debuggingHelpersLastDeployed(source->m_debuggingHelpersLastDeployed)
 {
     init();
 }
@@ -124,25 +123,27 @@ QVariantMap MaemoRunConfiguration::toMap() const
     QVariantMap map(RunConfiguration::toMap());
     map.insert(DeviceIdKey, m_devConfig.internalId);
     map.insert(ArgumentsKey, m_arguments);
-
-    addDeployTimesToMap(LastDeployedKey, m_lastDeployed, map);
-    addDeployTimesToMap(DebuggingHelpersLastDeployedKey,
-                        m_debuggingHelpersLastDeployed, map);
-
+    addDeployTimesToMap(map);
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
 
     return map;
 }
 
-void MaemoRunConfiguration::addDeployTimesToMap(const QString &key,
-    const QMap<QString, QDateTime> &deployTimes, QVariantMap &map) const
+void MaemoRunConfiguration::addDeployTimesToMap(QVariantMap &map) const
 {
-    QMap<QString, QVariant> variantMap;
-    QMap<QString, QDateTime>::ConstIterator it = deployTimes.begin();
-    for (; it != deployTimes.end(); ++it)
-        variantMap.insert(it.key(), it.value());
-    map.insert(key, variantMap);
+    QVariantList hostList;
+    QVariantList fileList;
+    QVariantList timeList;
+    typedef QMap<DeployablePerHost, QDateTime>::ConstIterator DepIt;
+    for (DepIt it = m_lastDeployed.begin(); it != m_lastDeployed.end(); ++it) {
+        hostList << it.key().first;
+        fileList << it.key().second;
+        timeList << it.value();
+    }
+    map.insert(LastDeployedHostsKey, hostList);
+    map.insert(LastDeployedFilesKey, fileList);
+    map.insert(LastDeployedTimesKey, timeList);
 }
 
 bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
@@ -153,62 +154,40 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     setDeviceConfig(MaemoDeviceConfigurations::instance().
         find(map.value(DeviceIdKey, 0).toInt()));
     m_arguments = map.value(ArgumentsKey).toStringList();
-
-    getDeployTimesFromMap(LastDeployedKey, m_lastDeployed, map);
-    getDeployTimesFromMap(DebuggingHelpersLastDeployedKey,
-                          m_debuggingHelpersLastDeployed, map);
-
+    getDeployTimesFromMap(map);
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
 
     return true;
 }
 
-void MaemoRunConfiguration::getDeployTimesFromMap(const QString &key,
-    QMap<QString, QDateTime> &deployTimes, const QVariantMap &map)
+void MaemoRunConfiguration::getDeployTimesFromMap(const QVariantMap &map)
 {
-    const QVariantMap &variantMap = map.value(key).toMap();
-    for (QVariantMap::ConstIterator it = variantMap.begin();
-         it != variantMap.end(); ++it)
-        deployTimes.insert(it.key(), it.value().toDateTime());
-}
-
-bool MaemoRunConfiguration::currentlyNeedsDeployment(const QString &host) const
-{
-    return fileNeedsDeployment(packageStep()->packageFilePath(),
-                               m_lastDeployed.value(host));
-}
-
-void MaemoRunConfiguration::wasDeployed(const QString &host)
-{
-    m_lastDeployed.insert(host, QDateTime::currentDateTime());
-}
-
-bool MaemoRunConfiguration::hasDebuggingHelpers() const
-{
-    Qt4BuildConfiguration *qt4bc = activeQt4BuildConfiguration();
-    return qt4bc->qtVersion()->hasDebuggingHelper();
-}
-
-bool MaemoRunConfiguration::debuggingHelpersNeedDeployment(const QString &host) const
-{
-    if (hasDebuggingHelpers()) {
-        return fileNeedsDeployment(dumperLib(),
-                   m_debuggingHelpersLastDeployed.value(host));
+    const QVariantList &hostList = map.value(LastDeployedHostsKey).toList();
+    const QVariantList &fileList = map.value(LastDeployedFilesKey).toList();
+    const QVariantList &timeList = map.value(LastDeployedTimesKey).toList();
+    const int elemCount
+        = qMin(qMin(hostList.size(), fileList.size()), timeList.size());
+    for (int i = 0; i < elemCount; ++i) {
+        m_lastDeployed.insert(DeployablePerHost(hostList.at(i).toString(),
+            fileList.at(i).toString()), timeList.at(i).toDateTime());
     }
-    return false;
 }
 
-void MaemoRunConfiguration::debuggingHelpersDeployed(const QString &host)
+bool MaemoRunConfiguration::currentlyNeedsDeployment(const QString &host,
+    const QString &file) const
 {
-    m_debuggingHelpersLastDeployed.insert(host, QDateTime::currentDateTime());
-}
-
-bool MaemoRunConfiguration::fileNeedsDeployment(const QString &path,
-    const QDateTime &lastDeployed) const
-{
+    const QDateTime &lastDeployed
+        = m_lastDeployed.value(DeployablePerHost(host, file));
     return !lastDeployed.isValid()
-        || QFileInfo(path).lastModified() > lastDeployed;
+        || QFileInfo(file).lastModified() > lastDeployed;
+}
+
+void MaemoRunConfiguration::setDeployed(const QString &host,
+    const QString &file)
+{
+    m_lastDeployed.insert(DeployablePerHost(host, file),
+        QDateTime::currentDateTime());
 }
 
 void MaemoRunConfiguration::setDeviceConfig(const MaemoDeviceConfig &devConf)

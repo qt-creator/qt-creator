@@ -124,21 +124,22 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
         emit finished();
     } else {
         m_deployables.clear();
-        if (m_runConfig->currentlyNeedsDeployment(m_devConfig.server.host)) {
+        if (m_runConfig->currentlyNeedsDeployment(m_devConfig.server.host,
+            packageFilePath())) {
             m_deployables.append(Deployable(packageFileName(),
-                QFileInfo(executableOnHost()).canonicalPath(),
-                &MaemoRunConfiguration::wasDeployed));
+                QFileInfo(executableOnHost()).canonicalPath()));
             m_needsInstall = true;
         } else {
             m_needsInstall = false;
         }
-        if (forDebugging
-            && m_runConfig->debuggingHelpersNeedDeployment(m_devConfig.server.host)) {
-            const QFileInfo &info(m_runConfig->dumperLib());
-            m_deployables.append(Deployable(info.fileName(), info.canonicalPath(),
-                &MaemoRunConfiguration::debuggingHelpersDeployed));
+        if (forDebugging) {
+            const QFileInfo info(m_runConfig->dumperLib());
+            if (info.exists()
+                && m_runConfig->currentlyNeedsDeployment(m_devConfig.server.host,
+                    info.filePath())) {
+                m_deployables.append(Deployable(info.fileName(), info.canonicalPath()));
+            }
         }
-
         deploy();
     }
 }
@@ -179,7 +180,8 @@ void AbstractMaemoRunControl::deploy()
 void AbstractMaemoRunControl::handleFileCopied()
 {
     Deployable deployable = m_deployables.takeFirst();
-    (m_runConfig->*deployable.updateTimestamp)(m_devConfig.server.host);
+    m_runConfig->setDeployed(m_devConfig.server.host,
+        deployable.dir + QLatin1Char('/') + deployable.fileName);
     m_progress.setProgressValue(m_progress.progressValue() + 1);
 }
 

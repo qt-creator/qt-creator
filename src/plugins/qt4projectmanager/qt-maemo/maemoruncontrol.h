@@ -117,12 +117,10 @@ private:
 
     struct Deployable
     {
-        typedef void (MaemoRunConfiguration::*updateFunc)(const QString&);
-        Deployable(const QString &f, const QString &d, updateFunc u)
-            : fileName(f), dir(d), updateTimestamp(u) {}
+        Deployable(const QString &f, const QString &d)
+            : fileName(f), dir(d) {}
         QString fileName;
         QString dir;
-        updateFunc updateTimestamp;
     };
     QList<Deployable> m_deployables;
     bool m_needsInstall;
