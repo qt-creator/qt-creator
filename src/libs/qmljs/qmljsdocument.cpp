@@ -371,47 +371,6 @@ Document::Ptr Snapshot::documentFromSource(const QString &code,
     return newDoc;
 }
 
-QList<Document::Ptr> Snapshot::importedDocuments(const Document::Ptr &doc, const QString &importPath) const
-{
-    // ### TODO: maybe we should add all imported documents in the parse Document::parse() method, regardless of whether they're in the path or not.
-
-    QList<Document::Ptr> result;
-
-    QString docPath = doc->path();
-    docPath += QLatin1Char('/');
-    docPath += importPath;
-    docPath = QDir::cleanPath(docPath);
-
-    foreach (Document::Ptr candidate, _documents) {
-        if (candidate == doc)
-            continue; // ignore this document
-        else if (candidate->isJSDocument())
-            continue; // skip JS documents
-
-        if (candidate->path() == doc->path() || candidate->path() == docPath)
-            result.append(candidate);
-    }
-
-    return result;
-}
-
-QMap<QString, Document::Ptr> Snapshot::componentsDefinedByImportedDocuments(const Document::Ptr &doc, const QString &importPath) const
-{
-    QMap<QString, Document::Ptr> result;
-
-    const QString docPath = doc->path() + '/' + importPath;
-
-    foreach (Document::Ptr candidate, *this) {
-        if (candidate == doc)
-            continue;
-
-        if (candidate->path() == doc->path() || candidate->path() == docPath)
-            result.insert(candidate->componentName(), candidate);
-    }
-
-    return result;
-}
-
 Document::Ptr Snapshot::document(const QString &fileName) const
 {
     return _documents.value(QDir::cleanPath(fileName));

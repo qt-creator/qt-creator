@@ -169,9 +169,6 @@ public:
 
     Document::Ptr documentFromSource(const QString &code,
                                      const QString &fileName) const;
-
-    QList<Document::Ptr> importedDocuments(const Document::Ptr &doc, const QString &importPath) const;
-    QMap<QString, Document::Ptr> componentsDefinedByImportedDocuments(const Document::Ptr &doc, const QString &importPath) const;
 };
 
 } // end of namespace Qml
