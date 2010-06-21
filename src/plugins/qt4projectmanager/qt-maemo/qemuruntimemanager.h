@@ -51,6 +51,7 @@ namespace ProjectExplorer {
 namespace Qt4ProjectManager {
     class QtVersion;
     namespace Internal {
+    class MaemoRunConfiguration;
 
 struct Runtime
 {
@@ -115,7 +116,7 @@ private:
     bool sessionHasMaemoTarget() const;
 
     void updateStarterIcon(bool running);
-    void toogleStarterButton(ProjectExplorer::Target *target);
+    void toggleStarterButton(ProjectExplorer::Target *target);
     bool targetUsesRuntimeConfig(ProjectExplorer::Target *target);
 
     QString maddeRoot(const QString &qmake) const;
@@ -123,6 +124,8 @@ private:
 
     bool fillRuntimeInformation(Runtime *runtime) const;
     QString runtimeForQtVersion(const QString &qmakeCommand) const;
+
+    void toggleDeviceConnections(MaemoRunConfiguration *mrc, bool connect);
 
 private:
     QAction *m_qemuAction;

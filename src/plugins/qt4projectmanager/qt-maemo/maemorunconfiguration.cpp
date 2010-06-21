@@ -321,7 +321,7 @@ void MaemoRunConfiguration::updateDeviceConfigurations()
     } else {
         m_devConfig = configManager.find(m_devConfig.internalId);
     }
-    emit deviceConfigurationsUpdated();
+    emit deviceConfigurationsUpdated(target());
 }
 
     } // namespace Internal

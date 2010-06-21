@@ -93,7 +93,7 @@ public:
     virtual QVariantMap toMap() const;
 
 signals:
-    void deviceConfigurationsUpdated();
+    void deviceConfigurationsUpdated(ProjectExplorer::Target *target);
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;
 
